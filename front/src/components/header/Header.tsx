@@ -1,5 +1,9 @@
 import { gql } from "../../__generated__";
-import { API_SERVER_BASE_URL, IS_LOGIN_ENABLED } from "../../constants";
+import {
+  API_SERVER_BASE_URL,
+  IS_LOGIN_ENABLED,
+  PROVIDE_FEEDBACK_LINK,
+} from "../../constants";
 import "./Header.css";
 import { useQuery } from "@apollo/client";
 import { Button } from "@mui/joy";
@@ -29,11 +33,20 @@ export default function Header() {
 
   return (
     <header className="Header">
-      <Link to="/">
-        <h1 className="Header_title">PrompPlay.xyz</h1>
-      </Link>
+      <div className="Header_left">
+        <Link to="/">
+          <h1 className="Header_title">PrompPlay.xyz</h1>
+        </Link>
+        <a
+          className="Header_feedback_link"
+          href={PROVIDE_FEEDBACK_LINK}
+          target="_blank"
+        >
+          Provide feedback
+        </a>
+      </div>
       {IS_LOGIN_ENABLED && (
-        <div className="Header_account">
+        <div className="Header_right">
           {queryResult.data.isLoggedIn ? (
             <>
               <div className="Header_account_email">

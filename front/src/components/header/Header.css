@@ -5,8 +5,27 @@
   height: 60px;
   align-items: center;
   justify-content: space-between;
-  padding: 0px 24px;
+  padding: 0px 20px;
   flex-shrink: 0;
+}
+
+.Header_left {
+  display: flex;
+  align-items: baseline;
+  gap: 20px;
+}
+
+.Header_feedback_link {
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.Header_feedback_link:visited {
+  color: initial;
+}
+
+.Header_feedback_link:hover {
+  text-decoration: underline;
 }
 
 .Header_title {
@@ -14,8 +33,9 @@
   cursor: pointer;
 }
 
-.Header_account {
+.Header_right {
   display: flex;
+  gap: 20px;
   flex-direction: row;
   align-items: center;
 }
@@ -40,5 +60,4 @@
   font-style: normal;
   font-weight: 400;
   line-height: 20px;
-  margin-right: 8px;
 }
