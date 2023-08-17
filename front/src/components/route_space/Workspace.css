@@ -1,0 +1,22 @@
+.Workspace {
+  --library-min-width: 100px;
+  --editor-min-width: 240px;
+  padding: 0 20px;
+  flex-grow: 1;
+  display: grid;
+  grid-template-columns:
+    /* library, min-content can't handle the added width of scroll bar */
+    minmax(min-content, 1fr)
+    1px /* separator */
+    min-content /* simulator, min-content can handle scroll bar */
+    minmax(var(--editor-min-width), 1fr) /* editor */;
+  gap: 20px;
+  align-items: stretch;
+  overflow: hidden;
+}
+
+.Border {
+  width: 1px;
+  background: #c5c5d2;
+  margin: 20px 0;
+}

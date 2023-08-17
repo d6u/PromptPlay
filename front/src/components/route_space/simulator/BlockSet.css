@@ -1,0 +1,99 @@
+/* === BlockSet === */
+
+.BlockSet {
+  padding: 0;
+  position: relative;
+  border-left: 2px solid transparent;
+  background-color: white;
+}
+
+/* --- End of BlockSet --- */
+
+/* === BlockSet content === */
+
+.BlockSet_content {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+/* === BlockSet content children === */
+
+/* === BlockSet Draggable Handle === */
+
+.BlockSet_draggable_handle {
+  width: 15px;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  background-color: #21c71e;
+  cursor: pointer;
+}
+
+.BlockSet_draggable_handle:hover {
+  background-color: #7ef347;
+}
+
+.BlockSet_draggable_handle_cursor_not_active {
+  background-color: transparent;
+}
+
+.BlockSet_draggable_handle_cursor_not_active:hover {
+  background-color: #e2e2e2;
+}
+
+/* --- End of BlockSet Draggable Handle --- */
+
+.BlockSet_completer-setup {
+  width: 245px;
+  display: flex;
+  padding: 15px;
+  align-items: flex-start;
+  gap: 15px;
+  border-radius: 10px;
+  border: 1px solid var(--border-darker, #c5c5d2);
+  cursor: pointer;
+}
+
+.BlockSet_completer-setup:hover {
+  background: #ececf1;
+}
+
+.BlockSet_draggable-over {
+  background: #ececf1;
+}
+
+.BlockSet_prompt {
+  /* width: 260px; */
+}
+
+.BlockSet_system-prompt-placeholder {
+  /* width: 260px; */
+}
+
+.BlockSet_input {
+  width: 180px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.BlockSet_input > div {
+  margin-left: -60px;
+}
+
+.BlockSet_output {
+  width: 180px;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.BlockSet_output > div {
+  margin-right: -60px;
+}
+
+/* --- End of BlockSet content children --- */
+
+/* --- End of BlockSet content */
+
+/* --- End of BlockSet cursor indicator --- */

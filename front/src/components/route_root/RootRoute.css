@@ -1,0 +1,40 @@
+.RootRoute {
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.RootRoute_empty_state_container {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.RootRoute_big_button {
+  aspect-ratio: 1 / 1;
+  width: 200px;
+  border: 1px solid black;
+  padding: 20px;
+  background: none;
+  border-radius: 10px;
+  font-size: 20px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.RootRoute_big_button_create_example {
+  border: none;
+  background: var(--success-border, #318a09);
+  color: white;
+}
+
+@media only screen and (max-width: 500px) {
+  .RootRoute_empty_state_container {
+    padding: 15px;
+    gap: 15px;
+  }
+}

@@ -1,0 +1,16 @@
+fastapi
+mangum
+openai
+psycopg2-binary
+pydantic==1.10
+python-dotenv
+sqlalchemy
+sqlalchemy-utils
+strawberry-graphql[fastapi]
+strenum
+uvicorn
+authlib
+auth0-python
+httpx
+Starlette
+itsdangerous
