@@ -41,6 +41,7 @@ export default function Header() {
           className="Header_feedback_link"
           href={PROVIDE_FEEDBACK_LINK}
           target="_blank"
+          rel="noreferrer"
         >
           Provide feedback
         </a>
