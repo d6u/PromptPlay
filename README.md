@@ -1,3 +1,3 @@
 # PromptPlay
 
-A experiment on visual prompt chaining.
+An experiment on visual prompt chaining.

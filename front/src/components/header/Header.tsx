@@ -21,13 +21,14 @@ const HEADER_QUERY = gql(`
 export default function Header() {
   const queryResult = useQuery(HEADER_QUERY, {
     fetchPolicy: "no-cache",
+    skip: !IS_LOGIN_ENABLED,
   });
 
   if (queryResult.loading) {
     return <div>Loading...</div>;
   }
 
-  if (queryResult.error || queryResult.data == null) {
+  if (IS_LOGIN_ENABLED && (queryResult.error || queryResult.data == null)) {
     return <div>Error! {queryResult.error?.message}</div>;
   }
 
@@ -48,7 +49,7 @@ export default function Header() {
       </div>
       {IS_LOGIN_ENABLED && (
         <div className="Header_right">
-          {queryResult.data.isLoggedIn ? (
+          {queryResult.data?.isLoggedIn ? (
             <>
               <div className="Header_account_email">
                 {queryResult.data.user?.email}
