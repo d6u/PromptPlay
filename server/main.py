@@ -28,6 +28,12 @@ app.add_middleware(SessionMiddleware, secret_key="!secret")
 app.include_router(graphql.graphql_router, prefix="/graphql")
 
 
+@app.get("/")
+def health() -> str:
+    engine.connect()
+    return "OK"
+
+
 @app.get("/health")
 def health() -> str:
     engine.connect()
