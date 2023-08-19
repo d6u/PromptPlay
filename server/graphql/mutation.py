@@ -9,6 +9,7 @@ from .context import Info
 from .mutation_block import MutationBlock
 from .mutation_block_set import MutationBlockSet
 from .mutation_llm import MutationLlm
+from .mutation_preset import MutationPreset
 from .mutation_user import MutationUser
 from .mutation_workspace import MutationWorkspace
 from .types import Workspace
@@ -25,6 +26,7 @@ class CreateExampleSpaceResult:
 class Mutation(
     MutationUser,
     MutationWorkspace,
+    MutationPreset,
     MutationBlockSet,
     MutationBlock,
     MutationLlm,
