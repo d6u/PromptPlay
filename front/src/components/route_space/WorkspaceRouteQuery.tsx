@@ -11,12 +11,3 @@ export const WORKSPACE_ROUTE_QUERY = gql(`
     ...WorkspaceQuery
   }
 `);
-
-export const PRESET_FRAGMENT = gql(`
-  fragment PresetFragment on Preset {
-    blockSets {
-      id
-      ...SimulatorBlockSet
-    }
-  }
-`);

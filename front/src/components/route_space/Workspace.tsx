@@ -1,4 +1,5 @@
 import { FragmentType, gql, useFragment } from "../../__generated__";
+import { swapBlockSets } from "../../state/graphql";
 import {
   beingDraggingElementIdState,
   isReorderingBlockSetState,
@@ -6,7 +7,7 @@ import {
 import CustomDragOverlay from "../CustomDragOverlay";
 import "./Workspace.css";
 import WorkspaceContent from "./WorkspaceContent";
-import { PRESET_FRAGMENT, WORKSPACE_ROUTE_QUERY } from "./WorkspaceRouteQuery";
+import { WORKSPACE_ROUTE_QUERY } from "./WorkspaceRouteQuery";
 import Editor from "./editor/Editor";
 import { useMutation } from "@apollo/client";
 import {
@@ -25,6 +26,10 @@ const WORKSPACE_FRAGMENT = gql(`
     workspace(workspaceId: $workspaceId) {
       firstPreset {
         id
+        blockSets {
+          id
+          position
+        }
       }
     }
     ...WorkspaceContent
@@ -89,14 +94,18 @@ const ADD_PROMPT_TO_BLOCK_SET_TOP_OUTPUT_MUTATION = gql(`
 
 const SWAP_BLOCK_SET_POSITIONS_MUTATION = gql(`
   mutation SwapBlockSetPositionsMutation(
-    $blockSetAId: UUID!
-    $blockSetBId: UUID!
+    $movingBlockSetId: UUID!
+    $slotBlockSetId: UUID!
   ) {
     swapBlockSetPositions(
-      blockSetAId: $blockSetAId
-      blockSetBId: $blockSetBId
+      movingBlockSetId: $movingBlockSetId
+      slotBlockSetId: $slotBlockSetId
     ) {
       id
+      blockSets {
+        id
+        position
+      }
     }
   }
 `);
@@ -136,82 +145,10 @@ export default function Workspace({
     { refetchQueries: [WORKSPACE_ROUTE_QUERY] }
   );
   const [swapBlockSetPositions] = useMutation(
-    SWAP_BLOCK_SET_POSITIONS_MUTATION,
-    {
-      refetchQueries: [WORKSPACE_ROUTE_QUERY],
-      update(cache, { data }) {
-        if (data == null) {
-          console.error("data is null");
-          return;
-        }
-
-        const blockSetAId = data.swapBlockSetPositions[0].id;
-        const blockSetBId = data.swapBlockSetPositions[1].id;
-
-        if (query.workspace?.firstPreset?.id == null) {
-          console.error("preset id is null");
-          return;
-        }
-
-        const preset = cache.readFragment({
-          id: `Preset:${query.workspace.firstPreset.id}`,
-          fragment: PRESET_FRAGMENT,
-        });
-
-        if (preset == null) {
-          console.error("cannot find preset");
-          return;
-        }
-
-        let blockSetAIndex = preset.blockSets.findIndex(
-          ({ id }) => id === blockSetAId
-        );
-
-        let blockSetBIndex = preset.blockSets.findIndex(
-          ({ id }) => id === blockSetBId
-        );
-
-        if (blockSetAIndex > blockSetBIndex) {
-          const temp = blockSetAIndex;
-          blockSetAIndex = blockSetBIndex;
-          blockSetBIndex = temp;
-        }
-
-        const partA = preset.blockSets.slice(0, blockSetAIndex);
-        const partB = preset.blockSets.slice(
-          blockSetAIndex + 1,
-          blockSetBIndex
-        );
-        const partC = preset.blockSets.slice(blockSetBIndex + 1);
-
-        const newPreset = {
-          ...preset,
-          blockSets: [
-            ...partA,
-            preset.blockSets[blockSetBIndex],
-            ...partB,
-            preset.blockSets[blockSetAIndex],
-            ...partC,
-          ],
-        };
-
-        cache.writeFragment({
-          id: `Preset:${query.workspace.firstPreset.id}`,
-          fragment: PRESET_FRAGMENT,
-          data: newPreset,
-        });
-      },
-    }
+    SWAP_BLOCK_SET_POSITIONS_MUTATION
   );
 
   // --- Drag and Drop ---
-
-  const mouseSensor = useSensor(PointerSensor, {
-    activationConstraint: {
-      distance: 5,
-    },
-  });
-  const sensors = useSensors(mouseSensor);
 
   const onDragEnd = useCallback(
     ({ active, over }: DragEndEvent) => {
@@ -220,27 +157,33 @@ export default function Workspace({
       }
 
       if (isReorderingBlockSet) {
-        const blockSetAId = (active.id as string).split(":")[1];
-        const blockSetBId = (over.id as string).split(":")[1];
+        const preset = query.workspace?.firstPreset;
 
-        console.log({ blockSetAId, blockSetBId });
+        if (preset == null) {
+          return;
+        }
+
+        const movingBlockSetId = (active.id as string).split(":")[1];
+        const slotBlockSetId = (over.id as string).split(":")[1];
+
+        const newBlocksSets = swapBlockSets(
+          preset.blockSets,
+          movingBlockSetId,
+          slotBlockSetId
+        );
+
+        if (newBlocksSets == null) {
+          return;
+        }
 
         swapBlockSetPositions({
-          variables: {
-            blockSetAId,
-            blockSetBId,
-          },
+          variables: { movingBlockSetId, slotBlockSetId },
           optimisticResponse: {
-            swapBlockSetPositions: [
-              {
-                __typename: "BlockSet",
-                id: blockSetBId,
-              },
-              {
-                __typename: "BlockSet",
-                id: blockSetAId,
-              },
-            ],
+            swapBlockSetPositions: {
+              id: preset.id,
+              __typename: "Preset",
+              blockSets: newBlocksSets,
+            },
           },
         });
       } else {
@@ -296,6 +239,7 @@ export default function Workspace({
     },
     [
       isReorderingBlockSet,
+      query.workspace?.firstPreset,
       addPromptToBlockSetTopInput,
       addCompleterToBlockSet,
       addSystemPromptToBlockSet,
@@ -305,6 +249,14 @@ export default function Workspace({
       swapBlockSetPositions,
     ]
   );
+
+  const mouseSensor = useSensor(PointerSensor, {
+    activationConstraint: {
+      distance: 5,
+    },
+  });
+
+  const sensors = useSensors(mouseSensor);
 
   // --- Render ---
 
