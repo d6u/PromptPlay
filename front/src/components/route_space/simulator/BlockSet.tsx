@@ -8,6 +8,8 @@ import {
   selectedElementTypeState,
 } from "../../../state/store";
 import Block, { BlockType } from "../../blocks/Block";
+import BlockPointerIcon from "../../icons/BlockPointerIcon";
+import DragArrowIcon from "../../icons/DragArrowIcon";
 import DragHandleIcon from "../../icons/DragHandleIcon";
 import "./BlockSet.css";
 import SimulatorBlock from "./SimulatorBlock";
@@ -340,15 +342,10 @@ export default function BlockSet({
       {...listeners}
     >
       <div className="BlockSet_content">
-        <div
-          className={classNames("BlockSet_draggable_handle", {
-            BlockSet_draggable_handle_cursor_not_active:
-              index !== cursorPosition,
-          })}
+        <Pointer
+          isActive={index === cursorPosition}
           onClick={() => setCursorPosition(blockSet.position)}
-        >
-          <DragHandleIcon isWhite={index === cursorPosition} />
-        </div>
+        />
         <div className="BlockSet_input" ref={setNodeRefInput}>
           {inputBlocks}
         </div>
@@ -405,7 +402,37 @@ export default function BlockSet({
         <div className="BlockSet_output" ref={setNodeRefOutput}>
           {outputBlocks}
         </div>
+        <DragHandle />
       </div>
+    </div>
+  );
+}
+
+function Pointer({
+  isActive,
+  onClick,
+}: {
+  isActive: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <div
+      className={classNames("BlockSet_pointer", {
+        BlockSet_pointer_active: isActive,
+      })}
+      onClick={onClick}
+    >
+      <BlockPointerIcon />
+    </div>
+  );
+}
+
+function DragHandle() {
+  return (
+    <div className="BlockSet_drag_handle">
+      <DragArrowIcon className="BlockSet_move_up_btn" onClick={() => {}} />
+      <DragHandleIcon className="BlockSet_drag_handle_btn" />
+      <DragArrowIcon className="BlockSet_move_down_btn" onClick={() => {}} />
     </div>
   );
 }

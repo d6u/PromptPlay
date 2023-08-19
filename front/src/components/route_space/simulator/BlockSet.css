@@ -2,12 +2,12 @@
 
 .BlockSet {
   /*
-   * The total width required by BlockSet_content is 665px.
+   * The total width required by BlockSet_content is 705px.
    * But the remove button on the top right corner of a Block requires extra
    * space, otherwise a horizontal scrollbar will be displayed.
    * Thus, adding an extra 10px to the width here.
    */
-  width: 675px;
+  width: 715px;
   position: relative;
   background-color: white;
 }
@@ -19,7 +19,7 @@
 .BlockSet_content {
   position: relative;
   display: flex;
-  align-items: center;
+  align-items: stretch;
   gap: 15px;
 }
 
@@ -27,25 +27,36 @@
 
 /* === BlockSet Draggable Handle === */
 
-.BlockSet_draggable_handle {
-  width: 15px;
-  align-self: stretch;
+.BlockSet_pointer {
+  width: 20px;
+  border-radius: 3px;
   display: flex;
-  align-items: center;
-  background-color: #21c71e;
   cursor: pointer;
 }
 
-.BlockSet_draggable_handle:hover {
-  background-color: #7ef347;
+.BlockSet_pointer:hover {
+  background: #ececf1;
 }
 
-.BlockSet_draggable_handle_cursor_not_active {
-  background-color: transparent;
+.BlockSet_pointer > svg {
+  fill: white;
 }
 
-.BlockSet_draggable_handle_cursor_not_active:hover {
-  background-color: #e2e2e2;
+.BlockSet_pointer:hover > svg {
+  fill: #c5c5d2;
+}
+
+.BlockSet_pointer_active {
+  background: #5bc02e;
+  cursor: initial;
+}
+
+.BlockSet_pointer_active:hover {
+  background: #5bc02e;
+}
+
+.BlockSet_pointer_active:hover > svg {
+  fill: white;
 }
 
 /* --- End of BlockSet Draggable Handle --- */
@@ -91,6 +102,40 @@
   width: 180px;
   display: grid;
   grid-template-columns: repeat(3, 40px);
+}
+
+.BlockSet_drag_handle {
+  width: 20px;
+  display: flex;
+  border-radius: 3px;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.BlockSet_drag_handle:hover {
+  background-color: #ececf1;
+}
+
+.BlockSet_drag_handle > svg {
+  flex: 1 1 auto;
+  fill: #c5c5d2;
+}
+
+.BlockSet_drag_handle > svg:hover {
+  fill: #000000;
+}
+
+.BlockSet_move_up_btn,
+.BlockSet_move_down_btn {
+  cursor: pointer;
+}
+
+.BlockSet_move_down_btn {
+  transform: rotate(180deg);
+}
+
+.BlockSet_drag_handle_btn {
+  cursor: move;
 }
 
 /* --- End of BlockSet content children --- */
