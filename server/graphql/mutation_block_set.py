@@ -434,6 +434,6 @@ class MutationBlockSet:
         db.commit()
 
         return [
-            BlockSet.from_db(db_block_set_a),
             BlockSet.from_db(db_block_set_b),
+            BlockSet.from_db(db_block_set_a),
         ]

@@ -6,6 +6,7 @@ import {
 import CustomDragOverlay from "../CustomDragOverlay";
 import "./Workspace.css";
 import WorkspaceContent from "./WorkspaceContent";
+import { PRESET_FRAGMENT, WORKSPACE_ROUTE_QUERY } from "./WorkspaceRouteQuery";
 import Editor from "./editor/Editor";
 import { useMutation } from "@apollo/client";
 import {
@@ -21,6 +22,11 @@ import { useRecoilState, useSetRecoilState } from "recoil";
 
 const WORKSPACE_FRAGMENT = gql(`
   fragment WorkspaceQuery on Query {
+    workspace(workspaceId: $workspaceId) {
+      firstPreset {
+        id
+      }
+    }
     ...WorkspaceContent
   }
 `);
@@ -111,27 +117,91 @@ export default function Workspace({
 
   // --- GraphQL ---
 
-  const workspace = useFragment(WORKSPACE_FRAGMENT, workspaceFragment);
+  const query = useFragment(WORKSPACE_FRAGMENT, workspaceFragment);
 
   const [addPromptToBlockSetTopInput] = useMutation(
     ADD_PROMPT_TO_BLOCK_SET_TOP_INPUT_MUTATION,
-    { refetchQueries: ["WorkspaceRouteQuery"] }
+    { refetchQueries: [WORKSPACE_ROUTE_QUERY] }
   );
   const [addCompleterToBlockSet] = useMutation(
     ADD_COMPLETER_TO_BLOCK_SET_MUTATION,
-    { refetchQueries: ["WorkspaceRouteQuery"] }
+    { refetchQueries: [WORKSPACE_ROUTE_QUERY] }
   );
   const [addSystemPromptToBlockSet] = useMutation(
     ADD_SYSTEM_PROMPT_TO_BLOCK_SET_MUTATION,
-    { refetchQueries: ["WorkspaceRouteQuery"] }
+    { refetchQueries: [WORKSPACE_ROUTE_QUERY] }
   );
   const [addPromptToBlockSetTopOutput] = useMutation(
     ADD_PROMPT_TO_BLOCK_SET_TOP_OUTPUT_MUTATION,
-    { refetchQueries: ["WorkspaceRouteQuery"] }
+    { refetchQueries: [WORKSPACE_ROUTE_QUERY] }
   );
   const [swapBlockSetPositions] = useMutation(
     SWAP_BLOCK_SET_POSITIONS_MUTATION,
-    { refetchQueries: ["WorkspaceRouteQuery"] }
+    {
+      refetchQueries: [WORKSPACE_ROUTE_QUERY],
+      update(cache, { data }) {
+        if (data == null) {
+          console.error("data is null");
+          return;
+        }
+
+        const blockSetAId = data.swapBlockSetPositions[0].id;
+        const blockSetBId = data.swapBlockSetPositions[1].id;
+
+        if (query.workspace?.firstPreset?.id == null) {
+          console.error("preset id is null");
+          return;
+        }
+
+        const preset = cache.readFragment({
+          id: `Preset:${query.workspace.firstPreset.id}`,
+          fragment: PRESET_FRAGMENT,
+        });
+
+        if (preset == null) {
+          console.error("cannot find preset");
+          return;
+        }
+
+        let blockSetAIndex = preset.blockSets.findIndex(
+          ({ id }) => id === blockSetAId
+        );
+
+        let blockSetBIndex = preset.blockSets.findIndex(
+          ({ id }) => id === blockSetBId
+        );
+
+        if (blockSetAIndex > blockSetBIndex) {
+          const temp = blockSetAIndex;
+          blockSetAIndex = blockSetBIndex;
+          blockSetBIndex = temp;
+        }
+
+        const partA = preset.blockSets.slice(0, blockSetAIndex);
+        const partB = preset.blockSets.slice(
+          blockSetAIndex + 1,
+          blockSetBIndex
+        );
+        const partC = preset.blockSets.slice(blockSetBIndex + 1);
+
+        const newPreset = {
+          ...preset,
+          blockSets: [
+            ...partA,
+            preset.blockSets[blockSetBIndex],
+            ...partB,
+            preset.blockSets[blockSetAIndex],
+            ...partC,
+          ],
+        };
+
+        cache.writeFragment({
+          id: `Preset:${query.workspace.firstPreset.id}`,
+          fragment: PRESET_FRAGMENT,
+          data: newPreset,
+        });
+      },
+    }
   );
 
   // --- Drag and Drop ---
@@ -150,10 +220,27 @@ export default function Workspace({
       }
 
       if (isReorderingBlockSet) {
+        const blockSetAId = (active.id as string).split(":")[1];
+        const blockSetBId = (over.id as string).split(":")[1];
+
+        console.log({ blockSetAId, blockSetBId });
+
         swapBlockSetPositions({
           variables: {
-            blockSetAId: (active.id as string).split(":")[1],
-            blockSetBId: (over.id as string).split(":")[1],
+            blockSetAId,
+            blockSetBId,
+          },
+          optimisticResponse: {
+            swapBlockSetPositions: [
+              {
+                __typename: "BlockSet",
+                id: blockSetBId,
+              },
+              {
+                __typename: "BlockSet",
+                id: blockSetAId,
+              },
+            ],
           },
         });
       } else {
@@ -235,7 +322,7 @@ export default function Workspace({
         }}
         onDragEnd={onDragEnd}
       >
-        <WorkspaceContent workspaceContentFragment={workspace} />
+        <WorkspaceContent workspaceContentFragment={query} />
         <CustomDragOverlay />
       </DndContext>
       <Editor />

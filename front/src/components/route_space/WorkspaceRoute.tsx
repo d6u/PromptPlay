@@ -1,26 +1,14 @@
-import { gql } from "../../__generated__";
 import Workspace from "./Workspace";
+import { WORKSPACE_ROUTE_QUERY } from "./WorkspaceRouteQuery";
 import SubHeader from "./sub_header/SubHeader";
 import { useQuery } from "@apollo/client";
-
-const ROOT_ROUTE_QUERY = gql(`
-  query WorkspaceRouteQuery(
-    $workspaceId: UUID!
-  ) {
-    user {
-      id
-    }
-    ...SubHeaderFragment
-    ...WorkspaceQuery
-  }
-`);
 
 type Props = {
   workspaceId: string;
 };
 
 export default function WorkspaceRoute({ workspaceId }: Props) {
-  const queryResult = useQuery(ROOT_ROUTE_QUERY, {
+  const queryResult = useQuery(WORKSPACE_ROUTE_QUERY, {
     variables: {
       workspaceId,
     },
