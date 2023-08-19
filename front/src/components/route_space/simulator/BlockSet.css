@@ -2,14 +2,18 @@
 
 .BlockSet {
   /*
-   * The total width required by BlockSet_content is 665px.
+   * The total width required by BlockSet_content is 705px.
    * But the remove button on the top right corner of a Block requires extra
    * space, otherwise a horizontal scrollbar will be displayed.
    * Thus, adding an extra 10px to the width here.
    */
-  width: 675px;
+  width: 715px;
+  height: 132px;
   position: relative;
-  background-color: white;
+}
+
+.BlockSet_is_moving {
+  visibility: hidden;
 }
 
 /* --- End of BlockSet --- */
@@ -25,30 +29,46 @@
 
 /* === BlockSet content children === */
 
-/* === BlockSet Draggable Handle === */
+/* === BlockSet pointer indicator === */
 
-.BlockSet_draggable_handle {
-  width: 15px;
+.BlockSet_pointer {
   align-self: stretch;
+  width: 20px;
+  border-radius: 3px;
   display: flex;
-  align-items: center;
-  background-color: #21c71e;
   cursor: pointer;
 }
 
-.BlockSet_draggable_handle:hover {
-  background-color: #7ef347;
+.BlockSet_pointer:hover {
+  background: #ececf1;
 }
 
-.BlockSet_draggable_handle_cursor_not_active {
-  background-color: transparent;
+.BlockSet_pointer > svg {
+  fill: transparent;
 }
 
-.BlockSet_draggable_handle_cursor_not_active:hover {
-  background-color: #e2e2e2;
+.BlockSet_pointer:hover > svg {
+  fill: #c5c5d2;
 }
 
-/* --- End of BlockSet Draggable Handle --- */
+.BlockSet_pointer_active {
+  background: #5bc02e;
+  cursor: initial;
+}
+
+.BlockSet_pointer_active:hover {
+  background: #5bc02e;
+}
+
+.BlockSet_pointer_active > svg {
+  fill: white;
+}
+
+.BlockSet_pointer_active:hover > svg {
+  fill: white;
+}
+
+/* --- End of BlockSet pointer indicator --- */
 
 .BlockSet_completer-setup {
   width: 245px;
@@ -59,6 +79,7 @@
   border-radius: 10px;
   border: 1px solid var(--border-darker, #c5c5d2);
   cursor: pointer;
+  background: white;
 }
 
 .BlockSet_completer-setup:hover {
@@ -67,14 +88,6 @@
 
 .BlockSet_draggable-over {
   background: #ececf1;
-}
-
-.BlockSet_prompt {
-  /* width: 260px; */
-}
-
-.BlockSet_system-prompt-placeholder {
-  /* width: 260px; */
 }
 
 .BlockSet_input {
@@ -92,6 +105,55 @@
   display: grid;
   grid-template-columns: repeat(3, 40px);
 }
+
+/* === BlockSet drag handle === */
+
+.BlockSet_drag_handle {
+  align-self: stretch;
+  width: 20px;
+  display: flex;
+  border-radius: 3px;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.BlockSet_is_dragging_overlay .BlockSet_drag_handle,
+.BlockSet_drag_handle:hover {
+  background-color: #ececf1;
+}
+
+.BlockSet_drag_handle > svg {
+  flex: 1 1 auto;
+  fill: #c5c5d2;
+}
+
+.BlockSet_drag_handle > svg:hover {
+  fill: #000000;
+}
+
+.BlockSet_move_up_btn,
+.BlockSet_move_down_btn {
+  cursor: pointer;
+}
+
+.BlockSet_is_dragging_overlay .BlockSet_move_up_btn,
+.BlockSet_is_dragging_overlay .BlockSet_move_down_btn {
+  visibility: hidden;
+}
+
+.BlockSet_move_down_btn {
+  transform: rotate(180deg);
+}
+
+.BlockSet_drag_handle_btn {
+  cursor: move;
+}
+
+.BlockSet_is_dragging_overlay .BlockSet_drag_handle_btn {
+  fill: black;
+}
+
+/* --- End of BlockSet drag handle --- */
 
 /* --- End of BlockSet content children --- */
 

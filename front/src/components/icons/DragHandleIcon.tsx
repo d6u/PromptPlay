@@ -1,17 +1,21 @@
-export default function DragHandleIcon({
-  className,
-  isWhite,
-}: {
-  className?: string;
-  isWhite: boolean;
-}) {
+import { forwardRef } from "react";
+
+const DragHandleIcon = forwardRef<
+  SVGSVGElement,
+  {
+    className?: string;
+    onClick?: () => void;
+  }
+>(function ({ className, onClick, ...rest }, ref) {
   return (
     <svg
       className={className}
+      ref={ref}
+      onClick={onClick}
       version="1.1"
       viewBox="0 0 100 100"
       xmlns="http://www.w3.org/2000/svg"
-      fill={isWhite ? "#fff" : "#aaa"}
+      {...rest}
     >
       <g>
         <path d="m41.367 15.188c0 5.6133-4.5508 10.164-10.164 10.164-5.6172 0-10.168-4.5508-10.168-10.164 0-5.6172 4.5508-10.168 10.168-10.168 5.6133 0 10.164 4.5508 10.164 10.164" />
@@ -29,4 +33,6 @@ export default function DragHandleIcon({
       </g>
     </svg>
   );
-}
+});
+
+export default DragHandleIcon;

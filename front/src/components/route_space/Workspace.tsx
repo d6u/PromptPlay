@@ -159,33 +159,29 @@ export default function Workspace({
       if (isReorderingBlockSet) {
         const preset = query.workspace?.firstPreset;
 
-        if (preset == null) {
-          return;
+        if (preset != null) {
+          const movingBlockSetId = (active.id as string).split(":")[1];
+          const slotBlockSetId = (over.id as string).split(":")[1];
+
+          const newBlocksSets = swapBlockSets(
+            preset.blockSets,
+            movingBlockSetId,
+            slotBlockSetId
+          );
+
+          if (newBlocksSets != null) {
+            swapBlockSetPositions({
+              variables: { movingBlockSetId, slotBlockSetId },
+              optimisticResponse: {
+                swapBlockSetPositions: {
+                  id: preset.id,
+                  __typename: "Preset",
+                  blockSets: newBlocksSets,
+                },
+              },
+            });
+          }
         }
-
-        const movingBlockSetId = (active.id as string).split(":")[1];
-        const slotBlockSetId = (over.id as string).split(":")[1];
-
-        const newBlocksSets = swapBlockSets(
-          preset.blockSets,
-          movingBlockSetId,
-          slotBlockSetId
-        );
-
-        if (newBlocksSets == null) {
-          return;
-        }
-
-        swapBlockSetPositions({
-          variables: { movingBlockSetId, slotBlockSetId },
-          optimisticResponse: {
-            swapBlockSetPositions: {
-              id: preset.id,
-              __typename: "Preset",
-              blockSets: newBlocksSets,
-            },
-          },
-        });
       } else {
         const [blockType, blockId] = (active.id as string).split(":");
         const [, blockSetId, sectionType] = (over.id as string).split(":");

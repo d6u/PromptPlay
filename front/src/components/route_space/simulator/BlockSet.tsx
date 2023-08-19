@@ -8,8 +8,9 @@ import {
   selectedElementTypeState,
 } from "../../../state/store";
 import Block, { BlockType } from "../../blocks/Block";
-import DragHandleIcon from "../../icons/DragHandleIcon";
 import "./BlockSet.css";
+import BlockSetDragHandle from "./BlockSetDragHandle";
+import BlockSetPointer from "./BlockSetPointer";
 import SimulatorBlock from "./SimulatorBlock";
 import { useMutation } from "@apollo/client";
 import { useDroppable } from "@dnd-kit/core";
@@ -145,12 +146,19 @@ export default function BlockSet({
   // --- Sortable ---
 
   const {
+    active,
     attributes,
     listeners,
     setNodeRef: setNodeRefSortable,
     transform,
     transition,
-  } = useSortable({ id: `BlockSet:${blockSet.id}:Sortable` });
+    setActivatorNodeRef,
+  } = useSortable({
+    id: `BlockSet:${blockSet.id}:Sortable`,
+    data: {
+      blockSetId: blockSet.id,
+    },
+  });
 
   // --- Droppable ---
 
@@ -328,27 +336,25 @@ export default function BlockSet({
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    opacity: isDraggingOverlay ? 0.8 : 1,
   };
+
+  const isMoving = active?.data?.current?.blockSetId === blockSet.id;
 
   return (
     <div
-      className="BlockSet"
+      className={classNames("BlockSet", {
+        BlockSet_is_moving: isMoving,
+        BlockSet_is_dragging_overlay: isDraggingOverlay,
+      })}
       ref={setNodeRefSortable}
       style={style}
       {...attributes}
-      {...listeners}
     >
       <div className="BlockSet_content">
-        <div
-          className={classNames("BlockSet_draggable_handle", {
-            BlockSet_draggable_handle_cursor_not_active:
-              index !== cursorPosition,
-          })}
+        <BlockSetPointer
+          isActive={index === cursorPosition}
           onClick={() => setCursorPosition(blockSet.position)}
-        >
-          <DragHandleIcon isWhite={index === cursorPosition} />
-        </div>
+        />
         <div className="BlockSet_input" ref={setNodeRefInput}>
           {inputBlocks}
         </div>
@@ -405,6 +411,10 @@ export default function BlockSet({
         <div className="BlockSet_output" ref={setNodeRefOutput}>
           {outputBlocks}
         </div>
+        <BlockSetDragHandle
+          handleRef={setActivatorNodeRef}
+          handleListeners={listeners}
+        />
       </div>
     </div>
   );
