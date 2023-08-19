@@ -29,7 +29,7 @@
 
 /* === BlockSet content children === */
 
-/* === BlockSet Draggable Handle === */
+/* === BlockSet pointer indicator === */
 
 .BlockSet_pointer {
   align-self: stretch;
@@ -68,7 +68,7 @@
   fill: white;
 }
 
-/* --- End of BlockSet Draggable Handle --- */
+/* --- End of BlockSet pointer indicator --- */
 
 .BlockSet_completer-setup {
   width: 245px;
@@ -105,6 +105,8 @@
   display: grid;
   grid-template-columns: repeat(3, 40px);
 }
+
+/* === BlockSet drag handle === */
 
 .BlockSet_drag_handle {
   align-self: stretch;
@@ -150,6 +152,8 @@
 .BlockSet_is_dragging_overlay .BlockSet_drag_handle_btn {
   fill: black;
 }
+
+/* --- End of BlockSet drag handle --- */
 
 /* --- End of BlockSet content children --- */
 
