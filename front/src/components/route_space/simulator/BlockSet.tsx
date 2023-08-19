@@ -8,10 +8,9 @@ import {
   selectedElementTypeState,
 } from "../../../state/store";
 import Block, { BlockType } from "../../blocks/Block";
-import BlockPointerIcon from "../../icons/BlockPointerIcon";
-import DragArrowIcon from "../../icons/DragArrowIcon";
-import DragHandleIcon from "../../icons/DragHandleIcon";
 import "./BlockSet.css";
+import BlockSetDragHandle from "./BlockSetDragHandle";
+import BlockSetPointer from "./BlockSetPointer";
 import SimulatorBlock from "./SimulatorBlock";
 import { useMutation } from "@apollo/client";
 import { useDroppable } from "@dnd-kit/core";
@@ -147,12 +146,19 @@ export default function BlockSet({
   // --- Sortable ---
 
   const {
+    active,
     attributes,
     listeners,
     setNodeRef: setNodeRefSortable,
     transform,
     transition,
-  } = useSortable({ id: `BlockSet:${blockSet.id}:Sortable` });
+    setActivatorNodeRef,
+  } = useSortable({
+    id: `BlockSet:${blockSet.id}:Sortable`,
+    data: {
+      blockSetId: blockSet.id,
+    },
+  });
 
   // --- Droppable ---
 
@@ -330,19 +336,22 @@ export default function BlockSet({
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    opacity: isDraggingOverlay ? 0.8 : 1,
   };
+
+  const isMoving = active?.data?.current?.blockSetId === blockSet.id;
 
   return (
     <div
-      className="BlockSet"
+      className={classNames("BlockSet", {
+        BlockSet_is_moving: isMoving,
+        BlockSet_is_dragging_overlay: isDraggingOverlay,
+      })}
       ref={setNodeRefSortable}
       style={style}
       {...attributes}
-      {...listeners}
     >
       <div className="BlockSet_content">
-        <Pointer
+        <BlockSetPointer
           isActive={index === cursorPosition}
           onClick={() => setCursorPosition(blockSet.position)}
         />
@@ -402,37 +411,11 @@ export default function BlockSet({
         <div className="BlockSet_output" ref={setNodeRefOutput}>
           {outputBlocks}
         </div>
-        <DragHandle />
+        <BlockSetDragHandle
+          handleRef={setActivatorNodeRef}
+          handleListeners={listeners}
+        />
       </div>
-    </div>
-  );
-}
-
-function Pointer({
-  isActive,
-  onClick,
-}: {
-  isActive: boolean;
-  onClick: () => void;
-}) {
-  return (
-    <div
-      className={classNames("BlockSet_pointer", {
-        BlockSet_pointer_active: isActive,
-      })}
-      onClick={onClick}
-    >
-      <BlockPointerIcon />
-    </div>
-  );
-}
-
-function DragHandle() {
-  return (
-    <div className="BlockSet_drag_handle">
-      <DragArrowIcon className="BlockSet_move_up_btn" onClick={() => {}} />
-      <DragHandleIcon className="BlockSet_drag_handle_btn" />
-      <DragArrowIcon className="BlockSet_move_down_btn" onClick={() => {}} />
     </div>
   );
 }

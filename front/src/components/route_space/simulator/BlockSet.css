@@ -8,8 +8,12 @@
    * Thus, adding an extra 10px to the width here.
    */
   width: 715px;
+  height: 132px;
   position: relative;
-  background-color: white;
+}
+
+.BlockSet_is_moving {
+  visibility: hidden;
 }
 
 /* --- End of BlockSet --- */
@@ -19,7 +23,7 @@
 .BlockSet_content {
   position: relative;
   display: flex;
-  align-items: stretch;
+  align-items: center;
   gap: 15px;
 }
 
@@ -28,6 +32,7 @@
 /* === BlockSet Draggable Handle === */
 
 .BlockSet_pointer {
+  align-self: stretch;
   width: 20px;
   border-radius: 3px;
   display: flex;
@@ -39,7 +44,7 @@
 }
 
 .BlockSet_pointer > svg {
-  fill: white;
+  fill: transparent;
 }
 
 .BlockSet_pointer:hover > svg {
@@ -53,6 +58,10 @@
 
 .BlockSet_pointer_active:hover {
   background: #5bc02e;
+}
+
+.BlockSet_pointer_active > svg {
+  fill: white;
 }
 
 .BlockSet_pointer_active:hover > svg {
@@ -70,6 +79,7 @@
   border-radius: 10px;
   border: 1px solid var(--border-darker, #c5c5d2);
   cursor: pointer;
+  background: white;
 }
 
 .BlockSet_completer-setup:hover {
@@ -78,14 +88,6 @@
 
 .BlockSet_draggable-over {
   background: #ececf1;
-}
-
-.BlockSet_prompt {
-  /* width: 260px; */
-}
-
-.BlockSet_system-prompt-placeholder {
-  /* width: 260px; */
 }
 
 .BlockSet_input {
@@ -105,6 +107,7 @@
 }
 
 .BlockSet_drag_handle {
+  align-self: stretch;
   width: 20px;
   display: flex;
   border-radius: 3px;
@@ -112,6 +115,7 @@
   justify-content: space-between;
 }
 
+.BlockSet_is_dragging_overlay .BlockSet_drag_handle,
 .BlockSet_drag_handle:hover {
   background-color: #ececf1;
 }
@@ -130,12 +134,21 @@
   cursor: pointer;
 }
 
+.BlockSet_is_dragging_overlay .BlockSet_move_up_btn,
+.BlockSet_is_dragging_overlay .BlockSet_move_down_btn {
+  visibility: hidden;
+}
+
 .BlockSet_move_down_btn {
   transform: rotate(180deg);
 }
 
 .BlockSet_drag_handle_btn {
   cursor: move;
+}
+
+.BlockSet_is_dragging_overlay .BlockSet_drag_handle_btn {
+  fill: black;
 }
 
 /* --- End of BlockSet content children --- */
