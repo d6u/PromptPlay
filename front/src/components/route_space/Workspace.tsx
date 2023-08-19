@@ -1,4 +1,5 @@
 import { FragmentType, gql, useFragment } from "../../__generated__";
+import { swapBlockSets } from "../../state/graphql";
 import {
   beingDraggingElementIdState,
   isReorderingBlockSetState,
@@ -6,6 +7,7 @@ import {
 import CustomDragOverlay from "../CustomDragOverlay";
 import "./Workspace.css";
 import WorkspaceContent from "./WorkspaceContent";
+import { WORKSPACE_ROUTE_QUERY } from "./WorkspaceRouteQuery";
 import Editor from "./editor/Editor";
 import { useMutation } from "@apollo/client";
 import {
@@ -21,6 +23,15 @@ import { useRecoilState, useSetRecoilState } from "recoil";
 
 const WORKSPACE_FRAGMENT = gql(`
   fragment WorkspaceQuery on Query {
+    workspace(workspaceId: $workspaceId) {
+      firstPreset {
+        id
+        blockSets {
+          id
+          position
+        }
+      }
+    }
     ...WorkspaceContent
   }
 `);
@@ -83,14 +94,18 @@ const ADD_PROMPT_TO_BLOCK_SET_TOP_OUTPUT_MUTATION = gql(`
 
 const SWAP_BLOCK_SET_POSITIONS_MUTATION = gql(`
   mutation SwapBlockSetPositionsMutation(
-    $blockSetAId: UUID!
-    $blockSetBId: UUID!
+    $movingBlockSetId: UUID!
+    $slotBlockSetId: UUID!
   ) {
     swapBlockSetPositions(
-      blockSetAId: $blockSetAId
-      blockSetBId: $blockSetBId
+      movingBlockSetId: $movingBlockSetId
+      slotBlockSetId: $slotBlockSetId
     ) {
       id
+      blockSets {
+        id
+        position
+      }
     }
   }
 `);
@@ -111,37 +126,29 @@ export default function Workspace({
 
   // --- GraphQL ---
 
-  const workspace = useFragment(WORKSPACE_FRAGMENT, workspaceFragment);
+  const query = useFragment(WORKSPACE_FRAGMENT, workspaceFragment);
 
   const [addPromptToBlockSetTopInput] = useMutation(
     ADD_PROMPT_TO_BLOCK_SET_TOP_INPUT_MUTATION,
-    { refetchQueries: ["WorkspaceRouteQuery"] }
+    { refetchQueries: [WORKSPACE_ROUTE_QUERY] }
   );
   const [addCompleterToBlockSet] = useMutation(
     ADD_COMPLETER_TO_BLOCK_SET_MUTATION,
-    { refetchQueries: ["WorkspaceRouteQuery"] }
+    { refetchQueries: [WORKSPACE_ROUTE_QUERY] }
   );
   const [addSystemPromptToBlockSet] = useMutation(
     ADD_SYSTEM_PROMPT_TO_BLOCK_SET_MUTATION,
-    { refetchQueries: ["WorkspaceRouteQuery"] }
+    { refetchQueries: [WORKSPACE_ROUTE_QUERY] }
   );
   const [addPromptToBlockSetTopOutput] = useMutation(
     ADD_PROMPT_TO_BLOCK_SET_TOP_OUTPUT_MUTATION,
-    { refetchQueries: ["WorkspaceRouteQuery"] }
+    { refetchQueries: [WORKSPACE_ROUTE_QUERY] }
   );
   const [swapBlockSetPositions] = useMutation(
-    SWAP_BLOCK_SET_POSITIONS_MUTATION,
-    { refetchQueries: ["WorkspaceRouteQuery"] }
+    SWAP_BLOCK_SET_POSITIONS_MUTATION
   );
 
   // --- Drag and Drop ---
-
-  const mouseSensor = useSensor(PointerSensor, {
-    activationConstraint: {
-      distance: 5,
-    },
-  });
-  const sensors = useSensors(mouseSensor);
 
   const onDragEnd = useCallback(
     ({ active, over }: DragEndEvent) => {
@@ -150,10 +157,33 @@ export default function Workspace({
       }
 
       if (isReorderingBlockSet) {
+        const preset = query.workspace?.firstPreset;
+
+        if (preset == null) {
+          return;
+        }
+
+        const movingBlockSetId = (active.id as string).split(":")[1];
+        const slotBlockSetId = (over.id as string).split(":")[1];
+
+        const newBlocksSets = swapBlockSets(
+          preset.blockSets,
+          movingBlockSetId,
+          slotBlockSetId
+        );
+
+        if (newBlocksSets == null) {
+          return;
+        }
+
         swapBlockSetPositions({
-          variables: {
-            blockSetAId: (active.id as string).split(":")[1],
-            blockSetBId: (over.id as string).split(":")[1],
+          variables: { movingBlockSetId, slotBlockSetId },
+          optimisticResponse: {
+            swapBlockSetPositions: {
+              id: preset.id,
+              __typename: "Preset",
+              blockSets: newBlocksSets,
+            },
           },
         });
       } else {
@@ -209,6 +239,7 @@ export default function Workspace({
     },
     [
       isReorderingBlockSet,
+      query.workspace?.firstPreset,
       addPromptToBlockSetTopInput,
       addCompleterToBlockSet,
       addSystemPromptToBlockSet,
@@ -218,6 +249,14 @@ export default function Workspace({
       swapBlockSetPositions,
     ]
   );
+
+  const mouseSensor = useSensor(PointerSensor, {
+    activationConstraint: {
+      distance: 5,
+    },
+  });
+
+  const sensors = useSensors(mouseSensor);
 
   // --- Render ---
 
@@ -235,7 +274,7 @@ export default function Workspace({
         }}
         onDragEnd={onDragEnd}
       >
-        <WorkspaceContent workspaceContentFragment={workspace} />
+        <WorkspaceContent workspaceContentFragment={query} />
         <CustomDragOverlay />
       </DndContext>
       <Editor />

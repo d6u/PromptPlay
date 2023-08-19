@@ -74,20 +74,22 @@ export default function Simulator({
 
   return (
     <div className="Simulator">
-      <SortableContext
-        items={simulator.blockSets.map((blockSet) => ({
-          id: `BlockSet:${blockSet.id}:Sortable`,
-        }))}
-        strategy={verticalListSortingStrategy}
-      >
-        {simulator.blockSets.map((blockSet, index) => (
-          <BlockSet
-            key={blockSet.id}
-            blockSetFragment={blockSet}
-            index={index}
-          />
-        ))}
-      </SortableContext>
+      <div className="Simulator_inner">
+        <SortableContext
+          items={simulator.blockSets.map((blockSet) => ({
+            id: `BlockSet:${blockSet.id}:Sortable`,
+          }))}
+          strategy={verticalListSortingStrategy}
+        >
+          {simulator.blockSets.map((blockSet, index) => (
+            <BlockSet
+              key={blockSet.id}
+              blockSetFragment={blockSet}
+              index={index}
+            />
+          ))}
+        </SortableContext>
+      </div>
       <DragOverlay dropAnimation={null}>{dragOverlayContent}</DragOverlay>
     </div>
   );

@@ -63,7 +63,6 @@ const Block = forwardRef<HTMLDivElement, Props>(function Block(
       {isRemoveButtonEnabled && (
         <div className="Block_remove_btn" onClick={onClickRemove}>
           <CrossIcon className="Block_remove_btn_icon" />
-          {/* <img className="Block_remove_btn_icon" src={crossIcon} alt="" /> */}
         </div>
       )}
       <div className="Block_text">{children}</div>

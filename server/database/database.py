@@ -11,7 +11,7 @@ _database_name = settings.postgres_database_name
 
 engine = create_engine(
     f"postgresql://{_user}:{_pass}@{_host}:{_port}/{_database_name}",
-    echo=True,
+    # echo=True,
 )
 
 
