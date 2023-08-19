@@ -1,7 +1,10 @@
 .Simulator {
-  padding: 20px 0;
+  overflow-y: auto;
+}
+
+.Simulator_inner {
+  padding: 20px;
   display: flex;
   gap: 20px;
   flex-direction: column;
-  overflow-y: auto;
 }

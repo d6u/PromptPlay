@@ -1,9 +1,14 @@
 /* === BlockSet === */
 
 .BlockSet {
-  padding: 0;
+  /*
+   * The total width required by BlockSet_content is 665px.
+   * But the remove button on the top right corner of a Block requires extra
+   * space, otherwise a horizontal scrollbar will be displayed.
+   * Thus, adding an extra 10px to the width here.
+   */
+  width: 675px;
   position: relative;
-  border-left: 2px solid transparent;
   background-color: white;
 }
 
@@ -84,12 +89,8 @@
 
 .BlockSet_output {
   width: 180px;
-  display: flex;
-  justify-content: flex-start;
-}
-
-.BlockSet_output > div {
-  margin-right: -60px;
+  display: grid;
+  grid-template-columns: repeat(3, 40px);
 }
 
 /* --- End of BlockSet content children --- */
