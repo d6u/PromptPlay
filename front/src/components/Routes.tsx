@@ -12,7 +12,9 @@ export default function Routes() {
           <RootRoute />
         </Route>
         <Route path="/spaces/:spaceId">
-          {(params) => <WorkspaceRoute workspaceId={params.spaceId} />}
+          {(params: { spaceId: string }) => (
+            <WorkspaceRoute workspaceId={params.spaceId} />
+          )}
         </Route>
         <Route>
           <Redirect to="/" />

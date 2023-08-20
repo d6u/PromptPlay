@@ -13,10 +13,12 @@ import { useMutation } from "@apollo/client";
 import {
   DndContext,
   DragEndEvent,
-  PointerSensor,
   useSensor,
   useSensors,
   closestCenter,
+  TouchSensor,
+  MouseSensor,
+  KeyboardSensor,
 } from "@dnd-kit/core";
 import { useCallback } from "react";
 import { useRecoilState, useSetRecoilState } from "recoil";
@@ -246,13 +248,22 @@ export default function Workspace({
     ]
   );
 
-  const mouseSensor = useSensor(PointerSensor, {
+  const mouseSensor = useSensor(MouseSensor, {
+    // Require the mouse to move by 10 pixels before activating
     activationConstraint: {
       distance: 5,
     },
   });
+  const touchSensor = useSensor(TouchSensor, {
+    // Press delay of 250ms, with tolerance of 5px of movement
+    activationConstraint: {
+      delay: 250,
+      tolerance: 5,
+    },
+  });
+  const keyboardSensor = useSensor(KeyboardSensor);
 
-  const sensors = useSensors(mouseSensor);
+  const sensors = useSensors(mouseSensor, touchSensor, keyboardSensor);
 
   // --- Render ---
 
