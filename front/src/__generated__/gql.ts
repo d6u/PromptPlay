@@ -55,6 +55,8 @@ const documents = {
     "\n  mutation CreateBlockSet($presetId: UUID!) {\n    createBlockSet(presetId: $presetId) {\n      id\n    }\n  }\n": types.CreateBlockSetDocument,
     "\n  mutation UpdateSpaceMutation(\n    $workspaceId: UUID!\n    $name: String!\n  ) {\n    updateSpace(\n      id: $workspaceId\n      name: $name\n    ) {\n      id\n    }\n  }\n": types.UpdateSpaceMutationDocument,
     "\n  mutation DeleteSpaceMutation($workspaceId: UUID!) {\n    deleteSpace(id: $workspaceId) {\n      isSuccess\n    }\n  }\n": types.DeleteSpaceMutationDocument,
+    "\n  query SpaceV2Query($spaceId: UUID!) {\n    spaceV2(id: $spaceId) {\n      id\n      name\n      content\n    }\n  }\n": types.SpaceV2QueryDocument,
+    "\n  mutation UpdateSpaceV2Mutation($spaceId: UUID!, $content: String!) {\n    updateSpaceV2(id: $spaceId, content: $content) {\n      id\n      name\n      content\n    }\n  }\n": types.UpdateSpaceV2MutationDocument,
 };
 
 /**
@@ -239,6 +241,14 @@ export function gql(source: "\n  mutation UpdateSpaceMutation(\n    $workspaceId
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  mutation DeleteSpaceMutation($workspaceId: UUID!) {\n    deleteSpace(id: $workspaceId) {\n      isSuccess\n    }\n  }\n"): (typeof documents)["\n  mutation DeleteSpaceMutation($workspaceId: UUID!) {\n    deleteSpace(id: $workspaceId) {\n      isSuccess\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query SpaceV2Query($spaceId: UUID!) {\n    spaceV2(id: $spaceId) {\n      id\n      name\n      content\n    }\n  }\n"): (typeof documents)["\n  query SpaceV2Query($spaceId: UUID!) {\n    spaceV2(id: $spaceId) {\n      id\n      name\n      content\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation UpdateSpaceV2Mutation($spaceId: UUID!, $content: String!) {\n    updateSpaceV2(id: $spaceId, content: $content) {\n      id\n      name\n      content\n    }\n  }\n"): (typeof documents)["\n  mutation UpdateSpaceV2Mutation($spaceId: UUID!, $content: String!) {\n    updateSpaceV2(id: $spaceId, content: $content) {\n      id\n      name\n      content\n    }\n  }\n"];
 
 export function gql(source: string) {
   return (documents as any)[source] ?? {};
