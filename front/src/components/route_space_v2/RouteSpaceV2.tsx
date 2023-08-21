@@ -215,53 +215,18 @@ export default function RouteSpaceV2({ spaceId }: { spaceId: string }) {
           collisionDetection={closestCenter}
           onDragStart={(event) => {}}
           onDragEnd={(event) => {
-            const overId = event.over!.id as string;
-            const activeId = event.active!.id as string;
-            const activeBlock = content!.blocks.find(
-              ({ id }) => id === activeId
-            )!;
-
-            if (overId.startsWith("After:")) {
-              const positionId = overId.split(":")[1];
-              const newBlocks = fp.remove(
-                ({ id }) => id === activeId,
-                content!.blocks
-              );
-              const positionBlockIndex = newBlocks.findIndex(
-                ({ id }) => id === positionId
-              )!;
-
-              updateSpaceV2({
-                variables: {
-                  spaceId,
-                  content: JSON.stringify(
-                    fp.assign(content, {
-                      blocks: [
-                        ...newBlocks.slice(0, positionBlockIndex + 1),
-                        activeBlock,
-                        ...newBlocks.slice(positionBlockIndex + 1),
-                      ],
-                    })
-                  ),
-                },
-              });
-            } else if (overId.startsWith("First:")) {
-              const newBlocks = fp.remove(
-                ({ id }) => id === activeId,
-                content!.blocks
-              );
-
-              updateSpaceV2({
-                variables: {
-                  spaceId,
-                  content: JSON.stringify(
-                    fp.assign(content, {
-                      blocks: [activeBlock, ...newBlocks],
-                    })
-                  ),
-                },
-              });
-            }
+            updateSpaceV2({
+              variables: {
+                spaceId,
+                content: JSON.stringify(
+                  updateContent(
+                    event.over?.id as string,
+                    event.active.id as string,
+                    content!
+                  )
+                ),
+              },
+            });
           }}
         >
           {content && <BlockGroupComponent blockGroup={content} />}
@@ -269,6 +234,143 @@ export default function RouteSpaceV2({ spaceId }: { spaceId: string }) {
       </div>
     </div>
   );
+}
+
+function pullBlockFromBlocks(
+  activeId: string,
+  blocks: Array<Block | BlockGroup>
+): [Block | BlockGroup | null, Array<Block | BlockGroup>] {
+  let activeBlock = blocks.find(({ id }) => id === activeId) ?? null;
+
+  if (activeBlock) {
+    blocks = fp.remove(({ id }) => id === activeId, blocks);
+    return [activeBlock, blocks];
+  }
+
+  let changedIndex = -1;
+  let changedBlock: Block | BlockGroup | null = null;
+  let changedBlockNewBlocks: Array<Block | BlockGroup> | null;
+
+  for (let i = 0; i < blocks.length; i++) {
+    const block = blocks[i];
+
+    if (isBlockGroup(block)) {
+      const [pulledBlock, newBlocks] = pullBlockFromBlocks(
+        activeId,
+        block.blocks
+      );
+
+      if (pulledBlock) {
+        activeBlock = pulledBlock;
+        changedIndex = i;
+        changedBlock = block;
+        changedBlockNewBlocks = newBlocks;
+        break;
+      }
+    }
+  }
+
+  if (changedIndex > -1) {
+    blocks = [
+      ...blocks.slice(0, changedIndex),
+      fp.assign(changedBlock!, {
+        blocks: changedBlockNewBlocks!,
+      }),
+      ...blocks.slice(changedIndex + 1),
+    ];
+  }
+
+  return [activeBlock, blocks];
+}
+
+function insertBlockIntoBlocks(
+  overId: string,
+  block: Block | BlockGroup,
+  blocks: Array<Block | BlockGroup>
+): [boolean, Array<Block | BlockGroup>] {
+  const positionId = overId.split(":")[1];
+
+  if (overId.startsWith("After:")) {
+    const positionBlockIndex = blocks.findIndex(({ id }) => id === positionId)!;
+
+    if (positionBlockIndex > -1) {
+      return [
+        true,
+        [
+          ...blocks.slice(0, positionBlockIndex + 1),
+          block,
+          ...blocks.slice(positionBlockIndex + 1),
+        ],
+      ];
+    }
+  } else if (overId.startsWith("Before:")) {
+    if (positionId === blocks[0].id) {
+      return [true, [block, ...blocks]];
+    }
+  } else {
+    console.error("Invalid overId");
+    return [false, blocks];
+  }
+
+  let changedIndex = -1;
+  let changedBlock: Block | BlockGroup | null = null;
+  let changedBlockNewBlocks: Array<Block | BlockGroup> | null;
+
+  for (let i = 0; i < blocks.length; i++) {
+    const currentBlock = blocks[i];
+
+    if (isBlockGroup(currentBlock)) {
+      const [isInserted, newBlocks] = insertBlockIntoBlocks(
+        overId,
+        block,
+        currentBlock.blocks
+      );
+
+      if (isInserted) {
+        changedIndex = i;
+        changedBlock = currentBlock;
+        changedBlockNewBlocks = newBlocks;
+        break;
+      }
+    }
+  }
+
+  if (changedIndex > -1) {
+    return [
+      true,
+      [
+        ...blocks.slice(0, changedIndex),
+        fp.assign(changedBlock!, { blocks: changedBlockNewBlocks! }),
+        ...blocks.slice(changedIndex + 1),
+      ],
+    ];
+  }
+
+  return [false, blocks];
+}
+
+function updateContent(
+  overId: string,
+  activeId: string,
+  group: BlockGroup
+): BlockGroup {
+  const [activeBlock, newBlocks] = pullBlockFromBlocks(activeId, group.blocks);
+
+  group = fp.assign(group, {
+    blocks: newBlocks,
+  });
+
+  const [, newNewBlocks] = insertBlockIntoBlocks(
+    overId,
+    activeBlock!,
+    group.blocks
+  );
+
+  group = fp.assign(group, {
+    blocks: newNewBlocks,
+  });
+
+  return group;
 }
 
 function BlockGroupComponent({
@@ -303,7 +405,7 @@ function BlockGroupComponent({
       content.push(
         <Gutter
           key="first-gutter"
-          preItemId={`First:${blockGroup.id}`}
+          preItemId={`Before:${block.id}`}
           isDisabled={isDragging || isParentDragging}
         />
       );
