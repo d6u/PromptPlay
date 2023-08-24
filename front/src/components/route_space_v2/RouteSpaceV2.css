@@ -1,31 +1,8 @@
 .RouteSpaceV2 {
   flex-grow: 1;
   display: flex;
-}
-
-/* Group */
-
-.RouteSpaceV2_group {
-  padding: 15px 15px 8px 15px;
-  border-radius: 10px;
-  border: 2px solid #00b3ff;
-}
-
-.RouteSpaceV2_group_title {
-  color: #000;
-  font-family: Inter;
-  font-size: 16px;
-  font-style: normal;
-  font-weight: 400;
-  line-height: normal;
-  margin-bottom: 3px;
-}
-
-.RouteSpaceV2_group_blocks {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  align-items: flex-start;
+  padding: 0 20px;
+  min-height: 0;
 }
 
 /* Block */

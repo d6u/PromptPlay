@@ -1,4 +1,5 @@
 import BlockGroupComponent from "./BlockGroupComponent";
+import "./SpaceV2Left.css";
 import { UPDATE_SPACE_V2_MUTATION } from "./graphql";
 import { updateContent, useDefaultSensors } from "./utils";
 import { BlockGroup } from "./utils";
@@ -17,7 +18,7 @@ export default function SpaceV2Left({
   const sensors = useDefaultSensors();
 
   return (
-    <div className="RouteSpaceV2_left">
+    <div className="SpaceV2Left">
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
@@ -37,7 +38,9 @@ export default function SpaceV2Left({
           });
         }}
       >
-        {content && <BlockGroupComponent blockGroup={content} />}
+        <div className="SpaceV2Left_content">
+          {content && <BlockGroupComponent blockGroup={content} isRoot />}
+        </div>
       </DndContext>
     </div>
   );
