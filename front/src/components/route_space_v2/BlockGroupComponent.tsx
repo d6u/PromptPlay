@@ -79,7 +79,9 @@ export default function BlockGroupComponent({
       {...listeners}
       {...attributes}
     >
-      {!isRoot && <div className="BlockGroupComponent_title">{title}</div>}
+      {!isRoot && (
+        <div className="BlockGroupComponent_title">{blockGroup.id}</div>
+      )}
       <div className="BlockGroupComponent_blocks">{content}</div>
     </div>
   );

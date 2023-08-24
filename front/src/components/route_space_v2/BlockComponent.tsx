@@ -10,6 +10,7 @@ export default function BlockComponent({ block }: { block: Block }) {
   });
 
   const inputChips: ReactNode[] = [];
+
   if (isObject(block.input)) {
     for (const [nameOnScope, argumentName] of Object.entries(block.input)) {
       (inputChips as ReactNode[]).push(
@@ -50,6 +51,7 @@ export default function BlockComponent({ block }: { block: Block }) {
   }
 
   const outputChips: ReactNode[] = [];
+
   if (isObject(block.output)) {
     for (const [returnName, nameOnScope] of Object.entries(block.output)) {
       outputChips.push(
@@ -89,21 +91,17 @@ export default function BlockComponent({ block }: { block: Block }) {
     );
   }
 
-  const style = {
-    transform: CSS.Translate.toString(transform),
-  };
-
   return (
     <div
       className="RouteSpaceV2_block"
       ref={setNodeRef}
-      style={style}
+      style={{ transform: CSS.Translate.toString(transform) }}
       {...listeners}
       {...attributes}
     >
       <div className="RouteSpaceV2_block_input">{inputChips}</div>
       <div className="RouteSpaceV2_block_code">
-        <pre>{block.code}</pre>
+        <pre>{block.id}</pre>
       </div>
       <div className="RouteSpaceV2_block_output">{outputChips}</div>
     </div>

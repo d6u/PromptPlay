@@ -44,6 +44,13 @@ export function updateContent(
   activeId: string,
   group: BlockGroup
 ): BlockGroup {
+  const positionId = overId.split(":")[1];
+
+  // We didn't move the block
+  if (positionId === activeId) {
+    return group;
+  }
+
   const [activeBlock, newBlocks] = pullBlockFromBlocks(activeId, group.blocks);
 
   group = fp.assign(group, {
