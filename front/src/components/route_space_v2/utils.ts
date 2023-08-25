@@ -202,20 +202,36 @@ export enum BlockType {
   GetAttribute = "GetAttribute",
 }
 
-export const BLOCK_CONFIGS = {
+export type BlockConfig = {
+  title: string;
+  hasInput: boolean;
+  hasOutput: boolean;
+};
+
+export const BLOCK_CONFIGS: { [key in BlockType]: BlockConfig } = {
   [BlockType.Databag]: {
     title: "Databag",
+    hasInput: false,
+    hasOutput: true,
   },
   [BlockType.LlmMessage]: {
     title: "LLM Message",
+    hasInput: true,
+    hasOutput: true,
   },
   [BlockType.AppendToList]: {
     title: "Append to List",
+    hasInput: false,
+    hasOutput: false,
   },
   [BlockType.Llm]: {
     title: "LLM",
+    hasInput: true,
+    hasOutput: true,
   },
   [BlockType.GetAttribute]: {
     title: "Get Attribute",
+    hasInput: true,
+    hasOutput: true,
   },
 };

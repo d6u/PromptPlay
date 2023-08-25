@@ -67,7 +67,7 @@ export default function EditorVariableMap(props: Props) {
       }
     } else {
     }
-  } else if (map) {
+  } else {
     if (isObject(map)) {
       for (const [scopeName, localName] of Object.entries(map)) {
         rows.push(

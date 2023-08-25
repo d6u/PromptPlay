@@ -1,7 +1,7 @@
 import { spaceV2SelectedBlockIdState } from "../../state/store";
 import BlockV2 from "../block_v2/BlockV2";
 import BlockVariableMap from "./BlockVariableMap";
-import { Block } from "./utils";
+import { BLOCK_CONFIGS, Block } from "./utils";
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import { useRecoilState } from "recoil";
@@ -16,6 +16,10 @@ const Container = styled.div`
   border: 1px solid #c5c5d2;
 `;
 
+const SlotHolder = styled.div`
+  width: 250px;
+`;
+
 export default function BlockComponent({ block }: { block: Block }) {
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id: block.id,
@@ -25,6 +29,8 @@ export default function BlockComponent({ block }: { block: Block }) {
     spaceV2SelectedBlockIdState
   );
 
+  const blockConfig = BLOCK_CONFIGS[block.type];
+
   return (
     <Container
       style={{ transform: CSS.Translate.toString(transform) }}
@@ -32,7 +38,11 @@ export default function BlockComponent({ block }: { block: Block }) {
       {...listeners}
       {...attributes}
     >
-      <BlockVariableMap variableMap={block.input} />
+      {blockConfig.hasInput ? (
+        <BlockVariableMap variableMap={block.input} />
+      ) : (
+        <SlotHolder />
+      )}
       <BlockV2
         type={block.type}
         selected={spaceV2SelectedBlockId === block.id}
@@ -40,7 +50,11 @@ export default function BlockComponent({ block }: { block: Block }) {
       >
         {block.id}
       </BlockV2>
-      <BlockVariableMap variableMap={block.output} isOutput />
+      {blockConfig.hasOutput ? (
+        <BlockVariableMap variableMap={block.output} isOutput />
+      ) : (
+        <SlotHolder />
+      )}
     </Container>
   );
 }

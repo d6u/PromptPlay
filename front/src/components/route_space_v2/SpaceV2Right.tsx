@@ -66,96 +66,102 @@ export default function SpaceV2Right(props: Props) {
     return null;
   }
 
+  const blockConfig = BLOCK_CONFIGS[block.type];
+
   return (
     <Container>
       <Content>
         <Header>
-          <HeaderText>{BLOCK_CONFIGS[block.type]?.title}</HeaderText>
+          <HeaderText>{blockConfig.title}</HeaderText>
         </Header>
         <Body>
-          <EditorVariableMap
-            content={props.content}
-            onAddVariableMapEntry={() => {
-              const blockIndex = props.content!.blocks.findIndex(
-                (block) => block.id === spaceV2SelectedBlockId
-              );
+          {blockConfig.hasInput && (
+            <EditorVariableMap
+              content={props.content}
+              onAddVariableMapEntry={() => {
+                const blockIndex = props.content!.blocks.findIndex(
+                  (block) => block.id === spaceV2SelectedBlockId
+                );
 
-              const targetBlock = props.content!.blocks[blockIndex] as Block;
+                const targetBlock = props.content!.blocks[blockIndex] as Block;
 
-              if (!isObject(targetBlock.input)) {
-                return;
-              }
+                if (!isObject(targetBlock.input)) {
+                  return;
+                }
 
-              const count = Object.keys(targetBlock.input).length;
+                const count = Object.keys(targetBlock.input).length;
 
-              const newBlock = {
-                ...targetBlock,
-                input: {
-                  ...targetBlock.input,
-                  [`scope_name_${count + 1}`]: `arg_vary_vary_long_name_${
-                    count + 1
-                  }`,
-                },
-              };
+                const newBlock = {
+                  ...targetBlock,
+                  input: {
+                    ...targetBlock.input,
+                    [`scope_name_${count + 1}`]: `arg_vary_vary_long_name_${
+                      count + 1
+                    }`,
+                  },
+                };
 
-              const newContent = fp.assign(props.content, {
-                blocks: [
-                  ...props.content!.blocks.slice(0, blockIndex),
-                  newBlock,
-                  ...props.content!.blocks.slice(blockIndex + 1),
-                ],
-              });
+                const newContent = fp.assign(props.content, {
+                  blocks: [
+                    ...props.content!.blocks.slice(0, blockIndex),
+                    newBlock,
+                    ...props.content!.blocks.slice(blockIndex + 1),
+                  ],
+                });
 
-              updateSpaceV2({
-                variables: {
-                  spaceId: props.spaceId,
-                  content: JSON.stringify(newContent),
-                },
-              });
-            }}
-          />
-          <EditorVariableMap
-            content={props.content}
-            isOutput
-            onAddVariableMapEntry={() => {
-              const blockIndex = props.content!.blocks.findIndex(
-                (block) => block.id === spaceV2SelectedBlockId
-              );
+                updateSpaceV2({
+                  variables: {
+                    spaceId: props.spaceId,
+                    content: JSON.stringify(newContent),
+                  },
+                });
+              }}
+            />
+          )}
+          {blockConfig.hasOutput && (
+            <EditorVariableMap
+              content={props.content}
+              isOutput
+              onAddVariableMapEntry={() => {
+                const blockIndex = props.content!.blocks.findIndex(
+                  (block) => block.id === spaceV2SelectedBlockId
+                );
 
-              const targetBlock = props.content!.blocks[blockIndex] as Block;
+                const targetBlock = props.content!.blocks[blockIndex] as Block;
 
-              if (!isObject(targetBlock.output)) {
-                return;
-              }
+                if (!isObject(targetBlock.output)) {
+                  return;
+                }
 
-              const count = Object.keys(targetBlock.output).length;
+                const count = Object.keys(targetBlock.output).length;
 
-              const newBlock = {
-                ...targetBlock,
-                output: {
-                  ...targetBlock.output,
-                  [`local_name_${count + 1}`]: `scope_name_pretty_long_${
-                    count + 1
-                  }`,
-                },
-              };
+                const newBlock = {
+                  ...targetBlock,
+                  output: {
+                    ...targetBlock.output,
+                    [`local_name_${count + 1}`]: `scope_name_pretty_long_${
+                      count + 1
+                    }`,
+                  },
+                };
 
-              const newContent = fp.assign(props.content, {
-                blocks: [
-                  ...props.content!.blocks.slice(0, blockIndex),
-                  newBlock,
-                  ...props.content!.blocks.slice(blockIndex + 1),
-                ],
-              });
+                const newContent = fp.assign(props.content, {
+                  blocks: [
+                    ...props.content!.blocks.slice(0, blockIndex),
+                    newBlock,
+                    ...props.content!.blocks.slice(blockIndex + 1),
+                  ],
+                });
 
-              updateSpaceV2({
-                variables: {
-                  spaceId: props.spaceId,
-                  content: JSON.stringify(newContent),
-                },
-              });
-            }}
-          />
+                updateSpaceV2({
+                  variables: {
+                    spaceId: props.spaceId,
+                    content: JSON.stringify(newContent),
+                  },
+                });
+              }}
+            />
+          )}
         </Body>
       </Content>
     </Container>
