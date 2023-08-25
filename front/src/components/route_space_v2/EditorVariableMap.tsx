@@ -1,11 +1,15 @@
 import { spaceV2SelectedBlockIdState } from "../../state/store";
+import { UPDATE_SPACE_V2_MUTATION } from "./graphql";
 import { SpaceContent } from "./interfaces";
 import { isBlockGroupAnchor, isObject } from "./utils";
+import { useMutation } from "@apollo/client";
 import Button from "@mui/joy/Button";
 import Input from "@mui/joy/Input";
+import { dissoc } from "ramda";
 import { ReactNode } from "react";
 import { useRecoilValue } from "recoil";
 import styled from "styled-components";
+import u from "updeep";
 
 const Container = styled.div`
   margin-bottom: 10px;
@@ -22,12 +26,14 @@ const VariableMapRow = styled.div`
 `;
 
 type Props = {
+  spaceId: string;
   content: SpaceContent;
   isOutput?: boolean;
-  onAddVariableMapEntry: () => void;
 };
 
 export default function EditorVariableMap(props: Props) {
+  const [updateSpaceV2] = useMutation(UPDATE_SPACE_V2_MUTATION);
+
   const spaceV2SelectedBlockId = useRecoilValue(spaceV2SelectedBlockIdState);
 
   const block = spaceV2SelectedBlockId
@@ -60,7 +66,34 @@ export default function EditorVariableMap(props: Props) {
               style={{ flexGrow: 1 }}
               value={scopeName}
             />
-            <Button color="danger" size="sm" variant="outlined">
+            <Button
+              color="danger"
+              size="sm"
+              variant="outlined"
+              onClick={() => {
+                if (!isObject(block.output)) {
+                  return;
+                }
+
+                const newContent = u<any, SpaceContent>(
+                  {
+                    components: {
+                      [block.id]: {
+                        output: dissoc(localName),
+                      },
+                    },
+                  },
+                  props.content
+                ) as SpaceContent;
+
+                updateSpaceV2({
+                  variables: {
+                    spaceId: props.spaceId,
+                    content: JSON.stringify(newContent),
+                  },
+                });
+              }}
+            >
               Remove
             </Button>
           </VariableMapRow>
@@ -87,7 +120,34 @@ export default function EditorVariableMap(props: Props) {
               style={{ flexGrow: 1 }}
               value={localName}
             />
-            <Button color="danger" size="sm" variant="outlined">
+            <Button
+              color="danger"
+              size="sm"
+              variant="outlined"
+              onClick={() => {
+                if (!isObject(block.input)) {
+                  return;
+                }
+
+                const newContent = u<any, SpaceContent>(
+                  {
+                    components: {
+                      [block.id]: {
+                        input: dissoc(scopeName),
+                      },
+                    },
+                  },
+                  props.content
+                ) as SpaceContent;
+
+                updateSpaceV2({
+                  variables: {
+                    spaceId: props.spaceId,
+                    content: JSON.stringify(newContent),
+                  },
+                });
+              }}
+            >
               Remove
             </Button>
           </VariableMapRow>
@@ -105,7 +165,65 @@ export default function EditorVariableMap(props: Props) {
         color="success"
         size="sm"
         variant="outlined"
-        onClick={props.onAddVariableMapEntry}
+        onClick={() => {
+          if (props.isOutput) {
+            if (!isObject(block.output)) {
+              return;
+            }
+
+            const count = Object.keys(block.output).length;
+            const localName = `local_name_${count + 1}`;
+            const scopeName = `scope_name_pretty_long_${count + 1}`;
+
+            const newContent = u(
+              {
+                components: {
+                  [block.id]: {
+                    output: {
+                      [localName]: scopeName,
+                    },
+                  },
+                },
+              },
+              props.content
+            ) as SpaceContent;
+
+            updateSpaceV2({
+              variables: {
+                spaceId: props.spaceId,
+                content: JSON.stringify(newContent),
+              },
+            });
+          } else {
+            if (!isObject(block.input)) {
+              return;
+            }
+
+            const count = Object.keys(block.input).length;
+            const scopeName = `scope_name_${count + 1}`;
+            const argName = `arg_vary_vary_long_name_${count + 1}`;
+
+            const newContent = u(
+              {
+                components: {
+                  [block.id]: {
+                    input: {
+                      [scopeName]: argName,
+                    },
+                  },
+                },
+              },
+              props.content
+            ) as SpaceContent;
+
+            updateSpaceV2({
+              variables: {
+                spaceId: props.spaceId,
+                content: JSON.stringify(newContent),
+              },
+            });
+          }
+        }}
       >
         Add
       </Button>

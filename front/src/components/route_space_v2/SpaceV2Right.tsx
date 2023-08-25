@@ -1,12 +1,9 @@
 import { spaceV2SelectedBlockIdState } from "../../state/store";
 import EditorVariableMap from "./EditorVariableMap";
-import { UPDATE_SPACE_V2_MUTATION } from "./graphql";
 import { SpaceContent } from "./interfaces";
-import { BLOCK_CONFIGS, isBlockGroupAnchor, isObject } from "./utils";
-import { useMutation } from "@apollo/client";
+import { BLOCK_CONFIGS, isBlockGroupAnchor } from "./utils";
 import { useRecoilValue } from "recoil";
 import styled from "styled-components";
-import u from "updeep";
 
 const Container = styled.div`
   width: 500px;
@@ -49,8 +46,6 @@ type Props = {
 };
 
 export default function SpaceV2Right(props: Props) {
-  const [updateSpaceV2] = useMutation(UPDATE_SPACE_V2_MUTATION);
-
   const spaceV2SelectedBlockId = useRecoilValue(spaceV2SelectedBlockIdState);
 
   const block = spaceV2SelectedBlockId
@@ -72,71 +67,15 @@ export default function SpaceV2Right(props: Props) {
         <Body>
           {blockConfig.hasInput && (
             <EditorVariableMap
+              spaceId={props.spaceId}
               content={props.content}
-              onAddVariableMapEntry={() => {
-                if (!isObject(block.input)) {
-                  return;
-                }
-
-                const count = Object.keys(block.input).length;
-                const scopeName = `scope_name_${count + 1}`;
-                const argName = `arg_vary_vary_long_name_${count + 1}`;
-
-                const newContent = u<any, SpaceContent>(
-                  {
-                    components: {
-                      [block.id]: {
-                        input: {
-                          [scopeName]: argName,
-                        },
-                      },
-                    },
-                  },
-                  props.content
-                ) as SpaceContent;
-
-                updateSpaceV2({
-                  variables: {
-                    spaceId: props.spaceId,
-                    content: JSON.stringify(newContent),
-                  },
-                });
-              }}
             />
           )}
           {blockConfig.hasOutput && (
             <EditorVariableMap
+              spaceId={props.spaceId}
               content={props.content}
               isOutput
-              onAddVariableMapEntry={() => {
-                if (!isObject(block.output)) {
-                  return;
-                }
-
-                const count = Object.keys(block.output).length;
-                const localName = `local_name_${count + 1}`;
-                const scopeName = `scope_name_pretty_long_${count + 1}`;
-
-                const newContent = u<any, SpaceContent>(
-                  {
-                    components: {
-                      [block.id]: {
-                        output: {
-                          [localName]: scopeName,
-                        },
-                      },
-                    },
-                  },
-                  props.content
-                ) as SpaceContent;
-
-                updateSpaceV2({
-                  variables: {
-                    spaceId: props.spaceId,
-                    content: JSON.stringify(newContent),
-                  },
-                });
-              }}
             />
           )}
         </Body>

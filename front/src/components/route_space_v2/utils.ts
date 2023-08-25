@@ -4,7 +4,15 @@ import {
   BlockType,
   SpaceContent,
 } from "./interfaces";
-import fp from "lodash/fp";
+import {
+  adjust,
+  insert,
+  assoc,
+  reject,
+  findIndex,
+  propEq,
+  prepend,
+} from "ramda";
 import u from "updeep";
 
 export function updateContent(
@@ -51,23 +59,29 @@ export function updateContent(
   return content;
 }
 
+type AnchorList = Array<BlockAnchor | BlockGroupAnchor>;
+
 function pullBlockFromBlocks(
   activeId: string,
-  blocks: Array<BlockAnchor | BlockGroupAnchor>
-): [
-  BlockAnchor | BlockGroupAnchor | null,
-  Array<BlockAnchor | BlockGroupAnchor>
-] {
-  let activeBlock = blocks.find(({ id }) => id === activeId) ?? null;
+  blocks: AnchorList
+): [BlockAnchor | BlockGroupAnchor | null, AnchorList] {
+  let activeBlock: BlockAnchor | BlockGroupAnchor | null = null;
+
+  const newBlocks = reject((block: BlockAnchor | BlockGroupAnchor) => {
+    if (block.id !== activeId) {
+      return false;
+    } else {
+      activeBlock = block;
+      return true;
+    }
+  }, blocks);
 
   if (activeBlock) {
-    blocks = fp.remove(({ id }) => id === activeId, blocks);
-    return [activeBlock, blocks];
+    return [activeBlock, newBlocks];
   }
 
   let changedIndex = -1;
-  let changedBlock: BlockAnchor | BlockGroupAnchor | null = null;
-  let changedBlockNewBlocks: Array<BlockAnchor | BlockGroupAnchor> | null;
+  let changedBlockNewBlocks: AnchorList | null;
 
   for (let i = 0; i < blocks.length; i++) {
     const block = blocks[i];
@@ -81,7 +95,6 @@ function pullBlockFromBlocks(
       if (pulledBlock) {
         activeBlock = pulledBlock;
         changedIndex = i;
-        changedBlock = block;
         changedBlockNewBlocks = newBlocks;
         break;
       }
@@ -89,13 +102,11 @@ function pullBlockFromBlocks(
   }
 
   if (changedIndex > -1) {
-    blocks = [
-      ...blocks.slice(0, changedIndex),
-      fp.assign(changedBlock!, {
-        blocks: changedBlockNewBlocks!,
-      }),
-      ...blocks.slice(changedIndex + 1),
-    ];
+    blocks = adjust<BlockAnchor | BlockGroupAnchor>(
+      changedIndex,
+      assoc("blocks", changedBlockNewBlocks!),
+      blocks
+    );
   }
 
   return [activeBlock, blocks];
@@ -104,26 +115,18 @@ function pullBlockFromBlocks(
 function insertBlockIntoBlocks(
   overId: string,
   block: BlockAnchor | BlockGroupAnchor,
-  blocks: Array<BlockAnchor | BlockGroupAnchor>
-): [boolean, Array<BlockAnchor | BlockGroupAnchor>] {
+  blocks: AnchorList
+): [boolean, AnchorList] {
   const positionId = overId.split(":")[1];
 
   if (overId.startsWith("After:")) {
-    const positionBlockIndex = blocks.findIndex(({ id }) => id === positionId)!;
-
-    if (positionBlockIndex > -1) {
-      return [
-        true,
-        [
-          ...blocks.slice(0, positionBlockIndex + 1),
-          block,
-          ...blocks.slice(positionBlockIndex + 1),
-        ],
-      ];
+    const index = findIndex(propEq(positionId, "id"), blocks);
+    if (index > -1) {
+      return [true, insert(index + 1, block, blocks)];
     }
   } else if (overId.startsWith("Before:")) {
     if (positionId === blocks[0].id) {
-      return [true, [block, ...blocks]];
+      return [true, prepend(block, blocks)];
     }
   } else {
     console.error("Invalid overId");
@@ -131,8 +134,7 @@ function insertBlockIntoBlocks(
   }
 
   let changedIndex = -1;
-  let changedBlock: BlockAnchor | BlockGroupAnchor | null = null;
-  let changedBlockNewBlocks: Array<BlockAnchor | BlockGroupAnchor> | null;
+  let changedBlockNewBlocks: AnchorList | null;
 
   for (let i = 0; i < blocks.length; i++) {
     const currentBlock = blocks[i];
@@ -146,7 +148,6 @@ function insertBlockIntoBlocks(
 
       if (isInserted) {
         changedIndex = i;
-        changedBlock = currentBlock;
         changedBlockNewBlocks = newBlocks;
         break;
       }
@@ -156,11 +157,11 @@ function insertBlockIntoBlocks(
   if (changedIndex > -1) {
     return [
       true,
-      [
-        ...blocks.slice(0, changedIndex),
-        fp.assign(changedBlock!, { blocks: changedBlockNewBlocks! }),
-        ...blocks.slice(changedIndex + 1),
-      ],
+      adjust<BlockAnchor | BlockGroupAnchor>(
+        changedIndex,
+        assoc("blocks", changedBlockNewBlocks!),
+        blocks
+      ),
     ];
   }
 
