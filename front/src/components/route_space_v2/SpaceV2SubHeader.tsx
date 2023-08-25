@@ -1,9 +1,25 @@
+import { BlockType } from "../block_v2/BlockV2";
 import "./SpaceV2SubHeader.css";
 import { UPDATE_SPACE_V2_MUTATION } from "./graphql";
-import { BlockGroup } from "./utils";
+import { Block, BlockGroup } from "./utils";
 import { useMutation } from "@apollo/client";
 import Button from "@mui/joy/Button";
 import { nanoid } from "nanoid";
+import { useCallback } from "react";
+
+function createNewBlock(type: BlockType): Block {
+  return {
+    id: nanoid(),
+    type,
+    input: {
+      scope_name: "argument_name",
+    },
+    code: null,
+    output: {
+      return_name: "scope_name",
+    },
+  };
+}
 
 export default function SpaceV2SubHeader({
   spaceId,
@@ -14,109 +30,114 @@ export default function SpaceV2SubHeader({
 }) {
   const [updateSpaceV2] = useMutation(UPDATE_SPACE_V2_MUTATION);
 
+  const resetSpace = useCallback(() => {
+    const newContent = {
+      id: nanoid(),
+      type: "root",
+      blocks: [],
+    };
+
+    updateSpaceV2({
+      variables: {
+        spaceId,
+        content: JSON.stringify(newContent),
+      },
+    });
+  }, [spaceId, updateSpaceV2]);
+
+  const addDatabag = useCallback(
+    (block: Block) => {
+      let newContent: BlockGroup;
+      if (content == null) {
+        newContent = {
+          id: nanoid(),
+          type: "root",
+          blocks: [],
+        };
+      } else {
+        newContent = { ...content };
+      }
+
+      newContent.blocks.push(block);
+
+      updateSpaceV2({
+        variables: {
+          spaceId,
+          content: JSON.stringify(newContent),
+        },
+      });
+    },
+    [content, spaceId, updateSpaceV2]
+  );
+
+  // const addGroup = useCallback(() => {
+  //   let newContent: BlockGroup;
+  //   if (content == null) {
+  //     newContent = {
+  //       id: nanoid(),
+  //       type: "root",
+  //       blocks: [],
+  //     };
+  //   } else {
+  //     newContent = { ...content };
+  //   }
+
+  //   newContent.blocks.push({
+  //     id: nanoid(),
+  //     type: "repeat",
+  //     blocks: [
+  //       {
+  //         id: nanoid(),
+  //         type: BlockType.Databag,
+  //         input: {
+  //           messages: "messages",
+  //           message: "message",
+  //         },
+  //         code: null,
+  //         output: {
+  //           messages: "messages",
+  //           message: "message",
+  //         },
+  //       },
+  //     ],
+  //   });
+
+  //   updateSpaceV2({
+  //     variables: {
+  //       spaceId,
+  //       content: JSON.stringify(newContent),
+  //     },
+  //   });
+  // }, [content, spaceId, updateSpaceV2]);
+
   return (
     <div className="SpaceV2SubHeader">
       <div className="SpaceV2SubHeader_left">
-        <Button
-          onClick={() => {
-            const newContent = {
-              id: nanoid(),
-              type: "root",
-              blocks: [],
-            };
-
-            updateSpaceV2({
-              variables: {
-                spaceId,
-                content: JSON.stringify(newContent),
-              },
-            });
-          }}
-        >
-          reset
+        <Button onClick={() => addDatabag(createNewBlock(BlockType.Databag))}>
+          Add databag
         </Button>
         <Button
-          onClick={() => {
-            let newContent: BlockGroup;
-            if (content == null) {
-              newContent = {
-                id: nanoid(),
-                type: "root",
-                blocks: [],
-              };
-            } else {
-              newContent = { ...content };
-            }
-
-            newContent.blocks.push({
-              id: nanoid(),
-              input: {
-                scope_name: "argument_name",
-              },
-              code: `function(messages, message) {
-return message + ' world';
-}`,
-              output: {
-                return_name: "scope_name",
-              },
-            });
-
-            updateSpaceV2({
-              variables: {
-                spaceId,
-                content: JSON.stringify(newContent),
-              },
-            });
-          }}
+          onClick={() => addDatabag(createNewBlock(BlockType.LlmMessage))}
         >
-          add block
+          Add message
         </Button>
         <Button
-          onClick={() => {
-            let newContent: BlockGroup;
-            if (content == null) {
-              newContent = {
-                id: nanoid(),
-                type: "root",
-                blocks: [],
-              };
-            } else {
-              newContent = { ...content };
-            }
-
-            newContent.blocks.push({
-              id: nanoid(),
-              type: "repeat",
-              blocks: [
-                {
-                  id: nanoid(),
-                  input: {
-                    messages: "messages",
-                    message: "message",
-                  },
-                  code: `function(messages, message) {
-return message + ' world';
-}`,
-                  output: {
-                    messages: "messages",
-                    message: "message",
-                  },
-                },
-              ],
-            });
-
-            updateSpaceV2({
-              variables: {
-                spaceId,
-                content: JSON.stringify(newContent),
-              },
-            });
-          }}
+          onClick={() => addDatabag(createNewBlock(BlockType.AppendToList))}
         >
-          add group
+          Add append to list
         </Button>
+        <Button onClick={() => addDatabag(createNewBlock(BlockType.Llm))}>
+          Add LLM
+        </Button>
+        <Button
+          onClick={() => addDatabag(createNewBlock(BlockType.GetAttribute))}
+        >
+          Add get attribute
+        </Button>
+        {/* <Button onClick={addGroup}>Add group</Button> */}
       </div>
       <div>
+        <Button onClick={resetSpace}>Reset space</Button>
         <Button
           variant="outlined"
           onClick={() => {

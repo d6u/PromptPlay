@@ -1,3 +1,4 @@
+import { BlockType } from "../block_v2/BlockV2";
 import {
   KeyboardSensor,
   MouseSensor,
@@ -9,6 +10,7 @@ import fp from "lodash/fp";
 
 export type Block = {
   id: string;
+  type: BlockType;
   input: { [key: string]: string } | string | null;
   code: string | null;
   output: { [key: string]: string } | string | null;
@@ -184,7 +186,7 @@ function insertBlockIntoBlocks(
 }
 
 export function isBlockGroup(block: Block | BlockGroup): block is BlockGroup {
-  return "type" in block;
+  return "blocks" in block;
 }
 
 export function isObject(

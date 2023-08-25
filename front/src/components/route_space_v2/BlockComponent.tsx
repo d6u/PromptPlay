@@ -1,3 +1,4 @@
+import BlockV2 from "../block_v2/BlockV2";
 import VariableMapArrow from "../icons/VaribleMapArrow";
 import { Block, isObject } from "./utils";
 import { useDraggable } from "@dnd-kit/core";
@@ -100,9 +101,7 @@ export default function BlockComponent({ block }: { block: Block }) {
       {...attributes}
     >
       <div className="RouteSpaceV2_block_input">{inputChips}</div>
-      <div className="RouteSpaceV2_block_code">
-        <pre>{block.id}</pre>
-      </div>
+      <BlockV2 type={block.type}>{block.id}</BlockV2>
       <div className="RouteSpaceV2_block_output">{outputChips}</div>
     </div>
   );

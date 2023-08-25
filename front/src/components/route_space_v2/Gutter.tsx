@@ -1,5 +1,12 @@
 import { useDroppable } from "@dnd-kit/core";
-import classNames from "classnames";
+import styled from "@emotion/styled";
+
+const Box = styled.div<{ isOver: boolean }>`
+  height: 4px;
+  align-self: stretch;
+  border-radius: 5px;
+  ${(props) => props.isOver && "background: #00b3ff;"};
+`;
 
 export default function Gutter({
   preItemId,
@@ -13,12 +20,5 @@ export default function Gutter({
     disabled: isDisabled,
   });
 
-  return (
-    <div
-      className={classNames("RouteSpaceV2_gutter", {
-        RouteSpaceV2_gutter_over: isOver,
-      })}
-      ref={setNodeRef}
-    ></div>
-  );
+  return <Box isOver={isOver} ref={setNodeRef}></Box>;
 }

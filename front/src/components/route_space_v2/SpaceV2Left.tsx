@@ -1,10 +1,18 @@
 import BlockGroupComponent from "./BlockGroupComponent";
-import "./SpaceV2Left.css";
 import { UPDATE_SPACE_V2_MUTATION } from "./graphql";
 import { updateContent, useDefaultSensors } from "./utils";
 import { BlockGroup } from "./utils";
 import { useMutation } from "@apollo/client";
 import { DndContext, closestCenter } from "@dnd-kit/core";
+import styled from "@emotion/styled";
+
+const Container = styled.div`
+  overflow-y: auto;
+`;
+
+const Content = styled.div`
+  padding: 20px 20px 20px 0;
+`;
 
 export default function SpaceV2Left({
   spaceId,
@@ -18,7 +26,7 @@ export default function SpaceV2Left({
   const sensors = useDefaultSensors();
 
   return (
-    <div className="SpaceV2Left">
+    <Container>
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
@@ -38,10 +46,10 @@ export default function SpaceV2Left({
           });
         }}
       >
-        <div className="SpaceV2Left_content">
+        <Content>
           {content && <BlockGroupComponent blockGroup={content} isRoot />}
-        </div>
+        </Content>
       </DndContext>
-    </div>
+    </Container>
   );
 }

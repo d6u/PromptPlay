@@ -22,19 +22,6 @@ export default function BlockGroupComponent({
       id: blockGroup.id,
     });
 
-  let title: string;
-  switch (blockGroup.type) {
-    case "root":
-      title = "Root";
-      break;
-    case "repeat":
-      title = "Repeat";
-      break;
-    case "alternative":
-      title = "Alternative";
-      break;
-  }
-
   const content: ReactNode[] = [];
 
   for (const [i, block] of blockGroup.blocks.entries()) {

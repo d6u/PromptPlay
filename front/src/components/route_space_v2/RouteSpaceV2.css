@@ -63,24 +63,3 @@
   height: 20px;
   fill: #00b3ff;
 }
-
-.RouteSpaceV2_block_code {
-  width: 300px;
-  padding: 5px;
-  border-radius: 5px;
-  border: 1px solid var(--border-darker, #c5c5d2);
-}
-
-.RouteSpaceV2_block_code > pre {
-  margin: 0;
-}
-
-.RouteSpaceV2_gutter {
-  height: 4px;
-  align-self: stretch;
-  border-radius: 5px;
-}
-
-.RouteSpaceV2_gutter_over {
-  background: #00b3ff;
-}
