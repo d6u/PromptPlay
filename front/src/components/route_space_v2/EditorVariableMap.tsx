@@ -1,11 +1,10 @@
 import { spaceV2SelectedBlockIdState } from "../../state/store";
+import VariableMapRow from "./VariableMapRow";
 import { UPDATE_SPACE_V2_MUTATION } from "./graphql";
 import { SpaceContent } from "./interfaces";
 import { isBlockGroupAnchor, isObject } from "./utils";
 import { useMutation } from "@apollo/client";
 import Button from "@mui/joy/Button";
-import Input from "@mui/joy/Input";
-import { dissoc } from "ramda";
 import { ReactNode } from "react";
 import { useRecoilValue } from "recoil";
 import styled from "styled-components";
@@ -16,12 +15,6 @@ const Container = styled.div`
 `;
 
 const Header = styled.div`
-  margin-bottom: 5px;
-`;
-
-const VariableMapRow = styled.div`
-  display: flex;
-  gap: 5px;
   margin-bottom: 5px;
 `;
 
@@ -47,114 +40,21 @@ export default function EditorVariableMap(props: Props) {
   const map = props.isOutput ? block.output : block.input;
   const rows: ReactNode[] = [];
 
-  if (props.isOutput) {
-    if (isObject(map)) {
-      for (const [localName, scopeName] of Object.entries(map)) {
-        rows.push(
-          <VariableMapRow key={`${scopeName}-${localName}`}>
-            <Input
-              color="primary"
-              size="sm"
-              variant="soft"
-              style={{ flexGrow: 1 }}
-              value={localName}
-            />
-            <Input
-              color="neutral"
-              size="sm"
-              variant="soft"
-              style={{ flexGrow: 1 }}
-              value={scopeName}
-            />
-            <Button
-              color="danger"
-              size="sm"
-              variant="outlined"
-              onClick={() => {
-                if (!isObject(block.output)) {
-                  return;
-                }
-
-                const newContent = u<any, SpaceContent>(
-                  {
-                    components: {
-                      [block.id]: {
-                        output: dissoc(localName),
-                      },
-                    },
-                  },
-                  props.content
-                ) as SpaceContent;
-
-                updateSpaceV2({
-                  variables: {
-                    spaceId: props.spaceId,
-                    content: JSON.stringify(newContent),
-                  },
-                });
-              }}
-            >
-              Remove
-            </Button>
-          </VariableMapRow>
-        );
-      }
-    } else {
+  if (isObject(map)) {
+    for (const [key, value] of Object.entries(map)) {
+      rows.push(
+        <VariableMapRow
+          key={`${value}-${key}`}
+          spaceId={props.spaceId}
+          content={props.content}
+          localName={props.isOutput ? key : value}
+          scopeName={props.isOutput ? value : key}
+          block={block}
+          isOutput={props.isOutput}
+        />
+      );
     }
   } else {
-    if (isObject(map)) {
-      for (const [scopeName, localName] of Object.entries(map)) {
-        rows.push(
-          <VariableMapRow key={`${scopeName}-${localName}`}>
-            <Input
-              color="neutral"
-              size="sm"
-              variant="soft"
-              style={{ flexGrow: 1 }}
-              value={scopeName}
-            />
-            <Input
-              color="primary"
-              size="sm"
-              variant="soft"
-              style={{ flexGrow: 1 }}
-              value={localName}
-            />
-            <Button
-              color="danger"
-              size="sm"
-              variant="outlined"
-              onClick={() => {
-                if (!isObject(block.input)) {
-                  return;
-                }
-
-                const newContent = u<any, SpaceContent>(
-                  {
-                    components: {
-                      [block.id]: {
-                        input: dissoc(scopeName),
-                      },
-                    },
-                  },
-                  props.content
-                ) as SpaceContent;
-
-                updateSpaceV2({
-                  variables: {
-                    spaceId: props.spaceId,
-                    content: JSON.stringify(newContent),
-                  },
-                });
-              }}
-            >
-              Remove
-            </Button>
-          </VariableMapRow>
-        );
-      }
-    } else {
-    }
   }
 
   return (
