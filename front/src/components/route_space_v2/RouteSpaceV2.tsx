@@ -1,21 +1,11 @@
-import { gql } from "../../__generated__";
 import SpaceV2Left from "./SpaceV2Left";
 import SpaceV2Right from "./SpaceV2Right";
 import SpaceV2SubHeader from "./SpaceV2SubHeader";
-import { BlockGroup } from "./utils";
+import { SPACE_V2_QUERY } from "./graphql";
+import { SpaceContent } from "./interfaces";
 import { useQuery } from "@apollo/client";
 import { useEffect, useState } from "react";
 import styled from "styled-components";
-
-const SPACE_V2_QUERY = gql(`
-  query SpaceV2Query($spaceId: UUID!) {
-    spaceV2(id: $spaceId) {
-      id
-      name
-      content
-    }
-  }
-`);
 
 const Content = styled.div`
   flex-grow: 1;
@@ -27,7 +17,7 @@ const Content = styled.div`
 export default function RouteSpaceV2({ spaceId }: { spaceId: string }) {
   // --- Local State ---
 
-  const [content, setContent] = useState<BlockGroup | null>(null);
+  const [content, setContent] = useState<SpaceContent | null>(null);
 
   // --- GraphQL ---
 
@@ -40,6 +30,8 @@ export default function RouteSpaceV2({ spaceId }: { spaceId: string }) {
   useEffect(() => {
     if (query.data?.spaceV2?.content) {
       setContent(JSON.parse(query.data.spaceV2.content));
+    } else {
+      setContent(null);
     }
   }, [query.data?.spaceV2?.content]);
 
@@ -58,10 +50,12 @@ export default function RouteSpaceV2({ spaceId }: { spaceId: string }) {
   return (
     <>
       <SpaceV2SubHeader spaceId={spaceId} content={content} />
-      <Content>
-        <SpaceV2Left spaceId={spaceId} content={content} />
-        <SpaceV2Right spaceId={spaceId} content={content} />
-      </Content>
+      {content && (
+        <Content>
+          <SpaceV2Left spaceId={spaceId} content={content} />
+          <SpaceV2Right spaceId={spaceId} content={content} />
+        </Content>
+      )}
     </>
   );
 }

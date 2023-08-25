@@ -1,30 +1,34 @@
 import BlockComponent from "./BlockComponent";
 import "./BlockGroupComponent.css";
 import Gutter from "./Gutter";
-import { isBlockGroup } from "./utils";
-import { BlockGroup } from "./utils";
+import { BlockGroupAnchor, SpaceContent } from "./interfaces";
+import { isBlockGroupAnchor } from "./utils";
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import classNames from "classnames";
 import { ReactNode } from "react";
 
-export default function BlockGroupComponent({
-  blockGroup,
-  isRoot = false,
-  isParentDragging = false,
-}: {
-  blockGroup: BlockGroup;
+type Props = {
+  spaceContent: SpaceContent;
+  anchor: BlockGroupAnchor;
   isRoot?: boolean;
   isParentDragging?: boolean;
-}) {
+};
+
+export default function BlockGroupComponent({
+  spaceContent,
+  anchor,
+  isRoot = false,
+  isParentDragging = false,
+}: Props) {
   const { isDragging, attributes, listeners, setNodeRef, transform } =
     useDraggable({
-      id: blockGroup.id,
+      id: anchor.id,
     });
 
   const content: ReactNode[] = [];
 
-  for (const [i, block] of blockGroup.blocks.entries()) {
+  for (const [i, block] of anchor.blocks.entries()) {
     if (i === 0) {
       content.push(
         <Gutter
@@ -35,16 +39,23 @@ export default function BlockGroupComponent({
       );
     }
 
-    if (isBlockGroup(block)) {
+    if (isBlockGroupAnchor(block)) {
       content.push(
         <BlockGroupComponent
           key={block.id}
-          blockGroup={block}
+          spaceContent={spaceContent}
+          anchor={block}
           isParentDragging={isDragging || isParentDragging}
         />
       );
     } else {
-      content.push(<BlockComponent key={block.id} block={block} />);
+      content.push(
+        <BlockComponent
+          key={block.id}
+          spaceContent={spaceContent}
+          anchor={block}
+        />
+      );
     }
 
     content.push(
@@ -66,9 +77,7 @@ export default function BlockGroupComponent({
       {...listeners}
       {...attributes}
     >
-      {!isRoot && (
-        <div className="BlockGroupComponent_title">{blockGroup.id}</div>
-      )}
+      {!isRoot && <div className="BlockGroupComponent_title">{anchor.id}</div>}
       <div className="BlockGroupComponent_blocks">{content}</div>
     </div>
   );

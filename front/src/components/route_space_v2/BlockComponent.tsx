@@ -1,7 +1,8 @@
 import { spaceV2SelectedBlockIdState } from "../../state/store";
 import BlockV2 from "../block_v2/BlockV2";
 import BlockVariableMap from "./BlockVariableMap";
-import { BLOCK_CONFIGS, Block } from "./utils";
+import { Block, BlockAnchor, SpaceContent } from "./interfaces";
+import { BLOCK_CONFIGS } from "./utils";
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import { useRecoilState } from "recoil";
@@ -20,16 +21,22 @@ const SlotHolder = styled.div`
   width: 250px;
 `;
 
-export default function BlockComponent({ block }: { block: Block }) {
+type Props = {
+  spaceContent: SpaceContent;
+  anchor: BlockAnchor;
+};
+
+export default function BlockComponent({ anchor, spaceContent }: Props) {
+  const block = spaceContent.components[anchor.id] as Block;
+  const blockConfig = BLOCK_CONFIGS[block.type];
+
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
-    id: block.id,
+    id: anchor.id,
   });
 
   const [spaceV2SelectedBlockId, setSpaceV2SelectedBlockId] = useRecoilState(
     spaceV2SelectedBlockIdState
   );
-
-  const blockConfig = BLOCK_CONFIGS[block.type];
 
   return (
     <Container

@@ -1,5 +1,6 @@
 import { spaceV2SelectedBlockIdState } from "../../state/store";
-import { BlockGroup, isBlockGroup, isObject } from "./utils";
+import { SpaceContent } from "./interfaces";
+import { isBlockGroupAnchor, isObject } from "./utils";
 import Button from "@mui/joy/Button";
 import Input from "@mui/joy/Input";
 import { ReactNode } from "react";
@@ -21,7 +22,7 @@ const VariableMapRow = styled.div`
 `;
 
 type Props = {
-  content: BlockGroup | null;
+  content: SpaceContent;
   isOutput?: boolean;
   onAddVariableMapEntry: () => void;
 };
@@ -29,11 +30,11 @@ type Props = {
 export default function EditorVariableMap(props: Props) {
   const spaceV2SelectedBlockId = useRecoilValue(spaceV2SelectedBlockIdState);
 
-  const block = props.content?.blocks.find(
-    (block) => block.id === spaceV2SelectedBlockId
-  );
+  const block = spaceV2SelectedBlockId
+    ? props.content.components[spaceV2SelectedBlockId]
+    : null;
 
-  if (block == null || isBlockGroup(block)) {
+  if (block == null || isBlockGroupAnchor(block)) {
     return null;
   }
 

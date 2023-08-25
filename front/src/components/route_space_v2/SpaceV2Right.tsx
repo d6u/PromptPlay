@@ -1,17 +1,12 @@
 import { spaceV2SelectedBlockIdState } from "../../state/store";
 import EditorVariableMap from "./EditorVariableMap";
 import { UPDATE_SPACE_V2_MUTATION } from "./graphql";
-import {
-  BLOCK_CONFIGS,
-  Block,
-  BlockGroup,
-  isBlockGroup,
-  isObject,
-} from "./utils";
+import { SpaceContent } from "./interfaces";
+import { BLOCK_CONFIGS, isBlockGroupAnchor, isObject } from "./utils";
 import { useMutation } from "@apollo/client";
-import fp from "lodash/fp";
 import { useRecoilValue } from "recoil";
 import styled from "styled-components";
+import u from "updeep";
 
 const Container = styled.div`
   width: 500px;
@@ -50,7 +45,7 @@ const Body = styled.div`
 
 type Props = {
   spaceId: string;
-  content: BlockGroup | null;
+  content: SpaceContent;
 };
 
 export default function SpaceV2Right(props: Props) {
@@ -58,11 +53,11 @@ export default function SpaceV2Right(props: Props) {
 
   const spaceV2SelectedBlockId = useRecoilValue(spaceV2SelectedBlockIdState);
 
-  const block = props.content?.blocks.find(
-    (block) => block.id === spaceV2SelectedBlockId
-  );
+  const block = spaceV2SelectedBlockId
+    ? props.content.components[spaceV2SelectedBlockId]
+    : null;
 
-  if (block == null || isBlockGroup(block)) {
+  if (block == null || isBlockGroupAnchor(block)) {
     return null;
   }
 
@@ -79,35 +74,26 @@ export default function SpaceV2Right(props: Props) {
             <EditorVariableMap
               content={props.content}
               onAddVariableMapEntry={() => {
-                const blockIndex = props.content!.blocks.findIndex(
-                  (block) => block.id === spaceV2SelectedBlockId
-                );
-
-                const targetBlock = props.content!.blocks[blockIndex] as Block;
-
-                if (!isObject(targetBlock.input)) {
+                if (!isObject(block.input)) {
                   return;
                 }
 
-                const count = Object.keys(targetBlock.input).length;
+                const count = Object.keys(block.input).length;
+                const scopeName = `scope_name_${count + 1}`;
+                const argName = `arg_vary_vary_long_name_${count + 1}`;
 
-                const newBlock = {
-                  ...targetBlock,
-                  input: {
-                    ...targetBlock.input,
-                    [`scope_name_${count + 1}`]: `arg_vary_vary_long_name_${
-                      count + 1
-                    }`,
+                const newContent = u<any, SpaceContent>(
+                  {
+                    components: {
+                      [block.id]: {
+                        input: {
+                          [scopeName]: argName,
+                        },
+                      },
+                    },
                   },
-                };
-
-                const newContent = fp.assign(props.content, {
-                  blocks: [
-                    ...props.content!.blocks.slice(0, blockIndex),
-                    newBlock,
-                    ...props.content!.blocks.slice(blockIndex + 1),
-                  ],
-                });
+                  props.content
+                ) as SpaceContent;
 
                 updateSpaceV2({
                   variables: {
@@ -123,35 +109,26 @@ export default function SpaceV2Right(props: Props) {
               content={props.content}
               isOutput
               onAddVariableMapEntry={() => {
-                const blockIndex = props.content!.blocks.findIndex(
-                  (block) => block.id === spaceV2SelectedBlockId
-                );
-
-                const targetBlock = props.content!.blocks[blockIndex] as Block;
-
-                if (!isObject(targetBlock.output)) {
+                if (!isObject(block.output)) {
                   return;
                 }
 
-                const count = Object.keys(targetBlock.output).length;
+                const count = Object.keys(block.output).length;
+                const localName = `local_name_${count + 1}`;
+                const scopeName = `scope_name_pretty_long_${count + 1}`;
 
-                const newBlock = {
-                  ...targetBlock,
-                  output: {
-                    ...targetBlock.output,
-                    [`local_name_${count + 1}`]: `scope_name_pretty_long_${
-                      count + 1
-                    }`,
+                const newContent = u<any, SpaceContent>(
+                  {
+                    components: {
+                      [block.id]: {
+                        output: {
+                          [localName]: scopeName,
+                        },
+                      },
+                    },
                   },
-                };
-
-                const newContent = fp.assign(props.content, {
-                  blocks: [
-                    ...props.content!.blocks.slice(0, blockIndex),
-                    newBlock,
-                    ...props.content!.blocks.slice(blockIndex + 1),
-                  ],
-                });
+                  props.content
+                ) as SpaceContent;
 
                 updateSpaceV2({
                   variables: {

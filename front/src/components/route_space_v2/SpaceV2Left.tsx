@@ -1,7 +1,8 @@
+import { useDefaultSensors } from "../../util/useDefaultSensors";
 import BlockGroupComponent from "./BlockGroupComponent";
 import { UPDATE_SPACE_V2_MUTATION } from "./graphql";
-import { updateContent, useDefaultSensors } from "./utils";
-import { BlockGroup } from "./utils";
+import { SpaceContent } from "./interfaces";
+import { updateContent } from "./utils";
 import { useMutation } from "@apollo/client";
 import { DndContext, closestCenter } from "@dnd-kit/core";
 import styled from "@emotion/styled";
@@ -15,13 +16,12 @@ const Content = styled.div`
   padding: 13px 20px 13px 0;
 `;
 
-export default function SpaceV2Left({
-  spaceId,
-  content,
-}: {
+type Props = {
   spaceId: string;
-  content: BlockGroup | null;
-}) {
+  content: SpaceContent;
+};
+
+export default function SpaceV2Left({ spaceId, content }: Props) {
   const [updateSpaceV2] = useMutation(UPDATE_SPACE_V2_MUTATION);
 
   const sensors = useDefaultSensors();
@@ -48,7 +48,13 @@ export default function SpaceV2Left({
         }}
       >
         <Content>
-          {content && <BlockGroupComponent blockGroup={content} isRoot />}
+          {content && (
+            <BlockGroupComponent
+              spaceContent={content}
+              anchor={content.root}
+              isRoot
+            />
+          )}
         </Content>
       </DndContext>
     </Container>

@@ -1,80 +1,63 @@
 import {
-  KeyboardSensor,
-  MouseSensor,
-  TouchSensor,
-  useSensor,
-  useSensors,
-} from "@dnd-kit/core";
+  BlockAnchor,
+  BlockGroupAnchor,
+  BlockType,
+  SpaceContent,
+} from "./interfaces";
 import fp from "lodash/fp";
-
-export type Block = {
-  id: string;
-  type: BlockType;
-  input: { [key: string]: string } | string | null;
-  code: string | null;
-  output: { [key: string]: string } | string | null;
-};
-
-export type BlockGroup = {
-  id: string;
-  type: "root" | "repeat" | "alternative";
-  blocks: Array<Block | BlockGroup>;
-};
-
-export function useDefaultSensors() {
-  const mouseSensor = useSensor(MouseSensor, {
-    // Require the mouse to move by 10 pixels before activating
-    activationConstraint: {
-      distance: 5,
-    },
-  });
-  const touchSensor = useSensor(TouchSensor, {
-    // Press delay of 250ms, with tolerance of 5px of movement
-    activationConstraint: {
-      delay: 250,
-      tolerance: 5,
-    },
-  });
-  const keyboardSensor = useSensor(KeyboardSensor);
-
-  return useSensors(mouseSensor, touchSensor, keyboardSensor);
-}
+import u from "updeep";
 
 export function updateContent(
   overId: string,
   activeId: string,
-  group: BlockGroup
-): BlockGroup {
+  content: SpaceContent
+): SpaceContent {
   const positionId = overId.split(":")[1];
 
   // We didn't move the block
   if (positionId === activeId) {
-    return group;
+    return content;
   }
 
-  const [activeBlock, newBlocks] = pullBlockFromBlocks(activeId, group.blocks);
+  const [activeBlock, newBlocks] = pullBlockFromBlocks(
+    activeId,
+    content.root.blocks
+  );
 
-  group = fp.assign(group, {
-    blocks: newBlocks,
-  });
+  content = u<any, SpaceContent>(
+    {
+      root: {
+        blocks: u.constant(newBlocks),
+      },
+    },
+    content
+  ) as SpaceContent;
 
   const [, newNewBlocks] = insertBlockIntoBlocks(
     overId,
     activeBlock!,
-    group.blocks
+    content.root.blocks
   );
 
-  group = fp.assign(group, {
-    blocks: newNewBlocks,
-  });
+  content = u<any, SpaceContent>(
+    {
+      root: {
+        blocks: u.constant(newNewBlocks),
+      },
+    },
+    content
+  ) as SpaceContent;
 
-  return group;
+  return content;
 }
 
 function pullBlockFromBlocks(
   activeId: string,
-  blocks: Array<Block | BlockGroup>
-): [Block | BlockGroup | null, Array<Block | BlockGroup>] {
+  blocks: Array<BlockAnchor | BlockGroupAnchor>
+): [
+  BlockAnchor | BlockGroupAnchor | null,
+  Array<BlockAnchor | BlockGroupAnchor>
+] {
   let activeBlock = blocks.find(({ id }) => id === activeId) ?? null;
 
   if (activeBlock) {
@@ -83,13 +66,13 @@ function pullBlockFromBlocks(
   }
 
   let changedIndex = -1;
-  let changedBlock: Block | BlockGroup | null = null;
-  let changedBlockNewBlocks: Array<Block | BlockGroup> | null;
+  let changedBlock: BlockAnchor | BlockGroupAnchor | null = null;
+  let changedBlockNewBlocks: Array<BlockAnchor | BlockGroupAnchor> | null;
 
   for (let i = 0; i < blocks.length; i++) {
     const block = blocks[i];
 
-    if (isBlockGroup(block)) {
+    if (isBlockGroupAnchor(block)) {
       const [pulledBlock, newBlocks] = pullBlockFromBlocks(
         activeId,
         block.blocks
@@ -120,9 +103,9 @@ function pullBlockFromBlocks(
 
 function insertBlockIntoBlocks(
   overId: string,
-  block: Block | BlockGroup,
-  blocks: Array<Block | BlockGroup>
-): [boolean, Array<Block | BlockGroup>] {
+  block: BlockAnchor | BlockGroupAnchor,
+  blocks: Array<BlockAnchor | BlockGroupAnchor>
+): [boolean, Array<BlockAnchor | BlockGroupAnchor>] {
   const positionId = overId.split(":")[1];
 
   if (overId.startsWith("After:")) {
@@ -148,13 +131,13 @@ function insertBlockIntoBlocks(
   }
 
   let changedIndex = -1;
-  let changedBlock: Block | BlockGroup | null = null;
-  let changedBlockNewBlocks: Array<Block | BlockGroup> | null;
+  let changedBlock: BlockAnchor | BlockGroupAnchor | null = null;
+  let changedBlockNewBlocks: Array<BlockAnchor | BlockGroupAnchor> | null;
 
   for (let i = 0; i < blocks.length; i++) {
     const currentBlock = blocks[i];
 
-    if (isBlockGroup(currentBlock)) {
+    if (isBlockGroupAnchor(currentBlock)) {
       const [isInserted, newBlocks] = insertBlockIntoBlocks(
         overId,
         block,
@@ -184,7 +167,9 @@ function insertBlockIntoBlocks(
   return [false, blocks];
 }
 
-export function isBlockGroup(block: Block | BlockGroup): block is BlockGroup {
+export function isBlockGroupAnchor(
+  block: BlockAnchor | BlockGroupAnchor
+): block is BlockGroupAnchor {
   return "blocks" in block;
 }
 
@@ -192,14 +177,6 @@ export function isObject(
   value: { [key: string]: string } | string | null
 ): value is { [key: string]: string } {
   return typeof value === "object";
-}
-
-export enum BlockType {
-  Databag = "Databag",
-  LlmMessage = "LlmMessage",
-  AppendToList = "AppendToList",
-  Llm = "Llm",
-  GetAttribute = "GetAttribute",
 }
 
 export type BlockConfig = {

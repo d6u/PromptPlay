@@ -1,10 +1,18 @@
 import "./SpaceV2SubHeader.css";
-import { UPDATE_SPACE_V2_MUTATION } from "./graphql";
-import { Block, BlockGroup, BlockType } from "./utils";
+import { SPACE_V2_QUERY, UPDATE_SPACE_V2_MUTATION } from "./graphql";
+import {
+  Block,
+  BlockGroupType,
+  BlockType,
+  ROOT_COMPONENT_ID,
+  SpaceContent,
+} from "./interfaces";
 import { useMutation } from "@apollo/client";
 import Button from "@mui/joy/Button";
+import fp from "lodash/fp";
 import { nanoid } from "nanoid";
 import { useCallback } from "react";
+import updeep from "updeep";
 
 function createNewBlock(type: BlockType): Block {
   return {
@@ -20,44 +28,58 @@ function createNewBlock(type: BlockType): Block {
   };
 }
 
-export default function SpaceV2SubHeader({
-  spaceId,
-  content,
-}: {
+type Props = {
   spaceId: string;
-  content: BlockGroup | null;
-}) {
-  const [updateSpaceV2] = useMutation(UPDATE_SPACE_V2_MUTATION);
+  content: SpaceContent | null;
+};
+
+export default function SpaceV2SubHeader({ spaceId, content }: Props) {
+  const [updateSpaceV2] = useMutation(UPDATE_SPACE_V2_MUTATION, {
+    refetchQueries: [SPACE_V2_QUERY],
+  });
 
   const resetSpace = useCallback(() => {
-    const newContent = {
-      id: nanoid(),
-      type: "root",
-      blocks: [],
-    };
-
     updateSpaceV2({
       variables: {
         spaceId,
-        content: JSON.stringify(newContent),
+        content: JSON.stringify(null),
       },
     });
   }, [spaceId, updateSpaceV2]);
 
   const addDatabag = useCallback(
     (block: Block) => {
-      let newContent: BlockGroup;
-      if (content == null) {
+      let newContent = content;
+
+      if (newContent == null) {
         newContent = {
-          id: nanoid(),
-          type: "root",
-          blocks: [],
+          root: {
+            id: ROOT_COMPONENT_ID,
+            blocks: [],
+          },
+          components: {
+            [ROOT_COMPONENT_ID]: {
+              id: ROOT_COMPONENT_ID,
+              type: BlockGroupType.Root,
+              blocks: [],
+            },
+          },
         };
-      } else {
-        newContent = { ...content };
       }
 
-      newContent.blocks.push(block);
+      newContent = updeep<any, SpaceContent>(
+        {
+          root: {
+            blocks: fp.concat(fp.__, {
+              id: block.id,
+            }),
+          },
+          components: {
+            [block.id]: block,
+          },
+        },
+        newContent
+      ) as SpaceContent;
 
       updateSpaceV2({
         variables: {
