@@ -13,27 +13,29 @@ const BlockInput = styled.div<{ $justifyContent: "flex-end" | "flex-start" }>`
 `;
 
 const Chip = styled.div`
-  display: flex;
+  min-width: 0;
   padding: 5px 10px;
   align-items: center;
   border-radius: 25px;
   font-family: Menlo;
   font-size: 12px;
-  font-style: normal;
   font-weight: 400;
   line-height: 13px;
+  max-width: 100%;
+  text-overflow: ellipsis;
+  overflow: hidden;
 `;
 
-const ScopeName = styled(Chip)`
+const ScopeName = styled(Chip)<{ $justifySelf: "flex-end" | "flex-start" }>`
   color: #00b3ff;
   border: 1px solid #00b3ff;
-  justify-self: flex-end;
+  justify-self: ${(props) => props.$justifySelf};
 `;
 
-const LocalName = styled(Chip)`
+const LocalName = styled(Chip)<{ $justifySelf: "flex-end" | "flex-start" }>`
   background: #00b3ff;
   color: #fff;
-  justify-self: flex-start;
+  justify-self: ${(props) => props.$justifySelf};
 `;
 
 type Props = {
@@ -48,32 +50,48 @@ export default function BlockVariableMap(props: Props) {
     if (isObject(props.variableMap)) {
       for (const [localName, scopeName] of Object.entries(props.variableMap)) {
         chips.push(
-          <LocalName key={`local-name-${localName}`}>{localName}</LocalName>,
+          <LocalName key={`local-name-${localName}`} $justifySelf="flex-end">
+            {localName}
+          </LocalName>,
           <VariableMapArrow key={`${localName}-${scopeName}-arrow`} />,
-          <ScopeName key={`scope-name-${scopeName}`}>{scopeName}</ScopeName>
+          <ScopeName key={`scope-name-${scopeName}`} $justifySelf="flex-start">
+            {scopeName}
+          </ScopeName>
         );
       }
     } else if (props.variableMap) {
       chips.push(
-        <LocalName key="local-name">_</LocalName>,
+        <LocalName key="local-name" $justifySelf="flex-end">
+          _
+        </LocalName>,
         <VariableMapArrow key="arrow" />,
-        <ScopeName key="scope-name">{props.variableMap}</ScopeName>
+        <ScopeName key="scope-name" $justifySelf="flex-start">
+          {props.variableMap}
+        </ScopeName>
       );
     }
   } else {
     if (isObject(props.variableMap)) {
       for (const [scopeName, localName] of Object.entries(props.variableMap)) {
         (chips as ReactNode[]).push(
-          <ScopeName key={`scope-name-${scopeName}`}>{scopeName}</ScopeName>,
+          <ScopeName key={`scope-name-${scopeName}`} $justifySelf="flex-end">
+            {scopeName}
+          </ScopeName>,
           <VariableMapArrow key={`${scopeName}-${localName}-arrow`} />,
-          <LocalName key={`local-name-${localName}`}>{localName}</LocalName>
+          <LocalName key={`local-name-${localName}`} $justifySelf="flex-start">
+            {localName}
+          </LocalName>
         );
       }
     } else if (props.variableMap) {
       chips.push(
-        <ScopeName key="scope-name">{props.variableMap}</ScopeName>,
+        <ScopeName key="scope-name" $justifySelf="flex-end">
+          {props.variableMap}
+        </ScopeName>,
         <VariableMapArrow key="arrow" />,
-        <LocalName key="local-name">_</LocalName>
+        <LocalName key="local-name" $justifySelf="flex-start">
+          _
+        </LocalName>
       );
     }
   }

@@ -1,13 +1,6 @@
 import CrossIconV2 from "../icons/CrossIconV2";
+import { BLOCK_CONFIGS, BlockType } from "../route_space_v2/utils";
 import styled, { css } from "styled-components";
-
-export enum BlockType {
-  Databag = "Databag",
-  LlmMessage = "LlmMessage",
-  AppendToList = "AppendToList",
-  Llm = "Llm",
-  GetAttribute = "GetAttribute",
-}
 
 const Container = styled.div<{
   $type: BlockType;
@@ -114,28 +107,7 @@ type Props = {
 };
 
 export default function BlockV2(props: Props) {
-  let title: string | null;
-
-  switch (props.type) {
-    case BlockType.Databag:
-      title = "Databag";
-      break;
-    case BlockType.LlmMessage:
-      title = "LLM Message";
-      break;
-    case BlockType.AppendToList:
-      title = "Append to List";
-      break;
-    case BlockType.Llm:
-      title = "LLM";
-      break;
-    case BlockType.GetAttribute:
-      title = "Get Attribute";
-      break;
-    default:
-      title = null;
-      break;
-  }
+  const title = BLOCK_CONFIGS[props.type]?.title;
 
   return (
     <Container

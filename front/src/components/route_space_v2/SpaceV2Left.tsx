@@ -8,10 +8,11 @@ import styled from "@emotion/styled";
 
 const Container = styled.div`
   overflow-y: auto;
+  flex-grow: 1;
 `;
 
 const Content = styled.div`
-  padding: 20px 20px 20px 0;
+  padding: 13px 20px 13px 0;
 `;
 
 export default function SpaceV2Left({

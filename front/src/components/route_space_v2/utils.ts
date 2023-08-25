@@ -1,4 +1,3 @@
-import { BlockType } from "../block_v2/BlockV2";
 import {
   KeyboardSensor,
   MouseSensor,
@@ -194,3 +193,29 @@ export function isObject(
 ): value is { [key: string]: string } {
   return typeof value === "object";
 }
+
+export enum BlockType {
+  Databag = "Databag",
+  LlmMessage = "LlmMessage",
+  AppendToList = "AppendToList",
+  Llm = "Llm",
+  GetAttribute = "GetAttribute",
+}
+
+export const BLOCK_CONFIGS = {
+  [BlockType.Databag]: {
+    title: "Databag",
+  },
+  [BlockType.LlmMessage]: {
+    title: "LLM Message",
+  },
+  [BlockType.AppendToList]: {
+    title: "Append to List",
+  },
+  [BlockType.Llm]: {
+    title: "LLM",
+  },
+  [BlockType.GetAttribute]: {
+    title: "Get Attribute",
+  },
+};

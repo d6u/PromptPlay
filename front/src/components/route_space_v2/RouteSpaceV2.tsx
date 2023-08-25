@@ -1,5 +1,6 @@
 import { gql } from "../../__generated__";
 import SpaceV2Left from "./SpaceV2Left";
+import SpaceV2Right from "./SpaceV2Right";
 import SpaceV2SubHeader from "./SpaceV2SubHeader";
 import { BlockGroup } from "./utils";
 import { useQuery } from "@apollo/client";
@@ -19,7 +20,7 @@ const SPACE_V2_QUERY = gql(`
 const Content = styled.div`
   flex-grow: 1;
   display: flex;
-  padding: 0 20px;
+  padding: 0 0 0 20px;
   min-height: 0;
 `;
 
@@ -59,6 +60,7 @@ export default function RouteSpaceV2({ spaceId }: { spaceId: string }) {
       <SpaceV2SubHeader spaceId={spaceId} content={content} />
       <Content>
         <SpaceV2Left spaceId={spaceId} content={content} />
+        <SpaceV2Right spaceId={spaceId} content={content} />
       </Content>
     </>
   );

@@ -1,7 +1,6 @@
-import { BlockType } from "../block_v2/BlockV2";
 import "./SpaceV2SubHeader.css";
 import { UPDATE_SPACE_V2_MUTATION } from "./graphql";
-import { Block, BlockGroup } from "./utils";
+import { Block, BlockGroup, BlockType } from "./utils";
 import { useMutation } from "@apollo/client";
 import Button from "@mui/joy/Button";
 import { nanoid } from "nanoid";
