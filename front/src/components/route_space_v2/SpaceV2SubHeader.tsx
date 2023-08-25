@@ -9,10 +9,10 @@ import {
 } from "./interfaces";
 import { useMutation } from "@apollo/client";
 import Button from "@mui/joy/Button";
-import fp from "lodash/fp";
 import { nanoid } from "nanoid";
+import { append } from "ramda";
 import { useCallback } from "react";
-import updeep from "updeep";
+import u from "updeep";
 
 function createNewBlock(type: BlockType): Block {
   return {
@@ -47,7 +47,7 @@ export default function SpaceV2SubHeader({ spaceId, content }: Props) {
     });
   }, [spaceId, updateSpaceV2]);
 
-  const addDatabag = useCallback(
+  const appendBlock = useCallback(
     (block: Block) => {
       let newContent = content;
 
@@ -67,15 +67,15 @@ export default function SpaceV2SubHeader({ spaceId, content }: Props) {
         };
       }
 
-      newContent = updeep<any, SpaceContent>(
+      newContent = u<any, SpaceContent>(
         {
           root: {
-            blocks: fp.concat(fp.__, {
+            blocks: append({
               id: block.id,
             }),
           },
           components: {
-            [block.id]: block,
+            [block.id]: u.constant(block),
           },
         },
         newContent
@@ -134,24 +134,24 @@ export default function SpaceV2SubHeader({ spaceId, content }: Props) {
   return (
     <div className="SpaceV2SubHeader">
       <div className="SpaceV2SubHeader_left">
-        <Button onClick={() => addDatabag(createNewBlock(BlockType.Databag))}>
+        <Button onClick={() => appendBlock(createNewBlock(BlockType.Databag))}>
           Add databag
         </Button>
         <Button
-          onClick={() => addDatabag(createNewBlock(BlockType.LlmMessage))}
+          onClick={() => appendBlock(createNewBlock(BlockType.LlmMessage))}
         >
           Add message
         </Button>
         <Button
-          onClick={() => addDatabag(createNewBlock(BlockType.AppendToList))}
+          onClick={() => appendBlock(createNewBlock(BlockType.AppendToList))}
         >
           Add append to list
         </Button>
-        <Button onClick={() => addDatabag(createNewBlock(BlockType.Llm))}>
+        <Button onClick={() => appendBlock(createNewBlock(BlockType.Llm))}>
           Add LLM
         </Button>
         <Button
-          onClick={() => addDatabag(createNewBlock(BlockType.GetAttribute))}
+          onClick={() => appendBlock(createNewBlock(BlockType.GetAttribute))}
         >
           Add get attribute
         </Button>
