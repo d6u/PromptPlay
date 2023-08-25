@@ -1,3 +1,4 @@
+import { createNewBlock } from "./config";
 import { SPACE_V2_QUERY, UPDATE_SPACE_V2_MUTATION } from "./graphql";
 import {
   Block,
@@ -8,7 +9,6 @@ import {
 } from "./interfaces";
 import { useMutation } from "@apollo/client";
 import Button from "@mui/joy/Button";
-import { nanoid } from "nanoid";
 import { append } from "ramda";
 import { useCallback } from "react";
 import styled from "styled-components";
@@ -188,18 +188,4 @@ export default function SpaceV2SubHeader({ spaceId, content }: Props) {
       </div>
     </Container>
   );
-}
-
-function createNewBlock(type: BlockType): Block {
-  return {
-    id: nanoid(),
-    type,
-    input: {
-      scope_name: "argument_name",
-    },
-    code: null,
-    output: {
-      return_name: "scope_name",
-    },
-  };
 }

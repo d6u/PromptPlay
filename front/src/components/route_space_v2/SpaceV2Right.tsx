@@ -80,7 +80,13 @@ export default function SpaceV2Right(props: Props) {
       editorContent = (
         <FieldRow>
           <FieldTitle>Value</FieldTitle>
-          <Textarea color="neutral" size="sm" variant="outlined" minRows={3} />
+          <Textarea
+            color="neutral"
+            size="sm"
+            variant="outlined"
+            minRows={3}
+            value=""
+          />
         </FieldRow>
       );
       break;
@@ -120,6 +126,7 @@ export default function SpaceV2Right(props: Props) {
               size="sm"
               variant="outlined"
               minRows={3}
+              value=""
             />
           </FieldRow>
         </>
@@ -148,7 +155,7 @@ export default function SpaceV2Right(props: Props) {
           </FieldRow>
           <FieldRow>
             <FieldTitle>Stop</FieldTitle>
-            <Input color="neutral" size="sm" variant="outlined" />
+            <Input color="neutral" size="sm" variant="outlined" value="" />
           </FieldRow>
         </>
       );
@@ -158,11 +165,11 @@ export default function SpaceV2Right(props: Props) {
         <>
           <FieldRow>
             <FieldTitle>Item name</FieldTitle>
-            <Input color="neutral" size="sm" variant="outlined" />
+            <Input color="neutral" size="sm" variant="outlined" value="" />
           </FieldRow>
           <FieldRow>
             <FieldTitle>List name</FieldTitle>
-            <Input color="neutral" size="sm" variant="outlined" />
+            <Input color="neutral" size="sm" variant="outlined" value="" />
           </FieldRow>
         </>
       );
@@ -172,7 +179,7 @@ export default function SpaceV2Right(props: Props) {
         <>
           <FieldRow>
             <FieldTitle>Attribute</FieldTitle>
-            <Input color="neutral" size="sm" variant="outlined" />
+            <Input color="neutral" size="sm" variant="outlined" value="" />
           </FieldRow>
         </>
       );

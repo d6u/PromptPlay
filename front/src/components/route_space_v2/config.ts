@@ -1,4 +1,5 @@
-import { BlockType } from "./interfaces";
+import { Block, BlockType } from "./interfaces";
+import { nanoid } from "nanoid";
 
 export type BlockConfig = {
   title: string;
@@ -41,3 +42,52 @@ export const BLOCK_CONFIGS: { [key in BlockType]: BlockConfig } = {
     singleOutput: true,
   },
 };
+
+export function createNewBlock(type: BlockType): Block {
+  switch (type) {
+    case BlockType.Databag:
+      return {
+        id: nanoid(),
+        type,
+        input: null,
+        code: null,
+        output: "scope_name",
+      };
+    case BlockType.LlmMessage:
+      return {
+        id: nanoid(),
+        type,
+        input: {
+          scope_name: "argument_name",
+        },
+        code: null,
+        output: "scope_name",
+      };
+    case BlockType.AppendToList:
+      return {
+        id: nanoid(),
+        type,
+        input: null,
+        code: null,
+        output: null,
+      };
+    case BlockType.Llm:
+      return {
+        id: nanoid(),
+        type,
+        input: "scope_name",
+        code: null,
+        output: "scope_name",
+      };
+    case BlockType.GetAttribute:
+      return {
+        id: nanoid(),
+        type,
+        input: "scope_name",
+        code: null,
+        output: "scope_name",
+      };
+    default:
+      throw new Error(`Unknown block type: ${type}`);
+  }
+}
