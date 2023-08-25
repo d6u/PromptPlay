@@ -1,4 +1,3 @@
-import "./SpaceV2SubHeader.css";
 import { SPACE_V2_QUERY, UPDATE_SPACE_V2_MUTATION } from "./graphql";
 import {
   Block,
@@ -12,21 +11,25 @@ import Button from "@mui/joy/Button";
 import { nanoid } from "nanoid";
 import { append } from "ramda";
 import { useCallback } from "react";
+import styled from "styled-components";
 import u from "updeep";
 
-function createNewBlock(type: BlockType): Block {
-  return {
-    id: nanoid(),
-    type,
-    input: {
-      scope_name: "argument_name",
-    },
-    code: null,
-    output: {
-      return_name: "scope_name",
-    },
-  };
-}
+const Container = styled.div`
+  height: 60px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 10px;
+  border-bottom: 1px solid #ececf1;
+  flex-shrink: 0;
+`;
+
+const Left = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+`;
 
 type Props = {
   spaceId: string;
@@ -132,8 +135,8 @@ export default function SpaceV2SubHeader({ spaceId, content }: Props) {
   // }, [content, spaceId, updateSpaceV2]);
 
   return (
-    <div className="SpaceV2SubHeader">
-      <div className="SpaceV2SubHeader_left">
+    <Container>
+      <Left>
         <Button onClick={() => appendBlock(createNewBlock(BlockType.Databag))}>
           Add databag
         </Button>
@@ -156,7 +159,7 @@ export default function SpaceV2SubHeader({ spaceId, content }: Props) {
           Add get attribute
         </Button>
         {/* <Button onClick={addGroup}>Add group</Button> */}
-      </div>
+      </Left>
       <div>
         <Button onClick={resetSpace}>Reset space</Button>
         <Button
@@ -183,6 +186,20 @@ export default function SpaceV2SubHeader({ spaceId, content }: Props) {
           Delete space
         </Button>
       </div>
-    </div>
+    </Container>
   );
+}
+
+function createNewBlock(type: BlockType): Block {
+  return {
+    id: nanoid(),
+    type,
+    input: {
+      scope_name: "argument_name",
+    },
+    code: null,
+    output: {
+      return_name: "scope_name",
+    },
+  };
 }

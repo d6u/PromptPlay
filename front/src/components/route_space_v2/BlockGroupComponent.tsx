@@ -1,12 +1,39 @@
 import BlockComponent from "./BlockComponent";
-import "./BlockGroupComponent.css";
 import Gutter from "./Gutter";
 import { BlockGroupAnchor, SpaceContent } from "./interfaces";
 import { isBlockGroupAnchor } from "./utils";
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
-import classNames from "classnames";
 import { ReactNode } from "react";
+import styled, { css } from "styled-components";
+
+const Container = styled.div<{ $root: boolean }>`
+  ${(props) =>
+    props.$root
+      ? null
+      : css`
+          padding: 15px 15px 8px 15px;
+          border-radius: 10px;
+          border: 2px solid #00b3ff;
+        `}
+`;
+
+const Title = styled.div`
+  color: #000;
+  font-family: Inter;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+  margin-bottom: 3px;
+`;
+
+const Content = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  align-items: flex-start;
+`;
 
 type Props = {
   spaceContent: SpaceContent;
@@ -68,17 +95,15 @@ export default function BlockGroupComponent({
   }
 
   return (
-    <div
-      className={classNames("BlockGroupComponent", {
-        BlockGroupComponent__not_root: !isRoot,
-      })}
+    <Container
+      $root={isRoot}
       ref={setNodeRef}
       style={{ transform: CSS.Translate.toString(transform) }}
       {...listeners}
       {...attributes}
     >
-      {!isRoot && <div className="BlockGroupComponent_title">{anchor.id}</div>}
-      <div className="BlockGroupComponent_blocks">{content}</div>
-    </div>
+      {!isRoot && <Title>{anchor.id}</Title>}
+      <Content>{content}</Content>
+    </Container>
   );
 }
