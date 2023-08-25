@@ -1,10 +1,10 @@
 import { gql } from "../../__generated__";
-import "./RouteSpaceV2.css";
 import SpaceV2Left from "./SpaceV2Left";
 import SpaceV2SubHeader from "./SpaceV2SubHeader";
 import { BlockGroup } from "./utils";
 import { useQuery } from "@apollo/client";
 import { useEffect, useState } from "react";
+import styled from "styled-components";
 
 const SPACE_V2_QUERY = gql(`
   query SpaceV2Query($spaceId: UUID!) {
@@ -15,6 +15,13 @@ const SPACE_V2_QUERY = gql(`
     }
   }
 `);
+
+const Content = styled.div`
+  flex-grow: 1;
+  display: flex;
+  padding: 0 20px;
+  min-height: 0;
+`;
 
 export default function RouteSpaceV2({ spaceId }: { spaceId: string }) {
   // --- Local State ---
@@ -50,9 +57,9 @@ export default function RouteSpaceV2({ spaceId }: { spaceId: string }) {
   return (
     <>
       <SpaceV2SubHeader spaceId={spaceId} content={content} />
-      <div className="RouteSpaceV2">
+      <Content>
         <SpaceV2Left spaceId={spaceId} content={content} />
-      </div>
+      </Content>
     </>
   );
 }

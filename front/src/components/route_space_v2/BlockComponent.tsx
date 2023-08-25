@@ -4,6 +4,53 @@ import { Block, isObject } from "./utils";
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import { ReactNode } from "react";
+import styled from "styled-components";
+
+const Container = styled.div`
+  display: flex;
+  padding: 10px;
+  align-items: flex-start;
+  gap: 10px;
+  border-radius: 5px;
+  border: 1px solid var(--border-darker, #c5c5d2);
+`;
+
+const Chip = styled.div`
+  display: flex;
+  padding: 5px 10px;
+  align-items: center;
+  border-radius: 25px;
+  font-family: Menlo;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 13px;
+`;
+
+const ScopeName = styled(Chip)`
+  color: #00b3ff;
+  border: 1px solid #00b3ff;
+  justify-self: flex-end;
+`;
+
+const LocalName = styled(Chip)`
+  background: #00b3ff;
+  color: #fff;
+  justify-self: flex-start;
+`;
+
+const BlockInput = styled.div`
+  width: 250px;
+  display: grid;
+  grid-template-columns: repeat(3, auto);
+  gap: 5px;
+  align-items: center;
+  justify-content: end;
+`;
+
+const BlockOutput = styled(BlockInput)`
+  justify-content: start;
+`;
 
 export default function BlockComponent({ block }: { block: Block }) {
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
@@ -13,96 +60,49 @@ export default function BlockComponent({ block }: { block: Block }) {
   const inputChips: ReactNode[] = [];
 
   if (isObject(block.input)) {
-    for (const [nameOnScope, argumentName] of Object.entries(block.input)) {
+    for (const [scopeName, localName] of Object.entries(block.input)) {
       (inputChips as ReactNode[]).push(
-        <div
-          key={`scope-name-${nameOnScope}`}
-          className="RouteSpaceV2_block_variable_scope_name"
-        >
-          {nameOnScope}
-        </div>,
-        <VariableMapArrow
-          key={`${nameOnScope}-${argumentName}-arrow`}
-          className="RouteSpaceV2_block_arrow_icon"
-        />,
-        <div
-          key={`argument-name-${argumentName}`}
-          className="RouteSpaceV2_block_variable_argument_name"
-        >
-          {argumentName}
-        </div>
+        <ScopeName key={`scope-name-${scopeName}`}>{scopeName}</ScopeName>,
+        <VariableMapArrow key={`${scopeName}-${localName}-arrow`} />,
+        <LocalName key={`local-name-${localName}`}>{localName}</LocalName>
       );
     }
   } else if (block.input) {
     inputChips.push(
-      <div key="scope-name" className="RouteSpaceV2_block_variable_scope_name">
-        {block.input}
-      </div>,
-      <VariableMapArrow
-        key="arrow"
-        className="RouteSpaceV2_block_arrow_icon"
-      />,
-      <div
-        key="argument-name"
-        className="RouteSpaceV2_block_variable_argument_name"
-      >
-        _
-      </div>
+      <ScopeName key="scope-name">{block.input}</ScopeName>,
+      <VariableMapArrow key="arrow" />,
+      <LocalName key="local-name">_</LocalName>
     );
   }
 
   const outputChips: ReactNode[] = [];
 
   if (isObject(block.output)) {
-    for (const [returnName, nameOnScope] of Object.entries(block.output)) {
+    for (const [localName, scopeName] of Object.entries(block.output)) {
       outputChips.push(
-        <div
-          key={`argument-name-${returnName}`}
-          className="RouteSpaceV2_block_variable_argument_name"
-        >
-          {returnName}
-        </div>,
-        <VariableMapArrow
-          key={`${returnName}-${nameOnScope}-arrow`}
-          className="RouteSpaceV2_block_arrow_icon"
-        />,
-        <div
-          key={`scope-name-${nameOnScope}`}
-          className="RouteSpaceV2_block_variable_scope_name"
-        >
-          {nameOnScope}
-        </div>
+        <LocalName key={`local-name-${localName}`}>{localName}</LocalName>,
+        <VariableMapArrow key={`${localName}-${scopeName}-arrow`} />,
+        <ScopeName key={`scope-name-${scopeName}`}>{scopeName}</ScopeName>
       );
     }
   } else if (block.output) {
     outputChips.push(
-      <div
-        key="argument-name"
-        className="RouteSpaceV2_block_variable_argument_name"
-      >
-        _
-      </div>,
-      <VariableMapArrow
-        key="arrow"
-        className="RouteSpaceV2_block_arrow_icon"
-      />,
-      <div key="scope-name" className="RouteSpaceV2_block_variable_scope_name">
-        {block.output}
-      </div>
+      <LocalName key="local-name">_</LocalName>,
+      <VariableMapArrow key="arrow" />,
+      <ScopeName key="scope-name">{block.output}</ScopeName>
     );
   }
 
   return (
-    <div
-      className="RouteSpaceV2_block"
-      ref={setNodeRef}
+    <Container
       style={{ transform: CSS.Translate.toString(transform) }}
+      ref={setNodeRef}
       {...listeners}
       {...attributes}
     >
-      <div className="RouteSpaceV2_block_input">{inputChips}</div>
+      <BlockInput>{inputChips}</BlockInput>
       <BlockV2 type={block.type}>{block.id}</BlockV2>
-      <div className="RouteSpaceV2_block_output">{outputChips}</div>
-    </div>
+      <BlockOutput>{outputChips}</BlockOutput>
+    </Container>
   );
 }
