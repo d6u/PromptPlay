@@ -1,9 +1,4 @@
-import {
-  BlockAnchor,
-  BlockGroupAnchor,
-  BlockType,
-  SpaceContent,
-} from "./interfaces";
+import { BlockAnchor, BlockGroupAnchor, SpaceContent } from "./interfaces";
 import {
   adjust,
   insert,
@@ -179,37 +174,3 @@ export function isObject(
 ): value is { [key: string]: string } {
   return typeof value === "object";
 }
-
-export type BlockConfig = {
-  title: string;
-  hasInput: boolean;
-  hasOutput: boolean;
-};
-
-export const BLOCK_CONFIGS: { [key in BlockType]: BlockConfig } = {
-  [BlockType.Databag]: {
-    title: "Databag",
-    hasInput: false,
-    hasOutput: true,
-  },
-  [BlockType.LlmMessage]: {
-    title: "LLM Message",
-    hasInput: true,
-    hasOutput: true,
-  },
-  [BlockType.AppendToList]: {
-    title: "Append to List",
-    hasInput: false,
-    hasOutput: false,
-  },
-  [BlockType.Llm]: {
-    title: "LLM",
-    hasInput: true,
-    hasOutput: true,
-  },
-  [BlockType.GetAttribute]: {
-    title: "Get Attribute",
-    hasInput: true,
-    hasOutput: true,
-  },
-};

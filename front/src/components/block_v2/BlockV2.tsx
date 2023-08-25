@@ -1,6 +1,6 @@
 import CrossIconV2 from "../icons/CrossIconV2";
+import { BLOCK_CONFIGS } from "../route_space_v2/config";
 import { BlockType } from "../route_space_v2/interfaces";
-import { BLOCK_CONFIGS } from "../route_space_v2/utils";
 import styled, { css } from "styled-components";
 
 const Container = styled.div<{
