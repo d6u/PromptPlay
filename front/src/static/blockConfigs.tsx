@@ -1,6 +1,6 @@
 import * as openai from "../llm/openai";
 import { Block, BlockType } from "./spaceTypes";
-import { append } from "ramda";
+import { append, prop } from "ramda";
 import { ReactNode } from "react";
 
 export type BlockConfig = {
@@ -145,6 +145,8 @@ export const BLOCK_CONFIGS: { [key in BlockType]: BlockConfig } = {
       if (block.type !== BlockType.GetAttribute) {
         throw new Error("Block type doesn't match execute function");
       }
+
+      return prop(block.attribute, args) ?? null;
     },
   },
 };
