@@ -1,15 +1,13 @@
-import { spaceContentState } from "../../../state/store";
-import { Block, BlockType, SpaceContent } from "../../../static/spaceTypes";
+import { BlockType, SpaceContent } from "../../../static/spaceTypes";
 import {
   createInitialSpaceContent,
   createNewBlock,
 } from "../../../static/spaceUtils";
-import { SPACE_V2_QUERY, UPDATE_SPACE_V2_MUTATION } from "../graphql";
+import { UPDATE_SPACE_V2_MUTATION } from "../graphql";
 import { useMutation } from "@apollo/client";
 import Button from "@mui/joy/Button";
 import { append } from "ramda";
 import { useCallback } from "react";
-import { useRecoilCallback } from "recoil";
 import styled from "styled-components";
 import u from "updeep";
 
@@ -32,12 +30,11 @@ const Left = styled.div`
 
 type Props = {
   spaceId: string;
+  spaceContent: SpaceContent | null;
 };
 
 export default function SpaceV2SubHeader(props: Props) {
-  const [updateSpaceV2] = useMutation(UPDATE_SPACE_V2_MUTATION, {
-    refetchQueries: [SPACE_V2_QUERY],
-  });
+  const [updateSpaceV2] = useMutation(UPDATE_SPACE_V2_MUTATION);
 
   const resetSpace = useCallback(() => {
     updateSpaceV2({
@@ -48,62 +45,54 @@ export default function SpaceV2SubHeader(props: Props) {
     });
   }, [props.spaceId, updateSpaceV2]);
 
-  const appendBlock = useRecoilCallback(
-    ({ snapshot }) =>
-      async (block: Block) => {
-        let spaceContent = await snapshot.getPromise(spaceContentState);
+  const appendNewBlock = useCallback(
+    (blockType: BlockType) => {
+      let spaceContent = props.spaceContent;
 
-        if (spaceContent == null) {
-          spaceContent = createInitialSpaceContent();
-        }
+      if (spaceContent == null) {
+        spaceContent = createInitialSpaceContent();
+      }
 
-        spaceContent = u<any, SpaceContent>(
-          {
-            root: {
-              blocks: append({ id: block.id }),
-            },
-            components: {
-              [block.id]: u.constant(block),
-            },
+      const newBlock = createNewBlock(blockType);
+
+      spaceContent = u<any, SpaceContent>(
+        {
+          root: {
+            blocks: append({ id: newBlock.id }),
           },
-          spaceContent
-        ) as SpaceContent;
-
-        updateSpaceV2({
-          variables: {
-            spaceId: props.spaceId,
-            content: JSON.stringify(spaceContent),
+          components: {
+            [newBlock.id]: u.constant(newBlock),
           },
-        });
-      },
-    [props.spaceId, updateSpaceV2]
+        },
+        spaceContent
+      ) as SpaceContent;
+
+      updateSpaceV2({
+        variables: {
+          spaceId: props.spaceId,
+          content: JSON.stringify(spaceContent),
+        },
+      });
+    },
+    [props.spaceId, props.spaceContent, updateSpaceV2]
   );
 
   return (
     <Container>
       <Left>
-        <Button onClick={() => appendBlock(createNewBlock(BlockType.Databag))}>
+        <Button onClick={() => appendNewBlock(BlockType.Databag)}>
           Add databag
         </Button>
-        <Button
-          onClick={() => appendBlock(createNewBlock(BlockType.LlmMessage))}
-        >
+        <Button onClick={() => appendNewBlock(BlockType.LlmMessage)}>
           Add message
         </Button>
-        <Button
-          onClick={() => appendBlock(createNewBlock(BlockType.AppendToList))}
-        >
+        <Button onClick={() => appendNewBlock(BlockType.AppendToList)}>
           Add append to list
         </Button>
-        <Button onClick={() => appendBlock(createNewBlock(BlockType.Llm))}>
-          Add LLM
-        </Button>
-        <Button
-          onClick={() => appendBlock(createNewBlock(BlockType.GetAttribute))}
-        >
+        <Button onClick={() => appendNewBlock(BlockType.Llm)}>Add LLM</Button>
+        <Button onClick={() => appendNewBlock(BlockType.GetAttribute)}>
           Add get attribute
         </Button>
-        {/* <Button onClick={addGroup}>Add group</Button> */}
       </Left>
       <div>
         <Button onClick={resetSpace}>Reset space</Button>

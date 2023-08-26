@@ -1,4 +1,5 @@
 import { spaceContentState } from "../../state/store";
+import { SpaceContent } from "../../static/spaceTypes";
 import SpaceV2Left from "./body/SpaceV2Left";
 import SpaceV2Right from "./body/SpaceV2Right";
 import { SPACE_V2_QUERY } from "./graphql";
@@ -48,9 +49,13 @@ export default function RouteSpaceV2(props: Props) {
     return <div>Could not find any data.</div>;
   }
 
+  const spaceContent = query.data.spaceV2?.content
+    ? (JSON.parse(query.data.spaceV2.content) as SpaceContent)
+    : null;
+
   return (
     <>
-      <SpaceV2SubHeader spaceId={props.spaceId} />
+      <SpaceV2SubHeader spaceId={props.spaceId} spaceContent={spaceContent} />
       <Content>
         <SpaceV2Left spaceId={props.spaceId} />
         <SpaceV2Right spaceId={props.spaceId} />
