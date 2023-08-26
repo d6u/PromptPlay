@@ -1,6 +1,6 @@
 import * as openai from "../llm/openai";
 import { Block, BlockType } from "./spaceTypes";
-import { append, prop } from "ramda";
+import { append, flatten, prop } from "ramda";
 import { ReactNode } from "react";
 
 // TODO: Find a better way to pass the openaiApiKey
@@ -45,11 +45,25 @@ export const BLOCK_CONFIGS: { [key in BlockType]: BlockConfig } = {
       if (block.type !== BlockType.LlmMessage) {
         return "";
       }
+
+      const content: ReactNode[] = flatten(
+        block.content.split("\n").map((line, index) => {
+          if (index === 0) {
+            return <span key={index}>{line}</span>;
+          } else {
+            return [
+              <br key={`${index}-br`} />,
+              <span key={index}>{line}</span>,
+            ];
+          }
+        })
+      );
+
       return (
         <>
           role=<b>{block.role}</b>
           <br />
-          content=<b>{block.content}</b>
+          content=<b>{content}</b>
         </>
       );
     },
