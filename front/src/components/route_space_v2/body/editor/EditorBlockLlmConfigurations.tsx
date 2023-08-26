@@ -2,6 +2,7 @@ import {
   missingOpenAiApiKeyState,
   openAiApiKeyState,
 } from "../../../../state/store";
+import { LLM_STOP_NEW_LINE_SYMBOL } from "../../../../static/blockConfigs";
 import { Block, LlmModel, SpaceContent } from "../../../../static/spaceTypes";
 import {
   FieldHelperText,
@@ -61,11 +62,11 @@ export default function EditorBlockLlmConfigurations(props: Props) {
           }}
         />
         {missingOpenAiApiKey && (
-          <FieldHelperText $error>
+          <FieldHelperText $type="error">
             Must specify an Open AI API key here.
           </FieldHelperText>
         )}
-        <FieldHelperText>
+        <FieldHelperText $type="success">
           This is stored in the your browser, never uploaded.
         </FieldHelperText>
       </FieldRow>
@@ -110,7 +111,15 @@ export default function EditorBlockLlmConfigurations(props: Props) {
           color="neutral"
           size="sm"
           variant="outlined"
-          value={stop.length ? stop[0] : ""}
+          value={
+            stop.length ? stop[0].replace("\n", LLM_STOP_NEW_LINE_SYMBOL) : ""
+          }
+          onKeyDown={(event) => {
+            if (event.shiftKey && event.key === "Enter") {
+              event.preventDefault();
+              setStop((stop) => (stop.length ? [stop[0] + "\n"] : ["\n"]));
+            }
+          }}
           onChange={(e) => {
             setStop([e.target.value]);
           }}
@@ -121,6 +130,11 @@ export default function EditorBlockLlmConfigurations(props: Props) {
           }}
           onBlur={() => onSaveStop()}
         />
+        <FieldHelperText>
+          Use <code>SHIFT</code> + <code>ENTER</code> to enter a new line
+          character. (Visually represented by{" "}
+          <code>"{LLM_STOP_NEW_LINE_SYMBOL}"</code>.)
+        </FieldHelperText>
       </FieldRow>
     </>
   );

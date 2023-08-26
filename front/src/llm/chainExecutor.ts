@@ -1,5 +1,6 @@
 import { BLOCK_CONFIGS, HACK__OPEN_AI_API_KEY } from "../static/blockConfigs";
 import {
+  BlockType,
   BlockVariablesConfiguration,
   SpaceContent,
 } from "../static/spaceTypes";
@@ -44,7 +45,9 @@ export async function execute(
     console.debug("args", args);
 
     // TODO: Find a better way to pass the openaiApiKey
-    args[HACK__OPEN_AI_API_KEY] = openaiApiKey;
+    if (block.type === BlockType.Llm) {
+      args[HACK__OPEN_AI_API_KEY] = openaiApiKey;
+    }
 
     const executeResult = await blockConfig.executeFunc(block, scope, args);
 

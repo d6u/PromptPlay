@@ -8,8 +8,17 @@ export const FieldTitle = styled.div`
   margin-bottom: 5px;
 `;
 
-export const FieldHelperText = styled.div<{ $error?: boolean }>`
+export const FieldHelperText = styled.div<{ $type?: "error" | "success" }>`
   font-size: 12px;
   margin-top: 5px;
-  color: ${(props) => (props.$error ? "#b02e2e" : "#179648")};
+  color: ${(props) => {
+    switch (props.$type) {
+      case "error":
+        return "#b02e2e";
+      case "success":
+        return "#179648";
+      default:
+        return "#000";
+    }
+  }};
 `;

@@ -6,6 +6,8 @@ import { ReactNode } from "react";
 // TODO: Find a better way to pass the openaiApiKey
 export const HACK__OPEN_AI_API_KEY = "__openAiApiKey";
 
+export const LLM_STOP_NEW_LINE_SYMBOL = "↵";
+
 export type BlockConfig = {
   title: string;
   renderConfig: (block: Block) => ReactNode;
@@ -107,7 +109,12 @@ export const BLOCK_CONFIGS: { [key in BlockType]: BlockConfig } = {
           <br />
           temperature=<b>{block.temperature}</b>
           <br />
-          stop=<b>{block.stop.length ? block.stop[0] : ""}</b>
+          stop=
+          <b>
+            {block.stop.length
+              ? block.stop[0].replace("\n", LLM_STOP_NEW_LINE_SYMBOL)
+              : ""}
+          </b>
         </>
       );
     },
