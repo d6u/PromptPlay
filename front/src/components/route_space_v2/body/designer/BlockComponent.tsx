@@ -1,4 +1,5 @@
 import { spaceV2SelectedBlockIdState } from "../../../../state/store";
+import { BLOCK_CONFIGS } from "../../../../static/blockConfigs";
 import {
   Block,
   BlockAnchor,
@@ -40,6 +41,7 @@ type Props = {
 
 export default function BlockComponent(props: Props) {
   const block = props.spaceContent.components[props.anchor.id] as Block;
+  const blockConfig = BLOCK_CONFIGS[block.type];
 
   const { attributes, listeners, setNodeRef, transform, isDragging } =
     useDraggable({
@@ -98,7 +100,7 @@ export default function BlockComponent(props: Props) {
         selected={spaceV2SelectedBlockId === block.id}
         onClick={() => setSpaceV2SelectedBlockId(block.id)}
       >
-        {block.id}
+        {blockConfig.renderConfig(block)}
       </BlockV2>
       {outputConfigurator}
     </Container>
