@@ -249,8 +249,15 @@ export function isBlockGroupAnchor(
   return "blocks" in block;
 }
 
-export function isObject(
-  value: { [key: string]: string } | string | null
-): value is { [key: string]: string } {
-  return typeof value === "object";
+export function validate(spaceContent: SpaceContent): string[] {
+  const errors = [];
+
+  for (const [index, anchor] of spaceContent.root.blocks.entries()) {
+    if (isBlockGroupAnchor(anchor)) {
+      errors.push(`BlockGroupAnchor not supported yet (block index: ${index})`);
+      continue;
+    }
+  }
+
+  return errors;
 }

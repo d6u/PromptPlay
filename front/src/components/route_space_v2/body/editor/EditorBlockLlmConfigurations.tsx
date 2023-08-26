@@ -1,9 +1,18 @@
+import {
+  missingOpenAiApiKeyState,
+  openAiApiKeyState,
+} from "../../../../state/store";
 import { Block, LlmModel, SpaceContent } from "../../../../static/spaceTypes";
-import { FieldRow, FieldTitle } from "./editorCommonComponents";
+import {
+  FieldHelperText,
+  FieldRow,
+  FieldTitle,
+} from "./editorCommonComponents";
 import Input from "@mui/joy/Input";
 import Option from "@mui/joy/Option";
 import Select from "@mui/joy/Select";
 import { useCallback, useState } from "react";
+import { useRecoilState } from "recoil";
 
 type Props = {
   model: LlmModel;
@@ -18,6 +27,11 @@ type Props = {
 };
 
 export default function EditorBlockLlmConfigurations(props: Props) {
+  const [openAiApiKey, setOpenAiApiKey] = useRecoilState(openAiApiKeyState);
+  const [missingOpenAiApiKey, setMissingOpenAiApiKey] = useRecoilState(
+    missingOpenAiApiKeyState
+  );
+
   const [model, setModel] = useState(props.model);
   const [temperature, setTemperature] = useState(props.temperature);
   const [stop, setStop] = useState(props.stop);
@@ -34,6 +48,27 @@ export default function EditorBlockLlmConfigurations(props: Props) {
 
   return (
     <>
+      <FieldRow>
+        <FieldTitle>OpenAI API Key</FieldTitle>
+        <Input
+          color={missingOpenAiApiKey ? "danger" : "neutral"}
+          size="sm"
+          variant="outlined"
+          value={openAiApiKey}
+          onChange={(e) => {
+            setOpenAiApiKey(e.target.value);
+            setMissingOpenAiApiKey(false);
+          }}
+        />
+        {missingOpenAiApiKey && (
+          <FieldHelperText $error>
+            Must specify an Open AI API key here.
+          </FieldHelperText>
+        )}
+        <FieldHelperText>
+          This is stored in the your browser, never uploaded.
+        </FieldHelperText>
+      </FieldRow>
       <FieldRow>
         <FieldTitle>Model</FieldTitle>
         <Select

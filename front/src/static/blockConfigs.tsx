@@ -3,6 +3,9 @@ import { Block, BlockType } from "./spaceTypes";
 import { append, prop } from "ramda";
 import { ReactNode } from "react";
 
+// TODO: Find a better way to pass the openaiApiKey
+export const HACK__OPEN_AI_API_KEY = "__openAiApiKey";
+
 export type BlockConfig = {
   title: string;
   renderConfig: (block: Block) => ReactNode;
@@ -114,7 +117,8 @@ export const BLOCK_CONFIGS: { [key in BlockType]: BlockConfig } = {
       }
 
       const result = await openai.getNonStreamingCompletion({
-        apiKey: "",
+        // TODO: Find a better way to pass the openaiApiKey
+        apiKey: args[HACK__OPEN_AI_API_KEY],
         model: block.model,
         temperature: block.temperature,
         stop: block.stop,

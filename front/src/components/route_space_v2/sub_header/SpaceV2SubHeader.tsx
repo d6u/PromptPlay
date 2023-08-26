@@ -1,14 +1,21 @@
 import { execute } from "../../../llm/chainExecutor";
 import { UPDATE_SPACE_V2_MUTATION } from "../../../state/spaceGraphQl";
+import {
+  missingOpenAiApiKeyState,
+  openAiApiKeyState,
+  spaceV2SelectedBlockIdState,
+} from "../../../state/store";
 import { BlockType, SpaceContent } from "../../../static/spaceTypes";
 import {
   createInitialSpaceContent,
   createNewBlock,
+  validate,
 } from "../../../static/spaceUtils";
 import { useMutation } from "@apollo/client";
 import Button from "@mui/joy/Button";
 import { append } from "ramda";
 import { useCallback } from "react";
+import { useRecoilValue, useSetRecoilState } from "recoil";
 import styled from "styled-components";
 import u from "updeep";
 
@@ -41,6 +48,12 @@ type Props = {
 };
 
 export default function SpaceV2SubHeader(props: Props) {
+  const openAiApiKey = useRecoilValue(openAiApiKeyState);
+  const setMissingOpenAiApiKey = useSetRecoilState(missingOpenAiApiKeyState);
+  const setSpaceV2SelectedBlockId = useSetRecoilState(
+    spaceV2SelectedBlockIdState
+  );
+
   const [updateSpaceV2] = useMutation(UPDATE_SPACE_V2_MUTATION);
 
   const resetSpace = useCallback(() => {
@@ -109,7 +122,21 @@ export default function SpaceV2SubHeader(props: Props) {
           variant="outlined"
           disabled={props.spaceContent == null}
           onClick={() => {
-            execute(props.spaceContent!);
+            // TODO: Find a better way to do validation
+            for (const block of Object.values(props.spaceContent!.components)) {
+              if (block.type === BlockType.Llm) {
+                if (openAiApiKey == null || openAiApiKey === "") {
+                  setSpaceV2SelectedBlockId(block.id);
+                  setMissingOpenAiApiKey(true);
+                  return;
+                }
+              }
+            }
+
+            // TODO: Make it actually validate someting
+            validate(props.spaceContent!);
+
+            execute(props.spaceContent!, openAiApiKey);
           }}
         >
           Run
