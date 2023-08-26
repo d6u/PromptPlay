@@ -1,9 +1,9 @@
+import { UPDATE_SPACE_V2_MUTATION } from "../../../state/spaceGraphQl";
 import { BlockType, SpaceContent } from "../../../static/spaceTypes";
 import {
   createInitialSpaceContent,
   createNewBlock,
 } from "../../../static/spaceUtils";
-import { UPDATE_SPACE_V2_MUTATION } from "../graphql";
 import { useMutation } from "@apollo/client";
 import Button from "@mui/joy/Button";
 import { append } from "ramda";

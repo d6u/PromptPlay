@@ -16,11 +16,24 @@ export enum BlockVariablesConfiguration {
   Map = "Map",
 }
 
+export enum LlmMessageRole {
+  System = "system",
+  User = "user",
+  Assistant = "assistant",
+}
+
+export enum LlmModel {
+  GPT3_5_TURBO = "gpt-3.5-turbo",
+  GPT4 = "gpt-4",
+}
+
 export type Block = {
   id: string;
-  type: BlockType;
-  code: string | null;
-} & (
+} & BlockUniqueConfigurations &
+  BlockInputConfiguration &
+  BlockOutputConfiguration;
+
+export type BlockInputConfiguration =
   | { inputConfiguration: BlockVariablesConfiguration.NonConfigurable }
   | {
       inputConfiguration: BlockVariablesConfiguration.Single;
@@ -28,20 +41,45 @@ export type Block = {
     }
   | {
       inputConfiguration: BlockVariablesConfiguration.Map;
-      inputMap: { [key: string]: string };
+      inputMap: Array<[string, string]>;
+    };
+
+export type BlockOutputConfiguration =
+  | { outputConfiguration: BlockVariablesConfiguration.NonConfigurable }
+  | {
+      outputConfiguration: BlockVariablesConfiguration.Single;
+      singleOuput: string;
     }
-) &
-  (
-    | { outputConfiguration: BlockVariablesConfiguration.NonConfigurable }
-    | {
-        outputConfiguration: BlockVariablesConfiguration.Single;
-        singleOuput: string;
-      }
-    | {
-        outputConfiguration: BlockVariablesConfiguration.Map;
-        outputMap: { [key: string]: string };
-      }
-  );
+  | {
+      outputConfiguration: BlockVariablesConfiguration.Map;
+      outputMap: Array<[string, string]>;
+    };
+
+export type BlockUniqueConfigurations =
+  | {
+      type: BlockType.Databag;
+      value: string;
+    }
+  | {
+      type: BlockType.LlmMessage;
+      role: LlmMessageRole;
+      content: string;
+    }
+  | {
+      type: BlockType.Llm;
+      model: LlmModel;
+      temperature: number;
+      stop: Array<string>;
+    }
+  | {
+      type: BlockType.AppendToList;
+      itemName: string;
+      listName: string;
+    }
+  | {
+      type: BlockType.GetAttribute;
+      attribute: string;
+    };
 
 // BlockGroup
 

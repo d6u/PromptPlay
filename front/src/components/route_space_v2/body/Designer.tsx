@@ -1,7 +1,7 @@
+import { UPDATE_SPACE_V2_MUTATION } from "../../../state/spaceGraphQl";
 import { SpaceContent } from "../../../static/spaceTypes";
 import { updateContent } from "../../../static/spaceUtils";
 import { useDefaultSensors } from "../../../util/useDefaultSensors";
-import { UPDATE_SPACE_V2_MUTATION } from "../graphql";
 import BlockGroupComponent from "./designer/BlockGroupComponent";
 import { useMutation } from "@apollo/client";
 import { DndContext, DragEndEvent, closestCenter } from "@dnd-kit/core";

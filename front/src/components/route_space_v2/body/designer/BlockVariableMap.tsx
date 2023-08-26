@@ -46,7 +46,7 @@ type Props = {
       singleVariable: string;
     }
   | {
-      variableMap: { [key: string]: string };
+      variableMap: Array<[string, string]>;
     }
 );
 
@@ -55,7 +55,7 @@ export default function BlockVariableMap(props: Props) {
 
   if (props.isInput) {
     if ("variableMap" in props) {
-      for (const [scopeName, localName] of Object.entries(props.variableMap)) {
+      for (const [scopeName, localName] of props.variableMap) {
         (chips as ReactNode[]).push(
           <ScopeName key={`scope-name-${scopeName}`} $justifySelf="flex-end">
             {scopeName}
@@ -77,7 +77,7 @@ export default function BlockVariableMap(props: Props) {
     }
   } else {
     if ("variableMap" in props) {
-      for (const [localName, scopeName] of Object.entries(props.variableMap)) {
+      for (const [localName, scopeName] of props.variableMap) {
         chips.push(
           <LocalName key={`local-name-${localName}`} $justifySelf="flex-end">
             {localName}

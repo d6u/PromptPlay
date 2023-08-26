@@ -1,4 +1,4 @@
-import { gql } from "../../__generated__";
+import { gql } from "../__generated__";
 
 export const SPACE_V2_QUERY = gql(`
   query SpaceV2Query($spaceId: UUID!) {

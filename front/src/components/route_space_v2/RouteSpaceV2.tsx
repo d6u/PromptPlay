@@ -1,3 +1,4 @@
+import { SPACE_V2_QUERY } from "../../state/spaceGraphQl";
 import {
   spaceContentState,
   spaceV2SelectedBlockIdState,
@@ -5,7 +6,6 @@ import {
 import { Block, SpaceContent } from "../../static/spaceTypes";
 import Designer from "./body/Designer";
 import Editor from "./body/Editor";
-import { SPACE_V2_QUERY } from "./graphql";
 import SpaceV2SubHeader from "./sub_header/SpaceV2SubHeader";
 import { useQuery } from "@apollo/client";
 import { useEffect } from "react";

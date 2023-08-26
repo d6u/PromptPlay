@@ -5,6 +5,8 @@ import {
   BlockGroupType,
   BlockType,
   BlockVariablesConfiguration,
+  LlmMessageRole,
+  LlmModel,
   ROOT_COMPONENT_ID,
   SpaceContent,
 } from "./spaceTypes";
@@ -41,49 +43,53 @@ export function createNewBlock(type: BlockType): Block {
     case BlockType.Databag:
       return {
         id: nanoid(),
-        type,
+        type: BlockType.Databag,
+        value: "Some value",
         inputConfiguration: BlockVariablesConfiguration.NonConfigurable,
         outputConfiguration: BlockVariablesConfiguration.Single,
         singleOuput: "name_on_scope",
-        code: null,
       };
     case BlockType.LlmMessage:
       return {
         id: nanoid(),
-        type,
+        type: BlockType.LlmMessage,
+        role: LlmMessageRole.User,
+        content: "You are a helpful assistant.",
         inputConfiguration: BlockVariablesConfiguration.Map,
-        inputMap: {},
+        inputMap: [["name_on_scope", "local_name"]],
         outputConfiguration: BlockVariablesConfiguration.Single,
         singleOuput: "name_on_scope",
-        code: null,
-      };
-    case BlockType.AppendToList:
-      return {
-        id: nanoid(),
-        type,
-        inputConfiguration: BlockVariablesConfiguration.NonConfigurable,
-        outputConfiguration: BlockVariablesConfiguration.NonConfigurable,
-        code: null,
       };
     case BlockType.Llm:
       return {
         id: nanoid(),
-        type,
+        type: BlockType.Llm,
+        model: LlmModel.GPT3_5_TURBO,
+        temperature: 0.8,
+        stop: [],
         inputConfiguration: BlockVariablesConfiguration.Single,
         singleInput: "name_on_scope",
         outputConfiguration: BlockVariablesConfiguration.Single,
         singleOuput: "name_on_scope",
-        code: null,
+      };
+    case BlockType.AppendToList:
+      return {
+        id: nanoid(),
+        type: BlockType.AppendToList,
+        itemName: "user_message",
+        listName: "messages",
+        inputConfiguration: BlockVariablesConfiguration.NonConfigurable,
+        outputConfiguration: BlockVariablesConfiguration.NonConfigurable,
       };
     case BlockType.GetAttribute:
       return {
         id: nanoid(),
-        type,
+        type: BlockType.GetAttribute,
+        attribute: "content",
         inputConfiguration: BlockVariablesConfiguration.Single,
         singleInput: "name_on_scope",
         outputConfiguration: BlockVariablesConfiguration.Single,
         singleOuput: "name_on_scope",
-        code: null,
       };
     default:
       throw new Error(`Unknown block type: ${type}`);
@@ -107,14 +113,11 @@ export function updateContent(
     content.root.blocks
   );
 
-  content = u<any, SpaceContent>(
-    {
-      root: {
-        blocks: u.constant(newBlocks),
-      },
+  content = u({
+    root: {
+      blocks: u.constant(newBlocks),
     },
-    content
-  ) as SpaceContent;
+  })(content) as SpaceContent;
 
   const [, newNewBlocks] = insertBlockIntoBlocks(
     overId,
@@ -122,14 +125,11 @@ export function updateContent(
     content.root.blocks
   );
 
-  content = u<any, SpaceContent>(
-    {
-      root: {
-        blocks: u.constant(newNewBlocks),
-      },
+  content = u({
+    root: {
+      blocks: u.constant(newNewBlocks),
     },
-    content
-  ) as SpaceContent;
+  })(content) as SpaceContent;
 
   return content;
 }
