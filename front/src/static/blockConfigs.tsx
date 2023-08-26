@@ -60,7 +60,7 @@ export const BLOCK_CONFIGS: { [key in BlockType]: BlockConfig } = {
 
       return {
         role: block.role,
-        content: block.content,
+        content: replacePlaceholders(block.content, args),
       };
     },
   },
@@ -161,3 +161,13 @@ export const BLOCK_CONFIGS: { [key in BlockType]: BlockConfig } = {
     },
   },
 };
+
+// Replace `{xyz}` but ignore `{{zyx}}`
+// If `xyz` doesn't exist on values, null will be provided.
+function replacePlaceholders(str: string, values: { [key: string]: any }) {
+  const regex = /(?<!\{)\{([^{}]+)\}(?!\})/g;
+
+  return str.replace(regex, (match, p1) => {
+    return values[p1] !== undefined ? values[p1] : null;
+  });
+}
