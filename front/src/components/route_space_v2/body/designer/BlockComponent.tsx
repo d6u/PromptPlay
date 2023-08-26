@@ -1,14 +1,15 @@
-import { spaceV2SelectedBlockIdState } from "../../state/store";
+import { spaceV2SelectedBlockIdState } from "../../../../state/store";
 import {
   Block,
   BlockAnchor,
   BlockVariablesConfiguration,
   SpaceContent,
-} from "../../static/spaceTypes";
-import BlockV2 from "../block_v2/BlockV2";
+} from "../../../../static/spaceTypes";
+import BlockV2 from "../../../block_v2/BlockV2";
 import BlockVariableMap from "./BlockVariableMap";
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
+import { ReactNode } from "react";
 import { useRecoilState } from "recoil";
 import styled, { css } from "styled-components";
 
@@ -49,6 +50,40 @@ export default function BlockComponent(props: Props) {
     spaceV2SelectedBlockIdState
   );
 
+  let inputConfigurator: ReactNode;
+  switch (block.inputConfiguration) {
+    case BlockVariablesConfiguration.NonConfigurable:
+      inputConfigurator = <SlotHolder />;
+      break;
+    case BlockVariablesConfiguration.Single:
+      inputConfigurator = (
+        <BlockVariableMap singleVariable={block.singleInput} isInput={true} />
+      );
+      break;
+    case BlockVariablesConfiguration.Map:
+      inputConfigurator = (
+        <BlockVariableMap variableMap={block.inputMap} isInput={true} />
+      );
+      break;
+  }
+
+  let outputConfigurator: ReactNode;
+  switch (block.outputConfiguration) {
+    case BlockVariablesConfiguration.NonConfigurable:
+      outputConfigurator = <SlotHolder />;
+      break;
+    case BlockVariablesConfiguration.Single:
+      outputConfigurator = (
+        <BlockVariableMap singleVariable={block.singleOuput} isInput={false} />
+      );
+      break;
+    case BlockVariablesConfiguration.Map:
+      outputConfigurator = (
+        <BlockVariableMap variableMap={block.outputMap} isInput={false} />
+      );
+      break;
+  }
+
   return (
     <Container
       style={{ transform: CSS.Translate.toString(transform) }}
@@ -57,11 +92,7 @@ export default function BlockComponent(props: Props) {
       {...listeners}
       {...attributes}
     >
-      {block.inputConfiguration === BlockVariablesConfiguration.Map ? (
-        <BlockVariableMap variableMap={block.inputMap} />
-      ) : (
-        <SlotHolder />
-      )}
+      {inputConfigurator}
       <BlockV2
         type={block.type}
         selected={spaceV2SelectedBlockId === block.id}
@@ -69,11 +100,7 @@ export default function BlockComponent(props: Props) {
       >
         {block.id}
       </BlockV2>
-      {block.outputConfiguration === BlockVariablesConfiguration.Map ? (
-        <BlockVariableMap variableMap={block.outputMap} isOutput />
-      ) : (
-        <SlotHolder />
-      )}
+      {outputConfigurator}
     </Container>
   );
 }

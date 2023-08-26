@@ -4,10 +4,13 @@ import EditorSingleScopeVariable from "./EditorSingleScopeVariable";
 import VariableMapRow from "./VariableMapRow";
 import { useMutation } from "@apollo/client";
 import Button from "@mui/joy/Button";
+import { customAlphabet } from "nanoid";
 import { assoc, dissoc, pipe } from "ramda";
 import { ReactNode } from "react";
 import styled from "styled-components";
 import u from "updeep";
+
+const nanoid = customAlphabet("1234567890abcdef", 6);
 
 const Container = styled.div`
   margin-bottom: 10px;
@@ -147,9 +150,9 @@ export default function EditorBlockInputOutput(props: Props) {
           size="sm"
           variant="outlined"
           onClick={() => {
-            const count = Object.keys(props.variableMap).length;
-            const localName = `local_name_${count + 1}`;
-            const scopeName = `scope_name_${count + 1}`;
+            const id = nanoid();
+            const localName = `local_${id}`;
+            const scopeName = `scope_${id}`;
 
             const newContent = u<any, SpaceContent>(
               {
