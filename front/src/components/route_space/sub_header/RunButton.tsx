@@ -2,9 +2,9 @@ import { FragmentType, gql, useFragment } from "../../../__generated__";
 import { SubHeaderBlockSetFragmentFragment } from "../../../__generated__/graphql";
 import {
   LlmMesssage,
-  OpenAiStreamErrorResponse,
+  OpenAiErrorResponse,
   OpenAiStreamResponse,
-  getCompletion,
+  getStreamingCompletion,
   parserStreamChunk,
 } from "../../../llm/openai";
 import {
@@ -340,7 +340,7 @@ function getCompletionObservable(
   messages: LlmMesssage[]
 ) {
   const obs = from(
-    getCompletion({
+    getStreamingCompletion({
       apiKey: openAiApiKey,
       model,
       temperature,
@@ -363,14 +363,14 @@ function getCompletionObservable(
     filter((r): r is ReadableStreamDefaultReader<string> => r != null),
     mergeMap((reader) => convertReaderToObservable(reader)),
     concatMap((value) => parserStreamChunk(value)),
-    map<string, OpenAiStreamResponse | OpenAiStreamErrorResponse>((content) =>
+    map<string, OpenAiStreamResponse | OpenAiErrorResponse>((content) =>
       JSON.parse(content)
     ),
     share()
   );
 
   return partition<
-    OpenAiStreamResponse | OpenAiStreamErrorResponse,
+    OpenAiStreamResponse | OpenAiErrorResponse,
     OpenAiStreamResponse
   >(obs, (value): value is OpenAiStreamResponse => !("error" in value));
 }

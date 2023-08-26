@@ -1,3 +1,4 @@
+import { execute } from "../../../llm/chainExecutor";
 import { UPDATE_SPACE_V2_MUTATION } from "../../../state/spaceGraphQl";
 import { BlockType, SpaceContent } from "../../../static/spaceTypes";
 import {
@@ -23,6 +24,12 @@ const Container = styled.div`
 `;
 
 const Left = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+`;
+
+const Right = styled.div`
   display: flex;
   flex-direction: row;
   gap: 10px;
@@ -81,20 +88,34 @@ export default function SpaceV2SubHeader(props: Props) {
     <Container>
       <Left>
         <Button onClick={() => appendNewBlock(BlockType.Databag)}>
-          Add databag
+          + Databag
         </Button>
         <Button onClick={() => appendNewBlock(BlockType.LlmMessage)}>
-          Add message
+          + Message
         </Button>
         <Button onClick={() => appendNewBlock(BlockType.AppendToList)}>
-          Add append to list
+          + Append to List
         </Button>
-        <Button onClick={() => appendNewBlock(BlockType.Llm)}>Add LLM</Button>
+        <Button onClick={() => appendNewBlock(BlockType.Llm)}>+ LLM</Button>
         <Button onClick={() => appendNewBlock(BlockType.GetAttribute)}>
-          Add get attribute
+          + Get Attribute
+        </Button>
+        <Button onClick={() => appendNewBlock(BlockType.GetAttribute)}>
+          + Get Attribute
+        </Button>
+        <Button
+          color="success"
+          size="md"
+          variant="outlined"
+          disabled={props.spaceContent == null}
+          onClick={() => {
+            execute(props.spaceContent!);
+          }}
+        >
+          Run
         </Button>
       </Left>
-      <div>
+      <Right>
         <Button onClick={resetSpace}>Reset space</Button>
         <Button
           variant="outlined"
@@ -119,7 +140,7 @@ export default function SpaceV2SubHeader(props: Props) {
         >
           Delete space
         </Button>
-      </div>
+      </Right>
     </Container>
   );
 }

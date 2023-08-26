@@ -13,7 +13,7 @@ type GetCompletionArguments = {
   stop: string[];
 };
 
-export function getCompletion({
+export function getStreamingCompletion({
   apiKey,
   model,
   temperature,
@@ -36,6 +36,52 @@ export function getCompletion({
   };
 
   return fetch(OPENAI_API_URL, fetchOptions);
+}
+
+export async function getNonStreamingCompletion({
+  apiKey,
+  model,
+  temperature,
+  messages,
+  stop,
+}: GetCompletionArguments): Promise<
+  | {
+      isError: false;
+      data: OpenAiResponse;
+    }
+  | {
+      isError: true;
+      data: OpenAiErrorResponse;
+    }
+> {
+  const fetchOptions = {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({
+      model,
+      messages,
+      temperature,
+      stop,
+    }),
+  };
+
+  const response = await fetch(OPENAI_API_URL, fetchOptions);
+  const data = await response.json();
+
+  if (response.ok) {
+    return {
+      isError: false,
+      data,
+    };
+  }
+
+  return {
+    isError: true,
+    data,
+  };
 }
 
 type ChoiceBase = {
@@ -80,12 +126,14 @@ export type OpenAiStreamResponse = OpenAiResponseBase & {
   choices: Array<ChoiceStream>;
 };
 
-export type OpenAiStreamErrorResponse = {
+// Error
+
+export type OpenAiErrorResponse = {
   error: {
-    code: number | null;
     message: string;
-    param: string | null;
     type: string;
+    param: string | null;
+    code: number | null;
   };
 };
 
