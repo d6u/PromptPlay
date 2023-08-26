@@ -1,4 +1,13 @@
-import { BlockAnchor, BlockGroupAnchor, SpaceContent } from "./interfaces";
+import {
+  Block,
+  BlockAnchor,
+  BlockGroupAnchor,
+  BlockGroupType,
+  BlockType,
+  ROOT_COMPONENT_ID,
+  SpaceContent,
+} from "./spaceTypes";
+import { nanoid } from "nanoid";
 import {
   adjust,
   insert,
@@ -9,6 +18,71 @@ import {
   prepend,
 } from "ramda";
 import u from "updeep";
+
+export function createInitialSpaceContent(): SpaceContent {
+  return {
+    root: {
+      id: ROOT_COMPONENT_ID,
+      blocks: [],
+    },
+    components: {
+      [ROOT_COMPONENT_ID]: {
+        id: ROOT_COMPONENT_ID,
+        type: BlockGroupType.Root,
+        blocks: [],
+      },
+    },
+  };
+}
+
+export function createNewBlock(type: BlockType): Block {
+  switch (type) {
+    case BlockType.Databag:
+      return {
+        id: nanoid(),
+        type,
+        input: null,
+        code: null,
+        output: "scope_name",
+      };
+    case BlockType.LlmMessage:
+      return {
+        id: nanoid(),
+        type,
+        input: {
+          scope_name: "argument_name",
+        },
+        code: null,
+        output: "scope_name",
+      };
+    case BlockType.AppendToList:
+      return {
+        id: nanoid(),
+        type,
+        input: null,
+        code: null,
+        output: null,
+      };
+    case BlockType.Llm:
+      return {
+        id: nanoid(),
+        type,
+        input: "scope_name",
+        code: null,
+        output: "scope_name",
+      };
+    case BlockType.GetAttribute:
+      return {
+        id: nanoid(),
+        type,
+        input: "scope_name",
+        code: null,
+        output: "scope_name",
+      };
+    default:
+      throw new Error(`Unknown block type: ${type}`);
+  }
+}
 
 export function updateContent(
   overId: string,

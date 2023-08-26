@@ -1,16 +1,15 @@
-import { createNewBlock } from "./config";
-import { SPACE_V2_QUERY, UPDATE_SPACE_V2_MUTATION } from "./graphql";
+import { spaceContentState } from "../../state/store";
+import { Block, BlockType, SpaceContent } from "../../static/spaceTypes";
 import {
-  Block,
-  BlockGroupType,
-  BlockType,
-  ROOT_COMPONENT_ID,
-  SpaceContent,
-} from "./interfaces";
+  createInitialSpaceContent,
+  createNewBlock,
+} from "../../static/spaceUtils";
+import { SPACE_V2_QUERY, UPDATE_SPACE_V2_MUTATION } from "./graphql";
 import { useMutation } from "@apollo/client";
 import Button from "@mui/joy/Button";
 import { append } from "ramda";
 import { useCallback } from "react";
+import { useRecoilCallback } from "recoil";
 import styled from "styled-components";
 import u from "updeep";
 
@@ -33,10 +32,9 @@ const Left = styled.div`
 
 type Props = {
   spaceId: string;
-  content: SpaceContent | null;
 };
 
-export default function SpaceV2SubHeader({ spaceId, content }: Props) {
+export default function SpaceV2SubHeader(props: Props) {
   const [updateSpaceV2] = useMutation(UPDATE_SPACE_V2_MUTATION, {
     refetchQueries: [SPACE_V2_QUERY],
   });
@@ -44,95 +42,42 @@ export default function SpaceV2SubHeader({ spaceId, content }: Props) {
   const resetSpace = useCallback(() => {
     updateSpaceV2({
       variables: {
-        spaceId,
+        spaceId: props.spaceId,
         content: JSON.stringify(null),
       },
     });
-  }, [spaceId, updateSpaceV2]);
+  }, [props.spaceId, updateSpaceV2]);
 
-  const appendBlock = useCallback(
-    (block: Block) => {
-      let newContent = content;
+  const appendBlock = useRecoilCallback(
+    ({ snapshot }) =>
+      async (block: Block) => {
+        let spaceContent = await snapshot.getPromise(spaceContentState);
 
-      if (newContent == null) {
-        newContent = {
-          root: {
-            id: ROOT_COMPONENT_ID,
-            blocks: [],
-          },
-          components: {
-            [ROOT_COMPONENT_ID]: {
-              id: ROOT_COMPONENT_ID,
-              type: BlockGroupType.Root,
-              blocks: [],
+        if (spaceContent == null) {
+          spaceContent = createInitialSpaceContent();
+        }
+
+        spaceContent = u<any, SpaceContent>(
+          {
+            root: {
+              blocks: append({ id: block.id }),
+            },
+            components: {
+              [block.id]: u.constant(block),
             },
           },
-        };
-      }
+          spaceContent
+        ) as SpaceContent;
 
-      newContent = u<any, SpaceContent>(
-        {
-          root: {
-            blocks: append({
-              id: block.id,
-            }),
+        updateSpaceV2({
+          variables: {
+            spaceId: props.spaceId,
+            content: JSON.stringify(spaceContent),
           },
-          components: {
-            [block.id]: u.constant(block),
-          },
-        },
-        newContent
-      ) as SpaceContent;
-
-      updateSpaceV2({
-        variables: {
-          spaceId,
-          content: JSON.stringify(newContent),
-        },
-      });
-    },
-    [content, spaceId, updateSpaceV2]
+        });
+      },
+    [props.spaceId, updateSpaceV2]
   );
-
-  // const addGroup = useCallback(() => {
-  //   let newContent: BlockGroup;
-  //   if (content == null) {
-  //     newContent = {
-  //       id: nanoid(),
-  //       type: "root",
-  //       blocks: [],
-  //     };
-  //   } else {
-  //     newContent = { ...content };
-  //   }
-
-  //   newContent.blocks.push({
-  //     id: nanoid(),
-  //     type: "repeat",
-  //     blocks: [
-  //       {
-  //         id: nanoid(),
-  //         type: BlockType.Databag,
-  //         input: {
-  //           messages: "messages",
-  //           message: "message",
-  //         },
-  //         code: null,
-  //         output: {
-  //           messages: "messages",
-  //           message: "message",
-  //         },
-  //       },
-  //     ],
-  //   });
-
-  //   updateSpaceV2({
-  //     variables: {
-  //       spaceId,
-  //       content: JSON.stringify(newContent),
-  //     },
-  //   });
-  // }, [content, spaceId, updateSpaceV2]);
 
   return (
     <Container>

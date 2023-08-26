@@ -1,8 +1,8 @@
 import { spaceV2SelectedBlockIdState } from "../../state/store";
+import { BLOCK_CONFIGS } from "../../static/blockConfigs";
+import { Block, BlockAnchor, SpaceContent } from "../../static/spaceTypes";
 import BlockV2 from "../block_v2/BlockV2";
 import BlockVariableMap from "./BlockVariableMap";
-import { BLOCK_CONFIGS } from "./config";
-import { Block, BlockAnchor, SpaceContent } from "./interfaces";
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import { useRecoilState } from "recoil";

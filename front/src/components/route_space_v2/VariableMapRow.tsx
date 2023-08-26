@@ -1,11 +1,16 @@
+import {
+  spaceContentState,
+  spaceV2SelectedBlockSelector,
+} from "../../state/store";
+import { SpaceContent } from "../../static/spaceTypes";
+import { isObject } from "../../static/spaceUtils";
 import { UPDATE_SPACE_V2_MUTATION } from "./graphql";
-import { Block, SpaceContent } from "./interfaces";
-import { isObject } from "./utils";
 import { useMutation } from "@apollo/client";
 import Button from "@mui/joy/Button";
 import Input from "@mui/joy/Input";
 import { assoc, dissoc, pipe } from "ramda";
-import { useCallback, useState } from "react";
+import { useState } from "react";
+import { useRecoilCallback, useRecoilValue } from "recoil";
 import styled from "styled-components";
 import u from "updeep";
 
@@ -17,144 +22,164 @@ const Container = styled.div`
 
 type Props = {
   spaceId: string;
-  content: SpaceContent;
   scopeName: string;
   localName: string;
-  block: Block;
   isOutput?: boolean;
 };
 
 export default function VariableMapRow(props: Props) {
   const [updateSpaceV2] = useMutation(UPDATE_SPACE_V2_MUTATION);
 
+  const block = useRecoilValue(spaceV2SelectedBlockSelector)!;
+
   const [localName, setLocalName] = useState(props.localName);
   const [scopeName, setScopeName] = useState(props.scopeName);
 
-  const updateOutputLocalName = useCallback(() => {
-    if (!isObject(props.block.output)) {
-      return;
-    }
+  const updateOutputLocalName = useRecoilCallback(
+    ({ snapshot }) =>
+      async () => {
+        let spaceContent = await snapshot.getPromise(spaceContentState);
 
-    const newContent = u<any, SpaceContent>(
-      {
-        components: {
-          [props.block.id]: {
-            output: pipe(dissoc(props.localName), assoc(localName, scopeName)),
+        if (spaceContent == null) {
+          console.error("spaceContent should not be null");
+          return;
+        }
+
+        if (!isObject(block.output)) {
+          return;
+        }
+
+        const newContent = u<any, SpaceContent>(
+          {
+            components: {
+              [block.id]: {
+                output: pipe(
+                  dissoc(props.localName),
+                  assoc(localName, scopeName)
+                ),
+              },
+            },
           },
-        },
-      },
-      props.content
-    ) as SpaceContent;
+          spaceContent
+        ) as SpaceContent;
 
-    updateSpaceV2({
-      variables: {
-        spaceId: props.spaceId,
-        content: JSON.stringify(newContent),
-      },
-    });
-  }, [
-    localName,
-    scopeName,
-    props.block,
-    props.content,
-    props.localName,
-    props.spaceId,
-    updateSpaceV2,
-  ]);
-
-  const updateOutputScopeName = useCallback(() => {
-    if (!isObject(props.block.output)) {
-      return;
-    }
-
-    const newContent = u<any, SpaceContent>(
-      {
-        components: {
-          [props.block.id]: {
-            output: assoc(localName, scopeName),
+        updateSpaceV2({
+          variables: {
+            spaceId: props.spaceId,
+            content: JSON.stringify(newContent),
           },
-        },
+        });
       },
-      props.content
-    ) as SpaceContent;
+    [localName, scopeName, block, props.localName, props.spaceId, updateSpaceV2]
+  );
 
-    updateSpaceV2({
-      variables: {
-        spaceId: props.spaceId,
-        content: JSON.stringify(newContent),
-      },
-    });
-  }, [
-    localName,
-    scopeName,
-    props.block,
-    props.content,
-    props.spaceId,
-    updateSpaceV2,
-  ]);
+  const updateOutputScopeName = useRecoilCallback(
+    ({ snapshot }) =>
+      async () => {
+        let spaceContent = await snapshot.getPromise(spaceContentState);
 
-  const updateInputLocalName = useCallback(() => {
-    if (!isObject(props.block.input)) {
-      return;
-    }
+        if (spaceContent == null) {
+          console.error("spaceContent should not be null");
+          return;
+        }
 
-    const newContent = u<any, SpaceContent>(
-      {
-        components: {
-          [props.block.id]: {
-            input: assoc(scopeName, localName),
+        if (!isObject(block.output)) {
+          return;
+        }
+
+        const newContent = u<any, SpaceContent>(
+          {
+            components: {
+              [block.id]: {
+                output: assoc(localName, scopeName),
+              },
+            },
           },
-        },
-      },
-      props.content
-    ) as SpaceContent;
+          spaceContent
+        ) as SpaceContent;
 
-    updateSpaceV2({
-      variables: {
-        spaceId: props.spaceId,
-        content: JSON.stringify(newContent),
-      },
-    });
-  }, [
-    localName,
-    scopeName,
-    props.block,
-    props.content,
-    props.spaceId,
-    updateSpaceV2,
-  ]);
-
-  const updateInputScopeName = useCallback(() => {
-    if (!isObject(props.block.input)) {
-      return;
-    }
-
-    const newContent = u<any, SpaceContent>(
-      {
-        components: {
-          [props.block.id]: {
-            input: pipe(dissoc(props.scopeName), assoc(scopeName, localName)),
+        updateSpaceV2({
+          variables: {
+            spaceId: props.spaceId,
+            content: JSON.stringify(newContent),
           },
-        },
+        });
       },
-      props.content
-    ) as SpaceContent;
+    [localName, scopeName, block, props.spaceId, updateSpaceV2]
+  );
 
-    updateSpaceV2({
-      variables: {
-        spaceId: props.spaceId,
-        content: JSON.stringify(newContent),
+  const updateInputLocalName = useRecoilCallback(
+    ({ snapshot }) =>
+      async () => {
+        let spaceContent = await snapshot.getPromise(spaceContentState);
+
+        if (spaceContent == null) {
+          console.error("spaceContent should not be null");
+          return;
+        }
+
+        if (!isObject(block.input)) {
+          return;
+        }
+
+        const newContent = u<any, SpaceContent>(
+          {
+            components: {
+              [block.id]: {
+                input: assoc(scopeName, localName),
+              },
+            },
+          },
+          spaceContent
+        ) as SpaceContent;
+
+        updateSpaceV2({
+          variables: {
+            spaceId: props.spaceId,
+            content: JSON.stringify(newContent),
+          },
+        });
       },
-    });
-  }, [
-    localName,
-    scopeName,
-    props.scopeName,
-    props.block,
-    props.content,
-    props.spaceId,
-    updateSpaceV2,
-  ]);
+    [localName, scopeName, block, props.spaceId, updateSpaceV2]
+  );
+
+  const updateInputScopeName = useRecoilCallback(
+    ({ snapshot }) =>
+      async () => {
+        let spaceContent = await snapshot.getPromise(spaceContentState);
+
+        if (spaceContent == null) {
+          console.error("spaceContent should not be null");
+          return;
+        }
+
+        if (!isObject(block.input)) {
+          return;
+        }
+
+        const newContent = u<any, SpaceContent>(
+          {
+            components: {
+              [block.id]: {
+                input: pipe(
+                  dissoc(props.scopeName),
+                  assoc(scopeName, localName)
+                ),
+              },
+            },
+          },
+          spaceContent
+        ) as SpaceContent;
+
+        updateSpaceV2({
+          variables: {
+            spaceId: props.spaceId,
+            content: JSON.stringify(newContent),
+          },
+        });
+      },
+    [localName, scopeName, props.scopeName, block, props.spaceId, updateSpaceV2]
+  );
 
   if (props.isOutput) {
     return (
@@ -198,27 +223,27 @@ export default function VariableMapRow(props: Props) {
           size="sm"
           variant="outlined"
           onClick={() => {
-            if (!isObject(props.block.output)) {
+            if (!isObject(block.output)) {
               return;
             }
 
-            const newContent = u<any, SpaceContent>(
-              {
-                components: {
-                  [props.block.id]: {
-                    output: dissoc(props.localName),
-                  },
-                },
-              },
-              props.content
-            ) as SpaceContent;
+            // const newContent = u<any, SpaceContent>(
+            //   {
+            //     components: {
+            //       [block.id]: {
+            //         output: dissoc(props.localName),
+            //       },
+            //     },
+            //   },
+            //   props.content
+            // ) as SpaceContent;
 
-            updateSpaceV2({
-              variables: {
-                spaceId: props.spaceId,
-                content: JSON.stringify(newContent),
-              },
-            });
+            // updateSpaceV2({
+            //   variables: {
+            //     spaceId: props.spaceId,
+            //     content: JSON.stringify(newContent),
+            //   },
+            // });
           }}
         >
           Remove
@@ -267,27 +292,27 @@ export default function VariableMapRow(props: Props) {
           size="sm"
           variant="outlined"
           onClick={() => {
-            if (!isObject(props.block.input)) {
+            if (!isObject(block.input)) {
               return;
             }
 
-            const newContent = u<any, SpaceContent>(
-              {
-                components: {
-                  [props.block.id]: {
-                    input: dissoc(props.scopeName),
-                  },
-                },
-              },
-              props.content
-            ) as SpaceContent;
+            // const newContent = u<any, SpaceContent>(
+            //   {
+            //     components: {
+            //       [block.id]: {
+            //         input: dissoc(props.scopeName),
+            //       },
+            //     },
+            //   },
+            //   props.content
+            // ) as SpaceContent;
 
-            updateSpaceV2({
-              variables: {
-                spaceId: props.spaceId,
-                content: JSON.stringify(newContent),
-              },
-            });
+            // updateSpaceV2({
+            //   variables: {
+            //     spaceId: props.spaceId,
+            //     content: JSON.stringify(newContent),
+            //   },
+            // });
           }}
         >
           Remove

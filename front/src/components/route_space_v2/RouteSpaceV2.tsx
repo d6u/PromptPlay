@@ -1,10 +1,11 @@
+import { spaceContentState } from "../../state/store";
 import SpaceV2Left from "./SpaceV2Left";
 import SpaceV2Right from "./SpaceV2Right";
 import SpaceV2SubHeader from "./SpaceV2SubHeader";
 import { SPACE_V2_QUERY } from "./graphql";
-import { SpaceContent } from "./interfaces";
 import { useQuery } from "@apollo/client";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import { useSetRecoilState } from "recoil";
 import styled from "styled-components";
 
 const Content = styled.div`
@@ -14,26 +15,26 @@ const Content = styled.div`
   min-height: 0;
 `;
 
-export default function RouteSpaceV2({ spaceId }: { spaceId: string }) {
-  // --- Local State ---
+type Props = {
+  spaceId: string;
+};
 
-  const [content, setContent] = useState<SpaceContent | null>(null);
-
-  // --- GraphQL ---
+export default function RouteSpaceV2(props: Props) {
+  const setSpaceContent = useSetRecoilState(spaceContentState);
 
   const query = useQuery(SPACE_V2_QUERY, {
     variables: {
-      spaceId,
+      spaceId: props.spaceId,
     },
   });
 
   useEffect(() => {
     if (query.data?.spaceV2?.content) {
-      setContent(JSON.parse(query.data.spaceV2.content));
+      setSpaceContent(JSON.parse(query.data.spaceV2.content));
     } else {
-      setContent(null);
+      setSpaceContent(null);
     }
-  }, [query.data?.spaceV2?.content]);
+  }, [query.data?.spaceV2?.content, setSpaceContent]);
 
   if (query.loading) {
     return <div>Loading...</div>;
@@ -49,13 +50,11 @@ export default function RouteSpaceV2({ spaceId }: { spaceId: string }) {
 
   return (
     <>
-      <SpaceV2SubHeader spaceId={spaceId} content={content} />
-      {content && (
-        <Content>
-          <SpaceV2Left spaceId={spaceId} content={content} />
-          <SpaceV2Right spaceId={spaceId} content={content} />
-        </Content>
-      )}
+      <SpaceV2SubHeader spaceId={props.spaceId} />
+      <Content>
+        <SpaceV2Left spaceId={props.spaceId} />
+        <SpaceV2Right spaceId={props.spaceId} />
+      </Content>
     </>
   );
 }

@@ -1,5 +1,5 @@
+import { isObject } from "../../static/spaceUtils";
 import VariableMapArrow from "../icons/VaribleMapArrow";
-import { isObject } from "./utils";
 import { ReactNode } from "react";
 import styled from "styled-components";
 

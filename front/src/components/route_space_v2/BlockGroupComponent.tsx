@@ -1,7 +1,7 @@
+import { BlockGroupAnchor, SpaceContent } from "../../static/spaceTypes";
+import { isBlockGroupAnchor } from "../../static/spaceUtils";
 import BlockComponent from "./BlockComponent";
 import Gutter from "./Gutter";
-import { BlockGroupAnchor, SpaceContent } from "./interfaces";
-import { isBlockGroupAnchor } from "./utils";
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import { ReactNode } from "react";
