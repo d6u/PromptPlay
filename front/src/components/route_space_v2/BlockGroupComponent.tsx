@@ -36,8 +36,8 @@ const Content = styled.div`
 `;
 
 type Props = {
-  spaceContent: SpaceContent;
   anchor: BlockGroupAnchor;
+  spaceContent: SpaceContent;
   isRoot?: boolean;
   isParentDragging?: boolean;
 };

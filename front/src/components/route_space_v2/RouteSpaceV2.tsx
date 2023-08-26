@@ -1,12 +1,15 @@
-import { spaceContentState } from "../../state/store";
-import { SpaceContent } from "../../static/spaceTypes";
-import SpaceV2Left from "./body/SpaceV2Left";
-import SpaceV2Right from "./body/SpaceV2Right";
+import {
+  spaceContentState,
+  spaceV2SelectedBlockIdState,
+} from "../../state/store";
+import { Block, SpaceContent } from "../../static/spaceTypes";
+import Designer from "./body/Designer";
+import Editor from "./body/Editor";
 import { SPACE_V2_QUERY } from "./graphql";
 import SpaceV2SubHeader from "./sub_header/SpaceV2SubHeader";
 import { useQuery } from "@apollo/client";
 import { useEffect } from "react";
-import { useSetRecoilState } from "recoil";
+import { useRecoilValue, useSetRecoilState } from "recoil";
 import styled from "styled-components";
 
 const Content = styled.div`
@@ -22,6 +25,7 @@ type Props = {
 
 export default function RouteSpaceV2(props: Props) {
   const setSpaceContent = useSetRecoilState(spaceContentState);
+  const spaceV2SelectedBlockId = useRecoilValue(spaceV2SelectedBlockIdState);
 
   const query = useQuery(SPACE_V2_QUERY, {
     variables: {
@@ -53,12 +57,28 @@ export default function RouteSpaceV2(props: Props) {
     ? (JSON.parse(query.data.spaceV2.content) as SpaceContent)
     : null;
 
+  // TODO: Handle group as well
+  const selectedBlock =
+    spaceContent && spaceV2SelectedBlockId
+      ? (spaceContent.components[spaceV2SelectedBlockId] as Block)
+      : null;
+
   return (
     <>
       <SpaceV2SubHeader spaceId={props.spaceId} spaceContent={spaceContent} />
       <Content>
-        <SpaceV2Left spaceId={props.spaceId} />
-        <SpaceV2Right spaceId={props.spaceId} />
+        {spaceContent && (
+          <>
+            <Designer spaceId={props.spaceId} spaceContent={spaceContent} />
+            {selectedBlock && (
+              <Editor
+                selectedBlock={selectedBlock}
+                spaceId={props.spaceId}
+                spaceContent={spaceContent}
+              />
+            )}
+          </>
+        )}
       </Content>
     </>
   );

@@ -1,17 +1,11 @@
-import {
-  spaceContentState,
-  spaceV2SelectedBlockSelector,
-} from "../../../../state/store";
-import { BlockConfig } from "../../../../static/blockConfigs";
-import { SpaceContent } from "../../../../static/spaceTypes";
-import { isObject } from "../../../../static/spaceUtils";
+import { Block, SpaceContent } from "../../../../static/spaceTypes";
 import { UPDATE_SPACE_V2_MUTATION } from "../../graphql";
 import EditorSingleScopeVariable from "./EditorSingleScopeVariable";
 import VariableMapRow from "./VariableMapRow";
 import { useMutation } from "@apollo/client";
 import Button from "@mui/joy/Button";
+import { assoc, dissoc, pipe } from "ramda";
 import { ReactNode } from "react";
-import { useRecoilCallback, useRecoilValue } from "recoil";
 import styled from "styled-components";
 import u from "updeep";
 
@@ -24,102 +18,120 @@ const Header = styled.div`
 `;
 
 type Props = {
+  block: Block;
+  isInput: boolean;
   spaceId: string;
-  blockId: string;
-  inputOutput: string | { [key: string]: string };
-  blockConfig: BlockConfig;
-  isOutput?: boolean;
-};
+  spaceContent: SpaceContent;
+} & (
+  | {
+      singleVariable: string;
+    }
+  | {
+      variableMap: { [key: string]: string };
+    }
+);
 
 export default function EditorBlockInputOutput(props: Props) {
   const [updateSpaceV2] = useMutation(UPDATE_SPACE_V2_MUTATION);
 
-  const block = useRecoilValue(spaceV2SelectedBlockSelector)!;
-
-  const appendNewVariablePair = useRecoilCallback(
-    ({ snapshot }) =>
-      async () => {
-        let spaceContent = await snapshot.getPromise(spaceContentState);
-
-        if (props.isOutput) {
-          if (!isObject(block.output)) {
-            return;
-          }
-
-          const count = Object.keys(block.output).length;
-          const localName = `local_name_${count + 1}`;
-          const scopeName = `scope_name_pretty_long_${count + 1}`;
-
-          const newContent = u(
-            {
-              components: {
-                [block.id]: {
-                  output: {
-                    [localName]: scopeName,
-                  },
-                },
-              },
-            },
-            spaceContent
-          ) as SpaceContent;
-
-          updateSpaceV2({
-            variables: {
-              spaceId: props.spaceId,
-              content: JSON.stringify(newContent),
-            },
-          });
-        } else {
-          if (!isObject(block.input)) {
-            return;
-          }
-
-          const count = Object.keys(block.input).length;
-          const scopeName = `scope_name_${count + 1}`;
-          const argName = `arg_vary_vary_long_name_${count + 1}`;
-
-          const newContent = u(
-            {
-              components: {
-                [block.id]: {
-                  input: {
-                    [scopeName]: argName,
-                  },
-                },
-              },
-            },
-            spaceContent
-          ) as SpaceContent;
-
-          updateSpaceV2({
-            variables: {
-              spaceId: props.spaceId,
-              content: JSON.stringify(newContent),
-            },
-          });
-        }
-      }
-  );
-
   const rows: ReactNode[] = [];
 
-  if (props.blockConfig.singleInput) {
+  if ("singleVariable" in props) {
     rows.push(
       <EditorSingleScopeVariable
-        key={`${props.blockId}-single-input`}
-        spaceId={props.spaceId}
-        isOutput={props.isOutput}
+        key={`${props.block.id}-single-variable`}
+        variableName={props.singleVariable}
+        isInput={props.isInput}
+        onSave={(newName) => {
+          const spaceContent = u<any, SpaceContent>(
+            {
+              components: {
+                [props.block.id]: {
+                  [props.isInput ? "singleInput" : "singleOuput"]: newName,
+                },
+              },
+            },
+            props.spaceContent
+          );
+
+          updateSpaceV2({
+            variables: {
+              spaceId: props.spaceId,
+              content: JSON.stringify(spaceContent),
+            },
+          });
+        }}
       />
     );
   } else {
-    for (const [key, value] of Object.entries(block.input as object)) {
+    for (const [key, value] of Object.entries(props.variableMap)) {
       rows.push(
         <VariableMapRow
-          key={`${value}-${key}`}
-          spaceId={props.spaceId}
-          localName={props.isOutput ? key : value}
-          scopeName={props.isOutput ? value : key}
-          isOutput={props.isOutput}
+          key={`${key}-${value}`}
+          localName={props.isInput ? value : key}
+          scopeName={props.isInput ? key : value}
+          isInput={props.isInput}
+          onSaveLocalName={(newValue) => {
+            const newContent = u<any, SpaceContent>(
+              {
+                components: {
+                  [props.block.id]: {
+                    [props.isInput ? "inputMap" : "outputMap"]: props.isInput
+                      ? assoc(key, newValue)
+                      : pipe(dissoc(key), assoc(newValue, value)),
+                  },
+                },
+              },
+              props.spaceContent
+            ) as SpaceContent;
+
+            updateSpaceV2({
+              variables: {
+                spaceId: props.spaceId,
+                content: JSON.stringify(newContent),
+              },
+            });
+          }}
+          onSaveScopeName={(newValue) => {
+            const newContent = u<any, SpaceContent>(
+              {
+                components: {
+                  [props.block.id]: {
+                    [props.isInput ? "inputMap" : "outputMap"]: props.isInput
+                      ? pipe(dissoc(key), assoc(newValue, value))
+                      : assoc(key, newValue),
+                  },
+                },
+              },
+              props.spaceContent
+            ) as SpaceContent;
+
+            updateSpaceV2({
+              variables: {
+                spaceId: props.spaceId,
+                content: JSON.stringify(newContent),
+              },
+            });
+          }}
+          onRemove={() => {
+            const spaceContent = u<any, SpaceContent>(
+              {
+                components: {
+                  [props.block.id]: {
+                    [props.isInput ? "inputMap" : "outputMap"]: dissoc(key),
+                  },
+                },
+              },
+              props.spaceContent
+            );
+
+            updateSpaceV2({
+              variables: {
+                spaceId: props.spaceId,
+                content: JSON.stringify(spaceContent),
+              },
+            });
+          }}
         />
       );
     }
@@ -127,14 +139,38 @@ export default function EditorBlockInputOutput(props: Props) {
 
   return (
     <Container>
-      <Header>{props.isOutput ? "Output" : "Input"}</Header>
+      <Header>{props.isInput ? "Input" : "Output"}</Header>
       <div>{rows}</div>
-      {!props.blockConfig.singleInput && (
+      {"variableMap" in props && (
         <Button
           color="success"
           size="sm"
           variant="outlined"
-          onClick={appendNewVariablePair}
+          onClick={() => {
+            const count = Object.keys(props.variableMap).length;
+            const localName = `local_name_${count + 1}`;
+            const scopeName = `scope_name_${count + 1}`;
+
+            const newContent = u<any, SpaceContent>(
+              {
+                components: {
+                  [props.block.id]: {
+                    [props.isInput ? "inputMap" : "outputMap"]: props.isInput
+                      ? assoc(scopeName, localName)
+                      : assoc(localName, scopeName),
+                  },
+                },
+              },
+              props.spaceContent
+            ) as SpaceContent;
+
+            updateSpaceV2({
+              variables: {
+                spaceId: props.spaceId,
+                content: JSON.stringify(newContent),
+              },
+            });
+          }}
         >
           Add
         </Button>

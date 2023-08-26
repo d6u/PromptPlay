@@ -4,6 +4,7 @@ import {
   BlockGroupAnchor,
   BlockGroupType,
   BlockType,
+  BlockVariablesConfiguration,
   ROOT_COMPONENT_ID,
   SpaceContent,
 } from "./spaceTypes";
@@ -41,43 +42,48 @@ export function createNewBlock(type: BlockType): Block {
       return {
         id: nanoid(),
         type,
-        input: null,
+        inputConfiguration: BlockVariablesConfiguration.NonConfigurable,
+        outputConfiguration: BlockVariablesConfiguration.Single,
+        singleOuput: "name_on_scope",
         code: null,
-        output: "scope_name",
       };
     case BlockType.LlmMessage:
       return {
         id: nanoid(),
         type,
-        input: {
-          scope_name: "argument_name",
-        },
+        inputConfiguration: BlockVariablesConfiguration.Map,
+        inputMap: {},
+        outputConfiguration: BlockVariablesConfiguration.Single,
+        singleOuput: "name_on_scope",
         code: null,
-        output: "scope_name",
       };
     case BlockType.AppendToList:
       return {
         id: nanoid(),
         type,
-        input: null,
+        inputConfiguration: BlockVariablesConfiguration.NonConfigurable,
+        outputConfiguration: BlockVariablesConfiguration.NonConfigurable,
         code: null,
-        output: null,
       };
     case BlockType.Llm:
       return {
         id: nanoid(),
         type,
-        input: "scope_name",
+        inputConfiguration: BlockVariablesConfiguration.Single,
+        singleInput: "name_on_scope",
+        outputConfiguration: BlockVariablesConfiguration.Single,
+        singleOuput: "name_on_scope",
         code: null,
-        output: "scope_name",
       };
     case BlockType.GetAttribute:
       return {
         id: nanoid(),
         type,
-        input: "scope_name",
+        inputConfiguration: BlockVariablesConfiguration.Single,
+        singleInput: "name_on_scope",
+        outputConfiguration: BlockVariablesConfiguration.Single,
+        singleOuput: "name_on_scope",
         code: null,
-        output: "scope_name",
       };
     default:
       throw new Error(`Unknown block type: ${type}`);

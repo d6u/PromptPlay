@@ -1,6 +1,10 @@
 import { spaceV2SelectedBlockIdState } from "../../state/store";
-import { BLOCK_CONFIGS } from "../../static/blockConfigs";
-import { Block, BlockAnchor, SpaceContent } from "../../static/spaceTypes";
+import {
+  Block,
+  BlockAnchor,
+  BlockVariablesConfiguration,
+  SpaceContent,
+} from "../../static/spaceTypes";
 import BlockV2 from "../block_v2/BlockV2";
 import BlockVariableMap from "./BlockVariableMap";
 import { useDraggable } from "@dnd-kit/core";
@@ -29,17 +33,16 @@ const SlotHolder = styled.div`
 `;
 
 type Props = {
-  spaceContent: SpaceContent;
   anchor: BlockAnchor;
+  spaceContent: SpaceContent;
 };
 
-export default function BlockComponent({ anchor, spaceContent }: Props) {
-  const block = spaceContent.components[anchor.id] as Block;
-  const blockConfig = BLOCK_CONFIGS[block.type];
+export default function BlockComponent(props: Props) {
+  const block = props.spaceContent.components[props.anchor.id] as Block;
 
   const { attributes, listeners, setNodeRef, transform, isDragging } =
     useDraggable({
-      id: anchor.id,
+      id: props.anchor.id,
     });
 
   const [spaceV2SelectedBlockId, setSpaceV2SelectedBlockId] = useRecoilState(
@@ -54,8 +57,8 @@ export default function BlockComponent({ anchor, spaceContent }: Props) {
       {...listeners}
       {...attributes}
     >
-      {blockConfig.hasInput ? (
-        <BlockVariableMap variableMap={block.input} />
+      {block.inputConfiguration === BlockVariablesConfiguration.Map ? (
+        <BlockVariableMap variableMap={block.inputMap} />
       ) : (
         <SlotHolder />
       )}
@@ -66,8 +69,8 @@ export default function BlockComponent({ anchor, spaceContent }: Props) {
       >
         {block.id}
       </BlockV2>
-      {blockConfig.hasOutput ? (
-        <BlockVariableMap variableMap={block.output} isOutput />
+      {block.outputConfiguration === BlockVariablesConfiguration.Map ? (
+        <BlockVariableMap variableMap={block.outputMap} isOutput />
       ) : (
         <SlotHolder />
       )}

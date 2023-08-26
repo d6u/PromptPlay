@@ -1,14 +1,13 @@
-import { spaceV2SelectedBlockSelector } from "../../../../state/store";
 import { BLOCK_CONFIGS } from "../../../../static/blockConfigs";
-import { BlockType } from "../../../../static/spaceTypes";
-import EditorBlockInputOutput from "./EditorBlockInputOutput";
+import { Block, BlockType, SpaceContent } from "../../../../static/spaceTypes";
+import EditorBlockInputConfiguration from "./EditorBlockInputConfiguration";
+import EditorBlockOutputConfiguration from "./EditorBlockOutputConfiguration";
 import Input from "@mui/joy/Input";
 import Option from "@mui/joy/Option";
 import Radio from "@mui/joy/Radio";
 import RadioGroup from "@mui/joy/RadioGroup";
 import Select from "@mui/joy/Select";
 import Textarea from "@mui/joy/Textarea";
-import { useRecoilValue } from "recoil";
 import styled from "styled-components";
 
 const Header = styled.div`
@@ -43,17 +42,17 @@ const FieldTitle = styled.div`
 `;
 
 type Props = {
+  selectedBlock: Block;
   spaceId: string;
+  spaceContent: SpaceContent;
 };
 
 export default function EditorBlock(props: Props) {
-  const block = useRecoilValue(spaceV2SelectedBlockSelector)!;
-
-  const blockConfig = BLOCK_CONFIGS[block.type];
+  const blockConfig = BLOCK_CONFIGS[props.selectedBlock.type];
 
   let editorContent = null;
 
-  switch (block.type) {
+  switch (props.selectedBlock.type) {
     case BlockType.Databag:
       editorContent = (
         <FieldRow>
@@ -170,24 +169,17 @@ export default function EditorBlock(props: Props) {
         <HeaderText>{blockConfig.title}</HeaderText>
       </Header>
       <Body>
-        {blockConfig.hasInput && (
-          <EditorBlockInputOutput
-            spaceId={props.spaceId}
-            blockId={block.id}
-            inputOutput={block.input!}
-            blockConfig={blockConfig}
-          />
-        )}
+        <EditorBlockInputConfiguration
+          block={props.selectedBlock}
+          spaceId={props.spaceId}
+          spaceContent={props.spaceContent}
+        />
         {editorContent}
-        {blockConfig.hasOutput && (
-          <EditorBlockInputOutput
-            spaceId={props.spaceId}
-            blockId={block.id}
-            inputOutput={block.output!}
-            blockConfig={blockConfig}
-            isOutput
-          />
-        )}
+        <EditorBlockOutputConfiguration
+          block={props.selectedBlock}
+          spaceId={props.spaceId}
+          spaceContent={props.spaceContent}
+        />
       </Body>
     </>
   );

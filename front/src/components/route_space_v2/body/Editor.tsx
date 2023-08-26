@@ -1,6 +1,5 @@
-import { spaceV2SelectedBlockSelector } from "../../../state/store";
+import { Block, SpaceContent } from "../../../static/spaceTypes";
 import EditorBlock from "./editor/EditorBlock";
-import { useRecoilValue } from "recoil";
 import styled from "styled-components";
 
 const Container = styled.div`
@@ -16,20 +15,16 @@ const Content = styled.div`
 `;
 
 type Props = {
+  selectedBlock: Block;
   spaceId: string;
+  spaceContent: SpaceContent;
 };
 
-export default function SpaceV2Right(props: Props) {
-  const selectedBlock = useRecoilValue(spaceV2SelectedBlockSelector);
-
-  if (selectedBlock == null) {
-    return null;
-  }
-
+export default function Editor(props: Props) {
   return (
     <Container>
       <Content>
-        <EditorBlock spaceId={props.spaceId} />
+        <EditorBlock {...props} />
       </Content>
     </Container>
   );
