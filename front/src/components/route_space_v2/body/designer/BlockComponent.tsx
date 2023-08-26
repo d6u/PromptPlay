@@ -6,7 +6,10 @@ import {
   BlockVariablesConfiguration,
   SpaceContent,
 } from "../../../../static/spaceTypes";
-import BlockV2 from "../../../block_v2/BlockV2";
+import BlockV2, {
+  VisualBlockType,
+  blockTypeToVisualBlockType,
+} from "../../../block_v2/BlockV2";
 import BlockVariableMap from "./BlockVariableMap";
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
@@ -16,18 +19,28 @@ import styled, { css } from "styled-components";
 
 const Container = styled.div<{ $isDragging: boolean }>`
   display: flex;
-  padding: 10px;
-  align-items: flex-start;
-  gap: 10px;
-  border-radius: 5px;
-  border: 1px solid #c5c5d2;
-  background-color: #fff;
+
   position: relative;
   ${(props) =>
     props.$isDragging &&
     css`
       z-index: 1;
     `}
+  opacity: ${(props) => (props.$isDragging ? 0.8 : 1)};
+`;
+
+const Content = styled.div`
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #c5c5d2;
+  background-color: #fff;
+`;
+
+const OutputContent = styled.div`
+  padding: 10px;
 `;
 
 const SlotHolder = styled.div`
@@ -94,15 +107,27 @@ export default function BlockComponent(props: Props) {
       {...listeners}
       {...attributes}
     >
-      {inputConfigurator}
-      <BlockV2
-        type={block.type}
-        selected={spaceV2SelectedBlockId === block.id}
-        onClick={() => setSpaceV2SelectedBlockId(block.id)}
-      >
-        {blockConfig.renderConfig(block)}
-      </BlockV2>
-      {outputConfigurator}
+      <Content>
+        {inputConfigurator}
+        <BlockV2
+          type={blockTypeToVisualBlockType(block.type)}
+          selected={spaceV2SelectedBlockId === block.id}
+          onClick={() => setSpaceV2SelectedBlockId(block.id)}
+        >
+          {blockConfig.renderConfig(block)}
+        </BlockV2>
+        {outputConfigurator}
+      </Content>
+      {block.outputContent && (
+        <OutputContent>
+          <BlockV2
+            type={VisualBlockType.Output}
+            onClick={() => setSpaceV2SelectedBlockId(block.id)}
+          >
+            {block.outputContent}
+          </BlockV2>
+        </OutputContent>
+      )}
     </Container>
   );
 }

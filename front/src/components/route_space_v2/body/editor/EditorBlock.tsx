@@ -3,6 +3,12 @@ import { Block, SpaceContent } from "../../../../static/spaceTypes";
 import EditorBlockInputConfiguration from "./EditorBlockInputConfiguration";
 import EditorBlockOutputConfiguration from "./EditorBlockOutputConfiguration";
 import EditorBlockUniqueConfigurations from "./EditorBlockUniqueConfigurations";
+import {
+  FieldDescriptionText,
+  FieldRow,
+  FieldTitle,
+} from "./editorCommonComponents";
+import Textarea from "@mui/joy/Textarea";
 import styled from "styled-components";
 
 const Header = styled.div`
@@ -26,6 +32,12 @@ const Body = styled.div`
   color: #000;
   font-size: 15px;
   font-weight: 400;
+`;
+
+const Bar = styled.div`
+  height: 3px;
+  background-color: #318a09;
+  margin: 10px 0px;
 `;
 
 type Props = {
@@ -58,6 +70,24 @@ export default function EditorBlock(props: Props) {
           spaceId={props.spaceId}
           spaceContent={props.spaceContent}
         />
+        {props.selectedBlock.outputContent && (
+          <>
+            <Bar />
+            <FieldRow>
+              <FieldTitle>Current output content</FieldTitle>
+              <FieldDescriptionText>
+                This is the output from LLM in the last run.
+              </FieldDescriptionText>
+              <Textarea
+                color="neutral"
+                size="sm"
+                variant="outlined"
+                minRows={3}
+                value={props.selectedBlock.outputContent}
+              />
+            </FieldRow>
+          </>
+        )}
       </Body>
     </>
   );

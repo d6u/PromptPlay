@@ -1,6 +1,6 @@
 import * as openai from "../llm/openai";
 import { Block, BlockType } from "./spaceTypes";
-import { append, flatten, prop } from "ramda";
+import { append, assoc, flatten, pipe, prop } from "ramda";
 import { ReactNode } from "react";
 
 // TODO: Find a better way to pass the openaiApiKey
@@ -14,7 +14,8 @@ export type BlockConfig = {
   executeFunc: (
     block: Block,
     scope: { [key: string]: any },
-    args: any
+    args: any,
+    updater: (block: Block) => void
   ) => Promise<any>;
 };
 
@@ -132,7 +133,7 @@ export const BLOCK_CONFIGS: { [key in BlockType]: BlockConfig } = {
         </>
       );
     },
-    executeFunc: async (block, scope, args) => {
+    executeFunc: async (block, scope, args, updater) => {
       if (block.type !== BlockType.Llm) {
         throw new Error("Block type doesn't match execute function");
       }
@@ -151,7 +152,16 @@ export const BLOCK_CONFIGS: { [key in BlockType]: BlockConfig } = {
         return null;
       }
 
-      return result.data.choices[0].message;
+      const message = result.data.choices[0].message;
+
+      const newBlock = pipe(
+        assoc("errorOutput", false),
+        assoc("outputContent", message.content)
+      )(block) as Block;
+
+      updater(newBlock);
+
+      return message;
     },
   },
   [BlockType.GetAttribute]: {

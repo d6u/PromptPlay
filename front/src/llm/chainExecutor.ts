@@ -1,5 +1,6 @@
 import { BLOCK_CONFIGS, HACK__OPEN_AI_API_KEY } from "../static/blockConfigs";
 import {
+  Block,
   BlockType,
   BlockVariablesConfiguration,
   SpaceContent,
@@ -8,7 +9,8 @@ import { isBlockGroupAnchor } from "../static/spaceUtils";
 
 export async function execute(
   spaceContent: SpaceContent,
-  openaiApiKey: string
+  openaiApiKey: string,
+  onBlockUpdate: (block: Block) => void
 ) {
   console.debug(JSON.stringify(spaceContent, null, 2));
 
@@ -49,7 +51,12 @@ export async function execute(
       args[HACK__OPEN_AI_API_KEY] = openaiApiKey;
     }
 
-    const executeResult = await blockConfig.executeFunc(block, scope, args);
+    const executeResult = await blockConfig.executeFunc(
+      block,
+      scope,
+      args,
+      onBlockUpdate
+    );
 
     console.debug("Execute result", executeResult);
 

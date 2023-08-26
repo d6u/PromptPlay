@@ -51,6 +51,7 @@ export default function BlockGroupComponent({
   const { isDragging, attributes, listeners, setNodeRef, transform } =
     useDraggable({
       id: anchor.id,
+      disabled: isRoot,
     });
 
   const content: ReactNode[] = [];

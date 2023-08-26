@@ -8,6 +8,11 @@ export const FieldTitle = styled.div`
   margin-bottom: 5px;
 `;
 
+export const FieldDescriptionText = styled.div`
+  margin-bottom: 5px;
+  font-size: 13px;
+`;
+
 export const FieldHelperText = styled.div<{ $type?: "error" | "success" }>`
   font-size: 12px;
   margin-top: 5px;

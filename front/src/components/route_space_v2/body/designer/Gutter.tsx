@@ -2,6 +2,7 @@ import { useDroppable } from "@dnd-kit/core";
 import styled from "@emotion/styled";
 
 const Box = styled.div<{ isOver: boolean }>`
+  width: 692px;
   height: 4px;
   align-self: stretch;
   border-radius: 5px;

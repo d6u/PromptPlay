@@ -122,8 +122,10 @@ export default function SpaceV2SubHeader(props: Props) {
           variant="outlined"
           disabled={props.spaceContent == null}
           onClick={() => {
+            const spaceContent = props.spaceContent!;
+
             // TODO: Find a better way to do validation
-            for (const block of Object.values(props.spaceContent!.components)) {
+            for (const block of Object.values(spaceContent.components)) {
               if (block.type === BlockType.Llm) {
                 if (openAiApiKey == null || openAiApiKey === "") {
                   setSpaceV2SelectedBlockId(block.id);
@@ -134,9 +136,24 @@ export default function SpaceV2SubHeader(props: Props) {
             }
 
             // TODO: Make it actually validate someting
-            validate(props.spaceContent!);
+            validate(spaceContent);
 
-            execute(props.spaceContent!, openAiApiKey);
+            execute(spaceContent, openAiApiKey, (block) => {
+              let newSpaceContent = spaceContent;
+
+              newSpaceContent = u({
+                components: {
+                  [block.id]: u.constant(block),
+                },
+              })(spaceContent) as SpaceContent;
+
+              updateSpaceV2({
+                variables: {
+                  spaceId: props.spaceId,
+                  content: JSON.stringify(newSpaceContent),
+                },
+              });
+            });
           }}
         >
           Run

@@ -31,7 +31,8 @@ export type Block = {
   id: string;
 } & BlockUniqueConfigurations &
   BlockInputConfiguration &
-  BlockOutputConfiguration;
+  BlockOutputConfiguration &
+  BlockOutput;
 
 export type BlockInputConfiguration =
   | { inputConfiguration: BlockVariablesConfiguration.NonConfigurable }
@@ -80,6 +81,11 @@ export type BlockUniqueConfigurations =
       type: BlockType.GetAttribute;
       attribute: string;
     };
+
+export type BlockOutput = {
+  errorOutput?: false;
+  outputContent?: string;
+};
 
 // BlockGroup
 

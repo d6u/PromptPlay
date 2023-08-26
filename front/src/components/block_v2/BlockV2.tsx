@@ -3,8 +3,17 @@ import { BlockType } from "../../static/spaceTypes";
 import CrossIconV2 from "../icons/CrossIconV2";
 import styled, { css } from "styled-components";
 
+export enum VisualBlockType {
+  Databag = "Databag",
+  LlmMessage = "LlmMessage",
+  AppendToList = "AppendToList",
+  Llm = "Llm",
+  GetAttribute = "GetAttribute",
+  Output = "Output",
+}
+
 const Container = styled.div<{
-  $type: BlockType;
+  $type: VisualBlockType;
   $clickable: boolean;
   $selected?: boolean;
   $narrow?: boolean;
@@ -18,31 +27,32 @@ const Container = styled.div<{
   ${(props) => {
     if (props.$selected) {
       switch (props.$type) {
-        case BlockType.Databag:
+        case VisualBlockType.Databag:
           return css`
             border: 2px solid #004a39;
             background: linear-gradient(22deg, #fbfffe 0%, #8effe4 100%);
           `;
-        case BlockType.LlmMessage:
+        case VisualBlockType.LlmMessage:
           return css`
             border: 2px solid #105e72;
             background: linear-gradient(22deg, #fff 0%, #dff9ff 100%);
           `;
-        case BlockType.AppendToList:
+        case VisualBlockType.AppendToList:
           return css`
             border: 2px solid #0027b1;
             background: linear-gradient(22deg, #fff 0%, #c8d4ff 100%);
           `;
-        case BlockType.Llm:
+        case VisualBlockType.Llm:
           return css`
             border: 2px solid #9b57b1;
             background: linear-gradient(22deg, #fff 0%, #ffe0ea 100%);
           `;
-        case BlockType.GetAttribute:
+        case VisualBlockType.GetAttribute:
           return css`
             border: 2px solid #005327;
             background: linear-gradient(22deg, #fff 0%, #97f2c2 100%);
           `;
+        case VisualBlockType.Output:
         default:
           return css`
             border: 2px solid #000;
@@ -51,30 +61,35 @@ const Container = styled.div<{
       }
     } else {
       switch (props.$type) {
-        case BlockType.Databag:
+        case VisualBlockType.Databag:
           return css`
             border: 2px solid #004a45;
             background: linear-gradient(22deg, #9cede8 0%, #00e1d4 100%);
           `;
-        case BlockType.LlmMessage:
+        case VisualBlockType.LlmMessage:
           return css`
             border: 2px solid #105e72;
             background: linear-gradient(22deg, #98ecff 0%, #5cc5e0 100%);
           `;
-        case BlockType.AppendToList:
+        case VisualBlockType.AppendToList:
           return css`
             border: 2px solid #0027b1;
             background: linear-gradient(22deg, #bbceff 0%, #7291ff 100%);
           `;
-        case BlockType.Llm:
+        case VisualBlockType.Llm:
           return css`
             border: 2px solid #9b57b1;
             background: linear-gradient(22deg, #fa97b6 0%, #e081fe 100%);
           `;
-        case BlockType.GetAttribute:
+        case VisualBlockType.GetAttribute:
           return css`
             border: 2px solid #005327;
             background: linear-gradient(22deg, #8adfb1 0%, #37d07f 100%);
+          `;
+        case VisualBlockType.Output:
+          return css`
+            border: 2px solid #318a09;
+            background: linear-gradient(22deg, #daf1bd 0%, #8eec63 100%);
           `;
         default:
           return css`
@@ -86,7 +101,7 @@ const Container = styled.div<{
   }}
 `;
 
-const Text = styled.div<{ $type: BlockType }>`
+const Text = styled.div<{ $type: VisualBlockType }>`
   height: 100%;
   overflow: hidden;
   font-family: var(--mono-font-family);
@@ -100,7 +115,7 @@ const Title = styled.div`
 `;
 
 type Props = {
-  type: BlockType;
+  type: VisualBlockType;
   selected?: boolean;
   narrow?: boolean;
   children?: React.ReactNode;
@@ -108,7 +123,8 @@ type Props = {
 };
 
 export default function BlockV2(props: Props) {
-  const title = BLOCK_CONFIGS[props.type]?.title;
+  const blockType = visualBlockTypeToBlockType(props.type);
+  const title = blockType ? BLOCK_CONFIGS[blockType].title : null;
 
   return (
     <Container
@@ -125,4 +141,40 @@ export default function BlockV2(props: Props) {
       </Text>
     </Container>
   );
+}
+
+export function blockTypeToVisualBlockType(
+  blockType: BlockType
+): VisualBlockType {
+  switch (blockType) {
+    case BlockType.Databag:
+      return VisualBlockType.Databag;
+    case BlockType.LlmMessage:
+      return VisualBlockType.LlmMessage;
+    case BlockType.AppendToList:
+      return VisualBlockType.AppendToList;
+    case BlockType.Llm:
+      return VisualBlockType.Llm;
+    case BlockType.GetAttribute:
+      return VisualBlockType.GetAttribute;
+  }
+}
+
+function visualBlockTypeToBlockType(
+  blockType: VisualBlockType
+): BlockType | null {
+  switch (blockType) {
+    case VisualBlockType.Databag:
+      return BlockType.Databag;
+    case VisualBlockType.LlmMessage:
+      return BlockType.LlmMessage;
+    case VisualBlockType.AppendToList:
+      return BlockType.AppendToList;
+    case VisualBlockType.Llm:
+      return BlockType.Llm;
+    case VisualBlockType.GetAttribute:
+      return BlockType.GetAttribute;
+    case VisualBlockType.Output:
+      return null;
+  }
 }
