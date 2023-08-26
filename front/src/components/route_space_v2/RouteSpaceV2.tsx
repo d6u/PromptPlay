@@ -1,8 +1,8 @@
 import { spaceContentState } from "../../state/store";
-import SpaceV2Left from "./SpaceV2Left";
-import SpaceV2Right from "./SpaceV2Right";
-import SpaceV2SubHeader from "./SpaceV2SubHeader";
+import SpaceV2Left from "./body/SpaceV2Left";
+import SpaceV2Right from "./body/SpaceV2Right";
 import { SPACE_V2_QUERY } from "./graphql";
+import SpaceV2SubHeader from "./sub_header/SpaceV2SubHeader";
 import { useQuery } from "@apollo/client";
 import { useEffect } from "react";
 import { useSetRecoilState } from "recoil";

@@ -1,5 +1,5 @@
-import { spaceV2SelectedBlockSelector } from "../../state/store";
-import EditorBlock from "./EditorBlock";
+import { spaceV2SelectedBlockSelector } from "../../../state/store";
+import EditorBlock from "./editor/EditorBlock";
 import { useRecoilValue } from "recoil";
 import styled from "styled-components";
 

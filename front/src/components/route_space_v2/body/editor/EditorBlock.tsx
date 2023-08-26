@@ -1,6 +1,6 @@
-import { spaceV2SelectedBlockSelector } from "../../state/store";
-import { BLOCK_CONFIGS } from "../../static/blockConfigs";
-import { BlockType } from "../../static/spaceTypes";
+import { spaceV2SelectedBlockSelector } from "../../../../state/store";
+import { BLOCK_CONFIGS } from "../../../../static/blockConfigs";
+import { BlockType } from "../../../../static/spaceTypes";
 import EditorBlockInputOutput from "./EditorBlockInputOutput";
 import Input from "@mui/joy/Input";
 import Option from "@mui/joy/Option";

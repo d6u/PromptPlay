@@ -1,9 +1,9 @@
 import {
   spaceContentState,
   spaceV2SelectedBlockSelector,
-} from "../../state/store";
-import { SpaceContent } from "../../static/spaceTypes";
-import { UPDATE_SPACE_V2_MUTATION } from "./graphql";
+} from "../../../../state/store";
+import { SpaceContent } from "../../../../static/spaceTypes";
+import { UPDATE_SPACE_V2_MUTATION } from "../../graphql";
 import { useMutation } from "@apollo/client";
 import Input from "@mui/joy/Input";
 import { useState } from "react";

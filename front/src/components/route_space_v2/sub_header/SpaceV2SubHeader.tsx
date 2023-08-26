@@ -1,10 +1,10 @@
-import { spaceContentState } from "../../state/store";
-import { Block, BlockType, SpaceContent } from "../../static/spaceTypes";
+import { spaceContentState } from "../../../state/store";
+import { Block, BlockType, SpaceContent } from "../../../static/spaceTypes";
 import {
   createInitialSpaceContent,
   createNewBlock,
-} from "../../static/spaceUtils";
-import { SPACE_V2_QUERY, UPDATE_SPACE_V2_MUTATION } from "./graphql";
+} from "../../../static/spaceUtils";
+import { SPACE_V2_QUERY, UPDATE_SPACE_V2_MUTATION } from "../graphql";
 import { useMutation } from "@apollo/client";
 import Button from "@mui/joy/Button";
 import { append } from "ramda";

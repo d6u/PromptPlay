@@ -1,10 +1,10 @@
 import {
   spaceContentState,
   spaceV2SelectedBlockSelector,
-} from "../../state/store";
-import { SpaceContent } from "../../static/spaceTypes";
-import { isObject } from "../../static/spaceUtils";
-import { UPDATE_SPACE_V2_MUTATION } from "./graphql";
+} from "../../../../state/store";
+import { SpaceContent } from "../../../../static/spaceTypes";
+import { isObject } from "../../../../static/spaceUtils";
+import { UPDATE_SPACE_V2_MUTATION } from "../../graphql";
 import { useMutation } from "@apollo/client";
 import Button from "@mui/joy/Button";
 import Input from "@mui/joy/Input";

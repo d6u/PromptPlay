@@ -1,13 +1,13 @@
 import {
   spaceContentState,
   spaceV2SelectedBlockSelector,
-} from "../../state/store";
-import { BlockConfig } from "../../static/blockConfigs";
-import { SpaceContent } from "../../static/spaceTypes";
-import { isObject } from "../../static/spaceUtils";
+} from "../../../../state/store";
+import { BlockConfig } from "../../../../static/blockConfigs";
+import { SpaceContent } from "../../../../static/spaceTypes";
+import { isObject } from "../../../../static/spaceUtils";
+import { UPDATE_SPACE_V2_MUTATION } from "../../graphql";
 import EditorSingleScopeVariable from "./EditorSingleScopeVariable";
 import VariableMapRow from "./VariableMapRow";
-import { UPDATE_SPACE_V2_MUTATION } from "./graphql";
 import { useMutation } from "@apollo/client";
 import Button from "@mui/joy/Button";
 import { ReactNode } from "react";
