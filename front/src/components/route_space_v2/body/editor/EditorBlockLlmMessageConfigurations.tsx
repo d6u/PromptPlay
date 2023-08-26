@@ -3,7 +3,11 @@ import {
   LlmMessageRole,
   SpaceContent,
 } from "../../../../static/spaceTypes";
-import { FieldRow, FieldTitle } from "./editorCommonComponents";
+import {
+  FieldHelperText,
+  FieldRow,
+  FieldTitle,
+} from "./editorCommonComponents";
 import Radio from "@mui/joy/Radio";
 import RadioGroup from "@mui/joy/RadioGroup";
 import Textarea from "@mui/joy/Textarea";
@@ -70,13 +74,17 @@ export default function EditorBlockLlmMessageConfigurations(props: Props) {
           onChange={(e) => {
             setContent(e.target.value);
           }}
-          onKeyUp={(e) => {
-            if (e.key === "Enter") {
+          onKeyDown={(e) => {
+            if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
               props.onSaveContent(content);
             }
           }}
           onBlur={() => props.onSaveContent(content)}
         />
+        <FieldHelperText>
+          Press <code>CMD</code> + <code>ENTER</code> () or <code>CTRL</code> +{" "}
+          <code>ENTER</code> (Windows) to save. Unfocus will also save.
+        </FieldHelperText>
       </FieldRow>
     </>
   );

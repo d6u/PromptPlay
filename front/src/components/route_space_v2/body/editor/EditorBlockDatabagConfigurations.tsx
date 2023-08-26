@@ -1,5 +1,9 @@
 import { Block, SpaceContent } from "../../../../static/spaceTypes";
-import { FieldRow, FieldTitle } from "./editorCommonComponents";
+import {
+  FieldHelperText,
+  FieldRow,
+  FieldTitle,
+} from "./editorCommonComponents";
 import Textarea from "@mui/joy/Textarea";
 import { useState } from "react";
 
@@ -25,12 +29,16 @@ export default function EditorBlockDatabagConfigurations(props: Props) {
         value={value}
         onChange={(e) => setValue(e.target.value)}
         onKeyUp={(e) => {
-          if (e.key === "Enter") {
+          if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
             props.onSaveValue(value);
           }
         }}
         onBlur={() => props.onSaveValue(value)}
       />
+      <FieldHelperText>
+        Press <code>CMD</code> + <code>ENTER</code> () or <code>CTRL</code> +{" "}
+        <code>ENTER</code> (Windows) to save. Unfocus will also save.
+      </FieldHelperText>
     </FieldRow>
   );
 }
