@@ -1,3 +1,6 @@
+from typing import Any
+from uuid import uuid4
+
 from .orm.block_set import OrmBlockSet
 from .orm.completer_block import OrmCompleterBlock
 from .orm.preset import OrmPreset
@@ -75,6 +78,51 @@ def create_space_with_example_content(db_user: OrmUser) -> OrmSpace:
     db_space_v2 = OrmSpace(
         name="Example space",
         owner=db_user,
+        content=_space_example_content(),
     )
 
     return db_space_v2
+
+
+def _space_example_content() -> dict[str, Any]:
+    block1_id = str(uuid4())
+    block2_id = str(uuid4())
+
+    return {
+        "root": {
+            "id": "root",
+            "blocks": [
+                {
+                    "id": block1_id,
+                },
+                {
+                    "id": block2_id,
+                },
+            ],
+        },
+        "components": {
+            block1_id: {
+                "id": block1_id,
+                "type": "LlmMessage",
+                "role": "user",
+                "content": "Write a short poem in fewer than 20 words.",
+                "listNameToAppend": "messages",
+                "inputConfiguration": "Map",
+                "inputMap": [["", ""]],
+                "outputConfiguration": "Single",
+                "singleOuput": "",
+            },
+            block2_id: {
+                "id": block2_id,
+                "type": "Llm",
+                "model": "gpt-3.5-turbo",
+                "temperature": 0.8,
+                "stop": [],
+                "variableNameForContent": "",
+                "inputConfiguration": "Single",
+                "singleInput": "messages",
+                "outputConfiguration": "Single",
+                "singleOuput": "",
+            },
+        },
+    }

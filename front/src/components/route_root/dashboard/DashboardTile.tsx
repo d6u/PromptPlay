@@ -4,10 +4,10 @@ import StyleResetLink from "../../common/StyleResetLink";
 const Tile = styled.div<{ $add?: boolean }>`
   aspect-ratio: 1 / 1;
   padding: 20px;
-  border: 2px solid ${(props) => (props.$add ? "black" : "#b6b6b6")};
+  border: 2px solid black;
   border-radius: 10px;
   background: none;
-  color: ${(props) => (props.$add ? "black" : "#5f5f5f")};
+  color: black;
   font-size: 20px;
   line-height: 1.3;
   font-weight: bold;
