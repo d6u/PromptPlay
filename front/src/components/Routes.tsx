@@ -6,8 +6,8 @@ import {
 } from "react-router-dom";
 import Header from "./header/Header";
 import RootRoute from "./route_root/RootRoute";
-import WorkspaceRoute from "./route_space/WorkspaceRoute";
 import RouteSpaceV2 from "./route_space_v2/RouteSpaceV2";
+import WorkspaceRoute from "./route_workspace/WorkspaceRoute";
 
 const router = createBrowserRouter([
   {
@@ -25,11 +25,11 @@ const router = createBrowserRouter([
       },
       {
         path: "spaces/:spaceId",
-        element: <WorkspaceRoute />,
+        element: <RouteSpaceV2 />,
       },
       {
-        path: "spaces_v2/:spaceId",
-        element: <RouteSpaceV2 />,
+        path: "workspaces/:spaceId",
+        element: <WorkspaceRoute />,
       },
     ],
   },
