@@ -1,4 +1,4 @@
-import { Link } from "wouter";
+import StyleResetLink from "../../common/StyleResetLink";
 import "./DashboardTile.css";
 
 export enum DashboardTileType {
@@ -30,11 +30,11 @@ export default function DashboardTile(props: Props) {
     );
   } else {
     content = (
-      <Link href={props.href}>
+      <StyleResetLink to={props.href}>
         <div className="DashboardTile">
           <div className="DashboardTile_inner">{props.children}</div>
         </div>
-      </Link>
+      </StyleResetLink>
     );
   }
 

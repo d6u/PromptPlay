@@ -1,7 +1,7 @@
 import { useMutation, useQuery } from "@apollo/client";
 import { useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { useSetRecoilState } from "recoil";
-import { useLocation } from "wouter";
 import { gql } from "../../__generated__";
 import { IS_LOGIN_ENABLED } from "../../constants";
 import { placeholderUserTokenState } from "../../state/store";
@@ -30,7 +30,7 @@ const CREATE_EXAMPLE_SPACE_MUTATION = gql(`
 `);
 
 export default function RootRoute() {
-  const [, setLocation] = useLocation();
+  const navigate = useNavigate();
 
   // --- Global State ---
 
@@ -54,10 +54,10 @@ export default function RootRoute() {
       }
       setPlaceholderUserToken(data.createExampleSpace.placeholderClientToken);
       if (data.createExampleSpace.space?.id) {
-        setLocation(`/spaces/${data.createExampleSpace.space.id}`);
+        navigate(`/spaces/${data.createExampleSpace.space.id}`);
       }
     });
-  }, [createExampleSpace, setLocation, setPlaceholderUserToken]);
+  }, [createExampleSpace, setPlaceholderUserToken, navigate]);
 
   if (queryResult.loading) {
     return <div>Loading...</div>;

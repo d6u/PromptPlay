@@ -1,12 +1,12 @@
 import { useQuery } from "@apollo/client";
 import { Button } from "@mui/joy";
-import { Link } from "wouter";
 import { gql } from "../../__generated__";
 import {
   API_SERVER_BASE_URL,
   IS_LOGIN_ENABLED,
   PROVIDE_FEEDBACK_LINK,
 } from "../../constants";
+import StyleResetLink from "../common/StyleResetLink";
 import "./Header.css";
 
 const HEADER_QUERY = gql(`
@@ -35,9 +35,9 @@ export default function Header() {
   return (
     <header className="Header">
       <div className="Header_left">
-        <Link to="/">
+        <StyleResetLink to="/">
           <h1 className="Header_title">PrompPlay.xyz</h1>
-        </Link>
+        </StyleResetLink>
         <a
           className="Header_feedback_link"
           href={PROVIDE_FEEDBACK_LINK}

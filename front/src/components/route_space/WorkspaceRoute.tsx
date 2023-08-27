@@ -1,16 +1,18 @@
 import { useQuery } from "@apollo/client";
+import { useParams } from "react-router-dom";
 import Workspace from "./Workspace";
 import { WORKSPACE_ROUTE_QUERY } from "./WorkspaceRouteQuery";
 import SubHeader from "./sub_header/SubHeader";
 
-type Props = {
-  workspaceId: string;
-};
+type Props = {};
 
-export default function WorkspaceRoute({ workspaceId }: Props) {
+export default function WorkspaceRoute(props: Props) {
+  // TODO: Properly handle spaceId not being present
+  const { spaceId = "" } = useParams<{ spaceId: string }>();
+
   const queryResult = useQuery(WORKSPACE_ROUTE_QUERY, {
     variables: {
-      workspaceId,
+      workspaceId: spaceId,
     },
   });
 
@@ -28,10 +30,7 @@ export default function WorkspaceRoute({ workspaceId }: Props) {
 
   return (
     <>
-      <SubHeader
-        workspaceId={workspaceId}
-        subHeaderFragment={queryResult.data}
-      />
+      <SubHeader workspaceId={spaceId} subHeaderFragment={queryResult.data} />
       <Workspace workspaceFragment={queryResult.data} />
     </>
   );

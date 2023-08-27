@@ -1,5 +1,6 @@
 import { useMutation, useQuery } from "@apollo/client";
 import { useCallback, useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import styled from "styled-components";
 import u from "updeep";
@@ -26,11 +27,12 @@ const Content = styled.div`
   min-height: 0;
 `;
 
-type Props = {
-  spaceId: string;
-};
+type Props = {};
 
 export default function RouteSpaceV2(props: Props) {
+  // TODO: Properly handle spaceId not being present
+  const { spaceId = "" } = useParams<{ spaceId: string }>();
+
   const spaceV2SelectedBlockId = useRecoilValue(spaceV2SelectedBlockIdState);
   const openAiApiKey = useRecoilValue(openAiApiKeyState);
   const setMissingOpenAiApiKey = useSetRecoilState(missingOpenAiApiKeyState);
@@ -42,7 +44,7 @@ export default function RouteSpaceV2(props: Props) {
 
   const query = useQuery(SPACE_V2_QUERY, {
     variables: {
-      spaceId: props.spaceId,
+      spaceId: spaceId,
     },
   });
 
@@ -90,7 +92,7 @@ export default function RouteSpaceV2(props: Props) {
 
         updateSpaceV2({
           variables: {
-            spaceId: props.spaceId,
+            spaceId: spaceId,
             content: JSON.stringify(newState),
           },
         });
@@ -101,7 +103,7 @@ export default function RouteSpaceV2(props: Props) {
   }, [
     spaceContent,
     openAiApiKey,
-    props.spaceId,
+    spaceId,
     setMissingOpenAiApiKey,
     setSpaceV2SelectedBlockId,
     updateSpaceV2,
@@ -128,13 +130,13 @@ export default function RouteSpaceV2(props: Props) {
   return (
     <>
       <SpaceV2SubHeader
-        spaceId={props.spaceId}
+        spaceId={spaceId}
         spaceContent={spaceContent}
         onSpaceContentChange={(spaceContent) => {
           setSpaceContent(spaceContent);
           updateSpaceV2({
             variables: {
-              spaceId: props.spaceId,
+              spaceId: spaceId,
               content: JSON.stringify(spaceContent),
             },
           });
@@ -144,14 +146,14 @@ export default function RouteSpaceV2(props: Props) {
       <Content>
         {spaceContent && (
           <>
-            <Designer spaceId={props.spaceId} spaceContent={spaceContent} />
+            <Designer spaceId={spaceId} spaceContent={spaceContent} />
             {selectedBlock && (
               <Editor
                 // Must provide a key, otherwise it won't re-render when the
                 // selected block changes
                 key={selectedBlock.id}
                 selectedBlock={selectedBlock}
-                spaceId={props.spaceId}
+                spaceId={spaceId}
                 spaceContent={spaceContent}
               />
             )}

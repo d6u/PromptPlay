@@ -2,8 +2,8 @@ import { useMutation } from "@apollo/client";
 import Button from "@mui/joy/Button";
 import Input from "@mui/joy/Input";
 import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import LoadingBar, { LoadingBarRef } from "react-top-loading-bar";
-import { useLocation } from "wouter";
 import { FragmentType, gql, useFragment } from "../../../__generated__";
 import RunButton from "./RunButton";
 import "./SubHeader.css";
@@ -73,7 +73,7 @@ export default function SubHeader({
   workspaceId: string;
   subHeaderFragment: FragmentType<typeof SUB_HEADER_FRAGMENT>;
 }) {
-  const [, setLocation] = useLocation();
+  const navigate = useNavigate();
 
   // --- GraphQL ---
 
@@ -256,7 +256,7 @@ export default function SubHeader({
                   console.error(errors);
                   return;
                 }
-                setLocation("/");
+                navigate("/");
               });
             }
           }}

@@ -1,5 +1,5 @@
 import { useMutation } from "@apollo/client";
-import { useLocation } from "wouter";
+import { useNavigate } from "react-router-dom";
 import { FragmentType, gql, useFragment } from "../../../__generated__";
 import DashboardTile, { DashboardTileType } from "./DashboardTile";
 import "./Dashboard.css";
@@ -27,7 +27,7 @@ export default function Dashboard({
 }: {
   dashboardFragment: FragmentType<typeof DASHBOARD_FRAGMENT>;
 }) {
-  const [, setLocation] = useLocation();
+  const navigate = useNavigate();
   const dashboard = useFragment(DASHBOARD_FRAGMENT, dashboardFragment);
   const [createSpace] = useMutation(CREATE_SPACE_MUTATION, {
     refetchQueries: ["RootRouteQuery"],
@@ -45,7 +45,7 @@ export default function Dashboard({
                 console.error(errors);
                 return;
               }
-              setLocation(`/spaces/${data.createSpace.id}`);
+              navigate(`/spaces/${data.createSpace.id}`);
             });
           }}
         >
