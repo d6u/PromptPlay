@@ -9,7 +9,6 @@ import {
   FieldRow,
   FieldTitle,
 } from "./editorCommonComponents";
-import Checkbox from "@mui/joy/Checkbox";
 import Input from "@mui/joy/Input";
 import Option from "@mui/joy/Option";
 import Select from "@mui/joy/Select";

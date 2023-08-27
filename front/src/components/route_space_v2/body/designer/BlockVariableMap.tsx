@@ -67,7 +67,7 @@ export default function BlockVariableMap(props: Props) {
         );
       }
     } else {
-      if (props.singleVariable != "") {
+      if (props.singleVariable !== "") {
         chips.push(
           <ScopeName key="scope-name" $justifySelf="flex-end">
             {props.singleVariable}
@@ -91,7 +91,7 @@ export default function BlockVariableMap(props: Props) {
         );
       }
     } else {
-      if (props.singleVariable != "") {
+      if (props.singleVariable !== "") {
         chips.push(
           <SpaceHolder key="local-name" />,
           <VariableMapArrow key="arrow" />,
