@@ -1,5 +1,4 @@
 import json
-from uuid import UUID
 
 import strawberry
 
