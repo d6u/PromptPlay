@@ -4,6 +4,7 @@ import CrossIconV2 from "../icons/CrossIconV2";
 import styled, { css } from "styled-components";
 
 export enum VisualBlockType {
+  Plain = "Plain",
   Databag = "Databag",
   LlmMessage = "LlmMessage",
   AppendToList = "AppendToList",
@@ -53,7 +54,7 @@ const Container = styled.div<{
             background: linear-gradient(22deg, #fff 0%, #97f2c2 100%);
           `;
         case VisualBlockType.Output:
-        default:
+        case VisualBlockType.Plain:
           return css`
             border: 2px solid #000;
             background: #fff;
@@ -91,7 +92,7 @@ const Container = styled.div<{
             border: 2px solid #318a09;
             background: linear-gradient(22deg, #daf1bd 0%, #8eec63 100%);
           `;
-        default:
+        case VisualBlockType.Plain:
           return css`
             border: 2px solid #000;
             background: #fff;
@@ -174,7 +175,7 @@ function visualBlockTypeToBlockType(
       return BlockType.Llm;
     case VisualBlockType.GetAttribute:
       return BlockType.GetAttribute;
-    case VisualBlockType.Output:
+    default:
       return null;
   }
 }

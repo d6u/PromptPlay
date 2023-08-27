@@ -46,6 +46,12 @@ const Bar = styled.div`
   margin: 10px 0px;
 `;
 
+const LllOutputContainer = styled.div`
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #c5c5d2;
+`;
+
 type Props = {
   selectedBlock: Block;
   spaceId: string;
@@ -119,13 +125,13 @@ export default function EditorBlock(props: Props) {
               <FieldDescriptionText>
                 This is the output from LLM in the last run.
               </FieldDescriptionText>
-              <div>
+              <LllOutputContainer>
                 {props.selectedBlock.outputContent
                   .split("\n")
-                  .map((line, index) => {
-                    return <p key={index}>{line}</p>;
-                  })}
-              </div>
+                  .map((line, index) => (
+                    <div key={index}>{line}</div>
+                  ))}
+              </LllOutputContainer>
             </FieldRow>
           </>
         )}

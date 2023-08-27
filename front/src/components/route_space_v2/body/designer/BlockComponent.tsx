@@ -147,7 +147,7 @@ export default function BlockComponent(props: Props) {
       {block.outputContent && (
         <OutputContent>
           <BlockV2
-            type={VisualBlockType.Output}
+            type={VisualBlockType.Plain}
             onClick={() => setSpaceV2SelectedBlockId(block.id)}
           >
             {block.outputContent}
