@@ -1,21 +1,15 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import Any
 from uuid import UUID
 
-from sqlalchemy import JSON, ForeignKey
+from sqlalchemy import ForeignKey
 from sqlalchemy.dialects.postgresql import JSONB
-from sqlalchemy.ext.mutable import MutableDict
-from sqlalchemy.orm import Mapped, WriteOnlyMapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ..database import Base
 from ..mixins import MixinCreatedAt, MixinUpdatedAt, MixinUuidPrimaryKey
 from .user import OrmUser
-
-if TYPE_CHECKING:
-    from .completer_block import OrmCompleterBlock
-    from .preset import OrmPreset
-    from .prompt_block import OrmPromptBlock
 
 
 class OrmSpace(
@@ -24,9 +18,9 @@ class OrmSpace(
     MixinCreatedAt,
     MixinUpdatedAt,
 ):
-    __tablename__ = "spaces_v2"
+    __tablename__ = "spaces"
 
-    name: Mapped[str] = mapped_column(default="Untitled workspace")
+    name: Mapped[str] = mapped_column(default="Untitled space")
     content: Mapped[dict[str, Any] | None] = mapped_column(type_=JSONB)
 
     # --- Parent ---
@@ -37,5 +31,5 @@ class OrmSpace(
     )
     owner: Mapped[OrmUser] = relationship(
         foreign_keys=[owner_id],
-        back_populates="spaces_v2",
+        back_populates="spaces",
     )

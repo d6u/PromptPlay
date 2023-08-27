@@ -54,7 +54,7 @@ class OrmUser(Base, MixinUuidPrimaryKey, MixinCreatedAt, MixinUpdatedAt):
         cascade="all, delete",
         passive_deletes=True,
     )
-    spaces_v2: WriteOnlyMapped[OrmSpace] = relationship(
+    spaces: WriteOnlyMapped[OrmSpace] = relationship(
         back_populates="owner",
         cascade="all, delete",
         passive_deletes=True,

@@ -9,46 +9,46 @@ from server.database.orm.user import OrmUser
 from server.database.utils import create_space_v2_with_examples
 
 from .context import Info
-from .types_v2 import SpaceV2
+from .types import Space
 from .utils import ensure_db_user
 
 
 @strawberry.type
-class MutationSpaceV2:
+class MutationSpace:
     @strawberry.mutation
     @ensure_db_user
-    def create_space_v2(
+    def create_space(
         self: None,
         info: Info,
         db_user: OrmUser,
-    ) -> SpaceV2 | None:
+    ) -> Space | None:
         db = info.context.db
 
         (db_space_v2,) = create_space_v2_with_examples(
             db_user=db_user,
-            space_name="Untitled space",
+            space_name="Example space",
         )
 
         db.add_all([db_space_v2])
 
         db.commit()
 
-        return SpaceV2.from_db(db_space_v2)
+        return Space.from_db(db_space_v2)
 
     @strawberry.mutation
     @ensure_db_user
-    def update_space_v2(
+    def update_space(
         self: None,
         info: Info,
         db_user: OrmUser,
         id: UUID,
         name: str | None = strawberry.UNSET,
         content: str | None = strawberry.UNSET,
-    ) -> SpaceV2 | None:
+    ) -> Space | None:
         db = info.context.db
 
         db_space_v2 = db.scalar(
-            db_user.spaces_v2.select().where(OrmSpace.id == id)
+            db_user.spaces.select().where(OrmSpace.id == id)
         )
 
         if db_space_v2 == None:
@@ -66,4 +66,4 @@ class MutationSpaceV2:
 
         db.commit()
 
-        return SpaceV2.from_db(db_space_v2)
+        return Space.from_db(db_space_v2)

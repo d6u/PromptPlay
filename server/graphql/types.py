@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from datetime import datetime
 from enum import auto
 from uuid import UUID
@@ -17,7 +18,6 @@ from server.database.orm.user import OrmUser
 from server.database.orm.workspace import OrmWorkspace
 
 from .context import Info
-from .types_v2 import SpaceV2
 
 
 @strawberry.type
@@ -40,14 +40,14 @@ class User:
         ]
 
     @strawberry.field
-    def spaces(self: User, info: Info) -> list[SpaceV2]:
+    def spaces(self: User, info: Info) -> list[Space]:
         db = info.context.db
 
         spaces = db.scalars(
-            self.db_user.spaces_v2.select().order_by(OrmSpace.updated_at.desc())
+            self.db_user.spaces.select().order_by(OrmSpace.updated_at.desc())
         )
 
-        return [SpaceV2.from_db(s) for s in spaces]
+        return [Space.from_db(s) for s in spaces]
 
 
 @strawberry.type
@@ -306,3 +306,22 @@ class PromptBlock(Block):
 @strawberry.type
 class DeletionResult:
     is_success: bool
+
+
+@strawberry.type
+class Space:
+    @classmethod
+    def from_db(cls, db_space: OrmSpace) -> Space:
+        return Space(
+            db_space=db_space,
+            id=db_space.id,
+            name=db_space.name,
+            content=json.dumps(db_space.content),
+            updated_at=db_space.updated_at,
+        )
+
+    db_space: strawberry.Private[OrmSpace]
+    id: UUID
+    name: str
+    content: str | None
+    updated_at: datetime
