@@ -3,7 +3,7 @@ from uuid import UUID
 import strawberry
 
 from server.database.orm.preset import OrmPreset
-from server.database.orm.space_v2 import OrmSpaceV2
+from server.database.orm.space import OrmSpace
 from server.database.orm.user import OrmUser
 from server.database.orm.workspace import OrmWorkspace
 
@@ -86,7 +86,7 @@ class Query:
         db = info.context.db
 
         db_space_v2 = db.scalar(
-            db_user.spaces_v2.select().where(OrmSpaceV2.id == id)
+            db_user.spaces_v2.select().where(OrmSpace.id == id)
         )
 
         return SpaceV2.from_db(db_space_v2) if db_space_v2 != None else None

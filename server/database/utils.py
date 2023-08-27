@@ -1,9 +1,10 @@
-from server.database.orm.block_set import OrmBlockSet
-from server.database.orm.completer_block import OrmCompleterBlock
-from server.database.orm.preset import OrmPreset
-from server.database.orm.prompt_block import OrmPromptBlock, OrmPromptType
-from server.database.orm.user import OrmUser
-from server.database.orm.workspace import OrmWorkspace
+from .orm.block_set import OrmBlockSet
+from .orm.completer_block import OrmCompleterBlock
+from .orm.preset import OrmPreset
+from .orm.prompt_block import OrmPromptBlock, OrmPromptType
+from .orm.space import OrmSpace
+from .orm.user import OrmUser
+from .orm.workspace import OrmWorkspace
 
 
 def create_example_space(
@@ -68,3 +69,15 @@ def create_space_with_examples(
         db_completer_block,
         db_block_set,
     )
+
+
+def create_space_v2_with_examples(
+    db_user: OrmUser,
+    space_name: str,
+) -> tuple[OrmSpace]:
+    db_space_v2 = OrmSpace(
+        name=space_name,
+        owner=db_user,
+    )
+
+    return (db_space_v2,)

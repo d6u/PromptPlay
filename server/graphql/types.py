@@ -12,7 +12,7 @@ from server.database.orm.block_set import OrmBlockSet
 from server.database.orm.completer_block import OrmCompleterBlock
 from server.database.orm.preset import OrmPreset
 from server.database.orm.prompt_block import OrmPromptBlock
-from server.database.orm.space_v2 import OrmSpaceV2
+from server.database.orm.space import OrmSpace
 from server.database.orm.user import OrmUser
 from server.database.orm.workspace import OrmWorkspace
 
@@ -44,9 +44,7 @@ class User:
         db = info.context.db
 
         spaces = db.scalars(
-            self.db_user.spaces_v2.select().order_by(
-                OrmSpaceV2.updated_at.desc()
-            )
+            self.db_user.spaces_v2.select().order_by(OrmSpace.updated_at.desc())
         )
 
         return [SpaceV2.from_db(s) for s in spaces]

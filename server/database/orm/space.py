@@ -18,7 +18,7 @@ if TYPE_CHECKING:
     from .prompt_block import OrmPromptBlock
 
 
-class OrmSpaceV2(
+class OrmSpace(
     Base,
     MixinUuidPrimaryKey,
     MixinCreatedAt,
