@@ -65,6 +65,8 @@ export type BlockUniqueConfigurations =
       type: BlockType.LlmMessage;
       role: LlmMessageRole;
       content: string;
+      alsoAppendToList: boolean;
+      listName: string | null;
     }
   | {
       type: BlockType.Llm;

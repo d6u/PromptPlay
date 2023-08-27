@@ -8,9 +8,12 @@ import {
   FieldRow,
   FieldTitle,
 } from "./editorCommonComponents";
+import Checkbox from "@mui/joy/Checkbox";
+import Input from "@mui/joy/Input";
 import Radio from "@mui/joy/Radio";
 import RadioGroup from "@mui/joy/RadioGroup";
 import Textarea from "@mui/joy/Textarea";
+import { set } from "ramda";
 import { useState } from "react";
 
 type Props = {
@@ -18,6 +21,10 @@ type Props = {
   onSaveRole: (value: LlmMessageRole) => void;
   content: string;
   onSaveContent: (value: string) => void;
+  alsoAppendToList: boolean;
+  onSaveAlsoAppendToList: (alsoAppendToList: boolean) => void;
+  listName: string | null;
+  onSaveListName: (listName: string) => void;
   selectedBlock: Block;
   spaceId: string;
   spaceContent: SpaceContent;
@@ -26,6 +33,10 @@ type Props = {
 export default function EditorBlockLlmMessageConfigurations(props: Props) {
   const [role, setRole] = useState(props.role);
   const [content, setContent] = useState(props.content);
+  const [alsoAppendToList, setAlsoAppendToList] = useState(
+    props.alsoAppendToList
+  );
+  const [listName, setListName] = useState(props.listName ?? "");
 
   return (
     <>
@@ -86,6 +97,39 @@ export default function EditorBlockLlmMessageConfigurations(props: Props) {
           <code>ENTER</code> (Windows) to save. Unfocus will also save.
         </FieldHelperText>
       </FieldRow>
+      <FieldRow>
+        <Checkbox
+          color="neutral"
+          size="sm"
+          variant="outlined"
+          label="Also append to list"
+          checked={alsoAppendToList}
+          onChange={(e) => {
+            setAlsoAppendToList(e.target.checked);
+            props.onSaveAlsoAppendToList(e.target.checked);
+          }}
+        />
+      </FieldRow>
+      {alsoAppendToList && (
+        <FieldRow>
+          <FieldTitle>List name</FieldTitle>
+          <Input
+            color="neutral"
+            size="sm"
+            variant="outlined"
+            value={listName}
+            onChange={(e) => {
+              setListName(e.target.value);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                props.onSaveListName(listName);
+              }
+            }}
+            onBlur={() => props.onSaveListName(listName)}
+          />
+        </FieldRow>
+      )}
     </>
   );
 }

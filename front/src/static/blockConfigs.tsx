@@ -1,5 +1,5 @@
 import * as openai from "../llm/openai";
-import { Block, BlockType } from "./spaceTypes";
+import { Block, BlockType, BlockVariablesConfiguration } from "./spaceTypes";
 import { append, assoc, flatten, pipe, prop } from "ramda";
 import { ReactNode } from "react";
 
@@ -12,10 +12,10 @@ export type BlockConfig = {
   title: string;
   derivedInputVariablesGenerate?: (
     block: Block
-  ) => string | Array<[string, string]>;
+  ) => string | Array<[string, string]> | null;
   derivedOutputVariablesGenerate?: (
     block: Block
-  ) => string | Array<[string, string]>;
+  ) => string | Array<[string, string]> | null;
   renderConfig: (block: Block) => ReactNode;
   executeFunc: (
     block: Block,
@@ -48,6 +48,36 @@ export const BLOCK_CONFIGS: { [key in BlockType]: BlockConfig } = {
   },
   [BlockType.LlmMessage]: {
     title: "LLM Message",
+    derivedOutputVariablesGenerate: (block: Block) => {
+      if (block.type !== BlockType.LlmMessage) {
+        throw new Error("Block type doesn't match");
+      }
+
+      if (block.alsoAppendToList) {
+        if (block.outputConfiguration === BlockVariablesConfiguration.Single) {
+          return [
+            ["message", block.singleOuput],
+            ["list", block.listName ?? "?"],
+          ];
+        } else if (
+          block.outputConfiguration === BlockVariablesConfiguration.Map
+        ) {
+          return block.outputMap.concat([["list", block.listName ?? "?"]]);
+        } else {
+          return [["list", block.listName ?? ""]];
+        }
+      } else {
+        if (block.outputConfiguration === BlockVariablesConfiguration.Single) {
+          return block.singleOuput;
+        } else if (
+          block.outputConfiguration === BlockVariablesConfiguration.Map
+        ) {
+          return block.outputMap;
+        } else {
+          return null;
+        }
+      }
+    },
     renderConfig: (block) => {
       if (block.type !== BlockType.LlmMessage) {
         return "";
@@ -79,10 +109,27 @@ export const BLOCK_CONFIGS: { [key in BlockType]: BlockConfig } = {
         throw new Error("Block type doesn't match");
       }
 
-      return {
+      const message = {
         role: block.role,
         content: replacePlaceholders(block.content, args),
       };
+
+      // TODO: Find a better way
+      if (block.alsoAppendToList) {
+        if (block.listName) {
+          let list = scope[block.listName];
+
+          if (list == null) {
+            list = [];
+          }
+
+          list = append(message, list);
+
+          scope[block.listName] = list;
+        }
+      }
+
+      return message;
     },
   },
   [BlockType.AppendToList]: {

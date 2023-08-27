@@ -45,6 +45,7 @@ export function createNewBlock(type: BlockType): Block {
         id: nanoid(),
         type: BlockType.Databag,
         value: "Some value",
+
         inputConfiguration: BlockVariablesConfiguration.NonConfigurable,
         outputConfiguration: BlockVariablesConfiguration.Single,
         singleOuput: "name_on_scope",
@@ -55,6 +56,8 @@ export function createNewBlock(type: BlockType): Block {
         type: BlockType.LlmMessage,
         role: LlmMessageRole.User,
         content: "You are a helpful assistant.",
+        alsoAppendToList: false,
+        listName: null,
         inputConfiguration: BlockVariablesConfiguration.Map,
         inputMap: [["name_on_scope", "local_name"]],
         outputConfiguration: BlockVariablesConfiguration.Single,

@@ -65,64 +65,73 @@ export default function BlockComponent(props: Props) {
     spaceV2SelectedBlockIdState
   );
 
-  let inputConfigurator: ReactNode;
-  switch (block.inputConfiguration) {
-    case BlockVariablesConfiguration.NonConfigurable:
-      if (blockConfig.derivedInputVariablesGenerate) {
-        const input = blockConfig.derivedInputVariablesGenerate(block);
-        if (typeof input === "string") {
-          inputConfigurator = (
-            <BlockVariableMap singleVariable={input} isInput={true} />
-          );
-        } else {
-          inputConfigurator = (
-            <BlockVariableMap variableMap={input} isInput={true} />
-          );
-        }
-      } else {
-        inputConfigurator = <SlotHolder />;
-      }
-      break;
-    case BlockVariablesConfiguration.Single:
+  let inputConfigurator: ReactNode | null = null;
+
+  if (blockConfig.derivedInputVariablesGenerate) {
+    const input = blockConfig.derivedInputVariablesGenerate(block);
+    if (typeof input === "string") {
       inputConfigurator = (
-        <BlockVariableMap singleVariable={block.singleInput} isInput={true} />
+        <BlockVariableMap singleVariable={input} isInput={true} />
       );
-      break;
-    case BlockVariablesConfiguration.Map:
+    } else if (input) {
       inputConfigurator = (
-        <BlockVariableMap variableMap={block.inputMap} isInput={true} />
+        <BlockVariableMap variableMap={input} isInput={true} />
       );
-      break;
+    }
   }
 
-  let outputConfigurator: ReactNode;
-  switch (block.outputConfiguration) {
-    case BlockVariablesConfiguration.NonConfigurable:
-      if (blockConfig.derivedOutputVariablesGenerate) {
-        const output = blockConfig.derivedOutputVariablesGenerate(block);
-        if (typeof output === "string") {
-          outputConfigurator = (
-            <BlockVariableMap singleVariable={output} isInput={false} />
-          );
-        } else {
-          outputConfigurator = (
-            <BlockVariableMap variableMap={output} isInput={false} />
-          );
-        }
-      } else {
+  if (inputConfigurator == null) {
+    switch (block.inputConfiguration) {
+      case BlockVariablesConfiguration.NonConfigurable:
+        inputConfigurator = <SlotHolder />;
+        break;
+      case BlockVariablesConfiguration.Single:
+        inputConfigurator = (
+          <BlockVariableMap singleVariable={block.singleInput} isInput={true} />
+        );
+        break;
+      case BlockVariablesConfiguration.Map:
+        inputConfigurator = (
+          <BlockVariableMap variableMap={block.inputMap} isInput={true} />
+        );
+        break;
+    }
+  }
+
+  let outputConfigurator: ReactNode | null = null;
+
+  if (blockConfig.derivedOutputVariablesGenerate) {
+    const output = blockConfig.derivedOutputVariablesGenerate(block);
+    if (typeof output === "string") {
+      outputConfigurator = (
+        <BlockVariableMap singleVariable={output} isInput={false} />
+      );
+    } else if (output) {
+      outputConfigurator = (
+        <BlockVariableMap variableMap={output} isInput={false} />
+      );
+    }
+  }
+
+  if (outputConfigurator == null) {
+    switch (block.outputConfiguration) {
+      case BlockVariablesConfiguration.NonConfigurable:
         outputConfigurator = <SlotHolder />;
-      }
-      break;
-    case BlockVariablesConfiguration.Single:
-      outputConfigurator = (
-        <BlockVariableMap singleVariable={block.singleOuput} isInput={false} />
-      );
-      break;
-    case BlockVariablesConfiguration.Map:
-      outputConfigurator = (
-        <BlockVariableMap variableMap={block.outputMap} isInput={false} />
-      );
-      break;
+        break;
+      case BlockVariablesConfiguration.Single:
+        outputConfigurator = (
+          <BlockVariableMap
+            singleVariable={block.singleOuput}
+            isInput={false}
+          />
+        );
+        break;
+      case BlockVariablesConfiguration.Map:
+        outputConfigurator = (
+          <BlockVariableMap variableMap={block.outputMap} isInput={false} />
+        );
+        break;
+    }
   }
 
   return (
