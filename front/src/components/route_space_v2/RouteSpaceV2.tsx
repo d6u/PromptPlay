@@ -5,10 +5,7 @@ import { useRecoilValue, useSetRecoilState } from "recoil";
 import styled from "styled-components";
 import u from "updeep";
 import { execute } from "../../llm/chainExecutor";
-import {
-  SPACE_V2_QUERY,
-  UPDATE_SPACE_V2_MUTATION,
-} from "../../state/spaceGraphQl";
+import { SPACE_QUERY, UPDATE_SPACE_MUTATION } from "../../state/spaceGraphQl";
 import {
   missingOpenAiApiKeyState,
   openAiApiKeyState,
@@ -42,7 +39,7 @@ export default function RouteSpaceV2(props: Props) {
 
   const [spaceContent, setSpaceContent] = useState<SpaceContent | null>(null);
 
-  const query = useQuery(SPACE_V2_QUERY, {
+  const query = useQuery(SPACE_QUERY, {
     variables: {
       spaceId: spaceId,
     },
@@ -50,14 +47,14 @@ export default function RouteSpaceV2(props: Props) {
 
   // Sync up server data with local state
   useEffect(() => {
-    if (query.data?.spaceV2?.content) {
-      setSpaceContent(JSON.parse(query.data.spaceV2.content));
+    if (query.data?.space?.content) {
+      setSpaceContent(JSON.parse(query.data.space.content));
     } else {
       setSpaceContent(null);
     }
-  }, [query.data?.spaceV2?.content]);
+  }, [query.data?.space?.content]);
 
-  const [updateSpaceV2] = useMutation(UPDATE_SPACE_V2_MUTATION);
+  const [updateSpace] = useMutation(UPDATE_SPACE_MUTATION);
 
   const onExecuteVisualChain = useCallback(() => {
     if (spaceContent == null) {
@@ -90,7 +87,7 @@ export default function RouteSpaceV2(props: Props) {
           },
         })(state) as SpaceContent;
 
-        updateSpaceV2({
+        updateSpace({
           variables: {
             spaceId: spaceId,
             content: JSON.stringify(newState),
@@ -106,7 +103,7 @@ export default function RouteSpaceV2(props: Props) {
     spaceId,
     setMissingOpenAiApiKey,
     setSpaceV2SelectedBlockId,
-    updateSpaceV2,
+    updateSpace,
   ]);
 
   if (query.loading) {
@@ -134,7 +131,7 @@ export default function RouteSpaceV2(props: Props) {
         spaceContent={spaceContent}
         onSpaceContentChange={(spaceContent) => {
           setSpaceContent(spaceContent);
-          updateSpaceV2({
+          updateSpace({
             variables: {
               spaceId: spaceId,
               content: JSON.stringify(spaceContent),

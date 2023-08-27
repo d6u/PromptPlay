@@ -67,12 +67,12 @@ export type Mutation = {
   createCompleterBlock?: Maybe<CompleterBlock>;
   createExampleSpace?: Maybe<CreateExampleSpaceResult>;
   createPromptBlock?: Maybe<PromptBlock>;
-  createSpace?: Maybe<Workspace>;
-  createSpaceV2?: Maybe<SpaceV2>;
+  createSpace?: Maybe<Space>;
   createTopOutputBlockOnBlockSet?: Maybe<BlockSet>;
+  createWorkspace?: Maybe<Workspace>;
   deleteBlock?: Maybe<DeletionResult>;
   deleteBlockSet?: Maybe<DeletionResult>;
-  deleteSpace?: Maybe<DeletionResult>;
+  deleteWorkspace?: Maybe<DeletionResult>;
   executeBlockSet?: Maybe<BlockSet>;
   removeCompleterFromBlockSet?: Maybe<BlockSet>;
   removeSystemPromptFromBlockSet?: Maybe<BlockSet>;
@@ -82,8 +82,8 @@ export type Mutation = {
   updateBlockSetOptions?: Maybe<BlockSet>;
   updateCompleterBlock?: Maybe<CompleterBlock>;
   updatePromptBlock?: Maybe<PromptBlock>;
-  updateSpace?: Maybe<Workspace>;
-  updateSpaceV2?: Maybe<SpaceV2>;
+  updateSpace?: Maybe<Space>;
+  updateWorkspace?: Maybe<Workspace>;
 };
 
 
@@ -141,7 +141,7 @@ export type MutationDeleteBlockSetArgs = {
 };
 
 
-export type MutationDeleteSpaceArgs = {
+export type MutationDeleteWorkspaceArgs = {
   id: Scalars['UUID']['input'];
 };
 
@@ -201,15 +201,15 @@ export type MutationUpdatePromptBlockArgs = {
 
 
 export type MutationUpdateSpaceArgs = {
-  id: Scalars['UUID']['input'];
-  name: Scalars['String']['input'];
-};
-
-
-export type MutationUpdateSpaceV2Args = {
   content?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['UUID']['input'];
   name?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type MutationUpdateWorkspaceArgs = {
+  id: Scalars['UUID']['input'];
+  name: Scalars['String']['input'];
 };
 
 export type Preset = {
@@ -237,7 +237,7 @@ export type Query = {
   hello: Scalars['String']['output'];
   isLoggedIn: Scalars['Boolean']['output'];
   preset?: Maybe<Preset>;
-  spaceV2?: Maybe<SpaceV2>;
+  space?: Maybe<Space>;
   user?: Maybe<User>;
   workspace?: Maybe<Workspace>;
 };
@@ -248,7 +248,7 @@ export type QueryPresetArgs = {
 };
 
 
-export type QuerySpaceV2Args = {
+export type QuerySpaceArgs = {
   id: Scalars['UUID']['input'];
 };
 
@@ -257,8 +257,8 @@ export type QueryWorkspaceArgs = {
   workspaceId: Scalars['UUID']['input'];
 };
 
-export type SpaceV2 = {
-  __typename?: 'SpaceV2';
+export type Space = {
+  __typename?: 'Space';
   content?: Maybe<Scalars['String']['output']>;
   id: Scalars['UUID']['output'];
   name: Scalars['String']['output'];
@@ -269,7 +269,7 @@ export type User = {
   __typename?: 'User';
   email?: Maybe<Scalars['String']['output']>;
   id: Scalars['UUID']['output'];
-  spaces: Array<SpaceV2>;
+  spaces: Array<Space>;
   workspaces: Array<Workspace>;
 };
 
@@ -311,12 +311,12 @@ export type CreateExampleSpaceMutationMutationVariables = Exact<{ [key: string]:
 
 export type CreateExampleSpaceMutationMutation = { __typename?: 'Mutation', createExampleSpace?: { __typename?: 'CreateExampleSpaceResult', isSuccess: boolean, placeholderClientToken?: any | null, space?: { __typename?: 'Workspace', id: any } | null } | null };
 
-export type DashboardFragment = { __typename?: 'User', spaces: Array<{ __typename?: 'SpaceV2', id: any, name: string, updatedAt: any }> } & { ' $fragmentName'?: 'DashboardFragment' };
+export type DashboardFragment = { __typename?: 'User', spaces: Array<{ __typename?: 'Space', id: any, name: string, updatedAt: any }> } & { ' $fragmentName'?: 'DashboardFragment' };
 
 export type CreateSpaceMutationMutationVariables = Exact<{ [key: string]: never; }>;
 
 
-export type CreateSpaceMutationMutation = { __typename?: 'Mutation', createSpace?: { __typename?: 'Workspace', id: any } | null };
+export type CreateSpaceMutationMutation = { __typename?: 'Mutation', createSpace?: { __typename?: 'Space', id: any } | null };
 
 export type RootRouteQueryQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -554,35 +554,35 @@ export type CreateBlockSetMutationVariables = Exact<{
 
 export type CreateBlockSetMutation = { __typename?: 'Mutation', createBlockSet?: { __typename?: 'BlockSet', id: any } | null };
 
-export type UpdateSpaceMutationMutationVariables = Exact<{
+export type UpdateWorkspaceMutationMutationVariables = Exact<{
   workspaceId: Scalars['UUID']['input'];
   name: Scalars['String']['input'];
 }>;
 
 
-export type UpdateSpaceMutationMutation = { __typename?: 'Mutation', updateSpace?: { __typename?: 'Workspace', id: any } | null };
+export type UpdateWorkspaceMutationMutation = { __typename?: 'Mutation', updateWorkspace?: { __typename?: 'Workspace', id: any } | null };
 
-export type DeleteSpaceMutationMutationVariables = Exact<{
+export type DeleteWorkspaceMutationMutationVariables = Exact<{
   workspaceId: Scalars['UUID']['input'];
 }>;
 
 
-export type DeleteSpaceMutationMutation = { __typename?: 'Mutation', deleteSpace?: { __typename?: 'DeletionResult', isSuccess: boolean } | null };
+export type DeleteWorkspaceMutationMutation = { __typename?: 'Mutation', deleteWorkspace?: { __typename?: 'DeletionResult', isSuccess: boolean } | null };
 
-export type SpaceV2QueryQueryVariables = Exact<{
+export type SpaceQueryQueryVariables = Exact<{
   spaceId: Scalars['UUID']['input'];
 }>;
 
 
-export type SpaceV2QueryQuery = { __typename?: 'Query', spaceV2?: { __typename?: 'SpaceV2', id: any, name: string, content?: string | null } | null };
+export type SpaceQueryQuery = { __typename?: 'Query', space?: { __typename?: 'Space', id: any, name: string, content?: string | null } | null };
 
-export type UpdateSpaceV2MutationMutationVariables = Exact<{
+export type UpdateSpaceMutationMutationVariables = Exact<{
   spaceId: Scalars['UUID']['input'];
   content: Scalars['String']['input'];
 }>;
 
 
-export type UpdateSpaceV2MutationMutation = { __typename?: 'Mutation', updateSpaceV2?: { __typename?: 'SpaceV2', id: any, name: string, content?: string | null } | null };
+export type UpdateSpaceMutationMutation = { __typename?: 'Mutation', updateSpace?: { __typename?: 'Space', id: any, name: string, content?: string | null } | null };
 
 export const DraggingBlockFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"DraggingBlock"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Block"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"PromptBlock"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"role"}},{"kind":"Field","name":{"kind":"Name","value":"content"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"CompleterBlock"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"model"}},{"kind":"Field","name":{"kind":"Name","value":"temperature"}},{"kind":"Field","name":{"kind":"Name","value":"stop"}}]}}]}}]} as unknown as DocumentNode<DraggingBlockFragment, unknown>;
 export const DashboardFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"Dashboard"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"User"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"spaces"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]} as unknown as DocumentNode<DashboardFragment, unknown>;
@@ -624,7 +624,7 @@ export const UpdatePromptBlockMutationDocument = {"kind":"Document","definitions
 export const CreatePromptBlockMutationDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreatePromptBlockMutation"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"workspaceId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UUID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createPromptBlock"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"workspaceId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"workspaceId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]} as unknown as DocumentNode<CreatePromptBlockMutationMutation, CreatePromptBlockMutationMutationVariables>;
 export const CreateCompleterBlockDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateCompleterBlock"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"workspaceId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UUID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createCompleterBlock"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"workspaceId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"workspaceId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]} as unknown as DocumentNode<CreateCompleterBlockMutation, CreateCompleterBlockMutationVariables>;
 export const CreateBlockSetDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateBlockSet"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"presetId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UUID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createBlockSet"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"presetId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"presetId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]} as unknown as DocumentNode<CreateBlockSetMutation, CreateBlockSetMutationVariables>;
-export const UpdateSpaceMutationDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateSpaceMutation"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"workspaceId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UUID"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"name"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateSpace"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"workspaceId"}}},{"kind":"Argument","name":{"kind":"Name","value":"name"},"value":{"kind":"Variable","name":{"kind":"Name","value":"name"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]} as unknown as DocumentNode<UpdateSpaceMutationMutation, UpdateSpaceMutationMutationVariables>;
-export const DeleteSpaceMutationDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"DeleteSpaceMutation"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"workspaceId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UUID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"deleteSpace"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"workspaceId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"isSuccess"}}]}}]}}]} as unknown as DocumentNode<DeleteSpaceMutationMutation, DeleteSpaceMutationMutationVariables>;
-export const SpaceV2QueryDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"SpaceV2Query"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"spaceId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UUID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"spaceV2"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"spaceId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"content"}}]}}]}}]} as unknown as DocumentNode<SpaceV2QueryQuery, SpaceV2QueryQueryVariables>;
-export const UpdateSpaceV2MutationDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateSpaceV2Mutation"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"spaceId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UUID"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"content"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateSpaceV2"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"spaceId"}}},{"kind":"Argument","name":{"kind":"Name","value":"content"},"value":{"kind":"Variable","name":{"kind":"Name","value":"content"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"content"}}]}}]}}]} as unknown as DocumentNode<UpdateSpaceV2MutationMutation, UpdateSpaceV2MutationMutationVariables>;
+export const UpdateWorkspaceMutationDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateWorkspaceMutation"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"workspaceId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UUID"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"name"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateWorkspace"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"workspaceId"}}},{"kind":"Argument","name":{"kind":"Name","value":"name"},"value":{"kind":"Variable","name":{"kind":"Name","value":"name"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]} as unknown as DocumentNode<UpdateWorkspaceMutationMutation, UpdateWorkspaceMutationMutationVariables>;
+export const DeleteWorkspaceMutationDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"DeleteWorkspaceMutation"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"workspaceId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UUID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"deleteWorkspace"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"workspaceId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"isSuccess"}}]}}]}}]} as unknown as DocumentNode<DeleteWorkspaceMutationMutation, DeleteWorkspaceMutationMutationVariables>;
+export const SpaceQueryDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"SpaceQuery"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"spaceId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UUID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"space"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"spaceId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"content"}}]}}]}}]} as unknown as DocumentNode<SpaceQueryQuery, SpaceQueryQueryVariables>;
+export const UpdateSpaceMutationDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateSpaceMutation"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"spaceId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UUID"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"content"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateSpace"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"spaceId"}}},{"kind":"Argument","name":{"kind":"Name","value":"content"},"value":{"kind":"Variable","name":{"kind":"Name","value":"content"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"content"}}]}}]}}]} as unknown as DocumentNode<UpdateSpaceMutationMutation, UpdateSpaceMutationMutationVariables>;

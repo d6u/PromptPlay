@@ -1,9 +1,9 @@
 import { useMutation } from "@apollo/client";
 import { useNavigate } from "react-router-dom";
+import styled from "styled-components";
 import { FragmentType, gql, useFragment } from "../../../__generated__";
 import { ROOT_ROUTE_QUERY } from "../queries";
 import DashboardTile, { DashboardTileType } from "./DashboardTile";
-import "./Dashboard.css";
 
 const DASHBOARD_FRAGMENT = gql(`
   fragment Dashboard on User {
@@ -23,6 +23,31 @@ const CREATE_SPACE_MUTATION = gql(`
   }
 `);
 
+const Container = styled.div`
+  width: 100%;
+  height: 100%;
+`;
+
+const Content = styled.div`
+  padding: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 200px);
+  gap: 20px;
+
+  @media only screen and (max-width: 500px) {
+    padding: 15px;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 15px;
+  }
+`;
+
+const TileTimestamp = styled.div`
+  font-size: 12px;
+  font-family: var(--mono-font-family);
+  color: #5f5f5f;
+  margin-top: 10px;
+`;
+
 export default function Dashboard({
   dashboardFragment,
 }: {
@@ -35,8 +60,8 @@ export default function Dashboard({
   });
 
   return (
-    <div className="Dashboard">
-      <div className="Dashboard_inner">
+    <Container>
+      <Content>
         <DashboardTile
           key="dashboard-tile-add"
           type={DashboardTileType.ADD}
@@ -65,13 +90,13 @@ export default function Dashboard({
               href={url}
             >
               <div>{workspaceName}</div>
-              <div className="Dashbord_tile_timestamp">
+              <TileTimestamp>
                 {new Date(`${space.updatedAt}Z`).toLocaleString()}
-              </div>
+              </TileTimestamp>
             </DashboardTile>
           );
         })}
-      </div>
-    </div>
+      </Content>
+    </Container>
   );
 }
