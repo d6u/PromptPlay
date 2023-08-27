@@ -53,29 +53,17 @@ export const BLOCK_CONFIGS: { [key in BlockType]: BlockConfig } = {
         throw new Error("Block type doesn't match");
       }
 
-      if (block.alsoAppendToList) {
-        if (block.outputConfiguration === BlockVariablesConfiguration.Single) {
-          return [
-            ["list", block.listName ?? "?"],
-            ["message", block.singleOuput],
-          ];
-        } else if (
-          block.outputConfiguration === BlockVariablesConfiguration.Map
-        ) {
-          return block.outputMap.concat([["list", block.listName ?? "?"]]);
-        } else {
-          return [["list", block.listName ?? ""]];
-        }
+      if (block.outputConfiguration !== BlockVariablesConfiguration.Single) {
+        throw new Error("Block output configuration doesn't match");
+      }
+
+      if (block.listNameToAppend !== "") {
+        return [
+          ["list", block.listNameToAppend],
+          ["message", block.singleOuput],
+        ];
       } else {
-        if (block.outputConfiguration === BlockVariablesConfiguration.Single) {
-          return block.singleOuput;
-        } else if (
-          block.outputConfiguration === BlockVariablesConfiguration.Map
-        ) {
-          return block.outputMap;
-        } else {
-          return null;
-        }
+        return block.singleOuput;
       }
     },
     renderConfig: (block) => {
@@ -114,19 +102,10 @@ export const BLOCK_CONFIGS: { [key in BlockType]: BlockConfig } = {
         content: replacePlaceholders(block.content, args),
       };
 
-      // TODO: Find a better way
-      if (block.alsoAppendToList) {
-        if (block.listName) {
-          let list = scope[block.listName];
-
-          if (list == null) {
-            list = [];
-          }
-
-          list = append(message, list);
-
-          scope[block.listName] = list;
-        }
+      // TODO: Avoid write to scope directly within executeFunc
+      if (block.listNameToAppend !== "") {
+        const list = scope[block.listNameToAppend] ?? [];
+        scope[block.listNameToAppend] = append(message, list);
       }
 
       return message;
@@ -189,29 +168,17 @@ export const BLOCK_CONFIGS: { [key in BlockType]: BlockConfig } = {
         throw new Error("Block type doesn't match");
       }
 
-      if (block.alsoOutputContent) {
-        if (block.outputConfiguration === BlockVariablesConfiguration.Single) {
-          return [
-            ["message", block.singleOuput],
-            ["content", block.contentName ?? "?"],
-          ];
-        } else if (
-          block.outputConfiguration === BlockVariablesConfiguration.Map
-        ) {
-          return block.outputMap.concat([["list", block.contentName ?? "?"]]);
-        } else {
-          return [["list", block.contentName ?? ""]];
-        }
+      if (block.outputConfiguration !== BlockVariablesConfiguration.Single) {
+        throw new Error("Block output configuration doesn't match");
+      }
+
+      if (block.variableNameForContent !== "") {
+        return [
+          ["message", block.singleOuput],
+          ["content", block.variableNameForContent],
+        ];
       } else {
-        if (block.outputConfiguration === BlockVariablesConfiguration.Single) {
-          return block.singleOuput;
-        } else if (
-          block.outputConfiguration === BlockVariablesConfiguration.Map
-        ) {
-          return block.outputMap;
-        } else {
-          return null;
-        }
+        return block.singleOuput;
       }
     },
     renderConfig: (block) => {
@@ -265,10 +232,9 @@ export const BLOCK_CONFIGS: { [key in BlockType]: BlockConfig } = {
 
       updater(newBlock);
 
-      if (block.alsoOutputContent) {
-        if (block.contentName) {
-          scope[block.contentName] = message.content;
-        }
+      // TODO: Avoid write to scope directly within executeFunc
+      if (block.variableNameForContent !== "") {
+        scope[block.variableNameForContent] = message.content;
       }
 
       return message;

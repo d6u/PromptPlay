@@ -34,6 +34,34 @@ export type Block = {
   BlockOutputConfiguration &
   BlockOutput;
 
+export type BlockUniqueConfigurations =
+  | {
+      type: BlockType.Databag;
+      value: string;
+    }
+  | {
+      type: BlockType.LlmMessage;
+      role: LlmMessageRole;
+      content: string;
+      listNameToAppend: string;
+    }
+  | {
+      type: BlockType.Llm;
+      model: LlmModel;
+      temperature: number;
+      stop: Array<string>;
+      variableNameForContent: string;
+    }
+  | {
+      type: BlockType.AppendToList;
+      itemName: string;
+      listName: string;
+    }
+  | {
+      type: BlockType.GetAttribute;
+      attribute: string;
+    };
+
 export type BlockInputConfiguration =
   | { inputConfiguration: BlockVariablesConfiguration.NonConfigurable }
   | {
@@ -54,36 +82,6 @@ export type BlockOutputConfiguration =
   | {
       outputConfiguration: BlockVariablesConfiguration.Map;
       outputMap: Array<[string, string]>;
-    };
-
-export type BlockUniqueConfigurations =
-  | {
-      type: BlockType.Databag;
-      value: string;
-    }
-  | {
-      type: BlockType.LlmMessage;
-      role: LlmMessageRole;
-      content: string;
-      alsoAppendToList: boolean;
-      listName: string | null;
-    }
-  | {
-      type: BlockType.Llm;
-      model: LlmModel;
-      temperature: number;
-      stop: Array<string>;
-      alsoOutputContent: boolean;
-      contentName: string | null;
-    }
-  | {
-      type: BlockType.AppendToList;
-      itemName: string;
-      listName: string;
-    }
-  | {
-      type: BlockType.GetAttribute;
-      attribute: string;
     };
 
 export type BlockOutput = {

@@ -68,6 +68,9 @@ export async function execute(
         if (executeResult === undefined) {
           break;
         }
+        if (block.singleOuput === "") {
+          break;
+        }
         scope[block.singleOuput] = executeResult;
         break;
       case BlockVariablesConfiguration.Map:

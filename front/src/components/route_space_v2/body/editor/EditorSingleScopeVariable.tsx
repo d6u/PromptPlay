@@ -18,8 +18,11 @@ export default function EditorSingleScopeVariable(props: Props) {
     <Input
       color="neutral"
       size="sm"
-      variant="soft"
+      variant="outlined"
       style={{ flexGrow: 1 }}
+      placeholder={
+        props.isInput ? "Input variable name" : "Output variable name"
+      }
       value={variableName}
       onChange={(e) => {
         setVariableName(e.target.value);

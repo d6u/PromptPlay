@@ -1,7 +1,7 @@
 import { UPDATE_SPACE_V2_MUTATION } from "../../../../state/spaceGraphQl";
 import { Block, SpaceContent } from "../../../../static/spaceTypes";
 import EditorSingleScopeVariable from "./EditorSingleScopeVariable";
-import VariableMapRow from "./VariableMapRow";
+import EditorVariableMapRow from "./EditorVariableMapRow";
 import { useMutation } from "@apollo/client";
 import Button from "@mui/joy/Button";
 import { customAlphabet } from "nanoid";
@@ -68,7 +68,7 @@ export default function EditorBlockInputOutput(props: Props) {
       // They key must contain block.id, so that when selecting a different
       // block, this field will be updated.
       rows.push(
-        <VariableMapRow
+        <EditorVariableMapRow
           key={`${props.block.id}-variable-map-row-${index}`}
           localName={props.isInput ? right : left}
           scopeName={props.isInput ? left : right}

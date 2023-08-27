@@ -18,7 +18,7 @@ type Props = {
   onRemove: () => void;
 };
 
-export default function VariableMapRow(props: Props) {
+export default function EditorVariableMapRow(props: Props) {
   const [localName, setLocalName] = useState(props.localName);
   const [scopeName, setScopeName] = useState(props.scopeName);
 
@@ -26,9 +26,9 @@ export default function VariableMapRow(props: Props) {
     return (
       <Container>
         <Input
-          color="neutral"
+          color="primary"
           size="sm"
-          variant="soft"
+          variant="outlined"
           style={{ flexGrow: 1 }}
           value={scopeName}
           onChange={(e) => {
@@ -44,7 +44,7 @@ export default function VariableMapRow(props: Props) {
         <Input
           color="primary"
           size="sm"
-          variant="soft"
+          variant="solid"
           style={{ flexGrow: 1 }}
           value={localName}
           onChange={(e) => {
@@ -73,7 +73,7 @@ export default function VariableMapRow(props: Props) {
         <Input
           color="primary"
           size="sm"
-          variant="soft"
+          variant="solid"
           style={{ flexGrow: 1 }}
           value={localName}
           onChange={(e) => {
@@ -87,9 +87,9 @@ export default function VariableMapRow(props: Props) {
           onBlur={() => props.onSaveLocalName(localName)}
         />
         <Input
-          color="neutral"
+          color="primary"
           size="sm"
-          variant="soft"
+          variant="outlined"
           style={{ flexGrow: 1 }}
           value={scopeName}
           onChange={(e) => {

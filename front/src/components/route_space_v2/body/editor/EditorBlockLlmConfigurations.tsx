@@ -23,10 +23,8 @@ type Props = {
   onSaveTemperaturel: (temperature: number) => void;
   stop: Array<string>;
   onSaveStop: (stop: Array<string>) => void;
-  alsoOutputContent: boolean;
-  onSaveAlsoOutputContent: (alsoOutputContent: boolean) => void;
-  contentName: string | null;
-  onSaveContentName: (contentName: string) => void;
+  variableNameForContent: string;
+  onSaveVariableNameForContent: (variableNameForContent: string) => void;
   selectedBlock: Block;
   spaceId: string;
   spaceContent: SpaceContent;
@@ -41,10 +39,9 @@ export default function EditorBlockLlmConfigurations(props: Props) {
   const [model, setModel] = useState(props.model);
   const [temperature, setTemperature] = useState(props.temperature);
   const [stop, setStop] = useState(props.stop);
-  const [alsoOutputContent, setAlsoOutputContent] = useState(
-    props.alsoOutputContent
+  const [variableNameForContent, setVariableNameForContent] = useState(
+    props.variableNameForContent
   );
-  const [contentName, setContentName] = useState(props.contentName ?? "");
 
   const onSaveStop = useCallback(() => {
     if (stop.length === 0) {
@@ -146,38 +143,24 @@ export default function EditorBlockLlmConfigurations(props: Props) {
         </FieldHelperText>
       </FieldRow>
       <FieldRow>
-        <Checkbox
+        <FieldTitle>Output message content to variable (optional)</FieldTitle>
+        <Input
           color="neutral"
           size="sm"
           variant="outlined"
-          label="Also output content"
-          checked={alsoOutputContent}
-          onChange={(e) => {
-            setAlsoOutputContent(e.target.checked);
-            props.onSaveAlsoOutputContent(e.target.checked);
+          placeholder="Variable name"
+          value={variableNameForContent}
+          onChange={(e) => setVariableNameForContent(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              props.onSaveVariableNameForContent(variableNameForContent);
+            }
           }}
+          onBlur={() =>
+            props.onSaveVariableNameForContent(variableNameForContent)
+          }
         />
       </FieldRow>
-      {alsoOutputContent && (
-        <FieldRow>
-          <FieldTitle>List name</FieldTitle>
-          <Input
-            color="neutral"
-            size="sm"
-            variant="outlined"
-            value={contentName}
-            onChange={(e) => {
-              setContentName(e.target.value);
-            }}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                props.onSaveContentName(contentName);
-              }
-            }}
-            onBlur={() => props.onSaveContentName(contentName)}
-          />
-        </FieldRow>
-      )}
     </>
   );
 }

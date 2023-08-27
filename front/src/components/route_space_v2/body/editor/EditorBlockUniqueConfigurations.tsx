@@ -74,28 +74,11 @@ export default function EditorBlockUniqueConfigurations(props: Props) {
               },
             });
           }}
-          alsoAppendToList={props.selectedBlock.alsoAppendToList}
-          onSaveAlsoAppendToList={(alsoAppendToList) => {
+          listNameToAppend={props.selectedBlock.listNameToAppend}
+          onSaveListNameToAppend={(listNameToAppend) => {
             const newContent = u({
               components: {
-                [props.selectedBlock.id]: {
-                  alsoAppendToList,
-                },
-              },
-            })(props.spaceContent) as SpaceContent;
-
-            updateSpaceV2({
-              variables: {
-                spaceId: props.spaceId,
-                content: JSON.stringify(newContent),
-              },
-            });
-          }}
-          listName={props.selectedBlock.listName}
-          onSaveListName={(listName) => {
-            const newContent = u({
-              components: {
-                [props.selectedBlock.id]: { listName },
+                [props.selectedBlock.id]: { listNameToAppend },
               },
             })(props.spaceContent) as SpaceContent;
 
@@ -159,26 +142,11 @@ export default function EditorBlockUniqueConfigurations(props: Props) {
               },
             });
           }}
-          alsoOutputContent={props.selectedBlock.alsoOutputContent}
-          onSaveAlsoOutputContent={(alsoOutputContent) => {
+          variableNameForContent={props.selectedBlock.variableNameForContent}
+          onSaveVariableNameForContent={(variableNameForContent) => {
             const newContent = u({
               components: {
-                [props.selectedBlock.id]: { alsoOutputContent },
-              },
-            })(props.spaceContent) as SpaceContent;
-
-            updateSpaceV2({
-              variables: {
-                spaceId: props.spaceId,
-                content: JSON.stringify(newContent),
-              },
-            });
-          }}
-          contentName={props.selectedBlock.contentName}
-          onSaveContentName={(contentName) => {
-            const newContent = u({
-              components: {
-                [props.selectedBlock.id]: { contentName },
+                [props.selectedBlock.id]: { variableNameForContent },
               },
             })(props.spaceContent) as SpaceContent;
 

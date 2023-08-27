@@ -44,24 +44,22 @@ export function createNewBlock(type: BlockType): Block {
       return {
         id: nanoid(),
         type: BlockType.Databag,
-        value: "Some value",
-
+        value: "Example text",
         inputConfiguration: BlockVariablesConfiguration.NonConfigurable,
         outputConfiguration: BlockVariablesConfiguration.Single,
-        singleOuput: "name_on_scope",
+        singleOuput: "variable1",
       };
     case BlockType.LlmMessage:
       return {
         id: nanoid(),
         type: BlockType.LlmMessage,
         role: LlmMessageRole.User,
-        content: "You are a helpful assistant.",
-        alsoAppendToList: false,
-        listName: null,
+        content: "",
+        listNameToAppend: "",
         inputConfiguration: BlockVariablesConfiguration.Map,
-        inputMap: [["name_on_scope", "local_name"]],
+        inputMap: [["", ""]],
         outputConfiguration: BlockVariablesConfiguration.Single,
-        singleOuput: "name_on_scope",
+        singleOuput: "",
       };
     case BlockType.Llm:
       return {
@@ -70,12 +68,11 @@ export function createNewBlock(type: BlockType): Block {
         model: LlmModel.GPT3_5_TURBO,
         temperature: 0.8,
         stop: [],
-        alsoOutputContent: false,
-        contentName: null,
+        variableNameForContent: "",
         inputConfiguration: BlockVariablesConfiguration.Single,
-        singleInput: "name_on_scope",
+        singleInput: "messages",
         outputConfiguration: BlockVariablesConfiguration.Single,
-        singleOuput: "name_on_scope",
+        singleOuput: "",
       };
     case BlockType.AppendToList:
       return {
@@ -92,9 +89,9 @@ export function createNewBlock(type: BlockType): Block {
         type: BlockType.GetAttribute,
         attribute: "content",
         inputConfiguration: BlockVariablesConfiguration.Single,
-        singleInput: "name_on_scope",
+        singleInput: "message",
         outputConfiguration: BlockVariablesConfiguration.Single,
-        singleOuput: "name_on_scope",
+        singleOuput: "variable3",
       };
     default:
       throw new Error(`Unknown block type: ${type}`);

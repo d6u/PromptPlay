@@ -20,10 +20,8 @@ type Props = {
   onSaveRole: (value: LlmMessageRole) => void;
   content: string;
   onSaveContent: (value: string) => void;
-  alsoAppendToList: boolean;
-  onSaveAlsoAppendToList: (alsoAppendToList: boolean) => void;
-  listName: string | null;
-  onSaveListName: (listName: string) => void;
+  listNameToAppend: string;
+  onSaveListNameToAppend: (listNameToAppend: string) => void;
   selectedBlock: Block;
   spaceId: string;
   spaceContent: SpaceContent;
@@ -32,10 +30,9 @@ type Props = {
 export default function EditorBlockLlmMessageConfigurations(props: Props) {
   const [role, setRole] = useState(props.role);
   const [content, setContent] = useState(props.content);
-  const [alsoAppendToList, setAlsoAppendToList] = useState(
-    props.alsoAppendToList
+  const [listNameToAppend, setListNameToAppend] = useState(
+    props.listNameToAppend
   );
-  const [listName, setListName] = useState(props.listName ?? "");
 
   return (
     <>
@@ -80,6 +77,7 @@ export default function EditorBlockLlmMessageConfigurations(props: Props) {
           size="sm"
           variant="outlined"
           minRows={5}
+          placeholder="Enter your message here"
           value={content}
           onChange={(e) => {
             setContent(e.target.value);
@@ -97,38 +95,22 @@ export default function EditorBlockLlmMessageConfigurations(props: Props) {
         </FieldHelperText>
       </FieldRow>
       <FieldRow>
-        <Checkbox
+        <FieldTitle>Append to list (optional)</FieldTitle>
+        <Input
           color="neutral"
           size="sm"
           variant="outlined"
-          label="Also append to list"
-          checked={alsoAppendToList}
-          onChange={(e) => {
-            setAlsoAppendToList(e.target.checked);
-            props.onSaveAlsoAppendToList(e.target.checked);
+          placeholder="List name"
+          value={listNameToAppend}
+          onChange={(e) => setListNameToAppend(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              props.onSaveListNameToAppend(listNameToAppend);
+            }
           }}
+          onBlur={() => props.onSaveListNameToAppend(listNameToAppend)}
         />
       </FieldRow>
-      {alsoAppendToList && (
-        <FieldRow>
-          <FieldTitle>List name</FieldTitle>
-          <Input
-            color="neutral"
-            size="sm"
-            variant="outlined"
-            value={listName}
-            onChange={(e) => {
-              setListName(e.target.value);
-            }}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                props.onSaveListName(listName);
-              }
-            }}
-            onBlur={() => props.onSaveListName(listName)}
-          />
-        </FieldRow>
-      )}
     </>
   );
 }

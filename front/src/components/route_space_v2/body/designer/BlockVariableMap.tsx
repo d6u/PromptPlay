@@ -26,13 +26,13 @@ const Chip = styled.div`
 `;
 
 const ScopeName = styled(Chip)<{ $justifySelf: "flex-end" | "flex-start" }>`
-  color: #00b3ff;
-  border: 1px solid #00b3ff;
+  color: var(--joy-palette-primary-500, #00b3ff);
+  border: 1px solid var(--joy-palette-primary-500, #00b3ff);
   justify-self: ${(props) => props.$justifySelf};
 `;
 
 const LocalName = styled(Chip)<{ $justifySelf: "flex-end" | "flex-start" }>`
-  background: #00b3ff;
+  background: var(--joy-palette-primary-500, #00b3ff);
   color: #fff;
   justify-self: ${(props) => props.$justifySelf};
 `;
@@ -67,13 +67,15 @@ export default function BlockVariableMap(props: Props) {
         );
       }
     } else {
-      chips.push(
-        <ScopeName key="scope-name" $justifySelf="flex-end">
-          {props.singleVariable}
-        </ScopeName>,
-        <VariableMapArrow key="arrow" />,
-        <SpaceHolder key="local-name" />
-      );
+      if (props.singleVariable != "") {
+        chips.push(
+          <ScopeName key="scope-name" $justifySelf="flex-end">
+            {props.singleVariable}
+          </ScopeName>,
+          <VariableMapArrow key="arrow" />,
+          <SpaceHolder key="local-name" />
+        );
+      }
     }
   } else {
     if ("variableMap" in props) {
@@ -89,13 +91,15 @@ export default function BlockVariableMap(props: Props) {
         );
       }
     } else {
-      chips.push(
-        <SpaceHolder key="local-name" />,
-        <VariableMapArrow key="arrow" />,
-        <ScopeName key="scope-name" $justifySelf="flex-start">
-          {props.singleVariable}
-        </ScopeName>
-      );
+      if (props.singleVariable != "") {
+        chips.push(
+          <SpaceHolder key="local-name" />,
+          <VariableMapArrow key="arrow" />,
+          <ScopeName key="scope-name" $justifySelf="flex-start">
+            {props.singleVariable}
+          </ScopeName>
+        );
+      }
     }
   }
 
