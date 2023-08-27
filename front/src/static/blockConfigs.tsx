@@ -10,6 +10,12 @@ export const LLM_STOP_NEW_LINE_SYMBOL = "↵";
 
 export type BlockConfig = {
   title: string;
+  derivedInputVariablesGenerate?: (
+    block: Block
+  ) => string | Array<[string, string]>;
+  derivedOutputVariablesGenerate?: (
+    block: Block
+  ) => string | Array<[string, string]>;
   renderConfig: (block: Block) => ReactNode;
   executeFunc: (
     block: Block,
@@ -34,7 +40,7 @@ export const BLOCK_CONFIGS: { [key in BlockType]: BlockConfig } = {
     },
     executeFunc: async (block, scope, args) => {
       if (block.type !== BlockType.Databag) {
-        throw new Error("Block type doesn't match execute function");
+        throw new Error("Block type doesn't match");
       }
 
       return block.value;
@@ -70,7 +76,7 @@ export const BLOCK_CONFIGS: { [key in BlockType]: BlockConfig } = {
     },
     executeFunc: async (block, scope, args) => {
       if (block.type !== BlockType.LlmMessage) {
-        throw new Error("Block type doesn't match execute function");
+        throw new Error("Block type doesn't match");
       }
 
       return {
@@ -81,6 +87,23 @@ export const BLOCK_CONFIGS: { [key in BlockType]: BlockConfig } = {
   },
   [BlockType.AppendToList]: {
     title: "Append to List",
+    derivedInputVariablesGenerate: (block) => {
+      if (block.type !== BlockType.AppendToList) {
+        throw new Error("Block type doesn't match");
+      }
+
+      return [
+        [block.itemName, "item"],
+        [block.listName, "list"],
+      ];
+    },
+    derivedOutputVariablesGenerate: (block) => {
+      if (block.type !== BlockType.AppendToList) {
+        throw new Error("Block type doesn't match");
+      }
+
+      return [["list", block.listName]];
+    },
     renderConfig: (block) => {
       if (block.type !== BlockType.AppendToList) {
         return "";
@@ -95,7 +118,7 @@ export const BLOCK_CONFIGS: { [key in BlockType]: BlockConfig } = {
     },
     executeFunc: async (block, scope, args) => {
       if (block.type !== BlockType.AppendToList) {
-        throw new Error("Block type doesn't match execute function");
+        throw new Error("Block type doesn't match");
       }
 
       const item = scope[block.itemName];
@@ -139,7 +162,7 @@ export const BLOCK_CONFIGS: { [key in BlockType]: BlockConfig } = {
     },
     executeFunc: async (block, scope, args, updater) => {
       if (block.type !== BlockType.Llm) {
-        throw new Error("Block type doesn't match execute function");
+        throw new Error("Block type doesn't match");
       }
 
       const result = await openai.getNonStreamingCompletion({
@@ -182,7 +205,7 @@ export const BLOCK_CONFIGS: { [key in BlockType]: BlockConfig } = {
     },
     executeFunc: async (block, scope, args) => {
       if (block.type !== BlockType.GetAttribute) {
-        throw new Error("Block type doesn't match execute function");
+        throw new Error("Block type doesn't match");
       }
 
       return prop(block.attribute, args) ?? null;

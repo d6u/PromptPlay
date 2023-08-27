@@ -68,7 +68,20 @@ export default function BlockComponent(props: Props) {
   let inputConfigurator: ReactNode;
   switch (block.inputConfiguration) {
     case BlockVariablesConfiguration.NonConfigurable:
-      inputConfigurator = <SlotHolder />;
+      if (blockConfig.derivedInputVariablesGenerate) {
+        const input = blockConfig.derivedInputVariablesGenerate(block);
+        if (typeof input === "string") {
+          inputConfigurator = (
+            <BlockVariableMap singleVariable={input} isInput={true} />
+          );
+        } else {
+          inputConfigurator = (
+            <BlockVariableMap variableMap={input} isInput={true} />
+          );
+        }
+      } else {
+        inputConfigurator = <SlotHolder />;
+      }
       break;
     case BlockVariablesConfiguration.Single:
       inputConfigurator = (
@@ -85,7 +98,20 @@ export default function BlockComponent(props: Props) {
   let outputConfigurator: ReactNode;
   switch (block.outputConfiguration) {
     case BlockVariablesConfiguration.NonConfigurable:
-      outputConfigurator = <SlotHolder />;
+      if (blockConfig.derivedOutputVariablesGenerate) {
+        const output = blockConfig.derivedOutputVariablesGenerate(block);
+        if (typeof output === "string") {
+          outputConfigurator = (
+            <BlockVariableMap singleVariable={output} isInput={false} />
+          );
+        } else {
+          outputConfigurator = (
+            <BlockVariableMap variableMap={output} isInput={false} />
+          );
+        }
+      } else {
+        outputConfigurator = <SlotHolder />;
+      }
       break;
     case BlockVariablesConfiguration.Single:
       outputConfigurator = (
