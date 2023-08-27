@@ -19,7 +19,6 @@ import styled, { css } from "styled-components";
 
 const Container = styled.div<{ $isDragging: boolean }>`
   display: flex;
-
   position: relative;
   ${(props) =>
     props.$isDragging &&
@@ -158,6 +157,7 @@ export default function BlockComponent(props: Props) {
           <BlockV2
             type={VisualBlockType.Plain}
             onClick={() => setSpaceV2SelectedBlockId(block.id)}
+            narrow
           >
             {block.outputContent}
           </BlockV2>
