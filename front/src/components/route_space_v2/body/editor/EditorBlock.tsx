@@ -1,5 +1,7 @@
+import { UPDATE_SPACE_V2_MUTATION } from "../../../../state/spaceGraphQl";
 import { BLOCK_CONFIGS } from "../../../../static/blockConfigs";
 import { Block, SpaceContent } from "../../../../static/spaceTypes";
+import { pullBlockFromBlocks } from "../../../../static/spaceUtils";
 import EditorBlockInputConfiguration from "./EditorBlockInputConfiguration";
 import EditorBlockOutputConfiguration from "./EditorBlockOutputConfiguration";
 import EditorBlockUniqueConfigurations from "./EditorBlockUniqueConfigurations";
@@ -8,16 +10,20 @@ import {
   FieldRow,
   FieldTitle,
 } from "./editorCommonComponents";
-import Textarea from "@mui/joy/Textarea";
+import { useMutation } from "@apollo/client";
+import Button from "@mui/joy/Button";
+import { dissoc } from "ramda";
 import styled from "styled-components";
+import u from "updeep";
 
 const Header = styled.div`
+  align-self: stretch;
   display: flex;
   height: 50px;
   padding: 0px 15px;
   align-items: center;
   gap: 10px;
-  align-self: stretch;
+  justify-content: space-between;
 `;
 
 const HeaderText = styled.div`
@@ -47,12 +53,47 @@ type Props = {
 };
 
 export default function EditorBlock(props: Props) {
+  const [updateSpaceV2] = useMutation(UPDATE_SPACE_V2_MUTATION);
+
   const blockConfig = BLOCK_CONFIGS[props.selectedBlock.type];
 
   return (
     <>
       <Header>
         <HeaderText>{blockConfig.title}</HeaderText>
+        <Button
+          color="danger"
+          size="sm"
+          variant="plain"
+          onClick={() => {
+            let newContent = props.spaceContent;
+
+            const [pulledBlockAnchor, newBlockAnchors] = pullBlockFromBlocks(
+              props.selectedBlock.id,
+              newContent.root.blocks
+            );
+
+            if (pulledBlockAnchor == null) {
+              throw new Error("Block not found");
+            }
+
+            newContent = u({
+              root: {
+                blocks: u.constant(newBlockAnchors),
+              },
+              components: dissoc(pulledBlockAnchor.id),
+            })(newContent) as SpaceContent;
+
+            updateSpaceV2({
+              variables: {
+                spaceId: props.spaceId,
+                content: JSON.stringify(newContent),
+              },
+            });
+          }}
+        >
+          Delete
+        </Button>
       </Header>
       <Body>
         <EditorBlockInputConfiguration
@@ -78,13 +119,13 @@ export default function EditorBlock(props: Props) {
               <FieldDescriptionText>
                 This is the output from LLM in the last run.
               </FieldDescriptionText>
-              <Textarea
-                color="neutral"
-                size="sm"
-                variant="outlined"
-                minRows={3}
-                value={props.selectedBlock.outputContent}
-              />
+              <div>
+                {props.selectedBlock.outputContent
+                  .split("\n")
+                  .map((line, index) => {
+                    return <p key={index}>{line}</p>;
+                  })}
+              </div>
             </FieldRow>
           </>
         )}

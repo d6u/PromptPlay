@@ -1,6 +1,5 @@
-import { Block, SpaceContent } from "../static/spaceTypes";
 import { string } from "@recoiljs/refine";
-import { atom, selector } from "recoil";
+import { atom } from "recoil";
 import { syncEffect } from "recoil-sync";
 
 export const LOCAL_USER_SETTINGS = "localUserSettings";
@@ -83,24 +82,4 @@ export const missingOpenAiApiKeyState = atom<boolean>({
 export const spaceV2SelectedBlockIdState = atom<string | null>({
   key: "spaceV2SelectedBlockId",
   default: null,
-});
-
-export const spaceContentState = atom<SpaceContent | null>({
-  key: "spaceContent",
-  default: null,
-});
-
-export const spaceV2SelectedBlockSelector = selector({
-  key: "spaceV2SelectedBlock",
-  get: ({ get }) => {
-    const spaceContent = get(spaceContentState);
-    const selectedBlockId = get(spaceV2SelectedBlockIdState);
-
-    if (spaceContent && selectedBlockId) {
-      // TODO: Handle Group as well
-      return spaceContent.components[selectedBlockId] as Block;
-    }
-
-    return null;
-  },
 });

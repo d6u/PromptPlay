@@ -37,10 +37,10 @@ type Props = {
 export default function EditorBlockInputOutput(props: Props) {
   const [updateSpaceV2] = useMutation(UPDATE_SPACE_V2_MUTATION);
 
-  let rows: ReactNode[] | ReactNode;
+  let rows: ReactNode[] = [];
 
   if ("singleVariable" in props) {
-    rows = (
+    rows.push(
       <EditorSingleScopeVariable
         key={`${props.block.id}-single-variable`}
         variableName={props.singleVariable}
@@ -64,12 +64,10 @@ export default function EditorBlockInputOutput(props: Props) {
       />
     );
   } else {
-    rows = [];
-
     for (const [index, [left, right]] of props.variableMap.entries()) {
       // They key must contain block.id, so that when selecting a different
       // block, this field will be updated.
-      (rows as ReactNode[]).push(
+      rows.push(
         <VariableMapRow
           key={`${props.block.id}-variable-map-row-${index}`}
           localName={props.isInput ? right : left}

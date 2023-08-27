@@ -136,7 +136,7 @@ export function updateContent(
 
 type AnchorList = Array<BlockAnchor | BlockGroupAnchor>;
 
-function pullBlockFromBlocks(
+export function pullBlockFromBlocks(
   activeId: string,
   blocks: AnchorList
 ): [BlockAnchor | BlockGroupAnchor | null, AnchorList] {
