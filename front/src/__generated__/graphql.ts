@@ -1,50 +1,36 @@
 /* eslint-disable */
-import { TypedDocumentNode as DocumentNode } from "@graphql-typed-document-node/core";
-
+import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/core';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
-export type Exact<T extends { [key: string]: unknown }> = {
-  [K in keyof T]: T[K];
-};
-export type MakeOptional<T, K extends keyof T> = Omit<T, K> & {
-  [SubKey in K]?: Maybe<T[SubKey]>;
-};
-export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & {
-  [SubKey in K]: Maybe<T[SubKey]>;
-};
-export type MakeEmpty<
-  T extends { [key: string]: unknown },
-  K extends keyof T
-> = { [_ in K]?: never };
-export type Incremental<T> =
-  | T
-  | {
-      [P in keyof T]?: P extends " $fragmentName" | "__typename" ? T[P] : never;
-    };
+export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
+export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
+export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
+export type MakeEmpty<T extends { [key: string]: unknown }, K extends keyof T> = { [_ in K]?: never };
+export type Incremental<T> = T | { [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never };
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
-  ID: { input: string | number; output: string };
-  String: { input: string; output: string };
-  Boolean: { input: boolean; output: boolean };
-  Int: { input: number; output: number };
-  Float: { input: number; output: number };
+  ID: { input: string | number; output: string; }
+  String: { input: string; output: string; }
+  Boolean: { input: boolean; output: boolean; }
+  Int: { input: number; output: number; }
+  Float: { input: number; output: number; }
   /** Date with time (isoformat) */
-  DateTime: { input: any; output: any };
-  UUID: { input: any; output: any };
+  DateTime: { input: any; output: any; }
+  UUID: { input: any; output: any; }
 };
 
 export type Block = {
-  id: Scalars["UUID"]["output"];
+  id: Scalars['UUID']['output'];
 };
 
 export type BlockSet = {
-  __typename?: "BlockSet";
+  __typename?: 'BlockSet';
   completerBlock?: Maybe<CompleterBlock>;
-  id: Scalars["UUID"]["output"];
-  isInputIncludingPreviousBlockSetOutput: Scalars["Boolean"]["output"];
-  isOutputIncludingInputBlocks: Scalars["Boolean"]["output"];
-  isRepeatingCurrentBlockSet: Scalars["Boolean"]["output"];
-  position: Scalars["Int"]["output"];
+  id: Scalars['UUID']['output'];
+  isInputIncludingPreviousBlockSetOutput: Scalars['Boolean']['output'];
+  isOutputIncludingInputBlocks: Scalars['Boolean']['output'];
+  isRepeatingCurrentBlockSet: Scalars['Boolean']['output'];
+  position: Scalars['Int']['output'];
   previousBlockSetsInputBlocks: Array<PromptBlock>;
   systemPromptBlock?: Maybe<PromptBlock>;
   topInputPromptBlock?: Maybe<PromptBlock>;
@@ -52,27 +38,27 @@ export type BlockSet = {
 };
 
 export type CompleterBlock = Block & {
-  __typename?: "CompleterBlock";
-  id: Scalars["UUID"]["output"];
-  model: Scalars["String"]["output"];
-  stop: Scalars["String"]["output"];
-  temperature: Scalars["Float"]["output"];
+  __typename?: 'CompleterBlock';
+  id: Scalars['UUID']['output'];
+  model: Scalars['String']['output'];
+  stop: Scalars['String']['output'];
+  temperature: Scalars['Float']['output'];
 };
 
 export type CreateExampleSpaceResult = {
-  __typename?: "CreateExampleSpaceResult";
-  isSuccess: Scalars["Boolean"]["output"];
-  placeholderClientToken?: Maybe<Scalars["UUID"]["output"]>;
+  __typename?: 'CreateExampleSpaceResult';
+  isSuccess: Scalars['Boolean']['output'];
+  placeholderClientToken?: Maybe<Scalars['UUID']['output']>;
   space?: Maybe<Workspace>;
 };
 
 export type DeletionResult = {
-  __typename?: "DeletionResult";
-  isSuccess: Scalars["Boolean"]["output"];
+  __typename?: 'DeletionResult';
+  isSuccess: Scalars['Boolean']['output'];
 };
 
 export type Mutation = {
-  __typename?: "Mutation";
+  __typename?: 'Mutation';
   addCompleterToBlockSet?: Maybe<BlockSet>;
   addPromptToBlockSetTopInput?: Maybe<BlockSet>;
   addPromptToBlockSetTopOutput?: Maybe<BlockSet>;
@@ -100,4617 +86,543 @@ export type Mutation = {
   updateSpaceV2?: Maybe<SpaceV2>;
 };
 
+
 export type MutationAddCompleterToBlockSetArgs = {
-  blockSetId: Scalars["UUID"]["input"];
-  completerBlockId: Scalars["UUID"]["input"];
+  blockSetId: Scalars['UUID']['input'];
+  completerBlockId: Scalars['UUID']['input'];
 };
+
 
 export type MutationAddPromptToBlockSetTopInputArgs = {
-  blockSetId: Scalars["UUID"]["input"];
-  promptBlockId: Scalars["UUID"]["input"];
+  blockSetId: Scalars['UUID']['input'];
+  promptBlockId: Scalars['UUID']['input'];
 };
+
 
 export type MutationAddPromptToBlockSetTopOutputArgs = {
-  blockSetId: Scalars["UUID"]["input"];
-  promptBlockId: Scalars["UUID"]["input"];
+  blockSetId: Scalars['UUID']['input'];
+  promptBlockId: Scalars['UUID']['input'];
 };
+
 
 export type MutationAddSystemPromptToBlockSetArgs = {
-  blockSetId: Scalars["UUID"]["input"];
-  promptBlockId: Scalars["UUID"]["input"];
+  blockSetId: Scalars['UUID']['input'];
+  promptBlockId: Scalars['UUID']['input'];
 };
+
 
 export type MutationCreateBlockSetArgs = {
-  presetId: Scalars["UUID"]["input"];
+  presetId: Scalars['UUID']['input'];
 };
+
 
 export type MutationCreateCompleterBlockArgs = {
-  workspaceId: Scalars["UUID"]["input"];
+  workspaceId: Scalars['UUID']['input'];
 };
+
 
 export type MutationCreatePromptBlockArgs = {
-  workspaceId: Scalars["UUID"]["input"];
+  workspaceId: Scalars['UUID']['input'];
 };
+
 
 export type MutationCreateTopOutputBlockOnBlockSetArgs = {
-  blockSetId: Scalars["UUID"]["input"];
+  blockSetId: Scalars['UUID']['input'];
 };
+
 
 export type MutationDeleteBlockArgs = {
-  blockId: Scalars["UUID"]["input"];
+  blockId: Scalars['UUID']['input'];
 };
+
 
 export type MutationDeleteBlockSetArgs = {
-  blockSetId: Scalars["UUID"]["input"];
+  blockSetId: Scalars['UUID']['input'];
 };
+
 
 export type MutationDeleteSpaceArgs = {
-  id: Scalars["UUID"]["input"];
+  id: Scalars['UUID']['input'];
 };
+
 
 export type MutationExecuteBlockSetArgs = {
-  blockSetId: Scalars["UUID"]["input"];
+  blockSetId: Scalars['UUID']['input'];
 };
+
 
 export type MutationRemoveCompleterFromBlockSetArgs = {
-  blockSetId: Scalars["UUID"]["input"];
+  blockSetId: Scalars['UUID']['input'];
 };
+
 
 export type MutationRemoveSystemPromptFromBlockSetArgs = {
-  blockSetId: Scalars["UUID"]["input"];
+  blockSetId: Scalars['UUID']['input'];
 };
+
 
 export type MutationRemoveTopInputFromBlockSetArgs = {
-  blockSetId: Scalars["UUID"]["input"];
+  blockSetId: Scalars['UUID']['input'];
 };
+
 
 export type MutationRemoveTopOutputFromBlockSetArgs = {
-  blockSetId: Scalars["UUID"]["input"];
+  blockSetId: Scalars['UUID']['input'];
 };
+
 
 export type MutationSwapBlockSetPositionsArgs = {
-  movingBlockSetId: Scalars["UUID"]["input"];
-  slotBlockSetId: Scalars["UUID"]["input"];
+  movingBlockSetId: Scalars['UUID']['input'];
+  slotBlockSetId: Scalars['UUID']['input'];
 };
+
 
 export type MutationUpdateBlockSetOptionsArgs = {
-  blockSetId: Scalars["UUID"]["input"];
-  isInputIncludingPreviousBlockSetOutput: Scalars["Boolean"]["input"];
-  isOutputIncludingInputBlocks: Scalars["Boolean"]["input"];
-  isRepeatingCurrentBlockSet: Scalars["Boolean"]["input"];
+  blockSetId: Scalars['UUID']['input'];
+  isInputIncludingPreviousBlockSetOutput: Scalars['Boolean']['input'];
+  isOutputIncludingInputBlocks: Scalars['Boolean']['input'];
+  isRepeatingCurrentBlockSet: Scalars['Boolean']['input'];
 };
+
 
 export type MutationUpdateCompleterBlockArgs = {
-  id: Scalars["UUID"]["input"];
-  model: Scalars["String"]["input"];
-  stop: Scalars["String"]["input"];
-  temperature: Scalars["Float"]["input"];
+  id: Scalars['UUID']['input'];
+  model: Scalars['String']['input'];
+  stop: Scalars['String']['input'];
+  temperature: Scalars['Float']['input'];
 };
 
+
 export type MutationUpdatePromptBlockArgs = {
-  content: Scalars["String"]["input"];
-  id: Scalars["UUID"]["input"];
+  content: Scalars['String']['input'];
+  id: Scalars['UUID']['input'];
   role: PromptType;
 };
 
+
 export type MutationUpdateSpaceArgs = {
-  id: Scalars["UUID"]["input"];
-  name: Scalars["String"]["input"];
+  id: Scalars['UUID']['input'];
+  name: Scalars['String']['input'];
 };
 
+
 export type MutationUpdateSpaceV2Args = {
-  content?: InputMaybe<Scalars["String"]["input"]>;
-  id: Scalars["UUID"]["input"];
-  name?: InputMaybe<Scalars["String"]["input"]>;
+  content?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['UUID']['input'];
+  name?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type Preset = {
-  __typename?: "Preset";
+  __typename?: 'Preset';
   blockSets: Array<BlockSet>;
-  id: Scalars["UUID"]["output"];
-  name: Scalars["String"]["output"];
+  id: Scalars['UUID']['output'];
+  name: Scalars['String']['output'];
 };
 
 export type PromptBlock = Block & {
-  __typename?: "PromptBlock";
-  content: Scalars["String"]["output"];
-  id: Scalars["UUID"]["output"];
+  __typename?: 'PromptBlock';
+  content: Scalars['String']['output'];
+  id: Scalars['UUID']['output'];
   role: PromptType;
 };
 
 export enum PromptType {
-  Assistant = "Assistant",
-  System = "System",
-  User = "User",
+  Assistant = 'Assistant',
+  System = 'System',
+  User = 'User'
 }
 
 export type Query = {
-  __typename?: "Query";
-  hello: Scalars["String"]["output"];
-  isLoggedIn: Scalars["Boolean"]["output"];
+  __typename?: 'Query';
+  hello: Scalars['String']['output'];
+  isLoggedIn: Scalars['Boolean']['output'];
   preset?: Maybe<Preset>;
   spaceV2?: Maybe<SpaceV2>;
   user?: Maybe<User>;
   workspace?: Maybe<Workspace>;
 };
 
+
 export type QueryPresetArgs = {
-  presetId: Scalars["UUID"]["input"];
+  presetId: Scalars['UUID']['input'];
 };
+
 
 export type QuerySpaceV2Args = {
-  id: Scalars["UUID"]["input"];
+  id: Scalars['UUID']['input'];
 };
 
+
 export type QueryWorkspaceArgs = {
-  workspaceId: Scalars["UUID"]["input"];
+  workspaceId: Scalars['UUID']['input'];
 };
 
 export type SpaceV2 = {
-  __typename?: "SpaceV2";
-  content?: Maybe<Scalars["String"]["output"]>;
-  id: Scalars["UUID"]["output"];
-  name: Scalars["String"]["output"];
+  __typename?: 'SpaceV2';
+  content?: Maybe<Scalars['String']['output']>;
+  id: Scalars['UUID']['output'];
+  name: Scalars['String']['output'];
 };
 
 export type User = {
-  __typename?: "User";
-  email?: Maybe<Scalars["String"]["output"]>;
-  id: Scalars["UUID"]["output"];
+  __typename?: 'User';
+  email?: Maybe<Scalars['String']['output']>;
+  id: Scalars['UUID']['output'];
   workspaces: Array<Workspace>;
 };
 
 export type Workspace = {
-  __typename?: "Workspace";
+  __typename?: 'Workspace';
   blocks: Array<Block>;
   firstPreset?: Maybe<Preset>;
-  id: Scalars["UUID"]["output"];
-  name: Scalars["String"]["output"];
+  id: Scalars['UUID']['output'];
+  name: Scalars['String']['output'];
   preset: Preset;
   presets: Array<Preset>;
-  updatedAt: Scalars["DateTime"]["output"];
+  updatedAt: Scalars['DateTime']['output'];
 };
+
 
 export type WorkspacePresetArgs = {
-  presetId: Scalars["UUID"]["input"];
+  presetId: Scalars['UUID']['input'];
 };
 
-type DraggingBlock_CompleterBlock_Fragment = {
-  __typename: "CompleterBlock";
-  model: string;
-  temperature: number;
-  stop: string;
-  id: any;
-} & { " $fragmentName"?: "DraggingBlock_CompleterBlock_Fragment" };
+type DraggingBlock_CompleterBlock_Fragment = { __typename: 'CompleterBlock', model: string, temperature: number, stop: string, id: any } & { ' $fragmentName'?: 'DraggingBlock_CompleterBlock_Fragment' };
 
-type DraggingBlock_PromptBlock_Fragment = {
-  __typename: "PromptBlock";
-  role: PromptType;
-  content: string;
-  id: any;
-} & { " $fragmentName"?: "DraggingBlock_PromptBlock_Fragment" };
+type DraggingBlock_PromptBlock_Fragment = { __typename: 'PromptBlock', role: PromptType, content: string, id: any } & { ' $fragmentName'?: 'DraggingBlock_PromptBlock_Fragment' };
 
-export type DraggingBlockFragment =
-  | DraggingBlock_CompleterBlock_Fragment
-  | DraggingBlock_PromptBlock_Fragment;
+export type DraggingBlockFragment = DraggingBlock_CompleterBlock_Fragment | DraggingBlock_PromptBlock_Fragment;
 
-type LibraryBlock_CompleterBlock_Fragment = {
-  __typename: "CompleterBlock";
-  model: string;
-  temperature: number;
-  stop: string;
-  id: any;
-} & { " $fragmentName"?: "LibraryBlock_CompleterBlock_Fragment" };
+type LibraryBlock_CompleterBlock_Fragment = { __typename: 'CompleterBlock', model: string, temperature: number, stop: string, id: any } & { ' $fragmentName'?: 'LibraryBlock_CompleterBlock_Fragment' };
 
-type LibraryBlock_PromptBlock_Fragment = {
-  __typename: "PromptBlock";
-  role: PromptType;
-  content: string;
-  id: any;
-} & { " $fragmentName"?: "LibraryBlock_PromptBlock_Fragment" };
+type LibraryBlock_PromptBlock_Fragment = { __typename: 'PromptBlock', role: PromptType, content: string, id: any } & { ' $fragmentName'?: 'LibraryBlock_PromptBlock_Fragment' };
 
-export type LibraryBlockFragment =
-  | LibraryBlock_CompleterBlock_Fragment
-  | LibraryBlock_PromptBlock_Fragment;
+export type LibraryBlockFragment = LibraryBlock_CompleterBlock_Fragment | LibraryBlock_PromptBlock_Fragment;
 
-export type HeaderQueryQueryVariables = Exact<{ [key: string]: never }>;
+export type HeaderQueryQueryVariables = Exact<{ [key: string]: never; }>;
 
-export type HeaderQueryQuery = {
-  __typename?: "Query";
-  isLoggedIn: boolean;
-  user?: { __typename?: "User"; email?: string | null } | null;
-};
 
-export type RootRouteQueryQueryVariables = Exact<{ [key: string]: never }>;
+export type HeaderQueryQuery = { __typename?: 'Query', isLoggedIn: boolean, user?: { __typename?: 'User', email?: string | null } | null };
 
-export type RootRouteQueryQuery = {
-  __typename?: "Query";
-  user?:
-    | ({ __typename?: "User"; id: any } & {
-        " $fragmentRefs"?: { DashboardFragment: DashboardFragment };
-      })
-    | null;
-};
+export type RootRouteQueryQueryVariables = Exact<{ [key: string]: never; }>;
 
-export type CreateExampleSpaceMutationMutationVariables = Exact<{
-  [key: string]: never;
-}>;
 
-export type CreateExampleSpaceMutationMutation = {
-  __typename?: "Mutation";
-  createExampleSpace?: {
-    __typename?: "CreateExampleSpaceResult";
-    isSuccess: boolean;
-    placeholderClientToken?: any | null;
-    space?: { __typename?: "Workspace"; id: any } | null;
-  } | null;
-};
+export type RootRouteQueryQuery = { __typename?: 'Query', user?: (
+    { __typename?: 'User', id: any }
+    & { ' $fragmentRefs'?: { 'DashboardFragment': DashboardFragment } }
+  ) | null };
 
-export type DashboardFragment = {
-  __typename?: "User";
-  workspaces: Array<{
-    __typename?: "Workspace";
-    id: any;
-    name: string;
-    updatedAt: any;
-  }>;
-} & { " $fragmentName"?: "DashboardFragment" };
+export type CreateExampleSpaceMutationMutationVariables = Exact<{ [key: string]: never; }>;
 
-export type CreateSpaceMutationMutationVariables = Exact<{
-  [key: string]: never;
-}>;
 
-export type CreateSpaceMutationMutation = {
-  __typename?: "Mutation";
-  createSpace?: { __typename?: "Workspace"; id: any } | null;
-};
+export type CreateExampleSpaceMutationMutation = { __typename?: 'Mutation', createExampleSpace?: { __typename?: 'CreateExampleSpaceResult', isSuccess: boolean, placeholderClientToken?: any | null, space?: { __typename?: 'Workspace', id: any } | null } | null };
 
-export type WorkspaceQueryFragment = ({
-  __typename?: "Query";
-  workspace?: {
-    __typename?: "Workspace";
-    firstPreset?: {
-      __typename?: "Preset";
-      id: any;
-      blockSets: Array<{ __typename?: "BlockSet"; id: any; position: number }>;
-    } | null;
-  } | null;
-} & {
-  " $fragmentRefs"?: { WorkspaceContentFragment: WorkspaceContentFragment };
-}) & { " $fragmentName"?: "WorkspaceQueryFragment" };
+export type DashboardFragment = { __typename?: 'User', workspaces: Array<{ __typename?: 'Workspace', id: any, name: string, updatedAt: any }> } & { ' $fragmentName'?: 'DashboardFragment' };
+
+export type CreateSpaceMutationMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type CreateSpaceMutationMutation = { __typename?: 'Mutation', createSpace?: { __typename?: 'Workspace', id: any } | null };
+
+export type WorkspaceQueryFragment = (
+  { __typename?: 'Query', workspace?: { __typename?: 'Workspace', firstPreset?: { __typename?: 'Preset', id: any, blockSets: Array<{ __typename?: 'BlockSet', id: any, position: number }> } | null } | null }
+  & { ' $fragmentRefs'?: { 'WorkspaceContentFragment': WorkspaceContentFragment } }
+) & { ' $fragmentName'?: 'WorkspaceQueryFragment' };
 
 export type AddPromptToBlockSetTopInputMutationMutationVariables = Exact<{
-  promptBlockId: Scalars["UUID"]["input"];
-  blockSetId: Scalars["UUID"]["input"];
+  promptBlockId: Scalars['UUID']['input'];
+  blockSetId: Scalars['UUID']['input'];
 }>;
 
-export type AddPromptToBlockSetTopInputMutationMutation = {
-  __typename?: "Mutation";
-  addPromptToBlockSetTopInput?: { __typename?: "BlockSet"; id: any } | null;
-};
+
+export type AddPromptToBlockSetTopInputMutationMutation = { __typename?: 'Mutation', addPromptToBlockSetTopInput?: { __typename?: 'BlockSet', id: any } | null };
 
 export type AddCompleterToBlockSetMutationMutationVariables = Exact<{
-  blockSetId: Scalars["UUID"]["input"];
-  completerBlockId: Scalars["UUID"]["input"];
+  blockSetId: Scalars['UUID']['input'];
+  completerBlockId: Scalars['UUID']['input'];
 }>;
 
-export type AddCompleterToBlockSetMutationMutation = {
-  __typename?: "Mutation";
-  addCompleterToBlockSet?: { __typename?: "BlockSet"; id: any } | null;
-};
+
+export type AddCompleterToBlockSetMutationMutation = { __typename?: 'Mutation', addCompleterToBlockSet?: { __typename?: 'BlockSet', id: any } | null };
 
 export type AddSystemPromptToBlockSetMutationMutationVariables = Exact<{
-  blockSetId: Scalars["UUID"]["input"];
-  promptBlockId: Scalars["UUID"]["input"];
+  blockSetId: Scalars['UUID']['input'];
+  promptBlockId: Scalars['UUID']['input'];
 }>;
 
-export type AddSystemPromptToBlockSetMutationMutation = {
-  __typename?: "Mutation";
-  addSystemPromptToBlockSet?: { __typename?: "BlockSet"; id: any } | null;
-};
+
+export type AddSystemPromptToBlockSetMutationMutation = { __typename?: 'Mutation', addSystemPromptToBlockSet?: { __typename?: 'BlockSet', id: any } | null };
 
 export type AddPromptToBlockSetTopOutputMutationMutationVariables = Exact<{
-  promptBlockId: Scalars["UUID"]["input"];
-  blockSetId: Scalars["UUID"]["input"];
+  promptBlockId: Scalars['UUID']['input'];
+  blockSetId: Scalars['UUID']['input'];
 }>;
 
-export type AddPromptToBlockSetTopOutputMutationMutation = {
-  __typename?: "Mutation";
-  addPromptToBlockSetTopOutput?: { __typename?: "BlockSet"; id: any } | null;
-};
+
+export type AddPromptToBlockSetTopOutputMutationMutation = { __typename?: 'Mutation', addPromptToBlockSetTopOutput?: { __typename?: 'BlockSet', id: any } | null };
 
 export type SwapBlockSetPositionsMutationMutationVariables = Exact<{
-  movingBlockSetId: Scalars["UUID"]["input"];
-  slotBlockSetId: Scalars["UUID"]["input"];
+  movingBlockSetId: Scalars['UUID']['input'];
+  slotBlockSetId: Scalars['UUID']['input'];
 }>;
 
-export type SwapBlockSetPositionsMutationMutation = {
-  __typename?: "Mutation";
-  swapBlockSetPositions?: {
-    __typename?: "Preset";
-    id: any;
-    blockSets: Array<{ __typename?: "BlockSet"; id: any; position: number }>;
-  } | null;
-};
 
-export type WorkspaceContentFragment = {
-  __typename?: "Query";
-  workspace?:
-    | ({
-        __typename?: "Workspace";
-        id: any;
-        firstPreset?:
-          | ({ __typename?: "Preset"; id: any } & {
-              " $fragmentRefs"?: { SimulatorFragment: SimulatorFragment };
-            })
-          | null;
-      } & { " $fragmentRefs"?: { LibraryFragment: LibraryFragment } })
-    | null;
-} & { " $fragmentName"?: "WorkspaceContentFragment" };
+export type SwapBlockSetPositionsMutationMutation = { __typename?: 'Mutation', swapBlockSetPositions?: { __typename?: 'Preset', id: any, blockSets: Array<{ __typename?: 'BlockSet', id: any, position: number }> } | null };
+
+export type WorkspaceContentFragment = { __typename?: 'Query', workspace?: (
+    { __typename?: 'Workspace', id: any, firstPreset?: (
+      { __typename?: 'Preset', id: any }
+      & { ' $fragmentRefs'?: { 'SimulatorFragment': SimulatorFragment } }
+    ) | null }
+    & { ' $fragmentRefs'?: { 'LibraryFragment': LibraryFragment } }
+  ) | null } & { ' $fragmentName'?: 'WorkspaceContentFragment' };
 
 export type WorkspaceRouteQueryQueryVariables = Exact<{
-  workspaceId: Scalars["UUID"]["input"];
+  workspaceId: Scalars['UUID']['input'];
 }>;
 
-export type WorkspaceRouteQueryQuery = {
-  __typename?: "Query";
-  user?: { __typename?: "User"; id: any } | null;
-} & {
-  " $fragmentRefs"?: {
-    SubHeaderFragmentFragment: SubHeaderFragmentFragment;
-    WorkspaceQueryFragment: WorkspaceQueryFragment;
-  };
-};
 
-export type EditorBlockSetFragment = {
-  __typename?: "BlockSet";
-  id: any;
-  isInputIncludingPreviousBlockSetOutput: boolean;
-  isOutputIncludingInputBlocks: boolean;
-  isRepeatingCurrentBlockSet: boolean;
-} & { " $fragmentName"?: "EditorBlockSetFragment" };
+export type WorkspaceRouteQueryQuery = (
+  { __typename?: 'Query', user?: { __typename?: 'User', id: any } | null }
+  & { ' $fragmentRefs'?: { 'SubHeaderFragmentFragment': SubHeaderFragmentFragment;'WorkspaceQueryFragment': WorkspaceQueryFragment } }
+);
+
+export type EditorBlockSetFragment = { __typename?: 'BlockSet', id: any, isInputIncludingPreviousBlockSetOutput: boolean, isOutputIncludingInputBlocks: boolean, isRepeatingCurrentBlockSet: boolean } & { ' $fragmentName'?: 'EditorBlockSetFragment' };
 
 export type UpdateBlockSetOptionsMutationMutationVariables = Exact<{
-  blockSetId: Scalars["UUID"]["input"];
-  isInputIncludingPreviousBlockSetOutput: Scalars["Boolean"]["input"];
-  isOutputIncludingInputBlocks: Scalars["Boolean"]["input"];
-  isRepeatingCurrentBlockSet: Scalars["Boolean"]["input"];
+  blockSetId: Scalars['UUID']['input'];
+  isInputIncludingPreviousBlockSetOutput: Scalars['Boolean']['input'];
+  isOutputIncludingInputBlocks: Scalars['Boolean']['input'];
+  isRepeatingCurrentBlockSet: Scalars['Boolean']['input'];
 }>;
 
-export type UpdateBlockSetOptionsMutationMutation = {
-  __typename?: "Mutation";
-  updateBlockSetOptions?: { __typename?: "BlockSet"; id: any } | null;
-};
+
+export type UpdateBlockSetOptionsMutationMutation = { __typename?: 'Mutation', updateBlockSetOptions?: { __typename?: 'BlockSet', id: any } | null };
 
 export type DeleteBlockSetMutationMutationVariables = Exact<{
-  blockSetId: Scalars["UUID"]["input"];
+  blockSetId: Scalars['UUID']['input'];
 }>;
 
-export type DeleteBlockSetMutationMutation = {
-  __typename?: "Mutation";
-  deleteBlockSet?: { __typename?: "DeletionResult"; isSuccess: boolean } | null;
-};
 
-export type SelectedCompleterBlockFragment = {
-  __typename?: "CompleterBlock";
-  id: any;
-  model: string;
-  temperature: number;
-  stop: string;
-} & { " $fragmentName"?: "SelectedCompleterBlockFragment" };
+export type DeleteBlockSetMutationMutation = { __typename?: 'Mutation', deleteBlockSet?: { __typename?: 'DeletionResult', isSuccess: boolean } | null };
+
+export type SelectedCompleterBlockFragment = { __typename?: 'CompleterBlock', id: any, model: string, temperature: number, stop: string } & { ' $fragmentName'?: 'SelectedCompleterBlockFragment' };
 
 export type DeleteCompleterBlockMutationMutationVariables = Exact<{
-  blockId: Scalars["UUID"]["input"];
+  blockId: Scalars['UUID']['input'];
 }>;
 
-export type DeleteCompleterBlockMutationMutation = {
-  __typename?: "Mutation";
-  deleteBlock?: { __typename?: "DeletionResult"; isSuccess: boolean } | null;
-};
+
+export type DeleteCompleterBlockMutationMutation = { __typename?: 'Mutation', deleteBlock?: { __typename?: 'DeletionResult', isSuccess: boolean } | null };
 
 export type UpdateCompleterBlockMutationMutationVariables = Exact<{
-  id: Scalars["UUID"]["input"];
-  model: Scalars["String"]["input"];
-  temperature: Scalars["Float"]["input"];
-  stop: Scalars["String"]["input"];
+  id: Scalars['UUID']['input'];
+  model: Scalars['String']['input'];
+  temperature: Scalars['Float']['input'];
+  stop: Scalars['String']['input'];
 }>;
 
-export type UpdateCompleterBlockMutationMutation = {
-  __typename?: "Mutation";
-  updateCompleterBlock?: { __typename?: "CompleterBlock"; id: any } | null;
-};
 
-export type SelectedBlockFragment = {
-  __typename?: "PromptBlock";
-  id: any;
-  role: PromptType;
-  content: string;
-} & { " $fragmentName"?: "SelectedBlockFragment" };
+export type UpdateCompleterBlockMutationMutation = { __typename?: 'Mutation', updateCompleterBlock?: { __typename?: 'CompleterBlock', id: any } | null };
+
+export type SelectedBlockFragment = { __typename?: 'PromptBlock', id: any, role: PromptType, content: string } & { ' $fragmentName'?: 'SelectedBlockFragment' };
 
 export type DeletePromptBlockMutationMutationVariables = Exact<{
-  blockId: Scalars["UUID"]["input"];
+  blockId: Scalars['UUID']['input'];
 }>;
 
-export type DeletePromptBlockMutationMutation = {
-  __typename?: "Mutation";
-  deleteBlock?: { __typename?: "DeletionResult"; isSuccess: boolean } | null;
-};
+
+export type DeletePromptBlockMutationMutation = { __typename?: 'Mutation', deleteBlock?: { __typename?: 'DeletionResult', isSuccess: boolean } | null };
 
 export type UpdateBlockMutationMutationVariables = Exact<{
-  id: Scalars["UUID"]["input"];
+  id: Scalars['UUID']['input'];
   role: PromptType;
-  content: Scalars["String"]["input"];
+  content: Scalars['String']['input'];
 }>;
 
-export type UpdateBlockMutationMutation = {
-  __typename?: "Mutation";
-  updatePromptBlock?: { __typename?: "PromptBlock"; id: any } | null;
-};
 
-export type LibraryFragment = {
-  __typename?: "Workspace";
-  blocks: Array<
-    | ({ __typename: "CompleterBlock"; id: any } & {
-        " $fragmentRefs"?: {
-          LibraryBlock_CompleterBlock_Fragment: LibraryBlock_CompleterBlock_Fragment;
-        };
-      })
-    | ({ __typename: "PromptBlock"; id: any } & {
-        " $fragmentRefs"?: {
-          LibraryBlock_PromptBlock_Fragment: LibraryBlock_PromptBlock_Fragment;
-        };
-      })
-  >;
-} & { " $fragmentName"?: "LibraryFragment" };
+export type UpdateBlockMutationMutation = { __typename?: 'Mutation', updatePromptBlock?: { __typename?: 'PromptBlock', id: any } | null };
 
-export type SimulatorBlockSetFragment = {
-  __typename?: "BlockSet";
-  id: any;
-  position: number;
-  isInputIncludingPreviousBlockSetOutput: boolean;
-  isOutputIncludingInputBlocks: boolean;
-  isRepeatingCurrentBlockSet: boolean;
-  topInputPromptBlock?:
-    | ({ __typename?: "PromptBlock"; id: any } & {
-        " $fragmentRefs"?: {
-          SimulatorBlock_PromptBlock_Fragment: SimulatorBlock_PromptBlock_Fragment;
-        };
-      })
-    | null;
-  systemPromptBlock?:
-    | ({ __typename?: "PromptBlock"; id: any } & {
-        " $fragmentRefs"?: {
-          SimulatorBlock_PromptBlock_Fragment: SimulatorBlock_PromptBlock_Fragment;
-        };
-      })
-    | null;
-  completerBlock?:
-    | ({ __typename?: "CompleterBlock"; id: any } & {
-        " $fragmentRefs"?: {
-          SimulatorBlock_CompleterBlock_Fragment: SimulatorBlock_CompleterBlock_Fragment;
-        };
-      })
-    | null;
-  topOutputBlock?:
-    | ({ __typename?: "PromptBlock"; id: any } & {
-        " $fragmentRefs"?: {
-          SimulatorBlock_PromptBlock_Fragment: SimulatorBlock_PromptBlock_Fragment;
-        };
-      })
-    | null;
-  previousBlockSetsInputBlocks: Array<
-    { __typename?: "PromptBlock"; id: any; role: PromptType } & {
-      " $fragmentRefs"?: {
-        SimulatorBlock_PromptBlock_Fragment: SimulatorBlock_PromptBlock_Fragment;
-      };
-    }
-  >;
-} & { " $fragmentName"?: "SimulatorBlockSetFragment" };
+export type LibraryFragment = { __typename?: 'Workspace', blocks: Array<(
+    { __typename: 'CompleterBlock', id: any }
+    & { ' $fragmentRefs'?: { 'LibraryBlock_CompleterBlock_Fragment': LibraryBlock_CompleterBlock_Fragment } }
+  ) | (
+    { __typename: 'PromptBlock', id: any }
+    & { ' $fragmentRefs'?: { 'LibraryBlock_PromptBlock_Fragment': LibraryBlock_PromptBlock_Fragment } }
+  )> } & { ' $fragmentName'?: 'LibraryFragment' };
+
+export type SimulatorBlockSetFragment = { __typename?: 'BlockSet', id: any, position: number, isInputIncludingPreviousBlockSetOutput: boolean, isOutputIncludingInputBlocks: boolean, isRepeatingCurrentBlockSet: boolean, topInputPromptBlock?: (
+    { __typename?: 'PromptBlock', id: any }
+    & { ' $fragmentRefs'?: { 'SimulatorBlock_PromptBlock_Fragment': SimulatorBlock_PromptBlock_Fragment } }
+  ) | null, systemPromptBlock?: (
+    { __typename?: 'PromptBlock', id: any }
+    & { ' $fragmentRefs'?: { 'SimulatorBlock_PromptBlock_Fragment': SimulatorBlock_PromptBlock_Fragment } }
+  ) | null, completerBlock?: (
+    { __typename?: 'CompleterBlock', id: any }
+    & { ' $fragmentRefs'?: { 'SimulatorBlock_CompleterBlock_Fragment': SimulatorBlock_CompleterBlock_Fragment } }
+  ) | null, topOutputBlock?: (
+    { __typename?: 'PromptBlock', id: any }
+    & { ' $fragmentRefs'?: { 'SimulatorBlock_PromptBlock_Fragment': SimulatorBlock_PromptBlock_Fragment } }
+  ) | null, previousBlockSetsInputBlocks: Array<(
+    { __typename?: 'PromptBlock', id: any, role: PromptType }
+    & { ' $fragmentRefs'?: { 'SimulatorBlock_PromptBlock_Fragment': SimulatorBlock_PromptBlock_Fragment } }
+  )> } & { ' $fragmentName'?: 'SimulatorBlockSetFragment' };
 
 export type RemoveTopInputFromBlockSetMutationMutationVariables = Exact<{
-  blockSetId: Scalars["UUID"]["input"];
+  blockSetId: Scalars['UUID']['input'];
 }>;
 
-export type RemoveTopInputFromBlockSetMutationMutation = {
-  __typename?: "Mutation";
-  removeTopInputFromBlockSet?: { __typename?: "BlockSet"; id: any } | null;
-};
+
+export type RemoveTopInputFromBlockSetMutationMutation = { __typename?: 'Mutation', removeTopInputFromBlockSet?: { __typename?: 'BlockSet', id: any } | null };
 
 export type RemoveSystemPromptFromBlockSetMutationMutationVariables = Exact<{
-  blockSetId: Scalars["UUID"]["input"];
+  blockSetId: Scalars['UUID']['input'];
 }>;
 
-export type RemoveSystemPromptFromBlockSetMutationMutation = {
-  __typename?: "Mutation";
-  removeSystemPromptFromBlockSet?: { __typename?: "BlockSet"; id: any } | null;
-};
+
+export type RemoveSystemPromptFromBlockSetMutationMutation = { __typename?: 'Mutation', removeSystemPromptFromBlockSet?: { __typename?: 'BlockSet', id: any } | null };
 
 export type RemoveCompleterFromBlockSetMutationMutationVariables = Exact<{
-  blockSetId: Scalars["UUID"]["input"];
+  blockSetId: Scalars['UUID']['input'];
 }>;
 
-export type RemoveCompleterFromBlockSetMutationMutation = {
-  __typename?: "Mutation";
-  removeCompleterFromBlockSet?: { __typename?: "BlockSet"; id: any } | null;
-};
+
+export type RemoveCompleterFromBlockSetMutationMutation = { __typename?: 'Mutation', removeCompleterFromBlockSet?: { __typename?: 'BlockSet', id: any } | null };
 
 export type RemoveTopOutputFromBlockSetMutationMutationVariables = Exact<{
-  blockSetId: Scalars["UUID"]["input"];
+  blockSetId: Scalars['UUID']['input'];
 }>;
 
-export type RemoveTopOutputFromBlockSetMutationMutation = {
-  __typename?: "Mutation";
-  removeTopOutputFromBlockSet?: { __typename?: "BlockSet"; id: any } | null;
-};
 
-export type SimulatorFragment = {
-  __typename?: "Preset";
-  id: any;
-  blockSets: Array<
-    { __typename?: "BlockSet"; id: any } & {
-      " $fragmentRefs"?: {
-        SimulatorBlockSetFragment: SimulatorBlockSetFragment;
-      };
-    }
-  >;
-} & { " $fragmentName"?: "SimulatorFragment" };
+export type RemoveTopOutputFromBlockSetMutationMutation = { __typename?: 'Mutation', removeTopOutputFromBlockSet?: { __typename?: 'BlockSet', id: any } | null };
 
-type SimulatorBlock_CompleterBlock_Fragment = {
-  __typename: "CompleterBlock";
-  model: string;
-  temperature: number;
-  stop: string;
-  id: any;
-} & { " $fragmentName"?: "SimulatorBlock_CompleterBlock_Fragment" };
+export type SimulatorFragment = { __typename?: 'Preset', id: any, blockSets: Array<(
+    { __typename?: 'BlockSet', id: any }
+    & { ' $fragmentRefs'?: { 'SimulatorBlockSetFragment': SimulatorBlockSetFragment } }
+  )> } & { ' $fragmentName'?: 'SimulatorFragment' };
 
-type SimulatorBlock_PromptBlock_Fragment = {
-  __typename: "PromptBlock";
-  role: PromptType;
-  content: string;
-  id: any;
-} & { " $fragmentName"?: "SimulatorBlock_PromptBlock_Fragment" };
+type SimulatorBlock_CompleterBlock_Fragment = { __typename: 'CompleterBlock', model: string, temperature: number, stop: string, id: any } & { ' $fragmentName'?: 'SimulatorBlock_CompleterBlock_Fragment' };
 
-export type SimulatorBlockFragment =
-  | SimulatorBlock_CompleterBlock_Fragment
-  | SimulatorBlock_PromptBlock_Fragment;
+type SimulatorBlock_PromptBlock_Fragment = { __typename: 'PromptBlock', role: PromptType, content: string, id: any } & { ' $fragmentName'?: 'SimulatorBlock_PromptBlock_Fragment' };
 
-export type RunButtonFragmentFragment = {
-  __typename?: "Preset";
-  blockSets: Array<{
-    __typename?: "BlockSet";
-    id: any;
-    topInputPromptBlock?: {
-      __typename?: "PromptBlock";
-      id: any;
-      role: PromptType;
-      content: string;
-    } | null;
-    systemPromptBlock?: {
-      __typename?: "PromptBlock";
-      id: any;
-      content: string;
-    } | null;
-    completerBlock?: {
-      __typename?: "CompleterBlock";
-      id: any;
-      model: string;
-      temperature: number;
-      stop: string;
-    } | null;
-  }>;
-} & { " $fragmentName"?: "RunButtonFragmentFragment" };
+export type SimulatorBlockFragment = SimulatorBlock_CompleterBlock_Fragment | SimulatorBlock_PromptBlock_Fragment;
 
-export type SubHeaderBlockSetFragmentFragment = {
-  __typename?: "BlockSet";
-  id: any;
-  position: number;
-  isInputIncludingPreviousBlockSetOutput: boolean;
-  isOutputIncludingInputBlocks: boolean;
-  isRepeatingCurrentBlockSet: boolean;
-  topInputPromptBlock?: {
-    __typename?: "PromptBlock";
-    id: any;
-    role: PromptType;
-    content: string;
-  } | null;
-  systemPromptBlock?: {
-    __typename?: "PromptBlock";
-    id: any;
-    content: string;
-  } | null;
-  completerBlock?: {
-    __typename?: "CompleterBlock";
-    id: any;
-    model: string;
-    temperature: number;
-    stop: string;
-  } | null;
-  topOutputBlock?: {
-    __typename?: "PromptBlock";
-    id: any;
-    content: string;
-  } | null;
-  previousBlockSetsInputBlocks: Array<{
-    __typename?: "PromptBlock";
-    id: any;
-    role: PromptType;
-    content: string;
-  }>;
-} & { " $fragmentName"?: "SubHeaderBlockSetFragmentFragment" };
+export type RunButtonFragmentFragment = { __typename?: 'Preset', blockSets: Array<{ __typename?: 'BlockSet', id: any, topInputPromptBlock?: { __typename?: 'PromptBlock', id: any, role: PromptType, content: string } | null, systemPromptBlock?: { __typename?: 'PromptBlock', id: any, content: string } | null, completerBlock?: { __typename?: 'CompleterBlock', id: any, model: string, temperature: number, stop: string } | null }> } & { ' $fragmentName'?: 'RunButtonFragmentFragment' };
+
+export type SubHeaderBlockSetFragmentFragment = { __typename?: 'BlockSet', id: any, position: number, isInputIncludingPreviousBlockSetOutput: boolean, isOutputIncludingInputBlocks: boolean, isRepeatingCurrentBlockSet: boolean, topInputPromptBlock?: { __typename?: 'PromptBlock', id: any, role: PromptType, content: string } | null, systemPromptBlock?: { __typename?: 'PromptBlock', id: any, content: string } | null, completerBlock?: { __typename?: 'CompleterBlock', id: any, model: string, temperature: number, stop: string } | null, topOutputBlock?: { __typename?: 'PromptBlock', id: any, content: string } | null, previousBlockSetsInputBlocks: Array<{ __typename?: 'PromptBlock', id: any, role: PromptType, content: string }> } & { ' $fragmentName'?: 'SubHeaderBlockSetFragmentFragment' };
 
 export type CreateTopOutputBlockOnBlockSetMutationMutationVariables = Exact<{
-  blockSetId: Scalars["UUID"]["input"];
+  blockSetId: Scalars['UUID']['input'];
 }>;
 
-export type CreateTopOutputBlockOnBlockSetMutationMutation = {
-  __typename?: "Mutation";
-  createTopOutputBlockOnBlockSet?: {
-    __typename?: "BlockSet";
-    id: any;
-    topOutputBlock?: { __typename?: "PromptBlock"; id: any } | null;
-  } | null;
-};
+
+export type CreateTopOutputBlockOnBlockSetMutationMutation = { __typename?: 'Mutation', createTopOutputBlockOnBlockSet?: { __typename?: 'BlockSet', id: any, topOutputBlock?: { __typename?: 'PromptBlock', id: any } | null } | null };
 
 export type UpdatePromptBlockMutationMutationVariables = Exact<{
-  id: Scalars["UUID"]["input"];
-  content: Scalars["String"]["input"];
+  id: Scalars['UUID']['input'];
+  content: Scalars['String']['input'];
 }>;
 
-export type UpdatePromptBlockMutationMutation = {
-  __typename?: "Mutation";
-  updatePromptBlock?: { __typename?: "PromptBlock"; id: any } | null;
-};
 
-export type SubHeaderFragmentFragment = {
-  __typename?: "Query";
-  workspace?: {
-    __typename?: "Workspace";
-    name: string;
-    firstPreset?:
-      | ({ __typename?: "Preset"; id: any } & {
-          " $fragmentRefs"?: {
-            RunButtonFragmentFragment: RunButtonFragmentFragment;
-          };
-        })
-      | null;
-  } | null;
-} & { " $fragmentName"?: "SubHeaderFragmentFragment" };
+export type UpdatePromptBlockMutationMutation = { __typename?: 'Mutation', updatePromptBlock?: { __typename?: 'PromptBlock', id: any } | null };
+
+export type SubHeaderFragmentFragment = { __typename?: 'Query', workspace?: { __typename?: 'Workspace', name: string, firstPreset?: (
+      { __typename?: 'Preset', id: any }
+      & { ' $fragmentRefs'?: { 'RunButtonFragmentFragment': RunButtonFragmentFragment } }
+    ) | null } | null } & { ' $fragmentName'?: 'SubHeaderFragmentFragment' };
 
 export type CreatePromptBlockMutationMutationVariables = Exact<{
-  workspaceId: Scalars["UUID"]["input"];
+  workspaceId: Scalars['UUID']['input'];
 }>;
 
-export type CreatePromptBlockMutationMutation = {
-  __typename?: "Mutation";
-  createPromptBlock?: { __typename?: "PromptBlock"; id: any } | null;
-};
+
+export type CreatePromptBlockMutationMutation = { __typename?: 'Mutation', createPromptBlock?: { __typename?: 'PromptBlock', id: any } | null };
 
 export type CreateCompleterBlockMutationVariables = Exact<{
-  workspaceId: Scalars["UUID"]["input"];
+  workspaceId: Scalars['UUID']['input'];
 }>;
 
-export type CreateCompleterBlockMutation = {
-  __typename?: "Mutation";
-  createCompleterBlock?: { __typename?: "CompleterBlock"; id: any } | null;
-};
+
+export type CreateCompleterBlockMutation = { __typename?: 'Mutation', createCompleterBlock?: { __typename?: 'CompleterBlock', id: any } | null };
 
 export type CreateBlockSetMutationVariables = Exact<{
-  presetId: Scalars["UUID"]["input"];
+  presetId: Scalars['UUID']['input'];
 }>;
 
-export type CreateBlockSetMutation = {
-  __typename?: "Mutation";
-  createBlockSet?: { __typename?: "BlockSet"; id: any } | null;
-};
+
+export type CreateBlockSetMutation = { __typename?: 'Mutation', createBlockSet?: { __typename?: 'BlockSet', id: any } | null };
 
 export type UpdateSpaceMutationMutationVariables = Exact<{
-  workspaceId: Scalars["UUID"]["input"];
-  name: Scalars["String"]["input"];
+  workspaceId: Scalars['UUID']['input'];
+  name: Scalars['String']['input'];
 }>;
 
-export type UpdateSpaceMutationMutation = {
-  __typename?: "Mutation";
-  updateSpace?: { __typename?: "Workspace"; id: any } | null;
-};
+
+export type UpdateSpaceMutationMutation = { __typename?: 'Mutation', updateSpace?: { __typename?: 'Workspace', id: any } | null };
 
 export type DeleteSpaceMutationMutationVariables = Exact<{
-  workspaceId: Scalars["UUID"]["input"];
+  workspaceId: Scalars['UUID']['input'];
 }>;
 
-export type DeleteSpaceMutationMutation = {
-  __typename?: "Mutation";
-  deleteSpace?: { __typename?: "DeletionResult"; isSuccess: boolean } | null;
-};
+
+export type DeleteSpaceMutationMutation = { __typename?: 'Mutation', deleteSpace?: { __typename?: 'DeletionResult', isSuccess: boolean } | null };
 
 export type SpaceV2QueryQueryVariables = Exact<{
-  spaceId: Scalars["UUID"]["input"];
+  spaceId: Scalars['UUID']['input'];
 }>;
 
-export type SpaceV2QueryQuery = {
-  __typename?: "Query";
-  spaceV2?: {
-    __typename?: "SpaceV2";
-    id: any;
-    name: string;
-    content?: string | null;
-  } | null;
-};
+
+export type SpaceV2QueryQuery = { __typename?: 'Query', spaceV2?: { __typename?: 'SpaceV2', id: any, name: string, content?: string | null } | null };
 
 export type UpdateSpaceV2MutationMutationVariables = Exact<{
-  spaceId: Scalars["UUID"]["input"];
-  content: Scalars["String"]["input"];
+  spaceId: Scalars['UUID']['input'];
+  content: Scalars['String']['input'];
 }>;
 
-export type UpdateSpaceV2MutationMutation = {
-  __typename?: "Mutation";
-  updateSpaceV2?: {
-    __typename?: "SpaceV2";
-    id: any;
-    name: string;
-    content?: string | null;
-  } | null;
-};
 
-export const DraggingBlockFragmentDoc = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "FragmentDefinition",
-      name: { kind: "Name", value: "DraggingBlock" },
-      typeCondition: {
-        kind: "NamedType",
-        name: { kind: "Name", value: "Block" },
-      },
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          { kind: "Field", name: { kind: "Name", value: "id" } },
-          { kind: "Field", name: { kind: "Name", value: "__typename" } },
-          {
-            kind: "InlineFragment",
-            typeCondition: {
-              kind: "NamedType",
-              name: { kind: "Name", value: "PromptBlock" },
-            },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "role" } },
-                { kind: "Field", name: { kind: "Name", value: "content" } },
-              ],
-            },
-          },
-          {
-            kind: "InlineFragment",
-            typeCondition: {
-              kind: "NamedType",
-              name: { kind: "Name", value: "CompleterBlock" },
-            },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "model" } },
-                { kind: "Field", name: { kind: "Name", value: "temperature" } },
-                { kind: "Field", name: { kind: "Name", value: "stop" } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<DraggingBlockFragment, unknown>;
-export const DashboardFragmentDoc = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "FragmentDefinition",
-      name: { kind: "Name", value: "Dashboard" },
-      typeCondition: {
-        kind: "NamedType",
-        name: { kind: "Name", value: "User" },
-      },
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "workspaces" },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                { kind: "Field", name: { kind: "Name", value: "name" } },
-                { kind: "Field", name: { kind: "Name", value: "updatedAt" } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<DashboardFragment, unknown>;
-export const LibraryBlockFragmentDoc = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "FragmentDefinition",
-      name: { kind: "Name", value: "LibraryBlock" },
-      typeCondition: {
-        kind: "NamedType",
-        name: { kind: "Name", value: "Block" },
-      },
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          { kind: "Field", name: { kind: "Name", value: "id" } },
-          { kind: "Field", name: { kind: "Name", value: "__typename" } },
-          {
-            kind: "InlineFragment",
-            typeCondition: {
-              kind: "NamedType",
-              name: { kind: "Name", value: "PromptBlock" },
-            },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "role" } },
-                { kind: "Field", name: { kind: "Name", value: "content" } },
-              ],
-            },
-          },
-          {
-            kind: "InlineFragment",
-            typeCondition: {
-              kind: "NamedType",
-              name: { kind: "Name", value: "CompleterBlock" },
-            },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "model" } },
-                { kind: "Field", name: { kind: "Name", value: "temperature" } },
-                { kind: "Field", name: { kind: "Name", value: "stop" } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<LibraryBlockFragment, unknown>;
-export const LibraryFragmentDoc = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "FragmentDefinition",
-      name: { kind: "Name", value: "Library" },
-      typeCondition: {
-        kind: "NamedType",
-        name: { kind: "Name", value: "Workspace" },
-      },
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "blocks" },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                { kind: "Field", name: { kind: "Name", value: "__typename" } },
-                {
-                  kind: "FragmentSpread",
-                  name: { kind: "Name", value: "LibraryBlock" },
-                },
-              ],
-            },
-          },
-        ],
-      },
-    },
-    {
-      kind: "FragmentDefinition",
-      name: { kind: "Name", value: "LibraryBlock" },
-      typeCondition: {
-        kind: "NamedType",
-        name: { kind: "Name", value: "Block" },
-      },
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          { kind: "Field", name: { kind: "Name", value: "id" } },
-          { kind: "Field", name: { kind: "Name", value: "__typename" } },
-          {
-            kind: "InlineFragment",
-            typeCondition: {
-              kind: "NamedType",
-              name: { kind: "Name", value: "PromptBlock" },
-            },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "role" } },
-                { kind: "Field", name: { kind: "Name", value: "content" } },
-              ],
-            },
-          },
-          {
-            kind: "InlineFragment",
-            typeCondition: {
-              kind: "NamedType",
-              name: { kind: "Name", value: "CompleterBlock" },
-            },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "model" } },
-                { kind: "Field", name: { kind: "Name", value: "temperature" } },
-                { kind: "Field", name: { kind: "Name", value: "stop" } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<LibraryFragment, unknown>;
-export const SimulatorBlockFragmentDoc = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "FragmentDefinition",
-      name: { kind: "Name", value: "SimulatorBlock" },
-      typeCondition: {
-        kind: "NamedType",
-        name: { kind: "Name", value: "Block" },
-      },
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          { kind: "Field", name: { kind: "Name", value: "id" } },
-          { kind: "Field", name: { kind: "Name", value: "__typename" } },
-          {
-            kind: "InlineFragment",
-            typeCondition: {
-              kind: "NamedType",
-              name: { kind: "Name", value: "PromptBlock" },
-            },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "role" } },
-                { kind: "Field", name: { kind: "Name", value: "content" } },
-              ],
-            },
-          },
-          {
-            kind: "InlineFragment",
-            typeCondition: {
-              kind: "NamedType",
-              name: { kind: "Name", value: "CompleterBlock" },
-            },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "model" } },
-                { kind: "Field", name: { kind: "Name", value: "temperature" } },
-                { kind: "Field", name: { kind: "Name", value: "stop" } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<SimulatorBlockFragment, unknown>;
-export const SimulatorBlockSetFragmentDoc = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "FragmentDefinition",
-      name: { kind: "Name", value: "SimulatorBlockSet" },
-      typeCondition: {
-        kind: "NamedType",
-        name: { kind: "Name", value: "BlockSet" },
-      },
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          { kind: "Field", name: { kind: "Name", value: "id" } },
-          { kind: "Field", name: { kind: "Name", value: "position" } },
-          {
-            kind: "Field",
-            name: {
-              kind: "Name",
-              value: "isInputIncludingPreviousBlockSetOutput",
-            },
-          },
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "isOutputIncludingInputBlocks" },
-          },
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "isRepeatingCurrentBlockSet" },
-          },
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "topInputPromptBlock" },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                {
-                  kind: "FragmentSpread",
-                  name: { kind: "Name", value: "SimulatorBlock" },
-                },
-              ],
-            },
-          },
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "systemPromptBlock" },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                {
-                  kind: "FragmentSpread",
-                  name: { kind: "Name", value: "SimulatorBlock" },
-                },
-              ],
-            },
-          },
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "completerBlock" },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                {
-                  kind: "FragmentSpread",
-                  name: { kind: "Name", value: "SimulatorBlock" },
-                },
-              ],
-            },
-          },
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "topOutputBlock" },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                {
-                  kind: "FragmentSpread",
-                  name: { kind: "Name", value: "SimulatorBlock" },
-                },
-              ],
-            },
-          },
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "previousBlockSetsInputBlocks" },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                { kind: "Field", name: { kind: "Name", value: "role" } },
-                {
-                  kind: "FragmentSpread",
-                  name: { kind: "Name", value: "SimulatorBlock" },
-                },
-              ],
-            },
-          },
-        ],
-      },
-    },
-    {
-      kind: "FragmentDefinition",
-      name: { kind: "Name", value: "SimulatorBlock" },
-      typeCondition: {
-        kind: "NamedType",
-        name: { kind: "Name", value: "Block" },
-      },
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          { kind: "Field", name: { kind: "Name", value: "id" } },
-          { kind: "Field", name: { kind: "Name", value: "__typename" } },
-          {
-            kind: "InlineFragment",
-            typeCondition: {
-              kind: "NamedType",
-              name: { kind: "Name", value: "PromptBlock" },
-            },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "role" } },
-                { kind: "Field", name: { kind: "Name", value: "content" } },
-              ],
-            },
-          },
-          {
-            kind: "InlineFragment",
-            typeCondition: {
-              kind: "NamedType",
-              name: { kind: "Name", value: "CompleterBlock" },
-            },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "model" } },
-                { kind: "Field", name: { kind: "Name", value: "temperature" } },
-                { kind: "Field", name: { kind: "Name", value: "stop" } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<SimulatorBlockSetFragment, unknown>;
-export const SimulatorFragmentDoc = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "FragmentDefinition",
-      name: { kind: "Name", value: "Simulator" },
-      typeCondition: {
-        kind: "NamedType",
-        name: { kind: "Name", value: "Preset" },
-      },
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          { kind: "Field", name: { kind: "Name", value: "id" } },
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "blockSets" },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                {
-                  kind: "FragmentSpread",
-                  name: { kind: "Name", value: "SimulatorBlockSet" },
-                },
-              ],
-            },
-          },
-        ],
-      },
-    },
-    {
-      kind: "FragmentDefinition",
-      name: { kind: "Name", value: "SimulatorBlock" },
-      typeCondition: {
-        kind: "NamedType",
-        name: { kind: "Name", value: "Block" },
-      },
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          { kind: "Field", name: { kind: "Name", value: "id" } },
-          { kind: "Field", name: { kind: "Name", value: "__typename" } },
-          {
-            kind: "InlineFragment",
-            typeCondition: {
-              kind: "NamedType",
-              name: { kind: "Name", value: "PromptBlock" },
-            },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "role" } },
-                { kind: "Field", name: { kind: "Name", value: "content" } },
-              ],
-            },
-          },
-          {
-            kind: "InlineFragment",
-            typeCondition: {
-              kind: "NamedType",
-              name: { kind: "Name", value: "CompleterBlock" },
-            },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "model" } },
-                { kind: "Field", name: { kind: "Name", value: "temperature" } },
-                { kind: "Field", name: { kind: "Name", value: "stop" } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-    {
-      kind: "FragmentDefinition",
-      name: { kind: "Name", value: "SimulatorBlockSet" },
-      typeCondition: {
-        kind: "NamedType",
-        name: { kind: "Name", value: "BlockSet" },
-      },
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          { kind: "Field", name: { kind: "Name", value: "id" } },
-          { kind: "Field", name: { kind: "Name", value: "position" } },
-          {
-            kind: "Field",
-            name: {
-              kind: "Name",
-              value: "isInputIncludingPreviousBlockSetOutput",
-            },
-          },
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "isOutputIncludingInputBlocks" },
-          },
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "isRepeatingCurrentBlockSet" },
-          },
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "topInputPromptBlock" },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                {
-                  kind: "FragmentSpread",
-                  name: { kind: "Name", value: "SimulatorBlock" },
-                },
-              ],
-            },
-          },
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "systemPromptBlock" },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                {
-                  kind: "FragmentSpread",
-                  name: { kind: "Name", value: "SimulatorBlock" },
-                },
-              ],
-            },
-          },
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "completerBlock" },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                {
-                  kind: "FragmentSpread",
-                  name: { kind: "Name", value: "SimulatorBlock" },
-                },
-              ],
-            },
-          },
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "topOutputBlock" },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                {
-                  kind: "FragmentSpread",
-                  name: { kind: "Name", value: "SimulatorBlock" },
-                },
-              ],
-            },
-          },
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "previousBlockSetsInputBlocks" },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                { kind: "Field", name: { kind: "Name", value: "role" } },
-                {
-                  kind: "FragmentSpread",
-                  name: { kind: "Name", value: "SimulatorBlock" },
-                },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<SimulatorFragment, unknown>;
-export const WorkspaceContentFragmentDoc = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "FragmentDefinition",
-      name: { kind: "Name", value: "WorkspaceContent" },
-      typeCondition: {
-        kind: "NamedType",
-        name: { kind: "Name", value: "Query" },
-      },
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "workspace" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "workspaceId" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "workspaceId" },
-                },
-              },
-            ],
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                {
-                  kind: "FragmentSpread",
-                  name: { kind: "Name", value: "Library" },
-                },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "firstPreset" },
-                  selectionSet: {
-                    kind: "SelectionSet",
-                    selections: [
-                      { kind: "Field", name: { kind: "Name", value: "id" } },
-                      {
-                        kind: "FragmentSpread",
-                        name: { kind: "Name", value: "Simulator" },
-                      },
-                    ],
-                  },
-                },
-              ],
-            },
-          },
-        ],
-      },
-    },
-    {
-      kind: "FragmentDefinition",
-      name: { kind: "Name", value: "LibraryBlock" },
-      typeCondition: {
-        kind: "NamedType",
-        name: { kind: "Name", value: "Block" },
-      },
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          { kind: "Field", name: { kind: "Name", value: "id" } },
-          { kind: "Field", name: { kind: "Name", value: "__typename" } },
-          {
-            kind: "InlineFragment",
-            typeCondition: {
-              kind: "NamedType",
-              name: { kind: "Name", value: "PromptBlock" },
-            },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "role" } },
-                { kind: "Field", name: { kind: "Name", value: "content" } },
-              ],
-            },
-          },
-          {
-            kind: "InlineFragment",
-            typeCondition: {
-              kind: "NamedType",
-              name: { kind: "Name", value: "CompleterBlock" },
-            },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "model" } },
-                { kind: "Field", name: { kind: "Name", value: "temperature" } },
-                { kind: "Field", name: { kind: "Name", value: "stop" } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-    {
-      kind: "FragmentDefinition",
-      name: { kind: "Name", value: "SimulatorBlock" },
-      typeCondition: {
-        kind: "NamedType",
-        name: { kind: "Name", value: "Block" },
-      },
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          { kind: "Field", name: { kind: "Name", value: "id" } },
-          { kind: "Field", name: { kind: "Name", value: "__typename" } },
-          {
-            kind: "InlineFragment",
-            typeCondition: {
-              kind: "NamedType",
-              name: { kind: "Name", value: "PromptBlock" },
-            },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "role" } },
-                { kind: "Field", name: { kind: "Name", value: "content" } },
-              ],
-            },
-          },
-          {
-            kind: "InlineFragment",
-            typeCondition: {
-              kind: "NamedType",
-              name: { kind: "Name", value: "CompleterBlock" },
-            },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "model" } },
-                { kind: "Field", name: { kind: "Name", value: "temperature" } },
-                { kind: "Field", name: { kind: "Name", value: "stop" } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-    {
-      kind: "FragmentDefinition",
-      name: { kind: "Name", value: "SimulatorBlockSet" },
-      typeCondition: {
-        kind: "NamedType",
-        name: { kind: "Name", value: "BlockSet" },
-      },
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          { kind: "Field", name: { kind: "Name", value: "id" } },
-          { kind: "Field", name: { kind: "Name", value: "position" } },
-          {
-            kind: "Field",
-            name: {
-              kind: "Name",
-              value: "isInputIncludingPreviousBlockSetOutput",
-            },
-          },
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "isOutputIncludingInputBlocks" },
-          },
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "isRepeatingCurrentBlockSet" },
-          },
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "topInputPromptBlock" },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                {
-                  kind: "FragmentSpread",
-                  name: { kind: "Name", value: "SimulatorBlock" },
-                },
-              ],
-            },
-          },
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "systemPromptBlock" },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                {
-                  kind: "FragmentSpread",
-                  name: { kind: "Name", value: "SimulatorBlock" },
-                },
-              ],
-            },
-          },
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "completerBlock" },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                {
-                  kind: "FragmentSpread",
-                  name: { kind: "Name", value: "SimulatorBlock" },
-                },
-              ],
-            },
-          },
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "topOutputBlock" },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                {
-                  kind: "FragmentSpread",
-                  name: { kind: "Name", value: "SimulatorBlock" },
-                },
-              ],
-            },
-          },
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "previousBlockSetsInputBlocks" },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                { kind: "Field", name: { kind: "Name", value: "role" } },
-                {
-                  kind: "FragmentSpread",
-                  name: { kind: "Name", value: "SimulatorBlock" },
-                },
-              ],
-            },
-          },
-        ],
-      },
-    },
-    {
-      kind: "FragmentDefinition",
-      name: { kind: "Name", value: "Library" },
-      typeCondition: {
-        kind: "NamedType",
-        name: { kind: "Name", value: "Workspace" },
-      },
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "blocks" },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                { kind: "Field", name: { kind: "Name", value: "__typename" } },
-                {
-                  kind: "FragmentSpread",
-                  name: { kind: "Name", value: "LibraryBlock" },
-                },
-              ],
-            },
-          },
-        ],
-      },
-    },
-    {
-      kind: "FragmentDefinition",
-      name: { kind: "Name", value: "Simulator" },
-      typeCondition: {
-        kind: "NamedType",
-        name: { kind: "Name", value: "Preset" },
-      },
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          { kind: "Field", name: { kind: "Name", value: "id" } },
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "blockSets" },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                {
-                  kind: "FragmentSpread",
-                  name: { kind: "Name", value: "SimulatorBlockSet" },
-                },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<WorkspaceContentFragment, unknown>;
-export const WorkspaceQueryFragmentDoc = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "FragmentDefinition",
-      name: { kind: "Name", value: "WorkspaceQuery" },
-      typeCondition: {
-        kind: "NamedType",
-        name: { kind: "Name", value: "Query" },
-      },
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "workspace" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "workspaceId" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "workspaceId" },
-                },
-              },
-            ],
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "firstPreset" },
-                  selectionSet: {
-                    kind: "SelectionSet",
-                    selections: [
-                      { kind: "Field", name: { kind: "Name", value: "id" } },
-                      {
-                        kind: "Field",
-                        name: { kind: "Name", value: "blockSets" },
-                        selectionSet: {
-                          kind: "SelectionSet",
-                          selections: [
-                            {
-                              kind: "Field",
-                              name: { kind: "Name", value: "id" },
-                            },
-                            {
-                              kind: "Field",
-                              name: { kind: "Name", value: "position" },
-                            },
-                          ],
-                        },
-                      },
-                    ],
-                  },
-                },
-              ],
-            },
-          },
-          {
-            kind: "FragmentSpread",
-            name: { kind: "Name", value: "WorkspaceContent" },
-          },
-        ],
-      },
-    },
-    {
-      kind: "FragmentDefinition",
-      name: { kind: "Name", value: "LibraryBlock" },
-      typeCondition: {
-        kind: "NamedType",
-        name: { kind: "Name", value: "Block" },
-      },
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          { kind: "Field", name: { kind: "Name", value: "id" } },
-          { kind: "Field", name: { kind: "Name", value: "__typename" } },
-          {
-            kind: "InlineFragment",
-            typeCondition: {
-              kind: "NamedType",
-              name: { kind: "Name", value: "PromptBlock" },
-            },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "role" } },
-                { kind: "Field", name: { kind: "Name", value: "content" } },
-              ],
-            },
-          },
-          {
-            kind: "InlineFragment",
-            typeCondition: {
-              kind: "NamedType",
-              name: { kind: "Name", value: "CompleterBlock" },
-            },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "model" } },
-                { kind: "Field", name: { kind: "Name", value: "temperature" } },
-                { kind: "Field", name: { kind: "Name", value: "stop" } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-    {
-      kind: "FragmentDefinition",
-      name: { kind: "Name", value: "Library" },
-      typeCondition: {
-        kind: "NamedType",
-        name: { kind: "Name", value: "Workspace" },
-      },
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "blocks" },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                { kind: "Field", name: { kind: "Name", value: "__typename" } },
-                {
-                  kind: "FragmentSpread",
-                  name: { kind: "Name", value: "LibraryBlock" },
-                },
-              ],
-            },
-          },
-        ],
-      },
-    },
-    {
-      kind: "FragmentDefinition",
-      name: { kind: "Name", value: "SimulatorBlock" },
-      typeCondition: {
-        kind: "NamedType",
-        name: { kind: "Name", value: "Block" },
-      },
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          { kind: "Field", name: { kind: "Name", value: "id" } },
-          { kind: "Field", name: { kind: "Name", value: "__typename" } },
-          {
-            kind: "InlineFragment",
-            typeCondition: {
-              kind: "NamedType",
-              name: { kind: "Name", value: "PromptBlock" },
-            },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "role" } },
-                { kind: "Field", name: { kind: "Name", value: "content" } },
-              ],
-            },
-          },
-          {
-            kind: "InlineFragment",
-            typeCondition: {
-              kind: "NamedType",
-              name: { kind: "Name", value: "CompleterBlock" },
-            },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "model" } },
-                { kind: "Field", name: { kind: "Name", value: "temperature" } },
-                { kind: "Field", name: { kind: "Name", value: "stop" } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-    {
-      kind: "FragmentDefinition",
-      name: { kind: "Name", value: "SimulatorBlockSet" },
-      typeCondition: {
-        kind: "NamedType",
-        name: { kind: "Name", value: "BlockSet" },
-      },
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          { kind: "Field", name: { kind: "Name", value: "id" } },
-          { kind: "Field", name: { kind: "Name", value: "position" } },
-          {
-            kind: "Field",
-            name: {
-              kind: "Name",
-              value: "isInputIncludingPreviousBlockSetOutput",
-            },
-          },
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "isOutputIncludingInputBlocks" },
-          },
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "isRepeatingCurrentBlockSet" },
-          },
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "topInputPromptBlock" },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                {
-                  kind: "FragmentSpread",
-                  name: { kind: "Name", value: "SimulatorBlock" },
-                },
-              ],
-            },
-          },
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "systemPromptBlock" },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                {
-                  kind: "FragmentSpread",
-                  name: { kind: "Name", value: "SimulatorBlock" },
-                },
-              ],
-            },
-          },
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "completerBlock" },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                {
-                  kind: "FragmentSpread",
-                  name: { kind: "Name", value: "SimulatorBlock" },
-                },
-              ],
-            },
-          },
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "topOutputBlock" },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                {
-                  kind: "FragmentSpread",
-                  name: { kind: "Name", value: "SimulatorBlock" },
-                },
-              ],
-            },
-          },
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "previousBlockSetsInputBlocks" },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                { kind: "Field", name: { kind: "Name", value: "role" } },
-                {
-                  kind: "FragmentSpread",
-                  name: { kind: "Name", value: "SimulatorBlock" },
-                },
-              ],
-            },
-          },
-        ],
-      },
-    },
-    {
-      kind: "FragmentDefinition",
-      name: { kind: "Name", value: "Simulator" },
-      typeCondition: {
-        kind: "NamedType",
-        name: { kind: "Name", value: "Preset" },
-      },
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          { kind: "Field", name: { kind: "Name", value: "id" } },
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "blockSets" },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                {
-                  kind: "FragmentSpread",
-                  name: { kind: "Name", value: "SimulatorBlockSet" },
-                },
-              ],
-            },
-          },
-        ],
-      },
-    },
-    {
-      kind: "FragmentDefinition",
-      name: { kind: "Name", value: "WorkspaceContent" },
-      typeCondition: {
-        kind: "NamedType",
-        name: { kind: "Name", value: "Query" },
-      },
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "workspace" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "workspaceId" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "workspaceId" },
-                },
-              },
-            ],
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                {
-                  kind: "FragmentSpread",
-                  name: { kind: "Name", value: "Library" },
-                },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "firstPreset" },
-                  selectionSet: {
-                    kind: "SelectionSet",
-                    selections: [
-                      { kind: "Field", name: { kind: "Name", value: "id" } },
-                      {
-                        kind: "FragmentSpread",
-                        name: { kind: "Name", value: "Simulator" },
-                      },
-                    ],
-                  },
-                },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<WorkspaceQueryFragment, unknown>;
-export const EditorBlockSetFragmentDoc = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "FragmentDefinition",
-      name: { kind: "Name", value: "EditorBlockSet" },
-      typeCondition: {
-        kind: "NamedType",
-        name: { kind: "Name", value: "BlockSet" },
-      },
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          { kind: "Field", name: { kind: "Name", value: "id" } },
-          {
-            kind: "Field",
-            name: {
-              kind: "Name",
-              value: "isInputIncludingPreviousBlockSetOutput",
-            },
-          },
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "isOutputIncludingInputBlocks" },
-          },
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "isRepeatingCurrentBlockSet" },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<EditorBlockSetFragment, unknown>;
-export const SelectedCompleterBlockFragmentDoc = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "FragmentDefinition",
-      name: { kind: "Name", value: "SelectedCompleterBlock" },
-      typeCondition: {
-        kind: "NamedType",
-        name: { kind: "Name", value: "CompleterBlock" },
-      },
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          { kind: "Field", name: { kind: "Name", value: "id" } },
-          { kind: "Field", name: { kind: "Name", value: "model" } },
-          { kind: "Field", name: { kind: "Name", value: "temperature" } },
-          { kind: "Field", name: { kind: "Name", value: "stop" } },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<SelectedCompleterBlockFragment, unknown>;
-export const SelectedBlockFragmentDoc = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "FragmentDefinition",
-      name: { kind: "Name", value: "SelectedBlock" },
-      typeCondition: {
-        kind: "NamedType",
-        name: { kind: "Name", value: "PromptBlock" },
-      },
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          { kind: "Field", name: { kind: "Name", value: "id" } },
-          { kind: "Field", name: { kind: "Name", value: "role" } },
-          { kind: "Field", name: { kind: "Name", value: "content" } },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<SelectedBlockFragment, unknown>;
-export const SubHeaderBlockSetFragmentFragmentDoc = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "FragmentDefinition",
-      name: { kind: "Name", value: "SubHeaderBlockSetFragment" },
-      typeCondition: {
-        kind: "NamedType",
-        name: { kind: "Name", value: "BlockSet" },
-      },
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          { kind: "Field", name: { kind: "Name", value: "id" } },
-          { kind: "Field", name: { kind: "Name", value: "position" } },
-          {
-            kind: "Field",
-            name: {
-              kind: "Name",
-              value: "isInputIncludingPreviousBlockSetOutput",
-            },
-          },
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "isOutputIncludingInputBlocks" },
-          },
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "isRepeatingCurrentBlockSet" },
-          },
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "topInputPromptBlock" },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                { kind: "Field", name: { kind: "Name", value: "role" } },
-                { kind: "Field", name: { kind: "Name", value: "content" } },
-              ],
-            },
-          },
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "systemPromptBlock" },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                { kind: "Field", name: { kind: "Name", value: "content" } },
-              ],
-            },
-          },
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "completerBlock" },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                { kind: "Field", name: { kind: "Name", value: "model" } },
-                { kind: "Field", name: { kind: "Name", value: "temperature" } },
-                { kind: "Field", name: { kind: "Name", value: "stop" } },
-              ],
-            },
-          },
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "topOutputBlock" },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                { kind: "Field", name: { kind: "Name", value: "content" } },
-              ],
-            },
-          },
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "previousBlockSetsInputBlocks" },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                { kind: "Field", name: { kind: "Name", value: "role" } },
-                { kind: "Field", name: { kind: "Name", value: "content" } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<SubHeaderBlockSetFragmentFragment, unknown>;
-export const RunButtonFragmentFragmentDoc = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "FragmentDefinition",
-      name: { kind: "Name", value: "RunButtonFragment" },
-      typeCondition: {
-        kind: "NamedType",
-        name: { kind: "Name", value: "Preset" },
-      },
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "blockSets" },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "topInputPromptBlock" },
-                  selectionSet: {
-                    kind: "SelectionSet",
-                    selections: [
-                      { kind: "Field", name: { kind: "Name", value: "id" } },
-                      { kind: "Field", name: { kind: "Name", value: "role" } },
-                      {
-                        kind: "Field",
-                        name: { kind: "Name", value: "content" },
-                      },
-                    ],
-                  },
-                },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "systemPromptBlock" },
-                  selectionSet: {
-                    kind: "SelectionSet",
-                    selections: [
-                      { kind: "Field", name: { kind: "Name", value: "id" } },
-                      {
-                        kind: "Field",
-                        name: { kind: "Name", value: "content" },
-                      },
-                    ],
-                  },
-                },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "completerBlock" },
-                  selectionSet: {
-                    kind: "SelectionSet",
-                    selections: [
-                      { kind: "Field", name: { kind: "Name", value: "id" } },
-                      { kind: "Field", name: { kind: "Name", value: "model" } },
-                      {
-                        kind: "Field",
-                        name: { kind: "Name", value: "temperature" },
-                      },
-                      { kind: "Field", name: { kind: "Name", value: "stop" } },
-                    ],
-                  },
-                },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<RunButtonFragmentFragment, unknown>;
-export const SubHeaderFragmentFragmentDoc = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "FragmentDefinition",
-      name: { kind: "Name", value: "SubHeaderFragment" },
-      typeCondition: {
-        kind: "NamedType",
-        name: { kind: "Name", value: "Query" },
-      },
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "workspace" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "workspaceId" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "workspaceId" },
-                },
-              },
-            ],
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "name" } },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "firstPreset" },
-                  selectionSet: {
-                    kind: "SelectionSet",
-                    selections: [
-                      { kind: "Field", name: { kind: "Name", value: "id" } },
-                      {
-                        kind: "FragmentSpread",
-                        name: { kind: "Name", value: "RunButtonFragment" },
-                      },
-                    ],
-                  },
-                },
-              ],
-            },
-          },
-        ],
-      },
-    },
-    {
-      kind: "FragmentDefinition",
-      name: { kind: "Name", value: "RunButtonFragment" },
-      typeCondition: {
-        kind: "NamedType",
-        name: { kind: "Name", value: "Preset" },
-      },
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "blockSets" },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "topInputPromptBlock" },
-                  selectionSet: {
-                    kind: "SelectionSet",
-                    selections: [
-                      { kind: "Field", name: { kind: "Name", value: "id" } },
-                      { kind: "Field", name: { kind: "Name", value: "role" } },
-                      {
-                        kind: "Field",
-                        name: { kind: "Name", value: "content" },
-                      },
-                    ],
-                  },
-                },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "systemPromptBlock" },
-                  selectionSet: {
-                    kind: "SelectionSet",
-                    selections: [
-                      { kind: "Field", name: { kind: "Name", value: "id" } },
-                      {
-                        kind: "Field",
-                        name: { kind: "Name", value: "content" },
-                      },
-                    ],
-                  },
-                },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "completerBlock" },
-                  selectionSet: {
-                    kind: "SelectionSet",
-                    selections: [
-                      { kind: "Field", name: { kind: "Name", value: "id" } },
-                      { kind: "Field", name: { kind: "Name", value: "model" } },
-                      {
-                        kind: "Field",
-                        name: { kind: "Name", value: "temperature" },
-                      },
-                      { kind: "Field", name: { kind: "Name", value: "stop" } },
-                    ],
-                  },
-                },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<SubHeaderFragmentFragment, unknown>;
-export const HeaderQueryDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "query",
-      name: { kind: "Name", value: "HeaderQuery" },
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          { kind: "Field", name: { kind: "Name", value: "isLoggedIn" } },
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "user" },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "email" } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<HeaderQueryQuery, HeaderQueryQueryVariables>;
-export const RootRouteQueryDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "query",
-      name: { kind: "Name", value: "RootRouteQuery" },
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "user" },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                {
-                  kind: "FragmentSpread",
-                  name: { kind: "Name", value: "Dashboard" },
-                },
-              ],
-            },
-          },
-        ],
-      },
-    },
-    {
-      kind: "FragmentDefinition",
-      name: { kind: "Name", value: "Dashboard" },
-      typeCondition: {
-        kind: "NamedType",
-        name: { kind: "Name", value: "User" },
-      },
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "workspaces" },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                { kind: "Field", name: { kind: "Name", value: "name" } },
-                { kind: "Field", name: { kind: "Name", value: "updatedAt" } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<RootRouteQueryQuery, RootRouteQueryQueryVariables>;
-export const CreateExampleSpaceMutationDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "mutation",
-      name: { kind: "Name", value: "CreateExampleSpaceMutation" },
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "createExampleSpace" },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "isSuccess" } },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "placeholderClientToken" },
-                },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "space" },
-                  selectionSet: {
-                    kind: "SelectionSet",
-                    selections: [
-                      { kind: "Field", name: { kind: "Name", value: "id" } },
-                    ],
-                  },
-                },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  CreateExampleSpaceMutationMutation,
-  CreateExampleSpaceMutationMutationVariables
->;
-export const CreateSpaceMutationDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "mutation",
-      name: { kind: "Name", value: "CreateSpaceMutation" },
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "createSpace" },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  CreateSpaceMutationMutation,
-  CreateSpaceMutationMutationVariables
->;
-export const AddPromptToBlockSetTopInputMutationDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "mutation",
-      name: { kind: "Name", value: "AddPromptToBlockSetTopInputMutation" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "promptBlockId" },
-          },
-          type: {
-            kind: "NonNullType",
-            type: { kind: "NamedType", name: { kind: "Name", value: "UUID" } },
-          },
-        },
-        {
-          kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "blockSetId" },
-          },
-          type: {
-            kind: "NonNullType",
-            type: { kind: "NamedType", name: { kind: "Name", value: "UUID" } },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "addPromptToBlockSetTopInput" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "promptBlockId" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "promptBlockId" },
-                },
-              },
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "blockSetId" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "blockSetId" },
-                },
-              },
-            ],
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  AddPromptToBlockSetTopInputMutationMutation,
-  AddPromptToBlockSetTopInputMutationMutationVariables
->;
-export const AddCompleterToBlockSetMutationDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "mutation",
-      name: { kind: "Name", value: "AddCompleterToBlockSetMutation" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "blockSetId" },
-          },
-          type: {
-            kind: "NonNullType",
-            type: { kind: "NamedType", name: { kind: "Name", value: "UUID" } },
-          },
-        },
-        {
-          kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "completerBlockId" },
-          },
-          type: {
-            kind: "NonNullType",
-            type: { kind: "NamedType", name: { kind: "Name", value: "UUID" } },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "addCompleterToBlockSet" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "blockSetId" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "blockSetId" },
-                },
-              },
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "completerBlockId" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "completerBlockId" },
-                },
-              },
-            ],
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  AddCompleterToBlockSetMutationMutation,
-  AddCompleterToBlockSetMutationMutationVariables
->;
-export const AddSystemPromptToBlockSetMutationDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "mutation",
-      name: { kind: "Name", value: "AddSystemPromptToBlockSetMutation" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "blockSetId" },
-          },
-          type: {
-            kind: "NonNullType",
-            type: { kind: "NamedType", name: { kind: "Name", value: "UUID" } },
-          },
-        },
-        {
-          kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "promptBlockId" },
-          },
-          type: {
-            kind: "NonNullType",
-            type: { kind: "NamedType", name: { kind: "Name", value: "UUID" } },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "addSystemPromptToBlockSet" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "blockSetId" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "blockSetId" },
-                },
-              },
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "promptBlockId" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "promptBlockId" },
-                },
-              },
-            ],
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  AddSystemPromptToBlockSetMutationMutation,
-  AddSystemPromptToBlockSetMutationMutationVariables
->;
-export const AddPromptToBlockSetTopOutputMutationDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "mutation",
-      name: { kind: "Name", value: "AddPromptToBlockSetTopOutputMutation" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "promptBlockId" },
-          },
-          type: {
-            kind: "NonNullType",
-            type: { kind: "NamedType", name: { kind: "Name", value: "UUID" } },
-          },
-        },
-        {
-          kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "blockSetId" },
-          },
-          type: {
-            kind: "NonNullType",
-            type: { kind: "NamedType", name: { kind: "Name", value: "UUID" } },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "addPromptToBlockSetTopOutput" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "promptBlockId" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "promptBlockId" },
-                },
-              },
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "blockSetId" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "blockSetId" },
-                },
-              },
-            ],
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  AddPromptToBlockSetTopOutputMutationMutation,
-  AddPromptToBlockSetTopOutputMutationMutationVariables
->;
-export const SwapBlockSetPositionsMutationDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "mutation",
-      name: { kind: "Name", value: "SwapBlockSetPositionsMutation" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "movingBlockSetId" },
-          },
-          type: {
-            kind: "NonNullType",
-            type: { kind: "NamedType", name: { kind: "Name", value: "UUID" } },
-          },
-        },
-        {
-          kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "slotBlockSetId" },
-          },
-          type: {
-            kind: "NonNullType",
-            type: { kind: "NamedType", name: { kind: "Name", value: "UUID" } },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "swapBlockSetPositions" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "movingBlockSetId" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "movingBlockSetId" },
-                },
-              },
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "slotBlockSetId" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "slotBlockSetId" },
-                },
-              },
-            ],
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "blockSets" },
-                  selectionSet: {
-                    kind: "SelectionSet",
-                    selections: [
-                      { kind: "Field", name: { kind: "Name", value: "id" } },
-                      {
-                        kind: "Field",
-                        name: { kind: "Name", value: "position" },
-                      },
-                    ],
-                  },
-                },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  SwapBlockSetPositionsMutationMutation,
-  SwapBlockSetPositionsMutationMutationVariables
->;
-export const WorkspaceRouteQueryDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "query",
-      name: { kind: "Name", value: "WorkspaceRouteQuery" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "workspaceId" },
-          },
-          type: {
-            kind: "NonNullType",
-            type: { kind: "NamedType", name: { kind: "Name", value: "UUID" } },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "user" },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-              ],
-            },
-          },
-          {
-            kind: "FragmentSpread",
-            name: { kind: "Name", value: "SubHeaderFragment" },
-          },
-          {
-            kind: "FragmentSpread",
-            name: { kind: "Name", value: "WorkspaceQuery" },
-          },
-        ],
-      },
-    },
-    {
-      kind: "FragmentDefinition",
-      name: { kind: "Name", value: "RunButtonFragment" },
-      typeCondition: {
-        kind: "NamedType",
-        name: { kind: "Name", value: "Preset" },
-      },
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "blockSets" },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "topInputPromptBlock" },
-                  selectionSet: {
-                    kind: "SelectionSet",
-                    selections: [
-                      { kind: "Field", name: { kind: "Name", value: "id" } },
-                      { kind: "Field", name: { kind: "Name", value: "role" } },
-                      {
-                        kind: "Field",
-                        name: { kind: "Name", value: "content" },
-                      },
-                    ],
-                  },
-                },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "systemPromptBlock" },
-                  selectionSet: {
-                    kind: "SelectionSet",
-                    selections: [
-                      { kind: "Field", name: { kind: "Name", value: "id" } },
-                      {
-                        kind: "Field",
-                        name: { kind: "Name", value: "content" },
-                      },
-                    ],
-                  },
-                },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "completerBlock" },
-                  selectionSet: {
-                    kind: "SelectionSet",
-                    selections: [
-                      { kind: "Field", name: { kind: "Name", value: "id" } },
-                      { kind: "Field", name: { kind: "Name", value: "model" } },
-                      {
-                        kind: "Field",
-                        name: { kind: "Name", value: "temperature" },
-                      },
-                      { kind: "Field", name: { kind: "Name", value: "stop" } },
-                    ],
-                  },
-                },
-              ],
-            },
-          },
-        ],
-      },
-    },
-    {
-      kind: "FragmentDefinition",
-      name: { kind: "Name", value: "LibraryBlock" },
-      typeCondition: {
-        kind: "NamedType",
-        name: { kind: "Name", value: "Block" },
-      },
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          { kind: "Field", name: { kind: "Name", value: "id" } },
-          { kind: "Field", name: { kind: "Name", value: "__typename" } },
-          {
-            kind: "InlineFragment",
-            typeCondition: {
-              kind: "NamedType",
-              name: { kind: "Name", value: "PromptBlock" },
-            },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "role" } },
-                { kind: "Field", name: { kind: "Name", value: "content" } },
-              ],
-            },
-          },
-          {
-            kind: "InlineFragment",
-            typeCondition: {
-              kind: "NamedType",
-              name: { kind: "Name", value: "CompleterBlock" },
-            },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "model" } },
-                { kind: "Field", name: { kind: "Name", value: "temperature" } },
-                { kind: "Field", name: { kind: "Name", value: "stop" } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-    {
-      kind: "FragmentDefinition",
-      name: { kind: "Name", value: "Library" },
-      typeCondition: {
-        kind: "NamedType",
-        name: { kind: "Name", value: "Workspace" },
-      },
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "blocks" },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                { kind: "Field", name: { kind: "Name", value: "__typename" } },
-                {
-                  kind: "FragmentSpread",
-                  name: { kind: "Name", value: "LibraryBlock" },
-                },
-              ],
-            },
-          },
-        ],
-      },
-    },
-    {
-      kind: "FragmentDefinition",
-      name: { kind: "Name", value: "SimulatorBlock" },
-      typeCondition: {
-        kind: "NamedType",
-        name: { kind: "Name", value: "Block" },
-      },
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          { kind: "Field", name: { kind: "Name", value: "id" } },
-          { kind: "Field", name: { kind: "Name", value: "__typename" } },
-          {
-            kind: "InlineFragment",
-            typeCondition: {
-              kind: "NamedType",
-              name: { kind: "Name", value: "PromptBlock" },
-            },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "role" } },
-                { kind: "Field", name: { kind: "Name", value: "content" } },
-              ],
-            },
-          },
-          {
-            kind: "InlineFragment",
-            typeCondition: {
-              kind: "NamedType",
-              name: { kind: "Name", value: "CompleterBlock" },
-            },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "model" } },
-                { kind: "Field", name: { kind: "Name", value: "temperature" } },
-                { kind: "Field", name: { kind: "Name", value: "stop" } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-    {
-      kind: "FragmentDefinition",
-      name: { kind: "Name", value: "SimulatorBlockSet" },
-      typeCondition: {
-        kind: "NamedType",
-        name: { kind: "Name", value: "BlockSet" },
-      },
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          { kind: "Field", name: { kind: "Name", value: "id" } },
-          { kind: "Field", name: { kind: "Name", value: "position" } },
-          {
-            kind: "Field",
-            name: {
-              kind: "Name",
-              value: "isInputIncludingPreviousBlockSetOutput",
-            },
-          },
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "isOutputIncludingInputBlocks" },
-          },
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "isRepeatingCurrentBlockSet" },
-          },
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "topInputPromptBlock" },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                {
-                  kind: "FragmentSpread",
-                  name: { kind: "Name", value: "SimulatorBlock" },
-                },
-              ],
-            },
-          },
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "systemPromptBlock" },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                {
-                  kind: "FragmentSpread",
-                  name: { kind: "Name", value: "SimulatorBlock" },
-                },
-              ],
-            },
-          },
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "completerBlock" },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                {
-                  kind: "FragmentSpread",
-                  name: { kind: "Name", value: "SimulatorBlock" },
-                },
-              ],
-            },
-          },
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "topOutputBlock" },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                {
-                  kind: "FragmentSpread",
-                  name: { kind: "Name", value: "SimulatorBlock" },
-                },
-              ],
-            },
-          },
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "previousBlockSetsInputBlocks" },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                { kind: "Field", name: { kind: "Name", value: "role" } },
-                {
-                  kind: "FragmentSpread",
-                  name: { kind: "Name", value: "SimulatorBlock" },
-                },
-              ],
-            },
-          },
-        ],
-      },
-    },
-    {
-      kind: "FragmentDefinition",
-      name: { kind: "Name", value: "Simulator" },
-      typeCondition: {
-        kind: "NamedType",
-        name: { kind: "Name", value: "Preset" },
-      },
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          { kind: "Field", name: { kind: "Name", value: "id" } },
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "blockSets" },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                {
-                  kind: "FragmentSpread",
-                  name: { kind: "Name", value: "SimulatorBlockSet" },
-                },
-              ],
-            },
-          },
-        ],
-      },
-    },
-    {
-      kind: "FragmentDefinition",
-      name: { kind: "Name", value: "WorkspaceContent" },
-      typeCondition: {
-        kind: "NamedType",
-        name: { kind: "Name", value: "Query" },
-      },
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "workspace" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "workspaceId" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "workspaceId" },
-                },
-              },
-            ],
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                {
-                  kind: "FragmentSpread",
-                  name: { kind: "Name", value: "Library" },
-                },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "firstPreset" },
-                  selectionSet: {
-                    kind: "SelectionSet",
-                    selections: [
-                      { kind: "Field", name: { kind: "Name", value: "id" } },
-                      {
-                        kind: "FragmentSpread",
-                        name: { kind: "Name", value: "Simulator" },
-                      },
-                    ],
-                  },
-                },
-              ],
-            },
-          },
-        ],
-      },
-    },
-    {
-      kind: "FragmentDefinition",
-      name: { kind: "Name", value: "SubHeaderFragment" },
-      typeCondition: {
-        kind: "NamedType",
-        name: { kind: "Name", value: "Query" },
-      },
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "workspace" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "workspaceId" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "workspaceId" },
-                },
-              },
-            ],
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "name" } },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "firstPreset" },
-                  selectionSet: {
-                    kind: "SelectionSet",
-                    selections: [
-                      { kind: "Field", name: { kind: "Name", value: "id" } },
-                      {
-                        kind: "FragmentSpread",
-                        name: { kind: "Name", value: "RunButtonFragment" },
-                      },
-                    ],
-                  },
-                },
-              ],
-            },
-          },
-        ],
-      },
-    },
-    {
-      kind: "FragmentDefinition",
-      name: { kind: "Name", value: "WorkspaceQuery" },
-      typeCondition: {
-        kind: "NamedType",
-        name: { kind: "Name", value: "Query" },
-      },
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "workspace" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "workspaceId" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "workspaceId" },
-                },
-              },
-            ],
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "firstPreset" },
-                  selectionSet: {
-                    kind: "SelectionSet",
-                    selections: [
-                      { kind: "Field", name: { kind: "Name", value: "id" } },
-                      {
-                        kind: "Field",
-                        name: { kind: "Name", value: "blockSets" },
-                        selectionSet: {
-                          kind: "SelectionSet",
-                          selections: [
-                            {
-                              kind: "Field",
-                              name: { kind: "Name", value: "id" },
-                            },
-                            {
-                              kind: "Field",
-                              name: { kind: "Name", value: "position" },
-                            },
-                          ],
-                        },
-                      },
-                    ],
-                  },
-                },
-              ],
-            },
-          },
-          {
-            kind: "FragmentSpread",
-            name: { kind: "Name", value: "WorkspaceContent" },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  WorkspaceRouteQueryQuery,
-  WorkspaceRouteQueryQueryVariables
->;
-export const UpdateBlockSetOptionsMutationDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "mutation",
-      name: { kind: "Name", value: "UpdateBlockSetOptionsMutation" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "blockSetId" },
-          },
-          type: {
-            kind: "NonNullType",
-            type: { kind: "NamedType", name: { kind: "Name", value: "UUID" } },
-          },
-        },
-        {
-          kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: {
-              kind: "Name",
-              value: "isInputIncludingPreviousBlockSetOutput",
-            },
-          },
-          type: {
-            kind: "NonNullType",
-            type: {
-              kind: "NamedType",
-              name: { kind: "Name", value: "Boolean" },
-            },
-          },
-        },
-        {
-          kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "isOutputIncludingInputBlocks" },
-          },
-          type: {
-            kind: "NonNullType",
-            type: {
-              kind: "NamedType",
-              name: { kind: "Name", value: "Boolean" },
-            },
-          },
-        },
-        {
-          kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "isRepeatingCurrentBlockSet" },
-          },
-          type: {
-            kind: "NonNullType",
-            type: {
-              kind: "NamedType",
-              name: { kind: "Name", value: "Boolean" },
-            },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "updateBlockSetOptions" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "blockSetId" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "blockSetId" },
-                },
-              },
-              {
-                kind: "Argument",
-                name: {
-                  kind: "Name",
-                  value: "isInputIncludingPreviousBlockSetOutput",
-                },
-                value: {
-                  kind: "Variable",
-                  name: {
-                    kind: "Name",
-                    value: "isInputIncludingPreviousBlockSetOutput",
-                  },
-                },
-              },
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "isOutputIncludingInputBlocks" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "isOutputIncludingInputBlocks" },
-                },
-              },
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "isRepeatingCurrentBlockSet" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "isRepeatingCurrentBlockSet" },
-                },
-              },
-            ],
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  UpdateBlockSetOptionsMutationMutation,
-  UpdateBlockSetOptionsMutationMutationVariables
->;
-export const DeleteBlockSetMutationDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "mutation",
-      name: { kind: "Name", value: "DeleteBlockSetMutation" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "blockSetId" },
-          },
-          type: {
-            kind: "NonNullType",
-            type: { kind: "NamedType", name: { kind: "Name", value: "UUID" } },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "deleteBlockSet" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "blockSetId" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "blockSetId" },
-                },
-              },
-            ],
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "isSuccess" } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  DeleteBlockSetMutationMutation,
-  DeleteBlockSetMutationMutationVariables
->;
-export const DeleteCompleterBlockMutationDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "mutation",
-      name: { kind: "Name", value: "DeleteCompleterBlockMutation" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "blockId" },
-          },
-          type: {
-            kind: "NonNullType",
-            type: { kind: "NamedType", name: { kind: "Name", value: "UUID" } },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "deleteBlock" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "blockId" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "blockId" },
-                },
-              },
-            ],
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "isSuccess" } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  DeleteCompleterBlockMutationMutation,
-  DeleteCompleterBlockMutationMutationVariables
->;
-export const UpdateCompleterBlockMutationDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "mutation",
-      name: { kind: "Name", value: "UpdateCompleterBlockMutation" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: { kind: "Variable", name: { kind: "Name", value: "id" } },
-          type: {
-            kind: "NonNullType",
-            type: { kind: "NamedType", name: { kind: "Name", value: "UUID" } },
-          },
-        },
-        {
-          kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "model" },
-          },
-          type: {
-            kind: "NonNullType",
-            type: {
-              kind: "NamedType",
-              name: { kind: "Name", value: "String" },
-            },
-          },
-        },
-        {
-          kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "temperature" },
-          },
-          type: {
-            kind: "NonNullType",
-            type: { kind: "NamedType", name: { kind: "Name", value: "Float" } },
-          },
-        },
-        {
-          kind: "VariableDefinition",
-          variable: { kind: "Variable", name: { kind: "Name", value: "stop" } },
-          type: {
-            kind: "NonNullType",
-            type: {
-              kind: "NamedType",
-              name: { kind: "Name", value: "String" },
-            },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "updateCompleterBlock" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "id" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "id" },
-                },
-              },
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "model" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "model" },
-                },
-              },
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "temperature" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "temperature" },
-                },
-              },
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "stop" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "stop" },
-                },
-              },
-            ],
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  UpdateCompleterBlockMutationMutation,
-  UpdateCompleterBlockMutationMutationVariables
->;
-export const DeletePromptBlockMutationDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "mutation",
-      name: { kind: "Name", value: "DeletePromptBlockMutation" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "blockId" },
-          },
-          type: {
-            kind: "NonNullType",
-            type: { kind: "NamedType", name: { kind: "Name", value: "UUID" } },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "deleteBlock" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "blockId" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "blockId" },
-                },
-              },
-            ],
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "isSuccess" } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  DeletePromptBlockMutationMutation,
-  DeletePromptBlockMutationMutationVariables
->;
-export const UpdateBlockMutationDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "mutation",
-      name: { kind: "Name", value: "UpdateBlockMutation" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: { kind: "Variable", name: { kind: "Name", value: "id" } },
-          type: {
-            kind: "NonNullType",
-            type: { kind: "NamedType", name: { kind: "Name", value: "UUID" } },
-          },
-        },
-        {
-          kind: "VariableDefinition",
-          variable: { kind: "Variable", name: { kind: "Name", value: "role" } },
-          type: {
-            kind: "NonNullType",
-            type: {
-              kind: "NamedType",
-              name: { kind: "Name", value: "PromptType" },
-            },
-          },
-        },
-        {
-          kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "content" },
-          },
-          type: {
-            kind: "NonNullType",
-            type: {
-              kind: "NamedType",
-              name: { kind: "Name", value: "String" },
-            },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "updatePromptBlock" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "id" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "id" },
-                },
-              },
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "role" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "role" },
-                },
-              },
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "content" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "content" },
-                },
-              },
-            ],
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  UpdateBlockMutationMutation,
-  UpdateBlockMutationMutationVariables
->;
-export const RemoveTopInputFromBlockSetMutationDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "mutation",
-      name: { kind: "Name", value: "RemoveTopInputFromBlockSetMutation" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "blockSetId" },
-          },
-          type: {
-            kind: "NonNullType",
-            type: { kind: "NamedType", name: { kind: "Name", value: "UUID" } },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "removeTopInputFromBlockSet" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "blockSetId" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "blockSetId" },
-                },
-              },
-            ],
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  RemoveTopInputFromBlockSetMutationMutation,
-  RemoveTopInputFromBlockSetMutationMutationVariables
->;
-export const RemoveSystemPromptFromBlockSetMutationDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "mutation",
-      name: { kind: "Name", value: "RemoveSystemPromptFromBlockSetMutation" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "blockSetId" },
-          },
-          type: {
-            kind: "NonNullType",
-            type: { kind: "NamedType", name: { kind: "Name", value: "UUID" } },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "removeSystemPromptFromBlockSet" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "blockSetId" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "blockSetId" },
-                },
-              },
-            ],
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  RemoveSystemPromptFromBlockSetMutationMutation,
-  RemoveSystemPromptFromBlockSetMutationMutationVariables
->;
-export const RemoveCompleterFromBlockSetMutationDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "mutation",
-      name: { kind: "Name", value: "RemoveCompleterFromBlockSetMutation" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "blockSetId" },
-          },
-          type: {
-            kind: "NonNullType",
-            type: { kind: "NamedType", name: { kind: "Name", value: "UUID" } },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "removeCompleterFromBlockSet" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "blockSetId" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "blockSetId" },
-                },
-              },
-            ],
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  RemoveCompleterFromBlockSetMutationMutation,
-  RemoveCompleterFromBlockSetMutationMutationVariables
->;
-export const RemoveTopOutputFromBlockSetMutationDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "mutation",
-      name: { kind: "Name", value: "RemoveTopOutputFromBlockSetMutation" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "blockSetId" },
-          },
-          type: {
-            kind: "NonNullType",
-            type: { kind: "NamedType", name: { kind: "Name", value: "UUID" } },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "removeTopOutputFromBlockSet" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "blockSetId" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "blockSetId" },
-                },
-              },
-            ],
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  RemoveTopOutputFromBlockSetMutationMutation,
-  RemoveTopOutputFromBlockSetMutationMutationVariables
->;
-export const CreateTopOutputBlockOnBlockSetMutationDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "mutation",
-      name: { kind: "Name", value: "CreateTopOutputBlockOnBlockSetMutation" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "blockSetId" },
-          },
-          type: {
-            kind: "NonNullType",
-            type: { kind: "NamedType", name: { kind: "Name", value: "UUID" } },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "createTopOutputBlockOnBlockSet" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "blockSetId" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "blockSetId" },
-                },
-              },
-            ],
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "topOutputBlock" },
-                  selectionSet: {
-                    kind: "SelectionSet",
-                    selections: [
-                      { kind: "Field", name: { kind: "Name", value: "id" } },
-                    ],
-                  },
-                },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  CreateTopOutputBlockOnBlockSetMutationMutation,
-  CreateTopOutputBlockOnBlockSetMutationMutationVariables
->;
-export const UpdatePromptBlockMutationDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "mutation",
-      name: { kind: "Name", value: "UpdatePromptBlockMutation" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: { kind: "Variable", name: { kind: "Name", value: "id" } },
-          type: {
-            kind: "NonNullType",
-            type: { kind: "NamedType", name: { kind: "Name", value: "UUID" } },
-          },
-        },
-        {
-          kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "content" },
-          },
-          type: {
-            kind: "NonNullType",
-            type: {
-              kind: "NamedType",
-              name: { kind: "Name", value: "String" },
-            },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "updatePromptBlock" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "id" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "id" },
-                },
-              },
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "role" },
-                value: { kind: "EnumValue", value: "Assistant" },
-              },
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "content" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "content" },
-                },
-              },
-            ],
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  UpdatePromptBlockMutationMutation,
-  UpdatePromptBlockMutationMutationVariables
->;
-export const CreatePromptBlockMutationDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "mutation",
-      name: { kind: "Name", value: "CreatePromptBlockMutation" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "workspaceId" },
-          },
-          type: {
-            kind: "NonNullType",
-            type: { kind: "NamedType", name: { kind: "Name", value: "UUID" } },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "createPromptBlock" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "workspaceId" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "workspaceId" },
-                },
-              },
-            ],
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  CreatePromptBlockMutationMutation,
-  CreatePromptBlockMutationMutationVariables
->;
-export const CreateCompleterBlockDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "mutation",
-      name: { kind: "Name", value: "CreateCompleterBlock" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "workspaceId" },
-          },
-          type: {
-            kind: "NonNullType",
-            type: { kind: "NamedType", name: { kind: "Name", value: "UUID" } },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "createCompleterBlock" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "workspaceId" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "workspaceId" },
-                },
-              },
-            ],
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  CreateCompleterBlockMutation,
-  CreateCompleterBlockMutationVariables
->;
-export const CreateBlockSetDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "mutation",
-      name: { kind: "Name", value: "CreateBlockSet" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "presetId" },
-          },
-          type: {
-            kind: "NonNullType",
-            type: { kind: "NamedType", name: { kind: "Name", value: "UUID" } },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "createBlockSet" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "presetId" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "presetId" },
-                },
-              },
-            ],
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  CreateBlockSetMutation,
-  CreateBlockSetMutationVariables
->;
-export const UpdateSpaceMutationDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "mutation",
-      name: { kind: "Name", value: "UpdateSpaceMutation" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "workspaceId" },
-          },
-          type: {
-            kind: "NonNullType",
-            type: { kind: "NamedType", name: { kind: "Name", value: "UUID" } },
-          },
-        },
-        {
-          kind: "VariableDefinition",
-          variable: { kind: "Variable", name: { kind: "Name", value: "name" } },
-          type: {
-            kind: "NonNullType",
-            type: {
-              kind: "NamedType",
-              name: { kind: "Name", value: "String" },
-            },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "updateSpace" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "id" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "workspaceId" },
-                },
-              },
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "name" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "name" },
-                },
-              },
-            ],
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  UpdateSpaceMutationMutation,
-  UpdateSpaceMutationMutationVariables
->;
-export const DeleteSpaceMutationDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "mutation",
-      name: { kind: "Name", value: "DeleteSpaceMutation" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "workspaceId" },
-          },
-          type: {
-            kind: "NonNullType",
-            type: { kind: "NamedType", name: { kind: "Name", value: "UUID" } },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "deleteSpace" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "id" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "workspaceId" },
-                },
-              },
-            ],
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "isSuccess" } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  DeleteSpaceMutationMutation,
-  DeleteSpaceMutationMutationVariables
->;
-export const SpaceV2QueryDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "query",
-      name: { kind: "Name", value: "SpaceV2Query" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "spaceId" },
-          },
-          type: {
-            kind: "NonNullType",
-            type: { kind: "NamedType", name: { kind: "Name", value: "UUID" } },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "spaceV2" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "id" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "spaceId" },
-                },
-              },
-            ],
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                { kind: "Field", name: { kind: "Name", value: "name" } },
-                { kind: "Field", name: { kind: "Name", value: "content" } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<SpaceV2QueryQuery, SpaceV2QueryQueryVariables>;
-export const UpdateSpaceV2MutationDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "mutation",
-      name: { kind: "Name", value: "UpdateSpaceV2Mutation" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "spaceId" },
-          },
-          type: {
-            kind: "NonNullType",
-            type: { kind: "NamedType", name: { kind: "Name", value: "UUID" } },
-          },
-        },
-        {
-          kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "content" },
-          },
-          type: {
-            kind: "NonNullType",
-            type: {
-              kind: "NamedType",
-              name: { kind: "Name", value: "String" },
-            },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "updateSpaceV2" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "id" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "spaceId" },
-                },
-              },
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "content" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "content" },
-                },
-              },
-            ],
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                { kind: "Field", name: { kind: "Name", value: "name" } },
-                { kind: "Field", name: { kind: "Name", value: "content" } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  UpdateSpaceV2MutationMutation,
-  UpdateSpaceV2MutationMutationVariables
->;
+export type UpdateSpaceV2MutationMutation = { __typename?: 'Mutation', updateSpaceV2?: { __typename?: 'SpaceV2', id: any, name: string, content?: string | null } | null };
+
+export const DraggingBlockFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"DraggingBlock"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Block"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"PromptBlock"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"role"}},{"kind":"Field","name":{"kind":"Name","value":"content"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"CompleterBlock"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"model"}},{"kind":"Field","name":{"kind":"Name","value":"temperature"}},{"kind":"Field","name":{"kind":"Name","value":"stop"}}]}}]}}]} as unknown as DocumentNode<DraggingBlockFragment, unknown>;
+export const DashboardFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"Dashboard"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"User"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"workspaces"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]} as unknown as DocumentNode<DashboardFragment, unknown>;
+export const LibraryBlockFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"LibraryBlock"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Block"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"PromptBlock"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"role"}},{"kind":"Field","name":{"kind":"Name","value":"content"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"CompleterBlock"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"model"}},{"kind":"Field","name":{"kind":"Name","value":"temperature"}},{"kind":"Field","name":{"kind":"Name","value":"stop"}}]}}]}}]} as unknown as DocumentNode<LibraryBlockFragment, unknown>;
+export const LibraryFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"Library"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Workspace"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"blocks"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"LibraryBlock"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"LibraryBlock"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Block"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"PromptBlock"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"role"}},{"kind":"Field","name":{"kind":"Name","value":"content"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"CompleterBlock"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"model"}},{"kind":"Field","name":{"kind":"Name","value":"temperature"}},{"kind":"Field","name":{"kind":"Name","value":"stop"}}]}}]}}]} as unknown as DocumentNode<LibraryFragment, unknown>;
+export const SimulatorBlockFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"SimulatorBlock"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Block"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"PromptBlock"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"role"}},{"kind":"Field","name":{"kind":"Name","value":"content"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"CompleterBlock"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"model"}},{"kind":"Field","name":{"kind":"Name","value":"temperature"}},{"kind":"Field","name":{"kind":"Name","value":"stop"}}]}}]}}]} as unknown as DocumentNode<SimulatorBlockFragment, unknown>;
+export const SimulatorBlockSetFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"SimulatorBlockSet"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"BlockSet"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"position"}},{"kind":"Field","name":{"kind":"Name","value":"isInputIncludingPreviousBlockSetOutput"}},{"kind":"Field","name":{"kind":"Name","value":"isOutputIncludingInputBlocks"}},{"kind":"Field","name":{"kind":"Name","value":"isRepeatingCurrentBlockSet"}},{"kind":"Field","name":{"kind":"Name","value":"topInputPromptBlock"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"SimulatorBlock"}}]}},{"kind":"Field","name":{"kind":"Name","value":"systemPromptBlock"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"SimulatorBlock"}}]}},{"kind":"Field","name":{"kind":"Name","value":"completerBlock"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"SimulatorBlock"}}]}},{"kind":"Field","name":{"kind":"Name","value":"topOutputBlock"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"SimulatorBlock"}}]}},{"kind":"Field","name":{"kind":"Name","value":"previousBlockSetsInputBlocks"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"role"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"SimulatorBlock"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"SimulatorBlock"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Block"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"PromptBlock"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"role"}},{"kind":"Field","name":{"kind":"Name","value":"content"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"CompleterBlock"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"model"}},{"kind":"Field","name":{"kind":"Name","value":"temperature"}},{"kind":"Field","name":{"kind":"Name","value":"stop"}}]}}]}}]} as unknown as DocumentNode<SimulatorBlockSetFragment, unknown>;
+export const SimulatorFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"Simulator"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Preset"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"blockSets"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"SimulatorBlockSet"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"SimulatorBlock"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Block"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"PromptBlock"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"role"}},{"kind":"Field","name":{"kind":"Name","value":"content"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"CompleterBlock"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"model"}},{"kind":"Field","name":{"kind":"Name","value":"temperature"}},{"kind":"Field","name":{"kind":"Name","value":"stop"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"SimulatorBlockSet"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"BlockSet"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"position"}},{"kind":"Field","name":{"kind":"Name","value":"isInputIncludingPreviousBlockSetOutput"}},{"kind":"Field","name":{"kind":"Name","value":"isOutputIncludingInputBlocks"}},{"kind":"Field","name":{"kind":"Name","value":"isRepeatingCurrentBlockSet"}},{"kind":"Field","name":{"kind":"Name","value":"topInputPromptBlock"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"SimulatorBlock"}}]}},{"kind":"Field","name":{"kind":"Name","value":"systemPromptBlock"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"SimulatorBlock"}}]}},{"kind":"Field","name":{"kind":"Name","value":"completerBlock"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"SimulatorBlock"}}]}},{"kind":"Field","name":{"kind":"Name","value":"topOutputBlock"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"SimulatorBlock"}}]}},{"kind":"Field","name":{"kind":"Name","value":"previousBlockSetsInputBlocks"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"role"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"SimulatorBlock"}}]}}]}}]} as unknown as DocumentNode<SimulatorFragment, unknown>;
+export const WorkspaceContentFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"WorkspaceContent"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Query"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"workspace"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"workspaceId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"workspaceId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"Library"}},{"kind":"Field","name":{"kind":"Name","value":"firstPreset"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"Simulator"}}]}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"LibraryBlock"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Block"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"PromptBlock"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"role"}},{"kind":"Field","name":{"kind":"Name","value":"content"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"CompleterBlock"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"model"}},{"kind":"Field","name":{"kind":"Name","value":"temperature"}},{"kind":"Field","name":{"kind":"Name","value":"stop"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"SimulatorBlock"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Block"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"PromptBlock"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"role"}},{"kind":"Field","name":{"kind":"Name","value":"content"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"CompleterBlock"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"model"}},{"kind":"Field","name":{"kind":"Name","value":"temperature"}},{"kind":"Field","name":{"kind":"Name","value":"stop"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"SimulatorBlockSet"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"BlockSet"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"position"}},{"kind":"Field","name":{"kind":"Name","value":"isInputIncludingPreviousBlockSetOutput"}},{"kind":"Field","name":{"kind":"Name","value":"isOutputIncludingInputBlocks"}},{"kind":"Field","name":{"kind":"Name","value":"isRepeatingCurrentBlockSet"}},{"kind":"Field","name":{"kind":"Name","value":"topInputPromptBlock"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"SimulatorBlock"}}]}},{"kind":"Field","name":{"kind":"Name","value":"systemPromptBlock"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"SimulatorBlock"}}]}},{"kind":"Field","name":{"kind":"Name","value":"completerBlock"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"SimulatorBlock"}}]}},{"kind":"Field","name":{"kind":"Name","value":"topOutputBlock"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"SimulatorBlock"}}]}},{"kind":"Field","name":{"kind":"Name","value":"previousBlockSetsInputBlocks"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"role"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"SimulatorBlock"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"Library"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Workspace"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"blocks"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"LibraryBlock"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"Simulator"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Preset"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"blockSets"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"SimulatorBlockSet"}}]}}]}}]} as unknown as DocumentNode<WorkspaceContentFragment, unknown>;
+export const WorkspaceQueryFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"WorkspaceQuery"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Query"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"workspace"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"workspaceId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"workspaceId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"firstPreset"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"blockSets"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"position"}}]}}]}}]}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"WorkspaceContent"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"LibraryBlock"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Block"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"PromptBlock"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"role"}},{"kind":"Field","name":{"kind":"Name","value":"content"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"CompleterBlock"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"model"}},{"kind":"Field","name":{"kind":"Name","value":"temperature"}},{"kind":"Field","name":{"kind":"Name","value":"stop"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"Library"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Workspace"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"blocks"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"LibraryBlock"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"SimulatorBlock"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Block"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"PromptBlock"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"role"}},{"kind":"Field","name":{"kind":"Name","value":"content"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"CompleterBlock"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"model"}},{"kind":"Field","name":{"kind":"Name","value":"temperature"}},{"kind":"Field","name":{"kind":"Name","value":"stop"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"SimulatorBlockSet"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"BlockSet"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"position"}},{"kind":"Field","name":{"kind":"Name","value":"isInputIncludingPreviousBlockSetOutput"}},{"kind":"Field","name":{"kind":"Name","value":"isOutputIncludingInputBlocks"}},{"kind":"Field","name":{"kind":"Name","value":"isRepeatingCurrentBlockSet"}},{"kind":"Field","name":{"kind":"Name","value":"topInputPromptBlock"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"SimulatorBlock"}}]}},{"kind":"Field","name":{"kind":"Name","value":"systemPromptBlock"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"SimulatorBlock"}}]}},{"kind":"Field","name":{"kind":"Name","value":"completerBlock"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"SimulatorBlock"}}]}},{"kind":"Field","name":{"kind":"Name","value":"topOutputBlock"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"SimulatorBlock"}}]}},{"kind":"Field","name":{"kind":"Name","value":"previousBlockSetsInputBlocks"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"role"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"SimulatorBlock"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"Simulator"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Preset"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"blockSets"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"SimulatorBlockSet"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"WorkspaceContent"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Query"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"workspace"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"workspaceId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"workspaceId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"Library"}},{"kind":"Field","name":{"kind":"Name","value":"firstPreset"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"Simulator"}}]}}]}}]}}]} as unknown as DocumentNode<WorkspaceQueryFragment, unknown>;
+export const EditorBlockSetFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"EditorBlockSet"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"BlockSet"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"isInputIncludingPreviousBlockSetOutput"}},{"kind":"Field","name":{"kind":"Name","value":"isOutputIncludingInputBlocks"}},{"kind":"Field","name":{"kind":"Name","value":"isRepeatingCurrentBlockSet"}}]}}]} as unknown as DocumentNode<EditorBlockSetFragment, unknown>;
+export const SelectedCompleterBlockFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"SelectedCompleterBlock"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"CompleterBlock"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"model"}},{"kind":"Field","name":{"kind":"Name","value":"temperature"}},{"kind":"Field","name":{"kind":"Name","value":"stop"}}]}}]} as unknown as DocumentNode<SelectedCompleterBlockFragment, unknown>;
+export const SelectedBlockFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"SelectedBlock"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"PromptBlock"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"role"}},{"kind":"Field","name":{"kind":"Name","value":"content"}}]}}]} as unknown as DocumentNode<SelectedBlockFragment, unknown>;
+export const SubHeaderBlockSetFragmentFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"SubHeaderBlockSetFragment"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"BlockSet"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"position"}},{"kind":"Field","name":{"kind":"Name","value":"isInputIncludingPreviousBlockSetOutput"}},{"kind":"Field","name":{"kind":"Name","value":"isOutputIncludingInputBlocks"}},{"kind":"Field","name":{"kind":"Name","value":"isRepeatingCurrentBlockSet"}},{"kind":"Field","name":{"kind":"Name","value":"topInputPromptBlock"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"role"}},{"kind":"Field","name":{"kind":"Name","value":"content"}}]}},{"kind":"Field","name":{"kind":"Name","value":"systemPromptBlock"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"content"}}]}},{"kind":"Field","name":{"kind":"Name","value":"completerBlock"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"model"}},{"kind":"Field","name":{"kind":"Name","value":"temperature"}},{"kind":"Field","name":{"kind":"Name","value":"stop"}}]}},{"kind":"Field","name":{"kind":"Name","value":"topOutputBlock"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"content"}}]}},{"kind":"Field","name":{"kind":"Name","value":"previousBlockSetsInputBlocks"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"role"}},{"kind":"Field","name":{"kind":"Name","value":"content"}}]}}]}}]} as unknown as DocumentNode<SubHeaderBlockSetFragmentFragment, unknown>;
+export const RunButtonFragmentFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"RunButtonFragment"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Preset"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"blockSets"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"topInputPromptBlock"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"role"}},{"kind":"Field","name":{"kind":"Name","value":"content"}}]}},{"kind":"Field","name":{"kind":"Name","value":"systemPromptBlock"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"content"}}]}},{"kind":"Field","name":{"kind":"Name","value":"completerBlock"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"model"}},{"kind":"Field","name":{"kind":"Name","value":"temperature"}},{"kind":"Field","name":{"kind":"Name","value":"stop"}}]}}]}}]}}]} as unknown as DocumentNode<RunButtonFragmentFragment, unknown>;
+export const SubHeaderFragmentFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"SubHeaderFragment"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Query"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"workspace"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"workspaceId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"workspaceId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"firstPreset"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"RunButtonFragment"}}]}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"RunButtonFragment"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Preset"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"blockSets"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"topInputPromptBlock"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"role"}},{"kind":"Field","name":{"kind":"Name","value":"content"}}]}},{"kind":"Field","name":{"kind":"Name","value":"systemPromptBlock"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"content"}}]}},{"kind":"Field","name":{"kind":"Name","value":"completerBlock"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"model"}},{"kind":"Field","name":{"kind":"Name","value":"temperature"}},{"kind":"Field","name":{"kind":"Name","value":"stop"}}]}}]}}]}}]} as unknown as DocumentNode<SubHeaderFragmentFragment, unknown>;
+export const HeaderQueryDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"HeaderQuery"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"isLoggedIn"}},{"kind":"Field","name":{"kind":"Name","value":"user"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"email"}}]}}]}}]} as unknown as DocumentNode<HeaderQueryQuery, HeaderQueryQueryVariables>;
+export const RootRouteQueryDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"RootRouteQuery"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"user"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"Dashboard"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"Dashboard"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"User"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"workspaces"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]} as unknown as DocumentNode<RootRouteQueryQuery, RootRouteQueryQueryVariables>;
+export const CreateExampleSpaceMutationDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateExampleSpaceMutation"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createExampleSpace"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"isSuccess"}},{"kind":"Field","name":{"kind":"Name","value":"placeholderClientToken"}},{"kind":"Field","name":{"kind":"Name","value":"space"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]}}]} as unknown as DocumentNode<CreateExampleSpaceMutationMutation, CreateExampleSpaceMutationMutationVariables>;
+export const CreateSpaceMutationDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateSpaceMutation"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createSpace"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]} as unknown as DocumentNode<CreateSpaceMutationMutation, CreateSpaceMutationMutationVariables>;
+export const AddPromptToBlockSetTopInputMutationDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"AddPromptToBlockSetTopInputMutation"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"promptBlockId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UUID"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"blockSetId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UUID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"addPromptToBlockSetTopInput"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"promptBlockId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"promptBlockId"}}},{"kind":"Argument","name":{"kind":"Name","value":"blockSetId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"blockSetId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]} as unknown as DocumentNode<AddPromptToBlockSetTopInputMutationMutation, AddPromptToBlockSetTopInputMutationMutationVariables>;
+export const AddCompleterToBlockSetMutationDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"AddCompleterToBlockSetMutation"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"blockSetId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UUID"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"completerBlockId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UUID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"addCompleterToBlockSet"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"blockSetId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"blockSetId"}}},{"kind":"Argument","name":{"kind":"Name","value":"completerBlockId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"completerBlockId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]} as unknown as DocumentNode<AddCompleterToBlockSetMutationMutation, AddCompleterToBlockSetMutationMutationVariables>;
+export const AddSystemPromptToBlockSetMutationDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"AddSystemPromptToBlockSetMutation"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"blockSetId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UUID"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"promptBlockId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UUID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"addSystemPromptToBlockSet"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"blockSetId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"blockSetId"}}},{"kind":"Argument","name":{"kind":"Name","value":"promptBlockId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"promptBlockId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]} as unknown as DocumentNode<AddSystemPromptToBlockSetMutationMutation, AddSystemPromptToBlockSetMutationMutationVariables>;
+export const AddPromptToBlockSetTopOutputMutationDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"AddPromptToBlockSetTopOutputMutation"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"promptBlockId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UUID"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"blockSetId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UUID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"addPromptToBlockSetTopOutput"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"promptBlockId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"promptBlockId"}}},{"kind":"Argument","name":{"kind":"Name","value":"blockSetId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"blockSetId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]} as unknown as DocumentNode<AddPromptToBlockSetTopOutputMutationMutation, AddPromptToBlockSetTopOutputMutationMutationVariables>;
+export const SwapBlockSetPositionsMutationDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"SwapBlockSetPositionsMutation"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"movingBlockSetId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UUID"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"slotBlockSetId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UUID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"swapBlockSetPositions"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"movingBlockSetId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"movingBlockSetId"}}},{"kind":"Argument","name":{"kind":"Name","value":"slotBlockSetId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"slotBlockSetId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"blockSets"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"position"}}]}}]}}]}}]} as unknown as DocumentNode<SwapBlockSetPositionsMutationMutation, SwapBlockSetPositionsMutationMutationVariables>;
+export const WorkspaceRouteQueryDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"WorkspaceRouteQuery"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"workspaceId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UUID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"user"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"SubHeaderFragment"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"WorkspaceQuery"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"RunButtonFragment"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Preset"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"blockSets"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"topInputPromptBlock"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"role"}},{"kind":"Field","name":{"kind":"Name","value":"content"}}]}},{"kind":"Field","name":{"kind":"Name","value":"systemPromptBlock"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"content"}}]}},{"kind":"Field","name":{"kind":"Name","value":"completerBlock"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"model"}},{"kind":"Field","name":{"kind":"Name","value":"temperature"}},{"kind":"Field","name":{"kind":"Name","value":"stop"}}]}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"LibraryBlock"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Block"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"PromptBlock"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"role"}},{"kind":"Field","name":{"kind":"Name","value":"content"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"CompleterBlock"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"model"}},{"kind":"Field","name":{"kind":"Name","value":"temperature"}},{"kind":"Field","name":{"kind":"Name","value":"stop"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"Library"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Workspace"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"blocks"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"LibraryBlock"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"SimulatorBlock"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Block"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"PromptBlock"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"role"}},{"kind":"Field","name":{"kind":"Name","value":"content"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"CompleterBlock"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"model"}},{"kind":"Field","name":{"kind":"Name","value":"temperature"}},{"kind":"Field","name":{"kind":"Name","value":"stop"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"SimulatorBlockSet"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"BlockSet"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"position"}},{"kind":"Field","name":{"kind":"Name","value":"isInputIncludingPreviousBlockSetOutput"}},{"kind":"Field","name":{"kind":"Name","value":"isOutputIncludingInputBlocks"}},{"kind":"Field","name":{"kind":"Name","value":"isRepeatingCurrentBlockSet"}},{"kind":"Field","name":{"kind":"Name","value":"topInputPromptBlock"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"SimulatorBlock"}}]}},{"kind":"Field","name":{"kind":"Name","value":"systemPromptBlock"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"SimulatorBlock"}}]}},{"kind":"Field","name":{"kind":"Name","value":"completerBlock"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"SimulatorBlock"}}]}},{"kind":"Field","name":{"kind":"Name","value":"topOutputBlock"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"SimulatorBlock"}}]}},{"kind":"Field","name":{"kind":"Name","value":"previousBlockSetsInputBlocks"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"role"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"SimulatorBlock"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"Simulator"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Preset"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"blockSets"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"SimulatorBlockSet"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"WorkspaceContent"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Query"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"workspace"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"workspaceId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"workspaceId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"Library"}},{"kind":"Field","name":{"kind":"Name","value":"firstPreset"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"Simulator"}}]}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"SubHeaderFragment"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Query"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"workspace"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"workspaceId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"workspaceId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"firstPreset"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"RunButtonFragment"}}]}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"WorkspaceQuery"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Query"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"workspace"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"workspaceId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"workspaceId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"firstPreset"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"blockSets"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"position"}}]}}]}}]}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"WorkspaceContent"}}]}}]} as unknown as DocumentNode<WorkspaceRouteQueryQuery, WorkspaceRouteQueryQueryVariables>;
+export const UpdateBlockSetOptionsMutationDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateBlockSetOptionsMutation"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"blockSetId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UUID"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"isInputIncludingPreviousBlockSetOutput"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Boolean"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"isOutputIncludingInputBlocks"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Boolean"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"isRepeatingCurrentBlockSet"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Boolean"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateBlockSetOptions"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"blockSetId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"blockSetId"}}},{"kind":"Argument","name":{"kind":"Name","value":"isInputIncludingPreviousBlockSetOutput"},"value":{"kind":"Variable","name":{"kind":"Name","value":"isInputIncludingPreviousBlockSetOutput"}}},{"kind":"Argument","name":{"kind":"Name","value":"isOutputIncludingInputBlocks"},"value":{"kind":"Variable","name":{"kind":"Name","value":"isOutputIncludingInputBlocks"}}},{"kind":"Argument","name":{"kind":"Name","value":"isRepeatingCurrentBlockSet"},"value":{"kind":"Variable","name":{"kind":"Name","value":"isRepeatingCurrentBlockSet"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]} as unknown as DocumentNode<UpdateBlockSetOptionsMutationMutation, UpdateBlockSetOptionsMutationMutationVariables>;
+export const DeleteBlockSetMutationDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"DeleteBlockSetMutation"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"blockSetId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UUID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"deleteBlockSet"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"blockSetId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"blockSetId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"isSuccess"}}]}}]}}]} as unknown as DocumentNode<DeleteBlockSetMutationMutation, DeleteBlockSetMutationMutationVariables>;
+export const DeleteCompleterBlockMutationDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"DeleteCompleterBlockMutation"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"blockId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UUID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"deleteBlock"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"blockId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"blockId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"isSuccess"}}]}}]}}]} as unknown as DocumentNode<DeleteCompleterBlockMutationMutation, DeleteCompleterBlockMutationMutationVariables>;
+export const UpdateCompleterBlockMutationDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateCompleterBlockMutation"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UUID"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"model"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"temperature"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Float"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"stop"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateCompleterBlock"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}},{"kind":"Argument","name":{"kind":"Name","value":"model"},"value":{"kind":"Variable","name":{"kind":"Name","value":"model"}}},{"kind":"Argument","name":{"kind":"Name","value":"temperature"},"value":{"kind":"Variable","name":{"kind":"Name","value":"temperature"}}},{"kind":"Argument","name":{"kind":"Name","value":"stop"},"value":{"kind":"Variable","name":{"kind":"Name","value":"stop"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]} as unknown as DocumentNode<UpdateCompleterBlockMutationMutation, UpdateCompleterBlockMutationMutationVariables>;
+export const DeletePromptBlockMutationDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"DeletePromptBlockMutation"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"blockId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UUID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"deleteBlock"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"blockId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"blockId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"isSuccess"}}]}}]}}]} as unknown as DocumentNode<DeletePromptBlockMutationMutation, DeletePromptBlockMutationMutationVariables>;
+export const UpdateBlockMutationDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateBlockMutation"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UUID"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"role"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"PromptType"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"content"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updatePromptBlock"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}},{"kind":"Argument","name":{"kind":"Name","value":"role"},"value":{"kind":"Variable","name":{"kind":"Name","value":"role"}}},{"kind":"Argument","name":{"kind":"Name","value":"content"},"value":{"kind":"Variable","name":{"kind":"Name","value":"content"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]} as unknown as DocumentNode<UpdateBlockMutationMutation, UpdateBlockMutationMutationVariables>;
+export const RemoveTopInputFromBlockSetMutationDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"RemoveTopInputFromBlockSetMutation"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"blockSetId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UUID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"removeTopInputFromBlockSet"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"blockSetId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"blockSetId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]} as unknown as DocumentNode<RemoveTopInputFromBlockSetMutationMutation, RemoveTopInputFromBlockSetMutationMutationVariables>;
+export const RemoveSystemPromptFromBlockSetMutationDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"RemoveSystemPromptFromBlockSetMutation"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"blockSetId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UUID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"removeSystemPromptFromBlockSet"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"blockSetId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"blockSetId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]} as unknown as DocumentNode<RemoveSystemPromptFromBlockSetMutationMutation, RemoveSystemPromptFromBlockSetMutationMutationVariables>;
+export const RemoveCompleterFromBlockSetMutationDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"RemoveCompleterFromBlockSetMutation"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"blockSetId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UUID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"removeCompleterFromBlockSet"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"blockSetId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"blockSetId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]} as unknown as DocumentNode<RemoveCompleterFromBlockSetMutationMutation, RemoveCompleterFromBlockSetMutationMutationVariables>;
+export const RemoveTopOutputFromBlockSetMutationDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"RemoveTopOutputFromBlockSetMutation"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"blockSetId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UUID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"removeTopOutputFromBlockSet"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"blockSetId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"blockSetId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]} as unknown as DocumentNode<RemoveTopOutputFromBlockSetMutationMutation, RemoveTopOutputFromBlockSetMutationMutationVariables>;
+export const CreateTopOutputBlockOnBlockSetMutationDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateTopOutputBlockOnBlockSetMutation"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"blockSetId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UUID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createTopOutputBlockOnBlockSet"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"blockSetId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"blockSetId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"topOutputBlock"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]}}]} as unknown as DocumentNode<CreateTopOutputBlockOnBlockSetMutationMutation, CreateTopOutputBlockOnBlockSetMutationMutationVariables>;
+export const UpdatePromptBlockMutationDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdatePromptBlockMutation"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UUID"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"content"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updatePromptBlock"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}},{"kind":"Argument","name":{"kind":"Name","value":"role"},"value":{"kind":"EnumValue","value":"Assistant"}},{"kind":"Argument","name":{"kind":"Name","value":"content"},"value":{"kind":"Variable","name":{"kind":"Name","value":"content"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]} as unknown as DocumentNode<UpdatePromptBlockMutationMutation, UpdatePromptBlockMutationMutationVariables>;
+export const CreatePromptBlockMutationDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreatePromptBlockMutation"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"workspaceId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UUID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createPromptBlock"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"workspaceId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"workspaceId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]} as unknown as DocumentNode<CreatePromptBlockMutationMutation, CreatePromptBlockMutationMutationVariables>;
+export const CreateCompleterBlockDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateCompleterBlock"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"workspaceId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UUID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createCompleterBlock"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"workspaceId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"workspaceId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]} as unknown as DocumentNode<CreateCompleterBlockMutation, CreateCompleterBlockMutationVariables>;
+export const CreateBlockSetDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateBlockSet"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"presetId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UUID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createBlockSet"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"presetId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"presetId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]} as unknown as DocumentNode<CreateBlockSetMutation, CreateBlockSetMutationVariables>;
+export const UpdateSpaceMutationDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateSpaceMutation"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"workspaceId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UUID"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"name"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateSpace"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"workspaceId"}}},{"kind":"Argument","name":{"kind":"Name","value":"name"},"value":{"kind":"Variable","name":{"kind":"Name","value":"name"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]} as unknown as DocumentNode<UpdateSpaceMutationMutation, UpdateSpaceMutationMutationVariables>;
+export const DeleteSpaceMutationDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"DeleteSpaceMutation"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"workspaceId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UUID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"deleteSpace"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"workspaceId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"isSuccess"}}]}}]}}]} as unknown as DocumentNode<DeleteSpaceMutationMutation, DeleteSpaceMutationMutationVariables>;
+export const SpaceV2QueryDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"SpaceV2Query"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"spaceId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UUID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"spaceV2"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"spaceId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"content"}}]}}]}}]} as unknown as DocumentNode<SpaceV2QueryQuery, SpaceV2QueryQueryVariables>;
+export const UpdateSpaceV2MutationDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateSpaceV2Mutation"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"spaceId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UUID"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"content"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateSpaceV2"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"spaceId"}}},{"kind":"Argument","name":{"kind":"Name","value":"content"},"value":{"kind":"Variable","name":{"kind":"Name","value":"content"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"content"}}]}}]}}]} as unknown as DocumentNode<UpdateSpaceV2MutationMutation, UpdateSpaceV2MutationMutationVariables>;
