@@ -76,7 +76,7 @@ class Query:
 
     @strawberry.field
     @ensure_db_user
-    def space_v2(
+    def space(
         self: None,
         info: Info,
         db_user: OrmUser,
@@ -84,11 +84,9 @@ class Query:
     ) -> Space | None:
         db = info.context.db
 
-        db_space_v2 = db.scalar(
-            db_user.spaces.select().where(OrmSpace.id == id)
-        )
+        db_space = db.scalar(db_user.spaces.select().where(OrmSpace.id == id))
 
-        return Space.from_db(db_space_v2) if db_space_v2 != None else None
+        return Space.from_db(db_space) if db_space != None else None
 
     # TODO: Show this in dev mode
     # @strawberry.field

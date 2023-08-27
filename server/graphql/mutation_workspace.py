@@ -15,7 +15,7 @@ from .utils import ensure_db_user
 class MutationWorkspace:
     @strawberry.mutation
     @ensure_db_user
-    def create_space(
+    def create_workspace(
         self: None,
         info: Info,
         db_user: OrmUser,
@@ -48,7 +48,7 @@ class MutationWorkspace:
 
     @strawberry.mutation
     @ensure_db_user
-    def update_space(
+    def update_workspace(
         self: None,
         info: Info,
         db_user: OrmUser,
@@ -72,7 +72,7 @@ class MutationWorkspace:
 
     @strawberry.mutation
     @ensure_db_user
-    def delete_space(
+    def delete_workspace(
         self: None,
         info: Info,
         db_user: OrmUser,
