@@ -321,7 +321,14 @@ class Space:
         )
 
     db_space: strawberry.Private[OrmSpace]
-    id: UUID
+    id: strawberry.ID
     name: str
     content: str | None
     updated_at: datetime
+
+
+@strawberry.type
+class CreateExampleWorkspaceResult:
+    is_success: bool
+    placeholder_client_token: UUID | None
+    space: Workspace | None

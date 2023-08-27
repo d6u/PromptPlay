@@ -8,7 +8,7 @@ from starlette.middleware.sessions import SessionMiddleware
 from server.auth import create_logout_url, oauth
 from server.database.database import engine, get_db
 from server.database.orm.user import OrmUser
-from server.database.utils import create_example_space
+from server.database.utils import create_example_workspace
 from server.graphql import graphql
 from server.settings import settings
 
@@ -112,7 +112,7 @@ async def auth(
             db_prompt_block,
             db_completer_block,
             db_block_set,
-        ) = create_example_space(db_user=db_user)
+        ) = create_example_workspace(db_user=db_user)
 
         db.add_all(
             [

@@ -16,7 +16,7 @@ const documents = {
     "\n  fragment DraggingBlock on Block {\n    id\n    __typename\n    ... on PromptBlock {\n      role\n      content\n    }\n    ... on CompleterBlock {\n      model\n      temperature\n      stop\n    }\n  }\n": types.DraggingBlockFragmentDoc,
     "\n  fragment LibraryBlock on Block {\n    id\n    __typename\n    ... on PromptBlock {\n      role\n      content\n    }\n    ... on CompleterBlock {\n      model\n      temperature\n      stop\n    }\n  }\n": types.LibraryBlockFragmentDoc,
     "\n  query HeaderQuery {\n    isLoggedIn\n    user {\n      email\n    }\n  }\n": types.HeaderQueryDocument,
-    "\n  mutation CreateExampleSpaceMutation {\n    createExampleSpace {\n      isSuccess\n      placeholderClientToken\n      space {\n        id\n      }\n    }\n  }\n": types.CreateExampleSpaceMutationDocument,
+    "\n  mutation CreatePlaceholderUserAndExampleSpaceMutation {\n    result: createPlaceholderUserAndExampleSpace {\n      placeholderClientToken\n      space {\n        id\n      }\n    }\n  }\n": types.CreatePlaceholderUserAndExampleSpaceMutationDocument,
     "\n  fragment Dashboard on User {\n    spaces {\n      id\n      name\n      updatedAt\n    }\n  }\n": types.DashboardFragmentDoc,
     "\n  mutation CreateSpaceMutation {\n    createSpace {\n      id\n    }\n  }\n": types.CreateSpaceMutationDocument,
     "\n  query RootRouteQuery {\n    user {\n      id\n      ...Dashboard\n    }\n  }\n": types.RootRouteQueryDocument,
@@ -88,7 +88,7 @@ export function gql(source: "\n  query HeaderQuery {\n    isLoggedIn\n    user {
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\n  mutation CreateExampleSpaceMutation {\n    createExampleSpace {\n      isSuccess\n      placeholderClientToken\n      space {\n        id\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation CreateExampleSpaceMutation {\n    createExampleSpace {\n      isSuccess\n      placeholderClientToken\n      space {\n        id\n      }\n    }\n  }\n"];
+export function gql(source: "\n  mutation CreatePlaceholderUserAndExampleSpaceMutation {\n    result: createPlaceholderUserAndExampleSpace {\n      placeholderClientToken\n      space {\n        id\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation CreatePlaceholderUserAndExampleSpaceMutation {\n    result: createPlaceholderUserAndExampleSpace {\n      placeholderClientToken\n      space {\n        id\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

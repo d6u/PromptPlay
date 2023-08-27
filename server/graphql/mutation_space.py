@@ -6,7 +6,7 @@ import strawberry
 
 from server.database.orm.space import OrmSpace
 from server.database.orm.user import OrmUser
-from server.database.utils import create_space_v2_with_examples
+from server.database.utils import create_space_with_example_content
 
 from .context import Info
 from .types import Space
@@ -24,7 +24,7 @@ class MutationSpace:
     ) -> Space | None:
         db = info.context.db
 
-        (db_space_v2,) = create_space_v2_with_examples(
+        (db_space_v2,) = create_space_with_example_content(
             db_user=db_user,
             space_name="Example space",
         )

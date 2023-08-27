@@ -45,11 +45,17 @@ export type CompleterBlock = Block & {
   temperature: Scalars['Float']['output'];
 };
 
-export type CreateExampleSpaceResult = {
-  __typename?: 'CreateExampleSpaceResult';
+export type CreateExampleWorkspaceResult = {
+  __typename?: 'CreateExampleWorkspaceResult';
   isSuccess: Scalars['Boolean']['output'];
   placeholderClientToken?: Maybe<Scalars['UUID']['output']>;
   space?: Maybe<Workspace>;
+};
+
+export type CreatePlaceholderUserAndExampleSpaceResult = {
+  __typename?: 'CreatePlaceholderUserAndExampleSpaceResult';
+  placeholderClientToken: Scalars['ID']['output'];
+  space: Space;
 };
 
 export type DeletionResult = {
@@ -65,7 +71,8 @@ export type Mutation = {
   addSystemPromptToBlockSet?: Maybe<BlockSet>;
   createBlockSet?: Maybe<BlockSet>;
   createCompleterBlock?: Maybe<CompleterBlock>;
-  createExampleSpace?: Maybe<CreateExampleSpaceResult>;
+  createExampleWorkspace?: Maybe<CreateExampleWorkspaceResult>;
+  createPlaceholderUserAndExampleSpace: CreatePlaceholderUserAndExampleSpaceResult;
   createPromptBlock?: Maybe<PromptBlock>;
   createSpace?: Maybe<Space>;
   createTopOutputBlockOnBlockSet?: Maybe<BlockSet>;
@@ -260,7 +267,7 @@ export type QueryWorkspaceArgs = {
 export type Space = {
   __typename?: 'Space';
   content?: Maybe<Scalars['String']['output']>;
-  id: Scalars['UUID']['output'];
+  id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
   updatedAt: Scalars['DateTime']['output'];
 };
@@ -306,17 +313,17 @@ export type HeaderQueryQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type HeaderQueryQuery = { __typename?: 'Query', isLoggedIn: boolean, user?: { __typename?: 'User', email?: string | null } | null };
 
-export type CreateExampleSpaceMutationMutationVariables = Exact<{ [key: string]: never; }>;
+export type CreatePlaceholderUserAndExampleSpaceMutationMutationVariables = Exact<{ [key: string]: never; }>;
 
 
-export type CreateExampleSpaceMutationMutation = { __typename?: 'Mutation', createExampleSpace?: { __typename?: 'CreateExampleSpaceResult', isSuccess: boolean, placeholderClientToken?: any | null, space?: { __typename?: 'Workspace', id: any } | null } | null };
+export type CreatePlaceholderUserAndExampleSpaceMutationMutation = { __typename?: 'Mutation', result: { __typename?: 'CreatePlaceholderUserAndExampleSpaceResult', placeholderClientToken: string, space: { __typename?: 'Space', id: string } } };
 
-export type DashboardFragment = { __typename?: 'User', spaces: Array<{ __typename?: 'Space', id: any, name: string, updatedAt: any }> } & { ' $fragmentName'?: 'DashboardFragment' };
+export type DashboardFragment = { __typename?: 'User', spaces: Array<{ __typename?: 'Space', id: string, name: string, updatedAt: any }> } & { ' $fragmentName'?: 'DashboardFragment' };
 
 export type CreateSpaceMutationMutationVariables = Exact<{ [key: string]: never; }>;
 
 
-export type CreateSpaceMutationMutation = { __typename?: 'Mutation', createSpace?: { __typename?: 'Space', id: any } | null };
+export type CreateSpaceMutationMutation = { __typename?: 'Mutation', createSpace?: { __typename?: 'Space', id: string } | null };
 
 export type RootRouteQueryQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -574,7 +581,7 @@ export type SpaceQueryQueryVariables = Exact<{
 }>;
 
 
-export type SpaceQueryQuery = { __typename?: 'Query', space?: { __typename?: 'Space', id: any, name: string, content?: string | null } | null };
+export type SpaceQueryQuery = { __typename?: 'Query', space?: { __typename?: 'Space', id: string, name: string, content?: string | null } | null };
 
 export type UpdateSpaceMutationMutationVariables = Exact<{
   spaceId: Scalars['UUID']['input'];
@@ -582,7 +589,7 @@ export type UpdateSpaceMutationMutationVariables = Exact<{
 }>;
 
 
-export type UpdateSpaceMutationMutation = { __typename?: 'Mutation', updateSpace?: { __typename?: 'Space', id: any, name: string, content?: string | null } | null };
+export type UpdateSpaceMutationMutation = { __typename?: 'Mutation', updateSpace?: { __typename?: 'Space', id: string, name: string, content?: string | null } | null };
 
 export const DraggingBlockFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"DraggingBlock"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Block"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"PromptBlock"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"role"}},{"kind":"Field","name":{"kind":"Name","value":"content"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"CompleterBlock"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"model"}},{"kind":"Field","name":{"kind":"Name","value":"temperature"}},{"kind":"Field","name":{"kind":"Name","value":"stop"}}]}}]}}]} as unknown as DocumentNode<DraggingBlockFragment, unknown>;
 export const DashboardFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"Dashboard"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"User"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"spaces"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]} as unknown as DocumentNode<DashboardFragment, unknown>;
@@ -600,7 +607,7 @@ export const SubHeaderBlockSetFragmentFragmentDoc = {"kind":"Document","definiti
 export const RunButtonFragmentFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"RunButtonFragment"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Preset"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"blockSets"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"topInputPromptBlock"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"role"}},{"kind":"Field","name":{"kind":"Name","value":"content"}}]}},{"kind":"Field","name":{"kind":"Name","value":"systemPromptBlock"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"content"}}]}},{"kind":"Field","name":{"kind":"Name","value":"completerBlock"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"model"}},{"kind":"Field","name":{"kind":"Name","value":"temperature"}},{"kind":"Field","name":{"kind":"Name","value":"stop"}}]}}]}}]}}]} as unknown as DocumentNode<RunButtonFragmentFragment, unknown>;
 export const SubHeaderFragmentFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"SubHeaderFragment"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Query"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"workspace"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"workspaceId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"workspaceId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"firstPreset"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"RunButtonFragment"}}]}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"RunButtonFragment"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Preset"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"blockSets"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"topInputPromptBlock"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"role"}},{"kind":"Field","name":{"kind":"Name","value":"content"}}]}},{"kind":"Field","name":{"kind":"Name","value":"systemPromptBlock"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"content"}}]}},{"kind":"Field","name":{"kind":"Name","value":"completerBlock"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"model"}},{"kind":"Field","name":{"kind":"Name","value":"temperature"}},{"kind":"Field","name":{"kind":"Name","value":"stop"}}]}}]}}]}}]} as unknown as DocumentNode<SubHeaderFragmentFragment, unknown>;
 export const HeaderQueryDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"HeaderQuery"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"isLoggedIn"}},{"kind":"Field","name":{"kind":"Name","value":"user"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"email"}}]}}]}}]} as unknown as DocumentNode<HeaderQueryQuery, HeaderQueryQueryVariables>;
-export const CreateExampleSpaceMutationDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateExampleSpaceMutation"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createExampleSpace"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"isSuccess"}},{"kind":"Field","name":{"kind":"Name","value":"placeholderClientToken"}},{"kind":"Field","name":{"kind":"Name","value":"space"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]}}]} as unknown as DocumentNode<CreateExampleSpaceMutationMutation, CreateExampleSpaceMutationMutationVariables>;
+export const CreatePlaceholderUserAndExampleSpaceMutationDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreatePlaceholderUserAndExampleSpaceMutation"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","alias":{"kind":"Name","value":"result"},"name":{"kind":"Name","value":"createPlaceholderUserAndExampleSpace"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"placeholderClientToken"}},{"kind":"Field","name":{"kind":"Name","value":"space"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]}}]} as unknown as DocumentNode<CreatePlaceholderUserAndExampleSpaceMutationMutation, CreatePlaceholderUserAndExampleSpaceMutationMutationVariables>;
 export const CreateSpaceMutationDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateSpaceMutation"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createSpace"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]} as unknown as DocumentNode<CreateSpaceMutationMutation, CreateSpaceMutationMutationVariables>;
 export const RootRouteQueryDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"RootRouteQuery"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"user"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"Dashboard"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"Dashboard"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"User"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"spaces"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]} as unknown as DocumentNode<RootRouteQueryQuery, RootRouteQueryQueryVariables>;
 export const AddPromptToBlockSetTopInputMutationDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"AddPromptToBlockSetTopInputMutation"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"promptBlockId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UUID"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"blockSetId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UUID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"addPromptToBlockSetTopInput"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"promptBlockId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"promptBlockId"}}},{"kind":"Argument","name":{"kind":"Name","value":"blockSetId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"blockSetId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]} as unknown as DocumentNode<AddPromptToBlockSetTopInputMutationMutation, AddPromptToBlockSetTopInputMutationMutationVariables>;

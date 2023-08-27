@@ -7,7 +7,7 @@ from .orm.user import OrmUser
 from .orm.workspace import OrmWorkspace
 
 
-def create_example_space(
+def create_example_workspace(
     db_user: OrmUser,
 ) -> tuple[
     OrmWorkspace,
@@ -16,13 +16,13 @@ def create_example_space(
     OrmCompleterBlock,
     OrmBlockSet,
 ]:
-    return create_space_with_examples(
+    return create_workspace_with_examples(
         db_user=db_user,
         space_name="Example space",
     )
 
 
-def create_space_with_examples(
+def create_workspace_with_examples(
     db_user: OrmUser,
     space_name: str,
 ) -> tuple[
@@ -71,13 +71,10 @@ def create_space_with_examples(
     )
 
 
-def create_space_v2_with_examples(
-    db_user: OrmUser,
-    space_name: str,
-) -> tuple[OrmSpace]:
+def create_space_with_example_content(db_user: OrmUser) -> OrmSpace:
     db_space_v2 = OrmSpace(
-        name=space_name,
+        name="Example space",
         owner=db_user,
     )
 
-    return (db_space_v2,)
+    return db_space_v2

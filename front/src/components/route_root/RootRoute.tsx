@@ -11,10 +11,9 @@ import Dashboard from "./dashboard/Dashboard";
 import { ROOT_ROUTE_QUERY } from "./queries";
 import "./RootRoute.css";
 
-const CREATE_EXAMPLE_SPACE_MUTATION = gql(`
-  mutation CreateExampleSpaceMutation {
-    createExampleSpace {
-      isSuccess
+const CREATE_PLACEHOLDER_USER_AND_EXAMPLE_SPACE_MUTATION = gql(`
+  mutation CreatePlaceholderUserAndExampleSpaceMutation {
+    result: createPlaceholderUserAndExampleSpace {
       placeholderClientToken
       space {
         id
@@ -51,26 +50,35 @@ export default function RootRoute() {
 
   const setPlaceholderUserToken = useSetRecoilState(placeholderUserTokenState);
 
+  // --- GraphQL ---
+
   const queryResult = useQuery(ROOT_ROUTE_QUERY, {
     fetchPolicy: "cache-and-network",
   });
 
-  const [createExampleSpace] = useMutation(CREATE_EXAMPLE_SPACE_MUTATION, {
-    refetchQueries: [ROOT_ROUTE_QUERY],
-  });
+  const [createExampleSpace] = useMutation(
+    CREATE_PLACEHOLDER_USER_AND_EXAMPLE_SPACE_MUTATION,
+    {
+      refetchQueries: [ROOT_ROUTE_QUERY],
+    }
+  );
 
-  const onClickCreateExamples = useCallback(() => {
+  const onClick = useCallback(() => {
     createExampleSpace().then(({ errors, data }) => {
       if (errors) {
+        // TODO: Handle errors
         console.error(errors);
         return;
       }
-      if (data?.createExampleSpace?.placeholderClientToken == null) {
+
+      if (!data?.result?.placeholderClientToken) {
         return;
       }
-      setPlaceholderUserToken(data.createExampleSpace.placeholderClientToken);
-      if (data.createExampleSpace.space?.id) {
-        navigate(pathToSpace(data.createExampleSpace.space.id));
+
+      setPlaceholderUserToken(data.result.placeholderClientToken);
+
+      if (data.result.space.id) {
+        navigate(pathToSpace(data.result.space.id));
       }
     });
   }, [createExampleSpace, setPlaceholderUserToken, navigate]);
@@ -79,8 +87,8 @@ export default function RootRoute() {
     return <div>Loading...</div>;
   }
 
-  if (queryResult.error != null) {
-    return <div>Error! {queryResult.error.message}</div>;
+  if (queryResult.error) {
+    return <div>Error {queryResult.error.message}</div>;
   }
 
   let content: JSX.Element;
@@ -92,7 +100,7 @@ export default function RootRoute() {
       <EmptyStateContent>
         <button
           className="RootRoute_big_button RootRoute_big_button_create_example"
-          onClick={onClickCreateExamples}
+          onClick={onClick}
         >
           Create an example space
         </button>
