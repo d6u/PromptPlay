@@ -78,13 +78,13 @@ def create_space_with_example_content(db_user: OrmUser) -> OrmSpace:
     db_space_v2 = OrmSpace(
         name="Example space",
         owner=db_user,
-        content=_space_example_content(),
+        content=space_example_content(),
     )
 
     return db_space_v2
 
 
-def _space_example_content() -> dict[str, Any]:
+def space_example_content() -> dict[str, Any]:
     block1_id = str(uuid4())
     block2_id = str(uuid4())
 

@@ -1,12 +1,11 @@
 import json
-from typing import cast
 from uuid import UUID
 
 import strawberry
 
 from server.database.orm.space import OrmSpace
 from server.database.orm.user import OrmUser
-from server.database.utils import create_space_with_example_content
+from server.database.utils import space_example_content
 
 from .context import Info
 from .types import Space
@@ -24,16 +23,15 @@ class MutationSpace:
     ) -> Space | None:
         db = info.context.db
 
-        (db_space_v2,) = create_space_with_example_content(
-            db_user=db_user,
-            space_name="Example space",
+        db_space = OrmSpace(
+            owner=db_user,
+            content=space_example_content(),
         )
 
-        db.add_all([db_space_v2])
-
+        db.add(db_space)
         db.commit()
 
-        return Space.from_db(db_space_v2)
+        return Space.from_db(db_space)
 
     @strawberry.mutation
     @ensure_db_user
@@ -47,23 +45,21 @@ class MutationSpace:
     ) -> Space | None:
         db = info.context.db
 
-        db_space_v2 = db.scalar(
-            db_user.spaces.select().where(OrmSpace.id == id)
-        )
+        db_space = db.scalar(db_user.spaces.select().where(OrmSpace.id == id))
 
-        if db_space_v2 == None:
+        if db_space == None:
             return None
 
         if name == None:
             raise Exception("name cannot be null")
         elif name != strawberry.UNSET:
-            db_space_v2.name = name
+            db_space.name = name
 
         if content == None:
-            db_space_v2.content = None
+            db_space.content = None
         elif content != strawberry.UNSET:
-            db_space_v2.content = json.loads(content)
+            db_space.content = json.loads(content)
 
         db.commit()
 
-        return Space.from_db(db_space_v2)
+        return Space.from_db(db_space)

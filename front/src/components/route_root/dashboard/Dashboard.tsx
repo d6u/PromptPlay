@@ -18,8 +18,10 @@ const DASHBOARD_FRAGMENT = gql(`
 
 const CREATE_SPACE_MUTATION = gql(`
   mutation CreateSpaceMutation {
-    createSpace {
+    result: createSpace {
       id
+      name
+      updatedAt
     }
   }
 `);
@@ -68,12 +70,12 @@ export default function Dashboard({
           type={DashboardTileType.ADD}
           onClick={() => {
             createSpace().then(({ errors, data }) => {
-              if (errors || data?.createSpace?.id == null) {
+              if (errors || data?.result?.id == null) {
                 console.error(errors);
                 return;
               }
 
-              navigate(pathToSpace(data.createSpace.id));
+              navigate(pathToSpace(data.result.id));
             });
           }}
         >

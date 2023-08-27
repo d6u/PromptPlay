@@ -18,7 +18,7 @@ const documents = {
     "\n  query HeaderQuery {\n    isLoggedIn\n    user {\n      email\n    }\n  }\n": types.HeaderQueryDocument,
     "\n  mutation CreatePlaceholderUserAndExampleSpaceMutation {\n    result: createPlaceholderUserAndExampleSpace {\n      placeholderClientToken\n      space {\n        id\n      }\n    }\n  }\n": types.CreatePlaceholderUserAndExampleSpaceMutationDocument,
     "\n  fragment Dashboard on User {\n    spaces {\n      id\n      name\n      updatedAt\n    }\n  }\n": types.DashboardFragmentDoc,
-    "\n  mutation CreateSpaceMutation {\n    createSpace {\n      id\n    }\n  }\n": types.CreateSpaceMutationDocument,
+    "\n  mutation CreateSpaceMutation {\n    result: createSpace {\n      id\n      name\n      updatedAt\n    }\n  }\n": types.CreateSpaceMutationDocument,
     "\n  query RootRouteQuery {\n    user {\n      id\n      ...Dashboard\n    }\n  }\n": types.RootRouteQueryDocument,
     "\n  fragment WorkspaceQuery on Query {\n    workspace(workspaceId: $workspaceId) {\n      firstPreset {\n        id\n        blockSets {\n          id\n          position\n        }\n      }\n    }\n    ...WorkspaceContent\n  }\n": types.WorkspaceQueryFragmentDoc,
     "\n  mutation AddPromptToBlockSetTopInputMutation(\n    $promptBlockId: UUID!\n    $blockSetId: UUID!\n  ) {\n    addPromptToBlockSetTopInput(\n      promptBlockId: $promptBlockId\n      blockSetId: $blockSetId\n    ) {\n      id\n    }\n  }\n": types.AddPromptToBlockSetTopInputMutationDocument,
@@ -96,7 +96,7 @@ export function gql(source: "\n  fragment Dashboard on User {\n    spaces {\n   
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\n  mutation CreateSpaceMutation {\n    createSpace {\n      id\n    }\n  }\n"): (typeof documents)["\n  mutation CreateSpaceMutation {\n    createSpace {\n      id\n    }\n  }\n"];
+export function gql(source: "\n  mutation CreateSpaceMutation {\n    result: createSpace {\n      id\n      name\n      updatedAt\n    }\n  }\n"): (typeof documents)["\n  mutation CreateSpaceMutation {\n    result: createSpace {\n      id\n      name\n      updatedAt\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
