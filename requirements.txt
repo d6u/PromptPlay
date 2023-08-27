@@ -14,3 +14,5 @@ auth0-python
 httpx
 Starlette
 itsdangerous
+boto3
+termcolor
