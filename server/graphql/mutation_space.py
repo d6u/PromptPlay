@@ -39,7 +39,7 @@ class MutationSpace:
         self: None,
         info: Info,
         db_user: OrmUser,
-        id: UUID,
+        id: strawberry.ID,
         name: str | None = strawberry.UNSET,
         content: str | None = strawberry.UNSET,
     ) -> Space | None:
@@ -63,3 +63,23 @@ class MutationSpace:
         db.commit()
 
         return Space.from_db(db_space)
+
+    @strawberry.mutation
+    @ensure_db_user
+    def delete_space(
+        self: None,
+        info: Info,
+        db_user: OrmUser,
+        id: strawberry.ID,
+    ) -> bool | None:
+        db = info.context.db
+
+        db_space = db.scalar(db_user.spaces.select().where(OrmSpace.id == id))
+
+        if db_space == None:
+            return False
+
+        db.delete(db_space)
+        db.commit()
+
+        return True
