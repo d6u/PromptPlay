@@ -2,6 +2,7 @@ import { useMutation } from "@apollo/client";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { FragmentType, gql, useFragment } from "../../../__generated__";
+import { pathToSpace } from "../../routeConfig";
 import { ROOT_ROUTE_QUERY } from "../queries";
 import DashboardTile, { DashboardTileType } from "./DashboardTile";
 
@@ -72,7 +73,7 @@ export default function Dashboard({
                 return;
               }
 
-              navigate(`/spaces/${data.createSpace.id}`);
+              navigate(pathToSpace(data.createSpace.id));
             });
           }}
         >
@@ -81,7 +82,7 @@ export default function Dashboard({
         {dashboard.spaces.map((space) => {
           const workspaceId = space.id;
           const workspaceName = space.name;
-          const url = `/spaces_v2/${workspaceId}`;
+          const url = pathToSpace(workspaceId);
 
           return (
             <DashboardTile

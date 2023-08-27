@@ -26,7 +26,7 @@ const Content = styled.div`
 
 type Props = {};
 
-export default function RouteSpaceV2(props: Props) {
+export default function RouteSpace(props: Props) {
   // TODO: Properly handle spaceId not being present
   const { spaceId = "" } = useParams<{ spaceId: string }>();
 

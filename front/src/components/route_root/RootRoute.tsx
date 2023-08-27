@@ -6,6 +6,7 @@ import styled from "styled-components";
 import { gql } from "../../__generated__";
 import { IS_LOGIN_ENABLED } from "../../constants";
 import { placeholderUserTokenState } from "../../state/store";
+import { pathToSpace } from "../routeConfig";
 import Dashboard from "./dashboard/Dashboard";
 import { ROOT_ROUTE_QUERY } from "./queries";
 import "./RootRoute.css";
@@ -69,7 +70,7 @@ export default function RootRoute() {
       }
       setPlaceholderUserToken(data.createExampleSpace.placeholderClientToken);
       if (data.createExampleSpace.space?.id) {
-        navigate(`/spaces/${data.createExampleSpace.space.id}`);
+        navigate(pathToSpace(data.createExampleSpace.space.id));
       }
     });
   }, [createExampleSpace, setPlaceholderUserToken, navigate]);
