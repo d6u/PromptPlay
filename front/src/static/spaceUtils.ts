@@ -70,6 +70,8 @@ export function createNewBlock(type: BlockType): Block {
         model: LlmModel.GPT3_5_TURBO,
         temperature: 0.8,
         stop: [],
+        alsoOutputContent: false,
+        contentName: null,
         inputConfiguration: BlockVariablesConfiguration.Single,
         singleInput: "name_on_scope",
         outputConfiguration: BlockVariablesConfiguration.Single,

@@ -1,10 +1,5 @@
 import { UPDATE_SPACE_V2_MUTATION } from "../../../../state/spaceGraphQl";
-import {
-  Block,
-  BlockType,
-  BlockVariablesConfiguration,
-  SpaceContent,
-} from "../../../../static/spaceTypes";
+import { Block, BlockType, SpaceContent } from "../../../../static/spaceTypes";
 import EditorBlockAppendToListConfigurations from "./EditorBlockAppendToListConfigurations";
 import EditorBlockDatabagConfigurations from "./EditorBlockDatabagConfigurations";
 import EditorBlockGetAttributeConfigurations from "./EditorBlockGetAttributeConfigurations";
@@ -154,6 +149,36 @@ export default function EditorBlockUniqueConfigurations(props: Props) {
             const newContent = u({
               components: {
                 [props.selectedBlock.id]: { stop },
+              },
+            })(props.spaceContent) as SpaceContent;
+
+            updateSpaceV2({
+              variables: {
+                spaceId: props.spaceId,
+                content: JSON.stringify(newContent),
+              },
+            });
+          }}
+          alsoOutputContent={props.selectedBlock.alsoOutputContent}
+          onSaveAlsoOutputContent={(alsoOutputContent) => {
+            const newContent = u({
+              components: {
+                [props.selectedBlock.id]: { alsoOutputContent },
+              },
+            })(props.spaceContent) as SpaceContent;
+
+            updateSpaceV2({
+              variables: {
+                spaceId: props.spaceId,
+                content: JSON.stringify(newContent),
+              },
+            });
+          }}
+          contentName={props.selectedBlock.contentName}
+          onSaveContentName={(contentName) => {
+            const newContent = u({
+              components: {
+                [props.selectedBlock.id]: { contentName },
               },
             })(props.spaceContent) as SpaceContent;
 

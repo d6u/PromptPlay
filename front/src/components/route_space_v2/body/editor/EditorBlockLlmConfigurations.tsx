@@ -9,6 +9,7 @@ import {
   FieldRow,
   FieldTitle,
 } from "./editorCommonComponents";
+import Checkbox from "@mui/joy/Checkbox";
 import Input from "@mui/joy/Input";
 import Option from "@mui/joy/Option";
 import Select from "@mui/joy/Select";
@@ -22,6 +23,10 @@ type Props = {
   onSaveTemperaturel: (temperature: number) => void;
   stop: Array<string>;
   onSaveStop: (stop: Array<string>) => void;
+  alsoOutputContent: boolean;
+  onSaveAlsoOutputContent: (alsoOutputContent: boolean) => void;
+  contentName: string | null;
+  onSaveContentName: (contentName: string) => void;
   selectedBlock: Block;
   spaceId: string;
   spaceContent: SpaceContent;
@@ -36,6 +41,10 @@ export default function EditorBlockLlmConfigurations(props: Props) {
   const [model, setModel] = useState(props.model);
   const [temperature, setTemperature] = useState(props.temperature);
   const [stop, setStop] = useState(props.stop);
+  const [alsoOutputContent, setAlsoOutputContent] = useState(
+    props.alsoOutputContent
+  );
+  const [contentName, setContentName] = useState(props.contentName ?? "");
 
   const onSaveStop = useCallback(() => {
     if (stop.length === 0) {
@@ -136,6 +145,39 @@ export default function EditorBlockLlmConfigurations(props: Props) {
           <code>"{LLM_STOP_NEW_LINE_SYMBOL}"</code>.)
         </FieldHelperText>
       </FieldRow>
+      <FieldRow>
+        <Checkbox
+          color="neutral"
+          size="sm"
+          variant="outlined"
+          label="Also output content"
+          checked={alsoOutputContent}
+          onChange={(e) => {
+            setAlsoOutputContent(e.target.checked);
+            props.onSaveAlsoOutputContent(e.target.checked);
+          }}
+        />
+      </FieldRow>
+      {alsoOutputContent && (
+        <FieldRow>
+          <FieldTitle>List name</FieldTitle>
+          <Input
+            color="neutral"
+            size="sm"
+            variant="outlined"
+            value={contentName}
+            onChange={(e) => {
+              setContentName(e.target.value);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                props.onSaveContentName(contentName);
+              }
+            }}
+            onBlur={() => props.onSaveContentName(contentName)}
+          />
+        </FieldRow>
+      )}
     </>
   );
 }

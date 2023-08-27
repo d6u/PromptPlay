@@ -73,6 +73,8 @@ export type BlockUniqueConfigurations =
       model: LlmModel;
       temperature: number;
       stop: Array<string>;
+      alsoOutputContent: boolean;
+      contentName: string | null;
     }
   | {
       type: BlockType.AppendToList;

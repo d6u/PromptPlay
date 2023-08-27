@@ -56,8 +56,8 @@ export const BLOCK_CONFIGS: { [key in BlockType]: BlockConfig } = {
       if (block.alsoAppendToList) {
         if (block.outputConfiguration === BlockVariablesConfiguration.Single) {
           return [
-            ["message", block.singleOuput],
             ["list", block.listName ?? "?"],
+            ["message", block.singleOuput],
           ];
         } else if (
           block.outputConfiguration === BlockVariablesConfiguration.Map
@@ -184,6 +184,36 @@ export const BLOCK_CONFIGS: { [key in BlockType]: BlockConfig } = {
   },
   [BlockType.Llm]: {
     title: "LLM",
+    derivedOutputVariablesGenerate: (block: Block) => {
+      if (block.type !== BlockType.Llm) {
+        throw new Error("Block type doesn't match");
+      }
+
+      if (block.alsoOutputContent) {
+        if (block.outputConfiguration === BlockVariablesConfiguration.Single) {
+          return [
+            ["message", block.singleOuput],
+            ["content", block.contentName ?? "?"],
+          ];
+        } else if (
+          block.outputConfiguration === BlockVariablesConfiguration.Map
+        ) {
+          return block.outputMap.concat([["list", block.contentName ?? "?"]]);
+        } else {
+          return [["list", block.contentName ?? ""]];
+        }
+      } else {
+        if (block.outputConfiguration === BlockVariablesConfiguration.Single) {
+          return block.singleOuput;
+        } else if (
+          block.outputConfiguration === BlockVariablesConfiguration.Map
+        ) {
+          return block.outputMap;
+        } else {
+          return null;
+        }
+      }
+    },
     renderConfig: (block) => {
       if (block.type !== BlockType.Llm) {
         return "";
@@ -234,6 +264,12 @@ export const BLOCK_CONFIGS: { [key in BlockType]: BlockConfig } = {
       )(block) as Block;
 
       updater(newBlock);
+
+      if (block.alsoOutputContent) {
+        if (block.contentName) {
+          scope[block.contentName] = message.content;
+        }
+      }
 
       return message;
     },
