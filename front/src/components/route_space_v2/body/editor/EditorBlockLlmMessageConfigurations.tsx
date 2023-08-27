@@ -69,7 +69,7 @@ export default function EditorBlockLlmMessageConfigurations(props: Props) {
           color="neutral"
           size="sm"
           variant="outlined"
-          minRows={3}
+          minRows={5}
           value={content}
           onChange={(e) => {
             setContent(e.target.value);

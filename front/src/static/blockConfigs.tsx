@@ -124,12 +124,16 @@ export const BLOCK_CONFIGS: { [key in BlockType]: BlockConfig } = {
           <br />
           temperature=<b>{block.temperature}</b>
           <br />
-          stop=
-          <b>
-            {block.stop.length
-              ? block.stop[0].replace("\n", LLM_STOP_NEW_LINE_SYMBOL)
-              : ""}
-          </b>
+          {block.stop.length > 0 && (
+            <>
+              stop=
+              <b>
+                {block.stop.length
+                  ? block.stop[0].replace("\n", LLM_STOP_NEW_LINE_SYMBOL)
+                  : ""}
+              </b>
+            </>
+          )}
         </>
       );
     },
