@@ -1,6 +1,6 @@
+import styled from "styled-components";
 import { Block, SpaceContent } from "../../../static/spaceTypes";
 import EditorBlock from "./editor/EditorBlock";
-import styled from "styled-components";
 
 const Container = styled.div`
   width: 500px;

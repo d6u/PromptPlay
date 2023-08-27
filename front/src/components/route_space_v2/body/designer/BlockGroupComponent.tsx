@@ -1,11 +1,11 @@
-import { BlockGroupAnchor, SpaceContent } from "../../../../static/spaceTypes";
-import { isBlockGroupAnchor } from "../../../../static/spaceUtils";
-import BlockComponent from "./BlockComponent";
-import Gutter from "./Gutter";
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import { ReactNode } from "react";
 import styled, { css } from "styled-components";
+import { BlockGroupAnchor, SpaceContent } from "../../../../static/spaceTypes";
+import { isBlockGroupAnchor } from "../../../../static/spaceUtils";
+import BlockComponent from "./BlockComponent";
+import Gutter from "./Gutter";
 
 const Container = styled.div<{ $root: boolean }>`
   ${(props) =>

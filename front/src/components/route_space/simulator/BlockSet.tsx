@@ -1,3 +1,10 @@
+import { useMutation } from "@apollo/client";
+import { useDroppable } from "@dnd-kit/core";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import classNames from "classnames";
+import { ReactElement } from "react";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { FragmentType, gql, useFragment } from "../../../__generated__";
 import { PromptType } from "../../../__generated__/graphql";
 import {
@@ -8,17 +15,10 @@ import {
   selectedElementTypeState,
 } from "../../../state/store";
 import Block, { BlockType } from "../../blocks/Block";
-import "./BlockSet.css";
 import BlockSetDragHandle from "./BlockSetDragHandle";
 import BlockSetPointer from "./BlockSetPointer";
 import SimulatorBlock from "./SimulatorBlock";
-import { useMutation } from "@apollo/client";
-import { useDroppable } from "@dnd-kit/core";
-import { useSortable } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
-import classNames from "classnames";
-import { ReactElement } from "react";
-import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
+import "./BlockSet.css";
 
 const SIMULATOR_BLOCK_SET_FRAGMENT = gql(`
   fragment SimulatorBlockSet on BlockSet {

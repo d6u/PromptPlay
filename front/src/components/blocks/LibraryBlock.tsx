@@ -1,6 +1,6 @@
+import { useDraggable } from "@dnd-kit/core";
 import { FragmentType, gql, useFragment } from "../../__generated__";
 import Block, { parseBlockDisplayData } from "./Block";
-import { useDraggable } from "@dnd-kit/core";
 
 const LIBRARY_BLOCK = gql(`
   fragment LibraryBlock on Block {

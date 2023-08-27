@@ -1,3 +1,8 @@
+import { useMutation } from "@apollo/client";
+import Button from "@mui/joy/Button";
+import { dissoc } from "ramda";
+import styled from "styled-components";
+import u from "updeep";
 import { UPDATE_SPACE_V2_MUTATION } from "../../../../state/spaceGraphQl";
 import { BLOCK_CONFIGS } from "../../../../static/blockConfigs";
 import { Block, SpaceContent } from "../../../../static/spaceTypes";
@@ -10,11 +15,6 @@ import {
   FieldRow,
   FieldTitle,
 } from "./shared/editorCommonComponents";
-import { useMutation } from "@apollo/client";
-import Button from "@mui/joy/Button";
-import { dissoc } from "ramda";
-import styled from "styled-components";
-import u from "updeep";
 
 const Header = styled.div`
   align-self: stretch;

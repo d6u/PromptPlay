@@ -1,5 +1,5 @@
-import BlockPointerIcon from "../../icons/BlockPointerIcon";
 import classNames from "classnames";
+import BlockPointerIcon from "../../icons/BlockPointerIcon";
 
 export default function BlockSetPointer({
   isActive,

@@ -1,5 +1,5 @@
-import "./DashboardTile.css";
 import { Link } from "wouter";
+import "./DashboardTile.css";
 
 export enum DashboardTileType {
   ADD = "ADD",

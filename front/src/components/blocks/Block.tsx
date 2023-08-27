@@ -1,10 +1,10 @@
+import classNames from "classnames";
+import { MouseEventHandler, ReactElement, forwardRef } from "react";
+import { useRecoilValue } from "recoil";
 import { PromptType } from "../../__generated__/graphql";
 import { selectedBlockState } from "../../state/store";
 import CrossIcon from "../icons/CrossIcon";
 import "./Block.css";
-import classNames from "classnames";
-import { MouseEventHandler, ReactElement, forwardRef } from "react";
-import { useRecoilValue } from "recoil";
 
 export enum BlockType {
   Prompt,

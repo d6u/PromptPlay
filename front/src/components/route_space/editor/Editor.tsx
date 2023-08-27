@@ -1,13 +1,13 @@
+import { ReactElement } from "react";
+import { useRecoilValue } from "recoil";
 import {
   EditorElementType,
   selectedElementTypeState,
 } from "../../../state/store";
 import BlockSetEditor from "./BlockSetEditor";
 import CompleterBlockEditor from "./CompleterBlockEditor";
-import "./Editor.css";
 import PromptBlockEditor from "./PromptBlockEditor";
-import { ReactElement } from "react";
-import { useRecoilValue } from "recoil";
+import "./Editor.css";
 
 export default function Editor() {
   const selectedElementType = useRecoilValue(selectedElementTypeState);

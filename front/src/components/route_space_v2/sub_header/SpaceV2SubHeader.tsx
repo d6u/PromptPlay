@@ -1,13 +1,13 @@
-import { BlockType, SpaceContent } from "../../../static/spaceTypes";
-import {
-  createInitialSpaceContent,
-  createNewBlock,
-} from "../../../static/spaceUtils";
 import Button from "@mui/joy/Button";
 import { append } from "ramda";
 import { useCallback } from "react";
 import styled from "styled-components";
 import u from "updeep";
+import { BlockType, SpaceContent } from "../../../static/spaceTypes";
+import {
+  createInitialSpaceContent,
+  createNewBlock,
+} from "../../../static/spaceUtils";
 
 const Container = styled.div`
   height: 60px;

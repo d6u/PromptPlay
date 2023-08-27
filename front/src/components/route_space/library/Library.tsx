@@ -1,3 +1,4 @@
+import { useSetRecoilState } from "recoil";
 import { FragmentType, gql, useFragment } from "../../../__generated__";
 import {
   EditorElementType,
@@ -6,7 +7,6 @@ import {
 } from "../../../state/store";
 import LibraryBlock from "../../blocks/LibraryBlock";
 import "./Library.css";
-import { useSetRecoilState } from "recoil";
 
 const LIBRARY_FRAGMENT = gql(`
   fragment Library on Workspace {

@@ -1,7 +1,7 @@
-import { Block, SpaceContent } from "../../../../static/spaceTypes";
-import { FieldRow, FieldTitle } from "./shared/editorCommonComponents";
 import Input from "@mui/joy/Input";
 import { useState } from "react";
+import { Block, SpaceContent } from "../../../../static/spaceTypes";
+import { FieldRow, FieldTitle } from "./shared/editorCommonComponents";
 
 type Props = {
   attribute: string;

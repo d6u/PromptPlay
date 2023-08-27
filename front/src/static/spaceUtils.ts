@@ -1,3 +1,14 @@
+import { nanoid } from "nanoid";
+import {
+  adjust,
+  insert,
+  assoc,
+  reject,
+  findIndex,
+  propEq,
+  prepend,
+} from "ramda";
+import u from "updeep";
 import {
   Block,
   BlockAnchor,
@@ -10,17 +21,6 @@ import {
   ROOT_COMPONENT_ID,
   SpaceContent,
 } from "./spaceTypes";
-import { nanoid } from "nanoid";
-import {
-  adjust,
-  insert,
-  assoc,
-  reject,
-  findIndex,
-  propEq,
-  prepend,
-} from "ramda";
-import u from "updeep";
 
 export function createInitialSpaceContent(): SpaceContent {
   return {

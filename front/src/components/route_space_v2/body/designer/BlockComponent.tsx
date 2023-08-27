@@ -1,3 +1,8 @@
+import { useDraggable } from "@dnd-kit/core";
+import { CSS } from "@dnd-kit/utilities";
+import { ReactNode } from "react";
+import { useRecoilState } from "recoil";
+import styled, { css } from "styled-components";
 import { spaceV2SelectedBlockIdState } from "../../../../state/store";
 import { BLOCK_CONFIGS } from "../../../../static/blockConfigs";
 import {
@@ -11,11 +16,6 @@ import BlockV2, {
   blockTypeToVisualBlockType,
 } from "../../../block_v2/BlockV2";
 import BlockVariableMap from "./BlockVariableMap";
-import { useDraggable } from "@dnd-kit/core";
-import { CSS } from "@dnd-kit/utilities";
-import { ReactNode } from "react";
-import { useRecoilState } from "recoil";
-import styled, { css } from "styled-components";
 
 const Container = styled.div<{ $isDragging: boolean }>`
   display: flex;

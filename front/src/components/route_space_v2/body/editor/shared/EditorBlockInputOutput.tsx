@@ -1,7 +1,3 @@
-import { UPDATE_SPACE_V2_MUTATION } from "../../../../../state/spaceGraphQl";
-import { Block, SpaceContent } from "../../../../../static/spaceTypes";
-import EditorSingleScopeVariable from "./EditorSingleScopeVariable";
-import EditorVariableMapRow from "./EditorVariableMapRow";
 import { useMutation } from "@apollo/client";
 import Button from "@mui/joy/Button";
 import { customAlphabet } from "nanoid";
@@ -9,6 +5,10 @@ import { append, equals, reject, update } from "ramda";
 import { ReactNode } from "react";
 import styled from "styled-components";
 import u from "updeep";
+import { UPDATE_SPACE_V2_MUTATION } from "../../../../../state/spaceGraphQl";
+import { Block, SpaceContent } from "../../../../../static/spaceTypes";
+import EditorSingleScopeVariable from "./EditorSingleScopeVariable";
+import EditorVariableMapRow from "./EditorVariableMapRow";
 
 const nanoid = customAlphabet("1234567890abcdef", 6);
 

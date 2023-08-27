@@ -1,12 +1,12 @@
-import { gql } from "../../__generated__";
-import { IS_LOGIN_ENABLED } from "../../constants";
-import { placeholderUserTokenState } from "../../state/store";
-import "./RootRoute.css";
-import Dashboard from "./dashboard/Dashboard";
 import { useMutation, useQuery } from "@apollo/client";
 import { useCallback } from "react";
 import { useSetRecoilState } from "recoil";
 import { useLocation } from "wouter";
+import { gql } from "../../__generated__";
+import { IS_LOGIN_ENABLED } from "../../constants";
+import { placeholderUserTokenState } from "../../state/store";
+import Dashboard from "./dashboard/Dashboard";
+import "./RootRoute.css";
 
 const ROOT_ROUTE_QUERY = gql(`
   query RootRouteQuery {

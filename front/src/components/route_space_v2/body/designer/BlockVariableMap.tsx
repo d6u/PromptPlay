@@ -1,6 +1,6 @@
-import VariableMapArrow from "../../../icons/VaribleMapArrow";
 import { ReactNode } from "react";
 import styled from "styled-components";
+import VariableMapArrow from "../../../icons/VaribleMapArrow";
 
 const BlockInput = styled.div<{ $justifyContent: "flex-end" | "flex-start" }>`
   width: 250px;

@@ -1,3 +1,10 @@
+import { useApolloClient, useMutation } from "@apollo/client";
+import FormControl from "@mui/joy/FormControl";
+import FormLabel from "@mui/joy/FormLabel";
+import Radio from "@mui/joy/Radio";
+import RadioGroup from "@mui/joy/RadioGroup";
+import { useEffect, useState } from "react";
+import { useRecoilValue, useSetRecoilState } from "recoil";
 import { gql } from "../../../__generated__";
 import { PromptType } from "../../../__generated__/graphql";
 import {
@@ -7,13 +14,6 @@ import {
   streamingOutputBlockContentState,
 } from "../../../state/store";
 import EditorHeader from "./EditorHeader";
-import { useApolloClient, useMutation } from "@apollo/client";
-import FormControl from "@mui/joy/FormControl";
-import FormLabel from "@mui/joy/FormLabel";
-import Radio from "@mui/joy/Radio";
-import RadioGroup from "@mui/joy/RadioGroup";
-import { useEffect, useState } from "react";
-import { useRecoilValue, useSetRecoilState } from "recoil";
 
 const SELECTED_BLOCK_FRAGMENT = gql(`
   fragment SelectedBlock on PromptBlock {

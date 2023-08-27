@@ -1,3 +1,6 @@
+import { useQuery } from "@apollo/client";
+import { Button } from "@mui/joy";
+import { Link } from "wouter";
 import { gql } from "../../__generated__";
 import {
   API_SERVER_BASE_URL,
@@ -5,9 +8,6 @@ import {
   PROVIDE_FEEDBACK_LINK,
 } from "../../constants";
 import "./Header.css";
-import { useQuery } from "@apollo/client";
-import { Button } from "@mui/joy";
-import { Link } from "wouter";
 
 const HEADER_QUERY = gql(`
   query HeaderQuery {

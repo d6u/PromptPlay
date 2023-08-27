@@ -1,13 +1,13 @@
+import { useApolloClient, useMutation } from "@apollo/client";
+import { RadioGroup, Radio, FormLabel, FormControl, Checkbox } from "@mui/joy";
+import { useEffect, useState } from "react";
+import { useRecoilValue, useSetRecoilState } from "recoil";
 import { gql } from "../../../__generated__";
 import {
   selectedBlockState,
   selectedElementTypeState,
 } from "../../../state/store";
 import EditorHeader from "./EditorHeader";
-import { useApolloClient, useMutation } from "@apollo/client";
-import { RadioGroup, Radio, FormLabel, FormControl, Checkbox } from "@mui/joy";
-import { useEffect, useState } from "react";
-import { useRecoilValue, useSetRecoilState } from "recoil";
 
 const EDITOR_BLOCK_SET_FRAGMENT = gql(`
   fragment EditorBlockSet on BlockSet {

@@ -1,11 +1,11 @@
+import { DragOverlay } from "@dnd-kit/core";
+import { ReactElement } from "react";
+import { useRecoilValue } from "recoil";
 import {
   beingDraggingElementIdState,
   isReorderingBlockSetState,
 } from "../state/store";
 import DraggingBlock from "./blocks/DraggingBlock";
-import { DragOverlay } from "@dnd-kit/core";
-import { ReactElement } from "react";
-import { useRecoilValue } from "recoil";
 
 export default function CustomDragOverlay() {
   const beingDraggingElementId = useRecoilValue(beingDraggingElementIdState);

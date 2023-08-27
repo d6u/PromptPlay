@@ -1,6 +1,6 @@
 // import DragArrowIcon from "../../icons/DragArrowIcon";
-import DragHandleIcon from "../../icons/DragHandleIcon";
 import { Ref } from "react";
+import DragHandleIcon from "../../icons/DragHandleIcon";
 
 export default function BlockSetDragHandle({
   handleListeners,

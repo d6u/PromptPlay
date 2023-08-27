@@ -1,11 +1,11 @@
-import possibleTypes from "../__generated__/possibleTypes.json";
-import { API_SERVER_BASE_URL, IS_LOGIN_ENABLED } from "../constants";
 import {
   ApolloClient,
   ApolloClientOptions,
   InMemoryCache,
   NormalizedCacheObject,
 } from "@apollo/client";
+import possibleTypes from "../__generated__/possibleTypes.json";
+import { API_SERVER_BASE_URL, IS_LOGIN_ENABLED } from "../constants";
 
 type CreateApolloClientOptions = {
   // Can be ""

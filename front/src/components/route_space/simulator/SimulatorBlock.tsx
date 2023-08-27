@@ -1,3 +1,10 @@
+import {
+  useCallback,
+  MouseEvent,
+  MouseEventHandler,
+  ReactElement,
+} from "react";
+import { useRecoilValue, useSetRecoilState } from "recoil";
 import { FragmentType, gql, useFragment } from "../../../__generated__";
 import {
   EditorElementType,
@@ -7,13 +14,6 @@ import {
   streamingOutputBlockContentState,
 } from "../../../state/store";
 import Block, { BlockType, parseBlockDisplayData } from "../../blocks/Block";
-import {
-  useCallback,
-  MouseEvent,
-  MouseEventHandler,
-  ReactElement,
-} from "react";
-import { useRecoilValue, useSetRecoilState } from "recoil";
 
 const SIMULATOR_BLOCK = gql(`
   fragment SimulatorBlock on Block {

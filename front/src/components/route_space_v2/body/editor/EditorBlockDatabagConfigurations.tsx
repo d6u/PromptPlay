@@ -1,11 +1,11 @@
+import Textarea from "@mui/joy/Textarea";
+import { useState } from "react";
 import { Block, SpaceContent } from "../../../../static/spaceTypes";
 import {
   FieldHelperText,
   FieldRow,
   FieldTitle,
 } from "./shared/editorCommonComponents";
-import Textarea from "@mui/joy/Textarea";
-import { useState } from "react";
 
 type Props = {
   value: string;

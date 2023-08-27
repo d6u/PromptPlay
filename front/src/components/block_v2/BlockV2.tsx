@@ -1,7 +1,7 @@
+import styled, { css } from "styled-components";
 import { BLOCK_CONFIGS } from "../../static/blockConfigs";
 import { BlockType } from "../../static/spaceTypes";
 import CrossIconV2 from "../icons/CrossIconV2";
-import styled, { css } from "styled-components";
 
 export enum VisualBlockType {
   Plain = "Plain",

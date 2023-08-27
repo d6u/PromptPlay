@@ -1,7 +1,7 @@
+import { useQuery } from "@apollo/client";
 import Workspace from "./Workspace";
 import { WORKSPACE_ROUTE_QUERY } from "./WorkspaceRouteQuery";
 import SubHeader from "./sub_header/SubHeader";
-import { useQuery } from "@apollo/client";
 
 type Props = {
   workspaceId: string;

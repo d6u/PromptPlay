@@ -1,3 +1,8 @@
+import Input from "@mui/joy/Input";
+import Option from "@mui/joy/Option";
+import Select from "@mui/joy/Select";
+import { useCallback, useState } from "react";
+import { useRecoilState } from "recoil";
 import {
   missingOpenAiApiKeyState,
   openAiApiKeyState,
@@ -9,11 +14,6 @@ import {
   FieldRow,
   FieldTitle,
 } from "./shared/editorCommonComponents";
-import Input from "@mui/joy/Input";
-import Option from "@mui/joy/Option";
-import Select from "@mui/joy/Select";
-import { useCallback, useState } from "react";
-import { useRecoilState } from "recoil";
 
 type Props = {
   model: LlmModel;

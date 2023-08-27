@@ -1,7 +1,7 @@
-import * as openai from "../llm/openai";
-import { Block, BlockType, BlockVariablesConfiguration } from "./spaceTypes";
 import { append, assoc, flatten, pipe, prop } from "ramda";
 import { ReactNode } from "react";
+import * as openai from "../llm/openai";
+import { Block, BlockType, BlockVariablesConfiguration } from "./spaceTypes";
 
 // TODO: Find a better way to pass the openaiApiKey
 export const HACK__OPEN_AI_API_KEY = "__openAiApiKey";

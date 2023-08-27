@@ -1,3 +1,10 @@
+import { DragOverlay } from "@dnd-kit/core";
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { ReactElement, useEffect } from "react";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { FragmentType, gql, useFragment } from "../../../__generated__";
 import {
   beingDraggingElementIdState,
@@ -7,13 +14,6 @@ import {
 } from "../../../state/store";
 import BlockSet from "./BlockSet";
 import "./Simulator.css";
-import { DragOverlay } from "@dnd-kit/core";
-import {
-  SortableContext,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
-import { ReactElement, useEffect } from "react";
-import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 
 const SIMULATOR_FRAGMENT = gql(`
   fragment Simulator on Preset {

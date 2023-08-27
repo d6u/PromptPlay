@@ -1,8 +1,8 @@
+import { Redirect, Route, Switch } from "wouter";
 import Header from "./header/Header";
 import RootRoute from "./route_root/RootRoute";
 import WorkspaceRoute from "./route_space/WorkspaceRoute";
 import RouteSpaceV2 from "./route_space_v2/RouteSpaceV2";
-import { Redirect, Route, Switch } from "wouter";
 
 export default function Routes() {
   return (

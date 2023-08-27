@@ -1,6 +1,6 @@
+import { useApolloClient } from "@apollo/client";
 import { gql } from "../../__generated__";
 import Block, { parseBlockDisplayData } from "./Block";
-import { useApolloClient } from "@apollo/client";
 
 const DRAGGING_BLOCK_FRAGMENT = gql(`
   fragment DraggingBlock on Block {

@@ -1,8 +1,8 @@
-import { FragmentType, gql, useFragment } from "../../../__generated__";
-import "./Dashboard.css";
-import DashboardTile, { DashboardTileType } from "./DashboardTile";
 import { useMutation } from "@apollo/client";
 import { useLocation } from "wouter";
+import { FragmentType, gql, useFragment } from "../../../__generated__";
+import DashboardTile, { DashboardTileType } from "./DashboardTile";
+import "./Dashboard.css";
 
 const DASHBOARD_FRAGMENT = gql(`
   fragment Dashboard on User {

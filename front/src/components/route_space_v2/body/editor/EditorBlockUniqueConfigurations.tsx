@@ -1,3 +1,5 @@
+import { useMutation } from "@apollo/client";
+import u from "updeep";
 import { UPDATE_SPACE_V2_MUTATION } from "../../../../state/spaceGraphQl";
 import { Block, BlockType, SpaceContent } from "../../../../static/spaceTypes";
 import EditorBlockAppendToListConfigurations from "./EditorBlockAppendToListConfigurations";
@@ -5,8 +7,6 @@ import EditorBlockDatabagConfigurations from "./EditorBlockDatabagConfigurations
 import EditorBlockGetAttributeConfigurations from "./EditorBlockGetAttributeConfigurations";
 import EditorBlockLlmConfigurations from "./EditorBlockLlmConfigurations";
 import EditorBlockLlmMessageConfigurations from "./EditorBlockLlmMessageConfigurations";
-import { useMutation } from "@apollo/client";
-import u from "updeep";
 
 type Props = {
   selectedBlock: Block;

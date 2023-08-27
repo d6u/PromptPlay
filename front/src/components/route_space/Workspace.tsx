@@ -1,14 +1,3 @@
-import { FragmentType, gql, useFragment } from "../../__generated__";
-import { swapBlockSets } from "../../state/graphql";
-import {
-  beingDraggingElementIdState,
-  isReorderingBlockSetState,
-} from "../../state/store";
-import CustomDragOverlay from "../CustomDragOverlay";
-import "./Workspace.css";
-import WorkspaceContent from "./WorkspaceContent";
-import { WORKSPACE_ROUTE_QUERY } from "./WorkspaceRouteQuery";
-import Editor from "./editor/Editor";
 import { useMutation } from "@apollo/client";
 import {
   DndContext,
@@ -22,6 +11,17 @@ import {
 } from "@dnd-kit/core";
 import { useCallback } from "react";
 import { useRecoilState, useSetRecoilState } from "recoil";
+import { FragmentType, gql, useFragment } from "../../__generated__";
+import { swapBlockSets } from "../../state/graphql";
+import {
+  beingDraggingElementIdState,
+  isReorderingBlockSetState,
+} from "../../state/store";
+import CustomDragOverlay from "../CustomDragOverlay";
+import WorkspaceContent from "./WorkspaceContent";
+import { WORKSPACE_ROUTE_QUERY } from "./WorkspaceRouteQuery";
+import Editor from "./editor/Editor";
+import "./Workspace.css";
 
 const WORKSPACE_FRAGMENT = gql(`
   fragment WorkspaceQuery on Query {

@@ -1,7 +1,19 @@
 {
   "devDependencies": {
-    "@trivago/prettier-plugin-sort-imports": "^4.1.1",
+    "@trivago/prettier-plugin-sort-imports": "^4.2.0",
     "prettier": "^2.8.8",
     "typescript": "^4.9.5"
+  },
+  "prettier": {
+    "plugins": [
+      "@trivago/prettier-plugin-sort-imports"
+    ],
+    "importOrder": [
+      "^@core/(.*)$",
+      "^@server/(.*)$",
+      "^@ui/(.*)$",
+      "^[./](?!.*\\.css$).*$",
+      "^[./]"
+    ]
   }
 }

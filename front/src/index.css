@@ -1,6 +1,7 @@
 :root {
   --mono-font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
+  --normal-font-family: "Inter", sans-serif;
 }
 
 /* See https://css-tricks.com/box-sizing/ for why */
@@ -18,7 +19,7 @@ html {
 
 body {
   margin: 0;
-  font-family: "Inter", sans-serif;
+  font-family: var(--normal-font-family);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   height: 100%;

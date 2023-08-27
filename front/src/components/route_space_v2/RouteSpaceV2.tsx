@@ -1,3 +1,8 @@
+import { useMutation, useQuery } from "@apollo/client";
+import { useCallback, useEffect, useState } from "react";
+import { useRecoilValue, useSetRecoilState } from "recoil";
+import styled from "styled-components";
+import u from "updeep";
 import { execute } from "../../llm/chainExecutor";
 import {
   SPACE_V2_QUERY,
@@ -13,11 +18,6 @@ import { validate } from "../../static/spaceUtils";
 import Designer from "./body/Designer";
 import Editor from "./body/Editor";
 import SpaceV2SubHeader from "./sub_header/SpaceV2SubHeader";
-import { useMutation, useQuery } from "@apollo/client";
-import { useCallback, useEffect, useState } from "react";
-import { useRecoilValue, useSetRecoilState } from "recoil";
-import styled from "styled-components";
-import u from "updeep";
 
 const Content = styled.div`
   flex-grow: 1;

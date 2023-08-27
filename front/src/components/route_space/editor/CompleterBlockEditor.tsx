@@ -1,11 +1,3 @@
-import { gql } from "../../../__generated__";
-import {
-  missingOpenAiApiKeyState,
-  openAiApiKeyState,
-  selectedBlockState,
-  selectedElementTypeState,
-} from "../../../state/store";
-import EditorHeader from "./EditorHeader";
 import { useApolloClient, useMutation } from "@apollo/client";
 import FormControl from "@mui/joy/FormControl";
 import FormHelperText from "@mui/joy/FormHelperText";
@@ -15,6 +7,14 @@ import Option from "@mui/joy/Option";
 import Select from "@mui/joy/Select";
 import { useEffect, useState } from "react";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
+import { gql } from "../../../__generated__";
+import {
+  missingOpenAiApiKeyState,
+  openAiApiKeyState,
+  selectedBlockState,
+  selectedElementTypeState,
+} from "../../../state/store";
+import EditorHeader from "./EditorHeader";
 
 const SELECTED_COMPLETER_BLOCK_FRAGMENT = gql(`
   fragment SelectedCompleterBlock on CompleterBlock {
