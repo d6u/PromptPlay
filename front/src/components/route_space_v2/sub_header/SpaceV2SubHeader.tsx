@@ -80,9 +80,6 @@ export default function SpaceV2SubHeader(props: Props) {
         <Button onClick={() => appendNewBlock(BlockType.GetAttribute)}>
           + Get Attribute
         </Button>
-        <Button onClick={() => appendNewBlock(BlockType.GetAttribute)}>
-          + Get Attribute
-        </Button>
         <Button
           color="success"
           size="md"
