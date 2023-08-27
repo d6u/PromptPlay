@@ -1,5 +1,5 @@
 import { Block, SpaceContent } from "../../../../static/spaceTypes";
-import { FieldRow, FieldTitle } from "./editorCommonComponents";
+import { FieldRow, FieldTitle } from "./shared/editorCommonComponents";
 import Input from "@mui/joy/Input";
 import { useState } from "react";
 

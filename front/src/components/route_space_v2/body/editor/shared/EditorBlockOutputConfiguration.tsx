@@ -2,7 +2,7 @@ import {
   Block,
   BlockVariablesConfiguration,
   SpaceContent,
-} from "../../../../static/spaceTypes";
+} from "../../../../../static/spaceTypes";
 import EditorBlockInputOutput from "./EditorBlockInputOutput";
 
 type Props = {

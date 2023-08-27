@@ -7,7 +7,7 @@ import {
   FieldHelperText,
   FieldRow,
   FieldTitle,
-} from "./editorCommonComponents";
+} from "./shared/editorCommonComponents";
 import Input from "@mui/joy/Input";
 import Radio from "@mui/joy/Radio";
 import RadioGroup from "@mui/joy/RadioGroup";

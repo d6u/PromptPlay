@@ -3,7 +3,7 @@ import {
   FieldHelperText,
   FieldRow,
   FieldTitle,
-} from "./editorCommonComponents";
+} from "./shared/editorCommonComponents";
 import Textarea from "@mui/joy/Textarea";
 import { useState } from "react";
 

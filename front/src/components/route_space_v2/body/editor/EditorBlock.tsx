@@ -2,14 +2,14 @@ import { UPDATE_SPACE_V2_MUTATION } from "../../../../state/spaceGraphQl";
 import { BLOCK_CONFIGS } from "../../../../static/blockConfigs";
 import { Block, SpaceContent } from "../../../../static/spaceTypes";
 import { pullBlockFromBlocks } from "../../../../static/spaceUtils";
-import EditorBlockInputConfiguration from "./EditorBlockInputConfiguration";
-import EditorBlockOutputConfiguration from "./EditorBlockOutputConfiguration";
 import EditorBlockUniqueConfigurations from "./EditorBlockUniqueConfigurations";
+import EditorBlockInputConfiguration from "./shared/EditorBlockInputConfiguration";
+import EditorBlockOutputConfiguration from "./shared/EditorBlockOutputConfiguration";
 import {
   FieldDescriptionText,
   FieldRow,
   FieldTitle,
-} from "./editorCommonComponents";
+} from "./shared/editorCommonComponents";
 import { useMutation } from "@apollo/client";
 import Button from "@mui/joy/Button";
 import { dissoc } from "ramda";
