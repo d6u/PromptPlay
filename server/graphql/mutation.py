@@ -10,6 +10,7 @@ from .mutation_block import MutationBlock
 from .mutation_block_set import MutationBlockSet
 from .mutation_llm import MutationLlm
 from .mutation_preset import MutationPreset
+from .mutation_space_v2 import MutationSpaceV2
 from .mutation_user import MutationUser
 from .mutation_workspace import MutationWorkspace
 from .types import Workspace
@@ -30,6 +31,7 @@ class Mutation(
     MutationBlockSet,
     MutationBlock,
     MutationLlm,
+    MutationSpaceV2,
 ):
     @strawberry.mutation
     def create_example_space(

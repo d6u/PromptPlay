@@ -3,10 +3,12 @@ from uuid import UUID
 import strawberry
 
 from server.database.orm.preset import OrmPreset
+from server.database.orm.space_v2 import OrmSpaceV2
 from server.database.orm.user import OrmUser
 from server.database.orm.workspace import OrmWorkspace
 
 from .types import Info, Preset, User, Workspace
+from .types_v2 import SpaceV2
 from .utils import ensure_db_user
 
 
@@ -72,6 +74,22 @@ class Query:
             if db_preset != None
             else None
         )
+
+    @strawberry.field
+    @ensure_db_user
+    def space_v2(
+        self: None,
+        info: Info,
+        db_user: OrmUser,
+        id: UUID,
+    ) -> SpaceV2 | None:
+        db = info.context.db
+
+        db_space_v2 = db.scalar(
+            db_user.spaces_v2.select().where(OrmSpaceV2.id == id)
+        )
+
+        return SpaceV2.from_db(db_space_v2) if db_space_v2 != None else None
 
     # TODO: Show this in dev mode
     # @strawberry.field
