@@ -1,12 +1,13 @@
 import { useMutation } from "@apollo/client";
 import { useNavigate } from "react-router-dom";
 import { FragmentType, gql, useFragment } from "../../../__generated__";
+import { ROOT_ROUTE_QUERY } from "../queries";
 import DashboardTile, { DashboardTileType } from "./DashboardTile";
 import "./Dashboard.css";
 
 const DASHBOARD_FRAGMENT = gql(`
   fragment Dashboard on User {
-    workspaces {
+    spaces {
       id
       name
       updatedAt
@@ -30,7 +31,7 @@ export default function Dashboard({
   const navigate = useNavigate();
   const dashboard = useFragment(DASHBOARD_FRAGMENT, dashboardFragment);
   const [createSpace] = useMutation(CREATE_SPACE_MUTATION, {
-    refetchQueries: ["RootRouteQuery"],
+    refetchQueries: [ROOT_ROUTE_QUERY],
   });
 
   return (
@@ -45,16 +46,17 @@ export default function Dashboard({
                 console.error(errors);
                 return;
               }
+
               navigate(`/spaces/${data.createSpace.id}`);
             });
           }}
         >
           Add
         </DashboardTile>
-        {dashboard.workspaces.map((workspace) => {
-          const workspaceId = workspace.id;
-          const workspaceName = workspace.name;
-          const url = `/spaces/${workspaceId}`;
+        {dashboard.spaces.map((space) => {
+          const workspaceId = space.id;
+          const workspaceName = space.name;
+          const url = `/spaces_v2/${workspaceId}`;
 
           return (
             <DashboardTile
@@ -64,7 +66,7 @@ export default function Dashboard({
             >
               <div>{workspaceName}</div>
               <div className="Dashbord_tile_timestamp">
-                {new Date(`${workspace.updatedAt}Z`).toLocaleString()}
+                {new Date(`${space.updatedAt}Z`).toLocaleString()}
               </div>
             </DashboardTile>
           );

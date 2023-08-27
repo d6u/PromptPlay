@@ -2,20 +2,13 @@ import { useMutation, useQuery } from "@apollo/client";
 import { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSetRecoilState } from "recoil";
+import styled from "styled-components";
 import { gql } from "../../__generated__";
 import { IS_LOGIN_ENABLED } from "../../constants";
 import { placeholderUserTokenState } from "../../state/store";
 import Dashboard from "./dashboard/Dashboard";
+import { ROOT_ROUTE_QUERY } from "./queries";
 import "./RootRoute.css";
-
-const ROOT_ROUTE_QUERY = gql(`
-  query RootRouteQuery {
-    user {
-      id
-      ...Dashboard
-    }
-  }
-`);
 
 const CREATE_EXAMPLE_SPACE_MUTATION = gql(`
   mutation CreateExampleSpaceMutation {
@@ -29,6 +22,27 @@ const CREATE_EXAMPLE_SPACE_MUTATION = gql(`
   }
 `);
 
+const Container = styled.div`
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const EmptyStateContent = styled.div`
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+
+  @media only screen and (max-width: 500px) {
+    padding: 15px;
+    gap: 15px;
+  }
+`;
+
 export default function RootRoute() {
   const navigate = useNavigate();
 
@@ -39,8 +53,9 @@ export default function RootRoute() {
   const queryResult = useQuery(ROOT_ROUTE_QUERY, {
     fetchPolicy: "cache-and-network",
   });
+
   const [createExampleSpace] = useMutation(CREATE_EXAMPLE_SPACE_MUTATION, {
-    refetchQueries: ["RootRouteQuery"],
+    refetchQueries: [ROOT_ROUTE_QUERY],
   });
 
   const onClickCreateExamples = useCallback(() => {
@@ -69,9 +84,11 @@ export default function RootRoute() {
 
   let content: JSX.Element;
 
-  if (queryResult.data?.user == null) {
+  if (queryResult.data?.user) {
+    content = <Dashboard dashboardFragment={queryResult.data.user} />;
+  } else {
     content = (
-      <div className="RootRoute_empty_state_container">
+      <EmptyStateContent>
         <button
           className="RootRoute_big_button RootRoute_big_button_create_example"
           onClick={onClickCreateExamples}
@@ -81,11 +98,9 @@ export default function RootRoute() {
         {IS_LOGIN_ENABLED && (
           <button className="RootRoute_big_button">Sign up / Login</button>
         )}
-      </div>
+      </EmptyStateContent>
     );
-  } else {
-    content = <Dashboard dashboardFragment={queryResult.data.user} />;
   }
 
-  return <div className="RootRoute">{content}</div>;
+  return <Container>{content}</Container>;
 }

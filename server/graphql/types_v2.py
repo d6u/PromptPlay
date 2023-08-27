@@ -29,9 +29,11 @@ class SpaceV2:
             id=db_space_v2.id,
             name=db_space_v2.name,
             content=json.dumps(db_space_v2.content),
+            updated_at=db_space_v2.updated_at,
         )
 
     db_space_v2: strawberry.Private[OrmSpaceV2]
     id: UUID
     name: str
     content: str | None
+    updated_at: datetime
