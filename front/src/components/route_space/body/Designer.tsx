@@ -2,7 +2,7 @@ import { useMutation } from "@apollo/client";
 import { DndContext, DragEndEvent, closestCenter } from "@dnd-kit/core";
 import styled from "@emotion/styled";
 import { useCallback } from "react";
-import { UPDATE_SPACE_V2_MUTATION } from "../../../state/spaceGraphQl";
+import { UPDATE_SPACE_MUTATION } from "../../../state/spaceGraphQl";
 import { SpaceContent } from "../../../static/spaceTypes";
 import { updateContent } from "../../../static/spaceUtils";
 import { useDefaultSensors } from "../../../util/useDefaultSensors";
@@ -23,7 +23,7 @@ type Props = {
 };
 
 export default function Designer(props: Props) {
-  const [updateSpaceV2] = useMutation(UPDATE_SPACE_V2_MUTATION);
+  const [updateSpaceV2] = useMutation(UPDATE_SPACE_MUTATION);
 
   const onDragEnd = useCallback(
     async (event: DragEndEvent) => {

@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from .completer_block import OrmCompleterBlock
     from .preset import OrmPreset
     from .prompt_block import OrmPromptBlock
-    from .space_v2 import OrmSpaceV2
+    from .space import OrmSpace
     from .workspace import OrmWorkspace
 
 
@@ -54,7 +54,7 @@ class OrmUser(Base, MixinUuidPrimaryKey, MixinCreatedAt, MixinUpdatedAt):
         cascade="all, delete",
         passive_deletes=True,
     )
-    spaces_v2: WriteOnlyMapped[OrmSpaceV2] = relationship(
+    spaces: WriteOnlyMapped[OrmSpace] = relationship(
         back_populates="owner",
         cascade="all, delete",
         passive_deletes=True,

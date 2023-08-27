@@ -1,4 +1,3 @@
-import { nanoid } from "nanoid";
 import {
   adjust,
   insert,
@@ -9,6 +8,7 @@ import {
   prepend,
 } from "ramda";
 import u from "updeep";
+import { v4 as uuidv4 } from "uuid";
 import {
   Block,
   BlockAnchor,
@@ -42,7 +42,7 @@ export function createNewBlock(type: BlockType): Block {
   switch (type) {
     case BlockType.Databag:
       return {
-        id: nanoid(),
+        id: uuidv4(),
         type: BlockType.Databag,
         value: "Example text",
         inputConfiguration: BlockVariablesConfiguration.NonConfigurable,
@@ -51,7 +51,7 @@ export function createNewBlock(type: BlockType): Block {
       };
     case BlockType.LlmMessage:
       return {
-        id: nanoid(),
+        id: uuidv4(),
         type: BlockType.LlmMessage,
         role: LlmMessageRole.User,
         content: "",
@@ -63,7 +63,7 @@ export function createNewBlock(type: BlockType): Block {
       };
     case BlockType.Llm:
       return {
-        id: nanoid(),
+        id: uuidv4(),
         type: BlockType.Llm,
         model: LlmModel.GPT3_5_TURBO,
         temperature: 0.8,
@@ -76,7 +76,7 @@ export function createNewBlock(type: BlockType): Block {
       };
     case BlockType.AppendToList:
       return {
-        id: nanoid(),
+        id: uuidv4(),
         type: BlockType.AppendToList,
         itemName: "user_message",
         listName: "messages",
@@ -85,7 +85,7 @@ export function createNewBlock(type: BlockType): Block {
       };
     case BlockType.GetAttribute:
       return {
-        id: nanoid(),
+        id: uuidv4(),
         type: BlockType.GetAttribute,
         attribute: "content",
         inputConfiguration: BlockVariablesConfiguration.Single,

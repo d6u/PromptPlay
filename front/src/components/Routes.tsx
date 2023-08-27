@@ -1,17 +1,14 @@
-import {
-  createBrowserRouter,
-  RouterProvider,
-  Outlet,
-  Navigate,
-} from "react-router-dom";
+import { RouterProvider } from "react-router-dom";
+import { createBrowserRouter, Outlet, Navigate } from "react-router-dom";
 import Header from "./header/Header";
+import { ROOT_PATH, SPACE_PATH_PATTERN } from "./routeConfig";
 import RootRoute from "./route_root/RootRoute";
-import WorkspaceRoute from "./route_space/WorkspaceRoute";
-import RouteSpaceV2 from "./route_space_v2/RouteSpaceV2";
+import RouteSpace from "./route_space/RouteSpace";
+import WorkspaceRoute from "./route_workspace/WorkspaceRoute";
 
-const router = createBrowserRouter([
+export const router = createBrowserRouter([
   {
-    path: "/",
+    path: ROOT_PATH,
     element: (
       <div className="App">
         <Header />
@@ -24,12 +21,12 @@ const router = createBrowserRouter([
         element: <RootRoute />,
       },
       {
-        path: "spaces/:spaceId",
-        element: <WorkspaceRoute />,
+        path: SPACE_PATH_PATTERN,
+        element: <RouteSpace />,
       },
       {
-        path: "spaces_v2/:spaceId",
-        element: <RouteSpaceV2 />,
+        path: "workspaces/:spaceId",
+        element: <WorkspaceRoute />,
       },
     ],
   },

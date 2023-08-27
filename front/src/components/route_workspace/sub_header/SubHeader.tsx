@@ -45,11 +45,11 @@ const CREATE_BLOCK_SET_MUTATION = gql(`
 `);
 
 const UPDATE_SPACE_MUTATION = gql(`
-  mutation UpdateSpaceMutation(
+  mutation UpdateWorkspaceMutation(
     $workspaceId: UUID!
     $name: String!
   ) {
-    updateSpace(
+    updateWorkspace(
       id: $workspaceId
       name: $name
     ) {
@@ -59,8 +59,8 @@ const UPDATE_SPACE_MUTATION = gql(`
 `);
 
 const DELETE_SPACE_MUTATION = gql(`
-  mutation DeleteSpaceMutation($workspaceId: UUID!) {
-    deleteSpace(id: $workspaceId) {
+  mutation DeleteWorkspaceMutation($workspaceId: UUID!) {
+    deleteWorkspace(id: $workspaceId) {
       isSuccess
     }
   }
@@ -252,7 +252,7 @@ export default function SubHeader({
                   workspaceId,
                 },
               }).then(({ errors, data }) => {
-                if (errors || data?.deleteSpace?.isSuccess !== true) {
+                if (errors || data?.deleteWorkspace?.isSuccess !== true) {
                   console.error(errors);
                   return;
                 }

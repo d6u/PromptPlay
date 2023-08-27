@@ -4,7 +4,7 @@ import strawberry
 
 from server.database.orm.user import OrmUser
 from server.database.orm.workspace import OrmWorkspace
-from server.database.utils import create_space_with_examples
+from server.database.utils import create_workspace_with_examples
 
 from .context import Info
 from .types import DeletionResult, Workspace
@@ -15,7 +15,7 @@ from .utils import ensure_db_user
 class MutationWorkspace:
     @strawberry.mutation
     @ensure_db_user
-    def create_space(
+    def create_workspace(
         self: None,
         info: Info,
         db_user: OrmUser,
@@ -28,7 +28,7 @@ class MutationWorkspace:
             db_prompt_block,
             db_completer_block,
             db_block_set,
-        ) = create_space_with_examples(
+        ) = create_workspace_with_examples(
             db_user=db_user,
             space_name="Untitled space",
         )
@@ -48,7 +48,7 @@ class MutationWorkspace:
 
     @strawberry.mutation
     @ensure_db_user
-    def update_space(
+    def update_workspace(
         self: None,
         info: Info,
         db_user: OrmUser,
@@ -72,7 +72,7 @@ class MutationWorkspace:
 
     @strawberry.mutation
     @ensure_db_user
-    def delete_space(
+    def delete_workspace(
         self: None,
         info: Info,
         db_user: OrmUser,

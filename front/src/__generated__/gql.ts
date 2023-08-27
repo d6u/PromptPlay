@@ -16,10 +16,10 @@ const documents = {
     "\n  fragment DraggingBlock on Block {\n    id\n    __typename\n    ... on PromptBlock {\n      role\n      content\n    }\n    ... on CompleterBlock {\n      model\n      temperature\n      stop\n    }\n  }\n": types.DraggingBlockFragmentDoc,
     "\n  fragment LibraryBlock on Block {\n    id\n    __typename\n    ... on PromptBlock {\n      role\n      content\n    }\n    ... on CompleterBlock {\n      model\n      temperature\n      stop\n    }\n  }\n": types.LibraryBlockFragmentDoc,
     "\n  query HeaderQuery {\n    isLoggedIn\n    user {\n      email\n    }\n  }\n": types.HeaderQueryDocument,
+    "\n  mutation CreatePlaceholderUserAndExampleSpaceMutation {\n    result: createPlaceholderUserAndExampleSpace {\n      placeholderClientToken\n      space {\n        id\n      }\n    }\n  }\n": types.CreatePlaceholderUserAndExampleSpaceMutationDocument,
+    "\n  fragment Dashboard on User {\n    spaces {\n      id\n      name\n      updatedAt\n    }\n  }\n": types.DashboardFragmentDoc,
+    "\n  mutation CreateSpaceMutation {\n    result: createSpace {\n      id\n      name\n      updatedAt\n    }\n  }\n": types.CreateSpaceMutationDocument,
     "\n  query RootRouteQuery {\n    user {\n      id\n      ...Dashboard\n    }\n  }\n": types.RootRouteQueryDocument,
-    "\n  mutation CreateExampleSpaceMutation {\n    createExampleSpace {\n      isSuccess\n      placeholderClientToken\n      space {\n        id\n      }\n    }\n  }\n": types.CreateExampleSpaceMutationDocument,
-    "\n  fragment Dashboard on User {\n    workspaces {\n      id\n      name\n      updatedAt\n    }\n  }\n": types.DashboardFragmentDoc,
-    "\n  mutation CreateSpaceMutation {\n    createSpace {\n      id\n    }\n  }\n": types.CreateSpaceMutationDocument,
     "\n  fragment WorkspaceQuery on Query {\n    workspace(workspaceId: $workspaceId) {\n      firstPreset {\n        id\n        blockSets {\n          id\n          position\n        }\n      }\n    }\n    ...WorkspaceContent\n  }\n": types.WorkspaceQueryFragmentDoc,
     "\n  mutation AddPromptToBlockSetTopInputMutation(\n    $promptBlockId: UUID!\n    $blockSetId: UUID!\n  ) {\n    addPromptToBlockSetTopInput(\n      promptBlockId: $promptBlockId\n      blockSetId: $blockSetId\n    ) {\n      id\n    }\n  }\n": types.AddPromptToBlockSetTopInputMutationDocument,
     "\n  mutation AddCompleterToBlockSetMutation(\n    $blockSetId: UUID!\n    $completerBlockId: UUID!\n  ) {\n    addCompleterToBlockSet(\n      blockSetId: $blockSetId\n      completerBlockId: $completerBlockId\n    ) {\n      id\n    }\n  }\n": types.AddCompleterToBlockSetMutationDocument,
@@ -53,10 +53,11 @@ const documents = {
     "\n  mutation CreatePromptBlockMutation($workspaceId: UUID!) {\n    createPromptBlock(workspaceId: $workspaceId) {\n      id\n    }\n  }\n": types.CreatePromptBlockMutationDocument,
     "\n  mutation CreateCompleterBlock($workspaceId: UUID!) {\n    createCompleterBlock(workspaceId: $workspaceId) {\n      id\n    }\n  }\n": types.CreateCompleterBlockDocument,
     "\n  mutation CreateBlockSet($presetId: UUID!) {\n    createBlockSet(presetId: $presetId) {\n      id\n    }\n  }\n": types.CreateBlockSetDocument,
-    "\n  mutation UpdateSpaceMutation(\n    $workspaceId: UUID!\n    $name: String!\n  ) {\n    updateSpace(\n      id: $workspaceId\n      name: $name\n    ) {\n      id\n    }\n  }\n": types.UpdateSpaceMutationDocument,
-    "\n  mutation DeleteSpaceMutation($workspaceId: UUID!) {\n    deleteSpace(id: $workspaceId) {\n      isSuccess\n    }\n  }\n": types.DeleteSpaceMutationDocument,
-    "\n  query SpaceV2Query($spaceId: UUID!) {\n    spaceV2(id: $spaceId) {\n      id\n      name\n      content\n    }\n  }\n": types.SpaceV2QueryDocument,
-    "\n  mutation UpdateSpaceV2Mutation($spaceId: UUID!, $content: String!) {\n    updateSpaceV2(id: $spaceId, content: $content) {\n      id\n      name\n      content\n    }\n  }\n": types.UpdateSpaceV2MutationDocument,
+    "\n  mutation UpdateWorkspaceMutation(\n    $workspaceId: UUID!\n    $name: String!\n  ) {\n    updateWorkspace(\n      id: $workspaceId\n      name: $name\n    ) {\n      id\n    }\n  }\n": types.UpdateWorkspaceMutationDocument,
+    "\n  mutation DeleteWorkspaceMutation($workspaceId: UUID!) {\n    deleteWorkspace(id: $workspaceId) {\n      isSuccess\n    }\n  }\n": types.DeleteWorkspaceMutationDocument,
+    "\n  query SpaceQuery($spaceId: UUID!) {\n    space(id: $spaceId) {\n      id\n      name\n      content\n    }\n  }\n": types.SpaceQueryDocument,
+    "\n  mutation UpdateSpaceMutation($spaceId: ID!, $content: String!) {\n    updateSpace(id: $spaceId, content: $content) {\n      id\n      name\n      content\n    }\n  }\n": types.UpdateSpaceMutationDocument,
+    "\n  mutation DeleteSpaceMutation($spaceId: ID!) {\n    result: deleteSpace(id: $spaceId)\n  }\n": types.DeleteSpaceMutationDocument,
 };
 
 /**
@@ -88,19 +89,19 @@ export function gql(source: "\n  query HeaderQuery {\n    isLoggedIn\n    user {
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function gql(source: "\n  mutation CreatePlaceholderUserAndExampleSpaceMutation {\n    result: createPlaceholderUserAndExampleSpace {\n      placeholderClientToken\n      space {\n        id\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation CreatePlaceholderUserAndExampleSpaceMutation {\n    result: createPlaceholderUserAndExampleSpace {\n      placeholderClientToken\n      space {\n        id\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  fragment Dashboard on User {\n    spaces {\n      id\n      name\n      updatedAt\n    }\n  }\n"): (typeof documents)["\n  fragment Dashboard on User {\n    spaces {\n      id\n      name\n      updatedAt\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation CreateSpaceMutation {\n    result: createSpace {\n      id\n      name\n      updatedAt\n    }\n  }\n"): (typeof documents)["\n  mutation CreateSpaceMutation {\n    result: createSpace {\n      id\n      name\n      updatedAt\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function gql(source: "\n  query RootRouteQuery {\n    user {\n      id\n      ...Dashboard\n    }\n  }\n"): (typeof documents)["\n  query RootRouteQuery {\n    user {\n      id\n      ...Dashboard\n    }\n  }\n"];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function gql(source: "\n  mutation CreateExampleSpaceMutation {\n    createExampleSpace {\n      isSuccess\n      placeholderClientToken\n      space {\n        id\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation CreateExampleSpaceMutation {\n    createExampleSpace {\n      isSuccess\n      placeholderClientToken\n      space {\n        id\n      }\n    }\n  }\n"];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function gql(source: "\n  fragment Dashboard on User {\n    workspaces {\n      id\n      name\n      updatedAt\n    }\n  }\n"): (typeof documents)["\n  fragment Dashboard on User {\n    workspaces {\n      id\n      name\n      updatedAt\n    }\n  }\n"];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function gql(source: "\n  mutation CreateSpaceMutation {\n    createSpace {\n      id\n    }\n  }\n"): (typeof documents)["\n  mutation CreateSpaceMutation {\n    createSpace {\n      id\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -236,19 +237,23 @@ export function gql(source: "\n  mutation CreateBlockSet($presetId: UUID!) {\n  
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\n  mutation UpdateSpaceMutation(\n    $workspaceId: UUID!\n    $name: String!\n  ) {\n    updateSpace(\n      id: $workspaceId\n      name: $name\n    ) {\n      id\n    }\n  }\n"): (typeof documents)["\n  mutation UpdateSpaceMutation(\n    $workspaceId: UUID!\n    $name: String!\n  ) {\n    updateSpace(\n      id: $workspaceId\n      name: $name\n    ) {\n      id\n    }\n  }\n"];
+export function gql(source: "\n  mutation UpdateWorkspaceMutation(\n    $workspaceId: UUID!\n    $name: String!\n  ) {\n    updateWorkspace(\n      id: $workspaceId\n      name: $name\n    ) {\n      id\n    }\n  }\n"): (typeof documents)["\n  mutation UpdateWorkspaceMutation(\n    $workspaceId: UUID!\n    $name: String!\n  ) {\n    updateWorkspace(\n      id: $workspaceId\n      name: $name\n    ) {\n      id\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\n  mutation DeleteSpaceMutation($workspaceId: UUID!) {\n    deleteSpace(id: $workspaceId) {\n      isSuccess\n    }\n  }\n"): (typeof documents)["\n  mutation DeleteSpaceMutation($workspaceId: UUID!) {\n    deleteSpace(id: $workspaceId) {\n      isSuccess\n    }\n  }\n"];
+export function gql(source: "\n  mutation DeleteWorkspaceMutation($workspaceId: UUID!) {\n    deleteWorkspace(id: $workspaceId) {\n      isSuccess\n    }\n  }\n"): (typeof documents)["\n  mutation DeleteWorkspaceMutation($workspaceId: UUID!) {\n    deleteWorkspace(id: $workspaceId) {\n      isSuccess\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\n  query SpaceV2Query($spaceId: UUID!) {\n    spaceV2(id: $spaceId) {\n      id\n      name\n      content\n    }\n  }\n"): (typeof documents)["\n  query SpaceV2Query($spaceId: UUID!) {\n    spaceV2(id: $spaceId) {\n      id\n      name\n      content\n    }\n  }\n"];
+export function gql(source: "\n  query SpaceQuery($spaceId: UUID!) {\n    space(id: $spaceId) {\n      id\n      name\n      content\n    }\n  }\n"): (typeof documents)["\n  query SpaceQuery($spaceId: UUID!) {\n    space(id: $spaceId) {\n      id\n      name\n      content\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\n  mutation UpdateSpaceV2Mutation($spaceId: UUID!, $content: String!) {\n    updateSpaceV2(id: $spaceId, content: $content) {\n      id\n      name\n      content\n    }\n  }\n"): (typeof documents)["\n  mutation UpdateSpaceV2Mutation($spaceId: UUID!, $content: String!) {\n    updateSpaceV2(id: $spaceId, content: $content) {\n      id\n      name\n      content\n    }\n  }\n"];
+export function gql(source: "\n  mutation UpdateSpaceMutation($spaceId: ID!, $content: String!) {\n    updateSpace(id: $spaceId, content: $content) {\n      id\n      name\n      content\n    }\n  }\n"): (typeof documents)["\n  mutation UpdateSpaceMutation($spaceId: ID!, $content: String!) {\n    updateSpace(id: $spaceId, content: $content) {\n      id\n      name\n      content\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation DeleteSpaceMutation($spaceId: ID!) {\n    result: deleteSpace(id: $spaceId)\n  }\n"): (typeof documents)["\n  mutation DeleteSpaceMutation($spaceId: ID!) {\n    result: deleteSpace(id: $spaceId)\n  }\n"];
 
 export function gql(source: string) {
   return (documents as any)[source] ?? {};

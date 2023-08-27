@@ -1,13 +1,17 @@
+import { useMutation } from "@apollo/client";
 import Button from "@mui/joy/Button";
 import { append } from "ramda";
 import { useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import u from "updeep";
+import { DELETE_SPACE_MUTATION } from "../../../state/spaceGraphQl";
 import { BlockType, SpaceContent } from "../../../static/spaceTypes";
 import {
   createInitialSpaceContent,
   createNewBlock,
 } from "../../../static/spaceUtils";
+import { ROOT_PATH } from "../../routeConfig";
 
 const Container = styled.div`
   height: 60px;
@@ -40,6 +44,10 @@ type Props = {
 };
 
 export default function SpaceV2SubHeader(props: Props) {
+  const navigate = useNavigate();
+
+  const [deleteSpace] = useMutation(DELETE_SPACE_MUTATION);
+
   const appendNewBlock = useCallback(
     (blockType: BlockType) => {
       let spaceContent = props.spaceContent;
@@ -91,31 +99,43 @@ export default function SpaceV2SubHeader(props: Props) {
         </Button>
       </Left>
       <Right>
-        <Button onClick={() => props.onSpaceContentChange(null)}>
-          Reset space
+        <Button
+          onClick={() => {
+            const isConfirmed = window.confirm(
+              "⚠️ Unrecoverable action. ⚠️\nReset is unrecoverable. Are you sure?"
+            );
+
+            if (isConfirmed) {
+              props.onSpaceContentChange(null);
+            }
+          }}
+        >
+          Reset Space
         </Button>
         <Button
           variant="outlined"
           onClick={() => {
             const isConfirmed = window.confirm(
-              "⚠️ Unrecoverable action. ⚠️\nDeleting this space is unrecoverable. Are you sure?"
+              "⚠️ Unrecoverable action. ⚠️\nDelet is unrecoverable. Are you sure?"
             );
+
             if (isConfirmed) {
-              // deleteSpace({
-              //   variables: {
-              //     workspaceId,
-              //   },
-              // }).then(({ errors, data }) => {
-              //   if (errors || data?.deleteSpace?.isSuccess !== true) {
-              //     console.error(errors);
-              //     return;
-              //   }
-              //   setLocation("/");
-              // });
+              deleteSpace({
+                variables: {
+                  spaceId: props.spaceId,
+                },
+              }).then(({ errors, data }) => {
+                if (errors || !data?.result) {
+                  console.error(errors);
+                  return;
+                }
+
+                navigate(ROOT_PATH);
+              });
             }
           }}
         >
-          Delete space
+          Delete Space
         </Button>
       </Right>
     </Container>
