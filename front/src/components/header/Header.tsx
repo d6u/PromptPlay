@@ -1,5 +1,6 @@
 import { useQuery } from "@apollo/client";
 import { Button } from "@mui/joy";
+import styled from "styled-components";
 import { gql } from "../../__generated__";
 import {
   API_SERVER_BASE_URL,
@@ -7,7 +8,6 @@ import {
   PROVIDE_FEEDBACK_LINK,
 } from "../../constants";
 import StyleResetLink from "../common/StyleResetLink";
-import "./Header.css";
 
 const HEADER_QUERY = gql(`
   query HeaderQuery {
@@ -17,6 +17,52 @@ const HEADER_QUERY = gql(`
     }
   }
 `);
+
+const Container = styled.div`
+  height: 60px;
+  padding: 0px 20px;
+  flex-shrink: 0;
+  border-bottom: 1px solid #ececf1;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+`;
+
+const LogoContainer = styled.div`
+  display: flex;
+  align-items: baseline;
+  gap: 20px;
+`;
+
+const Logo = styled.h1`
+  font-size: 24px;
+`;
+
+const FeedbackLink = styled.a`
+  font-size: 14px;
+  text-decoration: none;
+  color: initial;
+
+  &:hover {
+    text-decoration: underline;
+  }
+`;
+
+const AccountManagementContainer = styled.div`
+  display: flex;
+  gap: 20px;
+  flex-direction: row;
+  align-items: center;
+`;
+
+const Email = styled.div`
+  color: #000;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 20px;
+`;
 
 export default function Header() {
   const queryResult = useQuery(HEADER_QUERY, {
@@ -28,32 +74,29 @@ export default function Header() {
     return <div>Loading...</div>;
   }
 
-  if (IS_LOGIN_ENABLED && (queryResult.error || queryResult.data == null)) {
+  if (IS_LOGIN_ENABLED && (queryResult.error || !queryResult.data)) {
     return <div>Error! {queryResult.error?.message}</div>;
   }
 
   return (
-    <header className="Header">
-      <div className="Header_left">
+    <Container>
+      <LogoContainer>
         <StyleResetLink to="/">
-          <h1 className="Header_title">PrompPlay.xyz</h1>
+          <Logo>PromptPlay.xyz</Logo>
         </StyleResetLink>
-        <a
-          className="Header_feedback_link"
+        <FeedbackLink
           href={PROVIDE_FEEDBACK_LINK}
           target="_blank"
           rel="noreferrer"
         >
           Provide feedback
-        </a>
-      </div>
+        </FeedbackLink>
+      </LogoContainer>
       {IS_LOGIN_ENABLED && (
-        <div className="Header_right">
+        <AccountManagementContainer>
           {queryResult.data?.isLoggedIn ? (
             <>
-              <div className="Header_account_email">
-                {queryResult.data.user?.email}
-              </div>
+              <Email>{queryResult.data.user?.email}</Email>
               <Button
                 onClick={() => {
                   window.location.assign(`${API_SERVER_BASE_URL}/logout`);
@@ -72,8 +115,8 @@ export default function Header() {
               Log In
             </Button>
           )}
-        </div>
+        </AccountManagementContainer>
       )}
-    </header>
+    </Container>
   );
 }
