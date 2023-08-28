@@ -86,28 +86,17 @@ class Query:
         db = info.context.db
         db_user = info.context.db_user
 
-        if db_user == None:
-            db_space = db.scalar(select(OrmSpace).where(OrmSpace.id == id))
-            return (
-                QuerySpaceResult(
-                    is_read_only=True,
-                    space=Space.from_db(db_space),
-                )
-                if db_space != None
-                else None
-            )
+        db_space = db.scalar(select(OrmSpace).where(OrmSpace.id == id))
+
+        if db_space == None:
+            return None
+
+        space = Space.from_db(db_space)
+
+        if db_user == None or db_user.id != db_space.owner_id:
+            return QuerySpaceResult(is_read_only=True, space=space)
         else:
-            db_space = db.scalar(
-                db_user.spaces.select().where(OrmSpace.id == id)
-            )
-            return (
-                QuerySpaceResult(
-                    is_read_only=False,
-                    space=Space.from_db(db_space),
-                )
-                if db_space != None
-                else None
-            )
+            return QuerySpaceResult(is_read_only=False, space=space)
 
     # TODO: Show this in dev mode
     # @strawberry.field
