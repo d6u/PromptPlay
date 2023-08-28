@@ -1,13 +1,16 @@
+# from __future__ import annotations
+
 from uuid import UUID
 
 import strawberry
+from sqlalchemy import select
 
 from server.database.orm.preset import OrmPreset
 from server.database.orm.space import OrmSpace
 from server.database.orm.user import OrmUser
 from server.database.orm.workspace import OrmWorkspace
 
-from .types import Info, Preset, Space, User, Workspace
+from .types import Info, Preset, QuerySpaceResult, Space, User, Workspace
 from .utils import ensure_db_user
 
 
@@ -75,18 +78,36 @@ class Query:
         )
 
     @strawberry.field
-    @ensure_db_user
     def space(
         self: None,
         info: Info,
-        db_user: OrmUser,
         id: UUID,
-    ) -> Space | None:
+    ) -> QuerySpaceResult | None:
         db = info.context.db
+        db_user = info.context.db_user
 
-        db_space = db.scalar(db_user.spaces.select().where(OrmSpace.id == id))
-
-        return Space.from_db(db_space) if db_space != None else None
+        if db_user == None:
+            db_space = db.scalar(select(OrmSpace).where(OrmSpace.id == id))
+            return (
+                QuerySpaceResult(
+                    is_read_only=True,
+                    space=Space.from_db(db_space),
+                )
+                if db_space != None
+                else None
+            )
+        else:
+            db_space = db.scalar(
+                db_user.spaces.select().where(OrmSpace.id == id)
+            )
+            return (
+                QuerySpaceResult(
+                    is_read_only=False,
+                    space=Space.from_db(db_space),
+                )
+                if db_space != None
+                else None
+            )
 
     # TODO: Show this in dev mode
     # @strawberry.field

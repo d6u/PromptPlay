@@ -10,6 +10,7 @@ const Container = styled.div`
 `;
 
 type Props = {
+  isReadOnly: boolean;
   scopeName: string;
   localName: string;
   isInput: boolean;
@@ -30,6 +31,7 @@ export default function EditorVariableMapRow(props: Props) {
           size="sm"
           variant="outlined"
           style={{ flexGrow: 1 }}
+          disabled={props.isReadOnly}
           value={scopeName}
           onChange={(e) => {
             setScopeName(e.target.value);
@@ -46,6 +48,7 @@ export default function EditorVariableMapRow(props: Props) {
           size="sm"
           variant="solid"
           style={{ flexGrow: 1 }}
+          disabled={props.isReadOnly}
           value={localName}
           onChange={(e) => {
             setLocalName(e.target.value);
@@ -57,14 +60,16 @@ export default function EditorVariableMapRow(props: Props) {
           }}
           onBlur={() => props.onSaveLocalName(localName)}
         />
-        <Button
-          color="danger"
-          size="sm"
-          variant="outlined"
-          onClick={() => props.onRemove()}
-        >
-          Remove
-        </Button>
+        {props.isReadOnly ? null : (
+          <Button
+            color="danger"
+            size="sm"
+            variant="outlined"
+            onClick={() => props.onRemove()}
+          >
+            Remove
+          </Button>
+        )}
       </Container>
     );
   } else {
@@ -75,6 +80,7 @@ export default function EditorVariableMapRow(props: Props) {
           size="sm"
           variant="solid"
           style={{ flexGrow: 1 }}
+          disabled={props.isReadOnly}
           value={localName}
           onChange={(e) => {
             setLocalName(e.target.value);
@@ -91,6 +97,7 @@ export default function EditorVariableMapRow(props: Props) {
           size="sm"
           variant="outlined"
           style={{ flexGrow: 1 }}
+          disabled={props.isReadOnly}
           value={scopeName}
           onChange={(e) => {
             setScopeName(e.target.value);
@@ -102,14 +109,16 @@ export default function EditorVariableMapRow(props: Props) {
           }}
           onBlur={() => props.onSaveScopeName(scopeName)}
         />
-        <Button
-          color="danger"
-          size="sm"
-          variant="outlined"
-          onClick={() => props.onRemove()}
-        >
-          Remove
-        </Button>
+        {props.isReadOnly ? null : (
+          <Button
+            color="danger"
+            size="sm"
+            variant="outlined"
+            onClick={() => props.onRemove()}
+          >
+            Remove
+          </Button>
+        )}
       </Container>
     );
   }

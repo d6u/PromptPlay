@@ -15,6 +15,7 @@ import {
 } from "./shared/editorCommonComponents";
 
 type Props = {
+  isReadOnly: boolean;
   role: LlmMessageRole;
   onSaveRole: (value: LlmMessageRole) => void;
   content: string;
@@ -50,22 +51,25 @@ export default function EditorBlockLlmMessageConfigurations(props: Props) {
             size="sm"
             variant="outlined"
             name="role"
-            value={LlmMessageRole.System}
             label="System"
+            disabled={props.isReadOnly}
+            value={LlmMessageRole.System}
           />
           <Radio
             size="sm"
             variant="outlined"
             name="role"
-            value={LlmMessageRole.User}
             label="User"
+            disabled={props.isReadOnly}
+            value={LlmMessageRole.User}
           />
           <Radio
             size="sm"
             variant="outlined"
             name="role"
-            value={LlmMessageRole.Assistant}
             label="Assistant"
+            disabled={props.isReadOnly}
+            value={LlmMessageRole.Assistant}
           />
         </RadioGroup>
       </FieldRow>
@@ -77,6 +81,7 @@ export default function EditorBlockLlmMessageConfigurations(props: Props) {
           variant="outlined"
           minRows={5}
           placeholder="Enter your message here"
+          disabled={props.isReadOnly}
           value={content}
           onChange={(e) => {
             setContent(e.target.value);
@@ -100,6 +105,7 @@ export default function EditorBlockLlmMessageConfigurations(props: Props) {
           size="sm"
           variant="outlined"
           placeholder="List name"
+          disabled={props.isReadOnly}
           value={listNameToAppend}
           onChange={(e) => setListNameToAppend(e.target.value)}
           onKeyDown={(e) => {

@@ -4,6 +4,7 @@ import { Block, SpaceContent } from "../../../../static/spaceTypes";
 import { FieldRow, FieldTitle } from "./shared/editorCommonComponents";
 
 type Props = {
+  isReadOnly: boolean;
   itemName: string;
   onSaveItemName: (itemName: string) => void;
   listName: string;
@@ -25,6 +26,7 @@ export default function EditorBlockAppendToListConfigurations(props: Props) {
           color="neutral"
           size="sm"
           variant="outlined"
+          disabled={props.isReadOnly}
           value={itemName}
           onChange={(e) => {
             setItemName(e.target.value);
@@ -43,6 +45,7 @@ export default function EditorBlockAppendToListConfigurations(props: Props) {
           color="neutral"
           size="sm"
           variant="outlined"
+          disabled={props.isReadOnly}
           value={listName}
           onChange={(e) => {
             setListName(e.target.value);

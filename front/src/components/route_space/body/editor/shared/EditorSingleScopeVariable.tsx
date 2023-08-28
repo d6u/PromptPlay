@@ -2,6 +2,7 @@ import Input from "@mui/joy/Input";
 import { useEffect, useState } from "react";
 
 type Props = {
+  isReadOnly: boolean;
   isInput: boolean;
   variableName: string;
   onSave: (value: string) => void;
@@ -23,6 +24,7 @@ export default function EditorSingleScopeVariable(props: Props) {
       placeholder={
         props.isInput ? "Input variable name" : "Output variable name"
       }
+      disabled={props.isReadOnly}
       value={variableName}
       onChange={(e) => {
         setVariableName(e.target.value);

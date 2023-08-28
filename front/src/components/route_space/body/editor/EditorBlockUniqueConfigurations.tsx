@@ -9,6 +9,7 @@ import EditorBlockLlmConfigurations from "./EditorBlockLlmConfigurations";
 import EditorBlockLlmMessageConfigurations from "./EditorBlockLlmMessageConfigurations";
 
 type Props = {
+  isReadOnly: boolean;
   selectedBlock: Block;
   spaceId: string;
   spaceContent: SpaceContent;
@@ -21,6 +22,7 @@ export default function EditorBlockUniqueConfigurations(props: Props) {
     case BlockType.Databag:
       return (
         <EditorBlockDatabagConfigurations
+          isReadOnly={props.isReadOnly}
           value={props.selectedBlock.value}
           onSaveValue={(value) => {
             const newContent = u({
@@ -44,6 +46,7 @@ export default function EditorBlockUniqueConfigurations(props: Props) {
     case BlockType.LlmMessage:
       return (
         <EditorBlockLlmMessageConfigurations
+          isReadOnly={props.isReadOnly}
           role={props.selectedBlock.role}
           onSaveRole={(role) => {
             const newContent = u({
@@ -97,6 +100,7 @@ export default function EditorBlockUniqueConfigurations(props: Props) {
     case BlockType.Llm:
       return (
         <EditorBlockLlmConfigurations
+          isReadOnly={props.isReadOnly}
           model={props.selectedBlock.model}
           onSaveModel={(model) => {
             const newContent = u({
@@ -165,6 +169,7 @@ export default function EditorBlockUniqueConfigurations(props: Props) {
     case BlockType.AppendToList:
       return (
         <EditorBlockAppendToListConfigurations
+          isReadOnly={props.isReadOnly}
           itemName={props.selectedBlock.itemName}
           onSaveItemName={(itemName) => {
             const newContent = u({
@@ -203,6 +208,7 @@ export default function EditorBlockUniqueConfigurations(props: Props) {
     case BlockType.GetAttribute:
       return (
         <EditorBlockGetAttributeConfigurations
+          isReadOnly={props.isReadOnly}
           attribute={props.selectedBlock.attribute}
           onSaveAttribute={(attribute) => {
             const newContent = u({

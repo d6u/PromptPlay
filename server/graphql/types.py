@@ -332,3 +332,9 @@ class CreateExampleWorkspaceResult:
     is_success: bool
     placeholder_client_token: UUID | None
     space: Workspace | None
+
+
+@strawberry.type
+class QuerySpaceResult:
+    is_read_only: bool
+    space: Space

@@ -2,10 +2,13 @@ import { gql } from "../__generated__";
 
 export const SPACE_QUERY = gql(`
   query SpaceQuery($spaceId: UUID!) {
-    space(id: $spaceId) {
-      id
-      name
-      content
+    result: space(id: $spaceId) {
+      isReadOnly
+      space {
+        id
+        name
+        content
+      }
     }
   }
 `);

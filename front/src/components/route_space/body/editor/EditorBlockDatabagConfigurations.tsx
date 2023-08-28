@@ -8,6 +8,7 @@ import {
 } from "./shared/editorCommonComponents";
 
 type Props = {
+  isReadOnly: boolean;
   value: string;
   onSaveValue: (value: string) => void;
   selectedBlock: Block;
@@ -27,6 +28,7 @@ export default function EditorBlockDatabagConfigurations(props: Props) {
           size="sm"
           variant="outlined"
           minRows={3}
+          disabled={props.isReadOnly}
           value={value}
           onChange={(e) => setValue(e.target.value)}
           onKeyUp={(e) => {

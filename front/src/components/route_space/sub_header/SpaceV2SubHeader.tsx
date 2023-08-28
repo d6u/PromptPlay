@@ -37,6 +37,7 @@ const Right = styled.div`
 `;
 
 type Props = {
+  isReadOnly: boolean;
   spaceId: string;
   spaceContent: SpaceContent | null;
   onSpaceContentChange: (spaceContent: SpaceContent | null) => void;
@@ -74,70 +75,74 @@ export default function SpaceV2SubHeader(props: Props) {
 
   return (
     <Container>
-      <Left>
-        <Button onClick={() => appendNewBlock(BlockType.Databag)}>
-          + Databag
-        </Button>
-        <Button onClick={() => appendNewBlock(BlockType.LlmMessage)}>
-          + Message
-        </Button>
-        <Button onClick={() => appendNewBlock(BlockType.AppendToList)}>
-          + Append to List
-        </Button>
-        <Button onClick={() => appendNewBlock(BlockType.Llm)}>+ LLM</Button>
-        <Button onClick={() => appendNewBlock(BlockType.GetAttribute)}>
-          + Get Attribute
-        </Button>
-        <Button
-          color="success"
-          size="md"
-          variant="outlined"
-          disabled={props.spaceContent == null}
-          onClick={() => props.onExecuteVisualChain()}
-        >
-          Run
-        </Button>
-      </Left>
-      <Right>
-        <Button
-          onClick={() => {
-            const isConfirmed = window.confirm(
-              "⚠️ Unrecoverable action. ⚠️\nReset is unrecoverable. Are you sure?"
-            );
+      {props.isReadOnly ? null : (
+        <>
+          <Left>
+            <Button onClick={() => appendNewBlock(BlockType.Databag)}>
+              + Databag
+            </Button>
+            <Button onClick={() => appendNewBlock(BlockType.LlmMessage)}>
+              + Message
+            </Button>
+            <Button onClick={() => appendNewBlock(BlockType.AppendToList)}>
+              + Append to List
+            </Button>
+            <Button onClick={() => appendNewBlock(BlockType.Llm)}>+ LLM</Button>
+            <Button onClick={() => appendNewBlock(BlockType.GetAttribute)}>
+              + Get Attribute
+            </Button>
+            <Button
+              color="success"
+              size="md"
+              variant="outlined"
+              disabled={props.spaceContent == null}
+              onClick={() => props.onExecuteVisualChain()}
+            >
+              Run
+            </Button>
+          </Left>
+          <Right>
+            <Button
+              onClick={() => {
+                const isConfirmed = window.confirm(
+                  "⚠️ Unrecoverable action. ⚠️\nReset is unrecoverable. Are you sure?"
+                );
 
-            if (isConfirmed) {
-              props.onSpaceContentChange(null);
-            }
-          }}
-        >
-          Reset Space
-        </Button>
-        <Button
-          variant="outlined"
-          onClick={() => {
-            const isConfirmed = window.confirm(
-              "⚠️ Unrecoverable action. ⚠️\nDelet is unrecoverable. Are you sure?"
-            );
-
-            if (isConfirmed) {
-              deleteSpace({
-                variables: {
-                  spaceId: props.spaceId,
-                },
-              }).then(({ errors, data }) => {
-                if (errors || !data?.result) {
-                  console.error(errors);
-                  return;
+                if (isConfirmed) {
+                  props.onSpaceContentChange(null);
                 }
+              }}
+            >
+              Reset Space
+            </Button>
+            <Button
+              variant="outlined"
+              onClick={() => {
+                const isConfirmed = window.confirm(
+                  "⚠️ Unrecoverable action. ⚠️\nDelet is unrecoverable. Are you sure?"
+                );
 
-                navigate(ROOT_PATH);
-              });
-            }
-          }}
-        >
-          Delete Space
-        </Button>
-      </Right>
+                if (isConfirmed) {
+                  deleteSpace({
+                    variables: {
+                      spaceId: props.spaceId,
+                    },
+                  }).then(({ errors, data }) => {
+                    if (errors || !data?.result) {
+                      console.error(errors);
+                      return;
+                    }
+
+                    navigate(ROOT_PATH);
+                  });
+                }
+              }}
+            >
+              Delete Space
+            </Button>
+          </Right>
+        </>
+      )}
     </Container>
   );
 }

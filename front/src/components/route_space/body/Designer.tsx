@@ -18,6 +18,7 @@ const Content = styled.div`
 `;
 
 type Props = {
+  isReadOnly: boolean;
   spaceId: string;
   spaceContent: SpaceContent;
 };
@@ -54,6 +55,7 @@ export default function Designer(props: Props) {
       >
         <Content>
           <BlockGroupComponent
+            isReadOnly={props.isReadOnly}
             anchor={props.spaceContent.root}
             spaceContent={props.spaceContent}
             isRoot

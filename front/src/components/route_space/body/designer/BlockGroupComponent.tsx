@@ -36,6 +36,7 @@ const Content = styled.div`
 `;
 
 type Props = {
+  isReadOnly: boolean;
   anchor: BlockGroupAnchor;
   spaceContent: SpaceContent;
   isRoot?: boolean;
@@ -43,6 +44,7 @@ type Props = {
 };
 
 export default function BlockGroupComponent({
+  isReadOnly,
   spaceContent,
   anchor,
   isRoot = false,
@@ -51,7 +53,7 @@ export default function BlockGroupComponent({
   const { isDragging, attributes, listeners, setNodeRef, transform } =
     useDraggable({
       id: anchor.id,
-      disabled: isRoot,
+      disabled: isReadOnly || isRoot,
     });
 
   const content: ReactNode[] = [];
@@ -71,6 +73,7 @@ export default function BlockGroupComponent({
       content.push(
         <BlockGroupComponent
           key={block.id}
+          isReadOnly={isReadOnly}
           spaceContent={spaceContent}
           anchor={block}
           isParentDragging={isDragging || isParentDragging}
@@ -80,6 +83,7 @@ export default function BlockGroupComponent({
       content.push(
         <BlockComponent
           key={block.id}
+          isReadOnly={isReadOnly}
           spaceContent={spaceContent}
           anchor={block}
         />

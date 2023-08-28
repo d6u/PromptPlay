@@ -47,6 +47,7 @@ const SlotHolder = styled.div`
 `;
 
 type Props = {
+  isReadOnly: boolean;
   anchor: BlockAnchor;
   spaceContent: SpaceContent;
 };
@@ -58,6 +59,7 @@ export default function BlockComponent(props: Props) {
   const { attributes, listeners, setNodeRef, transform, isDragging } =
     useDraggable({
       id: props.anchor.id,
+      disabled: props.isReadOnly,
     });
 
   const [spaceV2SelectedBlockId, setSpaceV2SelectedBlockId] = useRecoilState(

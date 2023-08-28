@@ -30,7 +30,6 @@ const HeaderText = styled.div`
   font-family: var(--mono-font-family);
   font-size: 16px;
   font-weight: 700;
-  text-transform: capitalize;
 `;
 
 const Body = styled.div`
@@ -53,6 +52,7 @@ const LllOutputContainer = styled.div`
 `;
 
 type Props = {
+  isReadOnly: boolean;
   selectedBlock: Block;
   spaceId: string;
   spaceContent: SpaceContent;
@@ -66,53 +66,60 @@ export default function EditorBlock(props: Props) {
   return (
     <>
       <Header>
-        <HeaderText>{blockConfig.title}</HeaderText>
-        <Button
-          color="danger"
-          size="sm"
-          variant="plain"
-          onClick={() => {
-            let newContent = props.spaceContent;
+        <HeaderText>
+          {blockConfig.title} {props.isReadOnly ? "(read only)" : null}
+        </HeaderText>
+        {props.isReadOnly ? null : (
+          <Button
+            color="danger"
+            size="sm"
+            variant="plain"
+            onClick={() => {
+              let newContent = props.spaceContent;
 
-            const [pulledBlockAnchor, newBlockAnchors] = pullBlockFromBlocks(
-              props.selectedBlock.id,
-              newContent.root.blocks
-            );
+              const [pulledBlockAnchor, newBlockAnchors] = pullBlockFromBlocks(
+                props.selectedBlock.id,
+                newContent.root.blocks
+              );
 
-            if (pulledBlockAnchor == null) {
-              throw new Error("Block not found");
-            }
+              if (pulledBlockAnchor == null) {
+                throw new Error("Block not found");
+              }
 
-            newContent = u({
-              root: {
-                blocks: u.constant(newBlockAnchors),
-              },
-              components: dissoc(pulledBlockAnchor.id),
-            })(newContent) as SpaceContent;
+              newContent = u({
+                root: {
+                  blocks: u.constant(newBlockAnchors),
+                },
+                components: dissoc(pulledBlockAnchor.id),
+              })(newContent) as SpaceContent;
 
-            updateSpaceV2({
-              variables: {
-                spaceId: props.spaceId,
-                content: JSON.stringify(newContent),
-              },
-            });
-          }}
-        >
-          Delete
-        </Button>
+              updateSpaceV2({
+                variables: {
+                  spaceId: props.spaceId,
+                  content: JSON.stringify(newContent),
+                },
+              });
+            }}
+          >
+            Delete
+          </Button>
+        )}
       </Header>
       <Body>
         <EditorBlockInputConfiguration
+          isReadOnly={props.isReadOnly}
           block={props.selectedBlock}
           spaceId={props.spaceId}
           spaceContent={props.spaceContent}
         />
         <EditorBlockUniqueConfigurations
+          isReadOnly={props.isReadOnly}
           selectedBlock={props.selectedBlock}
           spaceId={props.spaceId}
           spaceContent={props.spaceContent}
         />
         <EditorBlockOutputConfiguration
+          isReadOnly={props.isReadOnly}
           block={props.selectedBlock}
           spaceId={props.spaceId}
           spaceContent={props.spaceContent}

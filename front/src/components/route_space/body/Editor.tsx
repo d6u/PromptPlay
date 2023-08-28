@@ -15,6 +15,7 @@ const Content = styled.div`
 `;
 
 type Props = {
+  isReadOnly: boolean;
   selectedBlock: Block;
   spaceId: string;
   spaceContent: SpaceContent;

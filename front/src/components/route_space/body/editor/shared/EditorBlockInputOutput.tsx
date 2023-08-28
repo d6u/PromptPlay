@@ -21,6 +21,7 @@ const Header = styled.div`
 `;
 
 type Props = {
+  isReadOnly: boolean;
   block: Block;
   isInput: boolean;
   spaceId: string;
@@ -43,6 +44,7 @@ export default function EditorBlockInputOutput(props: Props) {
     rows.push(
       <EditorSingleScopeVariable
         key={`${props.block.id}-single-variable`}
+        isReadOnly={props.isReadOnly}
         variableName={props.singleVariable}
         isInput={props.isInput}
         onSave={(newName) => {
@@ -70,6 +72,7 @@ export default function EditorBlockInputOutput(props: Props) {
       rows.push(
         <EditorVariableMapRow
           key={`${props.block.id}-variable-map-row-${index}`}
+          isReadOnly={props.isReadOnly}
           localName={props.isInput ? right : left}
           scopeName={props.isInput ? left : right}
           isInput={props.isInput}
@@ -136,7 +139,7 @@ export default function EditorBlockInputOutput(props: Props) {
 
   let addButton: ReactNode | null = null;
 
-  if ("variableMap" in props) {
+  if (!props.isReadOnly && "variableMap" in props) {
     addButton = (
       <Button
         color="success"

@@ -4,6 +4,7 @@ import { Block, SpaceContent } from "../../../../static/spaceTypes";
 import { FieldRow, FieldTitle } from "./shared/editorCommonComponents";
 
 type Props = {
+  isReadOnly: boolean;
   attribute: string;
   onSaveAttribute: (attribute: string) => void;
   selectedBlock: Block;
@@ -21,6 +22,7 @@ export default function EditorBlockGetAttributeConfigurations(props: Props) {
         color="neutral"
         size="sm"
         variant="outlined"
+        disabled={props.isReadOnly}
         value={attribute}
         onChange={(e) => {
           setAttribute(e.target.value);

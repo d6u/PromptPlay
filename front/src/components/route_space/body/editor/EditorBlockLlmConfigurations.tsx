@@ -16,6 +16,7 @@ import {
 } from "./shared/editorCommonComponents";
 
 type Props = {
+  isReadOnly: boolean;
   model: LlmModel;
   onSaveModel: (model: LlmModel) => void;
   temperature: number;
@@ -60,6 +61,7 @@ export default function EditorBlockLlmConfigurations(props: Props) {
           color={missingOpenAiApiKey ? "danger" : "neutral"}
           size="sm"
           variant="outlined"
+          disabled={props.isReadOnly}
           value={openAiApiKey}
           onChange={(e) => {
             setOpenAiApiKey(e.target.value);
@@ -80,6 +82,7 @@ export default function EditorBlockLlmConfigurations(props: Props) {
         <Select
           size="sm"
           variant="outlined"
+          disabled={props.isReadOnly}
           value={model}
           onChange={(e, value) => {
             setModel(value!);
@@ -98,6 +101,7 @@ export default function EditorBlockLlmConfigurations(props: Props) {
           variant="outlined"
           type="number"
           slotProps={{ input: { min: 0, max: 2, step: 0.1 } }}
+          disabled={props.isReadOnly}
           value={temperature}
           onChange={(e) => {
             setTemperature(Number(e.target.value));
@@ -116,6 +120,7 @@ export default function EditorBlockLlmConfigurations(props: Props) {
           color="neutral"
           size="sm"
           variant="outlined"
+          disabled={props.isReadOnly}
           value={
             stop.length ? stop[0].replace("\n", LLM_STOP_NEW_LINE_SYMBOL) : ""
           }
@@ -148,6 +153,7 @@ export default function EditorBlockLlmConfigurations(props: Props) {
           size="sm"
           variant="outlined"
           placeholder="Variable name"
+          disabled={props.isReadOnly}
           value={variableNameForContent}
           onChange={(e) => setVariableNameForContent(e.target.value)}
           onKeyDown={(e) => {

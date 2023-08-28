@@ -6,6 +6,7 @@ import {
 import EditorBlockInputOutput from "./EditorBlockInputOutput";
 
 type Props = {
+  isReadOnly: boolean;
   block: Block;
   spaceId: string;
   spaceContent: SpaceContent;
@@ -18,6 +19,7 @@ export default function EditorBlockOutputConfiguration(props: Props) {
     case BlockVariablesConfiguration.Single:
       return (
         <EditorBlockInputOutput
+          isReadOnly={props.isReadOnly}
           block={props.block}
           isInput={false}
           singleVariable={props.block.singleOuput}
@@ -28,6 +30,7 @@ export default function EditorBlockOutputConfiguration(props: Props) {
     case BlockVariablesConfiguration.Map:
       return (
         <EditorBlockInputOutput
+          isReadOnly={props.isReadOnly}
           block={props.block}
           isInput={false}
           variableMap={props.block.outputMap}

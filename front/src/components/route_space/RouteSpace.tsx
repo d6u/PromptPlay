@@ -47,12 +47,12 @@ export default function RouteSpace(props: Props) {
 
   // Sync up server data with local state
   useEffect(() => {
-    if (query.data?.space?.content) {
-      setSpaceContent(JSON.parse(query.data.space.content));
+    if (query.data?.result?.space.content) {
+      setSpaceContent(JSON.parse(query.data.result?.space.content));
     } else {
       setSpaceContent(null);
     }
-  }, [query.data?.space?.content]);
+  }, [query.data?.result?.space.content]);
 
   const [updateSpace] = useMutation(UPDATE_SPACE_MUTATION);
 
@@ -127,6 +127,7 @@ export default function RouteSpace(props: Props) {
   return (
     <>
       <SpaceV2SubHeader
+        isReadOnly={query.data.result!.isReadOnly}
         spaceId={spaceId}
         spaceContent={spaceContent}
         onSpaceContentChange={(spaceContent) => {
@@ -143,12 +144,17 @@ export default function RouteSpace(props: Props) {
       <Content>
         {spaceContent && (
           <>
-            <Designer spaceId={spaceId} spaceContent={spaceContent} />
+            <Designer
+              isReadOnly={query.data.result!.isReadOnly}
+              spaceId={spaceId}
+              spaceContent={spaceContent}
+            />
             {selectedBlock && (
               <Editor
                 // Must provide a key, otherwise it won't re-render when the
                 // selected block changes
                 key={selectedBlock.id}
+                isReadOnly={query.data.result!.isReadOnly}
                 selectedBlock={selectedBlock}
                 spaceId={spaceId}
                 spaceContent={spaceContent}
