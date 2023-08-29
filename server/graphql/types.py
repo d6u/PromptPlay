@@ -339,3 +339,9 @@ class CreateExampleWorkspaceResult:
 class QuerySpaceResult:
     is_read_only: bool
     space: Space
+
+
+@strawberry.type
+class CreatePlaceholderUserAndExampleSpaceResult:
+    placeholder_client_token: strawberry.ID
+    space: Space

@@ -1,18 +1,33 @@
-import { useQuery } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import { Button } from "@mui/joy";
+import { useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
+import { useRecoilState } from "recoil";
 import styled from "styled-components";
 import { gql } from "../../__generated__";
 import { IS_LOGIN_ENABLED, PROVIDE_FEEDBACK_LINK } from "../../constants";
+import { placeholderUserTokenState } from "../../state/store";
 import { LOGIN_PATH, LOGOUT_PATH } from "../../static/routeConfigs";
 import StyleResetLink from "../common/StyleResetLink";
 
 const HEADER_QUERY = gql(`
   query HeaderQuery {
     isLoggedIn
+    isPlaceholderUserTokenInvalid
     user {
       email
       profilePictureUrl
     }
+  }
+`);
+
+const MERGE_PLACEHOLDER_USER_WITH_LOGGED_IN_USER_MUTATION = gql(`
+  mutation MergePlaceholderUserWithLoggedInUserMutation(
+    $placeholderUserToken: String!
+  ) {
+    result: mergePlaceholderUserWithLoggedInUser(
+      placeholderUserToken: $placeholderUserToken
+    )
   }
 `);
 
@@ -70,10 +85,58 @@ const Email = styled.div`
 `;
 
 export default function Header() {
+  let [searchParams, setSearchParams] = useSearchParams();
+
+  const [placeholderUserToken, setPlaceholderUserToken] = useRecoilState(
+    placeholderUserTokenState
+  );
+
+  const [mergePlaceholderUserWithLoggedInUser] = useMutation(
+    MERGE_PLACEHOLDER_USER_WITH_LOGGED_IN_USER_MUTATION,
+    {
+      refetchQueries: [{ query: HEADER_QUERY }],
+    }
+  );
+
   const queryResult = useQuery(HEADER_QUERY, {
     fetchPolicy: "no-cache",
     skip: !IS_LOGIN_ENABLED,
   });
+
+  const isNewUser = searchParams.get("new_user") === "true";
+  const isPlaceholderUserTokenInvalid =
+    queryResult.data?.isPlaceholderUserTokenInvalid === true;
+  const isLoggedIn = queryResult.data?.isLoggedIn === true;
+
+  // TODO: Putting this logic in this component is pretty ad-hoc, and this will
+  // break if Header is not always rendered on page.
+  useEffect(() => {
+    if (placeholderUserToken === "") {
+      return;
+    }
+
+    if (isPlaceholderUserTokenInvalid) {
+      setPlaceholderUserToken("");
+    }
+
+    if (!isPlaceholderUserTokenInvalid && isLoggedIn && isNewUser) {
+      setSearchParams({});
+
+      mergePlaceholderUserWithLoggedInUser({
+        variables: { placeholderUserToken },
+      }).then(() => {
+        setPlaceholderUserToken("");
+      });
+    }
+  }, [
+    isPlaceholderUserTokenInvalid,
+    isLoggedIn,
+    isNewUser,
+    placeholderUserToken,
+    setPlaceholderUserToken,
+    setSearchParams,
+    mergePlaceholderUserWithLoggedInUser,
+  ]);
 
   if (queryResult.loading) {
     return <div>Loading...</div>;

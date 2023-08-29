@@ -2,14 +2,13 @@ import { useMutation, useQuery } from "@apollo/client";
 import { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSetRecoilState } from "recoil";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import { gql } from "../../__generated__";
 import { IS_LOGIN_ENABLED } from "../../constants";
 import { placeholderUserTokenState } from "../../state/store";
-import { pathToSpace } from "../../static/routeConfigs";
+import { LOGIN_PATH, pathToSpace } from "../../static/routeConfigs";
 import Dashboard from "./dashboard/Dashboard";
 import { ROOT_ROUTE_QUERY } from "./queries";
-import "./RootRoute.css";
 
 const CREATE_PLACEHOLDER_USER_AND_EXAMPLE_SPACE_MUTATION = gql(`
   mutation CreatePlaceholderUserAndExampleSpaceMutation {
@@ -41,6 +40,26 @@ const EmptyStateContent = styled.div`
     padding: 15px;
     gap: 15px;
   }
+`;
+
+const BigButton = styled.button<{ $createExample?: boolean }>`
+  aspect-ratio: 1 / 1;
+  width: 200px;
+  border: 1px solid black;
+  padding: 20px;
+  background: none;
+  border-radius: 10px;
+  font-size: 20px;
+  font-weight: bold;
+  cursor: pointer;
+  ${(props) =>
+    props.$createExample
+      ? css`
+          border: none;
+          background: #318a09;
+          color: white;
+        `
+      : null}
 `;
 
 export default function RootRoute() {
@@ -98,14 +117,13 @@ export default function RootRoute() {
   } else {
     content = (
       <EmptyStateContent>
-        <button
-          className="RootRoute_big_button RootRoute_big_button_create_example"
-          onClick={onClick}
-        >
+        <BigButton $createExample onClick={onClick}>
           Create an example space
-        </button>
+        </BigButton>
         {IS_LOGIN_ENABLED && (
-          <button className="RootRoute_big_button">Sign up / Login</button>
+          <BigButton onClick={() => window.location.assign(LOGIN_PATH)}>
+            Log in / Sign up
+          </BigButton>
         )}
       </EmptyStateContent>
     );

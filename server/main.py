@@ -110,7 +110,11 @@ async def auth(
         select(OrmUser).where(OrmUser.auth0_user_id == userinfo_sub)
     )
 
+    is_new_user = False
+
     if db_user == None:
+        is_new_user = True
+
         db_user = OrmUser(
             is_user_placeholder=False,
             auth0_user_id=userinfo_sub,
@@ -119,24 +123,7 @@ async def auth(
             profile_picture_url=userinfo_picture,
         )
 
-        (
-            db_workspace,
-            db_preset,
-            db_prompt_block,
-            db_completer_block,
-            db_block_set,
-        ) = create_example_workspace(db_user=db_user)
-
-        db.add_all(
-            [
-                db_user,
-                db_workspace,
-                db_prompt_block,
-                db_completer_block,
-                db_preset,
-                db_block_set,
-            ]
-        )
+        db.add_all([db_user])
     else:
         db_user.name = userinfo_name
         db_user.email = userinfo_email
@@ -149,7 +136,12 @@ async def auth(
         "id_token": id_token,
     }
 
-    return RedirectResponse(url=settings.auth_finish_redirect_url)
+    if is_new_user:
+        return RedirectResponse(
+            url=settings.auth_finish_redirect_url + "?new_user=true"
+        )
+    else:
+        return RedirectResponse(url=settings.auth_finish_redirect_url)
 
 
 @app.get("/logout")

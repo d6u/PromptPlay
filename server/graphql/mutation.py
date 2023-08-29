@@ -1,8 +1,7 @@
-from __future__ import annotations
-
 from uuid import uuid4
 
 import strawberry
+from sqlalchemy import select
 
 from server.database.orm.user import OrmUser
 from server.database.utils import (
@@ -18,7 +17,13 @@ from .mutation_preset import MutationPreset
 from .mutation_space import MutationSpace
 from .mutation_user import MutationUser
 from .mutation_workspace import MutationWorkspace
-from .types import CreateExampleWorkspaceResult, Space, Workspace
+from .types import (
+    CreateExampleWorkspaceResult,
+    CreatePlaceholderUserAndExampleSpaceResult,
+    Space,
+    Workspace,
+)
+from .utils import ensure_db_user
 
 
 @strawberry.type
@@ -101,8 +106,35 @@ class Mutation(
             space=Space.from_db(db_space),
         )
 
+    @strawberry.mutation
+    @ensure_db_user
+    def merge_placeholder_user_with_logged_in_user(
+        self: None,
+        info: Info,
+        db_user: OrmUser,
+        placeholder_user_token: str,
+    ) -> bool | None:
+        db = info.context.db
 
-@strawberry.type
-class CreatePlaceholderUserAndExampleSpaceResult:
-    placeholder_client_token: strawberry.ID
-    space: Space
+        db_placeholder_user = db.scalar(
+            select(OrmUser).where(
+                OrmUser.placeholder_client_token == placeholder_user_token
+            )
+        )
+
+        if db_placeholder_user == None:
+            return False
+
+        # Merge placeholder user into the new user
+
+        db_spaces = db.scalars(db_placeholder_user.spaces.select())
+
+        for db_space in db_spaces:
+            db_space.owner = db_user
+
+        # Delete the placeholder user
+        db.delete(db_placeholder_user)
+
+        db.commit()
+
+        return True
