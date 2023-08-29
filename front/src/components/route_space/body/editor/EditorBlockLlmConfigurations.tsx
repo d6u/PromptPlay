@@ -74,7 +74,7 @@ export default function EditorBlockLlmConfigurations(props: Props) {
           </FieldHelperText>
         )}
         <FieldHelperText $type="success">
-          This is stored in the your browser, never uploaded.
+          This is stored locally in your browser, never uploaded.
         </FieldHelperText>
       </FieldRow>
       <FieldRow>
