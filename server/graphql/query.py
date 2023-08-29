@@ -20,13 +20,39 @@ class Query:
     def hello(self: None) -> str:
         return "World!"
 
-    @strawberry.field
+    @strawberry.field(
+        description="Check if there is a user and the user is not a placeholder user"
+    )
     def is_logged_in(self: None, info: Info) -> bool:
         # Need to pull the user from the context to trigger the logic for
         # computing the is_logged_in
         # TODO: Improve this
         db_user = info.context.db_user
         return info.context.is_logged_in
+
+    @strawberry.field(
+        description="When PlaceholderUserToken header is present and the token is not mapped to a user"
+    )
+    def is_placeholder_user_token_invalid(self: None, info: Info) -> bool:
+        db = info.context.db
+
+        placeholder_user_token = info.context.request.headers.get(
+            "PlaceholderUserToken", None
+        )
+
+        if placeholder_user_token == None:
+            return False
+
+        db_user = db.scalar(
+            select(OrmUser).where(
+                OrmUser.placeholder_client_token == placeholder_user_token
+            )
+        )
+
+        if db_user != None:
+            return False
+
+        return True
 
     @strawberry.field
     @ensure_db_user

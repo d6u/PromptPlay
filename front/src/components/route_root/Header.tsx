@@ -1,14 +1,18 @@
 import { useQuery } from "@apollo/client";
 import { Button } from "@mui/joy";
+import { useEffect } from "react";
+import { useSetRecoilState } from "recoil";
 import styled from "styled-components";
 import { gql } from "../../__generated__";
 import { IS_LOGIN_ENABLED, PROVIDE_FEEDBACK_LINK } from "../../constants";
+import { placeholderUserTokenState } from "../../state/store";
 import { LOGIN_PATH, LOGOUT_PATH } from "../../static/routeConfigs";
 import StyleResetLink from "../common/StyleResetLink";
 
 const HEADER_QUERY = gql(`
   query HeaderQuery {
     isLoggedIn
+    isPlaceholderUserTokenInvalid
     user {
       email
       profilePictureUrl
@@ -70,10 +74,23 @@ const Email = styled.div`
 `;
 
 export default function Header() {
+  const setPlaceholderUserToken = useSetRecoilState(placeholderUserTokenState);
+
   const queryResult = useQuery(HEADER_QUERY, {
     fetchPolicy: "no-cache",
     skip: !IS_LOGIN_ENABLED,
   });
+
+  // TODO: Putting this logic in this component is pretty ad-hoc, and this will
+  // break if Header is not always rendered on page.
+  useEffect(() => {
+    if (queryResult.data?.isPlaceholderUserTokenInvalid) {
+      setPlaceholderUserToken("");
+    }
+  }, [
+    queryResult.data?.isPlaceholderUserTokenInvalid,
+    queryResult.data?.isLoggedIn,
+  ]);
 
   if (queryResult.loading) {
     return <div>Loading...</div>;
