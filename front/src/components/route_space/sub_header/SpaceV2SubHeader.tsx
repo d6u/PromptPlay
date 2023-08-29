@@ -6,12 +6,12 @@ import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import u from "updeep";
 import { DELETE_SPACE_MUTATION } from "../../../state/spaceGraphQl";
+import { ROOT_PATH } from "../../../static/routeConfigs";
 import { BlockType, SpaceContent } from "../../../static/spaceTypes";
 import {
   createInitialSpaceContent,
   createNewBlock,
 } from "../../../static/spaceUtils";
-import { ROOT_PATH } from "../../routeConfig";
 
 const Container = styled.div`
   height: 60px;

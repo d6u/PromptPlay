@@ -6,7 +6,7 @@ import styled from "styled-components";
 import { gql } from "../../__generated__";
 import { IS_LOGIN_ENABLED } from "../../constants";
 import { placeholderUserTokenState } from "../../state/store";
-import { pathToSpace } from "../routeConfig";
+import { pathToSpace } from "../../static/routeConfigs";
 import Dashboard from "./dashboard/Dashboard";
 import { ROOT_ROUTE_QUERY } from "./queries";
 import "./RootRoute.css";

@@ -2,11 +2,8 @@ import { useQuery } from "@apollo/client";
 import { Button } from "@mui/joy";
 import styled from "styled-components";
 import { gql } from "../../__generated__";
-import {
-  API_SERVER_BASE_URL,
-  IS_LOGIN_ENABLED,
-  PROVIDE_FEEDBACK_LINK,
-} from "../../constants";
+import { IS_LOGIN_ENABLED, PROVIDE_FEEDBACK_LINK } from "../../constants";
+import { LOGIN_PATH, LOGOUT_PATH } from "../../static/routeConfigs";
 import StyleResetLink from "../common/StyleResetLink";
 
 const HEADER_QUERY = gql(`
@@ -97,22 +94,18 @@ export default function Header() {
           {queryResult.data?.isLoggedIn ? (
             <>
               <Email>{queryResult.data.user?.email}</Email>
-              <Button
-                onClick={() => {
-                  window.location.assign(`${API_SERVER_BASE_URL}/logout`);
-                }}
-              >
+              <Button onClick={() => window.location.assign(LOGOUT_PATH)}>
                 Log Out
               </Button>
             </>
           ) : (
             <Button
               color="success"
-              onClick={() => {
-                window.location.assign(`${API_SERVER_BASE_URL}/login`);
-              }}
+              onClick={() => window.location.assign(LOGIN_PATH)}
+              size="sm"
+              variant="solid"
             >
-              Log In
+              Log in / Sign up
             </Button>
           )}
         </AccountManagementContainer>
