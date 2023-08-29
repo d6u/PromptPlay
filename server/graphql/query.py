@@ -35,6 +35,7 @@ class Query:
             db_user=db_user,
             id=db_user.id,
             email=db_user.email,
+            profile_picture_url=db_user.profile_picture_url,
         )
 
     @strawberry.field

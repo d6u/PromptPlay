@@ -2,11 +2,8 @@ import { useQuery } from "@apollo/client";
 import { Button } from "@mui/joy";
 import styled from "styled-components";
 import { gql } from "../../__generated__";
-import {
-  API_SERVER_BASE_URL,
-  IS_LOGIN_ENABLED,
-  PROVIDE_FEEDBACK_LINK,
-} from "../../constants";
+import { IS_LOGIN_ENABLED, PROVIDE_FEEDBACK_LINK } from "../../constants";
+import { LOGIN_PATH, LOGOUT_PATH } from "../../static/routeConfigs";
 import StyleResetLink from "../common/StyleResetLink";
 
 const HEADER_QUERY = gql(`
@@ -14,6 +11,7 @@ const HEADER_QUERY = gql(`
     isLoggedIn
     user {
       email
+      profilePictureUrl
     }
   }
 `);
@@ -56,6 +54,13 @@ const AccountManagementContainer = styled.div`
   align-items: center;
 `;
 
+const ProfilePicture = styled.img`
+  aspect-ratio: 1 / 1;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+`;
+
 const Email = styled.div`
   color: #000;
   font-size: 14px;
@@ -96,11 +101,18 @@ export default function Header() {
         <AccountManagementContainer>
           {queryResult.data?.isLoggedIn ? (
             <>
+              {queryResult.data.user?.profilePictureUrl && (
+                <ProfilePicture
+                  src={queryResult.data.user?.profilePictureUrl}
+                  alt="profile-pic"
+                  referrerPolicy="no-referrer"
+                />
+              )}
               <Email>{queryResult.data.user?.email}</Email>
               <Button
-                onClick={() => {
-                  window.location.assign(`${API_SERVER_BASE_URL}/logout`);
-                }}
+                size="sm"
+                variant="plain"
+                onClick={() => window.location.assign(LOGOUT_PATH)}
               >
                 Log Out
               </Button>
@@ -108,11 +120,11 @@ export default function Header() {
           ) : (
             <Button
               color="success"
-              onClick={() => {
-                window.location.assign(`${API_SERVER_BASE_URL}/login`);
-              }}
+              onClick={() => window.location.assign(LOGIN_PATH)}
+              size="sm"
+              variant="solid"
             >
-              Log In
+              Log in / Sign up
             </Button>
           )}
         </AccountManagementContainer>

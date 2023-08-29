@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     auth0_domain: str
     auth_finish_redirect_url: str
     cors_allow_origin: str
+    session_secret_key: str
 
     class Config:
         # `.env.local` takes priority over `.env`

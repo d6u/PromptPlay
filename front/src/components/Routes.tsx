@@ -1,7 +1,7 @@
 import { RouterProvider } from "react-router-dom";
 import { createBrowserRouter, Outlet, Navigate } from "react-router-dom";
-import Header from "./header/Header";
-import { ROOT_PATH, SPACE_PATH_PATTERN } from "./routeConfig";
+import { ROOT_PATH, SPACE_PATH_PATTERN } from "../static/routeConfigs";
+import Header from "./route_root/Header";
 import RootRoute from "./route_root/RootRoute";
 import RouteSpace from "./route_space/RouteSpace";
 import WorkspaceRoute from "./route_workspace/WorkspaceRoute";

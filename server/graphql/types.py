@@ -25,6 +25,7 @@ class User:
     db_user: strawberry.Private[OrmUser]
     id: UUID
     email: str | None
+    profile_picture_url: str | None
 
     @strawberry.field
     def workspaces(self: User, info: Info) -> list[Workspace]:

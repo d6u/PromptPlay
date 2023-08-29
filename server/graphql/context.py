@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from functools import cached_property
-from typing import TypeAlias
+from typing import TypeAlias, cast
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -30,31 +30,39 @@ class Context(BaseContext):
         3. If none of above headers are present, return None.
         """
 
-        session_user: dict = self.request.session.get("user", None)
+        session_user: dict | None = self.request.session.get("user", None)
 
         if session_user != None:
             db_user = self._get_db_user_by_session(session_user)
-            if db_user == None:
-                return None
-            else:
+
+            if db_user != None:
                 self.is_logged_in = True
                 return db_user
+
+            # This is a invalid session, need to clean it up.
+            self.request.session.clear()
+
+        # Fall back to PlaceholderUserToken header
 
         placeholder_user_token = self.request.headers.get(
             "PlaceholderUserToken", None
         )
 
         if placeholder_user_token != None:
-            return self._get_db_user_by_placeholder_user_token(
+            db_user = self._get_db_user_by_placeholder_user_token(
                 placeholder_user_token=placeholder_user_token,
             )
 
-        print("Neither session user nor PlaceholderUserToken header is present")
+            if db_user != None:
+                return db_user
 
+            print("PlaceholderUserToken header is invalid")
+
+        print("Neither session user nor PlaceholderUserToken header is present")
         return None
 
     def _get_db_user_by_session(self, session_user: dict) -> OrmUser | None:
-        db_user_id = session_user.get("db_user_id", None)
+        db_user_id = cast(str | None, session_user.get("db_user_id", None))
 
         if db_user_id == None:
             print("db_user_id is None")

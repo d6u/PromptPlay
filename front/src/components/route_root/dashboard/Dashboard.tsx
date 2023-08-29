@@ -2,7 +2,7 @@ import { useMutation } from "@apollo/client";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { FragmentType, gql, useFragment } from "../../../__generated__";
-import { pathToSpace } from "../../routeConfig";
+import { pathToSpace } from "../../../static/routeConfigs";
 import { ROOT_ROUTE_QUERY } from "../queries";
 import DashboardTile, { DashboardTileType } from "./DashboardTile";
 
