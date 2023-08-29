@@ -1,3 +1,4 @@
+from pprint import PrettyPrinter
 from typing import cast
 
 from fastapi import Depends, FastAPI, Request, Response
@@ -44,7 +45,7 @@ def hello(
     request: Request,
     db: Session = Depends(get_db),
 ) -> str:
-    session_user: dict = request.session.get("user", None)
+    session_user: dict | None = request.session.get("user", None)
 
     if session_user == None:
         print("session_user is None")
@@ -85,6 +86,9 @@ async def auth(
     userinfo = cast(dict | None, token["userinfo"])
     id_token = cast(dict | None, token["id_token"])
 
+    pp = PrettyPrinter(indent=2)
+    pp.pprint(token)
+
     if userinfo == None:
         print("userinfo should not be None")
         return Response(status_code=500)
@@ -96,6 +100,7 @@ async def auth(
     userinfo_sub = cast(dict | None, userinfo.get("sub", None))
     userinfo_name = cast(dict | None, userinfo.get("name", None))
     userinfo_email = cast(dict | None, userinfo.get("email", None))
+    userinfo_picture = cast(dict | None, userinfo.get("picture", None))
 
     if userinfo_sub == None:
         print("sub key is missing")
@@ -111,6 +116,7 @@ async def auth(
             auth0_user_id=userinfo_sub,
             name=userinfo_name,
             email=userinfo_email,
+            profile_picture_url=userinfo_picture,
         )
 
         (
@@ -134,6 +140,7 @@ async def auth(
     else:
         db_user.name = userinfo_name
         db_user.email = userinfo_email
+        db_user.profile_picture_url = userinfo_picture
 
     db.commit()
 

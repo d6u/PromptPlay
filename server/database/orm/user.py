@@ -24,6 +24,7 @@ class OrmUser(Base, MixinUuidPrimaryKey, MixinCreatedAt, MixinUpdatedAt):
     auth0_user_id: Mapped[str | None] = mapped_column(index=True)
     name: Mapped[str | None]
     email: Mapped[str | None]
+    profile_picture_url: Mapped[str | None]
 
     placeholder_client_token: Mapped[str | None] = mapped_column(index=True)
 

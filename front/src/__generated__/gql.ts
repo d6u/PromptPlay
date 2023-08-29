@@ -15,7 +15,7 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
 const documents = {
     "\n  fragment DraggingBlock on Block {\n    id\n    __typename\n    ... on PromptBlock {\n      role\n      content\n    }\n    ... on CompleterBlock {\n      model\n      temperature\n      stop\n    }\n  }\n": types.DraggingBlockFragmentDoc,
     "\n  fragment LibraryBlock on Block {\n    id\n    __typename\n    ... on PromptBlock {\n      role\n      content\n    }\n    ... on CompleterBlock {\n      model\n      temperature\n      stop\n    }\n  }\n": types.LibraryBlockFragmentDoc,
-    "\n  query HeaderQuery {\n    isLoggedIn\n    user {\n      email\n    }\n  }\n": types.HeaderQueryDocument,
+    "\n  query HeaderQuery {\n    isLoggedIn\n    user {\n      email\n      profilePictureUrl\n    }\n  }\n": types.HeaderQueryDocument,
     "\n  mutation CreatePlaceholderUserAndExampleSpaceMutation {\n    result: createPlaceholderUserAndExampleSpace {\n      placeholderClientToken\n      space {\n        id\n      }\n    }\n  }\n": types.CreatePlaceholderUserAndExampleSpaceMutationDocument,
     "\n  fragment Dashboard on User {\n    spaces {\n      id\n      name\n      updatedAt\n    }\n  }\n": types.DashboardFragmentDoc,
     "\n  mutation CreateSpaceMutation {\n    result: createSpace {\n      id\n      name\n      updatedAt\n    }\n  }\n": types.CreateSpaceMutationDocument,
@@ -85,7 +85,7 @@ export function gql(source: "\n  fragment LibraryBlock on Block {\n    id\n    _
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\n  query HeaderQuery {\n    isLoggedIn\n    user {\n      email\n    }\n  }\n"): (typeof documents)["\n  query HeaderQuery {\n    isLoggedIn\n    user {\n      email\n    }\n  }\n"];
+export function gql(source: "\n  query HeaderQuery {\n    isLoggedIn\n    user {\n      email\n      profilePictureUrl\n    }\n  }\n"): (typeof documents)["\n  query HeaderQuery {\n    isLoggedIn\n    user {\n      email\n      profilePictureUrl\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

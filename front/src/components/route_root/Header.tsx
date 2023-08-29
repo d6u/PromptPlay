@@ -11,6 +11,7 @@ const HEADER_QUERY = gql(`
     isLoggedIn
     user {
       email
+      profilePictureUrl
     }
   }
 `);
@@ -53,6 +54,13 @@ const AccountManagementContainer = styled.div`
   align-items: center;
 `;
 
+const ProfilePicture = styled.img`
+  aspect-ratio: 1 / 1;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+`;
+
 const Email = styled.div`
   color: #000;
   font-size: 14px;
@@ -93,8 +101,19 @@ export default function Header() {
         <AccountManagementContainer>
           {queryResult.data?.isLoggedIn ? (
             <>
+              {queryResult.data.user?.profilePictureUrl && (
+                <ProfilePicture
+                  src={queryResult.data.user?.profilePictureUrl}
+                  alt="profile-pic"
+                  referrerPolicy="no-referrer"
+                />
+              )}
               <Email>{queryResult.data.user?.email}</Email>
-              <Button onClick={() => window.location.assign(LOGOUT_PATH)}>
+              <Button
+                size="sm"
+                variant="plain"
+                onClick={() => window.location.assign(LOGOUT_PATH)}
+              >
                 Log Out
               </Button>
             </>
