@@ -68,8 +68,9 @@ def hello(
 
 @app.get("/login")
 async def login(request: Request):
-    redirect_uri = request.url_for("auth")
-    return await oauth.auth0.authorize_redirect(request, redirect_uri)
+    return await oauth.auth0.authorize_redirect(
+        request, settings.auth_callback_url
+    )
 
 
 @app.get("/auth")
