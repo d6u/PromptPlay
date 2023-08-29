@@ -16,3 +16,4 @@ Starlette
 itsdangerous
 boto3
 termcolor
+alembic
