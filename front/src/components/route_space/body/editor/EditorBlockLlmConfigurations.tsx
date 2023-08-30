@@ -28,6 +28,8 @@ type Props = {
   onSaveTemperaturel: (temperature: number) => void;
   stop: Array<string>;
   onSaveStop: (stop: Array<string>) => void;
+  variableNameForMessage: string;
+  onSaveVariableNameForMessage: (variableNameForMessage: string) => void;
   variableNameForContent: string;
   onSaveVariableNameForContent: (variableNameForContent: string) => void;
   selectedBlock: BlockLlm;
@@ -44,6 +46,9 @@ export default function EditorBlockLlmConfigurations(props: Props) {
   const [model, setModel] = useState(props.model);
   const [temperature, setTemperature] = useState(props.temperature);
   const [stop, setStop] = useState(props.stop);
+  const [variableNameForMessage, setVariableNameForMessage] = useState(
+    props.variableNameForMessage
+  );
   const [variableNameForContent, setVariableNameForContent] = useState(
     props.variableNameForContent
   );
@@ -160,12 +165,32 @@ export default function EditorBlockLlmConfigurations(props: Props) {
         </FieldHelperText>
       </FieldRow>
       <FieldRow>
-        <FieldTitle>Output message content to variable (optional)</FieldTitle>
+        <FieldTitle>Assign assistant message to variable</FieldTitle>
         <Input
           color="neutral"
           size="sm"
           variant="outlined"
-          placeholder="Variable name"
+          placeholder="Variable name for message"
+          disabled={props.isReadOnly}
+          value={variableNameForMessage}
+          onChange={(e) => setVariableNameForMessage(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              props.onSaveVariableNameForMessage(variableNameForMessage);
+            }
+          }}
+          onBlur={() =>
+            props.onSaveVariableNameForMessage(variableNameForMessage)
+          }
+        />
+      </FieldRow>
+      <FieldRow>
+        <FieldTitle>Assign message content to variable</FieldTitle>
+        <Input
+          color="neutral"
+          size="sm"
+          variant="outlined"
+          placeholder="Variable name for content"
           disabled={props.isReadOnly}
           value={variableNameForContent}
           onChange={(e) => setVariableNameForContent(e.target.value)}
@@ -179,14 +204,6 @@ export default function EditorBlockLlmConfigurations(props: Props) {
           }
         />
       </FieldRow>
-      <EditorBlockInputOutput
-        isReadOnly={props.isReadOnly}
-        block={props.selectedBlock}
-        isInput={false}
-        singleVariable={props.selectedBlock.singleOuput}
-        spaceId={props.spaceId}
-        spaceContent={props.spaceContent}
-      />
     </>
   );
 }

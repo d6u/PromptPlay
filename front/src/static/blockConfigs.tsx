@@ -58,14 +58,17 @@ const BLOCK_CONFIGS: BlockConfigs = {
   [BlockType.LlmMessage]: {
     title: "LLM Message",
     derivedOutputVariablesGenerate: (block) => {
-      if (block.listNameToAppend !== "") {
-        return [
-          ["list", block.listNameToAppend],
-          ["message", block.singleOuput],
-        ];
-      } else {
-        return block.singleOuput;
+      const pairs: Array<[string, string]> = [];
+
+      if (block.singleOuput !== "") {
+        pairs.push(["message", block.singleOuput]);
       }
+
+      if (block.listNameToAppend !== "") {
+        pairs.push(["list", block.listNameToAppend]);
+      }
+
+      return pairs;
     },
     renderConfig: (block) => {
       const content: ReactNode[] = flatten(
@@ -145,14 +148,17 @@ const BLOCK_CONFIGS: BlockConfigs = {
   [BlockType.Llm]: {
     title: "LLM",
     derivedOutputVariablesGenerate: (block) => {
-      if (block.variableNameForContent !== "") {
-        return [
-          ["message", block.singleOuput],
-          ["content", block.variableNameForContent],
-        ];
-      } else {
-        return block.singleOuput;
+      const pairs: Array<[string, string]> = [];
+
+      if (block.singleOuput !== "") {
+        pairs.push(["message", block.singleOuput]);
       }
+
+      if (block.variableNameForContent !== "") {
+        pairs.push(["content", block.variableNameForContent]);
+      }
+
+      return pairs;
     },
     renderConfig: (block) => {
       return (
