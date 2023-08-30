@@ -21,10 +21,10 @@ type Props = {
   onSaveRole: (value: LlmMessageRole) => void;
   content: string;
   onSaveContent: (value: string) => void;
-  outputVariableName: string;
-  onSaveOutputVariableName: (outputVariableName: string) => void;
   listNameToAppend: string;
   onSaveListNameToAppend: (listNameToAppend: string) => void;
+  messageVariableName: string;
+  onSaveMessageVariableName: (messageVariableName: string) => void;
   selectedBlock: BlockLlmMessage;
   spaceId: string;
   spaceContent: SpaceContent;
@@ -33,11 +33,11 @@ type Props = {
 export default function EditorBlockLlmMessageConfigurations(props: Props) {
   const [role, setRole] = useState(props.role);
   const [content, setContent] = useState(props.content);
-  const [outputVariableName, setOutputVariableName] = useState(
-    props.outputVariableName
-  );
   const [listNameToAppend, setListNameToAppend] = useState(
     props.listNameToAppend
+  );
+  const [messageVariableName, setMessageVariableName] = useState(
+    props.messageVariableName
   );
 
   return (
@@ -113,32 +113,6 @@ export default function EditorBlockLlmMessageConfigurations(props: Props) {
         </FieldHelperText>
       </FieldRow>
       <FieldRow>
-        <FieldTitle>Assign message to variable</FieldTitle>
-        <Input
-          color="neutral"
-          size="sm"
-          variant="outlined"
-          placeholder="Variable name"
-          disabled={props.isReadOnly}
-          value={outputVariableName}
-          onChange={(e) => setOutputVariableName(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              props.onSaveOutputVariableName(outputVariableName);
-            }
-          }}
-          onBlur={() => props.onSaveOutputVariableName(outputVariableName)}
-        />
-      </FieldRow>
-      {/* <EditorBlockInputOutput
-        isReadOnly={props.isReadOnly}
-        block={props.selectedBlock}
-        isInput={false}
-        singleVariable={props.selectedBlock.singleOuput}
-        spaceId={props.spaceId}
-        spaceContent={props.spaceContent}
-      /> */}
-      <FieldRow>
         <FieldTitle>Append message to list</FieldTitle>
         <Input
           color="neutral"
@@ -154,6 +128,24 @@ export default function EditorBlockLlmMessageConfigurations(props: Props) {
             }
           }}
           onBlur={() => props.onSaveListNameToAppend(listNameToAppend)}
+        />
+      </FieldRow>
+      <FieldRow>
+        <FieldTitle>Assign message to variable</FieldTitle>
+        <Input
+          color="neutral"
+          size="sm"
+          variant="outlined"
+          placeholder="Variable name for message"
+          disabled={props.isReadOnly}
+          value={messageVariableName}
+          onChange={(e) => setMessageVariableName(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              props.onSaveMessageVariableName(messageVariableName);
+            }
+          }}
+          onBlur={() => props.onSaveMessageVariableName(messageVariableName)}
         />
       </FieldRow>
     </>

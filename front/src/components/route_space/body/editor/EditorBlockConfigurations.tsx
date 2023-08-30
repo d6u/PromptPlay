@@ -77,11 +77,11 @@ export default function EditorBlockConfigurations(props: Props) {
               },
             });
           }}
-          outputVariableName={props.selectedBlock.singleOuput}
-          onSaveOutputVariableName={(outputVariableName) => {
+          listNameToAppend={props.selectedBlock.listNameToAppend}
+          onSaveListNameToAppend={(listNameToAppend) => {
             const newContent = u({
               components: {
-                [props.selectedBlock.id]: { singleOuput: outputVariableName },
+                [props.selectedBlock.id]: { listNameToAppend },
               },
             })(props.spaceContent) as SpaceContent;
 
@@ -92,11 +92,11 @@ export default function EditorBlockConfigurations(props: Props) {
               },
             });
           }}
-          listNameToAppend={props.selectedBlock.listNameToAppend}
-          onSaveListNameToAppend={(listNameToAppend) => {
+          messageVariableName={props.selectedBlock.singleOuput}
+          onSaveMessageVariableName={(messageVariableName) => {
             const newContent = u({
               components: {
-                [props.selectedBlock.id]: { listNameToAppend },
+                [props.selectedBlock.id]: { singleOuput: messageVariableName },
               },
             })(props.spaceContent) as SpaceContent;
 
