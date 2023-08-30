@@ -22,7 +22,6 @@ const Container = styled.div`
   height: 51px;
   border-bottom: 1px solid #ececf1;
   display: flex;
-  flex-direction: row;
   justify-content: space-between;
   padding: 0 20px;
   flex-shrink: 0;
@@ -31,12 +30,18 @@ const Container = styled.div`
 
 const Left = styled.div`
   display: flex;
-  flex-direction: row;
   align-items: center;
   gap: 10px;
 `;
 
 const Right = styled(Left)``;
+
+const Center = styled.div`
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
 
 const SpaceNameInput = styled(Input)`
   width: 250px;
@@ -108,7 +113,11 @@ export default function SpaceV2SubHeader(props: Props) {
 
   return (
     <Container>
-      {props.isReadOnly ? null : (
+      {props.isReadOnly ? (
+        <Center>
+          <SpaceName>{name}</SpaceName>
+        </Center>
+      ) : (
         <>
           <Left>
             <Button size="sm" onClick={() => appendNewBlock(BlockType.Databag)}>
