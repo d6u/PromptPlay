@@ -15,12 +15,13 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
 const documents = {
     "\n  fragment DraggingBlock on Block {\n    id\n    __typename\n    ... on PromptBlock {\n      role\n      content\n    }\n    ... on CompleterBlock {\n      model\n      temperature\n      stop\n    }\n  }\n": types.DraggingBlockFragmentDoc,
     "\n  fragment LibraryBlock on Block {\n    id\n    __typename\n    ... on PromptBlock {\n      role\n      content\n    }\n    ... on CompleterBlock {\n      model\n      temperature\n      stop\n    }\n  }\n": types.LibraryBlockFragmentDoc,
-    "\n  query HeaderQuery {\n    isLoggedIn\n    isPlaceholderUserTokenInvalid\n    user {\n      email\n      profilePictureUrl\n    }\n  }\n": types.HeaderQueryDocument,
-    "\n  mutation MergePlaceholderUserWithLoggedInUserMutation(\n    $placeholderUserToken: String!\n  ) {\n    result: mergePlaceholderUserWithLoggedInUser(\n      placeholderUserToken: $placeholderUserToken\n    )\n  }\n": types.MergePlaceholderUserWithLoggedInUserMutationDocument,
     "\n  mutation CreatePlaceholderUserAndExampleSpaceMutation {\n    result: createPlaceholderUserAndExampleSpace {\n      placeholderClientToken\n      space {\n        id\n      }\n    }\n  }\n": types.CreatePlaceholderUserAndExampleSpaceMutationDocument,
     "\n  fragment Dashboard on User {\n    spaces {\n      id\n      name\n      updatedAt\n    }\n  }\n": types.DashboardFragmentDoc,
     "\n  mutation CreateSpaceMutation {\n    result: createSpace {\n      id\n      name\n      updatedAt\n    }\n  }\n": types.CreateSpaceMutationDocument,
+    "\n  query HeaderQuery {\n    isLoggedIn\n    isPlaceholderUserTokenInvalid\n    user {\n      email\n      profilePictureUrl\n    }\n  }\n": types.HeaderQueryDocument,
+    "\n  mutation MergePlaceholderUserWithLoggedInUserMutation(\n    $placeholderUserToken: String!\n  ) {\n    result: mergePlaceholderUserWithLoggedInUser(\n      placeholderUserToken: $placeholderUserToken\n    )\n  }\n": types.MergePlaceholderUserWithLoggedInUserMutationDocument,
     "\n  query RootRouteQuery {\n    user {\n      id\n      ...Dashboard\n    }\n  }\n": types.RootRouteQueryDocument,
+    "\n  fragment SpaceSubHeaderFragment on Space {\n    name\n  }\n": types.SpaceSubHeaderFragmentFragmentDoc,
     "\n  fragment WorkspaceQuery on Query {\n    workspace(workspaceId: $workspaceId) {\n      firstPreset {\n        id\n        blockSets {\n          id\n          position\n        }\n      }\n    }\n    ...WorkspaceContent\n  }\n": types.WorkspaceQueryFragmentDoc,
     "\n  mutation AddPromptToBlockSetTopInputMutation(\n    $promptBlockId: UUID!\n    $blockSetId: UUID!\n  ) {\n    addPromptToBlockSetTopInput(\n      promptBlockId: $promptBlockId\n      blockSetId: $blockSetId\n    ) {\n      id\n    }\n  }\n": types.AddPromptToBlockSetTopInputMutationDocument,
     "\n  mutation AddCompleterToBlockSetMutation(\n    $blockSetId: UUID!\n    $completerBlockId: UUID!\n  ) {\n    addCompleterToBlockSet(\n      blockSetId: $blockSetId\n      completerBlockId: $completerBlockId\n    ) {\n      id\n    }\n  }\n": types.AddCompleterToBlockSetMutationDocument,
@@ -56,8 +57,9 @@ const documents = {
     "\n  mutation CreateBlockSet($presetId: UUID!) {\n    createBlockSet(presetId: $presetId) {\n      id\n    }\n  }\n": types.CreateBlockSetDocument,
     "\n  mutation UpdateWorkspaceMutation(\n    $workspaceId: UUID!\n    $name: String!\n  ) {\n    updateWorkspace(\n      id: $workspaceId\n      name: $name\n    ) {\n      id\n    }\n  }\n": types.UpdateWorkspaceMutationDocument,
     "\n  mutation DeleteWorkspaceMutation($workspaceId: UUID!) {\n    deleteWorkspace(id: $workspaceId) {\n      isSuccess\n    }\n  }\n": types.DeleteWorkspaceMutationDocument,
-    "\n  query SpaceQuery($spaceId: UUID!) {\n    result: space(id: $spaceId) {\n      isReadOnly\n      space {\n        id\n        name\n        content\n      }\n    }\n  }\n": types.SpaceQueryDocument,
-    "\n  mutation UpdateSpaceMutation($spaceId: ID!, $content: String!) {\n    updateSpace(id: $spaceId, content: $content) {\n      id\n      name\n      content\n    }\n  }\n": types.UpdateSpaceMutationDocument,
+    "\n  query SpaceQuery($spaceId: UUID!) {\n    result: space(id: $spaceId) {\n      isReadOnly\n      space {\n        ...SpaceSubHeaderFragment\n        id\n        name\n        content\n      }\n    }\n  }\n": types.SpaceQueryDocument,
+    "\n  mutation UpdateSpaceContentMutation($spaceId: ID!, $content: String!) {\n    updateSpace(id: $spaceId, content: $content) {\n      id\n      name\n      content\n    }\n  }\n": types.UpdateSpaceContentMutationDocument,
+    "\n  mutation UpdateSpaceNameMutation($spaceId: ID!, $name: String!) {\n    updateSpace(id: $spaceId, name: $name) {\n      id\n      name\n      content\n    }\n  }\n": types.UpdateSpaceNameMutationDocument,
     "\n  mutation DeleteSpaceMutation($spaceId: ID!) {\n    result: deleteSpace(id: $spaceId)\n  }\n": types.DeleteSpaceMutationDocument,
 };
 
@@ -86,14 +88,6 @@ export function gql(source: "\n  fragment LibraryBlock on Block {\n    id\n    _
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\n  query HeaderQuery {\n    isLoggedIn\n    isPlaceholderUserTokenInvalid\n    user {\n      email\n      profilePictureUrl\n    }\n  }\n"): (typeof documents)["\n  query HeaderQuery {\n    isLoggedIn\n    isPlaceholderUserTokenInvalid\n    user {\n      email\n      profilePictureUrl\n    }\n  }\n"];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function gql(source: "\n  mutation MergePlaceholderUserWithLoggedInUserMutation(\n    $placeholderUserToken: String!\n  ) {\n    result: mergePlaceholderUserWithLoggedInUser(\n      placeholderUserToken: $placeholderUserToken\n    )\n  }\n"): (typeof documents)["\n  mutation MergePlaceholderUserWithLoggedInUserMutation(\n    $placeholderUserToken: String!\n  ) {\n    result: mergePlaceholderUserWithLoggedInUser(\n      placeholderUserToken: $placeholderUserToken\n    )\n  }\n"];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
 export function gql(source: "\n  mutation CreatePlaceholderUserAndExampleSpaceMutation {\n    result: createPlaceholderUserAndExampleSpace {\n      placeholderClientToken\n      space {\n        id\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation CreatePlaceholderUserAndExampleSpaceMutation {\n    result: createPlaceholderUserAndExampleSpace {\n      placeholderClientToken\n      space {\n        id\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
@@ -106,7 +100,19 @@ export function gql(source: "\n  mutation CreateSpaceMutation {\n    result: cre
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function gql(source: "\n  query HeaderQuery {\n    isLoggedIn\n    isPlaceholderUserTokenInvalid\n    user {\n      email\n      profilePictureUrl\n    }\n  }\n"): (typeof documents)["\n  query HeaderQuery {\n    isLoggedIn\n    isPlaceholderUserTokenInvalid\n    user {\n      email\n      profilePictureUrl\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation MergePlaceholderUserWithLoggedInUserMutation(\n    $placeholderUserToken: String!\n  ) {\n    result: mergePlaceholderUserWithLoggedInUser(\n      placeholderUserToken: $placeholderUserToken\n    )\n  }\n"): (typeof documents)["\n  mutation MergePlaceholderUserWithLoggedInUserMutation(\n    $placeholderUserToken: String!\n  ) {\n    result: mergePlaceholderUserWithLoggedInUser(\n      placeholderUserToken: $placeholderUserToken\n    )\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function gql(source: "\n  query RootRouteQuery {\n    user {\n      id\n      ...Dashboard\n    }\n  }\n"): (typeof documents)["\n  query RootRouteQuery {\n    user {\n      id\n      ...Dashboard\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  fragment SpaceSubHeaderFragment on Space {\n    name\n  }\n"): (typeof documents)["\n  fragment SpaceSubHeaderFragment on Space {\n    name\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -250,11 +256,15 @@ export function gql(source: "\n  mutation DeleteWorkspaceMutation($workspaceId: 
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\n  query SpaceQuery($spaceId: UUID!) {\n    result: space(id: $spaceId) {\n      isReadOnly\n      space {\n        id\n        name\n        content\n      }\n    }\n  }\n"): (typeof documents)["\n  query SpaceQuery($spaceId: UUID!) {\n    result: space(id: $spaceId) {\n      isReadOnly\n      space {\n        id\n        name\n        content\n      }\n    }\n  }\n"];
+export function gql(source: "\n  query SpaceQuery($spaceId: UUID!) {\n    result: space(id: $spaceId) {\n      isReadOnly\n      space {\n        ...SpaceSubHeaderFragment\n        id\n        name\n        content\n      }\n    }\n  }\n"): (typeof documents)["\n  query SpaceQuery($spaceId: UUID!) {\n    result: space(id: $spaceId) {\n      isReadOnly\n      space {\n        ...SpaceSubHeaderFragment\n        id\n        name\n        content\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\n  mutation UpdateSpaceMutation($spaceId: ID!, $content: String!) {\n    updateSpace(id: $spaceId, content: $content) {\n      id\n      name\n      content\n    }\n  }\n"): (typeof documents)["\n  mutation UpdateSpaceMutation($spaceId: ID!, $content: String!) {\n    updateSpace(id: $spaceId, content: $content) {\n      id\n      name\n      content\n    }\n  }\n"];
+export function gql(source: "\n  mutation UpdateSpaceContentMutation($spaceId: ID!, $content: String!) {\n    updateSpace(id: $spaceId, content: $content) {\n      id\n      name\n      content\n    }\n  }\n"): (typeof documents)["\n  mutation UpdateSpaceContentMutation($spaceId: ID!, $content: String!) {\n    updateSpace(id: $spaceId, content: $content) {\n      id\n      name\n      content\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation UpdateSpaceNameMutation($spaceId: ID!, $name: String!) {\n    updateSpace(id: $spaceId, name: $name) {\n      id\n      name\n      content\n    }\n  }\n"): (typeof documents)["\n  mutation UpdateSpaceNameMutation($spaceId: ID!, $name: String!) {\n    updateSpace(id: $spaceId, name: $name) {\n      id\n      name\n      content\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

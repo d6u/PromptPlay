@@ -1,6 +1,6 @@
 import Input from "@mui/joy/Input";
 import { useState } from "react";
-import { Block, SpaceContent } from "../../../../static/spaceTypes";
+import { BlockAppendToList, SpaceContent } from "../../../../static/spaceTypes";
 import { FieldRow, FieldTitle } from "./shared/editorCommonComponents";
 
 type Props = {
@@ -9,7 +9,7 @@ type Props = {
   onSaveItemName: (itemName: string) => void;
   listName: string;
   onSaveListName: (listName: string) => void;
-  selectedBlock: Block;
+  selectedBlock: BlockAppendToList;
   spaceId: string;
   spaceContent: SpaceContent;
 };

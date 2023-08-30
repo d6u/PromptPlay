@@ -5,7 +5,10 @@ import { useRecoilValue, useSetRecoilState } from "recoil";
 import styled from "styled-components";
 import u from "updeep";
 import { execute } from "../../llm/chainExecutor";
-import { SPACE_QUERY, UPDATE_SPACE_MUTATION } from "../../state/spaceGraphQl";
+import {
+  SPACE_QUERY,
+  UPDATE_SPACE_CONTENT_MUTATION,
+} from "../../state/spaceGraphQl";
 import {
   missingOpenAiApiKeyState,
   openAiApiKeyState,
@@ -37,13 +40,13 @@ export default function RouteSpace(props: Props) {
     spaceV2SelectedBlockIdState
   );
 
-  const [spaceContent, setSpaceContent] = useState<SpaceContent | null>(null);
-
   const query = useQuery(SPACE_QUERY, {
     variables: {
       spaceId: spaceId,
     },
   });
+
+  const [spaceContent, setSpaceContent] = useState<SpaceContent | null>(null);
 
   // Sync up server data with local state
   useEffect(() => {
@@ -54,7 +57,7 @@ export default function RouteSpace(props: Props) {
     }
   }, [query.data?.result?.space.content]);
 
-  const [updateSpace] = useMutation(UPDATE_SPACE_MUTATION);
+  const [updateSpaceContent] = useMutation(UPDATE_SPACE_CONTENT_MUTATION);
 
   const onExecuteVisualChain = useCallback(() => {
     if (spaceContent == null) {
@@ -87,7 +90,7 @@ export default function RouteSpace(props: Props) {
           },
         })(state) as SpaceContent;
 
-        updateSpace({
+        updateSpaceContent({
           variables: {
             spaceId: spaceId,
             content: JSON.stringify(newState),
@@ -103,7 +106,7 @@ export default function RouteSpace(props: Props) {
     spaceId,
     setMissingOpenAiApiKey,
     setSpaceV2SelectedBlockId,
-    updateSpace,
+    updateSpaceContent,
   ]);
 
   if (query.loading) {
@@ -114,7 +117,7 @@ export default function RouteSpace(props: Props) {
     return <div>Error! {query.error.message}</div>;
   }
 
-  if (query.data == null) {
+  if (!query.data?.result) {
     return <div>Could not find any data.</div>;
   }
 
@@ -127,12 +130,13 @@ export default function RouteSpace(props: Props) {
   return (
     <>
       <SpaceV2SubHeader
-        isReadOnly={query.data.result!.isReadOnly}
+        spaceSubHeaderFragment={query.data.result.space}
+        isReadOnly={query.data.result.isReadOnly}
         spaceId={spaceId}
         spaceContent={spaceContent}
         onSpaceContentChange={(spaceContent) => {
           setSpaceContent(spaceContent);
-          updateSpace({
+          updateSpaceContent({
             variables: {
               spaceId: spaceId,
               content: JSON.stringify(spaceContent),
@@ -145,8 +149,9 @@ export default function RouteSpace(props: Props) {
         {spaceContent && (
           <>
             <Designer
-              isReadOnly={query.data.result!.isReadOnly}
+              isReadOnly={query.data.result.isReadOnly}
               spaceId={spaceId}
+              spaceName={query.data.result.space.name}
               spaceContent={spaceContent}
             />
             {selectedBlock && (
@@ -154,7 +159,7 @@ export default function RouteSpace(props: Props) {
                 // Must provide a key, otherwise it won't re-render when the
                 // selected block changes
                 key={selectedBlock.id}
-                isReadOnly={query.data.result!.isReadOnly}
+                isReadOnly={query.data.result.isReadOnly}
                 selectedBlock={selectedBlock}
                 spaceId={spaceId}
                 spaceContent={spaceContent}

@@ -4,7 +4,7 @@ import { ReactNode } from "react";
 import { useRecoilState } from "recoil";
 import styled, { css } from "styled-components";
 import { spaceV2SelectedBlockIdState } from "../../../../state/store";
-import { BLOCK_CONFIGS } from "../../../../static/blockConfigs";
+import { getBlockConfigByType } from "../../../../static/blockConfigs";
 import {
   Block,
   BlockAnchor,
@@ -12,6 +12,7 @@ import {
   SpaceContent,
 } from "../../../../static/spaceTypes";
 import BlockV2, {
+  BlockWidthClass,
   VisualBlockType,
   blockTypeToVisualBlockType,
 } from "../../../block_v2/BlockV2";
@@ -20,12 +21,12 @@ import BlockVariableMap from "./BlockVariableMap";
 const Container = styled.div<{ $isDragging: boolean }>`
   display: flex;
   position: relative;
+  opacity: ${(props) => (props.$isDragging ? 0.8 : 1)};
   ${(props) =>
     props.$isDragging &&
     css`
       z-index: 1;
     `}
-  opacity: ${(props) => (props.$isDragging ? 0.8 : 1)};
 `;
 
 const Content = styled.div`
@@ -40,6 +41,8 @@ const Content = styled.div`
 
 const OutputContent = styled.div`
   padding: 10px;
+  flex-grow: 1;
+  max-width: 400px;
 `;
 
 const SlotHolder = styled.div`
@@ -54,7 +57,7 @@ type Props = {
 
 export default function BlockComponent(props: Props) {
   const block = props.spaceContent.components[props.anchor.id] as Block;
-  const blockConfig = BLOCK_CONFIGS[block.type];
+  const blockConfig = getBlockConfigByType(block.type);
 
   const { attributes, listeners, setNodeRef, transform, isDragging } =
     useDraggable({
@@ -127,11 +130,15 @@ export default function BlockComponent(props: Props) {
           />
         );
         break;
-      case BlockVariablesConfiguration.Map:
-        outputConfigurator = (
-          <BlockVariableMap variableMap={block.outputMap} isInput={false} />
-        );
-        break;
+    }
+  }
+
+  const outputCotent: ReactNode[] = [];
+
+  if (block.outputContent) {
+    for (const [i, line] of block.outputContent.split("\n").entries()) {
+      outputCotent.push(line);
+      outputCotent.push(<br key={i} />);
     }
   }
 
@@ -149,19 +156,20 @@ export default function BlockComponent(props: Props) {
           type={blockTypeToVisualBlockType(block.type)}
           selected={spaceV2SelectedBlockId === block.id}
           onClick={() => setSpaceV2SelectedBlockId(block.id)}
+          widthClass={BlockWidthClass.Wider}
         >
           {blockConfig.renderConfig(block)}
         </BlockV2>
         {outputConfigurator}
       </Content>
-      {block.outputContent && (
+      {outputCotent.length > 0 && (
         <OutputContent>
           <BlockV2
             type={VisualBlockType.Plain}
             onClick={() => setSpaceV2SelectedBlockId(block.id)}
-            narrow
+            widthClass={BlockWidthClass.Full}
           >
-            {block.outputContent}
+            {outputCotent}
           </BlockV2>
         </OutputContent>
       )}

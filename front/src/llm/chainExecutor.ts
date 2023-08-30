@@ -1,4 +1,7 @@
-import { BLOCK_CONFIGS, HACK__OPEN_AI_API_KEY } from "../static/blockConfigs";
+import {
+  HACK__OPEN_AI_API_KEY,
+  getBlockConfigByType,
+} from "../static/blockConfigs";
 import {
   Block,
   BlockType,
@@ -26,7 +29,7 @@ export async function execute(
 
     console.debug(`${index} executing ${block.type}`);
 
-    const blockConfig = BLOCK_CONFIGS[block.type];
+    const blockConfig = getBlockConfigByType(block.type);
 
     let args: any = null;
 
@@ -72,14 +75,6 @@ export async function execute(
           break;
         }
         scope[block.singleOuput] = executeResult;
-        break;
-      case BlockVariablesConfiguration.Map:
-        if (executeResult === undefined) {
-          throw new Error("executeResult is undefined");
-        }
-        for (const [localName, scopeName] of block.outputMap) {
-          scope[scopeName] = executeResult[localName] ?? null;
-        }
         break;
     }
   }

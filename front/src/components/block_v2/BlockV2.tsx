@@ -1,5 +1,5 @@
 import styled, { css } from "styled-components";
-import { BLOCK_CONFIGS } from "../../static/blockConfigs";
+import { getBlockConfigByType } from "../../static/blockConfigs";
 import { BlockType } from "../../static/spaceTypes";
 import CrossIconV2 from "../icons/CrossIconV2";
 
@@ -13,13 +13,27 @@ export enum VisualBlockType {
   Output = "Output",
 }
 
+export enum BlockWidthClass {
+  Square = "Square",
+  Wider = "Wider",
+  Full = "Full",
+}
+
 const Container = styled.div<{
   $type: VisualBlockType;
   $clickable: boolean;
   $selected?: boolean;
-  $narrow?: boolean;
+  $widthClass?: BlockWidthClass;
 }>`
-  width: ${(props) => (props.$narrow ? "100px" : "150px")};
+  width: ${(props) => {
+    if (!props.$widthClass || props.$widthClass === BlockWidthClass.Square) {
+      return "100px";
+    } else if (props.$widthClass === BlockWidthClass.Wider) {
+      return "150px";
+    } else {
+      return "100%";
+    }
+  }};
   height: 100px;
   padding: 8px;
   border-radius: 10px;
@@ -118,19 +132,19 @@ const Title = styled.div`
 type Props = {
   type: VisualBlockType;
   selected?: boolean;
-  narrow?: boolean;
+  widthClass?: BlockWidthClass;
   children?: React.ReactNode;
   onClick?: () => void;
 };
 
 export default function BlockV2(props: Props) {
   const blockType = visualBlockTypeToBlockType(props.type);
-  const title = blockType ? BLOCK_CONFIGS[blockType].title : null;
+  const title = blockType ? getBlockConfigByType(blockType).title : null;
 
   return (
     <Container
       $type={props.type}
-      $narrow={props.narrow}
+      $widthClass={props.widthClass}
       $clickable={!!props.onClick}
       $selected={props.selected}
       onClick={props.onClick}

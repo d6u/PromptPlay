@@ -55,13 +55,22 @@ export default function BlockVariableMap(props: Props) {
 
   if (props.isInput) {
     if ("variableMap" in props) {
-      for (const [scopeName, localName] of props.variableMap) {
-        (chips as ReactNode[]).push(
-          <ScopeName key={`scope-name-${scopeName}`} $justifySelf="flex-end">
+      for (const [
+        index,
+        [scopeName, localName],
+      ] of props.variableMap.entries()) {
+        chips.push(
+          <ScopeName
+            key={`scope-name-${index}-${scopeName}`}
+            $justifySelf="flex-end"
+          >
             {scopeName}
           </ScopeName>,
-          <VariableMapArrow key={`${scopeName}-${localName}-arrow`} />,
-          <LocalName key={`local-name-${localName}`} $justifySelf="flex-start">
+          <VariableMapArrow key={`${index}-${scopeName}-${localName}-arrow`} />,
+          <LocalName
+            key={`local-name-${index}-${localName}`}
+            $justifySelf="flex-start"
+          >
             {localName}
           </LocalName>
         );
@@ -79,13 +88,22 @@ export default function BlockVariableMap(props: Props) {
     }
   } else {
     if ("variableMap" in props) {
-      for (const [localName, scopeName] of props.variableMap) {
+      for (const [
+        index,
+        [localName, scopeName],
+      ] of props.variableMap.entries()) {
         chips.push(
-          <LocalName key={`local-name-${localName}`} $justifySelf="flex-end">
+          <LocalName
+            key={`local-name-${index}-${localName}`}
+            $justifySelf="flex-end"
+          >
             {localName}
           </LocalName>,
-          <VariableMapArrow key={`${localName}-${scopeName}-arrow`} />,
-          <ScopeName key={`scope-name-${scopeName}`} $justifySelf="flex-start">
+          <VariableMapArrow key={`${index}-${localName}-${scopeName}-arrow`} />,
+          <ScopeName
+            key={`scope-name-${index}-${scopeName}`}
+            $justifySelf="flex-start"
+          >
             {scopeName}
           </ScopeName>
         );

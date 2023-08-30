@@ -1,6 +1,7 @@
 import Textarea from "@mui/joy/Textarea";
 import { useState } from "react";
-import { Block, SpaceContent } from "../../../../static/spaceTypes";
+import { BlockDatabag, SpaceContent } from "../../../../static/spaceTypes";
+import EditorBlockInputOutput from "./shared/EditorBlockInputOutput";
 import {
   FieldHelperText,
   FieldRow,
@@ -11,7 +12,7 @@ type Props = {
   isReadOnly: boolean;
   value: string;
   onSaveValue: (value: string) => void;
-  selectedBlock: Block;
+  selectedBlock: BlockDatabag;
   spaceId: string;
   spaceContent: SpaceContent;
 };
@@ -43,6 +44,14 @@ export default function EditorBlockDatabagConfigurations(props: Props) {
           <code>ENTER</code> (Windows) to save. Unfocus will also save.
         </FieldHelperText>
       </FieldRow>
+      <EditorBlockInputOutput
+        isReadOnly={props.isReadOnly}
+        block={props.selectedBlock}
+        isInput={false}
+        singleVariable={props.selectedBlock.singleOuput}
+        spaceId={props.spaceId}
+        spaceContent={props.spaceContent}
+      />
     </>
   );
 }

@@ -1,11 +1,16 @@
 import { useMutation } from "@apollo/client";
 import Button from "@mui/joy/Button";
+import Input from "@mui/joy/Input";
 import { append } from "ramda";
-import { useCallback } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import u from "updeep";
-import { DELETE_SPACE_MUTATION } from "../../../state/spaceGraphQl";
+import { FragmentType, gql, useFragment } from "../../../__generated__";
+import {
+  DELETE_SPACE_MUTATION,
+  UPDATE_SPACE_NAME_MUTATION,
+} from "../../../state/spaceGraphQl";
 import { ROOT_PATH } from "../../../static/routeConfigs";
 import { BlockType, SpaceContent } from "../../../static/spaceTypes";
 import {
@@ -14,29 +19,47 @@ import {
 } from "../../../static/spaceUtils";
 
 const Container = styled.div`
-  height: 60px;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 10px;
+  height: 51px;
   border-bottom: 1px solid #ececf1;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 20px;
   flex-shrink: 0;
+  align-items: stretch;
 `;
 
 const Left = styled.div`
   display: flex;
-  flex-direction: row;
+  align-items: center;
   gap: 10px;
 `;
 
-const Right = styled.div`
+const Right = styled(Left)``;
+
+const Center = styled.div`
+  flex-grow: 1;
   display: flex;
-  flex-direction: row;
-  gap: 10px;
+  align-items: center;
+  justify-content: center;
 `;
+
+const SpaceNameInput = styled(Input)`
+  width: 250px;
+`;
+
+const SpaceName = styled.div`
+  font-size: 14px;
+  padding-left: 9px;
+`;
+
+const SPACE_SUB_HEADER_FRAGMENT = gql(`
+  fragment SpaceSubHeaderFragment on Space {
+    name
+  }
+`);
 
 type Props = {
+  spaceSubHeaderFragment?: FragmentType<typeof SPACE_SUB_HEADER_FRAGMENT>;
   isReadOnly: boolean;
   spaceId: string;
   spaceContent: SpaceContent | null;
@@ -46,6 +69,11 @@ type Props = {
 
 export default function SpaceV2SubHeader(props: Props) {
   const navigate = useNavigate();
+
+  const spaceSubHeader = useFragment(
+    SPACE_SUB_HEADER_FRAGMENT,
+    props.spaceSubHeaderFragment
+  );
 
   const [deleteSpace] = useMutation(DELETE_SPACE_MUTATION);
 
@@ -73,36 +101,97 @@ export default function SpaceV2SubHeader(props: Props) {
     [props]
   );
 
+  const [name, setName] = useState<string>(spaceSubHeader?.name ?? "");
+
+  useEffect(() => {
+    setName(spaceSubHeader?.name ?? "");
+  }, [spaceSubHeader?.name]);
+
+  const currentNameRef = useRef<string>(name);
+  const [isEditingName, setIsEditingName] = useState<boolean>(false);
+  const [updateSpaceName] = useMutation(UPDATE_SPACE_NAME_MUTATION);
+
   return (
     <Container>
-      {props.isReadOnly ? null : (
+      {props.isReadOnly ? (
+        <Center>
+          <SpaceName>{name}</SpaceName>
+        </Center>
+      ) : (
         <>
           <Left>
-            <Button onClick={() => appendNewBlock(BlockType.Databag)}>
+            <Button size="sm" onClick={() => appendNewBlock(BlockType.Databag)}>
               + Databag
             </Button>
-            <Button onClick={() => appendNewBlock(BlockType.LlmMessage)}>
+            <Button
+              size="sm"
+              onClick={() => appendNewBlock(BlockType.LlmMessage)}
+            >
               + Message
             </Button>
-            <Button onClick={() => appendNewBlock(BlockType.AppendToList)}>
+            <Button
+              size="sm"
+              onClick={() => appendNewBlock(BlockType.AppendToList)}
+            >
               + Append to List
             </Button>
-            <Button onClick={() => appendNewBlock(BlockType.Llm)}>+ LLM</Button>
-            <Button onClick={() => appendNewBlock(BlockType.GetAttribute)}>
+            <Button size="sm" onClick={() => appendNewBlock(BlockType.Llm)}>
+              + LLM
+            </Button>
+            <Button
+              size="sm"
+              onClick={() => appendNewBlock(BlockType.GetAttribute)}
+            >
               + Get Attribute
             </Button>
             <Button
               color="success"
-              size="md"
+              size="sm"
               variant="outlined"
               disabled={props.spaceContent == null}
               onClick={() => props.onExecuteVisualChain()}
             >
               Run
             </Button>
+            {isEditingName ? (
+              <SpaceNameInput
+                ref={(element) => {
+                  element?.querySelector("input")?.focus();
+                }}
+                type="text"
+                size="sm"
+                placeholder="Enter a name for this space"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    setIsEditingName(false);
+                    updateSpaceName({
+                      variables: {
+                        spaceId: props.spaceId,
+                        name,
+                      },
+                    });
+                  } else if (e.key === "Escape") {
+                    setIsEditingName(false);
+                    setName(currentNameRef.current);
+                  }
+                }}
+              />
+            ) : (
+              <SpaceName
+                onClick={() => {
+                  currentNameRef.current = name;
+                  setIsEditingName(true);
+                }}
+              >
+                {name}
+              </SpaceName>
+            )}
           </Left>
           <Right>
             <Button
+              size="sm"
               onClick={() => {
                 const isConfirmed = window.confirm(
                   "⚠️ Unrecoverable action. ⚠️\nReset is unrecoverable. Are you sure?"
@@ -116,6 +205,7 @@ export default function SpaceV2SubHeader(props: Props) {
               Reset Space
             </Button>
             <Button
+              size="sm"
               variant="outlined"
               onClick={() => {
                 const isConfirmed = window.confirm(

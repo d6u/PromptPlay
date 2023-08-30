@@ -122,7 +122,7 @@ export function parseBlockDisplayData(
         <>
           {isSystem ? "SYSTEM" : data.role.toUpperCase()}
           <br />
-          {data.content!}
+          {data.content}
         </>
       );
       break;

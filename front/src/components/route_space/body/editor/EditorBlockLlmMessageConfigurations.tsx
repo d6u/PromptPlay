@@ -4,10 +4,11 @@ import RadioGroup from "@mui/joy/RadioGroup";
 import Textarea from "@mui/joy/Textarea";
 import { useState } from "react";
 import {
-  Block,
+  BlockLlmMessage,
   LlmMessageRole,
   SpaceContent,
 } from "../../../../static/spaceTypes";
+import EditorBlockInputOutput from "./shared/EditorBlockInputOutput";
 import {
   FieldHelperText,
   FieldRow,
@@ -22,7 +23,9 @@ type Props = {
   onSaveContent: (value: string) => void;
   listNameToAppend: string;
   onSaveListNameToAppend: (listNameToAppend: string) => void;
-  selectedBlock: Block;
+  messageVariableName: string;
+  onSaveMessageVariableName: (messageVariableName: string) => void;
+  selectedBlock: BlockLlmMessage;
   spaceId: string;
   spaceContent: SpaceContent;
 };
@@ -33,9 +36,20 @@ export default function EditorBlockLlmMessageConfigurations(props: Props) {
   const [listNameToAppend, setListNameToAppend] = useState(
     props.listNameToAppend
   );
+  const [messageVariableName, setMessageVariableName] = useState(
+    props.messageVariableName
+  );
 
   return (
     <>
+      <EditorBlockInputOutput
+        isReadOnly={props.isReadOnly}
+        block={props.selectedBlock}
+        isInput={true}
+        variableMap={props.selectedBlock.inputMap}
+        spaceId={props.spaceId}
+        spaceContent={props.spaceContent}
+      />
       <FieldRow>
         <FieldTitle>Role</FieldTitle>
         <RadioGroup
@@ -99,7 +113,7 @@ export default function EditorBlockLlmMessageConfigurations(props: Props) {
         </FieldHelperText>
       </FieldRow>
       <FieldRow>
-        <FieldTitle>Append to list (optional)</FieldTitle>
+        <FieldTitle>Append message to list</FieldTitle>
         <Input
           color="neutral"
           size="sm"
@@ -114,6 +128,24 @@ export default function EditorBlockLlmMessageConfigurations(props: Props) {
             }
           }}
           onBlur={() => props.onSaveListNameToAppend(listNameToAppend)}
+        />
+      </FieldRow>
+      <FieldRow>
+        <FieldTitle>Assign message to variable</FieldTitle>
+        <Input
+          color="neutral"
+          size="sm"
+          variant="outlined"
+          placeholder="Variable name for message"
+          disabled={props.isReadOnly}
+          value={messageVariableName}
+          onChange={(e) => setMessageVariableName(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              props.onSaveMessageVariableName(messageVariableName);
+            }
+          }}
+          onBlur={() => props.onSaveMessageVariableName(messageVariableName)}
         />
       </FieldRow>
     </>
