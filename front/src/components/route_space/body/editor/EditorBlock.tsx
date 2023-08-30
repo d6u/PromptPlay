@@ -4,7 +4,7 @@ import { dissoc } from "ramda";
 import styled from "styled-components";
 import u from "updeep";
 import { UPDATE_SPACE_CONTENT_MUTATION } from "../../../../state/spaceGraphQl";
-import { BLOCK_CONFIGS } from "../../../../static/blockConfigs";
+import { getBlockConfigByType } from "../../../../static/blockConfigs";
 import { Block, SpaceContent } from "../../../../static/spaceTypes";
 import { pullBlockFromBlocks } from "../../../../static/spaceUtils";
 import EditorBlockConfigurations from "./EditorBlockConfigurations";
@@ -59,7 +59,7 @@ type Props = {
 export default function EditorBlock(props: Props) {
   const [updateSpaceV2] = useMutation(UPDATE_SPACE_CONTENT_MUTATION);
 
-  const blockConfig = BLOCK_CONFIGS[props.selectedBlock.type];
+  const blockConfig = getBlockConfigByType(props.selectedBlock.type);
 
   return (
     <>

@@ -1,5 +1,5 @@
 import styled, { css } from "styled-components";
-import { BLOCK_CONFIGS } from "../../static/blockConfigs";
+import { getBlockConfigByType } from "../../static/blockConfigs";
 import { BlockType } from "../../static/spaceTypes";
 import CrossIconV2 from "../icons/CrossIconV2";
 
@@ -139,7 +139,7 @@ type Props = {
 
 export default function BlockV2(props: Props) {
   const blockType = visualBlockTypeToBlockType(props.type);
-  const title = blockType ? BLOCK_CONFIGS[blockType].title : null;
+  const title = blockType ? getBlockConfigByType(blockType).title : null;
 
   return (
     <Container

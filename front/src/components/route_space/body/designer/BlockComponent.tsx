@@ -4,7 +4,7 @@ import { ReactNode } from "react";
 import { useRecoilState } from "recoil";
 import styled, { css } from "styled-components";
 import { spaceV2SelectedBlockIdState } from "../../../../state/store";
-import { BLOCK_CONFIGS } from "../../../../static/blockConfigs";
+import { getBlockConfigByType } from "../../../../static/blockConfigs";
 import {
   Block,
   BlockAnchor,
@@ -57,7 +57,7 @@ type Props = {
 
 export default function BlockComponent(props: Props) {
   const block = props.spaceContent.components[props.anchor.id] as Block;
-  const blockConfig = BLOCK_CONFIGS[block.type];
+  const blockConfig = getBlockConfigByType(block.type);
 
   const { attributes, listeners, setNodeRef, transform, isDragging } =
     useDraggable({

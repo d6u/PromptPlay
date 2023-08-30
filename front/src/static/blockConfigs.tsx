@@ -1,37 +1,50 @@
 import { append, assoc, flatten, pipe, prop } from "ramda";
 import { ReactNode } from "react";
 import * as openai from "../llm/openai";
-import { Block, BlockType, BlockVariablesConfiguration } from "./spaceTypes";
+import {
+  Block,
+  BlockAppendToListConfiguration,
+  BlockDatabagConfiguration,
+  BlockGetAttributeConfiguration,
+  BlockLlmConfiguration,
+  BlockLlmMessageConfiguration,
+  BlockType,
+} from "./spaceTypes";
 
 // TODO: Find a better way to pass the openaiApiKey
 export const HACK__OPEN_AI_API_KEY = "__openAiApiKey";
 
 export const LLM_STOP_NEW_LINE_SYMBOL = "↵";
 
-export type BlockConfig = {
+type BlockConfig<T extends Block> = {
   title: string;
   derivedInputVariablesGenerate?: (
-    block: Block
+    block: T
   ) => string | Array<[string, string]> | null;
   derivedOutputVariablesGenerate?: (
-    block: Block
+    block: T
   ) => string | Array<[string, string]> | null;
-  renderConfig: (block: Block) => ReactNode;
+  renderConfig: (block: T) => ReactNode;
   executeFunc: (
-    block: Block,
+    block: T,
     scope: { [key: string]: any },
     args: any,
-    updater: (block: Block) => void
+    updater: (block: T) => void
   ) => Promise<any>;
 };
 
-export const BLOCK_CONFIGS: { [key in BlockType]: BlockConfig } = {
+type BlockConfigs = {
+  [BlockType.Databag]: BlockConfig<BlockDatabagConfiguration>;
+  [BlockType.LlmMessage]: BlockConfig<BlockLlmMessageConfiguration>;
+  [BlockType.AppendToList]: BlockConfig<BlockAppendToListConfiguration>;
+  [BlockType.Llm]: BlockConfig<BlockLlmConfiguration>;
+  [BlockType.GetAttribute]: BlockConfig<BlockGetAttributeConfiguration>;
+};
+
+const BLOCK_CONFIGS: BlockConfigs = {
   [BlockType.Databag]: {
     title: "Databag",
     renderConfig: (block) => {
-      if (block.type !== BlockType.Databag) {
-        return "";
-      }
       return (
         <>
           value=<b>{block.value}</b>
@@ -39,24 +52,12 @@ export const BLOCK_CONFIGS: { [key in BlockType]: BlockConfig } = {
       );
     },
     executeFunc: async (block, scope, args) => {
-      if (block.type !== BlockType.Databag) {
-        throw new Error("Block type doesn't match");
-      }
-
       return block.value;
     },
   },
   [BlockType.LlmMessage]: {
     title: "LLM Message",
-    derivedOutputVariablesGenerate: (block: Block) => {
-      if (block.type !== BlockType.LlmMessage) {
-        throw new Error("Block type doesn't match");
-      }
-
-      if (block.outputConfiguration !== BlockVariablesConfiguration.Single) {
-        throw new Error("Block output configuration doesn't match");
-      }
-
+    derivedOutputVariablesGenerate: (block) => {
       if (block.listNameToAppend !== "") {
         return [
           ["list", block.listNameToAppend],
@@ -67,10 +68,6 @@ export const BLOCK_CONFIGS: { [key in BlockType]: BlockConfig } = {
       }
     },
     renderConfig: (block) => {
-      if (block.type !== BlockType.LlmMessage) {
-        return "";
-      }
-
       const content: ReactNode[] = flatten(
         block.content.split("\n").map((line, index) => {
           if (index === 0) {
@@ -93,10 +90,6 @@ export const BLOCK_CONFIGS: { [key in BlockType]: BlockConfig } = {
       );
     },
     executeFunc: async (block, scope, args) => {
-      if (block.type !== BlockType.LlmMessage) {
-        throw new Error("Block type doesn't match");
-      }
-
       const message = {
         role: block.role,
         content: replacePlaceholders(block.content, args),
@@ -114,20 +107,12 @@ export const BLOCK_CONFIGS: { [key in BlockType]: BlockConfig } = {
   [BlockType.AppendToList]: {
     title: "Append to List",
     derivedInputVariablesGenerate: (block) => {
-      if (block.type !== BlockType.AppendToList) {
-        throw new Error("Block type doesn't match");
-      }
-
       return [
         [block.itemName, "item"],
         [block.listName, "list"],
       ];
     },
     derivedOutputVariablesGenerate: (block) => {
-      if (block.type !== BlockType.AppendToList) {
-        throw new Error("Block type doesn't match");
-      }
-
       return [["list", block.listName]];
     },
     renderConfig: (block) => {
@@ -143,10 +128,6 @@ export const BLOCK_CONFIGS: { [key in BlockType]: BlockConfig } = {
       );
     },
     executeFunc: async (block, scope, args) => {
-      if (block.type !== BlockType.AppendToList) {
-        throw new Error("Block type doesn't match");
-      }
-
       const item = scope[block.itemName];
       let list = scope[block.listName];
 
@@ -163,15 +144,7 @@ export const BLOCK_CONFIGS: { [key in BlockType]: BlockConfig } = {
   },
   [BlockType.Llm]: {
     title: "LLM",
-    derivedOutputVariablesGenerate: (block: Block) => {
-      if (block.type !== BlockType.Llm) {
-        throw new Error("Block type doesn't match");
-      }
-
-      if (block.outputConfiguration !== BlockVariablesConfiguration.Single) {
-        throw new Error("Block output configuration doesn't match");
-      }
-
+    derivedOutputVariablesGenerate: (block) => {
       if (block.variableNameForContent !== "") {
         return [
           ["message", block.singleOuput],
@@ -182,9 +155,6 @@ export const BLOCK_CONFIGS: { [key in BlockType]: BlockConfig } = {
       }
     },
     renderConfig: (block) => {
-      if (block.type !== BlockType.Llm) {
-        return "";
-      }
       return (
         <>
           model=<b>{block.model}</b>
@@ -205,10 +175,6 @@ export const BLOCK_CONFIGS: { [key in BlockType]: BlockConfig } = {
       );
     },
     executeFunc: async (block, scope, args, updater) => {
-      if (block.type !== BlockType.Llm) {
-        throw new Error("Block type doesn't match");
-      }
-
       const result = await openai.getNonStreamingCompletion({
         // TODO: Find a better way to pass the openaiApiKey
         apiKey: args[HACK__OPEN_AI_API_KEY],
@@ -228,7 +194,7 @@ export const BLOCK_CONFIGS: { [key in BlockType]: BlockConfig } = {
       const newBlock = pipe(
         assoc("errorOutput", false),
         assoc("outputContent", message.content)
-      )(block) as Block;
+      )(block) as BlockLlmConfiguration;
 
       updater(newBlock);
 
@@ -243,9 +209,6 @@ export const BLOCK_CONFIGS: { [key in BlockType]: BlockConfig } = {
   [BlockType.GetAttribute]: {
     title: "Get Attribute",
     renderConfig: (block) => {
-      if (block.type !== BlockType.GetAttribute) {
-        return "";
-      }
       return (
         <>
           attribute=<b>{block.attribute}</b>
@@ -253,10 +216,6 @@ export const BLOCK_CONFIGS: { [key in BlockType]: BlockConfig } = {
       );
     },
     executeFunc: async (block, scope, args) => {
-      if (block.type !== BlockType.GetAttribute) {
-        throw new Error("Block type doesn't match");
-      }
-
       return prop(block.attribute, args) ?? null;
     },
   },
@@ -270,4 +229,20 @@ function replacePlaceholders(str: string, values: { [key: string]: any }) {
   return str.replace(regex, (match, p1) => {
     return values[p1] !== undefined ? values[p1] : null;
   });
+}
+
+type BlockTypeToBlockConfigMap = {
+  [BlockType.Databag]: BlockDatabagConfiguration;
+  [BlockType.LlmMessage]: BlockLlmMessageConfiguration;
+  [BlockType.AppendToList]: BlockAppendToListConfiguration;
+  [BlockType.Llm]: BlockLlmConfiguration;
+  [BlockType.GetAttribute]: BlockGetAttributeConfiguration;
+};
+
+export function getBlockConfigByType(
+  type: BlockType
+): BlockConfig<BlockTypeToBlockConfigMap[typeof type]> {
+  return BLOCK_CONFIGS[type] as BlockConfig<
+    BlockTypeToBlockConfigMap[typeof type]
+  >;
 }

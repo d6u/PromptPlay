@@ -2,16 +2,12 @@ export const ROOT_COMPONENT_ID = "root";
 
 // Block shared
 
-export type Block = {
-  id: string;
-} & (
+export type Block =
   | BlockDatabagConfiguration
   | BlockLlmMessageConfiguration
   | BlockLlmConfiguration
   | BlockAppendToListConfiguration
-  | BlockGetAttributeConfiguration
-) &
-  BlockOutput;
+  | BlockGetAttributeConfiguration;
 
 export enum BlockType {
   Databag = "Databag",
@@ -27,9 +23,15 @@ export enum BlockVariablesConfiguration {
   Map = "Map",
 }
 
+export type BlockShared = {
+  id: string;
+  errorOutput?: false;
+  outputContent?: string;
+};
+
 // Block specific
 
-export type BlockDatabagConfiguration = {
+export type BlockDatabagConfiguration = BlockShared & {
   type: BlockType.Databag;
   value: string;
   inputConfiguration: BlockVariablesConfiguration.NonConfigurable;
@@ -37,7 +39,7 @@ export type BlockDatabagConfiguration = {
   singleOuput: string;
 };
 
-export type BlockLlmMessageConfiguration = {
+export type BlockLlmMessageConfiguration = BlockShared & {
   type: BlockType.LlmMessage;
   role: LlmMessageRole;
   content: string;
@@ -54,7 +56,7 @@ export enum LlmMessageRole {
   Assistant = "assistant",
 }
 
-export type BlockLlmConfiguration = {
+export type BlockLlmConfiguration = BlockShared & {
   type: BlockType.Llm;
   model: LlmModel;
   temperature: number;
@@ -71,7 +73,7 @@ export enum LlmModel {
   GPT4 = "gpt-4",
 }
 
-export type BlockAppendToListConfiguration = {
+export type BlockAppendToListConfiguration = BlockShared & {
   type: BlockType.AppendToList;
   itemName: string;
   listName: string;
@@ -79,18 +81,13 @@ export type BlockAppendToListConfiguration = {
   outputConfiguration: BlockVariablesConfiguration.NonConfigurable;
 };
 
-export type BlockGetAttributeConfiguration = {
+export type BlockGetAttributeConfiguration = BlockShared & {
   type: BlockType.GetAttribute;
   attribute: string;
   inputConfiguration: BlockVariablesConfiguration.Single;
   singleInput: string;
   outputConfiguration: BlockVariablesConfiguration.Single;
   singleOuput: string;
-};
-
-export type BlockOutput = {
-  errorOutput?: false;
-  outputContent?: string;
 };
 
 // BlockGroup

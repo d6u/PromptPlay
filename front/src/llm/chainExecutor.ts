@@ -1,4 +1,7 @@
-import { BLOCK_CONFIGS, HACK__OPEN_AI_API_KEY } from "../static/blockConfigs";
+import {
+  HACK__OPEN_AI_API_KEY,
+  getBlockConfigByType,
+} from "../static/blockConfigs";
 import {
   Block,
   BlockType,
@@ -26,7 +29,7 @@ export async function execute(
 
     console.debug(`${index} executing ${block.type}`);
 
-    const blockConfig = BLOCK_CONFIGS[block.type];
+    const blockConfig = getBlockConfigByType(block.type);
 
     let args: any = null;
 
