@@ -15,11 +15,11 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
 const documents = {
     "\n  fragment DraggingBlock on Block {\n    id\n    __typename\n    ... on PromptBlock {\n      role\n      content\n    }\n    ... on CompleterBlock {\n      model\n      temperature\n      stop\n    }\n  }\n": types.DraggingBlockFragmentDoc,
     "\n  fragment LibraryBlock on Block {\n    id\n    __typename\n    ... on PromptBlock {\n      role\n      content\n    }\n    ... on CompleterBlock {\n      model\n      temperature\n      stop\n    }\n  }\n": types.LibraryBlockFragmentDoc,
-    "\n  query HeaderQuery {\n    isLoggedIn\n    isPlaceholderUserTokenInvalid\n    user {\n      email\n      profilePictureUrl\n    }\n  }\n": types.HeaderQueryDocument,
-    "\n  mutation MergePlaceholderUserWithLoggedInUserMutation(\n    $placeholderUserToken: String!\n  ) {\n    result: mergePlaceholderUserWithLoggedInUser(\n      placeholderUserToken: $placeholderUserToken\n    )\n  }\n": types.MergePlaceholderUserWithLoggedInUserMutationDocument,
     "\n  mutation CreatePlaceholderUserAndExampleSpaceMutation {\n    result: createPlaceholderUserAndExampleSpace {\n      placeholderClientToken\n      space {\n        id\n      }\n    }\n  }\n": types.CreatePlaceholderUserAndExampleSpaceMutationDocument,
     "\n  fragment Dashboard on User {\n    spaces {\n      id\n      name\n      updatedAt\n    }\n  }\n": types.DashboardFragmentDoc,
     "\n  mutation CreateSpaceMutation {\n    result: createSpace {\n      id\n      name\n      updatedAt\n    }\n  }\n": types.CreateSpaceMutationDocument,
+    "\n  query HeaderQuery {\n    isLoggedIn\n    isPlaceholderUserTokenInvalid\n    user {\n      email\n      profilePictureUrl\n    }\n  }\n": types.HeaderQueryDocument,
+    "\n  mutation MergePlaceholderUserWithLoggedInUserMutation(\n    $placeholderUserToken: String!\n  ) {\n    result: mergePlaceholderUserWithLoggedInUser(\n      placeholderUserToken: $placeholderUserToken\n    )\n  }\n": types.MergePlaceholderUserWithLoggedInUserMutationDocument,
     "\n  query RootRouteQuery {\n    user {\n      id\n      ...Dashboard\n    }\n  }\n": types.RootRouteQueryDocument,
     "\n  fragment WorkspaceQuery on Query {\n    workspace(workspaceId: $workspaceId) {\n      firstPreset {\n        id\n        blockSets {\n          id\n          position\n        }\n      }\n    }\n    ...WorkspaceContent\n  }\n": types.WorkspaceQueryFragmentDoc,
     "\n  mutation AddPromptToBlockSetTopInputMutation(\n    $promptBlockId: UUID!\n    $blockSetId: UUID!\n  ) {\n    addPromptToBlockSetTopInput(\n      promptBlockId: $promptBlockId\n      blockSetId: $blockSetId\n    ) {\n      id\n    }\n  }\n": types.AddPromptToBlockSetTopInputMutationDocument,
@@ -86,14 +86,6 @@ export function gql(source: "\n  fragment LibraryBlock on Block {\n    id\n    _
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\n  query HeaderQuery {\n    isLoggedIn\n    isPlaceholderUserTokenInvalid\n    user {\n      email\n      profilePictureUrl\n    }\n  }\n"): (typeof documents)["\n  query HeaderQuery {\n    isLoggedIn\n    isPlaceholderUserTokenInvalid\n    user {\n      email\n      profilePictureUrl\n    }\n  }\n"];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function gql(source: "\n  mutation MergePlaceholderUserWithLoggedInUserMutation(\n    $placeholderUserToken: String!\n  ) {\n    result: mergePlaceholderUserWithLoggedInUser(\n      placeholderUserToken: $placeholderUserToken\n    )\n  }\n"): (typeof documents)["\n  mutation MergePlaceholderUserWithLoggedInUserMutation(\n    $placeholderUserToken: String!\n  ) {\n    result: mergePlaceholderUserWithLoggedInUser(\n      placeholderUserToken: $placeholderUserToken\n    )\n  }\n"];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
 export function gql(source: "\n  mutation CreatePlaceholderUserAndExampleSpaceMutation {\n    result: createPlaceholderUserAndExampleSpace {\n      placeholderClientToken\n      space {\n        id\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation CreatePlaceholderUserAndExampleSpaceMutation {\n    result: createPlaceholderUserAndExampleSpace {\n      placeholderClientToken\n      space {\n        id\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
@@ -103,6 +95,14 @@ export function gql(source: "\n  fragment Dashboard on User {\n    spaces {\n   
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  mutation CreateSpaceMutation {\n    result: createSpace {\n      id\n      name\n      updatedAt\n    }\n  }\n"): (typeof documents)["\n  mutation CreateSpaceMutation {\n    result: createSpace {\n      id\n      name\n      updatedAt\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query HeaderQuery {\n    isLoggedIn\n    isPlaceholderUserTokenInvalid\n    user {\n      email\n      profilePictureUrl\n    }\n  }\n"): (typeof documents)["\n  query HeaderQuery {\n    isLoggedIn\n    isPlaceholderUserTokenInvalid\n    user {\n      email\n      profilePictureUrl\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation MergePlaceholderUserWithLoggedInUserMutation(\n    $placeholderUserToken: String!\n  ) {\n    result: mergePlaceholderUserWithLoggedInUser(\n      placeholderUserToken: $placeholderUserToken\n    )\n  }\n"): (typeof documents)["\n  mutation MergePlaceholderUserWithLoggedInUserMutation(\n    $placeholderUserToken: String!\n  ) {\n    result: mergePlaceholderUserWithLoggedInUser(\n      placeholderUserToken: $placeholderUserToken\n    )\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

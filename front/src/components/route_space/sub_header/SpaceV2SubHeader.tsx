@@ -14,27 +14,24 @@ import {
 } from "../../../static/spaceUtils";
 
 const Container = styled.div`
-  height: 60px;
+  height: 51px;
+  border-bottom: 1px solid #ececf1;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  align-items: center;
-  padding: 0 10px;
-  border-bottom: 1px solid #ececf1;
+  padding: 0 20px;
   flex-shrink: 0;
+  align-items: stretch;
 `;
 
 const Left = styled.div`
   display: flex;
   flex-direction: row;
+  align-items: center;
   gap: 10px;
 `;
 
-const Right = styled.div`
-  display: flex;
-  flex-direction: row;
-  gap: 10px;
-`;
+const Right = styled(Left)``;
 
 type Props = {
   isReadOnly: boolean;
@@ -78,22 +75,33 @@ export default function SpaceV2SubHeader(props: Props) {
       {props.isReadOnly ? null : (
         <>
           <Left>
-            <Button onClick={() => appendNewBlock(BlockType.Databag)}>
+            <Button size="sm" onClick={() => appendNewBlock(BlockType.Databag)}>
               + Databag
             </Button>
-            <Button onClick={() => appendNewBlock(BlockType.LlmMessage)}>
+            <Button
+              size="sm"
+              onClick={() => appendNewBlock(BlockType.LlmMessage)}
+            >
               + Message
             </Button>
-            <Button onClick={() => appendNewBlock(BlockType.AppendToList)}>
+            <Button
+              size="sm"
+              onClick={() => appendNewBlock(BlockType.AppendToList)}
+            >
               + Append to List
             </Button>
-            <Button onClick={() => appendNewBlock(BlockType.Llm)}>+ LLM</Button>
-            <Button onClick={() => appendNewBlock(BlockType.GetAttribute)}>
+            <Button size="sm" onClick={() => appendNewBlock(BlockType.Llm)}>
+              + LLM
+            </Button>
+            <Button
+              size="sm"
+              onClick={() => appendNewBlock(BlockType.GetAttribute)}
+            >
               + Get Attribute
             </Button>
             <Button
               color="success"
-              size="md"
+              size="sm"
               variant="outlined"
               disabled={props.spaceContent == null}
               onClick={() => props.onExecuteVisualChain()}
@@ -103,6 +111,7 @@ export default function SpaceV2SubHeader(props: Props) {
           </Left>
           <Right>
             <Button
+              size="sm"
               onClick={() => {
                 const isConfirmed = window.confirm(
                   "⚠️ Unrecoverable action. ⚠️\nReset is unrecoverable. Are you sure?"
@@ -116,6 +125,7 @@ export default function SpaceV2SubHeader(props: Props) {
               Reset Space
             </Button>
             <Button
+              size="sm"
               variant="outlined"
               onClick={() => {
                 const isConfirmed = window.confirm(

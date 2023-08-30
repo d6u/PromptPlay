@@ -4,38 +4,20 @@ import { useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useRecoilState } from "recoil";
 import styled from "styled-components";
-import { gql } from "../../__generated__";
 import { IS_LOGIN_ENABLED, PROVIDE_FEEDBACK_LINK } from "../../constants";
 import { placeholderUserTokenState } from "../../state/store";
 import { LOGIN_PATH, LOGOUT_PATH } from "../../static/routeConfigs";
 import StyleResetLink from "../common/StyleResetLink";
-
-const HEADER_QUERY = gql(`
-  query HeaderQuery {
-    isLoggedIn
-    isPlaceholderUserTokenInvalid
-    user {
-      email
-      profilePictureUrl
-    }
-  }
-`);
-
-const MERGE_PLACEHOLDER_USER_WITH_LOGGED_IN_USER_MUTATION = gql(`
-  mutation MergePlaceholderUserWithLoggedInUserMutation(
-    $placeholderUserToken: String!
-  ) {
-    result: mergePlaceholderUserWithLoggedInUser(
-      placeholderUserToken: $placeholderUserToken
-    )
-  }
-`);
+import {
+  HEADER_QUERY,
+  MERGE_PLACEHOLDER_USER_WITH_LOGGED_IN_USER_MUTATION,
+} from "./graphql";
 
 const Container = styled.div`
-  height: 60px;
+  height: 51px;
+  border-bottom: 1px solid #ececf1;
   padding: 0px 20px;
   flex-shrink: 0;
-  border-bottom: 1px solid #ececf1;
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -49,7 +31,9 @@ const LogoContainer = styled.div`
 `;
 
 const Logo = styled.h1`
-  font-size: 24px;
+  font-size: 20px;
+  margin: 0px;
+  line-height: 1;
 `;
 
 const FeedbackLink = styled.a`

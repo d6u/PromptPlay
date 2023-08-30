@@ -12,6 +12,7 @@ import {
   SpaceContent,
 } from "../../../../static/spaceTypes";
 import BlockV2, {
+  BlockWidthClass,
   VisualBlockType,
   blockTypeToVisualBlockType,
 } from "../../../block_v2/BlockV2";
@@ -20,12 +21,12 @@ import BlockVariableMap from "./BlockVariableMap";
 const Container = styled.div<{ $isDragging: boolean }>`
   display: flex;
   position: relative;
+  opacity: ${(props) => (props.$isDragging ? 0.8 : 1)};
   ${(props) =>
     props.$isDragging &&
     css`
       z-index: 1;
     `}
-  opacity: ${(props) => (props.$isDragging ? 0.8 : 1)};
 `;
 
 const Content = styled.div`
@@ -40,6 +41,7 @@ const Content = styled.div`
 
 const OutputContent = styled.div`
   padding: 10px;
+  flex-grow: 1;
 `;
 
 const SlotHolder = styled.div`
@@ -135,6 +137,15 @@ export default function BlockComponent(props: Props) {
     }
   }
 
+  const outputCotent: ReactNode[] = [];
+
+  if (block.outputContent) {
+    for (const [i, line] of block.outputContent.split("\n").entries()) {
+      outputCotent.push(line);
+      outputCotent.push(<br key={i} />);
+    }
+  }
+
   return (
     <Container
       style={{ transform: CSS.Translate.toString(transform) }}
@@ -149,19 +160,20 @@ export default function BlockComponent(props: Props) {
           type={blockTypeToVisualBlockType(block.type)}
           selected={spaceV2SelectedBlockId === block.id}
           onClick={() => setSpaceV2SelectedBlockId(block.id)}
+          widthClass={BlockWidthClass.Wider}
         >
           {blockConfig.renderConfig(block)}
         </BlockV2>
         {outputConfigurator}
       </Content>
-      {block.outputContent && (
+      {outputCotent.length > 0 && (
         <OutputContent>
           <BlockV2
             type={VisualBlockType.Plain}
             onClick={() => setSpaceV2SelectedBlockId(block.id)}
-            narrow
+            widthClass={BlockWidthClass.Full}
           >
-            {block.outputContent}
+            {outputCotent}
           </BlockV2>
         </OutputContent>
       )}
