@@ -7,9 +7,7 @@ import { UPDATE_SPACE_CONTENT_MUTATION } from "../../../../state/spaceGraphQl";
 import { BLOCK_CONFIGS } from "../../../../static/blockConfigs";
 import { Block, SpaceContent } from "../../../../static/spaceTypes";
 import { pullBlockFromBlocks } from "../../../../static/spaceUtils";
-import EditorBlockUniqueConfigurations from "./EditorBlockUniqueConfigurations";
-import EditorBlockInputConfiguration from "./shared/EditorBlockInputConfiguration";
-import EditorBlockOutputConfiguration from "./shared/EditorBlockOutputConfiguration";
+import EditorBlockConfigurations from "./EditorBlockConfigurations";
 import {
   FieldDescriptionText,
   FieldRow,
@@ -106,21 +104,9 @@ export default function EditorBlock(props: Props) {
         )}
       </Header>
       <Body>
-        <EditorBlockInputConfiguration
-          isReadOnly={props.isReadOnly}
-          block={props.selectedBlock}
-          spaceId={props.spaceId}
-          spaceContent={props.spaceContent}
-        />
-        <EditorBlockUniqueConfigurations
+        <EditorBlockConfigurations
           isReadOnly={props.isReadOnly}
           selectedBlock={props.selectedBlock}
-          spaceId={props.spaceId}
-          spaceContent={props.spaceContent}
-        />
-        <EditorBlockOutputConfiguration
-          isReadOnly={props.isReadOnly}
-          block={props.selectedBlock}
           spaceId={props.spaceId}
           spaceContent={props.spaceContent}
         />

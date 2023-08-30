@@ -130,11 +130,6 @@ export default function BlockComponent(props: Props) {
           />
         );
         break;
-      case BlockVariablesConfiguration.Map:
-        outputConfigurator = (
-          <BlockVariableMap variableMap={block.outputMap} isInput={false} />
-        );
-        break;
     }
   }
 

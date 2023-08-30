@@ -27,16 +27,5 @@ export default function EditorBlockOutputConfiguration(props: Props) {
           spaceContent={props.spaceContent}
         />
       );
-    case BlockVariablesConfiguration.Map:
-      return (
-        <EditorBlockInputOutput
-          isReadOnly={props.isReadOnly}
-          block={props.block}
-          isInput={false}
-          variableMap={props.block.outputMap}
-          spaceId={props.spaceId}
-          spaceContent={props.spaceContent}
-        />
-      );
   }
 }

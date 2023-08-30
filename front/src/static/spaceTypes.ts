@@ -1,6 +1,17 @@
 export const ROOT_COMPONENT_ID = "root";
 
-// Block
+// Block shared
+
+export type Block = {
+  id: string;
+} & (
+  | BlockDatabagConfiguration
+  | BlockLlmMessageConfiguration
+  | BlockLlmConfiguration
+  | BlockAppendToListConfiguration
+  | BlockGetAttributeConfiguration
+) &
+  BlockOutput;
 
 export enum BlockType {
   Databag = "Databag",
@@ -16,73 +27,66 @@ export enum BlockVariablesConfiguration {
   Map = "Map",
 }
 
+// Block specific
+
+export type BlockDatabagConfiguration = {
+  type: BlockType.Databag;
+  value: string;
+  inputConfiguration: BlockVariablesConfiguration.NonConfigurable;
+  outputConfiguration: BlockVariablesConfiguration.Single;
+  singleOuput: string;
+};
+
+export type BlockLlmMessageConfiguration = {
+  type: BlockType.LlmMessage;
+  role: LlmMessageRole;
+  content: string;
+  listNameToAppend: string;
+  inputConfiguration: BlockVariablesConfiguration.Map;
+  inputMap: Array<[string, string]>;
+  outputConfiguration: BlockVariablesConfiguration.Single;
+  singleOuput: string;
+};
+
 export enum LlmMessageRole {
   System = "system",
   User = "user",
   Assistant = "assistant",
 }
 
+export type BlockLlmConfiguration = {
+  type: BlockType.Llm;
+  model: LlmModel;
+  temperature: number;
+  stop: Array<string>;
+  variableNameForContent: string;
+  inputConfiguration: BlockVariablesConfiguration.Single;
+  singleInput: string;
+  outputConfiguration: BlockVariablesConfiguration.Single;
+  singleOuput: string;
+};
+
 export enum LlmModel {
   GPT3_5_TURBO = "gpt-3.5-turbo",
   GPT4 = "gpt-4",
 }
 
-export type Block = {
-  id: string;
-} & BlockUniqueConfigurations &
-  BlockInputConfiguration &
-  BlockOutputConfiguration &
-  BlockOutput;
+export type BlockAppendToListConfiguration = {
+  type: BlockType.AppendToList;
+  itemName: string;
+  listName: string;
+  inputConfiguration: BlockVariablesConfiguration.NonConfigurable;
+  outputConfiguration: BlockVariablesConfiguration.NonConfigurable;
+};
 
-export type BlockUniqueConfigurations =
-  | {
-      type: BlockType.Databag;
-      value: string;
-    }
-  | {
-      type: BlockType.LlmMessage;
-      role: LlmMessageRole;
-      content: string;
-      listNameToAppend: string;
-    }
-  | {
-      type: BlockType.Llm;
-      model: LlmModel;
-      temperature: number;
-      stop: Array<string>;
-      variableNameForContent: string;
-    }
-  | {
-      type: BlockType.AppendToList;
-      itemName: string;
-      listName: string;
-    }
-  | {
-      type: BlockType.GetAttribute;
-      attribute: string;
-    };
-
-export type BlockInputConfiguration =
-  | { inputConfiguration: BlockVariablesConfiguration.NonConfigurable }
-  | {
-      inputConfiguration: BlockVariablesConfiguration.Single;
-      singleInput: string;
-    }
-  | {
-      inputConfiguration: BlockVariablesConfiguration.Map;
-      inputMap: Array<[string, string]>;
-    };
-
-export type BlockOutputConfiguration =
-  | { outputConfiguration: BlockVariablesConfiguration.NonConfigurable }
-  | {
-      outputConfiguration: BlockVariablesConfiguration.Single;
-      singleOuput: string;
-    }
-  | {
-      outputConfiguration: BlockVariablesConfiguration.Map;
-      outputMap: Array<[string, string]>;
-    };
+export type BlockGetAttributeConfiguration = {
+  type: BlockType.GetAttribute;
+  attribute: string;
+  inputConfiguration: BlockVariablesConfiguration.Single;
+  singleInput: string;
+  outputConfiguration: BlockVariablesConfiguration.Single;
+  singleOuput: string;
+};
 
 export type BlockOutput = {
   errorOutput?: false;

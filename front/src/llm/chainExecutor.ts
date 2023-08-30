@@ -73,14 +73,6 @@ export async function execute(
         }
         scope[block.singleOuput] = executeResult;
         break;
-      case BlockVariablesConfiguration.Map:
-        if (executeResult === undefined) {
-          throw new Error("executeResult is undefined");
-        }
-        for (const [localName, scopeName] of block.outputMap) {
-          scope[scopeName] = executeResult[localName] ?? null;
-        }
-        break;
     }
   }
 
