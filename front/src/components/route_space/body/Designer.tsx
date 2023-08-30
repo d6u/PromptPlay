@@ -34,10 +34,21 @@ export default function Designer(props: Props) {
         props.spaceContent
       );
 
+      const contentJson = JSON.stringify(newSpaceContent);
+
       updateSpaceV2({
         variables: {
           spaceId: props.spaceId,
-          content: JSON.stringify(newSpaceContent),
+          content: contentJson,
+        },
+        optimisticResponse: {
+          updateSpace: {
+            id: props.spaceId,
+            __typename: "Space",
+            // TODO: Use proper name
+            name: "",
+            content: contentJson,
+          },
         },
       });
     },

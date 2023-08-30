@@ -42,6 +42,7 @@ const Content = styled.div`
 const OutputContent = styled.div`
   padding: 10px;
   flex-grow: 1;
+  max-width: 400px;
 `;
 
 const SlotHolder = styled.div`
