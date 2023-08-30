@@ -8,8 +8,7 @@ import {
   LlmMessageRole,
   SpaceContent,
 } from "../../../../static/spaceTypes";
-import EditorBlockInputConfiguration from "./shared/EditorBlockInputConfiguration";
-import EditorBlockOutputConfiguration from "./shared/EditorBlockOutputConfiguration";
+import EditorBlockInputOutput from "./shared/EditorBlockInputOutput";
 import {
   FieldHelperText,
   FieldRow,
@@ -38,9 +37,11 @@ export default function EditorBlockLlmMessageConfigurations(props: Props) {
 
   return (
     <>
-      <EditorBlockInputConfiguration
+      <EditorBlockInputOutput
         isReadOnly={props.isReadOnly}
         block={props.selectedBlock}
+        isInput={true}
+        variableMap={props.selectedBlock.inputMap}
         spaceId={props.spaceId}
         spaceContent={props.spaceContent}
       />
@@ -124,9 +125,11 @@ export default function EditorBlockLlmMessageConfigurations(props: Props) {
           onBlur={() => props.onSaveListNameToAppend(listNameToAppend)}
         />
       </FieldRow>
-      <EditorBlockOutputConfiguration
+      <EditorBlockInputOutput
         isReadOnly={props.isReadOnly}
         block={props.selectedBlock}
+        isInput={false}
+        singleVariable={props.selectedBlock.singleOuput}
         spaceId={props.spaceId}
         spaceContent={props.spaceContent}
       />

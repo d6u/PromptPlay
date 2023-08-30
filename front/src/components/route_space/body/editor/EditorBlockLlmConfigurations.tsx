@@ -13,8 +13,7 @@ import {
   LlmModel,
   SpaceContent,
 } from "../../../../static/spaceTypes";
-import EditorBlockInputConfiguration from "./shared/EditorBlockInputConfiguration";
-import EditorBlockOutputConfiguration from "./shared/EditorBlockOutputConfiguration";
+import EditorBlockInputOutput from "./shared/EditorBlockInputOutput";
 import {
   FieldHelperText,
   FieldRow,
@@ -61,9 +60,11 @@ export default function EditorBlockLlmConfigurations(props: Props) {
 
   return (
     <>
-      <EditorBlockInputConfiguration
+      <EditorBlockInputOutput
         isReadOnly={props.isReadOnly}
         block={props.selectedBlock}
+        isInput={true}
+        singleVariable={props.selectedBlock.singleInput}
         spaceId={props.spaceId}
         spaceContent={props.spaceContent}
       />
@@ -178,9 +179,11 @@ export default function EditorBlockLlmConfigurations(props: Props) {
           }
         />
       </FieldRow>
-      <EditorBlockOutputConfiguration
+      <EditorBlockInputOutput
         isReadOnly={props.isReadOnly}
         block={props.selectedBlock}
+        isInput={false}
+        singleVariable={props.selectedBlock.singleOuput}
         spaceId={props.spaceId}
         spaceContent={props.spaceContent}
       />

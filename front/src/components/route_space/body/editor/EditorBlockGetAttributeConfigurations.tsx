@@ -1,8 +1,7 @@
 import Input from "@mui/joy/Input";
 import { useState } from "react";
 import { BlockGetAttribute, SpaceContent } from "../../../../static/spaceTypes";
-import EditorBlockInputConfiguration from "./shared/EditorBlockInputConfiguration";
-import EditorBlockOutputConfiguration from "./shared/EditorBlockOutputConfiguration";
+import EditorBlockInputOutput from "./shared/EditorBlockInputOutput";
 import { FieldRow, FieldTitle } from "./shared/editorCommonComponents";
 
 type Props = {
@@ -19,9 +18,11 @@ export default function EditorBlockGetAttributeConfigurations(props: Props) {
 
   return (
     <>
-      <EditorBlockInputConfiguration
+      <EditorBlockInputOutput
         isReadOnly={props.isReadOnly}
         block={props.selectedBlock}
+        isInput={true}
+        singleVariable={props.selectedBlock.singleInput}
         spaceId={props.spaceId}
         spaceContent={props.spaceContent}
       />
@@ -44,9 +45,11 @@ export default function EditorBlockGetAttributeConfigurations(props: Props) {
           onBlur={() => props.onSaveAttribute(attribute)}
         />
       </FieldRow>
-      <EditorBlockOutputConfiguration
+      <EditorBlockInputOutput
         isReadOnly={props.isReadOnly}
         block={props.selectedBlock}
+        isInput={false}
+        singleVariable={props.selectedBlock.singleOuput}
         spaceId={props.spaceId}
         spaceContent={props.spaceContent}
       />
