@@ -2,7 +2,7 @@ import { useMutation } from "@apollo/client";
 import { DndContext, DragEndEvent, closestCenter } from "@dnd-kit/core";
 import styled from "@emotion/styled";
 import { useCallback } from "react";
-import { UPDATE_SPACE_MUTATION } from "../../../state/spaceGraphQl";
+import { UPDATE_SPACE_CONTENT_MUTATION } from "../../../state/spaceGraphQl";
 import { SpaceContent } from "../../../static/spaceTypes";
 import { updateContent } from "../../../static/spaceUtils";
 import { useDefaultSensors } from "../../../util/useDefaultSensors";
@@ -20,11 +20,12 @@ const Content = styled.div`
 type Props = {
   isReadOnly: boolean;
   spaceId: string;
+  spaceName: string;
   spaceContent: SpaceContent;
 };
 
 export default function Designer(props: Props) {
-  const [updateSpaceV2] = useMutation(UPDATE_SPACE_MUTATION);
+  const [updateSpaceV2] = useMutation(UPDATE_SPACE_CONTENT_MUTATION);
 
   const onDragEnd = useCallback(
     async (event: DragEndEvent) => {
@@ -46,13 +47,13 @@ export default function Designer(props: Props) {
             id: props.spaceId,
             __typename: "Space",
             // TODO: Use proper name
-            name: "",
+            name: props.spaceName,
             content: contentJson,
           },
         },
       });
     },
-    [props.spaceId, props.spaceContent, updateSpaceV2]
+    [props.spaceId, props.spaceName, props.spaceContent, updateSpaceV2]
   );
 
   const sensors = useDefaultSensors();

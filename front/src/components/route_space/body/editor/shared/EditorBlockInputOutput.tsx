@@ -5,7 +5,7 @@ import { append, equals, reject, update } from "ramda";
 import { ReactNode } from "react";
 import styled from "styled-components";
 import u from "updeep";
-import { UPDATE_SPACE_MUTATION } from "../../../../../state/spaceGraphQl";
+import { UPDATE_SPACE_CONTENT_MUTATION } from "../../../../../state/spaceGraphQl";
 import { Block, SpaceContent } from "../../../../../static/spaceTypes";
 import EditorSingleScopeVariable from "./EditorSingleScopeVariable";
 import EditorVariableMapRow from "./EditorVariableMapRow";
@@ -36,7 +36,7 @@ type Props = {
 );
 
 export default function EditorBlockInputOutput(props: Props) {
-  const [updateSpaceV2] = useMutation(UPDATE_SPACE_MUTATION);
+  const [updateSpaceV2] = useMutation(UPDATE_SPACE_CONTENT_MUTATION);
 
   let rows: ReactNode[] = [];
 

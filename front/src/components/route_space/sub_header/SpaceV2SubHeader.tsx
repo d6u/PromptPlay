@@ -1,11 +1,16 @@
 import { useMutation } from "@apollo/client";
 import Button from "@mui/joy/Button";
+import Input from "@mui/joy/Input";
 import { append } from "ramda";
-import { useCallback } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import u from "updeep";
-import { DELETE_SPACE_MUTATION } from "../../../state/spaceGraphQl";
+import { FragmentType, gql, useFragment } from "../../../__generated__";
+import {
+  DELETE_SPACE_MUTATION,
+  UPDATE_SPACE_NAME_MUTATION,
+} from "../../../state/spaceGraphQl";
 import { ROOT_PATH } from "../../../static/routeConfigs";
 import { BlockType, SpaceContent } from "../../../static/spaceTypes";
 import {
@@ -33,7 +38,23 @@ const Left = styled.div`
 
 const Right = styled(Left)``;
 
+const SpaceNameInput = styled(Input)`
+  width: 250px;
+`;
+
+const SpaceName = styled.div`
+  font-size: 14px;
+  padding-left: 9px;
+`;
+
+const SPACE_SUB_HEADER_FRAGMENT = gql(`
+  fragment SpaceSubHeaderFragment on Space {
+    name
+  }
+`);
+
 type Props = {
+  spaceSubHeaderFragment?: FragmentType<typeof SPACE_SUB_HEADER_FRAGMENT>;
   isReadOnly: boolean;
   spaceId: string;
   spaceContent: SpaceContent | null;
@@ -43,6 +64,11 @@ type Props = {
 
 export default function SpaceV2SubHeader(props: Props) {
   const navigate = useNavigate();
+
+  const spaceSubHeader = useFragment(
+    SPACE_SUB_HEADER_FRAGMENT,
+    props.spaceSubHeaderFragment
+  );
 
   const [deleteSpace] = useMutation(DELETE_SPACE_MUTATION);
 
@@ -69,6 +95,16 @@ export default function SpaceV2SubHeader(props: Props) {
     },
     [props]
   );
+
+  const [name, setName] = useState<string>(spaceSubHeader?.name ?? "");
+
+  useEffect(() => {
+    setName(spaceSubHeader?.name ?? "");
+  }, [spaceSubHeader?.name]);
+
+  const currentNameRef = useRef<string>(name);
+  const [isEditingName, setIsEditingName] = useState<boolean>(false);
+  const [updateSpaceName] = useMutation(UPDATE_SPACE_NAME_MUTATION);
 
   return (
     <Container>
@@ -108,6 +144,41 @@ export default function SpaceV2SubHeader(props: Props) {
             >
               Run
             </Button>
+            {isEditingName ? (
+              <SpaceNameInput
+                ref={(element) => {
+                  element?.querySelector("input")?.focus();
+                }}
+                type="text"
+                size="sm"
+                placeholder="Enter a name for this space"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    setIsEditingName(false);
+                    updateSpaceName({
+                      variables: {
+                        spaceId: props.spaceId,
+                        name,
+                      },
+                    });
+                  } else if (e.key === "Escape") {
+                    setIsEditingName(false);
+                    setName(currentNameRef.current);
+                  }
+                }}
+              />
+            ) : (
+              <SpaceName
+                onClick={() => {
+                  currentNameRef.current = name;
+                  setIsEditingName(true);
+                }}
+              >
+                {name}
+              </SpaceName>
+            )}
           </Left>
           <Right>
             <Button

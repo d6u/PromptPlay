@@ -1,6 +1,6 @@
 import { useMutation } from "@apollo/client";
 import u from "updeep";
-import { UPDATE_SPACE_MUTATION } from "../../../../state/spaceGraphQl";
+import { UPDATE_SPACE_CONTENT_MUTATION } from "../../../../state/spaceGraphQl";
 import { Block, BlockType, SpaceContent } from "../../../../static/spaceTypes";
 import EditorBlockAppendToListConfigurations from "./EditorBlockAppendToListConfigurations";
 import EditorBlockDatabagConfigurations from "./EditorBlockDatabagConfigurations";
@@ -16,7 +16,7 @@ type Props = {
 };
 
 export default function EditorBlockUniqueConfigurations(props: Props) {
-  const [updateSpaceV2] = useMutation(UPDATE_SPACE_MUTATION);
+  const [updateSpaceV2] = useMutation(UPDATE_SPACE_CONTENT_MUTATION);
 
   switch (props.selectedBlock.type) {
     case BlockType.Databag:

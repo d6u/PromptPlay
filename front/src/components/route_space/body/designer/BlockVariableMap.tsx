@@ -56,7 +56,7 @@ export default function BlockVariableMap(props: Props) {
   if (props.isInput) {
     if ("variableMap" in props) {
       for (const [scopeName, localName] of props.variableMap) {
-        (chips as ReactNode[]).push(
+        chips.push(
           <ScopeName key={`scope-name-${scopeName}`} $justifySelf="flex-end">
             {scopeName}
           </ScopeName>,
