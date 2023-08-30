@@ -110,6 +110,7 @@ export default function SpaceV2SubHeader(props: Props) {
   const currentNameRef = useRef<string>(name);
   const [isEditingName, setIsEditingName] = useState<boolean>(false);
   const [updateSpaceName] = useMutation(UPDATE_SPACE_NAME_MUTATION);
+  const [isComposing, setIsComposing] = useState<boolean>(false);
 
   return (
     <Container>
@@ -163,7 +164,16 @@ export default function SpaceV2SubHeader(props: Props) {
                 placeholder="Enter a name for this space"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
+                // This for handling IME (Input Method Editors) input,
+                // e.g. Pinyin input. Using this technique to avoid triggering
+                // the Enter key when user is still interacting with IME.
+                onCompositionStart={() => setIsComposing(true)}
+                onCompositionEnd={() => setIsComposing(false)}
                 onKeyDown={(e) => {
+                  if (isComposing) {
+                    return;
+                  }
+
                   if (e.key === "Enter") {
                     setIsEditingName(false);
                     updateSpaceName({
