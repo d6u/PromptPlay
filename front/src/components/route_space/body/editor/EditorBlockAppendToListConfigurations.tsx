@@ -1,6 +1,8 @@
 import Input from "@mui/joy/Input";
 import { useState } from "react";
-import { Block, SpaceContent } from "../../../../static/spaceTypes";
+import { BlockAppendToList, SpaceContent } from "../../../../static/spaceTypes";
+import EditorBlockInputConfiguration from "./shared/EditorBlockInputConfiguration";
+import EditorBlockOutputConfiguration from "./shared/EditorBlockOutputConfiguration";
 import { FieldRow, FieldTitle } from "./shared/editorCommonComponents";
 
 type Props = {
@@ -9,7 +11,7 @@ type Props = {
   onSaveItemName: (itemName: string) => void;
   listName: string;
   onSaveListName: (listName: string) => void;
-  selectedBlock: Block;
+  selectedBlock: BlockAppendToList;
   spaceId: string;
   spaceContent: SpaceContent;
 };
@@ -20,6 +22,12 @@ export default function EditorBlockAppendToListConfigurations(props: Props) {
 
   return (
     <>
+      <EditorBlockInputConfiguration
+        isReadOnly={props.isReadOnly}
+        block={props.selectedBlock}
+        spaceId={props.spaceId}
+        spaceContent={props.spaceContent}
+      />
       <FieldRow>
         <FieldTitle>Item name</FieldTitle>
         <Input
@@ -58,6 +66,12 @@ export default function EditorBlockAppendToListConfigurations(props: Props) {
           onBlur={() => props.onSaveListName(listName)}
         />
       </FieldRow>
+      <EditorBlockOutputConfiguration
+        isReadOnly={props.isReadOnly}
+        block={props.selectedBlock}
+        spaceId={props.spaceId}
+        spaceContent={props.spaceContent}
+      />
     </>
   );
 }

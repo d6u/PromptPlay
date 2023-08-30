@@ -3,11 +3,11 @@ import { ReactNode } from "react";
 import * as openai from "../llm/openai";
 import {
   Block,
-  BlockAppendToListConfiguration,
-  BlockDatabagConfiguration,
-  BlockGetAttributeConfiguration,
-  BlockLlmConfiguration,
-  BlockLlmMessageConfiguration,
+  BlockAppendToList,
+  BlockDatabag,
+  BlockGetAttribute,
+  BlockLlm,
+  BlockLlmMessage,
   BlockType,
 } from "./spaceTypes";
 
@@ -34,11 +34,11 @@ type BlockConfig<T extends Block> = {
 };
 
 type BlockConfigs = {
-  [BlockType.Databag]: BlockConfig<BlockDatabagConfiguration>;
-  [BlockType.LlmMessage]: BlockConfig<BlockLlmMessageConfiguration>;
-  [BlockType.AppendToList]: BlockConfig<BlockAppendToListConfiguration>;
-  [BlockType.Llm]: BlockConfig<BlockLlmConfiguration>;
-  [BlockType.GetAttribute]: BlockConfig<BlockGetAttributeConfiguration>;
+  [BlockType.Databag]: BlockConfig<BlockDatabag>;
+  [BlockType.LlmMessage]: BlockConfig<BlockLlmMessage>;
+  [BlockType.AppendToList]: BlockConfig<BlockAppendToList>;
+  [BlockType.Llm]: BlockConfig<BlockLlm>;
+  [BlockType.GetAttribute]: BlockConfig<BlockGetAttribute>;
 };
 
 const BLOCK_CONFIGS: BlockConfigs = {
@@ -194,7 +194,7 @@ const BLOCK_CONFIGS: BlockConfigs = {
       const newBlock = pipe(
         assoc("errorOutput", false),
         assoc("outputContent", message.content)
-      )(block) as BlockLlmConfiguration;
+      )(block) as BlockLlm;
 
       updater(newBlock);
 
@@ -232,11 +232,11 @@ function replacePlaceholders(str: string, values: { [key: string]: any }) {
 }
 
 type BlockTypeToBlockConfigMap = {
-  [BlockType.Databag]: BlockDatabagConfiguration;
-  [BlockType.LlmMessage]: BlockLlmMessageConfiguration;
-  [BlockType.AppendToList]: BlockAppendToListConfiguration;
-  [BlockType.Llm]: BlockLlmConfiguration;
-  [BlockType.GetAttribute]: BlockGetAttributeConfiguration;
+  [BlockType.Databag]: BlockDatabag;
+  [BlockType.LlmMessage]: BlockLlmMessage;
+  [BlockType.AppendToList]: BlockAppendToList;
+  [BlockType.Llm]: BlockLlm;
+  [BlockType.GetAttribute]: BlockGetAttribute;
 };
 
 export function getBlockConfigByType(

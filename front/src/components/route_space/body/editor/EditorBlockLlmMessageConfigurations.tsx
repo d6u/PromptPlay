@@ -4,10 +4,12 @@ import RadioGroup from "@mui/joy/RadioGroup";
 import Textarea from "@mui/joy/Textarea";
 import { useState } from "react";
 import {
-  Block,
+  BlockLlmMessage,
   LlmMessageRole,
   SpaceContent,
 } from "../../../../static/spaceTypes";
+import EditorBlockInputConfiguration from "./shared/EditorBlockInputConfiguration";
+import EditorBlockOutputConfiguration from "./shared/EditorBlockOutputConfiguration";
 import {
   FieldHelperText,
   FieldRow,
@@ -22,7 +24,7 @@ type Props = {
   onSaveContent: (value: string) => void;
   listNameToAppend: string;
   onSaveListNameToAppend: (listNameToAppend: string) => void;
-  selectedBlock: Block;
+  selectedBlock: BlockLlmMessage;
   spaceId: string;
   spaceContent: SpaceContent;
 };
@@ -36,6 +38,12 @@ export default function EditorBlockLlmMessageConfigurations(props: Props) {
 
   return (
     <>
+      <EditorBlockInputConfiguration
+        isReadOnly={props.isReadOnly}
+        block={props.selectedBlock}
+        spaceId={props.spaceId}
+        spaceContent={props.spaceContent}
+      />
       <FieldRow>
         <FieldTitle>Role</FieldTitle>
         <RadioGroup
@@ -116,6 +124,12 @@ export default function EditorBlockLlmMessageConfigurations(props: Props) {
           onBlur={() => props.onSaveListNameToAppend(listNameToAppend)}
         />
       </FieldRow>
+      <EditorBlockOutputConfiguration
+        isReadOnly={props.isReadOnly}
+        block={props.selectedBlock}
+        spaceId={props.spaceId}
+        spaceContent={props.spaceContent}
+      />
     </>
   );
 }

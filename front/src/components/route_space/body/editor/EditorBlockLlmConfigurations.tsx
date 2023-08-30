@@ -8,7 +8,13 @@ import {
   openAiApiKeyState,
 } from "../../../../state/store";
 import { LLM_STOP_NEW_LINE_SYMBOL } from "../../../../static/blockConfigs";
-import { Block, LlmModel, SpaceContent } from "../../../../static/spaceTypes";
+import {
+  BlockLlm,
+  LlmModel,
+  SpaceContent,
+} from "../../../../static/spaceTypes";
+import EditorBlockInputConfiguration from "./shared/EditorBlockInputConfiguration";
+import EditorBlockOutputConfiguration from "./shared/EditorBlockOutputConfiguration";
 import {
   FieldHelperText,
   FieldRow,
@@ -25,7 +31,7 @@ type Props = {
   onSaveStop: (stop: Array<string>) => void;
   variableNameForContent: string;
   onSaveVariableNameForContent: (variableNameForContent: string) => void;
-  selectedBlock: Block;
+  selectedBlock: BlockLlm;
   spaceId: string;
   spaceContent: SpaceContent;
 };
@@ -55,6 +61,12 @@ export default function EditorBlockLlmConfigurations(props: Props) {
 
   return (
     <>
+      <EditorBlockInputConfiguration
+        isReadOnly={props.isReadOnly}
+        block={props.selectedBlock}
+        spaceId={props.spaceId}
+        spaceContent={props.spaceContent}
+      />
       <FieldRow>
         <FieldTitle>OpenAI API Key</FieldTitle>
         <Input
@@ -166,6 +178,12 @@ export default function EditorBlockLlmConfigurations(props: Props) {
           }
         />
       </FieldRow>
+      <EditorBlockOutputConfiguration
+        isReadOnly={props.isReadOnly}
+        block={props.selectedBlock}
+        spaceId={props.spaceId}
+        spaceContent={props.spaceContent}
+      />
     </>
   );
 }

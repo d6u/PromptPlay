@@ -3,11 +3,11 @@ export const ROOT_COMPONENT_ID = "root";
 // Block shared
 
 export type Block =
-  | BlockDatabagConfiguration
-  | BlockLlmMessageConfiguration
-  | BlockLlmConfiguration
-  | BlockAppendToListConfiguration
-  | BlockGetAttributeConfiguration;
+  | BlockDatabag
+  | BlockLlmMessage
+  | BlockLlm
+  | BlockAppendToList
+  | BlockGetAttribute;
 
 export enum BlockType {
   Databag = "Databag",
@@ -31,7 +31,7 @@ export type BlockShared = {
 
 // Block specific
 
-export type BlockDatabagConfiguration = BlockShared & {
+export type BlockDatabag = BlockShared & {
   type: BlockType.Databag;
   value: string;
   inputConfiguration: BlockVariablesConfiguration.NonConfigurable;
@@ -39,7 +39,7 @@ export type BlockDatabagConfiguration = BlockShared & {
   singleOuput: string;
 };
 
-export type BlockLlmMessageConfiguration = BlockShared & {
+export type BlockLlmMessage = BlockShared & {
   type: BlockType.LlmMessage;
   role: LlmMessageRole;
   content: string;
@@ -56,7 +56,7 @@ export enum LlmMessageRole {
   Assistant = "assistant",
 }
 
-export type BlockLlmConfiguration = BlockShared & {
+export type BlockLlm = BlockShared & {
   type: BlockType.Llm;
   model: LlmModel;
   temperature: number;
@@ -73,7 +73,7 @@ export enum LlmModel {
   GPT4 = "gpt-4",
 }
 
-export type BlockAppendToListConfiguration = BlockShared & {
+export type BlockAppendToList = BlockShared & {
   type: BlockType.AppendToList;
   itemName: string;
   listName: string;
@@ -81,7 +81,7 @@ export type BlockAppendToListConfiguration = BlockShared & {
   outputConfiguration: BlockVariablesConfiguration.NonConfigurable;
 };
 
-export type BlockGetAttributeConfiguration = BlockShared & {
+export type BlockGetAttribute = BlockShared & {
   type: BlockType.GetAttribute;
   attribute: string;
   inputConfiguration: BlockVariablesConfiguration.Single;
