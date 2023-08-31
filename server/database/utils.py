@@ -85,42 +85,86 @@ def create_space_with_example_content(db_user: OrmUser) -> OrmSpace:
 
 
 def space_example_content() -> dict[str, Any]:
+    block0_id = str(uuid4())
     block1_id = str(uuid4())
     block2_id = str(uuid4())
+    block3_id = str(uuid4())
+    block4_id = str(uuid4())
 
     return {
         "root": {
             "id": "root",
             "blocks": [
                 {
+                    "id": block0_id,
+                },
+                {
                     "id": block1_id,
                 },
                 {
                     "id": block2_id,
                 },
+                {
+                    "id": block3_id,
+                },
+                {
+                    "id": block4_id,
+                },
             ],
         },
         "components": {
-            block1_id: {
-                "id": block1_id,
+            block0_id: {
+                "id": block0_id,
                 "type": "LlmMessage",
                 "role": "user",
-                "content": "Write a short poem in fewer than 20 words.",
-                "listNameToAppend": "messages",
+                "content": 'Write a short poem in fewer than 20 words, and return in JSON format like below, put the poem in <content>:\n\n```\n{{"poem": "<content>"}}\n```',
+                "listNameToAppend": "messages_poet",
                 "inputConfiguration": "Map",
-                "inputMap": [["", ""]],
+                "inputMap": [],
+                "outputConfiguration": "Single",
+                "singleOuput": "",
+            },
+            block1_id: {
+                "id": block1_id,
+                "type": "Llm",
+                "model": "gpt-3.5-turbo",
+                "temperature": 0.8,
+                "stop": [],
+                "variableNameForContent": "poet_output",
+                "inputConfiguration": "Single",
+                "singleInput": "messages_poet",
                 "outputConfiguration": "Single",
                 "singleOuput": "",
             },
             block2_id: {
                 "id": block2_id,
+                "type": "Parser",
+                "javaScriptCode": 'const json = JSON.parse(poet_output_json);\n\nreturn {\n  "value": json["poem"]\n};',
+                "inputConfiguration": "Map",
+                "inputMap": [["poet_output", "poet_output_json"]],
+                "outputConfiguration": "Map",
+                "outputMap": [["value", "poem"]],
+            },
+            block3_id: {
+                "id": block3_id,
+                "type": "LlmMessage",
+                "role": "user",
+                "content": "Translate below text into Chinese:\n\n{content}",
+                "listNameToAppend": "messages_translate",
+                "inputConfiguration": "Map",
+                "inputMap": [["poem", "content"]],
+                "outputConfiguration": "Single",
+                "singleOuput": "",
+            },
+            block4_id: {
+                "id": block4_id,
                 "type": "Llm",
                 "model": "gpt-3.5-turbo",
                 "temperature": 0.8,
                 "stop": [],
                 "variableNameForContent": "",
                 "inputConfiguration": "Single",
-                "singleInput": "messages",
+                "singleInput": "messages_translate",
                 "outputConfiguration": "Single",
                 "singleOuput": "",
             },
