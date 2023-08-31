@@ -29,14 +29,23 @@ const Container = styled.div<{ $isDragging: boolean }>`
     `}
 `;
 
-const Content = styled.div<{ $executing?: boolean }>`
+const Content = styled.div<{ $executing?: boolean; $isError: boolean }>`
   display: flex;
   align-items: flex-start;
   gap: 10px;
   padding: ${(props) => (props.$executing ? "9px" : "10px")};
   border-radius: 5px;
-  border: ${(props) =>
-    props.$executing ? "2px solid #00c45c" : "1px solid #c5c5d2"};
+  border: ${(props) => {
+    if (props.$executing) {
+      if (props.$isError) {
+        return "2px solid #ff0000";
+      } else {
+        return "2px solid #00c45c";
+      }
+    } else {
+      return "1px solid #c5c5d2";
+    }
+  }};
   background-color: #fff;
 `;
 
@@ -54,8 +63,9 @@ type Props = {
   isReadOnly: boolean;
   anchor: BlockAnchor;
   spaceContent: SpaceContent;
-  isCurrentlyExecuting: boolean;
   isExecuting: boolean;
+  isCurrentlyExecuting: boolean;
+  isCurrentExecutingBlockError: boolean;
 };
 
 export default function BlockComponent(props: Props) {
@@ -158,7 +168,10 @@ export default function BlockComponent(props: Props) {
       {...listeners}
       {...attributes}
     >
-      <Content $executing={props.isCurrentlyExecuting}>
+      <Content
+        $executing={props.isCurrentlyExecuting}
+        $isError={props.isCurrentExecutingBlockError}
+      >
         {inputConfigurator}
         <BlockV2
           type={blockTypeToVisualBlockType(block.type)}
@@ -173,7 +186,9 @@ export default function BlockComponent(props: Props) {
       {outputCotent.length > 0 && (
         <OutputContent>
           <BlockV2
-            type={VisualBlockType.Plain}
+            type={
+              block.errorOutput ? VisualBlockType.Error : VisualBlockType.Plain
+            }
             onClick={() => setSpaceV2SelectedBlockId(block.id)}
             widthClass={BlockWidthClass.Full}
           >

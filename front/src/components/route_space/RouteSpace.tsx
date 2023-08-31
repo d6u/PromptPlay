@@ -63,6 +63,8 @@ export default function RouteSpace(props: Props) {
   const [currentExecutingBlockId, setCurrentExecutingBlockId] = useState<
     string | null
   >(null);
+  const [isCurrentExecutingBlockError, setIsCurrentExecutingBlockError] =
+    useState(false);
 
   const onExecuteVisualChain = useCallback(() => {
     if (spaceContent == null) {
@@ -84,9 +86,8 @@ export default function RouteSpace(props: Props) {
     // TODO: Make it actually validate someting
     validate(spaceContent);
 
+    setIsCurrentExecutingBlockError(false);
     setIsExecuting(true);
-
-    console.log("Executing visual chain", spaceContent);
 
     execute({
       spaceContent,
@@ -115,10 +116,16 @@ export default function RouteSpace(props: Props) {
           return newState;
         });
       },
-    }).finally(() => {
-      setCurrentExecutingBlockId(null);
-      setIsExecuting(false);
-    });
+    })
+      .then(() => {
+        setCurrentExecutingBlockId(null);
+      })
+      .catch(() => {
+        setIsCurrentExecutingBlockError(true);
+      })
+      .finally(() => {
+        setIsExecuting(false);
+      });
   }, [
     spaceContent,
     openAiApiKey,
@@ -173,8 +180,9 @@ export default function RouteSpace(props: Props) {
               spaceId={spaceId}
               spaceName={query.data.result.space.name}
               spaceContent={spaceContent}
-              currentExecutingBlockId={currentExecutingBlockId}
               isExecuting={isExecuting}
+              currentExecutingBlockId={currentExecutingBlockId}
+              isCurrentExecutingBlockError={isCurrentExecutingBlockError}
             />
             {selectedBlock && (
               <Editor

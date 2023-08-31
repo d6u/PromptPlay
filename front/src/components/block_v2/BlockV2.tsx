@@ -5,6 +5,7 @@ import CrossIconV2 from "../icons/CrossIconV2";
 
 export enum VisualBlockType {
   Plain = "Plain",
+  Error = "Error",
   Databag = "Databag",
   LlmMessage = "LlmMessage",
   AppendToList = "AppendToList",
@@ -79,6 +80,11 @@ const Container = styled.div<{
             border: 2px solid #000;
             background: #fff;
           `;
+        case VisualBlockType.Error:
+          return css`
+            border: 2px solid #ff3e13;
+            background: linear-gradient(39deg, #fff 14.47%, #ffecee 87.64%);
+          `;
       }
     } else {
       switch (props.$type) {
@@ -121,6 +127,11 @@ const Container = styled.div<{
           return css`
             border: 2px solid #000;
             background: #fff;
+          `;
+        case VisualBlockType.Error:
+          return css`
+            border: 2px solid #ff3e13;
+            background: linear-gradient(39deg, #f4c7bf 14.47%, #ff9ba7 87.64%);
           `;
       }
     }
@@ -206,6 +217,7 @@ function visualBlockTypeToBlockType(
       return BlockType.Parser;
     case VisualBlockType.Output:
     case VisualBlockType.Plain:
+    case VisualBlockType.Error:
       return null;
   }
 }

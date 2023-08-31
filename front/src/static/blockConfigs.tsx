@@ -240,19 +240,39 @@ const BLOCK_CONFIGS: BlockConfigs = {
       const argNames = block.inputMap.map((pair) => pair[1]);
       const argValues = block.inputMap.map((pair) => args[pair[1]]);
 
-      // eslint-disable-next-line no-new-func
-      const func = Function(...argNames, block.javaScriptCode);
+      let err: any = null;
+      let result;
 
-      const result = func(...argValues);
+      try {
+        // eslint-disable-next-line no-new-func
+        const func = Function(...argNames, block.javaScriptCode);
 
-      const newBlock = pipe(
-        assoc("errorOutput", false),
-        assoc("outputContent", JSON.stringify(result))
-      )(block) as BlockParser;
+        result = func(...argValues);
+      } catch (e) {
+        err = e;
+      }
 
-      updater(newBlock);
+      let newBlock;
 
-      return result;
+      if (err) {
+        newBlock = pipe(
+          assoc("errorOutput", true),
+          assoc("outputContent", err.message)
+        )(block) as BlockParser;
+
+        updater(newBlock);
+
+        throw err;
+      } else {
+        newBlock = pipe(
+          assoc("errorOutput", false),
+          assoc("outputContent", JSON.stringify(result))
+        )(block) as BlockParser;
+
+        updater(newBlock);
+
+        return result;
+      }
     },
   },
 };

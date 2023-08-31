@@ -108,8 +108,16 @@ export default function EditorBlockLlmMessageConfigurations(props: Props) {
           onBlur={() => props.onSaveContent(content)}
         />
         <FieldHelperText>
-          Press <code>CMD</code> + <code>ENTER</code> () or <code>CTRL</code> +{" "}
-          <code>ENTER</code> (Windows) to save. Unfocus will also save.
+          ℹ️ Use <code>{"{variable_name}"}</code> and Input variables above to
+          replace content with variable.
+        </FieldHelperText>
+        <FieldHelperText>
+          ℹ️ Use <code>{"{{ }}"}</code> to write literal <code>{"{ }"}</code>.
+        </FieldHelperText>
+        <FieldHelperText>
+          ℹ️ Press <code>CMD</code> + <code>ENTER</code> () or{" "}
+          <code>CTRL</code> + <code>ENTER</code> (Windows) to save. Unfocus will
+          also save.
         </FieldHelperText>
       </FieldRow>
       <FieldRow>

@@ -41,8 +41,9 @@ type Props = {
   spaceContent: SpaceContent;
   isRoot?: boolean;
   isParentDragging?: boolean;
-  currentExecutingBlockId: string | null;
   isExecuting: boolean;
+  currentExecutingBlockId: string | null;
+  isCurrentExecutingBlockError: boolean;
 };
 
 export default function BlockGroupComponent(props: Props) {
@@ -73,8 +74,9 @@ export default function BlockGroupComponent(props: Props) {
           spaceContent={props.spaceContent}
           anchor={block}
           isParentDragging={isDragging || props.isParentDragging}
-          currentExecutingBlockId={props.currentExecutingBlockId}
           isExecuting={props.isExecuting}
+          currentExecutingBlockId={props.currentExecutingBlockId}
+          isCurrentExecutingBlockError={props.isCurrentExecutingBlockError}
         />
       );
     } else {
@@ -84,8 +86,9 @@ export default function BlockGroupComponent(props: Props) {
           isReadOnly={props.isReadOnly}
           spaceContent={props.spaceContent}
           anchor={block}
-          isCurrentlyExecuting={block.id === props.currentExecutingBlockId}
           isExecuting={props.isExecuting}
+          isCurrentlyExecuting={block.id === props.currentExecutingBlockId}
+          isCurrentExecutingBlockError={props.isCurrentExecutingBlockError}
         />
       );
     }

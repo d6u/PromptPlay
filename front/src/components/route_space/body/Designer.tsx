@@ -22,8 +22,9 @@ type Props = {
   spaceId: string;
   spaceName: string;
   spaceContent: SpaceContent;
-  currentExecutingBlockId: string | null;
   isExecuting: boolean;
+  currentExecutingBlockId: string | null;
+  isCurrentExecutingBlockError: boolean;
 };
 
 export default function Designer(props: Props) {
@@ -74,6 +75,7 @@ export default function Designer(props: Props) {
             isRoot
             currentExecutingBlockId={props.currentExecutingBlockId}
             isExecuting={props.isExecuting}
+            isCurrentExecutingBlockError={props.isCurrentExecutingBlockError}
           />
         </Content>
       </DndContext>
