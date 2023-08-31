@@ -65,6 +65,7 @@ type Props = {
   spaceContent: SpaceContent | null;
   onSpaceContentChange: (spaceContent: SpaceContent | null) => void;
   onExecuteVisualChain: () => void;
+  isExecuting: boolean;
 };
 
 export default function SpaceV2SubHeader(props: Props) {
@@ -112,6 +113,28 @@ export default function SpaceV2SubHeader(props: Props) {
   const [updateSpaceName] = useMutation(UPDATE_SPACE_NAME_MUTATION);
   const [isComposing, setIsComposing] = useState<boolean>(false);
 
+  const [runButtonLabelForExecutingState, setRunButtonLabelForExecutingState] =
+    useState<string>("Running...");
+
+  // Display a funny animation on Run button when executing the prompt chain
+  useEffect(() => {
+    if (!props.isExecuting) {
+      return;
+    }
+
+    const intervalId = setInterval(() => {
+      setRunButtonLabelForExecutingState((label) => {
+        console.log(label);
+        const len = label.length;
+        return label[len - 1] + label.slice(0, len - 1);
+      });
+    }, 200);
+
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [props.isExecuting]);
+
   return (
     <Container>
       {props.isReadOnly ? (
@@ -149,10 +172,10 @@ export default function SpaceV2SubHeader(props: Props) {
               color="success"
               size="sm"
               variant="outlined"
-              disabled={props.spaceContent == null}
+              disabled={props.spaceContent == null || props.isExecuting}
               onClick={() => props.onExecuteVisualChain()}
             >
-              Run
+              {props.isExecuting ? runButtonLabelForExecutingState : "Run"}
             </Button>
             {isEditingName ? (
               <SpaceNameInput

@@ -42,31 +42,25 @@ type Props = {
   isRoot?: boolean;
   isParentDragging?: boolean;
   currentExecutingBlockId: string | null;
+  isExecuting: boolean;
 };
 
-export default function BlockGroupComponent({
-  isReadOnly,
-  spaceContent,
-  anchor,
-  isRoot = false,
-  isParentDragging = false,
-  currentExecutingBlockId,
-}: Props) {
+export default function BlockGroupComponent(props: Props) {
   const { isDragging, attributes, listeners, setNodeRef, transform } =
     useDraggable({
-      id: anchor.id,
-      disabled: isReadOnly || isRoot,
+      id: props.anchor.id,
+      disabled: props.isReadOnly || props.isRoot || props.isExecuting,
     });
 
   const content: ReactNode[] = [];
 
-  for (const [i, block] of anchor.blocks.entries()) {
+  for (const [i, block] of props.anchor.blocks.entries()) {
     if (i === 0) {
       content.push(
         <Gutter
           key="first-gutter"
           preItemId={`Before:${block.id}`}
-          isDisabled={isDragging || isParentDragging}
+          isDisabled={isDragging || !!props.isParentDragging}
         />
       );
     }
@@ -75,21 +69,23 @@ export default function BlockGroupComponent({
       content.push(
         <BlockGroupComponent
           key={block.id}
-          isReadOnly={isReadOnly}
-          spaceContent={spaceContent}
+          isReadOnly={props.isReadOnly}
+          spaceContent={props.spaceContent}
           anchor={block}
-          isParentDragging={isDragging || isParentDragging}
-          currentExecutingBlockId={currentExecutingBlockId}
+          isParentDragging={isDragging || props.isParentDragging}
+          currentExecutingBlockId={props.currentExecutingBlockId}
+          isExecuting={props.isExecuting}
         />
       );
     } else {
       content.push(
         <BlockComponent
           key={block.id}
-          isReadOnly={isReadOnly}
-          spaceContent={spaceContent}
+          isReadOnly={props.isReadOnly}
+          spaceContent={props.spaceContent}
           anchor={block}
-          isCurrentlyExecuting={block.id === currentExecutingBlockId}
+          isCurrentlyExecuting={block.id === props.currentExecutingBlockId}
+          isExecuting={props.isExecuting}
         />
       );
     }
@@ -98,20 +94,20 @@ export default function BlockGroupComponent({
       <Gutter
         key={`${block.id}-after-gutter`}
         preItemId={`After:${block.id}`}
-        isDisabled={isDragging || isParentDragging}
+        isDisabled={isDragging || !!props.isParentDragging}
       />
     );
   }
 
   return (
     <Container
-      $root={isRoot}
+      $root={!!props.isRoot}
       ref={setNodeRef}
       style={{ transform: CSS.Translate.toString(transform) }}
       {...listeners}
       {...attributes}
     >
-      {!isRoot && <Title>{anchor.id}</Title>}
+      {!props.isRoot && <Title>{props.anchor.id}</Title>}
       <Content>{content}</Content>
     </Container>
   );

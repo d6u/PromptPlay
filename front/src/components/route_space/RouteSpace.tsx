@@ -59,6 +59,7 @@ export default function RouteSpace(props: Props) {
 
   const [updateSpaceContent] = useMutation(UPDATE_SPACE_CONTENT_MUTATION);
 
+  const [isExecuting, setIsExecuting] = useState(false);
   const [currentExecutingBlockId, setCurrentExecutingBlockId] = useState<
     string | null
   >(null);
@@ -82,6 +83,8 @@ export default function RouteSpace(props: Props) {
 
     // TODO: Make it actually validate someting
     validate(spaceContent);
+
+    setIsExecuting(true);
 
     execute({
       spaceContent,
@@ -110,7 +113,10 @@ export default function RouteSpace(props: Props) {
           return newState;
         });
       },
-    }).finally(() => setCurrentExecutingBlockId(null));
+    }).finally(() => {
+      setCurrentExecutingBlockId(null);
+      setIsExecuting(false);
+    });
   }, [
     spaceContent,
     openAiApiKey,
@@ -155,6 +161,7 @@ export default function RouteSpace(props: Props) {
           });
         }}
         onExecuteVisualChain={onExecuteVisualChain}
+        isExecuting={isExecuting}
       />
       <Content>
         {spaceContent && (
@@ -165,6 +172,7 @@ export default function RouteSpace(props: Props) {
               spaceName={query.data.result.space.name}
               spaceContent={spaceContent}
               currentExecutingBlockId={currentExecutingBlockId}
+              isExecuting={isExecuting}
             />
             {selectedBlock && (
               <Editor

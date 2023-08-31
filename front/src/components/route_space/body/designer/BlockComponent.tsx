@@ -55,6 +55,7 @@ type Props = {
   anchor: BlockAnchor;
   spaceContent: SpaceContent;
   isCurrentlyExecuting: boolean;
+  isExecuting: boolean;
 };
 
 export default function BlockComponent(props: Props) {
@@ -64,7 +65,7 @@ export default function BlockComponent(props: Props) {
   const { attributes, listeners, setNodeRef, transform, isDragging } =
     useDraggable({
       id: props.anchor.id,
-      disabled: props.isReadOnly,
+      disabled: props.isReadOnly || props.isExecuting,
     });
 
   const [spaceV2SelectedBlockId, setSpaceV2SelectedBlockId] = useRecoilState(
