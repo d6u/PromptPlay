@@ -29,13 +29,14 @@ const Container = styled.div<{ $isDragging: boolean }>`
     `}
 `;
 
-const Content = styled.div`
+const Content = styled.div<{ $executing?: boolean }>`
   display: flex;
   align-items: flex-start;
   gap: 10px;
-  padding: 10px;
+  padding: ${(props) => (props.$executing ? "9px" : "10px")};
   border-radius: 5px;
-  border: 1px solid #c5c5d2;
+  border: ${(props) =>
+    props.$executing ? "2px solid #00c45c" : "1px solid #c5c5d2"};
   background-color: #fff;
 `;
 
@@ -53,6 +54,7 @@ type Props = {
   isReadOnly: boolean;
   anchor: BlockAnchor;
   spaceContent: SpaceContent;
+  isCurrentlyExecuting: boolean;
 };
 
 export default function BlockComponent(props: Props) {
@@ -150,7 +152,7 @@ export default function BlockComponent(props: Props) {
       {...listeners}
       {...attributes}
     >
-      <Content>
+      <Content $executing={props.isCurrentlyExecuting}>
         {inputConfigurator}
         <BlockV2
           type={blockTypeToVisualBlockType(block.type)}

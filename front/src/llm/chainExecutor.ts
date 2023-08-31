@@ -10,17 +10,25 @@ import {
 } from "../static/spaceTypes";
 import { isBlockGroupAnchor } from "../static/spaceUtils";
 
-export async function execute(
-  spaceContent: SpaceContent,
-  openaiApiKey: string,
-  onBlockUpdate: (block: Block) => void
-) {
+export async function execute({
+  spaceContent,
+  openAiApiKey,
+  onExecuteStart,
+  onBlockUpdate,
+}: {
+  spaceContent: SpaceContent;
+  openAiApiKey: string;
+  onExecuteStart: (blockId: string) => void;
+  onBlockUpdate: (block: Block) => void;
+}) {
   console.debug(JSON.stringify(spaceContent, null, 2));
 
   const scope: { [key: string]: any } = {};
 
   for (const [index, anchor] of spaceContent.root.blocks.entries()) {
     const block = spaceContent.components[anchor.id];
+
+    onExecuteStart(block.id);
 
     if (isBlockGroupAnchor(block)) {
       console.error("BlockGroupAnchor not supported yet");
@@ -51,7 +59,7 @@ export async function execute(
 
     // TODO: Find a better way to pass the openaiApiKey
     if (block.type === BlockType.Llm) {
-      args[HACK__OPEN_AI_API_KEY] = openaiApiKey;
+      args[HACK__OPEN_AI_API_KEY] = openAiApiKey;
     }
 
     const executeResult = await blockConfig.executeFunc(

@@ -41,6 +41,7 @@ type Props = {
   spaceContent: SpaceContent;
   isRoot?: boolean;
   isParentDragging?: boolean;
+  currentExecutingBlockId: string | null;
 };
 
 export default function BlockGroupComponent({
@@ -49,6 +50,7 @@ export default function BlockGroupComponent({
   anchor,
   isRoot = false,
   isParentDragging = false,
+  currentExecutingBlockId,
 }: Props) {
   const { isDragging, attributes, listeners, setNodeRef, transform } =
     useDraggable({
@@ -77,6 +79,7 @@ export default function BlockGroupComponent({
           spaceContent={spaceContent}
           anchor={block}
           isParentDragging={isDragging || isParentDragging}
+          currentExecutingBlockId={currentExecutingBlockId}
         />
       );
     } else {
@@ -86,6 +89,7 @@ export default function BlockGroupComponent({
           isReadOnly={isReadOnly}
           spaceContent={spaceContent}
           anchor={block}
+          isCurrentlyExecuting={block.id === currentExecutingBlockId}
         />
       );
     }

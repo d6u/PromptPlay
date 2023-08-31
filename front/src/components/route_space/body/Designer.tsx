@@ -22,6 +22,7 @@ type Props = {
   spaceId: string;
   spaceName: string;
   spaceContent: SpaceContent;
+  currentExecutingBlockId: string | null;
 };
 
 export default function Designer(props: Props) {
@@ -71,6 +72,7 @@ export default function Designer(props: Props) {
             anchor={props.spaceContent.root}
             spaceContent={props.spaceContent}
             isRoot
+            currentExecutingBlockId={props.currentExecutingBlockId}
           />
         </Content>
       </DndContext>
