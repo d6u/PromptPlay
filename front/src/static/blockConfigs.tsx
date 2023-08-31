@@ -8,6 +8,7 @@ import {
   BlockGetAttribute,
   BlockLlm,
   BlockLlmMessage,
+  BlockParser,
   BlockType,
 } from "./spaceTypes";
 
@@ -39,6 +40,7 @@ type BlockConfigs = {
   [BlockType.AppendToList]: BlockConfig<BlockAppendToList>;
   [BlockType.Llm]: BlockConfig<BlockLlm>;
   [BlockType.GetAttribute]: BlockConfig<BlockGetAttribute>;
+  [BlockType.Parser]: BlockConfig<BlockParser>;
 };
 
 const BLOCK_CONFIGS: BlockConfigs = {
@@ -225,6 +227,15 @@ const BLOCK_CONFIGS: BlockConfigs = {
       return prop(block.attribute, args) ?? null;
     },
   },
+  [BlockType.Parser]: {
+    title: "Parser",
+    renderConfig: (block) => {
+      return "";
+    },
+    executeFunc: async (block, scope, args, updater) => {
+      return null;
+    },
+  },
 };
 
 // Replace `{xyz}` but ignore `{{zyx}}`
@@ -243,6 +254,7 @@ type BlockTypeToBlockConfigMap = {
   [BlockType.AppendToList]: BlockAppendToList;
   [BlockType.Llm]: BlockLlm;
   [BlockType.GetAttribute]: BlockGetAttribute;
+  [BlockType.Parser]: BlockParser;
 };
 
 export function getBlockConfigByType(

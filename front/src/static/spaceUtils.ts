@@ -93,8 +93,15 @@ export function createNewBlock(type: BlockType): Block {
         outputConfiguration: BlockVariablesConfiguration.Single,
         singleOuput: "variable3",
       };
-    default:
-      throw new Error(`Unknown block type: ${type}`);
+    case BlockType.Parser:
+      return {
+        id: uuidv4(),
+        type: BlockType.Parser,
+        inputConfiguration: BlockVariablesConfiguration.Single,
+        singleInput: "",
+        outputConfiguration: BlockVariablesConfiguration.Map,
+        outputMap: [],
+      };
   }
 }
 

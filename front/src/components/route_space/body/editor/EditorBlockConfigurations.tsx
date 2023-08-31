@@ -261,5 +261,7 @@ export default function EditorBlockConfigurations(props: Props) {
           spaceContent={props.spaceContent}
         />
       );
+    case BlockType.Parser:
+      return <div>Parser</div>;
   }
 }

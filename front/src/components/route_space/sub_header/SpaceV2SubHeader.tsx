@@ -168,6 +168,9 @@ export default function SpaceV2SubHeader(props: Props) {
             >
               + Get Attribute
             </Button>
+            <Button size="sm" onClick={() => appendNewBlock(BlockType.Parser)}>
+              + Parser
+            </Button>
             <Button
               color="success"
               size="sm"
