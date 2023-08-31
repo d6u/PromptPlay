@@ -202,7 +202,10 @@ function visualBlockTypeToBlockType(
       return BlockType.Llm;
     case VisualBlockType.GetAttribute:
       return BlockType.GetAttribute;
-    default:
+    case VisualBlockType.Parser:
+      return BlockType.Parser;
+    case VisualBlockType.Output:
+    case VisualBlockType.Plain:
       return null;
   }
 }

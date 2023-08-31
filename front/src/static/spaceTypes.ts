@@ -106,8 +106,9 @@ export type BlockGetAttribute = BlockShared & {
 
 export type BlockParser = BlockShared & {
   type: BlockType.Parser;
-  inputConfiguration: BlockVariablesConfiguration.Single;
-  singleInput: string;
+  javaScriptCode: string;
+  inputConfiguration: BlockVariablesConfiguration.Map;
+  inputMap: Array<[string, string]>;
   outputConfiguration: BlockVariablesConfiguration.Map;
   outputMap: Array<[string, string]>;
 };

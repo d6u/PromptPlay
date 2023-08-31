@@ -124,7 +124,6 @@ export default function SpaceV2SubHeader(props: Props) {
 
     const intervalId = setInterval(() => {
       setRunButtonLabelForExecutingState((label) => {
-        console.log(label);
         const len = label.length;
         return label[len - 1] + label.slice(0, len - 1);
       });

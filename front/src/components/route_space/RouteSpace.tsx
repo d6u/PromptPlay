@@ -86,6 +86,8 @@ export default function RouteSpace(props: Props) {
 
     setIsExecuting(true);
 
+    console.log("Executing visual chain", spaceContent);
+
     execute({
       spaceContent,
       openAiApiKey,

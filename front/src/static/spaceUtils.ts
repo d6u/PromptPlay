@@ -96,9 +96,12 @@ export function createNewBlock(type: BlockType): Block {
     case BlockType.Parser:
       return {
         id: uuidv4(),
+        javaScriptCode: `function (content) {
+  return "Hello world!";
+}`,
         type: BlockType.Parser,
-        inputConfiguration: BlockVariablesConfiguration.Single,
-        singleInput: "",
+        inputConfiguration: BlockVariablesConfiguration.Map,
+        inputMap: [["content", "content"]],
         outputConfiguration: BlockVariablesConfiguration.Map,
         outputMap: [],
       };

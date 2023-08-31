@@ -84,6 +84,14 @@ export async function execute({
         }
         scope[block.singleOuput] = executeResult;
         break;
+      case BlockVariablesConfiguration.Map:
+        for (const [localName, scopeName] of block.outputMap) {
+          // null is considered as a valid value
+          if (executeResult[localName] !== undefined) {
+            scope[scopeName] = executeResult[localName];
+          }
+        }
+        break;
     }
   }
 

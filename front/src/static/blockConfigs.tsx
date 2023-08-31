@@ -230,10 +230,29 @@ const BLOCK_CONFIGS: BlockConfigs = {
   [BlockType.Parser]: {
     title: "Parser",
     renderConfig: (block) => {
-      return "";
+      return (
+        <>
+          code=<b>{block.javaScriptCode}</b>
+        </>
+      );
     },
     executeFunc: async (block, scope, args, updater) => {
-      return null;
+      const argNames = block.inputMap.map((pair) => pair[1]);
+      const argValues = block.inputMap.map((pair) => args[pair[1]]);
+
+      // eslint-disable-next-line no-new-func
+      const func = Function(...argNames, block.javaScriptCode);
+
+      const result = func(...argValues);
+
+      const newBlock = pipe(
+        assoc("errorOutput", false),
+        assoc("outputContent", JSON.stringify(result))
+      )(block) as BlockParser;
+
+      updater(newBlock);
+
+      return result;
     },
   },
 };
@@ -243,9 +262,12 @@ const BLOCK_CONFIGS: BlockConfigs = {
 function replacePlaceholders(str: string, values: { [key: string]: any }) {
   const regex = /(?<!\{)\{([^{}]+)\}(?!\})/g;
 
-  return str.replace(regex, (match, p1) => {
-    return values[p1] !== undefined ? values[p1] : null;
-  });
+  return str
+    .replace(regex, (match, p1) => {
+      return values[p1] !== undefined ? values[p1] : null;
+    })
+    .replace("{{", "{")
+    .replace("}}", "}");
 }
 
 type BlockTypeToBlockConfigMap = {
