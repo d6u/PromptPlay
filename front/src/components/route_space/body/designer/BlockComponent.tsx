@@ -29,13 +29,23 @@ const Container = styled.div<{ $isDragging: boolean }>`
     `}
 `;
 
-const Content = styled.div`
+const Content = styled.div<{ $executing?: boolean; $isError: boolean }>`
   display: flex;
   align-items: flex-start;
   gap: 10px;
-  padding: 10px;
+  padding: ${(props) => (props.$executing ? "9px" : "10px")};
   border-radius: 5px;
-  border: 1px solid #c5c5d2;
+  border: ${(props) => {
+    if (props.$executing) {
+      if (props.$isError) {
+        return "2px solid #ff0000";
+      } else {
+        return "2px solid #00c45c";
+      }
+    } else {
+      return "1px solid #c5c5d2";
+    }
+  }};
   background-color: #fff;
 `;
 
@@ -53,6 +63,9 @@ type Props = {
   isReadOnly: boolean;
   anchor: BlockAnchor;
   spaceContent: SpaceContent;
+  isExecuting: boolean;
+  isCurrentlyExecuting: boolean;
+  isCurrentExecutingBlockError: boolean;
 };
 
 export default function BlockComponent(props: Props) {
@@ -62,7 +75,7 @@ export default function BlockComponent(props: Props) {
   const { attributes, listeners, setNodeRef, transform, isDragging } =
     useDraggable({
       id: props.anchor.id,
-      disabled: props.isReadOnly,
+      disabled: props.isReadOnly || props.isExecuting,
     });
 
   const [spaceV2SelectedBlockId, setSpaceV2SelectedBlockId] = useRecoilState(
@@ -130,6 +143,11 @@ export default function BlockComponent(props: Props) {
           />
         );
         break;
+      case BlockVariablesConfiguration.Map:
+        outputConfigurator = (
+          <BlockVariableMap variableMap={block.outputMap} isInput={false} />
+        );
+        break;
     }
   }
 
@@ -150,7 +168,10 @@ export default function BlockComponent(props: Props) {
       {...listeners}
       {...attributes}
     >
-      <Content>
+      <Content
+        $executing={props.isCurrentlyExecuting}
+        $isError={props.isCurrentExecutingBlockError}
+      >
         {inputConfigurator}
         <BlockV2
           type={blockTypeToVisualBlockType(block.type)}
@@ -165,7 +186,9 @@ export default function BlockComponent(props: Props) {
       {outputCotent.length > 0 && (
         <OutputContent>
           <BlockV2
-            type={VisualBlockType.Plain}
+            type={
+              block.errorOutput ? VisualBlockType.Error : VisualBlockType.Plain
+            }
             onClick={() => setSpaceV2SelectedBlockId(block.id)}
             widthClass={BlockWidthClass.Full}
           >

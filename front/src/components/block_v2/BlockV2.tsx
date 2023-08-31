@@ -5,11 +5,13 @@ import CrossIconV2 from "../icons/CrossIconV2";
 
 export enum VisualBlockType {
   Plain = "Plain",
+  Error = "Error",
   Databag = "Databag",
   LlmMessage = "LlmMessage",
   AppendToList = "AppendToList",
   Llm = "Llm",
   GetAttribute = "GetAttribute",
+  Parser = "Parser",
   Output = "Output",
 }
 
@@ -67,11 +69,21 @@ const Container = styled.div<{
             border: 2px solid #005327;
             background: linear-gradient(22deg, #fff 0%, #97f2c2 100%);
           `;
+        case VisualBlockType.Parser:
+          return css`
+            border: 2px solid #318a09;
+            background: linear-gradient(39deg, #fff 14.47%, #f3ffe3 87.64%);
+          `;
         case VisualBlockType.Output:
         case VisualBlockType.Plain:
           return css`
             border: 2px solid #000;
             background: #fff;
+          `;
+        case VisualBlockType.Error:
+          return css`
+            border: 2px solid #ff3e13;
+            background: linear-gradient(39deg, #fff 14.47%, #ffecee 87.64%);
           `;
       }
     } else {
@@ -101,6 +113,11 @@ const Container = styled.div<{
             border: 2px solid #005327;
             background: linear-gradient(22deg, #8adfb1 0%, #37d07f 100%);
           `;
+        case VisualBlockType.Parser:
+          return css`
+            border: 2px solid #318a09;
+            background: linear-gradient(39deg, #daf1bd 14.47%, #8eec63 87.64%);
+          `;
         case VisualBlockType.Output:
           return css`
             border: 2px solid #318a09;
@@ -110,6 +127,11 @@ const Container = styled.div<{
           return css`
             border: 2px solid #000;
             background: #fff;
+          `;
+        case VisualBlockType.Error:
+          return css`
+            border: 2px solid #ff3e13;
+            background: linear-gradient(39deg, #f4c7bf 14.47%, #ff9ba7 87.64%);
           `;
       }
     }
@@ -172,6 +194,8 @@ export function blockTypeToVisualBlockType(
       return VisualBlockType.Llm;
     case BlockType.GetAttribute:
       return VisualBlockType.GetAttribute;
+    case BlockType.Parser:
+      return VisualBlockType.Parser;
   }
 }
 
@@ -189,7 +213,11 @@ function visualBlockTypeToBlockType(
       return BlockType.Llm;
     case VisualBlockType.GetAttribute:
       return BlockType.GetAttribute;
-    default:
+    case VisualBlockType.Parser:
+      return BlockType.Parser;
+    case VisualBlockType.Output:
+    case VisualBlockType.Plain:
+    case VisualBlockType.Error:
       return null;
   }
 }

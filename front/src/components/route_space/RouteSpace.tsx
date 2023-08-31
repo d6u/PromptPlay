@@ -59,6 +59,13 @@ export default function RouteSpace(props: Props) {
 
   const [updateSpaceContent] = useMutation(UPDATE_SPACE_CONTENT_MUTATION);
 
+  const [isExecuting, setIsExecuting] = useState(false);
+  const [currentExecutingBlockId, setCurrentExecutingBlockId] = useState<
+    string | null
+  >(null);
+  const [isCurrentExecutingBlockError, setIsCurrentExecutingBlockError] =
+    useState(false);
+
   const onExecuteVisualChain = useCallback(() => {
     if (spaceContent == null) {
       console.error("spaceContent is null");
@@ -79,27 +86,46 @@ export default function RouteSpace(props: Props) {
     // TODO: Make it actually validate someting
     validate(spaceContent);
 
-    execute(spaceContent, openAiApiKey, (block) => {
-      setSpaceContent((state) => {
-        // Must access current spaceContent state in setSpaceContent callback,
-        // otherwise it will be stale.
+    setIsCurrentExecutingBlockError(false);
+    setIsExecuting(true);
 
-        const newState = u({
-          components: {
-            [block.id]: u.constant(block),
-          },
-        })(state) as SpaceContent;
+    execute({
+      spaceContent,
+      openAiApiKey,
+      onExecuteStart: (blockId) => {
+        setCurrentExecutingBlockId(blockId);
+      },
+      onBlockUpdate: (block) => {
+        setSpaceContent((state) => {
+          // Must access current spaceContent state in setSpaceContent callback,
+          // otherwise it will be stale.
 
-        updateSpaceContent({
-          variables: {
-            spaceId: spaceId,
-            content: JSON.stringify(newState),
-          },
+          const newState = u({
+            components: {
+              [block.id]: u.constant(block),
+            },
+          })(state) as SpaceContent;
+
+          updateSpaceContent({
+            variables: {
+              spaceId: spaceId,
+              content: JSON.stringify(newState),
+            },
+          });
+
+          return newState;
         });
-
-        return newState;
+      },
+    })
+      .then(() => {
+        setCurrentExecutingBlockId(null);
+      })
+      .catch(() => {
+        setIsCurrentExecutingBlockError(true);
+      })
+      .finally(() => {
+        setIsExecuting(false);
       });
-    });
   }, [
     spaceContent,
     openAiApiKey,
@@ -144,6 +170,7 @@ export default function RouteSpace(props: Props) {
           });
         }}
         onExecuteVisualChain={onExecuteVisualChain}
+        isExecuting={isExecuting}
       />
       <Content>
         {spaceContent && (
@@ -153,6 +180,9 @@ export default function RouteSpace(props: Props) {
               spaceId={spaceId}
               spaceName={query.data.result.space.name}
               spaceContent={spaceContent}
+              isExecuting={isExecuting}
+              currentExecutingBlockId={currentExecutingBlockId}
+              isCurrentExecutingBlockError={isCurrentExecutingBlockError}
             />
             {selectedBlock && (
               <Editor

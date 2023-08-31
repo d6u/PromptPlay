@@ -93,8 +93,18 @@ export function createNewBlock(type: BlockType): Block {
         outputConfiguration: BlockVariablesConfiguration.Single,
         singleOuput: "variable3",
       };
-    default:
-      throw new Error(`Unknown block type: ${type}`);
+    case BlockType.Parser:
+      return {
+        id: uuidv4(),
+        javaScriptCode: `function (content) {
+  return "Hello world!";
+}`,
+        type: BlockType.Parser,
+        inputConfiguration: BlockVariablesConfiguration.Map,
+        inputMap: [["content", "content"]],
+        outputConfiguration: BlockVariablesConfiguration.Map,
+        outputMap: [],
+      };
   }
 }
 

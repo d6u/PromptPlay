@@ -22,6 +22,9 @@ type Props = {
   spaceId: string;
   spaceName: string;
   spaceContent: SpaceContent;
+  isExecuting: boolean;
+  currentExecutingBlockId: string | null;
+  isCurrentExecutingBlockError: boolean;
 };
 
 export default function Designer(props: Props) {
@@ -46,7 +49,6 @@ export default function Designer(props: Props) {
           updateSpace: {
             id: props.spaceId,
             __typename: "Space",
-            // TODO: Use proper name
             name: props.spaceName,
             content: contentJson,
           },
@@ -71,6 +73,9 @@ export default function Designer(props: Props) {
             anchor={props.spaceContent.root}
             spaceContent={props.spaceContent}
             isRoot
+            currentExecutingBlockId={props.currentExecutingBlockId}
+            isExecuting={props.isExecuting}
+            isCurrentExecutingBlockError={props.isCurrentExecutingBlockError}
           />
         </Content>
       </DndContext>

@@ -7,7 +7,8 @@ export type Block =
   | BlockLlmMessage
   | BlockLlm
   | BlockAppendToList
-  | BlockGetAttribute;
+  | BlockGetAttribute
+  | BlockParser;
 
 export enum BlockType {
   Databag = "Databag",
@@ -15,6 +16,7 @@ export enum BlockType {
   AppendToList = "AppendToList",
   Llm = "Llm",
   GetAttribute = "GetAttribute",
+  Parser = "Parser",
 }
 
 export enum BlockVariablesConfiguration {
@@ -31,6 +33,8 @@ export type BlockShared = {
 
 // Block specific
 
+// Databag
+
 export type BlockDatabag = BlockShared & {
   type: BlockType.Databag;
   value: string;
@@ -38,6 +42,8 @@ export type BlockDatabag = BlockShared & {
   outputConfiguration: BlockVariablesConfiguration.Single;
   singleOuput: string;
 };
+
+// LlmMessage
 
 export type BlockLlmMessage = BlockShared & {
   type: BlockType.LlmMessage;
@@ -56,6 +62,8 @@ export enum LlmMessageRole {
   Assistant = "assistant",
 }
 
+// Llm
+
 export type BlockLlm = BlockShared & {
   type: BlockType.Llm;
   model: LlmModel;
@@ -73,6 +81,8 @@ export enum LlmModel {
   GPT4 = "gpt-4",
 }
 
+// AppendToList
+
 export type BlockAppendToList = BlockShared & {
   type: BlockType.AppendToList;
   itemName: string;
@@ -81,6 +91,8 @@ export type BlockAppendToList = BlockShared & {
   outputConfiguration: BlockVariablesConfiguration.NonConfigurable;
 };
 
+// GetAttribute
+
 export type BlockGetAttribute = BlockShared & {
   type: BlockType.GetAttribute;
   attribute: string;
@@ -88,6 +100,17 @@ export type BlockGetAttribute = BlockShared & {
   singleInput: string;
   outputConfiguration: BlockVariablesConfiguration.Single;
   singleOuput: string;
+};
+
+// Parser
+
+export type BlockParser = BlockShared & {
+  type: BlockType.Parser;
+  javaScriptCode: string;
+  inputConfiguration: BlockVariablesConfiguration.Map;
+  inputMap: Array<[string, string]>;
+  outputConfiguration: BlockVariablesConfiguration.Map;
+  outputMap: Array<[string, string]>;
 };
 
 // BlockGroup

@@ -8,6 +8,7 @@ import {
   BlockGetAttribute,
   BlockLlm,
   BlockLlmMessage,
+  BlockParser,
   BlockType,
 } from "./spaceTypes";
 
@@ -39,6 +40,7 @@ type BlockConfigs = {
   [BlockType.AppendToList]: BlockConfig<BlockAppendToList>;
   [BlockType.Llm]: BlockConfig<BlockLlm>;
   [BlockType.GetAttribute]: BlockConfig<BlockGetAttribute>;
+  [BlockType.Parser]: BlockConfig<BlockParser>;
 };
 
 const BLOCK_CONFIGS: BlockConfigs = {
@@ -225,6 +227,54 @@ const BLOCK_CONFIGS: BlockConfigs = {
       return prop(block.attribute, args) ?? null;
     },
   },
+  [BlockType.Parser]: {
+    title: "Parser",
+    renderConfig: (block) => {
+      return (
+        <>
+          code=<b>{block.javaScriptCode}</b>
+        </>
+      );
+    },
+    executeFunc: async (block, scope, args, updater) => {
+      const argNames = block.inputMap.map((pair) => pair[1]);
+      const argValues = block.inputMap.map((pair) => args[pair[1]]);
+
+      let err: any = null;
+      let result;
+
+      try {
+        // eslint-disable-next-line no-new-func
+        const func = Function(...argNames, block.javaScriptCode);
+
+        result = func(...argValues);
+      } catch (e) {
+        err = e;
+      }
+
+      let newBlock;
+
+      if (err) {
+        newBlock = pipe(
+          assoc("errorOutput", true),
+          assoc("outputContent", err.message)
+        )(block) as BlockParser;
+
+        updater(newBlock);
+
+        throw err;
+      } else {
+        newBlock = pipe(
+          assoc("errorOutput", false),
+          assoc("outputContent", JSON.stringify(result))
+        )(block) as BlockParser;
+
+        updater(newBlock);
+
+        return result;
+      }
+    },
+  },
 };
 
 // Replace `{xyz}` but ignore `{{zyx}}`
@@ -232,9 +282,12 @@ const BLOCK_CONFIGS: BlockConfigs = {
 function replacePlaceholders(str: string, values: { [key: string]: any }) {
   const regex = /(?<!\{)\{([^{}]+)\}(?!\})/g;
 
-  return str.replace(regex, (match, p1) => {
-    return values[p1] !== undefined ? values[p1] : null;
-  });
+  return str
+    .replace(regex, (match, p1) => {
+      return values[p1] !== undefined ? values[p1] : null;
+    })
+    .replace("{{", "{")
+    .replace("}}", "}");
 }
 
 type BlockTypeToBlockConfigMap = {
@@ -243,6 +296,7 @@ type BlockTypeToBlockConfigMap = {
   [BlockType.AppendToList]: BlockAppendToList;
   [BlockType.Llm]: BlockLlm;
   [BlockType.GetAttribute]: BlockGetAttribute;
+  [BlockType.Parser]: BlockParser;
 };
 
 export function getBlockConfigByType(

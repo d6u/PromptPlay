@@ -7,6 +7,7 @@ import EditorBlockDatabagConfigurations from "./EditorBlockDatabagConfigurations
 import EditorBlockGetAttributeConfigurations from "./EditorBlockGetAttributeConfigurations";
 import EditorBlockLlmConfigurations from "./EditorBlockLlmConfigurations";
 import EditorBlockLlmMessageConfigurations from "./EditorBlockLlmMessageConfigurations";
+import EditorBlockParserConfigurations from "./EditorBlockParserConfigurations";
 
 type Props = {
   isReadOnly: boolean;
@@ -246,6 +247,30 @@ export default function EditorBlockConfigurations(props: Props) {
             const newContent = u({
               components: {
                 [props.selectedBlock.id]: { attribute },
+              },
+            })(props.spaceContent) as SpaceContent;
+
+            updateSpaceV2({
+              variables: {
+                spaceId: props.spaceId,
+                content: JSON.stringify(newContent),
+              },
+            });
+          }}
+          selectedBlock={props.selectedBlock}
+          spaceId={props.spaceId}
+          spaceContent={props.spaceContent}
+        />
+      );
+    case BlockType.Parser:
+      return (
+        <EditorBlockParserConfigurations
+          isReadOnly={props.isReadOnly}
+          javaScriptCode={props.selectedBlock.javaScriptCode}
+          onSaveJavaScriptCode={(javaScriptCode) => {
+            const newContent = u({
+              components: {
+                [props.selectedBlock.id]: { javaScriptCode },
               },
             })(props.spaceContent) as SpaceContent;
 
