@@ -149,7 +149,7 @@ def space_example_content() -> dict[str, Any]:
                 "id": block3_id,
                 "type": "LlmMessage",
                 "role": "user",
-                "content": "Translate below text into Chinese:\n\n{content}",
+                "content": "Translate below text into Spanish:\n\n{content}",
                 "listNameToAppend": "messages_translate",
                 "inputConfiguration": "Map",
                 "inputMap": [["poem", "content"]],
