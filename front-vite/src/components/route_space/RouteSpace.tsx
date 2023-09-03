@@ -76,7 +76,7 @@ export default function RouteSpace(_: Props) {
     // TODO: Find a better way to do validation
     for (const block of Object.values(spaceContent.components)) {
       if (block.type === BlockType.Llm) {
-        if (openAiApiKey == null || openAiApiKey === "") {
+        if (!openAiApiKey) {
           setSpaceV2SelectedBlockId(block.id);
           setMissingOpenAiApiKey(true);
           return;
@@ -92,7 +92,6 @@ export default function RouteSpace(_: Props) {
 
     execute({
       spaceContent,
-      openAiApiKey: openAiApiKey!,
       onExecuteStart: (blockId) => {
         setCurrentExecutingBlockId(blockId);
       },

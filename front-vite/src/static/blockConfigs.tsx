@@ -1,6 +1,7 @@
 import { append, assoc, flatten, pipe, prop } from "ramda";
 import { ReactNode } from "react";
-import * as openai from "../llm/openai";
+import * as openai from "../llm/openAi";
+import { usePersistStore } from "../state/zustand";
 import {
   Block,
   BlockAppendToList,
@@ -11,9 +12,6 @@ import {
   BlockParser,
   BlockType,
 } from "./spaceTypes";
-
-// TODO: Find a better way to pass the openaiApiKey
-export const HACK__OPEN_AI_API_KEY = "__openAiApiKey";
 
 export const LLM_STOP_NEW_LINE_SYMBOL = "↵";
 
@@ -183,9 +181,10 @@ const BLOCK_CONFIGS: BlockConfigs = {
       );
     },
     executeFunc: async (block, scope, args, updater) => {
+      const openAiApiKey = usePersistStore.getState().openAiApiKey!;
+
       const result = await openai.getNonStreamingCompletion({
-        // TODO: Find a better way to pass the openaiApiKey
-        apiKey: args[HACK__OPEN_AI_API_KEY],
+        apiKey: openAiApiKey,
         model: block.model,
         temperature: block.temperature,
         stop: block.stop,
