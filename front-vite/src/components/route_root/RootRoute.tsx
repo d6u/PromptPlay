@@ -1,11 +1,10 @@
 import { useMutation, useQuery } from "@apollo/client";
 import { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { useSetRecoilState } from "recoil";
 import styled, { css } from "styled-components";
 import { gql } from "../../__generated__";
 import { IS_LOGIN_ENABLED } from "../../constants";
-import { placeholderUserTokenState } from "../../state/store";
+import { usePersistStore } from "../../state/zustand";
 import { LOGIN_PATH, pathToSpace } from "../../static/routeConfigs";
 import Dashboard from "./dashboard/Dashboard";
 import { ROOT_ROUTE_QUERY } from "./queries";
@@ -67,7 +66,9 @@ export default function RootRoute() {
 
   // --- Global State ---
 
-  const setPlaceholderUserToken = useSetRecoilState(placeholderUserTokenState);
+  const setPlaceholderUserToken = usePersistStore(
+    (state) => state.setPlaceholderUserToken
+  );
 
   // --- GraphQL ---
 

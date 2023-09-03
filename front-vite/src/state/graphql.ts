@@ -8,8 +8,7 @@ import possibleTypes from "../__generated__/possibleTypes.json";
 import { API_SERVER_BASE_URL, IS_LOGIN_ENABLED } from "../constants";
 
 type CreateApolloClientOptions = {
-  // Can be ""
-  placeholderUserToken: string;
+  placeholderUserToken: string | null;
 };
 
 export type ApolloClientType = ApolloClient<NormalizedCacheObject>;

@@ -1,10 +1,11 @@
 import { ApolloProvider } from "@apollo/client";
 import { CssVarsProvider, extendTheme } from "@mui/joy/styles";
 import { useEffect, useRef, useState } from "react";
-import { RecoilRoot, useRecoilValue } from "recoil";
+import { RecoilRoot } from "recoil";
 import { RecoilSync } from "recoil-sync";
 import { ApolloClientType, createApolloClient } from "../state/graphql";
-import { LOCAL_USER_SETTINGS, placeholderUserTokenState } from "../state/store";
+import { LOCAL_USER_SETTINGS } from "../state/store";
+import { usePersistStore } from "../state/zustand";
 import Routes from "./Routes";
 import "./App.css";
 
@@ -81,18 +82,24 @@ export default function App() {
 
 // Split into two components to because useRecoilValue needs RecoilRoot
 function AppGraphQl() {
-  const placeholderUserToken = useRecoilValue(placeholderUserTokenState);
-  const prevPlaceholderUserTokenRef = useRef<string>(placeholderUserToken);
-  const [apolloClient, setApolloClient] = useState<ApolloClientType>(
-    createApolloClient({ placeholderUserToken })
+  const placeholderUserToken = usePersistStore(
+    (state) => state.placeholderUserToken
   );
 
+  const [apolloClient, setApolloClient] = useState<ApolloClientType>(
+    createApolloClient({ placeholderUserToken: placeholderUserToken })
+  );
+
+  const placeholderUserTokenRef = useRef<string | null>(placeholderUserToken);
+
   useEffect(() => {
-    if (prevPlaceholderUserTokenRef.current === placeholderUserToken) {
+    if (placeholderUserTokenRef.current === placeholderUserToken) {
       return;
     }
-    prevPlaceholderUserTokenRef.current = placeholderUserToken;
-    setApolloClient(createApolloClient({ placeholderUserToken }));
+    placeholderUserTokenRef.current = placeholderUserToken;
+    setApolloClient(
+      createApolloClient({ placeholderUserToken: placeholderUserToken })
+    );
   }, [placeholderUserToken]);
 
   return (

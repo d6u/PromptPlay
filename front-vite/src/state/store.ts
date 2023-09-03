@@ -1,20 +1,6 @@
-import { string } from "@recoiljs/refine";
 import { atom } from "recoil";
-import { syncEffect } from "recoil-sync";
 
 export const LOCAL_USER_SETTINGS = "localUserSettings";
-
-export const placeholderUserTokenState = atom<string>({
-  key: "placeholderUserToken",
-  default: "",
-  effects: [
-    syncEffect({
-      storeKey: LOCAL_USER_SETTINGS,
-      itemKey: "placeholderUserToken",
-      refine: string(),
-    }),
-  ],
-});
 
 export const selectedBlockState = atom<string | null>({
   key: "selectedBlock",
