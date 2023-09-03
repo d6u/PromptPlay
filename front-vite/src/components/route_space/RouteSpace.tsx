@@ -11,9 +11,9 @@ import {
 } from "../../state/spaceGraphQl";
 import {
   missingOpenAiApiKeyState,
-  openAiApiKeyState,
   spaceV2SelectedBlockIdState,
 } from "../../state/store";
+import { usePersistStore } from "../../state/zustand";
 import { Block, BlockType, SpaceContent } from "../../static/spaceTypes";
 import { validate } from "../../static/spaceUtils";
 import Designer from "./body/Designer";
@@ -29,12 +29,13 @@ const Content = styled.div`
 
 type Props = {};
 
-export default function RouteSpace(props: Props) {
+export default function RouteSpace(_: Props) {
+  const openAiApiKey = usePersistStore((state) => state.openAiApiKey);
+
   // TODO: Properly handle spaceId not being present
   const { spaceId = "" } = useParams<{ spaceId: string }>();
 
   const spaceV2SelectedBlockId = useRecoilValue(spaceV2SelectedBlockIdState);
-  const openAiApiKey = useRecoilValue(openAiApiKeyState);
   const setMissingOpenAiApiKey = useSetRecoilState(missingOpenAiApiKeyState);
   const setSpaceV2SelectedBlockId = useSetRecoilState(
     spaceV2SelectedBlockIdState
@@ -91,7 +92,7 @@ export default function RouteSpace(props: Props) {
 
     execute({
       spaceContent,
-      openAiApiKey,
+      openAiApiKey: openAiApiKey!,
       onExecuteStart: (blockId) => {
         setCurrentExecutingBlockId(blockId);
       },

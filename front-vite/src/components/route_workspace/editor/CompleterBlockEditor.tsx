@@ -10,10 +10,10 @@ import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { gql } from "../../../__generated__";
 import {
   missingOpenAiApiKeyState,
-  openAiApiKeyState,
   selectedBlockState,
   selectedElementTypeState,
 } from "../../../state/store";
+import { usePersistStore } from "../../../state/zustand";
 import EditorHeader from "./EditorHeader";
 
 const SELECTED_COMPLETER_BLOCK_FRAGMENT = gql(`
@@ -58,7 +58,9 @@ const UPDATE_COMPLETER_BLOCK_MUTATION = gql(`
 export default function CompleterBlockEditor() {
   // --- Global State ---
 
-  const [openAiApiKey, setOpenAiApiKey] = useRecoilState(openAiApiKeyState);
+  const openAiApiKey = usePersistStore((state) => state.openAiApiKey);
+  const setOpenAiApiKey = usePersistStore((state) => state.setOpenAiApiKey);
+
   const [missingOpenAiApiKey, setMissingOpenAiApiKey] = useRecoilState(
     missingOpenAiApiKeyState
   );
@@ -186,10 +188,11 @@ export default function CompleterBlockEditor() {
       <FormControl className="Editor_input_block">
         <FormLabel>Open AI API Key</FormLabel>
         <Input
-          value={openAiApiKey}
+          value={openAiApiKey ?? ""}
           color={missingOpenAiApiKey ? "danger" : "neutral"}
           onChange={(event) => {
-            setOpenAiApiKey(event.target.value);
+            const value = event.target.value.trim();
+            setOpenAiApiKey(value.length ? value : null);
             setMissingOpenAiApiKey(false);
           }}
         />

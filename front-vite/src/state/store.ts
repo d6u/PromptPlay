@@ -4,18 +4,6 @@ import { syncEffect } from "recoil-sync";
 
 export const LOCAL_USER_SETTINGS = "localUserSettings";
 
-export const openAiApiKeyState = atom<string>({
-  key: "openAiApiKey",
-  default: "",
-  effects: [
-    syncEffect({
-      storeKey: LOCAL_USER_SETTINGS,
-      itemKey: "openAiApiKey",
-      refine: string(),
-    }),
-  ],
-});
-
 export const placeholderUserTokenState = atom<string>({
   key: "placeholderUserToken",
   default: "",

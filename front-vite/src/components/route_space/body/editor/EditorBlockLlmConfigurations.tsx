@@ -3,10 +3,8 @@ import Option from "@mui/joy/Option";
 import Select from "@mui/joy/Select";
 import { useCallback, useState } from "react";
 import { useRecoilState } from "recoil";
-import {
-  missingOpenAiApiKeyState,
-  openAiApiKeyState,
-} from "../../../../state/store";
+import { missingOpenAiApiKeyState } from "../../../../state/store";
+import { usePersistStore } from "../../../../state/zustand";
 import { LLM_STOP_NEW_LINE_SYMBOL } from "../../../../static/blockConfigs";
 import {
   BlockLlm,
@@ -38,7 +36,9 @@ type Props = {
 };
 
 export default function EditorBlockLlmConfigurations(props: Props) {
-  const [openAiApiKey, setOpenAiApiKey] = useRecoilState(openAiApiKeyState);
+  const openAiApiKey = usePersistStore((state) => state.openAiApiKey);
+  const setOpenAiApiKey = usePersistStore((state) => state.setOpenAiApiKey);
+
   const [missingOpenAiApiKey, setMissingOpenAiApiKey] = useRecoilState(
     missingOpenAiApiKeyState
   );
@@ -80,9 +80,10 @@ export default function EditorBlockLlmConfigurations(props: Props) {
           size="sm"
           variant="outlined"
           disabled={props.isReadOnly}
-          value={openAiApiKey}
+          value={openAiApiKey ?? ""}
           onChange={(e) => {
-            setOpenAiApiKey(e.target.value);
+            const value = e.target.value.trim();
+            setOpenAiApiKey(value.length ? value : null);
             setMissingOpenAiApiKey(false);
           }}
         />
@@ -102,7 +103,7 @@ export default function EditorBlockLlmConfigurations(props: Props) {
           variant="outlined"
           disabled={props.isReadOnly}
           value={model}
-          onChange={(e, value) => {
+          onChange={(_, value) => {
             setModel(value!);
             props.onSaveModel(value!);
           }}

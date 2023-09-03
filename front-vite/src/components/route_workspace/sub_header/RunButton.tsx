@@ -28,12 +28,12 @@ import {
   cursorPointingBlockSetIdState,
   cursorPositionState,
   missingOpenAiApiKeyState,
-  openAiApiKeyState,
   selectedBlockState,
   selectedElementTypeState,
   streamingBlockIdState,
   streamingOutputBlockContentState,
 } from "../../../state/store";
+import { usePersistStore } from "../../../state/zustand";
 
 const RUN_BUTTON_FRAGMENT = gql(`
   fragment RunButtonFragment on Preset {
@@ -135,7 +135,8 @@ export default function RunButton({
 }: Props) {
   // --- Global State ---
 
-  const openAiApiKey = useRecoilValue(openAiApiKeyState);
+  const openAiApiKey = usePersistStore((state) => state.openAiApiKey);
+
   const setStreamingBlockId = useSetRecoilState(streamingBlockIdState);
   const setStreamingOutputBlockContent = useSetRecoilState(
     streamingOutputBlockContentState
