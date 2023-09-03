@@ -1,7 +1,5 @@
 import { atom } from "recoil";
 
-export const LOCAL_USER_SETTINGS = "localUserSettings";
-
 export const selectedBlockState = atom<string | null>({
   key: "selectedBlock",
   default: null,

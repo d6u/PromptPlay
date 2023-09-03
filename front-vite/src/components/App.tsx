@@ -2,9 +2,7 @@ import { ApolloProvider } from "@apollo/client";
 import { CssVarsProvider, extendTheme } from "@mui/joy/styles";
 import { useEffect, useRef, useState } from "react";
 import { RecoilRoot } from "recoil";
-import { RecoilSync } from "recoil-sync";
 import { ApolloClientType, createApolloClient } from "../state/graphql";
-import { LOCAL_USER_SETTINGS } from "../state/store";
 import { usePersistStore } from "../state/zustand";
 import Routes from "./Routes";
 import "./App.css";
@@ -64,17 +62,7 @@ export default function App() {
   return (
     <CssVarsProvider theme={theme}>
       <RecoilRoot>
-        <RecoilSync
-          storeKey={LOCAL_USER_SETTINGS}
-          read={(itemKey) => localStorage.getItem(itemKey) ?? ""}
-          write={({ diff }) => {
-            for (const [key, value] of diff) {
-              localStorage.setItem(key, value as string);
-            }
-          }}
-        >
-          <AppGraphQl />
-        </RecoilSync>
+        <AppGraphQl />
       </RecoilRoot>
     </CssVarsProvider>
   );
