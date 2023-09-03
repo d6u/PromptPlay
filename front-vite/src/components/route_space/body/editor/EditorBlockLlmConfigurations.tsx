@@ -2,9 +2,7 @@ import Input from "@mui/joy/Input";
 import Option from "@mui/joy/Option";
 import Select from "@mui/joy/Select";
 import { useCallback, useState } from "react";
-import { useRecoilState } from "recoil";
-import { missingOpenAiApiKeyState } from "../../../../state/store";
-import { usePersistStore } from "../../../../state/zustand";
+import { usePersistStore, useStore } from "../../../../state/zustand";
 import { LLM_STOP_NEW_LINE_SYMBOL } from "../../../../static/blockConfigs";
 import {
   BlockLlm,
@@ -39,8 +37,9 @@ export default function EditorBlockLlmConfigurations(props: Props) {
   const openAiApiKey = usePersistStore((state) => state.openAiApiKey);
   const setOpenAiApiKey = usePersistStore((state) => state.setOpenAiApiKey);
 
-  const [missingOpenAiApiKey, setMissingOpenAiApiKey] = useRecoilState(
-    missingOpenAiApiKeyState
+  const missingOpenAiApiKey = useStore((state) => state.missingOpenAiApiKey);
+  const setMissingOpenAiApiKey = useStore(
+    (state) => state.setMissingOpenAiApiKey
   );
 
   const [model, setModel] = useState(props.model);

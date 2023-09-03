@@ -1,7 +1,6 @@
 import { useMutation, useQuery } from "@apollo/client";
 import { useCallback, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { useRecoilValue, useSetRecoilState } from "recoil";
 import styled from "styled-components";
 import u from "updeep";
 import { execute } from "../../llm/chainExecutor";
@@ -9,11 +8,7 @@ import {
   SPACE_QUERY,
   UPDATE_SPACE_CONTENT_MUTATION,
 } from "../../state/spaceGraphQl";
-import {
-  missingOpenAiApiKeyState,
-  spaceV2SelectedBlockIdState,
-} from "../../state/store";
-import { usePersistStore } from "../../state/zustand";
+import { usePersistStore, useStore } from "../../state/zustand";
 import { Block, BlockType, SpaceContent } from "../../static/spaceTypes";
 import { validate } from "../../static/spaceUtils";
 import Designer from "./body/Designer";
@@ -31,14 +26,18 @@ type Props = {};
 
 export default function RouteSpace(_: Props) {
   const openAiApiKey = usePersistStore((state) => state.openAiApiKey);
+  const setMissingOpenAiApiKey = useStore(
+    (state) => state.setMissingOpenAiApiKey
+  );
 
   // TODO: Properly handle spaceId not being present
   const { spaceId = "" } = useParams<{ spaceId: string }>();
 
-  const spaceV2SelectedBlockId = useRecoilValue(spaceV2SelectedBlockIdState);
-  const setMissingOpenAiApiKey = useSetRecoilState(missingOpenAiApiKeyState);
-  const setSpaceV2SelectedBlockId = useSetRecoilState(
-    spaceV2SelectedBlockIdState
+  const spaceV2SelectedBlockId = useStore(
+    (state) => state.spaceV2SelectedBlockId
+  );
+  const setSpaceV2SelectedBlockId = useStore(
+    (state) => state.setSpaceV2SelectedBlockId
   );
 
   const query = useQuery(SPACE_QUERY, {

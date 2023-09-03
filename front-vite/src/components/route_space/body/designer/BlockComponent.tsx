@@ -1,9 +1,8 @@
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import { ReactNode } from "react";
-import { useRecoilState } from "recoil";
 import styled, { css } from "styled-components";
-import { spaceV2SelectedBlockIdState } from "../../../../state/store";
+import { useStore } from "../../../../state/zustand";
 import { getBlockConfigByType } from "../../../../static/blockConfigs";
 import {
   Block,
@@ -78,8 +77,11 @@ export default function BlockComponent(props: Props) {
       disabled: props.isReadOnly || props.isExecuting,
     });
 
-  const [spaceV2SelectedBlockId, setSpaceV2SelectedBlockId] = useRecoilState(
-    spaceV2SelectedBlockIdState
+  const spaceV2SelectedBlockId = useStore(
+    (state) => state.spaceV2SelectedBlockId
+  );
+  const setSpaceV2SelectedBlockId = useStore(
+    (state) => state.setSpaceV2SelectedBlockId
   );
 
   let inputConfigurator: ReactNode | null = null;
