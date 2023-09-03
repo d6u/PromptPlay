@@ -59,17 +59,6 @@ const theme = extendTheme({
 });
 
 export default function App() {
-  return (
-    <CssVarsProvider theme={theme}>
-      <RecoilRoot>
-        <AppGraphQl />
-      </RecoilRoot>
-    </CssVarsProvider>
-  );
-}
-
-// Split into two components to because useRecoilValue needs RecoilRoot
-function AppGraphQl() {
   const placeholderUserToken = usePersistStore(
     (state) => state.placeholderUserToken
   );
@@ -91,8 +80,12 @@ function AppGraphQl() {
   }, [placeholderUserToken]);
 
   return (
-    <ApolloProvider client={apolloClient}>
-      <Routes />
-    </ApolloProvider>
+    <CssVarsProvider theme={theme}>
+      <RecoilRoot>
+        <ApolloProvider client={apolloClient}>
+          <Routes />
+        </ApolloProvider>
+      </RecoilRoot>
+    </CssVarsProvider>
   );
 }
