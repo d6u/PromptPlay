@@ -1,0 +1,277 @@
+/* eslint-disable */
+import * as types from './graphql';
+import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/core';
+
+/**
+ * Map of all GraphQL operations in the project.
+ *
+ * This map has several performance disadvantages:
+ * 1. It is not tree-shakeable, so it will include all operations in the project.
+ * 2. It is not minifiable, so the string of a GraphQL query will be multiple times inside the bundle.
+ * 3. It does not support dead code elimination, so it will add unused operations.
+ *
+ * Therefore it is highly recommended to use the babel or swc plugin for production.
+ */
+const documents = {
+    "\n  fragment DraggingBlock on Block {\n    id\n    __typename\n    ... on PromptBlock {\n      role\n      content\n    }\n    ... on CompleterBlock {\n      model\n      temperature\n      stop\n    }\n  }\n": types.DraggingBlockFragmentDoc,
+    "\n  fragment LibraryBlock on Block {\n    id\n    __typename\n    ... on PromptBlock {\n      role\n      content\n    }\n    ... on CompleterBlock {\n      model\n      temperature\n      stop\n    }\n  }\n": types.LibraryBlockFragmentDoc,
+    "\n  mutation CreatePlaceholderUserAndExampleSpaceMutation {\n    result: createPlaceholderUserAndExampleSpace {\n      placeholderClientToken\n      space {\n        id\n      }\n    }\n  }\n": types.CreatePlaceholderUserAndExampleSpaceMutationDocument,
+    "\n  fragment Dashboard on User {\n    spaces {\n      id\n      name\n      updatedAt\n    }\n  }\n": types.DashboardFragmentDoc,
+    "\n  mutation CreateSpaceMutation {\n    result: createSpace {\n      id\n      name\n      updatedAt\n    }\n  }\n": types.CreateSpaceMutationDocument,
+    "\n  query HeaderQuery {\n    isLoggedIn\n    isPlaceholderUserTokenInvalid\n    user {\n      email\n      profilePictureUrl\n    }\n  }\n": types.HeaderQueryDocument,
+    "\n  mutation MergePlaceholderUserWithLoggedInUserMutation(\n    $placeholderUserToken: String!\n  ) {\n    result: mergePlaceholderUserWithLoggedInUser(\n      placeholderUserToken: $placeholderUserToken\n    )\n  }\n": types.MergePlaceholderUserWithLoggedInUserMutationDocument,
+    "\n  query RootRouteQuery {\n    user {\n      id\n      ...Dashboard\n    }\n  }\n": types.RootRouteQueryDocument,
+    "\n  fragment SpaceSubHeaderFragment on Space {\n    name\n  }\n": types.SpaceSubHeaderFragmentFragmentDoc,
+    "\n  fragment WorkspaceQuery on Query {\n    workspace(workspaceId: $workspaceId) {\n      firstPreset {\n        id\n        blockSets {\n          id\n          position\n        }\n      }\n    }\n    ...WorkspaceContent\n  }\n": types.WorkspaceQueryFragmentDoc,
+    "\n  mutation AddPromptToBlockSetTopInputMutation(\n    $promptBlockId: UUID!\n    $blockSetId: UUID!\n  ) {\n    addPromptToBlockSetTopInput(\n      promptBlockId: $promptBlockId\n      blockSetId: $blockSetId\n    ) {\n      id\n    }\n  }\n": types.AddPromptToBlockSetTopInputMutationDocument,
+    "\n  mutation AddCompleterToBlockSetMutation(\n    $blockSetId: UUID!\n    $completerBlockId: UUID!\n  ) {\n    addCompleterToBlockSet(\n      blockSetId: $blockSetId\n      completerBlockId: $completerBlockId\n    ) {\n      id\n    }\n  }\n": types.AddCompleterToBlockSetMutationDocument,
+    "\n  mutation AddSystemPromptToBlockSetMutation(\n    $blockSetId: UUID!\n    $promptBlockId: UUID!\n  ) {\n    addSystemPromptToBlockSet(\n      blockSetId: $blockSetId\n      promptBlockId: $promptBlockId\n    ) {\n      id\n    }\n  }\n": types.AddSystemPromptToBlockSetMutationDocument,
+    "\n  mutation AddPromptToBlockSetTopOutputMutation(\n    $promptBlockId: UUID!\n    $blockSetId: UUID!\n  ) {\n    addPromptToBlockSetTopOutput(\n      promptBlockId: $promptBlockId\n      blockSetId: $blockSetId\n    ) {\n      id\n    }\n  }\n": types.AddPromptToBlockSetTopOutputMutationDocument,
+    "\n  mutation SwapBlockSetPositionsMutation(\n    $movingBlockSetId: UUID!\n    $slotBlockSetId: UUID!\n  ) {\n    swapBlockSetPositions(\n      movingBlockSetId: $movingBlockSetId\n      slotBlockSetId: $slotBlockSetId\n    ) {\n      id\n      blockSets {\n        id\n        position\n      }\n    }\n  }\n": types.SwapBlockSetPositionsMutationDocument,
+    "\n  fragment WorkspaceContent on Query {\n    workspace(workspaceId: $workspaceId) {\n      id\n      ...Library\n      firstPreset {\n        id\n        ...Simulator\n      }\n    }\n  }\n": types.WorkspaceContentFragmentDoc,
+    "\n  query WorkspaceRouteQuery(\n    $workspaceId: UUID!\n  ) {\n    user {\n      id\n    }\n    ...SubHeaderFragment\n    ...WorkspaceQuery\n  }\n": types.WorkspaceRouteQueryDocument,
+    "\n  fragment EditorBlockSet on BlockSet {\n    id\n    isInputIncludingPreviousBlockSetOutput\n    isOutputIncludingInputBlocks\n    isRepeatingCurrentBlockSet\n  }\n": types.EditorBlockSetFragmentDoc,
+    "\n  mutation UpdateBlockSetOptionsMutation(\n    $blockSetId: UUID!\n    $isInputIncludingPreviousBlockSetOutput: Boolean!\n    $isOutputIncludingInputBlocks: Boolean!\n    $isRepeatingCurrentBlockSet: Boolean!\n  ) {\n    updateBlockSetOptions(\n      blockSetId: $blockSetId\n      isInputIncludingPreviousBlockSetOutput: $isInputIncludingPreviousBlockSetOutput\n      isOutputIncludingInputBlocks: $isOutputIncludingInputBlocks\n      isRepeatingCurrentBlockSet: $isRepeatingCurrentBlockSet\n    ) {\n      id\n    }\n  }\n": types.UpdateBlockSetOptionsMutationDocument,
+    "\n  mutation DeleteBlockSetMutation(\n    $blockSetId: UUID!\n  ) {\n    deleteBlockSet(\n      blockSetId: $blockSetId\n    ) {\n      isSuccess\n    }\n  }\n": types.DeleteBlockSetMutationDocument,
+    "\n  fragment SelectedCompleterBlock on CompleterBlock {\n    id\n    model\n    temperature\n    stop\n  }\n": types.SelectedCompleterBlockFragmentDoc,
+    "\n  mutation DeleteCompleterBlockMutation(\n    $blockId: UUID!\n  ) {\n    deleteBlock(\n      blockId: $blockId\n    ) {\n      isSuccess\n    }\n  }\n": types.DeleteCompleterBlockMutationDocument,
+    "\n  mutation UpdateCompleterBlockMutation(\n    $id: UUID!\n    $model: String!\n    $temperature: Float!\n    $stop: String!\n  ) {\n    updateCompleterBlock(\n      id: $id\n      model: $model\n      temperature: $temperature\n      stop: $stop\n    ) {\n      id\n    }\n  }\n": types.UpdateCompleterBlockMutationDocument,
+    "\n  fragment SelectedBlock on PromptBlock {\n    id\n    role\n    content\n  }\n": types.SelectedBlockFragmentDoc,
+    "\n  mutation DeletePromptBlockMutation(\n    $blockId: UUID!\n  ) {\n    deleteBlock(\n      blockId: $blockId\n    ) {\n      isSuccess\n    }\n  }\n": types.DeletePromptBlockMutationDocument,
+    "\n  mutation UpdateBlockMutation(\n    $id: UUID!\n    $role: PromptType!\n    $content: String!\n  ) {\n    updatePromptBlock(\n      id: $id\n      role: $role\n      content: $content\n    ) {\n      id\n    }\n  }\n": types.UpdateBlockMutationDocument,
+    "\n  fragment Library on Workspace {\n    blocks {\n      id\n      __typename\n      ...LibraryBlock\n    }\n  }\n": types.LibraryFragmentDoc,
+    "\n  fragment SimulatorBlockSet on BlockSet {\n    id\n    position\n    isInputIncludingPreviousBlockSetOutput\n    isOutputIncludingInputBlocks\n    isRepeatingCurrentBlockSet\n    topInputPromptBlock {\n      id\n      ...SimulatorBlock\n    }\n    systemPromptBlock {\n      id\n      ...SimulatorBlock\n    }\n    completerBlock {\n      id\n      ...SimulatorBlock\n    }\n    topOutputBlock {\n      id\n      ...SimulatorBlock\n    }\n    previousBlockSetsInputBlocks {\n      id\n      role\n      ...SimulatorBlock\n    }\n  }\n": types.SimulatorBlockSetFragmentDoc,
+    "\n  mutation RemoveTopInputFromBlockSetMutation(\n    $blockSetId: UUID!\n  ) {\n    removeTopInputFromBlockSet(\n      blockSetId: $blockSetId\n    ) {\n      id\n    }\n  }\n": types.RemoveTopInputFromBlockSetMutationDocument,
+    "\n  mutation RemoveSystemPromptFromBlockSetMutation(\n    $blockSetId: UUID!\n  ) {\n    removeSystemPromptFromBlockSet(\n      blockSetId: $blockSetId\n    ) {\n      id\n    }\n  }\n": types.RemoveSystemPromptFromBlockSetMutationDocument,
+    "\n  mutation RemoveCompleterFromBlockSetMutation(\n    $blockSetId: UUID!\n  ) {\n    removeCompleterFromBlockSet(\n      blockSetId: $blockSetId\n    ) {\n      id\n    }\n  }\n": types.RemoveCompleterFromBlockSetMutationDocument,
+    "\n  mutation RemoveTopOutputFromBlockSetMutation(\n    $blockSetId: UUID!\n  ) {\n    removeTopOutputFromBlockSet(\n      blockSetId: $blockSetId\n    ) {\n      id\n    }\n  }\n": types.RemoveTopOutputFromBlockSetMutationDocument,
+    "\n  fragment Simulator on Preset {\n    id\n    blockSets {\n      id\n      ...SimulatorBlockSet\n    }\n  }\n": types.SimulatorFragmentDoc,
+    "\n  fragment SimulatorBlock on Block {\n    id\n    __typename\n    ... on PromptBlock {\n      role\n      content\n    }\n    ... on CompleterBlock {\n      model\n      temperature\n      stop\n    }\n  }\n": types.SimulatorBlockFragmentDoc,
+    "\n  fragment RunButtonFragment on Preset {\n    blockSets {\n      id\n      topInputPromptBlock {\n        id\n        role\n        content\n      }\n      systemPromptBlock {\n        id\n        content\n      }\n      completerBlock {\n        id\n        model\n        temperature\n        stop\n      }\n    }\n  }\n": types.RunButtonFragmentFragmentDoc,
+    "\n  fragment SubHeaderBlockSetFragment on BlockSet {\n    id\n    position\n    isInputIncludingPreviousBlockSetOutput\n    isOutputIncludingInputBlocks\n    isRepeatingCurrentBlockSet\n    topInputPromptBlock {\n      id\n      role\n      content\n    }\n    systemPromptBlock {\n      id\n      content\n    }\n    completerBlock {\n      id\n      model\n      temperature\n      stop\n    }\n    topOutputBlock {\n      id\n      content\n    }\n    previousBlockSetsInputBlocks {\n      id\n      role\n      content\n    }\n  }\n": types.SubHeaderBlockSetFragmentFragmentDoc,
+    "\n  mutation CreateTopOutputBlockOnBlockSetMutation(\n    $blockSetId: UUID!\n  ) {\n    createTopOutputBlockOnBlockSet(\n      blockSetId: $blockSetId\n    ) {\n      id\n      topOutputBlock {\n        id\n      }\n    }\n  }\n": types.CreateTopOutputBlockOnBlockSetMutationDocument,
+    "\n  mutation UpdatePromptBlockMutation(\n    $id: UUID!\n    $content: String!\n  ) {\n    updatePromptBlock(\n      id: $id\n      role: Assistant\n      content: $content\n    ) {\n      id\n    }\n  }\n": types.UpdatePromptBlockMutationDocument,
+    "\n  fragment SubHeaderFragment on Query {\n    workspace(workspaceId: $workspaceId) {\n      name\n      firstPreset {\n        id\n        ...RunButtonFragment\n      }\n    }\n  }\n": types.SubHeaderFragmentFragmentDoc,
+    "\n  mutation CreatePromptBlockMutation($workspaceId: UUID!) {\n    createPromptBlock(workspaceId: $workspaceId) {\n      id\n    }\n  }\n": types.CreatePromptBlockMutationDocument,
+    "\n  mutation CreateCompleterBlock($workspaceId: UUID!) {\n    createCompleterBlock(workspaceId: $workspaceId) {\n      id\n    }\n  }\n": types.CreateCompleterBlockDocument,
+    "\n  mutation CreateBlockSet($presetId: UUID!) {\n    createBlockSet(presetId: $presetId) {\n      id\n    }\n  }\n": types.CreateBlockSetDocument,
+    "\n  mutation UpdateWorkspaceMutation(\n    $workspaceId: UUID!\n    $name: String!\n  ) {\n    updateWorkspace(\n      id: $workspaceId\n      name: $name\n    ) {\n      id\n    }\n  }\n": types.UpdateWorkspaceMutationDocument,
+    "\n  mutation DeleteWorkspaceMutation($workspaceId: UUID!) {\n    deleteWorkspace(id: $workspaceId) {\n      isSuccess\n    }\n  }\n": types.DeleteWorkspaceMutationDocument,
+    "\n  query SpaceQuery($spaceId: UUID!) {\n    result: space(id: $spaceId) {\n      isReadOnly\n      space {\n        ...SpaceSubHeaderFragment\n        id\n        name\n        content\n      }\n    }\n  }\n": types.SpaceQueryDocument,
+    "\n  mutation UpdateSpaceContentMutation($spaceId: ID!, $content: String!) {\n    updateSpace(id: $spaceId, content: $content) {\n      id\n      name\n      content\n    }\n  }\n": types.UpdateSpaceContentMutationDocument,
+    "\n  mutation UpdateSpaceNameMutation($spaceId: ID!, $name: String!) {\n    updateSpace(id: $spaceId, name: $name) {\n      id\n      name\n      content\n    }\n  }\n": types.UpdateSpaceNameMutationDocument,
+    "\n  mutation DeleteSpaceMutation($spaceId: ID!) {\n    result: deleteSpace(id: $spaceId)\n  }\n": types.DeleteSpaceMutationDocument,
+};
+
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ *
+ *
+ * @example
+ * ```ts
+ * const query = gql(`query GetUser($id: ID!) { user(id: $id) { name } }`);
+ * ```
+ *
+ * The query argument is unknown!
+ * Please regenerate the types.
+ */
+export function gql(source: string): unknown;
+
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  fragment DraggingBlock on Block {\n    id\n    __typename\n    ... on PromptBlock {\n      role\n      content\n    }\n    ... on CompleterBlock {\n      model\n      temperature\n      stop\n    }\n  }\n"): (typeof documents)["\n  fragment DraggingBlock on Block {\n    id\n    __typename\n    ... on PromptBlock {\n      role\n      content\n    }\n    ... on CompleterBlock {\n      model\n      temperature\n      stop\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  fragment LibraryBlock on Block {\n    id\n    __typename\n    ... on PromptBlock {\n      role\n      content\n    }\n    ... on CompleterBlock {\n      model\n      temperature\n      stop\n    }\n  }\n"): (typeof documents)["\n  fragment LibraryBlock on Block {\n    id\n    __typename\n    ... on PromptBlock {\n      role\n      content\n    }\n    ... on CompleterBlock {\n      model\n      temperature\n      stop\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation CreatePlaceholderUserAndExampleSpaceMutation {\n    result: createPlaceholderUserAndExampleSpace {\n      placeholderClientToken\n      space {\n        id\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation CreatePlaceholderUserAndExampleSpaceMutation {\n    result: createPlaceholderUserAndExampleSpace {\n      placeholderClientToken\n      space {\n        id\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  fragment Dashboard on User {\n    spaces {\n      id\n      name\n      updatedAt\n    }\n  }\n"): (typeof documents)["\n  fragment Dashboard on User {\n    spaces {\n      id\n      name\n      updatedAt\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation CreateSpaceMutation {\n    result: createSpace {\n      id\n      name\n      updatedAt\n    }\n  }\n"): (typeof documents)["\n  mutation CreateSpaceMutation {\n    result: createSpace {\n      id\n      name\n      updatedAt\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query HeaderQuery {\n    isLoggedIn\n    isPlaceholderUserTokenInvalid\n    user {\n      email\n      profilePictureUrl\n    }\n  }\n"): (typeof documents)["\n  query HeaderQuery {\n    isLoggedIn\n    isPlaceholderUserTokenInvalid\n    user {\n      email\n      profilePictureUrl\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation MergePlaceholderUserWithLoggedInUserMutation(\n    $placeholderUserToken: String!\n  ) {\n    result: mergePlaceholderUserWithLoggedInUser(\n      placeholderUserToken: $placeholderUserToken\n    )\n  }\n"): (typeof documents)["\n  mutation MergePlaceholderUserWithLoggedInUserMutation(\n    $placeholderUserToken: String!\n  ) {\n    result: mergePlaceholderUserWithLoggedInUser(\n      placeholderUserToken: $placeholderUserToken\n    )\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query RootRouteQuery {\n    user {\n      id\n      ...Dashboard\n    }\n  }\n"): (typeof documents)["\n  query RootRouteQuery {\n    user {\n      id\n      ...Dashboard\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  fragment SpaceSubHeaderFragment on Space {\n    name\n  }\n"): (typeof documents)["\n  fragment SpaceSubHeaderFragment on Space {\n    name\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  fragment WorkspaceQuery on Query {\n    workspace(workspaceId: $workspaceId) {\n      firstPreset {\n        id\n        blockSets {\n          id\n          position\n        }\n      }\n    }\n    ...WorkspaceContent\n  }\n"): (typeof documents)["\n  fragment WorkspaceQuery on Query {\n    workspace(workspaceId: $workspaceId) {\n      firstPreset {\n        id\n        blockSets {\n          id\n          position\n        }\n      }\n    }\n    ...WorkspaceContent\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation AddPromptToBlockSetTopInputMutation(\n    $promptBlockId: UUID!\n    $blockSetId: UUID!\n  ) {\n    addPromptToBlockSetTopInput(\n      promptBlockId: $promptBlockId\n      blockSetId: $blockSetId\n    ) {\n      id\n    }\n  }\n"): (typeof documents)["\n  mutation AddPromptToBlockSetTopInputMutation(\n    $promptBlockId: UUID!\n    $blockSetId: UUID!\n  ) {\n    addPromptToBlockSetTopInput(\n      promptBlockId: $promptBlockId\n      blockSetId: $blockSetId\n    ) {\n      id\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation AddCompleterToBlockSetMutation(\n    $blockSetId: UUID!\n    $completerBlockId: UUID!\n  ) {\n    addCompleterToBlockSet(\n      blockSetId: $blockSetId\n      completerBlockId: $completerBlockId\n    ) {\n      id\n    }\n  }\n"): (typeof documents)["\n  mutation AddCompleterToBlockSetMutation(\n    $blockSetId: UUID!\n    $completerBlockId: UUID!\n  ) {\n    addCompleterToBlockSet(\n      blockSetId: $blockSetId\n      completerBlockId: $completerBlockId\n    ) {\n      id\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation AddSystemPromptToBlockSetMutation(\n    $blockSetId: UUID!\n    $promptBlockId: UUID!\n  ) {\n    addSystemPromptToBlockSet(\n      blockSetId: $blockSetId\n      promptBlockId: $promptBlockId\n    ) {\n      id\n    }\n  }\n"): (typeof documents)["\n  mutation AddSystemPromptToBlockSetMutation(\n    $blockSetId: UUID!\n    $promptBlockId: UUID!\n  ) {\n    addSystemPromptToBlockSet(\n      blockSetId: $blockSetId\n      promptBlockId: $promptBlockId\n    ) {\n      id\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation AddPromptToBlockSetTopOutputMutation(\n    $promptBlockId: UUID!\n    $blockSetId: UUID!\n  ) {\n    addPromptToBlockSetTopOutput(\n      promptBlockId: $promptBlockId\n      blockSetId: $blockSetId\n    ) {\n      id\n    }\n  }\n"): (typeof documents)["\n  mutation AddPromptToBlockSetTopOutputMutation(\n    $promptBlockId: UUID!\n    $blockSetId: UUID!\n  ) {\n    addPromptToBlockSetTopOutput(\n      promptBlockId: $promptBlockId\n      blockSetId: $blockSetId\n    ) {\n      id\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation SwapBlockSetPositionsMutation(\n    $movingBlockSetId: UUID!\n    $slotBlockSetId: UUID!\n  ) {\n    swapBlockSetPositions(\n      movingBlockSetId: $movingBlockSetId\n      slotBlockSetId: $slotBlockSetId\n    ) {\n      id\n      blockSets {\n        id\n        position\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation SwapBlockSetPositionsMutation(\n    $movingBlockSetId: UUID!\n    $slotBlockSetId: UUID!\n  ) {\n    swapBlockSetPositions(\n      movingBlockSetId: $movingBlockSetId\n      slotBlockSetId: $slotBlockSetId\n    ) {\n      id\n      blockSets {\n        id\n        position\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  fragment WorkspaceContent on Query {\n    workspace(workspaceId: $workspaceId) {\n      id\n      ...Library\n      firstPreset {\n        id\n        ...Simulator\n      }\n    }\n  }\n"): (typeof documents)["\n  fragment WorkspaceContent on Query {\n    workspace(workspaceId: $workspaceId) {\n      id\n      ...Library\n      firstPreset {\n        id\n        ...Simulator\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query WorkspaceRouteQuery(\n    $workspaceId: UUID!\n  ) {\n    user {\n      id\n    }\n    ...SubHeaderFragment\n    ...WorkspaceQuery\n  }\n"): (typeof documents)["\n  query WorkspaceRouteQuery(\n    $workspaceId: UUID!\n  ) {\n    user {\n      id\n    }\n    ...SubHeaderFragment\n    ...WorkspaceQuery\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  fragment EditorBlockSet on BlockSet {\n    id\n    isInputIncludingPreviousBlockSetOutput\n    isOutputIncludingInputBlocks\n    isRepeatingCurrentBlockSet\n  }\n"): (typeof documents)["\n  fragment EditorBlockSet on BlockSet {\n    id\n    isInputIncludingPreviousBlockSetOutput\n    isOutputIncludingInputBlocks\n    isRepeatingCurrentBlockSet\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation UpdateBlockSetOptionsMutation(\n    $blockSetId: UUID!\n    $isInputIncludingPreviousBlockSetOutput: Boolean!\n    $isOutputIncludingInputBlocks: Boolean!\n    $isRepeatingCurrentBlockSet: Boolean!\n  ) {\n    updateBlockSetOptions(\n      blockSetId: $blockSetId\n      isInputIncludingPreviousBlockSetOutput: $isInputIncludingPreviousBlockSetOutput\n      isOutputIncludingInputBlocks: $isOutputIncludingInputBlocks\n      isRepeatingCurrentBlockSet: $isRepeatingCurrentBlockSet\n    ) {\n      id\n    }\n  }\n"): (typeof documents)["\n  mutation UpdateBlockSetOptionsMutation(\n    $blockSetId: UUID!\n    $isInputIncludingPreviousBlockSetOutput: Boolean!\n    $isOutputIncludingInputBlocks: Boolean!\n    $isRepeatingCurrentBlockSet: Boolean!\n  ) {\n    updateBlockSetOptions(\n      blockSetId: $blockSetId\n      isInputIncludingPreviousBlockSetOutput: $isInputIncludingPreviousBlockSetOutput\n      isOutputIncludingInputBlocks: $isOutputIncludingInputBlocks\n      isRepeatingCurrentBlockSet: $isRepeatingCurrentBlockSet\n    ) {\n      id\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation DeleteBlockSetMutation(\n    $blockSetId: UUID!\n  ) {\n    deleteBlockSet(\n      blockSetId: $blockSetId\n    ) {\n      isSuccess\n    }\n  }\n"): (typeof documents)["\n  mutation DeleteBlockSetMutation(\n    $blockSetId: UUID!\n  ) {\n    deleteBlockSet(\n      blockSetId: $blockSetId\n    ) {\n      isSuccess\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  fragment SelectedCompleterBlock on CompleterBlock {\n    id\n    model\n    temperature\n    stop\n  }\n"): (typeof documents)["\n  fragment SelectedCompleterBlock on CompleterBlock {\n    id\n    model\n    temperature\n    stop\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation DeleteCompleterBlockMutation(\n    $blockId: UUID!\n  ) {\n    deleteBlock(\n      blockId: $blockId\n    ) {\n      isSuccess\n    }\n  }\n"): (typeof documents)["\n  mutation DeleteCompleterBlockMutation(\n    $blockId: UUID!\n  ) {\n    deleteBlock(\n      blockId: $blockId\n    ) {\n      isSuccess\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation UpdateCompleterBlockMutation(\n    $id: UUID!\n    $model: String!\n    $temperature: Float!\n    $stop: String!\n  ) {\n    updateCompleterBlock(\n      id: $id\n      model: $model\n      temperature: $temperature\n      stop: $stop\n    ) {\n      id\n    }\n  }\n"): (typeof documents)["\n  mutation UpdateCompleterBlockMutation(\n    $id: UUID!\n    $model: String!\n    $temperature: Float!\n    $stop: String!\n  ) {\n    updateCompleterBlock(\n      id: $id\n      model: $model\n      temperature: $temperature\n      stop: $stop\n    ) {\n      id\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  fragment SelectedBlock on PromptBlock {\n    id\n    role\n    content\n  }\n"): (typeof documents)["\n  fragment SelectedBlock on PromptBlock {\n    id\n    role\n    content\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation DeletePromptBlockMutation(\n    $blockId: UUID!\n  ) {\n    deleteBlock(\n      blockId: $blockId\n    ) {\n      isSuccess\n    }\n  }\n"): (typeof documents)["\n  mutation DeletePromptBlockMutation(\n    $blockId: UUID!\n  ) {\n    deleteBlock(\n      blockId: $blockId\n    ) {\n      isSuccess\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation UpdateBlockMutation(\n    $id: UUID!\n    $role: PromptType!\n    $content: String!\n  ) {\n    updatePromptBlock(\n      id: $id\n      role: $role\n      content: $content\n    ) {\n      id\n    }\n  }\n"): (typeof documents)["\n  mutation UpdateBlockMutation(\n    $id: UUID!\n    $role: PromptType!\n    $content: String!\n  ) {\n    updatePromptBlock(\n      id: $id\n      role: $role\n      content: $content\n    ) {\n      id\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  fragment Library on Workspace {\n    blocks {\n      id\n      __typename\n      ...LibraryBlock\n    }\n  }\n"): (typeof documents)["\n  fragment Library on Workspace {\n    blocks {\n      id\n      __typename\n      ...LibraryBlock\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  fragment SimulatorBlockSet on BlockSet {\n    id\n    position\n    isInputIncludingPreviousBlockSetOutput\n    isOutputIncludingInputBlocks\n    isRepeatingCurrentBlockSet\n    topInputPromptBlock {\n      id\n      ...SimulatorBlock\n    }\n    systemPromptBlock {\n      id\n      ...SimulatorBlock\n    }\n    completerBlock {\n      id\n      ...SimulatorBlock\n    }\n    topOutputBlock {\n      id\n      ...SimulatorBlock\n    }\n    previousBlockSetsInputBlocks {\n      id\n      role\n      ...SimulatorBlock\n    }\n  }\n"): (typeof documents)["\n  fragment SimulatorBlockSet on BlockSet {\n    id\n    position\n    isInputIncludingPreviousBlockSetOutput\n    isOutputIncludingInputBlocks\n    isRepeatingCurrentBlockSet\n    topInputPromptBlock {\n      id\n      ...SimulatorBlock\n    }\n    systemPromptBlock {\n      id\n      ...SimulatorBlock\n    }\n    completerBlock {\n      id\n      ...SimulatorBlock\n    }\n    topOutputBlock {\n      id\n      ...SimulatorBlock\n    }\n    previousBlockSetsInputBlocks {\n      id\n      role\n      ...SimulatorBlock\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation RemoveTopInputFromBlockSetMutation(\n    $blockSetId: UUID!\n  ) {\n    removeTopInputFromBlockSet(\n      blockSetId: $blockSetId\n    ) {\n      id\n    }\n  }\n"): (typeof documents)["\n  mutation RemoveTopInputFromBlockSetMutation(\n    $blockSetId: UUID!\n  ) {\n    removeTopInputFromBlockSet(\n      blockSetId: $blockSetId\n    ) {\n      id\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation RemoveSystemPromptFromBlockSetMutation(\n    $blockSetId: UUID!\n  ) {\n    removeSystemPromptFromBlockSet(\n      blockSetId: $blockSetId\n    ) {\n      id\n    }\n  }\n"): (typeof documents)["\n  mutation RemoveSystemPromptFromBlockSetMutation(\n    $blockSetId: UUID!\n  ) {\n    removeSystemPromptFromBlockSet(\n      blockSetId: $blockSetId\n    ) {\n      id\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation RemoveCompleterFromBlockSetMutation(\n    $blockSetId: UUID!\n  ) {\n    removeCompleterFromBlockSet(\n      blockSetId: $blockSetId\n    ) {\n      id\n    }\n  }\n"): (typeof documents)["\n  mutation RemoveCompleterFromBlockSetMutation(\n    $blockSetId: UUID!\n  ) {\n    removeCompleterFromBlockSet(\n      blockSetId: $blockSetId\n    ) {\n      id\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation RemoveTopOutputFromBlockSetMutation(\n    $blockSetId: UUID!\n  ) {\n    removeTopOutputFromBlockSet(\n      blockSetId: $blockSetId\n    ) {\n      id\n    }\n  }\n"): (typeof documents)["\n  mutation RemoveTopOutputFromBlockSetMutation(\n    $blockSetId: UUID!\n  ) {\n    removeTopOutputFromBlockSet(\n      blockSetId: $blockSetId\n    ) {\n      id\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  fragment Simulator on Preset {\n    id\n    blockSets {\n      id\n      ...SimulatorBlockSet\n    }\n  }\n"): (typeof documents)["\n  fragment Simulator on Preset {\n    id\n    blockSets {\n      id\n      ...SimulatorBlockSet\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  fragment SimulatorBlock on Block {\n    id\n    __typename\n    ... on PromptBlock {\n      role\n      content\n    }\n    ... on CompleterBlock {\n      model\n      temperature\n      stop\n    }\n  }\n"): (typeof documents)["\n  fragment SimulatorBlock on Block {\n    id\n    __typename\n    ... on PromptBlock {\n      role\n      content\n    }\n    ... on CompleterBlock {\n      model\n      temperature\n      stop\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  fragment RunButtonFragment on Preset {\n    blockSets {\n      id\n      topInputPromptBlock {\n        id\n        role\n        content\n      }\n      systemPromptBlock {\n        id\n        content\n      }\n      completerBlock {\n        id\n        model\n        temperature\n        stop\n      }\n    }\n  }\n"): (typeof documents)["\n  fragment RunButtonFragment on Preset {\n    blockSets {\n      id\n      topInputPromptBlock {\n        id\n        role\n        content\n      }\n      systemPromptBlock {\n        id\n        content\n      }\n      completerBlock {\n        id\n        model\n        temperature\n        stop\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  fragment SubHeaderBlockSetFragment on BlockSet {\n    id\n    position\n    isInputIncludingPreviousBlockSetOutput\n    isOutputIncludingInputBlocks\n    isRepeatingCurrentBlockSet\n    topInputPromptBlock {\n      id\n      role\n      content\n    }\n    systemPromptBlock {\n      id\n      content\n    }\n    completerBlock {\n      id\n      model\n      temperature\n      stop\n    }\n    topOutputBlock {\n      id\n      content\n    }\n    previousBlockSetsInputBlocks {\n      id\n      role\n      content\n    }\n  }\n"): (typeof documents)["\n  fragment SubHeaderBlockSetFragment on BlockSet {\n    id\n    position\n    isInputIncludingPreviousBlockSetOutput\n    isOutputIncludingInputBlocks\n    isRepeatingCurrentBlockSet\n    topInputPromptBlock {\n      id\n      role\n      content\n    }\n    systemPromptBlock {\n      id\n      content\n    }\n    completerBlock {\n      id\n      model\n      temperature\n      stop\n    }\n    topOutputBlock {\n      id\n      content\n    }\n    previousBlockSetsInputBlocks {\n      id\n      role\n      content\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation CreateTopOutputBlockOnBlockSetMutation(\n    $blockSetId: UUID!\n  ) {\n    createTopOutputBlockOnBlockSet(\n      blockSetId: $blockSetId\n    ) {\n      id\n      topOutputBlock {\n        id\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation CreateTopOutputBlockOnBlockSetMutation(\n    $blockSetId: UUID!\n  ) {\n    createTopOutputBlockOnBlockSet(\n      blockSetId: $blockSetId\n    ) {\n      id\n      topOutputBlock {\n        id\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation UpdatePromptBlockMutation(\n    $id: UUID!\n    $content: String!\n  ) {\n    updatePromptBlock(\n      id: $id\n      role: Assistant\n      content: $content\n    ) {\n      id\n    }\n  }\n"): (typeof documents)["\n  mutation UpdatePromptBlockMutation(\n    $id: UUID!\n    $content: String!\n  ) {\n    updatePromptBlock(\n      id: $id\n      role: Assistant\n      content: $content\n    ) {\n      id\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  fragment SubHeaderFragment on Query {\n    workspace(workspaceId: $workspaceId) {\n      name\n      firstPreset {\n        id\n        ...RunButtonFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  fragment SubHeaderFragment on Query {\n    workspace(workspaceId: $workspaceId) {\n      name\n      firstPreset {\n        id\n        ...RunButtonFragment\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation CreatePromptBlockMutation($workspaceId: UUID!) {\n    createPromptBlock(workspaceId: $workspaceId) {\n      id\n    }\n  }\n"): (typeof documents)["\n  mutation CreatePromptBlockMutation($workspaceId: UUID!) {\n    createPromptBlock(workspaceId: $workspaceId) {\n      id\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation CreateCompleterBlock($workspaceId: UUID!) {\n    createCompleterBlock(workspaceId: $workspaceId) {\n      id\n    }\n  }\n"): (typeof documents)["\n  mutation CreateCompleterBlock($workspaceId: UUID!) {\n    createCompleterBlock(workspaceId: $workspaceId) {\n      id\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation CreateBlockSet($presetId: UUID!) {\n    createBlockSet(presetId: $presetId) {\n      id\n    }\n  }\n"): (typeof documents)["\n  mutation CreateBlockSet($presetId: UUID!) {\n    createBlockSet(presetId: $presetId) {\n      id\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation UpdateWorkspaceMutation(\n    $workspaceId: UUID!\n    $name: String!\n  ) {\n    updateWorkspace(\n      id: $workspaceId\n      name: $name\n    ) {\n      id\n    }\n  }\n"): (typeof documents)["\n  mutation UpdateWorkspaceMutation(\n    $workspaceId: UUID!\n    $name: String!\n  ) {\n    updateWorkspace(\n      id: $workspaceId\n      name: $name\n    ) {\n      id\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation DeleteWorkspaceMutation($workspaceId: UUID!) {\n    deleteWorkspace(id: $workspaceId) {\n      isSuccess\n    }\n  }\n"): (typeof documents)["\n  mutation DeleteWorkspaceMutation($workspaceId: UUID!) {\n    deleteWorkspace(id: $workspaceId) {\n      isSuccess\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query SpaceQuery($spaceId: UUID!) {\n    result: space(id: $spaceId) {\n      isReadOnly\n      space {\n        ...SpaceSubHeaderFragment\n        id\n        name\n        content\n      }\n    }\n  }\n"): (typeof documents)["\n  query SpaceQuery($spaceId: UUID!) {\n    result: space(id: $spaceId) {\n      isReadOnly\n      space {\n        ...SpaceSubHeaderFragment\n        id\n        name\n        content\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation UpdateSpaceContentMutation($spaceId: ID!, $content: String!) {\n    updateSpace(id: $spaceId, content: $content) {\n      id\n      name\n      content\n    }\n  }\n"): (typeof documents)["\n  mutation UpdateSpaceContentMutation($spaceId: ID!, $content: String!) {\n    updateSpace(id: $spaceId, content: $content) {\n      id\n      name\n      content\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation UpdateSpaceNameMutation($spaceId: ID!, $name: String!) {\n    updateSpace(id: $spaceId, name: $name) {\n      id\n      name\n      content\n    }\n  }\n"): (typeof documents)["\n  mutation UpdateSpaceNameMutation($spaceId: ID!, $name: String!) {\n    updateSpace(id: $spaceId, name: $name) {\n      id\n      name\n      content\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation DeleteSpaceMutation($spaceId: ID!) {\n    result: deleteSpace(id: $spaceId)\n  }\n"): (typeof documents)["\n  mutation DeleteSpaceMutation($spaceId: ID!) {\n    result: deleteSpace(id: $spaceId)\n  }\n"];
+
+export function gql(source: string) {
+  return (documents as any)[source] ?? {};
+}
+
+export type DocumentType<TDocumentNode extends DocumentNode<any, any>> = TDocumentNode extends DocumentNode<  infer TType,  any>  ? TType  : never;

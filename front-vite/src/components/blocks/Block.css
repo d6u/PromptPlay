@@ -1,0 +1,109 @@
+.Block {
+  width: 100px;
+  height: 100px;
+  padding: 8px;
+  border-radius: 10px;
+  position: relative;
+}
+
+.Block_placeholder {
+  width: 100px;
+  height: 100px;
+  border-radius: 10px;
+  border: 2px dashed var(--border-darker, #c5c5d2);
+}
+
+.Block_placeholder-dragable-over {
+  background: #ececf1;
+}
+
+.Block_clickable {
+  cursor: pointer;
+}
+
+.Block_remove_btn {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  background: #ff3838;
+  width: 20px;
+  height: 20px;
+  border-radius: 10px;
+  border: 2px solid white;
+  opacity: 0;
+  padding: 2px;
+}
+
+.Block:hover .Block_remove_btn {
+  opacity: 1;
+}
+
+.Block_remove_btn_icon {
+  display: block;
+}
+
+.Block_remove_btn_icon path {
+  fill: white;
+}
+
+.Block_text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: Menlo;
+  font-size: 12px;
+  line-height: 1.2;
+  height: 100%;
+}
+
+.Block_prompt {
+  border: 2px solid #105e72;
+  background: linear-gradient(22deg, #98ecff 0%, #5cc5e0 100%);
+}
+
+.Block_prompt .Block_text {
+  color: #105e72;
+}
+
+.Block_completer {
+  border: 2px solid #9b57b1;
+  background: var(
+    --purple-gradient,
+    linear-gradient(22deg, #fa97b6 0%, #e081fe 100%)
+  );
+}
+
+.Block_completer .Block_text {
+  color: #510c67;
+}
+
+.Block_output {
+  border: 2px solid #318a09;
+  background: var(
+    --green-gradient,
+    linear-gradient(22deg, #daf1bd 0%, #8eec63 100%)
+  );
+}
+
+.Block_output .Block_text {
+  color: #1d5c00;
+}
+
+.Block_output-error {
+  border: 2px solid #d20019;
+  background: var(
+    --red-gradient,
+    linear-gradient(22deg, #f4c7bf 0%, #ff9ba7 100%)
+  );
+}
+
+.Block_output-error .Block_text {
+  color: #920011;
+}
+
+.Block_from-previous {
+  background: #e7e7e7;
+}
+
+.Block_selected {
+  background: #fff;
+}

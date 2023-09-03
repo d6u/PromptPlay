@@ -1,0 +1,36 @@
+:root {
+  --mono-font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+    monospace;
+  --normal-font-family: "Inter", sans-serif;
+}
+
+/* See https://css-tricks.com/box-sizing/ for why */
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+}
+
+html {
+  height: 100%;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--normal-font-family);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  height: 100%;
+  width: 100%;
+}
+
+code {
+  font-family: var(--mono-font-family);
+}
+
+#root {
+  height: 100%;
+  width: 100%;
+}

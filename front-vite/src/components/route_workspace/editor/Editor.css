@@ -1,0 +1,75 @@
+.Editor {
+  padding: 20px 0;
+  overflow: hidden;
+}
+
+.Editor_box {
+  height: 100%;
+  padding: 0 15px;
+  border: 1px solid #c5c5d2;
+  display: flex;
+  border-radius: 4px;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.Editor_header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.Editor_title {
+  margin: 0;
+  height: 50px;
+  color: #000;
+  font-family: Menlo;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 50px;
+  text-transform: uppercase;
+}
+
+.Editor_header_button_group {
+  align-self: stretch;
+  display: flex;
+}
+
+.Editor_save-button {
+  background: none;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 0;
+  margin-left: 20px;
+}
+
+.Editor_input_block {
+  margin-bottom: 15px;
+}
+
+.Editor_textarea {
+  flex-grow: 1;
+  font-size: 16px;
+  line-height: 1.4;
+  border: none;
+  height: 100%;
+  overflow: auto;
+  padding: 0 0 15px 0;
+  width: 100%;
+  resize: none;
+  display: block;
+  box-sizing: border-box;
+  color: #353740;
+  font-family: "ColfaxAI", helvetica, sans-serif;
+  font-weight: 400;
+}
+
+.Editor_textarea:focus {
+  outline: 0;
+}
+
+/* BlockSet */
+
+.Editor_body-block-set {
+}
