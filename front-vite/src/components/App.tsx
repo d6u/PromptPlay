@@ -1,7 +1,6 @@
 import { ApolloProvider } from "@apollo/client";
 import { CssVarsProvider, extendTheme } from "@mui/joy/styles";
 import { useEffect, useRef, useState } from "react";
-import { RecoilRoot } from "recoil";
 import { ApolloClientType, createApolloClient } from "../state/graphql";
 import { usePersistStore } from "../state/zustand";
 import Routes from "./Routes";
@@ -81,11 +80,9 @@ export default function App() {
 
   return (
     <CssVarsProvider theme={theme}>
-      <RecoilRoot>
-        <ApolloProvider client={apolloClient}>
-          <Routes />
-        </ApolloProvider>
-      </RecoilRoot>
+      <ApolloProvider client={apolloClient}>
+        <Routes />
+      </ApolloProvider>
     </CssVarsProvider>
   );
 }
