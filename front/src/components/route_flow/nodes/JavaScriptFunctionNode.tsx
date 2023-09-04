@@ -1,20 +1,22 @@
 import Button from "@mui/joy/Button";
 import Textarea from "@mui/joy/Textarea";
 import Chance from "chance";
-import { adjust, append, assoc, remove, update } from "ramda";
-import { useCallback, useState } from "react";
+import { adjust, append, assoc, remove } from "ramda";
+import { useState } from "react";
 import { Handle, Position, useUpdateNodeInternals } from "reactflow";
 import styled from "styled-components";
 import { v4 as uuid } from "uuid";
-import NodeInputVariableInput from "../common/NodeInputVariableInput";
+import NodeInputVariableInput, {
+  INPUT_ROW_MARGIN,
+} from "../common/NodeInputVariableInput";
 import { NodeData, NodeInputItem } from "../nodeTypes";
 
 const chance = new Chance();
 
+const CONTAINER_BORDER = 1;
 const CONTAINER_PADDING = 10;
-const VARIABLE_LABEL = 32;
+const VARIABLE_LABEL_HEIGHT = 32;
 const HANDLE_RADIUS = 15;
-const INPUT_ROW_MARGIN_BOTTOM = 10;
 
 const StyledHandle = styled(Handle)`
   width: ${HANDLE_RADIUS}px;
@@ -30,12 +32,14 @@ const InputHandle = styled(StyledHandle)`
 const OutputHandle = styled(StyledHandle)`
   top: unset;
   right: -${HANDLE_RADIUS / 2}px;
-  bottom: ${CONTAINER_PADDING + VARIABLE_LABEL / 2 - HANDLE_RADIUS / 2}px;
+  bottom: ${CONTAINER_PADDING +
+  VARIABLE_LABEL_HEIGHT / 2 -
+  HANDLE_RADIUS / 2}px;
 `;
 
 const Content = styled.div`
   background: #fff;
-  border: 1px solid #000;
+  border: ${CONTAINER_BORDER}px solid #000;
   border-radius: 5px;
   padding: ${CONTAINER_PADDING}px;
 `;
@@ -55,8 +59,8 @@ const CodeTextarea = styled(Textarea)`
 
 const OutputLabel = styled.code`
   display: block;
-  height: ${VARIABLE_LABEL}px;
-  line-height: ${VARIABLE_LABEL}px;
+  height: ${VARIABLE_LABEL_HEIGHT}px;
+  line-height: ${VARIABLE_LABEL_HEIGHT}px;
   text-align: right;
 `;
 
@@ -65,7 +69,7 @@ type Props = {
   data: NodeData;
 };
 
-export default function BaseNode(props: Props) {
+export default function JavaScriptFunctionNode(props: Props) {
   const updateNodeInternals = useUpdateNodeInternals();
 
   const [inputs, setInputs] = useState<NodeInputItem[]>([]);
@@ -81,15 +85,31 @@ export default function BaseNode(props: Props) {
           position={Position.Left}
           style={{
             top:
+              CONTAINER_BORDER +
               CONTAINER_PADDING +
-              (INPUT_ROW_MARGIN_BOTTOM + VARIABLE_LABEL) * i +
-              VARIABLE_LABEL / 2 -
+              VARIABLE_LABEL_HEIGHT +
+              INPUT_ROW_MARGIN +
+              (INPUT_ROW_MARGIN + VARIABLE_LABEL_HEIGHT) * i +
+              VARIABLE_LABEL_HEIGHT / 2 -
               HANDLE_RADIUS / 2,
           }}
         />
       ))}
       <Content>
         <Section>
+          <Button
+            color="success"
+            size="sm"
+            variant="outlined"
+            onClick={() => {
+              setInputs((inputs) =>
+                append({ id: uuid(), value: chance.word() }, inputs)
+              );
+              updateNodeInternals(props.id);
+            }}
+          >
+            Add
+          </Button>
           {inputs.map((input, i) => (
             <NodeInputVariableInput
               key={input.id}
@@ -106,19 +126,6 @@ export default function BaseNode(props: Props) {
               }}
             />
           ))}
-          <Button
-            color="success"
-            size="sm"
-            variant="outlined"
-            onClick={() => {
-              setInputs((inputs) =>
-                append({ id: uuid(), value: chance.word() }, inputs)
-              );
-              updateNodeInternals(props.id);
-            }}
-          >
-            Add
-          </Button>
         </Section>
         <Section>
           <code>{`function (${inputs.map((v) => v.value).join(", ")}) {`}</code>

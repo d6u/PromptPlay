@@ -16,7 +16,10 @@ export default function CanvasPanel(props: Props) {
   return (
     <Panel position="top-center">
       <Content>
-        <Button size="sm" onClick={() => props.onAddNode(NodeType.BaseNode)}>
+        <Button
+          size="sm"
+          onClick={() => props.onAddNode(NodeType.JavaScriptFunctionNode)}
+        >
           Add base node
         </Button>
         <Button size="sm" onClick={() => {}}>

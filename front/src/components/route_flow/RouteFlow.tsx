@@ -1,5 +1,5 @@
 import { append } from "ramda";
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 import ReactFlow, {
   Controls,
   Background,
@@ -7,33 +7,28 @@ import ReactFlow, {
   useEdgesState,
   addEdge,
   BackgroundVariant,
+  OnConnect,
 } from "reactflow";
 import "reactflow/dist/style.css";
 import styled from "styled-components";
 import { v4 as uuid } from "uuid";
 import CanvasPanel from "./CanvasPanel";
 import { NodeType } from "./nodeTypes";
-import BaseNode from "./nodes/BaseNode";
+import JavaScriptFunctionNode from "./nodes/JavaScriptFunctionNode";
 
 const Container = styled.div`
   flex-grow: 1;
 `;
 
-const initialNodes = [
-  { id: "1", position: { x: 0, y: 0 }, data: { label: "1" } },
-  { id: "2", position: { x: 0, y: 100 }, data: { label: "2" } },
-];
-const initialEdges = [{ id: "e1-2", source: "1", target: "2" }];
-
 const NODE_TYPES = {
-  [NodeType.BaseNode]: BaseNode,
+  [NodeType.JavaScriptFunctionNode]: JavaScriptFunctionNode,
 };
 
 export default function RouteFlow() {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
-  const onConnect = useCallback(
+  const onConnect: OnConnect = useCallback(
     (params) => {
       setEdges((eds) => addEdge(params, eds));
     },

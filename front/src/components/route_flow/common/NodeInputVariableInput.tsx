@@ -3,9 +3,11 @@ import Input from "@mui/joy/Input";
 import { useState } from "react";
 import styled from "styled-components";
 
+export const INPUT_ROW_MARGIN = 5;
+
 const Container = styled.div`
   display: flex;
-  margin-bottom: 10px;
+  margin-top: ${INPUT_ROW_MARGIN}px;
 `;
 
 const NameInput = styled(Input)`

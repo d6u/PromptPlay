@@ -1,5 +1,5 @@
 export enum NodeType {
-  BaseNode = "BaseNode",
+  JavaScriptFunctionNode = "JavaScriptFunctionNode",
 }
 
 export type NodeData = {
