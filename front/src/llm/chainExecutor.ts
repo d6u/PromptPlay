@@ -1,10 +1,6 @@
-import {
-  HACK__OPEN_AI_API_KEY,
-  getBlockConfigByType,
-} from "../static/blockConfigs";
+import { getBlockConfigByType } from "../static/blockConfigs";
 import {
   Block,
-  BlockType,
   BlockVariablesConfiguration,
   SpaceContent,
 } from "../static/spaceTypes";
@@ -12,17 +8,16 @@ import { isBlockGroupAnchor } from "../static/spaceUtils";
 
 export async function execute({
   spaceContent,
-  openAiApiKey,
   onExecuteStart,
   onBlockUpdate,
 }: {
   spaceContent: SpaceContent;
-  openAiApiKey: string;
   onExecuteStart: (blockId: string) => void;
   onBlockUpdate: (block: Block) => void;
 }) {
   console.debug(JSON.stringify(spaceContent, null, 2));
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const scope: { [key: string]: any } = {};
 
   for (const [index, anchor] of spaceContent.root.blocks.entries()) {
@@ -39,6 +34,7 @@ export async function execute({
 
     const blockConfig = getBlockConfigByType(block.type);
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let args: any = null;
 
     switch (block.inputConfiguration) {
@@ -56,11 +52,6 @@ export async function execute({
     }
 
     console.debug("args", args);
-
-    // TODO: Find a better way to pass the openaiApiKey
-    if (block.type === BlockType.Llm) {
-      args[HACK__OPEN_AI_API_KEY] = openAiApiKey;
-    }
 
     const executeResult = await blockConfig.executeFunc(
       block,

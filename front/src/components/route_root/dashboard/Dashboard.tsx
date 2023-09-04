@@ -1,12 +1,12 @@
-import { useMutation } from "@apollo/client";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import { FragmentType, gql, useFragment } from "../../../__generated__";
+import { useMutation } from "urql";
+import { FragmentType, graphql, useFragment } from "../../../gql";
 import { pathToSpace } from "../../../static/routeConfigs";
-import { ROOT_ROUTE_QUERY } from "../queries";
-import DashboardTile, { DashboardTileType } from "./DashboardTile";
+import DashboardTile from "./DashboardTile";
+import { DashboardTileType } from "./dashboardTypes";
 
-const DASHBOARD_FRAGMENT = gql(`
+const DASHBOARD_FRAGMENT = graphql(`
   fragment Dashboard on User {
     spaces {
       id
@@ -16,7 +16,7 @@ const DASHBOARD_FRAGMENT = gql(`
   }
 `);
 
-const CREATE_SPACE_MUTATION = gql(`
+const CREATE_SPACE_MUTATION = graphql(`
   mutation CreateSpaceMutation {
     result: createSpace {
       id
@@ -58,9 +58,7 @@ export default function Dashboard({
 }) {
   const navigate = useNavigate();
   const dashboard = useFragment(DASHBOARD_FRAGMENT, dashboardFragment);
-  const [createSpace] = useMutation(CREATE_SPACE_MUTATION, {
-    refetchQueries: [ROOT_ROUTE_QUERY],
-  });
+  const [, createSpace] = useMutation(CREATE_SPACE_MUTATION);
 
   return (
     <Container>
@@ -69,9 +67,9 @@ export default function Dashboard({
           key="dashboard-tile-add"
           type={DashboardTileType.ADD}
           onClick={() => {
-            createSpace().then(({ errors, data }) => {
-              if (errors || data?.result?.id == null) {
-                console.error(errors);
+            createSpace({}).then(({ error, data }) => {
+              if (error || data?.result?.id == null) {
+                console.error(error);
                 return;
               }
 

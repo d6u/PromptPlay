@@ -1,10 +1,6 @@
-import { ApolloProvider } from "@apollo/client";
 import { CssVarsProvider, extendTheme } from "@mui/joy/styles";
-import { useEffect, useRef, useState } from "react";
-import { RecoilRoot, useRecoilValue } from "recoil";
-import { RecoilSync } from "recoil-sync";
-import { ApolloClientType, createApolloClient } from "../state/graphql";
-import { LOCAL_USER_SETTINGS, placeholderUserTokenState } from "../state/store";
+import { Provider as GraphQLProvider } from "urql";
+import { client } from "../state/urql";
 import Routes from "./Routes";
 import "./App.css";
 
@@ -61,43 +57,10 @@ const theme = extendTheme({
 
 export default function App() {
   return (
-    <CssVarsProvider theme={theme}>
-      <RecoilRoot>
-        <RecoilSync
-          storeKey={LOCAL_USER_SETTINGS}
-          read={(itemKey) => localStorage.getItem(itemKey) ?? ""}
-          write={({ diff }) => {
-            for (const [key, value] of diff) {
-              localStorage.setItem(key, value as string);
-            }
-          }}
-        >
-          <AppGraphQl />
-        </RecoilSync>
-      </RecoilRoot>
-    </CssVarsProvider>
-  );
-}
-
-// Split into two components to because useRecoilValue needs RecoilRoot
-function AppGraphQl() {
-  const placeholderUserToken = useRecoilValue(placeholderUserTokenState);
-  const prevPlaceholderUserTokenRef = useRef<string>(placeholderUserToken);
-  const [apolloClient, setApolloClient] = useState<ApolloClientType>(
-    createApolloClient({ placeholderUserToken })
-  );
-
-  useEffect(() => {
-    if (prevPlaceholderUserTokenRef.current === placeholderUserToken) {
-      return;
-    }
-    prevPlaceholderUserTokenRef.current = placeholderUserToken;
-    setApolloClient(createApolloClient({ placeholderUserToken }));
-  }, [placeholderUserToken]);
-
-  return (
-    <ApolloProvider client={apolloClient}>
-      <Routes />
-    </ApolloProvider>
+    <GraphQLProvider value={client}>
+      <CssVarsProvider theme={theme}>
+        <Routes />
+      </CssVarsProvider>
+    </GraphQLProvider>
   );
 }

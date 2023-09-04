@@ -1,19 +1,14 @@
-import { useMutation, useQuery } from "@apollo/client";
 import { useCallback, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { useRecoilValue, useSetRecoilState } from "recoil";
 import styled from "styled-components";
 import u from "updeep";
+import { useMutation, useQuery } from "urql";
 import { execute } from "../../llm/chainExecutor";
 import {
   SPACE_QUERY,
   UPDATE_SPACE_CONTENT_MUTATION,
 } from "../../state/spaceGraphQl";
-import {
-  missingOpenAiApiKeyState,
-  openAiApiKeyState,
-  spaceV2SelectedBlockIdState,
-} from "../../state/store";
+import { usePersistStore, useStore } from "../../state/zustand";
 import { Block, BlockType, SpaceContent } from "../../static/spaceTypes";
 import { validate } from "../../static/spaceUtils";
 import Designer from "./body/Designer";
@@ -27,20 +22,24 @@ const Content = styled.div`
   min-height: 0;
 `;
 
-type Props = {};
+export default function RouteSpace() {
+  const openAiApiKey = usePersistStore((state) => state.openAiApiKey);
+  const setMissingOpenAiApiKey = useStore(
+    (state) => state.setMissingOpenAiApiKey
+  );
 
-export default function RouteSpace(props: Props) {
   // TODO: Properly handle spaceId not being present
   const { spaceId = "" } = useParams<{ spaceId: string }>();
 
-  const spaceV2SelectedBlockId = useRecoilValue(spaceV2SelectedBlockIdState);
-  const openAiApiKey = useRecoilValue(openAiApiKeyState);
-  const setMissingOpenAiApiKey = useSetRecoilState(missingOpenAiApiKeyState);
-  const setSpaceV2SelectedBlockId = useSetRecoilState(
-    spaceV2SelectedBlockIdState
+  const spaceV2SelectedBlockId = useStore(
+    (state) => state.spaceV2SelectedBlockId
+  );
+  const setSpaceV2SelectedBlockId = useStore(
+    (state) => state.setSpaceV2SelectedBlockId
   );
 
-  const query = useQuery(SPACE_QUERY, {
+  const [queryResult] = useQuery({
+    query: SPACE_QUERY,
     variables: {
       spaceId: spaceId,
     },
@@ -50,14 +49,14 @@ export default function RouteSpace(props: Props) {
 
   // Sync up server data with local state
   useEffect(() => {
-    if (query.data?.result?.space.content) {
-      setSpaceContent(JSON.parse(query.data.result?.space.content));
+    if (queryResult.data?.result?.space.content) {
+      setSpaceContent(JSON.parse(queryResult.data.result?.space.content));
     } else {
       setSpaceContent(null);
     }
-  }, [query.data?.result?.space.content]);
+  }, [queryResult.data?.result?.space.content]);
 
-  const [updateSpaceContent] = useMutation(UPDATE_SPACE_CONTENT_MUTATION);
+  const [, updateSpaceContent] = useMutation(UPDATE_SPACE_CONTENT_MUTATION);
 
   const [isExecuting, setIsExecuting] = useState(false);
   const [currentExecutingBlockId, setCurrentExecutingBlockId] = useState<
@@ -75,7 +74,7 @@ export default function RouteSpace(props: Props) {
     // TODO: Find a better way to do validation
     for (const block of Object.values(spaceContent.components)) {
       if (block.type === BlockType.Llm) {
-        if (openAiApiKey == null || openAiApiKey === "") {
+        if (!openAiApiKey) {
           setSpaceV2SelectedBlockId(block.id);
           setMissingOpenAiApiKey(true);
           return;
@@ -91,7 +90,6 @@ export default function RouteSpace(props: Props) {
 
     execute({
       spaceContent,
-      openAiApiKey,
       onExecuteStart: (blockId) => {
         setCurrentExecutingBlockId(blockId);
       },
@@ -107,10 +105,8 @@ export default function RouteSpace(props: Props) {
           })(state) as SpaceContent;
 
           updateSpaceContent({
-            variables: {
-              spaceId: spaceId,
-              content: JSON.stringify(newState),
-            },
+            spaceId: spaceId,
+            content: JSON.stringify(newState),
           });
 
           return newState;
@@ -135,15 +131,15 @@ export default function RouteSpace(props: Props) {
     updateSpaceContent,
   ]);
 
-  if (query.loading) {
+  if (queryResult.fetching) {
     return <div>Loading...</div>;
   }
 
-  if (query.error) {
-    return <div>Error! {query.error.message}</div>;
+  if (queryResult.error) {
+    return <div>Error! {queryResult.error.message}</div>;
   }
 
-  if (!query.data?.result) {
+  if (!queryResult.data?.result) {
     return <div>Could not find any data.</div>;
   }
 
@@ -156,17 +152,15 @@ export default function RouteSpace(props: Props) {
   return (
     <>
       <SpaceV2SubHeader
-        spaceSubHeaderFragment={query.data.result.space}
-        isReadOnly={query.data.result.isReadOnly}
+        spaceSubHeaderFragment={queryResult.data.result.space}
+        isReadOnly={queryResult.data.result.isReadOnly}
         spaceId={spaceId}
         spaceContent={spaceContent}
         onSpaceContentChange={(spaceContent) => {
           setSpaceContent(spaceContent);
           updateSpaceContent({
-            variables: {
-              spaceId: spaceId,
-              content: JSON.stringify(spaceContent),
-            },
+            spaceId: spaceId,
+            content: JSON.stringify(spaceContent),
           });
         }}
         onExecuteVisualChain={onExecuteVisualChain}
@@ -176,9 +170,9 @@ export default function RouteSpace(props: Props) {
         {spaceContent && (
           <>
             <Designer
-              isReadOnly={query.data.result.isReadOnly}
+              isReadOnly={queryResult.data.result.isReadOnly}
               spaceId={spaceId}
-              spaceName={query.data.result.space.name}
+              spaceName={queryResult.data.result.space.name}
               spaceContent={spaceContent}
               isExecuting={isExecuting}
               currentExecutingBlockId={currentExecutingBlockId}
@@ -189,7 +183,7 @@ export default function RouteSpace(props: Props) {
                 // Must provide a key, otherwise it won't re-render when the
                 // selected block changes
                 key={selectedBlock.id}
-                isReadOnly={query.data.result.isReadOnly}
+                isReadOnly={queryResult.data.result.isReadOnly}
                 selectedBlock={selectedBlock}
                 spaceId={spaceId}
                 spaceContent={spaceContent}

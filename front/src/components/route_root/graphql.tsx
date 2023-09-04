@@ -1,22 +1,28 @@
-import { gql } from "../../__generated__";
+import { graphql } from "../../gql";
 
-export const HEADER_QUERY = gql(`
+export const HEADER_QUERY = graphql(`
   query HeaderQuery {
     isLoggedIn
     isPlaceholderUserTokenInvalid
     user {
+      id
       email
       profilePictureUrl
     }
   }
 `);
 
-export const MERGE_PLACEHOLDER_USER_WITH_LOGGED_IN_USER_MUTATION = gql(`
+export const MERGE_PLACEHOLDER_USER_WITH_LOGGED_IN_USER_MUTATION = graphql(`
   mutation MergePlaceholderUserWithLoggedInUserMutation(
     $placeholderUserToken: String!
   ) {
     result: mergePlaceholderUserWithLoggedInUser(
       placeholderUserToken: $placeholderUserToken
-    )
+    ) {
+      id
+      spaces {
+        id
+      }
+    }
   }
 `);

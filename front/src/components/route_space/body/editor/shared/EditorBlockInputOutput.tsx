@@ -1,10 +1,10 @@
-import { useMutation } from "@apollo/client";
 import Button from "@mui/joy/Button";
 import { customAlphabet } from "nanoid";
 import { append, equals, reject, update } from "ramda";
 import { ReactNode } from "react";
 import styled from "styled-components";
 import u from "updeep";
+import { useMutation } from "urql";
 import { UPDATE_SPACE_CONTENT_MUTATION } from "../../../../../state/spaceGraphQl";
 import { Block, SpaceContent } from "../../../../../static/spaceTypes";
 import EditorSingleScopeVariable from "./EditorSingleScopeVariable";
@@ -36,9 +36,9 @@ type Props = {
 );
 
 export default function EditorBlockInputOutput(props: Props) {
-  const [updateSpaceV2] = useMutation(UPDATE_SPACE_CONTENT_MUTATION);
+  const [, updateSpaceV2] = useMutation(UPDATE_SPACE_CONTENT_MUTATION);
 
-  let rows: ReactNode[] = [];
+  const rows: ReactNode[] = [];
 
   if ("singleVariable" in props) {
     rows.push(
@@ -57,10 +57,8 @@ export default function EditorBlockInputOutput(props: Props) {
           })(props.spaceContent) as SpaceContent;
 
           updateSpaceV2({
-            variables: {
-              spaceId: props.spaceId,
-              content: JSON.stringify(newContent),
-            },
+            spaceId: props.spaceId,
+            content: JSON.stringify(newContent),
           });
         }}
       />
@@ -89,10 +87,8 @@ export default function EditorBlockInputOutput(props: Props) {
             })(props.spaceContent) as SpaceContent;
 
             updateSpaceV2({
-              variables: {
-                spaceId: props.spaceId,
-                content: JSON.stringify(newContent),
-              },
+              spaceId: props.spaceId,
+              content: JSON.stringify(newContent),
             });
           }}
           onSaveScopeName={(newValue) => {
@@ -108,10 +104,8 @@ export default function EditorBlockInputOutput(props: Props) {
             })(props.spaceContent) as SpaceContent;
 
             updateSpaceV2({
-              variables: {
-                spaceId: props.spaceId,
-                content: JSON.stringify(newContent),
-              },
+              spaceId: props.spaceId,
+              content: JSON.stringify(newContent),
             });
           }}
           onRemove={() => {
@@ -126,10 +120,8 @@ export default function EditorBlockInputOutput(props: Props) {
             })(props.spaceContent) as SpaceContent;
 
             updateSpaceV2({
-              variables: {
-                spaceId: props.spaceId,
-                content: JSON.stringify(newContent),
-              },
+              spaceId: props.spaceId,
+              content: JSON.stringify(newContent),
             });
           }}
         />
@@ -163,10 +155,8 @@ export default function EditorBlockInputOutput(props: Props) {
           })(props.spaceContent) as SpaceContent;
 
           updateSpaceV2({
-            variables: {
-              spaceId: props.spaceId,
-              content: JSON.stringify(newContent),
-            },
+            spaceId: props.spaceId,
+            content: JSON.stringify(newContent),
           });
         }}
       >

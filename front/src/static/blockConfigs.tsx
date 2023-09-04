@@ -1,6 +1,7 @@
 import { append, assoc, flatten, pipe, prop } from "ramda";
 import { ReactNode } from "react";
-import * as openai from "../llm/openai";
+import * as openai from "../llm/openAi";
+import { usePersistStore } from "../state/zustand";
 import {
   Block,
   BlockAppendToList,
@@ -11,9 +12,6 @@ import {
   BlockParser,
   BlockType,
 } from "./spaceTypes";
-
-// TODO: Find a better way to pass the openaiApiKey
-export const HACK__OPEN_AI_API_KEY = "__openAiApiKey";
 
 export const LLM_STOP_NEW_LINE_SYMBOL = "↵";
 
@@ -28,9 +26,12 @@ type BlockConfig<T extends Block> = {
   renderConfig: (block: T) => ReactNode;
   executeFunc: (
     block: T,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     scope: { [key: string]: any },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     args: any,
     updater: (block: T) => void
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ) => Promise<any>;
 };
 
@@ -183,9 +184,10 @@ const BLOCK_CONFIGS: BlockConfigs = {
       );
     },
     executeFunc: async (block, scope, args, updater) => {
+      const openAiApiKey = usePersistStore.getState().openAiApiKey!;
+
       const result = await openai.getNonStreamingCompletion({
-        // TODO: Find a better way to pass the openaiApiKey
-        apiKey: args[HACK__OPEN_AI_API_KEY],
+        apiKey: openAiApiKey,
         model: block.model,
         temperature: block.temperature,
         stop: block.stop,
@@ -240,11 +242,11 @@ const BLOCK_CONFIGS: BlockConfigs = {
       const argNames = block.inputMap.map((pair) => pair[1]);
       const argValues = block.inputMap.map((pair) => args[pair[1]]);
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let err: any = null;
       let result;
 
       try {
-        // eslint-disable-next-line no-new-func
         const func = Function(...argNames, block.javaScriptCode);
 
         result = func(...argValues);
@@ -279,11 +281,12 @@ const BLOCK_CONFIGS: BlockConfigs = {
 
 // Replace `{xyz}` but ignore `{{zyx}}`
 // If `xyz` doesn't exist on values, null will be provided.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function replacePlaceholders(str: string, values: { [key: string]: any }) {
   const regex = /(?<!\{)\{([^{}]+)\}(?!\})/g;
 
   return str
-    .replace(regex, (match, p1) => {
+    .replace(regex, (_, p1) => {
       return values[p1] !== undefined ? values[p1] : null;
     })
     .replace("{{", "{")

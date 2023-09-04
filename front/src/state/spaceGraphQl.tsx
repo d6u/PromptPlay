@@ -1,6 +1,6 @@
-import { gql } from "../__generated__";
+import { graphql } from "../gql";
 
-export const SPACE_QUERY = gql(`
+export const SPACE_QUERY = graphql(`
   query SpaceQuery($spaceId: UUID!) {
     result: space(id: $spaceId) {
       isReadOnly
@@ -14,7 +14,7 @@ export const SPACE_QUERY = gql(`
   }
 `);
 
-export const UPDATE_SPACE_CONTENT_MUTATION = gql(`
+export const UPDATE_SPACE_CONTENT_MUTATION = graphql(`
   mutation UpdateSpaceContentMutation($spaceId: ID!, $content: String!) {
     updateSpace(id: $spaceId, content: $content) {
       id
@@ -24,7 +24,7 @@ export const UPDATE_SPACE_CONTENT_MUTATION = gql(`
   }
 `);
 
-export const UPDATE_SPACE_NAME_MUTATION = gql(`
+export const UPDATE_SPACE_NAME_MUTATION = graphql(`
   mutation UpdateSpaceNameMutation($spaceId: ID!, $name: String!) {
     updateSpace(id: $spaceId, name: $name) {
       id
@@ -34,7 +34,7 @@ export const UPDATE_SPACE_NAME_MUTATION = gql(`
   }
 `);
 
-export const DELETE_SPACE_MUTATION = gql(`
+export const DELETE_SPACE_MUTATION = graphql(`
   mutation DeleteSpaceMutation($spaceId: ID!) {
     result: deleteSpace(id: $spaceId)
   }

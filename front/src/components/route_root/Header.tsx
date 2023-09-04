@@ -1,11 +1,10 @@
-import { useMutation, useQuery } from "@apollo/client";
 import { Button } from "@mui/joy";
 import { useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
-import { useRecoilState } from "recoil";
 import styled from "styled-components";
+import { useMutation, useQuery } from "urql";
 import { IS_LOGIN_ENABLED, PROVIDE_FEEDBACK_LINK } from "../../constants";
-import { placeholderUserTokenState } from "../../state/store";
+import { usePersistStore } from "../../state/zustand";
 import { LOGIN_PATH, LOGOUT_PATH } from "../../static/routeConfigs";
 import StyleResetLink from "../common/StyleResetLink";
 import {
@@ -69,22 +68,23 @@ const Email = styled.div`
 `;
 
 export default function Header() {
-  let [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const [placeholderUserToken, setPlaceholderUserToken] = useRecoilState(
-    placeholderUserTokenState
+  const placeholderUserToken = usePersistStore(
+    (state) => state.placeholderUserToken
+  );
+  const setPlaceholderUserToken = usePersistStore(
+    (state) => state.setPlaceholderUserToken
   );
 
-  const [mergePlaceholderUserWithLoggedInUser] = useMutation(
-    MERGE_PLACEHOLDER_USER_WITH_LOGGED_IN_USER_MUTATION,
-    {
-      refetchQueries: [{ query: HEADER_QUERY }],
-    }
+  const [, mergePlaceholderUserWithLoggedInUser] = useMutation(
+    MERGE_PLACEHOLDER_USER_WITH_LOGGED_IN_USER_MUTATION
   );
 
-  const queryResult = useQuery(HEADER_QUERY, {
-    fetchPolicy: "no-cache",
-    skip: !IS_LOGIN_ENABLED,
+  const [queryResult] = useQuery({
+    query: HEADER_QUERY,
+    requestPolicy: "network-only",
+    pause: !IS_LOGIN_ENABLED,
   });
 
   const isNewUser = searchParams.get("new_user") === "true";
@@ -95,21 +95,21 @@ export default function Header() {
   // TODO: Putting this logic in this component is pretty ad-hoc, and this will
   // break if Header is not always rendered on page.
   useEffect(() => {
-    if (placeholderUserToken === "") {
+    if (!placeholderUserToken) {
       return;
     }
 
     if (isPlaceholderUserTokenInvalid) {
-      setPlaceholderUserToken("");
+      setPlaceholderUserToken(null);
     }
 
     if (!isPlaceholderUserTokenInvalid && isLoggedIn && isNewUser) {
       setSearchParams({});
 
       mergePlaceholderUserWithLoggedInUser({
-        variables: { placeholderUserToken },
+        placeholderUserToken,
       }).then(() => {
-        setPlaceholderUserToken("");
+        setPlaceholderUserToken(null);
       });
     }
   }, [
@@ -122,7 +122,7 @@ export default function Header() {
     mergePlaceholderUserWithLoggedInUser,
   ]);
 
-  if (queryResult.loading) {
+  if (queryResult.fetching) {
     return <div>Loading...</div>;
   }
 

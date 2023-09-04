@@ -1,62 +1,27 @@
-# "Front" is a React App
+# React + TypeScript + Vite
 
-_This was created by using `create-react-app`._ The creation command used is:
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-```sh
-# In repo root directory
-npx create-react-app front --template typescript
+Currently, two official plugins are available:
+
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+
+## Expanding the ESLint configuration
+
+If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+
+- Configure the top-level `parserOptions` property like this:
+
+```js
+   parserOptions: {
+    ecmaVersion: 'latest',
+    sourceType: 'module',
+    project: ['./tsconfig.json', './tsconfig.node.json'],
+    tsconfigRootDir: __dirname,
+   },
 ```
 
-_`npx` is a tool comes with Node.js environment._
-
-## Setup
-
-**Every command runs in current directory, i.e. `front`, unless otherwise mentioned.**
-
-_Making sure first to finish the setup steps mentioned in repo root README._
-
-1. **(Every time for new repo clone and there are changes in npm dependencies.)** Install npm dependencies.
-   ```sh
-   npm i
-   ```
-
-## Workflow
-
-**Every command runs in current directory, i.e. `front`, unless otherwise mentioned.**
-
-Set up development server and open the frontend page in browser.
-
-```sh
-npm start
-```
-
-- To access frontend page: [localhost:3000](http://localhost:3000)
-- The page will hot reload if you make edits to any JS files.
-
-In a seperate terminal:
-
-```sh
-npm run watch
-```
-
-This will start GraphQL codegen process and watch for changes in client side GraphQL usage.
-
-**Make sure the Studio Server is started and `127.0.0.1:8000/graphql` is accessible.** This command depends on the server side GraphQL schema.
-
-You can also run codegen command on demand:
-
-```sh
-npm run compile
-```
-
-### `npm test`
-
-**There is no tests for now.**
-
-Launches the test runner in the interactive watch mode. See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-**There is no deployment for now.**
-
-Builds the app for production to the `build` folder. It correctly bundles React in production mode and optimizes the build for the best performance. The build is minified and the filenames include the hashes.
+- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
+- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
+- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
