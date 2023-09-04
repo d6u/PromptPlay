@@ -1,8 +1,8 @@
-import { useMutation, useQuery } from "@apollo/client";
 import { Button } from "@mui/joy";
 import { useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import styled from "styled-components";
+import { useMutation, useQuery } from "urql";
 import { IS_LOGIN_ENABLED, PROVIDE_FEEDBACK_LINK } from "../../constants";
 import { usePersistStore } from "../../state/zustand";
 import { LOGIN_PATH, LOGOUT_PATH } from "../../static/routeConfigs";
@@ -77,16 +77,14 @@ export default function Header() {
     (state) => state.setPlaceholderUserToken
   );
 
-  const [mergePlaceholderUserWithLoggedInUser] = useMutation(
-    MERGE_PLACEHOLDER_USER_WITH_LOGGED_IN_USER_MUTATION,
-    {
-      refetchQueries: [{ query: HEADER_QUERY }],
-    }
+  const [, mergePlaceholderUserWithLoggedInUser] = useMutation(
+    MERGE_PLACEHOLDER_USER_WITH_LOGGED_IN_USER_MUTATION
   );
 
-  const queryResult = useQuery(HEADER_QUERY, {
-    fetchPolicy: "no-cache",
-    skip: !IS_LOGIN_ENABLED,
+  const [queryResult] = useQuery({
+    query: HEADER_QUERY,
+    requestPolicy: "network-only",
+    pause: !IS_LOGIN_ENABLED,
   });
 
   const isNewUser = searchParams.get("new_user") === "true";
@@ -109,7 +107,7 @@ export default function Header() {
       setSearchParams({});
 
       mergePlaceholderUserWithLoggedInUser({
-        variables: { placeholderUserToken },
+        placeholderUserToken,
       }).then(() => {
         setPlaceholderUserToken(null);
       });
@@ -124,7 +122,7 @@ export default function Header() {
     mergePlaceholderUserWithLoggedInUser,
   ]);
 
-  if (queryResult.loading) {
+  if (queryResult.fetching) {
     return <div>Loading...</div>;
   }
 

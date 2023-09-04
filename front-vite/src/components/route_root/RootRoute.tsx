@@ -1,15 +1,15 @@
-import { useMutation, useQuery } from "@apollo/client";
 import { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import styled, { css } from "styled-components";
-import { gql } from "../../__generated__";
+import { useMutation, useQuery } from "urql";
 import { IS_LOGIN_ENABLED } from "../../constants";
+import { graphql } from "../../gql";
 import { usePersistStore } from "../../state/zustand";
 import { LOGIN_PATH, pathToSpace } from "../../static/routeConfigs";
 import Dashboard from "./dashboard/Dashboard";
 import { ROOT_ROUTE_QUERY } from "./queries";
 
-const CREATE_PLACEHOLDER_USER_AND_EXAMPLE_SPACE_MUTATION = gql(`
+const CREATE_PLACEHOLDER_USER_AND_EXAMPLE_SPACE_MUTATION = graphql(`
   mutation CreatePlaceholderUserAndExampleSpaceMutation {
     result: createPlaceholderUserAndExampleSpace {
       placeholderClientToken
@@ -72,22 +72,20 @@ export default function RootRoute() {
 
   // --- GraphQL ---
 
-  const queryResult = useQuery(ROOT_ROUTE_QUERY, {
-    fetchPolicy: "cache-and-network",
+  const [queryResult] = useQuery({
+    query: ROOT_ROUTE_QUERY,
+    requestPolicy: "cache-and-network",
   });
 
-  const [createExampleSpace] = useMutation(
-    CREATE_PLACEHOLDER_USER_AND_EXAMPLE_SPACE_MUTATION,
-    {
-      refetchQueries: [ROOT_ROUTE_QUERY],
-    }
+  const [, createExampleSpace] = useMutation(
+    CREATE_PLACEHOLDER_USER_AND_EXAMPLE_SPACE_MUTATION
   );
 
   const onClick = useCallback(() => {
-    createExampleSpace().then(({ errors, data }) => {
-      if (errors) {
+    createExampleSpace({}).then(({ error, data }) => {
+      if (error) {
         // TODO: Handle errors
-        console.error(errors);
+        console.error(error);
         return;
       }
 
@@ -103,7 +101,7 @@ export default function RootRoute() {
     });
   }, [createExampleSpace, setPlaceholderUserToken, navigate]);
 
-  if (queryResult.loading) {
+  if (queryResult.fetching) {
     return <div>Loading...</div>;
   }
 
