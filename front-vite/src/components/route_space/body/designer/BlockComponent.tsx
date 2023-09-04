@@ -10,11 +10,12 @@ import {
   BlockVariablesConfiguration,
   SpaceContent,
 } from "../../../../static/spaceTypes";
-import BlockV2, {
+import BlockV2 from "../../../block_v2/BlockV2";
+import {
   BlockWidthClass,
   VisualBlockType,
   blockTypeToVisualBlockType,
-} from "../../../block_v2/BlockV2";
+} from "../../../block_v2/blockV2Types";
 import BlockVariableMap from "./BlockVariableMap";
 
 const Container = styled.div<{ $isDragging: boolean }>`

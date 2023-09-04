@@ -26,9 +26,12 @@ type BlockConfig<T extends Block> = {
   renderConfig: (block: T) => ReactNode;
   executeFunc: (
     block: T,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     scope: { [key: string]: any },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     args: any,
     updater: (block: T) => void
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ) => Promise<any>;
 };
 
@@ -239,11 +242,11 @@ const BLOCK_CONFIGS: BlockConfigs = {
       const argNames = block.inputMap.map((pair) => pair[1]);
       const argValues = block.inputMap.map((pair) => args[pair[1]]);
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let err: any = null;
       let result;
 
       try {
-        // eslint-disable-next-line no-new-func
         const func = Function(...argNames, block.javaScriptCode);
 
         result = func(...argValues);
@@ -278,6 +281,7 @@ const BLOCK_CONFIGS: BlockConfigs = {
 
 // Replace `{xyz}` but ignore `{{zyx}}`
 // If `xyz` doesn't exist on values, null will be provided.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function replacePlaceholders(str: string, values: { [key: string]: any }) {
   const regex = /(?<!\{)\{([^{}]+)\}(?!\})/g;
 

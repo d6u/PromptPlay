@@ -3,7 +3,8 @@ import styled from "styled-components";
 import { useMutation } from "urql";
 import { FragmentType, graphql, useFragment } from "../../../gql";
 import { pathToSpace } from "../../../static/routeConfigs";
-import DashboardTile, { DashboardTileType } from "./DashboardTile";
+import DashboardTile from "./DashboardTile";
+import { DashboardTileType } from "./dashboardTypes";
 
 const DASHBOARD_FRAGMENT = graphql(`
   fragment Dashboard on User {

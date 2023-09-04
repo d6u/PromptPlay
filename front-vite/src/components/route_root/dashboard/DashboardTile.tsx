@@ -1,5 +1,6 @@
 import styled, { css } from "styled-components";
 import StyleResetLink from "../../common/StyleResetLink";
+import { DashboardTileType } from "./dashboardTypes";
 
 const Tile = styled.div<{ $add?: boolean }>`
   aspect-ratio: 1 / 1;
@@ -41,11 +42,6 @@ const TileContent = styled.div`
   overflow-wrap: break-word;
   overflow: hidden;
 `;
-
-export enum DashboardTileType {
-  ADD = "ADD",
-  SPACE = "SPACE",
-}
 
 type Props = (
   | {

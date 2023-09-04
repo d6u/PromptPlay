@@ -28,7 +28,7 @@ type Props = {
 };
 
 export default function Designer(props: Props) {
-  const [_, updateSpaceV2] = useMutation(UPDATE_SPACE_CONTENT_MUTATION);
+  const [, updateSpaceV2] = useMutation(UPDATE_SPACE_CONTENT_MUTATION);
 
   const onDragEnd = useCallback(
     async (event: DragEndEvent) => {
@@ -45,7 +45,7 @@ export default function Designer(props: Props) {
         content: contentJson,
       });
     },
-    [props.spaceId, props.spaceName, props.spaceContent, updateSpaceV2]
+    [props.spaceId, props.spaceContent, updateSpaceV2]
   );
 
   const sensors = useDefaultSensors();

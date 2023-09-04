@@ -38,7 +38,7 @@ type Props = {
 export default function EditorBlockInputOutput(props: Props) {
   const [, updateSpaceV2] = useMutation(UPDATE_SPACE_CONTENT_MUTATION);
 
-  let rows: ReactNode[] = [];
+  const rows: ReactNode[] = [];
 
   if ("singleVariable" in props) {
     rows.push(
