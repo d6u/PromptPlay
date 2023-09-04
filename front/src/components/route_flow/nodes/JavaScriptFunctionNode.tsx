@@ -73,7 +73,9 @@ export default function JavaScriptFunctionNode(props: Props) {
   const updateNodeInternals = useUpdateNodeInternals();
 
   const [inputs, setInputs] = useState<NodeInputItem[]>([]);
-  const [javaScriptCode, setJavaScriptCode] = useState("");
+  const [javaScriptCode, setJavaScriptCode] = useState(
+    'return "Hello, World!"'
+  );
 
   return (
     <>

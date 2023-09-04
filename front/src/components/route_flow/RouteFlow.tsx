@@ -1,17 +1,10 @@
-import { append } from "ramda";
-import { useCallback } from "react";
-import ReactFlow, {
-  Controls,
-  Background,
-  useNodesState,
-  useEdgesState,
-  addEdge,
-  BackgroundVariant,
-  OnConnect,
-} from "reactflow";
+import { useEffect } from "react";
+import { useParams } from "react-router-dom";
+import ReactFlow, { Controls, Background, BackgroundVariant } from "reactflow";
 import "reactflow/dist/style.css";
 import styled from "styled-components";
 import { v4 as uuid } from "uuid";
+import { RFState, useRFStore } from "../../state/flowState";
 import CanvasPanel from "./CanvasPanel";
 import { NodeType } from "./nodeTypes";
 import JavaScriptFunctionNode from "./nodes/JavaScriptFunctionNode";
@@ -24,16 +17,33 @@ const NODE_TYPES = {
   [NodeType.JavaScriptFunctionNode]: JavaScriptFunctionNode,
 };
 
-export default function RouteFlow() {
-  const [nodes, setNodes, onNodesChange] = useNodesState([]);
-  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+const selector = (state: RFState) => ({
+  onInitialize: state.onInitialize,
+  nodes: state.nodes,
+  edges: state.edges,
+  onAddNode: state.onAddNode,
+  onNodesChange: state.onNodesChange,
+  onEdgesChange: state.onEdgesChange,
+  onConnect: state.onConnect,
+});
 
-  const onConnect: OnConnect = useCallback(
-    (params) => {
-      setEdges((eds) => addEdge(params, eds));
-    },
-    [setEdges]
-  );
+export default function RouteFlow() {
+  // TODO: Properly handle spaceId not being present
+  const { spaceId = "" } = useParams<{ spaceId: string }>();
+
+  const {
+    onInitialize,
+    nodes,
+    edges,
+    onAddNode,
+    onNodesChange,
+    onEdgesChange,
+    onConnect,
+  } = useRFStore(selector);
+
+  useEffect(() => {
+    onInitialize(spaceId);
+  }, [onInitialize, spaceId]);
 
   return (
     <Container>
@@ -46,19 +56,14 @@ export default function RouteFlow() {
         nodeTypes={NODE_TYPES}
       >
         <CanvasPanel
-          onAddNode={(type) => {
-            setNodes((nodes) =>
-              append(
-                {
-                  id: uuid(),
-                  position: { x: 200, y: 200 },
-                  type,
-                  data: {},
-                },
-                nodes
-              )
-            );
-          }}
+          onAddNode={(type) =>
+            onAddNode({
+              id: uuid(),
+              position: { x: 200, y: 200 },
+              type,
+              data: {},
+            })
+          }
         />
         <Controls />
         <Background variant={BackgroundVariant.Dots} gap={20} size={1} />
