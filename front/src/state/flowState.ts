@@ -1,5 +1,19 @@
 import debounce from "lodash/debounce";
-import { adjust, append, findIndex, map, mergeLeft, pick, reject } from "ramda";
+import {
+  adjust,
+  any,
+  append,
+  equals,
+  findIndex,
+  map,
+  mergeLeft,
+  path,
+  pick,
+  pipe,
+  prop,
+  propEq,
+  reject,
+} from "ramda";
 import {
   Node,
   Edge,
@@ -18,6 +32,7 @@ import { graphql } from "../gql";
 import {
   EdgeWithHandle,
   NodeData,
+  NodeInputItem,
   NodeWithType,
   ServerEdge,
   ServerNode,
@@ -57,9 +72,26 @@ const updateSpaceDebounced = debounce(
       pick<string>(["id", "type", "position", "data"])
     )(nodes as NodeWithType[]);
 
-    const newEdges = map<EdgeWithHandle, ServerEdge>(
+    let newEdges = map<EdgeWithHandle, ServerEdge>(
       pick<string>(["id", "source", "sourceHandle", "target", "targetHandle"])
     )(edges as EdgeWithHandle[]);
+
+    // Remove invalid edges
+    newEdges = newEdges.filter((edge) => {
+      const targetHandleId = edge.targetHandle!.split(":")[2];
+
+      return (
+        any(propEq(edge.source, "id"))(nodes) &&
+        any(propEq(edge.target, "id"))(nodes) &&
+        any(
+          pipe<[Node<NodeData>], NodeInputItem[], string[], boolean>(
+            path(["data", "inputs"]) as (o: Node<NodeData>) => NodeInputItem[],
+            map(prop("id")),
+            any(equals(targetHandleId))
+          )
+        )(nodes)
+      );
+    });
 
     await client.mutation(UPDATE_SPACE_FLOW_CONTENT_MUTATION, {
       spaceId,
@@ -131,8 +163,6 @@ export const useRFStore = create<RFState>((set, get) => ({
     const nodes = adjust<Node>(index, mergeLeft(node))(get().nodes);
 
     set({ nodes });
-
-    console.log(nodes);
 
     await updateSpaceDebounced(spaceId, nodes, get().edges);
   },

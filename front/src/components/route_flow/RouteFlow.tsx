@@ -7,6 +7,7 @@ import { v4 as uuid } from "uuid";
 import { RFState, useRFStore } from "../../state/flowState";
 import { NodeType } from "../../state/flowTypes";
 import CanvasPanel from "./CanvasPanel";
+import { executeNode } from "./execute";
 import JavaScriptFunctionNode from "./nodes/JavaScriptFunctionNode";
 
 const Container = styled.div`
@@ -56,6 +57,9 @@ export default function RouteFlow() {
         nodeTypes={NODE_TYPES}
       >
         <CanvasPanel
+          onRun={() => {
+            executeNode(nodes, edges);
+          }}
           onAddNode={(type) =>
             onAddNode({
               id: uuid(),

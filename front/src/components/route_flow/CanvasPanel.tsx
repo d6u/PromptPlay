@@ -9,6 +9,7 @@ const Content = styled.div`
 `;
 
 type Props = {
+  onRun: () => void;
   onAddNode: (type: NodeType) => void;
 };
 
@@ -16,6 +17,9 @@ export default function CanvasPanel(props: Props) {
   return (
     <Panel position="top-center">
       <Content>
+        <Button size="sm" onClick={() => props.onRun()}>
+          Run
+        </Button>
         <Button
           size="sm"
           onClick={() => props.onAddNode(NodeType.JavaScriptFunctionNode)}
