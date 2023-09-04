@@ -18,6 +18,11 @@ export const MERGE_PLACEHOLDER_USER_WITH_LOGGED_IN_USER_MUTATION = graphql(`
   ) {
     result: mergePlaceholderUserWithLoggedInUser(
       placeholderUserToken: $placeholderUserToken
-    )
+    ) {
+      id
+      spaces {
+        id
+      }
+    }
   }
 `);

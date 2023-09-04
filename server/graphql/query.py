@@ -57,12 +57,7 @@ class Query:
     @strawberry.field
     @ensure_db_user
     def user(self: None, info: Info, db_user: OrmUser) -> User | None:
-        return User(
-            db_user=db_user,
-            id=db_user.id,
-            email=db_user.email,
-            profile_picture_url=db_user.profile_picture_url,
-        )
+        return User.from_db(db_user)
 
     @strawberry.field
     @ensure_db_user

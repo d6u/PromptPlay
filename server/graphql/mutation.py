@@ -21,6 +21,7 @@ from .types import (
     CreateExampleWorkspaceResult,
     CreatePlaceholderUserAndExampleSpaceResult,
     Space,
+    User,
     Workspace,
 )
 from .utils import ensure_db_user
@@ -113,7 +114,7 @@ class Mutation(
         info: Info,
         db_user: OrmUser,
         placeholder_user_token: str,
-    ) -> bool | None:
+    ) -> User | None:
         db = info.context.db
 
         db_placeholder_user = db.scalar(
@@ -123,7 +124,7 @@ class Mutation(
         )
 
         if db_placeholder_user == None:
-            return False
+            return None
 
         # Merge placeholder user into the new user
 
@@ -137,4 +138,4 @@ class Mutation(
 
         db.commit()
 
-        return True
+        return User.from_db(db_user)
