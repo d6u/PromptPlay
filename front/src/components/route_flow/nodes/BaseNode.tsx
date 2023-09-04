@@ -1,4 +1,5 @@
 import Button from "@mui/joy/Button";
+import Textarea from "@mui/joy/Textarea";
 import Chance from "chance";
 import { adjust, append, assoc, remove, update } from "ramda";
 import { useCallback, useState } from "react";
@@ -11,9 +12,26 @@ import { NodeData, NodeInputItem } from "../nodeTypes";
 const chance = new Chance();
 
 const CONTAINER_PADDING = 10;
-const INPUT_HEIGHT = 32;
-const INPUT_MARGIN_BOTTOM = 10;
-const HANDLE_HEIGHT = 15;
+const VARIABLE_LABEL = 32;
+const HANDLE_RADIUS = 15;
+const INPUT_ROW_MARGIN_BOTTOM = 10;
+
+const StyledHandle = styled(Handle)`
+  width: ${HANDLE_RADIUS}px;
+  height: ${HANDLE_RADIUS}px;
+  background: #5cc5e0;
+  transform: none;
+`;
+
+const InputHandle = styled(StyledHandle)`
+  left: -${HANDLE_RADIUS / 2}px;
+`;
+
+const OutputHandle = styled(StyledHandle)`
+  top: unset;
+  right: -${HANDLE_RADIUS / 2}px;
+  bottom: ${CONTAINER_PADDING + VARIABLE_LABEL / 2 - HANDLE_RADIUS / 2}px;
+`;
 
 const Content = styled.div`
   background: #fff;
@@ -22,12 +40,24 @@ const Content = styled.div`
   padding: ${CONTAINER_PADDING}px;
 `;
 
-const InputHandle = styled(Handle)`
-  width: ${HANDLE_HEIGHT}px;
-  height: ${HANDLE_HEIGHT}px;
-  left: -${HANDLE_HEIGHT / 2}px;
-  transform: none;
-  background: #5cc5e0;
+const Section = styled.div`
+  margin-bottom: 10px;
+  max-width: 400px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+`;
+
+const CodeTextarea = styled(Textarea)`
+  width: 400px;
+`;
+
+const OutputLabel = styled.code`
+  display: block;
+  height: ${VARIABLE_LABEL}px;
+  line-height: ${VARIABLE_LABEL}px;
+  text-align: right;
 `;
 
 type Props = {
@@ -39,6 +69,7 @@ export default function BaseNode(props: Props) {
   const updateNodeInternals = useUpdateNodeInternals();
 
   const [inputs, setInputs] = useState<NodeInputItem[]>([]);
+  const [javaScriptCode, setJavaScriptCode] = useState("");
 
   return (
     <>
@@ -51,49 +82,76 @@ export default function BaseNode(props: Props) {
           style={{
             top:
               CONTAINER_PADDING +
-              (INPUT_MARGIN_BOTTOM + INPUT_HEIGHT) * i +
-              INPUT_HEIGHT / 2 -
-              HANDLE_HEIGHT / 2,
+              (INPUT_ROW_MARGIN_BOTTOM + VARIABLE_LABEL) * i +
+              VARIABLE_LABEL / 2 -
+              HANDLE_RADIUS / 2,
           }}
         />
       ))}
       <Content>
-        {inputs.map((input, i) => (
-          <NodeInputVariableInput
-            key={input.id}
-            name={input.value}
-            onConfirmNameChange={(name) => {
-              setInputs(
-                (inputs) =>
-                  adjust(i, assoc("value", name), inputs) as NodeInputItem[]
+        <Section>
+          {inputs.map((input, i) => (
+            <NodeInputVariableInput
+              key={input.id}
+              name={input.value}
+              onConfirmNameChange={(name) => {
+                setInputs(
+                  (inputs) =>
+                    adjust(i, assoc("value", name), inputs) as NodeInputItem[]
+                );
+              }}
+              onRemove={() => {
+                setInputs((inputs) => remove(i, 1, inputs));
+                updateNodeInternals(props.id);
+              }}
+            />
+          ))}
+          <Button
+            color="success"
+            size="sm"
+            variant="outlined"
+            onClick={() => {
+              setInputs((inputs) =>
+                append({ id: uuid(), value: chance.word() }, inputs)
               );
-            }}
-            onRemove={() => {
-              setInputs((inputs) => remove(i, 1, inputs));
               updateNodeInternals(props.id);
             }}
+          >
+            Add
+          </Button>
+        </Section>
+        <Section>
+          <code>{`function (${inputs.map((v) => v.value).join(", ")}) {`}</code>
+          <CodeTextarea
+            sx={{ fontFamily: "var(--mono-font-family)" }}
+            color="neutral"
+            size="sm"
+            variant="outlined"
+            minRows={6}
+            placeholder="Write JavaScript here"
+            // disabled={props.isReadOnly}
+            value={javaScriptCode}
+            onChange={(e) => {
+              setJavaScriptCode(e.target.value);
+            }}
+            onKeyDown={(e) => {
+              if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+                // props.onSaveJavaScriptCode(javaScriptCode);
+              }
+            }}
+            // onBlur={() => props.onSaveJavaScriptCode(javaScriptCode)}
           />
-        ))}
-        <Button
-          color="success"
-          size="sm"
-          variant="outlined"
-          onClick={() => {
-            setInputs((inputs) =>
-              append({ id: uuid(), value: chance.word() }, inputs)
-            );
-            updateNodeInternals(props.id);
-          }}
-        >
-          Add
-        </Button>
+          <code>{"}"}</code>
+        </Section>
+        <Section>
+          <OutputLabel>Output</OutputLabel>
+        </Section>
       </Content>
-      {/* <Handle
+      <OutputHandle
         type="source"
+        id={`${props.id}:output`}
         position={Position.Right}
-        id="b"
-        style={handleStyle}
-      /> */}
+      />
     </>
   );
 }
