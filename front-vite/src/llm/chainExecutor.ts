@@ -17,6 +17,7 @@ export async function execute({
 }) {
   console.debug(JSON.stringify(spaceContent, null, 2));
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const scope: { [key: string]: any } = {};
 
   for (const [index, anchor] of spaceContent.root.blocks.entries()) {
@@ -33,6 +34,7 @@ export async function execute({
 
     const blockConfig = getBlockConfigByType(block.type);
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let args: any = null;
 
     switch (block.inputConfiguration) {

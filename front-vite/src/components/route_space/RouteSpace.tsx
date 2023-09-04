@@ -22,9 +22,7 @@ const Content = styled.div`
   min-height: 0;
 `;
 
-type Props = {};
-
-export default function RouteSpace(_: Props) {
+export default function RouteSpace() {
   const openAiApiKey = usePersistStore((state) => state.openAiApiKey);
   const setMissingOpenAiApiKey = useStore(
     (state) => state.setMissingOpenAiApiKey

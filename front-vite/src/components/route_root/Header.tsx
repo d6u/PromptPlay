@@ -68,7 +68,7 @@ const Email = styled.div`
 `;
 
 export default function Header() {
-  let [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const placeholderUserToken = usePersistStore(
     (state) => state.placeholderUserToken

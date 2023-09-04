@@ -1,7 +1,7 @@
-export default class Deferred<T> {
+export default class Deferred<T, E> {
   promise: Promise<T>;
   resolve!: (value: T) => void;
-  reject!: (reason?: any) => void;
+  reject!: (reason?: E) => void;
 
   constructor() {
     this.promise = new Promise<T>((resolve, reject) => {

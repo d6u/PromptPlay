@@ -5,7 +5,7 @@ import Header from "./route_root/Header";
 import RootRoute from "./route_root/RootRoute";
 import RouteSpace from "./route_space/RouteSpace";
 
-export const router = createBrowserRouter([
+const router = createBrowserRouter([
   {
     path: ROOT_PATH,
     element: (
