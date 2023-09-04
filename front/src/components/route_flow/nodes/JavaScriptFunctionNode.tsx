@@ -3,11 +3,11 @@ import Textarea from "@mui/joy/Textarea";
 import Chance from "chance";
 import { adjust, append, assoc, remove } from "ramda";
 import { useState } from "react";
-import { Handle, Position, useUpdateNodeInternals } from "reactflow";
+import { Handle, Position, useUpdateNodeInternals, NodeProps } from "reactflow";
 import styled from "styled-components";
 import { v4 as uuid } from "uuid";
 import {
-  CustomNode,
+  NodeData,
   NodeInputItem,
   RFState,
   useRFStore,
@@ -75,7 +75,7 @@ const selector = (state: RFState) => ({
   onRemoveNode: state.onRemoveNode,
 });
 
-export default function JavaScriptFunctionNode(props: CustomNode) {
+export default function JavaScriptFunctionNode(props: NodeProps<NodeData>) {
   const updateNodeInternals = useUpdateNodeInternals();
 
   const { onUpdateNode, onRemoveNode } = useRFStore(selector);

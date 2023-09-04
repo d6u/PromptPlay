@@ -17,26 +17,42 @@ import { create } from "zustand";
 import { graphql } from "../gql";
 import { client } from "./urql";
 
-export enum NodeType {
-  JavaScriptFunctionNode = "JavaScriptFunctionNode",
-}
+// Server types
 
-export type CustomNode = {
+export type ServerNode = {
   id: string;
   type: NodeType;
   position: { x: number; y: number };
-  data: {
-    inputs: NodeInputItem[];
-    javaScriptCode: string;
-  };
+  data: NodeData;
 };
 
-export type NodeData = Node & CustomNode;
+export type NodeData = {
+  inputs: NodeInputItem[];
+  javaScriptCode: string;
+};
 
 export type NodeInputItem = {
   id: string;
   value: string;
 };
+
+type ServerEdge = {
+  id: string;
+  source: string;
+  sourceHandle: string;
+  target: string;
+  targetHandle: string;
+};
+
+// ReactFlow types
+
+export enum NodeType {
+  JavaScriptFunctionNode = "JavaScriptFunctionNode",
+}
+
+type NodeWithType = Node<NodeData> & { type: NodeType };
+
+type EdgeWithHandle = Edge & { sourceHandle: string; targetHandle: string };
 
 export const SPACE_FLOW_QUERY = graphql(`
   query SpaceFlowQuery($spaceId: UUID!) {
@@ -66,19 +82,20 @@ export const UPDATE_SPACE_FLOW_CONTENT_MUTATION = graphql(`
 `);
 
 const updateSpaceDebounced = debounce(
-  async (spaceId: string, nodes: Node[], edges: Edge[]) => {
-    const newNodes = map<Node, Node>(pick(["id", "type", "position", "data"]))(
-      nodes
-    );
-    // const newEdges = map<Edge, Edge>(
-    //   pick(["id", "type", "source", "sourceHandle", "target", "targetHandle"])
-    // )(edges);
+  async (spaceId: string, nodes: Node<NodeData>[], edges: Edge[]) => {
+    const newNodes = map<NodeWithType, ServerNode>(
+      pick<string>(["id", "type", "position", "data"])
+    )(nodes as NodeWithType[]);
+
+    const newEdges = map<EdgeWithHandle, ServerEdge>(
+      pick<string>(["id", "source", "sourceHandle", "target", "targetHandle"])
+    )(edges as EdgeWithHandle[]);
 
     await client.mutation(UPDATE_SPACE_FLOW_CONTENT_MUTATION, {
       spaceId,
       flowContent: JSON.stringify({
         nodes: newNodes,
-        edges,
+        edges: newEdges,
       }),
     });
   },
@@ -87,12 +104,12 @@ const updateSpaceDebounced = debounce(
 
 export type RFState = {
   spaceId: string | null;
-  nodes: Node[];
+  nodes: Node<NodeData>[];
   edges: Edge[];
 
   onInitialize: (spaceId: string) => void;
-  onAddNode: (node: CustomNode) => void;
-  onUpdateNode: (node: { id: string } & Partial<CustomNode>) => void;
+  onAddNode: (node: ServerNode) => void;
+  onUpdateNode: (node: { id: string } & Partial<ServerNode>) => void;
   onRemoveNode: (id: string) => void;
 
   // ReactFlow callbacks
@@ -113,7 +130,7 @@ export const useRFStore = create<RFState>((set, get) => ({
     if (result.data?.result?.space?.flowContent) {
       const { nodes, edges } = JSON.parse(
         result.data.result.space.flowContent
-      ) as { nodes: CustomNode[]; edges: Edge[] };
+      ) as { nodes: ServerNode[]; edges: ServerEdge[] };
 
       set({ nodes, edges });
     } else {
@@ -133,7 +150,7 @@ export const useRFStore = create<RFState>((set, get) => ({
 
     await updateSpaceDebounced(spaceId, nodes, get().edges);
   },
-  onUpdateNode: async (node: { id: string } & Partial<CustomNode>) => {
+  onUpdateNode: async (node: { id: string } & Partial<ServerNode>) => {
     const spaceId = get().spaceId;
 
     if (!spaceId) {
@@ -162,7 +179,10 @@ export const useRFStore = create<RFState>((set, get) => ({
 
     await updateSpaceDebounced(spaceId, nodes, get().edges);
   },
-  onNodesChange: async (changes: NodeChange[]) => {
+
+  // ReactFlow callbacks
+
+  onNodesChange: (changes: NodeChange[]) => {
     const spaceId = get().spaceId;
 
     if (!spaceId) {
@@ -176,17 +196,29 @@ export const useRFStore = create<RFState>((set, get) => ({
     updateSpaceDebounced(spaceId, nodes, get().edges);
   },
   onEdgesChange: (changes: EdgeChange[]) => {
+    const spaceId = get().spaceId;
+
+    if (!spaceId) {
+      return;
+    }
+
     const edges = applyEdgeChanges(changes, get().edges);
 
-    console.log(edges);
-
     set({ edges });
+
+    updateSpaceDebounced(spaceId, get().nodes, edges);
   },
   onConnect: (connection: Connection) => {
+    const spaceId = get().spaceId;
+
+    if (!spaceId) {
+      return;
+    }
+
     const edges = addEdge(connection, get().edges);
 
-    console.log("onConnect", edges);
-
     set({ edges });
+
+    updateSpaceDebounced(spaceId, get().nodes, edges);
   },
 }));
