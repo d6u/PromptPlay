@@ -282,7 +282,7 @@ function replacePlaceholders(str: string, values: { [key: string]: any }) {
   const regex = /(?<!\{)\{([^{}]+)\}(?!\})/g;
 
   return str
-    .replace(regex, (match, p1) => {
+    .replace(regex, (_, p1) => {
       return values[p1] !== undefined ? values[p1] : null;
     })
     .replace("{{", "{")
