@@ -6,10 +6,15 @@ import { useState } from "react";
 import { Handle, Position, useUpdateNodeInternals } from "reactflow";
 import styled from "styled-components";
 import { v4 as uuid } from "uuid";
+import {
+  CustomNode,
+  NodeInputItem,
+  RFState,
+  useRFStore,
+} from "../../../state/flowState";
 import NodeInputVariableInput, {
   INPUT_ROW_MARGIN,
 } from "../common/NodeInputVariableInput";
-import { NodeData, NodeInputItem } from "../nodeTypes";
 
 const chance = new Chance();
 
@@ -17,6 +22,7 @@ const CONTAINER_BORDER = 1;
 const CONTAINER_PADDING = 10;
 const VARIABLE_LABEL_HEIGHT = 32;
 const HANDLE_RADIUS = 15;
+const SECTION_MARGIN_BOTTOM = 10;
 
 const StyledHandle = styled(Handle)`
   width: ${HANDLE_RADIUS}px;
@@ -45,7 +51,7 @@ const Content = styled.div`
 `;
 
 const Section = styled.div`
-  margin-bottom: 10px;
+  margin-bottom: ${SECTION_MARGIN_BOTTOM}px;
   max-width: 400px;
 
   &:last-child {
@@ -64,17 +70,19 @@ const OutputLabel = styled.code`
   text-align: right;
 `;
 
-type Props = {
-  id: string;
-  data: NodeData;
-};
+const selector = (state: RFState) => ({
+  onUpdateNode: state.onUpdateNode,
+  onRemoveNode: state.onRemoveNode,
+});
 
-export default function JavaScriptFunctionNode(props: Props) {
+export default function JavaScriptFunctionNode(props: CustomNode) {
   const updateNodeInternals = useUpdateNodeInternals();
 
-  const [inputs, setInputs] = useState<NodeInputItem[]>([]);
+  const { onUpdateNode, onRemoveNode } = useRFStore(selector);
+
+  const [inputs, setInputs] = useState(props.data.inputs);
   const [javaScriptCode, setJavaScriptCode] = useState(
-    'return "Hello, World!"'
+    props.data.javaScriptCode
   );
 
   return (
@@ -90,6 +98,8 @@ export default function JavaScriptFunctionNode(props: Props) {
               CONTAINER_BORDER +
               CONTAINER_PADDING +
               VARIABLE_LABEL_HEIGHT +
+              SECTION_MARGIN_BOTTOM +
+              VARIABLE_LABEL_HEIGHT +
               INPUT_ROW_MARGIN +
               (INPUT_ROW_MARGIN + VARIABLE_LABEL_HEIGHT) * i +
               VARIABLE_LABEL_HEIGHT / 2 -
@@ -100,27 +110,53 @@ export default function JavaScriptFunctionNode(props: Props) {
       <Content>
         <Section>
           <Button
+            color="danger"
+            size="sm"
+            variant="outlined"
+            onClick={() => onRemoveNode(props.id)}
+          >
+            Remove node
+          </Button>
+        </Section>
+        <Section>
+          <Button
             color="success"
             size="sm"
             variant="outlined"
             onClick={() => {
-              setInputs((inputs) =>
-                append({ id: uuid(), value: chance.word() }, inputs)
-              );
+              const newInputs = append<NodeInputItem>({
+                id: uuid(),
+                value: chance.word(),
+              })(inputs);
+
+              setInputs(newInputs);
+
+              onUpdateNode({
+                id: props.id,
+                data: { ...props.data, inputs: newInputs },
+              });
+
               updateNodeInternals(props.id);
             }}
           >
-            Add
+            Add input
           </Button>
           {inputs.map((input, i) => (
             <NodeInputVariableInput
               key={input.id}
               name={input.value}
               onConfirmNameChange={(name) => {
-                setInputs(
-                  (inputs) =>
-                    adjust(i, assoc("value", name), inputs) as NodeInputItem[]
-                );
+                const newInputs = adjust<NodeInputItem>(
+                  i,
+                  assoc("value", name)
+                )(inputs);
+
+                setInputs(newInputs);
+
+                onUpdateNode({
+                  id: props.id,
+                  data: { ...props.data, inputs: newInputs },
+                });
               }}
               onRemove={() => {
                 setInputs((inputs) => remove(i, 1, inputs));
@@ -145,10 +181,18 @@ export default function JavaScriptFunctionNode(props: Props) {
             }}
             onKeyDown={(e) => {
               if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
-                // props.onSaveJavaScriptCode(javaScriptCode);
+                onUpdateNode({
+                  id: props.id,
+                  data: { ...props.data, javaScriptCode },
+                });
               }
             }}
-            // onBlur={() => props.onSaveJavaScriptCode(javaScriptCode)}
+            onBlur={() => {
+              onUpdateNode({
+                id: props.id,
+                data: { ...props.data, javaScriptCode },
+              });
+            }}
           />
           <code>{"}"}</code>
         </Section>

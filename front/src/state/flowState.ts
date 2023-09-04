@@ -1,5 +1,5 @@
 import debounce from "lodash/debounce";
-import { append, map, pick } from "ramda";
+import { adjust, append, findIndex, map, mergeLeft, pick, reject } from "ramda";
 import {
   Node,
   Edge,
@@ -16,6 +16,27 @@ import {
 import { create } from "zustand";
 import { graphql } from "../gql";
 import { client } from "./urql";
+
+export enum NodeType {
+  JavaScriptFunctionNode = "JavaScriptFunctionNode",
+}
+
+export type CustomNode = {
+  id: string;
+  type: NodeType;
+  position: { x: number; y: number };
+  data: {
+    inputs: NodeInputItem[];
+    javaScriptCode: string;
+  };
+};
+
+export type NodeData = Node & CustomNode;
+
+export type NodeInputItem = {
+  id: string;
+  value: string;
+};
 
 export const SPACE_FLOW_QUERY = graphql(`
   query SpaceFlowQuery($spaceId: UUID!) {
@@ -49,9 +70,9 @@ const updateSpaceDebounced = debounce(
     const newNodes = map<Node, Node>(pick(["id", "type", "position", "data"]))(
       nodes
     );
-    const newEdges = map<Edge, Edge>(
-      pick(["id", "type", "source", "sourceHandle", "target", "targetHandle"])
-    )(edges);
+    // const newEdges = map<Edge, Edge>(
+    //   pick(["id", "type", "source", "sourceHandle", "target", "targetHandle"])
+    // )(edges);
 
     await client.mutation(UPDATE_SPACE_FLOW_CONTENT_MUTATION, {
       spaceId,
@@ -66,10 +87,15 @@ const updateSpaceDebounced = debounce(
 
 export type RFState = {
   spaceId: string | null;
-  onInitialize: (spaceId: string) => void;
   nodes: Node[];
   edges: Edge[];
-  onAddNode: (node: Node) => void;
+
+  onInitialize: (spaceId: string) => void;
+  onAddNode: (node: CustomNode) => void;
+  onUpdateNode: (node: { id: string } & Partial<CustomNode>) => void;
+  onRemoveNode: (id: string) => void;
+
+  // ReactFlow callbacks
   onNodesChange: OnNodesChange;
   onEdgesChange: OnEdgesChange;
   onConnect: OnConnect;
@@ -77,21 +103,23 @@ export type RFState = {
 
 export const useRFStore = create<RFState>((set, get) => ({
   spaceId: null,
+  nodes: [],
+  edges: [],
   onInitialize: async (spaceId: string) => {
     set({ spaceId });
 
     const result = await client.query(SPACE_FLOW_QUERY, { spaceId });
 
     if (result.data?.result?.space?.flowContent) {
-      const { nodes, edges } = JSON.parse(result.data.result.space.flowContent);
+      const { nodes, edges } = JSON.parse(
+        result.data.result.space.flowContent
+      ) as { nodes: CustomNode[]; edges: Edge[] };
 
       set({ nodes, edges });
     } else {
       set({ nodes: [], edges: [] });
     }
   },
-  nodes: [],
-  edges: [],
   onAddNode: async (node: Node) => {
     const spaceId = get().spaceId;
 
@@ -100,6 +128,35 @@ export const useRFStore = create<RFState>((set, get) => ({
     }
 
     const nodes = append(node, get().nodes);
+
+    set({ nodes });
+
+    await updateSpaceDebounced(spaceId, nodes, get().edges);
+  },
+  onUpdateNode: async (node: { id: string } & Partial<CustomNode>) => {
+    const spaceId = get().spaceId;
+
+    if (!spaceId) {
+      return;
+    }
+
+    const index = findIndex<Node>((n) => n.id === node.id)(get().nodes);
+    const nodes = adjust<Node>(index, mergeLeft(node))(get().nodes);
+
+    set({ nodes });
+
+    console.log(nodes);
+
+    await updateSpaceDebounced(spaceId, nodes, get().edges);
+  },
+  onRemoveNode: async (id: string) => {
+    const spaceId = get().spaceId;
+
+    if (!spaceId) {
+      return;
+    }
+
+    const nodes = reject<Node>((node) => node.id === id)(get().nodes);
 
     set({ nodes });
 

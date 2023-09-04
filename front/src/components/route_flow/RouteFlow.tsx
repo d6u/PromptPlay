@@ -4,9 +4,8 @@ import ReactFlow, { Controls, Background, BackgroundVariant } from "reactflow";
 import "reactflow/dist/style.css";
 import styled from "styled-components";
 import { v4 as uuid } from "uuid";
-import { RFState, useRFStore } from "../../state/flowState";
+import { NodeType, RFState, useRFStore } from "../../state/flowState";
 import CanvasPanel from "./CanvasPanel";
-import { NodeType } from "./nodeTypes";
 import JavaScriptFunctionNode from "./nodes/JavaScriptFunctionNode";
 
 const Container = styled.div`
@@ -61,7 +60,10 @@ export default function RouteFlow() {
               id: uuid(),
               position: { x: 200, y: 200 },
               type,
-              data: {},
+              data: {
+                inputs: [],
+                javaScriptCode: 'return "Hello, World!"',
+              },
             })
           }
         />
