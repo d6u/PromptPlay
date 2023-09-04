@@ -15,44 +15,14 @@ import {
 } from "reactflow";
 import { create } from "zustand";
 import { graphql } from "../gql";
+import {
+  EdgeWithHandle,
+  NodeData,
+  NodeWithType,
+  ServerEdge,
+  ServerNode,
+} from "./flowTypes";
 import { client } from "./urql";
-
-// Server types
-
-export type ServerNode = {
-  id: string;
-  type: NodeType;
-  position: { x: number; y: number };
-  data: NodeData;
-};
-
-export type NodeData = {
-  inputs: NodeInputItem[];
-  javaScriptCode: string;
-};
-
-export type NodeInputItem = {
-  id: string;
-  value: string;
-};
-
-type ServerEdge = {
-  id: string;
-  source: string;
-  sourceHandle: string;
-  target: string;
-  targetHandle: string;
-};
-
-// ReactFlow types
-
-export enum NodeType {
-  JavaScriptFunctionNode = "JavaScriptFunctionNode",
-}
-
-type NodeWithType = Node<NodeData> & { type: NodeType };
-
-type EdgeWithHandle = Edge & { sourceHandle: string; targetHandle: string };
 
 export const SPACE_FLOW_QUERY = graphql(`
   query SpaceFlowQuery($spaceId: UUID!) {

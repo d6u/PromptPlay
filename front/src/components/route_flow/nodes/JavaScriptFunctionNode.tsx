@@ -6,12 +6,8 @@ import { useState } from "react";
 import { Handle, Position, useUpdateNodeInternals, NodeProps } from "reactflow";
 import styled from "styled-components";
 import { v4 as uuid } from "uuid";
-import {
-  NodeData,
-  NodeInputItem,
-  RFState,
-  useRFStore,
-} from "../../../state/flowState";
+import { RFState, useRFStore } from "../../../state/flowState";
+import { NodeData, NodeInputItem } from "../../../state/flowTypes";
 import NodeInputVariableInput, {
   INPUT_ROW_MARGIN,
 } from "../common/NodeInputVariableInput";

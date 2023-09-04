@@ -4,7 +4,8 @@ import ReactFlow, { Controls, Background, BackgroundVariant } from "reactflow";
 import "reactflow/dist/style.css";
 import styled from "styled-components";
 import { v4 as uuid } from "uuid";
-import { NodeType, RFState, useRFStore } from "../../state/flowState";
+import { RFState, useRFStore } from "../../state/flowState";
+import { NodeType } from "../../state/flowTypes";
 import CanvasPanel from "./CanvasPanel";
 import JavaScriptFunctionNode from "./nodes/JavaScriptFunctionNode";
 
