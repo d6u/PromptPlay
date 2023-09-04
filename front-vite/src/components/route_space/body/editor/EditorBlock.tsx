@@ -1,8 +1,8 @@
-import { useMutation } from "@apollo/client";
 import Button from "@mui/joy/Button";
 import { dissoc } from "ramda";
 import styled from "styled-components";
 import u from "updeep";
+import { useMutation } from "urql";
 import { UPDATE_SPACE_CONTENT_MUTATION } from "../../../../state/spaceGraphQl";
 import { getBlockConfigByType } from "../../../../static/blockConfigs";
 import { Block, SpaceContent } from "../../../../static/spaceTypes";
@@ -57,7 +57,7 @@ type Props = {
 };
 
 export default function EditorBlock(props: Props) {
-  const [updateSpaceV2] = useMutation(UPDATE_SPACE_CONTENT_MUTATION);
+  const [, updateSpaceV2] = useMutation(UPDATE_SPACE_CONTENT_MUTATION);
 
   const blockConfig = getBlockConfigByType(props.selectedBlock.type);
 
@@ -92,10 +92,8 @@ export default function EditorBlock(props: Props) {
               })(newContent) as SpaceContent;
 
               updateSpaceV2({
-                variables: {
-                  spaceId: props.spaceId,
-                  content: JSON.stringify(newContent),
-                },
+                spaceId: props.spaceId,
+                content: JSON.stringify(newContent),
               });
             }}
           >

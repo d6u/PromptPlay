@@ -22,6 +22,15 @@ from .context import Info
 
 @strawberry.type
 class User:
+    @classmethod
+    def from_db(cls, db_user: OrmUser) -> Workspace:
+        return User(
+            db_user=db_user,
+            id=db_user.id,
+            email=db_user.email,
+            profile_picture_url=db_user.profile_picture_url,
+        )
+
     db_user: strawberry.Private[OrmUser]
     id: UUID
     email: str | None

@@ -1,4 +1,3 @@
-import { useMutation } from "@apollo/client";
 import Button from "@mui/joy/Button";
 import Input from "@mui/joy/Input";
 import { append } from "ramda";
@@ -6,7 +5,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import u from "updeep";
-import { FragmentType, gql, useFragment } from "../../../__generated__";
+import { useMutation } from "urql";
+import { FragmentType, graphql, useFragment } from "../../../gql";
 import {
   DELETE_SPACE_MUTATION,
   UPDATE_SPACE_NAME_MUTATION,
@@ -52,7 +52,7 @@ const SpaceName = styled.div`
   padding-left: 9px;
 `;
 
-const SPACE_SUB_HEADER_FRAGMENT = gql(`
+const SPACE_SUB_HEADER_FRAGMENT = graphql(`
   fragment SpaceSubHeaderFragment on Space {
     name
   }
@@ -76,7 +76,7 @@ export default function SpaceV2SubHeader(props: Props) {
     props.spaceSubHeaderFragment
   );
 
-  const [deleteSpace] = useMutation(DELETE_SPACE_MUTATION);
+  const [, deleteSpace] = useMutation(DELETE_SPACE_MUTATION);
 
   const appendNewBlock = useCallback(
     (blockType: BlockType) => {
@@ -110,7 +110,7 @@ export default function SpaceV2SubHeader(props: Props) {
 
   const currentNameRef = useRef<string>(name);
   const [isEditingName, setIsEditingName] = useState<boolean>(false);
-  const [updateSpaceName] = useMutation(UPDATE_SPACE_NAME_MUTATION);
+  const [, updateSpaceName] = useMutation(UPDATE_SPACE_NAME_MUTATION);
   const [isComposing, setIsComposing] = useState<boolean>(false);
 
   const [runButtonLabelForExecutingState, setRunButtonLabelForExecutingState] =
@@ -202,10 +202,8 @@ export default function SpaceV2SubHeader(props: Props) {
                   if (e.key === "Enter") {
                     setIsEditingName(false);
                     updateSpaceName({
-                      variables: {
-                        spaceId: props.spaceId,
-                        name,
-                      },
+                      spaceId: props.spaceId,
+                      name,
                     });
                   } else if (e.key === "Escape") {
                     setIsEditingName(false);
@@ -249,12 +247,10 @@ export default function SpaceV2SubHeader(props: Props) {
 
                 if (isConfirmed) {
                   deleteSpace({
-                    variables: {
-                      spaceId: props.spaceId,
-                    },
-                  }).then(({ errors, data }) => {
-                    if (errors || !data?.result) {
-                      console.error(errors);
+                    spaceId: props.spaceId,
+                  }).then(({ error, data }) => {
+                    if (error || !data?.result) {
+                      console.error(error);
                       return;
                     }
 

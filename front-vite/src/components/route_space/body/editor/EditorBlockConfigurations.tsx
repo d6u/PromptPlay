@@ -1,5 +1,5 @@
-import { useMutation } from "@apollo/client";
 import u from "updeep";
+import { useMutation } from "urql";
 import { UPDATE_SPACE_CONTENT_MUTATION } from "../../../../state/spaceGraphQl";
 import { Block, BlockType, SpaceContent } from "../../../../static/spaceTypes";
 import EditorBlockAppendToListConfigurations from "./EditorBlockAppendToListConfigurations";
@@ -17,7 +17,7 @@ type Props = {
 };
 
 export default function EditorBlockConfigurations(props: Props) {
-  const [updateSpaceV2] = useMutation(UPDATE_SPACE_CONTENT_MUTATION);
+  const [, updateSpaceV2] = useMutation(UPDATE_SPACE_CONTENT_MUTATION);
 
   switch (props.selectedBlock.type) {
     case BlockType.Databag:
@@ -33,10 +33,8 @@ export default function EditorBlockConfigurations(props: Props) {
             })(props.spaceContent) as SpaceContent;
 
             updateSpaceV2({
-              variables: {
-                spaceId: props.spaceId,
-                content: JSON.stringify(newContent),
-              },
+              spaceId: props.spaceId,
+              content: JSON.stringify(newContent),
             });
           }}
           selectedBlock={props.selectedBlock}
@@ -57,10 +55,8 @@ export default function EditorBlockConfigurations(props: Props) {
             })(props.spaceContent) as SpaceContent;
 
             updateSpaceV2({
-              variables: {
-                spaceId: props.spaceId,
-                content: JSON.stringify(newContent),
-              },
+              spaceId: props.spaceId,
+              content: JSON.stringify(newContent),
             });
           }}
           content={props.selectedBlock.content}
@@ -72,10 +68,8 @@ export default function EditorBlockConfigurations(props: Props) {
             })(props.spaceContent) as SpaceContent;
 
             updateSpaceV2({
-              variables: {
-                spaceId: props.spaceId,
-                content: JSON.stringify(newContent),
-              },
+              spaceId: props.spaceId,
+              content: JSON.stringify(newContent),
             });
           }}
           listNameToAppend={props.selectedBlock.listNameToAppend}
@@ -87,10 +81,8 @@ export default function EditorBlockConfigurations(props: Props) {
             })(props.spaceContent) as SpaceContent;
 
             updateSpaceV2({
-              variables: {
-                spaceId: props.spaceId,
-                content: JSON.stringify(newContent),
-              },
+              spaceId: props.spaceId,
+              content: JSON.stringify(newContent),
             });
           }}
           messageVariableName={props.selectedBlock.singleOuput}
@@ -102,10 +94,8 @@ export default function EditorBlockConfigurations(props: Props) {
             })(props.spaceContent) as SpaceContent;
 
             updateSpaceV2({
-              variables: {
-                spaceId: props.spaceId,
-                content: JSON.stringify(newContent),
-              },
+              spaceId: props.spaceId,
+              content: JSON.stringify(newContent),
             });
           }}
           selectedBlock={props.selectedBlock}
@@ -126,10 +116,8 @@ export default function EditorBlockConfigurations(props: Props) {
             })(props.spaceContent) as SpaceContent;
 
             updateSpaceV2({
-              variables: {
-                spaceId: props.spaceId,
-                content: JSON.stringify(newContent),
-              },
+              spaceId: props.spaceId,
+              content: JSON.stringify(newContent),
             });
           }}
           temperature={props.selectedBlock.temperature}
@@ -141,10 +129,8 @@ export default function EditorBlockConfigurations(props: Props) {
             })(props.spaceContent) as SpaceContent;
 
             updateSpaceV2({
-              variables: {
-                spaceId: props.spaceId,
-                content: JSON.stringify(newContent),
-              },
+              spaceId: props.spaceId,
+              content: JSON.stringify(newContent),
             });
           }}
           stop={props.selectedBlock.stop}
@@ -156,10 +142,8 @@ export default function EditorBlockConfigurations(props: Props) {
             })(props.spaceContent) as SpaceContent;
 
             updateSpaceV2({
-              variables: {
-                spaceId: props.spaceId,
-                content: JSON.stringify(newContent),
-              },
+              spaceId: props.spaceId,
+              content: JSON.stringify(newContent),
             });
           }}
           variableNameForMessage={props.selectedBlock.singleOuput}
@@ -173,10 +157,8 @@ export default function EditorBlockConfigurations(props: Props) {
             })(props.spaceContent) as SpaceContent;
 
             updateSpaceV2({
-              variables: {
-                spaceId: props.spaceId,
-                content: JSON.stringify(newContent),
-              },
+              spaceId: props.spaceId,
+              content: JSON.stringify(newContent),
             });
           }}
           variableNameForContent={props.selectedBlock.variableNameForContent}
@@ -188,10 +170,8 @@ export default function EditorBlockConfigurations(props: Props) {
             })(props.spaceContent) as SpaceContent;
 
             updateSpaceV2({
-              variables: {
-                spaceId: props.spaceId,
-                content: JSON.stringify(newContent),
-              },
+              spaceId: props.spaceId,
+              content: JSON.stringify(newContent),
             });
           }}
           selectedBlock={props.selectedBlock}
@@ -212,10 +192,8 @@ export default function EditorBlockConfigurations(props: Props) {
             })(props.spaceContent) as SpaceContent;
 
             updateSpaceV2({
-              variables: {
-                spaceId: props.spaceId,
-                content: JSON.stringify(newContent),
-              },
+              spaceId: props.spaceId,
+              content: JSON.stringify(newContent),
             });
           }}
           listName={props.selectedBlock.listName}
@@ -227,10 +205,8 @@ export default function EditorBlockConfigurations(props: Props) {
             })(props.spaceContent) as SpaceContent;
 
             updateSpaceV2({
-              variables: {
-                spaceId: props.spaceId,
-                content: JSON.stringify(newContent),
-              },
+              spaceId: props.spaceId,
+              content: JSON.stringify(newContent),
             });
           }}
           selectedBlock={props.selectedBlock}
@@ -251,10 +227,8 @@ export default function EditorBlockConfigurations(props: Props) {
             })(props.spaceContent) as SpaceContent;
 
             updateSpaceV2({
-              variables: {
-                spaceId: props.spaceId,
-                content: JSON.stringify(newContent),
-              },
+              spaceId: props.spaceId,
+              content: JSON.stringify(newContent),
             });
           }}
           selectedBlock={props.selectedBlock}
@@ -275,10 +249,8 @@ export default function EditorBlockConfigurations(props: Props) {
             })(props.spaceContent) as SpaceContent;
 
             updateSpaceV2({
-              variables: {
-                spaceId: props.spaceId,
-                content: JSON.stringify(newContent),
-              },
+              spaceId: props.spaceId,
+              content: JSON.stringify(newContent),
             });
           }}
           selectedBlock={props.selectedBlock}

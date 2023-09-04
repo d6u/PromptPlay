@@ -1,6 +1,6 @@
-import { gql } from "../../__generated__";
+import { graphql } from "../../gql";
 
-export const ROOT_ROUTE_QUERY = gql(`
+export const ROOT_ROUTE_QUERY = graphql(`
   query RootRouteQuery {
     user {
       id
