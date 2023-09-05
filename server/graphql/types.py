@@ -327,6 +327,7 @@ class Space:
             id=db_space.id,
             name=db_space.name,
             content=json.dumps(db_space.content),
+            flow_content=json.dumps(db_space.flow_content),
             updated_at=db_space.updated_at,
         )
 
@@ -334,6 +335,7 @@ class Space:
     id: strawberry.ID
     name: str
     content: str | None
+    flow_content: str | None
     updated_at: datetime
 
 
