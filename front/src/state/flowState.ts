@@ -78,8 +78,6 @@ const updateSpaceDebounced = debounce(
 
     // Remove invalid edges
     newEdges = newEdges.filter((edge) => {
-      const targetHandleId = edge.targetHandle!.split(":")[2];
-
       return (
         any(propEq(edge.source, "id"))(nodes) &&
         any(propEq(edge.target, "id"))(nodes) &&
@@ -87,7 +85,7 @@ const updateSpaceDebounced = debounce(
           pipe<[Node<NodeData>], NodeInputItem[], string[], boolean>(
             path(["data", "inputs"]) as (o: Node<NodeData>) => NodeInputItem[],
             map(prop("id")),
-            any(equals(targetHandleId))
+            any(equals(edge.targetHandle))
           )
         )(nodes)
       );

@@ -59,11 +59,27 @@ const CodeTextarea = styled(Textarea)`
   width: 400px;
 `;
 
-const OutputLabel = styled.code`
-  display: block;
+const OutputLabel = styled.div`
+  padding: 0 10px;
+  border: 1px solid blue;
   height: ${VARIABLE_LABEL_HEIGHT}px;
-  line-height: ${VARIABLE_LABEL_HEIGHT}px;
-  text-align: right;
+  display: flex;
+  border-radius: 5px;
+  align-items: center;
+  justify-content: space-between;
+  // line-height: ${VARIABLE_LABEL_HEIGHT}px;
+  // font-family: var(--mono-font-family);
+  // font-size: 14px;
+`;
+
+const OutputName = styled.code`
+  white-space: nowrap;
+`;
+
+const OutputValue = styled.code`
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
 `;
 
 const selector = (state: RFState) => ({
@@ -87,7 +103,7 @@ export default function JavaScriptFunctionNode(props: NodeProps<NodeData>) {
         <InputHandle
           key={i}
           type="target"
-          id={`${props.id}:input:${input.id}`}
+          id={input.id}
           position={Position.Left}
           style={{
             top:
@@ -122,7 +138,7 @@ export default function JavaScriptFunctionNode(props: NodeProps<NodeData>) {
             onClick={() => {
               const newInputs = append<NodeInputItem>({
                 id: uuid(),
-                value: chance.word(),
+                name: chance.word(),
               })(inputs);
 
               setInputs(newInputs);
@@ -140,11 +156,11 @@ export default function JavaScriptFunctionNode(props: NodeProps<NodeData>) {
           {inputs.map((input, i) => (
             <NodeInputVariableInput
               key={input.id}
-              name={input.value}
+              name={input.name}
               onConfirmNameChange={(name) => {
                 const newInputs = adjust<NodeInputItem>(
                   i,
-                  assoc("value", name)
+                  assoc("name", name)<NodeInputItem>
                 )(inputs);
 
                 setInputs(newInputs);
@@ -155,14 +171,22 @@ export default function JavaScriptFunctionNode(props: NodeProps<NodeData>) {
                 });
               }}
               onRemove={() => {
-                setInputs((inputs) => remove(i, 1, inputs));
+                const newInputs = remove(i, 1, inputs);
+
+                setInputs(newInputs);
+
+                onUpdateNode({
+                  id: props.id,
+                  data: { ...props.data, inputs: newInputs },
+                });
+
                 updateNodeInternals(props.id);
               }}
             />
           ))}
         </Section>
         <Section>
-          <code>{`function (${inputs.map((v) => v.value).join(", ")}) {`}</code>
+          <code>{`function (${inputs.map((v) => v.name).join(", ")}) {`}</code>
           <CodeTextarea
             sx={{ fontFamily: "var(--mono-font-family)" }}
             color="neutral"
@@ -193,12 +217,17 @@ export default function JavaScriptFunctionNode(props: NodeProps<NodeData>) {
           <code>{"}"}</code>
         </Section>
         <Section>
-          <OutputLabel>Output</OutputLabel>
+          {props.data.outputs.map((output, i) => (
+            <OutputLabel key={output.id}>
+              <OutputName>{output.name} =&nbsp;</OutputName>
+              <OutputValue>{output.value}</OutputValue>
+            </OutputLabel>
+          ))}
         </Section>
       </Content>
       <OutputHandle
         type="source"
-        id={`${props.id}:output`}
+        id={props.data.outputs[0].id}
         position={Position.Right}
       />
     </>

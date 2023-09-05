@@ -12,11 +12,19 @@ export type ServerNode = {
 export type NodeData = {
   inputs: NodeInputItem[];
   javaScriptCode: string;
+  outputs: NodeOutputItem[];
 };
 
 export type NodeInputItem = {
   id: string;
-  value: string;
+  name: string;
+};
+
+export type NodeOutputItem = {
+  id: string;
+  name: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  value: any;
 };
 
 export type ServerEdge = {
