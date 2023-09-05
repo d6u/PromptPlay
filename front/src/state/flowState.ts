@@ -138,93 +138,85 @@ export const useRFStore = create<RFState>((set, get) => ({
         result.data.result.space.flowContent
       ) as { nodes: ServerNode[]; edges: ServerEdge[] };
 
-      console.log("edges", edges);
-
       set({ nodes, edges });
     } else {
       set({ nodes: [], edges: [] });
     }
   },
-  onAddNode: async (node: Node) => {
-    const spaceId = get().spaceId;
-
-    if (!spaceId) {
-      return;
-    }
-
+  onAddNode: (node: Node) => {
     const nodes = append(node, get().nodes);
 
     set({ nodes });
 
-    await updateSpaceDebounced(spaceId, nodes, get().edges);
-  },
-  onUpdateNode: async (node: { id: string } & Partial<ServerNode>) => {
     const spaceId = get().spaceId;
-
-    if (!spaceId) {
-      return;
+    if (spaceId) {
+      updateSpaceDebounced(spaceId, nodes, get().edges);
     }
-
+  },
+  onUpdateNode: (node: { id: string } & Partial<ServerNode>) => {
     const index = findIndex<Node>((n) => n.id === node.id)(get().nodes);
     const nodes = adjust<Node>(index, mergeLeft(node))(get().nodes);
 
     set({ nodes });
 
-    await updateSpaceDebounced(spaceId, nodes, get().edges);
-  },
-  onRemoveNode: async (id: string) => {
     const spaceId = get().spaceId;
-
-    if (!spaceId) {
-      return;
+    if (spaceId) {
+      updateSpaceDebounced(spaceId, nodes, get().edges);
     }
-
+  },
+  onRemoveNode: (id: string) => {
     const nodes = reject<Node>((node) => node.id === id)(get().nodes);
 
     set({ nodes });
 
-    await updateSpaceDebounced(spaceId, nodes, get().edges);
+    const spaceId = get().spaceId;
+    if (spaceId) {
+      updateSpaceDebounced(spaceId, nodes, get().edges);
+    }
   },
 
   // ReactFlow callbacks
 
   onNodesChange: (changes: NodeChange[]) => {
-    const spaceId = get().spaceId;
-
-    if (!spaceId) {
-      return;
-    }
-
     const nodes = applyNodeChanges(changes, get().nodes);
 
     set({ nodes });
 
-    updateSpaceDebounced(spaceId, nodes, get().edges);
+    const spaceId = get().spaceId;
+    if (spaceId) {
+      updateSpaceDebounced(spaceId, nodes, get().edges);
+    }
   },
   onEdgesChange: (changes: EdgeChange[]) => {
-    const spaceId = get().spaceId;
-
-    if (!spaceId) {
-      return;
-    }
-
     const edges = applyEdgeChanges(changes, get().edges);
 
     set({ edges });
 
-    updateSpaceDebounced(spaceId, get().nodes, edges);
+    const spaceId = get().spaceId;
+    if (spaceId) {
+      updateSpaceDebounced(spaceId, get().nodes, edges);
+    }
   },
   onConnect: (connection: Connection) => {
-    const spaceId = get().spaceId;
-
-    if (!spaceId) {
+    // Should not self-connections
+    if (connection.source === connection.target) {
       return;
     }
 
-    const edges = addEdge(connection, get().edges);
+    let edges = get().edges;
+
+    // A targetHandle can only take one incoming edge
+    edges = pipe(
+      reject(propEq<string>(connection.targetHandle!, "targetHandle"))
+    )(edges);
+
+    edges = addEdge(connection, edges);
 
     set({ edges });
 
-    updateSpaceDebounced(spaceId, get().nodes, edges);
+    const spaceId = get().spaceId;
+    if (spaceId) {
+      updateSpaceDebounced(spaceId, get().nodes, edges);
+    }
   },
 }));

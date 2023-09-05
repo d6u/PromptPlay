@@ -27,6 +27,10 @@ export function executeNode(
   }
 
   for (const edge of edges) {
+    // nodeGraph[edge.source] can contain duplicate edge.target,
+    // because of multiple edges between two nodes.
+    // This is fine, because we are reducing indegree the equial number of times
+    // in the while loop below.
     nodeGraph[edge.source].push(edge.target);
     nodeIndegree[edge.target] += 1;
 
