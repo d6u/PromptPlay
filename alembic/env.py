@@ -1,4 +1,5 @@
 from logging.config import fileConfig
+from pprint import PrettyPrinter
 
 from sqlalchemy import engine_from_config, pool
 
@@ -6,6 +7,10 @@ import server.database.orm
 from alembic import context
 from server.database.database import Base
 from server.settings import settings
+
+pp = PrettyPrinter(indent=4)
+
+pp.pprint(dict(settings))
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

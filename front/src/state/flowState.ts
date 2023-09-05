@@ -68,12 +68,18 @@ export const UPDATE_SPACE_FLOW_CONTENT_MUTATION = graphql(`
 
 const updateSpaceDebounced = debounce(
   async (spaceId: string, nodes: Node<NodeData>[], edges: Edge[]) => {
-    const newNodes = map<NodeWithType, ServerNode>(
-      pick<string>(["id", "type", "position", "data"])
+    const newNodes = map(
+      pick(["id", "type", "position", "data"])<NodeWithType>
     )(nodes as NodeWithType[]);
 
-    let newEdges = map<EdgeWithHandle, ServerEdge>(
-      pick<string>(["id", "source", "sourceHandle", "target", "targetHandle"])
+    let newEdges = map(
+      pick([
+        "id",
+        "source",
+        "sourceHandle",
+        "target",
+        "targetHandle",
+      ])<EdgeWithHandle>
     )(edges as EdgeWithHandle[]);
 
     // Remove invalid edges
@@ -131,6 +137,8 @@ export const useRFStore = create<RFState>((set, get) => ({
       const { nodes, edges } = JSON.parse(
         result.data.result.space.flowContent
       ) as { nodes: ServerNode[]; edges: ServerEdge[] };
+
+      console.log("edges", edges);
 
       set({ nodes, edges });
     } else {
