@@ -49,44 +49,19 @@ export function executeNode(
     const id = queue.shift()!;
     const node = nodeIdToNodeMap[id];
 
-    console.log("running node", node);
-
     switch (node.type) {
       case NodeType.JavaScriptFunctionNode: {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const pairs: Array<[string, any]> = [];
-
-        for (const input of node.data.inputs) {
-          const outputId = inputIdToOutputIdMap[input.id];
-
-          if (outputId) {
-            const outputValue = outputIdToValueMap[outputId];
-            pairs.push([input.name, outputValue ?? null]);
-          } else {
-            pairs.push([input.name, null]);
+        handleJavaScriptFunctionNode(
+          node.data,
+          inputIdToOutputIdMap,
+          outputIdToValueMap,
+          (dataChange) => {
+            onUpdateNode({
+              id: node.id,
+              data: { ...node.data, ...dataChange },
+            });
           }
-        }
-
-        const fn = Function(
-          ...pairs.map((pair) => pair[0]),
-          node.data.javaScriptCode
         );
-
-        const result = fn(...pairs.map((pair) => pair[1]));
-
-        outputIdToValueMap[node.data.outputs[0].id] = result;
-
-        onUpdateNode({
-          id: node.id,
-          data: {
-            ...node.data,
-            outputs: adjust<NodeOutputItem>(
-              0,
-              assoc("value", result)
-            )(node.data.outputs),
-          },
-        });
-
         break;
       }
     }
@@ -98,4 +73,36 @@ export function executeNode(
       }
     }
   }
+}
+
+function handleJavaScriptFunctionNode(
+  data: NodeData,
+  inputIdToOutputIdMap: { [key: string]: string | undefined },
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  outputIdToValueMap: { [key: string]: any },
+  onDataChange: (dataChange: Partial<NodeData>) => void
+) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const pairs: Array<[string, any]> = [];
+
+  for (const input of data.inputs) {
+    const outputId = inputIdToOutputIdMap[input.id];
+
+    if (outputId) {
+      const outputValue = outputIdToValueMap[outputId];
+      pairs.push([input.name, outputValue ?? null]);
+    } else {
+      pairs.push([input.name, null]);
+    }
+  }
+
+  const fn = Function(...pairs.map((pair) => pair[0]), data.javaScriptCode);
+
+  const result = fn(...pairs.map((pair) => pair[1]));
+
+  outputIdToValueMap[data.outputs[0].id] = result;
+
+  onDataChange({
+    outputs: adjust<NodeOutputItem>(0, assoc("value", result))(data.outputs),
+  });
 }
