@@ -5,7 +5,7 @@ import {
   NodeOutputItem,
   NodeType,
   ServerNode,
-} from "../../state/flowTypes";
+} from "../../static/flowTypes";
 
 export function executeNode(
   nodes: Node<NodeData>[],
