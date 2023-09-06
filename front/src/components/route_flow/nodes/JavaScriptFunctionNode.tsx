@@ -158,7 +158,9 @@ export default function JavaScriptFunctionNode(
         <Section>
           <OutputLabel>
             <OutputName>{props.data.outputs[0].name} =&nbsp;</OutputName>
-            <OutputValue>{props.data.outputs[0].value}</OutputValue>
+            <OutputValue>
+              {JSON.stringify(props.data.outputs[0].value)}
+            </OutputValue>
           </OutputLabel>
         </Section>
       </Content>
