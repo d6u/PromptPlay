@@ -31,6 +31,7 @@ import {
 import { create } from "zustand";
 import { graphql } from "../gql";
 import {
+  ChatGPTMessageRole,
   EdgeWithHandle,
   NodeData,
   NodeInputItem,
@@ -266,6 +267,7 @@ export function createNode(type: NodeType): ServerNode {
               name: "topic",
             },
           ],
+          role: ChatGPTMessageRole.user,
           content: "Write a poem about {topic} in fewer than 20 words.",
           outputs: [
             {

@@ -1,4 +1,6 @@
 import Button from "@mui/joy/Button";
+import Radio from "@mui/joy/Radio";
+import RadioGroup from "@mui/joy/RadioGroup";
 import Textarea from "@mui/joy/Textarea";
 import Chance from "chance";
 import { nanoid } from "nanoid";
@@ -9,6 +11,7 @@ import styled from "styled-components";
 import { RFState, useRFStore } from "../../../state/flowState";
 import {
   ChatGPTMessageNodeData,
+  ChatGPTMessageRole,
   NodeInputItem,
 } from "../../../static/flowTypes";
 import NodeInputVariableInput from "../common/NodeInputVariableInput";
@@ -47,6 +50,7 @@ export default function ChatGPTMessageNode(
 
   const [inputs, setInputs] = useState(props.data.inputs);
   const [content, setContent] = useState(props.data.content);
+  const [role, setRole] = useState(props.data.role);
 
   return (
     <>
@@ -136,6 +140,47 @@ export default function ChatGPTMessageNode(
               />
             );
           })}
+        </Section>
+        <Section>
+          <RadioGroup
+            orientation="horizontal"
+            value={role}
+            onChange={(e) => {
+              const role = e.target.value as ChatGPTMessageRole;
+
+              setRole(role);
+
+              onUpdateNode({
+                id: props.id,
+                data: { ...props.data, role },
+              });
+            }}
+          >
+            <Radio
+              size="sm"
+              variant="outlined"
+              name="role"
+              label="system"
+              // disabled={props.isReadOnly}
+              value={ChatGPTMessageRole.system}
+            />
+            <Radio
+              size="sm"
+              variant="outlined"
+              name="role"
+              label="user"
+              // disabled={props.isReadOnly}
+              value={ChatGPTMessageRole.user}
+            />
+            <Radio
+              size="sm"
+              variant="outlined"
+              name="role"
+              label="assistant"
+              // disabled={props.isReadOnly}
+              value={ChatGPTMessageRole.assistant}
+            />
+          </RadioGroup>
         </Section>
         <Section>
           <NormalTextarea

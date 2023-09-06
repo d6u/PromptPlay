@@ -155,7 +155,7 @@ function handleChatGPTMessageNode(
   let messages = argsMap["message_list"] ?? [];
 
   const message = {
-    role: "user",
+    role: data.role,
     content: replacePlaceholders(data.content, argsMap),
   };
 

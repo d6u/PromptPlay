@@ -46,9 +46,16 @@ export type JavaScriptFunctionNodeData = {
   outputs: NodeOutputItem[];
 };
 
+export enum ChatGPTMessageRole {
+  system = "system",
+  user = "user",
+  assistant = "assistant",
+}
+
 export type ChatGPTMessageNodeData = {
   nodeType: NodeType.ChatGPTMessageNode;
   inputs: NodeInputItem[];
+  role: ChatGPTMessageRole;
   content: string;
   outputs: NodeOutputItem[];
 };
