@@ -22,7 +22,10 @@ import {
   OutputValue,
   Section,
 } from "../common/commonStyledComponents";
-import { calculateInputHandleTop } from "../common/utils";
+import {
+  calculateInputHandleTop,
+  calculateOutputHandleBottom,
+} from "../common/utils";
 
 const chance = new Chance();
 
@@ -159,11 +162,15 @@ export default function ChatGPTMessageNode(
           ))}
         </Section>
       </Content>
-      <OutputHandle
-        type="source"
-        id={props.data.outputs[0].id}
-        position={Position.Right}
-      />
+      {props.data.outputs.map((output, i) => (
+        <OutputHandle
+          key={output.id}
+          type="source"
+          id={output.id}
+          position={Position.Right}
+          style={{ bottom: calculateOutputHandleBottom(i) }}
+        />
+      ))}
     </>
   );
 }

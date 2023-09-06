@@ -156,12 +156,10 @@ export default function JavaScriptFunctionNode(
           <code>{"}"}</code>
         </Section>
         <Section>
-          {props.data.outputs.map((output) => (
-            <OutputLabel key={output.id}>
-              <OutputName>{output.name} =&nbsp;</OutputName>
-              <OutputValue>{output.value}</OutputValue>
-            </OutputLabel>
-          ))}
+          <OutputLabel>
+            <OutputName>{props.data.outputs[0].name} =&nbsp;</OutputName>
+            <OutputValue>{props.data.outputs[0].value}</OutputValue>
+          </OutputLabel>
         </Section>
       </Content>
       <OutputHandle

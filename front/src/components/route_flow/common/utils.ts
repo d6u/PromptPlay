@@ -18,3 +18,13 @@ export function calculateInputHandleTop(i: number): number {
     HANDLE_RADIUS / 2
   );
 }
+
+export function calculateOutputHandleBottom(i: number): number {
+  return (
+    CONTAINER_BORDER +
+    CONTAINER_PADDING +
+    (VARIABLE_ROW_MARGIN_BOTTOM + VARIABLE_LABEL_HEIGHT) * i +
+    VARIABLE_LABEL_HEIGHT / 2 -
+    HANDLE_RADIUS / 2
+  );
+}
