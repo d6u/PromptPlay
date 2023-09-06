@@ -18,11 +18,17 @@ const NameInput = styled(Input)`
   margin-right: 5px;
 `;
 
-type Props = {
-  name: string;
-  onConfirmNameChange: (name: string) => void;
-  onRemove: () => void;
-};
+type Props =
+  | {
+      isReadOnly?: false;
+      name: string;
+      onConfirmNameChange: (name: string) => void;
+      onRemove: () => void;
+    }
+  | {
+      isReadOnly: true;
+      name: string;
+    };
 
 export default function NodeInputVariableInput(props: Props) {
   const [name, setName] = useState(props.name);
@@ -34,26 +40,36 @@ export default function NodeInputVariableInput(props: Props) {
         size="sm"
         variant="outlined"
         style={{ flexGrow: 1 }}
-        // disabled={props.isReadOnly}
+        disabled={props.isReadOnly ?? false}
         value={name}
         onChange={(e) => {
           setName(e.target.value);
         }}
         onKeyUp={(e) => {
+          if (props.isReadOnly) {
+            return;
+          }
           if (e.key === "Enter") {
             props.onConfirmNameChange(name);
           }
         }}
-        onBlur={() => props.onConfirmNameChange(name)}
+        onBlur={() => {
+          if (props.isReadOnly) {
+            return;
+          }
+          props.onConfirmNameChange(name);
+        }}
       />
-      <Button
-        color="danger"
-        size="sm"
-        variant="outlined"
-        onClick={() => props.onRemove()}
-      >
-        Remove
-      </Button>
+      {!props.isReadOnly && (
+        <Button
+          color="danger"
+          size="sm"
+          variant="outlined"
+          onClick={() => props.onRemove()}
+        >
+          Remove
+        </Button>
+      )}
     </Container>
   );
 }

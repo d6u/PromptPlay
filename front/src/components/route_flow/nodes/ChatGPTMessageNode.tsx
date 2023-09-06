@@ -93,37 +93,49 @@ export default function ChatGPTMessageNode(
           </Button>
         </HeaderSection>
         <Section>
-          {inputs.map((input, i) => (
-            <NodeInputVariableInput
-              key={input.id}
-              name={input.name}
-              onConfirmNameChange={(name) => {
-                const newInputs = adjust<NodeInputItem>(
-                  i,
-                  assoc("name", name)<NodeInputItem>
-                )(inputs);
+          {inputs.map((input, i) => {
+            if (i === 0) {
+              return (
+                <NodeInputVariableInput
+                  key={input.id}
+                  name={input.name}
+                  isReadOnly
+                />
+              );
+            }
 
-                setInputs(newInputs);
+            return (
+              <NodeInputVariableInput
+                key={input.id}
+                name={input.name}
+                onConfirmNameChange={(name) => {
+                  const newInputs = adjust<NodeInputItem>(
+                    i,
+                    assoc("name", name)<NodeInputItem>
+                  )(inputs);
 
-                onUpdateNode({
-                  id: props.id,
-                  data: { ...props.data, inputs: newInputs },
-                });
-              }}
-              onRemove={() => {
-                const newInputs = remove(i, 1, inputs);
+                  setInputs(newInputs);
 
-                setInputs(newInputs);
+                  onUpdateNode({
+                    id: props.id,
+                    data: { ...props.data, inputs: newInputs },
+                  });
+                }}
+                onRemove={() => {
+                  const newInputs = remove(i, 1, inputs);
 
-                onUpdateNode({
-                  id: props.id,
-                  data: { ...props.data, inputs: newInputs },
-                });
+                  setInputs(newInputs);
 
-                updateNodeInternals(props.id);
-              }}
-            />
-          ))}
+                  onUpdateNode({
+                    id: props.id,
+                    data: { ...props.data, inputs: newInputs },
+                  });
+
+                  updateNodeInternals(props.id);
+                }}
+              />
+            );
+          })}
         </Section>
         <Section>
           <NormalTextarea

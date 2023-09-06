@@ -1,6 +1,7 @@
 import { adjust, assoc } from "ramda";
 import { Node, Edge } from "reactflow";
 import {
+  ChatGPTMessageNodeData,
   JavaScriptFunctionNodeData,
   NodeData,
   NodeOutputItem,
@@ -66,6 +67,21 @@ export function executeNode(
         );
         break;
       }
+      case NodeType.ChatGPTMessageNode: {
+        const nodeData = node.data;
+        handleChatGPTMessageNode(
+          nodeData,
+          inputIdToOutputIdMap,
+          outputIdToValueMap,
+          (dataChange) => {
+            onUpdateNode({
+              id: node.id,
+              data: { ...nodeData, ...dataChange },
+            });
+          }
+        );
+        break;
+      }
     }
 
     for (const nextId of nodeGraph[id]) {
@@ -107,4 +123,56 @@ function handleJavaScriptFunctionNode(
   onDataChange({
     outputs: adjust<NodeOutputItem>(0, assoc("value", result))(data.outputs),
   });
+}
+
+function handleChatGPTMessageNode(
+  data: ChatGPTMessageNodeData,
+  inputIdToOutputIdMap: { [key: string]: string | undefined },
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  outputIdToValueMap: { [key: string]: any },
+  onDataChange: (dataChange: Partial<ChatGPTMessageNodeData>) => void
+) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const argsMap: { [key: string]: any } = {};
+
+  for (const input of data.inputs) {
+    const outputId = inputIdToOutputIdMap[input.id];
+
+    if (outputId) {
+      const outputValue = outputIdToValueMap[outputId];
+      argsMap[input.name] = outputValue ?? null;
+    } else {
+      argsMap[input.name] = null;
+    }
+  }
+
+  const message = {
+    role: "user",
+    content: replacePlaceholders(data.content, argsMap),
+  };
+
+  console.log("message", message);
+
+  // outputIdToValueMap[data.outputs[0].id] = result;
+
+  onDataChange({
+    outputs: adjust<NodeOutputItem>(
+      0,
+      assoc("value", JSON.stringify(message))
+    )(data.outputs),
+  });
+}
+
+// Replace `{xyz}` but ignore `{{zyx}}`
+// If `xyz` doesn't exist on values, null will be provided.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function replacePlaceholders(str: string, values: { [key: string]: any }) {
+  const regex = /(?<!\{)\{([^{}]+)\}(?!\})/g;
+
+  return str
+    .replace(regex, (_, p1) => {
+      return values[p1] !== undefined ? values[p1] : null;
+    })
+    .replace("{{", "{")
+    .replace("}}", "}");
 }
