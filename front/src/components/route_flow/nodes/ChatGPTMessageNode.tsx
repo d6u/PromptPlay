@@ -169,7 +169,7 @@ export default function ChatGPTMessageNode(
           {props.data.outputs.map((output, i) => (
             <OutputLabel key={output.id}>
               <OutputName>{output.name} =&nbsp;</OutputName>
-              <OutputValue>{output.value}</OutputValue>
+              <OutputValue>{JSON.stringify(output.value)}</OutputValue>
             </OutputLabel>
           ))}
         </Section>
@@ -180,7 +180,11 @@ export default function ChatGPTMessageNode(
           type="source"
           id={output.id}
           position={Position.Right}
-          style={{ bottom: calculateOutputHandleBottom(i) }}
+          style={{
+            bottom: calculateOutputHandleBottom(
+              props.data.outputs.length - 1 - i
+            ),
+          }}
         />
       ))}
     </>

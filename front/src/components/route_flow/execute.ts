@@ -1,4 +1,4 @@
-import { adjust, assoc } from "ramda";
+import { adjust, assoc, pipe } from "ramda";
 import { Node, Edge } from "reactflow";
 import {
   ChatGPTMessageNodeData,
@@ -146,19 +146,22 @@ function handleChatGPTMessageNode(
     }
   }
 
+  const messages = [];
+
   const message = {
     role: "user",
     content: replacePlaceholders(data.content, argsMap),
   };
 
-  console.log("message", message);
+  messages.push(message);
 
-  // outputIdToValueMap[data.outputs[0].id] = result;
+  outputIdToValueMap[data.outputs[0].id] = message;
+  outputIdToValueMap[data.outputs[1].id] = messages;
 
   onDataChange({
-    outputs: adjust<NodeOutputItem>(
-      0,
-      assoc("value", JSON.stringify(message))
+    outputs: pipe(
+      adjust<NodeOutputItem>(0, assoc("value", message)),
+      adjust<NodeOutputItem>(1, assoc("value", messages))
     )(data.outputs),
   });
 }
