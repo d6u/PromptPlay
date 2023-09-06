@@ -235,6 +235,7 @@ export function createNode(type: NodeType): ServerNode {
         position: { x: 200, y: 200 },
         type: NodeType.JavaScriptFunctionNode,
         data: {
+          nodeType: NodeType.JavaScriptFunctionNode,
           inputs: [],
           javaScriptCode: 'return "Hello, World!"',
           outputs: [
@@ -254,6 +255,7 @@ export function createNode(type: NodeType): ServerNode {
         position: { x: 200, y: 200 },
         type: NodeType.ChatGPTMessageNode,
         data: {
+          nodeType: NodeType.ChatGPTMessageNode,
           inputs: [
             {
               id: `${id}/message_list_in`,

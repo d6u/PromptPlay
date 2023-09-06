@@ -1,6 +1,7 @@
 import { adjust, assoc } from "ramda";
 import { Node, Edge } from "reactflow";
 import {
+  JavaScriptFunctionNodeData,
   NodeData,
   NodeOutputItem,
   NodeType,
@@ -49,16 +50,17 @@ export function executeNode(
     const id = queue.shift()!;
     const node = nodeIdToNodeMap[id];
 
-    switch (node.type) {
+    switch (node.data.nodeType) {
       case NodeType.JavaScriptFunctionNode: {
+        const nodeData = node.data;
         handleJavaScriptFunctionNode(
-          node.data,
+          nodeData,
           inputIdToOutputIdMap,
           outputIdToValueMap,
           (dataChange) => {
             onUpdateNode({
               id: node.id,
-              data: { ...node.data, ...dataChange },
+              data: { ...nodeData, ...dataChange },
             });
           }
         );
@@ -76,11 +78,11 @@ export function executeNode(
 }
 
 function handleJavaScriptFunctionNode(
-  data: NodeData,
+  data: JavaScriptFunctionNodeData,
   inputIdToOutputIdMap: { [key: string]: string | undefined },
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   outputIdToValueMap: { [key: string]: any },
-  onDataChange: (dataChange: Partial<NodeData>) => void
+  onDataChange: (dataChange: Partial<JavaScriptFunctionNodeData>) => void
 ) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const pairs: Array<[string, any]> = [];

@@ -40,12 +40,14 @@ export type NodeOutputItem = {
 // Specific NodeData
 
 export type JavaScriptFunctionNodeData = {
+  nodeType: NodeType.JavaScriptFunctionNode;
   inputs: NodeInputItem[];
   javaScriptCode: string;
   outputs: NodeOutputItem[];
 };
 
 export type ChatGPTMessageNodeData = {
+  nodeType: NodeType.ChatGPTMessageNode;
   inputs: NodeInputItem[];
   content: string;
   outputs: NodeOutputItem[];
