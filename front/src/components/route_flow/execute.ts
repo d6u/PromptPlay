@@ -1,11 +1,13 @@
-import { adjust, assoc } from "ramda";
+import { adjust, append, assoc, pipe } from "ramda";
 import { Node, Edge } from "reactflow";
 import {
+  ChatGPTMessageNodeData,
+  JavaScriptFunctionNodeData,
   NodeData,
   NodeOutputItem,
   NodeType,
   ServerNode,
-} from "../../state/flowTypes";
+} from "../../static/flowTypes";
 
 export function executeNode(
   nodes: Node<NodeData>[],
@@ -49,44 +51,35 @@ export function executeNode(
     const id = queue.shift()!;
     const node = nodeIdToNodeMap[id];
 
-    console.log("running node", node);
-
-    switch (node.type) {
+    switch (node.data.nodeType) {
       case NodeType.JavaScriptFunctionNode: {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const pairs: Array<[string, any]> = [];
-
-        for (const input of node.data.inputs) {
-          const outputId = inputIdToOutputIdMap[input.id];
-
-          if (outputId) {
-            const outputValue = outputIdToValueMap[outputId];
-            pairs.push([input.name, outputValue ?? null]);
-          } else {
-            pairs.push([input.name, null]);
+        const nodeData = node.data;
+        handleJavaScriptFunctionNode(
+          nodeData,
+          inputIdToOutputIdMap,
+          outputIdToValueMap,
+          (dataChange) => {
+            onUpdateNode({
+              id: node.id,
+              data: { ...nodeData, ...dataChange },
+            });
           }
-        }
-
-        const fn = Function(
-          ...pairs.map((pair) => pair[0]),
-          node.data.javaScriptCode
         );
-
-        const result = fn(...pairs.map((pair) => pair[1]));
-
-        outputIdToValueMap[node.data.outputs[0].id] = result;
-
-        onUpdateNode({
-          id: node.id,
-          data: {
-            ...node.data,
-            outputs: adjust<NodeOutputItem>(
-              0,
-              assoc("value", result)
-            )(node.data.outputs),
-          },
-        });
-
+        break;
+      }
+      case NodeType.ChatGPTMessageNode: {
+        const nodeData = node.data;
+        handleChatGPTMessageNode(
+          nodeData,
+          inputIdToOutputIdMap,
+          outputIdToValueMap,
+          (dataChange) => {
+            onUpdateNode({
+              id: node.id,
+              data: { ...nodeData, ...dataChange },
+            });
+          }
+        );
         break;
       }
     }
@@ -98,4 +91,100 @@ export function executeNode(
       }
     }
   }
+}
+
+function handleJavaScriptFunctionNode(
+  data: JavaScriptFunctionNodeData,
+  inputIdToOutputIdMap: { [key: string]: string | undefined },
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  outputIdToValueMap: { [key: string]: any },
+  onDataChange: (dataChange: Partial<JavaScriptFunctionNodeData>) => void
+) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const pairs: Array<[string, any]> = [];
+
+  for (const input of data.inputs) {
+    const outputId = inputIdToOutputIdMap[input.id];
+
+    if (outputId) {
+      const outputValue = outputIdToValueMap[outputId];
+      pairs.push([input.name, outputValue ?? null]);
+    } else {
+      pairs.push([input.name, null]);
+    }
+  }
+
+  const fn = Function(...pairs.map((pair) => pair[0]), data.javaScriptCode);
+
+  const result = fn(...pairs.map((pair) => pair[1]));
+
+  outputIdToValueMap[data.outputs[0].id] = result;
+
+  onDataChange({
+    outputs: adjust<NodeOutputItem>(0, assoc("value", result))(data.outputs),
+  });
+}
+
+function handleChatGPTMessageNode(
+  data: ChatGPTMessageNodeData,
+  inputIdToOutputIdMap: { [key: string]: string | undefined },
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  outputIdToValueMap: { [key: string]: any },
+  onDataChange: (dataChange: Partial<ChatGPTMessageNodeData>) => void
+) {
+  // Prepare inputs
+  // ----------
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const argsMap: { [key: string]: any } = {};
+
+  for (const input of data.inputs) {
+    const outputId = inputIdToOutputIdMap[input.id];
+
+    if (outputId) {
+      const outputValue = outputIdToValueMap[outputId];
+      argsMap[input.name] = outputValue ?? null;
+    } else {
+      argsMap[input.name] = null;
+    }
+  }
+
+  // Execute logic
+  // ----------
+
+  let messages = argsMap["message_list"] ?? [];
+
+  const message = {
+    role: data.role,
+    content: replacePlaceholders(data.content, argsMap),
+  };
+
+  messages = append(message, messages);
+
+  // Update outputs
+  // ----------
+
+  outputIdToValueMap[data.outputs[0].id] = message;
+  outputIdToValueMap[data.outputs[1].id] = messages;
+
+  onDataChange({
+    outputs: pipe(
+      adjust<NodeOutputItem>(0, assoc("value", message)),
+      adjust<NodeOutputItem>(1, assoc("value", messages))
+    )(data.outputs),
+  });
+}
+
+// Replace `{xyz}` but ignore `{{zyx}}`
+// If `xyz` doesn't exist on values, null will be provided.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function replacePlaceholders(str: string, values: { [key: string]: any }) {
+  const regex = /(?<!\{)\{([^{}]+)\}(?!\})/g;
+
+  return str
+    .replace(regex, (_, p1) => {
+      return values[p1] !== undefined ? values[p1] : null;
+    })
+    .replace("{{", "{")
+    .replace("}}", "}");
 }

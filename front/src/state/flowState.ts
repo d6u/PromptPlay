@@ -1,4 +1,5 @@
 import debounce from "lodash/debounce";
+import { nanoid } from "nanoid";
 import {
   adjust,
   any,
@@ -30,13 +31,15 @@ import {
 import { create } from "zustand";
 import { graphql } from "../gql";
 import {
+  ChatGPTMessageRole,
   EdgeWithHandle,
   NodeData,
   NodeInputItem,
+  NodeType,
   NodeWithType,
   ServerEdge,
   ServerNode,
-} from "./flowTypes";
+} from "../static/flowTypes";
 import { client } from "./urql";
 
 export const SPACE_FLOW_QUERY = graphql(`
@@ -66,47 +69,50 @@ export const UPDATE_SPACE_FLOW_CONTENT_MUTATION = graphql(`
   }
 `);
 
-const updateSpaceDebounced = debounce(
-  async (spaceId: string, nodes: Node<NodeData>[], edges: Edge[]) => {
-    const newNodes = map(
-      pick(["id", "type", "position", "data"])<NodeWithType>
-    )(nodes as NodeWithType[]);
+async function updateSpace(
+  spaceId: string,
+  nodes: Node<NodeData>[],
+  edges: Edge[]
+) {
+  const newNodes = map(pick(["id", "type", "position", "data"])<NodeWithType>)(
+    nodes as NodeWithType[]
+  );
 
-    let newEdges = map(
-      pick([
-        "id",
-        "source",
-        "sourceHandle",
-        "target",
-        "targetHandle",
-      ])<EdgeWithHandle>
-    )(edges as EdgeWithHandle[]);
+  let newEdges = map(
+    pick([
+      "id",
+      "source",
+      "sourceHandle",
+      "target",
+      "targetHandle",
+    ])<EdgeWithHandle>
+  )(edges as EdgeWithHandle[]);
 
-    // Remove invalid edges
-    newEdges = newEdges.filter((edge) => {
-      return (
-        any(propEq(edge.source, "id"))(nodes) &&
-        any(propEq(edge.target, "id"))(nodes) &&
-        any(
-          pipe<[Node<NodeData>], NodeInputItem[], string[], boolean>(
-            path(["data", "inputs"]) as (o: Node<NodeData>) => NodeInputItem[],
-            map(prop("id")),
-            any(equals(edge.targetHandle))
-          )
-        )(nodes)
-      );
-    });
+  // Remove invalid edges
+  newEdges = newEdges.filter((edge) => {
+    return (
+      any(propEq(edge.source, "id"))(nodes) &&
+      any(propEq(edge.target, "id"))(nodes) &&
+      any(
+        pipe<[Node<NodeData>], NodeInputItem[], string[], boolean>(
+          path(["data", "inputs"]) as (o: Node<NodeData>) => NodeInputItem[],
+          map(prop("id")),
+          any(equals(edge.targetHandle))
+        )
+      )(nodes)
+    );
+  });
 
-    await client.mutation(UPDATE_SPACE_FLOW_CONTENT_MUTATION, {
-      spaceId,
-      flowContent: JSON.stringify({
-        nodes: newNodes,
-        edges: newEdges,
-      }),
-    });
-  },
-  500
-);
+  await client.mutation(UPDATE_SPACE_FLOW_CONTENT_MUTATION, {
+    spaceId,
+    flowContent: JSON.stringify({
+      nodes: newNodes,
+      edges: newEdges,
+    }),
+  });
+}
+
+const updateSpaceDebounced = debounce(updateSpace, 500);
 
 export type RFState = {
   spaceId: string | null;
@@ -220,3 +226,63 @@ export const useRFStore = create<RFState>((set, get) => ({
     }
   },
 }));
+
+export function createNode(type: NodeType): ServerNode {
+  switch (type) {
+    case NodeType.JavaScriptFunctionNode: {
+      const id = nanoid();
+      return {
+        id,
+        position: { x: 200, y: 200 },
+        type: NodeType.JavaScriptFunctionNode,
+        data: {
+          nodeType: NodeType.JavaScriptFunctionNode,
+          inputs: [],
+          javaScriptCode: 'return "Hello, World!"',
+          outputs: [
+            {
+              id: `${id}/output`,
+              name: "output",
+              value: null,
+            },
+          ],
+        },
+      };
+    }
+    case NodeType.ChatGPTMessageNode: {
+      const id = nanoid();
+      return {
+        id,
+        position: { x: 200, y: 200 },
+        type: NodeType.ChatGPTMessageNode,
+        data: {
+          nodeType: NodeType.ChatGPTMessageNode,
+          inputs: [
+            {
+              id: `${id}/message_list_in`,
+              name: "message_list",
+            },
+            {
+              id: `${id}/${nanoid()}`,
+              name: "topic",
+            },
+          ],
+          role: ChatGPTMessageRole.user,
+          content: "Write a poem about {topic} in fewer than 20 words.",
+          outputs: [
+            {
+              id: `${id}/message`,
+              name: "message",
+              value: null,
+            },
+            {
+              id: `${id}/message_list_out`,
+              name: "message_list",
+              value: null,
+            },
+          ],
+        },
+      };
+    }
+  }
+}

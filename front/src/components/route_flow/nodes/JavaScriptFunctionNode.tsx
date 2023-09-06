@@ -1,85 +1,33 @@
 import Button from "@mui/joy/Button";
 import Textarea from "@mui/joy/Textarea";
 import Chance from "chance";
+import { nanoid } from "nanoid";
 import { adjust, append, assoc, remove } from "ramda";
 import { useState } from "react";
-import { Handle, Position, useUpdateNodeInternals, NodeProps } from "reactflow";
+import { Position, useUpdateNodeInternals, NodeProps } from "reactflow";
 import styled from "styled-components";
-import { v4 as uuid } from "uuid";
 import { RFState, useRFStore } from "../../../state/flowState";
-import { NodeData, NodeInputItem } from "../../../state/flowTypes";
-import NodeInputVariableInput, {
-  INPUT_ROW_MARGIN,
-} from "../common/NodeInputVariableInput";
+import {
+  JavaScriptFunctionNodeData,
+  NodeInputItem,
+} from "../../../static/flowTypes";
+import NodeInputVariableInput from "../common/NodeInputVariableInput";
+import {
+  Content,
+  HeaderSection,
+  InputHandle,
+  OutputHandle,
+  OutputLabel,
+  OutputName,
+  OutputValue,
+  Section,
+} from "../common/commonStyledComponents";
+import { calculateInputHandleTop } from "../common/utils";
 
 const chance = new Chance();
 
-const CONTAINER_BORDER = 1;
-const CONTAINER_PADDING = 10;
-const VARIABLE_LABEL_HEIGHT = 32;
-const HANDLE_RADIUS = 15;
-const SECTION_MARGIN_BOTTOM = 10;
-
-const StyledHandle = styled(Handle)`
-  width: ${HANDLE_RADIUS}px;
-  height: ${HANDLE_RADIUS}px;
-  background: #5cc5e0;
-  transform: none;
-`;
-
-const InputHandle = styled(StyledHandle)`
-  left: -${HANDLE_RADIUS / 2}px;
-`;
-
-const OutputHandle = styled(StyledHandle)`
-  top: unset;
-  right: -${HANDLE_RADIUS / 2}px;
-  bottom: ${CONTAINER_PADDING +
-  VARIABLE_LABEL_HEIGHT / 2 -
-  HANDLE_RADIUS / 2}px;
-`;
-
-const Content = styled.div`
-  background: #fff;
-  border: ${CONTAINER_BORDER}px solid #000;
-  border-radius: 5px;
-  padding: ${CONTAINER_PADDING}px;
-`;
-
-const Section = styled.div`
-  margin-bottom: ${SECTION_MARGIN_BOTTOM}px;
-  max-width: 400px;
-
-  &:last-child {
-    margin-bottom: 0;
-  }
-`;
-
 const CodeTextarea = styled(Textarea)`
   width: 400px;
-`;
-
-const OutputLabel = styled.div`
-  padding: 0 10px;
-  border: 1px solid blue;
-  height: ${VARIABLE_LABEL_HEIGHT}px;
-  display: flex;
-  border-radius: 5px;
-  align-items: center;
-  justify-content: space-between;
-  // line-height: ${VARIABLE_LABEL_HEIGHT}px;
-  // font-family: var(--mono-font-family);
-  // font-size: 14px;
-`;
-
-const OutputName = styled.code`
-  white-space: nowrap;
-`;
-
-const OutputValue = styled.code`
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow: hidden;
 `;
 
 const selector = (state: RFState) => ({
@@ -87,7 +35,9 @@ const selector = (state: RFState) => ({
   onRemoveNode: state.onRemoveNode,
 });
 
-export default function JavaScriptFunctionNode(props: NodeProps<NodeData>) {
+export default function JavaScriptFunctionNode(
+  props: NodeProps<JavaScriptFunctionNodeData>
+) {
   const updateNodeInternals = useUpdateNodeInternals();
 
   const { onUpdateNode, onRemoveNode } = useRFStore(selector);
@@ -105,39 +55,18 @@ export default function JavaScriptFunctionNode(props: NodeProps<NodeData>) {
           type="target"
           id={input.id}
           position={Position.Left}
-          style={{
-            top:
-              CONTAINER_BORDER +
-              CONTAINER_PADDING +
-              VARIABLE_LABEL_HEIGHT +
-              SECTION_MARGIN_BOTTOM +
-              VARIABLE_LABEL_HEIGHT +
-              INPUT_ROW_MARGIN +
-              (INPUT_ROW_MARGIN + VARIABLE_LABEL_HEIGHT) * i +
-              VARIABLE_LABEL_HEIGHT / 2 -
-              HANDLE_RADIUS / 2,
-          }}
+          style={{ top: calculateInputHandleTop(i) }}
         />
       ))}
       <Content>
-        <Section>
-          <Button
-            color="danger"
-            size="sm"
-            variant="outlined"
-            onClick={() => onRemoveNode(props.id)}
-          >
-            Remove node
-          </Button>
-        </Section>
-        <Section>
+        <HeaderSection>
           <Button
             color="success"
             size="sm"
             variant="outlined"
             onClick={() => {
               const newInputs = append<NodeInputItem>({
-                id: uuid(),
+                id: `${props.id}/${nanoid()}`,
                 name: chance.word(),
               })(inputs);
 
@@ -153,6 +82,16 @@ export default function JavaScriptFunctionNode(props: NodeProps<NodeData>) {
           >
             Add input
           </Button>
+          <Button
+            color="danger"
+            size="sm"
+            variant="outlined"
+            onClick={() => onRemoveNode(props.id)}
+          >
+            Remove node
+          </Button>
+        </HeaderSection>
+        <Section>
           {inputs.map((input, i) => (
             <NodeInputVariableInput
               key={input.id}
@@ -217,12 +156,12 @@ export default function JavaScriptFunctionNode(props: NodeProps<NodeData>) {
           <code>{"}"}</code>
         </Section>
         <Section>
-          {props.data.outputs.map((output, i) => (
-            <OutputLabel key={output.id}>
-              <OutputName>{output.name} =&nbsp;</OutputName>
-              <OutputValue>{output.value}</OutputValue>
-            </OutputLabel>
-          ))}
+          <OutputLabel>
+            <OutputName>{props.data.outputs[0].name} =&nbsp;</OutputName>
+            <OutputValue>
+              {JSON.stringify(props.data.outputs[0].value)}
+            </OutputValue>
+          </OutputLabel>
         </Section>
       </Content>
       <OutputHandle

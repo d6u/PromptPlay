@@ -3,11 +3,11 @@ import { useParams } from "react-router-dom";
 import ReactFlow, { Controls, Background, BackgroundVariant } from "reactflow";
 import "reactflow/dist/style.css";
 import styled from "styled-components";
-import { v4 as uuid } from "uuid";
-import { RFState, useRFStore } from "../../state/flowState";
-import { NodeType } from "../../state/flowTypes";
+import { RFState, createNode, useRFStore } from "../../state/flowState";
+import { NodeType } from "../../static/flowTypes";
 import CanvasPanel from "./CanvasPanel";
 import { executeNode } from "./execute";
+import ChatGPTMessageNode from "./nodes/ChatGPTMessageNode";
 import JavaScriptFunctionNode from "./nodes/JavaScriptFunctionNode";
 
 const Container = styled.div`
@@ -16,6 +16,7 @@ const Container = styled.div`
 
 const NODE_TYPES = {
   [NodeType.JavaScriptFunctionNode]: JavaScriptFunctionNode,
+  [NodeType.ChatGPTMessageNode]: ChatGPTMessageNode,
 };
 
 const selector = (state: RFState) => ({
@@ -62,24 +63,7 @@ export default function RouteFlow() {
           onRun={() => {
             executeNode(nodes, edges, onUpdateNode);
           }}
-          onAddNode={(type) =>
-            onAddNode({
-              id: uuid(),
-              position: { x: 200, y: 200 },
-              type,
-              data: {
-                inputs: [],
-                javaScriptCode: 'return "Hello, World!"',
-                outputs: [
-                  {
-                    id: uuid(),
-                    name: "output",
-                    value: null,
-                  },
-                ],
-              },
-            })
-          }
+          onAddNode={(type) => onAddNode(createNode(type))}
         />
         <Controls />
         <Background variant={BackgroundVariant.Dots} gap={20} size={1} />
