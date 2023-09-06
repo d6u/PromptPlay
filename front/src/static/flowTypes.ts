@@ -2,18 +2,28 @@ import { Node, Edge } from "reactflow";
 
 // Server types
 
+// Node
+
+export enum NodeType {
+  JavaScriptFunctionNode = "JavaScriptFunctionNode",
+  ChatGPTMessageNode = "ChatGPTMessageNode",
+}
+
 export type ServerNode = {
   id: string;
-  type: NodeType;
   position: { x: number; y: number };
-  data: NodeData;
-};
+} & (
+  | {
+      type: NodeType.JavaScriptFunctionNode;
+      data: JavaScriptFunctionNodeData;
+    }
+  | {
+      type: NodeType.ChatGPTMessageNode;
+      data: ChatGPTMessageNodeData;
+    }
+);
 
-export type NodeData = {
-  inputs: NodeInputItem[];
-  javaScriptCode: string;
-  outputs: NodeOutputItem[];
-};
+export type NodeData = JavaScriptFunctionNodeData | ChatGPTMessageNodeData;
 
 export type NodeInputItem = {
   id: string;
@@ -27,6 +37,22 @@ export type NodeOutputItem = {
   value: any;
 };
 
+// Specific NodeData
+
+export type JavaScriptFunctionNodeData = {
+  inputs: NodeInputItem[];
+  javaScriptCode: string;
+  outputs: NodeOutputItem[];
+};
+
+export type ChatGPTMessageNodeData = {
+  inputs: NodeInputItem[];
+  content: string;
+  outputs: NodeOutputItem[];
+};
+
+// Edge
+
 export type ServerEdge = {
   id: string;
   source: string;
@@ -37,11 +63,9 @@ export type ServerEdge = {
 
 // ReactFlow types
 
-export enum NodeType {
-  JavaScriptFunctionNode = "JavaScriptFunctionNode",
-}
-
-export type NodeWithType = Node<NodeData> & { type: NodeType };
+export type NodeWithType = Node<NodeData> & {
+  type: NodeType;
+};
 
 export type EdgeWithHandle = Edge & {
   sourceHandle: string;

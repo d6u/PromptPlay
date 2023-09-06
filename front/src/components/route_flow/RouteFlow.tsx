@@ -7,6 +7,7 @@ import { RFState, createNode, useRFStore } from "../../state/flowState";
 import { NodeType } from "../../static/flowTypes";
 import CanvasPanel from "./CanvasPanel";
 import { executeNode } from "./execute";
+import ChatGPTMessageNode from "./nodes/ChatGPTMessageNode";
 import JavaScriptFunctionNode from "./nodes/JavaScriptFunctionNode";
 
 const Container = styled.div`
@@ -15,6 +16,7 @@ const Container = styled.div`
 
 const NODE_TYPES = {
   [NodeType.JavaScriptFunctionNode]: JavaScriptFunctionNode,
+  [NodeType.ChatGPTMessageNode]: ChatGPTMessageNode,
 };
 
 const selector = (state: RFState) => ({

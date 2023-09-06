@@ -233,7 +233,7 @@ export function createNode(type: NodeType): ServerNode {
       return {
         id,
         position: { x: 200, y: 200 },
-        type,
+        type: NodeType.JavaScriptFunctionNode,
         data: {
           inputs: [],
           javaScriptCode: 'return "Hello, World!"',
@@ -241,6 +241,39 @@ export function createNode(type: NodeType): ServerNode {
             {
               id: `${id}/output`,
               name: "output",
+              value: null,
+            },
+          ],
+        },
+      };
+    }
+    case NodeType.ChatGPTMessageNode: {
+      const id = nanoid();
+      return {
+        id,
+        position: { x: 200, y: 200 },
+        type: NodeType.ChatGPTMessageNode,
+        data: {
+          inputs: [
+            {
+              id: `${id}/message_list_in`,
+              name: "message_list",
+            },
+            {
+              id: `${id}/${nanoid()}`,
+              name: "topic",
+            },
+          ],
+          content: "Write a poem about {topic} in fewer than 20 words.",
+          outputs: [
+            {
+              id: `${id}/message`,
+              name: "message",
+              value: null,
+            },
+            {
+              id: `${id}/message_list_out`,
+              name: "message_list",
               value: null,
             },
           ],

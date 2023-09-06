@@ -8,7 +8,7 @@ import { Position, useUpdateNodeInternals, NodeProps } from "reactflow";
 import styled from "styled-components";
 import { RFState, useRFStore } from "../../../state/flowState";
 import {
-  JavaScriptFunctionNodeData,
+  ChatGPTMessageNodeData,
   NodeInputItem,
 } from "../../../static/flowTypes";
 import NodeInputVariableInput from "../common/NodeInputVariableInput";
@@ -26,7 +26,7 @@ import { calculateInputHandleTop } from "../common/utils";
 
 const chance = new Chance();
 
-const CodeTextarea = styled(Textarea)`
+const NormalTextarea = styled(Textarea)`
   width: 400px;
 `;
 
@@ -35,17 +35,15 @@ const selector = (state: RFState) => ({
   onRemoveNode: state.onRemoveNode,
 });
 
-export default function JavaScriptFunctionNode(
-  props: NodeProps<JavaScriptFunctionNodeData>
+export default function ChatGPTMessageNode(
+  props: NodeProps<ChatGPTMessageNodeData>
 ) {
   const updateNodeInternals = useUpdateNodeInternals();
 
   const { onUpdateNode, onRemoveNode } = useRFStore(selector);
 
   const [inputs, setInputs] = useState(props.data.inputs);
-  const [javaScriptCode, setJavaScriptCode] = useState(
-    props.data.javaScriptCode
-  );
+  const [content, setContent] = useState(props.data.content);
 
   return (
     <>
@@ -125,38 +123,35 @@ export default function JavaScriptFunctionNode(
           ))}
         </Section>
         <Section>
-          <code>{`function (${inputs.map((v) => v.name).join(", ")}) {`}</code>
-          <CodeTextarea
-            sx={{ fontFamily: "var(--mono-font-family)" }}
+          <NormalTextarea
             color="neutral"
             size="sm"
             variant="outlined"
             minRows={6}
             placeholder="Write JavaScript here"
             // disabled={props.isReadOnly}
-            value={javaScriptCode}
+            value={content}
             onChange={(e) => {
-              setJavaScriptCode(e.target.value);
+              setContent(e.target.value);
             }}
             onKeyDown={(e) => {
               if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
                 onUpdateNode({
                   id: props.id,
-                  data: { ...props.data, javaScriptCode },
+                  data: { ...props.data, content },
                 });
               }
             }}
             onBlur={() => {
               onUpdateNode({
                 id: props.id,
-                data: { ...props.data, javaScriptCode },
+                data: { ...props.data, content },
               });
             }}
           />
-          <code>{"}"}</code>
         </Section>
         <Section>
-          {props.data.outputs.map((output) => (
+          {props.data.outputs.map((output, i) => (
             <OutputLabel key={output.id}>
               <OutputName>{output.name} =&nbsp;</OutputName>
               <OutputValue>{output.value}</OutputValue>

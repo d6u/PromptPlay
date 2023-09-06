@@ -26,7 +26,10 @@ export default function CanvasPanel(props: Props) {
         >
           Add base node
         </Button>
-        <Button size="sm" onClick={() => {}}>
+        <Button
+          size="sm"
+          onClick={() => props.onAddNode(NodeType.ChatGPTMessageNode)}
+        >
           Add ChatGPT Message
         </Button>
         <Button size="sm" onClick={() => {}}>
