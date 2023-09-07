@@ -1,8 +1,6 @@
-type Props = {
-  className?: string;
-};
+import { SVGProps } from "react";
 
-export default function IconThreeDots(props: Props) {
+export default function IconThreeDots(props: SVGProps<SVGSVGElement>) {
   return (
     <svg
       version="1.1"

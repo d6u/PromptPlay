@@ -1,6 +1,6 @@
-type Props = object;
+import { SVGProps } from "react";
 
-export default function IconEdit(props: Props) {
+export default function IconEdit(props: SVGProps<SVGSVGElement>) {
   return (
     <svg
       version="1.1"

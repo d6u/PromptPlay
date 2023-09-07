@@ -207,6 +207,7 @@ export default function ChatGPTMessageNode(
           {props.data.outputs.map((output, i) => (
             <NodeOutputRow
               key={output.id}
+              id={output.id}
               name={output.name}
               value={output.value}
             />

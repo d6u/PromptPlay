@@ -131,6 +131,10 @@ export type RFState = {
   onNodesChange: OnNodesChange;
   onEdgesChange: OnEdgesChange;
   onConnect: OnConnect;
+
+  inspectorSelectedNodeId: string | null;
+  inspectorSelectedOutputId: string | null;
+  onSelectOutputToInspect(nodeId: string | null, outputId: string | null): void;
 };
 
 export const useRFStore = create<RFState>((set, get) => {
@@ -250,6 +254,15 @@ export const useRFStore = create<RFState>((set, get) => {
       if (spaceId) {
         updateSpace(spaceId, get().nodes, edges);
       }
+    },
+
+    inspectorSelectedNodeId: null,
+    inspectorSelectedOutputId: null,
+    onSelectOutputToInspect(nodeId: string | null, outputId: string | null) {
+      set({
+        inspectorSelectedNodeId: nodeId,
+        inspectorSelectedOutputId: outputId,
+      });
     },
   };
 });

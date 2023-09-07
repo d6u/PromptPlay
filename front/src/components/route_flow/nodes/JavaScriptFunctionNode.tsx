@@ -150,6 +150,7 @@ export default function JavaScriptFunctionNode(
         </Section>
         <Section>
           <NodeOutputRow
+            id={props.data.outputs[0].id}
             name={props.data.outputs[0].name}
             value={props.data.outputs[0].value}
           />

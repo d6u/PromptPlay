@@ -1,4 +1,6 @@
+import { useNodeId } from "reactflow";
 import styled from "styled-components";
+import { RFState, useRFStore } from "../../../state/flowState";
 import IconInspect from "../../icons/IconInspect";
 import { VARIABLE_LABEL_HEIGHT } from "../common/commonStyledComponents";
 import { VARIABLE_ROW_MARGIN_BOTTOM } from "./NodeInputModifyRow";
@@ -43,19 +45,32 @@ const InspectIcon = styled(IconInspect)`
   cursor: pointer;
 `;
 
+const selector = (state: RFState) => ({
+  onSelectOutputToInspect: state.onSelectOutputToInspect,
+});
+
 type Props = {
+  id: string;
   name: string;
   value: string;
 };
 
 export default function NodeOutputRow(props: Props) {
+  const { onSelectOutputToInspect } = useRFStore(selector);
+
+  const nodeId = useNodeId()!;
+
   return (
     <Container>
       <Content>
         <Name>{props.name} =&nbsp;</Name>
         <Value>{JSON.stringify(props.value)}</Value>
       </Content>
-      <InspectIcon />
+      <InspectIcon
+        onClick={() => {
+          onSelectOutputToInspect(nodeId, props.id);
+        }}
+      />
     </Container>
   );
 }
