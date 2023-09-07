@@ -7,6 +7,7 @@ import equals from "ramda/es/equals";
 import findIndex from "ramda/es/findIndex";
 import map from "ramda/es/map";
 import mergeLeft from "ramda/es/mergeLeft";
+import none from "ramda/es/none";
 import path from "ramda/es/path";
 import pick from "ramda/es/pick";
 import pipe from "ramda/es/pipe";
@@ -212,9 +213,13 @@ export const useRFStore = create<RFState>((set, get) => {
 
       set({ edges });
 
+      if (none(propEq("remove", "type"))(changes)) {
+        return;
+      }
+
       const spaceId = get().spaceId;
       if (spaceId) {
-        updateSpaceDebounced(spaceId, get().nodes, edges);
+        updateSpace(spaceId, get().nodes, edges);
       }
     },
     onConnect(connection: Connection) {
@@ -236,7 +241,7 @@ export const useRFStore = create<RFState>((set, get) => {
 
       const spaceId = get().spaceId;
       if (spaceId) {
-        updateSpaceDebounced(spaceId, get().nodes, edges);
+        updateSpace(spaceId, get().nodes, edges);
       }
     },
   };
