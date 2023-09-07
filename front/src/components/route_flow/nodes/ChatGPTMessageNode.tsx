@@ -16,7 +16,6 @@ import {
 } from "../../../static/flowTypes";
 import NodeInputVariableInput from "../common/NodeInputVariableInput";
 import {
-  Content,
   HeaderSection,
   InputHandle,
   OutputHandle,
@@ -29,6 +28,7 @@ import {
   calculateInputHandleTop,
   calculateOutputHandleBottom,
 } from "../common/utils";
+import NodeBox from "./NodeBox";
 
 const chance = new Chance();
 
@@ -63,7 +63,7 @@ export default function ChatGPTMessageNode(
           style={{ top: calculateInputHandleTop(i) }}
         />
       ))}
-      <Content>
+      <NodeBox>
         <HeaderSection>
           <Button
             color="success"
@@ -218,7 +218,7 @@ export default function ChatGPTMessageNode(
             </OutputLabel>
           ))}
         </Section>
-      </Content>
+      </NodeBox>
       {props.data.outputs.map((output, i) => (
         <OutputHandle
           key={output.id}

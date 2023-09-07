@@ -2,6 +2,7 @@ import debounce from "lodash/debounce";
 import { nanoid } from "nanoid";
 import {
   adjust,
+  all,
   any,
   append,
   equals,
@@ -188,6 +189,8 @@ export const useRFStore = create<RFState>((set, get) => ({
     const nodes = applyNodeChanges(changes, get().nodes);
 
     set({ nodes });
+
+    // const skipSave = all(propEq("select", "type"))(changes);
 
     const spaceId = get().spaceId;
     if (spaceId) {

@@ -12,7 +12,6 @@ import {
 } from "../../../static/flowTypes";
 import NodeInputVariableInput from "../common/NodeInputVariableInput";
 import {
-  Content,
   HeaderSection,
   InputHandle,
   OutputHandle,
@@ -25,6 +24,7 @@ import {
   calculateInputHandleTop,
   calculateOutputHandleBottom,
 } from "../common/utils";
+import NodeBox from "./NodeBox";
 
 const selector = (state: RFState) => ({
   onUpdateNode: state.onUpdateNode,
@@ -46,7 +46,7 @@ export default function ChatGPTChatNode(props: NodeProps<ChatGPTChatNodeData>) {
         position={Position.Left}
         style={{ top: calculateInputHandleTop(0) }}
       />
-      <Content>
+      <NodeBox>
         <HeaderSection>
           <div />
           <Button
@@ -137,7 +137,7 @@ export default function ChatGPTChatNode(props: NodeProps<ChatGPTChatNodeData>) {
             </OutputLabel>
           ))}
         </Section>
-      </Content>
+      </NodeBox>
       {props.data.outputs.map((output, i) => (
         <OutputHandle
           key={output.id}

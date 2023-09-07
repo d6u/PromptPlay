@@ -13,7 +13,6 @@ import {
 } from "../../../static/flowTypes";
 import NodeInputVariableInput from "../common/NodeInputVariableInput";
 import {
-  Content,
   HeaderSection,
   InputHandle,
   OutputHandle,
@@ -23,6 +22,7 @@ import {
   Section,
 } from "../common/commonStyledComponents";
 import { calculateInputHandleTop } from "../common/utils";
+import NodeBox from "./NodeBox";
 
 const chance = new Chance();
 
@@ -58,7 +58,7 @@ export default function JavaScriptFunctionNode(
           style={{ top: calculateInputHandleTop(i) }}
         />
       ))}
-      <Content>
+      <NodeBox>
         <HeaderSection>
           <Button
             color="success"
@@ -163,7 +163,7 @@ export default function JavaScriptFunctionNode(
             </OutputValue>
           </OutputLabel>
         </Section>
-      </Content>
+      </NodeBox>
       <OutputHandle
         type="source"
         id={props.data.outputs[0].id}

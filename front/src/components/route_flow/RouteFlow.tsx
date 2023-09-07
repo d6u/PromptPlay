@@ -1,6 +1,15 @@
-import { useEffect } from "react";
+import memoize from "lodash/memoize";
+import assoc from "ramda/es/assoc";
+import map from "ramda/es/map";
+import { useEffect, useMemo } from "react";
 import { useParams } from "react-router-dom";
-import ReactFlow, { Controls, Background, BackgroundVariant } from "reactflow";
+import ReactFlow, {
+  Node,
+  Controls,
+  Background,
+  BackgroundVariant,
+  PanOnScrollMode,
+} from "reactflow";
 import "reactflow/dist/style.css";
 import styled from "styled-components";
 import { RFState, createNode, useRFStore } from "../../state/flowState";
@@ -10,6 +19,11 @@ import { executeNode } from "./execute";
 import ChatGPTChatNode from "./nodes/ChatGPTChatNode";
 import ChatGPTMessageNode from "./nodes/ChatGPTMessageNode";
 import JavaScriptFunctionNode from "./nodes/JavaScriptFunctionNode";
+import { DRAG_HANDLE_CLASS_NAME } from "./nodes/NodeBox";
+
+const applyDragHandleMemoized = memoize(
+  assoc("dragHandle", `.${DRAG_HANDLE_CLASS_NAME}`)
+);
 
 const Container = styled.div`
   flex-grow: 1;
@@ -51,15 +65,29 @@ export default function RouteFlow() {
     onInitialize(spaceId);
   }, [onInitialize, spaceId]);
 
+  const nodesWithAdditionalData = useMemo(
+    () => map<Node, Node>(applyDragHandleMemoized)(nodes),
+    [nodes]
+  );
+
   return (
     <Container>
       <ReactFlow
-        nodes={nodes}
+        nodes={nodesWithAdditionalData}
         edges={edges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         nodeTypes={NODE_TYPES}
+        panOnScroll
+        panOnScrollMode={PanOnScrollMode.Free}
+        maxZoom={1}
+        onNodeDragStart={(event, node) => {
+          console.log("drag start");
+        }}
+        onNodeDragStop={(event, node) => {
+          console.log("drag stop", node);
+        }}
       >
         <CanvasPanel
           onRun={() => {
