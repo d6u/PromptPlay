@@ -7,6 +7,7 @@ import { Node, Edge } from "reactflow";
 export enum NodeType {
   JavaScriptFunctionNode = "JavaScriptFunctionNode",
   ChatGPTMessageNode = "ChatGPTMessageNode",
+  ChatGPTChatNode = "ChatGPTChatNode",
 }
 
 export type ServerNode = {
@@ -21,9 +22,16 @@ export type ServerNode = {
       type: NodeType.ChatGPTMessageNode;
       data: ChatGPTMessageNodeData;
     }
+  | {
+      type: NodeType.ChatGPTChatNode;
+      data: ChatGPTChatNodeData;
+    }
 );
 
-export type NodeData = JavaScriptFunctionNodeData | ChatGPTMessageNodeData;
+export type NodeData =
+  | JavaScriptFunctionNodeData
+  | ChatGPTMessageNodeData
+  | ChatGPTChatNodeData;
 
 export type NodeInputItem = {
   id: string;
@@ -46,12 +54,6 @@ export type JavaScriptFunctionNodeData = {
   outputs: NodeOutputItem[];
 };
 
-export enum ChatGPTMessageRole {
-  system = "system",
-  user = "user",
-  assistant = "assistant",
-}
-
 export type ChatGPTMessageNodeData = {
   nodeType: NodeType.ChatGPTMessageNode;
   inputs: NodeInputItem[];
@@ -59,6 +61,26 @@ export type ChatGPTMessageNodeData = {
   content: string;
   outputs: NodeOutputItem[];
 };
+
+export enum ChatGPTMessageRole {
+  system = "system",
+  user = "user",
+  assistant = "assistant",
+}
+
+export type ChatGPTChatNodeData = {
+  nodeType: NodeType.ChatGPTChatNode;
+  inputs: NodeInputItem[];
+  model: OpenAIChatModel;
+  temperature: number;
+  stop: Array<string>;
+  outputs: NodeOutputItem[];
+};
+
+export enum OpenAIChatModel {
+  GPT3_5_TURBO = "gpt-3.5-turbo",
+  GPT4 = "gpt-4",
+}
 
 // Edge
 
