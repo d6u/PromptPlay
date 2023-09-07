@@ -1,6 +1,6 @@
 import { Button } from "@mui/joy";
 import { find, path, propEq } from "ramda";
-import { useMemo } from "react";
+import { ReactNode, useMemo } from "react";
 import styled from "styled-components";
 import { RFState, useRFStore } from "../../state/flowState";
 import { NodeOutputItem } from "../../static/flowTypes";
@@ -11,6 +11,7 @@ const Container = styled.div<{ $hide: boolean }>`
   right: 0;
   bottom: 0;
   width: 50vw;
+  max-width: 600px;
   background-color: #fff;
   border-left: 1px solid #ddd;
   padding: 20px;
@@ -52,13 +53,20 @@ export default function SidePanel() {
     );
   }, [inspectorSelectedNodeId, inspectorSelectedOutputId, nodes]);
 
+  let content: ReactNode;
+  if (typeof output?.value === "string") {
+    content = output?.value;
+  } else {
+    content = JSON.stringify(output?.value, null, 2);
+  }
+
   return (
     <Container
       $hide={
         inspectorSelectedNodeId == null || inspectorSelectedOutputId == null
       }
     >
-      <RawValue>{JSON.stringify(output?.value, null, 2)}</RawValue>
+      <RawValue>{content}</RawValue>
       <Button size="sm" onClick={() => onSelectOutputToInspect(null, null)}>
         Close
       </Button>
