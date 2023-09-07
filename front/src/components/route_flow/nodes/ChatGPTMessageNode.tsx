@@ -17,9 +17,6 @@ import {
   HeaderSection,
   InputHandle,
   OutputHandle,
-  OutputLabel,
-  OutputName,
-  OutputValue,
   Section,
 } from "../common/commonStyledComponents";
 import {
@@ -27,7 +24,8 @@ import {
   calculateOutputHandleBottom,
 } from "../common/utils";
 import NodeBox from "./NodeBox";
-import NodeInputItemRow from "./NodeInputItemRow";
+import NodeInputModifyRow from "./NodeInputModifyRow";
+import NodeOutputRow from "./NodeOutputRow";
 
 const chance = new Chance();
 
@@ -95,12 +93,16 @@ export default function ChatGPTMessageNode(
           {inputs.map((input, i) => {
             if (i === 0) {
               return (
-                <NodeInputItemRow key={input.id} name={input.name} isReadOnly />
+                <NodeInputModifyRow
+                  key={input.id}
+                  name={input.name}
+                  isReadOnly
+                />
               );
             }
 
             return (
-              <NodeInputItemRow
+              <NodeInputModifyRow
                 key={input.id}
                 name={input.name}
                 onConfirmNameChange={(name) => {
@@ -203,10 +205,11 @@ export default function ChatGPTMessageNode(
         </Section>
         <Section>
           {props.data.outputs.map((output, i) => (
-            <OutputLabel key={output.id}>
-              <OutputName>{output.name} =&nbsp;</OutputName>
-              <OutputValue>{JSON.stringify(output.value)}</OutputValue>
-            </OutputLabel>
+            <NodeOutputRow
+              key={output.id}
+              name={output.name}
+              value={output.value}
+            />
           ))}
         </Section>
       </NodeBox>

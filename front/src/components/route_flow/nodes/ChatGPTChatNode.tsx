@@ -14,9 +14,6 @@ import {
   HeaderSection,
   InputHandle,
   OutputHandle,
-  OutputLabel,
-  OutputName,
-  OutputValue,
   Section,
 } from "../common/commonStyledComponents";
 import {
@@ -24,7 +21,8 @@ import {
   calculateOutputHandleBottom,
 } from "../common/utils";
 import NodeBox from "./NodeBox";
-import NodeInputItemRow from "./NodeInputItemRow";
+import NodeInputModifyRow from "./NodeInputModifyRow";
+import NodeOutputRow from "./NodeOutputRow";
 
 const selector = (state: RFState) => ({
   onUpdateNode: state.onUpdateNode,
@@ -59,7 +57,7 @@ export default function ChatGPTChatNode(props: NodeProps<ChatGPTChatNodeData>) {
           </Button>
         </HeaderSection>
         <Section>
-          <NodeInputItemRow
+          <NodeInputModifyRow
             key={props.data.inputs[0].id}
             name={props.data.inputs[0].name}
             isReadOnly
@@ -159,10 +157,11 @@ export default function ChatGPTChatNode(props: NodeProps<ChatGPTChatNodeData>) {
         </Section>
         <Section>
           {props.data.outputs.map((output, i) => (
-            <OutputLabel key={output.id}>
-              <OutputName>{output.name} =&nbsp;</OutputName>
-              <OutputValue>{JSON.stringify(output.value)}</OutputValue>
-            </OutputLabel>
+            <NodeOutputRow
+              key={output.id}
+              name={output.name}
+              value={output.value}
+            />
           ))}
         </Section>
       </NodeBox>

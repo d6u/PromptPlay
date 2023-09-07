@@ -30,7 +30,7 @@ type Props =
       name: string;
     };
 
-export default function NodeInputItemRow(props: Props) {
+export default function NodeInputModifyRow(props: Props) {
   const [name, setName] = useState(props.name);
 
   return (

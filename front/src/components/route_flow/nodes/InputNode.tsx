@@ -13,7 +13,7 @@ import {
 } from "../common/commonStyledComponents";
 import { calculateOutputHandleBottom } from "../common/utils";
 import NodeBox from "./NodeBox";
-import NodeInputItemRow from "./NodeInputItemRow";
+import NodeOutputModifyRow from "./NodeOutputModifyRow";
 
 const chance = new Chance();
 
@@ -67,7 +67,7 @@ export default function InputNode(props: NodeProps<InputNodeData>) {
         </HeaderSection>
         <Section>
           {outputs.map((output, i) => (
-            <NodeInputItemRow
+            <NodeOutputModifyRow
               key={output.id}
               name={output.name}
               onConfirmNameChange={(name) => {
