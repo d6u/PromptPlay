@@ -72,8 +72,12 @@ export default function ChatGPTChatNode(props: NodeProps<ChatGPTChatNodeData>) {
             // disabled={props.isReadOnly}
             value={model}
             onChange={(_, value) => {
-              setModel(value!);
-              // props.onSaveModel(value!);
+              const newModel = value as OpenAIChatModel;
+              setModel(newModel);
+              onUpdateNode({
+                id: props.id,
+                data: { ...props.data, model: newModel },
+              });
             }}
           >
             {Object.values(OpenAIChatModel).map((model) => (
@@ -97,10 +101,18 @@ export default function ChatGPTChatNode(props: NodeProps<ChatGPTChatNodeData>) {
             }}
             onKeyUp={(e) => {
               if (e.key === "Enter") {
-                // props.onSaveTemperaturel(temperature);
+                onUpdateNode({
+                  id: props.id,
+                  data: { ...props.data, temperature },
+                });
               }
             }}
-            // onBlur={() => props.onSaveTemperaturel(temperature)}
+            onBlur={() => {
+              onUpdateNode({
+                id: props.id,
+                data: { ...props.data, temperature },
+              });
+            }}
           />
         </Section>
         <Section>
@@ -110,7 +122,9 @@ export default function ChatGPTChatNode(props: NodeProps<ChatGPTChatNodeData>) {
             variant="outlined"
             // disabled={props.isReadOnly}
             value={
-              stop.length ? stop[0].replace("\n", LLM_STOP_NEW_LINE_SYMBOL) : ""
+              stop.length
+                ? stop[0].replace(/\n/g, LLM_STOP_NEW_LINE_SYMBOL)
+                : ""
             }
             onKeyDown={(event) => {
               if (event.shiftKey && event.key === "Enter") {
@@ -119,14 +133,27 @@ export default function ChatGPTChatNode(props: NodeProps<ChatGPTChatNodeData>) {
               }
             }}
             onChange={(e) => {
-              setStop([e.target.value]);
+              setStop([
+                e.target.value.replace(
+                  RegExp(LLM_STOP_NEW_LINE_SYMBOL, "g"),
+                  "\n"
+                ),
+              ]);
             }}
             onKeyUp={(e) => {
               if (e.key === "Enter") {
-                // onSaveStop();
+                onUpdateNode({
+                  id: props.id,
+                  data: { ...props.data, stop },
+                });
               }
             }}
-            // onBlur={() => onSaveStop()}
+            onBlur={() => {
+              onUpdateNode({
+                id: props.id,
+                data: { ...props.data, stop },
+              });
+            }}
           />
         </Section>
         <Section>
