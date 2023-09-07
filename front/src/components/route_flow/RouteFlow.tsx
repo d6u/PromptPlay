@@ -41,6 +41,7 @@ const selector = (state: RFState) => ({
   edges: state.edges,
   onAddNode: state.onAddNode,
   onUpdateNode: state.onUpdateNode,
+  onUpdateNodeDebounced: state.onUpdateNodeDebounced,
   onNodesChange: state.onNodesChange,
   onEdgesChange: state.onEdgesChange,
   onConnect: state.onConnect,
@@ -56,6 +57,7 @@ export default function RouteFlow() {
     edges,
     onAddNode,
     onUpdateNode,
+    onUpdateNodeDebounced,
     onNodesChange,
     onEdgesChange,
     onConnect,
@@ -91,7 +93,7 @@ export default function RouteFlow() {
       >
         <CanvasPanel
           onRun={() => {
-            executeNode(nodes, edges, (node) => onUpdateNode(node, true));
+            executeNode(nodes, edges, onUpdateNodeDebounced);
           }}
           onAddNode={(type) => onAddNode(createNode(type))}
         />
