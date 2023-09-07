@@ -1,6 +1,9 @@
 import { adjust, append, assoc, pipe } from "ramda";
 import { Node, Edge } from "reactflow";
+import * as openAi from "../../llm/openAi";
+import { usePersistStore } from "../../state/zustand";
 import {
+  ChatGPTChatNodeData,
   ChatGPTMessageNodeData,
   JavaScriptFunctionNodeData,
   NodeData,
@@ -9,7 +12,7 @@ import {
   ServerNode,
 } from "../../static/flowTypes";
 
-export function executeNode(
+export async function executeNode(
   nodes: Node<NodeData>[],
   edges: Edge[],
   onUpdateNode: (node: { id: string } & Partial<ServerNode>) => void
@@ -70,6 +73,21 @@ export function executeNode(
       case NodeType.ChatGPTMessageNode: {
         const nodeData = node.data;
         handleChatGPTMessageNode(
+          nodeData,
+          inputIdToOutputIdMap,
+          outputIdToValueMap,
+          (dataChange) => {
+            onUpdateNode({
+              id: node.id,
+              data: { ...nodeData, ...dataChange },
+            });
+          }
+        );
+        break;
+      }
+      case NodeType.ChatGPTChatNode: {
+        const nodeData = node.data;
+        await handleChatGPTChatNode(
           nodeData,
           inputIdToOutputIdMap,
           outputIdToValueMap,
@@ -187,4 +205,82 @@ function replacePlaceholders(str: string, values: { [key: string]: any }) {
     })
     .replace("{{", "{")
     .replace("}}", "}");
+}
+
+async function handleChatGPTChatNode(
+  data: ChatGPTChatNodeData,
+  inputIdToOutputIdMap: { [key: string]: string | undefined },
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  outputIdToValueMap: { [key: string]: any },
+  onDataChange: (dataChange: Partial<ChatGPTChatNodeData>) => void
+) {
+  // Prepare inputs
+  // ----------
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const argsMap: { [key: string]: any } = {};
+
+  for (const input of data.inputs) {
+    const outputId = inputIdToOutputIdMap[input.id];
+
+    if (outputId) {
+      const outputValue = outputIdToValueMap[outputId];
+      argsMap[input.name] = outputValue ?? null;
+    } else {
+      argsMap[input.name] = null;
+    }
+  }
+
+  // Execute logic
+  // ----------
+
+  const openAiApiKey = usePersistStore.getState().openAiApiKey!;
+
+  let messages = argsMap["messages"] ?? [];
+
+  const result = await openAi.getNonStreamingCompletion({
+    apiKey: openAiApiKey,
+    model: data.model,
+    temperature: data.temperature,
+    stop: data.stop,
+    messages,
+  });
+
+  if (result.isError) {
+    console.error(result.data.error.message);
+
+    // Update outputs
+    // ----------
+
+    outputIdToValueMap[data.outputs[0].id] = null;
+    outputIdToValueMap[data.outputs[1].id] = null;
+    outputIdToValueMap[data.outputs[2].id] = null;
+
+    onDataChange({
+      outputs: pipe(
+        adjust<NodeOutputItem>(0, assoc("value", null)),
+        adjust<NodeOutputItem>(1, assoc("value", null)),
+        adjust<NodeOutputItem>(2, assoc("value", null))
+      )(data.outputs),
+    });
+  } else {
+    const message = result.data.choices[0].message;
+    const content = message.content;
+    messages = append(message, messages);
+
+    // Update outputs
+    // ----------
+
+    outputIdToValueMap[data.outputs[0].id] = content;
+    outputIdToValueMap[data.outputs[1].id] = message;
+    outputIdToValueMap[data.outputs[2].id] = messages;
+
+    onDataChange({
+      outputs: pipe(
+        adjust<NodeOutputItem>(0, assoc("value", content)),
+        adjust<NodeOutputItem>(1, assoc("value", message)),
+        adjust<NodeOutputItem>(2, assoc("value", messages))
+      )(data.outputs),
+    });
+  }
 }

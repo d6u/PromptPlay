@@ -27,16 +27,8 @@ export const OutputHandle = styled(StyledHandle)`
   HANDLE_RADIUS / 2}px;
 `;
 
-export const Content = styled.div`
-  background: #fff;
-  border: ${CONTAINER_BORDER}px solid #000;
-  border-radius: 5px;
-  padding: ${CONTAINER_PADDING}px;
-`;
-
 export const Section = styled.div`
   margin-bottom: ${SECTION_MARGIN_BOTTOM}px;
-  max-width: 400px;
 
   &:last-child {
     margin-bottom: 0;

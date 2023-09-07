@@ -5,7 +5,6 @@ import { nanoid } from "nanoid";
 import { adjust, append, assoc, remove } from "ramda";
 import { useState } from "react";
 import { Position, useUpdateNodeInternals, NodeProps } from "reactflow";
-import styled from "styled-components";
 import { RFState, useRFStore } from "../../../state/flowState";
 import {
   JavaScriptFunctionNodeData,
@@ -13,7 +12,6 @@ import {
 } from "../../../static/flowTypes";
 import NodeInputVariableInput from "../common/NodeInputVariableInput";
 import {
-  Content,
   HeaderSection,
   InputHandle,
   OutputHandle,
@@ -23,12 +21,9 @@ import {
   Section,
 } from "../common/commonStyledComponents";
 import { calculateInputHandleTop } from "../common/utils";
+import NodeBox from "./NodeBox";
 
 const chance = new Chance();
-
-const CodeTextarea = styled(Textarea)`
-  width: 400px;
-`;
 
 const selector = (state: RFState) => ({
   onUpdateNode: state.onUpdateNode,
@@ -58,7 +53,7 @@ export default function JavaScriptFunctionNode(
           style={{ top: calculateInputHandleTop(i) }}
         />
       ))}
-      <Content>
+      <NodeBox>
         <HeaderSection>
           <Button
             color="success"
@@ -126,7 +121,7 @@ export default function JavaScriptFunctionNode(
         </Section>
         <Section>
           <code>{`function (${inputs.map((v) => v.name).join(", ")}) {`}</code>
-          <CodeTextarea
+          <Textarea
             sx={{ fontFamily: "var(--mono-font-family)" }}
             color="neutral"
             size="sm"
@@ -163,7 +158,7 @@ export default function JavaScriptFunctionNode(
             </OutputValue>
           </OutputLabel>
         </Section>
-      </Content>
+      </NodeBox>
       <OutputHandle
         type="source"
         id={props.data.outputs[0].id}

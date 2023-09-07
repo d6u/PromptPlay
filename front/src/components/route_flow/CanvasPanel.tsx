@@ -32,8 +32,11 @@ export default function CanvasPanel(props: Props) {
         >
           Add ChatGPT Message
         </Button>
-        <Button size="sm" onClick={() => {}}>
-          Add OpenAI API
+        <Button
+          size="sm"
+          onClick={() => props.onAddNode(NodeType.ChatGPTChatNode)}
+        >
+          Add OpenAI Chat API
         </Button>
         <Button size="sm" onClick={() => {}}>
           Reset space

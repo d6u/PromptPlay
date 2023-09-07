@@ -1,20 +1,21 @@
 import debounce from "lodash/debounce";
 import { nanoid } from "nanoid";
-import {
-  adjust,
-  any,
-  append,
-  equals,
-  findIndex,
-  map,
-  mergeLeft,
-  path,
-  pick,
-  pipe,
-  prop,
-  propEq,
-  reject,
-} from "ramda";
+import adjust from "ramda/es/adjust";
+import allPass from "ramda/es/allPass";
+import any from "ramda/es/any";
+import append from "ramda/es/append";
+import equals from "ramda/es/equals";
+import filter from "ramda/es/filter";
+import findIndex from "ramda/es/findIndex";
+import map from "ramda/es/map";
+import mergeLeft from "ramda/es/mergeLeft";
+import none from "ramda/es/none";
+import path from "ramda/es/path";
+import pick from "ramda/es/pick";
+import pipe from "ramda/es/pipe";
+import prop from "ramda/es/prop";
+import propEq from "ramda/es/propEq";
+import reject from "ramda/es/reject";
 import {
   Node,
   Edge,
@@ -37,6 +38,7 @@ import {
   NodeInputItem,
   NodeType,
   NodeWithType,
+  OpenAIChatModel,
   ServerEdge,
   ServerNode,
 } from "../static/flowTypes";
@@ -69,6 +71,22 @@ export const UPDATE_SPACE_FLOW_CONTENT_MUTATION = graphql(`
   }
 `);
 
+function rejectInvalidEdges(nodes: Node<NodeData>[], edges: Edge[]): Edge[] {
+  return filter<Edge>((edge) => {
+    return allPass([
+      any(propEq(edge.source, "id")),
+      any(propEq(edge.target, "id")),
+      any(
+        pipe<[Node<NodeData>], NodeInputItem[], string[], boolean>(
+          path(["data", "inputs"]) as (o: Node<NodeData>) => NodeInputItem[],
+          map(prop("id")),
+          any(equals(edge.targetHandle))
+        )
+      ),
+    ])(nodes);
+  })(edges);
+}
+
 async function updateSpace(
   spaceId: string,
   nodes: Node<NodeData>[],
@@ -89,19 +107,7 @@ async function updateSpace(
   )(edges as EdgeWithHandle[]);
 
   // Remove invalid edges
-  newEdges = newEdges.filter((edge) => {
-    return (
-      any(propEq(edge.source, "id"))(nodes) &&
-      any(propEq(edge.target, "id"))(nodes) &&
-      any(
-        pipe<[Node<NodeData>], NodeInputItem[], string[], boolean>(
-          path(["data", "inputs"]) as (o: Node<NodeData>) => NodeInputItem[],
-          map(prop("id")),
-          any(equals(edge.targetHandle))
-        )
-      )(nodes)
-    );
-  });
+  newEdges = rejectInvalidEdges(nodes, newEdges) as EdgeWithHandle[];
 
   await client.mutation(UPDATE_SPACE_FLOW_CONTENT_MUTATION, {
     spaceId,
@@ -122,6 +128,7 @@ export type RFState = {
   onInitialize: (spaceId: string) => void;
   onAddNode: (node: ServerNode) => void;
   onUpdateNode: (node: { id: string } & Partial<ServerNode>) => void;
+  onUpdateNodeDebounced: (node: { id: string } & Partial<ServerNode>) => void;
   onRemoveNode: (id: string) => void;
 
   // ReactFlow callbacks
@@ -130,102 +137,126 @@ export type RFState = {
   onConnect: OnConnect;
 };
 
-export const useRFStore = create<RFState>((set, get) => ({
-  spaceId: null,
-  nodes: [],
-  edges: [],
-  onInitialize: async (spaceId: string) => {
-    set({ spaceId });
-
-    const result = await client.query(SPACE_FLOW_QUERY, { spaceId });
-
-    if (result.data?.result?.space?.flowContent) {
-      const { nodes, edges } = JSON.parse(
-        result.data.result.space.flowContent
-      ) as { nodes: ServerNode[]; edges: ServerEdge[] };
-
-      set({ nodes, edges });
-    } else {
-      set({ nodes: [], edges: [] });
-    }
-  },
-  onAddNode: (node: Node) => {
-    const nodes = append(node, get().nodes);
-
-    set({ nodes });
-
-    const spaceId = get().spaceId;
-    if (spaceId) {
-      updateSpaceDebounced(spaceId, nodes, get().edges);
-    }
-  },
-  onUpdateNode: (node: { id: string } & Partial<ServerNode>) => {
+export const useRFStore = create<RFState>((set, get) => {
+  function onUpdateNodeInternal(node: { id: string } & Partial<ServerNode>) {
     const index = findIndex<Node>((n) => n.id === node.id)(get().nodes);
     const nodes = adjust<Node>(index, mergeLeft(node))(get().nodes);
 
-    set({ nodes });
+    const edges = rejectInvalidEdges(nodes, get().edges);
 
-    const spaceId = get().spaceId;
-    if (spaceId) {
-      updateSpaceDebounced(spaceId, nodes, get().edges);
-    }
-  },
-  onRemoveNode: (id: string) => {
-    const nodes = reject<Node>((node) => node.id === id)(get().nodes);
+    set({ nodes, edges });
 
-    set({ nodes });
+    return nodes;
+  }
 
-    const spaceId = get().spaceId;
-    if (spaceId) {
-      updateSpaceDebounced(spaceId, nodes, get().edges);
-    }
-  },
+  return {
+    spaceId: null,
+    nodes: [],
+    edges: [],
+    async onInitialize(spaceId: string) {
+      set({ spaceId });
 
-  // ReactFlow callbacks
+      const result = await client.query(SPACE_FLOW_QUERY, { spaceId });
 
-  onNodesChange: (changes: NodeChange[]) => {
-    const nodes = applyNodeChanges(changes, get().nodes);
+      if (result.data?.result?.space?.flowContent) {
+        const { nodes, edges } = JSON.parse(
+          result.data.result.space.flowContent
+        ) as { nodes: ServerNode[]; edges: ServerEdge[] };
 
-    set({ nodes });
+        set({ nodes, edges });
+      } else {
+        set({ nodes: [], edges: [] });
+      }
+    },
+    onAddNode(node: Node) {
+      const nodes = append(node, get().nodes);
 
-    const spaceId = get().spaceId;
-    if (spaceId) {
-      updateSpaceDebounced(spaceId, nodes, get().edges);
-    }
-  },
-  onEdgesChange: (changes: EdgeChange[]) => {
-    const edges = applyEdgeChanges(changes, get().edges);
+      set({ nodes });
 
-    set({ edges });
+      const spaceId = get().spaceId;
+      if (spaceId) {
+        updateSpaceDebounced(spaceId, nodes, get().edges);
+      }
+    },
+    onUpdateNode(node: { id: string } & Partial<ServerNode>) {
+      const nodes = onUpdateNodeInternal(node);
+      const spaceId = get().spaceId;
+      if (spaceId) {
+        updateSpace(spaceId, nodes, get().edges);
+      }
+    },
+    onUpdateNodeDebounced(node: { id: string } & Partial<ServerNode>) {
+      const nodes = onUpdateNodeInternal(node);
+      const spaceId = get().spaceId;
+      if (spaceId) {
+        updateSpaceDebounced(spaceId, nodes, get().edges);
+      }
+    },
+    onRemoveNode(id: string) {
+      const nodes = reject<Node>((node) => node.id === id)(get().nodes);
 
-    const spaceId = get().spaceId;
-    if (spaceId) {
-      updateSpaceDebounced(spaceId, get().nodes, edges);
-    }
-  },
-  onConnect: (connection: Connection) => {
-    // Should not self-connections
-    if (connection.source === connection.target) {
-      return;
-    }
+      set({ nodes });
 
-    let edges = get().edges;
+      const spaceId = get().spaceId;
+      if (spaceId) {
+        updateSpaceDebounced(spaceId, nodes, get().edges);
+      }
+    },
 
-    // A targetHandle can only take one incoming edge
-    edges = pipe(
-      reject(propEq<string>(connection.targetHandle!, "targetHandle"))
-    )(edges);
+    // ReactFlow callbacks
 
-    edges = addEdge(connection, edges);
+    onNodesChange(changes: NodeChange[]) {
+      const nodes = applyNodeChanges(changes, get().nodes);
 
-    set({ edges });
+      set({ nodes });
 
-    const spaceId = get().spaceId;
-    if (spaceId) {
-      updateSpaceDebounced(spaceId, get().nodes, edges);
-    }
-  },
-}));
+      // Because we are using controlled flow, there will be 3 types
+      // - dimensions
+      // - select
+      // - position
+      //
+      // Position is data is saved on onNodeDragStop. The other changes are not
+      // persisted to the server.
+    },
+    onEdgesChange(changes: EdgeChange[]) {
+      let edges = applyEdgeChanges(changes, get().edges);
+      edges = rejectInvalidEdges(get().nodes, edges);
+
+      set({ edges });
+
+      if (none(propEq("remove", "type"))(changes)) {
+        return;
+      }
+
+      const spaceId = get().spaceId;
+      if (spaceId) {
+        updateSpace(spaceId, get().nodes, edges);
+      }
+    },
+    onConnect(connection: Connection) {
+      // Should not self-connections
+      if (connection.source === connection.target) {
+        return;
+      }
+
+      let edges = get().edges;
+
+      // A targetHandle can only take one incoming edge
+      edges = pipe(
+        reject(propEq<string>(connection.targetHandle!, "targetHandle"))
+      )(edges);
+
+      edges = addEdge(connection, edges);
+
+      set({ edges });
+
+      const spaceId = get().spaceId;
+      if (spaceId) {
+        updateSpace(spaceId, get().nodes, edges);
+      }
+    },
+  };
+});
 
 export function createNode(type: NodeType): ServerNode {
   switch (type) {
@@ -278,6 +309,43 @@ export function createNode(type: NodeType): ServerNode {
             {
               id: `${id}/message_list_out`,
               name: "message_list",
+              value: null,
+            },
+          ],
+        },
+      };
+    }
+    case NodeType.ChatGPTChatNode: {
+      const id = nanoid();
+      return {
+        id,
+        position: { x: 200, y: 200 },
+        type: NodeType.ChatGPTChatNode,
+        data: {
+          nodeType: NodeType.ChatGPTChatNode,
+          inputs: [
+            {
+              id: `${id}/messages_in`,
+              name: "messages",
+            },
+          ],
+          model: OpenAIChatModel.GPT3_5_TURBO,
+          temperature: 1,
+          stop: [],
+          outputs: [
+            {
+              id: `${id}/content`,
+              name: "content",
+              value: null,
+            },
+            {
+              id: `${id}/message`,
+              name: "message",
+              value: null,
+            },
+            {
+              id: `${id}/messages_out`,
+              name: "messages",
               value: null,
             },
           ],
