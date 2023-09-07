@@ -84,14 +84,14 @@ export function createNode(type: NodeType): ServerNode {
         },
       };
     }
-    case NodeType.ChatGPTChatNode: {
+    case NodeType.ChatGPTChatCompletionNode: {
       const id = nanoid();
       return {
         id,
         position: { x: 200, y: 200 },
-        type: NodeType.ChatGPTChatNode,
+        type: NodeType.ChatGPTChatCompletionNode,
         data: {
-          nodeType: NodeType.ChatGPTChatNode,
+          nodeType: NodeType.ChatGPTChatCompletionNode,
           inputs: [
             {
               id: `${id}/messages_in`,

@@ -8,7 +8,7 @@ export enum NodeType {
   InputNode = "InputNode",
   JavaScriptFunctionNode = "JavaScriptFunctionNode",
   ChatGPTMessageNode = "ChatGPTMessageNode",
-  ChatGPTChatNode = "ChatGPTChatNode",
+  ChatGPTChatCompletionNode = "ChatGPTChatCompletionNode",
   // InputNode = "InputNode",
 }
 
@@ -29,8 +29,8 @@ export type ServerNode = {
       data: ChatGPTMessageNodeData;
     }
   | {
-      type: NodeType.ChatGPTChatNode;
-      data: ChatGPTChatNodeData;
+      type: NodeType.ChatGPTChatCompletionNode;
+      data: ChatGPTChatCompletionNodeData;
     }
 );
 
@@ -38,7 +38,7 @@ export type NodeData =
   | InputNodeData
   | JavaScriptFunctionNodeData
   | ChatGPTMessageNodeData
-  | ChatGPTChatNodeData;
+  | ChatGPTChatCompletionNodeData;
 
 export type NodeInputItem = {
   id: string;
@@ -86,10 +86,10 @@ export enum ChatGPTMessageRole {
   assistant = "assistant",
 }
 
-// ChatGPTChat
+// ChatGPTChatCompletion
 
-export type ChatGPTChatNodeData = {
-  nodeType: NodeType.ChatGPTChatNode;
+export type ChatGPTChatCompletionNodeData = {
+  nodeType: NodeType.ChatGPTChatCompletionNode;
   inputs: NodeInputItem[];
   model: OpenAIChatModel;
   temperature: number;

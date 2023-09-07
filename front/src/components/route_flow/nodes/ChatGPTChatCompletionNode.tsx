@@ -7,7 +7,7 @@ import { Position, NodeProps } from "reactflow";
 import { RFState, useRFStore } from "../../../state/flowState";
 import { LLM_STOP_NEW_LINE_SYMBOL } from "../../../static/blockConfigs";
 import {
-  ChatGPTChatNodeData,
+  ChatGPTChatCompletionNodeData,
   OpenAIChatModel,
 } from "../../../static/flowTypes";
 import {
@@ -29,7 +29,9 @@ const selector = (state: RFState) => ({
   onRemoveNode: state.onRemoveNode,
 });
 
-export default function ChatGPTChatNode(props: NodeProps<ChatGPTChatNodeData>) {
+export default function ChatGPTChatCompletionNode(
+  props: NodeProps<ChatGPTChatCompletionNodeData>
+) {
   const { onUpdateNode, onRemoveNode } = useRFStore(selector);
 
   const [model, setModel] = useState(props.data.model);

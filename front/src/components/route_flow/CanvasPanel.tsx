@@ -45,7 +45,7 @@ export default function CanvasPanel(props: Props) {
           size="sm"
           color="primary"
           variant="solid"
-          onClick={() => props.onAddNode(NodeType.ChatGPTChatNode)}
+          onClick={() => props.onAddNode(NodeType.ChatGPTChatCompletionNode)}
         >
           Add ChatGPT Chat Completion
         </Button>

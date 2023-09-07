@@ -17,7 +17,7 @@ import { createNode } from "../../state/flowUtils";
 import { NodeType } from "../../static/flowTypes";
 import CanvasPanel from "./CanvasPanel";
 import { executeNode } from "./execute";
-import ChatGPTChatNode from "./nodes/ChatGPTChatNode";
+import ChatGPTChatCompletionNode from "./nodes/ChatGPTChatCompletionNode";
 import ChatGPTMessageNode from "./nodes/ChatGPTMessageNode";
 import InputNode from "./nodes/InputNode";
 import JavaScriptFunctionNode from "./nodes/JavaScriptFunctionNode";
@@ -35,7 +35,7 @@ const NODE_TYPES = {
   [NodeType.InputNode]: InputNode,
   [NodeType.JavaScriptFunctionNode]: JavaScriptFunctionNode,
   [NodeType.ChatGPTMessageNode]: ChatGPTMessageNode,
-  [NodeType.ChatGPTChatNode]: ChatGPTChatNode,
+  [NodeType.ChatGPTChatCompletionNode]: ChatGPTChatCompletionNode,
 };
 
 const selector = (state: RFState) => ({

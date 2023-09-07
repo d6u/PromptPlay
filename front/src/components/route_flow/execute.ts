@@ -3,7 +3,7 @@ import { Node, Edge } from "reactflow";
 import * as openAi from "../../llm/openAi";
 import { usePersistStore } from "../../state/zustand";
 import {
-  ChatGPTChatNodeData,
+  ChatGPTChatCompletionNodeData,
   ChatGPTMessageNodeData,
   JavaScriptFunctionNodeData,
   NodeData,
@@ -85,7 +85,7 @@ export async function executeNode(
         );
         break;
       }
-      case NodeType.ChatGPTChatNode: {
+      case NodeType.ChatGPTChatCompletionNode: {
         const nodeData = node.data;
         await handleChatGPTChatNode(
           nodeData,
@@ -208,11 +208,11 @@ function replacePlaceholders(str: string, values: { [key: string]: any }) {
 }
 
 async function handleChatGPTChatNode(
-  data: ChatGPTChatNodeData,
+  data: ChatGPTChatCompletionNodeData,
   inputIdToOutputIdMap: { [key: string]: string | undefined },
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   outputIdToValueMap: { [key: string]: any },
-  onDataChange: (dataChange: Partial<ChatGPTChatNodeData>) => void
+  onDataChange: (dataChange: Partial<ChatGPTChatCompletionNodeData>) => void
 ) {
   // Prepare inputs
   // ----------
