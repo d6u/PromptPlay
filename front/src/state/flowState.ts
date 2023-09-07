@@ -1,21 +1,19 @@
 import debounce from "lodash/debounce";
 import { nanoid } from "nanoid";
-import {
-  adjust,
-  all,
-  any,
-  append,
-  equals,
-  findIndex,
-  map,
-  mergeLeft,
-  path,
-  pick,
-  pipe,
-  prop,
-  propEq,
-  reject,
-} from "ramda";
+import { all, anyPass } from "ramda";
+import adjust from "ramda/es/adjust";
+import any from "ramda/es/any";
+import append from "ramda/es/append";
+import equals from "ramda/es/equals";
+import findIndex from "ramda/es/findIndex";
+import map from "ramda/es/map";
+import mergeLeft from "ramda/es/mergeLeft";
+import path from "ramda/es/path";
+import pick from "ramda/es/pick";
+import pipe from "ramda/es/pipe";
+import prop from "ramda/es/prop";
+import propEq from "ramda/es/propEq";
+import reject from "ramda/es/reject";
 import {
   Node,
   Edge,
@@ -123,7 +121,10 @@ export type RFState = {
 
   onInitialize: (spaceId: string) => void;
   onAddNode: (node: ServerNode) => void;
-  onUpdateNode: (node: { id: string } & Partial<ServerNode>) => void;
+  onUpdateNode: (
+    node: { id: string } & Partial<ServerNode>,
+    useDebounced?: boolean
+  ) => void;
   onRemoveNode: (id: string) => void;
 
   // ReactFlow callbacks
@@ -161,7 +162,10 @@ export const useRFStore = create<RFState>((set, get) => ({
       updateSpaceDebounced(spaceId, nodes, get().edges);
     }
   },
-  onUpdateNode: (node: { id: string } & Partial<ServerNode>) => {
+  onUpdateNode: (
+    node: { id: string } & Partial<ServerNode>,
+    useDebounced: boolean = false
+  ) => {
     const index = findIndex<Node>((n) => n.id === node.id)(get().nodes);
     const nodes = adjust<Node>(index, mergeLeft(node))(get().nodes);
 
@@ -169,7 +173,11 @@ export const useRFStore = create<RFState>((set, get) => ({
 
     const spaceId = get().spaceId;
     if (spaceId) {
-      updateSpaceDebounced(spaceId, nodes, get().edges);
+      if (useDebounced) {
+        updateSpaceDebounced(spaceId, nodes, get().edges);
+      } else {
+        updateSpace(spaceId, nodes, get().edges);
+      }
     }
   },
   onRemoveNode: (id: string) => {
@@ -190,7 +198,17 @@ export const useRFStore = create<RFState>((set, get) => ({
 
     set({ nodes });
 
-    // const skipSave = all(propEq("select", "type"))(changes);
+    const skipSave = all(
+      anyPass([
+        propEq("dimensions", "type"),
+        propEq("select", "type"),
+        propEq("position", "type"),
+      ])
+    )(changes);
+
+    if (skipSave) {
+      return;
+    }
 
     const spaceId = get().spaceId;
     if (spaceId) {

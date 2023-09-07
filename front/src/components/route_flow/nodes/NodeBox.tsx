@@ -8,11 +8,11 @@ import {
 export const DRAG_HANDLE_CLASS_NAME = "node-drag-handle";
 
 const Content = styled.div`
+  width: 400px;
   background: #fff;
   border: ${CONTAINER_BORDER}px solid #000;
   border-radius: 5px;
   padding: ${CONTAINER_PADDING}px;
-  position: relative;
   cursor: initial;
 `;
 

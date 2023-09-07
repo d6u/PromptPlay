@@ -29,7 +29,6 @@ export const OutputHandle = styled(StyledHandle)`
 
 export const Section = styled.div`
   margin-bottom: ${SECTION_MARGIN_BOTTOM}px;
-  max-width: 400px;
 
   &:last-child {
     margin-bottom: 0;

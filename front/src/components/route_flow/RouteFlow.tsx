@@ -82,16 +82,16 @@ export default function RouteFlow() {
         panOnScroll
         panOnScrollMode={PanOnScrollMode.Free}
         maxZoom={1}
-        onNodeDragStart={(event, node) => {
-          console.log("drag start");
-        }}
         onNodeDragStop={(event, node) => {
-          console.log("drag stop", node);
+          onUpdateNode({
+            id: node.id,
+            position: node.position,
+          });
         }}
       >
         <CanvasPanel
           onRun={() => {
-            executeNode(nodes, edges, onUpdateNode);
+            executeNode(nodes, edges, (node) => onUpdateNode(node, true));
           }}
           onAddNode={(type) => onAddNode(createNode(type))}
         />

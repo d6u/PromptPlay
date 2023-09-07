@@ -5,7 +5,6 @@ import { nanoid } from "nanoid";
 import { adjust, append, assoc, remove } from "ramda";
 import { useState } from "react";
 import { Position, useUpdateNodeInternals, NodeProps } from "reactflow";
-import styled from "styled-components";
 import { RFState, useRFStore } from "../../../state/flowState";
 import {
   JavaScriptFunctionNodeData,
@@ -25,10 +24,6 @@ import { calculateInputHandleTop } from "../common/utils";
 import NodeBox from "./NodeBox";
 
 const chance = new Chance();
-
-const CodeTextarea = styled(Textarea)`
-  width: 400px;
-`;
 
 const selector = (state: RFState) => ({
   onUpdateNode: state.onUpdateNode,
@@ -126,7 +121,7 @@ export default function JavaScriptFunctionNode(
         </Section>
         <Section>
           <code>{`function (${inputs.map((v) => v.name).join(", ")}) {`}</code>
-          <CodeTextarea
+          <Textarea
             sx={{ fontFamily: "var(--mono-font-family)" }}
             color="neutral"
             size="sm"
