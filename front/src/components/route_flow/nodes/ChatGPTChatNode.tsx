@@ -121,6 +121,7 @@ export default function ChatGPTChatNode(props: NodeProps<ChatGPTChatNodeData>) {
             size="sm"
             variant="outlined"
             // disabled={props.isReadOnly}
+            placeholder="Stop sequence"
             value={
               stop.length
                 ? stop[0].replace(/\n/g, LLM_STOP_NEW_LINE_SYMBOL)
