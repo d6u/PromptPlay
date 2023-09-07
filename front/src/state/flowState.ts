@@ -1,9 +1,11 @@
 import debounce from "lodash/debounce";
 import { nanoid } from "nanoid";
 import adjust from "ramda/es/adjust";
+import allPass from "ramda/es/allPass";
 import any from "ramda/es/any";
 import append from "ramda/es/append";
 import equals from "ramda/es/equals";
+import filter from "ramda/es/filter";
 import findIndex from "ramda/es/findIndex";
 import map from "ramda/es/map";
 import mergeLeft from "ramda/es/mergeLeft";
@@ -69,6 +71,22 @@ export const UPDATE_SPACE_FLOW_CONTENT_MUTATION = graphql(`
   }
 `);
 
+function rejectInvalidEdges(nodes: Node<NodeData>[], edges: Edge[]): Edge[] {
+  return filter<Edge>((edge) => {
+    return allPass([
+      any(propEq(edge.source, "id")),
+      any(propEq(edge.target, "id")),
+      any(
+        pipe<[Node<NodeData>], NodeInputItem[], string[], boolean>(
+          path(["data", "inputs"]) as (o: Node<NodeData>) => NodeInputItem[],
+          map(prop("id")),
+          any(equals(edge.targetHandle))
+        )
+      ),
+    ])(nodes);
+  })(edges);
+}
+
 async function updateSpace(
   spaceId: string,
   nodes: Node<NodeData>[],
@@ -89,19 +107,7 @@ async function updateSpace(
   )(edges as EdgeWithHandle[]);
 
   // Remove invalid edges
-  newEdges = newEdges.filter((edge) => {
-    return (
-      any(propEq(edge.source, "id"))(nodes) &&
-      any(propEq(edge.target, "id"))(nodes) &&
-      any(
-        pipe<[Node<NodeData>], NodeInputItem[], string[], boolean>(
-          path(["data", "inputs"]) as (o: Node<NodeData>) => NodeInputItem[],
-          map(prop("id")),
-          any(equals(edge.targetHandle))
-        )
-      )(nodes)
-    );
-  });
+  newEdges = rejectInvalidEdges(nodes, newEdges) as EdgeWithHandle[];
 
   await client.mutation(UPDATE_SPACE_FLOW_CONTENT_MUTATION, {
     spaceId,
@@ -135,7 +141,11 @@ export const useRFStore = create<RFState>((set, get) => {
   function onUpdateNodeInternal(node: { id: string } & Partial<ServerNode>) {
     const index = findIndex<Node>((n) => n.id === node.id)(get().nodes);
     const nodes = adjust<Node>(index, mergeLeft(node))(get().nodes);
-    set({ nodes });
+
+    const edges = rejectInvalidEdges(nodes, get().edges);
+
+    set({ nodes, edges });
+
     return nodes;
   }
 
@@ -209,7 +219,8 @@ export const useRFStore = create<RFState>((set, get) => {
       // persisted to the server.
     },
     onEdgesChange(changes: EdgeChange[]) {
-      const edges = applyEdgeChanges(changes, get().edges);
+      let edges = applyEdgeChanges(changes, get().edges);
+      edges = rejectInvalidEdges(get().nodes, edges);
 
       set({ edges });
 
