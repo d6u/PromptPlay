@@ -1,6 +1,6 @@
 import { Handle } from "reactflow";
 import styled from "styled-components";
-import { VARIABLE_ROW_MARGIN_BOTTOM } from "./NodeInputVariableInput";
+import { VARIABLE_ROW_MARGIN_BOTTOM } from "../nodes/NodeInputItemRow";
 
 export const CONTAINER_BORDER = 1;
 export const CONTAINER_PADDING = 10;

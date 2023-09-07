@@ -1,5 +1,4 @@
 import debounce from "lodash/debounce";
-import { nanoid } from "nanoid";
 import adjust from "ramda/es/adjust";
 import allPass from "ramda/es/allPass";
 import any from "ramda/es/any";
@@ -32,13 +31,10 @@ import {
 import { create } from "zustand";
 import { graphql } from "../gql";
 import {
-  ChatGPTMessageRole,
   EdgeWithHandle,
   NodeData,
   NodeInputItem,
-  NodeType,
   NodeWithType,
-  OpenAIChatModel,
   ServerEdge,
   ServerNode,
 } from "../static/flowTypes";
@@ -257,100 +253,3 @@ export const useRFStore = create<RFState>((set, get) => {
     },
   };
 });
-
-export function createNode(type: NodeType): ServerNode {
-  switch (type) {
-    case NodeType.JavaScriptFunctionNode: {
-      const id = nanoid();
-      return {
-        id,
-        position: { x: 200, y: 200 },
-        type: NodeType.JavaScriptFunctionNode,
-        data: {
-          nodeType: NodeType.JavaScriptFunctionNode,
-          inputs: [],
-          javaScriptCode: 'return "Hello, World!"',
-          outputs: [
-            {
-              id: `${id}/output`,
-              name: "output",
-              value: null,
-            },
-          ],
-        },
-      };
-    }
-    case NodeType.ChatGPTMessageNode: {
-      const id = nanoid();
-      return {
-        id,
-        position: { x: 200, y: 200 },
-        type: NodeType.ChatGPTMessageNode,
-        data: {
-          nodeType: NodeType.ChatGPTMessageNode,
-          inputs: [
-            {
-              id: `${id}/message_list_in`,
-              name: "message_list",
-            },
-            {
-              id: `${id}/${nanoid()}`,
-              name: "topic",
-            },
-          ],
-          role: ChatGPTMessageRole.user,
-          content: "Write a poem about {topic} in fewer than 20 words.",
-          outputs: [
-            {
-              id: `${id}/message`,
-              name: "message",
-              value: null,
-            },
-            {
-              id: `${id}/message_list_out`,
-              name: "message_list",
-              value: null,
-            },
-          ],
-        },
-      };
-    }
-    case NodeType.ChatGPTChatNode: {
-      const id = nanoid();
-      return {
-        id,
-        position: { x: 200, y: 200 },
-        type: NodeType.ChatGPTChatNode,
-        data: {
-          nodeType: NodeType.ChatGPTChatNode,
-          inputs: [
-            {
-              id: `${id}/messages_in`,
-              name: "messages",
-            },
-          ],
-          model: OpenAIChatModel.GPT3_5_TURBO,
-          temperature: 1,
-          stop: [],
-          outputs: [
-            {
-              id: `${id}/content`,
-              name: "content",
-              value: null,
-            },
-            {
-              id: `${id}/message`,
-              name: "message",
-              value: null,
-            },
-            {
-              id: `${id}/messages_out`,
-              name: "messages",
-              value: null,
-            },
-          ],
-        },
-      };
-    }
-  }
-}

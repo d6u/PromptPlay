@@ -5,15 +5,21 @@ import { Node, Edge } from "reactflow";
 // Node
 
 export enum NodeType {
+  InputNode = "InputNode",
   JavaScriptFunctionNode = "JavaScriptFunctionNode",
   ChatGPTMessageNode = "ChatGPTMessageNode",
   ChatGPTChatNode = "ChatGPTChatNode",
+  // InputNode = "InputNode",
 }
 
 export type ServerNode = {
   id: string;
   position: { x: number; y: number };
 } & (
+  | {
+      type: NodeType.InputNode;
+      data: InputNodeData;
+    }
   | {
       type: NodeType.JavaScriptFunctionNode;
       data: JavaScriptFunctionNodeData;
@@ -29,6 +35,7 @@ export type ServerNode = {
 );
 
 export type NodeData =
+  | InputNodeData
   | JavaScriptFunctionNodeData
   | ChatGPTMessageNodeData
   | ChatGPTChatNodeData;
@@ -47,12 +54,23 @@ export type NodeOutputItem = {
 
 // Specific NodeData
 
+// Input
+
+export type InputNodeData = {
+  nodeType: NodeType.InputNode;
+  outputs: NodeOutputItem[];
+};
+
+// JavaScriptFunction
+
 export type JavaScriptFunctionNodeData = {
   nodeType: NodeType.JavaScriptFunctionNode;
   inputs: NodeInputItem[];
   javaScriptCode: string;
   outputs: NodeOutputItem[];
 };
+
+// ChatGPTMessage
 
 export type ChatGPTMessageNodeData = {
   nodeType: NodeType.ChatGPTMessageNode;
@@ -67,6 +85,8 @@ export enum ChatGPTMessageRole {
   user = "user",
   assistant = "assistant",
 }
+
+// ChatGPTChat
 
 export type ChatGPTChatNodeData = {
   nodeType: NodeType.ChatGPTChatNode;

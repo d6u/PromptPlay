@@ -10,7 +10,6 @@ import {
   ChatGPTChatNodeData,
   OpenAIChatModel,
 } from "../../../static/flowTypes";
-import NodeInputVariableInput from "../common/NodeInputVariableInput";
 import {
   HeaderSection,
   InputHandle,
@@ -25,6 +24,7 @@ import {
   calculateOutputHandleBottom,
 } from "../common/utils";
 import NodeBox from "./NodeBox";
+import NodeInputItemRow from "./NodeInputItemRow";
 
 const selector = (state: RFState) => ({
   onUpdateNode: state.onUpdateNode,
@@ -59,7 +59,7 @@ export default function ChatGPTChatNode(props: NodeProps<ChatGPTChatNodeData>) {
           </Button>
         </HeaderSection>
         <Section>
-          <NodeInputVariableInput
+          <NodeInputItemRow
             key={props.data.inputs[0].id}
             name={props.data.inputs[0].name}
             isReadOnly

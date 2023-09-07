@@ -7,14 +7,12 @@ import { nanoid } from "nanoid";
 import { adjust, append, assoc, remove } from "ramda";
 import { useState } from "react";
 import { Position, useUpdateNodeInternals, NodeProps } from "reactflow";
-import styled from "styled-components";
 import { RFState, useRFStore } from "../../../state/flowState";
 import {
   ChatGPTMessageNodeData,
   ChatGPTMessageRole,
   NodeInputItem,
 } from "../../../static/flowTypes";
-import NodeInputVariableInput from "../common/NodeInputVariableInput";
 import {
   HeaderSection,
   InputHandle,
@@ -29,12 +27,9 @@ import {
   calculateOutputHandleBottom,
 } from "../common/utils";
 import NodeBox from "./NodeBox";
+import NodeInputItemRow from "./NodeInputItemRow";
 
 const chance = new Chance();
-
-const NormalTextarea = styled(Textarea)`
-  width: 400px;
-`;
 
 const selector = (state: RFState) => ({
   onUpdateNode: state.onUpdateNode,
@@ -100,16 +95,12 @@ export default function ChatGPTMessageNode(
           {inputs.map((input, i) => {
             if (i === 0) {
               return (
-                <NodeInputVariableInput
-                  key={input.id}
-                  name={input.name}
-                  isReadOnly
-                />
+                <NodeInputItemRow key={input.id} name={input.name} isReadOnly />
               );
             }
 
             return (
-              <NodeInputVariableInput
+              <NodeInputItemRow
                 key={input.id}
                 name={input.name}
                 onConfirmNameChange={(name) => {
@@ -183,7 +174,7 @@ export default function ChatGPTMessageNode(
           </RadioGroup>
         </Section>
         <Section>
-          <NormalTextarea
+          <Textarea
             color="neutral"
             size="sm"
             variant="outlined"

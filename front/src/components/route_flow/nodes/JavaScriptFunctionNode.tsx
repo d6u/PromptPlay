@@ -10,7 +10,6 @@ import {
   JavaScriptFunctionNodeData,
   NodeInputItem,
 } from "../../../static/flowTypes";
-import NodeInputVariableInput from "../common/NodeInputVariableInput";
 import {
   HeaderSection,
   InputHandle,
@@ -22,6 +21,7 @@ import {
 } from "../common/commonStyledComponents";
 import { calculateInputHandleTop } from "../common/utils";
 import NodeBox from "./NodeBox";
+import NodeInputItemRow from "./NodeInputItemRow";
 
 const chance = new Chance();
 
@@ -88,7 +88,7 @@ export default function JavaScriptFunctionNode(
         </HeaderSection>
         <Section>
           {inputs.map((input, i) => (
-            <NodeInputVariableInput
+            <NodeInputItemRow
               key={input.id}
               name={input.name}
               onConfirmNameChange={(name) => {

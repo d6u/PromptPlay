@@ -1,4 +1,4 @@
-import { VARIABLE_ROW_MARGIN_BOTTOM } from "./NodeInputVariableInput";
+import { VARIABLE_ROW_MARGIN_BOTTOM } from "../nodes/NodeInputItemRow";
 import {
   CONTAINER_BORDER,
   CONTAINER_PADDING,

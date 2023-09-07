@@ -12,12 +12,14 @@ import ReactFlow, {
 } from "reactflow";
 import "reactflow/dist/style.css";
 import styled from "styled-components";
-import { RFState, createNode, useRFStore } from "../../state/flowState";
+import { RFState, useRFStore } from "../../state/flowState";
+import { createNode } from "../../state/flowUtils";
 import { NodeType } from "../../static/flowTypes";
 import CanvasPanel from "./CanvasPanel";
 import { executeNode } from "./execute";
 import ChatGPTChatNode from "./nodes/ChatGPTChatNode";
 import ChatGPTMessageNode from "./nodes/ChatGPTMessageNode";
+import InputNode from "./nodes/InputNode";
 import JavaScriptFunctionNode from "./nodes/JavaScriptFunctionNode";
 import { DRAG_HANDLE_CLASS_NAME } from "./nodes/NodeBox";
 
@@ -30,6 +32,7 @@ const Container = styled.div`
 `;
 
 const NODE_TYPES = {
+  [NodeType.InputNode]: InputNode,
   [NodeType.JavaScriptFunctionNode]: JavaScriptFunctionNode,
   [NodeType.ChatGPTMessageNode]: ChatGPTMessageNode,
   [NodeType.ChatGPTChatNode]: ChatGPTChatNode,
