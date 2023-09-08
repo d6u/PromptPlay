@@ -44,6 +44,7 @@ const NODE_TYPES = {
 };
 
 const selector = (state: RFState) => ({
+  onFlowConfigUpdate: state.onFlowConfigUpdate,
   onInitialize: state.onInitialize,
   nodes: state.nodes,
   edges: state.edges,
@@ -60,6 +61,7 @@ export default function RouteFlow() {
   const { spaceId = "" } = useParams<{ spaceId: string }>();
 
   const {
+    onFlowConfigUpdate,
     onInitialize,
     nodes,
     edges,
@@ -91,8 +93,10 @@ export default function RouteFlow() {
   );
 
   const onRun = useCallback(() => {
-    executeNode(nodes, edges, onUpdateNodeDebounced);
-  }, [nodes, edges, onUpdateNodeDebounced]);
+    executeNode(nodes, edges, onUpdateNodeDebounced).then((result) => {
+      onFlowConfigUpdate({ outputValueMap: result });
+    });
+  }, [nodes, edges, onUpdateNodeDebounced, onFlowConfigUpdate]);
 
   const onAddNodeCallback = useCallback(
     (type: NodeType) => {

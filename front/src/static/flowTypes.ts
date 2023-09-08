@@ -146,6 +146,8 @@ export enum DetailPanelContentType {
 
 export type FlowConfig = {
   inputConfigMap: Record<string, FlowInputConfig | undefined>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  outputValueMap: Record<string, any>;
 };
 
 export type FlowInputConfig = {
