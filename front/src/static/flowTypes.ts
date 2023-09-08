@@ -143,5 +143,4 @@ export type FlowInputConfig = {
 export enum InputValueType {
   String = "String",
   Number = "Number",
-  JSON = "JSON",
 }

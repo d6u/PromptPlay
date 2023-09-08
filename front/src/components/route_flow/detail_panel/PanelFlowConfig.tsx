@@ -6,7 +6,6 @@ import { Node } from "reactflow";
 import { RFState, useRFStore } from "../../../state/flowState";
 import {
   InputNodeData,
-  InputValueType,
   NodeOutputItem,
   NodeType,
 } from "../../../static/flowTypes";
@@ -59,10 +58,7 @@ export default function PanelFlowConfig() {
                   data: { ...node.data, outputs: newOutputs },
                 });
               }}
-              type={
-                flowConfig?.inputConfigMap[output.id]?.valueType ??
-                InputValueType.String
-              }
+              type={flowConfig?.inputConfigMap[output.id]?.valueType}
               onSaveType={(type) => {
                 onFlowConfigUpdate({
                   ...flowConfig,

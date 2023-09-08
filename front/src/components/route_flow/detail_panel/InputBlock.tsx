@@ -22,13 +22,13 @@ type Props = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any;
   onSaveValue: (value: string) => void;
-  type: InputValueType;
+  type?: InputValueType;
   onSaveType: (type: InputValueType) => void;
 };
 
 export default function InputBlock(props: Props) {
   const [value, setValue] = useState(props.value);
-  const [type, setType] = useState(props.type);
+  const [type, setType] = useState(props.type ?? InputValueType.String);
 
   let valueInput: ReactNode;
 
@@ -74,29 +74,6 @@ export default function InputBlock(props: Props) {
           }}
           onBlur={() => {
             props.onSaveValue(value ?? 0);
-          }}
-        />
-      );
-      break;
-    case InputValueType.JSON:
-      valueInput = (
-        <Textarea
-          sx={{ fontFamily: "var(--mono-font-family)" }}
-          color="primary"
-          size="sm"
-          variant="outlined"
-          minRows={2}
-          value={value ?? ""}
-          onChange={(e) => {
-            setValue(e.target.value);
-          }}
-          onKeyUp={(e) => {
-            if (e.key === "Enter") {
-              props.onSaveValue(value ?? "");
-            }
-          }}
-          onBlur={() => {
-            props.onSaveValue(value ?? "");
           }}
         />
       );

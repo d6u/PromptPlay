@@ -5,6 +5,7 @@ import { usePersistStore } from "../../state/zustand";
 import {
   ChatGPTChatCompletionNodeData,
   ChatGPTMessageNodeData,
+  InputNodeData,
   JavaScriptFunctionNodeData,
   NodeData,
   NodeOutputItem,
@@ -55,6 +56,11 @@ export async function executeNode(
     const node = nodeIdToNodeMap[id];
 
     switch (node.data.nodeType) {
+      case NodeType.InputNode: {
+        const nodeData = node.data;
+        handleInputNode(nodeData, outputIdToValueMap);
+        break;
+      }
       case NodeType.JavaScriptFunctionNode: {
         const nodeData = node.data;
         handleJavaScriptFunctionNode(
@@ -108,6 +114,16 @@ export async function executeNode(
         queue.push(nextId);
       }
     }
+  }
+}
+
+function handleInputNode(
+  data: InputNodeData,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  outputIdToValueMap: { [key: string]: any }
+) {
+  for (const output of data.outputs) {
+    outputIdToValueMap[output.id] = output.value;
   }
 }
 

@@ -41,7 +41,7 @@ export default function PanelNodeOutput() {
         content = JSON.stringify(output?.value, null, 2);
       }
       contents.push(
-        <div>
+        <div key={output.id}>
           <h4>{output.name}</h4>
           <RawValue key={output.id}>{content}</RawValue>
         </div>
