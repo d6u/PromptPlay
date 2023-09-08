@@ -71,16 +71,16 @@ export default function InputNode(props: NodeProps<InputNodeData>) {
               key={output.id}
               name={output.name}
               onConfirmNameChange={(name) => {
-                const newInputs = adjust<NodeOutputItem>(
+                const newOutputs = adjust<NodeOutputItem>(
                   i,
                   assoc("name", name)<NodeOutputItem>
                 )(outputs);
 
-                setOutputs(newInputs);
+                setOutputs(newOutputs);
 
                 onUpdateNode({
                   id: props.id,
-                  data: { ...props.data, outputs: newInputs },
+                  data: { ...props.data, outputs: newOutputs },
                 });
               }}
               onRemove={() => {

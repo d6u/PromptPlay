@@ -29,6 +29,7 @@ import { graphql } from "../gql";
 import {
   DetailPanelContentType,
   EdgeWithHandle,
+  FlowConfig,
   NodeData,
   NodeWithType,
   ServerEdge,
@@ -90,6 +91,7 @@ function rejectInvalidEdges(nodes: Node<NodeData>[], edges: Edge[]): Edge[] {
 
 async function updateSpace(
   spaceId: string,
+  flowConfig: FlowConfig | null,
   nodes: Node<NodeData>[],
   edges: Edge[]
 ) {
@@ -114,7 +116,11 @@ async function updateSpace(
 
   await client.mutation(UPDATE_SPACE_FLOW_CONTENT_MUTATION, {
     spaceId,
-    flowContent: JSON.stringify({ nodes: newNodes, edges: newEdges }),
+    flowContent: JSON.stringify({
+      flowConfig,
+      nodes: newNodes,
+      edges: newEdges,
+    }),
   });
 }
 
@@ -122,6 +128,12 @@ const updateSpaceDebounced = debounce(updateSpace, 500);
 
 export type RFState = {
   spaceId: string | null;
+
+  // Persists to server
+  flowConfig: FlowConfig | null;
+  onFlowConfigUpdate(flowConfig: FlowConfig): void;
+
+  // Partially persists to server
   nodes: Node<NodeData>[];
   edges: Edge[];
 
@@ -156,6 +168,15 @@ export const useRFStore = create<RFState>((set, get) => {
 
   return {
     spaceId: null,
+    flowConfig: null,
+    onFlowConfigUpdate(flowConfig: FlowConfig) {
+      set({ flowConfig });
+
+      const spaceId = get().spaceId;
+      if (spaceId) {
+        updateSpace(spaceId, flowConfig, get().nodes, get().edges);
+      }
+    },
     nodes: [],
     edges: [],
     async onInitialize(spaceId: string) {
@@ -164,13 +185,19 @@ export const useRFStore = create<RFState>((set, get) => {
       const result = await client.query(SPACE_FLOW_QUERY, { spaceId });
 
       if (result.data?.result?.space?.flowContent) {
-        const { nodes, edges } = JSON.parse(
-          result.data.result.space.flowContent
-        ) as { nodes: ServerNode[]; edges: ServerEdge[] };
+        const {
+          nodes,
+          edges,
+          flowConfig = null,
+        } = JSON.parse(result.data.result.space.flowContent) as {
+          nodes: ServerNode[];
+          edges: ServerEdge[];
+          flowConfig?: FlowConfig;
+        };
 
-        set({ nodes, edges });
+        set({ nodes, edges, flowConfig: flowConfig });
       } else {
-        set({ nodes: [], edges: [] });
+        set({ nodes: [], edges: [], flowConfig: null });
       }
     },
     onAddNode(node: Node) {
@@ -180,21 +207,21 @@ export const useRFStore = create<RFState>((set, get) => {
 
       const spaceId = get().spaceId;
       if (spaceId) {
-        updateSpaceDebounced(spaceId, nodes, get().edges);
+        updateSpaceDebounced(spaceId, get().flowConfig, nodes, get().edges);
       }
     },
     onUpdateNode(node: { id: string } & Partial<ServerNode>) {
       const nodes = onUpdateNodeInternal(node);
       const spaceId = get().spaceId;
       if (spaceId) {
-        updateSpace(spaceId, nodes, get().edges);
+        updateSpace(spaceId, get().flowConfig, nodes, get().edges);
       }
     },
     onUpdateNodeDebounced(node: { id: string } & Partial<ServerNode>) {
       const nodes = onUpdateNodeInternal(node);
       const spaceId = get().spaceId;
       if (spaceId) {
-        updateSpaceDebounced(spaceId, nodes, get().edges);
+        updateSpaceDebounced(spaceId, get().flowConfig, nodes, get().edges);
       }
     },
     onRemoveNode(id: string) {
@@ -204,7 +231,7 @@ export const useRFStore = create<RFState>((set, get) => {
 
       const spaceId = get().spaceId;
       if (spaceId) {
-        updateSpaceDebounced(spaceId, nodes, get().edges);
+        updateSpaceDebounced(spaceId, get().flowConfig, nodes, get().edges);
       }
     },
 
@@ -235,7 +262,7 @@ export const useRFStore = create<RFState>((set, get) => {
 
       const spaceId = get().spaceId;
       if (spaceId) {
-        updateSpace(spaceId, get().nodes, edges);
+        updateSpace(spaceId, get().flowConfig, get().nodes, edges);
       }
     },
     onConnect(connection: Connection) {
@@ -257,7 +284,7 @@ export const useRFStore = create<RFState>((set, get) => {
 
       const spaceId = get().spaceId;
       if (spaceId) {
-        updateSpace(spaceId, get().nodes, edges);
+        updateSpace(spaceId, get().flowConfig, get().nodes, edges);
       }
     },
 

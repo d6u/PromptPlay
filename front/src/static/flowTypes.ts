@@ -129,3 +129,19 @@ export enum DetailPanelContentType {
   NodeOutput = "NodeOutput",
   FlowConfig = "FlowConfig",
 }
+
+// Config types
+
+export type FlowConfig = {
+  inputConfigMap: Record<string, FlowInputConfig | undefined>;
+};
+
+export type FlowInputConfig = {
+  valueType: InputValueType;
+};
+
+export enum InputValueType {
+  String = "String",
+  Number = "Number",
+  JSON = "JSON",
+}
