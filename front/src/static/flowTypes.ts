@@ -6,10 +6,10 @@ import { Node, Edge } from "reactflow";
 
 export enum NodeType {
   InputNode = "InputNode",
+  OutputNode = "OutputNode",
   JavaScriptFunctionNode = "JavaScriptFunctionNode",
   ChatGPTMessageNode = "ChatGPTMessageNode",
   ChatGPTChatCompletionNode = "ChatGPTChatCompletionNode",
-  // InputNode = "InputNode",
 }
 
 export type ServerNode = {
@@ -19,6 +19,10 @@ export type ServerNode = {
   | {
       type: NodeType.InputNode;
       data: InputNodeData;
+    }
+  | {
+      type: NodeType.OutputNode;
+      data: OutputNodeData;
     }
   | {
       type: NodeType.JavaScriptFunctionNode;
@@ -36,6 +40,7 @@ export type ServerNode = {
 
 export type NodeData =
   | InputNodeData
+  | OutputNodeData
   | JavaScriptFunctionNodeData
   | ChatGPTMessageNodeData
   | ChatGPTChatCompletionNodeData;
@@ -59,6 +64,13 @@ export type NodeOutputItem = {
 export type InputNodeData = {
   nodeType: NodeType.InputNode;
   outputs: NodeOutputItem[];
+};
+
+// Output
+
+export type OutputNodeData = {
+  nodeType: NodeType.OutputNode;
+  inputs: NodeInputItem[];
 };
 
 // JavaScriptFunction

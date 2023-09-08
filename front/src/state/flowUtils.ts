@@ -29,6 +29,23 @@ export function createNode(type: NodeType): ServerNode {
         },
       };
     }
+    case NodeType.OutputNode: {
+      const id = nanoid();
+      return {
+        id,
+        position: { x: 200, y: 200 },
+        type: NodeType.OutputNode,
+        data: {
+          nodeType: NodeType.OutputNode,
+          inputs: [
+            {
+              id: `${id}/${nanoid()}`,
+              name: chance.word(),
+            },
+          ],
+        },
+      };
+    }
     case NodeType.JavaScriptFunctionNode: {
       const id = nanoid();
       return {

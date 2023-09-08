@@ -24,6 +24,7 @@ import ChatGPTMessageNode from "./nodes/ChatGPTMessageNode";
 import InputNode from "./nodes/InputNode";
 import JavaScriptFunctionNode from "./nodes/JavaScriptFunctionNode";
 import { DRAG_HANDLE_CLASS_NAME } from "./nodes/NodeBox";
+import OutputNode from "./nodes/OutputNode";
 
 const applyDragHandleMemoized = memoize(
   assoc("dragHandle", `.${DRAG_HANDLE_CLASS_NAME}`)
@@ -36,6 +37,7 @@ const Container = styled.div`
 
 const NODE_TYPES = {
   [NodeType.InputNode]: InputNode,
+  [NodeType.OutputNode]: OutputNode,
   [NodeType.JavaScriptFunctionNode]: JavaScriptFunctionNode,
   [NodeType.ChatGPTMessageNode]: ChatGPTMessageNode,
   [NodeType.ChatGPTChatCompletionNode]: ChatGPTChatCompletionNode,
