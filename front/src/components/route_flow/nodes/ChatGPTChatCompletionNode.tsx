@@ -7,17 +7,13 @@ import { Position, NodeProps } from "reactflow";
 import { RFState, useRFStore } from "../../../state/flowState";
 import { LLM_STOP_NEW_LINE_SYMBOL } from "../../../static/blockConfigs";
 import {
-  ChatGPTChatNodeData,
+  ChatGPTChatCompletionNodeData,
   OpenAIChatModel,
 } from "../../../static/flowTypes";
-import NodeInputVariableInput from "../common/NodeInputVariableInput";
 import {
   HeaderSection,
   InputHandle,
   OutputHandle,
-  OutputLabel,
-  OutputName,
-  OutputValue,
   Section,
 } from "../common/commonStyledComponents";
 import {
@@ -25,13 +21,17 @@ import {
   calculateOutputHandleBottom,
 } from "../common/utils";
 import NodeBox from "./NodeBox";
+import NodeInputModifyRow from "./NodeInputModifyRow";
+import NodeOutputRow from "./NodeOutputRow";
 
 const selector = (state: RFState) => ({
   onUpdateNode: state.onUpdateNode,
   onRemoveNode: state.onRemoveNode,
 });
 
-export default function ChatGPTChatNode(props: NodeProps<ChatGPTChatNodeData>) {
+export default function ChatGPTChatCompletionNode(
+  props: NodeProps<ChatGPTChatCompletionNodeData>
+) {
   const { onUpdateNode, onRemoveNode } = useRFStore(selector);
 
   const [model, setModel] = useState(props.data.model);
@@ -59,7 +59,7 @@ export default function ChatGPTChatNode(props: NodeProps<ChatGPTChatNodeData>) {
           </Button>
         </HeaderSection>
         <Section>
-          <NodeInputVariableInput
+          <NodeInputModifyRow
             key={props.data.inputs[0].id}
             name={props.data.inputs[0].name}
             isReadOnly
@@ -159,10 +159,12 @@ export default function ChatGPTChatNode(props: NodeProps<ChatGPTChatNodeData>) {
         </Section>
         <Section>
           {props.data.outputs.map((output, i) => (
-            <OutputLabel key={output.id}>
-              <OutputName>{output.name} =&nbsp;</OutputName>
-              <OutputValue>{JSON.stringify(output.value)}</OutputValue>
-            </OutputLabel>
+            <NodeOutputRow
+              key={output.id}
+              id={output.id}
+              name={output.name}
+              value={output.value}
+            />
           ))}
         </Section>
       </NodeBox>

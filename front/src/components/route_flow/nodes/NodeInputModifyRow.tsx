@@ -30,7 +30,7 @@ type Props =
       name: string;
     };
 
-export default function NodeInputVariableInput(props: Props) {
+export default function NodeInputModifyRow(props: Props) {
   const [name, setName] = useState(props.name);
 
   return (

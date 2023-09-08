@@ -322,12 +322,18 @@ class DeletionResult:
 class Space:
     @classmethod
     def from_db(cls, db_space: OrmSpace) -> Space:
+        flow_content = (
+            json.dumps(db_space.flow_content)
+            if db_space.flow_content != None
+            else None
+        )
+
         return Space(
             db_space=db_space,
             id=db_space.id,
             name=db_space.name,
             content=json.dumps(db_space.content),
-            flow_content=json.dumps(db_space.flow_content),
+            flow_content=flow_content,
             updated_at=db_space.updated_at,
         )
 

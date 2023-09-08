@@ -1,7 +1,7 @@
 import memoize from "lodash/memoize";
 import assoc from "ramda/es/assoc";
 import map from "ramda/es/map";
-import { useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import ReactFlow, {
   Node,
@@ -9,15 +9,19 @@ import ReactFlow, {
   Background,
   BackgroundVariant,
   PanOnScrollMode,
+  NodeDragHandler,
 } from "reactflow";
 import "reactflow/dist/style.css";
 import styled from "styled-components";
-import { RFState, createNode, useRFStore } from "../../state/flowState";
+import { RFState, useRFStore } from "../../state/flowState";
+import { createNode } from "../../state/flowUtils";
 import { NodeType } from "../../static/flowTypes";
 import CanvasPanel from "./CanvasPanel";
+import DetailPanel from "./detail_panel/DetailPanel";
 import { executeNode } from "./execute";
-import ChatGPTChatNode from "./nodes/ChatGPTChatNode";
+import ChatGPTChatCompletionNode from "./nodes/ChatGPTChatCompletionNode";
 import ChatGPTMessageNode from "./nodes/ChatGPTMessageNode";
+import InputNode from "./nodes/InputNode";
 import JavaScriptFunctionNode from "./nodes/JavaScriptFunctionNode";
 import { DRAG_HANDLE_CLASS_NAME } from "./nodes/NodeBox";
 
@@ -27,12 +31,14 @@ const applyDragHandleMemoized = memoize(
 
 const Container = styled.div`
   flex-grow: 1;
+  position: relative;
 `;
 
 const NODE_TYPES = {
+  [NodeType.InputNode]: InputNode,
   [NodeType.JavaScriptFunctionNode]: JavaScriptFunctionNode,
   [NodeType.ChatGPTMessageNode]: ChatGPTMessageNode,
-  [NodeType.ChatGPTChatNode]: ChatGPTChatNode,
+  [NodeType.ChatGPTChatCompletionNode]: ChatGPTChatCompletionNode,
 };
 
 const selector = (state: RFState) => ({
@@ -72,6 +78,27 @@ export default function RouteFlow() {
     [nodes]
   );
 
+  const onNodeDragStop: NodeDragHandler = useCallback(
+    (event, node) => {
+      onUpdateNode({
+        id: node.id,
+        position: node.position,
+      });
+    },
+    [onUpdateNode]
+  );
+
+  const onRun = useCallback(() => {
+    executeNode(nodes, edges, onUpdateNodeDebounced);
+  }, [nodes, edges, onUpdateNodeDebounced]);
+
+  const onAddNodeCallback = useCallback(
+    (type: NodeType) => {
+      onAddNode(createNode(type));
+    },
+    [onAddNode]
+  );
+
   return (
     <Container>
       <ReactFlow
@@ -84,22 +111,13 @@ export default function RouteFlow() {
         panOnScroll
         panOnScrollMode={PanOnScrollMode.Free}
         maxZoom={1}
-        onNodeDragStop={(event, node) => {
-          onUpdateNode({
-            id: node.id,
-            position: node.position,
-          });
-        }}
+        onNodeDragStop={onNodeDragStop}
       >
-        <CanvasPanel
-          onRun={() => {
-            executeNode(nodes, edges, onUpdateNodeDebounced);
-          }}
-          onAddNode={(type) => onAddNode(createNode(type))}
-        />
+        <CanvasPanel onRun={onRun} onAddNode={onAddNodeCallback} />
         <Controls />
         <Background variant={BackgroundVariant.Dots} gap={20} size={1} />
       </ReactFlow>
+      <DetailPanel />
     </Container>
   );
 }

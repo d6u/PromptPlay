@@ -3,8 +3,9 @@ import { Node, Edge } from "reactflow";
 import * as openAi from "../../llm/openAi";
 import { usePersistStore } from "../../state/zustand";
 import {
-  ChatGPTChatNodeData,
+  ChatGPTChatCompletionNodeData,
   ChatGPTMessageNodeData,
+  InputNodeData,
   JavaScriptFunctionNodeData,
   NodeData,
   NodeOutputItem,
@@ -55,6 +56,11 @@ export async function executeNode(
     const node = nodeIdToNodeMap[id];
 
     switch (node.data.nodeType) {
+      case NodeType.InputNode: {
+        const nodeData = node.data;
+        handleInputNode(nodeData, outputIdToValueMap);
+        break;
+      }
       case NodeType.JavaScriptFunctionNode: {
         const nodeData = node.data;
         handleJavaScriptFunctionNode(
@@ -85,7 +91,7 @@ export async function executeNode(
         );
         break;
       }
-      case NodeType.ChatGPTChatNode: {
+      case NodeType.ChatGPTChatCompletionNode: {
         const nodeData = node.data;
         await handleChatGPTChatNode(
           nodeData,
@@ -108,6 +114,16 @@ export async function executeNode(
         queue.push(nextId);
       }
     }
+  }
+}
+
+function handleInputNode(
+  data: InputNodeData,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  outputIdToValueMap: { [key: string]: any }
+) {
+  for (const output of data.outputs) {
+    outputIdToValueMap[output.id] = output.value;
   }
 }
 
@@ -208,11 +224,11 @@ function replacePlaceholders(str: string, values: { [key: string]: any }) {
 }
 
 async function handleChatGPTChatNode(
-  data: ChatGPTChatNodeData,
+  data: ChatGPTChatCompletionNodeData,
   inputIdToOutputIdMap: { [key: string]: string | undefined },
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   outputIdToValueMap: { [key: string]: any },
-  onDataChange: (dataChange: Partial<ChatGPTChatNodeData>) => void
+  onDataChange: (dataChange: Partial<ChatGPTChatCompletionNodeData>) => void
 ) {
   // Prepare inputs
   // ----------

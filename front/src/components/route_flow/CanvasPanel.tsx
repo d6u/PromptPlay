@@ -17,26 +17,53 @@ export default function CanvasPanel(props: Props) {
   return (
     <Panel position="top-center">
       <Content>
-        <Button size="sm" onClick={() => props.onRun()}>
-          Run
-        </Button>
-        <Button
+        {/* <Button
           size="sm"
+          color="primary"
+          variant="solid"
           onClick={() => props.onAddNode(NodeType.JavaScriptFunctionNode)}
         >
           Add base node
+        </Button> */}
+        <Button
+          size="sm"
+          color="primary"
+          variant="solid"
+          onClick={() => props.onAddNode(NodeType.InputNode)}
+        >
+          Add Input
         </Button>
         <Button
           size="sm"
+          color="primary"
+          variant="solid"
           onClick={() => props.onAddNode(NodeType.ChatGPTMessageNode)}
         >
           Add ChatGPT Message
         </Button>
         <Button
           size="sm"
-          onClick={() => props.onAddNode(NodeType.ChatGPTChatNode)}
+          color="primary"
+          variant="solid"
+          onClick={() => props.onAddNode(NodeType.ChatGPTChatCompletionNode)}
         >
-          Add OpenAI Chat API
+          Add ChatGPT Chat Completion
+        </Button>
+        {/* <Button
+          size="sm"
+          color="primary"
+          variant="solid"
+          onClick={() => props.onAddNode(NodeType.ChatGPTMessageNode)}
+        >
+          Add Output
+        </Button> */}
+        <Button
+          size="sm"
+          color="success"
+          variant="solid"
+          onClick={() => props.onRun()}
+        >
+          Run
         </Button>
         <Button size="sm" onClick={() => {}}>
           Reset space

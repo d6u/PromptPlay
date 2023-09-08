@@ -10,18 +10,16 @@ import {
   JavaScriptFunctionNodeData,
   NodeInputItem,
 } from "../../../static/flowTypes";
-import NodeInputVariableInput from "../common/NodeInputVariableInput";
 import {
   HeaderSection,
   InputHandle,
   OutputHandle,
-  OutputLabel,
-  OutputName,
-  OutputValue,
   Section,
 } from "../common/commonStyledComponents";
 import { calculateInputHandleTop } from "../common/utils";
 import NodeBox from "./NodeBox";
+import NodeInputModifyRow from "./NodeInputModifyRow";
+import NodeOutputRow from "./NodeOutputRow";
 
 const chance = new Chance();
 
@@ -88,7 +86,7 @@ export default function JavaScriptFunctionNode(
         </HeaderSection>
         <Section>
           {inputs.map((input, i) => (
-            <NodeInputVariableInput
+            <NodeInputModifyRow
               key={input.id}
               name={input.name}
               onConfirmNameChange={(name) => {
@@ -151,12 +149,11 @@ export default function JavaScriptFunctionNode(
           <code>{"}"}</code>
         </Section>
         <Section>
-          <OutputLabel>
-            <OutputName>{props.data.outputs[0].name} =&nbsp;</OutputName>
-            <OutputValue>
-              {JSON.stringify(props.data.outputs[0].value)}
-            </OutputValue>
-          </OutputLabel>
+          <NodeOutputRow
+            id={props.data.outputs[0].id}
+            name={props.data.outputs[0].name}
+            value={props.data.outputs[0].value}
+          />
         </Section>
       </NodeBox>
       <OutputHandle

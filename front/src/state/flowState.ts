@@ -1,19 +1,14 @@
 import debounce from "lodash/debounce";
-import { nanoid } from "nanoid";
+import filter from "lodash/filter";
+import map from "lodash/map";
 import adjust from "ramda/es/adjust";
-import allPass from "ramda/es/allPass";
 import any from "ramda/es/any";
 import append from "ramda/es/append";
-import equals from "ramda/es/equals";
-import filter from "ramda/es/filter";
 import findIndex from "ramda/es/findIndex";
-import map from "ramda/es/map";
 import mergeLeft from "ramda/es/mergeLeft";
 import none from "ramda/es/none";
-import path from "ramda/es/path";
 import pick from "ramda/es/pick";
 import pipe from "ramda/es/pipe";
-import prop from "ramda/es/prop";
 import propEq from "ramda/es/propEq";
 import reject from "ramda/es/reject";
 import {
@@ -32,13 +27,11 @@ import {
 import { create } from "zustand";
 import { graphql } from "../gql";
 import {
-  ChatGPTMessageRole,
+  DetailPanelContentType,
   EdgeWithHandle,
+  FlowConfig,
   NodeData,
-  NodeInputItem,
-  NodeType,
   NodeWithType,
-  OpenAIChatModel,
   ServerEdge,
   ServerNode,
 } from "../static/flowTypes";
@@ -72,31 +65,43 @@ export const UPDATE_SPACE_FLOW_CONTENT_MUTATION = graphql(`
 `);
 
 function rejectInvalidEdges(nodes: Node<NodeData>[], edges: Edge[]): Edge[] {
-  return filter<Edge>((edge) => {
-    return allPass([
-      any(propEq(edge.source, "id")),
-      any(propEq(edge.target, "id")),
-      any(
-        pipe<[Node<NodeData>], NodeInputItem[], string[], boolean>(
-          path(["data", "inputs"]) as (o: Node<NodeData>) => NodeInputItem[],
-          map(prop("id")),
-          any(equals(edge.targetHandle))
-        )
-      ),
-    ])(nodes);
-  })(edges);
+  return filter(edges, (edge) => {
+    let foundSourceHandle = false;
+    let foundTargetHandle = false;
+
+    for (const node of nodes) {
+      if (node.id === edge.source) {
+        foundSourceHandle = any(propEq(edge.sourceHandle, "id"))(
+          node.data.outputs
+        );
+      }
+
+      if (node.id === edge.target) {
+        if ("inputs" in node.data) {
+          foundTargetHandle = any(propEq(edge.targetHandle, "id"))(
+            node.data.inputs
+          );
+        }
+      }
+    }
+
+    return foundSourceHandle && foundTargetHandle;
+  });
 }
 
 async function updateSpace(
   spaceId: string,
+  flowConfig: FlowConfig | null,
   nodes: Node<NodeData>[],
   edges: Edge[]
 ) {
-  const newNodes = map(pick(["id", "type", "position", "data"])<NodeWithType>)(
-    nodes as NodeWithType[]
+  const newNodes = map(
+    nodes,
+    pick(["id", "type", "position", "data"])<NodeWithType>
   );
 
   let newEdges = map(
+    edges as EdgeWithHandle[],
     pick([
       "id",
       "source",
@@ -104,7 +109,7 @@ async function updateSpace(
       "target",
       "targetHandle",
     ])<EdgeWithHandle>
-  )(edges as EdgeWithHandle[]);
+  );
 
   // Remove invalid edges
   newEdges = rejectInvalidEdges(nodes, newEdges) as EdgeWithHandle[];
@@ -112,6 +117,7 @@ async function updateSpace(
   await client.mutation(UPDATE_SPACE_FLOW_CONTENT_MUTATION, {
     spaceId,
     flowContent: JSON.stringify({
+      flowConfig,
       nodes: newNodes,
       edges: newEdges,
     }),
@@ -122,6 +128,12 @@ const updateSpaceDebounced = debounce(updateSpace, 500);
 
 export type RFState = {
   spaceId: string | null;
+
+  // Persists to server
+  flowConfig: FlowConfig | null;
+  onFlowConfigUpdate(flowConfig: FlowConfig): void;
+
+  // Partially persists to server
   nodes: Node<NodeData>[];
   edges: Edge[];
 
@@ -135,6 +147,11 @@ export type RFState = {
   onNodesChange: OnNodesChange;
   onEdgesChange: OnEdgesChange;
   onConnect: OnConnect;
+
+  detailPanelContentType: DetailPanelContentType | null;
+  setDetailPanelContentType(type: DetailPanelContentType | null): void;
+  detailPanelSelectedNodeId: string | null;
+  setDetailPanelSelectedNodeId(nodeId: string): void;
 };
 
 export const useRFStore = create<RFState>((set, get) => {
@@ -151,6 +168,15 @@ export const useRFStore = create<RFState>((set, get) => {
 
   return {
     spaceId: null,
+    flowConfig: null,
+    onFlowConfigUpdate(flowConfig: FlowConfig) {
+      set({ flowConfig });
+
+      const spaceId = get().spaceId;
+      if (spaceId) {
+        updateSpace(spaceId, flowConfig, get().nodes, get().edges);
+      }
+    },
     nodes: [],
     edges: [],
     async onInitialize(spaceId: string) {
@@ -159,13 +185,19 @@ export const useRFStore = create<RFState>((set, get) => {
       const result = await client.query(SPACE_FLOW_QUERY, { spaceId });
 
       if (result.data?.result?.space?.flowContent) {
-        const { nodes, edges } = JSON.parse(
-          result.data.result.space.flowContent
-        ) as { nodes: ServerNode[]; edges: ServerEdge[] };
+        const {
+          nodes,
+          edges,
+          flowConfig = null,
+        } = JSON.parse(result.data.result.space.flowContent) as {
+          nodes: ServerNode[];
+          edges: ServerEdge[];
+          flowConfig?: FlowConfig;
+        };
 
-        set({ nodes, edges });
+        set({ nodes, edges, flowConfig: flowConfig });
       } else {
-        set({ nodes: [], edges: [] });
+        set({ nodes: [], edges: [], flowConfig: null });
       }
     },
     onAddNode(node: Node) {
@@ -175,21 +207,21 @@ export const useRFStore = create<RFState>((set, get) => {
 
       const spaceId = get().spaceId;
       if (spaceId) {
-        updateSpaceDebounced(spaceId, nodes, get().edges);
+        updateSpaceDebounced(spaceId, get().flowConfig, nodes, get().edges);
       }
     },
     onUpdateNode(node: { id: string } & Partial<ServerNode>) {
       const nodes = onUpdateNodeInternal(node);
       const spaceId = get().spaceId;
       if (spaceId) {
-        updateSpace(spaceId, nodes, get().edges);
+        updateSpace(spaceId, get().flowConfig, nodes, get().edges);
       }
     },
     onUpdateNodeDebounced(node: { id: string } & Partial<ServerNode>) {
       const nodes = onUpdateNodeInternal(node);
       const spaceId = get().spaceId;
       if (spaceId) {
-        updateSpaceDebounced(spaceId, nodes, get().edges);
+        updateSpaceDebounced(spaceId, get().flowConfig, nodes, get().edges);
       }
     },
     onRemoveNode(id: string) {
@@ -199,7 +231,7 @@ export const useRFStore = create<RFState>((set, get) => {
 
       const spaceId = get().spaceId;
       if (spaceId) {
-        updateSpaceDebounced(spaceId, nodes, get().edges);
+        updateSpaceDebounced(spaceId, get().flowConfig, nodes, get().edges);
       }
     },
 
@@ -230,7 +262,7 @@ export const useRFStore = create<RFState>((set, get) => {
 
       const spaceId = get().spaceId;
       if (spaceId) {
-        updateSpace(spaceId, get().nodes, edges);
+        updateSpace(spaceId, get().flowConfig, get().nodes, edges);
       }
     },
     onConnect(connection: Connection) {
@@ -252,105 +284,17 @@ export const useRFStore = create<RFState>((set, get) => {
 
       const spaceId = get().spaceId;
       if (spaceId) {
-        updateSpace(spaceId, get().nodes, edges);
+        updateSpace(spaceId, get().flowConfig, get().nodes, edges);
       }
+    },
+
+    detailPanelContentType: null,
+    setDetailPanelContentType(type: DetailPanelContentType | null) {
+      set({ detailPanelContentType: type });
+    },
+    detailPanelSelectedNodeId: null,
+    setDetailPanelSelectedNodeId(id: string) {
+      set({ detailPanelSelectedNodeId: id });
     },
   };
 });
-
-export function createNode(type: NodeType): ServerNode {
-  switch (type) {
-    case NodeType.JavaScriptFunctionNode: {
-      const id = nanoid();
-      return {
-        id,
-        position: { x: 200, y: 200 },
-        type: NodeType.JavaScriptFunctionNode,
-        data: {
-          nodeType: NodeType.JavaScriptFunctionNode,
-          inputs: [],
-          javaScriptCode: 'return "Hello, World!"',
-          outputs: [
-            {
-              id: `${id}/output`,
-              name: "output",
-              value: null,
-            },
-          ],
-        },
-      };
-    }
-    case NodeType.ChatGPTMessageNode: {
-      const id = nanoid();
-      return {
-        id,
-        position: { x: 200, y: 200 },
-        type: NodeType.ChatGPTMessageNode,
-        data: {
-          nodeType: NodeType.ChatGPTMessageNode,
-          inputs: [
-            {
-              id: `${id}/message_list_in`,
-              name: "message_list",
-            },
-            {
-              id: `${id}/${nanoid()}`,
-              name: "topic",
-            },
-          ],
-          role: ChatGPTMessageRole.user,
-          content: "Write a poem about {topic} in fewer than 20 words.",
-          outputs: [
-            {
-              id: `${id}/message`,
-              name: "message",
-              value: null,
-            },
-            {
-              id: `${id}/message_list_out`,
-              name: "message_list",
-              value: null,
-            },
-          ],
-        },
-      };
-    }
-    case NodeType.ChatGPTChatNode: {
-      const id = nanoid();
-      return {
-        id,
-        position: { x: 200, y: 200 },
-        type: NodeType.ChatGPTChatNode,
-        data: {
-          nodeType: NodeType.ChatGPTChatNode,
-          inputs: [
-            {
-              id: `${id}/messages_in`,
-              name: "messages",
-            },
-          ],
-          model: OpenAIChatModel.GPT3_5_TURBO,
-          temperature: 1,
-          stop: [],
-          outputs: [
-            {
-              id: `${id}/content`,
-              name: "content",
-              value: null,
-            },
-            {
-              id: `${id}/message`,
-              name: "message",
-              value: null,
-            },
-            {
-              id: `${id}/messages_out`,
-              name: "messages",
-              value: null,
-            },
-          ],
-        },
-      };
-    }
-  }
-}

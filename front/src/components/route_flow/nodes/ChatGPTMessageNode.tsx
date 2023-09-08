@@ -7,21 +7,16 @@ import { nanoid } from "nanoid";
 import { adjust, append, assoc, remove } from "ramda";
 import { useState } from "react";
 import { Position, useUpdateNodeInternals, NodeProps } from "reactflow";
-import styled from "styled-components";
 import { RFState, useRFStore } from "../../../state/flowState";
 import {
   ChatGPTMessageNodeData,
   ChatGPTMessageRole,
   NodeInputItem,
 } from "../../../static/flowTypes";
-import NodeInputVariableInput from "../common/NodeInputVariableInput";
 import {
   HeaderSection,
   InputHandle,
   OutputHandle,
-  OutputLabel,
-  OutputName,
-  OutputValue,
   Section,
 } from "../common/commonStyledComponents";
 import {
@@ -29,12 +24,10 @@ import {
   calculateOutputHandleBottom,
 } from "../common/utils";
 import NodeBox from "./NodeBox";
+import NodeInputModifyRow from "./NodeInputModifyRow";
+import NodeOutputRow from "./NodeOutputRow";
 
 const chance = new Chance();
-
-const NormalTextarea = styled(Textarea)`
-  width: 400px;
-`;
 
 const selector = (state: RFState) => ({
   onUpdateNode: state.onUpdateNode,
@@ -100,7 +93,7 @@ export default function ChatGPTMessageNode(
           {inputs.map((input, i) => {
             if (i === 0) {
               return (
-                <NodeInputVariableInput
+                <NodeInputModifyRow
                   key={input.id}
                   name={input.name}
                   isReadOnly
@@ -109,7 +102,7 @@ export default function ChatGPTMessageNode(
             }
 
             return (
-              <NodeInputVariableInput
+              <NodeInputModifyRow
                 key={input.id}
                 name={input.name}
                 onConfirmNameChange={(name) => {
@@ -183,7 +176,7 @@ export default function ChatGPTMessageNode(
           </RadioGroup>
         </Section>
         <Section>
-          <NormalTextarea
+          <Textarea
             color="neutral"
             size="sm"
             variant="outlined"
@@ -212,10 +205,12 @@ export default function ChatGPTMessageNode(
         </Section>
         <Section>
           {props.data.outputs.map((output, i) => (
-            <OutputLabel key={output.id}>
-              <OutputName>{output.name} =&nbsp;</OutputName>
-              <OutputValue>{JSON.stringify(output.value)}</OutputValue>
-            </OutputLabel>
+            <NodeOutputRow
+              key={output.id}
+              id={output.id}
+              name={output.name}
+              value={output.value}
+            />
           ))}
         </Section>
       </NodeBox>
