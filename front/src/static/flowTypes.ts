@@ -122,3 +122,10 @@ export type EdgeWithHandle = Edge & {
   sourceHandle: string;
   targetHandle: string;
 };
+
+// Navigation types
+
+export enum DetailPanelContentType {
+  NodeOutput = "NodeOutput",
+  FlowConfig = "FlowConfig",
+}

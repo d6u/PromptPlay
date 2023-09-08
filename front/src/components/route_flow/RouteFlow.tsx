@@ -17,7 +17,7 @@ import { RFState, useRFStore } from "../../state/flowState";
 import { createNode } from "../../state/flowUtils";
 import { NodeType } from "../../static/flowTypes";
 import CanvasPanel from "./CanvasPanel";
-import SidePanel from "./SidePanel";
+import DetailPanel from "./detail_panel/DetailPanel";
 import { executeNode } from "./execute";
 import ChatGPTChatCompletionNode from "./nodes/ChatGPTChatCompletionNode";
 import ChatGPTMessageNode from "./nodes/ChatGPTMessageNode";
@@ -117,7 +117,7 @@ export default function RouteFlow() {
         <Controls />
         <Background variant={BackgroundVariant.Dots} gap={20} size={1} />
       </ReactFlow>
-      <SidePanel />
+      <DetailPanel />
     </Container>
   );
 }

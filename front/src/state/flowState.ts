@@ -1,18 +1,14 @@
 import debounce from "lodash/debounce";
+import filter from "lodash/filter";
+import map from "lodash/map";
 import adjust from "ramda/es/adjust";
-import allPass from "ramda/es/allPass";
 import any from "ramda/es/any";
 import append from "ramda/es/append";
-import equals from "ramda/es/equals";
-import filter from "ramda/es/filter";
 import findIndex from "ramda/es/findIndex";
-import map from "ramda/es/map";
 import mergeLeft from "ramda/es/mergeLeft";
 import none from "ramda/es/none";
-import path from "ramda/es/path";
 import pick from "ramda/es/pick";
 import pipe from "ramda/es/pipe";
-import prop from "ramda/es/prop";
 import propEq from "ramda/es/propEq";
 import reject from "ramda/es/reject";
 import {
@@ -31,9 +27,9 @@ import {
 import { create } from "zustand";
 import { graphql } from "../gql";
 import {
+  DetailPanelContentType,
   EdgeWithHandle,
   NodeData,
-  NodeInputItem,
   NodeWithType,
   ServerEdge,
   ServerNode,
@@ -68,19 +64,28 @@ export const UPDATE_SPACE_FLOW_CONTENT_MUTATION = graphql(`
 `);
 
 function rejectInvalidEdges(nodes: Node<NodeData>[], edges: Edge[]): Edge[] {
-  return filter<Edge>((edge) => {
-    return allPass([
-      any(propEq(edge.source, "id")),
-      any(propEq(edge.target, "id")),
-      any(
-        pipe<[Node<NodeData>], NodeInputItem[], string[], boolean>(
-          path(["data", "inputs"]) as (o: Node<NodeData>) => NodeInputItem[],
-          map(prop("id")),
-          any(equals(edge.targetHandle))
-        )
-      ),
-    ])(nodes);
-  })(edges);
+  return filter(edges, (edge) => {
+    let foundSourceHandle = false;
+    let foundTargetHandle = false;
+
+    for (const node of nodes) {
+      if (node.id === edge.source) {
+        foundSourceHandle = any(propEq(edge.sourceHandle, "id"))(
+          node.data.outputs
+        );
+      }
+
+      if (node.id === edge.target) {
+        if ("inputs" in node.data) {
+          foundTargetHandle = any(propEq(edge.targetHandle, "id"))(
+            node.data.inputs
+          );
+        }
+      }
+    }
+
+    return foundSourceHandle && foundTargetHandle;
+  });
 }
 
 async function updateSpace(
@@ -88,11 +93,13 @@ async function updateSpace(
   nodes: Node<NodeData>[],
   edges: Edge[]
 ) {
-  const newNodes = map(pick(["id", "type", "position", "data"])<NodeWithType>)(
-    nodes as NodeWithType[]
+  const newNodes = map(
+    nodes,
+    pick(["id", "type", "position", "data"])<NodeWithType>
   );
 
   let newEdges = map(
+    edges as EdgeWithHandle[],
     pick([
       "id",
       "source",
@@ -100,17 +107,14 @@ async function updateSpace(
       "target",
       "targetHandle",
     ])<EdgeWithHandle>
-  )(edges as EdgeWithHandle[]);
+  );
 
   // Remove invalid edges
   newEdges = rejectInvalidEdges(nodes, newEdges) as EdgeWithHandle[];
 
   await client.mutation(UPDATE_SPACE_FLOW_CONTENT_MUTATION, {
     spaceId,
-    flowContent: JSON.stringify({
-      nodes: newNodes,
-      edges: newEdges,
-    }),
+    flowContent: JSON.stringify({ nodes: newNodes, edges: newEdges }),
   });
 }
 
@@ -132,9 +136,10 @@ export type RFState = {
   onEdgesChange: OnEdgesChange;
   onConnect: OnConnect;
 
-  inspectorSelectedNodeId: string | null;
-  inspectorSelectedOutputId: string | null;
-  onSelectOutputToInspect(nodeId: string | null, outputId: string | null): void;
+  detailPanelContentType: DetailPanelContentType | null;
+  setDetailPanelContentType(type: DetailPanelContentType | null): void;
+  detailPanelSelectedNodeId: string | null;
+  setDetailPanelSelectedNodeId(nodeId: string): void;
 };
 
 export const useRFStore = create<RFState>((set, get) => {
@@ -256,13 +261,13 @@ export const useRFStore = create<RFState>((set, get) => {
       }
     },
 
-    inspectorSelectedNodeId: null,
-    inspectorSelectedOutputId: null,
-    onSelectOutputToInspect(nodeId: string | null, outputId: string | null) {
-      set({
-        inspectorSelectedNodeId: nodeId,
-        inspectorSelectedOutputId: outputId,
-      });
+    detailPanelContentType: null,
+    setDetailPanelContentType(type: DetailPanelContentType | null) {
+      set({ detailPanelContentType: type });
+    },
+    detailPanelSelectedNodeId: null,
+    setDetailPanelSelectedNodeId(id: string) {
+      set({ detailPanelSelectedNodeId: id });
     },
   };
 });

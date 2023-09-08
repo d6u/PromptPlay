@@ -2,6 +2,8 @@ import Button from "@mui/joy/Button";
 import Input from "@mui/joy/Input";
 import { useState } from "react";
 import styled from "styled-components";
+import { RFState, useRFStore } from "../../../state/flowState";
+import { DetailPanelContentType } from "../../../static/flowTypes";
 import IconEdit from "../../icons/IconEdit";
 
 const VARIABLE_ROW_MARGIN_BOTTOM = 5;
@@ -22,6 +24,10 @@ const EditIcon = styled(IconEdit)`
   cursor: pointer;
 `;
 
+const selector = (state: RFState) => ({
+  setDetailPanelContentType: state.setDetailPanelContentType,
+});
+
 type Props =
   | {
       isReadOnly?: false;
@@ -35,11 +41,17 @@ type Props =
     };
 
 export default function NodeOutputModifyRow(props: Props) {
+  const { setDetailPanelContentType } = useRFStore(selector);
+
   const [name, setName] = useState(props.name);
 
   return (
     <Container>
-      <EditIcon />
+      <EditIcon
+        onClick={() =>
+          setDetailPanelContentType(DetailPanelContentType.FlowConfig)
+        }
+      />
       <Input
         color="primary"
         size="sm"
