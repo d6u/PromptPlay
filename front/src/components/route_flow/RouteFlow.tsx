@@ -24,6 +24,7 @@ import ChatGPTMessageNode from "./nodes/ChatGPTMessageNode";
 import InputNode from "./nodes/InputNode";
 import JavaScriptFunctionNode from "./nodes/JavaScriptFunctionNode";
 import { DRAG_HANDLE_CLASS_NAME } from "./nodes/NodeBox";
+import OutputNode from "./nodes/OutputNode";
 
 const applyDragHandleMemoized = memoize(
   assoc("dragHandle", `.${DRAG_HANDLE_CLASS_NAME}`)
@@ -36,12 +37,14 @@ const Container = styled.div`
 
 const NODE_TYPES = {
   [NodeType.InputNode]: InputNode,
+  [NodeType.OutputNode]: OutputNode,
   [NodeType.JavaScriptFunctionNode]: JavaScriptFunctionNode,
   [NodeType.ChatGPTMessageNode]: ChatGPTMessageNode,
   [NodeType.ChatGPTChatCompletionNode]: ChatGPTChatCompletionNode,
 };
 
 const selector = (state: RFState) => ({
+  onFlowConfigUpdate: state.onFlowConfigUpdate,
   onInitialize: state.onInitialize,
   nodes: state.nodes,
   edges: state.edges,
@@ -58,6 +61,7 @@ export default function RouteFlow() {
   const { spaceId = "" } = useParams<{ spaceId: string }>();
 
   const {
+    onFlowConfigUpdate,
     onInitialize,
     nodes,
     edges,
@@ -89,8 +93,10 @@ export default function RouteFlow() {
   );
 
   const onRun = useCallback(() => {
-    executeNode(nodes, edges, onUpdateNodeDebounced);
-  }, [nodes, edges, onUpdateNodeDebounced]);
+    executeNode(nodes, edges, onUpdateNodeDebounced).then((result) => {
+      onFlowConfigUpdate({ outputValueMap: result });
+    });
+  }, [nodes, edges, onUpdateNodeDebounced, onFlowConfigUpdate]);
 
   const onAddNodeCallback = useCallback(
     (type: NodeType) => {

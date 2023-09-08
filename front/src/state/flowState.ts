@@ -71,9 +71,11 @@ function rejectInvalidEdges(nodes: Node<NodeData>[], edges: Edge[]): Edge[] {
 
     for (const node of nodes) {
       if (node.id === edge.source) {
-        foundSourceHandle = any(propEq(edge.sourceHandle, "id"))(
-          node.data.outputs
-        );
+        if ("outputs" in node.data) {
+          foundSourceHandle = any(propEq(edge.sourceHandle, "id"))(
+            node.data.outputs
+          );
+        }
       }
 
       if (node.id === edge.target) {
@@ -131,7 +133,7 @@ export type RFState = {
 
   // Persists to server
   flowConfig: FlowConfig | null;
-  onFlowConfigUpdate(flowConfig: FlowConfig): void;
+  onFlowConfigUpdate(flowConfigChange: Partial<FlowConfig>): void;
 
   // Partially persists to server
   nodes: Node<NodeData>[];
@@ -169,8 +171,26 @@ export const useRFStore = create<RFState>((set, get) => {
   return {
     spaceId: null,
     flowConfig: null,
-    onFlowConfigUpdate(flowConfig: FlowConfig) {
-      set({ flowConfig });
+    onFlowConfigUpdate(flowConfigChange: Partial<FlowConfig>) {
+      const flowConfig = get().flowConfig;
+
+      // TODO
+      if (flowConfig) {
+        set({
+          flowConfig: {
+            ...flowConfig,
+            ...flowConfigChange,
+          },
+        });
+      } else {
+        set({
+          flowConfig: {
+            inputConfigMap: {},
+            outputValueMap: {},
+            ...flowConfigChange,
+          },
+        });
+      }
 
       const spaceId = get().spaceId;
       if (spaceId) {

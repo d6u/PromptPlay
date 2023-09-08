@@ -15,7 +15,7 @@ type Props = {
 
 export default function CanvasPanel(props: Props) {
   return (
-    <Panel position="top-center">
+    <Panel position="top-left">
       <Content>
         {/* <Button
           size="sm"
@@ -49,14 +49,14 @@ export default function CanvasPanel(props: Props) {
         >
           Add ChatGPT Chat Completion
         </Button>
-        {/* <Button
+        <Button
           size="sm"
           color="primary"
           variant="solid"
-          onClick={() => props.onAddNode(NodeType.ChatGPTMessageNode)}
+          onClick={() => props.onAddNode(NodeType.OutputNode)}
         >
           Add Output
-        </Button> */}
+        </Button>
         <Button
           size="sm"
           color="success"

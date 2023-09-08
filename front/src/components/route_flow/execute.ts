@@ -10,6 +10,7 @@ import {
   NodeData,
   NodeOutputItem,
   NodeType,
+  OutputNodeData,
   ServerNode,
 } from "../../static/flowTypes";
 
@@ -17,7 +18,8 @@ export async function executeNode(
   nodes: Node<NodeData>[],
   edges: Edge[],
   onUpdateNode: (node: { id: string } & Partial<ServerNode>) => void
-) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+): Promise<Record<string, any>> {
   const nodeIdToNodeMap: { [key: string]: Node<NodeData> } = {};
   const nodeGraph: { [key: string]: string[] } = {};
   const nodeIndegree: { [key: string]: number } = {};
@@ -51,6 +53,9 @@ export async function executeNode(
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let finalResult: Record<string, any> = {};
+
   while (queue.length > 0) {
     const id = queue.shift()!;
     const node = nodeIdToNodeMap[id];
@@ -59,6 +64,16 @@ export async function executeNode(
       case NodeType.InputNode: {
         const nodeData = node.data;
         handleInputNode(nodeData, outputIdToValueMap);
+        break;
+      }
+      case NodeType.OutputNode: {
+        const nodeData = node.data;
+        const result = handleOutputNode(
+          nodeData,
+          inputIdToOutputIdMap,
+          outputIdToValueMap
+        );
+        finalResult = { ...finalResult, ...result };
         break;
       }
       case NodeType.JavaScriptFunctionNode: {
@@ -115,6 +130,8 @@ export async function executeNode(
       }
     }
   }
+
+  return finalResult;
 }
 
 function handleInputNode(
@@ -125,6 +142,30 @@ function handleInputNode(
   for (const output of data.outputs) {
     outputIdToValueMap[output.id] = output.value;
   }
+}
+
+function handleOutputNode(
+  data: OutputNodeData,
+  inputIdToOutputIdMap: { [key: string]: string | undefined },
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  outputIdToValueMap: { [key: string]: any }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+): Record<string, any> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const result: Record<string, any> = {};
+
+  for (const input of data.inputs) {
+    const outputId = inputIdToOutputIdMap[input.id];
+
+    if (outputId) {
+      const outputValue = outputIdToValueMap[outputId];
+      result[input.id] = outputValue ?? null;
+    } else {
+      result[input.id] = null;
+    }
+  }
+
+  return result;
 }
 
 function handleJavaScriptFunctionNode(

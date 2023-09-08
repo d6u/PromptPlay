@@ -1,14 +1,16 @@
 import Button from "@mui/joy/Button";
 import filter from "lodash/filter";
 import { adjust, assoc, flatten, propEq } from "ramda";
-import { useMemo } from "react";
+import { ReactNode, useMemo } from "react";
 import { Node } from "reactflow";
 import { RFState, useRFStore } from "../../../state/flowState";
 import {
   InputNodeData,
   NodeOutputItem,
   NodeType,
+  OutputNodeData,
 } from "../../../static/flowTypes";
+import { RawValue } from "../common/commonStyledComponents";
 import InputBlock from "./InputBlock";
 
 const selector = (state: RFState) => ({
@@ -37,6 +39,15 @@ export default function PanelFlowConfig() {
     [nodes]
   );
 
+  const outputNodes = useMemo(
+    () =>
+      filter(
+        nodes,
+        propEq<string>(NodeType.OutputNode, "type")
+      ) as Node<OutputNodeData>[],
+    [nodes]
+  );
+
   return (
     <>
       {flatten(
@@ -60,18 +71,49 @@ export default function PanelFlowConfig() {
               }}
               type={flowConfig?.inputConfigMap[output.id]?.valueType}
               onSaveType={(type) => {
-                onFlowConfigUpdate({
-                  ...flowConfig,
-                  inputConfigMap: {
-                    ...flowConfig?.inputConfigMap,
-                    [output.id]: {
-                      valueType: type,
+                if (!flowConfig) {
+                  onFlowConfigUpdate({
+                    inputConfigMap: {
+                      [output.id]: {
+                        valueType: type,
+                      },
                     },
-                  },
-                });
+                    outputValueMap: {},
+                  });
+                } else {
+                  onFlowConfigUpdate({
+                    ...flowConfig,
+                    inputConfigMap: {
+                      ...flowConfig?.inputConfigMap,
+                      [output.id]: {
+                        valueType: type,
+                      },
+                    },
+                  });
+                }
               }}
             />
           ))
+        )
+      )}
+      {flatten(
+        outputNodes.map((node) =>
+          node.data.inputs.map((input, i) => {
+            const value = flowConfig?.outputValueMap[input.id] ?? null;
+            let content: ReactNode;
+            if (typeof value === "string") {
+              content = value;
+            } else {
+              content = JSON.stringify(value, null, 2);
+            }
+
+            return (
+              <div key={i}>
+                <h4>{input.name}</h4>
+                <RawValue>{content}</RawValue>
+              </div>
+            );
+          })
         )
       )}
       <Button size="sm" onClick={() => setDetailPanelContentType(null)}>
