@@ -1,21 +1,21 @@
-import Button from "@mui/joy/Button";
 import Input from "@mui/joy/Input";
 import { useState } from "react";
 import styled from "styled-components";
 import IconEdit from "../../../icons/IconEdit";
 import { FlowState, useFlowStore } from "../../flowState";
 import { DetailPanelContentType } from "../../flowTypes";
+import RemoveButton from "./RemoveButton";
 
 const VARIABLE_ROW_MARGIN_BOTTOM = 5;
 
 const Container = styled.div`
-  margin-bottom: ${VARIABLE_ROW_MARGIN_BOTTOM}px;
+  margin-top: ${VARIABLE_ROW_MARGIN_BOTTOM}px;
   display: flex;
   align-items: center;
   gap: 5px;
 
   &:last-child {
-    margin-bottom: 0;
+    // margin-bottom: 0;
   }
 `;
 
@@ -77,16 +77,7 @@ export default function NodeOutputModifyRow(props: Props) {
           props.onConfirmNameChange(name);
         }}
       />
-      {!props.isReadOnly && (
-        <Button
-          color="danger"
-          size="sm"
-          variant="outlined"
-          onClick={() => props.onRemove()}
-        >
-          Remove
-        </Button>
-      )}
+      {!props.isReadOnly && <RemoveButton onClick={() => props.onRemove()} />}
     </Container>
   );
 }

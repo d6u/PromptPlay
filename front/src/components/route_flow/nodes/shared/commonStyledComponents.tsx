@@ -27,9 +27,5 @@ export const OutputHandle = styled(StyledHandle)`
 `;
 
 export const Section = styled.div`
-  margin-bottom: ${SECTION_MARGIN_BOTTOM}px;
-
-  &:last-child {
-    margin-bottom: 0;
-  }
+  padding: 0 10px 10px;
 `;

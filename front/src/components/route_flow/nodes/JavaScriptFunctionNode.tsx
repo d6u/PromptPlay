@@ -1,4 +1,3 @@
-import Button from "@mui/joy/Button";
 import Textarea from "@mui/joy/Textarea";
 import Chance from "chance";
 import { nanoid } from "nanoid";
@@ -12,6 +11,7 @@ import {
   NodeInputItem,
   NodeType,
 } from "../flowTypes";
+import AddVariableButton from "./shared/AddVariableButton";
 import HeaderSection from "./shared/HeaderSection";
 import NodeBox from "./shared/NodeBox";
 import NodeInputModifyRow from "./shared/NodeInputModifyRow";
@@ -71,10 +71,7 @@ export default function JavaScriptFunctionNode() {
           onClickRemove={() => removeNode(nodeId)}
         />
         <Section>
-          <Button
-            color="success"
-            size="sm"
-            variant="outlined"
+          <AddVariableButton
             onClick={() => {
               const newInputs = append<NodeInputItem>({
                 id: `${nodeId}/${nanoid()}`,
@@ -87,9 +84,7 @@ export default function JavaScriptFunctionNode() {
 
               updateNodeInternals(nodeId);
             }}
-          >
-            Add input
-          </Button>
+          />
           {inputs.map((input, i) => (
             <NodeInputModifyRow
               key={input.id}

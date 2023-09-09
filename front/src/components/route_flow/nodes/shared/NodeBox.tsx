@@ -1,10 +1,6 @@
 import styled, { css } from "styled-components";
 import background from "../../../../assets/warning-background.svg";
-import IconThreeDots from "../../../icons/IconThreeDots";
 import { NodeType } from "../../flowTypes";
-import { CONTAINER_PADDING } from "./commonStyledComponents";
-
-export const DRAG_HANDLE_CLASS_NAME = "node-drag-handle";
 
 const Backdrop = styled.div<{ $type: NodeType }>`
   width: 300px;
@@ -40,15 +36,6 @@ const Backdrop = styled.div<{ $type: NodeType }>`
 const Content = styled.div`
   background: #fff;
   border-radius: 5px;
-  padding: ${CONTAINER_PADDING}px;
-`;
-
-const DragHandle = styled(IconThreeDots)`
-  fill: #cacaca;
-  width: 20px;
-  position: absolute;
-  top: 0;
-  left: calc(50% - 30px / 2);
 `;
 
 type Props = {
@@ -59,10 +46,7 @@ type Props = {
 export default function NodeBox(props: Props) {
   return (
     <Backdrop $type={props.nodeType}>
-      <Content>
-        <DragHandle />
-        {props.children}
-      </Content>
+      <Content>{props.children}</Content>
     </Backdrop>
   );
 }

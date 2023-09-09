@@ -21,7 +21,7 @@ import ChatGPTMessageNode from "./nodes/ChatGPTMessageNode";
 import InputNode from "./nodes/InputNode";
 import JavaScriptFunctionNode from "./nodes/JavaScriptFunctionNode";
 import OutputNode from "./nodes/OutputNode";
-import { DRAG_HANDLE_CLASS_NAME } from "./nodes/shared/NodeBox";
+import { DRAG_HANDLE_CLASS_NAME } from "./nodes/shared/HeaderSection";
 
 const NODE_TYPES = {
   [NodeType.InputNode]: InputNode,

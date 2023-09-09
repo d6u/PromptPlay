@@ -1,4 +1,3 @@
-import Button from "@mui/joy/Button";
 import Chance from "chance";
 import { nanoid } from "nanoid";
 import { adjust, append, assoc, remove } from "ramda";
@@ -11,6 +10,7 @@ import {
   NodeOutputItem,
   NodeType,
 } from "../flowTypes";
+import AddVariableButton from "./shared/AddVariableButton";
 import HeaderSection from "./shared/HeaderSection";
 import NodeBox from "./shared/NodeBox";
 import NodeOutputModifyRow from "./shared/NodeOutputModifyRow";
@@ -50,10 +50,7 @@ export default function InputNode() {
       <NodeBox nodeType={NodeType.InputNode}>
         <HeaderSection title="Input" onClickRemove={() => removeNode(nodeId)} />
         <Section>
-          <Button
-            color="success"
-            size="sm"
-            variant="outlined"
+          <AddVariableButton
             onClick={() => {
               const newOutputs = append<NodeOutputItem>({
                 id: `${nodeId}/${nanoid()}`,
@@ -69,9 +66,7 @@ export default function InputNode() {
 
               updateNodeInternals(nodeId);
             }}
-          >
-            Add output
-          </Button>
+          />
           {outputs.map((output, i) => (
             <NodeOutputModifyRow
               key={output.id}

@@ -7,7 +7,7 @@ const StyledCloseIcon = styled(CrossIcon)`
   fill: #c41c1c;
 `;
 
-export default function RemoevNodeButton(props: { onClick: () => void }) {
+export default function RemoveButton(props: { onClick: () => void }) {
   return (
     <IconButton
       color="danger"

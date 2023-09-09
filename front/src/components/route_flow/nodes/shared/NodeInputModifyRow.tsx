@@ -1,16 +1,16 @@
-import Button from "@mui/joy/Button";
 import Input from "@mui/joy/Input";
 import { useState } from "react";
 import styled from "styled-components";
+import RemoveButton from "./RemoveButton";
 
 export const VARIABLE_ROW_MARGIN_BOTTOM = 5;
 
 const Container = styled.div`
   display: flex;
-  margin-bottom: ${VARIABLE_ROW_MARGIN_BOTTOM}px;
+  margin-top: ${VARIABLE_ROW_MARGIN_BOTTOM}px;
 
   &:last-child {
-    margin-bottom: 0;
+    // margin-bottom: 0;
   }
 `;
 
@@ -60,16 +60,7 @@ export default function NodeInputModifyRow(props: Props) {
           props.onConfirmNameChange(name);
         }}
       />
-      {!props.isReadOnly && (
-        <Button
-          color="danger"
-          size="sm"
-          variant="outlined"
-          onClick={() => props.onRemove()}
-        >
-          Remove
-        </Button>
-      )}
+      {!props.isReadOnly && <RemoveButton onClick={() => props.onRemove()} />}
     </Container>
   );
 }

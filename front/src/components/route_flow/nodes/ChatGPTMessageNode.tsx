@@ -1,4 +1,3 @@
-import Button from "@mui/joy/Button";
 import Radio from "@mui/joy/Radio";
 import RadioGroup from "@mui/joy/RadioGroup";
 import Textarea from "@mui/joy/Textarea";
@@ -15,6 +14,7 @@ import {
   NodeInputItem,
   NodeType,
 } from "../flowTypes";
+import AddVariableButton from "./shared/AddVariableButton";
 import HeaderSection from "./shared/HeaderSection";
 import NodeBox from "./shared/NodeBox";
 import NodeInputModifyRow from "./shared/NodeInputModifyRow";
@@ -76,10 +76,7 @@ export default function ChatGPTMessageNode() {
           onClickRemove={() => removeNode(nodeId)}
         />
         <Section>
-          <Button
-            color="success"
-            size="sm"
-            variant="outlined"
+          <AddVariableButton
             onClick={() => {
               const newInputs = append<NodeInputItem>({
                 id: `${nodeId}/${nanoid()}`,
@@ -92,9 +89,7 @@ export default function ChatGPTMessageNode() {
 
               updateNodeInternals(nodeId);
             }}
-          >
-            Add input
-          </Button>
+          />
           {inputs.map((input, i) => {
             if (i === 0) {
               return (
