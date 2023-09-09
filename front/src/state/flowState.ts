@@ -1,3 +1,4 @@
+import { dissoc } from "ramda";
 import adjust from "ramda/es/adjust";
 import append from "ramda/es/append";
 import assoc from "ramda/es/assoc";
@@ -66,6 +67,7 @@ export type FlowState = {
   fetchFlowConfiguration(spaceId: string): Promise<void>;
 
   updateNodeConfig(nodeId: NodeID, change: Partial<NodeConfig>): void;
+  updateNodeConfigDebounced(nodeId: NodeID, change: Partial<NodeConfig>): void;
   onFlowConfigUpdate(flowConfigChange: Partial<FlowConfig>): void;
   detailPanelContentType: DetailPanelContentType | null;
   setDetailPanelContentType(type: DetailPanelContentType | null): void;
@@ -84,10 +86,9 @@ export type FlowState = {
   outputConfigs: Record<OutputID, NodeOutputItem>;
 
   // Update states within ReactFlow
-  onAddNode: (type: NodeType) => void;
+  addNode: (type: NodeType) => void;
   updateNode(nodeId: NodeID, nodeChange: Partial<LocalNode>): void;
-  updateNodeDebounced(nodeId: NodeID, nodeChange: Partial<LocalNode>): void;
-  removeNode(id: string): void;
+  removeNode(id: NodeID): void;
 
   // Directly used by ReactFlow
   onNodesChange: OnNodesChange;
@@ -97,7 +98,7 @@ export type FlowState = {
 
 export const useFlowStore = create<FlowState>()(
   devtools((set, get) => {
-    function applyNodeChange(
+    function applyLocalNodeChange(
       nodeId: NodeID,
       nodeChange: Partial<LocalNode>
     ): Partial<FlowState> {
@@ -184,6 +185,38 @@ export const useFlowStore = create<FlowState>()(
           outputConfigs,
         });
       },
+      updateNodeConfig(nodeId: NodeID, change: Partial<NodeConfig>) {
+        const stateChange = {
+          nodeConfigs: modify(
+            nodeId,
+            mergeLeft(change) as (a: NodeConfig) => NodeConfig,
+            get().nodeConfigs
+          ),
+        };
+
+        set(stateChange);
+
+        const spaceId = get().spaceId;
+        if (spaceId) {
+          updateSpace(spaceId, getCurrentFlowContent(), stateChange);
+        }
+      },
+      updateNodeConfigDebounced(nodeId: NodeID, change: Partial<NodeConfig>) {
+        const stateChange = {
+          nodeConfigs: modify(
+            nodeId,
+            mergeLeft(change) as (a: NodeConfig) => NodeConfig,
+            get().nodeConfigs
+          ),
+        };
+
+        set(stateChange);
+
+        const spaceId = get().spaceId;
+        if (spaceId) {
+          updateSpaceDebounced(spaceId, getCurrentFlowContent(), stateChange);
+        }
+      },
       flowConfig: null,
       nodeConfigs: {},
       edgeConfigs: {},
@@ -217,8 +250,7 @@ export const useFlowStore = create<FlowState>()(
       },
       nodes: [],
       edges: [],
-
-      onAddNode(type: NodeType) {
+      addNode(type: NodeType) {
         let nodes = get().nodes;
         let nodeConfigs = get().nodeConfigs;
 
@@ -241,24 +273,8 @@ export const useFlowStore = create<FlowState>()(
           );
         }
       },
-      updateNodeConfig(nodeId: NodeID, change: Partial<NodeConfig>) {
-        const flowContentChange = {
-          nodeConfigs: modify(
-            nodeId,
-            mergeLeft(change) as (a: NodeConfig) => NodeConfig,
-            get().nodeConfigs
-          ),
-        };
-
-        set(flowContentChange);
-
-        const spaceId = get().spaceId;
-        if (spaceId) {
-          updateSpace(spaceId, getCurrentFlowContent(), flowContentChange);
-        }
-      },
       updateNode(nodeId: NodeID, nodeChange: Partial<LocalNode>) {
-        const stateChange = applyNodeChange(nodeId, nodeChange);
+        const stateChange = applyLocalNodeChange(nodeId, nodeChange);
 
         set(stateChange);
 
@@ -267,19 +283,13 @@ export const useFlowStore = create<FlowState>()(
           updateSpace(spaceId, getCurrentFlowContent(), stateChange);
         }
       },
-      updateNodeDebounced(nodeId: NodeID, nodeChange: Partial<LocalNode>) {
-        const stateChange = applyNodeChange(nodeId, nodeChange);
+      removeNode(id: NodeID) {
+        const nodes = get().nodes;
+        const nodeConfigs = get().nodeConfigs;
 
-        set(stateChange);
-
-        const spaceId = get().spaceId;
-        if (spaceId) {
-          updateSpaceDebounced(spaceId, getCurrentFlowContent(), stateChange);
-        }
-      },
-      removeNode(id: string) {
         const flowContentChange = {
-          nodes: reject<LocalNode>((node) => node.id === id)(get().nodes),
+          nodes: reject(propEq(id, "id"))(nodes),
+          nodeConfigs: dissoc(id)(nodeConfigs),
         };
 
         set(flowContentChange);

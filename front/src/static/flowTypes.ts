@@ -48,7 +48,8 @@ export type ServerNode = {
   data: null;
 };
 
-export type LocalNode = Node<null, NodeType> & ServerNode;
+export type LocalNode = Omit<Node<null, NodeType>, "id" | "type" | "data"> &
+  ServerNode;
 
 export enum NodeType {
   InputNode = "InputNode",
@@ -144,7 +145,11 @@ export type ServerEdge = {
   targetHandle: InputID;
 };
 
-export type LocalEdge = Edge<never> & ServerEdge;
+export type LocalEdge = Omit<
+  Edge<never>,
+  "id" | "source" | "sourceHandle" | "target" | "targetHandle"
+> &
+  ServerEdge;
 
 // Navigation types
 

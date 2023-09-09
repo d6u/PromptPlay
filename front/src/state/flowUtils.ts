@@ -170,11 +170,11 @@ export function createNodeConfig(node: LocalNode): NodeConfig {
   }
 }
 
-export function rejectInvalidEdges<E extends ServerEdge>(
-  nodes: (ServerNode | LocalNode)[],
-  edges: E[],
+export function rejectInvalidEdges(
+  nodes: ServerNode[],
+  edges: ServerEdge[],
   nodeConfigs: NodeConfigs
-): E[] {
+): ServerEdge[] {
   return filter(edges, (edge) => {
     let foundSourceHandle = false;
     let foundTargetHandle = false;

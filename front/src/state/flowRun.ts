@@ -1,13 +1,13 @@
 import { adjust, append, assoc, pipe } from "ramda";
-import { Node, Edge } from "reactflow";
 import * as OpenAI from "../llm/open-ai";
 import {
   ChatGPTChatCompletionNodeConfig,
   ChatGPTMessageNodeConfig,
   InputNodeConfig,
   JavaScriptFunctionNodeConfig,
-  LocalNode,
+  LocalEdge,
   NodeConfig,
+  NodeConfigs,
   NodeID,
   NodeOutputItem,
   NodeType,
@@ -16,30 +16,29 @@ import {
 import { usePersistStore } from "./zustand";
 
 export async function run(
-  nodes: LocalNode[],
-  edges: Edge[],
-  onUpdateNode: (nodeId: NodeID, nodeChange: Partial<LocalNode>) => void
+  edges: LocalEdge[],
+  nodeConfigs: NodeConfigs,
+  updateNodeConfig: (nodeId: NodeID, nodeChange: Partial<NodeConfig>) => void
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): Promise<Record<string, any>> {
-  const nodeIdToNodeMap: { [key: string]: Node<NodeConfig> } = {};
-  const nodeGraph: { [key: string]: string[] } = {};
-  const nodeIndegree: { [key: string]: number } = {};
+  const nodeGraph: Record<NodeID, NodeID[]> = {};
+  const nodeIndegree: Record<NodeID, number> = {};
 
-  const inputIdToOutputIdMap: { [key: string]: string | undefined } = {};
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const outputIdToValueMap: { [key: string]: any } = {};
-
-  for (const node of nodes) {
-    nodeIdToNodeMap[node.id] = node;
-    nodeGraph[node.id] = [];
-    nodeIndegree[node.id] = 0;
+  for (const nodeId of Object.keys(nodeConfigs)) {
+    nodeGraph[nodeId] = [];
+    nodeIndegree[nodeId] = 0;
   }
 
+  const inputIdToOutputIdMap: Record<string, string | undefined> = {};
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const outputIdToValueMap: Record<string, any> = {};
+
   for (const edge of edges) {
-    // nodeGraph[edge.source] can contain duplicate edge.target,
-    // because of multiple edges between two nodes.
-    // This is fine, because we are reducing indegree the equial number of times
-    // in the while loop below.
+    // nodeGraph[edge.source] contains duplicate edge.target,
+    // because there can be multiple edges between two nodes.
+    //
+    // This is expected since we are reducing indegree the equial number of
+    // times in the while loop below.
     nodeGraph[edge.source].push(edge.target);
     nodeIndegree[edge.target] += 1;
 
@@ -58,19 +57,17 @@ export async function run(
   let finalResult: Record<string, any> = {};
 
   while (queue.length > 0) {
-    const id = queue.shift()!;
-    const node = nodeIdToNodeMap[id];
+    const nodeId = queue.shift()!;
+    const nodeConfig = nodeConfigs[nodeId];
 
-    switch (node.data.nodeType) {
+    switch (nodeConfig.nodeType) {
       case NodeType.InputNode: {
-        const nodeData = node.data;
-        handleInputNode(nodeData, outputIdToValueMap);
+        handleInputNode(nodeConfig, outputIdToValueMap);
         break;
       }
       case NodeType.OutputNode: {
-        const nodeData = node.data;
         const result = handleOutputNode(
-          nodeData,
+          nodeConfig,
           inputIdToOutputIdMap,
           outputIdToValueMap
         );
@@ -78,53 +75,42 @@ export async function run(
         break;
       }
       case NodeType.JavaScriptFunctionNode: {
-        const nodeData = node.data;
+        const nodeData = nodeConfig;
         handleJavaScriptFunctionNode(
           nodeData,
           inputIdToOutputIdMap,
           outputIdToValueMap,
-          (dataChange) => {
-            onUpdateNode({
-              id: node.id,
-              data: { ...nodeData, ...dataChange },
-            });
+          (configChange) => {
+            updateNodeConfig(nodeId, { ...configChange });
           }
         );
         break;
       }
       case NodeType.ChatGPTMessageNode: {
-        const nodeData = node.data;
         handleChatGPTMessageNode(
-          nodeData,
+          nodeConfig,
           inputIdToOutputIdMap,
           outputIdToValueMap,
-          (dataChange) => {
-            onUpdateNode({
-              id: node.id,
-              data: { ...nodeData, ...dataChange },
-            });
+          (configChange) => {
+            updateNodeConfig(nodeId, { ...configChange });
           }
         );
         break;
       }
       case NodeType.ChatGPTChatCompletionNode: {
-        const nodeData = node.data;
         await handleChatGPTChatNode(
-          nodeData,
+          nodeConfig,
           inputIdToOutputIdMap,
           outputIdToValueMap,
-          (dataChange) => {
-            onUpdateNode({
-              id: node.id,
-              data: { ...nodeData, ...dataChange },
-            });
+          (configChange) => {
+            updateNodeConfig(nodeId, { ...configChange });
           }
         );
         break;
       }
     }
 
-    for (const nextId of nodeGraph[id]) {
+    for (const nextId of nodeGraph[nodeId]) {
       nodeIndegree[nextId] -= 1;
       if (nodeIndegree[nextId] === 0) {
         queue.push(nextId);

@@ -43,13 +43,14 @@ const NODE_TYPES = {
 };
 
 const selector = (state: FlowState) => ({
+  nodeConfigs: state.nodeConfigs,
   onFlowConfigUpdate: state.onFlowConfigUpdate,
   onInitialize: state.fetchFlowConfiguration,
   nodes: state.nodes,
   edges: state.edges,
-  onAddNode: state.onAddNode,
+  addNode: state.addNode,
   updateNode: state.updateNode,
-  updateNodeDebounced: state.updateNodeDebounced,
+  updateNodeConfigDebounced: state.updateNodeConfigDebounced,
   onNodesChange: state.onNodesChange,
   onEdgesChange: state.onEdgesChange,
   onConnect: state.onConnect,
@@ -60,13 +61,14 @@ export default function RouteFlow() {
   const { spaceId = "" } = useParams<{ spaceId: string }>();
 
   const {
+    nodeConfigs,
     onFlowConfigUpdate,
     onInitialize,
     nodes,
     edges,
-    onAddNode,
+    addNode,
     updateNode,
-    updateNodeDebounced,
+    updateNodeConfigDebounced,
     onNodesChange,
     onEdgesChange,
     onConnect,
@@ -89,10 +91,10 @@ export default function RouteFlow() {
   );
 
   const onRun = useCallback(() => {
-    run(nodes, edges, updateNodeDebounced).then((result) => {
+    run(edges, nodeConfigs, updateNodeConfigDebounced).then((result) => {
       onFlowConfigUpdate({ outputValueMap: result });
     });
-  }, [nodes, edges, updateNodeDebounced, onFlowConfigUpdate]);
+  }, [edges, nodeConfigs, updateNodeConfigDebounced, onFlowConfigUpdate]);
 
   return (
     <Container>
@@ -108,7 +110,7 @@ export default function RouteFlow() {
         maxZoom={1}
         onNodeDragStop={onNodeDragStop}
       >
-        <CanvasPanel onRun={onRun} onAddNode={onAddNode} />
+        <CanvasPanel onRun={onRun} onAddNode={addNode} />
         <Controls />
         <Background variant={BackgroundVariant.Dots} gap={20} size={1} />
       </ReactFlow>
