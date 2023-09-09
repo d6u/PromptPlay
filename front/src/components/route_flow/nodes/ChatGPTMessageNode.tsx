@@ -50,9 +50,9 @@ export default function ChatGPTMessageNode() {
 
   // It's OK to force unwrap here because nodeConfig will be undefined only
   // when Node is being deleted.
-  const [inputs, setInputs] = useState(nodeConfig!.inputs);
-  const [content, setContent] = useState(nodeConfig!.content);
-  const [role, setRole] = useState(nodeConfig!.role);
+  const [inputs, setInputs] = useState(() => nodeConfig!.inputs);
+  const [content, setContent] = useState(() => nodeConfig!.content);
+  const [role, setRole] = useState(() => nodeConfig!.role);
 
   if (!nodeConfig) {
     return null;

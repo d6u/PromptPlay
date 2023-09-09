@@ -44,9 +44,9 @@ export default function JavaScriptFunctionNode() {
 
   // It's OK to force unwrap here because nodeConfig will be undefined only
   // when Node is being deleted.
-  const [inputs, setInputs] = useState(nodeConfig!.inputs);
+  const [inputs, setInputs] = useState(() => nodeConfig!.inputs);
   const [javaScriptCode, setJavaScriptCode] = useState(
-    nodeConfig!.javaScriptCode
+    () => nodeConfig!.javaScriptCode
   );
 
   if (!nodeConfig) {

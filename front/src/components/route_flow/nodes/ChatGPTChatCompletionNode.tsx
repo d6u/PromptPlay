@@ -43,9 +43,9 @@ export default function ChatGPTChatCompletionNode() {
 
   // It's OK to force unwrap here because nodeConfig will be undefined only
   // when Node is being deleted.
-  const [model, setModel] = useState(nodeConfig!.model);
-  const [temperature, setTemperature] = useState(nodeConfig!.temperature);
-  const [stop, setStop] = useState(nodeConfig!.stop);
+  const [model, setModel] = useState(() => nodeConfig!.model);
+  const [temperature, setTemperature] = useState(() => nodeConfig!.temperature);
+  const [stop, setStop] = useState(() => nodeConfig!.stop);
 
   if (!nodeConfig) {
     return null;

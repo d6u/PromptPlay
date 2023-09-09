@@ -41,7 +41,7 @@ export default function OutputNode() {
 
   // It's OK to force unwrap here because nodeConfig will be undefined only
   // when Node is being deleted.
-  const [inputs, setInputs] = useState(nodeConfig!.inputs);
+  const [inputs, setInputs] = useState(() => nodeConfig!.inputs);
 
   if (!nodeConfig) {
     return null;
