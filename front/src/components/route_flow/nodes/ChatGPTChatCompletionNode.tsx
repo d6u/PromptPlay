@@ -44,7 +44,9 @@ export default function ChatGPTChatCompletionNode() {
   // It's OK to force unwrap here because nodeConfig will be undefined only
   // when Node is being deleted.
   const [model, setModel] = useState(() => nodeConfig!.model);
-  const [temperature, setTemperature] = useState(() => nodeConfig!.temperature);
+  const [temperature, setTemperature] = useState<number | "">(
+    () => nodeConfig?.temperature ?? ""
+  );
   const [stop, setStop] = useState(() => nodeConfig!.stop);
 
   if (!nodeConfig) {
@@ -100,15 +102,21 @@ export default function ChatGPTChatCompletionNode() {
             // disabled={props.isReadOnly}
             value={temperature}
             onChange={(e) => {
-              setTemperature(Number(e.target.value));
+              if (e.target.value) {
+                setTemperature(Number(e.target.value));
+              } else {
+                // Set to empty string so that on mobile devices, users can
+                // type 0 when typing decimal number.
+                setTemperature("");
+              }
             }}
             onKeyUp={(e) => {
               if (e.key === "Enter") {
-                updateNodeConfig(nodeId, { temperature });
+                updateNodeConfig(nodeId, { temperature: temperature || 1 });
               }
             }}
             onBlur={() => {
-              updateNodeConfig(nodeId, { temperature });
+              updateNodeConfig(nodeId, { temperature: temperature || 1 });
             }}
           />
         </Section>
