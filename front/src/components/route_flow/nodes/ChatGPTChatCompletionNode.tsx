@@ -4,13 +4,14 @@ import Option from "@mui/joy/Option";
 import Select from "@mui/joy/Select";
 import { useMemo, useState } from "react";
 import { Position, useNodeId } from "reactflow";
-import { FlowState, useFlowStore } from "../../../state/flowState";
 import { LLM_STOP_NEW_LINE_SYMBOL } from "../../../static/blockConfigs";
+import { FlowState, useFlowStore } from "../flowState";
 import {
   ChatGPTChatCompletionNodeConfig,
   NodeID,
+  NodeType,
   OpenAIChatModel,
-} from "../../../static/flowTypes";
+} from "../flowTypes";
 import NodeBox from "./shared/NodeBox";
 import NodeInputModifyRow from "./shared/NodeInputModifyRow";
 import NodeOutputRow from "./shared/NodeOutputRow";
@@ -59,7 +60,7 @@ export default function ChatGPTChatCompletionNode() {
         position={Position.Left}
         style={{ top: calculateInputHandleTop(0) }}
       />
-      <NodeBox>
+      <NodeBox nodeType={NodeType.ChatGPTChatCompletionNode}>
         <HeaderSection>
           <div />
           <Button

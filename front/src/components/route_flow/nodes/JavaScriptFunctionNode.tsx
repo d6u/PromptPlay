@@ -5,12 +5,13 @@ import { nanoid } from "nanoid";
 import { adjust, append, assoc, remove } from "ramda";
 import { useMemo, useState } from "react";
 import { Position, useUpdateNodeInternals, useNodeId } from "reactflow";
-import { FlowState, useFlowStore } from "../../../state/flowState";
+import { FlowState, useFlowStore } from "../flowState";
 import {
   JavaScriptFunctionNodeConfig,
   NodeID,
   NodeInputItem,
-} from "../../../static/flowTypes";
+  NodeType,
+} from "../flowTypes";
 import NodeBox from "./shared/NodeBox";
 import NodeInputModifyRow from "./shared/NodeInputModifyRow";
 import NodeOutputRow from "./shared/NodeOutputRow";
@@ -64,7 +65,7 @@ export default function JavaScriptFunctionNode() {
           style={{ top: calculateInputHandleTop(i) }}
         />
       ))}
-      <NodeBox>
+      <NodeBox nodeType={NodeType.JavaScriptFunctionNode}>
         <HeaderSection>
           <Button
             color="success"

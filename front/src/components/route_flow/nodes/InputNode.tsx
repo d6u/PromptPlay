@@ -4,12 +4,13 @@ import { nanoid } from "nanoid";
 import { adjust, append, assoc, remove } from "ramda";
 import { useMemo, useState } from "react";
 import { Position, useNodeId, useUpdateNodeInternals } from "reactflow";
-import { FlowState, useFlowStore } from "../../../state/flowState";
+import { FlowState, useFlowStore } from "../flowState";
 import {
   InputNodeConfig,
   NodeID,
   NodeOutputItem,
-} from "../../../static/flowTypes";
+  NodeType,
+} from "../flowTypes";
 import NodeBox from "./shared/NodeBox";
 import NodeOutputModifyRow from "./shared/NodeOutputModifyRow";
 import {
@@ -49,7 +50,7 @@ export default function InputNode() {
 
   return (
     <>
-      <NodeBox>
+      <NodeBox nodeType={NodeType.InputNode}>
         <HeaderSection>
           <Button
             color="success"

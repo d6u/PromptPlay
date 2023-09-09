@@ -7,7 +7,8 @@ import { assoc } from "ramda";
 import any from "ramda/es/any";
 import pick from "ramda/es/pick";
 import propEq from "ramda/es/propEq";
-import { graphql } from "../gql";
+import { client } from "../../state/urql";
+import { UPDATE_SPACE_FLOW_CONTENT_MUTATION } from "./flowGraphql";
 import {
   ChatGPTMessageRole,
   FlowContent,
@@ -18,8 +19,7 @@ import {
   OpenAIChatModel,
   ServerEdge,
   ServerNode,
-} from "../static/flowTypes";
-import { client } from "./urql";
+} from "./flowTypes";
 
 const chance = new Chance();
 
@@ -209,19 +209,6 @@ export function rejectInvalidEdges(
     return foundSourceHandle && foundTargetHandle;
   });
 }
-
-export const UPDATE_SPACE_FLOW_CONTENT_MUTATION = graphql(`
-  mutation UpdateSpaceFlowContentMutation(
-    $spaceId: ID!
-    $flowContent: String!
-  ) {
-    updateSpace(id: $spaceId, flowContent: $flowContent) {
-      id
-      name
-      flowContent
-    }
-  }
-`);
 
 export async function updateSpace(
   spaceId: string,

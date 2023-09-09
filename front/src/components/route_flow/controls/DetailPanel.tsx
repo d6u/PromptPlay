@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import styled from "styled-components";
-import { FlowState, useFlowStore } from "../../../state/flowState";
-import { DetailPanelContentType } from "../../../static/flowTypes";
+import { FlowState, useFlowStore } from "../flowState";
+import { DetailPanelContentType } from "../flowTypes";
 import PanelFlowConfig from "./PanelFlowConfig";
 import PanelNodeOutput from "./PanelNodeOutput";
 

@@ -1,13 +1,13 @@
 import Button from "@mui/joy/Button";
 import { adjust, assoc, filter, flatten, map, pipe, propEq } from "ramda";
 import { ReactNode, useMemo } from "react";
-import { FlowState, useFlowStore } from "../../../state/flowState";
+import { FlowState, useFlowStore } from "../flowState";
 import {
   InputNodeConfig,
   NodeOutputItem,
   NodeType,
   OutputNodeConfig,
-} from "../../../static/flowTypes";
+} from "../flowTypes";
 import InputBlock from "./InputBlock";
 import { RawValue } from "./commonStyledComponents";
 

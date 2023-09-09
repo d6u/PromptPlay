@@ -20,10 +20,10 @@ import {
   Connection,
   addEdge,
 } from "reactflow";
-import { Observable, from, tap, map as rxMap } from "rxjs";
+import { from, Subscription } from "rxjs";
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
-import { graphql } from "../gql";
+import { queryFlowObservable } from "./flowGraphql";
 import {
   DetailPanelContentType,
   EdgeConfigs,
@@ -37,7 +37,7 @@ import {
   NodeID,
   NodeType,
   OutputConfigs,
-} from "../static/flowTypes";
+} from "./flowTypes";
 import {
   createNode,
   createNodeConfig,
@@ -45,25 +45,12 @@ import {
   updateSpace,
   updateSpaceDebounced,
 } from "./flowUtils";
-import { client } from "./urql";
-
-export const SPACE_FLOW_QUERY = graphql(`
-  query SpaceFlowQuery($spaceId: UUID!) {
-    result: space(id: $spaceId) {
-      isReadOnly
-      space {
-        ...SpaceSubHeaderFragment
-        id
-        name
-        flowContent
-      }
-    }
-  }
-`);
 
 export type FlowState = {
+  isInitialized: boolean;
+
   spaceId: string | null;
-  fetchFlowConfiguration(spaceId: string): Observable<null>;
+  fetchFlowConfiguration(spaceId: string): Subscription;
 
   updateNodeConfig(nodeId: NodeID, change: Partial<NodeConfig>): void;
   updateNodeConfigDebounced(nodeId: NodeID, change: Partial<NodeConfig>): void;
@@ -145,37 +132,21 @@ export const useFlowStore = create<FlowState>()(
       }
 
       return {
+        isInitialized: false,
         spaceId: null,
-        fetchFlowConfiguration(spaceId: string): Observable<null> {
+        fetchFlowConfiguration(spaceId: string): Subscription {
           set({ spaceId });
 
-          return from(client.query(SPACE_FLOW_QUERY, { spaceId })).pipe(
-            tap((result) => {
-              // TODO: handle error
-
-              const flowContentStr = result.data?.result?.space?.flowContent;
-
-              let flowContent: Partial<FlowContent> = {};
-
-              if (flowContentStr) {
-                try {
-                  flowContent = JSON.parse(flowContentStr);
-                } catch (e) {
-                  // TODO: handle parse error
-                  console.error(e);
-                }
-              }
-
-              const {
-                nodes = [],
-                edges = [],
-                flowConfig = null,
-                nodeConfigs = {},
-                edgeConfigs = {},
-                inputConfigs = {},
-                outputConfigs = {},
-              } = flowContent;
-
+          return from(queryFlowObservable(spaceId)).subscribe({
+            next({
+              nodes = [],
+              edges = [],
+              flowConfig = null,
+              nodeConfigs = {},
+              edgeConfigs = {},
+              inputConfigs = {},
+              outputConfigs = {},
+            }) {
               set({
                 nodes,
                 edges,
@@ -185,9 +156,14 @@ export const useFlowStore = create<FlowState>()(
                 inputConfigs,
                 outputConfigs,
               });
-            }),
-            rxMap(() => null)
-          );
+            },
+            error(error) {
+              console.error(error);
+            },
+            complete() {
+              set({ isInitialized: true });
+            },
+          });
         },
         updateNodeConfig(nodeId: NodeID, change: Partial<NodeConfig>) {
           const stateChange = {

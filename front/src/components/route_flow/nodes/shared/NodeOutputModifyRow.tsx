@@ -2,9 +2,9 @@ import Button from "@mui/joy/Button";
 import Input from "@mui/joy/Input";
 import { useState } from "react";
 import styled from "styled-components";
-import { FlowState, useFlowStore } from "../../../../state/flowState";
-import { DetailPanelContentType } from "../../../../static/flowTypes";
 import IconEdit from "../../../icons/IconEdit";
+import { FlowState, useFlowStore } from "../../flowState";
+import { DetailPanelContentType } from "../../flowTypes";
 
 const VARIABLE_ROW_MARGIN_BOTTOM = 5;
 
