@@ -2,7 +2,7 @@ import Button from "@mui/joy/Button";
 import Input from "@mui/joy/Input";
 import { useState } from "react";
 import styled from "styled-components";
-import { RFState, useRFStore } from "../../../state/flowState";
+import { FlowState, useFlowStore } from "../../../state/flowState";
 import { DetailPanelContentType } from "../../../static/flowTypes";
 import IconEdit from "../../icons/IconEdit";
 
@@ -24,7 +24,7 @@ const EditIcon = styled(IconEdit)`
   cursor: pointer;
 `;
 
-const selector = (state: RFState) => ({
+const selector = (state: FlowState) => ({
   setDetailPanelContentType: state.setDetailPanelContentType,
 });
 
@@ -41,7 +41,7 @@ type Props =
     };
 
 export default function NodeOutputModifyRow(props: Props) {
-  const { setDetailPanelContentType } = useRFStore(selector);
+  const { setDetailPanelContentType } = useFlowStore(selector);
 
   const [name, setName] = useState(props.name);
 

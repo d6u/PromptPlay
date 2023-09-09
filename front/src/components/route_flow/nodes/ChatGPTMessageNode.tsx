@@ -7,7 +7,7 @@ import { nanoid } from "nanoid";
 import { adjust, append, assoc, remove } from "ramda";
 import { useState } from "react";
 import { Position, useUpdateNodeInternals, NodeProps } from "reactflow";
-import { RFState, useRFStore } from "../../../state/flowState";
+import { FlowState, useFlowStore } from "../../../state/flowState";
 import {
   ChatGPTMessageNodeData,
   ChatGPTMessageRole,
@@ -29,7 +29,7 @@ import NodeOutputRow from "./NodeOutputRow";
 
 const chance = new Chance();
 
-const selector = (state: RFState) => ({
+const selector = (state: FlowState) => ({
   onUpdateNode: state.onUpdateNode,
   onRemoveNode: state.onRemoveNode,
 });
@@ -39,7 +39,7 @@ export default function ChatGPTMessageNode(
 ) {
   const updateNodeInternals = useUpdateNodeInternals();
 
-  const { onUpdateNode, onRemoveNode } = useRFStore(selector);
+  const { onUpdateNode, onRemoveNode } = useFlowStore(selector);
 
   const [inputs, setInputs] = useState(props.data.inputs);
   const [content, setContent] = useState(props.data.content);

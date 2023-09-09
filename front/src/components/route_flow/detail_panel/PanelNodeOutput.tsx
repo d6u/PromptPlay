@@ -2,11 +2,11 @@ import { Button } from "@mui/joy";
 import { find, propEq } from "ramda";
 import { ReactNode, useMemo } from "react";
 import { Node } from "reactflow";
-import { RFState, useRFStore } from "../../../state/flowState";
+import { FlowState, useFlowStore } from "../../../state/flowState";
 import { NodeData } from "../../../static/flowTypes";
 import { RawValue } from "../common/commonStyledComponents";
 
-const selector = (state: RFState) => ({
+const selector = (state: FlowState) => ({
   nodes: state.nodes,
   setDetailPanelContentType: state.setDetailPanelContentType,
   detailPanelSelectedNodeId: state.detailPanelSelectedNodeId,
@@ -14,7 +14,7 @@ const selector = (state: RFState) => ({
 
 export default function PanelNodeOutput() {
   const { nodes, setDetailPanelContentType, detailPanelSelectedNodeId } =
-    useRFStore(selector);
+    useFlowStore(selector);
 
   const node = useMemo(
     () =>

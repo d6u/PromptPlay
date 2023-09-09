@@ -4,7 +4,7 @@ import { nanoid } from "nanoid";
 import { adjust, append, assoc, remove } from "ramda";
 import { useState } from "react";
 import { Position, useUpdateNodeInternals, NodeProps } from "reactflow";
-import { RFState, useRFStore } from "../../../state/flowState";
+import { FlowState, useFlowStore } from "../../../state/flowState";
 import { NodeInputItem, OutputNodeData } from "../../../static/flowTypes";
 import {
   HeaderSection,
@@ -17,7 +17,7 @@ import NodeInputModifyRow from "./NodeInputModifyRow";
 
 const chance = new Chance();
 
-const selector = (state: RFState) => ({
+const selector = (state: FlowState) => ({
   onUpdateNode: state.onUpdateNode,
   onRemoveNode: state.onRemoveNode,
 });
@@ -25,7 +25,7 @@ const selector = (state: RFState) => ({
 export default function OutputNode(props: NodeProps<OutputNodeData>) {
   const updateNodeInternals = useUpdateNodeInternals();
 
-  const { onUpdateNode, onRemoveNode } = useRFStore(selector);
+  const { onUpdateNode, onRemoveNode } = useFlowStore(selector);
 
   const [inputs, setInputs] = useState(props.data.inputs);
 

@@ -1,6 +1,6 @@
 import { useNodeId } from "reactflow";
 import styled from "styled-components";
-import { RFState, useRFStore } from "../../../state/flowState";
+import { FlowState, useFlowStore } from "../../../state/flowState";
 import { DetailPanelContentType } from "../../../static/flowTypes";
 import IconInspect from "../../icons/IconInspect";
 import { VARIABLE_LABEL_HEIGHT } from "../common/commonStyledComponents";
@@ -46,7 +46,7 @@ const InspectIcon = styled(IconInspect)`
   cursor: pointer;
 `;
 
-const selector = (state: RFState) => ({
+const selector = (state: FlowState) => ({
   setDetailPanelContentType: state.setDetailPanelContentType,
   setDetailPanelSelectedNodeId: state.setDetailPanelSelectedNodeId,
 });
@@ -59,7 +59,7 @@ type Props = {
 
 export default function NodeOutputRow(props: Props) {
   const { setDetailPanelContentType, setDetailPanelSelectedNodeId } =
-    useRFStore(selector);
+    useFlowStore(selector);
 
   const nodeId = useNodeId()!;
 

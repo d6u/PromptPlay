@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import styled from "styled-components";
-import { RFState, useRFStore } from "../../../state/flowState";
+import { FlowState, useFlowStore } from "../../../state/flowState";
 import { DetailPanelContentType } from "../../../static/flowTypes";
 import PanelFlowConfig from "./PanelFlowConfig";
 import PanelNodeOutput from "./PanelNodeOutput";
@@ -18,12 +18,12 @@ const Container = styled.div<{ $hide: boolean }>`
   visibility: ${(props) => (props.$hide ? "hidden" : "visible")};
 `;
 
-const selector = (state: RFState) => ({
+const selector = (state: FlowState) => ({
   detailPanelContentType: state.detailPanelContentType,
 });
 
 export default function DetailPanel() {
-  const { detailPanelContentType } = useRFStore(selector);
+  const { detailPanelContentType } = useFlowStore(selector);
 
   let content: ReactNode;
   switch (detailPanelContentType) {

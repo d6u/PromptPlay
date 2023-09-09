@@ -25,6 +25,7 @@ import {
   addEdge,
 } from "reactflow";
 import { create } from "zustand";
+import { devtools } from "zustand/middleware";
 import { graphql } from "../gql";
 import {
   DetailPanelContentType,
@@ -128,8 +129,9 @@ async function updateSpace(
 
 const updateSpaceDebounced = debounce(updateSpace, 500);
 
-export type RFState = {
+export type FlowState = {
   spaceId: string | null;
+  fetchFlowConfiguration(spaceId: string): void;
 
   // Persists to server
   flowConfig: FlowConfig | null;
@@ -139,7 +141,6 @@ export type RFState = {
   nodes: Node<NodeData>[];
   edges: Edge[];
 
-  onInitialize: (spaceId: string) => void;
   onAddNode: (node: ServerNode) => void;
   onUpdateNode: (node: { id: string } & Partial<ServerNode>) => void;
   onUpdateNodeDebounced: (node: { id: string } & Partial<ServerNode>) => void;
@@ -156,165 +157,169 @@ export type RFState = {
   setDetailPanelSelectedNodeId(nodeId: string): void;
 };
 
-export const useRFStore = create<RFState>((set, get) => {
-  function onUpdateNodeInternal(node: { id: string } & Partial<ServerNode>) {
-    const index = findIndex<Node>((n) => n.id === node.id)(get().nodes);
-    const nodes = adjust<Node>(index, mergeLeft(node))(get().nodes);
+export const useFlowStore = create<FlowState>()(
+  devtools((set, get) => {
+    function onUpdateNodeInternal(node: { id: string } & Partial<ServerNode>) {
+      const index = findIndex<Node>((n) => n.id === node.id)(get().nodes);
+      const nodes = adjust<Node>(index, mergeLeft(node))(get().nodes);
 
-    const edges = rejectInvalidEdges(nodes, get().edges);
+      const edges = rejectInvalidEdges(nodes, get().edges);
 
-    set({ nodes, edges });
+      set({ nodes, edges });
 
-    return nodes;
-  }
+      return nodes;
+    }
 
-  return {
-    spaceId: null,
-    flowConfig: null,
-    onFlowConfigUpdate(flowConfigChange: Partial<FlowConfig>) {
-      const flowConfig = get().flowConfig;
+    return {
+      spaceId: null,
+      async fetchFlowConfiguration(spaceId: string) {
+        set({ spaceId });
 
-      // TODO
-      if (flowConfig) {
-        set({
-          flowConfig: {
-            ...flowConfig,
-            ...flowConfigChange,
-          },
-        });
-      } else {
-        set({
-          flowConfig: {
-            inputConfigMap: {},
-            outputValueMap: {},
-            ...flowConfigChange,
-          },
-        });
-      }
+        const result = await client.query(SPACE_FLOW_QUERY, { spaceId });
+        // TODO: handle error
 
-      const spaceId = get().spaceId;
-      if (spaceId) {
-        updateSpace(spaceId, flowConfig, get().nodes, get().edges);
-      }
-    },
-    nodes: [],
-    edges: [],
-    async onInitialize(spaceId: string) {
-      set({ spaceId });
+        const flowContent = result.data?.result?.space?.flowContent;
 
-      const result = await client.query(SPACE_FLOW_QUERY, { spaceId });
-
-      if (result.data?.result?.space?.flowContent) {
         const {
-          nodes,
-          edges,
+          nodes = [],
+          edges = [],
           flowConfig = null,
-        } = JSON.parse(result.data.result.space.flowContent) as {
-          nodes: ServerNode[];
-          edges: ServerEdge[];
-          flowConfig?: FlowConfig;
-        };
+        } = flowContent
+          ? (JSON.parse(flowContent) as {
+              nodes: ServerNode[];
+              edges: ServerEdge[];
+              flowConfig?: FlowConfig;
+            })
+          : {};
 
-        set({ nodes, edges, flowConfig: flowConfig });
-      } else {
-        set({ nodes: [], edges: [], flowConfig: null });
-      }
-    },
-    onAddNode(node: Node) {
-      const nodes = append(node, get().nodes);
+        set({ nodes, edges, flowConfig });
+      },
+      flowConfig: null,
+      onFlowConfigUpdate(flowConfigChange: Partial<FlowConfig>) {
+        const flowConfig = get().flowConfig;
 
-      set({ nodes });
+        // TODO
+        if (flowConfig) {
+          set({
+            flowConfig: {
+              ...flowConfig,
+              ...flowConfigChange,
+            },
+          });
+        } else {
+          set({
+            flowConfig: {
+              inputConfigMap: {},
+              outputValueMap: {},
+              ...flowConfigChange,
+            },
+          });
+        }
 
-      const spaceId = get().spaceId;
-      if (spaceId) {
-        updateSpaceDebounced(spaceId, get().flowConfig, nodes, get().edges);
-      }
-    },
-    onUpdateNode(node: { id: string } & Partial<ServerNode>) {
-      const nodes = onUpdateNodeInternal(node);
-      const spaceId = get().spaceId;
-      if (spaceId) {
-        updateSpace(spaceId, get().flowConfig, nodes, get().edges);
-      }
-    },
-    onUpdateNodeDebounced(node: { id: string } & Partial<ServerNode>) {
-      const nodes = onUpdateNodeInternal(node);
-      const spaceId = get().spaceId;
-      if (spaceId) {
-        updateSpaceDebounced(spaceId, get().flowConfig, nodes, get().edges);
-      }
-    },
-    onRemoveNode(id: string) {
-      const nodes = reject<Node>((node) => node.id === id)(get().nodes);
+        const spaceId = get().spaceId;
+        if (spaceId) {
+          updateSpace(spaceId, flowConfig, get().nodes, get().edges);
+        }
+      },
+      nodes: [],
+      edges: [],
 
-      set({ nodes });
+      onAddNode(node: Node) {
+        const nodes = append(node, get().nodes);
 
-      const spaceId = get().spaceId;
-      if (spaceId) {
-        updateSpaceDebounced(spaceId, get().flowConfig, nodes, get().edges);
-      }
-    },
+        set({ nodes });
 
-    // ReactFlow callbacks
+        const spaceId = get().spaceId;
+        if (spaceId) {
+          updateSpaceDebounced(spaceId, get().flowConfig, nodes, get().edges);
+        }
+      },
+      onUpdateNode(node: { id: string } & Partial<ServerNode>) {
+        const nodes = onUpdateNodeInternal(node);
+        const spaceId = get().spaceId;
+        if (spaceId) {
+          updateSpace(spaceId, get().flowConfig, nodes, get().edges);
+        }
+      },
+      onUpdateNodeDebounced(node: { id: string } & Partial<ServerNode>) {
+        const nodes = onUpdateNodeInternal(node);
+        const spaceId = get().spaceId;
+        if (spaceId) {
+          updateSpaceDebounced(spaceId, get().flowConfig, nodes, get().edges);
+        }
+      },
+      onRemoveNode(id: string) {
+        const nodes = reject<Node>((node) => node.id === id)(get().nodes);
 
-    onNodesChange(changes: NodeChange[]) {
-      const nodes = applyNodeChanges(changes, get().nodes);
+        set({ nodes });
 
-      set({ nodes });
+        const spaceId = get().spaceId;
+        if (spaceId) {
+          updateSpaceDebounced(spaceId, get().flowConfig, nodes, get().edges);
+        }
+      },
 
-      // Because we are using controlled flow, there will be 3 types
-      // - dimensions
-      // - select
-      // - position
-      //
-      // Position is data is saved on onNodeDragStop. The other changes are not
-      // persisted to the server.
-    },
-    onEdgesChange(changes: EdgeChange[]) {
-      let edges = applyEdgeChanges(changes, get().edges);
-      edges = rejectInvalidEdges(get().nodes, edges);
+      // ReactFlow callbacks
 
-      set({ edges });
+      onNodesChange(changes: NodeChange[]) {
+        const nodes = applyNodeChanges(changes, get().nodes);
 
-      if (none(propEq("remove", "type"))(changes)) {
-        return;
-      }
+        set({ nodes });
 
-      const spaceId = get().spaceId;
-      if (spaceId) {
-        updateSpace(spaceId, get().flowConfig, get().nodes, edges);
-      }
-    },
-    onConnect(connection: Connection) {
-      // Should not self-connections
-      if (connection.source === connection.target) {
-        return;
-      }
+        // Because we are using controlled flow, there will be 3 types
+        // - dimensions
+        // - select
+        // - position
+        //
+        // Position is data is saved on onNodeDragStop. The other changes are not
+        // persisted to the server.
+      },
+      onEdgesChange(changes: EdgeChange[]) {
+        let edges = applyEdgeChanges(changes, get().edges);
+        edges = rejectInvalidEdges(get().nodes, edges);
 
-      let edges = get().edges;
+        set({ edges });
 
-      // A targetHandle can only take one incoming edge
-      edges = pipe(
-        reject(propEq<string>(connection.targetHandle!, "targetHandle"))
-      )(edges);
+        if (none(propEq("remove", "type"))(changes)) {
+          return;
+        }
 
-      edges = addEdge(connection, edges);
+        const spaceId = get().spaceId;
+        if (spaceId) {
+          updateSpace(spaceId, get().flowConfig, get().nodes, edges);
+        }
+      },
+      onConnect(connection: Connection) {
+        // Should not self-connections
+        if (connection.source === connection.target) {
+          return;
+        }
 
-      set({ edges });
+        let edges = get().edges;
 
-      const spaceId = get().spaceId;
-      if (spaceId) {
-        updateSpace(spaceId, get().flowConfig, get().nodes, edges);
-      }
-    },
+        // A targetHandle can only take one incoming edge
+        edges = pipe(
+          reject(propEq<string>(connection.targetHandle!, "targetHandle"))
+        )(edges);
 
-    detailPanelContentType: null,
-    setDetailPanelContentType(type: DetailPanelContentType | null) {
-      set({ detailPanelContentType: type });
-    },
-    detailPanelSelectedNodeId: null,
-    setDetailPanelSelectedNodeId(id: string) {
-      set({ detailPanelSelectedNodeId: id });
-    },
-  };
-});
+        edges = addEdge(connection, edges);
+
+        set({ edges });
+
+        const spaceId = get().spaceId;
+        if (spaceId) {
+          updateSpace(spaceId, get().flowConfig, get().nodes, edges);
+        }
+      },
+
+      detailPanelContentType: null,
+      setDetailPanelContentType(type: DetailPanelContentType | null) {
+        set({ detailPanelContentType: type });
+      },
+      detailPanelSelectedNodeId: null,
+      setDetailPanelSelectedNodeId(id: string) {
+        set({ detailPanelSelectedNodeId: id });
+      },
+    };
+  })
+);

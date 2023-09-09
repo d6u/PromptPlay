@@ -4,7 +4,7 @@ import Option from "@mui/joy/Option";
 import Select from "@mui/joy/Select";
 import { useState } from "react";
 import { Position, NodeProps } from "reactflow";
-import { RFState, useRFStore } from "../../../state/flowState";
+import { FlowState, useFlowStore } from "../../../state/flowState";
 import { LLM_STOP_NEW_LINE_SYMBOL } from "../../../static/blockConfigs";
 import {
   ChatGPTChatCompletionNodeData,
@@ -24,7 +24,7 @@ import NodeBox from "./NodeBox";
 import NodeInputModifyRow from "./NodeInputModifyRow";
 import NodeOutputRow from "./NodeOutputRow";
 
-const selector = (state: RFState) => ({
+const selector = (state: FlowState) => ({
   onUpdateNode: state.onUpdateNode,
   onRemoveNode: state.onRemoveNode,
 });
@@ -32,7 +32,7 @@ const selector = (state: RFState) => ({
 export default function ChatGPTChatCompletionNode(
   props: NodeProps<ChatGPTChatCompletionNodeData>
 ) {
-  const { onUpdateNode, onRemoveNode } = useRFStore(selector);
+  const { onUpdateNode, onRemoveNode } = useFlowStore(selector);
 
   const [model, setModel] = useState(props.data.model);
   const [temperature, setTemperature] = useState(props.data.temperature);

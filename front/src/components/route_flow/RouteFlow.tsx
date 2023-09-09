@@ -13,7 +13,7 @@ import ReactFlow, {
 } from "reactflow";
 import "reactflow/dist/style.css";
 import styled from "styled-components";
-import { RFState, useRFStore } from "../../state/flowState";
+import { FlowState, useFlowStore } from "../../state/flowState";
 import { createNode } from "../../state/flowUtils";
 import { NodeType } from "../../static/flowTypes";
 import CanvasPanel from "./CanvasPanel";
@@ -43,9 +43,9 @@ const NODE_TYPES = {
   [NodeType.ChatGPTChatCompletionNode]: ChatGPTChatCompletionNode,
 };
 
-const selector = (state: RFState) => ({
+const selector = (state: FlowState) => ({
   onFlowConfigUpdate: state.onFlowConfigUpdate,
-  onInitialize: state.onInitialize,
+  onInitialize: state.fetchFlowConfiguration,
   nodes: state.nodes,
   edges: state.edges,
   onAddNode: state.onAddNode,
@@ -71,7 +71,7 @@ export default function RouteFlow() {
     onNodesChange,
     onEdgesChange,
     onConnect,
-  } = useRFStore(selector);
+  } = useFlowStore(selector);
 
   useEffect(() => {
     onInitialize(spaceId);

@@ -3,7 +3,7 @@ import filter from "lodash/filter";
 import { adjust, assoc, flatten, propEq } from "ramda";
 import { ReactNode, useMemo } from "react";
 import { Node } from "reactflow";
-import { RFState, useRFStore } from "../../../state/flowState";
+import { FlowState, useFlowStore } from "../../../state/flowState";
 import {
   InputNodeData,
   NodeOutputItem,
@@ -13,7 +13,7 @@ import {
 import { RawValue } from "../common/commonStyledComponents";
 import InputBlock from "./InputBlock";
 
-const selector = (state: RFState) => ({
+const selector = (state: FlowState) => ({
   flowConfig: state.flowConfig,
   onFlowConfigUpdate: state.onFlowConfigUpdate,
   nodes: state.nodes,
@@ -28,7 +28,7 @@ export default function PanelFlowConfig() {
     nodes,
     onUpdateNode,
     setDetailPanelContentType,
-  } = useRFStore(selector);
+  } = useFlowStore(selector);
 
   const inputNodes = useMemo(
     () =>
