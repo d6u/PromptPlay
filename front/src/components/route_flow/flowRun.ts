@@ -1,5 +1,16 @@
 import mustache from "mustache";
 import { adjust, append, assoc, pipe } from "ramda";
+import {
+  BehaviorSubject,
+  EMPTY,
+  Observable,
+  concatMap,
+  from,
+  map,
+  tap,
+  zipWith,
+  of,
+} from "rxjs";
 import * as OpenAI from "../../llm/open-ai";
 import { usePersistStore, useStore } from "../../state/zustand";
 import {
@@ -16,12 +27,31 @@ import {
   OutputNodeConfig,
 } from "./flowTypes";
 
-export async function run(
+export enum RunEventType {
+  NodeConfigChange = "NodeConfigChange",
+  FlowConfigChange = "FlowConfigChange",
+}
+
+type RunEvent = NodeConfigChangeEvent | FlowConfigChangeEvent;
+
+type NodeConfigChangeEvent = {
+  type: RunEventType.NodeConfigChange;
+  nodeId: NodeID;
+  nodeChange: Partial<NodeConfig>;
+};
+
+type FlowConfigChangeEvent = {
+  type: RunEventType.FlowConfigChange;
+  outputValueMap: OutputValueMap;
+};
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type OutputValueMap = Record<string, any>;
+
+export function run(
   edges: LocalEdge[],
-  nodeConfigs: NodeConfigs,
-  updateNodeConfig: (nodeId: NodeID, nodeChange: Partial<NodeConfig>) => void
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-): Promise<Record<string, any>> {
+  nodeConfigs: NodeConfigs
+): Observable<RunEvent> {
   const nodeGraph: Record<NodeID, NodeID[]> = {};
   const nodeIndegree: Record<NodeID, number> = {};
 
@@ -46,81 +76,127 @@ export async function run(
     inputIdToOutputIdMap[edge.targetHandle!] = edge.sourceHandle!;
   }
 
-  const queue: string[] = [];
+  let finalResult: OutputValueMap = {};
 
-  for (const [id, count] of Object.entries(nodeIndegree)) {
-    if (count === 0) {
-      queue.push(id);
-    }
-  }
+  const sub = new BehaviorSubject(0);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let finalResult: Record<string, any> = {};
+  const obs = new Observable<{ nodeId: NodeID; nodeConfig: NodeConfig }>(
+    (subscriber) => {
+      const queue: string[] = [];
 
-  while (queue.length > 0) {
-    const nodeId = queue.shift()!;
-    // It's OK to force unwrap here since the risk missing node config is tiny.
-    const nodeConfig = nodeConfigs[nodeId]!;
-
-    switch (nodeConfig.nodeType) {
-      case NodeType.InputNode: {
-        handleInputNode(nodeConfig, outputIdToValueMap);
-        break;
+      for (const [id, count] of Object.entries(nodeIndegree)) {
+        if (count === 0) {
+          queue.push(id);
+        }
       }
-      case NodeType.OutputNode: {
-        const result = handleOutputNode(
-          nodeConfig,
-          inputIdToOutputIdMap,
-          outputIdToValueMap
-        );
-        finalResult = { ...finalResult, ...result };
-        break;
-      }
-      case NodeType.JavaScriptFunctionNode: {
-        const nodeData = nodeConfig;
-        handleJavaScriptFunctionNode(
-          nodeData,
-          inputIdToOutputIdMap,
-          outputIdToValueMap,
-          (configChange) => {
-            updateNodeConfig(nodeId, { ...configChange });
+
+      while (queue.length > 0) {
+        const nodeId = queue.shift()!;
+        // It's OK to force unwrap here since the risk missing node config is tiny.
+        const nodeConfig = nodeConfigs[nodeId]!;
+
+        subscriber.next({ nodeId, nodeConfig });
+
+        for (const nextId of nodeGraph[nodeId]) {
+          nodeIndegree[nextId] -= 1;
+          if (nodeIndegree[nextId] === 0) {
+            queue.push(nextId);
           }
-        );
-        break;
+        }
       }
-      case NodeType.ChatGPTMessageNode: {
-        handleChatGPTMessageNode(
-          nodeConfig,
-          inputIdToOutputIdMap,
-          outputIdToValueMap,
-          (configChange) => {
-            updateNodeConfig(nodeId, { ...configChange });
-          }
-        );
-        break;
-      }
-      case NodeType.ChatGPTChatCompletionNode: {
-        await handleChatGPTChatNode(
-          nodeConfig,
-          inputIdToOutputIdMap,
-          outputIdToValueMap,
-          (configChange) => {
-            updateNodeConfig(nodeId, { ...configChange });
-          }
-        );
-        break;
-      }
-    }
 
-    for (const nextId of nodeGraph[nodeId]) {
-      nodeIndegree[nextId] -= 1;
-      if (nodeIndegree[nextId] === 0) {
-        queue.push(nextId);
-      }
+      subscriber.complete();
     }
-  }
+  );
 
-  return finalResult;
+  return obs.pipe(
+    zipWith(sub),
+    concatMap(([{ nodeId, nodeConfig }]) => {
+      let obs: Observable<RunEvent>;
+
+      switch (nodeConfig.nodeType) {
+        case NodeType.InputNode: {
+          handleInputNode(nodeConfig, outputIdToValueMap);
+          obs = EMPTY;
+          break;
+        }
+        case NodeType.OutputNode: {
+          const result = handleOutputNode(
+            nodeConfig,
+            inputIdToOutputIdMap,
+            outputIdToValueMap
+          );
+          finalResult = { ...finalResult, ...result };
+          obs = of({
+            type: RunEventType.FlowConfigChange,
+            outputValueMap: finalResult,
+          });
+          break;
+        }
+        case NodeType.JavaScriptFunctionNode: {
+          const nodeData = nodeConfig;
+          obs = handleJavaScriptFunctionNode(
+            nodeData,
+            inputIdToOutputIdMap,
+            outputIdToValueMap
+          ).pipe(
+            map((change) => ({
+              type: RunEventType.NodeConfigChange,
+              nodeId,
+              nodeChange: change,
+            }))
+          );
+          break;
+        }
+        case NodeType.ChatGPTMessageNode: {
+          obs = handleChatGPTMessageNode(
+            nodeConfig,
+            inputIdToOutputIdMap,
+            outputIdToValueMap
+          ).pipe(
+            map((change) => ({
+              type: RunEventType.NodeConfigChange,
+              nodeId,
+              nodeChange: change,
+            }))
+          );
+          break;
+        }
+        case NodeType.ChatGPTChatCompletionNode: {
+          obs = from(
+            handleChatGPTChatNode(
+              nodeConfig,
+              inputIdToOutputIdMap,
+              outputIdToValueMap
+            )
+          ).pipe(
+            map((change) => ({
+              type: RunEventType.NodeConfigChange,
+              nodeId,
+              nodeChange: change,
+            }))
+          );
+          break;
+        }
+      }
+
+      return obs.pipe(
+        tap({
+          complete() {
+            sub.next(0);
+          },
+        })
+      );
+    }),
+    tap({
+      error(e) {
+        sub.complete();
+      },
+      complete() {
+        sub.complete();
+      },
+    })
+  );
 }
 
 function handleInputNode(
@@ -161,9 +237,8 @@ function handleJavaScriptFunctionNode(
   data: JavaScriptFunctionNodeConfig,
   inputIdToOutputIdMap: { [key: string]: string | undefined },
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  outputIdToValueMap: { [key: string]: any },
-  onDataChange: (dataChange: Partial<JavaScriptFunctionNodeConfig>) => void
-) {
+  outputIdToValueMap: { [key: string]: any }
+): Observable<Partial<JavaScriptFunctionNodeConfig>> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const pairs: Array<[string, any]> = [];
 
@@ -184,7 +259,7 @@ function handleJavaScriptFunctionNode(
 
   outputIdToValueMap[data.outputs[0].id] = result;
 
-  onDataChange({
+  return of({
     outputs: adjust<NodeOutputItem>(0, assoc("value", result))(data.outputs),
   });
 }
@@ -193,9 +268,8 @@ function handleChatGPTMessageNode(
   data: ChatGPTMessageNodeConfig,
   inputIdToOutputIdMap: { [key: string]: string | undefined },
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  outputIdToValueMap: { [key: string]: any },
-  onDataChange: (dataChange: Partial<ChatGPTMessageNodeConfig>) => void
-) {
+  outputIdToValueMap: { [key: string]: any }
+): Observable<Partial<ChatGPTMessageNodeConfig>> {
   // Prepare inputs
   // ----------
 
@@ -231,7 +305,7 @@ function handleChatGPTMessageNode(
   outputIdToValueMap[data.outputs[0].id] = message;
   outputIdToValueMap[data.outputs[1].id] = messages;
 
-  onDataChange({
+  return of({
     outputs: pipe(
       adjust<NodeOutputItem>(0, assoc("value", message)),
       adjust<NodeOutputItem>(1, assoc("value", messages))
@@ -239,13 +313,12 @@ function handleChatGPTMessageNode(
   });
 }
 
-async function handleChatGPTChatNode(
+function handleChatGPTChatNode(
   data: ChatGPTChatCompletionNodeConfig,
   inputIdToOutputIdMap: { [key: string]: string | undefined },
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  outputIdToValueMap: { [key: string]: any },
-  onDataChange: (dataChange: Partial<ChatGPTChatCompletionNodeConfig>) => void
-) {
+  outputIdToValueMap: { [key: string]: any }
+): Observable<Partial<ChatGPTChatCompletionNodeConfig>> {
   // Prepare inputs
   // ----------
 
@@ -270,54 +343,58 @@ async function handleChatGPTChatNode(
   if (!openAiApiKey) {
     console.error("OpenAI API key is missing");
     useStore.getState().setMissingOpenAiApiKey(true);
-    return;
+    return EMPTY;
   }
 
   let messages = argsMap["messages"] ?? [];
 
-  const result = await OpenAI.getNonStreamingCompletion({
-    apiKey: openAiApiKey,
-    model: data.model,
-    temperature: data.temperature,
-    stop: data.stop,
-    messages,
-  });
+  return from(
+    OpenAI.getNonStreamingCompletion({
+      apiKey: openAiApiKey,
+      model: data.model,
+      temperature: data.temperature,
+      stop: data.stop,
+      messages,
+    })
+  ).pipe(
+    map((result) => {
+      if (result.isError) {
+        console.error(result.data.error.message);
 
-  if (result.isError) {
-    console.error(result.data.error.message);
+        // Update outputs
+        // ----------
 
-    // Update outputs
-    // ----------
+        outputIdToValueMap[data.outputs[0].id] = null;
+        outputIdToValueMap[data.outputs[1].id] = null;
+        outputIdToValueMap[data.outputs[2].id] = null;
 
-    outputIdToValueMap[data.outputs[0].id] = null;
-    outputIdToValueMap[data.outputs[1].id] = null;
-    outputIdToValueMap[data.outputs[2].id] = null;
+        return {
+          outputs: pipe(
+            adjust<NodeOutputItem>(0, assoc("value", null)),
+            adjust<NodeOutputItem>(1, assoc("value", null)),
+            adjust<NodeOutputItem>(2, assoc("value", null))
+          )(data.outputs),
+        };
+      } else {
+        const message = result.data.choices[0].message;
+        const content = message.content;
+        messages = append(message, messages);
 
-    onDataChange({
-      outputs: pipe(
-        adjust<NodeOutputItem>(0, assoc("value", null)),
-        adjust<NodeOutputItem>(1, assoc("value", null)),
-        adjust<NodeOutputItem>(2, assoc("value", null))
-      )(data.outputs),
-    });
-  } else {
-    const message = result.data.choices[0].message;
-    const content = message.content;
-    messages = append(message, messages);
+        // Update outputs
+        // ----------
 
-    // Update outputs
-    // ----------
+        outputIdToValueMap[data.outputs[0].id] = content;
+        outputIdToValueMap[data.outputs[1].id] = message;
+        outputIdToValueMap[data.outputs[2].id] = messages;
 
-    outputIdToValueMap[data.outputs[0].id] = content;
-    outputIdToValueMap[data.outputs[1].id] = message;
-    outputIdToValueMap[data.outputs[2].id] = messages;
-
-    onDataChange({
-      outputs: pipe(
-        adjust<NodeOutputItem>(0, assoc("value", content)),
-        adjust<NodeOutputItem>(1, assoc("value", message)),
-        adjust<NodeOutputItem>(2, assoc("value", messages))
-      )(data.outputs),
-    });
-  }
+        return {
+          outputs: pipe(
+            adjust<NodeOutputItem>(0, assoc("value", content)),
+            adjust<NodeOutputItem>(1, assoc("value", message)),
+            adjust<NodeOutputItem>(2, assoc("value", messages))
+          )(data.outputs),
+        };
+      }
+    })
+  );
 }

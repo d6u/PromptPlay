@@ -26,17 +26,14 @@ import { devtools } from "zustand/middleware";
 import { queryFlowObservable } from "./flowGraphql";
 import {
   DetailPanelContentType,
-  EdgeConfigs,
   FlowConfig,
   FlowContent,
-  InputConfigs,
   LocalEdge,
   LocalNode,
   NodeConfig,
   NodeConfigs,
   NodeID,
   NodeType,
-  OutputConfigs,
 } from "./flowTypes";
 import {
   createNode,
@@ -67,9 +64,6 @@ export type FlowState = {
   flowConfig: FlowConfig | null;
 
   nodeConfigs: NodeConfigs;
-  edgeConfigs: EdgeConfigs;
-  inputConfigs: InputConfigs;
-  outputConfigs: OutputConfigs;
 
   // Update states within ReactFlow
   addNode(type: NodeType, x?: number, y?: number): void;
@@ -84,7 +78,7 @@ export type FlowState = {
 
 export const useFlowStore = create<FlowState>()(
   devtools(
-    (set, get) => {
+    (set, get): FlowState => {
       function applyLocalNodeChange(
         nodeId: NodeID,
         nodeChange: Partial<LocalNode>
@@ -128,29 +122,14 @@ export const useFlowStore = create<FlowState>()(
       }
 
       function getCurrentFlowContent(): FlowContent {
-        const {
-          nodes,
-          edges,
-          flowConfig,
-          nodeConfigs,
-          edgeConfigs,
-          inputConfigs,
-          outputConfigs,
-        } = get();
+        const { nodes, edges, flowConfig, nodeConfigs } = get();
 
-        return {
-          nodes,
-          edges,
-          flowConfig,
-          nodeConfigs,
-          edgeConfigs,
-          inputConfigs,
-          outputConfigs,
-        };
+        return { nodes, edges, flowConfig, nodeConfigs };
       }
 
       return {
         isInitialized: false,
+
         spaceId: null,
         fetchFlowConfiguration(spaceId: string): Subscription {
           set({ spaceId });
@@ -161,18 +140,12 @@ export const useFlowStore = create<FlowState>()(
               edges = [],
               flowConfig = null,
               nodeConfigs = {},
-              edgeConfigs = {},
-              inputConfigs = {},
-              outputConfigs = {},
             }) {
               set({
                 nodes,
                 edges,
                 flowConfig,
                 nodeConfigs,
-                edgeConfigs,
-                inputConfigs,
-                outputConfigs,
               });
             },
             error(error) {
@@ -183,6 +156,7 @@ export const useFlowStore = create<FlowState>()(
             },
           });
         },
+
         updateNodeConfig(nodeId: NodeID, change: Partial<NodeConfig>) {
           const stateChange = applyLocalNodeConfigChange(nodeId, change);
 
@@ -203,11 +177,6 @@ export const useFlowStore = create<FlowState>()(
             updateSpaceDebounced(spaceId, getCurrentFlowContent(), stateChange);
           }
         },
-        flowConfig: null,
-        nodeConfigs: {},
-        edgeConfigs: {},
-        inputConfigs: {},
-        outputConfigs: {},
         onFlowConfigUpdate(flowConfigChange: Partial<FlowConfig>) {
           const flowConfig = get().flowConfig;
 
@@ -234,13 +203,25 @@ export const useFlowStore = create<FlowState>()(
             // updateSpace(spaceId, getCurrentFlowContent(), );
           }
         },
+
+        detailPanelContentType: null,
+        setDetailPanelContentType(type: DetailPanelContentType | null) {
+          set({ detailPanelContentType: type });
+        },
+        detailPanelSelectedNodeId: null,
+        setDetailPanelSelectedNodeId(id: string) {
+          set({ detailPanelSelectedNodeId: id });
+        },
+
         nodes: [],
         edges: [],
+        flowConfig: null,
+
+        nodeConfigs: {},
+
         addNode(type: NodeType, x?: number, y?: number) {
           let nodes = get().nodes;
           let nodeConfigs = get().nodeConfigs;
-
-          console.log("addNode", type, x, y);
 
           const node = createNode(type, x ?? 200, y ?? 200);
           const nodeConfig = createNodeConfig(node);
@@ -350,15 +331,6 @@ export const useFlowStore = create<FlowState>()(
           if (spaceId) {
             updateSpace(spaceId, getCurrentFlowContent(), stateChange);
           }
-        },
-
-        detailPanelContentType: null,
-        setDetailPanelContentType(type: DetailPanelContentType | null) {
-          set({ detailPanelContentType: type });
-        },
-        detailPanelSelectedNodeId: null,
-        setDetailPanelSelectedNodeId(id: string) {
-          set({ detailPanelSelectedNodeId: id });
         },
       };
     },

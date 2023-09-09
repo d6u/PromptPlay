@@ -14,7 +14,7 @@ import ReactFlow, {
 import "reactflow/dist/style.css";
 import CanvasPanel from "./controls/CanvasPanel";
 import DetailPanel from "./controls/DetailPanel";
-import { run } from "./flowRun";
+import { RunEventType, run } from "./flowRun";
 import { FlowState, useFlowStore } from "./flowState";
 import { LocalEdge, LocalNode, NodeType } from "./flowTypes";
 import ChatGPTChatCompletionNode from "./nodes/ChatGPTChatCompletionNode";
@@ -96,11 +96,32 @@ export default function FlowCanvas() {
   const onRun = useCallback(() => {
     setIsRunning(true);
 
-    run(edges, nodeConfigs, updateNodeConfigDebounced).then((result) => {
-      setIsRunning(false);
-      onFlowConfigUpdate({ outputValueMap: result });
+    run(edges, nodeConfigs).subscribe({
+      next(data) {
+        if (data) {
+          switch (data.type) {
+            case RunEventType.NodeConfigChange: {
+              const { nodeId, nodeChange } = data;
+              updateNodeConfigDebounced(nodeId, nodeChange);
+              break;
+            }
+            case RunEventType.FlowConfigChange: {
+              const { outputValueMap } = data;
+              onFlowConfigUpdate({ outputValueMap });
+              break;
+            }
+          }
+        }
+      },
+      error(e) {
+        console.error(e);
+      },
+      complete() {
+        setIsRunning(false);
+        console.log("complete");
+      },
     });
-  }, [edges, nodeConfigs, updateNodeConfigDebounced, onFlowConfigUpdate]);
+  }, [edges, nodeConfigs, onFlowConfigUpdate, updateNodeConfigDebounced]);
 
   return (
     <>
@@ -135,7 +156,7 @@ export default function FlowCanvas() {
               -transformX * zoomMultiplier + (width * zoomMultiplier) / 2;
 
             // Put the node at the 200px below the viewport top
-            const centerY = -transformY * zoomMultiplier + 200;
+            const centerY = -transformY * zoomMultiplier + 200 * zoomMultiplier;
 
             addNode(type, centerX - NODE_BOX_WIDTH / 2, centerY);
           }}
