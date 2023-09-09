@@ -1,3 +1,4 @@
+import mustache from "mustache";
 import { adjust, append, assoc, pipe } from "ramda";
 import * as OpenAI from "../../llm/open-ai";
 import { usePersistStore } from "../../state/zustand";
@@ -219,7 +220,7 @@ function handleChatGPTMessageNode(
 
   const message = {
     role: data.role,
-    content: replacePlaceholders(data.content, argsMap),
+    content: mustache.render(data.content, argsMap),
   };
 
   messages = append(message, messages);
@@ -236,20 +237,6 @@ function handleChatGPTMessageNode(
       adjust<NodeOutputItem>(1, assoc("value", messages))
     )(data.outputs),
   });
-}
-
-// Replace `{xyz}` but ignore `{{zyx}}`
-// If `xyz` doesn't exist on values, null will be provided.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function replacePlaceholders(str: string, values: { [key: string]: any }) {
-  const regex = /(?<!\{)\{([^{}]+)\}(?!\})/g;
-
-  return str
-    .replace(regex, (_, p1) => {
-      return values[p1] !== undefined ? values[p1] : null;
-    })
-    .replace("{{", "{")
-    .replace("}}", "}");
 }
 
 async function handleChatGPTChatNode(
