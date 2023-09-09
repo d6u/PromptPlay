@@ -3,6 +3,12 @@ import Option from "@mui/joy/Option";
 import Select from "@mui/joy/Select";
 import { useMemo, useState } from "react";
 import { Position, useNodeId } from "reactflow";
+import {
+  PersistState,
+  State,
+  usePersistStore,
+  useStore,
+} from "../../../state/zustand";
 import { LLM_STOP_NEW_LINE_SYMBOL } from "../../../static/blockConfigs";
 import { FlowState, useFlowStore } from "../flowState";
 import {
@@ -25,16 +31,29 @@ import {
   calculateOutputHandleBottom,
 } from "./shared/utils";
 
-const selector = (state: FlowState) => ({
+const flowSelector = (state: FlowState) => ({
   nodeConfigs: state.nodeConfigs,
   updateNodeConfig: state.updateNodeConfig,
   removeNode: state.removeNode,
 });
 
+const persistSelector = (state: PersistState) => ({
+  openAiApiKey: state.openAiApiKey,
+  setOpenAiApiKey: state.setOpenAiApiKey,
+});
+
+const selector = (state: State) => ({
+  missingOpenAiApiKey: state.missingOpenAiApiKey,
+  setMissingOpenAiApiKey: state.setMissingOpenAiApiKey,
+});
+
 export default function ChatGPTChatCompletionNode() {
   const nodeId = useNodeId() as NodeID;
 
-  const { nodeConfigs, updateNodeConfig, removeNode } = useFlowStore(selector);
+  const { openAiApiKey, setOpenAiApiKey } = usePersistStore(persistSelector);
+  const { missingOpenAiApiKey, setMissingOpenAiApiKey } = useStore(selector);
+  const { nodeConfigs, updateNodeConfig, removeNode } =
+    useFlowStore(flowSelector);
 
   const nodeConfig = useMemo(
     () => nodeConfigs[nodeId] as ChatGPTChatCompletionNodeConfig | undefined,
@@ -71,6 +90,20 @@ export default function ChatGPTChatCompletionNode() {
             key={nodeConfig.inputs[0].id}
             name={nodeConfig.inputs[0].name}
             isReadOnly
+          />
+        </Section>
+        <Section>
+          <Input
+            color={missingOpenAiApiKey ? "danger" : "neutral"}
+            size="sm"
+            variant="outlined"
+            // disabled={props.isReadOnly}
+            value={openAiApiKey ?? ""}
+            onChange={(e) => {
+              const value = e.target.value.trim();
+              setOpenAiApiKey(value.length ? value : null);
+              setMissingOpenAiApiKey(false);
+            }}
           />
         </Section>
         <Section>

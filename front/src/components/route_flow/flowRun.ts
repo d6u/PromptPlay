@@ -1,7 +1,7 @@
 import mustache from "mustache";
 import { adjust, append, assoc, pipe } from "ramda";
 import * as OpenAI from "../../llm/open-ai";
-import { usePersistStore } from "../../state/zustand";
+import { usePersistStore, useStore } from "../../state/zustand";
 import {
   ChatGPTChatCompletionNodeConfig,
   ChatGPTMessageNodeConfig,
@@ -266,7 +266,12 @@ async function handleChatGPTChatNode(
   // Execute logic
   // ----------
 
-  const openAiApiKey = usePersistStore.getState().openAiApiKey!;
+  const openAiApiKey = usePersistStore.getState().openAiApiKey;
+  if (!openAiApiKey) {
+    console.error("OpenAI API key is missing");
+    useStore.getState().setMissingOpenAiApiKey(true);
+    return;
+  }
 
   let messages = argsMap["messages"] ?? [];
 

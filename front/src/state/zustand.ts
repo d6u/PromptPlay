@@ -11,7 +11,7 @@ type PlaceholderUserTokenState = {
   setPlaceholderUserToken: (placeholderUserToken: string | null) => void;
 };
 
-type PersistState = OpenAiApiState & PlaceholderUserTokenState;
+export type PersistState = OpenAiApiState & PlaceholderUserTokenState;
 
 export const usePersistStore = create<PersistState>()(
   persist(
@@ -28,7 +28,7 @@ export const usePersistStore = create<PersistState>()(
   )
 );
 
-type State = {
+export type State = {
   missingOpenAiApiKey: boolean;
   setMissingOpenAiApiKey: (missingOpenAiApiKey: boolean) => void;
   spaceV2SelectedBlockId: string | null;
