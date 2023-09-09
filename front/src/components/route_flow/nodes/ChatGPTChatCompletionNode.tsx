@@ -11,19 +11,19 @@ import {
   NodeID,
   OpenAIChatModel,
 } from "../../../static/flowTypes";
+import NodeBox from "./shared/NodeBox";
+import NodeInputModifyRow from "./shared/NodeInputModifyRow";
+import NodeOutputRow from "./shared/NodeOutputRow";
 import {
   HeaderSection,
   InputHandle,
   OutputHandle,
   Section,
-} from "../common/commonStyledComponents";
+} from "./shared/commonStyledComponents";
 import {
   calculateInputHandleTop,
   calculateOutputHandleBottom,
-} from "../common/utils";
-import NodeBox from "./NodeBox";
-import NodeInputModifyRow from "./NodeInputModifyRow";
-import NodeOutputRow from "./NodeOutputRow";
+} from "./shared/utils";
 
 const selector = (state: FlowState) => ({
   nodeConfigs: state.nodeConfigs,

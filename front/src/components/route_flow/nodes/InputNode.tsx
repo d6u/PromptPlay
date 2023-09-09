@@ -10,14 +10,14 @@ import {
   NodeID,
   NodeOutputItem,
 } from "../../../static/flowTypes";
+import NodeBox from "./shared/NodeBox";
+import NodeOutputModifyRow from "./shared/NodeOutputModifyRow";
 import {
   HeaderSection,
   OutputHandle,
   Section,
-} from "../common/commonStyledComponents";
-import { calculateOutputHandleBottom } from "../common/utils";
-import NodeBox from "./NodeBox";
-import NodeOutputModifyRow from "./NodeOutputModifyRow";
+} from "./shared/commonStyledComponents";
+import { calculateOutputHandleBottom } from "./shared/utils";
 
 const chance = new Chance();
 

@@ -11,16 +11,16 @@ import {
   NodeID,
   NodeInputItem,
 } from "../../../static/flowTypes";
+import NodeBox from "./shared/NodeBox";
+import NodeInputModifyRow from "./shared/NodeInputModifyRow";
+import NodeOutputRow from "./shared/NodeOutputRow";
 import {
   HeaderSection,
   InputHandle,
   OutputHandle,
   Section,
-} from "../common/commonStyledComponents";
-import { calculateInputHandleTop } from "../common/utils";
-import NodeBox from "./NodeBox";
-import NodeInputModifyRow from "./NodeInputModifyRow";
-import NodeOutputRow from "./NodeOutputRow";
+} from "./shared/commonStyledComponents";
+import { calculateInputHandleTop } from "./shared/utils";
 
 const chance = new Chance();
 

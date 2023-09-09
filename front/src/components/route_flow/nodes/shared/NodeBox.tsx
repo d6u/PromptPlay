@@ -1,14 +1,11 @@
 import styled from "styled-components";
-import IconThreeDots from "../../icons/IconThreeDots";
-import {
-  CONTAINER_BORDER,
-  CONTAINER_PADDING,
-} from "../common/commonStyledComponents";
+import IconThreeDots from "../../../icons/IconThreeDots";
+import { CONTAINER_BORDER, CONTAINER_PADDING } from "./commonStyledComponents";
 
 export const DRAG_HANDLE_CLASS_NAME = "node-drag-handle";
 
 const Content = styled.div`
-  width: 400px;
+  width: 300px;
   background: #fff;
   border: ${CONTAINER_BORDER}px solid #000;
   border-radius: 5px;

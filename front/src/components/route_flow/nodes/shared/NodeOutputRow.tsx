@@ -1,10 +1,10 @@
 import { useNodeId } from "reactflow";
 import styled from "styled-components";
-import { FlowState, useFlowStore } from "../../../state/flowState";
-import { DetailPanelContentType } from "../../../static/flowTypes";
-import IconInspect from "../../icons/IconInspect";
-import { VARIABLE_LABEL_HEIGHT } from "../common/commonStyledComponents";
+import { FlowState, useFlowStore } from "../../../../state/flowState";
+import { DetailPanelContentType } from "../../../../static/flowTypes";
+import IconInspect from "../../../icons/IconInspect";
 import { VARIABLE_ROW_MARGIN_BOTTOM } from "./NodeInputModifyRow";
+import { VARIABLE_LABEL_HEIGHT } from "./commonStyledComponents";
 
 const Container = styled.div`
   margin-bottom: ${VARIABLE_ROW_MARGIN_BOTTOM}px;

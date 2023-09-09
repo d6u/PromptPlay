@@ -1,7 +1,7 @@
 import Button from "@mui/joy/Button";
 import { Panel } from "reactflow";
 import styled from "styled-components";
-import { NodeType } from "../../static/flowTypes";
+import { NodeType } from "../../../static/flowTypes";
 
 const Content = styled.div`
   display: flex;

@@ -1,7 +1,7 @@
 import { Button } from "@mui/joy";
 import { ReactNode, useMemo } from "react";
 import { FlowState, useFlowStore } from "../../../state/flowState";
-import { RawValue } from "../common/commonStyledComponents";
+import { RawValue } from "./commonStyledComponents";
 
 const selector = (state: FlowState) => ({
   nodeConfigs: state.nodeConfigs,

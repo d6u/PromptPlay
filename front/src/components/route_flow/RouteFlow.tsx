@@ -17,14 +17,14 @@ import styled from "styled-components";
 import { run } from "../../state/flowRun";
 import { FlowState, useFlowStore } from "../../state/flowState";
 import { NodeType } from "../../static/flowTypes";
-import CanvasPanel from "./CanvasPanel";
-import DetailPanel from "./detail_panel/DetailPanel";
+import CanvasPanel from "./controls/CanvasPanel";
+import DetailPanel from "./controls/DetailPanel";
 import ChatGPTChatCompletionNode from "./nodes/ChatGPTChatCompletionNode";
 import ChatGPTMessageNode from "./nodes/ChatGPTMessageNode";
 import InputNode from "./nodes/InputNode";
 import JavaScriptFunctionNode from "./nodes/JavaScriptFunctionNode";
-import { DRAG_HANDLE_CLASS_NAME } from "./nodes/NodeBox";
 import OutputNode from "./nodes/OutputNode";
+import { DRAG_HANDLE_CLASS_NAME } from "./nodes/shared/NodeBox";
 
 const applyDragHandleMemoized = memoize(
   assoc("dragHandle", `.${DRAG_HANDLE_CLASS_NAME}`)

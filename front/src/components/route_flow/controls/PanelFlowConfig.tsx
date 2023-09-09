@@ -8,8 +8,8 @@ import {
   NodeType,
   OutputNodeConfig,
 } from "../../../static/flowTypes";
-import { RawValue } from "../common/commonStyledComponents";
 import InputBlock from "./InputBlock";
+import { RawValue } from "./commonStyledComponents";
 
 const selector = (state: FlowState) => ({
   flowConfig: state.flowConfig,
