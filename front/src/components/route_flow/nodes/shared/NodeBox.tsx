@@ -45,11 +45,10 @@ const Content = styled.div`
 
 const DragHandle = styled(IconThreeDots)`
   fill: #cacaca;
-  width: 30px;
+  width: 20px;
   position: absolute;
   top: 0;
   left: calc(50% - 30px / 2);
-  cursor: grab;
 `;
 
 type Props = {
@@ -61,7 +60,7 @@ export default function NodeBox(props: Props) {
   return (
     <Backdrop $type={props.nodeType}>
       <Content>
-        <DragHandle className={DRAG_HANDLE_CLASS_NAME} />
+        <DragHandle />
         {props.children}
       </Content>
     </Backdrop>

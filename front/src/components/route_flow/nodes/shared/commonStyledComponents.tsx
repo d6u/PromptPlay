@@ -33,8 +33,3 @@ export const Section = styled.div`
     margin-bottom: 0;
   }
 `;
-
-export const HeaderSection = styled(Section)`
-  display: flex;
-  justify-content: space-between;
-`;

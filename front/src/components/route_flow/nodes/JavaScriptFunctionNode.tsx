@@ -12,11 +12,11 @@ import {
   NodeInputItem,
   NodeType,
 } from "../flowTypes";
+import HeaderSection from "./shared/HeaderSection";
 import NodeBox from "./shared/NodeBox";
 import NodeInputModifyRow from "./shared/NodeInputModifyRow";
 import NodeOutputRow from "./shared/NodeOutputRow";
 import {
-  HeaderSection,
   InputHandle,
   OutputHandle,
   Section,
@@ -66,7 +66,11 @@ export default function JavaScriptFunctionNode() {
         />
       ))}
       <NodeBox nodeType={NodeType.JavaScriptFunctionNode}>
-        <HeaderSection>
+        <HeaderSection
+          title="JavaScript"
+          onClickRemove={() => removeNode(nodeId)}
+        />
+        <Section>
           <Button
             color="success"
             size="sm"
@@ -86,16 +90,6 @@ export default function JavaScriptFunctionNode() {
           >
             Add input
           </Button>
-          <Button
-            color="danger"
-            size="sm"
-            variant="outlined"
-            onClick={() => removeNode(nodeId)}
-          >
-            Remove node
-          </Button>
-        </HeaderSection>
-        <Section>
           {inputs.map((input, i) => (
             <NodeInputModifyRow
               key={input.id}

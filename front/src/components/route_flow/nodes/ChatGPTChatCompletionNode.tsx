@@ -1,4 +1,3 @@
-import Button from "@mui/joy/Button";
 import Input from "@mui/joy/Input";
 import Option from "@mui/joy/Option";
 import Select from "@mui/joy/Select";
@@ -12,11 +11,11 @@ import {
   NodeType,
   OpenAIChatModel,
 } from "../flowTypes";
+import HeaderSection from "./shared/HeaderSection";
 import NodeBox from "./shared/NodeBox";
 import NodeInputModifyRow from "./shared/NodeInputModifyRow";
 import NodeOutputRow from "./shared/NodeOutputRow";
 import {
-  HeaderSection,
   InputHandle,
   OutputHandle,
   Section,
@@ -61,17 +60,10 @@ export default function ChatGPTChatCompletionNode() {
         style={{ top: calculateInputHandleTop(0) }}
       />
       <NodeBox nodeType={NodeType.ChatGPTChatCompletionNode}>
-        <HeaderSection>
-          <div />
-          <Button
-            color="danger"
-            size="sm"
-            variant="outlined"
-            onClick={() => removeNode(nodeId)}
-          >
-            Remove node
-          </Button>
-        </HeaderSection>
+        <HeaderSection
+          title="ChatGPT Chat Completion"
+          onClickRemove={() => removeNode(nodeId)}
+        />
         <Section>
           <NodeInputModifyRow
             key={nodeConfig.inputs[0].id}

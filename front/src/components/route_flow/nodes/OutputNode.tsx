@@ -11,13 +11,10 @@ import {
   NodeType,
   OutputNodeConfig,
 } from "../flowTypes";
+import HeaderSection from "./shared/HeaderSection";
 import NodeBox from "./shared/NodeBox";
 import NodeInputModifyRow from "./shared/NodeInputModifyRow";
-import {
-  HeaderSection,
-  InputHandle,
-  Section,
-} from "./shared/commonStyledComponents";
+import { InputHandle, Section } from "./shared/commonStyledComponents";
 import { calculateInputHandleTop } from "./shared/utils";
 
 const chance = new Chance();
@@ -60,7 +57,11 @@ export default function OutputNode() {
         />
       ))}
       <NodeBox nodeType={NodeType.OutputNode}>
-        <HeaderSection>
+        <HeaderSection
+          title="Output"
+          onClickRemove={() => removeNode(nodeId)}
+        />
+        <Section>
           <Button
             color="success"
             size="sm"
@@ -80,16 +81,6 @@ export default function OutputNode() {
           >
             Add input
           </Button>
-          <Button
-            color="danger"
-            size="sm"
-            variant="outlined"
-            onClick={() => removeNode(nodeId)}
-          >
-            Remove node
-          </Button>
-        </HeaderSection>
-        <Section>
           {inputs.map((input, i) => (
             <NodeInputModifyRow
               key={input.id}
