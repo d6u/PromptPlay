@@ -30,6 +30,8 @@ import {
   FlowContent,
   LocalEdge,
   LocalNode,
+  NodeAugment,
+  NodeAugments,
   NodeConfig,
   NodeConfigs,
   NodeID,
@@ -49,21 +51,17 @@ export type FlowState = {
   spaceId: string | null;
   fetchFlowConfiguration(spaceId: string): Subscription;
 
-  updateNodeConfig(nodeId: NodeID, change: Partial<NodeConfig>): void;
-  updateNodeConfigDebounced(nodeId: NodeID, change: Partial<NodeConfig>): void;
-  onFlowConfigUpdate(flowConfigChange: Partial<FlowConfig>): void;
   detailPanelContentType: DetailPanelContentType | null;
   setDetailPanelContentType(type: DetailPanelContentType | null): void;
   detailPanelSelectedNodeId: string | null;
   setDetailPanelSelectedNodeId(nodeId: string): void;
 
+  localNodeAugments: NodeAugments;
+  updateNodeAguemnt(nodeId: NodeID, change: Partial<NodeAugment>): void;
+
   // States for ReactFlow
   nodes: LocalNode[];
   edges: LocalEdge[];
-  // State synced from server, also used in ReactFlow
-  flowConfig: FlowConfig | null;
-
-  nodeConfigs: NodeConfigs;
 
   // Update states within ReactFlow
   addNode(type: NodeType, x?: number, y?: number): void;
@@ -74,6 +72,14 @@ export type FlowState = {
   onNodesChange: OnNodesChange;
   onEdgesChange: OnEdgesChange;
   onConnect: OnConnect;
+
+  // State synced from server, also used in ReactFlow
+  nodeConfigs: NodeConfigs;
+  updateNodeConfig(nodeId: NodeID, change: Partial<NodeConfig>): void;
+  updateNodeConfigDebounced(nodeId: NodeID, change: Partial<NodeConfig>): void;
+
+  flowConfig: FlowConfig | null;
+  onFlowConfigUpdate(flowConfigChange: Partial<FlowConfig>): void;
 };
 
 export const useFlowStore = create<FlowState>()(
@@ -157,53 +163,6 @@ export const useFlowStore = create<FlowState>()(
           });
         },
 
-        updateNodeConfig(nodeId: NodeID, change: Partial<NodeConfig>) {
-          const stateChange = applyLocalNodeConfigChange(nodeId, change);
-
-          set(stateChange);
-
-          const spaceId = get().spaceId;
-          if (spaceId) {
-            updateSpace(spaceId, getCurrentFlowContent(), stateChange);
-          }
-        },
-        updateNodeConfigDebounced(nodeId: NodeID, change: Partial<NodeConfig>) {
-          const stateChange = applyLocalNodeConfigChange(nodeId, change);
-
-          set(stateChange);
-
-          const spaceId = get().spaceId;
-          if (spaceId) {
-            updateSpaceDebounced(spaceId, getCurrentFlowContent(), stateChange);
-          }
-        },
-        onFlowConfigUpdate(flowConfigChange: Partial<FlowConfig>) {
-          const flowConfig = get().flowConfig;
-
-          // TODO
-          if (flowConfig) {
-            set({
-              flowConfig: {
-                ...flowConfig,
-                ...flowConfigChange,
-              },
-            });
-          } else {
-            set({
-              flowConfig: {
-                inputConfigMap: {},
-                outputValueMap: {},
-                ...flowConfigChange,
-              },
-            });
-          }
-
-          const spaceId = get().spaceId;
-          if (spaceId) {
-            // updateSpace(spaceId, getCurrentFlowContent(), );
-          }
-        },
-
         detailPanelContentType: null,
         setDetailPanelContentType(type: DetailPanelContentType | null) {
           set({ detailPanelContentType: type });
@@ -213,11 +172,25 @@ export const useFlowStore = create<FlowState>()(
           set({ detailPanelSelectedNodeId: id });
         },
 
+        localNodeAugments: {},
+        updateNodeAguemnt(nodeId: NodeID, change: Partial<NodeAugment>) {
+          let localNodeAugments = get().localNodeAugments;
+
+          let augment = localNodeAugments[nodeId];
+
+          if (augment) {
+            augment = { ...augment, ...change };
+          } else {
+            augment = { isRunning: false, ...change };
+          }
+
+          localNodeAugments = assoc(nodeId, augment, localNodeAugments);
+
+          set({ localNodeAugments });
+        },
+
         nodes: [],
         edges: [],
-        flowConfig: null,
-
-        nodeConfigs: {},
 
         addNode(type: NodeType, x?: number, y?: number) {
           let nodes = get().nodes;
@@ -270,8 +243,6 @@ export const useFlowStore = create<FlowState>()(
             updateSpace(spaceId, getCurrentFlowContent(), flowContentChange);
           }
         },
-
-        // ReactFlow callbacks
 
         onNodesChange(changes: NodeChange[]) {
           const nodes = applyNodeChanges(changes, get().nodes) as LocalNode[];
@@ -330,6 +301,56 @@ export const useFlowStore = create<FlowState>()(
           const spaceId = get().spaceId;
           if (spaceId) {
             updateSpace(spaceId, getCurrentFlowContent(), stateChange);
+          }
+        },
+
+        nodeConfigs: {},
+        updateNodeConfig(nodeId: NodeID, change: Partial<NodeConfig>) {
+          const stateChange = applyLocalNodeConfigChange(nodeId, change);
+
+          set(stateChange);
+
+          const spaceId = get().spaceId;
+          if (spaceId) {
+            updateSpace(spaceId, getCurrentFlowContent(), stateChange);
+          }
+        },
+        updateNodeConfigDebounced(nodeId: NodeID, change: Partial<NodeConfig>) {
+          const stateChange = applyLocalNodeConfigChange(nodeId, change);
+
+          set(stateChange);
+
+          const spaceId = get().spaceId;
+          if (spaceId) {
+            updateSpaceDebounced(spaceId, getCurrentFlowContent(), stateChange);
+          }
+        },
+
+        flowConfig: null,
+        onFlowConfigUpdate(flowConfigChange: Partial<FlowConfig>) {
+          const flowConfig = get().flowConfig;
+
+          // TODO
+          if (flowConfig) {
+            set({
+              flowConfig: {
+                ...flowConfig,
+                ...flowConfigChange,
+              },
+            });
+          } else {
+            set({
+              flowConfig: {
+                inputConfigMap: {},
+                outputValueMap: {},
+                ...flowConfigChange,
+              },
+            });
+          }
+
+          const spaceId = get().spaceId;
+          if (spaceId) {
+            // updateSpace(spaceId, getCurrentFlowContent(), );
           }
         },
       };

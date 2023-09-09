@@ -38,6 +38,7 @@ const applyDragHandleMemoized = memoize(
 );
 
 const selector = (state: FlowState) => ({
+  updateNodeAguemnt: state.updateNodeAguemnt,
   nodeConfigs: state.nodeConfigs,
   onFlowConfigUpdate: state.onFlowConfigUpdate,
   nodes: state.nodes,
@@ -54,6 +55,7 @@ export default function FlowCanvas() {
   const storeApi = useStoreApi();
 
   const {
+    updateNodeAguemnt,
     nodeConfigs,
     onFlowConfigUpdate,
     nodes,
@@ -98,18 +100,21 @@ export default function FlowCanvas() {
 
     run(edges, nodeConfigs).subscribe({
       next(data) {
-        if (data) {
-          switch (data.type) {
-            case RunEventType.NodeConfigChange: {
-              const { nodeId, nodeChange } = data;
-              updateNodeConfigDebounced(nodeId, nodeChange);
-              break;
-            }
-            case RunEventType.FlowConfigChange: {
-              const { outputValueMap } = data;
-              onFlowConfigUpdate({ outputValueMap });
-              break;
-            }
+        switch (data.type) {
+          case RunEventType.NodeConfigChange: {
+            const { nodeId, nodeChange } = data;
+            updateNodeConfigDebounced(nodeId, nodeChange);
+            break;
+          }
+          case RunEventType.NodeAugmentChange: {
+            const { nodeId, augmentChange } = data;
+            updateNodeAguemnt(nodeId, augmentChange);
+            break;
+          }
+          case RunEventType.FlowConfigChange: {
+            const { outputValueMap } = data;
+            onFlowConfigUpdate({ outputValueMap });
+            break;
           }
         }
       },
@@ -121,7 +126,13 @@ export default function FlowCanvas() {
         console.log("complete");
       },
     });
-  }, [edges, nodeConfigs, onFlowConfigUpdate, updateNodeConfigDebounced]);
+  }, [
+    edges,
+    nodeConfigs,
+    onFlowConfigUpdate,
+    updateNodeAguemnt,
+    updateNodeConfigDebounced,
+  ]);
 
   return (
     <>

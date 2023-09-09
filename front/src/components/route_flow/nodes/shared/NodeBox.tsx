@@ -5,12 +5,38 @@ import { NodeType } from "../../flowTypes";
 export const BACKDROP_PADDING = 3;
 export const NODE_BOX_WIDTH = 300;
 
-const Backdrop = styled.div<{ $type: NodeType }>`
+const Backdrop = styled.div<{ $type: NodeType; $running: boolean }>`
   width: ${NODE_BOX_WIDTH}px;
   padding: ${BACKDROP_PADDING}px;
   border-radius: 8px;
   cursor: initial;
   ${(props) => {
+    if (props.$running) {
+      return css`
+        background-size: 100px 100px;
+        background-image: linear-gradient(
+          -45deg,
+          green 0%,
+          green 25%,
+          yellow 25%,
+          yellow 50%,
+          green 50%,
+          green 75%,
+          yellow 75%
+        );
+        animation: AnimateBG 2s linear infinite;
+
+        @keyframes AnimateBG {
+          0% {
+            background-position: 0% 0%;
+          }
+          100% {
+            background-position: 100% 0%;
+          }
+        }
+      `;
+    }
+
     switch (props.$type) {
       case NodeType.InputNode:
         return css`
@@ -43,12 +69,13 @@ const Content = styled.div`
 
 type Props = {
   nodeType: NodeType;
+  running?: boolean;
   children: React.ReactNode;
 };
 
 export default function NodeBox(props: Props) {
   return (
-    <Backdrop $type={props.nodeType}>
+    <Backdrop $type={props.nodeType} $running={props.running ?? false}>
       <Content>{props.children}</Content>
     </Backdrop>
   );

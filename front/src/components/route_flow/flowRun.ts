@@ -10,6 +10,8 @@ import {
   tap,
   zipWith,
   of,
+  startWith,
+  endWith,
 } from "rxjs";
 import * as OpenAI from "../../llm/open-ai";
 import { usePersistStore, useStore } from "../../state/zustand";
@@ -19,6 +21,7 @@ import {
   InputNodeConfig,
   JavaScriptFunctionNodeConfig,
   LocalEdge,
+  NodeAugment,
   NodeConfig,
   NodeConfigs,
   NodeID,
@@ -29,15 +32,25 @@ import {
 
 export enum RunEventType {
   NodeConfigChange = "NodeConfigChange",
+  NodeAugmentChange = "NodeAugmentChange",
   FlowConfigChange = "FlowConfigChange",
 }
 
-type RunEvent = NodeConfigChangeEvent | FlowConfigChangeEvent;
+type RunEvent =
+  | NodeConfigChangeEvent
+  | NodeAugmentChangeEvent
+  | FlowConfigChangeEvent;
 
 type NodeConfigChangeEvent = {
   type: RunEventType.NodeConfigChange;
   nodeId: NodeID;
   nodeChange: Partial<NodeConfig>;
+};
+
+type NodeAugmentChangeEvent = {
+  type: RunEventType.NodeAugmentChange;
+  nodeId: NodeID;
+  augmentChange: Partial<NodeAugment>;
 };
 
 type FlowConfigChangeEvent = {
@@ -170,11 +183,23 @@ export function run(
               outputIdToValueMap
             )
           ).pipe(
-            map((change) => ({
-              type: RunEventType.NodeConfigChange,
+            map<Partial<ChatGPTChatCompletionNodeConfig>, RunEvent>(
+              (change) => ({
+                type: RunEventType.NodeConfigChange,
+                nodeId,
+                nodeChange: change,
+              })
+            ),
+            startWith<RunEvent>({
+              type: RunEventType.NodeAugmentChange,
               nodeId,
-              nodeChange: change,
-            }))
+              augmentChange: { isRunning: true },
+            }),
+            endWith<RunEvent>({
+              type: RunEventType.NodeAugmentChange,
+              nodeId,
+              augmentChange: { isRunning: false },
+            })
           );
           break;
         }
