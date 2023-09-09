@@ -141,6 +141,7 @@ export enum OpenAIChatModel {
 
 export type NodeAugment = {
   isRunning: boolean;
+  hasError: boolean;
 };
 
 // Edge

@@ -38,6 +38,7 @@ const applyDragHandleMemoized = memoize(
 );
 
 const selector = (state: FlowState) => ({
+  resetAugments: state.resetAugments,
   updateNodeAguemnt: state.updateNodeAguemnt,
   nodeConfigs: state.nodeConfigs,
   onFlowConfigUpdate: state.onFlowConfigUpdate,
@@ -55,6 +56,7 @@ export default function FlowCanvas() {
   const storeApi = useStoreApi();
 
   const {
+    resetAugments,
     updateNodeAguemnt,
     nodeConfigs,
     onFlowConfigUpdate,
@@ -96,6 +98,7 @@ export default function FlowCanvas() {
   );
 
   const onRun = useCallback(() => {
+    resetAugments();
     setIsRunning(true);
 
     run(edges, nodeConfigs).subscribe({
@@ -120,16 +123,17 @@ export default function FlowCanvas() {
       },
       error(e) {
         console.error(e);
+        setIsRunning(false);
       },
       complete() {
         setIsRunning(false);
-        console.log("complete");
       },
     });
   }, [
     edges,
     nodeConfigs,
     onFlowConfigUpdate,
+    resetAugments,
     updateNodeAguemnt,
     updateNodeConfigDebounced,
   ]);

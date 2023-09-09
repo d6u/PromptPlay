@@ -57,6 +57,7 @@ export type FlowState = {
   setDetailPanelSelectedNodeId(nodeId: string): void;
 
   localNodeAugments: NodeAugments;
+  resetAugments(): void;
   updateNodeAguemnt(nodeId: NodeID, change: Partial<NodeAugment>): void;
 
   // States for ReactFlow
@@ -173,6 +174,9 @@ export const useFlowStore = create<FlowState>()(
         },
 
         localNodeAugments: {},
+        resetAugments() {
+          set({ localNodeAugments: {} });
+        },
         updateNodeAguemnt(nodeId: NodeID, change: Partial<NodeAugment>) {
           let localNodeAugments = get().localNodeAugments;
 
@@ -181,7 +185,7 @@ export const useFlowStore = create<FlowState>()(
           if (augment) {
             augment = { ...augment, ...change };
           } else {
-            augment = { isRunning: false, ...change };
+            augment = { isRunning: false, hasError: false, ...change };
           }
 
           localNodeAugments = assoc(nodeId, augment, localNodeAugments);

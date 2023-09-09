@@ -18,7 +18,7 @@ import {
   OpenAIChatModel,
 } from "../flowTypes";
 import HeaderSection from "./shared/HeaderSection";
-import NodeBox from "./shared/NodeBox";
+import NodeBox, { NodeState } from "./shared/NodeBox";
 import NodeInputModifyRow from "./shared/NodeInputModifyRow";
 import NodeOutputRow from "./shared/NodeOutputRow";
 import {
@@ -88,7 +88,13 @@ export default function ChatGPTChatCompletionNode() {
       />
       <NodeBox
         nodeType={NodeType.ChatGPTChatCompletionNode}
-        running={augment?.isRunning}
+        state={
+          augment?.isRunning
+            ? NodeState.Running
+            : augment?.hasError
+            ? NodeState.Error
+            : NodeState.Idle
+        }
       >
         <HeaderSection
           title="ChatGPT Chat Completion"

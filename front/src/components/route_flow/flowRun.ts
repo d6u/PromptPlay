@@ -12,6 +12,9 @@ import {
   of,
   startWith,
   endWith,
+  catchError,
+  throwError,
+  concat,
 } from "rxjs";
 import * as OpenAI from "../../llm/open-ai";
 import { usePersistStore, useStore } from "../../state/zustand";
@@ -189,23 +192,34 @@ export function run(
                 nodeId,
                 nodeChange: change,
               })
-            ),
-            startWith<RunEvent>({
-              type: RunEventType.NodeAugmentChange,
-              nodeId,
-              augmentChange: { isRunning: true },
-            }),
-            endWith<RunEvent>({
-              type: RunEventType.NodeAugmentChange,
-              nodeId,
-              augmentChange: { isRunning: false },
-            })
+            )
           );
           break;
         }
       }
 
       return obs.pipe(
+        startWith<RunEvent>({
+          type: RunEventType.NodeAugmentChange,
+          nodeId,
+          augmentChange: { isRunning: true },
+        }),
+        endWith<RunEvent>({
+          type: RunEventType.NodeAugmentChange,
+          nodeId,
+          augmentChange: { isRunning: false },
+        }),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        catchError<any, Observable<RunEvent>>((e) =>
+          concat<[RunEvent, RunEvent]>(
+            of({
+              type: RunEventType.NodeAugmentChange,
+              nodeId,
+              augmentChange: { isRunning: false, hasError: true },
+            }),
+            throwError(() => e)
+          )
+        ),
         tap({
           complete() {
             sub.next(0);
@@ -215,7 +229,7 @@ export function run(
     }),
     tap({
       error(e) {
-        sub.complete();
+        sub.error(e);
       },
       complete() {
         sub.complete();
@@ -366,9 +380,9 @@ function handleChatGPTChatNode(
 
   const openAiApiKey = usePersistStore.getState().openAiApiKey;
   if (!openAiApiKey) {
-    console.error("OpenAI API key is missing");
+    // console.error("OpenAI API key is missing");
     useStore.getState().setMissingOpenAiApiKey(true);
-    return EMPTY;
+    return throwError(() => new Error("OpenAI API key is missing"));
   }
 
   let messages = argsMap["messages"] ?? [];
@@ -384,22 +398,8 @@ function handleChatGPTChatNode(
   ).pipe(
     map((result) => {
       if (result.isError) {
-        console.error(result.data.error.message);
-
-        // Update outputs
-        // ----------
-
-        outputIdToValueMap[data.outputs[0].id] = null;
-        outputIdToValueMap[data.outputs[1].id] = null;
-        outputIdToValueMap[data.outputs[2].id] = null;
-
-        return {
-          outputs: pipe(
-            adjust<NodeOutputItem>(0, assoc("value", null)),
-            adjust<NodeOutputItem>(1, assoc("value", null)),
-            adjust<NodeOutputItem>(2, assoc("value", null))
-          )(data.outputs),
-        };
+        // console.error(result.data.error.message);
+        throw result.data.error.message;
       } else {
         const message = result.data.choices[0].message;
         const content = message.content;

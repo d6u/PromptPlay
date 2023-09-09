@@ -5,13 +5,20 @@ import { NodeType } from "../../flowTypes";
 export const BACKDROP_PADDING = 3;
 export const NODE_BOX_WIDTH = 300;
 
-const Backdrop = styled.div<{ $type: NodeType; $running: boolean }>`
+// eslint-disable-next-line react-refresh/only-export-components
+export enum NodeState {
+  Idle,
+  Running,
+  Error,
+}
+
+const Backdrop = styled.div<{ $type: NodeType; $state: NodeState }>`
   width: ${NODE_BOX_WIDTH}px;
   padding: ${BACKDROP_PADDING}px;
   border-radius: 8px;
   cursor: initial;
   ${(props) => {
-    if (props.$running) {
+    if (props.$state === NodeState.Running) {
       return css`
         background-size: 100px 100px;
         background-image: linear-gradient(
@@ -34,6 +41,10 @@ const Backdrop = styled.div<{ $type: NodeType; $running: boolean }>`
             background-position: 100% 0%;
           }
         }
+      `;
+    } else if (props.$state === NodeState.Error) {
+      return css`
+        background: red;
       `;
     }
 
@@ -69,13 +80,13 @@ const Content = styled.div`
 
 type Props = {
   nodeType: NodeType;
-  running?: boolean;
+  state?: NodeState;
   children: React.ReactNode;
 };
 
 export default function NodeBox(props: Props) {
   return (
-    <Backdrop $type={props.nodeType} $running={props.running ?? false}>
+    <Backdrop $type={props.nodeType} $state={props.state ?? NodeState.Idle}>
       <Content>{props.children}</Content>
     </Backdrop>
   );
