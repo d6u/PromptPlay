@@ -84,7 +84,7 @@ export type FlowState = {
 
 export const useFlowStore = create<FlowState>()(
   devtools(
-    (set, get) => {
+    (set, get): FlowState => {
       function applyLocalNodeChange(
         nodeId: NodeID,
         nodeChange: Partial<LocalNode>
@@ -151,6 +151,7 @@ export const useFlowStore = create<FlowState>()(
 
       return {
         isInitialized: false,
+
         spaceId: null,
         fetchFlowConfiguration(spaceId: string): Subscription {
           set({ spaceId });
@@ -183,6 +184,7 @@ export const useFlowStore = create<FlowState>()(
             },
           });
         },
+
         updateNodeConfig(nodeId: NodeID, change: Partial<NodeConfig>) {
           const stateChange = applyLocalNodeConfigChange(nodeId, change);
 
@@ -203,11 +205,6 @@ export const useFlowStore = create<FlowState>()(
             updateSpaceDebounced(spaceId, getCurrentFlowContent(), stateChange);
           }
         },
-        flowConfig: null,
-        nodeConfigs: {},
-        edgeConfigs: {},
-        inputConfigs: {},
-        outputConfigs: {},
         onFlowConfigUpdate(flowConfigChange: Partial<FlowConfig>) {
           const flowConfig = get().flowConfig;
 
@@ -234,13 +231,28 @@ export const useFlowStore = create<FlowState>()(
             // updateSpace(spaceId, getCurrentFlowContent(), );
           }
         },
+
+        detailPanelContentType: null,
+        setDetailPanelContentType(type: DetailPanelContentType | null) {
+          set({ detailPanelContentType: type });
+        },
+        detailPanelSelectedNodeId: null,
+        setDetailPanelSelectedNodeId(id: string) {
+          set({ detailPanelSelectedNodeId: id });
+        },
+
         nodes: [],
         edges: [],
+        flowConfig: null,
+
+        nodeConfigs: {},
+        edgeConfigs: {},
+        inputConfigs: {},
+        outputConfigs: {},
+
         addNode(type: NodeType, x?: number, y?: number) {
           let nodes = get().nodes;
           let nodeConfigs = get().nodeConfigs;
-
-          console.log("addNode", type, x, y);
 
           const node = createNode(type, x ?? 200, y ?? 200);
           const nodeConfig = createNodeConfig(node);
@@ -350,15 +362,6 @@ export const useFlowStore = create<FlowState>()(
           if (spaceId) {
             updateSpace(spaceId, getCurrentFlowContent(), stateChange);
           }
-        },
-
-        detailPanelContentType: null,
-        setDetailPanelContentType(type: DetailPanelContentType | null) {
-          set({ detailPanelContentType: type });
-        },
-        detailPanelSelectedNodeId: null,
-        setDetailPanelSelectedNodeId(id: string) {
-          set({ detailPanelSelectedNodeId: id });
         },
       };
     },
