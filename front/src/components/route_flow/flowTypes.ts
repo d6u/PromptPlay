@@ -1,4 +1,5 @@
 import { Node, Edge, XYPosition } from "reactflow";
+import { ChatGPTMessageRole } from "../../llm/openai";
 
 // Server types
 
@@ -11,15 +12,16 @@ export type OutputID = string;
 
 export type FlowContent = {
   nodes: ServerNode[];
+  nodeConfigs: NodeConfigs;
   edges: ServerEdge[];
   flowConfig: FlowConfig | null;
-  nodeConfigs: NodeConfigs;
 };
 
 export type NodeConfigs = Record<NodeID, NodeConfig | undefined>;
-export type EdgeConfigs = Record<EdgeID, Edge | undefined>;
-export type InputConfigs = Record<InputID, NodeInputItem | undefined>;
-export type OutputConfigs = Record<OutputID, NodeOutputItem | undefined>;
+export type NodeAugments = Record<NodeID, NodeAugment | undefined>;
+// export type EdgeConfigs = Record<EdgeID, Edge | undefined>;
+// export type InputConfigs = Record<InputID, NodeInputItem | undefined>;
+// export type OutputConfigs = Record<OutputID, NodeOutputItem | undefined>;
 
 export type FlowConfig = {
   inputConfigMap: Record<string, FlowInputConfig | undefined>;
@@ -59,9 +61,9 @@ export enum NodeType {
 export type NodeConfig =
   | InputNodeConfig
   | OutputNodeConfig
-  | JavaScriptFunctionNodeConfig
   | ChatGPTMessageNodeConfig
-  | ChatGPTChatCompletionNodeConfig;
+  | ChatGPTChatCompletionNodeConfig
+  | JavaScriptFunctionNodeConfig;
 
 export type NodeInputItem = {
   id: string;
@@ -114,12 +116,6 @@ export type ChatGPTMessageNodeConfig = NodeConfigCommon & {
   outputs: NodeOutputItem[];
 };
 
-export enum ChatGPTMessageRole {
-  system = "system",
-  user = "user",
-  assistant = "assistant",
-}
-
 // ChatGPTChatCompletion
 
 export type ChatGPTChatCompletionNodeConfig = NodeConfigCommon & {
@@ -135,6 +131,13 @@ export enum OpenAIChatModel {
   GPT3_5_TURBO = "gpt-3.5-turbo",
   GPT4 = "gpt-4",
 }
+
+// Local Node Augment
+
+export type NodeAugment = {
+  isRunning: boolean;
+  hasError: boolean;
+};
 
 // Edge
 

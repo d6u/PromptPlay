@@ -18,7 +18,7 @@ import {
   OpenAIChatModel,
 } from "../flowTypes";
 import HeaderSection from "./shared/HeaderSection";
-import NodeBox from "./shared/NodeBox";
+import NodeBox, { NodeState } from "./shared/NodeBox";
 import NodeInputModifyRow from "./shared/NodeInputModifyRow";
 import NodeOutputRow from "./shared/NodeOutputRow";
 import {
@@ -35,6 +35,7 @@ const flowSelector = (state: FlowState) => ({
   nodeConfigs: state.nodeConfigs,
   updateNodeConfig: state.updateNodeConfig,
   removeNode: state.removeNode,
+  localNodeAugments: state.localNodeAugments,
 });
 
 const persistSelector = (state: PersistState) => ({
@@ -52,12 +53,17 @@ export default function ChatGPTChatCompletionNode() {
 
   const { openAiApiKey, setOpenAiApiKey } = usePersistStore(persistSelector);
   const { missingOpenAiApiKey, setMissingOpenAiApiKey } = useStore(selector);
-  const { nodeConfigs, updateNodeConfig, removeNode } =
+  const { nodeConfigs, updateNodeConfig, removeNode, localNodeAugments } =
     useFlowStore(flowSelector);
 
   const nodeConfig = useMemo(
     () => nodeConfigs[nodeId] as ChatGPTChatCompletionNodeConfig | undefined,
     [nodeConfigs, nodeId]
+  );
+
+  const augment = useMemo(
+    () => localNodeAugments[nodeId],
+    [localNodeAugments, nodeId]
   );
 
   // It's OK to force unwrap here because nodeConfig will be undefined only
@@ -80,7 +86,16 @@ export default function ChatGPTChatCompletionNode() {
         position={Position.Left}
         style={{ top: calculateInputHandleTop(-1) }}
       />
-      <NodeBox nodeType={NodeType.ChatGPTChatCompletionNode}>
+      <NodeBox
+        nodeType={NodeType.ChatGPTChatCompletionNode}
+        state={
+          augment?.isRunning
+            ? NodeState.Running
+            : augment?.hasError
+            ? NodeState.Error
+            : NodeState.Idle
+        }
+      >
         <HeaderSection
           title="ChatGPT Chat Completion"
           onClickRemove={() => removeNode(nodeId)}

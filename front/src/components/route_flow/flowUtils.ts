@@ -7,10 +7,10 @@ import { assoc } from "ramda";
 import any from "ramda/es/any";
 import pick from "ramda/es/pick";
 import propEq from "ramda/es/propEq";
+import { ChatGPTMessageRole } from "../../llm/openai";
 import { client } from "../../state/urql";
 import { UPDATE_SPACE_FLOW_CONTENT_MUTATION } from "./flowGraphql";
 import {
-  ChatGPTMessageRole,
   FlowContent,
   LocalNode,
   NodeConfig,
@@ -127,7 +127,7 @@ export function createNodeConfig(node: LocalNode): NodeConfig {
           },
         ],
         role: ChatGPTMessageRole.user,
-        content: "Write a poem about {topic} in fewer than 20 words.",
+        content: "Write a poem about {{topic}} in fewer than 20 words.",
         outputs: [
           {
             id: `${node.id}/message`,

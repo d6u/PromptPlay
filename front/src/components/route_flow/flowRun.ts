@@ -10,8 +10,14 @@ import {
   tap,
   zipWith,
   of,
+  startWith,
+  endWith,
+  catchError,
+  throwError,
+  concat,
+  defer,
 } from "rxjs";
-import * as OpenAI from "../../llm/open-ai";
+import * as OpenAI from "../../llm/openai";
 import { usePersistStore, useStore } from "../../state/zustand";
 import {
   ChatGPTChatCompletionNodeConfig,
@@ -19,6 +25,7 @@ import {
   InputNodeConfig,
   JavaScriptFunctionNodeConfig,
   LocalEdge,
+  NodeAugment,
   NodeConfig,
   NodeConfigs,
   NodeID,
@@ -29,15 +36,25 @@ import {
 
 export enum RunEventType {
   NodeConfigChange = "NodeConfigChange",
+  NodeAugmentChange = "NodeAugmentChange",
   FlowConfigChange = "FlowConfigChange",
 }
 
-type RunEvent = NodeConfigChangeEvent | FlowConfigChangeEvent;
+type RunEvent =
+  | NodeConfigChangeEvent
+  | NodeAugmentChangeEvent
+  | FlowConfigChangeEvent;
 
 type NodeConfigChangeEvent = {
   type: RunEventType.NodeConfigChange;
   nodeId: NodeID;
   nodeChange: Partial<NodeConfig>;
+};
+
+type NodeAugmentChangeEvent = {
+  type: RunEventType.NodeAugmentChange;
+  nodeId: NodeID;
+  augmentChange: Partial<NodeAugment>;
 };
 
 type FlowConfigChangeEvent = {
@@ -170,17 +187,40 @@ export function run(
               outputIdToValueMap
             )
           ).pipe(
-            map((change) => ({
-              type: RunEventType.NodeConfigChange,
-              nodeId,
-              nodeChange: change,
-            }))
+            map<Partial<ChatGPTChatCompletionNodeConfig>, RunEvent>(
+              (change) => ({
+                type: RunEventType.NodeConfigChange,
+                nodeId,
+                nodeChange: change,
+              })
+            )
           );
           break;
         }
       }
 
       return obs.pipe(
+        startWith<RunEvent>({
+          type: RunEventType.NodeAugmentChange,
+          nodeId,
+          augmentChange: { isRunning: true },
+        }),
+        endWith<RunEvent>({
+          type: RunEventType.NodeAugmentChange,
+          nodeId,
+          augmentChange: { isRunning: false },
+        }),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        catchError<any, Observable<RunEvent>>((e) =>
+          concat<[RunEvent, RunEvent]>(
+            of({
+              type: RunEventType.NodeAugmentChange,
+              nodeId,
+              augmentChange: { isRunning: false, hasError: true },
+            }),
+            throwError(() => e)
+          )
+        ),
         tap({
           complete() {
             sub.next(0);
@@ -190,7 +230,7 @@ export function run(
     }),
     tap({
       error(e) {
-        sub.complete();
+        sub.error(e);
       },
       complete() {
         sub.complete();
@@ -341,60 +381,65 @@ function handleChatGPTChatNode(
 
   const openAiApiKey = usePersistStore.getState().openAiApiKey;
   if (!openAiApiKey) {
-    console.error("OpenAI API key is missing");
+    // console.error("OpenAI API key is missing");
     useStore.getState().setMissingOpenAiApiKey(true);
-    return EMPTY;
+    return throwError(() => new Error("OpenAI API key is missing"));
   }
 
   let messages = argsMap["messages"] ?? [];
+  let role = "assistant";
+  let content = "";
 
-  return from(
-    OpenAI.getNonStreamingCompletion({
+  const obs1 = from(
+    OpenAI.getStreamingCompletion({
       apiKey: openAiApiKey,
       model: data.model,
+      messages,
       temperature: data.temperature,
       stop: data.stop,
-      messages,
     })
   ).pipe(
-    map((result) => {
-      if (result.isError) {
-        console.error(result.data.error.message);
-
-        // Update outputs
-        // ----------
-
-        outputIdToValueMap[data.outputs[0].id] = null;
-        outputIdToValueMap[data.outputs[1].id] = null;
-        outputIdToValueMap[data.outputs[2].id] = null;
-
-        return {
-          outputs: pipe(
-            adjust<NodeOutputItem>(0, assoc("value", null)),
-            adjust<NodeOutputItem>(1, assoc("value", null)),
-            adjust<NodeOutputItem>(2, assoc("value", null))
-          )(data.outputs),
-        };
-      } else {
-        const message = result.data.choices[0].message;
-        const content = message.content;
-        messages = append(message, messages);
-
-        // Update outputs
-        // ----------
-
-        outputIdToValueMap[data.outputs[0].id] = content;
-        outputIdToValueMap[data.outputs[1].id] = message;
-        outputIdToValueMap[data.outputs[2].id] = messages;
-
-        return {
-          outputs: pipe(
-            adjust<NodeOutputItem>(0, assoc("value", content)),
-            adjust<NodeOutputItem>(1, assoc("value", message)),
-            adjust<NodeOutputItem>(2, assoc("value", messages))
-          )(data.outputs),
-        };
+    map((piece) => {
+      if ("error" in piece) {
+        // console.error(piece.error.message);
+        throw piece.error.message;
       }
+
+      if (piece.choices[0].delta.role) {
+        role = piece.choices[0].delta.role;
+      }
+      if (piece.choices[0].delta.content) {
+        content += piece.choices[0].delta.content;
+      }
+      const message = { role, content };
+
+      return {
+        outputs: pipe(
+          adjust<NodeOutputItem>(0, assoc("value", content)),
+          adjust<NodeOutputItem>(1, assoc("value", message)),
+          adjust<NodeOutputItem>(2, assoc("value", append(message, messages)))
+        )(data.outputs),
+      };
+    })
+  );
+
+  return concat(
+    obs1,
+    defer(() => {
+      const message = { role, content };
+      messages = append(message, messages);
+
+      outputIdToValueMap[data.outputs[0].id] = content;
+      outputIdToValueMap[data.outputs[1].id] = message;
+      outputIdToValueMap[data.outputs[2].id] = messages;
+
+      return of({
+        outputs: pipe(
+          adjust<NodeOutputItem>(0, assoc("value", content)),
+          adjust<NodeOutputItem>(1, assoc("value", message)),
+          adjust<NodeOutputItem>(2, assoc("value", messages))
+        )(data.outputs),
+      });
     })
   );
 }

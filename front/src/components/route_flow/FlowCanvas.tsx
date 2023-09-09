@@ -38,6 +38,8 @@ const applyDragHandleMemoized = memoize(
 );
 
 const selector = (state: FlowState) => ({
+  resetAugments: state.resetAugments,
+  updateNodeAguemnt: state.updateNodeAguemnt,
   nodeConfigs: state.nodeConfigs,
   onFlowConfigUpdate: state.onFlowConfigUpdate,
   nodes: state.nodes,
@@ -54,6 +56,8 @@ export default function FlowCanvas() {
   const storeApi = useStoreApi();
 
   const {
+    resetAugments,
+    updateNodeAguemnt,
     nodeConfigs,
     onFlowConfigUpdate,
     nodes,
@@ -94,34 +98,45 @@ export default function FlowCanvas() {
   );
 
   const onRun = useCallback(() => {
+    resetAugments();
     setIsRunning(true);
 
     run(edges, nodeConfigs).subscribe({
       next(data) {
-        if (data) {
-          switch (data.type) {
-            case RunEventType.NodeConfigChange: {
-              const { nodeId, nodeChange } = data;
-              updateNodeConfigDebounced(nodeId, nodeChange);
-              break;
-            }
-            case RunEventType.FlowConfigChange: {
-              const { outputValueMap } = data;
-              onFlowConfigUpdate({ outputValueMap });
-              break;
-            }
+        switch (data.type) {
+          case RunEventType.NodeConfigChange: {
+            const { nodeId, nodeChange } = data;
+            updateNodeConfigDebounced(nodeId, nodeChange);
+            break;
+          }
+          case RunEventType.NodeAugmentChange: {
+            const { nodeId, augmentChange } = data;
+            updateNodeAguemnt(nodeId, augmentChange);
+            break;
+          }
+          case RunEventType.FlowConfigChange: {
+            const { outputValueMap } = data;
+            onFlowConfigUpdate({ outputValueMap });
+            break;
           }
         }
       },
       error(e) {
         console.error(e);
+        setIsRunning(false);
       },
       complete() {
         setIsRunning(false);
-        console.log("complete");
       },
     });
-  }, [edges, nodeConfigs, onFlowConfigUpdate, updateNodeConfigDebounced]);
+  }, [
+    edges,
+    nodeConfigs,
+    onFlowConfigUpdate,
+    resetAugments,
+    updateNodeAguemnt,
+    updateNodeConfigDebounced,
+  ]);
 
   return (
     <>
