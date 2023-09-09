@@ -37,13 +37,19 @@ export default function ChatGPTChatCompletionNode() {
   const { nodeConfigs, updateNodeConfig, removeNode } = useFlowStore(selector);
 
   const nodeConfig = useMemo(
-    () => nodeConfigs[nodeId] as ChatGPTChatCompletionNodeConfig,
+    () => nodeConfigs[nodeId] as ChatGPTChatCompletionNodeConfig | undefined,
     [nodeConfigs, nodeId]
   );
 
-  const [model, setModel] = useState(nodeConfig.model);
-  const [temperature, setTemperature] = useState(nodeConfig.temperature);
-  const [stop, setStop] = useState(nodeConfig.stop);
+  // It's OK to force unwrap here because nodeConfig will be undefined only
+  // when Node is being deleted.
+  const [model, setModel] = useState(nodeConfig!.model);
+  const [temperature, setTemperature] = useState(nodeConfig!.temperature);
+  const [stop, setStop] = useState(nodeConfig!.stop);
+
+  if (!nodeConfig) {
+    return null;
+  }
 
   return (
     <>

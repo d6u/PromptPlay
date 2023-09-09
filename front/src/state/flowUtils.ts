@@ -72,6 +72,7 @@ export function createNodeConfig(node: LocalNode): NodeConfig {
   switch (node.type) {
     case NodeType.InputNode: {
       return {
+        nodeId: node.id,
         nodeType: NodeType.InputNode,
         outputs: [
           {
@@ -84,6 +85,7 @@ export function createNodeConfig(node: LocalNode): NodeConfig {
     }
     case NodeType.OutputNode: {
       return {
+        nodeId: node.id,
         nodeType: NodeType.OutputNode,
         inputs: [
           {
@@ -95,6 +97,7 @@ export function createNodeConfig(node: LocalNode): NodeConfig {
     }
     case NodeType.JavaScriptFunctionNode: {
       return {
+        nodeId: node.id,
         nodeType: NodeType.JavaScriptFunctionNode,
         inputs: [],
         javaScriptCode: 'return "Hello, World!"',
@@ -109,6 +112,7 @@ export function createNodeConfig(node: LocalNode): NodeConfig {
     }
     case NodeType.ChatGPTMessageNode: {
       return {
+        nodeId: node.id,
         nodeType: NodeType.ChatGPTMessageNode,
         inputs: [
           {
@@ -138,6 +142,7 @@ export function createNodeConfig(node: LocalNode): NodeConfig {
     }
     case NodeType.ChatGPTChatCompletionNode: {
       return {
+        nodeId: node.id,
         nodeType: NodeType.ChatGPTChatCompletionNode,
         inputs: [
           {

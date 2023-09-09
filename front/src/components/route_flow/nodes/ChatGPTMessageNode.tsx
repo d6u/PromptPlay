@@ -42,15 +42,21 @@ export default function ChatGPTMessageNode() {
   const { nodeConfigs, updateNodeConfig, removeNode } = useFlowStore(selector);
 
   const nodeConfig = useMemo(
-    () => nodeConfigs[nodeId] as ChatGPTMessageNodeConfig,
+    () => nodeConfigs[nodeId] as ChatGPTMessageNodeConfig | undefined,
     [nodeConfigs, nodeId]
   );
 
   const updateNodeInternals = useUpdateNodeInternals();
 
-  const [inputs, setInputs] = useState(nodeConfig.inputs);
-  const [content, setContent] = useState(nodeConfig.content);
-  const [role, setRole] = useState(nodeConfig.role);
+  // It's OK to force unwrap here because nodeConfig will be undefined only
+  // when Node is being deleted.
+  const [inputs, setInputs] = useState(nodeConfig!.inputs);
+  const [content, setContent] = useState(nodeConfig!.content);
+  const [role, setRole] = useState(nodeConfig!.role);
+
+  if (!nodeConfig) {
+    return null;
+  }
 
   return (
     <>

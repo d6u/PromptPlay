@@ -19,10 +19,10 @@ export type FlowContent = {
   outputConfigs: OutputConfigs;
 };
 
-export type NodeConfigs = Record<NodeID, NodeConfig>;
-export type EdgeConfigs = Record<EdgeID, Edge>;
-export type InputConfigs = Record<InputID, NodeInputItem>;
-export type OutputConfigs = Record<OutputID, NodeOutputItem>;
+export type NodeConfigs = Record<NodeID, NodeConfig | undefined>;
+export type EdgeConfigs = Record<EdgeID, Edge | undefined>;
+export type InputConfigs = Record<InputID, NodeInputItem | undefined>;
+export type OutputConfigs = Record<OutputID, NodeOutputItem | undefined>;
 
 export type FlowConfig = {
   inputConfigMap: Record<string, FlowInputConfig | undefined>;
@@ -80,23 +80,27 @@ export type NodeOutputItem = {
 
 // Specific NodeData
 
+export type NodeConfigCommon = {
+  nodeId: NodeID;
+};
+
 // Input
 
-export type InputNodeConfig = {
+export type InputNodeConfig = NodeConfigCommon & {
   nodeType: NodeType.InputNode;
   outputs: NodeOutputItem[];
 };
 
 // Output
 
-export type OutputNodeConfig = {
+export type OutputNodeConfig = NodeConfigCommon & {
   nodeType: NodeType.OutputNode;
   inputs: NodeInputItem[];
 };
 
 // JavaScriptFunction
 
-export type JavaScriptFunctionNodeConfig = {
+export type JavaScriptFunctionNodeConfig = NodeConfigCommon & {
   nodeType: NodeType.JavaScriptFunctionNode;
   inputs: NodeInputItem[];
   javaScriptCode: string;
@@ -105,7 +109,7 @@ export type JavaScriptFunctionNodeConfig = {
 
 // ChatGPTMessage
 
-export type ChatGPTMessageNodeConfig = {
+export type ChatGPTMessageNodeConfig = NodeConfigCommon & {
   nodeType: NodeType.ChatGPTMessageNode;
   inputs: NodeInputItem[];
   role: ChatGPTMessageRole;
@@ -121,7 +125,7 @@ export enum ChatGPTMessageRole {
 
 // ChatGPTChatCompletion
 
-export type ChatGPTChatCompletionNodeConfig = {
+export type ChatGPTChatCompletionNodeConfig = NodeConfigCommon & {
   nodeType: NodeType.ChatGPTChatCompletionNode;
   inputs: NodeInputItem[];
   model: OpenAIChatModel;

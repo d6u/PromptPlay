@@ -36,16 +36,22 @@ export default function JavaScriptFunctionNode() {
   const { nodeConfigs, updateNodeConfig, removeNode } = useFlowStore(selector);
 
   const nodeConfig = useMemo(
-    () => nodeConfigs[nodeId] as JavaScriptFunctionNodeConfig,
+    () => nodeConfigs[nodeId] as JavaScriptFunctionNodeConfig | undefined,
     [nodeConfigs, nodeId]
   );
 
   const updateNodeInternals = useUpdateNodeInternals();
 
-  const [inputs, setInputs] = useState(nodeConfig.inputs);
+  // It's OK to force unwrap here because nodeConfig will be undefined only
+  // when Node is being deleted.
+  const [inputs, setInputs] = useState(nodeConfig!.inputs);
   const [javaScriptCode, setJavaScriptCode] = useState(
-    nodeConfig.javaScriptCode
+    nodeConfig!.javaScriptCode
   );
+
+  if (!nodeConfig) {
+    return null;
+  }
 
   return (
     <>

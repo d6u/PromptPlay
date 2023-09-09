@@ -33,13 +33,19 @@ export default function OutputNode() {
   const { nodeConfigs, updateNodeConfig, removeNode } = useFlowStore(selector);
 
   const nodeConfig = useMemo(
-    () => nodeConfigs[nodeId] as OutputNodeConfig,
+    () => nodeConfigs[nodeId] as OutputNodeConfig | undefined,
     [nodeConfigs, nodeId]
   );
 
   const updateNodeInternals = useUpdateNodeInternals();
 
-  const [inputs, setInputs] = useState(nodeConfig.inputs);
+  // It's OK to force unwrap here because nodeConfig will be undefined only
+  // when Node is being deleted.
+  const [inputs, setInputs] = useState(nodeConfig!.inputs);
+
+  if (!nodeConfig) {
+    return null;
+  }
 
   return (
     <>

@@ -33,13 +33,19 @@ export default function InputNode() {
   const { nodeConfigs, updateNodeConfig, removeNode } = useFlowStore(selector);
 
   const nodeConfig = useMemo(
-    () => nodeConfigs[nodeId] as InputNodeConfig,
+    () => nodeConfigs[nodeId] as InputNodeConfig | undefined,
     [nodeConfigs, nodeId]
   );
 
   const updateNodeInternals = useUpdateNodeInternals();
 
-  const [outputs, setOutputs] = useState(nodeConfig.outputs);
+  // It's OK to force unwrap here because nodeConfig will be undefined only
+  // when Node is being deleted.
+  const [outputs, setOutputs] = useState(nodeConfig!.outputs);
+
+  if (!nodeConfig) {
+    return null;
+  }
 
   return (
     <>
@@ -54,7 +60,7 @@ export default function InputNode() {
                 id: `${nodeId}/${nanoid()}`,
                 name: chance.word(),
                 value: "",
-              })(outputs);
+              })(outputs!);
 
               setOutputs(newOutputs);
 

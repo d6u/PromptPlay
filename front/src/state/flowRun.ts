@@ -58,7 +58,8 @@ export async function run(
 
   while (queue.length > 0) {
     const nodeId = queue.shift()!;
-    const nodeConfig = nodeConfigs[nodeId];
+    // It's OK to force unwrap here since the risk missing node config is tiny.
+    const nodeConfig = nodeConfigs[nodeId]!;
 
     switch (nodeConfig.nodeType) {
       case NodeType.InputNode: {

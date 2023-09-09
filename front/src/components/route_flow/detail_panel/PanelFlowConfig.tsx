@@ -64,7 +64,7 @@ export default function PanelFlowConfig() {
                   assoc("value", value)<NodeOutputItem>
                 )(nodeConfig.outputs);
 
-                updateNodeConfig(nodeConfig.id, { outputs: newOutputs });
+                updateNodeConfig(nodeConfig.nodeId, { outputs: newOutputs });
               }}
               type={flowConfig?.inputConfigMap[output.id]?.valueType}
               onSaveType={(type) => {

@@ -12,6 +12,7 @@ import ReactFlow, {
   NodeDragHandler,
 } from "reactflow";
 import "reactflow/dist/style.css";
+import { Subscription } from "rxjs";
 import styled from "styled-components";
 import { run } from "../../state/flowRun";
 import { FlowState, useFlowStore } from "../../state/flowState";
@@ -45,7 +46,7 @@ const NODE_TYPES = {
 const selector = (state: FlowState) => ({
   nodeConfigs: state.nodeConfigs,
   onFlowConfigUpdate: state.onFlowConfigUpdate,
-  onInitialize: state.fetchFlowConfiguration,
+  fetchFlowConfiguration: state.fetchFlowConfiguration,
   nodes: state.nodes,
   edges: state.edges,
   addNode: state.addNode,
@@ -63,7 +64,7 @@ export default function RouteFlow() {
   const {
     nodeConfigs,
     onFlowConfigUpdate,
-    onInitialize,
+    fetchFlowConfiguration,
     nodes,
     edges,
     addNode,
@@ -75,8 +76,12 @@ export default function RouteFlow() {
   } = useFlowStore(selector);
 
   useEffect(() => {
-    onInitialize(spaceId);
-  }, [onInitialize, spaceId]);
+    const subscription = new Subscription();
+    subscription.add(fetchFlowConfiguration(spaceId).subscribe());
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [fetchFlowConfiguration, spaceId]);
 
   const nodesWithAdditionalData = useMemo(
     () => map<Node, Node>(applyDragHandleMemoized)(nodes),
