@@ -3,9 +3,10 @@ import background from "../../../../assets/warning-background.svg";
 import { NodeType } from "../../flowTypes";
 
 export const BACKDROP_PADDING = 3;
+export const NODE_BOX_WIDTH = 300;
 
 const Backdrop = styled.div<{ $type: NodeType }>`
-  width: 300px;
+  width: ${NODE_BOX_WIDTH}px;
   padding: ${BACKDROP_PADDING}px;
   border-radius: 8px;
   cursor: initial;

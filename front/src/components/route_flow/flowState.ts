@@ -72,7 +72,7 @@ export type FlowState = {
   outputConfigs: OutputConfigs;
 
   // Update states within ReactFlow
-  addNode: (type: NodeType) => void;
+  addNode(type: NodeType, x?: number, y?: number): void;
   updateNode(nodeId: NodeID, nodeChange: Partial<LocalNode>): void;
   removeNode(id: NodeID): void;
 
@@ -236,11 +236,13 @@ export const useFlowStore = create<FlowState>()(
         },
         nodes: [],
         edges: [],
-        addNode(type: NodeType) {
+        addNode(type: NodeType, x?: number, y?: number) {
           let nodes = get().nodes;
           let nodeConfigs = get().nodeConfigs;
 
-          const node = createNode(type);
+          console.log("addNode", type, x, y);
+
+          const node = createNode(type, x ?? 200, y ?? 200);
           const nodeConfig = createNodeConfig(node);
 
           nodes = append(node, nodes);

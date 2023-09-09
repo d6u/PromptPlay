@@ -23,20 +23,22 @@ import {
 
 const chance = new Chance();
 
-export function createNode(type: NodeType): ServerNode {
+export function createNode(type: NodeType, x: number, y: number): ServerNode {
+  const position = { x, y };
+
   switch (type) {
     case NodeType.InputNode: {
       return {
         id: nanoid(),
         type: NodeType.InputNode,
-        position: { x: 200, y: 200 },
+        position,
         data: null,
       };
     }
     case NodeType.OutputNode: {
       return {
         id: nanoid(),
-        position: { x: 200, y: 200 },
+        position,
         type: NodeType.OutputNode,
         data: null,
       };
@@ -44,7 +46,7 @@ export function createNode(type: NodeType): ServerNode {
     case NodeType.JavaScriptFunctionNode: {
       return {
         id: nanoid(),
-        position: { x: 200, y: 200 },
+        position,
         type: NodeType.JavaScriptFunctionNode,
         data: null,
       };
@@ -52,7 +54,7 @@ export function createNode(type: NodeType): ServerNode {
     case NodeType.ChatGPTMessageNode: {
       return {
         id: nanoid(),
-        position: { x: 200, y: 200 },
+        position,
         type: NodeType.ChatGPTMessageNode,
         data: null,
       };
@@ -60,7 +62,7 @@ export function createNode(type: NodeType): ServerNode {
     case NodeType.ChatGPTChatCompletionNode: {
       return {
         id: nanoid(),
-        position: { x: 200, y: 200 },
+        position,
         type: NodeType.ChatGPTChatCompletionNode,
         data: null,
       };

@@ -9,6 +9,7 @@ import ReactFlow, {
   BackgroundVariant,
   PanOnScrollMode,
   NodeDragHandler,
+  useStoreApi,
 } from "reactflow";
 import "reactflow/dist/style.css";
 import CanvasPanel from "./controls/CanvasPanel";
@@ -22,6 +23,7 @@ import InputNode from "./nodes/InputNode";
 import JavaScriptFunctionNode from "./nodes/JavaScriptFunctionNode";
 import OutputNode from "./nodes/OutputNode";
 import { DRAG_HANDLE_CLASS_NAME } from "./nodes/shared/HeaderSection";
+import { NODE_BOX_WIDTH } from "./nodes/shared/NodeBox";
 
 const NODE_TYPES = {
   [NodeType.InputNode]: InputNode,
@@ -49,6 +51,8 @@ const selector = (state: FlowState) => ({
 });
 
 export default function FlowCanvas() {
+  const storeApi = useStoreApi();
+
   const {
     nodeConfigs,
     onFlowConfigUpdate,
@@ -109,13 +113,33 @@ export default function FlowCanvas() {
         nodeTypes={NODE_TYPES}
         panOnScroll
         panOnScrollMode={PanOnScrollMode.Free}
+        minZoom={0.2}
         maxZoom={1.2}
         onNodeDragStop={onNodeDragStop}
         onInit={(reactflow) => {
           reactflow.fitView();
         }}
       >
-        <CanvasPanel onRun={onRun} onAddNode={addNode} />
+        <CanvasPanel
+          onRun={onRun}
+          onAddNode={(type) => {
+            const {
+              width,
+              transform: [transformX, transformY, zoomLevel],
+            } = storeApi.getState();
+
+            const zoomMultiplier = 1 / zoomLevel;
+
+            // Figure out the center of the current viewport
+            const centerX =
+              -transformX * zoomMultiplier + (width * zoomMultiplier) / 2;
+
+            // Put the node at the 200px below the viewport top
+            const centerY = -transformY * zoomMultiplier + 200;
+
+            addNode(type, centerX - NODE_BOX_WIDTH / 2, centerY);
+          }}
+        />
         <Controls />
         <Background variant={BackgroundVariant.Dots} gap={20} size={1} />
       </ReactFlow>

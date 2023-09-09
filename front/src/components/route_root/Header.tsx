@@ -1,5 +1,5 @@
-import { Button } from "@mui/joy";
-import { useEffect } from "react";
+import { Button, IconButton } from "@mui/joy";
+import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import styled from "styled-components";
 import { useMutation, useQuery } from "urql";
@@ -7,6 +7,7 @@ import { IS_LOGIN_ENABLED, PROVIDE_FEEDBACK_LINK } from "../../constants";
 import { usePersistStore } from "../../state/zustand";
 import { LOGIN_PATH, LOGOUT_PATH } from "../../static/routeConfigs";
 import StyleResetLink from "../common/StyleResetLink";
+import IconLogout from "../icons/IconLogout";
 import {
   HEADER_QUERY,
   MERGE_PLACEHOLDER_USER_WITH_LOGGED_IN_USER_MUTATION,
@@ -15,24 +16,36 @@ import {
 const Container = styled.div`
   height: 51px;
   border-bottom: 1px solid #ececf1;
-  padding: 0px 20px;
   flex-shrink: 0;
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
+  padding: 0px 20px;
+
+  @media (max-width: 900px) {
+    padding: 0px 10px;
+  }
 `;
 
 const LogoContainer = styled.div`
   display: flex;
   align-items: baseline;
   gap: 20px;
+
+  @media (max-width: 900px) {
+    gap: 10px;
+  }
 `;
 
 const Logo = styled.h1`
   font-size: 20px;
   margin: 0px;
   line-height: 1;
+
+  @media (max-width: 900px) {
+    font-size: 18px;
+  }
 `;
 
 const FeedbackLink = styled.a`
@@ -43,6 +56,10 @@ const FeedbackLink = styled.a`
   &:hover {
     text-decoration: underline;
   }
+
+  @media (max-width: 900px) {
+    font-size: 12px;
+  }
 `;
 
 const AccountManagementContainer = styled.div`
@@ -50,13 +67,20 @@ const AccountManagementContainer = styled.div`
   gap: 20px;
   flex-direction: row;
   align-items: center;
+
+  @media (max-width: 900px) {
+    gap: 10px;
+  }
 `;
 
 const ProfilePicture = styled.img`
   aspect-ratio: 1 / 1;
   width: 40px;
-  height: 40px;
   border-radius: 50%;
+
+  @media (max-width: 900px) {
+    width: 32px;
+  }
 `;
 
 const Email = styled.div`
@@ -65,6 +89,10 @@ const Email = styled.div`
   font-style: normal;
   font-weight: 400;
   line-height: 20px;
+`;
+
+const StyledLogoutIcon = styled(IconLogout)`
+  width: 20px;
 `;
 
 export default function Header() {
@@ -122,6 +150,24 @@ export default function Header() {
     mergePlaceholderUserWithLoggedInUser,
   ]);
 
+  const [useNarrowLayout, setUseNarrowLayout] = useState(
+    window.innerWidth < 900
+  );
+
+  useEffect(() => {
+    function handleResize() {
+      if (window.innerWidth < 900) {
+        setUseNarrowLayout(true);
+      } else {
+        setUseNarrowLayout(false);
+      }
+    }
+    window.addEventListener("resize", handleResize, { passive: true });
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
   if (queryResult.fetching) {
     return <div>Loading...</div>;
   }
@@ -141,7 +187,7 @@ export default function Header() {
           target="_blank"
           rel="noreferrer"
         >
-          Provide feedback
+          {useNarrowLayout ? "Feedback" : "Give Feedback"}
         </FeedbackLink>
       </LogoContainer>
       {IS_LOGIN_ENABLED && (
@@ -155,14 +201,26 @@ export default function Header() {
                   referrerPolicy="no-referrer"
                 />
               )}
-              <Email>{queryResult.data.user?.email}</Email>
-              <Button
-                size="sm"
-                variant="plain"
-                onClick={() => window.location.assign(LOGOUT_PATH)}
-              >
-                Log Out
-              </Button>
+              {useNarrowLayout ? null : (
+                <Email>{queryResult.data.user?.email}</Email>
+              )}
+              {useNarrowLayout ? (
+                <IconButton
+                  size="sm"
+                  variant="outlined"
+                  onClick={() => window.location.assign(LOGOUT_PATH)}
+                >
+                  <StyledLogoutIcon />
+                </IconButton>
+              ) : (
+                <Button
+                  size="sm"
+                  variant="plain"
+                  onClick={() => window.location.assign(LOGOUT_PATH)}
+                >
+                  Log Out
+                </Button>
+              )}
             </>
           ) : (
             <Button
@@ -171,7 +229,7 @@ export default function Header() {
               size="sm"
               variant="solid"
             >
-              Log in / Sign up
+              {useNarrowLayout ? "Login" : "Log in / Sign up"}
             </Button>
           )}
         </AccountManagementContainer>
