@@ -109,6 +109,7 @@ export default function ChatGPTChatCompletionNode() {
         </Section>
         <Section>
           <Input
+            type="password"
             color={missingOpenAiApiKey ? "danger" : "neutral"}
             size="sm"
             variant="outlined"
