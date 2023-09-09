@@ -1,3 +1,5 @@
+import { Observable, from, map, mergeMap, share, throwError } from "rxjs";
+
 const OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
 
 export type LlmMesssage = {
@@ -19,7 +21,9 @@ export function getStreamingCompletion({
   temperature,
   messages,
   stop,
-}: GetCompletionArguments): Promise<Response> {
+}: GetCompletionArguments): Observable<
+  OpenAiStreamResponse | OpenAiErrorResponse
+> {
   const fetchOptions = {
     method: "POST",
     headers: {
@@ -35,7 +39,47 @@ export function getStreamingCompletion({
     }),
   };
 
-  return fetch(OPENAI_API_URL, fetchOptions);
+  return from(fetch(OPENAI_API_URL, fetchOptions)).pipe(
+    mergeMap((response) => {
+      if (response.body == null) {
+        // console.error("response.body is null");
+        return throwError(() => new Error("response.body is null"));
+      }
+
+      const reader = response.body
+        .pipeThrough(new TextDecoderStream())
+        .getReader();
+
+      return new Observable<string>((subscriber) => {
+        async function read() {
+          // eslint-disable-next-line no-constant-condition
+          while (true) {
+            const { value, done } = await reader.read();
+            if (value) {
+              subscriber.next(value);
+            }
+            if (done) {
+              return;
+            }
+          }
+        }
+
+        read()
+          .then(() => {
+            subscriber.complete();
+          })
+          .catch((e) => {
+            subscriber.error(e);
+          });
+      });
+    }),
+    map((chunk) => parserStreamChunk(chunk)),
+    mergeMap((chunks) => from(chunks)),
+    map<string, OpenAiStreamResponse | OpenAiErrorResponse>((content) =>
+      JSON.parse(content)
+    ),
+    share()
+  );
 }
 
 export async function getNonStreamingCompletion({

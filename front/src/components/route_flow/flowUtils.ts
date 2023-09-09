@@ -127,7 +127,7 @@ export function createNodeConfig(node: LocalNode): NodeConfig {
           },
         ],
         role: ChatGPTMessageRole.user,
-        content: "Write a poem about {topic} in fewer than 20 words.",
+        content: "Write a poem about {{topic}} in fewer than 20 words.",
         outputs: [
           {
             id: `${node.id}/message`,
