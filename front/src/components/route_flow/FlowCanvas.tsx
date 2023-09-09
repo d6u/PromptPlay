@@ -1,7 +1,8 @@
 import memoize from "lodash/memoize";
+import { mergeLeft } from "ramda";
 import assoc from "ramda/es/assoc";
 import map from "ramda/es/map";
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import ReactFlow, {
   Controls,
   Background,
@@ -34,12 +35,6 @@ const applyDragHandleMemoized = memoize(
   assoc("dragHandle", `.${DRAG_HANDLE_CLASS_NAME}`)
 );
 
-const applyEdgeStyleMemoized = memoize(
-  assoc("style", {
-    strokeWidth: 2,
-  })
-);
-
 const selector = (state: FlowState) => ({
   nodeConfigs: state.nodeConfigs,
   onFlowConfigUpdate: state.onFlowConfigUpdate,
@@ -67,6 +62,8 @@ export default function FlowCanvas() {
     onConnect,
   } = useFlowStore(selector);
 
+  const [isRunning, setIsRunning] = useState(false);
+
   const nodesWithAdditionalData = useMemo(
     () => map<LocalNode, LocalNode>(applyDragHandleMemoized)(nodes),
     [nodes]
@@ -79,23 +76,27 @@ export default function FlowCanvas() {
     [updateNode]
   );
 
+  const applyEdgeStyleMemoized = useMemo(
+    () =>
+      memoize(
+        mergeLeft({ style: { strokeWidth: 2 }, animated: isRunning })
+      ) as (edge: LocalEdge) => LocalEdge,
+    [isRunning]
+  );
+
   const edgesWithAdditionalData = useMemo(
     () => map<LocalEdge, LocalEdge>(applyEdgeStyleMemoized)(edges),
-    [edges]
+    [applyEdgeStyleMemoized, edges]
   );
 
   const onRun = useCallback(() => {
-    run(edgesWithAdditionalData, nodeConfigs, updateNodeConfigDebounced).then(
-      (result) => {
-        onFlowConfigUpdate({ outputValueMap: result });
-      }
-    );
-  }, [
-    edgesWithAdditionalData,
-    nodeConfigs,
-    updateNodeConfigDebounced,
-    onFlowConfigUpdate,
-  ]);
+    setIsRunning(true);
+
+    run(edges, nodeConfigs, updateNodeConfigDebounced).then((result) => {
+      setIsRunning(false);
+      onFlowConfigUpdate({ outputValueMap: result });
+    });
+  }, [edges, nodeConfigs, updateNodeConfigDebounced, onFlowConfigUpdate]);
 
   return (
     <>
