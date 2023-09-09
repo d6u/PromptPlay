@@ -5,9 +5,10 @@ import RemoveButton from "./RemoveButton";
 export const DRAG_HANDLE_CLASS_NAME = "node-drag-handle";
 
 const Container = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  position: relative;
+`;
+
+const TitleContainer = styled.div`
   cursor: grab;
   padding: 10px 10px 0;
   margin-bottom: 5px;
@@ -16,14 +17,21 @@ const Container = styled.div`
 const Title = styled.h3`
   margin: 0;
   font-size: 16px;
+  line-height: 32px;
 `;
 
 const DragHandle = styled(IconThreeDots)`
   fill: #cacaca;
   width: 20px;
   position: absolute;
-  top: 0;
+  top: -3px;
   left: calc(50% - 30px / 2);
+`;
+
+const RemoveButtonContainer = styled.div`
+  position: absolute;
+  top: 10px;
+  right: 10px;
 `;
 
 type Props = {
@@ -33,10 +41,14 @@ type Props = {
 
 export default function HeaderSection(props: Props) {
   return (
-    <Container className={DRAG_HANDLE_CLASS_NAME}>
-      <Title>{props.title}</Title>
-      <RemoveButton onClick={props.onClickRemove} />
-      <DragHandle />
+    <Container>
+      <TitleContainer className={DRAG_HANDLE_CLASS_NAME}>
+        <Title>{props.title}</Title>
+        <DragHandle />
+      </TitleContainer>
+      <RemoveButtonContainer>
+        <RemoveButton onClick={props.onClickRemove} />
+      </RemoveButtonContainer>
     </Container>
   );
 }
