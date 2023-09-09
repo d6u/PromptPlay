@@ -109,6 +109,24 @@ export const useFlowStore = create<FlowState>()(
         return { nodes, edges };
       }
 
+      function applyLocalNodeConfigChange(
+        nodeId: string,
+        change: Partial<NodeConfig>
+      ) {
+        const nodes = get().nodes;
+        let edges = get().edges;
+        let nodeConfigs = get().nodeConfigs;
+
+        nodeConfigs = modify(
+          nodeId,
+          mergeLeft(change) as (a: NodeConfig | undefined) => NodeConfig,
+          nodeConfigs
+        );
+        edges = rejectInvalidEdges(nodes, edges, nodeConfigs);
+
+        return { nodeConfigs, edges };
+      }
+
       function getCurrentFlowContent(): FlowContent {
         const {
           nodes,
@@ -166,13 +184,7 @@ export const useFlowStore = create<FlowState>()(
           });
         },
         updateNodeConfig(nodeId: NodeID, change: Partial<NodeConfig>) {
-          const stateChange = {
-            nodeConfigs: modify(
-              nodeId,
-              mergeLeft(change) as (a: NodeConfig | undefined) => NodeConfig,
-              get().nodeConfigs
-            ),
-          };
+          const stateChange = applyLocalNodeConfigChange(nodeId, change);
 
           set(stateChange);
 
@@ -182,13 +194,7 @@ export const useFlowStore = create<FlowState>()(
           }
         },
         updateNodeConfigDebounced(nodeId: NodeID, change: Partial<NodeConfig>) {
-          const stateChange = {
-            nodeConfigs: modify(
-              nodeId,
-              mergeLeft(change) as (a: NodeConfig | undefined) => NodeConfig,
-              get().nodeConfigs
-            ),
-          };
+          const stateChange = applyLocalNodeConfigChange(nodeId, change);
 
           set(stateChange);
 
@@ -264,13 +270,15 @@ export const useFlowStore = create<FlowState>()(
           }
         },
         removeNode(id: NodeID) {
-          const nodes = get().nodes;
-          const nodeConfigs = get().nodeConfigs;
+          let nodes = get().nodes;
+          let edges = get().edges;
+          let nodeConfigs = get().nodeConfigs;
 
-          const flowContentChange = {
-            nodes: reject(propEq(id, "id"))(nodes),
-            nodeConfigs: dissoc(id)(nodeConfigs),
-          };
+          nodes = reject(propEq(id, "id"))(nodes);
+          nodeConfigs = dissoc(id)(nodeConfigs);
+          edges = rejectInvalidEdges(nodes, edges, nodeConfigs);
+
+          const flowContentChange = { nodes, edges, nodeConfigs };
 
           set(flowContentChange);
 
