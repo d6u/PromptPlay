@@ -4,20 +4,24 @@ import RemoveButton from "./RemoveButton";
 
 export const DRAG_HANDLE_CLASS_NAME = "node-drag-handle";
 
+export const TITLE_PADDING_TOP = 10;
+export const TITLE_HEIGHT = 32;
+export const TITLE_MARGIN_BOTTOM = 5;
+
 const Container = styled.div`
   position: relative;
 `;
 
 const TitleContainer = styled.div`
   cursor: grab;
-  padding: 10px 10px 0;
-  margin-bottom: 5px;
+  padding: ${TITLE_PADDING_TOP}px 10px 0;
+  margin-bottom: ${TITLE_MARGIN_BOTTOM}px;
 `;
 
 const Title = styled.h3`
   margin: 0;
   font-size: 16px;
-  line-height: 32px;
+  line-height: ${TITLE_HEIGHT}px;
 `;
 
 const DragHandle = styled(IconThreeDots)`

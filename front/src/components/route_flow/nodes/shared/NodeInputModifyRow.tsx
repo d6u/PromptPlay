@@ -3,15 +3,11 @@ import { useState } from "react";
 import styled from "styled-components";
 import RemoveButton from "./RemoveButton";
 
-export const VARIABLE_ROW_MARGIN_BOTTOM = 5;
+export const ROW_MARGIN_TOP = 5;
 
 const Container = styled.div`
   display: flex;
-  margin-top: ${VARIABLE_ROW_MARGIN_BOTTOM}px;
-
-  &:last-child {
-    // margin-bottom: 0;
-  }
+  margin-top: ${ROW_MARGIN_TOP}px;
 `;
 
 const NameInput = styled(Input)`

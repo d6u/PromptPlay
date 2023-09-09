@@ -21,7 +21,10 @@ import {
   OutputHandle,
   Section,
 } from "./shared/commonStyledComponents";
-import { calculateInputHandleTop } from "./shared/utils";
+import {
+  calculateInputHandleTop,
+  calculateOutputHandleBottom,
+} from "./shared/utils";
 
 const chance = new Chance();
 
@@ -148,6 +151,9 @@ export default function JavaScriptFunctionNode() {
         type="source"
         id={nodeConfig.outputs[0].id}
         position={Position.Right}
+        style={{
+          bottom: calculateOutputHandleBottom(nodeConfig.outputs.length - 1),
+        }}
       />
     </>
   );

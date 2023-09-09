@@ -57,7 +57,7 @@ export default function ChatGPTChatCompletionNode() {
         type="target"
         id={nodeConfig.inputs[0].id}
         position={Position.Left}
-        style={{ top: calculateInputHandleTop(0) }}
+        style={{ top: calculateInputHandleTop(-1) }}
       />
       <NodeBox nodeType={NodeType.ChatGPTChatCompletionNode}>
         <HeaderSection

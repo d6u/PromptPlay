@@ -1,31 +1,28 @@
 import { Handle } from "reactflow";
 import styled from "styled-components";
+import { BACKDROP_PADDING } from "./NodeBox";
 
-export const CONTAINER_BORDER = 1;
-export const CONTAINER_PADDING = 10;
-export const VARIABLE_LABEL_HEIGHT = 32;
-export const SECTION_MARGIN_BOTTOM = 10;
-export const HANDLE_RADIUS = 15;
+export const SECTION_PADDING_BOTTOM = 10;
+export const HANDLE_WIDTH = 15;
+export const HANDLE_HEIGHT = 34;
 
 export const StyledHandle = styled(Handle)`
-  width: ${HANDLE_RADIUS}px;
-  height: ${HANDLE_RADIUS}px;
-  background: #5cc5e0;
+  width: ${HANDLE_WIDTH}px;
+  height: ${HANDLE_HEIGHT}px;
+  border-radius: ${HANDLE_WIDTH / 2}px;
+  background: #00b3ff;
   transform: none;
 `;
 
 export const InputHandle = styled(StyledHandle)`
-  left: -${HANDLE_RADIUS / 2}px;
+  left: -${HANDLE_WIDTH / 2 - BACKDROP_PADDING / 2}px;
 `;
 
 export const OutputHandle = styled(StyledHandle)`
   top: unset;
-  right: -${HANDLE_RADIUS / 2}px;
-  bottom: ${CONTAINER_PADDING +
-  VARIABLE_LABEL_HEIGHT / 2 -
-  HANDLE_RADIUS / 2}px;
+  right: -${HANDLE_WIDTH / 2 - BACKDROP_PADDING / 2}px;
 `;
 
 export const Section = styled.div`
-  padding: 0 10px 10px;
+  padding: 0 10px ${SECTION_PADDING_BOTTOM}px;
 `;

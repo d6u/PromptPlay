@@ -3,11 +3,12 @@ import styled from "styled-components";
 import IconInspect from "../../../icons/IconInspect";
 import { FlowState, useFlowStore } from "../../flowState";
 import { DetailPanelContentType } from "../../flowTypes";
-import { VARIABLE_ROW_MARGIN_BOTTOM } from "./NodeInputModifyRow";
-import { VARIABLE_LABEL_HEIGHT } from "./commonStyledComponents";
+import { ROW_MARGIN_TOP } from "./NodeInputModifyRow";
+
+export const VARIABLE_LABEL_HEIGHT = 32;
 
 const Container = styled.div`
-  margin-bottom: ${VARIABLE_ROW_MARGIN_BOTTOM}px;
+  margin-bottom: ${ROW_MARGIN_TOP}px;
   display: flex;
   gap: 5px;
   align-items: center;
