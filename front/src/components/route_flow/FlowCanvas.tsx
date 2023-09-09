@@ -109,6 +109,7 @@ export default function FlowCanvas() {
         nodeTypes={NODE_TYPES}
         panOnScroll
         panOnScrollMode={PanOnScrollMode.Free}
+        minZoom={0.2}
         maxZoom={1.2}
         onNodeDragStop={onNodeDragStop}
         onInit={(reactflow) => {
