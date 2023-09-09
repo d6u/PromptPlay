@@ -2,10 +2,14 @@ import Button from "@mui/joy/Button";
 import Chance from "chance";
 import { nanoid } from "nanoid";
 import { adjust, append, assoc, remove } from "ramda";
-import { useState } from "react";
-import { Position, useUpdateNodeInternals, NodeProps } from "reactflow";
+import { useMemo, useState } from "react";
+import { Position, useNodeId, useUpdateNodeInternals } from "reactflow";
 import { FlowState, useFlowStore } from "../../../state/flowState";
-import { InputNodeData, NodeOutputItem } from "../../../static/flowTypes";
+import {
+  InputNodeConfig,
+  NodeID,
+  NodeOutputItem,
+} from "../../../static/flowTypes";
 import {
   HeaderSection,
   OutputHandle,
@@ -18,16 +22,24 @@ import NodeOutputModifyRow from "./NodeOutputModifyRow";
 const chance = new Chance();
 
 const selector = (state: FlowState) => ({
-  onUpdateNode: state.onUpdateNode,
-  onRemoveNode: state.onRemoveNode,
+  nodeConfigs: state.nodeConfigs,
+  updateNodeConfig: state.updateNodeConfig,
+  removeNode: state.removeNode,
 });
 
-export default function InputNode(props: NodeProps<InputNodeData>) {
+export default function InputNode() {
+  const nodeId = useNodeId() as NodeID;
+
+  const { nodeConfigs, updateNodeConfig, removeNode } = useFlowStore(selector);
+
+  const nodeConfig = useMemo(
+    () => nodeConfigs[nodeId] as InputNodeConfig,
+    [nodeConfigs, nodeId]
+  );
+
   const updateNodeInternals = useUpdateNodeInternals();
 
-  const { onUpdateNode, onRemoveNode } = useFlowStore(selector);
-
-  const [outputs, setOutputs] = useState(props.data.outputs);
+  const [outputs, setOutputs] = useState(nodeConfig.outputs);
 
   return (
     <>
@@ -39,19 +51,18 @@ export default function InputNode(props: NodeProps<InputNodeData>) {
             variant="outlined"
             onClick={() => {
               const newOutputs = append<NodeOutputItem>({
-                id: `${props.id}/${nanoid()}`,
+                id: `${nodeId}/${nanoid()}`,
                 name: chance.word(),
                 value: "",
               })(outputs);
 
               setOutputs(newOutputs);
 
-              onUpdateNode({
-                id: props.id,
-                data: { ...props.data, outputs: newOutputs },
+              updateNodeConfig(nodeId, {
+                outputs: newOutputs,
               });
 
-              updateNodeInternals(props.id);
+              updateNodeInternals(nodeId);
             }}
           >
             Add output
@@ -60,7 +71,7 @@ export default function InputNode(props: NodeProps<InputNodeData>) {
             color="danger"
             size="sm"
             variant="outlined"
-            onClick={() => onRemoveNode(props.id)}
+            onClick={() => removeNode(nodeId)}
           >
             Remove node
           </Button>
@@ -78,22 +89,16 @@ export default function InputNode(props: NodeProps<InputNodeData>) {
 
                 setOutputs(newOutputs);
 
-                onUpdateNode({
-                  id: props.id,
-                  data: { ...props.data, outputs: newOutputs },
-                });
+                updateNodeConfig(nodeId, { outputs: newOutputs });
               }}
               onRemove={() => {
                 const newOutputs = remove(i, 1, outputs);
 
                 setOutputs(newOutputs);
 
-                onUpdateNode({
-                  id: props.id,
-                  data: { ...props.data, outputs: newOutputs },
-                });
+                updateNodeConfig(nodeId, { outputs: newOutputs });
 
-                updateNodeInternals(props.id);
+                updateNodeInternals(nodeId);
               }}
             />
           ))}
@@ -107,7 +112,7 @@ export default function InputNode(props: NodeProps<InputNodeData>) {
           position={Position.Right}
           style={{
             bottom: calculateOutputHandleBottom(
-              props.data.outputs.length - 1 - i
+              nodeConfig.outputs.length - 1 - i
             ),
           }}
         />

@@ -13,12 +13,11 @@ import ReactFlow, {
 } from "reactflow";
 import "reactflow/dist/style.css";
 import styled from "styled-components";
+import { run } from "../../state/flowRun";
 import { FlowState, useFlowStore } from "../../state/flowState";
-import { createNode } from "../../state/flowUtils";
 import { NodeType } from "../../static/flowTypes";
 import CanvasPanel from "./CanvasPanel";
 import DetailPanel from "./detail_panel/DetailPanel";
-import { executeNode } from "./execute";
 import ChatGPTChatCompletionNode from "./nodes/ChatGPTChatCompletionNode";
 import ChatGPTMessageNode from "./nodes/ChatGPTMessageNode";
 import InputNode from "./nodes/InputNode";
@@ -49,8 +48,8 @@ const selector = (state: FlowState) => ({
   nodes: state.nodes,
   edges: state.edges,
   onAddNode: state.onAddNode,
-  onUpdateNode: state.onUpdateNode,
-  onUpdateNodeDebounced: state.onUpdateNodeDebounced,
+  updateNode: state.updateNode,
+  updateNodeDebounced: state.updateNodeDebounced,
   onNodesChange: state.onNodesChange,
   onEdgesChange: state.onEdgesChange,
   onConnect: state.onConnect,
@@ -66,8 +65,8 @@ export default function RouteFlow() {
     nodes,
     edges,
     onAddNode,
-    onUpdateNode,
-    onUpdateNodeDebounced,
+    updateNode,
+    updateNodeDebounced,
     onNodesChange,
     onEdgesChange,
     onConnect,
@@ -84,26 +83,16 @@ export default function RouteFlow() {
 
   const onNodeDragStop: NodeDragHandler = useCallback(
     (event, node) => {
-      onUpdateNode({
-        id: node.id,
-        position: node.position,
-      });
+      updateNode(node.id, { position: node.position });
     },
-    [onUpdateNode]
+    [updateNode]
   );
 
   const onRun = useCallback(() => {
-    executeNode(nodes, edges, onUpdateNodeDebounced).then((result) => {
+    run(nodes, edges, updateNodeDebounced).then((result) => {
       onFlowConfigUpdate({ outputValueMap: result });
     });
-  }, [nodes, edges, onUpdateNodeDebounced, onFlowConfigUpdate]);
-
-  const onAddNodeCallback = useCallback(
-    (type: NodeType) => {
-      onAddNode(createNode(type));
-    },
-    [onAddNode]
-  );
+  }, [nodes, edges, updateNodeDebounced, onFlowConfigUpdate]);
 
   return (
     <Container>
@@ -119,7 +108,7 @@ export default function RouteFlow() {
         maxZoom={1}
         onNodeDragStop={onNodeDragStop}
       >
-        <CanvasPanel onRun={onRun} onAddNode={onAddNodeCallback} />
+        <CanvasPanel onRun={onRun} onAddNode={onAddNode} />
         <Controls />
         <Background variant={BackgroundVariant.Dots} gap={20} size={1} />
       </ReactFlow>

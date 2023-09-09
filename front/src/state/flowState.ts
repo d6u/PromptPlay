@@ -1,18 +1,14 @@
-import debounce from "lodash/debounce";
-import filter from "lodash/filter";
-import map from "lodash/map";
 import adjust from "ramda/es/adjust";
-import any from "ramda/es/any";
 import append from "ramda/es/append";
+import assoc from "ramda/es/assoc";
 import findIndex from "ramda/es/findIndex";
 import mergeLeft from "ramda/es/mergeLeft";
+import modify from "ramda/es/modify";
 import none from "ramda/es/none";
-import pick from "ramda/es/pick";
 import pipe from "ramda/es/pipe";
 import propEq from "ramda/es/propEq";
 import reject from "ramda/es/reject";
 import {
-  Node,
   Edge,
   OnNodesChange,
   OnEdgesChange,
@@ -29,13 +25,26 @@ import { devtools } from "zustand/middleware";
 import { graphql } from "../gql";
 import {
   DetailPanelContentType,
-  EdgeWithHandle,
+  EdgeID,
   FlowConfig,
-  NodeData,
-  NodeWithType,
-  ServerEdge,
-  ServerNode,
+  FlowContent,
+  InputID,
+  LocalEdge,
+  LocalNode,
+  NodeConfig,
+  NodeID,
+  NodeInputItem,
+  NodeOutputItem,
+  NodeType,
+  OutputID,
 } from "../static/flowTypes";
+import {
+  createNode,
+  createNodeConfig,
+  rejectInvalidEdges,
+  updateSpace,
+  updateSpaceDebounced,
+} from "./flowUtils";
 import { client } from "./urql";
 
 export const SPACE_FLOW_QUERY = graphql(`
@@ -52,122 +61,86 @@ export const SPACE_FLOW_QUERY = graphql(`
   }
 `);
 
-export const UPDATE_SPACE_FLOW_CONTENT_MUTATION = graphql(`
-  mutation UpdateSpaceFlowContentMutation(
-    $spaceId: ID!
-    $flowContent: String!
-  ) {
-    updateSpace(id: $spaceId, flowContent: $flowContent) {
-      id
-      name
-      flowContent
-    }
-  }
-`);
-
-function rejectInvalidEdges(nodes: Node<NodeData>[], edges: Edge[]): Edge[] {
-  return filter(edges, (edge) => {
-    let foundSourceHandle = false;
-    let foundTargetHandle = false;
-
-    for (const node of nodes) {
-      if (node.id === edge.source) {
-        if ("outputs" in node.data) {
-          foundSourceHandle = any(propEq(edge.sourceHandle, "id"))(
-            node.data.outputs
-          );
-        }
-      }
-
-      if (node.id === edge.target) {
-        if ("inputs" in node.data) {
-          foundTargetHandle = any(propEq(edge.targetHandle, "id"))(
-            node.data.inputs
-          );
-        }
-      }
-    }
-
-    return foundSourceHandle && foundTargetHandle;
-  });
-}
-
-async function updateSpace(
-  spaceId: string,
-  flowConfig: FlowConfig | null,
-  nodes: Node<NodeData>[],
-  edges: Edge[]
-) {
-  const newNodes = map(
-    nodes,
-    pick(["id", "type", "position", "data"])<NodeWithType>
-  );
-
-  let newEdges = map(
-    edges as EdgeWithHandle[],
-    pick([
-      "id",
-      "source",
-      "sourceHandle",
-      "target",
-      "targetHandle",
-    ])<EdgeWithHandle>
-  );
-
-  // Remove invalid edges
-  newEdges = rejectInvalidEdges(nodes, newEdges) as EdgeWithHandle[];
-
-  await client.mutation(UPDATE_SPACE_FLOW_CONTENT_MUTATION, {
-    spaceId,
-    flowContent: JSON.stringify({
-      flowConfig,
-      nodes: newNodes,
-      edges: newEdges,
-    }),
-  });
-}
-
-const updateSpaceDebounced = debounce(updateSpace, 500);
-
 export type FlowState = {
   spaceId: string | null;
-  fetchFlowConfiguration(spaceId: string): void;
+  fetchFlowConfiguration(spaceId: string): Promise<void>;
 
-  // Persists to server
-  flowConfig: FlowConfig | null;
+  updateNodeConfig(nodeId: NodeID, change: Partial<NodeConfig>): void;
   onFlowConfigUpdate(flowConfigChange: Partial<FlowConfig>): void;
-
-  // Partially persists to server
-  nodes: Node<NodeData>[];
-  edges: Edge[];
-
-  onAddNode: (node: ServerNode) => void;
-  onUpdateNode: (node: { id: string } & Partial<ServerNode>) => void;
-  onUpdateNodeDebounced: (node: { id: string } & Partial<ServerNode>) => void;
-  onRemoveNode: (id: string) => void;
-
-  // ReactFlow callbacks
-  onNodesChange: OnNodesChange;
-  onEdgesChange: OnEdgesChange;
-  onConnect: OnConnect;
-
   detailPanelContentType: DetailPanelContentType | null;
   setDetailPanelContentType(type: DetailPanelContentType | null): void;
   detailPanelSelectedNodeId: string | null;
   setDetailPanelSelectedNodeId(nodeId: string): void;
+
+  // States for ReactFlow
+  nodes: LocalNode[];
+  edges: LocalEdge[];
+  // State synced from server, also used in ReactFlow
+  flowConfig: FlowConfig | null;
+
+  nodeConfigs: Record<NodeID, NodeConfig>;
+  edgeConfigs: Record<EdgeID, Edge>;
+  inputConfigs: Record<InputID, NodeInputItem>;
+  outputConfigs: Record<OutputID, NodeOutputItem>;
+
+  // Update states within ReactFlow
+  onAddNode: (type: NodeType) => void;
+  updateNode(nodeId: NodeID, nodeChange: Partial<LocalNode>): void;
+  updateNodeDebounced(nodeId: NodeID, nodeChange: Partial<LocalNode>): void;
+  removeNode(id: string): void;
+
+  // Directly used by ReactFlow
+  onNodesChange: OnNodesChange;
+  onEdgesChange: OnEdgesChange;
+  onConnect: OnConnect;
 };
 
 export const useFlowStore = create<FlowState>()(
   devtools((set, get) => {
-    function onUpdateNodeInternal(node: { id: string } & Partial<ServerNode>) {
-      const index = findIndex<Node>((n) => n.id === node.id)(get().nodes);
-      const nodes = adjust<Node>(index, mergeLeft(node))(get().nodes);
+    function applyNodeChange(
+      nodeId: NodeID,
+      nodeChange: Partial<LocalNode>
+    ): Partial<FlowState> {
+      let nodes = get().nodes;
+      let edges = get().edges;
+      const nodeConfigs = get().nodeConfigs;
 
-      const edges = rejectInvalidEdges(nodes, get().edges);
+      const index = findIndex<LocalNode>((n) => n.id === nodeId)(nodes);
 
-      set({ nodes, edges });
+      if (index === -1) {
+        return { nodes, edges };
+      }
 
-      return nodes;
+      nodes = adjust(
+        index,
+        mergeLeft(nodeChange) as (a: LocalNode) => LocalNode
+      )(nodes);
+
+      edges = rejectInvalidEdges(nodes, edges, nodeConfigs);
+
+      return { nodes, edges };
+    }
+
+    function getCurrentFlowContent(): FlowContent {
+      const {
+        nodes,
+        edges,
+        flowConfig,
+        nodeConfigs,
+        edgeConfigs,
+        inputConfigs,
+        outputConfigs,
+      } = get();
+
+      return {
+        nodes,
+        edges,
+        flowConfig,
+        nodeConfigs,
+        edgeConfigs,
+        inputConfigs,
+        outputConfigs,
+      };
     }
 
     return {
@@ -178,23 +151,44 @@ export const useFlowStore = create<FlowState>()(
         const result = await client.query(SPACE_FLOW_QUERY, { spaceId });
         // TODO: handle error
 
-        const flowContent = result.data?.result?.space?.flowContent;
+        const flowContentStr = result.data?.result?.space?.flowContent;
+
+        let flowContent: Partial<FlowContent> = {};
+
+        if (flowContentStr) {
+          try {
+            flowContent = JSON.parse(flowContentStr);
+          } catch (e) {
+            // TODO: handle parse error
+            console.error(e);
+          }
+        }
 
         const {
           nodes = [],
           edges = [],
           flowConfig = null,
-        } = flowContent
-          ? (JSON.parse(flowContent) as {
-              nodes: ServerNode[];
-              edges: ServerEdge[];
-              flowConfig?: FlowConfig;
-            })
-          : {};
+          nodeConfigs = {},
+          edgeConfigs = {},
+          inputConfigs = {},
+          outputConfigs = {},
+        } = flowContent;
 
-        set({ nodes, edges, flowConfig });
+        set({
+          nodes,
+          edges,
+          flowConfig,
+          nodeConfigs,
+          edgeConfigs,
+          inputConfigs,
+          outputConfigs,
+        });
       },
       flowConfig: null,
+      nodeConfigs: {},
+      edgeConfigs: {},
+      inputConfigs: {},
+      outputConfigs: {},
       onFlowConfigUpdate(flowConfigChange: Partial<FlowConfig>) {
         const flowConfig = get().flowConfig;
 
@@ -218,51 +212,88 @@ export const useFlowStore = create<FlowState>()(
 
         const spaceId = get().spaceId;
         if (spaceId) {
-          updateSpace(spaceId, flowConfig, get().nodes, get().edges);
+          // updateSpace(spaceId, getCurrentFlowContent(), );
         }
       },
       nodes: [],
       edges: [],
 
-      onAddNode(node: Node) {
-        const nodes = append(node, get().nodes);
+      onAddNode(type: NodeType) {
+        let nodes = get().nodes;
+        let nodeConfigs = get().nodeConfigs;
 
-        set({ nodes });
+        const node = createNode(type);
+        const nodeConfig = createNodeConfig(node);
+
+        nodes = append(node, nodes);
+        nodeConfigs = assoc(node.id, nodeConfig, nodeConfigs);
+
+        const flowContentChange = { nodes, nodeConfigs };
+
+        set(flowContentChange);
 
         const spaceId = get().spaceId;
         if (spaceId) {
-          updateSpaceDebounced(spaceId, get().flowConfig, nodes, get().edges);
+          updateSpaceDebounced(
+            spaceId,
+            getCurrentFlowContent(),
+            flowContentChange
+          );
         }
       },
-      onUpdateNode(node: { id: string } & Partial<ServerNode>) {
-        const nodes = onUpdateNodeInternal(node);
-        const spaceId = get().spaceId;
-        if (spaceId) {
-          updateSpace(spaceId, get().flowConfig, nodes, get().edges);
-        }
-      },
-      onUpdateNodeDebounced(node: { id: string } & Partial<ServerNode>) {
-        const nodes = onUpdateNodeInternal(node);
-        const spaceId = get().spaceId;
-        if (spaceId) {
-          updateSpaceDebounced(spaceId, get().flowConfig, nodes, get().edges);
-        }
-      },
-      onRemoveNode(id: string) {
-        const nodes = reject<Node>((node) => node.id === id)(get().nodes);
+      updateNodeConfig(nodeId: NodeID, change: Partial<NodeConfig>) {
+        const flowContentChange = {
+          nodeConfigs: modify(
+            nodeId,
+            mergeLeft(change) as (a: NodeConfig) => NodeConfig,
+            get().nodeConfigs
+          ),
+        };
 
-        set({ nodes });
+        set(flowContentChange);
 
         const spaceId = get().spaceId;
         if (spaceId) {
-          updateSpaceDebounced(spaceId, get().flowConfig, nodes, get().edges);
+          updateSpace(spaceId, getCurrentFlowContent(), flowContentChange);
+        }
+      },
+      updateNode(nodeId: NodeID, nodeChange: Partial<LocalNode>) {
+        const stateChange = applyNodeChange(nodeId, nodeChange);
+
+        set(stateChange);
+
+        const spaceId = get().spaceId;
+        if (spaceId) {
+          updateSpace(spaceId, getCurrentFlowContent(), stateChange);
+        }
+      },
+      updateNodeDebounced(nodeId: NodeID, nodeChange: Partial<LocalNode>) {
+        const stateChange = applyNodeChange(nodeId, nodeChange);
+
+        set(stateChange);
+
+        const spaceId = get().spaceId;
+        if (spaceId) {
+          updateSpaceDebounced(spaceId, getCurrentFlowContent(), stateChange);
+        }
+      },
+      removeNode(id: string) {
+        const flowContentChange = {
+          nodes: reject<LocalNode>((node) => node.id === id)(get().nodes),
+        };
+
+        set(flowContentChange);
+
+        const spaceId = get().spaceId;
+        if (spaceId) {
+          updateSpace(spaceId, getCurrentFlowContent(), flowContentChange);
         }
       },
 
       // ReactFlow callbacks
 
       onNodesChange(changes: NodeChange[]) {
-        const nodes = applyNodeChanges(changes, get().nodes);
+        const nodes = applyNodeChanges(changes, get().nodes) as LocalNode[];
 
         set({ nodes });
 
@@ -275,10 +306,17 @@ export const useFlowStore = create<FlowState>()(
         // persisted to the server.
       },
       onEdgesChange(changes: EdgeChange[]) {
-        let edges = applyEdgeChanges(changes, get().edges);
-        edges = rejectInvalidEdges(get().nodes, edges);
+        const nodes = get().nodes;
+        let edges = get().edges;
+        const nodeConfigs = get().nodeConfigs;
 
-        set({ edges });
+        edges = applyEdgeChanges(changes, edges) as LocalEdge[];
+
+        const stateChange = {
+          edges: rejectInvalidEdges(nodes, edges, nodeConfigs),
+        };
+
+        set(stateChange);
 
         if (none(propEq("remove", "type"))(changes)) {
           return;
@@ -286,7 +324,7 @@ export const useFlowStore = create<FlowState>()(
 
         const spaceId = get().spaceId;
         if (spaceId) {
-          updateSpace(spaceId, get().flowConfig, get().nodes, edges);
+          updateSpace(spaceId, getCurrentFlowContent(), stateChange);
         }
       },
       onConnect(connection: Connection) {
@@ -302,13 +340,15 @@ export const useFlowStore = create<FlowState>()(
           reject(propEq<string>(connection.targetHandle!, "targetHandle"))
         )(edges);
 
-        edges = addEdge(connection, edges);
+        const stateChange = {
+          edges: addEdge(connection, edges) as LocalEdge[],
+        };
 
-        set({ edges });
+        set(stateChange);
 
         const spaceId = get().spaceId;
         if (spaceId) {
-          updateSpace(spaceId, get().flowConfig, get().nodes, edges);
+          updateSpace(spaceId, getCurrentFlowContent(), stateChange);
         }
       },
 

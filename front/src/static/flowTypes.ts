@@ -1,8 +1,54 @@
-import { Node, Edge } from "reactflow";
+import { Node, Edge, XYPosition } from "reactflow";
 
 // Server types
 
+// Config types
+
+export type NodeID = string;
+export type EdgeID = string;
+export type InputID = string;
+export type OutputID = string;
+
+export type FlowContent = {
+  nodes: ServerNode[];
+  edges: ServerEdge[];
+  flowConfig: FlowConfig | null;
+  nodeConfigs: NodeConfigs;
+  edgeConfigs: EdgeConfigs;
+  inputConfigs: InputConfigs;
+  outputConfigs: OutputConfigs;
+};
+
+export type NodeConfigs = Record<NodeID, NodeConfig>;
+export type EdgeConfigs = Record<EdgeID, Edge>;
+export type InputConfigs = Record<InputID, NodeInputItem>;
+export type OutputConfigs = Record<OutputID, NodeOutputItem>;
+
+export type FlowConfig = {
+  inputConfigMap: Record<string, FlowInputConfig | undefined>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  outputValueMap: Record<string, any>;
+};
+
+export type FlowInputConfig = {
+  valueType: InputValueType;
+};
+
+export enum InputValueType {
+  String = "String",
+  Number = "Number",
+}
+
 // Node
+
+export type ServerNode = {
+  id: NodeID;
+  type: NodeType;
+  position: XYPosition;
+  data: null;
+};
+
+export type LocalNode = Node<null, NodeType> & ServerNode;
 
 export enum NodeType {
   InputNode = "InputNode",
@@ -12,38 +58,12 @@ export enum NodeType {
   ChatGPTChatCompletionNode = "ChatGPTChatCompletionNode",
 }
 
-export type ServerNode = {
-  id: string;
-  position: { x: number; y: number };
-} & (
-  | {
-      type: NodeType.InputNode;
-      data: InputNodeData;
-    }
-  | {
-      type: NodeType.OutputNode;
-      data: OutputNodeData;
-    }
-  | {
-      type: NodeType.JavaScriptFunctionNode;
-      data: JavaScriptFunctionNodeData;
-    }
-  | {
-      type: NodeType.ChatGPTMessageNode;
-      data: ChatGPTMessageNodeData;
-    }
-  | {
-      type: NodeType.ChatGPTChatCompletionNode;
-      data: ChatGPTChatCompletionNodeData;
-    }
-);
-
-export type NodeData =
-  | InputNodeData
-  | OutputNodeData
-  | JavaScriptFunctionNodeData
-  | ChatGPTMessageNodeData
-  | ChatGPTChatCompletionNodeData;
+export type NodeConfig =
+  | InputNodeConfig
+  | OutputNodeConfig
+  | JavaScriptFunctionNodeConfig
+  | ChatGPTMessageNodeConfig
+  | ChatGPTChatCompletionNodeConfig;
 
 export type NodeInputItem = {
   id: string;
@@ -61,21 +81,21 @@ export type NodeOutputItem = {
 
 // Input
 
-export type InputNodeData = {
+export type InputNodeConfig = {
   nodeType: NodeType.InputNode;
   outputs: NodeOutputItem[];
 };
 
 // Output
 
-export type OutputNodeData = {
+export type OutputNodeConfig = {
   nodeType: NodeType.OutputNode;
   inputs: NodeInputItem[];
 };
 
 // JavaScriptFunction
 
-export type JavaScriptFunctionNodeData = {
+export type JavaScriptFunctionNodeConfig = {
   nodeType: NodeType.JavaScriptFunctionNode;
   inputs: NodeInputItem[];
   javaScriptCode: string;
@@ -84,7 +104,7 @@ export type JavaScriptFunctionNodeData = {
 
 // ChatGPTMessage
 
-export type ChatGPTMessageNodeData = {
+export type ChatGPTMessageNodeConfig = {
   nodeType: NodeType.ChatGPTMessageNode;
   inputs: NodeInputItem[];
   role: ChatGPTMessageRole;
@@ -100,7 +120,7 @@ export enum ChatGPTMessageRole {
 
 // ChatGPTChatCompletion
 
-export type ChatGPTChatCompletionNodeData = {
+export type ChatGPTChatCompletionNodeConfig = {
   nodeType: NodeType.ChatGPTChatCompletionNode;
   inputs: NodeInputItem[];
   model: OpenAIChatModel;
@@ -117,44 +137,18 @@ export enum OpenAIChatModel {
 // Edge
 
 export type ServerEdge = {
-  id: string;
-  source: string;
-  sourceHandle: string;
-  target: string;
-  targetHandle: string;
+  id: EdgeID;
+  source: NodeID;
+  sourceHandle: OutputID;
+  target: NodeID;
+  targetHandle: InputID;
 };
 
-// ReactFlow types
-
-export type NodeWithType = Node<NodeData> & {
-  type: NodeType;
-};
-
-export type EdgeWithHandle = Edge & {
-  sourceHandle: string;
-  targetHandle: string;
-};
+export type LocalEdge = Edge<never> & ServerEdge;
 
 // Navigation types
 
 export enum DetailPanelContentType {
   NodeOutput = "NodeOutput",
   FlowConfig = "FlowConfig",
-}
-
-// Config types
-
-export type FlowConfig = {
-  inputConfigMap: Record<string, FlowInputConfig | undefined>;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  outputValueMap: Record<string, any>;
-};
-
-export type FlowInputConfig = {
-  valueType: InputValueType;
-};
-
-export enum InputValueType {
-  String = "String",
-  Number = "Number",
 }

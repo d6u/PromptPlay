@@ -3,7 +3,7 @@ import { find, propEq } from "ramda";
 import { ReactNode, useMemo } from "react";
 import { Node } from "reactflow";
 import { FlowState, useFlowStore } from "../../../state/flowState";
-import { NodeData } from "../../../static/flowTypes";
+import { NodeConfig } from "../../../static/flowTypes";
 import { RawValue } from "../common/commonStyledComponents";
 
 const selector = (state: FlowState) => ({
@@ -18,7 +18,7 @@ export default function PanelNodeOutput() {
 
   const node = useMemo(
     () =>
-      find<Node<NodeData>>(propEq(detailPanelSelectedNodeId, "id"))(nodes) ??
+      find<Node<NodeConfig>>(propEq(detailPanelSelectedNodeId, "id"))(nodes) ??
       null,
     [detailPanelSelectedNodeId, nodes]
   );

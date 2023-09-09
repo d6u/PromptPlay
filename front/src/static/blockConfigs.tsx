@@ -1,6 +1,6 @@
 import { append, assoc, flatten, pipe, prop } from "ramda";
 import { ReactNode } from "react";
-import * as openai from "../llm/openAi";
+import * as openai from "../llm/open-ai";
 import { usePersistStore } from "../state/zustand";
 import {
   Block,

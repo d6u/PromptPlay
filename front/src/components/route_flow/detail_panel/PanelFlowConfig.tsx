@@ -5,10 +5,10 @@ import { ReactNode, useMemo } from "react";
 import { Node } from "reactflow";
 import { FlowState, useFlowStore } from "../../../state/flowState";
 import {
-  InputNodeData,
+  InputNodeConfig,
   NodeOutputItem,
   NodeType,
-  OutputNodeData,
+  OutputNodeConfig,
 } from "../../../static/flowTypes";
 import { RawValue } from "../common/commonStyledComponents";
 import InputBlock from "./InputBlock";
@@ -17,7 +17,7 @@ const selector = (state: FlowState) => ({
   flowConfig: state.flowConfig,
   onFlowConfigUpdate: state.onFlowConfigUpdate,
   nodes: state.nodes,
-  onUpdateNode: state.onUpdateNode,
+  onUpdateNode: state.updateNodeConfig,
   setDetailPanelContentType: state.setDetailPanelContentType,
 });
 
@@ -35,7 +35,7 @@ export default function PanelFlowConfig() {
       filter(
         nodes,
         propEq<string>(NodeType.InputNode, "type")
-      ) as Node<InputNodeData>[],
+      ) as Node<InputNodeConfig>[],
     [nodes]
   );
 
@@ -44,7 +44,7 @@ export default function PanelFlowConfig() {
       filter(
         nodes,
         propEq<string>(NodeType.OutputNode, "type")
-      ) as Node<OutputNodeData>[],
+      ) as Node<OutputNodeConfig>[],
     [nodes]
   );
 

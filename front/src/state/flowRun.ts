@@ -1,26 +1,27 @@
 import { adjust, append, assoc, pipe } from "ramda";
 import { Node, Edge } from "reactflow";
-import * as openAi from "../../llm/openAi";
-import { usePersistStore } from "../../state/zustand";
+import * as OpenAI from "../llm/open-ai";
 import {
-  ChatGPTChatCompletionNodeData,
-  ChatGPTMessageNodeData,
-  InputNodeData,
-  JavaScriptFunctionNodeData,
-  NodeData,
+  ChatGPTChatCompletionNodeConfig,
+  ChatGPTMessageNodeConfig,
+  InputNodeConfig,
+  JavaScriptFunctionNodeConfig,
+  LocalNode,
+  NodeConfig,
+  NodeID,
   NodeOutputItem,
   NodeType,
-  OutputNodeData,
-  ServerNode,
-} from "../../static/flowTypes";
+  OutputNodeConfig,
+} from "../static/flowTypes";
+import { usePersistStore } from "./zustand";
 
-export async function executeNode(
-  nodes: Node<NodeData>[],
+export async function run(
+  nodes: LocalNode[],
   edges: Edge[],
-  onUpdateNode: (node: { id: string } & Partial<ServerNode>) => void
+  onUpdateNode: (nodeId: NodeID, nodeChange: Partial<LocalNode>) => void
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): Promise<Record<string, any>> {
-  const nodeIdToNodeMap: { [key: string]: Node<NodeData> } = {};
+  const nodeIdToNodeMap: { [key: string]: Node<NodeConfig> } = {};
   const nodeGraph: { [key: string]: string[] } = {};
   const nodeIndegree: { [key: string]: number } = {};
 
@@ -135,7 +136,7 @@ export async function executeNode(
 }
 
 function handleInputNode(
-  data: InputNodeData,
+  data: InputNodeConfig,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   outputIdToValueMap: { [key: string]: any }
 ) {
@@ -145,7 +146,7 @@ function handleInputNode(
 }
 
 function handleOutputNode(
-  data: OutputNodeData,
+  data: OutputNodeConfig,
   inputIdToOutputIdMap: { [key: string]: string | undefined },
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   outputIdToValueMap: { [key: string]: any }
@@ -169,11 +170,11 @@ function handleOutputNode(
 }
 
 function handleJavaScriptFunctionNode(
-  data: JavaScriptFunctionNodeData,
+  data: JavaScriptFunctionNodeConfig,
   inputIdToOutputIdMap: { [key: string]: string | undefined },
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   outputIdToValueMap: { [key: string]: any },
-  onDataChange: (dataChange: Partial<JavaScriptFunctionNodeData>) => void
+  onDataChange: (dataChange: Partial<JavaScriptFunctionNodeConfig>) => void
 ) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const pairs: Array<[string, any]> = [];
@@ -201,11 +202,11 @@ function handleJavaScriptFunctionNode(
 }
 
 function handleChatGPTMessageNode(
-  data: ChatGPTMessageNodeData,
+  data: ChatGPTMessageNodeConfig,
   inputIdToOutputIdMap: { [key: string]: string | undefined },
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   outputIdToValueMap: { [key: string]: any },
-  onDataChange: (dataChange: Partial<ChatGPTMessageNodeData>) => void
+  onDataChange: (dataChange: Partial<ChatGPTMessageNodeConfig>) => void
 ) {
   // Prepare inputs
   // ----------
@@ -265,11 +266,11 @@ function replacePlaceholders(str: string, values: { [key: string]: any }) {
 }
 
 async function handleChatGPTChatNode(
-  data: ChatGPTChatCompletionNodeData,
+  data: ChatGPTChatCompletionNodeConfig,
   inputIdToOutputIdMap: { [key: string]: string | undefined },
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   outputIdToValueMap: { [key: string]: any },
-  onDataChange: (dataChange: Partial<ChatGPTChatCompletionNodeData>) => void
+  onDataChange: (dataChange: Partial<ChatGPTChatCompletionNodeConfig>) => void
 ) {
   // Prepare inputs
   // ----------
@@ -295,7 +296,7 @@ async function handleChatGPTChatNode(
 
   let messages = argsMap["messages"] ?? [];
 
-  const result = await openAi.getNonStreamingCompletion({
+  const result = await OpenAI.getNonStreamingCompletion({
     apiKey: openAiApiKey,
     model: data.model,
     temperature: data.temperature,
