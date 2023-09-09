@@ -3,7 +3,6 @@ import assoc from "ramda/es/assoc";
 import map from "ramda/es/map";
 import { useCallback, useMemo } from "react";
 import ReactFlow, {
-  Node,
   Controls,
   Background,
   BackgroundVariant,
@@ -15,7 +14,7 @@ import CanvasPanel from "./controls/CanvasPanel";
 import DetailPanel from "./controls/DetailPanel";
 import { run } from "./flowRun";
 import { FlowState, useFlowStore } from "./flowState";
-import { NodeType } from "./flowTypes";
+import { LocalEdge, LocalNode, NodeType } from "./flowTypes";
 import ChatGPTChatCompletionNode from "./nodes/ChatGPTChatCompletionNode";
 import ChatGPTMessageNode from "./nodes/ChatGPTMessageNode";
 import InputNode from "./nodes/InputNode";
@@ -33,6 +32,12 @@ const NODE_TYPES = {
 
 const applyDragHandleMemoized = memoize(
   assoc("dragHandle", `.${DRAG_HANDLE_CLASS_NAME}`)
+);
+
+const applyEdgeStyleMemoized = memoize(
+  assoc("style", {
+    strokeWidth: 2,
+  })
 );
 
 const selector = (state: FlowState) => ({
@@ -63,7 +68,7 @@ export default function FlowCanvas() {
   } = useFlowStore(selector);
 
   const nodesWithAdditionalData = useMemo(
-    () => map<Node, Node>(applyDragHandleMemoized)(nodes),
+    () => map<LocalNode, LocalNode>(applyDragHandleMemoized)(nodes),
     [nodes]
   );
 
@@ -74,17 +79,29 @@ export default function FlowCanvas() {
     [updateNode]
   );
 
+  const edgesWithAdditionalData = useMemo(
+    () => map<LocalEdge, LocalEdge>(applyEdgeStyleMemoized)(edges),
+    [edges]
+  );
+
   const onRun = useCallback(() => {
-    run(edges, nodeConfigs, updateNodeConfigDebounced).then((result) => {
-      onFlowConfigUpdate({ outputValueMap: result });
-    });
-  }, [edges, nodeConfigs, updateNodeConfigDebounced, onFlowConfigUpdate]);
+    run(edgesWithAdditionalData, nodeConfigs, updateNodeConfigDebounced).then(
+      (result) => {
+        onFlowConfigUpdate({ outputValueMap: result });
+      }
+    );
+  }, [
+    edgesWithAdditionalData,
+    nodeConfigs,
+    updateNodeConfigDebounced,
+    onFlowConfigUpdate,
+  ]);
 
   return (
     <>
       <ReactFlow
         nodes={nodesWithAdditionalData}
-        edges={edges}
+        edges={edgesWithAdditionalData}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
