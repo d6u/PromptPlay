@@ -1,22 +1,32 @@
-import Button from "@mui/joy/Button";
 import Input from "@mui/joy/Input";
 import { useState } from "react";
 import styled from "styled-components";
+import IconEdit from "../../../icons/IconEdit";
+import { FlowState, useFlowStore } from "../../flowState";
+import { DetailPanelContentType } from "../../flowTypes";
+import RemoveButton from "./RemoveButton";
 
-export const VARIABLE_ROW_MARGIN_BOTTOM = 5;
+const VARIABLE_ROW_MARGIN_BOTTOM = 5;
 
 const Container = styled.div`
+  margin-top: ${VARIABLE_ROW_MARGIN_BOTTOM}px;
   display: flex;
-  margin-bottom: ${VARIABLE_ROW_MARGIN_BOTTOM}px;
+  align-items: center;
+  gap: 5px;
 
   &:last-child {
-    margin-bottom: 0;
+    // margin-bottom: 0;
   }
 `;
 
-const NameInput = styled(Input)`
-  margin-right: 5px;
+const EditIcon = styled(IconEdit)`
+  width: 25px;
+  cursor: pointer;
 `;
+
+const selector = (state: FlowState) => ({
+  setDetailPanelContentType: state.setDetailPanelContentType,
+});
 
 type Props =
   | {
@@ -30,12 +40,19 @@ type Props =
       name: string;
     };
 
-export default function NodeInputModifyRow(props: Props) {
+export default function NodeOutputModifyRow(props: Props) {
+  const { setDetailPanelContentType } = useFlowStore(selector);
+
   const [name, setName] = useState(props.name);
 
   return (
     <Container>
-      <NameInput
+      <EditIcon
+        onClick={() =>
+          setDetailPanelContentType(DetailPanelContentType.FlowConfig)
+        }
+      />
+      <Input
         color="primary"
         size="sm"
         variant="outlined"
@@ -60,16 +77,7 @@ export default function NodeInputModifyRow(props: Props) {
           props.onConfirmNameChange(name);
         }}
       />
-      {!props.isReadOnly && (
-        <Button
-          color="danger"
-          size="sm"
-          variant="outlined"
-          onClick={() => props.onRemove()}
-        >
-          Remove
-        </Button>
-      )}
+      {!props.isReadOnly && <RemoveButton onClick={() => props.onRemove()} />}
     </Container>
   );
 }

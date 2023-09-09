@@ -1,13 +1,14 @@
 import { useNodeId } from "reactflow";
 import styled from "styled-components";
-import { RFState, useRFStore } from "../../../state/flowState";
-import { DetailPanelContentType } from "../../../static/flowTypes";
-import IconInspect from "../../icons/IconInspect";
-import { VARIABLE_LABEL_HEIGHT } from "../common/commonStyledComponents";
-import { VARIABLE_ROW_MARGIN_BOTTOM } from "./NodeInputModifyRow";
+import IconInspect from "../../../icons/IconInspect";
+import { FlowState, useFlowStore } from "../../flowState";
+import { DetailPanelContentType } from "../../flowTypes";
+import { ROW_MARGIN_TOP } from "./NodeInputModifyRow";
+
+export const VARIABLE_LABEL_HEIGHT = 32;
 
 const Container = styled.div`
-  margin-bottom: ${VARIABLE_ROW_MARGIN_BOTTOM}px;
+  margin-bottom: ${ROW_MARGIN_TOP}px;
   display: flex;
   gap: 5px;
   align-items: center;
@@ -46,7 +47,7 @@ const InspectIcon = styled(IconInspect)`
   cursor: pointer;
 `;
 
-const selector = (state: RFState) => ({
+const selector = (state: FlowState) => ({
   setDetailPanelContentType: state.setDetailPanelContentType,
   setDetailPanelSelectedNodeId: state.setDetailPanelSelectedNodeId,
 });
@@ -59,7 +60,7 @@ type Props = {
 
 export default function NodeOutputRow(props: Props) {
   const { setDetailPanelContentType, setDetailPanelSelectedNodeId } =
-    useRFStore(selector);
+    useFlowStore(selector);
 
   const nodeId = useNodeId()!;
 

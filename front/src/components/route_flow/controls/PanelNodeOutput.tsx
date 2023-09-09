@@ -1,31 +1,27 @@
 import { Button } from "@mui/joy";
-import { find, propEq } from "ramda";
 import { ReactNode, useMemo } from "react";
-import { Node } from "reactflow";
-import { RFState, useRFStore } from "../../../state/flowState";
-import { NodeData } from "../../../static/flowTypes";
-import { RawValue } from "../common/commonStyledComponents";
+import { FlowState, useFlowStore } from "../flowState";
+import { RawValue } from "./commonStyledComponents";
 
-const selector = (state: RFState) => ({
-  nodes: state.nodes,
+const selector = (state: FlowState) => ({
+  nodeConfigs: state.nodeConfigs,
   setDetailPanelContentType: state.setDetailPanelContentType,
   detailPanelSelectedNodeId: state.detailPanelSelectedNodeId,
 });
 
 export default function PanelNodeOutput() {
-  const { nodes, setDetailPanelContentType, detailPanelSelectedNodeId } =
-    useRFStore(selector);
+  const { nodeConfigs, setDetailPanelContentType, detailPanelSelectedNodeId } =
+    useFlowStore(selector);
 
-  const node = useMemo(
+  const nodeConfig = useMemo(
     () =>
-      find<Node<NodeData>>(propEq(detailPanelSelectedNodeId, "id"))(nodes) ??
-      null,
-    [detailPanelSelectedNodeId, nodes]
+      detailPanelSelectedNodeId ? nodeConfigs[detailPanelSelectedNodeId] : null,
+    [detailPanelSelectedNodeId, nodeConfigs]
   );
 
   const contents: ReactNode[] = [];
-  if (node && "outputs" in node.data) {
-    for (const output of node.data.outputs ?? []) {
+  if (nodeConfig && "outputs" in nodeConfig) {
+    for (const output of nodeConfig.outputs ?? []) {
       let content: ReactNode;
       if (typeof output?.value === "string") {
         content = output?.value;

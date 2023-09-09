@@ -1,44 +1,44 @@
 import { adjust, append, assoc, pipe } from "ramda";
-import { Node, Edge } from "reactflow";
-import * as openAi from "../../llm/openAi";
+import * as OpenAI from "../../llm/open-ai";
 import { usePersistStore } from "../../state/zustand";
 import {
-  ChatGPTChatCompletionNodeData,
-  ChatGPTMessageNodeData,
-  InputNodeData,
-  JavaScriptFunctionNodeData,
-  NodeData,
+  ChatGPTChatCompletionNodeConfig,
+  ChatGPTMessageNodeConfig,
+  InputNodeConfig,
+  JavaScriptFunctionNodeConfig,
+  LocalEdge,
+  NodeConfig,
+  NodeConfigs,
+  NodeID,
   NodeOutputItem,
   NodeType,
-  OutputNodeData,
-  ServerNode,
-} from "../../static/flowTypes";
+  OutputNodeConfig,
+} from "./flowTypes";
 
-export async function executeNode(
-  nodes: Node<NodeData>[],
-  edges: Edge[],
-  onUpdateNode: (node: { id: string } & Partial<ServerNode>) => void
+export async function run(
+  edges: LocalEdge[],
+  nodeConfigs: NodeConfigs,
+  updateNodeConfig: (nodeId: NodeID, nodeChange: Partial<NodeConfig>) => void
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): Promise<Record<string, any>> {
-  const nodeIdToNodeMap: { [key: string]: Node<NodeData> } = {};
-  const nodeGraph: { [key: string]: string[] } = {};
-  const nodeIndegree: { [key: string]: number } = {};
+  const nodeGraph: Record<NodeID, NodeID[]> = {};
+  const nodeIndegree: Record<NodeID, number> = {};
 
-  const inputIdToOutputIdMap: { [key: string]: string | undefined } = {};
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const outputIdToValueMap: { [key: string]: any } = {};
-
-  for (const node of nodes) {
-    nodeIdToNodeMap[node.id] = node;
-    nodeGraph[node.id] = [];
-    nodeIndegree[node.id] = 0;
+  for (const nodeId of Object.keys(nodeConfigs)) {
+    nodeGraph[nodeId] = [];
+    nodeIndegree[nodeId] = 0;
   }
 
+  const inputIdToOutputIdMap: Record<string, string | undefined> = {};
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const outputIdToValueMap: Record<string, any> = {};
+
   for (const edge of edges) {
-    // nodeGraph[edge.source] can contain duplicate edge.target,
-    // because of multiple edges between two nodes.
-    // This is fine, because we are reducing indegree the equial number of times
-    // in the while loop below.
+    // nodeGraph[edge.source] contains duplicate edge.target,
+    // because there can be multiple edges between two nodes.
+    //
+    // This is expected since we are reducing indegree the equial number of
+    // times in the while loop below.
     nodeGraph[edge.source].push(edge.target);
     nodeIndegree[edge.target] += 1;
 
@@ -57,19 +57,18 @@ export async function executeNode(
   let finalResult: Record<string, any> = {};
 
   while (queue.length > 0) {
-    const id = queue.shift()!;
-    const node = nodeIdToNodeMap[id];
+    const nodeId = queue.shift()!;
+    // It's OK to force unwrap here since the risk missing node config is tiny.
+    const nodeConfig = nodeConfigs[nodeId]!;
 
-    switch (node.data.nodeType) {
+    switch (nodeConfig.nodeType) {
       case NodeType.InputNode: {
-        const nodeData = node.data;
-        handleInputNode(nodeData, outputIdToValueMap);
+        handleInputNode(nodeConfig, outputIdToValueMap);
         break;
       }
       case NodeType.OutputNode: {
-        const nodeData = node.data;
         const result = handleOutputNode(
-          nodeData,
+          nodeConfig,
           inputIdToOutputIdMap,
           outputIdToValueMap
         );
@@ -77,53 +76,42 @@ export async function executeNode(
         break;
       }
       case NodeType.JavaScriptFunctionNode: {
-        const nodeData = node.data;
+        const nodeData = nodeConfig;
         handleJavaScriptFunctionNode(
           nodeData,
           inputIdToOutputIdMap,
           outputIdToValueMap,
-          (dataChange) => {
-            onUpdateNode({
-              id: node.id,
-              data: { ...nodeData, ...dataChange },
-            });
+          (configChange) => {
+            updateNodeConfig(nodeId, { ...configChange });
           }
         );
         break;
       }
       case NodeType.ChatGPTMessageNode: {
-        const nodeData = node.data;
         handleChatGPTMessageNode(
-          nodeData,
+          nodeConfig,
           inputIdToOutputIdMap,
           outputIdToValueMap,
-          (dataChange) => {
-            onUpdateNode({
-              id: node.id,
-              data: { ...nodeData, ...dataChange },
-            });
+          (configChange) => {
+            updateNodeConfig(nodeId, { ...configChange });
           }
         );
         break;
       }
       case NodeType.ChatGPTChatCompletionNode: {
-        const nodeData = node.data;
         await handleChatGPTChatNode(
-          nodeData,
+          nodeConfig,
           inputIdToOutputIdMap,
           outputIdToValueMap,
-          (dataChange) => {
-            onUpdateNode({
-              id: node.id,
-              data: { ...nodeData, ...dataChange },
-            });
+          (configChange) => {
+            updateNodeConfig(nodeId, { ...configChange });
           }
         );
         break;
       }
     }
 
-    for (const nextId of nodeGraph[id]) {
+    for (const nextId of nodeGraph[nodeId]) {
       nodeIndegree[nextId] -= 1;
       if (nodeIndegree[nextId] === 0) {
         queue.push(nextId);
@@ -135,7 +123,7 @@ export async function executeNode(
 }
 
 function handleInputNode(
-  data: InputNodeData,
+  data: InputNodeConfig,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   outputIdToValueMap: { [key: string]: any }
 ) {
@@ -145,7 +133,7 @@ function handleInputNode(
 }
 
 function handleOutputNode(
-  data: OutputNodeData,
+  data: OutputNodeConfig,
   inputIdToOutputIdMap: { [key: string]: string | undefined },
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   outputIdToValueMap: { [key: string]: any }
@@ -169,11 +157,11 @@ function handleOutputNode(
 }
 
 function handleJavaScriptFunctionNode(
-  data: JavaScriptFunctionNodeData,
+  data: JavaScriptFunctionNodeConfig,
   inputIdToOutputIdMap: { [key: string]: string | undefined },
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   outputIdToValueMap: { [key: string]: any },
-  onDataChange: (dataChange: Partial<JavaScriptFunctionNodeData>) => void
+  onDataChange: (dataChange: Partial<JavaScriptFunctionNodeConfig>) => void
 ) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const pairs: Array<[string, any]> = [];
@@ -201,11 +189,11 @@ function handleJavaScriptFunctionNode(
 }
 
 function handleChatGPTMessageNode(
-  data: ChatGPTMessageNodeData,
+  data: ChatGPTMessageNodeConfig,
   inputIdToOutputIdMap: { [key: string]: string | undefined },
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   outputIdToValueMap: { [key: string]: any },
-  onDataChange: (dataChange: Partial<ChatGPTMessageNodeData>) => void
+  onDataChange: (dataChange: Partial<ChatGPTMessageNodeConfig>) => void
 ) {
   // Prepare inputs
   // ----------
@@ -265,11 +253,11 @@ function replacePlaceholders(str: string, values: { [key: string]: any }) {
 }
 
 async function handleChatGPTChatNode(
-  data: ChatGPTChatCompletionNodeData,
+  data: ChatGPTChatCompletionNodeConfig,
   inputIdToOutputIdMap: { [key: string]: string | undefined },
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   outputIdToValueMap: { [key: string]: any },
-  onDataChange: (dataChange: Partial<ChatGPTChatCompletionNodeData>) => void
+  onDataChange: (dataChange: Partial<ChatGPTChatCompletionNodeConfig>) => void
 ) {
   // Prepare inputs
   // ----------
@@ -295,7 +283,7 @@ async function handleChatGPTChatNode(
 
   let messages = argsMap["messages"] ?? [];
 
-  const result = await openAi.getNonStreamingCompletion({
+  const result = await OpenAI.getNonStreamingCompletion({
     apiKey: openAiApiKey,
     model: data.model,
     temperature: data.temperature,

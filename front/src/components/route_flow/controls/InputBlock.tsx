@@ -4,7 +4,7 @@ import Select from "@mui/joy/Select";
 import Textarea from "@mui/joy/Textarea";
 import { ReactNode, useState } from "react";
 import styled from "styled-components";
-import { InputValueType } from "../../../static/flowTypes";
+import { InputValueType } from "../flowTypes";
 
 const Container = styled.div`
   margin-bottom: 10px;

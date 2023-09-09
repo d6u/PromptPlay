@@ -1,23 +1,22 @@
 import Button from "@mui/joy/Button";
-import filter from "lodash/filter";
-import { adjust, assoc, flatten, propEq } from "ramda";
+import { adjust, assoc, filter, flatten, map, pipe, propEq } from "ramda";
 import { ReactNode, useMemo } from "react";
-import { Node } from "reactflow";
-import { RFState, useRFStore } from "../../../state/flowState";
+import { FlowState, useFlowStore } from "../flowState";
 import {
-  InputNodeData,
+  InputNodeConfig,
   NodeOutputItem,
   NodeType,
-  OutputNodeData,
-} from "../../../static/flowTypes";
-import { RawValue } from "../common/commonStyledComponents";
+  OutputNodeConfig,
+} from "../flowTypes";
 import InputBlock from "./InputBlock";
+import { RawValue } from "./commonStyledComponents";
 
-const selector = (state: RFState) => ({
+const selector = (state: FlowState) => ({
   flowConfig: state.flowConfig,
   onFlowConfigUpdate: state.onFlowConfigUpdate,
+  nodeConfigs: state.nodeConfigs,
   nodes: state.nodes,
-  onUpdateNode: state.onUpdateNode,
+  updateNodeConfig: state.updateNodeConfig,
   setDetailPanelContentType: state.setDetailPanelContentType,
 });
 
@@ -25,34 +24,35 @@ export default function PanelFlowConfig() {
   const {
     flowConfig,
     onFlowConfigUpdate,
+    nodeConfigs,
     nodes,
-    onUpdateNode,
+    updateNodeConfig,
     setDetailPanelContentType,
-  } = useRFStore(selector);
+  } = useFlowStore(selector);
 
-  const inputNodes = useMemo(
+  const inputNodeConfigs = useMemo(
     () =>
-      filter(
-        nodes,
-        propEq<string>(NodeType.InputNode, "type")
-      ) as Node<InputNodeData>[],
-    [nodes]
+      pipe(
+        filter(propEq<string>(NodeType.InputNode, "type")),
+        map((node) => nodeConfigs[node.id])
+      )(nodes) as InputNodeConfig[],
+    [nodeConfigs, nodes]
   );
 
-  const outputNodes = useMemo(
+  const outputNodeConfigs = useMemo(
     () =>
-      filter(
-        nodes,
-        propEq<string>(NodeType.OutputNode, "type")
-      ) as Node<OutputNodeData>[],
-    [nodes]
+      pipe(
+        filter(propEq<string>(NodeType.OutputNode, "type")),
+        map((node) => nodeConfigs[node.id])
+      )(nodes) as OutputNodeConfig[],
+    [nodeConfigs, nodes]
   );
 
   return (
     <>
       {flatten(
-        inputNodes.map((node) =>
-          node.data.outputs.map((output, i) => (
+        inputNodeConfigs.map((nodeConfig) =>
+          nodeConfig.outputs.map((output, i) => (
             <InputBlock
               key={output.id}
               id={output.id}
@@ -62,12 +62,9 @@ export default function PanelFlowConfig() {
                 const newOutputs = adjust<NodeOutputItem>(
                   i,
                   assoc("value", value)<NodeOutputItem>
-                )(node.data.outputs);
+                )(nodeConfig.outputs);
 
-                onUpdateNode({
-                  id: node.id,
-                  data: { ...node.data, outputs: newOutputs },
-                });
+                updateNodeConfig(nodeConfig.nodeId, { outputs: newOutputs });
               }}
               type={flowConfig?.inputConfigMap[output.id]?.valueType}
               onSaveType={(type) => {
@@ -97,8 +94,8 @@ export default function PanelFlowConfig() {
         )
       )}
       {flatten(
-        outputNodes.map((node) =>
-          node.data.inputs.map((input, i) => {
+        outputNodeConfigs.map((nodeConfig) =>
+          nodeConfig.inputs.map((input, i) => {
             const value = flowConfig?.outputValueMap[input.id] ?? null;
             let content: ReactNode;
             if (typeof value === "string") {

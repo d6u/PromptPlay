@@ -1,44 +1,61 @@
-import Button from "@mui/joy/Button";
 import Textarea from "@mui/joy/Textarea";
 import Chance from "chance";
 import { nanoid } from "nanoid";
 import { adjust, append, assoc, remove } from "ramda";
-import { useState } from "react";
-import { Position, useUpdateNodeInternals, NodeProps } from "reactflow";
-import { RFState, useRFStore } from "../../../state/flowState";
+import { useMemo, useState } from "react";
+import { Position, useUpdateNodeInternals, useNodeId } from "reactflow";
+import { FlowState, useFlowStore } from "../flowState";
 import {
-  JavaScriptFunctionNodeData,
+  JavaScriptFunctionNodeConfig,
+  NodeID,
   NodeInputItem,
-} from "../../../static/flowTypes";
+  NodeType,
+} from "../flowTypes";
+import AddVariableButton from "./shared/AddVariableButton";
+import HeaderSection from "./shared/HeaderSection";
+import NodeBox from "./shared/NodeBox";
+import NodeInputModifyRow from "./shared/NodeInputModifyRow";
+import NodeOutputRow from "./shared/NodeOutputRow";
 import {
-  HeaderSection,
   InputHandle,
   OutputHandle,
   Section,
-} from "../common/commonStyledComponents";
-import { calculateInputHandleTop } from "../common/utils";
-import NodeBox from "./NodeBox";
-import NodeInputModifyRow from "./NodeInputModifyRow";
-import NodeOutputRow from "./NodeOutputRow";
+} from "./shared/commonStyledComponents";
+import {
+  calculateInputHandleTop,
+  calculateOutputHandleBottom,
+} from "./shared/utils";
 
 const chance = new Chance();
 
-const selector = (state: RFState) => ({
-  onUpdateNode: state.onUpdateNode,
-  onRemoveNode: state.onRemoveNode,
+const selector = (state: FlowState) => ({
+  nodeConfigs: state.nodeConfigs,
+  updateNodeConfig: state.updateNodeConfig,
+  removeNode: state.removeNode,
 });
 
-export default function JavaScriptFunctionNode(
-  props: NodeProps<JavaScriptFunctionNodeData>
-) {
+export default function JavaScriptFunctionNode() {
+  const nodeId = useNodeId() as NodeID;
+
+  const { nodeConfigs, updateNodeConfig, removeNode } = useFlowStore(selector);
+
+  const nodeConfig = useMemo(
+    () => nodeConfigs[nodeId] as JavaScriptFunctionNodeConfig | undefined,
+    [nodeConfigs, nodeId]
+  );
+
   const updateNodeInternals = useUpdateNodeInternals();
 
-  const { onUpdateNode, onRemoveNode } = useRFStore(selector);
-
-  const [inputs, setInputs] = useState(props.data.inputs);
+  // It's OK to force unwrap here because nodeConfig will be undefined only
+  // when Node is being deleted.
+  const [inputs, setInputs] = useState(() => nodeConfig!.inputs);
   const [javaScriptCode, setJavaScriptCode] = useState(
-    props.data.javaScriptCode
+    () => nodeConfig!.javaScriptCode
   );
+
+  if (!nodeConfig) {
+    return null;
+  }
 
   return (
     <>
@@ -51,40 +68,26 @@ export default function JavaScriptFunctionNode(
           style={{ top: calculateInputHandleTop(i) }}
         />
       ))}
-      <NodeBox>
-        <HeaderSection>
-          <Button
-            color="success"
-            size="sm"
-            variant="outlined"
+      <NodeBox nodeType={NodeType.JavaScriptFunctionNode}>
+        <HeaderSection
+          title="JavaScript"
+          onClickRemove={() => removeNode(nodeId)}
+        />
+        <Section>
+          <AddVariableButton
             onClick={() => {
               const newInputs = append<NodeInputItem>({
-                id: `${props.id}/${nanoid()}`,
+                id: `${nodeId}/${nanoid()}`,
                 name: chance.word(),
               })(inputs);
 
               setInputs(newInputs);
 
-              onUpdateNode({
-                id: props.id,
-                data: { ...props.data, inputs: newInputs },
-              });
+              updateNodeConfig(nodeId, { inputs: newInputs });
 
-              updateNodeInternals(props.id);
+              updateNodeInternals(nodeId);
             }}
-          >
-            Add input
-          </Button>
-          <Button
-            color="danger"
-            size="sm"
-            variant="outlined"
-            onClick={() => onRemoveNode(props.id)}
-          >
-            Remove node
-          </Button>
-        </HeaderSection>
-        <Section>
+          />
           {inputs.map((input, i) => (
             <NodeInputModifyRow
               key={input.id}
@@ -97,22 +100,16 @@ export default function JavaScriptFunctionNode(
 
                 setInputs(newInputs);
 
-                onUpdateNode({
-                  id: props.id,
-                  data: { ...props.data, inputs: newInputs },
-                });
+                updateNodeConfig(nodeId, { inputs: newInputs });
               }}
               onRemove={() => {
                 const newInputs = remove(i, 1, inputs);
 
                 setInputs(newInputs);
 
-                onUpdateNode({
-                  id: props.id,
-                  data: { ...props.data, inputs: newInputs },
-                });
+                updateNodeConfig(nodeId, { inputs: newInputs });
 
-                updateNodeInternals(props.id);
+                updateNodeInternals(nodeId);
               }}
             />
           ))}
@@ -133,33 +130,30 @@ export default function JavaScriptFunctionNode(
             }}
             onKeyDown={(e) => {
               if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
-                onUpdateNode({
-                  id: props.id,
-                  data: { ...props.data, javaScriptCode },
-                });
+                updateNodeConfig(nodeId, { javaScriptCode });
               }
             }}
             onBlur={() => {
-              onUpdateNode({
-                id: props.id,
-                data: { ...props.data, javaScriptCode },
-              });
+              updateNodeConfig(nodeId, { javaScriptCode });
             }}
           />
           <code>{"}"}</code>
         </Section>
         <Section>
           <NodeOutputRow
-            id={props.data.outputs[0].id}
-            name={props.data.outputs[0].name}
-            value={props.data.outputs[0].value}
+            id={nodeConfig.outputs[0].id}
+            name={nodeConfig.outputs[0].name}
+            value={nodeConfig.outputs[0].value}
           />
         </Section>
       </NodeBox>
       <OutputHandle
         type="source"
-        id={props.data.outputs[0].id}
+        id={nodeConfig.outputs[0].id}
         position={Position.Right}
+        style={{
+          bottom: calculateOutputHandleBottom(nodeConfig.outputs.length - 1),
+        }}
       />
     </>
   );

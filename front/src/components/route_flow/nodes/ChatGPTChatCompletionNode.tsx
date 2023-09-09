@@ -1,67 +1,73 @@
-import Button from "@mui/joy/Button";
 import Input from "@mui/joy/Input";
 import Option from "@mui/joy/Option";
 import Select from "@mui/joy/Select";
-import { useState } from "react";
-import { Position, NodeProps } from "reactflow";
-import { RFState, useRFStore } from "../../../state/flowState";
+import { useMemo, useState } from "react";
+import { Position, useNodeId } from "reactflow";
 import { LLM_STOP_NEW_LINE_SYMBOL } from "../../../static/blockConfigs";
+import { FlowState, useFlowStore } from "../flowState";
 import {
-  ChatGPTChatCompletionNodeData,
+  ChatGPTChatCompletionNodeConfig,
+  NodeID,
+  NodeType,
   OpenAIChatModel,
-} from "../../../static/flowTypes";
+} from "../flowTypes";
+import HeaderSection from "./shared/HeaderSection";
+import NodeBox from "./shared/NodeBox";
+import NodeInputModifyRow from "./shared/NodeInputModifyRow";
+import NodeOutputRow from "./shared/NodeOutputRow";
 import {
-  HeaderSection,
   InputHandle,
   OutputHandle,
   Section,
-} from "../common/commonStyledComponents";
+} from "./shared/commonStyledComponents";
 import {
   calculateInputHandleTop,
   calculateOutputHandleBottom,
-} from "../common/utils";
-import NodeBox from "./NodeBox";
-import NodeInputModifyRow from "./NodeInputModifyRow";
-import NodeOutputRow from "./NodeOutputRow";
+} from "./shared/utils";
 
-const selector = (state: RFState) => ({
-  onUpdateNode: state.onUpdateNode,
-  onRemoveNode: state.onRemoveNode,
+const selector = (state: FlowState) => ({
+  nodeConfigs: state.nodeConfigs,
+  updateNodeConfig: state.updateNodeConfig,
+  removeNode: state.removeNode,
 });
 
-export default function ChatGPTChatCompletionNode(
-  props: NodeProps<ChatGPTChatCompletionNodeData>
-) {
-  const { onUpdateNode, onRemoveNode } = useRFStore(selector);
+export default function ChatGPTChatCompletionNode() {
+  const nodeId = useNodeId() as NodeID;
 
-  const [model, setModel] = useState(props.data.model);
-  const [temperature, setTemperature] = useState(props.data.temperature);
-  const [stop, setStop] = useState(props.data.stop);
+  const { nodeConfigs, updateNodeConfig, removeNode } = useFlowStore(selector);
+
+  const nodeConfig = useMemo(
+    () => nodeConfigs[nodeId] as ChatGPTChatCompletionNodeConfig | undefined,
+    [nodeConfigs, nodeId]
+  );
+
+  // It's OK to force unwrap here because nodeConfig will be undefined only
+  // when Node is being deleted.
+  const [model, setModel] = useState(() => nodeConfig!.model);
+  const [temperature, setTemperature] = useState(() => nodeConfig!.temperature);
+  const [stop, setStop] = useState(() => nodeConfig!.stop);
+
+  if (!nodeConfig) {
+    return null;
+  }
 
   return (
     <>
       <InputHandle
         type="target"
-        id={props.data.inputs[0].id}
+        id={nodeConfig.inputs[0].id}
         position={Position.Left}
-        style={{ top: calculateInputHandleTop(0) }}
+        style={{ top: calculateInputHandleTop(-1) }}
       />
-      <NodeBox>
-        <HeaderSection>
-          <div />
-          <Button
-            color="danger"
-            size="sm"
-            variant="outlined"
-            onClick={() => onRemoveNode(props.id)}
-          >
-            Remove node
-          </Button>
-        </HeaderSection>
+      <NodeBox nodeType={NodeType.ChatGPTChatCompletionNode}>
+        <HeaderSection
+          title="ChatGPT Chat Completion"
+          onClickRemove={() => removeNode(nodeId)}
+        />
         <Section>
           <NodeInputModifyRow
-            key={props.data.inputs[0].id}
-            name={props.data.inputs[0].name}
+            key={nodeConfig.inputs[0].id}
+            name={nodeConfig.inputs[0].name}
             isReadOnly
           />
         </Section>
@@ -74,10 +80,7 @@ export default function ChatGPTChatCompletionNode(
             onChange={(_, value) => {
               const newModel = value as OpenAIChatModel;
               setModel(newModel);
-              onUpdateNode({
-                id: props.id,
-                data: { ...props.data, model: newModel },
-              });
+              updateNodeConfig(nodeId, { model: newModel });
             }}
           >
             {Object.values(OpenAIChatModel).map((model) => (
@@ -101,17 +104,11 @@ export default function ChatGPTChatCompletionNode(
             }}
             onKeyUp={(e) => {
               if (e.key === "Enter") {
-                onUpdateNode({
-                  id: props.id,
-                  data: { ...props.data, temperature },
-                });
+                updateNodeConfig(nodeId, { temperature });
               }
             }}
             onBlur={() => {
-              onUpdateNode({
-                id: props.id,
-                data: { ...props.data, temperature },
-              });
+              updateNodeConfig(nodeId, { temperature });
             }}
           />
         </Section>
@@ -143,22 +140,16 @@ export default function ChatGPTChatCompletionNode(
             }}
             onKeyUp={(e) => {
               if (e.key === "Enter") {
-                onUpdateNode({
-                  id: props.id,
-                  data: { ...props.data, stop },
-                });
+                updateNodeConfig(nodeId, { stop });
               }
             }}
             onBlur={() => {
-              onUpdateNode({
-                id: props.id,
-                data: { ...props.data, stop },
-              });
+              updateNodeConfig(nodeId, { stop });
             }}
           />
         </Section>
         <Section>
-          {props.data.outputs.map((output, i) => (
+          {nodeConfig.outputs.map((output, i) => (
             <NodeOutputRow
               key={output.id}
               id={output.id}
@@ -168,7 +159,7 @@ export default function ChatGPTChatCompletionNode(
           ))}
         </Section>
       </NodeBox>
-      {props.data.outputs.map((output, i) => (
+      {nodeConfig.outputs.map((output, i) => (
         <OutputHandle
           key={output.id}
           type="source"
@@ -176,7 +167,7 @@ export default function ChatGPTChatCompletionNode(
           position={Position.Right}
           style={{
             bottom: calculateOutputHandleBottom(
-              props.data.outputs.length - 1 - i
+              nodeConfig.outputs.length - 1 - i
             ),
           }}
         />

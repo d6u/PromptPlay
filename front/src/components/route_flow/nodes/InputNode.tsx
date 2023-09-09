@@ -1,71 +1,72 @@
-import Button from "@mui/joy/Button";
 import Chance from "chance";
 import { nanoid } from "nanoid";
 import { adjust, append, assoc, remove } from "ramda";
-import { useState } from "react";
-import { Position, useUpdateNodeInternals, NodeProps } from "reactflow";
-import { RFState, useRFStore } from "../../../state/flowState";
-import { InputNodeData, NodeOutputItem } from "../../../static/flowTypes";
+import { useMemo, useState } from "react";
+import { Position, useNodeId, useUpdateNodeInternals } from "reactflow";
+import { FlowState, useFlowStore } from "../flowState";
 import {
-  HeaderSection,
-  OutputHandle,
-  Section,
-} from "../common/commonStyledComponents";
-import { calculateOutputHandleBottom } from "../common/utils";
-import NodeBox from "./NodeBox";
-import NodeOutputModifyRow from "./NodeOutputModifyRow";
+  InputNodeConfig,
+  NodeID,
+  NodeOutputItem,
+  NodeType,
+} from "../flowTypes";
+import AddVariableButton from "./shared/AddVariableButton";
+import HeaderSection from "./shared/HeaderSection";
+import NodeBox from "./shared/NodeBox";
+import NodeOutputModifyRow from "./shared/NodeOutputModifyRow";
+import { OutputHandle, Section } from "./shared/commonStyledComponents";
+import { calculateOutputHandleBottom } from "./shared/utils";
 
 const chance = new Chance();
 
-const selector = (state: RFState) => ({
-  onUpdateNode: state.onUpdateNode,
-  onRemoveNode: state.onRemoveNode,
+const selector = (state: FlowState) => ({
+  nodeConfigs: state.nodeConfigs,
+  updateNodeConfig: state.updateNodeConfig,
+  removeNode: state.removeNode,
 });
 
-export default function InputNode(props: NodeProps<InputNodeData>) {
+export default function InputNode() {
+  const nodeId = useNodeId() as NodeID;
+
+  const { nodeConfigs, updateNodeConfig, removeNode } = useFlowStore(selector);
+
+  const nodeConfig = useMemo(
+    () => nodeConfigs[nodeId] as InputNodeConfig | undefined,
+    [nodeConfigs, nodeId]
+  );
+
   const updateNodeInternals = useUpdateNodeInternals();
 
-  const { onUpdateNode, onRemoveNode } = useRFStore(selector);
+  // It's OK to force unwrap here because nodeConfig will be undefined only
+  // when Node is being deleted.
+  const [outputs, setOutputs] = useState(() => nodeConfig!.outputs);
 
-  const [outputs, setOutputs] = useState(props.data.outputs);
+  if (!nodeConfig) {
+    return null;
+  }
 
   return (
     <>
-      <NodeBox>
-        <HeaderSection>
-          <Button
-            color="success"
-            size="sm"
-            variant="outlined"
+      <NodeBox nodeType={NodeType.InputNode}>
+        <HeaderSection title="Input" onClickRemove={() => removeNode(nodeId)} />
+        <Section>
+          <AddVariableButton
             onClick={() => {
               const newOutputs = append<NodeOutputItem>({
-                id: `${props.id}/${nanoid()}`,
+                id: `${nodeId}/${nanoid()}`,
                 name: chance.word(),
                 value: "",
-              })(outputs);
+              })(outputs!);
 
               setOutputs(newOutputs);
 
-              onUpdateNode({
-                id: props.id,
-                data: { ...props.data, outputs: newOutputs },
+              updateNodeConfig(nodeId, {
+                outputs: newOutputs,
               });
 
-              updateNodeInternals(props.id);
+              updateNodeInternals(nodeId);
             }}
-          >
-            Add output
-          </Button>
-          <Button
-            color="danger"
-            size="sm"
-            variant="outlined"
-            onClick={() => onRemoveNode(props.id)}
-          >
-            Remove node
-          </Button>
-        </HeaderSection>
-        <Section>
+          />
           {outputs.map((output, i) => (
             <NodeOutputModifyRow
               key={output.id}
@@ -78,22 +79,16 @@ export default function InputNode(props: NodeProps<InputNodeData>) {
 
                 setOutputs(newOutputs);
 
-                onUpdateNode({
-                  id: props.id,
-                  data: { ...props.data, outputs: newOutputs },
-                });
+                updateNodeConfig(nodeId, { outputs: newOutputs });
               }}
               onRemove={() => {
                 const newOutputs = remove(i, 1, outputs);
 
                 setOutputs(newOutputs);
 
-                onUpdateNode({
-                  id: props.id,
-                  data: { ...props.data, outputs: newOutputs },
-                });
+                updateNodeConfig(nodeId, { outputs: newOutputs });
 
-                updateNodeInternals(props.id);
+                updateNodeInternals(nodeId);
               }}
             />
           ))}
@@ -107,7 +102,7 @@ export default function InputNode(props: NodeProps<InputNodeData>) {
           position={Position.Right}
           style={{
             bottom: calculateOutputHandleBottom(
-              props.data.outputs.length - 1 - i
+              nodeConfig.outputs.length - 1 - i
             ),
           }}
         />

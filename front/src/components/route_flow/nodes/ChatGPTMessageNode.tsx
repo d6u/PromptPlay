@@ -1,49 +1,63 @@
-import Button from "@mui/joy/Button";
 import Radio from "@mui/joy/Radio";
 import RadioGroup from "@mui/joy/RadioGroup";
 import Textarea from "@mui/joy/Textarea";
 import Chance from "chance";
 import { nanoid } from "nanoid";
 import { adjust, append, assoc, remove } from "ramda";
-import { useState } from "react";
-import { Position, useUpdateNodeInternals, NodeProps } from "reactflow";
-import { RFState, useRFStore } from "../../../state/flowState";
+import { useMemo, useState } from "react";
+import { Position, useUpdateNodeInternals, useNodeId } from "reactflow";
+import { FlowState, useFlowStore } from "../flowState";
 import {
-  ChatGPTMessageNodeData,
+  ChatGPTMessageNodeConfig,
   ChatGPTMessageRole,
+  NodeID,
   NodeInputItem,
-} from "../../../static/flowTypes";
+  NodeType,
+} from "../flowTypes";
+import AddVariableButton from "./shared/AddVariableButton";
+import HeaderSection from "./shared/HeaderSection";
+import NodeBox from "./shared/NodeBox";
+import NodeInputModifyRow from "./shared/NodeInputModifyRow";
+import NodeOutputRow from "./shared/NodeOutputRow";
 import {
-  HeaderSection,
   InputHandle,
   OutputHandle,
   Section,
-} from "../common/commonStyledComponents";
+} from "./shared/commonStyledComponents";
 import {
   calculateInputHandleTop,
   calculateOutputHandleBottom,
-} from "../common/utils";
-import NodeBox from "./NodeBox";
-import NodeInputModifyRow from "./NodeInputModifyRow";
-import NodeOutputRow from "./NodeOutputRow";
+} from "./shared/utils";
 
 const chance = new Chance();
 
-const selector = (state: RFState) => ({
-  onUpdateNode: state.onUpdateNode,
-  onRemoveNode: state.onRemoveNode,
+const selector = (state: FlowState) => ({
+  nodeConfigs: state.nodeConfigs,
+  updateNodeConfig: state.updateNodeConfig,
+  removeNode: state.removeNode,
 });
 
-export default function ChatGPTMessageNode(
-  props: NodeProps<ChatGPTMessageNodeData>
-) {
+export default function ChatGPTMessageNode() {
+  const nodeId = useNodeId() as NodeID;
+
+  const { nodeConfigs, updateNodeConfig, removeNode } = useFlowStore(selector);
+
+  const nodeConfig = useMemo(
+    () => nodeConfigs[nodeId] as ChatGPTMessageNodeConfig | undefined,
+    [nodeConfigs, nodeId]
+  );
+
   const updateNodeInternals = useUpdateNodeInternals();
 
-  const { onUpdateNode, onRemoveNode } = useRFStore(selector);
+  // It's OK to force unwrap here because nodeConfig will be undefined only
+  // when Node is being deleted.
+  const [inputs, setInputs] = useState(() => nodeConfig!.inputs);
+  const [content, setContent] = useState(() => nodeConfig!.content);
+  const [role, setRole] = useState(() => nodeConfig!.role);
 
-  const [inputs, setInputs] = useState(props.data.inputs);
-  const [content, setContent] = useState(props.data.content);
-  const [role, setRole] = useState(props.data.role);
+  if (!nodeConfig) {
+    return null;
+  }
 
   return (
     <>
@@ -56,40 +70,26 @@ export default function ChatGPTMessageNode(
           style={{ top: calculateInputHandleTop(i) }}
         />
       ))}
-      <NodeBox>
-        <HeaderSection>
-          <Button
-            color="success"
-            size="sm"
-            variant="outlined"
+      <NodeBox nodeType={NodeType.ChatGPTMessageNode}>
+        <HeaderSection
+          title="ChatGPT Message"
+          onClickRemove={() => removeNode(nodeId)}
+        />
+        <Section>
+          <AddVariableButton
             onClick={() => {
               const newInputs = append<NodeInputItem>({
-                id: `${props.id}/${nanoid()}`,
+                id: `${nodeId}/${nanoid()}`,
                 name: chance.word(),
               })(inputs);
 
               setInputs(newInputs);
 
-              onUpdateNode({
-                id: props.id,
-                data: { ...props.data, inputs: newInputs },
-              });
+              updateNodeConfig(nodeId, { inputs: newInputs });
 
-              updateNodeInternals(props.id);
+              updateNodeInternals(nodeId);
             }}
-          >
-            Add input
-          </Button>
-          <Button
-            color="danger"
-            size="sm"
-            variant="outlined"
-            onClick={() => onRemoveNode(props.id)}
-          >
-            Remove node
-          </Button>
-        </HeaderSection>
-        <Section>
+          />
           {inputs.map((input, i) => {
             if (i === 0) {
               return (
@@ -113,22 +113,16 @@ export default function ChatGPTMessageNode(
 
                   setInputs(newInputs);
 
-                  onUpdateNode({
-                    id: props.id,
-                    data: { ...props.data, inputs: newInputs },
-                  });
+                  updateNodeConfig(nodeId, { inputs: newInputs });
                 }}
                 onRemove={() => {
                   const newInputs = remove(i, 1, inputs);
 
                   setInputs(newInputs);
 
-                  onUpdateNode({
-                    id: props.id,
-                    data: { ...props.data, inputs: newInputs },
-                  });
+                  updateNodeConfig(nodeId, { inputs: newInputs });
 
-                  updateNodeInternals(props.id);
+                  updateNodeInternals(nodeId);
                 }}
               />
             );
@@ -143,10 +137,7 @@ export default function ChatGPTMessageNode(
 
               setRole(role);
 
-              onUpdateNode({
-                id: props.id,
-                data: { ...props.data, role },
-              });
+              updateNodeConfig(nodeId, { role });
             }}
           >
             <Radio
@@ -189,22 +180,16 @@ export default function ChatGPTMessageNode(
             }}
             onKeyDown={(e) => {
               if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
-                onUpdateNode({
-                  id: props.id,
-                  data: { ...props.data, content },
-                });
+                updateNodeConfig(nodeId, { content });
               }
             }}
             onBlur={() => {
-              onUpdateNode({
-                id: props.id,
-                data: { ...props.data, content },
-              });
+              updateNodeConfig(nodeId, { content });
             }}
           />
         </Section>
         <Section>
-          {props.data.outputs.map((output, i) => (
+          {nodeConfig.outputs.map((output, i) => (
             <NodeOutputRow
               key={output.id}
               id={output.id}
@@ -214,7 +199,7 @@ export default function ChatGPTMessageNode(
           ))}
         </Section>
       </NodeBox>
-      {props.data.outputs.map((output, i) => (
+      {nodeConfig.outputs.map((output, i) => (
         <OutputHandle
           key={output.id}
           type="source"
@@ -222,7 +207,7 @@ export default function ChatGPTMessageNode(
           position={Position.Right}
           style={{
             bottom: calculateOutputHandleBottom(
-              props.data.outputs.length - 1 - i
+              nodeConfig.outputs.length - 1 - i
             ),
           }}
         />

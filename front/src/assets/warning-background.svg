@@ -1,0 +1,11 @@
+<svg
+  width="100"
+  height="100"
+  viewBox="0 0 100 100"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg">
+  <path d="M0 0H50L0 50V0Z" fill="black"/>
+  <path d="M50 0H100L0 100V50L50 0Z" fill="#FDD400"/>
+  <path d="M100 0L0 100H50L100 50V0Z" fill="black"/>
+  <path d="M100 100V50L50 100H100Z" fill="#FDD400"/>
+</svg>

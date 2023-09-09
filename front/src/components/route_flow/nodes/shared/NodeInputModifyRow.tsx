@@ -1,32 +1,18 @@
-import Button from "@mui/joy/Button";
 import Input from "@mui/joy/Input";
 import { useState } from "react";
 import styled from "styled-components";
-import { RFState, useRFStore } from "../../../state/flowState";
-import { DetailPanelContentType } from "../../../static/flowTypes";
-import IconEdit from "../../icons/IconEdit";
+import RemoveButton from "./RemoveButton";
 
-const VARIABLE_ROW_MARGIN_BOTTOM = 5;
+export const ROW_MARGIN_TOP = 5;
 
 const Container = styled.div`
-  margin-bottom: ${VARIABLE_ROW_MARGIN_BOTTOM}px;
   display: flex;
-  align-items: center;
-  gap: 5px;
-
-  &:last-child {
-    margin-bottom: 0;
-  }
+  margin-top: ${ROW_MARGIN_TOP}px;
 `;
 
-const EditIcon = styled(IconEdit)`
-  width: 25px;
-  cursor: pointer;
+const NameInput = styled(Input)`
+  margin-right: 5px;
 `;
-
-const selector = (state: RFState) => ({
-  setDetailPanelContentType: state.setDetailPanelContentType,
-});
 
 type Props =
   | {
@@ -40,19 +26,12 @@ type Props =
       name: string;
     };
 
-export default function NodeOutputModifyRow(props: Props) {
-  const { setDetailPanelContentType } = useRFStore(selector);
-
+export default function NodeInputModifyRow(props: Props) {
   const [name, setName] = useState(props.name);
 
   return (
     <Container>
-      <EditIcon
-        onClick={() =>
-          setDetailPanelContentType(DetailPanelContentType.FlowConfig)
-        }
-      />
-      <Input
+      <NameInput
         color="primary"
         size="sm"
         variant="outlined"
@@ -77,16 +56,7 @@ export default function NodeOutputModifyRow(props: Props) {
           props.onConfirmNameChange(name);
         }}
       />
-      {!props.isReadOnly && (
-        <Button
-          color="danger"
-          size="sm"
-          variant="outlined"
-          onClick={() => props.onRemove()}
-        >
-          Remove
-        </Button>
-      )}
+      {!props.isReadOnly && <RemoveButton onClick={() => props.onRemove()} />}
     </Container>
   );
 }

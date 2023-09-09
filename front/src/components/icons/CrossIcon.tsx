@@ -1,10 +1,12 @@
-export default function CrossIcon({ className }: { className?: string }) {
+import { SVGProps } from "react";
+
+export default function CrossIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <svg
-      className={className}
       version="1.1"
       viewBox="0 0 1200 1200"
       xmlns="http://www.w3.org/2000/svg"
+      {...props}
     >
       <g>
         <path d="m1035.4 897.36c38.16 38.16 38.16 99.84 0 138s-99.84 38.16-138 0l-297.6-297.6-297.6 297.6c-38.16 38.16-99.84 38.16-138 0-18.961-19.199-28.559-43.922-28.559-68.879 0-24.961 9.6016-49.922 28.559-68.879l297.6-297.6-297.6-297.6c-38.16-38.16-38.16-99.84 0-138 18.961-18.961 43.922-28.559 68.879-28.559 24.961 0 49.922 9.6016 68.879 28.559l297.6 297.6 297.6-297.6c38.16-38.16 99.84-38.16 138 0 38.16 38.16 38.16 99.84 0 138l-297.6 297.6z" />
