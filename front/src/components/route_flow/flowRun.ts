@@ -51,7 +51,6 @@ type OutputValueMap = Record<string, any>;
 export function run(
   edges: LocalEdge[],
   nodeConfigs: NodeConfigs
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): Observable<RunEvent> {
   const nodeGraph: Record<NodeID, NodeID[]> = {};
   const nodeIndegree: Record<NodeID, number> = {};

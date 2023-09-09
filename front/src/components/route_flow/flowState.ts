@@ -26,17 +26,14 @@ import { devtools } from "zustand/middleware";
 import { queryFlowObservable } from "./flowGraphql";
 import {
   DetailPanelContentType,
-  EdgeConfigs,
   FlowConfig,
   FlowContent,
-  InputConfigs,
   LocalEdge,
   LocalNode,
   NodeConfig,
   NodeConfigs,
   NodeID,
   NodeType,
-  OutputConfigs,
 } from "./flowTypes";
 import {
   createNode,
@@ -67,9 +64,6 @@ export type FlowState = {
   flowConfig: FlowConfig | null;
 
   nodeConfigs: NodeConfigs;
-  edgeConfigs: EdgeConfigs;
-  inputConfigs: InputConfigs;
-  outputConfigs: OutputConfigs;
 
   // Update states within ReactFlow
   addNode(type: NodeType, x?: number, y?: number): void;
@@ -128,25 +122,9 @@ export const useFlowStore = create<FlowState>()(
       }
 
       function getCurrentFlowContent(): FlowContent {
-        const {
-          nodes,
-          edges,
-          flowConfig,
-          nodeConfigs,
-          edgeConfigs,
-          inputConfigs,
-          outputConfigs,
-        } = get();
+        const { nodes, edges, flowConfig, nodeConfigs } = get();
 
-        return {
-          nodes,
-          edges,
-          flowConfig,
-          nodeConfigs,
-          edgeConfigs,
-          inputConfigs,
-          outputConfigs,
-        };
+        return { nodes, edges, flowConfig, nodeConfigs };
       }
 
       return {
@@ -162,18 +140,12 @@ export const useFlowStore = create<FlowState>()(
               edges = [],
               flowConfig = null,
               nodeConfigs = {},
-              edgeConfigs = {},
-              inputConfigs = {},
-              outputConfigs = {},
             }) {
               set({
                 nodes,
                 edges,
                 flowConfig,
                 nodeConfigs,
-                edgeConfigs,
-                inputConfigs,
-                outputConfigs,
               });
             },
             error(error) {
@@ -246,9 +218,6 @@ export const useFlowStore = create<FlowState>()(
         flowConfig: null,
 
         nodeConfigs: {},
-        edgeConfigs: {},
-        inputConfigs: {},
-        outputConfigs: {},
 
         addNode(type: NodeType, x?: number, y?: number) {
           let nodes = get().nodes;

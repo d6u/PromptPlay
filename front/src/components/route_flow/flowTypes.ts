@@ -14,9 +14,6 @@ export type FlowContent = {
   edges: ServerEdge[];
   flowConfig: FlowConfig | null;
   nodeConfigs: NodeConfigs;
-  edgeConfigs: EdgeConfigs;
-  inputConfigs: InputConfigs;
-  outputConfigs: OutputConfigs;
 };
 
 export type NodeConfigs = Record<NodeID, NodeConfig | undefined>;
