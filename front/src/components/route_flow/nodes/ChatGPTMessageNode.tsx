@@ -6,10 +6,10 @@ import { nanoid } from "nanoid";
 import { adjust, append, assoc, remove } from "ramda";
 import { useMemo, useState } from "react";
 import { Position, useUpdateNodeInternals, useNodeId } from "reactflow";
+import { ChatGPTMessageRole } from "../../../llm/openai";
 import { FlowState, useFlowStore } from "../flowState";
 import {
   ChatGPTMessageNodeConfig,
-  ChatGPTMessageRole,
   NodeID,
   NodeInputItem,
   NodeType,

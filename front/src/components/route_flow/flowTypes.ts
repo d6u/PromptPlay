@@ -1,4 +1,5 @@
 import { Node, Edge, XYPosition } from "reactflow";
+import { ChatGPTMessageRole } from "../../llm/openai";
 
 // Server types
 
@@ -114,12 +115,6 @@ export type ChatGPTMessageNodeConfig = NodeConfigCommon & {
   content: string;
   outputs: NodeOutputItem[];
 };
-
-export enum ChatGPTMessageRole {
-  system = "system",
-  user = "user",
-  assistant = "assistant",
-}
 
 // ChatGPTChatCompletion
 

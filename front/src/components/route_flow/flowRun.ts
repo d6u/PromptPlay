@@ -17,7 +17,7 @@ import {
   concat,
   defer,
 } from "rxjs";
-import * as OpenAI from "../../llm/open-ai";
+import * as OpenAI from "../../llm/openai";
 import { usePersistStore, useStore } from "../../state/zustand";
 import {
   ChatGPTChatCompletionNodeConfig,

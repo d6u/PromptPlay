@@ -2,7 +2,13 @@ import { Observable, from, map, mergeMap, share, throwError } from "rxjs";
 
 const OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
 
-export type LlmMesssage = {
+export enum ChatGPTMessageRole {
+  system = "system",
+  user = "user",
+  assistant = "assistant",
+}
+
+export type ChatGPTMessage = {
   role: string;
   content: string;
 };
@@ -11,7 +17,7 @@ type GetCompletionArguments = {
   apiKey: string;
   model: string;
   temperature: number;
-  messages: LlmMesssage[];
+  messages: ChatGPTMessage[];
   stop: string[];
 };
 
@@ -143,7 +149,7 @@ type OpenAiResponseBase = {
 // Non-stream
 
 type Choice = ChoiceBase & {
-  message: LlmMesssage;
+  message: ChatGPTMessage;
 };
 
 export type OpenAiResponse = OpenAiResponseBase & {
@@ -181,7 +187,7 @@ export type OpenAiErrorResponse = {
   };
 };
 
-export function parserStreamChunk(chunk: string): string[] {
+function parserStreamChunk(chunk: string): string[] {
   if (!chunk.startsWith("data:")) {
     return [chunk];
   }
