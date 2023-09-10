@@ -1,7 +1,7 @@
 import { append, assoc, flatten, pipe, prop } from "ramda";
 import { ReactNode } from "react";
 import * as openai from "../integrations/openai";
-import { usePersistStore } from "../state/zustand";
+import { useLocalStorageStore } from "../state/appState";
 import {
   Block,
   BlockAppendToList,
@@ -184,7 +184,7 @@ const BLOCK_CONFIGS: BlockConfigs = {
       );
     },
     executeFunc: async (block, scope, args, updater) => {
-      const openAiApiKey = usePersistStore.getState().openAiApiKey!;
+      const openAiApiKey = useLocalStorageStore.getState().openAiApiKey!;
 
       const result = await openai.getNonStreamingCompletion({
         apiKey: openAiApiKey,

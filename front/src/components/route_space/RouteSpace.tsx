@@ -4,11 +4,11 @@ import styled from "styled-components";
 import u from "updeep";
 import { useMutation, useQuery } from "urql";
 import { execute } from "../../llm/chainExecutor";
+import { useLocalStorageStore, useSpaceStore } from "../../state/appState";
 import {
   SPACE_QUERY,
   UPDATE_SPACE_CONTENT_MUTATION,
 } from "../../state/spaceGraphQl";
-import { usePersistStore, useStore } from "../../state/zustand";
 import { Block, BlockType, SpaceContent } from "../../static/spaceTypes";
 import { validate } from "../../static/spaceUtils";
 import Designer from "./body/Designer";
@@ -23,18 +23,18 @@ const Content = styled.div`
 `;
 
 export default function RouteSpace() {
-  const openAiApiKey = usePersistStore((state) => state.openAiApiKey);
-  const setMissingOpenAiApiKey = useStore(
+  const openAiApiKey = useLocalStorageStore((state) => state.openAiApiKey);
+  const setMissingOpenAiApiKey = useSpaceStore(
     (state) => state.setMissingOpenAiApiKey
   );
 
   // TODO: Properly handle spaceId not being present
   const { spaceId = "" } = useParams<{ spaceId: string }>();
 
-  const spaceV2SelectedBlockId = useStore(
+  const spaceV2SelectedBlockId = useSpaceStore(
     (state) => state.spaceV2SelectedBlockId
   );
-  const setSpaceV2SelectedBlockId = useStore(
+  const setSpaceV2SelectedBlockId = useSpaceStore(
     (state) => state.setSpaceV2SelectedBlockId
   );
 

@@ -2,7 +2,7 @@ import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import { ReactNode } from "react";
 import styled, { css } from "styled-components";
-import { useStore } from "../../../../state/zustand";
+import { useSpaceStore } from "../../../../state/appState";
 import { getBlockConfigByType } from "../../../../static/blockConfigs";
 import {
   Block,
@@ -78,10 +78,10 @@ export default function BlockComponent(props: Props) {
       disabled: props.isReadOnly || props.isExecuting,
     });
 
-  const spaceV2SelectedBlockId = useStore(
+  const spaceV2SelectedBlockId = useSpaceStore(
     (state) => state.spaceV2SelectedBlockId
   );
-  const setSpaceV2SelectedBlockId = useStore(
+  const setSpaceV2SelectedBlockId = useSpaceStore(
     (state) => state.setSpaceV2SelectedBlockId
   );
 

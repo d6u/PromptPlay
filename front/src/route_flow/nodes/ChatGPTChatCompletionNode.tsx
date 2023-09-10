@@ -4,11 +4,11 @@ import Select from "@mui/joy/Select";
 import { useMemo, useState } from "react";
 import { Position, useNodeId } from "reactflow";
 import {
-  PersistState,
-  State,
-  usePersistStore,
-  useStore,
-} from "../../state/zustand";
+  LocalStorageState,
+  SpaceState,
+  useLocalStorageStore,
+  useSpaceStore,
+} from "../../state/appState";
 import { LLM_STOP_NEW_LINE_SYMBOL } from "../../static/blockConfigs";
 import { FlowState, useFlowStore } from "../flowState";
 import {
@@ -38,12 +38,12 @@ const flowSelector = (state: FlowState) => ({
   localNodeAugments: state.localNodeAugments,
 });
 
-const persistSelector = (state: PersistState) => ({
+const persistSelector = (state: LocalStorageState) => ({
   openAiApiKey: state.openAiApiKey,
   setOpenAiApiKey: state.setOpenAiApiKey,
 });
 
-const selector = (state: State) => ({
+const selector = (state: SpaceState) => ({
   missingOpenAiApiKey: state.missingOpenAiApiKey,
   setMissingOpenAiApiKey: state.setMissingOpenAiApiKey,
 });
@@ -51,8 +51,10 @@ const selector = (state: State) => ({
 export default function ChatGPTChatCompletionNode() {
   const nodeId = useNodeId() as NodeID;
 
-  const { openAiApiKey, setOpenAiApiKey } = usePersistStore(persistSelector);
-  const { missingOpenAiApiKey, setMissingOpenAiApiKey } = useStore(selector);
+  const { openAiApiKey, setOpenAiApiKey } =
+    useLocalStorageStore(persistSelector);
+  const { missingOpenAiApiKey, setMissingOpenAiApiKey } =
+    useSpaceStore(selector);
   const { nodeConfigs, updateNodeConfig, removeNode, localNodeAugments } =
     useFlowStore(flowSelector);
 

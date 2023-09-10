@@ -4,7 +4,7 @@ import styled, { css } from "styled-components";
 import { useMutation, useQuery } from "urql";
 import { IS_LOGIN_ENABLED } from "../constants";
 import { graphql } from "../gql";
-import { usePersistStore } from "../state/zustand";
+import { useLocalStorageStore } from "../state/appState";
 import { LOGIN_PATH, pathToSpace } from "../static/routeConfigs";
 import Dashboard from "./dashboard/Dashboard";
 import { ROOT_ROUTE_QUERY } from "./queries";
@@ -66,7 +66,7 @@ export default function RootRoute() {
 
   // --- Global State ---
 
-  const setPlaceholderUserToken = usePersistStore(
+  const setPlaceholderUserToken = useLocalStorageStore(
     (state) => state.setPlaceholderUserToken
   );
 

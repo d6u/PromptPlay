@@ -1,7 +1,7 @@
 import { cacheExchange } from "@urql/exchange-graphcache";
 import { Client, fetchExchange } from "urql";
 import { API_SERVER_BASE_URL } from "../constants";
-import { usePersistStore } from "./zustand";
+import { useLocalStorageStore } from "./appState";
 
 type Headers = {
   placeholderUserToken?: string;
@@ -25,7 +25,7 @@ export const client = new Client({
   ],
   fetchOptions: () => {
     const placeholderUserToken =
-      usePersistStore.getState().placeholderUserToken;
+      useLocalStorageStore.getState().placeholderUserToken;
 
     const headers: Headers = {};
 

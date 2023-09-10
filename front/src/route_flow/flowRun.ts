@@ -18,7 +18,7 @@ import {
   defer,
 } from "rxjs";
 import * as OpenAI from "../integrations/openai";
-import { usePersistStore, useStore } from "../state/zustand";
+import { useLocalStorageStore, useSpaceStore } from "../state/appState";
 import { NodeAugment } from "./flowState";
 import {
   ChatGPTChatCompletionNodeConfig,
@@ -367,10 +367,10 @@ function handleChatGPTChatNode(
   // Execute logic
   // ----------
 
-  const openAiApiKey = usePersistStore.getState().openAiApiKey;
+  const openAiApiKey = useLocalStorageStore.getState().openAiApiKey;
   if (!openAiApiKey) {
     // console.error("OpenAI API key is missing");
-    useStore.getState().setMissingOpenAiApiKey(true);
+    useSpaceStore.getState().setMissingOpenAiApiKey(true);
     return throwError(() => new Error("OpenAI API key is missing"));
   }
 

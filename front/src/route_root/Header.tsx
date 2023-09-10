@@ -6,12 +6,12 @@ import { useMutation, useQuery } from "urql";
 import StyleResetLink from "../components/StyleResetLink";
 import IconLogout from "../components/icons/IconLogout";
 import { IS_LOGIN_ENABLED, PROVIDE_FEEDBACK_LINK } from "../constants";
-import { usePersistStore } from "../state/zustand";
+import { useLocalStorageStore } from "../state/appState";
 import { LOGIN_PATH, LOGOUT_PATH } from "../static/routeConfigs";
 import {
   HEADER_QUERY,
   MERGE_PLACEHOLDER_USER_WITH_LOGGED_IN_USER_MUTATION,
-} from "./graphql";
+} from "./rootGraphql";
 
 const Container = styled.div`
   height: 51px;
@@ -98,10 +98,10 @@ const StyledLogoutIcon = styled(IconLogout)`
 export default function Header() {
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const placeholderUserToken = usePersistStore(
+  const placeholderUserToken = useLocalStorageStore(
     (state) => state.placeholderUserToken
   );
-  const setPlaceholderUserToken = usePersistStore(
+  const setPlaceholderUserToken = useLocalStorageStore(
     (state) => state.setPlaceholderUserToken
   );
 

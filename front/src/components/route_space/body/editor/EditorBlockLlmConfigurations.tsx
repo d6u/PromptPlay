@@ -2,7 +2,10 @@ import Input from "@mui/joy/Input";
 import Option from "@mui/joy/Option";
 import Select from "@mui/joy/Select";
 import { useCallback, useState } from "react";
-import { usePersistStore, useStore } from "../../../../state/zustand";
+import {
+  useLocalStorageStore,
+  useSpaceStore,
+} from "../../../../state/appState";
 import { LLM_STOP_NEW_LINE_SYMBOL } from "../../../../static/blockConfigs";
 import {
   BlockLlm,
@@ -34,11 +37,15 @@ type Props = {
 };
 
 export default function EditorBlockLlmConfigurations(props: Props) {
-  const openAiApiKey = usePersistStore((state) => state.openAiApiKey);
-  const setOpenAiApiKey = usePersistStore((state) => state.setOpenAiApiKey);
+  const openAiApiKey = useLocalStorageStore((state) => state.openAiApiKey);
+  const setOpenAiApiKey = useLocalStorageStore(
+    (state) => state.setOpenAiApiKey
+  );
 
-  const missingOpenAiApiKey = useStore((state) => state.missingOpenAiApiKey);
-  const setMissingOpenAiApiKey = useStore(
+  const missingOpenAiApiKey = useSpaceStore(
+    (state) => state.missingOpenAiApiKey
+  );
+  const setMissingOpenAiApiKey = useSpaceStore(
     (state) => state.setMissingOpenAiApiKey
   );
 

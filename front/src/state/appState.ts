@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-type OpenAiApiState = {
+type OpenAIAPIKeyState = {
   openAiApiKey: string | null;
   setOpenAiApiKey: (openAiApiKey: string | null) => void;
 };
@@ -11,9 +11,9 @@ type PlaceholderUserTokenState = {
   setPlaceholderUserToken: (placeholderUserToken: string | null) => void;
 };
 
-export type PersistState = OpenAiApiState & PlaceholderUserTokenState;
+export type LocalStorageState = OpenAIAPIKeyState & PlaceholderUserTokenState;
 
-export const usePersistStore = create<PersistState>()(
+export const useLocalStorageStore = create<LocalStorageState>()(
   persist(
     (set) => ({
       openAiApiKey: null,
@@ -22,20 +22,18 @@ export const usePersistStore = create<PersistState>()(
       setPlaceholderUserToken: (placeholderUserToken) =>
         set(() => ({ placeholderUserToken })),
     }),
-    {
-      name: "localUserSettings",
-    }
+    { name: "localUserSettings" }
   )
 );
 
-export type State = {
+export type SpaceState = {
   missingOpenAiApiKey: boolean;
   setMissingOpenAiApiKey: (missingOpenAiApiKey: boolean) => void;
   spaceV2SelectedBlockId: string | null;
   setSpaceV2SelectedBlockId: (spaceV2SelectedBlockId: string | null) => void;
 };
 
-export const useStore = create<State>()((set) => ({
+export const useSpaceStore = create<SpaceState>()((set) => ({
   missingOpenAiApiKey: false,
   setMissingOpenAiApiKey: (missingOpenAiApiKey) =>
     set(() => ({ missingOpenAiApiKey })),
