@@ -6,7 +6,7 @@ import Header from "./route-root/Header";
 import RootRoute from "./route-root/RootRoute";
 import {
   ROOT_PATH,
-  SPACES_FLOW_PATH_PATTERN,
+  FLOWS_PATH_PATTERN,
   SPACE_PATH_PATTERN,
 } from "./static/routeConfigs";
 
@@ -29,7 +29,7 @@ const router = createBrowserRouter([
         element: <RouteSpace />,
       },
       {
-        path: SPACES_FLOW_PATH_PATTERN,
+        path: FLOWS_PATH_PATTERN,
         element: <RouteFlow />,
       },
     ],

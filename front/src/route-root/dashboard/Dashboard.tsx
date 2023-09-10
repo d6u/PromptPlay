@@ -2,7 +2,8 @@ import styled from "@emotion/styled";
 import { useNavigate } from "react-router-dom";
 import { useMutation } from "urql";
 import { FragmentType, graphql, useFragment } from "../../gql";
-import { pathToSpace } from "../../static/routeConfigs";
+import { ContentVersion } from "../../gql/graphql";
+import { pathToFlow, pathToSpace } from "../../static/routeConfigs";
 import DashboardTile from "./DashboardTile";
 import { DashboardTileType } from "./dashboardTypes";
 
@@ -12,6 +13,7 @@ const DASHBOARD_FRAGMENT = graphql(`
       id
       name
       updatedAt
+      contentVersion
     }
   }
 `);
@@ -73,24 +75,29 @@ export default function Dashboard({
                 return;
               }
 
-              navigate(pathToSpace(data.result.id));
+              navigate(pathToFlow(data.result.id));
             });
           }}
         >
           Add
         </DashboardTile>
         {dashboard.spaces.map((space) => {
-          const workspaceId = space.id;
-          const workspaceName = space.name;
-          const url = pathToSpace(workspaceId);
+          const id = space.id;
+          const name = space.name;
+          let url;
+
+          switch (space.contentVersion) {
+            case ContentVersion.V1:
+              url = pathToSpace(id);
+              break;
+            case ContentVersion.V2:
+              url = pathToFlow(id);
+              break;
+          }
 
           return (
-            <DashboardTile
-              key={workspaceId}
-              type={DashboardTileType.SPACE}
-              href={url}
-            >
-              <div>{workspaceName}</div>
+            <DashboardTile key={id} type={DashboardTileType.SPACE} href={url}>
+              <div>{name}</div>
               <TileTimestamp>
                 {new Date(`${space.updatedAt}Z`).toLocaleString()}
               </TileTimestamp>
