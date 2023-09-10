@@ -1,7 +1,6 @@
 import Button from "@mui/joy/Button";
 import { adjust, assoc, filter, flatten, map, pipe, propEq } from "ramda";
 import { ReactNode, useMemo } from "react";
-import styled from "styled-components";
 import { FlowState, useFlowStore } from "../flowState";
 import {
   FlowInputItem,
@@ -11,39 +10,12 @@ import {
 } from "../flowTypes";
 import InputBlock from "./InputBlock";
 import { RawValue } from "./commonStyledComponents";
-
-const Container = styled.div`
-  padding: 20px 20px 0 20px;
-`;
-
-const HeaderSection = styled.div`
-  margin: 0 0 10px 0;
-  padding-bottom: 5px;
-  border-bottom: 1px solid #000;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  height: ${32 + 5}px;
-`;
-
-const SectionHeader = styled.h3`
-  margin: 0;
-  font-size: 16px;
-`;
-
-const Section = styled.div`
-  margin-bottom: 20px;
-`;
-
-const OutputValueItem = styled.div`
-  margin-bottom: 10px;
-`;
-
-const OutputValueName = styled.code`
-  margin: 0 0 5px 0;
-  font-size: 14px;
-  display: block;
-`;
+import { PanelContentContainer } from "./commonStyledComponents";
+import { HeaderSection } from "./commonStyledComponents";
+import { OutputValueItem } from "./commonStyledComponents";
+import { OutputValueName } from "./commonStyledComponents";
+import { HeaderSectionHeader } from "./commonStyledComponents";
+import { Section } from "./commonStyledComponents";
 
 const selector = (state: FlowState) => ({
   nodeConfigs: state.nodeConfigs,
@@ -77,9 +49,9 @@ export default function PanelFlowInputOutput(props: Props) {
   );
 
   return (
-    <Container>
+    <PanelContentContainer>
       <HeaderSection>
-        <SectionHeader>Input variables</SectionHeader>
+        <HeaderSectionHeader>Input variables</HeaderSectionHeader>
         <Button color="success" onClick={props.onRun} size="sm" variant="solid">
           Run
         </Button>
@@ -116,7 +88,7 @@ export default function PanelFlowInputOutput(props: Props) {
         )}
       </Section>
       <HeaderSection>
-        <SectionHeader>Output values</SectionHeader>
+        <HeaderSectionHeader>Output values</HeaderSectionHeader>
       </HeaderSection>
       <Section>
         {flatten(
@@ -142,6 +114,6 @@ export default function PanelFlowInputOutput(props: Props) {
           )
         )}
       </Section>
-    </Container>
+    </PanelContentContainer>
   );
 }

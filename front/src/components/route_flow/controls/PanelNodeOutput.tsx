@@ -1,17 +1,19 @@
-import { Button } from "@mui/joy";
 import { ReactNode, useMemo } from "react";
 import { FlowState, useFlowStore } from "../flowState";
-import { RawValue } from "./commonStyledComponents";
+import {
+  OutputValueItem,
+  OutputValueName,
+  PanelContentContainer,
+  RawValue,
+} from "./commonStyledComponents";
 
 const selector = (state: FlowState) => ({
   nodeConfigs: state.nodeConfigs,
-  setDetailPanelContentType: state.setDetailPanelContentType,
   detailPanelSelectedNodeId: state.detailPanelSelectedNodeId,
 });
 
 export default function PanelNodeOutput() {
-  const { nodeConfigs, setDetailPanelContentType, detailPanelSelectedNodeId } =
-    useFlowStore(selector);
+  const { nodeConfigs, detailPanelSelectedNodeId } = useFlowStore(selector);
 
   const nodeConfig = useMemo(
     () =>
@@ -29,20 +31,13 @@ export default function PanelNodeOutput() {
         content = JSON.stringify(output?.value, null, 2);
       }
       contents.push(
-        <div key={output.id}>
-          <h4>{output.name}</h4>
+        <OutputValueItem key={output.id}>
+          <OutputValueName>{output.name}</OutputValueName>
           <RawValue key={output.id}>{content}</RawValue>
-        </div>
+        </OutputValueItem>
       );
     }
   }
 
-  return (
-    <>
-      {contents}
-      <Button size="sm" onClick={() => setDetailPanelContentType(null)}>
-        Close
-      </Button>
-    </>
-  );
+  return <PanelContentContainer>{contents}</PanelContentContainer>;
 }
