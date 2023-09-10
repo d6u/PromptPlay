@@ -1,6 +1,7 @@
+import { css } from "@emotion/react";
+import styled from "@emotion/styled";
 import { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import styled, { css } from "styled-components";
 import { useMutation, useQuery } from "urql";
 import { IS_LOGIN_ENABLED } from "../constants";
 import { graphql } from "../gql";

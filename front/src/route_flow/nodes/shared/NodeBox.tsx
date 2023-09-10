@@ -1,4 +1,5 @@
-import styled, { css } from "styled-components";
+import { css } from "@emotion/react";
+import styled from "@emotion/styled";
 import background from "../../../assets/warning-background.svg";
 import { NodeType } from "../../flowTypes";
 

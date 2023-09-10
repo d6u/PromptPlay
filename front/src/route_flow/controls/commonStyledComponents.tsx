@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import styled from "@emotion/styled";
 
 export const PanelContentContainer = styled.div`
   padding: 20px 20px 0 20px;

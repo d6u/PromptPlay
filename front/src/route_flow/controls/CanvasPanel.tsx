@@ -1,3 +1,4 @@
+import styled from "@emotion/styled";
 import Button from "@mui/joy/Button";
 import Dropdown from "@mui/joy/Dropdown";
 import Menu from "@mui/joy/Menu";
@@ -5,7 +6,6 @@ import MenuButton from "@mui/joy/MenuButton";
 import MenuItem from "@mui/joy/MenuItem";
 import { useEffect, useState } from "react";
 import { Panel } from "reactflow";
-import styled from "styled-components";
 import { NodeType } from "../flowTypes";
 
 const Content = styled.div`

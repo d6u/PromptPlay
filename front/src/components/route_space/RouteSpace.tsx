@@ -1,6 +1,6 @@
+import styled from "@emotion/styled";
 import { useCallback, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import styled from "styled-components";
 import u from "updeep";
 import { useMutation, useQuery } from "urql";
 import { execute } from "../../llm/chainExecutor";

@@ -1,7 +1,7 @@
+import styled from "@emotion/styled";
 import { Button, IconButton } from "@mui/joy";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import styled from "styled-components";
 import { useMutation, useQuery } from "urql";
 import StyleResetLink from "../components/StyleResetLink";
 import IconLogout from "../components/icons/IconLogout";

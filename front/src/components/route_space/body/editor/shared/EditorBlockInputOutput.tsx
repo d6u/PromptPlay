@@ -1,8 +1,8 @@
+import styled from "@emotion/styled";
 import Button from "@mui/joy/Button";
 import { customAlphabet } from "nanoid";
 import { append, equals, reject, update } from "ramda";
 import { ReactNode } from "react";
-import styled from "styled-components";
 import u from "updeep";
 import { useMutation } from "urql";
 import { UPDATE_SPACE_CONTENT_MUTATION } from "../../../../../state/spaceGraphQl";

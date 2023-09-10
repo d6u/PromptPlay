@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import styled from "@emotion/styled";
 import IconThreeDots from "../../../components/icons/IconThreeDots";
 import RemoveButton from "./RemoveButton";
 

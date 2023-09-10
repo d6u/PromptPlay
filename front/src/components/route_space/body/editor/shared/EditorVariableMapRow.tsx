@@ -1,7 +1,7 @@
+import styled from "@emotion/styled";
 import Button from "@mui/joy/Button";
 import Input from "@mui/joy/Input";
 import { useState } from "react";
-import styled from "styled-components";
 
 const Container = styled.div`
   display: flex;

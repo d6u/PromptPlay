@@ -1,4 +1,5 @@
-import styled, { css } from "styled-components";
+import { css } from "@emotion/react";
+import styled from "@emotion/styled";
 import { getBlockConfigByType } from "../../static/blockConfigs";
 import CrossIconV2 from "../icons/CrossIconV2";
 import {

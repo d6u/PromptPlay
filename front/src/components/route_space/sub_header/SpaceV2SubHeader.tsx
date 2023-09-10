@@ -1,9 +1,9 @@
+import styled from "@emotion/styled";
 import Button from "@mui/joy/Button";
 import Input from "@mui/joy/Input";
 import { append } from "ramda";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import styled from "styled-components";
 import u from "updeep";
 import { useMutation } from "urql";
 import { FragmentType, graphql, useFragment } from "../../../gql";

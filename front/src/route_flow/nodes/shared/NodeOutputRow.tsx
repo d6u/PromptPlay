@@ -1,5 +1,5 @@
+import styled from "@emotion/styled";
 import { useNodeId } from "reactflow";
-import styled from "styled-components";
 import { FlowState, useFlowStore } from "../../flowState";
 import { DetailPanelContentType } from "../../flowState";
 import { ROW_MARGIN_TOP } from "./NodeInputModifyRow";

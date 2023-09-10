@@ -1,7 +1,8 @@
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
+import { css } from "@emotion/react";
+import styled from "@emotion/styled";
 import { ReactNode } from "react";
-import styled, { css } from "styled-components";
 import { BlockGroupAnchor, SpaceContent } from "../../../../static/spaceTypes";
 import { isBlockGroupAnchor } from "../../../../static/spaceUtils";
 import BlockComponent from "./BlockComponent";

@@ -1,3 +1,4 @@
+import styled from "@emotion/styled";
 import memoize from "lodash/memoize";
 import { mergeLeft } from "ramda";
 import assoc from "ramda/es/assoc";
@@ -12,7 +13,6 @@ import ReactFlow, {
   useStoreApi,
 } from "reactflow";
 import "reactflow/dist/style.css";
-import styled from "styled-components";
 import CanvasPanel from "./controls/CanvasPanel";
 import DetailPanel from "./controls/DetailPanel";
 import { RunEventType, run } from "./flowRun";

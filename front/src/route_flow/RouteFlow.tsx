@@ -1,8 +1,8 @@
+import styled from "@emotion/styled";
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { ReactFlowProvider } from "reactflow";
 import "reactflow/dist/style.css";
-import styled from "styled-components";
 import FlowCanvas from "./FlowCanvas";
 import { FlowState, useFlowStore } from "./flowState";
 
