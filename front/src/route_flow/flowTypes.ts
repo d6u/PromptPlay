@@ -1,5 +1,5 @@
 import { Edge, XYPosition } from "reactflow";
-import { ChatGPTMessageRole } from "../../integrations/openai";
+import { ChatGPTMessageRole } from "../integrations/openai";
 
 export type NodeID = string;
 export type EdgeID = string;

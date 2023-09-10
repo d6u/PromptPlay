@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import IconThreeDots from "../../../icons/IconThreeDots";
+import IconThreeDots from "../../../components/icons/IconThreeDots";
 import RemoveButton from "./RemoveButton";
 
 export const DRAG_HANDLE_CLASS_NAME = "node-drag-handle";

@@ -1,6 +1,6 @@
 import { Observable, from, map } from "rxjs";
-import { graphql } from "../../gql";
-import { client } from "../../state/urql";
+import { graphql } from "../gql";
+import { client } from "../state/urql";
 import { FlowContent } from "./flowTypes";
 
 export const SPACE_FLOW_QUERY = graphql(`

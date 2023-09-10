@@ -1,6 +1,6 @@
 import IconButton from "@mui/joy/IconButton";
 import styled from "styled-components";
-import CrossIcon from "../../../icons/CrossIcon";
+import CrossIcon from "../../../components/icons/CrossIcon";
 
 const StyledCloseIcon = styled(CrossIcon)`
   width: 15px;

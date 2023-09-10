@@ -8,8 +8,8 @@ import {
   State,
   usePersistStore,
   useStore,
-} from "../../../state/zustand";
-import { LLM_STOP_NEW_LINE_SYMBOL } from "../../../static/blockConfigs";
+} from "../../state/zustand";
+import { LLM_STOP_NEW_LINE_SYMBOL } from "../../static/blockConfigs";
 import { FlowState, useFlowStore } from "../flowState";
 import {
   ChatGPTChatCompletionNodeConfig,

@@ -1,7 +1,7 @@
 import { CssVarsProvider, extendTheme } from "@mui/joy/styles";
 import { Provider as GraphQLProvider } from "urql";
-import { client } from "../state/urql";
 import Routes from "./Routes";
+import { client } from "./state/urql";
 import "./App.css";
 
 const theme = extendTheme({

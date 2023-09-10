@@ -1,5 +1,5 @@
 import styled, { css } from "styled-components";
-import background from "../../../../assets/warning-background.svg";
+import background from "../../../assets/warning-background.svg";
 import { NodeType } from "../../flowTypes";
 
 export const BACKDROP_PADDING = 3;
