@@ -24,7 +24,7 @@ class MutationSpace:
 
         db_space = OrmSpace(
             owner=db_user,
-            content=space_example_content(),
+            flow_content=space_example_content(),
         )
 
         db.add(db_space)

@@ -318,6 +318,12 @@ class DeletionResult:
     is_success: bool
 
 
+@strawberry.enum
+class ContentVersion(LowercaseStrEnum):
+    v1 = auto()
+    v2 = auto()
+
+
 @strawberry.type
 class Space:
     @classmethod
@@ -332,6 +338,9 @@ class Space:
             db_space=db_space,
             id=db_space.id,
             name=db_space.name,
+            content_version=ContentVersion(db_space.content_version)
+            if db_space.content_version != None
+            else ContentVersion.v1,
             content=json.dumps(db_space.content),
             flow_content=flow_content,
             updated_at=db_space.updated_at,
@@ -340,6 +349,7 @@ class Space:
     db_space: strawberry.Private[OrmSpace]
     id: strawberry.ID
     name: str
+    content_version: ContentVersion
     content: str | None
     flow_content: str | None
     updated_at: datetime

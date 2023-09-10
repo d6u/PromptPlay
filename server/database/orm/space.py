@@ -21,6 +21,7 @@ class OrmSpace(
     __tablename__ = "spaces"
 
     name: Mapped[str] = mapped_column(default="Untitled space")
+    content_version: Mapped[str | None] = mapped_column(default="v2")
     content: Mapped[dict[str, Any] | None] = mapped_column(type_=JSONB)
     flow_content: Mapped[dict[str, Any] | None] = mapped_column(type_=JSONB)
 
