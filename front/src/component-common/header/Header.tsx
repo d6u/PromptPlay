@@ -18,7 +18,8 @@ const Container = styled.div`
   height: 51px;
   border-bottom: 1px solid #ececf1;
   flex-shrink: 0;
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
@@ -27,12 +28,39 @@ const Container = styled.div`
   @media (max-width: 900px) {
     padding: 0px 10px;
   }
+
+  @media (max-width: 600px) {
+    & {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
 `;
 
 const LogoContainer = styled.div`
   display: flex;
   align-items: baseline;
   gap: 20px;
+
+  @media (max-width: 900px) {
+    gap: 10px;
+  }
+`;
+
+const SpaceNameContainer = styled.div`
+  @media (max-width: 600px) {
+    & {
+      display: none;
+    }
+  }
+`;
+
+const AccountManagementContainer = styled.div`
+  justify-self: flex-end;
+
+  display: flex;
+  gap: 20px;
+  flex-direction: row;
+  align-items: center;
 
   @media (max-width: 900px) {
     gap: 10px;
@@ -60,17 +88,6 @@ const FeedbackLink = styled.a`
 
   @media (max-width: 900px) {
     font-size: 12px;
-  }
-`;
-
-const AccountManagementContainer = styled.div`
-  display: flex;
-  gap: 20px;
-  flex-direction: row;
-  align-items: center;
-
-  @media (max-width: 900px) {
-    gap: 10px;
   }
 `;
 
@@ -190,7 +207,9 @@ export default function Header() {
           {useNarrowLayout ? "Feedback" : "Give Feedback"}
         </FeedbackLink>
       </LogoContainer>
-      <SpaceName />
+      <SpaceNameContainer>
+        <SpaceName />
+      </SpaceNameContainer>
       <AccountManagementContainer>
         {queryResult.data?.isLoggedIn ? (
           <>

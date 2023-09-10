@@ -12,7 +12,6 @@ const SpaceNameInput = styled(Input)`
 
 const Name = styled.div`
   font-size: 14px;
-  padding-left: 9px;
 `;
 
 const HEADER_SPACE_NAME_QUERY = graphql(`
@@ -68,6 +67,11 @@ export default function SpaceName() {
       type="text"
       size="sm"
       placeholder="Enter a name for this space"
+      slotProps={{
+        input: {
+          style: { textAlign: "center" },
+        },
+      }}
       value={name}
       onChange={(e) => setName(e.target.value)}
       // This for handling IME (Input Method Editors) input,
