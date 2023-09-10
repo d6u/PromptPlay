@@ -8,6 +8,10 @@ export const ROW_MARGIN_TOP = 5;
 const Container = styled.div`
   display: flex;
   margin-top: ${ROW_MARGIN_TOP}px;
+
+  &:first-child {
+    margin-top: 0;
+  }
 `;
 
 const NameInput = styled(Input)`
