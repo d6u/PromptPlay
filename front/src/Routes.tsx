@@ -1,7 +1,7 @@
 import { RouterProvider } from "react-router-dom";
 import { createBrowserRouter, Outlet, Navigate } from "react-router-dom";
+import Header from "./component-common/header/Header";
 import RouteFlow from "./route-flow/RouteFlow";
-import Header from "./route-root/Header";
 import RootRoute from "./route-root/RootRoute";
 import RouteSpace from "./route-space/RouteSpace";
 import {
@@ -25,12 +25,12 @@ const router = createBrowserRouter([
         element: <RootRoute />,
       },
       {
-        path: SPACE_PATH_PATTERN,
-        element: <RouteSpace />,
-      },
-      {
         path: FLOWS_PATH_PATTERN,
         element: <RouteFlow />,
+      },
+      {
+        path: SPACE_PATH_PATTERN,
+        element: <RouteSpace />,
       },
     ],
   },

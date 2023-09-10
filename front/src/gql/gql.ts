@@ -13,6 +13,7 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
  * Therefore it is highly recommended to use the babel or swc plugin for production.
  */
 const documents = {
+    "\n  query HeaderSpaceNameQuery($spaceId: UUID!) {\n    result: space(id: $spaceId) {\n      isReadOnly\n      space {\n        name\n      }\n    }\n  }\n": types.HeaderSpaceNameQueryDocument,
     "\n  query SpaceFlowQuery($spaceId: UUID!) {\n    result: space(id: $spaceId) {\n      isReadOnly\n      space {\n        ...SpaceSubHeaderFragment\n        id\n        name\n        contentVersion\n        flowContent\n      }\n    }\n  }\n": types.SpaceFlowQueryDocument,
     "\n  mutation UpdateSpaceFlowContentMutation(\n    $spaceId: ID!\n    $flowContent: String!\n  ) {\n    updateSpace(id: $spaceId, flowContent: $flowContent) {\n      id\n      name\n      flowContent\n    }\n  }\n": types.UpdateSpaceFlowContentMutationDocument,
     "\n  fragment Dashboard on User {\n    spaces {\n      id\n      name\n      updatedAt\n      contentVersion\n    }\n  }\n": types.DashboardFragmentDoc,
@@ -42,6 +43,10 @@ const documents = {
  */
 export function graphql(source: string): unknown;
 
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  query HeaderSpaceNameQuery($spaceId: UUID!) {\n    result: space(id: $spaceId) {\n      isReadOnly\n      space {\n        name\n      }\n    }\n  }\n"): (typeof documents)["\n  query HeaderSpaceNameQuery($spaceId: UUID!) {\n    result: space(id: $spaceId) {\n      isReadOnly\n      space {\n        name\n      }\n    }\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

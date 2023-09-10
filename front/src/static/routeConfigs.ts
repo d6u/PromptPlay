@@ -3,13 +3,13 @@ import { ContentVersion } from "../gql/graphql";
 
 export const ROOT_PATH = "/";
 
-export const SPACE_PATH_PATTERN = "spaces/:spaceId";
+export const SPACE_PATH_PATTERN = "/spaces/:spaceId";
 
 export function pathToSpace(spaceId: string) {
   return `/spaces/${spaceId}`;
 }
 
-export const FLOWS_PATH_PATTERN = "flows/:spaceId";
+export const FLOWS_PATH_PATTERN = "/flows/:spaceId";
 
 export function pathToFlow(spaceId: string) {
   return `/flows/${spaceId}`;
