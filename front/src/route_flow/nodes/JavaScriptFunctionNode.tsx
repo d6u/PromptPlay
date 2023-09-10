@@ -1,3 +1,5 @@
+import FormControl from "@mui/joy/FormControl";
+import FormLabel from "@mui/joy/FormLabel";
 import Textarea from "@mui/joy/Textarea";
 import Chance from "chance";
 import { nanoid } from "nanoid";
@@ -12,12 +14,15 @@ import {
   NodeType,
 } from "../flowTypes";
 import AddVariableButton from "./shared/AddVariableButton";
+import CodeHelperText from "./shared/CodeHelperText";
 import HeaderSection from "./shared/HeaderSection";
 import NodeBox, { NodeState } from "./shared/NodeBox";
 import NodeInputModifyRow from "./shared/NodeInputModifyRow";
 import NodeOutputRow from "./shared/NodeOutputRow";
 import {
+  CopyIcon,
   InputHandle,
+  LabelWithIconContainer,
   OutputHandle,
   Section,
   SmallSection,
@@ -64,6 +69,10 @@ export default function JavaScriptFunctionNode() {
   if (!nodeConfig) {
     return null;
   }
+
+  const functionDefinitionPrefix = `async function (${inputs
+    .map((v) => v.name)
+    .join(", ")}) {`;
 
   return (
     <>
@@ -134,31 +143,42 @@ export default function JavaScriptFunctionNode() {
           ))}
         </Section>
         <Section>
-          <code>{`async function (${inputs
-            .map((v) => v.name)
-            .join(", ")}) {`}</code>
-          <Textarea
-            sx={{ fontFamily: "var(--mono-font-family)" }}
-            color="neutral"
-            size="sm"
-            variant="outlined"
-            minRows={6}
-            placeholder="Write JavaScript here"
-            // disabled={props.isReadOnly}
-            value={javaScriptCode}
-            onChange={(e) => {
-              setJavaScriptCode(e.target.value);
-            }}
-            onKeyDown={(e) => {
-              if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+          <FormControl size="sm">
+            <LabelWithIconContainer>
+              <FormLabel>
+                <CodeHelperText>{functionDefinitionPrefix}</CodeHelperText>
+              </FormLabel>
+              <CopyIcon
+                onClick={() => {
+                  navigator.clipboard.writeText(`${functionDefinitionPrefix}
+  ${javaScriptCode.split("\n").join("\n  ")}
+}`);
+                }}
+              />
+            </LabelWithIconContainer>
+            <Textarea
+              sx={{ fontFamily: "var(--mono-font-family)" }}
+              color="neutral"
+              size="sm"
+              variant="outlined"
+              minRows={6}
+              placeholder="Write JavaScript here"
+              // disabled={props.isReadOnly}
+              value={javaScriptCode}
+              onChange={(e) => {
+                setJavaScriptCode(e.target.value);
+              }}
+              onKeyDown={(e) => {
+                if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+                  updateNodeConfig(nodeId, { javaScriptCode });
+                }
+              }}
+              onBlur={() => {
                 updateNodeConfig(nodeId, { javaScriptCode });
-              }
-            }}
-            onBlur={() => {
-              updateNodeConfig(nodeId, { javaScriptCode });
-            }}
-          />
-          <code>{"}"}</code>
+              }}
+            />
+            <CodeHelperText>{"}"}</CodeHelperText>
+          </FormControl>
         </Section>
         <Section>
           <NodeOutputRow

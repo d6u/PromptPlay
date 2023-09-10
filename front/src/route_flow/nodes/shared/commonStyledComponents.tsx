@@ -1,5 +1,6 @@
 import styled from "@emotion/styled";
 import { Handle } from "reactflow";
+import IconCopy from "../../../component_icons/IconCopy";
 import IconGear from "../../../component_icons/IconGear";
 import { BACKDROP_PADDING } from "./NodeBox";
 
@@ -37,4 +38,24 @@ export const SmallSection = styled(Section)`
 export const StyledIconGear = styled(IconGear)`
   width: 20px;
   fill: #636b74;
+`;
+
+export const LabelWithIconContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+`;
+
+export const CopyIcon = styled(IconCopy)`
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 4px;
+  fill: rgba(0, 0, 0, 0.6);
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+    fill: rgba(0, 0, 0, 1);
+  }
 `;

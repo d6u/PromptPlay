@@ -1,6 +1,7 @@
 import FormControl from "@mui/joy/FormControl";
 import FormHelperText from "@mui/joy/FormHelperText";
 import FormLabel from "@mui/joy/FormLabel";
+import IconButton from "@mui/joy/IconButton";
 import Radio from "@mui/joy/Radio";
 import RadioGroup from "@mui/joy/RadioGroup";
 import Textarea from "@mui/joy/Textarea";
@@ -27,10 +28,13 @@ import NodeInputModifyRow, {
 } from "./shared/NodeInputModifyRow";
 import NodeOutputRow from "./shared/NodeOutputRow";
 import {
+  CopyIcon,
   InputHandle,
+  LabelWithIconContainer,
   OutputHandle,
   Section,
   SmallSection,
+  StyledIconGear,
 } from "./shared/commonStyledComponents";
 import {
   calculateInputHandleTop,
@@ -203,7 +207,14 @@ export default function ChatGPTMessageNode() {
         </Section>
         <Section>
           <FormControl size="sm">
-            <FormLabel>Message content</FormLabel>
+            <LabelWithIconContainer>
+              <FormLabel>Message content</FormLabel>
+              <CopyIcon
+                onClick={() => {
+                  navigator.clipboard.writeText(content);
+                }}
+              />
+            </LabelWithIconContainer>
             <Textarea
               color="neutral"
               size="sm"
@@ -239,6 +250,17 @@ export default function ChatGPTMessageNode() {
               </div>
             </FormHelperText>
           </FormControl>
+        </Section>
+        <Section>
+          <IconButton
+            size="sm"
+            variant="outlined"
+            onClick={() => {
+              // setDetailPanelContentType(DetailPanelContentType.FlowConfig)
+            }}
+          >
+            <StyledIconGear />
+          </IconButton>
         </Section>
         <Section>
           {nodeConfig.outputs.map((output, i) => (
