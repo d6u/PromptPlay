@@ -4,22 +4,13 @@ import { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQuery } from "urql";
 import { IS_LOGIN_ENABLED } from "../constants";
-import { graphql } from "../gql";
 import { useLocalStorageStore } from "../state/appState";
 import { LOGIN_PATH, pathToSpace } from "../static/routeConfigs";
 import Dashboard from "./dashboard/Dashboard";
-import { ROOT_ROUTE_QUERY } from "./queries";
-
-const CREATE_PLACEHOLDER_USER_AND_EXAMPLE_SPACE_MUTATION = graphql(`
-  mutation CreatePlaceholderUserAndExampleSpaceMutation {
-    result: createPlaceholderUserAndExampleSpace {
-      placeholderClientToken
-      space {
-        id
-      }
-    }
-  }
-`);
+import {
+  ROOT_ROUTE_QUERY,
+  CREATE_PLACEHOLDER_USER_AND_EXAMPLE_SPACE_MUTATION,
+} from "./rootGraphql";
 
 const Container = styled.div`
   flex-grow: 1;

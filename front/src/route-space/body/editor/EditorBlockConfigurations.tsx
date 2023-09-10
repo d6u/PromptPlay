@@ -1,7 +1,7 @@
 import u from "updeep";
 import { useMutation } from "urql";
-import { UPDATE_SPACE_CONTENT_MUTATION } from "../../../../state/spaceGraphQl";
-import { Block, BlockType, SpaceContent } from "../../../../static/spaceTypes";
+import { UPDATE_SPACE_CONTENT_MUTATION } from "../../../state/spaceGraphQl";
+import { Block, BlockType, SpaceContent } from "../../../static/spaceTypes";
 import EditorBlockAppendToListConfigurations from "./EditorBlockAppendToListConfigurations";
 import EditorBlockDatabagConfigurations from "./EditorBlockDatabagConfigurations";
 import EditorBlockGetAttributeConfigurations from "./EditorBlockGetAttributeConfigurations";

@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { Block, SpaceContent } from "../../../static/spaceTypes";
+import { Block, SpaceContent } from "../../static/spaceTypes";
 import EditorBlock from "./editor/EditorBlock";
 
 const Container = styled.div`

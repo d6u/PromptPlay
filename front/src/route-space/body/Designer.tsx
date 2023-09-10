@@ -2,10 +2,10 @@ import { DndContext, DragEndEvent, closestCenter } from "@dnd-kit/core";
 import styled from "@emotion/styled";
 import { useCallback } from "react";
 import { useMutation } from "urql";
-import { UPDATE_SPACE_CONTENT_MUTATION } from "../../../state/spaceGraphQl";
-import { SpaceContent } from "../../../static/spaceTypes";
-import { updateContent } from "../../../static/spaceUtils";
-import { useDefaultSensors } from "../../../util/useDefaultSensors";
+import { UPDATE_SPACE_CONTENT_MUTATION } from "../../state/spaceGraphQl";
+import { SpaceContent } from "../../static/spaceTypes";
+import { updateContent } from "../../static/spaceUtils";
+import { useDefaultSensors } from "../../util/useDefaultSensors";
 import BlockGroupComponent from "./designer/BlockGroupComponent";
 
 const Container = styled.div`

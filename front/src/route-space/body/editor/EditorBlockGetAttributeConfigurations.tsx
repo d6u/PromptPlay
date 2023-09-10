@@ -1,6 +1,6 @@
 import Input from "@mui/joy/Input";
 import { useState } from "react";
-import { BlockGetAttribute, SpaceContent } from "../../../../static/spaceTypes";
+import { BlockGetAttribute, SpaceContent } from "../../../static/spaceTypes";
 import EditorBlockInputOutput from "./shared/EditorBlockInputOutput";
 import { FieldRow, FieldTitle } from "./shared/editorCommonComponents";
 

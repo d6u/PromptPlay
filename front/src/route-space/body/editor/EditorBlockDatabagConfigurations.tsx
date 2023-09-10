@@ -1,6 +1,6 @@
 import Textarea from "@mui/joy/Textarea";
 import { useState } from "react";
-import { BlockParser, SpaceContent } from "../../../../static/spaceTypes";
+import { BlockDatabag, SpaceContent } from "../../../static/spaceTypes";
 import EditorBlockInputOutput from "./shared/EditorBlockInputOutput";
 import {
   FieldHelperText,
@@ -10,45 +10,34 @@ import {
 
 type Props = {
   isReadOnly: boolean;
-  javaScriptCode: string;
-  onSaveJavaScriptCode: (javaScriptCode: string) => void;
-  selectedBlock: BlockParser;
+  value: string;
+  onSaveValue: (value: string) => void;
+  selectedBlock: BlockDatabag;
   spaceId: string;
   spaceContent: SpaceContent;
 };
 
-export default function EditorBlockParserConfigurations(props: Props) {
-  const [javaScriptCode, setJavaScriptCode] = useState(props.javaScriptCode);
+export default function EditorBlockDatabagConfigurations(props: Props) {
+  const [value, setValue] = useState(props.value);
 
   return (
     <>
-      <EditorBlockInputOutput
-        isReadOnly={props.isReadOnly}
-        block={props.selectedBlock}
-        isInput={true}
-        variableMap={props.selectedBlock.inputMap}
-        spaceId={props.spaceId}
-        spaceContent={props.spaceContent}
-      />
       <FieldRow>
-        <FieldTitle>Content</FieldTitle>
+        <FieldTitle>Value (string only)</FieldTitle>
         <Textarea
           color="neutral"
           size="sm"
           variant="outlined"
-          minRows={10}
-          placeholder="Enter your message here"
+          minRows={3}
           disabled={props.isReadOnly}
-          value={javaScriptCode}
-          onChange={(e) => {
-            setJavaScriptCode(e.target.value);
-          }}
-          onKeyDown={(e) => {
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          onKeyUp={(e) => {
             if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
-              props.onSaveJavaScriptCode(javaScriptCode);
+              props.onSaveValue(value);
             }
           }}
-          onBlur={() => props.onSaveJavaScriptCode(javaScriptCode)}
+          onBlur={() => props.onSaveValue(value)}
         />
         <FieldHelperText>
           Press <code>CMD</code> + <code>ENTER</code> () or <code>CTRL</code> +{" "}
@@ -59,7 +48,7 @@ export default function EditorBlockParserConfigurations(props: Props) {
         isReadOnly={props.isReadOnly}
         block={props.selectedBlock}
         isInput={false}
-        variableMap={props.selectedBlock.outputMap}
+        singleVariable={props.selectedBlock.singleOuput}
         spaceId={props.spaceId}
         spaceContent={props.spaceContent}
       />

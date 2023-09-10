@@ -1,16 +1,18 @@
 import styled from "@emotion/styled";
 import { useCallback, useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import u from "updeep";
 import { useMutation, useQuery } from "urql";
-import { execute } from "../../llm/chainExecutor";
-import { useLocalStorageStore, useSpaceStore } from "../../state/appState";
+import { ContentVersion } from "../gql/graphql";
+import { execute } from "../llm/chainExecutor";
+import { useLocalStorageStore, useSpaceStore } from "../state/appState";
 import {
   SPACE_QUERY,
   UPDATE_SPACE_CONTENT_MUTATION,
-} from "../../state/spaceGraphQl";
-import { Block, BlockType, SpaceContent } from "../../static/spaceTypes";
-import { validate } from "../../static/spaceUtils";
+} from "../state/spaceGraphQl";
+import { pathToCurrentContent } from "../static/routeConfigs";
+import { Block, BlockType, SpaceContent } from "../static/spaceTypes";
+import { validate } from "../static/spaceUtils";
 import Designer from "./body/Designer";
 import Editor from "./body/Editor";
 import SpaceV2SubHeader from "./sub_header/SpaceV2SubHeader";
@@ -23,6 +25,8 @@ const Content = styled.div`
 `;
 
 export default function RouteSpace() {
+  const navigate = useNavigate();
+
   const openAiApiKey = useLocalStorageStore((state) => state.openAiApiKey);
   const setMissingOpenAiApiKey = useSpaceStore(
     (state) => state.setMissingOpenAiApiKey
@@ -131,6 +135,28 @@ export default function RouteSpace() {
     updateSpaceContent,
   ]);
 
+  useEffect(() => {
+    if (queryResult.fetching) {
+      return;
+    }
+
+    if (queryResult.error || !queryResult.data?.result) {
+      return;
+    }
+
+    const contentVersion = queryResult.data.result.space.contentVersion;
+
+    if (contentVersion !== ContentVersion.V1) {
+      navigate(pathToCurrentContent(spaceId, contentVersion));
+    }
+  }, [
+    navigate,
+    queryResult.data,
+    queryResult.error,
+    queryResult.fetching,
+    spaceId,
+  ]);
+
   if (queryResult.fetching) {
     return <div>Loading...</div>;
   }
@@ -141,6 +167,10 @@ export default function RouteSpace() {
 
   if (!queryResult.data?.result) {
     return <div>Could not find any data.</div>;
+  }
+
+  if (queryResult.data.result.space.contentVersion !== ContentVersion.V1) {
+    return null;
   }
 
   // TODO: Handle group as well
