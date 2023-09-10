@@ -44,6 +44,7 @@ const MESSAGES_HELPER_SECTION_HEIGHT = 81;
 const chance = new Chance();
 
 const selector = (state: FlowState) => ({
+  isCurrentUserOwner: state.isCurrentUserOwner,
   nodeConfigs: state.nodeConfigs,
   updateNodeConfig: state.updateNodeConfig,
   removeNode: state.removeNode,
@@ -55,6 +56,7 @@ export default function ChatGPTMessageNode() {
   const nodeId = useNodeId() as NodeID;
 
   const {
+    isCurrentUserOwner,
     nodeConfigs,
     updateNodeConfig,
     removeNode,
@@ -116,6 +118,7 @@ export default function ChatGPTMessageNode() {
       })}
       <NodeBox nodeType={NodeType.ChatGPTMessageNode}>
         <HeaderSection
+          isCurrentUserOwner={isCurrentUserOwner}
           title="ChatGPT Message"
           onClickRemove={() => removeNode(nodeId)}
         />
@@ -157,6 +160,7 @@ export default function ChatGPTMessageNode() {
               <NodeInputModifyRow
                 key={input.id}
                 name={input.name}
+                isReadOnly={!isCurrentUserOwner}
                 onConfirmNameChange={(name) => {
                   const newInputs = adjust<NodeInputItem>(
                     i,
@@ -198,21 +202,21 @@ export default function ChatGPTMessageNode() {
                 variant="outlined"
                 name="role"
                 label="system"
-                // disabled={props.isReadOnly}
+                disabled={!isCurrentUserOwner}
                 value={ChatGPTMessageRole.system}
               />
               <Radio
                 variant="outlined"
                 name="role"
                 label="user"
-                // disabled={props.isReadOnly}
+                disabled={!isCurrentUserOwner}
                 value={ChatGPTMessageRole.user}
               />
               <Radio
                 variant="outlined"
                 name="role"
                 label="assistant"
-                // disabled={props.isReadOnly}
+                disabled={!isCurrentUserOwner}
                 value={ChatGPTMessageRole.assistant}
               />
             </RadioGroup>
@@ -235,7 +239,7 @@ export default function ChatGPTMessageNode() {
               minRows={3}
               maxRows={5}
               placeholder="Write JavaScript here"
-              // disabled={props.isReadOnly}
+              disabled={!isCurrentUserOwner}
               value={content}
               onChange={(e) => {
                 setContent(e.target.value);

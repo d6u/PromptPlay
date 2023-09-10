@@ -27,6 +27,7 @@ import { calculateInputHandleTop } from "./node-common/utils";
 const chance = new Chance();
 
 const selector = (state: FlowState) => ({
+  isCurrentUserOwner: state.isCurrentUserOwner,
   setDetailPanelContentType: state.setDetailPanelContentType,
   nodeConfigs: state.nodeConfigs,
   updateNodeConfig: state.updateNodeConfig,
@@ -37,6 +38,7 @@ export default function OutputNode() {
   const nodeId = useNodeId() as NodeID;
 
   const {
+    isCurrentUserOwner,
     setDetailPanelContentType,
     nodeConfigs,
     updateNodeConfig,
@@ -71,6 +73,7 @@ export default function OutputNode() {
       ))}
       <NodeBox nodeType={NodeType.OutputNode}>
         <HeaderSection
+          isCurrentUserOwner={isCurrentUserOwner}
           title="Output"
           onClickRemove={() => removeNode(nodeId)}
         />
@@ -84,27 +87,30 @@ export default function OutputNode() {
           >
             <StyledIconGear />
           </IconButton>
-          <AddVariableButton
-            onClick={() => {
-              const newInputs = append<FlowOutputItem>({
-                id: `${nodeId}/${nanoid()}`,
-                name: chance.word(),
-                value: null,
-              })(inputs);
+          {isCurrentUserOwner && (
+            <AddVariableButton
+              onClick={() => {
+                const newInputs = append<FlowOutputItem>({
+                  id: `${nodeId}/${nanoid()}`,
+                  name: chance.word(),
+                  value: null,
+                })(inputs);
 
-              setInputs(newInputs);
+                setInputs(newInputs);
 
-              updateNodeConfig(nodeId, { inputs: newInputs });
+                updateNodeConfig(nodeId, { inputs: newInputs });
 
-              updateNodeInternals(nodeId);
-            }}
-          />
+                updateNodeInternals(nodeId);
+              }}
+            />
+          )}
         </SmallSection>
         <Section>
           {inputs.map((input, i) => (
             <NodeInputModifyRow
               key={input.id}
               name={input.name}
+              isReadOnly={!isCurrentUserOwner}
               onConfirmNameChange={(name) => {
                 const newInputs = adjust<FlowOutputItem>(
                   i,

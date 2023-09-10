@@ -39,6 +39,7 @@ const RemoveButtonContainer = styled.div`
 `;
 
 type Props = {
+  isCurrentUserOwner: boolean;
   title: string;
   onClickRemove: () => void;
 };
@@ -50,9 +51,11 @@ export default function HeaderSection(props: Props) {
         <Title>{props.title}</Title>
         <DragHandle />
       </TitleContainer>
-      <RemoveButtonContainer>
-        <RemoveButton onClick={props.onClickRemove} />
-      </RemoveButtonContainer>
+      {props.isCurrentUserOwner && (
+        <RemoveButtonContainer>
+          <RemoveButton onClick={props.onClickRemove} />
+        </RemoveButtonContainer>
+      )}
     </Container>
   );
 }

@@ -34,6 +34,7 @@ import {
 const chance = new Chance();
 
 const selector = (state: FlowState) => ({
+  isCurrentUserOwner: state.isCurrentUserOwner,
   nodeConfigs: state.nodeConfigs,
   updateNodeConfig: state.updateNodeConfig,
   removeNode: state.removeNode,
@@ -43,8 +44,13 @@ const selector = (state: FlowState) => ({
 export default function JavaScriptFunctionNode() {
   const nodeId = useNodeId() as NodeID;
 
-  const { nodeConfigs, updateNodeConfig, removeNode, localNodeAugments } =
-    useFlowStore(selector);
+  const {
+    isCurrentUserOwner,
+    nodeConfigs,
+    updateNodeConfig,
+    removeNode,
+    localNodeAugments,
+  } = useFlowStore(selector);
 
   const nodeConfig = useMemo(
     () => nodeConfigs[nodeId] as JavaScriptFunctionNodeConfig | undefined,
@@ -95,6 +101,7 @@ export default function JavaScriptFunctionNode() {
         }
       >
         <HeaderSection
+          isCurrentUserOwner={isCurrentUserOwner}
           title="JavaScript"
           onClickRemove={() => removeNode(nodeId)}
         />
@@ -119,6 +126,7 @@ export default function JavaScriptFunctionNode() {
             <NodeInputModifyRow
               key={input.id}
               name={input.name}
+              isReadOnly={!isCurrentUserOwner}
               onConfirmNameChange={(name) => {
                 const newInputs = adjust<NodeInputItem>(
                   i,
@@ -162,7 +170,7 @@ export default function JavaScriptFunctionNode() {
               variant="outlined"
               minRows={6}
               placeholder="Write JavaScript here"
-              // disabled={props.isReadOnly}
+              disabled={!isCurrentUserOwner}
               value={javaScriptCode}
               onChange={(e) => {
                 setJavaScriptCode(e.target.value);

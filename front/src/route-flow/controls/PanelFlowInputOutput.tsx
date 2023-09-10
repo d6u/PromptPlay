@@ -20,6 +20,7 @@ import {
 } from "./controls-common";
 
 const selector = (state: FlowState) => ({
+  isCurrentUserOwner: state.isCurrentUserOwner,
   nodeConfigs: state.nodeConfigs,
   nodes: state.nodes,
   updateNodeConfig: state.updateNodeConfig,
@@ -30,7 +31,8 @@ type Props = {
 };
 
 export default function PanelFlowInputOutput(props: Props) {
-  const { nodeConfigs, nodes, updateNodeConfig } = useFlowStore(selector);
+  const { isCurrentUserOwner, nodeConfigs, nodes, updateNodeConfig } =
+    useFlowStore(selector);
 
   const inputNodeConfigs = useMemo(
     () =>
@@ -54,9 +56,16 @@ export default function PanelFlowInputOutput(props: Props) {
     <PanelContentContainer>
       <HeaderSection>
         <HeaderSectionHeader>Input variables</HeaderSectionHeader>
-        <Button color="success" onClick={props.onRun} size="sm" variant="solid">
-          Run
-        </Button>
+        {isCurrentUserOwner && (
+          <Button
+            color="success"
+            onClick={props.onRun}
+            size="sm"
+            variant="solid"
+          >
+            Run
+          </Button>
+        )}
       </HeaderSection>
       <Section>
         {flatten(
@@ -64,6 +73,7 @@ export default function PanelFlowInputOutput(props: Props) {
             nodeConfig.outputs.map((output, i) => (
               <InputBlock
                 key={output.id}
+                isReadOnly={!isCurrentUserOwner}
                 id={output.id}
                 name={output.name}
                 value={output.value}

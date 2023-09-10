@@ -20,14 +20,19 @@ import {
 } from "./controls-common";
 
 const selector = (state: FlowState) => ({
+  isCurrentUserOwner: state.isCurrentUserOwner,
   nodeConfigs: state.nodeConfigs,
   detailPanelSelectedNodeId: state.detailPanelSelectedNodeId,
   updateNodeConfig: state.updateNodeConfig,
 });
 
 export default function PanelChatGPTMessageConfig() {
-  const { nodeConfigs, detailPanelSelectedNodeId, updateNodeConfig } =
-    useFlowStore(selector);
+  const {
+    isCurrentUserOwner,
+    nodeConfigs,
+    detailPanelSelectedNodeId,
+    updateNodeConfig,
+  } = useFlowStore(selector);
 
   const nodeConfig = useMemo(
     () => nodeConfigs[detailPanelSelectedNodeId!] as ChatGPTMessageNodeConfig,
@@ -89,21 +94,21 @@ export default function PanelChatGPTMessageConfig() {
               variant="outlined"
               name="role"
               label="system"
-              // disabled={props.isReadOnly}
+              disabled={!isCurrentUserOwner}
               value={ChatGPTMessageRole.system}
             />
             <Radio
               variant="outlined"
               name="role"
               label="user"
-              // disabled={props.isReadOnly}
+              disabled={!isCurrentUserOwner}
               value={ChatGPTMessageRole.user}
             />
             <Radio
               variant="outlined"
               name="role"
               label="assistant"
-              // disabled={props.isReadOnly}
+              disabled={!isCurrentUserOwner}
               value={ChatGPTMessageRole.assistant}
             />
           </RadioGroup>
@@ -125,7 +130,7 @@ export default function PanelChatGPTMessageConfig() {
             variant="outlined"
             minRows={6}
             placeholder="Write JavaScript here"
-            // disabled={props.isReadOnly}
+            disabled={!isCurrentUserOwner}
             value={content}
             onChange={(e) => {
               setContent(e.target.value);

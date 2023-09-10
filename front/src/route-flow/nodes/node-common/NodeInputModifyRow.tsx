@@ -54,7 +54,7 @@ export default function NodeInputModifyRow(props: Props) {
           color="neutral"
           size="sm"
           variant="outlined"
-          value={name + " (non-editable)"}
+          value={name}
         />
       ) : (
         <NameInput

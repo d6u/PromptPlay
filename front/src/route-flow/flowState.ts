@@ -62,6 +62,7 @@ export enum DetailPanelContentType {
 
 export type FlowState = {
   isInitialized: boolean;
+  isCurrentUserOwner: boolean;
 
   spaceId: string | null;
   fetchFlowConfiguration(spaceId: string): Subscription;
@@ -148,14 +149,23 @@ export const useFlowStore = create<FlowState>()(
 
       return {
         isInitialized: false,
+        isCurrentUserOwner: false,
 
         spaceId: null,
         fetchFlowConfiguration(spaceId: string): Subscription {
           set({ spaceId });
 
           return from(queryFlowObservable(spaceId)).subscribe({
-            next({ nodes = [], edges = [], nodeConfigs = {} }) {
-              set({ nodes, edges, nodeConfigs });
+            next({
+              isCurrentUserOwner,
+              flowContent: { nodes = [], edges = [], nodeConfigs = {} },
+            }) {
+              set({
+                isCurrentUserOwner,
+                nodes,
+                edges,
+                nodeConfigs,
+              });
             },
             error(error) {
               console.error(error);

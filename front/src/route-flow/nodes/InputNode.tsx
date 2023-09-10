@@ -28,6 +28,7 @@ import { calculateOutputHandleBottom } from "./node-common/utils";
 const chance = new Chance();
 
 const selector = (state: FlowState) => ({
+  isCurrentUserOwner: state.isCurrentUserOwner,
   setDetailPanelContentType: state.setDetailPanelContentType,
   nodeConfigs: state.nodeConfigs,
   updateNodeConfig: state.updateNodeConfig,
@@ -38,6 +39,7 @@ export default function InputNode() {
   const nodeId = useNodeId() as NodeID;
 
   const {
+    isCurrentUserOwner,
     setDetailPanelContentType,
     nodeConfigs,
     updateNodeConfig,
@@ -62,7 +64,11 @@ export default function InputNode() {
   return (
     <>
       <NodeBox nodeType={NodeType.InputNode}>
-        <HeaderSection title="Input" onClickRemove={() => removeNode(nodeId)} />
+        <HeaderSection
+          isCurrentUserOwner={isCurrentUserOwner}
+          title="Input"
+          onClickRemove={() => removeNode(nodeId)}
+        />
         <SmallSection>
           <IconButton
             size="sm"
@@ -73,30 +79,33 @@ export default function InputNode() {
           >
             <StyledIconGear />
           </IconButton>
-          <AddVariableButton
-            onClick={() => {
-              const newOutputs = append<FlowInputItem>({
-                id: `${nodeId}/${nanoid()}`,
-                name: chance.word(),
-                value: "",
-                valueType: InputValueType.String,
-              })(outputs!);
+          {isCurrentUserOwner && (
+            <AddVariableButton
+              onClick={() => {
+                const newOutputs = append<FlowInputItem>({
+                  id: `${nodeId}/${nanoid()}`,
+                  name: chance.word(),
+                  value: "",
+                  valueType: InputValueType.String,
+                })(outputs!);
 
-              setOutputs(newOutputs);
+                setOutputs(newOutputs);
 
-              updateNodeConfig(nodeId, {
-                outputs: newOutputs,
-              });
+                updateNodeConfig(nodeId, {
+                  outputs: newOutputs,
+                });
 
-              updateNodeInternals(nodeId);
-            }}
-          />
+                updateNodeInternals(nodeId);
+              }}
+            />
+          )}
         </SmallSection>
         <Section>
           {outputs.map((output, i) => (
             <NodeOutputModifyRow
               key={output.id}
               name={output.name}
+              isReadOnly={!isCurrentUserOwner}
               onConfirmNameChange={(name) => {
                 const newOutputs = adjust<FlowInputItem>(
                   i,

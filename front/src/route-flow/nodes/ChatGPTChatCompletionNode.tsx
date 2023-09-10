@@ -32,6 +32,7 @@ import {
 } from "./node-common/utils";
 
 const flowSelector = (state: FlowState) => ({
+  isCurrentUserOwner: state.isCurrentUserOwner,
   nodeConfigs: state.nodeConfigs,
   updateNodeConfig: state.updateNodeConfig,
   removeNode: state.removeNode,
@@ -51,12 +52,17 @@ const selector = (state: SpaceState) => ({
 export default function ChatGPTChatCompletionNode() {
   const nodeId = useNodeId() as NodeID;
 
+  const {
+    isCurrentUserOwner,
+    nodeConfigs,
+    updateNodeConfig,
+    removeNode,
+    localNodeAugments,
+  } = useFlowStore(flowSelector);
   const { openAiApiKey, setOpenAiApiKey } =
     useLocalStorageStore(persistSelector);
   const { missingOpenAiApiKey, setMissingOpenAiApiKey } =
     useSpaceStore(selector);
-  const { nodeConfigs, updateNodeConfig, removeNode, localNodeAugments } =
-    useFlowStore(flowSelector);
 
   const nodeConfig = useMemo(
     () => nodeConfigs[nodeId] as ChatGPTChatCompletionNodeConfig | undefined,
@@ -99,6 +105,7 @@ export default function ChatGPTChatCompletionNode() {
         }
       >
         <HeaderSection
+          isCurrentUserOwner={isCurrentUserOwner}
           title="ChatGPT Chat Completion"
           onClickRemove={() => removeNode(nodeId)}
         />
@@ -124,39 +131,41 @@ export default function ChatGPTChatCompletionNode() {
             as the <code>messages</code> output.
           </HelperTextContainer>
         </Section>
-        <Section>
-          <FormControl size="sm">
-            <FormLabel>OpenAI API key</FormLabel>
-            <Input
-              type="password"
-              color={missingOpenAiApiKey ? "danger" : "neutral"}
-              size="sm"
-              variant="outlined"
-              // disabled={props.isReadOnly}
-              value={openAiApiKey ?? ""}
-              onChange={(e) => {
-                const value = e.target.value.trim();
-                setOpenAiApiKey(value.length ? value : null);
-                setMissingOpenAiApiKey(false);
-              }}
-            />
-            {missingOpenAiApiKey && (
-              <HelperTextContainer color="danger">
-                Must specify an Open AI API key here.
-              </HelperTextContainer>
-            )}
-            <FormHelperText>
-              This is stored in your browser's local storage. Never uploaded.
-            </FormHelperText>
-          </FormControl>
-        </Section>
+        {isCurrentUserOwner && (
+          <Section>
+            <FormControl size="sm">
+              <FormLabel>OpenAI API key</FormLabel>
+              <Input
+                type="password"
+                color={missingOpenAiApiKey ? "danger" : "neutral"}
+                size="sm"
+                variant="outlined"
+                // disabled={props.isReadOnly}
+                value={openAiApiKey ?? ""}
+                onChange={(e) => {
+                  const value = e.target.value.trim();
+                  setOpenAiApiKey(value.length ? value : null);
+                  setMissingOpenAiApiKey(false);
+                }}
+              />
+              {missingOpenAiApiKey && (
+                <HelperTextContainer color="danger">
+                  Must specify an Open AI API key here.
+                </HelperTextContainer>
+              )}
+              <FormHelperText>
+                This is stored in your browser's local storage. Never uploaded.
+              </FormHelperText>
+            </FormControl>
+          </Section>
+        )}
         <Section>
           <FormControl size="sm">
             <FormLabel>Model</FormLabel>
             <Select
               size="sm"
               variant="outlined"
-              // disabled={props.isReadOnly}
+              disabled={!isCurrentUserOwner}
               value={model}
               onChange={(_, value) => {
                 const newModel = value as OpenAIChatModel;
@@ -181,7 +190,7 @@ export default function ChatGPTChatCompletionNode() {
               variant="outlined"
               type="number"
               slotProps={{ input: { min: 0, max: 2, step: 0.1 } }}
-              // disabled={props.isReadOnly}
+              disabled={!isCurrentUserOwner}
               value={temperature}
               onChange={(e) => {
                 if (e.target.value) {
@@ -210,7 +219,7 @@ export default function ChatGPTChatCompletionNode() {
               color="neutral"
               size="sm"
               variant="outlined"
-              // disabled={props.isReadOnly}
+              disabled={!isCurrentUserOwner}
               placeholder="Stop sequence"
               value={stop.length ? stop[0].replace(/\n/g, NEW_LINE_SYMBOL) : ""}
               onKeyDown={(event) => {
