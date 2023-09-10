@@ -11,6 +11,7 @@ import { adjust, append, assoc, remove } from "ramda";
 import { useEffect, useMemo, useState } from "react";
 import { Position, useUpdateNodeInternals, useNodeId } from "reactflow";
 import { ChatGPTMessageRole } from "../../integrations/openai";
+import TextareaDisabled from "../flow-common/TextareaDisabled";
 import { CopyIcon, LabelWithIconContainer } from "../flow-common/flow-common";
 import { DetailPanelContentType, FlowState, useFlowStore } from "../flowState";
 import {
@@ -234,27 +235,36 @@ export default function ChatGPTMessageNode() {
                 }}
               />
             </LabelWithIconContainer>
-            <Textarea
-              color="neutral"
-              size="sm"
-              variant="outlined"
-              minRows={3}
-              maxRows={5}
-              placeholder="Write JavaScript here"
-              disabled={!isCurrentUserOwner}
-              value={content}
-              onChange={(e) => {
-                setContent(e.target.value);
-              }}
-              onKeyDown={(e) => {
-                if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+            {isCurrentUserOwner ? (
+              <Textarea
+                color="neutral"
+                size="sm"
+                variant="outlined"
+                minRows={3}
+                maxRows={5}
+                placeholder="Write JavaScript here"
+                value={content}
+                onChange={(e) => {
+                  setContent(e.target.value);
+                }}
+                onKeyDown={(e) => {
+                  if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+                    updateNodeConfig(nodeId, { content });
+                  }
+                }}
+                onBlur={() => {
                   updateNodeConfig(nodeId, { content });
-                }
-              }}
-              onBlur={() => {
-                updateNodeConfig(nodeId, { content });
-              }}
-            />
+                }}
+              />
+            ) : (
+              <TextareaDisabled
+                size="sm"
+                variant="outlined"
+                value={content}
+                minRows={3}
+                maxRows={5}
+              />
+            )}
             <FormHelperText>
               <div>
                 <a

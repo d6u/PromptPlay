@@ -6,6 +6,7 @@ import { nanoid } from "nanoid";
 import { adjust, append, assoc, remove } from "ramda";
 import { useMemo, useState } from "react";
 import { Position, useUpdateNodeInternals, useNodeId } from "reactflow";
+import TextareaDisabled from "../flow-common/TextareaDisabled";
 import { LabelWithIconContainer } from "../flow-common/flow-common";
 import { CopyIcon } from "../flow-common/flow-common";
 import { FlowState, useFlowStore } from "../flowState";
@@ -167,27 +168,35 @@ export default function JavaScriptFunctionNode() {
                 }}
               />
             </LabelWithIconContainer>
-            <Textarea
-              sx={{ fontFamily: "var(--mono-font-family)" }}
-              color="neutral"
-              size="sm"
-              variant="outlined"
-              minRows={6}
-              placeholder="Write JavaScript here"
-              disabled={!isCurrentUserOwner}
-              value={javaScriptCode}
-              onChange={(e) => {
-                setJavaScriptCode(e.target.value);
-              }}
-              onKeyDown={(e) => {
-                if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+            {isCurrentUserOwner ? (
+              <Textarea
+                sx={{ fontFamily: "var(--mono-font-family)" }}
+                size="sm"
+                variant="outlined"
+                minRows={6}
+                placeholder="Write JavaScript here"
+                value={javaScriptCode}
+                onChange={(e) => {
+                  setJavaScriptCode(e.target.value);
+                }}
+                onKeyDown={(e) => {
+                  if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+                    updateNodeConfig(nodeId, { javaScriptCode });
+                  }
+                }}
+                onBlur={() => {
                   updateNodeConfig(nodeId, { javaScriptCode });
-                }
-              }}
-              onBlur={() => {
-                updateNodeConfig(nodeId, { javaScriptCode });
-              }}
-            />
+                }}
+              />
+            ) : (
+              <TextareaDisabled
+                sx={{ fontFamily: "var(--mono-font-family)" }}
+                size="sm"
+                variant="outlined"
+                value={javaScriptCode}
+                minRows={6}
+              />
+            )}
             <code style={{ fontSize: 12 }}>{"}"}</code>
           </FormControl>
         </Section>

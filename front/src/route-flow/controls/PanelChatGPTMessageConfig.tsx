@@ -6,6 +6,7 @@ import RadioGroup from "@mui/joy/RadioGroup";
 import Textarea from "@mui/joy/Textarea";
 import { ReactNode, useEffect, useMemo, useState } from "react";
 import { ChatGPTMessageRole } from "../../integrations/openai";
+import TextareaDisabled from "../flow-common/TextareaDisabled";
 import { CopyIcon, LabelWithIconContainer } from "../flow-common/flow-common";
 import { FlowState, useFlowStore } from "../flowState";
 import { ChatGPTMessageNodeConfig } from "../flowTypes";
@@ -124,26 +125,34 @@ export default function PanelChatGPTMessageConfig() {
               }}
             />
           </LabelWithIconContainer>
-          <Textarea
-            color="neutral"
-            size="sm"
-            variant="outlined"
-            minRows={6}
-            placeholder="Write JavaScript here"
-            disabled={!isCurrentUserOwner}
-            value={content}
-            onChange={(e) => {
-              setContent(e.target.value);
-            }}
-            onKeyDown={(e) => {
-              if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+          {isCurrentUserOwner ? (
+            <Textarea
+              color="neutral"
+              size="sm"
+              variant="outlined"
+              minRows={6}
+              placeholder="Write JavaScript here"
+              value={content}
+              onChange={(e) => {
+                setContent(e.target.value);
+              }}
+              onKeyDown={(e) => {
+                if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+                  updateNodeConfig(detailPanelSelectedNodeId!, { content });
+                }
+              }}
+              onBlur={() => {
                 updateNodeConfig(detailPanelSelectedNodeId!, { content });
-              }
-            }}
-            onBlur={() => {
-              updateNodeConfig(detailPanelSelectedNodeId!, { content });
-            }}
-          />
+              }}
+            />
+          ) : (
+            <TextareaDisabled
+              size="sm"
+              variant="outlined"
+              value={content}
+              minRows={6}
+            />
+          )}
           <FormHelperText>
             <div>
               <a

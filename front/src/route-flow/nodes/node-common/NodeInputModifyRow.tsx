@@ -1,6 +1,7 @@
 import styled from "@emotion/styled";
 import Input from "@mui/joy/Input";
 import { useState } from "react";
+import InputDisabled from "./InputDisabled";
 import RemoveButton from "./RemoveButton";
 
 export const ROW_MARGIN_TOP = 5;
@@ -11,19 +12,6 @@ const Container = styled.div`
 
   &:first-of-type {
     margin-top: 0;
-  }
-`;
-
-const NameInputDisable = styled(Input)`
-  flex-grow: 1;
-
-  &.Mui-focused::before {
-    box-shadow: rgb(205, 215, 225) 0px 0px 0px 2px inset;
-  }
-
-  & input {
-    color: #747474;
-    cursor: not-allowed;
   }
 `;
 
@@ -50,7 +38,7 @@ export default function NodeInputModifyRow(props: Props) {
   return (
     <Container>
       {props.isReadOnly ? (
-        <NameInputDisable
+        <InputDisabled
           color="neutral"
           size="sm"
           variant="outlined"
