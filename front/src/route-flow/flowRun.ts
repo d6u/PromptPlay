@@ -325,7 +325,7 @@ function handleChatGPTMessageNode(
   // Execute logic
   // ----------
 
-  let messages = argsMap["message_list"] ?? [];
+  let messages = argsMap["messages"] ?? [];
 
   const message = {
     role: data.role,
