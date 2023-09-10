@@ -2,11 +2,11 @@ import Input from "@mui/joy/Input";
 import Option from "@mui/joy/Option";
 import Select from "@mui/joy/Select";
 import { useCallback, useState } from "react";
+import { NEW_LINE_SYMBOL } from "../../../../integrations/openai";
 import {
   useLocalStorageStore,
   useSpaceStore,
 } from "../../../../state/appState";
-import { LLM_STOP_NEW_LINE_SYMBOL } from "../../../../static/blockConfigs";
 import {
   BlockLlm,
   LlmModel,
@@ -146,9 +146,7 @@ export default function EditorBlockLlmConfigurations(props: Props) {
           size="sm"
           variant="outlined"
           disabled={props.isReadOnly}
-          value={
-            stop.length ? stop[0].replace("\n", LLM_STOP_NEW_LINE_SYMBOL) : ""
-          }
+          value={stop.length ? stop[0].replace("\n", NEW_LINE_SYMBOL) : ""}
           onKeyDown={(event) => {
             if (event.shiftKey && event.key === "Enter") {
               event.preventDefault();
@@ -167,8 +165,7 @@ export default function EditorBlockLlmConfigurations(props: Props) {
         />
         <FieldHelperText>
           Use <code>SHIFT</code> + <code>ENTER</code> to enter a new line
-          character. (Visually represented by{" "}
-          <code>"{LLM_STOP_NEW_LINE_SYMBOL}"</code>.)
+          character. (Visually represented by <code>"{NEW_LINE_SYMBOL}"</code>.)
         </FieldHelperText>
       </FieldRow>
       <FieldRow>

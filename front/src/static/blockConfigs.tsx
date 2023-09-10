@@ -13,8 +13,6 @@ import {
   BlockType,
 } from "./spaceTypes";
 
-export const LLM_STOP_NEW_LINE_SYMBOL = "↵";
-
 type BlockConfig<T extends Block> = {
   title: string;
   derivedInputVariablesGenerate?: (
@@ -175,7 +173,7 @@ const BLOCK_CONFIGS: BlockConfigs = {
               stop=
               <b>
                 {block.stop.length
-                  ? block.stop[0].replace("\n", LLM_STOP_NEW_LINE_SYMBOL)
+                  ? block.stop[0].replace("\n", openai.NEW_LINE_SYMBOL)
                   : ""}
               </b>
             </>

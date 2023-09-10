@@ -1,15 +1,18 @@
+import FormControl from "@mui/joy/FormControl";
+import FormHelperText from "@mui/joy/FormHelperText";
+import FormLabel from "@mui/joy/FormLabel";
 import Input from "@mui/joy/Input";
 import Option from "@mui/joy/Option";
 import Select from "@mui/joy/Select";
 import { useMemo, useState } from "react";
 import { Position, useNodeId } from "reactflow";
+import { NEW_LINE_SYMBOL } from "../../integrations/openai";
 import {
   LocalStorageState,
   SpaceState,
   useLocalStorageStore,
   useSpaceStore,
 } from "../../state/appState";
-import { LLM_STOP_NEW_LINE_SYMBOL } from "../../static/blockConfigs";
 import { FlowState, useFlowStore } from "../flowState";
 import {
   ChatGPTChatCompletionNodeConfig,
@@ -17,7 +20,9 @@ import {
   NodeType,
   OpenAIChatModel,
 } from "../flowTypes";
+import CodeHelperText from "./shared/CodeHelperText";
 import HeaderSection from "./shared/HeaderSection";
+import HelperTextContainer from "./shared/HelperTextContainer";
 import NodeBox, { NodeState } from "./shared/NodeBox";
 import NodeInputModifyRow from "./shared/NodeInputModifyRow";
 import NodeOutputRow from "./shared/NodeOutputRow";
@@ -110,102 +115,128 @@ export default function ChatGPTChatCompletionNode() {
           />
         </Section>
         <Section>
-          <Input
-            type="password"
-            color={missingOpenAiApiKey ? "danger" : "neutral"}
-            size="sm"
-            variant="outlined"
-            // disabled={props.isReadOnly}
-            value={openAiApiKey ?? ""}
-            onChange={(e) => {
-              const value = e.target.value.trim();
-              setOpenAiApiKey(value.length ? value : null);
-              setMissingOpenAiApiKey(false);
-            }}
-          />
+          <FormControl size="sm">
+            <FormLabel>OpenAI API key</FormLabel>
+            <Input
+              type="password"
+              color={missingOpenAiApiKey ? "danger" : "neutral"}
+              size="sm"
+              variant="outlined"
+              // disabled={props.isReadOnly}
+              value={openAiApiKey ?? ""}
+              onChange={(e) => {
+                const value = e.target.value.trim();
+                setOpenAiApiKey(value.length ? value : null);
+                setMissingOpenAiApiKey(false);
+              }}
+            />
+            {missingOpenAiApiKey && (
+              <HelperTextContainer color="danger">
+                Must specify an Open AI API key here.
+              </HelperTextContainer>
+            )}
+            <FormHelperText>
+              This is stored in your browser's local storage. Never uploaded.
+            </FormHelperText>
+          </FormControl>
         </Section>
         <Section>
-          <Select
-            size="sm"
-            variant="outlined"
-            // disabled={props.isReadOnly}
-            value={model}
-            onChange={(_, value) => {
-              const newModel = value as OpenAIChatModel;
-              setModel(newModel);
-              updateNodeConfig(nodeId, { model: newModel });
-            }}
-          >
-            {Object.values(OpenAIChatModel).map((model) => (
-              <Option key={model} value={model}>
-                {model}
-              </Option>
-            ))}
-          </Select>
+          <FormControl size="sm">
+            <FormLabel>Model</FormLabel>
+            <Select
+              size="sm"
+              variant="outlined"
+              // disabled={props.isReadOnly}
+              value={model}
+              onChange={(_, value) => {
+                const newModel = value as OpenAIChatModel;
+                setModel(newModel);
+                updateNodeConfig(nodeId, { model: newModel });
+              }}
+            >
+              {Object.values(OpenAIChatModel).map((model) => (
+                <Option key={model} value={model}>
+                  {model}
+                </Option>
+              ))}
+            </Select>
+          </FormControl>
         </Section>
         <Section>
-          <Input
-            color="neutral"
-            size="sm"
-            variant="outlined"
-            type="number"
-            slotProps={{ input: { min: 0, max: 2, step: 0.1 } }}
-            // disabled={props.isReadOnly}
-            value={temperature}
-            onChange={(e) => {
-              if (e.target.value) {
-                setTemperature(Number(e.target.value));
-              } else {
-                // Set to empty string so that on mobile devices, users can
-                // type 0 when typing decimal number.
-                setTemperature("");
-              }
-            }}
-            onKeyUp={(e) => {
-              if (e.key === "Enter") {
+          <FormControl size="sm">
+            <FormLabel>Temperature</FormLabel>
+            <Input
+              color="neutral"
+              size="sm"
+              variant="outlined"
+              type="number"
+              slotProps={{ input: { min: 0, max: 2, step: 0.1 } }}
+              // disabled={props.isReadOnly}
+              value={temperature}
+              onChange={(e) => {
+                if (e.target.value) {
+                  setTemperature(Number(e.target.value));
+                } else {
+                  // Set to empty string so that on mobile devices, users can
+                  // type 0 when typing decimal number.
+                  setTemperature("");
+                }
+              }}
+              onKeyUp={(e) => {
+                if (e.key === "Enter") {
+                  updateNodeConfig(nodeId, { temperature: temperature || 1 });
+                }
+              }}
+              onBlur={() => {
                 updateNodeConfig(nodeId, { temperature: temperature || 1 });
-              }
-            }}
-            onBlur={() => {
-              updateNodeConfig(nodeId, { temperature: temperature || 1 });
-            }}
-          />
+              }}
+            />
+          </FormControl>
         </Section>
         <Section>
-          <Input
-            color="neutral"
-            size="sm"
-            variant="outlined"
-            // disabled={props.isReadOnly}
-            placeholder="Stop sequence"
-            value={
-              stop.length
-                ? stop[0].replace(/\n/g, LLM_STOP_NEW_LINE_SYMBOL)
-                : ""
-            }
-            onKeyDown={(event) => {
-              if (event.shiftKey && event.key === "Enter") {
-                event.preventDefault();
-                setStop((stop) => (stop.length ? [stop[0] + "\n"] : ["\n"]));
-              }
-            }}
-            onChange={(e) => {
-              setStop([
-                e.target.value.replace(
-                  RegExp(LLM_STOP_NEW_LINE_SYMBOL, "g"),
-                  "\n"
-                ),
-              ]);
-            }}
-            onKeyUp={(e) => {
-              if (e.key === "Enter") {
+          <FormControl size="sm">
+            <FormLabel>Stop sequence</FormLabel>
+            <Input
+              color="neutral"
+              size="sm"
+              variant="outlined"
+              // disabled={props.isReadOnly}
+              placeholder="Stop sequence"
+              value={stop.length ? stop[0].replace(/\n/g, NEW_LINE_SYMBOL) : ""}
+              onKeyDown={(event) => {
+                if (event.shiftKey && event.key === "Enter") {
+                  event.preventDefault();
+                  setStop((stop) => (stop.length ? [stop[0] + "\n"] : ["\n"]));
+                }
+              }}
+              onChange={(e) => {
+                const v = e.target.value;
+
+                if (!v) {
+                  setStop([]);
+                  return;
+                }
+
+                setStop([v.replace(RegExp(NEW_LINE_SYMBOL, "g"), "\n")]);
+              }}
+              onKeyUp={(e) => {
+                if (e.key === "Enter") {
+                  updateNodeConfig(nodeId, { stop });
+                }
+              }}
+              onBlur={() => {
                 updateNodeConfig(nodeId, { stop });
-              }
-            }}
-            onBlur={() => {
-              updateNodeConfig(nodeId, { stop });
-            }}
-          />
+              }}
+            />
+            <FormHelperText>
+              <div>
+                Use <CodeHelperText>SHIFT</CodeHelperText> +{" "}
+                <CodeHelperText>ENTER</CodeHelperText> to enter a new line
+                character. (Visually represented by{" "}
+                <CodeHelperText>"{NEW_LINE_SYMBOL}"</CodeHelperText>.)
+              </div>
+            </FormHelperText>
+          </FormControl>
         </Section>
         <Section>
           {nodeConfig.outputs.map((output, i) => (

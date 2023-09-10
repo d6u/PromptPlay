@@ -1,3 +1,6 @@
+import FormControl from "@mui/joy/FormControl";
+import FormHelperText from "@mui/joy/FormHelperText";
+import FormLabel from "@mui/joy/FormLabel";
 import Radio from "@mui/joy/Radio";
 import RadioGroup from "@mui/joy/RadioGroup";
 import Textarea from "@mui/joy/Textarea";
@@ -15,6 +18,7 @@ import {
   NodeType,
 } from "../flowTypes";
 import AddVariableButton from "./shared/AddVariableButton";
+import CodeHelperText from "./shared/CodeHelperText";
 import HeaderSection from "./shared/HeaderSection";
 import NodeBox from "./shared/NodeBox";
 import NodeInputModifyRow from "./shared/NodeInputModifyRow";
@@ -132,64 +136,81 @@ export default function ChatGPTMessageNode() {
           })}
         </Section>
         <Section>
-          <RadioGroup
-            orientation="horizontal"
-            value={role}
-            onChange={(e) => {
-              const role = e.target.value as ChatGPTMessageRole;
+          <FormControl size="sm">
+            <FormLabel>Role</FormLabel>
+            <RadioGroup
+              orientation="horizontal"
+              value={role}
+              onChange={(e) => {
+                const role = e.target.value as ChatGPTMessageRole;
 
-              setRole(role);
+                setRole(role);
 
-              updateNodeConfig(nodeId, { role });
-            }}
-          >
-            <Radio
-              size="sm"
-              variant="outlined"
-              name="role"
-              label="system"
-              // disabled={props.isReadOnly}
-              value={ChatGPTMessageRole.system}
-            />
-            <Radio
-              size="sm"
-              variant="outlined"
-              name="role"
-              label="user"
-              // disabled={props.isReadOnly}
-              value={ChatGPTMessageRole.user}
-            />
-            <Radio
-              size="sm"
-              variant="outlined"
-              name="role"
-              label="assistant"
-              // disabled={props.isReadOnly}
-              value={ChatGPTMessageRole.assistant}
-            />
-          </RadioGroup>
+                updateNodeConfig(nodeId, { role });
+              }}
+            >
+              <Radio
+                variant="outlined"
+                name="role"
+                label="system"
+                // disabled={props.isReadOnly}
+                value={ChatGPTMessageRole.system}
+              />
+              <Radio
+                variant="outlined"
+                name="role"
+                label="user"
+                // disabled={props.isReadOnly}
+                value={ChatGPTMessageRole.user}
+              />
+              <Radio
+                variant="outlined"
+                name="role"
+                label="assistant"
+                // disabled={props.isReadOnly}
+                value={ChatGPTMessageRole.assistant}
+              />
+            </RadioGroup>
+          </FormControl>
         </Section>
         <Section>
-          <Textarea
-            color="neutral"
-            size="sm"
-            variant="outlined"
-            minRows={6}
-            placeholder="Write JavaScript here"
-            // disabled={props.isReadOnly}
-            value={content}
-            onChange={(e) => {
-              setContent(e.target.value);
-            }}
-            onKeyDown={(e) => {
-              if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+          <FormControl size="sm">
+            <FormLabel>Message content</FormLabel>
+            <Textarea
+              color="neutral"
+              size="sm"
+              variant="outlined"
+              minRows={6}
+              placeholder="Write JavaScript here"
+              // disabled={props.isReadOnly}
+              value={content}
+              onChange={(e) => {
+                setContent(e.target.value);
+              }}
+              onKeyDown={(e) => {
+                if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+                  updateNodeConfig(nodeId, { content });
+                }
+              }}
+              onBlur={() => {
                 updateNodeConfig(nodeId, { content });
-              }
-            }}
-            onBlur={() => {
-              updateNodeConfig(nodeId, { content });
-            }}
-          />
+              }}
+            />
+            <FormHelperText>
+              <div>
+                <a
+                  href="https://mustache.github.io/"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Mustache template
+                </a>{" "}
+                is used here. TL;DR: use{" "}
+                <CodeHelperText>{"{{variableName}}"}</CodeHelperText> to insert
+                a variable.
+              </div>
+            </FormHelperText>
+          </FormControl>
         </Section>
         <Section>
           {nodeConfig.outputs.map((output, i) => (
