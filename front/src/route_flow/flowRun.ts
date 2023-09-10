@@ -34,6 +34,8 @@ import {
   OutputNodeConfig,
 } from "./flowTypes";
 
+const AsyncFunction = async function () {}.constructor;
+
 export enum RunEventType {
   NodeConfigChange = "NodeConfigChange",
   NodeAugmentChange = "NodeAugmentChange",
@@ -267,28 +269,33 @@ function handleJavaScriptFunctionNode(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   outputIdToValueMap: { [key: string]: any }
 ): Observable<Partial<JavaScriptFunctionNodeConfig>> {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const pairs: Array<[string, any]> = [];
+  return defer(async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const pairs: Array<[string, any]> = [];
 
-  for (const input of data.inputs) {
-    const outputId = inputIdToOutputIdMap[input.id];
+    for (const input of data.inputs) {
+      const outputId = inputIdToOutputIdMap[input.id];
 
-    if (outputId) {
-      const outputValue = outputIdToValueMap[outputId];
-      pairs.push([input.name, outputValue ?? null]);
-    } else {
-      pairs.push([input.name, null]);
+      if (outputId) {
+        const outputValue = outputIdToValueMap[outputId];
+        pairs.push([input.name, outputValue ?? null]);
+      } else {
+        pairs.push([input.name, null]);
+      }
     }
-  }
 
-  const fn = Function(...pairs.map((pair) => pair[0]), data.javaScriptCode);
+    const fn = AsyncFunction(
+      ...pairs.map((pair) => pair[0]),
+      data.javaScriptCode
+    );
 
-  const result = fn(...pairs.map((pair) => pair[1]));
+    const result = await fn(...pairs.map((pair) => pair[1]));
 
-  outputIdToValueMap[data.outputs[0].id] = result;
+    outputIdToValueMap[data.outputs[0].id] = result;
 
-  return of({
-    outputs: adjust<NodeOutputItem>(0, assoc("value", result))(data.outputs),
+    return {
+      outputs: adjust<NodeOutputItem>(0, assoc("value", result))(data.outputs),
+    };
   });
 }
 
@@ -347,87 +354,87 @@ function handleChatGPTChatNode(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   outputIdToValueMap: { [key: string]: any }
 ): Observable<Partial<ChatGPTChatCompletionNodeConfig>> {
-  // Prepare inputs
-  // ----------
+  return defer(() => {
+    // Prepare inputs
+    // ----------
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const argsMap: { [key: string]: any } = {};
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const argsMap: { [key: string]: any } = {};
 
-  for (const input of data.inputs) {
-    const outputId = inputIdToOutputIdMap[input.id];
+    for (const input of data.inputs) {
+      const outputId = inputIdToOutputIdMap[input.id];
 
-    if (outputId) {
-      const outputValue = outputIdToValueMap[outputId];
-      argsMap[input.name] = outputValue ?? null;
-    } else {
-      argsMap[input.name] = null;
+      if (outputId) {
+        const outputValue = outputIdToValueMap[outputId];
+        argsMap[input.name] = outputValue ?? null;
+      } else {
+        argsMap[input.name] = null;
+      }
     }
-  }
 
-  // Execute logic
-  // ----------
+    // Execute logic
+    // ----------
 
-  const openAiApiKey = useLocalStorageStore.getState().openAiApiKey;
-  if (!openAiApiKey) {
-    // console.error("OpenAI API key is missing");
-    useSpaceStore.getState().setMissingOpenAiApiKey(true);
-    return throwError(() => new Error("OpenAI API key is missing"));
-  }
+    const openAiApiKey = useLocalStorageStore.getState().openAiApiKey;
+    if (!openAiApiKey) {
+      // console.error("OpenAI API key is missing");
+      useSpaceStore.getState().setMissingOpenAiApiKey(true);
+      return throwError(() => new Error("OpenAI API key is missing"));
+    }
 
-  let messages = argsMap["messages"] ?? [];
-  let role = "assistant";
-  let content = "";
+    let messages = argsMap["messages"] ?? [];
+    let role = "assistant";
+    let content = "";
 
-  const obs1 = from(
-    OpenAI.getStreamingCompletion({
+    const obs1 = OpenAI.getStreamingCompletion({
       apiKey: openAiApiKey,
       model: data.model,
       messages,
       temperature: data.temperature,
       stop: data.stop,
-    })
-  ).pipe(
-    map((piece) => {
-      if ("error" in piece) {
-        // console.error(piece.error.message);
-        throw piece.error.message;
-      }
+    }).pipe(
+      map((piece) => {
+        if ("error" in piece) {
+          // console.error(piece.error.message);
+          throw piece.error.message;
+        }
 
-      if (piece.choices[0].delta.role) {
-        role = piece.choices[0].delta.role;
-      }
-      if (piece.choices[0].delta.content) {
-        content += piece.choices[0].delta.content;
-      }
-      const message = { role, content };
+        if (piece.choices[0].delta.role) {
+          role = piece.choices[0].delta.role;
+        }
+        if (piece.choices[0].delta.content) {
+          content += piece.choices[0].delta.content;
+        }
+        const message = { role, content };
 
-      return {
-        outputs: pipe(
-          adjust<NodeOutputItem>(0, assoc("value", content)),
-          adjust<NodeOutputItem>(1, assoc("value", message)),
-          adjust<NodeOutputItem>(2, assoc("value", append(message, messages)))
-        )(data.outputs),
-      };
-    })
-  );
+        return {
+          outputs: pipe(
+            adjust<NodeOutputItem>(0, assoc("value", content)),
+            adjust<NodeOutputItem>(1, assoc("value", message)),
+            adjust<NodeOutputItem>(2, assoc("value", append(message, messages)))
+          )(data.outputs),
+        };
+      })
+    );
 
-  return concat(
-    obs1,
-    defer(() => {
-      const message = { role, content };
-      messages = append(message, messages);
+    return concat(
+      obs1,
+      defer(() => {
+        const message = { role, content };
+        messages = append(message, messages);
 
-      outputIdToValueMap[data.outputs[0].id] = content;
-      outputIdToValueMap[data.outputs[1].id] = message;
-      outputIdToValueMap[data.outputs[2].id] = messages;
+        outputIdToValueMap[data.outputs[0].id] = content;
+        outputIdToValueMap[data.outputs[1].id] = message;
+        outputIdToValueMap[data.outputs[2].id] = messages;
 
-      return of({
-        outputs: pipe(
-          adjust<NodeOutputItem>(0, assoc("value", content)),
-          adjust<NodeOutputItem>(1, assoc("value", message)),
-          adjust<NodeOutputItem>(2, assoc("value", messages))
-        )(data.outputs),
-      });
-    })
-  );
+        return of({
+          outputs: pipe(
+            adjust<NodeOutputItem>(0, assoc("value", content)),
+            adjust<NodeOutputItem>(1, assoc("value", message)),
+            adjust<NodeOutputItem>(2, assoc("value", messages))
+          )(data.outputs),
+        });
+      })
+    );
+  });
 }

@@ -13,7 +13,7 @@ import {
 } from "../flowTypes";
 import AddVariableButton from "./shared/AddVariableButton";
 import HeaderSection from "./shared/HeaderSection";
-import NodeBox from "./shared/NodeBox";
+import NodeBox, { NodeState } from "./shared/NodeBox";
 import NodeInputModifyRow from "./shared/NodeInputModifyRow";
 import NodeOutputRow from "./shared/NodeOutputRow";
 import {
@@ -33,16 +33,23 @@ const selector = (state: FlowState) => ({
   nodeConfigs: state.nodeConfigs,
   updateNodeConfig: state.updateNodeConfig,
   removeNode: state.removeNode,
+  localNodeAugments: state.localNodeAugments,
 });
 
 export default function JavaScriptFunctionNode() {
   const nodeId = useNodeId() as NodeID;
 
-  const { nodeConfigs, updateNodeConfig, removeNode } = useFlowStore(selector);
+  const { nodeConfigs, updateNodeConfig, removeNode, localNodeAugments } =
+    useFlowStore(selector);
 
   const nodeConfig = useMemo(
     () => nodeConfigs[nodeId] as JavaScriptFunctionNodeConfig | undefined,
     [nodeConfigs, nodeId]
+  );
+
+  const augment = useMemo(
+    () => localNodeAugments[nodeId],
+    [localNodeAugments, nodeId]
   );
 
   const updateNodeInternals = useUpdateNodeInternals();
@@ -69,7 +76,16 @@ export default function JavaScriptFunctionNode() {
           style={{ top: calculateInputHandleTop(i) }}
         />
       ))}
-      <NodeBox nodeType={NodeType.JavaScriptFunctionNode}>
+      <NodeBox
+        nodeType={NodeType.JavaScriptFunctionNode}
+        state={
+          augment?.isRunning
+            ? NodeState.Running
+            : augment?.hasError
+            ? NodeState.Error
+            : NodeState.Idle
+        }
+      >
         <HeaderSection
           title="JavaScript"
           onClickRemove={() => removeNode(nodeId)}
@@ -118,7 +134,9 @@ export default function JavaScriptFunctionNode() {
           ))}
         </Section>
         <Section>
-          <code>{`function (${inputs.map((v) => v.name).join(", ")}) {`}</code>
+          <code>{`async function (${inputs
+            .map((v) => v.name)
+            .join(", ")}) {`}</code>
           <Textarea
             sx={{ fontFamily: "var(--mono-font-family)" }}
             color="neutral"

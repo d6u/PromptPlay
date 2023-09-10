@@ -1,22 +1,6 @@
-import styled from "@emotion/styled";
+import { ClassNames } from "@emotion/react";
 import FormHelperText from "@mui/joy/FormHelperText";
 import { ReactNode } from "react";
-
-const FieldHelperText = styled(FormHelperText)<{
-  $color?: "danger" | "success";
-}>`
-  --FormHelperText-fontSize: var(--joy-fontSize-xs);
-  color: ${(props) => {
-    switch (props.$color) {
-      case "danger":
-        return "var(--joy-palette-danger-500, #C41C1C)";
-      case "success":
-        return "var(--joy-palette-success-500, #1F7A1F)";
-      default:
-        return "var(--FormHelperText-color, var(--joy-palette-text-tertiary))";
-    }
-  }};
-`;
 
 type Props = {
   color?: "danger" | "success";
@@ -24,9 +8,31 @@ type Props = {
 };
 
 export default function HelperTextContainer(props: Props) {
+  let color: string;
+  switch (props.color) {
+    case "danger":
+      color = "var(--joy-palette-danger-500, #C41C1C)";
+      break;
+    case "success":
+      color = "var(--joy-palette-success-500, #1F7A1F)";
+      break;
+    default:
+      color = "var(--FormHelperText-color, var(--joy-palette-text-tertiary))";
+      break;
+  }
+
   return (
-    <FieldHelperText $color={props.color}>
-      <div>{props.children}</div>
-    </FieldHelperText>
+    <ClassNames>
+      {({ css }) => (
+        <FormHelperText
+          className={css`
+            --FormHelperText-fontSize: var(--joy-fontSize-xs);
+            color: ${color};
+          `}
+        >
+          <div>{props.children}</div>
+        </FormHelperText>
+      )}
+    </ClassNames>
   );
 }
