@@ -1,32 +1,18 @@
 import Input from "@mui/joy/Input";
 import { useState } from "react";
 import styled from "styled-components";
-import IconEdit from "../../../icons/IconEdit";
-import { FlowState, useFlowStore } from "../../flowState";
-import { DetailPanelContentType } from "../../flowTypes";
 import RemoveButton from "./RemoveButton";
 
-const VARIABLE_ROW_MARGIN_BOTTOM = 5;
-
 const Container = styled.div`
-  margin-top: ${VARIABLE_ROW_MARGIN_BOTTOM}px;
+  margin-top: 5px;
   display: flex;
   align-items: center;
   gap: 5px;
 
-  &:last-child {
-    // margin-bottom: 0;
+  &:first-child {
+    margin-top: 0;
   }
 `;
-
-const EditIcon = styled(IconEdit)`
-  width: 25px;
-  cursor: pointer;
-`;
-
-const selector = (state: FlowState) => ({
-  setDetailPanelContentType: state.setDetailPanelContentType,
-});
 
 type Props =
   | {
@@ -41,17 +27,10 @@ type Props =
     };
 
 export default function NodeOutputModifyRow(props: Props) {
-  const { setDetailPanelContentType } = useFlowStore(selector);
-
   const [name, setName] = useState(props.name);
 
   return (
     <Container>
-      <EditIcon
-        onClick={() =>
-          setDetailPanelContentType(DetailPanelContentType.FlowConfig)
-        }
-      />
       <Input
         color="primary"
         size="sm"

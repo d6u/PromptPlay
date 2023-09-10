@@ -1,12 +1,14 @@
+import IconButton from "@mui/joy/IconButton";
 import Chance from "chance";
 import { nanoid } from "nanoid";
 import { adjust, append, assoc, remove } from "ramda";
 import { useMemo, useState } from "react";
 import { Position, useUpdateNodeInternals, useNodeId } from "reactflow";
 import { FlowState, useFlowStore } from "../flowState";
+import { DetailPanelContentType } from "../flowState";
 import {
+  FlowOutputItem,
   NodeID,
-  NodeInputItem,
   NodeType,
   OutputNodeConfig,
 } from "../flowTypes";
@@ -14,12 +16,18 @@ import AddVariableButton from "./shared/AddVariableButton";
 import HeaderSection from "./shared/HeaderSection";
 import NodeBox from "./shared/NodeBox";
 import NodeInputModifyRow from "./shared/NodeInputModifyRow";
-import { InputHandle, Section } from "./shared/commonStyledComponents";
+import {
+  InputHandle,
+  Section,
+  SmallSection,
+  StyledIconGear,
+} from "./shared/commonStyledComponents";
 import { calculateInputHandleTop } from "./shared/utils";
 
 const chance = new Chance();
 
 const selector = (state: FlowState) => ({
+  setDetailPanelContentType: state.setDetailPanelContentType,
   nodeConfigs: state.nodeConfigs,
   updateNodeConfig: state.updateNodeConfig,
   removeNode: state.removeNode,
@@ -28,7 +36,12 @@ const selector = (state: FlowState) => ({
 export default function OutputNode() {
   const nodeId = useNodeId() as NodeID;
 
-  const { nodeConfigs, updateNodeConfig, removeNode } = useFlowStore(selector);
+  const {
+    setDetailPanelContentType,
+    nodeConfigs,
+    updateNodeConfig,
+    removeNode,
+  } = useFlowStore(selector);
 
   const nodeConfig = useMemo(
     () => nodeConfigs[nodeId] as OutputNodeConfig | undefined,
@@ -61,12 +74,22 @@ export default function OutputNode() {
           title="Output"
           onClickRemove={() => removeNode(nodeId)}
         />
-        <Section>
+        <SmallSection>
+          <IconButton
+            size="sm"
+            variant="outlined"
+            onClick={() =>
+              setDetailPanelContentType(DetailPanelContentType.FlowConfig)
+            }
+          >
+            <StyledIconGear />
+          </IconButton>
           <AddVariableButton
             onClick={() => {
-              const newInputs = append<NodeInputItem>({
+              const newInputs = append<FlowOutputItem>({
                 id: `${nodeId}/${nanoid()}`,
                 name: chance.word(),
+                value: null,
               })(inputs);
 
               setInputs(newInputs);
@@ -76,14 +99,16 @@ export default function OutputNode() {
               updateNodeInternals(nodeId);
             }}
           />
+        </SmallSection>
+        <Section>
           {inputs.map((input, i) => (
             <NodeInputModifyRow
               key={input.id}
               name={input.name}
               onConfirmNameChange={(name) => {
-                const newInputs = adjust<NodeInputItem>(
+                const newInputs = adjust<FlowOutputItem>(
                   i,
-                  assoc("name", name)<NodeInputItem>
+                  assoc("name", name)<FlowOutputItem>
                 )(inputs);
 
                 setInputs(newInputs);

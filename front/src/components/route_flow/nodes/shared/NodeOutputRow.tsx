@@ -1,8 +1,7 @@
 import { useNodeId } from "reactflow";
 import styled from "styled-components";
-import IconInspect from "../../../icons/IconInspect";
 import { FlowState, useFlowStore } from "../../flowState";
-import { DetailPanelContentType } from "../../flowTypes";
+import { DetailPanelContentType } from "../../flowState";
 import { ROW_MARGIN_TOP } from "./NodeInputModifyRow";
 
 export const VARIABLE_LABEL_HEIGHT = 32;
@@ -28,6 +27,7 @@ const Content = styled.div`
   border-radius: 5px;
   min-width: 0;
   flex-grow: 1;
+  cursor: pointer;
 `;
 
 const Name = styled.code`
@@ -38,13 +38,6 @@ const Value = styled.code`
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
-`;
-
-const InspectIcon = styled(IconInspect)`
-  width: 25px;
-  height: 25px;
-  flex-shrink: 0;
-  cursor: pointer;
 `;
 
 const selector = (state: FlowState) => ({
@@ -66,16 +59,15 @@ export default function NodeOutputRow(props: Props) {
 
   return (
     <Container>
-      <Content>
-        <Name>{props.name} =&nbsp;</Name>
-        <Value>{JSON.stringify(props.value)}</Value>
-      </Content>
-      <InspectIcon
+      <Content
         onClick={() => {
           setDetailPanelContentType(DetailPanelContentType.NodeOutput);
           setDetailPanelSelectedNodeId(nodeId);
         }}
-      />
+      >
+        <Name>{props.name} =&nbsp;</Name>
+        <Value>{JSON.stringify(props.value)}</Value>
+      </Content>
     </Container>
   );
 }

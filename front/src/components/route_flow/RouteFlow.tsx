@@ -9,6 +9,7 @@ import { FlowState, useFlowStore } from "./flowState";
 const Container = styled.div`
   flex-grow: 1;
   position: relative;
+  min-height: 0;
 `;
 
 const selector = (state: FlowState) => ({
