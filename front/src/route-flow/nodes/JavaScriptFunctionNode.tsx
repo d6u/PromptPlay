@@ -87,7 +87,9 @@ export default function JavaScriptFunctionNode() {
           type="target"
           id={input.id}
           position={Position.Left}
-          style={{ top: calculateInputHandleTop(i) }}
+          style={{
+            top: calculateInputHandleTop(i - (isCurrentUserOwner ? 0 : 1)),
+          }}
         />
       ))}
       <NodeBox
@@ -105,22 +107,24 @@ export default function JavaScriptFunctionNode() {
           title="JavaScript"
           onClickRemove={() => removeNode(nodeId)}
         />
-        <SmallSection>
-          <AddVariableButton
-            onClick={() => {
-              const newInputs = append<NodeInputItem>({
-                id: `${nodeId}/${nanoid()}`,
-                name: chance.word(),
-              })(inputs);
+        {isCurrentUserOwner && (
+          <SmallSection>
+            <AddVariableButton
+              onClick={() => {
+                const newInputs = append<NodeInputItem>({
+                  id: `${nodeId}/${nanoid()}`,
+                  name: chance.word(),
+                })(inputs);
 
-              setInputs(newInputs);
+                setInputs(newInputs);
 
-              updateNodeConfig(nodeId, { inputs: newInputs });
+                updateNodeConfig(nodeId, { inputs: newInputs });
 
-              updateNodeInternals(nodeId);
-            }}
-          />
-        </SmallSection>
+                updateNodeInternals(nodeId);
+              }}
+            />
+          </SmallSection>
+        )}
         <Section>
           {inputs.map((input, i) => (
             <NodeInputModifyRow

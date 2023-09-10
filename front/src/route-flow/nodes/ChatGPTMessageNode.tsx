@@ -109,7 +109,7 @@ export default function ChatGPTMessageNode() {
             position={Position.Left}
             style={{
               top:
-                calculateInputHandleTop(i) +
+                calculateInputHandleTop(i - (isCurrentUserOwner ? 0 : 1)) +
                 MESSAGES_HELPER_SECTION_HEIGHT +
                 ROW_MARGIN_TOP,
             }}
@@ -122,22 +122,24 @@ export default function ChatGPTMessageNode() {
           title="ChatGPT Message"
           onClickRemove={() => removeNode(nodeId)}
         />
-        <SmallSection>
-          <AddVariableButton
-            onClick={() => {
-              const newInputs = append<NodeInputItem>({
-                id: `${nodeId}/${nanoid()}`,
-                name: chance.word(),
-              })(inputs);
+        {isCurrentUserOwner && (
+          <SmallSection>
+            <AddVariableButton
+              onClick={() => {
+                const newInputs = append<NodeInputItem>({
+                  id: `${nodeId}/${nanoid()}`,
+                  name: chance.word(),
+                })(inputs);
 
-              setInputs(newInputs);
+                setInputs(newInputs);
 
-              updateNodeConfig(nodeId, { inputs: newInputs });
+                updateNodeConfig(nodeId, { inputs: newInputs });
 
-              updateNodeInternals(nodeId);
-            }}
-          />
-        </SmallSection>
+                updateNodeInternals(nodeId);
+              }}
+            />
+          </SmallSection>
+        )}
         <Section>
           <NodeInputModifyRow
             key={inputs[0].id}
