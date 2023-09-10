@@ -1,8 +1,8 @@
 import { ReactNode } from "react";
 import styled from "styled-components";
 import { FlowState, useFlowStore } from "../flowState";
-import { DetailPanelContentType } from "../flowTypes";
-import PanelFlowConfig from "./PanelFlowConfig";
+import { DetailPanelContentType } from "../flowState";
+import PanelFlowInputOutput from "./PanelFlowInputOutput";
 import PanelNodeOutput from "./PanelNodeOutput";
 
 const Container = styled.div<{ $hide: boolean }>`
@@ -32,7 +32,7 @@ export default function DetailPanel() {
       break;
     }
     case DetailPanelContentType.FlowConfig: {
-      content = <PanelFlowConfig />;
+      content = <PanelFlowInputOutput />;
       break;
     }
   }

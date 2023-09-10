@@ -19,13 +19,13 @@ import {
 } from "rxjs";
 import * as OpenAI from "../../llm/openai";
 import { usePersistStore, useStore } from "../../state/zustand";
+import { NodeAugment } from "./flowState";
 import {
   ChatGPTChatCompletionNodeConfig,
   ChatGPTMessageNodeConfig,
   InputNodeConfig,
   JavaScriptFunctionNodeConfig,
   LocalEdge,
-  NodeAugment,
   NodeConfig,
   NodeConfigs,
   NodeID,
@@ -37,13 +37,9 @@ import {
 export enum RunEventType {
   NodeConfigChange = "NodeConfigChange",
   NodeAugmentChange = "NodeAugmentChange",
-  FlowConfigChange = "FlowConfigChange",
 }
 
-type RunEvent =
-  | NodeConfigChangeEvent
-  | NodeAugmentChangeEvent
-  | FlowConfigChangeEvent;
+type RunEvent = NodeConfigChangeEvent | NodeAugmentChangeEvent;
 
 type NodeConfigChangeEvent = {
   type: RunEventType.NodeConfigChange;
@@ -56,14 +52,6 @@ type NodeAugmentChangeEvent = {
   nodeId: NodeID;
   augmentChange: Partial<NodeAugment>;
 };
-
-type FlowConfigChangeEvent = {
-  type: RunEventType.FlowConfigChange;
-  outputValueMap: OutputValueMap;
-};
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type OutputValueMap = Record<string, any>;
 
 export function run(
   edges: LocalEdge[],
@@ -92,8 +80,6 @@ export function run(
 
     inputIdToOutputIdMap[edge.targetHandle!] = edge.sourceHandle!;
   }
-
-  let finalResult: OutputValueMap = {};
 
   const sub = new BehaviorSubject(0);
 
@@ -138,16 +124,17 @@ export function run(
           break;
         }
         case NodeType.OutputNode: {
-          const result = handleOutputNode(
+          obs = handleOutputNode(
             nodeConfig,
             inputIdToOutputIdMap,
             outputIdToValueMap
+          ).pipe(
+            map((change) => ({
+              type: RunEventType.NodeConfigChange,
+              nodeId,
+              nodeChange: change,
+            }))
           );
-          finalResult = { ...finalResult, ...result };
-          obs = of({
-            type: RunEventType.FlowConfigChange,
-            outputValueMap: finalResult,
-          });
           break;
         }
         case NodeType.JavaScriptFunctionNode: {
@@ -255,22 +242,24 @@ function handleOutputNode(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   outputIdToValueMap: { [key: string]: any }
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-): Record<string, any> {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const result: Record<string, any> = {};
+): Observable<Partial<OutputNodeConfig>> {
+  let inputs = data.inputs;
 
-  for (const input of data.inputs) {
+  for (const [i, input] of data.inputs.entries()) {
     const outputId = inputIdToOutputIdMap[input.id];
 
     if (outputId) {
       const outputValue = outputIdToValueMap[outputId];
-      result[input.id] = outputValue ?? null;
+      inputs = adjust<NodeOutputItem>(
+        i,
+        assoc("value", outputValue ?? null)
+      )(inputs);
     } else {
-      result[input.id] = null;
+      inputs = adjust<NodeOutputItem>(i, assoc("value", null))(inputs);
     }
   }
 
-  return result;
+  return of({ inputs });
 }
 
 function handleJavaScriptFunctionNode(
@@ -314,7 +303,7 @@ function handleChatGPTMessageNode(
   // ----------
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const argsMap: { [key: string]: any } = {};
+  const argsMap: Record<string, any> = {};
 
   for (const input of data.inputs) {
     const outputId = inputIdToOutputIdMap[input.id];

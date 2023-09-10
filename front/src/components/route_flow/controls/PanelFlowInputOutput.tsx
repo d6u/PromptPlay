@@ -3,8 +3,8 @@ import { adjust, assoc, filter, flatten, map, pipe, propEq } from "ramda";
 import { ReactNode, useMemo } from "react";
 import { FlowState, useFlowStore } from "../flowState";
 import {
+  FlowInputItem,
   InputNodeConfig,
-  NodeOutputItem,
   NodeType,
   OutputNodeConfig,
 } from "../flowTypes";
@@ -12,23 +12,15 @@ import InputBlock from "./InputBlock";
 import { RawValue } from "./commonStyledComponents";
 
 const selector = (state: FlowState) => ({
-  flowConfig: state.flowConfig,
-  onFlowConfigUpdate: state.onFlowConfigUpdate,
   nodeConfigs: state.nodeConfigs,
   nodes: state.nodes,
   updateNodeConfig: state.updateNodeConfig,
   setDetailPanelContentType: state.setDetailPanelContentType,
 });
 
-export default function PanelFlowConfig() {
-  const {
-    flowConfig,
-    onFlowConfigUpdate,
-    nodeConfigs,
-    nodes,
-    updateNodeConfig,
-    setDetailPanelContentType,
-  } = useFlowStore(selector);
+export default function PanelFlowInputOutput() {
+  const { nodeConfigs, nodes, updateNodeConfig, setDetailPanelContentType } =
+    useFlowStore(selector);
 
   const inputNodeConfigs = useMemo(
     () =>
@@ -59,35 +51,21 @@ export default function PanelFlowConfig() {
               name={output.name}
               value={output.value}
               onSaveValue={(value) => {
-                const newOutputs = adjust<NodeOutputItem>(
+                const newOutputs = adjust<FlowInputItem>(
                   i,
-                  assoc("value", value)<NodeOutputItem>
+                  assoc("value", value)<FlowInputItem>
                 )(nodeConfig.outputs);
 
                 updateNodeConfig(nodeConfig.nodeId, { outputs: newOutputs });
               }}
-              type={flowConfig?.inputConfigMap[output.id]?.valueType}
+              type={output.valueType}
               onSaveType={(type) => {
-                if (!flowConfig) {
-                  onFlowConfigUpdate({
-                    inputConfigMap: {
-                      [output.id]: {
-                        valueType: type,
-                      },
-                    },
-                    outputValueMap: {},
-                  });
-                } else {
-                  onFlowConfigUpdate({
-                    ...flowConfig,
-                    inputConfigMap: {
-                      ...flowConfig?.inputConfigMap,
-                      [output.id]: {
-                        valueType: type,
-                      },
-                    },
-                  });
-                }
+                const newOutputs = adjust<FlowInputItem>(
+                  i,
+                  assoc("valueType", type)<FlowInputItem>
+                )(nodeConfig.outputs);
+
+                updateNodeConfig(nodeConfig.nodeId, { outputs: newOutputs });
               }}
             />
           ))
@@ -96,8 +74,10 @@ export default function PanelFlowConfig() {
       {flatten(
         outputNodeConfigs.map((nodeConfig) =>
           nodeConfig.inputs.map((input, i) => {
-            const value = flowConfig?.outputValueMap[input.id] ?? null;
+            const value = input.value;
+
             let content: ReactNode;
+
             if (typeof value === "string") {
               content = value;
             } else {

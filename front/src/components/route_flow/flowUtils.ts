@@ -10,9 +10,10 @@ import propEq from "ramda/es/propEq";
 import { ChatGPTMessageRole } from "../../llm/openai";
 import { client } from "../../state/urql";
 import { UPDATE_SPACE_FLOW_CONTENT_MUTATION } from "./flowGraphql";
+import { LocalNode } from "./flowState";
 import {
   FlowContent,
-  LocalNode,
+  InputValueType,
   NodeConfig,
   NodeConfigs,
   NodeType,
@@ -81,6 +82,7 @@ export function createNodeConfig(node: LocalNode): NodeConfig {
             id: `${node.id}/${nanoid()}`,
             name: chance.word(),
             value: null,
+            valueType: InputValueType.String,
           },
         ],
       };
@@ -93,6 +95,7 @@ export function createNodeConfig(node: LocalNode): NodeConfig {
           {
             id: `${node.id}/${nanoid()}`,
             name: chance.word(),
+            value: null,
           },
         ],
       };

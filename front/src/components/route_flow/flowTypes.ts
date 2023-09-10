@@ -1,44 +1,19 @@
-import { Node, Edge, XYPosition } from "reactflow";
+import { Edge, XYPosition } from "reactflow";
 import { ChatGPTMessageRole } from "../../llm/openai";
-
-// Server types
-
-// Config types
 
 export type NodeID = string;
 export type EdgeID = string;
 export type InputID = string;
 export type OutputID = string;
 
+// Server types
+// ============
+
 export type FlowContent = {
   nodes: ServerNode[];
   nodeConfigs: NodeConfigs;
   edges: ServerEdge[];
-  flowConfig: FlowConfig | null;
 };
-
-export type NodeConfigs = Record<NodeID, NodeConfig | undefined>;
-export type NodeAugments = Record<NodeID, NodeAugment | undefined>;
-// export type EdgeConfigs = Record<EdgeID, Edge | undefined>;
-// export type InputConfigs = Record<InputID, NodeInputItem | undefined>;
-// export type OutputConfigs = Record<OutputID, NodeOutputItem | undefined>;
-
-export type FlowConfig = {
-  inputConfigMap: Record<string, FlowInputConfig | undefined>;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  outputValueMap: Record<string, any>;
-};
-
-export type FlowInputConfig = {
-  valueType: InputValueType;
-};
-
-export enum InputValueType {
-  String = "String",
-  Number = "Number",
-}
-
-// Node
 
 export type ServerNode = {
   id: NodeID;
@@ -47,8 +22,18 @@ export type ServerNode = {
   data: null;
 };
 
-export type LocalNode = Omit<Node<null, NodeType>, "id" | "type" | "data"> &
-  ServerNode;
+export type NodeConfigs = Record<NodeID, NodeConfig | undefined>;
+
+export type ServerEdge = {
+  id: EdgeID;
+  source: NodeID;
+  sourceHandle: OutputID;
+  target: NodeID;
+  targetHandle: InputID;
+};
+
+// Node
+// ----
 
 export enum NodeType {
   InputNode = "InputNode",
@@ -65,20 +50,6 @@ export type NodeConfig =
   | ChatGPTChatCompletionNodeConfig
   | JavaScriptFunctionNodeConfig;
 
-export type NodeInputItem = {
-  id: string;
-  name: string;
-};
-
-export type NodeOutputItem = {
-  id: string;
-  name: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  value: any;
-};
-
-// Specific NodeData
-
 export type NodeConfigCommon = {
   nodeId: NodeID;
 };
@@ -87,14 +58,14 @@ export type NodeConfigCommon = {
 
 export type InputNodeConfig = NodeConfigCommon & {
   nodeType: NodeType.InputNode;
-  outputs: NodeOutputItem[];
+  outputs: FlowInputItem[];
 };
 
 // Output
 
 export type OutputNodeConfig = NodeConfigCommon & {
   nodeType: NodeType.OutputNode;
-  inputs: NodeInputItem[];
+  inputs: FlowOutputItem[];
 };
 
 // JavaScriptFunction
@@ -132,32 +103,39 @@ export enum OpenAIChatModel {
   GPT4 = "gpt-4",
 }
 
-// Local Node Augment
+// Input / Output
 
-export type NodeAugment = {
-  isRunning: boolean;
-  hasError: boolean;
+export type NodeInputItem = {
+  id: string;
+  name: string;
+};
+
+export type NodeOutputItem = {
+  id: string;
+  name: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  value: any;
+};
+
+export type FlowInputItem = NodeOutputItem & {
+  valueType: InputValueType;
+};
+
+export enum InputValueType {
+  String = "String",
+  Number = "Number",
+}
+
+export type FlowOutputItem = NodeInputItem & {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  value: any;
 };
 
 // Edge
-
-export type ServerEdge = {
-  id: EdgeID;
-  source: NodeID;
-  sourceHandle: OutputID;
-  target: NodeID;
-  targetHandle: InputID;
-};
+// ----
 
 export type LocalEdge = Omit<
   Edge<never>,
   "id" | "source" | "sourceHandle" | "target" | "targetHandle"
 > &
   ServerEdge;
-
-// Navigation types
-
-export enum DetailPanelContentType {
-  NodeOutput = "NodeOutput",
-  FlowConfig = "FlowConfig",
-}

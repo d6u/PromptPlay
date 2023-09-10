@@ -16,7 +16,8 @@ import CanvasPanel from "./controls/CanvasPanel";
 import DetailPanel from "./controls/DetailPanel";
 import { RunEventType, run } from "./flowRun";
 import { FlowState, useFlowStore } from "./flowState";
-import { LocalEdge, LocalNode, NodeType } from "./flowTypes";
+import { LocalNode } from "./flowState";
+import { LocalEdge, NodeType } from "./flowTypes";
 import ChatGPTChatCompletionNode from "./nodes/ChatGPTChatCompletionNode";
 import ChatGPTMessageNode from "./nodes/ChatGPTMessageNode";
 import InputNode from "./nodes/InputNode";
@@ -41,7 +42,6 @@ const selector = (state: FlowState) => ({
   resetAugments: state.resetAugments,
   updateNodeAguemnt: state.updateNodeAguemnt,
   nodeConfigs: state.nodeConfigs,
-  onFlowConfigUpdate: state.onFlowConfigUpdate,
   nodes: state.nodes,
   edges: state.edges,
   addNode: state.addNode,
@@ -59,7 +59,6 @@ export default function FlowCanvas() {
     resetAugments,
     updateNodeAguemnt,
     nodeConfigs,
-    onFlowConfigUpdate,
     nodes,
     edges,
     addNode,
@@ -114,11 +113,6 @@ export default function FlowCanvas() {
             updateNodeAguemnt(nodeId, augmentChange);
             break;
           }
-          case RunEventType.FlowConfigChange: {
-            const { outputValueMap } = data;
-            onFlowConfigUpdate({ outputValueMap });
-            break;
-          }
         }
       },
       error(e) {
@@ -132,7 +126,6 @@ export default function FlowCanvas() {
   }, [
     edges,
     nodeConfigs,
-    onFlowConfigUpdate,
     resetAugments,
     updateNodeAguemnt,
     updateNodeConfigDebounced,

@@ -2,7 +2,7 @@ import { useNodeId } from "reactflow";
 import styled from "styled-components";
 import IconInspect from "../../../icons/IconInspect";
 import { FlowState, useFlowStore } from "../../flowState";
-import { DetailPanelContentType } from "../../flowTypes";
+import { DetailPanelContentType } from "../../flowState";
 import { ROW_MARGIN_TOP } from "./NodeInputModifyRow";
 
 export const VARIABLE_LABEL_HEIGHT = 32;

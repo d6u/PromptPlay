@@ -19,23 +19,20 @@ import {
   applyEdgeChanges,
   Connection,
   addEdge,
+  Node,
 } from "reactflow";
 import { from, Subscription } from "rxjs";
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { queryFlowObservable } from "./flowGraphql";
 import {
-  DetailPanelContentType,
-  FlowConfig,
   FlowContent,
   LocalEdge,
-  LocalNode,
-  NodeAugment,
-  NodeAugments,
   NodeConfig,
   NodeConfigs,
   NodeID,
   NodeType,
+  ServerNode,
 } from "./flowTypes";
 import {
   createNode,
@@ -44,6 +41,16 @@ import {
   updateSpace,
   updateSpaceDebounced,
 } from "./flowUtils";
+
+export type LocalNode = Omit<Node<null, NodeType>, "id" | "type" | "data"> &
+  ServerNode;
+
+export type NodeAugments = Record<NodeID, NodeAugment | undefined>;
+
+export type NodeAugment = {
+  isRunning: boolean;
+  hasError: boolean;
+};
 
 export type FlowState = {
   isInitialized: boolean;
@@ -78,9 +85,6 @@ export type FlowState = {
   nodeConfigs: NodeConfigs;
   updateNodeConfig(nodeId: NodeID, change: Partial<NodeConfig>): void;
   updateNodeConfigDebounced(nodeId: NodeID, change: Partial<NodeConfig>): void;
-
-  flowConfig: FlowConfig | null;
-  onFlowConfigUpdate(flowConfigChange: Partial<FlowConfig>): void;
 };
 
 export const useFlowStore = create<FlowState>()(
@@ -129,9 +133,9 @@ export const useFlowStore = create<FlowState>()(
       }
 
       function getCurrentFlowContent(): FlowContent {
-        const { nodes, edges, flowConfig, nodeConfigs } = get();
+        const { nodes, edges, nodeConfigs } = get();
 
-        return { nodes, edges, flowConfig, nodeConfigs };
+        return { nodes, edges, nodeConfigs };
       }
 
       return {
@@ -142,18 +146,8 @@ export const useFlowStore = create<FlowState>()(
           set({ spaceId });
 
           return from(queryFlowObservable(spaceId)).subscribe({
-            next({
-              nodes = [],
-              edges = [],
-              flowConfig = null,
-              nodeConfigs = {},
-            }) {
-              set({
-                nodes,
-                edges,
-                flowConfig,
-                nodeConfigs,
-              });
+            next({ nodes = [], edges = [], nodeConfigs = {} }) {
+              set({ nodes, edges, nodeConfigs });
             },
             error(error) {
               console.error(error);
@@ -329,34 +323,6 @@ export const useFlowStore = create<FlowState>()(
             updateSpaceDebounced(spaceId, getCurrentFlowContent(), stateChange);
           }
         },
-
-        flowConfig: null,
-        onFlowConfigUpdate(flowConfigChange: Partial<FlowConfig>) {
-          const flowConfig = get().flowConfig;
-
-          // TODO
-          if (flowConfig) {
-            set({
-              flowConfig: {
-                ...flowConfig,
-                ...flowConfigChange,
-              },
-            });
-          } else {
-            set({
-              flowConfig: {
-                inputConfigMap: {},
-                outputValueMap: {},
-                ...flowConfigChange,
-              },
-            });
-          }
-
-          const spaceId = get().spaceId;
-          if (spaceId) {
-            // updateSpace(spaceId, getCurrentFlowContent(), );
-          }
-        },
       };
     },
     {
@@ -364,4 +330,9 @@ export const useFlowStore = create<FlowState>()(
       anonymousActionType: "setState",
     }
   )
-);
+); // Node// Navigation types
+
+export enum DetailPanelContentType {
+  NodeOutput = "NodeOutput",
+  FlowConfig = "FlowConfig",
+}

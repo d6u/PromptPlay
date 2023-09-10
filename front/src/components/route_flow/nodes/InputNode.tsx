@@ -5,11 +5,12 @@ import { adjust, append, assoc, remove } from "ramda";
 import { useMemo, useState } from "react";
 import { Position, useNodeId, useUpdateNodeInternals } from "reactflow";
 import { FlowState, useFlowStore } from "../flowState";
+import { DetailPanelContentType } from "../flowState";
 import {
-  DetailPanelContentType,
+  FlowInputItem,
   InputNodeConfig,
+  InputValueType,
   NodeID,
-  NodeOutputItem,
   NodeType,
 } from "../flowTypes";
 import AddVariableButton from "./shared/AddVariableButton";
@@ -74,10 +75,11 @@ export default function InputNode() {
           </IconButton>
           <AddVariableButton
             onClick={() => {
-              const newOutputs = append<NodeOutputItem>({
+              const newOutputs = append<FlowInputItem>({
                 id: `${nodeId}/${nanoid()}`,
                 name: chance.word(),
                 value: "",
+                valueType: InputValueType.String,
               })(outputs!);
 
               setOutputs(newOutputs);
@@ -96,9 +98,9 @@ export default function InputNode() {
               key={output.id}
               name={output.name}
               onConfirmNameChange={(name) => {
-                const newOutputs = adjust<NodeOutputItem>(
+                const newOutputs = adjust<FlowInputItem>(
                   i,
-                  assoc("name", name)<NodeOutputItem>
+                  assoc("name", name)<FlowInputItem>
                 )(outputs);
 
                 setOutputs(newOutputs);
