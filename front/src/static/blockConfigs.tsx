@@ -1,7 +1,7 @@
 import { append, assoc, flatten, pipe, prop } from "ramda";
 import { ReactNode } from "react";
-import * as openai from "../llm/openai";
-import { usePersistStore } from "../state/zustand";
+import * as openai from "../integrations/openai";
+import { useLocalStorageStore } from "../state/appState";
 import {
   Block,
   BlockAppendToList,
@@ -12,8 +12,6 @@ import {
   BlockParser,
   BlockType,
 } from "./spaceTypes";
-
-export const LLM_STOP_NEW_LINE_SYMBOL = "↵";
 
 type BlockConfig<T extends Block> = {
   title: string;
@@ -175,7 +173,7 @@ const BLOCK_CONFIGS: BlockConfigs = {
               stop=
               <b>
                 {block.stop.length
-                  ? block.stop[0].replace("\n", LLM_STOP_NEW_LINE_SYMBOL)
+                  ? block.stop[0].replace("\n", openai.NEW_LINE_SYMBOL)
                   : ""}
               </b>
             </>
@@ -184,7 +182,7 @@ const BLOCK_CONFIGS: BlockConfigs = {
       );
     },
     executeFunc: async (block, scope, args, updater) => {
-      const openAiApiKey = usePersistStore.getState().openAiApiKey!;
+      const openAiApiKey = useLocalStorageStore.getState().openAiApiKey!;
 
       const result = await openai.getNonStreamingCompletion({
         apiKey: openAiApiKey,
