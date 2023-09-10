@@ -172,7 +172,7 @@ export default function FlowCanvas() {
         <Controls />
         <Background variant={BackgroundVariant.Dots} gap={20} size={1} />
       </ReactFlow>
-      <DetailPanel />
+      <DetailPanel onRun={onRun} />
     </>
   );
 }
