@@ -3,21 +3,23 @@ import { Button, IconButton } from "@mui/joy";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useMutation, useQuery } from "urql";
-import StyleResetLink from "../component-common/StyleResetLink";
-import IconLogout from "../component-icons/IconLogout";
-import { IS_LOGIN_ENABLED, PROVIDE_FEEDBACK_LINK } from "../constants";
-import { useLocalStorageStore } from "../state/appState";
-import { LOGIN_PATH, LOGOUT_PATH } from "../static/routeConfigs";
+import IconLogout from "../../component-icons/IconLogout";
+import { PROVIDE_FEEDBACK_LINK } from "../../constants";
 import {
   HEADER_QUERY,
   MERGE_PLACEHOLDER_USER_WITH_LOGGED_IN_USER_MUTATION,
-} from "./rootGraphql";
+} from "../../route-root/rootGraphql";
+import { useLocalStorageStore } from "../../state/appState";
+import { LOGIN_PATH, LOGOUT_PATH } from "../../static/routeConfigs";
+import StyleResetLink from "../StyleResetLink";
+import SpaceName from "./SpaceName";
 
 const Container = styled.div`
   height: 51px;
   border-bottom: 1px solid #ececf1;
   flex-shrink: 0;
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
@@ -26,12 +28,39 @@ const Container = styled.div`
   @media (max-width: 900px) {
     padding: 0px 10px;
   }
+
+  @media (max-width: 600px) {
+    & {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
 `;
 
 const LogoContainer = styled.div`
   display: flex;
   align-items: baseline;
   gap: 20px;
+
+  @media (max-width: 900px) {
+    gap: 10px;
+  }
+`;
+
+const SpaceNameContainer = styled.div`
+  @media (max-width: 600px) {
+    & {
+      display: none;
+    }
+  }
+`;
+
+const AccountManagementContainer = styled.div`
+  justify-self: flex-end;
+
+  display: flex;
+  gap: 20px;
+  flex-direction: row;
+  align-items: center;
 
   @media (max-width: 900px) {
     gap: 10px;
@@ -59,17 +88,6 @@ const FeedbackLink = styled.a`
 
   @media (max-width: 900px) {
     font-size: 12px;
-  }
-`;
-
-const AccountManagementContainer = styled.div`
-  display: flex;
-  gap: 20px;
-  flex-direction: row;
-  align-items: center;
-
-  @media (max-width: 900px) {
-    gap: 10px;
   }
 `;
 
@@ -112,7 +130,6 @@ export default function Header() {
   const [queryResult] = useQuery({
     query: HEADER_QUERY,
     requestPolicy: "network-only",
-    pause: !IS_LOGIN_ENABLED,
   });
 
   const isNewUser = searchParams.get("new_user") === "true";
@@ -172,7 +189,7 @@ export default function Header() {
     return <div>Loading...</div>;
   }
 
-  if (IS_LOGIN_ENABLED && (queryResult.error || !queryResult.data)) {
+  if (queryResult.error || !queryResult.data) {
     return <div>Error! {queryResult.error?.message}</div>;
   }
 
@@ -190,50 +207,51 @@ export default function Header() {
           {useNarrowLayout ? "Feedback" : "Give Feedback"}
         </FeedbackLink>
       </LogoContainer>
-      {IS_LOGIN_ENABLED && (
-        <AccountManagementContainer>
-          {queryResult.data?.isLoggedIn ? (
-            <>
-              {queryResult.data.user?.profilePictureUrl && (
-                <ProfilePicture
-                  src={queryResult.data.user?.profilePictureUrl}
-                  alt="profile-pic"
-                  referrerPolicy="no-referrer"
-                />
-              )}
-              {useNarrowLayout ? null : (
-                <Email>{queryResult.data.user?.email}</Email>
-              )}
-              {useNarrowLayout ? (
-                <IconButton
-                  size="sm"
-                  variant="outlined"
-                  onClick={() => window.location.assign(LOGOUT_PATH)}
-                >
-                  <StyledLogoutIcon />
-                </IconButton>
-              ) : (
-                <Button
-                  size="sm"
-                  variant="plain"
-                  onClick={() => window.location.assign(LOGOUT_PATH)}
-                >
-                  Log Out
-                </Button>
-              )}
-            </>
-          ) : (
-            <Button
-              color="success"
-              onClick={() => window.location.assign(LOGIN_PATH)}
-              size="sm"
-              variant="solid"
-            >
-              {useNarrowLayout ? "Login" : "Log in / Sign up"}
-            </Button>
-          )}
-        </AccountManagementContainer>
-      )}
+      <SpaceNameContainer>
+        <SpaceName />
+      </SpaceNameContainer>
+      <AccountManagementContainer>
+        {queryResult.data?.isLoggedIn ? (
+          <>
+            {queryResult.data.user?.profilePictureUrl && (
+              <ProfilePicture
+                src={queryResult.data.user?.profilePictureUrl}
+                alt="profile-pic"
+                referrerPolicy="no-referrer"
+              />
+            )}
+            {useNarrowLayout ? null : (
+              <Email>{queryResult.data.user?.email}</Email>
+            )}
+            {useNarrowLayout ? (
+              <IconButton
+                size="sm"
+                variant="outlined"
+                onClick={() => window.location.assign(LOGOUT_PATH)}
+              >
+                <StyledLogoutIcon />
+              </IconButton>
+            ) : (
+              <Button
+                size="sm"
+                variant="plain"
+                onClick={() => window.location.assign(LOGOUT_PATH)}
+              >
+                Log Out
+              </Button>
+            )}
+          </>
+        ) : (
+          <Button
+            color="success"
+            onClick={() => window.location.assign(LOGIN_PATH)}
+            size="sm"
+            variant="solid"
+          >
+            {useNarrowLayout ? "Login" : "Log in / Sign up"}
+          </Button>
+        )}
+      </AccountManagementContainer>
     </Container>
   );
 }

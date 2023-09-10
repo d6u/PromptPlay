@@ -7,7 +7,7 @@ import {
   BlockLlmMessage,
   LlmMessageRole,
   SpaceContent,
-} from "../../../../static/spaceTypes";
+} from "../../../static/spaceTypes";
 import EditorBlockInputOutput from "./shared/EditorBlockInputOutput";
 import {
   FieldHelperText,

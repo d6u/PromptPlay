@@ -8,6 +8,7 @@ export const SPACE_QUERY = graphql(`
         ...SpaceSubHeaderFragment
         id
         name
+        contentVersion
         content
       }
     }

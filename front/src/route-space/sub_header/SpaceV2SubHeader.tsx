@@ -6,17 +6,17 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import u from "updeep";
 import { useMutation } from "urql";
-import { FragmentType, graphql, useFragment } from "../../../gql";
+import { FragmentType, graphql, useFragment } from "../../gql";
 import {
   DELETE_SPACE_MUTATION,
   UPDATE_SPACE_NAME_MUTATION,
-} from "../../../state/spaceGraphQl";
-import { ROOT_PATH } from "../../../static/routeConfigs";
-import { BlockType, SpaceContent } from "../../../static/spaceTypes";
+} from "../../state/spaceGraphQl";
+import { ROOT_PATH } from "../../static/routeConfigs";
+import { BlockType, SpaceContent } from "../../static/spaceTypes";
 import {
   createInitialSpaceContent,
   createNewBlock,
-} from "../../../static/spaceUtils";
+} from "../../static/spaceUtils";
 
 const Container = styled.div`
   height: 51px;

@@ -11,6 +11,7 @@ export const SPACE_FLOW_QUERY = graphql(`
         ...SpaceSubHeaderFragment
         id
         name
+        contentVersion
         flowContent
       }
     }
@@ -34,7 +35,15 @@ export function queryFlowObservable(spaceId: string): Observable<{
   isCurrentUserOwner: boolean;
   flowContent: Partial<FlowContent>;
 }> {
-  return from(client.query(SPACE_FLOW_QUERY, { spaceId })).pipe(
+  return from(
+    client.query(
+      SPACE_FLOW_QUERY,
+      { spaceId },
+      {
+        requestPolicy: "cache-and-network",
+      }
+    )
+  ).pipe(
     map((result) => {
       // TODO: handle error
 

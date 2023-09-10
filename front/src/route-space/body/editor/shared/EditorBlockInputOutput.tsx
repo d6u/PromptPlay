@@ -5,8 +5,8 @@ import { append, equals, reject, update } from "ramda";
 import { ReactNode } from "react";
 import u from "updeep";
 import { useMutation } from "urql";
-import { UPDATE_SPACE_CONTENT_MUTATION } from "../../../../../state/spaceGraphQl";
-import { Block, SpaceContent } from "../../../../../static/spaceTypes";
+import { UPDATE_SPACE_CONTENT_MUTATION } from "../../../../state/spaceGraphQl";
+import { Block, SpaceContent } from "../../../../static/spaceTypes";
 import EditorSingleScopeVariable from "./EditorSingleScopeVariable";
 import EditorVariableMapRow from "./EditorVariableMapRow";
 

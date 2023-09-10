@@ -3,8 +3,8 @@ import { CSS } from "@dnd-kit/utilities";
 import { css } from "@emotion/react";
 import styled from "@emotion/styled";
 import { ReactNode } from "react";
-import { BlockGroupAnchor, SpaceContent } from "../../../../static/spaceTypes";
-import { isBlockGroupAnchor } from "../../../../static/spaceUtils";
+import { BlockGroupAnchor, SpaceContent } from "../../../static/spaceTypes";
+import { isBlockGroupAnchor } from "../../../static/spaceUtils";
 import BlockComponent from "./BlockComponent";
 import Gutter from "./Gutter";
 

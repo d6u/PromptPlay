@@ -2,16 +2,9 @@ import Input from "@mui/joy/Input";
 import Option from "@mui/joy/Option";
 import Select from "@mui/joy/Select";
 import { useCallback, useState } from "react";
-import { NEW_LINE_SYMBOL } from "../../../../integrations/openai";
-import {
-  useLocalStorageStore,
-  useSpaceStore,
-} from "../../../../state/appState";
-import {
-  BlockLlm,
-  LlmModel,
-  SpaceContent,
-} from "../../../../static/spaceTypes";
+import { NEW_LINE_SYMBOL } from "../../../integrations/openai";
+import { useLocalStorageStore, useSpaceStore } from "../../../state/appState";
+import { BlockLlm, LlmModel, SpaceContent } from "../../../static/spaceTypes";
 import EditorBlockInputOutput from "./shared/EditorBlockInputOutput";
 import {
   FieldHelperText,

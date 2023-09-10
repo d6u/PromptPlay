@@ -3,10 +3,10 @@ import Button from "@mui/joy/Button";
 import { dissoc } from "ramda";
 import u from "updeep";
 import { useMutation } from "urql";
-import { UPDATE_SPACE_CONTENT_MUTATION } from "../../../../state/spaceGraphQl";
-import { getBlockConfigByType } from "../../../../static/blockConfigs";
-import { Block, SpaceContent } from "../../../../static/spaceTypes";
-import { pullBlockFromBlocks } from "../../../../static/spaceUtils";
+import { UPDATE_SPACE_CONTENT_MUTATION } from "../../../state/spaceGraphQl";
+import { getBlockConfigByType } from "../../../static/blockConfigs";
+import { Block, SpaceContent } from "../../../static/spaceTypes";
+import { pullBlockFromBlocks } from "../../../static/spaceUtils";
 import EditorBlockConfigurations from "./EditorBlockConfigurations";
 import {
   FieldDescriptionText,

@@ -1,6 +1,6 @@
 import Input from "@mui/joy/Input";
 import { useState } from "react";
-import { BlockAppendToList, SpaceContent } from "../../../../static/spaceTypes";
+import { BlockAppendToList, SpaceContent } from "../../../static/spaceTypes";
 import { FieldRow, FieldTitle } from "./shared/editorCommonComponents";
 
 type Props = {

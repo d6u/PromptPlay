@@ -26,3 +26,22 @@ export const MERGE_PLACEHOLDER_USER_WITH_LOGGED_IN_USER_MUTATION = graphql(`
     }
   }
 `);
+
+export const ROOT_ROUTE_QUERY = graphql(`
+  query RootRouteQuery {
+    user {
+      id
+      ...Dashboard
+    }
+  }
+`);
+export const CREATE_PLACEHOLDER_USER_AND_EXAMPLE_SPACE_MUTATION = graphql(`
+  mutation CreatePlaceholderUserAndExampleSpaceMutation {
+    result: createPlaceholderUserAndExampleSpace {
+      placeholderClientToken
+      space {
+        id
+      }
+    }
+  }
+`);

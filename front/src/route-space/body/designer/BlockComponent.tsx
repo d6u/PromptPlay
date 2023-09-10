@@ -3,20 +3,20 @@ import { CSS } from "@dnd-kit/utilities";
 import { css } from "@emotion/react";
 import styled from "@emotion/styled";
 import { ReactNode } from "react";
-import { useSpaceStore } from "../../../../state/appState";
-import { getBlockConfigByType } from "../../../../static/blockConfigs";
+import BlockV2 from "../../../component-common/block_v2/BlockV2";
+import {
+  BlockWidthClass,
+  VisualBlockType,
+  blockTypeToVisualBlockType,
+} from "../../../component-common/block_v2/blockV2Types";
+import { useSpaceStore } from "../../../state/appState";
+import { getBlockConfigByType } from "../../../static/blockConfigs";
 import {
   Block,
   BlockAnchor,
   BlockVariablesConfiguration,
   SpaceContent,
-} from "../../../../static/spaceTypes";
-import BlockV2 from "../../../block_v2/BlockV2";
-import {
-  BlockWidthClass,
-  VisualBlockType,
-  blockTypeToVisualBlockType,
-} from "../../../block_v2/blockV2Types";
+} from "../../../static/spaceTypes";
 import BlockVariableMap from "./BlockVariableMap";
 
 const Container = styled.div<{ $isDragging: boolean }>`

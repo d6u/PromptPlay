@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 import { ReactNode } from "react";
-import VariableMapArrow from "../../../../component-icons/VaribleMapArrow";
+import VariableMapArrow from "../../../component-icons/VaribleMapArrow";
 
 const BlockInput = styled.div<{ $justifyContent: "flex-end" | "flex-start" }>`
   width: 250px;
