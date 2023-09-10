@@ -1,9 +1,8 @@
 import styled from "@emotion/styled";
 import IconButton from "@mui/joy/IconButton";
 import { ReactNode } from "react";
-import CrossIcon from "../../component_icons/CrossIcon";
-import { FlowState, useFlowStore } from "../flowState";
-import { DetailPanelContentType } from "../flowState";
+import CrossIcon from "../../component-icons/CrossIcon";
+import { DetailPanelContentType, FlowState, useFlowStore } from "../flowState";
 import PanelChatGPTMessageConfig from "./PanelChatGPTMessageConfig";
 import PanelFlowInputOutput from "./PanelFlowInputOutput";
 import PanelNodeConfig from "./PanelNodeConfig";

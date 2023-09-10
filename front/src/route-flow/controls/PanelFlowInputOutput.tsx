@@ -9,13 +9,15 @@ import {
   OutputNodeConfig,
 } from "../flowTypes";
 import InputBlock from "./InputBlock";
-import { RawValue } from "./commonStyledComponents";
-import { PanelContentContainer } from "./commonStyledComponents";
-import { HeaderSection } from "./commonStyledComponents";
-import { OutputValueItem } from "./commonStyledComponents";
-import { OutputValueName } from "./commonStyledComponents";
-import { HeaderSectionHeader } from "./commonStyledComponents";
-import { Section } from "./commonStyledComponents";
+import {
+  Section,
+  HeaderSectionHeader,
+  OutputValueName,
+  OutputValueItem,
+  HeaderSection,
+  RawValue,
+  PanelContentContainer,
+} from "./controls-common";
 
 const selector = (state: FlowState) => ({
   nodeConfigs: state.nodeConfigs,

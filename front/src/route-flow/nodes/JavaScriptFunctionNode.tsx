@@ -6,6 +6,8 @@ import { nanoid } from "nanoid";
 import { adjust, append, assoc, remove } from "ramda";
 import { useMemo, useState } from "react";
 import { Position, useUpdateNodeInternals, useNodeId } from "reactflow";
+import { LabelWithIconContainer } from "../flow-common/flow-common";
+import { CopyIcon } from "../flow-common/flow-common";
 import { FlowState, useFlowStore } from "../flowState";
 import {
   JavaScriptFunctionNodeConfig,
@@ -13,23 +15,21 @@ import {
   NodeInputItem,
   NodeType,
 } from "../flowTypes";
-import AddVariableButton from "./shared/AddVariableButton";
-import HeaderSection from "./shared/HeaderSection";
-import NodeBox, { NodeState } from "./shared/NodeBox";
-import NodeInputModifyRow from "./shared/NodeInputModifyRow";
-import NodeOutputRow from "./shared/NodeOutputRow";
+import AddVariableButton from "./node-common/AddVariableButton";
+import HeaderSection from "./node-common/HeaderSection";
+import NodeBox, { NodeState } from "./node-common/NodeBox";
+import NodeInputModifyRow from "./node-common/NodeInputModifyRow";
+import NodeOutputRow from "./node-common/NodeOutputRow";
 import {
-  CopyIcon,
   InputHandle,
-  LabelWithIconContainer,
   OutputHandle,
   Section,
   SmallSection,
-} from "./shared/commonStyledComponents";
+} from "./node-common/node-common";
 import {
   calculateInputHandleTop,
   calculateOutputHandleBottom,
-} from "./shared/utils";
+} from "./node-common/utils";
 
 const chance = new Chance();
 

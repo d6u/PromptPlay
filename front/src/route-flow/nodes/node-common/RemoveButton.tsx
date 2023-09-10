@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 import IconButton from "@mui/joy/IconButton";
-import CrossIcon from "../../../component_icons/CrossIcon";
+import CrossIcon from "../../../component-icons/CrossIcon";
 
 const StyledCloseIcon = styled(CrossIcon)`
   width: 15px;

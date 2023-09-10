@@ -6,12 +6,9 @@ import RadioGroup from "@mui/joy/RadioGroup";
 import Textarea from "@mui/joy/Textarea";
 import { ReactNode, useEffect, useMemo, useState } from "react";
 import { ChatGPTMessageRole } from "../../integrations/openai";
+import { CopyIcon, LabelWithIconContainer } from "../flow-common/flow-common";
 import { FlowState, useFlowStore } from "../flowState";
 import { ChatGPTMessageNodeConfig } from "../flowTypes";
-import {
-  CopyIcon,
-  LabelWithIconContainer,
-} from "../nodes/shared/commonStyledComponents";
 import {
   HeaderSection,
   HeaderSectionHeader,
@@ -20,7 +17,7 @@ import {
   PanelContentContainer,
   RawValue,
   Section,
-} from "./commonStyledComponents";
+} from "./controls-common";
 
 const selector = (state: FlowState) => ({
   nodeConfigs: state.nodeConfigs,

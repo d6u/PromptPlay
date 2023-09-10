@@ -8,7 +8,7 @@ import {
   PanelContentContainer,
   RawValue,
   Section,
-} from "./commonStyledComponents";
+} from "./controls-common";
 
 const selector = (state: FlowState) => ({
   nodeConfigs: state.nodeConfigs,

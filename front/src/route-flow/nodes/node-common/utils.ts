@@ -6,10 +6,7 @@ import {
 import { BACKDROP_PADDING } from "./NodeBox";
 import { ROW_MARGIN_TOP } from "./NodeInputModifyRow";
 import { VARIABLE_LABEL_HEIGHT } from "./NodeOutputRow";
-import {
-  SECTION_PADDING_BOTTOM,
-  HANDLE_HEIGHT,
-} from "./commonStyledComponents";
+import { SECTION_PADDING_BOTTOM, HANDLE_HEIGHT } from "./node-common";
 
 const TITLE_LENGTH = TITLE_PADDING_TOP + TITLE_HEIGHT + TITLE_MARGIN_BOTTOM;
 const BUTTON_HEIGHT = 32;

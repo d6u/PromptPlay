@@ -1,6 +1,6 @@
 import { css } from "@emotion/react";
 import styled from "@emotion/styled";
-import StyleResetLink from "../../component_common/StyleResetLink";
+import StyleResetLink from "../../component-common/StyleResetLink";
 import { DashboardTileType } from "./dashboardTypes";
 
 const Tile = styled.div<{ $add?: boolean }>`

@@ -12,17 +12,17 @@ import {
   NodeType,
   OutputNodeConfig,
 } from "../flowTypes";
-import AddVariableButton from "./shared/AddVariableButton";
-import HeaderSection from "./shared/HeaderSection";
-import NodeBox from "./shared/NodeBox";
-import NodeInputModifyRow from "./shared/NodeInputModifyRow";
+import AddVariableButton from "./node-common/AddVariableButton";
+import HeaderSection from "./node-common/HeaderSection";
+import NodeBox from "./node-common/NodeBox";
+import NodeInputModifyRow from "./node-common/NodeInputModifyRow";
 import {
   InputHandle,
   Section,
   SmallSection,
   StyledIconGear,
-} from "./shared/commonStyledComponents";
-import { calculateInputHandleTop } from "./shared/utils";
+} from "./node-common/node-common";
+import { calculateInputHandleTop } from "./node-common/utils";
 
 const chance = new Chance();
 

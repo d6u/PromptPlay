@@ -1,7 +1,10 @@
 import styled from "@emotion/styled";
 import { useNodeId } from "reactflow";
-import { FlowState, useFlowStore } from "../../flowState";
-import { DetailPanelContentType } from "../../flowState";
+import {
+  DetailPanelContentType,
+  FlowState,
+  useFlowStore,
+} from "../../flowState";
 import { ROW_MARGIN_TOP } from "./NodeInputModifyRow";
 
 export const VARIABLE_LABEL_HEIGHT = 32;

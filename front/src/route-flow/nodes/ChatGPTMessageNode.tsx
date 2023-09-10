@@ -11,6 +11,7 @@ import { adjust, append, assoc, remove } from "ramda";
 import { useEffect, useMemo, useState } from "react";
 import { Position, useUpdateNodeInternals, useNodeId } from "reactflow";
 import { ChatGPTMessageRole } from "../../integrations/openai";
+import { CopyIcon, LabelWithIconContainer } from "../flow-common/flow-common";
 import { DetailPanelContentType, FlowState, useFlowStore } from "../flowState";
 import {
   ChatGPTMessageNodeConfig,
@@ -18,27 +19,25 @@ import {
   NodeInputItem,
   NodeType,
 } from "../flowTypes";
-import AddVariableButton from "./shared/AddVariableButton";
-import HeaderSection from "./shared/HeaderSection";
-import HelperTextContainer from "./shared/HelperTextContainer";
-import NodeBox from "./shared/NodeBox";
+import AddVariableButton from "./node-common/AddVariableButton";
+import HeaderSection from "./node-common/HeaderSection";
+import HelperTextContainer from "./node-common/HelperTextContainer";
+import NodeBox from "./node-common/NodeBox";
 import NodeInputModifyRow, {
   ROW_MARGIN_TOP,
-} from "./shared/NodeInputModifyRow";
-import NodeOutputRow from "./shared/NodeOutputRow";
+} from "./node-common/NodeInputModifyRow";
+import NodeOutputRow from "./node-common/NodeOutputRow";
 import {
-  CopyIcon,
   InputHandle,
-  LabelWithIconContainer,
   OutputHandle,
   Section,
   SmallSection,
   StyledIconGear,
-} from "./shared/commonStyledComponents";
+} from "./node-common/node-common";
 import {
   calculateInputHandleTop,
   calculateOutputHandleBottom,
-} from "./shared/utils";
+} from "./node-common/utils";
 
 const MESSAGES_HELPER_SECTION_HEIGHT = 81;
 

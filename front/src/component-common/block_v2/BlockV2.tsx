@@ -1,6 +1,6 @@
 import { css } from "@emotion/react";
 import styled from "@emotion/styled";
-import CrossIconV2 from "../../component_icons/CrossIconV2";
+import CrossIconV2 from "../../component-icons/CrossIconV2";
 import { getBlockConfigByType } from "../../static/blockConfigs";
 import {
   BlockWidthClass,
