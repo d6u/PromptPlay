@@ -8,15 +8,13 @@ import PanelFlowInputOutput from "./PanelFlowInputOutput";
 import PanelNodeOutput from "./PanelNodeOutput";
 
 const Container = styled.div<{ $hide: boolean }>`
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
+  position: relative;
+  height: 100%;
   width: 50vw;
   max-width: 600px;
   background-color: #fff;
   border-left: 1px solid #ddd;
-  visibility: ${(props) => (props.$hide ? "hidden" : "visible")};
+  display: ${(props) => (props.$hide ? "none" : "initial")};
 `;
 
 const StyledCloseButtonWrapper = styled.div`

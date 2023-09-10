@@ -12,6 +12,7 @@ import ReactFlow, {
   useStoreApi,
 } from "reactflow";
 import "reactflow/dist/style.css";
+import styled from "styled-components";
 import CanvasPanel from "./controls/CanvasPanel";
 import DetailPanel from "./controls/DetailPanel";
 import { RunEventType, run } from "./flowRun";
@@ -37,6 +38,11 @@ const NODE_TYPES = {
 const applyDragHandleMemoized = memoize(
   assoc("dragHandle", `.${DRAG_HANDLE_CLASS_NAME}`)
 );
+
+const Container = styled.div`
+  height: 100%;
+  display: flex;
+`;
 
 const selector = (state: FlowState) => ({
   resetAugments: state.resetAugments,
@@ -132,7 +138,7 @@ export default function FlowCanvas() {
   ]);
 
   return (
-    <>
+    <Container>
       <ReactFlow
         nodes={nodesWithAdditionalData}
         edges={edgesWithAdditionalData}
@@ -173,6 +179,6 @@ export default function FlowCanvas() {
         <Background variant={BackgroundVariant.Dots} gap={20} size={1} />
       </ReactFlow>
       <DetailPanel onRun={onRun} />
-    </>
+    </Container>
   );
 }
