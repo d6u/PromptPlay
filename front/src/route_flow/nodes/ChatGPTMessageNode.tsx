@@ -20,8 +20,11 @@ import {
 import AddVariableButton from "./shared/AddVariableButton";
 import CodeHelperText from "./shared/CodeHelperText";
 import HeaderSection from "./shared/HeaderSection";
+import HelperTextContainer from "./shared/HelperTextContainer";
 import NodeBox from "./shared/NodeBox";
-import NodeInputModifyRow from "./shared/NodeInputModifyRow";
+import NodeInputModifyRow, {
+  ROW_MARGIN_TOP,
+} from "./shared/NodeInputModifyRow";
 import NodeOutputRow from "./shared/NodeOutputRow";
 import {
   InputHandle,
@@ -33,6 +36,8 @@ import {
   calculateInputHandleTop,
   calculateOutputHandleBottom,
 } from "./shared/utils";
+
+const MESSAGES_HELPER_SECTION_HEIGHT = 81;
 
 const chance = new Chance();
 
@@ -66,15 +71,31 @@ export default function ChatGPTMessageNode() {
 
   return (
     <>
-      {inputs.map((input, i) => (
-        <InputHandle
-          key={i}
-          type="target"
-          id={input.id}
-          position={Position.Left}
-          style={{ top: calculateInputHandleTop(i) }}
-        />
-      ))}
+      <InputHandle
+        key={0}
+        type="target"
+        id={inputs[0].id}
+        position={Position.Left}
+        style={{ top: calculateInputHandleTop(0) }}
+      />
+      {inputs.map((input, i) => {
+        if (i === 0) return null;
+
+        return (
+          <InputHandle
+            key={i}
+            type="target"
+            id={input.id}
+            position={Position.Left}
+            style={{
+              top:
+                calculateInputHandleTop(i) +
+                MESSAGES_HELPER_SECTION_HEIGHT +
+                ROW_MARGIN_TOP,
+            }}
+          />
+        );
+      })}
       <NodeBox nodeType={NodeType.ChatGPTMessageNode}>
         <HeaderSection
           title="ChatGPT Message"
@@ -97,16 +118,23 @@ export default function ChatGPTMessageNode() {
           />
         </SmallSection>
         <Section>
+          <NodeInputModifyRow
+            key={inputs[0].id}
+            name={inputs[0].name}
+            isReadOnly
+          />
+        </Section>
+        <Section style={{ height: MESSAGES_HELPER_SECTION_HEIGHT }}>
+          <HelperTextContainer>
+            <CodeHelperText>messages</CodeHelperText> is a list of ChatGPT
+            message. It's default to an empty list if unspecified. The current
+            message will be appended to the list and output as the{" "}
+            <CodeHelperText>messages</CodeHelperText> output.
+          </HelperTextContainer>
+        </Section>
+        <Section>
           {inputs.map((input, i) => {
-            if (i === 0) {
-              return (
-                <NodeInputModifyRow
-                  key={input.id}
-                  name={input.name}
-                  isReadOnly
-                />
-              );
-            }
+            if (i === 0) return null;
 
             return (
               <NodeInputModifyRow

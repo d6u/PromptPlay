@@ -3,7 +3,6 @@ import {
   ReadableStreamLike,
   map,
   mergeMap,
-  tap,
   throwError,
 } from "rxjs";
 import { fromFetch } from "rxjs/fetch";
@@ -44,8 +43,6 @@ export function getStreamingCompletion({
     }),
   };
 
-  console.log("fetchOptions", fetchOptions);
-
   return fromFetch(OPENAI_API_URL, {
     ...fetchOptions,
     selector: (response) => {
@@ -58,7 +55,6 @@ export function getStreamingCompletion({
       ) as ReadableStreamLike<string>;
     },
   }).pipe(
-    tap((chunk) => console.log("response", chunk)),
     mergeMap((chunk) => parserStreamChunk(chunk)),
     map<string, ChatCompletionStreamResponse | ChatCompletionErrorResponse>(
       (content) => JSON.parse(content)

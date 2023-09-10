@@ -5,8 +5,7 @@ import { ReactNode } from "react";
 const FieldHelperText = styled(FormHelperText)<{
   $color?: "danger" | "success";
 }>`
-  font-size: 12px;
-  margin-top: 5px;
+  --FormHelperText-fontSize: var(--joy-fontSize-xs);
   color: ${(props) => {
     switch (props.$color) {
       case "danger":

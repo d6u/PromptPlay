@@ -115,6 +115,22 @@ export default function ChatGPTChatCompletionNode() {
           />
         </Section>
         <Section>
+          <HelperTextContainer>
+            Check{" "}
+            <a
+              href="https://platform.openai.com/docs/api-reference/chat/create#messages"
+              target="_blank"
+              rel="noreferrer"
+            >
+              OpenAI API reference
+            </a>{" "}
+            for more information about the{" "}
+            <CodeHelperText>messages</CodeHelperText> parameter. The generated
+            assistant message will be appended to the list and output as the{" "}
+            <CodeHelperText>messages</CodeHelperText> output.
+          </HelperTextContainer>
+        </Section>
+        <Section>
           <FormControl size="sm">
             <FormLabel>OpenAI API key</FormLabel>
             <Input
