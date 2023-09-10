@@ -3,11 +3,11 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import styled from "styled-components";
 import { useMutation, useQuery } from "urql";
-import { IS_LOGIN_ENABLED, PROVIDE_FEEDBACK_LINK } from "../../constants";
-import { usePersistStore } from "../../state/zustand";
-import { LOGIN_PATH, LOGOUT_PATH } from "../../static/routeConfigs";
-import StyleResetLink from "../common/StyleResetLink";
-import IconLogout from "../icons/IconLogout";
+import StyleResetLink from "../components/StyleResetLink";
+import IconLogout from "../components/icons/IconLogout";
+import { IS_LOGIN_ENABLED, PROVIDE_FEEDBACK_LINK } from "../constants";
+import { usePersistStore } from "../state/zustand";
+import { LOGIN_PATH, LOGOUT_PATH } from "../static/routeConfigs";
 import {
   HEADER_QUERY,
   MERGE_PLACEHOLDER_USER_WITH_LOGGED_IN_USER_MUTATION,

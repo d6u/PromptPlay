@@ -2,10 +2,10 @@ import { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import styled, { css } from "styled-components";
 import { useMutation, useQuery } from "urql";
-import { IS_LOGIN_ENABLED } from "../../constants";
-import { graphql } from "../../gql";
-import { usePersistStore } from "../../state/zustand";
-import { LOGIN_PATH, pathToSpace } from "../../static/routeConfigs";
+import { IS_LOGIN_ENABLED } from "../constants";
+import { graphql } from "../gql";
+import { usePersistStore } from "../state/zustand";
+import { LOGIN_PATH, pathToSpace } from "../static/routeConfigs";
 import Dashboard from "./dashboard/Dashboard";
 import { ROOT_ROUTE_QUERY } from "./queries";
 

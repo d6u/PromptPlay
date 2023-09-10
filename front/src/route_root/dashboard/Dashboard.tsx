@@ -1,8 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { useMutation } from "urql";
-import { FragmentType, graphql, useFragment } from "../../../gql";
-import { pathToSpace } from "../../../static/routeConfigs";
+import { FragmentType, graphql, useFragment } from "../../gql";
+import { pathToSpace } from "../../static/routeConfigs";
 import DashboardTile from "./DashboardTile";
 import { DashboardTileType } from "./dashboardTypes";
 

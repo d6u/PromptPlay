@@ -1,5 +1,5 @@
 import styled, { css } from "styled-components";
-import StyleResetLink from "../../common/StyleResetLink";
+import StyleResetLink from "../../components/StyleResetLink";
 import { DashboardTileType } from "./dashboardTypes";
 
 const Tile = styled.div<{ $add?: boolean }>`
