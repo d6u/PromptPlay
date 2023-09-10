@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 import { Handle } from "reactflow";
-import IconGear from "../../../components/icons/IconGear";
+import IconGear from "../../../component_icons/IconGear";
 import { BACKDROP_PADDING } from "./NodeBox";
 
 export const SECTION_PADDING_BOTTOM = 10;

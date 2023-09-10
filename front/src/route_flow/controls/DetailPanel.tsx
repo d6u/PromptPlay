@@ -1,7 +1,7 @@
 import styled from "@emotion/styled";
 import IconButton from "@mui/joy/IconButton";
 import { ReactNode } from "react";
-import CrossIcon from "../../components/icons/CrossIcon";
+import CrossIcon from "../../component_icons/CrossIcon";
 import { FlowState, useFlowStore } from "../flowState";
 import { DetailPanelContentType } from "../flowState";
 import PanelFlowInputOutput from "./PanelFlowInputOutput";

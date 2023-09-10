@@ -1,6 +1,6 @@
 import { RouterProvider } from "react-router-dom";
 import { createBrowserRouter, Outlet, Navigate } from "react-router-dom";
-import RouteSpace from "./components/route_space/RouteSpace";
+import RouteSpace from "./component_common/route_space/RouteSpace";
 import RouteFlow from "./route_flow/RouteFlow";
 import Header from "./route_root/Header";
 import RootRoute from "./route_root/RootRoute";
