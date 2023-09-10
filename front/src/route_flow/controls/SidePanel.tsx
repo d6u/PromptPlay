@@ -4,6 +4,7 @@ import { ReactNode } from "react";
 import CrossIcon from "../../component_icons/CrossIcon";
 import { FlowState, useFlowStore } from "../flowState";
 import { DetailPanelContentType } from "../flowState";
+import PanelChatGPTMessageConfig from "./PanelChatGPTMessageConfig";
 import PanelFlowInputOutput from "./PanelFlowInputOutput";
 import PanelNodeConfig from "./PanelNodeConfig";
 
@@ -53,6 +54,10 @@ export default function SidePanel(props: Props) {
     }
     case DetailPanelContentType.FlowConfig: {
       content = <PanelFlowInputOutput onRun={props.onRun} />;
+      break;
+    }
+    case DetailPanelContentType.ChatGPTMessageConfig: {
+      content = <PanelChatGPTMessageConfig />;
       break;
     }
   }

@@ -19,7 +19,6 @@ import {
   NodeType,
 } from "../flowTypes";
 import AddVariableButton from "./shared/AddVariableButton";
-import CodeHelperText from "./shared/CodeHelperText";
 import HeaderSection from "./shared/HeaderSection";
 import HelperTextContainer from "./shared/HelperTextContainer";
 import NodeBox from "./shared/NodeBox";
@@ -146,10 +145,9 @@ export default function ChatGPTMessageNode() {
         </Section>
         <Section style={{ height: MESSAGES_HELPER_SECTION_HEIGHT }}>
           <HelperTextContainer>
-            <CodeHelperText>messages</CodeHelperText> is a list of ChatGPT
-            message. It's default to an empty list if unspecified. The current
-            message will be appended to the list and output as the{" "}
-            <CodeHelperText>messages</CodeHelperText> output.
+            <code>messages</code> is a list of ChatGPT message. It's default to
+            an empty list if unspecified. The current message will be appended
+            to the list and output as the <code>messages</code> output.
           </HelperTextContainer>
         </Section>
         <Section>
@@ -261,9 +259,8 @@ export default function ChatGPTMessageNode() {
                 >
                   Mustache template
                 </a>{" "}
-                is used here. TL;DR: use{" "}
-                <CodeHelperText>{"{{variableName}}"}</CodeHelperText> to insert
-                a variable.
+                is used here. TL;DR: use <code>{"{{variableName}}"}</code> to
+                insert a variable.
               </div>
             </FormHelperText>
           </FormControl>
@@ -273,7 +270,9 @@ export default function ChatGPTMessageNode() {
             size="sm"
             variant="outlined"
             onClick={() => {
-              setDetailPanelContentType(DetailPanelContentType.NodeConfig);
+              setDetailPanelContentType(
+                DetailPanelContentType.ChatGPTMessageConfig
+              );
               setDetailPanelSelectedNodeId(nodeId);
             }}
           >
@@ -287,6 +286,12 @@ export default function ChatGPTMessageNode() {
               id={output.id}
               name={output.name}
               value={output.value}
+              onClick={() => {
+                setDetailPanelContentType(
+                  DetailPanelContentType.ChatGPTMessageConfig
+                );
+                setDetailPanelSelectedNodeId(nodeId);
+              }}
             />
           ))}
         </Section>

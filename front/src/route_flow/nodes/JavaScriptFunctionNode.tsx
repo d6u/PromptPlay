@@ -14,7 +14,6 @@ import {
   NodeType,
 } from "../flowTypes";
 import AddVariableButton from "./shared/AddVariableButton";
-import CodeHelperText from "./shared/CodeHelperText";
 import HeaderSection from "./shared/HeaderSection";
 import NodeBox, { NodeState } from "./shared/NodeBox";
 import NodeInputModifyRow from "./shared/NodeInputModifyRow";
@@ -146,7 +145,7 @@ export default function JavaScriptFunctionNode() {
           <FormControl size="sm">
             <LabelWithIconContainer>
               <FormLabel>
-                <CodeHelperText>{functionDefinitionPrefix}</CodeHelperText>
+                <code>{functionDefinitionPrefix}</code>
               </FormLabel>
               <CopyIcon
                 onClick={() => {
@@ -177,7 +176,7 @@ export default function JavaScriptFunctionNode() {
                 updateNodeConfig(nodeId, { javaScriptCode });
               }}
             />
-            <CodeHelperText>{"}"}</CodeHelperText>
+            <code style={{ fontSize: 12 }}>{"}"}</code>
           </FormControl>
         </Section>
         <Section>

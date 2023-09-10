@@ -20,7 +20,6 @@ import {
   NodeType,
   OpenAIChatModel,
 } from "../flowTypes";
-import CodeHelperText from "./shared/CodeHelperText";
 import HeaderSection from "./shared/HeaderSection";
 import HelperTextContainer from "./shared/HelperTextContainer";
 import NodeBox, { NodeState } from "./shared/NodeBox";
@@ -124,10 +123,9 @@ export default function ChatGPTChatCompletionNode() {
             >
               OpenAI API reference
             </a>{" "}
-            for more information about the{" "}
-            <CodeHelperText>messages</CodeHelperText> parameter. The generated
-            assistant message will be appended to the list and output as the{" "}
-            <CodeHelperText>messages</CodeHelperText> output.
+            for more information about the <code>messages</code> parameter. The
+            generated assistant message will be appended to the list and output
+            as the <code>messages</code> output.
           </HelperTextContainer>
         </Section>
         <Section>
@@ -246,10 +244,9 @@ export default function ChatGPTChatCompletionNode() {
             />
             <FormHelperText>
               <div>
-                Use <CodeHelperText>SHIFT</CodeHelperText> +{" "}
-                <CodeHelperText>ENTER</CodeHelperText> to enter a new line
+                Use <code>SHIFT</code> + <code>ENTER</code> to enter a new line
                 character. (Visually represented by{" "}
-                <CodeHelperText>"{NEW_LINE_SYMBOL}"</CodeHelperText>.)
+                <code>"{NEW_LINE_SYMBOL}"</code>.)
               </div>
             </FormHelperText>
           </FormControl>

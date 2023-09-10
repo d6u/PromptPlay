@@ -52,6 +52,14 @@ export type NodeAugment = {
   hasError: boolean;
 };
 
+// Navigation types
+
+export enum DetailPanelContentType {
+  NodeConfig = "NodeConfig",
+  FlowConfig = "FlowConfig",
+  ChatGPTMessageConfig = "ChatGPTMessageConfig",
+}
+
 export type FlowState = {
   isInitialized: boolean;
 
@@ -330,9 +338,4 @@ export const useFlowStore = create<FlowState>()(
       anonymousActionType: "setState",
     }
   )
-); // Node// Navigation types
-
-export enum DetailPanelContentType {
-  NodeConfig = "NodeConfig",
-  FlowConfig = "FlowConfig",
-}
+);

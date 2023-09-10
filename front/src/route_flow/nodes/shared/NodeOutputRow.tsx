@@ -28,6 +28,7 @@ const Content = styled.div`
   min-width: 0;
   flex-grow: 1;
   cursor: pointer;
+  font-size: 14px;
 `;
 
 const Name = styled.code`
@@ -49,6 +50,7 @@ type Props = {
   id: string;
   name: string;
   value: string;
+  onClick?: () => void;
 };
 
 export default function NodeOutputRow(props: Props) {
@@ -60,10 +62,13 @@ export default function NodeOutputRow(props: Props) {
   return (
     <Container>
       <Content
-        onClick={() => {
-          setDetailPanelContentType(DetailPanelContentType.NodeConfig);
-          setDetailPanelSelectedNodeId(nodeId);
-        }}
+        onClick={
+          props.onClick ??
+          (() => {
+            setDetailPanelContentType(DetailPanelContentType.NodeConfig);
+            setDetailPanelSelectedNodeId(nodeId);
+          })
+        }
       >
         <Name>{props.name} =&nbsp;</Name>
         <Value>{JSON.stringify(props.value)}</Value>
