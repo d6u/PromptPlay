@@ -23,6 +23,7 @@ import {
   InputHandle,
   OutputHandle,
   Section,
+  SmallSection,
 } from "./shared/commonStyledComponents";
 import {
   calculateInputHandleTop,
@@ -75,7 +76,7 @@ export default function ChatGPTMessageNode() {
           title="ChatGPT Message"
           onClickRemove={() => removeNode(nodeId)}
         />
-        <Section>
+        <SmallSection>
           <AddVariableButton
             onClick={() => {
               const newInputs = append<NodeInputItem>({
@@ -90,6 +91,8 @@ export default function ChatGPTMessageNode() {
               updateNodeInternals(nodeId);
             }}
           />
+        </SmallSection>
+        <Section>
           {inputs.map((input, i) => {
             if (i === 0) {
               return (

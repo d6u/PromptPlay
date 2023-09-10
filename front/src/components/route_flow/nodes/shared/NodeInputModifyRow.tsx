@@ -1,6 +1,6 @@
+import styled from "@emotion/styled";
 import Input from "@mui/joy/Input";
 import { useState } from "react";
-import styled from "styled-components";
 import RemoveButton from "./RemoveButton";
 
 export const ROW_MARGIN_TOP = 5;
@@ -9,13 +9,27 @@ const Container = styled.div`
   display: flex;
   margin-top: ${ROW_MARGIN_TOP}px;
 
-  &:first-child {
+  &:first-of-type {
     margin-top: 0;
+  }
+`;
+
+const NameInputDisable = styled(Input)`
+  flex-grow: 1;
+
+  &.Mui-focused::before {
+    box-shadow: rgb(205, 215, 225) 0px 0px 0px 2px inset;
+  }
+
+  & input {
+    color: #747474;
+    cursor: not-allowed;
   }
 `;
 
 const NameInput = styled(Input)`
   margin-right: 5px;
+  flex-grow: 1;
 `;
 
 type Props =
@@ -35,31 +49,40 @@ export default function NodeInputModifyRow(props: Props) {
 
   return (
     <Container>
-      <NameInput
-        color="primary"
-        size="sm"
-        variant="outlined"
-        style={{ flexGrow: 1 }}
-        disabled={props.isReadOnly ?? false}
-        value={name}
-        onChange={(e) => {
-          setName(e.target.value);
-        }}
-        onKeyUp={(e) => {
-          if (props.isReadOnly) {
-            return;
-          }
-          if (e.key === "Enter") {
+      {props.isReadOnly ? (
+        <NameInputDisable
+          color="neutral"
+          size="sm"
+          variant="outlined"
+          value={name + " (non-editable)"}
+        />
+      ) : (
+        <NameInput
+          color="primary"
+          size="sm"
+          variant="outlined"
+          value={name}
+          onChange={(e) => {
+            if (!props.isReadOnly) {
+              setName(e.target.value);
+            }
+          }}
+          onKeyUp={(e) => {
+            if (props.isReadOnly) {
+              return;
+            }
+            if (e.key === "Enter") {
+              props.onConfirmNameChange(name);
+            }
+          }}
+          onBlur={() => {
+            if (props.isReadOnly) {
+              return;
+            }
             props.onConfirmNameChange(name);
-          }
-        }}
-        onBlur={() => {
-          if (props.isReadOnly) {
-            return;
-          }
-          props.onConfirmNameChange(name);
-        }}
-      />
+          }}
+        />
+      )}
       {!props.isReadOnly && <RemoveButton onClick={() => props.onRemove()} />}
     </Container>
   );

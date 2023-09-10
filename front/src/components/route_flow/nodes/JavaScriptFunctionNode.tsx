@@ -20,6 +20,7 @@ import {
   InputHandle,
   OutputHandle,
   Section,
+  SmallSection,
 } from "./shared/commonStyledComponents";
 import {
   calculateInputHandleTop,
@@ -73,7 +74,7 @@ export default function JavaScriptFunctionNode() {
           title="JavaScript"
           onClickRemove={() => removeNode(nodeId)}
         />
-        <Section>
+        <SmallSection>
           <AddVariableButton
             onClick={() => {
               const newInputs = append<NodeInputItem>({
@@ -88,6 +89,8 @@ export default function JavaScriptFunctionNode() {
               updateNodeInternals(nodeId);
             }}
           />
+        </SmallSection>
+        <Section>
           {inputs.map((input, i) => (
             <NodeInputModifyRow
               key={input.id}
