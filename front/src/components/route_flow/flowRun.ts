@@ -241,7 +241,6 @@ function handleOutputNode(
   inputIdToOutputIdMap: { [key: string]: string | undefined },
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   outputIdToValueMap: { [key: string]: any }
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): Observable<Partial<OutputNodeConfig>> {
   let inputs = data.inputs;
 
