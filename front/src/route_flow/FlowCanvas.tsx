@@ -14,7 +14,7 @@ import ReactFlow, {
 } from "reactflow";
 import "reactflow/dist/style.css";
 import CanvasPanel from "./controls/CanvasPanel";
-import DetailPanel from "./controls/DetailPanel";
+import SidePanel from "./controls/SidePanel";
 import { RunEventType, run } from "./flowRun";
 import { FlowState, useFlowStore } from "./flowState";
 import { LocalNode } from "./flowState";
@@ -178,7 +178,7 @@ export default function FlowCanvas() {
         <Controls />
         <Background variant={BackgroundVariant.Dots} gap={20} size={1} />
       </ReactFlow>
-      <DetailPanel onRun={onRun} />
+      <SidePanel onRun={onRun} />
     </Container>
   );
 }

@@ -5,7 +5,7 @@ import CrossIcon from "../../component_icons/CrossIcon";
 import { FlowState, useFlowStore } from "../flowState";
 import { DetailPanelContentType } from "../flowState";
 import PanelFlowInputOutput from "./PanelFlowInputOutput";
-import PanelNodeOutput from "./PanelNodeOutput";
+import PanelNodeConfig from "./PanelNodeConfig";
 
 const Container = styled.div<{ $hide: boolean }>`
   position: relative;
@@ -41,14 +41,14 @@ type Props = {
   onRun: () => void;
 };
 
-export default function DetailPanel(props: Props) {
+export default function SidePanel(props: Props) {
   const { detailPanelContentType, setDetailPanelContentType } =
     useFlowStore(selector);
 
   let content: ReactNode;
   switch (detailPanelContentType) {
-    case DetailPanelContentType.NodeOutput: {
-      content = <PanelNodeOutput />;
+    case DetailPanelContentType.NodeConfig: {
+      content = <PanelNodeConfig />;
       break;
     }
     case DetailPanelContentType.FlowConfig: {

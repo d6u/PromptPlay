@@ -8,10 +8,10 @@ import Textarea from "@mui/joy/Textarea";
 import Chance from "chance";
 import { nanoid } from "nanoid";
 import { adjust, append, assoc, remove } from "ramda";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Position, useUpdateNodeInternals, useNodeId } from "reactflow";
 import { ChatGPTMessageRole } from "../../integrations/openai";
-import { FlowState, useFlowStore } from "../flowState";
+import { DetailPanelContentType, FlowState, useFlowStore } from "../flowState";
 import {
   ChatGPTMessageNodeConfig,
   NodeID,
@@ -49,12 +49,20 @@ const selector = (state: FlowState) => ({
   nodeConfigs: state.nodeConfigs,
   updateNodeConfig: state.updateNodeConfig,
   removeNode: state.removeNode,
+  setDetailPanelContentType: state.setDetailPanelContentType,
+  setDetailPanelSelectedNodeId: state.setDetailPanelSelectedNodeId,
 });
 
 export default function ChatGPTMessageNode() {
   const nodeId = useNodeId() as NodeID;
 
-  const { nodeConfigs, updateNodeConfig, removeNode } = useFlowStore(selector);
+  const {
+    nodeConfigs,
+    updateNodeConfig,
+    removeNode,
+    setDetailPanelContentType,
+    setDetailPanelSelectedNodeId,
+  } = useFlowStore(selector);
 
   const nodeConfig = useMemo(
     () => nodeConfigs[nodeId] as ChatGPTMessageNodeConfig | undefined,
@@ -68,6 +76,14 @@ export default function ChatGPTMessageNode() {
   const [inputs, setInputs] = useState(() => nodeConfig!.inputs);
   const [content, setContent] = useState(() => nodeConfig!.content);
   const [role, setRole] = useState(() => nodeConfig!.role);
+
+  useEffect(() => {
+    setRole(nodeConfig?.role ?? ChatGPTMessageRole.user);
+  }, [nodeConfig]);
+
+  useEffect(() => {
+    setContent(() => nodeConfig!.content ?? "");
+  }, [nodeConfig]);
 
   if (!nodeConfig) {
     return null;
@@ -219,7 +235,8 @@ export default function ChatGPTMessageNode() {
               color="neutral"
               size="sm"
               variant="outlined"
-              minRows={6}
+              minRows={3}
+              maxRows={5}
               placeholder="Write JavaScript here"
               // disabled={props.isReadOnly}
               value={content}
@@ -256,7 +273,8 @@ export default function ChatGPTMessageNode() {
             size="sm"
             variant="outlined"
             onClick={() => {
-              // setDetailPanelContentType(DetailPanelContentType.FlowConfig)
+              setDetailPanelContentType(DetailPanelContentType.NodeConfig);
+              setDetailPanelSelectedNodeId(nodeId);
             }}
           >
             <StyledIconGear />

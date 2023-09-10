@@ -61,7 +61,7 @@ export default function NodeOutputRow(props: Props) {
     <Container>
       <Content
         onClick={() => {
-          setDetailPanelContentType(DetailPanelContentType.NodeOutput);
+          setDetailPanelContentType(DetailPanelContentType.NodeConfig);
           setDetailPanelSelectedNodeId(nodeId);
         }}
       >

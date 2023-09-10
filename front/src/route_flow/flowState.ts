@@ -333,6 +333,6 @@ export const useFlowStore = create<FlowState>()(
 ); // Node// Navigation types
 
 export enum DetailPanelContentType {
-  NodeOutput = "NodeOutput",
+  NodeConfig = "NodeConfig",
   FlowConfig = "FlowConfig",
 }
