@@ -45,6 +45,7 @@ const Container = styled.div`
 `;
 
 const selector = (state: FlowState) => ({
+  isCurrentUserOwner: state.isCurrentUserOwner,
   resetAugments: state.resetAugments,
   updateNodeAguemnt: state.updateNodeAguemnt,
   nodeConfigs: state.nodeConfigs,
@@ -62,6 +63,7 @@ export default function FlowCanvas() {
   const storeApi = useStoreApi();
 
   const {
+    isCurrentUserOwner,
     resetAugments,
     updateNodeAguemnt,
     nodeConfigs,
@@ -143,8 +145,8 @@ export default function FlowCanvas() {
         nodes={nodesWithAdditionalData}
         edges={edgesWithAdditionalData}
         onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
+        onEdgesChange={isCurrentUserOwner ? onEdgesChange : undefined}
+        onConnect={isCurrentUserOwner ? onConnect : undefined}
         nodeTypes={NODE_TYPES}
         panOnScroll
         panOnScrollMode={PanOnScrollMode.Free}
@@ -154,27 +156,34 @@ export default function FlowCanvas() {
         onInit={(reactflow) => {
           reactflow.fitView();
         }}
+        nodesConnectable={isCurrentUserOwner}
+        elementsSelectable={isCurrentUserOwner}
       >
-        <CanvasPanel
-          onRun={onRun}
-          onAddNode={(type) => {
-            const {
-              width,
-              transform: [transformX, transformY, zoomLevel],
-            } = storeApi.getState();
+        {isCurrentUserOwner && (
+          <CanvasPanel
+            onRun={onRun}
+            onAddNode={(type) => {
+              if (!isCurrentUserOwner) return;
 
-            const zoomMultiplier = 1 / zoomLevel;
+              const {
+                width,
+                transform: [transformX, transformY, zoomLevel],
+              } = storeApi.getState();
 
-            // Figure out the center of the current viewport
-            const centerX =
-              -transformX * zoomMultiplier + (width * zoomMultiplier) / 2;
+              const zoomMultiplier = 1 / zoomLevel;
 
-            // Put the node at the 200px below the viewport top
-            const centerY = -transformY * zoomMultiplier + 200 * zoomMultiplier;
+              // Figure out the center of the current viewport
+              const centerX =
+                -transformX * zoomMultiplier + (width * zoomMultiplier) / 2;
 
-            addNode(type, centerX - NODE_BOX_WIDTH / 2, centerY);
-          }}
-        />
+              // Put the node at the 200px below the viewport top
+              const centerY =
+                -transformY * zoomMultiplier + 200 * zoomMultiplier;
+
+              addNode(type, centerX - NODE_BOX_WIDTH / 2, centerY);
+            }}
+          />
+        )}
         <Controls />
         <Background variant={BackgroundVariant.Dots} gap={20} size={1} />
       </ReactFlow>

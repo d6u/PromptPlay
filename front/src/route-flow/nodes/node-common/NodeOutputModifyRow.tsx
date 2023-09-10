@@ -1,6 +1,7 @@
 import styled from "@emotion/styled";
 import Input from "@mui/joy/Input";
 import { useState } from "react";
+import InputDisabled from "./InputDisabled";
 import RemoveButton from "./RemoveButton";
 
 const Container = styled.div`
@@ -31,31 +32,40 @@ export default function NodeOutputModifyRow(props: Props) {
 
   return (
     <Container>
-      <Input
-        color="primary"
-        size="sm"
-        variant="outlined"
-        style={{ flexGrow: 1 }}
-        disabled={props.isReadOnly ?? false}
-        value={name}
-        onChange={(e) => {
-          setName(e.target.value);
-        }}
-        onKeyUp={(e) => {
-          if (props.isReadOnly) {
-            return;
-          }
-          if (e.key === "Enter") {
+      {props.isReadOnly ? (
+        <InputDisabled
+          color="neutral"
+          size="sm"
+          variant="outlined"
+          value={name}
+        />
+      ) : (
+        <Input
+          color="primary"
+          size="sm"
+          variant="outlined"
+          style={{ flexGrow: 1 }}
+          disabled={props.isReadOnly ?? false}
+          value={name}
+          onChange={(e) => {
+            setName(e.target.value);
+          }}
+          onKeyUp={(e) => {
+            if (props.isReadOnly) {
+              return;
+            }
+            if (e.key === "Enter") {
+              props.onConfirmNameChange(name);
+            }
+          }}
+          onBlur={() => {
+            if (props.isReadOnly) {
+              return;
+            }
             props.onConfirmNameChange(name);
-          }
-        }}
-        onBlur={() => {
-          if (props.isReadOnly) {
-            return;
-          }
-          props.onConfirmNameChange(name);
-        }}
-      />
+          }}
+        />
+      )}
       {!props.isReadOnly && <RemoveButton onClick={() => props.onRemove()} />}
     </Container>
   );

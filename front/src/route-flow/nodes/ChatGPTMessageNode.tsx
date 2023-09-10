@@ -11,6 +11,7 @@ import { adjust, append, assoc, remove } from "ramda";
 import { useEffect, useMemo, useState } from "react";
 import { Position, useUpdateNodeInternals, useNodeId } from "reactflow";
 import { ChatGPTMessageRole } from "../../integrations/openai";
+import TextareaDisabled from "../flow-common/TextareaDisabled";
 import { CopyIcon, LabelWithIconContainer } from "../flow-common/flow-common";
 import { DetailPanelContentType, FlowState, useFlowStore } from "../flowState";
 import {
@@ -44,6 +45,7 @@ const MESSAGES_HELPER_SECTION_HEIGHT = 81;
 const chance = new Chance();
 
 const selector = (state: FlowState) => ({
+  isCurrentUserOwner: state.isCurrentUserOwner,
   nodeConfigs: state.nodeConfigs,
   updateNodeConfig: state.updateNodeConfig,
   removeNode: state.removeNode,
@@ -55,6 +57,7 @@ export default function ChatGPTMessageNode() {
   const nodeId = useNodeId() as NodeID;
 
   const {
+    isCurrentUserOwner,
     nodeConfigs,
     updateNodeConfig,
     removeNode,
@@ -107,7 +110,7 @@ export default function ChatGPTMessageNode() {
             position={Position.Left}
             style={{
               top:
-                calculateInputHandleTop(i) +
+                calculateInputHandleTop(i - (isCurrentUserOwner ? 0 : 1)) +
                 MESSAGES_HELPER_SECTION_HEIGHT +
                 ROW_MARGIN_TOP,
             }}
@@ -116,25 +119,28 @@ export default function ChatGPTMessageNode() {
       })}
       <NodeBox nodeType={NodeType.ChatGPTMessageNode}>
         <HeaderSection
+          isCurrentUserOwner={isCurrentUserOwner}
           title="ChatGPT Message"
           onClickRemove={() => removeNode(nodeId)}
         />
-        <SmallSection>
-          <AddVariableButton
-            onClick={() => {
-              const newInputs = append<NodeInputItem>({
-                id: `${nodeId}/${nanoid()}`,
-                name: chance.word(),
-              })(inputs);
+        {isCurrentUserOwner && (
+          <SmallSection>
+            <AddVariableButton
+              onClick={() => {
+                const newInputs = append<NodeInputItem>({
+                  id: `${nodeId}/${nanoid()}`,
+                  name: chance.word(),
+                })(inputs);
 
-              setInputs(newInputs);
+                setInputs(newInputs);
 
-              updateNodeConfig(nodeId, { inputs: newInputs });
+                updateNodeConfig(nodeId, { inputs: newInputs });
 
-              updateNodeInternals(nodeId);
-            }}
-          />
-        </SmallSection>
+                updateNodeInternals(nodeId);
+              }}
+            />
+          </SmallSection>
+        )}
         <Section>
           <NodeInputModifyRow
             key={inputs[0].id}
@@ -157,6 +163,7 @@ export default function ChatGPTMessageNode() {
               <NodeInputModifyRow
                 key={input.id}
                 name={input.name}
+                isReadOnly={!isCurrentUserOwner}
                 onConfirmNameChange={(name) => {
                   const newInputs = adjust<NodeInputItem>(
                     i,
@@ -198,21 +205,21 @@ export default function ChatGPTMessageNode() {
                 variant="outlined"
                 name="role"
                 label="system"
-                // disabled={props.isReadOnly}
+                disabled={!isCurrentUserOwner}
                 value={ChatGPTMessageRole.system}
               />
               <Radio
                 variant="outlined"
                 name="role"
                 label="user"
-                // disabled={props.isReadOnly}
+                disabled={!isCurrentUserOwner}
                 value={ChatGPTMessageRole.user}
               />
               <Radio
                 variant="outlined"
                 name="role"
                 label="assistant"
-                // disabled={props.isReadOnly}
+                disabled={!isCurrentUserOwner}
                 value={ChatGPTMessageRole.assistant}
               />
             </RadioGroup>
@@ -228,27 +235,36 @@ export default function ChatGPTMessageNode() {
                 }}
               />
             </LabelWithIconContainer>
-            <Textarea
-              color="neutral"
-              size="sm"
-              variant="outlined"
-              minRows={3}
-              maxRows={5}
-              placeholder="Write JavaScript here"
-              // disabled={props.isReadOnly}
-              value={content}
-              onChange={(e) => {
-                setContent(e.target.value);
-              }}
-              onKeyDown={(e) => {
-                if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+            {isCurrentUserOwner ? (
+              <Textarea
+                color="neutral"
+                size="sm"
+                variant="outlined"
+                minRows={3}
+                maxRows={5}
+                placeholder="Write JavaScript here"
+                value={content}
+                onChange={(e) => {
+                  setContent(e.target.value);
+                }}
+                onKeyDown={(e) => {
+                  if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+                    updateNodeConfig(nodeId, { content });
+                  }
+                }}
+                onBlur={() => {
                   updateNodeConfig(nodeId, { content });
-                }
-              }}
-              onBlur={() => {
-                updateNodeConfig(nodeId, { content });
-              }}
-            />
+                }}
+              />
+            ) : (
+              <TextareaDisabled
+                size="sm"
+                variant="outlined"
+                value={content}
+                minRows={3}
+                maxRows={5}
+              />
+            )}
             <FormHelperText>
               <div>
                 <a

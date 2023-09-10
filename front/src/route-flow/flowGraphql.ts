@@ -30,9 +30,10 @@ export const UPDATE_SPACE_FLOW_CONTENT_MUTATION = graphql(`
   }
 `);
 
-export function queryFlowObservable(
-  spaceId: string
-): Observable<Partial<FlowContent>> {
+export function queryFlowObservable(spaceId: string): Observable<{
+  isCurrentUserOwner: boolean;
+  flowContent: Partial<FlowContent>;
+}> {
   return from(client.query(SPACE_FLOW_QUERY, { spaceId })).pipe(
     map((result) => {
       // TODO: handle error
@@ -50,7 +51,10 @@ export function queryFlowObservable(
         }
       }
 
-      return flowContent;
+      return {
+        isCurrentUserOwner: !result.data?.result?.isReadOnly,
+        flowContent,
+      };
     })
   );
 }

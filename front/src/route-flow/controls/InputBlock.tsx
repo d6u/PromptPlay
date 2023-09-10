@@ -17,6 +17,7 @@ const InputRow = styled.div`
 `;
 
 type Props = {
+  isReadOnly: boolean;
   id: string;
   name: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -36,6 +37,7 @@ export default function InputBlock(props: Props) {
     case InputValueType.String:
       valueInput = (
         <Textarea
+          disabled={props.isReadOnly}
           color="primary"
           size="sm"
           variant="outlined"
@@ -58,6 +60,7 @@ export default function InputBlock(props: Props) {
     case InputValueType.Number:
       valueInput = (
         <Input
+          disabled={props.isReadOnly}
           color="primary"
           size="sm"
           variant="outlined"
@@ -92,6 +95,7 @@ export default function InputBlock(props: Props) {
           value={props.name}
         />
         <Select
+          disabled={props.isReadOnly}
           color="neutral"
           size="sm"
           variant="outlined"

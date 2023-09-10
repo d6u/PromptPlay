@@ -6,6 +6,7 @@ import { nanoid } from "nanoid";
 import { adjust, append, assoc, remove } from "ramda";
 import { useMemo, useState } from "react";
 import { Position, useUpdateNodeInternals, useNodeId } from "reactflow";
+import TextareaDisabled from "../flow-common/TextareaDisabled";
 import { LabelWithIconContainer } from "../flow-common/flow-common";
 import { CopyIcon } from "../flow-common/flow-common";
 import { FlowState, useFlowStore } from "../flowState";
@@ -34,6 +35,7 @@ import {
 const chance = new Chance();
 
 const selector = (state: FlowState) => ({
+  isCurrentUserOwner: state.isCurrentUserOwner,
   nodeConfigs: state.nodeConfigs,
   updateNodeConfig: state.updateNodeConfig,
   removeNode: state.removeNode,
@@ -43,8 +45,13 @@ const selector = (state: FlowState) => ({
 export default function JavaScriptFunctionNode() {
   const nodeId = useNodeId() as NodeID;
 
-  const { nodeConfigs, updateNodeConfig, removeNode, localNodeAugments } =
-    useFlowStore(selector);
+  const {
+    isCurrentUserOwner,
+    nodeConfigs,
+    updateNodeConfig,
+    removeNode,
+    localNodeAugments,
+  } = useFlowStore(selector);
 
   const nodeConfig = useMemo(
     () => nodeConfigs[nodeId] as JavaScriptFunctionNodeConfig | undefined,
@@ -81,7 +88,9 @@ export default function JavaScriptFunctionNode() {
           type="target"
           id={input.id}
           position={Position.Left}
-          style={{ top: calculateInputHandleTop(i) }}
+          style={{
+            top: calculateInputHandleTop(i - (isCurrentUserOwner ? 0 : 1)),
+          }}
         />
       ))}
       <NodeBox
@@ -95,30 +104,34 @@ export default function JavaScriptFunctionNode() {
         }
       >
         <HeaderSection
+          isCurrentUserOwner={isCurrentUserOwner}
           title="JavaScript"
           onClickRemove={() => removeNode(nodeId)}
         />
-        <SmallSection>
-          <AddVariableButton
-            onClick={() => {
-              const newInputs = append<NodeInputItem>({
-                id: `${nodeId}/${nanoid()}`,
-                name: chance.word(),
-              })(inputs);
+        {isCurrentUserOwner && (
+          <SmallSection>
+            <AddVariableButton
+              onClick={() => {
+                const newInputs = append<NodeInputItem>({
+                  id: `${nodeId}/${nanoid()}`,
+                  name: chance.word(),
+                })(inputs);
 
-              setInputs(newInputs);
+                setInputs(newInputs);
 
-              updateNodeConfig(nodeId, { inputs: newInputs });
+                updateNodeConfig(nodeId, { inputs: newInputs });
 
-              updateNodeInternals(nodeId);
-            }}
-          />
-        </SmallSection>
+                updateNodeInternals(nodeId);
+              }}
+            />
+          </SmallSection>
+        )}
         <Section>
           {inputs.map((input, i) => (
             <NodeInputModifyRow
               key={input.id}
               name={input.name}
+              isReadOnly={!isCurrentUserOwner}
               onConfirmNameChange={(name) => {
                 const newInputs = adjust<NodeInputItem>(
                   i,
@@ -155,27 +168,35 @@ export default function JavaScriptFunctionNode() {
                 }}
               />
             </LabelWithIconContainer>
-            <Textarea
-              sx={{ fontFamily: "var(--mono-font-family)" }}
-              color="neutral"
-              size="sm"
-              variant="outlined"
-              minRows={6}
-              placeholder="Write JavaScript here"
-              // disabled={props.isReadOnly}
-              value={javaScriptCode}
-              onChange={(e) => {
-                setJavaScriptCode(e.target.value);
-              }}
-              onKeyDown={(e) => {
-                if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+            {isCurrentUserOwner ? (
+              <Textarea
+                sx={{ fontFamily: "var(--mono-font-family)" }}
+                size="sm"
+                variant="outlined"
+                minRows={6}
+                placeholder="Write JavaScript here"
+                value={javaScriptCode}
+                onChange={(e) => {
+                  setJavaScriptCode(e.target.value);
+                }}
+                onKeyDown={(e) => {
+                  if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+                    updateNodeConfig(nodeId, { javaScriptCode });
+                  }
+                }}
+                onBlur={() => {
                   updateNodeConfig(nodeId, { javaScriptCode });
-                }
-              }}
-              onBlur={() => {
-                updateNodeConfig(nodeId, { javaScriptCode });
-              }}
-            />
+                }}
+              />
+            ) : (
+              <TextareaDisabled
+                sx={{ fontFamily: "var(--mono-font-family)" }}
+                size="sm"
+                variant="outlined"
+                value={javaScriptCode}
+                minRows={6}
+              />
+            )}
             <code style={{ fontSize: 12 }}>{"}"}</code>
           </FormControl>
         </Section>

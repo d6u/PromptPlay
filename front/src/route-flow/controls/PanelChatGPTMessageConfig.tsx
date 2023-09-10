@@ -6,6 +6,7 @@ import RadioGroup from "@mui/joy/RadioGroup";
 import Textarea from "@mui/joy/Textarea";
 import { ReactNode, useEffect, useMemo, useState } from "react";
 import { ChatGPTMessageRole } from "../../integrations/openai";
+import TextareaDisabled from "../flow-common/TextareaDisabled";
 import { CopyIcon, LabelWithIconContainer } from "../flow-common/flow-common";
 import { FlowState, useFlowStore } from "../flowState";
 import { ChatGPTMessageNodeConfig } from "../flowTypes";
@@ -20,14 +21,19 @@ import {
 } from "./controls-common";
 
 const selector = (state: FlowState) => ({
+  isCurrentUserOwner: state.isCurrentUserOwner,
   nodeConfigs: state.nodeConfigs,
   detailPanelSelectedNodeId: state.detailPanelSelectedNodeId,
   updateNodeConfig: state.updateNodeConfig,
 });
 
 export default function PanelChatGPTMessageConfig() {
-  const { nodeConfigs, detailPanelSelectedNodeId, updateNodeConfig } =
-    useFlowStore(selector);
+  const {
+    isCurrentUserOwner,
+    nodeConfigs,
+    detailPanelSelectedNodeId,
+    updateNodeConfig,
+  } = useFlowStore(selector);
 
   const nodeConfig = useMemo(
     () => nodeConfigs[detailPanelSelectedNodeId!] as ChatGPTMessageNodeConfig,
@@ -89,21 +95,21 @@ export default function PanelChatGPTMessageConfig() {
               variant="outlined"
               name="role"
               label="system"
-              // disabled={props.isReadOnly}
+              disabled={!isCurrentUserOwner}
               value={ChatGPTMessageRole.system}
             />
             <Radio
               variant="outlined"
               name="role"
               label="user"
-              // disabled={props.isReadOnly}
+              disabled={!isCurrentUserOwner}
               value={ChatGPTMessageRole.user}
             />
             <Radio
               variant="outlined"
               name="role"
               label="assistant"
-              // disabled={props.isReadOnly}
+              disabled={!isCurrentUserOwner}
               value={ChatGPTMessageRole.assistant}
             />
           </RadioGroup>
@@ -119,26 +125,34 @@ export default function PanelChatGPTMessageConfig() {
               }}
             />
           </LabelWithIconContainer>
-          <Textarea
-            color="neutral"
-            size="sm"
-            variant="outlined"
-            minRows={6}
-            placeholder="Write JavaScript here"
-            // disabled={props.isReadOnly}
-            value={content}
-            onChange={(e) => {
-              setContent(e.target.value);
-            }}
-            onKeyDown={(e) => {
-              if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+          {isCurrentUserOwner ? (
+            <Textarea
+              color="neutral"
+              size="sm"
+              variant="outlined"
+              minRows={6}
+              placeholder="Write JavaScript here"
+              value={content}
+              onChange={(e) => {
+                setContent(e.target.value);
+              }}
+              onKeyDown={(e) => {
+                if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+                  updateNodeConfig(detailPanelSelectedNodeId!, { content });
+                }
+              }}
+              onBlur={() => {
                 updateNodeConfig(detailPanelSelectedNodeId!, { content });
-              }
-            }}
-            onBlur={() => {
-              updateNodeConfig(detailPanelSelectedNodeId!, { content });
-            }}
-          />
+              }}
+            />
+          ) : (
+            <TextareaDisabled
+              size="sm"
+              variant="outlined"
+              value={content}
+              minRows={6}
+            />
+          )}
           <FormHelperText>
             <div>
               <a
