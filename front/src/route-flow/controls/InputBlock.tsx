@@ -3,17 +3,27 @@ import Input from "@mui/joy/Input";
 import Option from "@mui/joy/Option";
 import Select from "@mui/joy/Select";
 import Textarea from "@mui/joy/Textarea";
-import { ReactNode, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
+import TextareaDisabled from "../flow-common/TextareaDisabled";
 import { InputValueType } from "../flowTypes";
+import InputDisabled from "../nodes/node-common/InputDisabled";
 
 const Container = styled.div`
   margin-bottom: 10px;
 `;
 
-const InputRow = styled.div`
+const FirstRow = styled.div`
   display: flex;
   gap: 5px;
   margin-bottom: 5px;
+`;
+
+const VariableName = styled.div`
+  height: 32px;
+  font-size: 14px;
+  line-height: 32px;
+  padding: 0 9px;
+  flex-grow: 1;
 `;
 
 type Props = {
@@ -31,13 +41,27 @@ export default function InputBlock(props: Props) {
   const [value, setValue] = useState(props.value);
   const [type, setType] = useState(props.type ?? InputValueType.String);
 
+  useEffect(() => {
+    setValue(props.value);
+  }, [props.value]);
+
+  useEffect(() => {
+    setType(props.type ?? InputValueType.String);
+  }, [props.type]);
+
   let valueInput: ReactNode;
 
   switch (type) {
     case InputValueType.String:
-      valueInput = (
+      valueInput = props.isReadOnly ? (
+        <TextareaDisabled
+          size="sm"
+          variant="outlined"
+          minRows={2}
+          value={value ?? ""}
+        />
+      ) : (
         <Textarea
-          disabled={props.isReadOnly}
           color="primary"
           size="sm"
           variant="outlined"
@@ -58,9 +82,16 @@ export default function InputBlock(props: Props) {
       );
       break;
     case InputValueType.Number:
-      valueInput = (
+      valueInput = props.isReadOnly ? (
+        <InputDisabled
+          color="neutral"
+          size="sm"
+          variant="outlined"
+          type="number"
+          value={value ?? 0}
+        />
+      ) : (
         <Input
-          disabled={props.isReadOnly}
           color="primary"
           size="sm"
           variant="outlined"
@@ -85,15 +116,8 @@ export default function InputBlock(props: Props) {
 
   return (
     <Container>
-      <InputRow>
-        <Input
-          color="primary"
-          size="sm"
-          variant="outlined"
-          style={{ flexGrow: 1 }}
-          disabled
-          value={props.name}
-        />
+      <FirstRow>
+        <VariableName>{props.name}</VariableName>
         <Select
           disabled={props.isReadOnly}
           color="neutral"
@@ -112,7 +136,7 @@ export default function InputBlock(props: Props) {
             </Option>
           ))}
         </Select>
-      </InputRow>
+      </FirstRow>
       {valueInput}
     </Container>
   );

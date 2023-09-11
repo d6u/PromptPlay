@@ -1,10 +1,20 @@
 import Button from "@mui/joy/Button";
-import { adjust, assoc, filter, flatten, map, pipe, propEq } from "ramda";
+import {
+  adjust,
+  assoc,
+  filter,
+  flatten,
+  map,
+  mergeLeft,
+  pipe,
+  propEq,
+} from "ramda";
 import { ReactNode, useMemo } from "react";
 import { FlowState, useFlowStore } from "../flowState";
 import {
   FlowInputItem,
   InputNodeConfig,
+  InputValueType,
   NodeType,
   OutputNodeConfig,
 } from "../flowTypes";
@@ -86,11 +96,25 @@ export default function PanelFlowInputOutput(props: Props) {
                   updateNodeConfig(nodeConfig.nodeId, { outputs: newOutputs });
                 }}
                 type={output.valueType}
-                onSaveType={(type) => {
-                  const newOutputs = adjust<FlowInputItem>(
-                    i,
-                    assoc("valueType", type)<FlowInputItem>
-                  )(nodeConfig.outputs);
+                onSaveType={(newType) => {
+                  const newOutputs = adjust<FlowInputItem>(i, (input) => {
+                    const change: Partial<FlowInputItem> = {
+                      valueType: newType,
+                    };
+
+                    if (input.valueType !== newType) {
+                      switch (newType) {
+                        case InputValueType.String:
+                          change.value = "";
+                          break;
+                        case InputValueType.Number:
+                          change.value = 0;
+                          break;
+                      }
+                    }
+
+                    return mergeLeft(change)(input);
+                  })(nodeConfig.outputs);
 
                   updateNodeConfig(nodeConfig.nodeId, { outputs: newOutputs });
                 }}

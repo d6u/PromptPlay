@@ -19,6 +19,7 @@ const HEADER_SPACE_NAME_QUERY = graphql(`
     result: space(id: $spaceId) {
       isReadOnly
       space {
+        id
         name
       }
     }

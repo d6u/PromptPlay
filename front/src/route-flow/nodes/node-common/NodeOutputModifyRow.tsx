@@ -10,7 +10,7 @@ const Container = styled.div`
   align-items: center;
   gap: 5px;
 
-  &:first-child {
+  &:first-of-type {
     margin-top: 0;
   }
 `;

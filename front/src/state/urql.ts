@@ -20,6 +20,9 @@ export const client = new Client({
           };
         },
       },
+      keys: {
+        QuerySpaceResult: () => null,
+      },
     }),
     fetchExchange,
   ],
