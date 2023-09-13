@@ -96,8 +96,6 @@ export default function EditorBlockLlmConfigurations(props: Props) {
       <FieldRow>
         <FieldTitle>Model</FieldTitle>
         <Select
-          size="sm"
-          variant="outlined"
           disabled={props.isReadOnly}
           value={model}
           onChange={(_, value) => {

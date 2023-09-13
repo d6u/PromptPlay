@@ -25,19 +25,22 @@ const theme = extendTheme({
     },
     JoySelect: {
       defaultProps: {
+        size: "sm",
         variant: "outlined",
-        size: "md",
         color: "neutral",
-        sx: {
-          borderRadius: "5px",
-        },
+      },
+    },
+    JoyRadioGroup: {
+      defaultProps: {
+        size: "sm",
+        color: "neutral",
       },
     },
     JoyRadio: {
       defaultProps: {
-        color: "neutral",
-        size: "md",
+        size: "sm",
         variant: "outlined",
+        color: "neutral",
       },
     },
     JoyButton: {

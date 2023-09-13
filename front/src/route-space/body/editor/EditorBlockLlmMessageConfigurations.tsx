@@ -62,24 +62,18 @@ export default function EditorBlockLlmMessageConfigurations(props: Props) {
           }}
         >
           <Radio
-            size="sm"
-            variant="outlined"
             name="role"
             label="System"
             disabled={props.isReadOnly}
             value={LlmMessageRole.System}
           />
           <Radio
-            size="sm"
-            variant="outlined"
             name="role"
             label="User"
             disabled={props.isReadOnly}
             value={LlmMessageRole.User}
           />
           <Radio
-            size="sm"
-            variant="outlined"
             name="role"
             label="Assistant"
             disabled={props.isReadOnly}

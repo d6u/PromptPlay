@@ -105,9 +105,6 @@ export default function InputBlock(props: Props) {
         <VariableName>{props.name}</VariableName>
         <Select
           disabled={props.isReadOnly}
-          color="neutral"
-          size="sm"
-          variant="outlined"
           value={type}
           onChange={(e, value) => {
             const type = value!;

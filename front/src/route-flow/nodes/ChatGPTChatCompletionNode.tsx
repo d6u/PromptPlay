@@ -161,8 +161,6 @@ export default function ChatGPTChatCompletionNode() {
           <FormControl size="sm">
             <FormLabel>Model</FormLabel>
             <Select
-              size="sm"
-              variant="outlined"
               disabled={!isCurrentUserOwner}
               value={model}
               onChange={(_, value) => {

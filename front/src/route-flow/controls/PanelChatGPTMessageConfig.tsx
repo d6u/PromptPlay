@@ -92,21 +92,21 @@ export default function PanelChatGPTMessageConfig() {
             }}
           >
             <Radio
-              variant="outlined"
+              color="primary"
               name="role"
               label="system"
               disabled={!isCurrentUserOwner}
               value={ChatGPTMessageRole.system}
             />
             <Radio
-              variant="outlined"
+              color="primary"
               name="role"
               label="user"
               disabled={!isCurrentUserOwner}
               value={ChatGPTMessageRole.user}
             />
             <Radio
-              variant="outlined"
+              color="primary"
               name="role"
               label="assistant"
               disabled={!isCurrentUserOwner}
