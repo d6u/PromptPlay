@@ -48,7 +48,7 @@ const Content = styled.div`
 
 const TileTimestamp = styled.div`
   font-size: 12px;
-  font-family: var(--mono-font-family);
+  font-family: var(--font-family-mono);
   color: #5f5f5f;
   margin-top: 10px;
 `;

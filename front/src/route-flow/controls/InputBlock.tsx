@@ -4,7 +4,7 @@ import Option from "@mui/joy/Option";
 import Select from "@mui/joy/Select";
 import Textarea from "@mui/joy/Textarea";
 import { ReactNode, useEffect, useState } from "react";
-import TextareaDisabled from "../flow-common/TextareaDisabled";
+import TextareaReadonly from "../flow-common/TextareaReadonly";
 import { InputValueType } from "../flowTypes";
 import InputDisabled from "../nodes/node-common/InputDisabled";
 
@@ -54,7 +54,7 @@ export default function InputBlock(props: Props) {
   switch (type) {
     case InputValueType.String:
       valueInput = props.isReadOnly ? (
-        <TextareaDisabled minRows={2} value={value ?? ""} />
+        <TextareaReadonly minRows={2} value={value ?? ""} />
       ) : (
         <Textarea
           color="primary"

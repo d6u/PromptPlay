@@ -6,7 +6,7 @@ import { nanoid } from "nanoid";
 import { adjust, append, assoc, remove } from "ramda";
 import { useMemo, useState } from "react";
 import { Position, useUpdateNodeInternals, useNodeId } from "reactflow";
-import TextareaDisabled from "../flow-common/TextareaDisabled";
+import TextareaReadonly from "../flow-common/TextareaReadonly";
 import { LabelWithIconContainer } from "../flow-common/flow-common";
 import { CopyIcon } from "../flow-common/flow-common";
 import { FlowState, useFlowStore } from "../flowState";
@@ -170,7 +170,7 @@ export default function JavaScriptFunctionNode() {
             </LabelWithIconContainer>
             {isCurrentUserOwner ? (
               <Textarea
-                sx={{ fontFamily: "var(--mono-font-family)" }}
+                sx={{ fontFamily: "var(--font-family-mono)" }}
                 minRows={6}
                 placeholder="Write JavaScript here"
                 value={javaScriptCode}
@@ -187,7 +187,7 @@ export default function JavaScriptFunctionNode() {
                 }}
               />
             ) : (
-              <TextareaDisabled value={javaScriptCode} minRows={6} isCode />
+              <TextareaReadonly value={javaScriptCode} minRows={6} isCode />
             )}
             <code style={{ fontSize: 12 }}>{"}"}</code>
           </FormControl>

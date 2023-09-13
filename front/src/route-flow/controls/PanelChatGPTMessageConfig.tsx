@@ -6,7 +6,7 @@ import RadioGroup from "@mui/joy/RadioGroup";
 import Textarea from "@mui/joy/Textarea";
 import { ReactNode, useEffect, useMemo, useState } from "react";
 import { ChatGPTMessageRole } from "../../integrations/openai";
-import TextareaDisabled from "../flow-common/TextareaDisabled";
+import TextareaReadonly from "../flow-common/TextareaReadonly";
 import { CopyIcon, LabelWithIconContainer } from "../flow-common/flow-common";
 import { FlowState, useFlowStore } from "../flowState";
 import { ChatGPTMessageNodeConfig } from "../flowTypes";
@@ -146,7 +146,7 @@ export default function PanelChatGPTMessageConfig() {
               }}
             />
           ) : (
-            <TextareaDisabled value={content} minRows={6} />
+            <TextareaReadonly value={content} minRows={6} />
           )}
           <FormHelperText>
             <div>

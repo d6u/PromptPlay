@@ -11,7 +11,7 @@ import { adjust, append, assoc, remove } from "ramda";
 import { useEffect, useMemo, useState } from "react";
 import { Position, useUpdateNodeInternals, useNodeId } from "reactflow";
 import { ChatGPTMessageRole } from "../../integrations/openai";
-import TextareaDisabled from "../flow-common/TextareaDisabled";
+import TextareaReadonly from "../flow-common/TextareaReadonly";
 import { CopyIcon, LabelWithIconContainer } from "../flow-common/flow-common";
 import { DetailPanelContentType, FlowState, useFlowStore } from "../flowState";
 import {
@@ -256,7 +256,7 @@ export default function ChatGPTMessageNode() {
                 }}
               />
             ) : (
-              <TextareaDisabled value={content} minRows={3} maxRows={5} />
+              <TextareaReadonly value={content} minRows={3} maxRows={5} />
             )}
             <FormHelperText>
               <div>

@@ -128,7 +128,7 @@ const Container = styled.div<{
 const Text = styled.div<{ $type: VisualBlockType }>`
   height: 100%;
   overflow: hidden;
-  font-family: var(--mono-font-family);
+  font-family: var(--font-family-mono);
   font-size: 12px;
   word-wrap: break-word;
   color: #000;

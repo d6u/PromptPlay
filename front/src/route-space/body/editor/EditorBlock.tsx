@@ -25,7 +25,7 @@ const Header = styled.div`
 `;
 
 const HeaderText = styled.div`
-  font-family: var(--mono-font-family);
+  font-family: var(--font-family-mono);
   font-size: 16px;
   font-weight: 700;
 `;

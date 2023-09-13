@@ -90,7 +90,7 @@ export default function App() {
       <GlobalStyles
         styles={{
           ":root": {
-            "--mono-font-family":
+            "--font-family-mono":
               'source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace',
           },
           html: { height: "100%" },
@@ -104,7 +104,7 @@ export default function App() {
             height: "100%",
           },
           code: {
-            fontFamily: "var(--mono-font-family)",
+            fontFamily: "var(--font-family-mono)",
           },
         }}
       />
