@@ -135,7 +135,6 @@ export default function EditorBlockInputOutput(props: Props) {
     addButton = (
       <Button
         color="success"
-        size="sm"
         variant="outlined"
         onClick={() => {
           const id = nanoid();

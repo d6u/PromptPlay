@@ -11,7 +11,7 @@ import { adjust, append, assoc, remove } from "ramda";
 import { useEffect, useMemo, useState } from "react";
 import { Position, useUpdateNodeInternals, useNodeId } from "reactflow";
 import { ChatGPTMessageRole } from "../../integrations/openai";
-import TextareaDisabled from "../flow-common/TextareaDisabled";
+import TextareaReadonly from "../flow-common/TextareaReadonly";
 import { CopyIcon, LabelWithIconContainer } from "../flow-common/flow-common";
 import { DetailPanelContentType, FlowState, useFlowStore } from "../flowState";
 import {
@@ -188,7 +188,7 @@ export default function ChatGPTMessageNode() {
           })}
         </Section>
         <Section>
-          <FormControl size="sm">
+          <FormControl>
             <FormLabel>Role</FormLabel>
             <RadioGroup
               orientation="horizontal"
@@ -202,21 +202,21 @@ export default function ChatGPTMessageNode() {
               }}
             >
               <Radio
-                variant="outlined"
+                color="primary"
                 name="role"
                 label="system"
                 disabled={!isCurrentUserOwner}
                 value={ChatGPTMessageRole.system}
               />
               <Radio
-                variant="outlined"
+                color="primary"
                 name="role"
                 label="user"
                 disabled={!isCurrentUserOwner}
                 value={ChatGPTMessageRole.user}
               />
               <Radio
-                variant="outlined"
+                color="primary"
                 name="role"
                 label="assistant"
                 disabled={!isCurrentUserOwner}
@@ -226,7 +226,7 @@ export default function ChatGPTMessageNode() {
           </FormControl>
         </Section>
         <Section>
-          <FormControl size="sm">
+          <FormControl>
             <LabelWithIconContainer>
               <FormLabel>Message content</FormLabel>
               <CopyIcon
@@ -238,7 +238,6 @@ export default function ChatGPTMessageNode() {
             {isCurrentUserOwner ? (
               <Textarea
                 color="neutral"
-                size="sm"
                 variant="outlined"
                 minRows={3}
                 maxRows={5}
@@ -257,13 +256,7 @@ export default function ChatGPTMessageNode() {
                 }}
               />
             ) : (
-              <TextareaDisabled
-                size="sm"
-                variant="outlined"
-                value={content}
-                minRows={3}
-                maxRows={5}
-              />
+              <TextareaReadonly value={content} minRows={3} maxRows={5} />
             )}
             <FormHelperText>
               <div>
@@ -282,7 +275,6 @@ export default function ChatGPTMessageNode() {
         </Section>
         <Section>
           <IconButton
-            size="sm"
             variant="outlined"
             onClick={() => {
               setDetailPanelContentType(

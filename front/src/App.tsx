@@ -1,55 +1,83 @@
+import CssBaseline from "@mui/joy/CssBaseline";
+import GlobalStyles from "@mui/joy/GlobalStyles";
 import { CssVarsProvider, extendTheme } from "@mui/joy/styles";
 import { Provider as GraphQLProvider } from "urql";
 import Routes from "./Routes";
 import { client } from "./state/urql";
-import "./App.css";
 
 const theme = extendTheme({
   fontFamily: {
     body: '"Inter", sans-serif',
   },
   components: {
-    JoyButton: {
-      defaultProps: {
-        color: "neutral",
-        size: "md",
-        variant: "soft",
-        sx: {
-          borderRadius: "5px",
-        },
-      },
-    },
     JoyInput: {
       defaultProps: {
+        size: "sm",
         variant: "outlined",
-        size: "md",
         color: "neutral",
-        sx: {
-          borderRadius: "5px",
-        },
       },
     },
     JoyTextarea: {
       defaultProps: {
-        variant: "plain",
+        size: "sm",
+        variant: "outlined",
         color: "neutral",
       },
     },
     JoySelect: {
       defaultProps: {
+        size: "sm",
         variant: "outlined",
-        size: "md",
         color: "neutral",
-        sx: {
-          borderRadius: "5px",
-        },
+      },
+    },
+    JoyRadioGroup: {
+      defaultProps: {
+        size: "sm",
+        color: "neutral",
       },
     },
     JoyRadio: {
       defaultProps: {
-        color: "neutral",
-        size: "md",
+        size: "sm",
         variant: "outlined",
+        color: "neutral",
+      },
+    },
+    JoyButton: {
+      defaultProps: {
+        size: "sm",
+        variant: "solid",
+        color: "neutral",
+      },
+    },
+    JoyIconButton: {
+      defaultProps: {
+        size: "sm",
+        variant: "plain",
+        color: "neutral",
+      },
+    },
+    JoyMenuButton: {
+      defaultProps: {
+        size: "sm",
+        variant: "solid",
+        color: "neutral",
+      },
+    },
+    JoyMenu: {
+      defaultProps: {
+        size: "sm",
+      },
+    },
+    JoyMenuItem: {
+      defaultProps: {
+        color: "primary", // Somehow this doesn't work
+      },
+    },
+    JoyFormControl: {
+      defaultProps: {
+        size: "sm",
       },
     },
   },
@@ -57,10 +85,32 @@ const theme = extendTheme({
 
 export default function App() {
   return (
-    <GraphQLProvider value={client}>
-      <CssVarsProvider theme={theme}>
+    <CssVarsProvider theme={theme}>
+      <CssBaseline disableColorScheme />
+      <GlobalStyles
+        styles={{
+          ":root": {
+            "--font-family-mono":
+              'source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace',
+          },
+          html: { height: "100%" },
+          body: {
+            height: "100%",
+            backgroundColor: "#fff",
+            webkitFontSmoothing: "antialiased",
+            mozOsxFontSmoothing: "grayscale",
+          },
+          "#root": {
+            height: "100%",
+          },
+          code: {
+            fontFamily: "var(--font-family-mono)",
+          },
+        }}
+      />
+      <GraphQLProvider value={client}>
         <Routes />
-      </CssVarsProvider>
-    </GraphQLProvider>
+      </GraphQLProvider>
+    </CssVarsProvider>
   );
 }

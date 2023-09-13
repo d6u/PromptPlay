@@ -17,9 +17,6 @@ export default function EditorSingleScopeVariable(props: Props) {
 
   return (
     <Input
-      color="neutral"
-      size="sm"
-      variant="outlined"
       style={{ flexGrow: 1 }}
       placeholder={
         props.isInput ? "Input variable name" : "Output variable name"

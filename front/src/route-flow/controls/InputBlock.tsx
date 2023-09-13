@@ -4,7 +4,7 @@ import Option from "@mui/joy/Option";
 import Select from "@mui/joy/Select";
 import Textarea from "@mui/joy/Textarea";
 import { ReactNode, useEffect, useState } from "react";
-import TextareaDisabled from "../flow-common/TextareaDisabled";
+import TextareaReadonly from "../flow-common/TextareaReadonly";
 import { InputValueType } from "../flowTypes";
 import InputDisabled from "../nodes/node-common/InputDisabled";
 
@@ -54,17 +54,10 @@ export default function InputBlock(props: Props) {
   switch (type) {
     case InputValueType.String:
       valueInput = props.isReadOnly ? (
-        <TextareaDisabled
-          size="sm"
-          variant="outlined"
-          minRows={2}
-          value={value ?? ""}
-        />
+        <TextareaReadonly minRows={2} value={value ?? ""} />
       ) : (
         <Textarea
           color="primary"
-          size="sm"
-          variant="outlined"
           minRows={2}
           value={value ?? ""}
           onChange={(e) => {
@@ -83,18 +76,10 @@ export default function InputBlock(props: Props) {
       break;
     case InputValueType.Number:
       valueInput = props.isReadOnly ? (
-        <InputDisabled
-          color="neutral"
-          size="sm"
-          variant="outlined"
-          type="number"
-          value={value ?? 0}
-        />
+        <InputDisabled type="number" value={value ?? 0} />
       ) : (
         <Input
           color="primary"
-          size="sm"
-          variant="outlined"
           type="number"
           slotProps={{ input: { step: 0.1 } }}
           value={value ?? 0}
@@ -120,9 +105,6 @@ export default function InputBlock(props: Props) {
         <VariableName>{props.name}</VariableName>
         <Select
           disabled={props.isReadOnly}
-          color="neutral"
-          size="sm"
-          variant="outlined"
           value={type}
           onChange={(e, value) => {
             const type = value!;

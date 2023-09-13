@@ -76,8 +76,6 @@ export default function EditorBlockLlmConfigurations(props: Props) {
         <FieldTitle>OpenAI API Key</FieldTitle>
         <Input
           color={missingOpenAiApiKey ? "danger" : "neutral"}
-          size="sm"
-          variant="outlined"
           disabled={props.isReadOnly}
           value={openAiApiKey ?? ""}
           onChange={(e) => {
@@ -98,8 +96,6 @@ export default function EditorBlockLlmConfigurations(props: Props) {
       <FieldRow>
         <FieldTitle>Model</FieldTitle>
         <Select
-          size="sm"
-          variant="outlined"
           disabled={props.isReadOnly}
           value={model}
           onChange={(_, value) => {
@@ -114,9 +110,6 @@ export default function EditorBlockLlmConfigurations(props: Props) {
       <FieldRow>
         <FieldTitle>Temperature</FieldTitle>
         <Input
-          color="neutral"
-          size="sm"
-          variant="outlined"
           type="number"
           slotProps={{ input: { min: 0, max: 2, step: 0.1 } }}
           disabled={props.isReadOnly}
@@ -135,9 +128,6 @@ export default function EditorBlockLlmConfigurations(props: Props) {
       <FieldRow>
         <FieldTitle>Stop</FieldTitle>
         <Input
-          color="neutral"
-          size="sm"
-          variant="outlined"
           disabled={props.isReadOnly}
           value={stop.length ? stop[0].replace("\n", NEW_LINE_SYMBOL) : ""}
           onKeyDown={(event) => {
@@ -164,9 +154,6 @@ export default function EditorBlockLlmConfigurations(props: Props) {
       <FieldRow>
         <FieldTitle>Assign assistant message to variable</FieldTitle>
         <Input
-          color="neutral"
-          size="sm"
-          variant="outlined"
           placeholder="Variable name for message"
           disabled={props.isReadOnly}
           value={variableNameForMessage}
@@ -184,9 +171,6 @@ export default function EditorBlockLlmConfigurations(props: Props) {
       <FieldRow>
         <FieldTitle>Assign message content to variable</FieldTitle>
         <Input
-          color="neutral"
-          size="sm"
-          variant="outlined"
           placeholder="Variable name for content"
           disabled={props.isReadOnly}
           value={variableNameForContent}

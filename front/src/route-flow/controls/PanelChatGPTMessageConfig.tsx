@@ -6,7 +6,7 @@ import RadioGroup from "@mui/joy/RadioGroup";
 import Textarea from "@mui/joy/Textarea";
 import { ReactNode, useEffect, useMemo, useState } from "react";
 import { ChatGPTMessageRole } from "../../integrations/openai";
-import TextareaDisabled from "../flow-common/TextareaDisabled";
+import TextareaReadonly from "../flow-common/TextareaReadonly";
 import { CopyIcon, LabelWithIconContainer } from "../flow-common/flow-common";
 import { FlowState, useFlowStore } from "../flowState";
 import { ChatGPTMessageNodeConfig } from "../flowTypes";
@@ -78,7 +78,7 @@ export default function PanelChatGPTMessageConfig() {
         <HeaderSectionHeader>Config</HeaderSectionHeader>
       </HeaderSection>
       <Section>
-        <FormControl>
+        <FormControl size="md">
           <FormLabel>Role</FormLabel>
           <RadioGroup
             orientation="horizontal"
@@ -92,21 +92,21 @@ export default function PanelChatGPTMessageConfig() {
             }}
           >
             <Radio
-              variant="outlined"
+              color="primary"
               name="role"
               label="system"
               disabled={!isCurrentUserOwner}
               value={ChatGPTMessageRole.system}
             />
             <Radio
-              variant="outlined"
+              color="primary"
               name="role"
               label="user"
               disabled={!isCurrentUserOwner}
               value={ChatGPTMessageRole.user}
             />
             <Radio
-              variant="outlined"
+              color="primary"
               name="role"
               label="assistant"
               disabled={!isCurrentUserOwner}
@@ -116,7 +116,7 @@ export default function PanelChatGPTMessageConfig() {
         </FormControl>
       </Section>
       <Section>
-        <FormControl>
+        <FormControl size="md">
           <LabelWithIconContainer>
             <FormLabel>Message content</FormLabel>
             <CopyIcon
@@ -146,12 +146,7 @@ export default function PanelChatGPTMessageConfig() {
               }}
             />
           ) : (
-            <TextareaDisabled
-              size="sm"
-              variant="outlined"
-              value={content}
-              minRows={6}
-            />
+            <TextareaReadonly value={content} minRows={6} />
           )}
           <FormHelperText>
             <div>

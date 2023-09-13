@@ -1,5 +1,6 @@
 import styled from "@emotion/styled";
-import { Button, IconButton } from "@mui/joy";
+import Button from "@mui/joy/Button";
+import IconButton from "@mui/joy/IconButton";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useMutation, useQuery } from "urql";
@@ -224,16 +225,11 @@ export default function Header() {
               <Email>{queryResult.data.user?.email}</Email>
             )}
             {useNarrowLayout ? (
-              <IconButton
-                size="sm"
-                variant="outlined"
-                onClick={() => window.location.assign(LOGOUT_PATH)}
-              >
+              <IconButton onClick={() => window.location.assign(LOGOUT_PATH)}>
                 <StyledLogoutIcon />
               </IconButton>
             ) : (
               <Button
-                size="sm"
                 variant="plain"
                 onClick={() => window.location.assign(LOGOUT_PATH)}
               >
@@ -245,8 +241,6 @@ export default function Header() {
           <Button
             color="success"
             onClick={() => window.location.assign(LOGIN_PATH)}
-            size="sm"
-            variant="solid"
           >
             {useNarrowLayout ? "Login" : "Log in / Sign up"}
           </Button>

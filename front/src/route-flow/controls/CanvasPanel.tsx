@@ -42,10 +42,8 @@ export default function CanvasPanel(props: Props) {
       {useNarrowLayout ? (
         <Content>
           <Dropdown>
-            <MenuButton variant="solid" size="sm" color="primary">
-              Add
-            </MenuButton>
-            <Menu size="sm">
+            <MenuButton color="primary">Add</MenuButton>
+            <Menu>
               <MenuItem
                 color="primary"
                 onClick={() => props.onAddNode(NodeType.InputNode)}
@@ -80,63 +78,43 @@ export default function CanvasPanel(props: Props) {
               </MenuItem>
             </Menu>
           </Dropdown>
-          <Button
-            size="sm"
-            color="success"
-            variant="solid"
-            onClick={() => props.onRun()}
-          >
+          <Button color="success" onClick={() => props.onRun()}>
             Run
           </Button>
         </Content>
       ) : (
         <Content>
           <Button
-            size="sm"
             color="primary"
-            variant="solid"
             onClick={() => props.onAddNode(NodeType.InputNode)}
           >
             Add Input
           </Button>
           <Button
-            size="sm"
             color="primary"
-            variant="solid"
             onClick={() => props.onAddNode(NodeType.ChatGPTMessageNode)}
           >
             Add ChatGPT Message
           </Button>
           <Button
-            size="sm"
             color="primary"
-            variant="solid"
             onClick={() => props.onAddNode(NodeType.ChatGPTChatCompletionNode)}
           >
             Add ChatGPT Chat Completion
           </Button>
           <Button
-            size="sm"
             color="primary"
-            variant="solid"
             onClick={() => props.onAddNode(NodeType.JavaScriptFunctionNode)}
           >
             Add JavaScript
           </Button>
           <Button
-            size="sm"
             color="primary"
-            variant="solid"
             onClick={() => props.onAddNode(NodeType.OutputNode)}
           >
             Add Output
           </Button>
-          <Button
-            size="sm"
-            color="success"
-            variant="solid"
-            onClick={() => props.onRun()}
-          >
+          <Button color="success" onClick={() => props.onRun()}>
             Run
           </Button>
         </Content>

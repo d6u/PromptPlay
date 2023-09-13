@@ -79,7 +79,6 @@ export default function OutputNode() {
         />
         <SmallSection>
           <IconButton
-            size="sm"
             variant="outlined"
             onClick={() =>
               setDetailPanelContentType(DetailPanelContentType.FlowConfig)
