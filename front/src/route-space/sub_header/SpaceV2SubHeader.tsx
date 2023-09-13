@@ -143,36 +143,24 @@ export default function SpaceV2SubHeader(props: Props) {
       ) : (
         <>
           <Left>
-            <Button size="sm" onClick={() => appendNewBlock(BlockType.Databag)}>
+            <Button onClick={() => appendNewBlock(BlockType.Databag)}>
               + Databag
             </Button>
-            <Button
-              size="sm"
-              onClick={() => appendNewBlock(BlockType.LlmMessage)}
-            >
+            <Button onClick={() => appendNewBlock(BlockType.LlmMessage)}>
               + Message
             </Button>
-            <Button
-              size="sm"
-              onClick={() => appendNewBlock(BlockType.AppendToList)}
-            >
+            <Button onClick={() => appendNewBlock(BlockType.AppendToList)}>
               + Append to List
             </Button>
-            <Button size="sm" onClick={() => appendNewBlock(BlockType.Llm)}>
-              + LLM
-            </Button>
-            <Button
-              size="sm"
-              onClick={() => appendNewBlock(BlockType.GetAttribute)}
-            >
+            <Button onClick={() => appendNewBlock(BlockType.Llm)}>+ LLM</Button>
+            <Button onClick={() => appendNewBlock(BlockType.GetAttribute)}>
               + Get Attribute
             </Button>
-            <Button size="sm" onClick={() => appendNewBlock(BlockType.Parser)}>
+            <Button onClick={() => appendNewBlock(BlockType.Parser)}>
               + Parser
             </Button>
             <Button
               color="success"
-              size="sm"
               variant="outlined"
               disabled={props.spaceContent == null || props.isExecuting}
               onClick={() => props.onExecuteVisualChain()}
@@ -185,7 +173,6 @@ export default function SpaceV2SubHeader(props: Props) {
                   element?.querySelector("input")?.focus();
                 }}
                 type="text"
-                size="sm"
                 placeholder="Enter a name for this space"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -224,7 +211,6 @@ export default function SpaceV2SubHeader(props: Props) {
           </Left>
           <Right>
             <Button
-              size="sm"
               onClick={() => {
                 const isConfirmed = window.confirm(
                   "⚠️ Unrecoverable action. ⚠️\nReset is unrecoverable. Are you sure?"
@@ -238,7 +224,6 @@ export default function SpaceV2SubHeader(props: Props) {
               Reset Space
             </Button>
             <Button
-              size="sm"
               variant="outlined"
               onClick={() => {
                 const isConfirmed = window.confirm(

@@ -67,12 +67,7 @@ export default function PanelFlowInputOutput(props: Props) {
       <HeaderSection>
         <HeaderSectionHeader>Input variables</HeaderSectionHeader>
         {isCurrentUserOwner && (
-          <Button
-            color="success"
-            onClick={props.onRun}
-            size="sm"
-            variant="solid"
-          >
+          <Button color="success" onClick={props.onRun}>
             Run
           </Button>
         )}

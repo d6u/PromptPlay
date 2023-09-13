@@ -9,12 +9,7 @@ const StyledCloseIcon = styled(CrossIcon)`
 
 export default function RemoveButton(props: { onClick: () => void }) {
   return (
-    <IconButton
-      color="danger"
-      size="sm"
-      variant="plain"
-      onClick={props.onClick}
-    >
+    <IconButton color="danger" onClick={props.onClick}>
       <StyledCloseIcon />
     </IconButton>
   );

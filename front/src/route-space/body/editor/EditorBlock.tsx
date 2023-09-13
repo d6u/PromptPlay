@@ -70,7 +70,6 @@ export default function EditorBlock(props: Props) {
         {props.isReadOnly ? null : (
           <Button
             color="danger"
-            size="sm"
             variant="plain"
             onClick={() => {
               let newContent = props.spaceContent;

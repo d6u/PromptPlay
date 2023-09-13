@@ -275,7 +275,6 @@ export default function ChatGPTMessageNode() {
         </Section>
         <Section>
           <IconButton
-            size="sm"
             variant="outlined"
             onClick={() => {
               setDetailPanelContentType(

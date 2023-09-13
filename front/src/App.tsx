@@ -45,12 +45,16 @@ const theme = extendTheme({
     },
     JoyButton: {
       defaultProps: {
+        size: "sm",
+        variant: "solid",
         color: "neutral",
-        size: "md",
-        variant: "soft",
-        sx: {
-          borderRadius: "5px",
-        },
+      },
+    },
+    JoyIconButton: {
+      defaultProps: {
+        size: "sm",
+        variant: "plain",
+        color: "neutral",
       },
     },
   },
