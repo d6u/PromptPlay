@@ -14,7 +14,13 @@ export default function TextareaReadonly(props: Props) {
         "--Textarea-focusedThickness": "1px",
         fontFamily: isCode ? "var(--font-family-mono)" : undefined,
         color: "#747474",
-        cursor: "not-allowed",
+      }}
+      slotProps={{
+        textarea: {
+          sx: {
+            cursor: "not-allowed",
+          },
+        },
       }}
       {...rest}
     />

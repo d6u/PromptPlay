@@ -13,6 +13,7 @@ import {
   useLocalStorageStore,
   useSpaceStore,
 } from "../../state/appState";
+import InputReadonly from "../flow-common/InputReadonly";
 import { FlowState, useFlowStore } from "../flowState";
 import {
   ChatGPTChatCompletionNodeConfig,
@@ -22,7 +23,6 @@ import {
 } from "../flowTypes";
 import HeaderSection from "./node-common/HeaderSection";
 import HelperTextContainer from "./node-common/HelperTextContainer";
-import InputDisabled from "./node-common/InputDisabled";
 import NodeBox, { NodeState } from "./node-common/NodeBox";
 import NodeInputModifyRow from "./node-common/NodeInputModifyRow";
 import NodeOutputRow from "./node-common/NodeOutputRow";
@@ -204,7 +204,7 @@ export default function ChatGPTChatCompletionNode() {
                 }}
               />
             ) : (
-              <InputDisabled type="number" value={temperature} />
+              <InputReadonly type="number" value={temperature} />
             )}
           </FormControl>
         </Section>
@@ -245,7 +245,7 @@ export default function ChatGPTChatCompletionNode() {
                 }}
               />
             ) : (
-              <InputDisabled
+              <InputReadonly
                 value={
                   stop.length ? stop[0].replace(/\n/g, NEW_LINE_SYMBOL) : ""
                 }

@@ -1,7 +1,7 @@
 import styled from "@emotion/styled";
 import Input from "@mui/joy/Input";
 import { useState } from "react";
-import InputDisabled from "./InputDisabled";
+import InputReadonly from "../../flow-common/InputReadonly";
 import RemoveButton from "./RemoveButton";
 
 export const ROW_MARGIN_TOP = 5;
@@ -38,7 +38,7 @@ export default function NodeInputModifyRow(props: Props) {
   return (
     <Container>
       {props.isReadOnly ? (
-        <InputDisabled
+        <InputReadonly
           color="neutral"
           size="sm"
           variant="outlined"
