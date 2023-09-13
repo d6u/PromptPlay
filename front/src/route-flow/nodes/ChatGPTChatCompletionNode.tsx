@@ -134,7 +134,7 @@ export default function ChatGPTChatCompletionNode() {
         </Section>
         {isCurrentUserOwner && (
           <Section>
-            <FormControl size="sm">
+            <FormControl>
               <FormLabel>OpenAI API key</FormLabel>
               <Input
                 type="password"
@@ -158,7 +158,7 @@ export default function ChatGPTChatCompletionNode() {
           </Section>
         )}
         <Section>
-          <FormControl size="sm">
+          <FormControl>
             <FormLabel>Model</FormLabel>
             <Select
               disabled={!isCurrentUserOwner}
@@ -178,7 +178,7 @@ export default function ChatGPTChatCompletionNode() {
           </FormControl>
         </Section>
         <Section>
-          <FormControl size="sm">
+          <FormControl>
             <FormLabel>Temperature</FormLabel>
             {isCurrentUserOwner ? (
               <Input
@@ -209,7 +209,7 @@ export default function ChatGPTChatCompletionNode() {
           </FormControl>
         </Section>
         <Section>
-          <FormControl size="sm">
+          <FormControl>
             <FormLabel>Stop sequence</FormLabel>
             {isCurrentUserOwner ? (
               <Input

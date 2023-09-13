@@ -75,6 +75,11 @@ const theme = extendTheme({
         color: "primary", // Somehow this doesn't work
       },
     },
+    JoyFormControl: {
+      defaultProps: {
+        size: "sm",
+      },
+    },
   },
 });
 

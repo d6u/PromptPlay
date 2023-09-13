@@ -78,7 +78,7 @@ export default function PanelChatGPTMessageConfig() {
         <HeaderSectionHeader>Config</HeaderSectionHeader>
       </HeaderSection>
       <Section>
-        <FormControl>
+        <FormControl size="md">
           <FormLabel>Role</FormLabel>
           <RadioGroup
             orientation="horizontal"
@@ -116,7 +116,7 @@ export default function PanelChatGPTMessageConfig() {
         </FormControl>
       </Section>
       <Section>
-        <FormControl>
+        <FormControl size="md">
           <LabelWithIconContainer>
             <FormLabel>Message content</FormLabel>
             <CopyIcon

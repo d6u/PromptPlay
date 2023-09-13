@@ -188,7 +188,7 @@ export default function ChatGPTMessageNode() {
           })}
         </Section>
         <Section>
-          <FormControl size="sm">
+          <FormControl>
             <FormLabel>Role</FormLabel>
             <RadioGroup
               orientation="horizontal"
@@ -226,7 +226,7 @@ export default function ChatGPTMessageNode() {
           </FormControl>
         </Section>
         <Section>
-          <FormControl size="sm">
+          <FormControl>
             <LabelWithIconContainer>
               <FormLabel>Message content</FormLabel>
               <CopyIcon

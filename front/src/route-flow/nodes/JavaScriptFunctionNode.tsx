@@ -155,7 +155,7 @@ export default function JavaScriptFunctionNode() {
           ))}
         </Section>
         <Section>
-          <FormControl size="sm">
+          <FormControl>
             <LabelWithIconContainer>
               <FormLabel>
                 <code>{functionDefinitionPrefix}</code>
@@ -171,8 +171,6 @@ export default function JavaScriptFunctionNode() {
             {isCurrentUserOwner ? (
               <Textarea
                 sx={{ fontFamily: "var(--mono-font-family)" }}
-                size="sm"
-                variant="outlined"
                 minRows={6}
                 placeholder="Write JavaScript here"
                 value={javaScriptCode}
