@@ -42,10 +42,8 @@ export default function CanvasPanel(props: Props) {
       {useNarrowLayout ? (
         <Content>
           <Dropdown>
-            <MenuButton variant="solid" size="sm" color="primary">
-              Add
-            </MenuButton>
-            <Menu size="sm">
+            <MenuButton color="primary">Add</MenuButton>
+            <Menu>
               <MenuItem
                 color="primary"
                 onClick={() => props.onAddNode(NodeType.InputNode)}

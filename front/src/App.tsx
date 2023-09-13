@@ -58,6 +58,23 @@ const theme = extendTheme({
         color: "neutral",
       },
     },
+    JoyMenuButton: {
+      defaultProps: {
+        size: "sm",
+        variant: "solid",
+        color: "neutral",
+      },
+    },
+    JoyMenu: {
+      defaultProps: {
+        size: "sm",
+      },
+    },
+    JoyMenuItem: {
+      defaultProps: {
+        color: "primary", // Somehow this doesn't work
+      },
+    },
   },
 });
 

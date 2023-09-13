@@ -1,5 +1,6 @@
 import styled from "@emotion/styled";
-import { Button, IconButton } from "@mui/joy";
+import Button from "@mui/joy/Button";
+import IconButton from "@mui/joy/IconButton";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useMutation, useQuery } from "urql";
