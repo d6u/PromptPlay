@@ -54,17 +54,10 @@ export default function InputBlock(props: Props) {
   switch (type) {
     case InputValueType.String:
       valueInput = props.isReadOnly ? (
-        <TextareaDisabled
-          size="sm"
-          variant="outlined"
-          minRows={2}
-          value={value ?? ""}
-        />
+        <TextareaDisabled minRows={2} value={value ?? ""} />
       ) : (
         <Textarea
           color="primary"
-          size="sm"
-          variant="outlined"
           minRows={2}
           value={value ?? ""}
           onChange={(e) => {
@@ -83,18 +76,10 @@ export default function InputBlock(props: Props) {
       break;
     case InputValueType.Number:
       valueInput = props.isReadOnly ? (
-        <InputDisabled
-          color="neutral"
-          size="sm"
-          variant="outlined"
-          type="number"
-          value={value ?? 0}
-        />
+        <InputDisabled type="number" value={value ?? 0} />
       ) : (
         <Input
           color="primary"
-          size="sm"
-          variant="outlined"
           type="number"
           slotProps={{ input: { step: 0.1 } }}
           value={value ?? 0}

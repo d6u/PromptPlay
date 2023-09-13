@@ -189,13 +189,7 @@ export default function JavaScriptFunctionNode() {
                 }}
               />
             ) : (
-              <TextareaDisabled
-                sx={{ fontFamily: "var(--mono-font-family)" }}
-                size="sm"
-                variant="outlined"
-                value={javaScriptCode}
-                minRows={6}
-              />
+              <TextareaDisabled value={javaScriptCode} minRows={6} isCode />
             )}
             <code style={{ fontSize: 12 }}>{"}"}</code>
           </FormControl>

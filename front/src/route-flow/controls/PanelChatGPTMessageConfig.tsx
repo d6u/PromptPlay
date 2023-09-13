@@ -146,12 +146,7 @@ export default function PanelChatGPTMessageConfig() {
               }}
             />
           ) : (
-            <TextareaDisabled
-              size="sm"
-              variant="outlined"
-              value={content}
-              minRows={6}
-            />
+            <TextareaDisabled value={content} minRows={6} />
           )}
           <FormHelperText>
             <div>

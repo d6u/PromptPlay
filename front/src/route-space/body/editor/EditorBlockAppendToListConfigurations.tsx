@@ -23,9 +23,6 @@ export default function EditorBlockAppendToListConfigurations(props: Props) {
       <FieldRow>
         <FieldTitle>Item name</FieldTitle>
         <Input
-          color="neutral"
-          size="sm"
-          variant="outlined"
           disabled={props.isReadOnly}
           value={itemName}
           onChange={(e) => {
@@ -42,9 +39,6 @@ export default function EditorBlockAppendToListConfigurations(props: Props) {
       <FieldRow>
         <FieldTitle>List name</FieldTitle>
         <Input
-          color="neutral"
-          size="sm"
-          variant="outlined"
           disabled={props.isReadOnly}
           value={listName}
           onChange={(e) => {

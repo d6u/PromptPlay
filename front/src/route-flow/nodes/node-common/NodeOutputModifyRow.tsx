@@ -33,17 +33,10 @@ export default function NodeOutputModifyRow(props: Props) {
   return (
     <Container>
       {props.isReadOnly ? (
-        <InputDisabled
-          color="neutral"
-          size="sm"
-          variant="outlined"
-          value={name}
-        />
+        <InputDisabled value={name} />
       ) : (
         <Input
           color="primary"
-          size="sm"
-          variant="outlined"
           style={{ flexGrow: 1 }}
           disabled={props.isReadOnly ?? false}
           value={name}

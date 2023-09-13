@@ -28,8 +28,6 @@ export default function EditorVariableMapRow(props: Props) {
       <Container>
         <Input
           color="primary"
-          size="sm"
-          variant="outlined"
           style={{ flexGrow: 1 }}
           disabled={props.isReadOnly}
           value={scopeName}
@@ -45,7 +43,6 @@ export default function EditorVariableMapRow(props: Props) {
         />
         <Input
           color="primary"
-          size="sm"
           variant="solid"
           style={{ flexGrow: 1 }}
           disabled={props.isReadOnly}
@@ -77,7 +74,6 @@ export default function EditorVariableMapRow(props: Props) {
       <Container>
         <Input
           color="primary"
-          size="sm"
           variant="solid"
           style={{ flexGrow: 1 }}
           disabled={props.isReadOnly}
@@ -94,8 +90,6 @@ export default function EditorVariableMapRow(props: Props) {
         />
         <Input
           color="primary"
-          size="sm"
-          variant="outlined"
           style={{ flexGrow: 1 }}
           disabled={props.isReadOnly}
           value={scopeName}

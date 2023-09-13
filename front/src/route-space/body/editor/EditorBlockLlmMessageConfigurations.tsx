@@ -123,9 +123,6 @@ export default function EditorBlockLlmMessageConfigurations(props: Props) {
       <FieldRow>
         <FieldTitle>Append message to list</FieldTitle>
         <Input
-          color="neutral"
-          size="sm"
-          variant="outlined"
           placeholder="List name"
           disabled={props.isReadOnly}
           value={listNameToAppend}
@@ -141,9 +138,6 @@ export default function EditorBlockLlmMessageConfigurations(props: Props) {
       <FieldRow>
         <FieldTitle>Assign message to variable</FieldTitle>
         <Input
-          color="neutral"
-          size="sm"
-          variant="outlined"
           placeholder="Variable name for message"
           disabled={props.isReadOnly}
           value={messageVariableName}

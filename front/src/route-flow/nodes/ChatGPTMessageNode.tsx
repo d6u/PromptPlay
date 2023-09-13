@@ -238,7 +238,6 @@ export default function ChatGPTMessageNode() {
             {isCurrentUserOwner ? (
               <Textarea
                 color="neutral"
-                size="sm"
                 variant="outlined"
                 minRows={3}
                 maxRows={5}
@@ -257,13 +256,7 @@ export default function ChatGPTMessageNode() {
                 }}
               />
             ) : (
-              <TextareaDisabled
-                size="sm"
-                variant="outlined"
-                value={content}
-                minRows={3}
-                maxRows={5}
-              />
+              <TextareaDisabled value={content} minRows={3} maxRows={5} />
             )}
             <FormHelperText>
               <div>

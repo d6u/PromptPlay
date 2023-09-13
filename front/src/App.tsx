@@ -9,29 +9,17 @@ const theme = extendTheme({
     body: '"Inter", sans-serif',
   },
   components: {
-    JoyButton: {
-      defaultProps: {
-        color: "neutral",
-        size: "md",
-        variant: "soft",
-        sx: {
-          borderRadius: "5px",
-        },
-      },
-    },
     JoyInput: {
       defaultProps: {
+        size: "sm",
         variant: "outlined",
-        size: "md",
         color: "neutral",
-        sx: {
-          borderRadius: "5px",
-        },
       },
     },
     JoyTextarea: {
       defaultProps: {
-        variant: "plain",
+        size: "sm",
+        variant: "outlined",
         color: "neutral",
       },
     },
@@ -52,15 +40,25 @@ const theme = extendTheme({
         variant: "outlined",
       },
     },
+    JoyButton: {
+      defaultProps: {
+        color: "neutral",
+        size: "md",
+        variant: "soft",
+        sx: {
+          borderRadius: "5px",
+        },
+      },
+    },
   },
 });
 
 export default function App() {
   return (
-    <GraphQLProvider value={client}>
-      <CssVarsProvider theme={theme}>
+    <CssVarsProvider theme={theme}>
+      <GraphQLProvider value={client}>
         <Routes />
-      </CssVarsProvider>
-    </GraphQLProvider>
+      </GraphQLProvider>
+    </CssVarsProvider>
   );
 }

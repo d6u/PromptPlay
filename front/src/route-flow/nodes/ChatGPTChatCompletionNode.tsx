@@ -139,9 +139,6 @@ export default function ChatGPTChatCompletionNode() {
               <Input
                 type="password"
                 color={missingOpenAiApiKey ? "danger" : "neutral"}
-                size="sm"
-                variant="outlined"
-                // disabled={props.isReadOnly}
                 value={openAiApiKey ?? ""}
                 onChange={(e) => {
                   const value = e.target.value.trim();
@@ -187,9 +184,6 @@ export default function ChatGPTChatCompletionNode() {
             <FormLabel>Temperature</FormLabel>
             {isCurrentUserOwner ? (
               <Input
-                color="neutral"
-                size="sm"
-                variant="outlined"
                 type="number"
                 slotProps={{ input: { min: 0, max: 2, step: 0.1 } }}
                 value={temperature}
@@ -212,13 +206,7 @@ export default function ChatGPTChatCompletionNode() {
                 }}
               />
             ) : (
-              <InputDisabled
-                color="neutral"
-                size="sm"
-                variant="outlined"
-                type="number"
-                value={temperature}
-              />
+              <InputDisabled type="number" value={temperature} />
             )}
           </FormControl>
         </Section>
@@ -227,9 +215,6 @@ export default function ChatGPTChatCompletionNode() {
             <FormLabel>Stop sequence</FormLabel>
             {isCurrentUserOwner ? (
               <Input
-                color="neutral"
-                size="sm"
-                variant="outlined"
                 placeholder="Stop sequence"
                 value={
                   stop.length ? stop[0].replace(/\n/g, NEW_LINE_SYMBOL) : ""
@@ -263,9 +248,6 @@ export default function ChatGPTChatCompletionNode() {
               />
             ) : (
               <InputDisabled
-                color="neutral"
-                size="sm"
-                variant="outlined"
                 value={
                   stop.length ? stop[0].replace(/\n/g, NEW_LINE_SYMBOL) : ""
                 }

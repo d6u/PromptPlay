@@ -29,9 +29,6 @@ export default function EditorBlockGetAttributeConfigurations(props: Props) {
       <FieldRow>
         <FieldTitle>Attribute</FieldTitle>
         <Input
-          color="neutral"
-          size="sm"
-          variant="outlined"
           disabled={props.isReadOnly}
           value={attribute}
           onChange={(e) => {
