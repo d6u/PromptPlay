@@ -56,8 +56,8 @@ export type NodeAugment = {
 // Navigation types
 
 export enum DetailPanelContentType {
+  EvaluationMode = "EvaluationMode",
   NodeConfig = "NodeConfig",
-  FlowConfig = "FlowConfig",
   ChatGPTMessageConfig = "ChatGPTMessageConfig",
 }
 

@@ -11,7 +11,7 @@ import {
 } from "@mui/joy";
 import { useCallback, useEffect, useState } from "react";
 import { useStoreApi } from "reactflow";
-import { FlowState, useFlowStore } from "../flowState";
+import { DetailPanelContentType, FlowState, useFlowStore } from "../flowState";
 import { NodeType } from "../flowTypes";
 import { NODE_BOX_WIDTH } from "../nodes/node-common/NodeBox";
 
@@ -41,6 +41,8 @@ const RightAligned = styled.div`
 
 const selector = (state: FlowState) => ({
   isCurrentUserOwner: state.isCurrentUserOwner,
+  detailPanelContentType: state.detailPanelContentType,
+  setDetailPanelContentType: state.setDetailPanelContentType,
   addNode: state.addNode,
   runFlow: state.runFlow,
 });
@@ -48,7 +50,13 @@ const selector = (state: FlowState) => ({
 export default function ToolBar() {
   const storeApi = useStoreApi();
 
-  const { isCurrentUserOwner, addNode, runFlow } = useFlowStore(selector);
+  const {
+    isCurrentUserOwner,
+    detailPanelContentType,
+    setDetailPanelContentType,
+    addNode,
+    runFlow,
+  } = useFlowStore(selector);
 
   const addNodeWithType = useCallback(
     (type: NodeType) => {
@@ -73,8 +81,6 @@ export default function ToolBar() {
     [addNode, isCurrentUserOwner, storeApi]
   );
 
-  const [isEvaluationMode, setIsEvaluationMode] = useState(false);
-
   const [useNarrowLayout, setUseNarrowLayout] = useState(
     window.innerWidth < USE_NARROW_LAYOUT_BREAKPOINT
   );
@@ -92,6 +98,9 @@ export default function ToolBar() {
       window.removeEventListener("resize", handleResize);
     };
   }, []);
+
+  const isEvaluationMode =
+    detailPanelContentType === DetailPanelContentType.EvaluationMode;
 
   return (
     <Container>
@@ -186,7 +195,13 @@ export default function ToolBar() {
           <FormLabel sx={{ cursor: "pointer" }}>Evaluation Mode</FormLabel>
           <Switch
             checked={isEvaluationMode}
-            onChange={(event) => setIsEvaluationMode(event.target.checked)}
+            onChange={(event) =>
+              setDetailPanelContentType(
+                event.target.checked
+                  ? DetailPanelContentType.EvaluationMode
+                  : null
+              )
+            }
             color={isEvaluationMode ? "success" : "neutral"}
             variant={isEvaluationMode ? "solid" : "outlined"}
           />

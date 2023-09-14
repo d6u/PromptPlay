@@ -31,17 +31,14 @@ import {
 
 const selector = (state: FlowState) => ({
   isCurrentUserOwner: state.isCurrentUserOwner,
+  runFlow: state.runFlow,
   nodeConfigs: state.nodeConfigs,
   nodes: state.nodes,
   updateNodeConfig: state.updateNodeConfig,
 });
 
-type Props = {
-  onRun: () => void;
-};
-
-export default function PanelFlowInputOutput(props: Props) {
-  const { isCurrentUserOwner, nodeConfigs, nodes, updateNodeConfig } =
+export default function PanelEvaluationMode() {
+  const { isCurrentUserOwner, runFlow, nodeConfigs, nodes, updateNodeConfig } =
     useFlowStore(selector);
 
   const inputNodeConfigs = useMemo(
@@ -67,7 +64,7 @@ export default function PanelFlowInputOutput(props: Props) {
       <HeaderSection>
         <HeaderSectionHeader>Input variables</HeaderSectionHeader>
         {isCurrentUserOwner && (
-          <Button color="success" onClick={props.onRun}>
+          <Button color="success" onClick={runFlow}>
             Run
           </Button>
         )}

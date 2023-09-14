@@ -4,7 +4,7 @@ import { ReactNode } from "react";
 import CrossIcon from "../../component-icons/CrossIcon";
 import { DetailPanelContentType, FlowState, useFlowStore } from "../flowState";
 import PanelChatGPTMessageConfig from "./PanelChatGPTMessageConfig";
-import PanelFlowInputOutput from "./PanelFlowInputOutput";
+import PanelEvaluationMode from "./PanelEvaluationMode";
 import PanelNodeConfig from "./PanelNodeConfig";
 
 const Container = styled.div<{ $hide: boolean }>`
@@ -35,11 +35,10 @@ const Content = styled.div`
 const selector = (state: FlowState) => ({
   detailPanelContentType: state.detailPanelContentType,
   setDetailPanelContentType: state.setDetailPanelContentType,
-  runFlow: state.runFlow,
 });
 
 export default function SidePanel() {
-  const { detailPanelContentType, setDetailPanelContentType, runFlow } =
+  const { detailPanelContentType, setDetailPanelContentType } =
     useFlowStore(selector);
 
   let content: ReactNode;
@@ -48,8 +47,8 @@ export default function SidePanel() {
       content = <PanelNodeConfig />;
       break;
     }
-    case DetailPanelContentType.FlowConfig: {
-      content = <PanelFlowInputOutput onRun={runFlow} />;
+    case DetailPanelContentType.EvaluationMode: {
+      content = <PanelEvaluationMode />;
       break;
     }
     case DetailPanelContentType.ChatGPTMessageConfig: {
