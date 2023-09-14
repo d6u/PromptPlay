@@ -80,6 +80,13 @@ const theme = extendTheme({
         size: "sm",
       },
     },
+    JoyTabs: {
+      defaultProps: {
+        sx: {
+          backgroundColor: "white",
+        },
+      },
+    },
   },
 });
 

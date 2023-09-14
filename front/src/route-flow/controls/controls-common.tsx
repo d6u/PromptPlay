@@ -2,6 +2,8 @@ import styled from "@emotion/styled";
 
 export const PanelContentContainer = styled.div`
   padding: 20px 20px 0 20px;
+  width: 50vw;
+  max-width: 600px;
 `;
 
 export const HeaderSection = styled.div`

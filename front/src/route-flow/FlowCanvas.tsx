@@ -37,10 +37,10 @@ const applyDragHandleMemoized = memoize(
 
 const Container = styled.div`
   height: 100%;
-  display: flex;
   flex-grow: 1;
-  position: relative;
   min-height: 0;
+  display: flex;
+  position: relative;
 `;
 
 const selector = (state: FlowState) => ({

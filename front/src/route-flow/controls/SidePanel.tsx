@@ -10,8 +10,6 @@ import PanelNodeConfig from "./PanelNodeConfig";
 const Container = styled.div<{ $hide: boolean }>`
   position: relative;
   height: 100%;
-  width: 50vw;
-  max-width: 600px;
   background-color: #fff;
   border-left: 1px solid #ddd;
   display: ${(props) => (props.$hide ? "none" : "initial")};
@@ -60,7 +58,7 @@ export default function SidePanel() {
   return (
     <Container $hide={!detailPanelContentType}>
       <StyledCloseButtonWrapper>
-        <IconButton onClick={() => setDetailPanelContentType(null)}>
+        <IconButton size="md" onClick={() => setDetailPanelContentType(null)}>
           <StyledIconCross />
         </IconButton>
       </StyledCloseButtonWrapper>
