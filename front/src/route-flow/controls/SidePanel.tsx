@@ -35,14 +35,11 @@ const Content = styled.div`
 const selector = (state: FlowState) => ({
   detailPanelContentType: state.detailPanelContentType,
   setDetailPanelContentType: state.setDetailPanelContentType,
+  runFlow: state.runFlow,
 });
 
-type Props = {
-  onRun: () => void;
-};
-
-export default function SidePanel(props: Props) {
-  const { detailPanelContentType, setDetailPanelContentType } =
+export default function SidePanel() {
+  const { detailPanelContentType, setDetailPanelContentType, runFlow } =
     useFlowStore(selector);
 
   let content: ReactNode;
@@ -52,7 +49,7 @@ export default function SidePanel(props: Props) {
       break;
     }
     case DetailPanelContentType.FlowConfig: {
-      content = <PanelFlowInputOutput onRun={props.onRun} />;
+      content = <PanelFlowInputOutput onRun={runFlow} />;
       break;
     }
     case DetailPanelContentType.ChatGPTMessageConfig: {

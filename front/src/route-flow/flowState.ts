@@ -21,10 +21,11 @@ import {
   addEdge,
   Node,
 } from "reactflow";
-import { from, Subscription } from "rxjs";
+import { Subscription } from "rxjs";
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { queryFlowObservable } from "./flowGraphql";
+import { RunEventType, run } from "./flowRun";
 import {
   FlowContent,
   LocalEdge,
@@ -75,6 +76,9 @@ export type FlowState = {
   localNodeAugments: NodeAugments;
   resetAugments(): void;
   updateNodeAguemnt(nodeId: NodeID, change: Partial<NodeAugment>): void;
+
+  isRunning: boolean;
+  runFlow(): void;
 
   // States for ReactFlow
   nodes: LocalNode[];
@@ -155,7 +159,7 @@ export const useFlowStore = create<FlowState>()(
         fetchFlowConfiguration(spaceId: string): Subscription {
           set({ spaceId });
 
-          return from(queryFlowObservable(spaceId)).subscribe({
+          return queryFlowObservable(spaceId).subscribe({
             next({
               isCurrentUserOwner,
               flowContent: { nodes = [], edges = [], nodeConfigs = {} },
@@ -203,6 +207,45 @@ export const useFlowStore = create<FlowState>()(
           localNodeAugments = assoc(nodeId, augment, localNodeAugments);
 
           set({ localNodeAugments });
+        },
+
+        isRunning: false,
+        runFlow() {
+          const {
+            resetAugments,
+            edges,
+            nodeConfigs,
+            updateNodeConfigDebounced,
+            updateNodeAguemnt,
+          } = get();
+
+          resetAugments();
+
+          set({ isRunning: true });
+
+          run(edges, nodeConfigs).subscribe({
+            next(data) {
+              switch (data.type) {
+                case RunEventType.NodeConfigChange: {
+                  const { nodeId, nodeChange } = data;
+                  updateNodeConfigDebounced(nodeId, nodeChange);
+                  break;
+                }
+                case RunEventType.NodeAugmentChange: {
+                  const { nodeId, augmentChange } = data;
+                  updateNodeAguemnt(nodeId, augmentChange);
+                  break;
+                }
+              }
+            },
+            error(e) {
+              console.error(e);
+              set({ isRunning: false });
+            },
+            complete() {
+              set({ isRunning: false });
+            },
+          });
         },
 
         nodes: [],

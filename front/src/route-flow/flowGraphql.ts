@@ -1,4 +1,4 @@
-import { Observable, from, map } from "rxjs";
+import { Observable, defer, map } from "rxjs";
 import { graphql } from "../gql";
 import { client } from "../state/urql";
 import { FlowContent } from "./flowTypes";
@@ -35,14 +35,14 @@ export function queryFlowObservable(spaceId: string): Observable<{
   isCurrentUserOwner: boolean;
   flowContent: Partial<FlowContent>;
 }> {
-  return from(
-    client.query(
-      SPACE_FLOW_QUERY,
-      { spaceId },
-      {
-        requestPolicy: "cache-and-network",
-      }
-    )
+  return defer(() =>
+    client
+      .query(
+        SPACE_FLOW_QUERY,
+        { spaceId },
+        { requestPolicy: "cache-and-network" }
+      )
+      .toPromise()
   ).pipe(
     map((result) => {
       // TODO: handle error

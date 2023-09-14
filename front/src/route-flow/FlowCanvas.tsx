@@ -3,19 +3,16 @@ import memoize from "lodash/memoize";
 import { mergeLeft } from "ramda";
 import assoc from "ramda/es/assoc";
 import map from "ramda/es/map";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
 import ReactFlow, {
   Controls,
   Background,
   BackgroundVariant,
   PanOnScrollMode,
   NodeDragHandler,
-  useStoreApi,
 } from "reactflow";
 import "reactflow/dist/style.css";
-import CanvasPanel from "./controls/CanvasPanel";
 import SidePanel from "./controls/SidePanel";
-import { RunEventType, run } from "./flowRun";
 import { FlowState, useFlowStore } from "./flowState";
 import { LocalNode } from "./flowState";
 import { LocalEdge, NodeType } from "./flowTypes";
@@ -25,7 +22,6 @@ import InputNode from "./nodes/InputNode";
 import JavaScriptFunctionNode from "./nodes/JavaScriptFunctionNode";
 import OutputNode from "./nodes/OutputNode";
 import { DRAG_HANDLE_CLASS_NAME } from "./nodes/node-common/HeaderSection";
-import { NODE_BOX_WIDTH } from "./nodes/node-common/NodeBox";
 
 const NODE_TYPES = {
   [NodeType.InputNode]: InputNode,
@@ -42,6 +38,9 @@ const applyDragHandleMemoized = memoize(
 const Container = styled.div`
   height: 100%;
   display: flex;
+  flex-grow: 1;
+  position: relative;
+  min-height: 0;
 `;
 
 const selector = (state: FlowState) => ({
@@ -49,6 +48,7 @@ const selector = (state: FlowState) => ({
   resetAugments: state.resetAugments,
   updateNodeAguemnt: state.updateNodeAguemnt,
   nodeConfigs: state.nodeConfigs,
+  isRunning: state.isRunning,
   nodes: state.nodes,
   edges: state.edges,
   addNode: state.addNode,
@@ -60,24 +60,16 @@ const selector = (state: FlowState) => ({
 });
 
 export default function FlowCanvas() {
-  const storeApi = useStoreApi();
-
   const {
     isCurrentUserOwner,
-    resetAugments,
-    updateNodeAguemnt,
-    nodeConfigs,
+    isRunning,
     nodes,
     edges,
-    addNode,
     updateNode,
-    updateNodeConfigDebounced,
     onNodesChange,
     onEdgesChange,
     onConnect,
   } = useFlowStore(selector);
-
-  const [isRunning, setIsRunning] = useState(false);
 
   const nodesWithAdditionalData = useMemo(
     () => map<LocalNode, LocalNode>(applyDragHandleMemoized)(nodes),
@@ -104,41 +96,6 @@ export default function FlowCanvas() {
     [applyEdgeStyleMemoized, edges]
   );
 
-  const onRun = useCallback(() => {
-    resetAugments();
-    setIsRunning(true);
-
-    run(edges, nodeConfigs).subscribe({
-      next(data) {
-        switch (data.type) {
-          case RunEventType.NodeConfigChange: {
-            const { nodeId, nodeChange } = data;
-            updateNodeConfigDebounced(nodeId, nodeChange);
-            break;
-          }
-          case RunEventType.NodeAugmentChange: {
-            const { nodeId, augmentChange } = data;
-            updateNodeAguemnt(nodeId, augmentChange);
-            break;
-          }
-        }
-      },
-      error(e) {
-        console.error(e);
-        setIsRunning(false);
-      },
-      complete() {
-        setIsRunning(false);
-      },
-    });
-  }, [
-    edges,
-    nodeConfigs,
-    resetAugments,
-    updateNodeAguemnt,
-    updateNodeConfigDebounced,
-  ]);
-
   return (
     <Container>
       <ReactFlow
@@ -159,35 +116,10 @@ export default function FlowCanvas() {
         nodesConnectable={isCurrentUserOwner}
         elementsSelectable={isCurrentUserOwner}
       >
-        {isCurrentUserOwner && (
-          <CanvasPanel
-            onRun={onRun}
-            onAddNode={(type) => {
-              if (!isCurrentUserOwner) return;
-
-              const {
-                width,
-                transform: [transformX, transformY, zoomLevel],
-              } = storeApi.getState();
-
-              const zoomMultiplier = 1 / zoomLevel;
-
-              // Figure out the center of the current viewport
-              const centerX =
-                -transformX * zoomMultiplier + (width * zoomMultiplier) / 2;
-
-              // Put the node at the 200px below the viewport top
-              const centerY =
-                -transformY * zoomMultiplier + 200 * zoomMultiplier;
-
-              addNode(type, centerX - NODE_BOX_WIDTH / 2, centerY);
-            }}
-          />
-        )}
         <Controls />
         <Background variant={BackgroundVariant.Dots} gap={20} size={1} />
       </ReactFlow>
-      <SidePanel onRun={onRun} />
+      <SidePanel />
     </Container>
   );
 }
