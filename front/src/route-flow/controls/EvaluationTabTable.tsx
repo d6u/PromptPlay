@@ -55,12 +55,15 @@ export default function EvaluationTabTable() {
       data[inputItem.id] = null;
     }
 
+    for (const outputItem of flowOutputItems) {
+      data[outputItem.id] = null;
+    }
+
     setSelectedColumns(data);
   }, [flowInputItems, flowOutputItems]);
 
   return (
     <>
-      {/* <Button>Upload</Button> */}
       <Textarea
         minRows={2}
         maxRows={4}
@@ -89,15 +92,33 @@ export default function EvaluationTabTable() {
         <thead>
           <tr>
             {flowInputItems.map((inputItem) => (
+              <th
+                key={inputItem.id}
+                style={{ textAlign: "center", borderBottomWidth: 1 }}
+              >
+                {inputItem.name}
+              </th>
+            ))}
+            {flowOutputItems.map((outputItem) => (
+              <th
+                key={outputItem.id}
+                colSpan={2}
+                style={{ textAlign: "center" }}
+              >
+                {outputItem.name}
+              </th>
+            ))}
+          </tr>
+          <tr>
+            {flowInputItems.map((inputItem) => (
               <th key={inputItem.id}>
-                <div>{inputItem.name}</div>
                 <Select
                   placeholder="Choose column from the CSV..."
                   value={selectedColumns[inputItem.id]}
-                  onChange={(e, value) => {
+                  onChange={(e, index) => {
                     setSelectedColumns((prev) => ({
                       ...prev,
-                      [inputItem.id]: value,
+                      [inputItem.id]: index,
                     }));
                   }}
                 >
@@ -110,16 +131,27 @@ export default function EvaluationTabTable() {
               </th>
             ))}
             {flowOutputItems.map((outputItem) => (
-              <th key={outputItem.id}>
-                <div>{outputItem.name}</div>
-                <Select placeholder="Choose column from the CSV...">
-                  {csvData[0]?.filter(identity).map((item, i) => (
-                    <Option key={i} value={i}>
-                      {item}
-                    </Option>
-                  ))}
-                </Select>
-              </th>
+              <>
+                <th key={outputItem.id}>
+                  <Select
+                    placeholder="Choose column from the CSV..."
+                    value={selectedColumns[outputItem.id]}
+                    onChange={(e, index) => {
+                      setSelectedColumns((prev) => ({
+                        ...prev,
+                        [outputItem.id]: index,
+                      }));
+                    }}
+                  >
+                    {csvData[0]?.filter(identity).map((item, i) => (
+                      <Option key={i} value={i}>
+                        {item}
+                      </Option>
+                    ))}
+                  </Select>
+                </th>
+                <th key={`${outputItem.id}-2`}></th>
+              </>
             ))}
           </tr>
         </thead>
@@ -130,9 +162,19 @@ export default function EvaluationTabTable() {
                 const index = selectedColumns[inputItem.id];
 
                 return (
-                  <td key={`${i}-${j}`}>
-                    {index !== null ? row[index] : "NULL"}
-                  </td>
+                  <td key={`${i}-${j}`}>{index !== null ? row[index] : ""}</td>
+                );
+              })}
+              {flowOutputItems.map((outputItem, j) => {
+                const index = selectedColumns[outputItem.id];
+
+                return (
+                  <>
+                    <td key={`${i}-${j}`}>
+                      {index !== null ? row[index] : ""}
+                    </td>
+                    <td></td>
+                  </>
                 );
               })}
             </tr>
