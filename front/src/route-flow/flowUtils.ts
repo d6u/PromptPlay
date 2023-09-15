@@ -227,7 +227,7 @@ export async function updateSpace(
     currentFlowContent = assoc(
       "nodes",
       map(
-        flowContentChange.nodes!,
+        flowContentChange.nodes,
         pick(["id", "type", "position", "data"])<ServerNode>
       ),
       currentFlowContent
@@ -239,7 +239,7 @@ export async function updateSpace(
       "edges",
       map(
         rejectInvalidEdges(
-          currentFlowContent.nodes!,
+          currentFlowContent.nodes,
           flowContentChange.edges!,
           currentFlowContent.nodeConfigs
         ),

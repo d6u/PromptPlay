@@ -87,7 +87,7 @@ export function run(
     nodeGraph[edge.source].push(edge.target);
     nodeIndegree[edge.target] += 1;
 
-    inputIdToOutputIdMap[edge.targetHandle!] = edge.sourceHandle!;
+    inputIdToOutputIdMap[edge.targetHandle] = edge.sourceHandle!;
   }
 
   const sub = new BehaviorSubject(0);

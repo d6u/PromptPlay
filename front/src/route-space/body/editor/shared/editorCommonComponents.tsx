@@ -22,7 +22,7 @@ export const FieldHelperText = styled.div<{ $type?: "error" | "success" }>`
         return "#b02e2e";
       case "success":
         return "#179648";
-      default:
+      case undefined:
         return "#545454";
     }
   }};

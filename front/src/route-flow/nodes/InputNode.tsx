@@ -89,7 +89,7 @@ export default function InputNode() {
                   name: chance.word(),
                   value: "",
                   valueType: InputValueType.String,
-                })(outputs!);
+                })(outputs);
 
                 setOutputs(newOutputs);
 

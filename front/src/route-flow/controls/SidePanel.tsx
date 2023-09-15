@@ -42,6 +42,9 @@ export default function SidePanel() {
 
   let content: ReactNode;
   switch (detailPanelContentType) {
+    case DetailPanelContentType.Off: {
+      break;
+    }
     case DetailPanelContentType.NodeConfig: {
       content = <PanelNodeConfig />;
       break;
@@ -58,8 +61,6 @@ export default function SidePanel() {
       content = <PanelChatGPTMessageConfig />;
       break;
     }
-    default:
-      break;
   }
 
   return (

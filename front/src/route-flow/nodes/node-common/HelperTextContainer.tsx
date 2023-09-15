@@ -16,7 +16,7 @@ export default function HelperTextContainer(props: Props) {
     case "success":
       color = "var(--joy-palette-success-500, #1F7A1F)";
       break;
-    default:
+    case undefined:
       color = "var(--FormHelperText-color, var(--joy-palette-text-tertiary))";
       break;
   }
