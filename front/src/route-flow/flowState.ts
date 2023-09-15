@@ -22,11 +22,11 @@ import {
   addEdge,
   Node,
 } from "reactflow";
-import { Subscription } from "rxjs";
+import { Observable, Subscription } from "rxjs";
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { queryFlowObservable } from "./flowGraphql";
-import { RunEventType, run } from "./flowRun";
+import { RunEvent, RunEventType, run } from "./flowRun";
 import {
   FlowContent,
   FlowInputItem,
@@ -37,6 +37,7 @@ import {
   NodeConfigs,
   NodeID,
   NodeType,
+  OutputID,
   OutputNodeConfig,
   ServerNode,
 } from "./flowTypes";
@@ -86,6 +87,10 @@ export type FlowState = {
 
   isRunning: boolean;
   runFlow(): void;
+  runFlowWithInputVariableMap(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    inputVariableMap: Record<OutputID, any>
+  ): Observable<RunEvent>;
 
   // States for ReactFlow
   nodes: LocalNode[];
@@ -230,7 +235,15 @@ export const useFlowStore = create<FlowState>()(
 
           set({ isRunning: true });
 
-          run(edges, nodeConfigs).subscribe({
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const inputVariableMap: Record<OutputID, any> = {};
+
+          const flowInputItems = flowInputItemsSelector(get());
+          for (const inputItem of flowInputItems) {
+            inputVariableMap[inputItem.id] = inputItem.value;
+          }
+
+          run(edges, nodeConfigs, inputVariableMap).subscribe({
             next(data) {
               switch (data.type) {
                 case RunEventType.NodeConfigChange: {
@@ -253,6 +266,13 @@ export const useFlowStore = create<FlowState>()(
               set({ isRunning: false });
             },
           });
+        },
+        runFlowWithInputVariableMap(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          inputVariableMap: Record<OutputID, any>
+        ): Observable<RunEvent> {
+          const { edges, nodeConfigs } = get();
+          return run(edges, nodeConfigs, inputVariableMap);
         },
 
         nodes: [],

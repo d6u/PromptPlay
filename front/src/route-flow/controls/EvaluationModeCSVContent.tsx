@@ -3,41 +3,43 @@ import {
   AccordionDetails,
   AccordionGroup,
   AccordionSummary,
+  Button,
   Option,
   Select,
   Table,
   Textarea,
 } from "@mui/joy";
 import Papa from "papaparse";
-import { identity } from "ramda";
+import { adjust, assoc, identity, mergeLeft, path } from "ramda";
 import { ReactNode, useEffect, useState } from "react";
+import { concatMap, from, map, reduce } from "rxjs";
+import { RunEvent, RunEventType, run } from "../flowRun";
 import {
   FlowState,
   flowInputItemsSelector,
   flowOutputItemsSelector,
   useFlowStore,
 } from "../flowState";
+import { InputID, NodeType, OutputID, OutputNodeConfig } from "../flowTypes";
 import { Section } from "./controls-common";
 
 const selector = (state: FlowState) => ({
+  edges: state.edges,
+  nodeConfigs: state.nodeConfigs,
   flowInputItems: flowInputItemsSelector(state),
   flowOutputItems: flowOutputItemsSelector(state),
 });
 
 export default function EvaluationModeCSVContent() {
-  const [csvContent, setCsvContent] = useState<string>("");
-  const [csvData, setCsvData] = useState<string[][]>([]);
-
-  useEffect(() => {
-    const { data } = Papa.parse<string[]>(csvContent);
-    setCsvData(data);
-  }, [csvContent]);
-
-  const { flowInputItems, flowOutputItems } = useFlowStore(selector);
+  const { edges, nodeConfigs, flowInputItems, flowOutputItems } =
+    useFlowStore(selector);
 
   const [selectedColumns, setSelectedColumns] = useState<
     Record<string, number | null>
   >({});
+  const [generatedResult, setGeneratedResult] = useState<
+    Record<InputID, string>[]
+  >([]);
 
   useEffect(() => {
     const data: Record<string, number | null> = {};
@@ -52,6 +54,20 @@ export default function EvaluationModeCSVContent() {
 
     setSelectedColumns(data);
   }, [flowInputItems, flowOutputItems]);
+
+  const [csvContent, setCsvContent] = useState<string>("");
+  const [csvData, setCsvData] = useState<string[][]>([]);
+
+  useEffect(() => {
+    const { data } = Papa.parse<string[]>(csvContent);
+    setCsvData(data);
+
+    const r = [];
+    for (let i = 0; i < data.length - 1; i++) {
+      r.push({});
+    }
+    setGeneratedResult(r);
+  }, [csvContent]);
 
   const variableMapTableFirstHeaderRow: ReactNode[] = [];
   const variableMapTableSecondHeaderRow: ReactNode[] = [];
@@ -138,7 +154,10 @@ export default function EvaluationModeCSVContent() {
       cells.push(
         <td key={`${outputItem.id}`}>{index !== null ? row[index] : ""}</td>
       );
-      cells.push(<td key={`${outputItem.id}-result`}></td>);
+
+      const resultValue =
+        path([rowIndex, outputItem.id], generatedResult) ?? "";
+      cells.push(<td key={`${outputItem.id}-result`}>{resultValue}</td>);
     }
 
     variableMapTableBodyRows.push(<tr key={rowIndex}>{cells}</tr>);
@@ -186,6 +205,71 @@ export default function EvaluationModeCSVContent() {
           </AccordionSummary>
           <AccordionDetails>
             <Section style={{ overflow: "auto" }}>
+              <Button
+                color="success"
+                onClick={() => {
+                  const maps = csvData.slice(1).map((row) => {
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    const inputVariableMap: Record<OutputID, any> = {};
+
+                    flowInputItems.forEach((inputItem) => {
+                      const index = selectedColumns[inputItem.id];
+                      const value = index !== null ? row[index] : "";
+                      inputVariableMap[inputItem.id] = value;
+                    });
+
+                    return inputVariableMap;
+                  });
+
+                  from(maps)
+                    .pipe(
+                      concatMap((inputVariableMap, index) => {
+                        return run(edges, nodeConfigs, inputVariableMap).pipe(
+                          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                          reduce<RunEvent, Record<InputID, any>>(
+                            (acc, event) => {
+                              if (
+                                event.type !== RunEventType.NodeConfigChange
+                              ) {
+                                return acc;
+                              }
+                              const config = nodeConfigs[event.nodeId]!;
+                              if (config.nodeType !== NodeType.OutputNode) {
+                                return acc;
+                              }
+                              const change =
+                                event.nodeChange as Partial<OutputNodeConfig>;
+                              if (!change.inputs) {
+                                return acc;
+                              }
+                              for (const item of change.inputs) {
+                                acc = assoc(item.id, item.value, acc);
+                              }
+                              return acc;
+                            },
+                            {}
+                          ),
+                          map((outputs) => ({ outputs, index }))
+                        );
+                      })
+                    )
+                    .subscribe({
+                      next({ outputs, index }) {
+                        setGeneratedResult((prev) =>
+                          adjust(index, mergeLeft(outputs), prev)
+                        );
+                      },
+                      error(e) {
+                        console.error(e);
+                      },
+                      complete() {
+                        console.log("all complete");
+                      },
+                    });
+                }}
+              >
+                Run
+              </Button>
               <Table>
                 <thead>
                   <tr>{variableMapTableFirstHeaderRow}</tr>

@@ -25,7 +25,6 @@ import {
   ChatGPTMessageNodeConfig,
   FlowOutputItem,
   InputID,
-  InputNodeConfig,
   JavaScriptFunctionNodeConfig,
   LocalEdge,
   NodeConfig,
@@ -44,7 +43,7 @@ export enum RunEventType {
   NodeAugmentChange = "NodeAugmentChange",
 }
 
-type RunEvent = NodeConfigChangeEvent | NodeAugmentChangeEvent;
+export type RunEvent = NodeConfigChangeEvent | NodeAugmentChangeEvent;
 
 type NodeConfigChangeEvent = {
   type: RunEventType.NodeConfigChange;
@@ -74,7 +73,7 @@ export function run(
 
   const inputIdToOutputIdMap: Record<InputID, OutputID | undefined> = {};
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const outputIdToValueMap: Record<OutputID, any> = {};
+  const outputIdToValueMap: Record<OutputID, any> = { ...inputVariableMap };
 
   for (const edge of edges) {
     // nodeGraph[edge.source] contains duplicate edge.target,
@@ -129,7 +128,7 @@ export function run(
 
       switch (nodeConfig.nodeType) {
         case NodeType.InputNode: {
-          handleInputNode(nodeConfig, outputIdToValueMap);
+          // handleInputNode(nodeConfig, outputIdToValueMap);
           obs = EMPTY;
           break;
         }
@@ -236,15 +235,15 @@ export function run(
   );
 }
 
-function handleInputNode(
-  data: InputNodeConfig,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  outputIdToValueMap: Record<OutputID, any>
-) {
-  for (const output of data.outputs) {
-    outputIdToValueMap[output.id] = output.value;
-  }
-}
+// function handleInputNode(
+//   data: InputNodeConfig,
+//   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+//   outputIdToValueMap: Record<OutputID, any>
+// ) {
+//   for (const output of data.outputs) {
+//     outputIdToValueMap[output.id] = output.value;
+//   }
+// }
 
 function handleOutputNode(
   data: OutputNodeConfig,
