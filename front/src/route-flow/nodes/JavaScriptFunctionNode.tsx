@@ -11,6 +11,7 @@ import { LabelWithIconContainer } from "../flow-common/flow-common";
 import { CopyIcon } from "../flow-common/flow-common";
 import { FlowState, useFlowStore } from "../flowState";
 import {
+  InputID,
   JavaScriptFunctionNodeConfig,
   NodeID,
   NodeInputItem,
@@ -113,7 +114,7 @@ export default function JavaScriptFunctionNode() {
             <AddVariableButton
               onClick={() => {
                 const newInputs = append<NodeInputItem>({
-                  id: `${nodeId}/${nanoid()}`,
+                  id: `${nodeId}/${nanoid()}` as InputID,
                   name: chance.word(),
                 })(inputs);
 

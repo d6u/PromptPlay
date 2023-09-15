@@ -13,11 +13,14 @@ import { UPDATE_SPACE_FLOW_CONTENT_MUTATION } from "./flowGraphql";
 import { LocalNode } from "./flowState";
 import {
   FlowContent,
+  InputID,
   InputValueType,
   NodeConfig,
   NodeConfigs,
+  NodeID,
   NodeType,
   OpenAIChatModel,
+  OutputID,
   ServerEdge,
   ServerNode,
 } from "./flowTypes";
@@ -30,7 +33,7 @@ export function createNode(type: NodeType, x: number, y: number): ServerNode {
   switch (type) {
     case NodeType.InputNode: {
       return {
-        id: nanoid(),
+        id: nanoid() as NodeID,
         type: NodeType.InputNode,
         position,
         data: null,
@@ -38,7 +41,7 @@ export function createNode(type: NodeType, x: number, y: number): ServerNode {
     }
     case NodeType.OutputNode: {
       return {
-        id: nanoid(),
+        id: nanoid() as NodeID,
         position,
         type: NodeType.OutputNode,
         data: null,
@@ -46,7 +49,7 @@ export function createNode(type: NodeType, x: number, y: number): ServerNode {
     }
     case NodeType.JavaScriptFunctionNode: {
       return {
-        id: nanoid(),
+        id: nanoid() as NodeID,
         position,
         type: NodeType.JavaScriptFunctionNode,
         data: null,
@@ -54,7 +57,7 @@ export function createNode(type: NodeType, x: number, y: number): ServerNode {
     }
     case NodeType.ChatGPTMessageNode: {
       return {
-        id: nanoid(),
+        id: nanoid() as NodeID,
         position,
         type: NodeType.ChatGPTMessageNode,
         data: null,
@@ -62,7 +65,7 @@ export function createNode(type: NodeType, x: number, y: number): ServerNode {
     }
     case NodeType.ChatGPTChatCompletionNode: {
       return {
-        id: nanoid(),
+        id: nanoid() as NodeID,
         position,
         type: NodeType.ChatGPTChatCompletionNode,
         data: null,
@@ -79,7 +82,7 @@ export function createNodeConfig(node: LocalNode): NodeConfig {
         nodeType: NodeType.InputNode,
         outputs: [
           {
-            id: `${node.id}/${nanoid()}`,
+            id: `${node.id}/${nanoid()}` as OutputID,
             name: chance.word(),
             value: null,
             valueType: InputValueType.String,
@@ -93,7 +96,7 @@ export function createNodeConfig(node: LocalNode): NodeConfig {
         nodeType: NodeType.OutputNode,
         inputs: [
           {
-            id: `${node.id}/${nanoid()}`,
+            id: `${node.id}/${nanoid()}` as InputID,
             name: chance.word(),
             value: null,
           },
@@ -108,7 +111,7 @@ export function createNodeConfig(node: LocalNode): NodeConfig {
         javaScriptCode: 'return "Hello, World!"',
         outputs: [
           {
-            id: `${node.id}/output`,
+            id: `${node.id}/output` as OutputID,
             name: "output",
             value: null,
           },
@@ -121,11 +124,11 @@ export function createNodeConfig(node: LocalNode): NodeConfig {
         nodeType: NodeType.ChatGPTMessageNode,
         inputs: [
           {
-            id: `${node.id}/messages_in`,
+            id: `${node.id}/messages_in` as InputID,
             name: "messages",
           },
           {
-            id: `${node.id}/${nanoid()}`,
+            id: `${node.id}/${nanoid()}` as InputID,
             name: "topic",
           },
         ],
@@ -133,12 +136,12 @@ export function createNodeConfig(node: LocalNode): NodeConfig {
         content: "Write a poem about {{topic}} in fewer than 20 words.",
         outputs: [
           {
-            id: `${node.id}/message`,
+            id: `${node.id}/message` as OutputID,
             name: "message",
             value: null,
           },
           {
-            id: `${node.id}/messages_out`,
+            id: `${node.id}/messages_out` as OutputID,
             name: "messages",
             value: null,
           },
@@ -151,7 +154,7 @@ export function createNodeConfig(node: LocalNode): NodeConfig {
         nodeType: NodeType.ChatGPTChatCompletionNode,
         inputs: [
           {
-            id: `${node.id}/messages_in`,
+            id: `${node.id}/messages_in` as InputID,
             name: "messages",
           },
         ],
@@ -160,17 +163,17 @@ export function createNodeConfig(node: LocalNode): NodeConfig {
         stop: [],
         outputs: [
           {
-            id: `${node.id}/content`,
+            id: `${node.id}/content` as OutputID,
             name: "content",
             value: null,
           },
           {
-            id: `${node.id}/message`,
+            id: `${node.id}/message` as OutputID,
             name: "message",
             value: null,
           },
           {
-            id: `${node.id}/messages_out`,
+            id: `${node.id}/messages_out` as OutputID,
             name: "messages",
             value: null,
           },

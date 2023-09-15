@@ -78,7 +78,7 @@ export default function FlowCanvas() {
 
   const onNodeDragStop: NodeDragHandler = useCallback(
     (event, node) => {
-      updateNode(node.id, { position: node.position });
+      updateNode((node as LocalNode).id, { position: node.position });
     },
     [updateNode]
   );

@@ -77,8 +77,8 @@ export type FlowState = {
 
   detailPanelContentType: DetailPanelContentType;
   setDetailPanelContentType(type: DetailPanelContentType): void;
-  detailPanelSelectedNodeId: string | null;
-  setDetailPanelSelectedNodeId(nodeId: string): void;
+  detailPanelSelectedNodeId: NodeID | null;
+  setDetailPanelSelectedNodeId(nodeId: NodeID): void;
 
   localNodeAugments: NodeAugments;
   resetAugments(): void;
@@ -135,7 +135,7 @@ export const useFlowStore = create<FlowState>()(
       }
 
       function applyLocalNodeConfigChange(
-        nodeId: string,
+        nodeId: NodeID,
         change: Partial<NodeConfig>
       ) {
         const nodes = get().nodes;
@@ -192,7 +192,7 @@ export const useFlowStore = create<FlowState>()(
           set({ detailPanelContentType: type });
         },
         detailPanelSelectedNodeId: null,
-        setDetailPanelSelectedNodeId(id: string) {
+        setDetailPanelSelectedNodeId(id: NodeID) {
           set({ detailPanelSelectedNodeId: id });
         },
 

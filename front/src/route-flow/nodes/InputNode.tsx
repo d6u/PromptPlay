@@ -12,6 +12,7 @@ import {
   InputValueType,
   NodeID,
   NodeType,
+  OutputID,
 } from "../flowTypes";
 import AddVariableButton from "./node-common/AddVariableButton";
 import HeaderSection from "./node-common/HeaderSection";
@@ -84,7 +85,7 @@ export default function InputNode() {
             <AddVariableButton
               onClick={() => {
                 const newOutputs = append<FlowInputItem>({
-                  id: `${nodeId}/${nanoid()}`,
+                  id: `${nodeId}/${nanoid()}` as OutputID,
                   name: chance.word(),
                   value: "",
                   valueType: InputValueType.String,
