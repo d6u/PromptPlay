@@ -1,13 +1,11 @@
 import { Node, OnNodesChange, OnEdgesChange, OnConnect } from "reactflow";
-import { Observable, Subscription } from "rxjs";
-import { RunEvent } from "./flowRun";
+import { Subscription } from "rxjs";
 import {
   LocalEdge,
   NodeConfig,
   NodeConfigs,
   NodeID,
   NodeType,
-  OutputID,
   ServerNode,
 } from "./flowTypes";
 
@@ -49,10 +47,6 @@ export type ClientSlice = {
 
   isRunning: boolean;
   runFlow(): void;
-  runFlowWithInputVariableMap(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    inputVariableMap: Record<OutputID, any>
-  ): Observable<RunEvent>;
 };
 
 // --- End of store types ---

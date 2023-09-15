@@ -1,7 +1,6 @@
 import { assoc } from "ramda";
-import { Observable } from "rxjs";
 import { StateCreator } from "zustand";
-import { run, RunEventType, RunEvent } from "./flowRun";
+import { run, RunEventType } from "./flowRun";
 import { NodeID, OutputID } from "./flowTypes";
 import { flowInputItemsSelector } from "./storeFlow";
 import {
@@ -89,12 +88,5 @@ export const createClientSlice: StateCreator<FlowState, [], [], ClientSlice> = (
         set({ isRunning: false });
       },
     });
-  },
-  runFlowWithInputVariableMap(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    inputVariableMap: Record<OutputID, any>
-  ): Observable<RunEvent> {
-    const { edges, nodeConfigs } = get();
-    return run(edges, nodeConfigs, inputVariableMap);
   },
 });
