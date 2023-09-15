@@ -80,6 +80,19 @@ const theme = extendTheme({
         size: "sm",
       },
     },
+    JoyTable: {
+      defaultProps: {
+        size: "sm",
+        borderAxis: "both",
+        noWrap: true,
+        hoverRow: true,
+        sx: {
+          tableLayout: "auto",
+          "--Table-headerUnderlineThickness": "1px",
+          "--TableCell-headBackground": "#ebebeb",
+        },
+      },
+    },
   },
 });
 

@@ -8,6 +8,7 @@ import { FlowState, useFlowStore } from "../flowState";
 import { DetailPanelContentType } from "../flowState";
 import {
   FlowOutputItem,
+  InputID,
   NodeID,
   NodeType,
   OutputNodeConfig,
@@ -81,7 +82,9 @@ export default function OutputNode() {
           <IconButton
             variant="outlined"
             onClick={() =>
-              setDetailPanelContentType(DetailPanelContentType.FlowConfig)
+              setDetailPanelContentType(
+                DetailPanelContentType.EvaluationModeSimple
+              )
             }
           >
             <StyledIconGear />
@@ -90,7 +93,7 @@ export default function OutputNode() {
             <AddVariableButton
               onClick={() => {
                 const newInputs = append<FlowOutputItem>({
-                  id: `${nodeId}/${nanoid()}`,
+                  id: `${nodeId}/${nanoid()}` as InputID,
                   name: chance.word(),
                   value: null,
                 })(inputs);

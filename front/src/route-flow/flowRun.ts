@@ -23,7 +23,8 @@ import { NodeAugment } from "./flowState";
 import {
   ChatGPTChatCompletionNodeConfig,
   ChatGPTMessageNodeConfig,
-  InputNodeConfig,
+  FlowOutputItem,
+  InputID,
   JavaScriptFunctionNodeConfig,
   LocalEdge,
   NodeConfig,
@@ -31,6 +32,7 @@ import {
   NodeID,
   NodeOutputItem,
   NodeType,
+  OutputID,
   OutputNodeConfig,
 } from "./flowTypes";
 
@@ -41,7 +43,12 @@ export enum RunEventType {
   NodeAugmentChange = "NodeAugmentChange",
 }
 
-type RunEvent = NodeConfigChangeEvent | NodeAugmentChangeEvent;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type FlowInputVariableMap = Record<OutputID, any>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type FlowOutputVariableMap = Record<InputID, any>;
+
+export type RunEvent = NodeConfigChangeEvent | NodeAugmentChangeEvent;
 
 type NodeConfigChangeEvent = {
   type: RunEventType.NodeConfigChange;
@@ -57,19 +64,19 @@ type NodeAugmentChangeEvent = {
 
 export function run(
   edges: LocalEdge[],
-  nodeConfigs: NodeConfigs
+  nodeConfigs: NodeConfigs,
+  inputVariableMap: FlowInputVariableMap
 ): Observable<RunEvent> {
   const nodeGraph: Record<NodeID, NodeID[]> = {};
   const nodeIndegree: Record<NodeID, number> = {};
 
-  for (const nodeId of Object.keys(nodeConfigs)) {
+  for (const nodeId of Object.keys(nodeConfigs) as NodeID[]) {
     nodeGraph[nodeId] = [];
     nodeIndegree[nodeId] = 0;
   }
 
-  const inputIdToOutputIdMap: Record<string, string | undefined> = {};
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const outputIdToValueMap: Record<string, any> = {};
+  const inputIdToOutputIdMap: Record<InputID, OutputID | undefined> = {};
+  const outputIdToValueMap: FlowInputVariableMap = { ...inputVariableMap };
 
   for (const edge of edges) {
     // nodeGraph[edge.source] contains duplicate edge.target,
@@ -87,9 +94,12 @@ export function run(
 
   const obs = new Observable<{ nodeId: NodeID; nodeConfig: NodeConfig }>(
     (subscriber) => {
-      const queue: string[] = [];
+      const queue: NodeID[] = [];
 
-      for (const [id, count] of Object.entries(nodeIndegree)) {
+      for (const [id, count] of Object.entries(nodeIndegree) as [
+        NodeID,
+        number
+      ][]) {
         if (count === 0) {
           queue.push(id);
         }
@@ -121,7 +131,6 @@ export function run(
 
       switch (nodeConfig.nodeType) {
         case NodeType.InputNode: {
-          handleInputNode(nodeConfig, outputIdToValueMap);
           obs = EMPTY;
           break;
         }
@@ -228,21 +237,11 @@ export function run(
   );
 }
 
-function handleInputNode(
-  data: InputNodeConfig,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  outputIdToValueMap: { [key: string]: any }
-) {
-  for (const output of data.outputs) {
-    outputIdToValueMap[output.id] = output.value;
-  }
-}
-
 function handleOutputNode(
   data: OutputNodeConfig,
-  inputIdToOutputIdMap: { [key: string]: string | undefined },
+  inputIdToOutputIdMap: Record<InputID, OutputID | undefined>,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  outputIdToValueMap: { [key: string]: any }
+  outputIdToValueMap: Record<OutputID, any>
 ): Observable<Partial<OutputNodeConfig>> {
   let inputs = data.inputs;
 
@@ -251,12 +250,12 @@ function handleOutputNode(
 
     if (outputId) {
       const outputValue = outputIdToValueMap[outputId];
-      inputs = adjust<NodeOutputItem>(
+      inputs = adjust<FlowOutputItem>(
         i,
         assoc("value", outputValue ?? null)
       )(inputs);
     } else {
-      inputs = adjust<NodeOutputItem>(i, assoc("value", null))(inputs);
+      inputs = adjust<FlowOutputItem>(i, assoc("value", null))(inputs);
     }
   }
 
@@ -265,9 +264,9 @@ function handleOutputNode(
 
 function handleJavaScriptFunctionNode(
   data: JavaScriptFunctionNodeConfig,
-  inputIdToOutputIdMap: { [key: string]: string | undefined },
+  inputIdToOutputIdMap: Record<InputID, OutputID | undefined>,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  outputIdToValueMap: { [key: string]: any }
+  outputIdToValueMap: Record<OutputID, any>
 ): Observable<Partial<JavaScriptFunctionNodeConfig>> {
   return defer(async () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -301,9 +300,9 @@ function handleJavaScriptFunctionNode(
 
 function handleChatGPTMessageNode(
   data: ChatGPTMessageNodeConfig,
-  inputIdToOutputIdMap: { [key: string]: string | undefined },
+  inputIdToOutputIdMap: Record<InputID, OutputID | undefined>,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  outputIdToValueMap: { [key: string]: any }
+  outputIdToValueMap: Record<OutputID, any>
 ): Observable<Partial<ChatGPTMessageNodeConfig>> {
   // Prepare inputs
   // ----------
@@ -350,9 +349,9 @@ function handleChatGPTMessageNode(
 
 function handleChatGPTChatNode(
   data: ChatGPTChatCompletionNodeConfig,
-  inputIdToOutputIdMap: { [key: string]: string | undefined },
+  inputIdToOutputIdMap: Record<InputID, OutputID | undefined>,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  outputIdToValueMap: { [key: string]: any }
+  outputIdToValueMap: Record<OutputID, any>
 ): Observable<Partial<ChatGPTChatCompletionNodeConfig>> {
   return defer(() => {
     // Prepare inputs

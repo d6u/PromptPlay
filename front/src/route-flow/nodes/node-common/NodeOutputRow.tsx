@@ -5,6 +5,7 @@ import {
   FlowState,
   useFlowStore,
 } from "../../flowState";
+import { NodeID } from "../../flowTypes";
 import { ROW_MARGIN_TOP } from "./NodeInputModifyRow";
 
 export const VARIABLE_LABEL_HEIGHT = 32;
@@ -60,7 +61,7 @@ export default function NodeOutputRow(props: Props) {
   const { setDetailPanelContentType, setDetailPanelSelectedNodeId } =
     useFlowStore(selector);
 
-  const nodeId = useNodeId()!;
+  const nodeId = useNodeId() as NodeID;
 
   return (
     <Container>

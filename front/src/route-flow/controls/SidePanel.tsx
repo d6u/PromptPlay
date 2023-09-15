@@ -4,14 +4,13 @@ import { ReactNode } from "react";
 import CrossIcon from "../../component-icons/CrossIcon";
 import { DetailPanelContentType, FlowState, useFlowStore } from "../flowState";
 import PanelChatGPTMessageConfig from "./PanelChatGPTMessageConfig";
-import PanelFlowInputOutput from "./PanelFlowInputOutput";
+import PanelEvaluationModeCSV from "./PanelEvaluationModeCSV";
+import PanelEvaluationModeSimple from "./PanelEvaluationModeSimple";
 import PanelNodeConfig from "./PanelNodeConfig";
 
 const Container = styled.div<{ $hide: boolean }>`
   position: relative;
   height: 100%;
-  width: 50vw;
-  max-width: 600px;
   background-color: #fff;
   border-left: 1px solid #ddd;
   display: ${(props) => (props.$hide ? "none" : "initial")};
@@ -37,11 +36,7 @@ const selector = (state: FlowState) => ({
   setDetailPanelContentType: state.setDetailPanelContentType,
 });
 
-type Props = {
-  onRun: () => void;
-};
-
-export default function SidePanel(props: Props) {
+export default function SidePanel() {
   const { detailPanelContentType, setDetailPanelContentType } =
     useFlowStore(selector);
 
@@ -51,20 +46,29 @@ export default function SidePanel(props: Props) {
       content = <PanelNodeConfig />;
       break;
     }
-    case DetailPanelContentType.FlowConfig: {
-      content = <PanelFlowInputOutput onRun={props.onRun} />;
+    case DetailPanelContentType.EvaluationModeSimple: {
+      content = <PanelEvaluationModeSimple />;
+      break;
+    }
+    case DetailPanelContentType.EvaluationModeCSV: {
+      content = <PanelEvaluationModeCSV />;
       break;
     }
     case DetailPanelContentType.ChatGPTMessageConfig: {
       content = <PanelChatGPTMessageConfig />;
       break;
     }
+    default:
+      break;
   }
 
   return (
-    <Container $hide={!detailPanelContentType}>
+    <Container $hide={detailPanelContentType === DetailPanelContentType.Off}>
       <StyledCloseButtonWrapper>
-        <IconButton onClick={() => setDetailPanelContentType(null)}>
+        <IconButton
+          size="md"
+          onClick={() => setDetailPanelContentType(DetailPanelContentType.Off)}
+        >
           <StyledIconCross />
         </IconButton>
       </StyledCloseButtonWrapper>

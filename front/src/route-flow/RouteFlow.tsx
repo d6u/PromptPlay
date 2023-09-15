@@ -1,4 +1,3 @@
-import styled from "@emotion/styled";
 import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ReactFlowProvider } from "reactflow";
@@ -9,14 +8,10 @@ import { pathToCurrentContent } from "../static/routeConfigs";
 import FlowCanvas from "./FlowCanvas";
 import { SPACE_FLOW_QUERY } from "./flowGraphql";
 import { FlowState, useFlowStore } from "./flowState";
-
-const Container = styled.div`
-  flex-grow: 1;
-  position: relative;
-  min-height: 0;
-`;
+import ToolBar from "./tool-bar/ToolBar";
 
 const selector = (state: FlowState) => ({
+  isCurrentUserOwner: state.isCurrentUserOwner,
   isInitialized: state.isInitialized,
   fetchFlowConfiguration: state.fetchFlowConfiguration,
 });
@@ -27,7 +22,8 @@ export default function RouteFlow() {
   // TODO: Properly handle spaceId not being present
   const { spaceId = "" } = useParams<{ spaceId: string }>();
 
-  const { isInitialized, fetchFlowConfiguration } = useFlowStore(selector);
+  const { isCurrentUserOwner, isInitialized, fetchFlowConfiguration } =
+    useFlowStore(selector);
 
   useEffect(() => {
     const subscription = fetchFlowConfiguration(spaceId);
@@ -77,8 +73,9 @@ export default function RouteFlow() {
   }
 
   return (
-    <Container>
-      <ReactFlowProvider>{isInitialized && <FlowCanvas />}</ReactFlowProvider>
-    </Container>
+    <ReactFlowProvider>
+      {isCurrentUserOwner && <ToolBar />}
+      {isInitialized && <FlowCanvas />}
+    </ReactFlowProvider>
   );
 }

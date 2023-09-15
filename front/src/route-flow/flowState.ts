@@ -1,3 +1,4 @@
+import { filter, flatten, map } from "ramda";
 import adjust from "ramda/es/adjust";
 import append from "ramda/es/append";
 import assoc from "ramda/es/assoc";
@@ -21,17 +22,23 @@ import {
   addEdge,
   Node,
 } from "reactflow";
-import { from, Subscription } from "rxjs";
+import { Observable, Subscription } from "rxjs";
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { queryFlowObservable } from "./flowGraphql";
+import { RunEvent, RunEventType, run } from "./flowRun";
 import {
   FlowContent,
+  FlowInputItem,
+  FlowOutputItem,
+  InputNodeConfig,
   LocalEdge,
   NodeConfig,
   NodeConfigs,
   NodeID,
   NodeType,
+  OutputID,
+  OutputNodeConfig,
   ServerNode,
 } from "./flowTypes";
 import {
@@ -55,8 +62,10 @@ export type NodeAugment = {
 // Navigation types
 
 export enum DetailPanelContentType {
+  Off = "Off",
+  EvaluationModeSimple = "EvaluationModeSimple",
+  EvaluationModeCSV = "EvaluationModeCSV",
   NodeConfig = "NodeConfig",
-  FlowConfig = "FlowConfig",
   ChatGPTMessageConfig = "ChatGPTMessageConfig",
 }
 
@@ -67,14 +76,21 @@ export type FlowState = {
   spaceId: string | null;
   fetchFlowConfiguration(spaceId: string): Subscription;
 
-  detailPanelContentType: DetailPanelContentType | null;
-  setDetailPanelContentType(type: DetailPanelContentType | null): void;
-  detailPanelSelectedNodeId: string | null;
-  setDetailPanelSelectedNodeId(nodeId: string): void;
+  detailPanelContentType: DetailPanelContentType;
+  setDetailPanelContentType(type: DetailPanelContentType): void;
+  detailPanelSelectedNodeId: NodeID | null;
+  setDetailPanelSelectedNodeId(nodeId: NodeID): void;
 
   localNodeAugments: NodeAugments;
   resetAugments(): void;
   updateNodeAguemnt(nodeId: NodeID, change: Partial<NodeAugment>): void;
+
+  isRunning: boolean;
+  runFlow(): void;
+  runFlowWithInputVariableMap(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    inputVariableMap: Record<OutputID, any>
+  ): Observable<RunEvent>;
 
   // States for ReactFlow
   nodes: LocalNode[];
@@ -124,7 +140,7 @@ export const useFlowStore = create<FlowState>()(
       }
 
       function applyLocalNodeConfigChange(
-        nodeId: string,
+        nodeId: NodeID,
         change: Partial<NodeConfig>
       ) {
         const nodes = get().nodes;
@@ -155,7 +171,7 @@ export const useFlowStore = create<FlowState>()(
         fetchFlowConfiguration(spaceId: string): Subscription {
           set({ spaceId });
 
-          return from(queryFlowObservable(spaceId)).subscribe({
+          return queryFlowObservable(spaceId).subscribe({
             next({
               isCurrentUserOwner,
               flowContent: { nodes = [], edges = [], nodeConfigs = {} },
@@ -176,12 +192,12 @@ export const useFlowStore = create<FlowState>()(
           });
         },
 
-        detailPanelContentType: null,
-        setDetailPanelContentType(type: DetailPanelContentType | null) {
+        detailPanelContentType: DetailPanelContentType.Off,
+        setDetailPanelContentType(type: DetailPanelContentType) {
           set({ detailPanelContentType: type });
         },
         detailPanelSelectedNodeId: null,
-        setDetailPanelSelectedNodeId(id: string) {
+        setDetailPanelSelectedNodeId(id: NodeID) {
           set({ detailPanelSelectedNodeId: id });
         },
 
@@ -203,6 +219,60 @@ export const useFlowStore = create<FlowState>()(
           localNodeAugments = assoc(nodeId, augment, localNodeAugments);
 
           set({ localNodeAugments });
+        },
+
+        isRunning: false,
+        runFlow() {
+          const {
+            resetAugments,
+            edges,
+            nodeConfigs,
+            updateNodeConfigDebounced,
+            updateNodeAguemnt,
+          } = get();
+
+          resetAugments();
+
+          set({ isRunning: true });
+
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const inputVariableMap: Record<OutputID, any> = {};
+
+          const flowInputItems = flowInputItemsSelector(get());
+          for (const inputItem of flowInputItems) {
+            inputVariableMap[inputItem.id] = inputItem.value;
+          }
+
+          run(edges, nodeConfigs, inputVariableMap).subscribe({
+            next(data) {
+              switch (data.type) {
+                case RunEventType.NodeConfigChange: {
+                  const { nodeId, nodeChange } = data;
+                  updateNodeConfigDebounced(nodeId, nodeChange);
+                  break;
+                }
+                case RunEventType.NodeAugmentChange: {
+                  const { nodeId, augmentChange } = data;
+                  updateNodeAguemnt(nodeId, augmentChange);
+                  break;
+                }
+              }
+            },
+            error(e) {
+              console.error(e);
+              set({ isRunning: false });
+            },
+            complete() {
+              set({ isRunning: false });
+            },
+          });
+        },
+        runFlowWithInputVariableMap(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          inputVariableMap: Record<OutputID, any>
+        ): Observable<RunEvent> {
+          const { edges, nodeConfigs } = get();
+          return run(edges, nodeConfigs, inputVariableMap);
         },
 
         nodes: [],
@@ -349,3 +419,25 @@ export const useFlowStore = create<FlowState>()(
     }
   )
 );
+
+export function flowInputItemsSelector(state: FlowState): FlowInputItem[] {
+  const { nodes, nodeConfigs } = state;
+
+  return pipe(
+    filter(propEq<string>(NodeType.InputNode, "type")),
+    map((node) => nodeConfigs[node.id] as InputNodeConfig),
+    map((nodeConfig) => nodeConfig.outputs),
+    flatten
+  )(nodes);
+}
+
+export function flowOutputItemsSelector(state: FlowState): FlowOutputItem[] {
+  const { nodes, nodeConfigs } = state;
+
+  return pipe(
+    filter(propEq<string>(NodeType.OutputNode, "type")),
+    map((node) => nodeConfigs[node.id] as OutputNodeConfig),
+    map((nodeConfig) => nodeConfig.inputs),
+    flatten
+  )(nodes);
+}

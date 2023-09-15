@@ -16,6 +16,7 @@ import { CopyIcon, LabelWithIconContainer } from "../flow-common/flow-common";
 import { DetailPanelContentType, FlowState, useFlowStore } from "../flowState";
 import {
   ChatGPTMessageNodeConfig,
+  InputID,
   NodeID,
   NodeInputItem,
   NodeType,
@@ -128,7 +129,7 @@ export default function ChatGPTMessageNode() {
             <AddVariableButton
               onClick={() => {
                 const newInputs = append<NodeInputItem>({
-                  id: `${nodeId}/${nanoid()}`,
+                  id: `${nodeId}/${nanoid()}` as InputID,
                   name: chance.word(),
                 })(inputs);
 

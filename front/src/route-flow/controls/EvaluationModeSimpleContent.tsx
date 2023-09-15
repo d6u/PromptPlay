@@ -1,4 +1,4 @@
-import Button from "@mui/joy/Button";
+import { Button } from "@mui/joy";
 import {
   adjust,
   assoc,
@@ -26,22 +26,18 @@ import {
   OutputValueItem,
   HeaderSection,
   RawValue,
-  PanelContentContainer,
 } from "./controls-common";
 
 const selector = (state: FlowState) => ({
   isCurrentUserOwner: state.isCurrentUserOwner,
+  runFlow: state.runFlow,
   nodeConfigs: state.nodeConfigs,
   nodes: state.nodes,
   updateNodeConfig: state.updateNodeConfig,
 });
 
-type Props = {
-  onRun: () => void;
-};
-
-export default function PanelFlowInputOutput(props: Props) {
-  const { isCurrentUserOwner, nodeConfigs, nodes, updateNodeConfig } =
+export default function EvaluationModeSimpleContent() {
+  const { isCurrentUserOwner, runFlow, nodeConfigs, nodes, updateNodeConfig } =
     useFlowStore(selector);
 
   const inputNodeConfigs = useMemo(
@@ -63,11 +59,11 @@ export default function PanelFlowInputOutput(props: Props) {
   );
 
   return (
-    <PanelContentContainer>
+    <>
       <HeaderSection>
         <HeaderSectionHeader>Input variables</HeaderSectionHeader>
         {isCurrentUserOwner && (
-          <Button color="success" onClick={props.onRun}>
+          <Button color="success" onClick={runFlow}>
             Run
           </Button>
         )}
@@ -88,7 +84,9 @@ export default function PanelFlowInputOutput(props: Props) {
                     assoc("value", value)<FlowInputItem>
                   )(nodeConfig.outputs);
 
-                  updateNodeConfig(nodeConfig.nodeId, { outputs: newOutputs });
+                  updateNodeConfig(nodeConfig.nodeId, {
+                    outputs: newOutputs,
+                  });
                 }}
                 type={output.valueType}
                 onSaveType={(newType) => {
@@ -111,7 +109,9 @@ export default function PanelFlowInputOutput(props: Props) {
                     return mergeLeft(change)(input);
                   })(nodeConfig.outputs);
 
-                  updateNodeConfig(nodeConfig.nodeId, { outputs: newOutputs });
+                  updateNodeConfig(nodeConfig.nodeId, {
+                    outputs: newOutputs,
+                  });
                 }}
               />
             ))
@@ -136,7 +136,7 @@ export default function PanelFlowInputOutput(props: Props) {
               }
 
               return (
-                <OutputValueItem key={i}>
+                <OutputValueItem key={input.id}>
                   <OutputValueName>{input.name}</OutputValueName>
                   <RawValue>{content}</RawValue>
                 </OutputValueItem>
@@ -145,6 +145,6 @@ export default function PanelFlowInputOutput(props: Props) {
           )
         )}
       </Section>
-    </PanelContentContainer>
+    </>
   );
 }

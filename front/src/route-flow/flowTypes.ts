@@ -1,10 +1,12 @@
 import { Edge, XYPosition } from "reactflow";
 import { ChatGPTMessageRole } from "../integrations/openai";
 
-export type NodeID = string;
-export type EdgeID = string;
-export type InputID = string;
-export type OutputID = string;
+// See https://stackoverflow.com/questions/41790393/typescript-strict-alias-checking
+// for the usage of `& { readonly "": unique symbol }`
+export type NodeID = string & { readonly "": unique symbol };
+export type EdgeID = string & { readonly "": unique symbol };
+export type InputID = string & { readonly "": unique symbol };
+export type OutputID = string & { readonly "": unique symbol };
 
 // Server types
 // ============
@@ -106,12 +108,12 @@ export enum OpenAIChatModel {
 // Input / Output
 
 export type NodeInputItem = {
-  id: string;
+  id: InputID;
   name: string;
 };
 
 export type NodeOutputItem = {
-  id: string;
+  id: OutputID;
   name: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any;
