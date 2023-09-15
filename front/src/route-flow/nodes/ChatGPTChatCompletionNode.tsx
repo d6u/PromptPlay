@@ -14,13 +14,14 @@ import {
   useSpaceStore,
 } from "../../state/appState";
 import InputReadonly from "../flow-common/InputReadonly";
-import { FlowState, useFlowStore } from "../flowState";
 import {
   ChatGPTChatCompletionNodeConfig,
   NodeID,
   NodeType,
   OpenAIChatModel,
 } from "../flowTypes";
+import { useFlowStore } from "../storeFlow";
+import { FlowState } from "../storeTypes";
 import HeaderSection from "./node-common/HeaderSection";
 import HelperTextContainer from "./node-common/HelperTextContainer";
 import NodeBox, { NodeState } from "./node-common/NodeBox";

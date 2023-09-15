@@ -4,7 +4,6 @@ import { nanoid } from "nanoid";
 import any from "ramda/es/any";
 import propEq from "ramda/es/propEq";
 import { ChatGPTMessageRole } from "../integrations/openai";
-import { LocalNode } from "./flowState";
 import {
   InputID,
   InputValueType,
@@ -17,6 +16,7 @@ import {
   ServerEdge,
   ServerNode,
 } from "./flowTypes";
+import { LocalNode } from "./storeTypes";
 
 const chance = new Chance();
 

@@ -10,7 +10,6 @@ import {
   propEq,
 } from "ramda";
 import { ReactNode, useMemo } from "react";
-import { FlowState, useFlowStore } from "../flowState";
 import {
   FlowInputItem,
   InputNodeConfig,
@@ -18,6 +17,8 @@ import {
   NodeType,
   OutputNodeConfig,
 } from "../flowTypes";
+import { useFlowStore } from "../storeFlow";
+import { FlowState } from "../storeTypes";
 import InputBlock from "./InputBlock";
 import {
   Section,

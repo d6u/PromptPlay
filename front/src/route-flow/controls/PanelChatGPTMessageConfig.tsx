@@ -8,8 +8,9 @@ import { ReactNode, useEffect, useMemo, useState } from "react";
 import { ChatGPTMessageRole } from "../../integrations/openai";
 import TextareaReadonly from "../flow-common/TextareaReadonly";
 import { CopyIcon, LabelWithIconContainer } from "../flow-common/flow-common";
-import { FlowState, useFlowStore } from "../flowState";
 import { ChatGPTMessageNodeConfig } from "../flowTypes";
+import { useFlowStore } from "../storeFlow";
+import { FlowState } from "../storeTypes";
 import {
   HeaderSection,
   HeaderSectionHeader,

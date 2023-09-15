@@ -19,7 +19,6 @@ import {
 } from "rxjs";
 import * as OpenAI from "../integrations/openai";
 import { useLocalStorageStore, useSpaceStore } from "../state/appState";
-import { NodeAugment } from "./flowState";
 import {
   ChatGPTChatCompletionNodeConfig,
   ChatGPTMessageNodeConfig,
@@ -35,6 +34,7 @@ import {
   OutputID,
   OutputNodeConfig,
 } from "./flowTypes";
+import { NodeAugment } from "./storeTypes";
 
 const AsyncFunction = async function () {}.constructor;
 
