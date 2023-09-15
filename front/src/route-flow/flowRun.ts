@@ -43,6 +43,11 @@ export enum RunEventType {
   NodeAugmentChange = "NodeAugmentChange",
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type FlowInputVariableMap = Record<OutputID, any>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type FlowOutputVariableMap = Record<InputID, any>;
+
 export type RunEvent = NodeConfigChangeEvent | NodeAugmentChangeEvent;
 
 type NodeConfigChangeEvent = {
@@ -60,8 +65,7 @@ type NodeAugmentChangeEvent = {
 export function run(
   edges: LocalEdge[],
   nodeConfigs: NodeConfigs,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  inputVariableMap: Record<OutputID, any>
+  inputVariableMap: FlowInputVariableMap
 ): Observable<RunEvent> {
   const nodeGraph: Record<NodeID, NodeID[]> = {};
   const nodeIndegree: Record<NodeID, number> = {};
@@ -72,8 +76,7 @@ export function run(
   }
 
   const inputIdToOutputIdMap: Record<InputID, OutputID | undefined> = {};
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const outputIdToValueMap: Record<OutputID, any> = { ...inputVariableMap };
+  const outputIdToValueMap: FlowInputVariableMap = { ...inputVariableMap };
 
   for (const edge of edges) {
     // nodeGraph[edge.source] contains duplicate edge.target,
@@ -128,7 +131,6 @@ export function run(
 
       switch (nodeConfig.nodeType) {
         case NodeType.InputNode: {
-          // handleInputNode(nodeConfig, outputIdToValueMap);
           obs = EMPTY;
           break;
         }
@@ -234,16 +236,6 @@ export function run(
     })
   );
 }
-
-// function handleInputNode(
-//   data: InputNodeConfig,
-//   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-//   outputIdToValueMap: Record<OutputID, any>
-// ) {
-//   for (const output of data.outputs) {
-//     outputIdToValueMap[output.id] = output.value;
-//   }
-// }
 
 function handleOutputNode(
   data: OutputNodeConfig,

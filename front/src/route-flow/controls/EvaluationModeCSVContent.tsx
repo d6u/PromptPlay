@@ -11,16 +11,28 @@ import {
 } from "@mui/joy";
 import Papa from "papaparse";
 import { adjust, assoc, identity, mergeLeft, path } from "ramda";
-import { ReactNode, useEffect, useState } from "react";
-import { concatMap, from, map, reduce } from "rxjs";
-import { RunEvent, RunEventType, run } from "../flowRun";
+import { ReactNode, useEffect, useRef, useState } from "react";
+import { Observable, Subscription, concatMap, from, map, reduce } from "rxjs";
+import {
+  FlowInputVariableMap,
+  FlowOutputVariableMap,
+  RunEvent,
+  RunEventType,
+  run,
+} from "../flowRun";
 import {
   FlowState,
   flowInputItemsSelector,
   flowOutputItemsSelector,
   useFlowStore,
 } from "../flowState";
-import { InputID, NodeType, OutputID, OutputNodeConfig } from "../flowTypes";
+import {
+  FlowInputItem,
+  LocalEdge,
+  NodeConfigs,
+  NodeType,
+  OutputNodeConfig,
+} from "../flowTypes";
 import { Section } from "./controls-common";
 
 const selector = (state: FlowState) => ({
@@ -38,7 +50,7 @@ export default function EvaluationModeCSVContent() {
     Record<string, number | null>
   >({});
   const [generatedResult, setGeneratedResult] = useState<
-    Record<InputID, string>[]
+    FlowOutputVariableMap[]
   >([]);
 
   useEffect(() => {
@@ -163,6 +175,47 @@ export default function EvaluationModeCSVContent() {
     variableMapTableBodyRows.push(<tr key={rowIndex}>{cells}</tr>);
   }
 
+  const [isRunning, setIsRunning] = useState(false);
+  const runningSubscriptionRef = useRef<Subscription | null>(null);
+
+  useEffect(() => {
+    if (isRunning) {
+      if (runningSubscriptionRef.current) {
+        return;
+      }
+
+      runningSubscriptionRef.current = runForEachRow(
+        csvData,
+        flowInputItems,
+        selectedColumns,
+        edges,
+        nodeConfigs
+      ).subscribe({
+        next({ index, outputs }) {
+          console.log(index, outputs);
+          setGeneratedResult((prev) => adjust(index, mergeLeft(outputs), prev));
+        },
+        error(e) {
+          console.error(e);
+          setIsRunning(false);
+          runningSubscriptionRef.current = null;
+        },
+        complete() {
+          setIsRunning(false);
+          runningSubscriptionRef.current = null;
+        },
+      });
+    } else {
+      runningSubscriptionRef.current?.unsubscribe();
+      runningSubscriptionRef.current = null;
+    }
+
+    return () => {
+      runningSubscriptionRef.current?.unsubscribe();
+      runningSubscriptionRef.current = null;
+    };
+  }, [csvData, edges, flowInputItems, isRunning, nodeConfigs, selectedColumns]);
+
   return (
     <>
       <AccordionGroup>
@@ -205,71 +258,17 @@ export default function EvaluationModeCSVContent() {
           </AccordionSummary>
           <AccordionDetails>
             <Section style={{ overflow: "auto" }}>
-              <Button
-                color="success"
-                onClick={() => {
-                  const maps = csvData.slice(1).map((row) => {
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    const inputVariableMap: Record<OutputID, any> = {};
-
-                    flowInputItems.forEach((inputItem) => {
-                      const index = selectedColumns[inputItem.id];
-                      const value = index !== null ? row[index] : "";
-                      inputVariableMap[inputItem.id] = value;
-                    });
-
-                    return inputVariableMap;
-                  });
-
-                  from(maps)
-                    .pipe(
-                      concatMap((inputVariableMap, index) => {
-                        return run(edges, nodeConfigs, inputVariableMap).pipe(
-                          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                          reduce<RunEvent, Record<InputID, any>>(
-                            (acc, event) => {
-                              if (
-                                event.type !== RunEventType.NodeConfigChange
-                              ) {
-                                return acc;
-                              }
-                              const config = nodeConfigs[event.nodeId]!;
-                              if (config.nodeType !== NodeType.OutputNode) {
-                                return acc;
-                              }
-                              const change =
-                                event.nodeChange as Partial<OutputNodeConfig>;
-                              if (!change.inputs) {
-                                return acc;
-                              }
-                              for (const item of change.inputs) {
-                                acc = assoc(item.id, item.value, acc);
-                              }
-                              return acc;
-                            },
-                            {}
-                          ),
-                          map((outputs) => ({ outputs, index }))
-                        );
-                      })
-                    )
-                    .subscribe({
-                      next({ outputs, index }) {
-                        setGeneratedResult((prev) =>
-                          adjust(index, mergeLeft(outputs), prev)
-                        );
-                      },
-                      error(e) {
-                        console.error(e);
-                      },
-                      complete() {
-                        console.log("all complete");
-                      },
-                    });
-                }}
-              >
-                Run
-              </Button>
+              {isRunning ? (
+                <Button color="danger" onClick={() => setIsRunning(false)}>
+                  Stop
+                </Button>
+              ) : (
+                <Button color="success" onClick={() => setIsRunning(true)}>
+                  Run
+                </Button>
+              )}
+            </Section>
+            <Section>
               <Table>
                 <thead>
                   <tr>{variableMapTableFirstHeaderRow}</tr>
@@ -282,5 +281,52 @@ export default function EvaluationModeCSVContent() {
         </Accordion>
       </AccordionGroup>
     </>
+  );
+}
+
+function runForEachRow(
+  csvData: string[][],
+  flowInputItems: FlowInputItem[],
+  selectedColumns: Record<string, number | null>,
+  edges: LocalEdge[],
+  nodeConfigs: NodeConfigs
+): Observable<{
+  index: number;
+  outputs: FlowOutputVariableMap;
+}> {
+  return from(csvData.slice(1)).pipe(
+    map((row) => {
+      const inputVariableMap: FlowInputVariableMap = {};
+
+      flowInputItems.forEach((inputItem) => {
+        const index = selectedColumns[inputItem.id];
+        const value = index !== null ? row[index] : "";
+        inputVariableMap[inputItem.id] = value;
+      });
+
+      return inputVariableMap;
+    }),
+    concatMap((inputVariableMap, index) => {
+      return run(edges, nodeConfigs, inputVariableMap).pipe(
+        reduce<RunEvent, FlowOutputVariableMap>((acc, event) => {
+          if (event.type !== RunEventType.NodeConfigChange) {
+            return acc;
+          }
+          const config = nodeConfigs[event.nodeId]!;
+          if (config.nodeType !== NodeType.OutputNode) {
+            return acc;
+          }
+          const change = event.nodeChange as Partial<OutputNodeConfig>;
+          if (!change.inputs) {
+            return acc;
+          }
+          for (const item of change.inputs) {
+            acc = assoc(item.id, item.value, acc);
+          }
+          return acc;
+        }, {}),
+        map((outputs) => ({ outputs, index }))
+      );
+    })
   );
 }
