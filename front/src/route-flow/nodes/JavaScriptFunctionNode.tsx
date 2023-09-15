@@ -9,7 +9,6 @@ import { Position, useUpdateNodeInternals, useNodeId } from "reactflow";
 import TextareaReadonly from "../flow-common/TextareaReadonly";
 import { LabelWithIconContainer } from "../flow-common/flow-common";
 import { CopyIcon } from "../flow-common/flow-common";
-import { FlowState, useFlowStore } from "../flowState";
 import {
   InputID,
   JavaScriptFunctionNodeConfig,
@@ -17,6 +16,8 @@ import {
   NodeInputItem,
   NodeType,
 } from "../flowTypes";
+import { useFlowStore } from "../storeFlow";
+import { FlowState } from "../storeTypes";
 import AddVariableButton from "./node-common/AddVariableButton";
 import HeaderSection from "./node-common/HeaderSection";
 import NodeBox, { NodeState } from "./node-common/NodeBox";

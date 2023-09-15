@@ -21,18 +21,18 @@ import {
   run,
 } from "../flowRun";
 import {
-  FlowState,
-  flowInputItemsSelector,
-  flowOutputItemsSelector,
-  useFlowStore,
-} from "../flowState";
-import {
   FlowInputItem,
   LocalEdge,
   NodeConfigs,
   NodeType,
   OutputNodeConfig,
 } from "../flowTypes";
+import {
+  flowInputItemsSelector,
+  flowOutputItemsSelector,
+  useFlowStore,
+} from "../storeFlow";
+import { FlowState } from "../storeTypes";
 import { Section } from "./controls-common";
 
 const selector = (state: FlowState) => ({

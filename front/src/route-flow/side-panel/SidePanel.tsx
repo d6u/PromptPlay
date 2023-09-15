@@ -2,7 +2,8 @@ import styled from "@emotion/styled";
 import IconButton from "@mui/joy/IconButton";
 import { ReactNode } from "react";
 import CrossIcon from "../../component-icons/CrossIcon";
-import { DetailPanelContentType, FlowState, useFlowStore } from "../flowState";
+import { useFlowStore } from "../storeFlow";
+import { DetailPanelContentType, FlowState } from "../storeTypes";
 import PanelChatGPTMessageConfig from "./PanelChatGPTMessageConfig";
 import PanelEvaluationModeCSV from "./PanelEvaluationModeCSV";
 import PanelEvaluationModeSimple from "./PanelEvaluationModeSimple";
@@ -42,6 +43,9 @@ export default function SidePanel() {
 
   let content: ReactNode;
   switch (detailPanelContentType) {
+    case DetailPanelContentType.Off: {
+      break;
+    }
     case DetailPanelContentType.NodeConfig: {
       content = <PanelNodeConfig />;
       break;
@@ -58,8 +62,6 @@ export default function SidePanel() {
       content = <PanelChatGPTMessageConfig />;
       break;
     }
-    default:
-      break;
   }
 
   return (

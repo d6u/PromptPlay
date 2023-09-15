@@ -11,9 +11,10 @@ import {
 } from "@mui/joy";
 import { useCallback, useEffect, useState } from "react";
 import { useStoreApi } from "reactflow";
-import { DetailPanelContentType, FlowState, useFlowStore } from "../flowState";
 import { NodeType } from "../flowTypes";
 import { NODE_BOX_WIDTH } from "../nodes/node-common/NodeBox";
+import { useFlowStore } from "../storeFlow";
+import { DetailPanelContentType, FlowState } from "../storeTypes";
 
 const USE_NARROW_LAYOUT_BREAKPOINT = 1050;
 

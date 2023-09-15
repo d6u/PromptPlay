@@ -12,9 +12,6 @@ import ReactFlow, {
   NodeDragHandler,
 } from "reactflow";
 import "reactflow/dist/style.css";
-import SidePanel from "./controls/SidePanel";
-import { FlowState, useFlowStore } from "./flowState";
-import { LocalNode } from "./flowState";
 import { LocalEdge, NodeType } from "./flowTypes";
 import ChatGPTChatCompletionNode from "./nodes/ChatGPTChatCompletionNode";
 import ChatGPTMessageNode from "./nodes/ChatGPTMessageNode";
@@ -22,6 +19,9 @@ import InputNode from "./nodes/InputNode";
 import JavaScriptFunctionNode from "./nodes/JavaScriptFunctionNode";
 import OutputNode from "./nodes/OutputNode";
 import { DRAG_HANDLE_CLASS_NAME } from "./nodes/node-common/HeaderSection";
+import SidePanel from "./side-panel/SidePanel";
+import { useFlowStore } from "./storeFlow";
+import { FlowState, LocalNode } from "./storeTypes";
 
 const NODE_TYPES = {
   [NodeType.InputNode]: InputNode,

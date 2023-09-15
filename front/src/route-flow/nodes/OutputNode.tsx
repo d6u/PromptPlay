@@ -4,8 +4,6 @@ import { nanoid } from "nanoid";
 import { adjust, append, assoc, remove } from "ramda";
 import { useMemo, useState } from "react";
 import { Position, useUpdateNodeInternals, useNodeId } from "reactflow";
-import { FlowState, useFlowStore } from "../flowState";
-import { DetailPanelContentType } from "../flowState";
 import {
   FlowOutputItem,
   InputID,
@@ -13,6 +11,8 @@ import {
   NodeType,
   OutputNodeConfig,
 } from "../flowTypes";
+import { useFlowStore } from "../storeFlow";
+import { DetailPanelContentType, FlowState } from "../storeTypes";
 import AddVariableButton from "./node-common/AddVariableButton";
 import HeaderSection from "./node-common/HeaderSection";
 import NodeBox from "./node-common/NodeBox";

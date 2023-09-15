@@ -19,7 +19,6 @@ import {
 } from "rxjs";
 import * as OpenAI from "../integrations/openai";
 import { useLocalStorageStore, useSpaceStore } from "../state/appState";
-import { NodeAugment } from "./flowState";
 import {
   ChatGPTChatCompletionNodeConfig,
   ChatGPTMessageNodeConfig,
@@ -35,6 +34,7 @@ import {
   OutputID,
   OutputNodeConfig,
 } from "./flowTypes";
+import { NodeAugment } from "./storeTypes";
 
 const AsyncFunction = async function () {}.constructor;
 
@@ -87,7 +87,7 @@ export function run(
     nodeGraph[edge.source].push(edge.target);
     nodeIndegree[edge.target] += 1;
 
-    inputIdToOutputIdMap[edge.targetHandle!] = edge.sourceHandle!;
+    inputIdToOutputIdMap[edge.targetHandle] = edge.sourceHandle!;
   }
 
   const sub = new BehaviorSubject(0);

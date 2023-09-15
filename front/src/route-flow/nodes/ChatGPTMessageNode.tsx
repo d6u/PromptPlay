@@ -13,7 +13,6 @@ import { Position, useUpdateNodeInternals, useNodeId } from "reactflow";
 import { ChatGPTMessageRole } from "../../integrations/openai";
 import TextareaReadonly from "../flow-common/TextareaReadonly";
 import { CopyIcon, LabelWithIconContainer } from "../flow-common/flow-common";
-import { DetailPanelContentType, FlowState, useFlowStore } from "../flowState";
 import {
   ChatGPTMessageNodeConfig,
   InputID,
@@ -21,6 +20,8 @@ import {
   NodeInputItem,
   NodeType,
 } from "../flowTypes";
+import { useFlowStore } from "../storeFlow";
+import { DetailPanelContentType, FlowState } from "../storeTypes";
 import AddVariableButton from "./node-common/AddVariableButton";
 import HeaderSection from "./node-common/HeaderSection";
 import HelperTextContainer from "./node-common/HelperTextContainer";
