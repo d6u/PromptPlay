@@ -73,7 +73,9 @@ export default function InputNode() {
           <IconButton
             variant="outlined"
             onClick={() =>
-              setDetailPanelContentType(DetailPanelContentType.EvaluationMode)
+              setDetailPanelContentType(
+                DetailPanelContentType.EvaluationModeSimple
+              )
             }
           >
             <StyledIconGear />

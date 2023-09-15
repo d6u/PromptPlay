@@ -4,7 +4,8 @@ import { ReactNode } from "react";
 import CrossIcon from "../../component-icons/CrossIcon";
 import { DetailPanelContentType, FlowState, useFlowStore } from "../flowState";
 import PanelChatGPTMessageConfig from "./PanelChatGPTMessageConfig";
-import PanelEvaluationMode from "./PanelEvaluationMode";
+import PanelEvaluationModeCSV from "./PanelEvaluationModeCSV";
+import PanelEvaluationModeSimple from "./PanelEvaluationModeSimple";
 import PanelNodeConfig from "./PanelNodeConfig";
 
 const Container = styled.div<{ $hide: boolean }>`
@@ -45,20 +46,29 @@ export default function SidePanel() {
       content = <PanelNodeConfig />;
       break;
     }
-    case DetailPanelContentType.EvaluationMode: {
-      content = <PanelEvaluationMode />;
+    case DetailPanelContentType.EvaluationModeSimple: {
+      content = <PanelEvaluationModeSimple />;
+      break;
+    }
+    case DetailPanelContentType.EvaluationModeCSV: {
+      content = <PanelEvaluationModeCSV />;
       break;
     }
     case DetailPanelContentType.ChatGPTMessageConfig: {
       content = <PanelChatGPTMessageConfig />;
       break;
     }
+    default:
+      break;
   }
 
   return (
-    <Container $hide={!detailPanelContentType}>
+    <Container $hide={detailPanelContentType === DetailPanelContentType.Off}>
       <StyledCloseButtonWrapper>
-        <IconButton size="md" onClick={() => setDetailPanelContentType(null)}>
+        <IconButton
+          size="md"
+          onClick={() => setDetailPanelContentType(DetailPanelContentType.Off)}
+        >
           <StyledIconCross />
         </IconButton>
       </StyledCloseButtonWrapper>

@@ -1,3 +1,4 @@
+import { filter, flatten, map } from "ramda";
 import adjust from "ramda/es/adjust";
 import append from "ramda/es/append";
 import assoc from "ramda/es/assoc";
@@ -28,11 +29,15 @@ import { queryFlowObservable } from "./flowGraphql";
 import { RunEventType, run } from "./flowRun";
 import {
   FlowContent,
+  FlowInputItem,
+  FlowOutputItem,
+  InputNodeConfig,
   LocalEdge,
   NodeConfig,
   NodeConfigs,
   NodeID,
   NodeType,
+  OutputNodeConfig,
   ServerNode,
 } from "./flowTypes";
 import {
@@ -56,7 +61,9 @@ export type NodeAugment = {
 // Navigation types
 
 export enum DetailPanelContentType {
-  EvaluationMode = "EvaluationMode",
+  Off = "Off",
+  EvaluationModeSimple = "EvaluationModeSimple",
+  EvaluationModeCSV = "EvaluationModeCSV",
   NodeConfig = "NodeConfig",
   ChatGPTMessageConfig = "ChatGPTMessageConfig",
 }
@@ -68,8 +75,8 @@ export type FlowState = {
   spaceId: string | null;
   fetchFlowConfiguration(spaceId: string): Subscription;
 
-  detailPanelContentType: DetailPanelContentType | null;
-  setDetailPanelContentType(type: DetailPanelContentType | null): void;
+  detailPanelContentType: DetailPanelContentType;
+  setDetailPanelContentType(type: DetailPanelContentType): void;
   detailPanelSelectedNodeId: string | null;
   setDetailPanelSelectedNodeId(nodeId: string): void;
 
@@ -180,8 +187,8 @@ export const useFlowStore = create<FlowState>()(
           });
         },
 
-        detailPanelContentType: null,
-        setDetailPanelContentType(type: DetailPanelContentType | null) {
+        detailPanelContentType: DetailPanelContentType.Off,
+        setDetailPanelContentType(type: DetailPanelContentType) {
           set({ detailPanelContentType: type });
         },
         detailPanelSelectedNodeId: null,
@@ -392,3 +399,25 @@ export const useFlowStore = create<FlowState>()(
     }
   )
 );
+
+export function flowInputItemsSelector(state: FlowState): FlowInputItem[] {
+  const { nodes, nodeConfigs } = state;
+
+  return pipe(
+    filter(propEq<string>(NodeType.InputNode, "type")),
+    map((node) => nodeConfigs[node.id] as InputNodeConfig),
+    map((nodeConfig) => nodeConfig.outputs),
+    flatten
+  )(nodes);
+}
+
+export function flowOutputItemsSelector(state: FlowState): FlowOutputItem[] {
+  const { nodes, nodeConfigs } = state;
+
+  return pipe(
+    filter(propEq<string>(NodeType.OutputNode, "type")),
+    map((node) => nodeConfigs[node.id] as OutputNodeConfig),
+    map((nodeConfig) => nodeConfig.inputs),
+    flatten
+  )(nodes);
+}

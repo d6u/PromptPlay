@@ -81,7 +81,9 @@ export default function OutputNode() {
           <IconButton
             variant="outlined"
             onClick={() =>
-              setDetailPanelContentType(DetailPanelContentType.EvaluationMode)
+              setDetailPanelContentType(
+                DetailPanelContentType.EvaluationModeSimple
+              )
             }
           >
             <StyledIconGear />

@@ -7,7 +7,7 @@ import {
   Menu,
   MenuButton,
   MenuItem,
-  Switch,
+  ToggleButtonGroup,
 } from "@mui/joy";
 import { useCallback, useEffect, useState } from "react";
 import { useStoreApi } from "reactflow";
@@ -98,9 +98,6 @@ export default function ToolBar() {
       window.removeEventListener("resize", handleResize);
     };
   }, []);
-
-  const isEvaluationMode =
-    detailPanelContentType === DetailPanelContentType.EvaluationMode;
 
   return (
     <Container>
@@ -193,18 +190,22 @@ export default function ToolBar() {
       <RightAligned>
         <FormControl size="md" orientation="horizontal">
           <FormLabel sx={{ cursor: "pointer" }}>Evaluation Mode</FormLabel>
-          <Switch
-            checked={isEvaluationMode}
-            onChange={(event) =>
-              setDetailPanelContentType(
-                event.target.checked
-                  ? DetailPanelContentType.EvaluationMode
-                  : null
-              )
-            }
-            color={isEvaluationMode ? "success" : "neutral"}
-            variant={isEvaluationMode ? "solid" : "outlined"}
-          />
+          <ToggleButtonGroup
+            size="sm"
+            value={detailPanelContentType}
+            onChange={(e, newValue) => {
+              if (newValue == null) return;
+              setDetailPanelContentType(newValue);
+            }}
+          >
+            <Button value={DetailPanelContentType.Off}>Off</Button>
+            <Button value={DetailPanelContentType.EvaluationModeSimple}>
+              Simple
+            </Button>
+            <Button value={DetailPanelContentType.EvaluationModeCSV}>
+              CSV
+            </Button>
+          </ToggleButtonGroup>
         </FormControl>
       </RightAligned>
     </Container>

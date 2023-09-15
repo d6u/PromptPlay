@@ -80,10 +80,16 @@ const theme = extendTheme({
         size: "sm",
       },
     },
-    JoyTabs: {
+    JoyTable: {
       defaultProps: {
+        size: "sm",
+        borderAxis: "both",
+        noWrap: true,
+        hoverRow: true,
         sx: {
-          backgroundColor: "white",
+          tableLayout: "auto",
+          "--Table-headerUnderlineThickness": "1px",
+          "--TableCell-headBackground": "#ebebeb",
         },
       },
     },

@@ -36,7 +36,7 @@ const selector = (state: FlowState) => ({
   updateNodeConfig: state.updateNodeConfig,
 });
 
-export default function EvaluationTabNormal() {
+export default function EvaluationModeSimpleContent() {
   const { isCurrentUserOwner, runFlow, nodeConfigs, nodes, updateNodeConfig } =
     useFlowStore(selector);
 
@@ -136,7 +136,7 @@ export default function EvaluationTabNormal() {
               }
 
               return (
-                <OutputValueItem key={i}>
+                <OutputValueItem key={input.id}>
                   <OutputValueName>{input.name}</OutputValueName>
                   <RawValue>{content}</RawValue>
                 </OutputValueItem>
