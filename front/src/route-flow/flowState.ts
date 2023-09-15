@@ -23,9 +23,13 @@ import {
   Node,
 } from "reactflow";
 import { Observable, Subscription } from "rxjs";
-import { create } from "zustand";
+import { create, StateCreator } from "zustand";
 import { devtools } from "zustand/middleware";
-import { queryFlowObservable } from "./flowGraphql";
+import {
+  updateSpaceDebounced,
+  updateSpace,
+  queryFlowObservable,
+} from "./flowGraphql";
 import { RunEvent, RunEventType, run } from "./flowRun";
 import {
   FlowContent,
@@ -41,13 +45,7 @@ import {
   OutputNodeConfig,
   ServerNode,
 } from "./flowTypes";
-import {
-  createNode,
-  createNodeConfig,
-  rejectInvalidEdges,
-  updateSpace,
-  updateSpaceDebounced,
-} from "./flowUtils";
+import { createNode, createNodeConfig, rejectInvalidEdges } from "./flowUtils";
 
 export type LocalNode = Omit<Node<null, NodeType>, "id" | "type" | "data"> &
   ServerNode;

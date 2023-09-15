@@ -1,18 +1,11 @@
 import Chance from "chance";
-import debounce from "lodash/debounce";
 import filter from "lodash/filter";
-import map from "lodash/map";
 import { nanoid } from "nanoid";
-import { assoc } from "ramda";
 import any from "ramda/es/any";
-import pick from "ramda/es/pick";
 import propEq from "ramda/es/propEq";
 import { ChatGPTMessageRole } from "../integrations/openai";
-import { client } from "../state/urql";
-import { UPDATE_SPACE_FLOW_CONTENT_MUTATION } from "./flowGraphql";
 import { LocalNode } from "./flowState";
 import {
-  FlowContent,
   InputID,
   InputValueType,
   NodeConfig,
@@ -217,48 +210,3 @@ export function rejectInvalidEdges(
     return foundSourceHandle && foundTargetHandle;
   });
 }
-
-export async function updateSpace(
-  spaceId: string,
-  currentFlowContent: FlowContent,
-  flowContentChange: Partial<FlowContent>
-) {
-  if ("nodes" in flowContentChange) {
-    currentFlowContent = assoc(
-      "nodes",
-      map(
-        flowContentChange.nodes,
-        pick(["id", "type", "position", "data"])<ServerNode>
-      ),
-      currentFlowContent
-    );
-  }
-
-  if ("edges" in flowContentChange) {
-    currentFlowContent = assoc(
-      "edges",
-      map(
-        rejectInvalidEdges(
-          currentFlowContent.nodes,
-          flowContentChange.edges!,
-          currentFlowContent.nodeConfigs
-        ),
-        pick([
-          "id",
-          "source",
-          "sourceHandle",
-          "target",
-          "targetHandle",
-        ])<ServerEdge>
-      ),
-      currentFlowContent
-    );
-  }
-
-  await client.mutation(UPDATE_SPACE_FLOW_CONTENT_MUTATION, {
-    spaceId,
-    flowContent: JSON.stringify(currentFlowContent),
-  });
-}
-
-export const updateSpaceDebounced = debounce(updateSpace, 500);
