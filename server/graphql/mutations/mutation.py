@@ -9,7 +9,15 @@ from server.database.utils import (
     create_space_with_example_content,
 )
 
-from .context import Info
+from ..context import Info
+from ..types import (
+    CreateExampleWorkspaceResult,
+    CreatePlaceholderUserAndExampleSpaceResult,
+    Space,
+    User,
+    Workspace,
+)
+from ..utils import ensure_db_user
 from .mutation_block import MutationBlock
 from .mutation_block_set import MutationBlockSet
 from .mutation_csv_evaluation_presets import MutationCSVEvaluationPreset
@@ -18,14 +26,6 @@ from .mutation_preset import MutationPreset
 from .mutation_space import MutationSpace
 from .mutation_user import MutationUser
 from .mutation_workspace import MutationWorkspace
-from .types import (
-    CreateExampleWorkspaceResult,
-    CreatePlaceholderUserAndExampleSpaceResult,
-    Space,
-    User,
-    Workspace,
-)
-from .utils import ensure_db_user
 
 
 @strawberry.type

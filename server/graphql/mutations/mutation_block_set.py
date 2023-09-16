@@ -9,9 +9,9 @@ from server.database.orm.preset import OrmPreset
 from server.database.orm.prompt_block import OrmPromptBlock, OrmPromptType
 from server.database.orm.user import OrmUser
 
-from .context import Info
-from .types import BlockSet, DeletionResult
-from .utils import ensure_db_user
+from ..context import Info
+from ..types import BlockSet, DeletionResult
+from ..utils import ensure_db_user
 
 
 @strawberry.type

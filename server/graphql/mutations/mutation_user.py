@@ -6,8 +6,8 @@ from sqlalchemy import select
 
 from server.database.orm.user import OrmUser
 
-from .context import Info
-from .types import User
+from ..context import Info
+from ..types import User
 
 
 @strawberry.type
