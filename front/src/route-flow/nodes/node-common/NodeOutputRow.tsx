@@ -1,8 +1,8 @@
 import styled from "@emotion/styled";
 import { useNodeId } from "reactflow";
 import { NodeID } from "../../flowTypes";
-import { useFlowStore } from "../../storeFlow";
-import { DetailPanelContentType, FlowState } from "../../storeTypes";
+import { useFlowStore } from "../../store/flowStore";
+import { DetailPanelContentType, FlowState } from "../../store/storeTypes";
 import { ROW_MARGIN_TOP } from "./NodeInputModifyRow";
 
 export const VARIABLE_LABEL_HEIGHT = 32;
@@ -50,7 +50,7 @@ const selector = (state: FlowState) => ({
 type Props = {
   id: string;
   name: string;
-  value: string;
+  value: unknown;
   onClick?: () => void;
 };
 

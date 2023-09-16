@@ -20,8 +20,8 @@ import {
   NodeType,
   OpenAIChatModel,
 } from "../flowTypes";
-import { useFlowStore } from "../storeFlow";
-import { FlowState } from "../storeTypes";
+import { useFlowStore } from "../store/flowStore";
+import { FlowState } from "../store/storeTypes";
 import HeaderSection from "./node-common/HeaderSection";
 import HelperTextContainer from "./node-common/HelperTextContainer";
 import NodeBox, { NodeState } from "./node-common/NodeBox";
@@ -39,6 +39,7 @@ const flowSelector = (state: FlowState) => ({
   updateNodeConfig: state.updateNodeConfig,
   removeNode: state.removeNode,
   localNodeAugments: state.localNodeAugments,
+  defaultVariableValueMap: state.getDefaultVariableValueMap(),
 });
 
 const persistSelector = (state: LocalStorageState) => ({
@@ -60,6 +61,7 @@ export default function ChatGPTChatCompletionNode() {
     updateNodeConfig,
     removeNode,
     localNodeAugments,
+    defaultVariableValueMap,
   } = useFlowStore(flowSelector);
   const { openAiApiKey, setOpenAiApiKey } =
     useLocalStorageStore(persistSelector);
@@ -267,7 +269,7 @@ export default function ChatGPTChatCompletionNode() {
               key={output.id}
               id={output.id}
               name={output.name}
-              value={output.value}
+              value={defaultVariableValueMap[output.id]}
             />
           ))}
         </Section>

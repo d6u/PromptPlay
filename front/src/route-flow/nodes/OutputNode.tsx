@@ -11,8 +11,8 @@ import {
   NodeType,
   OutputNodeConfig,
 } from "../flowTypes";
-import { useFlowStore } from "../storeFlow";
-import { DetailPanelContentType, FlowState } from "../storeTypes";
+import { useFlowStore } from "../store/flowStore";
+import { DetailPanelContentType, FlowState } from "../store/storeTypes";
 import AddVariableButton from "./node-common/AddVariableButton";
 import HeaderSection from "./node-common/HeaderSection";
 import NodeBox from "./node-common/NodeBox";
@@ -95,7 +95,6 @@ export default function OutputNode() {
                 const newInputs = append<FlowOutputItem>({
                   id: `${nodeId}/${nanoid()}` as InputID,
                   name: chance.word(),
-                  value: null,
                 })(inputs);
 
                 setInputs(newInputs);

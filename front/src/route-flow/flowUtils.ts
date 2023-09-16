@@ -16,7 +16,7 @@ import {
   ServerEdge,
   ServerNode,
 } from "./flowTypes";
-import { LocalNode } from "./storeTypes";
+import { LocalNode } from "./store/storeTypes";
 
 const chance = new Chance();
 
@@ -77,7 +77,6 @@ export function createNodeConfig(node: LocalNode): NodeConfig {
           {
             id: `${node.id}/${nanoid()}` as OutputID,
             name: chance.word(),
-            value: null,
             valueType: InputValueType.String,
           },
         ],
@@ -91,7 +90,6 @@ export function createNodeConfig(node: LocalNode): NodeConfig {
           {
             id: `${node.id}/${nanoid()}` as InputID,
             name: chance.word(),
-            value: null,
           },
         ],
       };
@@ -106,7 +104,6 @@ export function createNodeConfig(node: LocalNode): NodeConfig {
           {
             id: `${node.id}/output` as OutputID,
             name: "output",
-            value: null,
           },
         ],
       };
@@ -131,12 +128,10 @@ export function createNodeConfig(node: LocalNode): NodeConfig {
           {
             id: `${node.id}/message` as OutputID,
             name: "message",
-            value: null,
           },
           {
             id: `${node.id}/messages_out` as OutputID,
             name: "messages",
-            value: null,
           },
         ],
       };
@@ -158,17 +153,14 @@ export function createNodeConfig(node: LocalNode): NodeConfig {
           {
             id: `${node.id}/content` as OutputID,
             name: "content",
-            value: null,
           },
           {
             id: `${node.id}/message` as OutputID,
             name: "message",
-            value: null,
           },
           {
             id: `${node.id}/messages_out` as OutputID,
             name: "messages",
-            value: null,
           },
         ],
       };
@@ -177,7 +169,7 @@ export function createNodeConfig(node: LocalNode): NodeConfig {
 }
 
 export function rejectInvalidEdges(
-  nodes: ServerNode[],
+  nodes: readonly ServerNode[],
   edges: ServerEdge[],
   nodeConfigs: NodeConfigs
 ): ServerEdge[] {

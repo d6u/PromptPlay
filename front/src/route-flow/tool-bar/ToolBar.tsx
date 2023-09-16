@@ -13,8 +13,8 @@ import { useCallback, useEffect, useState } from "react";
 import { useStoreApi } from "reactflow";
 import { NodeType } from "../flowTypes";
 import { NODE_BOX_WIDTH } from "../nodes/node-common/NodeBox";
-import { useFlowStore } from "../storeFlow";
-import { DetailPanelContentType, FlowState } from "../storeTypes";
+import { useFlowStore } from "../store/flowStore";
+import { DetailPanelContentType, FlowState } from "../store/storeTypes";
 
 const USE_NARROW_LAYOUT_BREAKPOINT = 1050;
 
@@ -30,7 +30,7 @@ const Container = styled.div`
 const LeftAligned = styled.div`
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 10px;
 `;
 
 const RightAligned = styled.div`
@@ -99,6 +99,10 @@ export default function ToolBar() {
       window.removeEventListener("resize", handleResize);
     };
   }, []);
+
+  const shouldShowRunButton =
+    detailPanelContentType !== DetailPanelContentType.EvaluationModeSimple &&
+    detailPanelContentType !== DetailPanelContentType.EvaluationModeCSV;
 
   return (
     <Container>
@@ -182,9 +186,11 @@ export default function ToolBar() {
             >
               Add Output
             </Button>
-            <Button color="success" onClick={runFlow}>
-              Run
-            </Button>
+            {shouldShowRunButton && (
+              <Button color="success" onClick={runFlow}>
+                Run
+              </Button>
+            )}
           </>
         )}
       </LeftAligned>

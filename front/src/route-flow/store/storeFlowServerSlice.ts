@@ -1,12 +1,9 @@
-import adjust from "ramda/es/adjust";
-import append from "ramda/es/append";
-import assoc from "ramda/es/assoc";
+import { A, D, pipe } from "@mobily/ts-belt";
 import dissoc from "ramda/es/dissoc";
 import findIndex from "ramda/es/findIndex";
 import mergeLeft from "ramda/es/mergeLeft";
 import modify from "ramda/es/modify";
 import none from "ramda/es/none";
-import pipe from "ramda/es/pipe";
 import propEq from "ramda/es/propEq";
 import reject from "ramda/es/reject";
 import {
@@ -20,23 +17,25 @@ import {
 import { Subscription } from "rxjs";
 import { StateCreator } from "zustand";
 import {
-  updateSpaceDebounced,
-  updateSpace,
-  queryFlowObservable,
-} from "./flowGraphql";
-import {
   FlowContent,
   LocalEdge,
   NodeConfig,
   NodeConfigs,
   NodeID,
   NodeType,
-} from "./flowTypes";
-import { createNode, createNodeConfig, rejectInvalidEdges } from "./flowUtils";
-import { FlowServerSlice, FlowState, LocalNode } from "./storeTypes";
+  VariableID,
+  VariableValueMap,
+} from "../flowTypes";
+import { createNode, createNodeConfig, rejectInvalidEdges } from "../flowUtils";
+import {
+  updateSpaceDebounced,
+  updateSpace,
+  queryFlowObservable,
+} from "./flowGraphql";
+import { FlowServerSlice, LocalNode } from "./storeTypes";
 
 export const createFlowServerSlice: StateCreator<
-  FlowState,
+  FlowServerSlice,
   [],
   [],
   FlowServerSlice
@@ -49,6 +48,9 @@ export const createFlowServerSlice: StateCreator<
   nodes: [],
   nodeConfigs: {},
   edges: [],
+  variableValueMaps: [{}],
+  getDefaultVariableValueMap: (): VariableValueMap =>
+    get().variableValueMaps[0],
 
   fetchFlowConfiguration(spaceId: string): Subscription {
     set({ spaceId });
@@ -56,13 +58,19 @@ export const createFlowServerSlice: StateCreator<
     return queryFlowObservable(spaceId).subscribe({
       next({
         isCurrentUserOwner,
-        flowContent: { nodes = [], edges = [], nodeConfigs = {} },
+        flowContent: {
+          nodes = [],
+          edges = [],
+          nodeConfigs = {},
+          variableValueMaps = [{}],
+        },
       }) {
         set({
           isCurrentUserOwner,
           nodes,
           edges,
           nodeConfigs,
+          variableValueMaps,
         });
       },
       error(error) {
@@ -80,8 +88,8 @@ export const createFlowServerSlice: StateCreator<
     const node = createNode(type, x ?? 200, y ?? 200);
     const nodeConfig = createNodeConfig(node);
 
-    nodes = append(node, nodes);
-    nodeConfigs = assoc(node.id, nodeConfig, nodeConfigs);
+    nodes = A.append(nodes, node);
+    nodeConfigs = D.set(nodeConfigs, node.id, nodeConfig);
 
     const flowContentChange = { nodes, nodeConfigs };
 
@@ -168,8 +176,31 @@ export const createFlowServerSlice: StateCreator<
       updateSpaceDebounced(spaceId, getCurrentFlowContent(get()), stateChange);
     }
   },
+  updateDefaultVariableValueMap(variableId: VariableID, value: unknown): void {
+    const variableValueMaps = get().variableValueMaps;
+
+    const changes = {
+      variableValueMaps: A.updateAt(
+        variableValueMaps,
+        0,
+        D.set(variableId, value)
+      ),
+    };
+
+    set(changes);
+
+    const spaceId = get().spaceId;
+    if (spaceId) {
+      updateSpaceDebounced(spaceId, getCurrentFlowContent(get()), changes);
+    }
+  },
+
   onNodesChange(changes: NodeChange[]) {
-    const nodes = applyNodeChanges(changes, get().nodes) as LocalNode[];
+    const nodes = applyNodeChanges(
+      changes,
+      // Cast from readonly to mutable
+      get().nodes.concat()
+    ) as LocalNode[];
 
     set({ nodes });
 
@@ -213,8 +244,9 @@ export const createFlowServerSlice: StateCreator<
 
     // A targetHandle can only take one incoming edge
     edges = pipe(
+      edges,
       reject(propEq<string>(connection.targetHandle!, "targetHandle"))
-    )(edges);
+    );
 
     const stateChange = {
       edges: addEdge(connection, edges) as LocalEdge[],
@@ -230,27 +262,28 @@ export const createFlowServerSlice: StateCreator<
 });
 
 function getCurrentFlowContent(state: FlowServerSlice): FlowContent {
-  const { nodes, edges, nodeConfigs } = state;
-  return { nodes, edges, nodeConfigs };
+  const { nodes, edges, nodeConfigs, variableValueMaps } = state;
+  return { nodes, edges, nodeConfigs, variableValueMaps };
 }
 
 function applyLocalNodeChange(
-  nodes: LocalNode[],
+  nodes: readonly LocalNode[],
   nodeConfigs: NodeConfigs,
   edges: LocalEdge[],
   nodeId: NodeID,
   nodeChange: Partial<LocalNode>
-): Partial<FlowState> {
+): Partial<FlowServerSlice> {
   const index = findIndex<LocalNode>((n) => n.id === nodeId)(nodes);
 
   if (index === -1) {
     return { nodes, edges };
   }
 
-  nodes = adjust(
+  nodes = A.updateAt(
+    nodes,
     index,
     mergeLeft(nodeChange) as (a: LocalNode) => LocalNode
-  )(nodes);
+  );
 
   edges = rejectInvalidEdges(nodes, edges, nodeConfigs);
 
@@ -258,7 +291,7 @@ function applyLocalNodeChange(
 }
 
 function applyLocalNodeConfigChange(
-  nodes: LocalNode[],
+  nodes: readonly LocalNode[],
   nodeConfigs: NodeConfigs,
   edges: LocalEdge[],
   nodeId: NodeID,

@@ -1,18 +1,31 @@
+import styled from "@emotion/styled";
+import { A, D, F } from "@mobily/ts-belt";
 import {
   Accordion,
   AccordionDetails,
   AccordionGroup,
   AccordionSummary,
   Button,
+  FormControl,
+  FormLabel,
+  Input,
   Option,
   Select,
   Table,
   Textarea,
 } from "@mui/joy";
 import Papa from "papaparse";
-import { adjust, assoc, identity, mergeLeft, path } from "ramda";
 import { ReactNode, useEffect, useRef, useState } from "react";
-import { Observable, Subscription, concatMap, from, map, reduce } from "rxjs";
+import {
+  Observable,
+  Subscription,
+  concatMap,
+  from,
+  map,
+  mergeMap,
+  range,
+  reduce,
+} from "rxjs";
 import {
   FlowInputVariableMap,
   FlowOutputVariableMap,
@@ -24,16 +37,41 @@ import {
   FlowInputItem,
   LocalEdge,
   NodeConfigs,
-  NodeType,
-  OutputNodeConfig,
+  VariableID,
 } from "../flowTypes";
 import {
   flowInputItemsSelector,
   flowOutputItemsSelector,
   useFlowStore,
-} from "../storeFlow";
-import { FlowState } from "../storeTypes";
+} from "../store/flowStore";
+import { FlowState } from "../store/storeTypes";
+import EvaluationModePresetSelector from "./EvaluationModePresetSelector";
 import { Section } from "./controls-common";
+
+type CSVRow = Array<string>;
+type CSVHeader = CSVRow;
+type CSVData = Array<CSVRow>;
+
+type RowIndex = number & { readonly "": unique symbol };
+type ColumnIndex = number & { readonly "": unique symbol };
+
+type VariableColumnMap = Record<VariableID, ColumnIndex | null>;
+
+type GeneratedResult = Record<
+  RowIndex,
+  Record<ColumnIndex, FlowOutputVariableMap>
+>;
+
+const CustomAccordionDetails = styled(AccordionDetails)`
+  & .MuiAccordionDetails-content {
+    padding: 20px;
+  }
+
+  & .MuiAccordionDetails-content:not(.Mui-expanded) {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+`;
 
 const selector = (state: FlowState) => ({
   edges: state.edges,
@@ -46,15 +84,14 @@ export default function EvaluationModeCSVContent() {
   const { edges, nodeConfigs, flowInputItems, flowOutputItems } =
     useFlowStore(selector);
 
-  const [selectedColumns, setSelectedColumns] = useState<
-    Record<string, number | null>
-  >({});
-  const [generatedResult, setGeneratedResult] = useState<
-    FlowOutputVariableMap[]
-  >([]);
+  const [variableColumnMap, setVariableColumnMap] = useState<VariableColumnMap>(
+    {}
+  );
+
+  const [generatedResult, setGeneratedResult] = useState<GeneratedResult>([]);
 
   useEffect(() => {
-    const data: Record<string, number | null> = {};
+    const data: Record<VariableID, ColumnIndex | null> = {};
 
     for (const inputItem of flowInputItems) {
       data[inputItem.id] = null;
@@ -64,28 +101,37 @@ export default function EvaluationModeCSVContent() {
       data[outputItem.id] = null;
     }
 
-    setSelectedColumns(data);
+    setVariableColumnMap(data);
   }, [flowInputItems, flowOutputItems]);
 
   const [csvContent, setCsvContent] = useState<string>("");
-  const [csvData, setCsvData] = useState<string[][]>([]);
+  const [csvHeaders, setCsvHeaders] = useState<CSVHeader>([]);
+  const [csvBody, setCsvBody] = useState<CSVData>([]);
+  const [repeatTimes, setRepeatTimes] = useState(1);
 
   useEffect(() => {
-    const { data } = Papa.parse<string[]>(csvContent);
-    setCsvData(data);
+    const data = Papa.parse(csvContent).data as CSVData;
 
-    const r = [];
-    for (let i = 0; i < data.length - 1; i++) {
-      r.push({});
+    if (data.length === 0) return;
+
+    const body = data.slice(1);
+
+    setCsvHeaders(data[0]);
+    setCsvBody(body);
+
+    const generatedResultPlaceholder = [];
+    for (let i = 0; i < body.length; i++) {
+      generatedResultPlaceholder.push(A.make(repeatTimes, {}));
     }
-    setGeneratedResult(r);
-  }, [csvContent]);
 
-  const variableMapTableFirstHeaderRow: ReactNode[] = [];
-  const variableMapTableSecondHeaderRow: ReactNode[] = [];
+    setGeneratedResult(generatedResultPlaceholder);
+  }, [csvContent, repeatTimes]);
+
+  const variableMapTableHeaderRowFirst: ReactNode[] = [];
+  const variableMapTableHeaderRowSecond: ReactNode[] = [];
 
   for (const inputItem of flowInputItems) {
-    variableMapTableFirstHeaderRow.push(
+    variableMapTableHeaderRowFirst.push(
       <th
         key={inputItem.id}
         style={{ textAlign: "center", borderBottomWidth: 1 }}
@@ -94,19 +140,19 @@ export default function EvaluationModeCSVContent() {
       </th>
     );
 
-    variableMapTableSecondHeaderRow.push(
+    variableMapTableHeaderRowSecond.push(
       <th key={inputItem.id}>
         <Select
           placeholder="Choose a column"
-          value={selectedColumns[inputItem.id]}
+          value={variableColumnMap[inputItem.id]}
           onChange={(e, index) => {
-            setSelectedColumns((prev) => ({
+            setVariableColumnMap((prev) => ({
               ...prev,
               [inputItem.id]: index,
             }));
           }}
         >
-          {csvData[0]?.filter(identity).map((item, i) => (
+          {csvHeaders.filter(F.identity).map((item, i) => (
             <Option key={i} value={i}>
               {item}
             </Option>
@@ -117,25 +163,29 @@ export default function EvaluationModeCSVContent() {
   }
 
   for (const outputItem of flowOutputItems) {
-    variableMapTableFirstHeaderRow.push(
-      <th key={outputItem.id} colSpan={2} style={{ textAlign: "center" }}>
+    variableMapTableHeaderRowFirst.push(
+      <th
+        key={outputItem.id}
+        colSpan={repeatTimes + 1}
+        style={{ textAlign: "center" }}
+      >
         {outputItem.name}
       </th>
     );
 
-    variableMapTableSecondHeaderRow.push(
+    variableMapTableHeaderRowSecond.push(
       <th key={outputItem.id}>
         <Select
           placeholder="Choose a column"
-          value={selectedColumns[outputItem.id]}
+          value={variableColumnMap[outputItem.id]}
           onChange={(e, index) => {
-            setSelectedColumns((prev) => ({
+            setVariableColumnMap((prev) => ({
               ...prev,
               [outputItem.id]: index,
             }));
           }}
         >
-          {csvData[0]?.filter(identity).map((item, i) => (
+          {csvHeaders.filter(F.identity).map((item, i) => (
             <Option key={i} value={i}>
               {item}
             </Option>
@@ -144,32 +194,47 @@ export default function EvaluationModeCSVContent() {
       </th>
     );
 
-    variableMapTableSecondHeaderRow.push(
-      <th key={`${outputItem.id}-result`}>Result</th>
-    );
+    if (repeatTimes > 1) {
+      for (let i = 0; i < repeatTimes; i++) {
+        variableMapTableHeaderRowSecond.push(
+          <th key={`${outputItem.id}-result-${i}`}>Result {i + 1}</th>
+        );
+      }
+    } else {
+      variableMapTableHeaderRowSecond.push(
+        <th key={`${outputItem.id}-result-0`}>Result</th>
+      );
+    }
   }
 
   const variableMapTableBodyRows: ReactNode[] = [];
 
-  for (const [rowIndex, row] of csvData.slice(1).entries()) {
+  for (const [rowIndex, row] of csvBody.entries()) {
     const cells: ReactNode[] = [];
 
     for (const inputItem of flowInputItems) {
-      const index = selectedColumns[inputItem.id];
+      const index = variableColumnMap[inputItem.id];
       cells.push(
         <td key={`${inputItem.id}`}>{index !== null ? row[index] : ""}</td>
       );
     }
 
     for (const outputItem of flowOutputItems) {
-      const index = selectedColumns[outputItem.id];
+      const index = variableColumnMap[outputItem.id];
       cells.push(
         <td key={`${outputItem.id}`}>{index !== null ? row[index] : ""}</td>
       );
 
-      const resultValue =
-        path([rowIndex, outputItem.id], generatedResult) ?? "";
-      cells.push(<td key={`${outputItem.id}-result`}>{resultValue}</td>);
+      for (let colIndex = 0; colIndex < repeatTimes; colIndex++) {
+        const value =
+          generatedResult[rowIndex as RowIndex]?.[colIndex as ColumnIndex]?.[
+            outputItem.id
+          ] ?? "";
+
+        cells.push(
+          <td key={`${outputItem.id}-result-${colIndex}`}>{value}</td>
+        );
+      }
     }
 
     variableMapTableBodyRows.push(<tr key={rowIndex}>{cells}</tr>);
@@ -185,15 +250,31 @@ export default function EvaluationModeCSVContent() {
       }
 
       runningSubscriptionRef.current = runForEachRow(
-        csvData,
+        csvBody,
         flowInputItems,
-        selectedColumns,
+        variableColumnMap,
         edges,
-        nodeConfigs
+        nodeConfigs,
+        repeatTimes
       ).subscribe({
-        next({ index, outputs }) {
-          console.log(index, outputs);
-          setGeneratedResult((prev) => adjust(index, mergeLeft(outputs), prev));
+        next({ iteratonIndex: colIndex, rowIndex, outputs }) {
+          setGeneratedResult((prev) => {
+            console.log({ colIndex, rowIndex, outputs });
+
+            let row = prev[rowIndex as RowIndex]!;
+
+            row = A.updateAt(
+              row as Array<FlowOutputVariableMap>,
+              colIndex,
+              D.merge(outputs)
+            );
+
+            return A.replaceAt(
+              prev as Array<Record<ColumnIndex, FlowOutputVariableMap>>,
+              rowIndex,
+              row
+            );
+          });
         },
         error(e) {
           console.error(e);
@@ -214,14 +295,23 @@ export default function EvaluationModeCSVContent() {
       runningSubscriptionRef.current?.unsubscribe();
       runningSubscriptionRef.current = null;
     };
-  }, [csvData, edges, flowInputItems, isRunning, nodeConfigs, selectedColumns]);
+  }, [
+    csvBody,
+    edges,
+    flowInputItems,
+    isRunning,
+    nodeConfigs,
+    repeatTimes,
+    variableColumnMap,
+  ]);
 
   return (
     <>
-      <AccordionGroup>
+      <EvaluationModePresetSelector />
+      <AccordionGroup size="lg">
         <Accordion defaultExpanded>
-          <AccordionSummary>Uplod CSV</AccordionSummary>
-          <AccordionDetails>
+          <AccordionSummary>Import CSV data</AccordionSummary>
+          <CustomAccordionDetails>
             <Section>
               <Textarea
                 minRows={2}
@@ -234,30 +324,38 @@ export default function EvaluationModeCSVContent() {
               <Table>
                 <thead>
                   <tr>
-                    {csvData[0]?.map((item, i) => (
+                    {csvHeaders.map((item, i) => (
                       <th key={i}>{item}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
-                  {csvData.slice(1).map((row, i) => (
-                    <tr key={i}>
-                      {row.map((item, j) => (
-                        <td key={`${i}-${j}`}>{item}</td>
+                  {csvBody.map((row, rowIndex) => (
+                    <tr key={rowIndex}>
+                      {row.map((value, colIndex) => (
+                        <td key={`${rowIndex}-${colIndex}`}>{value}</td>
                       ))}
                     </tr>
                   ))}
                 </tbody>
               </Table>
             </Section>
-          </AccordionDetails>
+          </CustomAccordionDetails>
         </Accordion>
         <Accordion defaultExpanded>
-          <AccordionSummary>
-            Map input and output variables to columns
-          </AccordionSummary>
-          <AccordionDetails>
-            <Section style={{ overflow: "auto" }}>
+          <AccordionSummary>Configurate</AccordionSummary>
+          <CustomAccordionDetails>
+            <Section style={{ overflow: "auto", display: "flex", gap: 10 }}>
+              <FormControl size="lg" orientation="horizontal">
+                <FormLabel>Reapt</FormLabel>
+                <Input
+                  size="sm"
+                  type="number"
+                  slotProps={{ input: { min: 1, step: 1 } }}
+                  value={repeatTimes}
+                  onChange={(e) => setRepeatTimes(Number(e.target.value))}
+                />
+              </FormControl>
               {isRunning ? (
                 <Button color="danger" onClick={() => setIsRunning(false)}>
                   Stop
@@ -271,13 +369,13 @@ export default function EvaluationModeCSVContent() {
             <Section>
               <Table>
                 <thead>
-                  <tr>{variableMapTableFirstHeaderRow}</tr>
-                  <tr>{variableMapTableSecondHeaderRow}</tr>
+                  <tr>{variableMapTableHeaderRowFirst}</tr>
+                  <tr>{variableMapTableHeaderRowSecond}</tr>
                 </thead>
                 <tbody>{variableMapTableBodyRows}</tbody>
               </Table>
             </Section>
-          </AccordionDetails>
+          </CustomAccordionDetails>
         </Accordion>
       </AccordionGroup>
     </>
@@ -285,47 +383,50 @@ export default function EvaluationModeCSVContent() {
 }
 
 function runForEachRow(
-  csvData: string[][],
-  flowInputItems: FlowInputItem[],
-  selectedColumns: Record<string, number | null>,
+  csvBody: CSVData,
+  flowInputItems: readonly FlowInputItem[],
+  variableColumnMap: VariableColumnMap,
   edges: LocalEdge[],
-  nodeConfigs: NodeConfigs
+  nodeConfigs: NodeConfigs,
+  repeatTimes: number,
+  concurrent: number = 1
 ): Observable<{
-  index: number;
+  iteratonIndex: number;
+  rowIndex: number;
   outputs: FlowOutputVariableMap;
 }> {
-  return from(csvData.slice(1)).pipe(
-    map((row) => {
-      const inputVariableMap: FlowInputVariableMap = {};
+  return range(0, repeatTimes).pipe(
+    concatMap((iteratonIndex) => {
+      return from(csvBody).pipe(
+        map((row) => {
+          const inputVariableMap: FlowInputVariableMap = {};
 
-      flowInputItems.forEach((inputItem) => {
-        const index = selectedColumns[inputItem.id];
-        const value = index !== null ? row[index] : "";
-        inputVariableMap[inputItem.id] = value;
-      });
+          for (const inputItem of flowInputItems) {
+            const colIndex = variableColumnMap[inputItem.id];
+            const value = colIndex != null ? row[colIndex] : null;
+            inputVariableMap[inputItem.id] = value;
+          }
 
-      return inputVariableMap;
-    }),
-    concatMap((inputVariableMap, index) => {
-      return run(edges, nodeConfigs, inputVariableMap).pipe(
-        reduce<RunEvent, FlowOutputVariableMap>((acc, event) => {
-          if (event.type !== RunEventType.NodeConfigChange) {
-            return acc;
-          }
-          const config = nodeConfigs[event.nodeId]!;
-          if (config.nodeType !== NodeType.OutputNode) {
-            return acc;
-          }
-          const change = event.nodeChange as Partial<OutputNodeConfig>;
-          if (!change.inputs) {
-            return acc;
-          }
-          for (const item of change.inputs) {
-            acc = assoc(item.id, item.value, acc);
-          }
-          return acc;
-        }, {}),
-        map((outputs) => ({ outputs, index }))
+          return inputVariableMap;
+        }),
+        mergeMap((inputVariableMap, rowIndex) => {
+          return run(edges, nodeConfigs, inputVariableMap).pipe(
+            reduce<RunEvent, FlowOutputVariableMap>((acc, event) => {
+              if (event.type !== RunEventType.VariableValueChanges) {
+                return acc;
+              }
+
+              const changes = event.changes;
+
+              for (const [variableId, value] of Object.entries(changes)) {
+                acc = D.set(acc, variableId, value);
+              }
+
+              return acc;
+            }, {}),
+            map((outputs) => ({ iteratonIndex, rowIndex, outputs }))
+          );
+        }, concurrent)
       );
     })
   );

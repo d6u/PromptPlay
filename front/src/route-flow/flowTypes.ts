@@ -7,14 +7,16 @@ export type NodeID = string & { readonly "": unique symbol };
 export type EdgeID = string & { readonly "": unique symbol };
 export type InputID = string & { readonly "": unique symbol };
 export type OutputID = string & { readonly "": unique symbol };
+export type VariableID = InputID | OutputID;
 
 // Server types
 // ============
 
 export type FlowContent = {
-  nodes: ServerNode[];
+  nodes: readonly ServerNode[];
   nodeConfigs: NodeConfigs;
   edges: ServerEdge[];
+  variableValueMaps: readonly VariableValueMap[];
 };
 
 export type ServerNode = {
@@ -33,6 +35,8 @@ export type ServerEdge = {
   target: NodeID;
   targetHandle: InputID;
 };
+
+export type VariableValueMap = Record<VariableID, unknown>;
 
 // Node
 // ----
@@ -60,44 +64,44 @@ export type NodeConfigCommon = {
 
 export type InputNodeConfig = NodeConfigCommon & {
   nodeType: NodeType.InputNode;
-  outputs: FlowInputItem[];
+  outputs: readonly FlowInputItem[];
 };
 
 // Output
 
 export type OutputNodeConfig = NodeConfigCommon & {
   nodeType: NodeType.OutputNode;
-  inputs: FlowOutputItem[];
+  inputs: readonly FlowOutputItem[];
 };
 
 // JavaScriptFunction
 
 export type JavaScriptFunctionNodeConfig = NodeConfigCommon & {
   nodeType: NodeType.JavaScriptFunctionNode;
-  inputs: NodeInputItem[];
+  inputs: readonly NodeInputItem[];
   javaScriptCode: string;
-  outputs: NodeOutputItem[];
+  outputs: readonly NodeOutputItem[];
 };
 
 // ChatGPTMessage
 
 export type ChatGPTMessageNodeConfig = NodeConfigCommon & {
   nodeType: NodeType.ChatGPTMessageNode;
-  inputs: NodeInputItem[];
+  inputs: readonly NodeInputItem[];
   role: ChatGPTMessageRole;
   content: string;
-  outputs: NodeOutputItem[];
+  outputs: readonly NodeOutputItem[];
 };
 
 // ChatGPTChatCompletion
 
 export type ChatGPTChatCompletionNodeConfig = NodeConfigCommon & {
   nodeType: NodeType.ChatGPTChatCompletionNode;
-  inputs: NodeInputItem[];
+  inputs: readonly NodeInputItem[];
   model: OpenAIChatModel;
   temperature: number;
   stop: Array<string>;
-  outputs: NodeOutputItem[];
+  outputs: readonly NodeOutputItem[];
 };
 
 export enum OpenAIChatModel {
@@ -115,8 +119,6 @@ export type NodeInputItem = {
 export type NodeOutputItem = {
   id: OutputID;
   name: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  value: any;
 };
 
 export type FlowInputItem = NodeOutputItem & {
@@ -128,10 +130,7 @@ export enum InputValueType {
   Number = "Number",
 }
 
-export type FlowOutputItem = NodeInputItem & {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  value: any;
-};
+export type FlowOutputItem = NodeInputItem;
 
 // Edge
 // ----

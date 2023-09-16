@@ -6,8 +6,10 @@ import {
   NodeConfigs,
   NodeID,
   NodeType,
+  VariableValueMap,
   ServerNode,
-} from "./flowTypes";
+  VariableID,
+} from "../flowTypes";
 
 // === Begin of store types ===
 
@@ -19,9 +21,11 @@ export type FlowServerSlice = {
   isInitialized: boolean;
   isCurrentUserOwner: boolean;
 
-  nodes: LocalNode[];
+  nodes: readonly LocalNode[];
   nodeConfigs: NodeConfigs;
   edges: LocalEdge[];
+  variableValueMaps: readonly VariableValueMap[];
+  getDefaultVariableValueMap(): VariableValueMap;
 
   fetchFlowConfiguration(spaceId: string): Subscription;
   addNode(type: NodeType, x?: number, y?: number): void;
@@ -29,6 +33,7 @@ export type FlowServerSlice = {
   removeNode(id: NodeID): void;
   updateNodeConfig(nodeId: NodeID, change: Partial<NodeConfig>): void;
   updateNodeConfigDebounced(nodeId: NodeID, change: Partial<NodeConfig>): void;
+  updateDefaultVariableValueMap(variableId: VariableID, value: unknown): void;
 
   onNodesChange: OnNodesChange;
   onEdgesChange: OnEdgesChange;

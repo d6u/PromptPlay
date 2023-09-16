@@ -1,5 +1,5 @@
+import { A } from "@mobily/ts-belt";
 import mustache from "mustache";
-import { adjust, append, assoc, pipe } from "ramda";
 import {
   BehaviorSubject,
   EMPTY,
@@ -22,24 +22,23 @@ import { useLocalStorageStore, useSpaceStore } from "../state/appState";
 import {
   ChatGPTChatCompletionNodeConfig,
   ChatGPTMessageNodeConfig,
-  FlowOutputItem,
   InputID,
   JavaScriptFunctionNodeConfig,
   LocalEdge,
   NodeConfig,
   NodeConfigs,
   NodeID,
-  NodeOutputItem,
   NodeType,
   OutputID,
   OutputNodeConfig,
+  VariableValueMap,
 } from "./flowTypes";
-import { NodeAugment } from "./storeTypes";
+import { NodeAugment } from "./store/storeTypes";
 
 const AsyncFunction = async function () {}.constructor;
 
 export enum RunEventType {
-  NodeConfigChange = "NodeConfigChange",
+  VariableValueChanges = "VariableValueChanges",
   NodeAugmentChange = "NodeAugmentChange",
 }
 
@@ -48,12 +47,11 @@ export type FlowInputVariableMap = Record<OutputID, any>;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type FlowOutputVariableMap = Record<InputID, any>;
 
-export type RunEvent = NodeConfigChangeEvent | NodeAugmentChangeEvent;
+export type RunEvent = VariableValueChangeEvent | NodeAugmentChangeEvent;
 
-type NodeConfigChangeEvent = {
-  type: RunEventType.NodeConfigChange;
-  nodeId: NodeID;
-  nodeChange: Partial<NodeConfig>;
+type VariableValueChangeEvent = {
+  type: RunEventType.VariableValueChanges;
+  changes: VariableValueMap;
 };
 
 type NodeAugmentChangeEvent = {
@@ -140,10 +138,9 @@ export function run(
             inputIdToOutputIdMap,
             outputIdToValueMap
           ).pipe(
-            map((change) => ({
-              type: RunEventType.NodeConfigChange,
-              nodeId,
-              nodeChange: change,
+            map((changes) => ({
+              type: RunEventType.VariableValueChanges,
+              changes,
             }))
           );
           break;
@@ -155,10 +152,9 @@ export function run(
             inputIdToOutputIdMap,
             outputIdToValueMap
           ).pipe(
-            map((change) => ({
-              type: RunEventType.NodeConfigChange,
-              nodeId,
-              nodeChange: change,
+            map((changes) => ({
+              type: RunEventType.VariableValueChanges,
+              changes,
             }))
           );
           break;
@@ -169,10 +165,9 @@ export function run(
             inputIdToOutputIdMap,
             outputIdToValueMap
           ).pipe(
-            map((change) => ({
-              type: RunEventType.NodeConfigChange,
-              nodeId,
-              nodeChange: change,
+            map((changes) => ({
+              type: RunEventType.VariableValueChanges,
+              changes,
             }))
           );
           break;
@@ -185,13 +180,10 @@ export function run(
               outputIdToValueMap
             )
           ).pipe(
-            map<Partial<ChatGPTChatCompletionNodeConfig>, RunEvent>(
-              (change) => ({
-                type: RunEventType.NodeConfigChange,
-                nodeId,
-                nodeChange: change,
-              })
-            )
+            map((changes) => ({
+              type: RunEventType.VariableValueChanges,
+              changes,
+            }))
           );
           break;
         }
@@ -240,43 +232,35 @@ export function run(
 function handleOutputNode(
   data: OutputNodeConfig,
   inputIdToOutputIdMap: Record<InputID, OutputID | undefined>,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  outputIdToValueMap: Record<OutputID, any>
-): Observable<Partial<OutputNodeConfig>> {
-  let inputs = data.inputs;
+  variableValueMap: VariableValueMap
+): Observable<VariableValueMap> {
+  const changes: VariableValueMap = {};
 
-  for (const [i, input] of data.inputs.entries()) {
+  for (const input of data.inputs) {
     const outputId = inputIdToOutputIdMap[input.id];
 
     if (outputId) {
-      const outputValue = outputIdToValueMap[outputId];
-      inputs = adjust<FlowOutputItem>(
-        i,
-        assoc("value", outputValue ?? null)
-      )(inputs);
-    } else {
-      inputs = adjust<FlowOutputItem>(i, assoc("value", null))(inputs);
+      const outputValue = variableValueMap[outputId];
+      changes[input.id] = outputValue ?? null;
     }
   }
 
-  return of({ inputs });
+  return of(changes);
 }
 
 function handleJavaScriptFunctionNode(
   data: JavaScriptFunctionNodeConfig,
   inputIdToOutputIdMap: Record<InputID, OutputID | undefined>,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  outputIdToValueMap: Record<OutputID, any>
-): Observable<Partial<JavaScriptFunctionNodeConfig>> {
+  variableValueMap: VariableValueMap
+): Observable<VariableValueMap> {
   return defer(async () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const pairs: Array<[string, any]> = [];
+    const pairs: Array<[string, unknown]> = [];
 
     for (const input of data.inputs) {
       const outputId = inputIdToOutputIdMap[input.id];
 
       if (outputId) {
-        const outputValue = outputIdToValueMap[outputId];
+        const outputValue = variableValueMap[outputId];
         pairs.push([input.name, outputValue ?? null]);
       } else {
         pairs.push([input.name, null]);
@@ -290,20 +274,17 @@ function handleJavaScriptFunctionNode(
 
     const result = await fn(...pairs.map((pair) => pair[1]));
 
-    outputIdToValueMap[data.outputs[0].id] = result;
+    variableValueMap[data.outputs[0].id] = result;
 
-    return {
-      outputs: adjust<NodeOutputItem>(0, assoc("value", result))(data.outputs),
-    };
+    return { [data.outputs[0].id]: result };
   });
 }
 
 function handleChatGPTMessageNode(
   data: ChatGPTMessageNodeConfig,
   inputIdToOutputIdMap: Record<InputID, OutputID | undefined>,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  outputIdToValueMap: Record<OutputID, any>
-): Observable<Partial<ChatGPTMessageNodeConfig>> {
+  variableValueMap: VariableValueMap
+): Observable<VariableValueMap> {
   // Prepare inputs
   // ----------
 
@@ -314,7 +295,7 @@ function handleChatGPTMessageNode(
     const outputId = inputIdToOutputIdMap[input.id];
 
     if (outputId) {
-      const outputValue = outputIdToValueMap[outputId];
+      const outputValue = variableValueMap[outputId];
       argsMap[input.name] = outputValue ?? null;
     } else {
       argsMap[input.name] = null;
@@ -324,35 +305,32 @@ function handleChatGPTMessageNode(
   // Execute logic
   // ----------
 
-  let messages = argsMap["messages"] ?? [];
+  let messages: readonly OpenAI.ChatGPTMessage[] = argsMap["messages"] ?? [];
 
   const message = {
     role: data.role,
     content: mustache.render(data.content, argsMap),
   };
 
-  messages = append(message, messages);
+  messages = A.append(messages, message);
 
   // Update outputs
   // ----------
 
-  outputIdToValueMap[data.outputs[0].id] = message;
-  outputIdToValueMap[data.outputs[1].id] = messages;
+  variableValueMap[data.outputs[0].id] = message;
+  variableValueMap[data.outputs[1].id] = messages;
 
   return of({
-    outputs: pipe(
-      adjust<NodeOutputItem>(0, assoc("value", message)),
-      adjust<NodeOutputItem>(1, assoc("value", messages))
-    )(data.outputs),
+    [data.outputs[0].id]: message,
+    [data.outputs[1].id]: messages,
   });
 }
 
 function handleChatGPTChatNode(
   data: ChatGPTChatCompletionNodeConfig,
   inputIdToOutputIdMap: Record<InputID, OutputID | undefined>,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  outputIdToValueMap: Record<OutputID, any>
-): Observable<Partial<ChatGPTChatCompletionNodeConfig>> {
+  variableValueMap: VariableValueMap
+): Observable<VariableValueMap> {
   return defer(() => {
     // Prepare inputs
     // ----------
@@ -364,7 +342,7 @@ function handleChatGPTChatNode(
       const outputId = inputIdToOutputIdMap[input.id];
 
       if (outputId) {
-        const outputValue = outputIdToValueMap[outputId];
+        const outputValue = variableValueMap[outputId];
         argsMap[input.name] = outputValue ?? null;
       } else {
         argsMap[input.name] = null;
@@ -381,7 +359,7 @@ function handleChatGPTChatNode(
       return throwError(() => new Error("OpenAI API key is missing"));
     }
 
-    let messages = argsMap["messages"] ?? [];
+    let messages: readonly OpenAI.ChatGPTMessage[] = argsMap["messages"] ?? [];
     let role = "assistant";
     let content = "";
 
@@ -407,11 +385,9 @@ function handleChatGPTChatNode(
         const message = { role, content };
 
         return {
-          outputs: pipe(
-            adjust<NodeOutputItem>(0, assoc("value", content)),
-            adjust<NodeOutputItem>(1, assoc("value", message)),
-            adjust<NodeOutputItem>(2, assoc("value", append(message, messages)))
-          )(data.outputs),
+          [data.outputs[0].id]: content,
+          [data.outputs[1].id]: message,
+          [data.outputs[2].id]: A.append(messages, message),
         };
       })
     );
@@ -420,18 +396,16 @@ function handleChatGPTChatNode(
       obs1,
       defer(() => {
         const message = { role, content };
-        messages = append(message, messages);
+        messages = A.append(messages, message);
 
-        outputIdToValueMap[data.outputs[0].id] = content;
-        outputIdToValueMap[data.outputs[1].id] = message;
-        outputIdToValueMap[data.outputs[2].id] = messages;
+        variableValueMap[data.outputs[0].id] = content;
+        variableValueMap[data.outputs[1].id] = message;
+        variableValueMap[data.outputs[2].id] = messages;
 
         return of({
-          outputs: pipe(
-            adjust<NodeOutputItem>(0, assoc("value", content)),
-            adjust<NodeOutputItem>(1, assoc("value", message)),
-            adjust<NodeOutputItem>(2, assoc("value", messages))
-          )(data.outputs),
+          [data.outputs[0].id]: content,
+          [data.outputs[1].id]: message,
+          [data.outputs[2].id]: messages,
         });
       })
     );

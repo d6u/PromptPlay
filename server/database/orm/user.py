@@ -10,6 +10,7 @@ from ..mixins import MixinCreatedAt, MixinUpdatedAt, MixinUuidPrimaryKey
 if TYPE_CHECKING:
     from .block_set import OrmBlockSet
     from .completer_block import OrmCompleterBlock
+    from .csv_evaluation_preset import OrmCSVEvaluationPreset
     from .preset import OrmPreset
     from .prompt_block import OrmPromptBlock
     from .space import OrmSpace
@@ -56,6 +57,13 @@ class OrmUser(Base, MixinUuidPrimaryKey, MixinCreatedAt, MixinUpdatedAt):
         passive_deletes=True,
     )
     spaces: WriteOnlyMapped[OrmSpace] = relationship(
+        back_populates="owner",
+        cascade="all, delete",
+        passive_deletes=True,
+    )
+    csv_evaluation_presets: WriteOnlyMapped[
+        OrmCSVEvaluationPreset
+    ] = relationship(
         back_populates="owner",
         cascade="all, delete",
         passive_deletes=True,

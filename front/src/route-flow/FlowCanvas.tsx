@@ -20,8 +20,8 @@ import JavaScriptFunctionNode from "./nodes/JavaScriptFunctionNode";
 import OutputNode from "./nodes/OutputNode";
 import { DRAG_HANDLE_CLASS_NAME } from "./nodes/node-common/HeaderSection";
 import SidePanel from "./side-panel/SidePanel";
-import { useFlowStore } from "./storeFlow";
-import { FlowState, LocalNode } from "./storeTypes";
+import { useFlowStore } from "./store/flowStore";
+import { FlowState, LocalNode } from "./store/storeTypes";
 
 const NODE_TYPES = {
   [NodeType.InputNode]: InputNode,

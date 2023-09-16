@@ -1,6 +1,6 @@
 import { ReactNode, useMemo } from "react";
-import { useFlowStore } from "../storeFlow";
-import { FlowState } from "../storeTypes";
+import { useFlowStore } from "../store/flowStore";
+import { FlowState } from "../store/storeTypes";
 import {
   HeaderSection,
   HeaderSectionHeader,
@@ -14,10 +14,12 @@ import {
 const selector = (state: FlowState) => ({
   nodeConfigs: state.nodeConfigs,
   detailPanelSelectedNodeId: state.detailPanelSelectedNodeId,
+  defaultVariableValueMap: state.getDefaultVariableValueMap(),
 });
 
 export default function PanelNodeConfig() {
-  const { nodeConfigs, detailPanelSelectedNodeId } = useFlowStore(selector);
+  const { nodeConfigs, detailPanelSelectedNodeId, defaultVariableValueMap } =
+    useFlowStore(selector);
 
   const nodeConfig = useMemo(
     () =>
@@ -35,12 +37,13 @@ export default function PanelNodeConfig() {
       <Section>
         {nodeConfig && "outputs" in nodeConfig
           ? nodeConfig.outputs.map((output) => {
-              let content: ReactNode;
+              const value = defaultVariableValueMap[output.id];
 
-              if (typeof output?.value === "string") {
-                content = output?.value;
+              let content: ReactNode;
+              if (typeof value === "string") {
+                content = value;
               } else {
-                content = JSON.stringify(output?.value, null, 2);
+                content = JSON.stringify(value, null, 2);
               }
 
               return (

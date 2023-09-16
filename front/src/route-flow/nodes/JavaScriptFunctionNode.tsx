@@ -16,8 +16,8 @@ import {
   NodeInputItem,
   NodeType,
 } from "../flowTypes";
-import { useFlowStore } from "../storeFlow";
-import { FlowState } from "../storeTypes";
+import { useFlowStore } from "../store/flowStore";
+import { FlowState } from "../store/storeTypes";
 import AddVariableButton from "./node-common/AddVariableButton";
 import HeaderSection from "./node-common/HeaderSection";
 import NodeBox, { NodeState } from "./node-common/NodeBox";
@@ -42,6 +42,7 @@ const selector = (state: FlowState) => ({
   updateNodeConfig: state.updateNodeConfig,
   removeNode: state.removeNode,
   localNodeAugments: state.localNodeAugments,
+  defaultVariableValueMap: state.getDefaultVariableValueMap(),
 });
 
 export default function JavaScriptFunctionNode() {
@@ -53,6 +54,7 @@ export default function JavaScriptFunctionNode() {
     updateNodeConfig,
     removeNode,
     localNodeAugments,
+    defaultVariableValueMap,
   } = useFlowStore(selector);
 
   const nodeConfig = useMemo(
@@ -198,7 +200,7 @@ export default function JavaScriptFunctionNode() {
           <NodeOutputRow
             id={nodeConfig.outputs[0].id}
             name={nodeConfig.outputs[0].name}
-            value={nodeConfig.outputs[0].value}
+            value={defaultVariableValueMap[nodeConfig.outputs[0].id]}
           />
         </Section>
       </NodeBox>
