@@ -100,6 +100,10 @@ export default function ToolBar() {
     };
   }, []);
 
+  const shouldShowRunButton =
+    detailPanelContentType !== DetailPanelContentType.EvaluationModeSimple &&
+    detailPanelContentType !== DetailPanelContentType.EvaluationModeCSV;
+
   return (
     <Container>
       <LeftAligned>
@@ -182,9 +186,11 @@ export default function ToolBar() {
             >
               Add Output
             </Button>
-            <Button color="success" onClick={runFlow}>
-              Run
-            </Button>
+            {shouldShowRunButton && (
+              <Button color="success" onClick={runFlow}>
+                Run
+              </Button>
+            )}
           </>
         )}
       </LeftAligned>
