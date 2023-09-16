@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 import { Autocomplete, AutocompleteOption, Button } from "@mui/joy";
-import { ReactNode, useEffect, useMemo, useState } from "react";
+import { ReactNode, useEffect, useMemo } from "react";
 import { useQuery } from "urql";
 import { SPACE_CSV_EVALUATION_PRESETS_QUERY } from "../store/flowGraphql";
 import { FlowState, useFlowStore } from "../store/flowStore";
@@ -26,7 +26,7 @@ const RightAlign = styled.div`
   align-items: center;
 `;
 
-type Prest = {
+type Preset = {
   id: string;
   label: string;
 };
@@ -54,25 +54,20 @@ export default function EvaluationModePresetSelector() {
     },
   });
 
-  const [presets, setPresets] = useState<readonly Prest[]>([]);
+  const presets = useMemo<Preset[]>(
+    () =>
+      queryResult.data?.result?.space.csvEvaluationPresets.map((preset) => ({
+        id: preset.id,
+        label: preset.name,
+      })) ?? [],
+    [queryResult.data?.result?.space.csvEvaluationPresets]
+  );
 
   useEffect(() => {
-    const presets = queryResult.data?.result?.space.csvEvaluationPresets;
-
-    if (presets) {
-      setPresets(
-        presets.map((preset) => ({ id: preset.id, label: preset.name }))
-      );
-
-      if (!presets.find((preset) => preset.id === csvEvaluationPresetId)) {
-        csvEvaluationPresetSetAndLoadPreset(null);
-      }
+    if (!presets.find((preset) => preset.id === csvEvaluationPresetId)) {
+      csvEvaluationPresetSetAndLoadPreset(null);
     }
-  }, [
-    csvEvaluationPresetId,
-    queryResult.data?.result?.space.csvEvaluationPresets,
-    csvEvaluationPresetSetAndLoadPreset,
-  ]);
+  }, [csvEvaluationPresetId, csvEvaluationPresetSetAndLoadPreset, presets]);
 
   const selectedPreset = useMemo(
     () => presets.find((preset) => preset.id === csvEvaluationPresetId) ?? null,
@@ -108,33 +103,29 @@ export default function EvaluationModePresetSelector() {
           <Button
             variant="outlined"
             onClick={() => {
-              // const preset = {
-              //   label: "New preset",
-              //   id: nanoid(),
-              // };
-              // setPresets([...presets, preset]);
-              // csvEvaluationPresetSetAndLoadPreset(preset.id);
-              csvEvaluationPresetSetSave();
+              if (selectedPreset) {
+                csvEvaluationPresetSetSave();
+              } else {
+                // TODO
+              }
             }}
           >
             Save
           </Button>
         </LeftAlign>
         <RightAlign>
-          <Button
-            variant="outlined"
-            onClick={() => {
-              // const newPresets = presets.filter(
-              //   (option) => option.id !== csvEvaluationPresetId
-              // );
-              // setPresets(newPresets);
-              // csvEvaluationPresetSetAndLoadPreset(
-              //   newPresets.length ? newPresets[0].id : null
-              // );
-            }}
-          >
-            Delete preset
-          </Button>
+          {selectedPreset && (
+            <Button
+              variant="outlined"
+              onClick={() => {
+                if (selectedPreset) {
+                  // TODO
+                }
+              }}
+            >
+              Delete preset
+            </Button>
+          )}
         </RightAlign>
       </>
     );
