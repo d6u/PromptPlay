@@ -21,6 +21,36 @@ export const SPACE_FLOW_QUERY = graphql(`
   }
 `);
 
+export const SPACE_CSV_EVALUATION_PRESETS_QUERY = graphql(`
+  query SpaceCSVEvaluationPresetsQuery($spaceId: UUID!) {
+    result: space(id: $spaceId) {
+      space {
+        id
+        csvEvaluationPresets {
+          id
+          name
+        }
+      }
+    }
+  }
+`);
+
+export const CSV_EVALUATION_PRESET_QUERY = graphql(`
+  query CSVEvaluationPresetQuery($spaceId: UUID!, $presetId: ID!) {
+    result: space(id: $spaceId) {
+      space {
+        id
+        csvEvaluationPreset(id: $presetId) {
+          id
+          name
+          csvContent
+          configContent
+        }
+      }
+    }
+  }
+`);
+
 export const UPDATE_SPACE_FLOW_CONTENT_MUTATION = graphql(`
   mutation UpdateSpaceFlowContentMutation(
     $spaceId: ID!
@@ -34,17 +64,32 @@ export const UPDATE_SPACE_FLOW_CONTENT_MUTATION = graphql(`
   }
 `);
 
+export const UPDATE_CSV_EVALUATION_PRESET_MUTATION = graphql(`
+  mutation UpdateCsvEvaluationPresetMutation(
+    $presetId: ID!
+    $name: String
+    $csvContent: String
+  ) {
+    updateCsvEvaluationPreset(
+      presetId: $presetId
+      name: $name
+      csvContent: $csvContent
+    ) {
+      id
+      name
+      csvContent
+      configContent
+    }
+  }
+`);
+
 export function queryFlowObservable(spaceId: string): Observable<{
   isCurrentUserOwner: boolean;
   flowContent: Partial<FlowContent>;
 }> {
   return defer(() =>
     client
-      .query(
-        SPACE_FLOW_QUERY,
-        { spaceId },
-        { requestPolicy: "cache-and-network" }
-      )
+      .query(SPACE_FLOW_QUERY, { spaceId }, { requestPolicy: "network-only" })
       .toPromise()
   ).pipe(
     $map((result) => {
@@ -67,6 +112,44 @@ export function queryFlowObservable(spaceId: string): Observable<{
         isCurrentUserOwner: !result.data?.result?.isReadOnly,
         flowContent,
       };
+    })
+  );
+}
+
+export function queryCSVEvaluationPresetObservable(
+  spaceId: string,
+  presetId: string
+): Observable<{ csvContent: string; configContent: unknown }> {
+  return defer(() =>
+    client
+      .query(
+        CSV_EVALUATION_PRESET_QUERY,
+        { spaceId, presetId },
+        { requestPolicy: "network-only" }
+      )
+      .toPromise()
+  ).pipe(
+    $map((result) => {
+      // TODO: handle error
+
+      const preset = result.data?.result?.space?.csvEvaluationPreset;
+
+      const csvContent = preset?.csvContent ?? "";
+
+      let configContent: unknown = {};
+
+      if (preset) {
+        if (preset.configContent) {
+          try {
+            configContent = JSON.parse(preset.configContent);
+          } catch (e) {
+            // TODO: handle parse error
+            console.error(e);
+          }
+        }
+      }
+
+      return { csvContent, configContent };
     })
   );
 }
@@ -109,3 +192,15 @@ export async function updateSpace(
 }
 
 export const updateSpaceDebounced = debounce(updateSpace, 500);
+
+export async function updateCSVEvaluationPreset(
+  presetId: string,
+  // name: string,
+  csvContent: string
+) {
+  await client.mutation(UPDATE_CSV_EVALUATION_PRESET_MUTATION, {
+    presetId,
+    // name,
+    csvContent,
+  });
+}

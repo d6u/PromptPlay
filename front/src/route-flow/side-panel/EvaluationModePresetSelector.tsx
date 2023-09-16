@@ -1,7 +1,9 @@
 import styled from "@emotion/styled";
 import { Autocomplete, AutocompleteOption, Button } from "@mui/joy";
-import { nanoid } from "nanoid";
-import { useMemo, useState } from "react";
+import { ReactNode, useEffect, useMemo, useState } from "react";
+import { useQuery } from "urql";
+import { SPACE_CSV_EVALUATION_PRESETS_QUERY } from "../store/flowGraphql";
+import { FlowState, useFlowStore } from "../store/flowStore";
 
 const Container = styled.div`
   height: 49px;
@@ -29,62 +31,114 @@ type Prest = {
   label: string;
 };
 
+const selector = (state: FlowState) => ({
+  spaceId: state.spaceId,
+  csvEvaluationPresetId: state.csvEvaluationPresetId,
+  csvEvaluationPresetSetAndLoadPreset:
+    state.csvEvaluationPresetSetAndLoadPreset,
+  csvEvaluationPresetSetSave: state.csvEvaluationPresetSetSave,
+});
+
 export default function EvaluationModePresetSelector() {
+  const {
+    spaceId,
+    csvEvaluationPresetId,
+    csvEvaluationPresetSetAndLoadPreset,
+    csvEvaluationPresetSetSave,
+  } = useFlowStore(selector);
+
+  const [queryResult] = useQuery({
+    query: SPACE_CSV_EVALUATION_PRESETS_QUERY,
+    variables: {
+      spaceId: spaceId,
+    },
+  });
+
   const [presets, setPresets] = useState<readonly Prest[]>([]);
-  const [selectedPresetId, setSelectedPresetId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const presets = queryResult.data?.result?.space.csvEvaluationPresets;
+
+    if (presets) {
+      setPresets(
+        presets.map((preset) => ({ id: preset.id, label: preset.name }))
+      );
+
+      if (!presets.find((preset) => preset.id === csvEvaluationPresetId)) {
+        csvEvaluationPresetSetAndLoadPreset(null);
+      }
+    }
+  }, [
+    csvEvaluationPresetId,
+    queryResult.data?.result?.space.csvEvaluationPresets,
+    csvEvaluationPresetSetAndLoadPreset,
+  ]);
 
   const selectedPreset = useMemo(
-    () => presets.find((preset) => preset.id === selectedPresetId) ?? null,
-    [presets, selectedPresetId]
+    () => presets.find((preset) => preset.id === csvEvaluationPresetId) ?? null,
+    [presets, csvEvaluationPresetId]
   );
 
-  return (
-    <Container>
-      <LeftAlign>
-        <Autocomplete
-          size="sm"
-          openOnFocus
-          placeholder="Your preset"
-          sx={{ width: 400 }}
-          options={presets}
-          value={selectedPreset}
-          onChange={(e, value) => {
-            setSelectedPresetId(value?.id ?? null);
-          }}
-          renderOption={(props, option) => (
-            <AutocompleteOption {...props} key={option.id}>
-              {option.label}
-            </AutocompleteOption>
-          )}
-        />
-        <Button
-          variant="outlined"
-          onClick={() => {
-            const preset = {
-              label: "New preset",
-              id: nanoid(),
-            };
-            setPresets([...presets, preset]);
-            setSelectedPresetId(preset.id);
-          }}
-        >
-          Save
-        </Button>
-      </LeftAlign>
-      <RightAlign>
-        <Button
-          variant="outlined"
-          onClick={() => {
-            const newPresets = presets.filter(
-              (option) => option.id !== selectedPresetId
-            );
-            setPresets(newPresets);
-            setSelectedPresetId(newPresets.length ? newPresets[0].id : null);
-          }}
-        >
-          Delete preset
-        </Button>
-      </RightAlign>
-    </Container>
-  );
+  let content: ReactNode | null = null;
+
+  if (queryResult.fetching) {
+    content = null;
+  } else if (queryResult.error || !queryResult.data?.result) {
+    content = null;
+  } else {
+    content = (
+      <>
+        <LeftAlign>
+          <Autocomplete
+            size="sm"
+            openOnFocus
+            placeholder="Your preset"
+            sx={{ width: 400 }}
+            options={presets}
+            value={selectedPreset}
+            onChange={(e, value) => {
+              csvEvaluationPresetSetAndLoadPreset(value?.id ?? null);
+            }}
+            renderOption={(props, option) => (
+              <AutocompleteOption {...props} key={option.id}>
+                {option.label}
+              </AutocompleteOption>
+            )}
+          />
+          <Button
+            variant="outlined"
+            onClick={() => {
+              // const preset = {
+              //   label: "New preset",
+              //   id: nanoid(),
+              // };
+              // setPresets([...presets, preset]);
+              // csvEvaluationPresetSetAndLoadPreset(preset.id);
+              csvEvaluationPresetSetSave();
+            }}
+          >
+            Save
+          </Button>
+        </LeftAlign>
+        <RightAlign>
+          <Button
+            variant="outlined"
+            onClick={() => {
+              // const newPresets = presets.filter(
+              //   (option) => option.id !== csvEvaluationPresetId
+              // );
+              // setPresets(newPresets);
+              // csvEvaluationPresetSetAndLoadPreset(
+              //   newPresets.length ? newPresets[0].id : null
+              // );
+            }}
+          >
+            Delete preset
+          </Button>
+        </RightAlign>
+      </>
+    );
+  }
+
+  return <Container>{content}</Container>;
 }

@@ -37,6 +37,14 @@ export type BlockSet = {
   topOutputBlock?: Maybe<PromptBlock>;
 };
 
+export type CsvEvaluationPreset = {
+  __typename?: 'CSVEvaluationPreset';
+  configContent?: Maybe<Scalars['String']['output']>;
+  csvContent: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+};
+
 export type CompleterBlock = Block & {
   __typename?: 'CompleterBlock';
   id: Scalars['UUID']['output'];
@@ -76,6 +84,7 @@ export type Mutation = {
   addSystemPromptToBlockSet?: Maybe<BlockSet>;
   createBlockSet?: Maybe<BlockSet>;
   createCompleterBlock?: Maybe<CompleterBlock>;
+  createCsvEvaluationPreset?: Maybe<CsvEvaluationPreset>;
   createExampleWorkspace?: Maybe<CreateExampleWorkspaceResult>;
   createPlaceholderUserAndExampleSpace: CreatePlaceholderUserAndExampleSpaceResult;
   createPromptBlock?: Maybe<PromptBlock>;
@@ -95,6 +104,7 @@ export type Mutation = {
   swapBlockSetPositions?: Maybe<Preset>;
   updateBlockSetOptions?: Maybe<BlockSet>;
   updateCompleterBlock?: Maybe<CompleterBlock>;
+  updateCsvEvaluationPreset?: Maybe<CsvEvaluationPreset>;
   updatePromptBlock?: Maybe<PromptBlock>;
   updateSpace?: Maybe<Space>;
   updateWorkspace?: Maybe<Workspace>;
@@ -132,6 +142,12 @@ export type MutationCreateBlockSetArgs = {
 
 export type MutationCreateCompleterBlockArgs = {
   workspaceId: Scalars['UUID']['input'];
+};
+
+
+export type MutationCreateCsvEvaluationPresetArgs = {
+  name?: InputMaybe<Scalars['String']['input']>;
+  spaceId: Scalars['ID']['input'];
 };
 
 
@@ -217,6 +233,13 @@ export type MutationUpdateCompleterBlockArgs = {
 };
 
 
+export type MutationUpdateCsvEvaluationPresetArgs = {
+  csvContent?: InputMaybe<Scalars['String']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  presetId: Scalars['ID']['input'];
+};
+
+
 export type MutationUpdatePromptBlockArgs = {
   content: Scalars['String']['input'];
   id: Scalars['UUID']['input'];
@@ -295,10 +318,17 @@ export type Space = {
   __typename?: 'Space';
   content?: Maybe<Scalars['String']['output']>;
   contentVersion: ContentVersion;
+  csvEvaluationPreset: CsvEvaluationPreset;
+  csvEvaluationPresets: Array<CsvEvaluationPreset>;
   flowContent?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
   updatedAt: Scalars['DateTime']['output'];
+};
+
+
+export type SpaceCsvEvaluationPresetArgs = {
+  id: Scalars['ID']['input'];
 };
 
 export type User = {
@@ -343,6 +373,21 @@ export type SpaceFlowQueryQuery = { __typename?: 'Query', result?: { __typename?
       & { ' $fragmentRefs'?: { 'SpaceSubHeaderFragmentFragment': SpaceSubHeaderFragmentFragment } }
     ) } | null };
 
+export type SpaceCsvEvaluationPresetsQueryQueryVariables = Exact<{
+  spaceId: Scalars['UUID']['input'];
+}>;
+
+
+export type SpaceCsvEvaluationPresetsQueryQuery = { __typename?: 'Query', result?: { __typename?: 'QuerySpaceResult', space: { __typename?: 'Space', id: string, csvEvaluationPresets: Array<{ __typename?: 'CSVEvaluationPreset', id: string, name: string }> } } | null };
+
+export type CsvEvaluationPresetQueryQueryVariables = Exact<{
+  spaceId: Scalars['UUID']['input'];
+  presetId: Scalars['ID']['input'];
+}>;
+
+
+export type CsvEvaluationPresetQueryQuery = { __typename?: 'Query', result?: { __typename?: 'QuerySpaceResult', space: { __typename?: 'Space', id: string, csvEvaluationPreset: { __typename?: 'CSVEvaluationPreset', id: string, name: string, csvContent: string, configContent?: string | null } } } | null };
+
 export type UpdateSpaceFlowContentMutationMutationVariables = Exact<{
   spaceId: Scalars['ID']['input'];
   flowContent: Scalars['String']['input'];
@@ -350,6 +395,15 @@ export type UpdateSpaceFlowContentMutationMutationVariables = Exact<{
 
 
 export type UpdateSpaceFlowContentMutationMutation = { __typename?: 'Mutation', updateSpace?: { __typename?: 'Space', id: string, name: string, flowContent?: string | null } | null };
+
+export type UpdateCsvEvaluationPresetMutationMutationVariables = Exact<{
+  presetId: Scalars['ID']['input'];
+  name?: InputMaybe<Scalars['String']['input']>;
+  csvContent?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type UpdateCsvEvaluationPresetMutationMutation = { __typename?: 'Mutation', updateCsvEvaluationPreset?: { __typename?: 'CSVEvaluationPreset', id: string, name: string, csvContent: string, configContent?: string | null } | null };
 
 export type DashboardFragment = { __typename?: 'User', spaces: Array<{ __typename?: 'Space', id: string, name: string, updatedAt: any, contentVersion: ContentVersion }> } & { ' $fragmentName'?: 'DashboardFragment' };
 
@@ -422,7 +476,10 @@ export const DashboardFragmentDoc = {"kind":"Document","definitions":[{"kind":"F
 export const SpaceSubHeaderFragmentFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"SpaceSubHeaderFragment"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Space"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]} as unknown as DocumentNode<SpaceSubHeaderFragmentFragment, unknown>;
 export const HeaderSpaceNameQueryDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"HeaderSpaceNameQuery"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"spaceId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UUID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","alias":{"kind":"Name","value":"result"},"name":{"kind":"Name","value":"space"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"spaceId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"isReadOnly"}},{"kind":"Field","name":{"kind":"Name","value":"space"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}}]}}]} as unknown as DocumentNode<HeaderSpaceNameQueryQuery, HeaderSpaceNameQueryQueryVariables>;
 export const SpaceFlowQueryDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"SpaceFlowQuery"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"spaceId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UUID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","alias":{"kind":"Name","value":"result"},"name":{"kind":"Name","value":"space"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"spaceId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"isReadOnly"}},{"kind":"Field","name":{"kind":"Name","value":"space"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"SpaceSubHeaderFragment"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"contentVersion"}},{"kind":"Field","name":{"kind":"Name","value":"flowContent"}}]}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"SpaceSubHeaderFragment"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Space"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]} as unknown as DocumentNode<SpaceFlowQueryQuery, SpaceFlowQueryQueryVariables>;
+export const SpaceCsvEvaluationPresetsQueryDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"SpaceCSVEvaluationPresetsQuery"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"spaceId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UUID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","alias":{"kind":"Name","value":"result"},"name":{"kind":"Name","value":"space"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"spaceId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"space"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"csvEvaluationPresets"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}}]}}]}}]} as unknown as DocumentNode<SpaceCsvEvaluationPresetsQueryQuery, SpaceCsvEvaluationPresetsQueryQueryVariables>;
+export const CsvEvaluationPresetQueryDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"CSVEvaluationPresetQuery"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"spaceId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UUID"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"presetId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","alias":{"kind":"Name","value":"result"},"name":{"kind":"Name","value":"space"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"spaceId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"space"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"csvEvaluationPreset"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"presetId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"csvContent"}},{"kind":"Field","name":{"kind":"Name","value":"configContent"}}]}}]}}]}}]}}]} as unknown as DocumentNode<CsvEvaluationPresetQueryQuery, CsvEvaluationPresetQueryQueryVariables>;
 export const UpdateSpaceFlowContentMutationDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateSpaceFlowContentMutation"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"spaceId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"flowContent"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateSpace"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"spaceId"}}},{"kind":"Argument","name":{"kind":"Name","value":"flowContent"},"value":{"kind":"Variable","name":{"kind":"Name","value":"flowContent"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"flowContent"}}]}}]}}]} as unknown as DocumentNode<UpdateSpaceFlowContentMutationMutation, UpdateSpaceFlowContentMutationMutationVariables>;
+export const UpdateCsvEvaluationPresetMutationDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateCsvEvaluationPresetMutation"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"presetId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"name"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"csvContent"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateCsvEvaluationPreset"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"presetId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"presetId"}}},{"kind":"Argument","name":{"kind":"Name","value":"name"},"value":{"kind":"Variable","name":{"kind":"Name","value":"name"}}},{"kind":"Argument","name":{"kind":"Name","value":"csvContent"},"value":{"kind":"Variable","name":{"kind":"Name","value":"csvContent"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"csvContent"}},{"kind":"Field","name":{"kind":"Name","value":"configContent"}}]}}]}}]} as unknown as DocumentNode<UpdateCsvEvaluationPresetMutationMutation, UpdateCsvEvaluationPresetMutationMutationVariables>;
 export const CreateSpaceMutationDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateSpaceMutation"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","alias":{"kind":"Name","value":"result"},"name":{"kind":"Name","value":"createSpace"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]} as unknown as DocumentNode<CreateSpaceMutationMutation, CreateSpaceMutationMutationVariables>;
 export const HeaderQueryDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"HeaderQuery"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"isLoggedIn"}},{"kind":"Field","name":{"kind":"Name","value":"isPlaceholderUserTokenInvalid"}},{"kind":"Field","name":{"kind":"Name","value":"user"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"email"}},{"kind":"Field","name":{"kind":"Name","value":"profilePictureUrl"}}]}}]}}]} as unknown as DocumentNode<HeaderQueryQuery, HeaderQueryQueryVariables>;
 export const MergePlaceholderUserWithLoggedInUserMutationDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"MergePlaceholderUserWithLoggedInUserMutation"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"placeholderUserToken"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","alias":{"kind":"Name","value":"result"},"name":{"kind":"Name","value":"mergePlaceholderUserWithLoggedInUser"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"placeholderUserToken"},"value":{"kind":"Variable","name":{"kind":"Name","value":"placeholderUserToken"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"spaces"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]}}]} as unknown as DocumentNode<MergePlaceholderUserWithLoggedInUserMutationMutation, MergePlaceholderUserWithLoggedInUserMutationMutationVariables>;

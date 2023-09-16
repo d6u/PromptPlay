@@ -43,42 +43,40 @@ class MutationCSVEvaluationPreset:
 
         return CSVEvaluationPreset.from_db(db_csv_evaluation_preset)
 
-    # @strawberry.mutation
-    # @ensure_db_user
-    # def update_space(
-    #     self: None,
-    #     info: Info,
-    #     db_user: OrmUser,
-    #     id: strawberry.ID,
-    #     name: str | None = strawberry.UNSET,
-    #     content: str | None = strawberry.UNSET,
-    #     flow_content: str | None = strawberry.UNSET,
-    # ) -> Space | None:
-    #     db = info.context.db
+    @strawberry.mutation
+    @ensure_db_user
+    def update_csv_evaluation_preset(
+        self: None,
+        info: Info,
+        db_user: OrmUser,
+        preset_id: strawberry.ID,
+        name: str | None = strawberry.UNSET,
+        csv_content: str | None = strawberry.UNSET,
+    ) -> CSVEvaluationPreset | None:
+        db = info.context.db
 
-    #     db_space = db.scalar(db_user.spaces.select().where(OrmSpace.id == id))
+        db_csv_evaluation_preset = db.scalar(
+            db_user.csv_evaluation_presets.select().where(
+                OrmCSVEvaluationPreset.id == preset_id
+            )
+        )
 
-    #     if db_space == None:
-    #         return None
+        if db_csv_evaluation_preset == None:
+            return None
 
-    #     if name == None:
-    #         raise Exception("name cannot be null")
-    #     elif name != strawberry.UNSET:
-    #         db_space.name = name
+        if name == None:
+            raise Exception("name cannot be null")
+        elif name != strawberry.UNSET:
+            db_csv_evaluation_preset.name = name
 
-    #     if content == None:
-    #         db_space.content = None
-    #     elif content != strawberry.UNSET:
-    #         db_space.content = json.loads(content)
+        if csv_content == None:
+            db_csv_evaluation_preset.csv_content = None
+        elif csv_content != strawberry.UNSET:
+            db_csv_evaluation_preset.csv_content = csv_content
 
-    #     if flow_content == None:
-    #         db_space.flow_content = None
-    #     elif flow_content != strawberry.UNSET:
-    #         db_space.flow_content = json.loads(flow_content)
+        db.commit()
 
-    #     db.commit()
-
-    #     return Space.from_db(db_space)
+        return CSVEvaluationPreset.from_db(db_csv_evaluation_preset)
 
     # @strawberry.mutation
     # @ensure_db_user

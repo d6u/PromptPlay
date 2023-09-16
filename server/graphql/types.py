@@ -369,6 +369,25 @@ class Space:
 
         return [CSVEvaluationPreset.from_db(p) for p in csv_evaluation_presets]
 
+    @strawberry.field
+    def csv_evaluation_preset(
+        self: Space,
+        info: Info,
+        id: strawberry.ID,
+    ) -> CSVEvaluationPreset:
+        db = info.context.db
+
+        csv_evaluation_preset = db.scalar(
+            self.db_space.csv_evaluation_presets.select().where(
+                OrmCSVEvaluationPreset.id == id
+            )
+        )
+
+        if csv_evaluation_preset == None:
+            return None
+
+        return CSVEvaluationPreset.from_db(csv_evaluation_preset)
+
 
 @strawberry.type
 class CSVEvaluationPreset:

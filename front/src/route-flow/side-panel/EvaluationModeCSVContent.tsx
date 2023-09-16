@@ -15,7 +15,7 @@ import {
   Textarea,
 } from "@mui/joy";
 import Papa from "papaparse";
-import { ReactNode, useEffect, useRef, useState } from "react";
+import { ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import {
   Observable,
   Subscription,
@@ -78,16 +78,43 @@ const selector = (state: FlowState) => ({
   nodeConfigs: state.nodeConfigs,
   flowInputItems: flowInputItemsSelector(state),
   flowOutputItems: flowOutputItemsSelector(state),
+  csvEvaluationPresetCsvContent: state.csvEvaluationPresetCsvContent,
+  csvEvaluationPresetSetCsvContent: state.csvEvaluationPresetSetCsvContent,
 });
 
 export default function EvaluationModeCSVContent() {
-  const { edges, nodeConfigs, flowInputItems, flowOutputItems } =
-    useFlowStore(selector);
+  const {
+    edges,
+    nodeConfigs,
+    flowInputItems,
+    flowOutputItems,
+    csvEvaluationPresetCsvContent: csvContent,
+    csvEvaluationPresetSetCsvContent: setCsvContent,
+  } = useFlowStore(selector);
 
+  const csvData = useMemo<CSVData>(
+    () => Papa.parse(csvContent).data as CSVData,
+    [csvContent]
+  );
+
+  const { headers: csvHeaders, body: csvBody } = useMemo<{
+    headers: CSVHeader;
+    body: CSVData;
+  }>(() => {
+    if (csvData.length === 0) {
+      return { headers: [], body: [] };
+    }
+
+    return {
+      headers: csvData[0],
+      body: csvData.slice(1),
+    };
+  }, [csvData]);
+
+  const [repeatTimes, setRepeatTimes] = useState(1);
   const [variableColumnMap, setVariableColumnMap] = useState<VariableColumnMap>(
     {}
   );
-
   const [generatedResult, setGeneratedResult] = useState<GeneratedResult>([]);
 
   useEffect(() => {
@@ -104,28 +131,14 @@ export default function EvaluationModeCSVContent() {
     setVariableColumnMap(data);
   }, [flowInputItems, flowOutputItems]);
 
-  const [csvContent, setCsvContent] = useState<string>("");
-  const [csvHeaders, setCsvHeaders] = useState<CSVHeader>([]);
-  const [csvBody, setCsvBody] = useState<CSVData>([]);
-  const [repeatTimes, setRepeatTimes] = useState(1);
-
   useEffect(() => {
-    const data = Papa.parse(csvContent).data as CSVData;
-
-    if (data.length === 0) return;
-
-    const body = data.slice(1);
-
-    setCsvHeaders(data[0]);
-    setCsvBody(body);
-
     const generatedResultPlaceholder = [];
-    for (let i = 0; i < body.length; i++) {
+    for (let i = 0; i < csvData.length; i++) {
       generatedResultPlaceholder.push(A.make(repeatTimes, {}));
     }
 
     setGeneratedResult(generatedResultPlaceholder);
-  }, [csvContent, repeatTimes]);
+  }, [csvData, repeatTimes]);
 
   const variableMapTableHeaderRowFirst: ReactNode[] = [];
   const variableMapTableHeaderRowSecond: ReactNode[] = [];
