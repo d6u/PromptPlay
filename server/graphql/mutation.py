@@ -12,6 +12,7 @@ from server.database.utils import (
 from .context import Info
 from .mutation_block import MutationBlock
 from .mutation_block_set import MutationBlockSet
+from .mutation_csv_evaluation_presets import MutationCSVEvaluationPreset
 from .mutation_llm import MutationLlm
 from .mutation_preset import MutationPreset
 from .mutation_space import MutationSpace
@@ -36,6 +37,7 @@ class Mutation(
     MutationBlock,
     MutationLlm,
     MutationSpace,
+    MutationCSVEvaluationPreset,
 ):
     @strawberry.mutation
     def create_example_workspace(

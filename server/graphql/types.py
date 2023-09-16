@@ -11,6 +11,7 @@ from strenum import LowercaseStrEnum
 from server.database.block_set_util import previous_block_sets_input_blocks
 from server.database.orm.block_set import OrmBlockSet
 from server.database.orm.completer_block import OrmCompleterBlock
+from server.database.orm.csv_evaluation_preset import OrmCSVEvaluationPreset
 from server.database.orm.preset import OrmPreset
 from server.database.orm.prompt_block import OrmPromptBlock
 from server.database.orm.space import OrmSpace
@@ -353,6 +354,47 @@ class Space:
     content: str | None
     flow_content: str | None
     updated_at: datetime
+
+    @strawberry.field
+    def csv_evaluation_presets(
+        self: Space, info: Info
+    ) -> list[CSVEvaluationPreset]:
+        db = info.context.db
+
+        csv_evaluation_presets = db.scalars(
+            self.db_space.csv_evaluation_presets.select().order_by(
+                OrmCSVEvaluationPreset.updated_at.desc()
+            )
+        )
+
+        return [CSVEvaluationPreset.from_db(p) for p in csv_evaluation_presets]
+
+
+@strawberry.type
+class CSVEvaluationPreset:
+    @classmethod
+    def from_db(
+        cls, db_csv_evaluation_preset: OrmCSVEvaluationPreset
+    ) -> CSVEvaluationPreset:
+        config_content = (
+            json.dumps(db_csv_evaluation_preset.config_content)
+            if db_csv_evaluation_preset.config_content != None
+            else None
+        )
+
+        return CSVEvaluationPreset(
+            db_csv_evaluation_preset=db_csv_evaluation_preset,
+            id=db_csv_evaluation_preset.id,
+            name=db_csv_evaluation_preset.name,
+            csv_content=db_csv_evaluation_preset.csv_content,
+            config_content=config_content,
+        )
+
+    db_csv_evaluation_preset: strawberry.Private[OrmCSVEvaluationPreset]
+    id: strawberry.ID
+    name: str
+    csv_content: str
+    config_content: str | None
 
 
 @strawberry.type
