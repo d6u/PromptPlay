@@ -15,6 +15,7 @@ export type FlowContent = {
   nodes: ServerNode[];
   nodeConfigs: NodeConfigs;
   edges: ServerEdge[];
+  variableValueMaps: readonly VariableValueMap[];
 };
 
 export type ServerNode = {
@@ -33,6 +34,9 @@ export type ServerEdge = {
   target: NodeID;
   targetHandle: InputID;
 };
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type VariableValueMap = Record<InputID | OutputID, unknown>;
 
 // Node
 // ----
@@ -60,7 +64,7 @@ export type NodeConfigCommon = {
 
 export type InputNodeConfig = NodeConfigCommon & {
   nodeType: NodeType.InputNode;
-  outputs: FlowInputItem[];
+  outputs: readonly FlowInputItem[];
 };
 
 // Output
@@ -115,8 +119,6 @@ export type NodeInputItem = {
 export type NodeOutputItem = {
   id: OutputID;
   name: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  value: any;
 };
 
 export type FlowInputItem = NodeOutputItem & {
@@ -128,10 +130,7 @@ export enum InputValueType {
   Number = "Number",
 }
 
-export type FlowOutputItem = NodeInputItem & {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  value: any;
-};
+export type FlowOutputItem = NodeInputItem;
 
 // Edge
 // ----

@@ -1,3 +1,4 @@
+import { A, D } from "@mobily/ts-belt";
 import adjust from "ramda/es/adjust";
 import append from "ramda/es/append";
 import assoc from "ramda/es/assoc";
@@ -20,23 +21,25 @@ import {
 import { Subscription } from "rxjs";
 import { StateCreator } from "zustand";
 import {
-  updateSpaceDebounced,
-  updateSpace,
-  queryFlowObservable,
-} from "../flowGraphql";
-import {
   FlowContent,
   LocalEdge,
   NodeConfig,
   NodeConfigs,
   NodeID,
   NodeType,
+  OutputID,
+  VariableValueMap,
 } from "../flowTypes";
 import { createNode, createNodeConfig, rejectInvalidEdges } from "../flowUtils";
-import { FlowServerSlice, FlowState, LocalNode } from "./storeTypes";
+import {
+  updateSpaceDebounced,
+  updateSpace,
+  queryFlowObservable,
+} from "./flowGraphql";
+import { FlowServerSlice, LocalNode } from "./storeTypes";
 
 export const createFlowServerSlice: StateCreator<
-  FlowState,
+  FlowServerSlice,
   [],
   [],
   FlowServerSlice
@@ -49,6 +52,9 @@ export const createFlowServerSlice: StateCreator<
   nodes: [],
   nodeConfigs: {},
   edges: [],
+  variableValueMaps: [{}],
+  getDefaultVariableValueMap: (): VariableValueMap =>
+    get().variableValueMaps[0],
 
   fetchFlowConfiguration(spaceId: string): Subscription {
     set({ spaceId });
@@ -168,6 +174,16 @@ export const createFlowServerSlice: StateCreator<
       updateSpaceDebounced(spaceId, getCurrentFlowContent(get()), stateChange);
     }
   },
+  updateDefaultVariableValueMap(outputId: OutputID, value: unknown): void {
+    set((state) => ({
+      variableValueMaps: A.updateAt(
+        state.variableValueMaps,
+        0,
+        D.set(outputId, value)
+      ),
+    }));
+  },
+
   onNodesChange(changes: NodeChange[]) {
     const nodes = applyNodeChanges(changes, get().nodes) as LocalNode[];
 
@@ -230,8 +246,13 @@ export const createFlowServerSlice: StateCreator<
 });
 
 function getCurrentFlowContent(state: FlowServerSlice): FlowContent {
-  const { nodes, edges, nodeConfigs } = state;
-  return { nodes, edges, nodeConfigs };
+  const {
+    nodes,
+    edges,
+    nodeConfigs,
+    variableValueMaps: outputValueMaps,
+  } = state;
+  return { nodes, edges, nodeConfigs, variableValueMaps: outputValueMaps };
 }
 
 function applyLocalNodeChange(
@@ -240,7 +261,7 @@ function applyLocalNodeChange(
   edges: LocalEdge[],
   nodeId: NodeID,
   nodeChange: Partial<LocalNode>
-): Partial<FlowState> {
+): Partial<FlowServerSlice> {
   const index = findIndex<LocalNode>((n) => n.id === nodeId)(nodes);
 
   if (index === -1) {

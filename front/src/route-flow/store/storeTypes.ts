@@ -6,6 +6,8 @@ import {
   NodeConfigs,
   NodeID,
   NodeType,
+  OutputID,
+  VariableValueMap,
   ServerNode,
 } from "../flowTypes";
 
@@ -22,6 +24,8 @@ export type FlowServerSlice = {
   nodes: LocalNode[];
   nodeConfigs: NodeConfigs;
   edges: LocalEdge[];
+  variableValueMaps: readonly VariableValueMap[];
+  getDefaultVariableValueMap(): VariableValueMap;
 
   fetchFlowConfiguration(spaceId: string): Subscription;
   addNode(type: NodeType, x?: number, y?: number): void;
@@ -29,6 +33,7 @@ export type FlowServerSlice = {
   removeNode(id: NodeID): void;
   updateNodeConfig(nodeId: NodeID, change: Partial<NodeConfig>): void;
   updateNodeConfigDebounced(nodeId: NodeID, change: Partial<NodeConfig>): void;
+  updateDefaultVariableValueMap(outputId: OutputID, value: unknown): void;
 
   onNodesChange: OnNodesChange;
   onEdgesChange: OnEdgesChange;

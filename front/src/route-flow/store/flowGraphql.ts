@@ -2,10 +2,10 @@ import { debounce } from "lodash";
 import map from "lodash/map";
 import { assoc, pick } from "ramda";
 import { Observable, defer, map as $map } from "rxjs";
-import { graphql } from "../gql";
-import { client } from "../state/urql";
-import { FlowContent, ServerEdge, ServerNode } from "./flowTypes";
-import { rejectInvalidEdges } from "./flowUtils";
+import { graphql } from "../../gql";
+import { client } from "../../state/urql";
+import { FlowContent, ServerEdge, ServerNode } from "../flowTypes";
+import { rejectInvalidEdges } from "../flowUtils";
 
 export const SPACE_FLOW_QUERY = graphql(`
   query SpaceFlowQuery($spaceId: UUID!) {

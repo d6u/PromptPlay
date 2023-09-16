@@ -1,6 +1,4 @@
-import { filter, flatten, map } from "ramda";
-import pipe from "ramda/es/pipe";
-import propEq from "ramda/es/propEq";
+import { pipe, A, F, flow, D } from "@mobily/ts-belt";
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import {
@@ -27,24 +25,46 @@ export const useFlowStore = create<FlowState>()(
   )
 );
 
-export function flowInputItemsSelector(state: FlowState): FlowInputItem[] {
+export function flowInputItemsSelector(
+  state: FlowState
+): readonly FlowInputItem[] {
   const { nodes, nodeConfigs } = state;
 
   return pipe(
-    filter(propEq<string>(NodeType.InputNode, "type")),
-    map((node) => nodeConfigs[node.id] as InputNodeConfig),
-    map((nodeConfig) => nodeConfig.outputs),
-    flatten
-  )(nodes);
+    nodes,
+    A.filter(flow(D.get("type"), F.equals(NodeType.InputNode))),
+    A.map((node) => nodeConfigs[node.id] as InputNodeConfig),
+    A.map(D.getUnsafe("outputs")),
+    A.flat
+  );
 }
 
-export function flowOutputItemsSelector(state: FlowState): FlowOutputItem[] {
+export function flowInputItemsWithNodeConfigSelector(
+  state: FlowState
+): readonly { inputItem: FlowInputItem; nodeConfig: InputNodeConfig }[] {
   const { nodes, nodeConfigs } = state;
 
   return pipe(
-    filter(propEq<string>(NodeType.OutputNode, "type")),
-    map((node) => nodeConfigs[node.id] as OutputNodeConfig),
-    map((nodeConfig) => nodeConfig.inputs),
-    flatten
-  )(nodes);
+    nodes,
+    A.filter(flow(D.get("type"), F.equals(NodeType.InputNode))),
+    A.map((node) => nodeConfigs[node.id] as InputNodeConfig),
+    A.map((nodeConfig) =>
+      A.map(nodeConfig.outputs, (o) => ({ inputItem: o, nodeConfig }))
+    ),
+    A.flat
+  );
+}
+
+export function flowOutputItemsSelector(
+  state: FlowState
+): readonly FlowOutputItem[] {
+  const { nodes, nodeConfigs } = state;
+
+  return pipe(
+    nodes,
+    A.filter(flow(D.get("type"), F.equals(NodeType.OutputNode))),
+    A.map((node) => nodeConfigs[node.id] as OutputNodeConfig),
+    A.map((nodeConfig) => nodeConfig.inputs),
+    A.flat
+  );
 }
