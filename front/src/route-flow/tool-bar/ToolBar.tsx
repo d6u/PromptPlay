@@ -30,7 +30,7 @@ const Container = styled.div`
 const LeftAligned = styled.div`
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 10px;
 `;
 
 const RightAligned = styled.div`

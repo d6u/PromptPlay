@@ -1,3 +1,4 @@
+import styled from "@emotion/styled";
 import { A, D, F } from "@mobily/ts-belt";
 import {
   Accordion,
@@ -44,6 +45,7 @@ import {
   useFlowStore,
 } from "../store/flowStore";
 import { FlowState } from "../store/storeTypes";
+import EvaluationModePresetSelector from "./EvaluationModePresetSelector";
 import { Section } from "./controls-common";
 
 type CSVRow = Array<string>;
@@ -59,6 +61,17 @@ type GeneratedResult = Record<
   RowIndex,
   Record<ColumnIndex, FlowOutputVariableMap>
 >;
+
+const CustomAccordionDetails = styled(AccordionDetails)`
+  & .MuiAccordionDetails-content {
+    padding: 20px;
+  }
+
+  & .MuiAccordionDetails-content:not(.Mui-expanded) {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+`;
 
 const selector = (state: FlowState) => ({
   edges: state.edges,
@@ -294,10 +307,11 @@ export default function EvaluationModeCSVContent() {
 
   return (
     <>
-      <AccordionGroup>
+      <EvaluationModePresetSelector />
+      <AccordionGroup size="lg">
         <Accordion defaultExpanded>
-          <AccordionSummary>Uplod CSV</AccordionSummary>
-          <AccordionDetails>
+          <AccordionSummary>Import CSV data</AccordionSummary>
+          <CustomAccordionDetails>
             <Section>
               <Textarea
                 minRows={2}
@@ -326,15 +340,13 @@ export default function EvaluationModeCSVContent() {
                 </tbody>
               </Table>
             </Section>
-          </AccordionDetails>
+          </CustomAccordionDetails>
         </Accordion>
         <Accordion defaultExpanded>
-          <AccordionSummary>
-            Map input and output variables to columns
-          </AccordionSummary>
-          <AccordionDetails>
+          <AccordionSummary>Configurate</AccordionSummary>
+          <CustomAccordionDetails>
             <Section style={{ overflow: "auto", display: "flex", gap: 10 }}>
-              <FormControl size="md" orientation="horizontal">
+              <FormControl size="lg" orientation="horizontal">
                 <FormLabel>Reapt</FormLabel>
                 <Input
                   size="sm"
@@ -363,7 +375,7 @@ export default function EvaluationModeCSVContent() {
                 <tbody>{variableMapTableBodyRows}</tbody>
               </Table>
             </Section>
-          </AccordionDetails>
+          </CustomAccordionDetails>
         </Accordion>
       </AccordionGroup>
     </>
