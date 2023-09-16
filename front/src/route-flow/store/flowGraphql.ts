@@ -1,10 +1,9 @@
+import { A, D } from "@mobily/ts-belt";
 import { debounce } from "lodash";
-import map from "lodash/map";
-import { assoc, pick } from "ramda";
 import { Observable, defer, map as $map } from "rxjs";
 import { graphql } from "../../gql";
 import { client } from "../../state/urql";
-import { FlowContent, ServerEdge, ServerNode } from "../flowTypes";
+import { FlowContent } from "../flowTypes";
 import { rejectInvalidEdges } from "../flowUtils";
 
 export const SPACE_FLOW_QUERY = graphql(`
@@ -77,35 +76,29 @@ export async function updateSpace(
   currentFlowContent: FlowContent,
   flowContentChange: Partial<FlowContent>
 ) {
-  if ("nodes" in flowContentChange) {
-    currentFlowContent = assoc(
+  if ("nodes" in flowContentChange && flowContentChange.nodes) {
+    currentFlowContent = D.set(
+      currentFlowContent,
       "nodes",
-      map(
+      A.map(
         flowContentChange.nodes,
-        pick(["id", "type", "position", "data"])<ServerNode>
-      ),
-      currentFlowContent
+        D.selectKeys(["id", "type", "position", "data"])
+      )
     );
   }
 
-  if ("edges" in flowContentChange) {
-    currentFlowContent = assoc(
+  if ("edges" in flowContentChange && flowContentChange.edges) {
+    currentFlowContent = D.set(
+      currentFlowContent,
       "edges",
-      map(
+      A.map(
         rejectInvalidEdges(
           currentFlowContent.nodes,
-          flowContentChange.edges!,
+          flowContentChange.edges,
           currentFlowContent.nodeConfigs
         ),
-        pick([
-          "id",
-          "source",
-          "sourceHandle",
-          "target",
-          "targetHandle",
-        ])<ServerEdge>
-      ),
-      currentFlowContent
+        D.selectKeys(["id", "source", "sourceHandle", "target", "targetHandle"])
+      )
     );
   }
 

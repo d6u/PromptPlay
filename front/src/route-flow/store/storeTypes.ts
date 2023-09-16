@@ -21,7 +21,7 @@ export type FlowServerSlice = {
   isInitialized: boolean;
   isCurrentUserOwner: boolean;
 
-  nodes: LocalNode[];
+  nodes: readonly LocalNode[];
   nodeConfigs: NodeConfigs;
   edges: LocalEdge[];
   variableValueMaps: readonly VariableValueMap[];

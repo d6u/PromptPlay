@@ -169,7 +169,7 @@ export function createNodeConfig(node: LocalNode): NodeConfig {
 }
 
 export function rejectInvalidEdges(
-  nodes: ServerNode[],
+  nodes: readonly ServerNode[],
   edges: ServerEdge[],
   nodeConfigs: NodeConfigs
 ): ServerEdge[] {

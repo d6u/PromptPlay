@@ -13,7 +13,7 @@ export type VariableID = InputID | OutputID;
 // ============
 
 export type FlowContent = {
-  nodes: ServerNode[];
+  nodes: readonly ServerNode[];
   nodeConfigs: NodeConfigs;
   edges: ServerEdge[];
   variableValueMaps: readonly VariableValueMap[];
