@@ -9,6 +9,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ..database import Base
 from ..mixins import MixinCreatedAt, MixinUpdatedAt, MixinUuidPrimaryKey
+from .space import OrmSpace
 from .user import OrmUser
 
 
@@ -32,5 +33,14 @@ class OrmCSVEvaluationPreset(
     )
     owner: Mapped[OrmUser] = relationship(
         foreign_keys=[owner_id],
+        back_populates="csv_evaluation_presets",
+    )
+
+    space_id: Mapped[UUID] = mapped_column(
+        ForeignKey("spaces.id", ondelete="CASCADE"),
+        index=True,
+    )
+    space: Mapped[OrmSpace] = relationship(
+        foreign_keys=[space_id],
         back_populates="csv_evaluation_presets",
     )

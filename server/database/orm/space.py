@@ -1,15 +1,18 @@
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from uuid import UUID
 
 from sqlalchemy import ForeignKey
 from sqlalchemy.dialects.postgresql import JSONB
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, WriteOnlyMapped, mapped_column, relationship
 
 from ..database import Base
 from ..mixins import MixinCreatedAt, MixinUpdatedAt, MixinUuidPrimaryKey
 from .user import OrmUser
+
+if TYPE_CHECKING:
+    from .csv_evaluation_preset import OrmCSVEvaluationPreset
 
 
 class OrmSpace(
@@ -34,4 +37,14 @@ class OrmSpace(
     owner: Mapped[OrmUser] = relationship(
         foreign_keys=[owner_id],
         back_populates="spaces",
+    )
+
+    # --- Children ---
+
+    csv_evaluation_presets: WriteOnlyMapped[
+        OrmCSVEvaluationPreset
+    ] = relationship(
+        back_populates="space",
+        cascade="all, delete",
+        passive_deletes=True,
     )
