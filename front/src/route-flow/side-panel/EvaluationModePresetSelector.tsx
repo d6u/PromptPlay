@@ -1,6 +1,16 @@
 import styled from "@emotion/styled";
-import { Autocomplete, AutocompleteOption, Button } from "@mui/joy";
-import { ReactNode, useEffect, useMemo } from "react";
+import {
+  Autocomplete,
+  AutocompleteOption,
+  Button,
+  FormControl,
+  FormLabel,
+  Input,
+  Modal,
+  ModalDialog,
+  Typography,
+} from "@mui/joy";
+import { ReactNode, useEffect, useMemo, useState } from "react";
 import { useQuery } from "urql";
 import { SPACE_CSV_EVALUATION_PRESETS_QUERY } from "../store/flowGraphql";
 import { FlowState, useFlowStore } from "../store/flowStore";
@@ -26,6 +36,16 @@ const RightAlign = styled.div`
   align-items: center;
 `;
 
+const ModalButtons = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+`;
+
+const ModalSection = styled.div`
+  margin-bottom: 10px;
+`;
+
 type Preset = {
   id: string;
   label: string;
@@ -46,6 +66,8 @@ export default function EvaluationModePresetSelector() {
     csvEvaluationPresetSetAndLoadPreset,
     csvEvaluationPresetSetSave,
   } = useFlowStore(selector);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [queryResult] = useQuery({
     query: SPACE_CSV_EVALUATION_PRESETS_QUERY,
@@ -100,16 +122,7 @@ export default function EvaluationModePresetSelector() {
               </AutocompleteOption>
             )}
           />
-          <Button
-            variant="outlined"
-            onClick={() => {
-              if (selectedPreset) {
-                csvEvaluationPresetSetSave();
-              } else {
-                // TODO
-              }
-            }}
-          >
+          <Button variant="outlined" onClick={() => setIsModalOpen(true)}>
             Save
           </Button>
         </LeftAlign>
@@ -131,5 +144,47 @@ export default function EvaluationModePresetSelector() {
     );
   }
 
-  return <Container>{content}</Container>;
+  return (
+    <Container>
+      {content}
+      <Modal
+        slotProps={{ backdrop: { style: { backdropFilter: "none" } } }}
+        open={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      >
+        <ModalDialog sx={{ width: 600 }}>
+          <ModalSection>
+            <Typography level="h4">
+              {selectedPreset
+                ? `Update "${selectedPreset?.label}" preset`
+                : "Save preset"}
+            </Typography>
+          </ModalSection>
+          <ModalSection>
+            <FormControl size="md">
+              <FormLabel>Name</FormLabel>
+              <Input
+                size="sm"
+                placeholder="Enter a name"
+                value={selectedPreset?.label}
+              />
+            </FormControl>
+          </ModalSection>
+          <ModalButtons>
+            <Button variant="outlined" onClick={() => setIsModalOpen(false)}>
+              Cancel
+            </Button>
+            {selectedPreset ? (
+              <>
+                <Button variant="outlined">Save as new</Button>
+                <Button color="success">Update</Button>
+              </>
+            ) : (
+              <Button color="success">Save</Button>
+            )}
+          </ModalButtons>
+        </ModalDialog>
+      </Modal>
+    </Container>
+  );
 }
