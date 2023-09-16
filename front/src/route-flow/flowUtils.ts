@@ -16,7 +16,7 @@ import {
   ServerEdge,
   ServerNode,
 } from "./flowTypes";
-import { LocalNode } from "./storeTypes";
+import { LocalNode } from "./store/storeTypes";
 
 const chance = new Chance();
 

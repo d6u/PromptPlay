@@ -9,7 +9,7 @@ import {
   InputNodeConfig,
   NodeType,
   OutputNodeConfig,
-} from "./flowTypes";
+} from "../flowTypes";
 import { createClientSlice } from "./storeClientSlice";
 import { createFlowServerSlice } from "./storeFlowServerSlice";
 import { FlowState } from "./storeTypes";

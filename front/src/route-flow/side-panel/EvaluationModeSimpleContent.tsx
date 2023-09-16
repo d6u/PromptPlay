@@ -17,8 +17,8 @@ import {
   NodeType,
   OutputNodeConfig,
 } from "../flowTypes";
-import { useFlowStore } from "../storeFlow";
-import { FlowState } from "../storeTypes";
+import { useFlowStore } from "../store/flowStore";
+import { FlowState } from "../store/storeTypes";
 import InputBlock from "./InputBlock";
 import {
   Section,

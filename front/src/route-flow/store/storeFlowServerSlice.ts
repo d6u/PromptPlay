@@ -23,7 +23,7 @@ import {
   updateSpaceDebounced,
   updateSpace,
   queryFlowObservable,
-} from "./flowGraphql";
+} from "../flowGraphql";
 import {
   FlowContent,
   LocalEdge,
@@ -31,8 +31,8 @@ import {
   NodeConfigs,
   NodeID,
   NodeType,
-} from "./flowTypes";
-import { createNode, createNodeConfig, rejectInvalidEdges } from "./flowUtils";
+} from "../flowTypes";
+import { createNode, createNodeConfig, rejectInvalidEdges } from "../flowUtils";
 import { FlowServerSlice, FlowState, LocalNode } from "./storeTypes";
 
 export const createFlowServerSlice: StateCreator<

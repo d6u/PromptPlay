@@ -13,8 +13,8 @@ import { useCallback, useEffect, useState } from "react";
 import { useStoreApi } from "reactflow";
 import { NodeType } from "../flowTypes";
 import { NODE_BOX_WIDTH } from "../nodes/node-common/NodeBox";
-import { useFlowStore } from "../storeFlow";
-import { DetailPanelContentType, FlowState } from "../storeTypes";
+import { useFlowStore } from "../store/flowStore";
+import { DetailPanelContentType, FlowState } from "../store/storeTypes";
 
 const USE_NARROW_LAYOUT_BREAKPOINT = 1050;
 

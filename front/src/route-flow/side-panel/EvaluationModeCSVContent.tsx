@@ -31,8 +31,8 @@ import {
   flowInputItemsSelector,
   flowOutputItemsSelector,
   useFlowStore,
-} from "../storeFlow";
-import { FlowState } from "../storeTypes";
+} from "../store/flowStore";
+import { FlowState } from "../store/storeTypes";
 import { Section } from "./controls-common";
 
 const selector = (state: FlowState) => ({

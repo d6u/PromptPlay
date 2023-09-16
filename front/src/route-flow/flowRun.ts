@@ -34,7 +34,7 @@ import {
   OutputID,
   OutputNodeConfig,
 } from "./flowTypes";
-import { NodeAugment } from "./storeTypes";
+import { NodeAugment } from "./store/storeTypes";
 
 const AsyncFunction = async function () {}.constructor;
 

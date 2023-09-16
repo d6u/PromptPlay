@@ -20,8 +20,8 @@ import {
   NodeType,
   OpenAIChatModel,
 } from "../flowTypes";
-import { useFlowStore } from "../storeFlow";
-import { FlowState } from "../storeTypes";
+import { useFlowStore } from "../store/flowStore";
+import { FlowState } from "../store/storeTypes";
 import HeaderSection from "./node-common/HeaderSection";
 import HelperTextContainer from "./node-common/HelperTextContainer";
 import NodeBox, { NodeState } from "./node-common/NodeBox";

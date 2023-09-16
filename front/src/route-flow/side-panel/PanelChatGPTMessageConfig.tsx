@@ -9,8 +9,8 @@ import { ChatGPTMessageRole } from "../../integrations/openai";
 import TextareaReadonly from "../flow-common/TextareaReadonly";
 import { CopyIcon, LabelWithIconContainer } from "../flow-common/flow-common";
 import { ChatGPTMessageNodeConfig } from "../flowTypes";
-import { useFlowStore } from "../storeFlow";
-import { FlowState } from "../storeTypes";
+import { useFlowStore } from "../store/flowStore";
+import { FlowState } from "../store/storeTypes";
 import {
   HeaderSection,
   HeaderSectionHeader,

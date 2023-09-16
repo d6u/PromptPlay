@@ -7,7 +7,7 @@ import {
   NodeID,
   NodeType,
   ServerNode,
-} from "./flowTypes";
+} from "../flowTypes";
 
 // === Begin of store types ===
 

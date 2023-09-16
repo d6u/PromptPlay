@@ -16,8 +16,8 @@ import {
   NodeInputItem,
   NodeType,
 } from "../flowTypes";
-import { useFlowStore } from "../storeFlow";
-import { FlowState } from "../storeTypes";
+import { useFlowStore } from "../store/flowStore";
+import { FlowState } from "../store/storeTypes";
 import AddVariableButton from "./node-common/AddVariableButton";
 import HeaderSection from "./node-common/HeaderSection";
 import NodeBox, { NodeState } from "./node-common/NodeBox";

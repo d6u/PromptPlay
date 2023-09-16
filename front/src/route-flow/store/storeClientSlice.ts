@@ -1,8 +1,8 @@
 import { assoc } from "ramda";
 import { StateCreator } from "zustand";
-import { run, RunEventType } from "./flowRun";
-import { NodeID, OutputID } from "./flowTypes";
-import { flowInputItemsSelector } from "./storeFlow";
+import { run, RunEventType } from "../flowRun";
+import { NodeID, OutputID } from "../flowTypes";
+import { flowInputItemsSelector } from "./flowStore";
 import {
   ClientSlice,
   DetailPanelContentType,
