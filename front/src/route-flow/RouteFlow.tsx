@@ -8,7 +8,7 @@ import { pathToCurrentContent } from "../static/routeConfigs";
 import FlowCanvas from "./FlowCanvas";
 import { SPACE_FLOW_QUERY } from "./store/flowGraphql";
 import { useFlowStore } from "./store/flowStore";
-import { FlowState } from "./store/storeTypes";
+import { FlowState } from "./store/flowStore";
 import ToolBar from "./tool-bar/ToolBar";
 
 const selector = (state: FlowState) => ({

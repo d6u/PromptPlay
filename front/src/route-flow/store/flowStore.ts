@@ -1,4 +1,5 @@
 import { pipe, A, F, flow, D } from "@mobily/ts-belt";
+import { Node } from "reactflow";
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import {
@@ -7,16 +8,46 @@ import {
   InputNodeConfig,
   NodeType,
   OutputNodeConfig,
+  NodeID,
+  ServerNode,
 } from "../flowTypes";
-import { createClientSlice } from "./storeClientSlice";
-import { createFlowServerSlice } from "./storeFlowServerSlice";
-import { FlowState } from "./storeTypes";
+import { createClientSlice, ClientSlice } from "./storeClientSlice";
+import {
+  CsvEvaluationPresetSlice,
+  createCsvEvaluationPresetSlice,
+} from "./storeCsvEvaluationPresetSlice";
+import { FlowServerSlice, createFlowServerSlice } from "./storeFlowServerSlice";
+
+export type LocalNode = Omit<Node<null, NodeType>, "id" | "type" | "data"> &
+  ServerNode;
+
+export type NodeAugments = Record<NodeID, NodeAugment | undefined>;
+
+export type NodeAugment = {
+  isRunning: boolean;
+  hasError: boolean;
+};
+
+// Navigation types
+
+export enum DetailPanelContentType {
+  Off = "Off",
+  EvaluationModeSimple = "EvaluationModeSimple",
+  EvaluationModeCSV = "EvaluationModeCSV",
+  NodeConfig = "NodeConfig",
+  ChatGPTMessageConfig = "ChatGPTMessageConfig",
+}
+
+export type FlowState = FlowServerSlice &
+  ClientSlice &
+  CsvEvaluationPresetSlice;
 
 export const useFlowStore = create<FlowState>()(
   devtools(
     (...a) => ({
       ...createClientSlice(...a),
       ...createFlowServerSlice(...a),
+      ...createCsvEvaluationPresetSlice(...a),
     }),
     {
       store: "FlowState",

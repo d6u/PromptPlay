@@ -7,7 +7,7 @@ import {
   flowOutputItemsSelector,
   useFlowStore,
 } from "../store/flowStore";
-import { FlowState } from "../store/storeTypes";
+import { FlowState } from "../store/flowStore";
 import InputBlock from "./InputBlock";
 import {
   Section,

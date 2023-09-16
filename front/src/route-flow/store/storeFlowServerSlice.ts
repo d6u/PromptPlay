@@ -13,6 +13,9 @@ import {
   applyEdgeChanges,
   Connection,
   addEdge,
+  OnConnect,
+  OnEdgesChange,
+  OnNodesChange,
 } from "reactflow";
 import { Subscription } from "rxjs";
 import { StateCreator } from "zustand";
@@ -32,7 +35,32 @@ import {
   updateSpace,
   queryFlowObservable,
 } from "./flowGraphql";
-import { FlowServerSlice, LocalNode } from "./storeTypes";
+import { LocalNode } from "./flowStore";
+
+export type FlowServerSlice = {
+  spaceId: string | null;
+
+  isInitialized: boolean;
+  isCurrentUserOwner: boolean;
+
+  nodes: readonly LocalNode[];
+  nodeConfigs: NodeConfigs;
+  edges: LocalEdge[];
+  variableValueMaps: readonly VariableValueMap[];
+  getDefaultVariableValueMap(): VariableValueMap;
+
+  fetchFlowConfiguration(spaceId: string): Subscription;
+  addNode(type: NodeType, x?: number, y?: number): void;
+  updateNode(nodeId: NodeID, nodeChange: Partial<LocalNode>): void;
+  removeNode(id: NodeID): void;
+  updateNodeConfig(nodeId: NodeID, change: Partial<NodeConfig>): void;
+  updateNodeConfigDebounced(nodeId: NodeID, change: Partial<NodeConfig>): void;
+  updateDefaultVariableValueMap(variableId: VariableID, value: unknown): void;
+
+  onNodesChange: OnNodesChange;
+  onEdgesChange: OnEdgesChange;
+  onConnect: OnConnect;
+};
 
 export const createFlowServerSlice: StateCreator<
   FlowServerSlice,

@@ -1,6 +1,5 @@
 import styled from "@emotion/styled";
-import { A, D } from "@mobily/ts-belt";
-import { Autocomplete, AutocompleteOption, Button, Input } from "@mui/joy";
+import { Autocomplete, AutocompleteOption, Button } from "@mui/joy";
 import { nanoid } from "nanoid";
 import { useMemo, useState } from "react";
 
@@ -33,8 +32,6 @@ type Prest = {
 export default function EvaluationModePresetSelector() {
   const [presets, setPresets] = useState<readonly Prest[]>([]);
   const [selectedPresetId, setSelectedPresetId] = useState<string | null>(null);
-  const [isEditingPresentName, setIsEditingPresentName] =
-    useState<boolean>(false);
 
   const selectedPreset = useMemo(
     () => presets.find((preset) => preset.id === selectedPresetId) ?? null,
@@ -44,9 +41,24 @@ export default function EvaluationModePresetSelector() {
   return (
     <Container>
       <LeftAlign>
+        <Autocomplete
+          size="sm"
+          openOnFocus
+          placeholder="Your preset"
+          sx={{ width: 400 }}
+          options={presets}
+          value={selectedPreset}
+          onChange={(e, value) => {
+            setSelectedPresetId(value?.id ?? null);
+          }}
+          renderOption={(props, option) => (
+            <AutocompleteOption {...props} key={option.id}>
+              {option.label}
+            </AutocompleteOption>
+          )}
+        />
         <Button
-          color="primary"
-          variant="solid"
+          variant="outlined"
           onClick={() => {
             const preset = {
               label: "New preset",
@@ -56,69 +68,8 @@ export default function EvaluationModePresetSelector() {
             setSelectedPresetId(preset.id);
           }}
         >
-          New preset
+          Save
         </Button>
-        {isEditingPresentName ? (
-          <Input
-            sx={{ width: 400 }}
-            value={selectedPreset?.label}
-            onChange={(e) => {
-              const newLabel = e.target.value;
-
-              const selectedPresetIndex = presets.findIndex(
-                (preset) => preset.id === selectedPresetId
-              );
-
-              setPresets((prev) =>
-                A.updateAt(prev, selectedPresetIndex, D.set("label", newLabel))
-              );
-            }}
-          />
-        ) : (
-          <Autocomplete
-            size="sm"
-            openOnFocus
-            placeholder="Your preset"
-            sx={{ width: 400 }}
-            options={presets}
-            value={selectedPreset}
-            onChange={(e, value) => {
-              setSelectedPresetId(value?.id ?? null);
-            }}
-            renderOption={(props, option) => (
-              <AutocompleteOption {...props} key={option.id}>
-                {option.label}
-              </AutocompleteOption>
-            )}
-          />
-        )}
-        {selectedPresetId != null &&
-          (isEditingPresentName ? (
-            <>
-              <Button
-                variant="solid"
-                color="success"
-                onClick={() => setIsEditingPresentName(false)}
-              >
-                Confirm
-              </Button>
-              <Button
-                variant="outlined"
-                onClick={() => setIsEditingPresentName(false)}
-              >
-                Canel
-              </Button>
-            </>
-          ) : (
-            selectedPresetId != null && (
-              <Button
-                variant="outlined"
-                onClick={() => setIsEditingPresentName(true)}
-              >
-                Rename
-              </Button>
-            )
-          ))}
       </LeftAlign>
       <RightAlign>
         <Button

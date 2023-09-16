@@ -21,7 +21,7 @@ import {
   OpenAIChatModel,
 } from "../flowTypes";
 import { useFlowStore } from "../store/flowStore";
-import { FlowState } from "../store/storeTypes";
+import { FlowState } from "../store/flowStore";
 import HeaderSection from "./node-common/HeaderSection";
 import HelperTextContainer from "./node-common/HelperTextContainer";
 import NodeBox, { NodeState } from "./node-common/NodeBox";

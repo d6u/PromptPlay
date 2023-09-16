@@ -2,13 +2,27 @@ import { assoc } from "ramda";
 import { StateCreator } from "zustand";
 import { run, RunEventType } from "../flowRun";
 import { NodeID, VariableID, VariableValueMap } from "../flowTypes";
-import { flowInputItemsSelector } from "./flowStore";
 import {
-  ClientSlice,
+  flowInputItemsSelector,
   DetailPanelContentType,
+  NodeAugments,
   NodeAugment,
-  FlowState,
-} from "./storeTypes";
+} from "./flowStore";
+import { FlowState } from "./flowStore";
+
+export type ClientSlice = {
+  detailPanelContentType: DetailPanelContentType;
+  setDetailPanelContentType(type: DetailPanelContentType): void;
+  detailPanelSelectedNodeId: NodeID | null;
+  setDetailPanelSelectedNodeId(nodeId: NodeID): void;
+
+  localNodeAugments: NodeAugments;
+  resetAugments(): void;
+  updateNodeAguemnt(nodeId: NodeID, change: Partial<NodeAugment>): void;
+
+  isRunning: boolean;
+  runFlow(): void;
+};
 
 export const createClientSlice: StateCreator<FlowState, [], [], ClientSlice> = (
   set,

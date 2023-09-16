@@ -44,7 +44,7 @@ import {
   flowOutputItemsSelector,
   useFlowStore,
 } from "../store/flowStore";
-import { FlowState } from "../store/storeTypes";
+import { FlowState } from "../store/flowStore";
 import EvaluationModePresetSelector from "./EvaluationModePresetSelector";
 import { Section } from "./controls-common";
 
