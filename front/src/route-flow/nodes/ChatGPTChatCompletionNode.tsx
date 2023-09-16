@@ -39,6 +39,7 @@ const flowSelector = (state: FlowState) => ({
   updateNodeConfig: state.updateNodeConfig,
   removeNode: state.removeNode,
   localNodeAugments: state.localNodeAugments,
+  defaultVariableValueMap: state.getDefaultVariableValueMap(),
 });
 
 const persistSelector = (state: LocalStorageState) => ({
@@ -60,6 +61,7 @@ export default function ChatGPTChatCompletionNode() {
     updateNodeConfig,
     removeNode,
     localNodeAugments,
+    defaultVariableValueMap,
   } = useFlowStore(flowSelector);
   const { openAiApiKey, setOpenAiApiKey } =
     useLocalStorageStore(persistSelector);
@@ -267,7 +269,7 @@ export default function ChatGPTChatCompletionNode() {
               key={output.id}
               id={output.id}
               name={output.name}
-              value={output.value}
+              value={defaultVariableValueMap[output.id]}
             />
           ))}
         </Section>

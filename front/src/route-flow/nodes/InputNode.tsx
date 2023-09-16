@@ -87,7 +87,6 @@ export default function InputNode() {
                 const newOutputs = append<FlowInputItem>({
                   id: `${nodeId}/${nanoid()}` as OutputID,
                   name: chance.word(),
-                  value: "",
                   valueType: InputValueType.String,
                 })(outputs);
 

@@ -1,3 +1,4 @@
+import { D } from "@mobily/ts-belt";
 import {
   Accordion,
   AccordionDetails,
@@ -10,7 +11,7 @@ import {
   Textarea,
 } from "@mui/joy";
 import Papa from "papaparse";
-import { adjust, assoc, identity, mergeLeft, path } from "ramda";
+import { adjust, identity, mergeLeft, path } from "ramda";
 import { ReactNode, useEffect, useRef, useState } from "react";
 import { Observable, Subscription, concatMap, from, map, reduce } from "rxjs";
 import {
@@ -20,13 +21,7 @@ import {
   RunEventType,
   run,
 } from "../flowRun";
-import {
-  FlowInputItem,
-  LocalEdge,
-  NodeConfigs,
-  NodeType,
-  OutputNodeConfig,
-} from "../flowTypes";
+import { FlowInputItem, LocalEdge, NodeConfigs } from "../flowTypes";
 import {
   flowInputItemsSelector,
   flowOutputItemsSelector,
@@ -286,7 +281,7 @@ export default function EvaluationModeCSVContent() {
 
 function runForEachRow(
   csvData: string[][],
-  flowInputItems: FlowInputItem[],
+  flowInputItems: readonly FlowInputItem[],
   selectedColumns: Record<string, number | null>,
   edges: LocalEdge[],
   nodeConfigs: NodeConfigs
@@ -309,19 +304,12 @@ function runForEachRow(
     concatMap((inputVariableMap, index) => {
       return run(edges, nodeConfigs, inputVariableMap).pipe(
         reduce<RunEvent, FlowOutputVariableMap>((acc, event) => {
-          if (event.type !== RunEventType.NodeConfigChange) {
+          if (event.type !== RunEventType.VariableValueChanges) {
             return acc;
           }
-          const config = nodeConfigs[event.nodeId]!;
-          if (config.nodeType !== NodeType.OutputNode) {
-            return acc;
-          }
-          const change = event.nodeChange as Partial<OutputNodeConfig>;
-          if (!change.inputs) {
-            return acc;
-          }
-          for (const item of change.inputs) {
-            acc = assoc(item.id, item.value, acc);
+          const changes = event.changes;
+          for (const [variableId, value] of Object.entries(changes)) {
+            acc = D.set(acc, variableId, value);
           }
           return acc;
         }, {}),

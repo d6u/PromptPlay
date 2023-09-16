@@ -50,7 +50,7 @@ const selector = (state: FlowState) => ({
 type Props = {
   id: string;
   name: string;
-  value: string;
+  value: unknown;
   onClick?: () => void;
 };
 

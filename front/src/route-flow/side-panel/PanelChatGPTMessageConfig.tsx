@@ -26,6 +26,7 @@ const selector = (state: FlowState) => ({
   nodeConfigs: state.nodeConfigs,
   detailPanelSelectedNodeId: state.detailPanelSelectedNodeId,
   updateNodeConfig: state.updateNodeConfig,
+  defaultVariableValueMap: state.getDefaultVariableValueMap(),
 });
 
 export default function PanelChatGPTMessageConfig() {
@@ -34,6 +35,7 @@ export default function PanelChatGPTMessageConfig() {
     nodeConfigs,
     detailPanelSelectedNodeId,
     updateNodeConfig,
+    defaultVariableValueMap,
   } = useFlowStore(selector);
 
   const nodeConfig = useMemo(
@@ -59,12 +61,13 @@ export default function PanelChatGPTMessageConfig() {
       </HeaderSection>
       <Section>
         {nodeConfig.outputs.map((output) => {
-          let content: ReactNode;
+          const value = defaultVariableValueMap[output.id];
 
-          if (typeof output?.value === "string") {
-            content = output?.value;
+          let content: ReactNode;
+          if (typeof value === "string") {
+            content = value;
           } else {
-            content = JSON.stringify(output?.value, null, 2);
+            content = JSON.stringify(value, null, 2);
           }
 
           return (

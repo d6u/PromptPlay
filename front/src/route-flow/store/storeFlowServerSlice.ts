@@ -27,7 +27,7 @@ import {
   NodeConfigs,
   NodeID,
   NodeType,
-  OutputID,
+  VariableID,
   VariableValueMap,
 } from "../flowTypes";
 import { createNode, createNodeConfig, rejectInvalidEdges } from "../flowUtils";
@@ -174,12 +174,12 @@ export const createFlowServerSlice: StateCreator<
       updateSpaceDebounced(spaceId, getCurrentFlowContent(get()), stateChange);
     }
   },
-  updateDefaultVariableValueMap(outputId: OutputID, value: unknown): void {
+  updateDefaultVariableValueMap(variableId: VariableID, value: unknown): void {
     set((state) => ({
       variableValueMaps: A.updateAt(
         state.variableValueMaps,
         0,
-        D.set(outputId, value)
+        D.set(variableId, value)
       ),
     }));
   },
@@ -246,13 +246,8 @@ export const createFlowServerSlice: StateCreator<
 });
 
 function getCurrentFlowContent(state: FlowServerSlice): FlowContent {
-  const {
-    nodes,
-    edges,
-    nodeConfigs,
-    variableValueMaps: outputValueMaps,
-  } = state;
-  return { nodes, edges, nodeConfigs, variableValueMaps: outputValueMaps };
+  const { nodes, edges, nodeConfigs, variableValueMaps } = state;
+  return { nodes, edges, nodeConfigs, variableValueMaps };
 }
 
 function applyLocalNodeChange(

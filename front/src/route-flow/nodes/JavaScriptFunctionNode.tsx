@@ -42,6 +42,7 @@ const selector = (state: FlowState) => ({
   updateNodeConfig: state.updateNodeConfig,
   removeNode: state.removeNode,
   localNodeAugments: state.localNodeAugments,
+  defaultVariableValueMap: state.getDefaultVariableValueMap(),
 });
 
 export default function JavaScriptFunctionNode() {
@@ -53,6 +54,7 @@ export default function JavaScriptFunctionNode() {
     updateNodeConfig,
     removeNode,
     localNodeAugments,
+    defaultVariableValueMap,
   } = useFlowStore(selector);
 
   const nodeConfig = useMemo(
@@ -198,7 +200,7 @@ export default function JavaScriptFunctionNode() {
           <NodeOutputRow
             id={nodeConfig.outputs[0].id}
             name={nodeConfig.outputs[0].name}
-            value={nodeConfig.outputs[0].value}
+            value={defaultVariableValueMap[nodeConfig.outputs[0].id]}
           />
         </Section>
       </NodeBox>

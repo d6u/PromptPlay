@@ -6,9 +6,9 @@ import {
   NodeConfigs,
   NodeID,
   NodeType,
-  OutputID,
   VariableValueMap,
   ServerNode,
+  VariableID,
 } from "../flowTypes";
 
 // === Begin of store types ===
@@ -33,7 +33,7 @@ export type FlowServerSlice = {
   removeNode(id: NodeID): void;
   updateNodeConfig(nodeId: NodeID, change: Partial<NodeConfig>): void;
   updateNodeConfigDebounced(nodeId: NodeID, change: Partial<NodeConfig>): void;
-  updateDefaultVariableValueMap(outputId: OutputID, value: unknown): void;
+  updateDefaultVariableValueMap(variableId: VariableID, value: unknown): void;
 
   onNodesChange: OnNodesChange;
   onEdgesChange: OnEdgesChange;

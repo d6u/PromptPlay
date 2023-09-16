@@ -53,6 +53,7 @@ const selector = (state: FlowState) => ({
   removeNode: state.removeNode,
   setDetailPanelContentType: state.setDetailPanelContentType,
   setDetailPanelSelectedNodeId: state.setDetailPanelSelectedNodeId,
+  defaultVariableValueMap: state.getDefaultVariableValueMap(),
 });
 
 export default function ChatGPTMessageNode() {
@@ -65,6 +66,7 @@ export default function ChatGPTMessageNode() {
     removeNode,
     setDetailPanelContentType,
     setDetailPanelSelectedNodeId,
+    defaultVariableValueMap,
   } = useFlowStore(selector);
 
   const nodeConfig = useMemo(
@@ -294,7 +296,7 @@ export default function ChatGPTMessageNode() {
               key={output.id}
               id={output.id}
               name={output.name}
-              value={output.value}
+              value={defaultVariableValueMap[output.id]}
               onClick={() => {
                 setDetailPanelContentType(
                   DetailPanelContentType.ChatGPTMessageConfig

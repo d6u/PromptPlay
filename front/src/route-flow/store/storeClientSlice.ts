@@ -1,7 +1,7 @@
 import { assoc } from "ramda";
 import { StateCreator } from "zustand";
 import { run, RunEventType } from "../flowRun";
-import { NodeID, OutputID } from "../flowTypes";
+import { NodeID, VariableID, VariableValueMap } from "../flowTypes";
 import { flowInputItemsSelector } from "./flowStore";
 import {
   ClientSlice,
@@ -49,28 +49,29 @@ export const createClientSlice: StateCreator<FlowState, [], [], ClientSlice> = (
       resetAugments,
       edges,
       nodeConfigs,
-      updateNodeConfigDebounced,
       updateNodeAguemnt,
+      updateDefaultVariableValueMap,
     } = get();
 
     resetAugments();
 
     set({ isRunning: true });
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const inputVariableMap: Record<OutputID, any> = {};
+    const inputVariableMap: VariableValueMap = {};
+    const defaultVariableValueMap = get().getDefaultVariableValueMap();
 
-    const flowInputItems = flowInputItemsSelector(get());
-    for (const inputItem of flowInputItems) {
-      inputVariableMap[inputItem.id] = inputItem.value;
+    for (const inputItem of flowInputItemsSelector(get())) {
+      inputVariableMap[inputItem.id] = defaultVariableValueMap[inputItem.id];
     }
 
     run(edges, nodeConfigs, inputVariableMap).subscribe({
       next(data) {
         switch (data.type) {
-          case RunEventType.NodeConfigChange: {
-            const { nodeId, nodeChange } = data;
-            updateNodeConfigDebounced(nodeId, nodeChange);
+          case RunEventType.VariableValueChanges: {
+            const { changes } = data;
+            for (const [outputId, value] of Object.entries(changes)) {
+              updateDefaultVariableValueMap(outputId as VariableID, value);
+            }
             break;
           }
           case RunEventType.NodeAugmentChange: {

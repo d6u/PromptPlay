@@ -7,6 +7,7 @@ export type NodeID = string & { readonly "": unique symbol };
 export type EdgeID = string & { readonly "": unique symbol };
 export type InputID = string & { readonly "": unique symbol };
 export type OutputID = string & { readonly "": unique symbol };
+export type VariableID = InputID | OutputID;
 
 // Server types
 // ============
@@ -35,8 +36,7 @@ export type ServerEdge = {
   targetHandle: InputID;
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type VariableValueMap = Record<InputID | OutputID, unknown>;
+export type VariableValueMap = Record<VariableID, unknown>;
 
 // Node
 // ----
@@ -71,37 +71,37 @@ export type InputNodeConfig = NodeConfigCommon & {
 
 export type OutputNodeConfig = NodeConfigCommon & {
   nodeType: NodeType.OutputNode;
-  inputs: FlowOutputItem[];
+  inputs: readonly FlowOutputItem[];
 };
 
 // JavaScriptFunction
 
 export type JavaScriptFunctionNodeConfig = NodeConfigCommon & {
   nodeType: NodeType.JavaScriptFunctionNode;
-  inputs: NodeInputItem[];
+  inputs: readonly NodeInputItem[];
   javaScriptCode: string;
-  outputs: NodeOutputItem[];
+  outputs: readonly NodeOutputItem[];
 };
 
 // ChatGPTMessage
 
 export type ChatGPTMessageNodeConfig = NodeConfigCommon & {
   nodeType: NodeType.ChatGPTMessageNode;
-  inputs: NodeInputItem[];
+  inputs: readonly NodeInputItem[];
   role: ChatGPTMessageRole;
   content: string;
-  outputs: NodeOutputItem[];
+  outputs: readonly NodeOutputItem[];
 };
 
 // ChatGPTChatCompletion
 
 export type ChatGPTChatCompletionNodeConfig = NodeConfigCommon & {
   nodeType: NodeType.ChatGPTChatCompletionNode;
-  inputs: NodeInputItem[];
+  inputs: readonly NodeInputItem[];
   model: OpenAIChatModel;
   temperature: number;
   stop: Array<string>;
-  outputs: NodeOutputItem[];
+  outputs: readonly NodeOutputItem[];
 };
 
 export enum OpenAIChatModel {
