@@ -1,8 +1,6 @@
-import styled from "@emotion/styled";
 import { A, D, F } from "@mobily/ts-belt";
 import {
   Accordion,
-  AccordionDetails,
   AccordionGroup,
   AccordionSummary,
   Button,
@@ -12,7 +10,6 @@ import {
   Option,
   Select,
   Table,
-  Textarea,
 } from "@mui/joy";
 import Papa from "papaparse";
 import { ReactNode, useEffect, useMemo, useRef, useState } from "react";
@@ -48,10 +45,12 @@ import {
 } from "../../store/flowStore";
 import { FlowState } from "../../store/flowStore";
 import { Section } from "../controls-common";
+import ImportCSVSection from "./ImportCSVSection";
+import { CustomAccordionDetails } from "./common";
 
-type CSVRow = Array<string>;
-type CSVHeader = CSVRow;
-type CSVData = Array<CSVRow>;
+export type CSVRow = Array<string>;
+export type CSVHeader = CSVRow;
+export type CSVData = Array<CSVRow>;
 
 type RowIndex = number & { readonly "": unique symbol };
 type ColumnIndex = number & { readonly "": unique symbol };
@@ -108,12 +107,18 @@ export default function EvaluationModeCSVContent() {
   });
 
   useEffect(() => {
-    setCsvContent(
-      queryResult.data?.result?.space.csvEvaluationPreset.csvContent ?? ""
-    );
+    if (spaceId && presetId) {
+      setCsvContent(
+        queryResult.data?.result?.space.csvEvaluationPreset.csvContent ?? ""
+      );
+    } else {
+      setCsvContent("");
+    }
   }, [
     setCsvContent,
     queryResult.data?.result?.space.csvEvaluationPreset.csvContent,
+    spaceId,
+    presetId,
   ]);
 
   const csvData = useMemo<CSVData>(
@@ -227,8 +232,6 @@ export default function EvaluationModeCSVContent() {
     repeatCount,
     variableColumnMap,
   ]);
-
-  // console.log({ generatedResult });
 
   if (queryResult.fetching) {
     return null;
@@ -354,39 +357,7 @@ export default function EvaluationModeCSVContent() {
   return (
     <>
       <AccordionGroup size="lg">
-        <Accordion defaultExpanded>
-          <AccordionSummary>Import CSV data</AccordionSummary>
-          <CustomAccordionDetails>
-            <Section>
-              <Textarea
-                minRows={6}
-                maxRows={6}
-                value={csvContent}
-                onChange={(event) => setCsvContent(event.target.value)}
-              />
-            </Section>
-            <Section style={{ overflow: "auto" }}>
-              <Table>
-                <thead>
-                  <tr>
-                    {csvHeaders.map((item, i) => (
-                      <th key={i}>{item}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {csvBody.map((row, rowIndex) => (
-                    <tr key={rowIndex}>
-                      {row.map((value, colIndex) => (
-                        <td key={`${rowIndex}-${colIndex}`}>{value}</td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </Table>
-            </Section>
-          </CustomAccordionDetails>
-        </Accordion>
+        <ImportCSVSection csvHeaders={csvHeaders} csvBody={csvBody} />
         <Accordion defaultExpanded>
           <AccordionSummary>Configurate</AccordionSummary>
           <CustomAccordionDetails>
@@ -484,14 +455,3 @@ function runForEachRow({
     })
   );
 }
-
-const CustomAccordionDetails = styled(AccordionDetails)`
-  & .MuiAccordionDetails-content {
-    padding: 20px;
-  }
-
-  & .MuiAccordionDetails-content:not(.Mui-expanded) {
-    padding-top: 0;
-    padding-bottom: 0;
-  }
-`;

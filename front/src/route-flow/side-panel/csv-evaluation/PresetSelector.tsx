@@ -81,7 +81,13 @@ export default function PresetSelector() {
         </LeftAlign>
         <RightAlign>
           {selectedPreset && (
-            <Button variant="outlined" onClick={() => deleteCurrentPreset()}>
+            <Button
+              variant="outlined"
+              onClick={() => {
+                deleteCurrentPreset();
+                setCurrentPresetId(null);
+              }}
+            >
               Delete preset
             </Button>
           )}
