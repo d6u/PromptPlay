@@ -64,6 +64,25 @@ export const UPDATE_SPACE_FLOW_CONTENT_MUTATION = graphql(`
   }
 `);
 
+export const CREATE_CSV_EVALUATION_PRESET_MUTATION = graphql(`
+  mutation CreateCsvEvaluationPresetMutation(
+    $spaceId: ID!
+    $name: String!
+    $csvContent: String
+  ) {
+    createCsvEvaluationPreset(
+      spaceId: $spaceId
+      name: $name
+      csvContent: $csvContent
+    ) {
+      id
+      name
+      csvContent
+      configContent
+    }
+  }
+`);
+
 export const UPDATE_CSV_EVALUATION_PRESET_MUTATION = graphql(`
   mutation UpdateCsvEvaluationPresetMutation(
     $presetId: ID!
@@ -192,6 +211,18 @@ export async function updateSpace(
 }
 
 export const updateSpaceDebounced = debounce(updateSpace, 500);
+
+export async function createCSVEvaluationPreset(
+  spaceId: string,
+  name: string,
+  csvContent: string
+) {
+  await client.mutation(CREATE_CSV_EVALUATION_PRESET_MUTATION, {
+    spaceId,
+    name,
+    csvContent,
+  });
+}
 
 export async function updateCSVEvaluationPreset(
   presetId: string,

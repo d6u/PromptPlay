@@ -32,21 +32,21 @@ import {
   RunEvent,
   RunEventType,
   run,
-} from "../flowRun";
+} from "../../flowRun";
 import {
   FlowInputItem,
   LocalEdge,
   NodeConfigs,
   VariableID,
-} from "../flowTypes";
+} from "../../flowTypes";
 import {
   flowInputItemsSelector,
   flowOutputItemsSelector,
   useFlowStore,
-} from "../store/flowStore";
-import { FlowState } from "../store/flowStore";
-import EvaluationModePresetSelector from "./EvaluationModePresetSelector";
-import { Section } from "./controls-common";
+} from "../../store/flowStore";
+import { FlowState } from "../../store/flowStore";
+import { Section } from "../controls-common";
+import EvaluationModePresetSelector from "./PresetSelector";
 
 type CSVRow = Array<string>;
 type CSVHeader = CSVRow;
@@ -102,7 +102,7 @@ export default function EvaluationModeCSVContent() {
     body: CSVData;
   }>(() => {
     if (csvData.length === 0) {
-      return { headers: [], body: [] };
+      return { headers: [""], body: [[""]] };
     }
 
     return {

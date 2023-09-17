@@ -1,5 +1,6 @@
 import { StateCreator } from "zustand";
 import {
+  createCSVEvaluationPreset,
   queryCSVEvaluationPresetObservable,
   updateCSVEvaluationPreset,
 } from "./flowGraphql";
@@ -12,7 +13,8 @@ export type CsvEvaluationPresetSlice = {
   // csvEvaluationPresetConfigContent: unknown;
   csvEvaluationPresetSetAndLoadPreset(presetId: string | null): void;
   csvEvaluationPresetSetCsvContent(csvContent: string): void;
-  csvEvaluationPresetSetSave(): void;
+  csvEvaluationPresetCreate(name: string): Promise<void>;
+  csvEvaluationPresetUpdate(): void;
 };
 
 export const createCsvEvaluationPresetSlice: StateCreator<
@@ -66,18 +68,27 @@ export const createCsvEvaluationPresetSlice: StateCreator<
   csvEvaluationPresetSetCsvContent(csvContent: string): void {
     set({ csvEvaluationPresetCsvContent: csvContent });
   },
-  csvEvaluationPresetSetSave(): void {
-    const presetId = get().csvEvaluationPresetId;
+  async csvEvaluationPresetCreate(name: string): Promise<void> {
+    const { spaceId, csvEvaluationPresetCsvContent } = get();
 
-    if (!presetId) {
-      return;
+    if (spaceId) {
+      await createCSVEvaluationPreset(
+        spaceId,
+        name,
+        csvEvaluationPresetCsvContent
+      );
     }
+  },
+  csvEvaluationPresetUpdate(): void {
+    const { csvEvaluationPresetId: presetId, csvEvaluationPresetCsvContent } =
+      get();
 
-    updateCSVEvaluationPreset(
-      presetId,
-      get().csvEvaluationPresetCsvContent
-    ).catch((e) => {
-      console.error(e);
-    });
+    if (presetId) {
+      updateCSVEvaluationPreset(presetId, csvEvaluationPresetCsvContent).catch(
+        (e) => {
+          console.error(e);
+        }
+      );
+    }
   },
 });

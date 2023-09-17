@@ -21,7 +21,8 @@ class MutationCSVEvaluationPreset:
         info: Info,
         db_user: OrmUser,
         space_id: strawberry.ID,
-        name: str | None = None,
+        name: str,
+        csvContent: str | None = strawberry.UNSET,
     ) -> CSVEvaluationPreset | None:
         db = info.context.db
 
@@ -36,6 +37,7 @@ class MutationCSVEvaluationPreset:
             owner=db_user,
             space=db_space,
             name=name,
+            csv_content=csvContent,
         )
 
         db.add(db_csv_evaluation_preset)

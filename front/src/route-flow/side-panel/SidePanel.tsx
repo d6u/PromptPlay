@@ -5,9 +5,9 @@ import CrossIcon from "../../component-icons/CrossIcon";
 import { DetailPanelContentType, useFlowStore } from "../store/flowStore";
 import { FlowState } from "../store/flowStore";
 import PanelChatGPTMessageConfig from "./PanelChatGPTMessageConfig";
-import PanelEvaluationModeCSV from "./PanelEvaluationModeCSV";
 import PanelEvaluationModeSimple from "./PanelEvaluationModeSimple";
 import PanelNodeConfig from "./PanelNodeConfig";
+import PanelEvaluationModeCSV from "./csv-evaluation/PanelEvaluationModeCSV";
 
 const Container = styled.div<{ $hide: boolean }>`
   position: relative;
