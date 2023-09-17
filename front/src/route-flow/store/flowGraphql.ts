@@ -34,63 +34,6 @@ export const UPDATE_SPACE_FLOW_CONTENT_MUTATION = graphql(`
   }
 `);
 
-export const CREATE_CSV_EVALUATION_PRESET_MUTATION = graphql(`
-  mutation CreateCsvEvaluationPresetMutation(
-    $spaceId: ID!
-    $name: String!
-    $csvContent: String
-  ) {
-    result: createCsvEvaluationPreset(
-      spaceId: $spaceId
-      name: $name
-      csvContent: $csvContent
-    ) {
-      space {
-        id
-        csvEvaluationPresets {
-          id
-        }
-      }
-      csvEvaluationPreset {
-        id
-        name
-        csvContent
-        configContent
-      }
-    }
-  }
-`);
-
-export const UPDATE_CSV_EVALUATION_PRESET_MUTATION = graphql(`
-  mutation UpdateCsvEvaluationPresetMutation(
-    $presetId: ID!
-    $name: String
-    $csvContent: String
-  ) {
-    updateCsvEvaluationPreset(
-      presetId: $presetId
-      name: $name
-      csvContent: $csvContent
-    ) {
-      id
-      name
-      csvContent
-      configContent
-    }
-  }
-`);
-
-export const DELETE_CSV_EVALUATION_PRESET_MUTATION = graphql(`
-  mutation DeleteCsvEvaluationPresetMutation($presetId: ID!) {
-    space: deleteCsvEvaluationPreset(id: $presetId) {
-      id
-      csvEvaluationPresets {
-        id
-      }
-    }
-  }
-`);
-
 export function queryFlowObservable(spaceId: string): Observable<{
   isCurrentUserOwner: boolean;
   flowContent: Partial<FlowContent>;
@@ -162,21 +105,3 @@ export async function updateSpace(
 }
 
 export const updateSpaceDebounced = debounce(updateSpace, 500);
-
-export async function updateCSVEvaluationPreset(
-  presetId: string,
-  // name: string,
-  csvContent: string
-) {
-  await client.mutation(UPDATE_CSV_EVALUATION_PRESET_MUTATION, {
-    presetId,
-    // name,
-    csvContent,
-  });
-}
-
-export async function deleteCSVEvaluationPreset(presetId: string) {
-  await client.mutation(DELETE_CSV_EVALUATION_PRESET_MUTATION, {
-    presetId,
-  });
-}

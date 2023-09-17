@@ -15,7 +15,7 @@ import { FlowState, useFlowStore } from "../../store/flowStore";
 const selector = (state: FlowState) => ({
   setCurrentPresetId: state.csvEvaluationSetCurrentPresetId,
   saveNewPreset: state.csvEvaluationSaveNewPreset,
-  csvEvaluationPresetUpdate: state.csvEvaluationPresetUpdate,
+  updatePreset: state.csvEvaluationPresetUpdate,
 });
 
 type Props = {
@@ -25,11 +25,8 @@ type Props = {
 };
 
 export default function PresetSaveModal(props: Props) {
-  const {
-    setCurrentPresetId,
-    saveNewPreset,
-    // csvEvaluationPresetUpdate,
-  } = useFlowStore(selector);
+  const { setCurrentPresetId, saveNewPreset, updatePreset } =
+    useFlowStore(selector);
 
   const [name, setName] = useState(props.preset?.name ?? "");
 
@@ -88,7 +85,15 @@ export default function PresetSaveModal(props: Props) {
               >
                 Save as new
               </Button>
-              <Button color="success">Update</Button>
+              <Button
+                color="success"
+                onClick={() => {
+                  props.onCloseModal();
+                  updatePreset({ name });
+                }}
+              >
+                Update
+              </Button>
             </>
           ) : (
             <Button

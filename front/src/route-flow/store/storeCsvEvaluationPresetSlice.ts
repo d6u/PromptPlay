@@ -1,11 +1,7 @@
 import { Option } from "@mobily/ts-belt";
 import { StateCreator } from "zustand";
+import { graphql } from "../../gql";
 import { client } from "../../state/urql";
-import {
-  CREATE_CSV_EVALUATION_PRESET_MUTATION,
-  deleteCSVEvaluationPreset,
-  updateCSVEvaluationPreset,
-} from "./flowGraphql";
 import { FlowState } from "./flowStore";
 
 export type CsvEvaluationPresetSlice = {
@@ -25,9 +21,8 @@ export type CsvEvaluationPresetSlice = {
   }: {
     name: string;
   }): Promise<Option<{ id: string }>>;
+  csvEvaluationPresetUpdate({ name }: { name: string }): void;
   csvEvaluationDeleteCurrentPreset(): void;
-
-  csvEvaluationPresetUpdate(): void;
 };
 
 export const createCsvEvaluationPresetSlice: StateCreator<
@@ -38,14 +33,19 @@ export const createCsvEvaluationPresetSlice: StateCreator<
 > = (set, get) => ({
   csvEvaluationCurrentPresetId: null,
   csvEvaluationIsLoading: false,
+
+  // Local data that maps to server data
   csvEvaluationCsvContent: "",
   // csvEvaluationPresetConfigContent: {},
+
   csvEvaluationSetCurrentPresetId(presetId: string | null): void {
     set({ csvEvaluationCurrentPresetId: presetId });
   },
   csvEvaluationSetLocalCsvContent(csvContent: string): void {
     set({ csvEvaluationCsvContent: csvContent });
   },
+
+  // Write
   async csvEvaluationSaveNewPreset({
     name,
   }: {
@@ -65,27 +65,94 @@ export const createCsvEvaluationPresetSlice: StateCreator<
       return result.data?.result?.csvEvaluationPreset;
     }
   },
-  csvEvaluationPresetUpdate(): void {
+  csvEvaluationPresetUpdate({ name }: { name: string }): void {
     const {
       csvEvaluationCurrentPresetId: presetId,
-      csvEvaluationCsvContent: csvEvaluationPresetCsvContent,
+      csvEvaluationCsvContent: csvContent,
     } = get();
 
     if (presetId) {
-      updateCSVEvaluationPreset(presetId, csvEvaluationPresetCsvContent).catch(
-        (e) => {
+      client
+        .mutation(UPDATE_CSV_EVALUATION_PRESET_MUTATION, {
+          presetId,
+          name,
+          csvContent,
+        })
+        .toPromise()
+        .catch((e) => {
           console.error(e);
-        }
-      );
+        });
     }
   },
   csvEvaluationDeleteCurrentPreset(): void {
     const { csvEvaluationCurrentPresetId: presetId } = get();
 
     if (presetId) {
-      deleteCSVEvaluationPreset(presetId).catch((e) => {
-        console.error(e);
-      });
+      client
+        .mutation(DELETE_CSV_EVALUATION_PRESET_MUTATION, {
+          presetId,
+        })
+        .toPromise()
+        .catch((e) => {
+          console.error(e);
+        });
     }
   },
 });
+
+const CREATE_CSV_EVALUATION_PRESET_MUTATION = graphql(`
+  mutation CreateCsvEvaluationPresetMutation(
+    $spaceId: ID!
+    $name: String!
+    $csvContent: String
+  ) {
+    result: createCsvEvaluationPreset(
+      spaceId: $spaceId
+      name: $name
+      csvContent: $csvContent
+    ) {
+      space {
+        id
+        csvEvaluationPresets {
+          id
+        }
+      }
+      csvEvaluationPreset {
+        id
+        name
+        csvContent
+        configContent
+      }
+    }
+  }
+`);
+
+const UPDATE_CSV_EVALUATION_PRESET_MUTATION = graphql(`
+  mutation UpdateCsvEvaluationPresetMutation(
+    $presetId: ID!
+    $name: String
+    $csvContent: String
+  ) {
+    updateCsvEvaluationPreset(
+      presetId: $presetId
+      name: $name
+      csvContent: $csvContent
+    ) {
+      id
+      name
+      csvContent
+      configContent
+    }
+  }
+`);
+
+const DELETE_CSV_EVALUATION_PRESET_MUTATION = graphql(`
+  mutation DeleteCsvEvaluationPresetMutation($presetId: ID!) {
+    space: deleteCsvEvaluationPreset(id: $presetId) {
+      id
+      csvEvaluationPresets {
+        id
+      }
+    }
+  }
+`);
