@@ -1,18 +1,7 @@
-import { A, D, F } from "@mobily/ts-belt";
-import {
-  Accordion,
-  AccordionGroup,
-  AccordionSummary,
-  Button,
-  FormControl,
-  FormLabel,
-  Input,
-  Option,
-  Select,
-  Table,
-} from "@mui/joy";
+import { A, D } from "@mobily/ts-belt";
+import { AccordionGroup } from "@mui/joy";
 import Papa from "papaparse";
-import { ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Observable,
   Subscription,
@@ -44,23 +33,16 @@ import {
   useFlowStore,
 } from "../../store/flowStore";
 import { FlowState } from "../../store/flowStore";
-import { Section } from "../controls-common";
+import ConfigCSVEvaluationSection from "./ConfigCSVEvaluationSection";
 import ImportCSVSection from "./ImportCSVSection";
-import { CustomAccordionDetails } from "./common";
-
-export type CSVRow = Array<string>;
-export type CSVHeader = CSVRow;
-export type CSVData = Array<CSVRow>;
-
-type RowIndex = number & { readonly "": unique symbol };
-type ColumnIndex = number & { readonly "": unique symbol };
-
-type VariableColumnMap = Record<VariableID, ColumnIndex | null>;
-
-type GeneratedResult = Record<
+import {
+  CSVData,
+  CSVHeader,
+  VariableColumnMap,
+  GeneratedResult,
+  ColumnIndex,
   RowIndex,
-  Record<ColumnIndex, FlowOutputVariableMap>
->;
+} from "./common";
 
 const EVALUATION_MODE_CSV_CONTENT_QUERY = graphql(`
   query EvaluationModeCSVContentQuery($spaceId: UUID!, $presetId: ID!) {
@@ -100,14 +82,19 @@ export default function EvaluationModeCSVContent() {
     setCsvContent,
   } = useFlowStore(selector);
 
+  const shouldFetchPreset = spaceId && presetId;
+
   const [queryResult] = useQuery({
     query: EVALUATION_MODE_CSV_CONTENT_QUERY,
-    variables: { spaceId, presetId: presetId! },
-    pause: !(spaceId && presetId),
+    variables: {
+      spaceId,
+      presetId: presetId!,
+    },
+    pause: !shouldFetchPreset,
   });
 
   useEffect(() => {
-    if (spaceId && presetId) {
+    if (shouldFetchPreset) {
       setCsvContent(
         queryResult.data?.result?.space.csvEvaluationPreset.csvContent ?? ""
       );
@@ -117,8 +104,7 @@ export default function EvaluationModeCSVContent() {
   }, [
     setCsvContent,
     queryResult.data?.result?.space.csvEvaluationPreset.csvContent,
-    spaceId,
-    presetId,
+    shouldFetchPreset,
   ]);
 
   const csvData = useMemo<CSVData>(
@@ -189,7 +175,7 @@ export default function EvaluationModeCSVContent() {
     }).subscribe({
       next({ iteratonIndex: colIndex, rowIndex, outputs }) {
         setGeneratedResult((prev) => {
-          console.log({ colIndex, rowIndex, outputs });
+          console.debug({ colIndex, rowIndex, outputs });
 
           let row = prev[rowIndex as RowIndex]!;
 
@@ -238,161 +224,24 @@ export default function EvaluationModeCSVContent() {
   }
 
   if (queryResult.error) {
-    return null;
-  }
-
-  const variableMapTableHeaderRowFirst: ReactNode[] = [];
-  const variableMapTableHeaderRowSecond: ReactNode[] = [];
-
-  for (const inputItem of flowInputItems) {
-    variableMapTableHeaderRowFirst.push(
-      <th
-        key={inputItem.id}
-        style={{ textAlign: "center", borderBottomWidth: 1 }}
-      >
-        {inputItem.name}
-      </th>
-    );
-
-    variableMapTableHeaderRowSecond.push(
-      <th key={inputItem.id}>
-        <Select
-          placeholder="Choose a column"
-          value={variableColumnMap[inputItem.id]}
-          onChange={(e, index) => {
-            setVariableColumnMap((prev) => ({
-              ...prev,
-              [inputItem.id]: index,
-            }));
-          }}
-        >
-          {csvHeaders.filter(F.identity).map((item, i) => (
-            <Option key={i} value={i}>
-              {item}
-            </Option>
-          ))}
-        </Select>
-      </th>
-    );
-  }
-
-  for (const outputItem of flowOutputItems) {
-    variableMapTableHeaderRowFirst.push(
-      <th
-        key={outputItem.id}
-        colSpan={repeatCount + 1}
-        style={{ textAlign: "center" }}
-      >
-        {outputItem.name}
-      </th>
-    );
-
-    variableMapTableHeaderRowSecond.push(
-      <th key={outputItem.id}>
-        <Select
-          placeholder="Choose a column"
-          value={variableColumnMap[outputItem.id]}
-          onChange={(e, index) => {
-            setVariableColumnMap((prev) => ({
-              ...prev,
-              [outputItem.id]: index,
-            }));
-          }}
-        >
-          {csvHeaders.filter(F.identity).map((item, i) => (
-            <Option key={i} value={i}>
-              {item}
-            </Option>
-          ))}
-        </Select>
-      </th>
-    );
-
-    if (repeatCount > 1) {
-      for (let i = 0; i < repeatCount; i++) {
-        variableMapTableHeaderRowSecond.push(
-          <th key={`${outputItem.id}-result-${i}`}>Result {i + 1}</th>
-        );
-      }
-    } else {
-      variableMapTableHeaderRowSecond.push(
-        <th key={`${outputItem.id}-result-0`}>Result</th>
-      );
-    }
-  }
-
-  const variableMapTableBodyRows: ReactNode[] = [];
-
-  for (const [rowIndex, row] of csvBody.entries()) {
-    const cells: ReactNode[] = [];
-
-    for (const inputItem of flowInputItems) {
-      const index = variableColumnMap[inputItem.id];
-      cells.push(
-        <td key={`${inputItem.id}`}>{index !== null ? row[index] : ""}</td>
-      );
-    }
-
-    for (const outputItem of flowOutputItems) {
-      const index = variableColumnMap[outputItem.id];
-      cells.push(
-        <td key={`${outputItem.id}`}>{index !== null ? row[index] : ""}</td>
-      );
-
-      for (let colIndex = 0; colIndex < repeatCount; colIndex++) {
-        const value =
-          generatedResult[rowIndex as RowIndex]?.[colIndex as ColumnIndex]?.[
-            outputItem.id
-          ] ?? "";
-
-        cells.push(
-          <td key={`${outputItem.id}-result-${colIndex}`}>{value}</td>
-        );
-      }
-    }
-
-    variableMapTableBodyRows.push(<tr key={rowIndex}>{cells}</tr>);
+    return <div>Something went wrong...</div>;
   }
 
   return (
     <>
       <AccordionGroup size="lg">
         <ImportCSVSection csvHeaders={csvHeaders} csvBody={csvBody} />
-        <Accordion defaultExpanded>
-          <AccordionSummary>Configurate</AccordionSummary>
-          <CustomAccordionDetails>
-            <Section style={{ overflow: "auto", display: "flex", gap: 10 }}>
-              <FormControl size="lg" orientation="horizontal">
-                <FormLabel>Reapt</FormLabel>
-                <Input
-                  size="sm"
-                  type="number"
-                  slotProps={{ input: { min: 1, step: 1 } }}
-                  value={repeatCount}
-                  onChange={(e) => setRepeatCount(Number(e.target.value))}
-                />
-              </FormControl>
-              {isRunning ? (
-                <Button color="danger" onClick={() => setIsRunning(false)}>
-                  Stop
-                </Button>
-              ) : (
-                <Button color="success" onClick={() => setIsRunning(true)}>
-                  Run
-                </Button>
-              )}
-            </Section>
-            <Section>
-              <Table>
-                <thead>
-                  <tr>{variableMapTableHeaderRowFirst}</tr>
-                  <tr>{variableMapTableHeaderRowSecond}</tr>
-                </thead>
-                <tbody>{variableMapTableBodyRows}</tbody>
-              </Table>
-            </Section>
-          </CustomAccordionDetails>
-        </Accordion>
+        <ConfigCSVEvaluationSection
+          csvHeaders={csvHeaders}
+          csvBody={csvBody}
+          generatedResult={generatedResult}
+          variableColumnMap={variableColumnMap}
+          setVariableColumnMap={setVariableColumnMap}
+          repeatCount={repeatCount}
+          setRepeatCount={setRepeatCount}
+          isRunning={isRunning}
+          setIsRunning={setIsRunning}
+        />
       </AccordionGroup>
     </>
   );
