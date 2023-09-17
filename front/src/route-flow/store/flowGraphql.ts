@@ -21,22 +21,6 @@ export const SPACE_FLOW_QUERY = graphql(`
   }
 `);
 
-export const CSV_EVALUATION_PRESET_QUERY = graphql(`
-  query CSVEvaluationPresetQuery($spaceId: UUID!, $presetId: ID!) {
-    result: space(id: $spaceId) {
-      space {
-        id
-        csvEvaluationPreset(id: $presetId) {
-          id
-          name
-          csvContent
-          configContent
-        }
-      }
-    }
-  }
-`);
-
 export const UPDATE_SPACE_FLOW_CONTENT_MUTATION = graphql(`
   mutation UpdateSpaceFlowContentMutation(
     $spaceId: ID!
@@ -136,45 +120,6 @@ export function queryFlowObservable(spaceId: string): Observable<{
         isCurrentUserOwner: !result.data?.result?.isReadOnly,
         flowContent,
       };
-    })
-  );
-}
-
-export function queryCSVEvaluationPresetObservable(
-  spaceId: string,
-  presetId: string
-): Observable<{ csvContent: string; configContent: unknown }> {
-  return defer(() =>
-    client
-      .query(
-        CSV_EVALUATION_PRESET_QUERY,
-        { spaceId, presetId },
-        { requestPolicy: "cache-and-network" }
-      )
-      .toPromise()
-  ).pipe(
-    $map((result) => {
-      console.log("queryCSVEvaluationPresetObservable", result);
-      // TODO: handle error
-
-      const preset = result.data?.result?.space?.csvEvaluationPreset;
-
-      const csvContent = preset?.csvContent ?? "";
-
-      let configContent: unknown = {};
-
-      if (preset) {
-        if (preset.configContent) {
-          try {
-            configContent = JSON.parse(preset.configContent);
-          } catch (e) {
-            // TODO: handle parse error
-            console.error(e);
-          }
-        }
-      }
-
-      return { csvContent, configContent };
     })
   );
 }

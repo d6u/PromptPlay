@@ -1,5 +1,6 @@
 import styled from "@emotion/styled";
 import EvaluationModeCSVContent from "./EvaluationModeCSVContent";
+import PresetSelector from "./PresetSelector";
 
 const Container = styled.div`
   max-width: 70vw;
@@ -9,6 +10,7 @@ const Container = styled.div`
 export default function PanelEvaluationModeCSV() {
   return (
     <Container>
+      <PresetSelector />
       <EvaluationModeCSVContent />
     </Container>
   );

@@ -26,6 +26,8 @@ import {
   range,
   reduce,
 } from "rxjs";
+import { useQuery } from "urql";
+import { graphql } from "../../../gql";
 import {
   FlowInputVariableMap,
   FlowOutputVariableMap,
@@ -46,7 +48,6 @@ import {
 } from "../../store/flowStore";
 import { FlowState } from "../../store/flowStore";
 import { Section } from "../controls-common";
-import PresetSelector from "./PresetSelector";
 
 type CSVRow = Array<string>;
 type CSVHeader = CSVRow;
@@ -62,56 +63,76 @@ type GeneratedResult = Record<
   Record<ColumnIndex, FlowOutputVariableMap>
 >;
 
-const CustomAccordionDetails = styled(AccordionDetails)`
-  & .MuiAccordionDetails-content {
-    padding: 20px;
+const EVALUATION_MODE_CSV_CONTENT_QUERY = graphql(`
+  query EvaluationModeCSVContentQuery($spaceId: UUID!, $presetId: ID!) {
+    result: space(id: $spaceId) {
+      space {
+        id
+        csvEvaluationPreset(id: $presetId) {
+          id
+          csvContent
+          configContent
+        }
+      }
+    }
   }
-
-  & .MuiAccordionDetails-content:not(.Mui-expanded) {
-    padding-top: 0;
-    padding-bottom: 0;
-  }
-`;
+`);
 
 const selector = (state: FlowState) => ({
+  spaceId: state.spaceId,
   edges: state.edges,
   nodeConfigs: state.nodeConfigs,
   flowInputItems: flowInputItemsSelector(state),
   flowOutputItems: flowOutputItemsSelector(state),
-  csvEvaluationPresetCsvContent: state.csvEvaluationCsvContent,
-  csvEvaluationPresetSetCsvContent: state.csvEvaluationSetLocalCsvContent,
+  presetId: state.csvEvaluationCurrentPresetId,
+  csvContent: state.csvEvaluationCsvContent,
+  setCsvContent: state.csvEvaluationSetLocalCsvContent,
 });
 
 export default function EvaluationModeCSVContent() {
   const {
+    spaceId,
     edges,
     nodeConfigs,
     flowInputItems,
     flowOutputItems,
-    csvEvaluationPresetCsvContent: csvContent,
-    csvEvaluationPresetSetCsvContent: setCsvContent,
+    presetId,
+    csvContent,
+    setCsvContent,
   } = useFlowStore(selector);
+
+  const [queryResult] = useQuery({
+    query: EVALUATION_MODE_CSV_CONTENT_QUERY,
+    variables: { spaceId, presetId: presetId! },
+    pause: !(spaceId && presetId),
+  });
+
+  useEffect(() => {
+    setCsvContent(
+      queryResult.data?.result?.space.csvEvaluationPreset.csvContent ?? ""
+    );
+  }, [
+    setCsvContent,
+    queryResult.data?.result?.space.csvEvaluationPreset.csvContent,
+  ]);
 
   const csvData = useMemo<CSVData>(
     () => Papa.parse(csvContent).data as CSVData,
     [csvContent]
   );
 
-  const { headers: csvHeaders, body: csvBody } = useMemo<{
-    headers: CSVHeader;
-    body: CSVData;
+  const { csvHeaders, csvBody } = useMemo<{
+    csvHeaders: CSVHeader;
+    csvBody: CSVData;
   }>(() => {
     if (csvData.length === 0) {
-      return { headers: [""], body: [[""]] };
+      return { csvHeaders: [""], csvBody: [[""]] };
     }
 
-    return {
-      headers: csvData[0],
-      body: csvData.slice(1),
-    };
+    return { csvHeaders: csvData[0], csvBody: csvData.slice(1) };
   }, [csvData]);
 
-  const [repeatTimes, setRepeatTimes] = useState(1);
+  const [repeatCount, setRepeatCount] = useState(1);
   const [variableColumnMap, setVariableColumnMap] = useState<VariableColumnMap>(
     {}
   );
@@ -132,13 +153,90 @@ export default function EvaluationModeCSVContent() {
   }, [flowInputItems, flowOutputItems]);
 
   useEffect(() => {
-    const generatedResultPlaceholder = [];
-    for (let i = 0; i < csvData.length; i++) {
-      generatedResultPlaceholder.push(A.make(repeatTimes, {}));
+    setGeneratedResult(
+      A.makeWithIndex(csvData.length, () =>
+        A.makeWithIndex(repeatCount, D.makeEmpty<FlowOutputVariableMap>)
+      )
+    );
+  }, [csvData.length, repeatCount]);
+
+  const [isRunning, setIsRunning] = useState(false);
+  const runningSubscriptionRef = useRef<Subscription | null>(null);
+
+  useEffect(() => {
+    if (!isRunning) {
+      runningSubscriptionRef.current?.unsubscribe();
+      runningSubscriptionRef.current = null;
+      return;
     }
 
-    setGeneratedResult(generatedResultPlaceholder);
-  }, [csvData, repeatTimes]);
+    if (runningSubscriptionRef.current) {
+      return;
+    }
+
+    const obs = runForEachRow({
+      edges,
+      nodeConfigs,
+      flowInputItems,
+      csvBody,
+      variableColumnMap,
+      repeatCount,
+    }).subscribe({
+      next({ iteratonIndex: colIndex, rowIndex, outputs }) {
+        setGeneratedResult((prev) => {
+          console.log({ colIndex, rowIndex, outputs });
+
+          let row = prev[rowIndex as RowIndex]!;
+
+          row = A.updateAt(
+            row as Array<FlowOutputVariableMap>,
+            colIndex,
+            D.merge(outputs)
+          );
+
+          return A.replaceAt(
+            prev as Array<Record<ColumnIndex, FlowOutputVariableMap>>,
+            rowIndex,
+            row
+          );
+        });
+      },
+      error(err) {
+        console.error(err);
+        setIsRunning(false);
+        runningSubscriptionRef.current = null;
+      },
+      complete() {
+        setIsRunning(false);
+        runningSubscriptionRef.current = null;
+      },
+    });
+
+    runningSubscriptionRef.current = obs;
+
+    return () => {
+      runningSubscriptionRef.current?.unsubscribe();
+      runningSubscriptionRef.current = null;
+    };
+  }, [
+    csvBody,
+    edges,
+    flowInputItems,
+    isRunning,
+    nodeConfigs,
+    repeatCount,
+    variableColumnMap,
+  ]);
+
+  // console.log({ generatedResult });
+
+  if (queryResult.fetching) {
+    return null;
+  }
+
+  if (queryResult.error) {
+    return null;
+  }
 
   const variableMapTableHeaderRowFirst: ReactNode[] = [];
   const variableMapTableHeaderRowSecond: ReactNode[] = [];
@@ -179,7 +277,7 @@ export default function EvaluationModeCSVContent() {
     variableMapTableHeaderRowFirst.push(
       <th
         key={outputItem.id}
-        colSpan={repeatTimes + 1}
+        colSpan={repeatCount + 1}
         style={{ textAlign: "center" }}
       >
         {outputItem.name}
@@ -207,8 +305,8 @@ export default function EvaluationModeCSVContent() {
       </th>
     );
 
-    if (repeatTimes > 1) {
-      for (let i = 0; i < repeatTimes; i++) {
+    if (repeatCount > 1) {
+      for (let i = 0; i < repeatCount; i++) {
         variableMapTableHeaderRowSecond.push(
           <th key={`${outputItem.id}-result-${i}`}>Result {i + 1}</th>
         );
@@ -238,7 +336,7 @@ export default function EvaluationModeCSVContent() {
         <td key={`${outputItem.id}`}>{index !== null ? row[index] : ""}</td>
       );
 
-      for (let colIndex = 0; colIndex < repeatTimes; colIndex++) {
+      for (let colIndex = 0; colIndex < repeatCount; colIndex++) {
         const value =
           generatedResult[rowIndex as RowIndex]?.[colIndex as ColumnIndex]?.[
             outputItem.id
@@ -253,84 +351,18 @@ export default function EvaluationModeCSVContent() {
     variableMapTableBodyRows.push(<tr key={rowIndex}>{cells}</tr>);
   }
 
-  const [isRunning, setIsRunning] = useState(false);
-  const runningSubscriptionRef = useRef<Subscription | null>(null);
-
-  useEffect(() => {
-    if (isRunning) {
-      if (runningSubscriptionRef.current) {
-        return;
-      }
-
-      runningSubscriptionRef.current = runForEachRow(
-        csvBody,
-        flowInputItems,
-        variableColumnMap,
-        edges,
-        nodeConfigs,
-        repeatTimes
-      ).subscribe({
-        next({ iteratonIndex: colIndex, rowIndex, outputs }) {
-          setGeneratedResult((prev) => {
-            console.log({ colIndex, rowIndex, outputs });
-
-            let row = prev[rowIndex as RowIndex]!;
-
-            row = A.updateAt(
-              row as Array<FlowOutputVariableMap>,
-              colIndex,
-              D.merge(outputs)
-            );
-
-            return A.replaceAt(
-              prev as Array<Record<ColumnIndex, FlowOutputVariableMap>>,
-              rowIndex,
-              row
-            );
-          });
-        },
-        error(e) {
-          console.error(e);
-          setIsRunning(false);
-          runningSubscriptionRef.current = null;
-        },
-        complete() {
-          setIsRunning(false);
-          runningSubscriptionRef.current = null;
-        },
-      });
-    } else {
-      runningSubscriptionRef.current?.unsubscribe();
-      runningSubscriptionRef.current = null;
-    }
-
-    return () => {
-      runningSubscriptionRef.current?.unsubscribe();
-      runningSubscriptionRef.current = null;
-    };
-  }, [
-    csvBody,
-    edges,
-    flowInputItems,
-    isRunning,
-    nodeConfigs,
-    repeatTimes,
-    variableColumnMap,
-  ]);
-
   return (
     <>
-      <PresetSelector />
       <AccordionGroup size="lg">
         <Accordion defaultExpanded>
           <AccordionSummary>Import CSV data</AccordionSummary>
           <CustomAccordionDetails>
             <Section>
               <Textarea
-                minRows={2}
+                minRows={6}
                 maxRows={6}
                 value={csvContent}
-                onChange={(e) => setCsvContent(e.target.value)}
+                onChange={(event) => setCsvContent(event.target.value)}
               />
             </Section>
             <Section style={{ overflow: "auto" }}>
@@ -365,8 +397,8 @@ export default function EvaluationModeCSVContent() {
                   size="sm"
                   type="number"
                   slotProps={{ input: { min: 1, step: 1 } }}
-                  value={repeatTimes}
-                  onChange={(e) => setRepeatTimes(Number(e.target.value))}
+                  value={repeatCount}
+                  onChange={(e) => setRepeatCount(Number(e.target.value))}
                 />
               </FormControl>
               {isRunning ? (
@@ -395,20 +427,28 @@ export default function EvaluationModeCSVContent() {
   );
 }
 
-function runForEachRow(
-  csvBody: CSVData,
-  flowInputItems: readonly FlowInputItem[],
-  variableColumnMap: VariableColumnMap,
-  edges: LocalEdge[],
-  nodeConfigs: NodeConfigs,
-  repeatTimes: number,
-  concurrent: number = 1
-): Observable<{
+function runForEachRow({
+  edges,
+  nodeConfigs,
+  flowInputItems,
+  csvBody,
+  variableColumnMap,
+  repeatCount,
+  concurrent = 1,
+}: {
+  edges: LocalEdge[];
+  nodeConfigs: NodeConfigs;
+  flowInputItems: readonly FlowInputItem[];
+  csvBody: CSVData;
+  variableColumnMap: VariableColumnMap;
+  repeatCount: number;
+  concurrent?: number;
+}): Observable<{
   iteratonIndex: number;
   rowIndex: number;
   outputs: FlowOutputVariableMap;
 }> {
-  return range(0, repeatTimes).pipe(
+  return range(0, repeatCount).pipe(
     concatMap((iteratonIndex) => {
       return from(csvBody).pipe(
         map((row) => {
@@ -444,3 +484,14 @@ function runForEachRow(
     })
   );
 }
+
+const CustomAccordionDetails = styled(AccordionDetails)`
+  & .MuiAccordionDetails-content {
+    padding: 20px;
+  }
+
+  & .MuiAccordionDetails-content:not(.Mui-expanded) {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+`;

@@ -25,23 +25,16 @@ const selector = (state: FlowState) => ({
   spaceId: state.spaceId,
   currentPresetId: state.csvEvaluationCurrentPresetId,
   setCurrentPresetId: state.csvEvaluationSetCurrentPresetId,
-  csvEvaluationPresetSetAndLoadPreset: state.csvEvaluationLoadPresetWithId,
-  csvEvaluationPresetDelete: state.csvEvaluationDeleteCurrentPreset,
+  deleteCurrentPreset: state.csvEvaluationDeleteCurrentPreset,
 });
 
 export default function PresetSelector() {
-  const {
-    spaceId,
-    currentPresetId,
-    setCurrentPresetId,
-    csvEvaluationPresetDelete,
-  } = useFlowStore(selector);
+  const { spaceId, currentPresetId, setCurrentPresetId, deleteCurrentPreset } =
+    useFlowStore(selector);
 
   const [queryResult] = useQuery({
     query: PRESET_SELECTOR_QUERY,
-    variables: {
-      spaceId: spaceId,
-    },
+    variables: { spaceId },
   });
 
   const selectedPreset = useMemo(
@@ -88,10 +81,7 @@ export default function PresetSelector() {
         </LeftAlign>
         <RightAlign>
           {selectedPreset && (
-            <Button
-              variant="outlined"
-              onClick={() => csvEvaluationPresetDelete()}
-            >
+            <Button variant="outlined" onClick={() => deleteCurrentPreset()}>
               Delete preset
             </Button>
           )}
