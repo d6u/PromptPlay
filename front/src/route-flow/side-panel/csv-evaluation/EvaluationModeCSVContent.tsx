@@ -42,7 +42,7 @@ import {
   GeneratedResult,
   ColumnIndex,
   RowIndex,
-} from "./common";
+} from "./csv-evaluation-common";
 
 const EVALUATION_MODE_CSV_CONTENT_QUERY = graphql(`
   query EvaluationModeCSVContentQuery($spaceId: UUID!, $presetId: ID!) {
@@ -247,6 +247,12 @@ export default function EvaluationModeCSVContent() {
   );
 }
 
+type ResultEvent = {
+  iteratonIndex: number;
+  rowIndex: number;
+  outputs: FlowOutputVariableMap;
+};
+
 function runForEachRow({
   edges,
   nodeConfigs,
@@ -263,11 +269,7 @@ function runForEachRow({
   variableColumnMap: VariableColumnMap;
   repeatCount: number;
   concurrent?: number;
-}): Observable<{
-  iteratonIndex: number;
-  rowIndex: number;
-  outputs: FlowOutputVariableMap;
-}> {
+}): Observable<ResultEvent> {
   return range(0, repeatCount).pipe(
     concatMap((iteratonIndex) => {
       return from(csvBody).pipe(

@@ -1,7 +1,11 @@
 import { Accordion, AccordionSummary, Textarea, Table } from "@mui/joy";
 import { FlowState, useFlowStore } from "../../store/flowStore";
 import { Section } from "../controls-common";
-import { CSVRow, CSVData, CustomAccordionDetails } from "./common";
+import {
+  CSVRow,
+  CSVData,
+  CustomAccordionDetails,
+} from "./csv-evaluation-common";
 
 type Props = {
   csvHeaders: CSVRow;

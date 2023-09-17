@@ -26,7 +26,7 @@ import {
   GeneratedResult,
   VariableColumnMap,
   CustomAccordionDetails,
-} from "./common";
+} from "./csv-evaluation-common";
 
 const selector = (state: FlowState) => ({
   flowInputItems: flowInputItemsSelector(state),
