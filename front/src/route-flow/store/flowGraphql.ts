@@ -21,20 +21,6 @@ export const SPACE_FLOW_QUERY = graphql(`
   }
 `);
 
-export const SPACE_CSV_EVALUATION_PRESETS_QUERY = graphql(`
-  query SpaceCSVEvaluationPresetsQuery($spaceId: UUID!) {
-    result: space(id: $spaceId) {
-      space {
-        id
-        csvEvaluationPresets {
-          id
-          name
-        }
-      }
-    }
-  }
-`);
-
 export const CSV_EVALUATION_PRESET_QUERY = graphql(`
   query CSVEvaluationPresetQuery($spaceId: UUID!, $presetId: ID!) {
     result: space(id: $spaceId) {
@@ -70,15 +56,23 @@ export const CREATE_CSV_EVALUATION_PRESET_MUTATION = graphql(`
     $name: String!
     $csvContent: String
   ) {
-    createCsvEvaluationPreset(
+    result: createCsvEvaluationPreset(
       spaceId: $spaceId
       name: $name
       csvContent: $csvContent
     ) {
-      id
-      name
-      csvContent
-      configContent
+      space {
+        id
+        csvEvaluationPresets {
+          id
+        }
+      }
+      csvEvaluationPreset {
+        id
+        name
+        csvContent
+        configContent
+      }
     }
   }
 `);
@@ -98,6 +92,17 @@ export const UPDATE_CSV_EVALUATION_PRESET_MUTATION = graphql(`
       name
       csvContent
       configContent
+    }
+  }
+`);
+
+export const DELETE_CSV_EVALUATION_PRESET_MUTATION = graphql(`
+  mutation DeleteCsvEvaluationPresetMutation($presetId: ID!) {
+    space: deleteCsvEvaluationPreset(id: $presetId) {
+      id
+      csvEvaluationPresets {
+        id
+      }
     }
   }
 `);
@@ -144,11 +149,12 @@ export function queryCSVEvaluationPresetObservable(
       .query(
         CSV_EVALUATION_PRESET_QUERY,
         { spaceId, presetId },
-        { requestPolicy: "network-only" }
+        { requestPolicy: "cache-and-network" }
       )
       .toPromise()
   ).pipe(
     $map((result) => {
+      console.log("queryCSVEvaluationPresetObservable", result);
       // TODO: handle error
 
       const preset = result.data?.result?.space?.csvEvaluationPreset;
@@ -212,18 +218,6 @@ export async function updateSpace(
 
 export const updateSpaceDebounced = debounce(updateSpace, 500);
 
-export async function createCSVEvaluationPreset(
-  spaceId: string,
-  name: string,
-  csvContent: string
-) {
-  await client.mutation(CREATE_CSV_EVALUATION_PRESET_MUTATION, {
-    spaceId,
-    name,
-    csvContent,
-  });
-}
-
 export async function updateCSVEvaluationPreset(
   presetId: string,
   // name: string,
@@ -233,5 +227,11 @@ export async function updateCSVEvaluationPreset(
     presetId,
     // name,
     csvContent,
+  });
+}
+
+export async function deleteCSVEvaluationPreset(presetId: string) {
+  await client.mutation(DELETE_CSV_EVALUATION_PRESET_MUTATION, {
+    presetId,
   });
 }

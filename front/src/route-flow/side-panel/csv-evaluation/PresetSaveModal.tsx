@@ -1,4 +1,5 @@
 import styled from "@emotion/styled";
+import { Option } from "@mobily/ts-belt";
 import {
   Modal,
   ModalDialog,
@@ -10,49 +11,44 @@ import {
 } from "@mui/joy";
 import { useEffect, useState } from "react";
 import { FlowState, useFlowStore } from "../../store/flowStore";
-import { Preset } from "./PresetSelector";
-
-const ModalButtons = styled.div`
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-`;
-
-const ModalSection = styled.div`
-  margin-bottom: 10px;
-`;
 
 const selector = (state: FlowState) => ({
-  csvEvaluationPresetCreate: state.csvEvaluationPresetCreate,
+  setCurrentPresetId: state.csvEvaluationSetCurrentPresetId,
+  saveNewPreset: state.csvEvaluationSaveNewPreset,
   csvEvaluationPresetUpdate: state.csvEvaluationPresetUpdate,
 });
 
 type Props = {
   isModalOpen: boolean;
-  setIsModalOpen: (isOpen: boolean) => void;
-  selectedPreset: Preset | null;
+  onCloseModal: () => void;
+  preset: Option<{ name: string }>;
 };
 
 export default function PresetSaveModal(props: Props) {
-  const { csvEvaluationPresetCreate, csvEvaluationPresetUpdate } =
-    useFlowStore(selector);
+  const {
+    setCurrentPresetId,
+    saveNewPreset,
+    // csvEvaluationPresetUpdate,
+  } = useFlowStore(selector);
 
-  const [name, setName] = useState(props.selectedPreset?.label ?? "");
+  const [name, setName] = useState(props.preset?.name ?? "");
 
   useEffect(() => {
-    setName(props.selectedPreset?.label ?? "");
-  }, [props.selectedPreset]);
+    setName(props.preset?.name ?? "");
+  }, [props.preset?.name]);
 
   return (
     <Modal
       slotProps={{ backdrop: { style: { backdropFilter: "none" } } }}
       open={props.isModalOpen}
-      onClose={() => props.setIsModalOpen(false)}
+      onClose={() => props.onCloseModal()}
     >
       <ModalDialog sx={{ width: 600 }}>
         <ModalSection>
           <Typography level="h4">
-            {props.selectedPreset ? `Update "${name}" preset` : "Save preset"}
+            {props.preset
+              ? `Update "${props.preset.name}" preset`
+              : "Save preset"}
           </Typography>
         </ModalSection>
         <ModalSection>
@@ -62,30 +58,48 @@ export default function PresetSaveModal(props: Props) {
               size="sm"
               placeholder="Enter a name"
               value={name}
-              onChange={(e) => {
-                setName(e.target.value);
-              }}
+              onChange={(e) => setName(e.target.value)}
             />
           </FormControl>
         </ModalSection>
         <ModalButtons>
           <Button
             variant="outlined"
-            onClick={() => props.setIsModalOpen(false)}
+            onClick={() => {
+              props.onCloseModal();
+              setName(props.preset?.name ?? "");
+            }}
           >
             Cancel
           </Button>
-          {props.selectedPreset ? (
+          {props.preset ? (
             <>
-              <Button variant="outlined">Save as new</Button>
+              <Button
+                variant="outlined"
+                onClick={() => {
+                  saveNewPreset({ name }).then((data) => {
+                    // TODO: handle error
+                    if (data?.id) {
+                      props.onCloseModal();
+                      setCurrentPresetId(data.id);
+                    }
+                  });
+                }}
+              >
+                Save as new
+              </Button>
               <Button color="success">Update</Button>
             </>
           ) : (
             <Button
               color="success"
               onClick={() => {
-                csvEvaluationPresetCreate(name).then(() => {
-                  props.setIsModalOpen(false);
+                saveNewPreset({ name }).then((data) => {
+                  // TODO: handle error
+                  if (data?.id) {
+                    props.onCloseModal();
+                    setCurrentPresetId(data.id);
+                  }
                 });
               }}
             >
@@ -97,3 +111,13 @@ export default function PresetSaveModal(props: Props) {
     </Modal>
   );
 }
+
+const ModalButtons = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+`;
+
+const ModalSection = styled.div`
+  margin-bottom: 10px;
+`;

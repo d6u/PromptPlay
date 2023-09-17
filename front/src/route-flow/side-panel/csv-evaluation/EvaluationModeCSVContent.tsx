@@ -46,7 +46,7 @@ import {
 } from "../../store/flowStore";
 import { FlowState } from "../../store/flowStore";
 import { Section } from "../controls-common";
-import EvaluationModePresetSelector from "./PresetSelector";
+import PresetSelector from "./PresetSelector";
 
 type CSVRow = Array<string>;
 type CSVHeader = CSVRow;
@@ -78,8 +78,8 @@ const selector = (state: FlowState) => ({
   nodeConfigs: state.nodeConfigs,
   flowInputItems: flowInputItemsSelector(state),
   flowOutputItems: flowOutputItemsSelector(state),
-  csvEvaluationPresetCsvContent: state.csvEvaluationPresetCsvContent,
-  csvEvaluationPresetSetCsvContent: state.csvEvaluationPresetSetCsvContent,
+  csvEvaluationPresetCsvContent: state.csvEvaluationCsvContent,
+  csvEvaluationPresetSetCsvContent: state.csvEvaluationSetLocalCsvContent,
 });
 
 export default function EvaluationModeCSVContent() {
@@ -320,7 +320,7 @@ export default function EvaluationModeCSVContent() {
 
   return (
     <>
-      <EvaluationModePresetSelector />
+      <PresetSelector />
       <AccordionGroup size="lg">
         <Accordion defaultExpanded>
           <AccordionSummary>Import CSV data</AccordionSummary>
