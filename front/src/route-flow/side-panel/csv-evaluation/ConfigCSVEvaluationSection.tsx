@@ -17,14 +17,16 @@ import {
   flowOutputItemsSelector,
   useFlowStore,
 } from "../../store/flowStore";
-import { Section } from "../controls-common";
+import { VariableColumnMap } from "../../store/storeCsvEvaluationPresetSlice";
+import { GeneratedResult } from "../../store/storeCsvEvaluationPresetSlice";
 import {
   RowIndex,
   ColumnIndex,
+} from "../../store/storeCsvEvaluationPresetSlice";
+import { Section } from "../controls-common";
+import {
   CSVData,
   CSVRow,
-  GeneratedResult,
-  VariableColumnMap,
   CustomAccordionDetails,
 } from "./csv-evaluation-common";
 

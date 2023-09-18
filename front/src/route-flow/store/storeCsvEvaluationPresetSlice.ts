@@ -1,8 +1,32 @@
-import { Option } from "@mobily/ts-belt";
+import { D, G, Option } from "@mobily/ts-belt";
 import { StateCreator } from "zustand";
 import { graphql } from "../../gql";
 import { client } from "../../state/urql";
+import { FlowOutputVariableMap } from "../flowRun";
+import { VariableID } from "../flowTypes";
 import { FlowState } from "./flowStore";
+
+type ConfigContent = {
+  repeatCount: number;
+  variableColumnMap: VariableColumnMap;
+  generatedResult: GeneratedResult;
+};
+
+const DEFAULT_CONFIG_CONTENT: ConfigContent = {
+  repeatCount: 1,
+  variableColumnMap: {},
+  generatedResult: [],
+};
+
+export type RowIndex = number & { readonly "": unique symbol };
+export type ColumnIndex = number & { readonly "": unique symbol };
+
+export type VariableColumnMap = Record<VariableID, ColumnIndex | null>;
+
+export type GeneratedResult = Record<
+  RowIndex,
+  Record<ColumnIndex, FlowOutputVariableMap>
+>;
 
 export type CsvEvaluationPresetSlice = {
   csvEvaluationCurrentPresetId: string | null;
@@ -10,10 +34,21 @@ export type CsvEvaluationPresetSlice = {
 
   // Local data that maps to server data
   csvEvaluationCsvContent: string;
-  // csvEvaluationPresetConfigContent: unknown;
+  csvEvaluationConfigContent: ConfigContent;
 
   csvEvaluationSetCurrentPresetId(presetId: string | null): void;
   csvEvaluationSetLocalCsvContent(csvContent: string): void;
+
+  csvEvaluationSetLocalConfigContent(
+    change: Partial<ConfigContent> | null
+  ): void;
+  csvEvaluationSetRepeatCount(repeatCount: number): void;
+  csvEvaluationSetVariableColumnMap(
+    update: ((prev: VariableColumnMap) => VariableColumnMap) | VariableColumnMap
+  ): void;
+  csvEvaluationSetGeneratedResult(
+    update: ((prev: GeneratedResult) => GeneratedResult) | GeneratedResult
+  ): void;
 
   // Write
   csvEvaluationSaveNewPreset({
@@ -36,13 +71,74 @@ export const createCsvEvaluationPresetSlice: StateCreator<
 
   // Local data that maps to server data
   csvEvaluationCsvContent: "",
-  // csvEvaluationPresetConfigContent: {},
+  csvEvaluationConfigContent: DEFAULT_CONFIG_CONTENT,
 
   csvEvaluationSetCurrentPresetId(presetId: string | null): void {
     set({ csvEvaluationCurrentPresetId: presetId });
   },
   csvEvaluationSetLocalCsvContent(csvContent: string): void {
     set({ csvEvaluationCsvContent: csvContent });
+  },
+
+  csvEvaluationSetLocalConfigContent(
+    change: Partial<ConfigContent> | null
+  ): void {
+    if (change) {
+      const configContent = get().csvEvaluationConfigContent;
+      set({
+        csvEvaluationConfigContent: D.merge(configContent, change),
+      });
+    } else {
+      set({ csvEvaluationConfigContent: DEFAULT_CONFIG_CONTENT });
+    }
+  },
+  csvEvaluationSetRepeatCount(repeatCount: number): void {
+    const configContent = get().csvEvaluationConfigContent;
+    set({
+      csvEvaluationConfigContent: D.merge(configContent, { repeatCount }),
+    });
+  },
+  csvEvaluationSetVariableColumnMap(
+    update: ((prev: VariableColumnMap) => VariableColumnMap) | VariableColumnMap
+  ): void {
+    if (G.isFunction(update)) {
+      set((state) => {
+        const configContent = state.csvEvaluationConfigContent;
+        return {
+          csvEvaluationConfigContent: D.merge(configContent, {
+            variableColumnMap: update(configContent.variableColumnMap),
+          }),
+        };
+      });
+    } else {
+      const configContent = get().csvEvaluationConfigContent;
+      set({
+        csvEvaluationConfigContent: D.merge(configContent, {
+          variableColumnMap: update,
+        }),
+      });
+    }
+  },
+  csvEvaluationSetGeneratedResult(
+    update: ((prev: GeneratedResult) => GeneratedResult) | GeneratedResult
+  ): void {
+    if (G.isFunction(update)) {
+      set((state) => {
+        const configContent = state.csvEvaluationConfigContent;
+        return {
+          csvEvaluationConfigContent: D.merge(configContent, {
+            generatedResult: update(configContent.generatedResult),
+          }),
+        };
+      });
+    } else {
+      const configContent = get().csvEvaluationConfigContent;
+      set({
+        csvEvaluationConfigContent: D.merge(configContent, {
+          generatedResult: update,
+        }),
+      });
+    }
   },
 
   // Write

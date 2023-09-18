@@ -11,16 +11,6 @@ export const client = new Client({
   url: `${API_SERVER_BASE_URL}/graphql`,
   exchanges: [
     cacheExchange({
-      updates: {
-        Mutation: {
-          // createCsvEvaluationPreset(result, args, cache, info) {
-          //   cache.invalidate(
-          //     { __typename: "Space", id: args.spaceId as string },
-          //     "csvEvaluationPresets"
-          //   );
-          // },
-        },
-      },
       optimistic: {
         updateSpace(args) {
           return {

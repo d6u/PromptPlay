@@ -56,6 +56,11 @@ export const useFlowStore = create<FlowState>()(
   )
 );
 
+const memoizeItems = F.memoizeWithKey(
+  (items) => JSON.stringify(items),
+  F.identity
+);
+
 export function flowInputItemsSelector(
   state: FlowState
 ): readonly FlowInputItem[] {
@@ -66,7 +71,8 @@ export function flowInputItemsSelector(
     A.filter(flow(D.get("type"), F.equals(NodeType.InputNode))),
     A.map((node) => nodeConfigs[node.id] as InputNodeConfig),
     A.map(D.getUnsafe("outputs")),
-    A.flat
+    A.flat,
+    memoizeItems
   );
 }
 
@@ -96,6 +102,7 @@ export function flowOutputItemsSelector(
     A.filter(flow(D.get("type"), F.equals(NodeType.OutputNode))),
     A.map((node) => nodeConfigs[node.id] as OutputNodeConfig),
     A.map((nodeConfig) => nodeConfig.inputs),
-    A.flat
+    A.flat,
+    memoizeItems
   );
 }

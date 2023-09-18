@@ -25,6 +25,7 @@ import {
   FlowInputItem,
   LocalEdge,
   NodeConfigs,
+  OutputID,
   VariableID,
 } from "../../flowTypes";
 import {
@@ -33,16 +34,14 @@ import {
   useFlowStore,
 } from "../../store/flowStore";
 import { FlowState } from "../../store/flowStore";
-import ConfigCSVEvaluationSection from "./ConfigCSVEvaluationSection";
-import ImportCSVSection from "./ImportCSVSection";
 import {
-  CSVData,
-  CSVHeader,
-  VariableColumnMap,
-  GeneratedResult,
   ColumnIndex,
   RowIndex,
-} from "./csv-evaluation-common";
+  VariableColumnMap,
+} from "../../store/storeCsvEvaluationPresetSlice";
+import ConfigCSVEvaluationSection from "./ConfigCSVEvaluationSection";
+import ImportCSVSection from "./ImportCSVSection";
+import { CSVData, CSVHeader } from "./csv-evaluation-common";
 
 const EVALUATION_MODE_CSV_CONTENT_QUERY = graphql(`
   query EvaluationModeCSVContentQuery($spaceId: UUID!, $presetId: ID!) {
@@ -68,6 +67,13 @@ const selector = (state: FlowState) => ({
   presetId: state.csvEvaluationCurrentPresetId,
   csvContent: state.csvEvaluationCsvContent,
   setCsvContent: state.csvEvaluationSetLocalCsvContent,
+  setConfigContent: state.csvEvaluationSetLocalConfigContent,
+  repeatCount: state.csvEvaluationConfigContent.repeatCount,
+  setRepeatCount: state.csvEvaluationSetRepeatCount,
+  variableColumnMap: state.csvEvaluationConfigContent.variableColumnMap,
+  setVariableColumnMap: state.csvEvaluationSetVariableColumnMap,
+  generatedResult: state.csvEvaluationConfigContent.generatedResult,
+  setGeneratedResult: state.csvEvaluationSetGeneratedResult,
 });
 
 export default function EvaluationModeCSVContent() {
@@ -80,6 +86,13 @@ export default function EvaluationModeCSVContent() {
     presetId,
     csvContent,
     setCsvContent,
+    setConfigContent,
+    repeatCount,
+    setRepeatCount,
+    variableColumnMap,
+    setVariableColumnMap,
+    generatedResult,
+    setGeneratedResult,
   } = useFlowStore(selector);
 
   const shouldFetchPreset = spaceId && presetId;
@@ -107,6 +120,25 @@ export default function EvaluationModeCSVContent() {
     shouldFetchPreset,
   ]);
 
+  useEffect(() => {
+    if (shouldFetchPreset) {
+      if (queryResult.data?.result?.space.csvEvaluationPreset.configContent) {
+        setConfigContent(
+          JSON.parse(
+            queryResult.data?.result?.space.csvEvaluationPreset.configContent
+          )
+        );
+        return;
+      }
+    }
+
+    setConfigContent(null);
+  }, [
+    setConfigContent,
+    shouldFetchPreset,
+    queryResult.data?.result?.space.csvEvaluationPreset.configContent,
+  ]);
+
   const csvData = useMemo<CSVData>(
     () => Papa.parse(csvContent).data as CSVData,
     [csvContent]
@@ -123,11 +155,10 @@ export default function EvaluationModeCSVContent() {
     return { csvHeaders: csvData[0], csvBody: csvData.slice(1) };
   }, [csvData]);
 
-  const [repeatCount, setRepeatCount] = useState(1);
-  const [variableColumnMap, setVariableColumnMap] = useState<VariableColumnMap>(
-    {}
-  );
-  const [generatedResult, setGeneratedResult] = useState<GeneratedResult>([]);
+  // const [variableColumnMap, setVariableColumnMap] = useState<VariableColumnMap>(
+  //   {}
+  // );
+  // const [generatedResult, setGeneratedResult] = useState<GeneratedResult>([]);
 
   useEffect(() => {
     const data: Record<VariableID, ColumnIndex | null> = {};
@@ -141,7 +172,7 @@ export default function EvaluationModeCSVContent() {
     }
 
     setVariableColumnMap(data);
-  }, [flowInputItems, flowOutputItems]);
+  }, [setVariableColumnMap, flowInputItems, flowOutputItems]);
 
   useEffect(() => {
     setGeneratedResult(
@@ -149,7 +180,7 @@ export default function EvaluationModeCSVContent() {
         A.makeWithIndex(repeatCount, D.makeEmpty<FlowOutputVariableMap>)
       )
     );
-  }, [csvData.length, repeatCount]);
+  }, [csvData.length, repeatCount, setGeneratedResult]);
 
   const [isRunning, setIsRunning] = useState(false);
   const runningSubscriptionRef = useRef<Subscription | null>(null);
@@ -168,7 +199,6 @@ export default function EvaluationModeCSVContent() {
     const obs = runForEachRow({
       edges,
       nodeConfigs,
-      flowInputItems,
       csvBody,
       variableColumnMap,
       repeatCount,
@@ -212,10 +242,10 @@ export default function EvaluationModeCSVContent() {
   }, [
     csvBody,
     edges,
-    flowInputItems,
     isRunning,
     nodeConfigs,
     repeatCount,
+    setGeneratedResult,
     variableColumnMap,
   ]);
 
@@ -256,7 +286,6 @@ type ResultEvent = {
 function runForEachRow({
   edges,
   nodeConfigs,
-  flowInputItems,
   csvBody,
   variableColumnMap,
   repeatCount,
@@ -264,7 +293,6 @@ function runForEachRow({
 }: {
   edges: LocalEdge[];
   nodeConfigs: NodeConfigs;
-  flowInputItems: readonly FlowInputItem[];
   csvBody: CSVData;
   variableColumnMap: VariableColumnMap;
   repeatCount: number;
@@ -276,10 +304,9 @@ function runForEachRow({
         map((row) => {
           const inputVariableMap: FlowInputVariableMap = {};
 
-          for (const inputItem of flowInputItems) {
-            const colIndex = variableColumnMap[inputItem.id];
+          for (const [inputId, colIndex] of Object.entries(variableColumnMap)) {
             const value = colIndex != null ? row[colIndex] : null;
-            inputVariableMap[inputItem.id] = value;
+            inputVariableMap[inputId as OutputID] = value;
           }
 
           return inputVariableMap;
