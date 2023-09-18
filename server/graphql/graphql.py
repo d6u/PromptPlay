@@ -8,7 +8,7 @@ from strawberry.fastapi import GraphQLRouter
 from server.database.database import get_db
 
 from .context import Context
-from .mutation import Mutation
+from .mutations.mutation import Mutation
 from .query import Query
 
 schema = strawberry.Schema(query=Query, mutation=Mutation)

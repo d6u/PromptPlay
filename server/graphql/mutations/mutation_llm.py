@@ -10,9 +10,9 @@ from server.database.orm.prompt_block import OrmPromptBlock
 from server.database.orm.user import OrmUser
 from server.llm.get_completion import LlmMessage, get_completion
 
-from .context import Info
-from .types import BlockSet
-from .utils import ensure_db_user
+from ..context import Info
+from ..types import BlockSet
+from ..utils import ensure_db_user
 
 
 @strawberry.type

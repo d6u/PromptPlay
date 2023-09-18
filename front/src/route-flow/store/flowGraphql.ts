@@ -40,11 +40,7 @@ export function queryFlowObservable(spaceId: string): Observable<{
 }> {
   return defer(() =>
     client
-      .query(
-        SPACE_FLOW_QUERY,
-        { spaceId },
-        { requestPolicy: "cache-and-network" }
-      )
+      .query(SPACE_FLOW_QUERY, { spaceId }, { requestPolicy: "network-only" })
       .toPromise()
   ).pipe(
     $map((result) => {

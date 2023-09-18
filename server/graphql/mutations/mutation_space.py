@@ -6,9 +6,9 @@ from server.database.orm.space import OrmSpace
 from server.database.orm.user import OrmUser
 from server.database.utils import space_example_content
 
-from .context import Info
-from .types import Space
-from .utils import ensure_db_user
+from ..context import Info
+from ..types import Space
+from ..utils import ensure_db_user
 
 
 @strawberry.type

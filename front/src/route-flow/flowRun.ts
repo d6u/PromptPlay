@@ -33,7 +33,7 @@ import {
   OutputNodeConfig,
   VariableValueMap,
 } from "./flowTypes";
-import { NodeAugment } from "./store/storeTypes";
+import { NodeAugment } from "./store/flowStore";
 
 const AsyncFunction = async function () {}.constructor;
 

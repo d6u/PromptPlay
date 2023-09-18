@@ -20,8 +20,8 @@ import {
   NodeInputItem,
   NodeType,
 } from "../flowTypes";
-import { useFlowStore } from "../store/flowStore";
-import { DetailPanelContentType, FlowState } from "../store/storeTypes";
+import { DetailPanelContentType, useFlowStore } from "../store/flowStore";
+import { FlowState } from "../store/flowStore";
 import AddVariableButton from "./node-common/AddVariableButton";
 import HeaderSection from "./node-common/HeaderSection";
 import HelperTextContainer from "./node-common/HelperTextContainer";

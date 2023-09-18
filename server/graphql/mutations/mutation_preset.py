@@ -7,9 +7,9 @@ from server.database.orm.block_set import OrmBlockSet
 from server.database.orm.preset import OrmPreset
 from server.database.orm.user import OrmUser
 
-from .context import Info
-from .types import Preset
-from .utils import ensure_db_user
+from ..context import Info
+from ..types import Preset
+from ..utils import ensure_db_user
 
 
 @strawberry.type

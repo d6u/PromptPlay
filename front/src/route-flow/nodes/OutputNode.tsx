@@ -11,8 +11,8 @@ import {
   NodeType,
   OutputNodeConfig,
 } from "../flowTypes";
-import { useFlowStore } from "../store/flowStore";
-import { DetailPanelContentType, FlowState } from "../store/storeTypes";
+import { DetailPanelContentType, useFlowStore } from "../store/flowStore";
+import { FlowState } from "../store/flowStore";
 import AddVariableButton from "./node-common/AddVariableButton";
 import HeaderSection from "./node-common/HeaderSection";
 import NodeBox from "./node-common/NodeBox";

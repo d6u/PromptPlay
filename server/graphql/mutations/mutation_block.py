@@ -8,9 +8,9 @@ from server.database.orm.prompt_block import OrmPromptBlock
 from server.database.orm.user import OrmUser
 from server.database.orm.workspace import OrmWorkspace
 
-from .context import Info
-from .types import CompleterBlock, DeletionResult, PromptBlock, PromptType
-from .utils import ensure_db_user
+from ..context import Info
+from ..types import CompleterBlock, DeletionResult, PromptBlock, PromptType
+from ..utils import ensure_db_user
 
 
 @strawberry.type

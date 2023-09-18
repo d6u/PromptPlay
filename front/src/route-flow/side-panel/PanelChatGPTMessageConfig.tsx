@@ -10,7 +10,7 @@ import TextareaReadonly from "../flow-common/TextareaReadonly";
 import { CopyIcon, LabelWithIconContainer } from "../flow-common/flow-common";
 import { ChatGPTMessageNodeConfig } from "../flowTypes";
 import { useFlowStore } from "../store/flowStore";
-import { FlowState } from "../store/storeTypes";
+import { FlowState } from "../store/flowStore";
 import {
   HeaderSection,
   HeaderSectionHeader,
