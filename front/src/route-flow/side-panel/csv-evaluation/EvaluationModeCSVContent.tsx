@@ -1,7 +1,7 @@
 import { A, D } from "@mobily/ts-belt";
 import { AccordionGroup } from "@mui/joy";
 import Papa from "papaparse";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Observable,
   Subscription,
@@ -21,13 +21,7 @@ import {
   RunEventType,
   run,
 } from "../../flowRun";
-import {
-  FlowInputItem,
-  LocalEdge,
-  NodeConfigs,
-  OutputID,
-  VariableID,
-} from "../../flowTypes";
+import { LocalEdge, NodeConfigs, OutputID, VariableID } from "../../flowTypes";
 import {
   flowInputItemsSelector,
   flowOutputItemsSelector,
@@ -69,7 +63,6 @@ const selector = (state: FlowState) => ({
   setCsvContent: state.csvEvaluationSetLocalCsvContent,
   setConfigContent: state.csvEvaluationSetLocalConfigContent,
   repeatCount: state.csvEvaluationConfigContent.repeatCount,
-  setRepeatCount: state.csvEvaluationSetRepeatCount,
   variableColumnMap: state.csvEvaluationConfigContent.variableColumnMap,
   setVariableColumnMap: state.csvEvaluationSetVariableColumnMap,
   generatedResult: state.csvEvaluationConfigContent.generatedResult,
@@ -88,7 +81,6 @@ export default function EvaluationModeCSVContent() {
     setCsvContent,
     setConfigContent,
     repeatCount,
-    setRepeatCount,
     variableColumnMap,
     setVariableColumnMap,
     generatedResult,
@@ -155,11 +147,6 @@ export default function EvaluationModeCSVContent() {
     return { csvHeaders: csvData[0], csvBody: csvData.slice(1) };
   }, [csvData]);
 
-  // const [variableColumnMap, setVariableColumnMap] = useState<VariableColumnMap>(
-  //   {}
-  // );
-  // const [generatedResult, setGeneratedResult] = useState<GeneratedResult>([]);
-
   useEffect(() => {
     const data: Record<VariableID, ColumnIndex | null> = {};
 
@@ -183,20 +170,17 @@ export default function EvaluationModeCSVContent() {
   }, [csvData.length, repeatCount, setGeneratedResult]);
 
   const [isRunning, setIsRunning] = useState(false);
+
   const runningSubscriptionRef = useRef<Subscription | null>(null);
 
-  useEffect(() => {
-    if (!isRunning) {
-      runningSubscriptionRef.current?.unsubscribe();
-      runningSubscriptionRef.current = null;
-      return;
-    }
-
+  const startRunning = useCallback(() => {
     if (runningSubscriptionRef.current) {
       return;
     }
 
-    const obs = runForEachRow({
+    setIsRunning(true);
+
+    runningSubscriptionRef.current = runForEachRow({
       edges,
       nodeConfigs,
       csvBody,
@@ -232,22 +216,27 @@ export default function EvaluationModeCSVContent() {
         runningSubscriptionRef.current = null;
       },
     });
-
-    runningSubscriptionRef.current = obs;
-
-    return () => {
-      runningSubscriptionRef.current?.unsubscribe();
-      runningSubscriptionRef.current = null;
-    };
   }, [
     csvBody,
     edges,
-    isRunning,
     nodeConfigs,
     repeatCount,
     setGeneratedResult,
     variableColumnMap,
   ]);
+
+  const stopRunning = useCallback(() => {
+    runningSubscriptionRef.current?.unsubscribe();
+    runningSubscriptionRef.current = null;
+    setIsRunning(false);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      runningSubscriptionRef.current?.unsubscribe();
+      runningSubscriptionRef.current = null;
+    };
+  }, []);
 
   if (queryResult.fetching) {
     return null;
@@ -267,10 +256,9 @@ export default function EvaluationModeCSVContent() {
           generatedResult={generatedResult}
           variableColumnMap={variableColumnMap}
           setVariableColumnMap={setVariableColumnMap}
-          repeatCount={repeatCount}
-          setRepeatCount={setRepeatCount}
           isRunning={isRunning}
-          setIsRunning={setIsRunning}
+          onStartRunning={startRunning}
+          onStopRunning={stopRunning}
         />
       </AccordionGroup>
     </>

@@ -33,6 +33,8 @@ import {
 const selector = (state: FlowState) => ({
   flowInputItems: flowInputItemsSelector(state),
   flowOutputItems: flowOutputItemsSelector(state),
+  repeatCount: state.csvEvaluationConfigContent.repeatCount,
+  setRepeatCount: state.csvEvaluationSetRepeatCount,
 });
 
 type Props = {
@@ -41,14 +43,14 @@ type Props = {
   generatedResult: GeneratedResult;
   variableColumnMap: VariableColumnMap;
   setVariableColumnMap: Dispatch<SetStateAction<VariableColumnMap>>;
-  repeatCount: number;
-  setRepeatCount: (value: number) => void;
   isRunning: boolean;
-  setIsRunning: (value: boolean) => void;
+  onStartRunning: () => void;
+  onStopRunning: () => void;
 };
 
 export default function ConfigCSVEvaluationSection(props: Props) {
-  const { flowInputItems, flowOutputItems } = useFlowStore(selector);
+  const { flowInputItems, flowOutputItems, repeatCount, setRepeatCount } =
+    useFlowStore(selector);
 
   const variableMapTableHeaderRowFirst: ReactNode[] = [];
   const variableMapTableHeaderRowSecond: ReactNode[] = [];
@@ -89,7 +91,7 @@ export default function ConfigCSVEvaluationSection(props: Props) {
     variableMapTableHeaderRowFirst.push(
       <th
         key={outputItem.id}
-        colSpan={props.repeatCount + 1}
+        colSpan={repeatCount + 1}
         style={{ textAlign: "center" }}
       >
         {outputItem.name}
@@ -117,8 +119,8 @@ export default function ConfigCSVEvaluationSection(props: Props) {
       </th>
     );
 
-    if (props.repeatCount > 1) {
-      for (let i = 0; i < props.repeatCount; i++) {
+    if (repeatCount > 1) {
+      for (let i = 0; i < repeatCount; i++) {
         variableMapTableHeaderRowSecond.push(
           <th key={`${outputItem.id}-result-${i}`}>Result {i + 1}</th>
         );
@@ -148,7 +150,7 @@ export default function ConfigCSVEvaluationSection(props: Props) {
         <td key={`${outputItem.id}`}>{index !== null ? row[index] : ""}</td>
       );
 
-      for (let colIndex = 0; colIndex < props.repeatCount; colIndex++) {
+      for (let colIndex = 0; colIndex < repeatCount; colIndex++) {
         const value =
           props.generatedResult[rowIndex as RowIndex]?.[
             colIndex as ColumnIndex
@@ -174,16 +176,26 @@ export default function ConfigCSVEvaluationSection(props: Props) {
               size="sm"
               type="number"
               slotProps={{ input: { min: 1, step: 1 } }}
-              value={props.repeatCount}
-              onChange={(e) => props.setRepeatCount(Number(e.target.value))}
+              value={repeatCount}
+              onChange={(e) => setRepeatCount(Number(e.target.value))}
             />
           </FormControl>
           {props.isRunning ? (
-            <Button color="danger" onClick={() => props.setIsRunning(false)}>
+            <Button
+              color="danger"
+              onClick={() => {
+                props.onStopRunning();
+              }}
+            >
               Stop
             </Button>
           ) : (
-            <Button color="success" onClick={() => props.setIsRunning(true)}>
+            <Button
+              color="success"
+              onClick={() => {
+                props.onStartRunning();
+              }}
+            >
               Run
             </Button>
           )}
