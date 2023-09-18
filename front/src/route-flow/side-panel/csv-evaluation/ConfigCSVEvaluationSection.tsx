@@ -1,4 +1,4 @@
-import { F } from "@mobily/ts-belt";
+import { A, D, F } from "@mobily/ts-belt";
 import {
   Accordion,
   AccordionSummary,
@@ -10,15 +10,15 @@ import {
   Select,
   Option,
 } from "@mui/joy";
-import { Dispatch, ReactNode, SetStateAction } from "react";
+import { ReactNode, useEffect } from "react";
+import { FlowOutputVariableMap } from "../../flowRun";
+import { VariableID } from "../../flowTypes";
 import {
   FlowState,
   flowInputItemsSelector,
   flowOutputItemsSelector,
   useFlowStore,
 } from "../../store/flowStore";
-import { VariableColumnMap } from "../../store/storeCsvEvaluationPresetSlice";
-import { GeneratedResult } from "../../store/storeCsvEvaluationPresetSlice";
 import {
   RowIndex,
   ColumnIndex,
@@ -35,22 +35,53 @@ const selector = (state: FlowState) => ({
   flowOutputItems: flowOutputItemsSelector(state),
   repeatCount: state.csvEvaluationConfigContent.repeatCount,
   setRepeatCount: state.csvEvaluationSetRepeatCount,
+  variableColumnMap: state.csvEvaluationConfigContent.variableColumnMap,
+  setVariableColumnMap: state.csvEvaluationSetVariableColumnMap,
+  generatedResult: state.csvEvaluationConfigContent.generatedResult,
+  setGeneratedResult: state.csvEvaluationSetGeneratedResult,
 });
 
 type Props = {
   csvHeaders: CSVRow;
   csvBody: CSVData;
-  generatedResult: GeneratedResult;
-  variableColumnMap: VariableColumnMap;
-  setVariableColumnMap: Dispatch<SetStateAction<VariableColumnMap>>;
   isRunning: boolean;
   onStartRunning: () => void;
   onStopRunning: () => void;
 };
 
 export default function ConfigCSVEvaluationSection(props: Props) {
-  const { flowInputItems, flowOutputItems, repeatCount, setRepeatCount } =
-    useFlowStore(selector);
+  const {
+    flowInputItems,
+    flowOutputItems,
+    repeatCount,
+    setRepeatCount,
+    variableColumnMap,
+    setVariableColumnMap,
+    generatedResult,
+    setGeneratedResult,
+  } = useFlowStore(selector);
+
+  useEffect(() => {
+    const data: Record<VariableID, ColumnIndex | null> = {};
+
+    for (const inputItem of flowInputItems) {
+      data[inputItem.id] = null;
+    }
+
+    for (const outputItem of flowOutputItems) {
+      data[outputItem.id] = null;
+    }
+
+    setVariableColumnMap(data);
+  }, [setVariableColumnMap, flowInputItems, flowOutputItems]);
+
+  useEffect(() => {
+    setGeneratedResult(
+      A.makeWithIndex(props.csvBody.length, () =>
+        A.makeWithIndex(repeatCount, D.makeEmpty<FlowOutputVariableMap>)
+      )
+    );
+  }, [props.csvBody.length, repeatCount, setGeneratedResult]);
 
   const variableMapTableHeaderRowFirst: ReactNode[] = [];
   const variableMapTableHeaderRowSecond: ReactNode[] = [];
@@ -69,9 +100,9 @@ export default function ConfigCSVEvaluationSection(props: Props) {
       <th key={inputItem.id}>
         <Select
           placeholder="Choose a column"
-          value={props.variableColumnMap[inputItem.id]}
+          value={variableColumnMap[inputItem.id]}
           onChange={(e, index) => {
-            props.setVariableColumnMap((prev) => ({
+            setVariableColumnMap((prev) => ({
               ...prev,
               [inputItem.id]: index,
             }));
@@ -102,9 +133,9 @@ export default function ConfigCSVEvaluationSection(props: Props) {
       <th key={outputItem.id}>
         <Select
           placeholder="Choose a column"
-          value={props.variableColumnMap[outputItem.id]}
+          value={variableColumnMap[outputItem.id]}
           onChange={(e, index) => {
-            props.setVariableColumnMap((prev) => ({
+            setVariableColumnMap((prev) => ({
               ...prev,
               [outputItem.id]: index,
             }));
@@ -138,23 +169,23 @@ export default function ConfigCSVEvaluationSection(props: Props) {
     const cells: ReactNode[] = [];
 
     for (const inputItem of flowInputItems) {
-      const index = props.variableColumnMap[inputItem.id];
+      const index = variableColumnMap[inputItem.id];
       cells.push(
         <td key={`${inputItem.id}`}>{index !== null ? row[index] : ""}</td>
       );
     }
 
     for (const outputItem of flowOutputItems) {
-      const index = props.variableColumnMap[outputItem.id];
+      const index = variableColumnMap[outputItem.id];
       cells.push(
         <td key={`${outputItem.id}`}>{index !== null ? row[index] : ""}</td>
       );
 
       for (let colIndex = 0; colIndex < repeatCount; colIndex++) {
         const value =
-          props.generatedResult[rowIndex as RowIndex]?.[
-            colIndex as ColumnIndex
-          ]?.[outputItem.id] ?? "";
+          generatedResult[rowIndex as RowIndex]?.[colIndex as ColumnIndex]?.[
+            outputItem.id
+          ] ?? "";
 
         cells.push(
           <td key={`${outputItem.id}-result-${colIndex}`}>{value}</td>
