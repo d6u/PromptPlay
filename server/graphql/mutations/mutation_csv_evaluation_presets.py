@@ -1,15 +1,18 @@
-import json
-
 import strawberry
 
 from server.database.orm.csv_evaluation_preset import OrmCSVEvaluationPreset
 from server.database.orm.space import OrmSpace
 from server.database.orm.user import OrmUser
-from server.database.utils import space_example_content
 
 from ..context import Info
 from ..types import CSVEvaluationPreset, Space
 from ..utils import ensure_db_user
+
+
+@strawberry.type
+class CreateCsvEvaluationPresetResult:
+    space: Space
+    csv_evaluation_preset: CSVEvaluationPreset
 
 
 @strawberry.type
@@ -23,7 +26,7 @@ class MutationCSVEvaluationPreset:
         space_id: strawberry.ID,
         name: str,
         csvContent: str | None = strawberry.UNSET,
-    ) -> CSVEvaluationPreset | None:
+    ) -> CreateCsvEvaluationPresetResult | None:
         db = info.context.db
 
         db_space = db.scalar(
@@ -43,7 +46,12 @@ class MutationCSVEvaluationPreset:
         db.add(db_csv_evaluation_preset)
         db.commit()
 
-        return CSVEvaluationPreset.from_db(db_csv_evaluation_preset)
+        return CreateCsvEvaluationPresetResult(
+            space=Space.from_db(db_space),
+            csv_evaluation_preset=CSVEvaluationPreset.from_db(
+                db_csv_evaluation_preset
+            ),
+        )
 
     @strawberry.mutation
     @ensure_db_user
@@ -80,22 +88,29 @@ class MutationCSVEvaluationPreset:
 
         return CSVEvaluationPreset.from_db(db_csv_evaluation_preset)
 
-    # @strawberry.mutation
-    # @ensure_db_user
-    # def delete_space(
-    #     self: None,
-    #     info: Info,
-    #     db_user: OrmUser,
-    #     id: strawberry.ID,
-    # ) -> bool | None:
-    #     db = info.context.db
+    @strawberry.mutation
+    @ensure_db_user
+    def delete_csv_evaluation_preset(
+        self: None,
+        info: Info,
+        db_user: OrmUser,
+        id: strawberry.ID,
+    ) -> Space | None:
+        db = info.context.db
 
-    #     db_space = db.scalar(db_user.spaces.select().where(OrmSpace.id == id))
+        db_csv_evaluation_preset = db.scalar(
+            db_user.csv_evaluation_presets.select().where(
+                OrmCSVEvaluationPreset.id == id
+            )
+        )
 
-    #     if db_space == None:
-    #         return False
+        if db_csv_evaluation_preset == None:
+            return None
 
-    #     db.delete(db_space)
-    #     db.commit()
+        db_space = db_csv_evaluation_preset.space
 
-    #     return True
+        db.delete(db_csv_evaluation_preset)
+        db.commit()
+
+        db.refresh(db_space)
+        return Space.from_db(db_space)
