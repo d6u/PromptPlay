@@ -231,7 +231,7 @@ export default function ConfigCSVEvaluationSection(props: Props) {
             </Button>
           )}
         </Section>
-        <Section>
+        <Section style={{ overflow: "auto" }}>
           <Table>
             <thead>
               <tr>{variableMapTableHeaderRowFirst}</tr>

@@ -90,6 +90,9 @@ const theme = extendTheme({
           tableLayout: "auto",
           "--Table-headerUnderlineThickness": "1px",
           "--TableCell-headBackground": "#ebebeb",
+          td: {
+            whiteSpace: "normal",
+          },
         },
       },
     },
