@@ -43,10 +43,10 @@ export type FlowServerSlice = {
   isInitialized: boolean;
   isCurrentUserOwner: boolean;
 
-  nodes: readonly LocalNode[];
+  nodes: LocalNode[];
   nodeConfigs: NodeConfigs;
   edges: LocalEdge[];
-  variableValueMaps: readonly VariableValueMap[];
+  variableValueMaps: VariableValueMap[];
   getDefaultVariableValueMap(): VariableValueMap;
 
   fetchFlowConfiguration(spaceId: string): Subscription;
@@ -224,11 +224,7 @@ export const createFlowServerSlice: StateCreator<
   },
 
   onNodesChange(changes: NodeChange[]) {
-    const nodes = applyNodeChanges(
-      changes,
-      // Cast from readonly to mutable
-      get().nodes.concat()
-    ) as LocalNode[];
+    const nodes = applyNodeChanges(changes, get().nodes) as LocalNode[];
 
     set({ nodes });
 
@@ -295,7 +291,7 @@ function getCurrentFlowContent(state: FlowServerSlice): FlowContent {
 }
 
 function applyLocalNodeChange(
-  nodes: readonly LocalNode[],
+  nodes: LocalNode[],
   nodeConfigs: NodeConfigs,
   edges: LocalEdge[],
   nodeId: NodeID,
@@ -319,7 +315,7 @@ function applyLocalNodeChange(
 }
 
 function applyLocalNodeConfigChange(
-  nodes: readonly LocalNode[],
+  nodes: LocalNode[],
   nodeConfigs: NodeConfigs,
   edges: LocalEdge[],
   nodeId: NodeID,

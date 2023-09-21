@@ -61,9 +61,7 @@ const memoizeItems = F.memoizeWithKey(
   F.identity
 );
 
-export function flowInputItemsSelector(
-  state: FlowState
-): readonly FlowInputItem[] {
+export function flowInputItemsSelector(state: FlowState): FlowInputItem[] {
   const { nodes, nodeConfigs } = state;
 
   return pipe(
@@ -78,7 +76,7 @@ export function flowInputItemsSelector(
 
 export function flowInputItemsWithNodeConfigSelector(
   state: FlowState
-): readonly { inputItem: FlowInputItem; nodeConfig: InputNodeConfig }[] {
+): { inputItem: FlowInputItem; nodeConfig: InputNodeConfig }[] {
   const { nodes, nodeConfigs } = state;
 
   return pipe(
@@ -92,9 +90,7 @@ export function flowInputItemsWithNodeConfigSelector(
   );
 }
 
-export function flowOutputItemsSelector(
-  state: FlowState
-): readonly FlowOutputItem[] {
+export function flowOutputItemsSelector(state: FlowState): FlowOutputItem[] {
   const { nodes, nodeConfigs } = state;
 
   return pipe(
