@@ -1,15 +1,16 @@
 import { redirect } from "react-router-dom";
-import { from, map } from "rxjs";
+import { map } from "rxjs";
 import { SpaceContentVersionQuery } from "../appGraphql";
 import { ContentVersion } from "../gql/graphql";
 import { client } from "../state/urql";
 import { pathToCurrentContent } from "../static/routeConfigs";
 import { CreateObservableFunction } from "../util/createLoader";
+import fromWonka from "../util/fromWonka";
 
 const spaceLoader: CreateObservableFunction = (params) => {
   const spaceId = params.spaceId!;
 
-  return from(
+  return fromWonka(
     client.query(
       SpaceContentVersionQuery,
       { spaceId },
