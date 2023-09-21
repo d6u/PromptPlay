@@ -1,9 +1,9 @@
 import IconButton from "@mui/joy/IconButton";
 import Chance from "chance";
-import { nanoid } from "nanoid";
 import { adjust, append, assoc, remove } from "ramda";
 import { useMemo, useState } from "react";
 import { Position, useNodeId, useUpdateNodeInternals } from "reactflow";
+import randomId from "../../util/randomId";
 import {
   FlowInputItem,
   InputNodeConfig,
@@ -85,7 +85,7 @@ export default function InputNode() {
             <AddVariableButton
               onClick={() => {
                 const newOutputs = append<FlowInputItem>({
-                  id: `${nodeId}/${nanoid()}` as OutputID,
+                  id: `${nodeId}/${randomId()}` as OutputID,
                   name: chance.word(),
                   valueType: InputValueType.String,
                 })(outputs);

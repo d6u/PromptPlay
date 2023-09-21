@@ -6,11 +6,11 @@ import Radio from "@mui/joy/Radio";
 import RadioGroup from "@mui/joy/RadioGroup";
 import Textarea from "@mui/joy/Textarea";
 import Chance from "chance";
-import { nanoid } from "nanoid";
 import { adjust, append, assoc, remove } from "ramda";
 import { useEffect, useMemo, useState } from "react";
 import { Position, useUpdateNodeInternals, useNodeId } from "reactflow";
 import { ChatGPTMessageRole } from "../../integrations/openai";
+import randomId from "../../util/randomId";
 import TextareaReadonly from "../flow-common/TextareaReadonly";
 import { CopyIcon, LabelWithIconContainer } from "../flow-common/flow-common";
 import {
@@ -132,7 +132,7 @@ export default function ChatGPTMessageNode() {
             <AddVariableButton
               onClick={() => {
                 const newInputs = append<NodeInputItem>({
-                  id: `${nodeId}/${nanoid()}` as InputID,
+                  id: `${nodeId}/${randomId()}` as InputID,
                   name: chance.word(),
                 })(inputs);
 
