@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 import { useCallback, useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import u from "updeep";
 import { useMutation, useQuery } from "urql";
 import { ContentVersion } from "../gql/graphql";
@@ -10,7 +10,6 @@ import {
   SPACE_QUERY,
   UPDATE_SPACE_CONTENT_MUTATION,
 } from "../state/spaceGraphQl";
-import { pathToCurrentContent } from "../static/routeConfigs";
 import { Block, BlockType, SpaceContent } from "../static/spaceTypes";
 import { validate } from "../static/spaceUtils";
 import Designer from "./body/Designer";
@@ -25,8 +24,6 @@ const Content = styled.div`
 `;
 
 export default function RouteSpace() {
-  const navigate = useNavigate();
-
   const openAiApiKey = useLocalStorageStore((state) => state.openAiApiKey);
   const setMissingOpenAiApiKey = useSpaceStore(
     (state) => state.setMissingOpenAiApiKey
@@ -133,28 +130,6 @@ export default function RouteSpace() {
     setMissingOpenAiApiKey,
     setSpaceV2SelectedBlockId,
     updateSpaceContent,
-  ]);
-
-  useEffect(() => {
-    if (queryResult.fetching) {
-      return;
-    }
-
-    if (queryResult.error || !queryResult.data?.result) {
-      return;
-    }
-
-    const contentVersion = queryResult.data.result.space.contentVersion;
-
-    if (contentVersion !== ContentVersion.V1) {
-      navigate(pathToCurrentContent(spaceId, contentVersion));
-    }
-  }, [
-    navigate,
-    queryResult.data,
-    queryResult.error,
-    queryResult.fetching,
-    spaceId,
   ]);
 
   if (queryResult.fetching) {
