@@ -1,7 +1,7 @@
 import { Params, LoaderFunction } from "react-router-dom";
 import { Observable, first, takeUntil, fromEvent } from "rxjs";
 
-type CreateObservableFunction = {
+export type CreateObservableFunction = {
   (params: Params<string>): Observable<Response | NonNullable<unknown> | null>;
 };
 
