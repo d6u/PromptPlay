@@ -1,8 +1,6 @@
 import styled from "@emotion/styled";
+import { A, D } from "@mobily/ts-belt";
 import memoize from "lodash/memoize";
-import { mergeLeft } from "ramda";
-import assoc from "ramda/es/assoc";
-import map from "ramda/es/map";
 import { useCallback, useMemo } from "react";
 import ReactFlow, {
   Controls,
@@ -31,8 +29,11 @@ const NODE_TYPES = {
   [NodeType.ChatGPTChatCompletionNode]: ChatGPTChatCompletionNode,
 };
 
-const applyDragHandleMemoized = memoize(
-  assoc("dragHandle", `.${DRAG_HANDLE_CLASS_NAME}`)
+const applyDragHandleMemoized: (node: LocalNode) => LocalNode = memoize(
+  (node) => {
+    // console.log("applyDragHandleMemoized", node);
+    return D.set(node, "dragHandle", `.${DRAG_HANDLE_CLASS_NAME}`);
+  }
 );
 
 const Container = styled.div`
@@ -42,6 +43,10 @@ const Container = styled.div`
   display: flex;
   position: relative;
 `;
+
+const DEFAULT_EDGE_STYLE = {
+  strokeWidth: 2,
+};
 
 const selector = (state: FlowState) => ({
   isCurrentUserOwner: state.isCurrentUserOwner,
@@ -72,7 +77,7 @@ export default function FlowCanvas() {
   } = useFlowStore(selector);
 
   const nodesWithAdditionalData = useMemo(
-    () => map<LocalNode, LocalNode>(applyDragHandleMemoized)(nodes),
+    () => A.map(nodes, applyDragHandleMemoized),
     [nodes]
   );
 
@@ -83,38 +88,35 @@ export default function FlowCanvas() {
     [updateNode]
   );
 
-  const applyEdgeStyleMemoized = useMemo(
-    () =>
-      memoize(
-        mergeLeft({ style: { strokeWidth: 2 }, animated: isRunning })
-      ) as (edge: LocalEdge) => LocalEdge,
+  const applyEdgeStyleMemoized = useMemo<(edge: LocalEdge) => LocalEdge>(
+    () => memoize(D.merge({ style: DEFAULT_EDGE_STYLE, animated: isRunning })),
     [isRunning]
   );
 
   const edgesWithAdditionalData = useMemo(
-    () => map<LocalEdge, LocalEdge>(applyEdgeStyleMemoized)(edges),
+    () => A.map(edges, applyEdgeStyleMemoized),
     [applyEdgeStyleMemoized, edges]
   );
 
   return (
     <Container>
       <ReactFlow
-        nodes={nodesWithAdditionalData}
-        edges={edgesWithAdditionalData}
-        onNodesChange={onNodesChange}
-        onEdgesChange={isCurrentUserOwner ? onEdgesChange : undefined}
-        onConnect={isCurrentUserOwner ? onConnect : undefined}
-        nodeTypes={NODE_TYPES}
         panOnScroll
         panOnScrollMode={PanOnScrollMode.Free}
         minZoom={0.2}
         maxZoom={1.2}
-        onNodeDragStop={onNodeDragStop}
+        nodesConnectable={isCurrentUserOwner}
+        elementsSelectable={isCurrentUserOwner}
+        nodeTypes={NODE_TYPES}
+        nodes={nodesWithAdditionalData}
+        edges={edgesWithAdditionalData}
         onInit={(reactflow) => {
           reactflow.fitView();
         }}
-        nodesConnectable={isCurrentUserOwner}
-        elementsSelectable={isCurrentUserOwner}
+        onNodesChange={onNodesChange}
+        onEdgesChange={isCurrentUserOwner ? onEdgesChange : undefined}
+        onConnect={isCurrentUserOwner ? onConnect : undefined}
+        onNodeDragStop={onNodeDragStop}
       >
         <Controls />
         <Background variant={BackgroundVariant.Dots} gap={20} size={1} />

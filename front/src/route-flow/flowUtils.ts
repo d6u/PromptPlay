@@ -1,8 +1,7 @@
+import { A } from "@mobily/ts-belt";
 import Chance from "chance";
-import filter from "lodash/filter";
-import any from "ramda/es/any";
-import propEq from "ramda/es/propEq";
 import { ChatGPTMessageRole } from "../integrations/openai";
+import propEq from "../util/propEq";
 import randomId from "../util/randomId";
 import {
   InputID,
@@ -173,7 +172,7 @@ export function rejectInvalidEdges(
   edges: ServerEdge[],
   nodeConfigs: NodeConfigs
 ): ServerEdge[] {
-  return filter(edges, (edge) => {
+  return A.filter(edges, (edge) => {
     let foundSourceHandle = false;
     let foundTargetHandle = false;
 
@@ -183,16 +182,18 @@ export function rejectInvalidEdges(
       if (nodeConfig) {
         if (node.id === edge.source) {
           if ("outputs" in nodeConfig) {
-            foundSourceHandle = any(propEq(edge.sourceHandle, "id"))(
-              nodeConfig.outputs
+            foundSourceHandle = A.any(
+              nodeConfig.outputs,
+              propEq("id", edge.sourceHandle)
             );
           }
         }
 
         if (node.id === edge.target) {
           if ("inputs" in nodeConfig) {
-            foundTargetHandle = any(propEq(edge.targetHandle, "id"))(
-              nodeConfig.inputs
+            foundTargetHandle = A.any(
+              nodeConfig.inputs,
+              propEq("id", edge.targetHandle)
             );
           }
         }

@@ -1,4 +1,4 @@
-import { assoc } from "ramda";
+import { D } from "@mobily/ts-belt";
 import { StateCreator } from "zustand";
 import { run, RunEventType } from "../flowRun";
 import { NodeID, VariableID, VariableValueMap } from "../flowTypes";
@@ -52,7 +52,7 @@ export const createClientSlice: StateCreator<FlowState, [], [], ClientSlice> = (
       augment = { isRunning: false, hasError: false, ...change };
     }
 
-    localNodeAugments = assoc(nodeId, augment, localNodeAugments);
+    localNodeAugments = D.set(localNodeAugments, nodeId, augment);
 
     set({ localNodeAugments });
   },

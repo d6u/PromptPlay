@@ -1,11 +1,4 @@
-import { A, D, pipe } from "@mobily/ts-belt";
-import dissoc from "ramda/es/dissoc";
-import findIndex from "ramda/es/findIndex";
-import mergeLeft from "ramda/es/mergeLeft";
-import modify from "ramda/es/modify";
-import none from "ramda/es/none";
-import propEq from "ramda/es/propEq";
-import reject from "ramda/es/reject";
+import { A, D, F, flow, pipe } from "@mobily/ts-belt";
 import {
   NodeChange,
   applyNodeChanges,
@@ -155,8 +148,8 @@ export const createFlowServerSlice: StateCreator<
     let edges = get().edges;
     let nodeConfigs = get().nodeConfigs;
 
-    nodes = reject(propEq(id, "id"))(nodes);
-    nodeConfigs = dissoc(id)(nodeConfigs);
+    nodes = A.reject(nodes, flow(D.get("id"), F.equals(id)));
+    nodeConfigs = D.deleteKey(nodeConfigs, id);
     edges = rejectInvalidEdges(nodes, edges, nodeConfigs);
 
     const flowContentChange = { nodes, edges, nodeConfigs };
@@ -226,15 +219,16 @@ export const createFlowServerSlice: StateCreator<
   onNodesChange(changes: NodeChange[]) {
     const nodes = applyNodeChanges(changes, get().nodes) as LocalNode[];
 
-    set({ nodes });
-
-    // Because we are using controlled flow, there will be 3 types
+    // Because we are using controlled flow, there will be 3 types of changes:
+    //
     // - dimensions
     // - select
     // - position
     //
-    // Position is data is saved on onNodeDragStop. The other changes are not
-    // persisted to the server.
+    // Position is data is saved when calling `onNodeDragStop`.
+    // The other changes are not persisted to the server.
+
+    set({ nodes });
   },
   onEdgesChange(changes: EdgeChange[]) {
     const nodes = get().nodes;
@@ -249,13 +243,11 @@ export const createFlowServerSlice: StateCreator<
 
     set(stateChange);
 
-    if (none(propEq("remove", "type"))(changes)) {
-      return;
-    }
-
-    const spaceId = get().spaceId;
-    if (spaceId) {
-      updateSpace(spaceId, getCurrentFlowContent(get()), stateChange);
+    if (A.any(changes, flow(D.get("type"), F.equals("remove")))) {
+      const spaceId = get().spaceId;
+      if (spaceId) {
+        updateSpace(spaceId, getCurrentFlowContent(get()), stateChange);
+      }
     }
   },
   onConnect(connection: Connection) {
@@ -269,7 +261,7 @@ export const createFlowServerSlice: StateCreator<
     // A targetHandle can only take one incoming edge
     edges = pipe(
       edges,
-      reject(propEq<string>(connection.targetHandle!, "targetHandle"))
+      A.reject(flow(D.get("targetHandle"), F.equals(connection.targetHandle!)))
     );
 
     const stateChange = {
@@ -297,17 +289,13 @@ function applyLocalNodeChange(
   nodeId: NodeID,
   nodeChange: Partial<LocalNode>
 ): Partial<FlowServerSlice> {
-  const index = findIndex<LocalNode>((n) => n.id === nodeId)(nodes);
+  const index = A.getIndexBy(nodes, (n) => n.id === nodeId)!;
 
   if (index === -1) {
     return { nodes, edges };
   }
 
-  nodes = A.updateAt(
-    nodes,
-    index,
-    mergeLeft(nodeChange) as (a: LocalNode) => LocalNode
-  );
+  nodes = A.updateAt(nodes, index, D.merge(nodeChange));
 
   edges = rejectInvalidEdges(nodes, edges, nodeConfigs);
 
@@ -321,11 +309,8 @@ function applyLocalNodeConfigChange(
   nodeId: NodeID,
   change: Partial<NodeConfig>
 ) {
-  nodeConfigs = modify(
-    nodeId,
-    mergeLeft(change) as (a: NodeConfig | undefined) => NodeConfig,
-    nodeConfigs
-  );
+  nodeConfigs = D.update(nodeConfigs, nodeId, D.merge(change));
+
   edges = rejectInvalidEdges(nodes, edges, nodeConfigs);
 
   return { nodeConfigs, edges };
