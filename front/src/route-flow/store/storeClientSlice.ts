@@ -4,25 +4,40 @@ import { StateCreator } from "zustand";
 import { run, RunEventType } from "../flowRun";
 import { NodeID, VariableID, VariableValueMap } from "../flowTypes";
 import {
+  FlowState,
   flowInputItemsSelector,
-  DetailPanelContentType,
   NodeAugments,
   NodeAugment,
 } from "./flowStore";
-import { FlowState } from "./flowStore";
 
-export type ClientSlice = {
+export enum DetailPanelContentType {
+  Off = "Off",
+  EvaluationModeSimple = "EvaluationModeSimple",
+  EvaluationModeCSV = "EvaluationModeCSV",
+  NodeConfig = "NodeConfig",
+  ChatGPTMessageConfig = "ChatGPTMessageConfig",
+}
+
+type ClientSliceState = {
   detailPanelContentType: DetailPanelContentType;
-  setDetailPanelContentType(type: DetailPanelContentType): void;
   detailPanelSelectedNodeId: NodeID | null;
-  setDetailPanelSelectedNodeId(nodeId: NodeID): void;
-
   localNodeAugments: NodeAugments;
+  isRunning: boolean;
+};
+
+export type ClientSlice = ClientSliceState & {
+  setDetailPanelContentType(type: DetailPanelContentType): void;
+  setDetailPanelSelectedNodeId(nodeId: NodeID): void;
   resetAugments(): void;
   updateNodeAugment(nodeId: NodeID, change: Partial<NodeAugment>): void;
-
-  isRunning: boolean;
   runFlow(): void;
+};
+
+const CLIENT_SLICE_INITIAL_STATE: ClientSliceState = {
+  detailPanelContentType: DetailPanelContentType.Off,
+  detailPanelSelectedNodeId: null,
+  localNodeAugments: {},
+  isRunning: false,
 };
 
 export const createClientSlice: StateCreator<FlowState, [], [], ClientSlice> = (
@@ -46,16 +61,15 @@ export const createClientSlice: StateCreator<FlowState, [], [], ClientSlice> = (
   }
 
   return {
-    detailPanelContentType: DetailPanelContentType.Off,
+    ...CLIENT_SLICE_INITIAL_STATE,
+
     setDetailPanelContentType(type: DetailPanelContentType) {
       set({ detailPanelContentType: type });
     },
-    detailPanelSelectedNodeId: null,
     setDetailPanelSelectedNodeId(id: NodeID) {
       set({ detailPanelSelectedNodeId: id });
     },
 
-    localNodeAugments: {},
     resetAugments() {
       set({ localNodeAugments: {} });
     },
@@ -75,7 +89,6 @@ export const createClientSlice: StateCreator<FlowState, [], [], ClientSlice> = (
       set({ localNodeAugments });
     },
 
-    isRunning: false,
     runFlow() {
       const {
         resetAugments,

@@ -28,16 +28,6 @@ export type NodeAugment = {
   hasError: boolean;
 };
 
-// Navigation types
-
-export enum DetailPanelContentType {
-  Off = "Off",
-  EvaluationModeSimple = "EvaluationModeSimple",
-  EvaluationModeCSV = "EvaluationModeCSV",
-  NodeConfig = "NodeConfig",
-  ChatGPTMessageConfig = "ChatGPTMessageConfig",
-}
-
 export type FlowState = FlowServerSlice &
   ClientSlice &
   CsvEvaluationPresetSlice;

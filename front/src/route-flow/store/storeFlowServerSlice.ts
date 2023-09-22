@@ -33,7 +33,7 @@ import {
 } from "./flowGraphql";
 import { LocalNode } from "./flowStore";
 
-export type FlowServerSlice = {
+type FlowServerSliceState = {
   spaceId: string | null;
 
   isInitialized: boolean;
@@ -43,6 +43,9 @@ export type FlowServerSlice = {
   nodeConfigs: NodeConfigs;
   edges: LocalEdge[];
   variableValueMaps: VariableValueMap[];
+};
+
+export type FlowServerSlice = FlowServerSliceState & {
   getDefaultVariableValueMap(): VariableValueMap;
 
   fetchFlowConfiguration(spaceId: string): void;
@@ -56,6 +59,18 @@ export type FlowServerSlice = {
   onNodesChange: OnNodesChange;
   onEdgesChange: OnEdgesChange;
   onConnect: OnConnect;
+};
+
+const FLOW_SERVER_SLICE_INITIAL_STATE: FlowServerSliceState = {
+  spaceId: null,
+
+  isInitialized: false,
+  isCurrentUserOwner: false,
+
+  nodes: [],
+  nodeConfigs: {},
+  edges: [],
+  variableValueMaps: [{}],
 };
 
 export const createFlowServerSlice: StateCreator<
@@ -92,18 +107,18 @@ export const createFlowServerSlice: StateCreator<
     });
   }
 
+  // function saveSpace() {
+  //   const spaceId = get().spaceId;
+  //   if (spaceId) {
+  //     updateSpace(spaceId, getCurrentFlowContent(get()), {});
+  //   }
+  // }
+
   let fetchFlowConfigurationSubscription: Subscription | null = null;
 
   return {
-    spaceId: null,
+    ...FLOW_SERVER_SLICE_INITIAL_STATE,
 
-    isInitialized: false,
-    isCurrentUserOwner: false,
-
-    nodes: [],
-    nodeConfigs: {},
-    edges: [],
-    variableValueMaps: [{}],
     getDefaultVariableValueMap: (): VariableValueMap =>
       get().variableValueMaps[0],
 
