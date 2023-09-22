@@ -1,6 +1,6 @@
 import { A, D } from "@mobily/ts-belt";
 import { debounce } from "lodash";
-import { Observable, defer, map as $map } from "rxjs";
+import { Observable, defer, map } from "rxjs";
 import { graphql } from "../../gql";
 import { client } from "../../state/urql";
 import { FlowContent } from "../flowTypes";
@@ -43,7 +43,7 @@ export function queryFlowObservable(spaceId: string): Observable<{
       .query(SPACE_FLOW_QUERY, { spaceId }, { requestPolicy: "network-only" })
       .toPromise()
   ).pipe(
-    $map((result) => {
+    map((result) => {
       // TODO: handle error
 
       const flowContentStr = result.data?.result?.space?.flowContent;

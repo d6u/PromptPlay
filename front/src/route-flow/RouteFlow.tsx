@@ -21,10 +21,7 @@ export default function RouteFlow() {
     useFlowStore(selector);
 
   useEffect(() => {
-    const subscription = fetchFlowConfiguration(spaceId);
-    return () => {
-      subscription.unsubscribe();
-    };
+    fetchFlowConfiguration(spaceId);
   }, [fetchFlowConfiguration, spaceId]);
 
   return (
