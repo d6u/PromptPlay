@@ -11,9 +11,9 @@ import { useContext, useEffect, useMemo, useState } from "react";
 import { Position, useUpdateNodeInternals, useNodeId } from "reactflow";
 import { ChatGPTMessageRole } from "../../integrations/openai";
 import randomId from "../../util/randomId";
+import FlowContext from "../FlowContext";
 import TextareaReadonly from "../flow-common/TextareaReadonly";
 import { CopyIcon, LabelWithIconContainer } from "../flow-common/flow-common";
-import FlowContext from "../flowContext";
 import {
   ChatGPTMessageNodeConfig,
   InputID,

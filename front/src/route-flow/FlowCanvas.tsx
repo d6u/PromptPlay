@@ -8,7 +8,7 @@ import ReactFlow, {
   NodeDragHandler,
 } from "reactflow";
 import "reactflow/dist/style.css";
-import FlowContext from "./flowContext";
+import FlowContext from "./FlowContext";
 import { NodeType } from "./flowTypes";
 import ChatGPTChatCompletionNode from "./nodes/ChatGPTChatCompletionNode";
 import ChatGPTMessageNode from "./nodes/ChatGPTMessageNode";

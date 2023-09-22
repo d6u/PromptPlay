@@ -4,7 +4,7 @@ import { adjust, append, assoc, remove } from "ramda";
 import { useContext, useMemo, useState } from "react";
 import { Position, useUpdateNodeInternals, useNodeId } from "reactflow";
 import randomId from "../../util/randomId";
-import FlowContext from "../flowContext";
+import FlowContext from "../FlowContext";
 import {
   FlowOutputItem,
   InputID,

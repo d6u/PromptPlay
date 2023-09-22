@@ -13,8 +13,8 @@ import {
   useLocalStorageStore,
   useSpaceStore,
 } from "../../state/appState";
+import FlowContext from "../FlowContext";
 import InputReadonly from "../flow-common/InputReadonly";
-import FlowContext from "../flowContext";
 import {
   ChatGPTChatCompletionNodeConfig,
   NodeID,

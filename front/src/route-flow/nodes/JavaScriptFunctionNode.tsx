@@ -6,10 +6,10 @@ import { adjust, append, assoc, remove } from "ramda";
 import { useContext, useMemo, useState } from "react";
 import { Position, useUpdateNodeInternals, useNodeId } from "reactflow";
 import randomId from "../../util/randomId";
+import FlowContext from "../FlowContext";
 import TextareaReadonly from "../flow-common/TextareaReadonly";
 import { LabelWithIconContainer } from "../flow-common/flow-common";
 import { CopyIcon } from "../flow-common/flow-common";
-import FlowContext from "../flowContext";
 import {
   InputID,
   JavaScriptFunctionNodeConfig,

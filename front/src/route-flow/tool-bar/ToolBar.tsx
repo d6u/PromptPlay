@@ -11,7 +11,7 @@ import {
 } from "@mui/joy";
 import { useCallback, useContext, useEffect, useState } from "react";
 import { useStoreApi } from "reactflow";
-import FlowContext from "../flowContext";
+import FlowContext from "../FlowContext";
 import { NodeType } from "../flowTypes";
 import { NODE_BOX_WIDTH } from "../nodes/node-common/NodeBox";
 import { FlowState, useFlowStore } from "../store/flowStore";

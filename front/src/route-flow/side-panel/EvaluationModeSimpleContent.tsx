@@ -1,7 +1,7 @@
 import { A, D } from "@mobily/ts-belt";
 import { Button } from "@mui/joy";
 import { ReactNode, useContext } from "react";
-import FlowContext from "../flowContext";
+import FlowContext from "../FlowContext";
 import { InputValueType } from "../flowTypes";
 import {
   flowInputItemsWithNodeConfigSelector,

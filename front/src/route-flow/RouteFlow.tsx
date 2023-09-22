@@ -3,7 +3,7 @@ import { useLoaderData, useParams } from "react-router-dom";
 import { ReactFlowProvider } from "reactflow";
 import "reactflow/dist/style.css";
 import FlowCanvas from "./FlowCanvas";
-import FlowContext from "./flowContext";
+import FlowContext from "./FlowContext";
 import { FlowLoaderData } from "./flowLoader";
 import { FlowState, useFlowStore } from "./store/flowStore";
 import ToolBar from "./tool-bar/ToolBar";
