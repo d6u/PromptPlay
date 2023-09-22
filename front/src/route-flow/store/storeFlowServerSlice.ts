@@ -187,17 +187,21 @@ export const createFlowServerSlice: StateCreator<
       saveSpace();
     },
     updateNode(nodeId: NodeID, nodeChange: Partial<LocalNode>) {
-      const { nodes, edges, nodeConfigs } = get();
+      const nodeConfigs = get().nodeConfigs;
+      let nodes = get().nodes;
+      let edges = get().edges;
 
-      const stateChange = applyLocalNodeChange(
-        nodes,
-        nodeConfigs,
-        edges,
-        nodeId,
-        nodeChange
-      );
+      const index = A.getIndexBy(nodes, (n) => n.id === nodeId)!;
 
-      set(stateChange);
+      if (index === -1) {
+        return { nodes, edges };
+      }
+
+      nodes = A.updateAt(nodes, index, D.merge(nodeChange));
+
+      edges = rejectInvalidEdges(nodes, edges, nodeConfigs);
+
+      set({ nodes, edges });
 
       saveSpace();
     },
@@ -217,17 +221,15 @@ export const createFlowServerSlice: StateCreator<
       saveSpace();
     },
     updateNodeConfig(nodeId: NodeID, change: Partial<NodeConfig>) {
-      const { nodes, edges, nodeConfigs } = get();
+      const nodes = get().nodes;
+      let edges = get().edges;
+      let nodeConfigs = get().nodeConfigs;
 
-      const stateChange = applyLocalNodeConfigChange(
-        nodes,
-        nodeConfigs,
-        edges,
-        nodeId,
-        change
-      );
+      nodeConfigs = D.update(nodeConfigs, nodeId, D.merge(change));
 
-      set(stateChange);
+      edges = rejectInvalidEdges(nodes, edges, nodeConfigs);
+
+      set({ nodeConfigs, edges });
 
       saveSpace();
     },
@@ -235,17 +237,15 @@ export const createFlowServerSlice: StateCreator<
       variableId: VariableID,
       value: unknown
     ): void {
-      const variableValueMaps = get().variableValueMaps;
+      let variableValueMaps = get().variableValueMaps;
 
-      const changes = {
-        variableValueMaps: A.updateAt(
-          variableValueMaps,
-          0,
-          D.set(variableId, value)
-        ),
-      };
+      variableValueMaps = A.updateAt(
+        variableValueMaps,
+        0,
+        D.set(variableId, value)
+      );
 
-      set(changes);
+      set({ variableValueMaps });
 
       saveSpaceDebounced();
     },
@@ -322,38 +322,4 @@ function assignLocalEdgeProperties(edges: LocalEdge[]): LocalEdge[] {
       }
     }
   });
-}
-
-function applyLocalNodeChange(
-  nodes: LocalNode[],
-  nodeConfigs: NodeConfigs,
-  edges: LocalEdge[],
-  nodeId: NodeID,
-  nodeChange: Partial<LocalNode>
-): Partial<FlowServerSlice> {
-  const index = A.getIndexBy(nodes, (n) => n.id === nodeId)!;
-
-  if (index === -1) {
-    return { nodes, edges };
-  }
-
-  nodes = A.updateAt(nodes, index, D.merge(nodeChange));
-
-  edges = rejectInvalidEdges(nodes, edges, nodeConfigs);
-
-  return { nodes, edges };
-}
-
-function applyLocalNodeConfigChange(
-  nodes: LocalNode[],
-  nodeConfigs: NodeConfigs,
-  edges: LocalEdge[],
-  nodeId: NodeID,
-  change: Partial<NodeConfig>
-) {
-  nodeConfigs = D.update(nodeConfigs, nodeId, D.merge(change));
-
-  edges = rejectInvalidEdges(nodes, edges, nodeConfigs);
-
-  return { nodeConfigs, edges };
 }

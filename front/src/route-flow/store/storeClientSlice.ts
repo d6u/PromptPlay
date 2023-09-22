@@ -82,9 +82,9 @@ export const createClientSlice: StateCreator<FlowState, [], [], ClientSlice> = (
     },
 
     deinitializeSpace() {
-      set({ spaceId: null, isInitialized: false });
-
       get().cancelFetchFlowConfiguration();
+
+      set({ spaceId: null, isInitialized: false });
     },
 
     setDetailPanelContentType(type: DetailPanelContentType) {
