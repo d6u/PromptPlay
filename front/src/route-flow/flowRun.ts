@@ -305,7 +305,7 @@ function handleChatGPTMessageNode(
   // Execute logic
   // ----------
 
-  let messages: readonly OpenAI.ChatGPTMessage[] = argsMap["messages"] ?? [];
+  let messages: OpenAI.ChatGPTMessage[] = argsMap["messages"] ?? [];
 
   const message = {
     role: data.role,
@@ -359,7 +359,7 @@ function handleChatGPTChatNode(
       return throwError(() => new Error("OpenAI API key is missing"));
     }
 
-    let messages: readonly OpenAI.ChatGPTMessage[] = argsMap["messages"] ?? [];
+    let messages: OpenAI.ChatGPTMessage[] = argsMap["messages"] ?? [];
     let role = "assistant";
     let content = "";
 

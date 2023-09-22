@@ -13,11 +13,11 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
  * Therefore it is highly recommended to use the babel or swc plugin for production.
  */
 const documents = {
-    "\n  query SpaceContentVersionQuery($spaceId: UUID!) {\n    space(id: $spaceId) {\n      space {\n        id\n        contentVersion\n      }\n    }\n  }\n": types.SpaceContentVersionQueryDocument,
+    "\n  query SpaceContentVersionQuery($spaceId: UUID!) {\n    space(id: $spaceId) {\n      isReadOnly\n      space {\n        id\n        contentVersion\n      }\n    }\n  }\n": types.SpaceContentVersionQueryDocument,
     "\n  query HeaderSpaceNameQuery($spaceId: UUID!) {\n    result: space(id: $spaceId) {\n      isReadOnly\n      space {\n        id\n        name\n      }\n    }\n  }\n": types.HeaderSpaceNameQueryDocument,
     "\n  query EvaluationModeCSVContentQuery($spaceId: UUID!, $presetId: ID!) {\n    result: space(id: $spaceId) {\n      space {\n        id\n        csvEvaluationPreset(id: $presetId) {\n          id\n          csvContent\n          configContent\n        }\n      }\n    }\n  }\n": types.EvaluationModeCsvContentQueryDocument,
     "\n  query PresetSelectorQuery($spaceId: UUID!) {\n    result: space(id: $spaceId) {\n      space {\n        id\n        csvEvaluationPresets {\n          id\n          name\n        }\n      }\n    }\n  }\n": types.PresetSelectorQueryDocument,
-    "\n  query SpaceFlowQuery($spaceId: UUID!) {\n    result: space(id: $spaceId) {\n      isReadOnly\n      space {\n        ...SpaceSubHeaderFragment\n        id\n        name\n        contentVersion\n        flowContent\n      }\n    }\n  }\n": types.SpaceFlowQueryDocument,
+    "\n  query SpaceFlowQuery($spaceId: UUID!) {\n    result: space(id: $spaceId) {\n      space {\n        ...SpaceSubHeaderFragment\n        id\n        name\n        contentVersion\n        flowContent\n      }\n    }\n  }\n": types.SpaceFlowQueryDocument,
     "\n  mutation UpdateSpaceFlowContentMutation(\n    $spaceId: ID!\n    $flowContent: String!\n  ) {\n    updateSpace(id: $spaceId, flowContent: $flowContent) {\n      id\n      name\n      flowContent\n    }\n  }\n": types.UpdateSpaceFlowContentMutationDocument,
     "\n  mutation CreateCsvEvaluationPresetMutation(\n    $spaceId: ID!\n    $name: String!\n    $csvContent: String\n  ) {\n    result: createCsvEvaluationPreset(\n      spaceId: $spaceId\n      name: $name\n      csvContent: $csvContent\n    ) {\n      space {\n        id\n        csvEvaluationPresets {\n          id\n        }\n      }\n      csvEvaluationPreset {\n        id\n        name\n        csvContent\n        configContent\n      }\n    }\n  }\n": types.CreateCsvEvaluationPresetMutationDocument,
     "\n  mutation UpdateCsvEvaluationPresetMutation(\n    $presetId: ID!\n    $name: String\n    $csvContent: String\n  ) {\n    updateCsvEvaluationPreset(\n      presetId: $presetId\n      name: $name\n      csvContent: $csvContent\n    ) {\n      id\n      name\n      csvContent\n      configContent\n    }\n  }\n": types.UpdateCsvEvaluationPresetMutationDocument,
@@ -52,7 +52,7 @@ export function graphql(source: string): unknown;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n  query SpaceContentVersionQuery($spaceId: UUID!) {\n    space(id: $spaceId) {\n      space {\n        id\n        contentVersion\n      }\n    }\n  }\n"): (typeof documents)["\n  query SpaceContentVersionQuery($spaceId: UUID!) {\n    space(id: $spaceId) {\n      space {\n        id\n        contentVersion\n      }\n    }\n  }\n"];
+export function graphql(source: "\n  query SpaceContentVersionQuery($spaceId: UUID!) {\n    space(id: $spaceId) {\n      isReadOnly\n      space {\n        id\n        contentVersion\n      }\n    }\n  }\n"): (typeof documents)["\n  query SpaceContentVersionQuery($spaceId: UUID!) {\n    space(id: $spaceId) {\n      isReadOnly\n      space {\n        id\n        contentVersion\n      }\n    }\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -68,7 +68,7 @@ export function graphql(source: "\n  query PresetSelectorQuery($spaceId: UUID!) 
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n  query SpaceFlowQuery($spaceId: UUID!) {\n    result: space(id: $spaceId) {\n      isReadOnly\n      space {\n        ...SpaceSubHeaderFragment\n        id\n        name\n        contentVersion\n        flowContent\n      }\n    }\n  }\n"): (typeof documents)["\n  query SpaceFlowQuery($spaceId: UUID!) {\n    result: space(id: $spaceId) {\n      isReadOnly\n      space {\n        ...SpaceSubHeaderFragment\n        id\n        name\n        contentVersion\n        flowContent\n      }\n    }\n  }\n"];
+export function graphql(source: "\n  query SpaceFlowQuery($spaceId: UUID!) {\n    result: space(id: $spaceId) {\n      space {\n        ...SpaceSubHeaderFragment\n        id\n        name\n        contentVersion\n        flowContent\n      }\n    }\n  }\n"): (typeof documents)["\n  query SpaceFlowQuery($spaceId: UUID!) {\n    result: space(id: $spaceId) {\n      space {\n        ...SpaceSubHeaderFragment\n        id\n        name\n        contentVersion\n        flowContent\n      }\n    }\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

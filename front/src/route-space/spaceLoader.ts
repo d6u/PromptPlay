@@ -7,7 +7,7 @@ import { pathToCurrentContent } from "../static/routeConfigs";
 import { CreateObservableFunction } from "../util/createLoader";
 import fromWonka from "../util/fromWonka";
 
-const spaceLoader: CreateObservableFunction = (params) => {
+const spaceLoader: CreateObservableFunction<null> = (params) => {
   const spaceId = params.spaceId!;
 
   return fromWonka(

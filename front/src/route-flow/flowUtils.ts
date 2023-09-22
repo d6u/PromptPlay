@@ -1,9 +1,8 @@
+import { A } from "@mobily/ts-belt";
 import Chance from "chance";
-import filter from "lodash/filter";
-import { nanoid } from "nanoid";
-import any from "ramda/es/any";
-import propEq from "ramda/es/propEq";
 import { ChatGPTMessageRole } from "../integrations/openai";
+import propEq from "../util/propEq";
+import randomId from "../util/randomId";
 import {
   InputID,
   InputValueType,
@@ -26,7 +25,7 @@ export function createNode(type: NodeType, x: number, y: number): ServerNode {
   switch (type) {
     case NodeType.InputNode: {
       return {
-        id: nanoid() as NodeID,
+        id: randomId() as NodeID,
         type: NodeType.InputNode,
         position,
         data: null,
@@ -34,7 +33,7 @@ export function createNode(type: NodeType, x: number, y: number): ServerNode {
     }
     case NodeType.OutputNode: {
       return {
-        id: nanoid() as NodeID,
+        id: randomId() as NodeID,
         position,
         type: NodeType.OutputNode,
         data: null,
@@ -42,7 +41,7 @@ export function createNode(type: NodeType, x: number, y: number): ServerNode {
     }
     case NodeType.JavaScriptFunctionNode: {
       return {
-        id: nanoid() as NodeID,
+        id: randomId() as NodeID,
         position,
         type: NodeType.JavaScriptFunctionNode,
         data: null,
@@ -50,7 +49,7 @@ export function createNode(type: NodeType, x: number, y: number): ServerNode {
     }
     case NodeType.ChatGPTMessageNode: {
       return {
-        id: nanoid() as NodeID,
+        id: randomId() as NodeID,
         position,
         type: NodeType.ChatGPTMessageNode,
         data: null,
@@ -58,7 +57,7 @@ export function createNode(type: NodeType, x: number, y: number): ServerNode {
     }
     case NodeType.ChatGPTChatCompletionNode: {
       return {
-        id: nanoid() as NodeID,
+        id: randomId() as NodeID,
         position,
         type: NodeType.ChatGPTChatCompletionNode,
         data: null,
@@ -75,7 +74,7 @@ export function createNodeConfig(node: LocalNode): NodeConfig {
         nodeType: NodeType.InputNode,
         outputs: [
           {
-            id: `${node.id}/${nanoid()}` as OutputID,
+            id: `${node.id}/${randomId()}` as OutputID,
             name: chance.word(),
             valueType: InputValueType.String,
           },
@@ -88,7 +87,7 @@ export function createNodeConfig(node: LocalNode): NodeConfig {
         nodeType: NodeType.OutputNode,
         inputs: [
           {
-            id: `${node.id}/${nanoid()}` as InputID,
+            id: `${node.id}/${randomId()}` as InputID,
             name: chance.word(),
           },
         ],
@@ -118,7 +117,7 @@ export function createNodeConfig(node: LocalNode): NodeConfig {
             name: "messages",
           },
           {
-            id: `${node.id}/${nanoid()}` as InputID,
+            id: `${node.id}/${randomId()}` as InputID,
             name: "topic",
           },
         ],
@@ -169,11 +168,11 @@ export function createNodeConfig(node: LocalNode): NodeConfig {
 }
 
 export function rejectInvalidEdges(
-  nodes: readonly ServerNode[],
+  nodes: ServerNode[],
   edges: ServerEdge[],
   nodeConfigs: NodeConfigs
 ): ServerEdge[] {
-  return filter(edges, (edge) => {
+  return A.filter(edges, (edge) => {
     let foundSourceHandle = false;
     let foundTargetHandle = false;
 
@@ -183,16 +182,18 @@ export function rejectInvalidEdges(
       if (nodeConfig) {
         if (node.id === edge.source) {
           if ("outputs" in nodeConfig) {
-            foundSourceHandle = any(propEq(edge.sourceHandle, "id"))(
-              nodeConfig.outputs
+            foundSourceHandle = A.any(
+              nodeConfig.outputs,
+              propEq("id", edge.sourceHandle)
             );
           }
         }
 
         if (node.id === edge.target) {
           if ("inputs" in nodeConfig) {
-            foundTargetHandle = any(propEq(edge.targetHandle, "id"))(
-              nodeConfig.inputs
+            foundTargetHandle = A.any(
+              nodeConfig.inputs,
+              propEq("id", edge.targetHandle)
             );
           }
         }

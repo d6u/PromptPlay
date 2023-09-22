@@ -6,13 +6,14 @@ import Radio from "@mui/joy/Radio";
 import RadioGroup from "@mui/joy/RadioGroup";
 import Textarea from "@mui/joy/Textarea";
 import Chance from "chance";
-import { nanoid } from "nanoid";
 import { adjust, append, assoc, remove } from "ramda";
-import { useEffect, useMemo, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { Position, useUpdateNodeInternals, useNodeId } from "reactflow";
 import { ChatGPTMessageRole } from "../../integrations/openai";
+import randomId from "../../util/randomId";
 import TextareaReadonly from "../flow-common/TextareaReadonly";
 import { CopyIcon, LabelWithIconContainer } from "../flow-common/flow-common";
+import FlowContext from "../flowContext";
 import {
   ChatGPTMessageNodeConfig,
   InputID,
@@ -20,8 +21,8 @@ import {
   NodeInputItem,
   NodeType,
 } from "../flowTypes";
-import { DetailPanelContentType, useFlowStore } from "../store/flowStore";
-import { FlowState } from "../store/flowStore";
+import { FlowState, useFlowStore } from "../store/flowStore";
+import { DetailPanelContentType } from "../store/storeClientSlice";
 import AddVariableButton from "./node-common/AddVariableButton";
 import HeaderSection from "./node-common/HeaderSection";
 import HelperTextContainer from "./node-common/HelperTextContainer";
@@ -47,7 +48,6 @@ const MESSAGES_HELPER_SECTION_HEIGHT = 81;
 const chance = new Chance();
 
 const selector = (state: FlowState) => ({
-  isCurrentUserOwner: state.isCurrentUserOwner,
   nodeConfigs: state.nodeConfigs,
   updateNodeConfig: state.updateNodeConfig,
   removeNode: state.removeNode,
@@ -57,10 +57,11 @@ const selector = (state: FlowState) => ({
 });
 
 export default function ChatGPTMessageNode() {
+  const { isCurrentUserOwner } = useContext(FlowContext);
+
   const nodeId = useNodeId() as NodeID;
 
   const {
-    isCurrentUserOwner,
     nodeConfigs,
     updateNodeConfig,
     removeNode,
@@ -132,7 +133,7 @@ export default function ChatGPTMessageNode() {
             <AddVariableButton
               onClick={() => {
                 const newInputs = append<NodeInputItem>({
-                  id: `${nodeId}/${nanoid()}` as InputID,
+                  id: `${nodeId}/${randomId()}` as InputID,
                   name: chance.word(),
                 })(inputs);
 

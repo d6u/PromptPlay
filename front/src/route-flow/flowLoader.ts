@@ -7,7 +7,11 @@ import { pathToCurrentContent } from "../static/routeConfigs";
 import { CreateObservableFunction } from "../util/createLoader";
 import fromWonka from "../util/fromWonka";
 
-const flowLoader: CreateObservableFunction = (params) => {
+export type FlowLoaderData = {
+  isCurrentUserOwner: boolean;
+};
+
+const flowLoader: CreateObservableFunction<FlowLoaderData> = (params) => {
   const spaceId = params.spaceId!;
 
   return fromWonka(
@@ -32,7 +36,7 @@ const flowLoader: CreateObservableFunction = (params) => {
         return redirect(pathToCurrentContent(spaceId, contentVersion));
       }
 
-      return null;
+      return { isCurrentUserOwner: !result.data.space.isReadOnly };
     })
   );
 };

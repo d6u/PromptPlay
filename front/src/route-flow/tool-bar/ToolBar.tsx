@@ -9,12 +9,13 @@ import {
   MenuItem,
   ToggleButtonGroup,
 } from "@mui/joy";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { useStoreApi } from "reactflow";
+import FlowContext from "../flowContext";
 import { NodeType } from "../flowTypes";
 import { NODE_BOX_WIDTH } from "../nodes/node-common/NodeBox";
-import { DetailPanelContentType, useFlowStore } from "../store/flowStore";
-import { FlowState } from "../store/flowStore";
+import { FlowState, useFlowStore } from "../store/flowStore";
+import { DetailPanelContentType } from "../store/storeClientSlice";
 
 const USE_NARROW_LAYOUT_BREAKPOINT = 1050;
 
@@ -41,7 +42,6 @@ const RightAligned = styled.div`
 `;
 
 const selector = (state: FlowState) => ({
-  isCurrentUserOwner: state.isCurrentUserOwner,
   detailPanelContentType: state.detailPanelContentType,
   setDetailPanelContentType: state.setDetailPanelContentType,
   addNode: state.addNode,
@@ -49,10 +49,11 @@ const selector = (state: FlowState) => ({
 });
 
 export default function ToolBar() {
+  const { isCurrentUserOwner } = useContext(FlowContext);
+
   const storeApi = useStoreApi();
 
   const {
-    isCurrentUserOwner,
     detailPanelContentType,
     setDetailPanelContentType,
     addNode,

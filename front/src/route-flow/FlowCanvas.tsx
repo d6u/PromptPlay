@@ -1,9 +1,5 @@
 import styled from "@emotion/styled";
-import memoize from "lodash/memoize";
-import { mergeLeft } from "ramda";
-import assoc from "ramda/es/assoc";
-import map from "ramda/es/map";
-import { useCallback, useMemo } from "react";
+import { useCallback, useContext } from "react";
 import ReactFlow, {
   Controls,
   Background,
@@ -12,13 +8,13 @@ import ReactFlow, {
   NodeDragHandler,
 } from "reactflow";
 import "reactflow/dist/style.css";
-import { LocalEdge, NodeType } from "./flowTypes";
+import FlowContext from "./flowContext";
+import { NodeType } from "./flowTypes";
 import ChatGPTChatCompletionNode from "./nodes/ChatGPTChatCompletionNode";
 import ChatGPTMessageNode from "./nodes/ChatGPTMessageNode";
 import InputNode from "./nodes/InputNode";
 import JavaScriptFunctionNode from "./nodes/JavaScriptFunctionNode";
 import OutputNode from "./nodes/OutputNode";
-import { DRAG_HANDLE_CLASS_NAME } from "./nodes/node-common/HeaderSection";
 import SidePanel from "./side-panel/SidePanel";
 import { useFlowStore } from "./store/flowStore";
 import { FlowState, LocalNode } from "./store/flowStore";
@@ -31,10 +27,6 @@ const NODE_TYPES = {
   [NodeType.ChatGPTChatCompletionNode]: ChatGPTChatCompletionNode,
 };
 
-const applyDragHandleMemoized = memoize(
-  assoc("dragHandle", `.${DRAG_HANDLE_CLASS_NAME}`)
-);
-
 const Container = styled.div`
   height: 100%;
   flex-grow: 1;
@@ -44,37 +36,24 @@ const Container = styled.div`
 `;
 
 const selector = (state: FlowState) => ({
-  isCurrentUserOwner: state.isCurrentUserOwner,
   resetAugments: state.resetAugments,
-  updateNodeAguemnt: state.updateNodeAguemnt,
+  updateNodeAguemnt: state.updateNodeAugment,
   nodeConfigs: state.nodeConfigs,
   isRunning: state.isRunning,
   nodes: state.nodes,
   edges: state.edges,
   addNode: state.addNode,
   updateNode: state.updateNode,
-  updateNodeConfigDebounced: state.updateNodeConfigDebounced,
   onNodesChange: state.onNodesChange,
   onEdgesChange: state.onEdgesChange,
   onConnect: state.onConnect,
 });
 
 export default function FlowCanvas() {
-  const {
-    isCurrentUserOwner,
-    isRunning,
-    nodes,
-    edges,
-    updateNode,
-    onNodesChange,
-    onEdgesChange,
-    onConnect,
-  } = useFlowStore(selector);
+  const { isCurrentUserOwner } = useContext(FlowContext);
 
-  const nodesWithAdditionalData = useMemo(
-    () => map<LocalNode, LocalNode>(applyDragHandleMemoized)(nodes),
-    [nodes]
-  );
+  const { nodes, edges, updateNode, onNodesChange, onEdgesChange, onConnect } =
+    useFlowStore(selector);
 
   const onNodeDragStop: NodeDragHandler = useCallback(
     (event, node) => {
@@ -83,38 +62,25 @@ export default function FlowCanvas() {
     [updateNode]
   );
 
-  const applyEdgeStyleMemoized = useMemo(
-    () =>
-      memoize(
-        mergeLeft({ style: { strokeWidth: 2 }, animated: isRunning })
-      ) as (edge: LocalEdge) => LocalEdge,
-    [isRunning]
-  );
-
-  const edgesWithAdditionalData = useMemo(
-    () => map<LocalEdge, LocalEdge>(applyEdgeStyleMemoized)(edges),
-    [applyEdgeStyleMemoized, edges]
-  );
-
   return (
     <Container>
       <ReactFlow
-        nodes={nodesWithAdditionalData}
-        edges={edgesWithAdditionalData}
-        onNodesChange={onNodesChange}
-        onEdgesChange={isCurrentUserOwner ? onEdgesChange : undefined}
-        onConnect={isCurrentUserOwner ? onConnect : undefined}
-        nodeTypes={NODE_TYPES}
         panOnScroll
         panOnScrollMode={PanOnScrollMode.Free}
         minZoom={0.2}
         maxZoom={1.2}
-        onNodeDragStop={onNodeDragStop}
+        nodesConnectable={isCurrentUserOwner}
+        elementsSelectable={isCurrentUserOwner}
+        nodeTypes={NODE_TYPES}
+        nodes={nodes}
+        edges={edges}
         onInit={(reactflow) => {
           reactflow.fitView();
         }}
-        nodesConnectable={isCurrentUserOwner}
-        elementsSelectable={isCurrentUserOwner}
+        onNodesChange={onNodesChange}
+        onEdgesChange={isCurrentUserOwner ? onEdgesChange : undefined}
+        onConnect={isCurrentUserOwner ? onConnect : undefined}
+        onNodeDragStop={onNodeDragStop}
       >
         <Controls />
         <Background variant={BackgroundVariant.Dots} gap={20} size={1} />

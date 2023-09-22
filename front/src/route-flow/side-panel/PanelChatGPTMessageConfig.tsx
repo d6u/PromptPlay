@@ -4,10 +4,11 @@ import FormLabel from "@mui/joy/FormLabel";
 import Radio from "@mui/joy/Radio";
 import RadioGroup from "@mui/joy/RadioGroup";
 import Textarea from "@mui/joy/Textarea";
-import { ReactNode, useEffect, useMemo, useState } from "react";
+import { ReactNode, useContext, useEffect, useMemo, useState } from "react";
 import { ChatGPTMessageRole } from "../../integrations/openai";
 import TextareaReadonly from "../flow-common/TextareaReadonly";
 import { CopyIcon, LabelWithIconContainer } from "../flow-common/flow-common";
+import FlowContext from "../flowContext";
 import { ChatGPTMessageNodeConfig } from "../flowTypes";
 import { useFlowStore } from "../store/flowStore";
 import { FlowState } from "../store/flowStore";
@@ -22,7 +23,6 @@ import {
 } from "./controls-common";
 
 const selector = (state: FlowState) => ({
-  isCurrentUserOwner: state.isCurrentUserOwner,
   nodeConfigs: state.nodeConfigs,
   detailPanelSelectedNodeId: state.detailPanelSelectedNodeId,
   updateNodeConfig: state.updateNodeConfig,
@@ -30,8 +30,9 @@ const selector = (state: FlowState) => ({
 });
 
 export default function PanelChatGPTMessageConfig() {
+  const { isCurrentUserOwner } = useContext(FlowContext);
+
   const {
-    isCurrentUserOwner,
     nodeConfigs,
     detailPanelSelectedNodeId,
     updateNodeConfig,

@@ -13,10 +13,10 @@ export type VariableID = InputID | OutputID;
 // ============
 
 export type FlowContent = {
-  nodes: readonly ServerNode[];
+  nodes: ServerNode[];
   nodeConfigs: NodeConfigs;
   edges: ServerEdge[];
-  variableValueMaps: readonly VariableValueMap[];
+  variableValueMaps: VariableValueMap[];
 };
 
 export type ServerNode = {
@@ -64,44 +64,44 @@ export type NodeConfigCommon = {
 
 export type InputNodeConfig = NodeConfigCommon & {
   nodeType: NodeType.InputNode;
-  outputs: readonly FlowInputItem[];
+  outputs: FlowInputItem[];
 };
 
 // Output
 
 export type OutputNodeConfig = NodeConfigCommon & {
   nodeType: NodeType.OutputNode;
-  inputs: readonly FlowOutputItem[];
+  inputs: FlowOutputItem[];
 };
 
 // JavaScriptFunction
 
 export type JavaScriptFunctionNodeConfig = NodeConfigCommon & {
   nodeType: NodeType.JavaScriptFunctionNode;
-  inputs: readonly NodeInputItem[];
+  inputs: NodeInputItem[];
   javaScriptCode: string;
-  outputs: readonly NodeOutputItem[];
+  outputs: NodeOutputItem[];
 };
 
 // ChatGPTMessage
 
 export type ChatGPTMessageNodeConfig = NodeConfigCommon & {
   nodeType: NodeType.ChatGPTMessageNode;
-  inputs: readonly NodeInputItem[];
+  inputs: NodeInputItem[];
   role: ChatGPTMessageRole;
   content: string;
-  outputs: readonly NodeOutputItem[];
+  outputs: NodeOutputItem[];
 };
 
 // ChatGPTChatCompletion
 
 export type ChatGPTChatCompletionNodeConfig = NodeConfigCommon & {
   nodeType: NodeType.ChatGPTChatCompletionNode;
-  inputs: readonly NodeInputItem[];
+  inputs: NodeInputItem[];
   model: OpenAIChatModel;
   temperature: number;
   stop: Array<string>;
-  outputs: readonly NodeOutputItem[];
+  outputs: NodeOutputItem[];
 };
 
 export enum OpenAIChatModel {

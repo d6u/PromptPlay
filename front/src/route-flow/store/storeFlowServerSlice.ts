@@ -1,11 +1,6 @@
-import { A, D, pipe } from "@mobily/ts-belt";
-import dissoc from "ramda/es/dissoc";
-import findIndex from "ramda/es/findIndex";
-import mergeLeft from "ramda/es/mergeLeft";
-import modify from "ramda/es/modify";
-import none from "ramda/es/none";
-import propEq from "ramda/es/propEq";
-import reject from "ramda/es/reject";
+import { A, D, F, flow, pipe } from "@mobily/ts-belt";
+import { produce } from "immer";
+import debounce from "lodash/debounce";
 import {
   NodeChange,
   applyNodeChanges,
@@ -17,8 +12,14 @@ import {
   OnEdgesChange,
   OnNodesChange,
 } from "reactflow";
-import { Subscription } from "rxjs";
+import { Observable, Subscription, first, map, share } from "rxjs";
+import { OperationResult } from "urql";
 import { StateCreator } from "zustand";
+import { SpaceFlowQueryQuery } from "../../gql/graphql";
+import { client } from "../../state/urql";
+import fromWonka from "../../util/fromWonka";
+import propEq from "../../util/propEq";
+import { DEFAULT_EDGE_STYLE, DRAG_HANDLE_CLASS_NAME } from "../flowConstants";
 import {
   FlowContent,
   LocalEdge,
@@ -31,30 +32,28 @@ import {
 } from "../flowTypes";
 import { createNode, createNodeConfig, rejectInvalidEdges } from "../flowUtils";
 import {
-  updateSpaceDebounced,
-  updateSpace,
-  queryFlowObservable,
+  SPACE_FLOW_QUERY,
+  UPDATE_SPACE_FLOW_CONTENT_MUTATION,
 } from "./flowGraphql";
-import { LocalNode } from "./flowStore";
+import { FlowState, LocalNode } from "./flowStore";
 
-export type FlowServerSlice = {
-  spaceId: string | null;
-
-  isInitialized: boolean;
-  isCurrentUserOwner: boolean;
-
-  nodes: readonly LocalNode[];
+type FlowServerSliceState = {
+  nodes: LocalNode[];
   nodeConfigs: NodeConfigs;
   edges: LocalEdge[];
-  variableValueMaps: readonly VariableValueMap[];
+  variableValueMaps: VariableValueMap[];
+};
+
+export type FlowServerSlice = FlowServerSliceState & {
   getDefaultVariableValueMap(): VariableValueMap;
 
-  fetchFlowConfiguration(spaceId: string): Subscription;
+  fetchFlowConfiguration(): Observable<Partial<FlowContent>>;
+  cancelFetchFlowConfiguration(): void;
+
   addNode(type: NodeType, x?: number, y?: number): void;
   updateNode(nodeId: NodeID, nodeChange: Partial<LocalNode>): void;
   removeNode(id: NodeID): void;
   updateNodeConfig(nodeId: NodeID, change: Partial<NodeConfig>): void;
-  updateNodeConfigDebounced(nodeId: NodeID, change: Partial<NodeConfig>): void;
   updateDefaultVariableValueMap(variableId: VariableID, value: unknown): void;
 
   onNodesChange: OnNodesChange;
@@ -62,275 +61,265 @@ export type FlowServerSlice = {
   onConnect: OnConnect;
 };
 
-export const createFlowServerSlice: StateCreator<
-  FlowServerSlice,
-  [],
-  [],
-  FlowServerSlice
-> = (set, get) => ({
-  spaceId: null,
-
-  isInitialized: false,
-  isCurrentUserOwner: false,
-
+const FLOW_SERVER_SLICE_INITIAL_STATE: FlowServerSliceState = {
   nodes: [],
   nodeConfigs: {},
   edges: [],
   variableValueMaps: [{}],
-  getDefaultVariableValueMap: (): VariableValueMap =>
-    get().variableValueMaps[0],
+};
 
-  fetchFlowConfiguration(spaceId: string): Subscription {
-    set({ spaceId });
+export const createFlowServerSlice: StateCreator<
+  FlowState,
+  [],
+  [],
+  FlowServerSlice
+> = (set, get) => {
+  function getSpaceId(): string {
+    return get().spaceId!;
+  }
 
-    return queryFlowObservable(spaceId).subscribe({
-      next({
-        isCurrentUserOwner,
-        flowContent: {
+  async function saveSpace() {
+    const { nodeConfigs, variableValueMaps } = get();
+
+    const nodes = A.map(
+      get().nodes,
+      D.selectKeys(["id", "type", "position", "data"])
+    );
+
+    const edges = A.map(
+      get().edges,
+      D.selectKeys(["id", "source", "sourceHandle", "target", "targetHandle"])
+    );
+
+    await client.mutation(UPDATE_SPACE_FLOW_CONTENT_MUTATION, {
+      spaceId: getSpaceId(),
+      flowContent: JSON.stringify({
+        nodes,
+        edges,
+        nodeConfigs,
+        variableValueMaps,
+      }),
+    });
+  }
+
+  const saveSpaceDebounced = debounce(saveSpace, 500);
+
+  let fetchFlowSubscription: Subscription | null = null;
+
+  return {
+    ...FLOW_SERVER_SLICE_INITIAL_STATE,
+
+    getDefaultVariableValueMap: (): VariableValueMap =>
+      get().variableValueMaps[0],
+
+    fetchFlowConfiguration(): Observable<Partial<FlowContent>> {
+      const spaceId = getSpaceId();
+
+      fetchFlowSubscription?.unsubscribe();
+      fetchFlowSubscription = null;
+
+      set(FLOW_SERVER_SLICE_INITIAL_STATE);
+
+      const obs = fromWonka(
+        client.query(
+          SPACE_FLOW_QUERY,
+          { spaceId },
+          { requestPolicy: "network-only" }
+        )
+      ).pipe(
+        first(),
+        map<OperationResult<SpaceFlowQueryQuery>, Partial<FlowContent>>(
+          (result) => {
+            const flowContentStr = result.data?.result?.space?.flowContent;
+
+            if (flowContentStr) {
+              try {
+                return JSON.parse(flowContentStr);
+              } catch (e) {
+                // TODO: handle parse error
+                console.error(e);
+              }
+            }
+
+            return {};
+          }
+        ),
+        share()
+      );
+
+      fetchFlowSubscription = obs.subscribe({
+        next({
           nodes = [],
           edges = [],
           nodeConfigs = {},
           variableValueMaps = [{}],
+        }) {
+          nodes = assignLocalNodeProperties(nodes);
+          edges = assignLocalEdgeProperties(edges);
+
+          set({ nodeConfigs, variableValueMaps, nodes, edges });
         },
-      }) {
-        set({
-          isCurrentUserOwner,
-          nodes,
-          edges,
-          nodeConfigs,
-          variableValueMaps,
-        });
-      },
-      error(error) {
-        console.error(error);
-      },
-      complete() {
-        set({ isInitialized: true });
-      },
-    });
-  },
-  addNode(type: NodeType, x?: number, y?: number) {
-    let nodes = get().nodes;
-    let nodeConfigs = get().nodeConfigs;
+        error(error) {
+          console.error(error);
+        },
+      });
 
-    const node = createNode(type, x ?? 200, y ?? 200);
-    const nodeConfig = createNodeConfig(node);
+      return obs;
+    },
 
-    nodes = A.append(nodes, node);
-    nodeConfigs = D.set(nodeConfigs, node.id, nodeConfig);
+    cancelFetchFlowConfiguration(): void {
+      fetchFlowSubscription?.unsubscribe();
+      fetchFlowSubscription = null;
+    },
 
-    const flowContentChange = { nodes, nodeConfigs };
+    addNode(type: NodeType, x?: number, y?: number) {
+      let nodes = get().nodes;
+      let nodeConfigs = get().nodeConfigs;
 
-    set(flowContentChange);
+      const node = createNode(type, x ?? 200, y ?? 200);
+      const nodeConfig = createNodeConfig(node);
 
-    const spaceId = get().spaceId;
-    if (spaceId) {
-      updateSpaceDebounced(
-        spaceId,
-        getCurrentFlowContent(get()),
-        flowContentChange
-      );
-    }
-  },
-  updateNode(nodeId: NodeID, nodeChange: Partial<LocalNode>) {
-    const { nodes, edges, nodeConfigs } = get();
+      nodes = pipe(nodes, A.append(node), assignLocalNodeProperties);
+      nodeConfigs = D.set(nodeConfigs, node.id, nodeConfig);
 
-    const stateChange = applyLocalNodeChange(
-      nodes,
-      nodeConfigs,
-      edges,
-      nodeId,
-      nodeChange
-    );
+      set({ nodes, nodeConfigs });
 
-    set(stateChange);
+      saveSpace();
+    },
+    updateNode(nodeId: NodeID, nodeChange: Partial<LocalNode>) {
+      const nodeConfigs = get().nodeConfigs;
+      let nodes = get().nodes;
+      let edges = get().edges;
 
-    const spaceId = get().spaceId;
-    if (spaceId) {
-      updateSpace(spaceId, getCurrentFlowContent(get()), stateChange);
-    }
-  },
-  removeNode(id: NodeID) {
-    let nodes = get().nodes;
-    let edges = get().edges;
-    let nodeConfigs = get().nodeConfigs;
+      const index = A.getIndexBy(nodes, (n) => n.id === nodeId)!;
 
-    nodes = reject(propEq(id, "id"))(nodes);
-    nodeConfigs = dissoc(id)(nodeConfigs);
-    edges = rejectInvalidEdges(nodes, edges, nodeConfigs);
+      if (index === -1) {
+        return { nodes, edges };
+      }
 
-    const flowContentChange = { nodes, edges, nodeConfigs };
+      nodes = A.updateAt(nodes, index, D.merge(nodeChange));
 
-    set(flowContentChange);
+      edges = rejectInvalidEdges(nodes, edges, nodeConfigs);
 
-    const spaceId = get().spaceId;
-    if (spaceId) {
-      updateSpace(spaceId, getCurrentFlowContent(get()), flowContentChange);
-    }
-  },
-  updateNodeConfig(nodeId: NodeID, change: Partial<NodeConfig>) {
-    const { nodes, edges, nodeConfigs } = get();
+      set({ nodes, edges });
 
-    const stateChange = applyLocalNodeConfigChange(
-      nodes,
-      nodeConfigs,
-      edges,
-      nodeId,
-      change
-    );
+      saveSpace();
+    },
+    removeNode(id: NodeID) {
+      let nodes = get().nodes;
+      let edges = get().edges;
+      let nodeConfigs = get().nodeConfigs;
 
-    set(stateChange);
+      nodes = A.reject(nodes, flow(D.get("id"), F.equals(id)));
+      nodeConfigs = D.deleteKey(nodeConfigs, id);
+      edges = rejectInvalidEdges(nodes, edges, nodeConfigs);
 
-    const spaceId = get().spaceId;
-    if (spaceId) {
-      updateSpace(spaceId, getCurrentFlowContent(get()), stateChange);
-    }
-  },
-  updateNodeConfigDebounced(nodeId: NodeID, change: Partial<NodeConfig>) {
-    const { nodes, edges, nodeConfigs } = get();
+      const flowContentChange = { nodes, edges, nodeConfigs };
 
-    const stateChange = applyLocalNodeConfigChange(
-      nodes,
-      nodeConfigs,
-      edges,
-      nodeId,
-      change
-    );
+      set(flowContentChange);
 
-    set(stateChange);
+      saveSpace();
+    },
+    updateNodeConfig(nodeId: NodeID, change: Partial<NodeConfig>) {
+      const nodes = get().nodes;
+      let edges = get().edges;
+      let nodeConfigs = get().nodeConfigs;
 
-    const spaceId = get().spaceId;
-    if (spaceId) {
-      updateSpaceDebounced(spaceId, getCurrentFlowContent(get()), stateChange);
-    }
-  },
-  updateDefaultVariableValueMap(variableId: VariableID, value: unknown): void {
-    const variableValueMaps = get().variableValueMaps;
+      nodeConfigs = D.update(nodeConfigs, nodeId, D.merge(change));
 
-    const changes = {
-      variableValueMaps: A.updateAt(
+      edges = rejectInvalidEdges(nodes, edges, nodeConfigs);
+
+      set({ nodeConfigs, edges });
+
+      saveSpace();
+    },
+    updateDefaultVariableValueMap(
+      variableId: VariableID,
+      value: unknown
+    ): void {
+      let variableValueMaps = get().variableValueMaps;
+
+      variableValueMaps = A.updateAt(
         variableValueMaps,
         0,
         D.set(variableId, value)
-      ),
-    };
+      );
 
-    set(changes);
+      set({ variableValueMaps });
 
-    const spaceId = get().spaceId;
-    if (spaceId) {
-      updateSpaceDebounced(spaceId, getCurrentFlowContent(get()), changes);
+      saveSpaceDebounced();
+    },
+
+    onNodesChange(changes: NodeChange[]) {
+      const nodes = applyNodeChanges(changes, get().nodes) as LocalNode[];
+
+      // Because we are using controlled flow, there will be 3 types of changes:
+      //
+      // - dimensions
+      // - select
+      // - position
+      //
+      // Position is saved when calling `onNodeDragStop` and the other changes
+      // are not persisted to the server, thus we don't need to save the changes
+      // to the server.
+      set({ nodes });
+    },
+    onEdgesChange(changes: EdgeChange[]) {
+      const nodes = get().nodes;
+      let edges = get().edges;
+      const nodeConfigs = get().nodeConfigs;
+
+      edges = applyEdgeChanges(changes, edges) as LocalEdge[];
+      edges = rejectInvalidEdges(nodes, edges, nodeConfigs);
+
+      set({ edges });
+
+      if (A.any(changes, propEq("type", "remove"))) {
+        saveSpace();
+      }
+    },
+    onConnect(connection: Connection) {
+      // Should not self-connections
+      if (connection.source === connection.target) {
+        return;
+      }
+
+      let edges = get().edges;
+
+      // A targetHandle can only take one incoming edge
+      edges = pipe(
+        edges,
+        A.reject(
+          flow(D.get("targetHandle"), F.equals(connection.targetHandle!))
+        )
+      );
+
+      edges = addEdge(connection, edges) as LocalEdge[];
+      edges = assignLocalEdgeProperties(edges);
+
+      set({ edges });
+
+      saveSpace();
+    },
+  };
+};
+
+function assignLocalNodeProperties(nodes: LocalNode[]): LocalNode[] {
+  return produce(nodes, (draft) => {
+    for (const node of draft) {
+      if (!node.dragHandle) {
+        node.dragHandle = `.${DRAG_HANDLE_CLASS_NAME}`;
+      }
     }
-  },
-
-  onNodesChange(changes: NodeChange[]) {
-    const nodes = applyNodeChanges(
-      changes,
-      // Cast from readonly to mutable
-      get().nodes.concat()
-    ) as LocalNode[];
-
-    set({ nodes });
-
-    // Because we are using controlled flow, there will be 3 types
-    // - dimensions
-    // - select
-    // - position
-    //
-    // Position is data is saved on onNodeDragStop. The other changes are not
-    // persisted to the server.
-  },
-  onEdgesChange(changes: EdgeChange[]) {
-    const nodes = get().nodes;
-    let edges = get().edges;
-    const nodeConfigs = get().nodeConfigs;
-
-    edges = applyEdgeChanges(changes, edges) as LocalEdge[];
-
-    const stateChange = {
-      edges: rejectInvalidEdges(nodes, edges, nodeConfigs),
-    };
-
-    set(stateChange);
-
-    if (none(propEq("remove", "type"))(changes)) {
-      return;
-    }
-
-    const spaceId = get().spaceId;
-    if (spaceId) {
-      updateSpace(spaceId, getCurrentFlowContent(get()), stateChange);
-    }
-  },
-  onConnect(connection: Connection) {
-    // Should not self-connections
-    if (connection.source === connection.target) {
-      return;
-    }
-
-    let edges = get().edges;
-
-    // A targetHandle can only take one incoming edge
-    edges = pipe(
-      edges,
-      reject(propEq<string>(connection.targetHandle!, "targetHandle"))
-    );
-
-    const stateChange = {
-      edges: addEdge(connection, edges) as LocalEdge[],
-    };
-
-    set(stateChange);
-
-    const spaceId = get().spaceId;
-    if (spaceId) {
-      updateSpace(spaceId, getCurrentFlowContent(get()), stateChange);
-    }
-  },
-});
-
-function getCurrentFlowContent(state: FlowServerSlice): FlowContent {
-  const { nodes, edges, nodeConfigs, variableValueMaps } = state;
-  return { nodes, edges, nodeConfigs, variableValueMaps };
+  });
 }
 
-function applyLocalNodeChange(
-  nodes: readonly LocalNode[],
-  nodeConfigs: NodeConfigs,
-  edges: LocalEdge[],
-  nodeId: NodeID,
-  nodeChange: Partial<LocalNode>
-): Partial<FlowServerSlice> {
-  const index = findIndex<LocalNode>((n) => n.id === nodeId)(nodes);
-
-  if (index === -1) {
-    return { nodes, edges };
-  }
-
-  nodes = A.updateAt(
-    nodes,
-    index,
-    mergeLeft(nodeChange) as (a: LocalNode) => LocalNode
-  );
-
-  edges = rejectInvalidEdges(nodes, edges, nodeConfigs);
-
-  return { nodes, edges };
-}
-
-function applyLocalNodeConfigChange(
-  nodes: readonly LocalNode[],
-  nodeConfigs: NodeConfigs,
-  edges: LocalEdge[],
-  nodeId: NodeID,
-  change: Partial<NodeConfig>
-) {
-  nodeConfigs = modify(
-    nodeId,
-    mergeLeft(change) as (a: NodeConfig | undefined) => NodeConfig,
-    nodeConfigs
-  );
-  edges = rejectInvalidEdges(nodes, edges, nodeConfigs);
-
-  return { nodeConfigs, edges };
+function assignLocalEdgeProperties(edges: LocalEdge[]): LocalEdge[] {
+  return produce(edges, (draft) => {
+    for (const edge of draft) {
+      if (!edge.style) {
+        edge.style = DEFAULT_EDGE_STYLE;
+      }
+    }
+  });
 }

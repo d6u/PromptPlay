@@ -2,13 +2,14 @@ import FormControl from "@mui/joy/FormControl";
 import FormLabel from "@mui/joy/FormLabel";
 import Textarea from "@mui/joy/Textarea";
 import Chance from "chance";
-import { nanoid } from "nanoid";
 import { adjust, append, assoc, remove } from "ramda";
-import { useMemo, useState } from "react";
+import { useContext, useMemo, useState } from "react";
 import { Position, useUpdateNodeInternals, useNodeId } from "reactflow";
+import randomId from "../../util/randomId";
 import TextareaReadonly from "../flow-common/TextareaReadonly";
 import { LabelWithIconContainer } from "../flow-common/flow-common";
 import { CopyIcon } from "../flow-common/flow-common";
+import FlowContext from "../flowContext";
 import {
   InputID,
   JavaScriptFunctionNodeConfig,
@@ -37,7 +38,6 @@ import {
 const chance = new Chance();
 
 const selector = (state: FlowState) => ({
-  isCurrentUserOwner: state.isCurrentUserOwner,
   nodeConfigs: state.nodeConfigs,
   updateNodeConfig: state.updateNodeConfig,
   removeNode: state.removeNode,
@@ -46,10 +46,11 @@ const selector = (state: FlowState) => ({
 });
 
 export default function JavaScriptFunctionNode() {
+  const { isCurrentUserOwner } = useContext(FlowContext);
+
   const nodeId = useNodeId() as NodeID;
 
   const {
-    isCurrentUserOwner,
     nodeConfigs,
     updateNodeConfig,
     removeNode,
@@ -117,7 +118,7 @@ export default function JavaScriptFunctionNode() {
             <AddVariableButton
               onClick={() => {
                 const newInputs = append<NodeInputItem>({
-                  id: `${nodeId}/${nanoid()}` as InputID,
+                  id: `${nodeId}/${randomId()}` as InputID,
                   name: chance.word(),
                 })(inputs);
 

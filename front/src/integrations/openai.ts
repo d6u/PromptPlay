@@ -15,7 +15,7 @@ type GetCompletionArguments = {
   apiKey: string;
   model: string;
   temperature: number;
-  messages: readonly ChatGPTMessage[];
+  messages: ChatGPTMessage[];
   stop: string[];
 };
 
