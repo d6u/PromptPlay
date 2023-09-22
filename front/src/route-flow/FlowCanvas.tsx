@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useCallback } from "react";
+import { useCallback, useContext } from "react";
 import ReactFlow, {
   Controls,
   Background,
@@ -8,6 +8,7 @@ import ReactFlow, {
   NodeDragHandler,
 } from "reactflow";
 import "reactflow/dist/style.css";
+import FlowContext from "./flowContext";
 import { NodeType } from "./flowTypes";
 import ChatGPTChatCompletionNode from "./nodes/ChatGPTChatCompletionNode";
 import ChatGPTMessageNode from "./nodes/ChatGPTMessageNode";
@@ -35,7 +36,6 @@ const Container = styled.div`
 `;
 
 const selector = (state: FlowState) => ({
-  isCurrentUserOwner: state.isCurrentUserOwner,
   resetAugments: state.resetAugments,
   updateNodeAguemnt: state.updateNodeAugment,
   nodeConfigs: state.nodeConfigs,
@@ -51,15 +51,10 @@ const selector = (state: FlowState) => ({
 });
 
 export default function FlowCanvas() {
-  const {
-    isCurrentUserOwner,
-    nodes,
-    edges,
-    updateNode,
-    onNodesChange,
-    onEdgesChange,
-    onConnect,
-  } = useFlowStore(selector);
+  const { isCurrentUserOwner } = useContext(FlowContext);
+
+  const { nodes, edges, updateNode, onNodesChange, onEdgesChange, onConnect } =
+    useFlowStore(selector);
 
   const onNodeDragStop: NodeDragHandler = useCallback(
     (event, node) => {

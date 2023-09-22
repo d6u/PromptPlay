@@ -1,9 +1,10 @@
 import IconButton from "@mui/joy/IconButton";
 import Chance from "chance";
 import { adjust, append, assoc, remove } from "ramda";
-import { useMemo, useState } from "react";
+import { useContext, useMemo, useState } from "react";
 import { Position, useNodeId, useUpdateNodeInternals } from "reactflow";
 import randomId from "../../util/randomId";
+import FlowContext from "../flowContext";
 import {
   FlowInputItem,
   InputNodeConfig,
@@ -29,7 +30,6 @@ import { calculateOutputHandleBottom } from "./node-common/utils";
 const chance = new Chance();
 
 const selector = (state: FlowState) => ({
-  isCurrentUserOwner: state.isCurrentUserOwner,
   setDetailPanelContentType: state.setDetailPanelContentType,
   nodeConfigs: state.nodeConfigs,
   updateNodeConfig: state.updateNodeConfig,
@@ -37,10 +37,11 @@ const selector = (state: FlowState) => ({
 });
 
 export default function InputNode() {
+  const { isCurrentUserOwner } = useContext(FlowContext);
+
   const nodeId = useNodeId() as NodeID;
 
   const {
-    isCurrentUserOwner,
     setDetailPanelContentType,
     nodeConfigs,
     updateNodeConfig,

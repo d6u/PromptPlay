@@ -19,6 +19,8 @@ export enum DetailPanelContentType {
 }
 
 type ClientSliceState = {
+  spaceId: string | null;
+  isInitialized: boolean;
   detailPanelContentType: DetailPanelContentType;
   detailPanelSelectedNodeId: NodeID | null;
   localNodeAugments: NodeAugments;
@@ -26,6 +28,8 @@ type ClientSliceState = {
 };
 
 export type ClientSlice = ClientSliceState & {
+  initializeSpace(spaceId: string): void;
+  deinitializeSpace(): void;
   setDetailPanelContentType(type: DetailPanelContentType): void;
   setDetailPanelSelectedNodeId(nodeId: NodeID): void;
   resetAugments(): void;
@@ -34,6 +38,8 @@ export type ClientSlice = ClientSliceState & {
 };
 
 const CLIENT_SLICE_INITIAL_STATE: ClientSliceState = {
+  spaceId: null,
+  isInitialized: false,
   detailPanelContentType: DetailPanelContentType.Off,
   detailPanelSelectedNodeId: null,
   localNodeAugments: {},
@@ -62,6 +68,14 @@ export const createClientSlice: StateCreator<FlowState, [], [], ClientSlice> = (
 
   return {
     ...CLIENT_SLICE_INITIAL_STATE,
+
+    initializeSpace(spaceId: string) {
+      set({ spaceId });
+    },
+
+    deinitializeSpace() {
+      set({ spaceId: null });
+    },
 
     setDetailPanelContentType(type: DetailPanelContentType) {
       set({ detailPanelContentType: type });

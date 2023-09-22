@@ -1,6 +1,7 @@
 import { A, D } from "@mobily/ts-belt";
 import { Button } from "@mui/joy";
-import { ReactNode } from "react";
+import { ReactNode, useContext } from "react";
+import FlowContext from "../flowContext";
 import { InputValueType } from "../flowTypes";
 import {
   flowInputItemsWithNodeConfigSelector,
@@ -19,7 +20,6 @@ import {
 } from "./controls-common";
 
 const selector = (state: FlowState) => ({
-  isCurrentUserOwner: state.isCurrentUserOwner,
   runFlow: state.runFlow,
   updateNodeConfig: state.updateNodeConfig,
   flowInputItems: flowInputItemsWithNodeConfigSelector(state),
@@ -29,8 +29,9 @@ const selector = (state: FlowState) => ({
 });
 
 export default function EvaluationModeSimpleContent() {
+  const { isCurrentUserOwner } = useContext(FlowContext);
+
   const {
-    isCurrentUserOwner,
     runFlow,
     updateNodeConfig,
     flowInputItems,

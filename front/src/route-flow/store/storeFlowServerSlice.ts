@@ -31,14 +31,9 @@ import {
   updateSpace,
   queryFlowObservable,
 } from "./flowGraphql";
-import { LocalNode } from "./flowStore";
+import { FlowState, LocalNode } from "./flowStore";
 
 type FlowServerSliceState = {
-  spaceId: string | null;
-
-  isInitialized: boolean;
-  isCurrentUserOwner: boolean;
-
   nodes: LocalNode[];
   nodeConfigs: NodeConfigs;
   edges: LocalEdge[];
@@ -62,11 +57,6 @@ export type FlowServerSlice = FlowServerSliceState & {
 };
 
 const FLOW_SERVER_SLICE_INITIAL_STATE: FlowServerSliceState = {
-  spaceId: null,
-
-  isInitialized: false,
-  isCurrentUserOwner: false,
-
   nodes: [],
   nodeConfigs: {},
   edges: [],
@@ -74,7 +64,7 @@ const FLOW_SERVER_SLICE_INITIAL_STATE: FlowServerSliceState = {
 };
 
 export const createFlowServerSlice: StateCreator<
-  FlowServerSlice,
+  FlowState,
   [],
   [],
   FlowServerSlice
@@ -107,13 +97,6 @@ export const createFlowServerSlice: StateCreator<
     });
   }
 
-  // function saveSpace() {
-  //   const spaceId = get().spaceId;
-  //   if (spaceId) {
-  //     updateSpace(spaceId, getCurrentFlowContent(get()), {});
-  //   }
-  // }
-
   let fetchFlowConfigurationSubscription: Subscription | null = null;
 
   return {
@@ -132,7 +115,6 @@ export const createFlowServerSlice: StateCreator<
         spaceId
       ).subscribe({
         next({
-          isCurrentUserOwner,
           flowContent: {
             nodes = [],
             edges = [],
@@ -143,7 +125,6 @@ export const createFlowServerSlice: StateCreator<
           setNodes(nodes);
           setEdges(edges);
           set({
-            isCurrentUserOwner,
             nodeConfigs,
             variableValueMaps,
           });

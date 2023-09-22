@@ -4,7 +4,7 @@ import FormLabel from "@mui/joy/FormLabel";
 import Input from "@mui/joy/Input";
 import Option from "@mui/joy/Option";
 import Select from "@mui/joy/Select";
-import { useMemo, useState } from "react";
+import { useContext, useMemo, useState } from "react";
 import { Position, useNodeId } from "reactflow";
 import { NEW_LINE_SYMBOL } from "../../integrations/openai";
 import {
@@ -14,6 +14,7 @@ import {
   useSpaceStore,
 } from "../../state/appState";
 import InputReadonly from "../flow-common/InputReadonly";
+import FlowContext from "../flowContext";
 import {
   ChatGPTChatCompletionNodeConfig,
   NodeID,
@@ -34,7 +35,6 @@ import {
 } from "./node-common/utils";
 
 const flowSelector = (state: FlowState) => ({
-  isCurrentUserOwner: state.isCurrentUserOwner,
   nodeConfigs: state.nodeConfigs,
   updateNodeConfig: state.updateNodeConfig,
   removeNode: state.removeNode,
@@ -53,10 +53,11 @@ const selector = (state: SpaceState) => ({
 });
 
 export default function ChatGPTChatCompletionNode() {
+  const { isCurrentUserOwner } = useContext(FlowContext);
+
   const nodeId = useNodeId() as NodeID;
 
   const {
-    isCurrentUserOwner,
     nodeConfigs,
     updateNodeConfig,
     removeNode,

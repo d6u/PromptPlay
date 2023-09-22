@@ -1,33 +1,49 @@
 import { useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useLoaderData, useParams } from "react-router-dom";
 import { ReactFlowProvider } from "reactflow";
 import "reactflow/dist/style.css";
 import FlowCanvas from "./FlowCanvas";
-import { useFlowStore } from "./store/flowStore";
-import { FlowState } from "./store/flowStore";
+import FlowContext from "./flowContext";
+import { FlowLoaderData } from "./flowLoader";
+import { FlowState, useFlowStore } from "./store/flowStore";
 import ToolBar from "./tool-bar/ToolBar";
 
 const selector = (state: FlowState) => ({
-  isCurrentUserOwner: state.isCurrentUserOwner,
+  initializeSpace: state.initializeSpace,
+  deinitializeSpace: state.deinitializeSpace,
   isInitialized: state.isInitialized,
   fetchFlowConfiguration: state.fetchFlowConfiguration,
 });
 
 export default function RouteFlow() {
-  // TODO: Properly handle spaceId not being present
-  const { spaceId = "" } = useParams<{ spaceId: string }>();
+  const params = useParams<{ spaceId: string }>();
+  const spaceId = params.spaceId!;
 
-  const { isCurrentUserOwner, isInitialized, fetchFlowConfiguration } =
-    useFlowStore(selector);
+  const { isCurrentUserOwner } = useLoaderData() as FlowLoaderData;
+
+  const {
+    initializeSpace,
+    deinitializeSpace,
+    isInitialized,
+    fetchFlowConfiguration,
+  } = useFlowStore(selector);
 
   useEffect(() => {
+    initializeSpace(spaceId);
+
     fetchFlowConfiguration(spaceId);
-  }, [fetchFlowConfiguration, spaceId]);
+
+    return () => {
+      deinitializeSpace();
+    };
+  }, [deinitializeSpace, fetchFlowConfiguration, initializeSpace, spaceId]);
 
   return (
-    <ReactFlowProvider>
-      {isCurrentUserOwner && <ToolBar />}
-      {isInitialized && <FlowCanvas />}
-    </ReactFlowProvider>
+    <FlowContext.Provider value={{ isCurrentUserOwner }}>
+      <ReactFlowProvider>
+        {isCurrentUserOwner && <ToolBar />}
+        {isInitialized && <FlowCanvas />}
+      </ReactFlowProvider>
+    </FlowContext.Provider>
   );
 }
