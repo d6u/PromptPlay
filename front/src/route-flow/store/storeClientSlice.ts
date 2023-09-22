@@ -70,11 +70,21 @@ export const createClientSlice: StateCreator<FlowState, [], [], ClientSlice> = (
     ...CLIENT_SLICE_INITIAL_STATE,
 
     initializeSpace(spaceId: string) {
-      set({ spaceId });
+      set({ spaceId, isInitialized: false });
+
+      get()
+        .fetchFlowConfiguration()
+        .subscribe({
+          complete() {
+            set({ isInitialized: true });
+          },
+        });
     },
 
     deinitializeSpace() {
-      set({ spaceId: null });
+      set({ spaceId: null, isInitialized: false });
+
+      get().cancelFetchFlowConfiguration();
     },
 
     setDetailPanelContentType(type: DetailPanelContentType) {

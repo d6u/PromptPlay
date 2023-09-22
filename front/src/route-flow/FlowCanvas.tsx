@@ -44,7 +44,6 @@ const selector = (state: FlowState) => ({
   edges: state.edges,
   addNode: state.addNode,
   updateNode: state.updateNode,
-  updateNodeConfigDebounced: state.updateNodeConfigDebounced,
   onNodesChange: state.onNodesChange,
   onEdgesChange: state.onEdgesChange,
   onConnect: state.onConnect,

@@ -12,7 +12,6 @@ const selector = (state: FlowState) => ({
   initializeSpace: state.initializeSpace,
   deinitializeSpace: state.deinitializeSpace,
   isInitialized: state.isInitialized,
-  fetchFlowConfiguration: state.fetchFlowConfiguration,
 });
 
 export default function RouteFlow() {
@@ -21,22 +20,16 @@ export default function RouteFlow() {
 
   const { isCurrentUserOwner } = useLoaderData() as FlowLoaderData;
 
-  const {
-    initializeSpace,
-    deinitializeSpace,
-    isInitialized,
-    fetchFlowConfiguration,
-  } = useFlowStore(selector);
+  const { initializeSpace, deinitializeSpace, isInitialized } =
+    useFlowStore(selector);
 
   useEffect(() => {
     initializeSpace(spaceId);
 
-    fetchFlowConfiguration(spaceId);
-
     return () => {
       deinitializeSpace();
     };
-  }, [deinitializeSpace, fetchFlowConfiguration, initializeSpace, spaceId]);
+  }, [deinitializeSpace, initializeSpace, spaceId]);
 
   return (
     <FlowContext.Provider value={{ isCurrentUserOwner }}>
