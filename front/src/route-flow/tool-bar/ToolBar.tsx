@@ -80,6 +80,10 @@ export default function ToolBar() {
 
   const options = [
     {
+      label: "Add Text",
+      onClick: () => addNodeWithType(NodeType.TextTemplate),
+    },
+    {
       label: "Add ChatGPT Message",
       onClick: () => addNodeWithType(NodeType.ChatGPTMessageNode),
     },

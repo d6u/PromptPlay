@@ -31,6 +31,7 @@ import {
   NodeType,
   OutputID,
   OutputNodeConfig,
+  TextTemplateNodeConfig,
   VariableValueMap,
 } from "./types-flow-content";
 import { NodeAugment } from "./types-local-state";
@@ -188,7 +189,17 @@ export function run(
           break;
         }
         case NodeType.TextTemplate: {
-          throw new Error("Not implemented yet: NodeType.TextTemplate case");
+          obs = handleTextTemplateNode(
+            nodeConfig,
+            inputIdToOutputIdMap,
+            outputIdToValueMap
+          ).pipe(
+            map((changes) => ({
+              type: RunEventType.VariableValueChanges,
+              changes,
+            }))
+          );
+          break;
         }
       }
 
@@ -412,5 +423,44 @@ function handleChatGPTChatNode(
         });
       })
     );
+  });
+}
+
+function handleTextTemplateNode(
+  data: TextTemplateNodeConfig,
+  inputIdToOutputIdMap: Record<InputID, OutputID | undefined>,
+  variableValueMap: VariableValueMap
+): Observable<VariableValueMap> {
+  return defer(() => {
+    // Prepare inputs
+    // ----------
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const argsMap: Record<string, any> = {};
+
+    for (const input of data.inputs) {
+      const outputId = inputIdToOutputIdMap[input.id];
+
+      if (outputId) {
+        const outputValue = variableValueMap[outputId];
+        argsMap[input.name] = outputValue ?? null;
+      } else {
+        argsMap[input.name] = null;
+      }
+    }
+
+    // Execute logic
+    // ----------
+
+    const content = mustache.render(data.content, argsMap);
+
+    // Update outputs
+    // ----------
+
+    variableValueMap[data.outputs[0].id] = content;
+
+    return of({
+      [data.outputs[0].id]: content,
+    });
   });
 }

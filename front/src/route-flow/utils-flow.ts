@@ -178,10 +178,6 @@ export function createNodeConfig(node: LocalNode): NodeConfig {
         nodeType: NodeType.TextTemplate,
         inputs: [
           {
-            id: `${node.id}/messages_in` as InputID,
-            name: "messages",
-          },
-          {
             id: `${node.id}/${randomId()}` as InputID,
             name: "topic",
           },

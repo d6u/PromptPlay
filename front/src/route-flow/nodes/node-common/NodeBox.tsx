@@ -70,6 +70,11 @@ const Backdrop = styled.div<{ $type: NodeType; $state: NodeState }>`
         return css`
           background: url(${background});
         `;
+      case NodeType.TextTemplate: {
+        return css`
+          background: linear-gradient(22deg, #98ecff 0%, #5cc5e0 100%);
+        `;
+      }
     }
   }}
 `;

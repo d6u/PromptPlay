@@ -14,10 +14,10 @@ import ChatGPTMessageNode from "./nodes/ChatGPTMessageNode";
 import InputNode from "./nodes/InputNode";
 import JavaScriptFunctionNode from "./nodes/JavaScriptFunctionNode";
 import OutputNode from "./nodes/OutputNode";
+import TextTemplateNode from "./nodes/TextTemplateNode";
 import SidePanel from "./side-panel/SidePanel";
 import { useFlowStore } from "./store/store-flow";
-import { NodeType } from "./store/types-flow-content";
-import { LocalNode } from "./store/types-flow-content";
+import { LocalNode, NodeType } from "./store/types-flow-content";
 import { FlowState } from "./store/types-local-state";
 
 const NODE_TYPES = {
@@ -26,6 +26,7 @@ const NODE_TYPES = {
   [NodeType.JavaScriptFunctionNode]: JavaScriptFunctionNode,
   [NodeType.ChatGPTMessageNode]: ChatGPTMessageNode,
   [NodeType.ChatGPTChatCompletionNode]: ChatGPTChatCompletionNode,
+  [NodeType.TextTemplate]: TextTemplateNode,
 };
 
 const Container = styled.div`
@@ -37,13 +38,8 @@ const Container = styled.div`
 `;
 
 const selector = (state: FlowState) => ({
-  resetAugments: state.resetAugments,
-  updateNodeAguemnt: state.updateNodeAugment,
-  nodeConfigs: state.nodeConfigs,
-  isRunning: state.isRunning,
   nodes: state.nodes,
   edges: state.edges,
-  addNode: state.addNode,
   updateNode: state.updateNode,
   onNodesChange: state.onNodesChange,
   onEdgesChange: state.onEdgesChange,
