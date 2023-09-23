@@ -20,58 +20,12 @@ import { LocalNode } from "./store/types-flow-content";
 const chance = new Chance();
 
 export function createNode(type: NodeType, x: number, y: number): ServerNode {
-  const position = { x, y };
-
-  switch (type) {
-    case NodeType.InputNode: {
-      return {
-        id: randomId() as NodeID,
-        type: NodeType.InputNode,
-        position,
-        data: null,
-      };
-    }
-    case NodeType.OutputNode: {
-      return {
-        id: randomId() as NodeID,
-        position,
-        type: NodeType.OutputNode,
-        data: null,
-      };
-    }
-    case NodeType.JavaScriptFunctionNode: {
-      return {
-        id: randomId() as NodeID,
-        position,
-        type: NodeType.JavaScriptFunctionNode,
-        data: null,
-      };
-    }
-    case NodeType.ChatGPTMessageNode: {
-      return {
-        id: randomId() as NodeID,
-        position,
-        type: NodeType.ChatGPTMessageNode,
-        data: null,
-      };
-    }
-    case NodeType.ChatGPTChatCompletionNode: {
-      return {
-        id: randomId() as NodeID,
-        position,
-        type: NodeType.ChatGPTChatCompletionNode,
-        data: null,
-      };
-    }
-    case NodeType.TextTemplate: {
-      return {
-        id: randomId() as NodeID,
-        position,
-        type: NodeType.TextTemplate,
-        data: null,
-      };
-    }
-  }
+  return {
+    id: randomId() as NodeID,
+    type,
+    position: { x, y },
+    data: null,
+  };
 }
 
 export function createNodeConfig(node: LocalNode): NodeConfig {
@@ -187,6 +141,25 @@ export function createNodeConfig(node: LocalNode): NodeConfig {
           {
             id: `${node.id}/content` as OutputID,
             name: "content",
+          },
+        ],
+      };
+    }
+    case NodeType.HuggingFaceInference: {
+      return {
+        nodeId: node.id,
+        nodeType: NodeType.HuggingFaceInference,
+        inputs: [
+          {
+            id: `${node.id}/parameters` as InputID,
+            name: "parameters",
+          },
+        ],
+        model: "gpt2",
+        outputs: [
+          {
+            id: `${node.id}/output` as OutputID,
+            name: "output",
           },
         ],
       };

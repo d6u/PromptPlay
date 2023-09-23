@@ -79,6 +79,15 @@ export default function ToolBar() {
   }, []);
 
   const options = [
+    { label: "Add Input", onClick: () => addNodeWithType(NodeType.InputNode) },
+    {
+      label: "Add Output",
+      onClick: () => addNodeWithType(NodeType.OutputNode),
+    },
+    {
+      label: "Add JavaScript",
+      onClick: () => addNodeWithType(NodeType.JavaScriptFunctionNode),
+    },
     {
       label: "Add Text",
       onClick: () => addNodeWithType(NodeType.TextTemplate),
@@ -92,13 +101,8 @@ export default function ToolBar() {
       onClick: () => addNodeWithType(NodeType.ChatGPTChatCompletionNode),
     },
     {
-      label: "Add JavaScript",
-      onClick: () => addNodeWithType(NodeType.JavaScriptFunctionNode),
-    },
-    { label: "Add Input", onClick: () => addNodeWithType(NodeType.InputNode) },
-    {
-      label: "Add Output",
-      onClick: () => addNodeWithType(NodeType.OutputNode),
+      label: "Add Hugging Face Inference",
+      onClick: () => addNodeWithType(NodeType.HuggingFaceInference),
     },
   ];
 
@@ -171,7 +175,7 @@ export default function ToolBar() {
   );
 }
 
-const USE_NARROW_LAYOUT_BREAKPOINT = 1150;
+const USE_NARROW_LAYOUT_BREAKPOINT = 1550;
 
 const Container = styled.div`
   height: 51px;

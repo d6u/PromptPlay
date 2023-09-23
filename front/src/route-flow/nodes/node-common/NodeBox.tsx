@@ -75,6 +75,11 @@ const Backdrop = styled.div<{ $type: NodeType; $state: NodeState }>`
           background: linear-gradient(22deg, #98ecff 0%, #5cc5e0 100%);
         `;
       }
+      case NodeType.HuggingFaceInference: {
+        return css`
+          background: linear-gradient(22deg, #fa97b6 0%, #e081fe 100%);
+        `;
+      }
     }
   }}
 `;

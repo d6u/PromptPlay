@@ -17,11 +17,13 @@ import {
   concat,
   defer,
 } from "rxjs";
+import * as HF from "../../integrations/hugging-face";
 import * as OpenAI from "../../integrations/openai";
 import { useLocalStorageStore, useSpaceStore } from "../../state/appState";
 import {
   ChatGPTChatCompletionNodeConfig,
   ChatGPTMessageNodeConfig,
+  HuggingFaceInferenceNodeConfig,
   InputID,
   JavaScriptFunctionNodeConfig,
   LocalEdge,
@@ -201,6 +203,19 @@ export function run(
           );
           break;
         }
+        case NodeType.HuggingFaceInference: {
+          obs = handleHuggingFaceInferenceNode(
+            nodeConfig,
+            inputIdToOutputIdMap,
+            outputIdToValueMap
+          ).pipe(
+            map((changes) => ({
+              type: RunEventType.VariableValueChanges,
+              changes,
+            }))
+          );
+          break;
+        }
       }
 
       return obs.pipe(
@@ -249,6 +264,10 @@ function handleOutputNode(
   variableValueMap: VariableValueMap
 ): Observable<VariableValueMap> {
   const changes: VariableValueMap = {};
+
+  console.log("data", data);
+  console.log("inputIdToOutputIdMap", inputIdToOutputIdMap);
+  console.log("variableValueMap", variableValueMap);
 
   for (const input of data.inputs) {
     const outputId = inputIdToOutputIdMap[input.id];
@@ -462,5 +481,64 @@ function handleTextTemplateNode(
     return of({
       [data.outputs[0].id]: content,
     });
+  });
+}
+
+function handleHuggingFaceInferenceNode(
+  data: HuggingFaceInferenceNodeConfig,
+  inputIdToOutputIdMap: Record<InputID, OutputID | undefined>,
+  variableValueMap: VariableValueMap
+): Observable<VariableValueMap> {
+  return defer(() => {
+    // Prepare inputs
+    // ----------
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const argsMap: { [key: string]: any } = {};
+
+    for (const input of data.inputs) {
+      const outputId = inputIdToOutputIdMap[input.id];
+
+      if (outputId) {
+        const outputValue = variableValueMap[outputId];
+        argsMap[input.name] = outputValue ?? null;
+      } else {
+        argsMap[input.name] = null;
+      }
+    }
+
+    // Execute logic
+    // ----------
+
+    const huggingFaceApiToken =
+      useLocalStorageStore.getState().huggingFaceApiToken;
+    if (!huggingFaceApiToken) {
+      // console.error("Hugging Face API token is missing");
+      useSpaceStore.getState().setMissingHuggingFaceApiToken(true);
+      return throwError(() => new Error("Hugging Face API token is missing"));
+    }
+
+    return from(
+      HF.callInferenceApi(
+        { apiToken: huggingFaceApiToken, model: data.model },
+        argsMap["parameters"]
+      )
+    ).pipe(
+      map((result) => {
+        if (result.isError) {
+          if (result.data) {
+            throw result.data;
+          } else {
+            throw new Error("Unknown error");
+          }
+        }
+
+        variableValueMap[data.outputs[0].id] = result.data;
+
+        return {
+          [data.outputs[0].id]: result.data,
+        };
+      })
+    );
   });
 }

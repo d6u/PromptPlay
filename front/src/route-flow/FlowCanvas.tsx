@@ -11,6 +11,7 @@ import "reactflow/dist/style.css";
 import FlowContext from "./FlowContext";
 import ChatGPTChatCompletionNode from "./nodes/ChatGPTChatCompletionNode";
 import ChatGPTMessageNode from "./nodes/ChatGPTMessageNode";
+import HuggingFaceInferenceNode from "./nodes/HuggingFaceInferenceNode";
 import InputNode from "./nodes/InputNode";
 import JavaScriptFunctionNode from "./nodes/JavaScriptFunctionNode";
 import OutputNode from "./nodes/OutputNode";
@@ -27,6 +28,7 @@ const NODE_TYPES = {
   [NodeType.ChatGPTMessageNode]: ChatGPTMessageNode,
   [NodeType.ChatGPTChatCompletionNode]: ChatGPTChatCompletionNode,
   [NodeType.TextTemplate]: TextTemplateNode,
+  [NodeType.HuggingFaceInference]: HuggingFaceInferenceNode,
 };
 
 const Container = styled.div`

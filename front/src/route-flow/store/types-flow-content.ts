@@ -48,6 +48,7 @@ export enum NodeType {
   ChatGPTMessageNode = "ChatGPTMessageNode",
   ChatGPTChatCompletionNode = "ChatGPTChatCompletionNode",
   TextTemplate = "TextTemplate",
+  HuggingFaceInference = "HuggingFaceInference",
 }
 
 export type NodeConfig =
@@ -56,7 +57,8 @@ export type NodeConfig =
   | ChatGPTMessageNodeConfig
   | ChatGPTChatCompletionNodeConfig
   | JavaScriptFunctionNodeConfig
-  | TextTemplateNodeConfig;
+  | TextTemplateNodeConfig
+  | HuggingFaceInferenceNodeConfig;
 
 export type NodeConfigCommon = {
   nodeId: NodeID;
@@ -117,6 +119,16 @@ export type TextTemplateNodeConfig = NodeConfigCommon & {
   nodeType: NodeType.TextTemplate;
   inputs: NodeInputItem[];
   content: string;
+  outputs: NodeOutputItem[];
+};
+
+// Hugging Face Inference
+
+// Reference: https://huggingface.co/docs/api-inference/index
+export type HuggingFaceInferenceNodeConfig = NodeConfigCommon & {
+  nodeType: NodeType.HuggingFaceInference;
+  inputs: NodeInputItem[];
+  model: string;
   outputs: NodeOutputItem[];
 };
 
