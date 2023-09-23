@@ -6,32 +6,9 @@ import { useFlowStore } from "../store/store-flow";
 import { FlowState } from "../store/types-local-state";
 import { DetailPanelContentType } from "../store/types-local-state";
 import PanelChatGPTMessageConfig from "./PanelChatGPTMessageConfig";
-import PanelEvaluationModeSimple from "./PanelEvaluationModeSimple";
 import PanelNodeConfig from "./PanelNodeConfig";
 import PanelEvaluationModeCSV from "./csv-evaluation/PanelEvaluationModeCSV";
-
-const Container = styled.div<{ $hide: boolean }>`
-  position: relative;
-  height: 100%;
-  background-color: #fff;
-  border-left: 1px solid #ddd;
-  display: ${(props) => (props.$hide ? "none" : "initial")};
-`;
-
-const StyledCloseButtonWrapper = styled.div`
-  position: absolute;
-  top: 5px;
-  left: -45px;
-`;
-
-const StyledIconCross = styled(CrossIcon)`
-  width: 16px;
-`;
-
-const Content = styled.div`
-  height: 100%;
-  overflow-y: auto;
-`;
+import PanelEvaluationModeSimple from "./simple-evaluaton/PanelEvaluationModeSimple";
 
 const selector = (state: FlowState) => ({
   detailPanelContentType: state.detailPanelContentType,
@@ -79,3 +56,26 @@ export default function SidePanel() {
     </Container>
   );
 }
+
+const Container = styled.div<{ $hide: boolean }>`
+  position: relative;
+  height: 100%;
+  background-color: #fff;
+  border-left: 1px solid #ddd;
+  display: ${(props) => (props.$hide ? "none" : "initial")};
+`;
+
+const StyledCloseButtonWrapper = styled.div`
+  position: absolute;
+  top: 5px;
+  left: -45px;
+`;
+
+const StyledIconCross = styled(CrossIcon)`
+  width: 16px;
+`;
+
+const Content = styled.div`
+  height: 100%;
+  overflow-y: auto;
+`;

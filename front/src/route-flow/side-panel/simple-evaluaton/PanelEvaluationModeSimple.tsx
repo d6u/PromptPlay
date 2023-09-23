@@ -1,15 +1,16 @@
+import styled from "@emotion/styled";
 import { A, D } from "@mobily/ts-belt";
 import { Button } from "@mui/joy";
 import { ReactNode, useContext } from "react";
-import FlowContext from "../FlowContext";
+import FlowContext from "../../FlowContext";
 import {
   flowInputItemsWithNodeConfigSelector,
   flowOutputItemsSelector,
   useFlowStore,
-} from "../store/store-flow";
-import { InputValueType } from "../store/types-flow-content";
-import { FlowState } from "../store/types-local-state";
-import InputBlock from "./InputBlock";
+} from "../../store/store-flow";
+import { InputValueType } from "../../store/types-flow-content";
+import { FlowState } from "../../store/types-local-state";
+import InputBlock from "../InputBlock";
 import {
   Section,
   HeaderSectionHeader,
@@ -17,7 +18,7 @@ import {
   OutputValueItem,
   HeaderSection,
   RawValue,
-} from "./controls-common";
+} from "../controls-common";
 
 const selector = (state: FlowState) => ({
   runFlow: state.runFlow,
@@ -28,7 +29,7 @@ const selector = (state: FlowState) => ({
   updateDefaultVariableValueMap: state.updateDefaultVariableValueMap,
 });
 
-export default function EvaluationModeSimpleContent() {
+export default function PanelEvaluationModeSimple() {
   const { isCurrentUserOwner } = useContext(FlowContext);
 
   const {
@@ -41,7 +42,7 @@ export default function EvaluationModeSimpleContent() {
   } = useFlowStore(selector);
 
   return (
-    <>
+    <Container>
       <HeaderSection>
         <HeaderSectionHeader>Input variables</HeaderSectionHeader>
         {isCurrentUserOwner && (
@@ -108,6 +109,12 @@ export default function EvaluationModeSimpleContent() {
           );
         })}
       </Section>
-    </>
+    </Container>
   );
 }
+
+const Container = styled.div`
+  width: 50vw;
+  max-width: 600px;
+  padding: 20px;
+`;

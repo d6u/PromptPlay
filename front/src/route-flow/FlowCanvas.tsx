@@ -31,14 +31,6 @@ const NODE_TYPES = {
   [NodeType.HuggingFaceInference]: HuggingFaceInferenceNode,
 };
 
-const Container = styled.div`
-  height: 100%;
-  flex-grow: 1;
-  min-height: 0;
-  display: flex;
-  position: relative;
-`;
-
 const selector = (state: FlowState) => ({
   nodes: state.nodes,
   edges: state.edges,
@@ -88,3 +80,11 @@ export default function FlowCanvas() {
     </Container>
   );
 }
+
+const Container = styled.div`
+  height: 100%;
+  flex-grow: 1;
+  min-height: 0;
+  display: flex;
+  position: relative;
+`;
