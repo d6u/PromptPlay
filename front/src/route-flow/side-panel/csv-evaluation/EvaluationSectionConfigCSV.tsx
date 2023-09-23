@@ -23,6 +23,7 @@ import {
 } from "../../store/store-flow";
 import { VariableID } from "../../store/types-flow-content";
 import { FlowState } from "../../store/types-local-state";
+import OutputDisplay from "../OutputDisplay";
 import { Section } from "../controls-common";
 import {
   CSVData,
@@ -49,7 +50,7 @@ type Props = {
   onStopRunning: () => void;
 };
 
-export default function ConfigCSVEvaluationSection(props: Props) {
+export default function EvaluationSectionConfigCSV(props: Props) {
   const {
     flowInputItems,
     flowOutputItems,
@@ -188,7 +189,11 @@ export default function ConfigCSVEvaluationSection(props: Props) {
           ] ?? "";
 
         cells.push(
-          <td key={`${outputItem.id}-result-${colIndex}`}>{value}</td>
+          <td key={`${outputItem.id}-result-${colIndex}`}>
+            <pre style={{ whiteSpace: "pre-wrap", margin: 0 }}>
+              <OutputDisplay value={value} />
+            </pre>
+          </td>
         );
       }
     }

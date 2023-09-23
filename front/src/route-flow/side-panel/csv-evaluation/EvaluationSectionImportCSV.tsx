@@ -18,7 +18,7 @@ const selector = (state: FlowState) => ({
   setCsvContent: state.csvEvaluationSetLocalCsvContent,
 });
 
-export default function ImportCSVSection(props: Props) {
+export default function EvaluationSectionImportCSV(props: Props) {
   const { csvContent, setCsvContent } = useFlowStore(selector);
 
   return (

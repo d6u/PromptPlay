@@ -2,40 +2,20 @@ import { A, D } from "@mobily/ts-belt";
 import { AccordionGroup } from "@mui/joy";
 import Papa from "papaparse";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import {
-  Observable,
-  Subscription,
-  concatMap,
-  from,
-  map,
-  mergeMap,
-  range,
-  reduce,
-} from "rxjs";
+import { Subscription } from "rxjs";
 import { useQuery } from "urql";
 import { graphql } from "../../../gql";
-import {
-  FlowInputVariableMap,
-  FlowOutputVariableMap,
-  RunEvent,
-  RunEventType,
-  run,
-} from "../../store/flow-run";
+import { FlowOutputVariableMap } from "../../store/flow-run";
 import {
   ColumnIndex,
   RowIndex,
-  VariableColumnMap,
 } from "../../store/store-csv-evaluation-preset-slice";
 import { useFlowStore } from "../../store/store-flow";
-import {
-  LocalEdge,
-  NodeConfigs,
-  OutputID,
-} from "../../store/types-flow-content";
 import { FlowState } from "../../store/types-local-state";
-import ConfigCSVEvaluationSection from "./ConfigCSVEvaluationSection";
-import ImportCSVSection from "./ImportCSVSection";
+import EvaluationSectionConfigCSV from "./EvaluationSectionConfigCSV";
+import EvaluationSectionImportCSV from "./EvaluationSectionImportCSV";
 import { CSVData, CSVHeader } from "./csv-evaluation-common";
+import { runForEachRow } from "./csv-evaluation-util";
 
 const EVALUATION_MODE_CSV_CONTENT_QUERY = graphql(`
   query EvaluationModeCSVContentQuery($spaceId: UUID!, $presetId: ID!) {
@@ -65,7 +45,7 @@ const selector = (state: FlowState) => ({
   setGeneratedResult: state.csvEvaluationSetGeneratedResult,
 });
 
-export default function EvaluationModeCSVContent() {
+export default function PresetContent() {
   const {
     spaceId,
     edges,
@@ -219,8 +199,8 @@ export default function EvaluationModeCSVContent() {
   return (
     <>
       <AccordionGroup size="lg">
-        <ImportCSVSection csvHeaders={csvHeaders} csvBody={csvBody} />
-        <ConfigCSVEvaluationSection
+        <EvaluationSectionImportCSV csvHeaders={csvHeaders} csvBody={csvBody} />
+        <EvaluationSectionConfigCSV
           csvHeaders={csvHeaders}
           csvBody={csvBody}
           isRunning={isRunning}
@@ -229,62 +209,5 @@ export default function EvaluationModeCSVContent() {
         />
       </AccordionGroup>
     </>
-  );
-}
-
-type ResultEvent = {
-  iteratonIndex: number;
-  rowIndex: number;
-  outputs: FlowOutputVariableMap;
-};
-
-function runForEachRow({
-  edges,
-  nodeConfigs,
-  csvBody,
-  variableColumnMap,
-  repeatCount,
-  concurrent = 1,
-}: {
-  edges: LocalEdge[];
-  nodeConfigs: NodeConfigs;
-  csvBody: CSVData;
-  variableColumnMap: VariableColumnMap;
-  repeatCount: number;
-  concurrent?: number;
-}): Observable<ResultEvent> {
-  return range(0, repeatCount).pipe(
-    concatMap((iteratonIndex) => {
-      return from(csvBody).pipe(
-        map((row) => {
-          const inputVariableMap: FlowInputVariableMap = {};
-
-          for (const [inputId, colIndex] of Object.entries(variableColumnMap)) {
-            const value = colIndex != null ? row[colIndex] : null;
-            inputVariableMap[inputId as OutputID] = value;
-          }
-
-          return inputVariableMap;
-        }),
-        mergeMap((inputVariableMap, rowIndex) => {
-          return run(edges, nodeConfigs, inputVariableMap).pipe(
-            reduce<RunEvent, FlowOutputVariableMap>((acc, event) => {
-              if (event.type !== RunEventType.VariableValueChanges) {
-                return acc;
-              }
-
-              const changes = event.changes;
-
-              for (const [variableId, value] of Object.entries(changes)) {
-                acc = D.set(acc, variableId, value);
-              }
-
-              return acc;
-            }, {}),
-            map((outputs) => ({ iteratonIndex, rowIndex, outputs }))
-          );
-        }, concurrent)
-      );
-    })
   );
 }

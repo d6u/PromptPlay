@@ -1,7 +1,7 @@
 import styled from "@emotion/styled";
 import { A, D } from "@mobily/ts-belt";
 import { Button } from "@mui/joy";
-import { ReactNode, useContext } from "react";
+import { useContext } from "react";
 import FlowContext from "../../FlowContext";
 import {
   flowInputItemsWithNodeConfigSelector,
@@ -11,6 +11,7 @@ import {
 import { InputValueType } from "../../store/types-flow-content";
 import { FlowState } from "../../store/types-local-state";
 import InputBlock from "../InputBlock";
+import OutputDisplay from "../OutputDisplay";
 import {
   Section,
   HeaderSectionHeader,
@@ -93,18 +94,12 @@ export default function PanelEvaluationModeSimple() {
         {flowOutputItems.map((output, i) => {
           const value = variableValueMap[output.id];
 
-          let content: ReactNode;
-
-          if (typeof value === "string") {
-            content = value;
-          } else {
-            content = JSON.stringify(value, null, 2);
-          }
-
           return (
             <OutputValueItem key={output.id}>
               <OutputValueName>{output.name}</OutputValueName>
-              <RawValue>{content}</RawValue>
+              <RawValue>
+                <OutputDisplay value={value} />
+              </RawValue>
             </OutputValueItem>
           );
         })}
