@@ -265,10 +265,6 @@ function handleOutputNode(
 ): Observable<VariableValueMap> {
   const changes: VariableValueMap = {};
 
-  console.log("data", data);
-  console.log("inputIdToOutputIdMap", inputIdToOutputIdMap);
-  console.log("variableValueMap", variableValueMap);
-
   for (const input of data.inputs) {
     const outputId = inputIdToOutputIdMap[input.id];
 
