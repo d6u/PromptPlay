@@ -3,6 +3,7 @@ import Chance from "chance";
 import { ChatGPTMessageRole } from "../integrations/openai";
 import propEq from "../util/propEq";
 import randomId from "../util/randomId";
+import { LocalNode } from "./store/flowStore";
 import {
   InputID,
   InputValueType,
@@ -14,8 +15,7 @@ import {
   OutputID,
   ServerEdge,
   ServerNode,
-} from "./flowTypes";
-import { LocalNode } from "./store/flowStore";
+} from "./store/types-flow-content";
 
 const chance = new Chance();
 

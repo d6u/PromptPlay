@@ -20,6 +20,12 @@ import { client } from "../../state/urql";
 import fromWonka from "../../util/fromWonka";
 import propEq from "../../util/propEq";
 import { DEFAULT_EDGE_STYLE, DRAG_HANDLE_CLASS_NAME } from "../flowConstants";
+import { createNode, createNodeConfig, rejectInvalidEdges } from "../flowUtils";
+import {
+  SPACE_FLOW_QUERY,
+  UPDATE_SPACE_FLOW_CONTENT_MUTATION,
+} from "./flowGraphql";
+import { FlowState, LocalNode } from "./flowStore";
 import {
   FlowContent,
   LocalEdge,
@@ -29,13 +35,7 @@ import {
   NodeType,
   VariableID,
   VariableValueMap,
-} from "../flowTypes";
-import { createNode, createNodeConfig, rejectInvalidEdges } from "../flowUtils";
-import {
-  SPACE_FLOW_QUERY,
-  UPDATE_SPACE_FLOW_CONTENT_MUTATION,
-} from "./flowGraphql";
-import { FlowState, LocalNode } from "./flowStore";
+} from "./types-flow-content";
 
 type FlowServerSliceState = {
   nodes: LocalNode[];

@@ -21,7 +21,6 @@ import {
   RunEventType,
   run,
 } from "../../flowRun";
-import { LocalEdge, NodeConfigs, OutputID } from "../../flowTypes";
 import { useFlowStore } from "../../store/flowStore";
 import { FlowState } from "../../store/flowStore";
 import {
@@ -29,6 +28,11 @@ import {
   RowIndex,
   VariableColumnMap,
 } from "../../store/storeCsvEvaluationPresetSlice";
+import {
+  LocalEdge,
+  NodeConfigs,
+  OutputID,
+} from "../../store/types-flow-content";
 import ConfigCSVEvaluationSection from "./ConfigCSVEvaluationSection";
 import ImportCSVSection from "./ImportCSVSection";
 import { CSVData, CSVHeader } from "./csv-evaluation-common";

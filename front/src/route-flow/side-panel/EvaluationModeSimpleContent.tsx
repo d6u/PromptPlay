@@ -2,13 +2,13 @@ import { A, D } from "@mobily/ts-belt";
 import { Button } from "@mui/joy";
 import { ReactNode, useContext } from "react";
 import FlowContext from "../FlowContext";
-import { InputValueType } from "../flowTypes";
 import {
   flowInputItemsWithNodeConfigSelector,
   flowOutputItemsSelector,
   useFlowStore,
 } from "../store/flowStore";
 import { FlowState } from "../store/flowStore";
+import { InputValueType } from "../store/types-flow-content";
 import InputBlock from "./InputBlock";
 import {
   Section,

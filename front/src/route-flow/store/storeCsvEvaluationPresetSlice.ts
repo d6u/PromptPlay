@@ -3,8 +3,8 @@ import { StateCreator } from "zustand";
 import { graphql } from "../../gql";
 import { client } from "../../state/urql";
 import { FlowOutputVariableMap } from "../flowRun";
-import { VariableID } from "../flowTypes";
 import { FlowState } from "./flowStore";
+import { VariableID } from "./types-flow-content";
 
 type ConfigContent = {
   repeatCount: number;

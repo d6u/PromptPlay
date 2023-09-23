@@ -1,5 +1,5 @@
 import { Edge, XYPosition } from "reactflow";
-import { ChatGPTMessageRole } from "../integrations/openai";
+import { ChatGPTMessageRole } from "../../integrations/openai";
 
 // See https://stackoverflow.com/questions/41790393/typescript-strict-alias-checking
 // for the usage of `& { readonly "": unique symbol }`

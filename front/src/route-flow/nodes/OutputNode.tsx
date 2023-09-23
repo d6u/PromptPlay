@@ -5,15 +5,15 @@ import { useContext, useMemo, useState } from "react";
 import { Position, useUpdateNodeInternals, useNodeId } from "reactflow";
 import randomId from "../../util/randomId";
 import FlowContext from "../FlowContext";
+import { FlowState, useFlowStore } from "../store/flowStore";
+import { DetailPanelContentType } from "../store/storeClientSlice";
 import {
   FlowOutputItem,
   InputID,
   NodeID,
   NodeType,
   OutputNodeConfig,
-} from "../flowTypes";
-import { FlowState, useFlowStore } from "../store/flowStore";
-import { DetailPanelContentType } from "../store/storeClientSlice";
+} from "../store/types-flow-content";
 import AddVariableButton from "./node-common/AddVariableButton";
 import HeaderSection from "./node-common/HeaderSection";
 import NodeBox from "./node-common/NodeBox";

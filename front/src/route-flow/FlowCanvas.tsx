@@ -9,7 +9,6 @@ import ReactFlow, {
 } from "reactflow";
 import "reactflow/dist/style.css";
 import FlowContext from "./FlowContext";
-import { NodeType } from "./flowTypes";
 import ChatGPTChatCompletionNode from "./nodes/ChatGPTChatCompletionNode";
 import ChatGPTMessageNode from "./nodes/ChatGPTMessageNode";
 import InputNode from "./nodes/InputNode";
@@ -18,6 +17,7 @@ import OutputNode from "./nodes/OutputNode";
 import SidePanel from "./side-panel/SidePanel";
 import { useFlowStore } from "./store/flowStore";
 import { FlowState, LocalNode } from "./store/flowStore";
+import { NodeType } from "./store/types-flow-content";
 
 const NODE_TYPES = {
   [NodeType.InputNode]: InputNode,

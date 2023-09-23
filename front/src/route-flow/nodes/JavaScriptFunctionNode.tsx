@@ -10,15 +10,15 @@ import FlowContext from "../FlowContext";
 import TextareaReadonly from "../flow-common/TextareaReadonly";
 import { LabelWithIconContainer } from "../flow-common/flow-common";
 import { CopyIcon } from "../flow-common/flow-common";
+import { useFlowStore } from "../store/flowStore";
+import { FlowState } from "../store/flowStore";
 import {
   InputID,
   JavaScriptFunctionNodeConfig,
   NodeID,
   NodeInputItem,
   NodeType,
-} from "../flowTypes";
-import { useFlowStore } from "../store/flowStore";
-import { FlowState } from "../store/flowStore";
+} from "../store/types-flow-content";
 import AddVariableButton from "./node-common/AddVariableButton";
 import HeaderSection from "./node-common/HeaderSection";
 import NodeBox, { NodeState } from "./node-common/NodeBox";

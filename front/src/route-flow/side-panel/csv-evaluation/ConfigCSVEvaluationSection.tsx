@@ -12,7 +12,6 @@ import {
 } from "@mui/joy";
 import { ReactNode, useEffect } from "react";
 import { FlowOutputVariableMap } from "../../flowRun";
-import { VariableID } from "../../flowTypes";
 import {
   FlowState,
   flowInputItemsSelector,
@@ -23,6 +22,7 @@ import {
   RowIndex,
   ColumnIndex,
 } from "../../store/storeCsvEvaluationPresetSlice";
+import { VariableID } from "../../store/types-flow-content";
 import { Section } from "../controls-common";
 import {
   CSVData,

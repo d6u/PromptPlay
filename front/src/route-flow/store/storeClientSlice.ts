@@ -2,13 +2,13 @@ import { D } from "@mobily/ts-belt";
 import { produce } from "immer";
 import { StateCreator } from "zustand";
 import { run, RunEventType } from "../flowRun";
-import { NodeID, VariableID, VariableValueMap } from "../flowTypes";
 import {
   FlowState,
   flowInputItemsSelector,
   NodeAugments,
   NodeAugment,
 } from "./flowStore";
+import { NodeID, VariableID, VariableValueMap } from "./types-flow-content";
 
 export enum DetailPanelContentType {
   Off = "Off",

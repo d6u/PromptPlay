@@ -2,6 +2,12 @@ import { pipe, A, F, flow, D } from "@mobily/ts-belt";
 import { Node } from "reactflow";
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
+import { createClientSlice, ClientSlice } from "./storeClientSlice";
+import {
+  CsvEvaluationPresetSlice,
+  createCsvEvaluationPresetSlice,
+} from "./storeCsvEvaluationPresetSlice";
+import { FlowServerSlice, createFlowServerSlice } from "./storeFlowServerSlice";
 import {
   FlowInputItem,
   FlowOutputItem,
@@ -10,13 +16,7 @@ import {
   OutputNodeConfig,
   NodeID,
   ServerNode,
-} from "../flowTypes";
-import { createClientSlice, ClientSlice } from "./storeClientSlice";
-import {
-  CsvEvaluationPresetSlice,
-  createCsvEvaluationPresetSlice,
-} from "./storeCsvEvaluationPresetSlice";
-import { FlowServerSlice, createFlowServerSlice } from "./storeFlowServerSlice";
+} from "./types-flow-content";
 
 export type LocalNode = Omit<Node<null, NodeType>, "id" | "type" | "data"> &
   ServerNode;

@@ -14,15 +14,15 @@ import randomId from "../../util/randomId";
 import FlowContext from "../FlowContext";
 import TextareaReadonly from "../flow-common/TextareaReadonly";
 import { CopyIcon, LabelWithIconContainer } from "../flow-common/flow-common";
+import { FlowState, useFlowStore } from "../store/flowStore";
+import { DetailPanelContentType } from "../store/storeClientSlice";
 import {
   ChatGPTMessageNodeConfig,
   InputID,
   NodeID,
   NodeInputItem,
   NodeType,
-} from "../flowTypes";
-import { FlowState, useFlowStore } from "../store/flowStore";
-import { DetailPanelContentType } from "../store/storeClientSlice";
+} from "../store/types-flow-content";
 import AddVariableButton from "./node-common/AddVariableButton";
 import HeaderSection from "./node-common/HeaderSection";
 import HelperTextContainer from "./node-common/HelperTextContainer";

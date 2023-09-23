@@ -15,14 +15,14 @@ import {
 } from "../../state/appState";
 import FlowContext from "../FlowContext";
 import InputReadonly from "../flow-common/InputReadonly";
+import { useFlowStore } from "../store/flowStore";
+import { FlowState } from "../store/flowStore";
 import {
   ChatGPTChatCompletionNodeConfig,
   NodeID,
   NodeType,
   OpenAIChatModel,
-} from "../flowTypes";
-import { useFlowStore } from "../store/flowStore";
-import { FlowState } from "../store/flowStore";
+} from "../store/types-flow-content";
 import HeaderSection from "./node-common/HeaderSection";
 import HelperTextContainer from "./node-common/HelperTextContainer";
 import NodeBox, { NodeState } from "./node-common/NodeBox";
