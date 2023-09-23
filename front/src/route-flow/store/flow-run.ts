@@ -17,11 +17,13 @@ import {
   concat,
   defer,
 } from "rxjs";
-import * as OpenAI from "../integrations/openai";
-import { useLocalStorageStore, useSpaceStore } from "../state/appState";
+import * as HF from "../../integrations/hugging-face";
+import * as OpenAI from "../../integrations/openai";
+import { useLocalStorageStore, useSpaceStore } from "../../state/appState";
 import {
   ChatGPTChatCompletionNodeConfig,
   ChatGPTMessageNodeConfig,
+  HuggingFaceInferenceNodeConfig,
   InputID,
   JavaScriptFunctionNodeConfig,
   LocalEdge,
@@ -31,9 +33,10 @@ import {
   NodeType,
   OutputID,
   OutputNodeConfig,
+  TextTemplateNodeConfig,
   VariableValueMap,
-} from "./flowTypes";
-import { NodeAugment } from "./store/flowStore";
+} from "./types-flow-content";
+import { NodeAugment } from "./types-local-state";
 
 const AsyncFunction = async function () {}.constructor;
 
@@ -179,6 +182,32 @@ export function run(
               inputIdToOutputIdMap,
               outputIdToValueMap
             )
+          ).pipe(
+            map((changes) => ({
+              type: RunEventType.VariableValueChanges,
+              changes,
+            }))
+          );
+          break;
+        }
+        case NodeType.TextTemplate: {
+          obs = handleTextTemplateNode(
+            nodeConfig,
+            inputIdToOutputIdMap,
+            outputIdToValueMap
+          ).pipe(
+            map((changes) => ({
+              type: RunEventType.VariableValueChanges,
+              changes,
+            }))
+          );
+          break;
+        }
+        case NodeType.HuggingFaceInference: {
+          obs = handleHuggingFaceInferenceNode(
+            nodeConfig,
+            inputIdToOutputIdMap,
+            outputIdToValueMap
           ).pipe(
             map((changes) => ({
               type: RunEventType.VariableValueChanges,
@@ -407,6 +436,104 @@ function handleChatGPTChatNode(
           [data.outputs[1].id]: message,
           [data.outputs[2].id]: messages,
         });
+      })
+    );
+  });
+}
+
+function handleTextTemplateNode(
+  data: TextTemplateNodeConfig,
+  inputIdToOutputIdMap: Record<InputID, OutputID | undefined>,
+  variableValueMap: VariableValueMap
+): Observable<VariableValueMap> {
+  return defer(() => {
+    // Prepare inputs
+    // ----------
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const argsMap: Record<string, any> = {};
+
+    for (const input of data.inputs) {
+      const outputId = inputIdToOutputIdMap[input.id];
+
+      if (outputId) {
+        const outputValue = variableValueMap[outputId];
+        argsMap[input.name] = outputValue ?? null;
+      } else {
+        argsMap[input.name] = null;
+      }
+    }
+
+    // Execute logic
+    // ----------
+
+    const content = mustache.render(data.content, argsMap);
+
+    // Update outputs
+    // ----------
+
+    variableValueMap[data.outputs[0].id] = content;
+
+    return of({
+      [data.outputs[0].id]: content,
+    });
+  });
+}
+
+function handleHuggingFaceInferenceNode(
+  data: HuggingFaceInferenceNodeConfig,
+  inputIdToOutputIdMap: Record<InputID, OutputID | undefined>,
+  variableValueMap: VariableValueMap
+): Observable<VariableValueMap> {
+  return defer(() => {
+    // Prepare inputs
+    // ----------
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const argsMap: { [key: string]: any } = {};
+
+    for (const input of data.inputs) {
+      const outputId = inputIdToOutputIdMap[input.id];
+
+      if (outputId) {
+        const outputValue = variableValueMap[outputId];
+        argsMap[input.name] = outputValue ?? null;
+      } else {
+        argsMap[input.name] = null;
+      }
+    }
+
+    // Execute logic
+    // ----------
+
+    const huggingFaceApiToken =
+      useLocalStorageStore.getState().huggingFaceApiToken;
+    if (!huggingFaceApiToken) {
+      // console.error("Hugging Face API token is missing");
+      useSpaceStore.getState().setMissingHuggingFaceApiToken(true);
+      return throwError(() => new Error("Hugging Face API token is missing"));
+    }
+
+    return from(
+      HF.callInferenceApi(
+        { apiToken: huggingFaceApiToken, model: data.model },
+        argsMap["parameters"]
+      )
+    ).pipe(
+      map((result) => {
+        if (result.isError) {
+          if (result.data) {
+            throw result.data;
+          } else {
+            throw new Error("Unknown error");
+          }
+        }
+
+        variableValueMap[data.outputs[0].id] = result.data;
+
+        return {
+          [data.outputs[0].id]: result.data,
+        };
       })
     );
   });

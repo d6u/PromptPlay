@@ -1,5 +1,5 @@
-import { Edge, XYPosition } from "reactflow";
-import { ChatGPTMessageRole } from "../integrations/openai";
+import { Edge, Node, XYPosition } from "reactflow";
+import { ChatGPTMessageRole } from "../../integrations/openai";
 
 // See https://stackoverflow.com/questions/41790393/typescript-strict-alias-checking
 // for the usage of `& { readonly "": unique symbol }`
@@ -47,6 +47,8 @@ export enum NodeType {
   JavaScriptFunctionNode = "JavaScriptFunctionNode",
   ChatGPTMessageNode = "ChatGPTMessageNode",
   ChatGPTChatCompletionNode = "ChatGPTChatCompletionNode",
+  TextTemplate = "TextTemplate",
+  HuggingFaceInference = "HuggingFaceInference",
 }
 
 export type NodeConfig =
@@ -54,7 +56,9 @@ export type NodeConfig =
   | OutputNodeConfig
   | ChatGPTMessageNodeConfig
   | ChatGPTChatCompletionNodeConfig
-  | JavaScriptFunctionNodeConfig;
+  | JavaScriptFunctionNodeConfig
+  | TextTemplateNodeConfig
+  | HuggingFaceInferenceNodeConfig;
 
 export type NodeConfigCommon = {
   nodeId: NodeID;
@@ -109,6 +113,25 @@ export enum OpenAIChatModel {
   GPT4 = "gpt-4",
 }
 
+// TextTemplate
+
+export type TextTemplateNodeConfig = NodeConfigCommon & {
+  nodeType: NodeType.TextTemplate;
+  inputs: NodeInputItem[];
+  content: string;
+  outputs: NodeOutputItem[];
+};
+
+// Hugging Face Inference
+
+// Reference: https://huggingface.co/docs/api-inference/index
+export type HuggingFaceInferenceNodeConfig = NodeConfigCommon & {
+  nodeType: NodeType.HuggingFaceInference;
+  inputs: NodeInputItem[];
+  model: string;
+  outputs: NodeOutputItem[];
+};
+
 // Input / Output
 
 export type NodeInputItem = {
@@ -134,6 +157,9 @@ export type FlowOutputItem = NodeInputItem;
 
 // Edge
 // ----
+
+export type LocalNode = Omit<Node<null, NodeType>, "id" | "type" | "data"> &
+  ServerNode;
 
 export type LocalEdge = Omit<
   Edge<never>,

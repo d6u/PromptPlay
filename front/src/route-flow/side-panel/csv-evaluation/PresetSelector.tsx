@@ -4,7 +4,8 @@ import { Autocomplete, AutocompleteOption, Button } from "@mui/joy";
 import { ReactNode, useMemo, useState } from "react";
 import { useQuery } from "urql";
 import { graphql } from "../../../gql";
-import { FlowState, useFlowStore } from "../../store/flowStore";
+import { useFlowStore } from "../../store/store-flow";
+import { FlowState } from "../../store/types-local-state";
 import PresetSaveModal from "./PresetSaveModal";
 
 const PRESET_SELECTOR_QUERY = graphql(`

@@ -1,22 +1,13 @@
 import { D } from "@mobily/ts-belt";
 import { produce } from "immer";
 import { StateCreator } from "zustand";
-import { run, RunEventType } from "../flowRun";
-import { NodeID, VariableID, VariableValueMap } from "../flowTypes";
-import {
-  FlowState,
-  flowInputItemsSelector,
-  NodeAugments,
-  NodeAugment,
-} from "./flowStore";
-
-export enum DetailPanelContentType {
-  Off = "Off",
-  EvaluationModeSimple = "EvaluationModeSimple",
-  EvaluationModeCSV = "EvaluationModeCSV",
-  NodeConfig = "NodeConfig",
-  ChatGPTMessageConfig = "ChatGPTMessageConfig",
-}
+import { run, RunEventType } from "./flow-run";
+import { flowInputItemsSelector } from "./store-flow";
+import { NodeID, VariableID, VariableValueMap } from "./types-flow-content";
+import { FlowState } from "./types-local-state";
+import { NodeAugment } from "./types-local-state";
+import { NodeAugments } from "./types-local-state";
+import { DetailPanelContentType } from "./types-local-state";
 
 type ClientSliceState = {
   spaceId: string | null;

@@ -1,27 +1,29 @@
 import FormControl from "@mui/joy/FormControl";
+import FormHelperText from "@mui/joy/FormHelperText";
 import FormLabel from "@mui/joy/FormLabel";
+import IconButton from "@mui/joy/IconButton";
 import Textarea from "@mui/joy/Textarea";
 import Chance from "chance";
 import { adjust, append, assoc, remove } from "ramda";
-import { useContext, useMemo, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { Position, useUpdateNodeInternals, useNodeId } from "reactflow";
 import randomId from "../../util/randomId";
 import FlowContext from "../FlowContext";
 import TextareaReadonly from "../flow-common/TextareaReadonly";
-import { LabelWithIconContainer } from "../flow-common/flow-common";
-import { CopyIcon } from "../flow-common/flow-common";
+import { CopyIcon, LabelWithIconContainer } from "../flow-common/flow-common";
 import { useFlowStore } from "../store/store-flow";
 import {
   InputID,
-  JavaScriptFunctionNodeConfig,
   NodeID,
   NodeInputItem,
   NodeType,
+  TextTemplateNodeConfig,
 } from "../store/types-flow-content";
 import { FlowState } from "../store/types-local-state";
+import { DetailPanelContentType } from "../store/types-local-state";
 import AddVariableButton from "./node-common/AddVariableButton";
 import HeaderSection from "./node-common/HeaderSection";
-import NodeBox, { NodeState } from "./node-common/NodeBox";
+import NodeBox from "./node-common/NodeBox";
 import NodeInputModifyRow from "./node-common/NodeInputModifyRow";
 import NodeOutputRow from "./node-common/NodeOutputRow";
 import {
@@ -29,6 +31,7 @@ import {
   OutputHandle,
   Section,
   SmallSection,
+  StyledIconGear,
 } from "./node-common/node-common";
 import {
   calculateInputHandleTop,
@@ -41,11 +44,12 @@ const selector = (state: FlowState) => ({
   nodeConfigs: state.nodeConfigs,
   updateNodeConfig: state.updateNodeConfig,
   removeNode: state.removeNode,
-  localNodeAugments: state.localNodeAugments,
+  setDetailPanelContentType: state.setDetailPanelContentType,
+  setDetailPanelSelectedNodeId: state.setDetailPanelSelectedNodeId,
   defaultVariableValueMap: state.getDefaultVariableValueMap(),
 });
 
-export default function JavaScriptFunctionNode() {
+export default function TextTemplateNode() {
   const { isCurrentUserOwner } = useContext(FlowContext);
 
   const nodeId = useNodeId() as NodeID;
@@ -54,18 +58,14 @@ export default function JavaScriptFunctionNode() {
     nodeConfigs,
     updateNodeConfig,
     removeNode,
-    localNodeAugments,
+    setDetailPanelContentType,
+    setDetailPanelSelectedNodeId,
     defaultVariableValueMap,
   } = useFlowStore(selector);
 
   const nodeConfig = useMemo(
-    () => nodeConfigs[nodeId] as JavaScriptFunctionNodeConfig | undefined,
+    () => nodeConfigs[nodeId] as TextTemplateNodeConfig | undefined,
     [nodeConfigs, nodeId]
-  );
-
-  const augment = useMemo(
-    () => localNodeAugments[nodeId],
-    [localNodeAugments, nodeId]
   );
 
   const updateNodeInternals = useUpdateNodeInternals();
@@ -73,17 +73,15 @@ export default function JavaScriptFunctionNode() {
   // It's OK to force unwrap here because nodeConfig will be undefined only
   // when Node is being deleted.
   const [inputs, setInputs] = useState(() => nodeConfig!.inputs);
-  const [javaScriptCode, setJavaScriptCode] = useState(
-    () => nodeConfig!.javaScriptCode
-  );
+  const [content, setContent] = useState(() => nodeConfig!.content);
+
+  useEffect(() => {
+    setContent(() => nodeConfig!.content ?? "");
+  }, [nodeConfig]);
 
   if (!nodeConfig) {
     return null;
   }
-
-  const functionDefinitionPrefix = `async function (${inputs
-    .map((v) => v.name)
-    .join(", ")}) {`;
 
   return (
     <>
@@ -98,19 +96,10 @@ export default function JavaScriptFunctionNode() {
           }}
         />
       ))}
-      <NodeBox
-        nodeType={NodeType.JavaScriptFunctionNode}
-        state={
-          augment?.isRunning
-            ? NodeState.Running
-            : augment?.hasError
-            ? NodeState.Error
-            : NodeState.Idle
-        }
-      >
+      <NodeBox nodeType={NodeType.TextTemplate}>
         <HeaderSection
           isCurrentUserOwner={isCurrentUserOwner}
-          title="JavaScript"
+          title="Text"
           onClickRemove={() => removeNode(nodeId)}
         />
         {isCurrentUserOwner && (
@@ -162,57 +151,94 @@ export default function JavaScriptFunctionNode() {
         <Section>
           <FormControl>
             <LabelWithIconContainer>
-              <FormLabel>
-                <code>{functionDefinitionPrefix}</code>
-              </FormLabel>
+              <FormLabel>Text content</FormLabel>
               <CopyIcon
                 onClick={() => {
-                  navigator.clipboard.writeText(`${functionDefinitionPrefix}
-  ${javaScriptCode.split("\n").join("\n  ")}
-}`);
+                  navigator.clipboard.writeText(content);
                 }}
               />
             </LabelWithIconContainer>
             {isCurrentUserOwner ? (
               <Textarea
-                sx={{ fontFamily: "var(--font-family-mono)" }}
-                minRows={6}
+                color="neutral"
+                variant="outlined"
+                minRows={3}
+                maxRows={5}
                 placeholder="Write JavaScript here"
-                value={javaScriptCode}
+                value={content}
                 onChange={(e) => {
-                  setJavaScriptCode(e.target.value);
+                  setContent(e.target.value);
                 }}
                 onKeyDown={(e) => {
                   if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
-                    updateNodeConfig(nodeId, { javaScriptCode });
+                    updateNodeConfig(nodeId, { content });
                   }
                 }}
                 onBlur={() => {
-                  updateNodeConfig(nodeId, { javaScriptCode });
+                  updateNodeConfig(nodeId, { content });
                 }}
               />
             ) : (
-              <TextareaReadonly value={javaScriptCode} minRows={6} isCode />
+              <TextareaReadonly value={content} minRows={3} maxRows={5} />
             )}
-            <code style={{ fontSize: 12 }}>{"}"}</code>
+            <FormHelperText>
+              <div>
+                <a
+                  href="https://mustache.github.io/"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Mustache template
+                </a>{" "}
+                is used here. TL;DR: use <code>{"{{variableName}}"}</code> to
+                insert a variable.
+              </div>
+            </FormHelperText>
           </FormControl>
         </Section>
         <Section>
-          <NodeOutputRow
-            id={nodeConfig.outputs[0].id}
-            name={nodeConfig.outputs[0].name}
-            value={defaultVariableValueMap[nodeConfig.outputs[0].id]}
-          />
+          <IconButton
+            variant="outlined"
+            onClick={() => {
+              setDetailPanelContentType(
+                DetailPanelContentType.ChatGPTMessageConfig
+              );
+              setDetailPanelSelectedNodeId(nodeId);
+            }}
+          >
+            <StyledIconGear />
+          </IconButton>
+        </Section>
+        <Section>
+          {nodeConfig.outputs.map((output, i) => (
+            <NodeOutputRow
+              key={output.id}
+              id={output.id}
+              name={output.name}
+              value={defaultVariableValueMap[output.id]}
+              onClick={() => {
+                setDetailPanelContentType(
+                  DetailPanelContentType.ChatGPTMessageConfig
+                );
+                setDetailPanelSelectedNodeId(nodeId);
+              }}
+            />
+          ))}
         </Section>
       </NodeBox>
-      <OutputHandle
-        type="source"
-        id={nodeConfig.outputs[0].id}
-        position={Position.Right}
-        style={{
-          bottom: calculateOutputHandleBottom(nodeConfig.outputs.length - 1),
-        }}
-      />
+      {nodeConfig.outputs.map((output, i) => (
+        <OutputHandle
+          key={output.id}
+          type="source"
+          id={output.id}
+          position={Position.Right}
+          style={{
+            bottom: calculateOutputHandleBottom(
+              nodeConfig.outputs.length - 1 - i
+            ),
+          }}
+        />
+      ))}
     </>
   );
 }

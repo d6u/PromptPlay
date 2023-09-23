@@ -12,34 +12,11 @@ import {
 import { useCallback, useContext, useEffect, useState } from "react";
 import { useStoreApi } from "reactflow";
 import FlowContext from "../FlowContext";
-import { NodeType } from "../flowTypes";
 import { NODE_BOX_WIDTH } from "../nodes/node-common/NodeBox";
-import { FlowState, useFlowStore } from "../store/flowStore";
-import { DetailPanelContentType } from "../store/storeClientSlice";
-
-const USE_NARROW_LAYOUT_BREAKPOINT = 1050;
-
-const Container = styled.div`
-  height: 51px;
-  border-bottom: 1px solid #ececf1;
-  padding: 0 20px;
-  flex-shrink: 0;
-  display: grid;
-  grid-template-columns: auto auto;
-`;
-
-const LeftAligned = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 10px;
-`;
-
-const RightAligned = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 5px;
-`;
+import { useFlowStore } from "../store/store-flow";
+import { NodeType } from "../store/types-flow-content";
+import { FlowState } from "../store/types-local-state";
+import { DetailPanelContentType } from "../store/types-local-state";
 
 const selector = (state: FlowState) => ({
   detailPanelContentType: state.detailPanelContentType,
@@ -101,9 +78,41 @@ export default function ToolBar() {
     };
   }, []);
 
-  const shouldShowRunButton =
-    detailPanelContentType !== DetailPanelContentType.EvaluationModeSimple &&
-    detailPanelContentType !== DetailPanelContentType.EvaluationModeCSV;
+  const options = [
+    { label: "Add Input", onClick: () => addNodeWithType(NodeType.InputNode) },
+    {
+      label: "Add Output",
+      onClick: () => addNodeWithType(NodeType.OutputNode),
+    },
+    {
+      label: "Add JavaScript",
+      onClick: () => addNodeWithType(NodeType.JavaScriptFunctionNode),
+    },
+    {
+      label: "Add Text",
+      onClick: () => addNodeWithType(NodeType.TextTemplate),
+    },
+    {
+      label: "Add ChatGPT Message",
+      onClick: () => addNodeWithType(NodeType.ChatGPTMessageNode),
+    },
+    {
+      label: "Add ChatGPT Chat Completion",
+      onClick: () => addNodeWithType(NodeType.ChatGPTChatCompletionNode),
+    },
+    {
+      label: "Add Hugging Face Inference",
+      onClick: () => addNodeWithType(NodeType.HuggingFaceInference),
+    },
+  ];
+
+  const runButtonConfig = {
+    shouldShowRunButton:
+      detailPanelContentType !== DetailPanelContentType.EvaluationModeSimple &&
+      detailPanelContentType !== DetailPanelContentType.EvaluationModeCSV,
+    label: "Run",
+    onClick: runFlow,
+  };
 
   return (
     <Container>
@@ -113,83 +122,29 @@ export default function ToolBar() {
             <Dropdown>
               <MenuButton color="primary">Add</MenuButton>
               <Menu>
-                <MenuItem
-                  color="primary"
-                  onClick={() => addNodeWithType(NodeType.InputNode)}
-                >
-                  Add Input
-                </MenuItem>
-                <MenuItem
-                  color="primary"
-                  onClick={() => addNodeWithType(NodeType.ChatGPTMessageNode)}
-                >
-                  Add ChatGPT Message
-                </MenuItem>
-                <MenuItem
-                  color="primary"
-                  onClick={() =>
-                    addNodeWithType(NodeType.ChatGPTChatCompletionNode)
-                  }
-                >
-                  Add ChatGPT Chat Completion
-                </MenuItem>
-                <MenuItem
-                  color="primary"
-                  onClick={() =>
-                    addNodeWithType(NodeType.JavaScriptFunctionNode)
-                  }
-                >
-                  Add JavaScript
-                </MenuItem>
-                <MenuItem
-                  color="primary"
-                  onClick={() => addNodeWithType(NodeType.OutputNode)}
-                >
-                  Add Output
-                </MenuItem>
+                {options.map((option, i) => (
+                  <MenuItem key={i} color="primary" onClick={option.onClick}>
+                    {option.label}
+                  </MenuItem>
+                ))}
               </Menu>
             </Dropdown>
-            <Button color="success" onClick={runFlow}>
-              Run
-            </Button>
+            {runButtonConfig.shouldShowRunButton && (
+              <Button color="success" onClick={runButtonConfig.onClick}>
+                {runButtonConfig.label}
+              </Button>
+            )}
           </>
         ) : (
           <>
-            <Button
-              color="primary"
-              onClick={() => addNodeWithType(NodeType.InputNode)}
-            >
-              Add Input
-            </Button>
-            <Button
-              color="primary"
-              onClick={() => addNodeWithType(NodeType.ChatGPTMessageNode)}
-            >
-              Add ChatGPT Message
-            </Button>
-            <Button
-              color="primary"
-              onClick={() =>
-                addNodeWithType(NodeType.ChatGPTChatCompletionNode)
-              }
-            >
-              Add ChatGPT Chat Completion
-            </Button>
-            <Button
-              color="primary"
-              onClick={() => addNodeWithType(NodeType.JavaScriptFunctionNode)}
-            >
-              Add JavaScript
-            </Button>
-            <Button
-              color="primary"
-              onClick={() => addNodeWithType(NodeType.OutputNode)}
-            >
-              Add Output
-            </Button>
-            {shouldShowRunButton && (
-              <Button color="success" onClick={runFlow}>
-                Run
+            {options.map((option, i) => (
+              <Button key={i} color="primary" onClick={option.onClick}>
+                {option.label}
+              </Button>
+            ))}
+            {runButtonConfig.shouldShowRunButton && (
+              <Button color="success" onClick={runButtonConfig.onClick}>
+                {runButtonConfig.label}
               </Button>
             )}
           </>
@@ -219,3 +174,27 @@ export default function ToolBar() {
     </Container>
   );
 }
+
+const USE_NARROW_LAYOUT_BREAKPOINT = 1550;
+
+const Container = styled.div`
+  height: 51px;
+  border-bottom: 1px solid #ececf1;
+  padding: 0 20px;
+  flex-shrink: 0;
+  display: grid;
+  grid-template-columns: auto auto;
+`;
+
+const LeftAligned = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+`;
+
+const RightAligned = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 5px;
+`;

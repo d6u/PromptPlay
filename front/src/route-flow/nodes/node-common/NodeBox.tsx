@@ -1,7 +1,7 @@
 import { css } from "@emotion/react";
 import styled from "@emotion/styled";
 import background from "../../../assets/warning-background.svg";
-import { NodeType } from "../../flowTypes";
+import { NodeType } from "../../store/types-flow-content";
 
 export const BACKDROP_PADDING = 3;
 export const NODE_BOX_WIDTH = 300;
@@ -70,6 +70,16 @@ const Backdrop = styled.div<{ $type: NodeType; $state: NodeState }>`
         return css`
           background: url(${background});
         `;
+      case NodeType.TextTemplate: {
+        return css`
+          background: linear-gradient(22deg, #98ecff 0%, #5cc5e0 100%);
+        `;
+      }
+      case NodeType.HuggingFaceInference: {
+        return css`
+          background: linear-gradient(22deg, #fa97b6 0%, #e081fe 100%);
+        `;
+      }
     }
   }}
 `;

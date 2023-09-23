@@ -1,15 +1,17 @@
+import styled from "@emotion/styled";
 import { A, D } from "@mobily/ts-belt";
 import { Button } from "@mui/joy";
-import { ReactNode, useContext } from "react";
-import FlowContext from "../FlowContext";
-import { InputValueType } from "../flowTypes";
+import { useContext } from "react";
+import FlowContext from "../../FlowContext";
 import {
   flowInputItemsWithNodeConfigSelector,
   flowOutputItemsSelector,
   useFlowStore,
-} from "../store/flowStore";
-import { FlowState } from "../store/flowStore";
-import InputBlock from "./InputBlock";
+} from "../../store/store-flow";
+import { InputValueType } from "../../store/types-flow-content";
+import { FlowState } from "../../store/types-local-state";
+import InputBlock from "../InputBlock";
+import OutputDisplay from "../OutputDisplay";
 import {
   Section,
   HeaderSectionHeader,
@@ -17,7 +19,7 @@ import {
   OutputValueItem,
   HeaderSection,
   RawValue,
-} from "./controls-common";
+} from "../controls-common";
 
 const selector = (state: FlowState) => ({
   runFlow: state.runFlow,
@@ -28,7 +30,7 @@ const selector = (state: FlowState) => ({
   updateDefaultVariableValueMap: state.updateDefaultVariableValueMap,
 });
 
-export default function EvaluationModeSimpleContent() {
+export default function PanelEvaluationModeSimple() {
   const { isCurrentUserOwner } = useContext(FlowContext);
 
   const {
@@ -41,7 +43,7 @@ export default function EvaluationModeSimpleContent() {
   } = useFlowStore(selector);
 
   return (
-    <>
+    <Container>
       <HeaderSection>
         <HeaderSectionHeader>Input variables</HeaderSectionHeader>
         {isCurrentUserOwner && (
@@ -92,22 +94,22 @@ export default function EvaluationModeSimpleContent() {
         {flowOutputItems.map((output, i) => {
           const value = variableValueMap[output.id];
 
-          let content: ReactNode;
-
-          if (typeof value === "string") {
-            content = value;
-          } else {
-            content = JSON.stringify(value, null, 2);
-          }
-
           return (
             <OutputValueItem key={output.id}>
               <OutputValueName>{output.name}</OutputValueName>
-              <RawValue>{content}</RawValue>
+              <RawValue>
+                <OutputDisplay value={value} />
+              </RawValue>
             </OutputValueItem>
           );
         })}
       </Section>
-    </>
+    </Container>
   );
 }
+
+const Container = styled.div`
+  width: 50vw;
+  max-width: 600px;
+  padding: 20px;
+`;

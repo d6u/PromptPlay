@@ -1,5 +1,6 @@
 import { Accordion, AccordionSummary, Textarea, Table } from "@mui/joy";
-import { FlowState, useFlowStore } from "../../store/flowStore";
+import { useFlowStore } from "../../store/store-flow";
+import { FlowState } from "../../store/types-local-state";
 import { Section } from "../controls-common";
 import {
   CSVRow,
@@ -17,7 +18,7 @@ const selector = (state: FlowState) => ({
   setCsvContent: state.csvEvaluationSetLocalCsvContent,
 });
 
-export default function ImportCSVSection(props: Props) {
+export default function EvaluationSectionImportCSV(props: Props) {
   const { csvContent, setCsvContent } = useFlowStore(selector);
 
   return (
