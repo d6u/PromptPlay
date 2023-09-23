@@ -1,36 +1,17 @@
 import { pipe, A, F, flow, D } from "@mobily/ts-belt";
-import { Node } from "reactflow";
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
-import { createClientSlice, ClientSlice } from "./storeClientSlice";
-import {
-  CsvEvaluationPresetSlice,
-  createCsvEvaluationPresetSlice,
-} from "./storeCsvEvaluationPresetSlice";
-import { FlowServerSlice, createFlowServerSlice } from "./storeFlowServerSlice";
+import { createClientSlice } from "./store-client-slice";
+import { createCsvEvaluationPresetSlice } from "./store-csv-evaluation-preset-slice";
+import { createFlowServerSlice } from "./store-flow-server-slice";
 import {
   FlowInputItem,
   FlowOutputItem,
   InputNodeConfig,
   NodeType,
   OutputNodeConfig,
-  NodeID,
-  ServerNode,
 } from "./types-flow-content";
-
-export type LocalNode = Omit<Node<null, NodeType>, "id" | "type" | "data"> &
-  ServerNode;
-
-export type NodeAugments = Record<NodeID, NodeAugment | undefined>;
-
-export type NodeAugment = {
-  isRunning: boolean;
-  hasError: boolean;
-};
-
-export type FlowState = FlowServerSlice &
-  ClientSlice &
-  CsvEvaluationPresetSlice;
+import { FlowState } from "./types-local-state";
 
 export const useFlowStore = create<FlowState>()(
   devtools(

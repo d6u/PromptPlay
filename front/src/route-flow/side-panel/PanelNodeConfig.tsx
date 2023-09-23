@@ -1,6 +1,6 @@
 import { ReactNode, useMemo } from "react";
-import { useFlowStore } from "../store/flowStore";
-import { FlowState } from "../store/flowStore";
+import { useFlowStore } from "../store/store-flow";
+import { FlowState } from "../store/types-local-state";
 import {
   HeaderSection,
   HeaderSectionHeader,

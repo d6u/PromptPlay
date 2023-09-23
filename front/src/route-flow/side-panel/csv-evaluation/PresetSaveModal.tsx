@@ -10,7 +10,8 @@ import {
   Button,
 } from "@mui/joy";
 import { useEffect, useState } from "react";
-import { FlowState, useFlowStore } from "../../store/flowStore";
+import { useFlowStore } from "../../store/store-flow";
+import { FlowState } from "../../store/types-local-state";
 
 const selector = (state: FlowState) => ({
   setCurrentPresetId: state.csvEvaluationSetCurrentPresetId,

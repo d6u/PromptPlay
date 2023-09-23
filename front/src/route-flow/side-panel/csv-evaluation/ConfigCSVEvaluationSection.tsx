@@ -13,16 +13,16 @@ import {
 import { ReactNode, useEffect } from "react";
 import { FlowOutputVariableMap } from "../../flowRun";
 import {
-  FlowState,
+  RowIndex,
+  ColumnIndex,
+} from "../../store/store-csv-evaluation-preset-slice";
+import {
   flowInputItemsSelector,
   flowOutputItemsSelector,
   useFlowStore,
-} from "../../store/flowStore";
-import {
-  RowIndex,
-  ColumnIndex,
-} from "../../store/storeCsvEvaluationPresetSlice";
+} from "../../store/store-flow";
 import { VariableID } from "../../store/types-flow-content";
+import { FlowState } from "../../store/types-local-state";
 import { Section } from "../controls-common";
 import {
   CSVData,

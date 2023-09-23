@@ -5,8 +5,7 @@ import { useContext, useMemo, useState } from "react";
 import { Position, useUpdateNodeInternals, useNodeId } from "reactflow";
 import randomId from "../../util/randomId";
 import FlowContext from "../FlowContext";
-import { FlowState, useFlowStore } from "../store/flowStore";
-import { DetailPanelContentType } from "../store/storeClientSlice";
+import { useFlowStore } from "../store/store-flow";
 import {
   FlowOutputItem,
   InputID,
@@ -14,6 +13,8 @@ import {
   NodeType,
   OutputNodeConfig,
 } from "../store/types-flow-content";
+import { FlowState } from "../store/types-local-state";
+import { DetailPanelContentType } from "../store/types-local-state";
 import AddVariableButton from "./node-common/AddVariableButton";
 import HeaderSection from "./node-common/HeaderSection";
 import NodeBox from "./node-common/NodeBox";

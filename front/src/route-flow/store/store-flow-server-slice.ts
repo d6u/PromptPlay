@@ -24,8 +24,7 @@ import { createNode, createNodeConfig, rejectInvalidEdges } from "../flowUtils";
 import {
   SPACE_FLOW_QUERY,
   UPDATE_SPACE_FLOW_CONTENT_MUTATION,
-} from "./flowGraphql";
-import { FlowState, LocalNode } from "./flowStore";
+} from "./graphql-flow";
 import {
   FlowContent,
   LocalEdge,
@@ -36,6 +35,8 @@ import {
   VariableID,
   VariableValueMap,
 } from "./types-flow-content";
+import { LocalNode } from "./types-flow-content";
+import { FlowState } from "./types-local-state";
 
 type FlowServerSliceState = {
   nodes: LocalNode[];

@@ -1,4 +1,4 @@
-import { Edge, XYPosition } from "reactflow";
+import { Edge, Node, XYPosition } from "reactflow";
 import { ChatGPTMessageRole } from "../../integrations/openai";
 
 // See https://stackoverflow.com/questions/41790393/typescript-strict-alias-checking
@@ -134,6 +134,9 @@ export type FlowOutputItem = NodeInputItem;
 
 // Edge
 // ----
+
+export type LocalNode = Omit<Node<null, NodeType>, "id" | "type" | "data"> &
+  ServerNode;
 
 export type LocalEdge = Omit<
   Edge<never>,

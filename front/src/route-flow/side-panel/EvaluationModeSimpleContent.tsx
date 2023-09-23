@@ -6,9 +6,9 @@ import {
   flowInputItemsWithNodeConfigSelector,
   flowOutputItemsSelector,
   useFlowStore,
-} from "../store/flowStore";
-import { FlowState } from "../store/flowStore";
+} from "../store/store-flow";
 import { InputValueType } from "../store/types-flow-content";
+import { FlowState } from "../store/types-local-state";
 import InputBlock from "./InputBlock";
 import {
   Section,

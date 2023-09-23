@@ -15,9 +15,10 @@ import InputNode from "./nodes/InputNode";
 import JavaScriptFunctionNode from "./nodes/JavaScriptFunctionNode";
 import OutputNode from "./nodes/OutputNode";
 import SidePanel from "./side-panel/SidePanel";
-import { useFlowStore } from "./store/flowStore";
-import { FlowState, LocalNode } from "./store/flowStore";
+import { useFlowStore } from "./store/store-flow";
 import { NodeType } from "./store/types-flow-content";
+import { LocalNode } from "./store/types-flow-content";
+import { FlowState } from "./store/types-local-state";
 
 const NODE_TYPES = {
   [NodeType.InputNode]: InputNode,

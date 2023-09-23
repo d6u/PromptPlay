@@ -10,8 +10,7 @@ import FlowContext from "../FlowContext";
 import TextareaReadonly from "../flow-common/TextareaReadonly";
 import { LabelWithIconContainer } from "../flow-common/flow-common";
 import { CopyIcon } from "../flow-common/flow-common";
-import { useFlowStore } from "../store/flowStore";
-import { FlowState } from "../store/flowStore";
+import { useFlowStore } from "../store/store-flow";
 import {
   InputID,
   JavaScriptFunctionNodeConfig,
@@ -19,6 +18,7 @@ import {
   NodeInputItem,
   NodeType,
 } from "../store/types-flow-content";
+import { FlowState } from "../store/types-local-state";
 import AddVariableButton from "./node-common/AddVariableButton";
 import HeaderSection from "./node-common/HeaderSection";
 import NodeBox, { NodeState } from "./node-common/NodeBox";

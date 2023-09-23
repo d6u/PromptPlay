@@ -13,33 +13,10 @@ import { useCallback, useContext, useEffect, useState } from "react";
 import { useStoreApi } from "reactflow";
 import FlowContext from "../FlowContext";
 import { NODE_BOX_WIDTH } from "../nodes/node-common/NodeBox";
-import { FlowState, useFlowStore } from "../store/flowStore";
-import { DetailPanelContentType } from "../store/storeClientSlice";
+import { useFlowStore } from "../store/store-flow";
 import { NodeType } from "../store/types-flow-content";
-
-const USE_NARROW_LAYOUT_BREAKPOINT = 1050;
-
-const Container = styled.div`
-  height: 51px;
-  border-bottom: 1px solid #ececf1;
-  padding: 0 20px;
-  flex-shrink: 0;
-  display: grid;
-  grid-template-columns: auto auto;
-`;
-
-const LeftAligned = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 10px;
-`;
-
-const RightAligned = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 5px;
-`;
+import { FlowState } from "../store/types-local-state";
+import { DetailPanelContentType } from "../store/types-local-state";
 
 const selector = (state: FlowState) => ({
   detailPanelContentType: state.detailPanelContentType,
@@ -219,3 +196,27 @@ export default function ToolBar() {
     </Container>
   );
 }
+
+const USE_NARROW_LAYOUT_BREAKPOINT = 1050;
+
+const Container = styled.div`
+  height: 51px;
+  border-bottom: 1px solid #ececf1;
+  padding: 0 20px;
+  flex-shrink: 0;
+  display: grid;
+  grid-template-columns: auto auto;
+`;
+
+const LeftAligned = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+`;
+
+const RightAligned = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 5px;
+`;
