@@ -47,6 +47,7 @@ export enum NodeType {
   JavaScriptFunctionNode = "JavaScriptFunctionNode",
   ChatGPTMessageNode = "ChatGPTMessageNode",
   ChatGPTChatCompletionNode = "ChatGPTChatCompletionNode",
+  TextTemplate = "TextTemplate",
 }
 
 export type NodeConfig =
@@ -54,7 +55,8 @@ export type NodeConfig =
   | OutputNodeConfig
   | ChatGPTMessageNodeConfig
   | ChatGPTChatCompletionNodeConfig
-  | JavaScriptFunctionNodeConfig;
+  | JavaScriptFunctionNodeConfig
+  | TextTemplateNodeConfig;
 
 export type NodeConfigCommon = {
   nodeId: NodeID;
@@ -108,6 +110,15 @@ export enum OpenAIChatModel {
   GPT3_5_TURBO = "gpt-3.5-turbo",
   GPT4 = "gpt-4",
 }
+
+// TextTemplate
+
+export type TextTemplateNodeConfig = NodeConfigCommon & {
+  nodeType: NodeType.TextTemplate;
+  inputs: NodeInputItem[];
+  content: string;
+  outputs: NodeOutputItem[];
+};
 
 // Input / Output
 

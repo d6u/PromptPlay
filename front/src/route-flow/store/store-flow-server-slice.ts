@@ -20,7 +20,11 @@ import { client } from "../../state/urql";
 import fromWonka from "../../util/fromWonka";
 import propEq from "../../util/propEq";
 import { DEFAULT_EDGE_STYLE, DRAG_HANDLE_CLASS_NAME } from "../flowConstants";
-import { createNode, createNodeConfig, rejectInvalidEdges } from "../flowUtils";
+import {
+  createNode,
+  createNodeConfig,
+  rejectInvalidEdges,
+} from "../utils-flow";
 import {
   SPACE_FLOW_QUERY,
   UPDATE_SPACE_FLOW_CONTENT_MUTATION,

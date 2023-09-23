@@ -17,8 +17,8 @@ import {
   concat,
   defer,
 } from "rxjs";
-import * as OpenAI from "../integrations/openai";
-import { useLocalStorageStore, useSpaceStore } from "../state/appState";
+import * as OpenAI from "../../integrations/openai";
+import { useLocalStorageStore, useSpaceStore } from "../../state/appState";
 import {
   ChatGPTChatCompletionNodeConfig,
   ChatGPTMessageNodeConfig,
@@ -32,8 +32,8 @@ import {
   OutputID,
   OutputNodeConfig,
   VariableValueMap,
-} from "./store/types-flow-content";
-import { NodeAugment } from "./store/types-local-state";
+} from "./types-flow-content";
+import { NodeAugment } from "./types-local-state";
 
 const AsyncFunction = async function () {}.constructor;
 
@@ -186,6 +186,9 @@ export function run(
             }))
           );
           break;
+        }
+        case NodeType.TextTemplate: {
+          throw new Error("Not implemented yet: NodeType.TextTemplate case");
         }
       }
 

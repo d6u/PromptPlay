@@ -63,6 +63,14 @@ export function createNode(type: NodeType, x: number, y: number): ServerNode {
         data: null,
       };
     }
+    case NodeType.TextTemplate: {
+      return {
+        id: randomId() as NodeID,
+        position,
+        type: NodeType.TextTemplate,
+        data: null,
+      };
+    }
   }
 }
 
@@ -160,6 +168,29 @@ export function createNodeConfig(node: LocalNode): NodeConfig {
           {
             id: `${node.id}/messages_out` as OutputID,
             name: "messages",
+          },
+        ],
+      };
+    }
+    case NodeType.TextTemplate: {
+      return {
+        nodeId: node.id,
+        nodeType: NodeType.TextTemplate,
+        inputs: [
+          {
+            id: `${node.id}/messages_in` as InputID,
+            name: "messages",
+          },
+          {
+            id: `${node.id}/${randomId()}` as InputID,
+            name: "topic",
+          },
+        ],
+        content: "Write a poem about {{topic}} in fewer than 20 words.",
+        outputs: [
+          {
+            id: `${node.id}/content` as OutputID,
+            name: "content",
           },
         ],
       };

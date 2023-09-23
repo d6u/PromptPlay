@@ -20,7 +20,7 @@ import {
   RunEvent,
   RunEventType,
   run,
-} from "../../flowRun";
+} from "../../store/flow-run";
 import {
   ColumnIndex,
   RowIndex,

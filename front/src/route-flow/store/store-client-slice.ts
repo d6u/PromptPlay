@@ -1,7 +1,7 @@
 import { D } from "@mobily/ts-belt";
 import { produce } from "immer";
 import { StateCreator } from "zustand";
-import { run, RunEventType } from "../flowRun";
+import { run, RunEventType } from "./flow-run";
 import { flowInputItemsSelector } from "./store-flow";
 import { NodeID, VariableID, VariableValueMap } from "./types-flow-content";
 import { FlowState } from "./types-local-state";

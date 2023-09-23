@@ -11,7 +11,7 @@ import {
   Option,
 } from "@mui/joy";
 import { ReactNode, useEffect } from "react";
-import { FlowOutputVariableMap } from "../../flowRun";
+import { FlowOutputVariableMap } from "../../store/flow-run";
 import {
   RowIndex,
   ColumnIndex,

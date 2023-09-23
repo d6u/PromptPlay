@@ -78,9 +78,33 @@ export default function ToolBar() {
     };
   }, []);
 
-  const shouldShowRunButton =
-    detailPanelContentType !== DetailPanelContentType.EvaluationModeSimple &&
-    detailPanelContentType !== DetailPanelContentType.EvaluationModeCSV;
+  const options = [
+    {
+      label: "Add ChatGPT Message",
+      onClick: () => addNodeWithType(NodeType.ChatGPTMessageNode),
+    },
+    {
+      label: "Add ChatGPT Chat Completion",
+      onClick: () => addNodeWithType(NodeType.ChatGPTChatCompletionNode),
+    },
+    {
+      label: "Add JavaScript",
+      onClick: () => addNodeWithType(NodeType.JavaScriptFunctionNode),
+    },
+    { label: "Add Input", onClick: () => addNodeWithType(NodeType.InputNode) },
+    {
+      label: "Add Output",
+      onClick: () => addNodeWithType(NodeType.OutputNode),
+    },
+  ];
+
+  const runButtonConfig = {
+    shouldShowRunButton:
+      detailPanelContentType !== DetailPanelContentType.EvaluationModeSimple &&
+      detailPanelContentType !== DetailPanelContentType.EvaluationModeCSV,
+    label: "Run",
+    onClick: runFlow,
+  };
 
   return (
     <Container>
@@ -90,83 +114,29 @@ export default function ToolBar() {
             <Dropdown>
               <MenuButton color="primary">Add</MenuButton>
               <Menu>
-                <MenuItem
-                  color="primary"
-                  onClick={() => addNodeWithType(NodeType.InputNode)}
-                >
-                  Add Input
-                </MenuItem>
-                <MenuItem
-                  color="primary"
-                  onClick={() => addNodeWithType(NodeType.ChatGPTMessageNode)}
-                >
-                  Add ChatGPT Message
-                </MenuItem>
-                <MenuItem
-                  color="primary"
-                  onClick={() =>
-                    addNodeWithType(NodeType.ChatGPTChatCompletionNode)
-                  }
-                >
-                  Add ChatGPT Chat Completion
-                </MenuItem>
-                <MenuItem
-                  color="primary"
-                  onClick={() =>
-                    addNodeWithType(NodeType.JavaScriptFunctionNode)
-                  }
-                >
-                  Add JavaScript
-                </MenuItem>
-                <MenuItem
-                  color="primary"
-                  onClick={() => addNodeWithType(NodeType.OutputNode)}
-                >
-                  Add Output
-                </MenuItem>
+                {options.map((option, i) => (
+                  <MenuItem key={i} color="primary" onClick={option.onClick}>
+                    {option.label}
+                  </MenuItem>
+                ))}
               </Menu>
             </Dropdown>
-            <Button color="success" onClick={runFlow}>
-              Run
-            </Button>
+            {runButtonConfig.shouldShowRunButton && (
+              <Button color="success" onClick={runButtonConfig.onClick}>
+                {runButtonConfig.label}
+              </Button>
+            )}
           </>
         ) : (
           <>
-            <Button
-              color="primary"
-              onClick={() => addNodeWithType(NodeType.InputNode)}
-            >
-              Add Input
-            </Button>
-            <Button
-              color="primary"
-              onClick={() => addNodeWithType(NodeType.ChatGPTMessageNode)}
-            >
-              Add ChatGPT Message
-            </Button>
-            <Button
-              color="primary"
-              onClick={() =>
-                addNodeWithType(NodeType.ChatGPTChatCompletionNode)
-              }
-            >
-              Add ChatGPT Chat Completion
-            </Button>
-            <Button
-              color="primary"
-              onClick={() => addNodeWithType(NodeType.JavaScriptFunctionNode)}
-            >
-              Add JavaScript
-            </Button>
-            <Button
-              color="primary"
-              onClick={() => addNodeWithType(NodeType.OutputNode)}
-            >
-              Add Output
-            </Button>
-            {shouldShowRunButton && (
-              <Button color="success" onClick={runFlow}>
-                Run
+            {options.map((option, i) => (
+              <Button key={i} color="primary" onClick={option.onClick}>
+                {option.label}
+              </Button>
+            ))}
+            {runButtonConfig.shouldShowRunButton && (
+              <Button color="success" onClick={runButtonConfig.onClick}>
+                {runButtonConfig.label}
               </Button>
             )}
           </>
@@ -197,7 +167,7 @@ export default function ToolBar() {
   );
 }
 
-const USE_NARROW_LAYOUT_BREAKPOINT = 1050;
+const USE_NARROW_LAYOUT_BREAKPOINT = 1150;
 
 const Container = styled.div`
   height: 51px;
