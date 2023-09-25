@@ -23,8 +23,8 @@ import {
 } from "../../store/store-flow";
 import { VariableID } from "../../store/types-flow-content";
 import { FlowState } from "../../store/types-local-state";
-import OutputDisplay from "../OutputDisplay";
-import { Section } from "../controls-common";
+import OutputDisplay from "../common/OutputDisplay";
+import { Section } from "../common/controls-common";
 import {
   CSVData,
   CSVRow,

@@ -2,13 +2,13 @@ import { useMemo } from "react";
 import { useFlowStore } from "../../store/store-flow";
 import { NodeOutputItem } from "../../store/types-flow-content";
 import { FlowState } from "../../store/types-local-state";
-import OutputRenderer from "../OutputRenderer";
+import OutputRenderer from "../common/OutputRenderer";
 import {
   HeaderSection,
   HeaderSectionHeader,
   PanelContentContainer,
   Section,
-} from "../controls-common";
+} from "../common/controls-common";
 
 const selector = (state: FlowState) => ({
   nodeConfigs: state.nodeConfigs,

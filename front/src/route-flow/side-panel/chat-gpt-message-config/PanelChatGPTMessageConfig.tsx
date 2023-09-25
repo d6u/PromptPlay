@@ -1,24 +1,29 @@
-import FormControl from "@mui/joy/FormControl";
-import FormHelperText from "@mui/joy/FormHelperText";
-import FormLabel from "@mui/joy/FormLabel";
-import Radio from "@mui/joy/Radio";
-import RadioGroup from "@mui/joy/RadioGroup";
-import Textarea from "@mui/joy/Textarea";
+import {
+  Radio,
+  FormLabel,
+  FormHelperText,
+  FormControl,
+  Textarea,
+  RadioGroup,
+} from "@mui/joy";
 import { useContext, useEffect, useMemo, useState } from "react";
-import { ChatGPTMessageRole } from "../../integrations/openai";
-import FlowContext from "../FlowContext";
-import TextareaReadonly from "../flow-common/TextareaReadonly";
-import { CopyIcon, LabelWithIconContainer } from "../flow-common/flow-common";
-import { useFlowStore } from "../store/store-flow";
-import { ChatGPTMessageNodeConfig } from "../store/types-flow-content";
-import { FlowState } from "../store/types-local-state";
-import OutputRenderer from "./OutputRenderer";
+import { ChatGPTMessageRole } from "../../../integrations/openai";
+import FlowContext from "../../FlowContext";
+import TextareaReadonly from "../../flow-common/TextareaReadonly";
+import {
+  CopyIcon,
+  LabelWithIconContainer,
+} from "../../flow-common/flow-common";
+import { useFlowStore } from "../../store/store-flow";
+import { ChatGPTMessageNodeConfig } from "../../store/types-flow-content";
+import { FlowState } from "../../store/types-local-state";
+import OutputRenderer from "../common/OutputRenderer";
 import {
   HeaderSection,
   HeaderSectionHeader,
   PanelContentContainer,
   Section,
-} from "./controls-common";
+} from "../common/controls-common";
 
 const selector = (state: FlowState) => ({
   nodeConfigs: state.nodeConfigs,

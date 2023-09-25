@@ -1,12 +1,12 @@
 import styled from "@emotion/styled";
 import { ReactNode } from "react";
-import { useFlowStore } from "../store/store-flow";
+import { useFlowStore } from "../../store/store-flow";
 import {
   FlowOutputItem,
   NodeOutputItem,
   OutputValueType,
-} from "../store/types-flow-content";
-import { FlowState } from "../store/types-local-state";
+} from "../../store/types-flow-content";
+import { FlowState } from "../../store/types-local-state";
 import OutputDisplay from "./OutputDisplay";
 
 const selector = (state: FlowState) => ({

@@ -10,13 +10,13 @@ import {
 } from "../../store/store-flow";
 import { InputValueType } from "../../store/types-flow-content";
 import { FlowState } from "../../store/types-local-state";
-import InputBlock from "../InputBlock";
-import OutputRenderer from "../OutputRenderer";
+import InputBlock from "../common/InputBlock";
+import OutputRenderer from "../common/OutputRenderer";
 import {
   Section,
   HeaderSectionHeader,
   HeaderSection,
-} from "../controls-common";
+} from "../common/controls-common";
 
 const selector = (state: FlowState) => ({
   runFlow: state.runFlow,

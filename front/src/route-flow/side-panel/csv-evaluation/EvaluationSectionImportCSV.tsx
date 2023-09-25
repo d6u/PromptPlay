@@ -1,7 +1,7 @@
 import { Accordion, AccordionSummary, Textarea, Table } from "@mui/joy";
 import { useFlowStore } from "../../store/store-flow";
 import { FlowState } from "../../store/types-local-state";
-import { Section } from "../controls-common";
+import { Section } from "../common/controls-common";
 import {
   CSVRow,
   CSVData,
