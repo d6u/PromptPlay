@@ -153,10 +153,19 @@ export type NodeInputItem = {
 export type NodeOutputItem = {
   id: OutputID;
   name: string;
+  valueType?: OutputValueType;
 };
 
-export type FlowInputItem = NodeOutputItem & {
+export type FlowInputItem = {
+  id: OutputID;
+  name: string;
   valueType: InputValueType;
+};
+
+export type FlowOutputItem = {
+  id: InputID;
+  name: string;
+  valueType?: OutputValueType;
 };
 
 export enum InputValueType {
@@ -164,7 +173,9 @@ export enum InputValueType {
   Number = "Number",
 }
 
-export type FlowOutputItem = NodeInputItem;
+export enum OutputValueType {
+  Audio = "Audio",
+}
 
 // Edge
 // ----

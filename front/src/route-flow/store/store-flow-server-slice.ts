@@ -24,6 +24,7 @@ import {
   createNode,
   createNodeConfig,
   rejectInvalidEdges,
+  restoreNodeConfigForRemovedEdges,
 } from "../utils-flow";
 import {
   SPACE_FLOW_QUERY,
@@ -36,6 +37,8 @@ import {
   NodeConfigs,
   NodeID,
   NodeType,
+  OutputNodeConfig,
+  OutputValueType,
   VariableID,
   VariableValueMap,
 } from "./types-flow-content";
@@ -192,7 +195,7 @@ export const createFlowServerSlice: StateCreator<
       saveSpace();
     },
     updateNode(nodeId: NodeID, nodeChange: Partial<LocalNode>) {
-      const nodeConfigs = get().nodeConfigs;
+      let nodeConfigs = get().nodeConfigs;
       let nodes = get().nodes;
       let edges = get().edges;
 
@@ -204,9 +207,16 @@ export const createFlowServerSlice: StateCreator<
 
       nodes = A.updateAt(nodes, index, D.merge(nodeChange));
 
-      edges = rejectInvalidEdges(nodes, edges, nodeConfigs);
+      const pair = rejectInvalidEdges(nodes, edges, nodeConfigs);
+      edges = pair[0];
+      const rejectedEdges = pair[1];
 
-      set({ nodes, edges });
+      nodeConfigs = restoreNodeConfigForRemovedEdges(
+        rejectedEdges,
+        nodeConfigs
+      );
+
+      set({ nodes, edges, nodeConfigs });
 
       saveSpace();
     },
@@ -217,11 +227,17 @@ export const createFlowServerSlice: StateCreator<
 
       nodes = A.reject(nodes, flow(D.get("id"), F.equals(id)));
       nodeConfigs = D.deleteKey(nodeConfigs, id);
-      edges = rejectInvalidEdges(nodes, edges, nodeConfigs);
 
-      const flowContentChange = { nodes, edges, nodeConfigs };
+      const pair = rejectInvalidEdges(nodes, edges, nodeConfigs);
+      edges = pair[0];
+      const rejectedEdges = pair[1];
 
-      set(flowContentChange);
+      nodeConfigs = restoreNodeConfigForRemovedEdges(
+        rejectedEdges,
+        nodeConfigs
+      );
+
+      set({ nodes, edges, nodeConfigs });
 
       saveSpace();
     },
@@ -232,7 +248,14 @@ export const createFlowServerSlice: StateCreator<
 
       nodeConfigs = D.update(nodeConfigs, nodeId, D.merge(change));
 
-      edges = rejectInvalidEdges(nodes, edges, nodeConfigs);
+      const pair = rejectInvalidEdges(nodes, edges, nodeConfigs);
+      edges = pair[0];
+      const rejectedEdges = pair[1];
+
+      nodeConfigs = restoreNodeConfigForRemovedEdges(
+        rejectedEdges,
+        nodeConfigs
+      );
 
       set({ nodeConfigs, edges });
 
@@ -271,11 +294,19 @@ export const createFlowServerSlice: StateCreator<
     },
     onEdgesChange(changes: EdgeChange[]) {
       const nodes = get().nodes;
+      let nodeConfigs = get().nodeConfigs;
       let edges = get().edges;
-      const nodeConfigs = get().nodeConfigs;
 
       edges = applyEdgeChanges(changes, edges) as LocalEdge[];
-      edges = rejectInvalidEdges(nodes, edges, nodeConfigs);
+
+      const pair = rejectInvalidEdges(nodes, edges, nodeConfigs);
+      edges = pair[0];
+      const rejectedEdges = pair[1];
+
+      nodeConfigs = restoreNodeConfigForRemovedEdges(
+        rejectedEdges,
+        nodeConfigs
+      );
 
       set({ edges });
 
@@ -289,6 +320,7 @@ export const createFlowServerSlice: StateCreator<
         return;
       }
 
+      let nodeConfigs = get().nodeConfigs;
       let edges = get().edges;
 
       // A targetHandle can only take one incoming edge
@@ -299,10 +331,51 @@ export const createFlowServerSlice: StateCreator<
         )
       );
 
+      // TODO: === Improve this ===
+
+      let isOutputAudio = false;
+
+      {
+        const nodeConfig = nodeConfigs[connection.source! as NodeID]!;
+
+        if (nodeConfig.nodeType === NodeType.ElevenLabs) {
+          for (const output of nodeConfig.outputs) {
+            if (output.id === connection.sourceHandle) {
+              isOutputAudio = output.valueType === OutputValueType.Audio;
+              break;
+            }
+          }
+        }
+      }
+
+      if (isOutputAudio) {
+        const nodeConfig = nodeConfigs[connection.target! as NodeID]!;
+
+        if (nodeConfig.nodeType !== NodeType.OutputNode) {
+          alert("You can only connect an audio output to an output node.");
+
+          // Should not assign audio to anything else than an output node
+          return;
+        }
+
+        for (const [index, input] of nodeConfig.inputs.entries()) {
+          if (input.id === connection.targetHandle) {
+            nodeConfigs = produce(nodeConfigs, (draft) => {
+              (draft[nodeConfig.nodeId] as OutputNodeConfig).inputs[
+                index
+              ].valueType = OutputValueType.Audio;
+            });
+            break;
+          }
+        }
+      }
+
+      // End of TODO: --- Improve this ---
+
       edges = addEdge(connection, edges) as LocalEdge[];
       edges = assignLocalEdgeProperties(edges);
 
-      set({ edges });
+      set({ edges, nodeConfigs });
 
       saveSpace();
     },
