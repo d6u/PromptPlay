@@ -2,6 +2,8 @@
 
 An experiment on visual prompt chaining.
 
+[![Everything Is AWESOME](https://github.com/d6u/PromptPlay/assets/2153667/ed5cf17d-4354-4af9-b583-b1619c5748c9)](https://youtu.be/_7gkAa6FWHs)
+
 ![Screen shot](screenshot.png)
 
 ## How run locally
