@@ -89,7 +89,7 @@ export default function PanelEvaluationModeSimple() {
       </HeaderSection>
       <Section>
         {flowOutputItems.map((output) => (
-          <OutputRenderer key={output.id} flowOutputItem={output} />
+          <OutputRenderer key={output.id} outputItem={output} />
         ))}
       </Section>
     </Container>
