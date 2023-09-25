@@ -46,6 +46,7 @@ export const createClientSlice: StateCreator<FlowState, [], [], ClientSlice> = (
   function setIsRunning(isRunning: boolean) {
     set((state) => {
       let edges = state.edges;
+      let localNodeAugments = state.localNodeAugments;
 
       edges = produce(edges, (draft) => {
         for (const edge of draft) {
@@ -55,7 +56,13 @@ export const createClientSlice: StateCreator<FlowState, [], [], ClientSlice> = (
         }
       });
 
-      return { isRunning, edges };
+      if (!isRunning) {
+        // It is important to reset node augment, because node's running status
+        // doesn't depend on global isRunning state.
+        localNodeAugments = D.map(localNodeAugments, D.set("isRunning", false));
+      }
+
+      return { isRunning, edges, localNodeAugments };
     });
   }
 
