@@ -195,9 +195,10 @@ export const createFlowServerSlice: StateCreator<
       saveSpace();
     },
     updateNode(nodeId: NodeID, nodeChange: Partial<LocalNode>) {
-      let nodeConfigs = get().nodeConfigs;
       let nodes = get().nodes;
+      let nodeConfigs = get().nodeConfigs;
       let edges = get().edges;
+      let variableValueMaps = get().variableValueMaps;
 
       const index = A.getIndexBy(nodes, (n) => n.id === nodeId)!;
 
@@ -211,12 +212,17 @@ export const createFlowServerSlice: StateCreator<
       edges = pair[0];
       const rejectedEdges = pair[1];
 
-      nodeConfigs = restoreNodeConfigForRemovedEdges(
-        rejectedEdges,
-        nodeConfigs
-      );
+      {
+        const result = restoreNodeConfigForRemovedEdges(
+          rejectedEdges,
+          nodeConfigs,
+          variableValueMaps
+        );
+        nodeConfigs = result.nodeConfigs;
+        variableValueMaps = result.variableValueMaps;
+      }
 
-      set({ nodes, edges, nodeConfigs });
+      set({ nodes, nodeConfigs, edges, variableValueMaps });
 
       saveSpace();
     },
@@ -224,6 +230,7 @@ export const createFlowServerSlice: StateCreator<
       let nodes = get().nodes;
       let edges = get().edges;
       let nodeConfigs = get().nodeConfigs;
+      let variableValueMaps = get().variableValueMaps;
 
       nodes = A.reject(nodes, flow(D.get("id"), F.equals(id)));
       nodeConfigs = D.deleteKey(nodeConfigs, id);
@@ -232,19 +239,25 @@ export const createFlowServerSlice: StateCreator<
       edges = pair[0];
       const rejectedEdges = pair[1];
 
-      nodeConfigs = restoreNodeConfigForRemovedEdges(
-        rejectedEdges,
-        nodeConfigs
-      );
+      {
+        const result = restoreNodeConfigForRemovedEdges(
+          rejectedEdges,
+          nodeConfigs,
+          variableValueMaps
+        );
+        nodeConfigs = result.nodeConfigs;
+        variableValueMaps = result.variableValueMaps;
+      }
 
-      set({ nodes, edges, nodeConfigs });
+      set({ nodes, nodeConfigs, edges, variableValueMaps });
 
       saveSpace();
     },
     updateNodeConfig(nodeId: NodeID, change: Partial<NodeConfig>) {
       const nodes = get().nodes;
-      let edges = get().edges;
       let nodeConfigs = get().nodeConfigs;
+      let edges = get().edges;
+      let variableValueMaps = get().variableValueMaps;
 
       nodeConfigs = D.update(nodeConfigs, nodeId, D.merge(change));
 
@@ -252,12 +265,17 @@ export const createFlowServerSlice: StateCreator<
       edges = pair[0];
       const rejectedEdges = pair[1];
 
-      nodeConfigs = restoreNodeConfigForRemovedEdges(
-        rejectedEdges,
-        nodeConfigs
-      );
+      {
+        const result = restoreNodeConfigForRemovedEdges(
+          rejectedEdges,
+          nodeConfigs,
+          variableValueMaps
+        );
+        nodeConfigs = result.nodeConfigs;
+        variableValueMaps = result.variableValueMaps;
+      }
 
-      set({ nodeConfigs, edges });
+      set({ nodeConfigs, edges, variableValueMaps });
 
       saveSpace();
     },
@@ -296,6 +314,15 @@ export const createFlowServerSlice: StateCreator<
       const nodes = get().nodes;
       let nodeConfigs = get().nodeConfigs;
       let edges = get().edges;
+      let variableValueMaps = get().variableValueMaps;
+
+      const removedEdges: LocalEdge[] = [];
+
+      for (const change of changes) {
+        if (change.type === "remove") {
+          removedEdges.push(edges.find((edge) => edge.id === change.id)!);
+        }
+      }
 
       edges = applyEdgeChanges(changes, edges) as LocalEdge[];
 
@@ -303,12 +330,17 @@ export const createFlowServerSlice: StateCreator<
       edges = pair[0];
       const rejectedEdges = pair[1];
 
-      nodeConfigs = restoreNodeConfigForRemovedEdges(
-        rejectedEdges,
-        nodeConfigs
-      );
+      {
+        const result = restoreNodeConfigForRemovedEdges(
+          rejectedEdges.concat(removedEdges),
+          nodeConfigs,
+          variableValueMaps
+        );
+        nodeConfigs = result.nodeConfigs;
+        variableValueMaps = result.variableValueMaps;
+      }
 
-      set({ edges });
+      set({ nodeConfigs, edges, variableValueMaps });
 
       if (A.any(changes, propEq("type", "remove"))) {
         saveSpace();

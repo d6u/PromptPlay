@@ -17,6 +17,7 @@ import {
   OutputValueType,
   ServerEdge,
   ServerNode,
+  VariableValueMap,
 } from "./store/types-flow-content";
 import { LocalNode } from "./store/types-flow-content";
 
@@ -231,25 +232,39 @@ export function rejectInvalidEdges(
 
 export function restoreNodeConfigForRemovedEdges(
   rejectedEdges: ServerEdge[],
-  nodeConfigs: NodeConfigs
-): NodeConfigs {
+  nodeConfigs: NodeConfigs,
+  variableValueMaps: VariableValueMap[]
+): {
+  nodeConfigs: NodeConfigs;
+  variableValueMaps: VariableValueMap[];
+} {
   for (const edge of rejectedEdges) {
     const targetNodeConfig = nodeConfigs[edge.target];
 
-    if (targetNodeConfig) {
-      if (targetNodeConfig.nodeType === NodeType.OutputNode) {
-        for (const [index, input] of targetNodeConfig.inputs.entries()) {
-          if (input.id === edge.targetHandle) {
-            nodeConfigs = produce(nodeConfigs, (draft) => {
-              delete (draft[targetNodeConfig.nodeId] as OutputNodeConfig)
-                .inputs[index].valueType;
-            });
-            break;
-          }
-        }
+    if (!targetNodeConfig) {
+      continue;
+    }
+
+    if (targetNodeConfig.nodeType !== NodeType.OutputNode) {
+      continue;
+    }
+
+    for (const [index, input] of targetNodeConfig.inputs.entries()) {
+      if (input.id === edge.targetHandle) {
+        nodeConfigs = produce(nodeConfigs, (draft) => {
+          const input = (draft[targetNodeConfig.nodeId] as OutputNodeConfig)
+            .inputs[index];
+          delete input.valueType;
+        });
+
+        variableValueMaps = produce(variableValueMaps, (draft) => {
+          draft[0][input.id] = null;
+        });
+
+        break;
       }
     }
   }
 
-  return nodeConfigs;
+  return { nodeConfigs, variableValueMaps };
 }

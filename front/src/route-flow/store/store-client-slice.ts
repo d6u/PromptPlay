@@ -1,5 +1,6 @@
 import { D } from "@mobily/ts-belt";
 import { produce } from "immer";
+import { Subscription } from "rxjs";
 import { StateCreator } from "zustand";
 import { run, RunEventType } from "./flow-run";
 import { flowInputItemsSelector } from "./store-flow";
@@ -26,6 +27,7 @@ export type ClientSlice = ClientSliceState & {
   resetAugments(): void;
   updateNodeAugment(nodeId: NodeID, change: Partial<NodeAugment>): void;
   runFlow(): void;
+  stopRunningFlow(): void;
 };
 
 const CLIENT_SLICE_INITIAL_STATE: ClientSliceState = {
@@ -44,6 +46,7 @@ export const createClientSlice: StateCreator<FlowState, [], [], ClientSlice> = (
   function setIsRunning(isRunning: boolean) {
     set((state) => {
       let edges = state.edges;
+      let localNodeAugments = state.localNodeAugments;
 
       edges = produce(edges, (draft) => {
         for (const edge of draft) {
@@ -53,9 +56,17 @@ export const createClientSlice: StateCreator<FlowState, [], [], ClientSlice> = (
         }
       });
 
-      return { isRunning, edges };
+      if (!isRunning) {
+        // It is important to reset node augment, because node's running status
+        // doesn't depend on global isRunning state.
+        localNodeAugments = D.map(localNodeAugments, D.set("isRunning", false));
+      }
+
+      return { isRunning, edges, localNodeAugments };
     });
   }
+
+  let runFlowSubscription: Subscription | null = null;
 
   return {
     ...CLIENT_SLICE_INITIAL_STATE,
@@ -105,6 +116,9 @@ export const createClientSlice: StateCreator<FlowState, [], [], ClientSlice> = (
     },
 
     runFlow() {
+      runFlowSubscription?.unsubscribe();
+      runFlowSubscription = null;
+
       const {
         resetAugments,
         edges,
@@ -124,31 +138,40 @@ export const createClientSlice: StateCreator<FlowState, [], [], ClientSlice> = (
         inputVariableMap[inputItem.id] = defaultVariableValueMap[inputItem.id];
       }
 
-      run(edges, nodeConfigs, inputVariableMap).subscribe({
-        next(data) {
-          switch (data.type) {
-            case RunEventType.VariableValueChanges: {
-              const { changes } = data;
-              for (const [outputId, value] of Object.entries(changes)) {
-                updateDefaultVariableValueMap(outputId as VariableID, value);
+      runFlowSubscription = run(edges, nodeConfigs, inputVariableMap).subscribe(
+        {
+          next(data) {
+            switch (data.type) {
+              case RunEventType.VariableValueChanges: {
+                const { changes } = data;
+                for (const [outputId, value] of Object.entries(changes)) {
+                  updateDefaultVariableValueMap(outputId as VariableID, value);
+                }
+                break;
               }
-              break;
+              case RunEventType.NodeAugmentChange: {
+                const { nodeId, augmentChange } = data;
+                updateNodeAugment(nodeId, augmentChange);
+                break;
+              }
             }
-            case RunEventType.NodeAugmentChange: {
-              const { nodeId, augmentChange } = data;
-              updateNodeAugment(nodeId, augmentChange);
-              break;
-            }
-          }
-        },
-        error(e) {
-          console.error(e);
-          setIsRunning(false);
-        },
-        complete() {
-          setIsRunning(false);
-        },
-      });
+          },
+          error(e) {
+            console.error(e);
+            setIsRunning(false);
+          },
+          complete() {
+            setIsRunning(false);
+          },
+        }
+      );
+    },
+
+    stopRunningFlow() {
+      setIsRunning(false);
+
+      runFlowSubscription?.unsubscribe();
+      runFlowSubscription = null;
     },
   };
 };

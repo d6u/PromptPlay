@@ -19,7 +19,9 @@ import {
 } from "../common/controls-common";
 
 const selector = (state: FlowState) => ({
+  isRunning: state.isRunning,
   runFlow: state.runFlow,
+  stopRunningFlow: state.stopRunningFlow,
   updateNodeConfig: state.updateNodeConfig,
   flowInputItems: flowInputItemsWithNodeConfigSelector(state),
   flowOutputItems: flowOutputItemsSelector(state),
@@ -31,7 +33,9 @@ export default function PanelEvaluationModeSimple() {
   const { isCurrentUserOwner } = useContext(FlowContext);
 
   const {
+    isRunning,
     runFlow,
+    stopRunningFlow,
     updateNodeConfig,
     flowInputItems,
     flowOutputItems,
@@ -44,8 +48,11 @@ export default function PanelEvaluationModeSimple() {
       <HeaderSection>
         <HeaderSectionHeader>Input variables</HeaderSectionHeader>
         {isCurrentUserOwner && (
-          <Button color="success" onClick={runFlow}>
-            Run
+          <Button
+            color={isRunning ? "danger" : "success"}
+            onClick={isRunning ? stopRunningFlow : runFlow}
+          >
+            {isRunning ? "Stop" : "Run"}
           </Button>
         )}
       </HeaderSection>
