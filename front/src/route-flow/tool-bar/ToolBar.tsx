@@ -19,10 +19,12 @@ import { FlowState } from "../store/types-local-state";
 import { DetailPanelContentType } from "../store/types-local-state";
 
 const selector = (state: FlowState) => ({
+  isRunning: state.isRunning,
   detailPanelContentType: state.detailPanelContentType,
   setDetailPanelContentType: state.setDetailPanelContentType,
   addNode: state.addNode,
   runFlow: state.runFlow,
+  stopRunningFlow: state.stopRunningFlow,
 });
 
 export default function ToolBar() {
@@ -31,10 +33,12 @@ export default function ToolBar() {
   const storeApi = useStoreApi();
 
   const {
+    isRunning,
     detailPanelContentType,
     setDetailPanelContentType,
     addNode,
     runFlow,
+    stopRunningFlow,
   } = useFlowStore(selector);
 
   const addNodeWithType = useCallback(
@@ -114,8 +118,8 @@ export default function ToolBar() {
     shouldShowRunButton:
       detailPanelContentType !== DetailPanelContentType.EvaluationModeSimple &&
       detailPanelContentType !== DetailPanelContentType.EvaluationModeCSV,
-    label: "Run",
-    onClick: runFlow,
+    label: isRunning ? "Stop" : "Run",
+    onClick: isRunning ? stopRunningFlow : runFlow,
   };
 
   return (
@@ -134,7 +138,10 @@ export default function ToolBar() {
               </Menu>
             </Dropdown>
             {runButtonConfig.shouldShowRunButton && (
-              <Button color="success" onClick={runButtonConfig.onClick}>
+              <Button
+                color={isRunning ? "danger" : "success"}
+                onClick={runButtonConfig.onClick}
+              >
                 {runButtonConfig.label}
               </Button>
             )}
@@ -147,7 +154,10 @@ export default function ToolBar() {
               </Button>
             ))}
             {runButtonConfig.shouldShowRunButton && (
-              <Button color="success" onClick={runButtonConfig.onClick}>
+              <Button
+                color={isRunning ? "danger" : "success"}
+                onClick={runButtonConfig.onClick}
+              >
                 {runButtonConfig.label}
               </Button>
             )}
