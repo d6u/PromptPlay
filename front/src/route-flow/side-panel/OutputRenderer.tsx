@@ -1,3 +1,5 @@
+import styled from "@emotion/styled";
+import { ReactNode } from "react";
 import { useFlowStore } from "../store/store-flow";
 import {
   FlowOutputItem,
@@ -6,7 +8,6 @@ import {
 } from "../store/types-flow-content";
 import { FlowState } from "../store/types-local-state";
 import OutputDisplay from "./OutputDisplay";
-import { OutputValueItem, OutputValueName, RawValue } from "./controls-common";
 
 const selector = (state: FlowState) => ({
   defaultVariableValueMap: state.getDefaultVariableValueMap(),
@@ -21,21 +22,40 @@ export default function OutputRenderer(props: Props) {
 
   const value = variableValueMap[props.outputItem.id];
 
+  let valueContent: ReactNode;
+
   if (props.outputItem.valueType === OutputValueType.Audio) {
-    return (
-      <OutputValueItem key={props.outputItem.id}>
-        <OutputValueName>{props.outputItem.name}</OutputValueName>
-        <audio controls src={value as string} />
-      </OutputValueItem>
+    valueContent = <audio controls src={value as string} />;
+  } else {
+    valueContent = (
+      <ValueRaw>
+        <OutputDisplay value={value} />
+      </ValueRaw>
     );
   }
 
   return (
-    <OutputValueItem key={props.outputItem.id}>
-      <OutputValueName>{props.outputItem.name}</OutputValueName>
-      <RawValue>
-        <OutputDisplay value={value} />
-      </RawValue>
-    </OutputValueItem>
+    <Container key={props.outputItem.id}>
+      <Name>{props.outputItem.name}</Name>
+      {valueContent}
+    </Container>
   );
 }
+
+const Container = styled.div`
+  margin-bottom: 10px;
+`;
+
+const Name = styled.code`
+  margin: 0 0 5px 0;
+  font-size: 14px;
+  display: block;
+`;
+
+const ValueRaw = styled.pre`
+  margin: 0;
+  border: 1px solid #ddd;
+  padding: 10px;
+  border-radius: 5px;
+  white-space: pre-wrap;
+`;

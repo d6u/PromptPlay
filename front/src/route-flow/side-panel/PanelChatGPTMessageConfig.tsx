@@ -4,7 +4,7 @@ import FormLabel from "@mui/joy/FormLabel";
 import Radio from "@mui/joy/Radio";
 import RadioGroup from "@mui/joy/RadioGroup";
 import Textarea from "@mui/joy/Textarea";
-import { ReactNode, useContext, useEffect, useMemo, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { ChatGPTMessageRole } from "../../integrations/openai";
 import FlowContext from "../FlowContext";
 import TextareaReadonly from "../flow-common/TextareaReadonly";
@@ -12,13 +12,11 @@ import { CopyIcon, LabelWithIconContainer } from "../flow-common/flow-common";
 import { useFlowStore } from "../store/store-flow";
 import { ChatGPTMessageNodeConfig } from "../store/types-flow-content";
 import { FlowState } from "../store/types-local-state";
+import OutputRenderer from "./OutputRenderer";
 import {
   HeaderSection,
   HeaderSectionHeader,
-  OutputValueItem,
-  OutputValueName,
   PanelContentContainer,
-  RawValue,
   Section,
 } from "./controls-common";
 
@@ -26,18 +24,13 @@ const selector = (state: FlowState) => ({
   nodeConfigs: state.nodeConfigs,
   detailPanelSelectedNodeId: state.detailPanelSelectedNodeId,
   updateNodeConfig: state.updateNodeConfig,
-  defaultVariableValueMap: state.getDefaultVariableValueMap(),
 });
 
 export default function PanelChatGPTMessageConfig() {
   const { isCurrentUserOwner } = useContext(FlowContext);
 
-  const {
-    nodeConfigs,
-    detailPanelSelectedNodeId,
-    updateNodeConfig,
-    defaultVariableValueMap,
-  } = useFlowStore(selector);
+  const { nodeConfigs, detailPanelSelectedNodeId, updateNodeConfig } =
+    useFlowStore(selector);
 
   const nodeConfig = useMemo(
     () => nodeConfigs[detailPanelSelectedNodeId!] as ChatGPTMessageNodeConfig,
@@ -61,23 +54,9 @@ export default function PanelChatGPTMessageConfig() {
         <HeaderSectionHeader>Output variables</HeaderSectionHeader>
       </HeaderSection>
       <Section>
-        {nodeConfig.outputs.map((output) => {
-          const value = defaultVariableValueMap[output.id];
-
-          let content: ReactNode;
-          if (typeof value === "string") {
-            content = value;
-          } else {
-            content = JSON.stringify(value, null, 2);
-          }
-
-          return (
-            <OutputValueItem key={output.id}>
-              <OutputValueName>{output.name}</OutputValueName>
-              <RawValue key={output.id}>{content}</RawValue>
-            </OutputValueItem>
-          );
-        })}
+        {nodeConfig.outputs.map((output) => (
+          <OutputRenderer key={output.id} outputItem={output} />
+        ))}
       </Section>
       <HeaderSection>
         <HeaderSectionHeader>Config</HeaderSectionHeader>
