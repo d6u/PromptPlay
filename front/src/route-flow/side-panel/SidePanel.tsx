@@ -5,9 +5,9 @@ import CrossIcon from "../../component-icons/CrossIcon";
 import { useFlowStore } from "../store/store-flow";
 import { FlowState } from "../store/types-local-state";
 import { DetailPanelContentType } from "../store/types-local-state";
-import PanelChatGPTMessageConfig from "./PanelChatGPTMessageConfig";
-import PanelNodeConfig from "./PanelNodeConfig";
+import PanelChatGPTMessageConfig from "./chat-gpt-message-config/PanelChatGPTMessageConfig";
 import PanelEvaluationModeCSV from "./csv-evaluation/PanelEvaluationModeCSV";
+import PanelNodeConfig from "./node-config/PanelNodeConfig";
 import PanelEvaluationModeSimple from "./simple-evaluaton/PanelEvaluationModeSimple";
 
 const selector = (state: FlowState) => ({

@@ -28,31 +28,6 @@ const CREATE_SPACE_MUTATION = graphql(`
   }
 `);
 
-const Container = styled.div`
-  width: 100%;
-  height: 100%;
-`;
-
-const Content = styled.div`
-  padding: 20px;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, 200px);
-  gap: 20px;
-
-  @media only screen and (max-width: 500px) {
-    padding: 15px;
-    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-    gap: 15px;
-  }
-`;
-
-const TileTimestamp = styled.div`
-  font-size: 12px;
-  font-family: var(--font-family-mono);
-  color: #5f5f5f;
-  margin-top: 10px;
-`;
-
 export default function Dashboard({
   dashboardFragment,
 }: {
@@ -108,3 +83,28 @@ export default function Dashboard({
     </Container>
   );
 }
+
+const Container = styled.div`
+  width: 100%;
+  height: 100%;
+`;
+
+const Content = styled.div`
+  padding: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 200px);
+  gap: 20px;
+
+  @media only screen and (max-width: 500px) {
+    padding: 15px;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 15px;
+  }
+`;
+
+const TileTimestamp = styled.div`
+  font-size: 12px;
+  font-family: var(--font-family-mono);
+  color: #5f5f5f;
+  margin-top: 10px;
+`;

@@ -104,6 +104,10 @@ export default function ToolBar() {
       label: "Add Hugging Face Inference",
       onClick: () => addNodeWithType(NodeType.HuggingFaceInference),
     },
+    {
+      label: "Add Eleven Labs Text to Speech",
+      onClick: () => addNodeWithType(NodeType.ElevenLabs),
+    },
   ];
 
   const runButtonConfig = {
@@ -175,7 +179,7 @@ export default function ToolBar() {
   );
 }
 
-const USE_NARROW_LAYOUT_BREAKPOINT = 1550;
+const USE_NARROW_LAYOUT_BREAKPOINT = 2000;
 
 const Container = styled.div`
   height: 51px;

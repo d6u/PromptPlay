@@ -1,5 +1,6 @@
-import { A } from "@mobily/ts-belt";
+import { A, F } from "@mobily/ts-belt";
 import Chance from "chance";
+import { produce } from "immer";
 import { ChatGPTMessageRole } from "../integrations/openai";
 import propEq from "../util/propEq";
 import randomId from "../util/randomId";
@@ -12,6 +13,8 @@ import {
   NodeType,
   OpenAIChatModel,
   OutputID,
+  OutputNodeConfig,
+  OutputValueType,
   ServerEdge,
   ServerNode,
 } from "./store/types-flow-content";
@@ -164,6 +167,26 @@ export function createNodeConfig(node: LocalNode): NodeConfig {
         ],
       };
     }
+    case NodeType.ElevenLabs: {
+      return {
+        nodeId: node.id,
+        nodeType: NodeType.ElevenLabs,
+        inputs: [
+          {
+            id: `${node.id}/text` as InputID,
+            name: "text",
+          },
+        ],
+        voiceId: "",
+        outputs: [
+          {
+            id: `${node.id}/audio` as OutputID,
+            name: "audio",
+            valueType: OutputValueType.Audio,
+          },
+        ],
+      };
+    }
   }
 }
 
@@ -171,35 +194,62 @@ export function rejectInvalidEdges(
   nodes: ServerNode[],
   edges: ServerEdge[],
   nodeConfigs: NodeConfigs
-): ServerEdge[] {
-  return A.filter(edges, (edge) => {
-    let foundSourceHandle = false;
-    let foundTargetHandle = false;
+): [ServerEdge[], ServerEdge[]] {
+  return F.toMutable(
+    A.partition(edges, (edge) => {
+      let foundSourceHandle = false;
+      let foundTargetHandle = false;
 
-    for (const node of nodes) {
-      const nodeConfig = nodeConfigs[node.id];
+      for (const node of nodes) {
+        const nodeConfig = nodeConfigs[node.id];
 
-      if (nodeConfig) {
-        if (node.id === edge.source) {
-          if ("outputs" in nodeConfig) {
-            foundSourceHandle = A.any(
-              nodeConfig.outputs,
-              propEq("id", edge.sourceHandle)
-            );
+        if (nodeConfig) {
+          if (node.id === edge.source) {
+            if ("outputs" in nodeConfig) {
+              foundSourceHandle = A.any<{ id: string }>(
+                nodeConfig.outputs,
+                propEq("id", edge.sourceHandle)
+              );
+            }
+          }
+
+          if (node.id === edge.target) {
+            if ("inputs" in nodeConfig) {
+              foundTargetHandle = A.any(
+                nodeConfig.inputs,
+                propEq("id", edge.targetHandle)
+              );
+            }
           }
         }
+      }
 
-        if (node.id === edge.target) {
-          if ("inputs" in nodeConfig) {
-            foundTargetHandle = A.any(
-              nodeConfig.inputs,
-              propEq("id", edge.targetHandle)
-            );
+      return foundSourceHandle && foundTargetHandle;
+    })
+  );
+}
+
+export function restoreNodeConfigForRemovedEdges(
+  rejectedEdges: ServerEdge[],
+  nodeConfigs: NodeConfigs
+): NodeConfigs {
+  for (const edge of rejectedEdges) {
+    const targetNodeConfig = nodeConfigs[edge.target];
+
+    if (targetNodeConfig) {
+      if (targetNodeConfig.nodeType === NodeType.OutputNode) {
+        for (const [index, input] of targetNodeConfig.inputs.entries()) {
+          if (input.id === edge.targetHandle) {
+            nodeConfigs = produce(nodeConfigs, (draft) => {
+              delete (draft[targetNodeConfig.nodeId] as OutputNodeConfig)
+                .inputs[index].valueType;
+            });
+            break;
           }
         }
       }
     }
+  }
 
-    return foundSourceHandle && foundTargetHandle;
-  });
+  return nodeConfigs;
 }

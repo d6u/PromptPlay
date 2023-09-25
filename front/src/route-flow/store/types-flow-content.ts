@@ -49,6 +49,7 @@ export enum NodeType {
   ChatGPTChatCompletionNode = "ChatGPTChatCompletionNode",
   TextTemplate = "TextTemplate",
   HuggingFaceInference = "HuggingFaceInference",
+  ElevenLabs = "ElevenLabs",
 }
 
 export type NodeConfig =
@@ -58,7 +59,8 @@ export type NodeConfig =
   | ChatGPTChatCompletionNodeConfig
   | JavaScriptFunctionNodeConfig
   | TextTemplateNodeConfig
-  | HuggingFaceInferenceNodeConfig;
+  | HuggingFaceInferenceNodeConfig
+  | ElevenLabsNodeConfig;
 
 export type NodeConfigCommon = {
   nodeId: NodeID;
@@ -132,6 +134,15 @@ export type HuggingFaceInferenceNodeConfig = NodeConfigCommon & {
   outputs: NodeOutputItem[];
 };
 
+// ElevenLabs
+
+export type ElevenLabsNodeConfig = NodeConfigCommon & {
+  nodeType: NodeType.ElevenLabs;
+  inputs: NodeInputItem[];
+  voiceId: string;
+  outputs: NodeOutputItem[];
+};
+
 // Input / Output
 
 export type NodeInputItem = {
@@ -142,10 +153,19 @@ export type NodeInputItem = {
 export type NodeOutputItem = {
   id: OutputID;
   name: string;
+  valueType?: OutputValueType;
 };
 
-export type FlowInputItem = NodeOutputItem & {
+export type FlowInputItem = {
+  id: OutputID;
+  name: string;
   valueType: InputValueType;
+};
+
+export type FlowOutputItem = {
+  id: InputID;
+  name: string;
+  valueType?: OutputValueType;
 };
 
 export enum InputValueType {
@@ -153,7 +173,9 @@ export enum InputValueType {
   Number = "Number",
 }
 
-export type FlowOutputItem = NodeInputItem;
+export enum OutputValueType {
+  Audio = "Audio",
+}
 
 // Edge
 // ----

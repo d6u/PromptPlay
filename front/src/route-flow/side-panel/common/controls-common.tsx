@@ -24,21 +24,3 @@ export const HeaderSectionHeader = styled.h3`
 export const Section = styled.div`
   margin-bottom: 20px;
 `;
-
-export const OutputValueItem = styled.div`
-  margin-bottom: 10px;
-`;
-
-export const OutputValueName = styled.code`
-  margin: 0 0 5px 0;
-  font-size: 14px;
-  display: block;
-`;
-
-export const RawValue = styled.pre`
-  margin: 0;
-  border: 1px solid #ddd;
-  padding: 10px;
-  border-radius: 5px;
-  white-space: pre-wrap;
-`;

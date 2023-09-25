@@ -10,16 +10,13 @@ import {
 } from "../../store/store-flow";
 import { InputValueType } from "../../store/types-flow-content";
 import { FlowState } from "../../store/types-local-state";
-import InputBlock from "../InputBlock";
-import OutputDisplay from "../OutputDisplay";
+import InputBlock from "../common/InputBlock";
+import OutputRenderer from "../common/OutputRenderer";
 import {
   Section,
   HeaderSectionHeader,
-  OutputValueName,
-  OutputValueItem,
   HeaderSection,
-  RawValue,
-} from "../controls-common";
+} from "../common/controls-common";
 
 const selector = (state: FlowState) => ({
   runFlow: state.runFlow,
@@ -91,18 +88,9 @@ export default function PanelEvaluationModeSimple() {
         <HeaderSectionHeader>Output values</HeaderSectionHeader>
       </HeaderSection>
       <Section>
-        {flowOutputItems.map((output, i) => {
-          const value = variableValueMap[output.id];
-
-          return (
-            <OutputValueItem key={output.id}>
-              <OutputValueName>{output.name}</OutputValueName>
-              <RawValue>
-                <OutputDisplay value={value} />
-              </RawValue>
-            </OutputValueItem>
-          );
-        })}
+        {flowOutputItems.map((output) => (
+          <OutputRenderer key={output.id} outputItem={output} />
+        ))}
       </Section>
     </Container>
   );

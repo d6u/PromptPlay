@@ -17,12 +17,14 @@ import {
   concat,
   defer,
 } from "rxjs";
-import * as HF from "../../integrations/hugging-face";
+import * as ElevenLabs from "../../integrations/eleven-labs";
+import * as HuggingFace from "../../integrations/hugging-face";
 import * as OpenAI from "../../integrations/openai";
 import { useLocalStorageStore, useSpaceStore } from "../../state/appState";
 import {
   ChatGPTChatCompletionNodeConfig,
   ChatGPTMessageNodeConfig,
+  ElevenLabsNodeConfig,
   HuggingFaceInferenceNodeConfig,
   InputID,
   JavaScriptFunctionNodeConfig,
@@ -205,6 +207,19 @@ export function run(
         }
         case NodeType.HuggingFaceInference: {
           obs = handleHuggingFaceInferenceNode(
+            nodeConfig,
+            inputIdToOutputIdMap,
+            outputIdToValueMap
+          ).pipe(
+            map((changes) => ({
+              type: RunEventType.VariableValueChanges,
+              changes,
+            }))
+          );
+          break;
+        }
+        case NodeType.ElevenLabs: {
+          obs = handleElevenLabsNode(
             nodeConfig,
             inputIdToOutputIdMap,
             outputIdToValueMap
@@ -515,7 +530,7 @@ function handleHuggingFaceInferenceNode(
     }
 
     return from(
-      HF.callInferenceApi(
+      HuggingFace.callInferenceApi(
         { apiToken: huggingFaceApiToken, model: data.model },
         argsMap["parameters"]
       )
@@ -537,4 +552,61 @@ function handleHuggingFaceInferenceNode(
       })
     );
   });
+}
+
+function handleElevenLabsNode(
+  data: ElevenLabsNodeConfig,
+  inputIdToOutputIdMap: Record<InputID, OutputID | undefined>,
+  variableValueMap: VariableValueMap
+): Observable<VariableValueMap> {
+  return defer(() => {
+    // Prepare inputs
+    // ----------
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const argsMap: { [key: string]: any } = {};
+
+    for (const input of data.inputs) {
+      const outputId = inputIdToOutputIdMap[input.id];
+
+      if (outputId) {
+        const outputValue = variableValueMap[outputId];
+        argsMap[input.name] = outputValue ?? null;
+      } else {
+        argsMap[input.name] = null;
+      }
+    }
+
+    // Execute logic
+    // ----------
+
+    const elevenLabsApiKey = useLocalStorageStore.getState().elevenLabsApiKey;
+    if (!elevenLabsApiKey) {
+      // console.error("Eleven Labs API key is missing");
+      useSpaceStore.getState().setMissingElevenLabsApiKey(true);
+      return throwError(() => new Error("Eleven Labs API key is missing"));
+    }
+
+    return from(
+      ElevenLabs.textToSpeech({
+        text: argsMap["text"],
+        voiceId: data.voiceId,
+        apiKey: elevenLabsApiKey,
+      })
+    );
+  }).pipe(
+    map((result) => {
+      if (result.isError) {
+        throw result.data;
+      }
+
+      const url = URL.createObjectURL(result.data);
+
+      variableValueMap[data.outputs[0].id] = url;
+
+      return {
+        [data.outputs[0].id]: url,
+      };
+    })
+  );
 }

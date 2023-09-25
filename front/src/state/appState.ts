@@ -11,6 +11,11 @@ type HuggingFaceApiTokenState = {
   setHuggingFaceApiToken: (huggingFaceApiToken: string | null) => void;
 };
 
+type ElevenLabsApiKeyState = {
+  elevenLabsApiKey: string | null;
+  setElevenLabsApiKey: (elevenLabsApiKey: string | null) => void;
+};
+
 type PlaceholderUserTokenState = {
   placeholderUserToken: string | null;
   setPlaceholderUserToken: (placeholderUserToken: string | null) => void;
@@ -18,7 +23,8 @@ type PlaceholderUserTokenState = {
 
 export type LocalStorageState = OpenAIAPIKeyState &
   HuggingFaceApiTokenState &
-  PlaceholderUserTokenState;
+  PlaceholderUserTokenState &
+  ElevenLabsApiKeyState;
 
 export const useLocalStorageStore = create<LocalStorageState>()(
   persist(
@@ -31,6 +37,9 @@ export const useLocalStorageStore = create<LocalStorageState>()(
       placeholderUserToken: null,
       setPlaceholderUserToken: (placeholderUserToken) =>
         set(() => ({ placeholderUserToken })),
+      elevenLabsApiKey: null,
+      setElevenLabsApiKey: (elevenLabsApiKey: string | null) =>
+        set(() => ({ elevenLabsApiKey })),
     }),
     { name: "localUserSettings" }
   )
@@ -41,6 +50,8 @@ export type SpaceState = {
   setMissingOpenAiApiKey: (missingOpenAiApiKey: boolean) => void;
   missingHuggingFaceApiToken: boolean;
   setMissingHuggingFaceApiToken: (missingHuggingFaceApiToken: boolean) => void;
+  missingElevenLabsApiKey: boolean;
+  setMissingElevenLabsApiKey: (missingElevenLabsApiKey: boolean) => void;
   spaceV2SelectedBlockId: string | null;
   setSpaceV2SelectedBlockId: (spaceV2SelectedBlockId: string | null) => void;
 };
@@ -52,6 +63,9 @@ export const useSpaceStore = create<SpaceState>()((set) => ({
   missingHuggingFaceApiToken: false,
   setMissingHuggingFaceApiToken: (missingHuggingFaceApiToken: boolean) =>
     set(() => ({ missingHuggingFaceApiToken })),
+  missingElevenLabsApiKey: false,
+  setMissingElevenLabsApiKey: (missingElevenLabsApiKey: boolean) =>
+    set(() => ({ missingElevenLabsApiKey })),
   spaceV2SelectedBlockId: null,
   setSpaceV2SelectedBlockId: (spaceV2SelectedBlockId) =>
     set(() => ({ spaceV2SelectedBlockId })),
