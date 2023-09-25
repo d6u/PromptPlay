@@ -11,6 +11,7 @@ import "reactflow/dist/style.css";
 import FlowContext from "./FlowContext";
 import ChatGPTChatCompletionNode from "./nodes/ChatGPTChatCompletionNode";
 import ChatGPTMessageNode from "./nodes/ChatGPTMessageNode";
+import ElevenLabsNode from "./nodes/ElevenLabsNode";
 import HuggingFaceInferenceNode from "./nodes/HuggingFaceInferenceNode";
 import InputNode from "./nodes/InputNode";
 import JavaScriptFunctionNode from "./nodes/JavaScriptFunctionNode";
@@ -29,6 +30,7 @@ const NODE_TYPES = {
   [NodeType.ChatGPTChatCompletionNode]: ChatGPTChatCompletionNode,
   [NodeType.TextTemplate]: TextTemplateNode,
   [NodeType.HuggingFaceInference]: HuggingFaceInferenceNode,
+  [NodeType.ElevenLabs]: ElevenLabsNode,
 };
 
 const selector = (state: FlowState) => ({

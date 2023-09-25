@@ -49,6 +49,7 @@ export enum NodeType {
   ChatGPTChatCompletionNode = "ChatGPTChatCompletionNode",
   TextTemplate = "TextTemplate",
   HuggingFaceInference = "HuggingFaceInference",
+  ElevenLabs = "ElevenLabs",
 }
 
 export type NodeConfig =
@@ -58,7 +59,8 @@ export type NodeConfig =
   | ChatGPTChatCompletionNodeConfig
   | JavaScriptFunctionNodeConfig
   | TextTemplateNodeConfig
-  | HuggingFaceInferenceNodeConfig;
+  | HuggingFaceInferenceNodeConfig
+  | ElevenLabsNodeConfig;
 
 export type NodeConfigCommon = {
   nodeId: NodeID;
@@ -129,6 +131,15 @@ export type HuggingFaceInferenceNodeConfig = NodeConfigCommon & {
   nodeType: NodeType.HuggingFaceInference;
   inputs: NodeInputItem[];
   model: string;
+  outputs: NodeOutputItem[];
+};
+
+// ElevenLabs
+
+export type ElevenLabsNodeConfig = NodeConfigCommon & {
+  nodeType: NodeType.ElevenLabs;
+  inputs: NodeInputItem[];
+  voiceId: string;
   outputs: NodeOutputItem[];
 };
 

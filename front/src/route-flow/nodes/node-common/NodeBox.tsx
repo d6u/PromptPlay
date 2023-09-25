@@ -80,6 +80,11 @@ const Backdrop = styled.div<{ $type: NodeType; $state: NodeState }>`
           background: linear-gradient(22deg, #fa97b6 0%, #e081fe 100%);
         `;
       }
+      case NodeType.ElevenLabs: {
+        return css`
+          background: linear-gradient(22deg, #ffd196 0%, #ff8900 100%);
+        `;
+      }
     }
   }}
 `;

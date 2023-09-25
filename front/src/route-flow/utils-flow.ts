@@ -164,6 +164,25 @@ export function createNodeConfig(node: LocalNode): NodeConfig {
         ],
       };
     }
+    case NodeType.ElevenLabs: {
+      return {
+        nodeId: node.id,
+        nodeType: NodeType.ElevenLabs,
+        inputs: [
+          {
+            id: `${node.id}/text` as InputID,
+            name: "text",
+          },
+        ],
+        voiceId: "",
+        outputs: [
+          {
+            id: `${node.id}/audio` as OutputID,
+            name: "audio",
+          },
+        ],
+      };
+    }
   }
 }
 
