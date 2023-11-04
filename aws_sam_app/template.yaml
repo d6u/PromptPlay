@@ -1,30 +1,40 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
+Description: Promptplay backend using serverless resources.
+
 Globals:
   Function:
     Timeout: 3
-
     Tracing: Active
   Api:
     TracingEnabled: true
+    # Setting this prevent the creation of "Stage" stage in AWS::Serverless::Api
+    OpenApiVersion: "2.0"
 
 Resources:
-  HelloWorldFunction:
+  # --- APIs ---
+  ServerlessApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: v1
+
+  ServerlessFunction:
     Type: AWS::Serverless::Function
     Properties:
       PackageType: Image
       Architectures:
-        - x86_64
+        - arm64
       Events:
-        HelloWorld:
+        GetHello:
           Type: Api
           Properties:
+            RestApiId: !Ref ServerlessApi
+            Method: GET
             Path: /hello
-            Method: get
     Metadata:
-      DockerTag: nodejs18.x-v1
-      DockerContext: ./hello-world
+      DockerContext: ./server_nodejs
       Dockerfile: Dockerfile
+      DockerTag: v1
 
   ApplicationResourceGroup:
     Type: AWS::ResourceGroups::Group
@@ -32,6 +42,7 @@ Resources:
       Name: !Sub ApplicationInsights-SAM-${AWS::StackName}
       ResourceQuery:
         Type: CLOUDFORMATION_STACK_1_0
+
   ApplicationInsightsMonitoring:
     Type: AWS::ApplicationInsights::Application
     Properties:
@@ -39,15 +50,6 @@ Resources:
       AutoConfigurationEnabled: true
 
 Outputs:
-  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
-  # Find out more about other implicit resources you can reference within SAM
-  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
-  HelloWorldApi:
+  ApiEndpoint:
     Description: API Gateway endpoint URL for Prod stage for Hello World function
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/"
-  HelloWorldFunction:
-    Description: Hello World Lambda Function ARN
-    Value: !GetAtt HelloWorldFunction.Arn
-  HelloWorldFunctionIamRole:
-    Description: Implicit IAM Role created for Hello World function
-    Value: !GetAtt HelloWorldFunctionRole.Arn
+    Value: !Sub "https://${ServerlessApi}.execute-api.${AWS::Region}.amazonaws.com/v1/hello"

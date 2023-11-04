@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import express from "express";
 import { createYoga, createSchema } from "graphql-yoga";
 import { Issuer, generators } from "openid-client";
+import serverless from "serverless-http";
 
 dotenv.config();
 
@@ -105,6 +106,8 @@ app.get("/hello", (req, res) => {
   );
 });
 
-app.listen(8000, () => {
-  console.log("Running a server at http://localhost:8000/");
-});
+export const handler = serverless(app);
+
+// app.listen(8000, () => {
+//   console.log("Running a server at http://localhost:8000/");
+// });

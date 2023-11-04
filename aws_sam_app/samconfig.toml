@@ -1,10 +1,8 @@
-# More information about the configuration file can be found here:
-# https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-config.html
-version = 0.1
+version = 1.0
 
 [default]
 [default.global.parameters]
-stack_name = "server_nodejs"
+stack_name = "PromptplayServerless"
 
 [default.build.parameters]
 parallel = true
@@ -17,6 +15,8 @@ capabilities = "CAPABILITY_IAM"
 confirm_changeset = true
 resolve_s3 = true
 resolve_image_repos = true
+s3_prefix = "PromptplayServerless"
+region = "us-west-2"
 
 [default.package.parameters]
 resolve_s3 = true
