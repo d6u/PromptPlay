@@ -3,30 +3,21 @@ Transform: AWS::Serverless-2016-10-31
 Description: Promptplay backend using serverless resources.
 
 Parameters:
-  PostgresHost:
-    Type: String
-  PostgresPort:
-    Type: String
-  PostgresUser:
-    Type: String
-  PostgresPassword:
-    Type: String
-  PostgresDatabaseName:
-    Type: String
   Auth0Domain:
     Type: String
   Auth0ClientId:
     Type: String
   Auth0ClientSecret:
     Type: String
-  AuthCallbackUrl:
+  AuthLoginFinishRedirectUrl:
     Type: String
-  AuthFinishRedirectUrl:
+  AuthLogoutFinishRedirectUrl:
     Type: String
-  CorsAllowOrigin:
+  SessionCookieSecret:
     Type: String
-  SessionSecretKey:
+  TableNameUsers:
     Type: String
+    Default: PromptplayUsers
 
 Globals:
   Function:
@@ -58,24 +49,39 @@ Resources:
             RestApiId: !Ref ServerlessApi
             Method: ANY
             Path: /{proxy+}
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref TableNameUsers
+        - DynamoDBWritePolicy:
+            TableName: !Ref TableNameUsers
       Environment:
         Variables:
-          POSTGRES_HOST: !Ref PostgresHost
-          POSTGRES_PORT: !Ref PostgresPort
-          POSTGRES_USER: !Ref PostgresUser
-          POSTGRES_PASSWORD: !Ref PostgresPassword
-          POSTGRES_DATABASE_NAME: !Ref PostgresDatabaseName
           AUTH0_DOMAIN: !Ref Auth0Domain
           AUTH0_CLIENT_ID: !Ref Auth0ClientId
           AUTH0_CLIENT_SECRET: !Ref Auth0ClientSecret
-          AUTH_CALLBACK_URL: !Ref AuthCallbackUrl
-          AUTH_FINISH_REDIRECT_URL: !Ref AuthFinishRedirectUrl
-          CORS_ALLOW_ORIGIN: !Ref CorsAllowOrigin
-          SESSION_SECRET_KEY: !Ref SessionSecretKey
+          # Not using
+          # `!Sub "https://${ServerlessApi}.execute-api.${AWS::Region}.amazonaws.com/v1/auth"`
+          # as the value, because referring ServerlessApi here will cause
+          # circular reference.
+          # Match value of from the API stage
+          AUTH_CALLBACK_URL: https://n5sj0t4egb.execute-api.us-west-2.amazonaws.com/v1/auth
+          AUTH_LOGIN_FINISH_REDIRECT_URL: !Ref AuthLoginFinishRedirectUrl
+          AUTH_LOGOUT_FINISH_REDIRECT_URL: !Ref AuthLogoutFinishRedirectUrl
+          SESSION_COOKIE_SECRET: !Ref SessionCookieSecret
+          TABLE_NAME_USERS: !Ref TableNameUsers
     Metadata:
       DockerContext: ./server_nodejs
       Dockerfile: Dockerfile
       DockerTag: v1
+
+  # --- Database ---
+  UserTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      TableName: !Ref TableNameUsers
+      PrimaryKey:
+        Name: UserId
+        Type: String
 
   # --- Monitoring ---
   ApplicationResourceGroup:
