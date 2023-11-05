@@ -87,7 +87,7 @@ Resources:
     Metadata:
       DockerContext: ./server_nodejs
       Dockerfile: Dockerfile
-      DockerTag: v2
+      DockerTag: v3
 
   # --- Database ---
   UserTable:
