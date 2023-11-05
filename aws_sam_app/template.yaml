@@ -2,9 +2,35 @@ AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 Description: Promptplay backend using serverless resources.
 
+Parameters:
+  PostgresHost:
+    Type: String
+  PostgresPort:
+    Type: String
+  PostgresUser:
+    Type: String
+  PostgresPassword:
+    Type: String
+  PostgresDatabaseName:
+    Type: String
+  Auth0Domain:
+    Type: String
+  Auth0ClientId:
+    Type: String
+  Auth0ClientSecret:
+    Type: String
+  AuthCallbackUrl:
+    Type: String
+  AuthFinishRedirectUrl:
+    Type: String
+  CorsAllowOrigin:
+    Type: String
+  SessionSecretKey:
+    Type: String
+
 Globals:
   Function:
-    Timeout: 3
+    Timeout: 5
     Tracing: Active
   Api:
     TracingEnabled: true
@@ -18,6 +44,7 @@ Resources:
     Properties:
       StageName: v1
 
+  # --- Lambda ---
   ServerlessFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -31,11 +58,26 @@ Resources:
             RestApiId: !Ref ServerlessApi
             Method: GET
             Path: /hello
+      Environment:
+        Variables:
+          POSTGRES_HOST: !Ref PostgresHost
+          POSTGRES_PORT: !Ref PostgresPort
+          POSTGRES_USER: !Ref PostgresUser
+          POSTGRES_PASSWORD: !Ref PostgresPassword
+          POSTGRES_DATABASE_NAME: !Ref PostgresDatabaseName
+          AUTH0_DOMAIN: !Ref Auth0Domain
+          AUTH0_CLIENT_ID: !Ref Auth0ClientId
+          AUTH0_CLIENT_SECRET: !Ref Auth0ClientSecret
+          AUTH_CALLBACK_URL: !Ref AuthCallbackUrl
+          AUTH_FINISH_REDIRECT_URL: !Ref AuthFinishRedirectUrl
+          CORS_ALLOW_ORIGIN: !Ref CorsAllowOrigin
+          SESSION_SECRET_KEY: !Ref SessionSecretKey
     Metadata:
       DockerContext: ./server_nodejs
       Dockerfile: Dockerfile
       DockerTag: v1
 
+  # --- Monitoring ---
   ApplicationResourceGroup:
     Type: AWS::ResourceGroups::Group
     Properties:
