@@ -118,7 +118,28 @@ export default function setupAuth(app) {
     );
   });
 
-  app.get("/hello", (req, res) => {
-    res.send(req.session.userId ? "Hello World! (logged in)" : "Hello World!");
+  app.get("/hello", async (req, res) => {
+    const userId = req.session?.userId;
+
+    if (!userId) {
+      res.send("Hello World!");
+      return;
+    }
+
+    const response = await dynamoDbClient.send(
+      new GetItemCommand({
+        TableName: process.env.TABLE_NAME_USERS,
+        Key: {
+          UserId: { S: userId },
+        },
+      })
+    );
+
+    if (!response.Item?.Name?.S) {
+      res.send("Hello World!");
+      return;
+    }
+
+    res.send(`Hello ${response.Item.Name.S}!`);
   });
 }
