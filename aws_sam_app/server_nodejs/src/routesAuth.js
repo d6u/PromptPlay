@@ -1,6 +1,7 @@
 import { PutItemCommand, GetItemCommand } from "@aws-sdk/client-dynamodb";
 import { Issuer, generators } from "openid-client";
 import dynamoDbClient from "./dynamoDb.js";
+import { attachUser } from "./middleware/user.js";
 
 async function getAuthClient() {
   const authIssuer = await Issuer.discover(
@@ -78,35 +79,17 @@ export default function setupAuth(app) {
     res.redirect(process.env.AUTH_LOGIN_FINISH_REDIRECT_URL);
   });
 
-  app.get("/logout", async (req, res) => {
-    const userId = req.session?.userId;
-
-    // Edge case 1: The user is already logged out
-    if (!userId) {
-      res.redirect(process.env.AUTH_LOGOUT_FINISH_REDIRECT_URL);
-      return;
-    }
-
+  app.get("/logout", attachUser, async (req, res) => {
     req.session = null;
 
-    const response = await dynamoDbClient.send(
-      new GetItemCommand({
-        TableName: process.env.TABLE_NAME_USERS,
-        Key: {
-          UserId: { S: userId },
-        },
-      })
-    );
-
-    // Edge case 2: The user doesn't exist in DB or has no idToken
-    if (!response.Item?.IdToken?.S) {
+    if (!req.user) {
       res.redirect(process.env.AUTH_LOGOUT_FINISH_REDIRECT_URL);
       return;
     }
 
     const searchParams = new URLSearchParams({
       post_logout_redirect_uri: process.env.AUTH_LOGOUT_FINISH_REDIRECT_URL,
-      id_token_hint: response.Item.IdToken.S,
+      id_token_hint: req.user.idToken,
     });
 
     // Redirect to Auth0 logout page, so we are logged out between Auth0
@@ -118,28 +101,12 @@ export default function setupAuth(app) {
     );
   });
 
-  app.get("/hello", async (req, res) => {
-    const userId = req.session?.userId;
-
-    if (!userId) {
+  app.get("/hello", attachUser, async (req, res) => {
+    if (!req.user) {
       res.send("Hello World!");
       return;
     }
 
-    const response = await dynamoDbClient.send(
-      new GetItemCommand({
-        TableName: process.env.TABLE_NAME_USERS,
-        Key: {
-          UserId: { S: userId },
-        },
-      })
-    );
-
-    if (!response.Item?.Name?.S) {
-      res.send("Hello World!");
-      return;
-    }
-
-    res.send(`Hello ${response.Item.Name.S}!`);
+    res.send(`Hello ${req.user.name}!`);
   });
 }
