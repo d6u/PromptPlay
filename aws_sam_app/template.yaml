@@ -3,6 +3,9 @@ Transform: AWS::Serverless-2016-10-31
 Description: Promptplay backend using serverless resources.
 
 Parameters:
+  # Define this parameter here because the HostedZoneId is managed manually.
+  HostedZoneId:
+    Type: String
   Auth0Domain:
     Type: String
   Auth0ClientId:
@@ -29,11 +32,28 @@ Globals:
     OpenApiVersion: "2.0"
 
 Resources:
+  # --- Cert for *.promptplay.xyz ---
+  CertificateSubDomains:
+    Type: AWS::CertificateManager::Certificate
+    Properties:
+      DomainName: "*.promptplay.xyz"
+      DomainValidationOptions:
+        - DomainName: "*.promptplay.xyz"
+          # The HostedZone is managed manually on AWS console to prevent
+          # catastrophic errors in automation.
+          HostedZoneId: !Ref HostedZoneId
+      ValidationMethod: DNS
+
   # --- APIs ---
   ServerlessApi:
     Type: AWS::Serverless::Api
     Properties:
-      StageName: v1
+      StageName: default
+      Domain:
+        DomainName: dev-api.promptplay.xyz
+        CertificateArn: !Ref CertificateSubDomains
+        Route53:
+          HostedZoneId: !Ref HostedZoneId
 
   # --- Lambda ---
   ServerlessFunction:
@@ -59,12 +79,7 @@ Resources:
           AUTH0_DOMAIN: !Ref Auth0Domain
           AUTH0_CLIENT_ID: !Ref Auth0ClientId
           AUTH0_CLIENT_SECRET: !Ref Auth0ClientSecret
-          # Not using
-          # `!Sub "https://${ServerlessApi}.execute-api.${AWS::Region}.amazonaws.com/v1/auth"`
-          # as the value, because referring ServerlessApi here will cause
-          # circular reference.
-          # Match value of from the API stage
-          AUTH_CALLBACK_URL: https://n5sj0t4egb.execute-api.us-west-2.amazonaws.com/v1/auth
+          AUTH_CALLBACK_URL: https://dev-api.promptplay.xyz/auth
           AUTH_LOGIN_FINISH_REDIRECT_URL: !Ref AuthLoginFinishRedirectUrl
           AUTH_LOGOUT_FINISH_REDIRECT_URL: !Ref AuthLogoutFinishRedirectUrl
           SESSION_COOKIE_SECRET: !Ref SessionCookieSecret
@@ -72,7 +87,7 @@ Resources:
     Metadata:
       DockerContext: ./server_nodejs
       Dockerfile: Dockerfile
-      DockerTag: v1
+      DockerTag: v2
 
   # --- Database ---
   UserTable:
@@ -84,6 +99,7 @@ Resources:
         Type: String
 
   # --- Monitoring ---
+
   ApplicationResourceGroup:
     Type: AWS::ResourceGroups::Group
     Properties:
@@ -96,8 +112,3 @@ Resources:
     Properties:
       ResourceGroupName: !Ref ApplicationResourceGroup
       AutoConfigurationEnabled: true
-
-Outputs:
-  ApiEndpoint:
-    Description: API Gateway endpoint URL for Prod stage for Hello World function
-    Value: !Sub "https://${ServerlessApi}.execute-api.${AWS::Region}.amazonaws.com/v1/hello"
