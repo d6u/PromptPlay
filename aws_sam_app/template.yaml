@@ -52,12 +52,12 @@ Resources:
       Architectures:
         - arm64
       Events:
-        GetHello:
+        AllTraffic:
           Type: Api
           Properties:
             RestApiId: !Ref ServerlessApi
-            Method: GET
-            Path: /hello
+            Method: ANY
+            Path: /{proxy+}
       Environment:
         Variables:
           POSTGRES_HOST: !Ref PostgresHost
