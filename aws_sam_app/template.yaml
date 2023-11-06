@@ -1,0 +1,114 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: Promptplay backend using serverless resources.
+
+Parameters:
+  # Define this parameter here because the HostedZoneId is managed manually.
+  HostedZoneId:
+    Type: String
+  Auth0Domain:
+    Type: String
+  Auth0ClientId:
+    Type: String
+  Auth0ClientSecret:
+    Type: String
+  AuthLoginFinishRedirectUrl:
+    Type: String
+  AuthLogoutFinishRedirectUrl:
+    Type: String
+  SessionCookieSecret:
+    Type: String
+  TableNameUsers:
+    Type: String
+    Default: PromptplayUsers
+
+Globals:
+  Function:
+    Timeout: 5
+    Tracing: Active
+  Api:
+    TracingEnabled: true
+    # Setting this prevent the creation of "Stage" stage in AWS::Serverless::Api
+    OpenApiVersion: "2.0"
+
+Resources:
+  # --- Cert for *.promptplay.xyz ---
+  CertificateSubDomains:
+    Type: AWS::CertificateManager::Certificate
+    Properties:
+      DomainName: "*.promptplay.xyz"
+      DomainValidationOptions:
+        - DomainName: "*.promptplay.xyz"
+          # The HostedZone is managed manually on AWS console to prevent
+          # catastrophic errors in automation.
+          HostedZoneId: !Ref HostedZoneId
+      ValidationMethod: DNS
+
+  # --- APIs ---
+  ServerlessApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: default
+      Domain:
+        DomainName: dev-api.promptplay.xyz
+        CertificateArn: !Ref CertificateSubDomains
+        Route53:
+          HostedZoneId: !Ref HostedZoneId
+
+  # --- Lambda ---
+  ServerlessFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      PackageType: Image
+      Architectures:
+        - arm64
+      Events:
+        AllTraffic:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ServerlessApi
+            Method: ANY
+            Path: /{proxy+}
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref TableNameUsers
+        - DynamoDBWritePolicy:
+            TableName: !Ref TableNameUsers
+      Environment:
+        Variables:
+          AUTH0_DOMAIN: !Ref Auth0Domain
+          AUTH0_CLIENT_ID: !Ref Auth0ClientId
+          AUTH0_CLIENT_SECRET: !Ref Auth0ClientSecret
+          AUTH_CALLBACK_URL: https://dev-api.promptplay.xyz/auth
+          AUTH_LOGIN_FINISH_REDIRECT_URL: !Ref AuthLoginFinishRedirectUrl
+          AUTH_LOGOUT_FINISH_REDIRECT_URL: !Ref AuthLogoutFinishRedirectUrl
+          SESSION_COOKIE_SECRET: !Ref SessionCookieSecret
+          TABLE_NAME_USERS: !Ref TableNameUsers
+    Metadata:
+      DockerContext: ./server_nodejs
+      Dockerfile: Dockerfile
+      DockerTag: v5
+
+  # --- Database ---
+  UserTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      TableName: !Ref TableNameUsers
+      PrimaryKey:
+        Name: UserId
+        Type: String
+
+  # --- Monitoring ---
+
+  ApplicationResourceGroup:
+    Type: AWS::ResourceGroups::Group
+    Properties:
+      Name: !Sub ApplicationInsights-SAM-${AWS::StackName}
+      ResourceQuery:
+        Type: CLOUDFORMATION_STACK_1_0
+
+  ApplicationInsightsMonitoring:
+    Type: AWS::ApplicationInsights::Application
+    Properties:
+      ResourceGroupName: !Ref ApplicationResourceGroup
+      AutoConfigurationEnabled: true

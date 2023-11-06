@@ -1,0 +1,31 @@
+version = 1.0
+
+[default]
+[default.global.parameters]
+stack_name = "PromptplayServerless"
+
+[default.build.parameters]
+parallel = true
+
+[default.validate.parameters]
+lint = true
+
+[default.deploy.parameters]
+capabilities = "CAPABILITY_IAM"
+confirm_changeset = true
+resolve_s3 = true
+resolve_image_repos = true
+s3_prefix = "PromptplayServerless"
+region = "us-west-2"
+
+[default.package.parameters]
+resolve_s3 = true
+
+[default.sync.parameters]
+watch = true
+
+[default.local_start_api.parameters]
+warm_containers = "EAGER"
+
+[default.local_start_lambda.parameters]
+warm_containers = "EAGER"
