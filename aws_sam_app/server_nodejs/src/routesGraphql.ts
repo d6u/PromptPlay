@@ -1,8 +1,13 @@
+import { Express } from "express";
 import { createYoga, createSchema } from "graphql-yoga";
-import { attachUser } from "./middleware/user.js";
+import { RequestWithUser, attachUser } from "./middleware/user.js";
+
+type Context = {
+  req: RequestWithUser;
+};
 
 const yoga = createYoga({
-  schema: createSchema({
+  schema: createSchema<Context>({
     typeDefs: /* GraphQL */ `
       type Query {
         hello: String
@@ -22,6 +27,6 @@ const yoga = createYoga({
   }),
 });
 
-export default function setupGraphql(app) {
+export default function setupGraphql(app: Express) {
   app.use(yoga.graphqlEndpoint, attachUser, yoga);
 }

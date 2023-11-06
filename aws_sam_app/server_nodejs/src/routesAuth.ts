@@ -1,7 +1,9 @@
 import { PutItemCommand, GetItemCommand } from "@aws-sdk/client-dynamodb";
-import { Issuer, generators } from "openid-client";
+import { Express, Request, Response, NextFunction } from "express";
+import { BaseClient, Issuer, generators } from "openid-client";
 import dynamoDbClient from "./dynamoDb.js";
-import { attachUser } from "./middleware/user.js";
+import { RequestWithUser, attachUser } from "./middleware/user.js";
+import { RequestWithSession } from "./types.js";
 
 async function getAuthClient() {
   const authIssuer = await Issuer.discover(
@@ -16,7 +18,7 @@ async function getAuthClient() {
   });
 }
 
-let authClientPromise = null;
+let authClientPromise: Promise<BaseClient> | null = null;
 
 async function getAuthClientCached() {
   if (!authClientPromise) {
@@ -26,21 +28,26 @@ async function getAuthClientCached() {
   return await authClientPromise;
 }
 
-export default function setupAuth(app) {
-  app.get("/login", async (req, res) => {
+export default function setupAuth(app: Express) {
+  app.get("/login", async (req: RequestWithSession, res: Response) => {
     const authClient = await getAuthClientCached();
 
-    req.session.nonce = generators.nonce();
+    req.session!.nonce = generators.nonce();
 
     res.redirect(
       authClient.authorizationUrl({
         scope: "openid email profile",
-        nonce: req.session.nonce,
+        nonce: req.session!.nonce,
       })
     );
   });
 
-  app.get("/auth", async (req, res) => {
+  app.get("/auth", async (req: RequestWithSession, res) => {
+    if (!req.session?.nonce) {
+      res.send(500);
+      return;
+    }
+
     const authClient = await getAuthClientCached();
 
     const params = authClient.callbackParams(req);
@@ -67,9 +74,9 @@ export default function setupAuth(app) {
         Item: {
           UserId: { S: userId },
           IdToken: { S: tokenSet.id_token },
-          Name: { S: idToken.name },
-          Email: { S: idToken.email },
-          Picture: { S: idToken.picture },
+          Name: { S: idToken.name ?? "" },
+          Email: { S: idToken.email ?? "" },
+          Picture: { S: idToken.picture ?? "" },
         },
       })
     );
@@ -79,10 +86,10 @@ export default function setupAuth(app) {
     res.redirect(process.env.AUTH_LOGIN_FINISH_REDIRECT_URL);
   });
 
-  app.get("/logout", attachUser, async (req, res) => {
+  app.get("/logout", attachUser, async (req: RequestWithUser, res) => {
     req.session = null;
 
-    if (!req.user) {
+    if (!req.user?.idToken) {
       res.redirect(process.env.AUTH_LOGOUT_FINISH_REDIRECT_URL);
       return;
     }
@@ -101,7 +108,7 @@ export default function setupAuth(app) {
     );
   });
 
-  app.get("/hello", attachUser, async (req, res) => {
+  app.get("/hello", attachUser, async (req: RequestWithUser, res) => {
     if (!req.user) {
       res.send("Hello World!");
       return;

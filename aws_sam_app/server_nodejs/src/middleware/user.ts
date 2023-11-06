@@ -1,7 +1,21 @@
 import { GetItemCommand } from "@aws-sdk/client-dynamodb";
+import { Response, NextFunction } from "express";
 import dynamoDbClient from "../dynamoDb.js";
+import { RequestWithSession } from "../types.js";
 
-export async function attachUser(req, res, next) {
+export interface RequestWithUser extends RequestWithSession {
+  user?: {
+    userId: string;
+    name: string;
+    idToken?: string;
+  };
+}
+
+export async function attachUser(
+  req: RequestWithUser,
+  _res: Response,
+  next: NextFunction
+) {
   const userId = req.session?.userId;
 
   if (!userId) {

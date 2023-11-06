@@ -15,12 +15,17 @@
     "serverless-http": "^3.2.0"
   },
   "devDependencies": {
+    "@tsconfig/node18": "^18.2.2",
+    "@types/cookie-session": "^2.0.46",
+    "@types/node": "^20.8.10",
     "chai": "^4.3.6",
     "mocha": "^10.1.0",
-    "nodemon": "^3.0.1"
+    "nodemon": "^3.0.1",
+    "typescript": "^5.2.2"
   },
   "scripts": {
-    "start": "node src/index.js",
+    "build": "tsc --pretty",
+    "start": "node dist/index.js",
     "test": "mocha tests/unit/"
   }
 }
