@@ -8,12 +8,14 @@ import { FlowState } from "./types-local-state";
 
 type ConfigContent = {
   repeatCount: number;
+  concurrencyLimit: number;
   variableColumnMap: VariableColumnMap;
   generatedResult: GeneratedResult;
 };
 
 const DEFAULT_CONFIG_CONTENT: ConfigContent = {
   repeatCount: 1,
+  concurrencyLimit: 2,
   variableColumnMap: {},
   generatedResult: [],
 };
@@ -43,6 +45,7 @@ export type CsvEvaluationPresetSlice = {
     change: Partial<ConfigContent> | null
   ): void;
   csvEvaluationSetRepeatCount(repeatCount: number): void;
+  csvEvaluationSetConcurrencyLimit(concurrencyLimit: number): void;
   csvEvaluationSetVariableColumnMap(
     update: ((prev: VariableColumnMap) => VariableColumnMap) | VariableColumnMap
   ): void;
@@ -96,6 +99,12 @@ export const createCsvEvaluationPresetSlice: StateCreator<
     const configContent = get().csvEvaluationConfigContent;
     set({
       csvEvaluationConfigContent: D.merge(configContent, { repeatCount }),
+    });
+  },
+  csvEvaluationSetConcurrencyLimit(concurrencyLimit: number): void {
+    const configContent = get().csvEvaluationConfigContent;
+    set({
+      csvEvaluationConfigContent: D.merge(configContent, { concurrencyLimit }),
     });
   },
   csvEvaluationSetVariableColumnMap(

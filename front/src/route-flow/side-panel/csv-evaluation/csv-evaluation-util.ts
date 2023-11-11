@@ -29,14 +29,14 @@ export function runForEachRow({
   csvBody,
   variableColumnMap,
   repeatCount,
-  concurrent = 1,
+  concurrencyLimit,
 }: {
   edges: LocalEdge[];
   nodeConfigs: NodeConfigs;
   csvBody: CSVData;
   variableColumnMap: VariableColumnMap;
   repeatCount: number;
-  concurrent?: number;
+  concurrencyLimit: number;
 }): Observable<ResultEvent> {
   return range(0, repeatCount).pipe(
     concatMap((iteratonIndex) => {
@@ -68,7 +68,7 @@ export function runForEachRow({
             }, {}),
             map((outputs) => ({ iteratonIndex, rowIndex, outputs }))
           );
-        }, concurrent)
+        }, concurrencyLimit)
       );
     })
   );

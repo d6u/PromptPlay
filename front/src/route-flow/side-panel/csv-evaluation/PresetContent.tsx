@@ -41,6 +41,7 @@ const selector = (state: FlowState) => ({
   setCsvContent: state.csvEvaluationSetLocalCsvContent,
   setConfigContent: state.csvEvaluationSetLocalConfigContent,
   repeatCount: state.csvEvaluationConfigContent.repeatCount,
+  concurrencyLimit: state.csvEvaluationConfigContent.concurrencyLimit,
   variableColumnMap: state.csvEvaluationConfigContent.variableColumnMap,
   setGeneratedResult: state.csvEvaluationSetGeneratedResult,
 });
@@ -55,6 +56,7 @@ export default function PresetContent() {
     setCsvContent,
     setConfigContent,
     repeatCount,
+    concurrencyLimit,
     variableColumnMap,
     setGeneratedResult,
   } = useFlowStore(selector);
@@ -136,6 +138,7 @@ export default function PresetContent() {
       csvBody,
       variableColumnMap,
       repeatCount,
+      concurrencyLimit,
     }).subscribe({
       next({ iteratonIndex: colIndex, rowIndex, outputs }) {
         setGeneratedResult((prev) => {
@@ -171,6 +174,7 @@ export default function PresetContent() {
     edges,
     nodeConfigs,
     repeatCount,
+    concurrencyLimit,
     setGeneratedResult,
     variableColumnMap,
   ]);

@@ -36,6 +36,8 @@ const selector = (state: FlowState) => ({
   flowOutputItems: flowOutputItemsSelector(state),
   repeatCount: state.csvEvaluationConfigContent.repeatCount,
   setRepeatCount: state.csvEvaluationSetRepeatCount,
+  concurrencyLimit: state.csvEvaluationConfigContent.concurrencyLimit,
+  setConcurrencyLimit: state.csvEvaluationSetConcurrencyLimit,
   variableColumnMap: state.csvEvaluationConfigContent.variableColumnMap,
   setVariableColumnMap: state.csvEvaluationSetVariableColumnMap,
   generatedResult: state.csvEvaluationConfigContent.generatedResult,
@@ -56,6 +58,8 @@ export default function EvaluationSectionConfigCSV(props: Props) {
     flowOutputItems,
     repeatCount,
     setRepeatCount,
+    concurrencyLimit,
+    setConcurrencyLimit,
     variableColumnMap,
     setVariableColumnMap,
     generatedResult,
@@ -214,6 +218,16 @@ export default function EvaluationSectionConfigCSV(props: Props) {
               slotProps={{ input: { min: 1, step: 1 } }}
               value={repeatCount}
               onChange={(e) => setRepeatCount(Number(e.target.value))}
+            />
+          </FormControl>
+          <FormControl size="lg" orientation="horizontal">
+            <FormLabel>Concurrency Limit</FormLabel>
+            <Input
+              size="sm"
+              type="number"
+              slotProps={{ input: { min: 1, step: 1 } }}
+              value={concurrencyLimit}
+              onChange={(e) => setConcurrencyLimit(Number(e.target.value))}
             />
           </FormControl>
           {props.isRunning ? (
