@@ -299,15 +299,20 @@ export const createFlowServerSlice: StateCreator<
     onNodesChange(changes: NodeChange[]) {
       const nodes = applyNodeChanges(changes, get().nodes) as LocalNode[];
 
-      // Because we are using controlled flow, there will be 3 types of changes:
+      // Because we are using controlled flow, there will be 4 types of changes:
       //
-      // - dimensions
-      // - select
-      // - position
-      //
-      // Position is saved when calling `onNodeDragStop` and the other changes
-      // are not persisted to the server, thus we don't need to save the changes
-      // to the server.
+      // - remove: When seleting a node then press Backspace key,
+      //           need to delegate to `removeNode`.
+      // - position: We are saving when calling `onNodeDragStop`
+      // - dimensions: Not persisted to the server
+      // - select: Not persisted to the server
+
+      for (const change of changes) {
+        if (change.type === "remove") {
+          get().removeNode(change.id as NodeID);
+        }
+      }
+
       set({ nodes });
     },
     onEdgesChange(changes: EdgeChange[]) {
