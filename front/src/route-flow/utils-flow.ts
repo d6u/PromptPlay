@@ -111,7 +111,7 @@ export function createNodeConfig(node: LocalNode): NodeConfig {
             name: "messages",
           },
         ],
-        model: OpenAIChatModel.GPT3_5_TURBO,
+        model: OpenAIChatModel.GPT_4,
         temperature: 1,
         stop: [],
         outputs: [
