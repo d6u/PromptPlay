@@ -23,6 +23,7 @@ const selector = (state: FlowState) => ({
   detailPanelContentType: state.detailPanelContentType,
   setDetailPanelContentType: state.setDetailPanelContentType,
   addNode: state.addNode,
+  v2_addNode: state.v2_addNode,
   runFlow: state.runFlow,
   stopRunningFlow: state.stopRunningFlow,
 });
@@ -37,6 +38,7 @@ export default function ToolBar() {
     detailPanelContentType,
     setDetailPanelContentType,
     addNode,
+    v2_addNode,
     runFlow,
     stopRunningFlow,
   } = useFlowStore(selector);
@@ -60,8 +62,9 @@ export default function ToolBar() {
       const centerY = -transformY * zoomMultiplier + 200 * zoomMultiplier;
 
       addNode(type, centerX - NODE_BOX_WIDTH / 2, centerY);
+      v2_addNode(type, centerX - NODE_BOX_WIDTH / 2, centerY);
     },
-    [addNode, isCurrentUserOwner, storeApi]
+    [addNode, v2_addNode, isCurrentUserOwner, storeApi]
   );
 
   const [useNarrowLayout, setUseNarrowLayout] = useState(
