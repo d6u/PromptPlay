@@ -4,6 +4,7 @@ import { devtools } from "zustand/middleware";
 import { createClientSlice } from "./store-client-slice";
 import { createCsvEvaluationPresetSlice } from "./store-csv-evaluation-preset-slice";
 import { createFlowServerSlice } from "./store-flow-server-slice";
+import { createFlowServerSliceV2 } from "./store-flow-server-slice-v2";
 import {
   FlowInputItem,
   FlowOutputItem,
@@ -19,6 +20,7 @@ export const useFlowStore = create<FlowState>()(
       ...createClientSlice(...a),
       ...createFlowServerSlice(...a),
       ...createCsvEvaluationPresetSlice(...a),
+      ...createFlowServerSliceV2(...a),
     }),
     {
       store: "FlowState",

@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useCallback, useContext } from "react";
+import { useCallback, useContext, useEffect } from "react";
 import ReactFlow, {
   Controls,
   Background,
@@ -40,13 +40,36 @@ const selector = (state: FlowState) => ({
   onNodesChange: state.onNodesChange,
   onEdgesChange: state.onEdgesChange,
   onConnect: state.onConnect,
+  v2_fetchFlowConfiguration: state.v2_fetchFlowConfiguration,
+  v2_cancelFetchFlowConfiguration: state.v2_cancelFetchFlowConfiguration,
+  v2_onNodesChange: state.v2_onNodesChange,
+  v2_onEdgesChange: state.v2_onEdgesChange,
+  v2_onConnect: state.v2_onConnect,
 });
 
 export default function FlowCanvas() {
   const { isCurrentUserOwner } = useContext(FlowContext);
 
-  const { nodes, edges, updateNode, onNodesChange, onEdgesChange, onConnect } =
-    useFlowStore(selector);
+  const {
+    nodes,
+    edges,
+    updateNode,
+    onNodesChange,
+    onEdgesChange,
+    onConnect,
+    v2_fetchFlowConfiguration,
+    v2_cancelFetchFlowConfiguration,
+    v2_onNodesChange,
+    v2_onEdgesChange,
+    v2_onConnect,
+  } = useFlowStore(selector);
+
+  useEffect(() => {
+    v2_fetchFlowConfiguration();
+    return () => {
+      v2_cancelFetchFlowConfiguration();
+    };
+  }, [v2_fetchFlowConfiguration, v2_cancelFetchFlowConfiguration]);
 
   const onNodeDragStop: NodeDragHandler = useCallback(
     (event, node) => {
@@ -70,9 +93,22 @@ export default function FlowCanvas() {
         onInit={(reactflow) => {
           reactflow.fitView();
         }}
-        onNodesChange={onNodesChange}
-        onEdgesChange={isCurrentUserOwner ? onEdgesChange : undefined}
-        onConnect={isCurrentUserOwner ? onConnect : undefined}
+        onNodesChange={(changes) => {
+          onNodesChange(changes);
+          v2_onNodesChange(changes);
+        }}
+        onEdgesChange={(changes) => {
+          if (isCurrentUserOwner) {
+            onEdgesChange(changes);
+            v2_onEdgesChange(changes);
+          }
+        }}
+        onConnect={(connection) => {
+          if (isCurrentUserOwner) {
+            onConnect(connection);
+            v2_onConnect(connection);
+          }
+        }}
         onNodeDragStop={onNodeDragStop}
       >
         <Controls />
