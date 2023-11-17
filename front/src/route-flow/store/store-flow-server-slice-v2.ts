@@ -76,66 +76,79 @@ export const createFlowServerSliceV2: StateCreator<
 
       console.log("event", event);
 
+      const newEvents = [];
+
       switch (event.type) {
         // Events from UI
-        case "NODES_CHANGE": {
+        case ChangeEventType.NODES_CHANGE: {
           const oldNodes = get().v2_nodes;
           const newNodes = applyNodeChanges(
             event.changes,
             get().v2_nodes
           ) as LocalNode[];
 
-          eventQueue.push(
+          newEvents.push(
             ...processNodesChange(event.changes, oldNodes, newNodes)
           );
           break;
         }
-        case "EDGES_CHANGE": {
+        case ChangeEventType.EDGES_CHANGE: {
           const oldEdges = get().v2_edges;
           const newEdges = applyEdgeChanges(
             event.changes,
             get().v2_edges
           ) as LocalEdge[];
 
-          eventQueue.push(
+          newEvents.push(
             ...processEdgeChanges(event.changes, oldEdges, newEdges)
           );
           break;
         }
-        case "ON_CONNECT": {
+        case ChangeEventType.ON_CONNECT: {
           const oldEdges = get().v2_edges;
           const newEdges = addEdge(event.connection, oldEdges) as LocalEdge[];
 
-          eventQueue.push(...processOnConnect(oldEdges, newEdges));
+          newEvents.push(...processOnConnect(oldEdges, newEdges));
           break;
         }
-        case "ADD_NODE": {
-          eventQueue.push(...processAddNode(event.node));
+        case ChangeEventType.ADD_NODE: {
+          newEvents.push(...processAddNode(event.node));
           break;
         }
-        case "REMOVE_NODE": {
-          eventQueue.push(...processRemoveNode(event.nodeId));
+        case ChangeEventType.REMOVE_NODE: {
+          newEvents.push(...processRemoveNode(event.nodeId));
           break;
         }
         // Derived events
-        case "NODE_REMOVED": {
-          eventQueue.push(...processNodeRemoved(event.node));
+        case ChangeEventType.NODE_REMOVED: {
+          newEvents.push(...processNodeRemoved(event.node));
           break;
         }
-        case "EDGE_REMOVED": {
+        case ChangeEventType.EDGE_REMOVED: {
           break;
         }
-        case "NODE_CONFIG_REMOVED": {
+        case ChangeEventType.NODE_CONFIG_REMOVED: {
           break;
         }
-        case "NODE_ADDED": {
-          eventQueue.push(...processNodeAdded(event.node));
+        case ChangeEventType.NODE_ADDED: {
+          newEvents.push(...processNodeAdded(event.node));
           break;
         }
-        case "NODE_CONFIG_ADDED": {
+        case ChangeEventType.NODE_CONFIG_ADDED: {
           break;
         }
       }
+
+      const allowedEvents = EVENT_VALIDATION_MAP[event.type];
+      for (const newEvent of newEvents) {
+        if (!allowedEvents.includes(newEvent.type)) {
+          throw new Error(
+            `Invalid derived event ${newEvent.type} from event ${event.type}`
+          );
+        }
+      }
+
+      eventQueue.push(...newEvents);
     }
 
     if (get().v2_isDirty) {
@@ -155,7 +168,7 @@ export const createFlowServerSliceV2: StateCreator<
       switch (change.type) {
         case "remove": {
           events.push({
-            type: "NODE_REMOVED",
+            type: ChangeEventType.NODE_REMOVED,
             node: oldNodes.find((n) => n.id === change.id)!,
           });
           set({ v2_isDirty: true });
@@ -193,7 +206,7 @@ export const createFlowServerSliceV2: StateCreator<
 
     for (const edge of rejectedEdges) {
       events.push({
-        type: "EDGE_REMOVED",
+        type: ChangeEventType.EDGE_REMOVED,
         edge,
       });
     }
@@ -209,7 +222,7 @@ export const createFlowServerSliceV2: StateCreator<
     });
 
     events.push({
-      type: "NODE_CONFIG_REMOVED",
+      type: ChangeEventType.NODE_CONFIG_REMOVED,
       nodeConfig: removedNodeConfig,
     });
 
@@ -260,7 +273,7 @@ export const createFlowServerSliceV2: StateCreator<
     );
     if (rejectedEdges.length) {
       events.push({
-        type: "EDGE_REMOVED",
+        type: ChangeEventType.EDGE_REMOVED,
         edge: rejectedEdges[0],
       });
     }
@@ -278,7 +291,7 @@ export const createFlowServerSliceV2: StateCreator<
     const events: ChangeEvent[] = [];
 
     events.push({
-      type: "NODE_ADDED",
+      type: ChangeEventType.NODE_ADDED,
       node,
     });
 
@@ -299,7 +312,7 @@ export const createFlowServerSliceV2: StateCreator<
     });
 
     events.push({
-      type: "NODE_CONFIG_ADDED",
+      type: ChangeEventType.NODE_CONFIG_ADDED,
       nodeConfig,
     });
 
@@ -321,7 +334,7 @@ export const createFlowServerSliceV2: StateCreator<
 
     if (rejectedNodes.length) {
       events.push({
-        type: "NODE_REMOVED",
+        type: ChangeEventType.NODE_REMOVED,
         node: rejectedNodes[0],
       });
     }
@@ -404,7 +417,7 @@ export const createFlowServerSliceV2: StateCreator<
     v2_onNodesChange(changes) {
       const eventQueue: ChangeEvent[] = [
         {
-          type: "NODES_CHANGE",
+          type: ChangeEventType.NODES_CHANGE,
           changes: changes,
         },
       ];
@@ -413,7 +426,7 @@ export const createFlowServerSliceV2: StateCreator<
     v2_onEdgesChange(changes) {
       const eventQueue: ChangeEvent[] = [
         {
-          type: "EDGES_CHANGE",
+          type: ChangeEventType.EDGES_CHANGE,
           changes: changes,
         },
       ];
@@ -426,7 +439,7 @@ export const createFlowServerSliceV2: StateCreator<
 
       const eventQueue: ChangeEvent[] = [
         {
-          type: "ON_CONNECT",
+          type: ChangeEventType.ON_CONNECT,
           connection,
         },
       ];
@@ -436,7 +449,7 @@ export const createFlowServerSliceV2: StateCreator<
     v2_addNode(type: NodeType, x?: number, y?: number) {
       const eventQueue: ChangeEvent[] = [
         {
-          type: "ADD_NODE",
+          type: ChangeEventType.ADD_NODE,
           node: createNode(type, x ?? 200, y ?? 200),
         },
       ];
@@ -445,7 +458,7 @@ export const createFlowServerSliceV2: StateCreator<
     v2_removeNode(id: NodeID): void {
       const eventQueue: ChangeEvent[] = [
         {
-          type: "REMOVE_NODE",
+          type: ChangeEventType.REMOVE_NODE,
           nodeId: id,
         },
       ];
@@ -474,44 +487,73 @@ function assignLocalEdgeProperties(edges: LocalEdge[]): LocalEdge[] {
   });
 }
 
+enum ChangeEventType {
+  NODES_CHANGE = "NODES_CHANGE",
+  NODE_REMOVED = "NODE_REMOVED",
+  EDGE_REMOVED = "EDGE_REMOVED",
+  NODE_CONFIG_REMOVED = "NODE_CONFIG_REMOVED",
+  EDGES_CHANGE = "EDGES_CHANGE",
+  ON_CONNECT = "ON_CONNECT",
+  ADD_NODE = "ADD_NODE",
+  NODE_ADDED = "NODE_ADDED",
+  NODE_CONFIG_ADDED = "NODE_CONFIG_ADDED",
+  REMOVE_NODE = "REMOVE_NODE",
+}
+
 type ChangeEvent =
   | {
-      type: "NODES_CHANGE";
+      type: ChangeEventType.NODES_CHANGE;
       changes: NodeChange[];
     }
   | {
-      type: "NODE_REMOVED";
+      type: ChangeEventType.NODE_REMOVED;
       node: LocalNode;
     }
   | {
-      type: "EDGE_REMOVED";
+      type: ChangeEventType.EDGE_REMOVED;
       edge: LocalEdge;
     }
   | {
-      type: "NODE_CONFIG_REMOVED";
+      type: ChangeEventType.NODE_CONFIG_REMOVED;
       nodeConfig: NodeConfig;
     }
   | {
-      type: "EDGES_CHANGE";
+      type: ChangeEventType.EDGES_CHANGE;
       changes: EdgeChange[];
     }
   | {
-      type: "ON_CONNECT";
+      type: ChangeEventType.ON_CONNECT;
       connection: Connection;
     }
   | {
-      type: "ADD_NODE";
+      type: ChangeEventType.ADD_NODE;
       node: LocalNode;
     }
   | {
-      type: "NODE_ADDED";
+      type: ChangeEventType.NODE_ADDED;
       node: LocalNode;
     }
   | {
-      type: "NODE_CONFIG_ADDED";
+      type: ChangeEventType.NODE_CONFIG_ADDED;
       nodeConfig: NodeConfig;
     }
   | {
-      type: "REMOVE_NODE";
+      type: ChangeEventType.REMOVE_NODE;
       nodeId: NodeID;
     };
+
+const EVENT_VALIDATION_MAP: { [key in ChangeEventType]: ChangeEventType[] } = {
+  [ChangeEventType.NODES_CHANGE]: [ChangeEventType.NODE_REMOVED],
+  [ChangeEventType.NODE_REMOVED]: [
+    ChangeEventType.EDGE_REMOVED,
+    ChangeEventType.NODE_CONFIG_REMOVED,
+  ],
+  [ChangeEventType.EDGES_CHANGE]: [],
+  [ChangeEventType.EDGE_REMOVED]: [],
+  [ChangeEventType.NODE_CONFIG_REMOVED]: [],
+  [ChangeEventType.ON_CONNECT]: [],
+  [ChangeEventType.ADD_NODE]: [ChangeEventType.NODE_ADDED],
+  [ChangeEventType.NODE_ADDED]: [ChangeEventType.NODE_CONFIG_ADDED],
+  [ChangeEventType.NODE_CONFIG_ADDED]: [],
+  [ChangeEventType.REMOVE_NODE]: [ChangeEventType.NODE_REMOVED],
+};
