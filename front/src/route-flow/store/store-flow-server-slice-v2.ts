@@ -1,10 +1,13 @@
 import { A } from "@mobily/ts-belt";
 import { produce } from "immer";
 import {
+  Connection,
+  EdgeChange,
   NodeChange,
   OnConnect,
   OnEdgesChange,
   OnNodesChange,
+  addEdge,
   applyEdgeChanges,
   applyNodeChanges,
 } from "reactflow";
@@ -57,6 +60,177 @@ export const createFlowServerSliceV2: StateCreator<
 > = (set, get) => {
   function getSpaceId(): string {
     return get().spaceId!;
+  }
+
+  function processEventQueue(eventQueue: ChangeEvent[]) {
+    while (eventQueue.length > 0) {
+      const event = eventQueue.shift()!;
+
+      console.log("event", event);
+
+      switch (event.type) {
+        case "NODES_CHANGE": {
+          const oldNodes = get().v2_nodes;
+          const newNodes = applyNodeChanges(
+            event.changes,
+            get().v2_nodes
+          ) as LocalNode[];
+
+          eventQueue.push(
+            ...processNodesChange(event.changes, oldNodes, newNodes)
+          );
+          break;
+        }
+        case "NODE_REMOVED": {
+          eventQueue.push(...processNodeRemoved(event.node));
+          break;
+        }
+        case "ON_CONNECT": {
+          const oldEdges = get().v2_edges;
+          const newEdges = addEdge(event.connection, oldEdges) as LocalEdge[];
+
+          eventQueue.push(...processOnConnect(oldEdges, newEdges));
+          break;
+        }
+        case "EDGES_CHANGE": {
+          const oldEdges = get().v2_edges;
+          const newEdges = applyEdgeChanges(
+            event.changes,
+            get().v2_edges
+          ) as LocalEdge[];
+
+          eventQueue.push(
+            ...processEdgeChanges(event.changes, oldEdges, newEdges)
+          );
+          break;
+        }
+        case "EDGE_REMOVED": {
+          // console.log("EDGE_REMOVED", event.edge);
+          break;
+        }
+        case "NODE_CONFIG_REMOVED": {
+          // console.log("NODE_CONFIG_REMOVED", event.nodeConfig);
+          break;
+        }
+      }
+    }
+
+    function processNodesChange(
+      changes: NodeChange[],
+      oldNodes: LocalNode[],
+      newNodes: LocalNode[]
+    ): ChangeEvent[] {
+      const events: ChangeEvent[] = [];
+
+      for (const change of changes) {
+        switch (change.type) {
+          case "remove": {
+            events.push({
+              type: "NODE_REMOVED",
+              node: oldNodes.find((n) => n.id === change.id)!,
+            });
+            break;
+          }
+          case "position":
+          case "add":
+          case "select":
+          case "dimensions":
+          case "reset": {
+            break;
+          }
+        }
+      }
+
+      set({ v2_nodes: newNodes });
+
+      return events;
+    }
+
+    function processNodeRemoved(removedNode: LocalNode): ChangeEvent[] {
+      const events: ChangeEvent[] = [];
+
+      // Process edges removal
+
+      const [acceptedEdges, rejectedEdges] = A.partition(
+        get().v2_edges,
+        (edge) =>
+          edge.source !== removedNode.id && edge.target !== removedNode.id
+      );
+
+      for (const edge of rejectedEdges) {
+        events.push({
+          type: "EDGE_REMOVED",
+          edge,
+        });
+      }
+
+      // Process nodeConfig removal
+
+      let nodeConfigs = get().v2_nodeConfigs;
+
+      const removedNodeConfig = nodeConfigs[removedNode.id]!;
+
+      nodeConfigs = produce(nodeConfigs, (draft) => {
+        delete draft[removedNode.id];
+      });
+
+      events.push({
+        type: "NODE_CONFIG_REMOVED",
+        nodeConfig: removedNodeConfig,
+      });
+
+      set({ v2_edges: acceptedEdges, v2_nodeConfigs: nodeConfigs });
+
+      return events;
+    }
+
+    function processEdgeChanges(
+      changes: EdgeChange[],
+      oldEdges: LocalEdge[],
+      newEdges: LocalEdge[]
+    ): ChangeEvent[] {
+      const events: ChangeEvent[] = [];
+
+      for (const change of changes) {
+        switch (change.type) {
+          case "remove": {
+            break;
+          }
+          case "add":
+          case "select":
+          case "reset":
+            break;
+        }
+      }
+
+      set({ v2_edges: newEdges });
+
+      return events;
+    }
+
+    function processOnConnect(
+      oldEdges: LocalEdge[],
+      newEdges: LocalEdge[]
+    ): ChangeEvent[] {
+      const events: ChangeEvent[] = [];
+
+      const newEdge = A.difference(newEdges, oldEdges)[0];
+      const [acceptedEdges, rejectedEdges] = A.partition(
+        oldEdges,
+        (edge) => edge.targetHandle !== newEdge.targetHandle
+      );
+      if (rejectedEdges.length) {
+        events.push({
+          type: "EDGE_REMOVED",
+          edge: rejectedEdges[0],
+        });
+      }
+      newEdges = acceptedEdges.concat([newEdge]);
+
+      set({ v2_edges: newEdges });
+
+      return events;
+    }
   }
 
   let fetchFlowSubscription: Subscription | null = null;
@@ -136,105 +310,30 @@ export const createFlowServerSliceV2: StateCreator<
           changes: changes,
         },
       ];
-
-      while (eventQueue.length > 0) {
-        const event = eventQueue.shift()!;
-
-        switch (event.type) {
-          case "NODES_CHANGE": {
-            const oldNodes = get().v2_nodes;
-            const newNodes = applyNodeChanges(
-              event.changes,
-              get().v2_nodes
-            ) as LocalNode[];
-
-            eventQueue.push(...processNodeChange(changes, oldNodes, newNodes));
-            break;
-          }
-          case "NODE_REMOVED": {
-            eventQueue.push(...processNodeRemoved(event.node));
-            break;
-          }
-          case "EDGE_REMOVED": {
-            console.log("EDGE_REMOVED", event.edge);
-            break;
-          }
-          case "NODE_CONFIG_REMOVED": {
-            console.log("NODE_CONFIG_REMOVED", event.nodeConfig);
-            break;
-          }
-        }
-      }
-
-      function processNodeChange(
-        changes: NodeChange[],
-        oldNodes: LocalNode[],
-        newNodes: LocalNode[]
-      ): ChangeEvent[] {
-        const events: ChangeEvent[] = [];
-
-        for (const change of changes) {
-          switch (change.type) {
-            case "remove": {
-              events.push({
-                type: "NODE_REMOVED",
-                node: oldNodes.find((n) => n.id === change.id)!,
-              });
-              break;
-            }
-            case "position":
-            case "add":
-            case "select":
-            case "dimensions":
-            case "reset": {
-              break;
-            }
-          }
-        }
-
-        set({ v2_nodes: newNodes });
-
-        return events;
-      }
-
-      function processNodeRemoved(removedNode: LocalNode): ChangeEvent[] {
-        const events: ChangeEvent[] = [];
-
-        // Process edges removal
-
-        const [acceptedEdges, rejectedEdges] = A.partition(
-          get().v2_edges,
-          (edge) =>
-            edge.source !== removedNode.id && edge.target !== removedNode.id
-        );
-
-        for (const edge of rejectedEdges) {
-          events.push({
-            type: "EDGE_REMOVED",
-            edge,
-          });
-        }
-
-        // Process nodeConfig removal
-
-        const removedNodeConfig = get().v2_nodeConfigs[removedNode.id]!;
-
-        const nodeConfigs = produce(get().v2_nodeConfigs, (draft) => {
-          delete draft[removedNode.id];
-        });
-
-        events.push({
-          type: "NODE_CONFIG_REMOVED",
-          nodeConfig: removedNodeConfig,
-        });
-
-        set({ v2_edges: acceptedEdges, v2_nodeConfigs: nodeConfigs });
-
-        return events;
-      }
+      processEventQueue(eventQueue);
     },
-    v2_onEdgesChange(changes) {},
-    v2_onConnect(connection) {},
+    v2_onEdgesChange(changes) {
+      const eventQueue: ChangeEvent[] = [
+        {
+          type: "EDGES_CHANGE",
+          changes: changes,
+        },
+      ];
+      processEventQueue(eventQueue);
+    },
+    v2_onConnect(connection) {
+      if (connection.source === connection.target) {
+        return;
+      }
+
+      const eventQueue: ChangeEvent[] = [
+        {
+          type: "ON_CONNECT",
+          connection,
+        },
+      ];
+      processEventQueue(eventQueue);
+    },
   };
 };
 
@@ -274,4 +373,12 @@ type ChangeEvent =
   | {
       type: "NODE_CONFIG_REMOVED";
       nodeConfig: NodeConfig;
+    }
+  | {
+      type: "EDGES_CHANGE";
+      changes: EdgeChange[];
+    }
+  | {
+      type: "ON_CONNECT";
+      connection: Connection;
     };
