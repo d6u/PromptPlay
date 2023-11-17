@@ -32,6 +32,7 @@ import { LocalNode } from "./types-flow-content";
 import { FlowState } from "./types-local-state";
 
 type FlowServerSliceStateV2 = {
+  v2_isDirty: boolean;
   v2_nodes: LocalNode[];
   v2_nodeConfigs: NodeConfigs;
   v2_edges: LocalEdge[];
@@ -50,6 +51,7 @@ export type FlowServerSliceV2 = FlowServerSliceStateV2 & {
 };
 
 const FLOW_SERVER_SLICE_INITIAL_STATE_V2: FlowServerSliceStateV2 = {
+  v2_isDirty: false,
   v2_nodes: [],
   v2_nodeConfigs: {},
   v2_edges: [],
@@ -129,6 +131,11 @@ export const createFlowServerSliceV2: StateCreator<
         }
       }
     }
+
+    if (get().v2_isDirty) {
+      console.log("Save it!");
+      set({ v2_isDirty: false });
+    }
   }
 
   function processNodesChange(
@@ -145,9 +152,15 @@ export const createFlowServerSliceV2: StateCreator<
             type: "NODE_REMOVED",
             node: oldNodes.find((n) => n.id === change.id)!,
           });
+          set({ v2_isDirty: true });
           break;
         }
-        case "position":
+        case "position": {
+          if (!change.dragging) {
+            set({ v2_isDirty: true });
+          }
+          break;
+        }
         case "add":
         case "select":
         case "dimensions":
@@ -194,7 +207,11 @@ export const createFlowServerSliceV2: StateCreator<
       nodeConfig: removedNodeConfig,
     });
 
-    set({ v2_edges: acceptedEdges, v2_nodeConfigs: nodeConfigs });
+    set({
+      v2_isDirty: true,
+      v2_edges: acceptedEdges,
+      v2_nodeConfigs: nodeConfigs,
+    });
 
     return events;
   }
@@ -209,6 +226,7 @@ export const createFlowServerSliceV2: StateCreator<
     for (const change of changes) {
       switch (change.type) {
         case "remove": {
+          set({ v2_isDirty: true });
           break;
         }
         case "add":
@@ -242,7 +260,10 @@ export const createFlowServerSliceV2: StateCreator<
     }
     newEdges = acceptedEdges.concat([newEdge]);
 
-    set({ v2_edges: newEdges });
+    set({
+      v2_isDirty: true,
+      v2_edges: newEdges,
+    });
 
     return events;
   }
@@ -255,7 +276,10 @@ export const createFlowServerSliceV2: StateCreator<
       node,
     });
 
-    set({ v2_nodes: get().v2_nodes.concat([node]) });
+    set({
+      v2_isDirty: true,
+      v2_nodes: get().v2_nodes.concat([node]),
+    });
 
     return events;
   }
@@ -264,6 +288,9 @@ export const createFlowServerSliceV2: StateCreator<
     const events: ChangeEvent[] = [];
 
     const nodeConfig = createNodeConfig(node);
+    const nodeConfigs = produce(get().v2_nodeConfigs, (draft) => {
+      draft[node.id] = nodeConfig;
+    });
 
     events.push({
       type: "NODE_CONFIG_ADDED",
@@ -271,9 +298,8 @@ export const createFlowServerSliceV2: StateCreator<
     });
 
     set({
-      v2_nodeConfigs: produce(get().v2_nodeConfigs, (draft) => {
-        draft[node.id] = nodeConfig;
-      }),
+      v2_isDirty: true,
+      v2_nodeConfigs: nodeConfigs,
     });
 
     return events;
