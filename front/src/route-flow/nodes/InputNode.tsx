@@ -35,6 +35,7 @@ const selector = (state: FlowState) => ({
   nodeConfigs: state.nodeConfigs,
   updateNodeConfig: state.updateNodeConfig,
   removeNode: state.removeNode,
+  v2_removeNode: state.v2_removeNode,
 });
 
 export default function InputNode() {
@@ -47,6 +48,7 @@ export default function InputNode() {
     nodeConfigs,
     updateNodeConfig,
     removeNode,
+    v2_removeNode,
   } = useFlowStore(selector);
 
   const nodeConfig = useMemo(
@@ -70,7 +72,10 @@ export default function InputNode() {
         <HeaderSection
           isCurrentUserOwner={isCurrentUserOwner}
           title="Input"
-          onClickRemove={() => removeNode(nodeId)}
+          onClickRemove={() => {
+            removeNode(nodeId);
+            v2_removeNode(nodeId);
+          }}
         />
         <SmallSection>
           <IconButton

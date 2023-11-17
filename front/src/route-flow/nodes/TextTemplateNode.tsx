@@ -44,6 +44,7 @@ const selector = (state: FlowState) => ({
   nodeConfigs: state.nodeConfigs,
   updateNodeConfig: state.updateNodeConfig,
   removeNode: state.removeNode,
+  v2_removeNode: state.v2_removeNode,
   setDetailPanelContentType: state.setDetailPanelContentType,
   setDetailPanelSelectedNodeId: state.setDetailPanelSelectedNodeId,
   defaultVariableValueMap: state.getDefaultVariableValueMap(),
@@ -58,6 +59,7 @@ export default function TextTemplateNode() {
     nodeConfigs,
     updateNodeConfig,
     removeNode,
+    v2_removeNode,
     setDetailPanelContentType,
     setDetailPanelSelectedNodeId,
     defaultVariableValueMap,
@@ -100,7 +102,10 @@ export default function TextTemplateNode() {
         <HeaderSection
           isCurrentUserOwner={isCurrentUserOwner}
           title="Text"
-          onClickRemove={() => removeNode(nodeId)}
+          onClickRemove={() => {
+            removeNode(nodeId);
+            v2_removeNode(nodeId);
+          }}
         />
         {isCurrentUserOwner && (
           <SmallSection>

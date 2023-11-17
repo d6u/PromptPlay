@@ -25,6 +25,7 @@ import {
   LocalEdge,
   NodeConfig,
   NodeConfigs,
+  NodeID,
   NodeType,
   VariableValueMap,
 } from "./types-flow-content";
@@ -48,6 +49,7 @@ export type FlowServerSliceV2 = FlowServerSliceStateV2 & {
   v2_onConnect: OnConnect;
 
   v2_addNode(type: NodeType, x?: number, y?: number): void;
+  v2_removeNode(id: NodeID): void;
 };
 
 const FLOW_SERVER_SLICE_INITIAL_STATE_V2: FlowServerSliceStateV2 = {
@@ -109,6 +111,10 @@ export const createFlowServerSliceV2: StateCreator<
         }
         case "ADD_NODE": {
           eventQueue.push(...processAddNode(event.node));
+          break;
+        }
+        case "REMOVE_NODE": {
+          eventQueue.push(...processRemoveNode(event.nodeId));
           break;
         }
         // Derived events
@@ -305,6 +311,26 @@ export const createFlowServerSliceV2: StateCreator<
     return events;
   }
 
+  function processRemoveNode(nodeId: NodeID): ChangeEvent[] {
+    const events: ChangeEvent[] = [];
+
+    const [acceptedNodes, rejectedNodes] = A.partition(
+      get().v2_nodes,
+      (node) => node.id !== nodeId
+    );
+
+    if (rejectedNodes.length) {
+      events.push({
+        type: "NODE_REMOVED",
+        node: rejectedNodes[0],
+      });
+    }
+
+    set({ v2_isDirty: true, v2_nodes: acceptedNodes });
+
+    return events;
+  }
+
   let fetchFlowSubscription: Subscription | null = null;
 
   return {
@@ -416,6 +442,15 @@ export const createFlowServerSliceV2: StateCreator<
       ];
       processEventQueue(eventQueue);
     },
+    v2_removeNode(id: NodeID): void {
+      const eventQueue: ChangeEvent[] = [
+        {
+          type: "REMOVE_NODE",
+          nodeId: id,
+        },
+      ];
+      processEventQueue(eventQueue);
+    },
   };
 };
 
@@ -475,4 +510,8 @@ type ChangeEvent =
   | {
       type: "NODE_CONFIG_ADDED";
       nodeConfig: NodeConfig;
+    }
+  | {
+      type: "REMOVE_NODE";
+      nodeId: NodeID;
     };

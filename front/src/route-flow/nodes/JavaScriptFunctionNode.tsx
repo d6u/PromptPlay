@@ -41,6 +41,7 @@ const selector = (state: FlowState) => ({
   nodeConfigs: state.nodeConfigs,
   updateNodeConfig: state.updateNodeConfig,
   removeNode: state.removeNode,
+  v2_removeNode: state.v2_removeNode,
   localNodeAugments: state.localNodeAugments,
   defaultVariableValueMap: state.getDefaultVariableValueMap(),
 });
@@ -54,6 +55,7 @@ export default function JavaScriptFunctionNode() {
     nodeConfigs,
     updateNodeConfig,
     removeNode,
+    v2_removeNode,
     localNodeAugments,
     defaultVariableValueMap,
   } = useFlowStore(selector);
@@ -111,7 +113,10 @@ export default function JavaScriptFunctionNode() {
         <HeaderSection
           isCurrentUserOwner={isCurrentUserOwner}
           title="JavaScript"
-          onClickRemove={() => removeNode(nodeId)}
+          onClickRemove={() => {
+            removeNode(nodeId);
+            v2_removeNode(nodeId);
+          }}
         />
         {isCurrentUserOwner && (
           <SmallSection>

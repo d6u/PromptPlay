@@ -34,6 +34,7 @@ const selector = (state: FlowState) => ({
   nodeConfigs: state.nodeConfigs,
   updateNodeConfig: state.updateNodeConfig,
   removeNode: state.removeNode,
+  v2_removeNode: state.v2_removeNode,
 });
 
 export default function OutputNode() {
@@ -46,6 +47,7 @@ export default function OutputNode() {
     nodeConfigs,
     updateNodeConfig,
     removeNode,
+    v2_removeNode,
   } = useFlowStore(selector);
 
   const nodeConfig = useMemo(
@@ -78,7 +80,10 @@ export default function OutputNode() {
         <HeaderSection
           isCurrentUserOwner={isCurrentUserOwner}
           title="Output"
-          onClickRemove={() => removeNode(nodeId)}
+          onClickRemove={() => {
+            removeNode(nodeId);
+            v2_removeNode(nodeId);
+          }}
         />
         <SmallSection>
           <IconButton

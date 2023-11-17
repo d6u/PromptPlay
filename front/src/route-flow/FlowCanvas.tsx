@@ -85,6 +85,8 @@ export default function FlowCanvas() {
         panOnScrollMode={PanOnScrollMode.Free}
         minZoom={0.2}
         maxZoom={1.2}
+        // Prevent select to trigger position change
+        nodeDragThreshold={1}
         nodesConnectable={isCurrentUserOwner}
         elementsSelectable={isCurrentUserOwner}
         nodeTypes={NODE_TYPES}

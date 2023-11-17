@@ -52,6 +52,7 @@ const selector = (state: FlowState) => ({
   nodeConfigs: state.nodeConfigs,
   updateNodeConfig: state.updateNodeConfig,
   removeNode: state.removeNode,
+  v2_removeNode: state.v2_removeNode,
   setDetailPanelContentType: state.setDetailPanelContentType,
   setDetailPanelSelectedNodeId: state.setDetailPanelSelectedNodeId,
   defaultVariableValueMap: state.getDefaultVariableValueMap(),
@@ -66,6 +67,7 @@ export default function ChatGPTMessageNode() {
     nodeConfigs,
     updateNodeConfig,
     removeNode,
+    v2_removeNode,
     setDetailPanelContentType,
     setDetailPanelSelectedNodeId,
     defaultVariableValueMap,
@@ -127,7 +129,10 @@ export default function ChatGPTMessageNode() {
         <HeaderSection
           isCurrentUserOwner={isCurrentUserOwner}
           title="ChatGPT Message"
-          onClickRemove={() => removeNode(nodeId)}
+          onClickRemove={() => {
+            removeNode(nodeId);
+            v2_removeNode(nodeId);
+          }}
         />
         {isCurrentUserOwner && (
           <SmallSection>

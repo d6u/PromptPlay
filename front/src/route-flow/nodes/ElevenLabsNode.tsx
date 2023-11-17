@@ -34,6 +34,7 @@ const flowSelector = (state: FlowState) => ({
   nodeConfigs: state.nodeConfigs,
   updateNodeConfig: state.updateNodeConfig,
   removeNode: state.removeNode,
+  v2_removeNode: state.v2_removeNode,
   localNodeAugments: state.localNodeAugments,
   defaultVariableValueMap: state.getDefaultVariableValueMap(),
 });
@@ -57,6 +58,7 @@ export default function ElevenLabsNode() {
     nodeConfigs,
     updateNodeConfig,
     removeNode,
+    v2_removeNode,
     localNodeAugments,
     defaultVariableValueMap,
   } = useFlowStore(flowSelector);
@@ -104,7 +106,10 @@ export default function ElevenLabsNode() {
         <HeaderSection
           isCurrentUserOwner={isCurrentUserOwner}
           title="Eleven Labs Text to Speech"
-          onClickRemove={() => removeNode(nodeId)}
+          onClickRemove={() => {
+            removeNode(nodeId);
+            v2_removeNode(nodeId);
+          }}
         />
         <Section>
           <NodeInputModifyRow
