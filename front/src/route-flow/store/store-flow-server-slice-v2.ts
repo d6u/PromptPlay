@@ -1,4 +1,5 @@
 import { A } from "@mobily/ts-belt";
+import Chance from "chance";
 import { produce } from "immer";
 import {
   Connection,
@@ -17,11 +18,13 @@ import { StateCreator } from "zustand";
 import { SpaceFlowQueryQuery } from "../../gql/graphql";
 import { client } from "../../state/urql";
 import fromWonka from "../../util/fromWonka";
+import randomId from "../../util/randomId";
 import { DEFAULT_EDGE_STYLE, DRAG_HANDLE_CLASS_NAME } from "../flowConstants";
 import { createNode, createNodeConfig } from "../utils-flow";
 import { SPACE_FLOW_QUERY } from "./graphql-flow";
 import {
   FlowContent,
+  InputID,
   LocalEdge,
   NodeConfig,
   NodeConfigs,
@@ -31,6 +34,8 @@ import {
 } from "./types-flow-content";
 import { LocalNode } from "./types-flow-content";
 import { FlowState } from "./types-local-state";
+
+const chance = new Chance();
 
 type FlowServerSliceStateV2 = {
   v2_isDirty: boolean;
@@ -50,6 +55,7 @@ export type FlowServerSliceV2 = FlowServerSliceStateV2 & {
 
   v2_addNode(type: NodeType, x?: number, y?: number): void;
   v2_removeNode(id: NodeID): void;
+  v2_addInputVariable(nodeId: NodeID): void;
 };
 
 const FLOW_SERVER_SLICE_INITIAL_STATE_V2: FlowServerSliceStateV2 = {
@@ -117,6 +123,10 @@ export const createFlowServerSliceV2: StateCreator<
         }
         case ChangeEventType.REMOVE_NODE: {
           newEvents.push(...processRemoveNode(event.nodeId));
+          break;
+        }
+        case ChangeEventType.ADD_INPUT_VARIABLE: {
+          newEvents.push(...processAddInputVariable(event.nodeId));
           break;
         }
         // Derived events
@@ -344,6 +354,24 @@ export const createFlowServerSliceV2: StateCreator<
     return events;
   }
 
+  function processAddInputVariable(nodeId: NodeID): ChangeEvent[] {
+    const events: ChangeEvent[] = [];
+
+    const nodeConfigs = produce(get().v2_nodeConfigs, (draft) => {
+      const nodeConfig = draft[nodeId]!;
+      if ("inputs" in nodeConfig) {
+        nodeConfig.inputs.push({
+          id: `${nodeId}/${randomId()}` as InputID,
+          name: chance.word(),
+        });
+      }
+    });
+
+    set({ v2_isDirty: true, v2_nodeConfigs: nodeConfigs });
+
+    return events;
+  }
+
   let fetchFlowSubscription: Subscription | null = null;
 
   return {
@@ -464,6 +492,15 @@ export const createFlowServerSliceV2: StateCreator<
       ];
       processEventQueue(eventQueue);
     },
+    v2_addInputVariable(nodeId: NodeID) {
+      const eventQueue: ChangeEvent[] = [
+        {
+          type: ChangeEventType.ADD_INPUT_VARIABLE,
+          nodeId,
+        },
+      ];
+      processEventQueue(eventQueue);
+    },
   };
 };
 
@@ -498,6 +535,7 @@ enum ChangeEventType {
   NODE_ADDED = "NODE_ADDED",
   NODE_CONFIG_ADDED = "NODE_CONFIG_ADDED",
   REMOVE_NODE = "REMOVE_NODE",
+  ADD_INPUT_VARIABLE = "ADD_INPUT_VARIABLE",
 }
 
 type ChangeEvent =
@@ -540,6 +578,10 @@ type ChangeEvent =
   | {
       type: ChangeEventType.REMOVE_NODE;
       nodeId: NodeID;
+    }
+  | {
+      type: ChangeEventType.ADD_INPUT_VARIABLE;
+      nodeId: NodeID;
     };
 
 const EVENT_VALIDATION_MAP: { [key in ChangeEventType]: ChangeEventType[] } = {
@@ -556,4 +598,5 @@ const EVENT_VALIDATION_MAP: { [key in ChangeEventType]: ChangeEventType[] } = {
   [ChangeEventType.NODE_ADDED]: [ChangeEventType.NODE_CONFIG_ADDED],
   [ChangeEventType.NODE_CONFIG_ADDED]: [],
   [ChangeEventType.REMOVE_NODE]: [ChangeEventType.NODE_REMOVED],
+  [ChangeEventType.ADD_INPUT_VARIABLE]: [],
 };

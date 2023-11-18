@@ -45,6 +45,7 @@ const selector = (state: FlowState) => ({
   updateNodeConfig: state.updateNodeConfig,
   removeNode: state.removeNode,
   v2_removeNode: state.v2_removeNode,
+  v2_addInputVariable: state.v2_addInputVariable,
   setDetailPanelContentType: state.setDetailPanelContentType,
   setDetailPanelSelectedNodeId: state.setDetailPanelSelectedNodeId,
   defaultVariableValueMap: state.getDefaultVariableValueMap(),
@@ -60,6 +61,7 @@ export default function TextTemplateNode() {
     updateNodeConfig,
     removeNode,
     v2_removeNode,
+    v2_addInputVariable,
     setDetailPanelContentType,
     setDetailPanelSelectedNodeId,
     defaultVariableValueMap,
@@ -119,6 +121,7 @@ export default function TextTemplateNode() {
                 setInputs(newInputs);
 
                 updateNodeConfig(nodeId, { inputs: newInputs });
+                v2_addInputVariable(nodeId);
 
                 updateNodeInternals(nodeId);
               }}

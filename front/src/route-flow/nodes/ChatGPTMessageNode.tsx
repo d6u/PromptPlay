@@ -53,6 +53,7 @@ const selector = (state: FlowState) => ({
   updateNodeConfig: state.updateNodeConfig,
   removeNode: state.removeNode,
   v2_removeNode: state.v2_removeNode,
+  v2_addInputVariable: state.v2_addInputVariable,
   setDetailPanelContentType: state.setDetailPanelContentType,
   setDetailPanelSelectedNodeId: state.setDetailPanelSelectedNodeId,
   defaultVariableValueMap: state.getDefaultVariableValueMap(),
@@ -68,6 +69,7 @@ export default function ChatGPTMessageNode() {
     updateNodeConfig,
     removeNode,
     v2_removeNode,
+    v2_addInputVariable,
     setDetailPanelContentType,
     setDetailPanelSelectedNodeId,
     defaultVariableValueMap,
@@ -146,6 +148,7 @@ export default function ChatGPTMessageNode() {
                 setInputs(newInputs);
 
                 updateNodeConfig(nodeId, { inputs: newInputs });
+                v2_addInputVariable(nodeId);
 
                 updateNodeInternals(nodeId);
               }}
