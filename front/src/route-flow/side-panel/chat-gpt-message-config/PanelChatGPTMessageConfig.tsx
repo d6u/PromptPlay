@@ -29,13 +29,18 @@ const selector = (state: FlowState) => ({
   nodeConfigs: state.nodeConfigs,
   detailPanelSelectedNodeId: state.detailPanelSelectedNodeId,
   updateNodeConfig: state.updateNodeConfig,
+  v2_updateNodeConfig: state.v2_updateNodeConfig,
 });
 
 export default function PanelChatGPTMessageConfig() {
   const { isCurrentUserOwner } = useContext(FlowContext);
 
-  const { nodeConfigs, detailPanelSelectedNodeId, updateNodeConfig } =
-    useFlowStore(selector);
+  const {
+    nodeConfigs,
+    detailPanelSelectedNodeId,
+    updateNodeConfig,
+    v2_updateNodeConfig,
+  } = useFlowStore(selector);
 
   const nodeConfig = useMemo(
     () => nodeConfigs[detailPanelSelectedNodeId!] as ChatGPTMessageNodeConfig,
@@ -78,6 +83,7 @@ export default function PanelChatGPTMessageConfig() {
               setRole(role);
 
               updateNodeConfig(detailPanelSelectedNodeId!, { role });
+              v2_updateNodeConfig(detailPanelSelectedNodeId!, { role });
             }}
           >
             <Radio
@@ -128,10 +134,12 @@ export default function PanelChatGPTMessageConfig() {
               onKeyDown={(e) => {
                 if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
                   updateNodeConfig(detailPanelSelectedNodeId!, { content });
+                  v2_updateNodeConfig(detailPanelSelectedNodeId!, { content });
                 }
               }}
               onBlur={() => {
                 updateNodeConfig(detailPanelSelectedNodeId!, { content });
+                v2_updateNodeConfig(detailPanelSelectedNodeId!, { content });
               }}
             />
           ) : (

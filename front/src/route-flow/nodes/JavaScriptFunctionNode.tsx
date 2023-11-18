@@ -40,6 +40,7 @@ const chance = new Chance();
 const selector = (state: FlowState) => ({
   nodeConfigs: state.nodeConfigs,
   updateNodeConfig: state.updateNodeConfig,
+  v2_updateNodeConfig: state.v2_updateNodeConfig,
   removeNode: state.removeNode,
   v2_removeNode: state.v2_removeNode,
   v2_addInputVariable: state.v2_addInputVariable,
@@ -56,6 +57,7 @@ export default function JavaScriptFunctionNode() {
   const {
     nodeConfigs,
     updateNodeConfig,
+    v2_updateNodeConfig,
     removeNode,
     v2_removeNode,
     v2_addInputVariable,
@@ -196,10 +198,12 @@ export default function JavaScriptFunctionNode() {
                 onKeyDown={(e) => {
                   if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
                     updateNodeConfig(nodeId, { javaScriptCode });
+                    v2_updateNodeConfig(nodeId, { javaScriptCode });
                   }
                 }}
                 onBlur={() => {
                   updateNodeConfig(nodeId, { javaScriptCode });
+                  v2_updateNodeConfig(nodeId, { javaScriptCode });
                 }}
               />
             ) : (

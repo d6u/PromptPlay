@@ -37,6 +37,7 @@ import {
 const flowSelector = (state: FlowState) => ({
   nodeConfigs: state.nodeConfigs,
   updateNodeConfig: state.updateNodeConfig,
+  v2_updateNodeConfig: state.v2_updateNodeConfig,
   removeNode: state.removeNode,
   v2_removeNode: state.v2_removeNode,
   localNodeAugments: state.localNodeAugments,
@@ -61,6 +62,7 @@ export default function ChatGPTChatCompletionNode() {
   const {
     nodeConfigs,
     updateNodeConfig,
+    v2_updateNodeConfig,
     removeNode,
     v2_removeNode,
     localNodeAugments,
@@ -176,6 +178,7 @@ export default function ChatGPTChatCompletionNode() {
                 const newModel = value as OpenAIChatModel;
                 setModel(newModel);
                 updateNodeConfig(nodeId, { model: newModel });
+                v2_updateNodeConfig(nodeId, { model: newModel });
               }}
             >
               {Object.values(OpenAIChatModel).map((model) => (
@@ -206,10 +209,16 @@ export default function ChatGPTChatCompletionNode() {
                 onKeyUp={(e) => {
                   if (e.key === "Enter") {
                     updateNodeConfig(nodeId, { temperature: temperature || 1 });
+                    v2_updateNodeConfig(nodeId, {
+                      temperature: temperature || 1,
+                    });
                   }
                 }}
                 onBlur={() => {
                   updateNodeConfig(nodeId, { temperature: temperature || 1 });
+                  v2_updateNodeConfig(nodeId, {
+                    temperature: temperature || 1,
+                  });
                 }}
               />
             ) : (
@@ -247,10 +256,12 @@ export default function ChatGPTChatCompletionNode() {
                 onKeyUp={(e) => {
                   if (e.key === "Enter") {
                     updateNodeConfig(nodeId, { stop });
+                    v2_updateNodeConfig(nodeId, { stop });
                   }
                 }}
                 onBlur={() => {
                   updateNodeConfig(nodeId, { stop });
+                  v2_updateNodeConfig(nodeId, { stop });
                 }}
               />
             ) : (

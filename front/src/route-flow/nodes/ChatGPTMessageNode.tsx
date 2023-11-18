@@ -51,6 +51,7 @@ const chance = new Chance();
 const selector = (state: FlowState) => ({
   nodeConfigs: state.nodeConfigs,
   updateNodeConfig: state.updateNodeConfig,
+  v2_updateNodeConfig: state.v2_updateNodeConfig,
   removeNode: state.removeNode,
   v2_removeNode: state.v2_removeNode,
   v2_addInputVariable: state.v2_addInputVariable,
@@ -68,6 +69,7 @@ export default function ChatGPTMessageNode() {
   const {
     nodeConfigs,
     updateNodeConfig,
+    v2_updateNodeConfig,
     removeNode,
     v2_removeNode,
     v2_addInputVariable,
@@ -216,6 +218,7 @@ export default function ChatGPTMessageNode() {
                 setRole(role);
 
                 updateNodeConfig(nodeId, { role });
+                v2_updateNodeConfig(nodeId, { role });
               }}
             >
               <Radio
@@ -266,10 +269,12 @@ export default function ChatGPTMessageNode() {
                 onKeyDown={(e) => {
                   if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
                     updateNodeConfig(nodeId, { content });
+                    v2_updateNodeConfig(nodeId, { content });
                   }
                 }}
                 onBlur={() => {
                   updateNodeConfig(nodeId, { content });
+                  v2_updateNodeConfig(nodeId, { content });
                 }}
               />
             ) : (
