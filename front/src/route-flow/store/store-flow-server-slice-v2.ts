@@ -227,6 +227,10 @@ export const createFlowServerSliceV2: StateCreator<
           newEvents.push(...processNodeRemoved(event.node));
           break;
         }
+        case ChangeEventType.EDGE_ADDED: {
+          newEvents.push(...processEdgeAdded(event.edge));
+          break;
+        }
         case ChangeEventType.EDGE_REMOVED: {
           newEvents.push(...processEdgeRemoved(event.edge));
           break;
@@ -396,7 +400,8 @@ export const createFlowServerSliceV2: StateCreator<
     }
 
     if (isSourceAudio) {
-      if (nodeConfigs[newEdge.target]!.nodeType !== NodeType.OutputNode) {
+      const dstNodeConfig = nodeConfigs[newEdge.target]!;
+      if (dstNodeConfig.nodeType !== NodeType.OutputNode) {
         // TODO: Change this to a non-blocking alert UI
         alert("You can only connect an audio output to an output node.");
 
@@ -404,19 +409,12 @@ export const createFlowServerSliceV2: StateCreator<
       }
     }
 
-    const [acceptedEdges, rejectedEdges] = A.partition(
-      oldEdges,
-      (edge) => edge.targetHandle !== newEdge.targetHandle
-    );
+    events.push({
+      type: ChangeEventType.EDGE_ADDED,
+      edge: newEdge,
+    });
 
-    if (rejectedEdges.length) {
-      events.push({
-        type: ChangeEventType.EDGE_REMOVED,
-        edge: rejectedEdges[0],
-      });
-    }
-
-    set({ v2_isDirty: true, v2_edges: acceptedEdges.concat([newEdge]) });
+    set({ v2_isDirty: true, v2_edges: newEdges });
 
     return events;
   }
@@ -719,6 +717,28 @@ export const createFlowServerSliceV2: StateCreator<
     return events;
   }
 
+  function processEdgeAdded(addedEdge: LocalEdge): ChangeEvent[] {
+    const events: ChangeEvent[] = [];
+
+    // Remove other edges with the same targetHandle
+    const [acceptedEdges, rejectedEdges] = A.partition(
+      get().v2_edges,
+      (edge) =>
+        edge.id === addedEdge.id || edge.targetHandle !== addedEdge.targetHandle
+    );
+
+    if (rejectedEdges.length) {
+      events.push({
+        type: ChangeEventType.EDGE_REMOVED,
+        edge: rejectedEdges[0],
+      });
+    }
+
+    set({ v2_isDirty: true, v2_edges: acceptedEdges });
+
+    return events;
+  }
+
   function processEdgeRemoved(edge: LocalEdge): ChangeEvent[] {
     const events: ChangeEvent[] = [];
 
@@ -947,27 +967,28 @@ function assignLocalEdgeProperties(edges: LocalEdge[]): LocalEdge[] {
 }
 
 enum ChangeEventType {
-  NODES_CHANGE = "NODES_CHANGE",
-  NODE_REMOVED = "NODE_REMOVED",
-  EDGE_REMOVED = "EDGE_REMOVED",
-  NODE_CONFIG_REMOVED = "NODE_CONFIG_REMOVED",
-  EDGES_CHANGE = "EDGES_CHANGE",
-  ON_CONNECT = "ON_CONNECT",
+  ADD_INPUT_VARIABLE = "ADD_INPUT_VARIABLE",
   ADD_NODE = "ADD_NODE",
+  ADD_OUTPUT_VARIABLE = "ADD_OUTPUT_VARIABLE",
+  EDGE_ADDED = "EDGE_ADDED",
+  EDGE_REMOVED = "EDGE_REMOVED",
+  EDGES_CHANGE = "EDGES_CHANGE",
+  INPUT_VARIABLE_REMOVED = "INPUT_VARIABLE_REMOVED",
   NODE_ADDED = "NODE_ADDED",
   NODE_CONFIG_ADDED = "NODE_CONFIG_ADDED",
-  REMOVE_NODE = "REMOVE_NODE",
-  ADD_INPUT_VARIABLE = "ADD_INPUT_VARIABLE",
-  ADD_OUTPUT_VARIABLE = "ADD_OUTPUT_VARIABLE",
+  NODE_CONFIG_REMOVED = "NODE_CONFIG_REMOVED",
+  NODE_REMOVED = "NODE_REMOVED",
+  NODES_CHANGE = "NODES_CHANGE",
+  ON_CONNECT = "ON_CONNECT",
+  OUTPUT_VARIABLE_REMOVED = "OUTPUT_VARIABLE_REMOVED",
   REMOVE_INPUT_VARIABLE = "REMOVE_INPUT_VARIABLE",
+  REMOVE_NODE = "REMOVE_NODE",
   REMOVE_OUTPUT_VARIABLE = "REMOVE_OUTPUT_VARIABLE",
-  UPDATE_INPUT_VARIABLE = "UPDATE_INPUT_VARIABLE",
-  UPDATE_OUTPUT_VARIABLE = "UPDATE_OUTPUT_VARIABLE",
   UPDATE_FLOW_INPUT_VARIABLE = "UPDATE_FLOW_INPUT_VARIABLE",
   UPDATE_FLOW_OUTPUT_VARIABLE = "UPDATE_FLOW_OUTPUT_VARIABLE",
-  INPUT_VARIABLE_REMOVED = "INPUT_VARIABLE_REMOVED",
-  OUTPUT_VARIABLE_REMOVED = "OUTPUT_VARIABLE_REMOVED",
+  UPDATE_INPUT_VARIABLE = "UPDATE_INPUT_VARIABLE",
   UPDATE_NODE_CONFIG = "UPDATE_NODE_CONFIG",
+  UPDATE_OUTPUT_VARIABLE = "UPDATE_OUTPUT_VARIABLE",
 }
 
 type ChangeEvent =
@@ -1065,35 +1086,40 @@ type ChangeEvent =
       type: ChangeEventType.UPDATE_NODE_CONFIG;
       nodeId: NodeID;
       change: Partial<NodeConfig>;
+    }
+  | {
+      type: ChangeEventType.EDGE_ADDED;
+      edge: LocalEdge;
     };
 
 const EVENT_VALIDATION_MAP: { [key in ChangeEventType]: ChangeEventType[] } = {
-  [ChangeEventType.NODES_CHANGE]: [ChangeEventType.NODE_REMOVED],
+  [ChangeEventType.ADD_INPUT_VARIABLE]: [],
+  [ChangeEventType.ADD_NODE]: [ChangeEventType.NODE_ADDED],
+  [ChangeEventType.ADD_OUTPUT_VARIABLE]: [],
+  [ChangeEventType.EDGE_ADDED]: [ChangeEventType.EDGE_REMOVED],
+  [ChangeEventType.EDGE_REMOVED]: [],
+  [ChangeEventType.EDGES_CHANGE]: [],
+  [ChangeEventType.INPUT_VARIABLE_REMOVED]: [ChangeEventType.EDGE_REMOVED],
+  [ChangeEventType.NODE_ADDED]: [ChangeEventType.NODE_CONFIG_ADDED],
+  [ChangeEventType.NODE_CONFIG_ADDED]: [],
+  [ChangeEventType.NODE_CONFIG_REMOVED]: [],
   [ChangeEventType.NODE_REMOVED]: [
     ChangeEventType.EDGE_REMOVED,
     ChangeEventType.NODE_CONFIG_REMOVED,
   ],
-  [ChangeEventType.EDGES_CHANGE]: [],
-  [ChangeEventType.EDGE_REMOVED]: [],
-  [ChangeEventType.NODE_CONFIG_REMOVED]: [],
-  [ChangeEventType.ON_CONNECT]: [],
-  [ChangeEventType.ADD_NODE]: [ChangeEventType.NODE_ADDED],
-  [ChangeEventType.NODE_ADDED]: [ChangeEventType.NODE_CONFIG_ADDED],
-  [ChangeEventType.NODE_CONFIG_ADDED]: [],
-  [ChangeEventType.REMOVE_NODE]: [ChangeEventType.NODE_REMOVED],
-  [ChangeEventType.ADD_INPUT_VARIABLE]: [],
-  [ChangeEventType.ADD_OUTPUT_VARIABLE]: [],
+  [ChangeEventType.NODES_CHANGE]: [ChangeEventType.NODE_REMOVED],
+  [ChangeEventType.ON_CONNECT]: [ChangeEventType.EDGE_ADDED],
+  [ChangeEventType.OUTPUT_VARIABLE_REMOVED]: [ChangeEventType.EDGE_REMOVED],
   [ChangeEventType.REMOVE_INPUT_VARIABLE]: [
     ChangeEventType.INPUT_VARIABLE_REMOVED,
   ],
+  [ChangeEventType.REMOVE_NODE]: [ChangeEventType.NODE_REMOVED],
   [ChangeEventType.REMOVE_OUTPUT_VARIABLE]: [
     ChangeEventType.OUTPUT_VARIABLE_REMOVED,
   ],
-  [ChangeEventType.UPDATE_INPUT_VARIABLE]: [],
-  [ChangeEventType.UPDATE_OUTPUT_VARIABLE]: [],
   [ChangeEventType.UPDATE_FLOW_INPUT_VARIABLE]: [],
   [ChangeEventType.UPDATE_FLOW_OUTPUT_VARIABLE]: [],
-  [ChangeEventType.INPUT_VARIABLE_REMOVED]: [ChangeEventType.EDGE_REMOVED],
-  [ChangeEventType.OUTPUT_VARIABLE_REMOVED]: [ChangeEventType.EDGE_REMOVED],
+  [ChangeEventType.UPDATE_INPUT_VARIABLE]: [],
   [ChangeEventType.UPDATE_NODE_CONFIG]: [],
+  [ChangeEventType.UPDATE_OUTPUT_VARIABLE]: [],
 };
