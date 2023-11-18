@@ -59,6 +59,8 @@ export type FlowServerSliceV2 = FlowServerSliceStateV2 & {
   v2_removeNode(id: NodeID): void;
   v2_addInputVariable(nodeId: NodeID): void;
   v2_addOutputVariable(nodeId: NodeID): void;
+  v2_removeInputVariable(nodeId: NodeID, index: number): void;
+  v2_removeOutputVariable(nodeId: NodeID, index: number): void;
 };
 
 const FLOW_SERVER_SLICE_INITIAL_STATE_V2: FlowServerSliceStateV2 = {
@@ -134,6 +136,18 @@ export const createFlowServerSliceV2: StateCreator<
         }
         case ChangeEventType.ADD_OUTPUT_VARIABLE: {
           newEvents.push(...processAddOutputVariable(event.nodeId));
+          break;
+        }
+        case ChangeEventType.REMOVE_INPUT_VARIABLE: {
+          newEvents.push(
+            ...processRemoveInputVariable(event.nodeId, event.index)
+          );
+          break;
+        }
+        case ChangeEventType.REMOVE_OUTPUT_VARIABLE: {
+          newEvents.push(
+            ...processRemoveOutputVariable(event.nodeId, event.index)
+          );
           break;
         }
         // Derived events
@@ -398,6 +412,42 @@ export const createFlowServerSliceV2: StateCreator<
     return events;
   }
 
+  function processRemoveInputVariable(
+    nodeId: NodeID,
+    index: number
+  ): ChangeEvent[] {
+    const events: ChangeEvent[] = [];
+
+    const nodeConfigs = produce(get().v2_nodeConfigs, (draft) => {
+      const nodeConfig = draft[nodeId]!;
+      if ("inputs" in nodeConfig) {
+        nodeConfig.inputs.splice(index, 1);
+      }
+    });
+
+    set({ v2_isDirty: true, v2_nodeConfigs: nodeConfigs });
+
+    return events;
+  }
+
+  function processRemoveOutputVariable(
+    nodeId: NodeID,
+    index: number
+  ): ChangeEvent[] {
+    const events: ChangeEvent[] = [];
+
+    const nodeConfigs = produce(get().v2_nodeConfigs, (draft) => {
+      const nodeConfig = draft[nodeId]!;
+      if (nodeConfig.nodeType === NodeType.InputNode) {
+        nodeConfig.outputs.splice(index, 1);
+      }
+    });
+
+    set({ v2_isDirty: true, v2_nodeConfigs: nodeConfigs });
+
+    return events;
+  }
+
   let fetchFlowSubscription: Subscription | null = null;
 
   return {
@@ -536,6 +586,26 @@ export const createFlowServerSliceV2: StateCreator<
       ];
       processEventQueue(eventQueue);
     },
+    v2_removeInputVariable(nodeId: NodeID, index: number) {
+      const eventQueue: ChangeEvent[] = [
+        {
+          type: ChangeEventType.REMOVE_INPUT_VARIABLE,
+          nodeId,
+          index,
+        },
+      ];
+      processEventQueue(eventQueue);
+    },
+    v2_removeOutputVariable(nodeId: NodeID, index: number) {
+      const eventQueue: ChangeEvent[] = [
+        {
+          type: ChangeEventType.REMOVE_OUTPUT_VARIABLE,
+          nodeId,
+          index,
+        },
+      ];
+      processEventQueue(eventQueue);
+    },
   };
 };
 
@@ -572,6 +642,8 @@ enum ChangeEventType {
   REMOVE_NODE = "REMOVE_NODE",
   ADD_INPUT_VARIABLE = "ADD_INPUT_VARIABLE",
   ADD_OUTPUT_VARIABLE = "ADD_OUTPUT_VARIABLE",
+  REMOVE_INPUT_VARIABLE = "REMOVE_INPUT_VARIABLE",
+  REMOVE_OUTPUT_VARIABLE = "REMOVE_OUTPUT_VARIABLE",
 }
 
 type ChangeEvent =
@@ -622,6 +694,16 @@ type ChangeEvent =
   | {
       type: ChangeEventType.ADD_OUTPUT_VARIABLE;
       nodeId: NodeID;
+    }
+  | {
+      type: ChangeEventType.REMOVE_INPUT_VARIABLE;
+      nodeId: NodeID;
+      index: number;
+    }
+  | {
+      type: ChangeEventType.REMOVE_OUTPUT_VARIABLE;
+      nodeId: NodeID;
+      index: number;
     };
 
 const EVENT_VALIDATION_MAP: { [key in ChangeEventType]: ChangeEventType[] } = {
@@ -640,4 +722,6 @@ const EVENT_VALIDATION_MAP: { [key in ChangeEventType]: ChangeEventType[] } = {
   [ChangeEventType.REMOVE_NODE]: [ChangeEventType.NODE_REMOVED],
   [ChangeEventType.ADD_INPUT_VARIABLE]: [],
   [ChangeEventType.ADD_OUTPUT_VARIABLE]: [],
+  [ChangeEventType.REMOVE_INPUT_VARIABLE]: [],
+  [ChangeEventType.REMOVE_OUTPUT_VARIABLE]: [],
 };
