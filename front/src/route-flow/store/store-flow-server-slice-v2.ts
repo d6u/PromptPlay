@@ -235,6 +235,10 @@ export const createFlowServerSliceV2: StateCreator<
           newEvents.push(...processEdgeRemoved(event.edge));
           break;
         }
+        case ChangeEventType.EDGE_REPLACED: {
+          newEvents.push(...processEdgeReplaced(event.oldEdge, event.newEdge));
+          break;
+        }
         case ChangeEventType.NODE_CONFIG_REMOVED: {
           break;
         }
@@ -392,8 +396,10 @@ export const createFlowServerSliceV2: StateCreator<
     const events: ChangeEvent[] = [];
 
     const newEdge = A.difference(newEdges, oldEdges)[0];
-
     const nodeConfigs = get().v2_nodeConfigs;
+
+    // --- Check if new edge has valid destination value type ---
+
     let isSourceAudio = false;
 
     const srcNodeConfig = nodeConfigs[newEdge.source]!;
@@ -416,12 +422,30 @@ export const createFlowServerSliceV2: StateCreator<
       }
     }
 
-    events.push({
-      type: ChangeEventType.EDGE_ADDED,
-      edge: newEdge,
-    });
+    // --- Check if this is a replacing or adding ---
 
-    set({ v2_isDirty: true, v2_edges: newEdges });
+    const [acceptedEdges, rejectedEdges] = A.partition(
+      newEdges,
+      (edge) =>
+        edge.id === newEdge.id || edge.targetHandle !== newEdge.targetHandle
+    );
+
+    if (rejectedEdges.length) {
+      // --- Replace edge ---
+      events.push({
+        type: ChangeEventType.EDGE_REPLACED,
+        oldEdge: rejectedEdges[0],
+        newEdge,
+      });
+    } else {
+      // --- Add edge ---
+      events.push({
+        type: ChangeEventType.EDGE_ADDED,
+        edge: newEdge,
+      });
+    }
+
+    set({ v2_isDirty: true, v2_edges: acceptedEdges });
 
     return events;
   }
@@ -727,22 +751,6 @@ export const createFlowServerSliceV2: StateCreator<
   function processEdgeAdded(addedEdge: LocalEdge): ChangeEvent[] {
     const events: ChangeEvent[] = [];
 
-    // -- Handle possible edge removal ---
-
-    // Remove other edges with the same targetHandle
-    const [acceptedEdges, rejectedEdges] = A.partition(
-      get().v2_edges,
-      (edge) =>
-        edge.id === addedEdge.id || edge.targetHandle !== addedEdge.targetHandle
-    );
-
-    if (rejectedEdges.length) {
-      events.push({
-        type: ChangeEventType.EDGE_REMOVED,
-        edge: rejectedEdges[0],
-      });
-    }
-
     // --- Handle variable type change ---
 
     const nodeConfigs = produce(get().v2_nodeConfigs, (draft) => {
@@ -778,12 +786,10 @@ export const createFlowServerSliceV2: StateCreator<
       }
     });
 
-    set({
-      v2_isDirty:
-        get().v2_nodeConfigs !== nodeConfigs || rejectedEdges.length !== 0,
-      v2_edges: acceptedEdges,
+    set((state) => ({
+      v2_isDirty: state.v2_isDirty || state.v2_nodeConfigs !== nodeConfigs,
       v2_nodeConfigs: nodeConfigs,
-    });
+    }));
 
     return events;
   }
@@ -826,10 +832,74 @@ export const createFlowServerSliceV2: StateCreator<
       }
     });
 
-    set({
-      v2_isDirty: get().v2_nodeConfigs !== nodeConfigs,
+    set((state) => ({
+      v2_isDirty: state.v2_isDirty || state.v2_nodeConfigs !== nodeConfigs,
       v2_nodeConfigs: nodeConfigs,
+    }));
+
+    return events;
+  }
+
+  function processEdgeReplaced(
+    oldEdge: LocalEdge,
+    newEdge: LocalEdge
+  ): ChangeEvent[] {
+    const events: ChangeEvent[] = [];
+
+    // --- Handle variable type change ---
+
+    const nodeConfigs = produce(get().v2_nodeConfigs, (draft) => {
+      // Get old source output
+      const oldSrcNodeConfig = draft[oldEdge.source]!;
+      if (!("outputs" in oldSrcNodeConfig)) {
+        throw new Error("Old source node must have outputs property");
+      }
+      const oldSrcOutput = oldSrcNodeConfig.outputs.find(
+        (output) => output.id === oldEdge.sourceHandle
+      )!;
+
+      // Get new source output
+      const newSrcNodeConfig = draft[newEdge.source]!;
+      if (!("outputs" in newSrcNodeConfig)) {
+        throw new Error("New source node must have outputs property");
+      }
+      const newSrcOutput = newSrcNodeConfig.outputs.find(
+        (output) => output.id === newEdge.sourceHandle
+      )!;
+
+      // Only need to change when source value type has changed
+      if (oldSrcOutput.valueType !== newSrcOutput.valueType) {
+        // Doesn't matter if we use old or new edge to find destination,
+        // they should be the same.
+        const dstNodeConfig = draft[newEdge.target]!;
+
+        if (dstNodeConfig.nodeType !== NodeType.OutputNode) {
+          throw new Error(
+            "Destination node must be a OutputNode, this check should have been performed in previous events"
+          );
+        }
+
+        const dstInput = dstNodeConfig.inputs.find(
+          (input) => input.id === newEdge.targetHandle
+        )!;
+
+        if (newSrcOutput.valueType === OutputValueType.Audio) {
+          dstInput.valueType = OutputValueType.Audio;
+        } else {
+          delete dstInput.valueType;
+        }
+
+        events.push({
+          type: ChangeEventType.FLOW_OUTPUT_VARIABLE_UPDATED,
+          variable: original(dstInput)!,
+        });
+      }
     });
+
+    set((state) => ({
+      v2_isDirty: state.v2_isDirty || state.v2_nodeConfigs !== nodeConfigs,
+      v2_nodeConfigs: nodeConfigs,
+    }));
 
     return events;
   }
@@ -1061,6 +1131,7 @@ enum ChangeEventType {
   ADD_OUTPUT_VARIABLE = "ADD_OUTPUT_VARIABLE",
   EDGE_ADDED = "EDGE_ADDED",
   EDGE_REMOVED = "EDGE_REMOVED",
+  EDGE_REPLACED = "EDGE_REPLACED",
   EDGES_CHANGE = "EDGES_CHANGE",
   FLOW_OUTPUT_VARIABLE_UPDATED = "FLOW_OUTPUT_VARIABLE_UPDATED",
   INPUT_VARIABLE_REMOVED = "INPUT_VARIABLE_REMOVED",
@@ -1184,6 +1255,11 @@ type ChangeEvent =
   | {
       type: ChangeEventType.FLOW_OUTPUT_VARIABLE_UPDATED;
       variable: FlowOutputItem;
+    }
+  | {
+      type: ChangeEventType.EDGE_REPLACED;
+      oldEdge: LocalEdge;
+      newEdge: LocalEdge;
     };
 
 const EVENT_VALIDATION_MAP: { [key in ChangeEventType]: ChangeEventType[] } = {
@@ -1197,6 +1273,9 @@ const EVENT_VALIDATION_MAP: { [key in ChangeEventType]: ChangeEventType[] } = {
   [ChangeEventType.EDGE_REMOVED]: [
     ChangeEventType.FLOW_OUTPUT_VARIABLE_UPDATED,
   ],
+  [ChangeEventType.EDGE_REPLACED]: [
+    ChangeEventType.FLOW_OUTPUT_VARIABLE_UPDATED,
+  ],
   [ChangeEventType.EDGES_CHANGE]: [ChangeEventType.EDGE_REMOVED],
   [ChangeEventType.FLOW_OUTPUT_VARIABLE_UPDATED]: [],
   [ChangeEventType.INPUT_VARIABLE_REMOVED]: [ChangeEventType.EDGE_REMOVED],
@@ -1208,7 +1287,10 @@ const EVENT_VALIDATION_MAP: { [key in ChangeEventType]: ChangeEventType[] } = {
     ChangeEventType.NODE_CONFIG_REMOVED,
   ],
   [ChangeEventType.NODES_CHANGE]: [ChangeEventType.NODE_REMOVED],
-  [ChangeEventType.ON_CONNECT]: [ChangeEventType.EDGE_ADDED],
+  [ChangeEventType.ON_CONNECT]: [
+    ChangeEventType.EDGE_ADDED,
+    ChangeEventType.EDGE_REPLACED,
+  ],
   [ChangeEventType.OUTPUT_VARIABLE_REMOVED]: [ChangeEventType.EDGE_REMOVED],
   [ChangeEventType.REMOVE_INPUT_VARIABLE]: [
     ChangeEventType.INPUT_VARIABLE_REMOVED,
