@@ -25,11 +25,13 @@ import { SPACE_FLOW_QUERY } from "./graphql-flow";
 import {
   FlowContent,
   InputID,
+  InputValueType,
   LocalEdge,
   NodeConfig,
   NodeConfigs,
   NodeID,
   NodeType,
+  OutputID,
   VariableValueMap,
 } from "./types-flow-content";
 import { LocalNode } from "./types-flow-content";
@@ -56,6 +58,7 @@ export type FlowServerSliceV2 = FlowServerSliceStateV2 & {
   v2_addNode(type: NodeType, x?: number, y?: number): void;
   v2_removeNode(id: NodeID): void;
   v2_addInputVariable(nodeId: NodeID): void;
+  v2_addOutputVariable(nodeId: NodeID): void;
 };
 
 const FLOW_SERVER_SLICE_INITIAL_STATE_V2: FlowServerSliceStateV2 = {
@@ -127,6 +130,10 @@ export const createFlowServerSliceV2: StateCreator<
         }
         case ChangeEventType.ADD_INPUT_VARIABLE: {
           newEvents.push(...processAddInputVariable(event.nodeId));
+          break;
+        }
+        case ChangeEventType.ADD_OUTPUT_VARIABLE: {
+          newEvents.push(...processAddOutputVariable(event.nodeId));
           break;
         }
         // Derived events
@@ -372,6 +379,25 @@ export const createFlowServerSliceV2: StateCreator<
     return events;
   }
 
+  function processAddOutputVariable(nodeId: NodeID): ChangeEvent[] {
+    const events: ChangeEvent[] = [];
+
+    const nodeConfigs = produce(get().v2_nodeConfigs, (draft) => {
+      const nodeConfig = draft[nodeId]!;
+      if (nodeConfig.nodeType === NodeType.InputNode) {
+        nodeConfig.outputs.push({
+          id: `${nodeId}/${randomId()}` as OutputID,
+          name: chance.word(),
+          valueType: InputValueType.String,
+        });
+      }
+    });
+
+    set({ v2_isDirty: true, v2_nodeConfigs: nodeConfigs });
+
+    return events;
+  }
+
   let fetchFlowSubscription: Subscription | null = null;
 
   return {
@@ -501,6 +527,15 @@ export const createFlowServerSliceV2: StateCreator<
       ];
       processEventQueue(eventQueue);
     },
+    v2_addOutputVariable(nodeId: NodeID) {
+      const eventQueue: ChangeEvent[] = [
+        {
+          type: ChangeEventType.ADD_OUTPUT_VARIABLE,
+          nodeId,
+        },
+      ];
+      processEventQueue(eventQueue);
+    },
   };
 };
 
@@ -536,6 +571,7 @@ enum ChangeEventType {
   NODE_CONFIG_ADDED = "NODE_CONFIG_ADDED",
   REMOVE_NODE = "REMOVE_NODE",
   ADD_INPUT_VARIABLE = "ADD_INPUT_VARIABLE",
+  ADD_OUTPUT_VARIABLE = "ADD_OUTPUT_VARIABLE",
 }
 
 type ChangeEvent =
@@ -582,6 +618,10 @@ type ChangeEvent =
   | {
       type: ChangeEventType.ADD_INPUT_VARIABLE;
       nodeId: NodeID;
+    }
+  | {
+      type: ChangeEventType.ADD_OUTPUT_VARIABLE;
+      nodeId: NodeID;
     };
 
 const EVENT_VALIDATION_MAP: { [key in ChangeEventType]: ChangeEventType[] } = {
@@ -599,4 +639,5 @@ const EVENT_VALIDATION_MAP: { [key in ChangeEventType]: ChangeEventType[] } = {
   [ChangeEventType.NODE_CONFIG_ADDED]: [],
   [ChangeEventType.REMOVE_NODE]: [ChangeEventType.NODE_REMOVED],
   [ChangeEventType.ADD_INPUT_VARIABLE]: [],
+  [ChangeEventType.ADD_OUTPUT_VARIABLE]: [],
 };
