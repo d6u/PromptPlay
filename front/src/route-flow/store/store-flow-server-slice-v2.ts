@@ -175,6 +175,16 @@ export const createFlowServerSliceV2: StateCreator<
         case ChangeEventType.NODE_CONFIG_ADDED: {
           break;
         }
+        case ChangeEventType.INPUT_VARIABLE_REMOVED: {
+          newEvents.push(...processInputVariableRemoved(event.inputVariableId));
+          break;
+        }
+        case ChangeEventType.OUTPUT_VARIABLE_REMOVED: {
+          newEvents.push(
+            ...processOutputVariableRemoved(event.outputVariableId)
+          );
+          break;
+        }
       }
 
       const allowedEvents = EVENT_VALIDATION_MAP[event.type];
@@ -428,6 +438,11 @@ export const createFlowServerSliceV2: StateCreator<
     const nodeConfigs = produce(get().v2_nodeConfigs, (draft) => {
       const nodeConfig = draft[nodeId]!;
       if ("inputs" in nodeConfig) {
+        events.push({
+          type: ChangeEventType.INPUT_VARIABLE_REMOVED,
+          inputVariableId: nodeConfig.inputs[index].id,
+        });
+
         nodeConfig.inputs.splice(index, 1);
       }
     });
@@ -446,11 +461,60 @@ export const createFlowServerSliceV2: StateCreator<
     const nodeConfigs = produce(get().v2_nodeConfigs, (draft) => {
       const nodeConfig = draft[nodeId]!;
       if (nodeConfig.nodeType === NodeType.InputNode) {
+        events.push({
+          type: ChangeEventType.OUTPUT_VARIABLE_REMOVED,
+          outputVariableId: nodeConfig.outputs[index].id,
+        });
+
         nodeConfig.outputs.splice(index, 1);
       }
     });
 
     set({ v2_isDirty: true, v2_nodeConfigs: nodeConfigs });
+
+    return events;
+  }
+
+  function processInputVariableRemoved(
+    inputVariableId: InputID
+  ): ChangeEvent[] {
+    const events: ChangeEvent[] = [];
+
+    const [acceptedEdges, rejectedEdges] = A.partition(
+      get().v2_edges,
+      (edge) => edge.targetHandle !== inputVariableId
+    );
+
+    for (const edge of rejectedEdges) {
+      events.push({
+        type: ChangeEventType.EDGE_REMOVED,
+        edge,
+      });
+    }
+
+    set({ v2_isDirty: true, v2_edges: acceptedEdges });
+
+    return events;
+  }
+
+  function processOutputVariableRemoved(
+    outputVariableId: OutputID
+  ): ChangeEvent[] {
+    const events: ChangeEvent[] = [];
+
+    const [acceptedEdges, rejectedEdges] = A.partition(
+      get().v2_edges,
+      (edge) => edge.sourceHandle !== outputVariableId
+    );
+
+    for (const edge of rejectedEdges) {
+      events.push({
+        type: ChangeEventType.EDGE_REMOVED,
+        edge,
+      });
+    }
+
+    set({ v2_isDirty: true, v2_edges: acceptedEdges });
 
     return events;
   }
@@ -680,6 +744,8 @@ enum ChangeEventType {
   ADD_OUTPUT_VARIABLE = "ADD_OUTPUT_VARIABLE",
   REMOVE_INPUT_VARIABLE = "REMOVE_INPUT_VARIABLE",
   REMOVE_OUTPUT_VARIABLE = "REMOVE_OUTPUT_VARIABLE",
+  INPUT_VARIABLE_REMOVED = "INPUT_VARIABLE_REMOVED",
+  OUTPUT_VARIABLE_REMOVED = "OUTPUT_VARIABLE_REMOVED",
   UPDATE_NODE_CONFIG = "UPDATE_NODE_CONFIG",
 }
 
@@ -743,6 +809,14 @@ type ChangeEvent =
       index: number;
     }
   | {
+      type: ChangeEventType.INPUT_VARIABLE_REMOVED;
+      inputVariableId: InputID;
+    }
+  | {
+      type: ChangeEventType.OUTPUT_VARIABLE_REMOVED;
+      outputVariableId: OutputID;
+    }
+  | {
       type: ChangeEventType.UPDATE_NODE_CONFIG;
       nodeId: NodeID;
       change: Partial<NodeConfig>;
@@ -764,7 +838,13 @@ const EVENT_VALIDATION_MAP: { [key in ChangeEventType]: ChangeEventType[] } = {
   [ChangeEventType.REMOVE_NODE]: [ChangeEventType.NODE_REMOVED],
   [ChangeEventType.ADD_INPUT_VARIABLE]: [],
   [ChangeEventType.ADD_OUTPUT_VARIABLE]: [],
-  [ChangeEventType.REMOVE_INPUT_VARIABLE]: [],
-  [ChangeEventType.REMOVE_OUTPUT_VARIABLE]: [],
+  [ChangeEventType.REMOVE_INPUT_VARIABLE]: [
+    ChangeEventType.INPUT_VARIABLE_REMOVED,
+  ],
+  [ChangeEventType.REMOVE_OUTPUT_VARIABLE]: [
+    ChangeEventType.OUTPUT_VARIABLE_REMOVED,
+  ],
+  [ChangeEventType.INPUT_VARIABLE_REMOVED]: [ChangeEventType.EDGE_REMOVED],
+  [ChangeEventType.OUTPUT_VARIABLE_REMOVED]: [ChangeEventType.EDGE_REMOVED],
   [ChangeEventType.UPDATE_NODE_CONFIG]: [],
 };
