@@ -34,6 +34,7 @@ const selector = (state: FlowState) => ({
   setDetailPanelContentType: state.setDetailPanelContentType,
   nodeConfigs: state.nodeConfigs,
   updateNodeConfig: state.updateNodeConfig,
+  v2_updateFlowInputVariable: state.v2_updateFlowInputVariable,
   removeNode: state.removeNode,
   v2_removeNode: state.v2_removeNode,
   v2_addOutputVariable: state.v2_addOutputVariable,
@@ -49,6 +50,7 @@ export default function InputNode() {
     setDetailPanelContentType,
     nodeConfigs,
     updateNodeConfig,
+    v2_updateFlowInputVariable,
     removeNode,
     v2_removeNode,
     v2_addOutputVariable,
@@ -128,6 +130,7 @@ export default function InputNode() {
                 setOutputs(newOutputs);
 
                 updateNodeConfig(nodeId, { outputs: newOutputs });
+                v2_updateFlowInputVariable(nodeId, i, { name });
               }}
               onRemove={() => {
                 const newOutputs = remove(i, 1, outputs);

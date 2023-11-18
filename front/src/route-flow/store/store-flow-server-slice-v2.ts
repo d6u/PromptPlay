@@ -24,12 +24,16 @@ import { createNode, createNodeConfig } from "../utils-flow";
 import { SPACE_FLOW_QUERY } from "./graphql-flow";
 import {
   FlowContent,
+  FlowInputItem,
+  FlowOutputItem,
   InputID,
   InputValueType,
   LocalEdge,
   NodeConfig,
   NodeConfigs,
   NodeID,
+  NodeInputItem,
+  NodeOutputItem,
   NodeType,
   OutputID,
   VariableValueMap,
@@ -61,6 +65,26 @@ export type FlowServerSliceV2 = FlowServerSliceStateV2 & {
   v2_addOutputVariable(nodeId: NodeID): void;
   v2_removeInputVariable(nodeId: NodeID, index: number): void;
   v2_removeOutputVariable(nodeId: NodeID, index: number): void;
+  v2_updateInputVariable(
+    nodeId: NodeID,
+    index: number,
+    change: Partial<NodeInputItem>
+  ): void;
+  v2_updateOutputVariable(
+    nodeId: NodeID,
+    index: number,
+    change: Partial<NodeOutputItem>
+  ): void;
+  v2_updateFlowInputVariable(
+    nodeId: NodeID,
+    index: number,
+    change: Partial<FlowInputItem>
+  ): void;
+  v2_updateFlowOutputVariable(
+    nodeId: NodeID,
+    index: number,
+    change: Partial<FlowOutputItem>
+  ): void;
   v2_updateNodeConfig(nodeId: NodeID, change: Partial<NodeConfig>): void;
 };
 
@@ -148,6 +172,46 @@ export const createFlowServerSliceV2: StateCreator<
         case ChangeEventType.REMOVE_OUTPUT_VARIABLE: {
           newEvents.push(
             ...processRemoveOutputVariable(event.nodeId, event.index)
+          );
+          break;
+        }
+        case ChangeEventType.UPDATE_INPUT_VARIABLE: {
+          newEvents.push(
+            ...processUpdateInputVariable(
+              event.nodeId,
+              event.index,
+              event.change
+            )
+          );
+          break;
+        }
+        case ChangeEventType.UPDATE_OUTPUT_VARIABLE: {
+          newEvents.push(
+            ...processUpdateOutputVariable(
+              event.nodeId,
+              event.index,
+              event.change
+            )
+          );
+          break;
+        }
+        case ChangeEventType.UPDATE_FLOW_INPUT_VARIABLE: {
+          newEvents.push(
+            ...processUpdateFlowInputVariable(
+              event.nodeId,
+              event.index,
+              event.change
+            )
+          );
+          break;
+        }
+        case ChangeEventType.UPDATE_FLOW_OUTPUT_VARIABLE: {
+          newEvents.push(
+            ...processUpdateFlowOutputVariable(
+              event.nodeId,
+              event.index,
+              event.change
+            )
           );
           break;
         }
@@ -475,6 +539,101 @@ export const createFlowServerSliceV2: StateCreator<
     return events;
   }
 
+  function processUpdateInputVariable(
+    nodeId: NodeID,
+    index: number,
+    change: Partial<NodeInputItem>
+  ): ChangeEvent[] {
+    const events: ChangeEvent[] = [];
+
+    const nodeConfigs = produce(get().v2_nodeConfigs, (draft) => {
+      const nodeConfig = draft[nodeId]!;
+      if ("inputs" in nodeConfig) {
+        nodeConfig.inputs[index] = {
+          ...nodeConfig.inputs[index],
+          ...change,
+        };
+      }
+    });
+
+    set({ v2_isDirty: true, v2_nodeConfigs: nodeConfigs });
+
+    return events;
+  }
+
+  function processUpdateOutputVariable(
+    nodeId: NodeID,
+    index: number,
+    change: Partial<NodeOutputItem>
+  ): ChangeEvent[] {
+    const events: ChangeEvent[] = [];
+
+    const nodeConfigs = produce(get().v2_nodeConfigs, (draft) => {
+      const nodeConfig = draft[nodeId]!;
+      if (
+        nodeConfig.nodeType === NodeType.JavaScriptFunctionNode ||
+        nodeConfig.nodeType === NodeType.ChatGPTMessageNode ||
+        nodeConfig.nodeType === NodeType.ChatGPTChatCompletionNode ||
+        nodeConfig.nodeType === NodeType.TextTemplate ||
+        nodeConfig.nodeType === NodeType.HuggingFaceInference ||
+        nodeConfig.nodeType === NodeType.ElevenLabs
+      ) {
+        nodeConfig.outputs[index] = {
+          ...nodeConfig.outputs[index],
+          ...change,
+        };
+      }
+    });
+
+    set({ v2_isDirty: true, v2_nodeConfigs: nodeConfigs });
+
+    return events;
+  }
+
+  function processUpdateFlowInputVariable(
+    nodeId: NodeID,
+    index: number,
+    change: Partial<FlowInputItem>
+  ): ChangeEvent[] {
+    const events: ChangeEvent[] = [];
+
+    const nodeConfigs = produce(get().v2_nodeConfigs, (draft) => {
+      const nodeConfig = draft[nodeId]!;
+      if (nodeConfig.nodeType === NodeType.InputNode) {
+        nodeConfig.outputs[index] = {
+          ...nodeConfig.outputs[index],
+          ...change,
+        };
+      }
+    });
+
+    set({ v2_isDirty: true, v2_nodeConfigs: nodeConfigs });
+
+    return events;
+  }
+
+  function processUpdateFlowOutputVariable(
+    nodeId: NodeID,
+    index: number,
+    change: Partial<FlowOutputItem>
+  ): ChangeEvent[] {
+    const events: ChangeEvent[] = [];
+
+    const nodeConfigs = produce(get().v2_nodeConfigs, (draft) => {
+      const nodeConfig = draft[nodeId]!;
+      if (nodeConfig.nodeType === NodeType.OutputNode) {
+        nodeConfig.inputs[index] = {
+          ...nodeConfig.inputs[index],
+          ...change,
+        };
+      }
+    });
+
+    set({ v2_isDirty: true, v2_nodeConfigs: nodeConfigs });
+
+    return events;
+  }
+
   function processInputVariableRemoved(
     inputVariableId: InputID
   ): ChangeEvent[] {
@@ -696,6 +855,66 @@ export const createFlowServerSliceV2: StateCreator<
       ];
       processEventQueue(eventQueue);
     },
+    v2_updateInputVariable(
+      nodeId: NodeID,
+      index: number,
+      change: Partial<NodeInputItem>
+    ) {
+      const eventQueue: ChangeEvent[] = [
+        {
+          type: ChangeEventType.UPDATE_INPUT_VARIABLE,
+          nodeId,
+          index,
+          change,
+        },
+      ];
+      processEventQueue(eventQueue);
+    },
+    v2_updateOutputVariable(
+      nodeId: NodeID,
+      index: number,
+      change: Partial<NodeOutputItem>
+    ) {
+      const eventQueue: ChangeEvent[] = [
+        {
+          type: ChangeEventType.UPDATE_OUTPUT_VARIABLE,
+          nodeId,
+          index,
+          change,
+        },
+      ];
+      processEventQueue(eventQueue);
+    },
+    v2_updateFlowInputVariable(
+      nodeId: NodeID,
+      index: number,
+      change: Partial<FlowInputItem>
+    ) {
+      const eventQueue: ChangeEvent[] = [
+        {
+          type: ChangeEventType.UPDATE_FLOW_INPUT_VARIABLE,
+          nodeId,
+          index,
+          change,
+        },
+      ];
+      processEventQueue(eventQueue);
+    },
+    v2_updateFlowOutputVariable(
+      nodeId: NodeID,
+      index: number,
+      change: Partial<FlowOutputItem>
+    ) {
+      const eventQueue: ChangeEvent[] = [
+        {
+          type: ChangeEventType.UPDATE_FLOW_OUTPUT_VARIABLE,
+          nodeId,
+          index,
+          change,
+        },
+      ];
+      processEventQueue(eventQueue);
+    },
     v2_updateNodeConfig(nodeId: NodeID, change: Partial<NodeConfig>) {
       const eventQueue: ChangeEvent[] = [
         {
@@ -744,6 +963,10 @@ enum ChangeEventType {
   ADD_OUTPUT_VARIABLE = "ADD_OUTPUT_VARIABLE",
   REMOVE_INPUT_VARIABLE = "REMOVE_INPUT_VARIABLE",
   REMOVE_OUTPUT_VARIABLE = "REMOVE_OUTPUT_VARIABLE",
+  UPDATE_INPUT_VARIABLE = "UPDATE_INPUT_VARIABLE",
+  UPDATE_OUTPUT_VARIABLE = "UPDATE_OUTPUT_VARIABLE",
+  UPDATE_FLOW_INPUT_VARIABLE = "UPDATE_FLOW_INPUT_VARIABLE",
+  UPDATE_FLOW_OUTPUT_VARIABLE = "UPDATE_FLOW_OUTPUT_VARIABLE",
   INPUT_VARIABLE_REMOVED = "INPUT_VARIABLE_REMOVED",
   OUTPUT_VARIABLE_REMOVED = "OUTPUT_VARIABLE_REMOVED",
   UPDATE_NODE_CONFIG = "UPDATE_NODE_CONFIG",
@@ -809,6 +1032,30 @@ type ChangeEvent =
       index: number;
     }
   | {
+      type: ChangeEventType.UPDATE_INPUT_VARIABLE;
+      nodeId: NodeID;
+      index: number;
+      change: Partial<NodeInputItem>;
+    }
+  | {
+      type: ChangeEventType.UPDATE_OUTPUT_VARIABLE;
+      nodeId: NodeID;
+      index: number;
+      change: Partial<NodeOutputItem>;
+    }
+  | {
+      type: ChangeEventType.UPDATE_FLOW_INPUT_VARIABLE;
+      nodeId: NodeID;
+      index: number;
+      change: Partial<FlowInputItem>;
+    }
+  | {
+      type: ChangeEventType.UPDATE_FLOW_OUTPUT_VARIABLE;
+      nodeId: NodeID;
+      index: number;
+      change: Partial<FlowOutputItem>;
+    }
+  | {
       type: ChangeEventType.INPUT_VARIABLE_REMOVED;
       inputVariableId: InputID;
     }
@@ -844,6 +1091,10 @@ const EVENT_VALIDATION_MAP: { [key in ChangeEventType]: ChangeEventType[] } = {
   [ChangeEventType.REMOVE_OUTPUT_VARIABLE]: [
     ChangeEventType.OUTPUT_VARIABLE_REMOVED,
   ],
+  [ChangeEventType.UPDATE_INPUT_VARIABLE]: [],
+  [ChangeEventType.UPDATE_OUTPUT_VARIABLE]: [],
+  [ChangeEventType.UPDATE_FLOW_INPUT_VARIABLE]: [],
+  [ChangeEventType.UPDATE_FLOW_OUTPUT_VARIABLE]: [],
   [ChangeEventType.INPUT_VARIABLE_REMOVED]: [ChangeEventType.EDGE_REMOVED],
   [ChangeEventType.OUTPUT_VARIABLE_REMOVED]: [ChangeEventType.EDGE_REMOVED],
   [ChangeEventType.UPDATE_NODE_CONFIG]: [],

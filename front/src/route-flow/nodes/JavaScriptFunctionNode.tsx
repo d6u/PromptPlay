@@ -41,6 +41,7 @@ const selector = (state: FlowState) => ({
   nodeConfigs: state.nodeConfigs,
   updateNodeConfig: state.updateNodeConfig,
   v2_updateNodeConfig: state.v2_updateNodeConfig,
+  v2_updateInputVariable: state.v2_updateInputVariable,
   removeNode: state.removeNode,
   v2_removeNode: state.v2_removeNode,
   v2_addInputVariable: state.v2_addInputVariable,
@@ -58,6 +59,7 @@ export default function JavaScriptFunctionNode() {
     nodeConfigs,
     updateNodeConfig,
     v2_updateNodeConfig,
+    v2_updateInputVariable,
     removeNode,
     v2_removeNode,
     v2_addInputVariable,
@@ -158,6 +160,7 @@ export default function JavaScriptFunctionNode() {
                 setInputs(newInputs);
 
                 updateNodeConfig(nodeId, { inputs: newInputs });
+                v2_updateInputVariable(nodeId, i, { name });
               }}
               onRemove={() => {
                 const newInputs = remove(i, 1, inputs);
