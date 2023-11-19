@@ -1,6 +1,6 @@
 import { A } from "@mobily/ts-belt";
 import Chance from "chance";
-import { original, produce } from "immer";
+import { current, produce } from "immer";
 import {
   Connection,
   EdgeChange,
@@ -258,6 +258,12 @@ export const createFlowServerSliceV2: StateCreator<
           break;
         }
         case ChangeEventType.VARIABLE_FLOW_OUTPUT_UPDATED: {
+          newEvents.push(
+            ...processVariableFlowOutputUpdated(
+              event.variableOldData,
+              event.variableNewData
+            )
+          );
           break;
         }
       }
@@ -677,10 +683,18 @@ export const createFlowServerSliceV2: StateCreator<
     const nodeConfigs = produce(get().v2_nodeConfigs, (draft) => {
       const nodeConfig = draft[nodeId]!;
       if (nodeConfig.nodeType === NodeType.OutputNode) {
+        const variableOldData = current(nodeConfig.inputs[index])!;
+
         nodeConfig.inputs[index] = {
           ...nodeConfig.inputs[index],
           ...change,
         };
+
+        events.push({
+          type: ChangeEventType.VARIABLE_FLOW_OUTPUT_UPDATED,
+          variableOldData,
+          variableNewData: nodeConfig.inputs[index],
+        });
       }
     });
 
@@ -783,11 +797,14 @@ export const createFlowServerSliceV2: StateCreator<
           (input) => input.id === addedEdge.targetHandle
         )!;
 
+        const variableOldData = current(dstInput)!;
+
         dstInput.valueType = OutputValueType.Audio;
 
         events.push({
           type: ChangeEventType.VARIABLE_FLOW_OUTPUT_UPDATED,
-          variable: original(dstInput)!,
+          variableOldData,
+          variableNewData: current(dstInput)!,
         });
       }
     });
@@ -835,11 +852,14 @@ export const createFlowServerSliceV2: StateCreator<
           (input) => input.id === removedEdge.targetHandle
         )!;
 
+        const variableOldData = current(dstInput)!;
+
         delete dstInput.valueType;
 
         events.push({
           type: ChangeEventType.VARIABLE_FLOW_OUTPUT_UPDATED,
-          variable: original(dstInput)!,
+          variableOldData,
+          variableNewData: current(dstInput)!,
         });
       }
     });
@@ -895,6 +915,8 @@ export const createFlowServerSliceV2: StateCreator<
           (input) => input.id === newEdge.targetHandle
         )!;
 
+        const variableOldData = current(dstInput)!;
+
         if (newSrcOutput.valueType === OutputValueType.Audio) {
           dstInput.valueType = OutputValueType.Audio;
         } else {
@@ -903,7 +925,8 @@ export const createFlowServerSliceV2: StateCreator<
 
         events.push({
           type: ChangeEventType.VARIABLE_FLOW_OUTPUT_UPDATED,
-          variable: original(dstInput)!,
+          variableOldData,
+          variableNewData: current(dstInput)!,
         });
       }
     });
@@ -912,6 +935,27 @@ export const createFlowServerSliceV2: StateCreator<
       v2_isDirty: state.v2_isDirty || state.v2_nodeConfigs !== nodeConfigs,
       v2_nodeConfigs: nodeConfigs,
     }));
+
+    return events;
+  }
+
+  function processVariableFlowOutputUpdated(
+    variableOldData: FlowOutputItem,
+    variableNewData: FlowOutputItem
+  ): ChangeEvent[] {
+    const events: ChangeEvent[] = [];
+
+    const variableValueMaps = produce(get().v2_variableValueMaps, (draft) => {
+      if (variableOldData.valueType !== variableNewData.valueType) {
+        draft[0][variableNewData.id] = null;
+      }
+    });
+
+    set({
+      v2_isDirty:
+        get().v2_isDirty || get().v2_variableValueMaps === variableValueMaps,
+      v2_variableValueMaps: variableValueMaps,
+    });
 
     return events;
   }
@@ -1114,7 +1158,13 @@ export const createFlowServerSliceV2: StateCreator<
       ];
       processEventQueue(eventQueue);
     },
-    v2_updateVariableValueMap(variableId: VariableID, value: unknown): void {},
+    v2_updateVariableValueMap(variableId: VariableID, value: unknown): void {
+      const variableValueMaps = produce(get().v2_variableValueMaps, (draft) => {
+        draft[0][variableId] = value;
+      });
+
+      set({ v2_variableValueMaps: variableValueMaps });
+    },
   };
 };
 
@@ -1259,7 +1309,8 @@ type ChangeEvent =
     }
   | {
       type: ChangeEventType.VARIABLE_FLOW_OUTPUT_UPDATED;
-      variable: FlowOutputItem;
+      variableOldData: FlowOutputItem;
+      variableNewData: FlowOutputItem;
     }
   | {
       type: ChangeEventType.EDGE_REPLACED;
@@ -1297,7 +1348,9 @@ const EVENT_VALIDATION_MAP: { [key in ChangeEventType]: ChangeEventType[] } = {
     ChangeEventType.VARIABLE_OUTPUT_REMOVED,
   ],
   [ChangeEventType.UPDATE_FLOW_INPUT_VARIABLE]: [],
-  [ChangeEventType.UPDATE_FLOW_OUTPUT_VARIABLE]: [],
+  [ChangeEventType.UPDATE_FLOW_OUTPUT_VARIABLE]: [
+    ChangeEventType.VARIABLE_FLOW_OUTPUT_UPDATED,
+  ],
   [ChangeEventType.UPDATE_INPUT_VARIABLE]: [],
   [ChangeEventType.UPDATE_NODE_CONFIG]: [],
   [ChangeEventType.UPDATE_OUTPUT_VARIABLE]: [],
