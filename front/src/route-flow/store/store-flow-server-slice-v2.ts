@@ -52,61 +52,62 @@ import { FlowState } from "./types-local-state";
 const chance = new Chance();
 
 type FlowServerSliceStateV2 = {
-  v2_isDirty: boolean;
-  v2_nodes: LocalNode[];
-  v2_nodeConfigs: NodeConfigs;
-  v2_edges: LocalEdge[];
-  v2_variableValueMaps: VariableValueMap[];
+  isDirty: boolean;
+  nodes: LocalNode[];
+  nodeConfigs: NodeConfigs;
+  edges: LocalEdge[];
+  variableValueMaps: VariableValueMap[];
 };
 
 export type FlowServerSliceV2 = FlowServerSliceStateV2 & {
-  v2_fetchFlowConfiguration(): Observable<Partial<FlowContent>>;
-  v2_cancelFetchFlowConfiguration(): void;
+  fetchFlowConfiguration(): Observable<Partial<FlowContent>>;
+  cancelFetchFlowConfiguration(): void;
 
-  v2_onNodesChange: OnNodesChange;
-  v2_onEdgesChange: OnEdgesChange;
-  v2_onConnect: OnConnect;
+  onNodesChange: OnNodesChange;
+  onEdgesChange: OnEdgesChange;
+  onConnect: OnConnect;
 
-  v2_addNode(type: NodeType, x?: number, y?: number): void;
-  v2_removeNode(id: NodeID): void;
-  v2_addInputVariable(nodeId: NodeID): void;
-  v2_addOutputVariable(nodeId: NodeID): void;
-  v2_addFlowOutputVariable(nodeId: NodeID): void;
-  v2_addFlowInputVariable(nodeId: NodeID): void;
-  v2_removeInputVariable(nodeId: NodeID, index: number): void;
-  v2_removeOutputVariable(nodeId: NodeID, index: number): void;
-  v2_removeVariableFlowInput(nodeId: NodeID, index: number): void;
-  v2_removeVariableFlowOutput(nodeId: NodeID, index: number): void;
-  v2_updateInputVariable(
+  addNode(type: NodeType, x?: number, y?: number): void;
+  removeNode(id: NodeID): void;
+  addInputVariable(nodeId: NodeID): void;
+  addOutputVariable(nodeId: NodeID): void;
+  addFlowOutputVariable(nodeId: NodeID): void;
+  addFlowInputVariable(nodeId: NodeID): void;
+  removeInputVariable(nodeId: NodeID, index: number): void;
+  removeOutputVariable(nodeId: NodeID, index: number): void;
+  removeVariableFlowInput(nodeId: NodeID, index: number): void;
+  removeVariableFlowOutput(nodeId: NodeID, index: number): void;
+  updateInputVariable(
     nodeId: NodeID,
     index: number,
     change: Partial<NodeInputItem>
   ): void;
-  v2_updateOutputVariable(
+  updateOutputVariable(
     nodeId: NodeID,
     index: number,
     change: Partial<NodeOutputItem>
   ): void;
-  v2_updateFlowInputVariable(
+  updateFlowInputVariable(
     nodeId: NodeID,
     index: number,
     change: Partial<FlowInputItem>
   ): void;
-  v2_updateFlowOutputVariable(
+  updateFlowOutputVariable(
     nodeId: NodeID,
     index: number,
     change: Partial<FlowOutputItem>
   ): void;
-  v2_updateNodeConfig(nodeId: NodeID, change: Partial<NodeConfig>): void;
-  v2_updateVariableValueMap(variableId: VariableID, value: unknown): void;
+  updateNodeConfig(nodeId: NodeID, change: Partial<NodeConfig>): void;
+  updateVariableValueMap(variableId: VariableID, value: unknown): void;
+  getDefaultVariableValueMap(): VariableValueMap;
 };
 
 const FLOW_SERVER_SLICE_INITIAL_STATE_V2: FlowServerSliceStateV2 = {
-  v2_isDirty: false,
-  v2_nodes: [],
-  v2_nodeConfigs: {},
-  v2_edges: [],
-  v2_variableValueMaps: [{}],
+  isDirty: false,
+  nodes: [],
+  nodeConfigs: {},
+  edges: [],
+  variableValueMaps: [{}],
 };
 
 export const createFlowServerSliceV2: StateCreator<
@@ -138,14 +139,14 @@ export const createFlowServerSliceV2: StateCreator<
       eventQueue.push(...derivedEvents);
     }
 
-    if (!get().v2_isDirty) {
+    if (!get().isDirty) {
       return;
     }
 
     // TODO
     console.log("Save it!");
 
-    set((state) => ({ v2_isDirty: false }));
+    set((state) => ({ isDirty: false }));
   }
 
   function handleEvent(event: ChangeEvent): ChangeEvent[] {
@@ -154,7 +155,7 @@ export const createFlowServerSliceV2: StateCreator<
     switch (event.type) {
       // Events from UI
       case ChangeEventType.RF_NODES_CHANGE: {
-        const oldNodes = get().v2_nodes;
+        const oldNodes = get().nodes;
         const newNodes = applyNodeChanges(
           event.changes,
           oldNodes
@@ -163,7 +164,7 @@ export const createFlowServerSliceV2: StateCreator<
         return handleRfNodesChange(event.changes, oldNodes, newNodes);
       }
       case ChangeEventType.RF_EDGES_CHANGE: {
-        const oldEdges = get().v2_edges;
+        const oldEdges = get().edges;
         const newEdges = applyEdgeChanges(
           event.changes,
           oldEdges
@@ -172,7 +173,7 @@ export const createFlowServerSliceV2: StateCreator<
         return handleRfEdgeChanges(event.changes, oldEdges, newEdges);
       }
       case ChangeEventType.RF_ON_CONNECT: {
-        const oldEdges = get().v2_edges;
+        const oldEdges = get().edges;
         const newEdges = addEdge(event.connection, oldEdges) as LocalEdge[];
 
         return handleRfOnConnect(oldEdges, newEdges);
@@ -284,7 +285,7 @@ export const createFlowServerSliceV2: StateCreator<
     for (const change of changes) {
       switch (change.type) {
         case "remove": {
-          let nodeConfigs = get().v2_nodeConfigs;
+          let nodeConfigs = get().nodeConfigs;
 
           const removingNodeConfig = nodeConfigs[change.id as NodeID]!;
 
@@ -298,12 +299,12 @@ export const createFlowServerSliceV2: StateCreator<
             nodeConfig: removingNodeConfig,
           });
 
-          set({ v2_isDirty: true, v2_nodeConfigs: nodeConfigs });
+          set({ isDirty: true, nodeConfigs: nodeConfigs });
           break;
         }
         case "position": {
           if (!change.dragging) {
-            set({ v2_isDirty: true });
+            set({ isDirty: true });
           }
           break;
         }
@@ -316,7 +317,7 @@ export const createFlowServerSliceV2: StateCreator<
       }
     }
 
-    set({ v2_nodes: newNodes });
+    set({ nodes: newNodes });
 
     return events;
   }
@@ -336,7 +337,7 @@ export const createFlowServerSliceV2: StateCreator<
             edge: oldEdges.find((edge) => edge.id === change.id)!,
             srcNodeConfigRemoved: null,
           });
-          set({ v2_isDirty: true });
+          set({ isDirty: true });
           break;
         }
         case "add":
@@ -346,7 +347,7 @@ export const createFlowServerSliceV2: StateCreator<
       }
     }
 
-    set({ v2_edges: newEdges });
+    set({ edges: newEdges });
 
     return events;
   }
@@ -358,7 +359,7 @@ export const createFlowServerSliceV2: StateCreator<
     const events: ChangeEvent[] = [];
 
     const newEdge = A.difference(newEdges, oldEdges)[0];
-    const nodeConfigs = get().v2_nodeConfigs;
+    const nodeConfigs = get().nodeConfigs;
 
     // --- Check if new edge has valid destination value type ---
 
@@ -407,7 +408,7 @@ export const createFlowServerSliceV2: StateCreator<
       });
     }
 
-    set({ v2_isDirty: true, v2_edges: acceptedEdges });
+    set({ isDirty: true, edges: acceptedEdges });
 
     return events;
   }
@@ -421,7 +422,7 @@ export const createFlowServerSliceV2: StateCreator<
     // Process edges removal
 
     const [acceptedEdges, rejectedEdges] = A.partition(
-      get().v2_edges,
+      get().edges,
       (edge) => edge.source !== removedNode.id && edge.target !== removedNode.id
     );
 
@@ -470,8 +471,8 @@ export const createFlowServerSliceV2: StateCreator<
     }
 
     set({
-      v2_isDirty: true,
-      v2_edges: acceptedEdges,
+      isDirty: true,
+      edges: acceptedEdges,
     });
 
     return events;
@@ -480,7 +481,7 @@ export const createFlowServerSliceV2: StateCreator<
   function processAddNode(node: LocalNode): ChangeEvent[] {
     const events: ChangeEvent[] = [];
 
-    const nodeConfigs = produce(get().v2_nodeConfigs, (draft) => {
+    const nodeConfigs = produce(get().nodeConfigs, (draft) => {
       const nodeConfig = createNodeConfig(node);
       draft[node.id] = nodeConfig;
     });
@@ -491,9 +492,9 @@ export const createFlowServerSliceV2: StateCreator<
     });
 
     set({
-      v2_isDirty: true,
-      v2_nodes: get().v2_nodes.concat([node]),
-      v2_nodeConfigs: nodeConfigs,
+      isDirty: true,
+      nodes: get().nodes.concat([node]),
+      nodeConfigs: nodeConfigs,
     });
 
     return events;
@@ -508,10 +509,10 @@ export const createFlowServerSliceV2: StateCreator<
   function processRemoveNode(nodeId: NodeID): ChangeEvent[] {
     const events: ChangeEvent[] = [];
 
-    let nodeConfigs = get().v2_nodeConfigs;
+    let nodeConfigs = get().nodeConfigs;
 
     const [acceptedNodes, rejectedNodes] = A.partition(
-      get().v2_nodes,
+      get().nodes,
       (node) => node.id !== nodeId
     );
 
@@ -530,9 +531,9 @@ export const createFlowServerSliceV2: StateCreator<
     }
 
     set({
-      v2_isDirty: true,
-      v2_nodes: acceptedNodes,
-      v2_nodeConfigs: nodeConfigs,
+      isDirty: true,
+      nodes: acceptedNodes,
+      nodeConfigs: nodeConfigs,
     });
 
     return events;
@@ -541,7 +542,7 @@ export const createFlowServerSliceV2: StateCreator<
   function processAddInputVariable(nodeId: NodeID): ChangeEvent[] {
     const events: ChangeEvent[] = [];
 
-    const nodeConfigs = produce(get().v2_nodeConfigs, (draft) => {
+    const nodeConfigs = produce(get().nodeConfigs, (draft) => {
       const nodeConfig = draft[nodeId]!;
       if ("inputs" in nodeConfig) {
         nodeConfig.inputs.push({
@@ -551,7 +552,7 @@ export const createFlowServerSliceV2: StateCreator<
       }
     });
 
-    set({ v2_isDirty: true, v2_nodeConfigs: nodeConfigs });
+    set({ isDirty: true, nodeConfigs: nodeConfigs });
 
     return events;
   }
@@ -559,7 +560,7 @@ export const createFlowServerSliceV2: StateCreator<
   function processAddOutputVariable(nodeId: NodeID): ChangeEvent[] {
     const events: ChangeEvent[] = [];
 
-    const nodeConfigs = produce(get().v2_nodeConfigs, (draft) => {
+    const nodeConfigs = produce(get().nodeConfigs, (draft) => {
       const nodeConfig = draft[nodeId]!;
       if (nodeConfig.nodeType === NodeType.InputNode) {
         nodeConfig.outputs.push({
@@ -570,7 +571,7 @@ export const createFlowServerSliceV2: StateCreator<
       }
     });
 
-    set({ v2_isDirty: true, v2_nodeConfigs: nodeConfigs });
+    set({ isDirty: true, nodeConfigs: nodeConfigs });
 
     return events;
   }
@@ -581,7 +582,7 @@ export const createFlowServerSliceV2: StateCreator<
   ): ChangeEvent[] {
     const events: ChangeEvent[] = [];
 
-    const nodeConfigs = produce(get().v2_nodeConfigs, (draft) => {
+    const nodeConfigs = produce(get().nodeConfigs, (draft) => {
       const nodeConfig = draft[nodeId]!;
       if ("inputs" in nodeConfig) {
         events.push({
@@ -593,7 +594,7 @@ export const createFlowServerSliceV2: StateCreator<
       }
     });
 
-    set({ v2_isDirty: true, v2_nodeConfigs: nodeConfigs });
+    set({ isDirty: true, nodeConfigs: nodeConfigs });
 
     return events;
   }
@@ -604,7 +605,7 @@ export const createFlowServerSliceV2: StateCreator<
   ): ChangeEvent[] {
     const events: ChangeEvent[] = [];
 
-    const nodeConfigs = produce(get().v2_nodeConfigs, (draft) => {
+    const nodeConfigs = produce(get().nodeConfigs, (draft) => {
       const nodeConfig = draft[nodeId]!;
       if (nodeConfig.nodeType === NodeType.InputNode) {
         events.push({
@@ -616,7 +617,7 @@ export const createFlowServerSliceV2: StateCreator<
       }
     });
 
-    set({ v2_isDirty: true, v2_nodeConfigs: nodeConfigs });
+    set({ isDirty: true, nodeConfigs: nodeConfigs });
 
     return events;
   }
@@ -627,7 +628,7 @@ export const createFlowServerSliceV2: StateCreator<
   ): ChangeEvent[] {
     const events: ChangeEvent[] = [];
 
-    const nodeConfigs = produce(get().v2_nodeConfigs, (draft) => {
+    const nodeConfigs = produce(get().nodeConfigs, (draft) => {
       const nodeConfig = draft[nodeId] as InputNodeConfig;
       const variableId = nodeConfig.outputs[index].id;
 
@@ -639,7 +640,7 @@ export const createFlowServerSliceV2: StateCreator<
       });
     });
 
-    set({ v2_isDirty: true, v2_nodeConfigs: nodeConfigs });
+    set({ isDirty: true, nodeConfigs: nodeConfigs });
 
     return events;
   }
@@ -650,7 +651,7 @@ export const createFlowServerSliceV2: StateCreator<
   ): ChangeEvent[] {
     const events: ChangeEvent[] = [];
 
-    const nodeConfigs = produce(get().v2_nodeConfigs, (draft) => {
+    const nodeConfigs = produce(get().nodeConfigs, (draft) => {
       const nodeConfig = draft[nodeId] as OutputNodeConfig;
       const variableId = nodeConfig.inputs[index].id;
 
@@ -662,7 +663,7 @@ export const createFlowServerSliceV2: StateCreator<
       });
     });
 
-    set({ v2_isDirty: true, v2_nodeConfigs: nodeConfigs });
+    set({ isDirty: true, nodeConfigs: nodeConfigs });
 
     return events;
   }
@@ -674,7 +675,7 @@ export const createFlowServerSliceV2: StateCreator<
   ): ChangeEvent[] {
     const events: ChangeEvent[] = [];
 
-    const nodeConfigs = produce(get().v2_nodeConfigs, (draft) => {
+    const nodeConfigs = produce(get().nodeConfigs, (draft) => {
       const nodeConfig = draft[nodeId]!;
       if ("inputs" in nodeConfig) {
         nodeConfig.inputs[index] = {
@@ -684,7 +685,7 @@ export const createFlowServerSliceV2: StateCreator<
       }
     });
 
-    set({ v2_isDirty: true, v2_nodeConfigs: nodeConfigs });
+    set({ isDirty: true, nodeConfigs: nodeConfigs });
 
     return events;
   }
@@ -696,7 +697,7 @@ export const createFlowServerSliceV2: StateCreator<
   ): ChangeEvent[] {
     const events: ChangeEvent[] = [];
 
-    const nodeConfigs = produce(get().v2_nodeConfigs, (draft) => {
+    const nodeConfigs = produce(get().nodeConfigs, (draft) => {
       const nodeConfig = draft[nodeId]!;
       if (
         nodeConfig.nodeType === NodeType.JavaScriptFunctionNode ||
@@ -713,7 +714,7 @@ export const createFlowServerSliceV2: StateCreator<
       }
     });
 
-    set({ v2_isDirty: true, v2_nodeConfigs: nodeConfigs });
+    set({ isDirty: true, nodeConfigs: nodeConfigs });
 
     return events;
   }
@@ -725,7 +726,7 @@ export const createFlowServerSliceV2: StateCreator<
   ): ChangeEvent[] {
     const events: ChangeEvent[] = [];
 
-    const nodeConfigs = produce(get().v2_nodeConfigs, (draft) => {
+    const nodeConfigs = produce(get().nodeConfigs, (draft) => {
       const nodeConfig = draft[nodeId]!;
       if (nodeConfig.nodeType === NodeType.InputNode) {
         nodeConfig.outputs[index] = {
@@ -735,7 +736,7 @@ export const createFlowServerSliceV2: StateCreator<
       }
     });
 
-    set({ v2_isDirty: true, v2_nodeConfigs: nodeConfigs });
+    set({ isDirty: true, nodeConfigs: nodeConfigs });
 
     return events;
   }
@@ -747,7 +748,7 @@ export const createFlowServerSliceV2: StateCreator<
   ): ChangeEvent[] {
     const events: ChangeEvent[] = [];
 
-    const nodeConfigs = produce(get().v2_nodeConfigs, (draft) => {
+    const nodeConfigs = produce(get().nodeConfigs, (draft) => {
       const nodeConfig = draft[nodeId]!;
       if (nodeConfig.nodeType === NodeType.OutputNode) {
         const variableOldData = current(nodeConfig.inputs[index])!;
@@ -765,7 +766,7 @@ export const createFlowServerSliceV2: StateCreator<
       }
     });
 
-    set({ v2_isDirty: true, v2_nodeConfigs: nodeConfigs });
+    set({ isDirty: true, nodeConfigs: nodeConfigs });
 
     return events;
   }
@@ -778,7 +779,7 @@ export const createFlowServerSliceV2: StateCreator<
     // Process possible edges removal
 
     const [acceptedEdges, rejectedEdges] = A.partition(
-      get().v2_edges,
+      get().edges,
       (edge) => edge.targetHandle !== inputVariableId
     );
 
@@ -792,7 +793,7 @@ export const createFlowServerSliceV2: StateCreator<
 
     // Process variable map value update
 
-    const variableValueMaps = produce(get().v2_variableValueMaps, (draft) => {
+    const variableValueMaps = produce(get().variableValueMaps, (draft) => {
       delete draft[0][inputVariableId];
     });
 
@@ -801,9 +802,9 @@ export const createFlowServerSliceV2: StateCreator<
     });
 
     set({
-      v2_isDirty: true,
-      v2_edges: acceptedEdges,
-      v2_variableValueMaps: variableValueMaps,
+      isDirty: true,
+      edges: acceptedEdges,
+      variableValueMaps: variableValueMaps,
     });
 
     return events;
@@ -817,7 +818,7 @@ export const createFlowServerSliceV2: StateCreator<
     // Process possible edges removal
 
     const [acceptedEdges, rejectedEdges] = A.partition(
-      get().v2_edges,
+      get().edges,
       (edge) => edge.sourceHandle !== outputVariableId
     );
 
@@ -831,7 +832,7 @@ export const createFlowServerSliceV2: StateCreator<
 
     // Process variable map value update
 
-    const variableValueMaps = produce(get().v2_variableValueMaps, (draft) => {
+    const variableValueMaps = produce(get().variableValueMaps, (draft) => {
       delete draft[0][outputVariableId];
     });
 
@@ -840,9 +841,9 @@ export const createFlowServerSliceV2: StateCreator<
     });
 
     set({
-      v2_isDirty: true,
-      v2_edges: acceptedEdges,
-      v2_variableValueMaps: variableValueMaps,
+      isDirty: true,
+      edges: acceptedEdges,
+      variableValueMaps: variableValueMaps,
     });
 
     return events;
@@ -856,7 +857,7 @@ export const createFlowServerSliceV2: StateCreator<
     // Process possible edges removal
 
     const [acceptedEdges, rejectedEdges] = A.partition(
-      get().v2_edges,
+      get().edges,
       (edge) => edge.sourceHandle !== variableId
     );
 
@@ -870,7 +871,7 @@ export const createFlowServerSliceV2: StateCreator<
 
     // Process variable map value update
 
-    const variableValueMaps = produce(get().v2_variableValueMaps, (draft) => {
+    const variableValueMaps = produce(get().variableValueMaps, (draft) => {
       delete draft[0][variableId];
     });
 
@@ -879,9 +880,9 @@ export const createFlowServerSliceV2: StateCreator<
     });
 
     set({
-      v2_isDirty: true,
-      v2_edges: acceptedEdges,
-      v2_variableValueMaps: variableValueMaps,
+      isDirty: true,
+      edges: acceptedEdges,
+      variableValueMaps: variableValueMaps,
     });
 
     return events;
@@ -895,7 +896,7 @@ export const createFlowServerSliceV2: StateCreator<
     // Process possible edges removal
 
     const [acceptedEdges, rejectedEdges] = A.partition(
-      get().v2_edges,
+      get().edges,
       (edge) => edge.targetHandle !== variableId
     );
 
@@ -909,7 +910,7 @@ export const createFlowServerSliceV2: StateCreator<
 
     // Process variable map value update
 
-    const variableValueMaps = produce(get().v2_variableValueMaps, (draft) => {
+    const variableValueMaps = produce(get().variableValueMaps, (draft) => {
       delete draft[0][variableId];
     });
 
@@ -918,9 +919,9 @@ export const createFlowServerSliceV2: StateCreator<
     });
 
     set({
-      v2_isDirty: true,
-      v2_edges: acceptedEdges,
-      v2_variableValueMaps: variableValueMaps,
+      isDirty: true,
+      edges: acceptedEdges,
+      variableValueMaps: variableValueMaps,
     });
 
     return events;
@@ -932,7 +933,7 @@ export const createFlowServerSliceV2: StateCreator<
   ): ChangeEvent[] {
     const events: ChangeEvent[] = [];
 
-    const nodeConfigs = produce(get().v2_nodeConfigs, (draft) => {
+    const nodeConfigs = produce(get().nodeConfigs, (draft) => {
       draft[nodeId] = {
         ...draft[nodeId]!,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -940,7 +941,7 @@ export const createFlowServerSliceV2: StateCreator<
       };
     });
 
-    set({ v2_isDirty: true, v2_nodeConfigs: nodeConfigs });
+    set({ isDirty: true, nodeConfigs: nodeConfigs });
 
     return events;
   }
@@ -950,7 +951,7 @@ export const createFlowServerSliceV2: StateCreator<
 
     // --- Handle variable type change ---
 
-    const nodeConfigs = produce(get().v2_nodeConfigs, (draft) => {
+    const nodeConfigs = produce(get().nodeConfigs, (draft) => {
       const srcNodeConfig = draft[addedEdge.source]!;
 
       if (!("outputs" in srcNodeConfig)) {
@@ -987,8 +988,8 @@ export const createFlowServerSliceV2: StateCreator<
     });
 
     set((state) => ({
-      v2_isDirty: state.v2_isDirty || state.v2_nodeConfigs !== nodeConfigs,
-      v2_nodeConfigs: nodeConfigs,
+      isDirty: state.isDirty || state.nodeConfigs !== nodeConfigs,
+      nodeConfigs: nodeConfigs,
     }));
 
     return events;
@@ -1002,7 +1003,7 @@ export const createFlowServerSliceV2: StateCreator<
 
     // --- Handle variable type change ---
 
-    const nodeConfigs = produce(get().v2_nodeConfigs, (draft) => {
+    const nodeConfigs = produce(get().nodeConfigs, (draft) => {
       // Edge could be removed because target node was removed
       if (draft[removedEdge.target] == null) {
         return;
@@ -1042,8 +1043,8 @@ export const createFlowServerSliceV2: StateCreator<
     });
 
     set((state) => ({
-      v2_isDirty: state.v2_isDirty || state.v2_nodeConfigs !== nodeConfigs,
-      v2_nodeConfigs: nodeConfigs,
+      isDirty: state.isDirty || state.nodeConfigs !== nodeConfigs,
+      nodeConfigs: nodeConfigs,
     }));
 
     return events;
@@ -1057,7 +1058,7 @@ export const createFlowServerSliceV2: StateCreator<
 
     // --- Handle variable type change ---
 
-    const nodeConfigs = produce(get().v2_nodeConfigs, (draft) => {
+    const nodeConfigs = produce(get().nodeConfigs, (draft) => {
       // Get old source output
       const oldSrcNodeConfig = draft[oldEdge.source]!;
       if (!("outputs" in oldSrcNodeConfig)) {
@@ -1109,8 +1110,8 @@ export const createFlowServerSliceV2: StateCreator<
     });
 
     set((state) => ({
-      v2_isDirty: state.v2_isDirty || state.v2_nodeConfigs !== nodeConfigs,
-      v2_nodeConfigs: nodeConfigs,
+      isDirty: state.isDirty || state.nodeConfigs !== nodeConfigs,
+      nodeConfigs: nodeConfigs,
     }));
 
     return events;
@@ -1122,16 +1123,15 @@ export const createFlowServerSliceV2: StateCreator<
   ): ChangeEvent[] {
     const events: ChangeEvent[] = [];
 
-    const variableValueMaps = produce(get().v2_variableValueMaps, (draft) => {
+    const variableValueMaps = produce(get().variableValueMaps, (draft) => {
       if (variableOldData.valueType !== variableNewData.valueType) {
         draft[0][variableNewData.id] = null;
       }
     });
 
     set({
-      v2_isDirty:
-        get().v2_isDirty || get().v2_variableValueMaps === variableValueMaps,
-      v2_variableValueMaps: variableValueMaps,
+      isDirty: get().isDirty || get().variableValueMaps === variableValueMaps,
+      variableValueMaps: variableValueMaps,
     });
 
     return events;
@@ -1140,7 +1140,7 @@ export const createFlowServerSliceV2: StateCreator<
   function processAddingFlowInputVariable(nodeId: NodeID): ChangeEvent[] {
     const events: ChangeEvent[] = [];
 
-    const nodeConfigs = produce(get().v2_nodeConfigs, (draft) => {
+    const nodeConfigs = produce(get().nodeConfigs, (draft) => {
       const nodeConfig = draft[nodeId] as InputNodeConfig;
       nodeConfig.outputs.push({
         id: `${nodeId}/${randomId()}` as OutputID,
@@ -1153,7 +1153,7 @@ export const createFlowServerSliceV2: StateCreator<
       type: ChangeEventType.VAR_FLOW_INPUT_ADDED,
     });
 
-    set({ v2_isDirty: true, v2_nodeConfigs: nodeConfigs });
+    set({ isDirty: true, nodeConfigs: nodeConfigs });
 
     return events;
   }
@@ -1161,7 +1161,7 @@ export const createFlowServerSliceV2: StateCreator<
   function processAddingFlowOutputVariable(nodeId: NodeID): ChangeEvent[] {
     const events: ChangeEvent[] = [];
 
-    const nodeConfigs = produce(get().v2_nodeConfigs, (draft) => {
+    const nodeConfigs = produce(get().nodeConfigs, (draft) => {
       const nodeConfig = draft[nodeId] as OutputNodeConfig;
       nodeConfig.inputs.push({
         id: `${nodeId}/${randomId()}` as InputID,
@@ -1173,7 +1173,7 @@ export const createFlowServerSliceV2: StateCreator<
       type: ChangeEventType.VAR_FLOW_OUTPUT_ADDED,
     });
 
-    set({ v2_isDirty: true, v2_nodeConfigs: nodeConfigs });
+    set({ isDirty: true, nodeConfigs: nodeConfigs });
 
     return events;
   }
@@ -1183,7 +1183,7 @@ export const createFlowServerSliceV2: StateCreator<
   return {
     ...FLOW_SERVER_SLICE_INITIAL_STATE_V2,
 
-    v2_fetchFlowConfiguration(): Observable<Partial<FlowContent>> {
+    fetchFlowConfiguration(): Observable<Partial<FlowContent>> {
       const spaceId = getSpaceId();
 
       fetchFlowSubscription?.unsubscribe();
@@ -1229,10 +1229,10 @@ export const createFlowServerSliceV2: StateCreator<
           edges = assignLocalEdgeProperties(edges);
 
           set({
-            v2_nodeConfigs: nodeConfigs,
-            v2_variableValueMaps: variableValueMaps,
-            v2_nodes: nodes,
-            v2_edges: edges,
+            nodeConfigs: nodeConfigs,
+            variableValueMaps: variableValueMaps,
+            nodes: nodes,
+            edges: edges,
           });
         },
         error(error) {
@@ -1242,25 +1242,28 @@ export const createFlowServerSliceV2: StateCreator<
 
       return obs;
     },
-
-    v2_cancelFetchFlowConfiguration(): void {
+    cancelFetchFlowConfiguration(): void {
       fetchFlowSubscription?.unsubscribe();
       fetchFlowSubscription = null;
     },
 
-    v2_onNodesChange(changes) {
+    getDefaultVariableValueMap() {
+      return get().variableValueMaps[0];
+    },
+
+    onNodesChange(changes) {
       const eventQueue: ChangeEvent[] = [
         { type: ChangeEventType.RF_NODES_CHANGE, changes },
       ];
       processEventQueue(eventQueue);
     },
-    v2_onEdgesChange(changes) {
+    onEdgesChange(changes) {
       const eventQueue: ChangeEvent[] = [
         { type: ChangeEventType.RF_EDGES_CHANGE, changes },
       ];
       processEventQueue(eventQueue);
     },
-    v2_onConnect(connection) {
+    onConnect(connection) {
       if (connection.source === connection.target) {
         return;
       }
@@ -1271,7 +1274,7 @@ export const createFlowServerSliceV2: StateCreator<
       processEventQueue(eventQueue);
     },
 
-    v2_addNode(type: NodeType, x?: number, y?: number) {
+    addNode(type: NodeType, x?: number, y?: number) {
       const eventQueue: ChangeEvent[] = [
         {
           type: ChangeEventType.ADDING_NODE,
@@ -1280,61 +1283,61 @@ export const createFlowServerSliceV2: StateCreator<
       ];
       processEventQueue(eventQueue);
     },
-    v2_removeNode(id: NodeID): void {
+    removeNode(id: NodeID): void {
       const eventQueue: ChangeEvent[] = [
         { type: ChangeEventType.REMOVING_NODE, nodeId: id },
       ];
       processEventQueue(eventQueue);
     },
-    v2_addInputVariable(nodeId: NodeID) {
+    addInputVariable(nodeId: NodeID) {
       const eventQueue: ChangeEvent[] = [
         { type: ChangeEventType.ADDING_VAR_INPUT, nodeId },
       ];
       processEventQueue(eventQueue);
     },
-    v2_addOutputVariable(nodeId: NodeID) {
+    addOutputVariable(nodeId: NodeID) {
       const eventQueue: ChangeEvent[] = [
         { type: ChangeEventType.ADDING_VAR_OUTPUT, nodeId },
       ];
       processEventQueue(eventQueue);
     },
-    v2_addFlowInputVariable(nodeId: NodeID) {
+    addFlowInputVariable(nodeId: NodeID) {
       const eventQueue: ChangeEvent[] = [
         { type: ChangeEventType.ADDING_VAR_FLOW_INPUT, nodeId },
       ];
       processEventQueue(eventQueue);
     },
-    v2_addFlowOutputVariable(nodeId: NodeID) {
+    addFlowOutputVariable(nodeId: NodeID) {
       const eventQueue: ChangeEvent[] = [
         { type: ChangeEventType.ADDING_VAR_FLOW_OUTPUT, nodeId },
       ];
       processEventQueue(eventQueue);
     },
-    v2_removeInputVariable(nodeId: NodeID, index: number) {
+    removeInputVariable(nodeId: NodeID, index: number) {
       const eventQueue: ChangeEvent[] = [
         { type: ChangeEventType.REMOVING_VAR_INPUT, nodeId, index },
       ];
       processEventQueue(eventQueue);
     },
-    v2_removeOutputVariable(nodeId: NodeID, index: number) {
+    removeOutputVariable(nodeId: NodeID, index: number) {
       const eventQueue: ChangeEvent[] = [
         { type: ChangeEventType.REMOVING_VAR_OUTPUT, nodeId, index },
       ];
       processEventQueue(eventQueue);
     },
-    v2_removeVariableFlowInput(nodeId: NodeID, index: number) {
+    removeVariableFlowInput(nodeId: NodeID, index: number) {
       const eventQueue: ChangeEvent[] = [
         { type: ChangeEventType.REMOVING_VAR_FLOW_INPUT, nodeId, index },
       ];
       processEventQueue(eventQueue);
     },
-    v2_removeVariableFlowOutput(nodeId: NodeID, index: number) {
+    removeVariableFlowOutput(nodeId: NodeID, index: number) {
       const eventQueue: ChangeEvent[] = [
         { type: ChangeEventType.REMOVING_VAR_FLOW_OUTPUT, nodeId, index },
       ];
       processEventQueue(eventQueue);
     },
-    v2_updateInputVariable(
+    updateInputVariable(
       nodeId: NodeID,
       index: number,
       change: Partial<NodeInputItem>
@@ -1349,7 +1352,7 @@ export const createFlowServerSliceV2: StateCreator<
       ];
       processEventQueue(eventQueue);
     },
-    v2_updateOutputVariable(
+    updateOutputVariable(
       nodeId: NodeID,
       index: number,
       change: Partial<NodeOutputItem>
@@ -1364,7 +1367,7 @@ export const createFlowServerSliceV2: StateCreator<
       ];
       processEventQueue(eventQueue);
     },
-    v2_updateFlowInputVariable(
+    updateFlowInputVariable(
       nodeId: NodeID,
       index: number,
       change: Partial<FlowInputItem>
@@ -1379,7 +1382,7 @@ export const createFlowServerSliceV2: StateCreator<
       ];
       processEventQueue(eventQueue);
     },
-    v2_updateFlowOutputVariable(
+    updateFlowOutputVariable(
       nodeId: NodeID,
       index: number,
       change: Partial<FlowOutputItem>
@@ -1394,18 +1397,18 @@ export const createFlowServerSliceV2: StateCreator<
       ];
       processEventQueue(eventQueue);
     },
-    v2_updateNodeConfig(nodeId: NodeID, change: Partial<NodeConfig>) {
+    updateNodeConfig(nodeId: NodeID, change: Partial<NodeConfig>) {
       const eventQueue: ChangeEvent[] = [
         { type: ChangeEventType.UPDATING_NODE_CONFIG, nodeId, change },
       ];
       processEventQueue(eventQueue);
     },
-    v2_updateVariableValueMap(variableId: VariableID, value: unknown): void {
-      const variableValueMaps = produce(get().v2_variableValueMaps, (draft) => {
+    updateVariableValueMap(variableId: VariableID, value: unknown): void {
+      const variableValueMaps = produce(get().variableValueMaps, (draft) => {
         draft[0][variableId] = value;
       });
 
-      set({ v2_variableValueMaps: variableValueMaps });
+      set({ variableValueMaps: variableValueMaps });
 
       processEventQueue([{ type: ChangeEventType.VARMAP_UPDATED }]);
     },

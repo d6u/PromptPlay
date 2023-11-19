@@ -40,12 +40,10 @@ const chance = new Chance();
 const selector = (state: FlowState) => ({
   nodeConfigs: state.nodeConfigs,
   updateNodeConfig: state.updateNodeConfig,
-  v2_updateNodeConfig: state.v2_updateNodeConfig,
-  v2_updateInputVariable: state.v2_updateInputVariable,
+  updateInputVariable: state.updateInputVariable,
   removeNode: state.removeNode,
-  v2_removeNode: state.v2_removeNode,
-  v2_addInputVariable: state.v2_addInputVariable,
-  v2_removeInputVariable: state.v2_removeInputVariable,
+  addInputVariable: state.addInputVariable,
+  removeInputVariable: state.removeInputVariable,
   localNodeAugments: state.localNodeAugments,
   defaultVariableValueMap: state.getDefaultVariableValueMap(),
 });
@@ -58,12 +56,10 @@ export default function JavaScriptFunctionNode() {
   const {
     nodeConfigs,
     updateNodeConfig,
-    v2_updateNodeConfig,
-    v2_updateInputVariable,
+    updateInputVariable,
     removeNode,
-    v2_removeNode,
-    v2_addInputVariable,
-    v2_removeInputVariable,
+    addInputVariable,
+    removeInputVariable,
     localNodeAugments,
     defaultVariableValueMap,
   } = useFlowStore(selector);
@@ -123,7 +119,6 @@ export default function JavaScriptFunctionNode() {
           title="JavaScript"
           onClickRemove={() => {
             removeNode(nodeId);
-            v2_removeNode(nodeId);
           }}
         />
         {isCurrentUserOwner && (
@@ -137,8 +132,7 @@ export default function JavaScriptFunctionNode() {
 
                 setInputs(newInputs);
 
-                updateNodeConfig(nodeId, { inputs: newInputs });
-                v2_addInputVariable(nodeId);
+                addInputVariable(nodeId);
 
                 updateNodeInternals(nodeId);
               }}
@@ -159,16 +153,14 @@ export default function JavaScriptFunctionNode() {
 
                 setInputs(newInputs);
 
-                updateNodeConfig(nodeId, { inputs: newInputs });
-                v2_updateInputVariable(nodeId, i, { name });
+                updateInputVariable(nodeId, i, { name });
               }}
               onRemove={() => {
                 const newInputs = remove(i, 1, inputs);
 
                 setInputs(newInputs);
 
-                updateNodeConfig(nodeId, { inputs: newInputs });
-                v2_removeInputVariable(nodeId, i);
+                removeInputVariable(nodeId, i);
 
                 updateNodeInternals(nodeId);
               }}
@@ -201,12 +193,10 @@ export default function JavaScriptFunctionNode() {
                 onKeyDown={(e) => {
                   if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
                     updateNodeConfig(nodeId, { javaScriptCode });
-                    v2_updateNodeConfig(nodeId, { javaScriptCode });
                   }
                 }}
                 onBlur={() => {
                   updateNodeConfig(nodeId, { javaScriptCode });
-                  v2_updateNodeConfig(nodeId, { javaScriptCode });
                 }}
               />
             ) : (

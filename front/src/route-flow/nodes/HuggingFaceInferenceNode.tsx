@@ -33,9 +33,7 @@ import {
 const flowSelector = (state: FlowState) => ({
   nodeConfigs: state.nodeConfigs,
   updateNodeConfig: state.updateNodeConfig,
-  v2_updateNodeConfig: state.v2_updateNodeConfig,
   removeNode: state.removeNode,
-  v2_removeNode: state.v2_removeNode,
   localNodeAugments: state.localNodeAugments,
   defaultVariableValueMap: state.getDefaultVariableValueMap(),
 });
@@ -58,9 +56,7 @@ export default function HuggingFaceInferenceNode() {
   const {
     nodeConfigs,
     updateNodeConfig,
-    v2_updateNodeConfig,
     removeNode,
-    v2_removeNode,
     localNodeAugments,
     defaultVariableValueMap,
   } = useFlowStore(flowSelector);
@@ -110,7 +106,6 @@ export default function HuggingFaceInferenceNode() {
           title="Hugging Face Inference"
           onClickRemove={() => {
             removeNode(nodeId);
-            v2_removeNode(nodeId);
           }}
         />
         <Section>
@@ -172,12 +167,10 @@ export default function HuggingFaceInferenceNode() {
                 onKeyUp={(e) => {
                   if (e.key === "Enter") {
                     updateNodeConfig(nodeId, { model });
-                    v2_updateNodeConfig(nodeId, { model });
                   }
                 }}
                 onBlur={() => {
                   updateNodeConfig(nodeId, { model });
-                  v2_updateNodeConfig(nodeId, { model });
                 }}
               />
             ) : (

@@ -124,8 +124,7 @@ export const createClientSlice: StateCreator<FlowState, [], [], ClientSlice> = (
         edges,
         nodeConfigs,
         updateNodeAugment,
-        updateDefaultVariableValueMap,
-        v2_updateVariableValueMap,
+        updateVariableValueMap,
       } = get();
 
       resetAugments();
@@ -146,8 +145,7 @@ export const createClientSlice: StateCreator<FlowState, [], [], ClientSlice> = (
               case RunEventType.VariableValueChanges: {
                 const { changes } = data;
                 for (const [outputId, value] of Object.entries(changes)) {
-                  updateDefaultVariableValueMap(outputId as VariableID, value);
-                  v2_updateVariableValueMap(outputId as VariableID, value);
+                  updateVariableValueMap(outputId as VariableID, value);
                 }
                 break;
               }

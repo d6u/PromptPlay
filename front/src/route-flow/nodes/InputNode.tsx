@@ -33,12 +33,10 @@ const chance = new Chance();
 const selector = (state: FlowState) => ({
   setDetailPanelContentType: state.setDetailPanelContentType,
   nodeConfigs: state.nodeConfigs,
-  updateNodeConfig: state.updateNodeConfig,
-  v2_updateFlowInputVariable: state.v2_updateFlowInputVariable,
-  v2_addFlowInputVariable: state.v2_addFlowInputVariable,
-  v2_removeVariableFlowInput: state.v2_removeVariableFlowInput,
+  updateFlowInputVariable: state.updateFlowInputVariable,
+  addFlowInputVariable: state.addFlowInputVariable,
+  removeVariableFlowInput: state.removeVariableFlowInput,
   removeNode: state.removeNode,
-  v2_removeNode: state.v2_removeNode,
 });
 
 export default function InputNode() {
@@ -49,12 +47,10 @@ export default function InputNode() {
   const {
     setDetailPanelContentType,
     nodeConfigs,
-    updateNodeConfig,
-    v2_updateFlowInputVariable,
+    updateFlowInputVariable,
     removeNode,
-    v2_removeNode,
-    v2_addFlowInputVariable,
-    v2_removeVariableFlowInput,
+    addFlowInputVariable,
+    removeVariableFlowInput,
   } = useFlowStore(selector);
 
   const nodeConfig = useMemo(
@@ -80,7 +76,6 @@ export default function InputNode() {
           title="Input"
           onClickRemove={() => {
             removeNode(nodeId);
-            v2_removeNode(nodeId);
           }}
         />
         <SmallSection>
@@ -105,10 +100,7 @@ export default function InputNode() {
 
                 setOutputs(newOutputs);
 
-                updateNodeConfig(nodeId, {
-                  outputs: newOutputs,
-                });
-                v2_addFlowInputVariable(nodeId);
+                addFlowInputVariable(nodeId);
 
                 updateNodeInternals(nodeId);
               }}
@@ -129,16 +121,14 @@ export default function InputNode() {
 
                 setOutputs(newOutputs);
 
-                updateNodeConfig(nodeId, { outputs: newOutputs });
-                v2_updateFlowInputVariable(nodeId, i, { name });
+                updateFlowInputVariable(nodeId, i, { name });
               }}
               onRemove={() => {
                 const newOutputs = remove(i, 1, outputs);
 
                 setOutputs(newOutputs);
 
-                updateNodeConfig(nodeId, { outputs: newOutputs });
-                v2_removeVariableFlowInput(nodeId, i);
+                removeVariableFlowInput(nodeId, i);
 
                 updateNodeInternals(nodeId);
               }}
