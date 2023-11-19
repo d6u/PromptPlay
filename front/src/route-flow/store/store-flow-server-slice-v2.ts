@@ -1,6 +1,7 @@
-import { A } from "@mobily/ts-belt";
+import { A, D } from "@mobily/ts-belt";
 import Chance from "chance";
 import { current, produce } from "immer";
+import debounce from "lodash/debounce";
 import {
   EdgeChange,
   NodeChange,
@@ -25,7 +26,10 @@ import {
   ChangeEvent,
   EVENT_VALIDATION_MAP,
 } from "./EventGraph";
-import { SPACE_FLOW_QUERY } from "./graphql-flow";
+import {
+  SPACE_FLOW_QUERY,
+  UPDATE_SPACE_FLOW_CONTENT_MUTATION,
+} from "./graphql-flow";
 import {
   FlowContent,
   FlowInputItem,
@@ -120,6 +124,36 @@ export const createFlowServerSliceV2: StateCreator<
     return get().spaceId!;
   }
 
+  async function saveSpace() {
+    console.group("saveSpace");
+
+    const { nodeConfigs, variableValueMaps } = get();
+
+    const nodes = A.map(
+      get().nodes,
+      D.selectKeys(["id", "type", "position", "data"])
+    );
+
+    const edges = A.map(
+      get().edges,
+      D.selectKeys(["id", "source", "sourceHandle", "target", "targetHandle"])
+    );
+
+    await client.mutation(UPDATE_SPACE_FLOW_CONTENT_MUTATION, {
+      spaceId: getSpaceId(),
+      flowContent: JSON.stringify({
+        nodes,
+        edges,
+        nodeConfigs,
+        variableValueMaps,
+      }),
+    });
+
+    console.groupEnd();
+  }
+
+  const saveSpaceDebounced = debounce(saveSpace, 500);
+
   function processEventQueue(eventQueue: ChangeEvent[]) {
     while (eventQueue.length > 0) {
       const currentEvent = eventQueue.shift()!;
@@ -143,8 +177,7 @@ export const createFlowServerSliceV2: StateCreator<
       return;
     }
 
-    // TODO
-    console.log("Save it!");
+    saveSpaceDebounced();
 
     set((state) => ({ isDirty: false }));
   }
@@ -1408,7 +1441,10 @@ export const createFlowServerSliceV2: StateCreator<
         draft[0][variableId] = value;
       });
 
-      set({ variableValueMaps: variableValueMaps });
+      set({
+        isDirty: get().variableValueMaps !== variableValueMaps,
+        variableValueMaps: variableValueMaps,
+      });
 
       processEventQueue([{ type: ChangeEventType.VARMAP_UPDATED }]);
     },
