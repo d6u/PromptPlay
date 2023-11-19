@@ -35,9 +35,9 @@ const selector = (state: FlowState) => ({
   nodeConfigs: state.nodeConfigs,
   updateNodeConfig: state.updateNodeConfig,
   v2_updateFlowInputVariable: state.v2_updateFlowInputVariable,
+  v2_addFlowInputVariable: state.v2_addFlowInputVariable,
   removeNode: state.removeNode,
   v2_removeNode: state.v2_removeNode,
-  v2_addOutputVariable: state.v2_addOutputVariable,
   v2_removeOutputVariable: state.v2_removeOutputVariable,
 });
 
@@ -53,7 +53,7 @@ export default function InputNode() {
     v2_updateFlowInputVariable,
     removeNode,
     v2_removeNode,
-    v2_addOutputVariable,
+    v2_addFlowInputVariable,
     v2_removeOutputVariable,
   } = useFlowStore(selector);
 
@@ -108,7 +108,7 @@ export default function InputNode() {
                 updateNodeConfig(nodeId, {
                   outputs: newOutputs,
                 });
-                v2_addOutputVariable(nodeId);
+                v2_addFlowInputVariable(nodeId);
 
                 updateNodeInternals(nodeId);
               }}

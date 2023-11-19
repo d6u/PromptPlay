@@ -27,6 +27,7 @@ import {
   FlowInputItem,
   FlowOutputItem,
   InputID,
+  InputNodeConfig,
   InputValueType,
   LocalEdge,
   NodeConfig,
@@ -36,6 +37,7 @@ import {
   NodeOutputItem,
   NodeType,
   OutputID,
+  OutputNodeConfig,
   OutputValueType,
   VariableID,
   VariableValueMap,
@@ -65,6 +67,8 @@ export type FlowServerSliceV2 = FlowServerSliceStateV2 & {
   v2_removeNode(id: NodeID): void;
   v2_addInputVariable(nodeId: NodeID): void;
   v2_addOutputVariable(nodeId: NodeID): void;
+  v2_addFlowOutputVariable(nodeId: NodeID): void;
+  v2_addFlowInputVariable(nodeId: NodeID): void;
   v2_removeInputVariable(nodeId: NodeID, index: number): void;
   v2_removeOutputVariable(nodeId: NodeID, index: number): void;
   v2_updateInputVariable(
@@ -101,7 +105,7 @@ const FLOW_SERVER_SLICE_INITIAL_STATE_V2: FlowServerSliceStateV2 = {
 
 export const createFlowServerSliceV2: StateCreator<
   FlowState,
-  [],
+  [["zustand/devtools", never]],
   [],
   FlowServerSliceV2
 > = (set, get) => {
@@ -119,7 +123,7 @@ export const createFlowServerSliceV2: StateCreator<
 
       switch (event.type) {
         // Events from UI
-        case ChangeEventType.NODES_CHANGE: {
+        case ChangeEventType.RF_NODES_CHANGE: {
           const oldNodes = get().v2_nodes;
           const newNodes = applyNodeChanges(
             event.changes,
@@ -131,7 +135,7 @@ export const createFlowServerSliceV2: StateCreator<
           );
           break;
         }
-        case ChangeEventType.EDGES_CHANGE: {
+        case ChangeEventType.RF_EDGES_CHANGE: {
           const oldEdges = get().v2_edges;
           const newEdges = applyEdgeChanges(
             event.changes,
@@ -143,42 +147,42 @@ export const createFlowServerSliceV2: StateCreator<
           );
           break;
         }
-        case ChangeEventType.ON_CONNECT: {
+        case ChangeEventType.RF_ON_CONNECT: {
           const oldEdges = get().v2_edges;
           const newEdges = addEdge(event.connection, oldEdges) as LocalEdge[];
 
           newEvents.push(...processOnConnect(oldEdges, newEdges));
           break;
         }
-        case ChangeEventType.ADD_NODE: {
+        case ChangeEventType.ADDING_NODE: {
           newEvents.push(...processAddNode(event.node));
           break;
         }
-        case ChangeEventType.REMOVE_NODE: {
+        case ChangeEventType.REMOVING_NODE: {
           newEvents.push(...processRemoveNode(event.nodeId));
           break;
         }
-        case ChangeEventType.ADD_INPUT_VARIABLE: {
+        case ChangeEventType.ADDING_INPUT_VARIABLE: {
           newEvents.push(...processAddInputVariable(event.nodeId));
           break;
         }
-        case ChangeEventType.ADD_OUTPUT_VARIABLE: {
+        case ChangeEventType.ADDING_OUTPUT_VARIABLE: {
           newEvents.push(...processAddOutputVariable(event.nodeId));
           break;
         }
-        case ChangeEventType.REMOVE_INPUT_VARIABLE: {
+        case ChangeEventType.REMOVING_INPUT_VARIABLE: {
           newEvents.push(
             ...processRemoveInputVariable(event.nodeId, event.index)
           );
           break;
         }
-        case ChangeEventType.REMOVE_OUTPUT_VARIABLE: {
+        case ChangeEventType.REMOVING_OUTPUT_VARIABLE: {
           newEvents.push(
             ...processRemoveOutputVariable(event.nodeId, event.index)
           );
           break;
         }
-        case ChangeEventType.UPDATE_INPUT_VARIABLE: {
+        case ChangeEventType.UPDATING_INPUT_VARIABLE: {
           newEvents.push(
             ...processUpdateInputVariable(
               event.nodeId,
@@ -188,7 +192,7 @@ export const createFlowServerSliceV2: StateCreator<
           );
           break;
         }
-        case ChangeEventType.UPDATE_OUTPUT_VARIABLE: {
+        case ChangeEventType.UPDATING_OUTPUT_VARIABLE: {
           newEvents.push(
             ...processUpdateOutputVariable(
               event.nodeId,
@@ -198,7 +202,7 @@ export const createFlowServerSliceV2: StateCreator<
           );
           break;
         }
-        case ChangeEventType.UPDATE_FLOW_INPUT_VARIABLE: {
+        case ChangeEventType.UPDATING_FLOW_INPUT_VARIABLE: {
           newEvents.push(
             ...processUpdateFlowInputVariable(
               event.nodeId,
@@ -208,7 +212,7 @@ export const createFlowServerSliceV2: StateCreator<
           );
           break;
         }
-        case ChangeEventType.UPDATE_FLOW_OUTPUT_VARIABLE: {
+        case ChangeEventType.UPDATING_FLOW_OUTPUT_VARIABLE: {
           newEvents.push(
             ...processUpdateFlowOutputVariable(
               event.nodeId,
@@ -218,7 +222,7 @@ export const createFlowServerSliceV2: StateCreator<
           );
           break;
         }
-        case ChangeEventType.UPDATE_NODE_CONFIG: {
+        case ChangeEventType.UPDATING_NODE_CONFIG: {
           newEvents.push(
             ...processUpdateNodeConfig(event.nodeId, event.change)
           );
@@ -264,6 +268,20 @@ export const createFlowServerSliceV2: StateCreator<
               event.variableNewData
             )
           );
+          break;
+        }
+        case ChangeEventType.ADDING_FLOW_INPUT_VARIABLE: {
+          newEvents.push(...processAddingFlowInputVariable(event.nodeId));
+          break;
+        }
+        case ChangeEventType.ADDING_FLOW_OUTPUT_VARIABLE: {
+          newEvents.push(...processAddingFlowOutputVariable(event.nodeId));
+          break;
+        }
+        case ChangeEventType.VARIABLE_FLOW_INPUT_ADDED: {
+          break;
+        }
+        case ChangeEventType.VARIABLE_FLOW_OUTPUT_ADDED: {
           break;
         }
       }
@@ -960,6 +978,47 @@ export const createFlowServerSliceV2: StateCreator<
     return events;
   }
 
+  function processAddingFlowInputVariable(nodeId: NodeID): ChangeEvent[] {
+    const events: ChangeEvent[] = [];
+
+    const nodeConfigs = produce(get().v2_nodeConfigs, (draft) => {
+      const nodeConfig = draft[nodeId] as InputNodeConfig;
+      nodeConfig.outputs.push({
+        id: `${nodeId}/${randomId()}` as OutputID,
+        name: chance.word(),
+        valueType: InputValueType.String,
+      });
+    });
+
+    events.push({
+      type: ChangeEventType.VARIABLE_FLOW_INPUT_ADDED,
+    });
+
+    set({ v2_isDirty: true, v2_nodeConfigs: nodeConfigs });
+
+    return events;
+  }
+
+  function processAddingFlowOutputVariable(nodeId: NodeID): ChangeEvent[] {
+    const events: ChangeEvent[] = [];
+
+    const nodeConfigs = produce(get().v2_nodeConfigs, (draft) => {
+      const nodeConfig = draft[nodeId] as OutputNodeConfig;
+      nodeConfig.inputs.push({
+        id: `${nodeId}/${randomId()}` as InputID,
+        name: chance.word(),
+      });
+    });
+
+    events.push({
+      type: ChangeEventType.VARIABLE_FLOW_OUTPUT_ADDED,
+    });
+
+    set({ v2_isDirty: true, v2_nodeConfigs: nodeConfigs });
+
+    return events;
+  }
+
   let fetchFlowSubscription: Subscription | null = null;
 
   return {
@@ -1032,13 +1091,13 @@ export const createFlowServerSliceV2: StateCreator<
 
     v2_onNodesChange(changes) {
       const eventQueue: ChangeEvent[] = [
-        { type: ChangeEventType.NODES_CHANGE, changes },
+        { type: ChangeEventType.RF_NODES_CHANGE, changes },
       ];
       processEventQueue(eventQueue);
     },
     v2_onEdgesChange(changes) {
       const eventQueue: ChangeEvent[] = [
-        { type: ChangeEventType.EDGES_CHANGE, changes },
+        { type: ChangeEventType.RF_EDGES_CHANGE, changes },
       ];
       processEventQueue(eventQueue);
     },
@@ -1048,7 +1107,7 @@ export const createFlowServerSliceV2: StateCreator<
       }
 
       const eventQueue: ChangeEvent[] = [
-        { type: ChangeEventType.ON_CONNECT, connection },
+        { type: ChangeEventType.RF_ON_CONNECT, connection },
       ];
       processEventQueue(eventQueue);
     },
@@ -1056,7 +1115,7 @@ export const createFlowServerSliceV2: StateCreator<
     v2_addNode(type: NodeType, x?: number, y?: number) {
       const eventQueue: ChangeEvent[] = [
         {
-          type: ChangeEventType.ADD_NODE,
+          type: ChangeEventType.ADDING_NODE,
           node: createNode(type, x ?? 200, y ?? 200),
         },
       ];
@@ -1064,31 +1123,43 @@ export const createFlowServerSliceV2: StateCreator<
     },
     v2_removeNode(id: NodeID): void {
       const eventQueue: ChangeEvent[] = [
-        { type: ChangeEventType.REMOVE_NODE, nodeId: id },
+        { type: ChangeEventType.REMOVING_NODE, nodeId: id },
       ];
       processEventQueue(eventQueue);
     },
     v2_addInputVariable(nodeId: NodeID) {
       const eventQueue: ChangeEvent[] = [
-        { type: ChangeEventType.ADD_INPUT_VARIABLE, nodeId },
+        { type: ChangeEventType.ADDING_INPUT_VARIABLE, nodeId },
       ];
       processEventQueue(eventQueue);
     },
     v2_addOutputVariable(nodeId: NodeID) {
       const eventQueue: ChangeEvent[] = [
-        { type: ChangeEventType.ADD_OUTPUT_VARIABLE, nodeId },
+        { type: ChangeEventType.ADDING_OUTPUT_VARIABLE, nodeId },
+      ];
+      processEventQueue(eventQueue);
+    },
+    v2_addFlowInputVariable(nodeId: NodeID) {
+      const eventQueue: ChangeEvent[] = [
+        { type: ChangeEventType.ADDING_FLOW_INPUT_VARIABLE, nodeId },
+      ];
+      processEventQueue(eventQueue);
+    },
+    v2_addFlowOutputVariable(nodeId: NodeID) {
+      const eventQueue: ChangeEvent[] = [
+        { type: ChangeEventType.ADDING_FLOW_OUTPUT_VARIABLE, nodeId },
       ];
       processEventQueue(eventQueue);
     },
     v2_removeInputVariable(nodeId: NodeID, index: number) {
       const eventQueue: ChangeEvent[] = [
-        { type: ChangeEventType.REMOVE_INPUT_VARIABLE, nodeId, index },
+        { type: ChangeEventType.REMOVING_INPUT_VARIABLE, nodeId, index },
       ];
       processEventQueue(eventQueue);
     },
     v2_removeOutputVariable(nodeId: NodeID, index: number) {
       const eventQueue: ChangeEvent[] = [
-        { type: ChangeEventType.REMOVE_OUTPUT_VARIABLE, nodeId, index },
+        { type: ChangeEventType.REMOVING_OUTPUT_VARIABLE, nodeId, index },
       ];
       processEventQueue(eventQueue);
     },
@@ -1099,7 +1170,7 @@ export const createFlowServerSliceV2: StateCreator<
     ) {
       const eventQueue: ChangeEvent[] = [
         {
-          type: ChangeEventType.UPDATE_INPUT_VARIABLE,
+          type: ChangeEventType.UPDATING_INPUT_VARIABLE,
           nodeId,
           index,
           change,
@@ -1114,7 +1185,7 @@ export const createFlowServerSliceV2: StateCreator<
     ) {
       const eventQueue: ChangeEvent[] = [
         {
-          type: ChangeEventType.UPDATE_OUTPUT_VARIABLE,
+          type: ChangeEventType.UPDATING_OUTPUT_VARIABLE,
           nodeId,
           index,
           change,
@@ -1129,7 +1200,7 @@ export const createFlowServerSliceV2: StateCreator<
     ) {
       const eventQueue: ChangeEvent[] = [
         {
-          type: ChangeEventType.UPDATE_FLOW_INPUT_VARIABLE,
+          type: ChangeEventType.UPDATING_FLOW_INPUT_VARIABLE,
           nodeId,
           index,
           change,
@@ -1144,7 +1215,7 @@ export const createFlowServerSliceV2: StateCreator<
     ) {
       const eventQueue: ChangeEvent[] = [
         {
-          type: ChangeEventType.UPDATE_FLOW_OUTPUT_VARIABLE,
+          type: ChangeEventType.UPDATING_FLOW_OUTPUT_VARIABLE,
           nodeId,
           index,
           change,
@@ -1154,7 +1225,7 @@ export const createFlowServerSliceV2: StateCreator<
     },
     v2_updateNodeConfig(nodeId: NodeID, change: Partial<NodeConfig>) {
       const eventQueue: ChangeEvent[] = [
-        { type: ChangeEventType.UPDATE_NODE_CONFIG, nodeId, change },
+        { type: ChangeEventType.UPDATING_NODE_CONFIG, nodeId, change },
       ];
       processEventQueue(eventQueue);
     },
@@ -1189,33 +1260,37 @@ function assignLocalEdgeProperties(edges: LocalEdge[]): LocalEdge[] {
 }
 
 enum ChangeEventType {
-  ADD_INPUT_VARIABLE = "ADD_INPUT_VARIABLE",
-  ADD_NODE = "ADD_NODE",
-  ADD_OUTPUT_VARIABLE = "ADD_OUTPUT_VARIABLE",
+  ADDING_FLOW_INPUT_VARIABLE = "ADDING_FLOW_INPUT_VARIABLE",
+  ADDING_FLOW_OUTPUT_VARIABLE = "ADDING_FLOW_OUTPUT_VARIABLE",
+  ADDING_INPUT_VARIABLE = "ADDING_INPUT_VARIABLE",
+  ADDING_NODE = "ADDING_NODE",
+  ADDING_OUTPUT_VARIABLE = "ADDING_OUTPUT_VARIABLE",
   EDGE_ADDED = "EDGE_ADDED",
   EDGE_REMOVED = "EDGE_REMOVED",
   EDGE_REPLACED = "EDGE_REPLACED",
-  EDGES_CHANGE = "EDGES_CHANGE",
   NODE_ADDED = "NODE_ADDED",
   NODE_REMOVED = "NODE_REMOVED",
-  NODES_CHANGE = "NODES_CHANGE",
-  ON_CONNECT = "ON_CONNECT",
-  REMOVE_INPUT_VARIABLE = "REMOVE_INPUT_VARIABLE",
-  REMOVE_NODE = "REMOVE_NODE",
-  REMOVE_OUTPUT_VARIABLE = "REMOVE_OUTPUT_VARIABLE",
-  UPDATE_FLOW_INPUT_VARIABLE = "UPDATE_FLOW_INPUT_VARIABLE",
-  UPDATE_FLOW_OUTPUT_VARIABLE = "UPDATE_FLOW_OUTPUT_VARIABLE",
-  UPDATE_INPUT_VARIABLE = "UPDATE_INPUT_VARIABLE",
-  UPDATE_NODE_CONFIG = "UPDATE_NODE_CONFIG",
-  UPDATE_OUTPUT_VARIABLE = "UPDATE_OUTPUT_VARIABLE",
+  REMOVING_INPUT_VARIABLE = "REMOVING_INPUT_VARIABLE",
+  REMOVING_NODE = "REMOVING_NODE",
+  REMOVING_OUTPUT_VARIABLE = "REMOVING_OUTPUT_VARIABLE",
+  RF_EDGES_CHANGE = "RF_EDGES_CHANGE",
+  RF_NODES_CHANGE = "RF_NODES_CHANGE",
+  RF_ON_CONNECT = "RF_ON_CONNECT",
+  UPDATING_FLOW_INPUT_VARIABLE = "UPDATING_FLOW_INPUT_VARIABLE",
+  UPDATING_FLOW_OUTPUT_VARIABLE = "UPDATING_FLOW_OUTPUT_VARIABLE",
+  UPDATING_INPUT_VARIABLE = "UPDATING_INPUT_VARIABLE",
+  UPDATING_NODE_CONFIG = "UPDATING_NODE_CONFIG",
+  UPDATING_OUTPUT_VARIABLE = "UPDATING_OUTPUT_VARIABLE",
   VARIABLE_FLOW_OUTPUT_UPDATED = "VARIABLE_FLOW_OUTPUT_UPDATED",
   VARIABLE_INPUT_REMOVED = "VARIABLE_INPUT_REMOVED",
   VARIABLE_OUTPUT_REMOVED = "VARIABLE_OUTPUT_REMOVED",
+  VARIABLE_FLOW_INPUT_ADDED = "VARIABLE_FLOW_INPUT_ADDED",
+  VARIABLE_FLOW_OUTPUT_ADDED = "VARIABLE_FLOW_OUTPUT_ADDED",
 }
 
 type ChangeEvent =
   | {
-      type: ChangeEventType.NODES_CHANGE;
+      type: ChangeEventType.RF_NODES_CHANGE;
       changes: NodeChange[];
     }
   | {
@@ -1229,15 +1304,15 @@ type ChangeEvent =
       srcNodeConfigRemoved: NodeConfig | null;
     }
   | {
-      type: ChangeEventType.EDGES_CHANGE;
+      type: ChangeEventType.RF_EDGES_CHANGE;
       changes: EdgeChange[];
     }
   | {
-      type: ChangeEventType.ON_CONNECT;
+      type: ChangeEventType.RF_ON_CONNECT;
       connection: Connection;
     }
   | {
-      type: ChangeEventType.ADD_NODE;
+      type: ChangeEventType.ADDING_NODE;
       node: LocalNode;
     }
   | {
@@ -1245,47 +1320,55 @@ type ChangeEvent =
       node: LocalNode;
     }
   | {
-      type: ChangeEventType.REMOVE_NODE;
+      type: ChangeEventType.REMOVING_NODE;
       nodeId: NodeID;
     }
   | {
-      type: ChangeEventType.ADD_INPUT_VARIABLE;
+      type: ChangeEventType.ADDING_INPUT_VARIABLE;
       nodeId: NodeID;
     }
   | {
-      type: ChangeEventType.ADD_OUTPUT_VARIABLE;
+      type: ChangeEventType.ADDING_OUTPUT_VARIABLE;
       nodeId: NodeID;
     }
   | {
-      type: ChangeEventType.REMOVE_INPUT_VARIABLE;
+      type: ChangeEventType.ADDING_FLOW_INPUT_VARIABLE;
+      nodeId: NodeID;
+    }
+  | {
+      type: ChangeEventType.ADDING_FLOW_OUTPUT_VARIABLE;
+      nodeId: NodeID;
+    }
+  | {
+      type: ChangeEventType.REMOVING_INPUT_VARIABLE;
       nodeId: NodeID;
       index: number;
     }
   | {
-      type: ChangeEventType.REMOVE_OUTPUT_VARIABLE;
+      type: ChangeEventType.REMOVING_OUTPUT_VARIABLE;
       nodeId: NodeID;
       index: number;
     }
   | {
-      type: ChangeEventType.UPDATE_INPUT_VARIABLE;
+      type: ChangeEventType.UPDATING_INPUT_VARIABLE;
       nodeId: NodeID;
       index: number;
       change: Partial<NodeInputItem>;
     }
   | {
-      type: ChangeEventType.UPDATE_OUTPUT_VARIABLE;
+      type: ChangeEventType.UPDATING_OUTPUT_VARIABLE;
       nodeId: NodeID;
       index: number;
       change: Partial<NodeOutputItem>;
     }
   | {
-      type: ChangeEventType.UPDATE_FLOW_INPUT_VARIABLE;
+      type: ChangeEventType.UPDATING_FLOW_INPUT_VARIABLE;
       nodeId: NodeID;
       index: number;
       change: Partial<FlowInputItem>;
     }
   | {
-      type: ChangeEventType.UPDATE_FLOW_OUTPUT_VARIABLE;
+      type: ChangeEventType.UPDATING_FLOW_OUTPUT_VARIABLE;
       nodeId: NodeID;
       index: number;
       change: Partial<FlowOutputItem>;
@@ -1299,7 +1382,7 @@ type ChangeEvent =
       outputVariableId: OutputID;
     }
   | {
-      type: ChangeEventType.UPDATE_NODE_CONFIG;
+      type: ChangeEventType.UPDATING_NODE_CONFIG;
       nodeId: NodeID;
       change: Partial<NodeConfig>;
     }
@@ -1316,12 +1399,24 @@ type ChangeEvent =
       type: ChangeEventType.EDGE_REPLACED;
       oldEdge: LocalEdge;
       newEdge: LocalEdge;
+    }
+  | {
+      type: ChangeEventType.VARIABLE_FLOW_INPUT_ADDED;
+    }
+  | {
+      type: ChangeEventType.VARIABLE_FLOW_OUTPUT_ADDED;
     };
 
 const EVENT_VALIDATION_MAP: { [key in ChangeEventType]: ChangeEventType[] } = {
-  [ChangeEventType.ADD_INPUT_VARIABLE]: [],
-  [ChangeEventType.ADD_NODE]: [ChangeEventType.NODE_ADDED],
-  [ChangeEventType.ADD_OUTPUT_VARIABLE]: [],
+  [ChangeEventType.ADDING_INPUT_VARIABLE]: [],
+  [ChangeEventType.ADDING_NODE]: [ChangeEventType.NODE_ADDED],
+  [ChangeEventType.ADDING_OUTPUT_VARIABLE]: [],
+  [ChangeEventType.ADDING_FLOW_INPUT_VARIABLE]: [
+    ChangeEventType.VARIABLE_FLOW_INPUT_ADDED,
+  ],
+  [ChangeEventType.ADDING_FLOW_OUTPUT_VARIABLE]: [
+    ChangeEventType.VARIABLE_FLOW_OUTPUT_ADDED,
+  ],
   [ChangeEventType.EDGE_ADDED]: [
     ChangeEventType.EDGE_REMOVED,
     ChangeEventType.VARIABLE_FLOW_OUTPUT_UPDATED,
@@ -1332,29 +1427,31 @@ const EVENT_VALIDATION_MAP: { [key in ChangeEventType]: ChangeEventType[] } = {
   [ChangeEventType.EDGE_REPLACED]: [
     ChangeEventType.VARIABLE_FLOW_OUTPUT_UPDATED,
   ],
-  [ChangeEventType.EDGES_CHANGE]: [ChangeEventType.EDGE_REMOVED],
+  [ChangeEventType.RF_EDGES_CHANGE]: [ChangeEventType.EDGE_REMOVED],
   [ChangeEventType.NODE_ADDED]: [],
   [ChangeEventType.NODE_REMOVED]: [ChangeEventType.EDGE_REMOVED],
-  [ChangeEventType.NODES_CHANGE]: [ChangeEventType.NODE_REMOVED],
-  [ChangeEventType.ON_CONNECT]: [
+  [ChangeEventType.RF_NODES_CHANGE]: [ChangeEventType.NODE_REMOVED],
+  [ChangeEventType.RF_ON_CONNECT]: [
     ChangeEventType.EDGE_ADDED,
     ChangeEventType.EDGE_REPLACED,
   ],
-  [ChangeEventType.REMOVE_INPUT_VARIABLE]: [
+  [ChangeEventType.REMOVING_INPUT_VARIABLE]: [
     ChangeEventType.VARIABLE_INPUT_REMOVED,
   ],
-  [ChangeEventType.REMOVE_NODE]: [ChangeEventType.NODE_REMOVED],
-  [ChangeEventType.REMOVE_OUTPUT_VARIABLE]: [
+  [ChangeEventType.REMOVING_NODE]: [ChangeEventType.NODE_REMOVED],
+  [ChangeEventType.REMOVING_OUTPUT_VARIABLE]: [
     ChangeEventType.VARIABLE_OUTPUT_REMOVED,
   ],
-  [ChangeEventType.UPDATE_FLOW_INPUT_VARIABLE]: [],
-  [ChangeEventType.UPDATE_FLOW_OUTPUT_VARIABLE]: [
+  [ChangeEventType.UPDATING_FLOW_INPUT_VARIABLE]: [],
+  [ChangeEventType.UPDATING_FLOW_OUTPUT_VARIABLE]: [
     ChangeEventType.VARIABLE_FLOW_OUTPUT_UPDATED,
   ],
-  [ChangeEventType.UPDATE_INPUT_VARIABLE]: [],
-  [ChangeEventType.UPDATE_NODE_CONFIG]: [],
-  [ChangeEventType.UPDATE_OUTPUT_VARIABLE]: [],
+  [ChangeEventType.UPDATING_INPUT_VARIABLE]: [],
+  [ChangeEventType.UPDATING_NODE_CONFIG]: [],
+  [ChangeEventType.UPDATING_OUTPUT_VARIABLE]: [],
   [ChangeEventType.VARIABLE_OUTPUT_REMOVED]: [ChangeEventType.EDGE_REMOVED],
   [ChangeEventType.VARIABLE_FLOW_OUTPUT_UPDATED]: [],
   [ChangeEventType.VARIABLE_INPUT_REMOVED]: [ChangeEventType.EDGE_REMOVED],
+  [ChangeEventType.VARIABLE_FLOW_INPUT_ADDED]: [],
+  [ChangeEventType.VARIABLE_FLOW_OUTPUT_ADDED]: [],
 };
