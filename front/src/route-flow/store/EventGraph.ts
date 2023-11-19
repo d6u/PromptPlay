@@ -148,14 +148,6 @@ export type ChangeEvent =
       change: Partial<FlowOutputItem>;
     }
   | {
-      type: ChangeEventType.VAR_INPUT_REMOVED;
-      inputVariableId: InputID;
-    }
-  | {
-      type: ChangeEventType.VAR_OUTPUT_REMOVED;
-      outputVariableId: OutputID;
-    }
-  | {
       type: ChangeEventType.UPDATING_NODE_CONFIG;
       nodeId: NodeID;
       change: Partial<NodeConfig>;
@@ -181,10 +173,20 @@ export type ChangeEvent =
       type: ChangeEventType.VAR_FLOW_OUTPUT_ADDED;
     }
   | {
+      type: ChangeEventType.VAR_INPUT_REMOVED;
+      variableId: InputID;
+    }
+  | {
+      type: ChangeEventType.VAR_OUTPUT_REMOVED;
+      variableId: OutputID;
+    }
+  | {
       type: ChangeEventType.VAR_FLOW_INPUT_REMOVED;
+      variableId: OutputID;
     }
   | {
       type: ChangeEventType.VAR_FLOW_OUTPUT_REMOVED;
+      variableId: InputID;
     };
 
 export const EVENT_VALIDATION_MAP: {
@@ -207,7 +209,13 @@ export const EVENT_VALIDATION_MAP: {
   [ChangeEventType.EDGE_REPLACED]: [ChangeEventType.VAR_FLOW_OUTPUT_UPDATED],
   [ChangeEventType.RF_EDGES_CHANGE]: [ChangeEventType.EDGE_REMOVED],
   [ChangeEventType.NODE_ADDED]: [],
-  [ChangeEventType.NODE_REMOVED]: [ChangeEventType.EDGE_REMOVED],
+  [ChangeEventType.NODE_REMOVED]: [
+    ChangeEventType.EDGE_REMOVED,
+    ChangeEventType.VAR_INPUT_REMOVED,
+    ChangeEventType.VAR_OUTPUT_REMOVED,
+    ChangeEventType.VAR_FLOW_INPUT_REMOVED,
+    ChangeEventType.VAR_FLOW_OUTPUT_REMOVED,
+  ],
   [ChangeEventType.RF_NODES_CHANGE]: [ChangeEventType.NODE_REMOVED],
   [ChangeEventType.RF_ON_CONNECT]: [
     ChangeEventType.EDGE_ADDED,

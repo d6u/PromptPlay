@@ -249,10 +249,10 @@ export const createFlowServerSliceV2: StateCreator<
         return processNodeAdded(event.node);
       }
       case ChangeEventType.VAR_INPUT_REMOVED: {
-        return processInputVariableRemoved(event.inputVariableId);
+        return processInputVariableRemoved(event.variableId);
       }
       case ChangeEventType.VAR_OUTPUT_REMOVED: {
-        return processOutputVariableRemoved(event.outputVariableId);
+        return processOutputVariableRemoved(event.variableId);
       }
       case ChangeEventType.VAR_FLOW_OUTPUT_UPDATED: {
         return processVariableFlowOutputUpdated(
@@ -414,7 +414,7 @@ export const createFlowServerSliceV2: StateCreator<
 
   function processNodeRemoved(
     removedNode: LocalNode,
-    removedNodeConfig: NodeConfig | null
+    removedNodeConfig: NodeConfig
   ): ChangeEvent[] {
     const events: ChangeEvent[] = [];
 
@@ -430,10 +430,43 @@ export const createFlowServerSliceV2: StateCreator<
         type: ChangeEventType.EDGE_REMOVED,
         edge,
         srcNodeConfigRemoved:
-          removedNodeConfig != null && edge.source === removedNodeConfig.nodeId
-            ? removedNodeConfig
-            : null,
+          edge.source === removedNodeConfig.nodeId ? removedNodeConfig : null,
       });
+    }
+
+    // Generate variable remove events
+
+    if (removedNodeConfig.nodeType === NodeType.InputNode) {
+      for (const output of removedNodeConfig.outputs) {
+        events.push({
+          type: ChangeEventType.VAR_FLOW_INPUT_REMOVED,
+          variableId: output.id,
+        });
+      }
+    } else if (removedNodeConfig.nodeType === NodeType.OutputNode) {
+      for (const input of removedNodeConfig.inputs) {
+        events.push({
+          type: ChangeEventType.VAR_FLOW_OUTPUT_REMOVED,
+          variableId: input.id,
+        });
+      }
+    } else {
+      if ("inputs" in removedNodeConfig) {
+        for (const input of removedNodeConfig.inputs) {
+          events.push({
+            type: ChangeEventType.VAR_INPUT_REMOVED,
+            variableId: input.id,
+          });
+        }
+      }
+      if ("outputs" in removedNodeConfig) {
+        for (const output of removedNodeConfig.outputs) {
+          events.push({
+            type: ChangeEventType.VAR_OUTPUT_REMOVED,
+            variableId: output.id,
+          });
+        }
+      }
     }
 
     set({
@@ -553,7 +586,7 @@ export const createFlowServerSliceV2: StateCreator<
       if ("inputs" in nodeConfig) {
         events.push({
           type: ChangeEventType.VAR_INPUT_REMOVED,
-          inputVariableId: nodeConfig.inputs[index].id,
+          variableId: nodeConfig.inputs[index].id,
         });
 
         nodeConfig.inputs.splice(index, 1);
@@ -576,7 +609,7 @@ export const createFlowServerSliceV2: StateCreator<
       if (nodeConfig.nodeType === NodeType.InputNode) {
         events.push({
           type: ChangeEventType.VAR_OUTPUT_REMOVED,
-          outputVariableId: nodeConfig.outputs[index].id,
+          variableId: nodeConfig.outputs[index].id,
         });
 
         nodeConfig.outputs.splice(index, 1);
@@ -596,10 +629,13 @@ export const createFlowServerSliceV2: StateCreator<
 
     const nodeConfigs = produce(get().v2_nodeConfigs, (draft) => {
       const nodeConfig = draft[nodeId] as InputNodeConfig;
+      const variableId = nodeConfig.outputs[index].id;
+
       nodeConfig.outputs.splice(index, 1);
 
       events.push({
         type: ChangeEventType.VAR_FLOW_INPUT_REMOVED,
+        variableId,
       });
     });
 
@@ -616,10 +652,13 @@ export const createFlowServerSliceV2: StateCreator<
 
     const nodeConfigs = produce(get().v2_nodeConfigs, (draft) => {
       const nodeConfig = draft[nodeId] as OutputNodeConfig;
+      const variableId = nodeConfig.inputs[index].id;
+
       nodeConfig.inputs.splice(index, 1);
 
       events.push({
         type: ChangeEventType.VAR_FLOW_OUTPUT_REMOVED,
+        variableId,
       });
     });
 
