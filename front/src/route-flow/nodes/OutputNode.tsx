@@ -35,9 +35,9 @@ const selector = (state: FlowState) => ({
   updateNodeConfig: state.updateNodeConfig,
   v2_updateFlowOutputVariable: state.v2_updateFlowOutputVariable,
   v2_addFlowOutputVariable: state.v2_addFlowOutputVariable,
+  v2_removeVariableFlowOutput: state.v2_removeVariableFlowOutput,
   removeNode: state.removeNode,
   v2_removeNode: state.v2_removeNode,
-  v2_removeInputVariable: state.v2_removeInputVariable,
 });
 
 export default function OutputNode() {
@@ -53,7 +53,7 @@ export default function OutputNode() {
     removeNode,
     v2_removeNode,
     v2_addFlowOutputVariable,
-    v2_removeInputVariable,
+    v2_removeVariableFlowOutput,
   } = useFlowStore(selector);
 
   const nodeConfig = useMemo(
@@ -143,7 +143,7 @@ export default function OutputNode() {
                 setInputs(newInputs);
 
                 updateNodeConfig(nodeId, { inputs: newInputs });
-                v2_removeInputVariable(nodeId, i);
+                v2_removeVariableFlowOutput(nodeId, i);
 
                 updateNodeInternals(nodeId);
               }}
