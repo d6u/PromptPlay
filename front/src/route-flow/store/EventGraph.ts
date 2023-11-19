@@ -187,6 +187,9 @@ export type ChangeEvent =
   | {
       type: ChangeEventType.VAR_FLOW_OUTPUT_REMOVED;
       variableId: InputID;
+    }
+  | {
+      type: ChangeEventType.VARMAP_UPDATED;
     };
 
 export const EVENT_VALIDATION_MAP: {
@@ -238,11 +241,17 @@ export const EVENT_VALIDATION_MAP: {
     ChangeEventType.VAR_FLOW_OUTPUT_REMOVED,
   ],
   [ChangeEventType.VAR_FLOW_INPUT_ADDED]: [],
-  [ChangeEventType.VAR_FLOW_INPUT_REMOVED]: [],
+  [ChangeEventType.VAR_FLOW_INPUT_REMOVED]: [ChangeEventType.VARMAP_UPDATED],
   [ChangeEventType.VAR_FLOW_OUTPUT_ADDED]: [],
-  [ChangeEventType.VAR_FLOW_OUTPUT_REMOVED]: [],
+  [ChangeEventType.VAR_FLOW_OUTPUT_REMOVED]: [ChangeEventType.VARMAP_UPDATED],
   [ChangeEventType.VAR_FLOW_OUTPUT_UPDATED]: [],
-  [ChangeEventType.VAR_INPUT_REMOVED]: [ChangeEventType.EDGE_REMOVED],
-  [ChangeEventType.VAR_OUTPUT_REMOVED]: [ChangeEventType.EDGE_REMOVED],
+  [ChangeEventType.VAR_INPUT_REMOVED]: [
+    ChangeEventType.EDGE_REMOVED,
+    ChangeEventType.VARMAP_UPDATED,
+  ],
+  [ChangeEventType.VAR_OUTPUT_REMOVED]: [
+    ChangeEventType.EDGE_REMOVED,
+    ChangeEventType.VARMAP_UPDATED,
+  ],
   [ChangeEventType.VARMAP_UPDATED]: [],
 };

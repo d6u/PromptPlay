@@ -254,22 +254,22 @@ export const createFlowServerSliceV2: StateCreator<
       case ChangeEventType.VAR_OUTPUT_REMOVED: {
         return processOutputVariableRemoved(event.variableId);
       }
-      case ChangeEventType.VAR_FLOW_OUTPUT_UPDATED: {
+      case ChangeEventType.VAR_FLOW_INPUT_REMOVED:
+        return processVariableFlowInputRemoved(event.variableId);
+      case ChangeEventType.VAR_FLOW_OUTPUT_REMOVED:
+        return processVariableFlowOutputRemoved(event.variableId);
+      case ChangeEventType.VAR_FLOW_OUTPUT_UPDATED:
         return processVariableFlowOutputUpdated(
           event.variableOldData,
           event.variableNewData
         );
-      }
-      case ChangeEventType.ADDING_VAR_FLOW_INPUT: {
+      case ChangeEventType.ADDING_VAR_FLOW_INPUT:
         return processAddingFlowInputVariable(event.nodeId);
-      }
-      case ChangeEventType.ADDING_VAR_FLOW_OUTPUT: {
+      case ChangeEventType.ADDING_VAR_FLOW_OUTPUT:
         return processAddingFlowOutputVariable(event.nodeId);
-      }
       case ChangeEventType.VAR_FLOW_INPUT_ADDED:
       case ChangeEventType.VAR_FLOW_OUTPUT_ADDED:
-      case ChangeEventType.VAR_FLOW_INPUT_REMOVED:
-      case ChangeEventType.VAR_FLOW_OUTPUT_REMOVED:
+      case ChangeEventType.VARMAP_UPDATED:
         return [];
     }
   }
@@ -775,6 +775,8 @@ export const createFlowServerSliceV2: StateCreator<
   ): ChangeEvent[] {
     const events: ChangeEvent[] = [];
 
+    // Process possible edges removal
+
     const [acceptedEdges, rejectedEdges] = A.partition(
       get().v2_edges,
       (edge) => edge.targetHandle !== inputVariableId
@@ -788,7 +790,21 @@ export const createFlowServerSliceV2: StateCreator<
       });
     }
 
-    set({ v2_isDirty: true, v2_edges: acceptedEdges });
+    // Process variable map value update
+
+    const variableValueMaps = produce(get().v2_variableValueMaps, (draft) => {
+      delete draft[0][inputVariableId];
+    });
+
+    events.push({
+      type: ChangeEventType.VARMAP_UPDATED,
+    });
+
+    set({
+      v2_isDirty: true,
+      v2_edges: acceptedEdges,
+      v2_variableValueMaps: variableValueMaps,
+    });
 
     return events;
   }
@@ -797,6 +813,8 @@ export const createFlowServerSliceV2: StateCreator<
     outputVariableId: OutputID
   ): ChangeEvent[] {
     const events: ChangeEvent[] = [];
+
+    // Process possible edges removal
 
     const [acceptedEdges, rejectedEdges] = A.partition(
       get().v2_edges,
@@ -811,7 +829,99 @@ export const createFlowServerSliceV2: StateCreator<
       });
     }
 
-    set({ v2_isDirty: true, v2_edges: acceptedEdges });
+    // Process variable map value update
+
+    const variableValueMaps = produce(get().v2_variableValueMaps, (draft) => {
+      delete draft[0][outputVariableId];
+    });
+
+    events.push({
+      type: ChangeEventType.VARMAP_UPDATED,
+    });
+
+    set({
+      v2_isDirty: true,
+      v2_edges: acceptedEdges,
+      v2_variableValueMaps: variableValueMaps,
+    });
+
+    return events;
+  }
+
+  function processVariableFlowInputRemoved(
+    variableId: OutputID
+  ): ChangeEvent[] {
+    const events: ChangeEvent[] = [];
+
+    // Process possible edges removal
+
+    const [acceptedEdges, rejectedEdges] = A.partition(
+      get().v2_edges,
+      (edge) => edge.sourceHandle !== variableId
+    );
+
+    for (const edge of rejectedEdges) {
+      events.push({
+        type: ChangeEventType.EDGE_REMOVED,
+        edge,
+        srcNodeConfigRemoved: null,
+      });
+    }
+
+    // Process variable map value update
+
+    const variableValueMaps = produce(get().v2_variableValueMaps, (draft) => {
+      delete draft[0][variableId];
+    });
+
+    events.push({
+      type: ChangeEventType.VARMAP_UPDATED,
+    });
+
+    set({
+      v2_isDirty: true,
+      v2_edges: acceptedEdges,
+      v2_variableValueMaps: variableValueMaps,
+    });
+
+    return events;
+  }
+
+  function processVariableFlowOutputRemoved(
+    variableId: InputID
+  ): ChangeEvent[] {
+    const events: ChangeEvent[] = [];
+
+    // Process possible edges removal
+
+    const [acceptedEdges, rejectedEdges] = A.partition(
+      get().v2_edges,
+      (edge) => edge.targetHandle !== variableId
+    );
+
+    for (const edge of rejectedEdges) {
+      events.push({
+        type: ChangeEventType.EDGE_REMOVED,
+        edge,
+        srcNodeConfigRemoved: null,
+      });
+    }
+
+    // Process variable map value update
+
+    const variableValueMaps = produce(get().v2_variableValueMaps, (draft) => {
+      delete draft[0][variableId];
+    });
+
+    events.push({
+      type: ChangeEventType.VARMAP_UPDATED,
+    });
+
+    set({
+      v2_isDirty: true,
+      v2_edges: acceptedEdges,
+      v2_variableValueMaps: variableValueMaps,
+    });
 
     return events;
   }
