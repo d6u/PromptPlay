@@ -1406,6 +1406,8 @@ export const createFlowServerSliceV2: StateCreator<
       });
 
       set({ v2_variableValueMaps: variableValueMaps });
+
+      processEventQueue([{ type: ChangeEventType.VARMAP_UPDATED }]);
     },
   };
 };
