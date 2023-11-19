@@ -121,27 +121,31 @@ export const createFlowServerSliceV2: StateCreator<
 
   function processEventQueue(eventQueue: ChangeEvent[]) {
     while (eventQueue.length > 0) {
-      const event = eventQueue.shift()!;
+      const currentEvent = eventQueue.shift()!;
 
-      const newEvents = handleEvent(event);
+      const derivedEvents = handleEvent(currentEvent);
 
       // Validate to prevent circular events
-      const allowedEvents = EVENT_VALIDATION_MAP[event.type];
-      for (const newEvent of newEvents) {
-        if (!allowedEvents.includes(newEvent.type)) {
+      const allowedDerivedEventTypes = EVENT_VALIDATION_MAP[currentEvent.type];
+      for (const derivedEvent of derivedEvents) {
+        if (!allowedDerivedEventTypes.includes(derivedEvent.type)) {
           throw new Error(
-            `Invalid derived event ${newEvent.type} from event ${event.type}`
+            `${currentEvent.type} should not generate ${derivedEvent.type} event.`
           );
         }
       }
 
-      eventQueue.push(...newEvents);
+      eventQueue.push(...derivedEvents);
     }
 
-    if (get().v2_isDirty) {
-      console.log("Save it!");
-      set((state) => ({ v2_isDirty: false }));
+    if (!get().v2_isDirty) {
+      return;
     }
+
+    // TODO
+    console.log("Save it!");
+
+    set((state) => ({ v2_isDirty: false }));
   }
 
   function handleEvent(event: ChangeEvent): ChangeEvent[] {
@@ -156,7 +160,7 @@ export const createFlowServerSliceV2: StateCreator<
           oldNodes
         ) as LocalNode[];
 
-        return processNodesChange(event.changes, oldNodes, newNodes);
+        return handleRfNodesChange(event.changes, oldNodes, newNodes);
       }
       case ChangeEventType.RF_EDGES_CHANGE: {
         const oldEdges = get().v2_edges;
@@ -165,13 +169,13 @@ export const createFlowServerSliceV2: StateCreator<
           oldEdges
         ) as LocalEdge[];
 
-        return processEdgeChanges(event.changes, oldEdges, newEdges);
+        return handleRfEdgeChanges(event.changes, oldEdges, newEdges);
       }
       case ChangeEventType.RF_ON_CONNECT: {
         const oldEdges = get().v2_edges;
         const newEdges = addEdge(event.connection, oldEdges) as LocalEdge[];
 
-        return processOnConnect(oldEdges, newEdges);
+        return handleRfOnConnect(oldEdges, newEdges);
       }
       case ChangeEventType.ADDING_NODE: {
         return processAddNode(event.node);
@@ -270,7 +274,7 @@ export const createFlowServerSliceV2: StateCreator<
     }
   }
 
-  function processNodesChange(
+  function handleRfNodesChange(
     changes: NodeChange[],
     oldNodes: LocalNode[],
     newNodes: LocalNode[]
@@ -317,39 +321,7 @@ export const createFlowServerSliceV2: StateCreator<
     return events;
   }
 
-  function processNodeRemoved(
-    removedNode: LocalNode,
-    removedNodeConfig: NodeConfig | null
-  ): ChangeEvent[] {
-    const events: ChangeEvent[] = [];
-
-    // Process edges removal
-
-    const [acceptedEdges, rejectedEdges] = A.partition(
-      get().v2_edges,
-      (edge) => edge.source !== removedNode.id && edge.target !== removedNode.id
-    );
-
-    for (const edge of rejectedEdges) {
-      events.push({
-        type: ChangeEventType.EDGE_REMOVED,
-        edge,
-        srcNodeConfigRemoved:
-          removedNodeConfig != null && edge.source === removedNodeConfig.nodeId
-            ? removedNodeConfig
-            : null,
-      });
-    }
-
-    set({
-      v2_isDirty: true,
-      v2_edges: acceptedEdges,
-    });
-
-    return events;
-  }
-
-  function processEdgeChanges(
+  function handleRfEdgeChanges(
     changes: EdgeChange[],
     oldEdges: LocalEdge[],
     newEdges: LocalEdge[]
@@ -379,7 +351,7 @@ export const createFlowServerSliceV2: StateCreator<
     return events;
   }
 
-  function processOnConnect(
+  function handleRfOnConnect(
     oldEdges: LocalEdge[],
     newEdges: LocalEdge[]
   ): ChangeEvent[] {
@@ -436,6 +408,38 @@ export const createFlowServerSliceV2: StateCreator<
     }
 
     set({ v2_isDirty: true, v2_edges: acceptedEdges });
+
+    return events;
+  }
+
+  function processNodeRemoved(
+    removedNode: LocalNode,
+    removedNodeConfig: NodeConfig | null
+  ): ChangeEvent[] {
+    const events: ChangeEvent[] = [];
+
+    // Process edges removal
+
+    const [acceptedEdges, rejectedEdges] = A.partition(
+      get().v2_edges,
+      (edge) => edge.source !== removedNode.id && edge.target !== removedNode.id
+    );
+
+    for (const edge of rejectedEdges) {
+      events.push({
+        type: ChangeEventType.EDGE_REMOVED,
+        edge,
+        srcNodeConfigRemoved:
+          removedNodeConfig != null && edge.source === removedNodeConfig.nodeId
+            ? removedNodeConfig
+            : null,
+      });
+    }
+
+    set({
+      v2_isDirty: true,
+      v2_edges: acceptedEdges,
+    });
 
     return events;
   }
