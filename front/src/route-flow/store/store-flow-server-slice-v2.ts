@@ -56,7 +56,8 @@ import { FlowState } from "./types-local-state";
 const chance = new Chance();
 
 type FlowServerSliceStateV2 = {
-  isDirty: boolean;
+  isFlowContentDirty: boolean;
+  isFlowContentSaving: boolean;
   nodes: LocalNode[];
   nodeConfigs: NodeConfigs;
   edges: LocalEdge[];
@@ -107,7 +108,8 @@ export type FlowServerSliceV2 = FlowServerSliceStateV2 & {
 };
 
 const FLOW_SERVER_SLICE_INITIAL_STATE_V2: FlowServerSliceStateV2 = {
-  isDirty: false,
+  isFlowContentDirty: false,
+  isFlowContentSaving: false,
   nodes: [],
   nodeConfigs: {},
   edges: [],
@@ -126,6 +128,8 @@ export const createFlowServerSliceV2: StateCreator<
 
   async function saveSpace() {
     console.group("saveSpace");
+
+    set((state) => ({ isFlowContentSaving: true }));
 
     const { nodeConfigs, variableValueMaps } = get();
 
@@ -148,6 +152,8 @@ export const createFlowServerSliceV2: StateCreator<
         variableValueMaps,
       }),
     });
+
+    set((state) => ({ isFlowContentSaving: false }));
 
     console.groupEnd();
   }
@@ -173,13 +179,13 @@ export const createFlowServerSliceV2: StateCreator<
       eventQueue.push(...derivedEvents);
     }
 
-    if (!get().isDirty) {
+    if (!get().isFlowContentDirty) {
       return;
     }
 
     saveSpaceDebounced();
 
-    set((state) => ({ isDirty: false }));
+    set((state) => ({ isFlowContentDirty: false }));
   }
 
   function handleEvent(event: ChangeEvent): ChangeEvent[] {
@@ -332,12 +338,12 @@ export const createFlowServerSliceV2: StateCreator<
             nodeConfig: removingNodeConfig,
           });
 
-          set({ isDirty: true, nodeConfigs: nodeConfigs });
+          set({ isFlowContentDirty: true, nodeConfigs: nodeConfigs });
           break;
         }
         case "position": {
           if (!change.dragging) {
-            set({ isDirty: true });
+            set({ isFlowContentDirty: true });
           }
           break;
         }
@@ -370,7 +376,7 @@ export const createFlowServerSliceV2: StateCreator<
             edge: oldEdges.find((edge) => edge.id === change.id)!,
             srcNodeConfigRemoved: null,
           });
-          set({ isDirty: true });
+          set({ isFlowContentDirty: true });
           break;
         }
         case "add":
@@ -441,7 +447,7 @@ export const createFlowServerSliceV2: StateCreator<
       });
     }
 
-    set({ isDirty: true, edges: acceptedEdges });
+    set({ isFlowContentDirty: true, edges: acceptedEdges });
 
     return events;
   }
@@ -504,7 +510,7 @@ export const createFlowServerSliceV2: StateCreator<
     }
 
     set({
-      isDirty: true,
+      isFlowContentDirty: true,
       edges: acceptedEdges,
     });
 
@@ -525,7 +531,7 @@ export const createFlowServerSliceV2: StateCreator<
     });
 
     set({
-      isDirty: true,
+      isFlowContentDirty: true,
       nodes: get().nodes.concat([node]),
       nodeConfigs: nodeConfigs,
     });
@@ -564,7 +570,7 @@ export const createFlowServerSliceV2: StateCreator<
     }
 
     set({
-      isDirty: true,
+      isFlowContentDirty: true,
       nodes: acceptedNodes,
       nodeConfigs: nodeConfigs,
     });
@@ -585,7 +591,7 @@ export const createFlowServerSliceV2: StateCreator<
       }
     });
 
-    set({ isDirty: true, nodeConfigs: nodeConfigs });
+    set({ isFlowContentDirty: true, nodeConfigs: nodeConfigs });
 
     return events;
   }
@@ -604,7 +610,7 @@ export const createFlowServerSliceV2: StateCreator<
       }
     });
 
-    set({ isDirty: true, nodeConfigs: nodeConfigs });
+    set({ isFlowContentDirty: true, nodeConfigs: nodeConfigs });
 
     return events;
   }
@@ -627,7 +633,7 @@ export const createFlowServerSliceV2: StateCreator<
       }
     });
 
-    set({ isDirty: true, nodeConfigs: nodeConfigs });
+    set({ isFlowContentDirty: true, nodeConfigs: nodeConfigs });
 
     return events;
   }
@@ -650,7 +656,7 @@ export const createFlowServerSliceV2: StateCreator<
       }
     });
 
-    set({ isDirty: true, nodeConfigs: nodeConfigs });
+    set({ isFlowContentDirty: true, nodeConfigs: nodeConfigs });
 
     return events;
   }
@@ -673,7 +679,7 @@ export const createFlowServerSliceV2: StateCreator<
       });
     });
 
-    set({ isDirty: true, nodeConfigs: nodeConfigs });
+    set({ isFlowContentDirty: true, nodeConfigs: nodeConfigs });
 
     return events;
   }
@@ -696,7 +702,7 @@ export const createFlowServerSliceV2: StateCreator<
       });
     });
 
-    set({ isDirty: true, nodeConfigs: nodeConfigs });
+    set({ isFlowContentDirty: true, nodeConfigs: nodeConfigs });
 
     return events;
   }
@@ -718,7 +724,7 @@ export const createFlowServerSliceV2: StateCreator<
       }
     });
 
-    set({ isDirty: true, nodeConfigs: nodeConfigs });
+    set({ isFlowContentDirty: true, nodeConfigs: nodeConfigs });
 
     return events;
   }
@@ -747,7 +753,7 @@ export const createFlowServerSliceV2: StateCreator<
       }
     });
 
-    set({ isDirty: true, nodeConfigs: nodeConfigs });
+    set({ isFlowContentDirty: true, nodeConfigs: nodeConfigs });
 
     return events;
   }
@@ -769,7 +775,7 @@ export const createFlowServerSliceV2: StateCreator<
       }
     });
 
-    set({ isDirty: true, nodeConfigs: nodeConfigs });
+    set({ isFlowContentDirty: true, nodeConfigs: nodeConfigs });
 
     return events;
   }
@@ -799,7 +805,7 @@ export const createFlowServerSliceV2: StateCreator<
       }
     });
 
-    set({ isDirty: true, nodeConfigs: nodeConfigs });
+    set({ isFlowContentDirty: true, nodeConfigs: nodeConfigs });
 
     return events;
   }
@@ -835,7 +841,7 @@ export const createFlowServerSliceV2: StateCreator<
     });
 
     set({
-      isDirty: true,
+      isFlowContentDirty: true,
       edges: acceptedEdges,
       variableValueMaps: variableValueMaps,
     });
@@ -874,7 +880,7 @@ export const createFlowServerSliceV2: StateCreator<
     });
 
     set({
-      isDirty: true,
+      isFlowContentDirty: true,
       edges: acceptedEdges,
       variableValueMaps: variableValueMaps,
     });
@@ -913,7 +919,7 @@ export const createFlowServerSliceV2: StateCreator<
     });
 
     set({
-      isDirty: true,
+      isFlowContentDirty: true,
       edges: acceptedEdges,
       variableValueMaps: variableValueMaps,
     });
@@ -952,7 +958,7 @@ export const createFlowServerSliceV2: StateCreator<
     });
 
     set({
-      isDirty: true,
+      isFlowContentDirty: true,
       edges: acceptedEdges,
       variableValueMaps: variableValueMaps,
     });
@@ -974,7 +980,7 @@ export const createFlowServerSliceV2: StateCreator<
       };
     });
 
-    set({ isDirty: true, nodeConfigs: nodeConfigs });
+    set({ isFlowContentDirty: true, nodeConfigs: nodeConfigs });
 
     return events;
   }
@@ -1021,7 +1027,8 @@ export const createFlowServerSliceV2: StateCreator<
     });
 
     set((state) => ({
-      isDirty: state.isDirty || state.nodeConfigs !== nodeConfigs,
+      isFlowContentDirty:
+        state.isFlowContentDirty || state.nodeConfigs !== nodeConfigs,
       nodeConfigs: nodeConfigs,
     }));
 
@@ -1076,7 +1083,8 @@ export const createFlowServerSliceV2: StateCreator<
     });
 
     set((state) => ({
-      isDirty: state.isDirty || state.nodeConfigs !== nodeConfigs,
+      isFlowContentDirty:
+        state.isFlowContentDirty || state.nodeConfigs !== nodeConfigs,
       nodeConfigs: nodeConfigs,
     }));
 
@@ -1143,7 +1151,8 @@ export const createFlowServerSliceV2: StateCreator<
     });
 
     set((state) => ({
-      isDirty: state.isDirty || state.nodeConfigs !== nodeConfigs,
+      isFlowContentDirty:
+        state.isFlowContentDirty || state.nodeConfigs !== nodeConfigs,
       nodeConfigs: nodeConfigs,
     }));
 
@@ -1162,10 +1171,12 @@ export const createFlowServerSliceV2: StateCreator<
       }
     });
 
-    set({
-      isDirty: get().isDirty || get().variableValueMaps === variableValueMaps,
+    set((state) => ({
+      isFlowContentDirty:
+        state.isFlowContentDirty ||
+        state.variableValueMaps === variableValueMaps,
       variableValueMaps: variableValueMaps,
-    });
+    }));
 
     return events;
   }
@@ -1186,7 +1197,7 @@ export const createFlowServerSliceV2: StateCreator<
       type: ChangeEventType.VAR_FLOW_INPUT_ADDED,
     });
 
-    set({ isDirty: true, nodeConfigs: nodeConfigs });
+    set({ isFlowContentDirty: true, nodeConfigs: nodeConfigs });
 
     return events;
   }
@@ -1206,7 +1217,7 @@ export const createFlowServerSliceV2: StateCreator<
       type: ChangeEventType.VAR_FLOW_OUTPUT_ADDED,
     });
 
-    set({ isDirty: true, nodeConfigs: nodeConfigs });
+    set({ isFlowContentDirty: true, nodeConfigs: nodeConfigs });
 
     return events;
   }
@@ -1441,10 +1452,10 @@ export const createFlowServerSliceV2: StateCreator<
         draft[0][variableId] = value;
       });
 
-      set({
-        isDirty: get().variableValueMaps !== variableValueMaps,
+      set((state) => ({
+        isFlowContentDirty: state.variableValueMaps !== variableValueMaps,
         variableValueMaps: variableValueMaps,
-      });
+      }));
 
       processEventQueue([{ type: ChangeEventType.VARMAP_UPDATED }]);
     },

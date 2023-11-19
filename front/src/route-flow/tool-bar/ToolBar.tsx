@@ -8,6 +8,7 @@ import {
   MenuButton,
   MenuItem,
   ToggleButtonGroup,
+  Typography,
 } from "@mui/joy";
 import { useCallback, useContext, useEffect, useState } from "react";
 import { useStoreApi } from "reactflow";
@@ -20,6 +21,8 @@ import { DetailPanelContentType } from "../store/types-local-state";
 
 const selector = (state: FlowState) => ({
   isRunning: state.isRunning,
+  isFlowContentDirty: state.isFlowContentDirty,
+  isFlowContentSaving: state.isFlowContentSaving,
   detailPanelContentType: state.detailPanelContentType,
   setDetailPanelContentType: state.setDetailPanelContentType,
   addNode: state.addNode,
@@ -34,6 +37,8 @@ export default function ToolBar() {
 
   const {
     isRunning,
+    isFlowContentDirty,
+    isFlowContentSaving,
     detailPanelContentType,
     setDetailPanelContentType,
     addNode,
@@ -165,6 +170,13 @@ export default function ToolBar() {
         )}
       </LeftAligned>
       <RightAligned>
+        <SavingIndicator color="success" level="body-sm" variant="plain">
+          {isFlowContentSaving
+            ? "Saving..."
+            : isFlowContentDirty
+            ? "Chagned..."
+            : "Saved"}
+        </SavingIndicator>
         <FormControl size="md" orientation="horizontal">
           <FormLabel sx={{ cursor: "pointer" }}>Evaluation Mode</FormLabel>
           <ToggleButtonGroup
@@ -211,4 +223,8 @@ const RightAligned = styled.div`
   align-items: center;
   justify-content: flex-end;
   gap: 5px;
+`;
+
+const SavingIndicator = styled(Typography)`
+  margin-right: 20px;
 `;
