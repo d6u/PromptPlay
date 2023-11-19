@@ -153,7 +153,7 @@ export const createFlowServerSliceV2: StateCreator<
         const oldNodes = get().v2_nodes;
         const newNodes = applyNodeChanges(
           event.changes,
-          get().v2_nodes
+          oldNodes
         ) as LocalNode[];
 
         return processNodesChange(event.changes, oldNodes, newNodes);
@@ -162,7 +162,7 @@ export const createFlowServerSliceV2: StateCreator<
         const oldEdges = get().v2_edges;
         const newEdges = applyEdgeChanges(
           event.changes,
-          get().v2_edges
+          oldEdges
         ) as LocalEdge[];
 
         return processEdgeChanges(event.changes, oldEdges, newEdges);
@@ -179,46 +179,46 @@ export const createFlowServerSliceV2: StateCreator<
       case ChangeEventType.REMOVING_NODE: {
         return processRemoveNode(event.nodeId);
       }
-      case ChangeEventType.ADDING_INPUT_VARIABLE: {
+      case ChangeEventType.ADDING_VAR_INPUT: {
         return processAddInputVariable(event.nodeId);
       }
-      case ChangeEventType.ADDING_OUTPUT_VARIABLE: {
+      case ChangeEventType.ADDING_VAR_OUTPUT: {
         return processAddOutputVariable(event.nodeId);
       }
-      case ChangeEventType.REMOVING_INPUT_VARIABLE: {
+      case ChangeEventType.REMOVING_VAR_INPUT: {
         return processRemoveInputVariable(event.nodeId, event.index);
       }
-      case ChangeEventType.REMOVING_OUTPUT_VARIABLE: {
+      case ChangeEventType.REMOVING_VAR_OUTPUT: {
         return processRemoveOutputVariable(event.nodeId, event.index);
       }
-      case ChangeEventType.REMOVING_VARIABLE_FLOW_INPUT: {
+      case ChangeEventType.REMOVING_VAR_FLOW_INPUT: {
         return processRemovingVariableFlowInput(event.nodeId, event.index);
       }
-      case ChangeEventType.REMOVING_VARIABLE_FLOW_OUTPUT: {
+      case ChangeEventType.REMOVING_VAR_FLOW_OUTPUT: {
         return processRemovingVariableFlowOutput(event.nodeId, event.index);
       }
-      case ChangeEventType.UPDATING_INPUT_VARIABLE: {
+      case ChangeEventType.UPDATING_VAR_INPUT: {
         return processUpdateInputVariable(
           event.nodeId,
           event.index,
           event.change
         );
       }
-      case ChangeEventType.UPDATING_OUTPUT_VARIABLE: {
+      case ChangeEventType.UPDATING_VAR_OUTPUT: {
         return processUpdateOutputVariable(
           event.nodeId,
           event.index,
           event.change
         );
       }
-      case ChangeEventType.UPDATING_FLOW_INPUT_VARIABLE: {
+      case ChangeEventType.UPDATING_VAR_FLOW_INPUT: {
         return processUpdateFlowInputVariable(
           event.nodeId,
           event.index,
           event.change
         );
       }
-      case ChangeEventType.UPDATING_FLOW_OUTPUT_VARIABLE: {
+      case ChangeEventType.UPDATING_VAR_FLOW_OUTPUT: {
         return processUpdateFlowOutputVariable(
           event.nodeId,
           event.index,
@@ -244,28 +244,28 @@ export const createFlowServerSliceV2: StateCreator<
       case ChangeEventType.NODE_ADDED: {
         return processNodeAdded(event.node);
       }
-      case ChangeEventType.VARIABLE_INPUT_REMOVED: {
+      case ChangeEventType.VAR_INPUT_REMOVED: {
         return processInputVariableRemoved(event.inputVariableId);
       }
-      case ChangeEventType.VARIABLE_OUTPUT_REMOVED: {
+      case ChangeEventType.VAR_OUTPUT_REMOVED: {
         return processOutputVariableRemoved(event.outputVariableId);
       }
-      case ChangeEventType.VARIABLE_FLOW_OUTPUT_UPDATED: {
+      case ChangeEventType.VAR_FLOW_OUTPUT_UPDATED: {
         return processVariableFlowOutputUpdated(
           event.variableOldData,
           event.variableNewData
         );
       }
-      case ChangeEventType.ADDING_FLOW_INPUT_VARIABLE: {
+      case ChangeEventType.ADDING_VAR_FLOW_INPUT: {
         return processAddingFlowInputVariable(event.nodeId);
       }
-      case ChangeEventType.ADDING_FLOW_OUTPUT_VARIABLE: {
+      case ChangeEventType.ADDING_VAR_FLOW_OUTPUT: {
         return processAddingFlowOutputVariable(event.nodeId);
       }
-      case ChangeEventType.VARIABLE_FLOW_INPUT_ADDED:
-      case ChangeEventType.VARIABLE_FLOW_OUTPUT_ADDED:
-      case ChangeEventType.VARIABLE_FLOW_INPUT_REMOVED:
-      case ChangeEventType.VARIABLE_FLOW_OUTPUT_REMOVED:
+      case ChangeEventType.VAR_FLOW_INPUT_ADDED:
+      case ChangeEventType.VAR_FLOW_OUTPUT_ADDED:
+      case ChangeEventType.VAR_FLOW_INPUT_REMOVED:
+      case ChangeEventType.VAR_FLOW_OUTPUT_REMOVED:
         return [];
     }
   }
@@ -548,7 +548,7 @@ export const createFlowServerSliceV2: StateCreator<
       const nodeConfig = draft[nodeId]!;
       if ("inputs" in nodeConfig) {
         events.push({
-          type: ChangeEventType.VARIABLE_INPUT_REMOVED,
+          type: ChangeEventType.VAR_INPUT_REMOVED,
           inputVariableId: nodeConfig.inputs[index].id,
         });
 
@@ -571,7 +571,7 @@ export const createFlowServerSliceV2: StateCreator<
       const nodeConfig = draft[nodeId]!;
       if (nodeConfig.nodeType === NodeType.InputNode) {
         events.push({
-          type: ChangeEventType.VARIABLE_OUTPUT_REMOVED,
+          type: ChangeEventType.VAR_OUTPUT_REMOVED,
           outputVariableId: nodeConfig.outputs[index].id,
         });
 
@@ -595,7 +595,7 @@ export const createFlowServerSliceV2: StateCreator<
       nodeConfig.outputs.splice(index, 1);
 
       events.push({
-        type: ChangeEventType.VARIABLE_FLOW_INPUT_REMOVED,
+        type: ChangeEventType.VAR_FLOW_INPUT_REMOVED,
       });
     });
 
@@ -615,7 +615,7 @@ export const createFlowServerSliceV2: StateCreator<
       nodeConfig.inputs.splice(index, 1);
 
       events.push({
-        type: ChangeEventType.VARIABLE_FLOW_OUTPUT_REMOVED,
+        type: ChangeEventType.VAR_FLOW_OUTPUT_REMOVED,
       });
     });
 
@@ -715,7 +715,7 @@ export const createFlowServerSliceV2: StateCreator<
         };
 
         events.push({
-          type: ChangeEventType.VARIABLE_FLOW_OUTPUT_UPDATED,
+          type: ChangeEventType.VAR_FLOW_OUTPUT_UPDATED,
           variableOldData,
           variableNewData: nodeConfig.inputs[index],
         });
@@ -826,7 +826,7 @@ export const createFlowServerSliceV2: StateCreator<
         dstInput.valueType = OutputValueType.Audio;
 
         events.push({
-          type: ChangeEventType.VARIABLE_FLOW_OUTPUT_UPDATED,
+          type: ChangeEventType.VAR_FLOW_OUTPUT_UPDATED,
           variableOldData,
           variableNewData: current(dstInput)!,
         });
@@ -881,7 +881,7 @@ export const createFlowServerSliceV2: StateCreator<
         delete dstInput.valueType;
 
         events.push({
-          type: ChangeEventType.VARIABLE_FLOW_OUTPUT_UPDATED,
+          type: ChangeEventType.VAR_FLOW_OUTPUT_UPDATED,
           variableOldData,
           variableNewData: current(dstInput)!,
         });
@@ -948,7 +948,7 @@ export const createFlowServerSliceV2: StateCreator<
         }
 
         events.push({
-          type: ChangeEventType.VARIABLE_FLOW_OUTPUT_UPDATED,
+          type: ChangeEventType.VAR_FLOW_OUTPUT_UPDATED,
           variableOldData,
           variableNewData: current(dstInput)!,
         });
@@ -997,7 +997,7 @@ export const createFlowServerSliceV2: StateCreator<
     });
 
     events.push({
-      type: ChangeEventType.VARIABLE_FLOW_INPUT_ADDED,
+      type: ChangeEventType.VAR_FLOW_INPUT_ADDED,
     });
 
     set({ v2_isDirty: true, v2_nodeConfigs: nodeConfigs });
@@ -1017,7 +1017,7 @@ export const createFlowServerSliceV2: StateCreator<
     });
 
     events.push({
-      type: ChangeEventType.VARIABLE_FLOW_OUTPUT_ADDED,
+      type: ChangeEventType.VAR_FLOW_OUTPUT_ADDED,
     });
 
     set({ v2_isDirty: true, v2_nodeConfigs: nodeConfigs });
@@ -1135,49 +1135,49 @@ export const createFlowServerSliceV2: StateCreator<
     },
     v2_addInputVariable(nodeId: NodeID) {
       const eventQueue: ChangeEvent[] = [
-        { type: ChangeEventType.ADDING_INPUT_VARIABLE, nodeId },
+        { type: ChangeEventType.ADDING_VAR_INPUT, nodeId },
       ];
       processEventQueue(eventQueue);
     },
     v2_addOutputVariable(nodeId: NodeID) {
       const eventQueue: ChangeEvent[] = [
-        { type: ChangeEventType.ADDING_OUTPUT_VARIABLE, nodeId },
+        { type: ChangeEventType.ADDING_VAR_OUTPUT, nodeId },
       ];
       processEventQueue(eventQueue);
     },
     v2_addFlowInputVariable(nodeId: NodeID) {
       const eventQueue: ChangeEvent[] = [
-        { type: ChangeEventType.ADDING_FLOW_INPUT_VARIABLE, nodeId },
+        { type: ChangeEventType.ADDING_VAR_FLOW_INPUT, nodeId },
       ];
       processEventQueue(eventQueue);
     },
     v2_addFlowOutputVariable(nodeId: NodeID) {
       const eventQueue: ChangeEvent[] = [
-        { type: ChangeEventType.ADDING_FLOW_OUTPUT_VARIABLE, nodeId },
+        { type: ChangeEventType.ADDING_VAR_FLOW_OUTPUT, nodeId },
       ];
       processEventQueue(eventQueue);
     },
     v2_removeInputVariable(nodeId: NodeID, index: number) {
       const eventQueue: ChangeEvent[] = [
-        { type: ChangeEventType.REMOVING_INPUT_VARIABLE, nodeId, index },
+        { type: ChangeEventType.REMOVING_VAR_INPUT, nodeId, index },
       ];
       processEventQueue(eventQueue);
     },
     v2_removeOutputVariable(nodeId: NodeID, index: number) {
       const eventQueue: ChangeEvent[] = [
-        { type: ChangeEventType.REMOVING_OUTPUT_VARIABLE, nodeId, index },
+        { type: ChangeEventType.REMOVING_VAR_OUTPUT, nodeId, index },
       ];
       processEventQueue(eventQueue);
     },
     v2_removeVariableFlowInput(nodeId: NodeID, index: number) {
       const eventQueue: ChangeEvent[] = [
-        { type: ChangeEventType.REMOVING_VARIABLE_FLOW_INPUT, nodeId, index },
+        { type: ChangeEventType.REMOVING_VAR_FLOW_INPUT, nodeId, index },
       ];
       processEventQueue(eventQueue);
     },
     v2_removeVariableFlowOutput(nodeId: NodeID, index: number) {
       const eventQueue: ChangeEvent[] = [
-        { type: ChangeEventType.REMOVING_VARIABLE_FLOW_OUTPUT, nodeId, index },
+        { type: ChangeEventType.REMOVING_VAR_FLOW_OUTPUT, nodeId, index },
       ];
       processEventQueue(eventQueue);
     },
@@ -1188,7 +1188,7 @@ export const createFlowServerSliceV2: StateCreator<
     ) {
       const eventQueue: ChangeEvent[] = [
         {
-          type: ChangeEventType.UPDATING_INPUT_VARIABLE,
+          type: ChangeEventType.UPDATING_VAR_INPUT,
           nodeId,
           index,
           change,
@@ -1203,7 +1203,7 @@ export const createFlowServerSliceV2: StateCreator<
     ) {
       const eventQueue: ChangeEvent[] = [
         {
-          type: ChangeEventType.UPDATING_OUTPUT_VARIABLE,
+          type: ChangeEventType.UPDATING_VAR_OUTPUT,
           nodeId,
           index,
           change,
@@ -1218,7 +1218,7 @@ export const createFlowServerSliceV2: StateCreator<
     ) {
       const eventQueue: ChangeEvent[] = [
         {
-          type: ChangeEventType.UPDATING_FLOW_INPUT_VARIABLE,
+          type: ChangeEventType.UPDATING_VAR_FLOW_INPUT,
           nodeId,
           index,
           change,
@@ -1233,7 +1233,7 @@ export const createFlowServerSliceV2: StateCreator<
     ) {
       const eventQueue: ChangeEvent[] = [
         {
-          type: ChangeEventType.UPDATING_FLOW_OUTPUT_VARIABLE,
+          type: ChangeEventType.UPDATING_VAR_FLOW_OUTPUT,
           nodeId,
           index,
           change,

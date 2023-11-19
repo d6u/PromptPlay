@@ -13,36 +13,44 @@ import {
 } from "./types-flow-content";
 
 export enum ChangeEventType {
-  ADDING_FLOW_INPUT_VARIABLE = "ADDING_FLOW_INPUT_VARIABLE",
-  ADDING_FLOW_OUTPUT_VARIABLE = "ADDING_FLOW_OUTPUT_VARIABLE",
-  ADDING_INPUT_VARIABLE = "ADDING_INPUT_VARIABLE",
+  // React Flow
+  RF_EDGES_CHANGE = "RF_EDGES_CHANGE",
+  RF_NODES_CHANGE = "RF_NODES_CHANGE",
+  RF_ON_CONNECT = "RF_ON_CONNECT",
+  // Nodes
   ADDING_NODE = "ADDING_NODE",
-  ADDING_OUTPUT_VARIABLE = "ADDING_OUTPUT_VARIABLE",
+  REMOVING_NODE = "REMOVING_NODE",
+  UPDATING_NODE_CONFIG = "UPDATING_NODE_CONFIG",
+  // Variables
+  ADDING_VAR_FLOW_INPUT = "ADDING_VAR_FLOW_INPUT",
+  ADDING_VAR_FLOW_OUTPUT = "ADDING_VAR_FLOW_OUTPUT",
+  ADDING_VAR_INPUT = "ADDING_VAR_INPUT",
+  ADDING_VAR_OUTPUT = "ADDING_VAR_OUTPUT",
+  REMOVING_VAR_FLOW_INPUT = "REMOVING_VAR_FLOW_INPUT",
+  REMOVING_VAR_FLOW_OUTPUT = "REMOVING_VAR_FLOW_OUTPUT",
+  REMOVING_VAR_INPUT = "REMOVING_VAR_INPUT",
+  REMOVING_VAR_OUTPUT = "REMOVING_VAR_OUTPUT",
+  UPDATING_VAR_FLOW_INPUT = "UPDATING_VAR_FLOW_INPUT",
+  UPDATING_VAR_FLOW_OUTPUT = "UPDATING_VAR_FLOW_OUTPUT",
+  UPDATING_VAR_INPUT = "UPDATING_VAR_INPUT",
+  UPDATING_VAR_OUTPUT = "UPDATING_VAR_OUTPUT",
+  // --- Derived ---
+  // Derived node and edge
   EDGE_ADDED = "EDGE_ADDED",
   EDGE_REMOVED = "EDGE_REMOVED",
   EDGE_REPLACED = "EDGE_REPLACED",
   NODE_ADDED = "NODE_ADDED",
   NODE_REMOVED = "NODE_REMOVED",
-  REMOVING_INPUT_VARIABLE = "REMOVING_INPUT_VARIABLE",
-  REMOVING_NODE = "REMOVING_NODE",
-  REMOVING_OUTPUT_VARIABLE = "REMOVING_OUTPUT_VARIABLE",
-  REMOVING_VARIABLE_FLOW_INPUT = "REMOVING_VARIABLE_FLOW_INPUT",
-  REMOVING_VARIABLE_FLOW_OUTPUT = "REMOVING_VARIABLE_FLOW_OUTPUT",
-  RF_EDGES_CHANGE = "RF_EDGES_CHANGE",
-  RF_NODES_CHANGE = "RF_NODES_CHANGE",
-  RF_ON_CONNECT = "RF_ON_CONNECT",
-  UPDATING_FLOW_INPUT_VARIABLE = "UPDATING_FLOW_INPUT_VARIABLE",
-  UPDATING_FLOW_OUTPUT_VARIABLE = "UPDATING_FLOW_OUTPUT_VARIABLE",
-  UPDATING_INPUT_VARIABLE = "UPDATING_INPUT_VARIABLE",
-  UPDATING_NODE_CONFIG = "UPDATING_NODE_CONFIG",
-  UPDATING_OUTPUT_VARIABLE = "UPDATING_OUTPUT_VARIABLE",
-  VARIABLE_FLOW_INPUT_ADDED = "VARIABLE_FLOW_INPUT_ADDED",
-  VARIABLE_FLOW_INPUT_REMOVED = "VARIABLE_FLOW_INPUT_REMOVED",
-  VARIABLE_FLOW_OUTPUT_ADDED = "VARIABLE_FLOW_OUTPUT_ADDED",
-  VARIABLE_FLOW_OUTPUT_REMOVED = "VARIABLE_FLOW_OUTPUT_REMOVED",
-  VARIABLE_FLOW_OUTPUT_UPDATED = "VARIABLE_FLOW_OUTPUT_UPDATED",
-  VARIABLE_INPUT_REMOVED = "VARIABLE_INPUT_REMOVED",
-  VARIABLE_OUTPUT_REMOVED = "VARIABLE_OUTPUT_REMOVED",
+  // Derived variables
+  VAR_FLOW_INPUT_ADDED = "VAR_FLOW_INPUT_ADDED",
+  VAR_FLOW_INPUT_REMOVED = "VAR_FLOW_INPUT_REMOVED",
+  VAR_FLOW_OUTPUT_ADDED = "VAR_FLOW_OUTPUT_ADDED",
+  VAR_FLOW_OUTPUT_REMOVED = "VAR_FLOW_OUTPUT_REMOVED",
+  VAR_FLOW_OUTPUT_UPDATED = "VAR_FLOW_OUTPUT_UPDATED",
+  VAR_INPUT_REMOVED = "VAR_INPUT_REMOVED",
+  VAR_OUTPUT_REMOVED = "VAR_OUTPUT_REMOVED",
+  // Other
+  VARMAP_UPDATED = "VARMAP_UPDATED",
 }
 export type ChangeEvent =
   | {
@@ -80,71 +88,71 @@ export type ChangeEvent =
       nodeId: NodeID;
     }
   | {
-      type: ChangeEventType.ADDING_INPUT_VARIABLE;
+      type: ChangeEventType.ADDING_VAR_INPUT;
       nodeId: NodeID;
     }
   | {
-      type: ChangeEventType.ADDING_OUTPUT_VARIABLE;
+      type: ChangeEventType.ADDING_VAR_OUTPUT;
       nodeId: NodeID;
     }
   | {
-      type: ChangeEventType.ADDING_FLOW_INPUT_VARIABLE;
+      type: ChangeEventType.ADDING_VAR_FLOW_INPUT;
       nodeId: NodeID;
     }
   | {
-      type: ChangeEventType.ADDING_FLOW_OUTPUT_VARIABLE;
+      type: ChangeEventType.ADDING_VAR_FLOW_OUTPUT;
       nodeId: NodeID;
     }
   | {
-      type: ChangeEventType.REMOVING_INPUT_VARIABLE;
-      nodeId: NodeID;
-      index: number;
-    }
-  | {
-      type: ChangeEventType.REMOVING_OUTPUT_VARIABLE;
+      type: ChangeEventType.REMOVING_VAR_INPUT;
       nodeId: NodeID;
       index: number;
     }
   | {
-      type: ChangeEventType.REMOVING_VARIABLE_FLOW_INPUT;
+      type: ChangeEventType.REMOVING_VAR_OUTPUT;
       nodeId: NodeID;
       index: number;
     }
   | {
-      type: ChangeEventType.REMOVING_VARIABLE_FLOW_OUTPUT;
+      type: ChangeEventType.REMOVING_VAR_FLOW_INPUT;
       nodeId: NodeID;
       index: number;
     }
   | {
-      type: ChangeEventType.UPDATING_INPUT_VARIABLE;
+      type: ChangeEventType.REMOVING_VAR_FLOW_OUTPUT;
+      nodeId: NodeID;
+      index: number;
+    }
+  | {
+      type: ChangeEventType.UPDATING_VAR_INPUT;
       nodeId: NodeID;
       index: number;
       change: Partial<NodeInputItem>;
     }
   | {
-      type: ChangeEventType.UPDATING_OUTPUT_VARIABLE;
+      type: ChangeEventType.UPDATING_VAR_OUTPUT;
       nodeId: NodeID;
       index: number;
       change: Partial<NodeOutputItem>;
     }
   | {
-      type: ChangeEventType.UPDATING_FLOW_INPUT_VARIABLE;
+      type: ChangeEventType.UPDATING_VAR_FLOW_INPUT;
       nodeId: NodeID;
       index: number;
       change: Partial<FlowInputItem>;
     }
   | {
-      type: ChangeEventType.UPDATING_FLOW_OUTPUT_VARIABLE;
+      type: ChangeEventType.UPDATING_VAR_FLOW_OUTPUT;
       nodeId: NodeID;
       index: number;
       change: Partial<FlowOutputItem>;
     }
   | {
-      type: ChangeEventType.VARIABLE_INPUT_REMOVED;
+      type: ChangeEventType.VAR_INPUT_REMOVED;
       inputVariableId: InputID;
     }
   | {
-      type: ChangeEventType.VARIABLE_OUTPUT_REMOVED;
+      type: ChangeEventType.VAR_OUTPUT_REMOVED;
       outputVariableId: OutputID;
     }
   | {
@@ -157,7 +165,7 @@ export type ChangeEvent =
       edge: LocalEdge;
     }
   | {
-      type: ChangeEventType.VARIABLE_FLOW_OUTPUT_UPDATED;
+      type: ChangeEventType.VAR_FLOW_OUTPUT_UPDATED;
       variableOldData: FlowOutputItem;
       variableNewData: FlowOutputItem;
     }
@@ -167,40 +175,36 @@ export type ChangeEvent =
       newEdge: LocalEdge;
     }
   | {
-      type: ChangeEventType.VARIABLE_FLOW_INPUT_ADDED;
+      type: ChangeEventType.VAR_FLOW_INPUT_ADDED;
     }
   | {
-      type: ChangeEventType.VARIABLE_FLOW_OUTPUT_ADDED;
+      type: ChangeEventType.VAR_FLOW_OUTPUT_ADDED;
     }
   | {
-      type: ChangeEventType.VARIABLE_FLOW_INPUT_REMOVED;
+      type: ChangeEventType.VAR_FLOW_INPUT_REMOVED;
     }
   | {
-      type: ChangeEventType.VARIABLE_FLOW_OUTPUT_REMOVED;
+      type: ChangeEventType.VAR_FLOW_OUTPUT_REMOVED;
     };
 
 export const EVENT_VALIDATION_MAP: {
   [key in ChangeEventType]: ChangeEventType[];
 } = {
-  [ChangeEventType.ADDING_INPUT_VARIABLE]: [],
+  [ChangeEventType.ADDING_VAR_INPUT]: [],
   [ChangeEventType.ADDING_NODE]: [ChangeEventType.NODE_ADDED],
-  [ChangeEventType.ADDING_OUTPUT_VARIABLE]: [],
-  [ChangeEventType.ADDING_FLOW_INPUT_VARIABLE]: [
-    ChangeEventType.VARIABLE_FLOW_INPUT_ADDED,
+  [ChangeEventType.ADDING_VAR_OUTPUT]: [],
+  [ChangeEventType.ADDING_VAR_FLOW_INPUT]: [
+    ChangeEventType.VAR_FLOW_INPUT_ADDED,
   ],
-  [ChangeEventType.ADDING_FLOW_OUTPUT_VARIABLE]: [
-    ChangeEventType.VARIABLE_FLOW_OUTPUT_ADDED,
+  [ChangeEventType.ADDING_VAR_FLOW_OUTPUT]: [
+    ChangeEventType.VAR_FLOW_OUTPUT_ADDED,
   ],
   [ChangeEventType.EDGE_ADDED]: [
     ChangeEventType.EDGE_REMOVED,
-    ChangeEventType.VARIABLE_FLOW_OUTPUT_UPDATED,
+    ChangeEventType.VAR_FLOW_OUTPUT_UPDATED,
   ],
-  [ChangeEventType.EDGE_REMOVED]: [
-    ChangeEventType.VARIABLE_FLOW_OUTPUT_UPDATED,
-  ],
-  [ChangeEventType.EDGE_REPLACED]: [
-    ChangeEventType.VARIABLE_FLOW_OUTPUT_UPDATED,
-  ],
+  [ChangeEventType.EDGE_REMOVED]: [ChangeEventType.VAR_FLOW_OUTPUT_UPDATED],
+  [ChangeEventType.EDGE_REPLACED]: [ChangeEventType.VAR_FLOW_OUTPUT_UPDATED],
   [ChangeEventType.RF_EDGES_CHANGE]: [ChangeEventType.EDGE_REMOVED],
   [ChangeEventType.NODE_ADDED]: [],
   [ChangeEventType.NODE_REMOVED]: [ChangeEventType.EDGE_REMOVED],
@@ -209,31 +213,28 @@ export const EVENT_VALIDATION_MAP: {
     ChangeEventType.EDGE_ADDED,
     ChangeEventType.EDGE_REPLACED,
   ],
-  [ChangeEventType.REMOVING_INPUT_VARIABLE]: [
-    ChangeEventType.VARIABLE_INPUT_REMOVED,
-  ],
+  [ChangeEventType.REMOVING_VAR_INPUT]: [ChangeEventType.VAR_INPUT_REMOVED],
   [ChangeEventType.REMOVING_NODE]: [ChangeEventType.NODE_REMOVED],
-  [ChangeEventType.REMOVING_OUTPUT_VARIABLE]: [
-    ChangeEventType.VARIABLE_OUTPUT_REMOVED,
+  [ChangeEventType.REMOVING_VAR_OUTPUT]: [ChangeEventType.VAR_OUTPUT_REMOVED],
+  [ChangeEventType.UPDATING_VAR_FLOW_INPUT]: [],
+  [ChangeEventType.UPDATING_VAR_FLOW_OUTPUT]: [
+    ChangeEventType.VAR_FLOW_OUTPUT_UPDATED,
   ],
-  [ChangeEventType.UPDATING_FLOW_INPUT_VARIABLE]: [],
-  [ChangeEventType.UPDATING_FLOW_OUTPUT_VARIABLE]: [
-    ChangeEventType.VARIABLE_FLOW_OUTPUT_UPDATED,
-  ],
-  [ChangeEventType.UPDATING_INPUT_VARIABLE]: [],
+  [ChangeEventType.UPDATING_VAR_INPUT]: [],
   [ChangeEventType.UPDATING_NODE_CONFIG]: [],
-  [ChangeEventType.UPDATING_OUTPUT_VARIABLE]: [],
-  [ChangeEventType.REMOVING_VARIABLE_FLOW_INPUT]: [
-    ChangeEventType.VARIABLE_FLOW_INPUT_REMOVED,
+  [ChangeEventType.UPDATING_VAR_OUTPUT]: [],
+  [ChangeEventType.REMOVING_VAR_FLOW_INPUT]: [
+    ChangeEventType.VAR_FLOW_INPUT_REMOVED,
   ],
-  [ChangeEventType.REMOVING_VARIABLE_FLOW_OUTPUT]: [
-    ChangeEventType.VARIABLE_FLOW_OUTPUT_REMOVED,
+  [ChangeEventType.REMOVING_VAR_FLOW_OUTPUT]: [
+    ChangeEventType.VAR_FLOW_OUTPUT_REMOVED,
   ],
-  [ChangeEventType.VARIABLE_FLOW_INPUT_ADDED]: [],
-  [ChangeEventType.VARIABLE_FLOW_INPUT_REMOVED]: [],
-  [ChangeEventType.VARIABLE_FLOW_OUTPUT_ADDED]: [],
-  [ChangeEventType.VARIABLE_FLOW_OUTPUT_REMOVED]: [],
-  [ChangeEventType.VARIABLE_FLOW_OUTPUT_UPDATED]: [],
-  [ChangeEventType.VARIABLE_INPUT_REMOVED]: [ChangeEventType.EDGE_REMOVED],
-  [ChangeEventType.VARIABLE_OUTPUT_REMOVED]: [ChangeEventType.EDGE_REMOVED],
+  [ChangeEventType.VAR_FLOW_INPUT_ADDED]: [],
+  [ChangeEventType.VAR_FLOW_INPUT_REMOVED]: [],
+  [ChangeEventType.VAR_FLOW_OUTPUT_ADDED]: [],
+  [ChangeEventType.VAR_FLOW_OUTPUT_REMOVED]: [],
+  [ChangeEventType.VAR_FLOW_OUTPUT_UPDATED]: [],
+  [ChangeEventType.VAR_INPUT_REMOVED]: [ChangeEventType.EDGE_REMOVED],
+  [ChangeEventType.VAR_OUTPUT_REMOVED]: [ChangeEventType.EDGE_REMOVED],
+  [ChangeEventType.VARMAP_UPDATED]: [],
 };
