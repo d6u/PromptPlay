@@ -226,7 +226,7 @@ export const createFlowServerSliceV2: StateCreator<
         }
         // Derived events
         case ChangeEventType.NODE_REMOVED: {
-          newEvents.push(...processNodeRemoved(event.node));
+          newEvents.push(...processNodeRemoved(event.node, event.nodeConfig));
           break;
         }
         case ChangeEventType.EDGE_ADDED: {
@@ -234,7 +234,9 @@ export const createFlowServerSliceV2: StateCreator<
           break;
         }
         case ChangeEventType.EDGE_REMOVED: {
-          newEvents.push(...processEdgeRemoved(event.edge));
+          newEvents.push(
+            ...processEdgeRemoved(event.edge, event.srcNodeConfigRemoved)
+          );
           break;
         }
         case ChangeEventType.EDGE_REPLACED: {
@@ -325,7 +327,10 @@ export const createFlowServerSliceV2: StateCreator<
     return events;
   }
 
-  function processNodeRemoved(removedNode: LocalNode): ChangeEvent[] {
+  function processNodeRemoved(
+    removedNode: LocalNode,
+    removedNodeConfig: NodeConfig | null
+  ): ChangeEvent[] {
     const events: ChangeEvent[] = [];
 
     // Process edges removal
@@ -339,6 +344,10 @@ export const createFlowServerSliceV2: StateCreator<
       events.push({
         type: ChangeEventType.EDGE_REMOVED,
         edge,
+        srcNodeConfigRemoved:
+          removedNodeConfig != null && edge.source === removedNodeConfig.nodeId
+            ? removedNodeConfig
+            : null,
       });
     }
 
@@ -363,6 +372,7 @@ export const createFlowServerSliceV2: StateCreator<
           events.push({
             type: ChangeEventType.EDGE_REMOVED,
             edge: oldEdges.find((edge) => edge.id === change.id)!,
+            srcNodeConfigRemoved: null,
           });
           set({ v2_isDirty: true });
           break;
@@ -693,6 +703,7 @@ export const createFlowServerSliceV2: StateCreator<
       events.push({
         type: ChangeEventType.EDGE_REMOVED,
         edge,
+        srcNodeConfigRemoved: null,
       });
     }
 
@@ -715,6 +726,7 @@ export const createFlowServerSliceV2: StateCreator<
       events.push({
         type: ChangeEventType.EDGE_REMOVED,
         edge,
+        srcNodeConfigRemoved: null,
       });
     }
 
@@ -788,31 +800,37 @@ export const createFlowServerSliceV2: StateCreator<
     return events;
   }
 
-  function processEdgeRemoved(removedEdge: LocalEdge): ChangeEvent[] {
+  function processEdgeRemoved(
+    removedEdge: LocalEdge,
+    srcNodeConfigRemoved: NodeConfig | null
+  ): ChangeEvent[] {
     const events: ChangeEvent[] = [];
 
     // --- Handle variable type change ---
 
     const nodeConfigs = produce(get().v2_nodeConfigs, (draft) => {
-      const srcNodeConfig = draft[removedEdge.source]!;
+      // Edge could be removed because target node was removed
+      if (draft[removedEdge.target] == null) {
+        return;
+      }
 
+      // Get the source output
+      const srcNodeConfig = srcNodeConfigRemoved ?? draft[removedEdge.source]!;
       if (!("outputs" in srcNodeConfig)) {
         throw new Error("Source node must have outputs property");
       }
-
       const srcOutput = srcNodeConfig.outputs.find(
         (output) => output.id === removedEdge.sourceHandle
       )!;
 
       if (srcOutput.valueType === OutputValueType.Audio) {
+        // Get the destination input
         const dstNodeConfig = draft[removedEdge.target]!;
-
         if (dstNodeConfig.nodeType !== NodeType.OutputNode) {
           throw new Error(
             "Destination node must be a OutputNode, this check should have been performed in previous events"
           );
         }
-
         const dstInput = dstNodeConfig.inputs.find(
           (input) => input.id === removedEdge.targetHandle
         )!;
@@ -1158,6 +1176,7 @@ type ChangeEvent =
   | {
       type: ChangeEventType.EDGE_REMOVED;
       edge: LocalEdge;
+      srcNodeConfigRemoved: NodeConfig | null;
     }
   | {
       type: ChangeEventType.EDGES_CHANGE;
