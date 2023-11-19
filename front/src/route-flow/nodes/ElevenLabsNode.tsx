@@ -104,7 +104,9 @@ export default function ElevenLabsNode() {
         <HeaderSection
           isCurrentUserOwner={isCurrentUserOwner}
           title="Eleven Labs Text to Speech"
-          onClickRemove={() => removeNode(nodeId)}
+          onClickRemove={() => {
+            removeNode(nodeId);
+          }}
         />
         <Section>
           <NodeInputModifyRow

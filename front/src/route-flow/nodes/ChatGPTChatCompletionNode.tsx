@@ -112,7 +112,9 @@ export default function ChatGPTChatCompletionNode() {
         <HeaderSection
           isCurrentUserOwner={isCurrentUserOwner}
           title="ChatGPT Chat Completion"
-          onClickRemove={() => removeNode(nodeId)}
+          onClickRemove={() => {
+            removeNode(nodeId);
+          }}
         />
         <Section>
           <NodeInputModifyRow

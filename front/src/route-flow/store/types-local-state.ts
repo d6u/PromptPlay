@@ -1,9 +1,9 @@
 import { ClientSlice } from "./store-client-slice";
 import { CsvEvaluationPresetSlice } from "./store-csv-evaluation-preset-slice";
-import { FlowServerSlice } from "./store-flow-server-slice";
+import { FlowServerSliceV2 } from "./store-flow-server-slice-v2";
 import { NodeID } from "./types-flow-content";
 
-export type FlowState = FlowServerSlice &
+export type FlowState = FlowServerSliceV2 &
   ClientSlice &
   CsvEvaluationPresetSlice;
 

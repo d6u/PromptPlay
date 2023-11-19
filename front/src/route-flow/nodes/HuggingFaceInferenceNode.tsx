@@ -104,7 +104,9 @@ export default function HuggingFaceInferenceNode() {
         <HeaderSection
           isCurrentUserOwner={isCurrentUserOwner}
           title="Hugging Face Inference"
-          onClickRemove={() => removeNode(nodeId)}
+          onClickRemove={() => {
+            removeNode(nodeId);
+          }}
         />
         <Section>
           <NodeInputModifyRow

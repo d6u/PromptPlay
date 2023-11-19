@@ -33,7 +33,9 @@ const chance = new Chance();
 const selector = (state: FlowState) => ({
   setDetailPanelContentType: state.setDetailPanelContentType,
   nodeConfigs: state.nodeConfigs,
-  updateNodeConfig: state.updateNodeConfig,
+  updateFlowInputVariable: state.updateFlowInputVariable,
+  addFlowInputVariable: state.addFlowInputVariable,
+  removeVariableFlowInput: state.removeVariableFlowInput,
   removeNode: state.removeNode,
 });
 
@@ -45,8 +47,10 @@ export default function InputNode() {
   const {
     setDetailPanelContentType,
     nodeConfigs,
-    updateNodeConfig,
+    updateFlowInputVariable,
     removeNode,
+    addFlowInputVariable,
+    removeVariableFlowInput,
   } = useFlowStore(selector);
 
   const nodeConfig = useMemo(
@@ -70,7 +74,9 @@ export default function InputNode() {
         <HeaderSection
           isCurrentUserOwner={isCurrentUserOwner}
           title="Input"
-          onClickRemove={() => removeNode(nodeId)}
+          onClickRemove={() => {
+            removeNode(nodeId);
+          }}
         />
         <SmallSection>
           <IconButton
@@ -94,9 +100,7 @@ export default function InputNode() {
 
                 setOutputs(newOutputs);
 
-                updateNodeConfig(nodeId, {
-                  outputs: newOutputs,
-                });
+                addFlowInputVariable(nodeId);
 
                 updateNodeInternals(nodeId);
               }}
@@ -117,14 +121,14 @@ export default function InputNode() {
 
                 setOutputs(newOutputs);
 
-                updateNodeConfig(nodeId, { outputs: newOutputs });
+                updateFlowInputVariable(nodeId, i, { name });
               }}
               onRemove={() => {
                 const newOutputs = remove(i, 1, outputs);
 
                 setOutputs(newOutputs);
 
-                updateNodeConfig(nodeId, { outputs: newOutputs });
+                removeVariableFlowInput(nodeId, i);
 
                 updateNodeInternals(nodeId);
               }}

@@ -40,7 +40,10 @@ const chance = new Chance();
 const selector = (state: FlowState) => ({
   nodeConfigs: state.nodeConfigs,
   updateNodeConfig: state.updateNodeConfig,
+  updateInputVariable: state.updateInputVariable,
   removeNode: state.removeNode,
+  addInputVariable: state.addInputVariable,
+  removeInputVariable: state.removeInputVariable,
   localNodeAugments: state.localNodeAugments,
   defaultVariableValueMap: state.getDefaultVariableValueMap(),
 });
@@ -53,7 +56,10 @@ export default function JavaScriptFunctionNode() {
   const {
     nodeConfigs,
     updateNodeConfig,
+    updateInputVariable,
     removeNode,
+    addInputVariable,
+    removeInputVariable,
     localNodeAugments,
     defaultVariableValueMap,
   } = useFlowStore(selector);
@@ -111,7 +117,9 @@ export default function JavaScriptFunctionNode() {
         <HeaderSection
           isCurrentUserOwner={isCurrentUserOwner}
           title="JavaScript"
-          onClickRemove={() => removeNode(nodeId)}
+          onClickRemove={() => {
+            removeNode(nodeId);
+          }}
         />
         {isCurrentUserOwner && (
           <SmallSection>
@@ -124,7 +132,7 @@ export default function JavaScriptFunctionNode() {
 
                 setInputs(newInputs);
 
-                updateNodeConfig(nodeId, { inputs: newInputs });
+                addInputVariable(nodeId);
 
                 updateNodeInternals(nodeId);
               }}
@@ -145,14 +153,14 @@ export default function JavaScriptFunctionNode() {
 
                 setInputs(newInputs);
 
-                updateNodeConfig(nodeId, { inputs: newInputs });
+                updateInputVariable(nodeId, i, { name });
               }}
               onRemove={() => {
                 const newInputs = remove(i, 1, inputs);
 
                 setInputs(newInputs);
 
-                updateNodeConfig(nodeId, { inputs: newInputs });
+                removeInputVariable(nodeId, i);
 
                 updateNodeInternals(nodeId);
               }}

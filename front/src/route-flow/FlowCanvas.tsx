@@ -1,11 +1,10 @@
 import styled from "@emotion/styled";
-import { useCallback, useContext } from "react";
+import { useContext } from "react";
 import ReactFlow, {
   Controls,
   Background,
   BackgroundVariant,
   PanOnScrollMode,
-  NodeDragHandler,
 } from "reactflow";
 import "reactflow/dist/style.css";
 import FlowContext from "./FlowContext";
@@ -19,7 +18,7 @@ import OutputNode from "./nodes/OutputNode";
 import TextTemplateNode from "./nodes/TextTemplateNode";
 import SidePanel from "./side-panel/SidePanel";
 import { useFlowStore } from "./store/store-flow";
-import { LocalNode, NodeType } from "./store/types-flow-content";
+import { NodeType } from "./store/types-flow-content";
 import { FlowState } from "./store/types-local-state";
 
 const NODE_TYPES = {
@@ -36,7 +35,6 @@ const NODE_TYPES = {
 const selector = (state: FlowState) => ({
   nodes: state.nodes,
   edges: state.edges,
-  updateNode: state.updateNode,
   onNodesChange: state.onNodesChange,
   onEdgesChange: state.onEdgesChange,
   onConnect: state.onConnect,
@@ -45,15 +43,8 @@ const selector = (state: FlowState) => ({
 export default function FlowCanvas() {
   const { isCurrentUserOwner } = useContext(FlowContext);
 
-  const { nodes, edges, updateNode, onNodesChange, onEdgesChange, onConnect } =
+  const { nodes, edges, onNodesChange, onEdgesChange, onConnect } =
     useFlowStore(selector);
-
-  const onNodeDragStop: NodeDragHandler = useCallback(
-    (event, node) => {
-      updateNode((node as LocalNode).id, { position: node.position });
-    },
-    [updateNode]
-  );
 
   return (
     <Container>
@@ -62,6 +53,8 @@ export default function FlowCanvas() {
         panOnScrollMode={PanOnScrollMode.Free}
         minZoom={0.2}
         maxZoom={1.2}
+        // Prevent select to trigger position change
+        nodeDragThreshold={1}
         nodesConnectable={isCurrentUserOwner}
         elementsSelectable={isCurrentUserOwner}
         nodeTypes={NODE_TYPES}
@@ -70,10 +63,19 @@ export default function FlowCanvas() {
         onInit={(reactflow) => {
           reactflow.fitView();
         }}
-        onNodesChange={onNodesChange}
-        onEdgesChange={isCurrentUserOwner ? onEdgesChange : undefined}
-        onConnect={isCurrentUserOwner ? onConnect : undefined}
-        onNodeDragStop={onNodeDragStop}
+        onNodesChange={(changes) => {
+          onNodesChange(changes);
+        }}
+        onEdgesChange={(changes) => {
+          if (isCurrentUserOwner) {
+            onEdgesChange(changes);
+          }
+        }}
+        onConnect={(connection) => {
+          if (isCurrentUserOwner) {
+            onConnect(connection);
+          }
+        }}
       >
         <Controls />
         <Background variant={BackgroundVariant.Dots} gap={20} size={1} />

@@ -43,7 +43,10 @@ const chance = new Chance();
 const selector = (state: FlowState) => ({
   nodeConfigs: state.nodeConfigs,
   updateNodeConfig: state.updateNodeConfig,
+  updateInputVariable: state.updateInputVariable,
   removeNode: state.removeNode,
+  addInputVariable: state.addInputVariable,
+  removeInputVariable: state.removeInputVariable,
   setDetailPanelContentType: state.setDetailPanelContentType,
   setDetailPanelSelectedNodeId: state.setDetailPanelSelectedNodeId,
   defaultVariableValueMap: state.getDefaultVariableValueMap(),
@@ -57,7 +60,10 @@ export default function TextTemplateNode() {
   const {
     nodeConfigs,
     updateNodeConfig,
+    updateInputVariable,
     removeNode,
+    addInputVariable,
+    removeInputVariable,
     setDetailPanelContentType,
     setDetailPanelSelectedNodeId,
     defaultVariableValueMap,
@@ -100,7 +106,9 @@ export default function TextTemplateNode() {
         <HeaderSection
           isCurrentUserOwner={isCurrentUserOwner}
           title="Text"
-          onClickRemove={() => removeNode(nodeId)}
+          onClickRemove={() => {
+            removeNode(nodeId);
+          }}
         />
         {isCurrentUserOwner && (
           <SmallSection>
@@ -113,7 +121,7 @@ export default function TextTemplateNode() {
 
                 setInputs(newInputs);
 
-                updateNodeConfig(nodeId, { inputs: newInputs });
+                addInputVariable(nodeId);
 
                 updateNodeInternals(nodeId);
               }}
@@ -134,14 +142,14 @@ export default function TextTemplateNode() {
 
                 setInputs(newInputs);
 
-                updateNodeConfig(nodeId, { inputs: newInputs });
+                updateInputVariable(nodeId, i, { name });
               }}
               onRemove={() => {
                 const newInputs = remove(i, 1, inputs);
 
                 setInputs(newInputs);
 
-                updateNodeConfig(nodeId, { inputs: newInputs });
+                removeInputVariable(nodeId, i);
 
                 updateNodeInternals(nodeId);
               }}

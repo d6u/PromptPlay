@@ -191,6 +191,9 @@ export function createNodeConfig(node: LocalNode): NodeConfig {
   }
 }
 
+/**
+ * @returns [acceptedEdges, rejectedEdges]
+ */
 export function rejectInvalidEdges(
   nodes: ServerNode[],
   edges: ServerEdge[],
