@@ -174,7 +174,7 @@ export default function ToolBar() {
           {isFlowContentSaving
             ? "Saving..."
             : isFlowContentDirty
-            ? "Chagned..."
+            ? "Save pending"
             : "Saved"}
         </SavingIndicator>
         <FormControl size="md" orientation="horizontal">
