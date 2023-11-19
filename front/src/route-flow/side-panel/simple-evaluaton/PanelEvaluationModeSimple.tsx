@@ -27,6 +27,7 @@ const selector = (state: FlowState) => ({
   flowOutputItems: flowOutputItemsSelector(state),
   defaultVariableValueMap: state.getDefaultVariableValueMap(),
   updateDefaultVariableValueMap: state.updateDefaultVariableValueMap,
+  v2_updateVariableValueMap: state.v2_updateVariableValueMap,
 });
 
 export default function PanelEvaluationModeSimple() {
@@ -41,6 +42,7 @@ export default function PanelEvaluationModeSimple() {
     flowOutputItems,
     defaultVariableValueMap: variableValueMap,
     updateDefaultVariableValueMap,
+    v2_updateVariableValueMap,
   } = useFlowStore(selector);
 
   return (
@@ -66,6 +68,7 @@ export default function PanelEvaluationModeSimple() {
             value={variableValueMap[inputItem.id]}
             onSaveValue={(value) => {
               updateDefaultVariableValueMap(inputItem.id, value);
+              v2_updateVariableValueMap(inputItem.id, value);
             }}
             type={inputItem.valueType}
             onSaveType={(newType) => {
@@ -73,9 +76,11 @@ export default function PanelEvaluationModeSimple() {
                 switch (newType) {
                   case InputValueType.String:
                     updateDefaultVariableValueMap(inputItem.id, "");
+                    v2_updateVariableValueMap(inputItem.id, "");
                     break;
                   case InputValueType.Number:
                     updateDefaultVariableValueMap(inputItem.id, 0);
+                    v2_updateVariableValueMap(inputItem.id, 0);
                     break;
                 }
               }
