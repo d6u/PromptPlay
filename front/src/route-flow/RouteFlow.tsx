@@ -1,4 +1,5 @@
 import mixpanel from "mixpanel-browser";
+import posthog from "posthog-js";
 import { useEffect } from "react";
 import { useLoaderData, useParams } from "react-router-dom";
 import { ReactFlowProvider } from "reactflow";
@@ -35,6 +36,7 @@ export default function RouteFlow() {
 
   useEffect(() => {
     mixpanel.track("Open Flow", { flowId: spaceId });
+    posthog.capture("Open Flow", { flowId: spaceId });
   }, [spaceId]);
 
   return (
