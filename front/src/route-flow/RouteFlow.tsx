@@ -1,3 +1,4 @@
+import mixpanel from "mixpanel-browser";
 import { useEffect } from "react";
 import { useLoaderData, useParams } from "react-router-dom";
 import { ReactFlowProvider } from "reactflow";
@@ -31,6 +32,10 @@ export default function RouteFlow() {
       deinitializeSpace();
     };
   }, [deinitializeSpace, initializeSpace, spaceId]);
+
+  useEffect(() => {
+    mixpanel.track("Open Flow", { flowId: spaceId });
+  }, [spaceId]);
 
   return (
     <FlowContext.Provider value={{ isCurrentUserOwner }}>
