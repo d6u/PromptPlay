@@ -2,6 +2,7 @@ import styled from "@emotion/styled";
 import Button from "@mui/joy/Button";
 import IconButton from "@mui/joy/IconButton";
 import mixpanel from "mixpanel-browser";
+import posthog from "posthog-js";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useMutation, useQuery } from "urql";
@@ -138,14 +139,17 @@ export default function Header() {
   const isPlaceholderUserTokenInvalid =
     queryResult.data?.isPlaceholderUserTokenInvalid === true;
   const isLoggedIn = queryResult.data?.isLoggedIn === true;
+  const userId = queryResult.data?.user?.id;
+  const email = queryResult.data?.user?.email;
 
   useEffect(() => {
-    if (queryResult.data?.user?.id) {
-      mixpanel.identify(queryResult.data?.user?.id);
+    if (isLoggedIn) {
+      mixpanel.identify(userId);
+      posthog.identify(userId, { email });
     } else {
       mixpanel.reset();
     }
-  }, [queryResult.data?.user?.id]);
+  }, [email, isLoggedIn, userId]);
 
   // TODO: Putting this logic in this component is pretty ad-hoc, and this will
   // break if Header is not always rendered on page.
