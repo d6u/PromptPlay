@@ -1,5 +1,6 @@
 import { A, D } from "@mobily/ts-belt";
 import { AccordionGroup } from "@mui/joy";
+import mixpanel from "mixpanel-browser";
 import Papa from "papaparse";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Subscription } from "rxjs";
@@ -130,6 +131,12 @@ export default function PresetContent() {
       return;
     }
 
+    mixpanel.track("Starting CSV Evaluation", {
+      flowId: spaceId,
+      contentRowCount: csvBody.length,
+      repeatCount,
+    });
+
     setIsRunning(true);
 
     runningSubscriptionRef.current = runForEachRow({
@@ -163,20 +170,27 @@ export default function PresetContent() {
         console.error(err);
         setIsRunning(false);
         runningSubscriptionRef.current = null;
+
+        mixpanel.track("Finished CSV Evaluation with Error", {
+          flowId: spaceId,
+        });
       },
       complete() {
         setIsRunning(false);
         runningSubscriptionRef.current = null;
+
+        mixpanel.track("Finished CSV Evaluation", { flowId: spaceId });
       },
     });
   }, [
-    csvBody,
+    spaceId,
     edges,
     nodeConfigs,
+    csvBody,
+    variableColumnMap,
     repeatCount,
     concurrencyLimit,
     setGeneratedResult,
-    variableColumnMap,
   ]);
 
   const stopRunning = useCallback(() => {
