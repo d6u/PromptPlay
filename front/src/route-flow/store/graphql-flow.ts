@@ -4,7 +4,6 @@ export const SPACE_FLOW_QUERY = graphql(`
   query SpaceFlowQuery($spaceId: UUID!) {
     result: space(id: $spaceId) {
       space {
-        ...SpaceSubHeaderFragment
         id
         name
         contentVersion

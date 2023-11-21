@@ -5,7 +5,6 @@ export const SPACE_QUERY = graphql(`
     result: space(id: $spaceId) {
       isReadOnly
       space {
-        ...SpaceSubHeaderFragment
         id
         name
         contentVersion
