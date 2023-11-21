@@ -62,13 +62,13 @@ export function getStreamingCompletion({
   );
 }
 
-export async function getNonStreamingCompletion({
+export function getNonStreamingCompletion({
   apiKey,
   model,
   temperature,
   messages,
   stop,
-}: GetCompletionArguments): Promise<
+}: GetCompletionArguments): Observable<
   | { isError: false; data: ChatCompletionResponse }
   | { isError: true; data: ChatCompletionErrorResponse }
 > {
@@ -86,14 +86,18 @@ export async function getNonStreamingCompletion({
     }),
   };
 
-  const response = await fetch(OPENAI_API_URL, fetchOptions);
-  const data = await response.json();
+  return fromFetch(OPENAI_API_URL, {
+    ...fetchOptions,
+    selector: async (response) => {
+      const data = await response.json();
 
-  if (response.ok) {
-    return { isError: false, data };
-  }
+      if (response.ok) {
+        return { isError: false, data };
+      }
 
-  return { isError: true, data };
+      return { isError: true, data };
+    },
+  });
 }
 
 // Stream

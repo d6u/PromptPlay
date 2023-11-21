@@ -458,15 +458,13 @@ function handleChatGPTChatNode(
         })
       );
     } else {
-      return from(
-        OpenAI.getNonStreamingCompletion({
-          apiKey: openAiApiKey,
-          model: data.model,
-          messages,
-          temperature: data.temperature,
-          stop: data.stop,
-        })
-      ).pipe(
+      return OpenAI.getNonStreamingCompletion({
+        apiKey: openAiApiKey,
+        model: data.model,
+        messages,
+        temperature: data.temperature,
+        stop: data.stop,
+      }).pipe(
         map((result) => {
           if (result.isError) {
             console.error(result.data);
