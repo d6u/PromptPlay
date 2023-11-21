@@ -35,9 +35,7 @@
     "react-top-loading-bar": "^2.3.1",
     "reactflow": "^11.8.3",
     "rxjs": "^7.8.1",
-    "updeep": "^1.2.4",
     "urql": "^4.0.5",
-    "uuid": "^9.0.0",
     "zustand": "^4.4.1"
   },
   "devDependencies": {
