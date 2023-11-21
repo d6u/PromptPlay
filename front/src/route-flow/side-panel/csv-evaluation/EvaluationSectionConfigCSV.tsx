@@ -10,6 +10,8 @@ import {
   Select,
   Option,
 } from "@mui/joy";
+import Papa from "papaparse";
+import posthog from "posthog-js";
 import { ReactNode, useEffect } from "react";
 import { FlowOutputVariableMap } from "../../store/flow-run";
 import {
@@ -294,6 +296,120 @@ export default function EvaluationSectionConfigCSV(props: Props) {
               Run
             </Button>
           )}
+          <Button
+            color="neutral"
+            variant="outlined"
+            onClick={() => {
+              const resultCsv: CSVRow[] = [];
+
+              resultCsv.push([], []);
+
+              // Status
+
+              resultCsv[0].push("Status");
+              for (let i = 0; i < repeatCount - 1; i++) {
+                resultCsv[0].push("");
+              }
+
+              if (repeatCount > 1) {
+                for (let i = 0; i < repeatCount; i++) {
+                  resultCsv[1].push(`Run ${i + 1}`);
+                }
+              } else {
+                resultCsv[1].push("");
+              }
+
+              // Inputs
+
+              for (const inputItem of flowInputItems) {
+                resultCsv[0].push(inputItem.name);
+
+                const index = variableColumnMap[inputItem.id];
+                resultCsv[1].push(
+                  index != null
+                    ? props.csvHeaders.filter(F.identity)[index]
+                    : ""
+                );
+              }
+
+              // Outputs
+
+              for (const outputItem of flowOutputItems) {
+                resultCsv[0].push(outputItem.name);
+                for (let i = 0; i < repeatCount; i++) {
+                  resultCsv[0].push("");
+                }
+
+                resultCsv[1].push("");
+                if (repeatCount > 1) {
+                  for (let i = 0; i < repeatCount; i++) {
+                    resultCsv[1].push(`Result ${i + 1}`);
+                  }
+                } else {
+                  resultCsv[1].push("Result");
+                }
+              }
+
+              // Body
+
+              for (const [rowIndex, row] of props.csvBody.entries()) {
+                const cells: string[] = [];
+
+                // Status
+                for (let i = 0; i < repeatCount; i++) {
+                  cells.push("");
+                }
+
+                // Inputs
+                for (const inputItem of flowInputItems) {
+                  const index = variableColumnMap[inputItem.id];
+                  cells.push(index !== null ? row[index] : "");
+                }
+
+                // Outputs
+                for (const outputItem of flowOutputItems) {
+                  const index = variableColumnMap[outputItem.id];
+                  cells.push(index !== null ? row[index] : "");
+
+                  for (let i = 0; i < repeatCount; i++) {
+                    const value =
+                      generatedResult[rowIndex as RowIndex]?.[
+                        i as ColumnIndex
+                      ]?.[outputItem.id] ?? "";
+
+                    cells.push(
+                      typeof value === "string" ? value : JSON.stringify(value)
+                    );
+                  }
+                }
+
+                resultCsv.push(cells);
+              }
+
+              const csv = Papa.unparse(resultCsv);
+
+              const blob = new Blob([csv], { type: "text/plain" });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement("a");
+              a.href = url;
+              a.download = "result.csv";
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+              URL.revokeObjectURL(url);
+
+              navigator.clipboard
+                .writeText(csv)
+                .then(() => {
+                  posthog.capture("Copied CSV Evaluation Result to Clipboard");
+                })
+                .catch((err) => {
+                  console.error("Could not copy text: ", err);
+                });
+            }}
+          >
+            Copy result as CSV to clipboard
+          </Button>
         </Section>
         <Section style={{ overflow: "auto" }}>
           <Table>
