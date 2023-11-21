@@ -91,6 +91,22 @@ export default function EvaluationSectionConfigCSV(props: Props) {
   const variableMapTableHeaderRowFirst: ReactNode[] = [];
   const variableMapTableHeaderRowSecond: ReactNode[] = [];
 
+  variableMapTableHeaderRowFirst.push(
+    <th key="status" style={{ textAlign: "center" }} colSpan={repeatCount}>
+      Status
+    </th>
+  );
+
+  if (repeatCount > 1) {
+    for (let i = 0; i < repeatCount; i++) {
+      variableMapTableHeaderRowSecond.push(
+        <th key={`status-${i}`}>Run {i + 1}</th>
+      );
+    }
+  } else {
+    variableMapTableHeaderRowSecond.push(<th key={`status-0`}></th>);
+  }
+
   for (const inputItem of flowInputItems) {
     variableMapTableHeaderRowFirst.push(
       <th
@@ -173,6 +189,12 @@ export default function EvaluationSectionConfigCSV(props: Props) {
   for (const [rowIndex, row] of props.csvBody.entries()) {
     const cells: ReactNode[] = [];
 
+    // Status columns
+    for (let i = 0; i < repeatCount; i++) {
+      cells.push(<td key={`status-${rowIndex}-${i}`}></td>);
+    }
+
+    // Input columns
     for (const inputItem of flowInputItems) {
       const index = variableColumnMap[inputItem.id];
       cells.push(
@@ -180,6 +202,7 @@ export default function EvaluationSectionConfigCSV(props: Props) {
       );
     }
 
+    // Output columns
     for (const outputItem of flowOutputItems) {
       const index = variableColumnMap[outputItem.id];
       cells.push(
@@ -202,6 +225,7 @@ export default function EvaluationSectionConfigCSV(props: Props) {
       }
     }
 
+    // Add current row to the table
     variableMapTableBodyRows.push(<tr key={rowIndex}>{cells}</tr>);
   }
 

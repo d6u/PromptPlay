@@ -68,7 +68,8 @@ type NodeAugmentChangeEvent = {
 export function run(
   edges: LocalEdge[],
   nodeConfigs: NodeConfigs,
-  inputVariableMap: FlowInputVariableMap
+  inputVariableMap: FlowInputVariableMap,
+  useStreaming: boolean = false
 ): Observable<RunEvent> {
   const nodeGraph: Record<NodeID, NodeID[]> = {};
   const nodeIndegree: Record<NodeID, number> = {};
@@ -182,7 +183,8 @@ export function run(
             handleChatGPTChatNode(
               nodeConfig,
               inputIdToOutputIdMap,
-              outputIdToValueMap
+              outputIdToValueMap,
+              useStreaming
             )
           ).pipe(
             map((changes) => ({
@@ -373,7 +375,8 @@ function handleChatGPTMessageNode(
 function handleChatGPTChatNode(
   data: ChatGPTChatCompletionNodeConfig,
   inputIdToOutputIdMap: Record<InputID, OutputID | undefined>,
-  variableValueMap: VariableValueMap
+  variableValueMap: VariableValueMap,
+  useStreaming: boolean
 ): Observable<VariableValueMap> {
   return defer(() => {
     // Prepare inputs
@@ -407,52 +410,85 @@ function handleChatGPTChatNode(
     let role = "assistant";
     let content = "";
 
-    const obs1 = OpenAI.getStreamingCompletion({
-      apiKey: openAiApiKey,
-      model: data.model,
-      messages,
-      temperature: data.temperature,
-      stop: data.stop,
-    }).pipe(
-      map((piece) => {
-        if ("error" in piece) {
-          // console.error(piece.error.message);
-          throw piece.error.message;
-        }
+    if (useStreaming) {
+      const obs1 = OpenAI.getStreamingCompletion({
+        apiKey: openAiApiKey,
+        model: data.model,
+        messages,
+        temperature: data.temperature,
+        stop: data.stop,
+      }).pipe(
+        map((piece) => {
+          if ("error" in piece) {
+            // console.error(piece.error.message);
+            throw piece.error.message;
+          }
 
-        if (piece.choices[0].delta.role) {
-          role = piece.choices[0].delta.role;
-        }
-        if (piece.choices[0].delta.content) {
-          content += piece.choices[0].delta.content;
-        }
-        const message = { role, content };
+          if (piece.choices[0].delta.role) {
+            role = piece.choices[0].delta.role;
+          }
+          if (piece.choices[0].delta.content) {
+            content += piece.choices[0].delta.content;
+          }
+          const message = { role, content };
 
-        return {
-          [data.outputs[0].id]: content,
-          [data.outputs[1].id]: message,
-          [data.outputs[2].id]: A.append(messages, message),
-        };
-      })
-    );
+          return {
+            [data.outputs[0].id]: content,
+            [data.outputs[1].id]: message,
+            [data.outputs[2].id]: A.append(messages, message),
+          };
+        })
+      );
 
-    return concat(
-      obs1,
-      defer(() => {
-        const message = { role, content };
-        messages = A.append(messages, message);
+      return concat(
+        obs1,
+        defer(() => {
+          const message = { role, content };
+          messages = A.append(messages, message);
 
-        variableValueMap[data.outputs[0].id] = content;
-        variableValueMap[data.outputs[1].id] = message;
-        variableValueMap[data.outputs[2].id] = messages;
+          variableValueMap[data.outputs[0].id] = content;
+          variableValueMap[data.outputs[1].id] = message;
+          variableValueMap[data.outputs[2].id] = messages;
 
-        return of({
-          [data.outputs[0].id]: content,
-          [data.outputs[1].id]: message,
-          [data.outputs[2].id]: messages,
-        });
-      })
-    );
+          return of({
+            [data.outputs[0].id]: content,
+            [data.outputs[1].id]: message,
+            [data.outputs[2].id]: messages,
+          });
+        })
+      );
+    } else {
+      return from(
+        OpenAI.getNonStreamingCompletion({
+          apiKey: openAiApiKey,
+          model: data.model,
+          messages,
+          temperature: data.temperature,
+          stop: data.stop,
+        })
+      ).pipe(
+        map((result) => {
+          if (result.isError) {
+            console.error(result.data);
+            throw result.data;
+          }
+
+          const content = result.data.choices[0].message.content;
+          const message = result.data.choices[0].message;
+          messages = A.append(messages, message);
+
+          variableValueMap[data.outputs[0].id] = content;
+          variableValueMap[data.outputs[1].id] = message;
+          variableValueMap[data.outputs[2].id] = messages;
+
+          return {
+            [data.outputs[0].id]: content,
+            [data.outputs[1].id]: message,
+            [data.outputs[2].id]: messages,
+          };
+        })
+      );
+    }
   });
 }
 
