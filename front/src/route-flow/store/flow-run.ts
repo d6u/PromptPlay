@@ -16,6 +16,8 @@ import {
   throwError,
   concat,
   defer,
+  retry,
+  TimeoutError,
 } from "rxjs";
 import * as ElevenLabs from "../../integrations/eleven-labs";
 import * as HuggingFace from "../../integrations/hugging-face";
@@ -45,6 +47,7 @@ const AsyncFunction = async function () {}.constructor;
 export enum RunEventType {
   VariableValueChanges = "VariableValueChanges",
   NodeAugmentChange = "NodeAugmentChange",
+  RunStatusChange = "RunStatusChange",
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -52,7 +55,10 @@ export type FlowInputVariableMap = Record<OutputID, any>;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type FlowOutputVariableMap = Record<InputID, any>;
 
-export type RunEvent = VariableValueChangeEvent | NodeAugmentChangeEvent;
+export type RunEvent =
+  | VariableValueChangeEvent
+  | NodeAugmentChangeEvent
+  | RunStatusChangeEvent;
 
 type VariableValueChangeEvent = {
   type: RunEventType.VariableValueChanges;
@@ -63,6 +69,12 @@ type NodeAugmentChangeEvent = {
   type: RunEventType.NodeAugmentChange;
   nodeId: NodeID;
   augmentChange: Partial<NodeAugment>;
+};
+
+type RunStatusChangeEvent = {
+  type: RunEventType.RunStatusChange;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  error: any;
 };
 
 export function run(
@@ -94,8 +106,7 @@ export function run(
     inputIdToOutputIdMap[edge.targetHandle] = edge.sourceHandle!;
   }
 
-  const sub = new BehaviorSubject(0);
-
+  // `obs` is a topological sort of the node graph.
   const obs = new Observable<{ nodeId: NodeID; nodeConfig: NodeConfig }>(
     (subscriber) => {
       const queue: NodeID[] = [];
@@ -127,6 +138,14 @@ export function run(
       subscriber.complete();
     }
   );
+
+  // `sub` is to control the pace of the execution and the termination.
+  //
+  // Because `obs` will emit all the nodes at once, we give `sub` a value one
+  // at a time and only give `sub` a new value after one node in `obs` is
+  // finished executing. So that we can execute the node graph in topological
+  // order.
+  const sub = new BehaviorSubject(0);
 
   return obs.pipe(
     zipWith(sub),
@@ -236,6 +255,8 @@ export function run(
       }
 
       return obs.pipe(
+        // startWith and endWith will run for each node, before and after
+        // running its logic.
         startWith<RunEvent>({
           type: RunEventType.NodeAugmentChange,
           nodeId,
@@ -246,6 +267,9 @@ export function run(
           nodeId,
           augmentChange: { isRunning: false },
         }),
+        // `catchError` here act like `endWith`, but also make sure the error
+        // is rethrown.
+        //
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         catchError<any, Observable<RunEvent>>((e) =>
           concat<[RunEvent, RunEvent]>(
@@ -266,12 +290,17 @@ export function run(
     }),
     tap({
       error(e) {
+        // console.error("Run failed with error,", e);
+        // By erroring `sub`, we stop the observable chain completely.
         sub.error(e);
       },
       complete() {
         sub.complete();
       },
-    })
+    }),
+    catchError((error) =>
+      of<RunStatusChangeEvent>({ type: RunEventType.RunStatusChange, error })
+    )
   );
 }
 
@@ -484,7 +513,17 @@ function handleChatGPTChatNode(
             [data.outputs[1].id]: message,
             [data.outputs[2].id]: messages,
           };
-        })
+        }),
+        tap({
+          error: (error) => {
+            if (error instanceof TimeoutError) {
+              console.debug("ERROR: OpenAI API call timed out.");
+            } else {
+              console.debug("ERROR: OpenAI API call errored.", error);
+            }
+          },
+        }),
+        retry(2) // 3 attempts max
       );
     }
   });

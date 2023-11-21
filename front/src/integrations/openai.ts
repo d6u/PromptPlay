@@ -4,6 +4,7 @@ import {
   map,
   mergeMap,
   throwError,
+  timeout,
 } from "rxjs";
 import { fromFetch } from "rxjs/fetch";
 
@@ -97,7 +98,7 @@ export function getNonStreamingCompletion({
 
       return { isError: true, data };
     },
-  });
+  }).pipe(timeout(1000 * 60)); // 60s, TimeoutError
 }
 
 // Stream

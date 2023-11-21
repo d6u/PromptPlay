@@ -163,6 +163,9 @@ export const createClientSlice: StateCreator<FlowState, [], [], ClientSlice> = (
               updateNodeAugment(nodeId, augmentChange);
               break;
             }
+            case RunEventType.RunStatusChange:
+              // TODO: Refect this in the simple evaluation UI
+              break;
           }
         },
         error(e) {

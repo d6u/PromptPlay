@@ -1,5 +1,6 @@
 import { A, D } from "@mobily/ts-belt";
 import { AccordionGroup } from "@mui/joy";
+import { produce } from "immer";
 import mixpanel from "mixpanel-browser";
 import Papa from "papaparse";
 import posthog from "posthog-js";
@@ -46,6 +47,7 @@ const selector = (state: FlowState) => ({
   concurrencyLimit: state.csvEvaluationConfigContent.concurrencyLimit,
   variableColumnMap: state.csvEvaluationConfigContent.variableColumnMap,
   setGeneratedResult: state.csvEvaluationSetGeneratedResult,
+  setRunStatuses: state.csvEvaluationSetRunStatuses,
 });
 
 export default function PresetContent() {
@@ -61,6 +63,7 @@ export default function PresetContent() {
     concurrencyLimit,
     variableColumnMap,
     setGeneratedResult,
+    setRunStatuses,
   } = useFlowStore(selector);
 
   const shouldFetchPreset = spaceId && presetId;
@@ -153,10 +156,10 @@ export default function PresetContent() {
       repeatCount,
       concurrencyLimit,
     }).subscribe({
-      next({ iteratonIndex: colIndex, rowIndex, outputs }) {
-        setGeneratedResult((prev) => {
-          console.debug({ colIndex, rowIndex, outputs });
+      next({ iteratonIndex: colIndex, rowIndex, outputs, status }) {
+        console.debug({ rowIndex, colIndex, outputs, status });
 
+        setGeneratedResult((prev) => {
           let row = prev[rowIndex as RowIndex]!;
 
           row = A.updateAt(
@@ -171,6 +174,12 @@ export default function PresetContent() {
             row
           );
         });
+
+        setRunStatuses((prev) =>
+          produce(prev, (draft) => {
+            draft[rowIndex as RowIndex][colIndex as ColumnIndex] = status;
+          })
+        );
       },
       error(err) {
         console.error(err);
@@ -196,13 +205,14 @@ export default function PresetContent() {
     });
   }, [
     spaceId,
+    csvBody,
+    repeatCount,
     edges,
     nodeConfigs,
-    csvBody,
     variableColumnMap,
-    repeatCount,
     concurrencyLimit,
     setGeneratedResult,
+    setRunStatuses,
   ]);
 
   const stopRunning = useCallback(() => {

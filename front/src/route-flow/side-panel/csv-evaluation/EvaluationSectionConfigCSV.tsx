@@ -42,6 +42,8 @@ const selector = (state: FlowState) => ({
   setVariableColumnMap: state.csvEvaluationSetVariableColumnMap,
   generatedResult: state.csvEvaluationConfigContent.generatedResult,
   setGeneratedResult: state.csvEvaluationSetGeneratedResult,
+  runStatuses: state.csvEvaluationConfigContent.runStatuses,
+  setRunStatuses: state.csvEvaluationSetRunStatuses,
 });
 
 type Props = {
@@ -64,6 +66,8 @@ export default function EvaluationSectionConfigCSV(props: Props) {
     setVariableColumnMap,
     generatedResult,
     setGeneratedResult,
+    runStatuses,
+    setRunStatuses,
   } = useFlowStore(selector);
 
   useEffect(() => {
@@ -87,6 +91,14 @@ export default function EvaluationSectionConfigCSV(props: Props) {
       )
     );
   }, [props.csvBody.length, repeatCount, setGeneratedResult]);
+
+  useEffect(() => {
+    setRunStatuses(
+      A.makeWithIndex(props.csvBody.length, () =>
+        A.makeWithIndex(repeatCount, () => null)
+      )
+    );
+  }, [props.csvBody.length, repeatCount, setRunStatuses]);
 
   const variableMapTableHeaderRowFirst: ReactNode[] = [];
   const variableMapTableHeaderRowSecond: ReactNode[] = [];
@@ -189,9 +201,18 @@ export default function EvaluationSectionConfigCSV(props: Props) {
   for (const [rowIndex, row] of props.csvBody.entries()) {
     const cells: ReactNode[] = [];
 
-    // Status columns
-    for (let i = 0; i < repeatCount; i++) {
-      cells.push(<td key={`status-${rowIndex}-${i}`}></td>);
+    // Columns for "Status"
+    for (let colIndex = 0; colIndex < repeatCount; colIndex++) {
+      const statusValue =
+        runStatuses[rowIndex as RowIndex]?.[colIndex as ColumnIndex] ?? null;
+      cells.push(
+        <td
+          key={`status-${rowIndex}-${colIndex}`}
+          style={{ color: statusValue == null ? "green" : "red" }}
+        >
+          {statusValue ?? "OK"}
+        </td>
+      );
     }
 
     // Input columns
