@@ -1,5 +1,6 @@
 import { append, assoc, flatten, pipe, prop } from "ramda";
 import { ReactNode } from "react";
+import { firstValueFrom } from "rxjs";
 import * as openai from "../integrations/openai";
 import { useLocalStorageStore } from "../state/appState";
 import {
@@ -184,13 +185,15 @@ const BLOCK_CONFIGS: BlockConfigs = {
     executeFunc: async (block, scope, args, updater) => {
       const openAiApiKey = useLocalStorageStore.getState().openAiApiKey!;
 
-      const result = await openai.getNonStreamingCompletion({
-        apiKey: openAiApiKey,
-        model: block.model,
-        temperature: block.temperature,
-        stop: block.stop,
-        messages: args,
-      });
+      const result = await firstValueFrom(
+        openai.getNonStreamingCompletion({
+          apiKey: openAiApiKey,
+          model: block.model,
+          temperature: block.temperature,
+          stop: block.stop,
+          messages: args,
+        })
+      );
 
       if (result.isError) {
         console.error(result.data.error.message);

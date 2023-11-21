@@ -16,6 +16,8 @@ import {
   throwError,
   concat,
   defer,
+  retry,
+  TimeoutError,
 } from "rxjs";
 import * as ElevenLabs from "../../integrations/eleven-labs";
 import * as HuggingFace from "../../integrations/hugging-face";
@@ -45,6 +47,7 @@ const AsyncFunction = async function () {}.constructor;
 export enum RunEventType {
   VariableValueChanges = "VariableValueChanges",
   NodeAugmentChange = "NodeAugmentChange",
+  RunStatusChange = "RunStatusChange",
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -52,7 +55,10 @@ export type FlowInputVariableMap = Record<OutputID, any>;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type FlowOutputVariableMap = Record<InputID, any>;
 
-export type RunEvent = VariableValueChangeEvent | NodeAugmentChangeEvent;
+export type RunEvent =
+  | VariableValueChangeEvent
+  | NodeAugmentChangeEvent
+  | RunStatusChangeEvent;
 
 type VariableValueChangeEvent = {
   type: RunEventType.VariableValueChanges;
@@ -65,10 +71,17 @@ type NodeAugmentChangeEvent = {
   augmentChange: Partial<NodeAugment>;
 };
 
+type RunStatusChangeEvent = {
+  type: RunEventType.RunStatusChange;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  error: any;
+};
+
 export function run(
   edges: LocalEdge[],
   nodeConfigs: NodeConfigs,
-  inputVariableMap: FlowInputVariableMap
+  inputVariableMap: FlowInputVariableMap,
+  useStreaming: boolean = false
 ): Observable<RunEvent> {
   const nodeGraph: Record<NodeID, NodeID[]> = {};
   const nodeIndegree: Record<NodeID, number> = {};
@@ -93,8 +106,7 @@ export function run(
     inputIdToOutputIdMap[edge.targetHandle] = edge.sourceHandle!;
   }
 
-  const sub = new BehaviorSubject(0);
-
+  // `obs` is a topological sort of the node graph.
   const obs = new Observable<{ nodeId: NodeID; nodeConfig: NodeConfig }>(
     (subscriber) => {
       const queue: NodeID[] = [];
@@ -126,6 +138,14 @@ export function run(
       subscriber.complete();
     }
   );
+
+  // `sub` is to control the pace of the execution and the termination.
+  //
+  // Because `obs` will emit all the nodes at once, we give `sub` a value one
+  // at a time and only give `sub` a new value after one node in `obs` is
+  // finished executing. So that we can execute the node graph in topological
+  // order.
+  const sub = new BehaviorSubject(0);
 
   return obs.pipe(
     zipWith(sub),
@@ -182,7 +202,8 @@ export function run(
             handleChatGPTChatNode(
               nodeConfig,
               inputIdToOutputIdMap,
-              outputIdToValueMap
+              outputIdToValueMap,
+              useStreaming
             )
           ).pipe(
             map((changes) => ({
@@ -234,6 +255,8 @@ export function run(
       }
 
       return obs.pipe(
+        // startWith and endWith will run for each node, before and after
+        // running its logic.
         startWith<RunEvent>({
           type: RunEventType.NodeAugmentChange,
           nodeId,
@@ -244,6 +267,9 @@ export function run(
           nodeId,
           augmentChange: { isRunning: false },
         }),
+        // `catchError` here act like `endWith`, but also make sure the error
+        // is rethrown.
+        //
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         catchError<any, Observable<RunEvent>>((e) =>
           concat<[RunEvent, RunEvent]>(
@@ -264,12 +290,17 @@ export function run(
     }),
     tap({
       error(e) {
+        // console.error("Run failed with error,", e);
+        // By erroring `sub`, we stop the observable chain completely.
         sub.error(e);
       },
       complete() {
         sub.complete();
       },
-    })
+    }),
+    catchError((error) =>
+      of<RunStatusChangeEvent>({ type: RunEventType.RunStatusChange, error })
+    )
   );
 }
 
@@ -373,7 +404,8 @@ function handleChatGPTMessageNode(
 function handleChatGPTChatNode(
   data: ChatGPTChatCompletionNodeConfig,
   inputIdToOutputIdMap: Record<InputID, OutputID | undefined>,
-  variableValueMap: VariableValueMap
+  variableValueMap: VariableValueMap,
+  useStreaming: boolean
 ): Observable<VariableValueMap> {
   return defer(() => {
     // Prepare inputs
@@ -407,52 +439,93 @@ function handleChatGPTChatNode(
     let role = "assistant";
     let content = "";
 
-    const obs1 = OpenAI.getStreamingCompletion({
-      apiKey: openAiApiKey,
-      model: data.model,
-      messages,
-      temperature: data.temperature,
-      stop: data.stop,
-    }).pipe(
-      map((piece) => {
-        if ("error" in piece) {
-          // console.error(piece.error.message);
-          throw piece.error.message;
-        }
+    if (useStreaming) {
+      const obs1 = OpenAI.getStreamingCompletion({
+        apiKey: openAiApiKey,
+        model: data.model,
+        messages,
+        temperature: data.temperature,
+        stop: data.stop,
+      }).pipe(
+        map((piece) => {
+          if ("error" in piece) {
+            // console.error(piece.error.message);
+            throw piece.error.message;
+          }
 
-        if (piece.choices[0].delta.role) {
-          role = piece.choices[0].delta.role;
-        }
-        if (piece.choices[0].delta.content) {
-          content += piece.choices[0].delta.content;
-        }
-        const message = { role, content };
+          if (piece.choices[0].delta.role) {
+            role = piece.choices[0].delta.role;
+          }
+          if (piece.choices[0].delta.content) {
+            content += piece.choices[0].delta.content;
+          }
+          const message = { role, content };
 
-        return {
-          [data.outputs[0].id]: content,
-          [data.outputs[1].id]: message,
-          [data.outputs[2].id]: A.append(messages, message),
-        };
-      })
-    );
+          return {
+            [data.outputs[0].id]: content,
+            [data.outputs[1].id]: message,
+            [data.outputs[2].id]: A.append(messages, message),
+          };
+        })
+      );
 
-    return concat(
-      obs1,
-      defer(() => {
-        const message = { role, content };
-        messages = A.append(messages, message);
+      return concat(
+        obs1,
+        defer(() => {
+          const message = { role, content };
+          messages = A.append(messages, message);
 
-        variableValueMap[data.outputs[0].id] = content;
-        variableValueMap[data.outputs[1].id] = message;
-        variableValueMap[data.outputs[2].id] = messages;
+          variableValueMap[data.outputs[0].id] = content;
+          variableValueMap[data.outputs[1].id] = message;
+          variableValueMap[data.outputs[2].id] = messages;
 
-        return of({
-          [data.outputs[0].id]: content,
-          [data.outputs[1].id]: message,
-          [data.outputs[2].id]: messages,
-        });
-      })
-    );
+          return of({
+            [data.outputs[0].id]: content,
+            [data.outputs[1].id]: message,
+            [data.outputs[2].id]: messages,
+          });
+        })
+      );
+    } else {
+      return OpenAI.getNonStreamingCompletion({
+        apiKey: openAiApiKey,
+        model: data.model,
+        messages,
+        temperature: data.temperature,
+        stop: data.stop,
+      }).pipe(
+        map((result) => {
+          if (result.isError) {
+            console.error(result.data);
+            throw result.data;
+          }
+
+          const content = result.data.choices[0].message.content;
+          const message = result.data.choices[0].message;
+          messages = A.append(messages, message);
+
+          variableValueMap[data.outputs[0].id] = content;
+          variableValueMap[data.outputs[1].id] = message;
+          variableValueMap[data.outputs[2].id] = messages;
+
+          return {
+            [data.outputs[0].id]: content,
+            [data.outputs[1].id]: message,
+            [data.outputs[2].id]: messages,
+          };
+        }),
+        tap({
+          error: (error) => {
+            if (error instanceof TimeoutError) {
+              console.debug("ERROR: OpenAI API call timed out.");
+            } else {
+              console.debug("ERROR: OpenAI API call errored.", error);
+            }
+          },
+        }),
+        retry(2) // 3 attempts max
+      );
+    }
   });
 }
 

@@ -143,47 +143,53 @@ export const createClientSlice: StateCreator<FlowState, [], [], ClientSlice> = (
         inputVariableMap[inputItem.id] = defaultVariableValueMap[inputItem.id];
       }
 
-      runFlowSubscription = run(edges, nodeConfigs, inputVariableMap).subscribe(
-        {
-          next(data) {
-            switch (data.type) {
-              case RunEventType.VariableValueChanges: {
-                const { changes } = data;
-                for (const [outputId, value] of Object.entries(changes)) {
-                  updateVariableValueMap(outputId as VariableID, value);
-                }
-                break;
+      runFlowSubscription = run(
+        edges,
+        nodeConfigs,
+        inputVariableMap,
+        true
+      ).subscribe({
+        next(data) {
+          switch (data.type) {
+            case RunEventType.VariableValueChanges: {
+              const { changes } = data;
+              for (const [outputId, value] of Object.entries(changes)) {
+                updateVariableValueMap(outputId as VariableID, value);
               }
-              case RunEventType.NodeAugmentChange: {
-                const { nodeId, augmentChange } = data;
-                updateNodeAugment(nodeId, augmentChange);
-                break;
-              }
+              break;
             }
-          },
-          error(e) {
-            console.error(e);
-            setIsRunning(false);
+            case RunEventType.NodeAugmentChange: {
+              const { nodeId, augmentChange } = data;
+              updateNodeAugment(nodeId, augmentChange);
+              break;
+            }
+            case RunEventType.RunStatusChange:
+              // TODO: Refect this in the simple evaluation UI
+              break;
+          }
+        },
+        error(e) {
+          console.error(e);
+          setIsRunning(false);
 
-            mixpanel.track("Finished Simple Evaluation with Error", {
-              flowId: get().spaceId,
-            });
-            posthog.capture("Finished Simple Evaluation with Error", {
-              flowId: get().spaceId,
-            });
-          },
-          complete() {
-            setIsRunning(false);
+          mixpanel.track("Finished Simple Evaluation with Error", {
+            flowId: get().spaceId,
+          });
+          posthog.capture("Finished Simple Evaluation with Error", {
+            flowId: get().spaceId,
+          });
+        },
+        complete() {
+          setIsRunning(false);
 
-            mixpanel.track("Finished Simple Evaluation", {
-              flowId: get().spaceId,
-            });
-            posthog.capture("Finished Simple Evaluation", {
-              flowId: get().spaceId,
-            });
-          },
-        }
-      );
+          mixpanel.track("Finished Simple Evaluation", {
+            flowId: get().spaceId,
+          });
+          posthog.capture("Finished Simple Evaluation", {
+            flowId: get().spaceId,
+          });
+        },
+      });
     },
 
     stopRunningFlow() {

@@ -11,6 +11,7 @@ type ConfigContent = {
   concurrencyLimit: number;
   variableColumnMap: VariableColumnMap;
   generatedResult: GeneratedResult;
+  runStatuses: RunStatuses;
 };
 
 const DEFAULT_CONFIG_CONTENT: ConfigContent = {
@@ -18,6 +19,7 @@ const DEFAULT_CONFIG_CONTENT: ConfigContent = {
   concurrencyLimit: 2,
   variableColumnMap: {},
   generatedResult: [],
+  runStatuses: [],
 };
 
 export type RowIndex = number & { readonly "": unique symbol };
@@ -29,6 +31,8 @@ export type GeneratedResult = Record<
   RowIndex,
   Record<ColumnIndex, FlowOutputVariableMap>
 >;
+
+export type RunStatuses = Record<RowIndex, Record<ColumnIndex, string | null>>;
 
 export type CsvEvaluationPresetSlice = {
   csvEvaluationCurrentPresetId: string | null;
@@ -51,6 +55,9 @@ export type CsvEvaluationPresetSlice = {
   ): void;
   csvEvaluationSetGeneratedResult(
     update: ((prev: GeneratedResult) => GeneratedResult) | GeneratedResult
+  ): void;
+  csvEvaluationSetRunStatuses(
+    update: ((prev: RunStatuses) => RunStatuses) | RunStatuses
   ): void;
 
   // Write
@@ -145,6 +152,27 @@ export const createCsvEvaluationPresetSlice: StateCreator<
       set({
         csvEvaluationConfigContent: D.merge(configContent, {
           generatedResult: update,
+        }),
+      });
+    }
+  },
+  csvEvaluationSetRunStatuses(
+    update: ((prev: RunStatuses) => RunStatuses) | RunStatuses
+  ) {
+    if (G.isFunction(update)) {
+      set((state) => {
+        const configContent = state.csvEvaluationConfigContent;
+        return {
+          csvEvaluationConfigContent: D.merge(configContent, {
+            runStatuses: update(configContent.runStatuses),
+          }),
+        };
+      });
+    } else {
+      const configContent = get().csvEvaluationConfigContent;
+      set({
+        csvEvaluationConfigContent: D.merge(configContent, {
+          runStatuses: update,
         }),
       });
     }

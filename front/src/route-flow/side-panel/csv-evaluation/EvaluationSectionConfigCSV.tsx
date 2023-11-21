@@ -42,6 +42,8 @@ const selector = (state: FlowState) => ({
   setVariableColumnMap: state.csvEvaluationSetVariableColumnMap,
   generatedResult: state.csvEvaluationConfigContent.generatedResult,
   setGeneratedResult: state.csvEvaluationSetGeneratedResult,
+  runStatuses: state.csvEvaluationConfigContent.runStatuses,
+  setRunStatuses: state.csvEvaluationSetRunStatuses,
 });
 
 type Props = {
@@ -64,6 +66,8 @@ export default function EvaluationSectionConfigCSV(props: Props) {
     setVariableColumnMap,
     generatedResult,
     setGeneratedResult,
+    runStatuses,
+    setRunStatuses,
   } = useFlowStore(selector);
 
   useEffect(() => {
@@ -88,8 +92,32 @@ export default function EvaluationSectionConfigCSV(props: Props) {
     );
   }, [props.csvBody.length, repeatCount, setGeneratedResult]);
 
+  useEffect(() => {
+    setRunStatuses(
+      A.makeWithIndex(props.csvBody.length, () =>
+        A.makeWithIndex(repeatCount, () => null)
+      )
+    );
+  }, [props.csvBody.length, repeatCount, setRunStatuses]);
+
   const variableMapTableHeaderRowFirst: ReactNode[] = [];
   const variableMapTableHeaderRowSecond: ReactNode[] = [];
+
+  variableMapTableHeaderRowFirst.push(
+    <th key="status" style={{ textAlign: "center" }} colSpan={repeatCount}>
+      Status
+    </th>
+  );
+
+  if (repeatCount > 1) {
+    for (let i = 0; i < repeatCount; i++) {
+      variableMapTableHeaderRowSecond.push(
+        <th key={`status-${i}`}>Run {i + 1}</th>
+      );
+    }
+  } else {
+    variableMapTableHeaderRowSecond.push(<th key={`status-0`}></th>);
+  }
 
   for (const inputItem of flowInputItems) {
     variableMapTableHeaderRowFirst.push(
@@ -173,6 +201,21 @@ export default function EvaluationSectionConfigCSV(props: Props) {
   for (const [rowIndex, row] of props.csvBody.entries()) {
     const cells: ReactNode[] = [];
 
+    // Columns for "Status"
+    for (let colIndex = 0; colIndex < repeatCount; colIndex++) {
+      const statusValue =
+        runStatuses[rowIndex as RowIndex]?.[colIndex as ColumnIndex] ?? null;
+      cells.push(
+        <td
+          key={`status-${rowIndex}-${colIndex}`}
+          style={{ color: statusValue == null ? "green" : "red" }}
+        >
+          {statusValue ?? "OK"}
+        </td>
+      );
+    }
+
+    // Input columns
     for (const inputItem of flowInputItems) {
       const index = variableColumnMap[inputItem.id];
       cells.push(
@@ -180,6 +223,7 @@ export default function EvaluationSectionConfigCSV(props: Props) {
       );
     }
 
+    // Output columns
     for (const outputItem of flowOutputItems) {
       const index = variableColumnMap[outputItem.id];
       cells.push(
@@ -202,6 +246,7 @@ export default function EvaluationSectionConfigCSV(props: Props) {
       }
     }
 
+    // Add current row to the table
     variableMapTableBodyRows.push(<tr key={rowIndex}>{cells}</tr>);
   }
 
