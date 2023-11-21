@@ -9,13 +9,7 @@ import Header from "./component-common/header/Header";
 import RouteFlow from "./route-flow/RouteFlow";
 import flowLoader from "./route-flow/flowLoader";
 import RootRoute from "./route-root/RootRoute";
-import RouteSpace from "./route-space/RouteSpace";
-import spaceLoader from "./route-space/spaceLoader";
-import {
-  ROOT_PATH,
-  FLOWS_PATH_PATTERN,
-  SPACE_PATH_PATTERN,
-} from "./static/routeConfigs";
+import { ROOT_PATH, FLOWS_PATH_PATTERN } from "./static/routeConfigs";
 import createLoader from "./util/createLoader";
 
 const RootContainer = styled.div`
@@ -42,11 +36,6 @@ const router = createBrowserRouter([
         path: FLOWS_PATH_PATTERN,
         loader: createLoader(flowLoader),
         element: <RouteFlow />,
-      },
-      {
-        path: SPACE_PATH_PATTERN,
-        loader: createLoader(spaceLoader),
-        element: <RouteSpace />,
       },
     ],
   },

@@ -1,7 +1,6 @@
 import styled from "@emotion/styled";
 import Button from "@mui/joy/Button";
 import IconButton from "@mui/joy/IconButton";
-import mixpanel from "mixpanel-browser";
 import posthog from "posthog-js";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
@@ -144,10 +143,7 @@ export default function Header() {
 
   useEffect(() => {
     if (isLoggedIn) {
-      mixpanel.identify(userId);
       posthog.identify(userId, { email });
-    } else {
-      mixpanel.reset();
     }
   }, [email, isLoggedIn, userId]);
 

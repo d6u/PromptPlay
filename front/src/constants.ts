@@ -1,5 +1,3 @@
-export const MIXPANEL_TOKEN = import.meta.env.VITE_MIXPANEL_TOKEN;
-
 export const POSTHOG_TOKEN = import.meta.env.VITE_POSTHOG_TOKEN;
 
 export const API_SERVER_BASE_URL = import.meta.env.VITE_API_SERVER_BASE_URL;

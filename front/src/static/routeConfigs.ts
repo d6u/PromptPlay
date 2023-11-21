@@ -3,12 +3,6 @@ import { ContentVersion } from "../gql/graphql";
 
 export const ROOT_PATH = "/";
 
-export const SPACE_PATH_PATTERN = "/spaces/:spaceId";
-
-export function pathToSpace(spaceId: string) {
-  return `/spaces/${spaceId}`;
-}
-
 export const FLOWS_PATH_PATTERN = "/flows/:spaceId";
 
 export function pathToFlow(spaceId: string) {
@@ -21,7 +15,7 @@ export function pathToCurrentContent(
 ): string {
   switch (contentVersion) {
     case ContentVersion.V1:
-      return pathToSpace(id);
+      throw new Error("V1 is not supported anymore");
     case ContentVersion.V2:
       return pathToFlow(id);
   }

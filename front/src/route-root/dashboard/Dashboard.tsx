@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useMutation } from "urql";
 import { FragmentType, graphql, useFragment } from "../../gql";
 import { ContentVersion } from "../../gql/graphql";
-import { pathToFlow, pathToSpace } from "../../static/routeConfigs";
+import { pathToFlow } from "../../static/routeConfigs";
 import DashboardTile from "./DashboardTile";
 import { DashboardTileType } from "./dashboardTypes";
 
@@ -63,7 +63,7 @@ export default function Dashboard({
 
           switch (space.contentVersion) {
             case ContentVersion.V1:
-              url = pathToSpace(id);
+              url = "";
               break;
             case ContentVersion.V2:
               url = pathToFlow(id);

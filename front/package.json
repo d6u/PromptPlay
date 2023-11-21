@@ -24,7 +24,6 @@
     "graphql": "^16.8.0",
     "immer": "^10.0.2",
     "lodash": "^4.17.21",
-    "mixpanel-browser": "^2.48.1",
     "mustache": "^4.2.0",
     "nanoid": "^4.0.2",
     "papaparse": "^5.4.1",
@@ -36,9 +35,7 @@
     "react-top-loading-bar": "^2.3.1",
     "reactflow": "^11.8.3",
     "rxjs": "^7.8.1",
-    "updeep": "^1.2.4",
     "urql": "^4.0.5",
-    "uuid": "^9.0.0",
     "zustand": "^4.4.1"
   },
   "devDependencies": {
@@ -47,7 +44,6 @@
     "@parcel/watcher": "^2.3.0",
     "@types/chance": "^1.1.4",
     "@types/lodash": "^4.14.197",
-    "@types/mixpanel-browser": "^2.47.5",
     "@types/mustache": "^4.2.2",
     "@types/papaparse": "^5.3.8",
     "@types/ramda": "^0.29.3",

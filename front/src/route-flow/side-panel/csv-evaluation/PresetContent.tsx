@@ -1,7 +1,6 @@
 import { A, D } from "@mobily/ts-belt";
 import { AccordionGroup } from "@mui/joy";
 import { produce } from "immer";
-import mixpanel from "mixpanel-browser";
 import Papa from "papaparse";
 import posthog from "posthog-js";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -135,11 +134,6 @@ export default function PresetContent() {
       return;
     }
 
-    mixpanel.track("Starting CSV Evaluation", {
-      flowId: spaceId,
-      contentRowCount: csvBody.length,
-      repeatCount,
-    });
     posthog.capture("Starting CSV Evaluation", {
       flowId: spaceId,
       contentRowCount: csvBody.length,
@@ -186,9 +180,6 @@ export default function PresetContent() {
         setIsRunning(false);
         runningSubscriptionRef.current = null;
 
-        mixpanel.track("Finished CSV Evaluation with Error", {
-          flowId: spaceId,
-        });
         posthog.capture("Finished CSV Evaluation with Error", {
           flowId: spaceId,
         });
@@ -197,7 +188,6 @@ export default function PresetContent() {
         setIsRunning(false);
         runningSubscriptionRef.current = null;
 
-        mixpanel.track("Finished CSV Evaluation", { flowId: spaceId });
         posthog.capture("Finished CSV Evaluation", {
           flowId: spaceId,
         });
