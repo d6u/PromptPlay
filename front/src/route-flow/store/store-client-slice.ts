@@ -1,6 +1,5 @@
 import { D } from "@mobily/ts-belt";
 import { produce } from "immer";
-import mixpanel from "mixpanel-browser";
 import posthog from "posthog-js";
 import { Subscription } from "rxjs";
 import { StateCreator } from "zustand";
@@ -118,7 +117,6 @@ export const createClientSlice: StateCreator<FlowState, [], [], ClientSlice> = (
     },
 
     runFlow() {
-      mixpanel.track("Starting Simple Evaluation", { flowId: get().spaceId });
       posthog.capture("Starting Simple Evaluation", { flowId: get().spaceId });
 
       runFlowSubscription?.unsubscribe();
@@ -172,9 +170,6 @@ export const createClientSlice: StateCreator<FlowState, [], [], ClientSlice> = (
           console.error(e);
           setIsRunning(false);
 
-          mixpanel.track("Finished Simple Evaluation with Error", {
-            flowId: get().spaceId,
-          });
           posthog.capture("Finished Simple Evaluation with Error", {
             flowId: get().spaceId,
           });
@@ -182,9 +177,6 @@ export const createClientSlice: StateCreator<FlowState, [], [], ClientSlice> = (
         complete() {
           setIsRunning(false);
 
-          mixpanel.track("Finished Simple Evaluation", {
-            flowId: get().spaceId,
-          });
           posthog.capture("Finished Simple Evaluation", {
             flowId: get().spaceId,
           });
