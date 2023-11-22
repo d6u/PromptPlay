@@ -18,6 +18,8 @@ type GetCompletionArguments = {
   temperature: number;
   messages: ChatGPTMessage[];
   stop: string[];
+  seed?: number | null;
+  responseFormat?: { type: "json_object" } | null;
 };
 
 export function getStreamingCompletion({
@@ -26,6 +28,8 @@ export function getStreamingCompletion({
   temperature,
   messages,
   stop,
+  seed,
+  responseFormat,
 }: GetCompletionArguments): Observable<
   ChatCompletionStreamResponse | ChatCompletionErrorResponse
 > {
@@ -41,6 +45,8 @@ export function getStreamingCompletion({
       temperature,
       stop,
       stream: true,
+      seed,
+      response_format: responseFormat,
     }),
   };
 
@@ -69,6 +75,8 @@ export function getNonStreamingCompletion({
   temperature,
   messages,
   stop,
+  seed,
+  responseFormat,
 }: GetCompletionArguments): Observable<
   | { isError: false; data: ChatCompletionResponse }
   | { isError: true; data: ChatCompletionErrorResponse }
@@ -84,6 +92,8 @@ export function getNonStreamingCompletion({
       messages,
       temperature,
       stop,
+      seed,
+      response_format: responseFormat,
     }),
   };
 

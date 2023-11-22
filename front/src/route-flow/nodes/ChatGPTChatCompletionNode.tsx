@@ -1,10 +1,11 @@
+import { Checkbox } from "@mui/joy";
 import FormControl from "@mui/joy/FormControl";
 import FormHelperText from "@mui/joy/FormHelperText";
 import FormLabel from "@mui/joy/FormLabel";
 import Input from "@mui/joy/Input";
 import Option from "@mui/joy/Option";
 import Select from "@mui/joy/Select";
-import { useContext, useMemo, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { Position, useNodeId } from "reactflow";
 import { NEW_LINE_SYMBOL } from "../../integrations/openai";
 import {
@@ -86,6 +87,18 @@ export default function ChatGPTChatCompletionNode() {
     () => nodeConfig?.temperature ?? ""
   );
   const [stop, setStop] = useState(() => nodeConfig!.stop);
+
+  // --- Field: seed ---
+  const [seed, setSeed] = useState<string>(
+    () => nodeConfig?.seed?.toString() ?? ""
+  );
+  useEffect(() => {
+    if (nodeConfig?.seed != null) {
+      setSeed(nodeConfig.seed.toString());
+    } else {
+      setSeed("");
+    }
+  }, [nodeConfig?.seed]);
 
   if (!nodeConfig) {
     return null;
@@ -212,6 +225,64 @@ export default function ChatGPTChatCompletionNode() {
             ) : (
               <InputReadonly type="number" value={temperature} />
             )}
+          </FormControl>
+        </Section>
+        <Section>
+          <FormControl>
+            <FormLabel>Seed (Optional, Beta)</FormLabel>
+            {isCurrentUserOwner ? (
+              <Input
+                type="number"
+                slotProps={{ input: { step: 1 } }}
+                value={seed}
+                onChange={(event) => {
+                  console.log(JSON.stringify(event.target.value));
+                  setSeed(event.target.value);
+                }}
+                onKeyUp={(e) => {
+                  if (e.key === "Enter") {
+                    let seedInt: number | null = null;
+                    if (seed !== "") {
+                      seedInt = Math.trunc(Number(seed));
+                    }
+                    updateNodeConfig(nodeId, { seed: seedInt });
+                  }
+                }}
+                onBlur={() => {
+                  let seedInt: number | null = null;
+                  if (seed !== "") {
+                    seedInt = Math.trunc(Number(seed));
+                  }
+                  updateNodeConfig(nodeId, { seed: seedInt });
+                }}
+              />
+            ) : (
+              <InputReadonly type="number" value={temperature} />
+            )}
+          </FormControl>
+        </Section>
+        <Section>
+          <FormControl>
+            <FormLabel>Use JSON Response Format</FormLabel>
+            <Checkbox
+              disabled={!isCurrentUserOwner}
+              size="sm"
+              variant="outlined"
+              checked={nodeConfig.responseFormat != null}
+              onChange={(event) => {
+                if (!isCurrentUserOwner) {
+                  return;
+                }
+
+                if (event.target.checked) {
+                  updateNodeConfig(nodeId, {
+                    responseFormat: { type: "json_object" },
+                  });
+                } else {
+                  updateNodeConfig(nodeId, { responseFormat: null });
+                }
+              }}
+            />
           </FormControl>
         </Section>
         <Section>

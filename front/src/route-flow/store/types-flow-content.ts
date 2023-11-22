@@ -106,6 +106,8 @@ export type ChatGPTChatCompletionNodeConfig = NodeConfigCommon & {
   inputs: NodeInputItem[];
   model: OpenAIChatModel;
   temperature: number;
+  seed?: number | null;
+  responseFormat?: { type: "json_object" } | null;
   stop: Array<string>;
   outputs: NodeOutputItem[];
 };

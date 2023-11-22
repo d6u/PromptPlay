@@ -439,38 +439,40 @@ function handleChatGPTChatNode(
     let role = "assistant";
     let content = "";
 
+    const options = {
+      apiKey: openAiApiKey,
+      model: data.model,
+      messages,
+      temperature: data.temperature,
+      stop: data.stop,
+      seed: data.seed,
+      responseFormat: data.responseFormat,
+    };
+
     if (useStreaming) {
-      const obs1 = OpenAI.getStreamingCompletion({
-        apiKey: openAiApiKey,
-        model: data.model,
-        messages,
-        temperature: data.temperature,
-        stop: data.stop,
-      }).pipe(
-        map((piece) => {
-          if ("error" in piece) {
-            // console.error(piece.error.message);
-            throw piece.error.message;
-          }
-
-          if (piece.choices[0].delta.role) {
-            role = piece.choices[0].delta.role;
-          }
-          if (piece.choices[0].delta.content) {
-            content += piece.choices[0].delta.content;
-          }
-          const message = { role, content };
-
-          return {
-            [data.outputs[0].id]: content,
-            [data.outputs[1].id]: message,
-            [data.outputs[2].id]: A.append(messages, message),
-          };
-        })
-      );
-
       return concat(
-        obs1,
+        OpenAI.getStreamingCompletion(options).pipe(
+          map((piece) => {
+            if ("error" in piece) {
+              // console.error(piece.error.message);
+              throw piece.error.message;
+            }
+
+            if (piece.choices[0].delta.role) {
+              role = piece.choices[0].delta.role;
+            }
+            if (piece.choices[0].delta.content) {
+              content += piece.choices[0].delta.content;
+            }
+            const message = { role, content };
+
+            return {
+              [data.outputs[0].id]: content,
+              [data.outputs[1].id]: message,
+              [data.outputs[2].id]: A.append(messages, message),
+            };
+          })
+        ),
         defer(() => {
           const message = { role, content };
           messages = A.append(messages, message);
@@ -487,13 +489,7 @@ function handleChatGPTChatNode(
         })
       );
     } else {
-      return OpenAI.getNonStreamingCompletion({
-        apiKey: openAiApiKey,
-        model: data.model,
-        messages,
-        temperature: data.temperature,
-        stop: data.stop,
-      }).pipe(
+      return OpenAI.getNonStreamingCompletion(options).pipe(
         map((result) => {
           if (result.isError) {
             console.error(result.data);
