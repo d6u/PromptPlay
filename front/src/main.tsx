@@ -1,7 +1,7 @@
 import posthog from "posthog-js";
 import React from "react";
 import ReactDOM from "react-dom/client";
-import App from "./App.tsx";
+import App from "./components/App.tsx";
 import { POSTHOG_TOKEN } from "./constants.ts";
 
 posthog.init(POSTHOG_TOKEN, {
