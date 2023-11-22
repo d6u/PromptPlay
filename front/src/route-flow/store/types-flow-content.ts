@@ -106,6 +106,7 @@ export type ChatGPTChatCompletionNodeConfig = NodeConfigCommon & {
   inputs: NodeInputItem[];
   model: OpenAIChatModel;
   temperature: number;
+  seed?: number | null;
   stop: Array<string>;
   outputs: NodeOutputItem[];
 };

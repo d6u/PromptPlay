@@ -4,7 +4,7 @@ import FormLabel from "@mui/joy/FormLabel";
 import Input from "@mui/joy/Input";
 import Option from "@mui/joy/Option";
 import Select from "@mui/joy/Select";
-import { useContext, useMemo, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { Position, useNodeId } from "reactflow";
 import { NEW_LINE_SYMBOL } from "../../integrations/openai";
 import {
@@ -86,6 +86,18 @@ export default function ChatGPTChatCompletionNode() {
     () => nodeConfig?.temperature ?? ""
   );
   const [stop, setStop] = useState(() => nodeConfig!.stop);
+
+  // --- Field: Seed ---
+  const [seed, setSeed] = useState<string>(
+    () => nodeConfig?.seed?.toString() ?? ""
+  );
+  useEffect(() => {
+    if (nodeConfig?.seed != null) {
+      setSeed(nodeConfig.seed.toString());
+    } else {
+      setSeed("");
+    }
+  }, [nodeConfig?.seed]);
 
   if (!nodeConfig) {
     return null;
@@ -207,6 +219,40 @@ export default function ChatGPTChatCompletionNode() {
                 }}
                 onBlur={() => {
                   updateNodeConfig(nodeId, { temperature: temperature || 1 });
+                }}
+              />
+            ) : (
+              <InputReadonly type="number" value={temperature} />
+            )}
+          </FormControl>
+        </Section>
+        <Section>
+          <FormControl>
+            <FormLabel>Seed (Optional, Beta)</FormLabel>
+            {isCurrentUserOwner ? (
+              <Input
+                type="number"
+                slotProps={{ input: { step: 1 } }}
+                value={seed}
+                onChange={(event) => {
+                  console.log(JSON.stringify(event.target.value));
+                  setSeed(event.target.value);
+                }}
+                onKeyUp={(e) => {
+                  if (e.key === "Enter") {
+                    let seedInt: number | null = null;
+                    if (seed !== "") {
+                      seedInt = Math.trunc(Number(seed));
+                    }
+                    updateNodeConfig(nodeId, { seed: seedInt });
+                  }
+                }}
+                onBlur={() => {
+                  let seedInt: number | null = null;
+                  if (seed !== "") {
+                    seedInt = Math.trunc(Number(seed));
+                  }
+                  updateNodeConfig(nodeId, { seed: seedInt });
                 }}
               />
             ) : (
