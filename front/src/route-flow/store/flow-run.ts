@@ -446,6 +446,8 @@ function handleChatGPTChatNode(
         messages,
         temperature: data.temperature,
         stop: data.stop,
+        seed: data.seed,
+        responseFormat: data.responseFormat,
       }).pipe(
         map((piece) => {
           if ("error" in piece) {
