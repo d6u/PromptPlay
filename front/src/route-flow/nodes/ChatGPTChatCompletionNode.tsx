@@ -1,3 +1,4 @@
+import { Checkbox } from "@mui/joy";
 import FormControl from "@mui/joy/FormControl";
 import FormHelperText from "@mui/joy/FormHelperText";
 import FormLabel from "@mui/joy/FormLabel";
@@ -87,7 +88,7 @@ export default function ChatGPTChatCompletionNode() {
   );
   const [stop, setStop] = useState(() => nodeConfig!.stop);
 
-  // --- Field: Seed ---
+  // --- Field: seed ---
   const [seed, setSeed] = useState<string>(
     () => nodeConfig?.seed?.toString() ?? ""
   );
@@ -258,6 +259,30 @@ export default function ChatGPTChatCompletionNode() {
             ) : (
               <InputReadonly type="number" value={temperature} />
             )}
+          </FormControl>
+        </Section>
+        <Section>
+          <FormControl>
+            <FormLabel>Use JSON Response Format</FormLabel>
+            <Checkbox
+              disabled={!isCurrentUserOwner}
+              size="sm"
+              variant="outlined"
+              checked={nodeConfig.responseFormat != null}
+              onChange={(event) => {
+                if (!isCurrentUserOwner) {
+                  return;
+                }
+
+                if (event.target.checked) {
+                  updateNodeConfig(nodeId, {
+                    responseFormat: { type: "json_object" },
+                  });
+                } else {
+                  updateNodeConfig(nodeId, { responseFormat: null });
+                }
+              }}
+            />
           </FormControl>
         </Section>
         <Section>
