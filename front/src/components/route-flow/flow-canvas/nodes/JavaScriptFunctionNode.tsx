@@ -6,7 +6,7 @@ import { adjust, append, assoc, remove } from "ramda";
 import { useContext, useMemo, useState } from "react";
 import { Position, useUpdateNodeInternals, useNodeId } from "reactflow";
 import {
-  InputID,
+  NodeInputID,
   JavaScriptFunctionNodeConfig,
   NodeID,
   NodeInputItem,
@@ -126,7 +126,7 @@ export default function JavaScriptFunctionNode() {
             <AddVariableButton
               onClick={() => {
                 const newInputs = append<NodeInputItem>({
-                  id: `${nodeId}/${randomId()}` as InputID,
+                  id: `${nodeId}/${randomId()}` as NodeInputID,
                   name: chance.word(),
                 })(inputs);
 

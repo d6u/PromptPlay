@@ -8,7 +8,7 @@ import { adjust, append, assoc, remove } from "ramda";
 import { useContext, useEffect, useMemo, useState } from "react";
 import { Position, useUpdateNodeInternals, useNodeId } from "reactflow";
 import {
-  InputID,
+  NodeInputID,
   NodeID,
   NodeInputItem,
   NodeType,
@@ -115,7 +115,7 @@ export default function TextTemplateNode() {
             <AddVariableButton
               onClick={() => {
                 const newInputs = append<NodeInputItem>({
-                  id: `${nodeId}/${randomId()}` as InputID,
+                  id: `${nodeId}/${randomId()}` as NodeInputID,
                   name: chance.word(),
                 })(inputs);
 

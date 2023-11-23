@@ -11,7 +11,7 @@ import {
 import {
   LocalEdge,
   NodeConfigs,
-  OutputID,
+  NodeOutputID,
 } from "../../../../../models/flow-content-types";
 import {
   FlowInputVariableMap,
@@ -48,7 +48,7 @@ export function runForEachRow({
 
           for (const [inputId, colIndex] of Object.entries(variableColumnMap)) {
             const value = colIndex != null ? row[colIndex] : null;
-            inputVariableMap[inputId as OutputID] = value;
+            inputVariableMap[inputId as NodeOutputID] = value;
           }
 
           return inputVariableMap;

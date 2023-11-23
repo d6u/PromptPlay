@@ -8,8 +8,8 @@ import {
   NodeOutputItem,
   FlowInputItem,
   FlowOutputItem,
-  InputID,
-  OutputID,
+  NodeInputID,
+  NodeOutputID,
 } from "../../../models/flow-content-types";
 
 export enum ChangeEventType {
@@ -174,19 +174,19 @@ export type ChangeEvent =
     }
   | {
       type: ChangeEventType.VAR_INPUT_REMOVED;
-      variableId: InputID;
+      variableId: NodeInputID;
     }
   | {
       type: ChangeEventType.VAR_OUTPUT_REMOVED;
-      variableId: OutputID;
+      variableId: NodeOutputID;
     }
   | {
       type: ChangeEventType.VAR_FLOW_INPUT_REMOVED;
-      variableId: OutputID;
+      variableId: NodeOutputID;
     }
   | {
       type: ChangeEventType.VAR_FLOW_OUTPUT_REMOVED;
-      variableId: InputID;
+      variableId: NodeInputID;
     }
   | {
       type: ChangeEventType.VARMAP_UPDATED;

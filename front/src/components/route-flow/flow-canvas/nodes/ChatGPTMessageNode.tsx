@@ -12,7 +12,7 @@ import { Position, useUpdateNodeInternals, useNodeId } from "reactflow";
 import { ChatGPTMessageRole } from "../../../../integrations/openai";
 import {
   ChatGPTMessageNodeConfig,
-  InputID,
+  NodeInputID,
   NodeID,
   NodeInputItem,
   NodeType,
@@ -142,7 +142,7 @@ export default function ChatGPTMessageNode() {
             <AddVariableButton
               onClick={() => {
                 const newInputs = append<NodeInputItem>({
-                  id: `${nodeId}/${randomId()}` as InputID,
+                  id: `${nodeId}/${randomId()}` as NodeInputID,
                   name: chance.word(),
                 })(inputs);
 

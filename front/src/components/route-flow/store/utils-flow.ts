@@ -3,14 +3,14 @@ import Chance from "chance";
 import { produce } from "immer";
 import { ChatGPTMessageRole } from "../../../integrations/openai";
 import {
-  InputID,
+  NodeInputID,
   InputValueType,
   NodeConfig,
   NodeConfigs,
   NodeID,
   NodeType,
   OpenAIChatModel,
-  OutputID,
+  NodeOutputID,
   OutputNodeConfig,
   OutputValueType,
   ServerEdge,
@@ -40,7 +40,7 @@ export function createNodeConfig(node: LocalNode): NodeConfig {
         nodeType: NodeType.InputNode,
         outputs: [
           {
-            id: `${node.id}/${randomId()}` as OutputID,
+            id: `${node.id}/${randomId()}` as NodeOutputID,
             name: chance.word(),
             valueType: InputValueType.String,
           },
@@ -53,7 +53,7 @@ export function createNodeConfig(node: LocalNode): NodeConfig {
         nodeType: NodeType.OutputNode,
         inputs: [
           {
-            id: `${node.id}/${randomId()}` as InputID,
+            id: `${node.id}/${randomId()}` as NodeInputID,
             name: chance.word(),
           },
         ],
@@ -67,7 +67,7 @@ export function createNodeConfig(node: LocalNode): NodeConfig {
         javaScriptCode: 'return "Hello, World!"',
         outputs: [
           {
-            id: `${node.id}/output` as OutputID,
+            id: `${node.id}/output` as NodeOutputID,
             name: "output",
           },
         ],
@@ -79,11 +79,11 @@ export function createNodeConfig(node: LocalNode): NodeConfig {
         nodeType: NodeType.ChatGPTMessageNode,
         inputs: [
           {
-            id: `${node.id}/messages_in` as InputID,
+            id: `${node.id}/messages_in` as NodeInputID,
             name: "messages",
           },
           {
-            id: `${node.id}/${randomId()}` as InputID,
+            id: `${node.id}/${randomId()}` as NodeInputID,
             name: "topic",
           },
         ],
@@ -91,11 +91,11 @@ export function createNodeConfig(node: LocalNode): NodeConfig {
         content: "Write a poem about {{topic}} in fewer than 20 words.",
         outputs: [
           {
-            id: `${node.id}/message` as OutputID,
+            id: `${node.id}/message` as NodeOutputID,
             name: "message",
           },
           {
-            id: `${node.id}/messages_out` as OutputID,
+            id: `${node.id}/messages_out` as NodeOutputID,
             name: "messages",
           },
         ],
@@ -107,7 +107,7 @@ export function createNodeConfig(node: LocalNode): NodeConfig {
         nodeType: NodeType.ChatGPTChatCompletionNode,
         inputs: [
           {
-            id: `${node.id}/messages_in` as InputID,
+            id: `${node.id}/messages_in` as NodeInputID,
             name: "messages",
           },
         ],
@@ -116,15 +116,15 @@ export function createNodeConfig(node: LocalNode): NodeConfig {
         stop: [],
         outputs: [
           {
-            id: `${node.id}/content` as OutputID,
+            id: `${node.id}/content` as NodeOutputID,
             name: "content",
           },
           {
-            id: `${node.id}/message` as OutputID,
+            id: `${node.id}/message` as NodeOutputID,
             name: "message",
           },
           {
-            id: `${node.id}/messages_out` as OutputID,
+            id: `${node.id}/messages_out` as NodeOutputID,
             name: "messages",
           },
         ],
@@ -136,14 +136,14 @@ export function createNodeConfig(node: LocalNode): NodeConfig {
         nodeType: NodeType.TextTemplate,
         inputs: [
           {
-            id: `${node.id}/${randomId()}` as InputID,
+            id: `${node.id}/${randomId()}` as NodeInputID,
             name: "topic",
           },
         ],
         content: "Write a poem about {{topic}} in fewer than 20 words.",
         outputs: [
           {
-            id: `${node.id}/content` as OutputID,
+            id: `${node.id}/content` as NodeOutputID,
             name: "content",
           },
         ],
@@ -155,14 +155,14 @@ export function createNodeConfig(node: LocalNode): NodeConfig {
         nodeType: NodeType.HuggingFaceInference,
         inputs: [
           {
-            id: `${node.id}/parameters` as InputID,
+            id: `${node.id}/parameters` as NodeInputID,
             name: "parameters",
           },
         ],
         model: "gpt2",
         outputs: [
           {
-            id: `${node.id}/output` as OutputID,
+            id: `${node.id}/output` as NodeOutputID,
             name: "output",
           },
         ],
@@ -174,14 +174,14 @@ export function createNodeConfig(node: LocalNode): NodeConfig {
         nodeType: NodeType.ElevenLabs,
         inputs: [
           {
-            id: `${node.id}/text` as InputID,
+            id: `${node.id}/text` as NodeInputID,
             name: "text",
           },
         ],
         voiceId: "",
         outputs: [
           {
-            id: `${node.id}/audio` as OutputID,
+            id: `${node.id}/audio` as NodeOutputID,
             name: "audio",
             valueType: OutputValueType.Audio,
           },

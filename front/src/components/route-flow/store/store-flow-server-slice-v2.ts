@@ -20,7 +20,7 @@ import {
   FlowContent,
   FlowInputItem,
   FlowOutputItem,
-  InputID,
+  NodeInputID,
   InputNodeConfig,
   InputValueType,
   LocalEdge,
@@ -30,7 +30,7 @@ import {
   NodeInputItem,
   NodeOutputItem,
   NodeType,
-  OutputID,
+  NodeOutputID,
   OutputNodeConfig,
   OutputValueType,
   VariableID,
@@ -585,7 +585,7 @@ export const createFlowServerSliceV2: StateCreator<
       const nodeConfig = draft[nodeId]!;
       if ("inputs" in nodeConfig) {
         nodeConfig.inputs.push({
-          id: `${nodeId}/${randomId()}` as InputID,
+          id: `${nodeId}/${randomId()}` as NodeInputID,
           name: chance.word(),
         });
       }
@@ -603,7 +603,7 @@ export const createFlowServerSliceV2: StateCreator<
       const nodeConfig = draft[nodeId]!;
       if (nodeConfig.nodeType === NodeType.InputNode) {
         nodeConfig.outputs.push({
-          id: `${nodeId}/${randomId()}` as OutputID,
+          id: `${nodeId}/${randomId()}` as NodeOutputID,
           name: chance.word(),
           valueType: InputValueType.String,
         });
@@ -811,7 +811,7 @@ export const createFlowServerSliceV2: StateCreator<
   }
 
   function processInputVariableRemoved(
-    inputVariableId: InputID
+    inputVariableId: NodeInputID
   ): ChangeEvent[] {
     const events: ChangeEvent[] = [];
 
@@ -850,7 +850,7 @@ export const createFlowServerSliceV2: StateCreator<
   }
 
   function processOutputVariableRemoved(
-    outputVariableId: OutputID
+    outputVariableId: NodeOutputID
   ): ChangeEvent[] {
     const events: ChangeEvent[] = [];
 
@@ -889,7 +889,7 @@ export const createFlowServerSliceV2: StateCreator<
   }
 
   function processVariableFlowInputRemoved(
-    variableId: OutputID
+    variableId: NodeOutputID
   ): ChangeEvent[] {
     const events: ChangeEvent[] = [];
 
@@ -928,7 +928,7 @@ export const createFlowServerSliceV2: StateCreator<
   }
 
   function processVariableFlowOutputRemoved(
-    variableId: InputID
+    variableId: NodeInputID
   ): ChangeEvent[] {
     const events: ChangeEvent[] = [];
 
@@ -1187,7 +1187,7 @@ export const createFlowServerSliceV2: StateCreator<
     const nodeConfigs = produce(get().nodeConfigs, (draft) => {
       const nodeConfig = draft[nodeId] as InputNodeConfig;
       nodeConfig.outputs.push({
-        id: `${nodeId}/${randomId()}` as OutputID,
+        id: `${nodeId}/${randomId()}` as NodeOutputID,
         name: chance.word(),
         valueType: InputValueType.String,
       });
@@ -1208,7 +1208,7 @@ export const createFlowServerSliceV2: StateCreator<
     const nodeConfigs = produce(get().nodeConfigs, (draft) => {
       const nodeConfig = draft[nodeId] as OutputNodeConfig;
       nodeConfig.inputs.push({
-        id: `${nodeId}/${randomId()}` as InputID,
+        id: `${nodeId}/${randomId()}` as NodeInputID,
         name: chance.word(),
       });
     });

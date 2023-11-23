@@ -9,7 +9,7 @@ import {
   InputValueType,
   NodeID,
   NodeType,
-  OutputID,
+  NodeOutputID,
 } from "../../../../models/flow-content-types";
 import randomId from "../../../../utils/randomId";
 import FlowContext from "../../FlowContext";
@@ -93,7 +93,7 @@ export default function InputNode() {
             <AddVariableButton
               onClick={() => {
                 const newOutputs = append<FlowInputItem>({
-                  id: `${nodeId}/${randomId()}` as OutputID,
+                  id: `${nodeId}/${randomId()}` as NodeOutputID,
                   name: chance.word(),
                   valueType: InputValueType.String,
                 })(outputs);

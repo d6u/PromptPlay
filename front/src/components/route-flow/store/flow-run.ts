@@ -27,14 +27,14 @@ import {
   ChatGPTMessageNodeConfig,
   ElevenLabsNodeConfig,
   HuggingFaceInferenceNodeConfig,
-  InputID,
+  NodeInputID,
   JavaScriptFunctionNodeConfig,
   LocalEdge,
   NodeConfig,
   NodeConfigs,
   NodeID,
   NodeType,
-  OutputID,
+  NodeOutputID,
   OutputNodeConfig,
   TextTemplateNodeConfig,
   VariableValueMap,
@@ -51,9 +51,9 @@ export enum RunEventType {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type FlowInputVariableMap = Record<OutputID, any>;
+export type FlowInputVariableMap = Record<NodeOutputID, any>;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type FlowOutputVariableMap = Record<InputID, any>;
+export type FlowOutputVariableMap = Record<NodeInputID, any>;
 
 export type RunEvent =
   | VariableValueChangeEvent
@@ -91,7 +91,8 @@ export function run(
     nodeIndegree[nodeId] = 0;
   }
 
-  const inputIdToOutputIdMap: Record<InputID, OutputID | undefined> = {};
+  const inputIdToOutputIdMap: Record<NodeInputID, NodeOutputID | undefined> =
+    {};
   const outputIdToValueMap: FlowInputVariableMap = { ...inputVariableMap };
 
   for (const edge of edges) {
@@ -306,7 +307,7 @@ export function run(
 
 function handleOutputNode(
   data: OutputNodeConfig,
-  inputIdToOutputIdMap: Record<InputID, OutputID | undefined>,
+  inputIdToOutputIdMap: Record<NodeInputID, NodeOutputID | undefined>,
   variableValueMap: VariableValueMap
 ): Observable<VariableValueMap> {
   const changes: VariableValueMap = {};
@@ -325,7 +326,7 @@ function handleOutputNode(
 
 function handleJavaScriptFunctionNode(
   data: JavaScriptFunctionNodeConfig,
-  inputIdToOutputIdMap: Record<InputID, OutputID | undefined>,
+  inputIdToOutputIdMap: Record<NodeInputID, NodeOutputID | undefined>,
   variableValueMap: VariableValueMap
 ): Observable<VariableValueMap> {
   return defer(async () => {
@@ -357,7 +358,7 @@ function handleJavaScriptFunctionNode(
 
 function handleChatGPTMessageNode(
   data: ChatGPTMessageNodeConfig,
-  inputIdToOutputIdMap: Record<InputID, OutputID | undefined>,
+  inputIdToOutputIdMap: Record<NodeInputID, NodeOutputID | undefined>,
   variableValueMap: VariableValueMap
 ): Observable<VariableValueMap> {
   // Prepare inputs
@@ -403,7 +404,7 @@ function handleChatGPTMessageNode(
 
 function handleChatGPTChatNode(
   data: ChatGPTChatCompletionNodeConfig,
-  inputIdToOutputIdMap: Record<InputID, OutputID | undefined>,
+  inputIdToOutputIdMap: Record<NodeInputID, NodeOutputID | undefined>,
   variableValueMap: VariableValueMap,
   useStreaming: boolean
 ): Observable<VariableValueMap> {
@@ -527,7 +528,7 @@ function handleChatGPTChatNode(
 
 function handleTextTemplateNode(
   data: TextTemplateNodeConfig,
-  inputIdToOutputIdMap: Record<InputID, OutputID | undefined>,
+  inputIdToOutputIdMap: Record<NodeInputID, NodeOutputID | undefined>,
   variableValueMap: VariableValueMap
 ): Observable<VariableValueMap> {
   return defer(() => {
@@ -566,7 +567,7 @@ function handleTextTemplateNode(
 
 function handleHuggingFaceInferenceNode(
   data: HuggingFaceInferenceNodeConfig,
-  inputIdToOutputIdMap: Record<InputID, OutputID | undefined>,
+  inputIdToOutputIdMap: Record<NodeInputID, NodeOutputID | undefined>,
   variableValueMap: VariableValueMap
 ): Observable<VariableValueMap> {
   return defer(() => {
@@ -625,7 +626,7 @@ function handleHuggingFaceInferenceNode(
 
 function handleElevenLabsNode(
   data: ElevenLabsNodeConfig,
-  inputIdToOutputIdMap: Record<InputID, OutputID | undefined>,
+  inputIdToOutputIdMap: Record<NodeInputID, NodeOutputID | undefined>,
   variableValueMap: VariableValueMap
 ): Observable<VariableValueMap> {
   return defer(() => {

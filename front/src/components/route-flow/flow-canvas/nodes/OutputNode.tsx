@@ -5,7 +5,7 @@ import { useContext, useMemo, useState } from "react";
 import { Position, useUpdateNodeInternals, useNodeId } from "reactflow";
 import {
   FlowOutputItem,
-  InputID,
+  NodeInputID,
   NodeID,
   NodeType,
   OutputNodeConfig,
@@ -101,7 +101,7 @@ export default function OutputNode() {
             <AddVariableButton
               onClick={() => {
                 const newInputs = append<FlowOutputItem>({
-                  id: `${nodeId}/${randomId()}` as InputID,
+                  id: `${nodeId}/${randomId()}` as NodeInputID,
                   name: chance.word(),
                 })(inputs);
 
