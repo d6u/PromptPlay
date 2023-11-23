@@ -6,6 +6,13 @@ import {
   V3FlowContent,
   LocalEdge,
   LocalNode,
+  VariableType,
+  NodeInputVariableConfig,
+  NodeOutputVariableConfig,
+  FlowInputVariableConfig,
+  FlowOutputVariableConfig,
+  VariableConfigs,
+  NodeID,
 } from "../../../models/flow-content-types";
 import { client } from "../../../state/urql";
 import { toRxObservableSingle } from "../../../utils/graphql-utils";
@@ -55,4 +62,23 @@ export async function saveSpaceContentV3(
     spaceId: spaceId,
     contentV3: JSON.stringify(contentV3),
   });
+}
+
+type VariableTypeToVariableConfigTypeMap = {
+  [VariableType.NodeInput]: NodeInputVariableConfig;
+  [VariableType.NodeOutput]: NodeOutputVariableConfig;
+  [VariableType.FlowInput]: FlowInputVariableConfig;
+  [VariableType.FlowOutput]: FlowOutputVariableConfig;
+};
+
+export function selectVariables<
+  T extends VariableType,
+  R = VariableTypeToVariableConfigTypeMap[T]
+>(nodeId: NodeID, type: T, variableConfigs: VariableConfigs): R[] {
+  return Object.values(variableConfigs)
+    .filter(
+      (variableConfig) =>
+        variableConfig.nodeId === nodeId && variableConfig.type === type
+    )
+    .sort((a, b) => a.index - b.index) as R[];
 }

@@ -77,8 +77,8 @@ export function convertV2ContentToV3Content(
     switch (nodeConfig.nodeType) {
       case NodeType.InputNode: {
         for (const [index, flowInput] of nodeConfig.outputs.entries()) {
-          variableConfigs[asVariableIDV3(flowInput.id)] = {
-            id: asVariableIDV3(flowInput.id),
+          variableConfigs[asV3VariableID(flowInput.id)] = {
+            id: asV3VariableID(flowInput.id),
             nodeId: nodeId as NodeID,
             type: VariableType.FlowInput,
             index,
@@ -90,8 +90,8 @@ export function convertV2ContentToV3Content(
       }
       case NodeType.OutputNode: {
         for (const [index, flowOutput] of nodeConfig.inputs.entries()) {
-          variableConfigs[asVariableIDV3(flowOutput.id)] = {
-            id: asVariableIDV3(flowOutput.id),
+          variableConfigs[asV3VariableID(flowOutput.id)] = {
+            id: asV3VariableID(flowOutput.id),
             nodeId: nodeId as NodeID,
             type: VariableType.FlowOutput,
             index,
@@ -111,8 +111,8 @@ export function convertV2ContentToV3Content(
       case NodeType.HuggingFaceInference:
       case NodeType.ElevenLabs: {
         for (const [index, input] of nodeConfig.inputs.entries()) {
-          variableConfigs[asVariableIDV3(input.id)] = {
-            id: asVariableIDV3(input.id),
+          variableConfigs[asV3VariableID(input.id)] = {
+            id: asV3VariableID(input.id),
             nodeId: nodeId as NodeID,
             type: VariableType.NodeInput,
             index,
@@ -120,10 +120,10 @@ export function convertV2ContentToV3Content(
           };
         }
         for (const [index, output] of nodeConfig.outputs.entries()) {
-          variableConfigs[asVariableIDV3(output.id)] = {
-            id: asVariableIDV3(output.id),
+          variableConfigs[asV3VariableID(output.id)] = {
+            id: asV3VariableID(output.id),
             nodeId: nodeId as NodeID,
-            type: VariableType.NodeInput,
+            type: VariableType.NodeOutput,
             index,
             name: output.name,
           };
@@ -142,6 +142,6 @@ export function convertV2ContentToV3Content(
   };
 }
 
-function asVariableIDV3(id: VariableID): V3VariableID {
+export function asV3VariableID(id: VariableID): V3VariableID {
   return id as unknown as V3VariableID;
 }

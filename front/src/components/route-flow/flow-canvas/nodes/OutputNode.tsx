@@ -9,10 +9,13 @@ import {
   NodeID,
   NodeType,
   OutputNodeConfig,
+  V3OutputNodeConfig,
+  VariableType,
 } from "../../../../models/flow-content-types";
 import randomId from "../../../../utils/randomId";
 import FlowContext from "../../FlowContext";
 import { useFlowStore } from "../../store/store-flow";
+import { selectVariables } from "../../store/store-utils";
 import { FlowState } from "../../store/types-local-state";
 import { DetailPanelContentType } from "../../store/types-local-state";
 import AddVariableButton from "./node-common/AddVariableButton";
@@ -32,6 +35,7 @@ const chance = new Chance();
 const selector = (state: FlowState) => ({
   setDetailPanelContentType: state.setDetailPanelContentType,
   nodeConfigs: state.nodeConfigs,
+  variableConfigs: state.variableConfigs,
   updateFlowOutputVariable: state.updateFlowOutputVariable,
   addFlowOutputVariable: state.addFlowOutputVariable,
   removeVariableFlowOutput: state.removeVariableFlowOutput,
@@ -46,6 +50,7 @@ export default function OutputNode() {
   const {
     setDetailPanelContentType,
     nodeConfigs,
+    variableConfigs,
     updateFlowOutputVariable,
     removeNode,
     addFlowOutputVariable,
@@ -53,15 +58,21 @@ export default function OutputNode() {
   } = useFlowStore(selector);
 
   const nodeConfig = useMemo(
-    () => nodeConfigs[nodeId] as OutputNodeConfig | undefined,
+    () => nodeConfigs[nodeId] as V3OutputNodeConfig | undefined,
     [nodeConfigs, nodeId]
+  );
+
+  const inputVariables = selectVariables(
+    nodeId,
+    VariableType.FlowOutput,
+    variableConfigs
   );
 
   const updateNodeInternals = useUpdateNodeInternals();
 
   // It's OK to force unwrap here because nodeConfig will be undefined only
   // when Node is being deleted.
-  const [inputs, setInputs] = useState(() => nodeConfig!.inputs);
+  const [inputs, setInputs] = useState(() => inputVariables);
 
   if (!nodeConfig) {
     return null;

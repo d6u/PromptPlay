@@ -5,9 +5,10 @@ import Input from "@mui/joy/Input";
 import { useContext, useMemo, useState } from "react";
 import { Position, useNodeId } from "reactflow";
 import {
-  ElevenLabsNodeConfig,
   NodeID,
   NodeType,
+  V3ElevenLabsNodeConfig,
+  VariableType,
 } from "../../../../models/flow-content-types";
 import {
   LocalStorageState,
@@ -18,6 +19,7 @@ import {
 import FlowContext from "../../FlowContext";
 import InputReadonly from "../../common/InputReadonly";
 import { useFlowStore } from "../../store/store-flow";
+import { selectVariables } from "../../store/store-utils";
 import { FlowState } from "../../store/types-local-state";
 import HeaderSection from "./node-common/HeaderSection";
 import HelperTextContainer from "./node-common/HelperTextContainer";
@@ -32,6 +34,7 @@ import {
 
 const flowSelector = (state: FlowState) => ({
   nodeConfigs: state.nodeConfigs,
+  variableConfigs: state.variableConfigs,
   updateNodeConfig: state.updateNodeConfig,
   removeNode: state.removeNode,
   localNodeAugments: state.localNodeAugments,
@@ -55,18 +58,33 @@ export default function ElevenLabsNode() {
 
   const {
     nodeConfigs,
+    variableConfigs,
     updateNodeConfig,
     removeNode,
     localNodeAugments,
     defaultVariableValueMap,
   } = useFlowStore(flowSelector);
+
   const { elevenLabsApiKey, setElevenLabsApiKey } =
     useLocalStorageStore(persistSelector);
+
   const { missingElevenLabsApiKey, setMissingElevenLabsApiKey } =
     useSpaceStore(selector);
 
+  const inputVariables = selectVariables(
+    nodeId,
+    VariableType.NodeInput,
+    variableConfigs
+  );
+
+  const outputVariables = selectVariables(
+    nodeId,
+    VariableType.NodeOutput,
+    variableConfigs
+  );
+
   const nodeConfig = useMemo(
-    () => nodeConfigs[nodeId] as ElevenLabsNodeConfig | undefined,
+    () => nodeConfigs[nodeId] as V3ElevenLabsNodeConfig | undefined,
     [nodeConfigs, nodeId]
   );
 
@@ -87,7 +105,7 @@ export default function ElevenLabsNode() {
     <>
       <InputHandle
         type="target"
-        id={nodeConfig.inputs[0].id}
+        id={inputVariables[0].id}
         position={Position.Left}
         style={{ top: calculateInputHandleTop(-1) }}
       />
@@ -110,8 +128,8 @@ export default function ElevenLabsNode() {
         />
         <Section>
           <NodeInputModifyRow
-            key={nodeConfig.inputs[0].id}
-            name={nodeConfig.inputs[0].name}
+            key={inputVariables[0].id}
+            name={inputVariables[0].name}
             isReadOnly
           />
         </Section>
@@ -177,7 +195,7 @@ export default function ElevenLabsNode() {
           </FormControl>
         </Section>
         <Section>
-          {nodeConfig.outputs.map((output, i) => (
+          {outputVariables.map((output, i) => (
             <NodeOutputRow
               key={output.id}
               id={output.id}
@@ -187,16 +205,14 @@ export default function ElevenLabsNode() {
           ))}
         </Section>
       </NodeBox>
-      {nodeConfig.outputs.map((output, i) => (
+      {outputVariables.map((output, i) => (
         <OutputHandle
           key={output.id}
           type="source"
           id={output.id}
           position={Position.Right}
           style={{
-            bottom: calculateOutputHandleBottom(
-              nodeConfig.outputs.length - 1 - i
-            ),
+            bottom: calculateOutputHandleBottom(outputVariables.length - 1 - i),
           }}
         />
       ))}

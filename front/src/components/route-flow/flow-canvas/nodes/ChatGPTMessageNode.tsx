@@ -16,12 +16,15 @@ import {
   NodeID,
   NodeInputItem,
   NodeType,
+  V3ChatGPTMessageNodeConfig,
+  VariableType,
 } from "../../../../models/flow-content-types";
 import randomId from "../../../../utils/randomId";
 import FlowContext from "../../FlowContext";
 import TextareaReadonly from "../../common/TextareaReadonly";
 import { CopyIcon, LabelWithIconContainer } from "../../common/flow-common";
 import { useFlowStore } from "../../store/store-flow";
+import { selectVariables } from "../../store/store-utils";
 import { FlowState } from "../../store/types-local-state";
 import { DetailPanelContentType } from "../../store/types-local-state";
 import AddVariableButton from "./node-common/AddVariableButton";
@@ -50,6 +53,7 @@ const chance = new Chance();
 
 const selector = (state: FlowState) => ({
   nodeConfigs: state.nodeConfigs,
+  variableConfigs: state.variableConfigs,
   updateNodeConfig: state.updateNodeConfig,
   updateInputVariable: state.updateInputVariable,
   removeNode: state.removeNode,
@@ -67,6 +71,7 @@ export default function ChatGPTMessageNode() {
 
   const {
     nodeConfigs,
+    variableConfigs,
     updateNodeConfig,
     updateInputVariable,
     removeNode,
@@ -77,16 +82,29 @@ export default function ChatGPTMessageNode() {
     defaultVariableValueMap,
   } = useFlowStore(selector);
 
+  const inputVariables = selectVariables(
+    nodeId,
+    VariableType.NodeInput,
+    variableConfigs
+  );
+
+  const outputVariables = selectVariables(
+    nodeId,
+    VariableType.NodeOutput,
+    variableConfigs
+  );
+
   const nodeConfig = useMemo(
-    () => nodeConfigs[nodeId] as ChatGPTMessageNodeConfig | undefined,
+    () => nodeConfigs[nodeId] as V3ChatGPTMessageNodeConfig | undefined,
     [nodeConfigs, nodeId]
   );
 
   const updateNodeInternals = useUpdateNodeInternals();
 
+  const [inputs, setInputs] = useState(() => inputVariables);
+
   // It's OK to force unwrap here because nodeConfig will be undefined only
   // when Node is being deleted.
-  const [inputs, setInputs] = useState(() => nodeConfig!.inputs);
   const [content, setContent] = useState(() => nodeConfig!.content);
   const [role, setRole] = useState(() => nodeConfig!.role);
 
@@ -301,7 +319,7 @@ export default function ChatGPTMessageNode() {
           </IconButton>
         </Section>
         <Section>
-          {nodeConfig.outputs.map((output, i) => (
+          {outputVariables.map((output, i) => (
             <NodeOutputRow
               key={output.id}
               id={output.id}
@@ -317,16 +335,14 @@ export default function ChatGPTMessageNode() {
           ))}
         </Section>
       </NodeBox>
-      {nodeConfig.outputs.map((output, i) => (
+      {outputVariables.map((output, i) => (
         <OutputHandle
           key={output.id}
           type="source"
           id={output.id}
           position={Position.Right}
           style={{
-            bottom: calculateOutputHandleBottom(
-              nodeConfig.outputs.length - 1 - i
-            ),
+            bottom: calculateOutputHandleBottom(outputVariables.length - 1 - i),
           }}
         />
       ))}

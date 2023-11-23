@@ -20,7 +20,6 @@ import {
   InputNodeConfig,
   InputValueType,
   LocalEdge,
-  NodeConfig,
   NodeID,
   NodeInputItem,
   NodeOutputItem,
@@ -29,9 +28,10 @@ import {
   OutputNodeConfig,
   OutputValueType,
   VariableID,
-  VariableValueMap,
   VariableConfigs,
-  NodeConfigs,
+  V3NodeConfigs,
+  V3NodeConfig,
+  V3VariableValueMap,
 } from "../../../models/flow-content-types";
 import { LocalNode } from "../../../models/flow-content-types";
 import { client } from "../../../state/urql";
@@ -51,10 +51,10 @@ type FlowServerSliceStateV2 = {
   isFlowContentDirty: boolean;
   isFlowContentSaving: boolean;
   nodes: LocalNode[];
-  nodeConfigs: NodeConfigs;
   edges: LocalEdge[];
+  nodeConfigs: V3NodeConfigs;
   variableConfigs: VariableConfigs;
-  variableValueMaps: VariableValueMap[];
+  variableValueMaps: V3VariableValueMap[];
 };
 
 export type FlowServerSliceV2 = FlowServerSliceStateV2 & {
@@ -94,9 +94,9 @@ export type FlowServerSliceV2 = FlowServerSliceStateV2 & {
     index: number,
     change: Partial<FlowOutputItem>
   ): void;
-  updateNodeConfig(nodeId: NodeID, change: Partial<NodeConfig>): void;
+  updateNodeConfig(nodeId: NodeID, change: Partial<V3NodeConfig>): void;
   updateVariableValueMap(variableId: VariableID, value: unknown): void;
-  getDefaultVariableValueMap(): VariableValueMap;
+  getDefaultVariableValueMap(): V3VariableValueMap;
 };
 
 const FLOW_SERVER_SLICE_INITIAL_STATE_V2: FlowServerSliceStateV2 = {

@@ -7,10 +7,11 @@ import { useContext, useMemo, useState } from "react";
 import { Position, useUpdateNodeInternals, useNodeId } from "reactflow";
 import {
   NodeInputID,
-  JavaScriptFunctionNodeConfig,
   NodeID,
   NodeInputItem,
   NodeType,
+  V3JavaScriptFunctionNodeConfig,
+  VariableType,
 } from "../../../../models/flow-content-types";
 import randomId from "../../../../utils/randomId";
 import FlowContext from "../../FlowContext";
@@ -18,6 +19,7 @@ import TextareaReadonly from "../../common/TextareaReadonly";
 import { LabelWithIconContainer } from "../../common/flow-common";
 import { CopyIcon } from "../../common/flow-common";
 import { useFlowStore } from "../../store/store-flow";
+import { selectVariables } from "../../store/store-utils";
 import { FlowState } from "../../store/types-local-state";
 import AddVariableButton from "./node-common/AddVariableButton";
 import HeaderSection from "./node-common/HeaderSection";
@@ -39,6 +41,7 @@ const chance = new Chance();
 
 const selector = (state: FlowState) => ({
   nodeConfigs: state.nodeConfigs,
+  variableConfigs: state.variableConfigs,
   updateNodeConfig: state.updateNodeConfig,
   updateInputVariable: state.updateInputVariable,
   removeNode: state.removeNode,
@@ -55,6 +58,7 @@ export default function JavaScriptFunctionNode() {
 
   const {
     nodeConfigs,
+    variableConfigs,
     updateNodeConfig,
     updateInputVariable,
     removeNode,
@@ -64,8 +68,20 @@ export default function JavaScriptFunctionNode() {
     defaultVariableValueMap,
   } = useFlowStore(selector);
 
+  const inputVariables = selectVariables(
+    nodeId,
+    VariableType.NodeInput,
+    variableConfigs
+  );
+
+  const outputVariables = selectVariables(
+    nodeId,
+    VariableType.NodeOutput,
+    variableConfigs
+  );
+
   const nodeConfig = useMemo(
-    () => nodeConfigs[nodeId] as JavaScriptFunctionNodeConfig | undefined,
+    () => nodeConfigs[nodeId] as V3JavaScriptFunctionNodeConfig | undefined,
     [nodeConfigs, nodeId]
   );
 
@@ -78,7 +94,7 @@ export default function JavaScriptFunctionNode() {
 
   // It's OK to force unwrap here because nodeConfig will be undefined only
   // when Node is being deleted.
-  const [inputs, setInputs] = useState(() => nodeConfig!.inputs);
+  const [inputs, setInputs] = useState(() => inputVariables);
   const [javaScriptCode, setJavaScriptCode] = useState(
     () => nodeConfig!.javaScriptCode
   );
@@ -207,18 +223,18 @@ export default function JavaScriptFunctionNode() {
         </Section>
         <Section>
           <NodeOutputRow
-            id={nodeConfig.outputs[0].id}
-            name={nodeConfig.outputs[0].name}
-            value={defaultVariableValueMap[nodeConfig.outputs[0].id]}
+            id={outputVariables[0].id}
+            name={outputVariables[0].name}
+            value={defaultVariableValueMap[outputVariables[0].id]}
           />
         </Section>
       </NodeBox>
       <OutputHandle
         type="source"
-        id={nodeConfig.outputs[0].id}
+        id={outputVariables[0].id}
         position={Position.Right}
         style={{
-          bottom: calculateOutputHandleBottom(nodeConfig.outputs.length - 1),
+          bottom: calculateOutputHandleBottom(outputVariables.length - 1),
         }}
       />
     </>

@@ -9,10 +9,13 @@ import { ContentVersion, SpaceFlowQueryQuery } from "../../../gql/graphql";
 import {
   NodeID,
   VariableID,
-  VariableValueMap,
-  FlowContent,
+  V3FlowContent,
+  V3VariableValueMap,
 } from "../../../models/flow-content-types";
-import { convertV2ContentToV3Content } from "../../../models/flow-content-v2-to-v3-utils";
+import {
+  asV3VariableID,
+  convertV2ContentToV3Content,
+} from "../../../models/flow-content-v2-to-v3-utils";
 import { run, RunEventType } from "./flow-run";
 import { flowInputItemsSelector } from "./store-flow";
 import {
@@ -96,29 +99,30 @@ export const createRootSlice: StateCreator<FlowState, [], [], RootSlice> = (
       fetchContentSubscription?.unsubscribe();
       fetchContentSubscription = fetchContent(get().spaceId!)
         .pipe(
-          mergeMap<OperationResult<SpaceFlowQueryQuery>, Promise<FlowContent>>(
-            async (result): Promise<FlowContent> => {
-              // TODO: Report to telemetry
-              invariant(result.data?.result?.space != null);
+          mergeMap<
+            OperationResult<SpaceFlowQueryQuery>,
+            Promise<V3FlowContent>
+          >(async (result): Promise<V3FlowContent> => {
+            // TODO: Report to telemetry
+            invariant(result.data?.result?.space != null);
 
-              const version = result.data.result.space.contentVersion;
-              const contentV2Str = result.data.result.space.flowContent;
+            const version = result.data.result.space.contentVersion;
+            const contentV2Str = result.data.result.space.flowContent;
 
-              // TODO: Report to telemetry
-              invariant(version != ContentVersion.V1);
+            // TODO: Report to telemetry
+            invariant(version != ContentVersion.V1);
 
-              switch (version) {
-                case ContentVersion.V2: {
-                  invariant(contentV2Str != null);
-                  // TODO: Report to telemetry
-                  const contentV2 = JSON.parse(contentV2Str);
-                  const contentV3 = convertV2ContentToV3Content(contentV2);
-                  await saveSpaceContentV3(spaceId, contentV3);
-                  return contentV2;
-                }
+            switch (version) {
+              case ContentVersion.V2: {
+                invariant(contentV2Str != null);
+                // TODO: Report to telemetry
+                const contentV2 = JSON.parse(contentV2Str);
+                const contentV3 = convertV2ContentToV3Content(contentV2);
+                await saveSpaceContentV3(spaceId, contentV3);
+                return contentV3;
               }
             }
-          )
+          })
         )
         .subscribe({
           next({ nodes, edges, ...rest }) {
@@ -186,11 +190,12 @@ export const createRootSlice: StateCreator<FlowState, [], [], RootSlice> = (
 
       setIsRunning(true);
 
-      const inputVariableMap: VariableValueMap = {};
+      const inputVariableMap: V3VariableValueMap = {};
       const defaultVariableValueMap = get().getDefaultVariableValueMap();
 
       for (const inputItem of flowInputItemsSelector(get())) {
-        inputVariableMap[inputItem.id] = defaultVariableValueMap[inputItem.id];
+        inputVariableMap[asV3VariableID(inputItem.id)] =
+          defaultVariableValueMap[asV3VariableID(inputItem.id)];
       }
 
       runFlowSubscription = run(

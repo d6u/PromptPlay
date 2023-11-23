@@ -230,7 +230,7 @@ export type V3FlowContent = {
   edges: ServerEdge[];
   nodeConfigs: V3NodeConfigs;
   variableConfigs: VariableConfigs;
-  variableValueMaps: VariableValueMap[];
+  variableValueMaps: V3VariableValueMap[];
 };
 
 // !SECTION
@@ -347,5 +347,11 @@ export enum V3OutputValueType {
   Audio = "Audio",
   String = "String",
 }
+
+// !SECTION
+
+// SECTION: V3 VariableValueMap Types
+
+export type V3VariableValueMap = Record<V3VariableID, unknown>;
 
 // !SECTION

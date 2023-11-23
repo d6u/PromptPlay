@@ -5,15 +5,17 @@ import { useContext, useMemo, useState } from "react";
 import { Position, useNodeId, useUpdateNodeInternals } from "reactflow";
 import {
   FlowInputItem,
-  InputNodeConfig,
   InputValueType,
   NodeID,
   NodeType,
   NodeOutputID,
+  V3InputNodeConfig,
+  VariableType,
 } from "../../../../models/flow-content-types";
 import randomId from "../../../../utils/randomId";
 import FlowContext from "../../FlowContext";
 import { useFlowStore } from "../../store/store-flow";
+import { selectVariables } from "../../store/store-utils";
 import { FlowState } from "../../store/types-local-state";
 import { DetailPanelContentType } from "../../store/types-local-state";
 import AddVariableButton from "./node-common/AddVariableButton";
@@ -33,6 +35,7 @@ const chance = new Chance();
 const selector = (state: FlowState) => ({
   setDetailPanelContentType: state.setDetailPanelContentType,
   nodeConfigs: state.nodeConfigs,
+  variableConfigs: state.variableConfigs,
   updateFlowInputVariable: state.updateFlowInputVariable,
   addFlowInputVariable: state.addFlowInputVariable,
   removeVariableFlowInput: state.removeVariableFlowInput,
@@ -47,14 +50,21 @@ export default function InputNode() {
   const {
     setDetailPanelContentType,
     nodeConfigs,
+    variableConfigs,
     updateFlowInputVariable,
     removeNode,
     addFlowInputVariable,
     removeVariableFlowInput,
   } = useFlowStore(selector);
 
+  const flowInputVariables = selectVariables(
+    nodeId,
+    VariableType.FlowInput,
+    variableConfigs
+  );
+
   const nodeConfig = useMemo(
-    () => nodeConfigs[nodeId] as InputNodeConfig | undefined,
+    () => nodeConfigs[nodeId] as V3InputNodeConfig | undefined,
     [nodeConfigs, nodeId]
   );
 
@@ -62,7 +72,7 @@ export default function InputNode() {
 
   // It's OK to force unwrap here because nodeConfig will be undefined only
   // when Node is being deleted.
-  const [outputs, setOutputs] = useState(() => nodeConfig!.outputs);
+  const [outputs, setOutputs] = useState(() => flowInputVariables);
 
   if (!nodeConfig) {
     return null;
@@ -144,7 +154,7 @@ export default function InputNode() {
           position={Position.Right}
           style={{
             bottom: calculateOutputHandleBottom(
-              nodeConfig.outputs.length - 1 - i
+              flowInputVariables.length - 1 - i
             ),
           }}
         />
