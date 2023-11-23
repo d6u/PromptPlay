@@ -1,8 +1,11 @@
-import { A, D } from "@mobily/ts-belt";
+import { A } from "@mobily/ts-belt";
 import { produce } from "immer";
 import debounce from "lodash/debounce";
 import {
+  addEdge,
   applyEdgeChanges,
+  applyNodeChanges,
+  Connection,
   EdgeChange,
   NodeChange,
   OnConnect,
@@ -16,7 +19,9 @@ import {
   NodeID,
   NodeType,
 } from "../../../models/flow-content-types";
+import { asV3VariableID } from "../../../models/flow-content-v2-to-v3-utils";
 import {
+  NodeOutputValueType,
   V3NodeConfig,
   V3NodeConfigs,
   V3VariableID,
@@ -24,13 +29,11 @@ import {
   VariableConfigs,
   VariableType,
 } from "../../../models/v3-flow-content-types";
-import { client } from "../../../state/urql";
 import {
   ChangeEvent,
   ChangeEventType,
   EVENT_VALIDATION_MAP,
 } from "./EventGraph";
-import { UPDATE_SPACE_FLOW_CONTENT_MUTATION } from "./graphql-flow";
 import { VariableTypeToVariableConfigTypeMap } from "./store-utils";
 import { FlowState } from "./types-local-state";
 import { createNode } from "./utils-flow";
@@ -88,36 +91,36 @@ export const createFlowServerSliceV2: StateCreator<
   [],
   FlowServerSliceV2
 > = (set, get) => {
-  function getSpaceId(): string {
-    return get().spaceId!;
-  }
+  // function getSpaceId(): string {
+  //   return get().spaceId!;
+  // }
 
   async function saveSpace() {
     console.group("saveSpace");
 
-    set((state) => ({ isFlowContentSaving: true }));
+    set(() => ({ isFlowContentSaving: true }));
 
-    const { nodeConfigs, variableValueMaps } = get();
+    // const { nodeConfigs, variableValueMaps } = get();
 
-    const nodes = A.map(
-      get().nodes,
-      D.selectKeys(["id", "type", "position", "data"]),
-    );
+    // const nodes = A.map(
+    //   get().nodes,
+    //   D.selectKeys(["id", "type", "position", "data"]),
+    // );
 
-    const edges = A.map(
-      get().edges,
-      D.selectKeys(["id", "source", "sourceHandle", "target", "targetHandle"]),
-    );
+    // const edges = A.map(
+    //   get().edges,
+    //   D.selectKeys(["id", "source", "sourceHandle", "target", "targetHandle"]),
+    // );
 
-    await client.mutation(UPDATE_SPACE_FLOW_CONTENT_MUTATION, {
-      spaceId: getSpaceId(),
-      flowContent: JSON.stringify({
-        nodes,
-        edges,
-        nodeConfigs,
-        variableValueMaps,
-      }),
-    });
+    // await client.mutation(UPDATE_SPACE_FLOW_CONTENT_MUTATION, {
+    //   spaceId: getSpaceId(),
+    //   flowContent: JSON.stringify({
+    //     nodes,
+    //     edges,
+    //     nodeConfigs,
+    //     variableValueMaps,
+    //   }),
+    // });
 
     set((state) => ({ isFlowContentSaving: false }));
 
@@ -126,14 +129,16 @@ export const createFlowServerSliceV2: StateCreator<
 
   const saveSpaceDebounced = debounce(saveSpace, 500);
 
-  function processEventQueue(eventQueue: ChangeEvent[]) {
+  function startProcessingEventGraph(startEvent: ChangeEvent) {
+    const eventQueue: ChangeEvent[] = [startEvent];
+
     let state = get();
 
     while (eventQueue.length > 0) {
       const currentEvent = eventQueue.shift()!;
-      const [change, derivedEvents] = handleEvent(state, currentEvent);
+      const [stateChange, derivedEvents] = handleEvent(state, currentEvent);
 
-      state = { ...state, ...change };
+      state = { ...state, ...stateChange };
 
       // Validate to prevent circular events
       const allowedDerivedEventTypes = EVENT_VALIDATION_MAP[currentEvent.type];
@@ -172,48 +177,42 @@ export const createFlowServerSliceV2: StateCreator<
     },
 
     onEdgesChange(changes: EdgeChange[]): void {
-      const eventQueue: ChangeEvent[] = [
-        { type: ChangeEventType.RF_EDGES_CHANGE, changes },
-      ];
-      processEventQueue(eventQueue);
+      startProcessingEventGraph({
+        type: ChangeEventType.RF_EDGES_CHANGE,
+        changes,
+      });
     },
     onNodesChange(changes: NodeChange[]): void {
-      const eventQueue: ChangeEvent[] = [
-        { type: ChangeEventType.RF_NODES_CHANGE, changes },
-      ];
-      processEventQueue(eventQueue);
+      startProcessingEventGraph({
+        type: ChangeEventType.RF_NODES_CHANGE,
+        changes,
+      });
     },
     onConnect(connection): void {
-      if (connection.source === connection.target) {
-        return;
-      }
-
-      const eventQueue: ChangeEvent[] = [
-        { type: ChangeEventType.RF_ON_CONNECT, connection },
-      ];
-      processEventQueue(eventQueue);
+      startProcessingEventGraph({
+        type: ChangeEventType.RF_ON_CONNECT,
+        connection,
+      });
     },
 
     addNode(type: NodeType, x: number, y: number): void {
-      const eventQueue: ChangeEvent[] = [
-        {
-          type: ChangeEventType.ADDING_NODE,
-          node: createNode(type, x, y),
-        },
-      ];
-      processEventQueue(eventQueue);
+      startProcessingEventGraph({
+        type: ChangeEventType.ADDING_NODE,
+        node: createNode(type, x, y),
+      });
     },
     removeNode(id: NodeID): void {
-      const eventQueue: ChangeEvent[] = [
-        { type: ChangeEventType.REMOVING_NODE, nodeId: id },
-      ];
-      processEventQueue(eventQueue);
+      startProcessingEventGraph({
+        type: ChangeEventType.REMOVING_NODE,
+        nodeId: id,
+      });
     },
     updateNodeConfig(nodeId: NodeID, change: Partial<V3NodeConfig>): void {
-      const eventQueue: ChangeEvent[] = [
-        { type: ChangeEventType.UPDATING_NODE_CONFIG, nodeId, change },
-      ];
-      processEventQueue(eventQueue);
+      startProcessingEventGraph({
+        type: ChangeEventType.UPDATING_NODE_CONFIG,
+        nodeId,
+        change,
+      });
     },
 
     addVariable(nodeId: NodeID, type: VariableType, index: number): void {},
@@ -233,7 +232,9 @@ export const createFlowServerSliceV2: StateCreator<
         variableValueMaps: variableValueMaps,
       }));
 
-      processEventQueue([{ type: ChangeEventType.VAR_VALUE_MAP_UPDATED }]);
+      startProcessingEventGraph({
+        type: ChangeEventType.VAR_VALUE_MAP_UPDATED,
+      });
     },
   };
 };
@@ -247,11 +248,16 @@ function handleEvent(
   switch (event.type) {
     // React Flow
     case ChangeEventType.RF_EDGES_CHANGE:
-      return handleRfEdgeChanges(state.edges, event.changes);
-    // case ChangeEventType.RF_NODES_CHANGE:
-    //   return handleRfNodesChange(event.changes);
-    // case ChangeEventType.RF_ON_CONNECT:
-    //   return handleRfOnConnect(event.connection);
+      return handleRfEdgeChanges(event.changes, state.edges);
+    case ChangeEventType.RF_NODES_CHANGE:
+      return handleRfNodesChange(event.changes, state.nodes, state.nodeConfigs);
+    case ChangeEventType.RF_ON_CONNECT:
+      return handleRfOnConnect(
+        event.connection,
+        state.edges,
+        state.nodeConfigs,
+        state.variableConfigs,
+      );
     // // Nodes
     // case ChangeEventType.ADDING_NODE:
     //   return handleAddingNode(event.node);
@@ -307,8 +313,8 @@ function handleEvent(
 }
 
 function handleRfEdgeChanges(
-  currentEdges: LocalEdge[],
   changes: EdgeChange[],
+  currentEdges: LocalEdge[],
 ): [Partial<FlowServerSliceStateV2>, ChangeEvent[]] {
   const content: Partial<FlowServerSliceStateV2> = {};
   const events: ChangeEvent[] = [];
@@ -339,112 +345,126 @@ function handleRfEdgeChanges(
   return [content, events];
 }
 
-// function handleRfNodesChange(changes: NodeChange[]): ChangeEvent[] {
-//   const events: ChangeEvent[] = [];
+function handleRfNodesChange(
+  changes: NodeChange[],
+  prevNodes: LocalNode[],
+  prevNodeConfigs: V3NodeConfigs,
+): [Partial<FlowServerSliceStateV2>, ChangeEvent[]] {
+  const content: Partial<FlowServerSliceStateV2> = {};
+  const events: ChangeEvent[] = [];
 
-//   const oldNodes = get().nodes;
-//   const newNodes = applyNodeChanges(changes, oldNodes) as LocalNode[];
+  const nextNodes = applyNodeChanges(changes, prevNodes) as LocalNode[];
 
-//   for (const change of changes) {
-//     switch (change.type) {
-//       case "remove": {
-//         let nodeConfigs = get().nodeConfigs;
+  let nodeConfigs = prevNodeConfigs;
 
-//         const removingNodeConfig = nodeConfigs[change.id as NodeID]!;
+  for (const change of changes) {
+    switch (change.type) {
+      case "remove": {
+        const removingNodeConfig = nodeConfigs[change.id as NodeID]!;
 
-//         nodeConfigs = produce(nodeConfigs, (draft) => {
-//           delete draft[change.id as NodeID];
-//         });
+        nodeConfigs = produce(nodeConfigs, (draft) => {
+          delete draft[change.id as NodeID];
+        });
 
-//         events.push({
-//           type: ChangeEventType.NODE_REMOVED,
-//           node: oldNodes.find((node) => node.id === change.id)!,
-//           nodeConfig: removingNodeConfig,
-//         });
+        events.push({
+          type: ChangeEventType.NODE_REMOVED,
+          node: prevNodes.find((node) => node.id === change.id)!,
+          nodeConfig: removingNodeConfig,
+        });
 
-//         set({ isFlowContentDirty: true, nodeConfigs: nodeConfigs });
-//         break;
-//       }
-//       case "position": {
-//         if (!change.dragging) {
-//           set({ isFlowContentDirty: true });
-//         }
-//         break;
-//       }
-//       case "add":
-//       case "select":
-//       case "dimensions":
-//       case "reset": {
-//         break;
-//       }
-//     }
-//   }
+        content.isFlowContentDirty = true;
+        content.nodeConfigs = nodeConfigs;
+        break;
+      }
+      case "position": {
+        if (!change.dragging) {
+          events.push({
+            type: ChangeEventType.NODE_MOVED,
+          });
 
-//   set({ nodes: newNodes });
+          content.isFlowContentDirty = true;
+        }
+        break;
+      }
+      case "add":
+      case "select":
+      case "dimensions":
+      case "reset": {
+        break;
+      }
+    }
+  }
 
-//   return events;
-// }
+  content.nodes = nextNodes;
 
-// function handleRfOnConnect(connection: Connection): ChangeEvent[] {
-//   const events: ChangeEvent[] = [];
+  return [content, events];
+}
 
-//   const oldEdges = get().edges;
-//   const newEdges = addEdge(connection, oldEdges) as LocalEdge[];
+function handleRfOnConnect(
+  connection: Connection,
+  prevEdges: LocalEdge[],
+  nodeConfigs: V3NodeConfigs,
+  variableConfigs: VariableConfigs,
+): [Partial<FlowServerSliceStateV2>, ChangeEvent[]] {
+  const content: Partial<FlowServerSliceStateV2> = {};
+  const events: ChangeEvent[] = [];
 
-//   const newEdge = A.difference(newEdges, oldEdges)[0];
-//   const nodeConfigs = get().nodeConfigs;
+  if (connection.source === connection.target) {
+    return [content, events];
+  }
 
-//   // --- Check if new edge has valid destination value type ---
+  const nextEdges = addEdge(connection, prevEdges) as LocalEdge[];
+  const addedEdge = A.difference(nextEdges, prevEdges)[0];
 
-//   let isSourceAudio = false;
+  // SECTION: Check if new edge has valid destination value type
 
-//   const srcNodeConfig = nodeConfigs[newEdge.source]!;
-//   if (srcNodeConfig.nodeType === NodeType.ElevenLabs) {
-//     isSourceAudio = A.any(
-//       srcNodeConfig.outputs,
-//       (output) =>
-//         output.id === newEdge.sourceHandle &&
-//         output.valueType === OutputValueType.Audio,
-//     );
-//   }
+  const srcVariable = variableConfigs[asV3VariableID(addedEdge.sourceHandle)];
+  const isSourceAudio =
+    srcVariable.type === VariableType.NodeOutput &&
+    srcVariable.valueType === NodeOutputValueType.Audio;
 
-//   if (isSourceAudio) {
-//     const dstNodeConfig = nodeConfigs[newEdge.target]!;
-//     if (dstNodeConfig.nodeType !== NodeType.OutputNode) {
-//       // TODO: Change this to a non-blocking alert UI
-//       alert("You can only connect an audio output to an output node.");
+  if (isSourceAudio) {
+    const dstNodeConfig = nodeConfigs[addedEdge.target];
+    if (dstNodeConfig.nodeType !== NodeType.OutputNode) {
+      // TODO: Change this to a non-blocking alert UI
+      alert("You can only connect an audio output to an output node.");
 
-//       return events;
-//     }
-//   }
+      return [content, events];
+    }
+  }
 
-//   // --- Check if this is a replacing or adding ---
+  // !SECTION
 
-//   const [acceptedEdges, rejectedEdges] = A.partition(
-//     newEdges,
-//     (edge) =>
-//       edge.id === newEdge.id || edge.targetHandle !== newEdge.targetHandle,
-//   );
+  // SECTION: Check if this is a replacing or adding
 
-//   if (rejectedEdges.length) {
-//     // --- Replace edge ---
-//     events.push({
-//       type: ChangeEventType.EDGE_REPLACED,
-//       oldEdge: rejectedEdges[0],
-//       newEdge,
-//     });
-//   } else {
-//     // --- Add edge ---
-//     events.push({
-//       type: ChangeEventType.EDGE_ADDED,
-//       edge: newEdge,
-//     });
-//   }
+  const [acceptedEdges, rejectedEdges] = A.partition(
+    nextEdges,
+    (edge) =>
+      edge.id === addedEdge.id || edge.targetHandle !== addedEdge.targetHandle,
+  );
 
-//   set({ isFlowContentDirty: true, edges: acceptedEdges });
+  if (rejectedEdges.length) {
+    // --- Replace edge ---
+    events.push({
+      type: ChangeEventType.EDGE_REPLACED,
+      oldEdge: rejectedEdges[0],
+      newEdge: addedEdge,
+    });
+  } else {
+    // --- Add edge ---
+    events.push({
+      type: ChangeEventType.EDGE_ADDED,
+      edge: addedEdge,
+    });
+  }
 
-//   return events;
-// }
+  // !SECTION
+
+  content.isFlowContentDirty = true;
+  content.edges = acceptedEdges;
+
+  return [content, events];
+}
 
 // function handleAddingNode(node: LocalNode): ChangeEvent[] {
 //   const events: ChangeEvent[] = [];

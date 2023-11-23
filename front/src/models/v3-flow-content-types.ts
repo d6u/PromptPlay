@@ -1,12 +1,12 @@
 import { ChatGPTMessageRole } from "../integrations/openai";
 import {
-  ServerNode,
-  ServerEdge,
-  NodeID,
+  InputValueType,
   NodeConfigCommon,
+  NodeID,
   NodeType,
   OpenAIChatModel,
-  InputValueType,
+  ServerEdge,
+  ServerNode,
 } from "./flow-content-types";
 
 // SECTION: V3 ID Types
@@ -117,6 +117,7 @@ export type NodeInputVariableConfig = VariableConfigCommon & {
 
 export type NodeOutputVariableConfig = VariableConfigCommon & {
   type: VariableType.NodeOutput;
+  valueType: NodeOutputValueType;
 };
 
 export type FlowInputVariableConfig = VariableConfigCommon & {
@@ -126,10 +127,15 @@ export type FlowInputVariableConfig = VariableConfigCommon & {
 
 export type FlowOutputVariableConfig = VariableConfigCommon & {
   type: VariableType.FlowOutput;
-  valueType: V3OutputValueType;
+  valueType: V3FlowOutputValueType;
 };
 
-export enum V3OutputValueType {
+export enum NodeOutputValueType {
+  Audio = "Audio",
+  Other = "Other",
+}
+
+export enum V3FlowOutputValueType {
   Audio = "Audio",
   String = "String",
 }

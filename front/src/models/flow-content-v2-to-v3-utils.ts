@@ -8,8 +8,8 @@ import {
 } from "./flow-content-types";
 import {
   V3FlowContent,
+  V3FlowOutputValueType,
   V3NodeConfigs,
-  V3OutputValueType,
   V3VariableID,
   VariableConfigs,
   VariableType,
@@ -100,8 +100,8 @@ export function convertV2ContentToV3Content(
             name: flowOutput.name,
             valueType:
               flowOutput.valueType === OutputValueType.Audio
-                ? V3OutputValueType.Audio
-                : V3OutputValueType.String,
+                ? V3FlowOutputValueType.Audio
+                : V3FlowOutputValueType.String,
           };
         }
         break;

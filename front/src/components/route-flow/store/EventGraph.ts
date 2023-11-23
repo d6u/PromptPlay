@@ -8,6 +8,7 @@ import {
   NodeID,
   NodeOutputID,
 } from "../../../models/flow-content-types";
+import { V3NodeConfig } from "../../../models/v3-flow-content-types";
 
 export enum ChangeEventType {
   // React Flow
@@ -45,7 +46,10 @@ export const EVENT_VALIDATION_MAP: {
 } = {
   // React Flow
   [ChangeEventType.RF_EDGES_CHANGE]: [ChangeEventType.EDGE_REMOVED],
-  [ChangeEventType.RF_NODES_CHANGE]: [ChangeEventType.NODE_REMOVED],
+  [ChangeEventType.RF_NODES_CHANGE]: [
+    ChangeEventType.NODE_REMOVED,
+    ChangeEventType.NODE_MOVED,
+  ],
   [ChangeEventType.RF_ON_CONNECT]: [
     ChangeEventType.EDGE_ADDED,
     ChangeEventType.EDGE_REPLACED,
@@ -135,7 +139,7 @@ export type ChangeEvent =
   | {
       type: ChangeEventType.NODE_REMOVED;
       node: LocalNode;
-      nodeConfig: NodeConfig;
+      nodeConfig: V3NodeConfig;
     }
   | {
       type: ChangeEventType.NODE_MOVED;
