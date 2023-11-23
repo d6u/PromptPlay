@@ -1,24 +1,79 @@
+import { D } from "@mobily/ts-belt";
 import {
   FlowContent,
-  FlowContentV3,
+  V3FlowContent,
   NodeID,
   NodeType,
   OutputValueType,
-  OutputValueTypeV3,
+  V3OutputValueType,
   VariableConfigs,
   VariableID,
-  VariableIDV3,
+  V3VariableID,
   VariableType,
+  V3NodeConfigs,
 } from "./flow-content-types";
 
 export function convertV2ContentToV3Content(
   flowContentV2: FlowContent
-): FlowContentV3 {
+): V3FlowContent {
   const { nodes, edges, nodeConfigs, variableValueMaps } = flowContentV2;
 
   const variableConfigs: VariableConfigs = {};
+  const v3NodeConfigs: V3NodeConfigs = {};
 
   for (const [nodeId, nodeConfig] of Object.entries(nodeConfigs)) {
+    // SECTION: Populate V3NodeConfigs
+
+    switch (nodeConfig.nodeType) {
+      case NodeType.InputNode:
+        v3NodeConfigs[nodeId as NodeID] = D.deleteKeys(nodeConfig, ["outputs"]);
+        break;
+      case NodeType.OutputNode:
+        v3NodeConfigs[nodeId as NodeID] = D.deleteKeys(nodeConfig, ["inputs"]);
+        break;
+      case NodeType.ChatGPTChatCompletionNode:
+        v3NodeConfigs[nodeId as NodeID] = {
+          ...D.deleteKeys(nodeConfig, ["inputs", "outputs", "responseFormat"]),
+          nodeType: NodeType.ChatGPTChatCompletionNode,
+          seed: nodeConfig.seed ?? null,
+          responseFormatType:
+            nodeConfig.responseFormat == null ? null : "json_object",
+        };
+        break;
+      case NodeType.JavaScriptFunctionNode:
+        v3NodeConfigs[nodeId as NodeID] = D.deleteKeys(nodeConfig, [
+          "inputs",
+          "outputs",
+        ]);
+        break;
+      case NodeType.ChatGPTMessageNode:
+        v3NodeConfigs[nodeId as NodeID] = D.deleteKeys(nodeConfig, [
+          "inputs",
+          "outputs",
+        ]);
+        break;
+      case NodeType.TextTemplate:
+        v3NodeConfigs[nodeId as NodeID] = D.deleteKeys(nodeConfig, [
+          "inputs",
+          "outputs",
+        ]);
+        break;
+      case NodeType.HuggingFaceInference:
+        v3NodeConfigs[nodeId as NodeID] = D.deleteKeys(nodeConfig, [
+          "inputs",
+          "outputs",
+        ]);
+        break;
+      case NodeType.ElevenLabs:
+        v3NodeConfigs[nodeId as NodeID] = D.deleteKeys(nodeConfig, [
+          "inputs",
+          "outputs",
+        ]);
+        break;
+    }
+
+    // SECTION: Populate VariableConfigs
+
     switch (nodeConfig.nodeType) {
       case NodeType.InputNode: {
         for (const [index, flowInput] of nodeConfig.outputs.entries()) {
@@ -43,8 +98,8 @@ export function convertV2ContentToV3Content(
             name: flowOutput.name,
             valueType:
               flowOutput.valueType === OutputValueType.Audio
-                ? OutputValueTypeV3.Audio
-                : OutputValueTypeV3.String,
+                ? V3OutputValueType.Audio
+                : V3OutputValueType.String,
           };
         }
         break;
@@ -81,12 +136,12 @@ export function convertV2ContentToV3Content(
   return {
     nodes,
     edges,
-    nodeConfigs,
+    nodeConfigs: v3NodeConfigs,
     variableConfigs,
     variableValueMaps,
   };
 }
 
-function asVariableIDV3(id: VariableID): VariableIDV3 {
-  return id as unknown as VariableIDV3;
+function asVariableIDV3(id: VariableID): V3VariableID {
+  return id as unknown as V3VariableID;
 }

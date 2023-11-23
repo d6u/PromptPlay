@@ -3,7 +3,7 @@ import { Observable } from "rxjs";
 import { OperationResult } from "urql";
 import { SpaceFlowQueryQuery } from "../../../gql/graphql";
 import {
-  FlowContentV3,
+  V3FlowContent,
   LocalEdge,
   LocalNode,
 } from "../../../models/flow-content-types";
@@ -49,7 +49,7 @@ export function fetchContent(
 
 export async function saveSpaceContentV3(
   spaceId: string,
-  contentV3: FlowContentV3
+  contentV3: V3FlowContent
 ) {
   await client.mutation(UPDATE_SPACE_CONTENT_V3_MUTATION, {
     spaceId: spaceId,

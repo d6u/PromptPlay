@@ -7,10 +7,10 @@ import { OperationResult } from "urql";
 import { StateCreator } from "zustand";
 import { ContentVersion, SpaceFlowQueryQuery } from "../../../gql/graphql";
 import {
-  FlowContent,
   NodeID,
   VariableID,
   VariableValueMap,
+  FlowContent,
 } from "../../../models/flow-content-types";
 import { convertV2ContentToV3Content } from "../../../models/flow-content-v2-to-v3-utils";
 import { run, RunEventType } from "./flow-run";
@@ -114,17 +114,17 @@ export const createRootSlice: StateCreator<FlowState, [], [], RootSlice> = (
                   const contentV2 = JSON.parse(contentV2Str);
                   const contentV3 = convertV2ContentToV3Content(contentV2);
                   await saveSpaceContentV3(spaceId, contentV3);
-                  return contentV2 as FlowContent;
+                  return contentV2;
                 }
               }
             }
           )
         )
         .subscribe({
-          next({ nodes, edges, nodeConfigs, variableValueMaps }) {
+          next({ nodes, edges, ...rest }) {
             nodes = assignLocalNodeProperties(nodes);
             edges = assignLocalEdgeProperties(edges);
-            set({ nodes, edges, nodeConfigs, variableValueMaps });
+            set({ nodes, edges, ...rest });
           },
           complete() {
             set({ isInitialized: true });

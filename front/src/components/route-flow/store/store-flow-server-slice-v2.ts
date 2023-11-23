@@ -21,7 +21,6 @@ import {
   InputValueType,
   LocalEdge,
   NodeConfig,
-  NodeConfigs,
   NodeID,
   NodeInputItem,
   NodeOutputItem,
@@ -31,6 +30,8 @@ import {
   OutputValueType,
   VariableID,
   VariableValueMap,
+  VariableConfigs,
+  NodeConfigs,
 } from "../../../models/flow-content-types";
 import { LocalNode } from "../../../models/flow-content-types";
 import { client } from "../../../state/urql";
@@ -52,6 +53,7 @@ type FlowServerSliceStateV2 = {
   nodes: LocalNode[];
   nodeConfigs: NodeConfigs;
   edges: LocalEdge[];
+  variableConfigs: VariableConfigs;
   variableValueMaps: VariableValueMap[];
 };
 
@@ -101,8 +103,9 @@ const FLOW_SERVER_SLICE_INITIAL_STATE_V2: FlowServerSliceStateV2 = {
   isFlowContentDirty: false,
   isFlowContentSaving: false,
   nodes: [],
-  nodeConfigs: {},
   edges: [],
+  nodeConfigs: {},
+  variableConfigs: {},
   variableValueMaps: [{}],
 };
 

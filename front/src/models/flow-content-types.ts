@@ -225,10 +225,10 @@ export type VariableValueMap = Record<VariableID, unknown>;
 
 // SECTION: V3 Root Types
 
-export type FlowContentV3 = {
+export type V3FlowContent = {
   nodes: ServerNode[];
   edges: ServerEdge[];
-  nodeConfigs: NodeConfigs;
+  nodeConfigs: V3NodeConfigs;
   variableConfigs: VariableConfigs;
   variableValueMaps: VariableValueMap[];
 };
@@ -237,7 +237,67 @@ export type FlowContentV3 = {
 
 // SECTION: V3 ID Types
 
-export type VariableIDV3 = string & { readonly "": unique symbol };
+export type V3VariableID = string & { readonly "": unique symbol };
+
+// !SECTION
+
+// SECTION: V3 NodeConfig Types
+
+export type V3NodeConfigs = Record<NodeID, V3NodeConfig>;
+
+export type V3NodeConfig =
+  | V3InputNodeConfig
+  | V3OutputNodeConfig
+  | V3ChatGPTMessageNodeConfig
+  | V3ChatGPTChatCompletionNodeConfig
+  | V3JavaScriptFunctionNodeConfig
+  | V3TextTemplateNodeConfig
+  | V3HuggingFaceInferenceNodeConfig
+  | V3ElevenLabsNodeConfig;
+
+export type V3InputNodeConfig = NodeConfigCommon & {
+  nodeType: NodeType.InputNode;
+};
+
+export type V3OutputNodeConfig = NodeConfigCommon & {
+  nodeType: NodeType.OutputNode;
+};
+
+export type V3ChatGPTMessageNodeConfig = NodeConfigCommon & {
+  nodeType: NodeType.ChatGPTMessageNode;
+  role: ChatGPTMessageRole;
+  content: string;
+};
+
+export type V3ChatGPTChatCompletionNodeConfig = NodeConfigCommon & {
+  nodeType: NodeType.ChatGPTChatCompletionNode;
+  model: OpenAIChatModel;
+  temperature: number;
+  seed: number | null;
+  responseFormatType: "json_object" | null;
+  stop: Array<string>;
+};
+
+export type V3JavaScriptFunctionNodeConfig = NodeConfigCommon & {
+  nodeType: NodeType.JavaScriptFunctionNode;
+  javaScriptCode: string;
+};
+
+export type V3TextTemplateNodeConfig = NodeConfigCommon & {
+  nodeType: NodeType.TextTemplate;
+  content: string;
+};
+
+// Reference: https://huggingface.co/docs/api-inference/index
+export type V3HuggingFaceInferenceNodeConfig = NodeConfigCommon & {
+  nodeType: NodeType.HuggingFaceInference;
+  model: string;
+};
+
+export type V3ElevenLabsNodeConfig = NodeConfigCommon & {
+  nodeType: NodeType.ElevenLabs;
+  voiceId: string;
+};
 
 // !SECTION
 
@@ -250,7 +310,7 @@ export enum VariableType {
   FlowOutput = "FlowOutput",
 }
 
-export type VariableConfigs = Record<VariableIDV3, VariableConfig>;
+export type VariableConfigs = Record<V3VariableID, VariableConfig>;
 
 export type VariableConfig =
   | NodeInputVariableConfig
@@ -259,7 +319,7 @@ export type VariableConfig =
   | FlowOutputVariableConfig;
 
 type VariableConfigCommon = {
-  id: VariableIDV3;
+  id: V3VariableID;
   nodeId: NodeID;
   index: number;
   name: string;
@@ -280,10 +340,10 @@ export type FlowInputVariableConfig = VariableConfigCommon & {
 
 export type FlowOutputVariableConfig = VariableConfigCommon & {
   type: VariableType.FlowOutput;
-  valueType: OutputValueTypeV3;
+  valueType: V3OutputValueType;
 };
 
-export enum OutputValueTypeV3 {
+export enum V3OutputValueType {
   Audio = "Audio",
   String = "String",
 }
