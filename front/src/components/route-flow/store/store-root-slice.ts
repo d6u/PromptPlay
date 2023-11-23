@@ -11,7 +11,6 @@ import {
   VariableID,
   VariableValueMap,
 } from "../../../models/flow-content-types";
-import { convert } from "../../../models/flow-content-v2-to-v3-utils";
 import { client } from "../../../state/urql";
 import { toRxObservableSingle } from "../../../utils/graphql-utils";
 import { run, RunEventType } from "./flow-run";
@@ -107,9 +106,6 @@ export const createRootSlice: StateCreator<FlowState, [], [], RootSlice> = (
           set({ nodes, edges, nodeConfigs, variableValueMaps });
         },
         complete() {
-          const r = convert(get());
-          console.log(r);
-
           set({ isInitialized: true });
         },
         error(error) {
