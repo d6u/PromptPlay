@@ -1,6 +1,5 @@
 import { Connection, EdgeChange, NodeChange } from "reactflow";
 import {
-  FlowInputItem,
   FlowOutputItem,
   LocalEdge,
   LocalNode,
@@ -8,7 +7,12 @@ import {
   NodeID,
   NodeOutputID,
 } from "../../../models/flow-content-types";
-import { V3NodeConfig } from "../../../models/v3-flow-content-types";
+import {
+  V3NodeConfig,
+  V3VariableID,
+  VariableConfig,
+  VariableType,
+} from "../../../models/v3-flow-content-types";
 
 export enum ChangeEventType {
   // React Flow
@@ -57,7 +61,7 @@ export const EVENT_VALIDATION_MAP: {
   // Nodes
   [ChangeEventType.ADDING_NODE]: [ChangeEventType.NODE_ADDED],
   [ChangeEventType.REMOVING_NODE]: [ChangeEventType.NODE_REMOVED],
-  [ChangeEventType.UPDATING_NODE_CONFIG]: [],
+  [ChangeEventType.UPDATING_NODE_CONFIG]: [ChangeEventType.NODE_CONFIG_UPDATED],
   // Variables
   [ChangeEventType.ADDING_VARIABLE]: [ChangeEventType.VARIABLE_ADDED],
   [ChangeEventType.REMOVING_VARIABLE]: [ChangeEventType.VARIABLE_REMOVED],
@@ -118,6 +122,8 @@ export type ChangeEvent =
   | {
       type: ChangeEventType.ADDING_VARIABLE;
       nodeId: NodeID;
+      varType: VariableType;
+      index: number;
     }
   | {
       type: ChangeEventType.REMOVING_VARIABLE;
@@ -126,9 +132,8 @@ export type ChangeEvent =
     }
   | {
       type: ChangeEventType.UPDATING_VARIABLE;
-      nodeId: NodeID;
-      index: number;
-      change: Partial<FlowInputItem>;
+      variableId: V3VariableID;
+      change: Partial<VariableConfig>;
     }
   // --- Derived ---
   // Derived Nodes

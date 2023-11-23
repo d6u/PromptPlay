@@ -5,25 +5,18 @@ import IconButton from "@mui/joy/IconButton";
 import Radio from "@mui/joy/Radio";
 import RadioGroup from "@mui/joy/RadioGroup";
 import Textarea from "@mui/joy/Textarea";
-import Chance from "chance";
-import { adjust, append, assoc, remove } from "ramda";
+import { remove } from "ramda";
 import { useContext, useEffect, useMemo, useState } from "react";
 import { Position, useNodeId, useUpdateNodeInternals } from "reactflow";
 import { ChatGPTMessageRole } from "../../../../integrations/openai";
-import {
-  NodeID,
-  NodeInputID,
-  NodeInputItem,
-  NodeType,
-} from "../../../../models/flow-content-types";
+import { NodeID, NodeType } from "../../../../models/flow-content-types";
 import {
   V3ChatGPTMessageNodeConfig,
   VariableType,
 } from "../../../../models/v3-flow-content-types";
-import randomId from "../../../../utils/randomId";
-import FlowContext from "../../FlowContext";
-import TextareaReadonly from "../../common/TextareaReadonly";
 import { CopyIcon, LabelWithIconContainer } from "../../common/flow-common";
+import TextareaReadonly from "../../common/TextareaReadonly";
+import FlowContext from "../../FlowContext";
 import { useFlowStore } from "../../store/store-flow";
 import { selectVariables } from "../../store/store-utils";
 import {
@@ -33,11 +26,6 @@ import {
 import AddVariableButton from "./node-common/AddVariableButton";
 import HeaderSection from "./node-common/HeaderSection";
 import HelperTextContainer from "./node-common/HelperTextContainer";
-import NodeBox from "./node-common/NodeBox";
-import NodeInputModifyRow, {
-  ROW_MARGIN_TOP,
-} from "./node-common/NodeInputModifyRow";
-import NodeOutputRow from "./node-common/NodeOutputRow";
 import {
   InputHandle,
   OutputHandle,
@@ -45,6 +33,11 @@ import {
   SmallSection,
   StyledIconGear,
 } from "./node-common/node-common";
+import NodeBox from "./node-common/NodeBox";
+import NodeInputModifyRow, {
+  ROW_MARGIN_TOP,
+} from "./node-common/NodeInputModifyRow";
+import NodeOutputRow from "./node-common/NodeOutputRow";
 import {
   calculateInputHandleTop,
   calculateOutputHandleBottom,
@@ -52,15 +45,13 @@ import {
 
 const MESSAGES_HELPER_SECTION_HEIGHT = 81;
 
-const chance = new Chance();
-
 const selector = (state: FlowState) => ({
   nodeConfigs: state.nodeConfigs,
   variableConfigs: state.variableConfigs,
   updateNodeConfig: state.updateNodeConfig,
-  updateInputVariable: state.updateInputVariable,
   removeNode: state.removeNode,
-  addInputVariable: state.addInputVariable,
+  addVariable: state.addVariable,
+  updateVariable: state.updateVariable,
   removeInputVariable: state.removeInputVariable,
   setDetailPanelContentType: state.setDetailPanelContentType,
   setDetailPanelSelectedNodeId: state.setDetailPanelSelectedNodeId,
@@ -76,20 +67,14 @@ export default function ChatGPTMessageNode() {
     nodeConfigs,
     variableConfigs,
     updateNodeConfig,
-    updateInputVariable,
     removeNode,
-    addInputVariable,
+    addVariable,
+    updateVariable,
     removeInputVariable,
     setDetailPanelContentType,
     setDetailPanelSelectedNodeId,
     defaultVariableValueMap,
   } = useFlowStore(selector);
-
-  const inputVariables = selectVariables(
-    nodeId,
-    VariableType.NodeInput,
-    variableConfigs,
-  );
 
   const outputVariables = selectVariables(
     nodeId,
@@ -104,7 +89,19 @@ export default function ChatGPTMessageNode() {
 
   const updateNodeInternals = useUpdateNodeInternals();
 
-  const [inputs, setInputs] = useState(() => inputVariables);
+  // SECTION: Input Variables
+
+  const inputVariables = useMemo(() => {
+    return selectVariables(nodeId, VariableType.NodeInput, variableConfigs);
+  }, [nodeId, variableConfigs]);
+
+  const [inputs, setInputs] = useState(inputVariables);
+
+  useEffect(() => {
+    setInputs(() => inputVariables);
+  }, [inputVariables]);
+
+  // !SECTION
 
   // It's OK to force unwrap here because nodeConfig will be undefined only
   // when Node is being deleted.
@@ -162,15 +159,7 @@ export default function ChatGPTMessageNode() {
           <SmallSection>
             <AddVariableButton
               onClick={() => {
-                const newInputs = append<NodeInputItem>({
-                  id: `${nodeId}/${randomId()}` as NodeInputID,
-                  name: chance.word(),
-                })(inputs);
-
-                setInputs(newInputs);
-
-                addInputVariable(nodeId);
-
+                addVariable(nodeId, VariableType.NodeInput, inputs.length);
                 updateNodeInternals(nodeId);
               }}
             />
@@ -200,14 +189,7 @@ export default function ChatGPTMessageNode() {
                 name={input.name}
                 isReadOnly={!isCurrentUserOwner}
                 onConfirmNameChange={(name) => {
-                  const newInputs = adjust<NodeInputItem>(
-                    i,
-                    assoc("name", name)<NodeInputItem>,
-                  )(inputs);
-
-                  setInputs(newInputs);
-
-                  updateInputVariable(nodeId, i, { name });
+                  updateVariable(input.id, { name });
                 }}
                 onRemove={() => {
                   const newInputs = remove(i, 1, inputs);
