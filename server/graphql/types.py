@@ -334,6 +334,11 @@ class Space:
             if db_space.flow_content != None
             else None
         )
+        content_v3 = (
+            json.dumps(db_space.content_v3)
+            if db_space.content_v3 != None
+            else None
+        )
 
         return Space(
             db_space=db_space,
@@ -344,6 +349,7 @@ class Space:
             else ContentVersion.v1,
             content=json.dumps(db_space.content),
             flow_content=flow_content,
+            content_v3=content_v3,
             updated_at=db_space.updated_at,
         )
 
@@ -353,6 +359,7 @@ class Space:
     content_version: ContentVersion
     content: str | None
     flow_content: str | None
+    content_v3: str | None
     updated_at: datetime
 
     @strawberry.field

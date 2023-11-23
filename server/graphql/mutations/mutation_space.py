@@ -42,6 +42,7 @@ class MutationSpace:
         name: str | None = strawberry.UNSET,
         content: str | None = strawberry.UNSET,
         flow_content: str | None = strawberry.UNSET,
+        content_v3: str | None = strawberry.UNSET,
     ) -> Space | None:
         db = info.context.db
 
@@ -64,6 +65,11 @@ class MutationSpace:
             db_space.flow_content = None
         elif flow_content != strawberry.UNSET:
             db_space.flow_content = json.loads(flow_content)
+
+        if content_v3 == None:
+            db_space.content_v3 = None
+        elif content_v3 != strawberry.UNSET:
+            db_space.content_v3 = json.loads(content_v3)
 
         db.commit()
 
