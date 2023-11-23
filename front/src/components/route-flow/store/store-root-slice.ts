@@ -1,25 +1,26 @@
 import { D } from "@mobily/ts-belt";
 import { produce } from "immer";
 import posthog from "posthog-js";
-import { Observable, Subscription, map } from "rxjs";
+import { Subscription, mergeMap } from "rxjs";
+import { invariant } from "ts-invariant";
 import { OperationResult } from "urql";
 import { StateCreator } from "zustand";
-import { SpaceFlowQueryQuery } from "../../../gql/graphql";
+import { ContentVersion, SpaceFlowQueryQuery } from "../../../gql/graphql";
 import {
   FlowContent,
   NodeID,
   VariableID,
   VariableValueMap,
 } from "../../../models/flow-content-types";
-import { client } from "../../../state/urql";
-import { toRxObservableSingle } from "../../../utils/graphql-utils";
+import { convertV2ContentToV3Content } from "../../../models/flow-content-v2-to-v3-utils";
 import { run, RunEventType } from "./flow-run";
-import { SPACE_FLOW_QUERY } from "./graphql-flow";
 import { flowInputItemsSelector } from "./store-flow";
 import {
   assignLocalEdgeProperties,
   assignLocalNodeProperties,
 } from "./store-utils";
+import { fetchContent } from "./store-utils";
+import { saveSpaceContentV3 } from "./store-utils";
 import { FlowState } from "./types-local-state";
 import { NodeAugment } from "./types-local-state";
 import { NodeAugments } from "./types-local-state";
@@ -81,7 +82,7 @@ export const createRootSlice: StateCreator<FlowState, [], [], RootSlice> = (
     });
   }
 
-  let fetchFlowSubscription: Subscription | null = null;
+  let fetchContentSubscription: Subscription | null = null;
   let runFlowSubscription: Subscription | null = null;
 
   return {
@@ -92,31 +93,51 @@ export const createRootSlice: StateCreator<FlowState, [], [], RootSlice> = (
 
       get().resetFlowServerSlice();
 
-      fetchFlowSubscription?.unsubscribe();
-      fetchFlowSubscription = fetchFlowContent(get().spaceId!).subscribe({
-        next({
-          nodes = [],
-          edges = [],
-          nodeConfigs = {},
-          variableValueMaps = [{}],
-        }) {
-          nodes = assignLocalNodeProperties(nodes);
-          edges = assignLocalEdgeProperties(edges);
+      fetchContentSubscription?.unsubscribe();
+      fetchContentSubscription = fetchContent(get().spaceId!)
+        .pipe(
+          mergeMap<OperationResult<SpaceFlowQueryQuery>, Promise<FlowContent>>(
+            async (result): Promise<FlowContent> => {
+              // TODO: Report to telemetry
+              invariant(result.data?.result?.space != null);
 
-          set({ nodes, edges, nodeConfigs, variableValueMaps });
-        },
-        complete() {
-          set({ isInitialized: true });
-        },
-        error(error) {
-          console.error("Error fetching flow content", error);
-        },
-      });
+              const version = result.data.result.space.contentVersion;
+              const contentV2Str = result.data.result.space.flowContent;
+
+              // TODO: Report to telemetry
+              invariant(version != ContentVersion.V1);
+
+              switch (version) {
+                case ContentVersion.V2: {
+                  invariant(contentV2Str != null);
+                  // TODO: Report to telemetry
+                  const contentV2 = JSON.parse(contentV2Str);
+                  const contentV3 = convertV2ContentToV3Content(contentV2);
+                  await saveSpaceContentV3(spaceId, contentV3);
+                  return contentV2 as FlowContent;
+                }
+              }
+            }
+          )
+        )
+        .subscribe({
+          next({ nodes, edges, nodeConfigs, variableValueMaps }) {
+            nodes = assignLocalNodeProperties(nodes);
+            edges = assignLocalEdgeProperties(edges);
+            set({ nodes, edges, nodeConfigs, variableValueMaps });
+          },
+          complete() {
+            set({ isInitialized: true });
+          },
+          error(error) {
+            console.error("Error fetching content", error);
+          },
+        });
     },
 
     deinitializeSpace() {
-      fetchFlowSubscription?.unsubscribe();
-      fetchFlowSubscription = null;
+      fetchContentSubscription?.unsubscribe();
+      fetchContentSubscription = null;
 
       set({ spaceId: null, isInitialized: false });
     },
@@ -223,30 +244,3 @@ export const createRootSlice: StateCreator<FlowState, [], [], RootSlice> = (
     },
   };
 };
-
-function fetchFlowContent(spaceId: string): Observable<Partial<FlowContent>> {
-  return toRxObservableSingle(
-    client.query(
-      SPACE_FLOW_QUERY,
-      { spaceId },
-      { requestPolicy: "network-only" }
-    )
-  ).pipe(
-    map<OperationResult<SpaceFlowQueryQuery>, Partial<FlowContent>>(
-      (result) => {
-        const flowContentStr = result.data?.result?.space?.flowContent;
-
-        if (flowContentStr) {
-          try {
-            return JSON.parse(flowContentStr);
-          } catch (e) {
-            // TODO: handle parse error
-            console.error(e);
-          }
-        }
-
-        return {};
-      }
-    )
-  );
-}

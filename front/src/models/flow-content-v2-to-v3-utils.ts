@@ -11,7 +11,9 @@ import {
   VariableType,
 } from "./flow-content-types";
 
-export function convert(flowContentV2: FlowContent): FlowContentV3 {
+export function convertV2ContentToV3Content(
+  flowContentV2: FlowContent
+): FlowContentV3 {
   const { nodes, edges, nodeConfigs, variableValueMaps } = flowContentV2;
 
   const variableConfigs: VariableConfigs = {};
