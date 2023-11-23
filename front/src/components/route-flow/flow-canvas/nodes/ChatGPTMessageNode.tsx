@@ -5,7 +5,6 @@ import IconButton from "@mui/joy/IconButton";
 import Radio from "@mui/joy/Radio";
 import RadioGroup from "@mui/joy/RadioGroup";
 import Textarea from "@mui/joy/Textarea";
-import { remove } from "ramda";
 import { useContext, useEffect, useMemo, useState } from "react";
 import { Position, useNodeId, useUpdateNodeInternals } from "reactflow";
 import { ChatGPTMessageRole } from "../../../../integrations/openai";
@@ -52,7 +51,7 @@ const selector = (state: FlowState) => ({
   removeNode: state.removeNode,
   addVariable: state.addVariable,
   updateVariable: state.updateVariable,
-  removeInputVariable: state.removeInputVariable,
+  removeVariable: state.removeVariable,
   setDetailPanelContentType: state.setDetailPanelContentType,
   setDetailPanelSelectedNodeId: state.setDetailPanelSelectedNodeId,
   defaultVariableValueMap: state.getDefaultVariableValueMap(),
@@ -70,7 +69,7 @@ export default function ChatGPTMessageNode() {
     removeNode,
     addVariable,
     updateVariable,
-    removeInputVariable,
+    removeVariable,
     setDetailPanelContentType,
     setDetailPanelSelectedNodeId,
     defaultVariableValueMap,
@@ -192,12 +191,7 @@ export default function ChatGPTMessageNode() {
                   updateVariable(input.id, { name });
                 }}
                 onRemove={() => {
-                  const newInputs = remove(i, 1, inputs);
-
-                  setInputs(newInputs);
-
-                  removeInputVariable(nodeId, i);
-
+                  removeVariable(input.id);
                   updateNodeInternals(nodeId);
                 }}
               />

@@ -1,11 +1,9 @@
 import { Connection, EdgeChange, NodeChange } from "reactflow";
 import {
-  FlowOutputItem,
   LocalEdge,
   LocalNode,
   NodeConfig,
   NodeID,
-  NodeOutputID,
 } from "../../../models/flow-content-types";
 import {
   V3NodeConfig,
@@ -65,7 +63,7 @@ export const EVENT_VALIDATION_MAP: {
   // Variables
   [ChangeEventType.ADDING_VARIABLE]: [ChangeEventType.VARIABLE_ADDED],
   [ChangeEventType.REMOVING_VARIABLE]: [ChangeEventType.VARIABLE_REMOVED],
-  [ChangeEventType.UPDATING_VARIABLE]: [],
+  [ChangeEventType.UPDATING_VARIABLE]: [ChangeEventType.VARIABLE_UPDATED],
   // --- Derived ---
   // Derived Nodes
   [ChangeEventType.NODE_ADDED]: [],
@@ -127,8 +125,7 @@ export type ChangeEvent =
     }
   | {
       type: ChangeEventType.REMOVING_VARIABLE;
-      nodeId: NodeID;
-      index: number;
+      variableId: V3VariableID;
     }
   | {
       type: ChangeEventType.UPDATING_VARIABLE;
@@ -170,15 +167,15 @@ export type ChangeEvent =
   // Derived Variables
   | {
       type: ChangeEventType.VARIABLE_UPDATED;
-      variableOldData: FlowOutputItem;
-      variableNewData: FlowOutputItem;
+      prevVariableConfig: VariableConfig;
+      nextVariableConfig: VariableConfig;
     }
   | {
       type: ChangeEventType.VARIABLE_ADDED;
     }
   | {
       type: ChangeEventType.VARIABLE_REMOVED;
-      variableId: NodeOutputID;
+      variableId: V3VariableID;
     }
   // Derived Other
   | {

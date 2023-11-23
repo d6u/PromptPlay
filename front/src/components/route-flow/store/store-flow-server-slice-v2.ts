@@ -1,6 +1,6 @@
 import { A } from "@mobily/ts-belt";
 import Chance from "chance";
-import { produce } from "immer";
+import { current, produce } from "immer";
 import debounce from "lodash/debounce";
 import {
   addEdge,
@@ -13,7 +13,6 @@ import {
   OnEdgesChange,
   OnNodesChange,
 } from "reactflow";
-import invariant from "ts-invariant";
 import { StateCreator } from "zustand";
 import {
   InputValueType,
@@ -233,7 +232,12 @@ export const createFlowServerSliceV2: StateCreator<
         index,
       });
     },
-    removeVariable(variableId: V3VariableID): void {},
+    removeVariable(variableId: V3VariableID): void {
+      startProcessingEventGraph({
+        type: ChangeEventType.REMOVING_VARIABLE,
+        variableId,
+      });
+    },
     updateVariable<
       T extends VariableType,
       R = VariableTypeToVariableConfigTypeMap[T],
@@ -296,8 +300,8 @@ function handleEvent(
         event.index,
         state.variableConfigs,
       );
-    // case ChangeEventType.REMOVING_VARIABLE:
-    //   return handleRemovingVariable(event.nodeId, event.index);
+    case ChangeEventType.REMOVING_VARIABLE:
+      return handleRemovingVariable(event.variableId, state.variableConfigs);
     case ChangeEventType.UPDATING_VARIABLE:
       return handleUpdatingVariable(
         event.variableId,
@@ -581,61 +585,51 @@ function handleAddingVariable(
   const content: Partial<FlowServerSliceStateV2> = {};
   const events: ChangeEvent[] = [];
 
-  let newVariableConfig: VariableConfig | null = null;
-
-  switch (varType) {
-    case VariableType.NodeInput: {
-      const variableConfig: NodeInputVariableConfig = {
-        id: asV3VariableID(`${nodeId}/${randomId()}`),
-        nodeId,
-        index,
-        name: chance.word(),
-        type: varType,
-      };
-      newVariableConfig = variableConfig;
-      break;
-    }
-    case VariableType.NodeOutput: {
-      const variableConfig: NodeOutputVariableConfig = {
-        id: asV3VariableID(`${nodeId}/${randomId()}`),
-        nodeId,
-        index,
-        name: chance.word(),
-        type: varType,
-        valueType: NodeOutputValueType.Other,
-      };
-      newVariableConfig = variableConfig;
-      break;
-    }
-    case VariableType.FlowInput: {
-      const variableConfig: FlowInputVariableConfig = {
-        id: asV3VariableID(`${nodeId}/${randomId()}`),
-        nodeId,
-        index,
-        name: chance.word(),
-        type: varType,
-        valueType: InputValueType.String,
-      };
-      newVariableConfig = variableConfig;
-      break;
-    }
-    case VariableType.FlowOutput: {
-      const variableConfig: FlowOutputVariableConfig = {
-        id: asV3VariableID(`${nodeId}/${randomId()}`),
-        nodeId,
-        index,
-        name: chance.word(),
-        type: varType,
-        valueType: V3FlowOutputValueType.String,
-      };
-      newVariableConfig = variableConfig;
-      break;
-    }
-  }
-
   variableConfigs = produce(variableConfigs, (draft) => {
-    invariant(newVariableConfig != null);
-    draft[newVariableConfig.id] = newVariableConfig;
+    const commonFields = {
+      id: asV3VariableID(`${nodeId}/${randomId()}`),
+      nodeId,
+      index,
+      name: chance.word(),
+    };
+
+    switch (varType) {
+      case VariableType.NodeInput: {
+        const variableConfig: NodeInputVariableConfig = {
+          ...commonFields,
+          type: varType,
+        };
+        draft[variableConfig.id] = variableConfig;
+        break;
+      }
+      case VariableType.NodeOutput: {
+        const variableConfig: NodeOutputVariableConfig = {
+          ...commonFields,
+          type: varType,
+          valueType: NodeOutputValueType.Other,
+        };
+        draft[variableConfig.id] = variableConfig;
+        break;
+      }
+      case VariableType.FlowInput: {
+        const variableConfig: FlowInputVariableConfig = {
+          ...commonFields,
+          type: varType,
+          valueType: InputValueType.String,
+        };
+        draft[variableConfig.id] = variableConfig;
+        break;
+      }
+      case VariableType.FlowOutput: {
+        const variableConfig: FlowOutputVariableConfig = {
+          ...commonFields,
+          type: varType,
+          valueType: V3FlowOutputValueType.String,
+        };
+        draft[variableConfig.id] = variableConfig;
+        break;
+      }
+    }
   });
 
   events.push({
@@ -648,25 +642,27 @@ function handleAddingVariable(
   return [content, events];
 }
 
-// function handleRemovingVariable(nodeId: NodeID, index: number): ChangeEvent[] {
-//   const events: ChangeEvent[] = [];
+function handleRemovingVariable(
+  variableId: V3VariableID,
+  prevVariableConfigs: VariableConfigs,
+): [Partial<FlowServerSliceStateV2>, ChangeEvent[]] {
+  const content: Partial<FlowServerSliceStateV2> = {};
+  const events: ChangeEvent[] = [];
 
-//   const nodeConfigs = produce(get().nodeConfigs, (draft) => {
-//     const nodeConfig = draft[nodeId] as InputNodeConfig;
-//     const variableId = nodeConfig.outputs[index].id;
+  const variableConfigs = produce(prevVariableConfigs, (draft) => {
+    delete draft[variableId];
+  });
 
-//     nodeConfig.outputs.splice(index, 1);
+  events.push({
+    type: ChangeEventType.VARIABLE_REMOVED,
+    variableId,
+  });
 
-//     events.push({
-//       type: ChangeEventType.VARIABLE_REMOVED,
-//       variableId,
-//     });
-//   });
+  content.isFlowContentDirty = true;
+  content.variableConfigs = variableConfigs;
 
-//   set({ isFlowContentDirty: true, nodeConfigs: nodeConfigs });
-
-//   return events;
-// }
+  return [content, events];
+}
 
 function handleUpdatingVariable(
   variableId: V3VariableID,
@@ -677,16 +673,15 @@ function handleUpdatingVariable(
   const events: ChangeEvent[] = [];
 
   const variableConfigs = produce(prevVariableConfigs, (draft) => {
-    const variableConfig = draft[variableId];
-    Object.assign(variableConfig, change);
-  });
+    const prevVariableConfig = current(draft[variableId]);
+    Object.assign(draft[variableId], change);
 
-  console.log(
-    "handleUpdatingVariable",
-    prevVariableConfigs,
-    variableConfigs,
-    prevVariableConfigs === variableConfigs,
-  );
+    events.push({
+      type: ChangeEventType.VARIABLE_UPDATED,
+      prevVariableConfig,
+      nextVariableConfig: current(draft[variableId]),
+    });
+  });
 
   content.isFlowContentDirty = true;
   content.variableConfigs = variableConfigs;
