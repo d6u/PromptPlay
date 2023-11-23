@@ -3,15 +3,15 @@ import { map } from "rxjs";
 import { SpaceContentVersionQuery } from "../../appGraphql";
 import { ContentVersion } from "../../gql/graphql";
 import { client } from "../../state/urql";
-import fromWonka from "../../utils/fromWonka";
-import { CreateObservableFunction } from "../../utils/react-router-utils";
+import { fromWonka } from "../../utils/graphql-utils";
+import { createObservableLoader } from "../../utils/react-router-utils";
 import { pathToCurrentContent } from "../../utils/route-utils";
 
 export type FlowLoaderData = {
   isCurrentUserOwner: boolean;
 };
 
-const flowLoader: CreateObservableFunction<FlowLoaderData> = (params) => {
+const loader = createObservableLoader<FlowLoaderData>((params) => {
   const spaceId = params.spaceId!;
 
   return fromWonka(
@@ -39,6 +39,6 @@ const flowLoader: CreateObservableFunction<FlowLoaderData> = (params) => {
       return { isCurrentUserOwner: !result.data.space.isReadOnly };
     })
   );
-};
+});
 
-export default flowLoader;
+export default loader;

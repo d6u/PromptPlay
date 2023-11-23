@@ -17,7 +17,7 @@ import { OperationResult } from "urql";
 import { StateCreator } from "zustand";
 import { SpaceFlowQueryQuery } from "../../../gql/graphql";
 import { client } from "../../../state/urql";
-import fromWonka from "../../../utils/fromWonka";
+import { fromWonka } from "../../../utils/graphql-utils";
 import randomId from "../../../utils/randomId";
 import {
   ChangeEventType,

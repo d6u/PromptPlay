@@ -6,12 +6,11 @@ import {
   Outlet,
   Navigate,
 } from "react-router-dom";
-import { createLoader } from "../utils/react-router-utils";
 import { ROOT_PATH, FLOWS_PATH_PATTERN } from "../utils/route-utils";
 import Header from "./common/header/Header";
 import RouteFlow from "./route-flow";
 import flowLoader from "./route-flow/route-loader";
-import RootRoute from "./route-root/RootRoute";
+import RootRoute from "./route-root";
 
 export default function Routes() {
   const router = useMemo(() => {
@@ -31,7 +30,7 @@ export default function Routes() {
           },
           {
             path: FLOWS_PATH_PATTERN,
-            loader: createLoader(flowLoader),
+            loader: flowLoader,
             element: <RouteFlow />,
           },
         ],
