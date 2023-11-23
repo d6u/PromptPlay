@@ -5,19 +5,19 @@ import Chance from "chance";
 import { adjust, append, assoc, remove } from "ramda";
 import { useContext, useMemo, useState } from "react";
 import { Position, useUpdateNodeInternals, useNodeId } from "reactflow";
+import {
+  NodeInputID,
+  JavaScriptFunctionNodeConfig,
+  NodeID,
+  NodeInputItem,
+  NodeType,
+} from "../../../../models/flow-content-types";
 import randomId from "../../../../utils/randomId";
 import FlowContext from "../../FlowContext";
 import TextareaReadonly from "../../common/TextareaReadonly";
 import { LabelWithIconContainer } from "../../common/flow-common";
 import { CopyIcon } from "../../common/flow-common";
 import { useFlowStore } from "../../store/store-flow";
-import {
-  InputID,
-  JavaScriptFunctionNodeConfig,
-  NodeID,
-  NodeInputItem,
-  NodeType,
-} from "../../store/types-flow-content";
 import { FlowState } from "../../store/types-local-state";
 import AddVariableButton from "./node-common/AddVariableButton";
 import HeaderSection from "./node-common/HeaderSection";
@@ -126,7 +126,7 @@ export default function JavaScriptFunctionNode() {
             <AddVariableButton
               onClick={() => {
                 const newInputs = append<NodeInputItem>({
-                  id: `${nodeId}/${randomId()}` as InputID,
+                  id: `${nodeId}/${randomId()}` as NodeInputID,
                   name: chance.word(),
                 })(inputs);
 

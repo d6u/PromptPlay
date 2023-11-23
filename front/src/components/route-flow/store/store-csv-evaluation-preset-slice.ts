@@ -1,9 +1,9 @@
 import { D, G, Option } from "@mobily/ts-belt";
 import { StateCreator } from "zustand";
 import { graphql } from "../../../gql";
+import { VariableID } from "../../../models/flow-content-types";
 import { client } from "../../../state/urql";
 import { FlowOutputVariableMap } from "./flow-run";
-import { VariableID } from "./types-flow-content";
 import { FlowState } from "./types-local-state";
 
 type ConfigContent = {

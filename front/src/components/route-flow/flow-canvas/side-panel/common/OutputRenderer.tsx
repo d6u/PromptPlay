@@ -1,11 +1,11 @@
 import styled from "@emotion/styled";
 import { ReactNode } from "react";
-import { useFlowStore } from "../../../store/store-flow";
 import {
   FlowOutputItem,
   NodeOutputItem,
   OutputValueType,
-} from "../../../store/types-flow-content";
+} from "../../../../../models/flow-content-types";
+import { useFlowStore } from "../../../store/store-flow";
 import { FlowState } from "../../../store/types-local-state";
 import OutputDisplay from "./OutputDisplay";
 

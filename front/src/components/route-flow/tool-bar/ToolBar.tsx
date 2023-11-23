@@ -12,10 +12,10 @@ import {
 } from "@mui/joy";
 import { useCallback, useContext, useEffect, useState } from "react";
 import { useStoreApi } from "reactflow";
+import { NodeType } from "../../../models/flow-content-types";
 import FlowContext from "../FlowContext";
 import { NODE_BOX_WIDTH } from "../flow-canvas/nodes/node-common/NodeBox";
 import { useFlowStore } from "../store/store-flow";
-import { NodeType } from "../store/types-flow-content";
 import { FlowState } from "../store/types-local-state";
 import { DetailPanelContentType } from "../store/types-local-state";
 

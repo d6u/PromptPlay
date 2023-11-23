@@ -1,6 +1,6 @@
 import { useMemo } from "react";
+import { NodeOutputItem } from "../../../../../models/flow-content-types";
 import { useFlowStore } from "../../../store/store-flow";
-import { NodeOutputItem } from "../../../store/types-flow-content";
 import { FlowState } from "../../../store/types-local-state";
 import OutputRenderer from "../common/OutputRenderer";
 import {

@@ -12,28 +12,11 @@ import {
   applyEdgeChanges,
   applyNodeChanges,
 } from "reactflow";
-import { Observable, Subscription, first, map, share } from "rxjs";
-import { OperationResult } from "urql";
 import { StateCreator } from "zustand";
-import { SpaceFlowQueryQuery } from "../../../gql/graphql";
-import { client } from "../../../state/urql";
-import { fromWonka } from "../../../utils/graphql-utils";
-import randomId from "../../../utils/randomId";
 import {
-  ChangeEventType,
-  ChangeEvent,
-  EVENT_VALIDATION_MAP,
-} from "./EventGraph";
-import { DEFAULT_EDGE_STYLE, DRAG_HANDLE_CLASS_NAME } from "./flowConstants";
-import {
-  SPACE_FLOW_QUERY,
-  UPDATE_SPACE_FLOW_CONTENT_MUTATION,
-} from "./graphql-flow";
-import {
-  FlowContent,
   FlowInputItem,
   FlowOutputItem,
-  InputID,
+  NodeInputID,
   InputNodeConfig,
   InputValueType,
   LocalEdge,
@@ -43,13 +26,21 @@ import {
   NodeInputItem,
   NodeOutputItem,
   NodeType,
-  OutputID,
+  NodeOutputID,
   OutputNodeConfig,
   OutputValueType,
   VariableID,
   VariableValueMap,
-} from "./types-flow-content";
-import { LocalNode } from "./types-flow-content";
+} from "../../../models/flow-content-types";
+import { LocalNode } from "../../../models/flow-content-types";
+import { client } from "../../../state/urql";
+import randomId from "../../../utils/randomId";
+import {
+  ChangeEventType,
+  ChangeEvent,
+  EVENT_VALIDATION_MAP,
+} from "./EventGraph";
+import { UPDATE_SPACE_FLOW_CONTENT_MUTATION } from "./graphql-flow";
 import { FlowState } from "./types-local-state";
 import { createNode, createNodeConfig } from "./utils-flow";
 
@@ -65,8 +56,7 @@ type FlowServerSliceStateV2 = {
 };
 
 export type FlowServerSliceV2 = FlowServerSliceStateV2 & {
-  fetchFlowConfiguration(): Observable<Partial<FlowContent>>;
-  cancelFetchFlowConfiguration(): void;
+  resetFlowServerSlice(): void;
 
   onNodesChange: OnNodesChange;
   onEdgesChange: OnEdgesChange;
@@ -585,7 +575,7 @@ export const createFlowServerSliceV2: StateCreator<
       const nodeConfig = draft[nodeId]!;
       if ("inputs" in nodeConfig) {
         nodeConfig.inputs.push({
-          id: `${nodeId}/${randomId()}` as InputID,
+          id: `${nodeId}/${randomId()}` as NodeInputID,
           name: chance.word(),
         });
       }
@@ -603,7 +593,7 @@ export const createFlowServerSliceV2: StateCreator<
       const nodeConfig = draft[nodeId]!;
       if (nodeConfig.nodeType === NodeType.InputNode) {
         nodeConfig.outputs.push({
-          id: `${nodeId}/${randomId()}` as OutputID,
+          id: `${nodeId}/${randomId()}` as NodeOutputID,
           name: chance.word(),
           valueType: InputValueType.String,
         });
@@ -811,7 +801,7 @@ export const createFlowServerSliceV2: StateCreator<
   }
 
   function processInputVariableRemoved(
-    inputVariableId: InputID
+    inputVariableId: NodeInputID
   ): ChangeEvent[] {
     const events: ChangeEvent[] = [];
 
@@ -850,7 +840,7 @@ export const createFlowServerSliceV2: StateCreator<
   }
 
   function processOutputVariableRemoved(
-    outputVariableId: OutputID
+    outputVariableId: NodeOutputID
   ): ChangeEvent[] {
     const events: ChangeEvent[] = [];
 
@@ -889,7 +879,7 @@ export const createFlowServerSliceV2: StateCreator<
   }
 
   function processVariableFlowInputRemoved(
-    variableId: OutputID
+    variableId: NodeOutputID
   ): ChangeEvent[] {
     const events: ChangeEvent[] = [];
 
@@ -928,7 +918,7 @@ export const createFlowServerSliceV2: StateCreator<
   }
 
   function processVariableFlowOutputRemoved(
-    variableId: InputID
+    variableId: NodeInputID
   ): ChangeEvent[] {
     const events: ChangeEvent[] = [];
 
@@ -1187,7 +1177,7 @@ export const createFlowServerSliceV2: StateCreator<
     const nodeConfigs = produce(get().nodeConfigs, (draft) => {
       const nodeConfig = draft[nodeId] as InputNodeConfig;
       nodeConfig.outputs.push({
-        id: `${nodeId}/${randomId()}` as OutputID,
+        id: `${nodeId}/${randomId()}` as NodeOutputID,
         name: chance.word(),
         valueType: InputValueType.String,
       });
@@ -1208,7 +1198,7 @@ export const createFlowServerSliceV2: StateCreator<
     const nodeConfigs = produce(get().nodeConfigs, (draft) => {
       const nodeConfig = draft[nodeId] as OutputNodeConfig;
       nodeConfig.inputs.push({
-        id: `${nodeId}/${randomId()}` as InputID,
+        id: `${nodeId}/${randomId()}` as NodeInputID,
         name: chance.word(),
       });
     });
@@ -1222,73 +1212,11 @@ export const createFlowServerSliceV2: StateCreator<
     return events;
   }
 
-  let fetchFlowSubscription: Subscription | null = null;
-
   return {
     ...FLOW_SERVER_SLICE_INITIAL_STATE_V2,
 
-    fetchFlowConfiguration(): Observable<Partial<FlowContent>> {
-      const spaceId = getSpaceId();
-
-      fetchFlowSubscription?.unsubscribe();
-      fetchFlowSubscription = null;
-
+    resetFlowServerSlice() {
       set(FLOW_SERVER_SLICE_INITIAL_STATE_V2);
-
-      const obs = fromWonka(
-        client.query(
-          SPACE_FLOW_QUERY,
-          { spaceId },
-          { requestPolicy: "network-only" }
-        )
-      ).pipe(
-        first(),
-        map<OperationResult<SpaceFlowQueryQuery>, Partial<FlowContent>>(
-          (result) => {
-            const flowContentStr = result.data?.result?.space?.flowContent;
-
-            if (flowContentStr) {
-              try {
-                return JSON.parse(flowContentStr);
-              } catch (e) {
-                // TODO: handle parse error
-                console.error(e);
-              }
-            }
-
-            return {};
-          }
-        ),
-        share()
-      );
-
-      fetchFlowSubscription = obs.subscribe({
-        next({
-          nodes = [],
-          edges = [],
-          nodeConfigs = {},
-          variableValueMaps = [{}],
-        }) {
-          nodes = assignLocalNodeProperties(nodes);
-          edges = assignLocalEdgeProperties(edges);
-
-          set({
-            nodeConfigs: nodeConfigs,
-            variableValueMaps: variableValueMaps,
-            nodes: nodes,
-            edges: edges,
-          });
-        },
-        error(error) {
-          console.error(error);
-        },
-      });
-
-      return obs;
-    },
-    cancelFetchFlowConfiguration(): void {
-      fetchFlowSubscription?.unsubscribe();
-      fetchFlowSubscription = null;
     },
 
     getDefaultVariableValueMap() {
@@ -1461,23 +1389,3 @@ export const createFlowServerSliceV2: StateCreator<
     },
   };
 };
-
-function assignLocalNodeProperties(nodes: LocalNode[]): LocalNode[] {
-  return produce(nodes, (draft) => {
-    for (const node of draft) {
-      if (!node.dragHandle) {
-        node.dragHandle = `.${DRAG_HANDLE_CLASS_NAME}`;
-      }
-    }
-  });
-}
-
-function assignLocalEdgeProperties(edges: LocalEdge[]): LocalEdge[] {
-  return produce(edges, (draft) => {
-    for (const edge of draft) {
-      if (!edge.style) {
-        edge.style = DEFAULT_EDGE_STYLE;
-      }
-    }
-  });
-}

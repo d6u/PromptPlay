@@ -17,8 +17,9 @@ const documents = {
     "\n  query HeaderSpaceNameQuery($spaceId: UUID!) {\n    result: space(id: $spaceId) {\n      isReadOnly\n      space {\n        id\n        name\n      }\n    }\n  }\n": types.HeaderSpaceNameQueryDocument,
     "\n  query EvaluationModeCSVContentQuery($spaceId: UUID!, $presetId: ID!) {\n    result: space(id: $spaceId) {\n      space {\n        id\n        csvEvaluationPreset(id: $presetId) {\n          id\n          csvContent\n          configContent\n        }\n      }\n    }\n  }\n": types.EvaluationModeCsvContentQueryDocument,
     "\n  query PresetSelectorQuery($spaceId: UUID!) {\n    result: space(id: $spaceId) {\n      space {\n        id\n        csvEvaluationPresets {\n          id\n          name\n        }\n      }\n    }\n  }\n": types.PresetSelectorQueryDocument,
-    "\n  query SpaceFlowQuery($spaceId: UUID!) {\n    result: space(id: $spaceId) {\n      space {\n        id\n        name\n        contentVersion\n        flowContent\n      }\n    }\n  }\n": types.SpaceFlowQueryDocument,
+    "\n  query SpaceFlowQuery($spaceId: UUID!) {\n    result: space(id: $spaceId) {\n      space {\n        id\n        name\n        contentVersion\n        flowContent\n        contentV3\n      }\n    }\n  }\n": types.SpaceFlowQueryDocument,
     "\n  mutation UpdateSpaceFlowContentMutation(\n    $spaceId: ID!\n    $flowContent: String!\n  ) {\n    updateSpace(id: $spaceId, flowContent: $flowContent) {\n      id\n      name\n      flowContent\n    }\n  }\n": types.UpdateSpaceFlowContentMutationDocument,
+    "\n  mutation UpdateSpaceContentV3Mutation($spaceId: ID!, $contentV3: String!) {\n    updateSpace(id: $spaceId, contentV3: $contentV3) {\n      id\n      contentV3\n    }\n  }\n": types.UpdateSpaceContentV3MutationDocument,
     "\n  mutation CreateCsvEvaluationPresetMutation(\n    $spaceId: ID!\n    $name: String!\n    $csvContent: String\n  ) {\n    result: createCsvEvaluationPreset(\n      spaceId: $spaceId\n      name: $name\n      csvContent: $csvContent\n    ) {\n      space {\n        id\n        csvEvaluationPresets {\n          id\n        }\n      }\n      csvEvaluationPreset {\n        id\n        name\n        csvContent\n        configContent\n      }\n    }\n  }\n": types.CreateCsvEvaluationPresetMutationDocument,
     "\n  mutation UpdateCsvEvaluationPresetMutation(\n    $presetId: ID!\n    $name: String\n    $csvContent: String\n  ) {\n    updateCsvEvaluationPreset(\n      presetId: $presetId\n      name: $name\n      csvContent: $csvContent\n    ) {\n      id\n      name\n      csvContent\n      configContent\n    }\n  }\n": types.UpdateCsvEvaluationPresetMutationDocument,
     "\n  mutation DeleteCsvEvaluationPresetMutation($presetId: ID!) {\n    space: deleteCsvEvaluationPreset(id: $presetId) {\n      id\n      csvEvaluationPresets {\n        id\n      }\n    }\n  }\n": types.DeleteCsvEvaluationPresetMutationDocument,
@@ -67,11 +68,15 @@ export function graphql(source: "\n  query PresetSelectorQuery($spaceId: UUID!) 
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n  query SpaceFlowQuery($spaceId: UUID!) {\n    result: space(id: $spaceId) {\n      space {\n        id\n        name\n        contentVersion\n        flowContent\n      }\n    }\n  }\n"): (typeof documents)["\n  query SpaceFlowQuery($spaceId: UUID!) {\n    result: space(id: $spaceId) {\n      space {\n        id\n        name\n        contentVersion\n        flowContent\n      }\n    }\n  }\n"];
+export function graphql(source: "\n  query SpaceFlowQuery($spaceId: UUID!) {\n    result: space(id: $spaceId) {\n      space {\n        id\n        name\n        contentVersion\n        flowContent\n        contentV3\n      }\n    }\n  }\n"): (typeof documents)["\n  query SpaceFlowQuery($spaceId: UUID!) {\n    result: space(id: $spaceId) {\n      space {\n        id\n        name\n        contentVersion\n        flowContent\n        contentV3\n      }\n    }\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "\n  mutation UpdateSpaceFlowContentMutation(\n    $spaceId: ID!\n    $flowContent: String!\n  ) {\n    updateSpace(id: $spaceId, flowContent: $flowContent) {\n      id\n      name\n      flowContent\n    }\n  }\n"): (typeof documents)["\n  mutation UpdateSpaceFlowContentMutation(\n    $spaceId: ID!\n    $flowContent: String!\n  ) {\n    updateSpace(id: $spaceId, flowContent: $flowContent) {\n      id\n      name\n      flowContent\n    }\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  mutation UpdateSpaceContentV3Mutation($spaceId: ID!, $contentV3: String!) {\n    updateSpace(id: $spaceId, contentV3: $contentV3) {\n      id\n      contentV3\n    }\n  }\n"): (typeof documents)["\n  mutation UpdateSpaceContentV3Mutation($spaceId: ID!, $contentV3: String!) {\n    updateSpace(id: $spaceId, contentV3: $contentV3) {\n      id\n      contentV3\n    }\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

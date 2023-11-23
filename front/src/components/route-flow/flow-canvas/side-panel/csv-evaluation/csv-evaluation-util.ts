@@ -9,6 +9,11 @@ import {
   reduce,
 } from "rxjs";
 import {
+  LocalEdge,
+  NodeConfigs,
+  NodeOutputID,
+} from "../../../../../models/flow-content-types";
+import {
   FlowInputVariableMap,
   FlowOutputVariableMap,
   RunEvent,
@@ -16,11 +21,6 @@ import {
   run,
 } from "../../../store/flow-run";
 import { VariableColumnMap } from "../../../store/store-csv-evaluation-preset-slice";
-import {
-  LocalEdge,
-  NodeConfigs,
-  OutputID,
-} from "../../../store/types-flow-content";
 import { CSVData } from "./csv-evaluation-common";
 
 export function runForEachRow({
@@ -48,7 +48,7 @@ export function runForEachRow({
 
           for (const [inputId, colIndex] of Object.entries(variableColumnMap)) {
             const value = colIndex != null ? row[colIndex] : null;
-            inputVariableMap[inputId as OutputID] = value;
+            inputVariableMap[inputId as NodeOutputID] = value;
           }
 
           return inputVariableMap;

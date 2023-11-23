@@ -1,7 +1,7 @@
 import styled from "@emotion/styled";
 import { useNodeId } from "reactflow";
+import { NodeID } from "../../../../../models/flow-content-types";
 import { useFlowStore } from "../../../store/store-flow";
-import { NodeID } from "../../../store/types-flow-content";
 import { FlowState } from "../../../store/types-local-state";
 import { DetailPanelContentType } from "../../../store/types-local-state";
 import { ROW_MARGIN_TOP } from "./NodeInputModifyRow";

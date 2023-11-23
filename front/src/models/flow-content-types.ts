@@ -1,16 +1,28 @@
 import { Edge, Node, XYPosition } from "reactflow";
-import { ChatGPTMessageRole } from "../../../integrations/openai";
+import { ChatGPTMessageRole } from "../integrations/openai";
+
+// SECTION: ID Types
 
 // See https://stackoverflow.com/questions/41790393/typescript-strict-alias-checking
 // for the usage of `& { readonly "": unique symbol }`
 export type NodeID = string & { readonly "": unique symbol };
-export type EdgeID = string & { readonly "": unique symbol };
-export type InputID = string & { readonly "": unique symbol };
-export type OutputID = string & { readonly "": unique symbol };
-export type VariableID = InputID | OutputID;
 
-// Server types
-// ============
+export type EdgeID = string & { readonly "": unique symbol };
+
+export type NodeInputID = string & { readonly "": unique symbol };
+export type NodeOutputID = string & { readonly "": unique symbol };
+export type FlowInputID = string & { readonly "": unique symbol };
+export type FlowOutputID = string & { readonly "": unique symbol };
+
+export type VariableID =
+  | NodeInputID
+  | NodeOutputID
+  | FlowInputID
+  | FlowOutputID;
+
+// !SECTION
+
+// SECTION: Root Types
 
 export type FlowContent = {
   nodes: ServerNode[];
@@ -19,6 +31,10 @@ export type FlowContent = {
   variableValueMaps: VariableValueMap[];
 };
 
+// !SECTION
+
+// SECTION: Node Types
+
 export type ServerNode = {
   id: NodeID;
   type: NodeType;
@@ -26,20 +42,30 @@ export type ServerNode = {
   data: null;
 };
 
-export type NodeConfigs = Record<NodeID, NodeConfig | undefined>;
+export type LocalNode = Omit<Node<null, NodeType>, "id" | "type" | "data"> &
+  ServerNode;
+
+// !SECTION
+
+// SECTION: Edge Types
 
 export type ServerEdge = {
   id: EdgeID;
   source: NodeID;
-  sourceHandle: OutputID;
+  sourceHandle: NodeOutputID;
   target: NodeID;
-  targetHandle: InputID;
+  targetHandle: NodeInputID;
 };
 
-export type VariableValueMap = Record<VariableID, unknown>;
+export type LocalEdge = Omit<
+  Edge<never>,
+  "id" | "source" | "sourceHandle" | "target" | "targetHandle"
+> &
+  ServerEdge;
 
-// Node
-// ----
+// !SECTION
+
+// SECTION: NodeConfig Types
 
 export enum NodeType {
   InputNode = "InputNode",
@@ -51,6 +77,8 @@ export enum NodeType {
   HuggingFaceInference = "HuggingFaceInference",
   ElevenLabs = "ElevenLabs",
 }
+
+export type NodeConfigs = Record<NodeID, NodeConfig>;
 
 export type NodeConfig =
   | InputNodeConfig
@@ -151,27 +179,29 @@ export type ElevenLabsNodeConfig = NodeConfigCommon & {
   outputs: NodeOutputItem[];
 };
 
-// Input / Output
+// !SECTION
+
+// SECTION: Variable Types
 
 export type NodeInputItem = {
-  id: InputID;
+  id: NodeInputID;
   name: string;
 };
 
 export type NodeOutputItem = {
-  id: OutputID;
+  id: NodeOutputID;
   name: string;
   valueType?: OutputValueType;
 };
 
 export type FlowInputItem = {
-  id: OutputID;
+  id: NodeOutputID;
   name: string;
   valueType: InputValueType;
 };
 
 export type FlowOutputItem = {
-  id: InputID;
+  id: NodeInputID;
   name: string;
   valueType?: OutputValueType;
 };
@@ -185,14 +215,77 @@ export enum OutputValueType {
   Audio = "Audio",
 }
 
-// Edge
-// ----
+// !SECTION
 
-export type LocalNode = Omit<Node<null, NodeType>, "id" | "type" | "data"> &
-  ServerNode;
+// SECTION: VariableValueMap Types
 
-export type LocalEdge = Omit<
-  Edge<never>,
-  "id" | "source" | "sourceHandle" | "target" | "targetHandle"
-> &
-  ServerEdge;
+export type VariableValueMap = Record<VariableID, unknown>;
+
+// !SECTION
+
+// SECTION: V3 Root Types
+
+export type FlowContentV3 = {
+  nodes: ServerNode[];
+  edges: ServerEdge[];
+  nodeConfigs: NodeConfigs;
+  variableConfigs: VariableConfigs;
+  variableValueMaps: VariableValueMap[];
+};
+
+// !SECTION
+
+// SECTION: V3 ID Types
+
+export type VariableIDV3 = string & { readonly "": unique symbol };
+
+// !SECTION
+
+// SECTION: V3 Variable Types
+
+export enum VariableType {
+  NodeInput = "NodeInput",
+  NodeOutput = "NodeOutput",
+  FlowInput = "FlowInput",
+  FlowOutput = "FlowOutput",
+}
+
+export type VariableConfigs = Record<VariableIDV3, VariableConfig>;
+
+export type VariableConfig =
+  | NodeInputVariableConfig
+  | NodeOutputVariableConfig
+  | FlowInputVariableConfig
+  | FlowOutputVariableConfig;
+
+type VariableConfigCommon = {
+  id: VariableIDV3;
+  nodeId: NodeID;
+  index: number;
+  name: string;
+};
+
+export type NodeInputVariableConfig = VariableConfigCommon & {
+  type: VariableType.NodeInput;
+};
+
+export type NodeOutputVariableConfig = VariableConfigCommon & {
+  type: VariableType.NodeOutput;
+};
+
+export type FlowInputVariableConfig = VariableConfigCommon & {
+  type: VariableType.FlowInput;
+  valueType: InputValueType;
+};
+
+export type FlowOutputVariableConfig = VariableConfigCommon & {
+  type: VariableType.FlowOutput;
+  valueType: OutputValueTypeV3;
+};
+
+export enum OutputValueTypeV3 {
+  Audio = "Audio",
+  String = "String",
+}
+
+// !SECTION

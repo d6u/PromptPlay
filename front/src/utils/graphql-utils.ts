@@ -1,4 +1,4 @@
-import { Observable } from "rxjs";
+import { Observable, first } from "rxjs";
 import { OperationResult, OperationResultSource } from "urql";
 import { toObservable, pipe } from "wonka";
 
@@ -9,4 +9,10 @@ export function fromWonka<T>(
     const subscription = pipe(source, toObservable).subscribe(observer);
     return () => subscription.unsubscribe();
   });
+}
+
+export function toRxObservableSingle<T>(
+  source: OperationResultSource<OperationResult<T>>
+): Observable<OperationResult<T>> {
+  return fromWonka(source).pipe(first());
 }

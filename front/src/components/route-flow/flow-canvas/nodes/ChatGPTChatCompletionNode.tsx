@@ -9,6 +9,12 @@ import { useContext, useEffect, useMemo, useState } from "react";
 import { Position, useNodeId } from "reactflow";
 import { NEW_LINE_SYMBOL } from "../../../../integrations/openai";
 import {
+  ChatGPTChatCompletionNodeConfig,
+  NodeID,
+  NodeType,
+  OpenAIChatModel,
+} from "../../../../models/flow-content-types";
+import {
   LocalStorageState,
   SpaceState,
   useLocalStorageStore,
@@ -17,12 +23,6 @@ import {
 import FlowContext from "../../FlowContext";
 import InputReadonly from "../../common/InputReadonly";
 import { useFlowStore } from "../../store/store-flow";
-import {
-  ChatGPTChatCompletionNodeConfig,
-  NodeID,
-  NodeType,
-  OpenAIChatModel,
-} from "../../store/types-flow-content";
 import { FlowState } from "../../store/types-local-state";
 import HeaderSection from "./node-common/HeaderSection";
 import HelperTextContainer from "./node-common/HelperTextContainer";

@@ -2,13 +2,13 @@ import styled from "@emotion/styled";
 import { A, D } from "@mobily/ts-belt";
 import { Button } from "@mui/joy";
 import { useContext } from "react";
+import { InputValueType } from "../../../../../models/flow-content-types";
 import FlowContext from "../../../FlowContext";
 import {
   flowInputItemsWithNodeConfigSelector,
   flowOutputItemsSelector,
   useFlowStore,
 } from "../../../store/store-flow";
-import { InputValueType } from "../../../store/types-flow-content";
 import { FlowState } from "../../../store/types-local-state";
 import InputBlock from "../common/InputBlock";
 import OutputRenderer from "../common/OutputRenderer";

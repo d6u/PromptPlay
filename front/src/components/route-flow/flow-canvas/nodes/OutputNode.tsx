@@ -3,16 +3,16 @@ import Chance from "chance";
 import { adjust, append, assoc, remove } from "ramda";
 import { useContext, useMemo, useState } from "react";
 import { Position, useUpdateNodeInternals, useNodeId } from "reactflow";
-import randomId from "../../../../utils/randomId";
-import FlowContext from "../../FlowContext";
-import { useFlowStore } from "../../store/store-flow";
 import {
   FlowOutputItem,
-  InputID,
+  NodeInputID,
   NodeID,
   NodeType,
   OutputNodeConfig,
-} from "../../store/types-flow-content";
+} from "../../../../models/flow-content-types";
+import randomId from "../../../../utils/randomId";
+import FlowContext from "../../FlowContext";
+import { useFlowStore } from "../../store/store-flow";
 import { FlowState } from "../../store/types-local-state";
 import { DetailPanelContentType } from "../../store/types-local-state";
 import AddVariableButton from "./node-common/AddVariableButton";
@@ -101,7 +101,7 @@ export default function OutputNode() {
             <AddVariableButton
               onClick={() => {
                 const newInputs = append<FlowOutputItem>({
-                  id: `${nodeId}/${randomId()}` as InputID,
+                  id: `${nodeId}/${randomId()}` as NodeInputID,
                   name: chance.word(),
                 })(inputs);
 

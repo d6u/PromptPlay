@@ -1,17 +1,32 @@
 import { D } from "@mobily/ts-belt";
 import { produce } from "immer";
 import posthog from "posthog-js";
-import { Subscription } from "rxjs";
+import { Subscription, mergeMap } from "rxjs";
+import { invariant } from "ts-invariant";
+import { OperationResult } from "urql";
 import { StateCreator } from "zustand";
+import { ContentVersion, SpaceFlowQueryQuery } from "../../../gql/graphql";
+import {
+  FlowContent,
+  NodeID,
+  VariableID,
+  VariableValueMap,
+} from "../../../models/flow-content-types";
+import { convertV2ContentToV3Content } from "../../../models/flow-content-v2-to-v3-utils";
 import { run, RunEventType } from "./flow-run";
 import { flowInputItemsSelector } from "./store-flow";
-import { NodeID, VariableID, VariableValueMap } from "./types-flow-content";
+import {
+  assignLocalEdgeProperties,
+  assignLocalNodeProperties,
+} from "./store-utils";
+import { fetchContent } from "./store-utils";
+import { saveSpaceContentV3 } from "./store-utils";
 import { FlowState } from "./types-local-state";
 import { NodeAugment } from "./types-local-state";
 import { NodeAugments } from "./types-local-state";
 import { DetailPanelContentType } from "./types-local-state";
 
-type ClientSliceState = {
+type RootSliceState = {
   spaceId: string | null;
   isInitialized: boolean;
   detailPanelContentType: DetailPanelContentType;
@@ -20,7 +35,7 @@ type ClientSliceState = {
   isRunning: boolean;
 };
 
-export type ClientSlice = ClientSliceState & {
+export type RootSlice = RootSliceState & {
   initializeSpace(spaceId: string): void;
   deinitializeSpace(): void;
   setDetailPanelContentType(type: DetailPanelContentType): void;
@@ -31,7 +46,7 @@ export type ClientSlice = ClientSliceState & {
   stopRunningFlow(): void;
 };
 
-const CLIENT_SLICE_INITIAL_STATE: ClientSliceState = {
+const ROOT_SLICE_INITIAL_STATE: RootSliceState = {
   spaceId: null,
   isInitialized: false,
   detailPanelContentType: DetailPanelContentType.Off,
@@ -40,7 +55,7 @@ const CLIENT_SLICE_INITIAL_STATE: ClientSliceState = {
   isRunning: false,
 };
 
-export const createClientSlice: StateCreator<FlowState, [], [], ClientSlice> = (
+export const createRootSlice: StateCreator<FlowState, [], [], RootSlice> = (
   set,
   get
 ) => {
@@ -67,25 +82,62 @@ export const createClientSlice: StateCreator<FlowState, [], [], ClientSlice> = (
     });
   }
 
+  let fetchContentSubscription: Subscription | null = null;
   let runFlowSubscription: Subscription | null = null;
 
   return {
-    ...CLIENT_SLICE_INITIAL_STATE,
+    ...ROOT_SLICE_INITIAL_STATE,
 
     initializeSpace(spaceId: string) {
       set({ spaceId, isInitialized: false });
 
-      get()
-        .fetchFlowConfiguration()
+      get().resetFlowServerSlice();
+
+      fetchContentSubscription?.unsubscribe();
+      fetchContentSubscription = fetchContent(get().spaceId!)
+        .pipe(
+          mergeMap<OperationResult<SpaceFlowQueryQuery>, Promise<FlowContent>>(
+            async (result): Promise<FlowContent> => {
+              // TODO: Report to telemetry
+              invariant(result.data?.result?.space != null);
+
+              const version = result.data.result.space.contentVersion;
+              const contentV2Str = result.data.result.space.flowContent;
+
+              // TODO: Report to telemetry
+              invariant(version != ContentVersion.V1);
+
+              switch (version) {
+                case ContentVersion.V2: {
+                  invariant(contentV2Str != null);
+                  // TODO: Report to telemetry
+                  const contentV2 = JSON.parse(contentV2Str);
+                  const contentV3 = convertV2ContentToV3Content(contentV2);
+                  await saveSpaceContentV3(spaceId, contentV3);
+                  return contentV2 as FlowContent;
+                }
+              }
+            }
+          )
+        )
         .subscribe({
+          next({ nodes, edges, nodeConfigs, variableValueMaps }) {
+            nodes = assignLocalNodeProperties(nodes);
+            edges = assignLocalEdgeProperties(edges);
+            set({ nodes, edges, nodeConfigs, variableValueMaps });
+          },
           complete() {
             set({ isInitialized: true });
+          },
+          error(error) {
+            console.error("Error fetching content", error);
           },
         });
     },
 
     deinitializeSpace() {
-      get().cancelFetchFlowConfiguration();
+      fetchContentSubscription?.unsubscribe();
+      fetchContentSubscription = null;
 
       set({ spaceId: null, isInitialized: false });
     },

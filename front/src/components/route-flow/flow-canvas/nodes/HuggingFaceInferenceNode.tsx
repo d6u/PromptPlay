@@ -5,6 +5,11 @@ import Input from "@mui/joy/Input";
 import { useContext, useMemo, useState } from "react";
 import { Position, useNodeId } from "reactflow";
 import {
+  HuggingFaceInferenceNodeConfig,
+  NodeID,
+  NodeType,
+} from "../../../../models/flow-content-types";
+import {
   LocalStorageState,
   SpaceState,
   useLocalStorageStore,
@@ -13,11 +18,6 @@ import {
 import FlowContext from "../../FlowContext";
 import InputReadonly from "../../common/InputReadonly";
 import { useFlowStore } from "../../store/store-flow";
-import {
-  HuggingFaceInferenceNodeConfig,
-  NodeID,
-  NodeType,
-} from "../../store/types-flow-content";
 import { FlowState } from "../../store/types-local-state";
 import HeaderSection from "./node-common/HeaderSection";
 import HelperTextContainer from "./node-common/HelperTextContainer";
