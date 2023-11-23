@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useMutation, useQuery } from "urql";
 import { IS_LOGIN_ENABLED } from "../../constants";
 import { useLocalStorageStore } from "../../state/appState";
-import { LOGIN_PATH, pathToFlow } from "../../static/routeConfigs";
+import { LOGIN_PATH, pathToFlow } from "../../utils/route-utils";
 import Dashboard from "./dashboard/Dashboard";
 import {
   ROOT_ROUTE_QUERY,

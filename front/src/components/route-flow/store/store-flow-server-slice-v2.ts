@@ -19,13 +19,12 @@ import { SpaceFlowQueryQuery } from "../../../gql/graphql";
 import { client } from "../../../state/urql";
 import fromWonka from "../../../utils/fromWonka";
 import randomId from "../../../utils/randomId";
-import { DEFAULT_EDGE_STYLE, DRAG_HANDLE_CLASS_NAME } from "../flowConstants";
-import { createNode, createNodeConfig } from "../utils-flow";
 import {
   ChangeEventType,
   ChangeEvent,
   EVENT_VALIDATION_MAP,
 } from "./EventGraph";
+import { DEFAULT_EDGE_STYLE, DRAG_HANDLE_CLASS_NAME } from "./flowConstants";
 import {
   SPACE_FLOW_QUERY,
   UPDATE_SPACE_FLOW_CONTENT_MUTATION,
@@ -52,6 +51,7 @@ import {
 } from "./types-flow-content";
 import { LocalNode } from "./types-flow-content";
 import { FlowState } from "./types-local-state";
+import { createNode, createNodeConfig } from "./utils-flow";
 
 const chance = new Chance();
 

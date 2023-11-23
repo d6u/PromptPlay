@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useMutation } from "urql";
 import { FragmentType, graphql, useFragment } from "../../../gql";
 import { ContentVersion } from "../../../gql/graphql";
-import { pathToFlow } from "../../../static/routeConfigs";
+import { pathToFlow } from "../../../utils/route-utils";
 import DashboardTile from "./DashboardTile";
 import { DashboardTileType } from "./dashboardTypes";
 

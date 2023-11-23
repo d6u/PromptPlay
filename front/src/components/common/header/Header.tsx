@@ -7,7 +7,7 @@ import { useSearchParams } from "react-router-dom";
 import { useMutation, useQuery } from "urql";
 import { PROVIDE_FEEDBACK_LINK } from "../../../constants";
 import { useLocalStorageStore } from "../../../state/appState";
-import { LOGIN_PATH, LOGOUT_PATH } from "../../../static/routeConfigs";
+import { LOGIN_PATH, LOGOUT_PATH } from "../../../utils/route-utils";
 import IconLogout from "../../icons/IconLogout";
 import {
   HEADER_QUERY,

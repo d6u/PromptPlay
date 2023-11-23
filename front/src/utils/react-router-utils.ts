@@ -5,7 +5,7 @@ export type CreateObservableFunction<T> = {
   (params: Params<string>): Observable<Response | NonNullable<T> | null>;
 };
 
-export default function createLoader<T>(
+export function createLoader<T>(
   create: CreateObservableFunction<T>
 ): LoaderFunction {
   return ({ request, params }) =>

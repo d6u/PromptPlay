@@ -6,11 +6,11 @@ import {
   Outlet,
   Navigate,
 } from "react-router-dom";
-import { ROOT_PATH, FLOWS_PATH_PATTERN } from "../static/routeConfigs";
-import createLoader from "../utils/react-router-utils";
+import { createLoader } from "../utils/react-router-utils";
+import { ROOT_PATH, FLOWS_PATH_PATTERN } from "../utils/route-utils";
 import Header from "./common/header/Header";
-import RouteFlow from "./route-flow/RouteFlow";
-import flowLoader from "./route-flow/flowLoader";
+import RouteFlow from "./route-flow";
+import flowLoader from "./route-flow/route-loader";
 import RootRoute from "./route-root/RootRoute";
 
 export default function Routes() {

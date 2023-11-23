@@ -13,7 +13,7 @@ import {
 import { useCallback, useContext, useEffect, useState } from "react";
 import { useStoreApi } from "reactflow";
 import FlowContext from "../FlowContext";
-import { NODE_BOX_WIDTH } from "../nodes/node-common/NodeBox";
+import { NODE_BOX_WIDTH } from "../flow-canvas/nodes/node-common/NodeBox";
 import { useFlowStore } from "../store/store-flow";
 import { NodeType } from "../store/types-flow-content";
 import { FlowState } from "../store/types-local-state";
