@@ -10,9 +10,11 @@ import {
   NodeID,
   NodeInputItem,
   NodeType,
-  V3JavaScriptFunctionNodeConfig,
-  VariableType,
 } from "../../../../models/flow-content-types";
+import {
+  VariableType,
+  V3JavaScriptFunctionNodeConfig,
+} from "../../../../models/v3-flow-content-types";
 import randomId from "../../../../utils/randomId";
 import FlowContext from "../../FlowContext";
 import TextareaReadonly from "../../common/TextareaReadonly";

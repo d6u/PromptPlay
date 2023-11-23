@@ -27,13 +27,16 @@ import {
   NodeOutputID,
   OutputNodeConfig,
   OutputValueType,
-  VariableID,
-  VariableConfigs,
-  V3NodeConfigs,
-  V3NodeConfig,
-  V3VariableValueMap,
+  NodeConfig,
+  LocalNode,
 } from "../../../models/flow-content-types";
-import { LocalNode } from "../../../models/flow-content-types";
+import {
+  V3NodeConfigs,
+  VariableConfigs,
+  V3VariableValueMap,
+  V3NodeConfig,
+  V3VariableID,
+} from "../../../models/v3-flow-content-types";
 import { client } from "../../../state/urql";
 import randomId from "../../../utils/randomId";
 import {
@@ -95,7 +98,7 @@ export type FlowServerSliceV2 = FlowServerSliceStateV2 & {
     change: Partial<FlowOutputItem>
   ): void;
   updateNodeConfig(nodeId: NodeID, change: Partial<V3NodeConfig>): void;
-  updateVariableValueMap(variableId: VariableID, value: unknown): void;
+  updateVariableValueMap(variableId: V3VariableID, value: unknown): void;
   getDefaultVariableValueMap(): V3VariableValueMap;
 };
 
@@ -447,7 +450,7 @@ export const createFlowServerSliceV2: StateCreator<
 
   function processNodeRemoved(
     removedNode: LocalNode,
-    removedNodeConfig: NodeConfig
+    removedNodeConfig: V3NodeConfig
   ): ChangeEvent[] {
     const events: ChangeEvent[] = [];
 
@@ -1372,13 +1375,13 @@ export const createFlowServerSliceV2: StateCreator<
       ];
       processEventQueue(eventQueue);
     },
-    updateNodeConfig(nodeId: NodeID, change: Partial<NodeConfig>) {
+    updateNodeConfig(nodeId: NodeID, change: Partial<V3NodeConfig>) {
       const eventQueue: ChangeEvent[] = [
         { type: ChangeEventType.UPDATING_NODE_CONFIG, nodeId, change },
       ];
       processEventQueue(eventQueue);
     },
-    updateVariableValueMap(variableId: VariableID, value: unknown): void {
+    updateVariableValueMap(variableId: V3VariableID, value: unknown): void {
       const variableValueMaps = produce(get().variableValueMaps, (draft) => {
         draft[0][variableId] = value;
       });

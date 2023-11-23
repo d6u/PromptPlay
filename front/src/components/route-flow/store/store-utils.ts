@@ -3,17 +3,19 @@ import { Observable } from "rxjs";
 import { OperationResult } from "urql";
 import { SpaceFlowQueryQuery } from "../../../gql/graphql";
 import {
-  V3FlowContent,
   LocalEdge,
   LocalNode,
+  NodeID,
+} from "../../../models/flow-content-types";
+import {
+  V3FlowContent,
   VariableType,
   NodeInputVariableConfig,
   NodeOutputVariableConfig,
   FlowInputVariableConfig,
   FlowOutputVariableConfig,
   VariableConfigs,
-  NodeID,
-} from "../../../models/flow-content-types";
+} from "../../../models/v3-flow-content-types";
 import { client } from "../../../state/urql";
 import { toRxObservableSingle } from "../../../utils/graphql-utils";
 import { DEFAULT_EDGE_STYLE, DRAG_HANDLE_CLASS_NAME } from "./flowConstants";

@@ -4,12 +4,11 @@ import FormLabel from "@mui/joy/FormLabel";
 import Input from "@mui/joy/Input";
 import { useContext, useMemo, useState } from "react";
 import { Position, useNodeId } from "reactflow";
+import { NodeID, NodeType } from "../../../../models/flow-content-types";
 import {
-  NodeID,
-  NodeType,
-  V3ElevenLabsNodeConfig,
   VariableType,
-} from "../../../../models/flow-content-types";
+  V3ElevenLabsNodeConfig,
+} from "../../../../models/v3-flow-content-types";
 import {
   LocalStorageState,
   SpaceState,

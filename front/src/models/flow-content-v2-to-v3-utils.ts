@@ -1,17 +1,19 @@
 import { D } from "@mobily/ts-belt";
 import {
   FlowContent,
-  V3FlowContent,
   NodeID,
   NodeType,
   OutputValueType,
-  V3OutputValueType,
-  VariableConfigs,
   VariableID,
-  V3VariableID,
-  VariableType,
-  V3NodeConfigs,
 } from "./flow-content-types";
+import {
+  V3FlowContent,
+  VariableConfigs,
+  V3NodeConfigs,
+  VariableType,
+  V3OutputValueType,
+  V3VariableID,
+} from "./v3-flow-content-types";
 
 export function convertV2ContentToV3Content(
   flowContentV2: FlowContent

@@ -11,14 +11,15 @@ import { useContext, useEffect, useMemo, useState } from "react";
 import { Position, useUpdateNodeInternals, useNodeId } from "reactflow";
 import { ChatGPTMessageRole } from "../../../../integrations/openai";
 import {
-  ChatGPTMessageNodeConfig,
   NodeInputID,
   NodeID,
   NodeInputItem,
   NodeType,
-  V3ChatGPTMessageNodeConfig,
-  VariableType,
 } from "../../../../models/flow-content-types";
+import {
+  VariableType,
+  V3ChatGPTMessageNodeConfig,
+} from "../../../../models/v3-flow-content-types";
 import randomId from "../../../../utils/randomId";
 import FlowContext from "../../FlowContext";
 import TextareaReadonly from "../../common/TextareaReadonly";

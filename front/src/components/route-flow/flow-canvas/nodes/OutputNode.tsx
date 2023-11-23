@@ -8,10 +8,11 @@ import {
   NodeInputID,
   NodeID,
   NodeType,
-  OutputNodeConfig,
+} from "../../../../models/flow-content-types";
+import {
   V3OutputNodeConfig,
   VariableType,
-} from "../../../../models/flow-content-types";
+} from "../../../../models/v3-flow-content-types";
 import randomId from "../../../../utils/randomId";
 import FlowContext from "../../FlowContext";
 import { useFlowStore } from "../../store/store-flow";

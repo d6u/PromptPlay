@@ -39,6 +39,7 @@ import {
   TextTemplateNodeConfig,
   VariableValueMap,
 } from "../../../models/flow-content-types";
+import { V3NodeConfigs } from "../../../models/v3-flow-content-types";
 import { useLocalStorageStore, useSpaceStore } from "../../../state/appState";
 import { NodeAugment } from "./types-local-state";
 
@@ -79,7 +80,7 @@ type RunStatusChangeEvent = {
 
 export function run(
   edges: LocalEdge[],
-  nodeConfigs: NodeConfigs,
+  nodeConfigs: V3NodeConfigs,
   inputVariableMap: FlowInputVariableMap,
   useStreaming: boolean = false
 ): Observable<RunEvent> {

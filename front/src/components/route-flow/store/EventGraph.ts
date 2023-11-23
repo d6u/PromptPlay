@@ -52,6 +52,7 @@ export enum ChangeEventType {
   // Other
   VARMAP_UPDATED = "VARMAP_UPDATED",
 }
+
 export type ChangeEvent =
   | {
       type: ChangeEventType.RF_NODES_CHANGE;

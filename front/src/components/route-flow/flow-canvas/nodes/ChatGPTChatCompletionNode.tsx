@@ -12,9 +12,11 @@ import {
   NodeID,
   NodeType,
   OpenAIChatModel,
+} from "../../../../models/flow-content-types";
+import {
   V3ChatGPTChatCompletionNodeConfig,
   VariableType,
-} from "../../../../models/flow-content-types";
+} from "../../../../models/v3-flow-content-types";
 import {
   LocalStorageState,
   SpaceState,
