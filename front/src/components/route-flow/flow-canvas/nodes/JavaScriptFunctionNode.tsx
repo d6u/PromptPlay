@@ -4,22 +4,21 @@ import Textarea from "@mui/joy/Textarea";
 import Chance from "chance";
 import { adjust, append, assoc, remove } from "ramda";
 import { useContext, useMemo, useState } from "react";
-import { Position, useUpdateNodeInternals, useNodeId } from "reactflow";
+import { Position, useNodeId, useUpdateNodeInternals } from "reactflow";
 import {
-  NodeInputID,
   NodeID,
+  NodeInputID,
   NodeInputItem,
   NodeType,
 } from "../../../../models/flow-content-types";
 import {
-  VariableType,
   V3JavaScriptFunctionNodeConfig,
+  VariableType,
 } from "../../../../models/v3-flow-content-types";
 import randomId from "../../../../utils/randomId";
 import FlowContext from "../../FlowContext";
 import TextareaReadonly from "../../common/TextareaReadonly";
-import { LabelWithIconContainer } from "../../common/flow-common";
-import { CopyIcon } from "../../common/flow-common";
+import { CopyIcon, LabelWithIconContainer } from "../../common/flow-common";
 import { useFlowStore } from "../../store/store-flow";
 import { selectVariables } from "../../store/store-utils";
 import { FlowState } from "../../store/types-local-state";
@@ -73,23 +72,23 @@ export default function JavaScriptFunctionNode() {
   const inputVariables = selectVariables(
     nodeId,
     VariableType.NodeInput,
-    variableConfigs
+    variableConfigs,
   );
 
   const outputVariables = selectVariables(
     nodeId,
     VariableType.NodeOutput,
-    variableConfigs
+    variableConfigs,
   );
 
   const nodeConfig = useMemo(
     () => nodeConfigs[nodeId] as V3JavaScriptFunctionNodeConfig | undefined,
-    [nodeConfigs, nodeId]
+    [nodeConfigs, nodeId],
   );
 
   const augment = useMemo(
     () => localNodeAugments[nodeId],
-    [localNodeAugments, nodeId]
+    [localNodeAugments, nodeId],
   );
 
   const updateNodeInternals = useUpdateNodeInternals();
@@ -98,7 +97,7 @@ export default function JavaScriptFunctionNode() {
   // when Node is being deleted.
   const [inputs, setInputs] = useState(() => inputVariables);
   const [javaScriptCode, setJavaScriptCode] = useState(
-    () => nodeConfig!.javaScriptCode
+    () => nodeConfig!.javaScriptCode,
   );
 
   if (!nodeConfig) {
@@ -128,8 +127,8 @@ export default function JavaScriptFunctionNode() {
           augment?.isRunning
             ? NodeState.Running
             : augment?.hasError
-            ? NodeState.Error
-            : NodeState.Idle
+              ? NodeState.Error
+              : NodeState.Idle
         }
       >
         <HeaderSection
@@ -166,7 +165,7 @@ export default function JavaScriptFunctionNode() {
               onConfirmNameChange={(name) => {
                 const newInputs = adjust<NodeInputItem>(
                   i,
-                  assoc("name", name)<NodeInputItem>
+                  assoc("name", name)<NodeInputItem>,
                 )(inputs);
 
                 setInputs(newInputs);

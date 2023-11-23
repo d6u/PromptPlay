@@ -2,11 +2,11 @@ import IconButton from "@mui/joy/IconButton";
 import Chance from "chance";
 import { adjust, append, assoc, remove } from "ramda";
 import { useContext, useMemo, useState } from "react";
-import { Position, useUpdateNodeInternals, useNodeId } from "reactflow";
+import { Position, useNodeId, useUpdateNodeInternals } from "reactflow";
 import {
   FlowOutputItem,
-  NodeInputID,
   NodeID,
+  NodeInputID,
   NodeType,
 } from "../../../../models/flow-content-types";
 import {
@@ -17,8 +17,10 @@ import randomId from "../../../../utils/randomId";
 import FlowContext from "../../FlowContext";
 import { useFlowStore } from "../../store/store-flow";
 import { selectVariables } from "../../store/store-utils";
-import { FlowState } from "../../store/types-local-state";
-import { DetailPanelContentType } from "../../store/types-local-state";
+import {
+  DetailPanelContentType,
+  FlowState,
+} from "../../store/types-local-state";
 import AddVariableButton from "./node-common/AddVariableButton";
 import HeaderSection from "./node-common/HeaderSection";
 import NodeBox from "./node-common/NodeBox";
@@ -60,13 +62,13 @@ export default function OutputNode() {
 
   const nodeConfig = useMemo(
     () => nodeConfigs[nodeId] as V3OutputNodeConfig | undefined,
-    [nodeConfigs, nodeId]
+    [nodeConfigs, nodeId],
   );
 
   const inputVariables = selectVariables(
     nodeId,
     VariableType.FlowOutput,
-    variableConfigs
+    variableConfigs,
   );
 
   const updateNodeInternals = useUpdateNodeInternals();
@@ -103,7 +105,7 @@ export default function OutputNode() {
             variant="outlined"
             onClick={() =>
               setDetailPanelContentType(
-                DetailPanelContentType.EvaluationModeSimple
+                DetailPanelContentType.EvaluationModeSimple,
               )
             }
           >
@@ -135,7 +137,7 @@ export default function OutputNode() {
               onConfirmNameChange={(name) => {
                 const newInputs = adjust<FlowOutputItem>(
                   i,
-                  assoc("name", name)<FlowOutputItem>
+                  assoc("name", name)<FlowOutputItem>,
                 )(inputs);
 
                 setInputs(newInputs);

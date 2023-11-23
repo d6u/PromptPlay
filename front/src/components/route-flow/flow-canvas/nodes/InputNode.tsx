@@ -7,19 +7,21 @@ import {
   FlowInputItem,
   InputValueType,
   NodeID,
-  NodeType,
   NodeOutputID,
+  NodeType,
 } from "../../../../models/flow-content-types";
 import {
-  VariableType,
   V3InputNodeConfig,
+  VariableType,
 } from "../../../../models/v3-flow-content-types";
 import randomId from "../../../../utils/randomId";
 import FlowContext from "../../FlowContext";
 import { useFlowStore } from "../../store/store-flow";
 import { selectVariables } from "../../store/store-utils";
-import { FlowState } from "../../store/types-local-state";
-import { DetailPanelContentType } from "../../store/types-local-state";
+import {
+  DetailPanelContentType,
+  FlowState,
+} from "../../store/types-local-state";
 import AddVariableButton from "./node-common/AddVariableButton";
 import HeaderSection from "./node-common/HeaderSection";
 import NodeBox from "./node-common/NodeBox";
@@ -62,12 +64,12 @@ export default function InputNode() {
   const flowInputVariables = selectVariables(
     nodeId,
     VariableType.FlowInput,
-    variableConfigs
+    variableConfigs,
   );
 
   const nodeConfig = useMemo(
     () => nodeConfigs[nodeId] as V3InputNodeConfig | undefined,
-    [nodeConfigs, nodeId]
+    [nodeConfigs, nodeId],
   );
 
   const updateNodeInternals = useUpdateNodeInternals();
@@ -95,7 +97,7 @@ export default function InputNode() {
             variant="outlined"
             onClick={() =>
               setDetailPanelContentType(
-                DetailPanelContentType.EvaluationModeSimple
+                DetailPanelContentType.EvaluationModeSimple,
               )
             }
           >
@@ -128,7 +130,7 @@ export default function InputNode() {
               onConfirmNameChange={(name) => {
                 const newOutputs = adjust<FlowInputItem>(
                   i,
-                  assoc("name", name)<FlowInputItem>
+                  assoc("name", name)<FlowInputItem>,
                 )(outputs);
 
                 setOutputs(newOutputs);
@@ -156,7 +158,7 @@ export default function InputNode() {
           position={Position.Right}
           style={{
             bottom: calculateOutputHandleBottom(
-              flowInputVariables.length - 1 - i
+              flowInputVariables.length - 1 - i,
             ),
           }}
         />

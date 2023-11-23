@@ -3,21 +3,21 @@ import Chance from "chance";
 import { produce } from "immer";
 import { ChatGPTMessageRole } from "../../../integrations/openai";
 import {
-  NodeInputID,
   InputValueType,
+  LocalNode,
   NodeConfig,
   NodeConfigs,
   NodeID,
+  NodeInputID,
+  NodeOutputID,
   NodeType,
   OpenAIChatModel,
-  NodeOutputID,
   OutputNodeConfig,
   OutputValueType,
   ServerEdge,
   ServerNode,
   VariableValueMap,
 } from "../../../models/flow-content-types";
-import { LocalNode } from "../../../models/flow-content-types";
 import propEq from "../../../utils/propEq";
 import randomId from "../../../utils/randomId";
 
@@ -197,7 +197,7 @@ export function createNodeConfig(node: LocalNode): NodeConfig {
 export function rejectInvalidEdges(
   nodes: ServerNode[],
   edges: ServerEdge[],
-  nodeConfigs: NodeConfigs
+  nodeConfigs: NodeConfigs,
 ): [ServerEdge[], ServerEdge[]] {
   return F.toMutable(
     A.partition(edges, (edge) => {
@@ -212,7 +212,7 @@ export function rejectInvalidEdges(
             if ("outputs" in nodeConfig) {
               foundSourceHandle = A.any<{ id: string }>(
                 nodeConfig.outputs,
-                propEq("id", edge.sourceHandle)
+                propEq("id", edge.sourceHandle),
               );
             }
           }
@@ -221,7 +221,7 @@ export function rejectInvalidEdges(
             if ("inputs" in nodeConfig) {
               foundTargetHandle = A.any(
                 nodeConfig.inputs,
-                propEq("id", edge.targetHandle)
+                propEq("id", edge.targetHandle),
               );
             }
           }
@@ -229,14 +229,14 @@ export function rejectInvalidEdges(
       }
 
       return foundSourceHandle && foundTargetHandle;
-    })
+    }),
   );
 }
 
 export function restoreNodeConfigForRemovedEdges(
   rejectedEdges: ServerEdge[],
   nodeConfigs: NodeConfigs,
-  variableValueMaps: VariableValueMap[]
+  variableValueMaps: VariableValueMap[],
 ): {
   nodeConfigs: NodeConfigs;
   variableValueMaps: VariableValueMap[];

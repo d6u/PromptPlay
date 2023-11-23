@@ -16,8 +16,7 @@ import { NodeType } from "../../../models/flow-content-types";
 import FlowContext from "../FlowContext";
 import { NODE_BOX_WIDTH } from "../flow-canvas/nodes/node-common/NodeBox";
 import { useFlowStore } from "../store/store-flow";
-import { FlowState } from "../store/types-local-state";
-import { DetailPanelContentType } from "../store/types-local-state";
+import { DetailPanelContentType, FlowState } from "../store/types-local-state";
 
 const selector = (state: FlowState) => ({
   isRunning: state.isRunning,
@@ -66,11 +65,11 @@ export default function ToolBar() {
 
       addNode(type, centerX - NODE_BOX_WIDTH / 2, centerY);
     },
-    [addNode, isCurrentUserOwner, storeApi]
+    [addNode, isCurrentUserOwner, storeApi],
   );
 
   const [useNarrowLayout, setUseNarrowLayout] = useState(
-    window.innerWidth < USE_NARROW_LAYOUT_BREAKPOINT
+    window.innerWidth < USE_NARROW_LAYOUT_BREAKPOINT,
   );
 
   useEffect(() => {
@@ -174,8 +173,8 @@ export default function ToolBar() {
           {isFlowContentSaving
             ? "Saving..."
             : isFlowContentDirty
-            ? "Save pending"
-            : "Saved"}
+              ? "Save pending"
+              : "Saved"}
         </SavingIndicator>
         <FormControl size="md" orientation="horizontal">
           <FormLabel sx={{ cursor: "pointer" }}>Evaluation Mode</FormLabel>

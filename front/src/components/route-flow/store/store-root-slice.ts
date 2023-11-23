@@ -15,18 +15,20 @@ import {
   V3FlowContent,
   V3VariableValueMap,
 } from "../../../models/v3-flow-content-types";
-import { run, RunEventType } from "./flow-run";
+import { RunEventType, run } from "./flow-run";
 import { flowInputItemsSelector } from "./store-flow";
 import {
   assignLocalEdgeProperties,
   assignLocalNodeProperties,
+  fetchContent,
+  saveSpaceContentV3,
 } from "./store-utils";
-import { fetchContent } from "./store-utils";
-import { saveSpaceContentV3 } from "./store-utils";
-import { FlowState } from "./types-local-state";
-import { NodeAugment } from "./types-local-state";
-import { NodeAugments } from "./types-local-state";
-import { DetailPanelContentType } from "./types-local-state";
+import {
+  DetailPanelContentType,
+  FlowState,
+  NodeAugment,
+  NodeAugments,
+} from "./types-local-state";
 
 type RootSliceState = {
   spaceId: string | null;
@@ -59,7 +61,7 @@ const ROOT_SLICE_INITIAL_STATE: RootSliceState = {
 
 export const createRootSlice: StateCreator<FlowState, [], [], RootSlice> = (
   set,
-  get
+  get,
 ) => {
   function setIsRunning(isRunning: boolean) {
     set((state) => {
@@ -121,7 +123,7 @@ export const createRootSlice: StateCreator<FlowState, [], [], RootSlice> = (
                 return contentV3;
               }
             }
-          })
+          }),
         )
         .subscribe({
           next({ nodes, edges, ...rest }) {
@@ -201,7 +203,7 @@ export const createRootSlice: StateCreator<FlowState, [], [], RootSlice> = (
         edges,
         nodeConfigs,
         inputVariableMap,
-        true
+        true,
       ).subscribe({
         next(data) {
           switch (data.type) {

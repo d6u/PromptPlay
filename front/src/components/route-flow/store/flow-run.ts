@@ -4,20 +4,20 @@ import {
   BehaviorSubject,
   EMPTY,
   Observable,
+  TimeoutError,
+  catchError,
+  concat,
   concatMap,
+  defer,
+  endWith,
   from,
   map,
-  tap,
-  zipWith,
   of,
-  startWith,
-  endWith,
-  catchError,
-  throwError,
-  concat,
-  defer,
   retry,
-  TimeoutError,
+  startWith,
+  tap,
+  throwError,
+  zipWith,
 } from "rxjs";
 import * as ElevenLabs from "../../../integrations/eleven-labs";
 import * as HuggingFace from "../../../integrations/hugging-face";
@@ -27,14 +27,13 @@ import {
   ChatGPTMessageNodeConfig,
   ElevenLabsNodeConfig,
   HuggingFaceInferenceNodeConfig,
-  NodeInputID,
   JavaScriptFunctionNodeConfig,
   LocalEdge,
   NodeConfig,
-  NodeConfigs,
   NodeID,
-  NodeType,
+  NodeInputID,
   NodeOutputID,
+  NodeType,
   OutputNodeConfig,
   TextTemplateNodeConfig,
   VariableValueMap,
@@ -82,7 +81,7 @@ export function run(
   edges: LocalEdge[],
   nodeConfigs: V3NodeConfigs,
   inputVariableMap: FlowInputVariableMap,
-  useStreaming: boolean = false
+  useStreaming: boolean = false,
 ): Observable<RunEvent> {
   const nodeGraph: Record<NodeID, NodeID[]> = {};
   const nodeIndegree: Record<NodeID, number> = {};
@@ -115,7 +114,7 @@ export function run(
 
       for (const [id, count] of Object.entries(nodeIndegree) as [
         NodeID,
-        number
+        number,
       ][]) {
         if (count === 0) {
           queue.push(id);
@@ -138,7 +137,7 @@ export function run(
       }
 
       subscriber.complete();
-    }
+    },
   );
 
   // `sub` is to control the pace of the execution and the termination.
@@ -163,12 +162,12 @@ export function run(
           obs = handleOutputNode(
             nodeConfig,
             inputIdToOutputIdMap,
-            outputIdToValueMap
+            outputIdToValueMap,
           ).pipe(
             map((changes) => ({
               type: RunEventType.VariableValueChanges,
               changes,
-            }))
+            })),
           );
           break;
         }
@@ -177,12 +176,12 @@ export function run(
           obs = handleJavaScriptFunctionNode(
             nodeData,
             inputIdToOutputIdMap,
-            outputIdToValueMap
+            outputIdToValueMap,
           ).pipe(
             map((changes) => ({
               type: RunEventType.VariableValueChanges,
               changes,
-            }))
+            })),
           );
           break;
         }
@@ -190,12 +189,12 @@ export function run(
           obs = handleChatGPTMessageNode(
             nodeConfig,
             inputIdToOutputIdMap,
-            outputIdToValueMap
+            outputIdToValueMap,
           ).pipe(
             map((changes) => ({
               type: RunEventType.VariableValueChanges,
               changes,
-            }))
+            })),
           );
           break;
         }
@@ -205,13 +204,13 @@ export function run(
               nodeConfig,
               inputIdToOutputIdMap,
               outputIdToValueMap,
-              useStreaming
-            )
+              useStreaming,
+            ),
           ).pipe(
             map((changes) => ({
               type: RunEventType.VariableValueChanges,
               changes,
-            }))
+            })),
           );
           break;
         }
@@ -219,12 +218,12 @@ export function run(
           obs = handleTextTemplateNode(
             nodeConfig,
             inputIdToOutputIdMap,
-            outputIdToValueMap
+            outputIdToValueMap,
           ).pipe(
             map((changes) => ({
               type: RunEventType.VariableValueChanges,
               changes,
-            }))
+            })),
           );
           break;
         }
@@ -232,12 +231,12 @@ export function run(
           obs = handleHuggingFaceInferenceNode(
             nodeConfig,
             inputIdToOutputIdMap,
-            outputIdToValueMap
+            outputIdToValueMap,
           ).pipe(
             map((changes) => ({
               type: RunEventType.VariableValueChanges,
               changes,
-            }))
+            })),
           );
           break;
         }
@@ -245,12 +244,12 @@ export function run(
           obs = handleElevenLabsNode(
             nodeConfig,
             inputIdToOutputIdMap,
-            outputIdToValueMap
+            outputIdToValueMap,
           ).pipe(
             map((changes) => ({
               type: RunEventType.VariableValueChanges,
               changes,
-            }))
+            })),
           );
           break;
         }
@@ -280,14 +279,14 @@ export function run(
               nodeId,
               augmentChange: { isRunning: false, hasError: true },
             }),
-            throwError(() => e)
-          )
+            throwError(() => e),
+          ),
         ),
         tap({
           complete() {
             sub.next(0);
           },
-        })
+        }),
       );
     }),
     tap({
@@ -301,15 +300,15 @@ export function run(
       },
     }),
     catchError((error) =>
-      of<RunStatusChangeEvent>({ type: RunEventType.RunStatusChange, error })
-    )
+      of<RunStatusChangeEvent>({ type: RunEventType.RunStatusChange, error }),
+    ),
   );
 }
 
 function handleOutputNode(
   data: OutputNodeConfig,
   inputIdToOutputIdMap: Record<NodeInputID, NodeOutputID | undefined>,
-  variableValueMap: VariableValueMap
+  variableValueMap: VariableValueMap,
 ): Observable<VariableValueMap> {
   const changes: VariableValueMap = {};
 
@@ -328,7 +327,7 @@ function handleOutputNode(
 function handleJavaScriptFunctionNode(
   data: JavaScriptFunctionNodeConfig,
   inputIdToOutputIdMap: Record<NodeInputID, NodeOutputID | undefined>,
-  variableValueMap: VariableValueMap
+  variableValueMap: VariableValueMap,
 ): Observable<VariableValueMap> {
   return defer(async () => {
     const pairs: Array<[string, unknown]> = [];
@@ -346,7 +345,7 @@ function handleJavaScriptFunctionNode(
 
     const fn = AsyncFunction(
       ...pairs.map((pair) => pair[0]),
-      data.javaScriptCode
+      data.javaScriptCode,
     );
 
     const result = await fn(...pairs.map((pair) => pair[1]));
@@ -360,7 +359,7 @@ function handleJavaScriptFunctionNode(
 function handleChatGPTMessageNode(
   data: ChatGPTMessageNodeConfig,
   inputIdToOutputIdMap: Record<NodeInputID, NodeOutputID | undefined>,
-  variableValueMap: VariableValueMap
+  variableValueMap: VariableValueMap,
 ): Observable<VariableValueMap> {
   // Prepare inputs
   // ----------
@@ -407,7 +406,7 @@ function handleChatGPTChatNode(
   data: ChatGPTChatCompletionNodeConfig,
   inputIdToOutputIdMap: Record<NodeInputID, NodeOutputID | undefined>,
   variableValueMap: VariableValueMap,
-  useStreaming: boolean
+  useStreaming: boolean,
 ): Observable<VariableValueMap> {
   return defer(() => {
     // Prepare inputs
@@ -473,7 +472,7 @@ function handleChatGPTChatNode(
               [data.outputs[1].id]: message,
               [data.outputs[2].id]: A.append(messages, message),
             };
-          })
+          }),
         ),
         defer(() => {
           const message = { role, content };
@@ -488,7 +487,7 @@ function handleChatGPTChatNode(
             [data.outputs[1].id]: message,
             [data.outputs[2].id]: messages,
           });
-        })
+        }),
       );
     } else {
       return OpenAI.getNonStreamingCompletion(options).pipe(
@@ -521,7 +520,7 @@ function handleChatGPTChatNode(
             }
           },
         }),
-        retry(2) // 3 attempts max
+        retry(2), // 3 attempts max
       );
     }
   });
@@ -530,7 +529,7 @@ function handleChatGPTChatNode(
 function handleTextTemplateNode(
   data: TextTemplateNodeConfig,
   inputIdToOutputIdMap: Record<NodeInputID, NodeOutputID | undefined>,
-  variableValueMap: VariableValueMap
+  variableValueMap: VariableValueMap,
 ): Observable<VariableValueMap> {
   return defer(() => {
     // Prepare inputs
@@ -569,7 +568,7 @@ function handleTextTemplateNode(
 function handleHuggingFaceInferenceNode(
   data: HuggingFaceInferenceNodeConfig,
   inputIdToOutputIdMap: Record<NodeInputID, NodeOutputID | undefined>,
-  variableValueMap: VariableValueMap
+  variableValueMap: VariableValueMap,
 ): Observable<VariableValueMap> {
   return defer(() => {
     // Prepare inputs
@@ -603,8 +602,8 @@ function handleHuggingFaceInferenceNode(
     return from(
       HuggingFace.callInferenceApi(
         { apiToken: huggingFaceApiToken, model: data.model },
-        argsMap["parameters"]
-      )
+        argsMap["parameters"],
+      ),
     ).pipe(
       map((result) => {
         if (result.isError) {
@@ -620,7 +619,7 @@ function handleHuggingFaceInferenceNode(
         return {
           [data.outputs[0].id]: result.data,
         };
-      })
+      }),
     );
   });
 }
@@ -628,7 +627,7 @@ function handleHuggingFaceInferenceNode(
 function handleElevenLabsNode(
   data: ElevenLabsNodeConfig,
   inputIdToOutputIdMap: Record<NodeInputID, NodeOutputID | undefined>,
-  variableValueMap: VariableValueMap
+  variableValueMap: VariableValueMap,
 ): Observable<VariableValueMap> {
   return defer(() => {
     // Prepare inputs
@@ -663,7 +662,7 @@ function handleElevenLabsNode(
         text: argsMap["text"],
         voiceId: data.voiceId,
         apiKey: elevenLabsApiKey,
-      })
+      }),
     );
   }).pipe(
     map((result) => {
@@ -678,6 +677,6 @@ function handleElevenLabsNode(
       return {
         [data.outputs[0].id]: url,
       };
-    })
+    }),
   );
 }

@@ -3,8 +3,10 @@ import IconButton from "@mui/joy/IconButton";
 import { ReactNode } from "react";
 import CrossIcon from "../../../icons/CrossIcon";
 import { useFlowStore } from "../../store/store-flow";
-import { FlowState } from "../../store/types-local-state";
-import { DetailPanelContentType } from "../../store/types-local-state";
+import {
+  DetailPanelContentType,
+  FlowState,
+} from "../../store/types-local-state";
 import PanelChatGPTMessageConfig from "./chat-gpt-message-config/PanelChatGPTMessageConfig";
 import PanelEvaluationModeCSV from "./csv-evaluation/PanelEvaluationModeCSV";
 import PanelNodeConfig from "./node-config/PanelNodeConfig";

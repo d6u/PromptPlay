@@ -6,16 +6,16 @@ import Textarea from "@mui/joy/Textarea";
 import Chance from "chance";
 import { adjust, append, assoc, remove } from "ramda";
 import { useContext, useEffect, useMemo, useState } from "react";
-import { Position, useUpdateNodeInternals, useNodeId } from "reactflow";
+import { Position, useNodeId, useUpdateNodeInternals } from "reactflow";
 import {
-  NodeInputID,
   NodeID,
+  NodeInputID,
   NodeInputItem,
   NodeType,
 } from "../../../../models/flow-content-types";
 import {
-  VariableType,
   V3TextTemplateNodeConfig,
+  VariableType,
 } from "../../../../models/v3-flow-content-types";
 import randomId from "../../../../utils/randomId";
 import FlowContext from "../../FlowContext";
@@ -23,8 +23,10 @@ import TextareaReadonly from "../../common/TextareaReadonly";
 import { CopyIcon, LabelWithIconContainer } from "../../common/flow-common";
 import { useFlowStore } from "../../store/store-flow";
 import { selectVariables } from "../../store/store-utils";
-import { FlowState } from "../../store/types-local-state";
-import { DetailPanelContentType } from "../../store/types-local-state";
+import {
+  DetailPanelContentType,
+  FlowState,
+} from "../../store/types-local-state";
 import AddVariableButton from "./node-common/AddVariableButton";
 import HeaderSection from "./node-common/HeaderSection";
 import NodeBox from "./node-common/NodeBox";
@@ -78,18 +80,18 @@ export default function TextTemplateNode() {
   const inputVariables = selectVariables(
     nodeId,
     VariableType.NodeInput,
-    variableConfigs
+    variableConfigs,
   );
 
   const outputVariables = selectVariables(
     nodeId,
     VariableType.NodeOutput,
-    variableConfigs
+    variableConfigs,
   );
 
   const nodeConfig = useMemo(
     () => nodeConfigs[nodeId] as V3TextTemplateNodeConfig | undefined,
-    [nodeConfigs, nodeId]
+    [nodeConfigs, nodeId],
   );
 
   const updateNodeInternals = useUpdateNodeInternals();
@@ -156,7 +158,7 @@ export default function TextTemplateNode() {
               onConfirmNameChange={(name) => {
                 const newInputs = adjust<NodeInputItem>(
                   i,
-                  assoc("name", name)<NodeInputItem>
+                  assoc("name", name)<NodeInputItem>,
                 )(inputs);
 
                 setInputs(newInputs);
@@ -228,7 +230,7 @@ export default function TextTemplateNode() {
             variant="outlined"
             onClick={() => {
               setDetailPanelContentType(
-                DetailPanelContentType.ChatGPTMessageConfig
+                DetailPanelContentType.ChatGPTMessageConfig,
               );
               setDetailPanelSelectedNodeId(nodeId);
             }}
@@ -245,7 +247,7 @@ export default function TextTemplateNode() {
               value={defaultVariableValueMap[output.id]}
               onClick={() => {
                 setDetailPanelContentType(
-                  DetailPanelContentType.ChatGPTMessageConfig
+                  DetailPanelContentType.ChatGPTMessageConfig,
                 );
                 setDetailPanelSelectedNodeId(nodeId);
               }}
