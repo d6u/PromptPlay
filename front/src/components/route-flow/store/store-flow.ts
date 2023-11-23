@@ -8,15 +8,15 @@ import {
   NodeType,
   OutputNodeConfig,
 } from "../../../models/flow-content-types";
-import { createClientSlice } from "./store-client-slice";
 import { createCsvEvaluationPresetSlice } from "./store-csv-evaluation-preset-slice";
 import { createFlowServerSliceV2 } from "./store-flow-server-slice-v2";
+import { createRootSlice } from "./store-root-slice";
 import { FlowState } from "./types-local-state";
 
 export const useFlowStore = create<FlowState>()(
   devtools(
     (...a) => ({
-      ...createClientSlice(...a),
+      ...createRootSlice(...a),
       ...createCsvEvaluationPresetSlice(...a),
       ...createFlowServerSliceV2(...a),
     }),

@@ -1,22 +1,32 @@
 import { D } from "@mobily/ts-belt";
 import { produce } from "immer";
 import posthog from "posthog-js";
-import { Subscription } from "rxjs";
+import { Observable, Subscription, map } from "rxjs";
+import { OperationResult } from "urql";
 import { StateCreator } from "zustand";
+import { SpaceFlowQueryQuery } from "../../../gql/graphql";
 import {
+  FlowContent,
   NodeID,
   VariableID,
   VariableValueMap,
 } from "../../../models/flow-content-types";
 import { convert } from "../../../models/flow-content-v2-to-v3-utils";
+import { client } from "../../../state/urql";
+import { toRxObservableSingle } from "../../../utils/graphql-utils";
 import { run, RunEventType } from "./flow-run";
+import { SPACE_FLOW_QUERY } from "./graphql-flow";
 import { flowInputItemsSelector } from "./store-flow";
+import {
+  assignLocalEdgeProperties,
+  assignLocalNodeProperties,
+} from "./store-utils";
 import { FlowState } from "./types-local-state";
 import { NodeAugment } from "./types-local-state";
 import { NodeAugments } from "./types-local-state";
 import { DetailPanelContentType } from "./types-local-state";
 
-type ClientSliceState = {
+type RootSliceState = {
   spaceId: string | null;
   isInitialized: boolean;
   detailPanelContentType: DetailPanelContentType;
@@ -25,7 +35,7 @@ type ClientSliceState = {
   isRunning: boolean;
 };
 
-export type ClientSlice = ClientSliceState & {
+export type RootSlice = RootSliceState & {
   initializeSpace(spaceId: string): void;
   deinitializeSpace(): void;
   setDetailPanelContentType(type: DetailPanelContentType): void;
@@ -36,7 +46,7 @@ export type ClientSlice = ClientSliceState & {
   stopRunningFlow(): void;
 };
 
-const CLIENT_SLICE_INITIAL_STATE: ClientSliceState = {
+const ROOT_SLICE_INITIAL_STATE: RootSliceState = {
   spaceId: null,
   isInitialized: false,
   detailPanelContentType: DetailPanelContentType.Off,
@@ -45,7 +55,7 @@ const CLIENT_SLICE_INITIAL_STATE: ClientSliceState = {
   isRunning: false,
 };
 
-export const createClientSlice: StateCreator<FlowState, [], [], ClientSlice> = (
+export const createRootSlice: StateCreator<FlowState, [], [], RootSlice> = (
   set,
   get
 ) => {
@@ -72,27 +82,45 @@ export const createClientSlice: StateCreator<FlowState, [], [], ClientSlice> = (
     });
   }
 
+  let fetchFlowSubscription: Subscription | null = null;
   let runFlowSubscription: Subscription | null = null;
 
   return {
-    ...CLIENT_SLICE_INITIAL_STATE,
+    ...ROOT_SLICE_INITIAL_STATE,
 
     initializeSpace(spaceId: string) {
       set({ spaceId, isInitialized: false });
 
-      get()
-        .fetchFlowConfiguration()
-        .subscribe({
-          complete() {
-            const r = convert(get());
-            console.log(r);
-            set({ isInitialized: true });
-          },
-        });
+      get().resetFlowServerSlice();
+
+      fetchFlowSubscription?.unsubscribe();
+      fetchFlowSubscription = fetchFlowContent(get().spaceId!).subscribe({
+        next({
+          nodes = [],
+          edges = [],
+          nodeConfigs = {},
+          variableValueMaps = [{}],
+        }) {
+          nodes = assignLocalNodeProperties(nodes);
+          edges = assignLocalEdgeProperties(edges);
+
+          set({ nodes, edges, nodeConfigs, variableValueMaps });
+        },
+        complete() {
+          const r = convert(get());
+          console.log(r);
+
+          set({ isInitialized: true });
+        },
+        error(error) {
+          console.error("Error fetching flow content", error);
+        },
+      });
     },
 
     deinitializeSpace() {
-      get().cancelFetchFlowConfiguration();
+      fetchFlowSubscription?.unsubscribe();
+      fetchFlowSubscription = null;
 
       set({ spaceId: null, isInitialized: false });
     },
@@ -199,3 +227,30 @@ export const createClientSlice: StateCreator<FlowState, [], [], ClientSlice> = (
     },
   };
 };
+
+function fetchFlowContent(spaceId: string): Observable<Partial<FlowContent>> {
+  return toRxObservableSingle(
+    client.query(
+      SPACE_FLOW_QUERY,
+      { spaceId },
+      { requestPolicy: "network-only" }
+    )
+  ).pipe(
+    map<OperationResult<SpaceFlowQueryQuery>, Partial<FlowContent>>(
+      (result) => {
+        const flowContentStr = result.data?.result?.space?.flowContent;
+
+        if (flowContentStr) {
+          try {
+            return JSON.parse(flowContentStr);
+          } catch (e) {
+            // TODO: handle parse error
+            console.error(e);
+          }
+        }
+
+        return {};
+      }
+    )
+  );
+}
