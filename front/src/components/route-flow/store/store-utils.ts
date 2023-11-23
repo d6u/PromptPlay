@@ -8,13 +8,13 @@ import {
   NodeID,
 } from "../../../models/flow-content-types";
 import {
-  V3FlowContent,
-  VariableType,
-  NodeInputVariableConfig,
-  NodeOutputVariableConfig,
   FlowInputVariableConfig,
   FlowOutputVariableConfig,
+  NodeInputVariableConfig,
+  NodeOutputVariableConfig,
+  V3FlowContent,
   VariableConfigs,
+  VariableType,
 } from "../../../models/v3-flow-content-types";
 import { client } from "../../../state/urql";
 import { toRxObservableSingle } from "../../../utils/graphql-utils";
@@ -45,20 +45,20 @@ export function assignLocalEdgeProperties(edges: LocalEdge[]): LocalEdge[] {
 }
 
 export function fetchContent(
-  spaceId: string
+  spaceId: string,
 ): Observable<OperationResult<SpaceFlowQueryQuery>> {
   return toRxObservableSingle(
     client.query(
       SPACE_FLOW_QUERY,
       { spaceId },
-      { requestPolicy: "network-only" }
-    )
+      { requestPolicy: "network-only" },
+    ),
   );
 }
 
 export async function saveSpaceContentV3(
   spaceId: string,
-  contentV3: V3FlowContent
+  contentV3: V3FlowContent,
 ) {
   await client.mutation(UPDATE_SPACE_CONTENT_V3_MUTATION, {
     spaceId: spaceId,
@@ -66,7 +66,7 @@ export async function saveSpaceContentV3(
   });
 }
 
-type VariableTypeToVariableConfigTypeMap = {
+export type VariableTypeToVariableConfigTypeMap = {
   [VariableType.NodeInput]: NodeInputVariableConfig;
   [VariableType.NodeOutput]: NodeOutputVariableConfig;
   [VariableType.FlowInput]: FlowInputVariableConfig;
@@ -75,12 +75,12 @@ type VariableTypeToVariableConfigTypeMap = {
 
 export function selectVariables<
   T extends VariableType,
-  R = VariableTypeToVariableConfigTypeMap[T]
+  R = VariableTypeToVariableConfigTypeMap[T],
 >(nodeId: NodeID, type: T, variableConfigs: VariableConfigs): R[] {
   return Object.values(variableConfigs)
     .filter(
       (variableConfig) =>
-        variableConfig.nodeId === nodeId && variableConfig.type === type
+        variableConfig.nodeId === nodeId && variableConfig.type === type,
     )
     .sort((a, b) => a.index - b.index) as R[];
 }
