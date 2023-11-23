@@ -83,15 +83,30 @@ export default function ChatGPTChatCompletionNode() {
   // It's OK to force unwrap here because nodeConfig will be undefined only
   // when Node is being deleted.
   const [model, setModel] = useState(() => nodeConfig!.model);
-  const [temperature, setTemperature] = useState<number | "">(
-    () => nodeConfig?.temperature ?? ""
-  );
   const [stop, setStop] = useState(() => nodeConfig!.stop);
 
-  // --- Field: seed ---
+  // SECTION: Temperature Field
+
+  const [temperature, setTemperature] = useState<string>(
+    () => nodeConfig?.temperature.toString() ?? ""
+  );
+
+  useEffect(() => {
+    if (nodeConfig?.temperature != null) {
+      setTemperature(nodeConfig.temperature.toString());
+    } else {
+      setTemperature("");
+    }
+  }, [nodeConfig?.temperature]);
+
+  // !SECTION
+
+  // SECTION: Seed Field
+
   const [seed, setSeed] = useState<string>(
     () => nodeConfig?.seed?.toString() ?? ""
   );
+
   useEffect(() => {
     if (nodeConfig?.seed != null) {
       setSeed(nodeConfig.seed.toString());
@@ -99,6 +114,8 @@ export default function ChatGPTChatCompletionNode() {
       setSeed("");
     }
   }, [nodeConfig?.seed]);
+
+  // !SECTION
 
   if (!nodeConfig) {
     return null;
@@ -204,22 +221,36 @@ export default function ChatGPTChatCompletionNode() {
                 type="number"
                 slotProps={{ input: { min: 0, max: 2, step: 0.1 } }}
                 value={temperature}
-                onChange={(e) => {
-                  if (e.target.value) {
-                    setTemperature(Number(e.target.value));
-                  } else {
-                    // Set to empty string so that on mobile devices, users can
-                    // type 0 when typing decimal number.
-                    setTemperature("");
-                  }
+                onChange={(event) => {
+                  setTemperature(event.target.value);
                 }}
-                onKeyUp={(e) => {
-                  if (e.key === "Enter") {
-                    updateNodeConfig(nodeId, { temperature: temperature || 1 });
+                onKeyUp={(event) => {
+                  if (event.key === "Enter") {
+                    let temperatureFloat: number = 1;
+                    if (temperature !== "") {
+                      temperatureFloat = Number(temperature);
+                    } else {
+                      // We don't allow empty string for temperature, i.e.
+                      // temperature must always be provided.
+                      //
+                      // Although we are already setting temperature to 1 when
+                      // input value is an empty string, the useEffect above
+                      // might not update local temperature state, because if
+                      // the initial temperature is 1, the useEffect will not
+                      // be triggered.
+                      setTemperature(temperatureFloat.toString());
+                    }
+                    updateNodeConfig(nodeId, { temperature: temperatureFloat });
                   }
                 }}
                 onBlur={() => {
-                  updateNodeConfig(nodeId, { temperature: temperature || 1 });
+                  let temperatureFloat: number = 1;
+                  if (temperature !== "") {
+                    temperatureFloat = Number(temperature);
+                  } else {
+                    setTemperature(temperatureFloat.toString());
+                  }
+                  updateNodeConfig(nodeId, { temperature: temperatureFloat });
                 }}
               />
             ) : (
@@ -236,11 +267,10 @@ export default function ChatGPTChatCompletionNode() {
                 slotProps={{ input: { step: 1 } }}
                 value={seed}
                 onChange={(event) => {
-                  console.log(JSON.stringify(event.target.value));
                   setSeed(event.target.value);
                 }}
-                onKeyUp={(e) => {
-                  if (e.key === "Enter") {
+                onKeyUp={(event) => {
+                  if (event.key === "Enter") {
                     let seedInt: number | null = null;
                     if (seed !== "") {
                       seedInt = Math.trunc(Number(seed));
