@@ -16,19 +16,6 @@ import { Observable, Subscription, first, map, share } from "rxjs";
 import { OperationResult } from "urql";
 import { StateCreator } from "zustand";
 import { SpaceFlowQueryQuery } from "../../../gql/graphql";
-import { client } from "../../../state/urql";
-import { fromWonka } from "../../../utils/graphql-utils";
-import randomId from "../../../utils/randomId";
-import {
-  ChangeEventType,
-  ChangeEvent,
-  EVENT_VALIDATION_MAP,
-} from "./EventGraph";
-import { DEFAULT_EDGE_STYLE, DRAG_HANDLE_CLASS_NAME } from "./flowConstants";
-import {
-  SPACE_FLOW_QUERY,
-  UPDATE_SPACE_FLOW_CONTENT_MUTATION,
-} from "./graphql-flow";
 import {
   FlowContent,
   FlowInputItem,
@@ -48,8 +35,21 @@ import {
   OutputValueType,
   VariableID,
   VariableValueMap,
-} from "./types-flow-content";
-import { LocalNode } from "./types-flow-content";
+} from "../../../models/flow-content-types";
+import { LocalNode } from "../../../models/flow-content-types";
+import { client } from "../../../state/urql";
+import { fromWonka } from "../../../utils/graphql-utils";
+import randomId from "../../../utils/randomId";
+import {
+  ChangeEventType,
+  ChangeEvent,
+  EVENT_VALIDATION_MAP,
+} from "./EventGraph";
+import { DEFAULT_EDGE_STYLE, DRAG_HANDLE_CLASS_NAME } from "./flowConstants";
+import {
+  SPACE_FLOW_QUERY,
+  UPDATE_SPACE_FLOW_CONTENT_MUTATION,
+} from "./graphql-flow";
 import { FlowState } from "./types-local-state";
 import { createNode, createNodeConfig } from "./utils-flow";
 

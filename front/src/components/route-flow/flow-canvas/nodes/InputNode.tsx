@@ -3,9 +3,6 @@ import Chance from "chance";
 import { adjust, append, assoc, remove } from "ramda";
 import { useContext, useMemo, useState } from "react";
 import { Position, useNodeId, useUpdateNodeInternals } from "reactflow";
-import randomId from "../../../../utils/randomId";
-import FlowContext from "../../FlowContext";
-import { useFlowStore } from "../../store/store-flow";
 import {
   FlowInputItem,
   InputNodeConfig,
@@ -13,7 +10,10 @@ import {
   NodeID,
   NodeType,
   OutputID,
-} from "../../store/types-flow-content";
+} from "../../../../models/flow-content-types";
+import randomId from "../../../../utils/randomId";
+import FlowContext from "../../FlowContext";
+import { useFlowStore } from "../../store/store-flow";
 import { FlowState } from "../../store/types-local-state";
 import { DetailPanelContentType } from "../../store/types-local-state";
 import AddVariableButton from "./node-common/AddVariableButton";

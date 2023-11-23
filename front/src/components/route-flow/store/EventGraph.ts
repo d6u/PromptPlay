@@ -10,7 +10,7 @@ import {
   FlowOutputItem,
   InputID,
   OutputID,
-} from "./types-flow-content";
+} from "../../../models/flow-content-types";
 
 export enum ChangeEventType {
   // React Flow

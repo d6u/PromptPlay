@@ -10,18 +10,18 @@ import { adjust, append, assoc, remove } from "ramda";
 import { useContext, useEffect, useMemo, useState } from "react";
 import { Position, useUpdateNodeInternals, useNodeId } from "reactflow";
 import { ChatGPTMessageRole } from "../../../../integrations/openai";
-import randomId from "../../../../utils/randomId";
-import FlowContext from "../../FlowContext";
-import TextareaReadonly from "../../common/TextareaReadonly";
-import { CopyIcon, LabelWithIconContainer } from "../../common/flow-common";
-import { useFlowStore } from "../../store/store-flow";
 import {
   ChatGPTMessageNodeConfig,
   InputID,
   NodeID,
   NodeInputItem,
   NodeType,
-} from "../../store/types-flow-content";
+} from "../../../../models/flow-content-types";
+import randomId from "../../../../utils/randomId";
+import FlowContext from "../../FlowContext";
+import TextareaReadonly from "../../common/TextareaReadonly";
+import { CopyIcon, LabelWithIconContainer } from "../../common/flow-common";
+import { useFlowStore } from "../../store/store-flow";
 import { FlowState } from "../../store/types-local-state";
 import { DetailPanelContentType } from "../../store/types-local-state";
 import AddVariableButton from "./node-common/AddVariableButton";

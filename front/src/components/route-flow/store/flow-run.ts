@@ -22,7 +22,6 @@ import {
 import * as ElevenLabs from "../../../integrations/eleven-labs";
 import * as HuggingFace from "../../../integrations/hugging-face";
 import * as OpenAI from "../../../integrations/openai";
-import { useLocalStorageStore, useSpaceStore } from "../../../state/appState";
 import {
   ChatGPTChatCompletionNodeConfig,
   ChatGPTMessageNodeConfig,
@@ -39,7 +38,8 @@ import {
   OutputNodeConfig,
   TextTemplateNodeConfig,
   VariableValueMap,
-} from "./types-flow-content";
+} from "../../../models/flow-content-types";
+import { useLocalStorageStore, useSpaceStore } from "../../../state/appState";
 import { NodeAugment } from "./types-local-state";
 
 const AsyncFunction = async function () {}.constructor;

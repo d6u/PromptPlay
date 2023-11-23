@@ -1,16 +1,24 @@
 import { Edge, Node, XYPosition } from "reactflow";
-import { ChatGPTMessageRole } from "../../../integrations/openai";
+import { ChatGPTMessageRole } from "../integrations/openai";
+
+// SECTION: ID Types
 
 // See https://stackoverflow.com/questions/41790393/typescript-strict-alias-checking
 // for the usage of `& { readonly "": unique symbol }`
 export type NodeID = string & { readonly "": unique symbol };
+
 export type EdgeID = string & { readonly "": unique symbol };
+
 export type InputID = string & { readonly "": unique symbol };
 export type OutputID = string & { readonly "": unique symbol };
-export type VariableID = InputID | OutputID;
+export type FlowInputID = string & { readonly "": unique symbol };
+export type FlowOutputID = string & { readonly "": unique symbol };
 
-// Server types
-// ============
+export type VariableID = InputID | OutputID | FlowInputID | FlowOutputID;
+
+// !SECTION
+
+// SECTION: Root Types
 
 export type FlowContent = {
   nodes: ServerNode[];
@@ -19,6 +27,10 @@ export type FlowContent = {
   variableValueMaps: VariableValueMap[];
 };
 
+// !SECTION
+
+// SECTION: Node Types
+
 export type ServerNode = {
   id: NodeID;
   type: NodeType;
@@ -26,7 +38,12 @@ export type ServerNode = {
   data: null;
 };
 
-export type NodeConfigs = Record<NodeID, NodeConfig | undefined>;
+export type LocalNode = Omit<Node<null, NodeType>, "id" | "type" | "data"> &
+  ServerNode;
+
+// !SECTION
+
+// SECTION: Edge Types
 
 export type ServerEdge = {
   id: EdgeID;
@@ -36,10 +53,15 @@ export type ServerEdge = {
   targetHandle: InputID;
 };
 
-export type VariableValueMap = Record<VariableID, unknown>;
+export type LocalEdge = Omit<
+  Edge<never>,
+  "id" | "source" | "sourceHandle" | "target" | "targetHandle"
+> &
+  ServerEdge;
 
-// Node
-// ----
+// !SECTION
+
+// SECTION: NodeConfig Types
 
 export enum NodeType {
   InputNode = "InputNode",
@@ -51,6 +73,8 @@ export enum NodeType {
   HuggingFaceInference = "HuggingFaceInference",
   ElevenLabs = "ElevenLabs",
 }
+
+export type NodeConfigs = Record<NodeID, NodeConfig>;
 
 export type NodeConfig =
   | InputNodeConfig
@@ -151,7 +175,9 @@ export type ElevenLabsNodeConfig = NodeConfigCommon & {
   outputs: NodeOutputItem[];
 };
 
-// Input / Output
+// !SECTION
+
+// SECTION: Variable Types
 
 export type NodeInputItem = {
   id: InputID;
@@ -185,14 +211,10 @@ export enum OutputValueType {
   Audio = "Audio",
 }
 
-// Edge
-// ----
+// !SECTION
 
-export type LocalNode = Omit<Node<null, NodeType>, "id" | "type" | "data"> &
-  ServerNode;
+// SECTION: VariableValueMap Types
 
-export type LocalEdge = Omit<
-  Edge<never>,
-  "id" | "source" | "sourceHandle" | "target" | "targetHandle"
-> &
-  ServerEdge;
+export type VariableValueMap = Record<VariableID, unknown>;
+
+// !SECTION

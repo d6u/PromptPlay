@@ -4,9 +4,9 @@ import Option from "@mui/joy/Option";
 import Select from "@mui/joy/Select";
 import Textarea from "@mui/joy/Textarea";
 import { ReactNode, useEffect, useState } from "react";
+import { InputValueType } from "../../../../../models/flow-content-types";
 import InputReadonly from "../../../common/InputReadonly";
 import TextareaReadonly from "../../../common/TextareaReadonly";
-import { InputValueType } from "../../../store/types-flow-content";
 
 const Container = styled.div`
   margin-bottom: 10px;

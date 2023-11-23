@@ -7,9 +7,9 @@ import ReactFlow, {
   PanOnScrollMode,
 } from "reactflow";
 import "reactflow/dist/style.css";
+import { NodeType } from "../../../models/flow-content-types";
 import FlowContext from "../FlowContext";
 import { useFlowStore } from "../store/store-flow";
-import { NodeType } from "../store/types-flow-content";
 import { FlowState } from "../store/types-local-state";
 import ChatGPTChatCompletionNode from "./nodes/ChatGPTChatCompletionNode";
 import ChatGPTMessageNode from "./nodes/ChatGPTMessageNode";

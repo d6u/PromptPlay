@@ -8,11 +8,11 @@ import {
 } from "@mui/joy";
 import { useContext, useEffect, useMemo, useState } from "react";
 import { ChatGPTMessageRole } from "../../../../../integrations/openai";
+import { ChatGPTMessageNodeConfig } from "../../../../../models/flow-content-types";
 import FlowContext from "../../../FlowContext";
 import TextareaReadonly from "../../../common/TextareaReadonly";
 import { CopyIcon, LabelWithIconContainer } from "../../../common/flow-common";
 import { useFlowStore } from "../../../store/store-flow";
-import { ChatGPTMessageNodeConfig } from "../../../store/types-flow-content";
 import { FlowState } from "../../../store/types-local-state";
 import OutputRenderer from "../common/OutputRenderer";
 import {
