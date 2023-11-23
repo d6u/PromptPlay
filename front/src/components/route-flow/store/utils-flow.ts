@@ -256,12 +256,12 @@ export function restoreNodeConfigForRemovedEdges(
       if (input.id === edge.targetHandle) {
         nodeConfigs = produce(nodeConfigs, (draft) => {
           const input = (draft[targetNodeConfig.nodeId] as OutputNodeConfig)
-            .inputs[index];
+            .inputs[index]!;
           delete input.valueType;
         });
 
         variableValueMaps = produce(variableValueMaps, (draft) => {
-          draft[0][input.id] = null;
+          draft[0]![input.id] = null;
         });
 
         break;

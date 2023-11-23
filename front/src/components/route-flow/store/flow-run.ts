@@ -2,21 +2,21 @@ import { A } from "@mobily/ts-belt";
 import mustache from "mustache";
 import {
   BehaviorSubject,
-  EMPTY,
-  Observable,
-  TimeoutError,
   catchError,
   concat,
   concatMap,
   defer,
+  EMPTY,
   endWith,
   from,
   map,
+  Observable,
   of,
   retry,
   startWith,
   tap,
   throwError,
+  TimeoutError,
   zipWith,
 } from "rxjs";
 import * as ElevenLabs from "../../../integrations/eleven-labs";
@@ -29,7 +29,6 @@ import {
   HuggingFaceInferenceNodeConfig,
   JavaScriptFunctionNodeConfig,
   LocalEdge,
-  NodeConfig,
   NodeID,
   NodeInputID,
   NodeOutputID,
@@ -38,7 +37,10 @@ import {
   TextTemplateNodeConfig,
   VariableValueMap,
 } from "../../../models/flow-content-types";
-import { V3NodeConfigs } from "../../../models/v3-flow-content-types";
+import {
+  V3NodeConfig,
+  V3NodeConfigs,
+} from "../../../models/v3-flow-content-types";
 import { useLocalStorageStore, useSpaceStore } from "../../../state/appState";
 import { NodeAugment } from "./types-local-state";
 
@@ -108,7 +110,7 @@ export function run(
   }
 
   // `obs` is a topological sort of the node graph.
-  const obs = new Observable<{ nodeId: NodeID; nodeConfig: NodeConfig }>(
+  const obs = new Observable<{ nodeId: NodeID; nodeConfig: V3NodeConfig }>(
     (subscriber) => {
       const queue: NodeID[] = [];
 

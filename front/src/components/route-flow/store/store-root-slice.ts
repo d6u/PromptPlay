@@ -6,7 +6,7 @@ import { invariant } from "ts-invariant";
 import { OperationResult } from "urql";
 import { StateCreator } from "zustand";
 import { ContentVersion, SpaceFlowQueryQuery } from "../../../gql/graphql";
-import { NodeID, VariableID } from "../../../models/flow-content-types";
+import { NodeID } from "../../../models/flow-content-types";
 import {
   asV3VariableID,
   convertV2ContentToV3Content,
@@ -210,7 +210,7 @@ export const createRootSlice: StateCreator<FlowState, [], [], RootSlice> = (
             case RunEventType.VariableValueChanges: {
               const { changes } = data;
               for (const [outputId, value] of Object.entries(changes)) {
-                updateVariableValueMap(outputId as VariableID, value);
+                updateVariableValueMap(asV3VariableID(outputId), value);
               }
               break;
             }

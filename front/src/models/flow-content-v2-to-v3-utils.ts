@@ -8,15 +8,15 @@ import {
 } from "./flow-content-types";
 import {
   V3FlowContent,
-  VariableConfigs,
   V3NodeConfigs,
-  VariableType,
   V3OutputValueType,
   V3VariableID,
+  VariableConfigs,
+  VariableType,
 } from "./v3-flow-content-types";
 
 export function convertV2ContentToV3Content(
-  flowContentV2: FlowContent
+  flowContentV2: FlowContent,
 ): V3FlowContent {
   const { nodes, edges, nodeConfigs, variableValueMaps } = flowContentV2;
 
@@ -144,6 +144,6 @@ export function convertV2ContentToV3Content(
   };
 }
 
-export function asV3VariableID(id: VariableID): V3VariableID {
+export function asV3VariableID(id: VariableID | string): V3VariableID {
   return id as unknown as V3VariableID;
 }
