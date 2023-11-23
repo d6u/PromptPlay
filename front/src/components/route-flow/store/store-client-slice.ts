@@ -8,6 +8,7 @@ import {
   VariableID,
   VariableValueMap,
 } from "../../../models/flow-content-types";
+import { convert } from "../../../models/flow-content-v2-to-v3-utils";
 import { run, RunEventType } from "./flow-run";
 import { flowInputItemsSelector } from "./store-flow";
 import { FlowState } from "./types-local-state";
@@ -83,6 +84,8 @@ export const createClientSlice: StateCreator<FlowState, [], [], ClientSlice> = (
         .fetchFlowConfiguration()
         .subscribe({
           complete() {
+            const r = convert(get());
+            console.log(r);
             set({ isInitialized: true });
           },
         });

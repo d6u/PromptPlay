@@ -9,12 +9,16 @@ export type NodeID = string & { readonly "": unique symbol };
 
 export type EdgeID = string & { readonly "": unique symbol };
 
-export type InputID = string & { readonly "": unique symbol };
-export type OutputID = string & { readonly "": unique symbol };
+export type NodeInputID = string & { readonly "": unique symbol };
+export type NodeOutputID = string & { readonly "": unique symbol };
 export type FlowInputID = string & { readonly "": unique symbol };
 export type FlowOutputID = string & { readonly "": unique symbol };
 
-export type VariableID = InputID | OutputID | FlowInputID | FlowOutputID;
+export type VariableID =
+  | NodeInputID
+  | NodeOutputID
+  | FlowInputID
+  | FlowOutputID;
 
 // !SECTION
 
@@ -48,9 +52,9 @@ export type LocalNode = Omit<Node<null, NodeType>, "id" | "type" | "data"> &
 export type ServerEdge = {
   id: EdgeID;
   source: NodeID;
-  sourceHandle: OutputID;
+  sourceHandle: NodeOutputID;
   target: NodeID;
-  targetHandle: InputID;
+  targetHandle: NodeInputID;
 };
 
 export type LocalEdge = Omit<
@@ -180,24 +184,24 @@ export type ElevenLabsNodeConfig = NodeConfigCommon & {
 // SECTION: Variable Types
 
 export type NodeInputItem = {
-  id: InputID;
+  id: NodeInputID;
   name: string;
 };
 
 export type NodeOutputItem = {
-  id: OutputID;
+  id: NodeOutputID;
   name: string;
   valueType?: OutputValueType;
 };
 
 export type FlowInputItem = {
-  id: OutputID;
+  id: NodeOutputID;
   name: string;
   valueType: InputValueType;
 };
 
 export type FlowOutputItem = {
-  id: InputID;
+  id: NodeInputID;
   name: string;
   valueType?: OutputValueType;
 };
@@ -216,5 +220,72 @@ export enum OutputValueType {
 // SECTION: VariableValueMap Types
 
 export type VariableValueMap = Record<VariableID, unknown>;
+
+// !SECTION
+
+// SECTION: V3 Root Types
+
+export type FlowContentV3 = {
+  nodes: ServerNode[];
+  edges: ServerEdge[];
+  nodeConfigs: NodeConfigs;
+  variableConfigs: VariableConfigs;
+  variableValueMaps: VariableValueMap[];
+};
+
+// !SECTION
+
+// SECTION: V3 ID Types
+
+export type VariableIDV3 = string & { readonly "": unique symbol };
+
+// !SECTION
+
+// SECTION: V3 Variable Types
+
+export enum VariableType {
+  NodeInput = "NodeInput",
+  NodeOutput = "NodeOutput",
+  FlowInput = "FlowInput",
+  FlowOutput = "FlowOutput",
+}
+
+export type VariableConfigs = Record<VariableIDV3, VariableConfig>;
+
+export type VariableConfig =
+  | NodeInputVariableConfig
+  | NodeOutputVariableConfig
+  | FlowInputVariableConfig
+  | FlowOutputVariableConfig;
+
+type VariableConfigCommon = {
+  id: VariableIDV3;
+  nodeId: NodeID;
+  index: number;
+  name: string;
+};
+
+export type NodeInputVariableConfig = VariableConfigCommon & {
+  type: VariableType.NodeInput;
+};
+
+export type NodeOutputVariableConfig = VariableConfigCommon & {
+  type: VariableType.NodeOutput;
+};
+
+export type FlowInputVariableConfig = VariableConfigCommon & {
+  type: VariableType.FlowInput;
+  valueType: InputValueType;
+};
+
+export type FlowOutputVariableConfig = VariableConfigCommon & {
+  type: VariableType.FlowOutput;
+  valueType: OutputValueTypeV3;
+};
+
+export enum OutputValueTypeV3 {
+  Audio = "Audio",
+  String = "String",
+}
 
 // !SECTION
