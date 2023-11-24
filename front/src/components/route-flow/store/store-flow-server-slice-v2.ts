@@ -16,7 +16,6 @@ import {
 import invariant from "ts-invariant";
 import { StateCreator } from "zustand";
 import {
-  InputValueType,
   LocalEdge,
   LocalNode,
   NodeID,
@@ -478,11 +477,8 @@ function handleRfOnConnect(
   // SECTION: Check if new edge has valid destination value type
 
   const srcVariable = variableConfigs[asV3VariableID(addedEdge.sourceHandle)];
-  const isSourceAudio =
-    srcVariable.type === VariableConfigType.NodeOutput &&
-    srcVariable.valueType === NodeOutputValueType.Audio;
 
-  if (isSourceAudio) {
+  if (srcVariable.valueType === VariableValueType.Audio) {
     const dstNodeConfig = nodeConfigs[addedEdge.target];
     if (dstNodeConfig.nodeType !== NodeType.OutputNode) {
       // TODO: Change this to a non-blocking alert UI
@@ -646,6 +642,7 @@ function handleAddingVariable(
         const variableConfig: NodeInputVariableConfig = {
           ...commonFields,
           type: varType,
+          valueType: VariableValueType.Unknown,
         };
         draft[variableConfig.id] = variableConfig;
         break;
@@ -654,7 +651,7 @@ function handleAddingVariable(
         const variableConfig: NodeOutputVariableConfig = {
           ...commonFields,
           type: varType,
-          valueType: NodeOutputValueType.Unknown,
+          valueType: VariableValueType.Unknown,
         };
         draft[variableConfig.id] = variableConfig;
         break;
@@ -663,7 +660,7 @@ function handleAddingVariable(
         const variableConfig: FlowInputVariableConfig = {
           ...commonFields,
           type: varType,
-          valueType: InputValueType.String,
+          valueType: VariableValueType.String,
         };
         draft[variableConfig.id] = variableConfig;
         break;
@@ -672,7 +669,7 @@ function handleAddingVariable(
         const variableConfig: FlowOutputVariableConfig = {
           ...commonFields,
           type: varType,
-          valueType: V3FlowOutputValueType.String,
+          valueType: VariableValueType.String,
         };
         draft[variableConfig.id] = variableConfig;
         break;
@@ -798,21 +795,18 @@ function handleEdgeAdded(
   const variableConfigs = produce(prevVariableConfigs, (draft) => {
     const srcVariableConfig = draft[asV3VariableID(addedEdge.sourceHandle)];
 
-    if (
-      srcVariableConfig.type === VariableConfigType.NodeOutput &&
-      srcVariableConfig.valueType === NodeOutputValueType.Audio
-    ) {
+    if (srcVariableConfig.valueType === VariableValueType.Audio) {
       const dstVariableConfig = draft[asV3VariableID(addedEdge.targetHandle)];
 
       invariant(dstVariableConfig.type === VariableConfigType.FlowOutput);
 
       const prevVariableConfig = current(dstVariableConfig);
 
-      dstVariableConfig.valueType = V3FlowOutputValueType.Audio;
+      dstVariableConfig.valueType = VariableValueType.Audio;
 
       events.push({
         type: ChangeEventType.VARIABLE_UPDATED,
-        prevVariableConfig: prevVariableConfig,
+        prevVariableConfig,
         nextVariableConfig: current(dstVariableConfig),
       });
     }
@@ -848,7 +842,7 @@ function handleEdgeRemoved(
         srcVariableConfig.type === VariableConfigType.FlowInput,
     );
 
-    if (srcVariableConfig.valueType === NodeOutputValueType.Audio) {
+    if (srcVariableConfig.valueType === VariableValueType.Audio) {
       // Get the destination input
       const dstVariableConfig = draft[asV3VariableID(removedEdge.targetHandle)];
 
@@ -856,7 +850,7 @@ function handleEdgeRemoved(
 
       const prevVariableConfig = current(dstVariableConfig);
 
-      dstVariableConfig.valueType = V3FlowOutputValueType.String;
+      dstVariableConfig.valueType = VariableValueType.String;
 
       events.push({
         type: ChangeEventType.VARIABLE_UPDATED,
