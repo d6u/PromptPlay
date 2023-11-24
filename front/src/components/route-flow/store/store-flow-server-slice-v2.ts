@@ -296,8 +296,12 @@ function handleEvent(
       );
     case ChangeEventType.REMOVING_NODE:
       return handleRemovingNode(event.nodeId, state.nodes, state.nodeConfigs);
-    // case ChangeEventType.UPDATING_NODE_CONFIG:
-    //   return handleUpdatingNodeConfig(event.nodeId, event.change);
+    case ChangeEventType.UPDATING_NODE_CONFIG:
+      return handleUpdatingNodeConfig(
+        event.nodeId,
+        event.change,
+        state.nodeConfigs,
+      );
     // Variables
     case ChangeEventType.ADDING_VARIABLE:
       return handleAddingVariable(
@@ -593,24 +597,23 @@ function handleRemovingNode(
   return [content, events];
 }
 
-// function handleUpdatingNodeConfig(
-//   nodeId: NodeID,
-//   change: Partial<NodeConfig>,
-// ): ChangeEvent[] {
-//   const events: ChangeEvent[] = [];
+function handleUpdatingNodeConfig(
+  nodeId: NodeID,
+  change: Partial<V3NodeConfig>,
+  prevNodeConfigs: V3NodeConfigs,
+): [Partial<FlowServerSliceStateV2>, ChangeEvent[]] {
+  const content: Partial<FlowServerSliceStateV2> = {};
+  const events: ChangeEvent[] = [];
 
-//   const nodeConfigs = produce(get().nodeConfigs, (draft) => {
-//     draft[nodeId] = {
-//       ...draft[nodeId]!,
-//       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-//       ...(change as any),
-//     };
-//   });
+  const nodeConfigs = produce(prevNodeConfigs, (draft) => {
+    Object.assign(draft[nodeId], change);
+  });
 
-//   set({ isFlowContentDirty: true, nodeConfigs: nodeConfigs });
+  content.isFlowContentDirty = true;
+  content.nodeConfigs = nodeConfigs;
 
-//   return events;
-// }
+  return [content, events];
+}
 
 function handleAddingVariable(
   nodeId: NodeID,
