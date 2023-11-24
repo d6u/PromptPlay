@@ -81,9 +81,9 @@ export const EVENT_VALIDATION_MAP: {
   [ChangeEventType.EDGE_REMOVED]: [ChangeEventType.VARIABLE_UPDATED],
   [ChangeEventType.EDGE_REPLACED]: [ChangeEventType.VARIABLE_UPDATED],
   // Derived Variables
-  [ChangeEventType.VARIABLE_ADDED]: [],
+  [ChangeEventType.VARIABLE_ADDED]: [ChangeEventType.VAR_VALUE_MAP_UPDATED],
   [ChangeEventType.VARIABLE_REMOVED]: [ChangeEventType.VAR_VALUE_MAP_UPDATED],
-  [ChangeEventType.VARIABLE_UPDATED]: [],
+  [ChangeEventType.VARIABLE_UPDATED]: [ChangeEventType.VAR_VALUE_MAP_UPDATED],
   // Derived Other
   [ChangeEventType.VAR_VALUE_MAP_UPDATED]: [],
 };
@@ -172,6 +172,7 @@ export type ChangeEvent =
     }
   | {
       type: ChangeEventType.VARIABLE_ADDED;
+      variableId: V3VariableID;
     }
   | {
       type: ChangeEventType.VARIABLE_REMOVED;

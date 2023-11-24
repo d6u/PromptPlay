@@ -330,7 +330,9 @@ function handleEvent(
     // case ChangeEventType.EDGE_REPLACED: {
     //   return processEdgeReplaced(event.oldEdge, event.newEdge);
     // }
-    // // Derived Variables
+    // Derived Variables
+    case ChangeEventType.VARIABLE_ADDED:
+      return handleVariableAdded(event.variableId, state.variableValueMaps);
     // case ChangeEventType.VARIABLE_REMOVED:
     //   return processVariableFlowInputRemoved(event.variableId);
     // case ChangeEventType.VARIABLE_UPDATED:
@@ -338,8 +340,6 @@ function handleEvent(
     //     event.variableOldData,
     //     event.variableNewData,
     //   );
-    // case ChangeEventType.VARIABLE_ADDED:
-    //   return [];
     // // Derived Other
     // case ChangeEventType.VAR_VALUE_MAP_UPDATED:
     //   return [];
@@ -586,6 +586,8 @@ function handleAddingVariable(
   const events: ChangeEvent[] = [];
 
   variableConfigs = produce(variableConfigs, (draft) => {
+    const variableId = asV3VariableID(`${nodeId}/${randomId()}`);
+
     const commonFields = {
       id: asV3VariableID(`${nodeId}/${randomId()}`),
       nodeId,
@@ -630,10 +632,11 @@ function handleAddingVariable(
         break;
       }
     }
-  });
 
-  events.push({
-    type: ChangeEventType.VARIABLE_ADDED,
+    events.push({
+      type: ChangeEventType.VARIABLE_ADDED,
+      variableId,
+    });
   });
 
   content.isFlowContentDirty = true;
@@ -993,3 +996,24 @@ function handleUpdatingVariable(
 
 //   return events;
 // }
+
+function handleVariableAdded(
+  variableId: V3VariableID,
+  prevVariableValueMaps: V3VariableValueMap[],
+): [Partial<FlowServerSliceStateV2>, ChangeEvent[]] {
+  const content: Partial<FlowServerSliceStateV2> = {};
+  const events: ChangeEvent[] = [];
+
+  const variableValueMaps = produce(prevVariableValueMaps, (draft) => {
+    draft[0][variableId] = null;
+  });
+
+  events.push({
+    type: ChangeEventType.VAR_VALUE_MAP_UPDATED,
+  });
+
+  content.isFlowContentDirty = true;
+  content.variableValueMaps = variableValueMaps;
+
+  return [content, events];
+}
