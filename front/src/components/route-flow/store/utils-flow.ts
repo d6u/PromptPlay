@@ -3,7 +3,6 @@ import Chance from "chance";
 import { produce } from "immer";
 import { ChatGPTMessageRole } from "../../../integrations/openai";
 import {
-  InputValueType,
   LocalNode,
   NodeConfigs,
   NodeID,
@@ -16,11 +15,10 @@ import {
 } from "../../../models/flow-content-types";
 import { asV3VariableID } from "../../../models/flow-content-v2-to-v3-utils";
 import {
-  NodeOutputValueType,
-  V3FlowOutputValueType,
   V3NodeConfig,
   VariableConfig,
   VariableConfigType,
+  VariableValueType,
 } from "../../../models/v3-flow-content-types";
 import propEq from "../../../utils/propEq";
 import randomId from "../../../utils/randomId";
@@ -54,7 +52,7 @@ export function createNodeConfig(node: LocalNode): {
             nodeId: node.id,
             index: 0,
             name: chance.word(),
-            valueType: InputValueType.String,
+            valueType: VariableValueType.String,
           },
         ],
       };
@@ -72,7 +70,7 @@ export function createNodeConfig(node: LocalNode): {
             nodeId: node.id,
             index: 0,
             name: chance.word(),
-            valueType: V3FlowOutputValueType.String,
+            valueType: VariableValueType.String,
           },
         ],
       };
@@ -91,7 +89,7 @@ export function createNodeConfig(node: LocalNode): {
             nodeId: node.id,
             name: "output",
             index: 0,
-            valueType: NodeOutputValueType.Unknown,
+            valueType: VariableValueType.Unknown,
           },
         ],
       };
@@ -111,6 +109,7 @@ export function createNodeConfig(node: LocalNode): {
             nodeId: node.id,
             name: "messages",
             index: 0,
+            valueType: VariableValueType.Unknown,
           },
           {
             type: VariableConfigType.NodeInput,
@@ -118,6 +117,7 @@ export function createNodeConfig(node: LocalNode): {
             nodeId: node.id,
             name: "topic",
             index: 1,
+            valueType: VariableValueType.Unknown,
           },
           {
             type: VariableConfigType.NodeOutput,
@@ -125,7 +125,7 @@ export function createNodeConfig(node: LocalNode): {
             nodeId: node.id,
             name: "message",
             index: 0,
-            valueType: NodeOutputValueType.Unknown,
+            valueType: VariableValueType.Unknown,
           },
           {
             type: VariableConfigType.NodeOutput,
@@ -133,7 +133,7 @@ export function createNodeConfig(node: LocalNode): {
             nodeId: node.id,
             name: "messages",
             index: 1,
-            valueType: NodeOutputValueType.Unknown,
+            valueType: VariableValueType.Unknown,
           },
         ],
       };
@@ -156,6 +156,7 @@ export function createNodeConfig(node: LocalNode): {
             nodeId: node.id,
             name: "messages",
             index: 0,
+            valueType: VariableValueType.Unknown,
           },
           {
             type: VariableConfigType.NodeOutput,
@@ -163,7 +164,7 @@ export function createNodeConfig(node: LocalNode): {
             nodeId: node.id,
             name: "content",
             index: 0,
-            valueType: NodeOutputValueType.Unknown,
+            valueType: VariableValueType.Unknown,
           },
           {
             type: VariableConfigType.NodeOutput,
@@ -171,7 +172,7 @@ export function createNodeConfig(node: LocalNode): {
             nodeId: node.id,
             name: "message",
             index: 1,
-            valueType: NodeOutputValueType.Unknown,
+            valueType: VariableValueType.Unknown,
           },
           {
             type: VariableConfigType.NodeOutput,
@@ -179,7 +180,7 @@ export function createNodeConfig(node: LocalNode): {
             nodeId: node.id,
             name: "messages",
             index: 2,
-            valueType: NodeOutputValueType.Unknown,
+            valueType: VariableValueType.Unknown,
           },
         ],
       };
@@ -198,6 +199,7 @@ export function createNodeConfig(node: LocalNode): {
             name: "topic",
             nodeId: node.id,
             index: 0,
+            valueType: VariableValueType.Unknown,
           },
           {
             type: VariableConfigType.NodeOutput,
@@ -205,7 +207,7 @@ export function createNodeConfig(node: LocalNode): {
             name: "content",
             nodeId: node.id,
             index: 0,
-            valueType: NodeOutputValueType.Unknown,
+            valueType: VariableValueType.Unknown,
           },
         ],
       };
@@ -224,6 +226,7 @@ export function createNodeConfig(node: LocalNode): {
             name: "parameters",
             nodeId: node.id,
             index: 0,
+            valueType: VariableValueType.Unknown,
           },
           {
             type: VariableConfigType.NodeOutput,
@@ -231,7 +234,7 @@ export function createNodeConfig(node: LocalNode): {
             name: "output",
             nodeId: node.id,
             index: 0,
-            valueType: NodeOutputValueType.Unknown,
+            valueType: VariableValueType.Unknown,
           },
         ],
       };
@@ -250,6 +253,7 @@ export function createNodeConfig(node: LocalNode): {
             name: "text",
             nodeId: node.id,
             index: 0,
+            valueType: VariableValueType.Unknown,
           },
           {
             type: VariableConfigType.NodeOutput,
@@ -257,7 +261,7 @@ export function createNodeConfig(node: LocalNode): {
             name: "audio",
             nodeId: node.id,
             index: 0,
-            valueType: NodeOutputValueType.Audio,
+            valueType: VariableValueType.Audio,
           },
         ],
       };

@@ -1,18 +1,23 @@
 import { D } from "@mobily/ts-belt";
 import {
   FlowContent,
+  InputValueType,
   NodeID,
   NodeType,
   OutputValueType,
   VariableID,
 } from "./flow-content-types";
 import {
+  FlowInputVariableConfig,
+  FlowOutputVariableConfig,
+  NodeInputVariableConfig,
+  NodeOutputVariableConfig,
   V3FlowContent,
-  V3FlowOutputValueType,
   V3NodeConfigs,
   V3VariableID,
   VariableConfigs,
   VariableConfigType,
+  VariableValueType,
 } from "./v3-flow-content-types";
 
 export function convertV2ContentToV3Content(
@@ -79,20 +84,24 @@ export function convertV2ContentToV3Content(
     switch (nodeConfig.nodeType) {
       case NodeType.InputNode: {
         for (const [index, flowInput] of nodeConfig.outputs.entries()) {
-          variableConfigs[asV3VariableID(flowInput.id)] = {
+          const variable: FlowInputVariableConfig = {
             id: asV3VariableID(flowInput.id),
             nodeId: nodeId as NodeID,
             type: VariableConfigType.FlowInput,
             index,
             name: flowInput.name,
-            valueType: flowInput.valueType,
+            valueType:
+              flowInput.valueType === InputValueType.String
+                ? VariableValueType.String
+                : VariableValueType.Number,
           };
+          variableConfigs[asV3VariableID(flowInput.id)] = variable;
         }
         break;
       }
       case NodeType.OutputNode: {
         for (const [index, flowOutput] of nodeConfig.inputs.entries()) {
-          variableConfigs[asV3VariableID(flowOutput.id)] = {
+          const variable: FlowOutputVariableConfig = {
             id: asV3VariableID(flowOutput.id),
             nodeId: nodeId as NodeID,
             type: VariableConfigType.FlowOutput,
@@ -100,9 +109,10 @@ export function convertV2ContentToV3Content(
             name: flowOutput.name,
             valueType:
               flowOutput.valueType === OutputValueType.Audio
-                ? V3FlowOutputValueType.Audio
-                : V3FlowOutputValueType.String,
+                ? VariableValueType.Audio
+                : VariableValueType.String,
           };
+          variableConfigs[asV3VariableID(flowOutput.id)] = variable;
         }
         break;
       }
@@ -113,22 +123,29 @@ export function convertV2ContentToV3Content(
       case NodeType.HuggingFaceInference:
       case NodeType.ElevenLabs: {
         for (const [index, input] of nodeConfig.inputs.entries()) {
-          variableConfigs[asV3VariableID(input.id)] = {
+          const variable: NodeInputVariableConfig = {
             id: asV3VariableID(input.id),
             nodeId: nodeId as NodeID,
             type: VariableConfigType.NodeInput,
             index,
             name: input.name,
+            valueType: VariableValueType.Unknown,
           };
+          variableConfigs[asV3VariableID(input.id)] = variable;
         }
         for (const [index, output] of nodeConfig.outputs.entries()) {
-          variableConfigs[asV3VariableID(output.id)] = {
+          const variable: NodeOutputVariableConfig = {
             id: asV3VariableID(output.id),
             nodeId: nodeId as NodeID,
             type: VariableConfigType.NodeOutput,
             index,
             name: output.name,
+            valueType:
+              output.valueType === OutputValueType.Audio
+                ? VariableValueType.Audio
+                : VariableValueType.Unknown,
           };
+          variableConfigs[asV3VariableID(output.id)] = variable;
         }
         break;
       }
