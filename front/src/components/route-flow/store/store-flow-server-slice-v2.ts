@@ -294,8 +294,8 @@ function handleEvent(
         state.nodeConfigs,
         state.variableConfigs,
       );
-    // case ChangeEventType.REMOVING_NODE:
-    //   return handleRemovingNode(event.nodeId);
+    case ChangeEventType.REMOVING_NODE:
+      return handleRemovingNode(event.nodeId, state.nodes, state.nodeConfigs);
     // case ChangeEventType.UPDATING_NODE_CONFIG:
     //   return handleUpdatingNodeConfig(event.nodeId, event.change);
     // Variables
@@ -557,38 +557,41 @@ function handleAddingNode(
   return [content, events];
 }
 
-// function handleRemovingNode(nodeId: NodeID): ChangeEvent[] {
-//   const events: ChangeEvent[] = [];
+function handleRemovingNode(
+  nodeId: NodeID,
+  prevNodes: LocalNode[],
+  prevNodeConfigs: V3NodeConfigs,
+): [Partial<FlowServerSliceStateV2>, ChangeEvent[]] {
+  const content: Partial<FlowServerSliceStateV2> = {};
+  const events: ChangeEvent[] = [];
 
-//   let nodeConfigs = get().nodeConfigs;
+  const [acceptedNodes, rejectedNodes] = A.partition(
+    prevNodes,
+    (node) => node.id !== nodeId,
+  );
 
-//   const [acceptedNodes, rejectedNodes] = A.partition(
-//     get().nodes,
-//     (node) => node.id !== nodeId,
-//   );
+  let nodeConfigs = prevNodeConfigs;
 
-//   if (rejectedNodes.length) {
-//     const removingNodeConfig = nodeConfigs[nodeId]!;
+  if (rejectedNodes.length) {
+    const removingNodeConfig = prevNodeConfigs[nodeId];
 
-//     nodeConfigs = produce(nodeConfigs, (draft) => {
-//       delete draft[nodeId];
-//     });
+    nodeConfigs = produce(prevNodeConfigs, (draft) => {
+      delete draft[nodeId];
+    });
 
-//     events.push({
-//       type: ChangeEventType.NODE_REMOVED,
-//       node: rejectedNodes[0],
-//       nodeConfig: removingNodeConfig,
-//     });
-//   }
+    events.push({
+      type: ChangeEventType.NODE_REMOVED,
+      node: rejectedNodes[0],
+      nodeConfig: removingNodeConfig,
+    });
+  }
 
-//   set({
-//     isFlowContentDirty: true,
-//     nodes: acceptedNodes,
-//     nodeConfigs: nodeConfigs,
-//   });
+  content.isFlowContentDirty = true;
+  content.nodes = acceptedNodes;
+  content.nodeConfigs = nodeConfigs;
 
-//   return events;
-// }
+  return [content, events];
+}
 
 // function handleUpdatingNodeConfig(
 //   nodeId: NodeID,
