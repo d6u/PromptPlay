@@ -27,9 +27,7 @@ import {
   FlowInputVariableConfig,
   FlowOutputVariableConfig,
   NodeInputVariableConfig,
-  NodeOutputValueType,
   NodeOutputVariableConfig,
-  V3FlowOutputValueType,
   V3NodeConfig,
   V3NodeConfigs,
   V3VariableID,
@@ -37,6 +35,7 @@ import {
   VariableConfig,
   VariableConfigs,
   VariableConfigType,
+  VariableValueType,
 } from "../../../models/v3-flow-content-types";
 import randomId from "../../../utils/randomId";
 import {
@@ -345,7 +344,11 @@ function handleEvent(
         state.variableConfigs,
       );
     case ChangeEventType.EDGE_REPLACED:
-      return handleEdgeReplaced(event.oldEdge, event.newEdge);
+      return handleEdgeReplaced(
+        event.oldEdge,
+        event.newEdge,
+        state.variableConfigs,
+      );
     // Derived Variables
     case ChangeEventType.VARIABLE_ADDED:
       return handleVariableAdded(event.variableId, state.variableValueMaps);
@@ -882,36 +885,63 @@ function handleEdgeReplaced(
   // --- Handle variable type change ---
 
   const variableConfigs = produce(prevVariableConfigs, (draft) => {
-    const oldVariableConfig = draft[asV3VariableID(oldEdge.sourceHandle)];
-    const newVariableConfig = draft[asV3VariableID(newEdge.sourceHandle)]!;
+    const oldSrcVariableConfig = draft[asV3VariableID(oldEdge.sourceHandle)];
+    const newSrcVariableConfig = draft[asV3VariableID(newEdge.sourceHandle)];
 
-    // Only need to change when source value type has changed
-    if (
-      (oldVariableConfig.type === VariableConfigType.NodeOutput ||
-        oldVariableConfig.type === VariableConfigType.FlowInput) &&
-      (newVariableConfig.type === VariableConfigType.NodeOutput ||
-        newVariableConfig.type === VariableConfigType.FlowInput) &&
-      oldVariableConfig.valueType !== newVariableConfig.valueType
-    ) {
+    invariant(
+      oldSrcVariableConfig.type === VariableConfigType.FlowInput ||
+        oldSrcVariableConfig.type === VariableConfigType.NodeOutput,
+    );
+    invariant(
+      newSrcVariableConfig.type === VariableConfigType.FlowInput ||
+        newSrcVariableConfig.type === VariableConfigType.NodeOutput,
+    );
+
+    if (oldSrcVariableConfig.valueType !== newSrcVariableConfig.valueType) {
       // It doesn't matter whether we use the old or the new edge to find the
       // destination variable config, they should point to the same one.
       const dstVariableConfig = draft[asV3VariableID(newEdge.targetHandle)];
 
-      if (dstVariableConfig.type === VariableConfigType.FlowOutput) {
-        const prevVariableConfig = current(dstVariableConfig);
+      invariant(
+        dstVariableConfig.type === VariableConfigType.FlowOutput ||
+          dstVariableConfig.type === VariableConfigType.NodeInput,
+      );
 
-        if (newVariableConfig.valueType === NodeOutputValueType.Audio) {
-          dstInput.valueType = OutputValueType.Audio;
-        } else {
-          delete dstInput.valueType;
-        }
+      const prevVariableConfig = current(dstVariableConfig);
 
-        events.push({
-          type: ChangeEventType.VARIABLE_UPDATED,
-          prevVariableConfig,
-          nextVariableConfig: current(prevVariableConfig),
-        });
+      switch (newSrcVariableConfig.valueType) {
+        case VariableValueType.Number:
+          if (dstVariableConfig.type === VariableConfigType.FlowOutput) {
+            dstVariableConfig.valueType = VariableValueType.String;
+          } else {
+            dstVariableConfig.valueType = VariableValueType.Unknown;
+          }
+          break;
+        case VariableValueType.String:
+          if (dstVariableConfig.type === VariableConfigType.FlowOutput) {
+            dstVariableConfig.valueType = VariableValueType.String;
+          } else {
+            dstVariableConfig.valueType = VariableValueType.Unknown;
+          }
+          break;
+        case VariableValueType.Audio:
+          invariant(dstVariableConfig.type === VariableConfigType.FlowOutput);
+          dstVariableConfig.valueType = VariableValueType.Audio;
+          break;
+        case VariableValueType.Unknown:
+          if (dstVariableConfig.type === VariableConfigType.FlowOutput) {
+            dstVariableConfig.valueType = VariableValueType.String;
+          } else {
+            dstVariableConfig.valueType = VariableValueType.Unknown;
+          }
+          break;
       }
+
+      events.push({
+        type: ChangeEventType.VARIABLE_UPDATED,
+        prevVariableConfig,
+        nextVariableConfig: current(dstVariableConfig),
+      });
     }
   });
 

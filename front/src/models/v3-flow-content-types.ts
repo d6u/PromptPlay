@@ -1,6 +1,5 @@
 import { ChatGPTMessageRole } from "../integrations/openai";
 import {
-  InputValueType,
   NodeConfigCommon,
   NodeID,
   NodeType,
@@ -111,33 +110,31 @@ export enum VariableConfigType {
   FlowOutput = "FlowOutput",
 }
 
-export enum NodeOutputValueType {
+export enum VariableValueType {
+  Number = "Number",
+  String = "String",
   Audio = "Audio",
   Unknown = "Unknown",
 }
 
-export enum V3FlowOutputValueType {
-  Audio = "Audio",
-  String = "String",
-}
-
-export type NodeInputVariableConfig = VariableConfigCommon & {
-  type: VariableConfigType.NodeInput;
-};
-
-export type NodeOutputVariableConfig = VariableConfigCommon & {
-  type: VariableConfigType.NodeOutput;
-  valueType: NodeOutputValueType;
-};
-
 export type FlowInputVariableConfig = VariableConfigCommon & {
   type: VariableConfigType.FlowInput;
-  valueType: InputValueType;
+  valueType: VariableValueType.String | VariableValueType.Number;
 };
 
 export type FlowOutputVariableConfig = VariableConfigCommon & {
   type: VariableConfigType.FlowOutput;
-  valueType: V3FlowOutputValueType;
+  valueType: VariableValueType.String | VariableValueType.Audio;
+};
+
+export type NodeInputVariableConfig = VariableConfigCommon & {
+  type: VariableConfigType.NodeInput;
+  valueType: VariableValueType.Unknown;
+};
+
+export type NodeOutputVariableConfig = VariableConfigCommon & {
+  type: VariableConfigType.NodeOutput;
+  valueType: VariableValueType.Unknown | VariableValueType.Audio;
 };
 
 // !SECTION
