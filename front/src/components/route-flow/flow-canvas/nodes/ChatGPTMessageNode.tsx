@@ -90,15 +90,9 @@ export default function ChatGPTMessageNode() {
 
   // SECTION: Input Variables
 
-  const inputVariables = useMemo(() => {
+  const inputs = useMemo(() => {
     return selectVariables(nodeId, VariableType.NodeInput, variableConfigs);
   }, [nodeId, variableConfigs]);
-
-  const [inputs, setInputs] = useState(inputVariables);
-
-  useEffect(() => {
-    setInputs(() => inputVariables);
-  }, [inputVariables]);
 
   // !SECTION
 

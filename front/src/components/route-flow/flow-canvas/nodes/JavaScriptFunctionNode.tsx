@@ -1,53 +1,43 @@
 import FormControl from "@mui/joy/FormControl";
 import FormLabel from "@mui/joy/FormLabel";
 import Textarea from "@mui/joy/Textarea";
-import Chance from "chance";
-import { adjust, append, assoc, remove } from "ramda";
 import { useContext, useMemo, useState } from "react";
 import { Position, useNodeId, useUpdateNodeInternals } from "reactflow";
-import {
-  NodeID,
-  NodeInputID,
-  NodeInputItem,
-  NodeType,
-} from "../../../../models/flow-content-types";
+import { NodeID, NodeType } from "../../../../models/flow-content-types";
 import {
   V3JavaScriptFunctionNodeConfig,
   VariableType,
 } from "../../../../models/v3-flow-content-types";
-import randomId from "../../../../utils/randomId";
-import FlowContext from "../../FlowContext";
-import TextareaReadonly from "../../common/TextareaReadonly";
 import { CopyIcon, LabelWithIconContainer } from "../../common/flow-common";
+import TextareaReadonly from "../../common/TextareaReadonly";
+import FlowContext from "../../FlowContext";
 import { useFlowStore } from "../../store/store-flow";
 import { selectVariables } from "../../store/store-utils";
 import { FlowState } from "../../store/types-local-state";
 import AddVariableButton from "./node-common/AddVariableButton";
 import HeaderSection from "./node-common/HeaderSection";
-import NodeBox, { NodeState } from "./node-common/NodeBox";
-import NodeInputModifyRow from "./node-common/NodeInputModifyRow";
-import NodeOutputRow from "./node-common/NodeOutputRow";
 import {
   InputHandle,
   OutputHandle,
   Section,
   SmallSection,
 } from "./node-common/node-common";
+import NodeBox, { NodeState } from "./node-common/NodeBox";
+import NodeInputModifyRow from "./node-common/NodeInputModifyRow";
+import NodeOutputRow from "./node-common/NodeOutputRow";
 import {
   calculateInputHandleTop,
   calculateOutputHandleBottom,
 } from "./node-common/utils";
 
-const chance = new Chance();
-
 const selector = (state: FlowState) => ({
   nodeConfigs: state.nodeConfigs,
   variableConfigs: state.variableConfigs,
   updateNodeConfig: state.updateNodeConfig,
-  updateInputVariable: state.updateInputVariable,
   removeNode: state.removeNode,
-  addInputVariable: state.addInputVariable,
-  removeInputVariable: state.removeInputVariable,
+  addVariable: state.addVariable,
+  updateVariable: state.updateVariable,
+  removeVariable: state.removeVariable,
   localNodeAugments: state.localNodeAugments,
   defaultVariableValueMap: state.getDefaultVariableValueMap(),
 });
@@ -61,25 +51,21 @@ export default function JavaScriptFunctionNode() {
     nodeConfigs,
     variableConfigs,
     updateNodeConfig,
-    updateInputVariable,
     removeNode,
-    addInputVariable,
-    removeInputVariable,
+    addVariable,
+    updateVariable,
+    removeVariable,
     localNodeAugments,
     defaultVariableValueMap,
   } = useFlowStore(selector);
 
-  const inputVariables = selectVariables(
-    nodeId,
-    VariableType.NodeInput,
-    variableConfigs,
-  );
+  const inputs = useMemo(() => {
+    return selectVariables(nodeId, VariableType.NodeInput, variableConfigs);
+  }, [nodeId, variableConfigs]);
 
-  const outputVariables = selectVariables(
-    nodeId,
-    VariableType.NodeOutput,
-    variableConfigs,
-  );
+  const outputs = useMemo(() => {
+    return selectVariables(nodeId, VariableType.NodeOutput, variableConfigs);
+  }, [nodeId, variableConfigs]);
 
   const nodeConfig = useMemo(
     () => nodeConfigs[nodeId] as V3JavaScriptFunctionNodeConfig | undefined,
@@ -95,7 +81,6 @@ export default function JavaScriptFunctionNode() {
 
   // It's OK to force unwrap here because nodeConfig will be undefined only
   // when Node is being deleted.
-  const [inputs, setInputs] = useState(() => inputVariables);
   const [javaScriptCode, setJavaScriptCode] = useState(
     () => nodeConfig!.javaScriptCode,
   );
@@ -142,15 +127,7 @@ export default function JavaScriptFunctionNode() {
           <SmallSection>
             <AddVariableButton
               onClick={() => {
-                const newInputs = append<NodeInputItem>({
-                  id: `${nodeId}/${randomId()}` as NodeInputID,
-                  name: chance.word(),
-                })(inputs);
-
-                setInputs(newInputs);
-
-                addInputVariable(nodeId);
-
+                addVariable(nodeId, VariableType.NodeInput, inputs.length);
                 updateNodeInternals(nodeId);
               }}
             />
@@ -163,22 +140,10 @@ export default function JavaScriptFunctionNode() {
               name={input.name}
               isReadOnly={!isCurrentUserOwner}
               onConfirmNameChange={(name) => {
-                const newInputs = adjust<NodeInputItem>(
-                  i,
-                  assoc("name", name)<NodeInputItem>,
-                )(inputs);
-
-                setInputs(newInputs);
-
-                updateInputVariable(nodeId, i, { name });
+                updateVariable(input.id, { name });
               }}
               onRemove={() => {
-                const newInputs = remove(i, 1, inputs);
-
-                setInputs(newInputs);
-
-                removeInputVariable(nodeId, i);
-
+                removeVariable(input.id);
                 updateNodeInternals(nodeId);
               }}
             />
@@ -224,18 +189,18 @@ export default function JavaScriptFunctionNode() {
         </Section>
         <Section>
           <NodeOutputRow
-            id={outputVariables[0].id}
-            name={outputVariables[0].name}
-            value={defaultVariableValueMap[outputVariables[0].id]}
+            id={outputs[0].id}
+            name={outputs[0].name}
+            value={defaultVariableValueMap[outputs[0].id]}
           />
         </Section>
       </NodeBox>
       <OutputHandle
         type="source"
-        id={outputVariables[0].id}
+        id={outputs[0].id}
         position={Position.Right}
         style={{
-          bottom: calculateOutputHandleBottom(outputVariables.length - 1),
+          bottom: calculateOutputHandleBottom(outputs.length - 1),
         }}
       />
     </>

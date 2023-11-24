@@ -3,24 +3,16 @@ import FormHelperText from "@mui/joy/FormHelperText";
 import FormLabel from "@mui/joy/FormLabel";
 import IconButton from "@mui/joy/IconButton";
 import Textarea from "@mui/joy/Textarea";
-import Chance from "chance";
-import { adjust, append, assoc, remove } from "ramda";
 import { useContext, useEffect, useMemo, useState } from "react";
 import { Position, useNodeId, useUpdateNodeInternals } from "reactflow";
-import {
-  NodeID,
-  NodeInputID,
-  NodeInputItem,
-  NodeType,
-} from "../../../../models/flow-content-types";
+import { NodeID, NodeType } from "../../../../models/flow-content-types";
 import {
   V3TextTemplateNodeConfig,
   VariableType,
 } from "../../../../models/v3-flow-content-types";
-import randomId from "../../../../utils/randomId";
-import FlowContext from "../../FlowContext";
-import TextareaReadonly from "../../common/TextareaReadonly";
 import { CopyIcon, LabelWithIconContainer } from "../../common/flow-common";
+import TextareaReadonly from "../../common/TextareaReadonly";
+import FlowContext from "../../FlowContext";
 import { useFlowStore } from "../../store/store-flow";
 import { selectVariables } from "../../store/store-utils";
 import {
@@ -29,9 +21,6 @@ import {
 } from "../../store/types-local-state";
 import AddVariableButton from "./node-common/AddVariableButton";
 import HeaderSection from "./node-common/HeaderSection";
-import NodeBox from "./node-common/NodeBox";
-import NodeInputModifyRow from "./node-common/NodeInputModifyRow";
-import NodeOutputRow from "./node-common/NodeOutputRow";
 import {
   InputHandle,
   OutputHandle,
@@ -39,21 +28,22 @@ import {
   SmallSection,
   StyledIconGear,
 } from "./node-common/node-common";
+import NodeBox from "./node-common/NodeBox";
+import NodeInputModifyRow from "./node-common/NodeInputModifyRow";
+import NodeOutputRow from "./node-common/NodeOutputRow";
 import {
   calculateInputHandleTop,
   calculateOutputHandleBottom,
 } from "./node-common/utils";
 
-const chance = new Chance();
-
 const selector = (state: FlowState) => ({
   nodeConfigs: state.nodeConfigs,
   variableConfigs: state.variableConfigs,
   updateNodeConfig: state.updateNodeConfig,
-  updateInputVariable: state.updateInputVariable,
   removeNode: state.removeNode,
-  addInputVariable: state.addInputVariable,
-  removeInputVariable: state.removeInputVariable,
+  addVariable: state.addVariable,
+  updateVariable: state.updateVariable,
+  removeVariable: state.removeVariable,
   setDetailPanelContentType: state.setDetailPanelContentType,
   setDetailPanelSelectedNodeId: state.setDetailPanelSelectedNodeId,
   defaultVariableValueMap: state.getDefaultVariableValueMap(),
@@ -68,35 +58,28 @@ export default function TextTemplateNode() {
     nodeConfigs,
     variableConfigs,
     updateNodeConfig,
-    updateInputVariable,
     removeNode,
-    addInputVariable,
-    removeInputVariable,
+    addVariable,
+    updateVariable,
+    removeVariable,
     setDetailPanelContentType,
     setDetailPanelSelectedNodeId,
     defaultVariableValueMap,
   } = useFlowStore(selector);
 
-  const inputVariables = selectVariables(
-    nodeId,
-    VariableType.NodeInput,
-    variableConfigs,
-  );
+  const inputs = useMemo(() => {
+    return selectVariables(nodeId, VariableType.NodeInput, variableConfigs);
+  }, [nodeId, variableConfigs]);
 
-  const outputVariables = selectVariables(
-    nodeId,
-    VariableType.NodeOutput,
-    variableConfigs,
-  );
+  const outputs = useMemo(() => {
+    return selectVariables(nodeId, VariableType.NodeOutput, variableConfigs);
+  }, [nodeId, variableConfigs]);
 
-  const nodeConfig = useMemo(
-    () => nodeConfigs[nodeId] as V3TextTemplateNodeConfig | undefined,
-    [nodeConfigs, nodeId],
-  );
+  const nodeConfig = useMemo(() => {
+    return nodeConfigs[nodeId] as V3TextTemplateNodeConfig | undefined;
+  }, [nodeConfigs, nodeId]);
 
   const updateNodeInternals = useUpdateNodeInternals();
-
-  const [inputs, setInputs] = useState(() => inputVariables);
 
   // It's OK to force unwrap here because nodeConfig will be undefined only
   // when Node is being deleted.
@@ -135,15 +118,7 @@ export default function TextTemplateNode() {
           <SmallSection>
             <AddVariableButton
               onClick={() => {
-                const newInputs = append<NodeInputItem>({
-                  id: `${nodeId}/${randomId()}` as NodeInputID,
-                  name: chance.word(),
-                })(inputs);
-
-                setInputs(newInputs);
-
-                addInputVariable(nodeId);
-
+                addVariable(nodeId, VariableType.NodeInput, inputs.length);
                 updateNodeInternals(nodeId);
               }}
             />
@@ -156,22 +131,10 @@ export default function TextTemplateNode() {
               name={input.name}
               isReadOnly={!isCurrentUserOwner}
               onConfirmNameChange={(name) => {
-                const newInputs = adjust<NodeInputItem>(
-                  i,
-                  assoc("name", name)<NodeInputItem>,
-                )(inputs);
-
-                setInputs(newInputs);
-
-                updateInputVariable(nodeId, i, { name });
+                updateVariable(input.id, { name });
               }}
               onRemove={() => {
-                const newInputs = remove(i, 1, inputs);
-
-                setInputs(newInputs);
-
-                removeInputVariable(nodeId, i);
-
+                removeVariable(input.id);
                 updateNodeInternals(nodeId);
               }}
             />
@@ -239,7 +202,7 @@ export default function TextTemplateNode() {
           </IconButton>
         </Section>
         <Section>
-          {outputVariables.map((output, i) => (
+          {outputs.map((output, i) => (
             <NodeOutputRow
               key={output.id}
               id={output.id}
@@ -255,14 +218,14 @@ export default function TextTemplateNode() {
           ))}
         </Section>
       </NodeBox>
-      {outputVariables.map((output, i) => (
+      {outputs.map((output, i) => (
         <OutputHandle
           key={output.id}
           type="source"
           id={output.id}
           position={Position.Right}
           style={{
-            bottom: calculateOutputHandleBottom(outputVariables.length - 1 - i),
+            bottom: calculateOutputHandleBottom(outputs.length - 1 - i),
           }}
         />
       ))}
