@@ -46,7 +46,7 @@ import {
 } from "./EventGraph";
 import { VariableTypeToVariableConfigTypeMap } from "./store-utils";
 import { FlowState } from "./types-local-state";
-import { createNode } from "./utils-flow";
+import { createNode, createNodeConfig } from "./utils-flow";
 
 const chance = new Chance();
 
@@ -286,9 +286,9 @@ function handleEvent(
         state.nodeConfigs,
         state.variableConfigs,
       );
-    // // Nodes
-    // case ChangeEventType.ADDING_NODE:
-    //   return handleAddingNode(event.node);
+    // Nodes
+    case ChangeEventType.ADDING_NODE:
+      return handleAddingNode(event.node, state.nodes, state.nodeConfigs);
     // case ChangeEventType.REMOVING_NODE:
     //   return handleRemovingNode(event.nodeId);
     // case ChangeEventType.UPDATING_NODE_CONFIG:
@@ -510,27 +510,34 @@ function handleRfOnConnect(
   return [content, events];
 }
 
-// function handleAddingNode(node: LocalNode): ChangeEvent[] {
-//   const events: ChangeEvent[] = [];
+function handleAddingNode(
+  node: LocalNode,
+  prevNodes: LocalNode[],
+  prevNodeConfigs: V3NodeConfigs,
+): [Partial<FlowServerSliceStateV2>, ChangeEvent[]] {
+  const content: Partial<FlowServerSliceStateV2> = {};
+  const events: ChangeEvent[] = [];
 
-//   const nodeConfigs = produce(get().nodeConfigs, (draft) => {
-//     const nodeConfig = createNodeConfig(node);
-//     draft[node.id] = nodeConfig;
-//   });
+  const nodes = produce(prevNodes, (draft) => {
+    draft.push(node);
+  });
 
-//   events.push({
-//     type: ChangeEventType.NODE_ADDED,
-//     node,
-//   });
+  const nodeConfigs = produce(prevNodeConfigs, (draft) => {
+    const nodeConfig = createNodeConfig(node);
+    draft[node.id] = nodeConfig;
+  });
 
-//   set({
-//     isFlowContentDirty: true,
-//     nodes: get().nodes.concat([node]),
-//     nodeConfigs: nodeConfigs,
-//   });
+  events.push({
+    type: ChangeEventType.NODE_ADDED,
+    node,
+  });
 
-//   return events;
-// }
+  content.isFlowContentDirty = true;
+  content.nodeConfigs = nodeConfigs;
+  content.nodes = nodes;
+
+  return [content, events];
+}
 
 // function handleRemovingNode(nodeId: NodeID): ChangeEvent[] {
 //   const events: ChangeEvent[] = [];

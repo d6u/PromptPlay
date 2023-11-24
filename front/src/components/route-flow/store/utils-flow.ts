@@ -5,7 +5,6 @@ import { ChatGPTMessageRole } from "../../../integrations/openai";
 import {
   InputValueType,
   LocalNode,
-  NodeConfig,
   NodeConfigs,
   NodeID,
   NodeInputID,
@@ -18,6 +17,7 @@ import {
   ServerNode,
   VariableValueMap,
 } from "../../../models/flow-content-types";
+import { V3NodeConfig } from "../../../models/v3-flow-content-types";
 import propEq from "../../../utils/propEq";
 import randomId from "../../../utils/randomId";
 
@@ -32,7 +32,7 @@ export function createNode(type: NodeType, x: number, y: number): ServerNode {
   };
 }
 
-export function createNodeConfig(node: LocalNode): NodeConfig {
+export function createNodeConfig(node: LocalNode): V3NodeConfig {
   switch (node.type) {
     case NodeType.InputNode: {
       return {
