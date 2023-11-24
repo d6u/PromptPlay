@@ -5,8 +5,8 @@ import {
   NodeOutputItem,
   OutputValueType,
 } from "../../../../../models/v2-flow-content-types";
-import { useFlowStore } from "../../../store/store-flow";
-import { FlowState } from "../../../store/types-local-state";
+import { useFlowStore } from "../../../state/store-flow";
+import { FlowState } from "../../../state/types-local-state";
 import OutputDisplay from "./OutputDisplay";
 
 const selector = (state: FlowState) => ({

@@ -7,12 +7,12 @@ import {
   VariableConfigType,
 } from "../../../../models/v3-flow-content-types";
 import FlowContext from "../../FlowContext";
-import { useFlowStore } from "../../store/store-flow";
-import { selectVariables } from "../../store/store-utils";
+import { useFlowStore } from "../../state/store-flow";
+import { selectVariables } from "../../state/store-utils";
 import {
   DetailPanelContentType,
   FlowState,
-} from "../../store/types-local-state";
+} from "../../state/types-local-state";
 import AddVariableButton from "./node-common/AddVariableButton";
 import HeaderSection from "./node-common/HeaderSection";
 import {

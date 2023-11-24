@@ -2,11 +2,11 @@ import styled from "@emotion/styled";
 import IconButton from "@mui/joy/IconButton";
 import { ReactNode } from "react";
 import CrossIcon from "../../../icons/CrossIcon";
-import { useFlowStore } from "../../store/store-flow";
+import { useFlowStore } from "../../state/store-flow";
 import {
   DetailPanelContentType,
   FlowState,
-} from "../../store/types-local-state";
+} from "../../state/types-local-state";
 import PanelChatGPTMessageConfig from "./chat-gpt-message-config/PanelChatGPTMessageConfig";
 import PanelEvaluationModeCSV from "./csv-evaluation/PanelEvaluationModeCSV";
 import PanelNodeConfig from "./node-config/PanelNodeConfig";

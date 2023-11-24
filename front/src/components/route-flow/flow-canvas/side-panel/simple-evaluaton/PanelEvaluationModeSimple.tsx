@@ -8,8 +8,8 @@ import {
   flowInputItemsWithNodeConfigSelector,
   flowOutputItemsSelector,
   useFlowStore,
-} from "../../../store/store-flow";
-import { FlowState } from "../../../store/types-local-state";
+} from "../../../state/store-flow";
+import { FlowState } from "../../../state/types-local-state";
 import {
   HeaderSection,
   HeaderSectionHeader,

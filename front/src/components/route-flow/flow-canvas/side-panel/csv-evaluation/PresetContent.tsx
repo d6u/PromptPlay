@@ -11,9 +11,9 @@ import { graphql } from "../../../../../gql";
 import {
   ColumnIndex,
   RowIndex,
-} from "../../../store/slice-csv-evaluation-preset";
-import { useFlowStore } from "../../../store/store-flow";
-import { FlowState } from "../../../store/types-local-state";
+} from "../../../state/slice-csv-evaluation-preset";
+import { useFlowStore } from "../../../state/store-flow";
+import { FlowState } from "../../../state/types-local-state";
 import { CSVData, CSVHeader } from "./csv-evaluation-common";
 import { runForEachRow } from "./csv-evaluation-util";
 import EvaluationSectionConfigCSV from "./EvaluationSectionConfigCSV";

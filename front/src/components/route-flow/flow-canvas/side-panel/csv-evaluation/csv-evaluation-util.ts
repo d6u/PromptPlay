@@ -20,7 +20,7 @@ import {
   NodeConfigs,
   NodeOutputID,
 } from "../../../../../models/v2-flow-content-types";
-import { VariableColumnMap } from "../../../store/slice-csv-evaluation-preset";
+import { VariableColumnMap } from "../../../state/slice-csv-evaluation-preset";
 import { CSVData } from "./csv-evaluation-common";
 
 export function runForEachRow({

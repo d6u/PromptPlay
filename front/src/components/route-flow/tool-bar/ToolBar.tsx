@@ -15,8 +15,8 @@ import { useStoreApi } from "reactflow";
 import { NodeType } from "../../../models/v2-flow-content-types";
 import { NODE_BOX_WIDTH } from "../flow-canvas/nodes/node-common/NodeBox";
 import FlowContext from "../FlowContext";
-import { useFlowStore } from "../store/store-flow";
-import { DetailPanelContentType, FlowState } from "../store/types-local-state";
+import { useFlowStore } from "../state/store-flow";
+import { DetailPanelContentType, FlowState } from "../state/types-local-state";
 
 const selector = (state: FlowState) => ({
   isRunning: state.isRunning,

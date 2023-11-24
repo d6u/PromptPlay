@@ -18,13 +18,13 @@ import { VariableID } from "../../../../../models/v2-flow-content-types";
 import {
   ColumnIndex,
   RowIndex,
-} from "../../../store/slice-csv-evaluation-preset";
+} from "../../../state/slice-csv-evaluation-preset";
 import {
   flowInputItemsSelector,
   flowOutputItemsSelector,
   useFlowStore,
-} from "../../../store/store-flow";
-import { FlowState } from "../../../store/types-local-state";
+} from "../../../state/store-flow";
+import { FlowState } from "../../../state/types-local-state";
 import { Section } from "../common/controls-common";
 import OutputDisplay from "../common/OutputDisplay";
 import {
