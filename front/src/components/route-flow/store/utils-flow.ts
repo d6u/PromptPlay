@@ -7,17 +7,21 @@ import {
   LocalNode,
   NodeConfigs,
   NodeID,
-  NodeInputID,
-  NodeOutputID,
   NodeType,
   OpenAIChatModel,
   OutputNodeConfig,
-  OutputValueType,
   ServerEdge,
   ServerNode,
   VariableValueMap,
 } from "../../../models/flow-content-types";
-import { V3NodeConfig } from "../../../models/v3-flow-content-types";
+import { asV3VariableID } from "../../../models/flow-content-v2-to-v3-utils";
+import {
+  NodeOutputValueType,
+  V3FlowOutputValueType,
+  V3NodeConfig,
+  VariableConfig,
+  VariableType,
+} from "../../../models/v3-flow-content-types";
 import propEq from "../../../utils/propEq";
 import randomId from "../../../utils/randomId";
 
@@ -32,15 +36,23 @@ export function createNode(type: NodeType, x: number, y: number): ServerNode {
   };
 }
 
-export function createNodeConfig(node: LocalNode): V3NodeConfig {
+export function createNodeConfig(node: LocalNode): {
+  nodeConfig: V3NodeConfig;
+  variableConfigList: VariableConfig[];
+} {
   switch (node.type) {
     case NodeType.InputNode: {
       return {
-        nodeId: node.id,
-        nodeType: NodeType.InputNode,
-        outputs: [
+        nodeConfig: {
+          nodeId: node.id,
+          nodeType: NodeType.InputNode,
+        },
+        variableConfigList: [
           {
-            id: `${node.id}/${randomId()}` as NodeOutputID,
+            type: VariableType.FlowInput,
+            id: asV3VariableID(`${node.id}/${randomId()}`),
+            nodeId: node.id,
+            index: 0,
             name: chance.word(),
             valueType: InputValueType.String,
           },
@@ -49,141 +61,203 @@ export function createNodeConfig(node: LocalNode): V3NodeConfig {
     }
     case NodeType.OutputNode: {
       return {
-        nodeId: node.id,
-        nodeType: NodeType.OutputNode,
-        inputs: [
+        nodeConfig: {
+          nodeId: node.id,
+          nodeType: NodeType.OutputNode,
+        },
+        variableConfigList: [
           {
-            id: `${node.id}/${randomId()}` as NodeInputID,
+            type: VariableType.FlowOutput,
+            id: asV3VariableID(`${node.id}/${randomId()}`),
+            nodeId: node.id,
+            index: 0,
             name: chance.word(),
+            valueType: V3FlowOutputValueType.String,
           },
         ],
       };
     }
     case NodeType.JavaScriptFunctionNode: {
       return {
-        nodeId: node.id,
-        nodeType: NodeType.JavaScriptFunctionNode,
-        inputs: [],
-        javaScriptCode: 'return "Hello, World!"',
-        outputs: [
+        nodeConfig: {
+          nodeId: node.id,
+          nodeType: NodeType.JavaScriptFunctionNode,
+          javaScriptCode: 'return "Hello, World!"',
+        },
+        variableConfigList: [
           {
-            id: `${node.id}/output` as NodeOutputID,
+            type: VariableType.NodeOutput,
+            id: asV3VariableID(`${node.id}/output`),
+            nodeId: node.id,
             name: "output",
+            index: 0,
+            valueType: NodeOutputValueType.Other,
           },
         ],
       };
     }
     case NodeType.ChatGPTMessageNode: {
       return {
-        nodeId: node.id,
-        nodeType: NodeType.ChatGPTMessageNode,
-        inputs: [
+        nodeConfig: {
+          nodeId: node.id,
+          nodeType: NodeType.ChatGPTMessageNode,
+          role: ChatGPTMessageRole.user,
+          content: "Write a poem about {{topic}} in fewer than 20 words.",
+        },
+        variableConfigList: [
           {
-            id: `${node.id}/messages_in` as NodeInputID,
+            type: VariableType.NodeInput,
+            id: asV3VariableID(`${node.id}/messages_in`),
+            nodeId: node.id,
             name: "messages",
+            index: 0,
           },
           {
-            id: `${node.id}/${randomId()}` as NodeInputID,
+            type: VariableType.NodeInput,
+            id: asV3VariableID(`${node.id}/${randomId()}`),
+            nodeId: node.id,
             name: "topic",
+            index: 1,
           },
-        ],
-        role: ChatGPTMessageRole.user,
-        content: "Write a poem about {{topic}} in fewer than 20 words.",
-        outputs: [
           {
-            id: `${node.id}/message` as NodeOutputID,
+            type: VariableType.NodeOutput,
+            id: asV3VariableID(`${node.id}/message`),
+            nodeId: node.id,
             name: "message",
+            index: 0,
+            valueType: NodeOutputValueType.Other,
           },
           {
-            id: `${node.id}/messages_out` as NodeOutputID,
+            type: VariableType.NodeOutput,
+            id: asV3VariableID(`${node.id}/messages_out`),
+            nodeId: node.id,
             name: "messages",
+            index: 1,
+            valueType: NodeOutputValueType.Other,
           },
         ],
       };
     }
     case NodeType.ChatGPTChatCompletionNode: {
       return {
-        nodeId: node.id,
-        nodeType: NodeType.ChatGPTChatCompletionNode,
-        inputs: [
+        nodeConfig: {
+          nodeId: node.id,
+          nodeType: NodeType.ChatGPTChatCompletionNode,
+          model: OpenAIChatModel.GPT_4,
+          temperature: 1,
+          stop: [],
+          seed: null,
+          responseFormatType: null,
+        },
+        variableConfigList: [
           {
-            id: `${node.id}/messages_in` as NodeInputID,
+            type: VariableType.NodeInput,
+            id: asV3VariableID(`${node.id}/messages_in`),
+            nodeId: node.id,
             name: "messages",
+            index: 0,
           },
-        ],
-        model: OpenAIChatModel.GPT_4,
-        temperature: 1,
-        stop: [],
-        outputs: [
           {
-            id: `${node.id}/content` as NodeOutputID,
+            type: VariableType.NodeOutput,
+            id: asV3VariableID(`${node.id}/content`),
+            nodeId: node.id,
             name: "content",
+            index: 0,
+            valueType: NodeOutputValueType.Other,
           },
           {
-            id: `${node.id}/message` as NodeOutputID,
+            type: VariableType.NodeOutput,
+            id: asV3VariableID(`${node.id}/message`),
+            nodeId: node.id,
             name: "message",
+            index: 1,
+            valueType: NodeOutputValueType.Other,
           },
           {
-            id: `${node.id}/messages_out` as NodeOutputID,
+            type: VariableType.NodeOutput,
+            id: asV3VariableID(`${node.id}/messages_out`),
+            nodeId: node.id,
             name: "messages",
+            index: 2,
+            valueType: NodeOutputValueType.Other,
           },
         ],
       };
     }
     case NodeType.TextTemplate: {
       return {
-        nodeId: node.id,
-        nodeType: NodeType.TextTemplate,
-        inputs: [
+        nodeConfig: {
+          nodeId: node.id,
+          nodeType: NodeType.TextTemplate,
+          content: "Write a poem about {{topic}} in fewer than 20 words.",
+        },
+        variableConfigList: [
           {
-            id: `${node.id}/${randomId()}` as NodeInputID,
+            type: VariableType.NodeInput,
+            id: asV3VariableID(`${node.id}/${randomId()}`),
             name: "topic",
+            nodeId: node.id,
+            index: 0,
           },
-        ],
-        content: "Write a poem about {{topic}} in fewer than 20 words.",
-        outputs: [
           {
-            id: `${node.id}/content` as NodeOutputID,
+            type: VariableType.NodeOutput,
+            id: asV3VariableID(`${node.id}/content`),
             name: "content",
+            nodeId: node.id,
+            index: 0,
+            valueType: NodeOutputValueType.Other,
           },
         ],
       };
     }
     case NodeType.HuggingFaceInference: {
       return {
-        nodeId: node.id,
-        nodeType: NodeType.HuggingFaceInference,
-        inputs: [
+        nodeConfig: {
+          nodeId: node.id,
+          nodeType: NodeType.HuggingFaceInference,
+          model: "gpt2",
+        },
+        variableConfigList: [
           {
-            id: `${node.id}/parameters` as NodeInputID,
+            type: VariableType.NodeInput,
+            id: asV3VariableID(`${node.id}/parameters`),
             name: "parameters",
+            nodeId: node.id,
+            index: 0,
           },
-        ],
-        model: "gpt2",
-        outputs: [
           {
-            id: `${node.id}/output` as NodeOutputID,
+            type: VariableType.NodeOutput,
+            id: asV3VariableID(`${node.id}/output`),
             name: "output",
+            nodeId: node.id,
+            index: 0,
+            valueType: NodeOutputValueType.Other,
           },
         ],
       };
     }
     case NodeType.ElevenLabs: {
       return {
-        nodeId: node.id,
-        nodeType: NodeType.ElevenLabs,
-        inputs: [
+        nodeConfig: {
+          nodeId: node.id,
+          nodeType: NodeType.ElevenLabs,
+          voiceId: "",
+        },
+        variableConfigList: [
           {
-            id: `${node.id}/text` as NodeInputID,
+            type: VariableType.NodeInput,
+            id: asV3VariableID(`${node.id}/text`),
             name: "text",
+            nodeId: node.id,
+            index: 0,
           },
-        ],
-        voiceId: "",
-        outputs: [
           {
-            id: `${node.id}/audio` as NodeOutputID,
+            type: VariableType.NodeOutput,
+            id: asV3VariableID(`${node.id}/audio`),
             name: "audio",
-            valueType: OutputValueType.Audio,
+            nodeId: node.id,
+            index: 0,
+            valueType: NodeOutputValueType.Audio,
           },
         ],
       };

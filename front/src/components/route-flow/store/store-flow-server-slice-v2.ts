@@ -288,7 +288,12 @@ function handleEvent(
       );
     // Nodes
     case ChangeEventType.ADDING_NODE:
-      return handleAddingNode(event.node, state.nodes, state.nodeConfigs);
+      return handleAddingNode(
+        event.node,
+        state.nodes,
+        state.nodeConfigs,
+        state.variableConfigs,
+      );
     // case ChangeEventType.REMOVING_NODE:
     //   return handleRemovingNode(event.nodeId);
     // case ChangeEventType.UPDATING_NODE_CONFIG:
@@ -514,27 +519,36 @@ function handleAddingNode(
   node: LocalNode,
   prevNodes: LocalNode[],
   prevNodeConfigs: V3NodeConfigs,
+  prevVariableConfigs: VariableConfigs,
 ): [Partial<FlowServerSliceStateV2>, ChangeEvent[]] {
   const content: Partial<FlowServerSliceStateV2> = {};
   const events: ChangeEvent[] = [];
+
+  const { nodeConfig, variableConfigList } = createNodeConfig(node);
 
   const nodes = produce(prevNodes, (draft) => {
     draft.push(node);
   });
 
   const nodeConfigs = produce(prevNodeConfigs, (draft) => {
-    const nodeConfig = createNodeConfig(node);
     draft[node.id] = nodeConfig;
   });
 
+  const variableConfigs = produce(prevVariableConfigs, (draft) => {
+    for (const variableConfig of variableConfigList) {
+      draft[variableConfig.id] = variableConfig;
+    }
+  });
+
   events.push({
-    type: ChangeEventType.NODE_ADDED,
+    type: ChangeEventType.NODE_AND_VARIABLES_ADDED,
     node,
   });
 
   content.isFlowContentDirty = true;
-  content.nodeConfigs = nodeConfigs;
   content.nodes = nodes;
+  content.nodeConfigs = nodeConfigs;
+  content.variableConfigs = variableConfigs;
 
   return [content, events];
 }

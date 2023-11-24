@@ -27,7 +27,7 @@ export enum ChangeEventType {
   UPDATING_VARIABLE = "UPDATING_VARIABLE",
   // --- Derived ---
   // Derived Nodes
-  NODE_ADDED = "NODE_ADDED",
+  NODE_AND_VARIABLES_ADDED = "NODE_AND_VARIABLES_ADDED",
   NODE_REMOVED = "NODE_REMOVED",
   NODE_MOVED = "NODE_MOVED",
   NODE_CONFIG_UPDATED = "NODE_CONFIG_UPDATED",
@@ -57,7 +57,7 @@ export const EVENT_VALIDATION_MAP: {
     ChangeEventType.EDGE_REPLACED,
   ],
   // Nodes
-  [ChangeEventType.ADDING_NODE]: [ChangeEventType.NODE_ADDED],
+  [ChangeEventType.ADDING_NODE]: [ChangeEventType.NODE_AND_VARIABLES_ADDED],
   [ChangeEventType.REMOVING_NODE]: [ChangeEventType.NODE_REMOVED],
   [ChangeEventType.UPDATING_NODE_CONFIG]: [ChangeEventType.NODE_CONFIG_UPDATED],
   // Variables
@@ -66,7 +66,9 @@ export const EVENT_VALIDATION_MAP: {
   [ChangeEventType.UPDATING_VARIABLE]: [ChangeEventType.VARIABLE_UPDATED],
   // --- Derived ---
   // Derived Nodes
-  [ChangeEventType.NODE_ADDED]: [],
+  [ChangeEventType.NODE_AND_VARIABLES_ADDED]: [
+    ChangeEventType.VAR_VALUE_MAP_UPDATED,
+  ],
   [ChangeEventType.NODE_MOVED]: [],
   [ChangeEventType.NODE_CONFIG_UPDATED]: [],
   [ChangeEventType.NODE_REMOVED]: [
@@ -135,7 +137,7 @@ export type ChangeEvent =
   // --- Derived ---
   // Derived Nodes
   | {
-      type: ChangeEventType.NODE_ADDED;
+      type: ChangeEventType.NODE_AND_VARIABLES_ADDED;
       node: LocalNode;
     }
   | {
