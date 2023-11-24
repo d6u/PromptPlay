@@ -6,11 +6,11 @@ import { invariant } from "ts-invariant";
 import { OperationResult } from "urql";
 import { StateCreator } from "zustand";
 import { ContentVersion, SpaceFlowQueryQuery } from "../../../gql/graphql";
+import { NodeID } from "../../../models/v2-flow-content-types";
 import {
   asV3VariableID,
   convertV2ContentToV3Content,
-} from "../../../models/flow-content-v2-to-v3-utils";
-import { NodeID } from "../../../models/v2-flow-content-types";
+} from "../../../models/v2-to-v3-flow-utils";
 import {
   V3FlowContent,
   V3VariableValueMap,

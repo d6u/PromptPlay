@@ -15,13 +15,13 @@ import {
 } from "reactflow";
 import invariant from "ts-invariant";
 import { StateCreator } from "zustand";
-import { asV3VariableID } from "../../../models/flow-content-v2-to-v3-utils";
 import {
   LocalEdge,
   LocalNode,
   NodeID,
   NodeType,
 } from "../../../models/v2-flow-content-types";
+import { asV3VariableID } from "../../../models/v2-to-v3-flow-utils";
 import {
   FlowInputVariableConfig,
   FlowOutputVariableConfig,
@@ -36,6 +36,7 @@ import {
   VariableConfigType,
   VariableValueType,
 } from "../../../models/v3-flow-content-types";
+import { createNode, createNodeConfig } from "../../../models/v3-flow-utils";
 import randomId from "../../../utils/randomId";
 import {
   ChangeEvent,
@@ -44,7 +45,6 @@ import {
 } from "./EventGraph";
 import { VariableTypeToVariableConfigTypeMap } from "./store-utils";
 import { FlowState } from "./types-local-state";
-import { createNode, createNodeConfig } from "./utils-flow";
 
 const chance = new Chance();
 

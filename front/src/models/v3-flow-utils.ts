@@ -1,8 +1,9 @@
 import { A, F } from "@mobily/ts-belt";
 import Chance from "chance";
 import { produce } from "immer";
-import { ChatGPTMessageRole } from "../../../integrations/openai";
-import { asV3VariableID } from "../../../models/flow-content-v2-to-v3-utils";
+import { ChatGPTMessageRole } from "../integrations/openai";
+import propEq from "../utils/propEq";
+import randomId from "../utils/randomId";
 import {
   LocalNode,
   NodeConfigs,
@@ -13,15 +14,14 @@ import {
   ServerEdge,
   ServerNode,
   VariableValueMap,
-} from "../../../models/v2-flow-content-types";
+} from "./v2-flow-content-types";
+import { asV3VariableID } from "./v2-to-v3-flow-utils";
 import {
   V3NodeConfig,
   VariableConfig,
   VariableConfigType,
   VariableValueType,
-} from "../../../models/v3-flow-content-types";
-import propEq from "../../../utils/propEq";
-import randomId from "../../../utils/randomId";
+} from "./v3-flow-content-types";
 
 const chance = new Chance();
 
