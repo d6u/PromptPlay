@@ -89,13 +89,6 @@ export type V3ElevenLabsNodeConfig = NodeConfigCommon & {
 
 // SECTION: V3 VariableConfig Types
 
-export enum VariableType {
-  NodeInput = "NodeInput",
-  NodeOutput = "NodeOutput",
-  FlowInput = "FlowInput",
-  FlowOutput = "FlowOutput",
-}
-
 export type VariableConfigs = Record<V3VariableID, VariableConfig>;
 
 export type VariableConfig =
@@ -111,34 +104,41 @@ type VariableConfigCommon = {
   name: string;
 };
 
-export type NodeInputVariableConfig = VariableConfigCommon & {
-  type: VariableType.NodeInput;
-};
-
-export type NodeOutputVariableConfig = VariableConfigCommon & {
-  type: VariableType.NodeOutput;
-  valueType: NodeOutputValueType;
-};
-
-export type FlowInputVariableConfig = VariableConfigCommon & {
-  type: VariableType.FlowInput;
-  valueType: InputValueType;
-};
-
-export type FlowOutputVariableConfig = VariableConfigCommon & {
-  type: VariableType.FlowOutput;
-  valueType: V3FlowOutputValueType;
-};
+export enum VariableConfigType {
+  NodeInput = "NodeInput",
+  NodeOutput = "NodeOutput",
+  FlowInput = "FlowInput",
+  FlowOutput = "FlowOutput",
+}
 
 export enum NodeOutputValueType {
   Audio = "Audio",
-  Other = "Other",
+  Unknown = "Unknown",
 }
 
 export enum V3FlowOutputValueType {
   Audio = "Audio",
   String = "String",
 }
+
+export type NodeInputVariableConfig = VariableConfigCommon & {
+  type: VariableConfigType.NodeInput;
+};
+
+export type NodeOutputVariableConfig = VariableConfigCommon & {
+  type: VariableConfigType.NodeOutput;
+  valueType: NodeOutputValueType;
+};
+
+export type FlowInputVariableConfig = VariableConfigCommon & {
+  type: VariableConfigType.FlowInput;
+  valueType: InputValueType;
+};
+
+export type FlowOutputVariableConfig = VariableConfigCommon & {
+  type: VariableConfigType.FlowOutput;
+  valueType: V3FlowOutputValueType;
+};
 
 // !SECTION
 

@@ -12,7 +12,7 @@ import {
   V3NodeConfigs,
   V3VariableID,
   VariableConfigs,
-  VariableType,
+  VariableConfigType,
 } from "./v3-flow-content-types";
 
 export function convertV2ContentToV3Content(
@@ -82,7 +82,7 @@ export function convertV2ContentToV3Content(
           variableConfigs[asV3VariableID(flowInput.id)] = {
             id: asV3VariableID(flowInput.id),
             nodeId: nodeId as NodeID,
-            type: VariableType.FlowInput,
+            type: VariableConfigType.FlowInput,
             index,
             name: flowInput.name,
             valueType: flowInput.valueType,
@@ -95,7 +95,7 @@ export function convertV2ContentToV3Content(
           variableConfigs[asV3VariableID(flowOutput.id)] = {
             id: asV3VariableID(flowOutput.id),
             nodeId: nodeId as NodeID,
-            type: VariableType.FlowOutput,
+            type: VariableConfigType.FlowOutput,
             index,
             name: flowOutput.name,
             valueType:
@@ -116,7 +116,7 @@ export function convertV2ContentToV3Content(
           variableConfigs[asV3VariableID(input.id)] = {
             id: asV3VariableID(input.id),
             nodeId: nodeId as NodeID,
-            type: VariableType.NodeInput,
+            type: VariableConfigType.NodeInput,
             index,
             name: input.name,
           };
@@ -125,7 +125,7 @@ export function convertV2ContentToV3Content(
           variableConfigs[asV3VariableID(output.id)] = {
             id: asV3VariableID(output.id),
             nodeId: nodeId as NodeID,
-            type: VariableType.NodeOutput,
+            type: VariableConfigType.NodeOutput,
             index,
             name: output.name,
           };

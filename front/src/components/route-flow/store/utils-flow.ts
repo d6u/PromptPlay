@@ -20,7 +20,7 @@ import {
   V3FlowOutputValueType,
   V3NodeConfig,
   VariableConfig,
-  VariableType,
+  VariableConfigType,
 } from "../../../models/v3-flow-content-types";
 import propEq from "../../../utils/propEq";
 import randomId from "../../../utils/randomId";
@@ -49,7 +49,7 @@ export function createNodeConfig(node: LocalNode): {
         },
         variableConfigList: [
           {
-            type: VariableType.FlowInput,
+            type: VariableConfigType.FlowInput,
             id: asV3VariableID(`${node.id}/${randomId()}`),
             nodeId: node.id,
             index: 0,
@@ -67,7 +67,7 @@ export function createNodeConfig(node: LocalNode): {
         },
         variableConfigList: [
           {
-            type: VariableType.FlowOutput,
+            type: VariableConfigType.FlowOutput,
             id: asV3VariableID(`${node.id}/${randomId()}`),
             nodeId: node.id,
             index: 0,
@@ -86,12 +86,12 @@ export function createNodeConfig(node: LocalNode): {
         },
         variableConfigList: [
           {
-            type: VariableType.NodeOutput,
+            type: VariableConfigType.NodeOutput,
             id: asV3VariableID(`${node.id}/output`),
             nodeId: node.id,
             name: "output",
             index: 0,
-            valueType: NodeOutputValueType.Other,
+            valueType: NodeOutputValueType.Unknown,
           },
         ],
       };
@@ -106,34 +106,34 @@ export function createNodeConfig(node: LocalNode): {
         },
         variableConfigList: [
           {
-            type: VariableType.NodeInput,
+            type: VariableConfigType.NodeInput,
             id: asV3VariableID(`${node.id}/messages_in`),
             nodeId: node.id,
             name: "messages",
             index: 0,
           },
           {
-            type: VariableType.NodeInput,
+            type: VariableConfigType.NodeInput,
             id: asV3VariableID(`${node.id}/${randomId()}`),
             nodeId: node.id,
             name: "topic",
             index: 1,
           },
           {
-            type: VariableType.NodeOutput,
+            type: VariableConfigType.NodeOutput,
             id: asV3VariableID(`${node.id}/message`),
             nodeId: node.id,
             name: "message",
             index: 0,
-            valueType: NodeOutputValueType.Other,
+            valueType: NodeOutputValueType.Unknown,
           },
           {
-            type: VariableType.NodeOutput,
+            type: VariableConfigType.NodeOutput,
             id: asV3VariableID(`${node.id}/messages_out`),
             nodeId: node.id,
             name: "messages",
             index: 1,
-            valueType: NodeOutputValueType.Other,
+            valueType: NodeOutputValueType.Unknown,
           },
         ],
       };
@@ -151,35 +151,35 @@ export function createNodeConfig(node: LocalNode): {
         },
         variableConfigList: [
           {
-            type: VariableType.NodeInput,
+            type: VariableConfigType.NodeInput,
             id: asV3VariableID(`${node.id}/messages_in`),
             nodeId: node.id,
             name: "messages",
             index: 0,
           },
           {
-            type: VariableType.NodeOutput,
+            type: VariableConfigType.NodeOutput,
             id: asV3VariableID(`${node.id}/content`),
             nodeId: node.id,
             name: "content",
             index: 0,
-            valueType: NodeOutputValueType.Other,
+            valueType: NodeOutputValueType.Unknown,
           },
           {
-            type: VariableType.NodeOutput,
+            type: VariableConfigType.NodeOutput,
             id: asV3VariableID(`${node.id}/message`),
             nodeId: node.id,
             name: "message",
             index: 1,
-            valueType: NodeOutputValueType.Other,
+            valueType: NodeOutputValueType.Unknown,
           },
           {
-            type: VariableType.NodeOutput,
+            type: VariableConfigType.NodeOutput,
             id: asV3VariableID(`${node.id}/messages_out`),
             nodeId: node.id,
             name: "messages",
             index: 2,
-            valueType: NodeOutputValueType.Other,
+            valueType: NodeOutputValueType.Unknown,
           },
         ],
       };
@@ -193,19 +193,19 @@ export function createNodeConfig(node: LocalNode): {
         },
         variableConfigList: [
           {
-            type: VariableType.NodeInput,
+            type: VariableConfigType.NodeInput,
             id: asV3VariableID(`${node.id}/${randomId()}`),
             name: "topic",
             nodeId: node.id,
             index: 0,
           },
           {
-            type: VariableType.NodeOutput,
+            type: VariableConfigType.NodeOutput,
             id: asV3VariableID(`${node.id}/content`),
             name: "content",
             nodeId: node.id,
             index: 0,
-            valueType: NodeOutputValueType.Other,
+            valueType: NodeOutputValueType.Unknown,
           },
         ],
       };
@@ -219,19 +219,19 @@ export function createNodeConfig(node: LocalNode): {
         },
         variableConfigList: [
           {
-            type: VariableType.NodeInput,
+            type: VariableConfigType.NodeInput,
             id: asV3VariableID(`${node.id}/parameters`),
             name: "parameters",
             nodeId: node.id,
             index: 0,
           },
           {
-            type: VariableType.NodeOutput,
+            type: VariableConfigType.NodeOutput,
             id: asV3VariableID(`${node.id}/output`),
             name: "output",
             nodeId: node.id,
             index: 0,
-            valueType: NodeOutputValueType.Other,
+            valueType: NodeOutputValueType.Unknown,
           },
         ],
       };
@@ -245,14 +245,14 @@ export function createNodeConfig(node: LocalNode): {
         },
         variableConfigList: [
           {
-            type: VariableType.NodeInput,
+            type: VariableConfigType.NodeInput,
             id: asV3VariableID(`${node.id}/text`),
             name: "text",
             nodeId: node.id,
             index: 0,
           },
           {
-            type: VariableType.NodeOutput,
+            type: VariableConfigType.NodeOutput,
             id: asV3VariableID(`${node.id}/audio`),
             name: "audio",
             nodeId: node.id,

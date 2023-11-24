@@ -15,7 +15,7 @@ import {
 } from "../../../../models/flow-content-types";
 import {
   V3ChatGPTChatCompletionNodeConfig,
-  VariableType,
+  VariableConfigType,
 } from "../../../../models/v3-flow-content-types";
 import {
   LocalStorageState,
@@ -23,17 +23,17 @@ import {
   useLocalStorageStore,
   useSpaceStore,
 } from "../../../../state/appState";
-import FlowContext from "../../FlowContext";
 import InputReadonly from "../../common/InputReadonly";
+import FlowContext from "../../FlowContext";
 import { useFlowStore } from "../../store/store-flow";
 import { selectVariables } from "../../store/store-utils";
 import { FlowState } from "../../store/types-local-state";
 import HeaderSection from "./node-common/HeaderSection";
 import HelperTextContainer from "./node-common/HelperTextContainer";
+import { InputHandle, OutputHandle, Section } from "./node-common/node-common";
 import NodeBox, { NodeState } from "./node-common/NodeBox";
 import NodeInputModifyRow from "./node-common/NodeInputModifyRow";
 import NodeOutputRow from "./node-common/NodeOutputRow";
-import { InputHandle, OutputHandle, Section } from "./node-common/node-common";
 import {
   calculateInputHandleTop,
   calculateOutputHandleBottom,
@@ -80,12 +80,12 @@ export default function ChatGPTChatCompletionNode() {
 
   const nodeConfig = useMemo(
     () => nodeConfigs[nodeId] as V3ChatGPTChatCompletionNodeConfig | undefined,
-    [nodeConfigs, nodeId]
+    [nodeConfigs, nodeId],
   );
 
   const augment = useMemo(
     () => localNodeAugments[nodeId],
-    [localNodeAugments, nodeId]
+    [localNodeAugments, nodeId],
   );
 
   // It's OK to force unwrap here because nodeConfig will be undefined only
@@ -96,7 +96,7 @@ export default function ChatGPTChatCompletionNode() {
   // SECTION: Temperature Field
 
   const [temperature, setTemperature] = useState<string>(
-    () => nodeConfig?.temperature.toString() ?? ""
+    () => nodeConfig?.temperature.toString() ?? "",
   );
 
   useEffect(() => {
@@ -112,7 +112,7 @@ export default function ChatGPTChatCompletionNode() {
   // SECTION: Seed Field
 
   const [seed, setSeed] = useState<string>(
-    () => nodeConfig?.seed?.toString() ?? ""
+    () => nodeConfig?.seed?.toString() ?? "",
   );
 
   useEffect(() => {
@@ -131,14 +131,14 @@ export default function ChatGPTChatCompletionNode() {
 
   const inputVariables = selectVariables(
     nodeId,
-    VariableType.NodeInput,
-    variableConfigs
+    VariableConfigType.NodeInput,
+    variableConfigs,
   );
 
   const outputVariables = selectVariables(
     nodeId,
-    VariableType.NodeOutput,
-    variableConfigs
+    VariableConfigType.NodeOutput,
+    variableConfigs,
   );
 
   return (
@@ -155,8 +155,8 @@ export default function ChatGPTChatCompletionNode() {
           augment?.isRunning
             ? NodeState.Running
             : augment?.hasError
-            ? NodeState.Error
-            : NodeState.Idle
+              ? NodeState.Error
+              : NodeState.Idle
         }
       >
         <HeaderSection
@@ -348,7 +348,7 @@ export default function ChatGPTChatCompletionNode() {
                   if (event.shiftKey && event.key === "Enter") {
                     event.preventDefault();
                     setStop((stop) =>
-                      stop.length ? [stop[0] + "\n"] : ["\n"]
+                      stop.length ? [stop[0] + "\n"] : ["\n"],
                     );
                   }
                 }}

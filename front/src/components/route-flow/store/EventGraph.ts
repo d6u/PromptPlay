@@ -9,7 +9,7 @@ import {
   V3NodeConfig,
   V3VariableID,
   VariableConfig,
-  VariableType,
+  VariableConfigType,
 } from "../../../models/v3-flow-content-types";
 
 export enum ChangeEventType {
@@ -122,7 +122,7 @@ export type ChangeEvent =
   | {
       type: ChangeEventType.ADDING_VARIABLE;
       nodeId: NodeID;
-      varType: VariableType;
+      varType: VariableConfigType;
       index: number;
     }
   | {

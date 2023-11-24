@@ -6,8 +6,8 @@ import { useContext, useMemo, useState } from "react";
 import { Position, useNodeId } from "reactflow";
 import { NodeID, NodeType } from "../../../../models/flow-content-types";
 import {
-  VariableType,
   V3HuggingFaceInferenceNodeConfig,
+  VariableConfigType,
 } from "../../../../models/v3-flow-content-types";
 import {
   LocalStorageState,
@@ -15,17 +15,17 @@ import {
   useLocalStorageStore,
   useSpaceStore,
 } from "../../../../state/appState";
-import FlowContext from "../../FlowContext";
 import InputReadonly from "../../common/InputReadonly";
+import FlowContext from "../../FlowContext";
 import { useFlowStore } from "../../store/store-flow";
 import { selectVariables } from "../../store/store-utils";
 import { FlowState } from "../../store/types-local-state";
 import HeaderSection from "./node-common/HeaderSection";
 import HelperTextContainer from "./node-common/HelperTextContainer";
+import { InputHandle, OutputHandle, Section } from "./node-common/node-common";
 import NodeBox, { NodeState } from "./node-common/NodeBox";
 import NodeInputModifyRow from "./node-common/NodeInputModifyRow";
 import NodeOutputRow from "./node-common/NodeOutputRow";
-import { InputHandle, OutputHandle, Section } from "./node-common/node-common";
 import {
   calculateInputHandleTop,
   calculateOutputHandleBottom,
@@ -72,24 +72,24 @@ export default function HuggingFaceInferenceNode() {
 
   const inputVariables = selectVariables(
     nodeId,
-    VariableType.NodeInput,
-    variableConfigs
+    VariableConfigType.NodeInput,
+    variableConfigs,
   );
 
   const outputVariables = selectVariables(
     nodeId,
-    VariableType.NodeOutput,
-    variableConfigs
+    VariableConfigType.NodeOutput,
+    variableConfigs,
   );
 
   const nodeConfig = useMemo(
     () => nodeConfigs[nodeId] as V3HuggingFaceInferenceNodeConfig | undefined,
-    [nodeConfigs, nodeId]
+    [nodeConfigs, nodeId],
   );
 
   const augment = useMemo(
     () => localNodeAugments[nodeId],
-    [localNodeAugments, nodeId]
+    [localNodeAugments, nodeId],
   );
 
   // It's OK to force unwrap here because nodeConfig will be undefined only
@@ -114,8 +114,8 @@ export default function HuggingFaceInferenceNode() {
           augment?.isRunning
             ? NodeState.Running
             : augment?.hasError
-            ? NodeState.Error
-            : NodeState.Idle
+              ? NodeState.Error
+              : NodeState.Idle
         }
       >
         <HeaderSection

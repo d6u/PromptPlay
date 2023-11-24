@@ -11,7 +11,7 @@ import { ChatGPTMessageRole } from "../../../../integrations/openai";
 import { NodeID, NodeType } from "../../../../models/flow-content-types";
 import {
   V3ChatGPTMessageNodeConfig,
-  VariableType,
+  VariableConfigType,
 } from "../../../../models/v3-flow-content-types";
 import { CopyIcon, LabelWithIconContainer } from "../../common/flow-common";
 import TextareaReadonly from "../../common/TextareaReadonly";
@@ -77,7 +77,7 @@ export default function ChatGPTMessageNode() {
 
   const outputVariables = selectVariables(
     nodeId,
-    VariableType.NodeOutput,
+    VariableConfigType.NodeOutput,
     variableConfigs,
   );
 
@@ -91,7 +91,11 @@ export default function ChatGPTMessageNode() {
   // SECTION: Input Variables
 
   const inputs = useMemo(() => {
-    return selectVariables(nodeId, VariableType.NodeInput, variableConfigs);
+    return selectVariables(
+      nodeId,
+      VariableConfigType.NodeInput,
+      variableConfigs,
+    );
   }, [nodeId, variableConfigs]);
 
   // !SECTION
@@ -152,7 +156,11 @@ export default function ChatGPTMessageNode() {
           <SmallSection>
             <AddVariableButton
               onClick={() => {
-                addVariable(nodeId, VariableType.NodeInput, inputs.length);
+                addVariable(
+                  nodeId,
+                  VariableConfigType.NodeInput,
+                  inputs.length,
+                );
                 updateNodeInternals(nodeId);
               }}
             />

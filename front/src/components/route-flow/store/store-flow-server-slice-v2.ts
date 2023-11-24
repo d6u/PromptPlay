@@ -36,7 +36,7 @@ import {
   V3VariableValueMap,
   VariableConfig,
   VariableConfigs,
-  VariableType,
+  VariableConfigType,
 } from "../../../models/v3-flow-content-types";
 import randomId from "../../../utils/randomId";
 import {
@@ -73,10 +73,10 @@ export type FlowServerSliceV2 = FlowServerSliceStateV2 & {
   removeNode(id: NodeID): void;
   updateNodeConfig(nodeId: NodeID, change: Partial<V3NodeConfig>): void;
 
-  addVariable(nodeId: NodeID, type: VariableType, index: number): void;
+  addVariable(nodeId: NodeID, type: VariableConfigType, index: number): void;
   removeVariable(variableId: V3VariableID): void;
   updateVariable<
-    T extends VariableType,
+    T extends VariableConfigType,
     R = VariableTypeToVariableConfigTypeMap[T],
   >(
     variableId: V3VariableID,
@@ -225,7 +225,7 @@ export const createFlowServerSliceV2: StateCreator<
       });
     },
 
-    addVariable(nodeId: NodeID, type: VariableType, index: number): void {
+    addVariable(nodeId: NodeID, type: VariableConfigType, index: number): void {
       startProcessingEventGraph({
         type: ChangeEventType.ADDING_VARIABLE,
         nodeId,
@@ -240,7 +240,7 @@ export const createFlowServerSliceV2: StateCreator<
       });
     },
     updateVariable<
-      T extends VariableType,
+      T extends VariableConfigType,
       R = VariableTypeToVariableConfigTypeMap[T],
     >(variableId: V3VariableID, change: Partial<R>): void {
       startProcessingEventGraph({
@@ -344,9 +344,8 @@ function handleEvent(
         event.edgeSrcVariableConfig,
         state.variableConfigs,
       );
-    // case ChangeEventType.EDGE_REPLACED: {
-    //   return processEdgeReplaced(event.oldEdge, event.newEdge);
-    // }
+    case ChangeEventType.EDGE_REPLACED:
+      return handleEdgeReplaced(event.oldEdge, event.newEdge);
     // Derived Variables
     case ChangeEventType.VARIABLE_ADDED:
       return handleVariableAdded(event.variableId, state.variableValueMaps);
@@ -477,7 +476,7 @@ function handleRfOnConnect(
 
   const srcVariable = variableConfigs[asV3VariableID(addedEdge.sourceHandle)];
   const isSourceAudio =
-    srcVariable.type === VariableType.NodeOutput &&
+    srcVariable.type === VariableConfigType.NodeOutput &&
     srcVariable.valueType === NodeOutputValueType.Audio;
 
   if (isSourceAudio) {
@@ -622,7 +621,7 @@ function handleUpdatingNodeConfig(
 
 function handleAddingVariable(
   nodeId: NodeID,
-  varType: VariableType,
+  varType: VariableConfigType,
   index: number,
   variableConfigs: VariableConfigs,
 ): [Partial<FlowServerSliceStateV2>, ChangeEvent[]] {
@@ -640,7 +639,7 @@ function handleAddingVariable(
     };
 
     switch (varType) {
-      case VariableType.NodeInput: {
+      case VariableConfigType.NodeInput: {
         const variableConfig: NodeInputVariableConfig = {
           ...commonFields,
           type: varType,
@@ -648,16 +647,16 @@ function handleAddingVariable(
         draft[variableConfig.id] = variableConfig;
         break;
       }
-      case VariableType.NodeOutput: {
+      case VariableConfigType.NodeOutput: {
         const variableConfig: NodeOutputVariableConfig = {
           ...commonFields,
           type: varType,
-          valueType: NodeOutputValueType.Other,
+          valueType: NodeOutputValueType.Unknown,
         };
         draft[variableConfig.id] = variableConfig;
         break;
       }
-      case VariableType.FlowInput: {
+      case VariableConfigType.FlowInput: {
         const variableConfig: FlowInputVariableConfig = {
           ...commonFields,
           type: varType,
@@ -666,7 +665,7 @@ function handleAddingVariable(
         draft[variableConfig.id] = variableConfig;
         break;
       }
-      case VariableType.FlowOutput: {
+      case VariableConfigType.FlowOutput: {
         const variableConfig: FlowOutputVariableConfig = {
           ...commonFields,
           type: varType,
@@ -797,12 +796,12 @@ function handleEdgeAdded(
     const srcVariableConfig = draft[asV3VariableID(addedEdge.sourceHandle)];
 
     if (
-      srcVariableConfig.type === VariableType.NodeOutput &&
+      srcVariableConfig.type === VariableConfigType.NodeOutput &&
       srcVariableConfig.valueType === NodeOutputValueType.Audio
     ) {
       const dstVariableConfig = draft[asV3VariableID(addedEdge.targetHandle)];
 
-      invariant(dstVariableConfig.type === VariableType.FlowOutput);
+      invariant(dstVariableConfig.type === VariableConfigType.FlowOutput);
 
       const prevVariableConfig = current(dstVariableConfig);
 
@@ -842,15 +841,15 @@ function handleEdgeRemoved(
       edgeSrcVariableConfig ?? draft[asV3VariableID(removedEdge.sourceHandle)];
 
     invariant(
-      srcVariableConfig.type === VariableType.NodeOutput ||
-        srcVariableConfig.type === VariableType.FlowInput,
+      srcVariableConfig.type === VariableConfigType.NodeOutput ||
+        srcVariableConfig.type === VariableConfigType.FlowInput,
     );
 
     if (srcVariableConfig.valueType === NodeOutputValueType.Audio) {
       // Get the destination input
       const dstVariableConfig = draft[asV3VariableID(removedEdge.targetHandle)];
 
-      invariant(dstVariableConfig.type === VariableType.FlowOutput);
+      invariant(dstVariableConfig.type === VariableConfigType.FlowOutput);
 
       const prevVariableConfig = current(dstVariableConfig);
 
@@ -872,73 +871,55 @@ function handleEdgeRemoved(
   return [content, events];
 }
 
-// function processEdgeReplaced(
-//   oldEdge: LocalEdge,
-//   newEdge: LocalEdge,
-// ): ChangeEvent[] {
-//   const events: ChangeEvent[] = [];
+function handleEdgeReplaced(
+  oldEdge: LocalEdge,
+  newEdge: LocalEdge,
+  prevVariableConfigs: VariableConfigs,
+): [Partial<FlowServerSliceStateV2>, ChangeEvent[]] {
+  const content: Partial<FlowServerSliceStateV2> = {};
+  const events: ChangeEvent[] = [];
 
-//   // --- Handle variable type change ---
+  // --- Handle variable type change ---
 
-//   const nodeConfigs = produce(get().nodeConfigs, (draft) => {
-//     // Get old source output
-//     const oldSrcNodeConfig = draft[oldEdge.source]!;
-//     if (!("outputs" in oldSrcNodeConfig)) {
-//       throw new Error("Old source node must have outputs property");
-//     }
-//     const oldSrcOutput = oldSrcNodeConfig.outputs.find(
-//       (output) => output.id === oldEdge.sourceHandle,
-//     )!;
+  const variableConfigs = produce(prevVariableConfigs, (draft) => {
+    const oldVariableConfig = draft[asV3VariableID(oldEdge.sourceHandle)];
+    const newVariableConfig = draft[asV3VariableID(newEdge.sourceHandle)]!;
 
-//     // Get new source output
-//     const newSrcNodeConfig = draft[newEdge.source]!;
-//     if (!("outputs" in newSrcNodeConfig)) {
-//       throw new Error("New source node must have outputs property");
-//     }
-//     const newSrcOutput = newSrcNodeConfig.outputs.find(
-//       (output) => output.id === newEdge.sourceHandle,
-//     )!;
+    // Only need to change when source value type has changed
+    if (
+      (oldVariableConfig.type === VariableConfigType.NodeOutput ||
+        oldVariableConfig.type === VariableConfigType.FlowInput) &&
+      (newVariableConfig.type === VariableConfigType.NodeOutput ||
+        newVariableConfig.type === VariableConfigType.FlowInput) &&
+      oldVariableConfig.valueType !== newVariableConfig.valueType
+    ) {
+      // It doesn't matter whether we use the old or the new edge to find the
+      // destination variable config, they should point to the same one.
+      const dstVariableConfig = draft[asV3VariableID(newEdge.targetHandle)];
 
-//     // Only need to change when source value type has changed
-//     if (oldSrcOutput.valueType !== newSrcOutput.valueType) {
-//       // Doesn't matter if we use old or new edge to find destination,
-//       // they should be the same.
-//       const dstNodeConfig = draft[newEdge.target]!;
+      if (dstVariableConfig.type === VariableConfigType.FlowOutput) {
+        const prevVariableConfig = current(dstVariableConfig);
 
-//       if (dstNodeConfig.nodeType !== NodeType.OutputNode) {
-//         throw new Error(
-//           "Destination node must be a OutputNode, this check should have been performed in previous events",
-//         );
-//       }
+        if (newVariableConfig.valueType === NodeOutputValueType.Audio) {
+          dstInput.valueType = OutputValueType.Audio;
+        } else {
+          delete dstInput.valueType;
+        }
 
-//       const dstInput = dstNodeConfig.inputs.find(
-//         (input) => input.id === newEdge.targetHandle,
-//       )!;
+        events.push({
+          type: ChangeEventType.VARIABLE_UPDATED,
+          prevVariableConfig,
+          nextVariableConfig: current(prevVariableConfig),
+        });
+      }
+    }
+  });
 
-//       const variableOldData = current(dstInput)!;
+  content.isFlowContentDirty = true;
+  content.variableConfigs = variableConfigs;
 
-//       if (newSrcOutput.valueType === OutputValueType.Audio) {
-//         dstInput.valueType = OutputValueType.Audio;
-//       } else {
-//         delete dstInput.valueType;
-//       }
-
-//       events.push({
-//         type: ChangeEventType.VARIABLE_UPDATED,
-//         variableOldData,
-//         variableNewData: current(dstInput)!,
-//       });
-//     }
-//   });
-
-//   set((state) => ({
-//     isFlowContentDirty:
-//       state.isFlowContentDirty || state.nodeConfigs !== nodeConfigs,
-//     nodeConfigs: nodeConfigs,
-//   }));
-
-//   return events;
-// }
+  return [content, events];
+}
 
 // function processVariableFlowOutputUpdated(
 //   variableOldData: FlowOutputItem,
