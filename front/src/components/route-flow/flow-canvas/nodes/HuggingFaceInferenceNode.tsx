@@ -4,7 +4,7 @@ import FormLabel from "@mui/joy/FormLabel";
 import Input from "@mui/joy/Input";
 import { useContext, useMemo, useState } from "react";
 import { Position, useNodeId } from "reactflow";
-import { NodeID, NodeType } from "../../../../models/flow-content-types";
+import { NodeID, NodeType } from "../../../../models/v2-flow-content-types";
 import {
   V3HuggingFaceInferenceNodeConfig,
   VariableConfigType,

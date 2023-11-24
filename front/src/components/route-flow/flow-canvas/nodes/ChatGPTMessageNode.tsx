@@ -8,7 +8,7 @@ import Textarea from "@mui/joy/Textarea";
 import { useContext, useEffect, useMemo, useState } from "react";
 import { Position, useNodeId, useUpdateNodeInternals } from "reactflow";
 import { ChatGPTMessageRole } from "../../../../integrations/openai";
-import { NodeID, NodeType } from "../../../../models/flow-content-types";
+import { NodeID, NodeType } from "../../../../models/v2-flow-content-types";
 import {
   V3ChatGPTMessageNodeConfig,
   VariableConfigType,

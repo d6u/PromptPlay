@@ -1,26 +1,26 @@
 import {
-  Radio,
-  FormLabel,
-  FormHelperText,
   FormControl,
-  Textarea,
+  FormHelperText,
+  FormLabel,
+  Radio,
   RadioGroup,
+  Textarea,
 } from "@mui/joy";
 import { useContext, useEffect, useMemo, useState } from "react";
 import { ChatGPTMessageRole } from "../../../../../integrations/openai";
-import { ChatGPTMessageNodeConfig } from "../../../../../models/flow-content-types";
-import FlowContext from "../../../FlowContext";
-import TextareaReadonly from "../../../common/TextareaReadonly";
+import { ChatGPTMessageNodeConfig } from "../../../../../models/v2-flow-content-types";
 import { CopyIcon, LabelWithIconContainer } from "../../../common/flow-common";
+import TextareaReadonly from "../../../common/TextareaReadonly";
+import FlowContext from "../../../FlowContext";
 import { useFlowStore } from "../../../store/store-flow";
 import { FlowState } from "../../../store/types-local-state";
-import OutputRenderer from "../common/OutputRenderer";
 import {
   HeaderSection,
   HeaderSectionHeader,
   PanelContentContainer,
   Section,
 } from "../common/controls-common";
+import OutputRenderer from "../common/OutputRenderer";
 
 const selector = (state: FlowState) => ({
   nodeConfigs: state.nodeConfigs,
@@ -36,7 +36,7 @@ export default function PanelChatGPTMessageConfig() {
 
   const nodeConfig = useMemo(
     () => nodeConfigs[detailPanelSelectedNodeId!] as ChatGPTMessageNodeConfig,
-    [detailPanelSelectedNodeId, nodeConfigs]
+    [detailPanelSelectedNodeId, nodeConfigs],
   );
 
   const [role, setRole] = useState(() => nodeConfig.role);

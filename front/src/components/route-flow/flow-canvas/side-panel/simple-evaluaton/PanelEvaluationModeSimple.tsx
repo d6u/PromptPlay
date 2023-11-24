@@ -2,7 +2,7 @@ import styled from "@emotion/styled";
 import { A, D } from "@mobily/ts-belt";
 import { Button } from "@mui/joy";
 import { useContext } from "react";
-import { InputValueType } from "../../../../../models/flow-content-types";
+import { InputValueType } from "../../../../../models/v2-flow-content-types";
 import FlowContext from "../../../FlowContext";
 import {
   flowInputItemsWithNodeConfigSelector,
@@ -10,13 +10,13 @@ import {
   useFlowStore,
 } from "../../../store/store-flow";
 import { FlowState } from "../../../store/types-local-state";
+import {
+  HeaderSection,
+  HeaderSectionHeader,
+  Section,
+} from "../common/controls-common";
 import InputBlock from "../common/InputBlock";
 import OutputRenderer from "../common/OutputRenderer";
-import {
-  Section,
-  HeaderSectionHeader,
-  HeaderSection,
-} from "../common/controls-common";
 
 const selector = (state: FlowState) => ({
   isRunning: state.isRunning,
@@ -84,7 +84,7 @@ export default function PanelEvaluationModeSimple() {
                 outputs: A.updateAt(
                   nodeConfig.outputs,
                   i,
-                  D.set("valueType", newType)
+                  D.set("valueType", newType),
                 ),
               });
             }}

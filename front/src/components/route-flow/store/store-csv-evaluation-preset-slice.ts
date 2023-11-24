@@ -1,7 +1,7 @@
 import { D, G, Option } from "@mobily/ts-belt";
 import { StateCreator } from "zustand";
 import { graphql } from "../../../gql";
-import { VariableID } from "../../../models/flow-content-types";
+import { VariableID } from "../../../models/v2-flow-content-types";
 import { client } from "../../../state/urql";
 import { FlowOutputVariableMap } from "./flow-run";
 import { FlowState } from "./types-local-state";
@@ -46,18 +46,20 @@ export type CsvEvaluationPresetSlice = {
   csvEvaluationSetLocalCsvContent(csvContent: string): void;
 
   csvEvaluationSetLocalConfigContent(
-    change: Partial<ConfigContent> | null
+    change: Partial<ConfigContent> | null,
   ): void;
   csvEvaluationSetRepeatCount(repeatCount: number): void;
   csvEvaluationSetConcurrencyLimit(concurrencyLimit: number): void;
   csvEvaluationSetVariableColumnMap(
-    update: ((prev: VariableColumnMap) => VariableColumnMap) | VariableColumnMap
+    update:
+      | ((prev: VariableColumnMap) => VariableColumnMap)
+      | VariableColumnMap,
   ): void;
   csvEvaluationSetGeneratedResult(
-    update: ((prev: GeneratedResult) => GeneratedResult) | GeneratedResult
+    update: ((prev: GeneratedResult) => GeneratedResult) | GeneratedResult,
   ): void;
   csvEvaluationSetRunStatuses(
-    update: ((prev: RunStatuses) => RunStatuses) | RunStatuses
+    update: ((prev: RunStatuses) => RunStatuses) | RunStatuses,
   ): void;
 
   // Write
@@ -91,7 +93,7 @@ export const createCsvEvaluationPresetSlice: StateCreator<
   },
 
   csvEvaluationSetLocalConfigContent(
-    change: Partial<ConfigContent> | null
+    change: Partial<ConfigContent> | null,
   ): void {
     if (change) {
       const configContent = get().csvEvaluationConfigContent;
@@ -115,7 +117,9 @@ export const createCsvEvaluationPresetSlice: StateCreator<
     });
   },
   csvEvaluationSetVariableColumnMap(
-    update: ((prev: VariableColumnMap) => VariableColumnMap) | VariableColumnMap
+    update:
+      | ((prev: VariableColumnMap) => VariableColumnMap)
+      | VariableColumnMap,
   ): void {
     if (G.isFunction(update)) {
       set((state) => {
@@ -136,7 +140,7 @@ export const createCsvEvaluationPresetSlice: StateCreator<
     }
   },
   csvEvaluationSetGeneratedResult(
-    update: ((prev: GeneratedResult) => GeneratedResult) | GeneratedResult
+    update: ((prev: GeneratedResult) => GeneratedResult) | GeneratedResult,
   ): void {
     if (G.isFunction(update)) {
       set((state) => {
@@ -157,7 +161,7 @@ export const createCsvEvaluationPresetSlice: StateCreator<
     }
   },
   csvEvaluationSetRunStatuses(
-    update: ((prev: RunStatuses) => RunStatuses) | RunStatuses
+    update: ((prev: RunStatuses) => RunStatuses) | RunStatuses,
   ) {
     if (G.isFunction(update)) {
       set((state) => {

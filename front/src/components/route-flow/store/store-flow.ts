@@ -1,4 +1,4 @@
-import { pipe, A, F, flow, D } from "@mobily/ts-belt";
+import { A, D, F, flow, pipe } from "@mobily/ts-belt";
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import {
@@ -7,7 +7,7 @@ import {
   InputNodeConfig,
   NodeType,
   OutputNodeConfig,
-} from "../../../models/flow-content-types";
+} from "../../../models/v2-flow-content-types";
 import { createCsvEvaluationPresetSlice } from "./store-csv-evaluation-preset-slice";
 import { createFlowServerSliceV2 } from "./store-flow-server-slice-v2";
 import { createRootSlice } from "./store-root-slice";
@@ -23,13 +23,13 @@ export const useFlowStore = create<FlowState>()(
     {
       store: "FlowState",
       anonymousActionType: "setState",
-    }
-  )
+    },
+  ),
 );
 
 const memoizeItems = F.memoizeWithKey(
   (items) => JSON.stringify(items),
-  F.identity
+  F.identity,
 );
 
 export function flowInputItemsSelector(state: FlowState): FlowInputItem[] {
@@ -41,12 +41,12 @@ export function flowInputItemsSelector(state: FlowState): FlowInputItem[] {
     A.map((node) => nodeConfigs[node.id] as InputNodeConfig),
     A.map(D.getUnsafe("outputs")),
     A.flat,
-    memoizeItems
+    memoizeItems,
   );
 }
 
 export function flowInputItemsWithNodeConfigSelector(
-  state: FlowState
+  state: FlowState,
 ): { inputItem: FlowInputItem; nodeConfig: InputNodeConfig }[] {
   const { nodes, nodeConfigs } = state;
 
@@ -55,9 +55,9 @@ export function flowInputItemsWithNodeConfigSelector(
     A.filter(flow(D.get("type"), F.equals(NodeType.InputNode))),
     A.map((node) => nodeConfigs[node.id] as InputNodeConfig),
     A.map((nodeConfig) =>
-      A.map(nodeConfig.outputs, (o) => ({ inputItem: o, nodeConfig }))
+      A.map(nodeConfig.outputs, (o) => ({ inputItem: o, nodeConfig })),
     ),
-    A.flat
+    A.flat,
   );
 }
 
@@ -70,6 +70,6 @@ export function flowOutputItemsSelector(state: FlowState): FlowOutputItem[] {
     A.map((node) => nodeConfigs[node.id] as OutputNodeConfig),
     A.map((nodeConfig) => nodeConfig.inputs),
     A.flat,
-    memoizeItems
+    memoizeItems,
   );
 }

@@ -1,10 +1,10 @@
 import { D } from "@mobily/ts-belt";
 import {
-  Observable,
   concatMap,
   from,
   map,
   mergeMap,
+  Observable,
   range,
   reduce,
 } from "rxjs";
@@ -12,13 +12,13 @@ import {
   LocalEdge,
   NodeConfigs,
   NodeOutputID,
-} from "../../../../../models/flow-content-types";
+} from "../../../../../models/v2-flow-content-types";
 import {
   FlowInputVariableMap,
   FlowOutputVariableMap,
+  run,
   RunEvent,
   RunEventType,
-  run,
 } from "../../../store/flow-run";
 import { VariableColumnMap } from "../../../store/store-csv-evaluation-preset-slice";
 import { CSVData } from "./csv-evaluation-common";
@@ -71,7 +71,7 @@ export function runForEachRow({
                   // TODO: Reflect this in the table
                   console.debug(
                     `ERROR: Iteration ${iteratonIndex}, row ${rowIndex} failed with error.`,
-                    event.error
+                    event.error,
                   );
                   status =
                     typeof event.error === "string"
@@ -81,11 +81,11 @@ export function runForEachRow({
                 }
               }
             }, {}),
-            map((outputs) => ({ iteratonIndex, rowIndex, outputs, status }))
+            map((outputs) => ({ iteratonIndex, rowIndex, outputs, status })),
           );
-        }, concurrencyLimit)
+        }, concurrencyLimit),
       );
-    })
+    }),
   );
 }
 

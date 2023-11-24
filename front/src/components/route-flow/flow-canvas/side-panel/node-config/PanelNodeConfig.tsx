@@ -1,14 +1,14 @@
 import { useMemo } from "react";
-import { NodeOutputItem } from "../../../../../models/flow-content-types";
+import { NodeOutputItem } from "../../../../../models/v2-flow-content-types";
 import { useFlowStore } from "../../../store/store-flow";
 import { FlowState } from "../../../store/types-local-state";
-import OutputRenderer from "../common/OutputRenderer";
 import {
   HeaderSection,
   HeaderSectionHeader,
   PanelContentContainer,
   Section,
 } from "../common/controls-common";
+import OutputRenderer from "../common/OutputRenderer";
 
 const selector = (state: FlowState) => ({
   nodeConfigs: state.nodeConfigs,
@@ -23,7 +23,7 @@ export default function PanelNodeConfig() {
       detailPanelSelectedNodeId
         ? nodeConfigs[detailPanelSelectedNodeId] ?? null
         : null,
-    [detailPanelSelectedNodeId, nodeConfigs]
+    [detailPanelSelectedNodeId, nodeConfigs],
   );
 
   return (

@@ -6,7 +6,7 @@ import {
   OpenAIChatModel,
   ServerEdge,
   ServerNode,
-} from "./flow-content-types";
+} from "./v2-flow-content-types";
 
 // SECTION: V3 ID Types
 

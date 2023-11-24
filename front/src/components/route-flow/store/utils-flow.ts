@@ -2,6 +2,7 @@ import { A, F } from "@mobily/ts-belt";
 import Chance from "chance";
 import { produce } from "immer";
 import { ChatGPTMessageRole } from "../../../integrations/openai";
+import { asV3VariableID } from "../../../models/flow-content-v2-to-v3-utils";
 import {
   LocalNode,
   NodeConfigs,
@@ -12,8 +13,7 @@ import {
   ServerEdge,
   ServerNode,
   VariableValueMap,
-} from "../../../models/flow-content-types";
-import { asV3VariableID } from "../../../models/flow-content-v2-to-v3-utils";
+} from "../../../models/v2-flow-content-types";
 import {
   V3NodeConfig,
   VariableConfig,

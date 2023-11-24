@@ -36,7 +36,7 @@ import {
   OutputNodeConfig,
   TextTemplateNodeConfig,
   VariableValueMap,
-} from "../../../models/flow-content-types";
+} from "../../../models/v2-flow-content-types";
 import {
   V3NodeConfig,
   V3NodeConfigs,

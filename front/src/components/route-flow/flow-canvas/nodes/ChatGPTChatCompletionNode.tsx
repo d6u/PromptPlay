@@ -12,7 +12,7 @@ import {
   NodeID,
   NodeType,
   OpenAIChatModel,
-} from "../../../../models/flow-content-types";
+} from "../../../../models/v2-flow-content-types";
 import {
   V3ChatGPTChatCompletionNodeConfig,
   VariableConfigType,

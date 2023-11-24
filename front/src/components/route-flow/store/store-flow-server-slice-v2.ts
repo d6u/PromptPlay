@@ -15,13 +15,13 @@ import {
 } from "reactflow";
 import invariant from "ts-invariant";
 import { StateCreator } from "zustand";
+import { asV3VariableID } from "../../../models/flow-content-v2-to-v3-utils";
 import {
   LocalEdge,
   LocalNode,
   NodeID,
   NodeType,
-} from "../../../models/flow-content-types";
-import { asV3VariableID } from "../../../models/flow-content-v2-to-v3-utils";
+} from "../../../models/v2-flow-content-types";
 import {
   FlowInputVariableConfig,
   FlowOutputVariableConfig,

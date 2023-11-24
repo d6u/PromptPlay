@@ -4,7 +4,7 @@ import Option from "@mui/joy/Option";
 import Select from "@mui/joy/Select";
 import Textarea from "@mui/joy/Textarea";
 import { ReactNode, useEffect, useState } from "react";
-import { InputValueType } from "../../../../../models/flow-content-types";
+import { InputValueType } from "../../../../../models/v2-flow-content-types";
 import InputReadonly from "../../../common/InputReadonly";
 import TextareaReadonly from "../../../common/TextareaReadonly";
 

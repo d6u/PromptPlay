@@ -4,7 +4,7 @@ import {
   FlowOutputItem,
   NodeOutputItem,
   OutputValueType,
-} from "../../../../../models/flow-content-types";
+} from "../../../../../models/v2-flow-content-types";
 import { useFlowStore } from "../../../store/store-flow";
 import { FlowState } from "../../../store/types-local-state";
 import OutputDisplay from "./OutputDisplay";

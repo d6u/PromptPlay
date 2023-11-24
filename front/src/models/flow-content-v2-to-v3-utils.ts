@@ -6,7 +6,7 @@ import {
   NodeType,
   OutputValueType,
   VariableID,
-} from "./flow-content-types";
+} from "./v2-flow-content-types";
 import {
   FlowInputVariableConfig,
   FlowOutputVariableConfig,

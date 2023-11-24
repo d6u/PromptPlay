@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 import { useNodeId } from "reactflow";
-import { NodeID } from "../../../../../models/flow-content-types";
+import { NodeID } from "../../../../../models/v2-flow-content-types";
 import { useFlowStore } from "../../../store/store-flow";
 import {
   DetailPanelContentType,

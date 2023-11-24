@@ -3,7 +3,7 @@ import FormLabel from "@mui/joy/FormLabel";
 import Textarea from "@mui/joy/Textarea";
 import { useContext, useMemo, useState } from "react";
 import { Position, useNodeId, useUpdateNodeInternals } from "reactflow";
-import { NodeID, NodeType } from "../../../../models/flow-content-types";
+import { NodeID, NodeType } from "../../../../models/v2-flow-content-types";
 import {
   V3JavaScriptFunctionNodeConfig,
   VariableConfigType,
