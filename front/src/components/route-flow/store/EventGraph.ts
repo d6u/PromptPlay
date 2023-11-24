@@ -139,6 +139,7 @@ export type ChangeEvent =
   | {
       type: ChangeEventType.NODE_AND_VARIABLES_ADDED;
       node: LocalNode;
+      variableConfigList: VariableConfig[];
     }
   | {
       type: ChangeEventType.NODE_REMOVED;

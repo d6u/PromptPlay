@@ -314,10 +314,13 @@ function handleEvent(
         event.change,
         state.variableConfigs,
       );
-    // // --- Derived ---
-    // // Derived Nodes
-    // case ChangeEventType.NODE_ADDED:
-    //   return processNodeAdded(event.node);
+    // --- Derived ---
+    // Derived Nodes
+    case ChangeEventType.NODE_AND_VARIABLES_ADDED:
+      return handleNodeAndVariablesAdded(
+        event.variableConfigList,
+        state.variableValueMaps,
+      );
     // case ChangeEventType.NODE_REMOVED:
     //   return processNodeRemoved(event.node, event.nodeConfig);
     // case ChangeEventType.NODE_MOVED: {
@@ -543,6 +546,7 @@ function handleAddingNode(
   events.push({
     type: ChangeEventType.NODE_AND_VARIABLES_ADDED,
     node,
+    variableConfigList,
   });
 
   content.isFlowContentDirty = true;
@@ -721,6 +725,29 @@ function handleUpdatingVariable(
   return [content, events];
 }
 
+function handleNodeAndVariablesAdded(
+  variableConfigList: VariableConfig[],
+  prevVariableValueMaps: V3VariableValueMap[],
+): [Partial<FlowServerSliceStateV2>, ChangeEvent[]] {
+  const content: Partial<FlowServerSliceStateV2> = {};
+  const events: ChangeEvent[] = [];
+
+  const variableValueMaps = produce(prevVariableValueMaps, (draft) => {
+    for (const variableConfig of variableConfigList) {
+      draft[0][variableConfig.id] = null;
+    }
+  });
+
+  events.push({
+    type: ChangeEventType.VAR_VALUE_MAP_UPDATED,
+  });
+
+  content.isFlowContentDirty = true;
+  content.variableValueMaps = variableValueMaps;
+
+  return [content, events];
+}
+
 // function processNodeRemoved(
 //   removedNode: LocalNode,
 //   removedNodeConfig: V3NodeConfig,
@@ -782,12 +809,6 @@ function handleUpdatingVariable(
 //     isFlowContentDirty: true,
 //     edges: acceptedEdges,
 //   });
-
-//   return events;
-// }
-
-// function processNodeAdded(node: LocalNode): ChangeEvent[] {
-//   const events: ChangeEvent[] = [];
 
 //   return events;
 // }
