@@ -156,8 +156,8 @@ export type ChangeEvent =
     }
   | {
       type: ChangeEventType.EDGE_REMOVED;
-      edge: LocalEdge;
-      srcNodeConfigRemoved: NodeConfig | null;
+      removedEdge: LocalEdge;
+      edgeSrcVariableConfig: VariableConfig | null;
     }
   | {
       type: ChangeEventType.EDGE_REPLACED;

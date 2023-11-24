@@ -13,6 +13,7 @@ import {
   OnEdgesChange,
   OnNodesChange,
 } from "reactflow";
+import invariant from "ts-invariant";
 import { StateCreator } from "zustand";
 import {
   InputValueType,
@@ -324,9 +325,12 @@ function handleEvent(
     // case ChangeEventType.EDGE_ADDED: {
     //   return processEdgeAdded(event.edge);
     // }
-    // case ChangeEventType.EDGE_REMOVED: {
-    //   return processEdgeRemoved(event.edge, event.srcNodeConfigRemoved);
-    // }
+    case ChangeEventType.EDGE_REMOVED:
+      return handleEdgeRemoved(
+        event.removedEdge,
+        event.edgeSrcVariableConfig,
+        state.variableConfigs,
+      );
     // case ChangeEventType.EDGE_REPLACED: {
     //   return processEdgeReplaced(event.oldEdge, event.newEdge);
     // }
@@ -367,8 +371,8 @@ function handleRfEdgeChanges(
       case "remove": {
         events.push({
           type: ChangeEventType.EDGE_REMOVED,
-          edge: oldEdges.find((edge) => edge.id === change.id)!,
-          srcNodeConfigRemoved: null,
+          removedEdge: oldEdges.find((edge) => edge.id === change.id)!,
+          edgeSrcVariableConfig: null,
         });
         content.isFlowContentDirty = true;
         break;
@@ -817,61 +821,55 @@ function handleUpdatingVariable(
 //   return events;
 // }
 
-// function processEdgeRemoved(
-//   removedEdge: LocalEdge,
-//   srcNodeConfigRemoved: NodeConfig | null,
-// ): ChangeEvent[] {
-//   const events: ChangeEvent[] = [];
+function handleEdgeRemoved(
+  removedEdge: LocalEdge,
+  edgeSrcVariableConfig: VariableConfig | null,
+  prevVariableConfigs: VariableConfigs,
+): [Partial<FlowServerSliceStateV2>, ChangeEvent[]] {
+  const content: Partial<FlowServerSliceStateV2> = {};
+  const events: ChangeEvent[] = [];
 
-//   // --- Handle variable type change ---
+  // SECTION: Target Variable Type
 
-//   const nodeConfigs = produce(get().nodeConfigs, (draft) => {
-//     // Edge could be removed because target node was removed
-//     if (draft[removedEdge.target] == null) {
-//       return;
-//     }
+  const variableConfigs = produce(prevVariableConfigs, (draft) => {
+    if (draft[asV3VariableID(removedEdge.targetHandle)] == null) {
+      // Edge was removed because destination variable was removed
+      return;
+    }
 
-//     // Get the source output
-//     const srcNodeConfig = srcNodeConfigRemoved ?? draft[removedEdge.source]!;
-//     if (!("outputs" in srcNodeConfig)) {
-//       throw new Error("Source node must have outputs property");
-//     }
-//     const srcOutput = srcNodeConfig.outputs.find(
-//       (output) => output.id === removedEdge.sourceHandle,
-//     )!;
+    const srcVariableConfig =
+      edgeSrcVariableConfig ?? draft[asV3VariableID(removedEdge.sourceHandle)];
 
-//     if (srcOutput.valueType === OutputValueType.Audio) {
-//       // Get the destination input
-//       const dstNodeConfig = draft[removedEdge.target]!;
-//       if (dstNodeConfig.nodeType !== NodeType.OutputNode) {
-//         throw new Error(
-//           "Destination node must be a OutputNode, this check should have been performed in previous events",
-//         );
-//       }
-//       const dstInput = dstNodeConfig.inputs.find(
-//         (input) => input.id === removedEdge.targetHandle,
-//       )!;
+    invariant(
+      srcVariableConfig.type === VariableType.NodeOutput ||
+        srcVariableConfig.type === VariableType.FlowInput,
+    );
 
-//       const variableOldData = current(dstInput)!;
+    if (srcVariableConfig.valueType === NodeOutputValueType.Audio) {
+      // Get the destination input
+      const dstVariableConfig = draft[asV3VariableID(removedEdge.targetHandle)];
 
-//       delete dstInput.valueType;
+      invariant(dstVariableConfig.type === VariableType.FlowOutput);
 
-//       events.push({
-//         type: ChangeEventType.VARIABLE_UPDATED,
-//         variableOldData,
-//         variableNewData: current(dstInput)!,
-//       });
-//     }
-//   });
+      const prevVariableConfig = current(dstVariableConfig);
 
-//   set((state) => ({
-//     isFlowContentDirty:
-//       state.isFlowContentDirty || state.nodeConfigs !== nodeConfigs,
-//     nodeConfigs: nodeConfigs,
-//   }));
+      dstVariableConfig.valueType = V3FlowOutputValueType.String;
 
-//   return events;
-// }
+      events.push({
+        type: ChangeEventType.VARIABLE_UPDATED,
+        prevVariableConfig,
+        nextVariableConfig: current(dstVariableConfig),
+      });
+    }
+  });
+
+  // !SECTION
+
+  content.isFlowContentDirty = true;
+  content.variableConfigs = variableConfigs;
+
+  return [content, events];
+}
 
 // function processEdgeReplaced(
 //   oldEdge: LocalEdge,
@@ -1001,8 +999,8 @@ function handleVariableRemoved(
   for (const edge of rejectedEdges) {
     events.push({
       type: ChangeEventType.EDGE_REMOVED,
-      edge,
-      srcNodeConfigRemoved: null,
+      removedEdge: edge,
+      edgeSrcVariableConfig: null,
     });
   }
 
