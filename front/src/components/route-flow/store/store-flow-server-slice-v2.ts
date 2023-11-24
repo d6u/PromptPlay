@@ -333,8 +333,12 @@ function handleEvent(
     // Derived Variables
     case ChangeEventType.VARIABLE_ADDED:
       return handleVariableAdded(event.variableId, state.variableValueMaps);
-    // case ChangeEventType.VARIABLE_REMOVED:
-    //   return processVariableFlowInputRemoved(event.variableId);
+    case ChangeEventType.VARIABLE_REMOVED:
+      return handleVariableRemoved(
+        event.variableId,
+        state.edges,
+        state.variableValueMaps,
+      );
     // case ChangeEventType.VARIABLE_UPDATED:
     //   return processVariableFlowOutputUpdated(
     //     event.variableOldData,
@@ -763,45 +767,6 @@ function handleUpdatingVariable(
 //   return events;
 // }
 
-// function processVariableFlowInputRemoved(
-//   variableId: NodeOutputID,
-// ): ChangeEvent[] {
-//   const events: ChangeEvent[] = [];
-
-//   // Process possible edges removal
-
-//   const [acceptedEdges, rejectedEdges] = A.partition(
-//     get().edges,
-//     (edge) => edge.sourceHandle !== variableId,
-//   );
-
-//   for (const edge of rejectedEdges) {
-//     events.push({
-//       type: ChangeEventType.EDGE_REMOVED,
-//       edge,
-//       srcNodeConfigRemoved: null,
-//     });
-//   }
-
-//   // Process variable map value update
-
-//   const variableValueMaps = produce(get().variableValueMaps, (draft) => {
-//     delete draft[0][variableId];
-//   });
-
-//   events.push({
-//     type: ChangeEventType.VAR_VALUE_MAP_UPDATED,
-//   });
-
-//   set({
-//     isFlowContentDirty: true,
-//     edges: acceptedEdges,
-//     variableValueMaps: variableValueMaps,
-//   });
-
-//   return events;
-// }
-
 // function processEdgeAdded(addedEdge: LocalEdge): ChangeEvent[] {
 //   const events: ChangeEvent[] = [];
 
@@ -1013,6 +978,50 @@ function handleVariableAdded(
   });
 
   content.isFlowContentDirty = true;
+  content.variableValueMaps = variableValueMaps;
+
+  return [content, events];
+}
+
+function handleVariableRemoved(
+  variableId: V3VariableID,
+  prevEdges: LocalEdge[],
+  prevVariableValueMaps: V3VariableValueMap[],
+): [Partial<FlowServerSliceStateV2>, ChangeEvent[]] {
+  const content: Partial<FlowServerSliceStateV2> = {};
+  const events: ChangeEvent[] = [];
+
+  // SECTION: Process Edges Removal
+
+  const [acceptedEdges, rejectedEdges] = A.partition(
+    prevEdges,
+    (edge) => asV3VariableID(edge.sourceHandle) !== variableId,
+  );
+
+  for (const edge of rejectedEdges) {
+    events.push({
+      type: ChangeEventType.EDGE_REMOVED,
+      edge,
+      srcNodeConfigRemoved: null,
+    });
+  }
+
+  // !SECTION
+
+  // SECTION: Process variable map value update
+
+  const variableValueMaps = produce(prevVariableValueMaps, (draft) => {
+    delete draft[0][variableId];
+  });
+
+  events.push({
+    type: ChangeEventType.VAR_VALUE_MAP_UPDATED,
+  });
+
+  // !SECTION
+
+  content.isFlowContentDirty = true;
+  content.edges = acceptedEdges;
   content.variableValueMaps = variableValueMaps;
 
   return [content, events];
