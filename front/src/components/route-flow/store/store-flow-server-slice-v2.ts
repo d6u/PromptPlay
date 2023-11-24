@@ -357,11 +357,12 @@ function handleEvent(
         state.edges,
         state.variableValueMaps,
       );
-    // case ChangeEventType.VARIABLE_UPDATED:
-    //   return processVariableFlowOutputUpdated(
-    //     event.variableOldData,
-    //     event.variableNewData,
-    //   );
+    case ChangeEventType.VARIABLE_UPDATED:
+      return handleVariableUpdated(
+        event.prevVariableConfig,
+        event.nextVariableConfig,
+        state.variableValueMaps,
+      );
     // // Derived Other
     // case ChangeEventType.VAR_VALUE_MAP_UPDATED:
     //   return [];
@@ -945,27 +946,6 @@ function handleEdgeReplaced(
   return [content, events];
 }
 
-// function processVariableFlowOutputUpdated(
-//   variableOldData: FlowOutputItem,
-//   variableNewData: FlowOutputItem,
-// ): ChangeEvent[] {
-//   const events: ChangeEvent[] = [];
-
-//   const variableValueMaps = produce(get().variableValueMaps, (draft) => {
-//     if (variableOldData.valueType !== variableNewData.valueType) {
-//       draft[0][variableNewData.id] = null;
-//     }
-//   });
-
-//   set((state) => ({
-//     isFlowContentDirty:
-//       state.isFlowContentDirty || state.variableValueMaps === variableValueMaps,
-//     variableValueMaps: variableValueMaps,
-//   }));
-
-//   return events;
-// }
-
 function handleVariableAdded(
   variableId: V3VariableID,
   prevVariableValueMaps: V3VariableValueMap[],
@@ -1030,3 +1010,25 @@ function handleVariableRemoved(
 
   return [content, events];
 }
+
+function handleVariableUpdated(
+  prevVariableConfig: VariableConfig,
+  nextVariableConfig: VariableConfig,
+  prevVariableValueMaps: V3VariableValueMap[],
+): EventHandlerResult {
+  const content: Partial<FlowServerSliceStateV2> = {};
+  const events: ChangeEvent[] = [];
+
+  const variableValueMaps = produce(prevVariableValueMaps, (draft) => {
+    if (prevVariableConfig.valueType !== nextVariableConfig.valueType) {
+      draft[0][nextVariableConfig.id] = null;
+    }
+  });
+
+  content.isFlowContentDirty = true;
+  content.variableValueMaps = variableValueMaps;
+
+  return [content, events];
+}
+
+type EventHandlerResult = [Partial<FlowServerSliceStateV2>, ChangeEvent[]];
