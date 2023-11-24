@@ -18,7 +18,7 @@ import {
 } from "../../../models/v3-flow-content-types";
 import { client } from "../../../state/urql";
 import { toRxObservableSingle } from "../../../utils/graphql-utils";
-import { DEFAULT_EDGE_STYLE, DRAG_HANDLE_CLASS_NAME } from "./flowConstants";
+import { DEFAULT_EDGE_STYLE, DRAG_HANDLE_CLASS_NAME } from "../constants";
 import {
   SPACE_FLOW_QUERY,
   UPDATE_SPACE_CONTENT_V3_MUTATION,
