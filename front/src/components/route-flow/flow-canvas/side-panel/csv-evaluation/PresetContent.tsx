@@ -6,18 +6,18 @@ import posthog from "posthog-js";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Subscription } from "rxjs";
 import { useQuery } from "urql";
+import { FlowOutputVariableMap } from "../../../../../flow-run/flow-run";
 import { graphql } from "../../../../../gql";
-import { FlowOutputVariableMap } from "../../../store/flow-run";
 import {
   ColumnIndex,
   RowIndex,
-} from "../../../store/store-csv-evaluation-preset-slice";
+} from "../../../store/slice-csv-evaluation-preset";
 import { useFlowStore } from "../../../store/store-flow";
 import { FlowState } from "../../../store/types-local-state";
-import EvaluationSectionConfigCSV from "./EvaluationSectionConfigCSV";
-import EvaluationSectionImportCSV from "./EvaluationSectionImportCSV";
 import { CSVData, CSVHeader } from "./csv-evaluation-common";
 import { runForEachRow } from "./csv-evaluation-util";
+import EvaluationSectionConfigCSV from "./EvaluationSectionConfigCSV";
+import EvaluationSectionImportCSV from "./EvaluationSectionImportCSV";
 
 const EVALUATION_MODE_CSV_CONTENT_QUERY = graphql(`
   query EvaluationModeCSVContentQuery($spaceId: UUID!, $presetId: ID!) {
@@ -79,7 +79,7 @@ export default function PresetContent() {
   useEffect(() => {
     if (shouldFetchPreset) {
       setCsvContent(
-        queryResult.data?.result?.space.csvEvaluationPreset.csvContent ?? ""
+        queryResult.data?.result?.space.csvEvaluationPreset.csvContent ?? "",
       );
     } else {
       setCsvContent("");
@@ -95,8 +95,8 @@ export default function PresetContent() {
       if (queryResult.data?.result?.space.csvEvaluationPreset.configContent) {
         setConfigContent(
           JSON.parse(
-            queryResult.data?.result?.space.csvEvaluationPreset.configContent
-          )
+            queryResult.data?.result?.space.csvEvaluationPreset.configContent,
+          ),
         );
         return;
       }
@@ -111,7 +111,7 @@ export default function PresetContent() {
 
   const csvData = useMemo<CSVData>(
     () => Papa.parse(csvContent).data as CSVData,
-    [csvContent]
+    [csvContent],
   );
 
   const { csvHeaders, csvBody } = useMemo<{
@@ -159,20 +159,20 @@ export default function PresetContent() {
           row = A.updateAt(
             row as Array<FlowOutputVariableMap>,
             colIndex,
-            D.merge(outputs)
+            D.merge(outputs),
           );
 
           return A.replaceAt(
             prev as Array<Record<ColumnIndex, FlowOutputVariableMap>>,
             rowIndex,
-            row
+            row,
           );
         });
 
         setRunStatuses((prev) =>
           produce(prev, (draft) => {
             draft[rowIndex as RowIndex][colIndex as ColumnIndex] = status;
-          })
+          }),
         );
       },
       error(err) {

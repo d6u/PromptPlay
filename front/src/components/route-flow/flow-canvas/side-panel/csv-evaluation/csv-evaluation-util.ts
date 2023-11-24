@@ -9,18 +9,18 @@ import {
   reduce,
 } from "rxjs";
 import {
-  LocalEdge,
-  NodeConfigs,
-  NodeOutputID,
-} from "../../../../../models/v2-flow-content-types";
-import {
   FlowInputVariableMap,
   FlowOutputVariableMap,
   run,
   RunEvent,
   RunEventType,
-} from "../../../store/flow-run";
-import { VariableColumnMap } from "../../../store/store-csv-evaluation-preset-slice";
+} from "../../../../../flow-run/flow-run";
+import {
+  LocalEdge,
+  NodeConfigs,
+  NodeOutputID,
+} from "../../../../../models/v2-flow-content-types";
+import { VariableColumnMap } from "../../../store/slice-csv-evaluation-preset";
 import { CSVData } from "./csv-evaluation-common";
 
 export function runForEachRow({

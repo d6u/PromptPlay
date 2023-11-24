@@ -19,9 +19,10 @@ import {
   TimeoutError,
   zipWith,
 } from "rxjs";
-import * as ElevenLabs from "../../../integrations/eleven-labs";
-import * as HuggingFace from "../../../integrations/hugging-face";
-import * as OpenAI from "../../../integrations/openai";
+import { NodeAugment } from "../components/route-flow/store/types-local-state";
+import * as ElevenLabs from "../integrations/eleven-labs";
+import * as HuggingFace from "../integrations/hugging-face";
+import * as OpenAI from "../integrations/openai";
 import {
   ChatGPTChatCompletionNodeConfig,
   ChatGPTMessageNodeConfig,
@@ -36,13 +37,9 @@ import {
   OutputNodeConfig,
   TextTemplateNodeConfig,
   VariableValueMap,
-} from "../../../models/v2-flow-content-types";
-import {
-  V3NodeConfig,
-  V3NodeConfigs,
-} from "../../../models/v3-flow-content-types";
-import { useLocalStorageStore, useSpaceStore } from "../../../state/appState";
-import { NodeAugment } from "./types-local-state";
+} from "../models/v2-flow-content-types";
+import { V3NodeConfig, V3NodeConfigs } from "../models/v3-flow-content-types";
+import { useLocalStorageStore, useSpaceStore } from "../state/appState";
 
 const AsyncFunction = async function () {}.constructor;
 

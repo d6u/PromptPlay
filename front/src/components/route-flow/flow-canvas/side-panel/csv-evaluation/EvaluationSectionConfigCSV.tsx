@@ -13,12 +13,12 @@ import {
 import Papa from "papaparse";
 import posthog from "posthog-js";
 import { ReactNode, useEffect } from "react";
+import { FlowOutputVariableMap } from "../../../../../flow-run/flow-run";
 import { VariableID } from "../../../../../models/v2-flow-content-types";
-import { FlowOutputVariableMap } from "../../../store/flow-run";
 import {
   ColumnIndex,
   RowIndex,
-} from "../../../store/store-csv-evaluation-preset-slice";
+} from "../../../store/slice-csv-evaluation-preset";
 import {
   flowInputItemsSelector,
   flowOutputItemsSelector,

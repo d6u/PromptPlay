@@ -5,6 +5,7 @@ import { mergeMap, Subscription } from "rxjs";
 import { invariant } from "ts-invariant";
 import { OperationResult } from "urql";
 import { StateCreator } from "zustand";
+import { run, RunEventType } from "../../../flow-run/flow-run";
 import { ContentVersion, SpaceFlowQueryQuery } from "../../../gql/graphql";
 import { NodeID } from "../../../models/v2-flow-content-types";
 import {
@@ -15,7 +16,6 @@ import {
   V3FlowContent,
   V3VariableValueMap,
 } from "../../../models/v3-flow-content-types";
-import { run, RunEventType } from "./flow-run";
 import { flowInputItemsSelector } from "./store-flow";
 import {
   assignLocalEdgeProperties,

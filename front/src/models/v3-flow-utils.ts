@@ -1,19 +1,12 @@
-import { A, F } from "@mobily/ts-belt";
 import Chance from "chance";
-import { produce } from "immer";
 import { ChatGPTMessageRole } from "../integrations/openai";
-import propEq from "../utils/propEq";
 import randomId from "../utils/randomId";
 import {
   LocalNode,
-  NodeConfigs,
   NodeID,
   NodeType,
   OpenAIChatModel,
-  OutputNodeConfig,
-  ServerEdge,
   ServerNode,
-  VariableValueMap,
 } from "./v2-flow-content-types";
 import { asV3VariableID } from "./v2-to-v3-flow-utils";
 import {
@@ -267,85 +260,4 @@ export function createNodeConfig(node: LocalNode): {
       };
     }
   }
-}
-
-/**
- * @returns [acceptedEdges, rejectedEdges]
- */
-export function rejectInvalidEdges(
-  nodes: ServerNode[],
-  edges: ServerEdge[],
-  nodeConfigs: NodeConfigs,
-): [ServerEdge[], ServerEdge[]] {
-  return F.toMutable(
-    A.partition(edges, (edge) => {
-      let foundSourceHandle = false;
-      let foundTargetHandle = false;
-
-      for (const node of nodes) {
-        const nodeConfig = nodeConfigs[node.id];
-
-        if (nodeConfig) {
-          if (node.id === edge.source) {
-            if ("outputs" in nodeConfig) {
-              foundSourceHandle = A.any<{ id: string }>(
-                nodeConfig.outputs,
-                propEq("id", edge.sourceHandle),
-              );
-            }
-          }
-
-          if (node.id === edge.target) {
-            if ("inputs" in nodeConfig) {
-              foundTargetHandle = A.any(
-                nodeConfig.inputs,
-                propEq("id", edge.targetHandle),
-              );
-            }
-          }
-        }
-      }
-
-      return foundSourceHandle && foundTargetHandle;
-    }),
-  );
-}
-
-export function restoreNodeConfigForRemovedEdges(
-  rejectedEdges: ServerEdge[],
-  nodeConfigs: NodeConfigs,
-  variableValueMaps: VariableValueMap[],
-): {
-  nodeConfigs: NodeConfigs;
-  variableValueMaps: VariableValueMap[];
-} {
-  for (const edge of rejectedEdges) {
-    const targetNodeConfig = nodeConfigs[edge.target];
-
-    if (!targetNodeConfig) {
-      continue;
-    }
-
-    if (targetNodeConfig.nodeType !== NodeType.OutputNode) {
-      continue;
-    }
-
-    for (const [index, input] of targetNodeConfig.inputs.entries()) {
-      if (input.id === edge.targetHandle) {
-        nodeConfigs = produce(nodeConfigs, (draft) => {
-          const input = (draft[targetNodeConfig.nodeId] as OutputNodeConfig)
-            .inputs[index]!;
-          delete input.valueType;
-        });
-
-        variableValueMaps = produce(variableValueMaps, (draft) => {
-          draft[0]![input.id] = null;
-        });
-
-        break;
-      }
-    }
-  }
-
-  return { nodeConfigs, variableValueMaps };
 }
