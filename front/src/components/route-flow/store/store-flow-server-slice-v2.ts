@@ -325,8 +325,12 @@ function handleEvent(
         event.variableConfigList,
         state.variableValueMaps,
       );
-    // case ChangeEventType.NODE_REMOVED:
-    //   return processNodeRemoved(event.node, event.nodeConfig);
+    case ChangeEventType.NODE_REMOVED:
+      return handleNodeRemoved(
+        event.node,
+        event.nodeConfig,
+        state.variableConfigs,
+      );
     // case ChangeEventType.NODE_MOVED: {
     //   return [];
     // }
@@ -754,70 +758,32 @@ function handleNodeAndVariablesAdded(
   return [content, events];
 }
 
-// function processNodeRemoved(
-//   removedNode: LocalNode,
-//   removedNodeConfig: V3NodeConfig,
-// ): ChangeEvent[] {
-//   const events: ChangeEvent[] = [];
+function handleNodeRemoved(
+  removedNode: LocalNode,
+  removedNodeConfig: V3NodeConfig,
+  prevVariableConfigs: VariableConfigs,
+): [Partial<FlowServerSliceStateV2>, ChangeEvent[]] {
+  const content: Partial<FlowServerSliceStateV2> = {};
+  const events: ChangeEvent[] = [];
 
-//   // Process edges removal
+  const variableConfigs = produce(prevVariableConfigs, (draft) => {
+    for (const variableConfig of Object.values(draft)) {
+      if (variableConfig.nodeId === removedNode.id) {
+        delete draft[variableConfig.id];
 
-//   const [acceptedEdges, rejectedEdges] = A.partition(
-//     get().edges,
-//     (edge) => edge.source !== removedNode.id && edge.target !== removedNode.id,
-//   );
+        events.push({
+          type: ChangeEventType.VARIABLE_REMOVED,
+          variableId: variableConfig.id,
+        });
+      }
+    }
+  });
 
-//   for (const edge of rejectedEdges) {
-//     events.push({
-//       type: ChangeEventType.EDGE_REMOVED,
-//       edge,
-//       srcNodeConfigRemoved:
-//         edge.source === removedNodeConfig.nodeId ? removedNodeConfig : null,
-//     });
-//   }
+  content.isFlowContentDirty = true;
+  content.variableConfigs = variableConfigs;
 
-//   // Generate variable remove events
-
-//   if (removedNodeConfig.nodeType === NodeType.InputNode) {
-//     for (const output of removedNodeConfig.outputs) {
-//       events.push({
-//         type: ChangeEventType.VARIABLE_REMOVED,
-//         variableId: output.id,
-//       });
-//     }
-//   } else if (removedNodeConfig.nodeType === NodeType.OutputNode) {
-//     for (const input of removedNodeConfig.inputs) {
-//       events.push({
-//         type: ChangeEventType.VAR_FLOW_OUTPUT_REMOVED,
-//         variableId: input.id,
-//       });
-//     }
-//   } else {
-//     if ("inputs" in removedNodeConfig) {
-//       for (const input of removedNodeConfig.inputs) {
-//         events.push({
-//           type: ChangeEventType.VAR_INPUT_REMOVED,
-//           variableId: input.id,
-//         });
-//       }
-//     }
-//     if ("outputs" in removedNodeConfig) {
-//       for (const output of removedNodeConfig.outputs) {
-//         events.push({
-//           type: ChangeEventType.VAR_OUTPUT_REMOVED,
-//           variableId: output.id,
-//         });
-//       }
-//     }
-//   }
-
-//   set({
-//     isFlowContentDirty: true,
-//     edges: acceptedEdges,
-//   });
-
-//   return events;
-// }
+  return [content, events];
+}
 
 // function processEdgeAdded(addedEdge: LocalEdge): ChangeEvent[] {
 //   const events: ChangeEvent[] = [];
