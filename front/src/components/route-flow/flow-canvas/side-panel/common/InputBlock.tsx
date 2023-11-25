@@ -5,6 +5,7 @@ import Select from "@mui/joy/Select";
 import Textarea from "@mui/joy/Textarea";
 import { ReactNode, useEffect, useState } from "react";
 import { InputValueType } from "../../../../../models/v2-flow-content-types";
+import { VariableValueType } from "../../../../../models/v3-flow-content-types";
 import InputReadonly from "../../../common/InputReadonly";
 import TextareaReadonly from "../../../common/TextareaReadonly";
 
@@ -33,26 +34,29 @@ type Props = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any;
   onSaveValue: (value: string) => void;
-  type?: InputValueType;
-  onSaveType: (type: InputValueType) => void;
+  type: VariableValueType.String | VariableValueType.Number;
+  onSaveType: (
+    type: VariableValueType.String | VariableValueType.Number,
+  ) => void;
 };
 
 export default function InputBlock(props: Props) {
   const [value, setValue] = useState(props.value);
-  const [type, setType] = useState(props.type ?? InputValueType.String);
 
   useEffect(() => {
     setValue(props.value);
   }, [props.value]);
 
+  const [type, setType] = useState(props.type);
+
   useEffect(() => {
-    setType(props.type ?? InputValueType.String);
+    setType(props.type);
   }, [props.type]);
 
   let valueInput: ReactNode;
 
   switch (type) {
-    case InputValueType.String:
+    case VariableValueType.String:
       valueInput = props.isReadOnly ? (
         <TextareaReadonly minRows={2} value={value ?? ""} />
       ) : (
@@ -74,7 +78,7 @@ export default function InputBlock(props: Props) {
         />
       );
       break;
-    case InputValueType.Number:
+    case VariableValueType.Number:
       valueInput = props.isReadOnly ? (
         <InputReadonly type="number" value={value ?? 0} />
       ) : (

@@ -78,3 +78,12 @@ export function selectVariables<
     )
     .sort((a, b) => a.index - b.index) as R[];
 }
+
+export function selectAllVariables<
+  T extends VariableType,
+  R = VariableTypeToVariableConfigTypeMap[T],
+>(type: T, variableMap: VariableMap): R[] {
+  return Object.values(variableMap)
+    .filter((variableConfig) => variableConfig.type === type)
+    .sort((a, b) => a.index - b.index) as R[];
+}
