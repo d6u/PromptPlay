@@ -1,4 +1,4 @@
-import { A } from "@mobily/ts-belt";
+import { A, D } from "@mobily/ts-belt";
 import mustache from "mustache";
 import {
   BehaviorSubject,
@@ -91,7 +91,7 @@ export function run(
   const nodeGraph: Record<NodeID, NodeID[]> = {};
   const nodeIndegree: Record<NodeID, number> = {};
 
-  for (const nodeId of Object.keys(nodeConfigs) as NodeID[]) {
+  for (const nodeId of D.keys(nodeConfigs)) {
     nodeGraph[nodeId] = [];
     nodeIndegree[nodeId] = 0;
   }
@@ -105,7 +105,7 @@ export function run(
     //
     // This is expected since we are reducing indegree the equial number of
     // times in the while loop below.
-    nodeGraph[edge.source].push(edge.target);
+    nodeGraph[edge.source]!.push(edge.target);
     nodeIndegree[edge.target] += 1;
 
     inputIdToOutputIdMap[edge.targetHandle] = edge.sourceHandle!;
