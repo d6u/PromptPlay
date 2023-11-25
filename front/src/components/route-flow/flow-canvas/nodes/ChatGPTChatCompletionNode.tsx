@@ -14,6 +14,7 @@ import {
   OpenAIChatModel,
 } from "../../../../models/v2-flow-content-types";
 import {
+  ChatGPTChatCompletionResponseFormatType,
   V3ChatGPTChatCompletionNodeConfig,
   VariableType,
 } from "../../../../models/v3-flow-content-types";
@@ -326,7 +327,8 @@ export default function ChatGPTChatCompletionNode() {
 
                 if (event.target.checked) {
                   updateNodeConfig(nodeId, {
-                    responseFormatType: "json_object",
+                    responseFormatType:
+                      ChatGPTChatCompletionResponseFormatType.JsonObject,
                   });
                 } else {
                   updateNodeConfig(nodeId, { responseFormatType: null });

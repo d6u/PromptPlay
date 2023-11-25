@@ -8,6 +8,7 @@ import {
   VariableID,
 } from "./v2-flow-content-types";
 import {
+  ChatGPTChatCompletionResponseFormatType,
   FlowInputVariable,
   FlowOutputVariable,
   NodeInputVariable,
@@ -151,7 +152,9 @@ export function convertV2ContentToV3Content(
           temperature: nodeConfig.temperature,
           seed: nodeConfig.seed ?? null,
           responseFormatType:
-            nodeConfig.responseFormat == null ? null : "json_object",
+            nodeConfig.responseFormat == null
+              ? null
+              : ChatGPTChatCompletionResponseFormatType.JsonObject,
           stop: nodeConfig.stop,
         };
         return v3NodeConfig;
