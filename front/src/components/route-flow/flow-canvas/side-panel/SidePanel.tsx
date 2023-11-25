@@ -9,6 +9,7 @@ import {
 } from "../../state/store-flow-state-types";
 import PanelChatGPTMessageConfig from "./chat-gpt-message-config/PanelChatGPTMessageConfig";
 import PanelEvaluationModeCSV from "./csv-evaluation/PanelEvaluationModeCSV";
+import PanelNodeConfig from "./node-config/PanelNodeConfig";
 import PanelEvaluationModeSimple from "./simple-evaluaton/PanelEvaluationModeSimple";
 
 const selector = (state: FlowState) => ({
@@ -23,6 +24,10 @@ export default function SidePanel() {
   let content: ReactNode;
   switch (detailPanelContentType) {
     case DetailPanelContentType.Off: {
+      break;
+    }
+    case DetailPanelContentType.NodeConfig: {
+      content = <PanelNodeConfig />;
       break;
     }
     case DetailPanelContentType.EvaluationModeSimple: {

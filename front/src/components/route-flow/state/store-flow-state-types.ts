@@ -18,5 +18,6 @@ export enum DetailPanelContentType {
   Off = "Off",
   EvaluationModeSimple = "EvaluationModeSimple",
   EvaluationModeCSV = "EvaluationModeCSV",
+  NodeConfig = "NodeConfig",
   ChatGPTMessageConfig = "ChatGPTMessageConfig",
 }

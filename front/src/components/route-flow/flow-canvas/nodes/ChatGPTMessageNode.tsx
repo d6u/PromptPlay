@@ -94,6 +94,8 @@ export default function ChatGPTMessageNode() {
     return selectVariables(nodeId, VariableType.NodeInput, variableConfigs);
   }, [nodeId, variableConfigs]);
 
+  console.log("ChatGPTMessageNode", inputs);
+
   // !SECTION
 
   // It's OK to force unwrap here because nodeConfig will be undefined only
