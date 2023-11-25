@@ -33,7 +33,9 @@ import {
   V3HuggingFaceInferenceNodeConfig,
   V3JavaScriptFunctionNodeConfig,
   V3NodeConfig,
+  V3NodeConfigsDict,
   V3OutputNodeConfig,
+  V3ServerEdge,
   V3TextTemplateNodeConfig,
   V3VariableID,
   V3VariableValueLookUpDict,
@@ -82,111 +84,46 @@ export function runSingle({
   // in topological order.
   const sub = new BehaviorSubject(0);
 
-  return new Observable<{ nodeId: NodeID; nodeConfig: V3NodeConfig }>(
-    (subscriber) => {
-      // SECTION: Initialize graph related objects
-      const nodeGraph: Record<NodeID, NodeID[]> = {};
-      const nodeIndegree: Record<NodeID, number> = {};
-
-      for (const nodeId of D.keys(nodeConfigsDict)) {
-        nodeGraph[nodeId] = [];
-        nodeIndegree[nodeId] = 0;
-      }
-      // !SECTION
-
-      // SECTION: Build basic information about graph
-
-      for (const edge of edges) {
-        // `nodeGraph[edge.source]` will contain duplicate edge.target,
-        // because there can be multiple edges between two nodes.
-        // We must reduce indegree equal number of times in the while loop below.
-        nodeGraph[edge.source]!.push(edge.target);
-        nodeIndegree[edge.target] += 1;
-      }
-      // !SECTION
-
-      // Topological sort of the node graph.
-      const queue: NodeID[] = [];
-
-      for (const [key, count] of Object.entries(nodeIndegree)) {
-        const nodeId = key as NodeID;
-        if (count === 0) {
-          queue.push(nodeId);
-        }
-      }
-
-      while (queue.length > 0) {
-        const nodeId = queue.shift()!;
-        const nodeConfig = nodeConfigsDict[nodeId];
-        invariant(nodeConfig != null);
-
-        subscriber.next({ nodeId, nodeConfig });
-
-        for (const nextId of nodeGraph[nodeId]!) {
-          nodeIndegree[nextId] -= 1;
-          if (nodeIndegree[nextId] === 0) {
-            queue.push(nextId);
-          }
-        }
-      }
-
-      subscriber.complete();
-    },
-  ).pipe(
+  return createTopologicalSortNodeConfigObservable(nodeConfigsDict, edges).pipe(
     zipWith(sub),
     concatMap(([{ nodeId, nodeConfig }]) => {
-      let obs: Observable<RunEvent>;
+      let obs1: Observable<V3VariableValueLookUpDict>;
 
       switch (nodeConfig.type) {
         case NodeType.InputNode: {
-          obs = EMPTY;
+          obs1 = EMPTY;
           break;
         }
         case NodeType.OutputNode: {
-          obs = handleOutputNode(
+          obs1 = handleOutputNode(
             nodeConfig,
             variablesDict,
             edgeTargetHandleToSourceHandleLookUpDict,
             outputIdToValueMap,
-          ).pipe(
-            map((changes) => ({
-              type: RunEventType.VariableValueChanges,
-              changes,
-            })),
           );
           break;
         }
         case NodeType.JavaScriptFunctionNode: {
           const nodeData = nodeConfig;
-          obs = handleJavaScriptFunctionNode(
+          obs1 = handleJavaScriptFunctionNode(
             nodeData,
             variablesDict,
             edgeTargetHandleToSourceHandleLookUpDict,
             outputIdToValueMap,
-          ).pipe(
-            map((changes) => ({
-              type: RunEventType.VariableValueChanges,
-              changes,
-            })),
           );
           break;
         }
         case NodeType.ChatGPTMessageNode: {
-          obs = handleChatGPTMessageNode(
+          obs1 = handleChatGPTMessageNode(
             nodeConfig,
             variablesDict,
             edgeTargetHandleToSourceHandleLookUpDict,
             outputIdToValueMap,
-          ).pipe(
-            map((changes) => ({
-              type: RunEventType.VariableValueChanges,
-              changes,
-            })),
           );
           break;
         }
         case NodeType.ChatGPTChatCompletionNode: {
-          obs = from(
+          obs1 = from(
             handleChatGPTChatNode(
               nodeConfig,
               variablesDict,
@@ -194,61 +131,44 @@ export function runSingle({
               outputIdToValueMap,
               useStreaming,
             ),
-          ).pipe(
-            map((changes) => ({
-              type: RunEventType.VariableValueChanges,
-              changes,
-            })),
           );
           break;
         }
         case NodeType.TextTemplate: {
-          obs = handleTextTemplateNode(
+          obs1 = handleTextTemplateNode(
             nodeConfig,
             variablesDict,
             edgeTargetHandleToSourceHandleLookUpDict,
             outputIdToValueMap,
-          ).pipe(
-            map((changes) => ({
-              type: RunEventType.VariableValueChanges,
-              changes,
-            })),
           );
           break;
         }
         case NodeType.HuggingFaceInference: {
-          obs = handleHuggingFaceInferenceNode(
+          obs1 = handleHuggingFaceInferenceNode(
             nodeConfig,
             variablesDict,
             edgeTargetHandleToSourceHandleLookUpDict,
             outputIdToValueMap,
-          ).pipe(
-            map((changes) => ({
-              type: RunEventType.VariableValueChanges,
-              changes,
-            })),
           );
           break;
         }
         case NodeType.ElevenLabs: {
-          obs = handleElevenLabsNode(
+          obs1 = handleElevenLabsNode(
             nodeConfig,
             variablesDict,
             edgeTargetHandleToSourceHandleLookUpDict,
             outputIdToValueMap,
-          ).pipe(
-            map((changes) => ({
-              type: RunEventType.VariableValueChanges,
-              changes,
-            })),
           );
           break;
         }
       }
 
-      return obs.pipe(
+      return obs1.pipe(
         // startWith and endWith will run for each node, before and after
         // running its logic.
+        map<V3VariableValueLookUpDict, RunEvent>((changes) => {
+          return { type: RunEventType.VariableValueChanges, changes };
+        }),
         startWith<RunEvent>({
           type: RunEventType.NodeAugmentChange,
           nodeId,
@@ -293,6 +213,60 @@ export function runSingle({
     catchError((error) =>
       of<RunStatusChangeEvent>({ type: RunEventType.RunStatusChange, error }),
     ),
+  );
+}
+
+function createTopologicalSortNodeConfigObservable(
+  nodeConfigsDict: V3NodeConfigsDict,
+  edges: V3ServerEdge[],
+) {
+  return new Observable<{ nodeId: NodeID; nodeConfig: V3NodeConfig }>(
+    (subscriber) => {
+      // SECTION: Initialize graph related objects
+      const nodeGraph: Record<NodeID, NodeID[]> = {};
+      const nodeIndegree: Record<NodeID, number> = {};
+
+      for (const nodeId of D.keys(nodeConfigsDict)) {
+        nodeGraph[nodeId] = [];
+        nodeIndegree[nodeId] = 0;
+      }
+      // !SECTION
+      // SECTION: Build basic information about graph
+      for (const edge of edges) {
+        // `nodeGraph[edge.source]` will contain duplicate edge.target,
+        // because there can be multiple edges between two nodes.
+        // We must reduce indegree equal number of times in the while loop below.
+        nodeGraph[edge.source]!.push(edge.target);
+        nodeIndegree[edge.target] += 1;
+      }
+      // !SECTION
+      // Topological sort of the node graph.
+      const queue: NodeID[] = [];
+
+      for (const [key, count] of Object.entries(nodeIndegree)) {
+        const nodeId = key as NodeID;
+        if (count === 0) {
+          queue.push(nodeId);
+        }
+      }
+
+      while (queue.length > 0) {
+        const nodeId = queue.shift()!;
+        const nodeConfig = nodeConfigsDict[nodeId];
+        invariant(nodeConfig != null);
+
+        subscriber.next({ nodeId, nodeConfig });
+
+        for (const nextId of nodeGraph[nodeId]!) {
+          nodeIndegree[nextId] -= 1;
+          if (nodeIndegree[nextId] === 0) {
+            queue.push(nextId);
+          }
+        }
+      }
+
+      subscriber.complete();
+    },
   );
 }
 
