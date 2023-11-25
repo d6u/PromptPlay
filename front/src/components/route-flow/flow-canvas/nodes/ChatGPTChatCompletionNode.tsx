@@ -40,8 +40,8 @@ import {
 } from "./node-common/utils";
 
 const flowSelector = (state: FlowState) => ({
-  nodeConfigs: state.nodeConfigs,
-  variableConfigs: state.variableMap,
+  nodeConfigs: state.nodeConfigDict,
+  variableConfigs: state.variableDict,
   updateNodeConfig: state.updateNodeConfig,
   removeNode: state.removeNode,
   localNodeAugments: state.localNodeAugments,

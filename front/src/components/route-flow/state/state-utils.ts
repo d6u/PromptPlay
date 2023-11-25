@@ -10,7 +10,7 @@ import {
   NodeOutputVariable,
   V3FlowContent,
   V3LocalEdge,
-  VariableMap,
+  VariablesDict,
   VariableType,
 } from "../../../models/v3-flow-content-types";
 import { client } from "../../../state/urql";
@@ -70,7 +70,7 @@ export type VariableTypeToVariableConfigTypeMap = {
 export function selectVariables<
   T extends VariableType,
   R = VariableTypeToVariableConfigTypeMap[T],
->(nodeId: NodeID, type: T, variableConfigs: VariableMap): R[] {
+>(nodeId: NodeID, type: T, variableConfigs: VariablesDict): R[] {
   return Object.values(variableConfigs)
     .filter(
       (variableConfig) =>
@@ -82,7 +82,7 @@ export function selectVariables<
 export function selectAllVariables<
   T extends VariableType,
   R = VariableTypeToVariableConfigTypeMap[T],
->(type: T, variableMap: VariableMap): R[] {
+>(type: T, variableMap: VariablesDict): R[] {
   return Object.values(variableMap)
     .filter((variableConfig) => variableConfig.type === type)
     .sort((a, b) => a.index - b.index) as R[];

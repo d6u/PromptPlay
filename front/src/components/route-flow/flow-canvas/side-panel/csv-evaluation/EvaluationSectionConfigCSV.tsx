@@ -34,7 +34,7 @@ import {
 } from "./csv-evaluation-common";
 
 const selector = (state: FlowState) => ({
-  variableMap: state.variableMap,
+  variableMap: state.variableDict,
   repeatCount: state.csvEvaluationConfigContent.repeatCount,
   setRepeatCount: state.csvEvaluationSetRepeatCount,
   concurrencyLimit: state.csvEvaluationConfigContent.concurrencyLimit,

@@ -12,7 +12,7 @@ import {
 import OutputRenderer from "../common/OutputRenderer";
 
 const selector = (state: FlowState) => ({
-  variableMap: state.variableMap,
+  variableMap: state.variableDict,
   detailPanelSelectedNodeId: state.detailPanelSelectedNodeId,
 });
 

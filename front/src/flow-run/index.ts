@@ -38,12 +38,12 @@ import {
   V3JavaScriptFunctionNodeConfig,
   V3LocalEdge,
   V3NodeConfig,
-  V3NodeConfigs,
+  V3NodeConfigsDict,
   V3OutputNodeConfig,
   V3TextTemplateNodeConfig,
   V3VariableID,
-  V3VariableValueMap,
-  VariableMap,
+  V3VariableValueLookUpDict,
+  VariablesDict,
   VariableType,
 } from "../models/v3-flow-content-types";
 import { useLocalStorageStore, useSpaceStore } from "../state/appState";
@@ -82,9 +82,9 @@ type RunStatusChangeEvent = {
 };
 
 export function run(
-  nodeConfigs: V3NodeConfigs,
+  nodeConfigs: V3NodeConfigsDict,
   edges: V3LocalEdge[],
-  variableMap: VariableMap,
+  variableMap: VariablesDict,
   inputVariableMap: FlowInputVariableMap,
   useStreaming: boolean = false,
 ): Observable<RunEvent> {
@@ -318,11 +318,11 @@ export function run(
 
 function handleOutputNode(
   data: V3OutputNodeConfig,
-  variableMap: VariableMap,
+  variableMap: VariablesDict,
   inputIdToOutputIdMap: Record<V3VariableID, V3VariableID>,
-  variableValueMap: V3VariableValueMap,
-): Observable<V3VariableValueMap> {
-  const changes: V3VariableValueMap = {};
+  variableValueMap: V3VariableValueLookUpDict,
+): Observable<V3VariableValueLookUpDict> {
+  const changes: V3VariableValueLookUpDict = {};
 
   for (const input of Object.values(variableMap)) {
     if (
@@ -343,10 +343,10 @@ function handleOutputNode(
 
 function handleJavaScriptFunctionNode(
   data: V3JavaScriptFunctionNodeConfig,
-  variableMap: VariableMap,
+  variableMap: VariablesDict,
   inputIdToOutputIdMap: Record<V3VariableID, V3VariableID>,
-  variableValueMap: V3VariableValueMap,
-): Observable<V3VariableValueMap> {
+  variableValueMap: V3VariableValueLookUpDict,
+): Observable<V3VariableValueLookUpDict> {
   return defer(async () => {
     let outputVariable: NodeOutputVariable | null = null;
     const pairs: Array<[string, unknown]> = [];
@@ -387,10 +387,10 @@ function handleJavaScriptFunctionNode(
 
 function handleChatGPTMessageNode(
   data: V3ChatGPTMessageNodeConfig,
-  variableMap: VariableMap,
+  variableMap: VariablesDict,
   inputIdToOutputIdMap: Record<V3VariableID, V3VariableID>,
-  variableValueMap: V3VariableValueMap,
-): Observable<V3VariableValueMap> {
+  variableValueMap: V3VariableValueLookUpDict,
+): Observable<V3VariableValueLookUpDict> {
   // Prepare inputs
   // ----------
   let variableMessage: NodeOutputVariable | null = null;
@@ -450,11 +450,11 @@ function handleChatGPTMessageNode(
 
 function handleChatGPTChatNode(
   data: V3ChatGPTChatCompletionNodeConfig,
-  variableMap: VariableMap,
+  variableMap: VariablesDict,
   inputIdToOutputIdMap: Record<V3VariableID, V3VariableID>,
-  variableValueMap: V3VariableValueMap,
+  variableValueMap: V3VariableValueLookUpDict,
   useStreaming: boolean,
-): Observable<V3VariableValueMap> {
+): Observable<V3VariableValueLookUpDict> {
   return defer(() => {
     // Prepare inputs
     // ----------
@@ -611,10 +611,10 @@ function handleChatGPTChatNode(
 
 function handleTextTemplateNode(
   data: V3TextTemplateNodeConfig,
-  variableMap: VariableMap,
+  variableMap: VariablesDict,
   inputIdToOutputIdMap: Record<V3VariableID, V3VariableID>,
-  variableValueMap: V3VariableValueMap,
-): Observable<V3VariableValueMap> {
+  variableValueMap: V3VariableValueLookUpDict,
+): Observable<V3VariableValueLookUpDict> {
   return defer(() => {
     // Prepare inputs
     // ----------
@@ -664,10 +664,10 @@ function handleTextTemplateNode(
 
 function handleHuggingFaceInferenceNode(
   data: V3HuggingFaceInferenceNodeConfig,
-  variableMap: VariableMap,
+  variableMap: VariablesDict,
   inputIdToOutputIdMap: Record<V3VariableID, V3VariableID>,
-  variableValueMap: V3VariableValueMap,
-): Observable<V3VariableValueMap> {
+  variableValueMap: V3VariableValueLookUpDict,
+): Observable<V3VariableValueLookUpDict> {
   return defer(() => {
     // Prepare inputs
     // ----------
@@ -738,10 +738,10 @@ function handleHuggingFaceInferenceNode(
 
 function handleElevenLabsNode(
   data: V3ElevenLabsNodeConfig,
-  variableMap: VariableMap,
+  variableMap: VariablesDict,
   inputIdToOutputIdMap: Record<V3VariableID, V3VariableID>,
-  variableValueMap: V3VariableValueMap,
-): Observable<V3VariableValueMap> {
+  variableValueMap: V3VariableValueLookUpDict,
+): Observable<V3VariableValueLookUpDict> {
   return defer(() => {
     // Prepare inputs
     // ----------

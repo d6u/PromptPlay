@@ -36,9 +36,9 @@ const EVALUATION_MODE_CSV_CONTENT_QUERY = graphql(`
 
 const selector = (state: FlowState) => ({
   spaceId: state.spaceId,
-  nodeConfigs: state.nodeConfigs,
+  nodeConfigs: state.nodeConfigDict,
   edges: state.edges,
-  variableMap: state.variableMap,
+  variableMap: state.variableDict,
   presetId: state.csvEvaluationCurrentPresetId,
   csvContent: state.csvEvaluationCsvContent,
   setCsvContent: state.csvEvaluationSetLocalCsvContent,

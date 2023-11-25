@@ -16,8 +16,8 @@ import {
 } from "../../../../../flow-run";
 import {
   V3LocalEdge,
-  V3NodeConfigs,
-  VariableMap,
+  V3NodeConfigsDict,
+  VariablesDict,
 } from "../../../../../models/v3-flow-content-types";
 import { VariableColumnMap } from "../../../state/slice-csv-evaluation-preset";
 import { CSVData } from "./csv-evaluation-common";
@@ -32,8 +32,8 @@ export function runForEachRow({
   concurrencyLimit,
 }: {
   edges: V3LocalEdge[];
-  nodeConfigs: V3NodeConfigs;
-  variableMap: VariableMap;
+  nodeConfigs: V3NodeConfigsDict;
+  variableMap: VariablesDict;
   csvBody: CSVData;
   variableColumnMap: VariableColumnMap;
   repeatCount: number;

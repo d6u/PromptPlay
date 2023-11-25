@@ -1,9 +1,9 @@
 import { NodeID } from "../../../models/v2-flow-content-types";
 import { CsvEvaluationPresetSlice } from "./slice-csv-evaluation-preset";
-import { FlowServerSliceV2 } from "./slice-flow-content-v3";
+import { SliceFlowContentV3 } from "./slice-flow-content-v3";
 import { RootSlice } from "./slice-root";
 
-export type FlowState = FlowServerSliceV2 &
+export type FlowState = SliceFlowContentV3 &
   RootSlice &
   CsvEvaluationPresetSlice;
 

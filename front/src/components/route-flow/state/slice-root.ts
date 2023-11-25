@@ -14,7 +14,7 @@ import {
 } from "../../../models/v2-to-v3-flow-utils";
 import {
   V3FlowContent,
-  V3VariableValueMap,
+  V3VariableValueLookUpDict,
   VariableType,
 } from "../../../models/v3-flow-content-types";
 import {
@@ -129,7 +129,13 @@ export const createRootSlice: StateCreator<FlowState, [], [], RootSlice> = (
           next({ nodes, edges, nodeConfigs, variableMap, variableValueMaps }) {
             nodes = assignLocalNodeProperties(nodes);
             edges = assignLocalEdgeProperties(edges);
-            set({ nodes, edges, nodeConfigs, variableMap, variableValueMaps });
+            set({
+              nodes,
+              edges,
+              nodeConfigDict: nodeConfigs,
+              variableDict: variableMap,
+              variableValueLookUpDicts: variableValueMaps,
+            });
           },
           complete() {
             set({ isInitialized: true });
@@ -182,8 +188,8 @@ export const createRootSlice: StateCreator<FlowState, [], [], RootSlice> = (
       const {
         resetAugments,
         edges,
-        nodeConfigs,
-        variableMap,
+        nodeConfigDict: nodeConfigs,
+        variableDict: variableMap,
         updateNodeAugment,
         updateVariableValueMap,
       } = get();
@@ -192,7 +198,7 @@ export const createRootSlice: StateCreator<FlowState, [], [], RootSlice> = (
 
       setIsRunning(true);
 
-      const inputVariableMap: V3VariableValueMap = {};
+      const inputVariableMap: V3VariableValueLookUpDict = {};
       const defaultVariableValueMap = get().getDefaultVariableValueMap();
 
       for (const variable of Object.values(variableMap)) {

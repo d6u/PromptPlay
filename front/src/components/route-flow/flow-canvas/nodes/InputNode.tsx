@@ -27,8 +27,8 @@ import { calculateOutputHandleBottom } from "./node-common/utils";
 
 const selector = (state: FlowState) => ({
   setDetailPanelContentType: state.setDetailPanelContentType,
-  nodeConfigs: state.nodeConfigs,
-  variableConfigs: state.variableMap,
+  nodeConfigs: state.nodeConfigDict,
+  variableConfigs: state.variableDict,
   addVariable: state.addVariable,
   updateVariable: state.updateVariable,
   removeVariable: state.removeVariable,

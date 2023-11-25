@@ -28,11 +28,11 @@ import {
   NodeOutputVariable,
   V3LocalEdge,
   V3NodeConfig,
-  V3NodeConfigs,
+  V3NodeConfigsDict,
   V3VariableID,
-  V3VariableValueMap,
+  V3VariableValueLookUpDict,
   Variable,
-  VariableMap,
+  VariablesDict,
   VariableType,
   VariableValueType,
 } from "../../../models/v3-flow-content-types";
@@ -48,21 +48,32 @@ import { FlowState } from "./store-flow-state-types";
 
 const chance = new Chance();
 
-type FlowServerSliceStateV2 = {
-  isFlowContentDirty: boolean;
-  isFlowContentSaving: boolean;
+type SliceFlowContentV3State = {
+  // Persist to server
   nodes: LocalNode[];
   edges: V3LocalEdge[];
-  nodeConfigs: V3NodeConfigs;
-  variableMap: VariableMap;
-  variableValueMaps: V3VariableValueMap[];
+  nodeConfigDict: V3NodeConfigsDict;
+  variableDict: VariablesDict;
+  variableValueLookUpDicts: V3VariableValueLookUpDict[];
+  // Local
+  isFlowContentDirty: boolean;
+  isFlowContentSaving: boolean;
 };
 
-export type FlowServerSliceV2 = FlowServerSliceStateV2 & {
-  getDefaultVariableValueMap(): V3VariableValueMap;
+const FLOW_SERVER_SLICE_INITIAL_STATE_V2: SliceFlowContentV3State = {
+  // Persist to server
+  nodes: [],
+  edges: [],
+  nodeConfigDict: {},
+  variableDict: {},
+  variableValueLookUpDicts: [{}],
+  // Local
+  isFlowContentDirty: false,
+  isFlowContentSaving: false,
+};
 
-  resetFlowServerSlice(): void;
-
+type SliceFlowContentV3Actions = {
+  // From React Flow
   onNodesChange: OnNodesChange;
   onEdgesChange: OnEdgesChange;
   onConnect: OnConnect;
@@ -81,23 +92,20 @@ export type FlowServerSliceV2 = FlowServerSliceStateV2 & {
     change: Partial<R>,
   ): void;
   updateVariableValueMap(variableId: V3VariableID, value: unknown): void;
+
+  // Local Only
+  getDefaultVariableValueMap(): V3VariableValueLookUpDict;
+  resetFlowServerSlice(): void;
 };
 
-const FLOW_SERVER_SLICE_INITIAL_STATE_V2: FlowServerSliceStateV2 = {
-  isFlowContentDirty: false,
-  isFlowContentSaving: false,
-  nodes: [],
-  edges: [],
-  nodeConfigs: {},
-  variableMap: {},
-  variableValueMaps: [{}],
-};
+export type SliceFlowContentV3 = SliceFlowContentV3State &
+  SliceFlowContentV3Actions;
 
 export const createFlowServerSliceV2: StateCreator<
   FlowState,
   [["zustand/devtools", never]],
   [],
-  FlowServerSliceV2
+  SliceFlowContentV3
 > = (set, get) => {
   // function getSpaceId(): string {
   //   return get().spaceId!;
@@ -176,8 +184,8 @@ export const createFlowServerSliceV2: StateCreator<
   return {
     ...FLOW_SERVER_SLICE_INITIAL_STATE_V2,
 
-    getDefaultVariableValueMap(): V3VariableValueMap {
-      return get().variableValueMaps[0]!;
+    getDefaultVariableValueMap(): V3VariableValueLookUpDict {
+      return get().variableValueLookUpDicts[0]!;
     },
 
     resetFlowServerSlice(): void {
@@ -249,13 +257,17 @@ export const createFlowServerSliceV2: StateCreator<
     },
 
     updateVariableValueMap(variableId: V3VariableID, value: unknown): void {
-      const variableValueMaps = produce(get().variableValueMaps, (draft) => {
-        draft[0]![variableId] = value;
-      });
+      const variableValueMaps = produce(
+        get().variableValueLookUpDicts,
+        (draft) => {
+          draft[0]![variableId] = value;
+        },
+      );
 
       set((state) => ({
-        isFlowContentDirty: state.variableValueMaps !== variableValueMaps,
-        variableValueMaps: variableValueMaps,
+        isFlowContentDirty:
+          state.variableValueLookUpDicts !== variableValueMaps,
+        variableValueLookUpDicts: variableValueMaps,
       }));
 
       startProcessingEventGraph({
@@ -266,9 +278,9 @@ export const createFlowServerSliceV2: StateCreator<
 };
 
 function handleEvent(
-  state: FlowServerSliceStateV2,
+  state: SliceFlowContentV3State,
   event: ChangeEvent,
-): [Partial<FlowServerSliceStateV2>, ChangeEvent[]] {
+): [Partial<SliceFlowContentV3State>, ChangeEvent[]] {
   console.log("handleEvent ==>", event);
 
   switch (event.type) {
@@ -276,29 +288,37 @@ function handleEvent(
     case ChangeEventType.RF_EDGES_CHANGE:
       return handleRfEdgeChanges(event.changes, state.edges);
     case ChangeEventType.RF_NODES_CHANGE:
-      return handleRfNodesChange(event.changes, state.nodes, state.nodeConfigs);
+      return handleRfNodesChange(
+        event.changes,
+        state.nodes,
+        state.nodeConfigDict,
+      );
     case ChangeEventType.RF_ON_CONNECT:
       return handleRfOnConnect(
         event.connection,
         state.edges,
-        state.nodeConfigs,
-        state.variableMap,
+        state.nodeConfigDict,
+        state.variableDict,
       );
     // Nodes
     case ChangeEventType.ADDING_NODE:
       return handleAddingNode(
         event.node,
         state.nodes,
-        state.nodeConfigs,
-        state.variableMap,
+        state.nodeConfigDict,
+        state.variableDict,
       );
     case ChangeEventType.REMOVING_NODE:
-      return handleRemovingNode(event.nodeId, state.nodes, state.nodeConfigs);
+      return handleRemovingNode(
+        event.nodeId,
+        state.nodes,
+        state.nodeConfigDict,
+      );
     case ChangeEventType.UPDATING_NODE_CONFIG:
       return handleUpdatingNodeConfig(
         event.nodeId,
         event.change,
-        state.nodeConfigs,
+        state.nodeConfigDict,
       );
     // Variables
     case ChangeEventType.ADDING_VARIABLE:
@@ -306,58 +326,65 @@ function handleEvent(
         event.nodeId,
         event.varType,
         event.index,
-        state.variableMap,
+        state.variableDict,
       );
     case ChangeEventType.REMOVING_VARIABLE:
-      return handleRemovingVariable(event.variableId, state.variableMap);
+      return handleRemovingVariable(event.variableId, state.variableDict);
     case ChangeEventType.UPDATING_VARIABLE:
       return handleUpdatingVariable(
         event.variableId,
         event.change,
-        state.variableMap,
+        state.variableDict,
       );
     // --- Derived ---
     // Derived Nodes
     case ChangeEventType.NODE_AND_VARIABLES_ADDED:
       return handleNodeAndVariablesAdded(
         event.variableConfigList,
-        state.variableValueMaps,
+        state.variableValueLookUpDicts,
       );
     case ChangeEventType.NODE_REMOVED:
-      return handleNodeRemoved(event.node, event.nodeConfig, state.variableMap);
+      return handleNodeRemoved(
+        event.node,
+        event.nodeConfig,
+        state.variableDict,
+      );
     case ChangeEventType.NODE_MOVED:
       return [state, []];
     case ChangeEventType.NODE_CONFIG_UPDATED:
       return [state, []];
     // Derived Edges
     case ChangeEventType.EDGE_ADDED:
-      return handleEdgeAdded(event.edge, state.variableMap);
+      return handleEdgeAdded(event.edge, state.variableDict);
     case ChangeEventType.EDGE_REMOVED:
       return handleEdgeRemoved(
         event.removedEdge,
         event.edgeSrcVariableConfig,
-        state.variableMap,
+        state.variableDict,
       );
     case ChangeEventType.EDGE_REPLACED:
       return handleEdgeReplaced(
         event.oldEdge,
         event.newEdge,
-        state.variableMap,
+        state.variableDict,
       );
     // Derived Variables
     case ChangeEventType.VARIABLE_ADDED:
-      return handleVariableAdded(event.variableId, state.variableValueMaps);
+      return handleVariableAdded(
+        event.variableId,
+        state.variableValueLookUpDicts,
+      );
     case ChangeEventType.VARIABLE_REMOVED:
       return handleVariableRemoved(
         event.variableId,
         state.edges,
-        state.variableValueMaps,
+        state.variableValueLookUpDicts,
       );
     case ChangeEventType.VARIABLE_UPDATED:
       return handleVariableUpdated(
         event.prevVariableConfig,
         event.nextVariableConfig,
-        state.variableValueMaps,
+        state.variableValueLookUpDicts,
       );
     // // Derived Other
     // case ChangeEventType.VAR_VALUE_MAP_UPDATED:
@@ -370,8 +397,8 @@ function handleEvent(
 function handleRfEdgeChanges(
   changes: EdgeChange[],
   currentEdges: V3LocalEdge[],
-): [Partial<FlowServerSliceStateV2>, ChangeEvent[]] {
-  const content: Partial<FlowServerSliceStateV2> = {};
+): [Partial<SliceFlowContentV3State>, ChangeEvent[]] {
+  const content: Partial<SliceFlowContentV3State> = {};
   const events: ChangeEvent[] = [];
 
   const oldEdges = currentEdges;
@@ -403,9 +430,9 @@ function handleRfEdgeChanges(
 function handleRfNodesChange(
   changes: NodeChange[],
   prevNodes: LocalNode[],
-  prevNodeConfigs: V3NodeConfigs,
-): [Partial<FlowServerSliceStateV2>, ChangeEvent[]] {
-  const content: Partial<FlowServerSliceStateV2> = {};
+  prevNodeConfigs: V3NodeConfigsDict,
+): [Partial<SliceFlowContentV3State>, ChangeEvent[]] {
+  const content: Partial<SliceFlowContentV3State> = {};
   const events: ChangeEvent[] = [];
 
   const nextNodes = applyNodeChanges(changes, prevNodes) as LocalNode[];
@@ -428,7 +455,7 @@ function handleRfNodesChange(
         });
 
         content.isFlowContentDirty = true;
-        content.nodeConfigs = nodeConfigs;
+        content.nodeConfigDict = nodeConfigs;
         break;
       }
       case "position": {
@@ -458,10 +485,10 @@ function handleRfNodesChange(
 function handleRfOnConnect(
   connection: Connection,
   prevEdges: V3LocalEdge[],
-  nodeConfigs: V3NodeConfigs,
-  variableConfigs: VariableMap,
-): [Partial<FlowServerSliceStateV2>, ChangeEvent[]] {
-  const content: Partial<FlowServerSliceStateV2> = {};
+  nodeConfigs: V3NodeConfigsDict,
+  variableConfigs: VariablesDict,
+): [Partial<SliceFlowContentV3State>, ChangeEvent[]] {
+  const content: Partial<SliceFlowContentV3State> = {};
   const events: ChangeEvent[] = [];
 
   if (connection.source === connection.target) {
@@ -521,10 +548,10 @@ function handleRfOnConnect(
 function handleAddingNode(
   node: LocalNode,
   prevNodes: LocalNode[],
-  prevNodeConfigs: V3NodeConfigs,
-  prevVariableConfigs: VariableMap,
-): [Partial<FlowServerSliceStateV2>, ChangeEvent[]] {
-  const content: Partial<FlowServerSliceStateV2> = {};
+  prevNodeConfigs: V3NodeConfigsDict,
+  prevVariableConfigs: VariablesDict,
+): [Partial<SliceFlowContentV3State>, ChangeEvent[]] {
+  const content: Partial<SliceFlowContentV3State> = {};
   const events: ChangeEvent[] = [];
 
   const { nodeConfig, variableConfigList } = createNodeConfig(node);
@@ -551,8 +578,8 @@ function handleAddingNode(
 
   content.isFlowContentDirty = true;
   content.nodes = nodes;
-  content.nodeConfigs = nodeConfigs;
-  content.variableMap = variableConfigs;
+  content.nodeConfigDict = nodeConfigs;
+  content.variableDict = variableConfigs;
 
   return [content, events];
 }
@@ -560,9 +587,9 @@ function handleAddingNode(
 function handleRemovingNode(
   nodeId: NodeID,
   prevNodes: LocalNode[],
-  prevNodeConfigs: V3NodeConfigs,
-): [Partial<FlowServerSliceStateV2>, ChangeEvent[]] {
-  const content: Partial<FlowServerSliceStateV2> = {};
+  prevNodeConfigs: V3NodeConfigsDict,
+): [Partial<SliceFlowContentV3State>, ChangeEvent[]] {
+  const content: Partial<SliceFlowContentV3State> = {};
   const events: ChangeEvent[] = [];
 
   const [acceptedNodes, rejectedNodes] = A.partition(
@@ -588,7 +615,7 @@ function handleRemovingNode(
 
   content.isFlowContentDirty = true;
   content.nodes = acceptedNodes;
-  content.nodeConfigs = nodeConfigs;
+  content.nodeConfigDict = nodeConfigs;
 
   return [content, events];
 }
@@ -596,9 +623,9 @@ function handleRemovingNode(
 function handleUpdatingNodeConfig(
   nodeId: NodeID,
   change: Partial<V3NodeConfig>,
-  prevNodeConfigs: V3NodeConfigs,
-): [Partial<FlowServerSliceStateV2>, ChangeEvent[]] {
-  const content: Partial<FlowServerSliceStateV2> = {};
+  prevNodeConfigs: V3NodeConfigsDict,
+): [Partial<SliceFlowContentV3State>, ChangeEvent[]] {
+  const content: Partial<SliceFlowContentV3State> = {};
   const events: ChangeEvent[] = [];
 
   const nodeConfigs = produce(prevNodeConfigs, (draft) => {
@@ -610,7 +637,7 @@ function handleUpdatingNodeConfig(
   });
 
   content.isFlowContentDirty = true;
-  content.nodeConfigs = nodeConfigs;
+  content.nodeConfigDict = nodeConfigs;
 
   return [content, events];
 }
@@ -619,9 +646,9 @@ function handleAddingVariable(
   nodeId: NodeID,
   varType: VariableType,
   index: number,
-  variableConfigs: VariableMap,
-): [Partial<FlowServerSliceStateV2>, ChangeEvent[]] {
-  const content: Partial<FlowServerSliceStateV2> = {};
+  variableConfigs: VariablesDict,
+): [Partial<SliceFlowContentV3State>, ChangeEvent[]] {
+  const content: Partial<SliceFlowContentV3State> = {};
   const events: ChangeEvent[] = [];
 
   variableConfigs = produce(variableConfigs, (draft) => {
@@ -680,16 +707,16 @@ function handleAddingVariable(
   });
 
   content.isFlowContentDirty = true;
-  content.variableMap = variableConfigs;
+  content.variableDict = variableConfigs;
 
   return [content, events];
 }
 
 function handleRemovingVariable(
   variableId: V3VariableID,
-  prevVariableConfigs: VariableMap,
-): [Partial<FlowServerSliceStateV2>, ChangeEvent[]] {
-  const content: Partial<FlowServerSliceStateV2> = {};
+  prevVariableConfigs: VariablesDict,
+): [Partial<SliceFlowContentV3State>, ChangeEvent[]] {
+  const content: Partial<SliceFlowContentV3State> = {};
   const events: ChangeEvent[] = [];
 
   const variableConfigs = produce(prevVariableConfigs, (draft) => {
@@ -702,7 +729,7 @@ function handleRemovingVariable(
   });
 
   content.isFlowContentDirty = true;
-  content.variableMap = variableConfigs;
+  content.variableDict = variableConfigs;
 
   return [content, events];
 }
@@ -710,9 +737,9 @@ function handleRemovingVariable(
 function handleUpdatingVariable(
   variableId: V3VariableID,
   change: Partial<Variable>,
-  prevVariableConfigs: VariableMap,
-): [Partial<FlowServerSliceStateV2>, ChangeEvent[]] {
-  const content: Partial<FlowServerSliceStateV2> = {};
+  prevVariableConfigs: VariablesDict,
+): [Partial<SliceFlowContentV3State>, ChangeEvent[]] {
+  const content: Partial<SliceFlowContentV3State> = {};
   const events: ChangeEvent[] = [];
 
   const variableConfigs = produce(prevVariableConfigs, (draft) => {
@@ -727,16 +754,16 @@ function handleUpdatingVariable(
   });
 
   content.isFlowContentDirty = true;
-  content.variableMap = variableConfigs;
+  content.variableDict = variableConfigs;
 
   return [content, events];
 }
 
 function handleNodeAndVariablesAdded(
   variableConfigList: Variable[],
-  prevVariableValueMaps: V3VariableValueMap[],
-): [Partial<FlowServerSliceStateV2>, ChangeEvent[]] {
-  const content: Partial<FlowServerSliceStateV2> = {};
+  prevVariableValueMaps: V3VariableValueLookUpDict[],
+): [Partial<SliceFlowContentV3State>, ChangeEvent[]] {
+  const content: Partial<SliceFlowContentV3State> = {};
   const events: ChangeEvent[] = [];
 
   const variableValueMaps = produce(prevVariableValueMaps, (draft) => {
@@ -750,7 +777,7 @@ function handleNodeAndVariablesAdded(
   });
 
   content.isFlowContentDirty = true;
-  content.variableValueMaps = variableValueMaps;
+  content.variableValueLookUpDicts = variableValueMaps;
 
   return [content, events];
 }
@@ -758,9 +785,9 @@ function handleNodeAndVariablesAdded(
 function handleNodeRemoved(
   removedNode: LocalNode,
   removedNodeConfig: V3NodeConfig,
-  prevVariableConfigs: VariableMap,
-): [Partial<FlowServerSliceStateV2>, ChangeEvent[]] {
-  const content: Partial<FlowServerSliceStateV2> = {};
+  prevVariableConfigs: VariablesDict,
+): [Partial<SliceFlowContentV3State>, ChangeEvent[]] {
+  const content: Partial<SliceFlowContentV3State> = {};
   const events: ChangeEvent[] = [];
 
   const variableConfigs = produce(prevVariableConfigs, (draft) => {
@@ -777,16 +804,16 @@ function handleNodeRemoved(
   });
 
   content.isFlowContentDirty = true;
-  content.variableMap = variableConfigs;
+  content.variableDict = variableConfigs;
 
   return [content, events];
 }
 
 function handleEdgeAdded(
   addedEdge: V3LocalEdge,
-  prevVariableConfigs: VariableMap,
-): [Partial<FlowServerSliceStateV2>, ChangeEvent[]] {
-  const content: Partial<FlowServerSliceStateV2> = {};
+  prevVariableConfigs: VariablesDict,
+): [Partial<SliceFlowContentV3State>, ChangeEvent[]] {
+  const content: Partial<SliceFlowContentV3State> = {};
   const events: ChangeEvent[] = [];
 
   const variableConfigs = produce(prevVariableConfigs, (draft) => {
@@ -810,7 +837,7 @@ function handleEdgeAdded(
   });
 
   content.isFlowContentDirty = true;
-  content.variableMap = variableConfigs;
+  content.variableDict = variableConfigs;
 
   return [content, events];
 }
@@ -818,9 +845,9 @@ function handleEdgeAdded(
 function handleEdgeRemoved(
   removedEdge: V3LocalEdge,
   edgeSrcVariableConfig: Variable | null,
-  prevVariableConfigs: VariableMap,
-): [Partial<FlowServerSliceStateV2>, ChangeEvent[]] {
-  const content: Partial<FlowServerSliceStateV2> = {};
+  prevVariableConfigs: VariablesDict,
+): [Partial<SliceFlowContentV3State>, ChangeEvent[]] {
+  const content: Partial<SliceFlowContentV3State> = {};
   const events: ChangeEvent[] = [];
 
   // SECTION: Target Variable Type
@@ -860,7 +887,7 @@ function handleEdgeRemoved(
   // !SECTION
 
   content.isFlowContentDirty = true;
-  content.variableMap = variableConfigs;
+  content.variableDict = variableConfigs;
 
   return [content, events];
 }
@@ -868,9 +895,9 @@ function handleEdgeRemoved(
 function handleEdgeReplaced(
   oldEdge: V3LocalEdge,
   newEdge: V3LocalEdge,
-  prevVariableConfigs: VariableMap,
-): [Partial<FlowServerSliceStateV2>, ChangeEvent[]] {
-  const content: Partial<FlowServerSliceStateV2> = {};
+  prevVariableConfigs: VariablesDict,
+): [Partial<SliceFlowContentV3State>, ChangeEvent[]] {
+  const content: Partial<SliceFlowContentV3State> = {};
   const events: ChangeEvent[] = [];
 
   // --- Handle variable type change ---
@@ -937,16 +964,16 @@ function handleEdgeReplaced(
   });
 
   content.isFlowContentDirty = true;
-  content.variableMap = variableConfigs;
+  content.variableDict = variableConfigs;
 
   return [content, events];
 }
 
 function handleVariableAdded(
   variableId: V3VariableID,
-  prevVariableValueMaps: V3VariableValueMap[],
-): [Partial<FlowServerSliceStateV2>, ChangeEvent[]] {
-  const content: Partial<FlowServerSliceStateV2> = {};
+  prevVariableValueMaps: V3VariableValueLookUpDict[],
+): [Partial<SliceFlowContentV3State>, ChangeEvent[]] {
+  const content: Partial<SliceFlowContentV3State> = {};
   const events: ChangeEvent[] = [];
 
   const variableValueMaps = produce(prevVariableValueMaps, (draft) => {
@@ -958,7 +985,7 @@ function handleVariableAdded(
   });
 
   content.isFlowContentDirty = true;
-  content.variableValueMaps = variableValueMaps;
+  content.variableValueLookUpDicts = variableValueMaps;
 
   return [content, events];
 }
@@ -966,9 +993,9 @@ function handleVariableAdded(
 function handleVariableRemoved(
   variableId: V3VariableID,
   prevEdges: V3LocalEdge[],
-  prevVariableValueMaps: V3VariableValueMap[],
-): [Partial<FlowServerSliceStateV2>, ChangeEvent[]] {
-  const content: Partial<FlowServerSliceStateV2> = {};
+  prevVariableValueMaps: V3VariableValueLookUpDict[],
+): [Partial<SliceFlowContentV3State>, ChangeEvent[]] {
+  const content: Partial<SliceFlowContentV3State> = {};
   const events: ChangeEvent[] = [];
 
   // SECTION: Process Edges Removal
@@ -1002,7 +1029,7 @@ function handleVariableRemoved(
 
   content.isFlowContentDirty = true;
   content.edges = acceptedEdges;
-  content.variableValueMaps = variableValueMaps;
+  content.variableValueLookUpDicts = variableValueMaps;
 
   return [content, events];
 }
@@ -1010,9 +1037,9 @@ function handleVariableRemoved(
 function handleVariableUpdated(
   prevVariableConfig: Variable,
   nextVariableConfig: Variable,
-  prevVariableValueMaps: V3VariableValueMap[],
+  prevVariableValueMaps: V3VariableValueLookUpDict[],
 ): EventHandlerResult {
-  const content: Partial<FlowServerSliceStateV2> = {};
+  const content: Partial<SliceFlowContentV3State> = {};
   const events: ChangeEvent[] = [];
 
   const variableValueMaps = produce(prevVariableValueMaps, (draft) => {
@@ -1022,9 +1049,9 @@ function handleVariableUpdated(
   });
 
   content.isFlowContentDirty = true;
-  content.variableValueMaps = variableValueMaps;
+  content.variableValueLookUpDicts = variableValueMaps;
 
   return [content, events];
 }
 
-type EventHandlerResult = [Partial<FlowServerSliceStateV2>, ChangeEvent[]];
+type EventHandlerResult = [Partial<SliceFlowContentV3State>, ChangeEvent[]];
