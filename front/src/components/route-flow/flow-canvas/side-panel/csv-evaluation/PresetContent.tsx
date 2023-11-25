@@ -6,7 +6,7 @@ import posthog from "posthog-js";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Subscription } from "rxjs";
 import { useQuery } from "urql";
-import { FlowOutputVariableMap } from "../../../../../flow-run";
+import { FlowOutputVariableMap } from "../../../../../flow-run/run-single";
 import { graphql } from "../../../../../gql";
 import {
   ColumnIndex,

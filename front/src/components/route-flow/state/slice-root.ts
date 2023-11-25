@@ -5,7 +5,7 @@ import { mergeMap, Subscription } from "rxjs";
 import { invariant } from "ts-invariant";
 import { OperationResult } from "urql";
 import { StateCreator } from "zustand";
-import { run, RunEventType } from "../../../flow-run";
+import { run, RunEventType } from "../../../flow-run/run-single";
 import { ContentVersion, SpaceFlowQueryQuery } from "../../../gql/graphql";
 import { NodeID } from "../../../models/v2-flow-content-types";
 import {

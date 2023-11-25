@@ -13,7 +13,7 @@ import {
   run,
   RunEvent,
   RunEventType,
-} from "../../../../../flow-run";
+} from "../../../../../flow-run/run-single";
 import {
   V3LocalEdge,
   V3NodeConfigsDict,

@@ -13,7 +13,7 @@ import {
 import Papa from "papaparse";
 import posthog from "posthog-js";
 import { ReactNode, useEffect, useMemo } from "react";
-import { FlowOutputVariableMap } from "../../../../../flow-run";
+import { FlowOutputVariableMap } from "../../../../../flow-run/run-single";
 import {
   V3VariableID,
   VariableType,
