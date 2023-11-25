@@ -13,7 +13,7 @@ import {
 import Papa from "papaparse";
 import posthog from "posthog-js";
 import { ReactNode, useEffect } from "react";
-import { FlowOutputVariableMap } from "../../../../../flow-run/flow-run";
+import { FlowOutputVariableMap } from "../../../../../flow-run";
 import { VariableID } from "../../../../../models/v2-flow-content-types";
 import {
   ColumnIndex,
@@ -23,8 +23,8 @@ import {
   flowInputItemsSelector,
   flowOutputItemsSelector,
   useFlowStore,
-} from "../../../state/store-flow";
-import { FlowState } from "../../../state/types-local-state";
+} from "../../../state/store-flow-state";
+import { FlowState } from "../../../state/store-flow-state-types";
 import { Section } from "../common/controls-common";
 import OutputDisplay from "../common/OutputDisplay";
 import {

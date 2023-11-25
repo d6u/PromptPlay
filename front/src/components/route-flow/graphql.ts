@@ -1,4 +1,4 @@
-import { graphql } from "../../../gql";
+import { graphql } from "../../gql";
 
 export const SPACE_FLOW_QUERY = graphql(`
   query SpaceFlowQuery($spaceId: UUID!) {

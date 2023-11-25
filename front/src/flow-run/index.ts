@@ -19,7 +19,7 @@ import {
   TimeoutError,
   zipWith,
 } from "rxjs";
-import { NodeAugment } from "../components/route-flow/state/types-local-state";
+import { NodeAugment } from "../components/route-flow/state/store-flow-state-types";
 import * as ElevenLabs from "../integrations/eleven-labs";
 import * as HuggingFace from "../integrations/hugging-face";
 import * as OpenAI from "../integrations/openai";

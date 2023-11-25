@@ -1,10 +1,10 @@
 import { D, G, Option } from "@mobily/ts-belt";
 import { StateCreator } from "zustand";
-import { FlowOutputVariableMap } from "../../../flow-run/flow-run";
+import { FlowOutputVariableMap } from "../../../flow-run";
 import { graphql } from "../../../gql";
 import { VariableID } from "../../../models/v2-flow-content-types";
 import { client } from "../../../state/urql";
-import { FlowState } from "./types-local-state";
+import { FlowState } from "./store-flow-state-types";
 
 type ConfigContent = {
   repeatCount: number;

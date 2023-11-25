@@ -19,10 +19,7 @@ import {
 import { client } from "../../../state/urql";
 import { toRxObservableSingle } from "../../../utils/graphql-utils";
 import { DEFAULT_EDGE_STYLE, DRAG_HANDLE_CLASS_NAME } from "../constants";
-import {
-  SPACE_FLOW_QUERY,
-  UPDATE_SPACE_CONTENT_V3_MUTATION,
-} from "./graphql-flow";
+import { SPACE_FLOW_QUERY, UPDATE_SPACE_CONTENT_V3_MUTATION } from "../graphql";
 
 export function assignLocalNodeProperties(nodes: LocalNode[]): LocalNode[] {
   return produce(nodes, (draft) => {

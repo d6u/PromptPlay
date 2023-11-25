@@ -11,9 +11,9 @@ import {
 import { CopyIcon, LabelWithIconContainer } from "../../common/flow-common";
 import TextareaReadonly from "../../common/TextareaReadonly";
 import FlowContext from "../../FlowContext";
-import { useFlowStore } from "../../state/store-flow";
-import { selectVariables } from "../../state/store-utils";
-import { FlowState } from "../../state/types-local-state";
+import { selectVariables } from "../../state/state-utils";
+import { useFlowStore } from "../../state/store-flow-state";
+import { FlowState } from "../../state/store-flow-state-types";
 import AddVariableButton from "./node-common/AddVariableButton";
 import HeaderSection from "./node-common/HeaderSection";
 import {

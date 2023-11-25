@@ -25,9 +25,9 @@ import {
 } from "../../../../state/appState";
 import InputReadonly from "../../common/InputReadonly";
 import FlowContext from "../../FlowContext";
-import { useFlowStore } from "../../state/store-flow";
-import { selectVariables } from "../../state/store-utils";
-import { FlowState } from "../../state/types-local-state";
+import { selectVariables } from "../../state/state-utils";
+import { useFlowStore } from "../../state/store-flow-state";
+import { FlowState } from "../../state/store-flow-state-types";
 import HeaderSection from "./node-common/HeaderSection";
 import HelperTextContainer from "./node-common/HelperTextContainer";
 import { InputHandle, OutputHandle, Section } from "./node-common/node-common";

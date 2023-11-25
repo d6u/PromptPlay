@@ -6,8 +6,8 @@ import "reactflow/dist/style.css";
 import FlowCanvas from "./flow-canvas/FlowCanvas";
 import FlowContext from "./FlowContext";
 import { FlowLoaderData } from "./route-loader";
-import { useFlowStore } from "./state/store-flow";
-import { FlowState } from "./state/types-local-state";
+import { useFlowStore } from "./state/store-flow-state";
+import { FlowState } from "./state/store-flow-state-types";
 import ToolBar from "./tool-bar/ToolBar";
 
 const selector = (state: FlowState) => ({

@@ -5,7 +5,7 @@ import { mergeMap, Subscription } from "rxjs";
 import { invariant } from "ts-invariant";
 import { OperationResult } from "urql";
 import { StateCreator } from "zustand";
-import { run, RunEventType } from "../../../flow-run/flow-run";
+import { run, RunEventType } from "../../../flow-run";
 import { ContentVersion, SpaceFlowQueryQuery } from "../../../gql/graphql";
 import { NodeID } from "../../../models/v2-flow-content-types";
 import {
@@ -16,19 +16,19 @@ import {
   V3FlowContent,
   V3VariableValueMap,
 } from "../../../models/v3-flow-content-types";
-import { flowInputItemsSelector } from "./store-flow";
 import {
   assignLocalEdgeProperties,
   assignLocalNodeProperties,
   fetchContent,
   saveSpaceContentV3,
-} from "./store-utils";
+} from "./state-utils";
+import { flowInputItemsSelector } from "./store-flow-state";
 import {
   DetailPanelContentType,
   FlowState,
   NodeAugment,
   NodeAugments,
-} from "./types-local-state";
+} from "./store-flow-state-types";
 
 type RootSliceState = {
   spaceId: string | null;

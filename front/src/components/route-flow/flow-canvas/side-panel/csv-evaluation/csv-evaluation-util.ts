@@ -14,7 +14,7 @@ import {
   run,
   RunEvent,
   RunEventType,
-} from "../../../../../flow-run/flow-run";
+} from "../../../../../flow-run";
 import {
   LocalEdge,
   NodeConfigs,

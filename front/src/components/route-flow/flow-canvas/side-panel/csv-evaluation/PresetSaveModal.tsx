@@ -10,8 +10,8 @@ import {
   Typography,
 } from "@mui/joy";
 import { useEffect, useState } from "react";
-import { useFlowStore } from "../../../state/store-flow";
-import { FlowState } from "../../../state/types-local-state";
+import { useFlowStore } from "../../../state/store-flow-state";
+import { FlowState } from "../../../state/store-flow-state-types";
 
 const selector = (state: FlowState) => ({
   setCurrentPresetId: state.csvEvaluationSetCurrentPresetId,

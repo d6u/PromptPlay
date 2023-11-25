@@ -6,14 +6,14 @@ import posthog from "posthog-js";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Subscription } from "rxjs";
 import { useQuery } from "urql";
-import { FlowOutputVariableMap } from "../../../../../flow-run/flow-run";
+import { FlowOutputVariableMap } from "../../../../../flow-run";
 import { graphql } from "../../../../../gql";
 import {
   ColumnIndex,
   RowIndex,
 } from "../../../state/slice-csv-evaluation-preset";
-import { useFlowStore } from "../../../state/store-flow";
-import { FlowState } from "../../../state/types-local-state";
+import { useFlowStore } from "../../../state/store-flow-state";
+import { FlowState } from "../../../state/store-flow-state-types";
 import { CSVData, CSVHeader } from "./csv-evaluation-common";
 import { runForEachRow } from "./csv-evaluation-util";
 import EvaluationSectionConfigCSV from "./EvaluationSectionConfigCSV";

@@ -9,8 +9,8 @@ import ReactFlow, {
 import "reactflow/dist/style.css";
 import { NodeType } from "../../../models/v2-flow-content-types";
 import FlowContext from "../FlowContext";
-import { useFlowStore } from "../state/store-flow";
-import { FlowState } from "../state/types-local-state";
+import { useFlowStore } from "../state/store-flow-state";
+import { FlowState } from "../state/store-flow-state-types";
 import ChatGPTChatCompletionNode from "./nodes/ChatGPTChatCompletionNode";
 import ChatGPTMessageNode from "./nodes/ChatGPTMessageNode";
 import ElevenLabsNode from "./nodes/ElevenLabsNode";

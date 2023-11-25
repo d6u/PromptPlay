@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { NodeOutputItem } from "../../../../../models/v2-flow-content-types";
-import { useFlowStore } from "../../../state/store-flow";
-import { FlowState } from "../../../state/types-local-state";
+import { useFlowStore } from "../../../state/store-flow-state";
+import { FlowState } from "../../../state/store-flow-state-types";
 import {
   HeaderSection,
   HeaderSectionHeader,

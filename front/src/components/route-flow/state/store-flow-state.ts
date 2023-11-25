@@ -11,7 +11,7 @@ import {
 import { createCsvEvaluationPresetSlice } from "./slice-csv-evaluation-preset";
 import { createRootSlice } from "./slice-root";
 import { createFlowServerSliceV2 } from "./slice-v3-flow-content";
-import { FlowState } from "./types-local-state";
+import { FlowState } from "./store-flow-state-types";
 
 export const useFlowStore = create<FlowState>()(
   devtools(

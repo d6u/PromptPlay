@@ -12,8 +12,8 @@ import { ChatGPTMessageNodeConfig } from "../../../../../models/v2-flow-content-
 import { CopyIcon, LabelWithIconContainer } from "../../../common/flow-common";
 import TextareaReadonly from "../../../common/TextareaReadonly";
 import FlowContext from "../../../FlowContext";
-import { useFlowStore } from "../../../state/store-flow";
-import { FlowState } from "../../../state/types-local-state";
+import { useFlowStore } from "../../../state/store-flow-state";
+import { FlowState } from "../../../state/store-flow-state-types";
 import {
   HeaderSection,
   HeaderSectionHeader,

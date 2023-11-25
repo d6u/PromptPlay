@@ -42,9 +42,9 @@ import {
   ChangeEvent,
   ChangeEventType,
   EVENT_VALIDATION_MAP,
-} from "./EventGraph";
-import { VariableTypeToVariableConfigTypeMap } from "./store-utils";
-import { FlowState } from "./types-local-state";
+} from "./event-graph";
+import { VariableTypeToVariableConfigTypeMap } from "./state-utils";
+import { FlowState } from "./store-flow-state-types";
 
 const chance = new Chance();
 
