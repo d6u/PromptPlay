@@ -1,11 +1,11 @@
 import { Connection, EdgeChange, NodeChange } from "reactflow";
 import {
-  LocalEdge,
   LocalNode,
   NodeConfig,
   NodeID,
 } from "../../../models/v2-flow-content-types";
 import {
+  V3LocalEdge,
   V3NodeConfig,
   V3VariableID,
   Variable,
@@ -155,17 +155,17 @@ export type ChangeEvent =
   // Derived Edges
   | {
       type: ChangeEventType.EDGE_ADDED;
-      edge: LocalEdge;
+      edge: V3LocalEdge;
     }
   | {
       type: ChangeEventType.EDGE_REMOVED;
-      removedEdge: LocalEdge;
+      removedEdge: V3LocalEdge;
       edgeSrcVariableConfig: Variable | null;
     }
   | {
       type: ChangeEventType.EDGE_REPLACED;
-      oldEdge: LocalEdge;
-      newEdge: LocalEdge;
+      oldEdge: V3LocalEdge;
+      newEdge: V3LocalEdge;
     }
   // Derived Variables
   | {

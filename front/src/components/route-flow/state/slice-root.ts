@@ -200,8 +200,8 @@ export const createRootSlice: StateCreator<FlowState, [], [], RootSlice> = (
       }
 
       runFlowSubscription = run(
-        edges,
         nodeConfigs,
+        edges,
         inputVariableMap,
         true,
       ).subscribe({
