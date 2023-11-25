@@ -194,9 +194,11 @@ export const createRootSlice: StateCreator<FlowState, [], [], RootSlice> = (
 
       const {
         resetAugments,
+        nodes,
         edges,
-        nodeConfigsDict: nodeConfigs,
-        variablesDict: variableMap,
+        nodeConfigsDict,
+        variablesDict,
+        variableValueLookUpDicts,
         updateNodeAugment,
         updateVariableValueMap,
       } = get();
@@ -208,19 +210,23 @@ export const createRootSlice: StateCreator<FlowState, [], [], RootSlice> = (
       const inputVariableMap: V3VariableValueLookUpDict = {};
       const defaultVariableValueMap = get().getDefaultVariableValueMap();
 
-      for (const variable of Object.values(variableMap)) {
+      for (const variable of Object.values(variablesDict)) {
         if (variable.type === VariableType.FlowInput) {
           inputVariableMap[variable.id] = defaultVariableValueMap[variable.id];
         }
       }
 
-      runFlowSubscription = runSingle(
-        nodeConfigs,
-        edges,
-        variableMap,
+      runFlowSubscription = runSingle({
+        flowContent: {
+          nodes,
+          edges,
+          nodeConfigsDict,
+          variablesDict,
+          variableValueLookUpDicts,
+        },
         inputVariableMap,
-        true,
-      ).subscribe({
+        useStreaming: true,
+      }).subscribe({
         next(data) {
           switch (data.type) {
             case RunEventType.VariableValueChanges: {
