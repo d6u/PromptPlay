@@ -25,7 +25,7 @@ import {
   V3ServerEdge,
   V3TextTemplateNodeConfig,
   V3VariableID,
-  Variables,
+  VariableMap,
   VariableType,
   VariableValueType,
 } from "./v3-flow-content-types";
@@ -35,7 +35,7 @@ export function convertV2ContentToV3Content(
 ): V3FlowContent {
   const { nodes, edges, nodeConfigs, variableValueMaps } = flowContentV2;
 
-  const variableConfigs: Variables = {};
+  const variableConfigs: VariableMap = {};
 
   const v3NodeConfigs: V3NodeConfigs = D.mapWithKey<NodeConfigs, V3NodeConfig>(
     nodeConfigs,

@@ -13,7 +13,7 @@ import {
   NodeInputVariable,
   NodeOutputVariable,
   V3FlowContent,
-  Variables,
+  VariableMap,
   VariableType,
 } from "../../../models/v3-flow-content-types";
 import { client } from "../../../state/urql";
@@ -73,7 +73,7 @@ export type VariableTypeToVariableConfigTypeMap = {
 export function selectVariables<
   T extends VariableType,
   R = VariableTypeToVariableConfigTypeMap[T],
->(nodeId: NodeID, type: T, variableConfigs: Variables): R[] {
+>(nodeId: NodeID, type: T, variableConfigs: VariableMap): R[] {
   return Object.values(variableConfigs)
     .filter(
       (variableConfig) =>

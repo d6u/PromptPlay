@@ -21,7 +21,7 @@ export type V3FlowContent = {
   nodes: ServerNode[];
   edges: V3ServerEdge[];
   nodeConfigs: V3NodeConfigs;
-  variableConfigs: Variables;
+  variableConfigs: VariableMap;
   variableValueMaps: V3VariableValueMap[];
 };
 
@@ -103,9 +103,9 @@ export type V3ElevenLabsNodeConfig = NodeConfigCommon & {
 
 // !SECTION
 
-// SECTION: V3 VariableConfig Types
+// SECTION: V3 Variable Types
 
-export type Variables = Record<V3VariableID, Variable>;
+export type VariableMap = Record<V3VariableID, Variable>;
 
 export type Variable =
   | FlowInputVariable

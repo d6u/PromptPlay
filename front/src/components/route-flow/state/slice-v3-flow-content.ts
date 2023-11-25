@@ -32,7 +32,7 @@ import {
   V3VariableID,
   V3VariableValueMap,
   Variable,
-  Variables,
+  VariableMap,
   VariableType,
   VariableValueType,
 } from "../../../models/v3-flow-content-types";
@@ -54,7 +54,7 @@ type FlowServerSliceStateV2 = {
   nodes: LocalNode[];
   edges: LocalEdge[];
   nodeConfigs: V3NodeConfigs;
-  variableConfigs: Variables;
+  variableConfigs: VariableMap;
   variableValueMaps: V3VariableValueMap[];
 };
 
@@ -463,7 +463,7 @@ function handleRfOnConnect(
   connection: Connection,
   prevEdges: LocalEdge[],
   nodeConfigs: V3NodeConfigs,
-  variableConfigs: Variables,
+  variableConfigs: VariableMap,
 ): [Partial<FlowServerSliceStateV2>, ChangeEvent[]] {
   const content: Partial<FlowServerSliceStateV2> = {};
   const events: ChangeEvent[] = [];
@@ -526,7 +526,7 @@ function handleAddingNode(
   node: LocalNode,
   prevNodes: LocalNode[],
   prevNodeConfigs: V3NodeConfigs,
-  prevVariableConfigs: Variables,
+  prevVariableConfigs: VariableMap,
 ): [Partial<FlowServerSliceStateV2>, ChangeEvent[]] {
   const content: Partial<FlowServerSliceStateV2> = {};
   const events: ChangeEvent[] = [];
@@ -623,7 +623,7 @@ function handleAddingVariable(
   nodeId: NodeID,
   varType: VariableType,
   index: number,
-  variableConfigs: Variables,
+  variableConfigs: VariableMap,
 ): [Partial<FlowServerSliceStateV2>, ChangeEvent[]] {
   const content: Partial<FlowServerSliceStateV2> = {};
   const events: ChangeEvent[] = [];
@@ -691,7 +691,7 @@ function handleAddingVariable(
 
 function handleRemovingVariable(
   variableId: V3VariableID,
-  prevVariableConfigs: Variables,
+  prevVariableConfigs: VariableMap,
 ): [Partial<FlowServerSliceStateV2>, ChangeEvent[]] {
   const content: Partial<FlowServerSliceStateV2> = {};
   const events: ChangeEvent[] = [];
@@ -714,7 +714,7 @@ function handleRemovingVariable(
 function handleUpdatingVariable(
   variableId: V3VariableID,
   change: Partial<Variable>,
-  prevVariableConfigs: Variables,
+  prevVariableConfigs: VariableMap,
 ): [Partial<FlowServerSliceStateV2>, ChangeEvent[]] {
   const content: Partial<FlowServerSliceStateV2> = {};
   const events: ChangeEvent[] = [];
@@ -762,7 +762,7 @@ function handleNodeAndVariablesAdded(
 function handleNodeRemoved(
   removedNode: LocalNode,
   removedNodeConfig: V3NodeConfig,
-  prevVariableConfigs: Variables,
+  prevVariableConfigs: VariableMap,
 ): [Partial<FlowServerSliceStateV2>, ChangeEvent[]] {
   const content: Partial<FlowServerSliceStateV2> = {};
   const events: ChangeEvent[] = [];
@@ -788,7 +788,7 @@ function handleNodeRemoved(
 
 function handleEdgeAdded(
   addedEdge: LocalEdge,
-  prevVariableConfigs: Variables,
+  prevVariableConfigs: VariableMap,
 ): [Partial<FlowServerSliceStateV2>, ChangeEvent[]] {
   const content: Partial<FlowServerSliceStateV2> = {};
   const events: ChangeEvent[] = [];
@@ -822,7 +822,7 @@ function handleEdgeAdded(
 function handleEdgeRemoved(
   removedEdge: LocalEdge,
   edgeSrcVariableConfig: Variable | null,
-  prevVariableConfigs: Variables,
+  prevVariableConfigs: VariableMap,
 ): [Partial<FlowServerSliceStateV2>, ChangeEvent[]] {
   const content: Partial<FlowServerSliceStateV2> = {};
   const events: ChangeEvent[] = [];
@@ -872,7 +872,7 @@ function handleEdgeRemoved(
 function handleEdgeReplaced(
   oldEdge: LocalEdge,
   newEdge: LocalEdge,
-  prevVariableConfigs: Variables,
+  prevVariableConfigs: VariableMap,
 ): [Partial<FlowServerSliceStateV2>, ChangeEvent[]] {
   const content: Partial<FlowServerSliceStateV2> = {};
   const events: ChangeEvent[] = [];

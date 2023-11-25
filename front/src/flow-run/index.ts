@@ -19,26 +19,35 @@ import {
   TimeoutError,
   zipWith,
 } from "rxjs";
+import invariant from "ts-invariant";
 import { NodeAugment } from "../components/route-flow/state/store-flow-state-types";
 import * as ElevenLabs from "../integrations/eleven-labs";
 import * as HuggingFace from "../integrations/hugging-face";
 import * as OpenAI from "../integrations/openai";
 import {
-  ChatGPTChatCompletionNodeConfig,
-  ChatGPTMessageNodeConfig,
-  ElevenLabsNodeConfig,
-  HuggingFaceInferenceNodeConfig,
-  JavaScriptFunctionNodeConfig,
-  LocalEdge,
   NodeID,
   NodeInputID,
   NodeOutputID,
   NodeType,
-  OutputNodeConfig,
-  TextTemplateNodeConfig,
   VariableValueMap,
 } from "../models/v2-flow-content-types";
-import { V3NodeConfig, V3NodeConfigs } from "../models/v3-flow-content-types";
+import {
+  NodeOutputVariable,
+  V3ChatGPTChatCompletionNodeConfig,
+  V3ChatGPTMessageNodeConfig,
+  V3ElevenLabsNodeConfig,
+  V3HuggingFaceInferenceNodeConfig,
+  V3JavaScriptFunctionNodeConfig,
+  V3LocalEdge,
+  V3NodeConfig,
+  V3NodeConfigs,
+  V3OutputNodeConfig,
+  V3TextTemplateNodeConfig,
+  V3VariableID,
+  V3VariableValueMap,
+  VariableMap,
+  VariableType,
+} from "../models/v3-flow-content-types";
 import { useLocalStorageStore, useSpaceStore } from "../state/appState";
 
 const AsyncFunction = async function () {}.constructor;
@@ -49,10 +58,8 @@ export enum RunEventType {
   RunStatusChange = "RunStatusChange",
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type FlowInputVariableMap = Record<NodeOutputID, any>;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type FlowOutputVariableMap = Record<NodeInputID, any>;
+export type FlowInputVariableMap = Record<V3VariableID, unknown>;
+export type FlowOutputVariableMap = Record<V3VariableID, unknown>;
 
 export type RunEvent =
   | VariableValueChangeEvent
@@ -77,8 +84,9 @@ type RunStatusChangeEvent = {
 };
 
 export function run(
-  edges: LocalEdge[],
   nodeConfigs: V3NodeConfigs,
+  edges: V3LocalEdge[],
+  variableMap: VariableMap,
   inputVariableMap: FlowInputVariableMap,
   useStreaming: boolean = false,
 ): Observable<RunEvent> {
@@ -90,7 +98,7 @@ export function run(
     nodeIndegree[nodeId] = 0;
   }
 
-  const inputIdToOutputIdMap: Record<NodeInputID, NodeOutputID | undefined> =
+  const inputIdToOutputIdMap: Record<V3VariableID, V3VariableID | undefined> =
     {};
   const outputIdToValueMap: FlowInputVariableMap = { ...inputVariableMap };
 
@@ -160,6 +168,7 @@ export function run(
         case NodeType.OutputNode: {
           obs = handleOutputNode(
             nodeConfig,
+            variableMap,
             inputIdToOutputIdMap,
             outputIdToValueMap,
           ).pipe(
@@ -174,6 +183,7 @@ export function run(
           const nodeData = nodeConfig;
           obs = handleJavaScriptFunctionNode(
             nodeData,
+            variableMap,
             inputIdToOutputIdMap,
             outputIdToValueMap,
           ).pipe(
@@ -187,6 +197,7 @@ export function run(
         case NodeType.ChatGPTMessageNode: {
           obs = handleChatGPTMessageNode(
             nodeConfig,
+            variableMap,
             inputIdToOutputIdMap,
             outputIdToValueMap,
           ).pipe(
@@ -201,6 +212,7 @@ export function run(
           obs = from(
             handleChatGPTChatNode(
               nodeConfig,
+              variableMap,
               inputIdToOutputIdMap,
               outputIdToValueMap,
               useStreaming,
@@ -216,6 +228,7 @@ export function run(
         case NodeType.TextTemplate: {
           obs = handleTextTemplateNode(
             nodeConfig,
+            variableMap,
             inputIdToOutputIdMap,
             outputIdToValueMap,
           ).pipe(
@@ -229,6 +242,7 @@ export function run(
         case NodeType.HuggingFaceInference: {
           obs = handleHuggingFaceInferenceNode(
             nodeConfig,
+            variableMap,
             inputIdToOutputIdMap,
             outputIdToValueMap,
           ).pipe(
@@ -242,6 +256,7 @@ export function run(
         case NodeType.ElevenLabs: {
           obs = handleElevenLabsNode(
             nodeConfig,
+            variableMap,
             inputIdToOutputIdMap,
             outputIdToValueMap,
           ).pipe(
@@ -305,18 +320,24 @@ export function run(
 }
 
 function handleOutputNode(
-  data: OutputNodeConfig,
-  inputIdToOutputIdMap: Record<NodeInputID, NodeOutputID | undefined>,
-  variableValueMap: VariableValueMap,
-): Observable<VariableValueMap> {
-  const changes: VariableValueMap = {};
+  data: V3OutputNodeConfig,
+  variableMap: VariableMap,
+  inputIdToOutputIdMap: Record<V3VariableID, V3VariableID | undefined>,
+  variableValueMap: V3VariableValueMap,
+): Observable<V3VariableValueMap> {
+  const changes: V3VariableValueMap = {};
 
-  for (const input of data.inputs) {
-    const outputId = inputIdToOutputIdMap[input.id];
+  for (const input of Object.values(variableMap)) {
+    if (
+      input.type === VariableType.FlowOutput &&
+      input.nodeId === data.nodeId
+    ) {
+      const outputId = inputIdToOutputIdMap[input.id];
 
-    if (outputId) {
-      const outputValue = variableValueMap[outputId];
-      changes[input.id] = outputValue ?? null;
+      if (outputId) {
+        const outputValue = variableValueMap[outputId];
+        changes[input.id] = outputValue ?? null;
+      }
     }
   }
 
@@ -324,23 +345,37 @@ function handleOutputNode(
 }
 
 function handleJavaScriptFunctionNode(
-  data: JavaScriptFunctionNodeConfig,
-  inputIdToOutputIdMap: Record<NodeInputID, NodeOutputID | undefined>,
-  variableValueMap: VariableValueMap,
-): Observable<VariableValueMap> {
+  data: V3JavaScriptFunctionNodeConfig,
+  variableMap: VariableMap,
+  inputIdToOutputIdMap: Record<V3VariableID, V3VariableID | undefined>,
+  variableValueMap: V3VariableValueMap,
+): Observable<V3VariableValueMap> {
   return defer(async () => {
+    let outputVariable: NodeOutputVariable | null = null;
     const pairs: Array<[string, unknown]> = [];
 
-    for (const input of data.inputs) {
-      const outputId = inputIdToOutputIdMap[input.id];
+    for (const variable of Object.values(variableMap)) {
+      if (
+        variable.type === VariableType.NodeInput &&
+        variable.nodeId === data.nodeId
+      ) {
+        const outputId = inputIdToOutputIdMap[variable.id];
 
-      if (outputId) {
-        const outputValue = variableValueMap[outputId];
-        pairs.push([input.name, outputValue ?? null]);
-      } else {
-        pairs.push([input.name, null]);
+        if (outputId) {
+          const outputValue = variableValueMap[outputId];
+          pairs.push([variable.name, outputValue ?? null]);
+        } else {
+          pairs.push([variable.name, null]);
+        }
+      } else if (
+        variable.type === VariableType.NodeOutput &&
+        variable.nodeId === data.nodeId
+      ) {
+        outputVariable = variable;
       }
     }
+
+    invariant(outputVariable != null);
 
     const fn = AsyncFunction(
       ...pairs.map((pair) => pair[0]),
@@ -349,17 +384,18 @@ function handleJavaScriptFunctionNode(
 
     const result = await fn(...pairs.map((pair) => pair[1]));
 
-    variableValueMap[data.outputs[0].id] = result;
+    variableValueMap[outputVariable.id] = result;
 
-    return { [data.outputs[0].id]: result };
+    return { [outputVariable.id]: result };
   });
 }
 
 function handleChatGPTMessageNode(
-  data: ChatGPTMessageNodeConfig,
+  data: V3ChatGPTMessageNodeConfig,
+  variableMap: VariableMap,
   inputIdToOutputIdMap: Record<NodeInputID, NodeOutputID | undefined>,
-  variableValueMap: VariableValueMap,
-): Observable<VariableValueMap> {
+  variableValueMap: V3VariableValueMap,
+): Observable<V3VariableValueMap> {
   // Prepare inputs
   // ----------
 
@@ -402,11 +438,12 @@ function handleChatGPTMessageNode(
 }
 
 function handleChatGPTChatNode(
-  data: ChatGPTChatCompletionNodeConfig,
+  data: V3ChatGPTChatCompletionNodeConfig,
+  variableMap: VariableMap,
   inputIdToOutputIdMap: Record<NodeInputID, NodeOutputID | undefined>,
-  variableValueMap: VariableValueMap,
+  variableValueMap: V3VariableValueMap,
   useStreaming: boolean,
-): Observable<VariableValueMap> {
+): Observable<V3VariableValueMap> {
   return defer(() => {
     // Prepare inputs
     // ----------
@@ -526,10 +563,11 @@ function handleChatGPTChatNode(
 }
 
 function handleTextTemplateNode(
-  data: TextTemplateNodeConfig,
+  data: V3TextTemplateNodeConfig,
+  variableMap: VariableMap,
   inputIdToOutputIdMap: Record<NodeInputID, NodeOutputID | undefined>,
-  variableValueMap: VariableValueMap,
-): Observable<VariableValueMap> {
+  variableValueMap: V3VariableValueMap,
+): Observable<V3VariableValueMap> {
   return defer(() => {
     // Prepare inputs
     // ----------
@@ -565,10 +603,11 @@ function handleTextTemplateNode(
 }
 
 function handleHuggingFaceInferenceNode(
-  data: HuggingFaceInferenceNodeConfig,
+  data: V3HuggingFaceInferenceNodeConfig,
+  variableMap: VariableMap,
   inputIdToOutputIdMap: Record<NodeInputID, NodeOutputID | undefined>,
-  variableValueMap: VariableValueMap,
-): Observable<VariableValueMap> {
+  variableValueMap: V3VariableValueMap,
+): Observable<V3VariableValueMap> {
   return defer(() => {
     // Prepare inputs
     // ----------
@@ -624,10 +663,11 @@ function handleHuggingFaceInferenceNode(
 }
 
 function handleElevenLabsNode(
-  data: ElevenLabsNodeConfig,
+  data: V3ElevenLabsNodeConfig,
+  variableMap: VariableMap,
   inputIdToOutputIdMap: Record<NodeInputID, NodeOutputID | undefined>,
-  variableValueMap: VariableValueMap,
-): Observable<VariableValueMap> {
+  variableValueMap: V3VariableValueMap,
+): Observable<V3VariableValueMap> {
   return defer(() => {
     // Prepare inputs
     // ----------
