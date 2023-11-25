@@ -26,8 +26,6 @@ import * as HuggingFace from "../integrations/hugging-face";
 import * as OpenAI from "../integrations/openai";
 import {
   NodeID,
-  NodeInputID,
-  NodeOutputID,
   NodeType,
   VariableValueMap,
 } from "../models/v2-flow-content-types";
@@ -355,10 +353,11 @@ function handleJavaScriptFunctionNode(
     const pairs: Array<[string, unknown]> = [];
 
     for (const variable of Object.values(variableMap)) {
-      if (
-        variable.type === VariableType.NodeInput &&
-        variable.nodeId === data.nodeId
-      ) {
+      if (variable.nodeId !== data.nodeId) {
+        continue;
+      }
+
+      if (variable.type === VariableType.NodeInput) {
         const outputId = inputIdToOutputIdMap[variable.id];
 
         if (outputId) {
@@ -367,10 +366,7 @@ function handleJavaScriptFunctionNode(
         } else {
           pairs.push([variable.name, null]);
         }
-      } else if (
-        variable.type === VariableType.NodeOutput &&
-        variable.nodeId === data.nodeId
-      ) {
+      } else if (variable.type === VariableType.NodeOutput) {
         outputVariable = variable;
       }
     }
@@ -393,30 +389,46 @@ function handleJavaScriptFunctionNode(
 function handleChatGPTMessageNode(
   data: V3ChatGPTMessageNodeConfig,
   variableMap: VariableMap,
-  inputIdToOutputIdMap: Record<NodeInputID, NodeOutputID | undefined>,
+  inputIdToOutputIdMap: Record<V3VariableID, V3VariableID | undefined>,
   variableValueMap: V3VariableValueMap,
 ): Observable<V3VariableValueMap> {
   // Prepare inputs
   // ----------
+  let variableMessage: NodeOutputVariable | null = null;
+  let variableMessages: NodeOutputVariable | null = null;
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const argsMap: Record<string, any> = {};
+  const argsMap: Record<string, unknown> = {};
 
-  for (const input of data.inputs) {
-    const outputId = inputIdToOutputIdMap[input.id];
+  for (const variable of Object.values(variableMap)) {
+    if (variable.nodeId !== data.nodeId) {
+      continue;
+    }
 
-    if (outputId) {
-      const outputValue = variableValueMap[outputId];
-      argsMap[input.name] = outputValue ?? null;
-    } else {
-      argsMap[input.name] = null;
+    if (variable.type === VariableType.NodeInput) {
+      const outputId = inputIdToOutputIdMap[variable.id];
+
+      if (outputId) {
+        const outputValue = variableValueMap[outputId];
+        argsMap[variable.name] = outputValue ?? null;
+      } else {
+        argsMap[variable.name] = null;
+      }
+    } else if (variable.type === VariableType.NodeOutput) {
+      if (variable.index === 0) {
+        variableMessage = variable;
+      } else if (variable.index === 1) {
+        variableMessages = variable;
+      }
     }
   }
+
+  invariant(variableMessage != null);
+  invariant(variableMessages != null);
 
   // Execute logic
   // ----------
 
-  let messages: OpenAI.ChatGPTMessage[] = argsMap["messages"] ?? [];
+  let messages = (argsMap["messages"] ?? []) as OpenAI.ChatGPTMessage[];
 
   const message = {
     role: data.role,
@@ -428,19 +440,19 @@ function handleChatGPTMessageNode(
   // Update outputs
   // ----------
 
-  variableValueMap[data.outputs[0].id] = message;
-  variableValueMap[data.outputs[1].id] = messages;
+  variableValueMap[variableMessage.id] = message;
+  variableValueMap[variableMessages.id] = messages;
 
   return of({
-    [data.outputs[0].id]: message,
-    [data.outputs[1].id]: messages,
+    [variableMessage.id]: message,
+    [variableMessages.id]: messages,
   });
 }
 
 function handleChatGPTChatNode(
   data: V3ChatGPTChatCompletionNodeConfig,
   variableMap: VariableMap,
-  inputIdToOutputIdMap: Record<NodeInputID, NodeOutputID | undefined>,
+  inputIdToOutputIdMap: Record<V3VariableID, V3VariableID | undefined>,
   variableValueMap: V3VariableValueMap,
   useStreaming: boolean,
 ): Observable<V3VariableValueMap> {
@@ -448,19 +460,40 @@ function handleChatGPTChatNode(
     // Prepare inputs
     // ----------
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const argsMap: { [key: string]: any } = {};
+    let variableContent: NodeOutputVariable | null = null;
+    let variableMessage: NodeOutputVariable | null = null;
+    let variableMessages: NodeOutputVariable | null = null;
 
-    for (const input of data.inputs) {
-      const outputId = inputIdToOutputIdMap[input.id];
+    const argsMap: { [key: string]: unknown } = {};
 
-      if (outputId) {
-        const outputValue = variableValueMap[outputId];
-        argsMap[input.name] = outputValue ?? null;
-      } else {
-        argsMap[input.name] = null;
+    for (const variable of Object.values(variableMap)) {
+      if (variable.nodeId !== data.nodeId) {
+        continue;
+      }
+
+      if (variable.type === VariableType.NodeInput) {
+        const outputId = inputIdToOutputIdMap[variable.id];
+
+        if (outputId) {
+          const outputValue = variableValueMap[outputId];
+          argsMap[variable.name] = outputValue ?? null;
+        } else {
+          argsMap[variable.name] = null;
+        }
+      } else if (variable.type === VariableType.NodeOutput) {
+        if (variable.index === 0) {
+          variableContent = variable;
+        } else if (variable.index === 1) {
+          variableMessage = variable;
+        } else if (variable.index === 2) {
+          variableMessages = variable;
+        }
       }
     }
+
+    invariant(variableContent != null);
+    invariant(variableMessage != null);
+    invariant(variableMessages != null);
 
     // Execute logic
     // ----------
@@ -472,7 +505,7 @@ function handleChatGPTChatNode(
       return throwError(() => new Error("OpenAI API key is missing"));
     }
 
-    let messages: OpenAI.ChatGPTMessage[] = argsMap["messages"] ?? [];
+    let messages = (argsMap["messages"] ?? []) as OpenAI.ChatGPTMessage[];
     let role = "assistant";
     let content = "";
 
@@ -483,7 +516,10 @@ function handleChatGPTChatNode(
       temperature: data.temperature,
       stop: data.stop,
       seed: data.seed,
-      responseFormat: data.responseFormat,
+      responseFormat:
+        data.responseFormatType != null
+          ? { type: data.responseFormatType }
+          : null,
     };
 
     if (useStreaming) {
@@ -503,10 +539,14 @@ function handleChatGPTChatNode(
             }
             const message = { role, content };
 
+            invariant(variableContent != null);
+            invariant(variableMessage != null);
+            invariant(variableMessages != null);
+
             return {
-              [data.outputs[0].id]: content,
-              [data.outputs[1].id]: message,
-              [data.outputs[2].id]: A.append(messages, message),
+              [variableContent.id]: content,
+              [variableMessage.id]: message,
+              [variableMessages.id]: A.append(messages, message),
             };
           }),
         ),
@@ -514,14 +554,18 @@ function handleChatGPTChatNode(
           const message = { role, content };
           messages = A.append(messages, message);
 
-          variableValueMap[data.outputs[0].id] = content;
-          variableValueMap[data.outputs[1].id] = message;
-          variableValueMap[data.outputs[2].id] = messages;
+          invariant(variableContent != null);
+          invariant(variableMessage != null);
+          invariant(variableMessages != null);
+
+          variableValueMap[variableContent.id] = content;
+          variableValueMap[variableMessage.id] = message;
+          variableValueMap[variableMessages.id] = messages;
 
           return of({
-            [data.outputs[0].id]: content,
-            [data.outputs[1].id]: message,
-            [data.outputs[2].id]: messages,
+            [variableContent.id]: content,
+            [variableMessage.id]: message,
+            [variableMessages.id]: messages,
           });
         }),
       );
@@ -537,14 +581,18 @@ function handleChatGPTChatNode(
           const message = result.data.choices[0].message;
           messages = A.append(messages, message);
 
-          variableValueMap[data.outputs[0].id] = content;
-          variableValueMap[data.outputs[1].id] = message;
-          variableValueMap[data.outputs[2].id] = messages;
+          invariant(variableContent != null);
+          invariant(variableMessage != null);
+          invariant(variableMessages != null);
+
+          variableValueMap[variableContent.id] = content;
+          variableValueMap[variableMessage.id] = message;
+          variableValueMap[variableMessages.id] = messages;
 
           return {
-            [data.outputs[0].id]: content,
-            [data.outputs[1].id]: message,
-            [data.outputs[2].id]: messages,
+            [variableContent.id]: content,
+            [variableMessage.id]: message,
+            [variableMessages.id]: messages,
           };
         }),
         tap({
@@ -565,26 +613,39 @@ function handleChatGPTChatNode(
 function handleTextTemplateNode(
   data: V3TextTemplateNodeConfig,
   variableMap: VariableMap,
-  inputIdToOutputIdMap: Record<NodeInputID, NodeOutputID | undefined>,
+  inputIdToOutputIdMap: Record<V3VariableID, V3VariableID | undefined>,
   variableValueMap: V3VariableValueMap,
 ): Observable<V3VariableValueMap> {
   return defer(() => {
     // Prepare inputs
     // ----------
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const argsMap: Record<string, any> = {};
+    let variableContent: NodeOutputVariable | null = null;
 
-    for (const input of data.inputs) {
-      const outputId = inputIdToOutputIdMap[input.id];
+    const argsMap: Record<string, unknown> = {};
 
-      if (outputId) {
-        const outputValue = variableValueMap[outputId];
-        argsMap[input.name] = outputValue ?? null;
-      } else {
-        argsMap[input.name] = null;
+    for (const variable of Object.values(variableMap)) {
+      if (variable.nodeId !== data.nodeId) {
+        continue;
+      }
+
+      if (variable.type === VariableType.NodeInput) {
+        const outputId = inputIdToOutputIdMap[variable.id];
+
+        if (outputId) {
+          const outputValue = variableValueMap[outputId];
+          argsMap[variable.name] = outputValue ?? null;
+        } else {
+          argsMap[variable.name] = null;
+        }
+      } else if (variable.type === VariableType.NodeOutput) {
+        if (variable.index === 0) {
+          variableContent = variable;
+        }
       }
     }
+
+    invariant(variableContent != null);
 
     // Execute logic
     // ----------
@@ -594,10 +655,10 @@ function handleTextTemplateNode(
     // Update outputs
     // ----------
 
-    variableValueMap[data.outputs[0].id] = content;
+    variableValueMap[variableContent.id] = content;
 
     return of({
-      [data.outputs[0].id]: content,
+      [variableContent.id]: content,
     });
   });
 }
@@ -605,26 +666,38 @@ function handleTextTemplateNode(
 function handleHuggingFaceInferenceNode(
   data: V3HuggingFaceInferenceNodeConfig,
   variableMap: VariableMap,
-  inputIdToOutputIdMap: Record<NodeInputID, NodeOutputID | undefined>,
+  inputIdToOutputIdMap: Record<V3VariableID, V3VariableID | undefined>,
   variableValueMap: V3VariableValueMap,
 ): Observable<V3VariableValueMap> {
   return defer(() => {
     // Prepare inputs
     // ----------
+    let variableOutput: NodeOutputVariable | null = null;
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const argsMap: { [key: string]: any } = {};
+    const argsMap: { [key: string]: unknown } = {};
 
-    for (const input of data.inputs) {
-      const outputId = inputIdToOutputIdMap[input.id];
+    for (const variable of Object.values(variableMap)) {
+      if (variable.nodeId !== data.nodeId) {
+        continue;
+      }
 
-      if (outputId) {
-        const outputValue = variableValueMap[outputId];
-        argsMap[input.name] = outputValue ?? null;
-      } else {
-        argsMap[input.name] = null;
+      if (variable.type === VariableType.NodeInput) {
+        const outputId = inputIdToOutputIdMap[variable.id];
+
+        if (outputId) {
+          const outputValue = variableValueMap[outputId];
+          argsMap[variable.name] = outputValue ?? null;
+        } else {
+          argsMap[variable.name] = null;
+        }
+      } else if (variable.type === VariableType.NodeOutput) {
+        if (variable.index === 0) {
+          variableOutput = variable;
+        }
       }
     }
+
+    invariant(variableOutput != null);
 
     // Execute logic
     // ----------
@@ -652,10 +725,12 @@ function handleHuggingFaceInferenceNode(
           }
         }
 
-        variableValueMap[data.outputs[0].id] = result.data;
+        invariant(variableOutput != null);
+
+        variableValueMap[variableOutput.id] = result.data;
 
         return {
-          [data.outputs[0].id]: result.data,
+          [variableOutput.id]: result.data,
         };
       }),
     );
@@ -665,26 +740,39 @@ function handleHuggingFaceInferenceNode(
 function handleElevenLabsNode(
   data: V3ElevenLabsNodeConfig,
   variableMap: VariableMap,
-  inputIdToOutputIdMap: Record<NodeInputID, NodeOutputID | undefined>,
+  inputIdToOutputIdMap: Record<V3VariableID, V3VariableID | undefined>,
   variableValueMap: V3VariableValueMap,
 ): Observable<V3VariableValueMap> {
   return defer(() => {
     // Prepare inputs
     // ----------
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const argsMap: { [key: string]: any } = {};
+    let variableAudio: NodeOutputVariable | null = null;
 
-    for (const input of data.inputs) {
-      const outputId = inputIdToOutputIdMap[input.id];
+    const argsMap: { [key: string]: unknown } = {};
 
-      if (outputId) {
-        const outputValue = variableValueMap[outputId];
-        argsMap[input.name] = outputValue ?? null;
-      } else {
-        argsMap[input.name] = null;
+    for (const variable of Object.values(variableMap)) {
+      if (variable.nodeId !== data.nodeId) {
+        continue;
+      }
+
+      if (variable.type === VariableType.NodeInput) {
+        const outputId = inputIdToOutputIdMap[variable.id];
+
+        if (outputId) {
+          const outputValue = variableValueMap[outputId];
+          argsMap[variable.name] = outputValue ?? null;
+        } else {
+          argsMap[variable.name] = null;
+        }
+      } else if (variable.type === VariableType.NodeOutput) {
+        if (variable.index === 0) {
+          variableAudio = variable;
+        }
       }
     }
+
+    invariant(variableAudio != null);
 
     // Execute logic
     // ----------
@@ -696,26 +784,32 @@ function handleElevenLabsNode(
       return throwError(() => new Error("Eleven Labs API key is missing"));
     }
 
+    const text = argsMap["text"];
+
+    invariant(typeof text === "string");
+
     return from(
       ElevenLabs.textToSpeech({
-        text: argsMap["text"],
+        text,
         voiceId: data.voiceId,
         apiKey: elevenLabsApiKey,
       }),
+    ).pipe(
+      map((result) => {
+        if (result.isError) {
+          throw result.data;
+        }
+
+        const url = URL.createObjectURL(result.data);
+
+        invariant(variableAudio != null);
+
+        variableValueMap[variableAudio.id] = url;
+
+        return {
+          [variableAudio.id]: url,
+        };
+      }),
     );
-  }).pipe(
-    map((result) => {
-      if (result.isError) {
-        throw result.data;
-      }
-
-      const url = URL.createObjectURL(result.data);
-
-      variableValueMap[data.outputs[0].id] = url;
-
-      return {
-        [data.outputs[0].id]: url,
-      };
-    }),
-  );
+  });
 }
