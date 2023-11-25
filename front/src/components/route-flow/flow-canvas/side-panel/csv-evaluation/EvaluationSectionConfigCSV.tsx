@@ -12,13 +12,17 @@ import {
 } from "@mui/joy";
 import Papa from "papaparse";
 import posthog from "posthog-js";
-import { ReactNode, useEffect } from "react";
+import { ReactNode, useEffect, useMemo } from "react";
 import { FlowOutputVariableMap } from "../../../../../flow-run";
-import { VariableID } from "../../../../../models/v2-flow-content-types";
+import {
+  V3VariableID,
+  VariableType,
+} from "../../../../../models/v3-flow-content-types";
 import {
   ColumnIndex,
   RowIndex,
 } from "../../../state/slice-csv-evaluation-preset";
+import { selectAllVariables } from "../../../state/state-utils";
 import { useFlowStore } from "../../../state/store-flow-state";
 import { FlowState } from "../../../state/store-flow-state-types";
 import { Section } from "../common/controls-common";
@@ -30,8 +34,7 @@ import {
 } from "./csv-evaluation-common";
 
 const selector = (state: FlowState) => ({
-  flowInputItems: flowInputItemsSelector(state),
-  flowOutputItems: flowOutputItemsSelector(state),
+  variableMap: state.variableMap,
   repeatCount: state.csvEvaluationConfigContent.repeatCount,
   setRepeatCount: state.csvEvaluationSetRepeatCount,
   concurrencyLimit: state.csvEvaluationConfigContent.concurrencyLimit,
@@ -54,8 +57,7 @@ type Props = {
 
 export default function EvaluationSectionConfigCSV(props: Props) {
   const {
-    flowInputItems,
-    flowOutputItems,
+    variableMap,
     repeatCount,
     setRepeatCount,
     concurrencyLimit,
@@ -68,19 +70,27 @@ export default function EvaluationSectionConfigCSV(props: Props) {
     setRunStatuses,
   } = useFlowStore(selector);
 
-  useEffect(() => {
-    const data: Record<VariableID, ColumnIndex | null> = {};
+  const flowInputVariables = useMemo(() => {
+    return selectAllVariables(VariableType.FlowInput, variableMap);
+  }, [variableMap]);
 
-    for (const inputItem of flowInputItems) {
+  const flowOutputVariables = useMemo(() => {
+    return selectAllVariables(VariableType.FlowOutput, variableMap);
+  }, [variableMap]);
+
+  useEffect(() => {
+    const data: Record<V3VariableID, ColumnIndex | null> = {};
+
+    for (const inputItem of flowInputVariables) {
       data[inputItem.id] = null;
     }
 
-    for (const outputItem of flowOutputItems) {
+    for (const outputItem of flowOutputVariables) {
       data[outputItem.id] = null;
     }
 
     setVariableColumnMap(data);
-  }, [setVariableColumnMap, flowInputItems, flowOutputItems]);
+  }, [setVariableColumnMap, flowInputVariables, flowOutputVariables]);
 
   useEffect(() => {
     setGeneratedResult(
@@ -117,7 +127,7 @@ export default function EvaluationSectionConfigCSV(props: Props) {
     variableMapTableHeaderRowSecond.push(<th key={`status-0`}></th>);
   }
 
-  for (const inputItem of flowInputItems) {
+  for (const inputItem of flowInputVariables) {
     variableMapTableHeaderRowFirst.push(
       <th
         key={inputItem.id}
@@ -149,7 +159,7 @@ export default function EvaluationSectionConfigCSV(props: Props) {
     );
   }
 
-  for (const outputItem of flowOutputItems) {
+  for (const outputItem of flowOutputVariables) {
     variableMapTableHeaderRowFirst.push(
       <th
         key={outputItem.id}
@@ -214,7 +224,7 @@ export default function EvaluationSectionConfigCSV(props: Props) {
     }
 
     // Input columns
-    for (const inputItem of flowInputItems) {
+    for (const inputItem of flowInputVariables) {
       const index = variableColumnMap[inputItem.id];
       cells.push(
         <td key={`${inputItem.id}`}>{index !== null ? row[index] : ""}</td>,
@@ -222,7 +232,7 @@ export default function EvaluationSectionConfigCSV(props: Props) {
     }
 
     // Output columns
-    for (const outputItem of flowOutputItems) {
+    for (const outputItem of flowOutputVariables) {
       const index = variableColumnMap[outputItem.id];
       cells.push(
         <td key={`${outputItem.id}`}>{index !== null ? row[index] : ""}</td>,
@@ -317,7 +327,7 @@ export default function EvaluationSectionConfigCSV(props: Props) {
 
               // Inputs
 
-              for (const inputItem of flowInputItems) {
+              for (const inputItem of flowInputVariables) {
                 resultCsv[0].push(inputItem.name);
 
                 const index = variableColumnMap[inputItem.id];
@@ -330,7 +340,7 @@ export default function EvaluationSectionConfigCSV(props: Props) {
 
               // Outputs
 
-              for (const outputItem of flowOutputItems) {
+              for (const outputItem of flowOutputVariables) {
                 resultCsv[0].push(outputItem.name);
                 for (let i = 0; i < repeatCount; i++) {
                   resultCsv[0].push("");
@@ -357,13 +367,13 @@ export default function EvaluationSectionConfigCSV(props: Props) {
                 }
 
                 // Inputs
-                for (const inputItem of flowInputItems) {
+                for (const inputItem of flowInputVariables) {
                   const index = variableColumnMap[inputItem.id];
                   cells.push(index !== null ? row[index] : "");
                 }
 
                 // Outputs
-                for (const outputItem of flowOutputItems) {
+                for (const outputItem of flowOutputVariables) {
                   const index = variableColumnMap[outputItem.id];
                   cells.push(index !== null ? row[index] : "");
 
