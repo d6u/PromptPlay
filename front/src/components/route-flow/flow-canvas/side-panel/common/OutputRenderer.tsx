@@ -1,10 +1,10 @@
 import styled from "@emotion/styled";
 import { ReactNode } from "react";
 import {
-  FlowOutputItem,
-  NodeOutputItem,
-  OutputValueType,
-} from "../../../../../models/v2-flow-content-types";
+  FlowOutputVariable,
+  NodeOutputVariable,
+  VariableValueType,
+} from "../../../../../models/v3-flow-content-types";
 import { useFlowStore } from "../../../state/store-flow-state";
 import { FlowState } from "../../../state/store-flow-state-types";
 import OutputDisplay from "./OutputDisplay";
@@ -14,7 +14,7 @@ const selector = (state: FlowState) => ({
 });
 
 type Props = {
-  outputItem: FlowOutputItem | NodeOutputItem;
+  outputItem: FlowOutputVariable | NodeOutputVariable;
 };
 
 export default function OutputRenderer(props: Props) {
@@ -24,7 +24,7 @@ export default function OutputRenderer(props: Props) {
 
   let valueContent: ReactNode;
 
-  if (props.outputItem.valueType === OutputValueType.Audio) {
+  if (props.outputItem.valueType === VariableValueType.Audio) {
     valueContent = <audio controls src={value as string} />;
   } else {
     valueContent = (
