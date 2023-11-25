@@ -54,7 +54,7 @@ type FlowServerSliceStateV2 = {
   nodes: LocalNode[];
   edges: V3LocalEdge[];
   nodeConfigs: V3NodeConfigs;
-  variableConfigs: VariableMap;
+  variableMap: VariableMap;
   variableValueMaps: V3VariableValueMap[];
 };
 
@@ -89,7 +89,7 @@ const FLOW_SERVER_SLICE_INITIAL_STATE_V2: FlowServerSliceStateV2 = {
   nodes: [],
   edges: [],
   nodeConfigs: {},
-  variableConfigs: {},
+  variableMap: {},
   variableValueMaps: [{}],
 };
 
@@ -282,7 +282,7 @@ function handleEvent(
         event.connection,
         state.edges,
         state.nodeConfigs,
-        state.variableConfigs,
+        state.variableMap,
       );
     // Nodes
     case ChangeEventType.ADDING_NODE:
@@ -290,7 +290,7 @@ function handleEvent(
         event.node,
         state.nodes,
         state.nodeConfigs,
-        state.variableConfigs,
+        state.variableMap,
       );
     case ChangeEventType.REMOVING_NODE:
       return handleRemovingNode(event.nodeId, state.nodes, state.nodeConfigs);
@@ -306,15 +306,15 @@ function handleEvent(
         event.nodeId,
         event.varType,
         event.index,
-        state.variableConfigs,
+        state.variableMap,
       );
     case ChangeEventType.REMOVING_VARIABLE:
-      return handleRemovingVariable(event.variableId, state.variableConfigs);
+      return handleRemovingVariable(event.variableId, state.variableMap);
     case ChangeEventType.UPDATING_VARIABLE:
       return handleUpdatingVariable(
         event.variableId,
         event.change,
-        state.variableConfigs,
+        state.variableMap,
       );
     // --- Derived ---
     // Derived Nodes
@@ -324,29 +324,25 @@ function handleEvent(
         state.variableValueMaps,
       );
     case ChangeEventType.NODE_REMOVED:
-      return handleNodeRemoved(
-        event.node,
-        event.nodeConfig,
-        state.variableConfigs,
-      );
+      return handleNodeRemoved(event.node, event.nodeConfig, state.variableMap);
     case ChangeEventType.NODE_MOVED:
       return [state, []];
     case ChangeEventType.NODE_CONFIG_UPDATED:
       return [state, []];
     // Derived Edges
     case ChangeEventType.EDGE_ADDED:
-      return handleEdgeAdded(event.edge, state.variableConfigs);
+      return handleEdgeAdded(event.edge, state.variableMap);
     case ChangeEventType.EDGE_REMOVED:
       return handleEdgeRemoved(
         event.removedEdge,
         event.edgeSrcVariableConfig,
-        state.variableConfigs,
+        state.variableMap,
       );
     case ChangeEventType.EDGE_REPLACED:
       return handleEdgeReplaced(
         event.oldEdge,
         event.newEdge,
-        state.variableConfigs,
+        state.variableMap,
       );
     // Derived Variables
     case ChangeEventType.VARIABLE_ADDED:
@@ -556,7 +552,7 @@ function handleAddingNode(
   content.isFlowContentDirty = true;
   content.nodes = nodes;
   content.nodeConfigs = nodeConfigs;
-  content.variableConfigs = variableConfigs;
+  content.variableMap = variableConfigs;
 
   return [content, events];
 }
@@ -684,7 +680,7 @@ function handleAddingVariable(
   });
 
   content.isFlowContentDirty = true;
-  content.variableConfigs = variableConfigs;
+  content.variableMap = variableConfigs;
 
   return [content, events];
 }
@@ -706,7 +702,7 @@ function handleRemovingVariable(
   });
 
   content.isFlowContentDirty = true;
-  content.variableConfigs = variableConfigs;
+  content.variableMap = variableConfigs;
 
   return [content, events];
 }
@@ -731,7 +727,7 @@ function handleUpdatingVariable(
   });
 
   content.isFlowContentDirty = true;
-  content.variableConfigs = variableConfigs;
+  content.variableMap = variableConfigs;
 
   return [content, events];
 }
@@ -781,7 +777,7 @@ function handleNodeRemoved(
   });
 
   content.isFlowContentDirty = true;
-  content.variableConfigs = variableConfigs;
+  content.variableMap = variableConfigs;
 
   return [content, events];
 }
@@ -814,7 +810,7 @@ function handleEdgeAdded(
   });
 
   content.isFlowContentDirty = true;
-  content.variableConfigs = variableConfigs;
+  content.variableMap = variableConfigs;
 
   return [content, events];
 }
@@ -864,7 +860,7 @@ function handleEdgeRemoved(
   // !SECTION
 
   content.isFlowContentDirty = true;
-  content.variableConfigs = variableConfigs;
+  content.variableMap = variableConfigs;
 
   return [content, events];
 }
@@ -941,7 +937,7 @@ function handleEdgeReplaced(
   });
 
   content.isFlowContentDirty = true;
-  content.variableConfigs = variableConfigs;
+  content.variableMap = variableConfigs;
 
   return [content, events];
 }

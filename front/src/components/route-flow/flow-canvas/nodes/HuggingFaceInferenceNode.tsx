@@ -33,7 +33,7 @@ import {
 
 const flowSelector = (state: FlowState) => ({
   nodeConfigs: state.nodeConfigs,
-  variableConfigs: state.variableConfigs,
+  variableConfigs: state.variableMap,
   updateNodeConfig: state.updateNodeConfig,
   removeNode: state.removeNode,
   localNodeAugments: state.localNodeAugments,

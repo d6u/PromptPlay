@@ -15,6 +15,7 @@ import {
 import {
   V3FlowContent,
   V3VariableValueMap,
+  VariableType,
 } from "../../../models/v3-flow-content-types";
 import {
   assignLocalEdgeProperties,
@@ -22,7 +23,6 @@ import {
   fetchContent,
   saveSpaceContentV3,
 } from "./state-utils";
-import { flowInputItemsSelector } from "./store-flow-state";
 import {
   DetailPanelContentType,
   FlowState,
@@ -183,6 +183,7 @@ export const createRootSlice: StateCreator<FlowState, [], [], RootSlice> = (
         resetAugments,
         edges,
         nodeConfigs,
+        variableMap,
         updateNodeAugment,
         updateVariableValueMap,
       } = get();
@@ -194,14 +195,16 @@ export const createRootSlice: StateCreator<FlowState, [], [], RootSlice> = (
       const inputVariableMap: V3VariableValueMap = {};
       const defaultVariableValueMap = get().getDefaultVariableValueMap();
 
-      for (const inputItem of flowInputItemsSelector(get())) {
-        inputVariableMap[asV3VariableID(inputItem.id)] =
-          defaultVariableValueMap[asV3VariableID(inputItem.id)];
+      for (const variable of Object.values(variableMap)) {
+        if (variable.type === VariableType.FlowInput) {
+          inputVariableMap[variable.id] = defaultVariableValueMap[variable.id];
+        }
       }
 
       runFlowSubscription = run(
         nodeConfigs,
         edges,
+        variableMap,
         inputVariableMap,
         true,
       ).subscribe({

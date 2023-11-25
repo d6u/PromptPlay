@@ -46,7 +46,7 @@ const MESSAGES_HELPER_SECTION_HEIGHT = 81;
 
 const selector = (state: FlowState) => ({
   nodeConfigs: state.nodeConfigs,
-  variableConfigs: state.variableConfigs,
+  variableConfigs: state.variableMap,
   updateNodeConfig: state.updateNodeConfig,
   removeNode: state.removeNode,
   addVariable: state.addVariable,

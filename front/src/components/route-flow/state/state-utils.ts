@@ -2,17 +2,14 @@ import { produce } from "immer";
 import { Observable } from "rxjs";
 import { OperationResult } from "urql";
 import { SpaceFlowQueryQuery } from "../../../gql/graphql";
-import {
-  LocalEdge,
-  LocalNode,
-  NodeID,
-} from "../../../models/v2-flow-content-types";
+import { LocalNode, NodeID } from "../../../models/v2-flow-content-types";
 import {
   FlowInputVariable,
   FlowOutputVariable,
   NodeInputVariable,
   NodeOutputVariable,
   V3FlowContent,
+  V3LocalEdge,
   VariableMap,
   VariableType,
 } from "../../../models/v3-flow-content-types";
@@ -31,7 +28,7 @@ export function assignLocalNodeProperties(nodes: LocalNode[]): LocalNode[] {
   });
 }
 
-export function assignLocalEdgeProperties(edges: LocalEdge[]): LocalEdge[] {
+export function assignLocalEdgeProperties(edges: V3LocalEdge[]): V3LocalEdge[] {
   return produce(edges, (draft) => {
     for (const edge of draft) {
       if (!edge.style) {
