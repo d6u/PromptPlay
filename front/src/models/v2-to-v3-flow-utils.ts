@@ -35,7 +35,7 @@ export function convertV2ContentToV3Content(
 ): V3FlowContent {
   const { nodes, edges, nodeConfigs, variableValueMaps } = flowContentV2;
 
-  const variableConfigs: VariableMap = {};
+  const variableMap: VariableMap = {};
 
   const v3NodeConfigs: V3NodeConfigs = D.mapWithKey<NodeConfigs, V3NodeConfig>(
     nodeConfigs,
@@ -58,7 +58,7 @@ export function convertV2ContentToV3Content(
                   ? VariableValueType.String
                   : VariableValueType.Number,
             };
-            variableConfigs[variable.id] = variable;
+            variableMap[variable.id] = variable;
           }
           break;
         }
@@ -75,7 +75,7 @@ export function convertV2ContentToV3Content(
                   ? VariableValueType.Audio
                   : VariableValueType.String,
             };
-            variableConfigs[variable.id] = variable;
+            variableMap[variable.id] = variable;
           }
           break;
         }
@@ -94,7 +94,7 @@ export function convertV2ContentToV3Content(
               name: input.name,
               valueType: VariableValueType.Unknown,
             };
-            variableConfigs[variable.id] = variable;
+            variableMap[variable.id] = variable;
           }
           for (const [index, output] of nodeConfig.outputs.entries()) {
             const variable: NodeOutputVariable = {
@@ -108,7 +108,7 @@ export function convertV2ContentToV3Content(
                   ? VariableValueType.Audio
                   : VariableValueType.Unknown,
             };
-            variableConfigs[variable.id] = variable;
+            variableMap[variable.id] = variable;
           }
           break;
         }
@@ -206,7 +206,7 @@ export function convertV2ContentToV3Content(
     nodes,
     edges: v3Edges,
     nodeConfigs: v3NodeConfigs,
-    variableConfigs,
+    variableMap,
     variableValueMaps,
   };
 }

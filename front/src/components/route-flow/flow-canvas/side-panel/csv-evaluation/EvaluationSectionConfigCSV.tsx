@@ -19,11 +19,7 @@ import {
   ColumnIndex,
   RowIndex,
 } from "../../../state/slice-csv-evaluation-preset";
-import {
-  flowInputItemsSelector,
-  flowOutputItemsSelector,
-  useFlowStore,
-} from "../../../state/store-flow-state";
+import { useFlowStore } from "../../../state/store-flow-state";
 import { FlowState } from "../../../state/store-flow-state-types";
 import { Section } from "../common/controls-common";
 import OutputDisplay from "../common/OutputDisplay";

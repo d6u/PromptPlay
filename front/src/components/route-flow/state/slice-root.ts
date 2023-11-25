@@ -126,10 +126,10 @@ export const createRootSlice: StateCreator<FlowState, [], [], RootSlice> = (
           }),
         )
         .subscribe({
-          next({ nodes, edges, ...rest }) {
+          next({ nodes, edges, nodeConfigs, variableMap, variableValueMaps }) {
             nodes = assignLocalNodeProperties(nodes);
             edges = assignLocalEdgeProperties(edges);
-            set({ nodes, edges, ...rest });
+            set({ nodes, edges, nodeConfigs, variableMap, variableValueMaps });
           },
           complete() {
             set({ isInitialized: true });

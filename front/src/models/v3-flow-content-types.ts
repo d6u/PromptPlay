@@ -21,7 +21,7 @@ export type V3FlowContent = {
   nodes: ServerNode[];
   edges: V3ServerEdge[];
   nodeConfigs: V3NodeConfigs;
-  variableConfigs: VariableMap;
+  variableMap: VariableMap;
   variableValueMaps: V3VariableValueMap[];
 };
 
