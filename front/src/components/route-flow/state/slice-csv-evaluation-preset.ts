@@ -2,7 +2,7 @@ import { D, G, Option } from "@mobily/ts-belt";
 import { StateCreator } from "zustand";
 import { FlowOutputVariableMap } from "../../../flow-run";
 import { graphql } from "../../../gql";
-import { VariableID } from "../../../models/v2-flow-content-types";
+import { V3VariableID } from "../../../models/v3-flow-content-types";
 import { client } from "../../../state/urql";
 import { FlowState } from "./store-flow-state-types";
 
@@ -25,7 +25,7 @@ const DEFAULT_CONFIG_CONTENT: ConfigContent = {
 export type RowIndex = number & { readonly "": unique symbol };
 export type ColumnIndex = number & { readonly "": unique symbol };
 
-export type VariableColumnMap = Record<VariableID, ColumnIndex | null>;
+export type VariableColumnMap = Record<V3VariableID, ColumnIndex | null>;
 
 export type GeneratedResult = Record<
   RowIndex,

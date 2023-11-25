@@ -9,30 +9,31 @@ import {
   reduce,
 } from "rxjs";
 import {
-  FlowInputVariableMap,
   FlowOutputVariableMap,
   run,
   RunEvent,
   RunEventType,
 } from "../../../../../flow-run";
 import {
-  LocalEdge,
-  NodeConfigs,
-  NodeOutputID,
-} from "../../../../../models/v2-flow-content-types";
+  V3LocalEdge,
+  V3NodeConfigs,
+  VariableMap,
+} from "../../../../../models/v3-flow-content-types";
 import { VariableColumnMap } from "../../../state/slice-csv-evaluation-preset";
 import { CSVData } from "./csv-evaluation-common";
 
 export function runForEachRow({
   edges,
   nodeConfigs,
+  variableMap,
   csvBody,
   variableColumnMap,
   repeatCount,
   concurrencyLimit,
 }: {
-  edges: LocalEdge[];
-  nodeConfigs: NodeConfigs;
+  edges: V3LocalEdge[];
+  nodeConfigs: V3NodeConfigs;
+  variableMap: VariableMap;
   csvBody: CSVData;
   variableColumnMap: VariableColumnMap;
   repeatCount: number;
@@ -44,17 +45,12 @@ export function runForEachRow({
 
       return from(csvBody).pipe(
         map((row) => {
-          const inputVariableMap: FlowInputVariableMap = {};
-
-          for (const [inputId, colIndex] of Object.entries(variableColumnMap)) {
-            const value = colIndex != null ? row[colIndex] : null;
-            inputVariableMap[inputId as NodeOutputID] = value;
-          }
-
-          return inputVariableMap;
+          return D.map(variableColumnMap, (colIndex) => {
+            return colIndex != null ? row[colIndex] : null;
+          });
         }),
         mergeMap((inputVariableMap, rowIndex) => {
-          return run(edges, nodeConfigs, inputVariableMap).pipe(
+          return run(nodeConfigs, edges, variableMap, inputVariableMap).pipe(
             reduce<RunEvent, FlowOutputVariableMap>((acc, event) => {
               switch (event.type) {
                 case RunEventType.VariableValueChanges: {

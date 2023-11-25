@@ -36,8 +36,9 @@ const EVALUATION_MODE_CSV_CONTENT_QUERY = graphql(`
 
 const selector = (state: FlowState) => ({
   spaceId: state.spaceId,
-  edges: state.edges,
   nodeConfigs: state.nodeConfigs,
+  edges: state.edges,
+  variableMap: state.variableMap,
   presetId: state.csvEvaluationCurrentPresetId,
   csvContent: state.csvEvaluationCsvContent,
   setCsvContent: state.csvEvaluationSetLocalCsvContent,
@@ -52,8 +53,9 @@ const selector = (state: FlowState) => ({
 export default function PresetContent() {
   const {
     spaceId,
-    edges,
     nodeConfigs,
+    edges,
+    variableMap,
     presetId,
     csvContent,
     setCsvContent,
@@ -143,8 +145,9 @@ export default function PresetContent() {
     setIsRunning(true);
 
     runningSubscriptionRef.current = runForEachRow({
-      edges,
       nodeConfigs,
+      edges,
+      variableMap,
       csvBody,
       variableColumnMap,
       repeatCount,
@@ -197,8 +200,9 @@ export default function PresetContent() {
     spaceId,
     csvBody,
     repeatCount,
-    edges,
     nodeConfigs,
+    edges,
+    variableMap,
     variableColumnMap,
     concurrencyLimit,
     setGeneratedResult,
