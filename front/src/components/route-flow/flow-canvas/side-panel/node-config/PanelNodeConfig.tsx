@@ -1,5 +1,6 @@
 import { useMemo } from "react";
-import { NodeOutputItem } from "../../../../../models/v2-flow-content-types";
+import { VariableType } from "../../../../../models/v3-flow-content-types";
+import { selectVariables } from "../../../state/state-utils";
 import { useFlowStore } from "../../../state/store-flow-state";
 import { FlowState } from "../../../state/store-flow-state-types";
 import {
@@ -11,20 +12,22 @@ import {
 import OutputRenderer from "../common/OutputRenderer";
 
 const selector = (state: FlowState) => ({
-  nodeConfigs: state.nodeConfigs,
+  variableMap: state.variableMap,
   detailPanelSelectedNodeId: state.detailPanelSelectedNodeId,
 });
 
 export default function PanelNodeConfig() {
-  const { nodeConfigs, detailPanelSelectedNodeId } = useFlowStore(selector);
+  const { variableMap, detailPanelSelectedNodeId } = useFlowStore(selector);
 
-  const nodeConfig = useMemo(
-    () =>
-      detailPanelSelectedNodeId
-        ? nodeConfigs[detailPanelSelectedNodeId] ?? null
-        : null,
-    [detailPanelSelectedNodeId, nodeConfigs],
-  );
+  const outputVariables = useMemo(() => {
+    return detailPanelSelectedNodeId == null
+      ? []
+      : selectVariables(
+          detailPanelSelectedNodeId,
+          VariableType.NodeOutput,
+          variableMap,
+        );
+  }, [detailPanelSelectedNodeId, variableMap]);
 
   return (
     <PanelContentContainer>
@@ -32,14 +35,9 @@ export default function PanelNodeConfig() {
         <HeaderSectionHeader>Output variables</HeaderSectionHeader>
       </HeaderSection>
       <Section>
-        {nodeConfig && "outputs" in nodeConfig
-          ? nodeConfig.outputs.map((output) => (
-              <OutputRenderer
-                key={output.id}
-                outputItem={output as NodeOutputItem}
-              />
-            ))
-          : null}
+        {outputVariables.map((output) => (
+          <OutputRenderer key={output.id} outputItem={output} />
+        ))}
       </Section>
     </PanelContentContainer>
   );
