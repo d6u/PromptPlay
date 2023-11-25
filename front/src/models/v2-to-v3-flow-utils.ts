@@ -2,21 +2,31 @@ import { D } from "@mobily/ts-belt";
 import {
   FlowContent,
   InputValueType,
-  NodeID,
+  NodeConfigs,
   NodeType,
   OutputValueType,
   VariableID,
 } from "./v2-flow-content-types";
 import {
-  FlowInputVariableConfig,
-  FlowOutputVariableConfig,
-  NodeInputVariableConfig,
-  NodeOutputVariableConfig,
+  FlowInputVariable,
+  FlowOutputVariable,
+  NodeInputVariable,
+  NodeOutputVariable,
+  V3ChatGPTChatCompletionNodeConfig,
+  V3ChatGPTMessageNodeConfig,
+  V3ElevenLabsNodeConfig,
   V3FlowContent,
+  V3HuggingFaceInferenceNodeConfig,
+  V3InputNodeConfig,
+  V3JavaScriptFunctionNodeConfig,
+  V3NodeConfig,
   V3NodeConfigs,
+  V3OutputNodeConfig,
+  V3ServerEdge,
+  V3TextTemplateNodeConfig,
   V3VariableID,
-  VariableConfigs,
-  VariableConfigType,
+  Variables,
+  VariableType,
   VariableValueType,
 } from "./v3-flow-content-types";
 
@@ -25,136 +35,176 @@ export function convertV2ContentToV3Content(
 ): V3FlowContent {
   const { nodes, edges, nodeConfigs, variableValueMaps } = flowContentV2;
 
-  const variableConfigs: VariableConfigs = {};
-  const v3NodeConfigs: V3NodeConfigs = {};
+  const variableConfigs: Variables = {};
 
-  for (const [nodeId, nodeConfig] of Object.entries(nodeConfigs)) {
-    // SECTION: Populate V3NodeConfigs
+  const v3NodeConfigs: V3NodeConfigs = D.mapWithKey<NodeConfigs, V3NodeConfig>(
+    nodeConfigs,
+    (nodeId, nodeConfig) => {
+      const type = nodeConfig.nodeType;
 
-    switch (nodeConfig.nodeType) {
-      case NodeType.InputNode:
-        v3NodeConfigs[nodeId as NodeID] = D.deleteKeys(nodeConfig, ["outputs"]);
-        break;
-      case NodeType.OutputNode:
-        v3NodeConfigs[nodeId as NodeID] = D.deleteKeys(nodeConfig, ["inputs"]);
-        break;
-      case NodeType.ChatGPTChatCompletionNode:
-        v3NodeConfigs[nodeId as NodeID] = {
-          ...D.deleteKeys(nodeConfig, ["inputs", "outputs", "responseFormat"]),
-          nodeType: NodeType.ChatGPTChatCompletionNode,
-          seed: nodeConfig.seed ?? null,
-          responseFormatType:
-            nodeConfig.responseFormat == null ? null : "json_object",
-        };
-        break;
-      case NodeType.JavaScriptFunctionNode:
-        v3NodeConfigs[nodeId as NodeID] = D.deleteKeys(nodeConfig, [
-          "inputs",
-          "outputs",
-        ]);
-        break;
-      case NodeType.ChatGPTMessageNode:
-        v3NodeConfigs[nodeId as NodeID] = D.deleteKeys(nodeConfig, [
-          "inputs",
-          "outputs",
-        ]);
-        break;
-      case NodeType.TextTemplate:
-        v3NodeConfigs[nodeId as NodeID] = D.deleteKeys(nodeConfig, [
-          "inputs",
-          "outputs",
-        ]);
-        break;
-      case NodeType.HuggingFaceInference:
-        v3NodeConfigs[nodeId as NodeID] = D.deleteKeys(nodeConfig, [
-          "inputs",
-          "outputs",
-        ]);
-        break;
-      case NodeType.ElevenLabs:
-        v3NodeConfigs[nodeId as NodeID] = D.deleteKeys(nodeConfig, [
-          "inputs",
-          "outputs",
-        ]);
-        break;
-    }
+      // SECTION: Populate VariableConfigs
 
-    // SECTION: Populate VariableConfigs
-
-    switch (nodeConfig.nodeType) {
-      case NodeType.InputNode: {
-        for (const [index, flowInput] of nodeConfig.outputs.entries()) {
-          const variable: FlowInputVariableConfig = {
-            id: asV3VariableID(flowInput.id),
-            nodeId: nodeId as NodeID,
-            type: VariableConfigType.FlowInput,
-            index,
-            name: flowInput.name,
-            valueType:
-              flowInput.valueType === InputValueType.String
-                ? VariableValueType.String
-                : VariableValueType.Number,
-          };
-          variableConfigs[asV3VariableID(flowInput.id)] = variable;
+      switch (type) {
+        case NodeType.InputNode: {
+          for (const [index, flowInput] of nodeConfig.outputs.entries()) {
+            const variable: FlowInputVariable = {
+              type: VariableType.FlowInput,
+              id: asV3VariableID(flowInput.id),
+              nodeId,
+              index,
+              name: flowInput.name,
+              valueType:
+                flowInput.valueType === InputValueType.String
+                  ? VariableValueType.String
+                  : VariableValueType.Number,
+            };
+            variableConfigs[variable.id] = variable;
+          }
+          break;
         }
-        break;
+        case NodeType.OutputNode: {
+          for (const [index, flowOutput] of nodeConfig.inputs.entries()) {
+            const variable: FlowOutputVariable = {
+              type: VariableType.FlowOutput,
+              id: asV3VariableID(flowOutput.id),
+              nodeId,
+              index,
+              name: flowOutput.name,
+              valueType:
+                flowOutput.valueType === OutputValueType.Audio
+                  ? VariableValueType.Audio
+                  : VariableValueType.String,
+            };
+            variableConfigs[variable.id] = variable;
+          }
+          break;
+        }
+        case NodeType.JavaScriptFunctionNode:
+        case NodeType.ChatGPTMessageNode:
+        case NodeType.ChatGPTChatCompletionNode:
+        case NodeType.TextTemplate:
+        case NodeType.HuggingFaceInference:
+        case NodeType.ElevenLabs: {
+          for (const [index, input] of nodeConfig.inputs.entries()) {
+            const variable: NodeInputVariable = {
+              type: VariableType.NodeInput,
+              id: asV3VariableID(input.id),
+              nodeId,
+              index,
+              name: input.name,
+              valueType: VariableValueType.Unknown,
+            };
+            variableConfigs[variable.id] = variable;
+          }
+          for (const [index, output] of nodeConfig.outputs.entries()) {
+            const variable: NodeOutputVariable = {
+              type: VariableType.NodeOutput,
+              id: asV3VariableID(output.id),
+              nodeId,
+              index,
+              name: output.name,
+              valueType:
+                output.valueType === OutputValueType.Audio
+                  ? VariableValueType.Audio
+                  : VariableValueType.Unknown,
+            };
+            variableConfigs[variable.id] = variable;
+          }
+          break;
+        }
       }
-      case NodeType.OutputNode: {
-        for (const [index, flowOutput] of nodeConfig.inputs.entries()) {
-          const variable: FlowOutputVariableConfig = {
-            id: asV3VariableID(flowOutput.id),
-            nodeId: nodeId as NodeID,
-            type: VariableConfigType.FlowOutput,
-            index,
-            name: flowOutput.name,
-            valueType:
-              flowOutput.valueType === OutputValueType.Audio
-                ? VariableValueType.Audio
-                : VariableValueType.String,
+
+      // !SECTION
+
+      // SECTION: Populate V3NodeConfigs
+
+      switch (type) {
+        case NodeType.InputNode: {
+          const v3NodeConfig: V3InputNodeConfig = {
+            type,
+            nodeId,
           };
-          variableConfigs[asV3VariableID(flowOutput.id)] = variable;
+          return v3NodeConfig;
         }
-        break;
+        case NodeType.OutputNode: {
+          const v3NodeConfig: V3OutputNodeConfig = {
+            type,
+            nodeId,
+          };
+          return v3NodeConfig;
+        }
+        case NodeType.ChatGPTMessageNode: {
+          const v3NodeConfig: V3ChatGPTMessageNodeConfig = {
+            type,
+            nodeId,
+            role: nodeConfig.role,
+            content: nodeConfig.content,
+          };
+          return v3NodeConfig;
+        }
+        case NodeType.ChatGPTChatCompletionNode: {
+          const v3NodeConfig: V3ChatGPTChatCompletionNodeConfig = {
+            type,
+            nodeId,
+            model: nodeConfig.model,
+            temperature: nodeConfig.temperature,
+            seed: nodeConfig.seed ?? null,
+            responseFormatType:
+              nodeConfig.responseFormat == null ? null : "json_object",
+            stop: nodeConfig.stop,
+          };
+          return v3NodeConfig;
+        }
+        case NodeType.JavaScriptFunctionNode: {
+          const v3NodeConfig: V3JavaScriptFunctionNodeConfig = {
+            nodeId: nodeConfig.nodeId,
+            type,
+            javaScriptCode: nodeConfig.javaScriptCode,
+          };
+          return v3NodeConfig;
+        }
+        case NodeType.TextTemplate: {
+          const v3NodeConfig: V3TextTemplateNodeConfig = {
+            type,
+            nodeId,
+            content: nodeConfig.content,
+          };
+          return v3NodeConfig;
+        }
+        case NodeType.HuggingFaceInference: {
+          const v3NodeConfig: V3HuggingFaceInferenceNodeConfig = {
+            type,
+            nodeId,
+            model: nodeConfig.model,
+          };
+          return v3NodeConfig;
+        }
+        case NodeType.ElevenLabs: {
+          const v3NodeConfig: V3ElevenLabsNodeConfig = {
+            type,
+            nodeId,
+            voiceId: nodeConfig.voiceId,
+          };
+          return v3NodeConfig;
+        }
       }
-      case NodeType.JavaScriptFunctionNode:
-      case NodeType.ChatGPTMessageNode:
-      case NodeType.ChatGPTChatCompletionNode:
-      case NodeType.TextTemplate:
-      case NodeType.HuggingFaceInference:
-      case NodeType.ElevenLabs: {
-        for (const [index, input] of nodeConfig.inputs.entries()) {
-          const variable: NodeInputVariableConfig = {
-            id: asV3VariableID(input.id),
-            nodeId: nodeId as NodeID,
-            type: VariableConfigType.NodeInput,
-            index,
-            name: input.name,
-            valueType: VariableValueType.Unknown,
-          };
-          variableConfigs[asV3VariableID(input.id)] = variable;
-        }
-        for (const [index, output] of nodeConfig.outputs.entries()) {
-          const variable: NodeOutputVariableConfig = {
-            id: asV3VariableID(output.id),
-            nodeId: nodeId as NodeID,
-            type: VariableConfigType.NodeOutput,
-            index,
-            name: output.name,
-            valueType:
-              output.valueType === OutputValueType.Audio
-                ? VariableValueType.Audio
-                : VariableValueType.Unknown,
-          };
-          variableConfigs[asV3VariableID(output.id)] = variable;
-        }
-        break;
-      }
-    }
-  }
+
+      // !SECTION
+    },
+  );
+
+  // This doesn't do anything other than cast the type for handlers
+  const v3Edges = edges.map<V3ServerEdge>((edge) => ({
+    id: edge.id,
+    source: edge.source,
+    target: edge.target,
+    sourceHandle: asV3VariableID(edge.sourceHandle),
+    targetHandle: asV3VariableID(edge.targetHandle),
+  }));
 
   return {
     nodes,
-    edges,
+    edges: v3Edges,
     nodeConfigs: v3NodeConfigs,
     variableConfigs,
     variableValueMaps,

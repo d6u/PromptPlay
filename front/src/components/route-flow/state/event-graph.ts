@@ -8,8 +8,8 @@ import {
 import {
   V3NodeConfig,
   V3VariableID,
-  VariableConfig,
-  VariableConfigType,
+  Variable,
+  VariableType,
 } from "../../../models/v3-flow-content-types";
 
 export enum ChangeEventType {
@@ -122,7 +122,7 @@ export type ChangeEvent =
   | {
       type: ChangeEventType.ADDING_VARIABLE;
       nodeId: NodeID;
-      varType: VariableConfigType;
+      varType: VariableType;
       index: number;
     }
   | {
@@ -132,14 +132,14 @@ export type ChangeEvent =
   | {
       type: ChangeEventType.UPDATING_VARIABLE;
       variableId: V3VariableID;
-      change: Partial<VariableConfig>;
+      change: Partial<Variable>;
     }
   // --- Derived ---
   // Derived Nodes
   | {
       type: ChangeEventType.NODE_AND_VARIABLES_ADDED;
       node: LocalNode;
-      variableConfigList: VariableConfig[];
+      variableConfigList: Variable[];
     }
   | {
       type: ChangeEventType.NODE_REMOVED;
@@ -160,7 +160,7 @@ export type ChangeEvent =
   | {
       type: ChangeEventType.EDGE_REMOVED;
       removedEdge: LocalEdge;
-      edgeSrcVariableConfig: VariableConfig | null;
+      edgeSrcVariableConfig: Variable | null;
     }
   | {
       type: ChangeEventType.EDGE_REPLACED;
@@ -170,8 +170,8 @@ export type ChangeEvent =
   // Derived Variables
   | {
       type: ChangeEventType.VARIABLE_UPDATED;
-      prevVariableConfig: VariableConfig;
-      nextVariableConfig: VariableConfig;
+      prevVariableConfig: Variable;
+      nextVariableConfig: Variable;
     }
   | {
       type: ChangeEventType.VARIABLE_ADDED;

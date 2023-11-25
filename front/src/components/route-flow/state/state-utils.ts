@@ -8,13 +8,13 @@ import {
   NodeID,
 } from "../../../models/v2-flow-content-types";
 import {
-  FlowInputVariableConfig,
-  FlowOutputVariableConfig,
-  NodeInputVariableConfig,
-  NodeOutputVariableConfig,
+  FlowInputVariable,
+  FlowOutputVariable,
+  NodeInputVariable,
+  NodeOutputVariable,
   V3FlowContent,
-  VariableConfigs,
-  VariableConfigType,
+  Variables,
+  VariableType,
 } from "../../../models/v3-flow-content-types";
 import { client } from "../../../state/urql";
 import { toRxObservableSingle } from "../../../utils/graphql-utils";
@@ -64,16 +64,16 @@ export async function saveSpaceContentV3(
 }
 
 export type VariableTypeToVariableConfigTypeMap = {
-  [VariableConfigType.NodeInput]: NodeInputVariableConfig;
-  [VariableConfigType.NodeOutput]: NodeOutputVariableConfig;
-  [VariableConfigType.FlowInput]: FlowInputVariableConfig;
-  [VariableConfigType.FlowOutput]: FlowOutputVariableConfig;
+  [VariableType.NodeInput]: NodeInputVariable;
+  [VariableType.NodeOutput]: NodeOutputVariable;
+  [VariableType.FlowInput]: FlowInputVariable;
+  [VariableType.FlowOutput]: FlowOutputVariable;
 };
 
 export function selectVariables<
-  T extends VariableConfigType,
+  T extends VariableType,
   R = VariableTypeToVariableConfigTypeMap[T],
->(nodeId: NodeID, type: T, variableConfigs: VariableConfigs): R[] {
+>(nodeId: NodeID, type: T, variableConfigs: Variables): R[] {
   return Object.values(variableConfigs)
     .filter(
       (variableConfig) =>

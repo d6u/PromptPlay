@@ -152,7 +152,7 @@ export function run(
     concatMap(([{ nodeId, nodeConfig }]) => {
       let obs: Observable<RunEvent>;
 
-      switch (nodeConfig.nodeType) {
+      switch (nodeConfig.type) {
         case NodeType.InputNode: {
           obs = EMPTY;
           break;

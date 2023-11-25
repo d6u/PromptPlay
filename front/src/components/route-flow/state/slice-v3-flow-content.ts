@@ -23,17 +23,17 @@ import {
 } from "../../../models/v2-flow-content-types";
 import { asV3VariableID } from "../../../models/v2-to-v3-flow-utils";
 import {
-  FlowInputVariableConfig,
-  FlowOutputVariableConfig,
-  NodeInputVariableConfig,
-  NodeOutputVariableConfig,
+  FlowInputVariable,
+  FlowOutputVariable,
+  NodeInputVariable,
+  NodeOutputVariable,
   V3NodeConfig,
   V3NodeConfigs,
   V3VariableID,
   V3VariableValueMap,
-  VariableConfig,
-  VariableConfigs,
-  VariableConfigType,
+  Variable,
+  Variables,
+  VariableType,
   VariableValueType,
 } from "../../../models/v3-flow-content-types";
 import { createNode, createNodeConfig } from "../../../models/v3-flow-utils";
@@ -54,7 +54,7 @@ type FlowServerSliceStateV2 = {
   nodes: LocalNode[];
   edges: LocalEdge[];
   nodeConfigs: V3NodeConfigs;
-  variableConfigs: VariableConfigs;
+  variableConfigs: Variables;
   variableValueMaps: V3VariableValueMap[];
 };
 
@@ -71,10 +71,10 @@ export type FlowServerSliceV2 = FlowServerSliceStateV2 & {
   removeNode(id: NodeID): void;
   updateNodeConfig(nodeId: NodeID, change: Partial<V3NodeConfig>): void;
 
-  addVariable(nodeId: NodeID, type: VariableConfigType, index: number): void;
+  addVariable(nodeId: NodeID, type: VariableType, index: number): void;
   removeVariable(variableId: V3VariableID): void;
   updateVariable<
-    T extends VariableConfigType,
+    T extends VariableType,
     R = VariableTypeToVariableConfigTypeMap[T],
   >(
     variableId: V3VariableID,
@@ -223,7 +223,7 @@ export const createFlowServerSliceV2: StateCreator<
       });
     },
 
-    addVariable(nodeId: NodeID, type: VariableConfigType, index: number): void {
+    addVariable(nodeId: NodeID, type: VariableType, index: number): void {
       startProcessingEventGraph({
         type: ChangeEventType.ADDING_VARIABLE,
         nodeId,
@@ -238,7 +238,7 @@ export const createFlowServerSliceV2: StateCreator<
       });
     },
     updateVariable<
-      T extends VariableConfigType,
+      T extends VariableType,
       R = VariableTypeToVariableConfigTypeMap[T],
     >(variableId: V3VariableID, change: Partial<R>): void {
       startProcessingEventGraph({
@@ -463,7 +463,7 @@ function handleRfOnConnect(
   connection: Connection,
   prevEdges: LocalEdge[],
   nodeConfigs: V3NodeConfigs,
-  variableConfigs: VariableConfigs,
+  variableConfigs: Variables,
 ): [Partial<FlowServerSliceStateV2>, ChangeEvent[]] {
   const content: Partial<FlowServerSliceStateV2> = {};
   const events: ChangeEvent[] = [];
@@ -481,7 +481,7 @@ function handleRfOnConnect(
 
   if (srcVariable.valueType === VariableValueType.Audio) {
     const dstNodeConfig = nodeConfigs[addedEdge.target];
-    if (dstNodeConfig.nodeType !== NodeType.OutputNode) {
+    if (dstNodeConfig.type !== NodeType.OutputNode) {
       // TODO: Change this to a non-blocking alert UI
       alert("You can only connect an audio output to an output node.");
 
@@ -526,7 +526,7 @@ function handleAddingNode(
   node: LocalNode,
   prevNodes: LocalNode[],
   prevNodeConfigs: V3NodeConfigs,
-  prevVariableConfigs: VariableConfigs,
+  prevVariableConfigs: Variables,
 ): [Partial<FlowServerSliceStateV2>, ChangeEvent[]] {
   const content: Partial<FlowServerSliceStateV2> = {};
   const events: ChangeEvent[] = [];
@@ -621,9 +621,9 @@ function handleUpdatingNodeConfig(
 
 function handleAddingVariable(
   nodeId: NodeID,
-  varType: VariableConfigType,
+  varType: VariableType,
   index: number,
-  variableConfigs: VariableConfigs,
+  variableConfigs: Variables,
 ): [Partial<FlowServerSliceStateV2>, ChangeEvent[]] {
   const content: Partial<FlowServerSliceStateV2> = {};
   const events: ChangeEvent[] = [];
@@ -639,8 +639,8 @@ function handleAddingVariable(
     };
 
     switch (varType) {
-      case VariableConfigType.NodeInput: {
-        const variableConfig: NodeInputVariableConfig = {
+      case VariableType.NodeInput: {
+        const variableConfig: NodeInputVariable = {
           ...commonFields,
           type: varType,
           valueType: VariableValueType.Unknown,
@@ -648,8 +648,8 @@ function handleAddingVariable(
         draft[variableConfig.id] = variableConfig;
         break;
       }
-      case VariableConfigType.NodeOutput: {
-        const variableConfig: NodeOutputVariableConfig = {
+      case VariableType.NodeOutput: {
+        const variableConfig: NodeOutputVariable = {
           ...commonFields,
           type: varType,
           valueType: VariableValueType.Unknown,
@@ -657,8 +657,8 @@ function handleAddingVariable(
         draft[variableConfig.id] = variableConfig;
         break;
       }
-      case VariableConfigType.FlowInput: {
-        const variableConfig: FlowInputVariableConfig = {
+      case VariableType.FlowInput: {
+        const variableConfig: FlowInputVariable = {
           ...commonFields,
           type: varType,
           valueType: VariableValueType.String,
@@ -666,8 +666,8 @@ function handleAddingVariable(
         draft[variableConfig.id] = variableConfig;
         break;
       }
-      case VariableConfigType.FlowOutput: {
-        const variableConfig: FlowOutputVariableConfig = {
+      case VariableType.FlowOutput: {
+        const variableConfig: FlowOutputVariable = {
           ...commonFields,
           type: varType,
           valueType: VariableValueType.String,
@@ -691,7 +691,7 @@ function handleAddingVariable(
 
 function handleRemovingVariable(
   variableId: V3VariableID,
-  prevVariableConfigs: VariableConfigs,
+  prevVariableConfigs: Variables,
 ): [Partial<FlowServerSliceStateV2>, ChangeEvent[]] {
   const content: Partial<FlowServerSliceStateV2> = {};
   const events: ChangeEvent[] = [];
@@ -713,8 +713,8 @@ function handleRemovingVariable(
 
 function handleUpdatingVariable(
   variableId: V3VariableID,
-  change: Partial<VariableConfig>,
-  prevVariableConfigs: VariableConfigs,
+  change: Partial<Variable>,
+  prevVariableConfigs: Variables,
 ): [Partial<FlowServerSliceStateV2>, ChangeEvent[]] {
   const content: Partial<FlowServerSliceStateV2> = {};
   const events: ChangeEvent[] = [];
@@ -737,7 +737,7 @@ function handleUpdatingVariable(
 }
 
 function handleNodeAndVariablesAdded(
-  variableConfigList: VariableConfig[],
+  variableConfigList: Variable[],
   prevVariableValueMaps: V3VariableValueMap[],
 ): [Partial<FlowServerSliceStateV2>, ChangeEvent[]] {
   const content: Partial<FlowServerSliceStateV2> = {};
@@ -762,7 +762,7 @@ function handleNodeAndVariablesAdded(
 function handleNodeRemoved(
   removedNode: LocalNode,
   removedNodeConfig: V3NodeConfig,
-  prevVariableConfigs: VariableConfigs,
+  prevVariableConfigs: Variables,
 ): [Partial<FlowServerSliceStateV2>, ChangeEvent[]] {
   const content: Partial<FlowServerSliceStateV2> = {};
   const events: ChangeEvent[] = [];
@@ -788,7 +788,7 @@ function handleNodeRemoved(
 
 function handleEdgeAdded(
   addedEdge: LocalEdge,
-  prevVariableConfigs: VariableConfigs,
+  prevVariableConfigs: Variables,
 ): [Partial<FlowServerSliceStateV2>, ChangeEvent[]] {
   const content: Partial<FlowServerSliceStateV2> = {};
   const events: ChangeEvent[] = [];
@@ -799,7 +799,7 @@ function handleEdgeAdded(
     if (srcVariableConfig.valueType === VariableValueType.Audio) {
       const dstVariableConfig = draft[asV3VariableID(addedEdge.targetHandle)];
 
-      invariant(dstVariableConfig.type === VariableConfigType.FlowOutput);
+      invariant(dstVariableConfig.type === VariableType.FlowOutput);
 
       const prevVariableConfig = current(dstVariableConfig);
 
@@ -821,8 +821,8 @@ function handleEdgeAdded(
 
 function handleEdgeRemoved(
   removedEdge: LocalEdge,
-  edgeSrcVariableConfig: VariableConfig | null,
-  prevVariableConfigs: VariableConfigs,
+  edgeSrcVariableConfig: Variable | null,
+  prevVariableConfigs: Variables,
 ): [Partial<FlowServerSliceStateV2>, ChangeEvent[]] {
   const content: Partial<FlowServerSliceStateV2> = {};
   const events: ChangeEvent[] = [];
@@ -839,15 +839,15 @@ function handleEdgeRemoved(
       edgeSrcVariableConfig ?? draft[asV3VariableID(removedEdge.sourceHandle)];
 
     invariant(
-      srcVariableConfig.type === VariableConfigType.NodeOutput ||
-        srcVariableConfig.type === VariableConfigType.FlowInput,
+      srcVariableConfig.type === VariableType.NodeOutput ||
+        srcVariableConfig.type === VariableType.FlowInput,
     );
 
     if (srcVariableConfig.valueType === VariableValueType.Audio) {
       // Get the destination input
       const dstVariableConfig = draft[asV3VariableID(removedEdge.targetHandle)];
 
-      invariant(dstVariableConfig.type === VariableConfigType.FlowOutput);
+      invariant(dstVariableConfig.type === VariableType.FlowOutput);
 
       const prevVariableConfig = current(dstVariableConfig);
 
@@ -872,7 +872,7 @@ function handleEdgeRemoved(
 function handleEdgeReplaced(
   oldEdge: LocalEdge,
   newEdge: LocalEdge,
-  prevVariableConfigs: VariableConfigs,
+  prevVariableConfigs: Variables,
 ): [Partial<FlowServerSliceStateV2>, ChangeEvent[]] {
   const content: Partial<FlowServerSliceStateV2> = {};
   const events: ChangeEvent[] = [];
@@ -884,12 +884,12 @@ function handleEdgeReplaced(
     const newSrcVariableConfig = draft[asV3VariableID(newEdge.sourceHandle)];
 
     invariant(
-      oldSrcVariableConfig.type === VariableConfigType.FlowInput ||
-        oldSrcVariableConfig.type === VariableConfigType.NodeOutput,
+      oldSrcVariableConfig.type === VariableType.FlowInput ||
+        oldSrcVariableConfig.type === VariableType.NodeOutput,
     );
     invariant(
-      newSrcVariableConfig.type === VariableConfigType.FlowInput ||
-        newSrcVariableConfig.type === VariableConfigType.NodeOutput,
+      newSrcVariableConfig.type === VariableType.FlowInput ||
+        newSrcVariableConfig.type === VariableType.NodeOutput,
     );
 
     if (oldSrcVariableConfig.valueType !== newSrcVariableConfig.valueType) {
@@ -898,33 +898,33 @@ function handleEdgeReplaced(
       const dstVariableConfig = draft[asV3VariableID(newEdge.targetHandle)];
 
       invariant(
-        dstVariableConfig.type === VariableConfigType.FlowOutput ||
-          dstVariableConfig.type === VariableConfigType.NodeInput,
+        dstVariableConfig.type === VariableType.FlowOutput ||
+          dstVariableConfig.type === VariableType.NodeInput,
       );
 
       const prevVariableConfig = current(dstVariableConfig);
 
       switch (newSrcVariableConfig.valueType) {
         case VariableValueType.Number:
-          if (dstVariableConfig.type === VariableConfigType.FlowOutput) {
+          if (dstVariableConfig.type === VariableType.FlowOutput) {
             dstVariableConfig.valueType = VariableValueType.String;
           } else {
             dstVariableConfig.valueType = VariableValueType.Unknown;
           }
           break;
         case VariableValueType.String:
-          if (dstVariableConfig.type === VariableConfigType.FlowOutput) {
+          if (dstVariableConfig.type === VariableType.FlowOutput) {
             dstVariableConfig.valueType = VariableValueType.String;
           } else {
             dstVariableConfig.valueType = VariableValueType.Unknown;
           }
           break;
         case VariableValueType.Audio:
-          invariant(dstVariableConfig.type === VariableConfigType.FlowOutput);
+          invariant(dstVariableConfig.type === VariableType.FlowOutput);
           dstVariableConfig.valueType = VariableValueType.Audio;
           break;
         case VariableValueType.Unknown:
-          if (dstVariableConfig.type === VariableConfigType.FlowOutput) {
+          if (dstVariableConfig.type === VariableType.FlowOutput) {
             dstVariableConfig.valueType = VariableValueType.String;
           } else {
             dstVariableConfig.valueType = VariableValueType.Unknown;
@@ -1012,8 +1012,8 @@ function handleVariableRemoved(
 }
 
 function handleVariableUpdated(
-  prevVariableConfig: VariableConfig,
-  nextVariableConfig: VariableConfig,
+  prevVariableConfig: Variable,
+  nextVariableConfig: Variable,
   prevVariableValueMaps: V3VariableValueMap[],
 ): EventHandlerResult {
   const content: Partial<FlowServerSliceStateV2> = {};

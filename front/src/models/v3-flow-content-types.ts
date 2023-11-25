@@ -1,10 +1,11 @@
+import { Edge } from "reactflow";
 import { ChatGPTMessageRole } from "../integrations/openai";
 import {
+  EdgeID,
   NodeConfigCommon,
   NodeID,
   NodeType,
   OpenAIChatModel,
-  ServerEdge,
   ServerNode,
 } from "./v2-flow-content-types";
 
@@ -18,13 +19,29 @@ export type V3VariableID = string & { readonly "": unique symbol };
 
 export type V3FlowContent = {
   nodes: ServerNode[];
-  edges: ServerEdge[];
+  edges: V3ServerEdge[];
   nodeConfigs: V3NodeConfigs;
-  variableConfigs: VariableConfigs;
+  variableConfigs: Variables;
   variableValueMaps: V3VariableValueMap[];
 };
 
 // !SECTION
+
+// SECTION: V3 Edge Types
+
+export type V3ServerEdge = {
+  id: EdgeID;
+  source: NodeID;
+  sourceHandle: V3VariableID;
+  target: NodeID;
+  targetHandle: V3VariableID;
+};
+
+export type V3LocalEdge = Omit<
+  Edge<never>,
+  "id" | "source" | "sourceHandle" | "target" | "targetHandle"
+> &
+  V3ServerEdge;
 
 // SECTION: V3 NodeConfig Types
 
@@ -41,21 +58,21 @@ export type V3NodeConfig =
   | V3ElevenLabsNodeConfig;
 
 export type V3InputNodeConfig = NodeConfigCommon & {
-  nodeType: NodeType.InputNode;
+  type: NodeType.InputNode;
 };
 
 export type V3OutputNodeConfig = NodeConfigCommon & {
-  nodeType: NodeType.OutputNode;
+  type: NodeType.OutputNode;
 };
 
 export type V3ChatGPTMessageNodeConfig = NodeConfigCommon & {
-  nodeType: NodeType.ChatGPTMessageNode;
+  type: NodeType.ChatGPTMessageNode;
   role: ChatGPTMessageRole;
   content: string;
 };
 
 export type V3ChatGPTChatCompletionNodeConfig = NodeConfigCommon & {
-  nodeType: NodeType.ChatGPTChatCompletionNode;
+  type: NodeType.ChatGPTChatCompletionNode;
   model: OpenAIChatModel;
   temperature: number;
   seed: number | null;
@@ -64,23 +81,23 @@ export type V3ChatGPTChatCompletionNodeConfig = NodeConfigCommon & {
 };
 
 export type V3JavaScriptFunctionNodeConfig = NodeConfigCommon & {
-  nodeType: NodeType.JavaScriptFunctionNode;
+  type: NodeType.JavaScriptFunctionNode;
   javaScriptCode: string;
 };
 
 export type V3TextTemplateNodeConfig = NodeConfigCommon & {
-  nodeType: NodeType.TextTemplate;
+  type: NodeType.TextTemplate;
   content: string;
 };
 
 // Reference: https://huggingface.co/docs/api-inference/index
 export type V3HuggingFaceInferenceNodeConfig = NodeConfigCommon & {
-  nodeType: NodeType.HuggingFaceInference;
+  type: NodeType.HuggingFaceInference;
   model: string;
 };
 
 export type V3ElevenLabsNodeConfig = NodeConfigCommon & {
-  nodeType: NodeType.ElevenLabs;
+  type: NodeType.ElevenLabs;
   voiceId: string;
 };
 
@@ -88,13 +105,13 @@ export type V3ElevenLabsNodeConfig = NodeConfigCommon & {
 
 // SECTION: V3 VariableConfig Types
 
-export type VariableConfigs = Record<V3VariableID, VariableConfig>;
+export type Variables = Record<V3VariableID, Variable>;
 
-export type VariableConfig =
-  | NodeInputVariableConfig
-  | NodeOutputVariableConfig
-  | FlowInputVariableConfig
-  | FlowOutputVariableConfig;
+export type Variable =
+  | FlowInputVariable
+  | FlowOutputVariable
+  | NodeInputVariable
+  | NodeOutputVariable;
 
 type VariableConfigCommon = {
   id: V3VariableID;
@@ -103,7 +120,7 @@ type VariableConfigCommon = {
   name: string;
 };
 
-export enum VariableConfigType {
+export enum VariableType {
   NodeInput = "NodeInput",
   NodeOutput = "NodeOutput",
   FlowInput = "FlowInput",
@@ -117,23 +134,23 @@ export enum VariableValueType {
   Unknown = "Unknown",
 }
 
-export type FlowInputVariableConfig = VariableConfigCommon & {
-  type: VariableConfigType.FlowInput;
+export type FlowInputVariable = VariableConfigCommon & {
+  type: VariableType.FlowInput;
   valueType: VariableValueType.String | VariableValueType.Number;
 };
 
-export type FlowOutputVariableConfig = VariableConfigCommon & {
-  type: VariableConfigType.FlowOutput;
+export type FlowOutputVariable = VariableConfigCommon & {
+  type: VariableType.FlowOutput;
   valueType: VariableValueType.String | VariableValueType.Audio;
 };
 
-export type NodeInputVariableConfig = VariableConfigCommon & {
-  type: VariableConfigType.NodeInput;
+export type NodeInputVariable = VariableConfigCommon & {
+  type: VariableType.NodeInput;
   valueType: VariableValueType.Unknown;
 };
 
-export type NodeOutputVariableConfig = VariableConfigCommon & {
-  type: VariableConfigType.NodeOutput;
+export type NodeOutputVariable = VariableConfigCommon & {
+  type: VariableType.NodeOutput;
   valueType: VariableValueType.Unknown | VariableValueType.Audio;
 };
 

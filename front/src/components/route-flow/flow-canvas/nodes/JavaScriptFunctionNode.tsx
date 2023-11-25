@@ -6,7 +6,7 @@ import { Position, useNodeId, useUpdateNodeInternals } from "reactflow";
 import { NodeID, NodeType } from "../../../../models/v2-flow-content-types";
 import {
   V3JavaScriptFunctionNodeConfig,
-  VariableConfigType,
+  VariableType,
 } from "../../../../models/v3-flow-content-types";
 import { CopyIcon, LabelWithIconContainer } from "../../common/flow-common";
 import TextareaReadonly from "../../common/TextareaReadonly";
@@ -60,19 +60,11 @@ export default function JavaScriptFunctionNode() {
   } = useFlowStore(selector);
 
   const inputs = useMemo(() => {
-    return selectVariables(
-      nodeId,
-      VariableConfigType.NodeInput,
-      variableConfigs,
-    );
+    return selectVariables(nodeId, VariableType.NodeInput, variableConfigs);
   }, [nodeId, variableConfigs]);
 
   const outputs = useMemo(() => {
-    return selectVariables(
-      nodeId,
-      VariableConfigType.NodeOutput,
-      variableConfigs,
-    );
+    return selectVariables(nodeId, VariableType.NodeOutput, variableConfigs);
   }, [nodeId, variableConfigs]);
 
   const nodeConfig = useMemo(
@@ -135,11 +127,7 @@ export default function JavaScriptFunctionNode() {
           <SmallSection>
             <AddVariableButton
               onClick={() => {
-                addVariable(
-                  nodeId,
-                  VariableConfigType.NodeInput,
-                  inputs.length,
-                );
+                addVariable(nodeId, VariableType.NodeInput, inputs.length);
                 updateNodeInternals(nodeId);
               }}
             />

@@ -4,7 +4,7 @@ import { Position, useNodeId, useUpdateNodeInternals } from "reactflow";
 import { NodeID, NodeType } from "../../../../models/v2-flow-content-types";
 import {
   V3OutputNodeConfig,
-  VariableConfigType,
+  VariableType,
 } from "../../../../models/v3-flow-content-types";
 import FlowContext from "../../FlowContext";
 import { selectVariables } from "../../state/state-utils";
@@ -56,11 +56,7 @@ export default function OutputNode() {
   );
 
   const flowOutputs = useMemo(() => {
-    return selectVariables(
-      nodeId,
-      VariableConfigType.FlowOutput,
-      variableConfigs,
-    );
+    return selectVariables(nodeId, VariableType.FlowOutput, variableConfigs);
   }, [nodeId, variableConfigs]);
 
   const updateNodeInternals = useUpdateNodeInternals();
@@ -104,7 +100,7 @@ export default function OutputNode() {
               onClick={() => {
                 addVariable(
                   nodeId,
-                  VariableConfigType.FlowOutput,
+                  VariableType.FlowOutput,
                   flowOutputs.length,
                 );
                 updateNodeInternals(nodeId);

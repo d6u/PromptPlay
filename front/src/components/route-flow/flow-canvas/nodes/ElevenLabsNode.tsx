@@ -7,7 +7,7 @@ import { Position, useNodeId } from "reactflow";
 import { NodeID, NodeType } from "../../../../models/v2-flow-content-types";
 import {
   V3ElevenLabsNodeConfig,
-  VariableConfigType,
+  VariableType,
 } from "../../../../models/v3-flow-content-types";
 import {
   LocalStorageState,
@@ -72,13 +72,13 @@ export default function ElevenLabsNode() {
 
   const inputVariables = selectVariables(
     nodeId,
-    VariableConfigType.NodeInput,
+    VariableType.NodeInput,
     variableConfigs,
   );
 
   const outputVariables = selectVariables(
     nodeId,
-    VariableConfigType.NodeOutput,
+    VariableType.NodeOutput,
     variableConfigs,
   );
 

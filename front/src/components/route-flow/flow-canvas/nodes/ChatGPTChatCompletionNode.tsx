@@ -15,7 +15,7 @@ import {
 } from "../../../../models/v2-flow-content-types";
 import {
   V3ChatGPTChatCompletionNodeConfig,
-  VariableConfigType,
+  VariableType,
 } from "../../../../models/v3-flow-content-types";
 import {
   LocalStorageState,
@@ -131,13 +131,13 @@ export default function ChatGPTChatCompletionNode() {
 
   const inputVariables = selectVariables(
     nodeId,
-    VariableConfigType.NodeInput,
+    VariableType.NodeInput,
     variableConfigs,
   );
 
   const outputVariables = selectVariables(
     nodeId,
-    VariableConfigType.NodeOutput,
+    VariableType.NodeOutput,
     variableConfigs,
   );
 
