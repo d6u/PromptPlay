@@ -7,7 +7,7 @@ export type FlowState = FlowServerSliceV2 &
   RootSlice &
   CsvEvaluationPresetSlice;
 
-export type NodeAugments = Record<NodeID, NodeAugment | undefined>;
+export type NodeAugments = Record<NodeID, NodeAugment>;
 
 export type NodeAugment = {
   isRunning: boolean;

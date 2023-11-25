@@ -96,8 +96,7 @@ export function run(
     nodeIndegree[nodeId] = 0;
   }
 
-  const inputIdToOutputIdMap: Record<V3VariableID, V3VariableID | undefined> =
-    {};
+  const inputIdToOutputIdMap: Record<V3VariableID, V3VariableID> = {};
   const outputIdToValueMap: FlowInputVariableMap = { ...inputVariableMap };
 
   for (const edge of edges) {
@@ -320,7 +319,7 @@ export function run(
 function handleOutputNode(
   data: V3OutputNodeConfig,
   variableMap: VariableMap,
-  inputIdToOutputIdMap: Record<V3VariableID, V3VariableID | undefined>,
+  inputIdToOutputIdMap: Record<V3VariableID, V3VariableID>,
   variableValueMap: V3VariableValueMap,
 ): Observable<V3VariableValueMap> {
   const changes: V3VariableValueMap = {};
@@ -345,7 +344,7 @@ function handleOutputNode(
 function handleJavaScriptFunctionNode(
   data: V3JavaScriptFunctionNodeConfig,
   variableMap: VariableMap,
-  inputIdToOutputIdMap: Record<V3VariableID, V3VariableID | undefined>,
+  inputIdToOutputIdMap: Record<V3VariableID, V3VariableID>,
   variableValueMap: V3VariableValueMap,
 ): Observable<V3VariableValueMap> {
   return defer(async () => {
@@ -389,7 +388,7 @@ function handleJavaScriptFunctionNode(
 function handleChatGPTMessageNode(
   data: V3ChatGPTMessageNodeConfig,
   variableMap: VariableMap,
-  inputIdToOutputIdMap: Record<V3VariableID, V3VariableID | undefined>,
+  inputIdToOutputIdMap: Record<V3VariableID, V3VariableID>,
   variableValueMap: V3VariableValueMap,
 ): Observable<V3VariableValueMap> {
   // Prepare inputs
@@ -452,7 +451,7 @@ function handleChatGPTMessageNode(
 function handleChatGPTChatNode(
   data: V3ChatGPTChatCompletionNodeConfig,
   variableMap: VariableMap,
-  inputIdToOutputIdMap: Record<V3VariableID, V3VariableID | undefined>,
+  inputIdToOutputIdMap: Record<V3VariableID, V3VariableID>,
   variableValueMap: V3VariableValueMap,
   useStreaming: boolean,
 ): Observable<V3VariableValueMap> {
@@ -613,7 +612,7 @@ function handleChatGPTChatNode(
 function handleTextTemplateNode(
   data: V3TextTemplateNodeConfig,
   variableMap: VariableMap,
-  inputIdToOutputIdMap: Record<V3VariableID, V3VariableID | undefined>,
+  inputIdToOutputIdMap: Record<V3VariableID, V3VariableID>,
   variableValueMap: V3VariableValueMap,
 ): Observable<V3VariableValueMap> {
   return defer(() => {
@@ -666,7 +665,7 @@ function handleTextTemplateNode(
 function handleHuggingFaceInferenceNode(
   data: V3HuggingFaceInferenceNodeConfig,
   variableMap: VariableMap,
-  inputIdToOutputIdMap: Record<V3VariableID, V3VariableID | undefined>,
+  inputIdToOutputIdMap: Record<V3VariableID, V3VariableID>,
   variableValueMap: V3VariableValueMap,
 ): Observable<V3VariableValueMap> {
   return defer(() => {
@@ -740,7 +739,7 @@ function handleHuggingFaceInferenceNode(
 function handleElevenLabsNode(
   data: V3ElevenLabsNodeConfig,
   variableMap: VariableMap,
-  inputIdToOutputIdMap: Record<V3VariableID, V3VariableID | undefined>,
+  inputIdToOutputIdMap: Record<V3VariableID, V3VariableID>,
   variableValueMap: V3VariableValueMap,
 ): Observable<V3VariableValueMap> {
   return defer(() => {
