@@ -208,9 +208,9 @@ export function convertV2ContentToV3Content(
   return {
     nodes,
     edges: v3Edges,
-    nodeConfigs: v3NodeConfigs,
-    variableMap,
-    variableValueMaps,
+    nodeConfigsDict: v3NodeConfigs,
+    variablesDict: variableMap,
+    variableValueLookUpDicts: variableValueMaps,
   };
 }
 

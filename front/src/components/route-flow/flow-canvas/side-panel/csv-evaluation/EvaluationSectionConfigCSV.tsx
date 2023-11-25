@@ -13,7 +13,7 @@ import {
 import Papa from "papaparse";
 import posthog from "posthog-js";
 import { ReactNode, useEffect, useMemo } from "react";
-import { FlowOutputVariableMap } from "../../../../../flow-run/run-single";
+import { FlowOutputVariableMap } from "../../../../../flow-run/run-types";
 import {
   V3VariableID,
   VariableType,
@@ -34,7 +34,7 @@ import {
 } from "./csv-evaluation-common";
 
 const selector = (state: FlowState) => ({
-  variableMap: state.variableDict,
+  variableMap: state.variablesDict,
   repeatCount: state.csvEvaluationConfigContent.repeatCount,
   setRepeatCount: state.csvEvaluationSetRepeatCount,
   concurrencyLimit: state.csvEvaluationConfigContent.concurrencyLimit,

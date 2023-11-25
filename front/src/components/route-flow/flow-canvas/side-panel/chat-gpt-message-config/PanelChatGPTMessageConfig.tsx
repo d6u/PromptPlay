@@ -26,8 +26,8 @@ import {
 import OutputRenderer from "../common/OutputRenderer";
 
 const selector = (state: FlowState) => ({
-  nodeConfigs: state.nodeConfigDict,
-  variableMap: state.variableDict,
+  nodeConfigs: state.nodeConfigsDict,
+  variableMap: state.variablesDict,
   detailPanelSelectedNodeId: state.detailPanelSelectedNodeId,
   updateNodeConfig: state.updateNodeConfig,
 });

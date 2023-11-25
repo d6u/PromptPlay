@@ -19,7 +19,7 @@ import OutputRenderer from "../common/OutputRenderer";
 
 const selector = (state: FlowState) => ({
   isRunning: state.isRunning,
-  variableMap: state.variableDict,
+  variableMap: state.variablesDict,
   runFlow: state.runFlow,
   stopRunningFlow: state.stopRunningFlow,
   defaultVariableValueMap: state.getDefaultVariableValueMap(),

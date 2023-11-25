@@ -8,12 +8,12 @@ import {
   range,
   reduce,
 } from "rxjs";
+import { runSingle } from "../../../../../flow-run/run-single";
 import {
   FlowOutputVariableMap,
-  run,
   RunEvent,
   RunEventType,
-} from "../../../../../flow-run/run-single";
+} from "../../../../../flow-run/run-types";
 import {
   V3LocalEdge,
   V3NodeConfigsDict,
@@ -50,7 +50,12 @@ export function runForEachRow({
           });
         }),
         mergeMap((inputVariableMap, rowIndex) => {
-          return run(nodeConfigs, edges, variableMap, inputVariableMap).pipe(
+          return runSingle(
+            nodeConfigs,
+            edges,
+            variableMap,
+            inputVariableMap,
+          ).pipe(
             reduce<RunEvent, FlowOutputVariableMap>((acc, event) => {
               switch (event.type) {
                 case RunEventType.VariableValueChanges: {

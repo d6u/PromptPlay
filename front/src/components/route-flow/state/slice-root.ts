@@ -5,7 +5,8 @@ import { mergeMap, Subscription } from "rxjs";
 import { invariant } from "ts-invariant";
 import { OperationResult } from "urql";
 import { StateCreator } from "zustand";
-import { run, RunEventType } from "../../../flow-run/run-single";
+import { runSingle } from "../../../flow-run/run-single";
+import { RunEventType } from "../../../flow-run/run-types";
 import { ContentVersion, SpaceFlowQueryQuery } from "../../../gql/graphql";
 import { NodeID } from "../../../models/v2-flow-content-types";
 import {
@@ -126,14 +127,20 @@ export const createRootSlice: StateCreator<FlowState, [], [], RootSlice> = (
           }),
         )
         .subscribe({
-          next({ nodes, edges, nodeConfigs, variableMap, variableValueMaps }) {
+          next({
+            nodes,
+            edges,
+            nodeConfigsDict: nodeConfigs,
+            variablesDict: variableMap,
+            variableValueLookUpDicts: variableValueMaps,
+          }) {
             nodes = assignLocalNodeProperties(nodes);
             edges = assignLocalEdgeProperties(edges);
             set({
               nodes,
               edges,
-              nodeConfigDict: nodeConfigs,
-              variableDict: variableMap,
+              nodeConfigsDict: nodeConfigs,
+              variablesDict: variableMap,
               variableValueLookUpDicts: variableValueMaps,
             });
           },
@@ -188,8 +195,8 @@ export const createRootSlice: StateCreator<FlowState, [], [], RootSlice> = (
       const {
         resetAugments,
         edges,
-        nodeConfigDict: nodeConfigs,
-        variableDict: variableMap,
+        nodeConfigsDict: nodeConfigs,
+        variablesDict: variableMap,
         updateNodeAugment,
         updateVariableValueMap,
       } = get();
@@ -207,7 +214,7 @@ export const createRootSlice: StateCreator<FlowState, [], [], RootSlice> = (
         }
       }
 
-      runFlowSubscription = run(
+      runFlowSubscription = runSingle(
         nodeConfigs,
         edges,
         variableMap,

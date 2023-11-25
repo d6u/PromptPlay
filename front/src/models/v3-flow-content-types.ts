@@ -19,9 +19,9 @@ export type V3VariableID = string & { readonly "": unique symbol };
 export type V3FlowContent = {
   nodes: ServerNode[];
   edges: V3ServerEdge[];
-  nodeConfigs: V3NodeConfigsDict;
-  variableMap: VariablesDict;
-  variableValueMaps: V3VariableValueLookUpDict[];
+  nodeConfigsDict: V3NodeConfigsDict;
+  variablesDict: VariablesDict;
+  variableValueLookUpDicts: V3VariableValueLookUpDict[];
 };
 
 // !SECTION

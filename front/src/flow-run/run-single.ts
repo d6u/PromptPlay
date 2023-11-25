@@ -20,25 +20,19 @@ import {
   zipWith,
 } from "rxjs";
 import invariant from "ts-invariant";
-import { NodeAugment } from "../components/route-flow/state/store-flow-state-types";
 import * as ElevenLabs from "../integrations/eleven-labs";
 import * as HuggingFace from "../integrations/hugging-face";
 import * as OpenAI from "../integrations/openai";
-import {
-  NodeID,
-  NodeType,
-  VariableValueMap,
-} from "../models/v2-flow-content-types";
+import { NodeID, NodeType } from "../models/v2-flow-content-types";
 import {
   NodeOutputVariable,
   V3ChatGPTChatCompletionNodeConfig,
   V3ChatGPTMessageNodeConfig,
   V3ElevenLabsNodeConfig,
+  V3FlowContent,
   V3HuggingFaceInferenceNodeConfig,
   V3JavaScriptFunctionNodeConfig,
-  V3LocalEdge,
   V3NodeConfig,
-  V3NodeConfigsDict,
   V3OutputNodeConfig,
   V3TextTemplateNodeConfig,
   V3VariableID,
@@ -47,92 +41,88 @@ import {
   VariableType,
 } from "../models/v3-flow-content-types";
 import { useLocalStorageStore, useSpaceStore } from "../state/appState";
+import {
+  FlowInputVariableMap,
+  RunEvent,
+  RunEventType,
+  RunStatusChangeEvent,
+} from "./run-types";
 
 const AsyncFunction = async function () {}.constructor;
 
-export enum RunEventType {
-  VariableValueChanges = "VariableValueChanges",
-  NodeAugmentChange = "NodeAugmentChange",
-  RunStatusChange = "RunStatusChange",
-}
-
-export type FlowInputVariableMap = Record<V3VariableID, unknown>;
-export type FlowOutputVariableMap = Record<V3VariableID, unknown>;
-
-export type RunEvent =
-  | VariableValueChangeEvent
-  | NodeAugmentChangeEvent
-  | RunStatusChangeEvent;
-
-type VariableValueChangeEvent = {
-  type: RunEventType.VariableValueChanges;
-  changes: VariableValueMap;
+type Arguments = {
+  flowContent: Readonly<V3FlowContent>;
+  inputVariableMap: Readonly<FlowInputVariableMap>;
+  useStreaming?: boolean;
 };
 
-type NodeAugmentChangeEvent = {
-  type: RunEventType.NodeAugmentChange;
-  nodeId: NodeID;
-  augmentChange: Partial<NodeAugment>;
-};
+export function runSingle({
+  flowContent,
+  inputVariableMap,
+  useStreaming = false,
+}: Arguments): Observable<RunEvent> {
+  const { nodeConfigsDict, edges, variablesDict } = flowContent;
 
-type RunStatusChangeEvent = {
-  type: RunEventType.RunStatusChange;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  error: any;
-};
-
-export function run(
-  nodeConfigs: V3NodeConfigsDict,
-  edges: V3LocalEdge[],
-  variableMap: VariablesDict,
-  inputVariableMap: FlowInputVariableMap,
-  useStreaming: boolean = false,
-): Observable<RunEvent> {
-  const nodeGraph: Record<NodeID, NodeID[]> = {};
-  const nodeIndegree: Record<NodeID, number> = {};
-
-  for (const nodeId of D.keys(nodeConfigs)) {
-    nodeGraph[nodeId] = [];
-    nodeIndegree[nodeId] = 0;
-  }
-
-  const inputIdToOutputIdMap: Record<V3VariableID, V3VariableID> = {};
   const outputIdToValueMap: FlowInputVariableMap = { ...inputVariableMap };
+  const edgeTargetHandleToSourceHandleLookUpDict: Record<
+    V3VariableID,
+    V3VariableID
+  > = {};
 
   for (const edge of edges) {
-    // nodeGraph[edge.source] contains duplicate edge.target,
-    // because there can be multiple edges between two nodes.
-    //
-    // This is expected since we are reducing indegree the equial number of
-    // times in the while loop below.
-    nodeGraph[edge.source]!.push(edge.target);
-    nodeIndegree[edge.target] += 1;
-
-    inputIdToOutputIdMap[edge.targetHandle] = edge.sourceHandle!;
+    edgeTargetHandleToSourceHandleLookUpDict[edge.targetHandle] =
+      edge.sourceHandle!;
   }
 
-  // `obs` is a topological sort of the node graph.
-  const obs = new Observable<{ nodeId: NodeID; nodeConfig: V3NodeConfig }>(
+  // `sub` is to control the pace of the execution and the termination.
+  //
+  // Because the observable below will emit all the nodes at once, we give `sub`
+  // a value one at a time and only give `sub` a new value after one node in
+  // the observable is finished executing. So that we can execute the node graph
+  // in topological order.
+  const sub = new BehaviorSubject(0);
+
+  return new Observable<{ nodeId: NodeID; nodeConfig: V3NodeConfig }>(
     (subscriber) => {
+      // SECTION: Initialize graph related objects
+      const nodeGraph: Record<NodeID, NodeID[]> = {};
+      const nodeIndegree: Record<NodeID, number> = {};
+
+      for (const nodeId of D.keys(nodeConfigsDict)) {
+        nodeGraph[nodeId] = [];
+        nodeIndegree[nodeId] = 0;
+      }
+      // !SECTION
+
+      // SECTION: Build basic information about graph
+
+      for (const edge of edges) {
+        // `nodeGraph[edge.source]` will contain duplicate edge.target,
+        // because there can be multiple edges between two nodes.
+        // We must reduce indegree equal number of times in the while loop below.
+        nodeGraph[edge.source]!.push(edge.target);
+        nodeIndegree[edge.target] += 1;
+      }
+      // !SECTION
+
+      // Topological sort of the node graph.
       const queue: NodeID[] = [];
 
-      for (const [id, count] of Object.entries(nodeIndegree) as [
-        NodeID,
-        number,
-      ][]) {
+      for (const [key, count] of Object.entries(nodeIndegree)) {
+        const nodeId = key as NodeID;
         if (count === 0) {
-          queue.push(id);
+          queue.push(nodeId);
         }
       }
 
       while (queue.length > 0) {
         const nodeId = queue.shift()!;
-        // It's OK to force unwrap here since the risk missing node config is tiny.
-        const nodeConfig = nodeConfigs[nodeId]!;
+        const nodeConfig = nodeConfigsDict[nodeId];
+        invariant(nodeConfig != null);
 
         subscriber.next({ nodeId, nodeConfig });
 
-        for (const nextId of nodeGraph[nodeId]) {
+        for (const nextId of nodeGraph[nodeId]!) {
           nodeIndegree[nextId] -= 1;
           if (nodeIndegree[nextId] === 0) {
             queue.push(nextId);
@@ -142,17 +132,7 @@ export function run(
 
       subscriber.complete();
     },
-  );
-
-  // `sub` is to control the pace of the execution and the termination.
-  //
-  // Because `obs` will emit all the nodes at once, we give `sub` a value one
-  // at a time and only give `sub` a new value after one node in `obs` is
-  // finished executing. So that we can execute the node graph in topological
-  // order.
-  const sub = new BehaviorSubject(0);
-
-  return obs.pipe(
+  ).pipe(
     zipWith(sub),
     concatMap(([{ nodeId, nodeConfig }]) => {
       let obs: Observable<RunEvent>;
@@ -165,8 +145,8 @@ export function run(
         case NodeType.OutputNode: {
           obs = handleOutputNode(
             nodeConfig,
-            variableMap,
-            inputIdToOutputIdMap,
+            variablesDict,
+            edgeTargetHandleToSourceHandleLookUpDict,
             outputIdToValueMap,
           ).pipe(
             map((changes) => ({
@@ -180,8 +160,8 @@ export function run(
           const nodeData = nodeConfig;
           obs = handleJavaScriptFunctionNode(
             nodeData,
-            variableMap,
-            inputIdToOutputIdMap,
+            variablesDict,
+            edgeTargetHandleToSourceHandleLookUpDict,
             outputIdToValueMap,
           ).pipe(
             map((changes) => ({
@@ -194,8 +174,8 @@ export function run(
         case NodeType.ChatGPTMessageNode: {
           obs = handleChatGPTMessageNode(
             nodeConfig,
-            variableMap,
-            inputIdToOutputIdMap,
+            variablesDict,
+            edgeTargetHandleToSourceHandleLookUpDict,
             outputIdToValueMap,
           ).pipe(
             map((changes) => ({
@@ -209,8 +189,8 @@ export function run(
           obs = from(
             handleChatGPTChatNode(
               nodeConfig,
-              variableMap,
-              inputIdToOutputIdMap,
+              variablesDict,
+              edgeTargetHandleToSourceHandleLookUpDict,
               outputIdToValueMap,
               useStreaming,
             ),
@@ -225,8 +205,8 @@ export function run(
         case NodeType.TextTemplate: {
           obs = handleTextTemplateNode(
             nodeConfig,
-            variableMap,
-            inputIdToOutputIdMap,
+            variablesDict,
+            edgeTargetHandleToSourceHandleLookUpDict,
             outputIdToValueMap,
           ).pipe(
             map((changes) => ({
@@ -239,8 +219,8 @@ export function run(
         case NodeType.HuggingFaceInference: {
           obs = handleHuggingFaceInferenceNode(
             nodeConfig,
-            variableMap,
-            inputIdToOutputIdMap,
+            variablesDict,
+            edgeTargetHandleToSourceHandleLookUpDict,
             outputIdToValueMap,
           ).pipe(
             map((changes) => ({
@@ -253,8 +233,8 @@ export function run(
         case NodeType.ElevenLabs: {
           obs = handleElevenLabsNode(
             nodeConfig,
-            variableMap,
-            inputIdToOutputIdMap,
+            variablesDict,
+            edgeTargetHandleToSourceHandleLookUpDict,
             outputIdToValueMap,
           ).pipe(
             map((changes) => ({

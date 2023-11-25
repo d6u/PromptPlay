@@ -27,8 +27,8 @@ import { calculateInputHandleTop } from "./node-common/utils";
 
 const selector = (state: FlowState) => ({
   setDetailPanelContentType: state.setDetailPanelContentType,
-  nodeConfigs: state.nodeConfigDict,
-  variableConfigs: state.variableDict,
+  nodeConfigs: state.nodeConfigsDict,
+  variableConfigs: state.variablesDict,
   addVariable: state.addVariable,
   updateVariable: state.updateVariable,
   removeVariable: state.removeVariable,

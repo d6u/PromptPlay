@@ -52,8 +52,8 @@ type SliceFlowContentV3State = {
   // Persist to server
   nodes: LocalNode[];
   edges: V3LocalEdge[];
-  nodeConfigDict: V3NodeConfigsDict;
-  variableDict: VariablesDict;
+  nodeConfigsDict: V3NodeConfigsDict;
+  variablesDict: VariablesDict;
   variableValueLookUpDicts: V3VariableValueLookUpDict[];
   // Local
   isFlowContentDirty: boolean;
@@ -64,8 +64,8 @@ const FLOW_SERVER_SLICE_INITIAL_STATE_V2: SliceFlowContentV3State = {
   // Persist to server
   nodes: [],
   edges: [],
-  nodeConfigDict: {},
-  variableDict: {},
+  nodeConfigsDict: {},
+  variablesDict: {},
   variableValueLookUpDicts: [{}],
   // Local
   isFlowContentDirty: false,
@@ -291,34 +291,34 @@ function handleEvent(
       return handleRfNodesChange(
         event.changes,
         state.nodes,
-        state.nodeConfigDict,
+        state.nodeConfigsDict,
       );
     case ChangeEventType.RF_ON_CONNECT:
       return handleRfOnConnect(
         event.connection,
         state.edges,
-        state.nodeConfigDict,
-        state.variableDict,
+        state.nodeConfigsDict,
+        state.variablesDict,
       );
     // Nodes
     case ChangeEventType.ADDING_NODE:
       return handleAddingNode(
         event.node,
         state.nodes,
-        state.nodeConfigDict,
-        state.variableDict,
+        state.nodeConfigsDict,
+        state.variablesDict,
       );
     case ChangeEventType.REMOVING_NODE:
       return handleRemovingNode(
         event.nodeId,
         state.nodes,
-        state.nodeConfigDict,
+        state.nodeConfigsDict,
       );
     case ChangeEventType.UPDATING_NODE_CONFIG:
       return handleUpdatingNodeConfig(
         event.nodeId,
         event.change,
-        state.nodeConfigDict,
+        state.nodeConfigsDict,
       );
     // Variables
     case ChangeEventType.ADDING_VARIABLE:
@@ -326,15 +326,15 @@ function handleEvent(
         event.nodeId,
         event.varType,
         event.index,
-        state.variableDict,
+        state.variablesDict,
       );
     case ChangeEventType.REMOVING_VARIABLE:
-      return handleRemovingVariable(event.variableId, state.variableDict);
+      return handleRemovingVariable(event.variableId, state.variablesDict);
     case ChangeEventType.UPDATING_VARIABLE:
       return handleUpdatingVariable(
         event.variableId,
         event.change,
-        state.variableDict,
+        state.variablesDict,
       );
     // --- Derived ---
     // Derived Nodes
@@ -347,7 +347,7 @@ function handleEvent(
       return handleNodeRemoved(
         event.node,
         event.nodeConfig,
-        state.variableDict,
+        state.variablesDict,
       );
     case ChangeEventType.NODE_MOVED:
       return [state, []];
@@ -355,18 +355,18 @@ function handleEvent(
       return [state, []];
     // Derived Edges
     case ChangeEventType.EDGE_ADDED:
-      return handleEdgeAdded(event.edge, state.variableDict);
+      return handleEdgeAdded(event.edge, state.variablesDict);
     case ChangeEventType.EDGE_REMOVED:
       return handleEdgeRemoved(
         event.removedEdge,
         event.edgeSrcVariableConfig,
-        state.variableDict,
+        state.variablesDict,
       );
     case ChangeEventType.EDGE_REPLACED:
       return handleEdgeReplaced(
         event.oldEdge,
         event.newEdge,
-        state.variableDict,
+        state.variablesDict,
       );
     // Derived Variables
     case ChangeEventType.VARIABLE_ADDED:
@@ -455,7 +455,7 @@ function handleRfNodesChange(
         });
 
         content.isFlowContentDirty = true;
-        content.nodeConfigDict = nodeConfigs;
+        content.nodeConfigsDict = nodeConfigs;
         break;
       }
       case "position": {
@@ -578,8 +578,8 @@ function handleAddingNode(
 
   content.isFlowContentDirty = true;
   content.nodes = nodes;
-  content.nodeConfigDict = nodeConfigs;
-  content.variableDict = variableConfigs;
+  content.nodeConfigsDict = nodeConfigs;
+  content.variablesDict = variableConfigs;
 
   return [content, events];
 }
@@ -615,7 +615,7 @@ function handleRemovingNode(
 
   content.isFlowContentDirty = true;
   content.nodes = acceptedNodes;
-  content.nodeConfigDict = nodeConfigs;
+  content.nodeConfigsDict = nodeConfigs;
 
   return [content, events];
 }
@@ -637,7 +637,7 @@ function handleUpdatingNodeConfig(
   });
 
   content.isFlowContentDirty = true;
-  content.nodeConfigDict = nodeConfigs;
+  content.nodeConfigsDict = nodeConfigs;
 
   return [content, events];
 }
@@ -707,7 +707,7 @@ function handleAddingVariable(
   });
 
   content.isFlowContentDirty = true;
-  content.variableDict = variableConfigs;
+  content.variablesDict = variableConfigs;
 
   return [content, events];
 }
@@ -729,7 +729,7 @@ function handleRemovingVariable(
   });
 
   content.isFlowContentDirty = true;
-  content.variableDict = variableConfigs;
+  content.variablesDict = variableConfigs;
 
   return [content, events];
 }
@@ -754,7 +754,7 @@ function handleUpdatingVariable(
   });
 
   content.isFlowContentDirty = true;
-  content.variableDict = variableConfigs;
+  content.variablesDict = variableConfigs;
 
   return [content, events];
 }
@@ -804,7 +804,7 @@ function handleNodeRemoved(
   });
 
   content.isFlowContentDirty = true;
-  content.variableDict = variableConfigs;
+  content.variablesDict = variableConfigs;
 
   return [content, events];
 }
@@ -837,7 +837,7 @@ function handleEdgeAdded(
   });
 
   content.isFlowContentDirty = true;
-  content.variableDict = variableConfigs;
+  content.variablesDict = variableConfigs;
 
   return [content, events];
 }
@@ -887,7 +887,7 @@ function handleEdgeRemoved(
   // !SECTION
 
   content.isFlowContentDirty = true;
-  content.variableDict = variableConfigs;
+  content.variablesDict = variableConfigs;
 
   return [content, events];
 }
@@ -964,7 +964,7 @@ function handleEdgeReplaced(
   });
 
   content.isFlowContentDirty = true;
-  content.variableDict = variableConfigs;
+  content.variablesDict = variableConfigs;
 
   return [content, events];
 }

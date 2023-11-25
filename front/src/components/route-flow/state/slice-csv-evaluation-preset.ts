@@ -1,6 +1,6 @@
 import { D, G, Option } from "@mobily/ts-belt";
 import { StateCreator } from "zustand";
-import { FlowOutputVariableMap } from "../../../flow-run/run-single";
+import { FlowOutputVariableMap } from "../../../flow-run/run-types";
 import { graphql } from "../../../gql";
 import { V3VariableID } from "../../../models/v3-flow-content-types";
 import { client } from "../../../state/urql";

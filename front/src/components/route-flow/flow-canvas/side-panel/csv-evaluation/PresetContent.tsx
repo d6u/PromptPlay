@@ -6,7 +6,7 @@ import posthog from "posthog-js";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Subscription } from "rxjs";
 import { useQuery } from "urql";
-import { FlowOutputVariableMap } from "../../../../../flow-run/run-single";
+import { FlowOutputVariableMap } from "../../../../../flow-run/run-types";
 import { graphql } from "../../../../../gql";
 import {
   ColumnIndex,
@@ -36,9 +36,9 @@ const EVALUATION_MODE_CSV_CONTENT_QUERY = graphql(`
 
 const selector = (state: FlowState) => ({
   spaceId: state.spaceId,
-  nodeConfigs: state.nodeConfigDict,
+  nodeConfigs: state.nodeConfigsDict,
   edges: state.edges,
-  variableMap: state.variableDict,
+  variableMap: state.variablesDict,
   presetId: state.csvEvaluationCurrentPresetId,
   csvContent: state.csvEvaluationCsvContent,
   setCsvContent: state.csvEvaluationSetLocalCsvContent,
