@@ -8,7 +8,7 @@ import { useStore } from "zustand";
 import FlowCanvas from "./flow-canvas/FlowCanvas";
 import FlowContext from "./FlowContext";
 import { FlowLoaderData } from "./route-loader";
-import { createFlowStore } from "./store/store-flow-state";
+import { createFlowStore } from "./store";
 import ToolBar from "./tool-bar/ToolBar";
 
 export default function RouteFlow() {
