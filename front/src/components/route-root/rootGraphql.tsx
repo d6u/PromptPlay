@@ -35,13 +35,3 @@ export const ROOT_ROUTE_QUERY = graphql(`
     }
   }
 `);
-export const CREATE_PLACEHOLDER_USER_AND_EXAMPLE_SPACE_MUTATION = graphql(`
-  mutation CreatePlaceholderUserAndExampleSpaceMutation {
-    result: createPlaceholderUserAndExampleSpace {
-      placeholderClientToken
-      space {
-        id
-      }
-    }
-  }
-`);
