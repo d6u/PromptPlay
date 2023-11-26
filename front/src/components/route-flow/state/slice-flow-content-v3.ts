@@ -70,7 +70,7 @@ type SliceFlowContentV3Actions = {
   updateVariableValueMap(variableId: V3VariableID, value: unknown): void;
 
   // Local Only
-  getDefaultVariableValueMap(): V3VariableValueLookUpDict;
+  getDefaultVariableValueLookUpDict(): V3VariableValueLookUpDict;
   resetFlowServerSlice(): void;
 };
 
@@ -172,7 +172,7 @@ export const createFlowServerSliceV2: StateCreator<
   return {
     ...FLOW_SERVER_SLICE_INITIAL_STATE_V2,
 
-    getDefaultVariableValueMap(): V3VariableValueLookUpDict {
+    getDefaultVariableValueLookUpDict(): V3VariableValueLookUpDict {
       return get().variableValueLookUpDicts[0]!;
     },
 

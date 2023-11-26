@@ -1,8 +1,10 @@
 import { D, G, Option } from "@mobily/ts-belt";
 import { StateCreator } from "zustand";
-import { FlowOutputVariableMap } from "../../../flow-run/run-types";
 import { graphql } from "../../../gql";
-import { V3VariableID } from "../../../models/v3-flow-content-types";
+import {
+  V3VariableID,
+  V3VariableValueLookUpDict,
+} from "../../../models/v3-flow-content-types";
 import { client } from "../../../state/urql";
 import { FlowState } from "./store-flow-state-types";
 
@@ -29,7 +31,7 @@ export type VariableColumnMap = Record<V3VariableID, ColumnIndex | null>;
 
 export type GeneratedResult = Record<
   RowIndex,
-  Record<ColumnIndex, FlowOutputVariableMap>
+  Record<ColumnIndex, V3VariableValueLookUpDict>
 >;
 
 export type RunStatuses = Record<RowIndex, Record<ColumnIndex, string | null>>;

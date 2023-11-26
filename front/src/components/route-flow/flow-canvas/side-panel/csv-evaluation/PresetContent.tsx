@@ -7,8 +7,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Subscription } from "rxjs";
 import invariant from "ts-invariant";
 import { useQuery } from "urql";
-import { FlowOutputVariableMap } from "../../../../../flow-run/run-types";
 import { graphql } from "../../../../../gql";
+import { V3VariableValueLookUpDict } from "../../../../../models/v3-flow-content-types";
 import {
   ColumnIndex,
   RowIndex,
@@ -168,13 +168,13 @@ export default function PresetContent() {
           let row = prev[rowIndex as RowIndex]!;
 
           row = A.updateAt(
-            row as Array<FlowOutputVariableMap>,
+            row as Array<V3VariableValueLookUpDict>,
             colIndex,
             D.merge(outputs),
           );
 
           return A.replaceAt(
-            prev as Array<Record<ColumnIndex, FlowOutputVariableMap>>,
+            prev as Array<Record<ColumnIndex, V3VariableValueLookUpDict>>,
             rowIndex,
             row,
           );

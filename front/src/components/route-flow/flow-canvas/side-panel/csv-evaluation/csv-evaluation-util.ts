@@ -9,12 +9,11 @@ import {
   reduce,
 } from "rxjs";
 import { runSingle } from "../../../../../flow-run/run-single";
+import { RunEvent, RunEventType } from "../../../../../flow-run/run-types";
 import {
-  FlowOutputVariableMap,
-  RunEvent,
-  RunEventType,
-} from "../../../../../flow-run/run-types";
-import { V3FlowContent } from "../../../../../models/v3-flow-content-types";
+  V3FlowContent,
+  V3VariableValueLookUpDict,
+} from "../../../../../models/v3-flow-content-types";
 import { VariableColumnMap } from "../../../state/slice-csv-evaluation-preset";
 import { CSVData } from "./csv-evaluation-common";
 
@@ -46,7 +45,7 @@ export function runForEachRow({
             flowContent,
             inputVariableMap,
           }).pipe(
-            reduce<RunEvent, FlowOutputVariableMap>((acc, event) => {
+            reduce<RunEvent, V3VariableValueLookUpDict>((acc, event) => {
               switch (event.type) {
                 case RunEventType.VariableValueChanges: {
                   const changes = event.changes;
@@ -83,6 +82,6 @@ export function runForEachRow({
 type ResultEvent = {
   iteratonIndex: number;
   rowIndex: number;
-  outputs: FlowOutputVariableMap;
+  outputs: V3VariableValueLookUpDict;
   status: string | null;
 };

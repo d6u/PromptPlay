@@ -41,7 +41,7 @@ export async function updateSpaceContentV3(
   console.groupEnd();
 }
 
-export function fetchContent(
+export function fetchFlowContent(
   spaceId: string,
 ): Observable<OperationResult<SpaceFlowQueryQuery>> {
   return toRxObservableSingle(

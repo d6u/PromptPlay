@@ -38,8 +38,8 @@ const selector = (state: FlowState) => ({
   addVariable: state.addVariable,
   updateVariable: state.updateVariable,
   removeVariable: state.removeVariable,
-  localNodeAugments: state.localNodeAugments,
-  defaultVariableValueMap: state.getDefaultVariableValueMap(),
+  localNodeAugments: state.nodeMetadataDict,
+  defaultVariableValueMap: state.getDefaultVariableValueLookUpDict(),
 });
 
 export default function JavaScriptFunctionNode() {

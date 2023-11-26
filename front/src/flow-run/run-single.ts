@@ -34,18 +34,13 @@ import { handleHuggingFaceInferenceNode } from "./handleHuggingFaceInferenceNode
 import { handleJavaScriptFunctionNode } from "./handleJavaScriptFunctionNode";
 import { handleOutputNode } from "./handleOutputNode";
 import { handleTextTemplateNode } from "./handleTextTemplateNode";
-import {
-  FlowInputVariableMap,
-  RunEvent,
-  RunEventType,
-  RunStatusChangeEvent,
-} from "./run-types";
+import { RunEvent, RunEventType, RunStatusChangeEvent } from "./run-types";
 
 export const AsyncFunction = async function () {}.constructor;
 
 type Arguments = {
   flowContent: Readonly<V3FlowContent>;
-  inputVariableMap: Readonly<FlowInputVariableMap>;
+  inputVariableMap: Readonly<V3VariableValueLookUpDict>;
   useStreaming?: boolean;
 };
 
@@ -56,7 +51,7 @@ export function runSingle({
 }: Arguments): Observable<RunEvent> {
   const { nodeConfigsDict, edges, variablesDict } = flowContent;
 
-  const outputIdToValueMap: FlowInputVariableMap = { ...inputVariableMap };
+  const outputIdToValueMap: V3VariableValueLookUpDict = { ...inputVariableMap };
   const edgeTargetHandleToSourceHandleLookUpDict: Record<
     V3VariableID,
     V3VariableID
@@ -234,7 +229,7 @@ type ArgumentsCreateNodeConfigExecutionObservable = {
       V3VariableID,
       V3VariableID
     >;
-    outputIdToValueMap: FlowInputVariableMap;
+    outputIdToValueMap: V3VariableValueLookUpDict;
     useStreaming: boolean;
   };
 };

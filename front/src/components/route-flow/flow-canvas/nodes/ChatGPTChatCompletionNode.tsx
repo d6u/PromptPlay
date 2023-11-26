@@ -45,8 +45,8 @@ const flowSelector = (state: FlowState) => ({
   variableConfigs: state.variablesDict,
   updateNodeConfig: state.updateNodeConfig,
   removeNode: state.removeNode,
-  localNodeAugments: state.localNodeAugments,
-  defaultVariableValueMap: state.getDefaultVariableValueMap(),
+  localNodeAugments: state.nodeMetadataDict,
+  defaultVariableValueMap: state.getDefaultVariableValueLookUpDict(),
 });
 
 const persistSelector = (state: LocalStorageState) => ({
