@@ -282,7 +282,16 @@ function createFlowContentHandler(
       case ContentVersion.V3: {
         invariant(contentV3Str != null);
         // TODO: Report parse error to telemetry
-        return JSON.parse(contentV3Str) as V3FlowContent;
+        const data = JSON.parse(contentV3Str) as Partial<V3FlowContent>;
+        const contentV3: V3FlowContent = {
+          nodes: data.nodes ?? [],
+          edges: data.edges ?? [],
+          nodeConfigsDict: data.nodeConfigsDict ?? {},
+          variablesDict: data.variablesDict ?? {},
+          variableValueLookUpDicts: data.variableValueLookUpDicts ?? [{}],
+        };
+        await updateSpaceContentV3(spaceId, contentV3);
+        return contentV3;
       }
     }
   };
