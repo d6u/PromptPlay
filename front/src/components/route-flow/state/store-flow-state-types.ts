@@ -25,9 +25,9 @@ export type SliceFlowContentV3State = {
   isFlowContentSaving: boolean;
 };
 
-export type NodeAugments = Record<NodeID, NodeAugment>;
+export type NodeMetadataDict = Record<NodeID, NodeMetadata | undefined>;
 
-export type NodeAugment = {
+export type NodeMetadata = {
   isRunning: boolean;
   hasError: boolean;
 };

@@ -70,7 +70,7 @@ type SliceFlowContentV3Actions = {
   updateVariableValueMap(variableId: V3VariableID, value: unknown): void;
 
   // Local Only
-  getDefaultVariableValueMap(): V3VariableValueLookUpDict;
+  getDefaultVariableValueLookUpDict(): V3VariableValueLookUpDict;
   resetFlowServerSlice(): void;
 };
 
@@ -117,12 +117,14 @@ export const createFlowServerSliceV2: StateCreator<
         variableValueLookUpDicts: flowContent.variableValueLookUpDicts,
       });
 
-      set(() => ({ isFlowContentSaving: true }));
+      set(() => ({ isFlowContentSaving: false }));
     },
     500,
   );
 
   function startProcessingEventGraph(startEvent: ChangeEvent) {
+    console.group("Processing Event Graph");
+
     const queue: ChangeEvent[] = [startEvent];
 
     let state = get();
@@ -146,6 +148,8 @@ export const createFlowServerSliceV2: StateCreator<
 
       queue.push(...derivedEvents);
     }
+
+    console.groupEnd();
 
     set(state);
 
@@ -172,7 +176,7 @@ export const createFlowServerSliceV2: StateCreator<
   return {
     ...FLOW_SERVER_SLICE_INITIAL_STATE_V2,
 
-    getDefaultVariableValueMap(): V3VariableValueLookUpDict {
+    getDefaultVariableValueLookUpDict(): V3VariableValueLookUpDict {
       return get().variableValueLookUpDicts[0]!;
     },
 

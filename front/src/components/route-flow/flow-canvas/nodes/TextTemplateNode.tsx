@@ -46,7 +46,7 @@ const selector = (state: FlowState) => ({
   removeVariable: state.removeVariable,
   setDetailPanelContentType: state.setDetailPanelContentType,
   setDetailPanelSelectedNodeId: state.setDetailPanelSelectedNodeId,
-  defaultVariableValueMap: state.getDefaultVariableValueMap(),
+  defaultVariableValueMap: state.getDefaultVariableValueLookUpDict(),
 });
 
 export default function TextTemplateNode() {

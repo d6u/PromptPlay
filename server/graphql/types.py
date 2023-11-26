@@ -323,6 +323,7 @@ class DeletionResult:
 class ContentVersion(LowercaseStrEnum):
     v1 = auto()
     v2 = auto()
+    v3 = auto()
 
 
 @strawberry.type

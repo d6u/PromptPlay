@@ -1,16 +1,17 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
+import { createSelectors } from "../../../utils/zustand-utils";
 import { createCsvEvaluationPresetSlice } from "./slice-csv-evaluation-preset";
 import { createFlowServerSliceV2 } from "./slice-flow-content-v3";
 import { createRootSlice } from "./slice-root";
 import { FlowState } from "./store-flow-state-types";
 
-export const useFlowStore = create<FlowState>()(
+const useFlowStoreBase = create<FlowState>()(
   devtools(
     (...a) => ({
       ...createRootSlice(...a),
-      ...createCsvEvaluationPresetSlice(...a),
       ...createFlowServerSliceV2(...a),
+      ...createCsvEvaluationPresetSlice(...a),
     }),
     {
       store: "FlowState",
@@ -18,3 +19,5 @@ export const useFlowStore = create<FlowState>()(
     },
   ),
 );
+
+export const useFlowStore = createSelectors(useFlowStoreBase);

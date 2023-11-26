@@ -22,7 +22,7 @@ const selector = (state: FlowState) => ({
   variableMap: state.variablesDict,
   runFlow: state.runFlow,
   stopRunningFlow: state.stopRunningFlow,
-  defaultVariableValueMap: state.getDefaultVariableValueMap(),
+  defaultVariableValueMap: state.getDefaultVariableValueLookUpDict(),
   updateVariableValueMap: state.updateVariableValueMap,
   updateVariable: state.updateVariable,
 });

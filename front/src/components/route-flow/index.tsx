@@ -3,27 +3,23 @@ import { useEffect } from "react";
 import { useLoaderData, useParams } from "react-router-dom";
 import { ReactFlowProvider } from "reactflow";
 import "reactflow/dist/style.css";
+import invariant from "ts-invariant";
 import FlowCanvas from "./flow-canvas/FlowCanvas";
 import FlowContext from "./FlowContext";
 import { FlowLoaderData } from "./route-loader";
 import { useFlowStore } from "./state/store-flow-state";
-import { FlowState } from "./state/store-flow-state-types";
 import ToolBar from "./tool-bar/ToolBar";
-
-const selector = (state: FlowState) => ({
-  initializeSpace: state.initializeSpace,
-  deinitializeSpace: state.deinitializeSpace,
-  isInitialized: state.isInitialized,
-});
 
 export default function RouteFlow() {
   const params = useParams<{ spaceId: string }>();
-  const spaceId = params.spaceId!;
+  const spaceId = params.spaceId;
+  invariant(spaceId != null);
 
   const { isCurrentUserOwner } = useLoaderData() as FlowLoaderData;
 
-  const { initializeSpace, deinitializeSpace, isInitialized } =
-    useFlowStore(selector);
+  const initializeSpace = useFlowStore.use.initializeSpace();
+  const deinitializeSpace = useFlowStore.use.deinitializeSpace();
+  const isInitialized = useFlowStore.use.isInitialized();
 
   useEffect(() => {
     initializeSpace(spaceId);

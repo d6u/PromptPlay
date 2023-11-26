@@ -10,7 +10,6 @@ import "reactflow/dist/style.css";
 import { NodeType } from "../../../models/v2-flow-content-types";
 import FlowContext from "../FlowContext";
 import { useFlowStore } from "../state/store-flow-state";
-import { FlowState } from "../state/store-flow-state-types";
 import ChatGPTChatCompletionNode from "./nodes/ChatGPTChatCompletionNode";
 import ChatGPTMessageNode from "./nodes/ChatGPTMessageNode";
 import ElevenLabsNode from "./nodes/ElevenLabsNode";
@@ -32,19 +31,14 @@ const NODE_TYPES = {
   [NodeType.ElevenLabs]: ElevenLabsNode,
 };
 
-const selector = (state: FlowState) => ({
-  nodes: state.nodes,
-  edges: state.edges,
-  onNodesChange: state.onNodesChange,
-  onEdgesChange: state.onEdgesChange,
-  onConnect: state.onConnect,
-});
-
 export default function FlowCanvas() {
   const { isCurrentUserOwner } = useContext(FlowContext);
 
-  const { nodes, edges, onNodesChange, onEdgesChange, onConnect } =
-    useFlowStore(selector);
+  const nodes = useFlowStore.use.nodes();
+  const edges = useFlowStore.use.edges();
+  const onNodesChange = useFlowStore.use.onNodesChange();
+  const onEdgesChange = useFlowStore.use.onEdgesChange();
+  const onConnect = useFlowStore.use.onConnect();
 
   return (
     <Container>

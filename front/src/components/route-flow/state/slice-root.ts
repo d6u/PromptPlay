@@ -16,9 +16,10 @@ import {
 import {
   V3FlowContent,
   V3VariableValueLookUpDict,
+  VariablesDict,
   VariableType,
 } from "../../../models/v3-flow-content-types";
-import { fetchContent, updateSpaceContentV3 } from "../graphql";
+import { fetchFlowContent, updateSpaceContentV3 } from "../graphql";
 import {
   assignLocalEdgeProperties,
   assignLocalNodeProperties,
@@ -26,8 +27,8 @@ import {
 import {
   DetailPanelContentType,
   FlowState,
-  NodeAugment,
-  NodeAugments,
+  NodeMetadata,
+  NodeMetadataDict,
 } from "./store-flow-state-types";
 
 type RootSliceState = {
@@ -35,7 +36,7 @@ type RootSliceState = {
   isInitialized: boolean;
   detailPanelContentType: DetailPanelContentType;
   detailPanelSelectedNodeId: NodeID | null;
-  localNodeAugments: NodeAugments;
+  nodeMetadataDict: NodeMetadataDict;
   isRunning: boolean;
 };
 
@@ -44,18 +45,17 @@ export type RootSlice = RootSliceState & {
   deinitializeSpace(): void;
   setDetailPanelContentType(type: DetailPanelContentType): void;
   setDetailPanelSelectedNodeId(nodeId: NodeID): void;
-  resetAugments(): void;
-  updateNodeAugment(nodeId: NodeID, change: Partial<NodeAugment>): void;
+  updateNodeAugment(nodeId: NodeID, change: Partial<NodeMetadata>): void;
   runFlow(): void;
   stopRunningFlow(): void;
 };
 
-const ROOT_SLICE_INITIAL_STATE: RootSliceState = {
+const ROOT_SLICE_INITIAL_STATE: Readonly<RootSliceState> = {
   spaceId: null,
   isInitialized: false,
   detailPanelContentType: DetailPanelContentType.Off,
   detailPanelSelectedNodeId: null,
-  localNodeAugments: {},
+  nodeMetadataDict: {},
   isRunning: false,
 };
 
@@ -66,7 +66,7 @@ export const createRootSlice: StateCreator<FlowState, [], [], RootSlice> = (
   function setIsRunning(isRunning: boolean) {
     set((state) => {
       let edges = state.edges;
-      let localNodeAugments = state.localNodeAugments;
+      let nodeMetadataDict = state.nodeMetadataDict;
 
       edges = produce(edges, (draft) => {
         for (const edge of draft) {
@@ -77,12 +77,17 @@ export const createRootSlice: StateCreator<FlowState, [], [], RootSlice> = (
       });
 
       if (!isRunning) {
-        // It is important to reset node augment, because node's running status
+        // It is important to reset node metadata, because node's running status
         // doesn't depend on global isRunning state.
-        localNodeAugments = D.map(localNodeAugments, D.set("isRunning", false));
+        nodeMetadataDict = produce(nodeMetadataDict, (draft) => {
+          for (const nodeMetadata of Object.values(draft)) {
+            invariant(nodeMetadata != null);
+            nodeMetadata.isRunning = false;
+          }
+        });
       }
 
-      return { isRunning, edges, localNodeAugments };
+      return { isRunning, edges, nodeMetadataDict };
     });
   }
 
@@ -98,33 +103,8 @@ export const createRootSlice: StateCreator<FlowState, [], [], RootSlice> = (
       get().resetFlowServerSlice();
 
       fetchContentSubscription?.unsubscribe();
-      fetchContentSubscription = fetchContent(get().spaceId!)
-        .pipe(
-          mergeMap<
-            OperationResult<SpaceFlowQueryQuery>,
-            Promise<V3FlowContent>
-          >(async (result): Promise<V3FlowContent> => {
-            // TODO: Report to telemetry
-            invariant(result.data?.result?.space != null);
-
-            const version = result.data.result.space.contentVersion;
-            const contentV2Str = result.data.result.space.flowContent;
-
-            // TODO: Report to telemetry
-            invariant(version != ContentVersion.V1);
-
-            switch (version) {
-              case ContentVersion.V2: {
-                invariant(contentV2Str != null);
-                // TODO: Report parse error to telemetry
-                const contentV2 = JSON.parse(contentV2Str);
-                const contentV3 = convertV2ContentToV3Content(contentV2);
-                await updateSpaceContentV3(spaceId, contentV3);
-                return contentV3;
-              }
-            }
-          }),
-        )
+      fetchContentSubscription = fetchFlowContent(spaceId)
+        .pipe(mergeMap(createFlowContentHandler(spaceId)))
         .subscribe({
           next({
             nodes,
@@ -135,6 +115,7 @@ export const createRootSlice: StateCreator<FlowState, [], [], RootSlice> = (
           }) {
             nodes = assignLocalNodeProperties(nodes);
             edges = assignLocalEdgeProperties(edges);
+
             set({
               nodes,
               edges,
@@ -143,11 +124,12 @@ export const createRootSlice: StateCreator<FlowState, [], [], RootSlice> = (
               variableValueLookUpDicts,
             });
           },
+          error(error) {
+            // TODO: Report to telemetry
+            console.error("Error fetching content", error);
+          },
           complete() {
             set({ isInitialized: true });
-          },
-          error(error) {
-            console.error("Error fetching content", error);
           },
         });
     },
@@ -156,7 +138,7 @@ export const createRootSlice: StateCreator<FlowState, [], [], RootSlice> = (
       fetchContentSubscription?.unsubscribe();
       fetchContentSubscription = null;
 
-      set({ spaceId: null, isInitialized: false });
+      set(ROOT_SLICE_INITIAL_STATE);
     },
 
     setDetailPanelContentType(type: DetailPanelContentType) {
@@ -166,23 +148,23 @@ export const createRootSlice: StateCreator<FlowState, [], [], RootSlice> = (
       set({ detailPanelSelectedNodeId: id });
     },
 
-    resetAugments() {
-      set({ localNodeAugments: {} });
-    },
-    updateNodeAugment(nodeId: NodeID, change: Partial<NodeAugment>) {
-      let localNodeAugments = get().localNodeAugments;
+    updateNodeAugment(nodeId: NodeID, change: Partial<NodeMetadata>) {
+      const prevNodeMetadataDict = get().nodeMetadataDict;
+      let nodeMetadata = prevNodeMetadataDict[nodeId];
 
-      let augment = localNodeAugments[nodeId];
-
-      if (augment) {
-        augment = { ...augment, ...change };
+      if (nodeMetadata) {
+        nodeMetadata = { ...nodeMetadata, ...change };
       } else {
-        augment = { isRunning: false, hasError: false, ...change };
+        nodeMetadata = { isRunning: false, hasError: false, ...change };
       }
 
-      localNodeAugments = D.set(localNodeAugments, nodeId, augment);
+      const nodeMetadataDict = D.set(
+        prevNodeMetadataDict,
+        nodeId,
+        nodeMetadata,
+      );
 
-      set({ localNodeAugments });
+      set({ nodeMetadataDict });
     },
 
     runFlow() {
@@ -191,29 +173,24 @@ export const createRootSlice: StateCreator<FlowState, [], [], RootSlice> = (
       runFlowSubscription?.unsubscribe();
       runFlowSubscription = null;
 
+      // TODO: Give a default for every node instead of empty object
+      set({ nodeMetadataDict: {} });
+
+      setIsRunning(true);
+
       const {
-        resetAugments,
         nodes,
         edges,
         nodeConfigsDict,
         variablesDict,
         variableValueLookUpDicts,
-        updateNodeAugment,
-        updateVariableValueMap,
       } = get();
 
-      resetAugments();
-
-      setIsRunning(true);
-
-      const inputVariableMap: V3VariableValueLookUpDict = {};
-      const defaultVariableValueMap = get().getDefaultVariableValueMap();
-
-      for (const variable of Object.values(variablesDict)) {
-        if (variable.type === VariableType.FlowInput) {
-          inputVariableMap[variable.id] = defaultVariableValueMap[variable.id];
-        }
-      }
+      const variableValueLookUpDict = get().getDefaultVariableValueLookUpDict();
+      const flowInputVariableValueLookUpDict = selectFlowInputVariableValue(
+        variablesDict,
+        variableValueLookUpDict,
+      );
 
       runFlowSubscription = runSingle({
         flowContent: {
@@ -223,7 +200,7 @@ export const createRootSlice: StateCreator<FlowState, [], [], RootSlice> = (
           variablesDict,
           variableValueLookUpDicts,
         },
-        inputVariableMap,
+        inputVariableMap: flowInputVariableValueLookUpDict,
         useStreaming: true,
       }).subscribe({
         next(data) {
@@ -231,13 +208,13 @@ export const createRootSlice: StateCreator<FlowState, [], [], RootSlice> = (
             case RunEventType.VariableValueChanges: {
               const { changes } = data;
               for (const [outputId, value] of Object.entries(changes)) {
-                updateVariableValueMap(asV3VariableID(outputId), value);
+                get().updateVariableValueMap(asV3VariableID(outputId), value);
               }
               break;
             }
             case RunEventType.NodeAugmentChange: {
               const { nodeId, augmentChange } = data;
-              updateNodeAugment(nodeId, augmentChange);
+              get().updateNodeAugment(nodeId, augmentChange);
               break;
             }
             case RunEventType.RunStatusChange:
@@ -245,29 +222,95 @@ export const createRootSlice: StateCreator<FlowState, [], [], RootSlice> = (
               break;
           }
         },
-        error(e) {
-          console.error(e);
-          setIsRunning(false);
-
+        error(error) {
           posthog.capture("Finished Simple Evaluation with Error", {
             flowId: get().spaceId,
           });
+
+          console.error(error);
+
+          setIsRunning(false);
         },
         complete() {
-          setIsRunning(false);
-
           posthog.capture("Finished Simple Evaluation", {
             flowId: get().spaceId,
           });
+
+          setIsRunning(false);
         },
       });
     },
 
     stopRunningFlow() {
-      setIsRunning(false);
+      posthog.capture("Manually Stopped Simple Evaluation", {
+        flowId: get().spaceId,
+      });
 
       runFlowSubscription?.unsubscribe();
       runFlowSubscription = null;
+
+      setIsRunning(false);
     },
   };
 };
+
+// SECTION: Utilities
+
+function createFlowContentHandler(
+  spaceId: string,
+): (result: OperationResult<SpaceFlowQueryQuery>) => Promise<V3FlowContent> {
+  return async (result) => {
+    // TODO: Report to telemetry
+    invariant(result.data?.result?.space != null);
+
+    const version = result.data.result.space.contentVersion;
+    const contentV2Str = result.data.result.space.flowContent;
+    const contentV3Str = result.data.result.space.contentV3;
+
+    // TODO: Report to telemetry
+    invariant(version != ContentVersion.V1);
+
+    switch (version) {
+      case ContentVersion.V2: {
+        invariant(contentV2Str != null);
+        // TODO: Report parse error to telemetry
+        const contentV2 = JSON.parse(contentV2Str);
+        const contentV3 = convertV2ContentToV3Content(contentV2);
+        await updateSpaceContentV3(spaceId, contentV3);
+        return contentV3;
+      }
+      case ContentVersion.V3: {
+        invariant(contentV3Str != null);
+        // TODO: Report parse error to telemetry
+        const data = JSON.parse(contentV3Str) as Partial<V3FlowContent>;
+        const contentV3: V3FlowContent = {
+          nodes: data.nodes ?? [],
+          edges: data.edges ?? [],
+          nodeConfigsDict: data.nodeConfigsDict ?? {},
+          variablesDict: data.variablesDict ?? {},
+          variableValueLookUpDicts: data.variableValueLookUpDicts ?? [{}],
+        };
+        await updateSpaceContentV3(spaceId, contentV3);
+        return contentV3;
+      }
+    }
+  };
+}
+
+function selectFlowInputVariableValue(
+  variablesDict: VariablesDict,
+  variableValueLookUpDict: V3VariableValueLookUpDict,
+): V3VariableValueLookUpDict {
+  const flowInputVariableValueLookUpDict: V3VariableValueLookUpDict = {};
+
+  for (const variable of Object.values(variablesDict)) {
+    if (variable.type === VariableType.FlowInput) {
+      flowInputVariableValueLookUpDict[variable.id] =
+        variableValueLookUpDict[variable.id];
+    }
+  }
+
+  return flowInputVariableValueLookUpDict;
+}
+
+// !SECTION

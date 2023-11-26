@@ -10,7 +10,7 @@ import { FlowState } from "../../../state/store-flow-state-types";
 import OutputDisplay from "./OutputDisplay";
 
 const selector = (state: FlowState) => ({
-  defaultVariableValueMap: state.getDefaultVariableValueMap(),
+  defaultVariableValueMap: state.getDefaultVariableValueLookUpDict(),
 });
 
 type Props = {

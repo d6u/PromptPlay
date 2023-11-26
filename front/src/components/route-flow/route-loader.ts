@@ -18,8 +18,8 @@ const loader = createObservableLoader<FlowLoaderData>((params) => {
     client.query(
       SpaceContentVersionQuery,
       { spaceId },
-      { requestPolicy: "network-only" }
-    )
+      { requestPolicy: "network-only" },
+    ),
   ).pipe(
     map((result) => {
       if (result.error) {
@@ -32,12 +32,15 @@ const loader = createObservableLoader<FlowLoaderData>((params) => {
 
       const contentVersion = result?.data?.space?.space.contentVersion;
 
-      if (contentVersion !== ContentVersion.V2) {
+      if (
+        contentVersion !== ContentVersion.V2 &&
+        contentVersion !== ContentVersion.V3
+      ) {
         return redirect(pathToCurrentContent(spaceId, contentVersion));
       }
 
       return { isCurrentUserOwner: !result.data.space.isReadOnly };
-    })
+    }),
   );
 });
 

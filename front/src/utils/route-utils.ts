@@ -11,12 +11,16 @@ export function pathToFlow(spaceId: string) {
 
 export function pathToCurrentContent(
   id: string,
-  contentVersion: ContentVersion
+  contentVersion: ContentVersion,
 ): string {
   switch (contentVersion) {
     case ContentVersion.V1:
-      throw new Error("V1 is not supported anymore");
+      // TODO: Report to telemetry
+      console.warn("V1 is not supported anymore");
+      return "";
     case ContentVersion.V2:
+      return pathToFlow(id);
+    case ContentVersion.V3:
       return pathToFlow(id);
   }
 }

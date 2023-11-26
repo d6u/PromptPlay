@@ -13,9 +13,9 @@ import {
 import Papa from "papaparse";
 import posthog from "posthog-js";
 import { ReactNode, useEffect, useMemo } from "react";
-import { FlowOutputVariableMap } from "../../../../../flow-run/run-types";
 import {
   V3VariableID,
+  V3VariableValueLookUpDict,
   VariableType,
 } from "../../../../../models/v3-flow-content-types";
 import {
@@ -95,7 +95,7 @@ export default function EvaluationSectionConfigCSV(props: Props) {
   useEffect(() => {
     setGeneratedResult(
       A.makeWithIndex(props.csvBody.length, () =>
-        A.makeWithIndex(repeatCount, D.makeEmpty<FlowOutputVariableMap>),
+        A.makeWithIndex(repeatCount, D.makeEmpty<V3VariableValueLookUpDict>),
       ),
     );
   }, [props.csvBody.length, repeatCount, setGeneratedResult]);
