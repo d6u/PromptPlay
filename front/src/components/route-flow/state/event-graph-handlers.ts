@@ -33,7 +33,9 @@ import {
 } from "../../../models/v3-flow-content-types";
 import { createNodeConfig } from "../../../models/v3-flow-utils";
 import randomId from "../../../utils/randomId";
+import { DRAG_HANDLE_CLASS_NAME } from "../constants";
 import { ChangeEvent, ChangeEventType } from "./event-graph-types";
+import { assignLocalEdgeProperties } from "./state-utils";
 import { SliceFlowContentV3State } from "./store-flow-state-types";
 
 type EventHandlerResult = [Partial<SliceFlowContentV3State>, ChangeEvent[]];
@@ -308,7 +310,7 @@ function handleRfOnConnect(
   // !SECTION
 
   content.isFlowContentDirty = true;
-  content.edges = acceptedEdges;
+  content.edges = assignLocalEdgeProperties(acceptedEdges);
 
   return [content, events];
 }
@@ -325,7 +327,10 @@ function handleAddingNode(
   const { nodeConfig, variableConfigList } = createNodeConfig(node);
 
   const nodes = produce(prevNodes, (draft) => {
-    draft.push(node);
+    draft.push({
+      ...node,
+      dragHandle: `.${DRAG_HANDLE_CLASS_NAME}`,
+    });
   });
 
   const nodeConfigs = produce(prevNodeConfigs, (draft) => {
