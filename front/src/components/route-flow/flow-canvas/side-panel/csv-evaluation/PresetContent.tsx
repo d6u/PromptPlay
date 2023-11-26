@@ -5,6 +5,7 @@ import Papa from "papaparse";
 import posthog from "posthog-js";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Subscription } from "rxjs";
+import invariant from "ts-invariant";
 import { useQuery } from "urql";
 import { FlowOutputVariableMap } from "../../../../../flow-run/run-types";
 import { graphql } from "../../../../../gql";
@@ -36,9 +37,11 @@ const EVALUATION_MODE_CSV_CONTENT_QUERY = graphql(`
 
 const selector = (state: FlowState) => ({
   spaceId: state.spaceId,
-  nodeConfigs: state.nodeConfigsDict,
+  nodes: state.nodes,
   edges: state.edges,
-  variableMap: state.variablesDict,
+  nodeConfigsDict: state.nodeConfigsDict,
+  variablesDict: state.variablesDict,
+  variableValueLookUpDicts: state.variableValueLookUpDicts,
   presetId: state.csvEvaluationCurrentPresetId,
   csvContent: state.csvEvaluationCsvContent,
   setCsvContent: state.csvEvaluationSetLocalCsvContent,
@@ -53,9 +56,11 @@ const selector = (state: FlowState) => ({
 export default function PresetContent() {
   const {
     spaceId,
-    nodeConfigs,
+    nodes,
     edges,
-    variableMap,
+    nodeConfigsDict,
+    variablesDict,
+    variableValueLookUpDicts,
     presetId,
     csvContent,
     setCsvContent,
@@ -69,12 +74,11 @@ export default function PresetContent() {
 
   const shouldFetchPreset = spaceId && presetId;
 
+  invariant(presetId != null);
+
   const [queryResult] = useQuery({
     query: EVALUATION_MODE_CSV_CONTENT_QUERY,
-    variables: {
-      spaceId,
-      presetId: presetId!,
-    },
+    variables: { spaceId, presetId },
     pause: !shouldFetchPreset,
   });
 
@@ -145,9 +149,13 @@ export default function PresetContent() {
     setIsRunning(true);
 
     runningSubscriptionRef.current = runForEachRow({
-      nodeConfigs,
-      edges,
-      variableMap,
+      flowContent: {
+        nodes,
+        edges,
+        nodeConfigsDict,
+        variablesDict,
+        variableValueLookUpDicts,
+      },
       csvBody,
       variableColumnMap,
       repeatCount,
@@ -200,9 +208,11 @@ export default function PresetContent() {
     spaceId,
     csvBody,
     repeatCount,
-    nodeConfigs,
+    nodes,
     edges,
-    variableMap,
+    nodeConfigsDict,
+    variablesDict,
+    variableValueLookUpDicts,
     variableColumnMap,
     concurrencyLimit,
     setGeneratedResult,

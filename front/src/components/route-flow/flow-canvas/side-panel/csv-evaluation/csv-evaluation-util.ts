@@ -14,26 +14,18 @@ import {
   RunEvent,
   RunEventType,
 } from "../../../../../flow-run/run-types";
-import {
-  V3LocalEdge,
-  V3NodeConfigsDict,
-  VariablesDict,
-} from "../../../../../models/v3-flow-content-types";
+import { V3FlowContent } from "../../../../../models/v3-flow-content-types";
 import { VariableColumnMap } from "../../../state/slice-csv-evaluation-preset";
 import { CSVData } from "./csv-evaluation-common";
 
 export function runForEachRow({
-  edges,
-  nodeConfigs,
-  variableMap,
+  flowContent,
   csvBody,
   variableColumnMap,
   repeatCount,
   concurrencyLimit,
 }: {
-  edges: V3LocalEdge[];
-  nodeConfigs: V3NodeConfigsDict;
-  variableMap: VariablesDict;
+  flowContent: V3FlowContent;
   csvBody: CSVData;
   variableColumnMap: VariableColumnMap;
   repeatCount: number;
@@ -50,12 +42,10 @@ export function runForEachRow({
           });
         }),
         mergeMap((inputVariableMap, rowIndex) => {
-          return runSingle(
-            nodeConfigs,
-            edges,
-            variableMap,
+          return runSingle({
+            flowContent,
             inputVariableMap,
-          ).pipe(
+          }).pipe(
             reduce<RunEvent, FlowOutputVariableMap>((acc, event) => {
               switch (event.type) {
                 case RunEventType.VariableValueChanges: {

@@ -498,12 +498,17 @@ function handleRfOnConnect(
   const nextEdges = addEdge(connection, prevEdges) as V3LocalEdge[];
   const addedEdge = A.difference(nextEdges, prevEdges)[0];
 
+  invariant(addedEdge != null);
+
   // SECTION: Check if new edge has valid destination value type
 
-  const srcVariable = variableConfigs[asV3VariableID(addedEdge.sourceHandle)];
+  const srcVariable = variableConfigs[addedEdge.sourceHandle];
+
+  invariant(srcVariable != null);
 
   if (srcVariable.valueType === VariableValueType.Audio) {
     const dstNodeConfig = nodeConfigs[addedEdge.target];
+    invariant(dstNodeConfig != null);
     if (dstNodeConfig.type !== NodeType.OutputNode) {
       // TODO: Change this to a non-blocking alert UI
       alert("You can only connect an audio output to an output node.");
@@ -523,10 +528,12 @@ function handleRfOnConnect(
   );
 
   if (rejectedEdges.length) {
+    const oldEdge = rejectedEdges[0];
+    invariant(oldEdge != null);
     // --- Replace edge ---
     events.push({
       type: ChangeEventType.EDGE_REPLACED,
-      oldEdge: rejectedEdges[0],
+      oldEdge,
       newEdge: addedEdge,
     });
   } else {

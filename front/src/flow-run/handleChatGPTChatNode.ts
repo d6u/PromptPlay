@@ -102,11 +102,15 @@ export function handleChatGPTChatNode(
               throw piece.error.message;
             }
 
-            if (piece.choices[0].delta.role) {
-              role = piece.choices[0].delta.role;
+            const choice = piece.choices[0];
+
+            invariant(choice != null);
+
+            if (choice.delta.role) {
+              role = choice.delta.role;
             }
-            if (piece.choices[0].delta.content) {
-              content += piece.choices[0].delta.content;
+            if (choice.delta.content) {
+              content += choice.delta.content;
             }
             const message = { role, content };
 
@@ -148,8 +152,12 @@ export function handleChatGPTChatNode(
             throw result.data;
           }
 
-          const content = result.data.choices[0].message.content;
-          const message = result.data.choices[0].message;
+          const choice = result.data.choices[0];
+
+          invariant(choice != null);
+
+          const content = choice.message.content;
+          const message = choice.message;
           messages = A.append(messages, message);
 
           invariant(variableContent != null);

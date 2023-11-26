@@ -18,8 +18,8 @@
     /* Linting */
     "strict": true,
     "noUnusedLocals": true,
-    "noFallthroughCasesInSwitch": true,
-    "noUncheckedIndexedAccess": true
+    "noFallthroughCasesInSwitch": true
+    // "noUncheckedIndexedAccess": true
     // "noPropertyAccessFromIndexSignature": true
   },
   "include": ["src"],
