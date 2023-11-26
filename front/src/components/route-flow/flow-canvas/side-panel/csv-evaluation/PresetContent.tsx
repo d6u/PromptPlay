@@ -5,7 +5,6 @@ import Papa from "papaparse";
 import posthog from "posthog-js";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Subscription } from "rxjs";
-import invariant from "ts-invariant";
 import { useQuery } from "urql";
 import { graphql } from "../../../../../gql";
 import { V3VariableValueLookUpDict } from "../../../../../models/v3-flow-content-types";
@@ -74,11 +73,14 @@ export default function PresetContent() {
 
   const shouldFetchPreset = spaceId && presetId;
 
-  invariant(presetId != null);
-
   const [queryResult] = useQuery({
     query: EVALUATION_MODE_CSV_CONTENT_QUERY,
-    variables: { spaceId, presetId },
+    variables: {
+      spaceId,
+      // This is a workaround for TypeScript, because when presetId is null,
+      // `!shouldFetchPreset` will be true, thus, query will be paused.
+      presetId: presetId ?? "",
+    },
     pause: !shouldFetchPreset,
   });
 
