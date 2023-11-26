@@ -770,7 +770,8 @@ function handleVariableRemoved(
 
   const [acceptedEdges, rejectedEdges] = A.partition(
     prevEdges,
-    (edge) => asV3VariableID(edge.sourceHandle) !== variableId,
+    (edge) =>
+      edge.sourceHandle !== variableId && edge.targetHandle !== variableId,
   );
 
   for (const edge of rejectedEdges) {
