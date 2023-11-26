@@ -18,7 +18,8 @@ export function createFlowStore(initProps: InitProps) {
         ...createCsvEvaluationPresetSlice(...a),
       }),
       {
-        store: "FlowState",
+        enabled: true,
+        store: "FlowStore",
         anonymousActionType: "setState",
       },
     ),
