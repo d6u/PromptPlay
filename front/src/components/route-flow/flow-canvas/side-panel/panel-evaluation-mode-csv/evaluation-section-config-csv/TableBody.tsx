@@ -10,7 +10,6 @@ import OutputDisplay from "../../common/OutputDisplay";
 import { CSVData } from "../common";
 
 type Props = {
-  repeatTimes: number;
   csvBody: CSVData;
 };
 
@@ -19,6 +18,7 @@ export default function TableBody(props: Props) {
 
   const variableMap = useFlowStore.use.variablesDict();
   const {
+    repeatTimes,
     variableIdToCsvColumnIndexLookUpDict,
     csvRunResultTable: generatedResult,
     runStatusTable: runStatuses,
@@ -40,7 +40,7 @@ export default function TableBody(props: Props) {
     const cells: ReactNode[] = [];
 
     // Columns for "Status"
-    for (let colIndex = 0; colIndex < props.repeatTimes; colIndex++) {
+    for (let colIndex = 0; colIndex < repeatTimes; colIndex++) {
       const statusValue =
         runStatuses[rowIndex as RowIndex]?.[colIndex as IterationIndex] ?? null;
       cells.push(
@@ -68,7 +68,7 @@ export default function TableBody(props: Props) {
         <td key={`${outputItem.id}`}>{index !== null ? row[index] : ""}</td>,
       );
 
-      for (let colIndex = 0; colIndex < props.repeatTimes; colIndex++) {
+      for (let colIndex = 0; colIndex < repeatTimes; colIndex++) {
         const value =
           generatedResult[rowIndex as RowIndex]?.[colIndex as IterationIndex]?.[
             outputItem.id

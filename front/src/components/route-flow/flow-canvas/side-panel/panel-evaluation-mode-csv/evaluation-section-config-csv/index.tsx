@@ -264,11 +264,8 @@ export default function EvaluationSectionConfigCSV(props: Props) {
         </Section>
         <Section style={{ overflow: "auto" }}>
           <Table>
-            <TableHead
-              repeatTimes={repeatTimes}
-              csvHeaders={props.csvHeaders}
-            />
-            <TableBody repeatTimes={repeatTimes} csvBody={props.csvBody} />
+            <TableHead csvHeaders={props.csvHeaders} />
+            <TableBody csvBody={props.csvBody} />
           </Table>
         </Section>
       </CustomAccordionDetails>

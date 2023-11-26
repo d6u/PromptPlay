@@ -7,7 +7,6 @@ import { useFlowStore } from "../../../../state/store-flow-state";
 import { CSVRow } from "../common";
 
 type Props = {
-  repeatTimes: number;
   csvHeaders: CSVRow;
 };
 
@@ -15,7 +14,7 @@ export default function TableHead(props: Props) {
   // SECTION: Select state from store
 
   const variableMap = useFlowStore.use.variablesDict();
-  const { repeatTimes: repeatCount, variableIdToCsvColumnIndexLookUpDict } =
+  const { repeatTimes, variableIdToCsvColumnIndexLookUpDict } =
     useFlowStore.use.csvEvaluationConfigContent();
   const setVariableColumnMap =
     useFlowStore.use.csvEvaluationSetVariableIdToCsvColumnIndexLookUpDict();
@@ -34,17 +33,13 @@ export default function TableHead(props: Props) {
   const variableMapTableHeaderRowSecond: ReactNode[] = [];
 
   variableMapTableHeaderRowFirst.push(
-    <th
-      key="status"
-      style={{ textAlign: "center" }}
-      colSpan={props.repeatTimes}
-    >
+    <th key="status" style={{ textAlign: "center" }} colSpan={repeatTimes}>
       Status
     </th>,
   );
 
-  if (props.repeatTimes > 1) {
-    for (let i = 0; i < props.repeatTimes; i++) {
+  if (repeatTimes > 1) {
+    for (let i = 0; i < repeatTimes; i++) {
       variableMapTableHeaderRowSecond.push(
         <th key={`status-${i}`}>Run {i + 1}</th>,
       );
@@ -89,7 +84,7 @@ export default function TableHead(props: Props) {
     variableMapTableHeaderRowFirst.push(
       <th
         key={outputItem.id}
-        colSpan={repeatCount + 1}
+        colSpan={repeatTimes + 1}
         style={{ textAlign: "center" }}
       >
         {outputItem.name}
@@ -117,8 +112,8 @@ export default function TableHead(props: Props) {
       </th>,
     );
 
-    if (repeatCount > 1) {
-      for (let i = 0; i < repeatCount; i++) {
+    if (repeatTimes > 1) {
+      for (let i = 0; i < repeatTimes; i++) {
         variableMapTableHeaderRowSecond.push(
           <th key={`${outputItem.id}-result-${i}`}>Result {i + 1}</th>,
         );
