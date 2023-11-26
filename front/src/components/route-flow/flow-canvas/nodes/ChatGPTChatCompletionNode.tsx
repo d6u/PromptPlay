@@ -9,34 +9,40 @@ import { useContext, useEffect, useMemo, useState } from "react";
 import { Position, useNodeId } from "reactflow";
 import { NEW_LINE_SYMBOL } from "../../../../integrations/openai";
 import {
-  ChatGPTChatCompletionNodeConfig,
   NodeID,
   NodeType,
   OpenAIChatModel,
-} from "../../../../models/flow-content-types";
+} from "../../../../models/v2-flow-content-types";
+import {
+  ChatGPTChatCompletionResponseFormatType,
+  V3ChatGPTChatCompletionNodeConfig,
+  VariableType,
+} from "../../../../models/v3-flow-content-types";
 import {
   LocalStorageState,
   SpaceState,
   useLocalStorageStore,
   useSpaceStore,
 } from "../../../../state/appState";
-import FlowContext from "../../FlowContext";
 import InputReadonly from "../../common/InputReadonly";
-import { useFlowStore } from "../../store/store-flow";
-import { FlowState } from "../../store/types-local-state";
+import FlowContext from "../../FlowContext";
+import { selectVariables } from "../../state/state-utils";
+import { useFlowStore } from "../../state/store-flow-state";
+import { FlowState } from "../../state/store-flow-state-types";
 import HeaderSection from "./node-common/HeaderSection";
 import HelperTextContainer from "./node-common/HelperTextContainer";
+import { InputHandle, OutputHandle, Section } from "./node-common/node-common";
 import NodeBox, { NodeState } from "./node-common/NodeBox";
 import NodeInputModifyRow from "./node-common/NodeInputModifyRow";
 import NodeOutputRow from "./node-common/NodeOutputRow";
-import { InputHandle, OutputHandle, Section } from "./node-common/node-common";
 import {
   calculateInputHandleTop,
   calculateOutputHandleBottom,
 } from "./node-common/utils";
 
 const flowSelector = (state: FlowState) => ({
-  nodeConfigs: state.nodeConfigs,
+  nodeConfigs: state.nodeConfigsDict,
+  variableConfigs: state.variablesDict,
   updateNodeConfig: state.updateNodeConfig,
   removeNode: state.removeNode,
   localNodeAugments: state.localNodeAugments,
@@ -60,24 +66,27 @@ export default function ChatGPTChatCompletionNode() {
 
   const {
     nodeConfigs,
+    variableConfigs,
     updateNodeConfig,
     removeNode,
     localNodeAugments,
     defaultVariableValueMap,
   } = useFlowStore(flowSelector);
+
   const { openAiApiKey, setOpenAiApiKey } =
     useLocalStorageStore(persistSelector);
+
   const { missingOpenAiApiKey, setMissingOpenAiApiKey } =
     useSpaceStore(selector);
 
   const nodeConfig = useMemo(
-    () => nodeConfigs[nodeId] as ChatGPTChatCompletionNodeConfig | undefined,
-    [nodeConfigs, nodeId]
+    () => nodeConfigs[nodeId] as V3ChatGPTChatCompletionNodeConfig | undefined,
+    [nodeConfigs, nodeId],
   );
 
   const augment = useMemo(
     () => localNodeAugments[nodeId],
-    [localNodeAugments, nodeId]
+    [localNodeAugments, nodeId],
   );
 
   // It's OK to force unwrap here because nodeConfig will be undefined only
@@ -88,7 +97,7 @@ export default function ChatGPTChatCompletionNode() {
   // SECTION: Temperature Field
 
   const [temperature, setTemperature] = useState<string>(
-    () => nodeConfig?.temperature.toString() ?? ""
+    () => nodeConfig?.temperature.toString() ?? "",
   );
 
   useEffect(() => {
@@ -104,7 +113,7 @@ export default function ChatGPTChatCompletionNode() {
   // SECTION: Seed Field
 
   const [seed, setSeed] = useState<string>(
-    () => nodeConfig?.seed?.toString() ?? ""
+    () => nodeConfig?.seed?.toString() ?? "",
   );
 
   useEffect(() => {
@@ -121,11 +130,23 @@ export default function ChatGPTChatCompletionNode() {
     return null;
   }
 
+  const inputVariables = selectVariables(
+    nodeId,
+    VariableType.NodeInput,
+    variableConfigs,
+  );
+
+  const outputVariables = selectVariables(
+    nodeId,
+    VariableType.NodeOutput,
+    variableConfigs,
+  );
+
   return (
     <>
       <InputHandle
         type="target"
-        id={nodeConfig.inputs[0].id}
+        id={inputVariables[0].id}
         position={Position.Left}
         style={{ top: calculateInputHandleTop(-1) }}
       />
@@ -135,8 +156,8 @@ export default function ChatGPTChatCompletionNode() {
           augment?.isRunning
             ? NodeState.Running
             : augment?.hasError
-            ? NodeState.Error
-            : NodeState.Idle
+              ? NodeState.Error
+              : NodeState.Idle
         }
       >
         <HeaderSection
@@ -148,8 +169,8 @@ export default function ChatGPTChatCompletionNode() {
         />
         <Section>
           <NodeInputModifyRow
-            key={nodeConfig.inputs[0].id}
-            name={nodeConfig.inputs[0].name}
+            key={inputVariables[0].id}
+            name={inputVariables[0].name}
             isReadOnly
           />
         </Section>
@@ -298,7 +319,7 @@ export default function ChatGPTChatCompletionNode() {
               disabled={!isCurrentUserOwner}
               size="sm"
               variant="outlined"
-              checked={nodeConfig.responseFormat != null}
+              checked={nodeConfig.responseFormatType != null}
               onChange={(event) => {
                 if (!isCurrentUserOwner) {
                   return;
@@ -306,10 +327,11 @@ export default function ChatGPTChatCompletionNode() {
 
                 if (event.target.checked) {
                   updateNodeConfig(nodeId, {
-                    responseFormat: { type: "json_object" },
+                    responseFormatType:
+                      ChatGPTChatCompletionResponseFormatType.JsonObject,
                   });
                 } else {
-                  updateNodeConfig(nodeId, { responseFormat: null });
+                  updateNodeConfig(nodeId, { responseFormatType: null });
                 }
               }}
             />
@@ -328,7 +350,7 @@ export default function ChatGPTChatCompletionNode() {
                   if (event.shiftKey && event.key === "Enter") {
                     event.preventDefault();
                     setStop((stop) =>
-                      stop.length ? [stop[0] + "\n"] : ["\n"]
+                      stop.length ? [stop[0] + "\n"] : ["\n"],
                     );
                   }
                 }}
@@ -368,7 +390,7 @@ export default function ChatGPTChatCompletionNode() {
           </FormControl>
         </Section>
         <Section>
-          {nodeConfig.outputs.map((output, i) => (
+          {outputVariables.map((output, i) => (
             <NodeOutputRow
               key={output.id}
               id={output.id}
@@ -378,16 +400,14 @@ export default function ChatGPTChatCompletionNode() {
           ))}
         </Section>
       </NodeBox>
-      {nodeConfig.outputs.map((output, i) => (
+      {outputVariables.map((output, i) => (
         <OutputHandle
           key={output.id}
           type="source"
           id={output.id}
           position={Position.Right}
           style={{
-            bottom: calculateOutputHandleBottom(
-              nodeConfig.outputs.length - 1 - i
-            ),
+            bottom: calculateOutputHandleBottom(outputVariables.length - 1 - i),
           }}
         />
       ))}

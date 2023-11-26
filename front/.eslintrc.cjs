@@ -29,5 +29,6 @@ module.exports = {
       "warn",
       { allowConstantExport: true },
     ],
+    "no-duplicate-imports": "error",
   },
 };

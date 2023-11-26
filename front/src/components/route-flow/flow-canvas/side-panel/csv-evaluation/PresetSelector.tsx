@@ -4,8 +4,8 @@ import { Autocomplete, AutocompleteOption, Button } from "@mui/joy";
 import { ReactNode, useMemo, useState } from "react";
 import { useQuery } from "urql";
 import { graphql } from "../../../../../gql";
-import { useFlowStore } from "../../../store/store-flow";
-import { FlowState } from "../../../store/types-local-state";
+import { useFlowStore } from "../../../state/store-flow-state";
+import { FlowState } from "../../../state/store-flow-state-types";
 import PresetSaveModal from "./PresetSaveModal";
 
 const PRESET_SELECTOR_QUERY = graphql(`
@@ -42,9 +42,9 @@ export default function PresetSelector() {
     () =>
       A.find(
         queryResult.data?.result?.space.csvEvaluationPresets ?? [],
-        flow(D.get("id"), F.equals(currentPresetId))
+        flow(D.get("id"), F.equals(currentPresetId)),
       ),
-    [queryResult.data?.result?.space.csvEvaluationPresets, currentPresetId]
+    [queryResult.data?.result?.space.csvEvaluationPresets, currentPresetId],
   );
 
   const [isModalOpen, setIsModalOpen] = useState(false);

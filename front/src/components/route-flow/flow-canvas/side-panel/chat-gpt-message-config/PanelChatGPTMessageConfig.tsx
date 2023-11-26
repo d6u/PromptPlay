@@ -1,29 +1,33 @@
 import {
-  Radio,
-  FormLabel,
-  FormHelperText,
   FormControl,
-  Textarea,
+  FormHelperText,
+  FormLabel,
+  Radio,
   RadioGroup,
+  Textarea,
 } from "@mui/joy";
 import { useContext, useEffect, useMemo, useState } from "react";
+import invariant from "ts-invariant";
 import { ChatGPTMessageRole } from "../../../../../integrations/openai";
-import { ChatGPTMessageNodeConfig } from "../../../../../models/flow-content-types";
-import FlowContext from "../../../FlowContext";
-import TextareaReadonly from "../../../common/TextareaReadonly";
+import { NodeType } from "../../../../../models/v2-flow-content-types";
+import { VariableType } from "../../../../../models/v3-flow-content-types";
 import { CopyIcon, LabelWithIconContainer } from "../../../common/flow-common";
-import { useFlowStore } from "../../../store/store-flow";
-import { FlowState } from "../../../store/types-local-state";
-import OutputRenderer from "../common/OutputRenderer";
+import TextareaReadonly from "../../../common/TextareaReadonly";
+import FlowContext from "../../../FlowContext";
+import { selectVariables } from "../../../state/state-utils";
+import { useFlowStore } from "../../../state/store-flow-state";
+import { FlowState } from "../../../state/store-flow-state-types";
 import {
   HeaderSection,
   HeaderSectionHeader,
   PanelContentContainer,
   Section,
 } from "../common/controls-common";
+import OutputRenderer from "../common/OutputRenderer";
 
 const selector = (state: FlowState) => ({
-  nodeConfigs: state.nodeConfigs,
+  nodeConfigs: state.nodeConfigsDict,
+  variableMap: state.variablesDict,
   detailPanelSelectedNodeId: state.detailPanelSelectedNodeId,
   updateNodeConfig: state.updateNodeConfig,
 });
@@ -31,13 +35,28 @@ const selector = (state: FlowState) => ({
 export default function PanelChatGPTMessageConfig() {
   const { isCurrentUserOwner } = useContext(FlowContext);
 
-  const { nodeConfigs, detailPanelSelectedNodeId, updateNodeConfig } =
-    useFlowStore(selector);
+  const {
+    nodeConfigs,
+    variableMap,
+    detailPanelSelectedNodeId,
+    updateNodeConfig,
+  } = useFlowStore(selector);
 
-  const nodeConfig = useMemo(
-    () => nodeConfigs[detailPanelSelectedNodeId!] as ChatGPTMessageNodeConfig,
-    [detailPanelSelectedNodeId, nodeConfigs]
-  );
+  invariant(detailPanelSelectedNodeId != null);
+
+  const nodeConfig = useMemo(() => {
+    return nodeConfigs[detailPanelSelectedNodeId];
+  }, [detailPanelSelectedNodeId, nodeConfigs]);
+
+  invariant(nodeConfig.type === NodeType.ChatGPTMessageNode);
+
+  const outputs = useMemo(() => {
+    return selectVariables(
+      detailPanelSelectedNodeId,
+      VariableType.NodeOutput,
+      variableMap,
+    );
+  }, [detailPanelSelectedNodeId, variableMap]);
 
   const [role, setRole] = useState(() => nodeConfig.role);
   const [content, setContent] = useState<string>(() => nodeConfig?.content);
@@ -56,7 +75,7 @@ export default function PanelChatGPTMessageConfig() {
         <HeaderSectionHeader>Output variables</HeaderSectionHeader>
       </HeaderSection>
       <Section>
-        {nodeConfig.outputs.map((output) => (
+        {outputs.map((output) => (
           <OutputRenderer key={output.id} outputItem={output} />
         ))}
       </Section>
@@ -74,7 +93,7 @@ export default function PanelChatGPTMessageConfig() {
 
               setRole(role);
 
-              updateNodeConfig(detailPanelSelectedNodeId!, { role });
+              updateNodeConfig(detailPanelSelectedNodeId, { role });
             }}
           >
             <Radio
@@ -124,11 +143,11 @@ export default function PanelChatGPTMessageConfig() {
               }}
               onKeyDown={(e) => {
                 if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
-                  updateNodeConfig(detailPanelSelectedNodeId!, { content });
+                  updateNodeConfig(detailPanelSelectedNodeId, { content });
                 }
               }}
               onBlur={() => {
-                updateNodeConfig(detailPanelSelectedNodeId!, { content });
+                updateNodeConfig(detailPanelSelectedNodeId, { content });
               }}
             />
           ) : (

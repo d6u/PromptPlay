@@ -1,10 +1,10 @@
-import { Accordion, AccordionSummary, Textarea, Table } from "@mui/joy";
-import { useFlowStore } from "../../../store/store-flow";
-import { FlowState } from "../../../store/types-local-state";
+import { Accordion, AccordionSummary, Table, Textarea } from "@mui/joy";
+import { useFlowStore } from "../../../state/store-flow-state";
+import { FlowState } from "../../../state/store-flow-state-types";
 import { Section } from "../common/controls-common";
 import {
-  CSVRow,
   CSVData,
+  CSVRow,
   CustomAccordionDetails,
 } from "./csv-evaluation-common";
 

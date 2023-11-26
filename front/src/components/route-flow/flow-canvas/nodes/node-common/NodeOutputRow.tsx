@@ -1,9 +1,11 @@
 import styled from "@emotion/styled";
 import { useNodeId } from "reactflow";
-import { NodeID } from "../../../../../models/flow-content-types";
-import { useFlowStore } from "../../../store/store-flow";
-import { FlowState } from "../../../store/types-local-state";
-import { DetailPanelContentType } from "../../../store/types-local-state";
+import { NodeID } from "../../../../../models/v2-flow-content-types";
+import { useFlowStore } from "../../../state/store-flow-state";
+import {
+  DetailPanelContentType,
+  FlowState,
+} from "../../../state/store-flow-state-types";
 import { ROW_MARGIN_TOP } from "./NodeInputModifyRow";
 
 export const VARIABLE_LABEL_HEIGHT = 32;

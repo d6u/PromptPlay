@@ -1,32 +1,30 @@
 import styled from "@emotion/styled";
-import { A, D } from "@mobily/ts-belt";
 import { Button } from "@mui/joy";
-import { useContext } from "react";
-import { InputValueType } from "../../../../../models/flow-content-types";
-import FlowContext from "../../../FlowContext";
+import { useContext, useMemo } from "react";
 import {
-  flowInputItemsWithNodeConfigSelector,
-  flowOutputItemsSelector,
-  useFlowStore,
-} from "../../../store/store-flow";
-import { FlowState } from "../../../store/types-local-state";
+  VariableType,
+  VariableValueType,
+} from "../../../../../models/v3-flow-content-types";
+import FlowContext from "../../../FlowContext";
+import { selectAllVariables } from "../../../state/state-utils";
+import { useFlowStore } from "../../../state/store-flow-state";
+import { FlowState } from "../../../state/store-flow-state-types";
+import {
+  HeaderSection,
+  HeaderSectionHeader,
+  Section,
+} from "../common/controls-common";
 import InputBlock from "../common/InputBlock";
 import OutputRenderer from "../common/OutputRenderer";
-import {
-  Section,
-  HeaderSectionHeader,
-  HeaderSection,
-} from "../common/controls-common";
 
 const selector = (state: FlowState) => ({
   isRunning: state.isRunning,
+  variableMap: state.variablesDict,
   runFlow: state.runFlow,
   stopRunningFlow: state.stopRunningFlow,
-  updateNodeConfig: state.updateNodeConfig,
-  flowInputItems: flowInputItemsWithNodeConfigSelector(state),
-  flowOutputItems: flowOutputItemsSelector(state),
   defaultVariableValueMap: state.getDefaultVariableValueMap(),
   updateVariableValueMap: state.updateVariableValueMap,
+  updateVariable: state.updateVariable,
 });
 
 export default function PanelEvaluationModeSimple() {
@@ -34,14 +32,21 @@ export default function PanelEvaluationModeSimple() {
 
   const {
     isRunning,
+    variableMap,
     runFlow,
     stopRunningFlow,
-    updateNodeConfig,
-    flowInputItems,
-    flowOutputItems,
     defaultVariableValueMap: variableValueMap,
     updateVariableValueMap,
+    updateVariable,
   } = useFlowStore(selector);
+
+  const flowInputs = useMemo(() => {
+    return selectAllVariables(VariableType.FlowInput, variableMap);
+  }, [variableMap]);
+
+  const flowOutputs = useMemo(() => {
+    return selectAllVariables(VariableType.FlowOutput, variableMap);
+  }, [variableMap]);
 
   return (
     <Container>
@@ -57,36 +62,30 @@ export default function PanelEvaluationModeSimple() {
         )}
       </HeaderSection>
       <Section>
-        {flowInputItems.map(({ inputItem, nodeConfig }, i) => (
+        {flowInputs.map((variable, i) => (
           <InputBlock
-            key={inputItem.id}
+            key={variable.id}
             isReadOnly={!isCurrentUserOwner}
-            id={inputItem.id}
-            name={inputItem.name}
-            value={variableValueMap[inputItem.id]}
+            id={variable.id}
+            name={variable.name}
+            value={variableValueMap[variable.id]}
             onSaveValue={(value) => {
-              updateVariableValueMap(inputItem.id, value);
+              updateVariableValueMap(variable.id, value);
             }}
-            type={inputItem.valueType}
+            type={variable.valueType}
             onSaveType={(newType) => {
-              if (inputItem.valueType !== newType) {
+              if (newType !== variable.valueType) {
                 switch (newType) {
-                  case InputValueType.String:
-                    updateVariableValueMap(inputItem.id, "");
+                  case VariableValueType.String:
+                    updateVariableValueMap(variable.id, "");
                     break;
-                  case InputValueType.Number:
-                    updateVariableValueMap(inputItem.id, 0);
+                  case VariableValueType.Number:
+                    updateVariableValueMap(variable.id, 0);
                     break;
                 }
               }
 
-              updateNodeConfig(nodeConfig.nodeId, {
-                outputs: A.updateAt(
-                  nodeConfig.outputs,
-                  i,
-                  D.set("valueType", newType)
-                ),
-              });
+              updateVariable(variable.id, { valueType: newType });
             }}
           />
         ))}
@@ -95,7 +94,7 @@ export default function PanelEvaluationModeSimple() {
         <HeaderSectionHeader>Output values</HeaderSectionHeader>
       </HeaderSection>
       <Section>
-        {flowOutputItems.map((output) => (
+        {flowOutputs.map((output) => (
           <OutputRenderer key={output.id} outputItem={output} />
         ))}
       </Section>

@@ -1,17 +1,17 @@
 import styled from "@emotion/styled";
 import { Option } from "@mobily/ts-belt";
 import {
-  Modal,
-  ModalDialog,
-  Typography,
+  Button,
   FormControl,
   FormLabel,
   Input,
-  Button,
+  Modal,
+  ModalDialog,
+  Typography,
 } from "@mui/joy";
 import { useEffect, useState } from "react";
-import { useFlowStore } from "../../../store/store-flow";
-import { FlowState } from "../../../store/types-local-state";
+import { useFlowStore } from "../../../state/store-flow-state";
+import { FlowState } from "../../../state/store-flow-state-types";
 
 const selector = (state: FlowState) => ({
   setCurrentPresetId: state.csvEvaluationSetCurrentPresetId,

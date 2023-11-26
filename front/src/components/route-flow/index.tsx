@@ -3,11 +3,11 @@ import { useEffect } from "react";
 import { useLoaderData, useParams } from "react-router-dom";
 import { ReactFlowProvider } from "reactflow";
 import "reactflow/dist/style.css";
-import FlowContext from "./FlowContext";
 import FlowCanvas from "./flow-canvas/FlowCanvas";
+import FlowContext from "./FlowContext";
 import { FlowLoaderData } from "./route-loader";
-import { useFlowStore } from "./store/store-flow";
-import { FlowState } from "./store/types-local-state";
+import { useFlowStore } from "./state/store-flow-state";
+import { FlowState } from "./state/store-flow-state-types";
 import ToolBar from "./tool-bar/ToolBar";
 
 const selector = (state: FlowState) => ({
