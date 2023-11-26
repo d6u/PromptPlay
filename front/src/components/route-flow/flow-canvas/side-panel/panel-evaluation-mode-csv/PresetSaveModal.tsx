@@ -9,15 +9,10 @@ import {
   ModalDialog,
   Typography,
 } from "@mui/joy";
-import { useEffect, useState } from "react";
-import { useFlowStore } from "../../../state/store-flow-state";
-import { FlowState } from "../../../state/store-flow-state-types";
-
-const selector = (state: FlowState) => ({
-  setCurrentPresetId: state.csvEvaluationSetCurrentPresetId,
-  saveNewPreset: state.csvEvaluationSaveNewPreset,
-  updatePreset: state.csvEvaluationPresetUpdate,
-});
+import { useContext, useEffect, useState } from "react";
+import invariant from "ts-invariant";
+import { useStore } from "zustand";
+import FlowContext from "../../../FlowContext";
 
 type Props = {
   isModalOpen: boolean;
@@ -26,8 +21,22 @@ type Props = {
 };
 
 export default function PresetSaveModal(props: Props) {
-  const { setCurrentPresetId, saveNewPreset, updatePreset } =
-    useFlowStore(selector);
+  const { flowStore } = useContext(FlowContext);
+  invariant(flowStore != null, "Must provide flowStore");
+
+  // SECTION: Select state from store
+
+  const setCurrentPresetId = useStore(
+    flowStore,
+    (s) => s.csvEvaluationSetCurrentPresetId,
+  );
+  const saveNewPreset = useStore(
+    flowStore,
+    (s) => s.csvEvaluationSaveNewPreset,
+  );
+  const updatePreset = useStore(flowStore, (s) => s.csvEvaluationPresetUpdate);
+
+  // !SECTION
 
   const [name, setName] = useState(props.preset?.name ?? "");
 

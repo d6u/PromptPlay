@@ -4,6 +4,8 @@ import FormLabel from "@mui/joy/FormLabel";
 import Input from "@mui/joy/Input";
 import { useContext, useMemo, useState } from "react";
 import { Position, useNodeId } from "reactflow";
+import invariant from "ts-invariant";
+import { useStore } from "zustand";
 import { NodeID, NodeType } from "../../../../models/v2-flow-content-types";
 import {
   V3HuggingFaceInferenceNodeConfig,
@@ -18,7 +20,6 @@ import {
 import InputReadonly from "../../common/InputReadonly";
 import FlowContext from "../../FlowContext";
 import { selectVariables } from "../../state/state-utils";
-import { FlowState } from "../../state/store-flow-state-types";
 import HeaderSection from "./node-common/HeaderSection";
 import HelperTextContainer from "./node-common/HelperTextContainer";
 import { InputHandle, OutputHandle, Section } from "./node-common/node-common";
@@ -29,15 +30,6 @@ import {
   calculateInputHandleTop,
   calculateOutputHandleBottom,
 } from "./node-common/utils";
-
-const flowSelector = (state: FlowState) => ({
-  nodeConfigs: state.nodeConfigsDict,
-  variableConfigs: state.variablesDict,
-  updateNodeConfig: state.updateNodeConfig,
-  removeNode: state.removeNode,
-  localNodeAugments: state.nodeMetadataDict,
-  defaultVariableValueMap: state.getDefaultVariableValueLookUpDict(),
-});
 
 const persistSelector = (state: LocalStorageState) => ({
   huggingFaceApiToken: state.huggingFaceApiToken,
@@ -50,18 +42,23 @@ const selector = (state: SpaceState) => ({
 });
 
 export default function HuggingFaceInferenceNode() {
-  const { isCurrentUserOwner } = useContext(FlowContext);
-
   const nodeId = useNodeId() as NodeID;
 
-  const {
-    nodeConfigs,
-    variableConfigs,
-    updateNodeConfig,
-    removeNode,
-    localNodeAugments,
-    defaultVariableValueMap,
-  } = useFlowStore(flowSelector);
+  const { flowStore, isCurrentUserOwner } = useContext(FlowContext);
+  invariant(flowStore != null, "Must provide flowStore");
+
+  // SECTION: Select state from store
+
+  const nodeConfigs = useStore(flowStore, (s) => s.nodeConfigsDict);
+  const variableConfigs = useStore(flowStore, (s) => s.variablesDict);
+  const updateNodeConfig = useStore(flowStore, (s) => s.updateNodeConfig);
+  const removeNode = useStore(flowStore, (s) => s.removeNode);
+  const localNodeAugments = useStore(flowStore, (s) => s.nodeMetadataDict);
+  const defaultVariableValueMap = useStore(flowStore, (s) =>
+    s.getDefaultVariableValueLookUpDict(),
+  );
+
+  // !SECTION
 
   const { huggingFaceApiToken, setHuggingFaceApiToken } =
     useLocalStorageStore(persistSelector);

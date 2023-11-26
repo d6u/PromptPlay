@@ -1,14 +1,14 @@
 import styled from "@emotion/styled";
 import { Button } from "@mui/joy";
 import { useContext, useMemo } from "react";
+import invariant from "ts-invariant";
+import { useStore } from "zustand";
 import {
   VariableType,
   VariableValueType,
 } from "../../../../../models/v3-flow-content-types";
 import FlowContext from "../../../FlowContext";
 import { selectAllVariables } from "../../../state/state-utils";
-import { useFlowStore } from "../../../state/store-flow-state";
-import { FlowState } from "../../../state/store-flow-state-types";
 import {
   HeaderSection,
   HeaderSectionHeader,
@@ -17,28 +17,26 @@ import {
 import InputBlock from "../common/InputBlock";
 import OutputRenderer from "../common/OutputRenderer";
 
-const selector = (state: FlowState) => ({
-  isRunning: state.isRunning,
-  variableMap: state.variablesDict,
-  runFlow: state.runFlow,
-  stopRunningFlow: state.stopRunningFlow,
-  defaultVariableValueMap: state.getDefaultVariableValueLookUpDict(),
-  updateVariableValueMap: state.updateVariableValueMap,
-  updateVariable: state.updateVariable,
-});
-
 export default function PanelEvaluationModeSimple() {
-  const { isCurrentUserOwner } = useContext(FlowContext);
+  const { flowStore, isCurrentUserOwner } = useContext(FlowContext);
+  invariant(flowStore != null, "Must provide flowStore");
 
-  const {
-    isRunning,
-    variableMap,
-    runFlow,
-    stopRunningFlow,
-    defaultVariableValueMap: variableValueMap,
-    updateVariableValueMap,
-    updateVariable,
-  } = useFlowStore(selector);
+  // SECTION: Select state from store
+
+  const isRunning = useStore(flowStore, (s) => s.isRunning);
+  const variableMap = useStore(flowStore, (s) => s.variablesDict);
+  const runFlow = useStore(flowStore, (s) => s.runFlow);
+  const stopRunningFlow = useStore(flowStore, (s) => s.stopRunningFlow);
+  const defaultVariableValueMap = useStore(flowStore, (s) =>
+    s.getDefaultVariableValueLookUpDict(),
+  );
+  const updateVariableValueMap = useStore(
+    flowStore,
+    (s) => s.updateVariableValueMap,
+  );
+  const updateVariable = useStore(flowStore, (s) => s.updateVariable);
+
+  // !SECTION
 
   const flowInputs = useMemo(() => {
     return selectAllVariables(VariableType.FlowInput, variableMap);
@@ -68,7 +66,7 @@ export default function PanelEvaluationModeSimple() {
             isReadOnly={!isCurrentUserOwner}
             id={variable.id}
             name={variable.name}
-            value={variableValueMap[variable.id]}
+            value={defaultVariableValueMap[variable.id]}
             onSaveValue={(value) => {
               updateVariableValueMap(variable.id, value);
             }}

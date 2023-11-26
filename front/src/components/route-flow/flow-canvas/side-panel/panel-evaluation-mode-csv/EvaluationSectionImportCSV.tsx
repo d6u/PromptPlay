@@ -1,5 +1,8 @@
 import { Accordion, AccordionSummary, Table, Textarea } from "@mui/joy";
-import { useFlowStore } from "../../../state/store-flow-state";
+import { useContext } from "react";
+import { invariant } from "ts-invariant";
+import { useStore } from "zustand";
+import FlowContext from "../../../FlowContext";
 import { Section } from "../common/controls-common";
 import { CSVData, CSVRow, CustomAccordionDetails } from "./common";
 
@@ -9,8 +12,11 @@ type Props = {
 };
 
 export default function EvaluationSectionImportCSV(props: Props) {
-  const csvStr = useFlowStore.use.csvEvaluationCsvStr();
-  const setCsvStr = useFlowStore.use.csvEvaluationSetLocalCsvStr();
+  const { flowStore } = useContext(FlowContext);
+  invariant(flowStore != null, "Must provide flowStore");
+
+  const csvStr = useStore(flowStore, (s) => s.csvEvaluationCsvStr);
+  const setCsvStr = useStore(flowStore, (s) => s.csvEvaluationSetLocalCsvStr);
 
   return (
     <Accordion defaultExpanded>
