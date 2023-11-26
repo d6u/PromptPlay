@@ -44,7 +44,7 @@ export function handleEvent(
   state: SliceFlowContentV3State,
   event: ChangeEvent,
 ): EventHandlerResult {
-  console.log(event.type);
+  console.log(event.type, event);
 
   switch (event.type) {
     // React Flow
@@ -139,7 +139,7 @@ export function handleEvent(
       );
     case ChangeEventType.VARIABLE_REMOVED:
       return handleVariableRemoved(
-        event.variableId,
+        event.removedVariable,
         state.edges,
         state.variableValueLookUpDicts,
       );
@@ -420,8 +420,6 @@ function handleAddingVariable(
   const events: ChangeEvent[] = [];
 
   variableConfigs = produce(variableConfigs, (draft) => {
-    const variableId = asV3VariableID(`${nodeId}/${randomId()}`);
-
     const commonFields = {
       id: asV3VariableID(`${nodeId}/${randomId()}`),
       nodeId,
@@ -470,7 +468,7 @@ function handleAddingVariable(
 
     events.push({
       type: ChangeEventType.VARIABLE_ADDED,
-      variableId,
+      variableId: commonFields.id,
     });
   });
 
@@ -488,12 +486,12 @@ function handleRemovingVariable(
   const events: ChangeEvent[] = [];
 
   const variableConfigs = produce(prevVariableConfigs, (draft) => {
-    delete draft[variableId];
-  });
+    events.push({
+      type: ChangeEventType.VARIABLE_REMOVED,
+      removedVariable: current(draft[variableId]),
+    });
 
-  events.push({
-    type: ChangeEventType.VARIABLE_REMOVED,
-    variableId,
+    delete draft[variableId];
   });
 
   content.isFlowContentDirty = true;
@@ -561,12 +559,12 @@ function handleNodeRemoved(
   const variableConfigs = produce(prevVariableConfigs, (draft) => {
     for (const variableConfig of Object.values(draft)) {
       if (variableConfig.nodeId === removedNode.id) {
-        delete draft[variableConfig.id];
-
         events.push({
           type: ChangeEventType.VARIABLE_REMOVED,
-          variableId: variableConfig.id,
+          removedVariable: current(draft[variableConfig.id]),
         });
+
+        delete draft[variableConfig.id];
       }
     }
   });
@@ -621,13 +619,13 @@ function handleEdgeRemoved(
   // SECTION: Target Variable Type
 
   const variableConfigs = produce(prevVariableConfigs, (draft) => {
-    if (draft[asV3VariableID(removedEdge.targetHandle)] == null) {
+    if (draft[removedEdge.targetHandle] == null) {
       // Edge was removed because destination variable was removed
       return;
     }
 
     const srcVariableConfig =
-      edgeSrcVariableConfig ?? draft[asV3VariableID(removedEdge.sourceHandle)];
+      edgeSrcVariableConfig ?? draft[removedEdge.sourceHandle];
 
     invariant(
       srcVariableConfig.type === VariableType.NodeOutput ||
@@ -759,7 +757,7 @@ function handleVariableAdded(
 }
 
 function handleVariableRemoved(
-  variableId: V3VariableID,
+  removedVariable: Variable,
   prevEdges: V3LocalEdge[],
   prevVariableValueMaps: V3VariableValueLookUpDict[],
 ): [Partial<SliceFlowContentV3State>, ChangeEvent[]] {
@@ -771,14 +769,18 @@ function handleVariableRemoved(
   const [acceptedEdges, rejectedEdges] = A.partition(
     prevEdges,
     (edge) =>
-      edge.sourceHandle !== variableId && edge.targetHandle !== variableId,
+      edge.sourceHandle !== removedVariable.id &&
+      edge.targetHandle !== removedVariable.id,
   );
 
-  for (const edge of rejectedEdges) {
+  for (const removingEdge of rejectedEdges) {
     events.push({
       type: ChangeEventType.EDGE_REMOVED,
-      removedEdge: edge,
-      edgeSrcVariableConfig: null,
+      removedEdge: removingEdge,
+      edgeSrcVariableConfig:
+        removedVariable.id === removingEdge.sourceHandle
+          ? removedVariable
+          : null,
     });
   }
 
@@ -787,7 +789,7 @@ function handleVariableRemoved(
   // SECTION: Process variable map value update
 
   const variableValueMaps = produce(prevVariableValueMaps, (draft) => {
-    delete draft[0][variableId];
+    delete draft[0][removedVariable.id];
   });
 
   events.push({

@@ -182,7 +182,7 @@ export type ChangeEvent =
     }
   | {
       type: ChangeEventType.VARIABLE_REMOVED;
-      variableId: V3VariableID;
+      removedVariable: Variable;
     }
   // Derived Other
   | {
