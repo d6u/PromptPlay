@@ -82,16 +82,22 @@ export const createCsvEvaluationPresetSlice: StateCreator<
       set({ csvEvaluationConfigContent: DEFAULT_CONFIG_CONTENT });
     }
   },
-  csvEvaluationSetRepeatCount(repeatCount: number): void {
+  csvEvaluationSetRepeatCount(repeatTimes: number): void {
     const configContent = get().csvEvaluationConfigContent;
     set({
-      csvEvaluationConfigContent: D.merge(configContent, { repeatCount }),
+      csvEvaluationConfigContent: D.merge<
+        ConfigContent,
+        Partial<ConfigContent>
+      >(configContent, { repeatTimes }),
     });
   },
   csvEvaluationSetConcurrencyLimit(concurrencyLimit: number): void {
     const configContent = get().csvEvaluationConfigContent;
     set({
-      csvEvaluationConfigContent: D.merge(configContent, { concurrencyLimit }),
+      csvEvaluationConfigContent: D.merge<
+        ConfigContent,
+        Partial<ConfigContent>
+      >(configContent, { concurrencyLimit }),
     });
   },
   csvEvaluationSetVariableIdToCsvColumnIndexLookUpDict(
@@ -132,7 +138,6 @@ export const createCsvEvaluationPresetSlice: StateCreator<
       | ((prev: CsvRunResultTable) => CsvRunResultTable)
       | CsvRunResultTable,
   ): void {
-    console.log("csvEvaluationSetGeneratedResult", update);
     if (G.isFunction(update)) {
       set((state) => {
         const configContent = state.csvEvaluationConfigContent;
