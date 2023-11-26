@@ -3,19 +3,20 @@ import {
   BehaviorSubject,
   catchError,
   concat,
-  concatMap,
+  concatAll,
+  defer,
   EMPTY,
   endWith,
   from,
   map,
+  mergeMap,
   Observable,
   of,
   startWith,
+  Subject,
   tap,
   throwError,
-  zipWith,
 } from "rxjs";
-import invariant from "ts-invariant";
 import { NodeID, NodeType } from "../models/v2-flow-content-types";
 import {
   V3FlowContent,
@@ -24,6 +25,7 @@ import {
   V3ServerEdge,
   V3VariableID,
   V3VariableValueLookUpDict,
+  VariablesDict,
 } from "../models/v3-flow-content-types";
 import { handleChatGPTChatNode } from "./handleChatGPTChatNode";
 import { handleChatGPTMessageNode } from "./handleChatGPTMessageNode";
@@ -65,139 +67,85 @@ export function runSingle({
       edge.sourceHandle!;
   }
 
-  // `sub` is to control the pace of the execution and the termination.
+  // `signalSubject` is to control the pace of the execution and the termination.
   //
-  // Because the observable below will emit all the nodes at once, we give `sub`
-  // a value one at a time and only give `sub` a new value after one node in
+  // Because the observable below will emit all the nodes at once, we give `signalSubject`
+  // a value one at a time and only give `signalSubject` a new value after one node in
   // the observable is finished executing. So that we can execute the node graph
   // in topological order.
-  const sub = new BehaviorSubject(0);
+  const signalSubject = new BehaviorSubject<void>(undefined);
 
-  return createTopologicalSortNodeConfigObservable(nodeConfigsDict, edges).pipe(
-    zipWith(sub),
-    concatMap(([{ nodeId, nodeConfig }]) => {
-      let obs1: Observable<V3VariableValueLookUpDict>;
-
-      switch (nodeConfig.type) {
-        case NodeType.InputNode: {
-          obs1 = EMPTY;
-          break;
-        }
-        case NodeType.OutputNode: {
-          obs1 = handleOutputNode(
-            nodeConfig,
-            variablesDict,
-            edgeTargetHandleToSourceHandleLookUpDict,
-            outputIdToValueMap,
-          );
-          break;
-        }
-        case NodeType.JavaScriptFunctionNode: {
-          const nodeData = nodeConfig;
-          obs1 = handleJavaScriptFunctionNode(
-            nodeData,
-            variablesDict,
-            edgeTargetHandleToSourceHandleLookUpDict,
-            outputIdToValueMap,
-          );
-          break;
-        }
-        case NodeType.ChatGPTMessageNode: {
-          obs1 = handleChatGPTMessageNode(
-            nodeConfig,
-            variablesDict,
-            edgeTargetHandleToSourceHandleLookUpDict,
-            outputIdToValueMap,
-          );
-          break;
-        }
-        case NodeType.ChatGPTChatCompletionNode: {
-          obs1 = from(
-            handleChatGPTChatNode(
-              nodeConfig,
-              variablesDict,
-              edgeTargetHandleToSourceHandleLookUpDict,
-              outputIdToValueMap,
-              useStreaming,
-            ),
-          );
-          break;
-        }
-        case NodeType.TextTemplate: {
-          obs1 = handleTextTemplateNode(
-            nodeConfig,
-            variablesDict,
-            edgeTargetHandleToSourceHandleLookUpDict,
-            outputIdToValueMap,
-          );
-          break;
-        }
-        case NodeType.HuggingFaceInference: {
-          obs1 = handleHuggingFaceInferenceNode(
-            nodeConfig,
-            variablesDict,
-            edgeTargetHandleToSourceHandleLookUpDict,
-            outputIdToValueMap,
-          );
-          break;
-        }
-        case NodeType.ElevenLabs: {
-          obs1 = handleElevenLabsNode(
-            nodeConfig,
-            variablesDict,
-            edgeTargetHandleToSourceHandleLookUpDict,
-            outputIdToValueMap,
-          );
-          break;
-        }
+  return createTopologicalSortNodeConfigListObservable({
+    signalSubject,
+    nodeConfigsDict,
+    edges,
+  }).pipe(
+    mergeMap<V3NodeConfig[], Observable<RunEvent>>((nodeConfigs) => {
+      if (nodeConfigs.length === 0) {
+        // Completing the `signalSubject` will complete the observable after
+        // the returned observable is completed.
+        signalSubject.complete();
+        return EMPTY;
       }
 
-      return obs1.pipe(
-        // startWith and endWith will run for each node, before and after
-        // running its logic.
-        map<V3VariableValueLookUpDict, RunEvent>((changes) => {
-          return { type: RunEventType.VariableValueChanges, changes };
-        }),
-        startWith<RunEvent>({
-          type: RunEventType.NodeAugmentChange,
-          nodeId,
-          augmentChange: { isRunning: true },
-        }),
-        endWith<RunEvent>({
-          type: RunEventType.NodeAugmentChange,
-          nodeId,
-          augmentChange: { isRunning: false },
-        }),
-        // `catchError` here act like `endWith`, but also make sure the error
-        // is rethrown.
-        //
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        catchError<any, Observable<RunEvent>>((e) =>
-          concat<[RunEvent, RunEvent]>(
-            of({
-              type: RunEventType.NodeAugmentChange,
-              nodeId,
-              augmentChange: { isRunning: false, hasError: true },
-            }),
-            throwError(() => e),
+      const obsList: Observable<RunEvent>[] = nodeConfigs.map((nodeConfig) => {
+        return createNodeConfigExecutionObservable({
+          nodeConfig,
+          context: {
+            variablesDict,
+            edgeTargetHandleToSourceHandleLookUpDict,
+            outputIdToValueMap,
+            useStreaming,
+          },
+        }).pipe(
+          // startWith and endWith will run for each node, before and after
+          // running its logic.
+          map<V3VariableValueLookUpDict, RunEvent>((changes) => {
+            return { type: RunEventType.VariableValueChanges, changes };
+          }),
+          startWith<RunEvent>({
+            type: RunEventType.NodeAugmentChange,
+            nodeId: nodeConfig.nodeId,
+            augmentChange: { isRunning: true },
+          }),
+          endWith<RunEvent>({
+            type: RunEventType.NodeAugmentChange,
+            nodeId: nodeConfig.nodeId,
+            augmentChange: { isRunning: false },
+          }),
+          // `catchError` here act like `endWith`, but also make sure the error
+          // is rethrown.
+          //
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          catchError<any, Observable<RunEvent>>((e) =>
+            concat<[RunEvent, RunEvent]>(
+              of({
+                type: RunEventType.NodeAugmentChange,
+                nodeId: nodeConfig.nodeId,
+                augmentChange: { isRunning: false, hasError: true },
+              }),
+              throwError(() => e),
+            ),
           ),
-        ),
+        );
+      });
+
+      return from(obsList).pipe(
+        // Switch to mergeAll to subscribe to each observable at the same time,
+        // to maximize the concurrency.
+        concatAll(),
         tap({
+          error(error) {
+            // console.error("Run failed with error,", e);
+            // By erroring `signalSubject`, we error the observable chain
+            // immediately.
+            signalSubject.error(error);
+          },
           complete() {
-            sub.next(0);
+            signalSubject.next();
           },
         }),
       );
-    }),
-    tap({
-      error(e) {
-        // console.error("Run failed with error,", e);
-        // By erroring `sub`, we stop the observable chain completely.
-        sub.error(e);
-      },
-      complete() {
-        sub.complete();
-      },
     }),
     catchError((error) =>
       of<RunStatusChangeEvent>({ type: RunEventType.RunStatusChange, error }),
@@ -205,56 +153,153 @@ export function runSingle({
   );
 }
 
-function createTopologicalSortNodeConfigObservable(
-  nodeConfigsDict: V3NodeConfigsDict,
-  edges: V3ServerEdge[],
-) {
-  return new Observable<{ nodeId: NodeID; nodeConfig: V3NodeConfig }>(
-    (subscriber) => {
-      // SECTION: Initialize graph related objects
-      const nodeGraph: Record<NodeID, NodeID[]> = {};
-      const nodeIndegree: Record<NodeID, number> = {};
+type ArgumentsCreateTopologicalSortNodeConfigListObservable = {
+  signalSubject: Subject<void>;
+  nodeConfigsDict: Readonly<V3NodeConfigsDict>;
+  edges: ReadonlyArray<V3ServerEdge>;
+};
 
-      for (const nodeId of D.keys(nodeConfigsDict)) {
-        nodeGraph[nodeId] = [];
-        nodeIndegree[nodeId] = 0;
+/**
+ * - Create an observable that emits a list of NodeConfig in topological order.
+ * - Every time `signalSubject` emits a signal, the observable will emit a new
+ *   list.
+ * - The list of NodeConfig won't have any dependencies among them. So they can
+ *   be handled at the same time.
+ */
+function createTopologicalSortNodeConfigListObservable({
+  signalSubject,
+  nodeConfigsDict,
+  edges,
+}: ArgumentsCreateTopologicalSortNodeConfigListObservable): Observable<
+  V3NodeConfig[]
+> {
+  return defer(() => {
+    // SECTION: Initialize graph related objects
+    const nodeGraph: Record<NodeID, NodeID[]> = {};
+    const nodeIndegree: Record<NodeID, number> = {};
+
+    for (const nodeId of D.keys(nodeConfigsDict)) {
+      nodeGraph[nodeId] = [];
+      nodeIndegree[nodeId] = 0;
+    }
+    // !SECTION
+
+    // SECTION: Build graph
+    for (const edge of edges) {
+      // `nodeGraph[edge.source]` will contain duplicate edge.target,
+      // because there can be multiple edges between two nodes.
+      // We must reduce indegree equal number of times in the while loop below.
+      nodeGraph[edge.source]!.push(edge.target);
+      nodeIndegree[edge.target] += 1;
+    }
+    // !SECTION
+
+    // SECTION: Create iniial group of nodes with indegree 0.
+    let group: NodeID[] = [];
+
+    for (const [key, count] of Object.entries(nodeIndegree)) {
+      const nodeId = key as NodeID;
+      if (count === 0) {
+        group.push(nodeId);
       }
-      // !SECTION
-      // SECTION: Build basic information about graph
-      for (const edge of edges) {
-        // `nodeGraph[edge.source]` will contain duplicate edge.target,
-        // because there can be multiple edges between two nodes.
-        // We must reduce indegree equal number of times in the while loop below.
-        nodeGraph[edge.source]!.push(edge.target);
-        nodeIndegree[edge.target] += 1;
-      }
-      // !SECTION
-      // Topological sort of the node graph.
-      const queue: NodeID[] = [];
+    }
+    // !SECTION
 
-      for (const [key, count] of Object.entries(nodeIndegree)) {
-        const nodeId = key as NodeID;
-        if (count === 0) {
-          queue.push(nodeId);
-        }
-      }
+    return signalSubject.pipe(
+      map<void, V3NodeConfig[]>(() => {
+        const nextGroup: NodeID[] = [];
 
-      while (queue.length > 0) {
-        const nodeId = queue.shift()!;
-        const nodeConfig = nodeConfigsDict[nodeId];
-        invariant(nodeConfig != null);
-
-        subscriber.next({ nodeId, nodeConfig });
-
-        for (const nextId of nodeGraph[nodeId]!) {
-          nodeIndegree[nextId] -= 1;
-          if (nodeIndegree[nextId] === 0) {
-            queue.push(nextId);
+        for (const nodeId of group) {
+          for (const nextId of nodeGraph[nodeId]!) {
+            nodeIndegree[nextId] -= 1;
+            if (nodeIndegree[nextId] === 0) {
+              nextGroup.push(nextId);
+            }
           }
         }
-      }
 
-      subscriber.complete();
-    },
-  );
+        const nodeConfigList = group.map((nodeId) => nodeConfigsDict[nodeId]!);
+        group = nextGroup;
+        return nodeConfigList;
+      }),
+    );
+  });
+}
+
+type ArgumentsCreateNodeConfigExecutionObservable = {
+  nodeConfig: V3NodeConfig;
+  context: {
+    variablesDict: VariablesDict;
+    edgeTargetHandleToSourceHandleLookUpDict: Record<
+      V3VariableID,
+      V3VariableID
+    >;
+    outputIdToValueMap: FlowInputVariableMap;
+    useStreaming: boolean;
+  };
+};
+
+function createNodeConfigExecutionObservable({
+  nodeConfig,
+  context: {
+    variablesDict,
+    edgeTargetHandleToSourceHandleLookUpDict,
+    outputIdToValueMap,
+    useStreaming,
+  },
+}: ArgumentsCreateNodeConfigExecutionObservable): Observable<V3VariableValueLookUpDict> {
+  switch (nodeConfig.type) {
+    case NodeType.InputNode:
+      return EMPTY;
+    case NodeType.OutputNode:
+      return handleOutputNode(
+        nodeConfig,
+        variablesDict,
+        edgeTargetHandleToSourceHandleLookUpDict,
+        outputIdToValueMap,
+      );
+    case NodeType.JavaScriptFunctionNode:
+      return handleJavaScriptFunctionNode(
+        nodeConfig,
+        variablesDict,
+        edgeTargetHandleToSourceHandleLookUpDict,
+        outputIdToValueMap,
+      );
+    case NodeType.ChatGPTMessageNode:
+      return handleChatGPTMessageNode(
+        nodeConfig,
+        variablesDict,
+        edgeTargetHandleToSourceHandleLookUpDict,
+        outputIdToValueMap,
+      );
+    case NodeType.ChatGPTChatCompletionNode:
+      return handleChatGPTChatNode(
+        nodeConfig,
+        variablesDict,
+        edgeTargetHandleToSourceHandleLookUpDict,
+        outputIdToValueMap,
+        useStreaming,
+      );
+    case NodeType.TextTemplate:
+      return handleTextTemplateNode(
+        nodeConfig,
+        variablesDict,
+        edgeTargetHandleToSourceHandleLookUpDict,
+        outputIdToValueMap,
+      );
+    case NodeType.HuggingFaceInference:
+      return handleHuggingFaceInferenceNode(
+        nodeConfig,
+        variablesDict,
+        edgeTargetHandleToSourceHandleLookUpDict,
+        outputIdToValueMap,
+      );
+    case NodeType.ElevenLabs:
+      return handleElevenLabsNode(
+        nodeConfig,
+        variablesDict,
+        edgeTargetHandleToSourceHandleLookUpDict,
+        outputIdToValueMap,
+      );
+  }
 }
