@@ -1,7 +1,6 @@
-import { A } from "@mobily/ts-belt";
+import { A, D } from "@mobily/ts-belt";
 import Chance from "chance";
 import { current, produce } from "immer";
-import debounce from "lodash/debounce";
 import {
   addEdge,
   applyEdgeChanges,
@@ -13,6 +12,8 @@ import {
   OnEdgesChange,
   OnNodesChange,
 } from "reactflow";
+
+import { debounce } from "lodash";
 import invariant from "ts-invariant";
 import { StateCreator } from "zustand";
 import {
@@ -38,6 +39,7 @@ import {
 } from "../../../models/v3-flow-content-types";
 import { createNode, createNodeConfig } from "../../../models/v3-flow-utils";
 import randomId from "../../../utils/randomId";
+import { updateSpaceContentV3 } from "../graphql";
 import {
   ChangeEvent,
   ChangeEventType,
@@ -107,43 +109,44 @@ export const createFlowServerSliceV2: StateCreator<
   [],
   SliceFlowContentV3
 > = (set, get) => {
-  // function getSpaceId(): string {
-  //   return get().spaceId!;
-  // }
+  // Debounce wrapper of `updateContentV3`
+  const saveSpaceDebounced = debounce(
+    async (
+      spaceId: string,
+      flowContent: {
+        nodes: LocalNode[];
+        edges: V3LocalEdge[];
+        nodeConfigsDict: V3NodeConfigsDict;
+        variablesDict: VariablesDict;
+        variableValueLookUpDicts: V3VariableValueLookUpDict[];
+      },
+    ) => {
+      set(() => ({ isFlowContentSaving: true }));
 
-  async function saveSpace() {
-    console.group("saveSpace");
+      await updateSpaceContentV3(spaceId, {
+        nodes: A.map(
+          flowContent.nodes,
+          D.selectKeys(["id", "type", "position", "data"]),
+        ),
+        edges: A.map(
+          flowContent.edges,
+          D.selectKeys([
+            "id",
+            "source",
+            "sourceHandle",
+            "target",
+            "targetHandle",
+          ]),
+        ),
+        nodeConfigsDict: flowContent.nodeConfigsDict,
+        variablesDict: flowContent.variablesDict,
+        variableValueLookUpDicts: flowContent.variableValueLookUpDicts,
+      });
 
-    set(() => ({ isFlowContentSaving: true }));
-
-    // const { nodeConfigs, variableValueMaps } = get();
-
-    // const nodes = A.map(
-    //   get().nodes,
-    //   D.selectKeys(["id", "type", "position", "data"]),
-    // );
-
-    // const edges = A.map(
-    //   get().edges,
-    //   D.selectKeys(["id", "source", "sourceHandle", "target", "targetHandle"]),
-    // );
-
-    // await client.mutation(UPDATE_SPACE_FLOW_CONTENT_MUTATION, {
-    //   spaceId: getSpaceId(),
-    //   flowContent: JSON.stringify({
-    //     nodes,
-    //     edges,
-    //     nodeConfigs,
-    //     variableValueMaps,
-    //   }),
-    // });
-
-    set((state) => ({ isFlowContentSaving: false }));
-
-    console.groupEnd();
-  }
-
-  const saveSpaceDebounced = debounce(saveSpace, 500);
+      set(() => ({ isFlowContentSaving: true }));
+    },
+    500,
+  );
 
   function startProcessingEventGraph(startEvent: ChangeEvent) {
     const eventQueue: ChangeEvent[] = [startEvent];
@@ -176,7 +179,18 @@ export const createFlowServerSliceV2: StateCreator<
       return;
     }
 
-    saveSpaceDebounced();
+    set(() => ({ isFlowContentSaving: true }));
+
+    const spaceId = get().spaceId;
+    invariant(spaceId != null);
+
+    saveSpaceDebounced(spaceId, {
+      nodes: get().nodes,
+      edges: get().edges,
+      nodeConfigsDict: get().nodeConfigsDict,
+      variablesDict: get().variablesDict,
+      variableValueLookUpDicts: get().variableValueLookUpDicts,
+    });
 
     set(() => ({ isFlowContentDirty: false }));
   }
@@ -277,10 +291,12 @@ export const createFlowServerSliceV2: StateCreator<
   };
 };
 
+type EventHandlerResult = [Partial<SliceFlowContentV3State>, ChangeEvent[]];
+
 function handleEvent(
   state: SliceFlowContentV3State,
   event: ChangeEvent,
-): [Partial<SliceFlowContentV3State>, ChangeEvent[]] {
+): EventHandlerResult {
   console.log("handleEvent ==>", event);
 
   switch (event.type) {
@@ -1060,5 +1076,3 @@ function handleVariableUpdated(
 
   return [content, events];
 }
-
-type EventHandlerResult = [Partial<SliceFlowContentV3State>, ChangeEvent[]];

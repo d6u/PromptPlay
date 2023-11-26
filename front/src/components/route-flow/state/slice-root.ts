@@ -18,11 +18,10 @@ import {
   V3VariableValueLookUpDict,
   VariableType,
 } from "../../../models/v3-flow-content-types";
+import { fetchContent, updateSpaceContentV3 } from "../graphql";
 import {
   assignLocalEdgeProperties,
   assignLocalNodeProperties,
-  fetchContent,
-  saveSpaceContentV3,
 } from "./state-utils";
 import {
   DetailPanelContentType,
@@ -117,10 +116,10 @@ export const createRootSlice: StateCreator<FlowState, [], [], RootSlice> = (
             switch (version) {
               case ContentVersion.V2: {
                 invariant(contentV2Str != null);
-                // TODO: Report to telemetry
+                // TODO: Report parse error to telemetry
                 const contentV2 = JSON.parse(contentV2Str);
                 const contentV3 = convertV2ContentToV3Content(contentV2);
-                await saveSpaceContentV3(spaceId, contentV3);
+                await updateSpaceContentV3(spaceId, contentV3);
                 return contentV3;
               }
             }
@@ -130,18 +129,18 @@ export const createRootSlice: StateCreator<FlowState, [], [], RootSlice> = (
           next({
             nodes,
             edges,
-            nodeConfigsDict: nodeConfigs,
-            variablesDict: variableMap,
-            variableValueLookUpDicts: variableValueMaps,
+            nodeConfigsDict,
+            variablesDict,
+            variableValueLookUpDicts,
           }) {
             nodes = assignLocalNodeProperties(nodes);
             edges = assignLocalEdgeProperties(edges);
             set({
               nodes,
               edges,
-              nodeConfigsDict: nodeConfigs,
-              variablesDict: variableMap,
-              variableValueLookUpDicts: variableValueMaps,
+              nodeConfigsDict,
+              variablesDict,
+              variableValueLookUpDicts,
             });
           },
           complete() {
