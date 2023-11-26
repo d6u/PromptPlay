@@ -1,8 +1,9 @@
-import { useMemo } from "react";
+import { useContext, useMemo } from "react";
+import invariant from "ts-invariant";
+import { useStore } from "zustand";
 import { VariableType } from "../../../../../models/v3-flow-content-types";
+import FlowContext from "../../../FlowContext";
 import { selectVariables } from "../../../state/state-utils";
-import { useFlowStore } from "../../../state/store-flow-state";
-import { FlowState } from "../../../state/store-flow-state-types";
 import {
   HeaderSection,
   HeaderSectionHeader,
@@ -11,13 +12,15 @@ import {
 } from "../common/controls-common";
 import OutputRenderer from "../common/OutputRenderer";
 
-const selector = (state: FlowState) => ({
-  variableMap: state.variablesDict,
-  detailPanelSelectedNodeId: state.detailPanelSelectedNodeId,
-});
-
 export default function PanelNodeConfig() {
-  const { variableMap, detailPanelSelectedNodeId } = useFlowStore(selector);
+  const { flowStore } = useContext(FlowContext);
+  invariant(flowStore != null, "Must provide flowStore");
+
+  const variablesDict = useStore(flowStore, (s) => s.variablesDict);
+  const detailPanelSelectedNodeId = useStore(
+    flowStore,
+    (s) => s.detailPanelSelectedNodeId,
+  );
 
   const outputVariables = useMemo(() => {
     return detailPanelSelectedNodeId == null
@@ -25,9 +28,9 @@ export default function PanelNodeConfig() {
       : selectVariables(
           detailPanelSelectedNodeId,
           VariableType.NodeOutput,
-          variableMap,
+          variablesDict,
         );
-  }, [detailPanelSelectedNodeId, variableMap]);
+  }, [detailPanelSelectedNodeId, variablesDict]);
 
   return (
     <PanelContentContainer>

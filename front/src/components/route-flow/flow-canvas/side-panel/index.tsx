@@ -1,25 +1,28 @@
 import styled from "@emotion/styled";
 import IconButton from "@mui/joy/IconButton";
-import { ReactNode } from "react";
+import { ReactNode, useContext } from "react";
+import invariant from "ts-invariant";
+import { useStore } from "zustand";
 import CrossIcon from "../../../icons/CrossIcon";
-import { useFlowStore } from "../../state/store-flow-state";
-import {
-  DetailPanelContentType,
-  FlowState,
-} from "../../state/store-flow-state-types";
+import FlowContext from "../../FlowContext";
+import { DetailPanelContentType } from "../../state/store-flow-state-types";
 import PanelChatGPTMessageConfig from "./chat-gpt-message-config/PanelChatGPTMessageConfig";
 import PanelNodeConfig from "./node-config/PanelNodeConfig";
 import PanelEvaluationModeCSV from "./panel-evaluation-mode-csv";
 import PanelEvaluationModeSimple from "./simple-evaluaton/PanelEvaluationModeSimple";
 
-const selector = (state: FlowState) => ({
-  detailPanelContentType: state.detailPanelContentType,
-  setDetailPanelContentType: state.setDetailPanelContentType,
-});
-
 export default function SidePanel() {
-  const { detailPanelContentType, setDetailPanelContentType } =
-    useFlowStore(selector);
+  const { flowStore } = useContext(FlowContext);
+  invariant(flowStore != null, "Must provide flowStore");
+
+  const detailPanelContentType = useStore(
+    flowStore,
+    (s) => s.detailPanelContentType,
+  );
+  const setDetailPanelContentType = useStore(
+    flowStore,
+    (s) => s.setDetailPanelContentType,
+  );
 
   let content: ReactNode;
   switch (detailPanelContentType) {
@@ -59,6 +62,8 @@ export default function SidePanel() {
   );
 }
 
+// SECTION: UI Components
+
 const Container = styled.div<{ $hide: boolean }>`
   position: relative;
   height: 100%;
@@ -81,3 +86,5 @@ const Content = styled.div`
   height: 100%;
   overflow-y: auto;
 `;
+
+// !SECTION

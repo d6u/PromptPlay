@@ -1,6 +1,8 @@
 import IconButton from "@mui/joy/IconButton";
 import { useContext, useMemo } from "react";
 import { Position, useNodeId, useUpdateNodeInternals } from "reactflow";
+import invariant from "ts-invariant";
+import { useStore } from "zustand";
 import { NodeID, NodeType } from "../../../../models/v2-flow-content-types";
 import {
   V3OutputNodeConfig,
@@ -8,11 +10,7 @@ import {
 } from "../../../../models/v3-flow-content-types";
 import FlowContext from "../../FlowContext";
 import { selectVariables } from "../../state/state-utils";
-import { useFlowStore } from "../../state/store-flow-state";
-import {
-  DetailPanelContentType,
-  FlowState,
-} from "../../state/store-flow-state-types";
+import { DetailPanelContentType } from "../../state/store-flow-state-types";
 import AddVariableButton from "./node-common/AddVariableButton";
 import HeaderSection from "./node-common/HeaderSection";
 import {
@@ -25,39 +23,31 @@ import NodeBox from "./node-common/NodeBox";
 import NodeInputModifyRow from "./node-common/NodeInputModifyRow";
 import { calculateInputHandleTop } from "./node-common/utils";
 
-const selector = (state: FlowState) => ({
-  setDetailPanelContentType: state.setDetailPanelContentType,
-  nodeConfigs: state.nodeConfigsDict,
-  variableConfigs: state.variablesDict,
-  addVariable: state.addVariable,
-  updateVariable: state.updateVariable,
-  removeVariable: state.removeVariable,
-  removeNode: state.removeNode,
-});
-
 export default function OutputNode() {
-  const { isCurrentUserOwner } = useContext(FlowContext);
-
   const nodeId = useNodeId() as NodeID;
 
-  const {
-    setDetailPanelContentType,
-    nodeConfigs,
-    variableConfigs,
-    removeNode,
-    addVariable,
-    updateVariable,
-    removeVariable,
-  } = useFlowStore(selector);
+  const { flowStore, isCurrentUserOwner } = useContext(FlowContext);
+  invariant(flowStore != null, "Must provide flowStore");
+
+  const setDetailPanelContentType = useStore(
+    flowStore,
+    (s) => s.setDetailPanelContentType,
+  );
+  const nodeConfigsDict = useStore(flowStore, (s) => s.nodeConfigsDict);
+  const variablesDict = useStore(flowStore, (s) => s.variablesDict);
+  const removeNode = useStore(flowStore, (s) => s.removeNode);
+  const addVariable = useStore(flowStore, (s) => s.addVariable);
+  const updateVariable = useStore(flowStore, (s) => s.updateVariable);
+  const removeVariable = useStore(flowStore, (s) => s.removeVariable);
 
   const nodeConfig = useMemo(
-    () => nodeConfigs[nodeId] as V3OutputNodeConfig | undefined,
-    [nodeConfigs, nodeId],
+    () => nodeConfigsDict[nodeId] as V3OutputNodeConfig | undefined,
+    [nodeConfigsDict, nodeId],
   );
 
   const flowOutputs = useMemo(() => {
-    return selectVariables(nodeId, VariableType.FlowOutput, variableConfigs);
-  }, [nodeId, variableConfigs]);
+    return selectVariables(nodeId, VariableType.FlowOutput, variablesDict);
+  }, [nodeId, variablesDict]);
 
   const updateNodeInternals = useUpdateNodeInternals();
 

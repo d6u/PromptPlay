@@ -1,6 +1,10 @@
 import { createContext } from "react";
+import { FlowStore } from "./state/store-flow-state";
 
-const FlowContext = createContext<{ isCurrentUserOwner: boolean }>({
+const FlowContext = createContext<{
+  flowStore?: FlowStore;
+  isCurrentUserOwner: boolean;
+}>({
   isCurrentUserOwner: false,
 });
 

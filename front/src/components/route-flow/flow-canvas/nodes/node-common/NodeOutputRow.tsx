@@ -1,12 +1,54 @@
 import styled from "@emotion/styled";
+import { useContext } from "react";
 import { useNodeId } from "reactflow";
+import invariant from "ts-invariant";
+import { useStore } from "zustand";
 import { NodeID } from "../../../../../models/v2-flow-content-types";
-import { useFlowStore } from "../../../state/store-flow-state";
-import {
-  DetailPanelContentType,
-  FlowState,
-} from "../../../state/store-flow-state-types";
+import FlowContext from "../../../FlowContext";
+import { DetailPanelContentType } from "../../../state/store-flow-state-types";
 import { ROW_MARGIN_TOP } from "./NodeInputModifyRow";
+
+type Props = {
+  id: string;
+  name: string;
+  value: unknown;
+  onClick?: () => void;
+};
+
+export default function NodeOutputRow(props: Props) {
+  const { flowStore } = useContext(FlowContext);
+  invariant(flowStore != null, "Must provide flowStore");
+
+  const setDetailPanelContentType = useStore(
+    flowStore,
+    (s) => s.setDetailPanelContentType,
+  );
+  const setDetailPanelSelectedNodeId = useStore(
+    flowStore,
+    (s) => s.setDetailPanelSelectedNodeId,
+  );
+
+  const nodeId = useNodeId() as NodeID;
+
+  return (
+    <Container>
+      <Content
+        onClick={
+          props.onClick ??
+          (() => {
+            setDetailPanelContentType(DetailPanelContentType.NodeConfig);
+            setDetailPanelSelectedNodeId(nodeId);
+          })
+        }
+      >
+        <Name>{props.name} =&nbsp;</Name>
+        <Value>{JSON.stringify(props.value)}</Value>
+      </Content>
+    </Container>
+  );
+}
+
+// SECTION: UI Components
 
 export const VARIABLE_LABEL_HEIGHT = 32;
 
@@ -45,38 +87,4 @@ const Value = styled.code`
   overflow: hidden;
 `;
 
-const selector = (state: FlowState) => ({
-  setDetailPanelContentType: state.setDetailPanelContentType,
-  setDetailPanelSelectedNodeId: state.setDetailPanelSelectedNodeId,
-});
-
-type Props = {
-  id: string;
-  name: string;
-  value: unknown;
-  onClick?: () => void;
-};
-
-export default function NodeOutputRow(props: Props) {
-  const { setDetailPanelContentType, setDetailPanelSelectedNodeId } =
-    useFlowStore(selector);
-
-  const nodeId = useNodeId() as NodeID;
-
-  return (
-    <Container>
-      <Content
-        onClick={
-          props.onClick ??
-          (() => {
-            setDetailPanelContentType(DetailPanelContentType.NodeConfig);
-            setDetailPanelSelectedNodeId(nodeId);
-          })
-        }
-      >
-        <Name>{props.name} =&nbsp;</Name>
-        <Value>{JSON.stringify(props.value)}</Value>
-      </Content>
-    </Container>
-  );
-}
+// !SECTION

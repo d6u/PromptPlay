@@ -1,11 +1,13 @@
-import { ReactNode, useMemo } from "react";
+import { ReactNode, useContext, useMemo } from "react";
+import invariant from "ts-invariant";
+import { useStore } from "zustand";
 import { VariableType } from "../../../../../../models/v3-flow-content-types";
+import FlowContext from "../../../../FlowContext";
 import {
   IterationIndex,
   RowIndex,
 } from "../../../../state/slice-csv-evaluation-preset";
 import { selectAllVariables } from "../../../../state/state-utils";
-import { useFlowStore } from "../../../../state/store-flow-state";
 import OutputDisplay from "../../common/OutputDisplay";
 import { CSVData } from "../common";
 
@@ -14,15 +16,18 @@ type Props = {
 };
 
 export default function TableBody(props: Props) {
+  const { flowStore } = useContext(FlowContext);
+  invariant(flowStore != null, "Must provide flowStore");
+
   // SECTION: Select state from store
 
-  const variableMap = useFlowStore.use.variablesDict();
+  const variableMap = useStore(flowStore, (s) => s.variablesDict);
   const {
     repeatTimes,
     variableIdToCsvColumnIndexLookUpDict,
-    csvRunResultTable: generatedResult,
-    runStatusTable: runStatuses,
-  } = useFlowStore.use.csvEvaluationConfigContent();
+    csvRunResultTable,
+    runStatusTable,
+  } = useStore(flowStore, (s) => s.csvEvaluationConfigContent);
 
   // !SECTION
 
@@ -42,7 +47,8 @@ export default function TableBody(props: Props) {
     // Columns for "Status"
     for (let colIndex = 0; colIndex < repeatTimes; colIndex++) {
       const statusValue =
-        runStatuses[rowIndex as RowIndex]?.[colIndex as IterationIndex] ?? null;
+        runStatusTable[rowIndex as RowIndex]?.[colIndex as IterationIndex] ??
+        null;
       cells.push(
         <td
           key={`status-${rowIndex}-${colIndex}`}
@@ -70,9 +76,9 @@ export default function TableBody(props: Props) {
 
       for (let colIndex = 0; colIndex < repeatTimes; colIndex++) {
         const value =
-          generatedResult[rowIndex as RowIndex]?.[colIndex as IterationIndex]?.[
-            outputItem.id
-          ] ?? "";
+          csvRunResultTable[rowIndex as RowIndex]?.[
+            colIndex as IterationIndex
+          ]?.[outputItem.id] ?? "";
 
         cells.push(
           <td key={`${outputItem.id}-result-${colIndex}`}>

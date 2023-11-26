@@ -8,6 +8,7 @@ import {
 } from "@mui/joy";
 import { useContext, useEffect, useMemo, useState } from "react";
 import invariant from "ts-invariant";
+import { useStore } from "zustand";
 import { ChatGPTMessageRole } from "../../../../../integrations/openai";
 import { NodeType } from "../../../../../models/v2-flow-content-types";
 import { VariableType } from "../../../../../models/v3-flow-content-types";
@@ -15,8 +16,6 @@ import { CopyIcon, LabelWithIconContainer } from "../../../common/flow-common";
 import TextareaReadonly from "../../../common/TextareaReadonly";
 import FlowContext from "../../../FlowContext";
 import { selectVariables } from "../../../state/state-utils";
-import { useFlowStore } from "../../../state/store-flow-state";
-import { FlowState } from "../../../state/store-flow-state-types";
 import {
   HeaderSection,
   HeaderSectionHeader,
@@ -25,28 +24,23 @@ import {
 } from "../common/controls-common";
 import OutputRenderer from "../common/OutputRenderer";
 
-const selector = (state: FlowState) => ({
-  nodeConfigs: state.nodeConfigsDict,
-  variableMap: state.variablesDict,
-  detailPanelSelectedNodeId: state.detailPanelSelectedNodeId,
-  updateNodeConfig: state.updateNodeConfig,
-});
-
 export default function PanelChatGPTMessageConfig() {
-  const { isCurrentUserOwner } = useContext(FlowContext);
+  const { flowStore, isCurrentUserOwner } = useContext(FlowContext);
+  invariant(flowStore != null, "Must provide flowStore");
 
-  const {
-    nodeConfigs,
-    variableMap,
-    detailPanelSelectedNodeId,
-    updateNodeConfig,
-  } = useFlowStore(selector);
+  const nodeConfigsDict = useStore(flowStore, (s) => s.nodeConfigsDict);
+  const variablesDict = useStore(flowStore, (s) => s.variablesDict);
+  const detailPanelSelectedNodeId = useStore(
+    flowStore,
+    (s) => s.detailPanelSelectedNodeId,
+  );
+  const updateNodeConfig = useStore(flowStore, (s) => s.updateNodeConfig);
 
   invariant(detailPanelSelectedNodeId != null);
 
   const nodeConfig = useMemo(() => {
-    return nodeConfigs[detailPanelSelectedNodeId];
-  }, [detailPanelSelectedNodeId, nodeConfigs]);
+    return nodeConfigsDict[detailPanelSelectedNodeId];
+  }, [detailPanelSelectedNodeId, nodeConfigsDict]);
 
   invariant(nodeConfig.type === NodeType.ChatGPTMessageNode);
 
@@ -54,9 +48,9 @@ export default function PanelChatGPTMessageConfig() {
     return selectVariables(
       detailPanelSelectedNodeId,
       VariableType.NodeOutput,
-      variableMap,
+      variablesDict,
     );
-  }, [detailPanelSelectedNodeId, variableMap]);
+  }, [detailPanelSelectedNodeId, variablesDict]);
 
   const [role, setRole] = useState(() => nodeConfig.role);
   const [content, setContent] = useState<string>(() => nodeConfig?.content);

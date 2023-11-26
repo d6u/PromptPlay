@@ -1,9 +1,11 @@
 import { F } from "@mobily/ts-belt";
 import { Option, Select } from "@mui/joy";
-import { ReactNode, useMemo } from "react";
+import { ReactNode, useContext, useMemo } from "react";
+import invariant from "ts-invariant";
+import { useStore } from "zustand";
 import { VariableType } from "../../../../../../models/v3-flow-content-types";
+import FlowContext from "../../../../FlowContext";
 import { selectAllVariables } from "../../../../state/state-utils";
-import { useFlowStore } from "../../../../state/store-flow-state";
 import { CSVRow } from "../common";
 
 type Props = {
@@ -11,13 +13,20 @@ type Props = {
 };
 
 export default function TableHead(props: Props) {
+  const { flowStore } = useContext(FlowContext);
+  invariant(flowStore != null, "Must provide flowStore");
+
   // SECTION: Select state from store
 
-  const variableMap = useFlowStore.use.variablesDict();
-  const { repeatTimes, variableIdToCsvColumnIndexLookUpDict } =
-    useFlowStore.use.csvEvaluationConfigContent();
-  const setVariableColumnMap =
-    useFlowStore.use.csvEvaluationSetVariableIdToCsvColumnIndexLookUpDict();
+  const variableMap = useStore(flowStore, (s) => s.variablesDict);
+  const { repeatTimes, variableIdToCsvColumnIndexLookUpDict } = useStore(
+    flowStore,
+    (s) => s.csvEvaluationConfigContent,
+  );
+  const setVariableColumnMap = useStore(
+    flowStore,
+    (s) => s.csvEvaluationSetVariableIdToCsvColumnIndexLookUpDict,
+  );
 
   // !SECTION
 

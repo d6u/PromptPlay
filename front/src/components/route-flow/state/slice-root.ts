@@ -59,200 +59,208 @@ const ROOT_SLICE_INITIAL_STATE: Readonly<RootSliceState> = {
   isRunning: false,
 };
 
-export const createRootSlice: StateCreator<FlowState, [], [], RootSlice> = (
-  set,
-  get,
-) => {
-  function setIsRunning(isRunning: boolean) {
-    set((state) => {
-      let edges = state.edges;
-      let nodeMetadataDict = state.nodeMetadataDict;
+type InitProps = {
+  spaceId: string;
+};
 
-      edges = produce(edges, (draft) => {
-        for (const edge of draft) {
-          if (edge.animated !== isRunning) {
-            edge.animated = isRunning;
-          }
-        }
-      });
+export function createRootSlice(
+  initProps: InitProps,
+): StateCreator<FlowState, [], [], RootSlice> {
+  return function (set, get) {
+    function setIsRunning(isRunning: boolean) {
+      set((state) => {
+        let edges = state.edges;
+        let nodeMetadataDict = state.nodeMetadataDict;
 
-      if (!isRunning) {
-        // It is important to reset node metadata, because node's running status
-        // doesn't depend on global isRunning state.
-        nodeMetadataDict = produce(nodeMetadataDict, (draft) => {
-          for (const nodeMetadata of Object.values(draft)) {
-            invariant(nodeMetadata != null);
-            nodeMetadata.isRunning = false;
+        edges = produce(edges, (draft) => {
+          for (const edge of draft) {
+            if (edge.animated !== isRunning) {
+              edge.animated = isRunning;
+            }
           }
         });
-      }
 
-      return { isRunning, edges, nodeMetadataDict };
-    });
-  }
+        if (!isRunning) {
+          // It is important to reset node metadata, because node's running status
+          // doesn't depend on global isRunning state.
+          nodeMetadataDict = produce(nodeMetadataDict, (draft) => {
+            for (const nodeMetadata of Object.values(draft)) {
+              invariant(nodeMetadata != null);
+              nodeMetadata.isRunning = false;
+            }
+          });
+        }
 
-  let fetchContentSubscription: Subscription | null = null;
-  let runFlowSubscription: Subscription | null = null;
+        return { isRunning, edges, nodeMetadataDict };
+      });
+    }
 
-  return {
-    ...ROOT_SLICE_INITIAL_STATE,
+    let fetchContentSubscription: Subscription | null = null;
+    let runFlowSubscription: Subscription | null = null;
 
-    initializeSpace(spaceId: string) {
-      set({ spaceId, isInitialized: false });
+    return {
+      ...ROOT_SLICE_INITIAL_STATE,
 
-      get().resetFlowServerSlice();
+      initializeSpace(spaceId: string) {
+        set({ spaceId, isInitialized: false });
 
-      fetchContentSubscription?.unsubscribe();
-      fetchContentSubscription = fetchFlowContent(spaceId)
-        .pipe(mergeMap(createFlowContentHandler(spaceId)))
-        .subscribe({
-          next({
-            nodes,
-            edges,
-            nodeConfigsDict,
-            variablesDict,
-            variableValueLookUpDicts,
-          }) {
-            nodes = assignLocalNodeProperties(nodes);
-            edges = assignLocalEdgeProperties(edges);
+        get().resetFlowServerSlice();
 
-            set({
+        fetchContentSubscription?.unsubscribe();
+        fetchContentSubscription = fetchFlowContent(spaceId)
+          .pipe(mergeMap(createFlowContentHandler(spaceId)))
+          .subscribe({
+            next({
               nodes,
               edges,
               nodeConfigsDict,
               variablesDict,
               variableValueLookUpDicts,
-            });
-          },
-          error(error) {
-            // TODO: Report to telemetry
-            console.error("Error fetching content", error);
-          },
-          complete() {
-            set({ isInitialized: true });
-          },
+            }) {
+              nodes = assignLocalNodeProperties(nodes);
+              edges = assignLocalEdgeProperties(edges);
+
+              set({
+                nodes,
+                edges,
+                nodeConfigsDict,
+                variablesDict,
+                variableValueLookUpDicts,
+              });
+            },
+            error(error) {
+              // TODO: Report to telemetry
+              console.error("Error fetching content", error);
+            },
+            complete() {
+              set({ isInitialized: true });
+            },
+          });
+      },
+
+      deinitializeSpace() {
+        fetchContentSubscription?.unsubscribe();
+        fetchContentSubscription = null;
+
+        set(ROOT_SLICE_INITIAL_STATE);
+      },
+
+      setDetailPanelContentType(type: DetailPanelContentType) {
+        set({ detailPanelContentType: type });
+      },
+      setDetailPanelSelectedNodeId(id: NodeID) {
+        set({ detailPanelSelectedNodeId: id });
+      },
+
+      updateNodeAugment(nodeId: NodeID, change: Partial<NodeMetadata>) {
+        const prevNodeMetadataDict = get().nodeMetadataDict;
+        let nodeMetadata = prevNodeMetadataDict[nodeId];
+
+        if (nodeMetadata) {
+          nodeMetadata = { ...nodeMetadata, ...change };
+        } else {
+          nodeMetadata = { isRunning: false, hasError: false, ...change };
+        }
+
+        const nodeMetadataDict = D.set(
+          prevNodeMetadataDict,
+          nodeId,
+          nodeMetadata,
+        );
+
+        set({ nodeMetadataDict });
+      },
+
+      runFlow() {
+        posthog.capture("Starting Simple Evaluation", {
+          flowId: get().spaceId,
         });
-    },
 
-    deinitializeSpace() {
-      fetchContentSubscription?.unsubscribe();
-      fetchContentSubscription = null;
+        runFlowSubscription?.unsubscribe();
+        runFlowSubscription = null;
 
-      set(ROOT_SLICE_INITIAL_STATE);
-    },
+        // TODO: Give a default for every node instead of empty object
+        set({ nodeMetadataDict: {} });
 
-    setDetailPanelContentType(type: DetailPanelContentType) {
-      set({ detailPanelContentType: type });
-    },
-    setDetailPanelSelectedNodeId(id: NodeID) {
-      set({ detailPanelSelectedNodeId: id });
-    },
+        setIsRunning(true);
 
-    updateNodeAugment(nodeId: NodeID, change: Partial<NodeMetadata>) {
-      const prevNodeMetadataDict = get().nodeMetadataDict;
-      let nodeMetadata = prevNodeMetadataDict[nodeId];
-
-      if (nodeMetadata) {
-        nodeMetadata = { ...nodeMetadata, ...change };
-      } else {
-        nodeMetadata = { isRunning: false, hasError: false, ...change };
-      }
-
-      const nodeMetadataDict = D.set(
-        prevNodeMetadataDict,
-        nodeId,
-        nodeMetadata,
-      );
-
-      set({ nodeMetadataDict });
-    },
-
-    runFlow() {
-      posthog.capture("Starting Simple Evaluation", { flowId: get().spaceId });
-
-      runFlowSubscription?.unsubscribe();
-      runFlowSubscription = null;
-
-      // TODO: Give a default for every node instead of empty object
-      set({ nodeMetadataDict: {} });
-
-      setIsRunning(true);
-
-      const {
-        nodes,
-        edges,
-        nodeConfigsDict,
-        variablesDict,
-        variableValueLookUpDicts,
-      } = get();
-
-      const variableValueLookUpDict = get().getDefaultVariableValueLookUpDict();
-      const flowInputVariableValueLookUpDict = selectFlowInputVariableValue(
-        variablesDict,
-        variableValueLookUpDict,
-      );
-
-      runFlowSubscription = runSingle({
-        flowContent: {
+        const {
           nodes,
           edges,
           nodeConfigsDict,
           variablesDict,
           variableValueLookUpDicts,
-        },
-        inputVariableMap: flowInputVariableValueLookUpDict,
-        useStreaming: true,
-      }).subscribe({
-        next(data) {
-          switch (data.type) {
-            case RunEventType.VariableValueChanges: {
-              const { changes } = data;
-              for (const [outputId, value] of Object.entries(changes)) {
-                get().updateVariableValueMap(asV3VariableID(outputId), value);
+        } = get();
+
+        const variableValueLookUpDict =
+          get().getDefaultVariableValueLookUpDict();
+        const flowInputVariableValueLookUpDict = selectFlowInputVariableValue(
+          variablesDict,
+          variableValueLookUpDict,
+        );
+
+        runFlowSubscription = runSingle({
+          flowContent: {
+            nodes,
+            edges,
+            nodeConfigsDict,
+            variablesDict,
+            variableValueLookUpDicts,
+          },
+          inputVariableMap: flowInputVariableValueLookUpDict,
+          useStreaming: true,
+        }).subscribe({
+          next(data) {
+            switch (data.type) {
+              case RunEventType.VariableValueChanges: {
+                const { changes } = data;
+                for (const [outputId, value] of Object.entries(changes)) {
+                  get().updateVariableValueMap(asV3VariableID(outputId), value);
+                }
+                break;
               }
-              break;
+              case RunEventType.NodeAugmentChange: {
+                const { nodeId, augmentChange } = data;
+                get().updateNodeAugment(nodeId, augmentChange);
+                break;
+              }
+              case RunEventType.RunStatusChange:
+                // TODO: Refect this in the simple evaluation UI
+                break;
             }
-            case RunEventType.NodeAugmentChange: {
-              const { nodeId, augmentChange } = data;
-              get().updateNodeAugment(nodeId, augmentChange);
-              break;
-            }
-            case RunEventType.RunStatusChange:
-              // TODO: Refect this in the simple evaluation UI
-              break;
-          }
-        },
-        error(error) {
-          posthog.capture("Finished Simple Evaluation with Error", {
-            flowId: get().spaceId,
-          });
+          },
+          error(error) {
+            posthog.capture("Finished Simple Evaluation with Error", {
+              flowId: get().spaceId,
+            });
 
-          console.error(error);
+            console.error(error);
 
-          setIsRunning(false);
-        },
-        complete() {
-          posthog.capture("Finished Simple Evaluation", {
-            flowId: get().spaceId,
-          });
+            setIsRunning(false);
+          },
+          complete() {
+            posthog.capture("Finished Simple Evaluation", {
+              flowId: get().spaceId,
+            });
 
-          setIsRunning(false);
-        },
-      });
-    },
+            setIsRunning(false);
+          },
+        });
+      },
 
-    stopRunningFlow() {
-      posthog.capture("Manually Stopped Simple Evaluation", {
-        flowId: get().spaceId,
-      });
+      stopRunningFlow() {
+        posthog.capture("Manually Stopped Simple Evaluation", {
+          flowId: get().spaceId,
+        });
 
-      runFlowSubscription?.unsubscribe();
-      runFlowSubscription = null;
+        runFlowSubscription?.unsubscribe();
+        runFlowSubscription = null;
 
-      setIsRunning(false);
-    },
+        setIsRunning(false);
+      },
+    };
   };
-};
+}
 
 // SECTION: Utilities
 

@@ -12,41 +12,33 @@ import {
 } from "@mui/joy";
 import { useCallback, useContext, useEffect, useState } from "react";
 import { useStoreApi } from "reactflow";
+import invariant from "ts-invariant";
+import { useStore } from "zustand";
 import { NodeType } from "../../../models/v2-flow-content-types";
 import { NODE_BOX_WIDTH } from "../flow-canvas/nodes/node-common/NodeBox";
 import FlowContext from "../FlowContext";
-import { useFlowStore } from "../state/store-flow-state";
-import {
-  DetailPanelContentType,
-  FlowState,
-} from "../state/store-flow-state-types";
-
-const selector = (state: FlowState) => ({
-  isRunning: state.isRunning,
-  isFlowContentDirty: state.isFlowContentDirty,
-  isFlowContentSaving: state.isFlowContentSaving,
-  detailPanelContentType: state.detailPanelContentType,
-  setDetailPanelContentType: state.setDetailPanelContentType,
-  addNode: state.addNode,
-  runFlow: state.runFlow,
-  stopRunningFlow: state.stopRunningFlow,
-});
+import { DetailPanelContentType } from "../state/store-flow-state-types";
 
 export default function ToolBar() {
-  const { isCurrentUserOwner } = useContext(FlowContext);
+  const { flowStore, isCurrentUserOwner } = useContext(FlowContext);
+  invariant(flowStore != null, "Must provide flowStore");
+
+  const isRunning = useStore(flowStore, (s) => s.isRunning);
+  const isFlowContentDirty = useStore(flowStore, (s) => s.isFlowContentDirty);
+  const isFlowContentSaving = useStore(flowStore, (s) => s.isFlowContentSaving);
+  const detailPanelContentType = useStore(
+    flowStore,
+    (s) => s.detailPanelContentType,
+  );
+  const setDetailPanelContentType = useStore(
+    flowStore,
+    (s) => s.setDetailPanelContentType,
+  );
+  const addNode = useStore(flowStore, (s) => s.addNode);
+  const runFlow = useStore(flowStore, (s) => s.runFlow);
+  const stopRunningFlow = useStore(flowStore, (s) => s.stopRunningFlow);
 
   const storeApi = useStoreApi();
-
-  const {
-    isRunning,
-    isFlowContentDirty,
-    isFlowContentSaving,
-    detailPanelContentType,
-    setDetailPanelContentType,
-    addNode,
-    runFlow,
-    stopRunningFlow,
-  } = useFlowStore(selector);
 
   const addNodeWithType = useCallback(
     (type: NodeType) => {

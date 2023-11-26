@@ -3,6 +3,8 @@ import FormLabel from "@mui/joy/FormLabel";
 import Textarea from "@mui/joy/Textarea";
 import { useContext, useMemo, useState } from "react";
 import { Position, useNodeId, useUpdateNodeInternals } from "reactflow";
+import invariant from "ts-invariant";
+import { useStore } from "zustand";
 import { NodeID, NodeType } from "../../../../models/v2-flow-content-types";
 import {
   V3JavaScriptFunctionNodeConfig,
@@ -12,8 +14,6 @@ import { CopyIcon, LabelWithIconContainer } from "../../common/flow-common";
 import TextareaReadonly from "../../common/TextareaReadonly";
 import FlowContext from "../../FlowContext";
 import { selectVariables } from "../../state/state-utils";
-import { useFlowStore } from "../../state/store-flow-state";
-import { FlowState } from "../../state/store-flow-state-types";
 import AddVariableButton from "./node-common/AddVariableButton";
 import HeaderSection from "./node-common/HeaderSection";
 import {
@@ -30,51 +30,44 @@ import {
   calculateOutputHandleBottom,
 } from "./node-common/utils";
 
-const selector = (state: FlowState) => ({
-  nodeConfigs: state.nodeConfigsDict,
-  variableConfigs: state.variablesDict,
-  updateNodeConfig: state.updateNodeConfig,
-  removeNode: state.removeNode,
-  addVariable: state.addVariable,
-  updateVariable: state.updateVariable,
-  removeVariable: state.removeVariable,
-  localNodeAugments: state.nodeMetadataDict,
-  defaultVariableValueMap: state.getDefaultVariableValueLookUpDict(),
-});
-
 export default function JavaScriptFunctionNode() {
-  const { isCurrentUserOwner } = useContext(FlowContext);
-
   const nodeId = useNodeId() as NodeID;
 
-  const {
-    nodeConfigs,
-    variableConfigs,
-    updateNodeConfig,
-    removeNode,
-    addVariable,
-    updateVariable,
-    removeVariable,
-    localNodeAugments,
-    defaultVariableValueMap,
-  } = useFlowStore(selector);
+  const { flowStore, isCurrentUserOwner } = useContext(FlowContext);
+  invariant(flowStore != null, "Must provide flowStore");
+
+  // SECTION: Select state from store
+
+  const nodeConfigsDict = useStore(flowStore, (s) => s.nodeConfigsDict);
+  const variablesDict = useStore(flowStore, (s) => s.variablesDict);
+  const updateNodeConfig = useStore(flowStore, (s) => s.updateNodeConfig);
+  const removeNode = useStore(flowStore, (s) => s.removeNode);
+  const addVariable = useStore(flowStore, (s) => s.addVariable);
+  const updateVariable = useStore(flowStore, (s) => s.updateVariable);
+  const removeVariable = useStore(flowStore, (s) => s.removeVariable);
+  const nodeMetadataDict = useStore(flowStore, (s) => s.nodeMetadataDict);
+  const defaultVariableValueMap = useStore(flowStore, (s) =>
+    s.getDefaultVariableValueLookUpDict(),
+  );
+
+  // !SECTION
 
   const inputs = useMemo(() => {
-    return selectVariables(nodeId, VariableType.NodeInput, variableConfigs);
-  }, [nodeId, variableConfigs]);
+    return selectVariables(nodeId, VariableType.NodeInput, variablesDict);
+  }, [nodeId, variablesDict]);
 
   const outputs = useMemo(() => {
-    return selectVariables(nodeId, VariableType.NodeOutput, variableConfigs);
-  }, [nodeId, variableConfigs]);
+    return selectVariables(nodeId, VariableType.NodeOutput, variablesDict);
+  }, [nodeId, variablesDict]);
 
   const nodeConfig = useMemo(
-    () => nodeConfigs[nodeId] as V3JavaScriptFunctionNodeConfig | undefined,
-    [nodeConfigs, nodeId],
+    () => nodeConfigsDict[nodeId] as V3JavaScriptFunctionNodeConfig | undefined,
+    [nodeConfigsDict, nodeId],
   );
 
   const augment = useMemo(
-    () => localNodeAugments[nodeId],
-    [localNodeAugments, nodeId],
+    () => nodeMetadataDict[nodeId],
+    [nodeMetadataDict, nodeId],
   );
 
   const updateNodeInternals = useUpdateNodeInternals();
