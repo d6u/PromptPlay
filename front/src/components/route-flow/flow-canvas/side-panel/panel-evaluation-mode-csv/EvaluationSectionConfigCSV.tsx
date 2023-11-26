@@ -51,7 +51,7 @@ export default function EvaluationSectionConfigCSV(props: Props) {
   const setConcurrencyLimit =
     useFlowStore.use.csvEvaluationSetConcurrencyLimit();
   const setVariableColumnMap =
-    useFlowStore.use.csvEvaluationSetVariableColumnMap();
+    useFlowStore.use.csvEvaluationSetVariableIdToCsvColumnIndexLookUpDict();
   const setGeneratedResult = useFlowStore.use.csvEvaluationSetGeneratedResult();
   const setRunStatuses = useFlowStore.use.csvEvaluationSetRunStatuses();
   // !SECTION

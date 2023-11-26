@@ -24,7 +24,7 @@ export type CsvEvaluationPresetSlice = {
   ): void;
   csvEvaluationSetRepeatCount(repeatCount: number): void;
   csvEvaluationSetConcurrencyLimit(concurrencyLimit: number): void;
-  csvEvaluationSetVariableColumnMap(
+  csvEvaluationSetVariableIdToCsvColumnIndexLookUpDict(
     update:
       | ((
           prev: VariableIdToCsvColumnIndexLookUpDict,
@@ -94,7 +94,7 @@ export const createCsvEvaluationPresetSlice: StateCreator<
       csvEvaluationConfigContent: D.merge(configContent, { concurrencyLimit }),
     });
   },
-  csvEvaluationSetVariableColumnMap(
+  csvEvaluationSetVariableIdToCsvColumnIndexLookUpDict(
     update:
       | ((
           prev: VariableIdToCsvColumnIndexLookUpDict,
@@ -105,8 +105,11 @@ export const createCsvEvaluationPresetSlice: StateCreator<
       set((state) => {
         const configContent = state.csvEvaluationConfigContent;
         return {
-          csvEvaluationConfigContent: D.merge(configContent, {
-            variableColumnMap: update(
+          csvEvaluationConfigContent: D.merge<
+            ConfigContent,
+            Partial<ConfigContent>
+          >(configContent, {
+            variableIdToCsvColumnIndexLookUpDict: update(
               configContent.variableIdToCsvColumnIndexLookUpDict,
             ),
           }),
@@ -115,8 +118,11 @@ export const createCsvEvaluationPresetSlice: StateCreator<
     } else {
       const configContent = get().csvEvaluationConfigContent;
       set({
-        csvEvaluationConfigContent: D.merge(configContent, {
-          variableColumnMap: update,
+        csvEvaluationConfigContent: D.merge<
+          ConfigContent,
+          Partial<ConfigContent>
+        >(configContent, {
+          variableIdToCsvColumnIndexLookUpDict: update,
         }),
       });
     }
@@ -126,20 +132,27 @@ export const createCsvEvaluationPresetSlice: StateCreator<
       | ((prev: CsvRunResultTable) => CsvRunResultTable)
       | CsvRunResultTable,
   ): void {
+    console.log("csvEvaluationSetGeneratedResult", update);
     if (G.isFunction(update)) {
       set((state) => {
         const configContent = state.csvEvaluationConfigContent;
         return {
-          csvEvaluationConfigContent: D.merge(configContent, {
-            generatedResult: update(configContent.csvRunResultTable),
+          csvEvaluationConfigContent: D.merge<
+            ConfigContent,
+            Partial<ConfigContent>
+          >(configContent, {
+            csvRunResultTable: update(configContent.csvRunResultTable),
           }),
         };
       });
     } else {
       const configContent = get().csvEvaluationConfigContent;
       set({
-        csvEvaluationConfigContent: D.merge(configContent, {
-          generatedResult: update,
+        csvEvaluationConfigContent: D.merge<
+          ConfigContent,
+          Partial<ConfigContent>
+        >(configContent, {
+          csvRunResultTable: update,
         }),
       });
     }
@@ -151,16 +164,22 @@ export const createCsvEvaluationPresetSlice: StateCreator<
       set((state) => {
         const configContent = state.csvEvaluationConfigContent;
         return {
-          csvEvaluationConfigContent: D.merge(configContent, {
-            runStatuses: update(configContent.runStatusTable),
+          csvEvaluationConfigContent: D.merge<
+            ConfigContent,
+            Partial<ConfigContent>
+          >(configContent, {
+            runStatusTable: update(configContent.runStatusTable),
           }),
         };
       });
     } else {
       const configContent = get().csvEvaluationConfigContent;
       set({
-        csvEvaluationConfigContent: D.merge(configContent, {
-          runStatuses: update,
+        csvEvaluationConfigContent: D.merge<
+          ConfigContent,
+          Partial<ConfigContent>
+        >(configContent, {
+          runStatusTable: update,
         }),
       });
     }

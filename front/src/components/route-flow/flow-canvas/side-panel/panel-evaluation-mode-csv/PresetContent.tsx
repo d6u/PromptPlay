@@ -138,14 +138,16 @@ export default function PresetContent() {
         setGeneratedResult((prev) => {
           let row = prev[rowIndex as RowIndex]!;
 
+          console.debug({ prev, row });
+
           row = A.updateAt(
-            row as Array<V3VariableValueLookUpDict>,
+            row as V3VariableValueLookUpDict[],
             iteratonIndex,
             D.merge(outputs),
           );
 
           return A.replaceAt(
-            prev as Array<Record<ColumnIndex, V3VariableValueLookUpDict>>,
+            prev as Record<ColumnIndex, V3VariableValueLookUpDict>[],
             rowIndex,
             row,
           );
