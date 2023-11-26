@@ -6,28 +6,27 @@ import {
   FormControl,
   FormLabel,
   Input,
-  Option,
-  Select,
   Table,
 } from "@mui/joy";
 import Papa from "papaparse";
 import posthog from "posthog-js";
-import { ReactNode, useEffect, useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import {
   V3VariableID,
   V3VariableValueLookUpDict,
   VariableType,
-} from "../../../../../models/v3-flow-content-types";
+} from "../../../../../../models/v3-flow-content-types";
 import {
   ColumnIndex,
   IterationIndex,
   RowIndex,
-} from "../../../state/slice-csv-evaluation-preset";
-import { selectAllVariables } from "../../../state/state-utils";
-import { useFlowStore } from "../../../state/store-flow-state";
-import { Section } from "../common/controls-common";
-import OutputDisplay from "../common/OutputDisplay";
-import { CSVData, CSVRow, CustomAccordionDetails } from "./common";
+} from "../../../../state/slice-csv-evaluation-preset";
+import { selectAllVariables } from "../../../../state/state-utils";
+import { useFlowStore } from "../../../../state/store-flow-state";
+import { Section } from "../../common/controls-common";
+import { CSVData, CSVRow, CustomAccordionDetails } from "../common";
+import TableBody from "./TableBody";
+import TableHead from "./TableHead";
 
 type Props = {
   csvHeaders: CSVRow;
@@ -39,13 +38,13 @@ type Props = {
 
 export default function EvaluationSectionConfigCSV(props: Props) {
   // SECTION: Select state from store
+
   const variableMap = useFlowStore.use.variablesDict();
   const {
-    repeatTimes: repeatCount,
+    repeatTimes,
     concurrencyLimit,
     variableIdToCsvColumnIndexLookUpDict,
-    csvRunResultTable: generatedResult,
-    runStatusTable: runStatuses,
+    csvRunResultTable,
   } = useFlowStore.use.csvEvaluationConfigContent();
   const setRepeatCount = useFlowStore.use.csvEvaluationSetRepeatCount();
   const setConcurrencyLimit =
@@ -54,6 +53,7 @@ export default function EvaluationSectionConfigCSV(props: Props) {
     useFlowStore.use.csvEvaluationSetVariableIdToCsvColumnIndexLookUpDict();
   const setGeneratedResult = useFlowStore.use.csvEvaluationSetGeneratedResult();
   const setRunStatuses = useFlowStore.use.csvEvaluationSetRunStatuses();
+
   // !SECTION
 
   const flowInputVariables = useMemo(() => {
@@ -87,168 +87,18 @@ export default function EvaluationSectionConfigCSV(props: Props) {
 
     setGeneratedResult(
       A.makeWithIndex(props.csvBody.length, () =>
-        A.makeWithIndex(repeatCount, D.makeEmpty<V3VariableValueLookUpDict>),
+        A.makeWithIndex(repeatTimes, D.makeEmpty<V3VariableValueLookUpDict>),
       ),
     );
-  }, [props.csvBody.length, repeatCount, setGeneratedResult]);
+  }, [props.csvBody.length, repeatTimes, setGeneratedResult]);
 
   useEffect(() => {
     setRunStatuses(
       A.makeWithIndex(props.csvBody.length, () =>
-        A.makeWithIndex(repeatCount, () => null),
+        A.makeWithIndex(repeatTimes, () => null),
       ),
     );
-  }, [props.csvBody.length, repeatCount, setRunStatuses]);
-
-  const variableMapTableHeaderRowFirst: ReactNode[] = [];
-  const variableMapTableHeaderRowSecond: ReactNode[] = [];
-
-  variableMapTableHeaderRowFirst.push(
-    <th key="status" style={{ textAlign: "center" }} colSpan={repeatCount}>
-      Status
-    </th>,
-  );
-
-  if (repeatCount > 1) {
-    for (let i = 0; i < repeatCount; i++) {
-      variableMapTableHeaderRowSecond.push(
-        <th key={`status-${i}`}>Run {i + 1}</th>,
-      );
-    }
-  } else {
-    variableMapTableHeaderRowSecond.push(<th key={`status-0`}></th>);
-  }
-
-  for (const inputItem of flowInputVariables) {
-    variableMapTableHeaderRowFirst.push(
-      <th
-        key={inputItem.id}
-        style={{ textAlign: "center", borderBottomWidth: 1 }}
-      >
-        {inputItem.name}
-      </th>,
-    );
-
-    variableMapTableHeaderRowSecond.push(
-      <th key={inputItem.id}>
-        <Select
-          placeholder="Choose a column"
-          value={variableIdToCsvColumnIndexLookUpDict[inputItem.id]}
-          onChange={(_event, index) => {
-            setVariableColumnMap((prev) => ({
-              ...prev,
-              [inputItem.id]: index,
-            }));
-          }}
-        >
-          {props.csvHeaders.filter(F.identity).map((name, index) => (
-            <Option key={index} value={index}>
-              {name}
-            </Option>
-          ))}
-        </Select>
-      </th>,
-    );
-  }
-
-  for (const outputItem of flowOutputVariables) {
-    variableMapTableHeaderRowFirst.push(
-      <th
-        key={outputItem.id}
-        colSpan={repeatCount + 1}
-        style={{ textAlign: "center" }}
-      >
-        {outputItem.name}
-      </th>,
-    );
-
-    variableMapTableHeaderRowSecond.push(
-      <th key={outputItem.id}>
-        <Select
-          placeholder="Choose a column"
-          value={variableIdToCsvColumnIndexLookUpDict[outputItem.id]}
-          onChange={(e, index) => {
-            setVariableColumnMap((prev) => ({
-              ...prev,
-              [outputItem.id]: index,
-            }));
-          }}
-        >
-          {props.csvHeaders.filter(F.identity).map((item, i) => (
-            <Option key={i} value={i}>
-              {item}
-            </Option>
-          ))}
-        </Select>
-      </th>,
-    );
-
-    if (repeatCount > 1) {
-      for (let i = 0; i < repeatCount; i++) {
-        variableMapTableHeaderRowSecond.push(
-          <th key={`${outputItem.id}-result-${i}`}>Result {i + 1}</th>,
-        );
-      }
-    } else {
-      variableMapTableHeaderRowSecond.push(
-        <th key={`${outputItem.id}-result-0`}>Result</th>,
-      );
-    }
-  }
-
-  const variableMapTableBodyRows: ReactNode[] = [];
-
-  for (const [rowIndex, row] of props.csvBody.entries()) {
-    const cells: ReactNode[] = [];
-
-    // Columns for "Status"
-    for (let colIndex = 0; colIndex < repeatCount; colIndex++) {
-      const statusValue =
-        runStatuses[rowIndex as RowIndex]?.[colIndex as IterationIndex] ?? null;
-      cells.push(
-        <td
-          key={`status-${rowIndex}-${colIndex}`}
-          style={{ color: statusValue == null ? "green" : "red" }}
-        >
-          {statusValue ?? "OK"}
-        </td>,
-      );
-    }
-
-    // Input columns
-    for (const inputItem of flowInputVariables) {
-      const index = variableIdToCsvColumnIndexLookUpDict[inputItem.id];
-      cells.push(
-        <td key={`${inputItem.id}`}>{index !== null ? row[index] : ""}</td>,
-      );
-    }
-
-    // Output columns
-    for (const outputItem of flowOutputVariables) {
-      const index = variableIdToCsvColumnIndexLookUpDict[outputItem.id];
-      cells.push(
-        <td key={`${outputItem.id}`}>{index !== null ? row[index] : ""}</td>,
-      );
-
-      for (let colIndex = 0; colIndex < repeatCount; colIndex++) {
-        const value =
-          generatedResult[rowIndex as RowIndex]?.[colIndex as IterationIndex]?.[
-            outputItem.id
-          ] ?? "";
-
-        cells.push(
-          <td key={`${outputItem.id}-result-${colIndex}`}>
-            <pre style={{ whiteSpace: "pre-wrap", margin: 0 }}>
-              <OutputDisplay value={value} />
-            </pre>
-          </td>,
-        );
-      }
-    }
-
-    // Add current row to the table
-    variableMapTableBodyRows.push(<tr key={rowIndex}>{cells}</tr>);
-  }
+  }, [props.csvBody.length, repeatTimes, setRunStatuses]);
 
   return (
     <Accordion defaultExpanded>
@@ -261,7 +111,7 @@ export default function EvaluationSectionConfigCSV(props: Props) {
               size="sm"
               type="number"
               slotProps={{ input: { min: 1, step: 1 } }}
-              value={repeatCount}
+              value={repeatTimes}
               onChange={(e) => setRepeatCount(Number(e.target.value))}
             />
           </FormControl>
@@ -305,12 +155,12 @@ export default function EvaluationSectionConfigCSV(props: Props) {
               // Status
 
               resultCsv[0].push("Status");
-              for (let i = 0; i < repeatCount - 1; i++) {
+              for (let i = 0; i < repeatTimes - 1; i++) {
                 resultCsv[0].push("");
               }
 
-              if (repeatCount > 1) {
-                for (let i = 0; i < repeatCount; i++) {
+              if (repeatTimes > 1) {
+                for (let i = 0; i < repeatTimes; i++) {
                   resultCsv[1].push(`Run ${i + 1}`);
                 }
               } else {
@@ -335,13 +185,13 @@ export default function EvaluationSectionConfigCSV(props: Props) {
 
               for (const outputItem of flowOutputVariables) {
                 resultCsv[0].push(outputItem.name);
-                for (let i = 0; i < repeatCount; i++) {
+                for (let i = 0; i < repeatTimes; i++) {
                   resultCsv[0].push("");
                 }
 
                 resultCsv[1].push("");
-                if (repeatCount > 1) {
-                  for (let i = 0; i < repeatCount; i++) {
+                if (repeatTimes > 1) {
+                  for (let i = 0; i < repeatTimes; i++) {
                     resultCsv[1].push(`Result ${i + 1}`);
                   }
                 } else {
@@ -355,7 +205,7 @@ export default function EvaluationSectionConfigCSV(props: Props) {
                 const cells: string[] = [];
 
                 // Status
-                for (let i = 0; i < repeatCount; i++) {
+                for (let i = 0; i < repeatTimes; i++) {
                   cells.push("");
                 }
 
@@ -372,9 +222,9 @@ export default function EvaluationSectionConfigCSV(props: Props) {
                     variableIdToCsvColumnIndexLookUpDict[outputItem.id];
                   cells.push(index !== null ? row[index] : "");
 
-                  for (let i = 0; i < repeatCount; i++) {
+                  for (let i = 0; i < repeatTimes; i++) {
                     const value =
-                      generatedResult[rowIndex as RowIndex]?.[
+                      csvRunResultTable[rowIndex as RowIndex]?.[
                         i as IterationIndex
                       ]?.[outputItem.id] ?? "";
 
@@ -414,11 +264,11 @@ export default function EvaluationSectionConfigCSV(props: Props) {
         </Section>
         <Section style={{ overflow: "auto" }}>
           <Table>
-            <thead>
-              <tr>{variableMapTableHeaderRowFirst}</tr>
-              <tr>{variableMapTableHeaderRowSecond}</tr>
-            </thead>
-            <tbody>{variableMapTableBodyRows}</tbody>
+            <TableHead
+              repeatTimes={repeatTimes}
+              csvHeaders={props.csvHeaders}
+            />
+            <TableBody repeatTimes={repeatTimes} csvBody={props.csvBody} />
           </Table>
         </Section>
       </CustomAccordionDetails>

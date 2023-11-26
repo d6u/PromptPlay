@@ -15,7 +15,7 @@ import {
 } from "../../../state/slice-csv-evaluation-preset";
 import { useFlowStore } from "../../../state/store-flow-state";
 import { CSVData, CSVHeader } from "./common";
-import EvaluationSectionConfigCSV from "./EvaluationSectionConfigCSV";
+import EvaluationSectionConfigCSV from "./evaluation-section-config-csv";
 import EvaluationSectionImportCSV from "./EvaluationSectionImportCSV";
 import { runForEachRow } from "./utils";
 
