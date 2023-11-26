@@ -13,10 +13,10 @@ import {
   RowIndex,
 } from "../../../state/slice-csv-evaluation-preset";
 import { useFlowStore } from "../../../state/store-flow-state";
-import { CSVData, CSVHeader } from "./csv-evaluation-common";
-import { runForEachRow } from "./csv-evaluation-util";
+import { CSVData, CSVHeader } from "./common";
 import EvaluationSectionConfigCSV from "./EvaluationSectionConfigCSV";
 import EvaluationSectionImportCSV from "./EvaluationSectionImportCSV";
+import { runForEachRow } from "./utils";
 
 export default function PresetContent() {
   const spaceId = useFlowStore.use.spaceId();

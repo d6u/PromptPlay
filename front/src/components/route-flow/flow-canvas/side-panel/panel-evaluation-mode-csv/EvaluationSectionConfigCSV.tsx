@@ -26,11 +26,7 @@ import { selectAllVariables } from "../../../state/state-utils";
 import { useFlowStore } from "../../../state/store-flow-state";
 import { Section } from "../common/controls-common";
 import OutputDisplay from "../common/OutputDisplay";
-import {
-  CSVData,
-  CSVRow,
-  CustomAccordionDetails,
-} from "./csv-evaluation-common";
+import { CSVData, CSVRow, CustomAccordionDetails } from "./common";
 
 type Props = {
   csvHeaders: CSVRow;

@@ -15,7 +15,7 @@ import {
   V3VariableValueLookUpDict,
 } from "../../../../../models/v3-flow-content-types";
 import { VariableColumnMap } from "../../../state/slice-csv-evaluation-preset";
-import { CSVData } from "./csv-evaluation-common";
+import { CSVData } from "./common";
 
 export function runForEachRow({
   flowContent,
