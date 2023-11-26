@@ -268,11 +268,11 @@ function createFlowContentHandler(
     const contentV3Str = result.data.result.space.contentV3;
 
     // TODO: Report to telemetry
-    invariant(version != ContentVersion.V1);
+    invariant(version != ContentVersion.V1, "version should not be v1");
 
     switch (version) {
       case ContentVersion.V2: {
-        invariant(contentV2Str != null);
+        invariant(contentV2Str != null, "contentV2Str");
         // TODO: Report parse error to telemetry
         const contentV2 = JSON.parse(contentV2Str);
         const contentV3 = convertV2ContentToV3Content(contentV2);
@@ -280,7 +280,7 @@ function createFlowContentHandler(
         return contentV3;
       }
       case ContentVersion.V3: {
-        invariant(contentV3Str != null);
+        invariant(contentV3Str != null, "contentV3Str");
         // TODO: Report parse error to telemetry
         const data = JSON.parse(contentV3Str) as Partial<V3FlowContent>;
         const contentV3: V3FlowContent = {
