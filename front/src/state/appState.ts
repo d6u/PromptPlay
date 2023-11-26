@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { createSelectors } from "../utils/zustand-utils";
 
 type OpenAIAPIKeyState = {
   openAiApiKey: string | null;
@@ -26,23 +27,25 @@ export type LocalStorageState = OpenAIAPIKeyState &
   PlaceholderUserTokenState &
   ElevenLabsApiKeyState;
 
-export const useLocalStorageStore = create<LocalStorageState>()(
-  persist(
-    (set) => ({
-      openAiApiKey: null,
-      setOpenAiApiKey: (openAiApiKey) => set(() => ({ openAiApiKey })),
-      huggingFaceApiToken: null,
-      setHuggingFaceApiToken: (huggingFaceApiToken) =>
-        set(() => ({ huggingFaceApiToken })),
-      placeholderUserToken: null,
-      setPlaceholderUserToken: (placeholderUserToken) =>
-        set(() => ({ placeholderUserToken })),
-      elevenLabsApiKey: null,
-      setElevenLabsApiKey: (elevenLabsApiKey: string | null) =>
-        set(() => ({ elevenLabsApiKey })),
-    }),
-    { name: "localUserSettings" }
-  )
+export const useLocalStorageStore = createSelectors(
+  create<LocalStorageState>()(
+    persist(
+      (set) => ({
+        openAiApiKey: null,
+        setOpenAiApiKey: (openAiApiKey) => set(() => ({ openAiApiKey })),
+        huggingFaceApiToken: null,
+        setHuggingFaceApiToken: (huggingFaceApiToken) =>
+          set(() => ({ huggingFaceApiToken })),
+        placeholderUserToken: null,
+        setPlaceholderUserToken: (placeholderUserToken) =>
+          set(() => ({ placeholderUserToken })),
+        elevenLabsApiKey: null,
+        setElevenLabsApiKey: (elevenLabsApiKey: string | null) =>
+          set(() => ({ elevenLabsApiKey })),
+      }),
+      { name: "localUserSettings" },
+    ),
+  ),
 );
 
 export type SpaceState = {
