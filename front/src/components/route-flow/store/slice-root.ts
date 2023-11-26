@@ -63,202 +63,204 @@ type InitProps = {
   spaceId: string;
 };
 
+type RootSliceStateCreator = StateCreator<FlowState, [], [], RootSlice>;
+
 export function createRootSlice(
   initProps: InitProps,
-): StateCreator<FlowState, [], [], RootSlice> {
-  return function (set, get) {
-    function setIsRunning(isRunning: boolean) {
-      set((state) => {
-        let edges = state.edges;
-        let nodeMetadataDict = state.nodeMetadataDict;
+  ...rest: Parameters<RootSliceStateCreator>
+): ReturnType<RootSliceStateCreator> {
+  const [set, get] = rest;
 
-        edges = produce(edges, (draft) => {
-          for (const edge of draft) {
-            if (edge.animated !== isRunning) {
-              edge.animated = isRunning;
-            }
+  function setIsRunning(isRunning: boolean) {
+    set((state) => {
+      let edges = state.edges;
+      let nodeMetadataDict = state.nodeMetadataDict;
+
+      edges = produce(edges, (draft) => {
+        for (const edge of draft) {
+          if (edge.animated !== isRunning) {
+            edge.animated = isRunning;
+          }
+        }
+      });
+
+      if (!isRunning) {
+        // It is important to reset node metadata, because node's running status
+        // doesn't depend on global isRunning state.
+        nodeMetadataDict = produce(nodeMetadataDict, (draft) => {
+          for (const nodeMetadata of Object.values(draft)) {
+            invariant(nodeMetadata != null);
+            nodeMetadata.isRunning = false;
           }
         });
+      }
 
-        if (!isRunning) {
-          // It is important to reset node metadata, because node's running status
-          // doesn't depend on global isRunning state.
-          nodeMetadataDict = produce(nodeMetadataDict, (draft) => {
-            for (const nodeMetadata of Object.values(draft)) {
-              invariant(nodeMetadata != null);
-              nodeMetadata.isRunning = false;
-            }
-          });
-        }
+      return { isRunning, edges, nodeMetadataDict };
+    });
+  }
 
-        return { isRunning, edges, nodeMetadataDict };
-      });
-    }
+  let fetchContentSubscription: Subscription | null = null;
+  let runFlowSubscription: Subscription | null = null;
 
-    let fetchContentSubscription: Subscription | null = null;
-    let runFlowSubscription: Subscription | null = null;
+  return {
+    ...ROOT_SLICE_INITIAL_STATE,
 
-    return {
-      ...ROOT_SLICE_INITIAL_STATE,
+    initializeSpace(spaceId: string) {
+      set({ spaceId, isInitialized: false });
 
-      initializeSpace(spaceId: string) {
-        set({ spaceId, isInitialized: false });
+      get().resetFlowServerSlice();
 
-        get().resetFlowServerSlice();
-
-        fetchContentSubscription?.unsubscribe();
-        fetchContentSubscription = fetchFlowContent(spaceId)
-          .pipe(mergeMap(createFlowContentHandler(spaceId)))
-          .subscribe({
-            next({
-              nodes,
-              edges,
-              nodeConfigsDict,
-              variablesDict,
-              variableValueLookUpDicts,
-            }) {
-              nodes = assignLocalNodeProperties(nodes);
-              edges = assignLocalEdgeProperties(edges);
-
-              set({
-                nodes,
-                edges,
-                nodeConfigsDict,
-                variablesDict,
-                variableValueLookUpDicts,
-              });
-            },
-            error(error) {
-              // TODO: Report to telemetry
-              console.error("Error fetching content", error);
-            },
-            complete() {
-              set({ isInitialized: true });
-            },
-          });
-      },
-
-      deinitializeSpace() {
-        fetchContentSubscription?.unsubscribe();
-        fetchContentSubscription = null;
-
-        set(ROOT_SLICE_INITIAL_STATE);
-      },
-
-      setDetailPanelContentType(type: DetailPanelContentType) {
-        set({ detailPanelContentType: type });
-      },
-      setDetailPanelSelectedNodeId(id: NodeID) {
-        set({ detailPanelSelectedNodeId: id });
-      },
-
-      updateNodeAugment(nodeId: NodeID, change: Partial<NodeMetadata>) {
-        const prevNodeMetadataDict = get().nodeMetadataDict;
-        let nodeMetadata = prevNodeMetadataDict[nodeId];
-
-        if (nodeMetadata) {
-          nodeMetadata = { ...nodeMetadata, ...change };
-        } else {
-          nodeMetadata = { isRunning: false, hasError: false, ...change };
-        }
-
-        const nodeMetadataDict = D.set(
-          prevNodeMetadataDict,
-          nodeId,
-          nodeMetadata,
-        );
-
-        set({ nodeMetadataDict });
-      },
-
-      runFlow() {
-        posthog.capture("Starting Simple Evaluation", {
-          flowId: get().spaceId,
-        });
-
-        runFlowSubscription?.unsubscribe();
-        runFlowSubscription = null;
-
-        // TODO: Give a default for every node instead of empty object
-        set({ nodeMetadataDict: {} });
-
-        setIsRunning(true);
-
-        const {
-          nodes,
-          edges,
-          nodeConfigsDict,
-          variablesDict,
-          variableValueLookUpDicts,
-        } = get();
-
-        const variableValueLookUpDict =
-          get().getDefaultVariableValueLookUpDict();
-        const flowInputVariableValueLookUpDict = selectFlowInputVariableValue(
-          variablesDict,
-          variableValueLookUpDict,
-        );
-
-        runFlowSubscription = runSingle({
-          flowContent: {
+      fetchContentSubscription?.unsubscribe();
+      fetchContentSubscription = fetchFlowContent(spaceId)
+        .pipe(mergeMap(createFlowContentHandler(spaceId)))
+        .subscribe({
+          next({
             nodes,
             edges,
             nodeConfigsDict,
             variablesDict,
             variableValueLookUpDicts,
-          },
-          inputVariableMap: flowInputVariableValueLookUpDict,
-          useStreaming: true,
-        }).subscribe({
-          next(data) {
-            switch (data.type) {
-              case RunEventType.VariableValueChanges: {
-                const { changes } = data;
-                for (const [outputId, value] of Object.entries(changes)) {
-                  get().updateVariableValueMap(asV3VariableID(outputId), value);
-                }
-                break;
-              }
-              case RunEventType.NodeAugmentChange: {
-                const { nodeId, augmentChange } = data;
-                get().updateNodeAugment(nodeId, augmentChange);
-                break;
-              }
-              case RunEventType.RunStatusChange:
-                // TODO: Refect this in the simple evaluation UI
-                break;
-            }
+          }) {
+            nodes = assignLocalNodeProperties(nodes);
+            edges = assignLocalEdgeProperties(edges);
+
+            set({
+              nodes,
+              edges,
+              nodeConfigsDict,
+              variablesDict,
+              variableValueLookUpDicts,
+            });
           },
           error(error) {
-            posthog.capture("Finished Simple Evaluation with Error", {
-              flowId: get().spaceId,
-            });
-
-            console.error(error);
-
-            setIsRunning(false);
+            // TODO: Report to telemetry
+            console.error("Error fetching content", error);
           },
           complete() {
-            posthog.capture("Finished Simple Evaluation", {
-              flowId: get().spaceId,
-            });
-
-            setIsRunning(false);
+            set({ isInitialized: true });
           },
         });
-      },
+    },
 
-      stopRunningFlow() {
-        posthog.capture("Manually Stopped Simple Evaluation", {
-          flowId: get().spaceId,
-        });
+    deinitializeSpace() {
+      fetchContentSubscription?.unsubscribe();
+      fetchContentSubscription = null;
 
-        runFlowSubscription?.unsubscribe();
-        runFlowSubscription = null;
+      set(ROOT_SLICE_INITIAL_STATE);
+    },
 
-        setIsRunning(false);
-      },
-    };
+    setDetailPanelContentType(type: DetailPanelContentType) {
+      set({ detailPanelContentType: type });
+    },
+    setDetailPanelSelectedNodeId(id: NodeID) {
+      set({ detailPanelSelectedNodeId: id });
+    },
+
+    updateNodeAugment(nodeId: NodeID, change: Partial<NodeMetadata>) {
+      const prevNodeMetadataDict = get().nodeMetadataDict;
+      let nodeMetadata = prevNodeMetadataDict[nodeId];
+
+      if (nodeMetadata) {
+        nodeMetadata = { ...nodeMetadata, ...change };
+      } else {
+        nodeMetadata = { isRunning: false, hasError: false, ...change };
+      }
+
+      const nodeMetadataDict = D.set(
+        prevNodeMetadataDict,
+        nodeId,
+        nodeMetadata,
+      );
+
+      set({ nodeMetadataDict });
+    },
+
+    runFlow() {
+      posthog.capture("Starting Simple Evaluation", {
+        flowId: get().spaceId,
+      });
+
+      runFlowSubscription?.unsubscribe();
+      runFlowSubscription = null;
+
+      // TODO: Give a default for every node instead of empty object
+      set({ nodeMetadataDict: {} });
+
+      setIsRunning(true);
+
+      const {
+        nodes,
+        edges,
+        nodeConfigsDict,
+        variablesDict,
+        variableValueLookUpDicts,
+      } = get();
+
+      const variableValueLookUpDict = get().getDefaultVariableValueLookUpDict();
+      const flowInputVariableValueLookUpDict = selectFlowInputVariableValue(
+        variablesDict,
+        variableValueLookUpDict,
+      );
+
+      runFlowSubscription = runSingle({
+        flowContent: {
+          nodes,
+          edges,
+          nodeConfigsDict,
+          variablesDict,
+          variableValueLookUpDicts,
+        },
+        inputVariableMap: flowInputVariableValueLookUpDict,
+        useStreaming: true,
+      }).subscribe({
+        next(data) {
+          switch (data.type) {
+            case RunEventType.VariableValueChanges: {
+              const { changes } = data;
+              for (const [outputId, value] of Object.entries(changes)) {
+                get().updateVariableValueMap(asV3VariableID(outputId), value);
+              }
+              break;
+            }
+            case RunEventType.NodeAugmentChange: {
+              const { nodeId, augmentChange } = data;
+              get().updateNodeAugment(nodeId, augmentChange);
+              break;
+            }
+            case RunEventType.RunStatusChange:
+              // TODO: Refect this in the simple evaluation UI
+              break;
+          }
+        },
+        error(error) {
+          posthog.capture("Finished Simple Evaluation with Error", {
+            flowId: get().spaceId,
+          });
+
+          console.error(error);
+
+          setIsRunning(false);
+        },
+        complete() {
+          posthog.capture("Finished Simple Evaluation", {
+            flowId: get().spaceId,
+          });
+
+          setIsRunning(false);
+        },
+      });
+    },
+
+    stopRunningFlow() {
+      posthog.capture("Manually Stopped Simple Evaluation", {
+        flowId: get().spaceId,
+      });
+
+      runFlowSubscription?.unsubscribe();
+      runFlowSubscription = null;
+
+      setIsRunning(false);
+    },
   };
 }
 

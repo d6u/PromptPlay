@@ -12,7 +12,7 @@ type InitProps = {
 export function createFlowStore(initProps: InitProps) {
   return createStore<FlowState>()(
     zukeeperTsLogger((...a) => ({
-      ...createRootSlice(initProps)(...a),
+      ...createRootSlice(initProps, ...a),
       ...createFlowServerSliceV2(...a),
       ...createCsvEvaluationPresetSlice(...a),
     })),
