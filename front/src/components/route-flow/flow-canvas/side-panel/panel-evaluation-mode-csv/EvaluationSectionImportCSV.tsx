@@ -1,25 +1,16 @@
 import { Accordion, AccordionSummary, Table, Textarea } from "@mui/joy";
 import { useFlowStore } from "../../../state/store-flow-state";
-import { FlowState } from "../../../state/store-flow-state-types";
 import { Section } from "../common/controls-common";
-import {
-  CSVData,
-  CSVRow,
-  CustomAccordionDetails,
-} from "./csv-evaluation-common";
+import { CSVData, CSVRow, CustomAccordionDetails } from "./common";
 
 type Props = {
   csvHeaders: CSVRow;
   csvBody: CSVData;
 };
 
-const selector = (state: FlowState) => ({
-  csvContent: state.csvEvaluationCsvContent,
-  setCsvContent: state.csvEvaluationSetLocalCsvContent,
-});
-
 export default function EvaluationSectionImportCSV(props: Props) {
-  const { csvContent, setCsvContent } = useFlowStore(selector);
+  const csvStr = useFlowStore.use.csvEvaluationCsvStr();
+  const setCsvStr = useFlowStore.use.csvEvaluationSetLocalCsvStr();
 
   return (
     <Accordion defaultExpanded>
@@ -27,10 +18,11 @@ export default function EvaluationSectionImportCSV(props: Props) {
       <CustomAccordionDetails>
         <Section>
           <Textarea
+            spellCheck={false}
             minRows={6}
             maxRows={6}
-            value={csvContent}
-            onChange={(event) => setCsvContent(event.target.value)}
+            value={csvStr}
+            onChange={(event) => setCsvStr(event.target.value)}
           />
         </Section>
         <Section style={{ overflow: "auto" }}>

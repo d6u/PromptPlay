@@ -14,8 +14,8 @@ import {
   V3FlowContent,
   V3VariableValueLookUpDict,
 } from "../../../../../models/v3-flow-content-types";
-import { VariableColumnMap } from "../../../state/slice-csv-evaluation-preset";
-import { CSVData } from "./csv-evaluation-common";
+import { VariableIdToCsvColumnIndexLookUpDict } from "../../../state/slice-csv-evaluation-preset";
+import { CSVData } from "./common";
 
 export function runForEachRow({
   flowContent,
@@ -26,7 +26,7 @@ export function runForEachRow({
 }: {
   flowContent: V3FlowContent;
   csvBody: CSVData;
-  variableColumnMap: VariableColumnMap;
+  variableColumnMap: VariableIdToCsvColumnIndexLookUpDict;
   repeatCount: number;
   concurrencyLimit: number;
 }): Observable<ResultEvent> {

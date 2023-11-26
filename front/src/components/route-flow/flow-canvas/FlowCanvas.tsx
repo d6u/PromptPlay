@@ -18,7 +18,7 @@ import InputNode from "./nodes/InputNode";
 import JavaScriptFunctionNode from "./nodes/JavaScriptFunctionNode";
 import OutputNode from "./nodes/OutputNode";
 import TextTemplateNode from "./nodes/TextTemplateNode";
-import SidePanel from "./side-panel/SidePanel";
+import SidePanel from "./side-panel";
 
 const NODE_TYPES = {
   [NodeType.InputNode]: InputNode,

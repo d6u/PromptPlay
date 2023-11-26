@@ -10,66 +10,34 @@ import { graphql } from "../../../../../gql";
 import { V3VariableValueLookUpDict } from "../../../../../models/v3-flow-content-types";
 import {
   ColumnIndex,
+  IterationIndex,
   RowIndex,
 } from "../../../state/slice-csv-evaluation-preset";
 import { useFlowStore } from "../../../state/store-flow-state";
-import { FlowState } from "../../../state/store-flow-state-types";
-import { CSVData, CSVHeader } from "./csv-evaluation-common";
-import { runForEachRow } from "./csv-evaluation-util";
-import EvaluationSectionConfigCSV from "./EvaluationSectionConfigCSV";
+import { CSVData, CSVHeader } from "./common";
+import EvaluationSectionConfigCSV from "./evaluation-section-config-csv";
 import EvaluationSectionImportCSV from "./EvaluationSectionImportCSV";
-
-const EVALUATION_MODE_CSV_CONTENT_QUERY = graphql(`
-  query EvaluationModeCSVContentQuery($spaceId: UUID!, $presetId: ID!) {
-    result: space(id: $spaceId) {
-      space {
-        id
-        csvEvaluationPreset(id: $presetId) {
-          id
-          csvContent
-          configContent
-        }
-      }
-    }
-  }
-`);
-
-const selector = (state: FlowState) => ({
-  spaceId: state.spaceId,
-  nodes: state.nodes,
-  edges: state.edges,
-  nodeConfigsDict: state.nodeConfigsDict,
-  variablesDict: state.variablesDict,
-  variableValueLookUpDicts: state.variableValueLookUpDicts,
-  presetId: state.csvEvaluationCurrentPresetId,
-  csvContent: state.csvEvaluationCsvContent,
-  setCsvContent: state.csvEvaluationSetLocalCsvContent,
-  setConfigContent: state.csvEvaluationSetLocalConfigContent,
-  repeatCount: state.csvEvaluationConfigContent.repeatCount,
-  concurrencyLimit: state.csvEvaluationConfigContent.concurrencyLimit,
-  variableColumnMap: state.csvEvaluationConfigContent.variableColumnMap,
-  setGeneratedResult: state.csvEvaluationSetGeneratedResult,
-  setRunStatuses: state.csvEvaluationSetRunStatuses,
-});
+import { runForEachRow } from "./utils";
 
 export default function PresetContent() {
+  const spaceId = useFlowStore.use.spaceId();
+  const nodes = useFlowStore.use.nodes();
+  const edges = useFlowStore.use.edges();
+  const nodeConfigsDict = useFlowStore.use.nodeConfigsDict();
+  const variablesDict = useFlowStore.use.variablesDict();
+  const variableValueLookUpDicts = useFlowStore.use.variableValueLookUpDicts();
+  const presetId = useFlowStore.use.csvEvaluationCurrentPresetId();
+  const csvContent = useFlowStore.use.csvEvaluationCsvStr();
+  const setCsvContent = useFlowStore.use.csvEvaluationSetLocalCsvStr();
+  const setConfigContent =
+    useFlowStore.use.csvEvaluationSetLocalConfigContent();
   const {
-    spaceId,
-    nodes,
-    edges,
-    nodeConfigsDict,
-    variablesDict,
-    variableValueLookUpDicts,
-    presetId,
-    csvContent,
-    setCsvContent,
-    setConfigContent,
-    repeatCount,
+    repeatTimes: repeatCount,
     concurrencyLimit,
-    variableColumnMap,
-    setGeneratedResult,
-    setRunStatuses,
-  } = useFlowStore(selector);
+    variableIdToCsvColumnIndexLookUpDict: variableColumnMap,
+  } = useFlowStore.use.csvEvaluationConfigContent();
+  const setGeneratedResult = useFlowStore.use.csvEvaluationSetGeneratedResult();
+  const setRunStatuses = useFlowStore.use.csvEvaluationSetRunStatuses();
 
   const shouldFetchPreset = spaceId && presetId;
 
@@ -77,8 +45,9 @@ export default function PresetContent() {
     query: EVALUATION_MODE_CSV_CONTENT_QUERY,
     variables: {
       spaceId,
-      // This is a workaround for TypeScript, because when presetId is null,
-      // `!shouldFetchPreset` will be true, thus, query will be paused.
+      // This is needed as a workaround for TypeScript.
+      // When presetId is null, `!shouldFetchPreset` will be true,
+      // where query will be paused, thus "" value is not taken.
       presetId: presetId ?? "",
     },
     pause: !shouldFetchPreset,
@@ -163,20 +132,22 @@ export default function PresetContent() {
       repeatCount,
       concurrencyLimit,
     }).subscribe({
-      next({ iteratonIndex: colIndex, rowIndex, outputs, status }) {
-        console.debug({ rowIndex, colIndex, outputs, status });
+      next({ iteratonIndex, rowIndex, outputs, status }) {
+        console.debug({ rowIndex, iteratonIndex, outputs, status });
 
         setGeneratedResult((prev) => {
           let row = prev[rowIndex as RowIndex]!;
 
+          console.debug({ prev, row });
+
           row = A.updateAt(
-            row as Array<V3VariableValueLookUpDict>,
-            colIndex,
+            row as V3VariableValueLookUpDict[],
+            iteratonIndex,
             D.merge(outputs),
           );
 
           return A.replaceAt(
-            prev as Array<Record<ColumnIndex, V3VariableValueLookUpDict>>,
+            prev as Record<ColumnIndex, V3VariableValueLookUpDict>[],
             rowIndex,
             row,
           );
@@ -184,7 +155,8 @@ export default function PresetContent() {
 
         setRunStatuses((prev) =>
           produce(prev, (draft) => {
-            draft[rowIndex as RowIndex][colIndex as ColumnIndex] = status;
+            draft[rowIndex as RowIndex][iteratonIndex as IterationIndex] =
+              status;
           }),
         );
       },
@@ -257,3 +229,22 @@ export default function PresetContent() {
     </>
   );
 }
+
+// SECTION: GraphQL
+
+const EVALUATION_MODE_CSV_CONTENT_QUERY = graphql(`
+  query EvaluationModeCSVContentQuery($spaceId: UUID!, $presetId: ID!) {
+    result: space(id: $spaceId) {
+      space {
+        id
+        csvEvaluationPreset(id: $presetId) {
+          id
+          csvContent
+          configContent
+        }
+      }
+    }
+  }
+`);
+
+// !SECTION

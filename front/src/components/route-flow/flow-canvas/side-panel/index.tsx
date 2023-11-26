@@ -8,8 +8,8 @@ import {
   FlowState,
 } from "../../state/store-flow-state-types";
 import PanelChatGPTMessageConfig from "./chat-gpt-message-config/PanelChatGPTMessageConfig";
-import PanelEvaluationModeCSV from "./csv-evaluation/PanelEvaluationModeCSV";
 import PanelNodeConfig from "./node-config/PanelNodeConfig";
+import PanelEvaluationModeCSV from "./panel-evaluation-mode-csv";
 import PanelEvaluationModeSimple from "./simple-evaluaton/PanelEvaluationModeSimple";
 
 const selector = (state: FlowState) => ({
