@@ -24,7 +24,6 @@ import {
 } from "../../../state/slice-csv-evaluation-preset";
 import { selectAllVariables } from "../../../state/state-utils";
 import { useFlowStore } from "../../../state/store-flow-state";
-import { FlowState } from "../../../state/store-flow-state-types";
 import { Section } from "../common/controls-common";
 import OutputDisplay from "../common/OutputDisplay";
 import {
@@ -32,20 +31,6 @@ import {
   CSVRow,
   CustomAccordionDetails,
 } from "./csv-evaluation-common";
-
-const selector = (state: FlowState) => ({
-  variableMap: state.variablesDict,
-  repeatCount: state.csvEvaluationConfigContent.repeatCount,
-  setRepeatCount: state.csvEvaluationSetRepeatCount,
-  concurrencyLimit: state.csvEvaluationConfigContent.concurrencyLimit,
-  setConcurrencyLimit: state.csvEvaluationSetConcurrencyLimit,
-  variableColumnMap: state.csvEvaluationConfigContent.variableColumnMap,
-  setVariableColumnMap: state.csvEvaluationSetVariableColumnMap,
-  generatedResult: state.csvEvaluationConfigContent.generatedResult,
-  setGeneratedResult: state.csvEvaluationSetGeneratedResult,
-  runStatuses: state.csvEvaluationConfigContent.runStatuses,
-  setRunStatuses: state.csvEvaluationSetRunStatuses,
-});
 
 type Props = {
   csvHeaders: CSVRow;
@@ -56,19 +41,21 @@ type Props = {
 };
 
 export default function EvaluationSectionConfigCSV(props: Props) {
+  const variableMap = useFlowStore.use.variablesDict();
   const {
-    variableMap,
     repeatCount,
-    setRepeatCount,
     concurrencyLimit,
-    setConcurrencyLimit,
     variableColumnMap,
-    setVariableColumnMap,
     generatedResult,
-    setGeneratedResult,
     runStatuses,
-    setRunStatuses,
-  } = useFlowStore(selector);
+  } = useFlowStore.use.csvEvaluationConfigContent();
+  const setRepeatCount = useFlowStore.use.csvEvaluationSetRepeatCount();
+  const setConcurrencyLimit =
+    useFlowStore.use.csvEvaluationSetConcurrencyLimit();
+  const setVariableColumnMap =
+    useFlowStore.use.csvEvaluationSetVariableColumnMap();
+  const setGeneratedResult = useFlowStore.use.csvEvaluationSetGeneratedResult();
+  const setRunStatuses = useFlowStore.use.csvEvaluationSetRunStatuses();
 
   const flowInputVariables = useMemo(() => {
     return selectAllVariables(VariableType.FlowInput, variableMap);

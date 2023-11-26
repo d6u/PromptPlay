@@ -8,44 +8,16 @@ import {
 import { client } from "../../../state/urql";
 import { FlowState } from "./store-flow-state-types";
 
-type ConfigContent = {
-  repeatCount: number;
-  concurrencyLimit: number;
-  variableColumnMap: VariableColumnMap;
-  generatedResult: GeneratedResult;
-  runStatuses: RunStatuses;
-};
-
-const DEFAULT_CONFIG_CONTENT: ConfigContent = {
-  repeatCount: 1,
-  concurrencyLimit: 2,
-  variableColumnMap: {},
-  generatedResult: [],
-  runStatuses: [],
-};
-
-export type RowIndex = number & { readonly "": unique symbol };
-export type ColumnIndex = number & { readonly "": unique symbol };
-
-export type VariableColumnMap = Record<V3VariableID, ColumnIndex | null>;
-
-export type GeneratedResult = Record<
-  RowIndex,
-  Record<ColumnIndex, V3VariableValueLookUpDict>
->;
-
-export type RunStatuses = Record<RowIndex, Record<ColumnIndex, string | null>>;
-
 export type CsvEvaluationPresetSlice = {
   csvEvaluationCurrentPresetId: string | null;
   csvEvaluationIsLoading: boolean;
 
-  // Local data that maps to server data
-  csvEvaluationCsvContent: string;
+  // Local data
+  csvEvaluationCsvStr: string;
   csvEvaluationConfigContent: ConfigContent;
 
   csvEvaluationSetCurrentPresetId(presetId: string | null): void;
-  csvEvaluationSetLocalCsvContent(csvContent: string): void;
+  csvEvaluationSetLocalCsvStr(csvStr: string): void;
 
   csvEvaluationSetLocalConfigContent(
     change: Partial<ConfigContent> | null,
@@ -83,15 +55,15 @@ export const createCsvEvaluationPresetSlice: StateCreator<
   csvEvaluationCurrentPresetId: null,
   csvEvaluationIsLoading: false,
 
-  // Local data that maps to server data
-  csvEvaluationCsvContent: "",
+  // Local data
+  csvEvaluationCsvStr: "",
   csvEvaluationConfigContent: DEFAULT_CONFIG_CONTENT,
 
   csvEvaluationSetCurrentPresetId(presetId: string | null): void {
     set({ csvEvaluationCurrentPresetId: presetId });
   },
-  csvEvaluationSetLocalCsvContent(csvContent: string): void {
-    set({ csvEvaluationCsvContent: csvContent });
+  csvEvaluationSetLocalCsvStr(csvStr: string): void {
+    set({ csvEvaluationCsvStr: csvStr });
   },
 
   csvEvaluationSetLocalConfigContent(
@@ -190,7 +162,7 @@ export const createCsvEvaluationPresetSlice: StateCreator<
   }: {
     name: string;
   }): Promise<Option<{ id: string }>> {
-    const { spaceId, csvEvaluationCsvContent: csvContent } = get();
+    const { spaceId, csvEvaluationCsvStr: csvContent } = get();
 
     if (spaceId) {
       const result = await client
@@ -207,7 +179,7 @@ export const createCsvEvaluationPresetSlice: StateCreator<
   csvEvaluationPresetUpdate({ name }: { name: string }): void {
     const {
       csvEvaluationCurrentPresetId: presetId,
-      csvEvaluationCsvContent: csvContent,
+      csvEvaluationCsvStr: csvContent,
     } = get();
 
     if (presetId) {
@@ -238,6 +210,36 @@ export const createCsvEvaluationPresetSlice: StateCreator<
     }
   },
 });
+
+export type RowIndex = number & { readonly "": unique symbol };
+export type ColumnIndex = number & { readonly "": unique symbol };
+
+export type VariableColumnMap = Record<V3VariableID, ColumnIndex | null>;
+
+export type GeneratedResult = Record<
+  RowIndex,
+  Record<ColumnIndex, V3VariableValueLookUpDict>
+>;
+
+export type RunStatuses = Record<RowIndex, Record<ColumnIndex, string | null>>;
+
+type ConfigContent = {
+  repeatCount: number;
+  concurrencyLimit: number;
+  variableColumnMap: VariableColumnMap;
+  generatedResult: GeneratedResult;
+  runStatuses: RunStatuses;
+};
+
+const DEFAULT_CONFIG_CONTENT: ConfigContent = {
+  repeatCount: 1,
+  concurrencyLimit: 2,
+  variableColumnMap: {},
+  generatedResult: [],
+  runStatuses: [],
+};
+
+// SECTION: GraphQL
 
 const CREATE_CSV_EVALUATION_PRESET_MUTATION = graphql(`
   mutation CreateCsvEvaluationPresetMutation(
@@ -295,3 +297,5 @@ const DELETE_CSV_EVALUATION_PRESET_MUTATION = graphql(`
     }
   }
 `);
+
+// !SECTION

@@ -26,8 +26,8 @@ export default function PresetContent() {
   const variablesDict = useFlowStore.use.variablesDict();
   const variableValueLookUpDicts = useFlowStore.use.variableValueLookUpDicts();
   const presetId = useFlowStore.use.csvEvaluationCurrentPresetId();
-  const csvContent = useFlowStore.use.csvEvaluationCsvContent();
-  const setCsvContent = useFlowStore.use.csvEvaluationSetLocalCsvContent();
+  const csvContent = useFlowStore.use.csvEvaluationCsvStr();
+  const setCsvContent = useFlowStore.use.csvEvaluationSetLocalCsvStr();
   const setConfigContent =
     useFlowStore.use.csvEvaluationSetLocalConfigContent();
   const { repeatCount, concurrencyLimit, variableColumnMap } =
