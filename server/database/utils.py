@@ -77,7 +77,7 @@ def create_space_with_example_content(db_user: OrmUser) -> OrmSpace:
     db_space_v2 = OrmSpace(
         name="Example space",
         owner=db_user,
-        flow_content=space_example_content(),
+        content_v3=space_example_content(),
     )
 
     return db_space_v2
@@ -88,282 +88,166 @@ def space_example_content() -> dict[str, Any]:
     return {
         "edges": [
             {
-                "id": "reactflow__edge-3upwVVYYRZZwjcuZwiTSm3upwVVYYRZZwjcuZwiTSm/messages_out-3_irf5gT1ZhuKVEElxTqg3_irf5gT1ZhuKVEElxTqg/messages_in",
-                "source": "3upwVVYYRZZwjcuZwiTSm",
-                "target": "3_irf5gT1ZhuKVEElxTqg",
-                "sourceHandle": "3upwVVYYRZZwjcuZwiTSm/messages_out",
-                "targetHandle": "3_irf5gT1ZhuKVEElxTqg/messages_in",
+                "id": "JgDcR",
+                "source": "7pl1l",
+                "target": "SpmQE",
+                "sourceHandle": "7pl1l/vCths",
+                "targetHandle": "SpmQE/9n6vr",
             },
             {
-                "id": "reactflow__edge-2XrGop8p5DrCgmXWrqJiH2XrGop8p5DrCgmXWrqJiH/messages_out-fk4ZFsHmy2ep80M7cKvPZfk4ZFsHmy2ep80M7cKvPZ/messages_in",
-                "source": "2XrGop8p5DrCgmXWrqJiH",
-                "target": "fk4ZFsHmy2ep80M7cKvPZ",
-                "sourceHandle": "2XrGop8p5DrCgmXWrqJiH/messages_out",
-                "targetHandle": "fk4ZFsHmy2ep80M7cKvPZ/messages_in",
+                "id": "WMmsm",
+                "source": "SpmQE",
+                "target": "3LMD6",
+                "sourceHandle": "SpmQE/messages_out",
+                "targetHandle": "3LMD6/messages_in",
             },
             {
-                "id": "reactflow__edge-fk4ZFsHmy2ep80M7cKvPZfk4ZFsHmy2ep80M7cKvPZ/content-v8M2HyqFV_TDsq34nktN3v8M2HyqFV_TDsq34nktN3/DtuAIv8WlAKmfGpAZcUMC",
-                "source": "fk4ZFsHmy2ep80M7cKvPZ",
-                "target": "v8M2HyqFV_TDsq34nktN3",
-                "sourceHandle": "fk4ZFsHmy2ep80M7cKvPZ/content",
-                "targetHandle": "v8M2HyqFV_TDsq34nktN3/DtuAIv8WlAKmfGpAZcUMC",
-            },
-            {
-                "id": "reactflow__edge-3_irf5gT1ZhuKVEElxTqg3_irf5gT1ZhuKVEElxTqg/content-v8M2HyqFV_TDsq34nktN3v8M2HyqFV_TDsq34nktN3/-NLoVqVvlhdv3zxtoTXzI",
-                "source": "3_irf5gT1ZhuKVEElxTqg",
-                "target": "v8M2HyqFV_TDsq34nktN3",
-                "sourceHandle": "3_irf5gT1ZhuKVEElxTqg/content",
-                "targetHandle": "v8M2HyqFV_TDsq34nktN3/-NLoVqVvlhdv3zxtoTXzI",
-            },
-            {
-                "id": "reactflow__edge-3_irf5gT1ZhuKVEElxTqg3_irf5gT1ZhuKVEElxTqg/content-2XrGop8p5DrCgmXWrqJiH2XrGop8p5DrCgmXWrqJiH/zd8RO5Q9jtkKDyZdmh5c-",
-                "source": "3_irf5gT1ZhuKVEElxTqg",
-                "target": "2XrGop8p5DrCgmXWrqJiH",
-                "sourceHandle": "3_irf5gT1ZhuKVEElxTqg/content",
-                "targetHandle": "2XrGop8p5DrCgmXWrqJiH/zd8RO5Q9jtkKDyZdmh5c-",
-            },
-            {
-                "id": "reactflow__edge-oWbAmcHY3DjD3eOHmq9H5oWbAmcHY3DjD3eOHmq9H5/6-P2EOvsbeZyv8QZ8DwX6-3upwVVYYRZZwjcuZwiTSm3upwVVYYRZZwjcuZwiTSm/GmGNV5iusJH-GGUUx7TaV",
-                "source": "oWbAmcHY3DjD3eOHmq9H5",
-                "target": "3upwVVYYRZZwjcuZwiTSm",
-                "sourceHandle": "oWbAmcHY3DjD3eOHmq9H5/6-P2EOvsbeZyv8QZ8DwX6",
-                "targetHandle": "3upwVVYYRZZwjcuZwiTSm/GmGNV5iusJH-GGUUx7TaV",
+                "id": "izsvd",
+                "source": "3LMD6",
+                "target": "fXtmo",
+                "sourceHandle": "3LMD6/content",
+                "targetHandle": "fXtmo/awpiF",
             },
         ],
         "nodes": [
             {
-                "id": "oWbAmcHY3DjD3eOHmq9H5",
+                "id": "7pl1l",
                 "data": None,
                 "type": "InputNode",
-                "width": 300,
-                "height": 132,
-                "position": {"x": -250.42481085866984, "y": 370.2400820504546},
+                "position": {"x": 285.09118547422656, "y": 101.36529230534379},
             },
             {
-                "id": "v8M2HyqFV_TDsq34nktN3",
+                "id": "3LMD6",
+                "data": None,
+                "type": "ChatGPTChatCompletionNode",
+                "position": {"x": 1130.4726993985755, "y": -161.27869905926627},
+            },
+            {
+                "id": "SpmQE",
+                "data": None,
+                "type": "ChatGPTMessageNode",
+                "position": {"x": 678.3046012028486, "y": -73.72654279097594},
+            },
+            {
+                "id": "fXtmo",
                 "data": None,
                 "type": "OutputNode",
-                "width": 300,
-                "height": 169,
-                "position": {"x": 1668.6742274498731, "y": 711.2470829560161},
-            },
-            {
-                "id": "3upwVVYYRZZwjcuZwiTSm",
-                "data": None,
-                "type": "ChatGPTMessageNode",
-                "width": 300,
-                "height": 601,
-                "position": {"x": 103, "y": 277},
-            },
-            {
-                "id": "3_irf5gT1ZhuKVEElxTqg",
-                "data": None,
-                "type": "ChatGPTChatCompletionNode",
-                "width": 300,
-                "height": 646,
-                "position": {"x": 482.87529170439836, "y": 382.4694918041199},
-            },
-            {
-                "id": "2XrGop8p5DrCgmXWrqJiH",
-                "data": None,
-                "type": "ChatGPTMessageNode",
-                "width": 300,
-                "height": 601,
-                "position": {"x": 886.8529512316734, "y": 10.637543289130988},
-            },
-            {
-                "id": "fk4ZFsHmy2ep80M7cKvPZ",
-                "data": None,
-                "type": "ChatGPTChatCompletionNode",
-                "width": 300,
-                "height": 646,
-                "position": {"x": 1284.8082702862237, "y": 35.68455786976823},
+                "position": {"x": 1532.7693161756567, "y": 110.24381088669739},
             },
         ],
-        "nodeConfigs": {
-            "2XrGop8p5DrCgmXWrqJiH": {
-                "role": "user",
-                "inputs": [
-                    {
-                        "id": "2XrGop8p5DrCgmXWrqJiH/messages_in",
-                        "name": "messages",
-                    },
-                    {
-                        "id": "2XrGop8p5DrCgmXWrqJiH/zd8RO5Q9jtkKDyZdmh5c-",
-                        "name": "content",
-                    },
-                ],
-                "nodeId": "2XrGop8p5DrCgmXWrqJiH",
-                "content": "Translate below content into Spanish:\n{{content}}",
-                "outputs": [
-                    {
-                        "id": "2XrGop8p5DrCgmXWrqJiH/message",
-                        "name": "message",
-                        "value": {
-                            "role": "user",
-                            "content": "Translate below content into Spanish:\nIn Metaverse&#39;s realm, dreams entwine,\nWhere digital pulses start to shine.\nA universe, ethereal and vast,\nWhere avatars dance and futures contrast.\nImaginary wonders, realities entwined,\nMetaverse&#39;s symphony, forever in our mind.",
-                        },
-                    },
-                    {
-                        "id": "2XrGop8p5DrCgmXWrqJiH/messages_out",
-                        "name": "messages",
-                        "value": [
-                            {
-                                "role": "user",
-                                "content": "Translate below content into Spanish:\nIn Metaverse&#39;s realm, dreams entwine,\nWhere digital pulses start to shine.\nA universe, ethereal and vast,\nWhere avatars dance and futures contrast.\nImaginary wonders, realities entwined,\nMetaverse&#39;s symphony, forever in our mind.",
-                            }
-                        ],
-                    },
-                ],
-                "nodeType": "ChatGPTMessageNode",
+        "variablesDict": {
+            "7pl1l/vCths": {
+                "id": "7pl1l/vCths",
+                "name": "in_topic",
+                "type": "FlowInput",
+                "index": 0,
+                "nodeId": "7pl1l",
+                "valueType": "String",
             },
-            "3_irf5gT1ZhuKVEElxTqg": {
-                "stop": [],
-                "model": "gpt-3.5-turbo",
-                "inputs": [
-                    {
-                        "id": "3_irf5gT1ZhuKVEElxTqg/messages_in",
-                        "name": "messages",
-                    }
-                ],
-                "nodeId": "3_irf5gT1ZhuKVEElxTqg",
-                "outputs": [
-                    {
-                        "id": "3_irf5gT1ZhuKVEElxTqg/content",
-                        "name": "content",
-                        "value": "In Metaverse's realm, dreams entwine,\nWhere digital pulses start to shine.\nA universe, ethereal and vast,\nWhere avatars dance and futures contrast.\nImaginary wonders, realities entwined,\nMetaverse's symphony, forever in our mind.",
-                    },
-                    {
-                        "id": "3_irf5gT1ZhuKVEElxTqg/message",
-                        "name": "message",
-                        "value": {
-                            "role": "assistant",
-                            "content": "In Metaverse's realm, dreams entwine,\nWhere digital pulses start to shine.\nA universe, ethereal and vast,\nWhere avatars dance and futures contrast.\nImaginary wonders, realities entwined,\nMetaverse's symphony, forever in our mind.",
-                        },
-                    },
-                    {
-                        "id": "3_irf5gT1ZhuKVEElxTqg/messages_out",
-                        "name": "messages",
-                        "value": [
-                            {
-                                "role": "user",
-                                "content": "Write a poem about Metaverse in fewer than 50 words.",
-                            },
-                            {
-                                "role": "assistant",
-                                "content": "In Metaverse's realm, dreams entwine,\nWhere digital pulses start to shine.\nA universe, ethereal and vast,\nWhere avatars dance and futures contrast.\nImaginary wonders, realities entwined,\nMetaverse's symphony, forever in our mind.",
-                            },
-                        ],
-                    },
-                ],
-                "nodeType": "ChatGPTChatCompletionNode",
-                "temperature": 1,
+            "SpmQE/9n6vr": {
+                "id": "SpmQE/9n6vr",
+                "name": "topic",
+                "type": "NodeInput",
+                "index": 1,
+                "nodeId": "SpmQE",
+                "valueType": "Unknown",
             },
-            "3upwVVYYRZZwjcuZwiTSm": {
-                "role": "user",
-                "inputs": [
-                    {
-                        "id": "3upwVVYYRZZwjcuZwiTSm/messages_in",
-                        "name": "messages",
-                    },
-                    {
-                        "id": "3upwVVYYRZZwjcuZwiTSm/GmGNV5iusJH-GGUUx7TaV",
-                        "name": "topic",
-                    },
-                ],
-                "nodeId": "3upwVVYYRZZwjcuZwiTSm",
-                "content": "Write a poem about {{topic}} in fewer than 50 words.",
-                "outputs": [
-                    {
-                        "id": "3upwVVYYRZZwjcuZwiTSm/message",
-                        "name": "message",
-                        "value": {
-                            "role": "user",
-                            "content": "Write a poem about Metaverse in fewer than 50 words.",
-                        },
-                    },
-                    {
-                        "id": "3upwVVYYRZZwjcuZwiTSm/messages_out",
-                        "name": "messages",
-                        "value": [
-                            {
-                                "role": "user",
-                                "content": "Write a poem about Metaverse in fewer than 50 words.",
-                            }
-                        ],
-                    },
-                ],
-                "nodeType": "ChatGPTMessageNode",
+            "fXtmo/awpiF": {
+                "id": "fXtmo/awpiF",
+                "name": "poem",
+                "type": "FlowOutput",
+                "index": 0,
+                "nodeId": "fXtmo",
+                "valueType": "String",
             },
-            "fk4ZFsHmy2ep80M7cKvPZ": {
-                "stop": [],
-                "model": "gpt-3.5-turbo",
-                "inputs": [
-                    {
-                        "id": "fk4ZFsHmy2ep80M7cKvPZ/messages_in",
-                        "name": "messages",
-                    }
-                ],
-                "nodeId": "fk4ZFsHmy2ep80M7cKvPZ",
-                "outputs": [
-                    {
-                        "id": "fk4ZFsHmy2ep80M7cKvPZ/content",
-                        "name": "content",
-                        "value": "En el reino del Metaverso, los sueños se entrelazan,\nDonde los pulsos digitales comienzan a brillar.\nUn universo, etéreo y vasto,\nDonde los avatares bailan y los futuros contrastan.\nMaravillas imaginarias, realidades entrelazadas,\nLa sinfonía del Metaverso, siempre en nuestra mente.",
-                    },
-                    {
-                        "id": "fk4ZFsHmy2ep80M7cKvPZ/message",
-                        "name": "message",
-                        "value": {
-                            "role": "assistant",
-                            "content": "En el reino del Metaverso, los sueños se entrelazan,\nDonde los pulsos digitales comienzan a brillar.\nUn universo, etéreo y vasto,\nDonde los avatares bailan y los futuros contrastan.\nMaravillas imaginarias, realidades entrelazadas,\nLa sinfonía del Metaverso, siempre en nuestra mente.",
-                        },
-                    },
-                    {
-                        "id": "fk4ZFsHmy2ep80M7cKvPZ/messages_out",
-                        "name": "messages",
-                        "value": [
-                            {
-                                "role": "user",
-                                "content": "Translate below content into Spanish:\nIn Metaverse&#39;s realm, dreams entwine,\nWhere digital pulses start to shine.\nA universe, ethereal and vast,\nWhere avatars dance and futures contrast.\nImaginary wonders, realities entwined,\nMetaverse&#39;s symphony, forever in our mind.",
-                            },
-                            {
-                                "role": "assistant",
-                                "content": "En el reino del Metaverso, los sueños se entrelazan,\nDonde los pulsos digitales comienzan a brillar.\nUn universo, etéreo y vasto,\nDonde los avatares bailan y los futuros contrastan.\nMaravillas imaginarias, realidades entrelazadas,\nLa sinfonía del Metaverso, siempre en nuestra mente.",
-                            },
-                        ],
-                    },
-                ],
-                "nodeType": "ChatGPTChatCompletionNode",
-                "temperature": 1,
+            "3LMD6/content": {
+                "id": "3LMD6/content",
+                "name": "content",
+                "type": "NodeOutput",
+                "index": 0,
+                "nodeId": "3LMD6",
+                "valueType": "Unknown",
             },
-            "oWbAmcHY3DjD3eOHmq9H5": {
-                "nodeId": "oWbAmcHY3DjD3eOHmq9H5",
-                "outputs": [
-                    {
-                        "id": "oWbAmcHY3DjD3eOHmq9H5/6-P2EOvsbeZyv8QZ8DwX6",
-                        "name": "topic",
-                        "value": "Metaverse",
-                        "valueType": "String",
-                    }
-                ],
-                "nodeType": "InputNode",
+            "3LMD6/message": {
+                "id": "3LMD6/message",
+                "name": "message",
+                "type": "NodeOutput",
+                "index": 1,
+                "nodeId": "3LMD6",
+                "valueType": "Unknown",
             },
-            "v8M2HyqFV_TDsq34nktN3": {
-                "inputs": [
-                    {
-                        "id": "v8M2HyqFV_TDsq34nktN3/-NLoVqVvlhdv3zxtoTXzI",
-                        "name": "english",
-                        "value": "In Metaverse's realm, dreams entwine,\nWhere digital pulses start to shine.\nA universe, ethereal and vast,\nWhere avatars dance and futures contrast.\nImaginary wonders, realities entwined,\nMetaverse's symphony, forever in our mind.",
-                    },
-                    {
-                        "id": "v8M2HyqFV_TDsq34nktN3/DtuAIv8WlAKmfGpAZcUMC",
-                        "name": "spanish",
-                        "value": "En el reino del Metaverso, los sueños se entrelazan,\nDonde los pulsos digitales comienzan a brillar.\nUn universo, etéreo y vasto,\nDonde los avatares bailan y los futuros contrastan.\nMaravillas imaginarias, realidades entrelazadas,\nLa sinfonía del Metaverso, siempre en nuestra mente.",
-                    },
-                ],
-                "nodeId": "v8M2HyqFV_TDsq34nktN3",
-                "nodeType": "OutputNode",
+            "SpmQE/message": {
+                "id": "SpmQE/message",
+                "name": "message",
+                "type": "NodeOutput",
+                "index": 0,
+                "nodeId": "SpmQE",
+                "valueType": "Unknown",
+            },
+            "3LMD6/messages_in": {
+                "id": "3LMD6/messages_in",
+                "name": "messages",
+                "type": "NodeInput",
+                "index": 0,
+                "nodeId": "3LMD6",
+                "valueType": "Unknown",
+            },
+            "SpmQE/messages_in": {
+                "id": "SpmQE/messages_in",
+                "name": "messages",
+                "type": "NodeInput",
+                "index": 0,
+                "nodeId": "SpmQE",
+                "valueType": "Unknown",
+            },
+            "3LMD6/messages_out": {
+                "id": "3LMD6/messages_out",
+                "name": "messages",
+                "type": "NodeOutput",
+                "index": 2,
+                "nodeId": "3LMD6",
+                "valueType": "Unknown",
+            },
+            "SpmQE/messages_out": {
+                "id": "SpmQE/messages_out",
+                "name": "messages",
+                "type": "NodeOutput",
+                "index": 1,
+                "nodeId": "SpmQE",
+                "valueType": "Unknown",
             },
         },
+        "nodeConfigsDict": {
+            "3LMD6": {
+                "seed": None,
+                "stop": [],
+                "type": "ChatGPTChatCompletionNode",
+                "model": "gpt-4",
+                "nodeId": "3LMD6",
+                "temperature": 1,
+                "responseFormatType": None,
+            },
+            "7pl1l": {"type": "InputNode", "nodeId": "7pl1l"},
+            "SpmQE": {
+                "role": "user",
+                "type": "ChatGPTMessageNode",
+                "nodeId": "SpmQE",
+                "content": "Write a poem about {{topic}} in fewer than 20 words.",
+            },
+            "fXtmo": {"type": "OutputNode", "nodeId": "fXtmo"},
+        },
+        "variableValueLookUpDicts": [
+            {
+                "7pl1l/vCths": "the earth",
+                "SpmQE/9n6vr": None,
+                "fXtmo/awpiF": None,
+                "3LMD6/content": None,
+                "3LMD6/message": None,
+                "SpmQE/message": None,
+                "3LMD6/messages_in": None,
+                "SpmQE/messages_in": None,
+                "3LMD6/messages_out": None,
+                "SpmQE/messages_out": None,
+            }
+        ],
     }

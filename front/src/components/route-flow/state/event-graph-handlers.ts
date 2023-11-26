@@ -11,6 +11,7 @@ import {
 } from "reactflow";
 import invariant from "ts-invariant";
 import {
+  EdgeID,
   LocalNode,
   NodeID,
   NodeType,
@@ -260,6 +261,8 @@ function handleRfOnConnect(
 
   const nextEdges = addEdge(connection, prevEdges) as V3LocalEdge[];
   const addedEdge = A.difference(nextEdges, prevEdges)[0];
+  // Assign a shorter ID for readability
+  addedEdge.id = randomId() as EdgeID;
 
   invariant(addedEdge != null);
 

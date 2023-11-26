@@ -6,15 +6,192 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useMutation, useQuery } from "urql";
 import { PROVIDE_FEEDBACK_LINK } from "../../../constants";
+import { graphql } from "../../../gql";
 import { useLocalStorageStore } from "../../../state/appState";
 import { LOGIN_PATH, LOGOUT_PATH } from "../../../utils/route-utils";
 import IconLogout from "../../icons/IconLogout";
-import {
-  HEADER_QUERY,
-  MERGE_PLACEHOLDER_USER_WITH_LOGGED_IN_USER_MUTATION,
-} from "../../route-root/rootGraphql";
 import StyleResetLink from "../StyleResetLink";
 import SpaceName from "./SpaceName";
+
+export default function Header() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const isNewUser = searchParams.get("new_user") === "true";
+
+  const placeholderUserToken = useLocalStorageStore.use.placeholderUserToken();
+  const setPlaceholderUserToken =
+    useLocalStorageStore.use.setPlaceholderUserToken();
+
+  const [queryResult] = useQuery({
+    query: HEADER_QUERY,
+    requestPolicy: "network-only",
+  });
+
+  const isPlaceholderUserTokenInvalid =
+    queryResult.data?.isPlaceholderUserTokenInvalid === true;
+  const isLoggedIn = queryResult.data?.isLoggedIn === true;
+  const userId = queryResult.data?.user?.id;
+  const email = queryResult.data?.user?.email;
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      posthog.identify(userId, { email });
+    }
+  }, [email, isLoggedIn, userId]);
+
+  const [, mergePlaceholderUserWithLoggedInUser] = useMutation(
+    MERGE_PLACEHOLDER_USER_WITH_LOGGED_IN_USER_MUTATION,
+  );
+
+  useEffect(() => {
+    // TODO: Putting this logic in this component is pretty ad-hoc, and this
+    // will break if Header is not always rendered on page.
+
+    maybeMergeUsers();
+
+    async function maybeMergeUsers() {
+      if (!placeholderUserToken) {
+        return;
+      }
+
+      if (isPlaceholderUserTokenInvalid) {
+        setPlaceholderUserToken(null);
+        return;
+      }
+
+      if (isLoggedIn && isNewUser) {
+        setSearchParams({});
+
+        await mergePlaceholderUserWithLoggedInUser({
+          placeholderUserToken,
+        });
+
+        setPlaceholderUserToken(null);
+      }
+    }
+  }, [
+    isPlaceholderUserTokenInvalid,
+    isLoggedIn,
+    isNewUser,
+    placeholderUserToken,
+    setPlaceholderUserToken,
+    setSearchParams,
+    mergePlaceholderUserWithLoggedInUser,
+  ]);
+
+  const [useNarrowLayout, setUseNarrowLayout] = useState(
+    window.innerWidth < 900,
+  );
+
+  useEffect(() => {
+    function handleResize() {
+      if (window.innerWidth < 900) {
+        setUseNarrowLayout(true);
+      } else {
+        setUseNarrowLayout(false);
+      }
+    }
+    window.addEventListener("resize", handleResize, { passive: true });
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
+  if (queryResult.fetching) {
+    return <div>Loading...</div>;
+  }
+
+  if (queryResult.error || !queryResult.data) {
+    return <div>Error! {queryResult.error?.message}</div>;
+  }
+
+  return (
+    <Container>
+      <LogoContainer>
+        <StyleResetLink to="/">
+          <Logo>PromptPlay.xyz</Logo>
+        </StyleResetLink>
+        <FeedbackLink
+          href={PROVIDE_FEEDBACK_LINK}
+          target="_blank"
+          rel="noreferrer"
+        >
+          {useNarrowLayout ? "Feedback" : "Give Feedback"}
+        </FeedbackLink>
+      </LogoContainer>
+      <SpaceNameContainer>
+        <SpaceName />
+      </SpaceNameContainer>
+      <AccountManagementContainer>
+        {queryResult.data?.isLoggedIn ? (
+          <>
+            {queryResult.data.user?.profilePictureUrl && (
+              <ProfilePicture
+                src={queryResult.data.user?.profilePictureUrl}
+                alt="profile-pic"
+                referrerPolicy="no-referrer"
+              />
+            )}
+            {useNarrowLayout ? null : (
+              <Email>{queryResult.data.user?.email}</Email>
+            )}
+            {useNarrowLayout ? (
+              <IconButton onClick={() => window.location.assign(LOGOUT_PATH)}>
+                <StyledLogoutIcon />
+              </IconButton>
+            ) : (
+              <Button
+                variant="plain"
+                onClick={() => window.location.assign(LOGOUT_PATH)}
+              >
+                Log Out
+              </Button>
+            )}
+          </>
+        ) : (
+          <Button
+            color="success"
+            onClick={() => window.location.assign(LOGIN_PATH)}
+          >
+            {useNarrowLayout ? "Login" : "Log in / Sign up"}
+          </Button>
+        )}
+      </AccountManagementContainer>
+    </Container>
+  );
+}
+
+// SECTION: GraphQL
+
+const HEADER_QUERY = graphql(`
+  query HeaderQuery {
+    isLoggedIn
+    isPlaceholderUserTokenInvalid
+    user {
+      id
+      email
+      profilePictureUrl
+    }
+  }
+`);
+
+const MERGE_PLACEHOLDER_USER_WITH_LOGGED_IN_USER_MUTATION = graphql(`
+  mutation MergePlaceholderUserWithLoggedInUserMutation(
+    $placeholderUserToken: String!
+  ) {
+    result: mergePlaceholderUserWithLoggedInUser(
+      placeholderUserToken: $placeholderUserToken
+    ) {
+      id
+      spaces {
+        id
+      }
+    }
+  }
+`);
+
+// !SECTION
+
+// SECTION: UI Components
 
 const Container = styled.div`
   height: 51px;
@@ -115,146 +292,4 @@ const StyledLogoutIcon = styled(IconLogout)`
   width: 20px;
 `;
 
-export default function Header() {
-  const [searchParams, setSearchParams] = useSearchParams();
-
-  const placeholderUserToken = useLocalStorageStore(
-    (state) => state.placeholderUserToken
-  );
-  const setPlaceholderUserToken = useLocalStorageStore(
-    (state) => state.setPlaceholderUserToken
-  );
-
-  const [, mergePlaceholderUserWithLoggedInUser] = useMutation(
-    MERGE_PLACEHOLDER_USER_WITH_LOGGED_IN_USER_MUTATION
-  );
-
-  const [queryResult] = useQuery({
-    query: HEADER_QUERY,
-    requestPolicy: "network-only",
-  });
-
-  const isNewUser = searchParams.get("new_user") === "true";
-  const isPlaceholderUserTokenInvalid =
-    queryResult.data?.isPlaceholderUserTokenInvalid === true;
-  const isLoggedIn = queryResult.data?.isLoggedIn === true;
-  const userId = queryResult.data?.user?.id;
-  const email = queryResult.data?.user?.email;
-
-  useEffect(() => {
-    if (isLoggedIn) {
-      posthog.identify(userId, { email });
-    }
-  }, [email, isLoggedIn, userId]);
-
-  // TODO: Putting this logic in this component is pretty ad-hoc, and this will
-  // break if Header is not always rendered on page.
-  useEffect(() => {
-    if (!placeholderUserToken) {
-      return;
-    }
-
-    if (isPlaceholderUserTokenInvalid) {
-      setPlaceholderUserToken(null);
-    }
-
-    if (!isPlaceholderUserTokenInvalid && isLoggedIn && isNewUser) {
-      setSearchParams({});
-
-      mergePlaceholderUserWithLoggedInUser({
-        placeholderUserToken,
-      }).then(() => {
-        setPlaceholderUserToken(null);
-      });
-    }
-  }, [
-    isPlaceholderUserTokenInvalid,
-    isLoggedIn,
-    isNewUser,
-    placeholderUserToken,
-    setPlaceholderUserToken,
-    setSearchParams,
-    mergePlaceholderUserWithLoggedInUser,
-  ]);
-
-  const [useNarrowLayout, setUseNarrowLayout] = useState(
-    window.innerWidth < 900
-  );
-
-  useEffect(() => {
-    function handleResize() {
-      if (window.innerWidth < 900) {
-        setUseNarrowLayout(true);
-      } else {
-        setUseNarrowLayout(false);
-      }
-    }
-    window.addEventListener("resize", handleResize, { passive: true });
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, []);
-
-  if (queryResult.fetching) {
-    return <div>Loading...</div>;
-  }
-
-  if (queryResult.error || !queryResult.data) {
-    return <div>Error! {queryResult.error?.message}</div>;
-  }
-
-  return (
-    <Container>
-      <LogoContainer>
-        <StyleResetLink to="/">
-          <Logo>PromptPlay.xyz</Logo>
-        </StyleResetLink>
-        <FeedbackLink
-          href={PROVIDE_FEEDBACK_LINK}
-          target="_blank"
-          rel="noreferrer"
-        >
-          {useNarrowLayout ? "Feedback" : "Give Feedback"}
-        </FeedbackLink>
-      </LogoContainer>
-      <SpaceNameContainer>
-        <SpaceName />
-      </SpaceNameContainer>
-      <AccountManagementContainer>
-        {queryResult.data?.isLoggedIn ? (
-          <>
-            {queryResult.data.user?.profilePictureUrl && (
-              <ProfilePicture
-                src={queryResult.data.user?.profilePictureUrl}
-                alt="profile-pic"
-                referrerPolicy="no-referrer"
-              />
-            )}
-            {useNarrowLayout ? null : (
-              <Email>{queryResult.data.user?.email}</Email>
-            )}
-            {useNarrowLayout ? (
-              <IconButton onClick={() => window.location.assign(LOGOUT_PATH)}>
-                <StyledLogoutIcon />
-              </IconButton>
-            ) : (
-              <Button
-                variant="plain"
-                onClick={() => window.location.assign(LOGOUT_PATH)}
-              >
-                Log Out
-              </Button>
-            )}
-          </>
-        ) : (
-          <Button
-            color="success"
-            onClick={() => window.location.assign(LOGIN_PATH)}
-          >
-            {useNarrowLayout ? "Login" : "Log in / Sign up"}
-          </Button>
-        )}
-      </AccountManagementContainer>
-    </Container>
-  );
-}
+// !SECTION
