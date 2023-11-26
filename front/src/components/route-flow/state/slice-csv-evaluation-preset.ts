@@ -26,14 +26,18 @@ export type CsvEvaluationPresetSlice = {
   csvEvaluationSetConcurrencyLimit(concurrencyLimit: number): void;
   csvEvaluationSetVariableColumnMap(
     update:
-      | ((prev: VariableColumnMap) => VariableColumnMap)
-      | VariableColumnMap,
+      | ((
+          prev: VariableIdToCsvColumnIndexLookUpDict,
+        ) => VariableIdToCsvColumnIndexLookUpDict)
+      | VariableIdToCsvColumnIndexLookUpDict,
   ): void;
   csvEvaluationSetGeneratedResult(
-    update: ((prev: GeneratedResult) => GeneratedResult) | GeneratedResult,
+    update:
+      | ((prev: CsvRunResultTable) => CsvRunResultTable)
+      | CsvRunResultTable,
   ): void;
   csvEvaluationSetRunStatuses(
-    update: ((prev: RunStatuses) => RunStatuses) | RunStatuses,
+    update: ((prev: RunStatusTable) => RunStatusTable) | RunStatusTable,
   ): void;
 
   // Write
@@ -92,15 +96,19 @@ export const createCsvEvaluationPresetSlice: StateCreator<
   },
   csvEvaluationSetVariableColumnMap(
     update:
-      | ((prev: VariableColumnMap) => VariableColumnMap)
-      | VariableColumnMap,
+      | ((
+          prev: VariableIdToCsvColumnIndexLookUpDict,
+        ) => VariableIdToCsvColumnIndexLookUpDict)
+      | VariableIdToCsvColumnIndexLookUpDict,
   ): void {
     if (G.isFunction(update)) {
       set((state) => {
         const configContent = state.csvEvaluationConfigContent;
         return {
           csvEvaluationConfigContent: D.merge(configContent, {
-            variableColumnMap: update(configContent.variableColumnMap),
+            variableColumnMap: update(
+              configContent.variableIdToCsvColumnIndexLookUpDict,
+            ),
           }),
         };
       });
@@ -114,14 +122,16 @@ export const createCsvEvaluationPresetSlice: StateCreator<
     }
   },
   csvEvaluationSetGeneratedResult(
-    update: ((prev: GeneratedResult) => GeneratedResult) | GeneratedResult,
+    update:
+      | ((prev: CsvRunResultTable) => CsvRunResultTable)
+      | CsvRunResultTable,
   ): void {
     if (G.isFunction(update)) {
       set((state) => {
         const configContent = state.csvEvaluationConfigContent;
         return {
           csvEvaluationConfigContent: D.merge(configContent, {
-            generatedResult: update(configContent.generatedResult),
+            generatedResult: update(configContent.csvRunResultTable),
           }),
         };
       });
@@ -135,14 +145,14 @@ export const createCsvEvaluationPresetSlice: StateCreator<
     }
   },
   csvEvaluationSetRunStatuses(
-    update: ((prev: RunStatuses) => RunStatuses) | RunStatuses,
+    update: ((prev: RunStatusTable) => RunStatusTable) | RunStatusTable,
   ) {
     if (G.isFunction(update)) {
       set((state) => {
         const configContent = state.csvEvaluationConfigContent;
         return {
           csvEvaluationConfigContent: D.merge(configContent, {
-            runStatuses: update(configContent.runStatuses),
+            runStatuses: update(configContent.runStatusTable),
           }),
         };
       });
@@ -211,32 +221,39 @@ export const createCsvEvaluationPresetSlice: StateCreator<
   },
 });
 
-export type RowIndex = number & { readonly "": unique symbol };
-export type ColumnIndex = number & { readonly "": unique symbol };
-
-export type VariableColumnMap = Record<V3VariableID, ColumnIndex | null>;
-
-export type GeneratedResult = Record<
-  RowIndex,
-  Record<ColumnIndex, V3VariableValueLookUpDict>
->;
-
-export type RunStatuses = Record<RowIndex, Record<ColumnIndex, string | null>>;
-
 type ConfigContent = {
-  repeatCount: number;
+  repeatTimes: number;
   concurrencyLimit: number;
-  variableColumnMap: VariableColumnMap;
-  generatedResult: GeneratedResult;
-  runStatuses: RunStatuses;
+  variableIdToCsvColumnIndexLookUpDict: VariableIdToCsvColumnIndexLookUpDict;
+  csvRunResultTable: CsvRunResultTable;
+  runStatusTable: RunStatusTable;
 };
 
+export type RowIndex = number & { readonly "": unique symbol };
+export type ColumnIndex = number & { readonly "": unique symbol };
+export type IterationIndex = number & { readonly "": unique symbol };
+
+export type VariableIdToCsvColumnIndexLookUpDict = Record<
+  V3VariableID,
+  ColumnIndex | null
+>;
+
+export type CsvRunResultTable = Record<
+  RowIndex,
+  Record<IterationIndex, V3VariableValueLookUpDict>
+>;
+
+export type RunStatusTable = Record<
+  RowIndex,
+  Record<IterationIndex, string | null>
+>;
+
 const DEFAULT_CONFIG_CONTENT: ConfigContent = {
-  repeatCount: 1,
+  repeatTimes: 1,
   concurrencyLimit: 2,
-  variableColumnMap: {},
-  generatedResult: [],
-  runStatuses: [],
+  variableIdToCsvColumnIndexLookUpDict: {},
+  csvRunResultTable: [],
+  runStatusTable: [],
 };
 
 // SECTION: GraphQL

@@ -10,6 +10,7 @@ import { graphql } from "../../../../../gql";
 import { V3VariableValueLookUpDict } from "../../../../../models/v3-flow-content-types";
 import {
   ColumnIndex,
+  IterationIndex,
   RowIndex,
 } from "../../../state/slice-csv-evaluation-preset";
 import { useFlowStore } from "../../../state/store-flow-state";
@@ -30,8 +31,11 @@ export default function PresetContent() {
   const setCsvContent = useFlowStore.use.csvEvaluationSetLocalCsvStr();
   const setConfigContent =
     useFlowStore.use.csvEvaluationSetLocalConfigContent();
-  const { repeatCount, concurrencyLimit, variableColumnMap } =
-    useFlowStore.use.csvEvaluationConfigContent();
+  const {
+    repeatTimes: repeatCount,
+    concurrencyLimit,
+    variableIdToCsvColumnIndexLookUpDict: variableColumnMap,
+  } = useFlowStore.use.csvEvaluationConfigContent();
   const setGeneratedResult = useFlowStore.use.csvEvaluationSetGeneratedResult();
   const setRunStatuses = useFlowStore.use.csvEvaluationSetRunStatuses();
 
@@ -128,15 +132,15 @@ export default function PresetContent() {
       repeatCount,
       concurrencyLimit,
     }).subscribe({
-      next({ iteratonIndex: colIndex, rowIndex, outputs, status }) {
-        console.debug({ rowIndex, colIndex, outputs, status });
+      next({ iteratonIndex, rowIndex, outputs, status }) {
+        console.debug({ rowIndex, iteratonIndex, outputs, status });
 
         setGeneratedResult((prev) => {
           let row = prev[rowIndex as RowIndex]!;
 
           row = A.updateAt(
             row as Array<V3VariableValueLookUpDict>,
-            colIndex,
+            iteratonIndex,
             D.merge(outputs),
           );
 
@@ -149,7 +153,8 @@ export default function PresetContent() {
 
         setRunStatuses((prev) =>
           produce(prev, (draft) => {
-            draft[rowIndex as RowIndex][colIndex as ColumnIndex] = status;
+            draft[rowIndex as RowIndex][iteratonIndex as IterationIndex] =
+              status;
           }),
         );
       },

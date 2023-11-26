@@ -20,6 +20,7 @@ import {
 } from "../../../../../models/v3-flow-content-types";
 import {
   ColumnIndex,
+  IterationIndex,
   RowIndex,
 } from "../../../state/slice-csv-evaluation-preset";
 import { selectAllVariables } from "../../../state/state-utils";
@@ -37,13 +38,14 @@ type Props = {
 };
 
 export default function EvaluationSectionConfigCSV(props: Props) {
+  // SECTION: Select state from store
   const variableMap = useFlowStore.use.variablesDict();
   const {
-    repeatCount,
+    repeatTimes: repeatCount,
     concurrencyLimit,
-    variableColumnMap,
-    generatedResult,
-    runStatuses,
+    variableIdToCsvColumnIndexLookUpDict,
+    csvRunResultTable: generatedResult,
+    runStatusTable: runStatuses,
   } = useFlowStore.use.csvEvaluationConfigContent();
   const setRepeatCount = useFlowStore.use.csvEvaluationSetRepeatCount();
   const setConcurrencyLimit =
@@ -52,6 +54,7 @@ export default function EvaluationSectionConfigCSV(props: Props) {
     useFlowStore.use.csvEvaluationSetVariableColumnMap();
   const setGeneratedResult = useFlowStore.use.csvEvaluationSetGeneratedResult();
   const setRunStatuses = useFlowStore.use.csvEvaluationSetRunStatuses();
+  // !SECTION
 
   const flowInputVariables = useMemo(() => {
     return selectAllVariables(VariableType.FlowInput, variableMap);
@@ -62,6 +65,9 @@ export default function EvaluationSectionConfigCSV(props: Props) {
   }, [variableMap]);
 
   useEffect(() => {
+    // NOTE: Everytime flow input/output variables change, reset the variable
+    // ID to CSV column index lookup table.
+
     const data: Record<V3VariableID, ColumnIndex | null> = {};
 
     for (const inputItem of flowInputVariables) {
@@ -76,6 +82,9 @@ export default function EvaluationSectionConfigCSV(props: Props) {
   }, [setVariableColumnMap, flowInputVariables, flowOutputVariables]);
 
   useEffect(() => {
+    // NOTE: CSV body row count change, or repeat count change,
+    // reset the generated result.
+
     setGeneratedResult(
       A.makeWithIndex(props.csvBody.length, () =>
         A.makeWithIndex(repeatCount, D.makeEmpty<V3VariableValueLookUpDict>),
@@ -124,17 +133,17 @@ export default function EvaluationSectionConfigCSV(props: Props) {
       <th key={inputItem.id}>
         <Select
           placeholder="Choose a column"
-          value={variableColumnMap[inputItem.id]}
-          onChange={(e, index) => {
+          value={variableIdToCsvColumnIndexLookUpDict[inputItem.id]}
+          onChange={(_event, index) => {
             setVariableColumnMap((prev) => ({
               ...prev,
               [inputItem.id]: index,
             }));
           }}
         >
-          {props.csvHeaders.filter(F.identity).map((item, i) => (
-            <Option key={i} value={i}>
-              {item}
+          {props.csvHeaders.filter(F.identity).map((name, index) => (
+            <Option key={index} value={index}>
+              {name}
             </Option>
           ))}
         </Select>
@@ -157,7 +166,7 @@ export default function EvaluationSectionConfigCSV(props: Props) {
       <th key={outputItem.id}>
         <Select
           placeholder="Choose a column"
-          value={variableColumnMap[outputItem.id]}
+          value={variableIdToCsvColumnIndexLookUpDict[outputItem.id]}
           onChange={(e, index) => {
             setVariableColumnMap((prev) => ({
               ...prev,
@@ -195,7 +204,7 @@ export default function EvaluationSectionConfigCSV(props: Props) {
     // Columns for "Status"
     for (let colIndex = 0; colIndex < repeatCount; colIndex++) {
       const statusValue =
-        runStatuses[rowIndex as RowIndex]?.[colIndex as ColumnIndex] ?? null;
+        runStatuses[rowIndex as RowIndex]?.[colIndex as IterationIndex] ?? null;
       cells.push(
         <td
           key={`status-${rowIndex}-${colIndex}`}
@@ -208,7 +217,7 @@ export default function EvaluationSectionConfigCSV(props: Props) {
 
     // Input columns
     for (const inputItem of flowInputVariables) {
-      const index = variableColumnMap[inputItem.id];
+      const index = variableIdToCsvColumnIndexLookUpDict[inputItem.id];
       cells.push(
         <td key={`${inputItem.id}`}>{index !== null ? row[index] : ""}</td>,
       );
@@ -216,14 +225,14 @@ export default function EvaluationSectionConfigCSV(props: Props) {
 
     // Output columns
     for (const outputItem of flowOutputVariables) {
-      const index = variableColumnMap[outputItem.id];
+      const index = variableIdToCsvColumnIndexLookUpDict[outputItem.id];
       cells.push(
         <td key={`${outputItem.id}`}>{index !== null ? row[index] : ""}</td>,
       );
 
       for (let colIndex = 0; colIndex < repeatCount; colIndex++) {
         const value =
-          generatedResult[rowIndex as RowIndex]?.[colIndex as ColumnIndex]?.[
+          generatedResult[rowIndex as RowIndex]?.[colIndex as IterationIndex]?.[
             outputItem.id
           ] ?? "";
 
@@ -313,7 +322,8 @@ export default function EvaluationSectionConfigCSV(props: Props) {
               for (const inputItem of flowInputVariables) {
                 resultCsv[0].push(inputItem.name);
 
-                const index = variableColumnMap[inputItem.id];
+                const index =
+                  variableIdToCsvColumnIndexLookUpDict[inputItem.id];
                 resultCsv[1].push(
                   index != null
                     ? props.csvHeaders.filter(F.identity)[index]
@@ -351,19 +361,21 @@ export default function EvaluationSectionConfigCSV(props: Props) {
 
                 // Inputs
                 for (const inputItem of flowInputVariables) {
-                  const index = variableColumnMap[inputItem.id];
+                  const index =
+                    variableIdToCsvColumnIndexLookUpDict[inputItem.id];
                   cells.push(index !== null ? row[index] : "");
                 }
 
                 // Outputs
                 for (const outputItem of flowOutputVariables) {
-                  const index = variableColumnMap[outputItem.id];
+                  const index =
+                    variableIdToCsvColumnIndexLookUpDict[outputItem.id];
                   cells.push(index !== null ? row[index] : "");
 
                   for (let i = 0; i < repeatCount; i++) {
                     const value =
                       generatedResult[rowIndex as RowIndex]?.[
-                        i as ColumnIndex
+                        i as IterationIndex
                       ]?.[outputItem.id] ?? "";
 
                     cells.push(
