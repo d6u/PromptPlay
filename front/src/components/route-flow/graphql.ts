@@ -22,7 +22,7 @@ const SPACE_FLOW_QUERY = graphql(`
 
 const UPDATE_SPACE_CONTENT_V3_MUTATION = graphql(`
   mutation UpdateSpaceContentV3Mutation($spaceId: ID!, $contentV3: String!) {
-    updateSpace(id: $spaceId, contentV3: $contentV3) {
+    updateSpace(id: $spaceId, contentVersion: v3, contentV3: $contentV3) {
       id
       contentV3
     }

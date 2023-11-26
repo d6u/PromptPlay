@@ -7,7 +7,7 @@ from server.database.orm.user import OrmUser
 from server.database.utils import space_example_content
 
 from ..context import Info
-from ..types import Space
+from ..types import ContentVersion, Space
 from ..utils import ensure_db_user
 
 
@@ -40,6 +40,7 @@ class MutationSpace:
         db_user: OrmUser,
         id: strawberry.ID,
         name: str | None = strawberry.UNSET,
+        content_version: ContentVersion | None = strawberry.UNSET,
         content: str | None = strawberry.UNSET,
         flow_content: str | None = strawberry.UNSET,
         content_v3: str | None = strawberry.UNSET,
@@ -55,6 +56,13 @@ class MutationSpace:
             raise Exception("name cannot be null")
         elif name != strawberry.UNSET:
             db_space.name = name
+
+        if content_version == None:
+            raise Exception("content_version cannot be null")
+        elif content_version == ContentVersion.v1:
+            raise Exception("content_version cannot be v1")
+        elif content_version != strawberry.UNSET:
+            db_space.content_version = content_version
 
         if content == None:
             db_space.content = None

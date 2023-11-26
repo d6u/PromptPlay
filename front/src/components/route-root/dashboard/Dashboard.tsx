@@ -2,8 +2,7 @@ import styled from "@emotion/styled";
 import { useNavigate } from "react-router-dom";
 import { useMutation } from "urql";
 import { FragmentType, graphql, useFragment } from "../../../gql";
-import { ContentVersion } from "../../../gql/graphql";
-import { pathToFlow } from "../../../utils/route-utils";
+import { pathToCurrentContent, pathToFlow } from "../../../utils/route-utils";
 import DashboardTile from "./DashboardTile";
 import { DashboardTileType } from "./dashboardTypes";
 
@@ -59,16 +58,7 @@ export default function Dashboard({
         {dashboard.spaces.map((space) => {
           const id = space.id;
           const name = space.name;
-          let url;
-
-          switch (space.contentVersion) {
-            case ContentVersion.V1:
-              url = "";
-              break;
-            case ContentVersion.V2:
-              url = pathToFlow(id);
-              break;
-          }
+          const url = pathToCurrentContent(id, space.contentVersion);
 
           return (
             <DashboardTile key={id} type={DashboardTileType.SPACE} href={url}>

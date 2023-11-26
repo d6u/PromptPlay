@@ -265,6 +265,7 @@ function createFlowContentHandler(
 
     const version = result.data.result.space.contentVersion;
     const contentV2Str = result.data.result.space.flowContent;
+    const contentV3Str = result.data.result.space.contentV3;
 
     // TODO: Report to telemetry
     invariant(version != ContentVersion.V1);
@@ -277,6 +278,11 @@ function createFlowContentHandler(
         const contentV3 = convertV2ContentToV3Content(contentV2);
         await updateSpaceContentV3(spaceId, contentV3);
         return contentV3;
+      }
+      case ContentVersion.V3: {
+        invariant(contentV3Str != null);
+        // TODO: Report parse error to telemetry
+        return JSON.parse(contentV3Str) as V3FlowContent;
       }
     }
   };
