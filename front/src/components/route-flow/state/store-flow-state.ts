@@ -1,5 +1,5 @@
 import { createStore } from "zustand";
-import { devtools } from "zustand/middleware";
+import { zukeeperTsLogger } from "../../../utils/zustand-utils";
 import { createCsvEvaluationPresetSlice } from "./slice-csv-evaluation-preset";
 import { createFlowServerSliceV2 } from "./slice-flow-content-v3";
 import { createRootSlice } from "./slice-root";
@@ -11,18 +11,11 @@ type InitProps = {
 
 export function createFlowStore(initProps: InitProps) {
   return createStore<FlowState>()(
-    devtools(
-      (...a) => ({
-        ...createRootSlice(initProps)(...a),
-        ...createFlowServerSliceV2(...a),
-        ...createCsvEvaluationPresetSlice(...a),
-      }),
-      {
-        enabled: true,
-        store: "FlowStore",
-        anonymousActionType: "setState",
-      },
-    ),
+    zukeeperTsLogger((...a) => ({
+      ...createRootSlice(initProps)(...a),
+      ...createFlowServerSliceV2(...a),
+      ...createCsvEvaluationPresetSlice(...a),
+    })),
   );
 }
 

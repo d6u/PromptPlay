@@ -1,4 +1,10 @@
-import { StoreApi, UseBoundStore } from "zustand";
+import zukeeper from "zukeeper";
+import {
+  StateCreator,
+  StoreApi,
+  StoreMutatorIdentifier,
+  UseBoundStore,
+} from "zustand";
 
 // See https://docs.pmnd.rs/zustand/guides/auto-generating-selectors
 // for reference.
@@ -19,3 +25,27 @@ export const createSelectors = <S extends UseBoundStore<StoreApi<object>>>(
 
   return store;
 };
+
+// SECTION: zukeeper (zustand dev tool)
+
+type State = unknown;
+
+type ZukeeperTS = <
+  T extends State,
+  Mps extends [StoreMutatorIdentifier, unknown][] = [],
+  Mcs extends [StoreMutatorIdentifier, unknown][] = [],
+>(
+  f: StateCreator<T, Mps, Mcs>,
+) => StateCreator<T, Mps, Mcs>;
+
+type ZukeeperTSImplType = <T extends State>(
+  f: StateCreator<T, [], []>,
+) => StateCreator<T, [], []>;
+
+const zukeeperTs: ZukeeperTSImplType = (...a) => {
+  return zukeeper(...a);
+};
+
+export const zukeeperTsLogger = zukeeperTs as unknown as ZukeeperTS;
+
+// !SECTION
