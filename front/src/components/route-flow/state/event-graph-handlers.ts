@@ -44,7 +44,7 @@ export function handleEvent(
   state: SliceFlowContentV3State,
   event: ChangeEvent,
 ): EventHandlerResult {
-  console.log("handleEvent ==>", event);
+  console.log(event.type);
 
   switch (event.type) {
     // React Flow

@@ -123,6 +123,8 @@ export const createFlowServerSliceV2: StateCreator<
   );
 
   function startProcessingEventGraph(startEvent: ChangeEvent) {
+    console.group("Processing Event Graph");
+
     const queue: ChangeEvent[] = [startEvent];
 
     let state = get();
@@ -146,6 +148,8 @@ export const createFlowServerSliceV2: StateCreator<
 
       queue.push(...derivedEvents);
     }
+
+    console.groupEnd();
 
     set(state);
 
