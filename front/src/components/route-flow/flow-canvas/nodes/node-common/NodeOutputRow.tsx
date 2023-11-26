@@ -5,7 +5,7 @@ import invariant from "ts-invariant";
 import { useStore } from "zustand";
 import { NodeID } from "../../../../../models/v2-flow-content-types";
 import FlowContext from "../../../FlowContext";
-import { DetailPanelContentType } from "../../../state/store-flow-state-types";
+import { DetailPanelContentType } from "../../../store/store-flow-state-types";
 import { ROW_MARGIN_TOP } from "./NodeInputModifyRow";
 
 type Props = {

@@ -1,5 +1,5 @@
 import { createContext } from "react";
-import { FlowStore } from "./state/store-flow-state";
+import { FlowStore } from "./store/store-flow-state";
 
 const FlowContext = createContext<{
   flowStore?: FlowStore;

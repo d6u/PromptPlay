@@ -22,7 +22,7 @@ import {
   ColumnIndex,
   IterationIndex,
   RowIndex,
-} from "../../../state/slice-csv-evaluation-preset";
+} from "../../../store/slice-csv-evaluation-preset";
 import { CSVData, CSVHeader } from "./common";
 import EvaluationSectionConfigCSV from "./evaluation-section-config-csv";
 import EvaluationSectionImportCSV from "./EvaluationSectionImportCSV";

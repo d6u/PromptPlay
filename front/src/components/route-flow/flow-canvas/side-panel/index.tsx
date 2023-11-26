@@ -5,7 +5,7 @@ import invariant from "ts-invariant";
 import { useStore } from "zustand";
 import CrossIcon from "../../../icons/CrossIcon";
 import FlowContext from "../../FlowContext";
-import { DetailPanelContentType } from "../../state/store-flow-state-types";
+import { DetailPanelContentType } from "../../store/store-flow-state-types";
 import PanelChatGPTMessageConfig from "./chat-gpt-message-config/PanelChatGPTMessageConfig";
 import PanelNodeConfig from "./node-config/PanelNodeConfig";
 import PanelEvaluationModeCSV from "./panel-evaluation-mode-csv";

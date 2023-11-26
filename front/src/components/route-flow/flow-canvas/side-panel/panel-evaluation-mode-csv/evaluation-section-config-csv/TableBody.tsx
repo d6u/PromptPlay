@@ -6,8 +6,8 @@ import FlowContext from "../../../../FlowContext";
 import {
   IterationIndex,
   RowIndex,
-} from "../../../../state/slice-csv-evaluation-preset";
-import { selectAllVariables } from "../../../../state/state-utils";
+} from "../../../../store/slice-csv-evaluation-preset";
+import { selectAllVariables } from "../../../../store/state-utils";
 import OutputDisplay from "../../common/OutputDisplay";
 import { CSVData } from "../common";
 

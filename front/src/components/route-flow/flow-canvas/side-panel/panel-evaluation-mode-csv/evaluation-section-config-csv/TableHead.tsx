@@ -5,7 +5,7 @@ import invariant from "ts-invariant";
 import { useStore } from "zustand";
 import { VariableType } from "../../../../../../models/v3-flow-content-types";
 import FlowContext from "../../../../FlowContext";
-import { selectAllVariables } from "../../../../state/state-utils";
+import { selectAllVariables } from "../../../../store/state-utils";
 import { CSVRow } from "../common";
 
 type Props = {

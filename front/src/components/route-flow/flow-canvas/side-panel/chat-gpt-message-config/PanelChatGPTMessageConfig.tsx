@@ -15,7 +15,7 @@ import { VariableType } from "../../../../../models/v3-flow-content-types";
 import { CopyIcon, LabelWithIconContainer } from "../../../common/flow-common";
 import TextareaReadonly from "../../../common/TextareaReadonly";
 import FlowContext from "../../../FlowContext";
-import { selectVariables } from "../../../state/state-utils";
+import { selectVariables } from "../../../store/state-utils";
 import {
   HeaderSection,
   HeaderSectionHeader,

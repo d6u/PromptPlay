@@ -17,7 +17,7 @@ import { useStore } from "zustand";
 import { NodeType } from "../../../models/v2-flow-content-types";
 import { NODE_BOX_WIDTH } from "../flow-canvas/nodes/node-common/NodeBox";
 import FlowContext from "../FlowContext";
-import { DetailPanelContentType } from "../state/store-flow-state-types";
+import { DetailPanelContentType } from "../store/store-flow-state-types";
 
 export default function ToolBar() {
   const { flowStore, isCurrentUserOwner } = useContext(FlowContext);

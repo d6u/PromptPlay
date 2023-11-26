@@ -23,8 +23,8 @@ import {
   ColumnIndex,
   IterationIndex,
   RowIndex,
-} from "../../../../state/slice-csv-evaluation-preset";
-import { selectAllVariables } from "../../../../state/state-utils";
+} from "../../../../store/slice-csv-evaluation-preset";
+import { selectAllVariables } from "../../../../store/state-utils";
 import { Section } from "../../common/controls-common";
 import { CSVData, CSVRow, CustomAccordionDetails } from "../common";
 import TableBody from "./TableBody";

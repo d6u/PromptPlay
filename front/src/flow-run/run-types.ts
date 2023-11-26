@@ -1,4 +1,4 @@
-import { NodeMetadata } from "../components/route-flow/state/store-flow-state-types";
+import { NodeMetadata } from "../components/route-flow/store/store-flow-state-types";
 import { NodeID, VariableValueMap } from "../models/v2-flow-content-types";
 
 export enum RunEventType {

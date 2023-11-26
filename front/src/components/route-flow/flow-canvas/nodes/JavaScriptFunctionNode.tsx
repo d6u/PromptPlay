@@ -13,7 +13,7 @@ import {
 import { CopyIcon, LabelWithIconContainer } from "../../common/flow-common";
 import TextareaReadonly from "../../common/TextareaReadonly";
 import FlowContext from "../../FlowContext";
-import { selectVariables } from "../../state/state-utils";
+import { selectVariables } from "../../store/state-utils";
 import AddVariableButton from "./node-common/AddVariableButton";
 import HeaderSection from "./node-common/HeaderSection";
 import {

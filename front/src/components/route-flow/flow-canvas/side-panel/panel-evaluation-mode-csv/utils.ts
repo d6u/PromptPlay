@@ -14,7 +14,7 @@ import {
   V3FlowContent,
   V3VariableValueLookUpDict,
 } from "../../../../../models/v3-flow-content-types";
-import { VariableIdToCsvColumnIndexLookUpDict } from "../../../state/slice-csv-evaluation-preset";
+import { VariableIdToCsvColumnIndexLookUpDict } from "../../../store/slice-csv-evaluation-preset";
 import { CSVData } from "./common";
 
 export function runForEachRow({

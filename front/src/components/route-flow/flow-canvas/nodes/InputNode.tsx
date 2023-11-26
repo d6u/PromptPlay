@@ -9,8 +9,8 @@ import {
   VariableType,
 } from "../../../../models/v3-flow-content-types";
 import FlowContext from "../../FlowContext";
-import { selectVariables } from "../../state/state-utils";
-import { DetailPanelContentType } from "../../state/store-flow-state-types";
+import { selectVariables } from "../../store/state-utils";
+import { DetailPanelContentType } from "../../store/store-flow-state-types";
 import AddVariableButton from "./node-common/AddVariableButton";
 import HeaderSection from "./node-common/HeaderSection";
 import {

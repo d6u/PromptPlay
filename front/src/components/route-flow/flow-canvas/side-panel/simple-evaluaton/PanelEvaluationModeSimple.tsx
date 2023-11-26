@@ -8,7 +8,7 @@ import {
   VariableValueType,
 } from "../../../../../models/v3-flow-content-types";
 import FlowContext from "../../../FlowContext";
-import { selectAllVariables } from "../../../state/state-utils";
+import { selectAllVariables } from "../../../store/state-utils";
 import {
   HeaderSection,
   HeaderSectionHeader,
