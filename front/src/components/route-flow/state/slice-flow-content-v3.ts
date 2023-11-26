@@ -117,7 +117,7 @@ export const createFlowServerSliceV2: StateCreator<
         variableValueLookUpDicts: flowContent.variableValueLookUpDicts,
       });
 
-      set(() => ({ isFlowContentSaving: true }));
+      set(() => ({ isFlowContentSaving: false }));
     },
     500,
   );
