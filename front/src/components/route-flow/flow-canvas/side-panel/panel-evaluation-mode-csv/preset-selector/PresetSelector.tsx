@@ -1,55 +1,53 @@
 import styled from "@emotion/styled";
-import { A, D, F, flow } from "@mobily/ts-belt";
+import { A } from "@mobily/ts-belt";
 import { Autocomplete, AutocompleteOption, Button } from "@mui/joy";
 import { ReactNode, useMemo, useState } from "react";
 import { useQuery } from "urql";
-import { useStore } from "zustand";
 import { graphql } from "../../../../../../gql";
-import { useStoreFromFlowStoreContext } from "../../../../store/FlowStoreContext";
+import { useFlowStore } from "../../../../store/FlowStoreContext";
 import PresetSaveModal from "./PresetSaveModal";
 
 export default function PresetSelector() {
-  const flowStore = useStoreFromFlowStoreContext();
-
   // SECTION: Select state from store
 
-  const spaceId = useStore(flowStore, (s) => s.spaceId);
-  const currentPresetId = useStore(
-    flowStore,
-    (s) => s.csvEvaluationCurrentPresetId,
-  );
-  const setCurrentPresetId = useStore(
-    flowStore,
-    (s) => s.csvEvaluationSetCurrentPresetId,
-  );
-  const deleteCurrentPreset = useStore(
-    flowStore,
-    (s) => s.csvEvaluationDeleteCurrentPreset,
+  const spaceId = useFlowStore((s) => s.spaceId);
+  const selectedPresetId = useFlowStore((s) => s.csvModeSelectedPresetId);
+  const selectAndLoadPreset = useFlowStore((s) => s.selectAndLoadPreset);
+  const deleteSelectedPreset = useFlowStore(
+    (s) => s.csvModeDeleteSelectedPreset,
   );
 
   // !SECTION
 
-  const [queryResult] = useQuery({
-    query: PRESET_SELECTOR_QUERY,
+  const [query] = useQuery({
+    query: graphql(`
+      query PresetSelectorQuery($spaceId: UUID!) {
+        result: space(id: $spaceId) {
+          space {
+            id
+            csvEvaluationPresets {
+              id
+              name
+            }
+          }
+        }
+      }
+    `),
     variables: { spaceId },
   });
 
-  const selectedPreset = useMemo(
-    () =>
-      A.find(
-        queryResult.data?.result?.space.csvEvaluationPresets ?? [],
-        flow(D.get("id"), F.equals(currentPresetId)),
-      ),
-    [queryResult.data?.result?.space.csvEvaluationPresets, currentPresetId],
-  );
+  const selectedPreset = useMemo(() => {
+    const presets = query.data?.result?.space.csvEvaluationPresets ?? [];
+    return A.find(presets, (p) => p.id === selectedPresetId);
+  }, [query.data?.result?.space.csvEvaluationPresets, selectedPresetId]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   let content: ReactNode | null = null;
 
-  if (queryResult.fetching) {
+  if (query.fetching) {
     content = null;
-  } else if (queryResult.error || !queryResult.data?.result) {
+  } else if (query.error || !query.data?.result) {
     content = null;
   } else {
     content = (
@@ -60,11 +58,11 @@ export default function PresetSelector() {
             openOnFocus
             placeholder="Your preset"
             sx={{ width: 400 }}
-            options={queryResult.data?.result?.space.csvEvaluationPresets}
+            options={query.data?.result?.space.csvEvaluationPresets}
             value={selectedPreset ?? null}
             getOptionLabel={(option) => option.name}
             onChange={(_event, value) => {
-              setCurrentPresetId(value?.id ?? null);
+              selectAndLoadPreset(value?.id ?? null);
             }}
             renderOption={(props, option) => (
               <AutocompleteOption {...props} key={option.id}>
@@ -73,7 +71,7 @@ export default function PresetSelector() {
             )}
           />
           <Button variant="outlined" onClick={() => setIsModalOpen(true)}>
-            Save
+            Save...
           </Button>
         </LeftAlign>
         <RightAlign>
@@ -81,8 +79,11 @@ export default function PresetSelector() {
             <Button
               variant="outlined"
               onClick={() => {
-                deleteCurrentPreset();
-                setCurrentPresetId(null);
+                const comfirmed = confirm("Deleted preset cannot be restored");
+                if (comfirmed) {
+                  deleteSelectedPreset();
+                  selectAndLoadPreset(null);
+                }
               }}
             >
               Delete preset
@@ -104,24 +105,6 @@ export default function PresetSelector() {
     </Container>
   );
 }
-
-// SECTION: GraphQL
-
-const PRESET_SELECTOR_QUERY = graphql(`
-  query PresetSelectorQuery($spaceId: UUID!) {
-    result: space(id: $spaceId) {
-      space {
-        id
-        csvEvaluationPresets {
-          id
-          name
-        }
-      }
-    }
-  }
-`);
-
-// !SECTION
 
 // SECTION: UI Components
 

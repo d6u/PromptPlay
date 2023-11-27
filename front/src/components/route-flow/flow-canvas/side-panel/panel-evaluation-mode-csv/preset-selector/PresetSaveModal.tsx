@@ -24,10 +24,7 @@ export default function PresetSaveModal(props: Props) {
 
   // SECTION: Select state from store
 
-  const setCurrentPresetId = useStore(
-    flowStore,
-    (s) => s.csvEvaluationSetCurrentPresetId,
-  );
+  const selectAndLoadPreset = useStore(flowStore, (s) => s.selectAndLoadPreset);
   const saveNewPreset = useStore(
     flowStore,
     (s) => s.csvEvaluationSaveNewPreset,
@@ -86,7 +83,7 @@ export default function PresetSaveModal(props: Props) {
                     // TODO: handle error
                     if (data?.id) {
                       props.onCloseModal();
-                      setCurrentPresetId(data.id);
+                      selectAndLoadPreset(data.id);
                     }
                   });
                 }}
@@ -111,7 +108,7 @@ export default function PresetSaveModal(props: Props) {
                   // TODO: handle error
                   if (data?.id) {
                     props.onCloseModal();
-                    setCurrentPresetId(data.id);
+                    selectAndLoadPreset(data.id);
                   }
                 });
               }}

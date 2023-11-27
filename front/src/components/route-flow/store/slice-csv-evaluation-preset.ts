@@ -1,6 +1,8 @@
 import { D, G, Option } from "@mobily/ts-belt";
+import { OperationResult } from "urql";
 import { StateCreator } from "zustand";
 import { graphql } from "../../../gql";
+import { LoadCsvEvaluationPresetQuery } from "../../../gql/graphql";
 import {
   V3VariableID,
   V3VariableValueLookUpDict,
@@ -9,14 +11,13 @@ import { client } from "../../../state/urql";
 import { FlowState } from "./store-flow-state-types";
 
 export type CsvEvaluationPresetSlice = {
-  csvEvaluationCurrentPresetId: string | null;
+  csvModeSelectedPresetId: string | null;
   csvEvaluationIsLoading: boolean;
-
-  // Local data
+  // Persistable data
   csvEvaluationCsvStr: string;
   csvEvaluationConfigContent: CsvEvaluationConfigContent;
 
-  csvEvaluationSetCurrentPresetId(presetId: string | null): void;
+  selectAndLoadPreset(presetId: string | null): Promise<void>;
   csvEvaluationSetLocalCsvStr(csvStr: string): void;
 
   csvEvaluationSetLocalConfigContent(
@@ -47,7 +48,7 @@ export type CsvEvaluationPresetSlice = {
     name: string;
   }): Promise<Option<{ id: string }>>;
   csvEvaluationPresetUpdate({ name }: { name: string }): void;
-  csvEvaluationDeleteCurrentPreset(): void;
+  csvModeDeleteSelectedPreset(): void;
 };
 
 export const createCsvEvaluationPresetSlice: StateCreator<
@@ -56,7 +57,7 @@ export const createCsvEvaluationPresetSlice: StateCreator<
   [],
   CsvEvaluationPresetSlice
 > = (set, get) => ({
-  csvEvaluationCurrentPresetId: null,
+  csvModeSelectedPresetId: null,
   csvEvaluationIsLoading: false,
 
   // Local data
@@ -69,8 +70,47 @@ export const createCsvEvaluationPresetSlice: StateCreator<
     runStatusTable: [],
   },
 
-  csvEvaluationSetCurrentPresetId(presetId: string | null): void {
-    set({ csvEvaluationCurrentPresetId: presetId });
+  async selectAndLoadPreset(presetId: string | null): Promise<void> {
+    set({ csvModeSelectedPresetId: presetId });
+
+    if (presetId == null) {
+      set((state) => ({
+        csvEvaluationCsvStr: "",
+        csvEvaluationConfigContent: {
+          ...state.csvEvaluationConfigContent,
+          variableIdToCsvColumnIndexLookUpDict: {},
+          csvRunResultTable: [],
+          runStatusTable: [],
+        },
+      }));
+      return;
+    }
+
+    set({ csvEvaluationIsLoading: true });
+
+    const result = await loadPreset(get().spaceId, presetId);
+
+    if (result.error) {
+      console.error(result.error);
+      return;
+    }
+
+    const preset = result.data?.result?.space?.csvEvaluationPreset;
+
+    if (preset == null) {
+      console.error("Preset not found");
+      return;
+    }
+
+    const { csvContent, configContent } = preset;
+
+    set({
+      csvEvaluationCsvStr: csvContent,
+      csvEvaluationConfigContent:
+        configContent == null ? null : JSON.parse(configContent),
+    });
+
+    set({ csvEvaluationIsLoading: false });
   },
   csvEvaluationSetLocalCsvStr(csvStr: string): void {
     set({ csvEvaluationCsvStr: csvStr });
@@ -219,7 +259,7 @@ export const createCsvEvaluationPresetSlice: StateCreator<
   },
   csvEvaluationPresetUpdate({ name }: { name: string }): void {
     const {
-      csvEvaluationCurrentPresetId: presetId,
+      csvModeSelectedPresetId: presetId,
       csvEvaluationCsvStr: csvContent,
       csvEvaluationConfigContent: configContent,
     } = get();
@@ -238,8 +278,8 @@ export const createCsvEvaluationPresetSlice: StateCreator<
         });
     }
   },
-  csvEvaluationDeleteCurrentPreset(): void {
-    const { csvEvaluationCurrentPresetId: presetId } = get();
+  csvModeDeleteSelectedPreset(): void {
+    const { csvModeSelectedPresetId: presetId } = get();
 
     if (presetId) {
       client
@@ -253,6 +293,38 @@ export const createCsvEvaluationPresetSlice: StateCreator<
     }
   },
 });
+
+// SECTION: Utilitiy Functions
+
+async function loadPreset(
+  spaceId: string,
+  presetId: string,
+): Promise<OperationResult<LoadCsvEvaluationPresetQuery>> {
+  return await client
+    .query(
+      graphql(`
+        query LoadCsvEvaluationPreset($spaceId: UUID!, $presetId: ID!) {
+          result: space(id: $spaceId) {
+            space {
+              id
+              csvEvaluationPreset(id: $presetId) {
+                id
+                csvContent
+                configContent
+              }
+            }
+          }
+        }
+      `),
+      {
+        spaceId,
+        presetId,
+      },
+    )
+    .toPromise();
+}
+
+// !SECTION
 
 export type CsvEvaluationConfigContent = {
   repeatTimes: number;

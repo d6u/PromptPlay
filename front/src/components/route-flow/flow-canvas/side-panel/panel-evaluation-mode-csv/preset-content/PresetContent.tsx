@@ -6,12 +6,9 @@ import posthog from "posthog-js";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Subscription } from "rxjs";
 import invariant from "ts-invariant";
-import { useQuery } from "urql";
-import { useStore } from "zustand";
 import { runForEachRow } from "../../../../../../flow-run/run-each-row";
-import { graphql } from "../../../../../../gql";
 import { V3VariableValueLookUpDict } from "../../../../../../models/v3-flow-content-types";
-import { useStoreFromFlowStoreContext } from "../../../../store/FlowStoreContext";
+import { useFlowStore } from "../../../../store/FlowStoreContext";
 import {
   IterationIndex,
   RowIndex,
@@ -21,91 +18,28 @@ import EvaluationSectionConfigCSV from "./evaluation-section-config-csv";
 import EvaluationSectionImportCSV from "./EvaluationSectionImportCSV";
 
 export default function PresetContent() {
-  const flowStore = useStoreFromFlowStoreContext();
-
   // SECTION: Select store state
 
-  const spaceId = useStore(flowStore, (s) => s.spaceId);
-  const nodes = useStore(flowStore, (s) => s.nodes);
-  const edges = useStore(flowStore, (s) => s.edges);
-  const nodeConfigsDict = useStore(flowStore, (s) => s.nodeConfigsDict);
-  const variablesDict = useStore(flowStore, (s) => s.variablesDict);
-  const variableValueLookUpDicts = useStore(
-    flowStore,
+  const spaceId = useFlowStore((s) => s.spaceId);
+  const nodes = useFlowStore((s) => s.nodes);
+  const edges = useFlowStore((s) => s.edges);
+  const nodeConfigsDict = useFlowStore((s) => s.nodeConfigsDict);
+  const variablesDict = useFlowStore((s) => s.variablesDict);
+  const variableValueLookUpDicts = useFlowStore(
     (s) => s.variableValueLookUpDicts,
   );
-  const presetId = useStore(flowStore, (s) => s.csvEvaluationCurrentPresetId);
-  const csvContent = useStore(flowStore, (s) => s.csvEvaluationCsvStr);
-  const setCsvContent = useStore(
-    flowStore,
-    (s) => s.csvEvaluationSetLocalCsvStr,
-  );
-  const setConfigContent = useStore(
-    flowStore,
-    (s) => s.csvEvaluationSetLocalConfigContent,
-  );
+  const csvContent = useFlowStore((s) => s.csvEvaluationCsvStr);
   const {
-    repeatTimes: repeatCount,
+    repeatTimes,
     concurrencyLimit,
-    variableIdToCsvColumnIndexLookUpDict: variableColumnMap,
-  } = useStore(flowStore, (s) => s.csvEvaluationConfigContent);
-  const setGeneratedResult = useStore(
-    flowStore,
+    variableIdToCsvColumnIndexLookUpDict,
+  } = useFlowStore((s) => s.csvEvaluationConfigContent);
+  const setGeneratedResult = useFlowStore(
     (s) => s.csvEvaluationSetGeneratedResult,
   );
-  const setRunStatuses = useStore(
-    flowStore,
-    (s) => s.csvEvaluationSetRunStatuses,
-  );
+  const setRunStatuses = useFlowStore((s) => s.csvEvaluationSetRunStatuses);
 
   // !SECTION
-
-  const shouldFetchPreset = spaceId && presetId;
-
-  console.log("shouldFetchPreset", shouldFetchPreset);
-
-  const [queryResult] = useQuery({
-    query: EVALUATION_MODE_CSV_CONTENT_QUERY,
-    variables: {
-      spaceId,
-      // This is needed as a workaround for TypeScript.
-      // When presetId is null, `!shouldFetchPreset` will be true,
-      // where query will be paused, thus "" value is not taken.
-      presetId: presetId ?? "",
-    },
-    pause: !shouldFetchPreset,
-  });
-
-  useEffect(() => {
-    if (shouldFetchPreset) {
-      setCsvContent(
-        queryResult.data?.result?.space.csvEvaluationPreset.csvContent ?? "",
-      );
-    } else {
-      setCsvContent("");
-    }
-  }, [
-    setCsvContent,
-    queryResult.data?.result?.space.csvEvaluationPreset.csvContent,
-    shouldFetchPreset,
-  ]);
-
-  useEffect(() => {
-    if (shouldFetchPreset) {
-      if (queryResult.data?.result?.space.csvEvaluationPreset.configContent) {
-        setConfigContent(
-          JSON.parse(
-            queryResult.data?.result?.space.csvEvaluationPreset.configContent,
-          ),
-        );
-        return;
-      }
-    }
-  }, [
-    setConfigContent,
-    shouldFetchPreset,
-    queryResult.data?.result?.space.csvEvaluationPreset.configContent,
-  ]);
 
   const csvData = useMemo<CSVData>(
     () => Papa.parse(csvContent).data as CSVData,
@@ -135,7 +69,7 @@ export default function PresetContent() {
     posthog.capture("Starting CSV Evaluation", {
       flowId: spaceId,
       contentRowCount: csvBody.length,
-      repeatCount,
+      repeatCount: repeatTimes,
     });
 
     setIsRunning(true);
@@ -143,14 +77,14 @@ export default function PresetContent() {
     // Reset result table
     setGeneratedResult(
       A.makeWithIndex(csvBody.length, () =>
-        A.makeWithIndex(repeatCount, D.makeEmpty<V3VariableValueLookUpDict>),
+        A.makeWithIndex(repeatTimes, D.makeEmpty<V3VariableValueLookUpDict>),
       ),
     );
 
     // Reset status table
     setRunStatuses(
       A.makeWithIndex(csvBody.length, () =>
-        A.makeWithIndex(repeatCount, () => null),
+        A.makeWithIndex(repeatTimes, () => null),
       ),
     );
 
@@ -163,8 +97,8 @@ export default function PresetContent() {
         variableValueLookUpDicts,
       },
       csvBody,
-      variableColumnMap,
-      repeatCount,
+      variableColumnMap: variableIdToCsvColumnIndexLookUpDict,
+      repeatCount: repeatTimes,
       concurrencyLimit,
     }).subscribe({
       next({ iteratonIndex, rowIndex, outputs, status }) {
@@ -205,13 +139,13 @@ export default function PresetContent() {
   }, [
     spaceId,
     csvBody,
-    repeatCount,
+    repeatTimes,
     nodes,
     edges,
     nodeConfigsDict,
     variablesDict,
     variableValueLookUpDicts,
-    variableColumnMap,
+    variableIdToCsvColumnIndexLookUpDict,
     concurrencyLimit,
     setGeneratedResult,
     setRunStatuses,
@@ -230,14 +164,6 @@ export default function PresetContent() {
     };
   }, []);
 
-  if (queryResult.fetching) {
-    return null;
-  }
-
-  if (queryResult.error) {
-    return <div>Something went wrong...</div>;
-  }
-
   return (
     <>
       <AccordionGroup size="lg">
@@ -253,22 +179,3 @@ export default function PresetContent() {
     </>
   );
 }
-
-// SECTION: GraphQL
-
-const EVALUATION_MODE_CSV_CONTENT_QUERY = graphql(`
-  query EvaluationModeCSVContentQuery($spaceId: UUID!, $presetId: ID!) {
-    result: space(id: $spaceId) {
-      space {
-        id
-        csvEvaluationPreset(id: $presetId) {
-          id
-          csvContent
-          configContent
-        }
-      }
-    }
-  }
-`);
-
-// !SECTION
