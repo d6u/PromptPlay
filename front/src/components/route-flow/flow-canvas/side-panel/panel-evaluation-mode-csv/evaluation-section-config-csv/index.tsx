@@ -10,15 +10,14 @@ import {
 } from "@mui/joy";
 import Papa from "papaparse";
 import posthog from "posthog-js";
-import { useContext, useEffect, useMemo } from "react";
-import invariant from "ts-invariant";
+import { useEffect, useMemo } from "react";
 import { useStore } from "zustand";
 import {
   V3VariableID,
   V3VariableValueLookUpDict,
   VariableType,
 } from "../../../../../../models/v3-flow-content-types";
-import FlowContext from "../../../../FlowContext";
+import { useStoreFromFlowStoreContext } from "../../../../store/FlowStoreContext";
 import {
   ColumnIndex,
   IterationIndex,
@@ -39,8 +38,7 @@ type Props = {
 };
 
 export default function EvaluationSectionConfigCSV(props: Props) {
-  const { flowStore } = useContext(FlowContext);
-  invariant(flowStore != null, "Must provide flowStore");
+  const flowStore = useStoreFromFlowStoreContext();
 
   // SECTION: Select state from store
 

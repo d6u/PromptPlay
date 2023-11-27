@@ -3,7 +3,6 @@ import FormLabel from "@mui/joy/FormLabel";
 import Textarea from "@mui/joy/Textarea";
 import { useContext, useMemo, useState } from "react";
 import { Position, useNodeId, useUpdateNodeInternals } from "reactflow";
-import invariant from "ts-invariant";
 import { useStore } from "zustand";
 import { NodeID, NodeType } from "../../../../models/v2-flow-content-types";
 import {
@@ -13,6 +12,7 @@ import {
 import { CopyIcon, LabelWithIconContainer } from "../../common/flow-common";
 import TextareaReadonly from "../../common/TextareaReadonly";
 import FlowContext from "../../FlowContext";
+import { useStoreFromFlowStoreContext } from "../../store/FlowStoreContext";
 import { selectVariables } from "../../store/state-utils";
 import AddVariableButton from "./node-common/AddVariableButton";
 import HeaderSection from "./node-common/HeaderSection";
@@ -33,8 +33,8 @@ import {
 export default function JavaScriptFunctionNode() {
   const nodeId = useNodeId() as NodeID;
 
-  const { flowStore, isCurrentUserOwner } = useContext(FlowContext);
-  invariant(flowStore != null, "Must provide flowStore");
+  const { isCurrentUserOwner } = useContext(FlowContext);
+  const flowStore = useStoreFromFlowStoreContext();
 
   // SECTION: Select state from store
 

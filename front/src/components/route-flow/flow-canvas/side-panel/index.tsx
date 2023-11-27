@@ -1,10 +1,9 @@
 import styled from "@emotion/styled";
 import IconButton from "@mui/joy/IconButton";
-import { ReactNode, useContext } from "react";
-import invariant from "ts-invariant";
+import { ReactNode } from "react";
 import { useStore } from "zustand";
 import CrossIcon from "../../../icons/CrossIcon";
-import FlowContext from "../../FlowContext";
+import { useStoreFromFlowStoreContext } from "../../store/FlowStoreContext";
 import { DetailPanelContentType } from "../../store/store-flow-state-types";
 import PanelChatGPTMessageConfig from "./chat-gpt-message-config/PanelChatGPTMessageConfig";
 import PanelNodeConfig from "./node-config/PanelNodeConfig";
@@ -12,8 +11,7 @@ import PanelEvaluationModeCSV from "./panel-evaluation-mode-csv";
 import PanelEvaluationModeSimple from "./simple-evaluaton/PanelEvaluationModeSimple";
 
 export default function SidePanel() {
-  const { flowStore } = useContext(FlowContext);
-  invariant(flowStore != null, "Must provide flowStore");
+  const flowStore = useStoreFromFlowStoreContext();
 
   const detailPanelContentType = useStore(
     flowStore,

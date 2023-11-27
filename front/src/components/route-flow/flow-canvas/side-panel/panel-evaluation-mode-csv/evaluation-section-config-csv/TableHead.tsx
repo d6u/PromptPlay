@@ -1,10 +1,9 @@
 import { F } from "@mobily/ts-belt";
 import { Option, Select } from "@mui/joy";
-import { ReactNode, useContext, useMemo } from "react";
-import invariant from "ts-invariant";
+import { ReactNode, useMemo } from "react";
 import { useStore } from "zustand";
 import { VariableType } from "../../../../../../models/v3-flow-content-types";
-import FlowContext from "../../../../FlowContext";
+import { useStoreFromFlowStoreContext } from "../../../../store/FlowStoreContext";
 import { selectAllVariables } from "../../../../store/state-utils";
 import { CSVRow } from "../common";
 
@@ -13,8 +12,7 @@ type Props = {
 };
 
 export default function TableHead(props: Props) {
-  const { flowStore } = useContext(FlowContext);
-  invariant(flowStore != null, "Must provide flowStore");
+  const flowStore = useStoreFromFlowStoreContext();
 
   // SECTION: Select state from store
 

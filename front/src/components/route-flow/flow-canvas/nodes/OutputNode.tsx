@@ -1,7 +1,6 @@
 import IconButton from "@mui/joy/IconButton";
 import { useContext, useMemo } from "react";
 import { Position, useNodeId, useUpdateNodeInternals } from "reactflow";
-import invariant from "ts-invariant";
 import { useStore } from "zustand";
 import { NodeID, NodeType } from "../../../../models/v2-flow-content-types";
 import {
@@ -9,6 +8,7 @@ import {
   VariableType,
 } from "../../../../models/v3-flow-content-types";
 import FlowContext from "../../FlowContext";
+import { useStoreFromFlowStoreContext } from "../../store/FlowStoreContext";
 import { selectVariables } from "../../store/state-utils";
 import { DetailPanelContentType } from "../../store/store-flow-state-types";
 import AddVariableButton from "./node-common/AddVariableButton";
@@ -26,8 +26,8 @@ import { calculateInputHandleTop } from "./node-common/utils";
 export default function OutputNode() {
   const nodeId = useNodeId() as NodeID;
 
-  const { flowStore, isCurrentUserOwner } = useContext(FlowContext);
-  invariant(flowStore != null, "Must provide flowStore");
+  const { isCurrentUserOwner } = useContext(FlowContext);
+  const flowStore = useStoreFromFlowStoreContext();
 
   const setDetailPanelContentType = useStore(
     flowStore,

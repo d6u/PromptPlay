@@ -71,7 +71,6 @@ type SliceFlowContentV3Actions = {
 
   // Local Only
   getDefaultVariableValueLookUpDict(): V3VariableValueLookUpDict;
-  resetFlowServerSlice(): void;
 };
 
 export type SliceFlowContentV3 = SliceFlowContentV3State &
@@ -178,10 +177,6 @@ export const createFlowServerSliceV2: StateCreator<
 
     getDefaultVariableValueLookUpDict(): V3VariableValueLookUpDict {
       return get().variableValueLookUpDicts[0]!;
-    },
-
-    resetFlowServerSlice(): void {
-      set(FLOW_SERVER_SLICE_INITIAL_STATE_V2);
     },
 
     onEdgesChange(changes: EdgeChange[]): void {

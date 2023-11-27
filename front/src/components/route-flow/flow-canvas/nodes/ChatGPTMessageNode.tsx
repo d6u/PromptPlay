@@ -7,7 +7,6 @@ import RadioGroup from "@mui/joy/RadioGroup";
 import Textarea from "@mui/joy/Textarea";
 import { useContext, useEffect, useMemo, useState } from "react";
 import { Position, useNodeId, useUpdateNodeInternals } from "reactflow";
-import invariant from "ts-invariant";
 import { useStore } from "zustand";
 import { ChatGPTMessageRole } from "../../../../integrations/openai";
 import { NodeID, NodeType } from "../../../../models/v2-flow-content-types";
@@ -18,6 +17,7 @@ import {
 import { CopyIcon, LabelWithIconContainer } from "../../common/flow-common";
 import TextareaReadonly from "../../common/TextareaReadonly";
 import FlowContext from "../../FlowContext";
+import { useStoreFromFlowStoreContext } from "../../store/FlowStoreContext";
 import { selectVariables } from "../../store/state-utils";
 import { DetailPanelContentType } from "../../store/store-flow-state-types";
 import AddVariableButton from "./node-common/AddVariableButton";
@@ -43,8 +43,8 @@ import {
 export default function ChatGPTMessageNode() {
   const nodeId = useNodeId() as NodeID;
 
-  const { flowStore, isCurrentUserOwner } = useContext(FlowContext);
-  invariant(flowStore != null, "Must provide flowStore");
+  const { isCurrentUserOwner } = useContext(FlowContext);
+  const flowStore = useStoreFromFlowStoreContext();
 
   // SECTION: Select state from store
 

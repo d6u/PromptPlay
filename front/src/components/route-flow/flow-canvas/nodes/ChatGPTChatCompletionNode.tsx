@@ -7,7 +7,6 @@ import Option from "@mui/joy/Option";
 import Select from "@mui/joy/Select";
 import { useContext, useEffect, useMemo, useState } from "react";
 import { Position, useNodeId } from "reactflow";
-import invariant from "ts-invariant";
 import { useStore } from "zustand";
 import { NEW_LINE_SYMBOL } from "../../../../integrations/openai";
 import {
@@ -28,6 +27,7 @@ import {
 } from "../../../../state/appState";
 import InputReadonly from "../../common/InputReadonly";
 import FlowContext from "../../FlowContext";
+import { useStoreFromFlowStoreContext } from "../../store/FlowStoreContext";
 import { selectVariables } from "../../store/state-utils";
 import HeaderSection from "./node-common/HeaderSection";
 import HelperTextContainer from "./node-common/HelperTextContainer";
@@ -53,8 +53,8 @@ const selector = (state: SpaceState) => ({
 export default function ChatGPTChatCompletionNode() {
   const nodeId = useNodeId() as NodeID;
 
-  const { flowStore, isCurrentUserOwner } = useContext(FlowContext);
-  invariant(flowStore != null, "Must provide flowStore");
+  const { isCurrentUserOwner } = useContext(FlowContext);
+  const flowStore = useStoreFromFlowStoreContext();
 
   const nodeConfigsDict = useStore(flowStore, (s) => s.nodeConfigsDict);
   const variablesDict = useStore(flowStore, (s) => s.variablesDict);

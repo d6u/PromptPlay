@@ -1,10 +1,8 @@
 import styled from "@emotion/styled";
-import { useContext } from "react";
 import { useNodeId } from "reactflow";
-import invariant from "ts-invariant";
 import { useStore } from "zustand";
 import { NodeID } from "../../../../../models/v2-flow-content-types";
-import FlowContext from "../../../FlowContext";
+import { useStoreFromFlowStoreContext } from "../../../store/FlowStoreContext";
 import { DetailPanelContentType } from "../../../store/store-flow-state-types";
 import { ROW_MARGIN_TOP } from "./NodeInputModifyRow";
 
@@ -16,8 +14,7 @@ type Props = {
 };
 
 export default function NodeOutputRow(props: Props) {
-  const { flowStore } = useContext(FlowContext);
-  invariant(flowStore != null, "Must provide flowStore");
+  const flowStore = useStoreFromFlowStoreContext();
 
   const setDetailPanelContentType = useStore(
     flowStore,

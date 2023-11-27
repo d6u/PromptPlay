@@ -1,13 +1,13 @@
 import styled from "@emotion/styled";
 import { Button } from "@mui/joy";
 import { useContext, useMemo } from "react";
-import invariant from "ts-invariant";
 import { useStore } from "zustand";
 import {
   VariableType,
   VariableValueType,
 } from "../../../../../models/v3-flow-content-types";
 import FlowContext from "../../../FlowContext";
+import { useStoreFromFlowStoreContext } from "../../../store/FlowStoreContext";
 import { selectAllVariables } from "../../../store/state-utils";
 import {
   HeaderSection,
@@ -18,8 +18,8 @@ import InputBlock from "../common/InputBlock";
 import OutputRenderer from "../common/OutputRenderer";
 
 export default function PanelEvaluationModeSimple() {
-  const { flowStore, isCurrentUserOwner } = useContext(FlowContext);
-  invariant(flowStore != null, "Must provide flowStore");
+  const { isCurrentUserOwner } = useContext(FlowContext);
+  const flowStore = useStoreFromFlowStoreContext();
 
   // SECTION: Select state from store
 

@@ -1,17 +1,15 @@
 import styled from "@emotion/styled";
 import { A, D, F, flow } from "@mobily/ts-belt";
 import { Autocomplete, AutocompleteOption, Button } from "@mui/joy";
-import { ReactNode, useContext, useMemo, useState } from "react";
-import invariant from "ts-invariant";
+import { ReactNode, useMemo, useState } from "react";
 import { useQuery } from "urql";
 import { useStore } from "zustand";
 import { graphql } from "../../../../../gql";
-import FlowContext from "../../../FlowContext";
+import { useStoreFromFlowStoreContext } from "../../../store/FlowStoreContext";
 import PresetSaveModal from "./PresetSaveModal";
 
 export default function PresetSelector() {
-  const { flowStore } = useContext(FlowContext);
-  invariant(flowStore != null, "Must provide flowStore");
+  const flowStore = useStoreFromFlowStoreContext();
 
   // SECTION: Select state from store
 

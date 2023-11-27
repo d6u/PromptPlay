@@ -12,16 +12,16 @@ import {
 } from "@mui/joy";
 import { useCallback, useContext, useEffect, useState } from "react";
 import { useStoreApi } from "reactflow";
-import invariant from "ts-invariant";
 import { useStore } from "zustand";
 import { NodeType } from "../../../models/v2-flow-content-types";
 import { NODE_BOX_WIDTH } from "../flow-canvas/nodes/node-common/NodeBox";
 import FlowContext from "../FlowContext";
+import { useStoreFromFlowStoreContext } from "../store/FlowStoreContext";
 import { DetailPanelContentType } from "../store/store-flow-state-types";
 
 export default function ToolBar() {
-  const { flowStore, isCurrentUserOwner } = useContext(FlowContext);
-  invariant(flowStore != null, "Must provide flowStore");
+  const { isCurrentUserOwner } = useContext(FlowContext);
+  const flowStore = useStoreFromFlowStoreContext();
 
   const isRunning = useStore(flowStore, (s) => s.isRunning);
   const isFlowContentDirty = useStore(flowStore, (s) => s.isFlowContentDirty);

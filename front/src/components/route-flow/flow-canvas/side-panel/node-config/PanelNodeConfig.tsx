@@ -1,8 +1,7 @@
-import { useContext, useMemo } from "react";
-import invariant from "ts-invariant";
+import { useMemo } from "react";
 import { useStore } from "zustand";
 import { VariableType } from "../../../../../models/v3-flow-content-types";
-import FlowContext from "../../../FlowContext";
+import { useStoreFromFlowStoreContext } from "../../../store/FlowStoreContext";
 import { selectVariables } from "../../../store/state-utils";
 import {
   HeaderSection,
@@ -13,8 +12,7 @@ import {
 import OutputRenderer from "../common/OutputRenderer";
 
 export default function PanelNodeConfig() {
-  const { flowStore } = useContext(FlowContext);
-  invariant(flowStore != null, "Must provide flowStore");
+  const flowStore = useStoreFromFlowStoreContext();
 
   const variablesDict = useStore(flowStore, (s) => s.variablesDict);
   const detailPanelSelectedNodeId = useStore(

@@ -7,10 +7,10 @@ import ReactFlow, {
   PanOnScrollMode,
 } from "reactflow";
 import "reactflow/dist/style.css";
-import invariant from "ts-invariant";
 import { useStore } from "zustand";
 import { NodeType } from "../../../models/v2-flow-content-types";
 import FlowContext from "../FlowContext";
+import { useStoreFromFlowStoreContext } from "../store/FlowStoreContext";
 import ChatGPTChatCompletionNode from "./nodes/ChatGPTChatCompletionNode";
 import ChatGPTMessageNode from "./nodes/ChatGPTMessageNode";
 import ElevenLabsNode from "./nodes/ElevenLabsNode";
@@ -33,8 +33,8 @@ const NODE_TYPES = {
 };
 
 export default function FlowCanvas() {
-  const { flowStore, isCurrentUserOwner } = useContext(FlowContext);
-  invariant(flowStore != null, "Must provide flowStore");
+  const { isCurrentUserOwner } = useContext(FlowContext);
+  const flowStore = useStoreFromFlowStoreContext();
 
   const nodes = useStore(flowStore, (s) => s.nodes);
   const edges = useStore(flowStore, (s) => s.edges);

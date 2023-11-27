@@ -32,7 +32,9 @@ import {
 } from "./store-flow-state-types";
 
 type RootSliceState = {
-  spaceId: string | null;
+  // TODO: Does readonly make any difference here?
+  readonly spaceId: string;
+  readonly subscriptionBag: Subscription;
   isInitialized: boolean;
   detailPanelContentType: DetailPanelContentType;
   detailPanelSelectedNodeId: NodeID | null;
@@ -41,22 +43,13 @@ type RootSliceState = {
 };
 
 export type RootSlice = RootSliceState & {
-  initializeSpace(spaceId: string): void;
-  deinitializeSpace(): void;
+  initialize(): void;
+  deinitialize(): void;
   setDetailPanelContentType(type: DetailPanelContentType): void;
   setDetailPanelSelectedNodeId(nodeId: NodeID): void;
   updateNodeAugment(nodeId: NodeID, change: Partial<NodeMetadata>): void;
   runFlow(): void;
   stopRunningFlow(): void;
-};
-
-const ROOT_SLICE_INITIAL_STATE: Readonly<RootSliceState> = {
-  spaceId: null,
-  isInitialized: false,
-  detailPanelContentType: DetailPanelContentType.Off,
-  detailPanelSelectedNodeId: null,
-  nodeMetadataDict: {},
-  isRunning: false,
 };
 
 type InitProps = {
@@ -99,20 +92,24 @@ export function createRootSlice(
     });
   }
 
-  let fetchContentSubscription: Subscription | null = null;
-  let runFlowSubscription: Subscription | null = null;
+  let runSingleSubscription: Subscription | null = null;
 
   return {
-    ...ROOT_SLICE_INITIAL_STATE,
+    spaceId: initProps.spaceId,
+    subscriptionBag: new Subscription(),
 
-    initializeSpace(spaceId: string) {
-      set({ spaceId, isInitialized: false });
+    isInitialized: false,
+    isRunning: false,
 
-      get().resetFlowServerSlice();
+    detailPanelContentType: DetailPanelContentType.Off,
+    detailPanelSelectedNodeId: null,
+    nodeMetadataDict: {},
 
-      fetchContentSubscription?.unsubscribe();
-      fetchContentSubscription = fetchFlowContent(spaceId)
-        .pipe(mergeMap(createFlowContentHandler(spaceId)))
+    initialize(): void {
+      console.info("FlowStore: initializing...");
+
+      const subscription = fetchFlowContent(initProps.spaceId)
+        .pipe(mergeMap(createFlowContentHandler(initProps.spaceId)))
         .subscribe({
           next({
             nodes,
@@ -140,13 +137,14 @@ export function createRootSlice(
             set({ isInitialized: true });
           },
         });
+
+      get().subscriptionBag.add(subscription);
     },
 
-    deinitializeSpace() {
-      fetchContentSubscription?.unsubscribe();
-      fetchContentSubscription = null;
-
-      set(ROOT_SLICE_INITIAL_STATE);
+    deinitialize(): void {
+      console.groupCollapsed("FlowStore: deinitializing...");
+      get().subscriptionBag.unsubscribe();
+      console.groupEnd();
     },
 
     setDetailPanelContentType(type: DetailPanelContentType) {
@@ -180,9 +178,6 @@ export function createRootSlice(
         flowId: get().spaceId,
       });
 
-      runFlowSubscription?.unsubscribe();
-      runFlowSubscription = null;
-
       // TODO: Give a default for every node instead of empty object
       set({ nodeMetadataDict: {} });
 
@@ -202,7 +197,8 @@ export function createRootSlice(
         variableValueLookUpDict,
       );
 
-      runFlowSubscription = runSingle({
+      runSingleSubscription?.unsubscribe();
+      runSingleSubscription = runSingle({
         flowContent: {
           nodes,
           edges,
@@ -249,6 +245,8 @@ export function createRootSlice(
           setIsRunning(false);
         },
       });
+
+      get().subscriptionBag.add(runSingleSubscription);
     },
 
     stopRunningFlow() {
@@ -256,8 +254,8 @@ export function createRootSlice(
         flowId: get().spaceId,
       });
 
-      runFlowSubscription?.unsubscribe();
-      runFlowSubscription = null;
+      runSingleSubscription?.unsubscribe();
+      runSingleSubscription = null;
 
       setIsRunning(false);
     },

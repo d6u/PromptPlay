@@ -1,13 +1,12 @@
 import styled from "@emotion/styled";
-import { ReactNode, useContext } from "react";
-import invariant from "ts-invariant";
+import { ReactNode } from "react";
 import { useStore } from "zustand";
 import {
   FlowOutputVariable,
   NodeOutputVariable,
   VariableValueType,
 } from "../../../../../models/v3-flow-content-types";
-import FlowContext from "../../../FlowContext";
+import { useStoreFromFlowStoreContext } from "../../../store/FlowStoreContext";
 import OutputDisplay from "./OutputDisplay";
 
 type Props = {
@@ -15,8 +14,7 @@ type Props = {
 };
 
 export default function OutputRenderer(props: Props) {
-  const { flowStore } = useContext(FlowContext);
-  invariant(flowStore != null, "Must provide flowStore");
+  const flowStore = useStoreFromFlowStoreContext();
 
   const defaultVariableValueMap = useStore(flowStore, (s) =>
     s.getDefaultVariableValueLookUpDict(),

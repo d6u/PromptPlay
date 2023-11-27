@@ -15,6 +15,7 @@ import { VariableType } from "../../../../../models/v3-flow-content-types";
 import { CopyIcon, LabelWithIconContainer } from "../../../common/flow-common";
 import TextareaReadonly from "../../../common/TextareaReadonly";
 import FlowContext from "../../../FlowContext";
+import { useStoreFromFlowStoreContext } from "../../../store/FlowStoreContext";
 import { selectVariables } from "../../../store/state-utils";
 import {
   HeaderSection,
@@ -25,8 +26,8 @@ import {
 import OutputRenderer from "../common/OutputRenderer";
 
 export default function PanelChatGPTMessageConfig() {
-  const { flowStore, isCurrentUserOwner } = useContext(FlowContext);
-  invariant(flowStore != null, "Must provide flowStore");
+  const { isCurrentUserOwner } = useContext(FlowContext);
+  const flowStore = useStoreFromFlowStoreContext();
 
   const nodeConfigsDict = useStore(flowStore, (s) => s.nodeConfigsDict);
   const variablesDict = useStore(flowStore, (s) => s.variablesDict);

@@ -1,8 +1,7 @@
-import { ReactNode, useContext, useMemo } from "react";
-import invariant from "ts-invariant";
+import { ReactNode, useMemo } from "react";
 import { useStore } from "zustand";
 import { VariableType } from "../../../../../../models/v3-flow-content-types";
-import FlowContext from "../../../../FlowContext";
+import { useStoreFromFlowStoreContext } from "../../../../store/FlowStoreContext";
 import {
   IterationIndex,
   RowIndex,
@@ -16,8 +15,7 @@ type Props = {
 };
 
 export default function TableBody(props: Props) {
-  const { flowStore } = useContext(FlowContext);
-  invariant(flowStore != null, "Must provide flowStore");
+  const flowStore = useStoreFromFlowStoreContext();
 
   // SECTION: Select state from store
 

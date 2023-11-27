@@ -3,21 +3,13 @@ import { AccordionGroup } from "@mui/joy";
 import { produce } from "immer";
 import Papa from "papaparse";
 import posthog from "posthog-js";
-import {
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Subscription } from "rxjs";
-import invariant from "ts-invariant";
 import { useQuery } from "urql";
 import { useStore } from "zustand";
 import { graphql } from "../../../../../gql";
 import { V3VariableValueLookUpDict } from "../../../../../models/v3-flow-content-types";
-import FlowContext from "../../../FlowContext";
+import { useStoreFromFlowStoreContext } from "../../../store/FlowStoreContext";
 import {
   ColumnIndex,
   IterationIndex,
@@ -29,8 +21,7 @@ import EvaluationSectionImportCSV from "./EvaluationSectionImportCSV";
 import { runForEachRow } from "./utils";
 
 export default function PresetContent() {
-  const { flowStore } = useContext(FlowContext);
-  invariant(flowStore != null, "Must provide flowStore");
+  const flowStore = useStoreFromFlowStoreContext();
 
   // SECTION: Select store state
 

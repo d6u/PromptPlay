@@ -9,10 +9,9 @@ import {
   ModalDialog,
   Typography,
 } from "@mui/joy";
-import { useContext, useEffect, useState } from "react";
-import invariant from "ts-invariant";
+import { useEffect, useState } from "react";
 import { useStore } from "zustand";
-import FlowContext from "../../../FlowContext";
+import { useStoreFromFlowStoreContext } from "../../../store/FlowStoreContext";
 
 type Props = {
   isModalOpen: boolean;
@@ -21,8 +20,7 @@ type Props = {
 };
 
 export default function PresetSaveModal(props: Props) {
-  const { flowStore } = useContext(FlowContext);
-  invariant(flowStore != null, "Must provide flowStore");
+  const flowStore = useStoreFromFlowStoreContext();
 
   // SECTION: Select state from store
 
