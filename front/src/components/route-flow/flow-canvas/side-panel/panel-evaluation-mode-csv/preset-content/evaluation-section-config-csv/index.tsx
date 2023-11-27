@@ -1,4 +1,4 @@
-import { A, D, F } from "@mobily/ts-belt";
+import { F } from "@mobily/ts-belt";
 import {
   Accordion,
   AccordionSummary,
@@ -10,12 +10,9 @@ import {
 } from "@mui/joy";
 import Papa from "papaparse";
 import posthog from "posthog-js";
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { useStore } from "zustand";
-import {
-  V3VariableValueLookUpDict,
-  VariableType,
-} from "../../../../../../../models/v3-flow-content-types";
+import { VariableType } from "../../../../../../../models/v3-flow-content-types";
 import { useStoreFromFlowStoreContext } from "../../../../../store/FlowStoreContext";
 import {
   IterationIndex,
@@ -55,14 +52,6 @@ export default function EvaluationSectionConfigCSV(props: Props) {
     flowStore,
     (s) => s.csvEvaluationSetConcurrencyLimit,
   );
-  const setGeneratedResult = useStore(
-    flowStore,
-    (s) => s.csvEvaluationSetGeneratedResult,
-  );
-  const setRunStatuses = useStore(
-    flowStore,
-    (s) => s.csvEvaluationSetRunStatuses,
-  );
 
   // !SECTION
 
@@ -73,25 +62,6 @@ export default function EvaluationSectionConfigCSV(props: Props) {
   const flowOutputVariables = useMemo(() => {
     return selectAllVariables(VariableType.FlowOutput, variableMap);
   }, [variableMap]);
-
-  useEffect(() => {
-    // NOTE: CSV body row count change, or repeat count change,
-    // reset the generated result.
-
-    setGeneratedResult(
-      A.makeWithIndex(props.csvBody.length, () =>
-        A.makeWithIndex(repeatTimes, D.makeEmpty<V3VariableValueLookUpDict>),
-      ),
-    );
-  }, [props.csvBody.length, repeatTimes, setGeneratedResult]);
-
-  useEffect(() => {
-    setRunStatuses(
-      A.makeWithIndex(props.csvBody.length, () =>
-        A.makeWithIndex(repeatTimes, () => null),
-      ),
-    );
-  }, [props.csvBody.length, repeatTimes, setRunStatuses]);
 
   return (
     <Accordion defaultExpanded>

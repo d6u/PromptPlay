@@ -5,6 +5,7 @@ import Papa from "papaparse";
 import posthog from "posthog-js";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Subscription } from "rxjs";
+import invariant from "ts-invariant";
 import { useQuery } from "urql";
 import { useStore } from "zustand";
 import { runForEachRow } from "../../../../../../flow-run/run-each-row";
@@ -12,7 +13,6 @@ import { graphql } from "../../../../../../gql";
 import { V3VariableValueLookUpDict } from "../../../../../../models/v3-flow-content-types";
 import { useStoreFromFlowStoreContext } from "../../../../store/FlowStoreContext";
 import {
-  ColumnIndex,
   IterationIndex,
   RowIndex,
 } from "../../../../store/slice-csv-evaluation-preset";
@@ -140,6 +140,20 @@ export default function PresetContent() {
 
     setIsRunning(true);
 
+    // Reset result table
+    setGeneratedResult(
+      A.makeWithIndex(csvBody.length, () =>
+        A.makeWithIndex(repeatCount, D.makeEmpty<V3VariableValueLookUpDict>),
+      ),
+    );
+
+    // Reset status table
+    setRunStatuses(
+      A.makeWithIndex(csvBody.length, () =>
+        A.makeWithIndex(repeatCount, () => null),
+      ),
+    );
+
     runningSubscriptionRef.current = runForEachRow({
       flowContent: {
         nodes,
@@ -154,30 +168,19 @@ export default function PresetContent() {
       concurrencyLimit,
     }).subscribe({
       next({ iteratonIndex, rowIndex, outputs, status }) {
-        console.debug({ rowIndex, iteratonIndex, outputs, status });
-
         setGeneratedResult((prev) => {
-          let row = prev[rowIndex as RowIndex]!;
-
-          console.debug({ prev, row });
-
-          row = A.updateAt(
-            row as V3VariableValueLookUpDict[],
-            iteratonIndex,
-            D.merge(outputs),
-          );
-
-          return A.replaceAt(
-            prev as Record<ColumnIndex, V3VariableValueLookUpDict>[],
-            rowIndex,
-            row,
-          );
+          return produce(prev, (draft) => {
+            const row = draft[rowIndex as RowIndex];
+            invariant(row != null, "Result row should not be null");
+            row[iteratonIndex as IterationIndex] = outputs;
+          });
         });
 
         setRunStatuses((prev) =>
           produce(prev, (draft) => {
-            draft[rowIndex as RowIndex][iteratonIndex as IterationIndex] =
-              status;
+            const row = draft[rowIndex as RowIndex];
+            invariant(row != null, "Status row should not be null");
+            row[iteratonIndex as IterationIndex] = status;
           }),
         );
       },

@@ -264,7 +264,7 @@ export type VariableIdToCsvColumnIndexLookUpDict = Record<
 
 export type CsvRunResultTable = Record<
   RowIndex,
-  Record<IterationIndex, V3VariableValueLookUpDict>
+  Record<IterationIndex, V3VariableValueLookUpDict | undefined> | undefined
 >;
 
 export type RunStatusTable = Record<
