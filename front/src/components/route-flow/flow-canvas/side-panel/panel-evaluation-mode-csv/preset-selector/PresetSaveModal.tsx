@@ -11,7 +11,7 @@ import {
 } from "@mui/joy";
 import { useEffect, useState } from "react";
 import { useStore } from "zustand";
-import { useStoreFromFlowStoreContext } from "../../../store/FlowStoreContext";
+import { useStoreFromFlowStoreContext } from "../../../../store/FlowStoreContext";
 
 type Props = {
   isModalOpen: boolean;

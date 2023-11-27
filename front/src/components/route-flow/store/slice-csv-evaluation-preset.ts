@@ -14,13 +14,13 @@ export type CsvEvaluationPresetSlice = {
 
   // Local data
   csvEvaluationCsvStr: string;
-  csvEvaluationConfigContent: ConfigContent;
+  csvEvaluationConfigContent: CsvEvaluationConfigContent;
 
   csvEvaluationSetCurrentPresetId(presetId: string | null): void;
   csvEvaluationSetLocalCsvStr(csvStr: string): void;
 
   csvEvaluationSetLocalConfigContent(
-    change: Partial<ConfigContent> | null,
+    change: Partial<CsvEvaluationConfigContent> | null,
   ): void;
   csvEvaluationSetRepeatCount(repeatCount: number): void;
   csvEvaluationSetConcurrencyLimit(concurrencyLimit: number): void;
@@ -61,7 +61,13 @@ export const createCsvEvaluationPresetSlice: StateCreator<
 
   // Local data
   csvEvaluationCsvStr: "",
-  csvEvaluationConfigContent: DEFAULT_CONFIG_CONTENT,
+  csvEvaluationConfigContent: {
+    repeatTimes: 1,
+    concurrencyLimit: 2,
+    variableIdToCsvColumnIndexLookUpDict: {},
+    csvRunResultTable: [],
+    runStatusTable: [],
+  },
 
   csvEvaluationSetCurrentPresetId(presetId: string | null): void {
     set({ csvEvaluationCurrentPresetId: presetId });
@@ -71,7 +77,7 @@ export const createCsvEvaluationPresetSlice: StateCreator<
   },
 
   csvEvaluationSetLocalConfigContent(
-    change: Partial<ConfigContent> | null,
+    change: Partial<CsvEvaluationConfigContent> | null,
   ): void {
     if (change) {
       const configContent = get().csvEvaluationConfigContent;
@@ -79,15 +85,19 @@ export const createCsvEvaluationPresetSlice: StateCreator<
         csvEvaluationConfigContent: D.merge(configContent, change),
       });
     } else {
-      set({ csvEvaluationConfigContent: DEFAULT_CONFIG_CONTENT });
+      set((state) => ({
+        csvEvaluationConfigContent: {
+          ...state.csvEvaluationConfigContent,
+        },
+      }));
     }
   },
   csvEvaluationSetRepeatCount(repeatTimes: number): void {
     const configContent = get().csvEvaluationConfigContent;
     set({
       csvEvaluationConfigContent: D.merge<
-        ConfigContent,
-        Partial<ConfigContent>
+        CsvEvaluationConfigContent,
+        Partial<CsvEvaluationConfigContent>
       >(configContent, { repeatTimes }),
     });
   },
@@ -95,8 +105,8 @@ export const createCsvEvaluationPresetSlice: StateCreator<
     const configContent = get().csvEvaluationConfigContent;
     set({
       csvEvaluationConfigContent: D.merge<
-        ConfigContent,
-        Partial<ConfigContent>
+        CsvEvaluationConfigContent,
+        Partial<CsvEvaluationConfigContent>
       >(configContent, { concurrencyLimit }),
     });
   },
@@ -112,8 +122,8 @@ export const createCsvEvaluationPresetSlice: StateCreator<
         const configContent = state.csvEvaluationConfigContent;
         return {
           csvEvaluationConfigContent: D.merge<
-            ConfigContent,
-            Partial<ConfigContent>
+            CsvEvaluationConfigContent,
+            Partial<CsvEvaluationConfigContent>
           >(configContent, {
             variableIdToCsvColumnIndexLookUpDict: update(
               configContent.variableIdToCsvColumnIndexLookUpDict,
@@ -125,8 +135,8 @@ export const createCsvEvaluationPresetSlice: StateCreator<
       const configContent = get().csvEvaluationConfigContent;
       set({
         csvEvaluationConfigContent: D.merge<
-          ConfigContent,
-          Partial<ConfigContent>
+          CsvEvaluationConfigContent,
+          Partial<CsvEvaluationConfigContent>
         >(configContent, {
           variableIdToCsvColumnIndexLookUpDict: update,
         }),
@@ -143,8 +153,8 @@ export const createCsvEvaluationPresetSlice: StateCreator<
         const configContent = state.csvEvaluationConfigContent;
         return {
           csvEvaluationConfigContent: D.merge<
-            ConfigContent,
-            Partial<ConfigContent>
+            CsvEvaluationConfigContent,
+            Partial<CsvEvaluationConfigContent>
           >(configContent, {
             csvRunResultTable: update(configContent.csvRunResultTable),
           }),
@@ -154,8 +164,8 @@ export const createCsvEvaluationPresetSlice: StateCreator<
       const configContent = get().csvEvaluationConfigContent;
       set({
         csvEvaluationConfigContent: D.merge<
-          ConfigContent,
-          Partial<ConfigContent>
+          CsvEvaluationConfigContent,
+          Partial<CsvEvaluationConfigContent>
         >(configContent, {
           csvRunResultTable: update,
         }),
@@ -170,8 +180,8 @@ export const createCsvEvaluationPresetSlice: StateCreator<
         const configContent = state.csvEvaluationConfigContent;
         return {
           csvEvaluationConfigContent: D.merge<
-            ConfigContent,
-            Partial<ConfigContent>
+            CsvEvaluationConfigContent,
+            Partial<CsvEvaluationConfigContent>
           >(configContent, {
             runStatusTable: update(configContent.runStatusTable),
           }),
@@ -181,8 +191,8 @@ export const createCsvEvaluationPresetSlice: StateCreator<
       const configContent = get().csvEvaluationConfigContent;
       set({
         csvEvaluationConfigContent: D.merge<
-          ConfigContent,
-          Partial<ConfigContent>
+          CsvEvaluationConfigContent,
+          Partial<CsvEvaluationConfigContent>
         >(configContent, {
           runStatusTable: update,
         }),
@@ -245,7 +255,7 @@ export const createCsvEvaluationPresetSlice: StateCreator<
   },
 });
 
-type ConfigContent = {
+export type CsvEvaluationConfigContent = {
   repeatTimes: number;
   concurrencyLimit: number;
   variableIdToCsvColumnIndexLookUpDict: VariableIdToCsvColumnIndexLookUpDict;
@@ -259,26 +269,18 @@ export type IterationIndex = number & { readonly "": unique symbol };
 
 export type VariableIdToCsvColumnIndexLookUpDict = Record<
   V3VariableID,
-  ColumnIndex | null
+  ColumnIndex | null | undefined
 >;
 
 export type CsvRunResultTable = Record<
   RowIndex,
-  Record<IterationIndex, V3VariableValueLookUpDict>
+  Record<IterationIndex, V3VariableValueLookUpDict | undefined> | undefined
 >;
 
 export type RunStatusTable = Record<
   RowIndex,
   Record<IterationIndex, string | null>
 >;
-
-const DEFAULT_CONFIG_CONTENT: ConfigContent = {
-  repeatTimes: 1,
-  concurrencyLimit: 2,
-  variableIdToCsvColumnIndexLookUpDict: {},
-  csvRunResultTable: [],
-  runStatusTable: [],
-};
 
 // SECTION: GraphQL
 

@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
-import PresetContent from "./PresetContent";
-import PresetSelector from "./PresetSelector";
+import PresetContent from "./preset-content";
+import PresetSelector from "./preset-selector";
 
 export default function PanelEvaluationModeCSV() {
   return (

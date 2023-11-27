@@ -8,14 +8,14 @@ import {
   range,
   reduce,
 } from "rxjs";
-import { runSingle } from "../../../../../flow-run/run-single";
-import { RunEvent, RunEventType } from "../../../../../flow-run/run-types";
+import { CSVData } from "../components/route-flow/flow-canvas/side-panel/panel-evaluation-mode-csv/common";
+import { VariableIdToCsvColumnIndexLookUpDict } from "../components/route-flow/store/slice-csv-evaluation-preset";
 import {
   V3FlowContent,
   V3VariableValueLookUpDict,
-} from "../../../../../models/v3-flow-content-types";
-import { VariableIdToCsvColumnIndexLookUpDict } from "../../../store/slice-csv-evaluation-preset";
-import { CSVData } from "./common";
+} from "../models/v3-flow-content-types";
+import { runSingle } from "./run-single";
+import { RunEvent, RunEventType } from "./run-types";
 
 export function runForEachRow({
   flowContent,

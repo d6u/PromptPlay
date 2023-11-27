@@ -1,14 +1,14 @@
 import { ReactNode, useMemo } from "react";
 import { useStore } from "zustand";
-import { VariableType } from "../../../../../../models/v3-flow-content-types";
-import { useStoreFromFlowStoreContext } from "../../../../store/FlowStoreContext";
+import { VariableType } from "../../../../../../../models/v3-flow-content-types";
+import { useStoreFromFlowStoreContext } from "../../../../../store/FlowStoreContext";
 import {
   IterationIndex,
   RowIndex,
-} from "../../../../store/slice-csv-evaluation-preset";
-import { selectAllVariables } from "../../../../store/state-utils";
-import OutputDisplay from "../../common/OutputDisplay";
-import { CSVData } from "../common";
+} from "../../../../../store/slice-csv-evaluation-preset";
+import { selectAllVariables } from "../../../../../store/state-utils";
+import OutputDisplay from "../../../common/OutputDisplay";
+import { CSVData } from "../../common";
 
 type Props = {
   csvBody: CSVData;
@@ -61,7 +61,7 @@ export default function TableBody(props: Props) {
     for (const inputItem of flowInputVariables) {
       const index = variableIdToCsvColumnIndexLookUpDict[inputItem.id];
       cells.push(
-        <td key={`${inputItem.id}`}>{index !== null ? row[index] : ""}</td>,
+        <td key={`${inputItem.id}`}>{index != null ? row[index] : ""}</td>,
       );
     }
 
@@ -69,7 +69,7 @@ export default function TableBody(props: Props) {
     for (const outputItem of flowOutputVariables) {
       const index = variableIdToCsvColumnIndexLookUpDict[outputItem.id];
       cells.push(
-        <td key={`${outputItem.id}`}>{index !== null ? row[index] : ""}</td>,
+        <td key={`${outputItem.id}`}>{index != null ? row[index] : ""}</td>,
       );
 
       for (let colIndex = 0; colIndex < repeatTimes; colIndex++) {
