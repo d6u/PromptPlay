@@ -62,6 +62,8 @@ export default function PresetContent() {
 
   const shouldFetchPreset = spaceId && presetId;
 
+  console.log("shouldFetchPreset", shouldFetchPreset);
+
   const [queryResult] = useQuery({
     query: EVALUATION_MODE_CSV_CONTENT_QUERY,
     variables: {
@@ -90,7 +92,6 @@ export default function PresetContent() {
 
   useEffect(() => {
     if (shouldFetchPreset) {
-      // NOTE: This is currently always null
       if (queryResult.data?.result?.space.csvEvaluationPreset.configContent) {
         setConfigContent(
           JSON.parse(

@@ -1,3 +1,5 @@
+import json
+
 import strawberry
 
 from server.database.orm.csv_evaluation_preset import OrmCSVEvaluationPreset
@@ -25,7 +27,8 @@ class MutationCSVEvaluationPreset:
         db_user: OrmUser,
         space_id: strawberry.ID,
         name: str,
-        csvContent: str | None = strawberry.UNSET,
+        csv_content: str | None = strawberry.UNSET,
+        config_content: str | None = strawberry.UNSET,
     ) -> CreateCsvEvaluationPresetResult | None:
         db = info.context.db
 
@@ -40,7 +43,10 @@ class MutationCSVEvaluationPreset:
             owner=db_user,
             space=db_space,
             name=name,
-            csv_content=csvContent,
+            csv_content=csv_content,
+            config_content=json.loads(config_content)
+            if config_content != None
+            else None,
         )
 
         db.add(db_csv_evaluation_preset)
@@ -62,6 +68,7 @@ class MutationCSVEvaluationPreset:
         preset_id: strawberry.ID,
         name: str | None = strawberry.UNSET,
         csv_content: str | None = strawberry.UNSET,
+        config_content: str | None = strawberry.UNSET,
     ) -> CSVEvaluationPreset | None:
         db = info.context.db
 
@@ -83,6 +90,11 @@ class MutationCSVEvaluationPreset:
             db_csv_evaluation_preset.csv_content = None
         elif csv_content != strawberry.UNSET:
             db_csv_evaluation_preset.csv_content = csv_content
+
+        if config_content == None:
+            db_csv_evaluation_preset.config_content = None
+        elif config_content != strawberry.UNSET:
+            db_csv_evaluation_preset.config_content = json.loads(config_content)
 
         db.commit()
 

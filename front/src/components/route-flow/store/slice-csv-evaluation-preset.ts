@@ -77,20 +77,12 @@ export const createCsvEvaluationPresetSlice: StateCreator<
   },
 
   csvEvaluationSetLocalConfigContent(
-    change: Partial<CsvEvaluationConfigContent> | null,
+    change: Partial<CsvEvaluationConfigContent>,
   ): void {
-    if (change) {
-      const configContent = get().csvEvaluationConfigContent;
-      set({
-        csvEvaluationConfigContent: D.merge(configContent, change),
-      });
-    } else {
-      set((state) => ({
-        csvEvaluationConfigContent: {
-          ...state.csvEvaluationConfigContent,
-        },
-      }));
-    }
+    const configContent = get().csvEvaluationConfigContent;
+    set({
+      csvEvaluationConfigContent: D.merge(configContent, change),
+    });
   },
   csvEvaluationSetRepeatCount(repeatTimes: number): void {
     const configContent = get().csvEvaluationConfigContent;
@@ -206,7 +198,11 @@ export const createCsvEvaluationPresetSlice: StateCreator<
   }: {
     name: string;
   }): Promise<Option<{ id: string }>> {
-    const { spaceId, csvEvaluationCsvStr: csvContent } = get();
+    const {
+      spaceId,
+      csvEvaluationCsvStr: csvContent,
+      csvEvaluationConfigContent: configContent,
+    } = get();
 
     if (spaceId) {
       const result = await client
@@ -214,6 +210,7 @@ export const createCsvEvaluationPresetSlice: StateCreator<
           spaceId,
           name,
           csvContent,
+          configContent: JSON.stringify(configContent),
         })
         .toPromise();
 
@@ -224,6 +221,7 @@ export const createCsvEvaluationPresetSlice: StateCreator<
     const {
       csvEvaluationCurrentPresetId: presetId,
       csvEvaluationCsvStr: csvContent,
+      csvEvaluationConfigContent: configContent,
     } = get();
 
     if (presetId) {
@@ -232,10 +230,11 @@ export const createCsvEvaluationPresetSlice: StateCreator<
           presetId,
           name,
           csvContent,
+          configContent: JSON.stringify(configContent),
         })
         .toPromise()
-        .catch((e) => {
-          console.error(e);
+        .catch((error) => {
+          console.error(error);
         });
     }
   },
@@ -289,11 +288,13 @@ const CREATE_CSV_EVALUATION_PRESET_MUTATION = graphql(`
     $spaceId: ID!
     $name: String!
     $csvContent: String
+    $configContent: String
   ) {
     result: createCsvEvaluationPreset(
       spaceId: $spaceId
       name: $name
       csvContent: $csvContent
+      configContent: $configContent
     ) {
       space {
         id
@@ -316,11 +317,13 @@ const UPDATE_CSV_EVALUATION_PRESET_MUTATION = graphql(`
     $presetId: ID!
     $name: String
     $csvContent: String
+    $configContent: String
   ) {
     updateCsvEvaluationPreset(
       presetId: $presetId
       name: $name
       csvContent: $csvContent
+      configContent: $configContent
     ) {
       id
       name
