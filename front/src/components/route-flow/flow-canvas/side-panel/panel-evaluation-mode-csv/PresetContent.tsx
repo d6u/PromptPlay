@@ -6,38 +6,59 @@ import posthog from "posthog-js";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Subscription } from "rxjs";
 import { useQuery } from "urql";
+import { useStore } from "zustand";
 import { graphql } from "../../../../../gql";
 import { V3VariableValueLookUpDict } from "../../../../../models/v3-flow-content-types";
+import { useStoreFromFlowStoreContext } from "../../../store/FlowStoreContext";
 import {
   ColumnIndex,
   IterationIndex,
   RowIndex,
-} from "../../../state/slice-csv-evaluation-preset";
-import { useFlowStore } from "../../../state/store-flow-state";
+} from "../../../store/slice-csv-evaluation-preset";
 import { CSVData, CSVHeader } from "./common";
 import EvaluationSectionConfigCSV from "./evaluation-section-config-csv";
 import EvaluationSectionImportCSV from "./EvaluationSectionImportCSV";
 import { runForEachRow } from "./utils";
 
 export default function PresetContent() {
-  const spaceId = useFlowStore.use.spaceId();
-  const nodes = useFlowStore.use.nodes();
-  const edges = useFlowStore.use.edges();
-  const nodeConfigsDict = useFlowStore.use.nodeConfigsDict();
-  const variablesDict = useFlowStore.use.variablesDict();
-  const variableValueLookUpDicts = useFlowStore.use.variableValueLookUpDicts();
-  const presetId = useFlowStore.use.csvEvaluationCurrentPresetId();
-  const csvContent = useFlowStore.use.csvEvaluationCsvStr();
-  const setCsvContent = useFlowStore.use.csvEvaluationSetLocalCsvStr();
-  const setConfigContent =
-    useFlowStore.use.csvEvaluationSetLocalConfigContent();
+  const flowStore = useStoreFromFlowStoreContext();
+
+  // SECTION: Select store state
+
+  const spaceId = useStore(flowStore, (s) => s.spaceId);
+  const nodes = useStore(flowStore, (s) => s.nodes);
+  const edges = useStore(flowStore, (s) => s.edges);
+  const nodeConfigsDict = useStore(flowStore, (s) => s.nodeConfigsDict);
+  const variablesDict = useStore(flowStore, (s) => s.variablesDict);
+  const variableValueLookUpDicts = useStore(
+    flowStore,
+    (s) => s.variableValueLookUpDicts,
+  );
+  const presetId = useStore(flowStore, (s) => s.csvEvaluationCurrentPresetId);
+  const csvContent = useStore(flowStore, (s) => s.csvEvaluationCsvStr);
+  const setCsvContent = useStore(
+    flowStore,
+    (s) => s.csvEvaluationSetLocalCsvStr,
+  );
+  const setConfigContent = useStore(
+    flowStore,
+    (s) => s.csvEvaluationSetLocalConfigContent,
+  );
   const {
     repeatTimes: repeatCount,
     concurrencyLimit,
     variableIdToCsvColumnIndexLookUpDict: variableColumnMap,
-  } = useFlowStore.use.csvEvaluationConfigContent();
-  const setGeneratedResult = useFlowStore.use.csvEvaluationSetGeneratedResult();
-  const setRunStatuses = useFlowStore.use.csvEvaluationSetRunStatuses();
+  } = useStore(flowStore, (s) => s.csvEvaluationConfigContent);
+  const setGeneratedResult = useStore(
+    flowStore,
+    (s) => s.csvEvaluationSetGeneratedResult,
+  );
+  const setRunStatuses = useStore(
+    flowStore,
+    (s) => s.csvEvaluationSetRunStatuses,
+  );
+
+  // !SECTION
 
   const shouldFetchPreset = spaceId && presetId;
 

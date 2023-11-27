@@ -11,18 +11,19 @@ import {
 import Papa from "papaparse";
 import posthog from "posthog-js";
 import { useEffect, useMemo } from "react";
+import { useStore } from "zustand";
 import {
   V3VariableID,
   V3VariableValueLookUpDict,
   VariableType,
 } from "../../../../../../models/v3-flow-content-types";
+import { useStoreFromFlowStoreContext } from "../../../../store/FlowStoreContext";
 import {
   ColumnIndex,
   IterationIndex,
   RowIndex,
-} from "../../../../state/slice-csv-evaluation-preset";
-import { selectAllVariables } from "../../../../state/state-utils";
-import { useFlowStore } from "../../../../state/store-flow-state";
+} from "../../../../store/slice-csv-evaluation-preset";
+import { selectAllVariables } from "../../../../store/state-utils";
 import { Section } from "../../common/controls-common";
 import { CSVData, CSVRow, CustomAccordionDetails } from "../common";
 import TableBody from "./TableBody";
@@ -37,22 +38,37 @@ type Props = {
 };
 
 export default function EvaluationSectionConfigCSV(props: Props) {
+  const flowStore = useStoreFromFlowStoreContext();
+
   // SECTION: Select state from store
 
-  const variableMap = useFlowStore.use.variablesDict();
+  const variableMap = useStore(flowStore, (s) => s.variablesDict);
   const {
     repeatTimes,
     concurrencyLimit,
     variableIdToCsvColumnIndexLookUpDict,
     csvRunResultTable,
-  } = useFlowStore.use.csvEvaluationConfigContent();
-  const setRepeatCount = useFlowStore.use.csvEvaluationSetRepeatCount();
-  const setConcurrencyLimit =
-    useFlowStore.use.csvEvaluationSetConcurrencyLimit();
-  const setVariableColumnMap =
-    useFlowStore.use.csvEvaluationSetVariableIdToCsvColumnIndexLookUpDict();
-  const setGeneratedResult = useFlowStore.use.csvEvaluationSetGeneratedResult();
-  const setRunStatuses = useFlowStore.use.csvEvaluationSetRunStatuses();
+  } = useStore(flowStore, (s) => s.csvEvaluationConfigContent);
+  const setRepeatCount = useStore(
+    flowStore,
+    (s) => s.csvEvaluationSetRepeatCount,
+  );
+  const setConcurrencyLimit = useStore(
+    flowStore,
+    (s) => s.csvEvaluationSetConcurrencyLimit,
+  );
+  const setVariableColumnMap = useStore(
+    flowStore,
+    (s) => s.csvEvaluationSetVariableIdToCsvColumnIndexLookUpDict,
+  );
+  const setGeneratedResult = useStore(
+    flowStore,
+    (s) => s.csvEvaluationSetGeneratedResult,
+  );
+  const setRunStatuses = useStore(
+    flowStore,
+    (s) => s.csvEvaluationSetRunStatuses,
+  );
 
   // !SECTION
 

@@ -5,6 +5,7 @@ import IconButton from "@mui/joy/IconButton";
 import Textarea from "@mui/joy/Textarea";
 import { useContext, useEffect, useMemo, useState } from "react";
 import { Position, useNodeId, useUpdateNodeInternals } from "reactflow";
+import { useStore } from "zustand";
 import { NodeID, NodeType } from "../../../../models/v2-flow-content-types";
 import {
   V3TextTemplateNodeConfig,
@@ -13,12 +14,9 @@ import {
 import { CopyIcon, LabelWithIconContainer } from "../../common/flow-common";
 import TextareaReadonly from "../../common/TextareaReadonly";
 import FlowContext from "../../FlowContext";
-import { selectVariables } from "../../state/state-utils";
-import { useFlowStore } from "../../state/store-flow-state";
-import {
-  DetailPanelContentType,
-  FlowState,
-} from "../../state/store-flow-state-types";
+import { useStoreFromFlowStoreContext } from "../../store/FlowStoreContext";
+import { selectVariables } from "../../store/state-utils";
+import { DetailPanelContentType } from "../../store/store-flow-state-types";
 import AddVariableButton from "./node-common/AddVariableButton";
 import HeaderSection from "./node-common/HeaderSection";
 import {
@@ -36,36 +34,34 @@ import {
   calculateOutputHandleBottom,
 } from "./node-common/utils";
 
-const selector = (state: FlowState) => ({
-  nodeConfigs: state.nodeConfigsDict,
-  variableConfigs: state.variablesDict,
-  updateNodeConfig: state.updateNodeConfig,
-  removeNode: state.removeNode,
-  addVariable: state.addVariable,
-  updateVariable: state.updateVariable,
-  removeVariable: state.removeVariable,
-  setDetailPanelContentType: state.setDetailPanelContentType,
-  setDetailPanelSelectedNodeId: state.setDetailPanelSelectedNodeId,
-  defaultVariableValueMap: state.getDefaultVariableValueLookUpDict(),
-});
-
 export default function TextTemplateNode() {
-  const { isCurrentUserOwner } = useContext(FlowContext);
-
   const nodeId = useNodeId() as NodeID;
 
-  const {
-    nodeConfigs,
-    variableConfigs,
-    updateNodeConfig,
-    removeNode,
-    addVariable,
-    updateVariable,
-    removeVariable,
-    setDetailPanelContentType,
-    setDetailPanelSelectedNodeId,
-    defaultVariableValueMap,
-  } = useFlowStore(selector);
+  const { isCurrentUserOwner } = useContext(FlowContext);
+  const flowStore = useStoreFromFlowStoreContext();
+
+  // SECTION: Select state from store
+
+  const nodeConfigs = useStore(flowStore, (s) => s.nodeConfigsDict);
+  const variableConfigs = useStore(flowStore, (s) => s.variablesDict);
+  const updateNodeConfig = useStore(flowStore, (s) => s.updateNodeConfig);
+  const removeNode = useStore(flowStore, (s) => s.removeNode);
+  const addVariable = useStore(flowStore, (s) => s.addVariable);
+  const updateVariable = useStore(flowStore, (s) => s.updateVariable);
+  const removeVariable = useStore(flowStore, (s) => s.removeVariable);
+  const setDetailPanelContentType = useStore(
+    flowStore,
+    (s) => s.setDetailPanelContentType,
+  );
+  const setDetailPanelSelectedNodeId = useStore(
+    flowStore,
+    (s) => s.setDetailPanelSelectedNodeId,
+  );
+  const defaultVariableValueMap = useStore(flowStore, (s) =>
+    s.getDefaultVariableValueLookUpDict(),
+  );
+
+  // !SECTION
 
   const inputs = useMemo(() => {
     return selectVariables(nodeId, VariableType.NodeInput, variableConfigs);

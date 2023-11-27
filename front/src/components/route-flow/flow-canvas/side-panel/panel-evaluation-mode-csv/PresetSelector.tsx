@@ -3,35 +3,31 @@ import { A, D, F, flow } from "@mobily/ts-belt";
 import { Autocomplete, AutocompleteOption, Button } from "@mui/joy";
 import { ReactNode, useMemo, useState } from "react";
 import { useQuery } from "urql";
+import { useStore } from "zustand";
 import { graphql } from "../../../../../gql";
-import { useFlowStore } from "../../../state/store-flow-state";
-import { FlowState } from "../../../state/store-flow-state-types";
+import { useStoreFromFlowStoreContext } from "../../../store/FlowStoreContext";
 import PresetSaveModal from "./PresetSaveModal";
 
-const PRESET_SELECTOR_QUERY = graphql(`
-  query PresetSelectorQuery($spaceId: UUID!) {
-    result: space(id: $spaceId) {
-      space {
-        id
-        csvEvaluationPresets {
-          id
-          name
-        }
-      }
-    }
-  }
-`);
-
-const selector = (state: FlowState) => ({
-  spaceId: state.spaceId,
-  currentPresetId: state.csvEvaluationCurrentPresetId,
-  setCurrentPresetId: state.csvEvaluationSetCurrentPresetId,
-  deleteCurrentPreset: state.csvEvaluationDeleteCurrentPreset,
-});
-
 export default function PresetSelector() {
-  const { spaceId, currentPresetId, setCurrentPresetId, deleteCurrentPreset } =
-    useFlowStore(selector);
+  const flowStore = useStoreFromFlowStoreContext();
+
+  // SECTION: Select state from store
+
+  const spaceId = useStore(flowStore, (s) => s.spaceId);
+  const currentPresetId = useStore(
+    flowStore,
+    (s) => s.csvEvaluationCurrentPresetId,
+  );
+  const setCurrentPresetId = useStore(
+    flowStore,
+    (s) => s.csvEvaluationSetCurrentPresetId,
+  );
+  const deleteCurrentPreset = useStore(
+    flowStore,
+    (s) => s.csvEvaluationDeleteCurrentPreset,
+  );
+
+  // !SECTION
 
   const [queryResult] = useQuery({
     query: PRESET_SELECTOR_QUERY,
@@ -109,6 +105,26 @@ export default function PresetSelector() {
   );
 }
 
+// SECTION: GraphQL
+
+const PRESET_SELECTOR_QUERY = graphql(`
+  query PresetSelectorQuery($spaceId: UUID!) {
+    result: space(id: $spaceId) {
+      space {
+        id
+        csvEvaluationPresets {
+          id
+          name
+        }
+      }
+    }
+  }
+`);
+
+// !SECTION
+
+// SECTION: UI Components
+
 const Container = styled.div`
   height: 49px;
   border-bottom: 1px solid #ddd;
@@ -129,3 +145,5 @@ const RightAlign = styled.div`
   gap: 10px;
   align-items: center;
 `;
+
+// !SECTION

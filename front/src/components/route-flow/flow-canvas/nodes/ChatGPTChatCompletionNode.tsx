@@ -7,6 +7,7 @@ import Option from "@mui/joy/Option";
 import Select from "@mui/joy/Select";
 import { useContext, useEffect, useMemo, useState } from "react";
 import { Position, useNodeId } from "reactflow";
+import { useStore } from "zustand";
 import { NEW_LINE_SYMBOL } from "../../../../integrations/openai";
 import {
   NodeID,
@@ -26,9 +27,8 @@ import {
 } from "../../../../state/appState";
 import InputReadonly from "../../common/InputReadonly";
 import FlowContext from "../../FlowContext";
-import { selectVariables } from "../../state/state-utils";
-import { useFlowStore } from "../../state/store-flow-state";
-import { FlowState } from "../../state/store-flow-state-types";
+import { useStoreFromFlowStoreContext } from "../../store/FlowStoreContext";
+import { selectVariables } from "../../store/state-utils";
 import HeaderSection from "./node-common/HeaderSection";
 import HelperTextContainer from "./node-common/HelperTextContainer";
 import { InputHandle, OutputHandle, Section } from "./node-common/node-common";
@@ -39,15 +39,6 @@ import {
   calculateInputHandleTop,
   calculateOutputHandleBottom,
 } from "./node-common/utils";
-
-const flowSelector = (state: FlowState) => ({
-  nodeConfigs: state.nodeConfigsDict,
-  variableConfigs: state.variablesDict,
-  updateNodeConfig: state.updateNodeConfig,
-  removeNode: state.removeNode,
-  localNodeAugments: state.nodeMetadataDict,
-  defaultVariableValueMap: state.getDefaultVariableValueLookUpDict(),
-});
 
 const persistSelector = (state: LocalStorageState) => ({
   openAiApiKey: state.openAiApiKey,
@@ -60,18 +51,19 @@ const selector = (state: SpaceState) => ({
 });
 
 export default function ChatGPTChatCompletionNode() {
-  const { isCurrentUserOwner } = useContext(FlowContext);
-
   const nodeId = useNodeId() as NodeID;
 
-  const {
-    nodeConfigs,
-    variableConfigs,
-    updateNodeConfig,
-    removeNode,
-    localNodeAugments,
-    defaultVariableValueMap,
-  } = useFlowStore(flowSelector);
+  const { isCurrentUserOwner } = useContext(FlowContext);
+  const flowStore = useStoreFromFlowStoreContext();
+
+  const nodeConfigsDict = useStore(flowStore, (s) => s.nodeConfigsDict);
+  const variablesDict = useStore(flowStore, (s) => s.variablesDict);
+  const updateNodeConfig = useStore(flowStore, (s) => s.updateNodeConfig);
+  const removeNode = useStore(flowStore, (s) => s.removeNode);
+  const nodeMetadataDict = useStore(flowStore, (s) => s.nodeMetadataDict);
+  const defaultVariableValueMap = useStore(flowStore, (s) =>
+    s.getDefaultVariableValueLookUpDict(),
+  );
 
   const { openAiApiKey, setOpenAiApiKey } =
     useLocalStorageStore(persistSelector);
@@ -80,13 +72,14 @@ export default function ChatGPTChatCompletionNode() {
     useSpaceStore(selector);
 
   const nodeConfig = useMemo(
-    () => nodeConfigs[nodeId] as V3ChatGPTChatCompletionNodeConfig | undefined,
-    [nodeConfigs, nodeId],
+    () =>
+      nodeConfigsDict[nodeId] as V3ChatGPTChatCompletionNodeConfig | undefined,
+    [nodeConfigsDict, nodeId],
   );
 
   const augment = useMemo(
-    () => localNodeAugments[nodeId],
-    [localNodeAugments, nodeId],
+    () => nodeMetadataDict[nodeId],
+    [nodeMetadataDict, nodeId],
   );
 
   // It's OK to force unwrap here because nodeConfig will be undefined only
@@ -133,13 +126,13 @@ export default function ChatGPTChatCompletionNode() {
   const inputVariables = selectVariables(
     nodeId,
     VariableType.NodeInput,
-    variableConfigs,
+    variablesDict,
   );
 
   const outputVariables = selectVariables(
     nodeId,
     VariableType.NodeOutput,
-    variableConfigs,
+    variablesDict,
   );
 
   return (

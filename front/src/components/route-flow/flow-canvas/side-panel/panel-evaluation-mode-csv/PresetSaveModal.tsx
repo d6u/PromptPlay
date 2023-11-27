@@ -10,14 +10,8 @@ import {
   Typography,
 } from "@mui/joy";
 import { useEffect, useState } from "react";
-import { useFlowStore } from "../../../state/store-flow-state";
-import { FlowState } from "../../../state/store-flow-state-types";
-
-const selector = (state: FlowState) => ({
-  setCurrentPresetId: state.csvEvaluationSetCurrentPresetId,
-  saveNewPreset: state.csvEvaluationSaveNewPreset,
-  updatePreset: state.csvEvaluationPresetUpdate,
-});
+import { useStore } from "zustand";
+import { useStoreFromFlowStoreContext } from "../../../store/FlowStoreContext";
 
 type Props = {
   isModalOpen: boolean;
@@ -26,8 +20,21 @@ type Props = {
 };
 
 export default function PresetSaveModal(props: Props) {
-  const { setCurrentPresetId, saveNewPreset, updatePreset } =
-    useFlowStore(selector);
+  const flowStore = useStoreFromFlowStoreContext();
+
+  // SECTION: Select state from store
+
+  const setCurrentPresetId = useStore(
+    flowStore,
+    (s) => s.csvEvaluationSetCurrentPresetId,
+  );
+  const saveNewPreset = useStore(
+    flowStore,
+    (s) => s.csvEvaluationSaveNewPreset,
+  );
+  const updatePreset = useStore(flowStore, (s) => s.csvEvaluationPresetUpdate);
+
+  // !SECTION
 
   const [name, setName] = useState(props.preset?.name ?? "");
 

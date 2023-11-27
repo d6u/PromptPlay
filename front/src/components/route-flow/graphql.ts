@@ -33,7 +33,7 @@ export async function updateSpaceContentV3(
   spaceId: string,
   contentV3: V3FlowContent,
 ) {
-  console.group("saveSpaceContentV3");
+  console.groupCollapsed("updateSpaceContentV3");
   await client.mutation(UPDATE_SPACE_CONTENT_V3_MUTATION, {
     spaceId,
     contentV3: JSON.stringify(contentV3),

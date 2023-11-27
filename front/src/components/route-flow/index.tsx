@@ -4,41 +4,42 @@ import { useLoaderData, useParams } from "react-router-dom";
 import { ReactFlowProvider } from "reactflow";
 import "reactflow/dist/style.css";
 import invariant from "ts-invariant";
+import { useStore } from "zustand";
 import FlowCanvas from "./flow-canvas/FlowCanvas";
 import FlowContext from "./FlowContext";
 import { FlowLoaderData } from "./route-loader";
-import { useFlowStore } from "./state/store-flow-state";
+import { useStoreFromFlowStoreContext } from "./store/FlowStoreContext";
+import FlowStoreContextManager from "./store/FlowStoreContextManager";
 import ToolBar from "./tool-bar/ToolBar";
 
 export default function RouteFlow() {
-  const params = useParams<{ spaceId: string }>();
-  const spaceId = params.spaceId;
+  const spaceId = useParams<{ spaceId: string }>().spaceId;
   invariant(spaceId != null);
-
-  const { isCurrentUserOwner } = useLoaderData() as FlowLoaderData;
-
-  const initializeSpace = useFlowStore.use.initializeSpace();
-  const deinitializeSpace = useFlowStore.use.deinitializeSpace();
-  const isInitialized = useFlowStore.use.isInitialized();
-
-  useEffect(() => {
-    initializeSpace(spaceId);
-
-    return () => {
-      deinitializeSpace();
-    };
-  }, [deinitializeSpace, initializeSpace, spaceId]);
 
   useEffect(() => {
     posthog.capture("Open Flow", { flowId: spaceId });
   }, [spaceId]);
 
   return (
-    <FlowContext.Provider value={{ isCurrentUserOwner }}>
+    <FlowStoreContextManager spaceId={spaceId}>
       <ReactFlowProvider>
-        {isCurrentUserOwner && <ToolBar />}
-        {isInitialized && <FlowCanvas />}
+        <RouteFlowInner />
       </ReactFlowProvider>
+    </FlowStoreContextManager>
+  );
+}
+
+function RouteFlowInner() {
+  const { isCurrentUserOwner } = useLoaderData() as FlowLoaderData;
+
+  const flowStore = useStoreFromFlowStoreContext();
+
+  const isInitialized = useStore(flowStore, (s) => s.isInitialized);
+
+  return (
+    <FlowContext.Provider value={{ isCurrentUserOwner }}>
+      {isCurrentUserOwner && <ToolBar />}
+      {isInitialized && <FlowCanvas />}
     </FlowContext.Provider>
   );
 }

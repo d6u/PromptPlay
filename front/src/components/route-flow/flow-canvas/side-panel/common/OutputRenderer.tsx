@@ -1,26 +1,26 @@
 import styled from "@emotion/styled";
 import { ReactNode } from "react";
+import { useStore } from "zustand";
 import {
   FlowOutputVariable,
   NodeOutputVariable,
   VariableValueType,
 } from "../../../../../models/v3-flow-content-types";
-import { useFlowStore } from "../../../state/store-flow-state";
-import { FlowState } from "../../../state/store-flow-state-types";
+import { useStoreFromFlowStoreContext } from "../../../store/FlowStoreContext";
 import OutputDisplay from "./OutputDisplay";
-
-const selector = (state: FlowState) => ({
-  defaultVariableValueMap: state.getDefaultVariableValueLookUpDict(),
-});
 
 type Props = {
   outputItem: FlowOutputVariable | NodeOutputVariable;
 };
 
 export default function OutputRenderer(props: Props) {
-  const { defaultVariableValueMap: variableValueMap } = useFlowStore(selector);
+  const flowStore = useStoreFromFlowStoreContext();
 
-  const value = variableValueMap[props.outputItem.id];
+  const defaultVariableValueMap = useStore(flowStore, (s) =>
+    s.getDefaultVariableValueLookUpDict(),
+  );
+
+  const value = defaultVariableValueMap[props.outputItem.id];
 
   let valueContent: ReactNode;
 
@@ -42,6 +42,8 @@ export default function OutputRenderer(props: Props) {
   );
 }
 
+// SECTION: UI Components
+
 const Container = styled.div`
   margin-bottom: 10px;
 `;
@@ -59,3 +61,5 @@ const ValueRaw = styled.pre`
   border-radius: 5px;
   white-space: pre-wrap;
 `;
+
+// !SECTION

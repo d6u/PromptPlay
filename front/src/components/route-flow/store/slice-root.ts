@@ -32,7 +32,9 @@ import {
 } from "./store-flow-state-types";
 
 type RootSliceState = {
-  spaceId: string | null;
+  // TODO: Does readonly make any difference here?
+  readonly spaceId: string;
+  readonly subscriptionBag: Subscription;
   isInitialized: boolean;
   detailPanelContentType: DetailPanelContentType;
   detailPanelSelectedNodeId: NodeID | null;
@@ -41,8 +43,8 @@ type RootSliceState = {
 };
 
 export type RootSlice = RootSliceState & {
-  initializeSpace(spaceId: string): void;
-  deinitializeSpace(): void;
+  initialize(): void;
+  deinitialize(): void;
   setDetailPanelContentType(type: DetailPanelContentType): void;
   setDetailPanelSelectedNodeId(nodeId: NodeID): void;
   updateNodeAugment(nodeId: NodeID, change: Partial<NodeMetadata>): void;
@@ -50,19 +52,18 @@ export type RootSlice = RootSliceState & {
   stopRunningFlow(): void;
 };
 
-const ROOT_SLICE_INITIAL_STATE: Readonly<RootSliceState> = {
-  spaceId: null,
-  isInitialized: false,
-  detailPanelContentType: DetailPanelContentType.Off,
-  detailPanelSelectedNodeId: null,
-  nodeMetadataDict: {},
-  isRunning: false,
+type InitProps = {
+  spaceId: string;
 };
 
-export const createRootSlice: StateCreator<FlowState, [], [], RootSlice> = (
-  set,
-  get,
-) => {
+type RootSliceStateCreator = StateCreator<FlowState, [], [], RootSlice>;
+
+export function createRootSlice(
+  initProps: InitProps,
+  ...rest: Parameters<RootSliceStateCreator>
+): ReturnType<RootSliceStateCreator> {
+  const [set, get] = rest;
+
   function setIsRunning(isRunning: boolean) {
     set((state) => {
       let edges = state.edges;
@@ -91,20 +92,24 @@ export const createRootSlice: StateCreator<FlowState, [], [], RootSlice> = (
     });
   }
 
-  let fetchContentSubscription: Subscription | null = null;
-  let runFlowSubscription: Subscription | null = null;
+  let runSingleSubscription: Subscription | null = null;
 
   return {
-    ...ROOT_SLICE_INITIAL_STATE,
+    spaceId: initProps.spaceId,
+    subscriptionBag: new Subscription(),
 
-    initializeSpace(spaceId: string) {
-      set({ spaceId, isInitialized: false });
+    isInitialized: false,
+    isRunning: false,
 
-      get().resetFlowServerSlice();
+    detailPanelContentType: DetailPanelContentType.Off,
+    detailPanelSelectedNodeId: null,
+    nodeMetadataDict: {},
 
-      fetchContentSubscription?.unsubscribe();
-      fetchContentSubscription = fetchFlowContent(spaceId)
-        .pipe(mergeMap(createFlowContentHandler(spaceId)))
+    initialize(): void {
+      console.log("FlowStore: initializing...");
+
+      const subscription = fetchFlowContent(initProps.spaceId)
+        .pipe(mergeMap(createFlowContentHandler(initProps.spaceId)))
         .subscribe({
           next({
             nodes,
@@ -132,13 +137,14 @@ export const createRootSlice: StateCreator<FlowState, [], [], RootSlice> = (
             set({ isInitialized: true });
           },
         });
+
+      get().subscriptionBag.add(subscription);
     },
 
-    deinitializeSpace() {
-      fetchContentSubscription?.unsubscribe();
-      fetchContentSubscription = null;
-
-      set(ROOT_SLICE_INITIAL_STATE);
+    deinitialize(): void {
+      console.groupCollapsed("FlowStore: deinitializing...");
+      get().subscriptionBag.unsubscribe();
+      console.groupEnd();
     },
 
     setDetailPanelContentType(type: DetailPanelContentType) {
@@ -168,10 +174,9 @@ export const createRootSlice: StateCreator<FlowState, [], [], RootSlice> = (
     },
 
     runFlow() {
-      posthog.capture("Starting Simple Evaluation", { flowId: get().spaceId });
-
-      runFlowSubscription?.unsubscribe();
-      runFlowSubscription = null;
+      posthog.capture("Starting Simple Evaluation", {
+        flowId: get().spaceId,
+      });
 
       // TODO: Give a default for every node instead of empty object
       set({ nodeMetadataDict: {} });
@@ -192,7 +197,8 @@ export const createRootSlice: StateCreator<FlowState, [], [], RootSlice> = (
         variableValueLookUpDict,
       );
 
-      runFlowSubscription = runSingle({
+      runSingleSubscription?.unsubscribe();
+      runSingleSubscription = runSingle({
         flowContent: {
           nodes,
           edges,
@@ -239,6 +245,8 @@ export const createRootSlice: StateCreator<FlowState, [], [], RootSlice> = (
           setIsRunning(false);
         },
       });
+
+      get().subscriptionBag.add(runSingleSubscription);
     },
 
     stopRunningFlow() {
@@ -246,13 +254,13 @@ export const createRootSlice: StateCreator<FlowState, [], [], RootSlice> = (
         flowId: get().spaceId,
       });
 
-      runFlowSubscription?.unsubscribe();
-      runFlowSubscription = null;
+      runSingleSubscription?.unsubscribe();
+      runSingleSubscription = null;
 
       setIsRunning(false);
     },
   };
-};
+}
 
 // SECTION: Utilities
 

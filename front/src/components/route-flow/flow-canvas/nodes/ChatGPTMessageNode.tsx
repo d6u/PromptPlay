@@ -7,6 +7,7 @@ import RadioGroup from "@mui/joy/RadioGroup";
 import Textarea from "@mui/joy/Textarea";
 import { useContext, useEffect, useMemo, useState } from "react";
 import { Position, useNodeId, useUpdateNodeInternals } from "reactflow";
+import { useStore } from "zustand";
 import { ChatGPTMessageRole } from "../../../../integrations/openai";
 import { NodeID, NodeType } from "../../../../models/v2-flow-content-types";
 import {
@@ -16,12 +17,9 @@ import {
 import { CopyIcon, LabelWithIconContainer } from "../../common/flow-common";
 import TextareaReadonly from "../../common/TextareaReadonly";
 import FlowContext from "../../FlowContext";
-import { selectVariables } from "../../state/state-utils";
-import { useFlowStore } from "../../state/store-flow-state";
-import {
-  DetailPanelContentType,
-  FlowState,
-} from "../../state/store-flow-state-types";
+import { useStoreFromFlowStoreContext } from "../../store/FlowStoreContext";
+import { selectVariables } from "../../store/state-utils";
+import { DetailPanelContentType } from "../../store/store-flow-state-types";
 import AddVariableButton from "./node-common/AddVariableButton";
 import HeaderSection from "./node-common/HeaderSection";
 import HelperTextContainer from "./node-common/HelperTextContainer";
@@ -42,48 +40,44 @@ import {
   calculateOutputHandleBottom,
 } from "./node-common/utils";
 
-const MESSAGES_HELPER_SECTION_HEIGHT = 81;
-
-const selector = (state: FlowState) => ({
-  nodeConfigs: state.nodeConfigsDict,
-  variableConfigs: state.variablesDict,
-  updateNodeConfig: state.updateNodeConfig,
-  removeNode: state.removeNode,
-  addVariable: state.addVariable,
-  updateVariable: state.updateVariable,
-  removeVariable: state.removeVariable,
-  setDetailPanelContentType: state.setDetailPanelContentType,
-  setDetailPanelSelectedNodeId: state.setDetailPanelSelectedNodeId,
-  defaultVariableValueMap: state.getDefaultVariableValueLookUpDict(),
-});
-
 export default function ChatGPTMessageNode() {
-  const { isCurrentUserOwner } = useContext(FlowContext);
-
   const nodeId = useNodeId() as NodeID;
 
-  const {
-    nodeConfigs,
-    variableConfigs,
-    updateNodeConfig,
-    removeNode,
-    addVariable,
-    updateVariable,
-    removeVariable,
-    setDetailPanelContentType,
-    setDetailPanelSelectedNodeId,
-    defaultVariableValueMap,
-  } = useFlowStore(selector);
+  const { isCurrentUserOwner } = useContext(FlowContext);
+  const flowStore = useStoreFromFlowStoreContext();
+
+  // SECTION: Select state from store
+
+  const nodeConfigsDict = useStore(flowStore, (s) => s.nodeConfigsDict);
+  const variablesDict = useStore(flowStore, (s) => s.variablesDict);
+  const updateNodeConfig = useStore(flowStore, (s) => s.updateNodeConfig);
+  const removeNode = useStore(flowStore, (s) => s.removeNode);
+  const addVariable = useStore(flowStore, (s) => s.addVariable);
+  const updateVariable = useStore(flowStore, (s) => s.updateVariable);
+  const removeVariable = useStore(flowStore, (s) => s.removeVariable);
+  const setDetailPanelContentType = useStore(
+    flowStore,
+    (s) => s.setDetailPanelContentType,
+  );
+  const setDetailPanelSelectedNodeId = useStore(
+    flowStore,
+    (s) => s.setDetailPanelSelectedNodeId,
+  );
+  const defaultVariableValueMap = useStore(flowStore, (s) =>
+    s.getDefaultVariableValueLookUpDict(),
+  );
+
+  // !SECTION
 
   const outputVariables = selectVariables(
     nodeId,
     VariableType.NodeOutput,
-    variableConfigs,
+    variablesDict,
   );
 
   const nodeConfig = useMemo(
-    () => nodeConfigs[nodeId] as V3ChatGPTMessageNodeConfig | undefined,
-    [nodeConfigs, nodeId],
+    () => nodeConfigsDict[nodeId] as V3ChatGPTMessageNodeConfig | undefined,
+    [nodeConfigsDict, nodeId],
   );
 
   const updateNodeInternals = useUpdateNodeInternals();
@@ -91,8 +85,8 @@ export default function ChatGPTMessageNode() {
   // SECTION: Input Variables
 
   const inputs = useMemo(() => {
-    return selectVariables(nodeId, VariableType.NodeInput, variableConfigs);
-  }, [nodeId, variableConfigs]);
+    return selectVariables(nodeId, VariableType.NodeInput, variablesDict);
+  }, [nodeId, variablesDict]);
 
   // !SECTION
 
@@ -322,3 +316,5 @@ export default function ChatGPTMessageNode() {
     </>
   );
 }
+
+const MESSAGES_HELPER_SECTION_HEIGHT = 81;

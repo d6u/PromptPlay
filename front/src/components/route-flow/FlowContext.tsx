@@ -1,6 +1,8 @@
 import { createContext } from "react";
 
-const FlowContext = createContext<{ isCurrentUserOwner: boolean }>({
+const FlowContext = createContext<{
+  isCurrentUserOwner: boolean;
+}>({
   isCurrentUserOwner: false,
 });
 
