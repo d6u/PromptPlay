@@ -222,7 +222,7 @@ export default function EvaluationSectionConfigCSV(props: Props) {
                 });
             }}
           >
-            Copy result as CSV to clipboard
+            Download result as CSV
           </Button>
         </Section>
         <Section style={{ overflow: "auto" }}>
