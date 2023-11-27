@@ -71,6 +71,8 @@ export default function TableHead(props: Props) {
           placeholder="Choose a column"
           value={variableIdToCsvColumnIndexLookUpDict[inputItem.id]}
           onChange={(_event, index) => {
+            // NOTE: When the list of <Option> changes, onChange might be called
+            // as well if it causes the selected value to be invalid.
             setVariableColumnMap((prev) => ({
               ...prev,
               [inputItem.id]: index,
@@ -79,7 +81,7 @@ export default function TableHead(props: Props) {
         >
           {props.csvHeaders.filter(F.identity).map((name, index) => (
             <Option key={index} value={index}>
-              {name}
+              {`Column ${index + 1}: ${name}`}
             </Option>
           ))}
         </Select>
@@ -103,16 +105,18 @@ export default function TableHead(props: Props) {
         <Select
           placeholder="Choose a column"
           value={variableIdToCsvColumnIndexLookUpDict[outputItem.id]}
-          onChange={(e, index) => {
+          onChange={(_event, index) => {
+            // NOTE: When the list of <Option> changes, onChange might be called
+            // as well if it causes the selected value to be invalid.
             setVariableColumnMap((prev) => ({
               ...prev,
               [outputItem.id]: index,
             }));
           }}
         >
-          {props.csvHeaders.filter(F.identity).map((item, i) => (
-            <Option key={i} value={i}>
-              {item}
+          {props.csvHeaders.filter(F.identity).map((name, index) => (
+            <Option key={index} value={index}>
+              {`Column ${index + 1}: ${name}`}
             </Option>
           ))}
         </Select>

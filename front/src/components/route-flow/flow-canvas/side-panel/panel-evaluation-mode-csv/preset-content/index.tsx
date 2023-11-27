@@ -90,6 +90,7 @@ export default function PresetContent() {
 
   useEffect(() => {
     if (shouldFetchPreset) {
+      // NOTE: This is currently always null
       if (queryResult.data?.result?.space.csvEvaluationPreset.configContent) {
         setConfigContent(
           JSON.parse(
@@ -99,8 +100,6 @@ export default function PresetContent() {
         return;
       }
     }
-
-    setConfigContent(null);
   }, [
     setConfigContent,
     shouldFetchPreset,

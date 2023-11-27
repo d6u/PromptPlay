@@ -61,7 +61,13 @@ export const createCsvEvaluationPresetSlice: StateCreator<
 
   // Local data
   csvEvaluationCsvStr: "",
-  csvEvaluationConfigContent: DEFAULT_CONFIG_CONTENT,
+  csvEvaluationConfigContent: {
+    repeatTimes: 1,
+    concurrencyLimit: 2,
+    variableIdToCsvColumnIndexLookUpDict: {},
+    csvRunResultTable: [],
+    runStatusTable: [],
+  },
 
   csvEvaluationSetCurrentPresetId(presetId: string | null): void {
     set({ csvEvaluationCurrentPresetId: presetId });
@@ -79,7 +85,11 @@ export const createCsvEvaluationPresetSlice: StateCreator<
         csvEvaluationConfigContent: D.merge(configContent, change),
       });
     } else {
-      set({ csvEvaluationConfigContent: DEFAULT_CONFIG_CONTENT });
+      set((state) => ({
+        csvEvaluationConfigContent: {
+          ...state.csvEvaluationConfigContent,
+        },
+      }));
     }
   },
   csvEvaluationSetRepeatCount(repeatTimes: number): void {
@@ -271,14 +281,6 @@ export type RunStatusTable = Record<
   RowIndex,
   Record<IterationIndex, string | null>
 >;
-
-const DEFAULT_CONFIG_CONTENT: CsvEvaluationConfigContent = {
-  repeatTimes: 1,
-  concurrencyLimit: 2,
-  variableIdToCsvColumnIndexLookUpDict: {},
-  csvRunResultTable: [],
-  runStatusTable: [],
-};
 
 // SECTION: GraphQL
 
