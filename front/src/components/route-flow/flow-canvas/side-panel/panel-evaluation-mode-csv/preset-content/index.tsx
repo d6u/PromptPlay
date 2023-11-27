@@ -7,18 +7,18 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Subscription } from "rxjs";
 import { useQuery } from "urql";
 import { useStore } from "zustand";
-import { graphql } from "../../../../../gql";
-import { V3VariableValueLookUpDict } from "../../../../../models/v3-flow-content-types";
-import { useStoreFromFlowStoreContext } from "../../../store/FlowStoreContext";
+import { runForEachRow } from "../../../../../../flow-run/run-each-row";
+import { graphql } from "../../../../../../gql";
+import { V3VariableValueLookUpDict } from "../../../../../../models/v3-flow-content-types";
+import { useStoreFromFlowStoreContext } from "../../../../store/FlowStoreContext";
 import {
   ColumnIndex,
   IterationIndex,
   RowIndex,
-} from "../../../store/slice-csv-evaluation-preset";
-import { CSVData, CSVHeader } from "./common";
+} from "../../../../store/slice-csv-evaluation-preset";
+import { CSVData, CSVHeader } from "../common";
 import EvaluationSectionConfigCSV from "./evaluation-section-config-csv";
 import EvaluationSectionImportCSV from "./EvaluationSectionImportCSV";
-import { runForEachRow } from "./utils";
 
 export default function PresetContent() {
   const flowStore = useStoreFromFlowStoreContext();

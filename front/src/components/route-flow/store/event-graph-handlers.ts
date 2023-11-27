@@ -36,15 +36,16 @@ import { createNodeConfig } from "../../../models/v3-flow-utils";
 import randomId from "../../../utils/randomId";
 import { DRAG_HANDLE_CLASS_NAME } from "../constants";
 import { ChangeEvent, ChangeEventType } from "./event-graph-types";
+import { CsvEvaluationConfigContent } from "./slice-csv-evaluation-preset";
 import { assignLocalEdgeProperties } from "./state-utils";
-import { SliceFlowContentV3State } from "./store-flow-state-types";
-
-type EventHandlerResult = [Partial<SliceFlowContentV3State>, ChangeEvent[]];
+import { FlowState } from "./store-flow-state-types";
 
 const chance = new Chance();
 
+type EventHandlerResult = [Partial<FlowState>, ChangeEvent[]];
+
 export function handleEvent(
-  state: SliceFlowContentV3State,
+  state: FlowState,
   event: ChangeEvent,
 ): EventHandlerResult {
   console.log(event.type, event);
@@ -141,11 +142,12 @@ export function handleEvent(
         state.variableValueLookUpDicts,
       );
     case ChangeEventType.VARIABLE_REMOVED:
-      return handleVariableRemoved(
-        event.removedVariable,
-        state.edges,
-        state.variableValueLookUpDicts,
-      );
+      return handleVariableRemoved({
+        removedVariable: event.removedVariable,
+        prevEdges: state.edges,
+        prevVariableValueMaps: state.variableValueLookUpDicts,
+        prevCsvEvaluationConfigContent: state.csvEvaluationConfigContent,
+      });
     case ChangeEventType.VARIABLE_UPDATED:
       return handleVariableUpdated(
         event.prevVariableConfig,
@@ -161,8 +163,8 @@ export function handleEvent(
 function handleRfEdgeChanges(
   changes: EdgeChange[],
   currentEdges: V3LocalEdge[],
-): [Partial<SliceFlowContentV3State>, ChangeEvent[]] {
-  const content: Partial<SliceFlowContentV3State> = {};
+): EventHandlerResult {
+  const content: Partial<FlowState> = {};
   const events: ChangeEvent[] = [];
 
   const oldEdges = currentEdges;
@@ -195,8 +197,8 @@ function handleRfNodesChange(
   changes: NodeChange[],
   prevNodes: LocalNode[],
   prevNodeConfigs: V3NodeConfigsDict,
-): [Partial<SliceFlowContentV3State>, ChangeEvent[]] {
-  const content: Partial<SliceFlowContentV3State> = {};
+): EventHandlerResult {
+  const content: Partial<FlowState> = {};
   const events: ChangeEvent[] = [];
 
   const nextNodes = applyNodeChanges(changes, prevNodes) as LocalNode[];
@@ -251,8 +253,8 @@ function handleRfOnConnect(
   prevEdges: V3LocalEdge[],
   nodeConfigs: V3NodeConfigsDict,
   variableConfigs: VariablesDict,
-): [Partial<SliceFlowContentV3State>, ChangeEvent[]] {
-  const content: Partial<SliceFlowContentV3State> = {};
+): EventHandlerResult {
+  const content: Partial<FlowState> = {};
   const events: ChangeEvent[] = [];
 
   if (connection.source === connection.target) {
@@ -323,8 +325,8 @@ function handleAddingNode(
   prevNodes: LocalNode[],
   prevNodeConfigs: V3NodeConfigsDict,
   prevVariableConfigs: VariablesDict,
-): [Partial<SliceFlowContentV3State>, ChangeEvent[]] {
-  const content: Partial<SliceFlowContentV3State> = {};
+): EventHandlerResult {
+  const content: Partial<FlowState> = {};
   const events: ChangeEvent[] = [];
 
   const { nodeConfig, variableConfigList } = createNodeConfig(node);
@@ -364,8 +366,8 @@ function handleRemovingNode(
   nodeId: NodeID,
   prevNodes: LocalNode[],
   prevNodeConfigs: V3NodeConfigsDict,
-): [Partial<SliceFlowContentV3State>, ChangeEvent[]] {
-  const content: Partial<SliceFlowContentV3State> = {};
+): EventHandlerResult {
+  const content: Partial<FlowState> = {};
   const events: ChangeEvent[] = [];
 
   const [acceptedNodes, rejectedNodes] = A.partition(
@@ -400,8 +402,8 @@ function handleUpdatingNodeConfig(
   nodeId: NodeID,
   change: Partial<V3NodeConfig>,
   prevNodeConfigs: V3NodeConfigsDict,
-): [Partial<SliceFlowContentV3State>, ChangeEvent[]] {
-  const content: Partial<SliceFlowContentV3State> = {};
+): EventHandlerResult {
+  const content: Partial<FlowState> = {};
   const events: ChangeEvent[] = [];
 
   const nodeConfigs = produce(prevNodeConfigs, (draft) => {
@@ -423,8 +425,8 @@ function handleAddingVariable(
   varType: VariableType,
   index: number,
   variableConfigs: VariablesDict,
-): [Partial<SliceFlowContentV3State>, ChangeEvent[]] {
-  const content: Partial<SliceFlowContentV3State> = {};
+): EventHandlerResult {
+  const content: Partial<FlowState> = {};
   const events: ChangeEvent[] = [];
 
   variableConfigs = produce(variableConfigs, (draft) => {
@@ -489,8 +491,8 @@ function handleAddingVariable(
 function handleRemovingVariable(
   variableId: V3VariableID,
   prevVariableConfigs: VariablesDict,
-): [Partial<SliceFlowContentV3State>, ChangeEvent[]] {
-  const content: Partial<SliceFlowContentV3State> = {};
+): EventHandlerResult {
+  const content: Partial<FlowState> = {};
   const events: ChangeEvent[] = [];
 
   const variableConfigs = produce(prevVariableConfigs, (draft) => {
@@ -512,8 +514,8 @@ function handleUpdatingVariable(
   variableId: V3VariableID,
   change: Partial<Variable>,
   prevVariableConfigs: VariablesDict,
-): [Partial<SliceFlowContentV3State>, ChangeEvent[]] {
-  const content: Partial<SliceFlowContentV3State> = {};
+): EventHandlerResult {
+  const content: Partial<FlowState> = {};
   const events: ChangeEvent[] = [];
 
   const variableConfigs = produce(prevVariableConfigs, (draft) => {
@@ -536,8 +538,8 @@ function handleUpdatingVariable(
 function handleNodeAndVariablesAdded(
   variableConfigList: Variable[],
   prevVariableValueMaps: V3VariableValueLookUpDict[],
-): [Partial<SliceFlowContentV3State>, ChangeEvent[]] {
-  const content: Partial<SliceFlowContentV3State> = {};
+): EventHandlerResult {
+  const content: Partial<FlowState> = {};
   const events: ChangeEvent[] = [];
 
   const variableValueMaps = produce(prevVariableValueMaps, (draft) => {
@@ -560,8 +562,8 @@ function handleNodeRemoved(
   removedNode: LocalNode,
   removedNodeConfig: V3NodeConfig,
   prevVariableConfigs: VariablesDict,
-): [Partial<SliceFlowContentV3State>, ChangeEvent[]] {
-  const content: Partial<SliceFlowContentV3State> = {};
+): EventHandlerResult {
+  const content: Partial<FlowState> = {};
   const events: ChangeEvent[] = [];
 
   const variableConfigs = produce(prevVariableConfigs, (draft) => {
@@ -586,8 +588,8 @@ function handleNodeRemoved(
 function handleEdgeAdded(
   addedEdge: V3LocalEdge,
   prevVariableConfigs: VariablesDict,
-): [Partial<SliceFlowContentV3State>, ChangeEvent[]] {
-  const content: Partial<SliceFlowContentV3State> = {};
+): EventHandlerResult {
+  const content: Partial<FlowState> = {};
   const events: ChangeEvent[] = [];
 
   const variableConfigs = produce(prevVariableConfigs, (draft) => {
@@ -620,8 +622,8 @@ function handleEdgeRemoved(
   removedEdge: V3LocalEdge,
   edgeSrcVariableConfig: Variable | null,
   prevVariableConfigs: VariablesDict,
-): [Partial<SliceFlowContentV3State>, ChangeEvent[]] {
-  const content: Partial<SliceFlowContentV3State> = {};
+): EventHandlerResult {
+  const content: Partial<FlowState> = {};
   const events: ChangeEvent[] = [];
 
   // SECTION: Target Variable Type
@@ -670,8 +672,8 @@ function handleEdgeReplaced(
   oldEdge: V3LocalEdge,
   newEdge: V3LocalEdge,
   prevVariableConfigs: VariablesDict,
-): [Partial<SliceFlowContentV3State>, ChangeEvent[]] {
-  const content: Partial<SliceFlowContentV3State> = {};
+): EventHandlerResult {
+  const content: Partial<FlowState> = {};
   const events: ChangeEvent[] = [];
 
   // --- Handle variable type change ---
@@ -746,8 +748,8 @@ function handleEdgeReplaced(
 function handleVariableAdded(
   variableId: V3VariableID,
   prevVariableValueMaps: V3VariableValueLookUpDict[],
-): [Partial<SliceFlowContentV3State>, ChangeEvent[]] {
-  const content: Partial<SliceFlowContentV3State> = {};
+): EventHandlerResult {
+  const content: Partial<FlowState> = {};
   const events: ChangeEvent[] = [];
 
   const variableValueMaps = produce(prevVariableValueMaps, (draft) => {
@@ -764,12 +766,18 @@ function handleVariableAdded(
   return [content, events];
 }
 
-function handleVariableRemoved(
-  removedVariable: Variable,
-  prevEdges: V3LocalEdge[],
-  prevVariableValueMaps: V3VariableValueLookUpDict[],
-): [Partial<SliceFlowContentV3State>, ChangeEvent[]] {
-  const content: Partial<SliceFlowContentV3State> = {};
+function handleVariableRemoved({
+  removedVariable,
+  prevEdges,
+  prevVariableValueMaps,
+  prevCsvEvaluationConfigContent,
+}: {
+  removedVariable: Variable;
+  prevEdges: V3LocalEdge[];
+  prevVariableValueMaps: V3VariableValueLookUpDict[];
+  prevCsvEvaluationConfigContent: CsvEvaluationConfigContent;
+}): EventHandlerResult {
+  const content: Partial<FlowState> = {};
   const events: ChangeEvent[] = [];
 
   // SECTION: Process Edges Removal
@@ -806,9 +814,22 @@ function handleVariableRemoved(
 
   // !SECTION
 
+  // SECTION: Remove Variable ID to column index mapping in
+  // CSV Evaluation Config Content
+
+  const csvEvaluationConfigContent = produce(
+    prevCsvEvaluationConfigContent,
+    (draft) => {
+      delete draft.variableIdToCsvColumnIndexLookUpDict[removedVariable.id];
+    },
+  );
+
+  // !SECTION
+
   content.isFlowContentDirty = true;
   content.edges = acceptedEdges;
   content.variableValueLookUpDicts = variableValueMaps;
+  content.csvEvaluationConfigContent = csvEvaluationConfigContent;
 
   return [content, events];
 }
@@ -818,7 +839,7 @@ function handleVariableUpdated(
   nextVariableConfig: Variable,
   prevVariableValueMaps: V3VariableValueLookUpDict[],
 ): EventHandlerResult {
-  const content: Partial<SliceFlowContentV3State> = {};
+  const content: Partial<FlowState> = {};
   const events: ChangeEvent[] = [];
 
   const variableValueMaps = produce(prevVariableValueMaps, (draft) => {

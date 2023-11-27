@@ -2,10 +2,10 @@ import { F } from "@mobily/ts-belt";
 import { Option, Select } from "@mui/joy";
 import { ReactNode, useMemo } from "react";
 import { useStore } from "zustand";
-import { VariableType } from "../../../../../../models/v3-flow-content-types";
-import { useStoreFromFlowStoreContext } from "../../../../store/FlowStoreContext";
-import { selectAllVariables } from "../../../../store/state-utils";
-import { CSVRow } from "../common";
+import { VariableType } from "../../../../../../../models/v3-flow-content-types";
+import { useStoreFromFlowStoreContext } from "../../../../../store/FlowStoreContext";
+import { selectAllVariables } from "../../../../../store/state-utils";
+import { CSVRow } from "../../common";
 
 type Props = {
   csvHeaders: CSVRow;

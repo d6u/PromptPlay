@@ -13,19 +13,17 @@ import posthog from "posthog-js";
 import { useEffect, useMemo } from "react";
 import { useStore } from "zustand";
 import {
-  V3VariableID,
   V3VariableValueLookUpDict,
   VariableType,
-} from "../../../../../../models/v3-flow-content-types";
-import { useStoreFromFlowStoreContext } from "../../../../store/FlowStoreContext";
+} from "../../../../../../../models/v3-flow-content-types";
+import { useStoreFromFlowStoreContext } from "../../../../../store/FlowStoreContext";
 import {
-  ColumnIndex,
   IterationIndex,
   RowIndex,
-} from "../../../../store/slice-csv-evaluation-preset";
-import { selectAllVariables } from "../../../../store/state-utils";
-import { Section } from "../../common/controls-common";
-import { CSVData, CSVRow, CustomAccordionDetails } from "../common";
+} from "../../../../../store/slice-csv-evaluation-preset";
+import { selectAllVariables } from "../../../../../store/state-utils";
+import { Section } from "../../../common/controls-common";
+import { CSVData, CSVRow, CustomAccordionDetails } from "../../common";
 import TableBody from "./TableBody";
 import TableHead from "./TableHead";
 
@@ -57,10 +55,6 @@ export default function EvaluationSectionConfigCSV(props: Props) {
     flowStore,
     (s) => s.csvEvaluationSetConcurrencyLimit,
   );
-  const setVariableColumnMap = useStore(
-    flowStore,
-    (s) => s.csvEvaluationSetVariableIdToCsvColumnIndexLookUpDict,
-  );
   const setGeneratedResult = useStore(
     flowStore,
     (s) => s.csvEvaluationSetGeneratedResult,
@@ -79,23 +73,6 @@ export default function EvaluationSectionConfigCSV(props: Props) {
   const flowOutputVariables = useMemo(() => {
     return selectAllVariables(VariableType.FlowOutput, variableMap);
   }, [variableMap]);
-
-  useEffect(() => {
-    // NOTE: Everytime flow input/output variables change, reset the variable
-    // ID to CSV column index lookup table.
-
-    const data: Record<V3VariableID, ColumnIndex | null> = {};
-
-    for (const inputItem of flowInputVariables) {
-      data[inputItem.id] = null;
-    }
-
-    for (const outputItem of flowOutputVariables) {
-      data[outputItem.id] = null;
-    }
-
-    setVariableColumnMap(data);
-  }, [setVariableColumnMap, flowInputVariables, flowOutputVariables]);
 
   useEffect(() => {
     // NOTE: CSV body row count change, or repeat count change,
@@ -229,14 +206,14 @@ export default function EvaluationSectionConfigCSV(props: Props) {
                 for (const inputItem of flowInputVariables) {
                   const index =
                     variableIdToCsvColumnIndexLookUpDict[inputItem.id];
-                  cells.push(index !== null ? row[index] : "");
+                  cells.push(index != null ? row[index] : "");
                 }
 
                 // Outputs
                 for (const outputItem of flowOutputVariables) {
                   const index =
                     variableIdToCsvColumnIndexLookUpDict[outputItem.id];
-                  cells.push(index !== null ? row[index] : "");
+                  cells.push(index != null ? row[index] : "");
 
                   for (let i = 0; i < repeatTimes; i++) {
                     const value =
