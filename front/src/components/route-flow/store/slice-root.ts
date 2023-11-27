@@ -106,7 +106,7 @@ export function createRootSlice(
     nodeMetadataDict: {},
 
     initialize(): void {
-      console.info("FlowStore: initializing...");
+      console.log("FlowStore: initializing...");
 
       const subscription = fetchFlowContent(initProps.spaceId)
         .pipe(mergeMap(createFlowContentHandler(initProps.spaceId)))

@@ -6,6 +6,7 @@ import "reactflow/dist/style.css";
 import invariant from "ts-invariant";
 import { useStore } from "zustand";
 import FlowCanvas from "./flow-canvas/FlowCanvas";
+import FlowContext from "./FlowContext";
 import { FlowLoaderData } from "./route-loader";
 import { useStoreFromFlowStoreContext } from "./store/FlowStoreContext";
 import FlowStoreContextManager from "./store/FlowStoreContextManager";
@@ -32,12 +33,13 @@ function RouteFlowInner() {
   const { isCurrentUserOwner } = useLoaderData() as FlowLoaderData;
 
   const flowStore = useStoreFromFlowStoreContext();
+
   const isInitialized = useStore(flowStore, (s) => s.isInitialized);
 
   return (
-    <>
+    <FlowContext.Provider value={{ isCurrentUserOwner }}>
       {isCurrentUserOwner && <ToolBar />}
       {isInitialized && <FlowCanvas />}
-    </>
+    </FlowContext.Provider>
   );
 }

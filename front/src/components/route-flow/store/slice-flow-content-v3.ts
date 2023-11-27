@@ -76,7 +76,7 @@ type SliceFlowContentV3Actions = {
 export type SliceFlowContentV3 = SliceFlowContentV3State &
   SliceFlowContentV3Actions;
 
-export const createFlowServerSliceV2: StateCreator<
+export const createFlowServerSliceV3: StateCreator<
   FlowState,
   [["zustand/devtools", never]],
   [],
