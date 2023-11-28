@@ -257,8 +257,24 @@ export type RunOutputTable = Record<
 
 export type RunMetadataTable = Record<
   RowIndex,
-  Record<IterationIndex, string | null>
+  Record<IterationIndex, RunMetadata | undefined> | undefined
 >;
+
+export type RunMetadata = {
+  overallStatus: OverallStatus;
+  errors: string[];
+};
+
+export enum OverallStatus {
+  NotStarted = "NotStarted",
+  Waiting = "Waiting",
+  Running = "Running",
+  // NOTE: Don't call this success because it might not be fully successful
+  Complete = "Complete",
+  // NOTE: Don't call this error because it might be canceled by the user
+  Interrupted = "Interrupted",
+  Unknown = "Unknown",
+}
 
 // SECTION: GraphQL
 

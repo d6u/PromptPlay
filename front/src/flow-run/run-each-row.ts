@@ -17,26 +17,28 @@ import {
 import { runSingle } from "./run-single";
 import { RunEvent, RunEventType } from "./run-types";
 
+type Arguments = {
+  flowContent: V3FlowContent;
+  csvBody: CSVData;
+  variableIdToCsvColumnIndexMap: VariableIdToCsvColumnIndexMap;
+  repeatTimes: number;
+  concurrencyLimit: number;
+};
+
 export function runForEachRow({
   flowContent,
   csvBody,
-  variableColumnMap,
-  repeatCount,
+  variableIdToCsvColumnIndexMap,
+  repeatTimes: repeatCount,
   concurrencyLimit,
-}: {
-  flowContent: V3FlowContent;
-  csvBody: CSVData;
-  variableColumnMap: VariableIdToCsvColumnIndexMap;
-  repeatCount: number;
-  concurrencyLimit: number;
-}): Observable<ResultEvent> {
+}: Arguments): Observable<ResultEvent> {
   return range(0, repeatCount).pipe(
     concatMap((iteratonIndex) => {
       let status: string | null = null;
 
       return from(csvBody).pipe(
         map((row) => {
-          return D.map(variableColumnMap, (colIndex) => {
+          return D.map(variableIdToCsvColumnIndexMap, (colIndex) => {
             return colIndex != null ? row[colIndex] : null;
           });
         }),

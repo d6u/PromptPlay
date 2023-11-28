@@ -4,6 +4,7 @@ import { VariableType } from "../../../../../../../models/v3-flow-content-types"
 import { useStoreFromFlowStoreContext } from "../../../../../store/FlowStoreContext";
 import {
   IterationIndex,
+  OverallStatus,
   RowIndex,
 } from "../../../../../store/slice-csv-evaluation-preset";
 import { selectAllVariables } from "../../../../../store/state-utils";
@@ -44,15 +45,12 @@ export default function TableBody(props: Props) {
 
     // Columns for "Status"
     for (let colIndex = 0; colIndex < repeatTimes; colIndex++) {
-      const statusValue =
+      const metadata =
         runStatusTable[rowIndex as RowIndex]?.[colIndex as IterationIndex] ??
         null;
       cells.push(
-        <td
-          key={`status-${rowIndex}-${colIndex}`}
-          style={{ color: statusValue == null ? "green" : "red" }}
-        >
-          {statusValue ?? "OK"}
+        <td key={`status-${rowIndex}-${colIndex}`}>
+          {metadata?.overallStatus ?? OverallStatus.Unknown}
         </td>,
       );
     }

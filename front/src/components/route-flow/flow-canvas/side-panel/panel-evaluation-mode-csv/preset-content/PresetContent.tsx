@@ -11,6 +11,7 @@ import { V3VariableValueLookUpDict } from "../../../../../../models/v3-flow-cont
 import { useFlowStore } from "../../../../store/FlowStoreContext";
 import {
   IterationIndex,
+  OverallStatus,
   RowIndex,
 } from "../../../../store/slice-csv-evaluation-preset";
 import { CSVData, CSVHeader } from "../common";
@@ -36,7 +37,7 @@ export default function PresetContent() {
   );
 
   const setGeneratedResult = useFlowStore((s) => s.setRunOutputTable);
-  const setRunStatuses = useFlowStore((s) => s.setRunMetadataTable);
+  const setRunMetadataTable = useFlowStore((s) => s.setRunMetadataTable);
 
   // !SECTION
 
@@ -77,13 +78,18 @@ export default function PresetContent() {
       A.makeWithIndex(csvBody.length, () =>
         A.makeWithIndex(repeatTimes, D.makeEmpty<V3VariableValueLookUpDict>),
       ),
+      /* replace */ true,
     );
 
     // Reset status table
-    setRunStatuses(
+    setRunMetadataTable(
       A.makeWithIndex(csvBody.length, () =>
-        A.makeWithIndex(repeatTimes, () => null),
+        A.makeWithIndex(repeatTimes, () => ({
+          overallStatus: OverallStatus.NotStarted,
+          errors: [],
+        })),
       ),
+      /* replace */ true,
     );
 
     runningSubscriptionRef.current = runForEachRow({
@@ -95,8 +101,8 @@ export default function PresetContent() {
         variableValueLookUpDicts,
       },
       csvBody,
-      variableColumnMap: variableIdToCsvColumnIndexMap,
-      repeatCount: repeatTimes,
+      variableIdToCsvColumnIndexMap,
+      repeatTimes,
       concurrencyLimit,
     }).subscribe({
       next({ iteratonIndex, rowIndex, outputs, status }) {
@@ -108,13 +114,15 @@ export default function PresetContent() {
           });
         });
 
-        setRunStatuses((prev) =>
-          produce(prev, (draft) => {
+        setRunMetadataTable((prev) => {
+          return produce(prev, (draft) => {
             const row = draft[rowIndex as RowIndex];
             invariant(row != null, "Status row should not be null");
-            row[iteratonIndex as IterationIndex] = status;
-          }),
-        );
+            const metadata = row[iteratonIndex as IterationIndex];
+            invariant(metadata != null, "Metadata should not be null");
+            metadata.overallStatus = OverallStatus.Complete;
+          });
+        });
       },
       error(err) {
         console.error(err);
@@ -146,7 +154,7 @@ export default function PresetContent() {
     variableIdToCsvColumnIndexMap,
     concurrencyLimit,
     setGeneratedResult,
-    setRunStatuses,
+    setRunMetadataTable,
   ]);
 
   const stopRunning = useCallback(() => {
