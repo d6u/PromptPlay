@@ -20,14 +20,11 @@ type Props = {
 
 export default function PresetSaveModal(props: Props) {
   // SECTION: Select state from store
-
-  const selectAndLoadPreset = useFlowStore((s) => s.selectAndLoadPreset);
-  const saveNewPreset = useFlowStore((s) => s.createPreset);
-  const updatePreset = useFlowStore((s) => s.updatePreset);
-
+  const createAndSelectPreset = useFlowStore((s) => s.createAndSelectPreset);
+  const updateSelectedPreset = useFlowStore((s) => s.updateSelectedPreset);
   // !SECTION
 
-  const [name, setName] = useState(props.preset?.name ?? "");
+  const [name, setName] = useState(() => props.preset?.name ?? "");
 
   useEffect(() => {
     setName(props.preset?.name ?? "");
@@ -63,6 +60,7 @@ export default function PresetSaveModal(props: Props) {
             variant="outlined"
             onClick={() => {
               props.onCloseModal();
+              // Restore name to the original value when closing modal
               setName(props.preset?.name ?? "");
             }}
           >
@@ -73,13 +71,8 @@ export default function PresetSaveModal(props: Props) {
               <Button
                 variant="outlined"
                 onClick={() => {
-                  saveNewPreset({ name }).then((data) => {
-                    // TODO: handle error
-                    if (data?.id) {
-                      props.onCloseModal();
-                      selectAndLoadPreset(data.id);
-                    }
-                  });
+                  props.onCloseModal();
+                  createAndSelectPreset({ name });
                 }}
               >
                 Save as new
@@ -88,7 +81,7 @@ export default function PresetSaveModal(props: Props) {
                 color="success"
                 onClick={() => {
                   props.onCloseModal();
-                  updatePreset({ name });
+                  updateSelectedPreset({ name });
                 }}
               >
                 Update
@@ -98,13 +91,8 @@ export default function PresetSaveModal(props: Props) {
             <Button
               color="success"
               onClick={() => {
-                saveNewPreset({ name }).then((data) => {
-                  // TODO: handle error
-                  if (data?.id) {
-                    props.onCloseModal();
-                    selectAndLoadPreset(data.id);
-                  }
-                });
+                props.onCloseModal();
+                createAndSelectPreset({ name });
               }}
             >
               Save

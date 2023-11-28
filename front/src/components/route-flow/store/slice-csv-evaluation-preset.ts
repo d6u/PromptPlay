@@ -1,5 +1,4 @@
 import { createLens, Getter, Setter } from "@dhmk/zustand-lens";
-import { Option } from "@mobily/ts-belt";
 import invariant from "ts-invariant";
 import { OperationResult } from "urql";
 import { StateCreator } from "zustand";
@@ -35,8 +34,8 @@ export type CsvEvaluationPresetSlice = {
   selectAndLoadPreset(presetId: string): Promise<void>;
   unselectPreset(): void;
   deleteAndUnselectPreset(): Promise<void>;
-  createPreset({ name }: { name: string }): Promise<Option<{ id: string }>>;
-  updatePreset({ name }: { name: string }): void;
+  createAndSelectPreset({ name }: { name: string }): Promise<void>;
+  updateSelectedPreset({ name }: { name: string }): Promise<void>;
 };
 
 export const createCsvEvaluationPresetSlice: StateCreator<
@@ -160,50 +159,44 @@ export const createCsvEvaluationPresetSlice: StateCreator<
 
       get().unselectPreset();
     },
-    async createPreset({
-      name,
-    }: {
-      name: string;
-    }): Promise<Option<{ id: string }>> {
+    async createAndSelectPreset({ name }: { name: string }): Promise<void> {
       const {
         spaceId,
         csvStr: csvContent,
         csvEvaluationConfigContent: configContent,
       } = get();
 
-      if (spaceId) {
-        const result = await client
-          .mutation(CREATE_CSV_EVALUATION_PRESET_MUTATION, {
-            spaceId,
-            name,
-            csvContent,
-            configContent: JSON.stringify(configContent),
-          })
-          .toPromise();
+      const result = await client
+        .mutation(CREATE_CSV_EVALUATION_PRESET_MUTATION, {
+          spaceId,
+          name,
+          csvContent,
+          configContent: JSON.stringify(configContent),
+        })
+        .toPromise();
 
-        return result.data?.result?.csvEvaluationPreset;
-      }
+      const presetId = result.data?.result?.csvEvaluationPreset?.id;
+      invariant(presetId != null, "Preset ID should not be null");
+
+      get().selectAndLoadPreset(presetId);
     },
-    updatePreset({ name }: { name: string }): void {
+    async updateSelectedPreset({ name }: { name: string }): Promise<void> {
       const {
         csvModeSelectedPresetId: presetId,
         csvStr: csvContent,
         csvEvaluationConfigContent: configContent,
       } = get();
 
-      if (presetId) {
-        client
-          .mutation(UPDATE_CSV_EVALUATION_PRESET_MUTATION, {
-            presetId,
-            name,
-            csvContent,
-            configContent: JSON.stringify(configContent),
-          })
-          .toPromise()
-          .catch((error) => {
-            console.error(error);
-          });
-      }
+      invariant(presetId != null, "Preset ID should not be null");
+
+      await client
+        .mutation(UPDATE_CSV_EVALUATION_PRESET_MUTATION, {
+          presetId,
+          name,
+          csvContent,
+          configContent: JSON.stringify(configContent),
+        })
+        .toPromise();
     },
   };
 };
