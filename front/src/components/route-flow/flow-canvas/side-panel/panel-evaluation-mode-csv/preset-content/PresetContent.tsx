@@ -7,11 +7,11 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Subscription } from "rxjs";
 import invariant from "ts-invariant";
 import { runForEachRow } from "../../../../../../flow-run/run-each-row";
+import { OverallStatus } from "../../../../../../flow-run/run-types";
 import { V3VariableValueLookUpDict } from "../../../../../../models/v3-flow-content-types";
 import { useFlowStore } from "../../../../store/FlowStoreContext";
 import {
   IterationIndex,
-  OverallStatus,
   RowIndex,
 } from "../../../../store/slice-csv-evaluation-preset";
 import { CSVData, CSVHeader } from "../common";
@@ -85,7 +85,7 @@ export default function PresetContent() {
     setRunMetadataTable(
       A.makeWithIndex(csvBody.length, () =>
         A.makeWithIndex(repeatTimes, () => ({
-          overallStatus: OverallStatus.NotStarted,
+          overallStatus: OverallStatus.Waiting,
           errors: [],
         })),
       ),

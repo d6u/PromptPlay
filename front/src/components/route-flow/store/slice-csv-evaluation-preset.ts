@@ -2,6 +2,7 @@ import { createLens, Getter, Setter } from "@dhmk/zustand-lens";
 import invariant from "ts-invariant";
 import { OperationResult } from "urql";
 import { StateCreator } from "zustand";
+import { RunMetadata } from "../../../flow-run/run-types";
 import { graphql } from "../../../gql";
 import { LoadCsvEvaluationPresetQuery } from "../../../gql/graphql";
 import {
@@ -259,22 +260,6 @@ export type RunMetadataTable = Record<
   RowIndex,
   Record<IterationIndex, RunMetadata | undefined> | undefined
 >;
-
-export type RunMetadata = {
-  overallStatus: OverallStatus;
-  errors: string[];
-};
-
-export enum OverallStatus {
-  NotStarted = "NotStarted",
-  Waiting = "Waiting",
-  Running = "Running",
-  // NOTE: Don't call this success because it might not be fully successful
-  Complete = "Complete",
-  // NOTE: Don't call this error because it might be canceled by the user
-  Interrupted = "Interrupted",
-  Unknown = "Unknown",
-}
 
 // SECTION: GraphQL
 

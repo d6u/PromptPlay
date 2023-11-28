@@ -1,31 +1,51 @@
-import { NodeMetadata } from "../components/route-flow/store/store-flow-state-types";
 import { NodeID, VariableValueMap } from "../models/v2-flow-content-types";
 
 export enum RunEventType {
   VariableValueChanges = "VariableValueChanges",
-  NodeAugmentChange = "NodeAugmentChange",
-  RunStatusChange = "RunStatusChange",
+  NodeStarted = "NodeStarted",
+  NodeFinished = "NodeFinished",
+  NodeError = "NodeError",
 }
 
 export type RunEvent =
   | VariableValueChangeEvent
-  | NodeAugmentChangeEvent
-  | RunStatusChangeEvent;
+  | NodeStartedEvent
+  | NodeFinishedEvent
+  | NodeErrorEvent;
 
 export type VariableValueChangeEvent = {
   type: RunEventType.VariableValueChanges;
   changes: VariableValueMap;
 };
 
-export type NodeAugmentChangeEvent = {
-  type: RunEventType.NodeAugmentChange;
+export type NodeStartedEvent = {
+  type: RunEventType.NodeStarted;
   nodeId: NodeID;
-  // TODO: Decouple this from state types
-  augmentChange: Partial<NodeMetadata>;
 };
 
-export type RunStatusChangeEvent = {
-  type: RunEventType.RunStatusChange;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  error: any;
+export type NodeFinishedEvent = {
+  type: RunEventType.NodeFinished;
+  nodeId: NodeID;
 };
+
+export type NodeErrorEvent = {
+  type: RunEventType.NodeError;
+  nodeId: NodeID;
+  error: string;
+};
+
+export type RunMetadata = {
+  overallStatus: OverallStatus;
+  errors: string[];
+};
+
+export enum OverallStatus {
+  NotStarted = "NotStarted",
+  Waiting = "Waiting",
+  Running = "Running",
+  // NOTE: Don't call this success because it might not be fully successful
+  Complete = "Complete",
+  // NOTE: Don't call this error because it might be canceled by the user
+  Interrupted = "Interrupted",
+  Unknown = "Unknown",
+}

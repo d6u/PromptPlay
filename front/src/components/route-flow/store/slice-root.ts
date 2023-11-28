@@ -211,6 +211,24 @@ export function createRootSlice(
       }).subscribe({
         next(data) {
           switch (data.type) {
+            case RunEventType.NodeStarted: {
+              const { nodeId } = data;
+              get().updateNodeAugment(nodeId, { isRunning: true });
+              break;
+            }
+            case RunEventType.NodeFinished: {
+              const { nodeId } = data;
+              get().updateNodeAugment(nodeId, { isRunning: false });
+              break;
+            }
+            case RunEventType.NodeError: {
+              const { nodeId } = data;
+              get().updateNodeAugment(nodeId, {
+                isRunning: false,
+                hasError: true,
+              });
+              break;
+            }
             case RunEventType.VariableValueChanges: {
               const { changes } = data;
               for (const [outputId, value] of Object.entries(changes)) {
@@ -218,14 +236,6 @@ export function createRootSlice(
               }
               break;
             }
-            case RunEventType.NodeAugmentChange: {
-              const { nodeId, augmentChange } = data;
-              get().updateNodeAugment(nodeId, augmentChange);
-              break;
-            }
-            case RunEventType.RunStatusChange:
-              // TODO: Refect this in the simple evaluation UI
-              break;
           }
         },
         error(error) {
