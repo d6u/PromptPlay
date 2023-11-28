@@ -37,6 +37,7 @@ export type CsvEvaluationPresetSlice = {
   deleteAndUnselectPreset(): Promise<void>;
   createAndSelectPreset({ name }: { name: string }): Promise<void>;
   updateSelectedPreset({ name }: { name: string }): Promise<void>;
+  savePresetConfigContentIfSelected(): Promise<void>;
 };
 
 export const createCsvEvaluationPresetSlice: StateCreator<
@@ -153,9 +154,21 @@ export const createCsvEvaluationPresetSlice: StateCreator<
       invariant(presetId != null, "Preset ID should not be null");
 
       await client
-        .mutation(DELETE_CSV_EVALUATION_PRESET_MUTATION, {
-          presetId,
-        })
+        .mutation(
+          graphql(`
+            mutation DeleteCsvEvaluationPresetMutation($presetId: ID!) {
+              space: deleteCsvEvaluationPreset(id: $presetId) {
+                id
+                csvEvaluationPresets {
+                  id
+                }
+              }
+            }
+          `),
+          {
+            presetId,
+          },
+        )
         .toPromise();
 
       get().unselectPreset();
@@ -168,12 +181,42 @@ export const createCsvEvaluationPresetSlice: StateCreator<
       } = get();
 
       const result = await client
-        .mutation(CREATE_CSV_EVALUATION_PRESET_MUTATION, {
-          spaceId,
-          name,
-          csvContent,
-          configContent: JSON.stringify(configContent),
-        })
+        .mutation(
+          graphql(`
+            mutation CreateCsvEvaluationPresetMutation(
+              $spaceId: ID!
+              $name: String!
+              $csvContent: String
+              $configContent: String
+            ) {
+              result: createCsvEvaluationPreset(
+                spaceId: $spaceId
+                name: $name
+                csvContent: $csvContent
+                configContent: $configContent
+              ) {
+                space {
+                  id
+                  csvEvaluationPresets {
+                    id
+                  }
+                }
+                csvEvaluationPreset {
+                  id
+                  name
+                  csvContent
+                  configContent
+                }
+              }
+            }
+          `),
+          {
+            spaceId,
+            name,
+            csvContent,
+            configContent: JSON.stringify(configContent),
+          },
+        )
         .toPromise();
 
       const presetId = result.data?.result?.csvEvaluationPreset?.id;
@@ -191,12 +234,67 @@ export const createCsvEvaluationPresetSlice: StateCreator<
       invariant(presetId != null, "Preset ID should not be null");
 
       await client
-        .mutation(UPDATE_CSV_EVALUATION_PRESET_MUTATION, {
-          presetId,
-          name,
-          csvContent,
-          configContent: JSON.stringify(configContent),
-        })
+        .mutation(
+          graphql(`
+            mutation UpdateCsvEvaluationPresetMutation(
+              $presetId: ID!
+              $name: String
+              $csvContent: String
+              $configContent: String
+            ) {
+              updateCsvEvaluationPreset(
+                presetId: $presetId
+                name: $name
+                csvContent: $csvContent
+                configContent: $configContent
+              ) {
+                id
+                name
+                csvContent
+                configContent
+              }
+            }
+          `),
+          {
+            presetId,
+            name,
+            csvContent,
+            configContent: JSON.stringify(configContent),
+          },
+        )
+        .toPromise();
+    },
+    async savePresetConfigContentIfSelected(): Promise<void> {
+      const {
+        csvModeSelectedPresetId: presetId,
+        csvEvaluationConfigContent: configContent,
+      } = get();
+
+      if (presetId == null) {
+        return;
+      }
+
+      await client
+        .mutation(
+          graphql(`
+            mutation SavePresetConfigContent(
+              $presetId: ID!
+              $configContent: String!
+            ) {
+              updateCsvEvaluationPreset(
+                presetId: $presetId
+                configContent: $configContent
+              ) {
+                id
+                configContent
+              }
+            }
+          `),
+          {
+            presetId,
+            configContent: JSON.stringify(configContent),
+          },
+        )
         .toPromise();
     },
   };
@@ -260,68 +358,3 @@ export type RunMetadataTable = Record<
   RowIndex,
   Record<IterationIndex, RunMetadata | undefined> | undefined
 >;
-
-// SECTION: GraphQL
-
-const CREATE_CSV_EVALUATION_PRESET_MUTATION = graphql(`
-  mutation CreateCsvEvaluationPresetMutation(
-    $spaceId: ID!
-    $name: String!
-    $csvContent: String
-    $configContent: String
-  ) {
-    result: createCsvEvaluationPreset(
-      spaceId: $spaceId
-      name: $name
-      csvContent: $csvContent
-      configContent: $configContent
-    ) {
-      space {
-        id
-        csvEvaluationPresets {
-          id
-        }
-      }
-      csvEvaluationPreset {
-        id
-        name
-        csvContent
-        configContent
-      }
-    }
-  }
-`);
-
-const UPDATE_CSV_EVALUATION_PRESET_MUTATION = graphql(`
-  mutation UpdateCsvEvaluationPresetMutation(
-    $presetId: ID!
-    $name: String
-    $csvContent: String
-    $configContent: String
-  ) {
-    updateCsvEvaluationPreset(
-      presetId: $presetId
-      name: $name
-      csvContent: $csvContent
-      configContent: $configContent
-    ) {
-      id
-      name
-      csvContent
-      configContent
-    }
-  }
-`);
-
-const DELETE_CSV_EVALUATION_PRESET_MUTATION = graphql(`
-  mutation DeleteCsvEvaluationPresetMutation($presetId: ID!) {
-    space: deleteCsvEvaluationPreset(id: $presetId) {
-      id
-      csvEvaluationPresets {
-        id
-      }
-    }
-  }
-`);
-
-// !SECTION

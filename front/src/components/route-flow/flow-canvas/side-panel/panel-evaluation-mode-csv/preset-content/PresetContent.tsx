@@ -4,7 +4,7 @@ import { produce } from "immer";
 import Papa from "papaparse";
 import posthog from "posthog-js";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Subscription } from "rxjs";
+import { debounceTime, Subscription, tap } from "rxjs";
 import invariant from "ts-invariant";
 import {
   runForEachRow,
@@ -41,6 +41,9 @@ export default function PresetContent() {
 
   const setGeneratedResult = useFlowStore((s) => s.setRunOutputTable);
   const setRunMetadataTable = useFlowStore((s) => s.setRunMetadataTable);
+  const savePresetConfigContentIfSelected = useFlowStore(
+    (s) => s.savePresetConfigContentIfSelected,
+  );
 
   // !SECTION
 
@@ -107,94 +110,100 @@ export default function PresetContent() {
       variableIdToCsvColumnIndexMap,
       repeatTimes,
       concurrencyLimit,
-    }).subscribe({
-      next(event) {
-        console.log(event);
+    })
+      .pipe(
+        tap((event) => {
+          switch (event.type) {
+            case SingleRunEventType.Start: {
+              setRunMetadataTable((prev) => {
+                return produce(prev, (draft) => {
+                  const row = draft[event.rowIndex as RowIndex];
+                  invariant(row != null, "Status row should not be null");
 
-        switch (event.type) {
-          case SingleRunEventType.Start: {
-            setRunMetadataTable((prev) => {
-              return produce(prev, (draft) => {
-                const row = draft[event.rowIndex as RowIndex];
-                invariant(row != null, "Status row should not be null");
+                  const metadata = row[event.iteratonIndex as IterationIndex];
+                  invariant(metadata != null, "Metadata should not be null");
 
-                const metadata = row[event.iteratonIndex as IterationIndex];
-                invariant(metadata != null, "Metadata should not be null");
-
-                metadata.overallStatus = OverallStatus.Running;
+                  metadata.overallStatus = OverallStatus.Running;
+                });
               });
-            });
-            break;
-          }
-          case SingleRunEventType.End: {
-            setRunMetadataTable((prev) => {
-              return produce(prev, (draft) => {
-                const row = draft[event.rowIndex as RowIndex];
-                invariant(row != null, "Status row should not be null");
+              break;
+            }
+            case SingleRunEventType.End: {
+              setRunMetadataTable((prev) => {
+                return produce(prev, (draft) => {
+                  const row = draft[event.rowIndex as RowIndex];
+                  invariant(row != null, "Status row should not be null");
 
-                const metadata = row[event.iteratonIndex as IterationIndex];
-                invariant(metadata != null, "Metadata should not be null");
+                  const metadata = row[event.iteratonIndex as IterationIndex];
+                  invariant(metadata != null, "Metadata should not be null");
 
-                if (
-                  metadata.overallStatus === OverallStatus.NotStarted ||
-                  metadata.overallStatus === OverallStatus.Waiting ||
-                  metadata.overallStatus === OverallStatus.Running
-                ) {
-                  metadata.overallStatus = OverallStatus.Complete;
-                }
+                  if (
+                    metadata.overallStatus === OverallStatus.NotStarted ||
+                    metadata.overallStatus === OverallStatus.Waiting ||
+                    metadata.overallStatus === OverallStatus.Running
+                  ) {
+                    metadata.overallStatus = OverallStatus.Complete;
+                  }
+                });
               });
-            });
-            break;
-          }
-          case SingleRunEventType.Error: {
-            setRunMetadataTable((prev) => {
-              return produce(prev, (draft) => {
-                const row = draft[event.rowIndex as RowIndex];
-                invariant(row != null, "Status row should not be null");
+              break;
+            }
+            case SingleRunEventType.Error: {
+              setRunMetadataTable((prev) => {
+                return produce(prev, (draft) => {
+                  const row = draft[event.rowIndex as RowIndex];
+                  invariant(row != null, "Status row should not be null");
 
-                const metadata = row[event.iteratonIndex as IterationIndex];
-                invariant(metadata != null, "Metadata should not be null");
+                  const metadata = row[event.iteratonIndex as IterationIndex];
+                  invariant(metadata != null, "Metadata should not be null");
 
-                metadata.overallStatus = OverallStatus.Interrupted;
-                metadata.errors.push(event.error);
+                  metadata.overallStatus = OverallStatus.Interrupted;
+                  metadata.errors.push(event.error);
+                });
               });
-            });
-            break;
-          }
-          case SingleRunEventType.VariableValueChanges: {
-            setGeneratedResult((prev) => {
-              return produce(prev, (draft) => {
-                const row = draft[event.rowIndex as RowIndex];
-                invariant(row != null, "Result row should not be null");
+              break;
+            }
+            case SingleRunEventType.VariableValueChanges: {
+              setGeneratedResult((prev) => {
+                return produce(prev, (draft) => {
+                  const row = draft[event.rowIndex as RowIndex];
+                  invariant(row != null, "Result row should not be null");
 
-                row[event.iteratonIndex as IterationIndex] = {
-                  ...row[event.iteratonIndex as IterationIndex],
-                  ...event.changes,
-                };
+                  row[event.iteratonIndex as IterationIndex] = {
+                    ...row[event.iteratonIndex as IterationIndex],
+                    ...event.changes,
+                  };
+                });
               });
-            });
-            break;
+              break;
+            }
           }
-        }
-      },
-      error(err) {
-        console.error(err);
-        setIsRunning(false);
-        runningSubscriptionRef.current = null;
+        }),
+        debounceTime(500),
+        tap(() => {
+          savePresetConfigContentIfSelected();
+        }),
+      )
+      .subscribe({
+        error(err) {
+          console.error(err);
+          setIsRunning(false);
+          runningSubscriptionRef.current = null;
 
-        posthog.capture("Finished CSV Evaluation with Error", {
-          flowId: spaceId,
-        });
-      },
-      complete() {
-        setIsRunning(false);
-        runningSubscriptionRef.current = null;
+          posthog.capture("Finished CSV Evaluation with Error", {
+            flowId: spaceId,
+          });
+        },
+        complete() {
+          setIsRunning(false);
+          runningSubscriptionRef.current = null;
+          savePresetConfigContentIfSelected();
 
-        posthog.capture("Finished CSV Evaluation", {
-          flowId: spaceId,
-        });
-      },
-    });
+          posthog.capture("Finished CSV Evaluation", {
+            flowId: spaceId,
+          });
+        },
+      });
   }, [
     spaceId,
     csvBody,
@@ -208,13 +217,15 @@ export default function PresetContent() {
     concurrencyLimit,
     setGeneratedResult,
     setRunMetadataTable,
+    savePresetConfigContentIfSelected,
   ]);
 
   const stopRunning = useCallback(() => {
     runningSubscriptionRef.current?.unsubscribe();
     runningSubscriptionRef.current = null;
     setIsRunning(false);
-  }, []);
+    savePresetConfigContentIfSelected();
+  }, [savePresetConfigContentIfSelected]);
 
   useEffect(() => {
     return () => {
