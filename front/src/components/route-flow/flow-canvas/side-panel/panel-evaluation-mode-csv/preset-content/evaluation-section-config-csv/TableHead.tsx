@@ -1,9 +1,8 @@
 import { F } from "@mobily/ts-belt";
 import { Option, Select } from "@mui/joy";
 import { ReactNode, useMemo } from "react";
-import { useStore } from "zustand";
 import { VariableType } from "../../../../../../../models/v3-flow-content-types";
-import { useStoreFromFlowStoreContext } from "../../../../../store/FlowStoreContext";
+import { useFlowStore } from "../../../../../store/FlowStoreContext";
 import { selectAllVariables } from "../../../../../store/state-utils";
 import { CSVRow } from "../../common";
 
@@ -12,29 +11,27 @@ type Props = {
 };
 
 export default function TableHead(props: Props) {
-  const flowStore = useStoreFromFlowStoreContext();
-
   // SECTION: Select state from store
 
-  const variableMap = useStore(flowStore, (s) => s.variablesDict);
-  const { repeatTimes, variableIdToCsvColumnIndexLookUpDict } = useStore(
-    flowStore,
-    (s) => s.csvEvaluationConfigContent,
+  const variablesDict = useFlowStore((s) => s.variablesDict);
+  const repeatTimes = useFlowStore((s) => s.getRepeatTimes());
+  const variableIdToCsvColumnIndexMap = useFlowStore((s) =>
+    s.getVariableIdToCsvColumnIndexMap(),
   );
-  const setVariableColumnMap = useStore(
-    flowStore,
-    (s) => s.csvEvaluationSetVariableIdToCsvColumnIndexLookUpDict,
+
+  const setVariableIdToCsvColumnIndexMap = useFlowStore(
+    (s) => s.setVariableIdToCsvColumnIndexMap,
   );
 
   // !SECTION
 
   const flowInputVariables = useMemo(() => {
-    return selectAllVariables(VariableType.FlowInput, variableMap);
-  }, [variableMap]);
+    return selectAllVariables(VariableType.FlowInput, variablesDict);
+  }, [variablesDict]);
 
   const flowOutputVariables = useMemo(() => {
-    return selectAllVariables(VariableType.FlowOutput, variableMap);
-  }, [variableMap]);
+    return selectAllVariables(VariableType.FlowOutput, variablesDict);
+  }, [variablesDict]);
 
   const variableMapTableHeaderRowFirst: ReactNode[] = [];
   const variableMapTableHeaderRowSecond: ReactNode[] = [];
@@ -69,12 +66,11 @@ export default function TableHead(props: Props) {
       <th key={inputItem.id}>
         <Select
           placeholder="Choose a column"
-          value={variableIdToCsvColumnIndexLookUpDict[inputItem.id]}
+          value={variableIdToCsvColumnIndexMap[inputItem.id]}
           onChange={(_event, index) => {
             // NOTE: When the list of <Option> changes, onChange might be called
             // as well if it causes the selected value to be invalid.
-            setVariableColumnMap((prev) => ({
-              ...prev,
+            setVariableIdToCsvColumnIndexMap(() => ({
               [inputItem.id]: index,
             }));
           }}
@@ -104,12 +100,11 @@ export default function TableHead(props: Props) {
       <th key={outputItem.id}>
         <Select
           placeholder="Choose a column"
-          value={variableIdToCsvColumnIndexLookUpDict[outputItem.id]}
+          value={variableIdToCsvColumnIndexMap[outputItem.id]}
           onChange={(_event, index) => {
             // NOTE: When the list of <Option> changes, onChange might be called
             // as well if it causes the selected value to be invalid.
-            setVariableColumnMap((prev) => ({
-              ...prev,
+            setVariableIdToCsvColumnIndexMap(() => ({
               [outputItem.id]: index,
             }));
           }}

@@ -1,5 +1,6 @@
 import { ReactNode, useMemo } from "react";
 import { useStore } from "zustand";
+import { OverallStatus } from "../../../../../../../flow-run/run-types";
 import { VariableType } from "../../../../../../../models/v3-flow-content-types";
 import { useStoreFromFlowStoreContext } from "../../../../../store/FlowStoreContext";
 import {
@@ -22,9 +23,9 @@ export default function TableBody(props: Props) {
   const variableMap = useStore(flowStore, (s) => s.variablesDict);
   const {
     repeatTimes,
-    variableIdToCsvColumnIndexLookUpDict,
-    csvRunResultTable,
-    runStatusTable,
+    variableIdToCsvColumnIndexMap: variableIdToCsvColumnIndexLookUpDict,
+    runOutputTable: csvRunResultTable,
+    runMetadataTable: runStatusTable,
   } = useStore(flowStore, (s) => s.csvEvaluationConfigContent);
 
   // !SECTION
@@ -44,17 +45,20 @@ export default function TableBody(props: Props) {
 
     // Columns for "Status"
     for (let colIndex = 0; colIndex < repeatTimes; colIndex++) {
-      const statusValue =
+      const metadata =
         runStatusTable[rowIndex as RowIndex]?.[colIndex as IterationIndex] ??
         null;
-      cells.push(
-        <td
-          key={`status-${rowIndex}-${colIndex}`}
-          style={{ color: statusValue == null ? "green" : "red" }}
-        >
-          {statusValue ?? "OK"}
-        </td>,
-      );
+
+      let content = "";
+      if (metadata?.overallStatus == null) {
+        content = OverallStatus.Unknown;
+      } else if (metadata.overallStatus === OverallStatus.Interrupted) {
+        content = metadata.errors[0];
+      } else {
+        content = metadata.overallStatus;
+      }
+
+      cells.push(<td key={`status-${rowIndex}-${colIndex}`}>{content}</td>);
     }
 
     // Input columns

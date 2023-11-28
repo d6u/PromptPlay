@@ -2,7 +2,6 @@ import { D } from "@mobily/ts-belt";
 import {
   BehaviorSubject,
   catchError,
-  concat,
   concatAll,
   defer,
   EMPTY,
@@ -15,7 +14,6 @@ import {
   startWith,
   Subject,
   tap,
-  throwError,
 } from "rxjs";
 import { NodeID, NodeType } from "../models/v2-flow-content-types";
 import {
@@ -34,7 +32,7 @@ import { handleHuggingFaceInferenceNode } from "./handleHuggingFaceInferenceNode
 import { handleJavaScriptFunctionNode } from "./handleJavaScriptFunctionNode";
 import { handleOutputNode } from "./handleOutputNode";
 import { handleTextTemplateNode } from "./handleTextTemplateNode";
-import { RunEvent, RunEventType, RunStatusChangeEvent } from "./run-types";
+import { RunEvent, RunEventType } from "./run-types";
 
 export const AsyncFunction = async function () {}.constructor;
 
@@ -70,20 +68,18 @@ export function runSingle({
   // in topological order.
   const signalSubject = new BehaviorSubject<void>(undefined);
 
-  return createTopologicalSortNodeConfigListObservable({
-    signalSubject,
-    nodeConfigsDict,
-    edges,
-  }).pipe(
-    mergeMap<V3NodeConfig[], Observable<RunEvent>>((nodeConfigs) => {
-      if (nodeConfigs.length === 0) {
-        // Completing the `signalSubject` will complete the observable after
-        // the returned observable is completed.
-        signalSubject.complete();
-        return EMPTY;
-      }
+  function handleNodeConfigList(
+    listOfNodeConfigs: V3NodeConfig[],
+  ): Observable<RunEvent> {
+    if (listOfNodeConfigs.length === 0) {
+      // Completing the `signalSubject` will complete the observable after
+      // the returned observable is completed.
+      signalSubject.complete();
+      return EMPTY;
+    }
 
-      const obsList: Observable<RunEvent>[] = nodeConfigs.map((nodeConfig) => {
+    const obsList = listOfNodeConfigs.map<Observable<RunEvent>>(
+      (nodeConfig) => {
         return createNodeConfigExecutionObservable({
           nodeConfig,
           context: {
@@ -93,59 +89,48 @@ export function runSingle({
             useStreaming,
           },
         }).pipe(
-          // startWith and endWith will run for each node, before and after
-          // running its logic.
-          map<V3VariableValueLookUpDict, RunEvent>((changes) => {
-            return { type: RunEventType.VariableValueChanges, changes };
-          }),
+          map<V3VariableValueLookUpDict, RunEvent>((changes) => ({
+            type: RunEventType.VariableValueChanges,
+            changes,
+          })),
           startWith<RunEvent>({
-            type: RunEventType.NodeAugmentChange,
+            type: RunEventType.NodeStarted,
             nodeId: nodeConfig.nodeId,
-            augmentChange: { isRunning: true },
           }),
+          // Either `endWith` or `catchError` will be triggered but not both.
           endWith<RunEvent>({
-            type: RunEventType.NodeAugmentChange,
+            type: RunEventType.NodeFinished,
             nodeId: nodeConfig.nodeId,
-            augmentChange: { isRunning: false },
           }),
-          // `catchError` here act like `endWith`, but also make sure the error
-          // is rethrown.
-          //
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          catchError<any, Observable<RunEvent>>((e) =>
-            concat<[RunEvent, RunEvent]>(
-              of({
-                type: RunEventType.NodeAugmentChange,
-                nodeId: nodeConfig.nodeId,
-                augmentChange: { isRunning: false, hasError: true },
-              }),
-              throwError(() => e),
-            ),
-          ),
+          catchError<RunEvent, Observable<RunEvent>>((err) => {
+            signalSubject.complete();
+            return of({
+              type: RunEventType.NodeError,
+              nodeId: nodeConfig.nodeId,
+              error: JSON.stringify(err),
+            });
+          }),
         );
-      });
+      },
+    );
 
-      return from(obsList).pipe(
-        // Switch to mergeAll to subscribe to each observable at the same time,
-        // to maximize the concurrency.
-        concatAll(),
-        tap({
-          error(error) {
-            // console.error("Run failed with error,", e);
-            // By erroring `signalSubject`, we error the observable chain
-            // immediately.
-            signalSubject.error(error);
-          },
-          complete() {
-            signalSubject.next();
-          },
-        }),
-      );
-    }),
-    catchError((error) =>
-      of<RunStatusChangeEvent>({ type: RunEventType.RunStatusChange, error }),
-    ),
-  );
+    return from(obsList).pipe(
+      // NOTE: Switch from concatAll() to mergeAll() to subscribe to each
+      // observable at the same time to maximize the concurrency.
+      concatAll(),
+      tap({
+        complete() {
+          signalSubject.next();
+        },
+      }),
+    );
+  }
+
+  return createTopologicalSortNodeConfigListObservable({
+    signalSubject,
+    nodeConfigsDict,
+    edges,
+  }).pipe(mergeMap<V3NodeConfig[], Observable<RunEvent>>(handleNodeConfigList));
 }
 
 type ArgumentsCreateTopologicalSortNodeConfigListObservable = {

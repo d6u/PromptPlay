@@ -11,9 +11,8 @@ import {
 import Papa from "papaparse";
 import posthog from "posthog-js";
 import { useMemo } from "react";
-import { useStore } from "zustand";
 import { VariableType } from "../../../../../../../models/v3-flow-content-types";
-import { useStoreFromFlowStoreContext } from "../../../../../store/FlowStoreContext";
+import { useFlowStore } from "../../../../../store/FlowStoreContext";
 import {
   IterationIndex,
   RowIndex,
@@ -33,54 +32,49 @@ type Props = {
 };
 
 export default function EvaluationSectionConfigCSV(props: Props) {
-  const flowStore = useStoreFromFlowStoreContext();
-
   // SECTION: Select state from store
 
-  const variableMap = useStore(flowStore, (s) => s.variablesDict);
-  const {
-    repeatTimes,
-    concurrencyLimit,
-    variableIdToCsvColumnIndexLookUpDict,
-    csvRunResultTable,
-  } = useStore(flowStore, (s) => s.csvEvaluationConfigContent);
-  const setRepeatCount = useStore(
-    flowStore,
-    (s) => s.csvEvaluationSetRepeatCount,
+  const variablesDict = useFlowStore((s) => s.variablesDict);
+  const repeatTimes = useFlowStore((s) => s.getRepeatTimes());
+  const concurrencyLimit = useFlowStore((s) => s.getConcurrencyLimit());
+  const variableIdToCsvColumnIndexMap = useFlowStore((s) =>
+    s.getVariableIdToCsvColumnIndexMap(),
   );
-  const setConcurrencyLimit = useStore(
-    flowStore,
-    (s) => s.csvEvaluationSetConcurrencyLimit,
-  );
+  const runOutputTable = useFlowStore((s) => s.getRunOutputTable());
+
+  const setRepeatTimes = useFlowStore((s) => s.setRepeatTimes);
+  const setConcurrencyLimit = useFlowStore((s) => s.setConcurrencyLimit);
 
   // !SECTION
 
   const flowInputVariables = useMemo(() => {
-    return selectAllVariables(VariableType.FlowInput, variableMap);
-  }, [variableMap]);
+    return selectAllVariables(VariableType.FlowInput, variablesDict);
+  }, [variablesDict]);
 
   const flowOutputVariables = useMemo(() => {
-    return selectAllVariables(VariableType.FlowOutput, variableMap);
-  }, [variableMap]);
+    return selectAllVariables(VariableType.FlowOutput, variablesDict);
+  }, [variablesDict]);
 
   return (
     <Accordion defaultExpanded>
       <AccordionSummary>Configurate</AccordionSummary>
       <CustomAccordionDetails>
         <Section style={{ overflow: "auto", display: "flex", gap: 10 }}>
-          <FormControl size="lg" orientation="horizontal">
+          <FormControl size="sm" orientation="horizontal">
             <FormLabel>Reapt</FormLabel>
             <Input
+              disabled={props.isRunning}
               size="sm"
               type="number"
               slotProps={{ input: { min: 1, step: 1 } }}
               value={repeatTimes}
-              onChange={(e) => setRepeatCount(Number(e.target.value))}
+              onChange={(e) => setRepeatTimes(Number(e.target.value))}
             />
           </FormControl>
-          <FormControl size="lg" orientation="horizontal">
+          <FormControl size="sm" orientation="horizontal">
             <FormLabel>Concurrency Limit</FormLabel>
             <Input
+              disabled={props.isRunning}
               size="sm"
               type="number"
               slotProps={{ input: { min: 1, step: 1 } }}
@@ -135,8 +129,7 @@ export default function EvaluationSectionConfigCSV(props: Props) {
               for (const inputItem of flowInputVariables) {
                 resultCsv[0].push(inputItem.name);
 
-                const index =
-                  variableIdToCsvColumnIndexLookUpDict[inputItem.id];
+                const index = variableIdToCsvColumnIndexMap[inputItem.id];
                 resultCsv[1].push(
                   index != null
                     ? props.csvHeaders.filter(F.identity)[index]
@@ -174,20 +167,18 @@ export default function EvaluationSectionConfigCSV(props: Props) {
 
                 // Inputs
                 for (const inputItem of flowInputVariables) {
-                  const index =
-                    variableIdToCsvColumnIndexLookUpDict[inputItem.id];
+                  const index = variableIdToCsvColumnIndexMap[inputItem.id];
                   cells.push(index != null ? row[index] : "");
                 }
 
                 // Outputs
                 for (const outputItem of flowOutputVariables) {
-                  const index =
-                    variableIdToCsvColumnIndexLookUpDict[outputItem.id];
+                  const index = variableIdToCsvColumnIndexMap[outputItem.id];
                   cells.push(index != null ? row[index] : "");
 
                   for (let i = 0; i < repeatTimes; i++) {
                     const value =
-                      csvRunResultTable[rowIndex as RowIndex]?.[
+                      runOutputTable[rowIndex as RowIndex]?.[
                         i as IterationIndex
                       ]?.[outputItem.id] ?? "";
 

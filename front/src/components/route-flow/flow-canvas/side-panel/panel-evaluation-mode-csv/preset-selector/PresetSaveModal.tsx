@@ -10,8 +10,7 @@ import {
   Typography,
 } from "@mui/joy";
 import { useEffect, useState } from "react";
-import { useStore } from "zustand";
-import { useStoreFromFlowStoreContext } from "../../../../store/FlowStoreContext";
+import { useFlowStore } from "../../../../store/FlowStoreContext";
 
 type Props = {
   isModalOpen: boolean;
@@ -20,23 +19,12 @@ type Props = {
 };
 
 export default function PresetSaveModal(props: Props) {
-  const flowStore = useStoreFromFlowStoreContext();
-
   // SECTION: Select state from store
-
-  const setCurrentPresetId = useStore(
-    flowStore,
-    (s) => s.csvEvaluationSetCurrentPresetId,
-  );
-  const saveNewPreset = useStore(
-    flowStore,
-    (s) => s.csvEvaluationSaveNewPreset,
-  );
-  const updatePreset = useStore(flowStore, (s) => s.csvEvaluationPresetUpdate);
-
+  const createAndSelectPreset = useFlowStore((s) => s.createAndSelectPreset);
+  const updateSelectedPreset = useFlowStore((s) => s.updateSelectedPreset);
   // !SECTION
 
-  const [name, setName] = useState(props.preset?.name ?? "");
+  const [name, setName] = useState(() => props.preset?.name ?? "");
 
   useEffect(() => {
     setName(props.preset?.name ?? "");
@@ -72,6 +60,7 @@ export default function PresetSaveModal(props: Props) {
             variant="outlined"
             onClick={() => {
               props.onCloseModal();
+              // Restore name to the original value when closing modal
               setName(props.preset?.name ?? "");
             }}
           >
@@ -82,13 +71,8 @@ export default function PresetSaveModal(props: Props) {
               <Button
                 variant="outlined"
                 onClick={() => {
-                  saveNewPreset({ name }).then((data) => {
-                    // TODO: handle error
-                    if (data?.id) {
-                      props.onCloseModal();
-                      setCurrentPresetId(data.id);
-                    }
-                  });
+                  props.onCloseModal();
+                  createAndSelectPreset({ name });
                 }}
               >
                 Save as new
@@ -97,7 +81,7 @@ export default function PresetSaveModal(props: Props) {
                 color="success"
                 onClick={() => {
                   props.onCloseModal();
-                  updatePreset({ name });
+                  updateSelectedPreset({ name });
                 }}
               >
                 Update
@@ -107,13 +91,8 @@ export default function PresetSaveModal(props: Props) {
             <Button
               color="success"
               onClick={() => {
-                saveNewPreset({ name }).then((data) => {
-                  // TODO: handle error
-                  if (data?.id) {
-                    props.onCloseModal();
-                    setCurrentPresetId(data.id);
-                  }
-                });
+                props.onCloseModal();
+                createAndSelectPreset({ name });
               }}
             >
               Save

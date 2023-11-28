@@ -1,19 +1,17 @@
 import { Accordion, AccordionSummary, Table, Textarea } from "@mui/joy";
-import { useStore } from "zustand";
-import { useStoreFromFlowStoreContext } from "../../../../store/FlowStoreContext";
+import { useFlowStore } from "../../../../store/FlowStoreContext";
 import { Section } from "../../common/controls-common";
 import { CSVData, CSVRow, CustomAccordionDetails } from "../common";
 
 type Props = {
   csvHeaders: CSVRow;
   csvBody: CSVData;
+  isRunning: boolean;
 };
 
 export default function EvaluationSectionImportCSV(props: Props) {
-  const flowStore = useStoreFromFlowStoreContext();
-
-  const csvStr = useStore(flowStore, (s) => s.csvEvaluationCsvStr);
-  const setCsvStr = useStore(flowStore, (s) => s.csvEvaluationSetLocalCsvStr);
+  const csvStr = useFlowStore((s) => s.csvStr);
+  const setCsvStr = useFlowStore((s) => s.setCsvStr);
 
   return (
     <Accordion defaultExpanded>
@@ -21,6 +19,7 @@ export default function EvaluationSectionImportCSV(props: Props) {
       <CustomAccordionDetails>
         <Section>
           <Textarea
+            disabled={props.isRunning}
             spellCheck={false}
             minRows={6}
             maxRows={6}

@@ -1,6 +1,10 @@
-import { D, G, Option } from "@mobily/ts-belt";
+import { createLens, Getter, Setter } from "@dhmk/zustand-lens";
+import invariant from "ts-invariant";
+import { OperationResult } from "urql";
 import { StateCreator } from "zustand";
+import { RunMetadata } from "../../../flow-run/run-types";
 import { graphql } from "../../../gql";
+import { LoadCsvEvaluationPresetQuery } from "../../../gql/graphql";
 import {
   V3VariableID,
   V3VariableValueLookUpDict,
@@ -9,45 +13,31 @@ import { client } from "../../../state/urql";
 import { FlowState } from "./store-flow-state-types";
 
 export type CsvEvaluationPresetSlice = {
-  csvEvaluationCurrentPresetId: string | null;
+  csvModeSelectedPresetId: string | null;
   csvEvaluationIsLoading: boolean;
 
-  // Local data
-  csvEvaluationCsvStr: string;
+  // Persistable data
+  csvStr: string;
   csvEvaluationConfigContent: CsvEvaluationConfigContent;
 
-  csvEvaluationSetCurrentPresetId(presetId: string | null): void;
-  csvEvaluationSetLocalCsvStr(csvStr: string): void;
+  setCsvStr(csvStr: string): void;
+  setRepeatTimes(repeatTimes: number): void;
+  getRepeatTimes(): number;
+  setConcurrencyLimit(concurrencyLimit: number): void;
+  getConcurrencyLimit(): number;
+  setVariableIdToCsvColumnIndexMap: Setter<VariableIdToCsvColumnIndexMap>;
+  getVariableIdToCsvColumnIndexMap: Getter<VariableIdToCsvColumnIndexMap>;
+  setRunOutputTable: Setter<RunOutputTable>;
+  getRunOutputTable: Getter<RunOutputTable>;
+  setRunMetadataTable: Setter<RunMetadataTable>;
+  getRunMetadataTable: Getter<RunMetadataTable>;
 
-  csvEvaluationSetLocalConfigContent(
-    change: Partial<CsvEvaluationConfigContent> | null,
-  ): void;
-  csvEvaluationSetRepeatCount(repeatCount: number): void;
-  csvEvaluationSetConcurrencyLimit(concurrencyLimit: number): void;
-  csvEvaluationSetVariableIdToCsvColumnIndexLookUpDict(
-    update:
-      | ((
-          prev: VariableIdToCsvColumnIndexLookUpDict,
-        ) => VariableIdToCsvColumnIndexLookUpDict)
-      | VariableIdToCsvColumnIndexLookUpDict,
-  ): void;
-  csvEvaluationSetGeneratedResult(
-    update:
-      | ((prev: CsvRunResultTable) => CsvRunResultTable)
-      | CsvRunResultTable,
-  ): void;
-  csvEvaluationSetRunStatuses(
-    update: ((prev: RunStatusTable) => RunStatusTable) | RunStatusTable,
-  ): void;
-
-  // Write
-  csvEvaluationSaveNewPreset({
-    name,
-  }: {
-    name: string;
-  }): Promise<Option<{ id: string }>>;
-  csvEvaluationPresetUpdate({ name }: { name: string }): void;
-  csvEvaluationDeleteCurrentPreset(): void;
+  selectAndLoadPreset(presetId: string): Promise<void>;
+  unselectPreset(): void;
+  deleteAndUnselectPreset(): Promise<void>;
+  createAndSelectPreset({ name }: { name: string }): Promise<void>;
+  updateSelectedPreset({ name }: { name: string }): Promise<void>;
+  savePresetConfigContentIfSelected(): Promise<void>;
 };
 
 export const createCsvEvaluationPresetSlice: StateCreator<
@@ -55,290 +45,316 @@ export const createCsvEvaluationPresetSlice: StateCreator<
   [],
   [],
   CsvEvaluationPresetSlice
-> = (set, get) => ({
-  csvEvaluationCurrentPresetId: null,
-  csvEvaluationIsLoading: false,
+> = (set, get) => {
+  const [setConfig, getConfig] = createLens(
+    set,
+    get,
+    "csvEvaluationConfigContent",
+  );
+  const [setVariableIdToCsvColumnIndexMap, getVariableIdToCsvColumnIndexMap] =
+    createLens(setConfig, getConfig, "variableIdToCsvColumnIndexMap");
+  const [setRunOutputTable, getRunOutputTable] = createLens(
+    setConfig,
+    getConfig,
+    "runOutputTable",
+  );
+  const [setRunMetadataTable, getRunMetadataTable] = createLens(
+    setConfig,
+    getConfig,
+    "runMetadataTable",
+  );
 
-  // Local data
-  csvEvaluationCsvStr: "",
-  csvEvaluationConfigContent: {
-    repeatTimes: 1,
-    concurrencyLimit: 2,
-    variableIdToCsvColumnIndexLookUpDict: {},
-    csvRunResultTable: [],
-    runStatusTable: [],
-  },
+  return {
+    csvModeSelectedPresetId: null,
+    csvEvaluationIsLoading: false,
 
-  csvEvaluationSetCurrentPresetId(presetId: string | null): void {
-    set({ csvEvaluationCurrentPresetId: presetId });
-  },
-  csvEvaluationSetLocalCsvStr(csvStr: string): void {
-    set({ csvEvaluationCsvStr: csvStr });
-  },
+    // Local data
+    csvStr: "",
+    csvEvaluationConfigContent: {
+      repeatTimes: 1,
+      concurrencyLimit: 2,
+      variableIdToCsvColumnIndexMap: {},
+      runOutputTable: [],
+      runMetadataTable: [],
+    },
 
-  csvEvaluationSetLocalConfigContent(
-    change: Partial<CsvEvaluationConfigContent> | null,
-  ): void {
-    if (change) {
-      const configContent = get().csvEvaluationConfigContent;
+    setCsvStr(csvStr: string): void {
+      set({ csvStr });
+    },
+    setRepeatTimes(repeatTimes: number): void {
+      setConfig(() => ({ repeatTimes }));
+    },
+    getRepeatTimes(): number {
+      return getConfig().repeatTimes;
+    },
+    setConcurrencyLimit(concurrencyLimit: number): void {
+      setConfig(() => ({ concurrencyLimit }));
+    },
+    getConcurrencyLimit(): number {
+      return getConfig().concurrencyLimit;
+    },
+    setVariableIdToCsvColumnIndexMap,
+    getVariableIdToCsvColumnIndexMap,
+    setRunOutputTable,
+    getRunOutputTable,
+    setRunMetadataTable,
+    getRunMetadataTable,
+
+    async selectAndLoadPreset(presetId: string): Promise<void> {
       set({
-        csvEvaluationConfigContent: D.merge(configContent, change),
+        csvModeSelectedPresetId: presetId,
+        csvEvaluationIsLoading: true,
       });
-    } else {
-      set((state) => ({
-        csvEvaluationConfigContent: {
-          ...state.csvEvaluationConfigContent,
-        },
+
+      const result = await loadPreset(get().spaceId, presetId);
+
+      if (result.error) {
+        console.error(result.error);
+        return;
+      }
+
+      const preset = result.data?.result?.space?.csvEvaluationPreset;
+
+      if (preset == null) {
+        console.error("Preset not found");
+        return;
+      }
+
+      const { csvContent, configContent } = preset;
+
+      set({
+        csvStr: csvContent,
+        csvEvaluationIsLoading: false,
+      });
+
+      setConfig(() =>
+        configContent == null
+          ? {
+              variableIdToCsvColumnIndexMap: {},
+              runOutputTable: [],
+              runMetadataTable: [],
+            }
+          : JSON.parse(configContent),
+      );
+    },
+    unselectPreset(): void {
+      set(() => ({
+        csvModeSelectedPresetId: null,
+        csvStr: "",
       }));
-    }
-  },
-  csvEvaluationSetRepeatCount(repeatTimes: number): void {
-    const configContent = get().csvEvaluationConfigContent;
-    set({
-      csvEvaluationConfigContent: D.merge<
-        CsvEvaluationConfigContent,
-        Partial<CsvEvaluationConfigContent>
-      >(configContent, { repeatTimes }),
-    });
-  },
-  csvEvaluationSetConcurrencyLimit(concurrencyLimit: number): void {
-    const configContent = get().csvEvaluationConfigContent;
-    set({
-      csvEvaluationConfigContent: D.merge<
-        CsvEvaluationConfigContent,
-        Partial<CsvEvaluationConfigContent>
-      >(configContent, { concurrencyLimit }),
-    });
-  },
-  csvEvaluationSetVariableIdToCsvColumnIndexLookUpDict(
-    update:
-      | ((
-          prev: VariableIdToCsvColumnIndexLookUpDict,
-        ) => VariableIdToCsvColumnIndexLookUpDict)
-      | VariableIdToCsvColumnIndexLookUpDict,
-  ): void {
-    if (G.isFunction(update)) {
-      set((state) => {
-        const configContent = state.csvEvaluationConfigContent;
-        return {
-          csvEvaluationConfigContent: D.merge<
-            CsvEvaluationConfigContent,
-            Partial<CsvEvaluationConfigContent>
-          >(configContent, {
-            variableIdToCsvColumnIndexLookUpDict: update(
-              configContent.variableIdToCsvColumnIndexLookUpDict,
-            ),
-          }),
-        };
-      });
-    } else {
-      const configContent = get().csvEvaluationConfigContent;
-      set({
-        csvEvaluationConfigContent: D.merge<
-          CsvEvaluationConfigContent,
-          Partial<CsvEvaluationConfigContent>
-        >(configContent, {
-          variableIdToCsvColumnIndexLookUpDict: update,
-        }),
-      });
-    }
-  },
-  csvEvaluationSetGeneratedResult(
-    update:
-      | ((prev: CsvRunResultTable) => CsvRunResultTable)
-      | CsvRunResultTable,
-  ): void {
-    if (G.isFunction(update)) {
-      set((state) => {
-        const configContent = state.csvEvaluationConfigContent;
-        return {
-          csvEvaluationConfigContent: D.merge<
-            CsvEvaluationConfigContent,
-            Partial<CsvEvaluationConfigContent>
-          >(configContent, {
-            csvRunResultTable: update(configContent.csvRunResultTable),
-          }),
-        };
-      });
-    } else {
-      const configContent = get().csvEvaluationConfigContent;
-      set({
-        csvEvaluationConfigContent: D.merge<
-          CsvEvaluationConfigContent,
-          Partial<CsvEvaluationConfigContent>
-        >(configContent, {
-          csvRunResultTable: update,
-        }),
-      });
-    }
-  },
-  csvEvaluationSetRunStatuses(
-    update: ((prev: RunStatusTable) => RunStatusTable) | RunStatusTable,
-  ) {
-    if (G.isFunction(update)) {
-      set((state) => {
-        const configContent = state.csvEvaluationConfigContent;
-        return {
-          csvEvaluationConfigContent: D.merge<
-            CsvEvaluationConfigContent,
-            Partial<CsvEvaluationConfigContent>
-          >(configContent, {
-            runStatusTable: update(configContent.runStatusTable),
-          }),
-        };
-      });
-    } else {
-      const configContent = get().csvEvaluationConfigContent;
-      set({
-        csvEvaluationConfigContent: D.merge<
-          CsvEvaluationConfigContent,
-          Partial<CsvEvaluationConfigContent>
-        >(configContent, {
-          runStatusTable: update,
-        }),
-      });
-    }
-  },
 
-  // Write
-  async csvEvaluationSaveNewPreset({
-    name,
-  }: {
-    name: string;
-  }): Promise<Option<{ id: string }>> {
-    const { spaceId, csvEvaluationCsvStr: csvContent } = get();
+      setConfig(() => ({
+        variableIdToCsvColumnIndexMap: {},
+        runOutputTable: [],
+        runMetadataTable: [],
+      }));
+    },
+    async deleteAndUnselectPreset(): Promise<void> {
+      const presetId = get().csvModeSelectedPresetId;
+      invariant(presetId != null, "Preset ID should not be null");
 
-    if (spaceId) {
-      const result = await client
-        .mutation(CREATE_CSV_EVALUATION_PRESET_MUTATION, {
-          spaceId,
-          name,
-          csvContent,
-        })
+      await client
+        .mutation(
+          graphql(`
+            mutation DeleteCsvEvaluationPresetMutation($presetId: ID!) {
+              space: deleteCsvEvaluationPreset(id: $presetId) {
+                id
+                csvEvaluationPresets {
+                  id
+                }
+              }
+            }
+          `),
+          {
+            presetId,
+          },
+        )
         .toPromise();
 
-      return result.data?.result?.csvEvaluationPreset;
-    }
-  },
-  csvEvaluationPresetUpdate({ name }: { name: string }): void {
-    const {
-      csvEvaluationCurrentPresetId: presetId,
-      csvEvaluationCsvStr: csvContent,
-    } = get();
+      get().unselectPreset();
+    },
+    async createAndSelectPreset({ name }: { name: string }): Promise<void> {
+      const {
+        spaceId,
+        csvStr: csvContent,
+        csvEvaluationConfigContent: configContent,
+      } = get();
 
-    if (presetId) {
-      client
-        .mutation(UPDATE_CSV_EVALUATION_PRESET_MUTATION, {
-          presetId,
-          name,
-          csvContent,
-        })
-        .toPromise()
-        .catch((e) => {
-          console.error(e);
-        });
-    }
-  },
-  csvEvaluationDeleteCurrentPreset(): void {
-    const { csvEvaluationCurrentPresetId: presetId } = get();
+      const result = await client
+        .mutation(
+          graphql(`
+            mutation CreateCsvEvaluationPresetMutation(
+              $spaceId: ID!
+              $name: String!
+              $csvContent: String
+              $configContent: String
+            ) {
+              result: createCsvEvaluationPreset(
+                spaceId: $spaceId
+                name: $name
+                csvContent: $csvContent
+                configContent: $configContent
+              ) {
+                space {
+                  id
+                  csvEvaluationPresets {
+                    id
+                  }
+                }
+                csvEvaluationPreset {
+                  id
+                  name
+                  csvContent
+                  configContent
+                }
+              }
+            }
+          `),
+          {
+            spaceId,
+            name,
+            csvContent,
+            configContent: JSON.stringify(configContent),
+          },
+        )
+        .toPromise();
 
-    if (presetId) {
-      client
-        .mutation(DELETE_CSV_EVALUATION_PRESET_MUTATION, {
-          presetId,
-        })
-        .toPromise()
-        .catch((e) => {
-          console.error(e);
-        });
-    }
-  },
-});
+      const presetId = result.data?.result?.csvEvaluationPreset?.id;
+      invariant(presetId != null, "Preset ID should not be null");
+
+      get().selectAndLoadPreset(presetId);
+    },
+    async updateSelectedPreset({ name }: { name: string }): Promise<void> {
+      const {
+        csvModeSelectedPresetId: presetId,
+        csvStr: csvContent,
+        csvEvaluationConfigContent: configContent,
+      } = get();
+
+      invariant(presetId != null, "Preset ID should not be null");
+
+      await client
+        .mutation(
+          graphql(`
+            mutation UpdateCsvEvaluationPresetMutation(
+              $presetId: ID!
+              $name: String
+              $csvContent: String
+              $configContent: String
+            ) {
+              updateCsvEvaluationPreset(
+                presetId: $presetId
+                name: $name
+                csvContent: $csvContent
+                configContent: $configContent
+              ) {
+                id
+                name
+                csvContent
+                configContent
+              }
+            }
+          `),
+          {
+            presetId,
+            name,
+            csvContent,
+            configContent: JSON.stringify(configContent),
+          },
+        )
+        .toPromise();
+    },
+    async savePresetConfigContentIfSelected(): Promise<void> {
+      const {
+        csvModeSelectedPresetId: presetId,
+        csvEvaluationConfigContent: configContent,
+      } = get();
+
+      if (presetId == null) {
+        return;
+      }
+
+      await client
+        .mutation(
+          graphql(`
+            mutation SavePresetConfigContent(
+              $presetId: ID!
+              $configContent: String!
+            ) {
+              updateCsvEvaluationPreset(
+                presetId: $presetId
+                configContent: $configContent
+              ) {
+                id
+                configContent
+              }
+            }
+          `),
+          {
+            presetId,
+            configContent: JSON.stringify(configContent),
+          },
+        )
+        .toPromise();
+    },
+  };
+};
+
+// SECTION: Utilitiy Functions
+
+async function loadPreset(
+  spaceId: string,
+  presetId: string,
+): Promise<OperationResult<LoadCsvEvaluationPresetQuery>> {
+  return await client
+    .query(
+      graphql(`
+        query LoadCsvEvaluationPreset($spaceId: UUID!, $presetId: ID!) {
+          result: space(id: $spaceId) {
+            space {
+              id
+              csvEvaluationPreset(id: $presetId) {
+                id
+                csvContent
+                configContent
+              }
+            }
+          }
+        }
+      `),
+      {
+        spaceId,
+        presetId,
+      },
+    )
+    .toPromise();
+}
+
+// !SECTION
 
 export type CsvEvaluationConfigContent = {
   repeatTimes: number;
   concurrencyLimit: number;
-  variableIdToCsvColumnIndexLookUpDict: VariableIdToCsvColumnIndexLookUpDict;
-  csvRunResultTable: CsvRunResultTable;
-  runStatusTable: RunStatusTable;
+  variableIdToCsvColumnIndexMap: VariableIdToCsvColumnIndexMap;
+  runOutputTable: RunOutputTable;
+  runMetadataTable: RunMetadataTable;
 };
 
 export type RowIndex = number & { readonly "": unique symbol };
 export type ColumnIndex = number & { readonly "": unique symbol };
 export type IterationIndex = number & { readonly "": unique symbol };
 
-export type VariableIdToCsvColumnIndexLookUpDict = Record<
+export type VariableIdToCsvColumnIndexMap = Record<
   V3VariableID,
   ColumnIndex | null | undefined
 >;
 
-export type CsvRunResultTable = Record<
+export type RunOutputTable = Record<
   RowIndex,
   Record<IterationIndex, V3VariableValueLookUpDict | undefined> | undefined
 >;
 
-export type RunStatusTable = Record<
+export type RunMetadataTable = Record<
   RowIndex,
-  Record<IterationIndex, string | null>
+  Record<IterationIndex, RunMetadata | undefined> | undefined
 >;
-
-// SECTION: GraphQL
-
-const CREATE_CSV_EVALUATION_PRESET_MUTATION = graphql(`
-  mutation CreateCsvEvaluationPresetMutation(
-    $spaceId: ID!
-    $name: String!
-    $csvContent: String
-  ) {
-    result: createCsvEvaluationPreset(
-      spaceId: $spaceId
-      name: $name
-      csvContent: $csvContent
-    ) {
-      space {
-        id
-        csvEvaluationPresets {
-          id
-        }
-      }
-      csvEvaluationPreset {
-        id
-        name
-        csvContent
-        configContent
-      }
-    }
-  }
-`);
-
-const UPDATE_CSV_EVALUATION_PRESET_MUTATION = graphql(`
-  mutation UpdateCsvEvaluationPresetMutation(
-    $presetId: ID!
-    $name: String
-    $csvContent: String
-  ) {
-    updateCsvEvaluationPreset(
-      presetId: $presetId
-      name: $name
-      csvContent: $csvContent
-    ) {
-      id
-      name
-      csvContent
-      configContent
-    }
-  }
-`);
-
-const DELETE_CSV_EVALUATION_PRESET_MUTATION = graphql(`
-  mutation DeleteCsvEvaluationPresetMutation($presetId: ID!) {
-    space: deleteCsvEvaluationPreset(id: $presetId) {
-      id
-      csvEvaluationPresets {
-        id
-      }
-    }
-  }
-`);
-
-// !SECTION
