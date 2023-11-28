@@ -165,7 +165,11 @@ export default function PresetContent() {
   return (
     <>
       <AccordionGroup size="lg">
-        <EvaluationSectionImportCSV csvHeaders={csvHeaders} csvBody={csvBody} />
+        <EvaluationSectionImportCSV
+          csvHeaders={csvHeaders}
+          csvBody={csvBody}
+          isRunning={isRunning}
+        />
         <EvaluationSectionConfigCSV
           csvHeaders={csvHeaders}
           csvBody={csvBody}

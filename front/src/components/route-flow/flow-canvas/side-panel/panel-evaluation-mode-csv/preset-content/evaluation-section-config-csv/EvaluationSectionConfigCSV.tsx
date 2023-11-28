@@ -34,7 +34,7 @@ type Props = {
 export default function EvaluationSectionConfigCSV(props: Props) {
   // SECTION: Select state from store
 
-  const variableMap = useFlowStore((s) => s.variablesDict);
+  const variablesDict = useFlowStore((s) => s.variablesDict);
   const repeatTimes = useFlowStore((s) => s.getRepeatTimes());
   const concurrencyLimit = useFlowStore((s) => s.getConcurrencyLimit());
   const variableIdToCsvColumnIndexMap = useFlowStore((s) =>
@@ -42,37 +42,39 @@ export default function EvaluationSectionConfigCSV(props: Props) {
   );
   const runOutputTable = useFlowStore((s) => s.getRunOutputTable());
 
-  const setRepeatCount = useFlowStore((s) => s.setRepeatTimes);
+  const setRepeatTimes = useFlowStore((s) => s.setRepeatTimes);
   const setConcurrencyLimit = useFlowStore((s) => s.setConcurrencyLimit);
 
   // !SECTION
 
   const flowInputVariables = useMemo(() => {
-    return selectAllVariables(VariableType.FlowInput, variableMap);
-  }, [variableMap]);
+    return selectAllVariables(VariableType.FlowInput, variablesDict);
+  }, [variablesDict]);
 
   const flowOutputVariables = useMemo(() => {
-    return selectAllVariables(VariableType.FlowOutput, variableMap);
-  }, [variableMap]);
+    return selectAllVariables(VariableType.FlowOutput, variablesDict);
+  }, [variablesDict]);
 
   return (
     <Accordion defaultExpanded>
       <AccordionSummary>Configurate</AccordionSummary>
       <CustomAccordionDetails>
         <Section style={{ overflow: "auto", display: "flex", gap: 10 }}>
-          <FormControl size="lg" orientation="horizontal">
+          <FormControl size="sm" orientation="horizontal">
             <FormLabel>Reapt</FormLabel>
             <Input
+              disabled={props.isRunning}
               size="sm"
               type="number"
               slotProps={{ input: { min: 1, step: 1 } }}
               value={repeatTimes}
-              onChange={(e) => setRepeatCount(Number(e.target.value))}
+              onChange={(e) => setRepeatTimes(Number(e.target.value))}
             />
           </FormControl>
-          <FormControl size="lg" orientation="horizontal">
+          <FormControl size="sm" orientation="horizontal">
             <FormLabel>Concurrency Limit</FormLabel>
             <Input
+              disabled={props.isRunning}
               size="sm"
               type="number"
               slotProps={{ input: { min: 1, step: 1 } }}

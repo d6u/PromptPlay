@@ -6,6 +6,7 @@ import { CSVData, CSVRow, CustomAccordionDetails } from "../common";
 type Props = {
   csvHeaders: CSVRow;
   csvBody: CSVData;
+  isRunning: boolean;
 };
 
 export default function EvaluationSectionImportCSV(props: Props) {
@@ -18,6 +19,7 @@ export default function EvaluationSectionImportCSV(props: Props) {
       <CustomAccordionDetails>
         <Section>
           <Textarea
+            disabled={props.isRunning}
             spellCheck={false}
             minRows={6}
             maxRows={6}
