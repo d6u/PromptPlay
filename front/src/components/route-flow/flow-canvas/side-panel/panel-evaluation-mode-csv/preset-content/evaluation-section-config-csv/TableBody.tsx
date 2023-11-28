@@ -48,11 +48,17 @@ export default function TableBody(props: Props) {
       const metadata =
         runStatusTable[rowIndex as RowIndex]?.[colIndex as IterationIndex] ??
         null;
-      cells.push(
-        <td key={`status-${rowIndex}-${colIndex}`}>
-          {metadata?.overallStatus ?? OverallStatus.Unknown}
-        </td>,
-      );
+
+      let content = "";
+      if (metadata?.overallStatus == null) {
+        content = OverallStatus.Unknown;
+      } else if (metadata.overallStatus === OverallStatus.Interrupted) {
+        content = metadata.errors[0];
+      } else {
+        content = metadata.overallStatus;
+      }
+
+      cells.push(<td key={`status-${rowIndex}-${colIndex}`}>{content}</td>);
     }
 
     // Input columns

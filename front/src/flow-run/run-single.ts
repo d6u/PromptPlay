@@ -102,13 +102,14 @@ export function runSingle({
             type: RunEventType.NodeFinished,
             nodeId: nodeConfig.nodeId,
           }),
-          catchError<RunEvent, Observable<RunEvent>>((err) =>
-            of({
+          catchError<RunEvent, Observable<RunEvent>>((err) => {
+            signalSubject.complete();
+            return of({
               type: RunEventType.NodeError,
               nodeId: nodeConfig.nodeId,
-              error: err.message,
-            }),
-          ),
+              error: JSON.stringify(err),
+            });
+          }),
         );
       },
     );

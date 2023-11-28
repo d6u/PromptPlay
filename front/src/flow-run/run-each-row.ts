@@ -1,19 +1,19 @@
 import { D } from "@mobily/ts-belt";
 import {
-  concatMap,
+  EMPTY,
+  endWith,
   from,
   map,
   mergeMap,
   Observable,
+  of,
   range,
-  reduce,
+  startWith,
 } from "rxjs";
 import { CSVData } from "../components/route-flow/flow-canvas/side-panel/panel-evaluation-mode-csv/common";
 import { VariableIdToCsvColumnIndexMap } from "../components/route-flow/store/slice-csv-evaluation-preset";
-import {
-  V3FlowContent,
-  V3VariableValueLookUpDict,
-} from "../models/v3-flow-content-types";
+import { VariableValueMap } from "../models/v2-flow-content-types";
+import { V3FlowContent } from "../models/v3-flow-content-types";
 import { runSingle } from "./run-single";
 import { RunEvent, RunEventType } from "./run-types";
 
@@ -31,59 +31,101 @@ export function runForEachRow({
   variableIdToCsvColumnIndexMap,
   repeatTimes: repeatCount,
   concurrencyLimit,
-}: Arguments): Observable<ResultEvent> {
+}: Arguments): Observable<SingleRunEvent> {
   return range(0, repeatCount).pipe(
-    concatMap((iteratonIndex) => {
-      let status: string | null = null;
-
+    mergeMap((iteratonIndex) => {
       return from(csvBody).pipe(
-        map((row) => {
-          return D.map(variableIdToCsvColumnIndexMap, (colIndex) => {
-            return colIndex != null ? row[colIndex] : null;
-          });
+        map((row, rowIndex) => {
+          return { iteratonIndex, row, rowIndex };
         }),
-        mergeMap((inputVariableMap, rowIndex) => {
-          return runSingle({
-            flowContent,
-            inputVariableMap,
-          }).pipe(
-            reduce<RunEvent, V3VariableValueLookUpDict>((acc, event) => {
-              switch (event.type) {
-                case RunEventType.VariableValueChanges: {
-                  const changes = event.changes;
-                  for (const [variableId, value] of Object.entries(changes)) {
-                    acc = D.set(acc, variableId, value);
-                  }
-                  return acc;
-                }
-                case RunEventType.NodeAugmentChange: {
-                  return acc;
-                }
-                case RunEventType.RunStatusChange: {
-                  // TODO: Reflect this in the table
-                  console.debug(
-                    `ERROR: Iteration ${iteratonIndex}, row ${rowIndex} failed with error.`,
-                    event.error,
-                  );
-                  status =
-                    typeof event.error === "string"
-                      ? event.error
-                      : event.error.message;
-                  return acc;
-                }
-              }
-            }, {}),
-            map((outputs) => ({ iteratonIndex, rowIndex, outputs, status })),
-          );
-        }, concurrencyLimit),
       );
     }),
+    mergeMap(({ iteratonIndex, row, rowIndex }) => {
+      // Map the column index into actual value in the CSV
+      const inputVariableMap = D.map(
+        variableIdToCsvColumnIndexMap,
+        (colIndex) => {
+          return colIndex != null ? row[colIndex] : null;
+        },
+      );
+
+      return runSingle({
+        flowContent,
+        inputVariableMap,
+      }).pipe(
+        mergeMap<RunEvent, Observable<SingleRunEvent>>((event) => {
+          switch (event.type) {
+            case RunEventType.VariableValueChanges: {
+              return of({
+                type: SingleRunEventType.VariableValueChanges,
+                iteratonIndex,
+                rowIndex,
+                changes: event.changes,
+              });
+            }
+            case RunEventType.NodeError: {
+              return of<ErrorSingleRunEvent>({
+                type: SingleRunEventType.Error,
+                iteratonIndex,
+                rowIndex,
+                error: event.error,
+              });
+            }
+            case RunEventType.NodeStarted:
+            case RunEventType.NodeFinished:
+              return EMPTY;
+          }
+        }),
+        startWith<SingleRunEvent>({
+          type: SingleRunEventType.Start,
+          iteratonIndex,
+          rowIndex,
+        }),
+        endWith<SingleRunEvent>({
+          type: SingleRunEventType.End,
+          iteratonIndex,
+          rowIndex,
+        }),
+      );
+    }, concurrencyLimit),
   );
 }
 
-type ResultEvent = {
+export enum SingleRunEventType {
+  Start = "Start",
+  VariableValueChanges = "VariableValueChanges",
+  End = "End",
+  Error = "Error",
+}
+
+export type SingleRunEvent =
+  | StartSingleRunEvent
+  | VariableValueChangesSingleRunEvent
+  | EndSingleRunEvent
+  | ErrorSingleRunEvent;
+
+type StartSingleRunEvent = {
+  type: SingleRunEventType.Start;
   iteratonIndex: number;
   rowIndex: number;
-  outputs: V3VariableValueLookUpDict;
-  status: string | null;
+};
+
+type VariableValueChangesSingleRunEvent = {
+  type: SingleRunEventType.VariableValueChanges;
+  iteratonIndex: number;
+  rowIndex: number;
+  changes: VariableValueMap;
+};
+
+type EndSingleRunEvent = {
+  type: SingleRunEventType.End;
+  iteratonIndex: number;
+  rowIndex: number;
+};
+
+type ErrorSingleRunEvent = {
+  type: SingleRunEventType.Error;
+  iteratonIndex: number;
+  rowIndex: number;
+  error: string;
 };

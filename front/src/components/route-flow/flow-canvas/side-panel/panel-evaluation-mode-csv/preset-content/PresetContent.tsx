@@ -6,7 +6,10 @@ import posthog from "posthog-js";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Subscription } from "rxjs";
 import invariant from "ts-invariant";
-import { runForEachRow } from "../../../../../../flow-run/run-each-row";
+import {
+  runForEachRow,
+  SingleRunEventType,
+} from "../../../../../../flow-run/run-each-row";
 import { OverallStatus } from "../../../../../../flow-run/run-types";
 import { V3VariableValueLookUpDict } from "../../../../../../models/v3-flow-content-types";
 import { useFlowStore } from "../../../../store/FlowStoreContext";
@@ -105,24 +108,74 @@ export default function PresetContent() {
       repeatTimes,
       concurrencyLimit,
     }).subscribe({
-      next({ iteratonIndex, rowIndex, outputs, status }) {
-        setGeneratedResult((prev) => {
-          return produce(prev, (draft) => {
-            const row = draft[rowIndex as RowIndex];
-            invariant(row != null, "Result row should not be null");
-            row[iteratonIndex as IterationIndex] = outputs;
-          });
-        });
+      next(event) {
+        console.log(event);
 
-        setRunMetadataTable((prev) => {
-          return produce(prev, (draft) => {
-            const row = draft[rowIndex as RowIndex];
-            invariant(row != null, "Status row should not be null");
-            const metadata = row[iteratonIndex as IterationIndex];
-            invariant(metadata != null, "Metadata should not be null");
-            metadata.overallStatus = OverallStatus.Complete;
-          });
-        });
+        switch (event.type) {
+          case SingleRunEventType.Start: {
+            setRunMetadataTable((prev) => {
+              return produce(prev, (draft) => {
+                const row = draft[event.rowIndex as RowIndex];
+                invariant(row != null, "Status row should not be null");
+
+                const metadata = row[event.iteratonIndex as IterationIndex];
+                invariant(metadata != null, "Metadata should not be null");
+
+                metadata.overallStatus = OverallStatus.Running;
+              });
+            });
+            break;
+          }
+          case SingleRunEventType.End: {
+            setRunMetadataTable((prev) => {
+              return produce(prev, (draft) => {
+                const row = draft[event.rowIndex as RowIndex];
+                invariant(row != null, "Status row should not be null");
+
+                const metadata = row[event.iteratonIndex as IterationIndex];
+                invariant(metadata != null, "Metadata should not be null");
+
+                if (
+                  metadata.overallStatus === OverallStatus.NotStarted ||
+                  metadata.overallStatus === OverallStatus.Waiting ||
+                  metadata.overallStatus === OverallStatus.Running
+                ) {
+                  metadata.overallStatus = OverallStatus.Complete;
+                }
+              });
+            });
+            break;
+          }
+          case SingleRunEventType.Error: {
+            setRunMetadataTable((prev) => {
+              return produce(prev, (draft) => {
+                const row = draft[event.rowIndex as RowIndex];
+                invariant(row != null, "Status row should not be null");
+
+                const metadata = row[event.iteratonIndex as IterationIndex];
+                invariant(metadata != null, "Metadata should not be null");
+
+                metadata.overallStatus = OverallStatus.Interrupted;
+                metadata.errors.push(event.error);
+              });
+            });
+            break;
+          }
+          case SingleRunEventType.VariableValueChanges: {
+            setGeneratedResult((prev) => {
+              return produce(prev, (draft) => {
+                const row = draft[event.rowIndex as RowIndex];
+                invariant(row != null, "Result row should not be null");
+
+                row[event.iteratonIndex as IterationIndex] = {
+                  ...row[event.iteratonIndex as IterationIndex],
+                  ...event.changes,
+                };
+              });
+            });
+            break;
+          }
+        }
       },
       error(err) {
         console.error(err);
