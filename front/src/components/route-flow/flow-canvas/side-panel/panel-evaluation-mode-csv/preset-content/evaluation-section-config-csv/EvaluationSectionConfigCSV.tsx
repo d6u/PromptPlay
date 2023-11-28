@@ -11,9 +11,8 @@ import {
 import Papa from "papaparse";
 import posthog from "posthog-js";
 import { useMemo } from "react";
-import { useStore } from "zustand";
 import { VariableType } from "../../../../../../../models/v3-flow-content-types";
-import { useStoreFromFlowStoreContext } from "../../../../../store/FlowStoreContext";
+import { useFlowStore } from "../../../../../store/FlowStoreContext";
 import {
   IterationIndex,
   RowIndex,
@@ -33,20 +32,18 @@ type Props = {
 };
 
 export default function EvaluationSectionConfigCSV(props: Props) {
-  const flowStore = useStoreFromFlowStoreContext();
-
   // SECTION: Select state from store
 
-  const variableMap = useStore(flowStore, (s) => s.variablesDict);
-  const repeatTimes = useStore(flowStore, (s) => s.getRepeatTimes());
-  const concurrencyLimit = useStore(flowStore, (s) => s.getConcurrencyLimit());
-  const variableIdToCsvColumnIndexMap = useStore(flowStore, (s) =>
+  const variableMap = useFlowStore((s) => s.variablesDict);
+  const repeatTimes = useFlowStore((s) => s.getRepeatTimes());
+  const concurrencyLimit = useFlowStore((s) => s.getConcurrencyLimit());
+  const variableIdToCsvColumnIndexMap = useFlowStore((s) =>
     s.getVariableIdToCsvColumnIndexMap(),
   );
-  const runOutputTable = useStore(flowStore, (s) => s.getRunOutputTable());
+  const runOutputTable = useFlowStore((s) => s.getRunOutputTable());
 
-  const setRepeatCount = useStore(flowStore, (s) => s.setRepeatTimes);
-  const setConcurrencyLimit = useStore(flowStore, (s) => s.setConcurrencyLimit);
+  const setRepeatCount = useFlowStore((s) => s.setRepeatTimes);
+  const setConcurrencyLimit = useFlowStore((s) => s.setConcurrencyLimit);
 
   // !SECTION
 

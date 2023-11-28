@@ -29,20 +29,20 @@ export default function PresetContent() {
     (s) => s.variableValueLookUpDicts,
   );
   const csvContent = useFlowStore((s) => s.csvStr);
-  const {
-    repeatTimes,
-    concurrencyLimit,
-    variableIdToCsvColumnIndexMap: variableIdToCsvColumnIndexLookUpDict,
-  } = useFlowStore((s) => s.csvEvaluationConfigContent);
+  const repeatTimes = useFlowStore((s) => s.getRepeatTimes());
+  const concurrencyLimit = useFlowStore((s) => s.getConcurrencyLimit());
+  const variableIdToCsvColumnIndexMap = useFlowStore((s) =>
+    s.getVariableIdToCsvColumnIndexMap(),
+  );
+
   const setGeneratedResult = useFlowStore((s) => s.setRunOutputTable);
   const setRunStatuses = useFlowStore((s) => s.setRunMetadataTable);
 
   // !SECTION
 
-  const csvData = useMemo<CSVData>(
-    () => Papa.parse(csvContent).data as CSVData,
-    [csvContent],
-  );
+  const csvData = useMemo<CSVData>(() => {
+    return Papa.parse(csvContent).data as CSVData;
+  }, [csvContent]);
 
   const { csvHeaders, csvBody } = useMemo<{
     csvHeaders: CSVHeader;
@@ -95,7 +95,7 @@ export default function PresetContent() {
         variableValueLookUpDicts,
       },
       csvBody,
-      variableColumnMap: variableIdToCsvColumnIndexLookUpDict,
+      variableColumnMap: variableIdToCsvColumnIndexMap,
       repeatCount: repeatTimes,
       concurrencyLimit,
     }).subscribe({
@@ -143,7 +143,7 @@ export default function PresetContent() {
     nodeConfigsDict,
     variablesDict,
     variableValueLookUpDicts,
-    variableIdToCsvColumnIndexLookUpDict,
+    variableIdToCsvColumnIndexMap,
     concurrencyLimit,
     setGeneratedResult,
     setRunStatuses,
