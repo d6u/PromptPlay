@@ -9,7 +9,7 @@ import {
   reduce,
 } from "rxjs";
 import { CSVData } from "../components/route-flow/flow-canvas/side-panel/panel-evaluation-mode-csv/common";
-import { VariableIdToCsvColumnIndexLookUpDict } from "../components/route-flow/store/slice-csv-evaluation-preset";
+import { VariableIdToCsvColumnIndexMap } from "../components/route-flow/store/slice-csv-evaluation-preset";
 import {
   V3FlowContent,
   V3VariableValueLookUpDict,
@@ -26,7 +26,7 @@ export function runForEachRow({
 }: {
   flowContent: V3FlowContent;
   csvBody: CSVData;
-  variableColumnMap: VariableIdToCsvColumnIndexLookUpDict;
+  variableColumnMap: VariableIdToCsvColumnIndexMap;
   repeatCount: number;
   concurrencyLimit: number;
 }): Observable<ResultEvent> {

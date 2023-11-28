@@ -14,7 +14,7 @@ import {
   RowIndex,
 } from "../../../../store/slice-csv-evaluation-preset";
 import { CSVData, CSVHeader } from "../common";
-import EvaluationSectionConfigCSV from "./evaluation-section-config-csv";
+import EvaluationSectionConfigCSV from "./evaluation-section-config-csv/EvaluationSectionConfigCSV";
 import EvaluationSectionImportCSV from "./EvaluationSectionImportCSV";
 
 export default function PresetContent() {
@@ -28,16 +28,14 @@ export default function PresetContent() {
   const variableValueLookUpDicts = useFlowStore(
     (s) => s.variableValueLookUpDicts,
   );
-  const csvContent = useFlowStore((s) => s.csvEvaluationCsvStr);
+  const csvContent = useFlowStore((s) => s.csvStr);
   const {
     repeatTimes,
     concurrencyLimit,
-    variableIdToCsvColumnIndexLookUpDict,
+    variableIdToCsvColumnIndexMap: variableIdToCsvColumnIndexLookUpDict,
   } = useFlowStore((s) => s.csvEvaluationConfigContent);
-  const setGeneratedResult = useFlowStore(
-    (s) => s.csvEvaluationSetGeneratedResult,
-  );
-  const setRunStatuses = useFlowStore((s) => s.csvEvaluationSetRunStatuses);
+  const setGeneratedResult = useFlowStore((s) => s.setRunOutputTable);
+  const setRunStatuses = useFlowStore((s) => s.setRunMetadataTable);
 
   // !SECTION
 

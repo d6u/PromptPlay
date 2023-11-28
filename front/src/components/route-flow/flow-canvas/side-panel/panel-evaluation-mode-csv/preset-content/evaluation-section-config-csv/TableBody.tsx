@@ -22,9 +22,9 @@ export default function TableBody(props: Props) {
   const variableMap = useStore(flowStore, (s) => s.variablesDict);
   const {
     repeatTimes,
-    variableIdToCsvColumnIndexLookUpDict,
-    csvRunResultTable,
-    runStatusTable,
+    variableIdToCsvColumnIndexMap: variableIdToCsvColumnIndexLookUpDict,
+    runOutputTable: csvRunResultTable,
+    runMetadataTable: runStatusTable,
   } = useStore(flowStore, (s) => s.csvEvaluationConfigContent);
 
   // !SECTION

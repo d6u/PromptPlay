@@ -25,11 +25,8 @@ export default function PresetSaveModal(props: Props) {
   // SECTION: Select state from store
 
   const selectAndLoadPreset = useStore(flowStore, (s) => s.selectAndLoadPreset);
-  const saveNewPreset = useStore(
-    flowStore,
-    (s) => s.csvEvaluationSaveNewPreset,
-  );
-  const updatePreset = useStore(flowStore, (s) => s.csvEvaluationPresetUpdate);
+  const saveNewPreset = useStore(flowStore, (s) => s.createPreset);
+  const updatePreset = useStore(flowStore, (s) => s.updatePreset);
 
   // !SECTION
 

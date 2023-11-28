@@ -17,13 +17,13 @@ export default function TableHead(props: Props) {
   // SECTION: Select state from store
 
   const variableMap = useStore(flowStore, (s) => s.variablesDict);
-  const { repeatTimes, variableIdToCsvColumnIndexLookUpDict } = useStore(
-    flowStore,
-    (s) => s.csvEvaluationConfigContent,
-  );
+  const {
+    repeatTimes,
+    variableIdToCsvColumnIndexMap: variableIdToCsvColumnIndexLookUpDict,
+  } = useStore(flowStore, (s) => s.csvEvaluationConfigContent);
   const setVariableColumnMap = useStore(
     flowStore,
-    (s) => s.csvEvaluationSetVariableIdToCsvColumnIndexLookUpDict,
+    (s) => s.setVariableIdToCsvColumnIndexMap,
   );
 
   // !SECTION

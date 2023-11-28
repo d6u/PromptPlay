@@ -12,8 +12,8 @@ type Props = {
 export default function EvaluationSectionImportCSV(props: Props) {
   const flowStore = useStoreFromFlowStoreContext();
 
-  const csvStr = useStore(flowStore, (s) => s.csvEvaluationCsvStr);
-  const setCsvStr = useStore(flowStore, (s) => s.csvEvaluationSetLocalCsvStr);
+  const csvStr = useStore(flowStore, (s) => s.csvStr);
+  const setCsvStr = useStore(flowStore, (s) => s.setCsvStr);
 
   return (
     <Accordion defaultExpanded>

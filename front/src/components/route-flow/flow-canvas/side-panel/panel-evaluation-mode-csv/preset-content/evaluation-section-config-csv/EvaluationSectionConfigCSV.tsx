@@ -38,20 +38,15 @@ export default function EvaluationSectionConfigCSV(props: Props) {
   // SECTION: Select state from store
 
   const variableMap = useStore(flowStore, (s) => s.variablesDict);
-  const {
-    repeatTimes,
-    concurrencyLimit,
-    variableIdToCsvColumnIndexLookUpDict,
-    csvRunResultTable,
-  } = useStore(flowStore, (s) => s.csvEvaluationConfigContent);
-  const setRepeatCount = useStore(
-    flowStore,
-    (s) => s.csvEvaluationSetRepeatCount,
+  const repeatTimes = useStore(flowStore, (s) => s.getRepeatTimes());
+  const concurrencyLimit = useStore(flowStore, (s) => s.getConcurrencyLimit());
+  const variableIdToCsvColumnIndexMap = useStore(flowStore, (s) =>
+    s.getVariableIdToCsvColumnIndexMap(),
   );
-  const setConcurrencyLimit = useStore(
-    flowStore,
-    (s) => s.csvEvaluationSetConcurrencyLimit,
-  );
+  const runOutputTable = useStore(flowStore, (s) => s.getRunOutputTable());
+
+  const setRepeatCount = useStore(flowStore, (s) => s.setRepeatTimes);
+  const setConcurrencyLimit = useStore(flowStore, (s) => s.setConcurrencyLimit);
 
   // !SECTION
 
@@ -135,8 +130,7 @@ export default function EvaluationSectionConfigCSV(props: Props) {
               for (const inputItem of flowInputVariables) {
                 resultCsv[0].push(inputItem.name);
 
-                const index =
-                  variableIdToCsvColumnIndexLookUpDict[inputItem.id];
+                const index = variableIdToCsvColumnIndexMap[inputItem.id];
                 resultCsv[1].push(
                   index != null
                     ? props.csvHeaders.filter(F.identity)[index]
@@ -174,20 +168,18 @@ export default function EvaluationSectionConfigCSV(props: Props) {
 
                 // Inputs
                 for (const inputItem of flowInputVariables) {
-                  const index =
-                    variableIdToCsvColumnIndexLookUpDict[inputItem.id];
+                  const index = variableIdToCsvColumnIndexMap[inputItem.id];
                   cells.push(index != null ? row[index] : "");
                 }
 
                 // Outputs
                 for (const outputItem of flowOutputVariables) {
-                  const index =
-                    variableIdToCsvColumnIndexLookUpDict[outputItem.id];
+                  const index = variableIdToCsvColumnIndexMap[outputItem.id];
                   cells.push(index != null ? row[index] : "");
 
                   for (let i = 0; i < repeatTimes; i++) {
                     const value =
-                      csvRunResultTable[rowIndex as RowIndex]?.[
+                      runOutputTable[rowIndex as RowIndex]?.[
                         i as IterationIndex
                       ]?.[outputItem.id] ?? "";
 

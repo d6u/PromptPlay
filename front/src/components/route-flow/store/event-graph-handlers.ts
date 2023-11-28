@@ -820,7 +820,7 @@ function handleVariableRemoved({
   const csvEvaluationConfigContent = produce(
     prevCsvEvaluationConfigContent,
     (draft) => {
-      delete draft.variableIdToCsvColumnIndexLookUpDict[removedVariable.id];
+      delete draft.variableIdToCsvColumnIndexMap[removedVariable.id];
     },
   );
 
