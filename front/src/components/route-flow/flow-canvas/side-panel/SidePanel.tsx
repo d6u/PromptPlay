@@ -7,7 +7,7 @@ import { useStoreFromFlowStoreContext } from "../../store/FlowStoreContext";
 import { DetailPanelContentType } from "../../store/store-flow-state-types";
 import PanelChatGPTMessageConfig from "./chat-gpt-message-config/PanelChatGPTMessageConfig";
 import PanelNodeConfig from "./node-config/PanelNodeConfig";
-import PanelEvaluationModeCSV from "./panel-evaluation-mode-csv";
+import PanelEvaluationModeCSV from "./panel-evaluation-mode-csv/PanelEvaluationModeCSV";
 import PanelEvaluationModeSimple from "./simple-evaluaton/PanelEvaluationModeSimple";
 
 export default function SidePanel() {

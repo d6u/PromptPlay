@@ -10,8 +10,7 @@ import {
   Typography,
 } from "@mui/joy";
 import { useEffect, useState } from "react";
-import { useStore } from "zustand";
-import { useStoreFromFlowStoreContext } from "../../../../store/FlowStoreContext";
+import { useFlowStore } from "../../../../store/FlowStoreContext";
 
 type Props = {
   isModalOpen: boolean;
@@ -20,13 +19,11 @@ type Props = {
 };
 
 export default function PresetSaveModal(props: Props) {
-  const flowStore = useStoreFromFlowStoreContext();
-
   // SECTION: Select state from store
 
-  const selectAndLoadPreset = useStore(flowStore, (s) => s.selectAndLoadPreset);
-  const saveNewPreset = useStore(flowStore, (s) => s.createPreset);
-  const updatePreset = useStore(flowStore, (s) => s.updatePreset);
+  const selectAndLoadPreset = useFlowStore((s) => s.selectAndLoadPreset);
+  const saveNewPreset = useFlowStore((s) => s.createPreset);
+  const updatePreset = useFlowStore((s) => s.updatePreset);
 
   // !SECTION
 
