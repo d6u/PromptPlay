@@ -13,8 +13,9 @@ export default function PresetSelector() {
   const spaceId = useFlowStore((s) => s.spaceId);
   const selectedPresetId = useFlowStore((s) => s.csvModeSelectedPresetId);
   const selectAndLoadPreset = useFlowStore((s) => s.selectAndLoadPreset);
-  const deleteSelectedPreset = useFlowStore(
-    (s) => s.csvModeDeleteSelectedPreset,
+  const unselectPreset = useFlowStore((s) => s.unselectPreset);
+  const deleteAndUnselectPreset = useFlowStore(
+    (s) => s.deleteAndUnselectPreset,
   );
 
   // !SECTION
@@ -62,7 +63,11 @@ export default function PresetSelector() {
             value={selectedPreset ?? null}
             getOptionLabel={(option) => option.name}
             onChange={(_event, value) => {
-              selectAndLoadPreset(value?.id ?? null);
+              if (value?.id != null) {
+                selectAndLoadPreset(value.id);
+              } else {
+                unselectPreset();
+              }
             }}
             renderOption={(props, option) => (
               <AutocompleteOption {...props} key={option.id}>
@@ -81,8 +86,7 @@ export default function PresetSelector() {
               onClick={() => {
                 const comfirmed = confirm("Deleted preset cannot be restored");
                 if (comfirmed) {
-                  deleteSelectedPreset();
-                  selectAndLoadPreset(null);
+                  deleteAndUnselectPreset();
                 }
               }}
             >
