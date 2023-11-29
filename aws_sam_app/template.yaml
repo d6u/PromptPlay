@@ -32,7 +32,8 @@ Globals:
     OpenApiVersion: "2.0"
 
 Resources:
-  # --- Cert for *.promptplay.xyz ---
+  # ANCHOR: Cert for *.promptplay.xyz
+
   CertificateSubDomains:
     Type: AWS::CertificateManager::Certificate
     Properties:
@@ -44,7 +45,8 @@ Resources:
           HostedZoneId: !Ref HostedZoneId
       ValidationMethod: DNS
 
-  # --- APIs ---
+  # ANCHOR: APIs
+
   ServerlessApi:
     Type: AWS::Serverless::Api
     Properties:
@@ -55,7 +57,8 @@ Resources:
         Route53:
           HostedZoneId: !Ref HostedZoneId
 
-  # --- Lambda ---
+  # ANCHOR: Lambda
+
   ServerlessFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -89,7 +92,8 @@ Resources:
       Dockerfile: Dockerfile
       DockerTag: v5
 
-  # --- Database ---
+  # ANCHOR: Database
+
   UserTable:
     Type: AWS::Serverless::SimpleTable
     Properties:
@@ -98,7 +102,7 @@ Resources:
         Name: UserId
         Type: String
 
-  # --- Monitoring ---
+  # ANCHOR: Monitoring
 
   ApplicationResourceGroup:
     Type: AWS::ResourceGroups::Group

@@ -1,13 +1,13 @@
-import { PutItemCommand, GetItemCommand } from "@aws-sdk/client-dynamodb";
-import { Express, Request, Response, NextFunction } from "express";
-import { BaseClient, Issuer, generators } from "openid-client";
+import { PutItemCommand } from "@aws-sdk/client-dynamodb";
+import { Express, Response } from "express";
+import { BaseClient, generators, Issuer } from "openid-client";
 import dynamoDbClient from "./dynamoDb.js";
-import { RequestWithUser, attachUser } from "./middleware/user.js";
+import { attachUser, RequestWithUser } from "./middleware/user.js";
 import { RequestWithSession } from "./types.js";
 
 async function getAuthClient() {
   const authIssuer = await Issuer.discover(
-    `https://${process.env.AUTH0_DOMAIN}`
+    `https://${process.env.AUTH0_DOMAIN}`,
   );
 
   return new authIssuer.Client({
@@ -38,7 +38,7 @@ export default function setupAuth(app: Express) {
       authClient.authorizationUrl({
         scope: "openid email profile",
         nonce: req.session!.nonce,
-      })
+      }),
     );
   });
 
@@ -56,7 +56,7 @@ export default function setupAuth(app: Express) {
       // Auth0 checks if the domain is the same.
       process.env.AUTH_CALLBACK_URL,
       params,
-      { nonce: req.session.nonce }
+      { nonce: req.session.nonce },
     );
 
     if (!tokenSet.id_token) {
@@ -78,7 +78,7 @@ export default function setupAuth(app: Express) {
           Email: { S: idToken.email ?? "" },
           Picture: { S: idToken.picture ?? "" },
         },
-      })
+      }),
     );
 
     req.session.userId = userId;
@@ -104,7 +104,7 @@ export default function setupAuth(app: Express) {
     res.redirect(
       `https://${
         process.env.AUTH0_DOMAIN
-      }/oidc/logout?${searchParams.toString()}`
+      }/oidc/logout?${searchParams.toString()}`,
     );
   });
 

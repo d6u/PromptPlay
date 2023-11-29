@@ -22,7 +22,7 @@ app.use(
     // Cookie only to be sent over HTTP(S), and not made available to
     // client JavaScript.
     httpOnly: true,
-  })
+  }),
 );
 
 setupGraphql(app);
