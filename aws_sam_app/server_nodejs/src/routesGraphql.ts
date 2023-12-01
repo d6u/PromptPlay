@@ -2,15 +2,15 @@ import SchemaBuilder from "@pothos/core";
 import { Express } from "express";
 import { createYoga } from "graphql-yoga";
 import { attachUser, RequestWithUser } from "./middleware/user.js";
+import OrmUser from "./models/users.js";
 
 type Context = {
   req: RequestWithUser;
 };
 
 type User = {
-  id: string | null;
+  id: string;
   email: string | null;
-  name: string | null;
   profilePictureUrl: string | null;
 };
 
@@ -72,13 +72,9 @@ builder.queryType({
       user: t.field({
         type: "User",
         nullable: true,
-        resolve(parent, args, context) {
-          return {
-            id: "",
-            email: "",
-            name: "",
-            profilePictureUrl: "",
-          };
+        async resolve(parent, args, context) {
+          const userId = context.req.user?.userId;
+          return userId == null ? null : await OrmUser.findById(userId);
         },
       }),
       space: t.field({
@@ -114,24 +110,15 @@ builder.objectType("QuerySpaceResult", {
 builder.objectType("User", {
   fields(t) {
     return {
-      id: t.string({
-        resolve(parent, args, context) {
-          return "";
-        },
+      id: t.exposeString("id"),
+      email: t.exposeString("email", { nullable: true }),
+      profilePictureUrl: t.exposeString("profilePictureUrl", {
+        nullable: true,
       }),
-      name: t.string({
+      spaces: t.field({
+        type: ["Space"],
         resolve(parent, args, context) {
-          return "";
-        },
-      }),
-      email: t.string({
-        resolve(parent, args, context) {
-          return "";
-        },
-      }),
-      profilePictureUrl: t.string({
-        resolve(parent, args, context) {
-          return "";
+          return [];
         },
       }),
     };
