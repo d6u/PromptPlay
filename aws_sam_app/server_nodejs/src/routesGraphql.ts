@@ -2,7 +2,7 @@ import SchemaBuilder from "@pothos/core";
 import { Express } from "express";
 import { createYoga } from "graphql-yoga";
 import { attachUser, RequestWithUser } from "./middleware/user.js";
-import OrmUser from "./models/users.js";
+import OrmUser from "./models/user.js";
 
 type Context = {
   req: RequestWithUser;
@@ -74,7 +74,12 @@ builder.queryType({
         nullable: true,
         async resolve(parent, args, context) {
           const userId = context.req.user?.userId;
-          return userId == null ? null : await OrmUser.findById(userId);
+
+          // NOTE: Force cast to User because user fetched from DB shouldn't
+          // have null id field.
+          return userId == null
+            ? null
+            : ((await OrmUser.findById(userId)) as User);
         },
       }),
       space: t.field({

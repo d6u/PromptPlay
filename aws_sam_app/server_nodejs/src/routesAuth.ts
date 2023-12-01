@@ -1,8 +1,7 @@
-import { PutItemCommand } from "@aws-sdk/client-dynamodb";
 import { Express, Response } from "express";
 import { BaseClient, generators, Issuer } from "openid-client";
-import dynamoDbClient from "./dynamoDb.js";
 import { attachUser, RequestWithUser } from "./middleware/user.js";
+import OrmUser from "./models/user.js";
 import { RequestWithSession } from "./types.js";
 
 async function getAuthClient() {
@@ -66,22 +65,18 @@ export default function setupAuth(app: Express) {
     }
 
     const idToken = tokenSet.claims();
-    const userId = idToken.sub;
 
-    await dynamoDbClient.send(
-      new PutItemCommand({
-        TableName: process.env.TABLE_NAME_USERS,
-        Item: {
-          UserId: { S: userId },
-          IdToken: { S: tokenSet.id_token },
-          Name: { S: idToken.name ?? "" },
-          Email: { S: idToken.email ?? "" },
-          Picture: { S: idToken.picture ?? "" },
-        },
-      }),
-    );
+    const dbUser = new OrmUser({
+      name: idToken.name ?? null,
+      email: idToken.email ?? null,
+      profilePictureUrl: idToken.picture ?? null,
+      auth0UserId: idToken.sub,
+      isUserPlaceholder: false,
+    });
 
-    req.session.userId = userId;
+    await dbUser.save();
+
+    req.session.userId = dbUser.id!;
 
     res.redirect(process.env.AUTH_LOGIN_FINISH_REDIRECT_URL);
   });
