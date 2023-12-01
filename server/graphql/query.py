@@ -5,12 +5,10 @@ from uuid import UUID
 import strawberry
 from sqlalchemy import select
 
-from server.database.orm.preset import OrmPreset
 from server.database.orm.space import OrmSpace
 from server.database.orm.user import OrmUser
-from server.database.orm.workspace import OrmWorkspace
 
-from .types import Info, Preset, QuerySpaceResult, Space, User, Workspace
+from .types import Info, QuerySpaceResult, Space, User
 from .utils import ensure_db_user
 
 
@@ -58,46 +56,6 @@ class Query:
     @ensure_db_user
     def user(self: None, info: Info, db_user: OrmUser) -> User | None:
         return User.from_db(db_user)
-
-    @strawberry.field
-    @ensure_db_user
-    def workspace(
-        self: None,
-        info: Info,
-        db_user: OrmUser,
-        workspace_id: UUID,
-    ) -> Workspace | None:
-        db = info.context.db
-
-        db_workspace = db.scalar(
-            db_user.workspaces.select().filter(OrmWorkspace.id == workspace_id)
-        )
-
-        return Workspace.from_db(db_workspace) if db_workspace != None else None
-
-    @strawberry.field
-    @ensure_db_user
-    def preset(
-        self: None,
-        info: Info,
-        db_user: OrmUser,
-        preset_id: UUID,
-    ) -> Preset | None:
-        db = info.context.db
-
-        db_preset = db.scalar(
-            db_user.presets.select().filter(OrmPreset.id == preset_id)
-        )
-
-        return (
-            Preset(
-                db_preset=db_preset,
-                id=db_preset.id,
-                name=db_preset.name,
-            )
-            if db_preset != None
-            else None
-        )
 
     @strawberry.field
     def space(
