@@ -9,30 +9,36 @@ type Context = {
 
 type User = {
   id: string | null;
+  email: string | null;
   name: string | null;
   profilePictureUrl: string | null;
 };
 
-type Workspace = {
+type Space = {
   id: string | null;
   name: string | null;
-  updatedAt: string | null;
+  description: string | null;
 };
 
-type Preset = {
-  id: string | null;
-  name: string | null;
-  updatedAt: string | null;
+type QuerySpaceResult = {
+  isReadOnly: boolean;
+  space: Space | null;
 };
 
 type Types = {
   Context: Context;
   Objects: {
     User: User;
-    Workspace: Workspace;
-    Preset: Preset;
+    Space: Space;
+    QuerySpaceResult: QuerySpaceResult;
   };
 };
+
+enum ContentVersion {
+  v1 = "v1",
+  v2 = "v2",
+  v3 = "v3",
+}
 
 const builder = new SchemaBuilder<Types>({});
 
@@ -65,26 +71,40 @@ builder.queryType({
       }),
       user: t.field({
         type: "User",
+        nullable: true,
         resolve(parent, args, context) {
-          return { name: "temp" };
-        },
-      }),
-      workspace: t.field({
-        type: "Workspace",
-        resolve(parent, args, context) {
-          return { name: "temp" };
-        },
-      }),
-      presets: t.field({
-        type: "Presets",
-        resolve(parent, args, context) {
-          return { name: "temp" };
+          return {
+            id: "",
+            email: "",
+            name: "",
+            profilePictureUrl: "",
+          };
         },
       }),
       space: t.field({
-        type: "Space",
+        type: "QuerySpaceResult",
+        nullable: true,
         resolve(parent, args, context) {
-          return { name: "temp" };
+          return null;
+        },
+      }),
+    };
+  },
+});
+
+builder.objectType("QuerySpaceResult", {
+  fields(t) {
+    return {
+      space: t.field({
+        type: "Space",
+        nullable: true,
+        resolve(parent, args, context) {
+          return null;
+        },
+      }),
+      isReadOnly: t.boolean({
+        resolve(parent, args, context) {
+          return true;
         },
       }),
     };
@@ -94,45 +114,75 @@ builder.queryType({
 builder.objectType("User", {
   fields(t) {
     return {
+      id: t.string({
+        resolve(parent, args, context) {
+          return "";
+        },
+      }),
       name: t.string({
         resolve(parent, args, context) {
-          return context.req.user?.name ?? "World";
+          return "";
         },
       }),
       email: t.string({
         resolve(parent, args, context) {
-          return context.req.user?.email ?? "World";
+          return "";
         },
       }),
       profilePictureUrl: t.string({
         resolve(parent, args, context) {
-          return context.req.user?.profilePictureUrl ?? "World";
+          return "";
         },
       }),
     };
   },
 });
 
-builder.objectType("Workspace", {
+builder.objectType("Space", {
   fields(t) {
     return {
-      name: t.string({
-        resolve(parent, args, context) {
-          return context.req.user?.name ?? "World";
-        },
-      }),
       id: t.string({
         resolve(parent, args, context) {
-          return context.req.user?.email ?? "World";
+          return "";
         },
       }),
-      description: t.string({
+      name: t.string({
         resolve(parent, args, context) {
-          return context.req.user?.profilePictureUrl ?? "World";
+          return "";
+        },
+      }),
+      contentVersion: t.field({
+        type: ContentVersion,
+        resolve(parent, args, context) {
+          return ContentVersion.v3;
+        },
+      }),
+      content: t.string({
+        resolve(parent, args, context) {
+          return "";
+        },
+      }),
+      flowContent: t.string({
+        resolve(parent, args, context) {
+          return "";
+        },
+      }),
+      contentV3: t.string({
+        resolve(parent, args, context) {
+          return "";
+        },
+      }),
+      updatedAt: t.string({
+        resolve(parent, args, context) {
+          return "";
         },
       }),
     };
   },
+});
+
+builder.enumType(ContentVersion, {
+  name: "ContentVersion",
 });
 
 const yoga = createYoga({
