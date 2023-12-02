@@ -1,4 +1,5 @@
 import { RequestWithUser } from "../middleware/user.js";
+import { UUID } from "../models/types.js";
 
 type Context = {
   req: RequestWithUser;
@@ -21,6 +22,11 @@ type QuerySpaceResult = {
   space: Space | null;
 };
 
+type CreatePlaceholderUserAndExampleSpaceResult = {
+  placeholderClientToken: UUID;
+  space: Space;
+};
+
 export enum ContentVersion {
   v1 = "v1",
   v2 = "v2",
@@ -33,6 +39,7 @@ export type Types = {
     User: User;
     Space: Space;
     QuerySpaceResult: QuerySpaceResult;
+    CreatePlaceholderUserAndExampleSpaceResult: CreatePlaceholderUserAndExampleSpaceResult;
   };
 };
 

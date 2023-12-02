@@ -11,11 +11,11 @@ import dynamoDbClient from "../dynamoDb.js";
 import { nullThrow } from "../utils.js";
 import { asUUID, UUID } from "./types.js";
 
-export default class OrmUser {
-  static async findById(id: string): Promise<OrmUser | null> {
+export default class OrmSpace {
+  static async findById(id: string): Promise<OrmSpace | null> {
     const response = await dynamoDbClient.send(
       new GetItemCommand({
-        TableName: process.env.TABLE_NAME_USERS,
+        TableName: process.env.TABLE_NAME_SPACES,
         Key: {
           Id: { S: id },
         },
@@ -26,53 +26,52 @@ export default class OrmUser {
       return null;
     }
 
-    return new OrmUser({
+    const dbSpace = new OrmSpace({
       id: asUUID(id),
-      isUserPlaceholder: nullThrow(response.Item.IsUserPlaceholder?.BOOL),
       name: nullThrow(response.Item.Name?.S),
-      email: response.Item.Email?.S ?? null,
-      profilePictureUrl: response.Item.ProfilePictureUrl?.S ?? null,
-      auth0UserId: response.Item.Auth0UserId?.S ?? null,
-      placeholderClientToken:
-        response.Item.PlaceholderClientToken?.S == null
-          ? null
-          : asUUID(response.Item.PlaceholderClientToken.S),
+      contentVersion: nullThrow(
+        response.Item.ContentVersion?.S,
+      ) as OrmContentVersion,
+      contentV2: response.Item.ContentV2?.S ?? null,
+      contentV3: response.Item.ContentV3?.S ?? null,
+      ownerId: asUUID(nullThrow(response.Item.OwnerId?.S)),
     });
+
+    dbSpace.isNew = false;
+
+    return dbSpace;
   }
 
   constructor({
     id,
-    isUserPlaceholder,
     name,
-    email,
-    profilePictureUrl,
-    auth0UserId,
-    placeholderClientToken,
+    contentVersion,
+    contentV2,
+    contentV3,
+    ownerId,
   }: {
     id?: UUID;
-    isUserPlaceholder?: boolean;
-    name?: string | null;
-    email?: string | null;
-    profilePictureUrl?: string | null;
-    auth0UserId?: string | null;
-    placeholderClientToken?: UUID | null;
+    name?: string;
+    contentVersion?: OrmContentVersion;
+    contentV2?: string | null;
+    contentV3?: string | null;
+    ownerId?: UUID;
   }) {
     this.id = id;
-    this.isUserPlaceholder = isUserPlaceholder;
     this.name = name;
-    this.email = email;
-    this.profilePictureUrl = profilePictureUrl;
-    this.auth0UserId = auth0UserId;
-    this.placeholderClientToken = placeholderClientToken;
+    this.contentVersion = contentVersion;
+    this.contentV2 = contentV2;
+    this.contentV3 = contentV3;
+    this.ownerId = ownerId;
   }
 
   id?: UUID;
-  isUserPlaceholder?: boolean;
-  name?: string | null;
-  email?: string | null;
-  profilePictureUrl?: string | null;
-  auth0UserId?: string | null;
-  placeholderClientToken?: UUID | null;
+  name?: string;
+  contentVersion?: OrmContentVersion;
+  contentV2?: string | null;
+  contentV3?: string | null;
+  // Relationships
+  ownerId?: UUID;
 
   private isNew: boolean = true;
 
@@ -84,10 +83,12 @@ export default class OrmUser {
 
       await dynamoDbClient.send(
         new PutItemCommand({
-          TableName: process.env.TABLE_NAME_USERS,
+          TableName: process.env.TABLE_NAME_SPACES,
           Item: this.buildItem(),
         }),
       );
+
+      this.isNew = false;
     } else {
       this.validateFields();
 
@@ -96,7 +97,7 @@ export default class OrmUser {
 
       await dynamoDbClient.send(
         new UpdateItemCommand({
-          TableName: process.env.TABLE_NAME_USERS,
+          TableName: process.env.TABLE_NAME_SPACES,
           Key: {
             Id: { S: this.id! },
           },
@@ -111,20 +112,10 @@ export default class OrmUser {
   private validateFields() {
     invariant(this.id !== undefined, "id is required");
     invariant(this.name !== undefined, "name is required");
-    invariant(this.email !== undefined, "email is required");
-    invariant(
-      this.profilePictureUrl !== undefined,
-      "profilePictureUrl is required",
-    );
-    invariant(this.auth0UserId !== undefined, "auth0UserId is required");
-    invariant(
-      this.isUserPlaceholder !== undefined,
-      "isUserPlaceholder is required",
-    );
-    invariant(
-      this.placeholderClientToken !== undefined,
-      "placeholderClientToken is required",
-    );
+    invariant(this.contentVersion !== undefined, "contentVersion is required");
+    invariant(this.contentV2 !== undefined, "contentV2 is required");
+    invariant(this.contentV3 !== undefined, "contentV3 is required");
+    invariant(this.ownerId !== undefined, "ownerId is required");
   }
 
   /**
@@ -163,22 +154,21 @@ export default class OrmUser {
   private buildItem(): Record<string, AttributeValue> {
     return {
       Id: { S: this.id! },
-      IsUserPlaceholder: { BOOL: this.isUserPlaceholder! },
-      ...(this.name !== null && {
-        Name: { S: this.name! },
+      Name: { S: this.name! },
+      ContentVersion: { S: this.contentVersion! },
+      ...(this.contentV2 !== null && {
+        ContentV2: { S: this.contentV2! },
       }),
-      ...(this.email !== null && {
-        Email: { S: this.email! },
+      ...(this.contentV3 !== null && {
+        ContentV3: { S: this.contentV3! },
       }),
-      ...(this.profilePictureUrl !== null && {
-        ProfilePictureUrl: { S: this.profilePictureUrl! },
-      }),
-      ...(this.auth0UserId !== null && {
-        Auth0UserId: { S: this.auth0UserId! },
-      }),
-      ...(this.placeholderClientToken !== null && {
-        PlaceholderClientToken: { S: this.placeholderClientToken! },
-      }),
+      OwnerId: { S: this.ownerId! },
     };
   }
+}
+
+export enum OrmContentVersion {
+  v1 = "v1",
+  v2 = "v2",
+  v3 = "v3",
 }

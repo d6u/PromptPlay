@@ -72,6 +72,7 @@ export default function setupAuth(app: Express) {
       profilePictureUrl: idToken.picture ?? null,
       auth0UserId: idToken.sub,
       isUserPlaceholder: false,
+      placeholderClientToken: null,
     });
 
     await dbUser.save();
