@@ -2,17 +2,10 @@ import cookieSession from "cookie-session";
 import dotenv from "dotenv";
 import express from "express";
 import serverless from "serverless-http";
-import OrmSpace from "./models/space.js";
 import setupAuth from "./routesAuth.js";
 import setupGraphql from "./routesGraphql.js";
 
 dotenv.config();
-
-const dbSpace = new OrmSpace({
-  name: "Example Space",
-});
-
-await dbSpace.save();
 
 const app = express();
 

@@ -4,12 +4,12 @@ import {
   PutItemCommand,
   UpdateItemCommand,
 } from "@aws-sdk/client-dynamodb";
-import Belt from "@mobily/ts-belt";
-import invariant from "ts-invariant";
+import invariant from "tiny-invariant";
 import { v4 as uuidv4 } from "uuid";
 import dynamoDbClient from "../dynamoDb.js";
 import { nullThrow } from "../utils.js";
 import { asUUID, UUID } from "./types.js";
+import { buildUpdateExpressionFieldsFromItem } from "./utils.js";
 
 export default class OrmSpace {
   static async findById(id: string): Promise<OrmSpace | null> {
@@ -92,8 +92,13 @@ export default class OrmSpace {
     } else {
       this.validateFields();
 
-      const { updateExpression, expressionAttributeValues } =
-        this.buildUpdateExpressionAndExpressionAttributeValues();
+      const item = this.buildItem();
+
+      const {
+        updateExpression,
+        expressionAttributeNames,
+        expressionAttributeValues,
+      } = buildUpdateExpressionFieldsFromItem(item);
 
       await dynamoDbClient.send(
         new UpdateItemCommand({
@@ -102,6 +107,7 @@ export default class OrmSpace {
             Id: { S: this.id! },
           },
           UpdateExpression: updateExpression,
+          ExpressionAttributeNames: expressionAttributeNames,
           ExpressionAttributeValues: expressionAttributeValues,
           ReturnValues: "NONE",
         }),
@@ -121,39 +127,9 @@ export default class OrmSpace {
   /**
    * This method will assume all fields are validated.
    */
-  private buildUpdateExpressionAndExpressionAttributeValues(): {
-    updateExpression: string;
-    expressionAttributeValues: Record<string, AttributeValue>;
-  } {
-    const item = this.buildItem();
-
-    const updateExpressionPairs: [string, string, AttributeValue][] =
-      Object.keys(item).map((key) => {
-        return [
-          `${key} = :${key}`,
-          `:${key}`,
-          item[key as keyof typeof item] as AttributeValue,
-        ];
-      });
-
-    const updateExpression =
-      "SET " + updateExpressionPairs.map((pair) => pair[0]).join(", ");
-    const expressionAttributeValues = Belt.D.fromPairs(
-      updateExpressionPairs.map((pair) => [pair[1], pair[2]]),
-    );
-
-    return {
-      updateExpression,
-      expressionAttributeValues,
-    };
-  }
-
-  /**
-   * This method will assume all fields are validated.
-   */
   private buildItem(): Record<string, AttributeValue> {
     return {
-      Id: { S: this.id! },
+      ...(this.isNew && { Id: { S: this.id! } }),
       Name: { S: this.name! },
       ContentVersion: { S: this.contentVersion! },
       ...(this.contentV2 !== null && {

@@ -4,12 +4,12 @@ import {
   PutItemCommand,
   UpdateItemCommand,
 } from "@aws-sdk/client-dynamodb";
-import Belt from "@mobily/ts-belt";
-import invariant from "ts-invariant";
+import invariant from "tiny-invariant";
 import { v4 as uuidv4 } from "uuid";
 import dynamoDbClient from "../dynamoDb.js";
 import { nullThrow } from "../utils.js";
 import { asUUID, UUID } from "./types.js";
+import { buildUpdateExpressionFieldsFromItem } from "./utils.js";
 
 export default class OrmUser {
   static async findById(id: string): Promise<OrmUser | null> {
@@ -26,7 +26,7 @@ export default class OrmUser {
       return null;
     }
 
-    return new OrmUser({
+    const dbUser = new OrmUser({
       id: asUUID(id),
       isUserPlaceholder: nullThrow(response.Item.IsUserPlaceholder?.BOOL),
       name: nullThrow(response.Item.Name?.S),
@@ -38,6 +38,10 @@ export default class OrmUser {
           ? null
           : asUUID(response.Item.PlaceholderClientToken.S),
     });
+
+    dbUser.isNew = false;
+
+    return dbUser;
   }
 
   constructor({
@@ -88,11 +92,18 @@ export default class OrmUser {
           Item: this.buildItem(),
         }),
       );
+
+      this.isNew = false;
     } else {
       this.validateFields();
 
-      const { updateExpression, expressionAttributeValues } =
-        this.buildUpdateExpressionAndExpressionAttributeValues();
+      const item = this.buildItem();
+
+      const {
+        updateExpression,
+        expressionAttributeNames,
+        expressionAttributeValues,
+      } = buildUpdateExpressionFieldsFromItem(item);
 
       await dynamoDbClient.send(
         new UpdateItemCommand({
@@ -101,6 +112,7 @@ export default class OrmUser {
             Id: { S: this.id! },
           },
           UpdateExpression: updateExpression,
+          ExpressionAttributeNames: expressionAttributeNames,
           ExpressionAttributeValues: expressionAttributeValues,
           ReturnValues: "NONE",
         }),
@@ -130,39 +142,9 @@ export default class OrmUser {
   /**
    * This method will assume all fields are validated.
    */
-  private buildUpdateExpressionAndExpressionAttributeValues(): {
-    updateExpression: string;
-    expressionAttributeValues: Record<string, AttributeValue>;
-  } {
-    const item = this.buildItem();
-
-    const updateExpressionPairs: [string, string, AttributeValue][] =
-      Object.keys(item).map((key) => {
-        return [
-          `${key} = :${key}`,
-          `:${key}`,
-          item[key as keyof typeof item] as AttributeValue,
-        ];
-      });
-
-    const updateExpression =
-      "SET " + updateExpressionPairs.map((pair) => pair[0]).join(", ");
-    const expressionAttributeValues = Belt.D.fromPairs(
-      updateExpressionPairs.map((pair) => [pair[1], pair[2]]),
-    );
-
-    return {
-      updateExpression,
-      expressionAttributeValues,
-    };
-  }
-
-  /**
-   * This method will assume all fields are validated.
-   */
   private buildItem(): Record<string, AttributeValue> {
     return {
-      Id: { S: this.id! },
+      ...(this.isNew && { Id: { S: this.id! } }),
       IsUserPlaceholder: { BOOL: this.isUserPlaceholder! },
       ...(this.name !== null && {
         Name: { S: this.name! },
