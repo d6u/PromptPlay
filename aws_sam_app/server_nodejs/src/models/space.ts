@@ -1,6 +1,7 @@
 import "./orm-utils.js";
 import { createOrmClass } from "./orm-utils.js";
 import { UUID } from "./types.js";
+import { dateToNumber, numberToDate } from "./utils.js";
 
 type SpaceShape = {
   // Partition key
@@ -74,11 +75,3 @@ const { createOrmInstance, findById } = createOrmClass<SpaceShape>({
 export const createOrmSpaceInstance = createOrmInstance;
 export const findSpaceById = findById;
 export type OrmSpace = ReturnType<typeof createOrmInstance>;
-
-function dateToNumber(date: Date): number {
-  return date.getTime();
-}
-
-function numberToDate(num: number): Date {
-  return new Date(num);
-}

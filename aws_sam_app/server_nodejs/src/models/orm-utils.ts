@@ -31,9 +31,11 @@ type FieldSettings = {
 
 type OrmShape<S> = {
   [P in keyof S]: S[P];
-} & {
-  updatedAt: string;
-  createdAt: string;
+};
+
+type OrmShapeWithDates<S> = OrmShape<S> & {
+  updatedAt: Date;
+  createdAt: Date;
 };
 
 export function createOrmClass<S extends WithId>(config: Config<S>) {
@@ -154,6 +156,16 @@ export function createOrmClass<S extends WithId>(config: Config<S>) {
       if (this.isNew) {
         this.data.id = this.data.id ?? asUUID(uuidv4());
 
+        // TODO: Generalize these into a config
+        if ("createdAt" in config.shape) {
+          (this.data as OrmShapeWithDates<S>).createdAt = new Date();
+        }
+        if ("updatedAt" in config.shape) {
+          (this.data as OrmShapeWithDates<S>).updatedAt = new Date();
+        }
+
+        OrmClass.validateFields(this.data);
+
         const item = this.buildItem();
 
         await dynamoDbClient.send(
@@ -165,6 +177,11 @@ export function createOrmClass<S extends WithId>(config: Config<S>) {
 
         this.isNew = false;
       } else {
+        // TODO: Generalize these into a config
+        if ("updatedAt" in config.shape) {
+          (this.data as OrmShapeWithDates<S>).updatedAt = new Date();
+        }
+
         OrmClass.validateFields(this.data);
 
         const item = this.buildItem();

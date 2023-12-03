@@ -1,5 +1,6 @@
 import { createOrmClass } from "./orm-utils.js";
 import { UUID } from "./types.js";
+import { dateToNumber, numberToDate } from "./utils.js";
 
 type UserShape = {
   id: UUID;
@@ -9,6 +10,8 @@ type UserShape = {
   profilePictureUrl: string | null;
   auth0UserId: string | null;
   placeholderClientToken: UUID | null;
+  createdAt: Date;
+  updatedAt: Date;
 };
 
 const { createOrmInstance, findById } = createOrmClass<UserShape>({
@@ -48,6 +51,20 @@ const { createOrmInstance, findById } = createOrmClass<UserShape>({
       type: "string",
       nullable: true,
       fieldName: "PlaceholderClientToken",
+    },
+    createdAt: {
+      type: "number",
+      nullable: false,
+      fieldName: "CreatedAt",
+      fromDbValue: numberToDate as (val: unknown) => unknown,
+      toDbValue: dateToNumber as (val: unknown) => unknown,
+    },
+    updatedAt: {
+      type: "number",
+      nullable: false,
+      fieldName: "UpdatedAt",
+      fromDbValue: numberToDate as (val: unknown) => unknown,
+      toDbValue: dateToNumber as (val: unknown) => unknown,
     },
   },
 });
