@@ -32,10 +32,6 @@ Resources:
       AttributeDefinitions:
         - AttributeName: Id
           AttributeType: S
-        - AttributeName: OwnerId
-          AttributeType: S
       KeySchema:
         - AttributeName: Id
           KeyType: HASH
-        - AttributeName: OwnerId
-          KeyType: RANGE
