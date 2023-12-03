@@ -3,11 +3,7 @@ import OrmUser from "../models/user.js";
 import { RequestWithSession } from "../types.js";
 
 export interface RequestWithUser extends RequestWithSession {
-  user?: {
-    userId: string;
-    name: string;
-    idToken?: string;
-  };
+  dbUser?: OrmUser;
 }
 
 export async function attachUser(
@@ -29,11 +25,7 @@ export async function attachUser(
     return;
   }
 
-  req.user = {
-    userId: dbUser.id!,
-    name: dbUser.name ?? "",
-    idToken: dbUser.auth0UserId ?? "",
-  };
+  req.dbUser = dbUser;
 
   next();
 }

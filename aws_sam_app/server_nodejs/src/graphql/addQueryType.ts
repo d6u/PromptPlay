@@ -1,4 +1,3 @@
-import OrmUser from "../models/user.js";
 import { BuilderType, ContentVersion, User } from "./graphql-types.js";
 
 export default function addQueryType(builder: BuilderType) {
@@ -7,8 +6,8 @@ export default function addQueryType(builder: BuilderType) {
       return {
         hello: t.string({
           resolve(parent, args, context) {
-            if (context.req.user?.name) {
-              return `Hello ${context.req.user.name}!`;
+            if (context.req.dbUser?.name) {
+              return `Hello ${context.req.dbUser.name}!`;
             }
 
             return `Hello World!`;
@@ -19,7 +18,7 @@ export default function addQueryType(builder: BuilderType) {
             "Check if there is a user and the user is not a placeholder user",
           resolve(parent, args, context) {
             // TODO: Check if user is a placeholder user
-            return context.req.user != null;
+            return context.req.dbUser != null;
           },
         }),
         isPlaceholderUserTokenInvalid: t.boolean({
@@ -33,13 +32,9 @@ export default function addQueryType(builder: BuilderType) {
           type: "User",
           nullable: true,
           async resolve(parent, args, context) {
-            const userId = context.req.user?.userId;
-
             // NOTE: Force cast to User because user fetched from DB shouldn't
             // have null id field.
-            return userId == null
-              ? null
-              : ((await OrmUser.findById(userId)) as User);
+            return context.req.dbUser as User;
           },
         }),
         space: t.field({

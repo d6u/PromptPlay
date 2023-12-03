@@ -9,7 +9,10 @@ import { v4 as uuidv4 } from "uuid";
 import dynamoDbClient from "../dynamoDb.js";
 import { nullThrow } from "../utils.js";
 import { asUUID, UUID } from "./types.js";
-import { buildUpdateExpressionFieldsFromItem } from "./utils.js";
+import {
+  buildUpdateExpressionFieldsFromItem,
+  undefinedThrow,
+} from "./utils.js";
 
 export default class OrmSpace {
   static async findById(id: string): Promise<OrmSpace | null> {
@@ -74,6 +77,24 @@ export default class OrmSpace {
   ownerId?: UUID;
 
   private isNew: boolean = true;
+
+  toJson(): {
+    id: UUID;
+    name: string;
+    contentVersion: OrmContentVersion;
+    contentV2: string | null;
+    contentV3: string | null;
+    ownerId: UUID;
+  } {
+    return {
+      id: undefinedThrow(this.id),
+      name: undefinedThrow(this.name),
+      contentVersion: undefinedThrow(this.contentVersion),
+      contentV2: undefinedThrow(this.contentV2),
+      contentV3: undefinedThrow(this.contentV3),
+      ownerId: undefinedThrow(this.ownerId),
+    };
+  }
 
   async save() {
     if (this.isNew) {

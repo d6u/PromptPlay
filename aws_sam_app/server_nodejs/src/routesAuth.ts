@@ -83,33 +83,43 @@ export default function setupAuth(app: Express) {
   });
 
   app.get("/logout", attachUser, async (req: RequestWithUser, res) => {
+    const idToken = req.session?.idToken;
+
+    // SECTION: Logout locally
+
     req.session = null;
 
-    if (!req.user?.idToken) {
+    // !SECTION
+
+    // SECTION: Logout from Auth0
+
+    if (idToken == null) {
       res.redirect(process.env.AUTH_LOGOUT_FINISH_REDIRECT_URL);
       return;
     }
 
     const searchParams = new URLSearchParams({
       post_logout_redirect_uri: process.env.AUTH_LOGOUT_FINISH_REDIRECT_URL,
-      id_token_hint: req.user.idToken,
+      id_token_hint: idToken,
     });
 
-    // Redirect to Auth0 logout page, so we are logged out between Auth0
-    // and other IDP as well.
+    // Redirect to Auth0 logout endpoint, so we are logged out between Auth0
+    // and other IDP.
     res.redirect(
       `https://${
         process.env.AUTH0_DOMAIN
       }/oidc/logout?${searchParams.toString()}`,
     );
+
+    // !SECTION
   });
 
   app.get("/hello", attachUser, async (req: RequestWithUser, res) => {
-    if (!req.user) {
+    if (!req.dbUser) {
       res.send("Hello World!");
       return;
     }
 
-    res.send(`Hello ${req.user.name}!`);
+    res.send(`Hello ${req.dbUser.name}!`);
   });
 }
