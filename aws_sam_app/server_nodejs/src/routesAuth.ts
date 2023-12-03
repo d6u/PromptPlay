@@ -1,7 +1,7 @@
 import { Express, Response } from "express";
 import { BaseClient, generators, Issuer } from "openid-client";
 import { attachUser, RequestWithUser } from "./middleware/user.js";
-import OrmUser from "./models/user.js";
+import { createOrmUserInstance } from "./models/user.js";
 import { RequestWithSession } from "./types.js";
 
 async function getAuthClient() {
@@ -66,7 +66,7 @@ export default function setupAuth(app: Express) {
 
     const idToken = tokenSet.claims();
 
-    const dbUser = new OrmUser({
+    const dbUser = createOrmUserInstance({
       name: idToken.name ?? null,
       email: idToken.email ?? null,
       profilePictureUrl: idToken.picture ?? null,

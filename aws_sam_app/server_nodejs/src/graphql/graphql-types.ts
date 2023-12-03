@@ -1,5 +1,5 @@
 import { RequestWithUser } from "../middleware/user.js";
-import OrmSpace, { OrmContentVersion } from "../models/space.js";
+import { OrmContentVersion, OrmSpace } from "../models/space.js";
 import { UUID } from "../models/types.js";
 
 type Context = {
@@ -27,7 +27,7 @@ export class Space {
   }
 
   constructor(dbSpace: OrmSpace) {
-    const obj = dbSpace.toJson();
+    const obj = dbSpace.toObject();
 
     this.id = obj.id;
     this.name = obj.name;

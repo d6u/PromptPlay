@@ -1,5 +1,5 @@
 import { NextFunction, Response } from "express";
-import OrmUser from "../models/user.js";
+import { findUserById, OrmUser } from "../models/user.js";
 import { RequestWithSession } from "../types.js";
 
 export interface RequestWithUser extends RequestWithSession {
@@ -18,7 +18,7 @@ export async function attachUser(
     return;
   }
 
-  const dbUser = await OrmUser.findById(userId);
+  const dbUser = await findUserById(userId);
 
   if (!dbUser) {
     next();

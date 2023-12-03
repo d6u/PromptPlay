@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
 import { asUUID, UUID } from "../models/types.js";
-import OrmUser from "../models/user.js";
+import { createOrmUserInstance } from "../models/user.js";
 import { createSpaceWithExampleContent } from "../models/utils.js";
 import { nullThrow } from "../utils.js";
 import { BuilderType, Space } from "./graphql-types.js";
@@ -18,7 +18,7 @@ export default function addMutationType(builder: BuilderType) {
             if (dbUser == null) {
               placeholderClientToken = asUUID(uuidv4());
 
-              dbUser = new OrmUser({
+              dbUser = createOrmUserInstance({
                 isUserPlaceholder: true,
                 name: null,
                 email: null,

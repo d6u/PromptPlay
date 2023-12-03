@@ -1,7 +1,11 @@
 import { AttributeValue } from "@aws-sdk/client-dynamodb";
 import { nullThrow } from "../utils.js";
-import OrmSpace, { OrmContentVersion } from "./space.js";
-import OrmUser from "./user.js";
+import {
+  createOrmSpaceInstance,
+  OrmContentVersion,
+  OrmSpace,
+} from "./space.js";
+import { OrmUser } from "./user.js";
 
 export function undefinedThrow<T>(
   val: T | undefined,
@@ -45,7 +49,7 @@ export function buildUpdateExpressionFieldsFromItem(
 }
 
 export function createSpaceWithExampleContent(dbUser: OrmUser): OrmSpace {
-  const dbSpace = new OrmSpace({
+  const dbSpace = createOrmSpaceInstance({
     name: "Example Space",
     ownerId: nullThrow(dbUser.id),
     contentVersion: OrmContentVersion.v3,
