@@ -55,6 +55,8 @@ export function createSpaceWithExampleContent(dbUser: OrmUser): OrmSpace {
     contentVersion: OrmContentVersion.v3,
     contentV2: null,
     contentV3: JSON.stringify(createExampleSpaceContentV3()),
+    createdAt: new Date(),
+    updatedAt: new Date(),
   });
 
   return dbSpace;

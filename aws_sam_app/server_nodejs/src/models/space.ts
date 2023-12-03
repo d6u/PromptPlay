@@ -6,13 +6,13 @@ type SpaceShape = {
   // Partition key
   id: UUID;
 
-  // Sort key
   ownerId: UUID;
-
   name: string;
   contentVersion: OrmContentVersion;
   contentV2: string | null;
   contentV3: string | null;
+  createdAt: Date;
+  updatedAt: Date;
 };
 
 export enum OrmContentVersion {
@@ -54,9 +54,31 @@ const { createOrmInstance, findById } = createOrmClass<SpaceShape>({
       nullable: true,
       fieldName: "ContentV3",
     },
+    createdAt: {
+      type: "number",
+      nullable: false,
+      fieldName: "CreatedAt",
+      fromDbValue: numberToDate as (val: unknown) => unknown,
+      toDbValue: dateToNumber as (val: unknown) => unknown,
+    },
+    updatedAt: {
+      type: "number",
+      nullable: false,
+      fieldName: "UpdatedAt",
+      fromDbValue: numberToDate as (val: unknown) => unknown,
+      toDbValue: dateToNumber as (val: unknown) => unknown,
+    },
   },
 });
 
 export const createOrmSpaceInstance = createOrmInstance;
 export const findSpaceById = findById;
 export type OrmSpace = ReturnType<typeof createOrmInstance>;
+
+function dateToNumber(date: Date): number {
+  return date.getTime();
+}
+
+function numberToDate(num: number): Date {
+  return new Date(num);
+}

@@ -12,27 +12,29 @@ import {
   undefinedThrow,
 } from "./utils.js";
 
-type Config<T> = {
+interface WithId {
+  id: UUID;
+}
+
+type Config<S> = {
   table: string;
-  shape: Record<keyof T, FieldSettings>;
+  shape: Record<keyof S, FieldSettings>;
 };
 
 type FieldSettings = {
-  type: "string" | "boolean";
+  type: "string" | "number" | "boolean";
   nullable: boolean;
   fieldName: string;
+  toDbValue?: (val: unknown) => unknown;
+  fromDbValue?: (val: unknown) => unknown;
 };
 
-type OrmShape<T> = {
-  [Property in keyof T]: T[Property];
+type OrmShape<S> = {
+  [P in keyof S]: S[P];
 } & {
   updatedAt: string;
   createdAt: string;
 };
-
-interface WithId {
-  id: UUID;
-}
 
 export function createOrmClass<S extends WithId>(config: Config<S>) {
   type OrmInstance = OrmClass & OrmShape<S>;
@@ -52,7 +54,7 @@ export function createOrmClass<S extends WithId>(config: Config<S>) {
         return null;
       }
 
-      const obj = OrmClass.buildObject(response.Item);
+      const obj = OrmClass.buildObjectFromItem(response.Item);
 
       const dbInstance = new OrmClass(obj);
       dbInstance.isNew = false;
@@ -68,7 +70,9 @@ export function createOrmClass<S extends WithId>(config: Config<S>) {
       }
     }
 
-    private static buildObject(item: Record<string, AttributeValue>): S {
+    private static buildObjectFromItem(
+      item: Record<string, AttributeValue>,
+    ): S {
       const obj: Partial<S> = {};
 
       for (const key in config.shape) {
@@ -82,13 +86,23 @@ export function createOrmClass<S extends WithId>(config: Config<S>) {
             throw new Error(`Missing key: ${key}`);
           }
         } else {
+          let val: unknown;
           switch (settings.type) {
             case "string":
-              obj[key] = undefinedThrow(attr.S) as S[typeof key];
+              val = undefinedThrow(attr.S);
+              break;
+            case "number":
+              val = Number(undefinedThrow(attr.N));
               break;
             case "boolean":
-              obj[key] = undefinedThrow(attr.BOOL) as S[typeof key];
+              val = undefinedThrow(attr.BOOL);
               break;
+          }
+
+          if (settings.fromDbValue) {
+            obj[key] = settings.fromDbValue(val) as S[typeof key];
+          } else {
+            obj[key] = val as S[typeof key];
           }
         }
       }
@@ -188,12 +202,23 @@ export function createOrmClass<S extends WithId>(config: Config<S>) {
           continue;
         }
 
+        let dbValue: unknown;
+
+        if (settings.toDbValue) {
+          dbValue = settings.toDbValue(val);
+        } else {
+          dbValue = val;
+        }
+
         switch (settings.type) {
           case "string":
-            item[settings.fieldName] = { S: val as string };
+            item[settings.fieldName] = { S: dbValue as string };
+            break;
+          case "number":
+            item[settings.fieldName] = { N: String(dbValue) };
             break;
           case "boolean":
-            item[settings.fieldName] = { BOOL: val as boolean };
+            item[settings.fieldName] = { BOOL: dbValue as boolean };
             break;
         }
       }

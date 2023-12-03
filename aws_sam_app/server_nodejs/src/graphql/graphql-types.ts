@@ -57,7 +57,7 @@ export class Space {
     this.content = obj.contentV2;
     this.flowContent = null;
     this.contentV3 = obj.contentV3;
-    this.updatedAt = new Date();
+    this.updatedAt = obj.updatedAt;
   }
 
   id: string;
