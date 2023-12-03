@@ -47,9 +47,10 @@ export function buildUpdateExpressionFieldsFromItem(
 export function createSpaceWithExampleContent(dbUser: OrmUser): OrmSpace {
   const dbSpace = new OrmSpace({
     name: "Example Space",
-    contentVersion: OrmContentVersion.v3,
-    contentV3: JSON.stringify(createExampleSpaceContentV3()),
     ownerId: nullThrow(dbUser.id),
+    contentVersion: OrmContentVersion.v3,
+    contentV2: null,
+    contentV3: JSON.stringify(createExampleSpaceContentV3()),
   });
 
   return dbSpace;
