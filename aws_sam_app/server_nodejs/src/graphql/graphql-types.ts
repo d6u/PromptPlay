@@ -2,9 +2,31 @@ import { RequestWithUser } from "../middleware/user.js";
 import { OrmContentVersion, OrmSpace } from "../models/space.js";
 import { UUID } from "../models/types.js";
 
+export type Types = {
+  Context: Context;
+  Objects: {
+    User: User;
+    Space: Space;
+    QuerySpaceResult: QuerySpaceResult;
+    CreatePlaceholderUserAndExampleSpaceResult: CreatePlaceholderUserAndExampleSpaceResult;
+  };
+  Scalars: {
+    Date: {
+      Input: Date;
+      Output: Date;
+    };
+  };
+};
+
+export type BuilderType = PothosSchemaTypes.SchemaBuilder<
+  PothosSchemaTypes.ExtendDefaultTypes<Types>
+>;
+
 type Context = {
   req: RequestWithUser;
 };
+
+// SECTION: Objects
 
 export type User = {
   id: string;
@@ -35,7 +57,7 @@ export class Space {
     this.content = obj.contentV2;
     this.flowContent = null;
     this.contentV3 = obj.contentV3;
-    this.updatedAt = new Date().toISOString();
+    this.updatedAt = new Date();
   }
 
   id: string;
@@ -44,13 +66,18 @@ export class Space {
   content: string | null;
   flowContent: string | null;
   contentV3: string | null;
-  updatedAt: string;
+  updatedAt: Date;
 }
 
-type QuerySpaceResult = {
+export class QuerySpaceResult {
+  constructor({ isReadOnly, space }: { isReadOnly: boolean; space: Space }) {
+    this.isReadOnly = isReadOnly;
+    this.space = space;
+  }
+
   isReadOnly: boolean;
-  space: Space | null;
-};
+  space: Space;
+}
 
 type CreatePlaceholderUserAndExampleSpaceResult = {
   placeholderClientToken: UUID;
@@ -63,16 +90,4 @@ export enum ContentVersion {
   v3 = "v3",
 }
 
-export type Types = {
-  Context: Context;
-  Objects: {
-    User: User;
-    Space: Space;
-    QuerySpaceResult: QuerySpaceResult;
-    CreatePlaceholderUserAndExampleSpaceResult: CreatePlaceholderUserAndExampleSpaceResult;
-  };
-};
-
-export type BuilderType = PothosSchemaTypes.SchemaBuilder<
-  PothosSchemaTypes.ExtendDefaultTypes<Types>
->;
+// !SECTION

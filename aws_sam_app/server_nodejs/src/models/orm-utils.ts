@@ -25,16 +25,17 @@ type FieldSettings = {
 
 type OrmShape<T> = {
   [Property in keyof T]: T[Property];
+} & {
+  updatedAt: string;
+  createdAt: string;
 };
 
 interface WithId {
   id: UUID;
 }
 
-export function createOrmClass<T extends WithId>(config: Config<T>) {
-  console.log("createOrmClass", config);
-
-  type OrmInstance = OrmClass & OrmShape<T>;
+export function createOrmClass<S extends WithId>(config: Config<S>) {
+  type OrmInstance = OrmClass & OrmShape<S>;
 
   class OrmClass {
     static async findById(id: string): Promise<OrmInstance | null> {
@@ -59,7 +60,7 @@ export function createOrmClass<T extends WithId>(config: Config<T>) {
       return dbInstance as OrmInstance;
     }
 
-    private static validateFields(data: Partial<T>): asserts data is T {
+    private static validateFields(data: Partial<S>): asserts data is S {
       for (const key in config.shape) {
         if (data[key] === undefined) {
           throw new Error(`Missing key: ${key}`);
@@ -67,8 +68,8 @@ export function createOrmClass<T extends WithId>(config: Config<T>) {
       }
     }
 
-    private static buildObject(item: Record<string, AttributeValue>): T {
-      const obj: Partial<T> = {};
+    private static buildObject(item: Record<string, AttributeValue>): S {
+      const obj: Partial<S> = {};
 
       for (const key in config.shape) {
         const settings = config.shape[key];
@@ -76,33 +77,33 @@ export function createOrmClass<T extends WithId>(config: Config<T>) {
 
         if (attr == null) {
           if (settings.nullable) {
-            obj[key] = null as T[typeof key];
+            obj[key] = null as S[typeof key];
           } else {
             throw new Error(`Missing key: ${key}`);
           }
         } else {
           switch (settings.type) {
             case "string":
-              obj[key] = undefinedThrow(attr.S) as T[typeof key];
+              obj[key] = undefinedThrow(attr.S) as S[typeof key];
               break;
             case "boolean":
-              obj[key] = undefinedThrow(attr.BOOL) as T[typeof key];
+              obj[key] = undefinedThrow(attr.BOOL) as S[typeof key];
               break;
           }
         }
       }
 
-      return obj as T;
+      return obj as S;
     }
 
-    constructor(data: Partial<T>) {
+    constructor(data: Partial<S>) {
       this.data = data;
 
       return new Proxy(this, {
         get(target, prop, receiver) {
           // Proxy getter to read from this.data
           if (prop in config.shape) {
-            return target.data[prop as keyof T];
+            return target.data[prop as keyof S];
           }
 
           return Reflect.get(target, prop, receiver);
@@ -110,7 +111,7 @@ export function createOrmClass<T extends WithId>(config: Config<T>) {
         set(target, prop, value, receiver) {
           // Proxy setter to write to this.data
           if (prop in config.shape) {
-            target.data[prop as keyof T] = value;
+            target.data[prop as keyof S] = value;
             return true;
           }
 
@@ -119,20 +120,20 @@ export function createOrmClass<T extends WithId>(config: Config<T>) {
       });
     }
 
-    private data: Partial<T> = {};
+    private data: Partial<S> = {};
     private isNew: boolean = true;
 
     /**
      * Convert underlying data to plain object. Will throw if any fields are
      * undefined.
      */
-    toObject(): T {
-      const obj: Partial<T> = {};
+    toObject(): S {
+      const obj: Partial<S> = {};
       for (const key in config.shape) {
         const val = undefinedThrow(this.data[key], `Missing key: ${key}`);
         obj[key] = val;
       }
-      return obj as T;
+      return obj as S;
     }
 
     async save() {
@@ -203,7 +204,7 @@ export function createOrmClass<T extends WithId>(config: Config<T>) {
 
   return {
     findById: OrmClass.findById,
-    createOrmInstance(data: Partial<T>) {
+    createOrmInstance(data: Partial<S>) {
       return new OrmClass(data) as OrmInstance;
     },
   };

@@ -21,7 +21,7 @@ export enum OrmContentVersion {
   v3 = "v3",
 }
 
-const { createOrmInstance } = createOrmClass<SpaceShape>({
+const { createOrmInstance, findById } = createOrmClass<SpaceShape>({
   table: process.env.TABLE_NAME_SPACES,
   shape: {
     id: {
@@ -58,5 +58,5 @@ const { createOrmInstance } = createOrmClass<SpaceShape>({
 });
 
 export const createOrmSpaceInstance = createOrmInstance;
-export const findSpaceById = createOrmInstance;
+export const findSpaceById = findById;
 export type OrmSpace = ReturnType<typeof createOrmInstance>;

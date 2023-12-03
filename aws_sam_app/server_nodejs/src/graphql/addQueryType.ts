@@ -1,4 +1,5 @@
-import { BuilderType, ContentVersion, User } from "./graphql-types.js";
+import { findSpaceById } from "../models/space.js";
+import { BuilderType, ContentVersion, Space, User } from "./graphql-types.js";
 
 export default function addQueryType(builder: BuilderType) {
   builder.queryType({
@@ -40,8 +41,18 @@ export default function addQueryType(builder: BuilderType) {
         space: t.field({
           type: "QuerySpaceResult",
           nullable: true,
-          resolve(parent, args, context) {
-            return null;
+          args: {
+            id: t.arg.string({ required: true }),
+          },
+          async resolve(parent, args, context) {
+            const dbSpace = await findSpaceById(args.id);
+            if (dbSpace == null) {
+              return null;
+            }
+            return {
+              space: new Space(dbSpace),
+              isReadOnly: true,
+            };
           },
         }),
       };
@@ -53,16 +64,11 @@ export default function addQueryType(builder: BuilderType) {
       return {
         space: t.field({
           type: "Space",
-          nullable: true,
           resolve(parent, args, context) {
-            return null;
+            return parent.space;
           },
         }),
-        isReadOnly: t.boolean({
-          resolve(parent, args, context) {
-            return true;
-          },
-        }),
+        isReadOnly: t.exposeBoolean("isReadOnly"),
       };
     },
   });
@@ -88,40 +94,21 @@ export default function addQueryType(builder: BuilderType) {
   builder.objectType("Space", {
     fields(t) {
       return {
-        id: t.string({
-          resolve(parent, args, context) {
-            return "";
-          },
-        }),
-        name: t.string({
-          resolve(parent, args, context) {
-            return "";
-          },
-        }),
+        id: t.exposeString("id"),
+        name: t.exposeString("name"),
         contentVersion: t.field({
           type: ContentVersion,
           resolve(parent, args, context) {
-            return ContentVersion.v3;
+            return parent.contentVersion;
           },
         }),
-        content: t.string({
+        content: t.exposeString("content", { nullable: true }),
+        flowContent: t.exposeString("flowContent", { nullable: true }),
+        contentV3: t.exposeString("contentV3", { nullable: true }),
+        updatedAt: t.field({
+          type: "Date",
           resolve(parent, args, context) {
-            return "";
-          },
-        }),
-        flowContent: t.string({
-          resolve(parent, args, context) {
-            return "";
-          },
-        }),
-        contentV3: t.string({
-          resolve(parent, args, context) {
-            return "";
-          },
-        }),
-        updatedAt: t.string({
-          resolve(parent, args, context) {
-            return "";
+            return parent.updatedAt;
           },
         }),
       };
