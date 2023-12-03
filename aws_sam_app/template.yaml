@@ -19,6 +19,7 @@ Parameters:
     Type: String
   SessionCookieSecret:
     Type: String
+  # Tables are managed outside of this stack.
   TableNameUsers:
     Type: String
   TableNameSpaces:
@@ -35,23 +36,6 @@ Globals:
     OpenApiVersion: "2.0"
 
 Resources:
-  # ANCHOR: Database
-
-  UsersTable:
-    Type: AWS::Serverless::SimpleTable
-    Properties:
-      TableName: !Ref TableNameUsers
-      PrimaryKey:
-        Name: Id
-        Type: String
-  SpacesTable:
-    Type: AWS::Serverless::SimpleTable
-    Properties:
-      TableName: !Ref TableNameSpaces
-      PrimaryKey:
-        Name: Id
-        Type: String
-
   # ANCHOR: Cert for *.promptplay.xyz
 
   CertificateSubDomains:

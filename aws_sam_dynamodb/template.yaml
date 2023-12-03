@@ -1,0 +1,41 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: PromptPlay DynamoDB tables.
+
+Parameters:
+  TableNameUsers:
+    Type: String
+  TableNameSpaces:
+    Type: String
+
+Resources:
+  UsersTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Ref TableNameUsers
+      TableClass: STANDARD
+      DeletionProtectionEnabled: true
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: Id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: Id
+          KeyType: HASH
+
+  SpacesTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Ref TableNameSpaces
+      TableClass: STANDARD
+      DeletionProtectionEnabled: true
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: Id
+          AttributeType: S
+        - AttributeName: OnwerId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: Id
+          KeyType: HASH
+        - AttributeName: OnwerId
+          KeyType: RANGE
