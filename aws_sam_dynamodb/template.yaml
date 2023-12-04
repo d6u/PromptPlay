@@ -18,9 +18,20 @@ Resources:
       AttributeDefinitions:
         - AttributeName: Id
           AttributeType: S
+        - AttributeName: PlaceholderClientToken
+          AttributeType: S
       KeySchema:
         - AttributeName: Id
           KeyType: HASH
+      GlobalSecondaryIndexes:
+        - ContributorInsightsSpecification:
+            Enabled: true
+          IndexName: PlaceholderClientTokenIndex
+          KeySchema:
+            - AttributeName: PlaceholderClientToken
+              KeyType: HASH
+          Projection:
+            ProjectionType: KEYS_ONLY
 
   SpacesTable:
     Type: AWS::DynamoDB::Table

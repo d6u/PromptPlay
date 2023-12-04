@@ -1,5 +1,7 @@
+import { QueryCommand } from "@aws-sdk/client-dynamodb";
+import dynamoDbClient from "../dynamoDb.js";
 import { createOrmClass } from "./orm-utils.js";
-import { UUID } from "./types.js";
+import { asUUID, UUID } from "./types.js";
 import { dateToNumber, numberToDate } from "./utils.js";
 
 type UserShape = {
@@ -72,3 +74,26 @@ const { createOrmInstance, findById } = createOrmClass<UserShape>({
 export const createOrmUserInstance = createOrmInstance;
 export const findUserById = findById;
 export type OrmUser = ReturnType<typeof createOrmInstance>;
+
+export async function findUserByPlaceholderUserToken(token: UUID) {
+  const response = await dynamoDbClient.send(
+    new QueryCommand({
+      TableName: process.env.TABLE_NAME_USERS,
+      IndexName: "PlaceholderClientTokenIndex",
+      Select: "ALL_PROJECTED_ATTRIBUTES",
+      Limit: 1,
+      KeyConditionExpression: "PlaceholderClientToken = :token",
+      ExpressionAttributeValues: {
+        ":token": { S: token },
+      },
+    }),
+  );
+
+  if (!response.Items?.length) {
+    return null;
+  }
+
+  const userId = response.Items[0]!.Id!.S!;
+
+  return await findUserById(asUUID(userId));
+}

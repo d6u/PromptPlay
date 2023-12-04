@@ -1,6 +1,9 @@
 import { v4 as uuidv4 } from "uuid";
 import { asUUID, UUID } from "../models/types.js";
-import { createOrmUserInstance } from "../models/user.js";
+import {
+  createOrmUserInstance,
+  findUserByPlaceholderUserToken,
+} from "../models/user.js";
 import { createSpaceWithExampleContent } from "../models/utils.js";
 import { nullThrow } from "../utils.js";
 import { BuilderType, Space } from "./graphql-types.js";
@@ -43,6 +46,40 @@ export default function addMutationType(builder: BuilderType) {
               placeholderClientToken,
               space: new Space(dbSpace),
             };
+          },
+        }),
+
+        mergePlaceholderUserWithLoggedInUser: t.field({
+          type: "User",
+          args: {
+            placeholderUserToken: t.arg({
+              type: "String",
+              required: true,
+            }),
+          },
+          nullable: true,
+          async resolve(parent, args, context) {
+            const dbUser = context.req.dbUser;
+
+            if (dbUser == null) {
+              return null;
+            }
+
+            const dbPlaceholderUser = await findUserByPlaceholderUserToken(
+              asUUID(args.placeholderUserToken),
+            );
+
+            if (dbPlaceholderUser == null) {
+              return null;
+            }
+
+            // Select spaces of placeholder user
+
+            // Assign spaces to dbUser
+
+            // Delete placeholder user
+
+            return dbUser;
           },
         }),
       };
