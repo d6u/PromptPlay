@@ -1,11 +1,11 @@
+// NOTE: Always load env first.
+import "dotenv/config";
+
 import cookieSession from "cookie-session";
-import dotenv from "dotenv";
 import express from "express";
 import serverless from "serverless-http";
 import setupAuth from "./routesAuth.js";
 import setupGraphql from "./routesGraphql.js";
-
-dotenv.config();
 
 const app = express();
 
@@ -22,7 +22,7 @@ app.use(
     // Cookie only to be sent over HTTP(S), and not made available to
     // client JavaScript.
     httpOnly: true,
-  })
+  }),
 );
 
 setupGraphql(app);

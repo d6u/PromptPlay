@@ -19,38 +19,12 @@ export type Scalars = {
   UUID: { input: any; output: any; }
 };
 
-export type Block = {
-  id: Scalars['UUID']['output'];
-};
-
-export type BlockSet = {
-  __typename?: 'BlockSet';
-  completerBlock?: Maybe<CompleterBlock>;
-  id: Scalars['UUID']['output'];
-  isInputIncludingPreviousBlockSetOutput: Scalars['Boolean']['output'];
-  isOutputIncludingInputBlocks: Scalars['Boolean']['output'];
-  isRepeatingCurrentBlockSet: Scalars['Boolean']['output'];
-  position: Scalars['Int']['output'];
-  previousBlockSetsInputBlocks: Array<PromptBlock>;
-  systemPromptBlock?: Maybe<PromptBlock>;
-  topInputPromptBlock?: Maybe<PromptBlock>;
-  topOutputBlock?: Maybe<PromptBlock>;
-};
-
 export type CsvEvaluationPreset = {
   __typename?: 'CSVEvaluationPreset';
   configContent?: Maybe<Scalars['String']['output']>;
   csvContent: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
-};
-
-export type CompleterBlock = Block & {
-  __typename?: 'CompleterBlock';
-  id: Scalars['UUID']['output'];
-  model: Scalars['String']['output'];
-  stop: Scalars['String']['output'];
-  temperature: Scalars['Float']['output'];
 };
 
 export enum ContentVersion {
@@ -65,91 +39,22 @@ export type CreateCsvEvaluationPresetResult = {
   space: Space;
 };
 
-export type CreateExampleWorkspaceResult = {
-  __typename?: 'CreateExampleWorkspaceResult';
-  isSuccess: Scalars['Boolean']['output'];
-  placeholderClientToken?: Maybe<Scalars['UUID']['output']>;
-  space?: Maybe<Workspace>;
-};
-
 export type CreatePlaceholderUserAndExampleSpaceResult = {
   __typename?: 'CreatePlaceholderUserAndExampleSpaceResult';
   placeholderClientToken: Scalars['ID']['output'];
   space: Space;
 };
 
-export type DeletionResult = {
-  __typename?: 'DeletionResult';
-  isSuccess: Scalars['Boolean']['output'];
-};
-
 export type Mutation = {
   __typename?: 'Mutation';
-  addCompleterToBlockSet?: Maybe<BlockSet>;
-  addPromptToBlockSetTopInput?: Maybe<BlockSet>;
-  addPromptToBlockSetTopOutput?: Maybe<BlockSet>;
-  addSystemPromptToBlockSet?: Maybe<BlockSet>;
-  createBlockSet?: Maybe<BlockSet>;
-  createCompleterBlock?: Maybe<CompleterBlock>;
   createCsvEvaluationPreset?: Maybe<CreateCsvEvaluationPresetResult>;
-  createExampleWorkspace?: Maybe<CreateExampleWorkspaceResult>;
   createPlaceholderUserAndExampleSpace: CreatePlaceholderUserAndExampleSpaceResult;
-  createPromptBlock?: Maybe<PromptBlock>;
   createSpace?: Maybe<Space>;
-  createTopOutputBlockOnBlockSet?: Maybe<BlockSet>;
-  createWorkspace?: Maybe<Workspace>;
-  deleteBlock?: Maybe<DeletionResult>;
-  deleteBlockSet?: Maybe<DeletionResult>;
   deleteCsvEvaluationPreset?: Maybe<Space>;
   deleteSpace?: Maybe<Scalars['Boolean']['output']>;
-  deleteWorkspace?: Maybe<DeletionResult>;
-  executeBlockSet?: Maybe<BlockSet>;
   mergePlaceholderUserWithLoggedInUser?: Maybe<User>;
-  removeCompleterFromBlockSet?: Maybe<BlockSet>;
-  removeSystemPromptFromBlockSet?: Maybe<BlockSet>;
-  removeTopInputFromBlockSet?: Maybe<BlockSet>;
-  removeTopOutputFromBlockSet?: Maybe<BlockSet>;
-  swapBlockSetPositions?: Maybe<Preset>;
-  updateBlockSetOptions?: Maybe<BlockSet>;
-  updateCompleterBlock?: Maybe<CompleterBlock>;
   updateCsvEvaluationPreset?: Maybe<CsvEvaluationPreset>;
-  updatePromptBlock?: Maybe<PromptBlock>;
   updateSpace?: Maybe<Space>;
-  updateWorkspace?: Maybe<Workspace>;
-};
-
-
-export type MutationAddCompleterToBlockSetArgs = {
-  blockSetId: Scalars['UUID']['input'];
-  completerBlockId: Scalars['UUID']['input'];
-};
-
-
-export type MutationAddPromptToBlockSetTopInputArgs = {
-  blockSetId: Scalars['UUID']['input'];
-  promptBlockId: Scalars['UUID']['input'];
-};
-
-
-export type MutationAddPromptToBlockSetTopOutputArgs = {
-  blockSetId: Scalars['UUID']['input'];
-  promptBlockId: Scalars['UUID']['input'];
-};
-
-
-export type MutationAddSystemPromptToBlockSetArgs = {
-  blockSetId: Scalars['UUID']['input'];
-  promptBlockId: Scalars['UUID']['input'];
-};
-
-
-export type MutationCreateBlockSetArgs = {
-  presetId: Scalars['UUID']['input'];
-};
-
-
-export type MutationCreateCompleterBlockArgs = {
-  workspaceId: Scalars['UUID']['input'];
 };
 
 
@@ -158,26 +63,6 @@ export type MutationCreateCsvEvaluationPresetArgs = {
   csvContent?: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
   spaceId: Scalars['ID']['input'];
-};
-
-
-export type MutationCreatePromptBlockArgs = {
-  workspaceId: Scalars['UUID']['input'];
-};
-
-
-export type MutationCreateTopOutputBlockOnBlockSetArgs = {
-  blockSetId: Scalars['UUID']['input'];
-};
-
-
-export type MutationDeleteBlockArgs = {
-  blockId: Scalars['UUID']['input'];
-};
-
-
-export type MutationDeleteBlockSetArgs = {
-  blockSetId: Scalars['UUID']['input'];
 };
 
 
@@ -191,60 +76,8 @@ export type MutationDeleteSpaceArgs = {
 };
 
 
-export type MutationDeleteWorkspaceArgs = {
-  id: Scalars['UUID']['input'];
-};
-
-
-export type MutationExecuteBlockSetArgs = {
-  blockSetId: Scalars['UUID']['input'];
-};
-
-
 export type MutationMergePlaceholderUserWithLoggedInUserArgs = {
   placeholderUserToken: Scalars['String']['input'];
-};
-
-
-export type MutationRemoveCompleterFromBlockSetArgs = {
-  blockSetId: Scalars['UUID']['input'];
-};
-
-
-export type MutationRemoveSystemPromptFromBlockSetArgs = {
-  blockSetId: Scalars['UUID']['input'];
-};
-
-
-export type MutationRemoveTopInputFromBlockSetArgs = {
-  blockSetId: Scalars['UUID']['input'];
-};
-
-
-export type MutationRemoveTopOutputFromBlockSetArgs = {
-  blockSetId: Scalars['UUID']['input'];
-};
-
-
-export type MutationSwapBlockSetPositionsArgs = {
-  movingBlockSetId: Scalars['UUID']['input'];
-  slotBlockSetId: Scalars['UUID']['input'];
-};
-
-
-export type MutationUpdateBlockSetOptionsArgs = {
-  blockSetId: Scalars['UUID']['input'];
-  isInputIncludingPreviousBlockSetOutput: Scalars['Boolean']['input'];
-  isOutputIncludingInputBlocks: Scalars['Boolean']['input'];
-  isRepeatingCurrentBlockSet: Scalars['Boolean']['input'];
-};
-
-
-export type MutationUpdateCompleterBlockArgs = {
-  id: Scalars['UUID']['input'];
-  model: Scalars['String']['input'];
-  stop: Scalars['String']['input'];
-  temperature: Scalars['Float']['input'];
 };
 
 
@@ -253,13 +86,6 @@ export type MutationUpdateCsvEvaluationPresetArgs = {
   csvContent?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   presetId: Scalars['ID']['input'];
-};
-
-
-export type MutationUpdatePromptBlockArgs = {
-  content: Scalars['String']['input'];
-  id: Scalars['UUID']['input'];
-  role: PromptType;
 };
 
 
@@ -272,32 +98,6 @@ export type MutationUpdateSpaceArgs = {
   name?: InputMaybe<Scalars['String']['input']>;
 };
 
-
-export type MutationUpdateWorkspaceArgs = {
-  id: Scalars['UUID']['input'];
-  name: Scalars['String']['input'];
-};
-
-export type Preset = {
-  __typename?: 'Preset';
-  blockSets: Array<BlockSet>;
-  id: Scalars['UUID']['output'];
-  name: Scalars['String']['output'];
-};
-
-export type PromptBlock = Block & {
-  __typename?: 'PromptBlock';
-  content: Scalars['String']['output'];
-  id: Scalars['UUID']['output'];
-  role: PromptType;
-};
-
-export enum PromptType {
-  Assistant = 'Assistant',
-  System = 'System',
-  User = 'User'
-}
-
 export type Query = {
   __typename?: 'Query';
   hello: Scalars['String']['output'];
@@ -305,25 +105,13 @@ export type Query = {
   isLoggedIn: Scalars['Boolean']['output'];
   /** When PlaceholderUserToken header is present and the token is not mapped to a user */
   isPlaceholderUserTokenInvalid: Scalars['Boolean']['output'];
-  preset?: Maybe<Preset>;
   space?: Maybe<QuerySpaceResult>;
   user?: Maybe<User>;
-  workspace?: Maybe<Workspace>;
-};
-
-
-export type QueryPresetArgs = {
-  presetId: Scalars['UUID']['input'];
 };
 
 
 export type QuerySpaceArgs = {
   id: Scalars['UUID']['input'];
-};
-
-
-export type QueryWorkspaceArgs = {
-  workspaceId: Scalars['UUID']['input'];
 };
 
 export type QuerySpaceResult = {
@@ -356,23 +144,6 @@ export type User = {
   id: Scalars['UUID']['output'];
   profilePictureUrl?: Maybe<Scalars['String']['output']>;
   spaces: Array<Space>;
-  workspaces: Array<Workspace>;
-};
-
-export type Workspace = {
-  __typename?: 'Workspace';
-  blocks: Array<Block>;
-  firstPreset?: Maybe<Preset>;
-  id: Scalars['UUID']['output'];
-  name: Scalars['String']['output'];
-  preset: Preset;
-  presets: Array<Preset>;
-  updatedAt: Scalars['DateTime']['output'];
-};
-
-
-export type WorkspacePresetArgs = {
-  presetId: Scalars['UUID']['input'];
 };
 
 export type SpaceContentVersionQueryQueryVariables = Exact<{

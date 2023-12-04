@@ -11,7 +11,6 @@ from starlette.middleware.sessions import SessionMiddleware
 from server.auth import create_logout_url_with_id_token, oauth
 from server.database.database import engine, get_db
 from server.database.orm.user import OrmUser
-from server.database.utils import create_example_workspace
 from server.graphql import graphql
 from server.settings import settings
 

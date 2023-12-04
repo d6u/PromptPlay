@@ -1,20 +1,15 @@
-import { GetItemCommand } from "@aws-sdk/client-dynamodb";
-import { Response, NextFunction } from "express";
-import dynamoDbClient from "../dynamoDb.js";
+import { NextFunction, Response } from "express";
+import { findUserById, OrmUser } from "../models/user.js";
 import { RequestWithSession } from "../types.js";
 
 export interface RequestWithUser extends RequestWithSession {
-  user?: {
-    userId: string;
-    name: string;
-    idToken?: string;
-  };
+  dbUser?: OrmUser;
 }
 
 export async function attachUser(
   req: RequestWithUser,
   _res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) {
   const userId = req.session?.userId;
 
@@ -23,25 +18,14 @@ export async function attachUser(
     return;
   }
 
-  const response = await dynamoDbClient.send(
-    new GetItemCommand({
-      TableName: process.env.TABLE_NAME_USERS,
-      Key: {
-        UserId: { S: userId },
-      },
-    })
-  );
+  const dbUser = await findUserById(userId);
 
-  if (!response.Item?.Name?.S) {
+  if (!dbUser) {
     next();
     return;
   }
 
-  req.user = {
-    userId,
-    name: response.Item.Name.S,
-    idToken: response.Item.IdToken.S,
-  };
+  req.dbUser = dbUser;
 
   next();
 }

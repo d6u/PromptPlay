@@ -3,9 +3,10 @@ Transform: AWS::Serverless-2016-10-31
 Description: Promptplay backend using serverless resources.
 
 Parameters:
-  # Define this parameter here because the HostedZoneId is managed manually.
+  # The HostedZoneId is managed outside of this stack.
   HostedZoneId:
     Type: String
+  # SECTION: Environment variables for lambda
   Auth0Domain:
     Type: String
   Auth0ClientId:
@@ -18,9 +19,12 @@ Parameters:
     Type: String
   SessionCookieSecret:
     Type: String
+  # Tables are managed outside of this stack.
   TableNameUsers:
     Type: String
-    Default: PromptplayUsers
+  TableNameSpaces:
+    Type: String
+  # !SECTION
 
 Globals:
   Function:
@@ -32,7 +36,8 @@ Globals:
     OpenApiVersion: "2.0"
 
 Resources:
-  # --- Cert for *.promptplay.xyz ---
+  # ANCHOR: Cert for *.promptplay.xyz
+
   CertificateSubDomains:
     Type: AWS::CertificateManager::Certificate
     Properties:
@@ -44,7 +49,8 @@ Resources:
           HostedZoneId: !Ref HostedZoneId
       ValidationMethod: DNS
 
-  # --- APIs ---
+  # ANCHOR: APIs
+
   ServerlessApi:
     Type: AWS::Serverless::Api
     Properties:
@@ -55,7 +61,8 @@ Resources:
         Route53:
           HostedZoneId: !Ref HostedZoneId
 
-  # --- Lambda ---
+  # ANCHOR: Lambda
+
   ServerlessFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -84,21 +91,13 @@ Resources:
           AUTH_LOGOUT_FINISH_REDIRECT_URL: !Ref AuthLogoutFinishRedirectUrl
           SESSION_COOKIE_SECRET: !Ref SessionCookieSecret
           TABLE_NAME_USERS: !Ref TableNameUsers
+          TABLE_NAME_SPACES: !Ref TableNameSpaces
     Metadata:
       DockerContext: ./server_nodejs
       Dockerfile: Dockerfile
       DockerTag: v5
 
-  # --- Database ---
-  UserTable:
-    Type: AWS::Serverless::SimpleTable
-    Properties:
-      TableName: !Ref TableNameUsers
-      PrimaryKey:
-        Name: UserId
-        Type: String
-
-  # --- Monitoring ---
+  # ANCHOR: Monitoring
 
   ApplicationResourceGroup:
     Type: AWS::ResourceGroups::Group

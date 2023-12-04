@@ -1,30 +1,10 @@
 import { Express } from "express";
-import { createYoga, createSchema } from "graphql-yoga";
-import { RequestWithUser, attachUser } from "./middleware/user.js";
-
-type Context = {
-  req: RequestWithUser;
-};
+import { createYoga } from "graphql-yoga";
+import schemaBuilder from "./graphql/schemaBuilder.js";
+import { attachUser } from "./middleware/user.js";
 
 const yoga = createYoga({
-  schema: createSchema<Context>({
-    typeDefs: /* GraphQL */ `
-      type Query {
-        hello: String
-      }
-    `,
-    resolvers: {
-      Query: {
-        hello: (_, _args, context) => {
-          if (context.req.user?.name) {
-            return `Hello ${context.req.user.name} from Yoga!`;
-          }
-
-          return `Hello from Yoga!`;
-        },
-      },
-    },
-  }),
+  schema: schemaBuilder.toSchema(),
 });
 
 export default function setupGraphql(app: Express) {

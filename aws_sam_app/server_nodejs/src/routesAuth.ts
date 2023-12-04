@@ -1,13 +1,12 @@
-import { PutItemCommand, GetItemCommand } from "@aws-sdk/client-dynamodb";
-import { Express, Request, Response, NextFunction } from "express";
-import { BaseClient, Issuer, generators } from "openid-client";
-import dynamoDbClient from "./dynamoDb.js";
-import { RequestWithUser, attachUser } from "./middleware/user.js";
+import { Express, Response } from "express";
+import { BaseClient, generators, Issuer } from "openid-client";
+import { attachUser, RequestWithUser } from "./middleware/user.js";
+import { createOrmUserInstance } from "./models/user.js";
 import { RequestWithSession } from "./types.js";
 
 async function getAuthClient() {
   const authIssuer = await Issuer.discover(
-    `https://${process.env.AUTH0_DOMAIN}`
+    `https://${process.env.AUTH0_DOMAIN}`,
   );
 
   return new authIssuer.Client({
@@ -38,7 +37,7 @@ export default function setupAuth(app: Express) {
       authClient.authorizationUrl({
         scope: "openid email profile",
         nonce: req.session!.nonce,
-      })
+      }),
     );
   });
 
@@ -56,7 +55,7 @@ export default function setupAuth(app: Express) {
       // Auth0 checks if the domain is the same.
       process.env.AUTH_CALLBACK_URL,
       params,
-      { nonce: req.session.nonce }
+      { nonce: req.session.nonce },
     );
 
     if (!tokenSet.id_token) {
@@ -66,54 +65,61 @@ export default function setupAuth(app: Express) {
     }
 
     const idToken = tokenSet.claims();
-    const userId = idToken.sub;
 
-    await dynamoDbClient.send(
-      new PutItemCommand({
-        TableName: process.env.TABLE_NAME_USERS,
-        Item: {
-          UserId: { S: userId },
-          IdToken: { S: tokenSet.id_token },
-          Name: { S: idToken.name ?? "" },
-          Email: { S: idToken.email ?? "" },
-          Picture: { S: idToken.picture ?? "" },
-        },
-      })
-    );
+    const dbUser = createOrmUserInstance({
+      name: idToken.name ?? null,
+      email: idToken.email ?? null,
+      profilePictureUrl: idToken.picture ?? null,
+      auth0UserId: idToken.sub,
+      isUserPlaceholder: false,
+      placeholderClientToken: null,
+    });
 
-    req.session.userId = userId;
+    await dbUser.save();
+
+    req.session.userId = dbUser.id!;
 
     res.redirect(process.env.AUTH_LOGIN_FINISH_REDIRECT_URL);
   });
 
   app.get("/logout", attachUser, async (req: RequestWithUser, res) => {
+    const idToken = req.session?.idToken;
+
+    // SECTION: Logout locally
+
     req.session = null;
 
-    if (!req.user?.idToken) {
+    // !SECTION
+
+    // SECTION: Logout from Auth0
+
+    if (idToken == null) {
       res.redirect(process.env.AUTH_LOGOUT_FINISH_REDIRECT_URL);
       return;
     }
 
     const searchParams = new URLSearchParams({
       post_logout_redirect_uri: process.env.AUTH_LOGOUT_FINISH_REDIRECT_URL,
-      id_token_hint: req.user.idToken,
+      id_token_hint: idToken,
     });
 
-    // Redirect to Auth0 logout page, so we are logged out between Auth0
-    // and other IDP as well.
+    // Redirect to Auth0 logout endpoint, so we are logged out between Auth0
+    // and other IDP.
     res.redirect(
       `https://${
         process.env.AUTH0_DOMAIN
-      }/oidc/logout?${searchParams.toString()}`
+      }/oidc/logout?${searchParams.toString()}`,
     );
+
+    // !SECTION
   });
 
   app.get("/hello", attachUser, async (req: RequestWithUser, res) => {
-    if (!req.user) {
+    if (!req.dbUser) {
       res.send("Hello World!");
       return;
     }
 
-    res.send(`Hello ${req.user.name}!`);
+    res.send(`Hello ${req.dbUser.name}!`);
   });
 }
