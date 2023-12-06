@@ -69,6 +69,18 @@ export class Space {
   updatedAt: Date;
 }
 
+// export class CSVEvaluationPreset {
+//   constructor(dbCSVEvaluationPreset: ) {
+//     this.name = name;
+//     this.csv = csv;
+//     this.evaluation = evaluation;
+//   }
+
+//   name: string;
+//   csv: string;
+//   evaluation: string;
+// }
+
 export class QuerySpaceResult {
   constructor({ isReadOnly, space }: { isReadOnly: boolean; space: Space }) {
     this.isReadOnly = isReadOnly;

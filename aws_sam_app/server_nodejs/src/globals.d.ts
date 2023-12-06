@@ -10,7 +10,7 @@ declare global {
       SESSION_COOKIE_SECRET: string;
       TABLE_NAME_USERS: string;
       TABLE_NAME_SPACES: string;
-      TABLE_NAME_CSV_EVAL_PRESETS: string;
+      TABLE_NAME_CSV_EVALUATION_PRESETS: string;
     }
   }
 }
