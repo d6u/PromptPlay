@@ -1,4 +1,4 @@
-import { findSpaceById } from "../models/space.js";
+import { findSpaceById, querySpacesByOwnerId } from "../models/space.js";
 import { asUUID } from "../models/types.js";
 import { getUserIdByPlaceholderUserToken } from "../models/user.js";
 import { BuilderType, ContentVersion, Space, User } from "./graphql-types.js";
@@ -68,7 +68,9 @@ export default function addQueryType(builder: BuilderType) {
             }
             return {
               space: new Space(dbSpace),
-              isReadOnly: true,
+              isReadOnly:
+                context.req.dbUser == null ||
+                context.req.dbUser.id !== dbSpace.ownerId,
             };
           },
         }),
@@ -100,8 +102,9 @@ export default function addQueryType(builder: BuilderType) {
         }),
         spaces: t.field({
           type: ["Space"],
-          resolve(parent, args, context) {
-            return [];
+          async resolve(parent, args, context) {
+            const spaces = await querySpacesByOwnerId(asUUID(parent.id));
+            return spaces.map((space) => new Space(space));
           },
         }),
       };
