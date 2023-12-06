@@ -1,4 +1,5 @@
 import { RequestWithUser } from "../middleware/user.js";
+import { OrmCsvEvaluationPreset } from "../models/csv-evaluation-preset.js";
 import { OrmContentVersion, OrmSpace } from "../models/space.js";
 import { UUID } from "../models/types.js";
 
@@ -7,6 +8,7 @@ export type Types = {
   Objects: {
     User: User;
     Space: Space;
+    CsvEvaluationPreset: CsvEvaluationPreset;
     QuerySpaceResult: QuerySpaceResult;
     CreatePlaceholderUserAndExampleSpaceResult: CreatePlaceholderUserAndExampleSpaceResult;
   };
@@ -69,17 +71,21 @@ export class Space {
   updatedAt: Date;
 }
 
-// export class CSVEvaluationPreset {
-//   constructor(dbCSVEvaluationPreset: ) {
-//     this.name = name;
-//     this.csv = csv;
-//     this.evaluation = evaluation;
-//   }
+export class CsvEvaluationPreset {
+  constructor(dbCsvEvaluationPreset: OrmCsvEvaluationPreset) {
+    const obj = dbCsvEvaluationPreset.toObject();
 
-//   name: string;
-//   csv: string;
-//   evaluation: string;
-// }
+    this.id = obj.id;
+    this.name = obj.name;
+    this.csvContent = obj.csvContent;
+    this.configContent = obj.configContent;
+  }
+
+  id: string;
+  name: string;
+  csvContent: string;
+  configContent: string | null;
+}
 
 export class QuerySpaceResult {
   constructor({ isReadOnly, space }: { isReadOnly: boolean; space: Space }) {

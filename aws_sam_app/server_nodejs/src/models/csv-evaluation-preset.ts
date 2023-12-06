@@ -1,5 +1,7 @@
+import { QueryCommand } from "@aws-sdk/client-dynamodb";
+import dynamoDbClient from "../dynamoDb.js";
 import { createOrmClass } from "./orm-utils.js";
-import { UUID } from "./types.js";
+import { asUUID, UUID } from "./types.js";
 import { dateToNumber, numberToDate } from "./utils.js";
 
 type CSVEvaluationPresetShape = {
@@ -71,3 +73,51 @@ export const findCSVEvaluationPresetById = findById;
 export type OrmCsvEvaluationPreset = ReturnType<
   typeof createCSVEvaluationPreset
 >;
+
+export async function queryCsvEvaluationPresetsBySpaceId(
+  spaceId: UUID,
+): Promise<{ spaceId: UUID; id: UUID; name: string }[]> {
+  const response = await dynamoDbClient.send(
+    new QueryCommand({
+      TableName: process.env.TABLE_NAME_CSV_EVALUATION_PRESETS,
+      IndexName: "SpaceIdIndex",
+      Select: "ALL_PROJECTED_ATTRIBUTES",
+      KeyConditionExpression: "SpaceId = :SpaceId",
+      ExpressionAttributeValues: {
+        ":SpaceId": { S: spaceId },
+      },
+    }),
+  );
+
+  return (response.Items ?? []).map((item) => {
+    return {
+      spaceId: asUUID(item.SpaceId!.S!),
+      id: asUUID(item.Id!.S!),
+      name: item.Name!.S!,
+    };
+  });
+}
+
+export async function queryCsvEvaluationPresetsByOwnerId(
+  ownerId: UUID,
+): Promise<{ ownerId: UUID; id: UUID; name: string }[]> {
+  const response = await dynamoDbClient.send(
+    new QueryCommand({
+      TableName: process.env.TABLE_NAME_CSV_EVALUATION_PRESETS,
+      IndexName: "OwnerIdIndex",
+      Select: "ALL_PROJECTED_ATTRIBUTES",
+      KeyConditionExpression: "OwnerId = :OwnerId",
+      ExpressionAttributeValues: {
+        ":OwnerId": { S: ownerId },
+      },
+    }),
+  );
+
+  return (response.Items ?? []).map((item) => {
+    return {
+      ownerId: asUUID(item.OwnerId!.S!),
+      id: asUUID(item.Id!.S!),
+      name: item.Name!.S!,
+    };
+  });
+}

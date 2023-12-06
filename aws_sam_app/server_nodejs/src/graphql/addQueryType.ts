@@ -1,7 +1,17 @@
+import {
+  findCSVEvaluationPresetById,
+  queryCsvEvaluationPresetsBySpaceId,
+} from "../models/csv-evaluation-preset.js";
 import { findSpaceById, querySpacesByOwnerId } from "../models/space.js";
 import { asUUID } from "../models/types.js";
 import { getUserIdByPlaceholderUserToken } from "../models/user.js";
-import { BuilderType, ContentVersion, Space, User } from "./graphql-types.js";
+import {
+  BuilderType,
+  ContentVersion,
+  CsvEvaluationPreset,
+  Space,
+  User,
+} from "./graphql-types.js";
 
 export default function addQueryType(builder: BuilderType) {
   builder.queryType({
@@ -129,6 +139,36 @@ export default function addQueryType(builder: BuilderType) {
           type: "Date",
           resolve(parent, args, context) {
             return parent.updatedAt;
+          },
+        }),
+        csvEvaluationPresets: t.field({
+          type: ["CsvEvaluationPreset"],
+          async resolve(parent, args, context) {
+            const csvEvaluationPresets =
+              await queryCsvEvaluationPresetsBySpaceId(asUUID(parent.id));
+
+            // TODO: Improve the efficiency of this query.
+            return await Promise.all(
+              csvEvaluationPresets.map(async (csvEvaluationPreset) => {
+                const dbCsvEvaluationPreset = await findCSVEvaluationPresetById(
+                  csvEvaluationPreset.id,
+                );
+                return new CsvEvaluationPreset(dbCsvEvaluationPreset!);
+              }),
+            );
+          },
+        }),
+        // TODO: This should be null, fix the client side.
+        csvEvaluationPreset: t.field({
+          type: "CsvEvaluationPreset",
+          args: {
+            id: t.arg.string({ required: true }),
+          },
+          async resolve(parent, args, context) {
+            const dbCsvEvalutionPreset = await findCSVEvaluationPresetById(
+              args.id,
+            );
+            return new CsvEvaluationPreset(dbCsvEvalutionPreset!);
           },
         }),
       };
