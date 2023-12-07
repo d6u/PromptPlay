@@ -24,7 +24,7 @@ export enum OrmContentVersion {
   v3 = "v3",
 }
 
-const { findById, buildOrmInstanceFromItem, createOrmInstance } =
+const { findById, buildOrmInstanceFromItem, createOrmInstance, deleteById } =
   createOrmClass<SpaceShape>({
     table: process.env.TABLE_NAME_SPACES,
     shape: {
@@ -77,6 +77,7 @@ const { findById, buildOrmInstanceFromItem, createOrmInstance } =
 
 export const createOrmSpaceInstance = createOrmInstance;
 export const findSpaceById = findById;
+export const deleteSpaceById = deleteById;
 export type OrmSpace = ReturnType<typeof createOrmInstance>;
 
 export async function querySpacesByOwnerId(ownerId: UUID): Promise<OrmSpace[]> {
