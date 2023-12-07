@@ -2,6 +2,7 @@ import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import AWSXRay from "aws-xray-sdk";
 
 let dynamoDbClient = new DynamoDBClient({
+  endpoint: "http://localhost:8000",
   region: "us-west-2",
 });
 

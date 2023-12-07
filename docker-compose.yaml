@@ -1,5 +1,5 @@
 # Use postgres/example user/password credentials
-version: "3.1"
+version: "3.8"
 
 services:
   db:
@@ -15,3 +15,17 @@ services:
     restart: always
     ports:
       - 8080:8080
+
+  dynamodb:
+    container_name: dynamodb
+    command: "-jar DynamoDBLocal.jar -sharedDb -dbPath ./data"
+    image: "amazon/dynamodb-local:latest"
+    ports:
+      - "8000:8000"
+    volumes:
+      - "./.artifacts/dynamodb:/home/dynamodblocal/data"
+    working_dir: /home/dynamodblocal
+
+  # api-server-express:
+  #   container_name: api-server-express
+  #   build: ./aws_sam_app/server_nodejs/Dockerfile.api-server-express
