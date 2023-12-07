@@ -175,6 +175,17 @@ export default function addQueryType(builder: BuilderType) {
     },
   });
 
+  builder.objectType("CsvEvaluationPreset", {
+    fields(t) {
+      return {
+        id: t.exposeString("id"),
+        name: t.exposeString("name"),
+        csvContent: t.exposeString("csvContent"),
+        configContent: t.exposeString("configContent", { nullable: true }),
+      };
+    },
+  });
+
   builder.enumType(ContentVersion, {
     name: "ContentVersion",
   });
