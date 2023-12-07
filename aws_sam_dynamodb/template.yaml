@@ -6,6 +6,8 @@ Parameters:
     Type: String
   TableNameSpaces:
     Type: String
+  TableNameCsvEvaluationPresets:
+    Type: String
 
 Resources:
   UsersTable:
@@ -18,9 +20,20 @@ Resources:
       AttributeDefinitions:
         - AttributeName: Id
           AttributeType: S
+        - AttributeName: PlaceholderClientToken
+          AttributeType: S
       KeySchema:
         - AttributeName: Id
           KeyType: HASH
+      GlobalSecondaryIndexes:
+        - ContributorInsightsSpecification:
+            Enabled: true
+          IndexName: PlaceholderClientTokenIndex
+          KeySchema:
+            - AttributeName: PlaceholderClientToken
+              KeyType: HASH
+          Projection:
+            ProjectionType: KEYS_ONLY
 
   SpacesTable:
     Type: AWS::DynamoDB::Table
@@ -32,6 +45,62 @@ Resources:
       AttributeDefinitions:
         - AttributeName: Id
           AttributeType: S
+        - AttributeName: OwnerId
+          AttributeType: S
       KeySchema:
         - AttributeName: Id
           KeyType: HASH
+      GlobalSecondaryIndexes:
+        - ContributorInsightsSpecification:
+            Enabled: true
+          IndexName: OwnerIdIndex
+          KeySchema:
+            - AttributeName: OwnerId
+              KeyType: HASH
+            - AttributeName: Id
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+
+  CsvEvaluationPresetsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Ref TableNameCsvEvaluationPresets
+      TableClass: STANDARD
+      DeletionProtectionEnabled: true
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: Id
+          AttributeType: S
+        - AttributeName: SpaceId
+          AttributeType: S
+        - AttributeName: OwnerId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: Id
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - ContributorInsightsSpecification:
+            Enabled: true
+          IndexName: SpaceIdIndex
+          KeySchema:
+            - AttributeName: SpaceId
+              KeyType: HASH
+            - AttributeName: Id
+              KeyType: RANGE
+          Projection:
+            NonKeyAttributes:
+              - Name
+            ProjectionType: INCLUDE
+        - ContributorInsightsSpecification:
+            Enabled: true
+          IndexName: OwnerIdIndex
+          KeySchema:
+            - AttributeName: OwnerId
+              KeyType: HASH
+            - AttributeName: Id
+              KeyType: RANGE
+          Projection:
+            NonKeyAttributes:
+              - Name
+            ProjectionType: INCLUDE

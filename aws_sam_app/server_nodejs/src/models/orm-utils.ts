@@ -1,5 +1,6 @@
 import {
   AttributeValue,
+  DeleteItemCommand,
   GetItemCommand,
   PutItemCommand,
   UpdateItemCommand,
@@ -62,6 +63,28 @@ export function createOrmClass<S extends WithId>(config: Config<S>) {
       dbInstance.isNew = false;
 
       return dbInstance as OrmInstance;
+    }
+
+    static buildOrmInstanceFromItem(
+      item: Record<string, AttributeValue>,
+    ): OrmInstance {
+      const obj = OrmClass.buildObjectFromItem(item);
+      const dbInstance = new OrmClass(obj);
+      dbInstance.isNew = false;
+      return dbInstance as OrmInstance;
+    }
+
+    static async deleteById(id: UUID): Promise<boolean> {
+      await dynamoDbClient.send(
+        new DeleteItemCommand({
+          TableName: config.table,
+          Key: {
+            Id: { S: id },
+          },
+        }),
+      );
+
+      return true;
     }
 
     private static validateFields(data: Partial<S>): asserts data is S {
@@ -246,6 +269,8 @@ export function createOrmClass<S extends WithId>(config: Config<S>) {
 
   return {
     findById: OrmClass.findById,
+    deleteById: OrmClass.deleteById,
+    buildOrmInstanceFromItem: OrmClass.buildOrmInstanceFromItem,
     createOrmInstance(data: Partial<S>) {
       return new OrmClass(data) as OrmInstance;
     },

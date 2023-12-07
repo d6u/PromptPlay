@@ -1,5 +1,17 @@
-import { findSpaceById } from "../models/space.js";
-import { BuilderType, ContentVersion, Space, User } from "./graphql-types.js";
+import {
+  findCSVEvaluationPresetById,
+  queryCsvEvaluationPresetsBySpaceId,
+} from "../models/csv-evaluation-preset.js";
+import { findSpaceById, querySpacesByOwnerId } from "../models/space.js";
+import { asUUID } from "../models/types.js";
+import { getUserIdByPlaceholderUserToken } from "../models/user.js";
+import {
+  BuilderType,
+  ContentVersion,
+  CsvEvaluationPreset,
+  Space,
+  User,
+} from "./graphql-types.js";
 
 export default function addQueryType(builder: BuilderType) {
   builder.queryType({
@@ -18,15 +30,30 @@ export default function addQueryType(builder: BuilderType) {
           description:
             "Check if there is a user and the user is not a placeholder user",
           resolve(parent, args, context) {
-            // TODO: Check if user is a placeholder user
-            return context.req.dbUser != null;
+            return (
+              context.req.dbUser != null &&
+              !context.req.dbUser.isUserPlaceholder
+            );
           },
         }),
         isPlaceholderUserTokenInvalid: t.boolean({
           description: "Check if the placeholder user token is invalid",
-          resolve(parent, args, context) {
-            // TODO: Check if user is a placeholder user
-            return true;
+          async resolve(parent, args, context) {
+            const placeholderUserToken = context.req.header(
+              "PlaceholderUserToken",
+            );
+
+            if (placeholderUserToken == null) {
+              // NOTE: If the header is not present, it is not invalid,
+              // i.e. it's valid.
+              return false;
+            }
+
+            const userId = await getUserIdByPlaceholderUserToken(
+              asUUID(placeholderUserToken),
+            );
+
+            return userId == null;
           },
         }),
         user: t.field({
@@ -51,7 +78,9 @@ export default function addQueryType(builder: BuilderType) {
             }
             return {
               space: new Space(dbSpace),
-              isReadOnly: true,
+              isReadOnly:
+                context.req.dbUser == null ||
+                context.req.dbUser.id !== dbSpace.ownerId,
             };
           },
         }),
@@ -83,8 +112,9 @@ export default function addQueryType(builder: BuilderType) {
         }),
         spaces: t.field({
           type: ["Space"],
-          resolve(parent, args, context) {
-            return [];
+          async resolve(parent, args, context) {
+            const spaces = await querySpacesByOwnerId(asUUID(parent.id));
+            return spaces.map((space) => new Space(space));
           },
         }),
       };
@@ -109,6 +139,36 @@ export default function addQueryType(builder: BuilderType) {
           type: "Date",
           resolve(parent, args, context) {
             return parent.updatedAt;
+          },
+        }),
+        csvEvaluationPresets: t.field({
+          type: ["CsvEvaluationPreset"],
+          async resolve(parent, args, context) {
+            const csvEvaluationPresets =
+              await queryCsvEvaluationPresetsBySpaceId(asUUID(parent.id));
+
+            // TODO: Improve the efficiency of this query.
+            return await Promise.all(
+              csvEvaluationPresets.map(async (csvEvaluationPreset) => {
+                const dbCsvEvaluationPreset = await findCSVEvaluationPresetById(
+                  csvEvaluationPreset.id,
+                );
+                return new CsvEvaluationPreset(dbCsvEvaluationPreset!);
+              }),
+            );
+          },
+        }),
+        // TODO: This should be null, fix the client side.
+        csvEvaluationPreset: t.field({
+          type: "CsvEvaluationPreset",
+          args: {
+            id: t.arg.string({ required: true }),
+          },
+          async resolve(parent, args, context) {
+            const dbCsvEvalutionPreset = await findCSVEvaluationPresetById(
+              args.id,
+            );
+            return new CsvEvaluationPreset(dbCsvEvalutionPreset!);
           },
         }),
       };
