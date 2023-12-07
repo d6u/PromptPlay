@@ -1,5 +1,10 @@
 import { v4 as uuidv4 } from "uuid";
 import {
+  createCSVEvaluationPreset,
+  deleteCsvEvaluationPresetById,
+  findCSVEvaluationPresetById,
+} from "../models/csv-evaluation-preset.js";
+import {
   createOrmSpaceInstance,
   deleteSpaceById,
   findSpaceById,
@@ -205,9 +210,116 @@ export default function addMutationType(builder: BuilderType) {
             return true;
           },
         }),
-        // TODO: Create CSV evaluation preset
-        // TODO: Update CSV evaluation preset
-        // TODO: Delete CSV evaluation preset
+        createCsvEvaluationPreset: t.field({
+          type: "CsvEvaluationPreset",
+          nullable: true,
+          args: {
+            spaceId: t.arg({ type: "String", required: true }),
+            name: t.arg({ type: "String", required: true }),
+            csvContent: t.arg({ type: "String" }),
+            configContent: t.arg({ type: "String" }),
+          },
+          async resolve(parent, args, context) {
+            const dbUser = context.req.dbUser;
+
+            if (dbUser == null) {
+              return null;
+            }
+
+            const dbPreset = createCSVEvaluationPreset({
+              ownerId: dbUser.id,
+              spaceId: asUUID(args.spaceId),
+              name: args.name,
+              csvContent: args.csvContent ?? "",
+              configContent: args.configContent,
+            });
+
+            await dbPreset.save();
+
+            return dbPreset;
+          },
+        }),
+        updateCsvEvaluationPreset: t.field({
+          type: "CsvEvaluationPreset",
+          nullable: true,
+          args: {
+            presetId: t.arg({ type: "String", required: true }),
+            name: t.arg({ type: "String" }),
+            csvContent: t.arg({ type: "String" }),
+            configContent: t.arg({ type: "String" }),
+          },
+          async resolve(parent, args, context) {
+            const dbUser = context.req.dbUser;
+
+            if (dbUser == null) {
+              return null;
+            }
+
+            const dbPreset = await findCSVEvaluationPresetById(
+              asUUID(args.presetId),
+            );
+
+            if (dbPreset == null) {
+              return null;
+            }
+
+            if (args.name !== undefined) {
+              if (args.name === null) {
+                throw new Error("name cannot be null");
+              } else {
+                dbPreset.name = args.name;
+              }
+            }
+
+            if (args.csvContent !== undefined) {
+              if (args.csvContent === null) {
+                dbPreset.csvContent = "";
+              } else {
+                dbPreset.csvContent = args.csvContent;
+              }
+            }
+
+            if (args.configContent !== undefined) {
+              dbPreset.configContent = args.configContent;
+            }
+
+            await dbPreset.save();
+
+            return dbPreset;
+          },
+        }),
+        deleteCsvEvaluationPreset: t.field({
+          type: "Space",
+          nullable: true,
+          args: {
+            id: t.arg({ type: "String", required: true }),
+          },
+          async resolve(parent, args, context) {
+            const dbUser = context.req.dbUser;
+
+            if (dbUser == null) {
+              return null;
+            }
+
+            const dbPreset = await findCSVEvaluationPresetById(asUUID(args.id));
+
+            if (dbPreset == null) {
+              return null;
+            }
+
+            const spaceId = dbPreset.spaceId;
+
+            await deleteCsvEvaluationPresetById(dbPreset.id);
+
+            const dbSpace = await findSpaceById(spaceId);
+
+            if (dbSpace == null) {
+              return null;
+            }
+
+            return new Space(dbSpace);
+          },
+        }),
       };
     },
   });

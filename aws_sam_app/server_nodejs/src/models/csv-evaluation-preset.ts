@@ -17,7 +17,7 @@ type CSVEvaluationPresetShape = {
   updatedAt: Date;
 };
 
-const { findById, buildOrmInstanceFromItem, createOrmInstance } =
+const { findById, buildOrmInstanceFromItem, createOrmInstance, deleteById } =
   createOrmClass<CSVEvaluationPresetShape>({
     table: process.env.TABLE_NAME_CSV_EVALUATION_PRESETS,
     shape: {
@@ -70,6 +70,7 @@ const { findById, buildOrmInstanceFromItem, createOrmInstance } =
 
 export const createCSVEvaluationPreset = createOrmInstance;
 export const findCSVEvaluationPresetById = findById;
+export const deleteCsvEvaluationPresetById = deleteById;
 export type OrmCsvEvaluationPreset = ReturnType<
   typeof createCSVEvaluationPreset
 >;
