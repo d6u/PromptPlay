@@ -4,6 +4,7 @@ import {
   deleteCsvEvaluationPresetById,
   findCSVEvaluationPresetById,
 } from "../models/csv-evaluation-preset.js";
+import { createSpaceWithExampleContent } from "../models/model-utils.js";
 import {
   createOrmSpaceInstance,
   deleteSpaceById,
@@ -17,7 +18,6 @@ import {
   deleteUserById,
   getUserIdByPlaceholderUserToken,
 } from "../models/user.js";
-import { createSpaceWithExampleContent } from "../models/utils.js";
 import { nullThrow } from "../utils.js";
 import { BuilderType, ContentVersion, Space } from "./graphql-types.js";
 

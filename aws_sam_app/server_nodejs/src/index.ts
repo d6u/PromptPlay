@@ -6,6 +6,7 @@ import express from "express";
 import serverless from "serverless-http";
 import setupAuth from "./routesAuth.js";
 import setupGraphql from "./routesGraphql.js";
+import "./types.js";
 
 const app = express();
 

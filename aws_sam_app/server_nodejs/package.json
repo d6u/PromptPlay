@@ -2,7 +2,6 @@
   "name": "promptplay-server",
   "version": "1.0.0",
   "private": true,
-  "type": "module",
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.441.0",
     "@pothos/core": "^3.38.0",
@@ -26,11 +25,12 @@
     "chai": "^4.3.6",
     "mocha": "^10.1.0",
     "nodemon": "^3.0.1",
+    "ts-node": "^10.9.2",
     "typescript": "^5.2.2"
   },
   "scripts": {
     "build": "tsc --pretty",
-    "start": "node dist/index.js",
+    "start": "ts-node src/index.ts",
     "test": "mocha tests/unit/"
   }
 }
