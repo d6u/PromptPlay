@@ -20,6 +20,9 @@ import { client } from "./shared.js";
   await client.send(
     new CreateTableCommand({
       TableName: process.env.DYNAMODB_TABLE_NAME_USERS,
+      TableClass: "STANDARD",
+      BillingMode: "PAY_PER_REQUEST",
+      DeletionProtectionEnabled: true,
       AttributeDefinitions: [
         { AttributeName: "Id", AttributeType: "S" },
         { AttributeName: "PlaceholderClientToken", AttributeType: "S" },
@@ -36,13 +39,15 @@ import { client } from "./shared.js";
           },
         },
       ],
-      BillingMode: "PAY_PER_REQUEST",
     }),
   );
 
   await client.send(
     new CreateTableCommand({
       TableName: process.env.DYNAMODB_TABLE_NAME_SPACES,
+      TableClass: "STANDARD",
+      BillingMode: "PAY_PER_REQUEST",
+      DeletionProtectionEnabled: true,
       AttributeDefinitions: [
         { AttributeName: "Id", AttributeType: "S" },
         { AttributeName: "OwnerId", AttributeType: "S" },
@@ -60,13 +65,15 @@ import { client } from "./shared.js";
           },
         },
       ],
-      BillingMode: "PAY_PER_REQUEST",
     }),
   );
 
   await client.send(
     new CreateTableCommand({
       TableName: process.env.DYNAMODB_TABLE_NAME_CSV_EVALUATION_PRESETS,
+      TableClass: "STANDARD",
+      BillingMode: "PAY_PER_REQUEST",
+      DeletionProtectionEnabled: true,
       AttributeDefinitions: [
         { AttributeName: "Id", AttributeType: "S" },
         { AttributeName: "OwnerId", AttributeType: "S" },
@@ -97,7 +104,6 @@ import { client } from "./shared.js";
           },
         },
       ],
-      BillingMode: "PAY_PER_REQUEST",
     }),
   );
 
