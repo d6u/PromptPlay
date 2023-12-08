@@ -1,7 +1,7 @@
 /**
  * Run this script to create the DynamoDB tables:
  *
- * DEBUG=1 ts-node -r dotenv/config scripts/dynamodb/create-tables.ts dotenv_config_path=.env
+ * ts-node -r dotenv/config scripts/dynamodb/create-tables.ts dotenv_config_path=.env
  *
  * - dotenv_config_path=.env: Specify the path to .env file to load.
  *   If ignored, .env file will be used.
