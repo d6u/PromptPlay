@@ -26,6 +26,8 @@ services:
       - "./.artifacts/dynamodb:/home/dynamodblocal/data"
     working_dir: /home/dynamodblocal
 
-  # api-server-express:
-  #   container_name: api-server-express
-  #   build: ./aws_sam_app/server_nodejs/Dockerfile.api-server-express
+  dev-api-server:
+    container_name: dev-api-server
+    build:
+      context: ./aws_sam_app/server_nodejs/
+      dockerfile: Dockerfile.dev
