@@ -2,9 +2,6 @@
  * Run this script to delete the DynamoDB tables:
  *
  * ts-node -r dotenv/config scripts/dynamodb/delete-tables.ts dotenv_config_path=.env
- *
- * - dotenv_config_path=.env: Specify the path to .env file to load.
- *   If ignored, .env file will be used.
  */
 
 import {
