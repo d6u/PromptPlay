@@ -1,0 +1,21 @@
+{
+  "extends": "@tsconfig/node18/tsconfig.json",
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "noEmit": true
+  },
+  "ts-node": {
+    // Without this, import "./another.js" will fail. Because ts compiler won't
+    // resolve this to "./another.ts", thus, won't compile "./another.ts".
+    //
+    // Adding this option will make ts compiler resolve "./another.js" to
+    // "./another.ts", and compile it.
+    //
+    // Running tsc then run node will still work with import "./another.js",
+    // because tsc will compile all source file first, thus "./another.ts" will
+    // be compiled to "./another.js".
+    //
+    // See https://github.com/TypeStrong/ts-node/issues/783 for detailed reason.
+    "experimentalResolver": true
+  }
+}
