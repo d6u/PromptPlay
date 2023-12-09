@@ -51,3 +51,12 @@ services:
       - AWS_ACCESS_KEY_ID=DUMMY
       - AWS_SECRET_ACCESS_KEY=DUMMY
       - DEV_DYNAMODB_ENDPOINT=http://dynamodb:8000
+    develop:
+      watch:
+        - action: sync
+          path: ./aws_sam_app/server_nodejs/src
+          target: /home/node/app/src
+          ignore:
+            - ./aws_sam_app/server_nodejs/node_modules
+        - action: rebuild
+          path: ./aws_sam_app/server_nodejs/package.json

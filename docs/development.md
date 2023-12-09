@@ -34,7 +34,13 @@ DEV_DYNAMODB_ENDPOINT=http://localhost:8000
 
 ## With Docker Compose Locally
 
-1. Start Docker containers:
+1. Start Docker Compose watch process:
+
+   ```sh
+   docker compose --env-file .environments/dev-local/api-server.env watch --no-up
+   ```
+
+   Separately, start Docker containers:
 
    ```sh
    docker compose --env-file .environments/dev-local/api-server.env up
