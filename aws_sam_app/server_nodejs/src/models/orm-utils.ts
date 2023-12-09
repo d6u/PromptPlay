@@ -7,7 +7,7 @@ import {
 } from "@aws-sdk/client-dynamodb";
 import { v4 as uuidv4 } from "uuid";
 import dynamoDbClient from "../dynamoDb.js";
-import { asUUID, UUID } from "./types.js";
+import { UUID, asUUID } from "./types.js";
 import {
   buildUpdateExpressionFieldsFromItem,
   undefinedThrow,
@@ -207,7 +207,7 @@ export function createOrmClass<S extends WithId>(config: Config<S>) {
 
         OrmClass.validateFields(this.data);
 
-        const item = this.buildItem();
+        const item = this.buildItem({ excludeId: true });
 
         const {
           updateExpression,
@@ -230,11 +230,19 @@ export function createOrmClass<S extends WithId>(config: Config<S>) {
       }
     }
 
-    private buildItem(): Record<string, AttributeValue> {
+    private buildItem({
+      excludeId = false,
+    }: {
+      excludeId?: boolean;
+    } = {}): Record<string, AttributeValue> {
       const obj = this.toObject();
       const item: Record<string, AttributeValue> = {};
 
       for (const key in config.shape) {
+        if (excludeId && key === "id") {
+          continue;
+        }
+
         const val = obj[key];
         const settings = config.shape[key];
 

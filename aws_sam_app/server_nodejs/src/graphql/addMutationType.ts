@@ -145,7 +145,7 @@ export default function addMutationType(builder: BuilderType) {
               return null;
             }
 
-            const dbSpace = await findSpaceById(dbUser.id);
+            const dbSpace = await findSpaceById(args.id as string);
 
             if (dbSpace == null) {
               return null;
@@ -252,7 +252,7 @@ export default function addMutationType(builder: BuilderType) {
           type: "CsvEvaluationPreset",
           nullable: true,
           args: {
-            presetId: t.arg({ type: "String", required: true }),
+            presetId: t.arg({ type: "ID", required: true }),
             name: t.arg({ type: "String" }),
             csvContent: t.arg({ type: "String" }),
             configContent: t.arg({ type: "String" }),
@@ -265,7 +265,7 @@ export default function addMutationType(builder: BuilderType) {
             }
 
             const dbPreset = await findCSVEvaluationPresetById(
-              asUUID(args.presetId),
+              args.presetId as string,
             );
 
             if (dbPreset == null) {
