@@ -211,10 +211,10 @@ export default function addMutationType(builder: BuilderType) {
           },
         }),
         createCsvEvaluationPreset: t.field({
-          type: "CsvEvaluationPreset",
+          type: "CreateCsvEvaluationPresetResult",
           nullable: true,
           args: {
-            spaceId: t.arg({ type: "String", required: true }),
+            spaceId: t.arg({ type: "ID", required: true }),
             name: t.arg({ type: "String", required: true }),
             csvContent: t.arg({ type: "String" }),
             configContent: t.arg({ type: "String" }),
@@ -226,9 +226,15 @@ export default function addMutationType(builder: BuilderType) {
               return null;
             }
 
+            const dbSpace = await findSpaceById(asUUID(args.spaceId as string));
+
+            if (dbSpace == null) {
+              return null;
+            }
+
             const dbPreset = createCSVEvaluationPreset({
               ownerId: dbUser.id,
-              spaceId: asUUID(args.spaceId),
+              spaceId: dbSpace.id,
               name: args.name,
               csvContent: args.csvContent ?? "",
               configContent: args.configContent,
@@ -236,7 +242,10 @@ export default function addMutationType(builder: BuilderType) {
 
             await dbPreset.save();
 
-            return dbPreset;
+            return {
+              space: new Space(dbSpace),
+              csvEvaluationPreset: dbPreset,
+            };
           },
         }),
         updateCsvEvaluationPreset: t.field({
@@ -332,6 +341,25 @@ export default function addMutationType(builder: BuilderType) {
           type: "Space",
           resolve(parent) {
             return parent.space;
+          },
+        }),
+      };
+    },
+  });
+
+  builder.objectType("CreateCsvEvaluationPresetResult", {
+    fields(t) {
+      return {
+        space: t.field({
+          type: "Space",
+          resolve(parent) {
+            return parent.space;
+          },
+        }),
+        csvEvaluationPreset: t.field({
+          type: "CsvEvaluationPreset",
+          resolve(parent) {
+            return parent.csvEvaluationPreset;
           },
         }),
       };

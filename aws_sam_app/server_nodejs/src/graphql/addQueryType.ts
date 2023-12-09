@@ -162,11 +162,11 @@ export default function addQueryType(builder: BuilderType) {
         csvEvaluationPreset: t.field({
           type: "CsvEvaluationPreset",
           args: {
-            id: t.arg.string({ required: true }),
+            id: t.arg({ type: "ID", required: true }),
           },
           async resolve(parent, args, context) {
             const dbCsvEvalutionPreset = await findCSVEvaluationPresetById(
-              args.id,
+              args.id as string,
             );
             return new CsvEvaluationPreset(dbCsvEvalutionPreset!);
           },

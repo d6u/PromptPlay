@@ -11,6 +11,7 @@ export type Types = {
     CsvEvaluationPreset: CsvEvaluationPreset;
     QuerySpaceResult: QuerySpaceResult;
     CreatePlaceholderUserAndExampleSpaceResult: CreatePlaceholderUserAndExampleSpaceResult;
+    CreateCsvEvaluationPresetResult: CreateCsvEvaluationPresetResult;
   };
   Scalars: {
     DateTime: {
@@ -111,5 +112,10 @@ export enum ContentVersion {
   v2 = "v2",
   v3 = "v3",
 }
+
+type CreateCsvEvaluationPresetResult = {
+  space: Space;
+  csvEvaluationPreset: CsvEvaluationPreset;
+};
 
 // !SECTION
