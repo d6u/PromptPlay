@@ -69,7 +69,7 @@ export default function addQueryType(builder: BuilderType) {
           type: "QuerySpaceResult",
           nullable: true,
           args: {
-            id: t.arg.string({ required: true }),
+            id: t.arg({ type: "UUID", required: true }),
           },
           async resolve(parent, args, context) {
             const dbSpace = await findSpaceById(args.id);
@@ -136,7 +136,7 @@ export default function addQueryType(builder: BuilderType) {
         flowContent: t.exposeString("flowContent", { nullable: true }),
         contentV3: t.exposeString("contentV3", { nullable: true }),
         updatedAt: t.field({
-          type: "Date",
+          type: "DateTime",
           resolve(parent, args, context) {
             return parent.updatedAt;
           },

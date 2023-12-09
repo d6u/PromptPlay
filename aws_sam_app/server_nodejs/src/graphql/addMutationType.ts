@@ -6,13 +6,13 @@ import {
 } from "../models/csv-evaluation-preset.js";
 import { createSpaceWithExampleContent } from "../models/model-utils.js";
 import {
+  OrmContentVersion,
   createOrmSpaceInstance,
   deleteSpaceById,
   findSpaceById,
-  OrmContentVersion,
   querySpacesByOwnerId,
 } from "../models/space.js";
-import { asUUID, UUID } from "../models/types.js";
+import { UUID, asUUID } from "../models/types.js";
 import {
   createOrmUserInstance,
   deleteUserById,
@@ -130,7 +130,7 @@ export default function addMutationType(builder: BuilderType) {
         updateSpace: t.field({
           type: "Space",
           args: {
-            id: t.arg({ type: "String", required: true }),
+            id: t.arg({ type: "ID", required: true }),
             name: t.arg({ type: "String" }),
             contentVersion: t.arg({ type: ContentVersion }),
             content: t.arg({ type: "String" }),
