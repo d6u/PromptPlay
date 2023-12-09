@@ -24,6 +24,14 @@ SESSION_COOKIE_SECRET=
 DEV_DYNAMODB_ENDPOINT=http://localhost:8000
 ```
 
+Create `.environments/vite-dev/.env` file with the following content:
+
+```txt
+VITE_IS_LOGIN_ENABLED=true
+VITE_API_SERVER_BASE_URL=http://localhost:5050
+VITE_POSTHOG_TOKEN=
+```
+
 ## How Environment Variables Are Loaded
 
 |             | With Docker Compose Locally  | On Host Machine Directly | In Production                 |
@@ -32,40 +40,46 @@ DEV_DYNAMODB_ENDPOINT=http://localhost:8000
 | front       | N/A                          | `dotenv -e .env`         | `dotenv -e .env` during build |
 | scripts     | N/A                          | `dotenv -e .env`         | `dotenv -e .env`              |
 
-## With Docker Compose Locally
+## Option 1: With Docker Compose Locally
 
 1. Start Docker Compose watch process:
 
    ```sh
-   docker compose --env-file .environments/dev-local/api-server.env watch --no-up
+   docker compose --env-file .environments/api-dev-local/api-server.env watch --no-up
    ```
 
    Separately, start Docker containers:
 
    ```sh
-   docker compose --env-file .environments/dev-local/api-server.env up
+   docker compose --env-file .environments/api-dev-local/api-server.env up
    ```
 
 2. Create tables if needed:
 
    ```sh
-   dotenv -e .environments/dev-local/api-server.env ts-node scripts/dynamodb/create-tables.ts
+   dotenv -e .environments/api-dev-local/api-server.env ts-node scripts/dynamodb/create-tables.ts
    ```
 
    Delete tables if needed:
 
    ```sh
-   dotenv -e .environments/dev-local/api-server.env ts-node scripts/dynamodb/delete-tables.ts
+   dotenv -e .environments/api-dev-local/api-server.env ts-node scripts/dynamodb/delete-tables.ts
    ```
 
-3. Visit backend server at [localhost:5050/graphql](http://localhost:5050/graphql).
+3. (Optional) Visit backend server at [localhost:5050/graphql](http://localhost:5050/graphql).
 
-## On Host Machine Directly
+4. Start frontend dev server. In `front/`:
 
-In `aws_sam_app/server_nodejs/`
+   ```sh
+   npm run dev
+   ```
+
+## Option 2: On Host Machine Directly
+
+In `aws_sam_app/server_nodejs/`:
 
 ```sh
-dotenv -e .environments/dev-local/api-server.env nodemon
+dotenv -e .environments/api-dev-local/api-server.env nodemon
 ```
 
 # Deprecated Steps
