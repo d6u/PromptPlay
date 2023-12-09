@@ -6,7 +6,7 @@ Make sure you already have Node.js 18 and Docker installed.
 
 ## Set Up Artifacts
 
-Create `./.environments/dev-local/api-server.env` file with the following content:
+Create `.environments/api-dev-local/api-server.env` file with the following content:
 
 ```txt
 DYNAMODB_TABLE_NAME_USERS=dev_users
@@ -24,7 +24,7 @@ SESSION_COOKIE_SECRET=
 DEV_DYNAMODB_ENDPOINT=http://localhost:8000
 ```
 
-Create `.environments/vite-dev/.env` file with the following content:
+Create `.environments/vite/.env.development` file with the following content:
 
 ```txt
 VITE_IS_LOGIN_ENABLED=true
@@ -41,6 +41,8 @@ VITE_POSTHOG_TOKEN=
 | scripts     | N/A                          | `dotenv -e .env`         | `dotenv -e .env`              |
 
 ## Option 1: With Docker Compose Locally
+
+_Run commands in repository root directory, unless otherwise specified._
 
 1. Start Docker Compose watch process:
 
@@ -68,19 +70,35 @@ VITE_POSTHOG_TOKEN=
 
 3. (Optional) Visit backend server at [localhost:5050/graphql](http://localhost:5050/graphql).
 
-4. Start frontend dev server. In `front/`:
+4. Start frontend dev server:
+
+   _In `front/`_
 
    ```sh
    npm run dev
    ```
 
+   Pick up a different environment file using mode:
+
+   ```sh
+   npm run dev -- -m development-python
+   ```
+
+   This requires matching `.env` file in `.environments/vite/`, e.g. `.environments/vite/.env.development-python`.
+
+   - `--`: Pass arguments to underlying command instead of `npm`. In this case, it's `vite`.
+   - `-m`: Vite mode. This determines which `.env` file to use.
+
 ## Option 2: On Host Machine Directly
 
-In `aws_sam_app/server_nodejs/`:
+_In `aws_sam_app/server_nodejs/`_
 
 ```sh
-dotenv -e .environments/api-dev-local/api-server.env nodemon
+dotenv -e ../../.environments/api-dev-local/api-server.env nodemon -e ts
 ```
+
+- `nodemon` will pick up `npm start` to start the server.
+- `-e ts` following `nodemon`: Watch `.ts` files.
 
 # Deprecated Steps
 
