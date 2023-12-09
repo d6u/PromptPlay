@@ -13,7 +13,7 @@ export type Types = {
     CreatePlaceholderUserAndExampleSpaceResult: CreatePlaceholderUserAndExampleSpaceResult;
   };
   Scalars: {
-    Date: {
+    DateTime: {
       Input: Date;
       Output: Date;
     };
