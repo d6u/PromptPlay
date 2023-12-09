@@ -1,0 +1,10 @@
+@startuml
+
+participant "Browser" as browser
+participant "Server" as server
+
+browser ->
+
+@enduml
+
+
