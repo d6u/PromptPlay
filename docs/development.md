@@ -1,8 +1,28 @@
 # Development
 
-## Set up the environment
+## Set Up The Environment
 
 Make sure you already have Node.js 18 and Docker installed.
+
+## Set Up Artifacts
+
+Create `./.environments/dev-local/api-server.env` file with the following content:
+
+```txt
+DYNAMODB_TABLE_NAME_USERS=dev_users
+DYNAMODB_TABLE_NAME_SPACES=dev_spaces
+DYNAMODB_TABLE_NAME_CSV_EVALUATION_PRESETS=dev_csv-evaluation-presets
+AUTH0_DOMAIN=
+AUTH0_CLIENT_ID=
+AUTH0_CLIENT_SECRET=
+AUTH_CALLBACK_URL=http://localhost:8000/auth
+AUTH_LOGIN_FINISH_REDIRECT_URL=http://localhost:3000
+AUTH_LOGOUT_FINISH_REDIRECT_URL=http://localhost:3000
+SESSION_COOKIE_SECRET=
+
+# Dev only, used when running on out side of docker
+DEV_DYNAMODB_ENDPOINT=http://localhost:8000
+```
 
 ## How Environment Variables Are Loaded
 
@@ -15,9 +35,24 @@ Make sure you already have Node.js 18 and Docker installed.
 ## With Docker Compose Locally
 
 1. Start Docker containers:
+
    ```sh
    docker compose --env-file .environments/dev-local/api-server.env up
    ```
+
+2. Create tables if needed:
+
+   ```sh
+   dotenv -e .environments/dev-local/api-server.env ts-node scripts/dynamodb/create-tables.ts
+   ```
+
+   Delete tables if needed:
+
+   ```sh
+   dotenv -e .environments/dev-local/api-server.env ts-node scripts/dynamodb/delete-tables.ts
+   ```
+
+3. Visit backend server at [localhost:5050/graphql](http://localhost:5050/graphql).
 
 ## On Host Machine Directly
 

@@ -17,5 +17,6 @@
     //
     // See https://github.com/TypeStrong/ts-node/issues/783 for detailed reason.
     "experimentalResolver": true
-  }
+  },
+  "include": ["./scripts/**/*"]
 }

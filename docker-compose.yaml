@@ -50,4 +50,4 @@ services:
       # AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY.
       - AWS_ACCESS_KEY_ID=DUMMY
       - AWS_SECRET_ACCESS_KEY=DUMMY
-      - DEV_DYANMODB_ENDPOINT=http://dynamodb:8000
+      - DEV_DYNAMODB_ENDPOINT=http://dynamodb:8000

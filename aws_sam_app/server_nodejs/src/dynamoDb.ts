@@ -5,9 +5,9 @@ const config: DynamoDBClientConfig = {
   region: "us-west-2",
 };
 
-if (process.env.DEV_DYANMODB_ENDPOINT) {
-  console.log("Using DynamoDB endpoint: " + process.env.DEV_DYANMODB_ENDPOINT);
-  config.endpoint = process.env.DEV_DYANMODB_ENDPOINT;
+if (process.env.DEV_DYNAMODB_ENDPOINT) {
+  console.log("Using DynamoDB endpoint: " + process.env.DEV_DYNAMODB_ENDPOINT);
+  config.endpoint = process.env.DEV_DYNAMODB_ENDPOINT;
 }
 
 let dynamoDbClient = new DynamoDBClient(config);
