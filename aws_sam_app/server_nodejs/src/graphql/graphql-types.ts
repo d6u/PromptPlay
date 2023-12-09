@@ -17,6 +17,10 @@ export type Types = {
       Input: Date;
       Output: Date;
     };
+    UUID: {
+      Input: string;
+      Output: string;
+    };
   };
 };
 
