@@ -1,12 +1,11 @@
-// NOTE: Always load env first.
-import "dotenv/config";
+import "./utils/checkEnvVar.js";
+// Check if the environment variables are set correctly first.
 
 import cookieSession from "cookie-session";
 import express from "express";
 import serverless from "serverless-http";
 import setupAuth from "./routesAuth.js";
 import setupGraphql from "./routesGraphql.js";
-import "./types.js";
 
 const app = express();
 

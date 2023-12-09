@@ -187,3 +187,4 @@ yarn-error.log*
 # === Custom ===
 
 .artifacts
+.environments

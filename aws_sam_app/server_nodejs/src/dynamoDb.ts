@@ -12,8 +12,8 @@ if (process.env.DEV_DYANMODB_ENDPOINT) {
 
 let dynamoDbClient = new DynamoDBClient(config);
 
-// For AWS environment
 if (process.env.LAMBDA_TASK_ROOT) {
+  // True when running in Lambda docker container
   dynamoDbClient = AWSXRay.captureAWSv3Client(dynamoDbClient);
 }
 

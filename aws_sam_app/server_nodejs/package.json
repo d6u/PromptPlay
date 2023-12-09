@@ -4,10 +4,10 @@
   "private": true,
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.441.0",
+    "@mobily/ts-belt": "^3.13.1",
     "@pothos/core": "^3.38.0",
     "aws-xray-sdk": "^3.5.3",
     "cookie-session": "^2.0.0",
-    "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "graphql": "^16.8.1",
     "graphql-scalars": "^1.22.4",
@@ -23,10 +23,11 @@
     "@types/node": "^20.8.10",
     "@types/uuid": "^9.0.7",
     "chai": "^4.3.6",
+    "dotenv-cli": "^7.3.0",
     "mocha": "^10.1.0",
     "nodemon": "^3.0.1",
     "ts-node": "^10.9.2",
-    "typescript": "^5.2.2"
+    "typescript": "~5.2.0"
   },
   "scripts": {
     "build": "tsc --pretty",
