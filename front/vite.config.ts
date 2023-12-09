@@ -6,6 +6,7 @@ import { defineConfig } from "vite";
 export default defineConfig({
   plugins: [react()],
   envDir: "../.environments/vite-dev",
+  // envDir: "../.environments/vite-dev-python-local",
   server: {
     port: 3000,
   },
