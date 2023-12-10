@@ -17,7 +17,7 @@ type UserShape = {
 };
 
 const { deleteById, createOrmInstance, findById } = createOrmClass<UserShape>({
-  table: process.env.TABLE_NAME_USERS,
+  table: process.env.DYNAMODB_TABLE_NAME_USERS,
   shape: {
     id: {
       type: "string",
@@ -81,7 +81,7 @@ export async function getUserIdByPlaceholderUserToken(
 ): Promise<UUID | null> {
   const response = await dynamoDbClient.send(
     new QueryCommand({
-      TableName: process.env.TABLE_NAME_USERS,
+      TableName: process.env.DYNAMODB_TABLE_NAME_USERS,
       IndexName: "PlaceholderClientTokenIndex",
       Select: "ALL_PROJECTED_ATTRIBUTES",
       Limit: 1,

@@ -2,20 +2,28 @@ import { RequestWithUser } from "../middleware/user.js";
 import { OrmCsvEvaluationPreset } from "../models/csv-evaluation-preset.js";
 import { OrmContentVersion, OrmSpace } from "../models/space.js";
 import { UUID } from "../models/types.js";
+import { OrmUser } from "../models/user.js";
+
+type Context = {
+  req: RequestWithUser;
+};
 
 export type Types = {
   Context: Context;
   Objects: {
-    User: User;
-    Space: Space;
-    CsvEvaluationPreset: CsvEvaluationPreset;
+    CSVEvaluationPreset: CsvEvaluationPreset;
     QuerySpaceResult: QuerySpaceResult;
     CreatePlaceholderUserAndExampleSpaceResult: CreatePlaceholderUserAndExampleSpaceResult;
+    CreateCsvEvaluationPresetResult: CreateCsvEvaluationPresetResult;
   };
   Scalars: {
-    Date: {
+    DateTime: {
       Input: Date;
       Output: Date;
+    };
+    UUID: {
+      Input: string;
+      Output: string;
     };
   };
 };
@@ -24,17 +32,13 @@ export type BuilderType = PothosSchemaTypes.SchemaBuilder<
   PothosSchemaTypes.ExtendDefaultTypes<Types>
 >;
 
-type Context = {
-  req: RequestWithUser;
-};
+// SECTION: User
 
-// SECTION: Objects
+export class User {
+  constructor(public dbUser: OrmUser) {}
+}
 
-export type User = {
-  id: string;
-  email: string | null;
-  profilePictureUrl: string | null;
-};
+// !SECTION
 
 export class Space {
   private static fromOrmContentVersion(
@@ -107,5 +111,10 @@ export enum ContentVersion {
   v2 = "v2",
   v3 = "v3",
 }
+
+type CreateCsvEvaluationPresetResult = {
+  space: Space;
+  csvEvaluationPreset: CsvEvaluationPreset;
+};
 
 // !SECTION

@@ -4,22 +4,22 @@ import {
   deleteCsvEvaluationPresetById,
   findCSVEvaluationPresetById,
 } from "../models/csv-evaluation-preset.js";
+import { createSpaceWithExampleContent } from "../models/model-utils.js";
 import {
+  OrmContentVersion,
   createOrmSpaceInstance,
   deleteSpaceById,
   findSpaceById,
-  OrmContentVersion,
   querySpacesByOwnerId,
 } from "../models/space.js";
-import { asUUID, UUID } from "../models/types.js";
+import { UUID, asUUID } from "../models/types.js";
 import {
   createOrmUserInstance,
   deleteUserById,
   getUserIdByPlaceholderUserToken,
 } from "../models/user.js";
-import { createSpaceWithExampleContent } from "../models/utils.js";
 import { nullThrow } from "../utils.js";
-import { BuilderType, ContentVersion, Space } from "./graphql-types.js";
+import { BuilderType, ContentVersion, Space, User } from "./graphql-types.js";
 
 export default function addMutationType(builder: BuilderType) {
   builder.mutationType({
@@ -63,14 +63,14 @@ export default function addMutationType(builder: BuilderType) {
         }),
 
         mergePlaceholderUserWithLoggedInUser: t.field({
-          type: "User",
+          type: User,
+          nullable: true,
           args: {
             placeholderUserToken: t.arg({
               type: "String",
               required: true,
             }),
           },
-          nullable: true,
           async resolve(parent, args, context) {
             // ANCHOR: Make sure there is a logged in user to merge to
             const dbUser = context.req.dbUser;
@@ -99,11 +99,11 @@ export default function addMutationType(builder: BuilderType) {
             await deleteUserById(placeholderUserId);
 
             // ANCHOR: Finish
-            return dbUser;
+            return new User(dbUser);
           },
         }),
         createSpace: t.field({
-          type: "Space",
+          type: Space,
           nullable: true,
           async resolve(parent, args, context) {
             const dbUser = context.req.dbUser;
@@ -128,9 +128,9 @@ export default function addMutationType(builder: BuilderType) {
           },
         }),
         updateSpace: t.field({
-          type: "Space",
+          type: Space,
           args: {
-            id: t.arg({ type: "String", required: true }),
+            id: t.arg({ type: "ID", required: true }),
             name: t.arg({ type: "String" }),
             contentVersion: t.arg({ type: ContentVersion }),
             content: t.arg({ type: "String" }),
@@ -145,7 +145,7 @@ export default function addMutationType(builder: BuilderType) {
               return null;
             }
 
-            const dbSpace = await findSpaceById(dbUser.id);
+            const dbSpace = await findSpaceById(args.id as string);
 
             if (dbSpace == null) {
               return null;
@@ -189,8 +189,9 @@ export default function addMutationType(builder: BuilderType) {
           },
         }),
         deleteSpace: t.boolean({
+          nullable: true,
           args: {
-            id: t.arg({ type: "String", required: true }),
+            id: t.arg({ type: "ID", required: true }),
           },
           async resolve(parent, args, context) {
             const dbUser = context.req.dbUser;
@@ -211,10 +212,10 @@ export default function addMutationType(builder: BuilderType) {
           },
         }),
         createCsvEvaluationPreset: t.field({
-          type: "CsvEvaluationPreset",
+          type: "CreateCsvEvaluationPresetResult",
           nullable: true,
           args: {
-            spaceId: t.arg({ type: "String", required: true }),
+            spaceId: t.arg({ type: "ID", required: true }),
             name: t.arg({ type: "String", required: true }),
             csvContent: t.arg({ type: "String" }),
             configContent: t.arg({ type: "String" }),
@@ -226,9 +227,15 @@ export default function addMutationType(builder: BuilderType) {
               return null;
             }
 
+            const dbSpace = await findSpaceById(asUUID(args.spaceId as string));
+
+            if (dbSpace == null) {
+              return null;
+            }
+
             const dbPreset = createCSVEvaluationPreset({
               ownerId: dbUser.id,
-              spaceId: asUUID(args.spaceId),
+              spaceId: dbSpace.id,
               name: args.name,
               csvContent: args.csvContent ?? "",
               configContent: args.configContent,
@@ -236,14 +243,17 @@ export default function addMutationType(builder: BuilderType) {
 
             await dbPreset.save();
 
-            return dbPreset;
+            return {
+              space: new Space(dbSpace),
+              csvEvaluationPreset: dbPreset,
+            };
           },
         }),
         updateCsvEvaluationPreset: t.field({
-          type: "CsvEvaluationPreset",
+          type: "CSVEvaluationPreset",
           nullable: true,
           args: {
-            presetId: t.arg({ type: "String", required: true }),
+            presetId: t.arg({ type: "ID", required: true }),
             name: t.arg({ type: "String" }),
             csvContent: t.arg({ type: "String" }),
             configContent: t.arg({ type: "String" }),
@@ -256,7 +266,7 @@ export default function addMutationType(builder: BuilderType) {
             }
 
             const dbPreset = await findCSVEvaluationPresetById(
-              asUUID(args.presetId),
+              args.presetId as string,
             );
 
             if (dbPreset == null) {
@@ -289,10 +299,10 @@ export default function addMutationType(builder: BuilderType) {
           },
         }),
         deleteCsvEvaluationPreset: t.field({
-          type: "Space",
+          type: Space,
           nullable: true,
           args: {
-            id: t.arg({ type: "String", required: true }),
+            id: t.arg({ type: "ID", required: true }),
           },
           async resolve(parent, args, context) {
             const dbUser = context.req.dbUser;
@@ -301,7 +311,9 @@ export default function addMutationType(builder: BuilderType) {
               return null;
             }
 
-            const dbPreset = await findCSVEvaluationPresetById(asUUID(args.id));
+            const dbPreset = await findCSVEvaluationPresetById(
+              asUUID(args.id as string),
+            );
 
             if (dbPreset == null) {
               return null;
@@ -327,11 +339,30 @@ export default function addMutationType(builder: BuilderType) {
   builder.objectType("CreatePlaceholderUserAndExampleSpaceResult", {
     fields(t) {
       return {
-        placeholderClientToken: t.exposeString("placeholderClientToken"),
+        placeholderClientToken: t.exposeID("placeholderClientToken"),
         space: t.field({
-          type: "Space",
+          type: Space,
           resolve(parent) {
             return parent.space;
+          },
+        }),
+      };
+    },
+  });
+
+  builder.objectType("CreateCsvEvaluationPresetResult", {
+    fields(t) {
+      return {
+        space: t.field({
+          type: Space,
+          resolve(parent) {
+            return parent.space;
+          },
+        }),
+        csvEvaluationPreset: t.field({
+          type: "CSVEvaluationPreset",
+          resolve(parent) {
+            return parent.csvEvaluationPreset;
           },
         }),
       };

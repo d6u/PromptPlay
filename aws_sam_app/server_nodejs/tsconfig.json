@@ -1,10 +1,15 @@
+// Keep this consistent with tsconfig.json at repo root.
+// For notes and comments, see tsconfig.json at repo root.
 {
   "extends": "@tsconfig/node18/tsconfig.json",
-  "include": ["src/**/*"],
-  "exclude": ["node_modules"],
   "compilerOptions": {
     "outDir": "dist",
-    "strictNullChecks": true,
-    "noUncheckedIndexedAccess": true
-  }
+    "noUncheckedIndexedAccess": true,
+    "allowSyntheticDefaultImports": true
+  },
+  "ts-node": {
+    "experimentalResolver": true
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules"]
 }

@@ -1,12 +1,19 @@
-import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
+import { DynamoDBClient, DynamoDBClientConfig } from "@aws-sdk/client-dynamodb";
 import AWSXRay from "aws-xray-sdk";
 
-let dynamoDbClient = new DynamoDBClient({
+const config: DynamoDBClientConfig = {
   region: "us-west-2",
-});
+};
 
-// For AWS environment
+if (process.env.DEV_DYNAMODB_ENDPOINT) {
+  console.log("Using DynamoDB endpoint: " + process.env.DEV_DYNAMODB_ENDPOINT);
+  config.endpoint = process.env.DEV_DYNAMODB_ENDPOINT;
+}
+
+let dynamoDbClient = new DynamoDBClient(config);
+
 if (process.env.LAMBDA_TASK_ROOT) {
+  // True when running in Lambda docker container
   dynamoDbClient = AWSXRay.captureAWSv3Client(dynamoDbClient);
 }
 

@@ -19,7 +19,7 @@ type CSVEvaluationPresetShape = {
 
 const { findById, buildOrmInstanceFromItem, createOrmInstance, deleteById } =
   createOrmClass<CSVEvaluationPresetShape>({
-    table: process.env.TABLE_NAME_CSV_EVALUATION_PRESETS,
+    table: process.env.DYNAMODB_TABLE_NAME_CSV_EVALUATION_PRESETS,
     shape: {
       id: {
         type: "string",
@@ -80,7 +80,7 @@ export async function queryCsvEvaluationPresetsBySpaceId(
 ): Promise<{ spaceId: UUID; id: UUID; name: string }[]> {
   const response = await dynamoDbClient.send(
     new QueryCommand({
-      TableName: process.env.TABLE_NAME_CSV_EVALUATION_PRESETS,
+      TableName: process.env.DYNAMODB_TABLE_NAME_CSV_EVALUATION_PRESETS,
       IndexName: "SpaceIdIndex",
       Select: "ALL_PROJECTED_ATTRIBUTES",
       KeyConditionExpression: "SpaceId = :SpaceId",
@@ -104,7 +104,7 @@ export async function queryCsvEvaluationPresetsByOwnerId(
 ): Promise<{ ownerId: UUID; id: UUID; name: string }[]> {
   const response = await dynamoDbClient.send(
     new QueryCommand({
-      TableName: process.env.TABLE_NAME_CSV_EVALUATION_PRESETS,
+      TableName: process.env.DYNAMODB_TABLE_NAME_CSV_EVALUATION_PRESETS,
       IndexName: "OwnerIdIndex",
       Select: "ALL_PROJECTED_ATTRIBUTES",
       KeyConditionExpression: "OwnerId = :OwnerId",

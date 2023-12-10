@@ -1,5 +1,5 @@
-// NOTE: Always load env first.
-import "dotenv/config";
+import "./utils/checkEnvVar.js";
+// Check if the environment variables are set correctly first.
 
 import cookieSession from "cookie-session";
 import express from "express";
@@ -36,7 +36,7 @@ export const handler = serverless(app);
 
 // For local development
 if (!process.env.LAMBDA_TASK_ROOT) {
-  app.listen(8000, () => {
-    console.log("Running a server at http://localhost:8000/");
+  app.listen(5050, () => {
+    console.log("Running a server at http://localhost:5050/");
   });
 }

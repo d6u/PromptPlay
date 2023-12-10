@@ -26,7 +26,7 @@ export enum OrmContentVersion {
 
 const { findById, buildOrmInstanceFromItem, createOrmInstance, deleteById } =
   createOrmClass<SpaceShape>({
-    table: process.env.TABLE_NAME_SPACES,
+    table: process.env.DYNAMODB_TABLE_NAME_SPACES,
     shape: {
       id: {
         type: "string",
@@ -83,7 +83,7 @@ export type OrmSpace = ReturnType<typeof createOrmInstance>;
 export async function querySpacesByOwnerId(ownerId: UUID): Promise<OrmSpace[]> {
   const response = await dynamoDbClient.send(
     new QueryCommand({
-      TableName: process.env.TABLE_NAME_SPACES,
+      TableName: process.env.DYNAMODB_TABLE_NAME_SPACES,
       IndexName: "OwnerIdIndex",
       Select: "ALL_ATTRIBUTES",
       KeyConditionExpression: "OwnerId = :ownerId",
