@@ -17,7 +17,8 @@ export default function addObjectTypes(builder: BuilderType) {
     name: "User",
     fields(t) {
       return {
-        id: t.id({
+        id: t.field({
+          type: "UUID",
           resolve(parent, args, context) {
             return parent.dbUser.id;
           },
@@ -49,7 +50,7 @@ export default function addObjectTypes(builder: BuilderType) {
     name: "Space",
     fields(t) {
       return {
-        id: t.exposeString("id"),
+        id: t.exposeID("id"),
         name: t.exposeString("name"),
         contentVersion: t.field({
           type: ContentVersion,
@@ -67,7 +68,7 @@ export default function addObjectTypes(builder: BuilderType) {
           },
         }),
         csvEvaluationPresets: t.field({
-          type: ["CsvEvaluationPreset"],
+          type: ["CSVEvaluationPreset"],
           async resolve(parent, args, context) {
             const csvEvaluationPresets =
               await queryCsvEvaluationPresetsBySpaceId(asUUID(parent.id));
@@ -85,7 +86,7 @@ export default function addObjectTypes(builder: BuilderType) {
         }),
         // TODO: This should be null, fix the client side.
         csvEvaluationPreset: t.field({
-          type: "CsvEvaluationPreset",
+          type: "CSVEvaluationPreset",
           args: {
             id: t.arg({ type: "ID", required: true }),
           },
@@ -114,10 +115,10 @@ export default function addObjectTypes(builder: BuilderType) {
     },
   });
 
-  builder.objectType("CsvEvaluationPreset", {
+  builder.objectType("CSVEvaluationPreset", {
     fields(t) {
       return {
-        id: t.exposeString("id"),
+        id: t.exposeID("id"),
         name: t.exposeString("name"),
         csvContent: t.exposeString("csvContent"),
         configContent: t.exposeString("configContent", { nullable: true }),

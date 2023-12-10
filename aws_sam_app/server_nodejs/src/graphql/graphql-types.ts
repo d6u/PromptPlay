@@ -11,7 +11,7 @@ type Context = {
 export type Types = {
   Context: Context;
   Objects: {
-    CsvEvaluationPreset: CsvEvaluationPreset;
+    CSVEvaluationPreset: CsvEvaluationPreset;
     QuerySpaceResult: QuerySpaceResult;
     CreatePlaceholderUserAndExampleSpaceResult: CreatePlaceholderUserAndExampleSpaceResult;
     CreateCsvEvaluationPresetResult: CreateCsvEvaluationPresetResult;

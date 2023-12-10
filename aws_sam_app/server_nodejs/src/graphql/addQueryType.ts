@@ -27,7 +27,8 @@ export default function addQueryType(builder: BuilderType) {
           },
         }),
         isPlaceholderUserTokenInvalid: t.boolean({
-          description: "Check if the placeholder user token is invalid",
+          description:
+            "When PlaceholderUserToken header is present and the token is not mapped to a user",
           async resolve(parent, args, context) {
             const placeholderUserToken = context.req.header(
               "PlaceholderUserToken",

@@ -189,6 +189,7 @@ export default function addMutationType(builder: BuilderType) {
           },
         }),
         deleteSpace: t.boolean({
+          nullable: true,
           args: {
             id: t.arg({ type: "ID", required: true }),
           },
@@ -249,7 +250,7 @@ export default function addMutationType(builder: BuilderType) {
           },
         }),
         updateCsvEvaluationPreset: t.field({
-          type: "CsvEvaluationPreset",
+          type: "CSVEvaluationPreset",
           nullable: true,
           args: {
             presetId: t.arg({ type: "ID", required: true }),
@@ -338,7 +339,7 @@ export default function addMutationType(builder: BuilderType) {
   builder.objectType("CreatePlaceholderUserAndExampleSpaceResult", {
     fields(t) {
       return {
-        placeholderClientToken: t.exposeString("placeholderClientToken"),
+        placeholderClientToken: t.exposeID("placeholderClientToken"),
         space: t.field({
           type: Space,
           resolve(parent) {
@@ -359,7 +360,7 @@ export default function addMutationType(builder: BuilderType) {
           },
         }),
         csvEvaluationPreset: t.field({
-          type: "CsvEvaluationPreset",
+          type: "CSVEvaluationPreset",
           resolve(parent) {
             return parent.csvEvaluationPreset;
           },
