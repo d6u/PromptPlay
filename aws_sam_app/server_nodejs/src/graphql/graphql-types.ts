@@ -2,12 +2,15 @@ import { RequestWithUser } from "../middleware/user.js";
 import { OrmCsvEvaluationPreset } from "../models/csv-evaluation-preset.js";
 import { OrmContentVersion, OrmSpace } from "../models/space.js";
 import { UUID } from "../models/types.js";
+import { OrmUser } from "../models/user.js";
+
+type Context = {
+  req: RequestWithUser;
+};
 
 export type Types = {
   Context: Context;
   Objects: {
-    User: User;
-    Space: Space;
     CsvEvaluationPreset: CsvEvaluationPreset;
     QuerySpaceResult: QuerySpaceResult;
     CreatePlaceholderUserAndExampleSpaceResult: CreatePlaceholderUserAndExampleSpaceResult;
@@ -29,17 +32,13 @@ export type BuilderType = PothosSchemaTypes.SchemaBuilder<
   PothosSchemaTypes.ExtendDefaultTypes<Types>
 >;
 
-type Context = {
-  req: RequestWithUser;
-};
+// SECTION: User
 
-// SECTION: Objects
+export class User {
+  constructor(public dbUser: OrmUser) {}
+}
 
-export type User = {
-  id: string;
-  email: string | null;
-  profilePictureUrl: string | null;
-};
+// !SECTION
 
 export class Space {
   private static fromOrmContentVersion(

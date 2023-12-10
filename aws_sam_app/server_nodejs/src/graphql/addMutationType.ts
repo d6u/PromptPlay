@@ -19,7 +19,7 @@ import {
   getUserIdByPlaceholderUserToken,
 } from "../models/user.js";
 import { nullThrow } from "../utils.js";
-import { BuilderType, ContentVersion, Space } from "./graphql-types.js";
+import { BuilderType, ContentVersion, Space, User } from "./graphql-types.js";
 
 export default function addMutationType(builder: BuilderType) {
   builder.mutationType({
@@ -63,14 +63,14 @@ export default function addMutationType(builder: BuilderType) {
         }),
 
         mergePlaceholderUserWithLoggedInUser: t.field({
-          type: "User",
+          type: User,
+          nullable: true,
           args: {
             placeholderUserToken: t.arg({
               type: "String",
               required: true,
             }),
           },
-          nullable: true,
           async resolve(parent, args, context) {
             // ANCHOR: Make sure there is a logged in user to merge to
             const dbUser = context.req.dbUser;
@@ -99,11 +99,11 @@ export default function addMutationType(builder: BuilderType) {
             await deleteUserById(placeholderUserId);
 
             // ANCHOR: Finish
-            return dbUser;
+            return new User(dbUser);
           },
         }),
         createSpace: t.field({
-          type: "Space",
+          type: Space,
           nullable: true,
           async resolve(parent, args, context) {
             const dbUser = context.req.dbUser;
@@ -128,7 +128,7 @@ export default function addMutationType(builder: BuilderType) {
           },
         }),
         updateSpace: t.field({
-          type: "Space",
+          type: Space,
           args: {
             id: t.arg({ type: "ID", required: true }),
             name: t.arg({ type: "String" }),
@@ -298,7 +298,7 @@ export default function addMutationType(builder: BuilderType) {
           },
         }),
         deleteCsvEvaluationPreset: t.field({
-          type: "Space",
+          type: Space,
           nullable: true,
           args: {
             id: t.arg({ type: "String", required: true }),
@@ -338,7 +338,7 @@ export default function addMutationType(builder: BuilderType) {
       return {
         placeholderClientToken: t.exposeString("placeholderClientToken"),
         space: t.field({
-          type: "Space",
+          type: Space,
           resolve(parent) {
             return parent.space;
           },
@@ -351,7 +351,7 @@ export default function addMutationType(builder: BuilderType) {
     fields(t) {
       return {
         space: t.field({
-          type: "Space",
+          type: Space,
           resolve(parent) {
             return parent.space;
           },
