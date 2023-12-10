@@ -34,11 +34,12 @@ VITE_POSTHOG_TOKEN=
 
 ## How Environment Variables Are Loaded
 
-|             | With Docker Compose Locally  | On Host Machine Directly | In Production                 |
-| ----------- | ---------------------------- | ------------------------ | ----------------------------- |
-| aws_sam_app | Use `--env-file .env` option | `dotenv -e .env`         | Set env var on AWS resources  |
-| front       | N/A                          | `dotenv -e .env`         | `dotenv -e .env` during build |
-| scripts     | N/A                          | `dotenv -e .env`         | `dotenv -e .env`              |
+|                          | With Docker Compose Locally  | On Host Machine Directly | In Production                 |
+| ------------------------ | ---------------------------- | ------------------------ | ----------------------------- |
+| aws_sam_app              | Use `--env-file .env` option | `dotenv -e .env`         | Set env var on AWS resources  |
+| front                    | N/A                          | `dotenv -e .env`         | `dotenv -e .env` during build |
+| front > graphql code gen | N/A                          | `dotenv -e .env`         | N/A                           |
+| scripts                  | N/A                          | `dotenv -e .env`         | `dotenv -e .env`              |
 
 ## Option 1: With Docker Compose Locally
 
@@ -68,9 +69,17 @@ _Run commands in repository root directory, unless otherwise specified._
    dotenv -e .environments/api-dev-local/api-server.env ts-node scripts/dynamodb/delete-tables.ts
    ```
 
-3. (Optional) Visit backend server at [localhost:5050/graphql](http://localhost:5050/graphql).
+3. (Optional) Confirm backend server is running at [localhost:5050/graphql](http://localhost:5050/graphql).
 
-4. Start frontend dev server:
+4. (Optional) Generate GraphQL code for front end:
+
+   _In `front/`_
+
+   ```sh
+   dotenv -e ../.environments/vite/.env.development graphql-codegen
+   ```
+
+5. Start frontend dev server:
 
    _In `front/`_
 

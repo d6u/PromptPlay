@@ -190,7 +190,7 @@ export default function addMutationType(builder: BuilderType) {
         }),
         deleteSpace: t.boolean({
           args: {
-            id: t.arg({ type: "String", required: true }),
+            id: t.arg({ type: "ID", required: true }),
           },
           async resolve(parent, args, context) {
             const dbUser = context.req.dbUser;
@@ -301,7 +301,7 @@ export default function addMutationType(builder: BuilderType) {
           type: Space,
           nullable: true,
           args: {
-            id: t.arg({ type: "String", required: true }),
+            id: t.arg({ type: "ID", required: true }),
           },
           async resolve(parent, args, context) {
             const dbUser = context.req.dbUser;
@@ -310,7 +310,9 @@ export default function addMutationType(builder: BuilderType) {
               return null;
             }
 
-            const dbPreset = await findCSVEvaluationPresetById(asUUID(args.id));
+            const dbPreset = await findCSVEvaluationPresetById(
+              asUUID(args.id as string),
+            );
 
             if (dbPreset == null) {
               return null;
