@@ -3,26 +3,33 @@ Transform: AWS::Serverless-2016-10-31
 Description: Promptplay backend using serverless resources.
 
 Parameters:
-  # The HostedZoneId is managed outside of this stack.
+  ApiSubDomainName:
+    Type: String
+  # NOTE: The HostedZoneId is managed outside of this stack.
   HostedZoneId:
     Type: String
   # SECTION: Environment variables for lambda
+  # SECTION: Tables are managed outside of this stack.
+  DynamodbTableNameUsers:
+    Type: String
+  DynamodbTableNameSpaces:
+    Type: String
+  DynamodbTableNameCsvEvaluationPresets:
+    Type: String
+  # !SECTION
   Auth0Domain:
     Type: String
   Auth0ClientId:
     Type: String
   Auth0ClientSecret:
     Type: String
+  AuthCallbackUrl:
+    Type: String
   AuthLoginFinishRedirectUrl:
     Type: String
   AuthLogoutFinishRedirectUrl:
     Type: String
   SessionCookieSecret:
-    Type: String
-  # Tables are managed outside of this stack.
-  TableNameUsers:
-    Type: String
-  TableNameSpaces:
     Type: String
   # !SECTION
 
@@ -56,7 +63,7 @@ Resources:
     Properties:
       StageName: default
       Domain:
-        DomainName: dev-api.promptplay.xyz
+        DomainName: !Sub ${ApiSubDomainName}.promptplay.xyz
         CertificateArn: !Ref CertificateSubDomains
         Route53:
           HostedZoneId: !Ref HostedZoneId
@@ -77,25 +84,37 @@ Resources:
             Method: ANY
             Path: /{proxy+}
       Policies:
+        # ANCHOR: Users
         - DynamoDBReadPolicy:
-            TableName: !Ref TableNameUsers
+            TableName: !Ref DynamodbTableNameUsers
         - DynamoDBWritePolicy:
-            TableName: !Ref TableNameUsers
+            TableName: !Ref DynamodbTableNameUsers
+        # ANCHOR: Spaces
+        - DynamoDBReadPolicy:
+            TableName: !Ref DynamodbTableNameSpaces
+        - DynamoDBWritePolicy:
+            TableName: !Ref DynamodbTableNameSpaces
+        # ANCHOR: CsvEvaluationPresets
+        - DynamoDBReadPolicy:
+            TableName: !Ref DynamodbTableNameCsvEvaluationPresets
+        - DynamoDBWritePolicy:
+            TableName: !Ref DynamodbTableNameCsvEvaluationPresets
       Environment:
         Variables:
+          DYNAMODB_TABLE_NAME_USERS: !Ref DynamodbTableNameUsers
+          DYNAMODB_TABLE_NAME_SPACES: !Ref DynamodbTableNameSpaces
+          DYNAMODB_TABLE_NAME_CSV_EVALUATION_PRESETS: !Ref DynamodbTableNameCsvEvaluationPresets
           AUTH0_DOMAIN: !Ref Auth0Domain
           AUTH0_CLIENT_ID: !Ref Auth0ClientId
           AUTH0_CLIENT_SECRET: !Ref Auth0ClientSecret
-          AUTH_CALLBACK_URL: https://dev-api.promptplay.xyz/auth
+          AUTH_CALLBACK_URL: !Ref AuthCallbackUrl
           AUTH_LOGIN_FINISH_REDIRECT_URL: !Ref AuthLoginFinishRedirectUrl
           AUTH_LOGOUT_FINISH_REDIRECT_URL: !Ref AuthLogoutFinishRedirectUrl
           SESSION_COOKIE_SECRET: !Ref SessionCookieSecret
-          TABLE_NAME_USERS: !Ref TableNameUsers
-          TABLE_NAME_SPACES: !Ref TableNameSpaces
     Metadata:
       DockerContext: ./server_nodejs
       Dockerfile: Dockerfile
-      DockerTag: v5
+      DockerTag: v6
 
   # ANCHOR: Monitoring
 

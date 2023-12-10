@@ -6,40 +6,45 @@ Make sure you already have Node.js 18 and Docker installed.
 
 ## Set Up Artifacts
 
-Create `.environments/api-dev-local/api-server.env` file with the following content:
+1. Create `.environments/api-server/local.env` file with the following content:
 
-```txt
-DYNAMODB_TABLE_NAME_USERS=dev_users
-DYNAMODB_TABLE_NAME_SPACES=dev_spaces
-DYNAMODB_TABLE_NAME_CSV_EVALUATION_PRESETS=dev_csv-evaluation-presets
-AUTH0_DOMAIN=
-AUTH0_CLIENT_ID=
-AUTH0_CLIENT_SECRET=
-AUTH_CALLBACK_URL=http://localhost:8000/auth
-AUTH_LOGIN_FINISH_REDIRECT_URL=http://localhost:3000
-AUTH_LOGOUT_FINISH_REDIRECT_URL=http://localhost:3000
-SESSION_COOKIE_SECRET=
+   ```txt
+   AUTH0_DOMAIN=
+   AUTH0_CLIENT_ID=
+   AUTH0_CLIENT_SECRET=
+   AUTH_CALLBACK_URL=http://localhost:5050/auth
+   AUTH_LOGIN_FINISH_REDIRECT_URL=http://localhost:3000
+   AUTH_LOGOUT_FINISH_REDIRECT_URL=http://localhost:3000
+   SESSION_COOKIE_SECRET=
 
-# Dev only, used when running on out side of docker
-DEV_DYNAMODB_ENDPOINT=http://localhost:8000
-```
+   # Dev only, used when running on out side of docker
+   DEV_DYNAMODB_ENDPOINT=http://localhost:8000
+   ```
 
-Create `.environments/vite/.env.development` file with the following content:
+2. Create `.environments/dynamodb/local.env` file:
 
-```txt
-VITE_IS_LOGIN_ENABLED=true
-VITE_API_SERVER_BASE_URL=http://localhost:5050
-VITE_POSTHOG_TOKEN=
-```
+   ```txt
+   DYNAMODB_TABLE_NAME_USERS=dev_users
+   DYNAMODB_TABLE_NAME_SPACES=dev_spaces
+   DYNAMODB_TABLE_NAME_CSV_EVALUATION_PRESETS=dev_csv-evaluation-presets
+   ```
+
+3. Create `.environments/vite/.env.development` file:
+
+   ```txt
+   VITE_IS_LOGIN_ENABLED=true
+   VITE_API_SERVER_BASE_URL=http://localhost:5050
+   VITE_POSTHOG_TOKEN=
+   ```
 
 ## How Environment Variables Are Loaded
 
-|                          | With Docker Compose Locally  | On Host Machine Directly | In Production                 |
-| ------------------------ | ---------------------------- | ------------------------ | ----------------------------- |
-| aws_sam_app              | Use `--env-file .env` option | `dotenv -e .env`         | Set env var on AWS resources  |
-| front                    | N/A                          | `dotenv -e .env`         | `dotenv -e .env` during build |
-| front > graphql code gen | N/A                          | `dotenv -e .env`         | N/A                           |
-| scripts                  | N/A                          | `dotenv -e .env`         | `dotenv -e .env`              |
+|                         | With `docker compose` Locally | On Host Machine Directly | In Production                 |
+| ----------------------- | ----------------------------- | ------------------------ | ----------------------------- |
+| aws_sam_app             | Use `--env-file .env` option  | `dotenv -e .env`         | Set env var on AWS resources  |
+| front                   | N/A                           | `dotenv -e .env`         | `dotenv -e .env` during build |
+| front > graphql-codegen | N/A                           | `dotenv -e .env`         | N/A                           |
+| scripts                 | N/A                           | `dotenv -e .env`         | `dotenv -e .env`              |
 
 ## Option 1: With Docker Compose Locally
 
@@ -48,25 +53,33 @@ _Run commands in repository root directory, unless otherwise specified._
 1. Start Docker Compose watch process:
 
    ```sh
-   docker compose --env-file .environments/api-dev-local/api-server.env watch --no-up
+   docker compose \
+     --env-file .environments/api-server/local.env \
+     --env-file .environments/dynamodb/local.env \
+     watch --no-up
    ```
 
    Separately, start Docker containers:
 
    ```sh
-   docker compose --env-file .environments/api-dev-local/api-server.env up
+   docker compose \
+     --env-file .environments/api-server/local.env \
+     --env-file .environments/dynamodb/local.env \
+     up
    ```
 
 2. Create tables if needed:
 
    ```sh
-   dotenv -e .environments/api-dev-local/api-server.env ts-node scripts/dynamodb/create-tables.ts
+   dotenv -e .environments/dynamodb/local.env \
+     ts-node scripts/dynamodb/create-tables.ts
    ```
 
    Delete tables if needed:
 
    ```sh
-   dotenv -e .environments/api-dev-local/api-server.env ts-node scripts/dynamodb/delete-tables.ts
+   dotenv -e .environments/dynamodb/local.env \
+     ts-node scripts/dynamodb/delete-tables.ts
    ```
 
 3. (Optional) Confirm backend server is running at [localhost:5050/graphql](http://localhost:5050/graphql).
@@ -103,7 +116,10 @@ _Run commands in repository root directory, unless otherwise specified._
 _In `aws_sam_app/server_nodejs/`_
 
 ```sh
-dotenv -e ../../.environments/api-dev-local/api-server.env nodemon -e ts
+dotenv \
+  -e ../../.environments/api-server/local.env \
+  -e ../../.environments/dynamodb/local.env \
+  nodemon -e ts
 ```
 
 - `nodemon` will pick up `npm start` to start the server.
