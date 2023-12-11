@@ -184,8 +184,12 @@ export default function addMutationType(builder: BuilderType) {
             if (args.contentVersion !== undefined) {
               if (args.contentVersion === null) {
                 throw new Error("contentVersion cannot be null");
-              } else {
+              } else if (args.contentVersion === SpaceContentVersion.v3) {
                 dbSpace.contentVersion = DbSpaceContentVersion.v3;
+              } else {
+                throw new Error(
+                  `Invalid contentVersion: ${args.contentVersion}`,
+                );
               }
             }
 
