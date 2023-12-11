@@ -1,124 +1,94 @@
-import { QueryCommand } from "@aws-sdk/client-dynamodb";
-import dynamoDbClient from "../dynamoDb.js";
-import { createOrmClass } from "./orm-utils.js";
-import { asUUID, UUID } from "./types.js";
-import { dateToNumber, numberToDate } from "./utils.js";
+import { Entity, Table } from "dynamodb-toolbox";
+import { v4 as uuidv4 } from "uuid";
+import { DocumentClient } from "../utils/dynamo-db-utils.js";
 
-type CSVEvaluationPresetShape = {
-  // Partition key
-  id: UUID;
+export enum DbCsvEvaluationPresetConfigContentVersion {
+  v1 = "v1",
+}
 
-  ownerId: UUID;
-  spaceId: UUID;
-  name: string;
-  csvContent: string;
-  configContent: string | null;
-  createdAt: Date;
-  updatedAt: Date;
-};
-
-const { findById, buildOrmInstanceFromItem, createOrmInstance, deleteById } =
-  createOrmClass<CSVEvaluationPresetShape>({
-    table: process.env.DYNAMODB_TABLE_NAME_CSV_EVALUATION_PRESETS,
-    shape: {
-      id: {
-        type: "string",
-        nullable: false,
-        fieldName: "Id",
-      },
-      ownerId: {
-        type: "string",
-        nullable: false,
-        fieldName: "OwnerId",
-      },
-      spaceId: {
-        type: "string",
-        nullable: false,
-        fieldName: "SpaceId",
-      },
-      name: {
-        type: "string",
-        nullable: false,
-        fieldName: "Name",
-      },
-      csvContent: {
-        type: "string",
-        nullable: false,
-        fieldName: "CsvContent",
-      },
-      configContent: {
-        type: "string",
-        nullable: true,
-        fieldName: "ConfigContent",
-      },
-      createdAt: {
-        type: "number",
-        nullable: false,
-        fieldName: "CreatedAt",
-        fromDbValue: numberToDate as (val: unknown) => unknown,
-        toDbValue: dateToNumber as (val: unknown) => unknown,
-      },
-      updatedAt: {
-        type: "number",
-        nullable: false,
-        fieldName: "UpdatedAt",
-        fromDbValue: numberToDate as (val: unknown) => unknown,
-        toDbValue: dateToNumber as (val: unknown) => unknown,
-      },
+export const CsvEvaluationPresetsTable = new Table({
+  name: process.env.DYNAMODB_TABLE_NAME_CSV_EVALUATION_PRESETS,
+  partitionKey: "Id",
+  indexes: {
+    SpaceIdIndex: {
+      partitionKey: "SpaceId",
+      sortKey: "Id",
     },
-  });
+    OwnerIdIndex: {
+      partitionKey: "OwnerId",
+      sortKey: "Id",
+    },
+  },
+  DocumentClient,
+});
 
-export const createCSVEvaluationPreset = createOrmInstance;
-export const findCSVEvaluationPresetById = findById;
-export const deleteCsvEvaluationPresetById = deleteById;
-export type OrmCsvEvaluationPreset = ReturnType<
-  typeof createCSVEvaluationPreset
->;
+export const CsvEvaluationPresetEntity = new Entity({
+  table: CsvEvaluationPresetsTable,
+  name: "CsvEvaluationPreset",
+  attributes: {
+    id: {
+      partitionKey: true,
+      type: "string",
+      default: () => uuidv4(),
+    },
+    ownerId: {
+      type: "string",
+      required: true,
+      map: "OwnerId",
+    },
+    spaceId: {
+      type: "string",
+      required: true,
+      map: "SpaceId",
+    },
+    name: {
+      type: "string",
+      required: true,
+      map: "Name",
+    },
+    csvString: {
+      type: "string",
+      required: true,
+      map: "CsvString",
+    },
+    configContentVersion: {
+      type: "string",
+      required: true,
+      map: "ConfigContentVersion",
+    },
+    configContentV1: {
+      type: "string",
+      required: true,
+      map: "ConfigContentV1",
+    },
+    createdAt: {
+      type: "number",
+      required: true,
+      map: "CreatedAt",
+      default: () => new Date().getTime(),
+    },
+    updatedAt: {
+      type: "number",
+      required: true,
+      map: "UpdatedAt",
+      default: () => new Date().getTime(),
+      // Apply default on update as well, but only when the input doesn't
+      // provide this value.
+      onUpdate: true,
+    },
+  },
+  timestamps: false,
+  typeHidden: true,
+} as const);
 
-export async function queryCsvEvaluationPresetsBySpaceId(
-  spaceId: UUID,
-): Promise<{ spaceId: UUID; id: UUID; name: string }[]> {
-  const response = await dynamoDbClient.send(
-    new QueryCommand({
-      TableName: process.env.DYNAMODB_TABLE_NAME_CSV_EVALUATION_PRESETS,
-      IndexName: "SpaceIdIndex",
-      Select: "ALL_PROJECTED_ATTRIBUTES",
-      KeyConditionExpression: "SpaceId = :SpaceId",
-      ExpressionAttributeValues: {
-        ":SpaceId": { S: spaceId },
-      },
-    }),
-  );
-
-  return (response.Items ?? []).map((item) => {
-    return {
-      spaceId: asUUID(item.SpaceId!.S!),
-      id: asUUID(item.Id!.S!),
-      name: item.Name!.S!,
-    };
-  });
-}
-
-export async function queryCsvEvaluationPresetsByOwnerId(
-  ownerId: UUID,
-): Promise<{ ownerId: UUID; id: UUID; name: string }[]> {
-  const response = await dynamoDbClient.send(
-    new QueryCommand({
-      TableName: process.env.DYNAMODB_TABLE_NAME_CSV_EVALUATION_PRESETS,
-      IndexName: "OwnerIdIndex",
-      Select: "ALL_PROJECTED_ATTRIBUTES",
-      KeyConditionExpression: "OwnerId = :OwnerId",
-      ExpressionAttributeValues: {
-        ":OwnerId": { S: ownerId },
-      },
-    }),
-  );
-
-  return (response.Items ?? []).map((item) => {
-    return {
-      ownerId: asUUID(item.OwnerId!.S!),
-      id: asUUID(item.Id!.S!),
-      name: item.Name!.S!,
-    };
-  });
-}
+export type CsvEvaluationPresetShape = {
+  id: string;
+  ownerId: string;
+  spaceId: string;
+  name: string;
+  csvString: string;
+  configContentVersion: string;
+  configContentV1: string;
+  createdAt: number;
+  updatedAt: number;
+};

@@ -189,3 +189,4 @@ yarn-error.log*
 
 .artifacts
 .environments
+.vscode

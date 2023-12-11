@@ -1,14 +1,15 @@
 import {
-  findCSVEvaluationPresetById,
-  queryCsvEvaluationPresetsBySpaceId,
+  CsvEvaluationPresetEntity,
+  CsvEvaluationPresetsTable,
 } from "../models/csv-evaluation-preset";
-import { querySpacesByOwnerId } from "../models/space";
-import { asUUID } from "../models/types";
+import { SpaceEntity } from "../models/space";
 import {
   BuilderType,
-  ContentVersion,
   CsvEvaluationPreset,
+  CsvEvaluationPresetFromSpaceIdIndex,
+  CsvEvaluationPresetFull,
   Space,
+  SpaceContentVersion,
   User,
 } from "./graphql-types";
 
@@ -38,7 +39,15 @@ export default function addObjectTypes(builder: BuilderType) {
         spaces: t.field({
           type: [Space],
           async resolve(parent, args, context) {
-            const spaces = await querySpacesByOwnerId(parent.dbUser.id);
+            const response = await SpaceEntity.query(parent.dbUser.id, {
+              index: "OwnerIdIndex",
+              // Sort by UpdatedAt in descending order.
+              // (OwnerIdIndex is using UpdatedAt as the sort key.)
+              reverse: true,
+            });
+
+            const spaces = response.Items ?? [];
+
             return spaces.map((space) => new Space(space));
           },
         }),
@@ -53,13 +62,19 @@ export default function addObjectTypes(builder: BuilderType) {
         id: t.exposeID("id"),
         name: t.exposeString("name"),
         contentVersion: t.field({
-          type: ContentVersion,
+          type: SpaceContentVersion,
           resolve(parent, args, context) {
             return parent.contentVersion;
           },
         }),
-        content: t.exposeString("content", { nullable: true }),
-        flowContent: t.exposeString("flowContent", { nullable: true }),
+        content: t.string({
+          nullable: true,
+          resolve: () => null,
+        }),
+        flowContent: t.string({
+          nullable: true,
+          resolve: () => null,
+        }),
         contentV3: t.exposeString("contentV3", { nullable: true }),
         updatedAt: t.field({
           type: "DateTime",
@@ -68,60 +83,98 @@ export default function addObjectTypes(builder: BuilderType) {
           },
         }),
         csvEvaluationPresets: t.field({
-          type: ["CSVEvaluationPreset"],
+          type: [CsvEvaluationPreset],
           async resolve(parent, args, context) {
-            const csvEvaluationPresets =
-              await queryCsvEvaluationPresetsBySpaceId(asUUID(parent.id));
+            // TODO: Sort by updatedAt?
+            const response = await CsvEvaluationPresetsTable.query(parent.id, {
+              index: "SpaceIdIndex",
+            });
 
-            // TODO: Improve the efficiency of this query.
-            return await Promise.all(
-              csvEvaluationPresets.map(async (csvEvaluationPreset) => {
-                const dbCsvEvaluationPreset = await findCSVEvaluationPresetById(
-                  csvEvaluationPreset.id,
-                );
-                return new CsvEvaluationPreset(dbCsvEvaluationPreset!);
-              }),
-            );
+            // console.log("csvEvaluationPresets", response);
+
+            const items = response.Items ?? [];
+
+            return items.map((csvEvaluationPreset) => {
+              return new CsvEvaluationPresetFromSpaceIdIndex({
+                spaceId: parent.id as string,
+                id: csvEvaluationPreset.id as string,
+                name: csvEvaluationPreset.name as string,
+              });
+            });
           },
         }),
-        // TODO: This should be null, fix the client side.
+        // TODO: This should be null, fix the client side first then fix here.
         csvEvaluationPreset: t.field({
-          type: "CSVEvaluationPreset",
+          type: CsvEvaluationPreset,
           args: {
             id: t.arg({ type: "ID", required: true }),
           },
           async resolve(parent, args, context) {
-            const dbCsvEvalutionPreset = await findCSVEvaluationPresetById(
-              args.id as string,
-            );
-            return new CsvEvaluationPreset(dbCsvEvalutionPreset!);
+            const { Item: dbCsvEvaluationPreset } =
+              await CsvEvaluationPresetEntity.get({ id: args.id as string });
+
+            if (dbCsvEvaluationPreset == null) {
+              return null;
+            }
+
+            return new CsvEvaluationPresetFull(dbCsvEvaluationPreset);
           },
         }),
       };
     },
   });
 
-  builder.objectType("QuerySpaceResult", {
+  builder.objectType(CsvEvaluationPreset, {
+    name: "CSVEvaluationPreset",
     fields(t) {
       return {
-        space: t.field({
-          type: Space,
+        id: t.id({
           resolve(parent, args, context) {
-            return parent.space;
+            if (
+              parent instanceof CsvEvaluationPresetFull ||
+              parent instanceof CsvEvaluationPresetFromSpaceIdIndex
+            ) {
+              return parent.id;
+            } else {
+              throw new Error(`Invalid parent: ${parent}`);
+            }
           },
         }),
-        isReadOnly: t.exposeBoolean("isReadOnly"),
-      };
-    },
-  });
-
-  builder.objectType("CSVEvaluationPreset", {
-    fields(t) {
-      return {
-        id: t.exposeID("id"),
-        name: t.exposeString("name"),
-        csvContent: t.exposeString("csvContent"),
-        configContent: t.exposeString("configContent", { nullable: true }),
+        name: t.string({
+          resolve(parent, args, context) {
+            if (
+              parent instanceof CsvEvaluationPresetFull ||
+              parent instanceof CsvEvaluationPresetFromSpaceIdIndex
+            ) {
+              return parent.name;
+            } else {
+              throw new Error(`Invalid parent: ${parent}`);
+            }
+          },
+        }),
+        csvContent: t.string({
+          async resolve(parent, args, context) {
+            if (parent instanceof CsvEvaluationPresetFull) {
+              return parent.csvString;
+            } else if (parent instanceof CsvEvaluationPresetFromSpaceIdIndex) {
+              return await parent.getCsvContent();
+            } else {
+              throw new Error(`Invalid parent: ${parent}`);
+            }
+          },
+        }),
+        configContent: t.string({
+          nullable: true,
+          async resolve(parent, args, context) {
+            if (parent instanceof CsvEvaluationPresetFull) {
+              return parent.configContentV1;
+            } else if (parent instanceof CsvEvaluationPresetFromSpaceIdIndex) {
+              return await parent.getConfigContent();
+            } else {
+              throw new Error(`Invalid parent: ${parent}`);
+            }
+          },
+        }),
       };
     },
   });

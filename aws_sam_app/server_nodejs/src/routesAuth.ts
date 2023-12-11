@@ -1,7 +1,7 @@
 import { Express, Response } from "express";
-import { BaseClient, generators, Issuer } from "openid-client";
-import { attachUser, RequestWithUser } from "./middleware/user.js";
-import { createOrmUserInstance } from "./models/user.js";
+import { BaseClient, Issuer, generators } from "openid-client";
+import { RequestWithUser, attachUser } from "./middleware/user.js";
+import { UserEntity } from "./models/user.js";
 import { RequestWithSession } from "./types.js";
 
 async function getAuthClient() {
@@ -66,32 +66,31 @@ export default function setupAuth(app: Express) {
 
     const idToken = tokenSet.claims();
 
-    const dbUser = createOrmUserInstance({
-      name: idToken.name ?? null,
-      email: idToken.email ?? null,
-      profilePictureUrl: idToken.picture ?? null,
-      auth0UserId: idToken.sub,
-      isUserPlaceholder: false,
-      placeholderClientToken: null,
-    });
+    const dbUser = UserEntity.parse(
+      UserEntity.putParams({
+        isUserPlaceholder: false,
+        name: idToken.name,
+        email: idToken.email,
+        profilePictureUrl: idToken.picture,
+        auth0UserId: idToken.sub,
+      }),
+    );
 
-    await dbUser.save();
+    await UserEntity.put(dbUser);
 
-    req.session.userId = dbUser.id!;
+    req.session.userId = dbUser.id;
 
     res.redirect(process.env.AUTH_LOGIN_FINISH_REDIRECT_URL);
   });
 
-  app.get("/logout", attachUser, async (req: RequestWithUser, res) => {
+  app.get("/logout", async (req: RequestWithSession, res) => {
     const idToken = req.session?.idToken;
 
-    // SECTION: Logout locally
+    // ANCHOR: Logout locally
 
     req.session = null;
 
-    // !SECTION
-
-    // SECTION: Logout from Auth0
+    // ANCHOR: Logout from Auth0 and between Auth0 and IDPs
 
     if (idToken == null) {
       res.redirect(process.env.AUTH_LOGOUT_FINISH_REDIRECT_URL);
@@ -110,8 +109,6 @@ export default function setupAuth(app: Express) {
         process.env.AUTH0_DOMAIN
       }/oidc/logout?${searchParams.toString()}`,
     );
-
-    // !SECTION
   });
 
   app.get("/hello", attachUser, async (req: RequestWithUser, res) => {

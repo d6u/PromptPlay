@@ -51,14 +51,19 @@ import { client } from "./shared.js";
       AttributeDefinitions: [
         { AttributeName: "Id", AttributeType: "S" },
         { AttributeName: "OwnerId", AttributeType: "S" },
+        // Store unix timestamp in milliseconds
+        // (new Date().getTime() returns milliseconds).
+        { AttributeName: "UpdatedAt", AttributeType: "N" },
       ],
       KeySchema: [{ AttributeName: "Id", KeyType: "HASH" }],
       GlobalSecondaryIndexes: [
+        // This index is used to query spaces by owner ID for dashboard view.
         {
           IndexName: "OwnerIdIndex",
           KeySchema: [
             { AttributeName: "OwnerId", KeyType: "HASH" },
-            { AttributeName: "Id", KeyType: "RANGE" },
+            // Sort by UpdatedAt required by the dashboard view.
+            { AttributeName: "UpdatedAt", KeyType: "RANGE" },
           ],
           Projection: {
             ProjectionType: "ALL",

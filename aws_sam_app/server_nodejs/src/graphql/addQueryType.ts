@@ -1,9 +1,24 @@
-import { findSpaceById } from "../models/space.js";
-import { asUUID } from "../models/types.js";
-import { getUserIdByPlaceholderUserToken } from "../models/user.js";
+import { SpaceEntity } from "../models/space.js";
+import { UsersTable } from "../models/user.js";
 import { BuilderType, Space, User } from "./graphql-types.js";
 
 export default function addQueryType(builder: BuilderType) {
+  const QuerySpaceResult = builder
+    .objectRef<QuerySpaceResultShape>("QuerySpaceResult")
+    .implement({
+      fields(t) {
+        return {
+          space: t.field({
+            type: Space,
+            resolve(parent, args, context) {
+              return parent.space;
+            },
+          }),
+          isReadOnly: t.exposeBoolean("isReadOnly"),
+        };
+      },
+    });
+
   builder.queryType({
     fields(t) {
       return {
@@ -31,7 +46,8 @@ export default function addQueryType(builder: BuilderType) {
             "When PlaceholderUserToken header is present and the token is not mapped to a user",
           async resolve(parent, args, context) {
             const placeholderUserToken = context.req.header(
-              "PlaceholderUserToken",
+              // NOTE: This header name is in lower case.
+              "placeholderusertoken",
             );
 
             if (placeholderUserToken == null) {
@@ -40,11 +56,12 @@ export default function addQueryType(builder: BuilderType) {
               return false;
             }
 
-            const userId = await getUserIdByPlaceholderUserToken(
-              asUUID(placeholderUserToken),
-            );
+            const response = await UsersTable.query(placeholderUserToken, {
+              index: "PlaceholderClientTokenIndex",
+              limit: 1,
+            });
 
-            return userId == null;
+            return response.Items?.length === 0;
           },
         }),
         user: t.field({
@@ -57,16 +74,18 @@ export default function addQueryType(builder: BuilderType) {
           },
         }),
         space: t.field({
-          type: "QuerySpaceResult",
+          type: QuerySpaceResult,
           nullable: true,
           args: {
             id: t.arg({ type: "UUID", required: true }),
           },
           async resolve(parent, args, context) {
-            const dbSpace = await findSpaceById(args.id);
+            const { Item: dbSpace } = await SpaceEntity.get({ id: args.id });
+
             if (dbSpace == null) {
               return null;
             }
+
             return {
               space: new Space(dbSpace),
               isReadOnly:
@@ -79,3 +98,8 @@ export default function addQueryType(builder: BuilderType) {
     },
   });
 }
+
+type QuerySpaceResultShape = {
+  isReadOnly: boolean;
+  space: Space;
+};

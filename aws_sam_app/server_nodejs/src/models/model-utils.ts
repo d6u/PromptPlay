@@ -1,21 +1,14 @@
-import { nullThrow } from "../utils.js";
-import {
-  createOrmSpaceInstance,
-  OrmContentVersion,
-  OrmSpace,
-} from "./space.js";
-import { OrmUser } from "./user.js";
+import { DbSpaceContentVersion, SpaceShape } from "./space.js";
 
-export function createSpaceWithExampleContent(dbUser: OrmUser): OrmSpace {
-  const dbSpace = createOrmSpaceInstance({
+export function createSpaceWithExampleContent(
+  dbUserId: string,
+): Omit<SpaceShape, "id" | "createdAt" | "updatedAt"> {
+  return {
+    ownerId: dbUserId,
     name: "Example Space",
-    ownerId: nullThrow(dbUser.id),
-    contentVersion: OrmContentVersion.v3,
-    contentV2: null,
+    contentVersion: DbSpaceContentVersion.v3,
     contentV3: JSON.stringify(createExampleSpaceContentV3()),
-  });
-
-  return dbSpace;
+  };
 }
 
 function createExampleSpaceContentV3(): Record<string, unknown> {

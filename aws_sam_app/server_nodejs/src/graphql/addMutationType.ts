@@ -1,49 +1,103 @@
+import { A, D, F } from "@mobily/ts-belt";
 import { v4 as uuidv4 } from "uuid";
 import {
-  createCSVEvaluationPreset,
-  deleteCsvEvaluationPresetById,
-  findCSVEvaluationPresetById,
+  CsvEvaluationPresetEntity,
+  CsvEvaluationPresetShape,
+  DbCsvEvaluationPresetConfigContentVersion,
 } from "../models/csv-evaluation-preset.js";
 import { createSpaceWithExampleContent } from "../models/model-utils.js";
 import {
-  OrmContentVersion,
-  createOrmSpaceInstance,
-  deleteSpaceById,
-  findSpaceById,
-  querySpacesByOwnerId,
+  DbSpaceContentVersion,
+  SpaceEntity,
+  SpaceShape,
+  SpacesTable,
 } from "../models/space.js";
-import { UUID, asUUID } from "../models/types.js";
+import { UserEntity, UsersTable } from "../models/user.js";
+import { nullThrow } from "../utils/utils.js";
 import {
-  createOrmUserInstance,
-  deleteUserById,
-  getUserIdByPlaceholderUserToken,
-} from "../models/user.js";
-import { nullThrow } from "../utils.js";
-import { BuilderType, ContentVersion, Space, User } from "./graphql-types.js";
+  BuilderType,
+  CsvEvaluationPreset,
+  CsvEvaluationPresetFromSpaceIdIndex,
+  CsvEvaluationPresetFull,
+  Space,
+  SpaceContentVersion,
+  User,
+} from "./graphql-types.js";
 
 export default function addMutationType(builder: BuilderType) {
+  const CreatePlaceholderUserAndExampleSpaceResult = builder
+    .objectRef<CreatePlaceholderUserAndExampleSpaceResultShape>(
+      "CreatePlaceholderUserAndExampleSpaceResult",
+    )
+    .implement({
+      fields(t) {
+        return {
+          placeholderClientToken: t.exposeID("placeholderClientToken"),
+          space: t.field({
+            type: Space,
+            resolve(parent) {
+              return parent.space;
+            },
+          }),
+        };
+      },
+    });
+
+  const CreateCsvEvaluationPresetResult = builder
+    .objectRef<CreateCsvEvaluationPresetResultShape>(
+      "CreateCsvEvaluationPresetResult",
+    )
+    .implement({
+      fields(t) {
+        return {
+          space: t.field({
+            type: Space,
+            resolve(parent) {
+              return parent.space;
+            },
+          }),
+          csvEvaluationPreset: t.field({
+            type: CsvEvaluationPreset,
+            resolve(parent) {
+              if (
+                parent.csvEvaluationPreset instanceof
+                  CsvEvaluationPresetFromSpaceIdIndex ||
+                parent.csvEvaluationPreset instanceof CsvEvaluationPresetFull
+              ) {
+                return parent.csvEvaluationPreset;
+              } else {
+                throw new Error(
+                  `Invalid parent.csvEvaluationPreset: ${parent.csvEvaluationPreset}`,
+                );
+              }
+            },
+          }),
+        };
+      },
+    });
+
   builder.mutationType({
     fields(t) {
       return {
         createPlaceholderUserAndExampleSpace: t.field({
-          type: "CreatePlaceholderUserAndExampleSpaceResult",
+          type: CreatePlaceholderUserAndExampleSpaceResult,
           async resolve(parent, args, context) {
             let dbUser = context.req.dbUser;
-            let placeholderClientToken: UUID;
+            let placeholderClientToken: string;
 
             if (dbUser == null) {
-              placeholderClientToken = asUUID(uuidv4());
+              placeholderClientToken = uuidv4();
 
-              dbUser = createOrmUserInstance({
-                isUserPlaceholder: true,
-                name: null,
-                email: null,
-                profilePictureUrl: null,
-                auth0UserId: null,
-                placeholderClientToken: placeholderClientToken,
-              });
+              // NOTE: Because put doesn't return the default value,
+              // e.g. createdAt, use this as a workaround.
+              dbUser = UserEntity.parse(
+                UserEntity.putParams({
+                  isUserPlaceholder: true,
+                  placeholderClientToken,
+                }).Item!,
+              );
 
-              await dbUser.save();
+              await UserEntity.put(dbUser);
             } else {
               placeholderClientToken = nullThrow(
                 dbUser.placeholderClientToken,
@@ -51,9 +105,15 @@ export default function addMutationType(builder: BuilderType) {
               );
             }
 
-            const dbSpace = createSpaceWithExampleContent(dbUser);
+            const rawDbSpace = createSpaceWithExampleContent(dbUser.id);
 
-            await dbSpace.save();
+            // NOTE: Because put doesn't return the default value,
+            // e.g. createdAt, use this as a workaround.
+            const dbSpace = SpaceEntity.parse(
+              SpaceEntity.putParams(rawDbSpace).Item!,
+            );
+
+            await SpaceEntity.put(dbSpace);
 
             return {
               placeholderClientToken,
@@ -61,44 +121,66 @@ export default function addMutationType(builder: BuilderType) {
             };
           },
         }),
-
         mergePlaceholderUserWithLoggedInUser: t.field({
           type: User,
           nullable: true,
           args: {
-            placeholderUserToken: t.arg({
-              type: "String",
-              required: true,
-            }),
+            placeholderUserToken: t.arg({ type: "String", required: true }),
           },
           async resolve(parent, args, context) {
             // ANCHOR: Make sure there is a logged in user to merge to
+
             const dbUser = context.req.dbUser;
+
             if (dbUser == null) {
               return null;
             }
 
             // ANCHOR: Make sure the provided placeholder user exists
-            const placeholderUserId = await getUserIdByPlaceholderUserToken(
-              asUUID(args.placeholderUserToken),
+
+            const queryPlaceholderUserResponse = await UsersTable.query(
+              args.placeholderUserToken,
+              { index: "PlaceholderClientTokenIndex", limit: 1 },
             );
-            if (placeholderUserId == null) {
+
+            if (
+              queryPlaceholderUserResponse.Items == null ||
+              queryPlaceholderUserResponse.Items.length === 0
+            ) {
               return null;
             }
 
             // ANCHOR: Merge the placeholder user's spaces to the logged in user
-            const spaces = await querySpacesByOwnerId(placeholderUserId);
-            await Promise.all(
-              spaces.map((space) => {
-                space.ownerId = dbUser.id;
-                return space.save();
-              }),
+
+            const placeholderUserId = queryPlaceholderUserResponse.Items[0]![
+              "Id"
+            ] as string;
+
+            const response = await SpaceEntity.query(placeholderUserId, {
+              index: "OwnerIdIndex",
+              // Parse works because OwnerIdIndex projects all the attributes.
+              parseAsEntity: "Space",
+            });
+
+            const spaces = F.toMutable(
+              A.map(response.Items ?? [], D.set("ownerId", dbUser.id)),
             );
 
             // ANCHOR: Delete the placeholder user
-            await deleteUserById(placeholderUserId);
+
+            await SpacesTable.batchWrite(
+              spaces
+                // Using PutItem will replace the item with the same primary
+                // key. This will update `createdAt` that should have been
+                // immutable, which is OK, because we are merging spaces into
+                // the new user. It probably doesn't matter to throw away
+                // `createdAt` value.
+                .map((space) => SpaceEntity.putBatch(space))
+                .concat([UserEntity.deleteBatch({ id: placeholderUserId })]),
+            );
 
             // ANCHOR: Finish
+
             return new User(dbUser);
           },
         }),
@@ -112,17 +194,18 @@ export default function addMutationType(builder: BuilderType) {
               return null;
             }
 
-            const dbSpace = createOrmSpaceInstance({
-              ownerId: dbUser.id,
-              name: "Untitled",
-              contentVersion: OrmContentVersion.v3,
-              contentV2: null,
-              contentV3: JSON.stringify({}),
-              createdAt: new Date(),
-              updatedAt: new Date(),
-            });
+            // NOTE: Because put doesn't return the default value,
+            // e.g. createdAt, use this as a workaround.
+            const dbSpace = SpaceEntity.parse(
+              SpaceEntity.putParams({
+                ownerId: dbUser.id,
+                name: "Untitled",
+                contentVersion: DbSpaceContentVersion.v3,
+                contentV3: JSON.stringify({}),
+              }).Item!,
+            );
 
-            await dbSpace.save();
+            await SpaceEntity.put(dbSpace);
 
             return new Space(dbSpace);
           },
@@ -132,7 +215,7 @@ export default function addMutationType(builder: BuilderType) {
           args: {
             id: t.arg({ type: "ID", required: true }),
             name: t.arg({ type: "String" }),
-            contentVersion: t.arg({ type: ContentVersion }),
+            contentVersion: t.arg({ type: SpaceContentVersion }),
             content: t.arg({ type: "String" }),
             flowContent: t.arg({ type: "String" }),
             contentV3: t.arg({ type: "String" }),
@@ -145,49 +228,50 @@ export default function addMutationType(builder: BuilderType) {
               return null;
             }
 
-            const dbSpace = await findSpaceById(args.id as string);
+            let { Item: oldDbSpace } = await SpaceEntity.get({
+              id: args.id as string,
+            });
 
-            if (dbSpace == null) {
+            if (oldDbSpace == null) {
               return null;
             }
+
+            const newDbSpace: Partial<SpaceShape> & { id: string } = {
+              id: oldDbSpace.id,
+            };
 
             if (args.name !== undefined) {
               if (args.name === null) {
                 throw new Error("name cannot be null");
               } else {
-                dbSpace.name = args.name;
+                newDbSpace.name = args.name;
               }
             }
 
             if (args.contentVersion !== undefined) {
               if (args.contentVersion === null) {
                 throw new Error("contentVersion cannot be null");
-              } else if (args.contentVersion === ContentVersion.v1) {
-                throw new Error("contentVersion cannot be v1");
-              } else if (args.contentVersion === ContentVersion.v2) {
-                throw new Error("contentVersion cannot be v2");
+              } else if (args.contentVersion === SpaceContentVersion.v3) {
+                newDbSpace.contentVersion = DbSpaceContentVersion.v3;
               } else {
-                dbSpace.contentVersion = OrmContentVersion.v3;
+                throw new Error(
+                  `Invalid contentVersion: ${args.contentVersion}`,
+                );
               }
             }
 
-            if (args.content !== undefined) {
-              dbSpace.contentV2 = args.content;
-            }
-
-            if (args.flowContent !== undefined) {
-              dbSpace.contentV2 = args.flowContent;
-            }
-
             if (args.contentV3 !== undefined) {
-              dbSpace.contentV3 = args.contentV3;
+              newDbSpace.contentV3 = nullThrow(args.contentV3);
             }
 
-            await dbSpace.save();
+            const response = await SpaceEntity.update(newDbSpace, {
+              returnValues: "ALL_NEW",
+            });
 
-            return new Space(dbSpace);
+            return new Space(nullThrow(response.Attributes));
           },
         }),
+        // TODO: Implement delete space mutation in the frontend
         deleteSpace: t.boolean({
           nullable: true,
           args: {
@@ -200,19 +284,19 @@ export default function addMutationType(builder: BuilderType) {
               return false;
             }
 
-            const dbSpace = await findSpaceById(dbUser.id);
+            const { Item: dbSpace } = await SpaceEntity.get({ id: dbUser.id });
 
             if (dbSpace == null) {
               return false;
             }
 
-            await deleteSpaceById(dbSpace.id);
+            await SpaceEntity.delete({ id: dbSpace.id });
 
             return true;
           },
         }),
         createCsvEvaluationPreset: t.field({
-          type: "CreateCsvEvaluationPresetResult",
+          type: CreateCsvEvaluationPresetResult,
           nullable: true,
           args: {
             spaceId: t.arg({ type: "ID", required: true }),
@@ -227,30 +311,36 @@ export default function addMutationType(builder: BuilderType) {
               return null;
             }
 
-            const dbSpace = await findSpaceById(asUUID(args.spaceId as string));
+            const { Item: dbSpace } = await SpaceEntity.get({
+              id: args.spaceId as string,
+            });
 
             if (dbSpace == null) {
               return null;
             }
 
-            const dbPreset = createCSVEvaluationPreset({
-              ownerId: dbUser.id,
-              spaceId: dbSpace.id,
-              name: args.name,
-              csvContent: args.csvContent ?? "",
-              configContent: args.configContent,
-            });
+            const dbPreset = CsvEvaluationPresetEntity.parse(
+              CsvEvaluationPresetEntity.putParams({
+                ownerId: dbUser.id,
+                spaceId: dbSpace.id,
+                name: args.name,
+                csvString: args.csvContent ?? "",
+                configContentVersion:
+                  DbCsvEvaluationPresetConfigContentVersion.v1,
+                configContentV1: args.configContent ?? "",
+              }),
+            );
 
-            await dbPreset.save();
+            await CsvEvaluationPresetEntity.put(dbPreset);
 
             return {
               space: new Space(dbSpace),
-              csvEvaluationPreset: dbPreset,
+              csvEvaluationPreset: new CsvEvaluationPresetFull(dbPreset),
             };
           },
         }),
         updateCsvEvaluationPreset: t.field({
-          type: "CSVEvaluationPreset",
+          type: CsvEvaluationPreset,
           nullable: true,
           args: {
             presetId: t.arg({ type: "ID", required: true }),
@@ -265,37 +355,46 @@ export default function addMutationType(builder: BuilderType) {
               return null;
             }
 
-            const dbPreset = await findCSVEvaluationPresetById(
-              args.presetId as string,
-            );
+            const { Item: oldDbPreset } = await CsvEvaluationPresetEntity.get({
+              id: args.presetId as string,
+            });
 
-            if (dbPreset == null) {
+            if (oldDbPreset == null) {
               return null;
             }
+
+            const newDbPreset: Partial<CsvEvaluationPresetShape> & {
+              id: string;
+            } = {
+              id: oldDbPreset.id,
+            };
 
             if (args.name !== undefined) {
               if (args.name === null) {
                 throw new Error("name cannot be null");
               } else {
-                dbPreset.name = args.name;
+                newDbPreset.name = args.name;
               }
             }
 
             if (args.csvContent !== undefined) {
               if (args.csvContent === null) {
-                dbPreset.csvContent = "";
+                newDbPreset.csvString = "";
               } else {
-                dbPreset.csvContent = args.csvContent;
+                newDbPreset.csvString = args.csvContent;
               }
             }
 
             if (args.configContent !== undefined) {
-              dbPreset.configContent = args.configContent;
+              newDbPreset.configContentV1 = nullThrow(args.configContent);
             }
 
-            await dbPreset.save();
+            const response = await CsvEvaluationPresetEntity.update(
+              newDbPreset,
+              { returnValues: "ALL_NEW" },
+            );
 
-            return dbPreset;
+            return new CsvEvaluationPresetFull(nullThrow(response.Attributes));
           },
         }),
         deleteCsvEvaluationPreset: t.field({
@@ -311,9 +410,9 @@ export default function addMutationType(builder: BuilderType) {
               return null;
             }
 
-            const dbPreset = await findCSVEvaluationPresetById(
-              asUUID(args.id as string),
-            );
+            const { Item: dbPreset } = await CsvEvaluationPresetEntity.get({
+              id: args.id as string,
+            });
 
             if (dbPreset == null) {
               return null;
@@ -321,11 +420,14 @@ export default function addMutationType(builder: BuilderType) {
 
             const spaceId = dbPreset.spaceId;
 
-            await deleteCsvEvaluationPresetById(dbPreset.id);
+            await CsvEvaluationPresetEntity.delete({ id: dbPreset.id });
 
-            const dbSpace = await findSpaceById(spaceId);
+            const { Item: dbSpace } = await SpaceEntity.get({ id: spaceId });
 
             if (dbSpace == null) {
+              console.warn(
+                "Space not found when deleting CSV Evaluation Preset",
+              );
               return null;
             }
 
@@ -335,37 +437,14 @@ export default function addMutationType(builder: BuilderType) {
       };
     },
   });
-
-  builder.objectType("CreatePlaceholderUserAndExampleSpaceResult", {
-    fields(t) {
-      return {
-        placeholderClientToken: t.exposeID("placeholderClientToken"),
-        space: t.field({
-          type: Space,
-          resolve(parent) {
-            return parent.space;
-          },
-        }),
-      };
-    },
-  });
-
-  builder.objectType("CreateCsvEvaluationPresetResult", {
-    fields(t) {
-      return {
-        space: t.field({
-          type: Space,
-          resolve(parent) {
-            return parent.space;
-          },
-        }),
-        csvEvaluationPreset: t.field({
-          type: "CSVEvaluationPreset",
-          resolve(parent) {
-            return parent.csvEvaluationPreset;
-          },
-        }),
-      };
-    },
-  });
 }
+
+type CreatePlaceholderUserAndExampleSpaceResultShape = {
+  placeholderClientToken: string;
+  space: Space;
+};
+
+type CreateCsvEvaluationPresetResultShape = {
+  space: Space;
+  csvEvaluationPreset: CsvEvaluationPreset;
+};
