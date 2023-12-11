@@ -41,6 +41,9 @@ import { client } from "./shared.js";
     }),
   );
 
+  // We are storing the placeholder users in a separate table to avoid
+  // delays in propagating users table changes to GSI when dealing with new
+  // placeholder users.
   await client.send(
     new CreateTableCommand({
       TableName: process.env.DYNAMODB_TABLE_NAME_PLACEHOLDER_USERS,
@@ -98,6 +101,7 @@ import { client } from "./shared.js";
       ],
       KeySchema: [{ AttributeName: "Id", KeyType: "HASH" }],
       GlobalSecondaryIndexes: [
+        // Finding all presets of a space.
         {
           IndexName: "SpaceIdIndex",
           KeySchema: [
@@ -109,6 +113,7 @@ import { client } from "./shared.js";
             NonKeyAttributes: ["Name"],
           },
         },
+        // This is not used yet.
         {
           IndexName: "OwnerIdIndex",
           KeySchema: [
