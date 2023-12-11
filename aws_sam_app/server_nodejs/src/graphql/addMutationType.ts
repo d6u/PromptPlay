@@ -21,11 +21,52 @@ import {
 } from "./graphql-types.js";
 
 export default function addMutationType(builder: BuilderType) {
+  const CreatePlaceholderUserAndExampleSpaceResult = builder
+    .objectRef<CreatePlaceholderUserAndExampleSpaceResultShape>(
+      "CreatePlaceholderUserAndExampleSpaceResult",
+    )
+    .implement({
+      fields(t) {
+        return {
+          placeholderClientToken: t.exposeID("placeholderClientToken"),
+          space: t.field({
+            type: Space,
+            resolve(parent) {
+              return parent.space;
+            },
+          }),
+        };
+      },
+    });
+
+  const CreateCsvEvaluationPresetResult = builder
+    .objectRef<CreateCsvEvaluationPresetResultShape>(
+      "CreateCsvEvaluationPresetResult",
+    )
+    .implement({
+      fields(t) {
+        return {
+          space: t.field({
+            type: Space,
+            resolve(parent) {
+              return parent.space;
+            },
+          }),
+          csvEvaluationPreset: t.field({
+            type: CsvEvaluationPreset,
+            resolve(parent) {
+              return parent.csvEvaluationPreset;
+            },
+          }),
+        };
+      },
+    });
+
   builder.mutationType({
     fields(t) {
       return {
         createPlaceholderUserAndExampleSpace: t.field({
-          type: "CreatePlaceholderUserAndExampleSpaceResult",
+          type: CreatePlaceholderUserAndExampleSpaceResult,
           async resolve(parent, args, context) {
             let dbUser = context.req.dbUser;
             let placeholderClientToken: string;
@@ -33,12 +74,14 @@ export default function addMutationType(builder: BuilderType) {
             if (dbUser == null) {
               placeholderClientToken = uuidv4();
 
+              const timestamp = new Date().toISOString();
+
               dbUser = {
                 id: uuidv4(),
                 isUserPlaceholder: true,
-                placeholderClientToken: placeholderClientToken,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
+                placeholderClientToken,
+                createdAt: timestamp,
+                updatedAt: timestamp,
               };
 
               await UserEntity.put(dbUser);
@@ -59,7 +102,6 @@ export default function addMutationType(builder: BuilderType) {
             };
           },
         }),
-
         mergePlaceholderUserWithLoggedInUser: t.field({
           type: User,
           nullable: true,
@@ -108,6 +150,10 @@ export default function addMutationType(builder: BuilderType) {
 
             const r = await SpacesTable.batchWrite(
               spaces
+                // Using PutItem will replace the item with the same primary
+                // key. This will update createdAt that should be immutable,
+                // which is OK, because we are merging spaces into the new user.
+                // It probably doesn't matter to throwaway createdAt value.
                 .map((space) => SpaceEntity.putBatch(space))
                 .concat([UserEntity.deleteBatch({ id: placeholderUserId })]),
             );
@@ -127,14 +173,16 @@ export default function addMutationType(builder: BuilderType) {
               return null;
             }
 
+            const timestamp = new Date().toISOString();
+
             const dbSpace = {
               id: uuidv4(),
               ownerId: dbUser.id,
               name: "Untitled",
               contentVersion: DbSpaceContentVersion.v3,
               contentV3: JSON.stringify({}),
-              createdAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString(),
+              createdAt: timestamp,
+              updatedAt: timestamp,
             };
 
             SpaceEntity.put(dbSpace);
@@ -221,7 +269,7 @@ export default function addMutationType(builder: BuilderType) {
           },
         }),
         createCsvEvaluationPreset: t.field({
-          type: "CreateCsvEvaluationPresetResult",
+          type: CreateCsvEvaluationPresetResult,
           nullable: true,
           args: {
             spaceId: t.arg({ type: "ID", required: true }),
@@ -244,6 +292,8 @@ export default function addMutationType(builder: BuilderType) {
               return null;
             }
 
+            const timestamp = new Date().toISOString();
+
             const dbPreset = {
               id: uuidv4(),
               ownerId: dbUser.id,
@@ -253,8 +303,8 @@ export default function addMutationType(builder: BuilderType) {
               configContentVersion:
                 DbCsvEvaluationPresetConfigContentVersion.v1,
               configContentV1: args.configContent ?? "",
-              createdAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString(),
+              createdAt: timestamp,
+              updatedAt: timestamp,
             };
 
             await CsvEvaluationPresetEntity.put(dbPreset);
@@ -351,37 +401,14 @@ export default function addMutationType(builder: BuilderType) {
       };
     },
   });
-
-  builder.objectType("CreatePlaceholderUserAndExampleSpaceResult", {
-    fields(t) {
-      return {
-        placeholderClientToken: t.exposeID("placeholderClientToken"),
-        space: t.field({
-          type: Space,
-          resolve(parent) {
-            return parent.space;
-          },
-        }),
-      };
-    },
-  });
-
-  builder.objectType("CreateCsvEvaluationPresetResult", {
-    fields(t) {
-      return {
-        space: t.field({
-          type: Space,
-          resolve(parent) {
-            return parent.space;
-          },
-        }),
-        csvEvaluationPreset: t.field({
-          type: CsvEvaluationPreset,
-          resolve(parent) {
-            return parent.csvEvaluationPreset;
-          },
-        }),
-      };
-    },
-  });
 }
+
+type CreatePlaceholderUserAndExampleSpaceResultShape = {
+  placeholderClientToken: string;
+  space: Space;
+};
+
+type CreateCsvEvaluationPresetResultShape = {
+  space: Space;
+  csvEvaluationPreset: CsvEvaluationPreset;
+};

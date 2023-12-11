@@ -3,6 +3,22 @@ import { UsersTable } from "../models/user.js";
 import { BuilderType, Space, User } from "./graphql-types.js";
 
 export default function addQueryType(builder: BuilderType) {
+  const QuerySpaceResult = builder
+    .objectRef<QuerySpaceResultShape>("QuerySpaceResult")
+    .implement({
+      fields(t) {
+        return {
+          space: t.field({
+            type: Space,
+            resolve(parent, args, context) {
+              return parent.space;
+            },
+          }),
+          isReadOnly: t.exposeBoolean("isReadOnly"),
+        };
+      },
+    });
+
   builder.queryType({
     fields(t) {
       return {
@@ -56,7 +72,7 @@ export default function addQueryType(builder: BuilderType) {
           },
         }),
         space: t.field({
-          type: "QuerySpaceResult",
+          type: QuerySpaceResult,
           nullable: true,
           args: {
             id: t.arg({ type: "UUID", required: true }),
@@ -80,3 +96,8 @@ export default function addQueryType(builder: BuilderType) {
     },
   });
 }
+
+type QuerySpaceResultShape = {
+  isReadOnly: boolean;
+  space: Space;
+};

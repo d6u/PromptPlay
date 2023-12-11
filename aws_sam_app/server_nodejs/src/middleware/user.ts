@@ -26,7 +26,7 @@ export async function attachUser(
     req.session = null;
   }
 
-  // NOTE: Header name is in lower cases.
+  // NOTE: This header name is in lower cases.
   const placeholderUserToken = req.header("placeholderusertoken");
 
   if (placeholderUserToken != null) {

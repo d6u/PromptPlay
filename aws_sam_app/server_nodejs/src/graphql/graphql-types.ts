@@ -9,11 +9,6 @@ type Context = {
 
 export type Types = {
   Context: Context;
-  Objects: {
-    QuerySpaceResult: QuerySpaceResult;
-    CreatePlaceholderUserAndExampleSpaceResult: CreatePlaceholderUserAndExampleSpaceResult;
-    CreateCsvEvaluationPresetResult: CreateCsvEvaluationPresetResult;
-  };
   Scalars: {
     DateTime: {
       Input: Date;
@@ -131,27 +126,3 @@ export class CsvEvaluationPresetFromSpaceIdIndex extends CsvEvaluationPreset {
     throw new Error("Not implemented");
   }
 }
-
-// !SECTION
-
-export class QuerySpaceResult {
-  constructor({ isReadOnly, space }: { isReadOnly: boolean; space: Space }) {
-    this.isReadOnly = isReadOnly;
-    this.space = space;
-  }
-
-  isReadOnly: boolean;
-  space: Space;
-}
-
-type CreatePlaceholderUserAndExampleSpaceResult = {
-  placeholderClientToken: string;
-  space: Space;
-};
-
-type CreateCsvEvaluationPresetResult = {
-  space: Space;
-  csvEvaluationPreset: CsvEvaluationPreset;
-};
-
-// !SECTION

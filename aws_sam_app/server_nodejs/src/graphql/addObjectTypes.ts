@@ -122,20 +122,6 @@ export default function addObjectTypes(builder: BuilderType) {
     },
   });
 
-  builder.objectType("QuerySpaceResult", {
-    fields(t) {
-      return {
-        space: t.field({
-          type: Space,
-          resolve(parent, args, context) {
-            return parent.space;
-          },
-        }),
-        isReadOnly: t.exposeBoolean("isReadOnly"),
-      };
-    },
-  });
-
   builder.objectType(CsvEvaluationPreset, {
     name: "CSVEvaluationPreset",
     fields(t) {
