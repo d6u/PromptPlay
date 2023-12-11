@@ -1,7 +1,7 @@
 import { Express, Response } from "express";
 import { BaseClient, Issuer, generators } from "openid-client";
 import { RequestWithUser, attachUser } from "./middleware/user.js";
-import { UserEntity } from "./models/user.js";
+import { UserEntity, UsersTable } from "./models/user.js";
 import { RequestWithSession } from "./types.js";
 
 async function getAuthClient() {
@@ -69,7 +69,7 @@ export default function setupAuth(app: Express) {
     // NOTE: DynamoDB GSI is eventually consistent, so there is a rare chance
     // that we cannot find the user yet. We will leave this here until we
     // switch off DynamoDB.
-    const response = await UserEntity.query(idToken.sub, {
+    const response = await UsersTable.query(idToken.sub, {
       index: "Auth0UserIdIndex",
       limit: 1,
     });
@@ -94,11 +94,7 @@ export default function setupAuth(app: Express) {
 
       redirectUrl += "?new_user=true";
     } else {
-      // NOTE: This is a typing bug in dynamodb-toolbox.
-      // The Auth0UserIdIndex has projection keys only type. Also UserEntity
-      // won't parse the result, thus the Id field will be index by "Id"
-      // instead of "id".
-      const userId = (response.Items![0] as unknown as { Id: string })["Id"];
+      const userId = response.Items![0]!["Id"] as string;
 
       await UserEntity.update({
         id: userId,
