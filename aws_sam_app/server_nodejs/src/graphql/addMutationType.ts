@@ -1,18 +1,18 @@
 import { A, D, F } from "@mobily/ts-belt";
-import { v4 as uuidv4 } from "uuid";
 import {
   CsvEvaluationPresetEntity,
   CsvEvaluationPresetShape,
   DbCsvEvaluationPresetConfigContentVersion,
 } from "../models/csv-evaluation-preset.js";
 import { createSpaceWithExampleContent } from "../models/model-utils.js";
+import { PlaceholderUserEntity } from "../models/placeholder-user.js";
 import {
   DbSpaceContentVersion,
   SpaceEntity,
   SpaceShape,
   SpacesTable,
 } from "../models/space.js";
-import { UserEntity, UsersTable } from "../models/user.js";
+import { UserEntity } from "../models/user.js";
 import { nullThrow } from "../utils/utils.js";
 import {
   BuilderType,
@@ -86,23 +86,26 @@ export default function addMutationType(builder: BuilderType) {
             let placeholderClientToken: string;
 
             if (dbUser == null) {
-              placeholderClientToken = uuidv4();
-
               // NOTE: Because put doesn't return the default value,
               // e.g. createdAt, use this as a workaround.
-              dbUser = UserEntity.parse(
-                UserEntity.putParams({
-                  isUserPlaceholder: true,
-                  placeholderClientToken,
-                }).Item!,
+              const dbPlaceholderUser = PlaceholderUserEntity.parse(
+                PlaceholderUserEntity.putParams({}).Item!,
               );
 
-              await UserEntity.put(dbUser);
+              await PlaceholderUserEntity.put(dbPlaceholderUser);
+
+              placeholderClientToken = dbPlaceholderUser.placeholderClientToken;
+
+              dbUser = {
+                id: placeholderClientToken,
+                isPlaceholderUser: true,
+              };
             } else {
-              placeholderClientToken = nullThrow(
-                dbUser.placeholderClientToken,
-                "placeholderClientToken should not be null",
-              );
+              if (!dbUser.isPlaceholderUser) {
+                throw new Error("Current user should be a placeholder user");
+              }
+
+              placeholderClientToken = dbUser.id;
             }
 
             const rawDbSpace = createSpaceWithExampleContent(dbUser.id);
@@ -136,25 +139,23 @@ export default function addMutationType(builder: BuilderType) {
               return null;
             }
 
+            if (dbUser.isPlaceholderUser) {
+              throw new Error("Current user should not be a placeholder user");
+            }
+
             // ANCHOR: Make sure the provided placeholder user exists
 
-            const queryPlaceholderUserResponse = await UsersTable.query(
-              args.placeholderUserToken,
-              { index: "PlaceholderClientTokenIndex", limit: 1 },
-            );
+            const { Item: placeholderUser } = await PlaceholderUserEntity.get({
+              placeholderClientToken: args.placeholderUserToken,
+            });
 
-            if (
-              queryPlaceholderUserResponse.Items == null ||
-              queryPlaceholderUserResponse.Items.length === 0
-            ) {
+            if (placeholderUser == null) {
               return null;
             }
 
-            // ANCHOR: Merge the placeholder user's spaces to the logged in user
+            const placeholderUserId = args.placeholderUserToken;
 
-            const placeholderUserId = queryPlaceholderUserResponse.Items[0]![
-              "Id"
-            ] as string;
+            // ANCHOR: Merge the placeholder user's spaces to the logged in user
 
             const response = await SpaceEntity.query(placeholderUserId, {
               index: "OwnerIdIndex",
@@ -176,12 +177,24 @@ export default function addMutationType(builder: BuilderType) {
                 // the new user. It probably doesn't matter to throw away
                 // `createdAt` value.
                 .map((space) => SpaceEntity.putBatch(space))
-                .concat([UserEntity.deleteBatch({ id: placeholderUserId })]),
+                .concat([
+                  PlaceholderUserEntity.deleteBatch({
+                    placeholderClientToken: placeholderUserId,
+                  }),
+                ]),
             );
 
             // ANCHOR: Finish
 
-            return new User(dbUser);
+            const { Item: fullDbUser } = await UserEntity.get({
+              id: dbUser.id,
+            });
+
+            if (fullDbUser == null) {
+              throw new Error("User should not be null");
+            }
+
+            return new User(fullDbUser);
           },
         }),
         createSpace: t.field({

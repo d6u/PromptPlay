@@ -1,10 +1,15 @@
 import { NextFunction, Response } from "express";
-import { UserEntity, UserShape, UsersTable } from "../models/user.js";
+import { PlaceholderUserEntity } from "../models/placeholder-user.js";
+import { UserEntity } from "../models/user.js";
 import { RequestWithSession } from "../types.js";
-import { nullThrow } from "../utils/utils.js";
+
+type DbUserShape = {
+  id: string;
+  isPlaceholderUser: boolean;
+};
 
 export interface RequestWithUser extends RequestWithSession {
-  dbUser?: UserShape;
+  dbUser?: DbUserShape;
 }
 
 export async function attachUser(
@@ -18,7 +23,10 @@ export async function attachUser(
     const { Item: dbUser } = await UserEntity.get({ id: userId });
 
     if (dbUser != null) {
-      req.dbUser = dbUser;
+      req.dbUser = {
+        id: dbUser.id,
+        isPlaceholderUser: false,
+      };
       next();
       return;
     }
@@ -30,17 +38,15 @@ export async function attachUser(
   const placeholderUserToken = req.header("placeholderusertoken");
 
   if (placeholderUserToken != null) {
-    const response = await UsersTable.query(placeholderUserToken, {
-      index: "PlaceholderClientTokenIndex",
-      limit: 1,
+    const { Item: dbPlaceholderUser } = await PlaceholderUserEntity.get({
+      placeholderClientToken: placeholderUserToken,
     });
 
-    if (response.Items?.length === 1) {
-      const { Item: dbUser } = await UserEntity.get({
-        id: response.Items[0]!["Id"] as string,
-      });
-
-      req.dbUser = nullThrow(dbUser);
+    if (dbPlaceholderUser != null) {
+      req.dbUser = {
+        id: dbPlaceholderUser.placeholderClientToken,
+        isPlaceholderUser: true,
+      };
       next();
       return;
     }

@@ -1,5 +1,6 @@
+import { PlaceholderUserEntity } from "../models/placeholder-user.js";
 import { SpaceEntity } from "../models/space.js";
-import { UsersTable } from "../models/user.js";
+import { UserEntity } from "../models/user.js";
 import { BuilderType, Space, User } from "./graphql-types.js";
 
 export default function addQueryType(builder: BuilderType) {
@@ -24,8 +25,12 @@ export default function addQueryType(builder: BuilderType) {
       return {
         hello: t.string({
           resolve(parent, args, context) {
-            if (context.req.dbUser?.name) {
-              return `Hello ${context.req.dbUser.name}!`;
+            if (context.req.dbUser != null) {
+              return `Hello ${
+                context.req.dbUser.isPlaceholderUser
+                  ? "Guest Player 1"
+                  : "Player 1"
+              }!`;
             }
 
             return `Hello World!`;
@@ -37,7 +42,7 @@ export default function addQueryType(builder: BuilderType) {
           resolve(parent, args, context) {
             return (
               context.req.dbUser != null &&
-              !context.req.dbUser.isUserPlaceholder
+              !context.req.dbUser.isPlaceholderUser
             );
           },
         }),
@@ -56,21 +61,43 @@ export default function addQueryType(builder: BuilderType) {
               return false;
             }
 
-            const response = await UsersTable.query(placeholderUserToken, {
-              index: "PlaceholderClientTokenIndex",
-              limit: 1,
-            });
+            const { Item: dbPlaceholderUser } = await PlaceholderUserEntity.get(
+              {
+                placeholderClientToken: placeholderUserToken,
+              },
+            );
 
-            return response.Items?.length === 0;
+            return dbPlaceholderUser == null;
           },
         }),
         user: t.field({
           type: User,
           nullable: true,
           async resolve(parent, args, context) {
-            return context.req.dbUser == null
-              ? null
-              : new User(context.req.dbUser);
+            UserEntity.query({});
+
+            if (context.req.dbUser == null) {
+              return null;
+            }
+
+            if (context.req.dbUser.isPlaceholderUser) {
+              return new User({
+                id: context.req.dbUser.id,
+                // TODO: Remove unused fields from User class.
+                createdAt: 0,
+                updatedAt: 0,
+              });
+            } else {
+              const { Item: dbUser } = await UserEntity.get({
+                id: context.req.dbUser.id,
+              });
+
+              if (dbUser == null) {
+                throw new Error("User should not be null");
+              }
+
+              return new User(dbUser);
+            }
           },
         }),
         space: t.field({

@@ -21,6 +21,12 @@ import { client } from "./shared.js";
 
   await client.send(
     new DeleteTableCommand({
+      TableName: process.env.DYNAMODB_TABLE_NAME_PLACEHOLDER_USERS,
+    }),
+  );
+
+  await client.send(
+    new DeleteTableCommand({
       TableName: process.env.DYNAMODB_TABLE_NAME_SPACES,
     }),
   );

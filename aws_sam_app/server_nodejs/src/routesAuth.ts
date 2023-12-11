@@ -68,7 +68,6 @@ export default function setupAuth(app: Express) {
 
     const dbUser = UserEntity.parse(
       UserEntity.putParams({
-        isUserPlaceholder: false,
         name: idToken.name,
         email: idToken.email,
         profilePictureUrl: idToken.picture,
@@ -117,6 +116,8 @@ export default function setupAuth(app: Express) {
       return;
     }
 
-    res.send(`Hello ${req.dbUser.name}!`);
+    res.send(
+      `Hello ${req.dbUser.isPlaceholderUser ? "Guest Player 1" : "Player 1"}!`,
+    );
   });
 }

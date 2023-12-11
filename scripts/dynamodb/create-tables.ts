@@ -23,22 +23,21 @@ import { client } from "./shared.js";
       TableClass: "STANDARD",
       BillingMode: "PAY_PER_REQUEST",
       DeletionProtectionEnabled: true,
+      AttributeDefinitions: [{ AttributeName: "Id", AttributeType: "S" }],
+      KeySchema: [{ AttributeName: "Id", KeyType: "HASH" }],
+    }),
+  );
+
+  await client.send(
+    new CreateTableCommand({
+      TableName: process.env.DYNAMODB_TABLE_NAME_PLACEHOLDER_USERS,
+      TableClass: "STANDARD",
+      BillingMode: "PAY_PER_REQUEST",
+      DeletionProtectionEnabled: true,
       AttributeDefinitions: [
-        { AttributeName: "Id", AttributeType: "S" },
         { AttributeName: "PlaceholderClientToken", AttributeType: "S" },
       ],
-      KeySchema: [{ AttributeName: "Id", KeyType: "HASH" }],
-      GlobalSecondaryIndexes: [
-        {
-          IndexName: "PlaceholderClientTokenIndex",
-          KeySchema: [
-            { AttributeName: "PlaceholderClientToken", KeyType: "HASH" },
-          ],
-          Projection: {
-            ProjectionType: "KEYS_ONLY",
-          },
-        },
-      ],
+      KeySchema: [{ AttributeName: "PlaceholderClientToken", KeyType: "HASH" }],
     }),
   );
 

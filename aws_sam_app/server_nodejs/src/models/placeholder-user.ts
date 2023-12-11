@@ -2,36 +2,20 @@ import { Entity, Table } from "dynamodb-toolbox";
 import { v4 as uuidv4 } from "uuid";
 import { DocumentClient } from "../utils/dynamo-db-utils.js";
 
-export const UsersTable = new Table({
-  name: process.env.DYNAMODB_TABLE_NAME_USERS,
-  partitionKey: "Id",
+export const PlaceholderUsersTable = new Table({
+  name: process.env.DYNAMODB_TABLE_NAME_PLACEHOLDER_USERS,
+  partitionKey: "PlaceholderClientToken",
   DocumentClient,
 });
 
-export const UserEntity = new Entity({
-  table: UsersTable,
-  name: "User",
+export const PlaceholderUserEntity = new Entity({
+  table: PlaceholderUsersTable,
+  name: "PlaceholderUser",
   attributes: {
-    id: {
+    placeholderClientToken: {
       partitionKey: true,
       type: "string",
       default: () => uuidv4(),
-    },
-    name: {
-      type: "string",
-      map: "Name",
-    },
-    email: {
-      type: "string",
-      map: "Email",
-    },
-    profilePictureUrl: {
-      type: "string",
-      map: "ProfilePictureUrl",
-    },
-    auth0UserId: {
-      type: "string",
-      map: "Auth0UserId",
     },
     createdAt: {
       type: "number",
@@ -53,12 +37,8 @@ export const UserEntity = new Entity({
   typeHidden: true,
 } as const);
 
-export type UserShape = {
-  id: string;
-  name?: string;
-  email?: string;
-  profilePictureUrl?: string;
-  auth0UserId?: string;
+export type PlaceholderUserShape = {
+  placeholderClientToken: string;
   createdAt: number;
   updatedAt: number;
 };

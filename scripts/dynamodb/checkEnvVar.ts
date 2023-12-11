@@ -4,6 +4,7 @@ declare global {
   namespace NodeJS {
     interface ProcessEnv {
       DYNAMODB_TABLE_NAME_USERS: string;
+      DYNAMODB_TABLE_NAME_PLACEHOLDER_USERS: string;
       DYNAMODB_TABLE_NAME_SPACES: string;
       DYNAMODB_TABLE_NAME_CSV_EVALUATION_PRESETS: string;
       // dev only, undefined in prod
@@ -15,6 +16,7 @@ declare global {
 
 const requiredEnvName = [
   "DYNAMODB_TABLE_NAME_USERS",
+  "DYNAMODB_TABLE_NAME_PLACEHOLDER_USERS",
   "DYNAMODB_TABLE_NAME_SPACES",
   "DYNAMODB_TABLE_NAME_CSV_EVALUATION_PRESETS",
 ];
