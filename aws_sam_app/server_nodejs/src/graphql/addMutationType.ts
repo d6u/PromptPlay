@@ -1,25 +1,24 @@
+import { A, D, F } from "@mobily/ts-belt";
 import { v4 as uuidv4 } from "uuid";
 import {
-  createCSVEvaluationPreset,
-  deleteCsvEvaluationPresetById,
-  findCSVEvaluationPresetById,
+  CsvEvaluationPresetEntity,
+  DbCsvEvaluationPresetConfigContentVersion,
 } from "../models/csv-evaluation-preset.js";
 import { createSpaceWithExampleContent } from "../models/model-utils.js";
 import {
-  OrmContentVersion,
-  createOrmSpaceInstance,
-  deleteSpaceById,
-  findSpaceById,
-  querySpacesByOwnerId,
+  DbSpaceContentVersion,
+  SpaceEntity,
+  SpacesTable,
 } from "../models/space.js";
-import { UUID, asUUID } from "../models/types.js";
-import {
-  createOrmUserInstance,
-  deleteUserById,
-  getUserIdByPlaceholderUserToken,
-} from "../models/user.js";
+import { UserEntity, UsersTable } from "../models/user.js";
 import { nullThrow } from "../utils.js";
-import { BuilderType, ContentVersion, Space, User } from "./graphql-types.js";
+import {
+  BuilderType,
+  CsvEvaluationPreset,
+  Space,
+  SpaceContentVersion,
+  User,
+} from "./graphql-types.js";
 
 export default function addMutationType(builder: BuilderType) {
   builder.mutationType({
@@ -29,21 +28,20 @@ export default function addMutationType(builder: BuilderType) {
           type: "CreatePlaceholderUserAndExampleSpaceResult",
           async resolve(parent, args, context) {
             let dbUser = context.req.dbUser;
-            let placeholderClientToken: UUID;
+            let placeholderClientToken: string;
 
             if (dbUser == null) {
-              placeholderClientToken = asUUID(uuidv4());
+              placeholderClientToken = uuidv4();
 
-              dbUser = createOrmUserInstance({
+              dbUser = {
+                id: uuidv4(),
                 isUserPlaceholder: true,
-                name: null,
-                email: null,
-                profilePictureUrl: null,
-                auth0UserId: null,
                 placeholderClientToken: placeholderClientToken,
-              });
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+              };
 
-              await dbUser.save();
+              await UserEntity.put(dbUser);
             } else {
               placeholderClientToken = nullThrow(
                 dbUser.placeholderClientToken,
@@ -53,7 +51,7 @@ export default function addMutationType(builder: BuilderType) {
 
             const dbSpace = createSpaceWithExampleContent(dbUser);
 
-            await dbSpace.save();
+            await SpaceEntity.put(dbSpace);
 
             return {
               placeholderClientToken,
@@ -73,32 +71,54 @@ export default function addMutationType(builder: BuilderType) {
           },
           async resolve(parent, args, context) {
             // ANCHOR: Make sure there is a logged in user to merge to
+
             const dbUser = context.req.dbUser;
+
             if (dbUser == null) {
               return null;
             }
 
             // ANCHOR: Make sure the provided placeholder user exists
-            const placeholderUserId = await getUserIdByPlaceholderUserToken(
-              asUUID(args.placeholderUserToken),
+
+            const queryPlaceholderUserResponse = await UsersTable.query(
+              args.placeholderUserToken,
+              { index: "PlaceholderClientTokenIndex", limit: 1 },
             );
-            if (placeholderUserId == null) {
+
+            if (
+              queryPlaceholderUserResponse.Items == null ||
+              queryPlaceholderUserResponse.Items.length === 0
+            ) {
               return null;
             }
 
             // ANCHOR: Merge the placeholder user's spaces to the logged in user
-            const spaces = await querySpacesByOwnerId(placeholderUserId);
-            await Promise.all(
-              spaces.map((space) => {
-                space.ownerId = dbUser.id;
-                return space.save();
-              }),
-            );
+
+            const placeholderUserId =
+              queryPlaceholderUserResponse.Items[0]!["Id"];
+
+            const response = await SpaceEntity.query(placeholderUserId, {
+              index: "OwnerIdIndex",
+              // Parse works because OwnerIdIndex projects all the attributes.
+              parseAsEntity: "Space",
+            });
+
+            let spaces = response.Items ?? [];
+
+            spaces = F.toMutable(A.map(spaces, D.set("ownerId", dbUser.id)));
 
             // ANCHOR: Delete the placeholder user
-            await deleteUserById(placeholderUserId);
+
+            console.log(
+              SpacesTable.batchWriteParams(
+                spaces
+                  .map((space) => SpacesTable.Space.updateBatch(space))
+                  .concat([UsersTable.User.deleteBatch(placeholderUserId)]),
+              ),
+            );
 
             // ANCHOR: Finish
+
             return new User(dbUser);
           },
         }),
@@ -112,17 +132,17 @@ export default function addMutationType(builder: BuilderType) {
               return null;
             }
 
-            const dbSpace = createOrmSpaceInstance({
+            const dbSpace = {
+              id: uuidv4(),
               ownerId: dbUser.id,
               name: "Untitled",
-              contentVersion: OrmContentVersion.v3,
-              contentV2: null,
+              contentVersion: DbSpaceContentVersion.v3,
               contentV3: JSON.stringify({}),
-              createdAt: new Date(),
-              updatedAt: new Date(),
-            });
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+            };
 
-            await dbSpace.save();
+            SpaceEntity.put(dbSpace);
 
             return new Space(dbSpace);
           },
@@ -132,7 +152,7 @@ export default function addMutationType(builder: BuilderType) {
           args: {
             id: t.arg({ type: "ID", required: true }),
             name: t.arg({ type: "String" }),
-            contentVersion: t.arg({ type: ContentVersion }),
+            contentVersion: t.arg({ type: SpaceContentVersion }),
             content: t.arg({ type: "String" }),
             flowContent: t.arg({ type: "String" }),
             contentV3: t.arg({ type: "String" }),
@@ -145,7 +165,9 @@ export default function addMutationType(builder: BuilderType) {
               return null;
             }
 
-            const dbSpace = await findSpaceById(args.id as string);
+            let { Item: dbSpace } = await SpaceEntity.get({
+              id: args.id as string,
+            });
 
             if (dbSpace == null) {
               return null;
@@ -162,28 +184,16 @@ export default function addMutationType(builder: BuilderType) {
             if (args.contentVersion !== undefined) {
               if (args.contentVersion === null) {
                 throw new Error("contentVersion cannot be null");
-              } else if (args.contentVersion === ContentVersion.v1) {
-                throw new Error("contentVersion cannot be v1");
-              } else if (args.contentVersion === ContentVersion.v2) {
-                throw new Error("contentVersion cannot be v2");
               } else {
-                dbSpace.contentVersion = OrmContentVersion.v3;
+                dbSpace.contentVersion = DbSpaceContentVersion.v3;
               }
             }
 
-            if (args.content !== undefined) {
-              dbSpace.contentV2 = args.content;
-            }
-
-            if (args.flowContent !== undefined) {
-              dbSpace.contentV2 = args.flowContent;
-            }
-
             if (args.contentV3 !== undefined) {
-              dbSpace.contentV3 = args.contentV3;
+              dbSpace.contentV3 = nullThrow(args.contentV3);
             }
 
-            await dbSpace.save();
+            SpaceEntity.update(dbSpace);
 
             return new Space(dbSpace);
           },
@@ -200,13 +210,13 @@ export default function addMutationType(builder: BuilderType) {
               return false;
             }
 
-            const dbSpace = await findSpaceById(dbUser.id);
+            const { Item: dbSpace } = await SpaceEntity.get({ id: dbUser.id });
 
             if (dbSpace == null) {
               return false;
             }
 
-            await deleteSpaceById(dbSpace.id);
+            await SpaceEntity.delete({ id: dbSpace.id });
 
             return true;
           },
@@ -227,21 +237,28 @@ export default function addMutationType(builder: BuilderType) {
               return null;
             }
 
-            const dbSpace = await findSpaceById(asUUID(args.spaceId as string));
+            const { Item: dbSpace } = await SpaceEntity.get({
+              id: args.spaceId as string,
+            });
 
             if (dbSpace == null) {
               return null;
             }
 
-            const dbPreset = createCSVEvaluationPreset({
+            const dbPreset = {
+              id: uuidv4(),
               ownerId: dbUser.id,
               spaceId: dbSpace.id,
               name: args.name,
-              csvContent: args.csvContent ?? "",
-              configContent: args.configContent,
-            });
+              csvString: args.csvContent ?? "",
+              configContentVersion:
+                DbCsvEvaluationPresetConfigContentVersion.v1,
+              configContentV1: args.configContent ?? "",
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+            };
 
-            await dbPreset.save();
+            await CsvEvaluationPresetEntity.put(dbPreset);
 
             return {
               space: new Space(dbSpace),
@@ -250,7 +267,7 @@ export default function addMutationType(builder: BuilderType) {
           },
         }),
         updateCsvEvaluationPreset: t.field({
-          type: "CSVEvaluationPreset",
+          type: CsvEvaluationPreset,
           nullable: true,
           args: {
             presetId: t.arg({ type: "ID", required: true }),
@@ -265,9 +282,9 @@ export default function addMutationType(builder: BuilderType) {
               return null;
             }
 
-            const dbPreset = await findCSVEvaluationPresetById(
-              args.presetId as string,
-            );
+            const { Item: dbPreset } = await CsvEvaluationPresetEntity.get({
+              id: args.presetId as string,
+            });
 
             if (dbPreset == null) {
               return null;
@@ -283,17 +300,17 @@ export default function addMutationType(builder: BuilderType) {
 
             if (args.csvContent !== undefined) {
               if (args.csvContent === null) {
-                dbPreset.csvContent = "";
+                dbPreset.csvString = "";
               } else {
-                dbPreset.csvContent = args.csvContent;
+                dbPreset.csvString = args.csvContent;
               }
             }
 
             if (args.configContent !== undefined) {
-              dbPreset.configContent = args.configContent;
+              dbPreset.configContentV1 = nullThrow(args.configContent);
             }
 
-            await dbPreset.save();
+            await CsvEvaluationPresetEntity.update(dbPreset);
 
             return dbPreset;
           },
@@ -311,9 +328,9 @@ export default function addMutationType(builder: BuilderType) {
               return null;
             }
 
-            const dbPreset = await findCSVEvaluationPresetById(
-              asUUID(args.id as string),
-            );
+            const { Item: dbPreset } = await CsvEvaluationPresetEntity.get({
+              id: args.id as string,
+            });
 
             if (dbPreset == null) {
               return null;
@@ -321,9 +338,9 @@ export default function addMutationType(builder: BuilderType) {
 
             const spaceId = dbPreset.spaceId;
 
-            await deleteCsvEvaluationPresetById(dbPreset.id);
+            await CsvEvaluationPresetEntity.delete({ id: dbPreset.id });
 
-            const dbSpace = await findSpaceById(spaceId);
+            const { Item: dbSpace } = await SpaceEntity.get({ id: spaceId });
 
             if (dbSpace == null) {
               return null;
@@ -360,7 +377,7 @@ export default function addMutationType(builder: BuilderType) {
           },
         }),
         csvEvaluationPreset: t.field({
-          type: "CSVEvaluationPreset",
+          type: CsvEvaluationPreset,
           resolve(parent) {
             return parent.csvEvaluationPreset;
           },

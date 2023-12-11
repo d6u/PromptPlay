@@ -1,7 +1,8 @@
 import { Express, Response } from "express";
-import { BaseClient, generators, Issuer } from "openid-client";
-import { attachUser, RequestWithUser } from "./middleware/user.js";
-import { createOrmUserInstance } from "./models/user.js";
+import { BaseClient, Issuer, generators } from "openid-client";
+import { v4 as uuidv4 } from "uuid";
+import { RequestWithUser, attachUser } from "./middleware/user.js";
+import { UserEntity } from "./models/user.js";
 import { RequestWithSession } from "./types.js";
 
 async function getAuthClient() {
@@ -66,16 +67,16 @@ export default function setupAuth(app: Express) {
 
     const idToken = tokenSet.claims();
 
-    const dbUser = createOrmUserInstance({
-      name: idToken.name ?? null,
-      email: idToken.email ?? null,
-      profilePictureUrl: idToken.picture ?? null,
-      auth0UserId: idToken.sub,
+    const dbUser = {
+      id: uuidv4(),
       isUserPlaceholder: false,
-      placeholderClientToken: null,
-    });
+      name: idToken.name,
+      email: idToken.email,
+      profilePictureUrl: idToken.picture,
+      auth0UserId: idToken.sub,
+    };
 
-    await dbUser.save();
+    await UserEntity.put(dbUser);
 
     req.session.userId = dbUser.id!;
 

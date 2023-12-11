@@ -1,9 +1,9 @@
 import { NextFunction, Response } from "express";
-import { findUserById, OrmUser } from "../models/user.js";
+import { UserEntity, UserShape } from "../models/user.js";
 import { RequestWithSession } from "../types.js";
 
 export interface RequestWithUser extends RequestWithSession {
-  dbUser?: OrmUser;
+  dbUser?: UserShape;
 }
 
 export async function attachUser(
@@ -18,9 +18,9 @@ export async function attachUser(
     return;
   }
 
-  const dbUser = await findUserById(userId);
+  const { Item: dbUser } = await UserEntity.get({ id: userId });
 
-  if (!dbUser) {
+  if (dbUser == null) {
     next();
     return;
   }

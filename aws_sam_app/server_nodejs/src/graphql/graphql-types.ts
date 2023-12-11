@@ -1,8 +1,7 @@
 import { RequestWithUser } from "../middleware/user.js";
-import { OrmCsvEvaluationPreset } from "../models/csv-evaluation-preset.js";
-import { OrmContentVersion, OrmSpace } from "../models/space.js";
-import { UUID } from "../models/types.js";
-import { OrmUser } from "../models/user.js";
+import { CsvEvaluationPresetShape } from "../models/csv-evaluation-preset.js";
+import { DbSpaceContentVersion, SpaceShape } from "../models/space.js";
+import { UserShape } from "../models/user.js";
 
 type Context = {
   req: RequestWithUser;
@@ -11,7 +10,6 @@ type Context = {
 export type Types = {
   Context: Context;
   Objects: {
-    CSVEvaluationPreset: CsvEvaluationPreset;
     QuerySpaceResult: QuerySpaceResult;
     CreatePlaceholderUserAndExampleSpaceResult: CreatePlaceholderUserAndExampleSpaceResult;
     CreateCsvEvaluationPresetResult: CreateCsvEvaluationPresetResult;
@@ -35,61 +33,104 @@ export type BuilderType = PothosSchemaTypes.SchemaBuilder<
 // SECTION: User
 
 export class User {
-  constructor(public dbUser: OrmUser) {}
+  constructor(public dbUser: UserShape) {}
 }
 
 // !SECTION
 
+// SECTION: Space
+
 export class Space {
-  private static fromOrmContentVersion(
-    ormContentVersion: OrmContentVersion,
-  ): ContentVersion {
-    switch (ormContentVersion) {
-      case OrmContentVersion.v1:
-        return ContentVersion.v1;
-      case OrmContentVersion.v2:
-        return ContentVersion.v2;
-      case OrmContentVersion.v3:
-        return ContentVersion.v3;
-    }
-  }
-
-  constructor(dbSpace: OrmSpace) {
-    const obj = dbSpace.toObject();
-
-    this.id = obj.id;
-    this.name = obj.name;
-    this.contentVersion = Space.fromOrmContentVersion(obj.contentVersion);
-    this.content = obj.contentV2;
-    this.flowContent = null;
-    this.contentV3 = obj.contentV3;
-    this.updatedAt = obj.updatedAt;
+  constructor(dbSpace: SpaceShape) {
+    this.id = dbSpace.id;
+    this.name = dbSpace.name;
+    this.contentVersion = parseDbSpaceContentVersion(dbSpace.contentVersion);
+    this.contentV3 = dbSpace.contentV3;
+    this.createdAt = new Date(dbSpace.createdAt);
+    this.updatedAt = new Date(dbSpace.updatedAt);
   }
 
   id: string;
   name: string;
-  contentVersion: ContentVersion;
-  content: string | null;
-  flowContent: string | null;
+  contentVersion: SpaceContentVersion;
   contentV3: string | null;
+  createdAt: Date;
   updatedAt: Date;
 }
 
-export class CsvEvaluationPreset {
-  constructor(dbCsvEvaluationPreset: OrmCsvEvaluationPreset) {
-    const obj = dbCsvEvaluationPreset.toObject();
+export enum SpaceContentVersion {
+  v3 = "v3",
+}
 
-    this.id = obj.id;
-    this.name = obj.name;
-    this.csvContent = obj.csvContent;
-    this.configContent = obj.configContent;
+function parseDbSpaceContentVersion(value: string): SpaceContentVersion {
+  switch (value) {
+    case DbSpaceContentVersion.v3:
+      return SpaceContentVersion.v3;
+    default:
+      throw new Error(`Invalid DbSpaceContentVersion: ${value}`);
+  }
+}
+
+// !SECTION
+
+// SECTION: CsvEvaluationPreset
+
+export class CsvEvaluationPreset {}
+
+export class CsvEvaluationPresetFull extends CsvEvaluationPreset {
+  constructor(dbCsvEvaluationPreset: CsvEvaluationPresetShape) {
+    super();
+
+    this.id = dbCsvEvaluationPreset.id;
+    this.ownerId = dbCsvEvaluationPreset.ownerId;
+    this.spaceId = dbCsvEvaluationPreset.spaceId;
+    this.name = dbCsvEvaluationPreset.name;
+    this.csvString = dbCsvEvaluationPreset.csvString;
+    this.configContentVersion = dbCsvEvaluationPreset.configContentVersion;
+    this.configContentV1 = dbCsvEvaluationPreset.configContentV1;
+    this.createdAt = new Date(dbCsvEvaluationPreset.createdAt);
+    this.updatedAt = new Date(dbCsvEvaluationPreset.updatedAt);
+  }
+
+  id: string;
+  ownerId: string;
+  spaceId: string;
+  name: string;
+  csvString: string;
+  configContentVersion: string;
+  configContentV1: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export class CsvEvaluationPresetFromSpaceIdIndex extends CsvEvaluationPreset {
+  constructor(
+    dbCsvEvaluationPreset: Pick<
+      CsvEvaluationPresetShape,
+      "spaceId" | "id" | "name"
+    >,
+  ) {
+    super();
+
+    this.spaceId = dbCsvEvaluationPreset.spaceId;
+    this.id = dbCsvEvaluationPreset.id;
+    this.name = dbCsvEvaluationPreset.name;
   }
 
   id: string;
   name: string;
-  csvContent: string;
-  configContent: string | null;
+  spaceId: string;
+
+  async getCsvContent(): Promise<string> {
+    throw new Error("Not implemented");
+  }
+
+  async getConfigContent(): Promise<string> {
+    throw new Error("Not implemented");
+  }
 }
+
+// !SECTION
 
 export class QuerySpaceResult {
   constructor({ isReadOnly, space }: { isReadOnly: boolean; space: Space }) {
@@ -102,15 +143,9 @@ export class QuerySpaceResult {
 }
 
 type CreatePlaceholderUserAndExampleSpaceResult = {
-  placeholderClientToken: UUID;
+  placeholderClientToken: string;
   space: Space;
 };
-
-export enum ContentVersion {
-  v1 = "v1",
-  v2 = "v2",
-  v3 = "v3",
-}
 
 type CreateCsvEvaluationPresetResult = {
   space: Space;

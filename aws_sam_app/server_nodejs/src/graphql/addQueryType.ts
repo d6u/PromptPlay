@@ -1,6 +1,5 @@
-import { findSpaceById } from "../models/space.js";
-import { asUUID } from "../models/types.js";
-import { getUserIdByPlaceholderUserToken } from "../models/user.js";
+import { SpaceEntity } from "../models/space.js";
+import { UsersTable } from "../models/user.js";
 import { BuilderType, Space, User } from "./graphql-types.js";
 
 export default function addQueryType(builder: BuilderType) {
@@ -40,11 +39,11 @@ export default function addQueryType(builder: BuilderType) {
               return false;
             }
 
-            const userId = await getUserIdByPlaceholderUserToken(
-              asUUID(placeholderUserToken),
-            );
+            const response = await UsersTable.query(placeholderUserToken, {
+              index: "PlaceholderClientTokenIndex",
+            });
 
-            return userId == null;
+            return response.Items?.length === 0;
           },
         }),
         user: t.field({
@@ -63,10 +62,12 @@ export default function addQueryType(builder: BuilderType) {
             id: t.arg({ type: "UUID", required: true }),
           },
           async resolve(parent, args, context) {
-            const dbSpace = await findSpaceById(args.id);
+            const { Item: dbSpace } = await SpaceEntity.get({ id: args.id });
+
             if (dbSpace == null) {
               return null;
             }
+
             return {
               space: new Space(dbSpace),
               isReadOnly:

@@ -3,7 +3,7 @@ import { UUIDResolver } from "graphql-scalars";
 import addMutationType from "./addMutationType.js";
 import addObjectTypes from "./addObjectTypes.js";
 import addQueryType from "./addQueryType.js";
-import { ContentVersion, Types } from "./graphql-types.js";
+import { SpaceContentVersion, Types } from "./graphql-types.js";
 
 const builder = new SchemaBuilder<Types>({});
 
@@ -23,7 +23,7 @@ builder.scalarType("DateTime", {
   },
 });
 
-builder.enumType(ContentVersion, {
+builder.enumType(SpaceContentVersion, {
   name: "ContentVersion",
 });
 
