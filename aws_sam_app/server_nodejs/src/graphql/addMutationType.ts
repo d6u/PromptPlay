@@ -64,10 +64,7 @@ export default function addMutationType(builder: BuilderType) {
           type: User,
           nullable: true,
           args: {
-            placeholderUserToken: t.arg({
-              type: "String",
-              required: true,
-            }),
+            placeholderUserToken: t.arg({ type: "String", required: true }),
           },
           async resolve(parent, args, context) {
             // ANCHOR: Make sure there is a logged in user to merge to
@@ -103,18 +100,16 @@ export default function addMutationType(builder: BuilderType) {
               parseAsEntity: "Space",
             });
 
-            let spaces = response.Items ?? [];
-
-            spaces = F.toMutable(A.map(spaces, D.set("ownerId", dbUser.id)));
+            const spaces = F.toMutable(
+              A.map(response.Items ?? [], D.set("ownerId", dbUser.id)),
+            );
 
             // ANCHOR: Delete the placeholder user
 
-            console.log(
-              SpacesTable.batchWriteParams(
-                spaces
-                  .map((space) => SpacesTable.Space.updateBatch(space))
-                  .concat([UsersTable.User.deleteBatch(placeholderUserId)]),
-              ),
+            const r = await SpacesTable.batchWrite(
+              spaces
+                .map((space) => SpaceEntity.putBatch(space))
+                .concat([UserEntity.deleteBatch({ id: placeholderUserId })]),
             );
 
             // ANCHOR: Finish
