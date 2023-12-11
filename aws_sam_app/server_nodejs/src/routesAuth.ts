@@ -66,20 +66,51 @@ export default function setupAuth(app: Express) {
 
     const idToken = tokenSet.claims();
 
-    const dbUser = UserEntity.parse(
-      UserEntity.putParams({
+    // NOTE: DynamoDB GSI is eventually consistent, so there is a rare chance
+    // that we cannot find the user yet. We will leave this here until we
+    // switch off DynamoDB.
+    const response = await UserEntity.query(idToken.sub, {
+      index: "Auth0UserIdIndex",
+      limit: 1,
+    });
+
+    let redirectUrl = process.env.AUTH_LOGIN_FINISH_REDIRECT_URL;
+
+    if (response.Count === 0) {
+      // NOTE: Because put doesn't return the default value,
+      // e.g. createdAt, use this as a workaround.
+      const dbUser = UserEntity.parse(
+        UserEntity.putParams({
+          name: idToken.name,
+          email: idToken.email,
+          profilePictureUrl: idToken.picture,
+          auth0UserId: idToken.sub,
+        }),
+      );
+
+      await UserEntity.put(dbUser);
+
+      req.session.userId = dbUser.id;
+
+      redirectUrl += "?new_user=true";
+    } else {
+      // NOTE: This is a typing bug in dynamodb-toolbox.
+      // The Auth0UserIdIndex has projection keys only type. Also UserEntity
+      // won't parse the result, thus the Id field will be index by "Id"
+      // instead of "id".
+      const userId = (response.Items![0] as unknown as { Id: string })["Id"];
+
+      await UserEntity.update({
+        id: userId,
         name: idToken.name,
         email: idToken.email,
         profilePictureUrl: idToken.picture,
-        auth0UserId: idToken.sub,
-      }),
-    );
+      });
 
-    await UserEntity.put(dbUser);
+      req.session.userId = userId;
+    }
 
-    req.session.userId = dbUser.id;
-
-    res.redirect(process.env.AUTH_LOGIN_FINISH_REDIRECT_URL);
+    res.redirect(redirectUrl);
   });
 
   app.get("/logout", async (req: RequestWithSession, res) => {
