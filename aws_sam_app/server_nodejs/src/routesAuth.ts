@@ -83,16 +83,14 @@ export default function setupAuth(app: Express) {
     res.redirect(process.env.AUTH_LOGIN_FINISH_REDIRECT_URL);
   });
 
-  app.get("/logout", attachUser, async (req: RequestWithUser, res) => {
+  app.get("/logout", async (req: RequestWithSession, res) => {
     const idToken = req.session?.idToken;
 
-    // SECTION: Logout locally
+    // ANCHOR: Logout locally
 
     req.session = null;
 
-    // !SECTION
-
-    // SECTION: Logout from Auth0
+    // ANCHOR: Logout from Auth0 and between Auth0 and IDPs
 
     if (idToken == null) {
       res.redirect(process.env.AUTH_LOGOUT_FINISH_REDIRECT_URL);
@@ -111,8 +109,6 @@ export default function setupAuth(app: Express) {
         process.env.AUTH0_DOMAIN
       }/oidc/logout?${searchParams.toString()}`,
     );
-
-    // !SECTION
   });
 
   app.get("/hello", attachUser, async (req: RequestWithUser, res) => {
