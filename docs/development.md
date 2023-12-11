@@ -71,14 +71,16 @@ _Run commands in repository root directory, unless otherwise specified._
 2. Create tables if needed:
 
    ```sh
-   dotenv -e .environments/dynamodb/local.env \
+   dotenv -e .environments/api-server/local.env \
+     -e .environments/dynamodb/local.env \
      ts-node scripts/dynamodb/create-tables.ts
    ```
 
    Delete tables if needed:
 
    ```sh
-   dotenv -e .environments/dynamodb/local.env \
+   dotenv -e .environments/api-server/local.env \
+     -e .environments/dynamodb/local.env \
      ts-node scripts/dynamodb/delete-tables.ts
    ```
 

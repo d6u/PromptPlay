@@ -1,4 +1,5 @@
 import { Entity, Table } from "dynamodb-toolbox";
+import { v4 as uuidv4 } from "uuid";
 import { DocumentClient } from "../utils/dynamo-db-utils.js";
 
 export enum DbCsvEvaluationPresetConfigContentVersion {
@@ -28,6 +29,7 @@ export const CsvEvaluationPresetEntity = new Entity({
     id: {
       partitionKey: true,
       type: "string",
+      default: () => uuidv4(),
     },
     ownerId: {
       type: "string",
@@ -59,11 +61,24 @@ export const CsvEvaluationPresetEntity = new Entity({
       required: true,
       map: "ConfigContentV1",
     },
+    createdAt: {
+      type: "number",
+      required: true,
+      map: "CreatedAt",
+      default: () => new Date().getTime(),
+    },
+    updatedAt: {
+      type: "number",
+      required: true,
+      map: "UpdatedAt",
+      default: () => new Date().getTime(),
+      // Apply default on update as well, but only when the input doesn't
+      // provide this value.
+      onUpdate: true,
+    },
   },
-  created: "CreatedAt",
-  modified: "UpdatedAt",
-  createdAlias: "createdAt",
-  modifiedAlias: "updatedAt",
+  timestamps: false,
+  typeHidden: true,
 } as const);
 
 export type CsvEvaluationPresetShape = {
@@ -74,6 +89,6 @@ export type CsvEvaluationPresetShape = {
   csvString: string;
   configContentVersion: string;
   configContentV1: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: number;
+  updatedAt: number;
 };

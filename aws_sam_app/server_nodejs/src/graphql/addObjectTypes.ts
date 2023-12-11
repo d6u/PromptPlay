@@ -41,8 +41,9 @@ export default function addObjectTypes(builder: BuilderType) {
           async resolve(parent, args, context) {
             const response = await SpaceEntity.query(parent.dbUser.id, {
               index: "OwnerIdIndex",
-              // Parse works because OwnerIdIndex projects all the attributes.
-              parseAsEntity: "Space",
+              // Sort by UpdatedAt in descending order.
+              // (OwnerIdIndex is using UpdatedAt as the sort key.)
+              reverse: true,
             });
 
             const spaces = response.Items ?? [];
@@ -84,9 +85,12 @@ export default function addObjectTypes(builder: BuilderType) {
         csvEvaluationPresets: t.field({
           type: [CsvEvaluationPreset],
           async resolve(parent, args, context) {
+            // TODO: Sort by updatedAt?
             const response = await CsvEvaluationPresetsTable.query(parent.id, {
               index: "SpaceIdIndex",
             });
+
+            // console.log("csvEvaluationPresets", response);
 
             const items = response.Items ?? [];
 
@@ -99,7 +103,7 @@ export default function addObjectTypes(builder: BuilderType) {
             });
           },
         }),
-        // TODO: This should be null, fix the client side.
+        // TODO: This should be null, fix the client side first then fix here.
         csvEvaluationPreset: t.field({
           type: CsvEvaluationPreset,
           args: {
@@ -107,9 +111,7 @@ export default function addObjectTypes(builder: BuilderType) {
           },
           async resolve(parent, args, context) {
             const { Item: dbCsvEvaluationPreset } =
-              await CsvEvaluationPresetEntity.get({
-                id: args.id as string,
-              });
+              await CsvEvaluationPresetEntity.get({ id: args.id as string });
 
             if (dbCsvEvaluationPreset == null) {
               return null;

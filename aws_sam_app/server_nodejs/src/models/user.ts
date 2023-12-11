@@ -1,4 +1,5 @@
 import { Entity, Table } from "dynamodb-toolbox";
+import { v4 as uuidv4 } from "uuid";
 import { DocumentClient } from "../utils/dynamo-db-utils.js";
 
 export const UsersTable = new Table({
@@ -19,6 +20,7 @@ export const UserEntity = new Entity({
     id: {
       partitionKey: true,
       type: "string",
+      default: () => uuidv4(),
     },
     isUserPlaceholder: {
       type: "boolean",
@@ -45,11 +47,24 @@ export const UserEntity = new Entity({
       partitionKey: "PlaceholderClientTokenIndex",
       type: "string",
     },
+    createdAt: {
+      type: "number",
+      required: true,
+      map: "CreatedAt",
+      default: () => new Date().getTime(),
+    },
+    updatedAt: {
+      type: "number",
+      required: true,
+      map: "UpdatedAt",
+      default: () => new Date().getTime(),
+      // Apply default on update as well, but only when the input doesn't
+      // provide this value.
+      onUpdate: true,
+    },
   },
-  created: "CreatedAt",
-  modified: "UpdatedAt",
-  createdAlias: "createdAt",
-  modifiedAlias: "updatedAt",
+  timestamps: false,
+  typeHidden: true,
 } as const);
 
 export type UserShape = {
@@ -60,6 +75,6 @@ export type UserShape = {
   profilePictureUrl?: string;
   auth0UserId?: string;
   placeholderClientToken?: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: number;
+  updatedAt: number;
 };

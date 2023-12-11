@@ -1,4 +1,5 @@
 import { Entity, Table } from "dynamodb-toolbox";
+import { v4 as uuidv4 } from "uuid";
 import { DocumentClient } from "../utils/dynamo-db-utils.js";
 
 export enum DbSpaceContentVersion {
@@ -12,7 +13,7 @@ export const SpacesTable = new Table({
   indexes: {
     OwnerIdIndex: {
       partitionKey: "OwnerId",
-      sortKey: "Id",
+      sortKey: "UpdatedAt",
     },
   },
   DocumentClient,
@@ -25,6 +26,7 @@ export const SpaceEntity = new Entity({
     id: {
       partitionKey: true,
       type: "string",
+      default: () => uuidv4(),
     },
     ownerId: {
       type: "string",
@@ -46,11 +48,24 @@ export const SpaceEntity = new Entity({
       required: true,
       map: "ContentV3",
     },
+    createdAt: {
+      type: "number",
+      required: true,
+      map: "CreatedAt",
+      default: () => new Date().getTime(),
+    },
+    updatedAt: {
+      type: "number",
+      required: true,
+      map: "UpdatedAt",
+      default: () => new Date().getTime(),
+      // Apply default on update as well, but only when the input doesn't
+      // provide this value.
+      onUpdate: true,
+    },
   },
-  created: "CreatedAt",
-  modified: "UpdatedAt",
-  createdAlias: "createdAt",
-  modifiedAlias: "updatedAt",
+  timestamps: false,
+  typeHidden: true,
 } as const);
 
 export type SpaceShape = {
@@ -59,6 +74,6 @@ export type SpaceShape = {
   name: string;
   contentVersion: string;
   contentV3: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: number;
+  updatedAt: number;
 };

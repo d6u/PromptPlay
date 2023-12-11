@@ -46,7 +46,8 @@ export default function addQueryType(builder: BuilderType) {
             "When PlaceholderUserToken header is present and the token is not mapped to a user",
           async resolve(parent, args, context) {
             const placeholderUserToken = context.req.header(
-              "PlaceholderUserToken",
+              // NOTE: This header name is in lower case.
+              "placeholderusertoken",
             );
 
             if (placeholderUserToken == null) {
@@ -57,6 +58,7 @@ export default function addQueryType(builder: BuilderType) {
 
             const response = await UsersTable.query(placeholderUserToken, {
               index: "PlaceholderClientTokenIndex",
+              limit: 1,
             });
 
             return response.Items?.length === 0;

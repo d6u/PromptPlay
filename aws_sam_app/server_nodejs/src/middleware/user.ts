@@ -1,7 +1,7 @@
 import { NextFunction, Response } from "express";
 import { UserEntity, UserShape, UsersTable } from "../models/user.js";
 import { RequestWithSession } from "../types.js";
-import { nullThrow } from "../utils.js";
+import { nullThrow } from "../utils/utils.js";
 
 export interface RequestWithUser extends RequestWithSession {
   dbUser?: UserShape;
@@ -37,7 +37,7 @@ export async function attachUser(
 
     if (response.Items?.length === 1) {
       const { Item: dbUser } = await UserEntity.get({
-        id: response.Items[0]!["Id"],
+        id: response.Items[0]!["Id"] as string,
       });
 
       req.dbUser = nullThrow(dbUser);

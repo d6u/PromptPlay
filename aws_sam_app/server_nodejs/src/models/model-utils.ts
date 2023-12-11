@@ -1,17 +1,13 @@
-import { v4 as uuidv4 } from "uuid";
-import { nullThrow } from "../utils.js";
 import { DbSpaceContentVersion, SpaceShape } from "./space.js";
-import { UserShape } from "./user.js";
 
-export function createSpaceWithExampleContent(dbUser: UserShape): SpaceShape {
+export function createSpaceWithExampleContent(
+  dbUserId: string,
+): Omit<SpaceShape, "id" | "createdAt" | "updatedAt"> {
   return {
-    id: uuidv4(),
-    ownerId: nullThrow(dbUser.id),
+    ownerId: dbUserId,
     name: "Example Space",
     contentVersion: DbSpaceContentVersion.v3,
     contentV3: JSON.stringify(createExampleSpaceContentV3()),
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
   };
 }
 
