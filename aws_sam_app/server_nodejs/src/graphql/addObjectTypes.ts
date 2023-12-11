@@ -90,15 +90,13 @@ export default function addObjectTypes(builder: BuilderType) {
               index: "SpaceIdIndex",
             });
 
-            // console.log("csvEvaluationPresets", response);
-
             const items = response.Items ?? [];
 
             return items.map((csvEvaluationPreset) => {
               return new CsvEvaluationPresetFromSpaceIdIndex({
                 spaceId: parent.id as string,
-                id: csvEvaluationPreset.id as string,
-                name: csvEvaluationPreset.name as string,
+                id: csvEvaluationPreset["Id"] as string,
+                name: csvEvaluationPreset["Name"] as string,
               });
             });
           },

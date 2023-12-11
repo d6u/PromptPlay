@@ -5,6 +5,11 @@ import { DocumentClient } from "../utils/dynamo-db-utils.js";
 export const UsersTable = new Table({
   name: process.env.DYNAMODB_TABLE_NAME_USERS,
   partitionKey: "Id",
+  indexes: {
+    Auth0UserIdIndex: {
+      partitionKey: "Auth0UserId",
+    },
+  },
   DocumentClient,
 });
 

@@ -23,8 +23,21 @@ import { client } from "./shared.js";
       TableClass: "STANDARD",
       BillingMode: "PAY_PER_REQUEST",
       DeletionProtectionEnabled: true,
-      AttributeDefinitions: [{ AttributeName: "Id", AttributeType: "S" }],
+      AttributeDefinitions: [
+        { AttributeName: "Id", AttributeType: "S" },
+        { AttributeName: "Auth0UserId", AttributeType: "S" },
+      ],
       KeySchema: [{ AttributeName: "Id", KeyType: "HASH" }],
+      GlobalSecondaryIndexes: [
+        // This is use in auth flow to detecting if the user is new.
+        {
+          IndexName: "Auth0UserIdIndex",
+          KeySchema: [{ AttributeName: "Auth0UserId", KeyType: "HASH" }],
+          Projection: {
+            ProjectionType: "KEYS_ONLY",
+          },
+        },
+      ],
     }),
   );
 

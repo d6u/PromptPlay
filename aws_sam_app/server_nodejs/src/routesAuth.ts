@@ -1,7 +1,7 @@
 import { Express, Response } from "express";
 import { BaseClient, Issuer, generators } from "openid-client";
 import { RequestWithUser, attachUser } from "./middleware/user.js";
-import { UserEntity } from "./models/user.js";
+import { UserEntity, UsersTable } from "./models/user.js";
 import { RequestWithSession } from "./types.js";
 
 async function getAuthClient() {
@@ -66,20 +66,47 @@ export default function setupAuth(app: Express) {
 
     const idToken = tokenSet.claims();
 
-    const dbUser = UserEntity.parse(
-      UserEntity.putParams({
+    // NOTE: DynamoDB GSI is eventually consistent, so there is a rare chance
+    // that we cannot find the user yet. We will leave this here until we
+    // switch off DynamoDB.
+    const response = await UsersTable.query(idToken.sub, {
+      index: "Auth0UserIdIndex",
+      limit: 1,
+    });
+
+    let redirectUrl = process.env.AUTH_LOGIN_FINISH_REDIRECT_URL;
+
+    if (response.Count === 0) {
+      // NOTE: Because put doesn't return the default value,
+      // e.g. createdAt, use this as a workaround.
+      const dbUser = UserEntity.parse(
+        UserEntity.putParams({
+          name: idToken.name,
+          email: idToken.email,
+          profilePictureUrl: idToken.picture,
+          auth0UserId: idToken.sub,
+        }),
+      );
+
+      await UserEntity.put(dbUser);
+
+      req.session.userId = dbUser.id;
+
+      redirectUrl += "?new_user=true";
+    } else {
+      const userId = response.Items![0]!["Id"] as string;
+
+      await UserEntity.update({
+        id: userId,
         name: idToken.name,
         email: idToken.email,
         profilePictureUrl: idToken.picture,
-        auth0UserId: idToken.sub,
-      }),
-    );
+      });
 
-    await UserEntity.put(dbUser);
+      req.session.userId = userId;
+    }
 
-    req.session.userId = dbUser.id;
-
-    res.redirect(process.env.AUTH_LOGIN_FINISH_REDIRECT_URL);
+    res.redirect(redirectUrl);
   });
 
   app.get("/logout", async (req: RequestWithSession, res) => {
