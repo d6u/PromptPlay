@@ -74,8 +74,6 @@ export default function addQueryType(builder: BuilderType) {
           type: User,
           nullable: true,
           async resolve(parent, args, context) {
-            UserEntity.query({});
-
             if (context.req.dbUser == null) {
               return null;
             }
