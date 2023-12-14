@@ -16,7 +16,7 @@ app.disable("x-powered-by");
 // Enable CORS for preflight requests
 
 const corsOptions = {
-  origin: ["http://localhost:3000", "https://localhost:3000"],
+  origin: process.env.CORS_ALLOWED_ORIGINS.split(","),
   credentials: true,
 };
 

@@ -19,6 +19,8 @@ Parameters:
   DynamodbTableNameCsvEvaluationPresets:
     Type: String
   # !SECTION
+  CorsAllowedOrigins:
+    Type: String
   Auth0Domain:
     Type: String
   Auth0ClientId:
@@ -113,6 +115,7 @@ Resources:
           DYNAMODB_TABLE_NAME_PLACEHOLDER_USERS: !Ref DynamodbTableNamePlaceholderUsers
           DYNAMODB_TABLE_NAME_SPACES: !Ref DynamodbTableNameSpaces
           DYNAMODB_TABLE_NAME_CSV_EVALUATION_PRESETS: !Ref DynamodbTableNameCsvEvaluationPresets
+          CORS_ALLOWED_ORIGINS: !Ref CorsAllowedOrigins
           AUTH0_DOMAIN: !Ref Auth0Domain
           AUTH0_CLIENT_ID: !Ref Auth0ClientId
           AUTH0_CLIENT_SECRET: !Ref Auth0ClientSecret
