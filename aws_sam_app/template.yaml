@@ -12,6 +12,8 @@ Parameters:
   # SECTION: Tables are managed outside of this stack.
   DynamodbTableNameUsers:
     Type: String
+  DynamodbTableNamePlaceholderUsers:
+    Type: String
   DynamodbTableNameSpaces:
     Type: String
   DynamodbTableNameCsvEvaluationPresets:
@@ -89,6 +91,11 @@ Resources:
             TableName: !Ref DynamodbTableNameUsers
         - DynamoDBWritePolicy:
             TableName: !Ref DynamodbTableNameUsers
+        # ANCHOR: Placeholder Users
+        - DynamoDBReadPolicy:
+            TableName: !Ref DynamodbTableNamePlaceholderUsers
+        - DynamoDBWritePolicy:
+            TableName: !Ref DynamodbTableNamePlaceholderUsers
         # ANCHOR: Spaces
         - DynamoDBReadPolicy:
             TableName: !Ref DynamodbTableNameSpaces
@@ -102,6 +109,7 @@ Resources:
       Environment:
         Variables:
           DYNAMODB_TABLE_NAME_USERS: !Ref DynamodbTableNameUsers
+          DYNAMODB_TABLE_NAME_PLACEHOLDER_USERS: !Ref DynamodbTableNamePlaceholderUsers
           DYNAMODB_TABLE_NAME_SPACES: !Ref DynamodbTableNameSpaces
           DYNAMODB_TABLE_NAME_CSV_EVALUATION_PRESETS: !Ref DynamodbTableNameCsvEvaluationPresets
           AUTH0_DOMAIN: !Ref Auth0Domain
@@ -114,7 +122,7 @@ Resources:
     Metadata:
       DockerContext: ./server_nodejs
       Dockerfile: Dockerfile
-      DockerTag: v6
+      DockerTag: v7
 
   # ANCHOR: Monitoring
 

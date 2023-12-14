@@ -32,6 +32,8 @@ services:
     build:
       context: ./aws_sam_app/server_nodejs/
       dockerfile: Dockerfile.dev
+    volumes:
+      - ./aws_sam_app/server_nodejs/src:/home/node/app/src
     ports:
       - "5050:5050"
     environment:
@@ -47,12 +49,12 @@ services:
       - AUTH_LOGOUT_FINISH_REDIRECT_URL=${AUTH_LOGOUT_FINISH_REDIRECT_URL}
       - SESSION_COOKIE_SECRET=${SESSION_COOKIE_SECRET}
       # --- Dev Only ---
+      - DEV_DYNAMODB_ENDPOINT=${DEV_DYNAMODB_ENDPOINT}
+      - DEBUG=${DEBUG}
       # We are using a local DynamoDB. Thus, need to set up dummy values for
       # AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY.
       - AWS_ACCESS_KEY_ID=DUMMY
       - AWS_SECRET_ACCESS_KEY=DUMMY
-      - DEV_DYNAMODB_ENDPOINT=${DEV_DYNAMODB_ENDPOINT}
-      - DEBUG=${DEBUG}
     develop:
       watch:
         - action: sync

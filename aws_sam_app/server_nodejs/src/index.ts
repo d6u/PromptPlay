@@ -34,8 +34,9 @@ app.get("/health", (req, res) => {
 
 export const handler = serverless(app);
 
-// For local development
 if (!process.env.LAMBDA_TASK_ROOT) {
+  // We don't need to start app when running on Lambda.
+  // This is for local development purpose.
   app.listen(5050, () => {
     console.log("Running a server at http://localhost:5050/");
   });
