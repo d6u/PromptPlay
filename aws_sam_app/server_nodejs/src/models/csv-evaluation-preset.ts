@@ -1,4 +1,5 @@
 import { Entity, Table } from "dynamodb-toolbox";
+import { deflateSync, inflateSync } from "node:zlib";
 import { v4 as uuidv4 } from "uuid";
 import { DocumentClient } from "../utils/dynamo-db-utils.js";
 
@@ -57,9 +58,18 @@ export const CsvEvaluationPresetEntity = new Entity({
       map: "ConfigContentVersion",
     },
     configContentV1: {
-      type: "string",
+      type: "binary",
       required: true,
       map: "ConfigContentV1",
+      // Because transform and format don't support returning promise,
+      // use the sync version of methods.
+      transform(value) {
+        return deflateSync(value);
+      },
+      format(value) {
+        const buffer = inflateSync(value);
+        return buffer.toString();
+      },
     },
     createdAt: {
       type: "number",
