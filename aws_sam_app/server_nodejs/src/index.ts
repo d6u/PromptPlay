@@ -2,6 +2,7 @@ import "./utils/checkEnvVar.js";
 // Check if the environment variables are set correctly first.
 
 import cookieSession from "cookie-session";
+import cors from "cors";
 import express from "express";
 import serverless from "serverless-http";
 import setupAuth from "./routesAuth.js";
@@ -11,6 +12,17 @@ const app = express();
 
 // Disable X-Powered-By header
 app.disable("x-powered-by");
+
+// Enable CORS for preflight requests
+
+const corsOptions = {
+  origin: ["http://localhost:3000", "https://localhost:3000"],
+  credentials: true,
+};
+
+app.options("*", cors(corsOptions));
+
+// Enable Cookie session
 
 app.use(
   cookieSession({
@@ -24,6 +36,8 @@ app.use(
     httpOnly: true,
   }),
 );
+
+// Setup routes
 
 setupGraphql(app);
 setupAuth(app);

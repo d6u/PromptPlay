@@ -69,6 +69,7 @@ Resources:
         CertificateArn: !Ref CertificateSubDomains
         Route53:
           HostedZoneId: !Ref HostedZoneId
+      DisableExecuteApiEndpoint: true
 
   # ANCHOR: Lambda
 
@@ -122,7 +123,7 @@ Resources:
     Metadata:
       DockerContext: ./server_nodejs
       Dockerfile: Dockerfile
-      DockerTag: v7
+      DockerTag: v13
 
   # ANCHOR: Monitoring
 
