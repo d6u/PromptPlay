@@ -1,7 +1,7 @@
 {
-  "name": "front-vite",
+  "name": "front",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -38,6 +38,7 @@
     "rxjs": "^7.8.1",
     "ts-invariant": "^0.10.3",
     "urql": "^4.0.5",
+    "wonka": "^6.3.4",
     "zustand": "^4.4.1"
   },
   "devDependencies": {

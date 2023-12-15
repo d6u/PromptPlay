@@ -81,29 +81,25 @@ _Run commands in repository root directory, unless otherwise specified._
 
 4. (Optional) Generate GraphQL code for front end:
 
-   _In `front/`_
-
    ```sh
-   dotenv -e ../.environments/vite/.env.development graphql-codegen
+   dotenv -e .environments/vite/.env.development \
+     -- pnpm --filter front exec graphql-codegen
    ```
 
 5. Start frontend dev server:
 
-   _In `front/`_
-
    ```sh
-   npm run dev
+   pnpm --filter front run dev
    ```
 
    Pick up a different environment file using mode:
 
    ```sh
-   npm run dev -- -m development-python
+   pnpm --filter front run dev -m development-python
    ```
 
    This requires matching `.env` file in `.environments/vite/`, e.g. `.environments/vite/.env.development-python`.
 
-   - `--`: Pass arguments to underlying command instead of `npm`. In this case, it's `vite`.
    - `-m`: Vite mode. This determines which `.env` file to use.
 
 ## Option 2: On Host Machine Directly
