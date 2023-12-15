@@ -180,6 +180,9 @@ importers:
 
   packages/flow-content-migration:
     devDependencies:
+      '@types/node':
+        specifier: ^20.10.4
+        version: 20.10.4
       common-tsconfig:
         specifier: workspace:^
         version: link:../common-tsconfig
@@ -334,6 +337,9 @@ importers:
       chai:
         specifier: ^4.3.6
         version: 4.3.10
+      common-tsconfig:
+        specifier: workspace:^
+        version: link:../packages/common-tsconfig
       dotenv-cli:
         specifier: ^7.3.0
         version: 7.3.0

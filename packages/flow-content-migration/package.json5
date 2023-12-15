@@ -4,6 +4,7 @@
   private: true,
   main: 'index.js',
   devDependencies: {
+    '@types/node': '^20.10.4',
     'common-tsconfig': 'workspace:^',
     typescript: '5.2.2',
   },

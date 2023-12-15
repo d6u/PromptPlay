@@ -28,6 +28,7 @@
     '@types/node': '^20.8.10',
     '@types/uuid': '^9.0.7',
     chai: '^4.3.6',
+    'common-tsconfig': 'workspace:^',
     'dotenv-cli': '^7.3.0',
     mocha: '^10.1.0',
     nodemon: '^3.0.1',

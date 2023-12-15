@@ -1,9 +1,0 @@
-{
-  "name": "integrations",
-  "private": true,
-  "version": "1.0.0",
-  "scripts": {},
-  "dependencies": {
-    "rxjs": "^7.8.1"
-  }
-}
