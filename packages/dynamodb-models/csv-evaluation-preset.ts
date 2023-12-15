@@ -3,6 +3,10 @@ import { deflateSync, inflateSync } from 'node:zlib';
 import { v4 as uuidv4 } from 'uuid';
 import { DocumentClient } from './client.js';
 
+if (!process.env.DYNAMODB_TABLE_NAME_CSV_EVALUATION_PRESETS) {
+  throw new Error('DYNAMODB_TABLE_NAME_CSV_EVALUATION_PRESETS is not set');
+}
+
 export enum DbCsvEvaluationPresetConfigContentVersion {
   v1 = 'v1',
 }

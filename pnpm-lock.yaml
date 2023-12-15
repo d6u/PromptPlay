@@ -11,6 +11,9 @@ importers:
       dotenv-cli:
         specifier: ^7.3.0
         version: 7.3.0
+      typescript:
+        specifier: ~5.2.0
+        version: 5.2.2
 
   front:
     dependencies:
