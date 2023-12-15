@@ -1,32 +1,32 @@
-import { Entity, Table } from "dynamodb-toolbox";
-import { v4 as uuidv4 } from "uuid";
-import { DocumentClient } from "../utils/dynamo-db-utils.js";
+import { Entity, Table } from 'dynamodb-toolbox';
+import { v4 as uuidv4 } from 'uuid';
+import { DocumentClient } from './client.js';
 
 export const PlaceholderUsersTable = new Table({
   name: process.env.DYNAMODB_TABLE_NAME_PLACEHOLDER_USERS,
-  partitionKey: "PlaceholderClientToken",
+  partitionKey: 'PlaceholderClientToken',
   DocumentClient,
 });
 
 export const PlaceholderUserEntity = new Entity({
   table: PlaceholderUsersTable,
-  name: "PlaceholderUser",
+  name: 'PlaceholderUser',
   attributes: {
     placeholderClientToken: {
       partitionKey: true,
-      type: "string",
+      type: 'string',
       default: () => uuidv4(),
     },
     createdAt: {
-      type: "number",
+      type: 'number',
       required: true,
-      map: "CreatedAt",
+      map: 'CreatedAt',
       default: () => new Date().getTime(),
     },
     updatedAt: {
-      type: "number",
+      type: 'number',
       required: true,
-      map: "UpdatedAt",
+      map: 'UpdatedAt',
       default: () => new Date().getTime(),
       // Apply default on update as well, but only when the input doesn't
       // provide this value.

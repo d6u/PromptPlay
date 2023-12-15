@@ -1,19 +1,19 @@
-import { Entity, Table } from "dynamodb-toolbox";
-import { v4 as uuidv4 } from "uuid";
-import { DocumentClient } from "../utils/dynamo-db-utils.js";
+import { Entity, Table } from 'dynamodb-toolbox';
+import { v4 as uuidv4 } from 'uuid';
+import { DocumentClient } from './client.js';
 
 export enum DbSpaceContentVersion {
-  v2 = "v2",
-  v3 = "v3",
+  v2 = 'v2',
+  v3 = 'v3',
 }
 
 export const SpacesTable = new Table({
   name: process.env.DYNAMODB_TABLE_NAME_SPACES,
-  partitionKey: "Id",
+  partitionKey: 'Id',
   indexes: {
     OwnerIdIndex: {
-      partitionKey: "OwnerId",
-      sortKey: "UpdatedAt",
+      partitionKey: 'OwnerId',
+      sortKey: 'UpdatedAt',
     },
   },
   DocumentClient,
@@ -21,43 +21,43 @@ export const SpacesTable = new Table({
 
 export const SpaceEntity = new Entity({
   table: SpacesTable,
-  name: "Space",
+  name: 'Space',
   attributes: {
     id: {
       partitionKey: true,
-      type: "string",
+      type: 'string',
       default: () => uuidv4(),
     },
     ownerId: {
-      type: "string",
+      type: 'string',
       required: true,
-      map: "OwnerId",
+      map: 'OwnerId',
     },
     name: {
-      type: "string",
+      type: 'string',
       required: true,
-      map: "Name",
+      map: 'Name',
     },
     contentVersion: {
-      type: "string",
+      type: 'string',
       required: true,
-      map: "ContentVersion",
+      map: 'ContentVersion',
     },
     contentV3: {
-      type: "string",
+      type: 'string',
       required: true,
-      map: "ContentV3",
+      map: 'ContentV3',
     },
     createdAt: {
-      type: "number",
+      type: 'number',
       required: true,
-      map: "CreatedAt",
+      map: 'CreatedAt',
       default: () => new Date().getTime(),
     },
     updatedAt: {
-      type: "number",
+      type: 'number',
       required: true,
-      map: "UpdatedAt",
+      map: 'UpdatedAt',
       default: () => new Date().getTime(),
       // Apply default on update as well, but only when the input doesn't
       // provide this value.

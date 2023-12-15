@@ -1,0 +1,16 @@
+{
+  name: 'dynamodb-models',
+  private: true,
+  version: '1.0.0',
+  type: 'module',
+  dependencies: {
+    '@aws-sdk/client-dynamodb': '^3.474.0',
+    '@aws-sdk/lib-dynamodb': '^3.470.0',
+    'aws-xray-sdk': '^3.5.3',
+    'dynamodb-toolbox': '^0.9.2',
+    uuid: '^9.0.1',
+  },
+  devDependencies: {
+    '@types/uuid': '^9.0.7',
+  },
+}

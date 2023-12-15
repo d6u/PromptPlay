@@ -1,13 +1,13 @@
-import { DynamoDBClient, DynamoDBClientConfig } from "@aws-sdk/client-dynamodb";
-import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
-import AWSXRay from "aws-xray-sdk";
+import { DynamoDBClient, DynamoDBClientConfig } from '@aws-sdk/client-dynamodb';
+import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
+import AWSXRay from 'aws-xray-sdk';
 
 const config: DynamoDBClientConfig = {
-  region: "us-west-2",
+  region: 'us-west-2',
 };
 
 if (process.env.DEV_DYNAMODB_ENDPOINT) {
-  console.log("Using DynamoDB endpoint: " + process.env.DEV_DYNAMODB_ENDPOINT);
+  console.log('Using DynamoDB endpoint: ' + process.env.DEV_DYNAMODB_ENDPOINT);
   config.endpoint = process.env.DEV_DYNAMODB_ENDPOINT;
 }
 
