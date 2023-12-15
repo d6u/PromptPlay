@@ -1,16 +1,10 @@
 {
   "name": "flow-content-migration",
   "version": "1.0.0",
-  "description": "",
+  "private": true,
   "main": "index.js",
   "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git@github.com-d6u:d6u/PromptPlay.git"
-  },
-  "author": "",
-  "license": "MIT"
+  }
 }

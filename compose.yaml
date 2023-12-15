@@ -30,10 +30,11 @@ services:
     depends_on:
       - dynamodb
     build:
-      context: ./aws_sam_app/server_nodejs/
-      dockerfile: Dockerfile.dev
+      context: ./
+      dockerfile: Dockerfile.server-dev
     volumes:
-      - ./aws_sam_app/server_nodejs/src:/home/node/app/src
+      - ./server_nodejs/src:/home/node/app/server_nodejs/src
+      - ./packages:/home/node/app/packages
     ports:
       - "5050:5050"
     environment:

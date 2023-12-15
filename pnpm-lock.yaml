@@ -29,6 +29,9 @@ importers:
       dotenv-cli:
         specifier: ^7.3.0
         version: 7.3.0
+      nodemon:
+        specifier: ^3.0.1
+        version: 3.0.2
       pg:
         specifier: ^8.11.3
         version: 8.11.3
@@ -45,7 +48,7 @@ importers:
         specifier: ^6.35.2
         version: 6.35.2(pg-hstore@2.3.4)(pg@8.11.3)
       ts-node:
-        specifier: ^10.9.1
+        specifier: ^10.9.2
         version: 10.9.2(@types/node@20.10.4)(typescript@5.2.2)
       tslib:
         specifier: ^2.6.2

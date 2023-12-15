@@ -124,8 +124,8 @@ Resources:
           AUTH_LOGOUT_FINISH_REDIRECT_URL: !Ref AuthLogoutFinishRedirectUrl
           SESSION_COOKIE_SECRET: !Ref SessionCookieSecret
     Metadata:
-      DockerContext: ../server_nodejs
-      Dockerfile: Dockerfile
+      DockerContext: ../
+      Dockerfile: Dockerfile.lambda
       DockerTag: v13
 
   # ANCHOR: Monitoring
