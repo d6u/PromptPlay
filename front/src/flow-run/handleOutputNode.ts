@@ -1,11 +1,11 @@
-import { Observable, of } from "rxjs";
 import {
   V3OutputNodeConfig,
   V3VariableID,
   V3VariableValueLookUpDict,
-  VariablesDict,
   VariableType,
-} from "../models/v3-flow-content-types";
+  VariablesDict,
+} from "flow-models/v3-flow-content-types";
+import { Observable, of } from "rxjs";
 
 export function handleOutputNode(
   data: V3OutputNodeConfig,

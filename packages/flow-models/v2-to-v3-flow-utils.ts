@@ -26,9 +26,9 @@ import {
   V3ServerEdge,
   V3TextTemplateNodeConfig,
   V3VariableID,
-  VariablesDict,
   VariableType,
   VariableValueType,
+  VariablesDict,
 } from "./v3-flow-content-types";
 
 export function convertV2ContentToV3Content(

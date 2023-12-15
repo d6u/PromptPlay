@@ -1,14 +1,14 @@
-import { produce } from "immer";
-import { LocalNode, NodeID } from "../../../models/v2-flow-content-types";
+import { LocalNode, NodeID } from "flow-models/v2-flow-content-types";
 import {
   FlowInputVariable,
   FlowOutputVariable,
   NodeInputVariable,
   NodeOutputVariable,
   V3LocalEdge,
-  VariablesDict,
   VariableType,
-} from "../../../models/v3-flow-content-types";
+  VariablesDict,
+} from "flow-models/v3-flow-content-types";
+import { produce } from "immer";
 import { DEFAULT_EDGE_STYLE, DRAG_HANDLE_CLASS_NAME } from "../constants";
 
 export function assignLocalNodeProperties(nodes: LocalNode[]): LocalNode[] {

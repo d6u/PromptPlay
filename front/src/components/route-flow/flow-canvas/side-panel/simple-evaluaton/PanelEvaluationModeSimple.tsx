@@ -1,21 +1,21 @@
 import styled from "@emotion/styled";
 import { Button } from "@mui/joy";
-import { useContext, useMemo } from "react";
-import { useStore } from "zustand";
 import {
   VariableType,
   VariableValueType,
-} from "../../../../../models/v3-flow-content-types";
+} from "flow-models/v3-flow-content-types";
+import { useContext, useMemo } from "react";
+import { useStore } from "zustand";
 import FlowContext from "../../../FlowContext";
 import { useStoreFromFlowStoreContext } from "../../../store/FlowStoreContext";
 import { selectAllVariables } from "../../../store/state-utils";
+import InputBlock from "../common/InputBlock";
+import OutputRenderer from "../common/OutputRenderer";
 import {
   HeaderSection,
   HeaderSectionHeader,
   Section,
 } from "../common/controls-common";
-import InputBlock from "../common/InputBlock";
-import OutputRenderer from "../common/OutputRenderer";
 
 export default function PanelEvaluationModeSimple() {
   const { isCurrentUserOwner } = useContext(FlowContext);

@@ -1,6 +1,6 @@
 import Chance from "chance";
+import randomId from "common-utils/randomId";
 import { ChatGPTMessageRole } from "integrations/openai";
-import randomId from "../utils/randomId";
 import {
   LocalNode,
   NodeID,

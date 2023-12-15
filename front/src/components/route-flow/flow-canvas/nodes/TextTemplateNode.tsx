@@ -3,22 +3,25 @@ import FormHelperText from "@mui/joy/FormHelperText";
 import FormLabel from "@mui/joy/FormLabel";
 import IconButton from "@mui/joy/IconButton";
 import Textarea from "@mui/joy/Textarea";
-import { useContext, useEffect, useMemo, useState } from "react";
-import { Position, useNodeId, useUpdateNodeInternals } from "reactflow";
-import { useStore } from "zustand";
-import { NodeID, NodeType } from "../../../../models/v2-flow-content-types";
+import { NodeID, NodeType } from "flow-models/v2-flow-content-types";
 import {
   V3TextTemplateNodeConfig,
   VariableType,
-} from "../../../../models/v3-flow-content-types";
-import { CopyIcon, LabelWithIconContainer } from "../../common/flow-common";
-import TextareaReadonly from "../../common/TextareaReadonly";
+} from "flow-models/v3-flow-content-types";
+import { useContext, useEffect, useMemo, useState } from "react";
+import { Position, useNodeId, useUpdateNodeInternals } from "reactflow";
+import { useStore } from "zustand";
 import FlowContext from "../../FlowContext";
+import TextareaReadonly from "../../common/TextareaReadonly";
+import { CopyIcon, LabelWithIconContainer } from "../../common/flow-common";
 import { useStoreFromFlowStoreContext } from "../../store/FlowStoreContext";
 import { selectVariables } from "../../store/state-utils";
 import { DetailPanelContentType } from "../../store/store-flow-state-types";
 import AddVariableButton from "./node-common/AddVariableButton";
 import HeaderSection from "./node-common/HeaderSection";
+import NodeBox from "./node-common/NodeBox";
+import NodeInputModifyRow from "./node-common/NodeInputModifyRow";
+import NodeOutputRow from "./node-common/NodeOutputRow";
 import {
   InputHandle,
   OutputHandle,
@@ -26,9 +29,6 @@ import {
   SmallSection,
   StyledIconGear,
 } from "./node-common/node-common";
-import NodeBox from "./node-common/NodeBox";
-import NodeInputModifyRow from "./node-common/NodeInputModifyRow";
-import NodeOutputRow from "./node-common/NodeOutputRow";
 import {
   calculateInputHandleTop,
   calculateOutputHandleBottom,

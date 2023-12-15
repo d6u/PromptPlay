@@ -5,20 +5,20 @@ import FormLabel from "@mui/joy/FormLabel";
 import Input from "@mui/joy/Input";
 import Option from "@mui/joy/Option";
 import Select from "@mui/joy/Select";
-import { NEW_LINE_SYMBOL } from "integrations/openai";
-import { useContext, useEffect, useMemo, useState } from "react";
-import { Position, useNodeId } from "reactflow";
-import { useStore } from "zustand";
 import {
   NodeID,
   NodeType,
   OpenAIChatModel,
-} from "../../../../models/v2-flow-content-types";
+} from "flow-models/v2-flow-content-types";
 import {
   ChatGPTChatCompletionResponseFormatType,
   V3ChatGPTChatCompletionNodeConfig,
   VariableType,
-} from "../../../../models/v3-flow-content-types";
+} from "flow-models/v3-flow-content-types";
+import { NEW_LINE_SYMBOL } from "integrations/openai";
+import { useContext, useEffect, useMemo, useState } from "react";
+import { Position, useNodeId } from "reactflow";
+import { useStore } from "zustand";
 import {
   LocalStorageState,
   SpaceState,

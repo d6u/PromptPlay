@@ -23,6 +23,7 @@
     "@urql/exchange-graphcache": "^6.3.2",
     "chance": "^1.1.11",
     "classnames": "^2.3.2",
+    "flow-models": "workspace:^",
     "graphql": "^16.8.0",
     "immer": "^10.0.2",
     "integrations": "workspace:^",

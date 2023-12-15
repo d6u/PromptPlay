@@ -1,7 +1,7 @@
 import { F } from "@mobily/ts-belt";
 import { Option, Select } from "@mui/joy";
+import { VariableType } from "flow-models/v3-flow-content-types";
 import { ReactNode, useMemo } from "react";
-import { VariableType } from "../../../../../../../models/v3-flow-content-types";
 import { useFlowStore } from "../../../../../store/FlowStoreContext";
 import { selectAllVariables } from "../../../../../store/state-utils";
 import { CSVRow } from "../../common";

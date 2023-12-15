@@ -6,12 +6,12 @@ import {
   RadioGroup,
   Textarea,
 } from "@mui/joy";
+import { NodeType } from "flow-models/v2-flow-content-types";
+import { VariableType } from "flow-models/v3-flow-content-types";
 import { ChatGPTMessageRole } from "integrations/openai";
 import { useContext, useEffect, useMemo, useState } from "react";
 import invariant from "ts-invariant";
 import { useStore } from "zustand";
-import { NodeType } from "../../../../../models/v2-flow-content-types";
-import { VariableType } from "../../../../../models/v3-flow-content-types";
 import FlowContext from "../../../FlowContext";
 import TextareaReadonly from "../../../common/TextareaReadonly";
 import { CopyIcon, LabelWithIconContainer } from "../../../common/flow-common";

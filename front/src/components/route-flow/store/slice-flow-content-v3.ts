@@ -8,24 +8,20 @@ import {
   OnNodesChange,
 } from "reactflow";
 
-import { debounce } from "lodash";
-import invariant from "ts-invariant";
-import { StateCreator } from "zustand";
-import {
-  LocalNode,
-  NodeID,
-  NodeType,
-} from "../../../models/v2-flow-content-types";
+import { LocalNode, NodeID, NodeType } from "flow-models/v2-flow-content-types";
 import {
   V3LocalEdge,
   V3NodeConfig,
   V3NodeConfigsDict,
   V3VariableID,
   V3VariableValueLookUpDict,
-  VariablesDict,
   VariableType,
-} from "../../../models/v3-flow-content-types";
-import { createNode } from "../../../models/v3-flow-utils";
+  VariablesDict,
+} from "flow-models/v3-flow-content-types";
+import { createNode } from "flow-models/v3-flow-utils";
+import { debounce } from "lodash";
+import invariant from "ts-invariant";
+import { StateCreator } from "zustand";
 import { updateSpaceContentV3 } from "../graphql";
 import { handleEvent } from "./event-graph-handlers";
 import {

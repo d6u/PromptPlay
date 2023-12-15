@@ -1,7 +1,7 @@
+import { VariableType } from "flow-models/v3-flow-content-types";
 import { ReactNode, useMemo } from "react";
 import { useStore } from "zustand";
 import { OverallStatus } from "../../../../../../../flow-run/run-types";
-import { VariableType } from "../../../../../../../models/v3-flow-content-types";
 import { useStoreFromFlowStoreContext } from "../../../../../store/FlowStoreContext";
 import {
   IterationIndex,

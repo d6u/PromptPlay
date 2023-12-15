@@ -1,5 +1,3 @@
-import { defer, Observable } from "rxjs";
-import invariant from "ts-invariant";
 import {
   NodeOutputVariable,
   V3JavaScriptFunctionNodeConfig,
@@ -7,7 +5,9 @@ import {
   V3VariableValueLookUpDict,
   VariablesDict,
   VariableType,
-} from "../models/v3-flow-content-types";
+} from "flow-models/v3-flow-content-types";
+import { defer, Observable } from "rxjs";
+import invariant from "ts-invariant";
 import { AsyncFunction } from "./run-single";
 
 export function handleJavaScriptFunctionNode(

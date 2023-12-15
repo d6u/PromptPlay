@@ -1,6 +1,3 @@
-import mustache from "mustache";
-import { defer, Observable, of } from "rxjs";
-import invariant from "ts-invariant";
 import {
   NodeOutputVariable,
   V3TextTemplateNodeConfig,
@@ -8,7 +5,10 @@ import {
   V3VariableValueLookUpDict,
   VariablesDict,
   VariableType,
-} from "../models/v3-flow-content-types";
+} from "flow-models/v3-flow-content-types";
+import mustache from "mustache";
+import { defer, Observable, of } from "rxjs";
+import invariant from "ts-invariant";
 
 export function handleTextTemplateNode(
   data: V3TextTemplateNodeConfig,

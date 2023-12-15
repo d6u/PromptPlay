@@ -1,4 +1,15 @@
 import { D } from "@mobily/ts-belt";
+import { NodeID } from "flow-models/v2-flow-content-types";
+import {
+  asV3VariableID,
+  convertV2ContentToV3Content,
+} from "flow-models/v2-to-v3-flow-utils";
+import {
+  V3FlowContent,
+  V3VariableValueLookUpDict,
+  VariablesDict,
+  VariableType,
+} from "flow-models/v3-flow-content-types";
 import { produce } from "immer";
 import posthog from "posthog-js";
 import { mergeMap, Subscription } from "rxjs";
@@ -8,17 +19,6 @@ import { StateCreator } from "zustand";
 import { runSingle } from "../../../flow-run/run-single";
 import { RunEventType } from "../../../flow-run/run-types";
 import { ContentVersion, SpaceFlowQueryQuery } from "../../../gql/graphql";
-import { NodeID } from "../../../models/v2-flow-content-types";
-import {
-  asV3VariableID,
-  convertV2ContentToV3Content,
-} from "../../../models/v2-to-v3-flow-utils";
-import {
-  V3FlowContent,
-  V3VariableValueLookUpDict,
-  VariablesDict,
-  VariableType,
-} from "../../../models/v3-flow-content-types";
 import { fetchFlowContent, updateSpaceContentV3 } from "../graphql";
 import {
   assignLocalEdgeProperties,

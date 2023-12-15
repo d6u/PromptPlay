@@ -5,15 +5,15 @@ import IconButton from "@mui/joy/IconButton";
 import Radio from "@mui/joy/Radio";
 import RadioGroup from "@mui/joy/RadioGroup";
 import Textarea from "@mui/joy/Textarea";
+import { NodeID, NodeType } from "flow-models/v2-flow-content-types";
+import {
+  V3ChatGPTMessageNodeConfig,
+  VariableType,
+} from "flow-models/v3-flow-content-types";
 import { ChatGPTMessageRole } from "integrations/openai";
 import { useContext, useEffect, useMemo, useState } from "react";
 import { Position, useNodeId, useUpdateNodeInternals } from "reactflow";
 import { useStore } from "zustand";
-import { NodeID, NodeType } from "../../../../models/v2-flow-content-types";
-import {
-  V3ChatGPTMessageNodeConfig,
-  VariableType,
-} from "../../../../models/v3-flow-content-types";
 import FlowContext from "../../FlowContext";
 import TextareaReadonly from "../../common/TextareaReadonly";
 import { CopyIcon, LabelWithIconContainer } from "../../common/flow-common";

@@ -1,10 +1,10 @@
-import { LocalNode, NodeID } from "../../../models/v2-flow-content-types";
+import { LocalNode, NodeID } from "flow-models/v2-flow-content-types";
 import {
   V3LocalEdge,
   V3NodeConfigsDict,
   V3VariableValueLookUpDict,
   VariablesDict,
-} from "../../../models/v3-flow-content-types";
+} from "flow-models/v3-flow-content-types";
 import { CsvEvaluationPresetSlice } from "./slice-csv-evaluation-preset";
 import { SliceFlowContentV3 } from "./slice-flow-content-v3";
 import { RootSlice } from "./slice-root";

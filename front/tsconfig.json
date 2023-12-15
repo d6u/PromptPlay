@@ -22,6 +22,6 @@
     // "noUncheckedIndexedAccess": true
     // "noPropertyAccessFromIndexSignature": true
   },
-  "include": ["src"],
+  "include": ["src", "../packages/common-utils/randomId.ts"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

@@ -1,16 +1,16 @@
-import { Connection, EdgeChange, NodeChange } from "reactflow";
 import {
   LocalNode,
   NodeConfig,
   NodeID,
-} from "../../../models/v2-flow-content-types";
+} from "flow-models/v2-flow-content-types";
 import {
   V3LocalEdge,
   V3NodeConfig,
   V3VariableID,
   Variable,
   VariableType,
-} from "../../../models/v3-flow-content-types";
+} from "flow-models/v3-flow-content-types";
+import { Connection, EdgeChange, NodeChange } from "reactflow";
 
 export enum ChangeEventType {
   // React Flow

@@ -1,8 +1,4 @@
 import { A } from "@mobily/ts-belt";
-import * as OpenAI from "integrations/openai";
-import mustache from "mustache";
-import { Observable, of } from "rxjs";
-import invariant from "ts-invariant";
 import {
   NodeOutputVariable,
   V3ChatGPTMessageNodeConfig,
@@ -10,7 +6,11 @@ import {
   V3VariableValueLookUpDict,
   VariableType,
   VariablesDict,
-} from "../models/v3-flow-content-types";
+} from "flow-models/v3-flow-content-types";
+import * as OpenAI from "integrations/openai";
+import mustache from "mustache";
+import { Observable, of } from "rxjs";
+import invariant from "ts-invariant";
 
 export function handleChatGPTMessageNode(
   data: V3ChatGPTMessageNodeConfig,

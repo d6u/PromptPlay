@@ -1,8 +1,8 @@
+import { V3FlowContent } from "flow-models/v3-flow-content-types";
 import { Observable } from "rxjs";
 import { OperationResult } from "urql";
 import { graphql } from "../../gql";
 import { SpaceFlowQueryQuery } from "../../gql/graphql";
-import { V3FlowContent } from "../../models/v3-flow-content-types";
 import { client } from "../../state/urql";
 import { toRxObservableSingle } from "../../utils/graphql-utils";
 

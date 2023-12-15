@@ -55,8 +55,8 @@ services:
       - DEBUG=${DEBUG}
       # We are using a local DynamoDB. Thus, need to set up dummy values for
       # AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY.
-      - AWS_ACCESS_KEY_ID=DUMMY
-      - AWS_SECRET_ACCESS_KEY=DUMMY
+      - AWS_ACCESS_KEY_ID=AKIA2WZYBLV2ECDFR7XU
+      - AWS_SECRET_ACCESS_KEY=MaugV0FBxFwU1areq1uplspZyGhJ3cdtcfC14eg0
     develop:
       watch:
         - action: sync

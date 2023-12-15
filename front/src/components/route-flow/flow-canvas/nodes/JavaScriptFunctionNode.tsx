@@ -1,30 +1,30 @@
 import FormControl from "@mui/joy/FormControl";
 import FormLabel from "@mui/joy/FormLabel";
 import Textarea from "@mui/joy/Textarea";
-import { useContext, useMemo, useState } from "react";
-import { Position, useNodeId, useUpdateNodeInternals } from "reactflow";
-import { useStore } from "zustand";
-import { NodeID, NodeType } from "../../../../models/v2-flow-content-types";
+import { NodeID, NodeType } from "flow-models/v2-flow-content-types";
 import {
   V3JavaScriptFunctionNodeConfig,
   VariableType,
-} from "../../../../models/v3-flow-content-types";
-import { CopyIcon, LabelWithIconContainer } from "../../common/flow-common";
-import TextareaReadonly from "../../common/TextareaReadonly";
+} from "flow-models/v3-flow-content-types";
+import { useContext, useMemo, useState } from "react";
+import { Position, useNodeId, useUpdateNodeInternals } from "reactflow";
+import { useStore } from "zustand";
 import FlowContext from "../../FlowContext";
+import TextareaReadonly from "../../common/TextareaReadonly";
+import { CopyIcon, LabelWithIconContainer } from "../../common/flow-common";
 import { useStoreFromFlowStoreContext } from "../../store/FlowStoreContext";
 import { selectVariables } from "../../store/state-utils";
 import AddVariableButton from "./node-common/AddVariableButton";
 import HeaderSection from "./node-common/HeaderSection";
+import NodeBox, { NodeState } from "./node-common/NodeBox";
+import NodeInputModifyRow from "./node-common/NodeInputModifyRow";
+import NodeOutputRow from "./node-common/NodeOutputRow";
 import {
   InputHandle,
   OutputHandle,
   Section,
   SmallSection,
 } from "./node-common/node-common";
-import NodeBox, { NodeState } from "./node-common/NodeBox";
-import NodeInputModifyRow from "./node-common/NodeInputModifyRow";
-import NodeOutputRow from "./node-common/NodeOutputRow";
 import {
   calculateInputHandleTop,
   calculateOutputHandleBottom,

@@ -3,9 +3,9 @@ import Input from "@mui/joy/Input";
 import Option from "@mui/joy/Option";
 import Select from "@mui/joy/Select";
 import Textarea from "@mui/joy/Textarea";
+import { InputValueType } from "flow-models/v2-flow-content-types";
+import { VariableValueType } from "flow-models/v3-flow-content-types";
 import { ReactNode, useEffect, useState } from "react";
-import { InputValueType } from "../../../../../models/v2-flow-content-types";
-import { VariableValueType } from "../../../../../models/v3-flow-content-types";
 import InputReadonly from "../../../common/InputReadonly";
 import TextareaReadonly from "../../../common/TextareaReadonly";
 

@@ -1,4 +1,12 @@
 import { A } from "@mobily/ts-belt";
+import {
+  NodeOutputVariable,
+  V3ChatGPTChatCompletionNodeConfig,
+  V3VariableID,
+  V3VariableValueLookUpDict,
+  VariablesDict,
+  VariableType,
+} from "flow-models/v3-flow-content-types";
 import * as OpenAI from "integrations/openai";
 import {
   concat,
@@ -12,14 +20,6 @@ import {
   TimeoutError,
 } from "rxjs";
 import invariant from "ts-invariant";
-import {
-  NodeOutputVariable,
-  V3ChatGPTChatCompletionNodeConfig,
-  V3VariableID,
-  V3VariableValueLookUpDict,
-  VariablesDict,
-  VariableType,
-} from "../models/v3-flow-content-types";
 import { useLocalStorageStore, useSpaceStore } from "../state/appState";
 
 export function handleChatGPTChatNode(

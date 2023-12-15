@@ -1,6 +1,3 @@
-import * as HuggingFace from "integrations/hugging-face";
-import { defer, from, map, Observable, throwError } from "rxjs";
-import invariant from "ts-invariant";
 import {
   NodeOutputVariable,
   V3HuggingFaceInferenceNodeConfig,
@@ -8,7 +5,10 @@ import {
   V3VariableValueLookUpDict,
   VariablesDict,
   VariableType,
-} from "../models/v3-flow-content-types";
+} from "flow-models/v3-flow-content-types";
+import * as HuggingFace from "integrations/hugging-face";
+import { defer, from, map, Observable, throwError } from "rxjs";
+import invariant from "ts-invariant";
 import { useLocalStorageStore, useSpaceStore } from "../state/appState";
 
 export function handleHuggingFaceInferenceNode(
