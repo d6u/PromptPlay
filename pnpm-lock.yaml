@@ -60,7 +60,11 @@ importers:
         specifier: ^9.0.1
         version: 9.0.1
 
-  packages/flow-content-migration: {}
+  packages/flow-content-migration:
+    devDependencies:
+      typescript:
+        specifier: 5.2.2
+        version: 5.2.2
 
   server_nodejs:
     dependencies:

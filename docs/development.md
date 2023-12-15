@@ -56,17 +56,10 @@ _Run commands in repository root directory, unless otherwise specified._
    docker compose \
      --env-file .environments/api-server/local.env \
      --env-file .environments/dynamodb/local.env \
-     watch --no-up
-   ```
-
-   Separately, start Docker containers:
-
-   ```sh
-   docker compose \
-     --env-file .environments/api-server/local.env \
-     --env-file .environments/dynamodb/local.env \
      up
    ```
+
+   - Apply `--build` when package has changed.
 
 2. Create tables if needed:
 
@@ -84,7 +77,7 @@ _Run commands in repository root directory, unless otherwise specified._
      ts-node scripts/dynamodb/delete-tables.ts
    ```
 
-3. (Optional) Confirm backend server is running at [localhost:5050/graphql](http://localhost:5050/graphql).
+3. (Optional) Confirm backend server is running at [localhost:5050/hello](http://localhost:5050/hello).
 
 4. (Optional) Generate GraphQL code for front end:
 
@@ -115,17 +108,18 @@ _Run commands in repository root directory, unless otherwise specified._
 
 ## Option 2: On Host Machine Directly
 
-_In `aws_sam_app/server_nodejs/`_
+_Run commands in repository root directory._
 
 ```sh
 dotenv \
-  -e ../../.environments/api-server/local.env \
-  -e ../../.environments/dynamodb/local.env \
-  nodemon -e ts
+  -e .environments/api-server/local.env \
+  -e .environments/dynamodb/local.env \
+  -- pnpm --filter server_nodejs exec nodemon -e ts
 ```
 
-- `nodemon` will pick up `npm start` to start the server.
-- `-e ts` following `nodemon`: Watch `.ts` files.
+- `--`: Pass command to `dotenv`.
+- `--filter server_nodejs`: Run `pnpm` in `server_nodejs` package's context.
+- `exec`: I.e. `pnpm exec` that picks up `nodemon` from `server_nodejs` package's `node_modules/.bin`.
 
 # Deprecated Steps
 

@@ -36,7 +36,7 @@
     "typescript": "~5.2.0"
   },
   "scripts": {
-    "build": "tsc --pretty",
+    "build": "rm -rf dist && tsc --pretty",
     "start": "ts-node src/index.ts",
     "test": "mocha tests/unit/"
   }

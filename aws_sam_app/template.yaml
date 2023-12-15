@@ -125,8 +125,8 @@ Resources:
           SESSION_COOKIE_SECRET: !Ref SessionCookieSecret
     Metadata:
       DockerContext: ../
-      Dockerfile: Dockerfile.lambda
-      DockerTag: v13
+      Dockerfile: Dockerfile.server-lambda
+      DockerTag: v15
 
   # ANCHOR: Monitoring
 

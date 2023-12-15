@@ -60,9 +60,8 @@ services:
     develop:
       watch:
         - action: sync
-          path: ./aws_sam_app/server_nodejs/src
-          target: /home/node/app/src
-          ignore:
-            - ./aws_sam_app/server_nodejs/node_modules
-        - action: rebuild
-          path: ./aws_sam_app/server_nodejs/package.json
+          path: ./server_nodejs/src
+          target: /home/node/app/server_nodejs/src
+        - action: sync
+          path: ./packages
+          target: /home/node/app/packages

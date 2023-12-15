@@ -9,7 +9,7 @@ import serverless from "serverless-http";
 import setupAuth from "./routesAuth.js";
 import setupGraphql from "./routesGraphql.js";
 
-sayHi();
+sayHi("a");
 
 const app = express();
 

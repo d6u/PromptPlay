@@ -3,8 +3,10 @@
   "version": "1.0.0",
   "private": true,
   "main": "index.js",
-  "devDependencies": {},
+  "devDependencies": {
+    "typescript": "5.2.2"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "rm -f index.js && tsc --pretty"
   }
 }

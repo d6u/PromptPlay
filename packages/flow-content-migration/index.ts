@@ -1,3 +1,3 @@
-export function sayHi() {
-  console.log("hi hi hi");
+export function sayHi(name: string) {
+  console.log("hi");
 }

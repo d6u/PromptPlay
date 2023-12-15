@@ -12,7 +12,7 @@ COPY server_nodejs/package.json server_nodejs/tsconfig.json ./server_nodejs/
 COPY server_nodejs/src ./server_nodejs/src
 
 RUN pnpm install
-RUN pnpm --filter server_nodejs run build
+RUN pnpm -r run build
 
 
 # ANCHOR: Lambda
