@@ -180,6 +180,9 @@ importers:
 
   packages/flow-models:
     dependencies:
+      '@mobily/ts-belt':
+        specifier: ^3.13.1
+        version: 3.13.1
       common-utils:
         specifier: workspace:^
         version: link:../common-utils

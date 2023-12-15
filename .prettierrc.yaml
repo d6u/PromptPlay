@@ -6,3 +6,4 @@ importOrder:
   - "^@ui/(.*)$"
   - '^[./](?!.*\\.css$).*$'
   - "^[./]"
+singleQuote: true
