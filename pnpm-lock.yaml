@@ -6,6 +6,8 @@ settings:
 
 importers:
 
+  .: {}
+
   front:
     dependencies:
       '@dhmk/zustand-lens':
