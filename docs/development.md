@@ -83,19 +83,19 @@ _Run commands in repository root directory, unless otherwise specified._
 
    ```sh
    dotenv -e .environments/vite/.env.development \
-     -- pnpm --filter front exec graphql-codegen
+     -- pnpm -F front exec graphql-codegen
    ```
 
 5. Start frontend dev server:
 
    ```sh
-   pnpm --filter front run dev
+   pnpm -F front run dev
    ```
 
    Pick up a different environment file using mode:
 
    ```sh
-   pnpm --filter front run dev -m development-python
+   pnpm -F front run dev -m development-python
    ```
 
    This requires matching `.env` file in `.environments/vite/`, e.g. `.environments/vite/.env.development-python`.
@@ -110,7 +110,7 @@ _Run commands in repository root directory._
 dotenv \
   -e .environments/api-server/local.env \
   -e .environments/dynamodb/local.env \
-  -- pnpm --filter server_nodejs exec nodemon -e ts
+  -- pnpm -F server_nodejs exec nodemon -e ts --exec ts-node src/index.ts
 ```
 
 - `--`: Pass command to `dotenv`.

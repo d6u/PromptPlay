@@ -37,7 +37,6 @@
   },
   scripts: {
     build: 'rm -rf dist && tsc --pretty',
-    start: 'ts-node src/index.ts',
     test: 'mocha tests/unit/',
   },
 }

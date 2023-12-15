@@ -2,8 +2,6 @@
   name: 'flow-models',
   private: true,
   version: '1.0.0',
-  main: 'index.js',
-  scripts: {},
   dependencies: {
     '@mobily/ts-belt': '^3.13.1',
     'common-utils': 'workspace:^',
