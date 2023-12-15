@@ -1,5 +1,5 @@
+import { ChatGPTMessageRole } from "integrations/openai";
 import { Edge, Node, XYPosition } from "reactflow";
-import { ChatGPTMessageRole } from "../integrations/openai";
 
 // SECTION: ID Types
 

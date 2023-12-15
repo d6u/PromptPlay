@@ -1,6 +1,6 @@
+import * as HuggingFace from "integrations/hugging-face";
 import { defer, from, map, Observable, throwError } from "rxjs";
 import invariant from "ts-invariant";
-import * as HuggingFace from "../integrations/hugging-face";
 import {
   NodeOutputVariable,
   V3HuggingFaceInferenceNodeConfig,

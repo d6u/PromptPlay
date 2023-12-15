@@ -1,4 +1,5 @@
 import { A } from "@mobily/ts-belt";
+import * as OpenAI from "integrations/openai";
 import {
   concat,
   defer,
@@ -11,7 +12,6 @@ import {
   TimeoutError,
 } from "rxjs";
 import invariant from "ts-invariant";
-import * as OpenAI from "../integrations/openai";
 import {
   NodeOutputVariable,
   V3ChatGPTChatCompletionNodeConfig,

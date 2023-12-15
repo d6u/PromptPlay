@@ -1,6 +1,6 @@
+import * as ElevenLabs from "integrations/eleven-labs";
 import { defer, from, map, Observable, throwError } from "rxjs";
 import invariant from "ts-invariant";
-import * as ElevenLabs from "../integrations/eleven-labs";
 import {
   NodeOutputVariable,
   V3ElevenLabsNodeConfig,
