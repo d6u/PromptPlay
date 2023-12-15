@@ -1,32 +1,28 @@
 import {
+  CsvEvaluationPresetEntity,
+  CsvEvaluationPresetsTable,
+  DbCsvEvaluationPresetConfigContentVersion,
+} from 'dynamodb-models/csv-evaluation-preset';
+import {
+  PlaceholderUserEntity,
+  PlaceholderUserShape,
+  PlaceholderUsersTable,
+} from 'dynamodb-models/placeholder-user';
+import {
+  DbSpaceContentVersion,
+  SpaceEntity,
+  SpaceShape,
+  SpacesTable,
+} from 'dynamodb-models/space';
+import { UserEntity, UserShape, UsersTable } from 'dynamodb-models/user';
+import {
   CreationOptional,
   DataTypes,
   InferAttributes,
   InferCreationAttributes,
   Model,
   Sequelize,
-} from "sequelize";
-import {
-  CsvEvaluationPresetEntity,
-  CsvEvaluationPresetsTable,
-  DbCsvEvaluationPresetConfigContentVersion,
-} from "../../aws_sam_app/server_nodejs/src/models/csv-evaluation-preset.js";
-import {
-  PlaceholderUserEntity,
-  PlaceholderUserShape,
-  PlaceholderUsersTable,
-} from "../../aws_sam_app/server_nodejs/src/models/placeholder-user.js";
-import {
-  DbSpaceContentVersion,
-  SpaceEntity,
-  SpaceShape,
-  SpacesTable,
-} from "../../aws_sam_app/server_nodejs/src/models/space.js";
-import {
-  UserEntity,
-  UserShape,
-  UsersTable,
-} from "../../aws_sam_app/server_nodejs/src/models/user.js";
+} from 'sequelize';
 
 declare global {
   namespace NodeJS {
@@ -56,7 +52,7 @@ const sequelize = new Sequelize({
   host: process.env.POSTGRES_HOST,
   port: Number(process.env.POSTGRES_PORT),
   database: process.env.POSTGRES_DATABASE_NAME,
-  dialect: "postgres",
+  dialect: 'postgres',
   dialectOptions: {
     ssl: {
       require: true,
@@ -107,8 +103,8 @@ User.init(
   },
   {
     sequelize,
-    modelName: "User",
-    tableName: "users",
+    modelName: 'User',
+    tableName: 'users',
     underscored: true,
   },
 );
@@ -159,8 +155,8 @@ Space.init(
   },
   {
     sequelize,
-    modelName: "Space",
-    tableName: "spaces",
+    modelName: 'Space',
+    tableName: 'spaces',
     underscored: true,
   },
 );
@@ -209,8 +205,8 @@ CsvEvaluationPreset.init(
   },
   {
     sequelize,
-    modelName: "CsvEvaluationPreset",
-    tableName: "csv_evaluation_presets",
+    modelName: 'CsvEvaluationPreset',
+    tableName: 'csv_evaluation_presets',
     underscored: true,
   },
 );

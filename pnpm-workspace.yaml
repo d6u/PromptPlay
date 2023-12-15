@@ -2,3 +2,4 @@ packages:
   - "packages/*"
   - "server_nodejs"
   - "front"
+  - "scripts"

@@ -1,7 +1,7 @@
-import { RequestWithUser } from "../middleware/user.js";
-import { CsvEvaluationPresetShape } from "../models/csv-evaluation-preset.js";
-import { DbSpaceContentVersion, SpaceShape } from "../models/space.js";
-import { UserShape } from "../models/user.js";
+import { CsvEvaluationPresetShape } from 'dynamodb-models/csv-evaluation-preset.js';
+import { DbSpaceContentVersion, SpaceShape } from 'dynamodb-models/space.js';
+import { UserShape } from 'dynamodb-models/user.js';
+import { RequestWithUser } from '../middleware/user.js';
 
 type Context = {
   req: RequestWithUser;
@@ -54,9 +54,9 @@ export class Space {
 }
 
 export enum SpaceContentVersion {
-  v1 = "v1",
-  v2 = "v2",
-  v3 = "v3",
+  v1 = 'v1',
+  v2 = 'v2',
+  v3 = 'v3',
 }
 
 function parseDbSpaceContentVersion(value: string): SpaceContentVersion {
@@ -104,7 +104,7 @@ export class CsvEvaluationPresetFromSpaceIdIndex extends CsvEvaluationPreset {
   constructor(
     dbCsvEvaluationPreset: Pick<
       CsvEvaluationPresetShape,
-      "spaceId" | "id" | "name"
+      'spaceId' | 'id' | 'name'
     >,
   ) {
     super();
@@ -120,11 +120,11 @@ export class CsvEvaluationPresetFromSpaceIdIndex extends CsvEvaluationPreset {
 
   async getCsvContent(): Promise<string> {
     // TODO: Implement
-    throw new Error("Not implemented");
+    throw new Error('Not implemented');
   }
 
   async getConfigContent(): Promise<string> {
     // TODO: Implement
-    throw new Error("Not implemented");
+    throw new Error('Not implemented');
   }
 }

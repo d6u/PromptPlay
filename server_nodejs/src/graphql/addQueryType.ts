@@ -1,11 +1,11 @@
-import { PlaceholderUserEntity } from "../models/placeholder-user.js";
-import { SpaceEntity } from "../models/space.js";
-import { UserEntity } from "../models/user.js";
-import { BuilderType, Space, User } from "./graphql-types.js";
+import { PlaceholderUserEntity } from 'dynamodb-models/placeholder-user.js';
+import { SpaceEntity } from 'dynamodb-models/space.js';
+import { UserEntity } from 'dynamodb-models/user.js';
+import { BuilderType, Space, User } from './graphql-types.js';
 
 export default function addQueryType(builder: BuilderType) {
   const QuerySpaceResult = builder
-    .objectRef<QuerySpaceResultShape>("QuerySpaceResult")
+    .objectRef<QuerySpaceResultShape>('QuerySpaceResult')
     .implement({
       fields(t) {
         return {
@@ -15,7 +15,7 @@ export default function addQueryType(builder: BuilderType) {
               return parent.space;
             },
           }),
-          isReadOnly: t.exposeBoolean("isReadOnly"),
+          isReadOnly: t.exposeBoolean('isReadOnly'),
         };
       },
     });
@@ -28,8 +28,8 @@ export default function addQueryType(builder: BuilderType) {
             if (context.req.dbUser != null) {
               return `Hello ${
                 context.req.dbUser.isPlaceholderUser
-                  ? "Guest Player 1"
-                  : "Player 1"
+                  ? 'Guest Player 1'
+                  : 'Player 1'
               }!`;
             }
 
@@ -38,7 +38,7 @@ export default function addQueryType(builder: BuilderType) {
         }),
         isLoggedIn: t.boolean({
           description:
-            "Check if there is a user and the user is not a placeholder user",
+            'Check if there is a user and the user is not a placeholder user',
           resolve(parent, args, context) {
             return (
               context.req.dbUser != null &&
@@ -48,11 +48,11 @@ export default function addQueryType(builder: BuilderType) {
         }),
         isPlaceholderUserTokenInvalid: t.boolean({
           description:
-            "When PlaceholderUserToken header is present and the token is not mapped to a user",
+            'When PlaceholderUserToken header is present and the token is not mapped to a user',
           async resolve(parent, args, context) {
             const placeholderUserToken = context.req.header(
               // NOTE: This header name is in lower case.
-              "placeholderusertoken",
+              'placeholderusertoken',
             );
 
             if (placeholderUserToken == null) {
@@ -91,7 +91,7 @@ export default function addQueryType(builder: BuilderType) {
               });
 
               if (dbUser == null) {
-                throw new Error("User should not be null");
+                throw new Error('User should not be null');
               }
 
               return new User(dbUser);
@@ -102,7 +102,7 @@ export default function addQueryType(builder: BuilderType) {
           type: QuerySpaceResult,
           nullable: true,
           args: {
-            id: t.arg({ type: "UUID", required: true }),
+            id: t.arg({ type: 'UUID', required: true }),
           },
           async resolve(parent, args, context) {
             const { Item: dbSpace } = await SpaceEntity.get({ id: args.id });

@@ -1,4 +1,4 @@
-import { D } from "@mobily/ts-belt";
+import { D } from '@mobily/ts-belt';
 import {
   FlowContent,
   InputValueType,
@@ -6,7 +6,7 @@ import {
   NodeType,
   OutputValueType,
   VariableID,
-} from "./v2-flow-content-types";
+} from './v2-flow-content-types';
 import {
   ChatGPTChatCompletionResponseFormatType,
   FlowInputVariable,
@@ -29,7 +29,7 @@ import {
   VariableType,
   VariableValueType,
   VariablesDict,
-} from "./v3-flow-content-types";
+} from './v3-flow-content-types';
 
 export function convertV2ContentToV3Content(
   flowContentV2: FlowContent,

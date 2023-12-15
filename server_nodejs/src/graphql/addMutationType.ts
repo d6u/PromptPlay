@@ -1,19 +1,19 @@
-import { A, D, F } from "@mobily/ts-belt";
+import { A, D, F } from '@mobily/ts-belt';
 import {
   CsvEvaluationPresetEntity,
   CsvEvaluationPresetShape,
   DbCsvEvaluationPresetConfigContentVersion,
-} from "../models/csv-evaluation-preset.js";
-import { createSpaceWithExampleContent } from "../models/model-utils.js";
-import { PlaceholderUserEntity } from "../models/placeholder-user.js";
+} from 'dynamodb-models/csv-evaluation-preset.js';
+import { createSpaceWithExampleContent } from 'dynamodb-models/model-utils.js';
+import { PlaceholderUserEntity } from 'dynamodb-models/placeholder-user.js';
 import {
   DbSpaceContentVersion,
   SpaceEntity,
   SpaceShape,
   SpacesTable,
-} from "../models/space.js";
-import { UserEntity } from "../models/user.js";
-import { nullThrow } from "../utils/utils.js";
+} from 'dynamodb-models/space.js';
+import { UserEntity } from 'dynamodb-models/user.js';
+import { nullThrow } from '../utils/utils.js';
 import {
   BuilderType,
   CsvEvaluationPreset,
@@ -22,17 +22,17 @@ import {
   Space,
   SpaceContentVersion,
   User,
-} from "./graphql-types.js";
+} from './graphql-types.js';
 
 export default function addMutationType(builder: BuilderType) {
   const CreatePlaceholderUserAndExampleSpaceResult = builder
     .objectRef<CreatePlaceholderUserAndExampleSpaceResultShape>(
-      "CreatePlaceholderUserAndExampleSpaceResult",
+      'CreatePlaceholderUserAndExampleSpaceResult',
     )
     .implement({
       fields(t) {
         return {
-          placeholderClientToken: t.exposeID("placeholderClientToken"),
+          placeholderClientToken: t.exposeID('placeholderClientToken'),
           space: t.field({
             type: Space,
             resolve(parent) {
@@ -45,7 +45,7 @@ export default function addMutationType(builder: BuilderType) {
 
   const CreateCsvEvaluationPresetResult = builder
     .objectRef<CreateCsvEvaluationPresetResultShape>(
-      "CreateCsvEvaluationPresetResult",
+      'CreateCsvEvaluationPresetResult',
     )
     .implement({
       fields(t) {
@@ -102,7 +102,7 @@ export default function addMutationType(builder: BuilderType) {
               };
             } else {
               if (!dbUser.isPlaceholderUser) {
-                throw new Error("Current user should be a placeholder user");
+                throw new Error('Current user should be a placeholder user');
               }
 
               placeholderClientToken = dbUser.id;
@@ -128,7 +128,7 @@ export default function addMutationType(builder: BuilderType) {
           type: User,
           nullable: true,
           args: {
-            placeholderUserToken: t.arg({ type: "String", required: true }),
+            placeholderUserToken: t.arg({ type: 'String', required: true }),
           },
           async resolve(parent, args, context) {
             // ANCHOR: Make sure there is a logged in user to merge to
@@ -140,7 +140,7 @@ export default function addMutationType(builder: BuilderType) {
             }
 
             if (dbUser.isPlaceholderUser) {
-              throw new Error("Current user should not be a placeholder user");
+              throw new Error('Current user should not be a placeholder user');
             }
 
             // ANCHOR: Make sure the provided placeholder user exists
@@ -158,13 +158,13 @@ export default function addMutationType(builder: BuilderType) {
             // ANCHOR: Merge the placeholder user's spaces to the logged in user
 
             const response = await SpaceEntity.query(placeholderUserId, {
-              index: "OwnerIdIndex",
+              index: 'OwnerIdIndex',
               // Parse works because OwnerIdIndex projects all the attributes.
-              parseAsEntity: "Space",
+              parseAsEntity: 'Space',
             });
 
             const spaces = F.toMutable(
-              A.map(response.Items ?? [], D.set("ownerId", dbUser.id)),
+              A.map(response.Items ?? [], D.set('ownerId', dbUser.id)),
             );
 
             // ANCHOR: Delete the placeholder user
@@ -191,7 +191,7 @@ export default function addMutationType(builder: BuilderType) {
             });
 
             if (fullDbUser == null) {
-              throw new Error("User should not be null");
+              throw new Error('User should not be null');
             }
 
             return new User(fullDbUser);
@@ -212,7 +212,7 @@ export default function addMutationType(builder: BuilderType) {
             const dbSpace = SpaceEntity.parse(
               SpaceEntity.putParams({
                 ownerId: dbUser.id,
-                name: "Untitled",
+                name: 'Untitled',
                 contentVersion: DbSpaceContentVersion.v3,
                 contentV3: JSON.stringify({}),
               }).Item!,
@@ -226,12 +226,12 @@ export default function addMutationType(builder: BuilderType) {
         updateSpace: t.field({
           type: Space,
           args: {
-            id: t.arg({ type: "ID", required: true }),
-            name: t.arg({ type: "String" }),
+            id: t.arg({ type: 'ID', required: true }),
+            name: t.arg({ type: 'String' }),
             contentVersion: t.arg({ type: SpaceContentVersion }),
-            content: t.arg({ type: "String" }),
-            flowContent: t.arg({ type: "String" }),
-            contentV3: t.arg({ type: "String" }),
+            content: t.arg({ type: 'String' }),
+            flowContent: t.arg({ type: 'String' }),
+            contentV3: t.arg({ type: 'String' }),
           },
           nullable: true,
           async resolve(parent, args, context) {
@@ -255,7 +255,7 @@ export default function addMutationType(builder: BuilderType) {
 
             if (args.name !== undefined) {
               if (args.name === null) {
-                throw new Error("name cannot be null");
+                throw new Error('name cannot be null');
               } else {
                 newDbSpace.name = args.name;
               }
@@ -263,7 +263,7 @@ export default function addMutationType(builder: BuilderType) {
 
             if (args.contentVersion !== undefined) {
               if (args.contentVersion === null) {
-                throw new Error("contentVersion cannot be null");
+                throw new Error('contentVersion cannot be null');
               } else if (args.contentVersion === SpaceContentVersion.v3) {
                 newDbSpace.contentVersion = DbSpaceContentVersion.v3;
               } else {
@@ -278,7 +278,7 @@ export default function addMutationType(builder: BuilderType) {
             }
 
             const response = await SpaceEntity.update(newDbSpace, {
-              returnValues: "ALL_NEW",
+              returnValues: 'ALL_NEW',
             });
 
             return new Space(nullThrow(response.Attributes));
@@ -288,7 +288,7 @@ export default function addMutationType(builder: BuilderType) {
         deleteSpace: t.boolean({
           nullable: true,
           args: {
-            id: t.arg({ type: "ID", required: true }),
+            id: t.arg({ type: 'ID', required: true }),
           },
           async resolve(parent, args, context) {
             const dbUser = context.req.dbUser;
@@ -312,10 +312,10 @@ export default function addMutationType(builder: BuilderType) {
           type: CreateCsvEvaluationPresetResult,
           nullable: true,
           args: {
-            spaceId: t.arg({ type: "ID", required: true }),
-            name: t.arg({ type: "String", required: true }),
-            csvContent: t.arg({ type: "String" }),
-            configContent: t.arg({ type: "String" }),
+            spaceId: t.arg({ type: 'ID', required: true }),
+            name: t.arg({ type: 'String', required: true }),
+            csvContent: t.arg({ type: 'String' }),
+            configContent: t.arg({ type: 'String' }),
           },
           async resolve(parent, args, context) {
             const dbUser = context.req.dbUser;
@@ -337,10 +337,10 @@ export default function addMutationType(builder: BuilderType) {
                 ownerId: dbUser.id,
                 spaceId: dbSpace.id,
                 name: args.name,
-                csvString: args.csvContent ?? "",
+                csvString: args.csvContent ?? '',
                 configContentVersion:
                   DbCsvEvaluationPresetConfigContentVersion.v1,
-                configContentV1: args.configContent ?? "",
+                configContentV1: args.configContent ?? '',
               }),
             );
 
@@ -356,10 +356,10 @@ export default function addMutationType(builder: BuilderType) {
           type: CsvEvaluationPreset,
           nullable: true,
           args: {
-            presetId: t.arg({ type: "ID", required: true }),
-            name: t.arg({ type: "String" }),
-            csvContent: t.arg({ type: "String" }),
-            configContent: t.arg({ type: "String" }),
+            presetId: t.arg({ type: 'ID', required: true }),
+            name: t.arg({ type: 'String' }),
+            csvContent: t.arg({ type: 'String' }),
+            configContent: t.arg({ type: 'String' }),
           },
           async resolve(parent, args, context) {
             const dbUser = context.req.dbUser;
@@ -384,7 +384,7 @@ export default function addMutationType(builder: BuilderType) {
 
             if (args.name !== undefined) {
               if (args.name === null) {
-                throw new Error("name cannot be null");
+                throw new Error('name cannot be null');
               } else {
                 newDbPreset.name = args.name;
               }
@@ -392,7 +392,7 @@ export default function addMutationType(builder: BuilderType) {
 
             if (args.csvContent !== undefined) {
               if (args.csvContent === null) {
-                newDbPreset.csvString = "";
+                newDbPreset.csvString = '';
               } else {
                 newDbPreset.csvString = args.csvContent;
               }
@@ -404,7 +404,7 @@ export default function addMutationType(builder: BuilderType) {
 
             const response = await CsvEvaluationPresetEntity.update(
               newDbPreset,
-              { returnValues: "ALL_NEW" },
+              { returnValues: 'ALL_NEW' },
             );
 
             return new CsvEvaluationPresetFull(nullThrow(response.Attributes));
@@ -414,7 +414,7 @@ export default function addMutationType(builder: BuilderType) {
           type: Space,
           nullable: true,
           args: {
-            id: t.arg({ type: "ID", required: true }),
+            id: t.arg({ type: 'ID', required: true }),
           },
           async resolve(parent, args, context) {
             const dbUser = context.req.dbUser;
@@ -439,7 +439,7 @@ export default function addMutationType(builder: BuilderType) {
 
             if (dbSpace == null) {
               console.warn(
-                "Space not found when deleting CSV Evaluation Preset",
+                'Space not found when deleting CSV Evaluation Preset',
               );
               return null;
             }

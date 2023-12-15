@@ -1,7 +1,7 @@
-import { NextFunction, Response } from "express";
-import { PlaceholderUserEntity } from "../models/placeholder-user.js";
-import { UserEntity } from "../models/user.js";
-import { RequestWithSession } from "../types.js";
+import { PlaceholderUserEntity } from 'dynamodb-models/placeholder-user.js';
+import { UserEntity } from 'dynamodb-models/user.js';
+import { NextFunction, Response } from 'express';
+import { RequestWithSession } from '../types.js';
 
 type DbUserShape = {
   id: string;
@@ -35,7 +35,7 @@ export async function attachUser(
   }
 
   // NOTE: This header name is in lower cases.
-  const placeholderUserToken = req.header("placeholderusertoken");
+  const placeholderUserToken = req.header('placeholderusertoken');
 
   if (placeholderUserToken != null) {
     const { Item: dbPlaceholderUser } = await PlaceholderUserEntity.get({

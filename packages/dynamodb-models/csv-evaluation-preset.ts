@@ -1,23 +1,27 @@
-import { Entity, Table } from "dynamodb-toolbox";
-import { deflateSync, inflateSync } from "node:zlib";
-import { v4 as uuidv4 } from "uuid";
-import { DocumentClient } from "../utils/dynamo-db-utils.js";
+import { Entity, Table } from 'dynamodb-toolbox';
+import { deflateSync, inflateSync } from 'node:zlib';
+import { v4 as uuidv4 } from 'uuid';
+import { DocumentClient } from './client.js';
+
+if (!process.env.DYNAMODB_TABLE_NAME_CSV_EVALUATION_PRESETS) {
+  throw new Error('DYNAMODB_TABLE_NAME_CSV_EVALUATION_PRESETS is not set');
+}
 
 export enum DbCsvEvaluationPresetConfigContentVersion {
-  v1 = "v1",
+  v1 = 'v1',
 }
 
 export const CsvEvaluationPresetsTable = new Table({
   name: process.env.DYNAMODB_TABLE_NAME_CSV_EVALUATION_PRESETS,
-  partitionKey: "Id",
+  partitionKey: 'Id',
   indexes: {
     SpaceIdIndex: {
-      partitionKey: "SpaceId",
-      sortKey: "Id",
+      partitionKey: 'SpaceId',
+      sortKey: 'Id',
     },
     OwnerIdIndex: {
-      partitionKey: "OwnerId",
-      sortKey: "Id",
+      partitionKey: 'OwnerId',
+      sortKey: 'Id',
     },
   },
   DocumentClient,
@@ -25,42 +29,42 @@ export const CsvEvaluationPresetsTable = new Table({
 
 export const CsvEvaluationPresetEntity = new Entity({
   table: CsvEvaluationPresetsTable,
-  name: "CsvEvaluationPreset",
+  name: 'CsvEvaluationPreset',
   attributes: {
     id: {
       partitionKey: true,
-      type: "string",
+      type: 'string',
       default: () => uuidv4(),
     },
     ownerId: {
-      type: "string",
+      type: 'string',
       required: true,
-      map: "OwnerId",
+      map: 'OwnerId',
     },
     spaceId: {
-      type: "string",
+      type: 'string',
       required: true,
-      map: "SpaceId",
+      map: 'SpaceId',
     },
     name: {
-      type: "string",
+      type: 'string',
       required: true,
-      map: "Name",
+      map: 'Name',
     },
     csvString: {
-      type: "string",
+      type: 'string',
       required: true,
-      map: "CsvString",
+      map: 'CsvString',
     },
     configContentVersion: {
-      type: "string",
+      type: 'string',
       required: true,
-      map: "ConfigContentVersion",
+      map: 'ConfigContentVersion',
     },
     configContentV1: {
-      type: "binary",
+      type: 'binary',
       required: true,
-      map: "ConfigContentV1",
+      map: 'ConfigContentV1',
       // Because transform and format don't support returning promise,
       // use the sync version of methods.
       transform(value) {
@@ -72,15 +76,15 @@ export const CsvEvaluationPresetEntity = new Entity({
       },
     },
     createdAt: {
-      type: "number",
+      type: 'number',
       required: true,
-      map: "CreatedAt",
+      map: 'CreatedAt',
       default: () => new Date().getTime(),
     },
     updatedAt: {
-      type: "number",
+      type: 'number',
       required: true,
-      map: "UpdatedAt",
+      map: 'UpdatedAt',
       default: () => new Date().getTime(),
       // Apply default on update as well, but only when the input doesn't
       // provide this value.

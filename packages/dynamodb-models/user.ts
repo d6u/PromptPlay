@@ -1,13 +1,17 @@
-import { Entity, Table } from "dynamodb-toolbox";
-import { v4 as uuidv4 } from "uuid";
-import { DocumentClient } from "../utils/dynamo-db-utils.js";
+import { Entity, Table } from 'dynamodb-toolbox';
+import { v4 as uuidv4 } from 'uuid';
+import { DocumentClient } from './client.js';
+
+if (!process.env.DYNAMODB_TABLE_NAME_USERS) {
+  throw new Error('DYNAMODB_TABLE_NAME_USERS is not set');
+}
 
 export const UsersTable = new Table({
   name: process.env.DYNAMODB_TABLE_NAME_USERS,
-  partitionKey: "Id",
+  partitionKey: 'Id',
   indexes: {
     Auth0UserIdIndex: {
-      partitionKey: "Auth0UserId",
+      partitionKey: 'Auth0UserId',
     },
   },
   DocumentClient,
@@ -15,39 +19,39 @@ export const UsersTable = new Table({
 
 export const UserEntity = new Entity({
   table: UsersTable,
-  name: "User",
+  name: 'User',
   attributes: {
     id: {
       partitionKey: true,
-      type: "string",
+      type: 'string',
       default: () => uuidv4(),
     },
     name: {
-      type: "string",
-      map: "Name",
+      type: 'string',
+      map: 'Name',
     },
     email: {
-      type: "string",
-      map: "Email",
+      type: 'string',
+      map: 'Email',
     },
     profilePictureUrl: {
-      type: "string",
-      map: "ProfilePictureUrl",
+      type: 'string',
+      map: 'ProfilePictureUrl',
     },
     auth0UserId: {
-      type: "string",
-      map: "Auth0UserId",
+      type: 'string',
+      map: 'Auth0UserId',
     },
     createdAt: {
-      type: "number",
+      type: 'number',
       required: true,
-      map: "CreatedAt",
+      map: 'CreatedAt',
       default: () => new Date().getTime(),
     },
     updatedAt: {
-      type: "number",
+      type: 'number',
       required: true,
-      map: "UpdatedAt",
+      map: 'UpdatedAt',
       default: () => new Date().getTime(),
       // Apply default on update as well, but only when the input doesn't
       // provide this value.

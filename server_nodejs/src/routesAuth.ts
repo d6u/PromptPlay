@@ -1,8 +1,8 @@
-import { Express, Response } from "express";
-import { BaseClient, Issuer, generators } from "openid-client";
-import { RequestWithUser, attachUser } from "./middleware/user.js";
-import { UserEntity, UsersTable } from "./models/user.js";
-import { RequestWithSession } from "./types.js";
+import { UserEntity, UsersTable } from 'dynamodb-models/user.js';
+import { Express, Response } from 'express';
+import { BaseClient, Issuer, generators } from 'openid-client';
+import { RequestWithUser, attachUser } from './middleware/user.js';
+import { RequestWithSession } from './types.js';
 
 async function getAuthClient() {
   const authIssuer = await Issuer.discover(
@@ -13,7 +13,7 @@ async function getAuthClient() {
     client_id: process.env.AUTH0_CLIENT_ID,
     client_secret: process.env.AUTH0_CLIENT_SECRET,
     redirect_uris: [process.env.AUTH_CALLBACK_URL],
-    response_types: ["code"],
+    response_types: ['code'],
   });
 }
 
@@ -28,20 +28,20 @@ async function getAuthClientCached() {
 }
 
 export default function setupAuth(app: Express) {
-  app.get("/login", async (req: RequestWithSession, res: Response) => {
+  app.get('/login', async (req: RequestWithSession, res: Response) => {
     const authClient = await getAuthClientCached();
 
     req.session!.nonce = generators.nonce();
 
     res.redirect(
       authClient.authorizationUrl({
-        scope: "openid email profile",
+        scope: 'openid email profile',
         nonce: req.session!.nonce,
       }),
     );
   });
 
-  app.get("/auth", async (req: RequestWithSession, res) => {
+  app.get('/auth', async (req: RequestWithSession, res) => {
     if (!req.session?.nonce) {
       res.send(500);
       return;
@@ -70,7 +70,7 @@ export default function setupAuth(app: Express) {
     // that we cannot find the user yet. We will leave this here until we
     // switch off DynamoDB.
     const response = await UsersTable.query(idToken.sub, {
-      index: "Auth0UserIdIndex",
+      index: 'Auth0UserIdIndex',
       limit: 1,
     });
 
@@ -92,9 +92,9 @@ export default function setupAuth(app: Express) {
 
       req.session.userId = dbUser.id;
 
-      redirectUrl += "?new_user=true";
+      redirectUrl += '?new_user=true';
     } else {
-      const userId = response.Items![0]!["Id"] as string;
+      const userId = response.Items![0]!['Id'] as string;
 
       await UserEntity.update({
         id: userId,
@@ -109,7 +109,7 @@ export default function setupAuth(app: Express) {
     res.redirect(redirectUrl);
   });
 
-  app.get("/logout", async (req: RequestWithSession, res) => {
+  app.get('/logout', async (req: RequestWithSession, res) => {
     const idToken = req.session?.idToken;
 
     // ANCHOR: Logout locally
@@ -137,14 +137,14 @@ export default function setupAuth(app: Express) {
     );
   });
 
-  app.get("/hello", attachUser, async (req: RequestWithUser, res) => {
+  app.get('/hello', attachUser, async (req: RequestWithUser, res) => {
     if (!req.dbUser) {
-      res.send("Hello World!");
+      res.send('Hello World!');
       return;
     }
 
     res.send(
-      `Hello ${req.dbUser.isPlaceholderUser ? "Guest Player 1" : "Player 1"}!`,
+      `Hello ${req.dbUser.isPlaceholderUser ? 'Guest Player 1' : 'Player 1'}!`,
     );
   });
 }

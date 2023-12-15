@@ -1,0 +1,14 @@
+{
+  name: 'flow-content-migration',
+  version: '1.0.0',
+  private: true,
+  main: 'index.js',
+  devDependencies: {
+    '@types/node': '^20.10.4',
+    'common-tsconfig': 'workspace:^',
+    typescript: '5.2.2',
+  },
+  scripts: {
+    build: 'rm -f index.js && tsc --pretty',
+  },
+}
