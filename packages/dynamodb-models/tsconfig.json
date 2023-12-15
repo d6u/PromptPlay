@@ -1,0 +1,8 @@
+{
+  "extends": "common-tsconfig/tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "noUncheckedIndexedAccess": true
+  },
+  "exclude": ["node_modules"]
+}

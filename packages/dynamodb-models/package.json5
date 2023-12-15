@@ -12,5 +12,10 @@
   },
   devDependencies: {
     '@types/uuid': '^9.0.7',
+    'common-tsconfig': 'workspace:^',
+    typescript: '~5.2.0',
+  },
+  scripts: {
+    build: 'tsc --pretty',
   },
 }

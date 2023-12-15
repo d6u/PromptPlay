@@ -126,7 +126,7 @@ Resources:
     Metadata:
       DockerContext: ../
       Dockerfile: Dockerfile.server-lambda
-      DockerTag: v17
+      DockerTag: v18
 
   # ANCHOR: Monitoring
 
