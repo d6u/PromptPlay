@@ -95,9 +95,6 @@ importers:
       express:
         specifier: ^4.18.2
         version: 4.18.2
-      flow-content-migration:
-        specifier: workspace:^
-        version: link:../packages/flow-content-migration
       graphql:
         specifier: ^16.8.1
         version: 16.8.1
