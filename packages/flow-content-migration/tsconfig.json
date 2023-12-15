@@ -1,5 +1,5 @@
 {
-  "extends": "../../tsconfig.json",
+  "extends": "common-tsconfig/tsconfig.json",
   "compilerOptions": {
     "noEmit": false,
     "noUncheckedIndexedAccess": true

@@ -6,9 +6,9 @@ WORKDIR /usr/app
 
 RUN npm install -g pnpm
 
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.json ./
+COPY pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY packages ./packages
-COPY server_nodejs/package.json server_nodejs/tsconfig.json ./server_nodejs/
+COPY server_nodejs/package.json5 server_nodejs/tsconfig.json ./server_nodejs/
 COPY server_nodejs/src ./server_nodejs/src
 
 RUN pnpm install

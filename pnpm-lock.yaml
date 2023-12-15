@@ -166,6 +166,12 @@ importers:
         specifier: ^1.17.1
         version: 1.17.1(vite@4.5.1)
 
+  packages/common-tsconfig:
+    devDependencies:
+      '@tsconfig/node18':
+        specifier: ^18.2.2
+        version: 18.2.2
+
   packages/common-utils:
     dependencies:
       nanoid:
@@ -174,6 +180,9 @@ importers:
 
   packages/flow-content-migration:
     devDependencies:
+      common-tsconfig:
+        specifier: workspace:^
+        version: link:../common-tsconfig
       typescript:
         specifier: 5.2.2
         version: 5.2.2
