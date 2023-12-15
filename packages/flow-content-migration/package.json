@@ -1,0 +1,12 @@
+{
+  "name": "flow-content-migration",
+  "version": "1.0.0",
+  "private": true,
+  "main": "index.js",
+  "devDependencies": {
+    "typescript": "5.2.2"
+  },
+  "scripts": {
+    "build": "rm -f index.js && tsc --pretty"
+  }
+}

@@ -1,0 +1,15 @@
+FROM node:18
+
+WORKDIR /home/node/app
+
+RUN npm install -g pnpm
+
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY packages ./packages
+COPY server_nodejs/package.json server_nodejs/tsconfig.json ./server_nodejs/
+# We will include source file in compose.yaml file as volumes setting.
+
+RUN pnpm install
+
+# Somehow use array format help docker compose to quit sooner when stopped.
+CMD ["pnpm", "--filter", "server_nodejs", "exec", "nodemon", "-e", "ts"]

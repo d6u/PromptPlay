@@ -1,15 +1,15 @@
+import { VariableType } from "flow-models/v3-flow-content-types";
 import { useMemo } from "react";
 import { useStore } from "zustand";
-import { VariableType } from "../../../../../models/v3-flow-content-types";
 import { useStoreFromFlowStoreContext } from "../../../store/FlowStoreContext";
 import { selectVariables } from "../../../store/state-utils";
+import OutputRenderer from "../common/OutputRenderer";
 import {
   HeaderSection,
   HeaderSectionHeader,
   PanelContentContainer,
   Section,
 } from "../common/controls-common";
-import OutputRenderer from "../common/OutputRenderer";
 
 export default function PanelNodeConfig() {
   const flowStore = useStoreFromFlowStoreContext();

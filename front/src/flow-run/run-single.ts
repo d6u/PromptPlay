@@ -1,21 +1,5 @@
 import { D } from "@mobily/ts-belt";
-import {
-  BehaviorSubject,
-  catchError,
-  concatAll,
-  defer,
-  EMPTY,
-  endWith,
-  from,
-  map,
-  mergeMap,
-  Observable,
-  of,
-  startWith,
-  Subject,
-  tap,
-} from "rxjs";
-import { NodeID, NodeType } from "../models/v2-flow-content-types";
+import { NodeID, NodeType } from "flow-models/v2-flow-content-types";
 import {
   V3FlowContent,
   V3NodeConfig,
@@ -24,7 +8,23 @@ import {
   V3VariableID,
   V3VariableValueLookUpDict,
   VariablesDict,
-} from "../models/v3-flow-content-types";
+} from "flow-models/v3-flow-content-types";
+import {
+  BehaviorSubject,
+  EMPTY,
+  Observable,
+  Subject,
+  catchError,
+  concatAll,
+  defer,
+  endWith,
+  from,
+  map,
+  mergeMap,
+  of,
+  startWith,
+  tap,
+} from "rxjs";
 import { handleChatGPTChatNode } from "./handleChatGPTChatNode";
 import { handleChatGPTMessageNode } from "./handleChatGPTMessageNode";
 import { handleElevenLabsNode } from "./handleElevenLabsNode";

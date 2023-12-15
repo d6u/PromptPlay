@@ -1,5 +1,5 @@
 {
-  "name": "promptplay-server",
+  "name": "server_nodejs",
   "version": "1.0.0",
   "private": true,
   "dependencies": {
@@ -24,6 +24,7 @@
     "@tsconfig/node18": "^18.2.2",
     "@types/cookie-session": "^2.0.46",
     "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
     "@types/node": "^20.8.10",
     "@types/uuid": "^9.0.7",
     "chai": "^4.3.6",
@@ -34,7 +35,7 @@
     "typescript": "~5.2.0"
   },
   "scripts": {
-    "build": "tsc --pretty",
+    "build": "rm -rf dist && tsc --pretty",
     "start": "ts-node src/index.ts",
     "test": "mocha tests/unit/"
   }

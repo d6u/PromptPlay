@@ -1,7 +1,7 @@
 {
-  "name": "front-vite",
+  "name": "front",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -17,13 +17,16 @@
     "@dnd-kit/sortable": "^7.0.2",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
+    "@graphql-typed-document-node/core": "^3.2.0",
     "@mobily/ts-belt": "^3.13.1",
     "@mui/joy": "^5.0.0-beta.4",
     "@urql/exchange-graphcache": "^6.3.2",
     "chance": "^1.1.11",
     "classnames": "^2.3.2",
+    "flow-models": "workspace:^",
     "graphql": "^16.8.0",
     "immer": "^10.0.2",
+    "integrations": "workspace:^",
     "lodash": "^4.17.21",
     "mustache": "^4.2.0",
     "nanoid": "^4.0.2",
@@ -38,6 +41,7 @@
     "rxjs": "^7.8.1",
     "ts-invariant": "^0.10.3",
     "urql": "^4.0.5",
+    "wonka": "^6.3.4",
     "zustand": "^4.4.1"
   },
   "devDependencies": {

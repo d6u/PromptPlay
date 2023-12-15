@@ -1,4 +1,5 @@
 import styled from "@emotion/styled";
+import { NodeType } from "flow-models/v2-flow-content-types";
 import { useContext } from "react";
 import ReactFlow, {
   Background,
@@ -8,7 +9,6 @@ import ReactFlow, {
 } from "reactflow";
 import "reactflow/dist/style.css";
 import { useStore } from "zustand";
-import { NodeType } from "../../../models/v2-flow-content-types";
 import FlowContext from "../FlowContext";
 import { useStoreFromFlowStoreContext } from "../store/FlowStoreContext";
 import ChatGPTChatCompletionNode from "./nodes/ChatGPTChatCompletionNode";

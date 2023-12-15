@@ -10,12 +10,12 @@ import {
   ToggleButtonGroup,
   Typography,
 } from "@mui/joy";
+import { NodeType } from "flow-models/v2-flow-content-types";
 import { useCallback, useContext, useEffect, useState } from "react";
 import { useStoreApi } from "reactflow";
 import { useStore } from "zustand";
-import { NodeType } from "../../../models/v2-flow-content-types";
-import { NODE_BOX_WIDTH } from "../flow-canvas/nodes/node-common/NodeBox";
 import FlowContext from "../FlowContext";
+import { NODE_BOX_WIDTH } from "../flow-canvas/nodes/node-common/NodeBox";
 import { useStoreFromFlowStoreContext } from "../store/FlowStoreContext";
 import { DetailPanelContentType } from "../store/store-flow-state-types";
 

@@ -1,14 +1,14 @@
 import { createLens, Getter, Setter } from "@dhmk/zustand-lens";
+import {
+  V3VariableID,
+  V3VariableValueLookUpDict,
+} from "flow-models/v3-flow-content-types";
 import invariant from "ts-invariant";
 import { OperationResult } from "urql";
 import { StateCreator } from "zustand";
 import { RunMetadata } from "../../../flow-run/run-types";
 import { graphql } from "../../../gql";
 import { LoadCsvEvaluationPresetQuery } from "../../../gql/graphql";
-import {
-  V3VariableID,
-  V3VariableValueLookUpDict,
-} from "../../../models/v3-flow-content-types";
 import { client } from "../../../state/urql";
 import { FlowState } from "./store-flow-state-types";
 

@@ -5,36 +5,36 @@ import FormLabel from "@mui/joy/FormLabel";
 import Input from "@mui/joy/Input";
 import Option from "@mui/joy/Option";
 import Select from "@mui/joy/Select";
-import { useContext, useEffect, useMemo, useState } from "react";
-import { Position, useNodeId } from "reactflow";
-import { useStore } from "zustand";
-import { NEW_LINE_SYMBOL } from "../../../../integrations/openai";
 import {
   NodeID,
   NodeType,
   OpenAIChatModel,
-} from "../../../../models/v2-flow-content-types";
+} from "flow-models/v2-flow-content-types";
 import {
   ChatGPTChatCompletionResponseFormatType,
   V3ChatGPTChatCompletionNodeConfig,
   VariableType,
-} from "../../../../models/v3-flow-content-types";
+} from "flow-models/v3-flow-content-types";
+import { NEW_LINE_SYMBOL } from "integrations/openai";
+import { useContext, useEffect, useMemo, useState } from "react";
+import { Position, useNodeId } from "reactflow";
+import { useStore } from "zustand";
 import {
   LocalStorageState,
   SpaceState,
   useLocalStorageStore,
   useSpaceStore,
 } from "../../../../state/appState";
-import InputReadonly from "../../common/InputReadonly";
 import FlowContext from "../../FlowContext";
+import InputReadonly from "../../common/InputReadonly";
 import { useStoreFromFlowStoreContext } from "../../store/FlowStoreContext";
 import { selectVariables } from "../../store/state-utils";
 import HeaderSection from "./node-common/HeaderSection";
 import HelperTextContainer from "./node-common/HelperTextContainer";
-import { InputHandle, OutputHandle, Section } from "./node-common/node-common";
 import NodeBox, { NodeState } from "./node-common/NodeBox";
 import NodeInputModifyRow from "./node-common/NodeInputModifyRow";
 import NodeOutputRow from "./node-common/NodeOutputRow";
+import { InputHandle, OutputHandle, Section } from "./node-common/node-common";
 import {
   calculateInputHandleTop,
   calculateOutputHandleBottom,

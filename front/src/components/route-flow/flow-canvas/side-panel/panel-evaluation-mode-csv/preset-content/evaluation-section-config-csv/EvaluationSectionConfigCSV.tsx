@@ -8,10 +8,10 @@ import {
   Input,
   Table,
 } from "@mui/joy";
+import { VariableType } from "flow-models/v3-flow-content-types";
 import Papa from "papaparse";
 import posthog from "posthog-js";
 import { useMemo } from "react";
-import { VariableType } from "../../../../../../../models/v3-flow-content-types";
 import { useFlowStore } from "../../../../../store/FlowStoreContext";
 import {
   IterationIndex,

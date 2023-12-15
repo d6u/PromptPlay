@@ -1,22 +1,12 @@
 import { A } from "@mobily/ts-belt";
 import Chance from "chance";
-import { current, produce } from "immer";
-import {
-  addEdge,
-  applyEdgeChanges,
-  applyNodeChanges,
-  Connection,
-  EdgeChange,
-  NodeChange,
-} from "reactflow";
-import invariant from "ts-invariant";
 import {
   EdgeID,
   LocalNode,
   NodeID,
   NodeType,
-} from "../../../models/v2-flow-content-types";
-import { asV3VariableID } from "../../../models/v2-to-v3-flow-utils";
+} from "flow-models/v2-flow-content-types";
+import { asV3VariableID } from "flow-models/v2-to-v3-flow-utils";
 import {
   FlowInputVariable,
   FlowOutputVariable,
@@ -28,12 +18,22 @@ import {
   V3VariableID,
   V3VariableValueLookUpDict,
   Variable,
-  VariablesDict,
   VariableType,
   VariableValueType,
-} from "../../../models/v3-flow-content-types";
-import { createNodeConfig } from "../../../models/v3-flow-utils";
-import randomId from "../../../utils/randomId";
+  VariablesDict,
+} from "flow-models/v3-flow-content-types";
+import { createNodeConfig } from "flow-models/v3-flow-utils";
+import { current, produce } from "immer";
+import {
+  Connection,
+  EdgeChange,
+  NodeChange,
+  addEdge,
+  applyEdgeChanges,
+  applyNodeChanges,
+} from "reactflow";
+import invariant from "ts-invariant";
+import randomId from "../../../../../packages/common-utils/randomId";
 import { DRAG_HANDLE_CLASS_NAME } from "../constants";
 import { ChangeEvent, ChangeEventType } from "./event-graph-types";
 import { CsvEvaluationConfigContent } from "./slice-csv-evaluation-preset";

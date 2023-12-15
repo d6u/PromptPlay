@@ -6,24 +6,24 @@ import {
   RadioGroup,
   Textarea,
 } from "@mui/joy";
+import { NodeType } from "flow-models/v2-flow-content-types";
+import { VariableType } from "flow-models/v3-flow-content-types";
+import { ChatGPTMessageRole } from "integrations/openai";
 import { useContext, useEffect, useMemo, useState } from "react";
 import invariant from "ts-invariant";
 import { useStore } from "zustand";
-import { ChatGPTMessageRole } from "../../../../../integrations/openai";
-import { NodeType } from "../../../../../models/v2-flow-content-types";
-import { VariableType } from "../../../../../models/v3-flow-content-types";
-import { CopyIcon, LabelWithIconContainer } from "../../../common/flow-common";
-import TextareaReadonly from "../../../common/TextareaReadonly";
 import FlowContext from "../../../FlowContext";
+import TextareaReadonly from "../../../common/TextareaReadonly";
+import { CopyIcon, LabelWithIconContainer } from "../../../common/flow-common";
 import { useStoreFromFlowStoreContext } from "../../../store/FlowStoreContext";
 import { selectVariables } from "../../../store/state-utils";
+import OutputRenderer from "../common/OutputRenderer";
 import {
   HeaderSection,
   HeaderSectionHeader,
   PanelContentContainer,
   Section,
 } from "../common/controls-common";
-import OutputRenderer from "../common/OutputRenderer";
 
 export default function PanelChatGPTMessageConfig() {
   const { isCurrentUserOwner } = useContext(FlowContext);

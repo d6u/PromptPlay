@@ -56,17 +56,10 @@ _Run commands in repository root directory, unless otherwise specified._
    docker compose \
      --env-file .environments/api-server/local.env \
      --env-file .environments/dynamodb/local.env \
-     watch --no-up
-   ```
-
-   Separately, start Docker containers:
-
-   ```sh
-   docker compose \
-     --env-file .environments/api-server/local.env \
-     --env-file .environments/dynamodb/local.env \
      up
    ```
+
+   - Apply `--build` when package has changed.
 
 2. Create tables if needed:
 
@@ -84,48 +77,45 @@ _Run commands in repository root directory, unless otherwise specified._
      ts-node scripts/dynamodb/delete-tables.ts
    ```
 
-3. (Optional) Confirm backend server is running at [localhost:5050/graphql](http://localhost:5050/graphql).
+3. (Optional) Confirm backend server is running at [localhost:5050/hello](http://localhost:5050/hello).
 
 4. (Optional) Generate GraphQL code for front end:
 
-   _In `front/`_
-
    ```sh
-   dotenv -e ../.environments/vite/.env.development graphql-codegen
+   dotenv -e .environments/vite/.env.development \
+     -- pnpm --filter front exec graphql-codegen
    ```
 
 5. Start frontend dev server:
 
-   _In `front/`_
-
    ```sh
-   npm run dev
+   pnpm --filter front run dev
    ```
 
    Pick up a different environment file using mode:
 
    ```sh
-   npm run dev -- -m development-python
+   pnpm --filter front run dev -m development-python
    ```
 
    This requires matching `.env` file in `.environments/vite/`, e.g. `.environments/vite/.env.development-python`.
 
-   - `--`: Pass arguments to underlying command instead of `npm`. In this case, it's `vite`.
    - `-m`: Vite mode. This determines which `.env` file to use.
 
 ## Option 2: On Host Machine Directly
 
-_In `aws_sam_app/server_nodejs/`_
+_Run commands in repository root directory._
 
 ```sh
 dotenv \
-  -e ../../.environments/api-server/local.env \
-  -e ../../.environments/dynamodb/local.env \
-  nodemon -e ts
+  -e .environments/api-server/local.env \
+  -e .environments/dynamodb/local.env \
+  -- pnpm --filter server_nodejs exec nodemon -e ts
 ```
 
-- `nodemon` will pick up `npm start` to start the server.
-- `-e ts` following `nodemon`: Watch `.ts` files.
+- `--`: Pass command to `dotenv`.
+- `--filter server_nodejs`: Run `pnpm` in `server_nodejs` package's context.
+- `exec`: I.e. `pnpm exec` that picks up `nodemon` from `server_nodejs` package's `node_modules/.bin`.
 
 # Deprecated Steps
 

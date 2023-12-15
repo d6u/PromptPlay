@@ -1,5 +1,5 @@
+import { ChatGPTMessageRole } from "integrations/openai";
 import { Edge } from "reactflow";
-import { ChatGPTMessageRole } from "../integrations/openai";
 import {
   EdgeID,
   NodeID,
