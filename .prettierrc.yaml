@@ -1,0 +1,8 @@
+plugins:
+  - prettier-plugin-organize-imports
+importOrder:
+  - "^@core/(.*)$"
+  - "^@server/(.*)$"
+  - "^@ui/(.*)$"
+  - '^[./](?!.*\\.css$).*$'
+  - "^[./]"
