@@ -2,6 +2,7 @@ import "./utils/checkEnvVar.js";
 // Check if the environment variables are set correctly first.
 
 import cookieSession from "cookie-session";
+import cors from "cors";
 import express from "express";
 import serverless from "serverless-http";
 import setupAuth from "./routesAuth.js";
@@ -11,6 +12,17 @@ const app = express();
 
 // Disable X-Powered-By header
 app.disable("x-powered-by");
+
+// Enable CORS for preflight requests
+
+const corsOptions = {
+  origin: process.env.CORS_ALLOWED_ORIGINS.split(","),
+  credentials: true,
+};
+
+app.options("*", cors(corsOptions));
+
+// Enable Cookie session
 
 app.use(
   cookieSession({
@@ -25,6 +37,8 @@ app.use(
   }),
 );
 
+// Setup routes
+
 setupGraphql(app);
 setupAuth(app);
 
@@ -34,8 +48,9 @@ app.get("/health", (req, res) => {
 
 export const handler = serverless(app);
 
-// For local development
 if (!process.env.LAMBDA_TASK_ROOT) {
+  // We don't need to start app when running on Lambda.
+  // This is for local development purpose.
   app.listen(5050, () => {
     console.log("Running a server at http://localhost:5050/");
   });

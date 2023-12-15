@@ -3,7 +3,7 @@ FROM node:18
 WORKDIR /home/node/app
 
 COPY package.json package-lock.json tsconfig.json ./
-COPY src ./src
+# We will include source file in compose.yaml file as volumes setting.
 
 RUN npm install
 

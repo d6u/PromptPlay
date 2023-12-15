@@ -16,9 +16,6 @@ Make sure you already have Node.js 18 and Docker installed.
    AUTH_LOGIN_FINISH_REDIRECT_URL=http://localhost:3000
    AUTH_LOGOUT_FINISH_REDIRECT_URL=http://localhost:3000
    SESSION_COOKIE_SECRET=
-
-   # Dev only, used when running on out side of docker
-   DEV_DYNAMODB_ENDPOINT=http://localhost:8000
    ```
 
 2. Create `.environments/dynamodb/local.env` file:
@@ -27,6 +24,9 @@ Make sure you already have Node.js 18 and Docker installed.
    DYNAMODB_TABLE_NAME_USERS=dev_users
    DYNAMODB_TABLE_NAME_SPACES=dev_spaces
    DYNAMODB_TABLE_NAME_CSV_EVALUATION_PRESETS=dev_csv-evaluation-presets
+
+   # Dev only, don't specify in production
+   DEV_DYNAMODB_ENDPOINT=http://localhost:8000
    ```
 
 3. Create `.environments/vite/.env.development` file:
