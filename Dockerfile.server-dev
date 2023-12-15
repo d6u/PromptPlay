@@ -11,5 +11,5 @@ COPY server_nodejs/package.json server_nodejs/tsconfig.json ./server_nodejs/
 
 RUN pnpm install
 
-# Somehow use array format help docker compose to quit sooner.
+# Somehow use array format help docker compose to quit sooner when stopped.
 CMD ["pnpm", "--filter", "server_nodejs", "exec", "nodemon", "-e", "ts"]
