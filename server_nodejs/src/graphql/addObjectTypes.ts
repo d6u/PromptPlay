@@ -1,8 +1,8 @@
 import {
   CsvEvaluationPresetEntity,
   CsvEvaluationPresetsTable,
-} from "../models/csv-evaluation-preset";
-import { SpaceEntity } from "../models/space";
+} from 'dynamodb-models/csv-evaluation-preset';
+import { SpaceEntity } from 'dynamodb-models/space';
 import {
   BuilderType,
   CsvEvaluationPreset,
@@ -11,15 +11,15 @@ import {
   Space,
   SpaceContentVersion,
   User,
-} from "./graphql-types";
+} from './graphql-types';
 
 export default function addObjectTypes(builder: BuilderType) {
   builder.objectType(User, {
-    name: "User",
+    name: 'User',
     fields(t) {
       return {
         id: t.field({
-          type: "UUID",
+          type: 'UUID',
           resolve(parent, args, context) {
             return parent.dbUser.id;
           },
@@ -40,7 +40,7 @@ export default function addObjectTypes(builder: BuilderType) {
           type: [Space],
           async resolve(parent, args, context) {
             const response = await SpaceEntity.query(parent.dbUser.id, {
-              index: "OwnerIdIndex",
+              index: 'OwnerIdIndex',
               // Sort by UpdatedAt in descending order.
               // (OwnerIdIndex is using UpdatedAt as the sort key.)
               reverse: true,
@@ -56,11 +56,11 @@ export default function addObjectTypes(builder: BuilderType) {
   });
 
   builder.objectType(Space, {
-    name: "Space",
+    name: 'Space',
     fields(t) {
       return {
-        id: t.exposeID("id"),
-        name: t.exposeString("name"),
+        id: t.exposeID('id'),
+        name: t.exposeString('name'),
         contentVersion: t.field({
           type: SpaceContentVersion,
           resolve(parent, args, context) {
@@ -75,9 +75,9 @@ export default function addObjectTypes(builder: BuilderType) {
           nullable: true,
           resolve: () => null,
         }),
-        contentV3: t.exposeString("contentV3", { nullable: true }),
+        contentV3: t.exposeString('contentV3', { nullable: true }),
         updatedAt: t.field({
-          type: "DateTime",
+          type: 'DateTime',
           resolve(parent, args, context) {
             return parent.updatedAt;
           },
@@ -87,7 +87,7 @@ export default function addObjectTypes(builder: BuilderType) {
           async resolve(parent, args, context) {
             // TODO: Sort by updatedAt?
             const response = await CsvEvaluationPresetsTable.query(parent.id, {
-              index: "SpaceIdIndex",
+              index: 'SpaceIdIndex',
             });
 
             const items = response.Items ?? [];
@@ -95,8 +95,8 @@ export default function addObjectTypes(builder: BuilderType) {
             return items.map((csvEvaluationPreset) => {
               return new CsvEvaluationPresetFromSpaceIdIndex({
                 spaceId: parent.id as string,
-                id: csvEvaluationPreset["Id"] as string,
-                name: csvEvaluationPreset["Name"] as string,
+                id: csvEvaluationPreset['Id'] as string,
+                name: csvEvaluationPreset['Name'] as string,
               });
             });
           },
@@ -105,7 +105,7 @@ export default function addObjectTypes(builder: BuilderType) {
         csvEvaluationPreset: t.field({
           type: CsvEvaluationPreset,
           args: {
-            id: t.arg({ type: "ID", required: true }),
+            id: t.arg({ type: 'ID', required: true }),
           },
           async resolve(parent, args, context) {
             const { Item: dbCsvEvaluationPreset } =
@@ -123,7 +123,7 @@ export default function addObjectTypes(builder: BuilderType) {
   });
 
   builder.objectType(CsvEvaluationPreset, {
-    name: "CSVEvaluationPreset",
+    name: 'CSVEvaluationPreset',
     fields(t) {
       return {
         id: t.id({
