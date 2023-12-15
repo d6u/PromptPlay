@@ -4,9 +4,12 @@ import "./utils/checkEnvVar.js";
 import cookieSession from "cookie-session";
 import cors from "cors";
 import express from "express";
+import { sayHi } from "flow-content-migration";
 import serverless from "serverless-http";
 import setupAuth from "./routesAuth.js";
 import setupGraphql from "./routesGraphql.js";
+
+sayHi();
 
 const app = express();
 
