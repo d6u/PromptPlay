@@ -3,6 +3,8 @@ Transform: AWS::Serverless-2016-10-31
 Description: Promptplay backend using serverless resources.
 
 Parameters:
+  ServerlessFunctionImageVersion:
+    Type: String
   ApiSubDomainName:
     Type: String
   # NOTE: The HostedZoneId is managed outside of this stack.
@@ -126,7 +128,7 @@ Resources:
     Metadata:
       DockerContext: ../
       Dockerfile: Dockerfile.server-lambda
-      DockerTag: v18
+      DockerTag: !Ref ServerlessFunctionImageVersion
 
   # ANCHOR: Monitoring
 
