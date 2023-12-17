@@ -2,7 +2,6 @@
   "name": "scripts",
   "private": true,
   "version": "1.0.0",
-  "scripts": {},
   "devDependencies": {
     "@aws-sdk/client-dynamodb": "^3.468.0",
     "@mobily/ts-belt": "^3.13.1",
@@ -13,6 +12,7 @@
     "dotenv": "^16.3.1",
     "dotenv-cli": "^7.3.0",
     "dynamodb-models": "workspace:^",
+    "flow-models": "workspace:^",
     "nodemon": "^3.0.1",
     "pg": "^8.11.3",
     "pg-hstore": "^2.3.4",

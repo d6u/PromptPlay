@@ -283,6 +283,9 @@ importers:
       dynamodb-models:
         specifier: workspace:^
         version: link:../packages/dynamodb-models
+      flow-models:
+        specifier: workspace:^
+        version: link:../packages/flow-models
       nodemon:
         specifier: ^3.0.1
         version: 3.0.2
