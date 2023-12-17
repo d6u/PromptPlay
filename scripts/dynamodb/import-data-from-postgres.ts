@@ -320,7 +320,7 @@ async function putSpaces(spaces: Space[]) {
       };
     });
 
-  const BATCH_SIZE = 5;
+  const BATCH_SIZE = 25;
 
   for (let i = 0; i < spacesObj.length; i += BATCH_SIZE) {
     console.log(`Inserting ${i} to ${i + BATCH_SIZE - 1} spaces`);
