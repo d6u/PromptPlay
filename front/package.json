@@ -23,6 +23,7 @@
     "@urql/exchange-graphcache": "^6.3.2",
     "chance": "^1.1.11",
     "classnames": "^2.3.2",
+    "common-utils": "workspace:^",
     "flow-models": "workspace:^",
     "graphql": "^16.8.0",
     "immer": "^10.0.2",
@@ -64,7 +65,7 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.3",
     "typescript": "^5.0.2",
-    "vite": "^4.4.5",
+    "vite": "^5.0.0",
     "vite-plugin-mkcert": "^1.17.1"
   }
 }

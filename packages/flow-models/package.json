@@ -1,0 +1,12 @@
+{
+  "name": "flow-models",
+  "private": true,
+  "version": "1.0.0",
+  "dependencies": {
+    "@mobily/ts-belt": "^3.13.1",
+    "chance": "^1.1.11",
+    "common-utils": "workspace:^",
+    "integrations": "workspace:^",
+    "reactflow": "^11.8.3"
+  }
+}

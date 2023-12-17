@@ -1,0 +1,8 @@
+{
+  "name": "common-tsconfig",
+  "private": true,
+  "version": "1.0.0",
+  "devDependencies": {
+    "@tsconfig/node18": "^18.2.2"
+  }
+}

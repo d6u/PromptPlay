@@ -15,6 +15,8 @@ import {
   SpacesTable,
 } from 'dynamodb-models/space';
 import { UserEntity, UserShape, UsersTable } from 'dynamodb-models/user';
+import { FlowContent } from 'flow-models/v2-flow-content-types';
+import { convertV2ContentToV3Content } from 'flow-models/v2-to-v3-flow-utils';
 import {
   CreationOptional,
   DataTypes,
@@ -116,9 +118,9 @@ class Space extends Model<
   declare id: CreationOptional<string>;
   declare name: string;
   declare contentVersion: string | null;
-  declare content: string | null;
-  declare flowContent: string | null;
-  declare contentV3: string | null;
+  declare content: object | null;
+  declare flowContent: object | null;
+  declare contentV3: object | null;
   declare ownerId: string;
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
@@ -235,8 +237,15 @@ async function putUsers(users: User[]) {
       }),
     );
 
-    console.log(response);
+    if (
+      response.$metadata.httpStatusCode !== 200 ||
+      Object.keys(response.UnprocessedItems).length !== 0
+    ) {
+      console.log(response);
+    }
   }
+
+  console.log(`Inserted ${usersObj.length} users`);
 }
 
 async function putPlaceholderUsers(users: User[]) {
@@ -259,35 +268,84 @@ async function putPlaceholderUsers(users: User[]) {
       }),
     );
 
-    console.log(response);
+    if (
+      response.$metadata.httpStatusCode !== 200 ||
+      Object.keys(response.UnprocessedItems).length !== 0
+    ) {
+      console.log(response);
+    }
   }
+
+  console.log(`Inserted ${usersObj.length} placeholder users`);
 }
 
 async function putSpaces(spaces: Space[]) {
-  const spacesObj: SpaceShape[] = spaces.map((space) => {
-    // TODO: Convert content to v3 content;
-    const contentV3String = JSON.stringify(space.contentV3);
+  const versionCounts: Record<string, number> = {};
 
-    return {
-      id: space.id,
-      ownerId: space.ownerId,
-      name: space.name,
-      contentVersion: DbSpaceContentVersion.v3,
-      contentV3: contentV3String,
-      createdAt: space.createdAt.getTime(),
-      updatedAt: space.updatedAt.getTime(),
-    };
-  });
+  const spacesObj: SpaceShape[] = spaces
+    .filter((space) => {
+      return space.contentVersion != null;
+    })
+    .map((space) => {
+      let contentV3String: string;
+      if (space.contentVersion === DbSpaceContentVersion.v3) {
+        contentV3String = JSON.stringify(space.contentV3);
+      } else {
+        // Must by v2
+        if (space.flowContent == null) {
+          throw new Error('Flow content is null');
+        }
+        contentV3String = JSON.stringify(
+          convertV2ContentToV3Content(space.flowContent as FlowContent),
+        );
+        console.log(
+          'space id: ' + space.id + ' item size: ' + contentV3String.length,
+        );
+      }
 
-  for (let i = 0; i < spacesObj.length; i += 25) {
-    const response = await SpacesTable.batchWrite(
-      spacesObj.slice(i, i + 25).map((obj) => {
-        return SpaceEntity.putBatch(obj);
-      }),
-    );
+      const key = space.contentVersion!;
+      if (versionCounts[key] == null) {
+        versionCounts[key] = 0;
+      }
+      versionCounts[key] += 1;
 
-    console.log(response);
+      return {
+        id: space.id,
+        ownerId: space.ownerId,
+        name: space.name,
+        contentVersion: DbSpaceContentVersion.v3,
+        contentV3: contentV3String,
+        createdAt: space.createdAt.getTime(),
+        updatedAt: space.updatedAt.getTime(),
+      };
+    });
+
+  const BATCH_SIZE = 25;
+
+  for (let i = 0; i < spacesObj.length; i += BATCH_SIZE) {
+    console.log(`Inserting ${i} to ${i + BATCH_SIZE - 1} spaces`);
+
+    try {
+      const response = await SpacesTable.batchWrite(
+        spacesObj.slice(i, i + BATCH_SIZE).map((obj) => {
+          return SpaceEntity.putBatch(obj);
+        }),
+      );
+
+      if (
+        response.$metadata.httpStatusCode !== 200 ||
+        Object.keys(response.UnprocessedItems).length !== 0
+      ) {
+        console.log(response);
+      }
+    } catch (err) {
+      console.log(spacesObj.slice(i, i + BATCH_SIZE));
+      throw err;
+    }
   }
+
+  console.log(versionCounts);
+  console.log(`Inserted ${spacesObj.length} spaces`);
 }
 
 async function putCsvEvaluationPresets(presets: CsvEvaluationPreset[]) {
@@ -314,8 +372,17 @@ async function putCsvEvaluationPresets(presets: CsvEvaluationPreset[]) {
       }),
     );
 
-    console.log(response);
+    if (
+      response.$metadata.httpStatusCode !== 200 ||
+      Object.keys(response.UnprocessedItems).length !== 0
+    ) {
+      console.log(response);
+    }
   }
+
+  console.log(
+    `Inserted ${csvEvaluationPresetObjs.length} csv evaluation presets`,
+  );
 }
 
 (async () => {

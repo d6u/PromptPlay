@@ -1,12 +1,13 @@
-import { A } from "@mobily/ts-belt";
-import Chance from "chance";
+import { A } from '@mobily/ts-belt';
+import Chance from 'chance';
+import randomId from 'common-utils/randomId';
 import {
   EdgeID,
   LocalNode,
   NodeID,
   NodeType,
-} from "flow-models/v2-flow-content-types";
-import { asV3VariableID } from "flow-models/v2-to-v3-flow-utils";
+} from 'flow-models/v2-flow-content-types';
+import { asV3VariableID } from 'flow-models/v2-to-v3-flow-utils';
 import {
   FlowInputVariable,
   FlowOutputVariable,
@@ -21,9 +22,9 @@ import {
   VariableType,
   VariableValueType,
   VariablesDict,
-} from "flow-models/v3-flow-content-types";
-import { createNodeConfig } from "flow-models/v3-flow-utils";
-import { current, produce } from "immer";
+} from 'flow-models/v3-flow-content-types';
+import { createNodeConfig } from 'flow-models/v3-flow-utils';
+import { current, produce } from 'immer';
 import {
   Connection,
   EdgeChange,
@@ -31,14 +32,13 @@ import {
   addEdge,
   applyEdgeChanges,
   applyNodeChanges,
-} from "reactflow";
-import invariant from "ts-invariant";
-import randomId from "../../../../../packages/common-utils/randomId";
-import { DRAG_HANDLE_CLASS_NAME } from "../constants";
-import { ChangeEvent, ChangeEventType } from "./event-graph-types";
-import { CsvEvaluationConfigContent } from "./slice-csv-evaluation-preset";
-import { assignLocalEdgeProperties } from "./state-utils";
-import { FlowState } from "./store-flow-state-types";
+} from 'reactflow';
+import invariant from 'ts-invariant';
+import { DRAG_HANDLE_CLASS_NAME } from '../constants';
+import { ChangeEvent, ChangeEventType } from './event-graph-types';
+import { CsvEvaluationConfigContent } from './slice-csv-evaluation-preset';
+import { assignLocalEdgeProperties } from './state-utils';
+import { FlowState } from './store-flow-state-types';
 
 const chance = new Chance();
 
@@ -172,7 +172,7 @@ function handleRfEdgeChanges(
 
   for (const change of changes) {
     switch (change.type) {
-      case "remove": {
+      case 'remove': {
         events.push({
           type: ChangeEventType.EDGE_REMOVED,
           removedEdge: oldEdges.find((edge) => edge.id === change.id)!,
@@ -181,9 +181,9 @@ function handleRfEdgeChanges(
         content.isFlowContentDirty = true;
         break;
       }
-      case "add":
-      case "select":
-      case "reset":
+      case 'add':
+      case 'select':
+      case 'reset':
         break;
     }
   }
@@ -207,7 +207,7 @@ function handleRfNodesChange(
 
   for (const change of changes) {
     switch (change.type) {
-      case "remove": {
+      case 'remove': {
         const removingNodeConfig = nodeConfigs[change.id as NodeID]!;
 
         nodeConfigs = produce(nodeConfigs, (draft) => {
@@ -224,7 +224,7 @@ function handleRfNodesChange(
         content.nodeConfigsDict = nodeConfigs;
         break;
       }
-      case "position": {
+      case 'position': {
         if (!change.dragging) {
           events.push({
             type: ChangeEventType.NODE_MOVED,
@@ -234,10 +234,10 @@ function handleRfNodesChange(
         }
         break;
       }
-      case "add":
-      case "select":
-      case "dimensions":
-      case "reset": {
+      case 'add':
+      case 'select':
+      case 'dimensions':
+      case 'reset': {
         break;
       }
     }
@@ -279,7 +279,7 @@ function handleRfOnConnect(
     invariant(dstNodeConfig != null);
     if (dstNodeConfig.type !== NodeType.OutputNode) {
       // TODO: Change this to a non-blocking alert UI
-      alert("You can only connect an audio output to an output node.");
+      alert('You can only connect an audio output to an output node.');
 
       return [content, events];
     }

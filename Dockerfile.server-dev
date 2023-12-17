@@ -4,9 +4,9 @@ WORKDIR /home/node/app
 
 RUN npm install -g pnpm
 
-COPY package.json5 pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY packages ./packages
-COPY server_nodejs/package.json5 server_nodejs/tsconfig.json ./server_nodejs/
+COPY server_nodejs/package.json server_nodejs/tsconfig.json ./server_nodejs/
 # We will include source file in compose.yaml file as volumes setting.
 
 RUN pnpm install
