@@ -39,7 +39,7 @@ app.use(
     // cookies on cross-origin requests, e.g. when testing with localhost
     // against remote environment.
     // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie#samesitesamesite-value
-    sameSite: process.env.DEBUG ? 'none' : 'lax',
+    sameSite: 'none',
     secure: true,
   }),
 );

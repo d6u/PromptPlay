@@ -249,6 +249,10 @@ export default function addMutationType(builder: BuilderType) {
               return null;
             }
 
+            if (oldDbSpace.ownerId !== dbUser.id) {
+              return null;
+            }
+
             const newDbSpace: Partial<SpaceShape> & { id: string } = {
               id: oldDbSpace.id,
             };
@@ -303,6 +307,10 @@ export default function addMutationType(builder: BuilderType) {
               return false;
             }
 
+            if (dbSpace.ownerId !== dbUser.id) {
+              return false;
+            }
+
             await SpaceEntity.delete({ id: dbSpace.id });
 
             return true;
@@ -329,6 +337,10 @@ export default function addMutationType(builder: BuilderType) {
             });
 
             if (dbSpace == null) {
+              return null;
+            }
+
+            if (dbSpace.ownerId !== dbUser.id) {
               return null;
             }
 
@@ -373,6 +385,10 @@ export default function addMutationType(builder: BuilderType) {
             });
 
             if (oldDbPreset == null) {
+              return null;
+            }
+
+            if (oldDbPreset.ownerId !== dbUser.id) {
               return null;
             }
 
@@ -428,6 +444,10 @@ export default function addMutationType(builder: BuilderType) {
             });
 
             if (dbPreset == null) {
+              return null;
+            }
+
+            if (dbPreset.ownerId !== dbUser.id) {
               return null;
             }
 
