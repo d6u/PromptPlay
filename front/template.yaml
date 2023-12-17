@@ -8,7 +8,7 @@ Parameters:
     Type: String
   # NOTE: This SSL certificate is managed outside of this Stack, because CloudFront
   # can only use certificates from us-east-1.
-  AcmCertificateSubDomainsArn:
+  AcmCertificateDomainArn:
     Type: String
   # NOTE: The HostedZoneName is managed outside of this stack.
   HostedZoneName:
@@ -52,7 +52,7 @@ Resources:
         Aliases:
           - !Ref FrontendDomainName
         ViewerCertificate:
-          AcmCertificateArn: !Ref AcmCertificateSubDomainsArn
+          AcmCertificateArn: !Ref AcmCertificateDomainArn
           SslSupportMethod: sni-only
         CacheBehaviors:
           # Disable cache for /index.html, so new deployment can reach users
