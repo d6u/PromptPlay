@@ -1,6 +1,6 @@
 import { UserEntity, UsersTable } from 'dynamodb-models/user.js';
 import { Express, Response } from 'express';
-import { BaseClient, Issuer, generators } from 'openid-client';
+import { BaseClient, Issuer, TokenSet, generators } from 'openid-client';
 import { RequestWithUser, attachUser } from './middleware/user.js';
 import { RequestWithSession } from './types.js';
 
@@ -31,7 +31,9 @@ export default function setupAuth(app: Express) {
   app.get('/login', async (req: RequestWithSession, res: Response) => {
     const authClient = await getAuthClientCached();
 
-    req.session!.nonce = generators.nonce();
+    req.session = {
+      nonce: generators.nonce(),
+    };
 
     res.redirect(
       authClient.authorizationUrl({
@@ -41,9 +43,10 @@ export default function setupAuth(app: Express) {
     );
   });
 
-  app.get('/auth', async (req: RequestWithSession, res) => {
+  app.get('/auth', async (req: RequestWithSession, res: Response) => {
     if (!req.session?.nonce) {
-      res.send(500);
+      console.error('Missing nonce');
+      res.sendStatus(500);
       return;
     }
 
@@ -51,16 +54,24 @@ export default function setupAuth(app: Express) {
 
     const params = authClient.callbackParams(req);
 
-    const tokenSet = await authClient.callback(
-      // Auth0 checks if the domain is the same.
-      process.env.AUTH_CALLBACK_URL,
-      params,
-      { nonce: req.session.nonce },
-    );
+    let tokenSet: TokenSet;
+    try {
+      tokenSet = await authClient.callback(
+        // Auth0 checks if the domain is the same.
+        process.env.AUTH_CALLBACK_URL,
+        params,
+        { nonce: req.session.nonce },
+      );
+    } catch (err) {
+      console.error('OpenID Client callback handling error:', err);
+      res.sendStatus(500);
+      return;
+    }
 
     if (!tokenSet.id_token) {
       // TODO: Handle missing id_token
-      res.send(500);
+      console.error('Missing id_token');
+      res.sendStatus(500);
       return;
     }
 

@@ -34,13 +34,16 @@ app.use(
     // Cookie only to be sent over HTTP(S), and not made available to
     // client JavaScript.
     httpOnly: true,
-    // sameSite is default to Lax is not specified. Meaning, cookies are not
-    // sent on cross-origin requests. Setting this to None will allow sending
-    // cookies on cross-origin requests, e.g. when testing with localhost
+    // Enable both sameSite: 'none' and when secure: true testing localhost
     // against remote environment.
+    //
+    // sameSite is default to 'lax' is not specified. Meaning, cookies are not
+    // sent on cross-origin requests. Setting this to None will allow sending
+    // cookies on cross-origin requests.
     // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie#samesitesamesite-value
-    sameSite: 'none',
-    secure: true,
+    //
+    // sameSite: 'none',
+    // secure: true,
   }),
 );
 
