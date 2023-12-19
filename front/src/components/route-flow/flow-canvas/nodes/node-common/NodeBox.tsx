@@ -1,7 +1,7 @@
-import { css } from "@emotion/react";
-import styled from "@emotion/styled";
-import { NodeType } from "flow-models/v2-flow-content-types";
-import background from "../../../../../assets/warning-background.svg";
+import { css } from '@emotion/react';
+import styled from '@emotion/styled';
+import { NodeType } from 'flow-models/v2-flow-content-types';
+import background from '../../../../../assets/warning-background.svg';
 
 export const BACKDROP_PADDING = 3;
 export const NODE_BOX_WIDTH = 300;
@@ -67,8 +67,10 @@ const Backdrop = styled.div<{ $type: NodeType; $state: NodeState }>`
           background: linear-gradient(22deg, #fa97b6 0%, #e081fe 100%);
         `;
       case NodeType.JavaScriptFunctionNode:
+        // background will be included as data URL if its size is smaller
+        // than a threshold. That's why we need to add "" around the url.
         return css`
-          background: url(${background});
+          background: url(\"${background}\");
         `;
       case NodeType.TextTemplate: {
         return css`
