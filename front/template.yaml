@@ -1,0 +1,114 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Frontend resources.
+
+Parameters:
+  FrontendDomainName:
+    Type: String
+  CloudFrontOriginAccessControlConfigName:
+    Type: String
+  # NOTE: This SSL certificate is managed outside of this Stack, because CloudFront
+  # can only use certificates from us-east-1.
+  AcmCertificateDomainArn:
+    Type: String
+  # NOTE: The HostedZoneName is managed outside of this stack.
+  HostedZoneName:
+    Type: String
+
+Resources:
+  # ANCHOR: S3
+
+  S3BucketFrontend:
+    Type: AWS::S3::Bucket
+    Properties:
+      # Change the bucket name will replace the resource
+      BucketName: !Sub cloudfront-${FrontendDomainName}-frontend
+
+  # For enabling access from CloudFront without making the S3 bucket public.
+  S3BucketPolicyFrontend:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref S3BucketFrontend
+      # PolicyDocument should have JSON value, but CloudFormation will
+      # automatically convert the value to JSON.
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          Sid: AllowCloudFrontDistributionFrontendReadOnly
+          Effect: Allow
+          Principal:
+            Service: cloudfront.amazonaws.com
+          Action: s3:GetObject
+          Resource: !Sub ${S3BucketFrontend.Arn}/*
+          Condition:
+            StringEquals:
+              AWS:SourceArn: !Sub arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistributionFrontend}
+
+  # ANCHOR: CloudFront
+
+  CloudFrontDistributionFrontend:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Aliases:
+          - !Ref FrontendDomainName
+        ViewerCertificate:
+          AcmCertificateArn: !Ref AcmCertificateDomainArn
+          SslSupportMethod: sni-only
+        CacheBehaviors:
+          # Disable cache for /index.html, so new deployment can reach users
+          # immediately.
+          - PathPattern: /index.html
+            TargetOriginId: S3BucketOrigin
+            ViewerProtocolPolicy: redirect-to-https
+            # See https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-managed-cache-policies.html
+            # for CachePolicyId details
+            CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad # CachingDisabled
+          - PathPattern: /static/*
+            TargetOriginId: S3BucketOrigin
+            ViewerProtocolPolicy: redirect-to-https
+            CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6 # CachingOptimized
+        DefaultCacheBehavior:
+          TargetOriginId: S3BucketOrigin
+          ViewerProtocolPolicy: redirect-to-https
+          CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6 # CachingOptimized
+        # Fallback dynamic URL like "/:object_id" to /index.html,
+        # since the front is a static single page app, all dynamic path must be
+        # handled by index.html.
+        CustomErrorResponses:
+          - ErrorCode: 403
+            ResponsePagePath: /index.html
+            ResponseCode: 200
+            ErrorCachingMinTTL: 0
+        DefaultRootObject: index.html
+        Enabled: true
+        HttpVersion: http2and3
+        Origins:
+          - DomainName: !Sub ${S3BucketFrontend}.s3.${AWS::Region}.amazonaws.com
+            Id: S3BucketOrigin
+            OriginAccessControlId: !GetAtt CloudFrontOriginAccessControlFrontend.Id
+            S3OriginConfig: {}
+
+  # Enable access to S3 bucket without making the S3 bucket public.
+  # This must work together with S3BucketPolicyFrontend.
+  CloudFrontOriginAccessControlFrontend:
+    Type: AWS::CloudFront::OriginAccessControl
+    Properties:
+      OriginAccessControlConfig:
+        Name: !Ref CloudFrontOriginAccessControlConfigName
+        OriginAccessControlOriginType: s3
+        SigningBehavior: always
+        SigningProtocol: sigv4
+
+  # ANCHOR: Route53
+
+  Route53FrontendDnsRecord:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneName: !Ref HostedZoneName
+      Name: !Ref FrontendDomainName
+      Type: A
+      AliasTarget:
+        DNSName: !GetAtt CloudFrontDistributionFrontend.DomainName
+        # See https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-route53-aliastarget-1.html
+        # The HostedZoneId for CloudFront is always Z2FDTNDATAQYW2
+        HostedZoneId: Z2FDTNDATAQYW2
