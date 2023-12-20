@@ -75,12 +75,13 @@ export function runSingle({
       edge.sourceHandle!;
   }
 
-  // `signalSubject` is to control the pace of the execution and the termination.
+  // `signalSubject` is to control the pace of the execution and the
+  // termination.
   //
-  // Because the observable below will emit all the nodes at once, we give `signalSubject`
-  // a value one at a time and only give `signalSubject` a new value after one node in
-  // the observable is finished executing. So that we can execute the node graph
-  // in topological order.
+  // Because the observable below will emit all the nodes at once, we give
+  // `signalSubject` a value one at a time and only give `signalSubject` a new
+  // value after one node in the observable is finished executing. So that we
+  // can execute the node graph in topological order.
   const signalSubject = new BehaviorSubject<void>(undefined);
 
   function handleNodeConfigList(

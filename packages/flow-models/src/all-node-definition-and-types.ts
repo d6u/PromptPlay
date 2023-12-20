@@ -49,7 +49,7 @@ export type NodeTypeName =
   | V3HuggingFaceInferenceNodeConfig['type']
   | V3ElevenLabsNodeConfig['type'];
 
-const MAP = {
+const NODE_DEFINITION_MAP = {
   [INPUT_NODE_DEFINITION.nodeTypeName]: INPUT_NODE_DEFINITION,
   [OUTPUT_NODE_DEFINITION.nodeTypeName]: OUTPUT_NODE_DEFINITION,
   [JAVASCRIPT_NODE_DEFINITION.nodeTypeName]: JAVASCRIPT_NODE_DEFINITION,
@@ -66,5 +66,5 @@ const MAP = {
 export function getNodeDefinitionForNodeTypeName(
   type: NodeTypeName,
 ): NodeDefinition {
-  return MAP[type];
+  return NODE_DEFINITION_MAP[type];
 }
