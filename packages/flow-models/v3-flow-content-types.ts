@@ -1,16 +1,13 @@
-import { ChatGPTMessageRole } from "integrations/openai";
-import { Edge } from "reactflow";
-import {
-  EdgeID,
-  NodeID,
-  NodeType,
-  OpenAIChatModel,
-  ServerNode,
-} from "./v2-flow-content-types";
+import { ChatGPTMessageRole } from 'integrations/openai';
+import { Edge, Node, XYPosition } from 'reactflow';
 
 // SECTION: V3 ID Types
 
-export type V3VariableID = string & { readonly "": unique symbol };
+// See https://stackoverflow.com/questions/41790393/typescript-strict-alias-checking
+// to understand the reason for using `& { readonly "": unique symbol }`
+export type NodeID = string & { readonly '': unique symbol };
+export type EdgeID = string & { readonly '': unique symbol };
+export type V3VariableID = string & { readonly '': unique symbol };
 
 // !SECTION
 
@@ -26,6 +23,31 @@ export type V3FlowContent = {
 
 // !SECTION
 
+// SECTION: Node Types
+
+export enum NodeType {
+  InputNode = 'InputNode',
+  OutputNode = 'OutputNode',
+  JavaScriptFunctionNode = 'JavaScriptFunctionNode',
+  ChatGPTMessageNode = 'ChatGPTMessageNode',
+  ChatGPTChatCompletionNode = 'ChatGPTChatCompletionNode',
+  TextTemplate = 'TextTemplate',
+  HuggingFaceInference = 'HuggingFaceInference',
+  ElevenLabs = 'ElevenLabs',
+}
+
+export type ServerNode = {
+  id: NodeID;
+  type: NodeType;
+  position: XYPosition;
+  data: null;
+};
+
+export type LocalNode = Omit<Node<null, NodeType>, 'id' | 'type' | 'data'> &
+  ServerNode;
+
+// !SECTION
+
 // SECTION: V3 Edge Types
 
 export type V3ServerEdge = {
@@ -38,7 +60,7 @@ export type V3ServerEdge = {
 
 export type V3LocalEdge = Omit<
   Edge<never>,
-  "id" | "source" | "sourceHandle" | "target" | "targetHandle"
+  'id' | 'source' | 'sourceHandle' | 'target' | 'targetHandle'
 > &
   V3ServerEdge;
 
@@ -74,7 +96,18 @@ export type V3ChatGPTMessageNodeConfig = {
 };
 
 export enum ChatGPTChatCompletionResponseFormatType {
-  JsonObject = "json_object",
+  JsonObject = 'json_object',
+}
+
+export enum OpenAIChatModel {
+  GPT_4_1106_PREVIEW = 'gpt-4-1106-preview',
+  GPT_4 = 'gpt-4',
+  GPT_4_32K = 'gpt-4-32k',
+  GPT_4_0613 = 'gpt-4-0613',
+  GPT_4_32K_0613 = 'gpt-4-32k-0613',
+  GPT_3_5_TURBO_1106 = 'gpt-3.5-turbo-1106',
+  GPT_3_5_TURBO = 'gpt-3.5-turbo',
+  GPT_3_5_TURBO_16K = 'gpt-3.5-turbo-16k',
 }
 
 export type V3ChatGPTChatCompletionNodeConfig = {
@@ -125,17 +158,17 @@ export type Variable =
   | NodeOutputVariable;
 
 export enum VariableType {
-  NodeInput = "NodeInput",
-  NodeOutput = "NodeOutput",
-  FlowInput = "FlowInput",
-  FlowOutput = "FlowOutput",
+  NodeInput = 'NodeInput',
+  NodeOutput = 'NodeOutput',
+  FlowInput = 'FlowInput',
+  FlowOutput = 'FlowOutput',
 }
 
 export enum VariableValueType {
-  Number = "Number",
-  String = "String",
-  Audio = "Audio",
-  Unknown = "Unknown",
+  Number = 'Number',
+  String = 'String',
+  Audio = 'Audio',
+  Unknown = 'Unknown',
 }
 
 type VariableConfigCommon = {
@@ -172,3 +205,12 @@ export type NodeOutputVariable = VariableConfigCommon & {
 export type V3VariableValueLookUpDict = Record<V3VariableID, unknown>;
 
 // !SECTION
+
+// ANCHOR: Legacy Types
+
+export type NodeInputID = string & { readonly '': unique symbol };
+export type NodeOutputID = string & { readonly '': unique symbol };
+
+export type VariableID = NodeInputID | NodeOutputID;
+
+export type VariableValueMap = Record<VariableID, unknown>;

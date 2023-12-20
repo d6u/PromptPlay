@@ -3,8 +3,9 @@ import FormHelperText from '@mui/joy/FormHelperText';
 import FormLabel from '@mui/joy/FormLabel';
 import IconButton from '@mui/joy/IconButton';
 import Textarea from '@mui/joy/Textarea';
-import { NodeID, NodeType } from 'flow-models/v2-flow-content-types';
 import {
+  NodeID,
+  NodeType,
   V3TextTemplateNodeConfig,
   VariableType,
 } from 'flow-models/v3-flow-content-types';

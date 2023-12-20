@@ -1,6 +1,7 @@
 import IconButton from '@mui/joy/IconButton';
-import { NodeID, NodeType } from 'flow-models/v2-flow-content-types';
 import {
+  NodeID,
+  NodeType,
   V3InputNodeConfig,
   VariableType,
 } from 'flow-models/v3-flow-content-types';

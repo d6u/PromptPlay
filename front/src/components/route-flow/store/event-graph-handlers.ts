@@ -3,16 +3,13 @@ import Chance from 'chance';
 import randomId from 'common-utils/randomId';
 import {
   EdgeID,
-  LocalNode,
-  NodeID,
-  NodeType,
-} from 'flow-models/v2-flow-content-types';
-import { asV3VariableID } from 'flow-models/v2-to-v3-flow-utils';
-import {
   FlowInputVariable,
   FlowOutputVariable,
+  LocalNode,
+  NodeID,
   NodeInputVariable,
   NodeOutputVariable,
+  NodeType,
   V3LocalEdge,
   V3NodeConfig,
   V3NodeConfigsDict,
@@ -23,7 +20,7 @@ import {
   VariableValueType,
   VariablesDict,
 } from 'flow-models/v3-flow-content-types';
-import { createNodeConfig } from 'flow-models/v3-flow-utils';
+import { asV3VariableID, createNodeConfig } from 'flow-models/v3-flow-utils';
 import { current, produce } from 'immer';
 import {
   Connection,

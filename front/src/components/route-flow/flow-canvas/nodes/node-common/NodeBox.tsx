@@ -1,6 +1,6 @@
 import { css } from '@emotion/react';
 import styled from '@emotion/styled';
-import { NodeType } from 'flow-models/v2-flow-content-types';
+import { NodeType } from 'flow-models/v3-flow-content-types';
 import background from '../../../../../assets/warning-background.svg';
 
 export const BACKDROP_PADDING = 3;

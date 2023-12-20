@@ -1,9 +1,6 @@
 import {
   LocalNode,
-  NodeConfig,
   NodeID,
-} from 'flow-models/v2-flow-content-types';
-import {
   V3LocalEdge,
   V3NodeConfig,
   V3VariableID,
@@ -119,7 +116,7 @@ export type ChangeEvent =
   | {
       type: ChangeEventType.UPDATING_NODE_CONFIG;
       nodeId: NodeID;
-      change: Partial<NodeConfig>;
+      change: Partial<V3NodeConfig>;
     }
   // Variables
   | {

@@ -8,8 +8,10 @@ import {
   OnNodesChange,
 } from 'reactflow';
 
-import { LocalNode, NodeID, NodeType } from 'flow-models/v2-flow-content-types';
 import {
+  LocalNode,
+  NodeID,
+  NodeType,
   V3LocalEdge,
   V3NodeConfig,
   V3NodeConfigsDict,

@@ -1,6 +1,8 @@
 import { D } from '@mobily/ts-belt';
-import { VariableValueMap } from 'flow-models/v2-flow-content-types';
-import { V3FlowContent } from 'flow-models/v3-flow-content-types';
+import {
+  V3FlowContent,
+  VariableValueMap,
+} from 'flow-models/v3-flow-content-types';
 import {
   EMPTY,
   endWith,

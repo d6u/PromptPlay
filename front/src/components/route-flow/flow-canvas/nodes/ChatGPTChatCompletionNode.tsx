@@ -6,12 +6,10 @@ import Input from '@mui/joy/Input';
 import Option from '@mui/joy/Option';
 import Select from '@mui/joy/Select';
 import {
+  ChatGPTChatCompletionResponseFormatType,
   NodeID,
   NodeType,
   OpenAIChatModel,
-} from 'flow-models/v2-flow-content-types';
-import {
-  ChatGPTChatCompletionResponseFormatType,
   V3ChatGPTChatCompletionNodeConfig,
   VariableType,
 } from 'flow-models/v3-flow-content-types';

@@ -1,20 +1,19 @@
-import Chance from "chance";
-import randomId from "common-utils/randomId";
-import { ChatGPTMessageRole } from "integrations/openai";
+import Chance from 'chance';
+import randomId from 'common-utils/randomId';
+import { ChatGPTMessageRole } from 'integrations/openai';
 import {
   LocalNode,
   NodeID,
   NodeType,
   OpenAIChatModel,
   ServerNode,
-} from "./v2-flow-content-types";
-import { asV3VariableID } from "./v2-to-v3-flow-utils";
-import {
   V3NodeConfig,
+  V3VariableID,
   Variable,
+  VariableID,
   VariableType,
   VariableValueType,
-} from "./v3-flow-content-types";
+} from './v3-flow-content-types';
 
 const chance = new Chance();
 
@@ -80,7 +79,7 @@ export function createNodeConfig(node: LocalNode): {
             type: VariableType.NodeOutput,
             id: asV3VariableID(`${node.id}/output`),
             nodeId: node.id,
-            name: "output",
+            name: 'output',
             index: 0,
             valueType: VariableValueType.Unknown,
           },
@@ -93,14 +92,14 @@ export function createNodeConfig(node: LocalNode): {
           nodeId: node.id,
           type: NodeType.ChatGPTMessageNode,
           role: ChatGPTMessageRole.user,
-          content: "Write a poem about {{topic}} in fewer than 20 words.",
+          content: 'Write a poem about {{topic}} in fewer than 20 words.',
         },
         variableConfigList: [
           {
             type: VariableType.NodeInput,
             id: asV3VariableID(`${node.id}/messages_in`),
             nodeId: node.id,
-            name: "messages",
+            name: 'messages',
             index: 0,
             valueType: VariableValueType.Unknown,
           },
@@ -108,7 +107,7 @@ export function createNodeConfig(node: LocalNode): {
             type: VariableType.NodeInput,
             id: asV3VariableID(`${node.id}/${randomId()}`),
             nodeId: node.id,
-            name: "topic",
+            name: 'topic',
             index: 1,
             valueType: VariableValueType.Unknown,
           },
@@ -116,7 +115,7 @@ export function createNodeConfig(node: LocalNode): {
             type: VariableType.NodeOutput,
             id: asV3VariableID(`${node.id}/message`),
             nodeId: node.id,
-            name: "message",
+            name: 'message',
             index: 0,
             valueType: VariableValueType.Unknown,
           },
@@ -124,7 +123,7 @@ export function createNodeConfig(node: LocalNode): {
             type: VariableType.NodeOutput,
             id: asV3VariableID(`${node.id}/messages_out`),
             nodeId: node.id,
-            name: "messages",
+            name: 'messages',
             index: 1,
             valueType: VariableValueType.Unknown,
           },
@@ -147,7 +146,7 @@ export function createNodeConfig(node: LocalNode): {
             type: VariableType.NodeInput,
             id: asV3VariableID(`${node.id}/messages_in`),
             nodeId: node.id,
-            name: "messages",
+            name: 'messages',
             index: 0,
             valueType: VariableValueType.Unknown,
           },
@@ -155,7 +154,7 @@ export function createNodeConfig(node: LocalNode): {
             type: VariableType.NodeOutput,
             id: asV3VariableID(`${node.id}/content`),
             nodeId: node.id,
-            name: "content",
+            name: 'content',
             index: 0,
             valueType: VariableValueType.Unknown,
           },
@@ -163,7 +162,7 @@ export function createNodeConfig(node: LocalNode): {
             type: VariableType.NodeOutput,
             id: asV3VariableID(`${node.id}/message`),
             nodeId: node.id,
-            name: "message",
+            name: 'message',
             index: 1,
             valueType: VariableValueType.Unknown,
           },
@@ -171,7 +170,7 @@ export function createNodeConfig(node: LocalNode): {
             type: VariableType.NodeOutput,
             id: asV3VariableID(`${node.id}/messages_out`),
             nodeId: node.id,
-            name: "messages",
+            name: 'messages',
             index: 2,
             valueType: VariableValueType.Unknown,
           },
@@ -183,13 +182,13 @@ export function createNodeConfig(node: LocalNode): {
         nodeConfig: {
           nodeId: node.id,
           type: NodeType.TextTemplate,
-          content: "Write a poem about {{topic}} in fewer than 20 words.",
+          content: 'Write a poem about {{topic}} in fewer than 20 words.',
         },
         variableConfigList: [
           {
             type: VariableType.NodeInput,
             id: asV3VariableID(`${node.id}/${randomId()}`),
-            name: "topic",
+            name: 'topic',
             nodeId: node.id,
             index: 0,
             valueType: VariableValueType.Unknown,
@@ -197,7 +196,7 @@ export function createNodeConfig(node: LocalNode): {
           {
             type: VariableType.NodeOutput,
             id: asV3VariableID(`${node.id}/content`),
-            name: "content",
+            name: 'content',
             nodeId: node.id,
             index: 0,
             valueType: VariableValueType.Unknown,
@@ -210,13 +209,13 @@ export function createNodeConfig(node: LocalNode): {
         nodeConfig: {
           nodeId: node.id,
           type: NodeType.HuggingFaceInference,
-          model: "gpt2",
+          model: 'gpt2',
         },
         variableConfigList: [
           {
             type: VariableType.NodeInput,
             id: asV3VariableID(`${node.id}/parameters`),
-            name: "parameters",
+            name: 'parameters',
             nodeId: node.id,
             index: 0,
             valueType: VariableValueType.Unknown,
@@ -224,7 +223,7 @@ export function createNodeConfig(node: LocalNode): {
           {
             type: VariableType.NodeOutput,
             id: asV3VariableID(`${node.id}/output`),
-            name: "output",
+            name: 'output',
             nodeId: node.id,
             index: 0,
             valueType: VariableValueType.Unknown,
@@ -237,13 +236,13 @@ export function createNodeConfig(node: LocalNode): {
         nodeConfig: {
           nodeId: node.id,
           type: NodeType.ElevenLabs,
-          voiceId: "",
+          voiceId: '',
         },
         variableConfigList: [
           {
             type: VariableType.NodeInput,
             id: asV3VariableID(`${node.id}/text`),
-            name: "text",
+            name: 'text',
             nodeId: node.id,
             index: 0,
             valueType: VariableValueType.Unknown,
@@ -251,7 +250,7 @@ export function createNodeConfig(node: LocalNode): {
           {
             type: VariableType.NodeOutput,
             id: asV3VariableID(`${node.id}/audio`),
-            name: "audio",
+            name: 'audio',
             nodeId: node.id,
             index: 0,
             valueType: VariableValueType.Audio,
@@ -260,4 +259,8 @@ export function createNodeConfig(node: LocalNode): {
       };
     }
   }
+}
+
+export function asV3VariableID(id: VariableID | string): V3VariableID {
+  return id as unknown as V3VariableID;
 }

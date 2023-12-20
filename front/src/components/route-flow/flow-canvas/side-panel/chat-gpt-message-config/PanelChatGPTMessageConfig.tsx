@@ -6,8 +6,7 @@ import {
   RadioGroup,
   Textarea,
 } from '@mui/joy';
-import { NodeType } from 'flow-models/v2-flow-content-types';
-import { VariableType } from 'flow-models/v3-flow-content-types';
+import { NodeType, VariableType } from 'flow-models/v3-flow-content-types';
 import { ChatGPTMessageRole } from 'integrations/openai';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import invariant from 'ts-invariant';

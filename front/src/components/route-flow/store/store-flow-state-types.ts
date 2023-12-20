@@ -1,5 +1,6 @@
-import { LocalNode, NodeID } from 'flow-models/v2-flow-content-types';
 import {
+  LocalNode,
+  NodeID,
   V3LocalEdge,
   V3NodeConfigsDict,
   V3VariableValueLookUpDict,

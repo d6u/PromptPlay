@@ -1,6 +1,7 @@
 import { D } from '@mobily/ts-belt';
-import { NodeID, NodeType } from 'flow-models/v2-flow-content-types';
 import {
+  NodeID,
+  NodeType,
   V3FlowContent,
   V3NodeConfig,
   V3NodeConfigsDict,

@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { NodeID } from 'flow-models/v2-flow-content-types';
+import { NodeID } from 'flow-models/v3-flow-content-types';
 import { useNodeId } from 'reactflow';
 import { useStore } from 'zustand';
 import { useStoreFromFlowStoreContext } from '../../../store/FlowStoreContext';

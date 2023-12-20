@@ -1,8 +1,9 @@
 import FormControl from '@mui/joy/FormControl';
 import FormLabel from '@mui/joy/FormLabel';
 import Textarea from '@mui/joy/Textarea';
-import { NodeID, NodeType } from 'flow-models/v2-flow-content-types';
 import {
+  NodeID,
+  NodeType,
   V3JavaScriptFunctionNodeConfig,
   VariableType,
 } from 'flow-models/v3-flow-content-types';

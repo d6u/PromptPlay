@@ -1,4 +1,4 @@
-import { NodeID, VariableValueMap } from 'flow-models/v2-flow-content-types';
+import { NodeID, VariableValueMap } from 'flow-models/v3-flow-content-types';
 
 export enum RunEventType {
   VariableValueChanges = 'VariableValueChanges',

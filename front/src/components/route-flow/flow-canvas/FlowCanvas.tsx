@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { NodeType } from 'flow-models/v2-flow-content-types';
+import { NodeType } from 'flow-models/v3-flow-content-types';
 import { useContext } from 'react';
 import ReactFlow, {
   Background,
