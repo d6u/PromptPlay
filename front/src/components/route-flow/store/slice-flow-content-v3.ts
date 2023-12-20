@@ -19,8 +19,8 @@ import {
   V3VariableValueLookUpDict,
   VariableType,
   VariablesDict,
+  createNode,
 } from 'flow-models';
-import { createNode } from 'flow-models/v3-flow-utils';
 import { debounce } from 'lodash';
 import invariant from 'ts-invariant';
 import { StateCreator } from 'zustand';

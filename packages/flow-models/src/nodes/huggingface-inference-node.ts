@@ -1,5 +1,6 @@
-import { VariableType, VariableValueType, asV3VariableID } from '..';
 import { NodeID } from '../basic-types';
+import { VariableType, VariableValueType } from '../v3-flow-content-types';
+import { asV3VariableID } from '../v3-flow-utils';
 import NodeType from './NodeType';
 import { CreateDefaultNodeConfigFunction } from './common';
 

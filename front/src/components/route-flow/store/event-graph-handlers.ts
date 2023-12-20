@@ -19,8 +19,9 @@ import {
   VariableType,
   VariableValueType,
   VariablesDict,
+  asV3VariableID,
+  createNodeConfig,
 } from 'flow-models';
-import { asV3VariableID, createNodeConfig } from 'flow-models/v3-flow-utils';
 import { current, produce } from 'immer';
 import {
   Connection,

@@ -5,8 +5,8 @@ import {
   V3VariableValueLookUpDict,
   VariableType,
   VariablesDict,
+  asV3VariableID,
 } from 'flow-models';
-import { asV3VariableID } from 'flow-models/v3-flow-utils';
 import { produce } from 'immer';
 import posthog from 'posthog-js';
 import { Subscription, mergeMap } from 'rxjs';

@@ -1,6 +1,6 @@
 import randomId from 'common-utils/randomId';
 import { ChatGPTMessageRole } from 'integrations/openai';
-import { VariableType, VariableValueType, asV3VariableID } from '..';
+import { VariableType, VariableValueType, asV3VariableID } from '../..';
 import { NodeID } from '../basic-types';
 import NodeType from './NodeType';
 import { CreateDefaultNodeConfigFunction } from './common';
