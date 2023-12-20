@@ -15,8 +15,6 @@ import {
   SpacesTable,
 } from 'dynamodb-models/space';
 import { UserEntity, UserShape, UsersTable } from 'dynamodb-models/user';
-import { FlowContent } from 'flow-models/v2-flow-content-types';
-import { convertV2ContentToV3Content } from 'flow-models/v2-to-v3-flow-utils';
 import {
   CreationOptional,
   DataTypes,
@@ -25,6 +23,8 @@ import {
   Model,
   Sequelize,
 } from 'sequelize';
+import { FlowContent } from './utils/v2-flow-content-types';
+import { convertV2ContentToV3Content } from './utils/v2-to-v3-flow-utils';
 
 declare global {
   namespace NodeJS {
