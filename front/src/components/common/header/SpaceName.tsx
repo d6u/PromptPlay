@@ -4,27 +4,6 @@ import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useMutation, useQuery } from 'urql';
 import { graphql } from '../../../gql';
-import { UPDATE_SPACE_NAME_MUTATION } from '../../../state/spaceGraphQl';
-
-const SpaceNameInput = styled(Input)`
-  width: 250px;
-`;
-
-const Name = styled.div`
-  font-size: 14px;
-`;
-
-const HEADER_SPACE_NAME_QUERY = graphql(`
-  query HeaderSpaceNameQuery($spaceId: UUID!) {
-    result: space(id: $spaceId) {
-      isReadOnly
-      space {
-        id
-        name
-      }
-    }
-  }
-`);
 
 export default function SpaceName() {
   // TODO: Properly handle spaceId not being present
@@ -105,3 +84,36 @@ export default function SpaceName() {
     </Name>
   );
 }
+
+// ANCHOR: GraphQL
+
+const HEADER_SPACE_NAME_QUERY = graphql(`
+  query HeaderSpaceNameQuery($spaceId: UUID!) {
+    result: space(id: $spaceId) {
+      isReadOnly
+      space {
+        id
+        name
+      }
+    }
+  }
+`);
+
+const UPDATE_SPACE_NAME_MUTATION = graphql(`
+  mutation UpdateSpaceNameMutation($spaceId: ID!, $name: String!) {
+    updateSpace(id: $spaceId, name: $name) {
+      id
+      name
+    }
+  }
+`);
+
+// ANCHOR: Styled Components
+
+const SpaceNameInput = styled(Input)`
+  width: 250px;
+`;
+
+const Name = styled.div`
+  font-size: 14px;
+`;

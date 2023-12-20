@@ -67,14 +67,6 @@ export default function addObjectTypes(builder: BuilderType) {
             return parent.contentVersion;
           },
         }),
-        content: t.string({
-          nullable: true,
-          resolve: () => null,
-        }),
-        flowContent: t.string({
-          nullable: true,
-          resolve: () => null,
-        }),
         contentV3: t.exposeString('contentV3', { nullable: true }),
         updatedAt: t.field({
           type: 'DateTime',

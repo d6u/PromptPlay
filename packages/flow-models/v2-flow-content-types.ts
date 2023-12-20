@@ -1,16 +1,16 @@
-import { ChatGPTMessageRole } from "integrations/openai";
-import { Edge, Node, XYPosition } from "reactflow";
+import { ChatGPTMessageRole } from 'integrations/openai';
+import { Edge, Node, XYPosition } from 'reactflow';
 
 // SECTION: ID Types
 
 // See https://stackoverflow.com/questions/41790393/typescript-strict-alias-checking
 // for the usage of `& { readonly "": unique symbol }`
-export type NodeID = string & { readonly "": unique symbol };
+export type NodeID = string & { readonly '': unique symbol };
 
-export type EdgeID = string & { readonly "": unique symbol };
+export type EdgeID = string & { readonly '': unique symbol };
 
-export type NodeInputID = string & { readonly "": unique symbol };
-export type NodeOutputID = string & { readonly "": unique symbol };
+export type NodeInputID = string & { readonly '': unique symbol };
+export type NodeOutputID = string & { readonly '': unique symbol };
 
 export type VariableID = NodeInputID | NodeOutputID;
 
@@ -36,7 +36,7 @@ export type ServerNode = {
   data: null;
 };
 
-export type LocalNode = Omit<Node<null, NodeType>, "id" | "type" | "data"> &
+export type LocalNode = Omit<Node<null, NodeType>, 'id' | 'type' | 'data'> &
   ServerNode;
 
 // !SECTION
@@ -53,7 +53,7 @@ export type ServerEdge = {
 
 export type LocalEdge = Omit<
   Edge<never>,
-  "id" | "source" | "sourceHandle" | "target" | "targetHandle"
+  'id' | 'source' | 'sourceHandle' | 'target' | 'targetHandle'
 > &
   ServerEdge;
 
@@ -62,14 +62,14 @@ export type LocalEdge = Omit<
 // SECTION: NodeConfig Types
 
 export enum NodeType {
-  InputNode = "InputNode",
-  OutputNode = "OutputNode",
-  JavaScriptFunctionNode = "JavaScriptFunctionNode",
-  ChatGPTMessageNode = "ChatGPTMessageNode",
-  ChatGPTChatCompletionNode = "ChatGPTChatCompletionNode",
-  TextTemplate = "TextTemplate",
-  HuggingFaceInference = "HuggingFaceInference",
-  ElevenLabs = "ElevenLabs",
+  InputNode = 'InputNode',
+  OutputNode = 'OutputNode',
+  JavaScriptFunctionNode = 'JavaScriptFunctionNode',
+  ChatGPTMessageNode = 'ChatGPTMessageNode',
+  ChatGPTChatCompletionNode = 'ChatGPTChatCompletionNode',
+  TextTemplate = 'TextTemplate',
+  HuggingFaceInference = 'HuggingFaceInference',
+  ElevenLabs = 'ElevenLabs',
 }
 
 export type NodeConfigs = Record<NodeID, NodeConfig>;
@@ -129,20 +129,20 @@ export type ChatGPTChatCompletionNodeConfig = NodeConfigCommon & {
   model: OpenAIChatModel;
   temperature: number;
   seed?: number | null;
-  responseFormat?: { type: "json_object" } | null;
+  responseFormat?: { type: 'json_object' } | null;
   stop: Array<string>;
   outputs: NodeOutputItem[];
 };
 
 export enum OpenAIChatModel {
-  GPT_4_1106_PREVIEW = "gpt-4-1106-preview",
-  GPT_4 = "gpt-4",
-  GPT_4_32K = "gpt-4-32k",
-  GPT_4_0613 = "gpt-4-0613",
-  GPT_4_32K_0613 = "gpt-4-32k-0613",
-  GPT_3_5_TURBO_1106 = "gpt-3.5-turbo-1106",
-  GPT_3_5_TURBO = "gpt-3.5-turbo",
-  GPT_3_5_TURBO_16K = "gpt-3.5-turbo-16k",
+  GPT_4_1106_PREVIEW = 'gpt-4-1106-preview',
+  GPT_4 = 'gpt-4',
+  GPT_4_32K = 'gpt-4-32k',
+  GPT_4_0613 = 'gpt-4-0613',
+  GPT_4_32K_0613 = 'gpt-4-32k-0613',
+  GPT_3_5_TURBO_1106 = 'gpt-3.5-turbo-1106',
+  GPT_3_5_TURBO = 'gpt-3.5-turbo',
+  GPT_3_5_TURBO_16K = 'gpt-3.5-turbo-16k',
 }
 
 // TextTemplate
@@ -201,12 +201,12 @@ export type FlowOutputItem = {
 };
 
 export enum InputValueType {
-  String = "String",
-  Number = "Number",
+  String = 'String',
+  Number = 'Number',
 }
 
 export enum OutputValueType {
-  Audio = "Audio",
+  Audio = 'Audio',
 }
 
 // !SECTION
