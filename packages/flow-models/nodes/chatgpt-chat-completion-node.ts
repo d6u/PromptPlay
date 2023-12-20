@@ -1,5 +1,7 @@
+import { VariableType, VariableValueType, asV3VariableID } from '..';
 import { NodeID } from '../basic-types';
 import NodeType from './NodeType';
+import { CreateDefaultNodeConfigFunction } from './common';
 
 export type V3ChatGPTChatCompletionNodeConfig = {
   nodeId: NodeID;
@@ -25,3 +27,53 @@ export enum OpenAIChatModel {
 export enum ChatGPTChatCompletionResponseFormatType {
   JsonObject = 'json_object',
 }
+
+export const createDefaultNodeConfig: CreateDefaultNodeConfigFunction = (
+  node,
+) => {
+  return {
+    nodeConfig: {
+      nodeId: node.id,
+      type: NodeType.ChatGPTChatCompletionNode,
+      model: OpenAIChatModel.GPT_4,
+      temperature: 1,
+      stop: [],
+      seed: null,
+      responseFormatType: null,
+    },
+    variableConfigList: [
+      {
+        type: VariableType.NodeInput,
+        id: asV3VariableID(`${node.id}/messages_in`),
+        nodeId: node.id,
+        name: 'messages',
+        index: 0,
+        valueType: VariableValueType.Unknown,
+      },
+      {
+        type: VariableType.NodeOutput,
+        id: asV3VariableID(`${node.id}/content`),
+        nodeId: node.id,
+        name: 'content',
+        index: 0,
+        valueType: VariableValueType.Unknown,
+      },
+      {
+        type: VariableType.NodeOutput,
+        id: asV3VariableID(`${node.id}/message`),
+        nodeId: node.id,
+        name: 'message',
+        index: 1,
+        valueType: VariableValueType.Unknown,
+      },
+      {
+        type: VariableType.NodeOutput,
+        id: asV3VariableID(`${node.id}/messages_out`),
+        nodeId: node.id,
+        name: 'messages',
+        index: 2,
+        valueType: VariableValueType.Unknown,
+      },
+    ],
+  };
+};
