@@ -1,6 +1,6 @@
-import { create } from "zustand";
-import { persist } from "zustand/middleware";
-import { createSelectors } from "../utils/zustand-utils";
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
+import { createSelectors } from '../utils/zustand-utils';
 
 type OpenAIAPIKeyState = {
   openAiApiKey: string | null;
@@ -43,7 +43,7 @@ export const useLocalStorageStore = createSelectors(
         setElevenLabsApiKey: (elevenLabsApiKey: string | null) =>
           set(() => ({ elevenLabsApiKey })),
       }),
-      { name: "localUserSettings" },
+      { name: 'localUserSettings' },
     ),
   ),
 );

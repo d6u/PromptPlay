@@ -1,21 +1,21 @@
-import styled from "@emotion/styled";
-import Button from "@mui/joy/Button";
-import IconButton from "@mui/joy/IconButton";
-import posthog from "posthog-js";
-import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
-import { useMutation, useQuery } from "urql";
-import { PROVIDE_FEEDBACK_LINK } from "../../../constants";
-import { graphql } from "../../../gql";
-import { useLocalStorageStore } from "../../../state/appState";
-import { LOGIN_PATH, LOGOUT_PATH } from "../../../utils/route-utils";
-import IconLogout from "../../icons/IconLogout";
-import StyleResetLink from "../StyleResetLink";
-import SpaceName from "./SpaceName";
+import styled from '@emotion/styled';
+import Button from '@mui/joy/Button';
+import IconButton from '@mui/joy/IconButton';
+import posthog from 'posthog-js';
+import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { useMutation, useQuery } from 'urql';
+import { PROVIDE_FEEDBACK_LINK } from '../../../constants';
+import { graphql } from '../../../gql';
+import { useLocalStorageStore } from '../../../state/appState';
+import { LOGIN_PATH, LOGOUT_PATH } from '../../../utils/route-utils';
+import IconLogout from '../../icons/IconLogout';
+import StyleResetLink from '../StyleResetLink';
+import SpaceName from './SpaceName';
 
 export default function Header() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const isNewUser = searchParams.get("new_user") === "true";
+  const isNewUser = searchParams.get('new_user') === 'true';
 
   const placeholderUserToken = useLocalStorageStore.use.placeholderUserToken();
   const setPlaceholderUserToken =
@@ -23,7 +23,7 @@ export default function Header() {
 
   const [queryResult] = useQuery({
     query: HEADER_QUERY,
-    requestPolicy: "network-only",
+    requestPolicy: 'network-only',
   });
 
   const isPlaceholderUserTokenInvalid =
@@ -90,9 +90,9 @@ export default function Header() {
         setUseNarrowLayout(false);
       }
     }
-    window.addEventListener("resize", handleResize, { passive: true });
+    window.addEventListener('resize', handleResize, { passive: true });
     return () => {
-      window.removeEventListener("resize", handleResize);
+      window.removeEventListener('resize', handleResize);
     };
   }, []);
 
@@ -115,7 +115,7 @@ export default function Header() {
           target="_blank"
           rel="noreferrer"
         >
-          {useNarrowLayout ? "Feedback" : "Give Feedback"}
+          {useNarrowLayout ? 'Feedback' : 'Give Feedback'}
         </FeedbackLink>
       </LogoContainer>
       <SpaceNameContainer>
@@ -152,7 +152,7 @@ export default function Header() {
             color="success"
             onClick={() => window.location.assign(LOGIN_PATH)}
           >
-            {useNarrowLayout ? "Login" : "Log in / Sign up"}
+            {useNarrowLayout ? 'Login' : 'Log in / Sign up'}
           </Button>
         )}
       </AccountManagementContainer>

@@ -1,27 +1,27 @@
-import IconButton from "@mui/joy/IconButton";
-import { NodeID, NodeType } from "flow-models/v2-flow-content-types";
+import IconButton from '@mui/joy/IconButton';
+import { NodeID, NodeType } from 'flow-models/v2-flow-content-types';
 import {
   V3InputNodeConfig,
   VariableType,
-} from "flow-models/v3-flow-content-types";
-import { useContext, useMemo } from "react";
-import { Position, useNodeId, useUpdateNodeInternals } from "reactflow";
-import { useStore } from "zustand";
-import FlowContext from "../../FlowContext";
-import { useStoreFromFlowStoreContext } from "../../store/FlowStoreContext";
-import { selectVariables } from "../../store/state-utils";
-import { DetailPanelContentType } from "../../store/store-flow-state-types";
-import AddVariableButton from "./node-common/AddVariableButton";
-import HeaderSection from "./node-common/HeaderSection";
-import NodeBox from "./node-common/NodeBox";
-import NodeOutputModifyRow from "./node-common/NodeOutputModifyRow";
+} from 'flow-models/v3-flow-content-types';
+import { useContext, useMemo } from 'react';
+import { Position, useNodeId, useUpdateNodeInternals } from 'reactflow';
+import { useStore } from 'zustand';
+import FlowContext from '../../FlowContext';
+import { useStoreFromFlowStoreContext } from '../../store/FlowStoreContext';
+import { selectVariables } from '../../store/state-utils';
+import { DetailPanelContentType } from '../../store/store-flow-state-types';
+import AddVariableButton from './node-common/AddVariableButton';
+import HeaderSection from './node-common/HeaderSection';
+import NodeBox from './node-common/NodeBox';
+import NodeOutputModifyRow from './node-common/NodeOutputModifyRow';
 import {
   OutputHandle,
   Section,
   SmallSection,
   StyledIconGear,
-} from "./node-common/node-common";
-import { calculateOutputHandleBottom } from "./node-common/utils";
+} from './node-common/node-common';
+import { calculateOutputHandleBottom } from './node-common/utils';
 
 export default function InputNode() {
   const nodeId = useNodeId() as NodeID;

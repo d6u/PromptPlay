@@ -1,14 +1,14 @@
-import { css } from "@emotion/react";
-import styled from "@emotion/styled";
-import { useCallback } from "react";
-import { useNavigate } from "react-router-dom";
-import { useMutation, useQuery } from "urql";
-import { IS_LOGIN_ENABLED } from "../../constants";
-import { graphql } from "../../gql";
-import { useLocalStorageStore } from "../../state/appState";
-import { LOGIN_PATH, pathToFlow } from "../../utils/route-utils";
-import Dashboard from "./dashboard/Dashboard";
-import { ROOT_ROUTE_QUERY } from "./rootGraphql";
+import { css } from '@emotion/react';
+import styled from '@emotion/styled';
+import { useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useMutation, useQuery } from 'urql';
+import { IS_LOGIN_ENABLED } from '../../constants';
+import { graphql } from '../../gql';
+import { useLocalStorageStore } from '../../state/appState';
+import { LOGIN_PATH, pathToFlow } from '../../utils/route-utils';
+import Dashboard from './dashboard/Dashboard';
+import { ROOT_ROUTE_QUERY } from './rootGraphql';
 
 export default function RootRoute() {
   const navigate = useNavigate();
@@ -23,7 +23,7 @@ export default function RootRoute() {
 
   const [queryResult] = useQuery({
     query: ROOT_ROUTE_QUERY,
-    requestPolicy: "cache-and-network",
+    requestPolicy: 'cache-and-network',
   });
 
   const [, createExampleSpace] = useMutation(

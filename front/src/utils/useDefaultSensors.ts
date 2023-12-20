@@ -4,7 +4,7 @@ import {
   TouchSensor,
   useSensor,
   useSensors,
-} from "@dnd-kit/core";
+} from '@dnd-kit/core';
 
 export function useDefaultSensors() {
   const mouseSensor = useSensor(MouseSensor, {

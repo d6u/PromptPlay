@@ -5,25 +5,25 @@ import {
   Radio,
   RadioGroup,
   Textarea,
-} from "@mui/joy";
-import { NodeType } from "flow-models/v2-flow-content-types";
-import { VariableType } from "flow-models/v3-flow-content-types";
-import { ChatGPTMessageRole } from "integrations/openai";
-import { useContext, useEffect, useMemo, useState } from "react";
-import invariant from "ts-invariant";
-import { useStore } from "zustand";
-import FlowContext from "../../../FlowContext";
-import TextareaReadonly from "../../../common/TextareaReadonly";
-import { CopyIcon, LabelWithIconContainer } from "../../../common/flow-common";
-import { useStoreFromFlowStoreContext } from "../../../store/FlowStoreContext";
-import { selectVariables } from "../../../store/state-utils";
-import OutputRenderer from "../common/OutputRenderer";
+} from '@mui/joy';
+import { NodeType } from 'flow-models/v2-flow-content-types';
+import { VariableType } from 'flow-models/v3-flow-content-types';
+import { ChatGPTMessageRole } from 'integrations/openai';
+import { useContext, useEffect, useMemo, useState } from 'react';
+import invariant from 'ts-invariant';
+import { useStore } from 'zustand';
+import FlowContext from '../../../FlowContext';
+import TextareaReadonly from '../../../common/TextareaReadonly';
+import { CopyIcon, LabelWithIconContainer } from '../../../common/flow-common';
+import { useStoreFromFlowStoreContext } from '../../../store/FlowStoreContext';
+import { selectVariables } from '../../../store/state-utils';
+import OutputRenderer from '../common/OutputRenderer';
 import {
   HeaderSection,
   HeaderSectionHeader,
   PanelContentContainer,
   Section,
-} from "../common/controls-common";
+} from '../common/controls-common';
 
 export default function PanelChatGPTMessageConfig() {
   const { isCurrentUserOwner } = useContext(FlowContext);
@@ -137,7 +137,7 @@ export default function PanelChatGPTMessageConfig() {
                 setContent(e.target.value);
               }}
               onKeyDown={(e) => {
-                if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+                if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
                   updateNodeConfig(detailPanelSelectedNodeId, { content });
                 }
               }}
@@ -156,8 +156,8 @@ export default function PanelChatGPTMessageConfig() {
                 rel="noreferrer"
               >
                 Mustache template
-              </a>{" "}
-              is used here. TL;DR: use <code>{"{{variableName}}"}</code> to
+              </a>{' '}
+              is used here. TL;DR: use <code>{'{{variableName}}'}</code> to
               insert a variable.
             </div>
           </FormHelperText>

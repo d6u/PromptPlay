@@ -1,4 +1,4 @@
-import { styled, AccordionDetails } from "@mui/joy";
+import { AccordionDetails, styled } from '@mui/joy';
 
 export type CSVRow = Array<string>;
 export type CSVHeader = CSVRow;

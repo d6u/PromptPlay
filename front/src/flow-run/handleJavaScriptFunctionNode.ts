@@ -5,10 +5,10 @@ import {
   V3VariableValueLookUpDict,
   VariablesDict,
   VariableType,
-} from "flow-models/v3-flow-content-types";
-import { defer, Observable } from "rxjs";
-import invariant from "ts-invariant";
-import { AsyncFunction } from "./run-single";
+} from 'flow-models/v3-flow-content-types';
+import { defer, Observable } from 'rxjs';
+import invariant from 'ts-invariant';
+import { AsyncFunction } from './run-single';
 
 export function handleJavaScriptFunctionNode(
   data: V3JavaScriptFunctionNodeConfig,

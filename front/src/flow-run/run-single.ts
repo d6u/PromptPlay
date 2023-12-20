@@ -1,5 +1,5 @@
-import { D } from "@mobily/ts-belt";
-import { NodeID, NodeType } from "flow-models/v2-flow-content-types";
+import { D } from '@mobily/ts-belt';
+import { NodeID, NodeType } from 'flow-models/v2-flow-content-types';
 import {
   V3FlowContent,
   V3NodeConfig,
@@ -8,7 +8,7 @@ import {
   V3VariableID,
   V3VariableValueLookUpDict,
   VariablesDict,
-} from "flow-models/v3-flow-content-types";
+} from 'flow-models/v3-flow-content-types';
 import {
   BehaviorSubject,
   EMPTY,
@@ -24,15 +24,15 @@ import {
   of,
   startWith,
   tap,
-} from "rxjs";
-import { handleChatGPTChatNode } from "./handleChatGPTChatNode";
-import { handleChatGPTMessageNode } from "./handleChatGPTMessageNode";
-import { handleElevenLabsNode } from "./handleElevenLabsNode";
-import { handleHuggingFaceInferenceNode } from "./handleHuggingFaceInferenceNode";
-import { handleJavaScriptFunctionNode } from "./handleJavaScriptFunctionNode";
-import { handleOutputNode } from "./handleOutputNode";
-import { handleTextTemplateNode } from "./handleTextTemplateNode";
-import { RunEvent, RunEventType } from "./run-types";
+} from 'rxjs';
+import { handleChatGPTChatNode } from './handleChatGPTChatNode';
+import { handleChatGPTMessageNode } from './handleChatGPTMessageNode';
+import { handleElevenLabsNode } from './handleElevenLabsNode';
+import { handleHuggingFaceInferenceNode } from './handleHuggingFaceInferenceNode';
+import { handleJavaScriptFunctionNode } from './handleJavaScriptFunctionNode';
+import { handleOutputNode } from './handleOutputNode';
+import { handleTextTemplateNode } from './handleTextTemplateNode';
+import { RunEvent, RunEventType } from './run-types';
 
 export const AsyncFunction = async function () {}.constructor;
 

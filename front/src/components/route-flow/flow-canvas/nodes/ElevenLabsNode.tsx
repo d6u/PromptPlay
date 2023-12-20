@@ -1,35 +1,35 @@
-import FormControl from "@mui/joy/FormControl";
-import FormHelperText from "@mui/joy/FormHelperText";
-import FormLabel from "@mui/joy/FormLabel";
-import Input from "@mui/joy/Input";
-import { NodeID, NodeType } from "flow-models/v2-flow-content-types";
+import FormControl from '@mui/joy/FormControl';
+import FormHelperText from '@mui/joy/FormHelperText';
+import FormLabel from '@mui/joy/FormLabel';
+import Input from '@mui/joy/Input';
+import { NodeID, NodeType } from 'flow-models/v2-flow-content-types';
 import {
   V3ElevenLabsNodeConfig,
   VariableType,
-} from "flow-models/v3-flow-content-types";
-import { useContext, useMemo, useState } from "react";
-import { Position, useNodeId } from "reactflow";
-import { useStore } from "zustand";
+} from 'flow-models/v3-flow-content-types';
+import { useContext, useMemo, useState } from 'react';
+import { Position, useNodeId } from 'reactflow';
+import { useStore } from 'zustand';
 import {
   LocalStorageState,
   SpaceState,
   useLocalStorageStore,
   useSpaceStore,
-} from "../../../../state/appState";
-import FlowContext from "../../FlowContext";
-import InputReadonly from "../../common/InputReadonly";
-import { useStoreFromFlowStoreContext } from "../../store/FlowStoreContext";
-import { selectVariables } from "../../store/state-utils";
-import HeaderSection from "./node-common/HeaderSection";
-import HelperTextContainer from "./node-common/HelperTextContainer";
-import NodeBox, { NodeState } from "./node-common/NodeBox";
-import NodeInputModifyRow from "./node-common/NodeInputModifyRow";
-import NodeOutputRow from "./node-common/NodeOutputRow";
-import { InputHandle, OutputHandle, Section } from "./node-common/node-common";
+} from '../../../../state/appState';
+import FlowContext from '../../FlowContext';
+import InputReadonly from '../../common/InputReadonly';
+import { useStoreFromFlowStoreContext } from '../../store/FlowStoreContext';
+import { selectVariables } from '../../store/state-utils';
+import HeaderSection from './node-common/HeaderSection';
+import HelperTextContainer from './node-common/HelperTextContainer';
+import NodeBox, { NodeState } from './node-common/NodeBox';
+import NodeInputModifyRow from './node-common/NodeInputModifyRow';
+import NodeOutputRow from './node-common/NodeOutputRow';
+import { InputHandle, OutputHandle, Section } from './node-common/node-common';
 import {
   calculateInputHandleTop,
   calculateOutputHandleBottom,
-} from "./node-common/utils";
+} from './node-common/utils';
 
 const persistSelector = (state: LocalStorageState) => ({
   elevenLabsApiKey: state.elevenLabsApiKey,
@@ -130,14 +130,14 @@ export default function ElevenLabsNode() {
         </Section>
         <Section>
           <HelperTextContainer>
-            Check Elevent Labs's{" "}
+            Check Elevent Labs's{' '}
             <a
               href="https://docs.elevenlabs.io/api-reference/text-to-speech"
               target="_blank"
               rel="noreferrer"
             >
               Text to Speech API Reference
-            </a>{" "}
+            </a>{' '}
             for more information.
           </HelperTextContainer>
         </Section>
@@ -147,8 +147,8 @@ export default function ElevenLabsNode() {
               <FormLabel>API Key</FormLabel>
               <Input
                 type="password"
-                color={missingElevenLabsApiKey ? "danger" : "neutral"}
-                value={elevenLabsApiKey ?? ""}
+                color={missingElevenLabsApiKey ? 'danger' : 'neutral'}
+                value={elevenLabsApiKey ?? ''}
                 onChange={(e) => {
                   const value = e.target.value.trim();
                   setElevenLabsApiKey(value.length ? value : null);
@@ -176,7 +176,7 @@ export default function ElevenLabsNode() {
                   setVoiceId(e.target.value);
                 }}
                 onKeyUp={(e) => {
-                  if (e.key === "Enter") {
+                  if (e.key === 'Enter') {
                     updateNodeConfig(nodeId, { voiceId });
                   }
                 }}

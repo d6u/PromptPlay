@@ -1,13 +1,13 @@
-import styled from "@emotion/styled";
+import styled from '@emotion/styled';
 import {
   FlowOutputVariable,
   NodeOutputVariable,
   VariableValueType,
-} from "flow-models/v3-flow-content-types";
-import { ReactNode } from "react";
-import { useStore } from "zustand";
-import { useStoreFromFlowStoreContext } from "../../../store/FlowStoreContext";
-import OutputDisplay from "./OutputDisplay";
+} from 'flow-models/v3-flow-content-types';
+import { ReactNode } from 'react';
+import { useStore } from 'zustand';
+import { useStoreFromFlowStoreContext } from '../../../store/FlowStoreContext';
+import OutputDisplay from './OutputDisplay';
 
 type Props = {
   outputItem: FlowOutputVariable | NodeOutputVariable;

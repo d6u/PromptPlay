@@ -5,11 +5,11 @@ import {
   V3VariableValueLookUpDict,
   VariablesDict,
   VariableType,
-} from "flow-models/v3-flow-content-types";
-import * as ElevenLabs from "integrations/eleven-labs";
-import { defer, from, map, Observable, throwError } from "rxjs";
-import invariant from "ts-invariant";
-import { useLocalStorageStore, useSpaceStore } from "../state/appState";
+} from 'flow-models/v3-flow-content-types';
+import * as ElevenLabs from 'integrations/eleven-labs';
+import { defer, from, map, Observable, throwError } from 'rxjs';
+import invariant from 'ts-invariant';
+import { useLocalStorageStore, useSpaceStore } from '../state/appState';
 
 export function handleElevenLabsNode(
   data: V3ElevenLabsNodeConfig,
@@ -53,12 +53,12 @@ export function handleElevenLabsNode(
     if (!elevenLabsApiKey) {
       // console.error("Eleven Labs API key is missing");
       useSpaceStore.getState().setMissingElevenLabsApiKey(true);
-      return throwError(() => new Error("Eleven Labs API key is missing"));
+      return throwError(() => new Error('Eleven Labs API key is missing'));
     }
 
-    const text = argsMap["text"];
+    const text = argsMap['text'];
 
-    invariant(typeof text === "string");
+    invariant(typeof text === 'string');
 
     return from(
       ElevenLabs.textToSpeech({

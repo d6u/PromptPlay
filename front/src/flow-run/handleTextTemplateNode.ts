@@ -5,10 +5,10 @@ import {
   V3VariableValueLookUpDict,
   VariablesDict,
   VariableType,
-} from "flow-models/v3-flow-content-types";
-import mustache from "mustache";
-import { defer, Observable, of } from "rxjs";
-import invariant from "ts-invariant";
+} from 'flow-models/v3-flow-content-types';
+import mustache from 'mustache';
+import { defer, Observable, of } from 'rxjs';
+import invariant from 'ts-invariant';
 
 export function handleTextTemplateNode(
   data: V3TextTemplateNodeConfig,

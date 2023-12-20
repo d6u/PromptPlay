@@ -1,4 +1,4 @@
-import { A } from "@mobily/ts-belt";
+import { A } from '@mobily/ts-belt';
 import {
   NodeOutputVariable,
   V3ChatGPTChatCompletionNodeConfig,
@@ -6,8 +6,8 @@ import {
   V3VariableValueLookUpDict,
   VariablesDict,
   VariableType,
-} from "flow-models/v3-flow-content-types";
-import * as OpenAI from "integrations/openai";
+} from 'flow-models/v3-flow-content-types';
+import * as OpenAI from 'integrations/openai';
 import {
   concat,
   defer,
@@ -18,9 +18,9 @@ import {
   tap,
   throwError,
   TimeoutError,
-} from "rxjs";
-import invariant from "ts-invariant";
-import { useLocalStorageStore, useSpaceStore } from "../state/appState";
+} from 'rxjs';
+import invariant from 'ts-invariant';
+import { useLocalStorageStore, useSpaceStore } from '../state/appState';
 
 export function handleChatGPTChatNode(
   data: V3ChatGPTChatCompletionNodeConfig,
@@ -73,12 +73,12 @@ export function handleChatGPTChatNode(
     if (!openAiApiKey) {
       // console.error("OpenAI API key is missing");
       useSpaceStore.getState().setMissingOpenAiApiKey(true);
-      return throwError(() => new Error("OpenAI API key is missing"));
+      return throwError(() => new Error('OpenAI API key is missing'));
     }
 
-    let messages = (argsMap["messages"] ?? []) as OpenAI.ChatGPTMessage[];
-    let role = "assistant";
-    let content = "";
+    let messages = (argsMap['messages'] ?? []) as OpenAI.ChatGPTMessage[];
+    let role = 'assistant';
+    let content = '';
 
     const options = {
       apiKey: openAiApiKey,
@@ -97,7 +97,7 @@ export function handleChatGPTChatNode(
       return concat(
         OpenAI.getStreamingCompletion(options).pipe(
           map((piece) => {
-            if ("error" in piece) {
+            if ('error' in piece) {
               // console.error(piece.error.message);
               throw piece.error.message;
             }
@@ -177,9 +177,9 @@ export function handleChatGPTChatNode(
         tap({
           error: (error) => {
             if (error instanceof TimeoutError) {
-              console.debug("ERROR: OpenAI API call timed out.");
+              console.debug('ERROR: OpenAI API call timed out.');
             } else {
-              console.debug("ERROR: OpenAI API call errored.", error);
+              console.debug('ERROR: OpenAI API call errored.', error);
             }
           },
         }),

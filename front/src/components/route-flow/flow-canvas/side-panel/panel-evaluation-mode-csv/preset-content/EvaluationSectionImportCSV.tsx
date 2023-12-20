@@ -1,7 +1,7 @@
-import { Accordion, AccordionSummary, Table, Textarea } from "@mui/joy";
-import { useFlowStore } from "../../../../store/FlowStoreContext";
-import { Section } from "../../common/controls-common";
-import { CSVData, CSVRow, CustomAccordionDetails } from "../common";
+import { Accordion, AccordionSummary, Table, Textarea } from '@mui/joy';
+import { useFlowStore } from '../../../../store/FlowStoreContext';
+import { Section } from '../../common/controls-common';
+import { CSVData, CSVRow, CustomAccordionDetails } from '../common';
 
 type Props = {
   csvHeaders: CSVRow;
@@ -27,7 +27,7 @@ export default function EvaluationSectionImportCSV(props: Props) {
             onChange={(event) => setCsvStr(event.target.value)}
           />
         </Section>
-        <Section style={{ overflow: "auto" }}>
+        <Section style={{ overflow: 'auto' }}>
           <Table>
             <thead>
               <tr>

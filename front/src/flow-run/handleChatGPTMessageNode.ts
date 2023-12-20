@@ -1,4 +1,4 @@
-import { A } from "@mobily/ts-belt";
+import { A } from '@mobily/ts-belt';
 import {
   NodeOutputVariable,
   V3ChatGPTMessageNodeConfig,
@@ -6,11 +6,11 @@ import {
   V3VariableValueLookUpDict,
   VariableType,
   VariablesDict,
-} from "flow-models/v3-flow-content-types";
-import * as OpenAI from "integrations/openai";
-import mustache from "mustache";
-import { Observable, of } from "rxjs";
-import invariant from "ts-invariant";
+} from 'flow-models/v3-flow-content-types';
+import * as OpenAI from 'integrations/openai';
+import mustache from 'mustache';
+import { Observable, of } from 'rxjs';
+import invariant from 'ts-invariant';
 
 export function handleChatGPTMessageNode(
   data: V3ChatGPTMessageNodeConfig,
@@ -53,7 +53,7 @@ export function handleChatGPTMessageNode(
 
   // Execute logic
   // ----------
-  let messages = (argsMap["messages"] ?? []) as OpenAI.ChatGPTMessage[];
+  let messages = (argsMap['messages'] ?? []) as OpenAI.ChatGPTMessage[];
 
   const message = {
     role: data.role,

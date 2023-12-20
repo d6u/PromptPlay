@@ -1,34 +1,34 @@
-import FormControl from "@mui/joy/FormControl";
-import FormLabel from "@mui/joy/FormLabel";
-import Textarea from "@mui/joy/Textarea";
-import { NodeID, NodeType } from "flow-models/v2-flow-content-types";
+import FormControl from '@mui/joy/FormControl';
+import FormLabel from '@mui/joy/FormLabel';
+import Textarea from '@mui/joy/Textarea';
+import { NodeID, NodeType } from 'flow-models/v2-flow-content-types';
 import {
   V3JavaScriptFunctionNodeConfig,
   VariableType,
-} from "flow-models/v3-flow-content-types";
-import { useContext, useMemo, useState } from "react";
-import { Position, useNodeId, useUpdateNodeInternals } from "reactflow";
-import { useStore } from "zustand";
-import FlowContext from "../../FlowContext";
-import TextareaReadonly from "../../common/TextareaReadonly";
-import { CopyIcon, LabelWithIconContainer } from "../../common/flow-common";
-import { useStoreFromFlowStoreContext } from "../../store/FlowStoreContext";
-import { selectVariables } from "../../store/state-utils";
-import AddVariableButton from "./node-common/AddVariableButton";
-import HeaderSection from "./node-common/HeaderSection";
-import NodeBox, { NodeState } from "./node-common/NodeBox";
-import NodeInputModifyRow from "./node-common/NodeInputModifyRow";
-import NodeOutputRow from "./node-common/NodeOutputRow";
+} from 'flow-models/v3-flow-content-types';
+import { useContext, useMemo, useState } from 'react';
+import { Position, useNodeId, useUpdateNodeInternals } from 'reactflow';
+import { useStore } from 'zustand';
+import FlowContext from '../../FlowContext';
+import TextareaReadonly from '../../common/TextareaReadonly';
+import { CopyIcon, LabelWithIconContainer } from '../../common/flow-common';
+import { useStoreFromFlowStoreContext } from '../../store/FlowStoreContext';
+import { selectVariables } from '../../store/state-utils';
+import AddVariableButton from './node-common/AddVariableButton';
+import HeaderSection from './node-common/HeaderSection';
+import NodeBox, { NodeState } from './node-common/NodeBox';
+import NodeInputModifyRow from './node-common/NodeInputModifyRow';
+import NodeOutputRow from './node-common/NodeOutputRow';
 import {
   InputHandle,
   OutputHandle,
   Section,
   SmallSection,
-} from "./node-common/node-common";
+} from './node-common/node-common';
 import {
   calculateInputHandleTop,
   calculateOutputHandleBottom,
-} from "./node-common/utils";
+} from './node-common/utils';
 
 export default function JavaScriptFunctionNode() {
   const nodeId = useNodeId() as NodeID;
@@ -84,7 +84,7 @@ export default function JavaScriptFunctionNode() {
 
   const functionDefinitionPrefix = `async function (${inputs
     .map((v) => v.name)
-    .join(", ")}) {`;
+    .join(', ')}) {`;
 
   return (
     <>
@@ -151,14 +151,14 @@ export default function JavaScriptFunctionNode() {
               <CopyIcon
                 onClick={() => {
                   navigator.clipboard.writeText(`${functionDefinitionPrefix}
-  ${javaScriptCode.split("\n").join("\n  ")}
+  ${javaScriptCode.split('\n').join('\n  ')}
 }`);
                 }}
               />
             </LabelWithIconContainer>
             {isCurrentUserOwner ? (
               <Textarea
-                sx={{ fontFamily: "var(--font-family-mono)" }}
+                sx={{ fontFamily: 'var(--font-family-mono)' }}
                 minRows={6}
                 placeholder="Write JavaScript here"
                 value={javaScriptCode}
@@ -166,7 +166,7 @@ export default function JavaScriptFunctionNode() {
                   setJavaScriptCode(e.target.value);
                 }}
                 onKeyDown={(e) => {
-                  if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+                  if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
                     updateNodeConfig(nodeId, { javaScriptCode });
                   }
                 }}
@@ -177,7 +177,7 @@ export default function JavaScriptFunctionNode() {
             ) : (
               <TextareaReadonly value={javaScriptCode} minRows={6} isCode />
             )}
-            <code style={{ fontSize: 12 }}>{"}"}</code>
+            <code style={{ fontSize: 12 }}>{'}'}</code>
           </FormControl>
         </Section>
         <Section>

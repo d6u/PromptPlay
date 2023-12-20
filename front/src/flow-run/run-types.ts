@@ -1,10 +1,10 @@
-import { NodeID, VariableValueMap } from "flow-models/v2-flow-content-types";
+import { NodeID, VariableValueMap } from 'flow-models/v2-flow-content-types';
 
 export enum RunEventType {
-  VariableValueChanges = "VariableValueChanges",
-  NodeStarted = "NodeStarted",
-  NodeFinished = "NodeFinished",
-  NodeError = "NodeError",
+  VariableValueChanges = 'VariableValueChanges',
+  NodeStarted = 'NodeStarted',
+  NodeFinished = 'NodeFinished',
+  NodeError = 'NodeError',
 }
 
 export type RunEvent =
@@ -40,12 +40,12 @@ export type RunMetadata = {
 };
 
 export enum OverallStatus {
-  NotStarted = "NotStarted",
-  Waiting = "Waiting",
-  Running = "Running",
+  NotStarted = 'NotStarted',
+  Waiting = 'Waiting',
+  Running = 'Running',
   // NOTE: Don't call this success because it might not be fully successful
-  Complete = "Complete",
+  Complete = 'Complete',
   // NOTE: Don't call this error because it might be canceled by the user
-  Interrupted = "Interrupted",
-  Unknown = "Unknown",
+  Interrupted = 'Interrupted',
+  Unknown = 'Unknown',
 }

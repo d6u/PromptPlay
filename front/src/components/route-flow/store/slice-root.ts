@@ -1,35 +1,35 @@
-import { D } from "@mobily/ts-belt";
-import { NodeID } from "flow-models/v2-flow-content-types";
+import { D } from '@mobily/ts-belt';
+import { NodeID } from 'flow-models/v2-flow-content-types';
 import {
   asV3VariableID,
   convertV2ContentToV3Content,
-} from "flow-models/v2-to-v3-flow-utils";
+} from 'flow-models/v2-to-v3-flow-utils';
 import {
   V3FlowContent,
   V3VariableValueLookUpDict,
-  VariablesDict,
   VariableType,
-} from "flow-models/v3-flow-content-types";
-import { produce } from "immer";
-import posthog from "posthog-js";
-import { mergeMap, Subscription } from "rxjs";
-import { invariant } from "ts-invariant";
-import { OperationResult } from "urql";
-import { StateCreator } from "zustand";
-import { runSingle } from "../../../flow-run/run-single";
-import { RunEventType } from "../../../flow-run/run-types";
-import { ContentVersion, SpaceFlowQueryQuery } from "../../../gql/graphql";
-import { fetchFlowContent, updateSpaceContentV3 } from "../graphql";
+  VariablesDict,
+} from 'flow-models/v3-flow-content-types';
+import { produce } from 'immer';
+import posthog from 'posthog-js';
+import { Subscription, mergeMap } from 'rxjs';
+import { invariant } from 'ts-invariant';
+import { OperationResult } from 'urql';
+import { StateCreator } from 'zustand';
+import { runSingle } from '../../../flow-run/run-single';
+import { RunEventType } from '../../../flow-run/run-types';
+import { ContentVersion, SpaceFlowQueryQuery } from '../../../gql/graphql';
+import { fetchFlowContent, updateSpaceContentV3 } from '../graphql';
 import {
   assignLocalEdgeProperties,
   assignLocalNodeProperties,
-} from "./state-utils";
+} from './state-utils';
 import {
   DetailPanelContentType,
   FlowState,
   NodeMetadata,
   NodeMetadataDict,
-} from "./store-flow-state-types";
+} from './store-flow-state-types';
 
 type RootSliceState = {
   // TODO: Does readonly make any difference here?
@@ -106,7 +106,7 @@ export function createRootSlice(
     nodeMetadataDict: {},
 
     initialize(): void {
-      console.log("FlowStore: initializing...");
+      console.log('FlowStore: initializing...');
 
       const subscription = fetchFlowContent(initProps.spaceId)
         .pipe(mergeMap(createFlowContentHandler(initProps.spaceId)))
@@ -131,7 +131,7 @@ export function createRootSlice(
           },
           error(error) {
             // TODO: Report to telemetry
-            console.error("Error fetching content", error);
+            console.error('Error fetching content', error);
           },
           complete() {
             set({ isInitialized: true });
@@ -142,7 +142,7 @@ export function createRootSlice(
     },
 
     deinitialize(): void {
-      console.groupCollapsed("FlowStore: deinitializing...");
+      console.groupCollapsed('FlowStore: deinitializing...');
       get().subscriptionBag.unsubscribe();
       console.groupEnd();
     },
@@ -174,7 +174,7 @@ export function createRootSlice(
     },
 
     runFlow() {
-      posthog.capture("Starting Simple Evaluation", {
+      posthog.capture('Starting Simple Evaluation', {
         flowId: get().spaceId,
       });
 
@@ -239,7 +239,7 @@ export function createRootSlice(
           }
         },
         error(error) {
-          posthog.capture("Finished Simple Evaluation with Error", {
+          posthog.capture('Finished Simple Evaluation with Error', {
             flowId: get().spaceId,
           });
 
@@ -248,7 +248,7 @@ export function createRootSlice(
           setIsRunning(false);
         },
         complete() {
-          posthog.capture("Finished Simple Evaluation", {
+          posthog.capture('Finished Simple Evaluation', {
             flowId: get().spaceId,
           });
 
@@ -260,7 +260,7 @@ export function createRootSlice(
     },
 
     stopRunningFlow() {
-      posthog.capture("Manually Stopped Simple Evaluation", {
+      posthog.capture('Manually Stopped Simple Evaluation', {
         flowId: get().spaceId,
       });
 
@@ -286,11 +286,11 @@ function createFlowContentHandler(
     const contentV3Str = result.data.result.space.contentV3;
 
     // TODO: Report to telemetry
-    invariant(version != ContentVersion.V1, "version should not be v1");
+    invariant(version != ContentVersion.V1, 'version should not be v1');
 
     switch (version) {
       case ContentVersion.V2: {
-        invariant(contentV2Str != null, "contentV2Str");
+        invariant(contentV2Str != null, 'contentV2Str');
         // TODO: Report parse error to telemetry
         const contentV2 = JSON.parse(contentV2Str);
         const contentV3 = convertV2ContentToV3Content(contentV2);
@@ -298,7 +298,7 @@ function createFlowContentHandler(
         return contentV3;
       }
       case ContentVersion.V3: {
-        invariant(contentV3Str != null, "contentV3Str");
+        invariant(contentV3Str != null, 'contentV3Str');
         // TODO: Report parse error to telemetry
         const data = JSON.parse(contentV3Str) as Partial<V3FlowContent>;
         const contentV3: V3FlowContent = {

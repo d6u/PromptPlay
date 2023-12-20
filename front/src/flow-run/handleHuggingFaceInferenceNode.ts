@@ -5,11 +5,11 @@ import {
   V3VariableValueLookUpDict,
   VariablesDict,
   VariableType,
-} from "flow-models/v3-flow-content-types";
-import * as HuggingFace from "integrations/hugging-face";
-import { defer, from, map, Observable, throwError } from "rxjs";
-import invariant from "ts-invariant";
-import { useLocalStorageStore, useSpaceStore } from "../state/appState";
+} from 'flow-models/v3-flow-content-types';
+import * as HuggingFace from 'integrations/hugging-face';
+import { defer, from, map, Observable, throwError } from 'rxjs';
+import invariant from 'ts-invariant';
+import { useLocalStorageStore, useSpaceStore } from '../state/appState';
 
 export function handleHuggingFaceInferenceNode(
   data: V3HuggingFaceInferenceNodeConfig,
@@ -54,13 +54,13 @@ export function handleHuggingFaceInferenceNode(
     if (!huggingFaceApiToken) {
       // console.error("Hugging Face API token is missing");
       useSpaceStore.getState().setMissingHuggingFaceApiToken(true);
-      return throwError(() => new Error("Hugging Face API token is missing"));
+      return throwError(() => new Error('Hugging Face API token is missing'));
     }
 
     return from(
       HuggingFace.callInferenceApi(
         { apiToken: huggingFaceApiToken, model: data.model },
-        argsMap["parameters"],
+        argsMap['parameters'],
       ),
     ).pipe(
       map((result) => {
@@ -68,7 +68,7 @@ export function handleHuggingFaceInferenceNode(
           if (result.data) {
             throw result.data;
           } else {
-            throw new Error("Unknown error");
+            throw new Error('Unknown error');
           }
         }
 

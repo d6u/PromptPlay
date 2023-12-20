@@ -1,25 +1,25 @@
-import styled from "@emotion/styled";
-import { NodeType } from "flow-models/v2-flow-content-types";
-import { useContext } from "react";
+import styled from '@emotion/styled';
+import { NodeType } from 'flow-models/v2-flow-content-types';
+import { useContext } from 'react';
 import ReactFlow, {
   Background,
   BackgroundVariant,
   Controls,
   PanOnScrollMode,
-} from "reactflow";
-import "reactflow/dist/style.css";
-import { useStore } from "zustand";
-import FlowContext from "../FlowContext";
-import { useStoreFromFlowStoreContext } from "../store/FlowStoreContext";
-import ChatGPTChatCompletionNode from "./nodes/ChatGPTChatCompletionNode";
-import ChatGPTMessageNode from "./nodes/ChatGPTMessageNode";
-import ElevenLabsNode from "./nodes/ElevenLabsNode";
-import HuggingFaceInferenceNode from "./nodes/HuggingFaceInferenceNode";
-import InputNode from "./nodes/InputNode";
-import JavaScriptFunctionNode from "./nodes/JavaScriptFunctionNode";
-import OutputNode from "./nodes/OutputNode";
-import TextTemplateNode from "./nodes/TextTemplateNode";
-import SidePanel from "./side-panel/SidePanel";
+} from 'reactflow';
+import 'reactflow/dist/style.css';
+import { useStore } from 'zustand';
+import FlowContext from '../FlowContext';
+import { useStoreFromFlowStoreContext } from '../store/FlowStoreContext';
+import ChatGPTChatCompletionNode from './nodes/ChatGPTChatCompletionNode';
+import ChatGPTMessageNode from './nodes/ChatGPTMessageNode';
+import ElevenLabsNode from './nodes/ElevenLabsNode';
+import HuggingFaceInferenceNode from './nodes/HuggingFaceInferenceNode';
+import InputNode from './nodes/InputNode';
+import JavaScriptFunctionNode from './nodes/JavaScriptFunctionNode';
+import OutputNode from './nodes/OutputNode';
+import TextTemplateNode from './nodes/TextTemplateNode';
+import SidePanel from './side-panel/SidePanel';
 
 const NODE_TYPES = {
   [NodeType.InputNode]: InputNode,

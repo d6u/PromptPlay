@@ -1,16 +1,16 @@
-import { createLens, Getter, Setter } from "@dhmk/zustand-lens";
+import { createLens, Getter, Setter } from '@dhmk/zustand-lens';
 import {
   V3VariableID,
   V3VariableValueLookUpDict,
-} from "flow-models/v3-flow-content-types";
-import invariant from "ts-invariant";
-import { OperationResult } from "urql";
-import { StateCreator } from "zustand";
-import { RunMetadata } from "../../../flow-run/run-types";
-import { graphql } from "../../../gql";
-import { LoadCsvEvaluationPresetQuery } from "../../../gql/graphql";
-import { client } from "../../../state/urql";
-import { FlowState } from "./store-flow-state-types";
+} from 'flow-models/v3-flow-content-types';
+import invariant from 'ts-invariant';
+import { OperationResult } from 'urql';
+import { StateCreator } from 'zustand';
+import { RunMetadata } from '../../../flow-run/run-types';
+import { graphql } from '../../../gql';
+import { LoadCsvEvaluationPresetQuery } from '../../../gql/graphql';
+import { client } from '../../../state/urql';
+import { FlowState } from './store-flow-state-types';
 
 export type CsvEvaluationPresetSlice = {
   csvModeSelectedPresetId: string | null;
@@ -49,19 +49,19 @@ export const createCsvEvaluationPresetSlice: StateCreator<
   const [setConfig, getConfig] = createLens(
     set,
     get,
-    "csvEvaluationConfigContent",
+    'csvEvaluationConfigContent',
   );
   const [setVariableIdToCsvColumnIndexMap, getVariableIdToCsvColumnIndexMap] =
-    createLens(setConfig, getConfig, "variableIdToCsvColumnIndexMap");
+    createLens(setConfig, getConfig, 'variableIdToCsvColumnIndexMap');
   const [setRunOutputTable, getRunOutputTable] = createLens(
     setConfig,
     getConfig,
-    "runOutputTable",
+    'runOutputTable',
   );
   const [setRunMetadataTable, getRunMetadataTable] = createLens(
     setConfig,
     getConfig,
-    "runMetadataTable",
+    'runMetadataTable',
   );
 
   return {
@@ -69,7 +69,7 @@ export const createCsvEvaluationPresetSlice: StateCreator<
     csvEvaluationIsLoading: false,
 
     // Local data
-    csvStr: "",
+    csvStr: '',
     csvEvaluationConfigContent: {
       repeatTimes: 1,
       concurrencyLimit: 2,
@@ -116,7 +116,7 @@ export const createCsvEvaluationPresetSlice: StateCreator<
       const preset = result.data?.result?.space?.csvEvaluationPreset;
 
       if (preset == null) {
-        console.error("Preset not found");
+        console.error('Preset not found');
         return;
       }
 
@@ -140,7 +140,7 @@ export const createCsvEvaluationPresetSlice: StateCreator<
     unselectPreset(): void {
       set(() => ({
         csvModeSelectedPresetId: null,
-        csvStr: "",
+        csvStr: '',
       }));
 
       setConfig(() => ({
@@ -151,7 +151,7 @@ export const createCsvEvaluationPresetSlice: StateCreator<
     },
     async deleteAndUnselectPreset(): Promise<void> {
       const presetId = get().csvModeSelectedPresetId;
-      invariant(presetId != null, "Preset ID should not be null");
+      invariant(presetId != null, 'Preset ID should not be null');
 
       await client
         .mutation(
@@ -220,7 +220,7 @@ export const createCsvEvaluationPresetSlice: StateCreator<
         .toPromise();
 
       const presetId = result.data?.result?.csvEvaluationPreset?.id;
-      invariant(presetId != null, "Preset ID should not be null");
+      invariant(presetId != null, 'Preset ID should not be null');
 
       get().selectAndLoadPreset(presetId);
     },
@@ -231,7 +231,7 @@ export const createCsvEvaluationPresetSlice: StateCreator<
         csvEvaluationConfigContent: configContent,
       } = get();
 
-      invariant(presetId != null, "Preset ID should not be null");
+      invariant(presetId != null, 'Preset ID should not be null');
 
       await client
         .mutation(
@@ -340,9 +340,9 @@ export type CsvEvaluationConfigContent = {
   runMetadataTable: RunMetadataTable;
 };
 
-export type RowIndex = number & { readonly "": unique symbol };
-export type ColumnIndex = number & { readonly "": unique symbol };
-export type IterationIndex = number & { readonly "": unique symbol };
+export type RowIndex = number & { readonly '': unique symbol };
+export type ColumnIndex = number & { readonly '': unique symbol };
+export type IterationIndex = number & { readonly '': unique symbol };
 
 export type VariableIdToCsvColumnIndexMap = Record<
   V3VariableID,

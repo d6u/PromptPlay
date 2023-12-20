@@ -1,44 +1,44 @@
-import { Checkbox } from "@mui/joy";
-import FormControl from "@mui/joy/FormControl";
-import FormHelperText from "@mui/joy/FormHelperText";
-import FormLabel from "@mui/joy/FormLabel";
-import Input from "@mui/joy/Input";
-import Option from "@mui/joy/Option";
-import Select from "@mui/joy/Select";
+import { Checkbox } from '@mui/joy';
+import FormControl from '@mui/joy/FormControl';
+import FormHelperText from '@mui/joy/FormHelperText';
+import FormLabel from '@mui/joy/FormLabel';
+import Input from '@mui/joy/Input';
+import Option from '@mui/joy/Option';
+import Select from '@mui/joy/Select';
 import {
   NodeID,
   NodeType,
   OpenAIChatModel,
-} from "flow-models/v2-flow-content-types";
+} from 'flow-models/v2-flow-content-types';
 import {
   ChatGPTChatCompletionResponseFormatType,
   V3ChatGPTChatCompletionNodeConfig,
   VariableType,
-} from "flow-models/v3-flow-content-types";
-import { NEW_LINE_SYMBOL } from "integrations/openai";
-import { useContext, useEffect, useMemo, useState } from "react";
-import { Position, useNodeId } from "reactflow";
-import { useStore } from "zustand";
+} from 'flow-models/v3-flow-content-types';
+import { NEW_LINE_SYMBOL } from 'integrations/openai';
+import { useContext, useEffect, useMemo, useState } from 'react';
+import { Position, useNodeId } from 'reactflow';
+import { useStore } from 'zustand';
 import {
   LocalStorageState,
   SpaceState,
   useLocalStorageStore,
   useSpaceStore,
-} from "../../../../state/appState";
-import FlowContext from "../../FlowContext";
-import InputReadonly from "../../common/InputReadonly";
-import { useStoreFromFlowStoreContext } from "../../store/FlowStoreContext";
-import { selectVariables } from "../../store/state-utils";
-import HeaderSection from "./node-common/HeaderSection";
-import HelperTextContainer from "./node-common/HelperTextContainer";
-import NodeBox, { NodeState } from "./node-common/NodeBox";
-import NodeInputModifyRow from "./node-common/NodeInputModifyRow";
-import NodeOutputRow from "./node-common/NodeOutputRow";
-import { InputHandle, OutputHandle, Section } from "./node-common/node-common";
+} from '../../../../state/appState';
+import FlowContext from '../../FlowContext';
+import InputReadonly from '../../common/InputReadonly';
+import { useStoreFromFlowStoreContext } from '../../store/FlowStoreContext';
+import { selectVariables } from '../../store/state-utils';
+import HeaderSection from './node-common/HeaderSection';
+import HelperTextContainer from './node-common/HelperTextContainer';
+import NodeBox, { NodeState } from './node-common/NodeBox';
+import NodeInputModifyRow from './node-common/NodeInputModifyRow';
+import NodeOutputRow from './node-common/NodeOutputRow';
+import { InputHandle, OutputHandle, Section } from './node-common/node-common';
 import {
   calculateInputHandleTop,
   calculateOutputHandleBottom,
-} from "./node-common/utils";
+} from './node-common/utils';
 
 const persistSelector = (state: LocalStorageState) => ({
   openAiApiKey: state.openAiApiKey,
@@ -90,14 +90,14 @@ export default function ChatGPTChatCompletionNode() {
   // SECTION: Temperature Field
 
   const [temperature, setTemperature] = useState<string>(
-    () => nodeConfig?.temperature.toString() ?? "",
+    () => nodeConfig?.temperature.toString() ?? '',
   );
 
   useEffect(() => {
     if (nodeConfig?.temperature != null) {
       setTemperature(nodeConfig.temperature.toString());
     } else {
-      setTemperature("");
+      setTemperature('');
     }
   }, [nodeConfig?.temperature]);
 
@@ -106,14 +106,14 @@ export default function ChatGPTChatCompletionNode() {
   // SECTION: Seed Field
 
   const [seed, setSeed] = useState<string>(
-    () => nodeConfig?.seed?.toString() ?? "",
+    () => nodeConfig?.seed?.toString() ?? '',
   );
 
   useEffect(() => {
     if (nodeConfig?.seed != null) {
       setSeed(nodeConfig.seed.toString());
     } else {
-      setSeed("");
+      setSeed('');
     }
   }, [nodeConfig?.seed]);
 
@@ -169,14 +169,14 @@ export default function ChatGPTChatCompletionNode() {
         </Section>
         <Section>
           <HelperTextContainer>
-            Check{" "}
+            Check{' '}
             <a
               href="https://platform.openai.com/docs/api-reference/chat/create#messages"
               target="_blank"
               rel="noreferrer"
             >
               OpenAI API reference
-            </a>{" "}
+            </a>{' '}
             for more information about the <code>messages</code> parameter. The
             generated assistant message will be appended to the list and output
             as the <code>messages</code> output.
@@ -188,8 +188,8 @@ export default function ChatGPTChatCompletionNode() {
               <FormLabel>OpenAI API key</FormLabel>
               <Input
                 type="password"
-                color={missingOpenAiApiKey ? "danger" : "neutral"}
-                value={openAiApiKey ?? ""}
+                color={missingOpenAiApiKey ? 'danger' : 'neutral'}
+                value={openAiApiKey ?? ''}
                 onChange={(e) => {
                   const value = e.target.value.trim();
                   setOpenAiApiKey(value.length ? value : null);
@@ -239,9 +239,9 @@ export default function ChatGPTChatCompletionNode() {
                   setTemperature(event.target.value);
                 }}
                 onKeyUp={(event) => {
-                  if (event.key === "Enter") {
+                  if (event.key === 'Enter') {
                     let temperatureFloat: number = 1;
-                    if (temperature !== "") {
+                    if (temperature !== '') {
                       temperatureFloat = Number(temperature);
                     } else {
                       // We don't allow empty string for temperature, i.e.
@@ -259,7 +259,7 @@ export default function ChatGPTChatCompletionNode() {
                 }}
                 onBlur={() => {
                   let temperatureFloat: number = 1;
-                  if (temperature !== "") {
+                  if (temperature !== '') {
                     temperatureFloat = Number(temperature);
                   } else {
                     setTemperature(temperatureFloat.toString());
@@ -284,9 +284,9 @@ export default function ChatGPTChatCompletionNode() {
                   setSeed(event.target.value);
                 }}
                 onKeyUp={(event) => {
-                  if (event.key === "Enter") {
+                  if (event.key === 'Enter') {
                     let seedInt: number | null = null;
-                    if (seed !== "") {
+                    if (seed !== '') {
                       seedInt = Math.trunc(Number(seed));
                     }
                     updateNodeConfig(nodeId, { seed: seedInt });
@@ -294,7 +294,7 @@ export default function ChatGPTChatCompletionNode() {
                 }}
                 onBlur={() => {
                   let seedInt: number | null = null;
-                  if (seed !== "") {
+                  if (seed !== '') {
                     seedInt = Math.trunc(Number(seed));
                   }
                   updateNodeConfig(nodeId, { seed: seedInt });
@@ -337,13 +337,13 @@ export default function ChatGPTChatCompletionNode() {
               <Input
                 placeholder="Stop sequence"
                 value={
-                  stop.length ? stop[0].replace(/\n/g, NEW_LINE_SYMBOL) : ""
+                  stop.length ? stop[0].replace(/\n/g, NEW_LINE_SYMBOL) : ''
                 }
                 onKeyDown={(event) => {
-                  if (event.shiftKey && event.key === "Enter") {
+                  if (event.shiftKey && event.key === 'Enter') {
                     event.preventDefault();
                     setStop((stop) =>
-                      stop.length ? [stop[0] + "\n"] : ["\n"],
+                      stop.length ? [stop[0] + '\n'] : ['\n'],
                     );
                   }
                 }}
@@ -355,10 +355,10 @@ export default function ChatGPTChatCompletionNode() {
                     return;
                   }
 
-                  setStop([v.replace(RegExp(NEW_LINE_SYMBOL, "g"), "\n")]);
+                  setStop([v.replace(RegExp(NEW_LINE_SYMBOL, 'g'), '\n')]);
                 }}
                 onKeyUp={(e) => {
-                  if (e.key === "Enter") {
+                  if (e.key === 'Enter') {
                     updateNodeConfig(nodeId, { stop });
                   }
                 }}
@@ -369,14 +369,14 @@ export default function ChatGPTChatCompletionNode() {
             ) : (
               <InputReadonly
                 value={
-                  stop.length ? stop[0].replace(/\n/g, NEW_LINE_SYMBOL) : ""
+                  stop.length ? stop[0].replace(/\n/g, NEW_LINE_SYMBOL) : ''
                 }
               />
             )}
             <FormHelperText>
               <div>
                 Use <code>SHIFT</code> + <code>ENTER</code> to enter a new line
-                character. (Visually represented by{" "}
+                character. (Visually represented by{' '}
                 <code>"{NEW_LINE_SYMBOL}"</code>.)
               </div>
             </FormHelperText>

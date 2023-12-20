@@ -1,7 +1,7 @@
-import { cacheExchange } from "@urql/exchange-graphcache";
-import { Client, fetchExchange } from "urql";
-import { API_SERVER_BASE_URL } from "../constants";
-import { useLocalStorageStore } from "./appState";
+import { cacheExchange } from '@urql/exchange-graphcache';
+import { Client, fetchExchange } from 'urql';
+import { API_SERVER_BASE_URL } from '../constants';
+import { useLocalStorageStore } from './appState';
 
 type Headers = {
   placeholderUserToken?: string;
@@ -14,7 +14,7 @@ export const client = new Client({
       optimistic: {
         updateSpace(args) {
           return {
-            __typename: "Space",
+            __typename: 'Space',
             id: args.id,
             content: args.content,
           };
@@ -37,7 +37,7 @@ export const client = new Client({
     }
 
     return {
-      credentials: "include",
+      credentials: 'include',
       headers,
     };
   },

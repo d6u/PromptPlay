@@ -1,4 +1,4 @@
-import styled from "@emotion/styled";
+import styled from '@emotion/styled';
 import {
   Button,
   Dropdown,
@@ -9,15 +9,15 @@ import {
   MenuItem,
   ToggleButtonGroup,
   Typography,
-} from "@mui/joy";
-import { NodeType } from "flow-models/v2-flow-content-types";
-import { useCallback, useContext, useEffect, useState } from "react";
-import { useStoreApi } from "reactflow";
-import { useStore } from "zustand";
-import FlowContext from "../FlowContext";
-import { NODE_BOX_WIDTH } from "../flow-canvas/nodes/node-common/NodeBox";
-import { useStoreFromFlowStoreContext } from "../store/FlowStoreContext";
-import { DetailPanelContentType } from "../store/store-flow-state-types";
+} from '@mui/joy';
+import { NodeType } from 'flow-models/v2-flow-content-types';
+import { useCallback, useContext, useEffect, useState } from 'react';
+import { useStoreApi } from 'reactflow';
+import { useStore } from 'zustand';
+import FlowContext from '../FlowContext';
+import { NODE_BOX_WIDTH } from '../flow-canvas/nodes/node-common/NodeBox';
+import { useStoreFromFlowStoreContext } from '../store/FlowStoreContext';
+import { DetailPanelContentType } from '../store/store-flow-state-types';
 
 export default function ToolBar() {
   const { isCurrentUserOwner } = useContext(FlowContext);
@@ -75,40 +75,40 @@ export default function ToolBar() {
         setUseNarrowLayout(false);
       }
     }
-    window.addEventListener("resize", handleResize, { passive: true });
+    window.addEventListener('resize', handleResize, { passive: true });
     return () => {
-      window.removeEventListener("resize", handleResize);
+      window.removeEventListener('resize', handleResize);
     };
   }, []);
 
   const options = [
-    { label: "Add Input", onClick: () => addNodeWithType(NodeType.InputNode) },
+    { label: 'Add Input', onClick: () => addNodeWithType(NodeType.InputNode) },
     {
-      label: "Add Output",
+      label: 'Add Output',
       onClick: () => addNodeWithType(NodeType.OutputNode),
     },
     {
-      label: "Add JavaScript",
+      label: 'Add JavaScript',
       onClick: () => addNodeWithType(NodeType.JavaScriptFunctionNode),
     },
     {
-      label: "Add Text",
+      label: 'Add Text',
       onClick: () => addNodeWithType(NodeType.TextTemplate),
     },
     {
-      label: "Add ChatGPT Message",
+      label: 'Add ChatGPT Message',
       onClick: () => addNodeWithType(NodeType.ChatGPTMessageNode),
     },
     {
-      label: "Add ChatGPT Chat Completion",
+      label: 'Add ChatGPT Chat Completion',
       onClick: () => addNodeWithType(NodeType.ChatGPTChatCompletionNode),
     },
     {
-      label: "Add Hugging Face Inference",
+      label: 'Add Hugging Face Inference',
       onClick: () => addNodeWithType(NodeType.HuggingFaceInference),
     },
     {
-      label: "Add Eleven Labs Text to Speech",
+      label: 'Add Eleven Labs Text to Speech',
       onClick: () => addNodeWithType(NodeType.ElevenLabs),
     },
   ];
@@ -117,7 +117,7 @@ export default function ToolBar() {
     shouldShowRunButton:
       detailPanelContentType !== DetailPanelContentType.EvaluationModeSimple &&
       detailPanelContentType !== DetailPanelContentType.EvaluationModeCSV,
-    label: isRunning ? "Stop" : "Run",
+    label: isRunning ? 'Stop' : 'Run',
     onClick: isRunning ? stopRunningFlow : runFlow,
   };
 
@@ -138,7 +138,7 @@ export default function ToolBar() {
             </Dropdown>
             {runButtonConfig.shouldShowRunButton && (
               <Button
-                color={isRunning ? "danger" : "success"}
+                color={isRunning ? 'danger' : 'success'}
                 onClick={runButtonConfig.onClick}
               >
                 {runButtonConfig.label}
@@ -154,7 +154,7 @@ export default function ToolBar() {
             ))}
             {runButtonConfig.shouldShowRunButton && (
               <Button
-                color={isRunning ? "danger" : "success"}
+                color={isRunning ? 'danger' : 'success'}
                 onClick={runButtonConfig.onClick}
               >
                 {runButtonConfig.label}
@@ -166,13 +166,13 @@ export default function ToolBar() {
       <RightAligned>
         <SavingIndicator color="success" level="body-sm" variant="plain">
           {isFlowContentSaving
-            ? "Saving..."
+            ? 'Saving...'
             : isFlowContentDirty
-              ? "Save pending"
-              : "Saved"}
+              ? 'Save pending'
+              : 'Saved'}
         </SavingIndicator>
         <FormControl size="md" orientation="horizontal">
-          <FormLabel sx={{ cursor: "pointer" }}>Evaluation Mode</FormLabel>
+          <FormLabel sx={{ cursor: 'pointer' }}>Evaluation Mode</FormLabel>
           <ToggleButtonGroup
             size="sm"
             value={detailPanelContentType}

@@ -1,8 +1,8 @@
-import { createContext, useContext } from "react";
-import invariant from "ts-invariant";
-import { useStore } from "zustand";
-import { FlowStore } from ".";
-import { FlowState } from "./store-flow-state-types";
+import { createContext, useContext } from 'react';
+import invariant from 'ts-invariant';
+import { useStore } from 'zustand';
+import { FlowStore } from '.';
+import { FlowState } from './store-flow-state-types';
 
 export const FlowStoreContext = createContext<{
   store?: FlowStore;
@@ -12,7 +12,7 @@ export function useStoreFromFlowStoreContext() {
   const { store } = useContext(FlowStoreContext);
   invariant(
     store != null,
-    "This component must be rendered within a <FlowStoreContextProvider />",
+    'This component must be rendered within a <FlowStoreContextProvider />',
   );
   return store;
 }

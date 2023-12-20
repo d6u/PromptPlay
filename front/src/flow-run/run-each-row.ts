@@ -1,6 +1,6 @@
-import { D } from "@mobily/ts-belt";
-import { VariableValueMap } from "flow-models/v2-flow-content-types";
-import { V3FlowContent } from "flow-models/v3-flow-content-types";
+import { D } from '@mobily/ts-belt';
+import { VariableValueMap } from 'flow-models/v2-flow-content-types';
+import { V3FlowContent } from 'flow-models/v3-flow-content-types';
 import {
   EMPTY,
   endWith,
@@ -11,11 +11,11 @@ import {
   of,
   range,
   startWith,
-} from "rxjs";
-import { CSVData } from "../components/route-flow/flow-canvas/side-panel/panel-evaluation-mode-csv/common";
-import { VariableIdToCsvColumnIndexMap } from "../components/route-flow/store/slice-csv-evaluation-preset";
-import { runSingle } from "./run-single";
-import { RunEvent, RunEventType } from "./run-types";
+} from 'rxjs';
+import { CSVData } from '../components/route-flow/flow-canvas/side-panel/panel-evaluation-mode-csv/common';
+import { VariableIdToCsvColumnIndexMap } from '../components/route-flow/store/slice-csv-evaluation-preset';
+import { runSingle } from './run-single';
+import { RunEvent, RunEventType } from './run-types';
 
 type Arguments = {
   flowContent: V3FlowContent;
@@ -92,10 +92,10 @@ export function runForEachRow({
 }
 
 export enum SingleRunEventType {
-  Start = "Start",
-  VariableValueChanges = "VariableValueChanges",
-  End = "End",
-  Error = "Error",
+  Start = 'Start',
+  VariableValueChanges = 'VariableValueChanges',
+  End = 'End',
+  Error = 'Error',
 }
 
 export type SingleRunEvent =

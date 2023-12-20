@@ -1,35 +1,35 @@
-import FormControl from "@mui/joy/FormControl";
-import FormHelperText from "@mui/joy/FormHelperText";
-import FormLabel from "@mui/joy/FormLabel";
-import Input from "@mui/joy/Input";
-import { NodeID, NodeType } from "flow-models/v2-flow-content-types";
+import FormControl from '@mui/joy/FormControl';
+import FormHelperText from '@mui/joy/FormHelperText';
+import FormLabel from '@mui/joy/FormLabel';
+import Input from '@mui/joy/Input';
+import { NodeID, NodeType } from 'flow-models/v2-flow-content-types';
 import {
   V3HuggingFaceInferenceNodeConfig,
   VariableType,
-} from "flow-models/v3-flow-content-types";
-import { useContext, useMemo, useState } from "react";
-import { Position, useNodeId } from "reactflow";
-import { useStore } from "zustand";
+} from 'flow-models/v3-flow-content-types';
+import { useContext, useMemo, useState } from 'react';
+import { Position, useNodeId } from 'reactflow';
+import { useStore } from 'zustand';
 import {
   LocalStorageState,
   SpaceState,
   useLocalStorageStore,
   useSpaceStore,
-} from "../../../../state/appState";
-import FlowContext from "../../FlowContext";
-import InputReadonly from "../../common/InputReadonly";
-import { useStoreFromFlowStoreContext } from "../../store/FlowStoreContext";
-import { selectVariables } from "../../store/state-utils";
-import HeaderSection from "./node-common/HeaderSection";
-import HelperTextContainer from "./node-common/HelperTextContainer";
-import NodeBox, { NodeState } from "./node-common/NodeBox";
-import NodeInputModifyRow from "./node-common/NodeInputModifyRow";
-import NodeOutputRow from "./node-common/NodeOutputRow";
-import { InputHandle, OutputHandle, Section } from "./node-common/node-common";
+} from '../../../../state/appState';
+import FlowContext from '../../FlowContext';
+import InputReadonly from '../../common/InputReadonly';
+import { useStoreFromFlowStoreContext } from '../../store/FlowStoreContext';
+import { selectVariables } from '../../store/state-utils';
+import HeaderSection from './node-common/HeaderSection';
+import HelperTextContainer from './node-common/HelperTextContainer';
+import NodeBox, { NodeState } from './node-common/NodeBox';
+import NodeInputModifyRow from './node-common/NodeInputModifyRow';
+import NodeOutputRow from './node-common/NodeOutputRow';
+import { InputHandle, OutputHandle, Section } from './node-common/node-common';
 import {
   calculateInputHandleTop,
   calculateOutputHandleBottom,
-} from "./node-common/utils";
+} from './node-common/utils';
 
 const persistSelector = (state: LocalStorageState) => ({
   huggingFaceApiToken: state.huggingFaceApiToken,
@@ -130,14 +130,14 @@ export default function HuggingFaceInferenceNode() {
         </Section>
         <Section>
           <HelperTextContainer>
-            Check Hugging Face's free{" "}
+            Check Hugging Face's free{' '}
             <a
               href="https://huggingface.co/docs/api-inference/quicktour"
               target="_blank"
               rel="noreferrer"
             >
               Inference API documentation
-            </a>{" "}
+            </a>{' '}
             for more information about the <code>parameters</code> input.
             Depending on the model you choose, you need to specify different
             parameters.
@@ -149,8 +149,8 @@ export default function HuggingFaceInferenceNode() {
               <FormLabel>API Token</FormLabel>
               <Input
                 type="password"
-                color={missingHuggingFaceApiToken ? "danger" : "neutral"}
-                value={huggingFaceApiToken ?? ""}
+                color={missingHuggingFaceApiToken ? 'danger' : 'neutral'}
+                value={huggingFaceApiToken ?? ''}
                 onChange={(e) => {
                   const value = e.target.value.trim();
                   setHuggingFaceApiToken(value.length ? value : null);
@@ -178,7 +178,7 @@ export default function HuggingFaceInferenceNode() {
                   setModel(e.target.value);
                 }}
                 onKeyUp={(e) => {
-                  if (e.key === "Enter") {
+                  if (e.key === 'Enter') {
                     updateNodeConfig(nodeId, { model });
                   }
                 }}

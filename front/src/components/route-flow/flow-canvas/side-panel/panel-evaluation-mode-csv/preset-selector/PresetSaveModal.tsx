@@ -1,5 +1,5 @@
-import styled from "@emotion/styled";
-import { Option } from "@mobily/ts-belt";
+import styled from '@emotion/styled';
+import { Option } from '@mobily/ts-belt';
 import {
   Button,
   FormControl,
@@ -8,9 +8,9 @@ import {
   Modal,
   ModalDialog,
   Typography,
-} from "@mui/joy";
-import { useEffect, useState } from "react";
-import { useFlowStore } from "../../../../store/FlowStoreContext";
+} from '@mui/joy';
+import { useEffect, useState } from 'react';
+import { useFlowStore } from '../../../../store/FlowStoreContext';
 
 type Props = {
   isModalOpen: boolean;
@@ -24,15 +24,15 @@ export default function PresetSaveModal(props: Props) {
   const updateSelectedPreset = useFlowStore((s) => s.updateSelectedPreset);
   // !SECTION
 
-  const [name, setName] = useState(() => props.preset?.name ?? "");
+  const [name, setName] = useState(() => props.preset?.name ?? '');
 
   useEffect(() => {
-    setName(props.preset?.name ?? "");
+    setName(props.preset?.name ?? '');
   }, [props.preset?.name]);
 
   return (
     <Modal
-      slotProps={{ backdrop: { style: { backdropFilter: "none" } } }}
+      slotProps={{ backdrop: { style: { backdropFilter: 'none' } } }}
       open={props.isModalOpen}
       onClose={() => props.onCloseModal()}
     >
@@ -41,7 +41,7 @@ export default function PresetSaveModal(props: Props) {
           <Typography level="h4">
             {props.preset
               ? `Update "${props.preset.name}" preset`
-              : "Save preset"}
+              : 'Save preset'}
           </Typography>
         </ModalSection>
         <ModalSection>
@@ -61,7 +61,7 @@ export default function PresetSaveModal(props: Props) {
             onClick={() => {
               props.onCloseModal();
               // Restore name to the original value when closing modal
-              setName(props.preset?.name ?? "");
+              setName(props.preset?.name ?? '');
             }}
           >
             Cancel

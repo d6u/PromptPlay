@@ -1,14 +1,14 @@
-import { A, D } from "@mobily/ts-belt";
-import { produce } from "immer";
+import { A, D } from '@mobily/ts-belt';
+import { produce } from 'immer';
 import {
   EdgeChange,
   NodeChange,
   OnConnect,
   OnEdgesChange,
   OnNodesChange,
-} from "reactflow";
+} from 'reactflow';
 
-import { LocalNode, NodeID, NodeType } from "flow-models/v2-flow-content-types";
+import { LocalNode, NodeID, NodeType } from 'flow-models/v2-flow-content-types';
 import {
   V3LocalEdge,
   V3NodeConfig,
@@ -17,20 +17,20 @@ import {
   V3VariableValueLookUpDict,
   VariableType,
   VariablesDict,
-} from "flow-models/v3-flow-content-types";
-import { createNode } from "flow-models/v3-flow-utils";
-import { debounce } from "lodash";
-import invariant from "ts-invariant";
-import { StateCreator } from "zustand";
-import { updateSpaceContentV3 } from "../graphql";
-import { handleEvent } from "./event-graph-handlers";
+} from 'flow-models/v3-flow-content-types';
+import { createNode } from 'flow-models/v3-flow-utils';
+import { debounce } from 'lodash';
+import invariant from 'ts-invariant';
+import { StateCreator } from 'zustand';
+import { updateSpaceContentV3 } from '../graphql';
+import { handleEvent } from './event-graph-handlers';
 import {
   ChangeEvent,
   ChangeEventType,
   EVENT_VALIDATION_MAP,
-} from "./event-graph-types";
-import { VariableTypeToVariableConfigTypeMap } from "./state-utils";
-import { FlowState, SliceFlowContentV3State } from "./store-flow-state-types";
+} from './event-graph-types';
+import { VariableTypeToVariableConfigTypeMap } from './state-utils';
+import { FlowState, SliceFlowContentV3State } from './store-flow-state-types';
 
 const FLOW_SERVER_SLICE_INITIAL_STATE_V2: SliceFlowContentV3State = {
   // Persist to server
@@ -74,7 +74,7 @@ export type SliceFlowContentV3 = SliceFlowContentV3State &
 
 export const createFlowServerSliceV3: StateCreator<
   FlowState,
-  [["zustand/devtools", never]],
+  [['zustand/devtools', never]],
   [],
   SliceFlowContentV3
 > = (set, get) => {
@@ -95,16 +95,16 @@ export const createFlowServerSliceV3: StateCreator<
       await updateSpaceContentV3(spaceId, {
         nodes: A.map(
           flowContent.nodes,
-          D.selectKeys(["id", "type", "position", "data"]),
+          D.selectKeys(['id', 'type', 'position', 'data']),
         ),
         edges: A.map(
           flowContent.edges,
           D.selectKeys([
-            "id",
-            "source",
-            "sourceHandle",
-            "target",
-            "targetHandle",
+            'id',
+            'source',
+            'sourceHandle',
+            'target',
+            'targetHandle',
           ]),
         ),
         nodeConfigsDict: flowContent.nodeConfigsDict,
@@ -118,7 +118,7 @@ export const createFlowServerSliceV3: StateCreator<
   );
 
   function startProcessingEventGraph(startEvent: ChangeEvent) {
-    console.group("Processing Event Graph");
+    console.group('Processing Event Graph');
 
     const queue: ChangeEvent[] = [startEvent];
 

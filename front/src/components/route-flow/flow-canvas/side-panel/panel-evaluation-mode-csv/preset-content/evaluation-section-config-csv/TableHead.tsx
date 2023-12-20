@@ -1,10 +1,10 @@
-import { F } from "@mobily/ts-belt";
-import { Option, Select } from "@mui/joy";
-import { VariableType } from "flow-models/v3-flow-content-types";
-import { ReactNode, useMemo } from "react";
-import { useFlowStore } from "../../../../../store/FlowStoreContext";
-import { selectAllVariables } from "../../../../../store/state-utils";
-import { CSVRow } from "../../common";
+import { F } from '@mobily/ts-belt';
+import { Option, Select } from '@mui/joy';
+import { VariableType } from 'flow-models/v3-flow-content-types';
+import { ReactNode, useMemo } from 'react';
+import { useFlowStore } from '../../../../../store/FlowStoreContext';
+import { selectAllVariables } from '../../../../../store/state-utils';
+import { CSVRow } from '../../common';
 
 type Props = {
   csvHeaders: CSVRow;
@@ -37,7 +37,7 @@ export default function TableHead(props: Props) {
   const variableMapTableHeaderRowSecond: ReactNode[] = [];
 
   variableMapTableHeaderRowFirst.push(
-    <th key="status" style={{ textAlign: "center" }} colSpan={repeatTimes}>
+    <th key="status" style={{ textAlign: 'center' }} colSpan={repeatTimes}>
       Status
     </th>,
   );
@@ -56,7 +56,7 @@ export default function TableHead(props: Props) {
     variableMapTableHeaderRowFirst.push(
       <th
         key={inputItem.id}
-        style={{ textAlign: "center", borderBottomWidth: 1 }}
+        style={{ textAlign: 'center', borderBottomWidth: 1 }}
       >
         {inputItem.name}
       </th>,
@@ -90,7 +90,7 @@ export default function TableHead(props: Props) {
       <th
         key={outputItem.id}
         colSpan={repeatTimes + 1}
-        style={{ textAlign: "center" }}
+        style={{ textAlign: 'center' }}
       >
         {outputItem.name}
       </th>,

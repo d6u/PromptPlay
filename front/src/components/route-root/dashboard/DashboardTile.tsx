@@ -1,7 +1,7 @@
-import { css } from "@emotion/react";
-import styled from "@emotion/styled";
-import StyleResetLink from "../../common/StyleResetLink";
-import { DashboardTileType } from "./dashboardTypes";
+import { css } from '@emotion/react';
+import styled from '@emotion/styled';
+import StyleResetLink from '../../common/StyleResetLink';
+import { DashboardTileType } from './dashboardTypes';
 
 const Tile = styled.div<{ $add?: boolean }>`
   aspect-ratio: 1 / 1;

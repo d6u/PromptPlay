@@ -1,7 +1,7 @@
-import styled from "@emotion/styled";
-import { Handle } from "reactflow";
-import IconGear from "../../../../icons/IconGear";
-import { BACKDROP_PADDING } from "./NodeBox";
+import styled from '@emotion/styled';
+import { Handle } from 'reactflow';
+import IconGear from '../../../../icons/IconGear';
+import { BACKDROP_PADDING } from './NodeBox';
 
 export const SECTION_PADDING_BOTTOM = 10;
 export const HANDLE_WIDTH = 15;
