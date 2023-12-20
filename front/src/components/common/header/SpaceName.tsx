@@ -10,7 +10,17 @@ export default function SpaceName() {
   const { spaceId = '' } = useParams<{ spaceId: string }>();
 
   const [queryResult] = useQuery({
-    query: HEADER_SPACE_NAME_QUERY,
+    query: graphql(`
+      query HeaderSpaceNameQuery($spaceId: UUID!) {
+        result: space(id: $spaceId) {
+          isReadOnly
+          space {
+            id
+            name
+          }
+        }
+      }
+    `),
     requestPolicy: 'network-only',
     pause: !spaceId,
     variables: { spaceId },
@@ -24,7 +34,16 @@ export default function SpaceName() {
 
   const currentNameRef = useRef<string>(name);
   const [isEditingName, setIsEditingName] = useState<boolean>(false);
-  const [, updateSpaceName] = useMutation(UPDATE_SPACE_NAME_MUTATION);
+  const [, updateSpaceName] = useMutation(
+    graphql(`
+      mutation UpdateSpaceNameMutation($spaceId: ID!, $name: String!) {
+        updateSpace(id: $spaceId, name: $name) {
+          id
+          name
+        }
+      }
+    `),
+  );
   const [isComposing, setIsComposing] = useState<boolean>(false);
 
   if (!spaceId) {
@@ -84,29 +103,6 @@ export default function SpaceName() {
     </Name>
   );
 }
-
-// ANCHOR: GraphQL
-
-const HEADER_SPACE_NAME_QUERY = graphql(`
-  query HeaderSpaceNameQuery($spaceId: UUID!) {
-    result: space(id: $spaceId) {
-      isReadOnly
-      space {
-        id
-        name
-      }
-    }
-  }
-`);
-
-const UPDATE_SPACE_NAME_MUTATION = graphql(`
-  mutation UpdateSpaceNameMutation($spaceId: ID!, $name: String!) {
-    updateSpace(id: $spaceId, name: $name) {
-      id
-      name
-    }
-  }
-`);
 
 // ANCHOR: Styled Components
 
