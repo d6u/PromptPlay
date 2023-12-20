@@ -6,8 +6,8 @@ import Radio from '@mui/joy/Radio';
 import RadioGroup from '@mui/joy/RadioGroup';
 import Textarea from '@mui/joy/Textarea';
 import {
+  CHATGPT_MESSAGE_NODE_DEFINITION,
   NodeID,
-  NodeType,
   V3ChatGPTMessageNodeConfig,
   VariableType,
 } from 'flow-models';
@@ -135,7 +135,7 @@ export default function ChatGPTMessageNode() {
           />
         );
       })}
-      <NodeBox nodeType={NodeType.ChatGPTMessageNode}>
+      <NodeBox nodeType={CHATGPT_MESSAGE_NODE_DEFINITION.nodeTypeName}>
         <HeaderSection
           isCurrentUserOwner={isCurrentUserOwner}
           title="ChatGPT Message"

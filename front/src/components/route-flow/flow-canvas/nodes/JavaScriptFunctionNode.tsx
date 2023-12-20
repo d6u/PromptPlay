@@ -2,8 +2,8 @@ import FormControl from '@mui/joy/FormControl';
 import FormLabel from '@mui/joy/FormLabel';
 import Textarea from '@mui/joy/Textarea';
 import {
+  JAVASCRIPT_NODE_DEFINITION,
   NodeID,
-  NodeType,
   V3JavaScriptFunctionNodeConfig,
   VariableType,
 } from 'flow-models';
@@ -101,7 +101,7 @@ export default function JavaScriptFunctionNode() {
         />
       ))}
       <NodeBox
-        nodeType={NodeType.JavaScriptFunctionNode}
+        nodeType={JAVASCRIPT_NODE_DEFINITION.nodeTypeName}
         state={
           augment?.isRunning
             ? NodeState.Running

@@ -1,5 +1,10 @@
 import IconButton from '@mui/joy/IconButton';
-import { NodeID, NodeType, V3InputNodeConfig, VariableType } from 'flow-models';
+import {
+  INPUT_NODE_DEFINITION,
+  NodeID,
+  V3InputNodeConfig,
+  VariableType,
+} from 'flow-models';
 import { useContext, useMemo } from 'react';
 import { Position, useNodeId, useUpdateNodeInternals } from 'reactflow';
 import { useStore } from 'zustand';
@@ -57,7 +62,7 @@ export default function InputNode() {
 
   return (
     <>
-      <NodeBox nodeType={NodeType.InputNode}>
+      <NodeBox nodeType={INPUT_NODE_DEFINITION.nodeTypeName}>
         <HeaderSection
           isCurrentUserOwner={isCurrentUserOwner}
           title="Input"

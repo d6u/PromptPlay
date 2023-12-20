@@ -1,6 +1,16 @@
 import { css } from '@emotion/react';
 import styled from '@emotion/styled';
-import { NodeType } from 'flow-models';
+import {
+  CHATGPT_CHAT_COMPLETION_NODE_DEFINITION,
+  CHATGPT_MESSAGE_NODE_DEFINITION,
+  ELEVENLABS_NODE_DEFINITION,
+  HUGGINGFACE_INFERENCE_NODE_DEFINITION,
+  INPUT_NODE_DEFINITION,
+  JAVASCRIPT_NODE_DEFINITION,
+  NodeTypeName,
+  OUTPUT_NODE_DEFINITION,
+  TEXT_TEMPLATE_NODE_DEFINITION,
+} from 'flow-models';
 import background from '../../../../../assets/warning-background.svg';
 
 export const BACKDROP_PADDING = 3;
@@ -13,7 +23,7 @@ export enum NodeState {
   Error,
 }
 
-const Backdrop = styled.div<{ $type: NodeType; $state: NodeState }>`
+const Backdrop = styled.div<{ $type: NodeTypeName; $state: NodeState }>`
   width: ${NODE_BOX_WIDTH}px;
   padding: ${BACKDROP_PADDING}px;
   border-radius: 8px;
@@ -50,43 +60,45 @@ const Backdrop = styled.div<{ $type: NodeType; $state: NodeState }>`
     }
 
     switch (props.$type) {
-      case NodeType.InputNode:
+      case INPUT_NODE_DEFINITION.nodeTypeName:
         return css`
           background: linear-gradient(22deg, #9cede8 0%, #00e1d4 100%);
         `;
-      case NodeType.OutputNode:
+      case OUTPUT_NODE_DEFINITION.nodeTypeName:
         return css`
           background: linear-gradient(39deg, #daf1bd 14.47%, #8eec63 87.64%);
         `;
-      case NodeType.ChatGPTMessageNode:
-        return css`
-          background: linear-gradient(22deg, #98ecff 0%, #5cc5e0 100%);
-        `;
-      case NodeType.ChatGPTChatCompletionNode:
-        return css`
-          background: linear-gradient(22deg, #fa97b6 0%, #e081fe 100%);
-        `;
-      case NodeType.JavaScriptFunctionNode:
+      case JAVASCRIPT_NODE_DEFINITION.nodeTypeName:
         // background will be included as data URL if its size is smaller
         // than a threshold. That's why we need to add "" around the url.
         return css`
           background: url(\"${background}\");
         `;
-      case NodeType.TextTemplate: {
+      case CHATGPT_MESSAGE_NODE_DEFINITION.nodeTypeName:
+        return css`
+          background: linear-gradient(22deg, #98ecff 0%, #5cc5e0 100%);
+        `;
+      case CHATGPT_CHAT_COMPLETION_NODE_DEFINITION.nodeTypeName:
+        return css`
+          background: linear-gradient(22deg, #fa97b6 0%, #e081fe 100%);
+        `;
+      case TEXT_TEMPLATE_NODE_DEFINITION.nodeTypeName: {
         return css`
           background: linear-gradient(22deg, #98ecff 0%, #5cc5e0 100%);
         `;
       }
-      case NodeType.HuggingFaceInference: {
+      case HUGGINGFACE_INFERENCE_NODE_DEFINITION.nodeTypeName: {
         return css`
           background: linear-gradient(22deg, #fa97b6 0%, #e081fe 100%);
         `;
       }
-      case NodeType.ElevenLabs: {
+      case ELEVENLABS_NODE_DEFINITION.nodeTypeName: {
         return css`
           background: linear-gradient(22deg, #ffd196 0%, #ff8900 100%);
         `;
       }
+      default:
+        throw new Error(`Unknown node type: ${props.$type}`);
     }
   }}
 `;
@@ -97,7 +109,7 @@ const Content = styled.div`
 `;
 
 type Props = {
-  nodeType: NodeType;
+  nodeType: NodeTypeName;
   state?: NodeState;
   children: React.ReactNode;
 };

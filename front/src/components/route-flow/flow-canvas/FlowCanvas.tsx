@@ -1,5 +1,14 @@
 import styled from '@emotion/styled';
-import { NodeType } from 'flow-models';
+import {
+  CHATGPT_CHAT_COMPLETION_NODE_DEFINITION,
+  CHATGPT_MESSAGE_NODE_DEFINITION,
+  ELEVENLABS_NODE_DEFINITION,
+  HUGGINGFACE_INFERENCE_NODE_DEFINITION,
+  INPUT_NODE_DEFINITION,
+  JAVASCRIPT_NODE_DEFINITION,
+  OUTPUT_NODE_DEFINITION,
+  TEXT_TEMPLATE_NODE_DEFINITION,
+} from 'flow-models';
 import { useContext } from 'react';
 import ReactFlow, {
   Background,
@@ -22,14 +31,16 @@ import TextTemplateNode from './nodes/TextTemplateNode';
 import SidePanel from './side-panel/SidePanel';
 
 const NODE_TYPES = {
-  [NodeType.InputNode]: InputNode,
-  [NodeType.OutputNode]: OutputNode,
-  [NodeType.JavaScriptFunctionNode]: JavaScriptFunctionNode,
-  [NodeType.ChatGPTMessageNode]: ChatGPTMessageNode,
-  [NodeType.ChatGPTChatCompletionNode]: ChatGPTChatCompletionNode,
-  [NodeType.TextTemplate]: TextTemplateNode,
-  [NodeType.HuggingFaceInference]: HuggingFaceInferenceNode,
-  [NodeType.ElevenLabs]: ElevenLabsNode,
+  [INPUT_NODE_DEFINITION.nodeTypeName]: InputNode,
+  [OUTPUT_NODE_DEFINITION.nodeTypeName]: OutputNode,
+  [JAVASCRIPT_NODE_DEFINITION.nodeTypeName]: JavaScriptFunctionNode,
+  [CHATGPT_MESSAGE_NODE_DEFINITION.nodeTypeName]: ChatGPTMessageNode,
+  [CHATGPT_CHAT_COMPLETION_NODE_DEFINITION.nodeTypeName]:
+    ChatGPTChatCompletionNode,
+  [TEXT_TEMPLATE_NODE_DEFINITION.nodeTypeName]: TextTemplateNode,
+  [HUGGINGFACE_INFERENCE_NODE_DEFINITION.nodeTypeName]:
+    HuggingFaceInferenceNode,
+  [ELEVENLABS_NODE_DEFINITION.nodeTypeName]: ElevenLabsNode,
 };
 
 export default function FlowCanvas() {

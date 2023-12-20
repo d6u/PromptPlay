@@ -1,11 +1,25 @@
 import { D } from '@mobily/ts-belt';
 import {
+  CHATGPT_CHAT_COMPLETION_NODE_DEFINITION,
+  CHATGPT_MESSAGE_NODE_DEFINITION,
+  ELEVENLABS_NODE_DEFINITION,
+  HUGGINGFACE_INFERENCE_NODE_DEFINITION,
+  INPUT_NODE_DEFINITION,
+  JAVASCRIPT_NODE_DEFINITION,
   NodeID,
-  NodeType,
+  OUTPUT_NODE_DEFINITION,
+  TEXT_TEMPLATE_NODE_DEFINITION,
+  V3ChatGPTChatCompletionNodeConfig,
+  V3ChatGPTMessageNodeConfig,
+  V3ElevenLabsNodeConfig,
   V3FlowContent,
+  V3HuggingFaceInferenceNodeConfig,
+  V3JavaScriptFunctionNodeConfig,
   V3NodeConfig,
   V3NodeConfigsDict,
+  V3OutputNodeConfig,
   V3ServerEdge,
+  V3TextTemplateNodeConfig,
   V3VariableID,
   V3VariableValueLookUpDict,
   VariablesDict,
@@ -230,57 +244,59 @@ function createNodeConfigExecutionObservable({
   },
 }: ArgumentsCreateNodeConfigExecutionObservable): Observable<V3VariableValueLookUpDict> {
   switch (nodeConfig.type) {
-    case NodeType.InputNode:
+    case INPUT_NODE_DEFINITION.nodeTypeName:
       return EMPTY;
-    case NodeType.OutputNode:
+    case OUTPUT_NODE_DEFINITION.nodeTypeName:
       return handleOutputNode(
-        nodeConfig,
+        nodeConfig as V3OutputNodeConfig,
         variablesDict,
         edgeTargetHandleToSourceHandleLookUpDict,
         outputIdToValueMap,
       );
-    case NodeType.JavaScriptFunctionNode:
+    case JAVASCRIPT_NODE_DEFINITION.nodeTypeName:
       return handleJavaScriptFunctionNode(
-        nodeConfig,
+        nodeConfig as V3JavaScriptFunctionNodeConfig,
         variablesDict,
         edgeTargetHandleToSourceHandleLookUpDict,
         outputIdToValueMap,
       );
-    case NodeType.ChatGPTMessageNode:
+    case CHATGPT_MESSAGE_NODE_DEFINITION.nodeTypeName:
       return handleChatGPTMessageNode(
-        nodeConfig,
+        nodeConfig as V3ChatGPTMessageNodeConfig,
         variablesDict,
         edgeTargetHandleToSourceHandleLookUpDict,
         outputIdToValueMap,
       );
-    case NodeType.ChatGPTChatCompletionNode:
+    case CHATGPT_CHAT_COMPLETION_NODE_DEFINITION.nodeTypeName:
       return handleChatGPTChatNode(
-        nodeConfig,
+        nodeConfig as V3ChatGPTChatCompletionNodeConfig,
         variablesDict,
         edgeTargetHandleToSourceHandleLookUpDict,
         outputIdToValueMap,
         useStreaming,
       );
-    case NodeType.TextTemplate:
+    case TEXT_TEMPLATE_NODE_DEFINITION.nodeTypeName:
       return handleTextTemplateNode(
-        nodeConfig,
+        nodeConfig as V3TextTemplateNodeConfig,
         variablesDict,
         edgeTargetHandleToSourceHandleLookUpDict,
         outputIdToValueMap,
       );
-    case NodeType.HuggingFaceInference:
+    case HUGGINGFACE_INFERENCE_NODE_DEFINITION.nodeTypeName:
       return handleHuggingFaceInferenceNode(
-        nodeConfig,
+        nodeConfig as V3HuggingFaceInferenceNodeConfig,
         variablesDict,
         edgeTargetHandleToSourceHandleLookUpDict,
         outputIdToValueMap,
       );
-    case NodeType.ElevenLabs:
+    case ELEVENLABS_NODE_DEFINITION.nodeTypeName:
       return handleElevenLabsNode(
-        nodeConfig,
+        nodeConfig as V3ElevenLabsNodeConfig,
         variablesDict,
         edgeTargetHandleToSourceHandleLookUpDict,
         outputIdToValueMap,
       );
+    default:
+      throw new Error(`Unknown node type: ${nodeConfig.type}`);
   }
 }

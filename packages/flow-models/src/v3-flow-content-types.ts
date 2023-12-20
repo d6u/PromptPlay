@@ -1,7 +1,6 @@
 import { Edge, Node } from 'reactflow';
+import { NodeTypeName, V3NodeConfig } from './all-node-definition-and-types';
 import { EdgeID, NodeID, V3VariableID } from './basic-types';
-import { V3NodeConfig } from './nodes';
-import NodeType from './nodes/NodeType';
 
 // ANCHOR: V3 Root Types
 
@@ -17,7 +16,7 @@ export type V3FlowContent = {
 
 export type ServerNode = {
   id: NodeID;
-  type: NodeType;
+  type: NodeTypeName;
   position: {
     x: number;
     y: number;
@@ -25,7 +24,7 @@ export type ServerNode = {
   data: null;
 };
 
-export type LocalNode = Omit<Node<null, NodeType>, 'id' | 'type' | 'data'> &
+export type LocalNode = Omit<Node<null, NodeTypeName>, 'id' | 'type' | 'data'> &
   ServerNode;
 
 // ANCHOR: V3 Edge Types

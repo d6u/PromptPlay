@@ -3,8 +3,8 @@ import FormHelperText from '@mui/joy/FormHelperText';
 import FormLabel from '@mui/joy/FormLabel';
 import Input from '@mui/joy/Input';
 import {
+  HUGGINGFACE_INFERENCE_NODE_DEFINITION,
   NodeID,
-  NodeType,
   V3HuggingFaceInferenceNodeConfig,
   VariableType,
 } from 'flow-models';
@@ -106,7 +106,7 @@ export default function HuggingFaceInferenceNode() {
         style={{ top: calculateInputHandleTop(-1) }}
       />
       <NodeBox
-        nodeType={NodeType.HuggingFaceInference}
+        nodeType={HUGGINGFACE_INFERENCE_NODE_DEFINITION.nodeTypeName}
         state={
           augment?.isRunning
             ? NodeState.Running
