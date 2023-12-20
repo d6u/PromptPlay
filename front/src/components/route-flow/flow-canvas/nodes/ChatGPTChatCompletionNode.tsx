@@ -12,7 +12,7 @@ import {
   OpenAIChatModel,
   V3ChatGPTChatCompletionNodeConfig,
   VariableType,
-} from 'flow-models/v3-flow-content-types';
+} from 'flow-models';
 import { NEW_LINE_SYMBOL } from 'integrations/openai';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { Position, useNodeId } from 'reactflow';

@@ -19,7 +19,7 @@ import {
   VariableType,
   VariableValueType,
   VariablesDict,
-} from 'flow-models/v3-flow-content-types';
+} from 'flow-models';
 import { asV3VariableID, createNodeConfig } from 'flow-models/v3-flow-utils';
 import { current, produce } from 'immer';
 import {

@@ -9,7 +9,7 @@ import {
   V3VariableID,
   V3VariableValueLookUpDict,
   VariablesDict,
-} from 'flow-models/v3-flow-content-types';
+} from 'flow-models';
 import {
   BehaviorSubject,
   EMPTY,

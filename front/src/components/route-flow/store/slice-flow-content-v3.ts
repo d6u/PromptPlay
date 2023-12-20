@@ -19,7 +19,7 @@ import {
   V3VariableValueLookUpDict,
   VariableType,
   VariablesDict,
-} from 'flow-models/v3-flow-content-types';
+} from 'flow-models';
 import { createNode } from 'flow-models/v3-flow-utils';
 import { debounce } from 'lodash';
 import invariant from 'ts-invariant';

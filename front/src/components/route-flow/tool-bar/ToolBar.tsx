@@ -10,7 +10,7 @@ import {
   ToggleButtonGroup,
   Typography,
 } from '@mui/joy';
-import { NodeType } from 'flow-models/v3-flow-content-types';
+import { NodeType } from 'flow-models';
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { useStoreApi } from 'reactflow';
 import { useStore } from 'zustand';

@@ -10,7 +10,7 @@ import {
   NodeType,
   V3ChatGPTMessageNodeConfig,
   VariableType,
-} from 'flow-models/v3-flow-content-types';
+} from 'flow-models';
 import { ChatGPTMessageRole } from 'integrations/openai';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { Position, useNodeId, useUpdateNodeInternals } from 'reactflow';

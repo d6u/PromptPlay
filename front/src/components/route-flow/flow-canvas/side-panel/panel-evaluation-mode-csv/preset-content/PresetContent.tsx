@@ -1,6 +1,6 @@
 import { A, D } from '@mobily/ts-belt';
 import { AccordionGroup } from '@mui/joy';
-import { V3VariableValueLookUpDict } from 'flow-models/v3-flow-content-types';
+import { V3VariableValueLookUpDict } from 'flow-models';
 import { produce } from 'immer';
 import Papa from 'papaparse';
 import posthog from 'posthog-js';

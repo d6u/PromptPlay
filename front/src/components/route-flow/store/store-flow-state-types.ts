@@ -5,7 +5,7 @@ import {
   V3NodeConfigsDict,
   V3VariableValueLookUpDict,
   VariablesDict,
-} from 'flow-models/v3-flow-content-types';
+} from 'flow-models';
 import { CsvEvaluationPresetSlice } from './slice-csv-evaluation-preset';
 import { SliceFlowContentV3 } from './slice-flow-content-v3';
 import { RootSlice } from './slice-root';

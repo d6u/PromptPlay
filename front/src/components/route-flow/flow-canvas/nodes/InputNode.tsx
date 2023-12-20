@@ -1,10 +1,5 @@
 import IconButton from '@mui/joy/IconButton';
-import {
-  NodeID,
-  NodeType,
-  V3InputNodeConfig,
-  VariableType,
-} from 'flow-models/v3-flow-content-types';
+import { NodeID, NodeType, V3InputNodeConfig, VariableType } from 'flow-models';
 import { useContext, useMemo } from 'react';
 import { Position, useNodeId, useUpdateNodeInternals } from 'reactflow';
 import { useStore } from 'zustand';

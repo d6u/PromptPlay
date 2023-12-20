@@ -5,7 +5,7 @@ import {
   V3VariableValueLookUpDict,
   VariableType,
   VariablesDict,
-} from 'flow-models/v3-flow-content-types';
+} from 'flow-models';
 import { asV3VariableID } from 'flow-models/v3-flow-utils';
 import { produce } from 'immer';
 import posthog from 'posthog-js';

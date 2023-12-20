@@ -1,8 +1,5 @@
 import { createLens, Getter, Setter } from '@dhmk/zustand-lens';
-import {
-  V3VariableID,
-  V3VariableValueLookUpDict,
-} from 'flow-models/v3-flow-content-types';
+import { V3VariableID, V3VariableValueLookUpDict } from 'flow-models';
 import invariant from 'ts-invariant';
 import { OperationResult } from 'urql';
 import { StateCreator } from 'zustand';

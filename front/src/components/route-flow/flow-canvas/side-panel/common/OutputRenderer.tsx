@@ -3,7 +3,7 @@ import {
   FlowOutputVariable,
   NodeOutputVariable,
   VariableValueType,
-} from 'flow-models/v3-flow-content-types';
+} from 'flow-models';
 import { ReactNode } from 'react';
 import { useStore } from 'zustand';
 import { useStoreFromFlowStoreContext } from '../../../store/FlowStoreContext';

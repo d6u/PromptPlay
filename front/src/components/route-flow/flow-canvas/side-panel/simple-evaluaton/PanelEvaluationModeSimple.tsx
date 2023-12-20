@@ -1,9 +1,6 @@
 import styled from '@emotion/styled';
 import { Button } from '@mui/joy';
-import {
-  VariableType,
-  VariableValueType,
-} from 'flow-models/v3-flow-content-types';
+import { VariableType, VariableValueType } from 'flow-models';
 import { useContext, useMemo } from 'react';
 import { useStore } from 'zustand';
 import FlowContext from '../../../FlowContext';

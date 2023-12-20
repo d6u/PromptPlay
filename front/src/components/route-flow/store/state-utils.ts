@@ -8,7 +8,7 @@ import {
   V3LocalEdge,
   VariableType,
   VariablesDict,
-} from 'flow-models/v3-flow-content-types';
+} from 'flow-models';
 import { produce } from 'immer';
 import { DEFAULT_EDGE_STYLE, DRAG_HANDLE_CLASS_NAME } from '../constants';
 

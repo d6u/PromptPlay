@@ -6,7 +6,7 @@ import {
   NodeType,
   V3JavaScriptFunctionNodeConfig,
   VariableType,
-} from 'flow-models/v3-flow-content-types';
+} from 'flow-models';
 import { useContext, useMemo, useState } from 'react';
 import { Position, useNodeId, useUpdateNodeInternals } from 'reactflow';
 import { useStore } from 'zustand';

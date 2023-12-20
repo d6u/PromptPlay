@@ -5,7 +5,7 @@ import {
   V3VariableValueLookUpDict,
   VariablesDict,
   VariableType,
-} from 'flow-models/v3-flow-content-types';
+} from 'flow-models';
 import * as HuggingFace from 'integrations/hugging-face';
 import { defer, from, map, Observable, throwError } from 'rxjs';
 import invariant from 'ts-invariant';

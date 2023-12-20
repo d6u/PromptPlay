@@ -3,7 +3,7 @@ import Input from '@mui/joy/Input';
 import Option from '@mui/joy/Option';
 import Select from '@mui/joy/Select';
 import Textarea from '@mui/joy/Textarea';
-import { VariableValueType } from 'flow-models/v3-flow-content-types';
+import { VariableValueType } from 'flow-models';
 import { ReactNode, useEffect, useState } from 'react';
 import InputReadonly from '../../../common/InputReadonly';
 import TextareaReadonly from '../../../common/TextareaReadonly';

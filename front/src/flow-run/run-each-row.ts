@@ -1,15 +1,12 @@
 import { D } from '@mobily/ts-belt';
-import {
-  V3FlowContent,
-  VariableValueMap,
-} from 'flow-models/v3-flow-content-types';
+import { V3FlowContent, VariableValueMap } from 'flow-models';
 import {
   EMPTY,
+  Observable,
   endWith,
   from,
   map,
   mergeMap,
-  Observable,
   of,
   range,
   startWith,

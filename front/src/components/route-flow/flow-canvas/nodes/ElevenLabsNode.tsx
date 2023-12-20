@@ -7,7 +7,7 @@ import {
   NodeType,
   V3ElevenLabsNodeConfig,
   VariableType,
-} from 'flow-models/v3-flow-content-types';
+} from 'flow-models';
 import { useContext, useMemo, useState } from 'react';
 import { Position, useNodeId } from 'reactflow';
 import { useStore } from 'zustand';

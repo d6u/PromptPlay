@@ -5,7 +5,7 @@ import {
   V3VariableValueLookUpDict,
   VariablesDict,
   VariableType,
-} from 'flow-models/v3-flow-content-types';
+} from 'flow-models';
 import { defer, Observable } from 'rxjs';
 import invariant from 'ts-invariant';
 import { AsyncFunction } from './run-single';

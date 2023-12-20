@@ -1,14 +1,13 @@
 import Chance from 'chance';
 import randomId from 'common-utils/randomId';
 import { ChatGPTMessageRole } from 'integrations/openai';
+import { NodeID, V3VariableID } from './basic-types';
+import { V3NodeConfig } from './nodes';
+import NodeType from './nodes/NodeType';
+import { OpenAIChatModel } from './nodes/chatgpt-chat-completion-node';
 import {
   LocalNode,
-  NodeID,
-  NodeType,
-  OpenAIChatModel,
   ServerNode,
-  V3NodeConfig,
-  V3VariableID,
   Variable,
   VariableID,
   VariableType,

@@ -6,7 +6,7 @@ import {
   V3VariableID,
   Variable,
   VariableType,
-} from 'flow-models/v3-flow-content-types';
+} from 'flow-models';
 import { Connection, EdgeChange, NodeChange } from 'reactflow';
 
 export enum ChangeEventType {

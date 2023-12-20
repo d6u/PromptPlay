@@ -8,7 +8,7 @@ import {
   NodeType,
   V3TextTemplateNodeConfig,
   VariableType,
-} from 'flow-models/v3-flow-content-types';
+} from 'flow-models';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { Position, useNodeId, useUpdateNodeInternals } from 'reactflow';
 import { useStore } from 'zustand';

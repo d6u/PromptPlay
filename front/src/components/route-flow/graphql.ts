@@ -1,4 +1,4 @@
-import { V3FlowContent } from 'flow-models/v3-flow-content-types';
+import { V3FlowContent } from 'flow-models';
 import { Observable } from 'rxjs';
 import { OperationResult } from 'urql';
 import { graphql } from '../../gql';

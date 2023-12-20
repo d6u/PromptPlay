@@ -6,7 +6,7 @@ import {
   V3VariableValueLookUpDict,
   VariablesDict,
   VariableType,
-} from 'flow-models/v3-flow-content-types';
+} from 'flow-models';
 import * as OpenAI from 'integrations/openai';
 import {
   concat,

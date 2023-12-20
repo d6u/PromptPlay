@@ -1,4 +1,4 @@
-import { VariableType } from 'flow-models/v3-flow-content-types';
+import { VariableType } from 'flow-models';
 import { useMemo } from 'react';
 import { useStore } from 'zustand';
 import { useStoreFromFlowStoreContext } from '../../../store/FlowStoreContext';

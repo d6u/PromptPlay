@@ -4,7 +4,7 @@ import {
   V3VariableValueLookUpDict,
   VariableType,
   VariablesDict,
-} from 'flow-models/v3-flow-content-types';
+} from 'flow-models';
 import { Observable, of } from 'rxjs';
 
 export function handleOutputNode(
