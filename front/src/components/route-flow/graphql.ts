@@ -13,7 +13,6 @@ const SPACE_FLOW_QUERY = graphql(`
         id
         name
         contentVersion
-        flowContent
         contentV3
       }
     }

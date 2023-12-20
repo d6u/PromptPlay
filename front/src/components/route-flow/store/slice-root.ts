@@ -1,9 +1,6 @@
 import { D } from '@mobily/ts-belt';
 import { NodeID } from 'flow-models/v2-flow-content-types';
-import {
-  asV3VariableID,
-  convertV2ContentToV3Content,
-} from 'flow-models/v2-to-v3-flow-utils';
+import { asV3VariableID } from 'flow-models/v2-to-v3-flow-utils';
 import {
   V3FlowContent,
   V3VariableValueLookUpDict,
@@ -282,21 +279,12 @@ function createFlowContentHandler(
     invariant(result.data?.result?.space != null);
 
     const version = result.data.result.space.contentVersion;
-    const contentV2Str = result.data.result.space.flowContent;
     const contentV3Str = result.data.result.space.contentV3;
 
     // TODO: Report to telemetry
-    invariant(version != ContentVersion.V1, 'version should not be v1');
+    invariant(version === ContentVersion.V3, 'Only v3 is supported');
 
     switch (version) {
-      case ContentVersion.V2: {
-        invariant(contentV2Str != null, 'contentV2Str');
-        // TODO: Report parse error to telemetry
-        const contentV2 = JSON.parse(contentV2Str);
-        const contentV3 = convertV2ContentToV3Content(contentV2);
-        await updateSpaceContentV3(spaceId, contentV3);
-        return contentV3;
-      }
       case ContentVersion.V3: {
         invariant(contentV3Str != null, 'contentV3Str');
         // TODO: Report parse error to telemetry
