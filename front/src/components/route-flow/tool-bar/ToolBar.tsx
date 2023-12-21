@@ -10,17 +10,7 @@ import {
   ToggleButtonGroup,
   Typography,
 } from '@mui/joy';
-import {
-  CHATGPT_CHAT_COMPLETION_NODE_DEFINITION,
-  CHATGPT_MESSAGE_NODE_DEFINITION,
-  ELEVENLABS_NODE_DEFINITION,
-  HUGGINGFACE_INFERENCE_NODE_DEFINITION,
-  INPUT_NODE_DEFINITION,
-  JAVASCRIPT_NODE_DEFINITION,
-  NodeTypeName,
-  OUTPUT_NODE_DEFINITION,
-  TEXT_TEMPLATE_NODE_DEFINITION,
-} from 'flow-models';
+import { NodeType } from 'flow-models';
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { useStoreApi } from 'reactflow';
 import { useStore } from 'zustand';
@@ -51,7 +41,7 @@ export default function ToolBar() {
   const storeApi = useStoreApi();
 
   const addNodeWithType = useCallback(
-    (type: NodeTypeName) => {
+    (type: NodeType) => {
       if (!isCurrentUserOwner) return;
 
       const {
@@ -94,39 +84,35 @@ export default function ToolBar() {
   const options = [
     {
       label: 'Add Input',
-      onClick: () => addNodeWithType(INPUT_NODE_DEFINITION.nodeTypeName),
+      onClick: () => addNodeWithType(NodeType.InputNode),
     },
     {
       label: 'Add Output',
-      onClick: () => addNodeWithType(OUTPUT_NODE_DEFINITION.nodeTypeName),
+      onClick: () => addNodeWithType(NodeType.OutputNode),
     },
     {
       label: 'Add JavaScript',
-      onClick: () => addNodeWithType(JAVASCRIPT_NODE_DEFINITION.nodeTypeName),
+      onClick: () => addNodeWithType(NodeType.JavaScriptFunctionNode),
     },
     {
       label: 'Add Text',
-      onClick: () =>
-        addNodeWithType(TEXT_TEMPLATE_NODE_DEFINITION.nodeTypeName),
+      onClick: () => addNodeWithType(NodeType.TextTemplate),
     },
     {
       label: 'Add ChatGPT Message',
-      onClick: () =>
-        addNodeWithType(CHATGPT_MESSAGE_NODE_DEFINITION.nodeTypeName),
+      onClick: () => addNodeWithType(NodeType.ChatGPTMessageNode),
     },
     {
       label: 'Add ChatGPT Chat Completion',
-      onClick: () =>
-        addNodeWithType(CHATGPT_CHAT_COMPLETION_NODE_DEFINITION.nodeTypeName),
+      onClick: () => addNodeWithType(NodeType.ChatGPTChatCompletionNode),
     },
     {
       label: 'Add Hugging Face Inference',
-      onClick: () =>
-        addNodeWithType(HUGGINGFACE_INFERENCE_NODE_DEFINITION.nodeTypeName),
+      onClick: () => addNodeWithType(NodeType.HuggingFaceInference),
     },
     {
       label: 'Add Eleven Labs Text to Speech',
-      onClick: () => addNodeWithType(ELEVENLABS_NODE_DEFINITION.nodeTypeName),
+      onClick: () => addNodeWithType(NodeType.ElevenLabs),
     },
   ];
 

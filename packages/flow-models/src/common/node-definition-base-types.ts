@@ -1,15 +1,13 @@
-import type {
-  NodeTypeName,
-  V3NodeConfig,
-} from '../all-node-definition-and-types';
+import type NodeType from '../NodeType';
+import type { V3NodeConfig } from '../node-definitions';
 import type { LocalNode, Variable } from '../v3-flow-content-types';
 
 export interface NodeDefinition {
-  nodeTypeName: NodeTypeName;
+  nodeType: NodeType;
   createDefaultNodeConfig: CreateDefaultNodeConfigFunction;
 }
 
-export type CreateDefaultNodeConfigFunction = (node: LocalNode) => {
+type CreateDefaultNodeConfigFunction = (node: LocalNode) => {
   nodeConfig: V3NodeConfig;
   variableConfigList: Variable[];
 };

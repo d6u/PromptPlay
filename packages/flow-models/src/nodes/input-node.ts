@@ -1,25 +1,24 @@
 import randomId from 'common-utils/randomId';
+import NodeType from '../NodeType';
 import { NodeID } from '../basic-types';
 import { NodeDefinition } from '../common/node-definition-base-types';
 import { chance } from '../common/utils';
 import { VariableType, VariableValueType } from '../v3-flow-content-types';
 import { asV3VariableID } from '../v3-flow-utils';
 
-const NODE_TYPE_NAME = 'InputNode';
-
 export type V3InputNodeConfig = {
+  type: NodeType.InputNode;
   nodeId: NodeID;
-  type: typeof NODE_TYPE_NAME;
 };
 
 export const INPUT_NODE_DEFINITION: NodeDefinition = {
-  nodeTypeName: NODE_TYPE_NAME,
+  nodeType: NodeType.InputNode,
 
   createDefaultNodeConfig: (node) => {
     return {
       nodeConfig: {
         nodeId: node.id,
-        type: NODE_TYPE_NAME,
+        type: NodeType.InputNode,
       },
       variableConfigList: [
         {

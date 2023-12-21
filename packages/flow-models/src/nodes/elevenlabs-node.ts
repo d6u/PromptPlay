@@ -1,24 +1,23 @@
 import { asV3VariableID } from '../..';
+import NodeType from '../NodeType';
 import { NodeID } from '../basic-types';
 import { NodeDefinition } from '../common/node-definition-base-types';
 import { VariableType, VariableValueType } from '../v3-flow-content-types';
 
-const NODE_TYPE_NAME = 'ElevenLabs';
-
 export type V3ElevenLabsNodeConfig = {
   nodeId: NodeID;
-  type: typeof NODE_TYPE_NAME;
+  type: NodeType.ElevenLabs;
   voiceId: string;
 };
 
 export const ELEVENLABS_NODE_DEFINITION: NodeDefinition = {
-  nodeTypeName: NODE_TYPE_NAME,
+  nodeType: NodeType.ElevenLabs,
 
   createDefaultNodeConfig: (node) => {
     return {
       nodeConfig: {
         nodeId: node.id,
-        type: NODE_TYPE_NAME,
+        type: NodeType.ElevenLabs,
         voiceId: '',
       },
       variableConfigList: [

@@ -1,26 +1,25 @@
 import randomId from 'common-utils/randomId';
 import { ChatGPTMessageRole } from 'integrations/openai';
 import { VariableType, VariableValueType, asV3VariableID } from '../..';
+import NodeType from '../NodeType';
 import { NodeID } from '../basic-types';
 import { NodeDefinition } from '../common/node-definition-base-types';
 
-const NODE_TYPE_NAME = 'ChatGPTMessageNode';
-
 export type V3ChatGPTMessageNodeConfig = {
+  type: NodeType.ChatGPTMessageNode;
   nodeId: NodeID;
-  type: typeof NODE_TYPE_NAME;
   role: ChatGPTMessageRole;
   content: string;
 };
 
 export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition = {
-  nodeTypeName: NODE_TYPE_NAME,
+  nodeType: NodeType.ChatGPTMessageNode,
 
   createDefaultNodeConfig: (node) => {
     return {
       nodeConfig: {
         nodeId: node.id,
-        type: NODE_TYPE_NAME,
+        type: NodeType.ChatGPTMessageNode,
         role: ChatGPTMessageRole.user,
         content: 'Write a poem about {{topic}} in fewer than 20 words.',
       },

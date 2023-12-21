@@ -1,7 +1,7 @@
 import IconButton from '@mui/joy/IconButton';
 import {
   NodeID,
-  OUTPUT_NODE_DEFINITION,
+  NodeType,
   V3OutputNodeConfig,
   VariableType,
 } from 'flow-models';
@@ -67,7 +67,7 @@ export default function OutputNode() {
           style={{ top: calculateInputHandleTop(i) }}
         />
       ))}
-      <NodeBox nodeType={OUTPUT_NODE_DEFINITION.nodeTypeName}>
+      <NodeBox nodeType={NodeType.OutputNode}>
         <HeaderSection
           isCurrentUserOwner={isCurrentUserOwner}
           title="Output"

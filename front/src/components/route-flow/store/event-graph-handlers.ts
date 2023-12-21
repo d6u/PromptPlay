@@ -9,7 +9,7 @@ import {
   NodeID,
   NodeInputVariable,
   NodeOutputVariable,
-  OUTPUT_NODE_DEFINITION,
+  NodeType,
   V3LocalEdge,
   V3NodeConfig,
   V3NodeConfigsDict,
@@ -275,7 +275,7 @@ function handleRfOnConnect(
   if (srcVariable.valueType === VariableValueType.Audio) {
     const dstNodeConfig = nodeConfigs[addedEdge.target];
     invariant(dstNodeConfig != null);
-    if (dstNodeConfig.type !== OUTPUT_NODE_DEFINITION.nodeTypeName) {
+    if (dstNodeConfig.type !== NodeType.OutputNode) {
       // TODO: Change this to a non-blocking alert UI
       alert('You can only connect an audio output to an output node.');
 

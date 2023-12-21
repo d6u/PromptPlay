@@ -5,7 +5,7 @@ import IconButton from '@mui/joy/IconButton';
 import Textarea from '@mui/joy/Textarea';
 import {
   NodeID,
-  TEXT_TEMPLATE_NODE_DEFINITION,
+  NodeType,
   V3TextTemplateNodeConfig,
   VariableType,
 } from 'flow-models';
@@ -103,7 +103,7 @@ export default function TextTemplateNode() {
           }}
         />
       ))}
-      <NodeBox nodeType={TEXT_TEMPLATE_NODE_DEFINITION.nodeTypeName}>
+      <NodeBox nodeType={NodeType.TextTemplate}>
         <HeaderSection
           isCurrentUserOwner={isCurrentUserOwner}
           title="Text"

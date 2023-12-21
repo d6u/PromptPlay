@@ -1,25 +1,24 @@
 import randomId from 'common-utils/randomId';
+import NodeType from '../NodeType';
 import { NodeID } from '../basic-types';
 import { NodeDefinition } from '../common/node-definition-base-types';
 import { VariableType, VariableValueType } from '../v3-flow-content-types';
 import { asV3VariableID } from '../v3-flow-utils';
 
-const NODE_TYPE_NAME = 'TextTemplate';
-
 export type V3TextTemplateNodeConfig = {
   nodeId: NodeID;
-  type: typeof NODE_TYPE_NAME;
+  type: NodeType.TextTemplate;
   content: string;
 };
 
 export const TEXT_TEMPLATE_NODE_DEFINITION: NodeDefinition = {
-  nodeTypeName: NODE_TYPE_NAME,
+  nodeType: NodeType.TextTemplate,
 
   createDefaultNodeConfig: (node) => {
     return {
       nodeConfig: {
         nodeId: node.id,
-        type: NODE_TYPE_NAME,
+        type: NodeType.TextTemplate,
         content: 'Write a poem about {{topic}} in fewer than 20 words.',
       },
       variableConfigList: [

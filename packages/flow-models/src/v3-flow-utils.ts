@@ -1,10 +1,10 @@
 import randomId from 'common-utils/randomId';
+import NodeType from './NodeType';
+import { NodeID, V3VariableID } from './basic-types';
 import {
-  NodeTypeName,
   V3NodeConfig,
   getNodeDefinitionForNodeTypeName,
-} from './all-node-definition-and-types';
-import { NodeID, V3VariableID } from './basic-types';
+} from './node-definitions';
 import {
   LocalNode,
   ServerNode,
@@ -12,11 +12,7 @@ import {
   VariableID,
 } from './v3-flow-content-types';
 
-export function createNode(
-  type: NodeTypeName,
-  x: number,
-  y: number,
-): ServerNode {
+export function createNode(type: NodeType, x: number, y: number): ServerNode {
   return {
     id: randomId() as NodeID,
     type,

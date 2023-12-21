@@ -1,5 +1,6 @@
-export * from './src/all-node-definition-and-types';
+export { default as NodeType } from './src/NodeType';
 export * from './src/basic-types';
+export * from './src/node-definitions';
 export * from './src/nodes';
 export * from './src/v3-flow-content-types';
 export * from './src/v3-flow-utils';

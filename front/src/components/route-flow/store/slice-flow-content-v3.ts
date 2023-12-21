@@ -11,7 +11,7 @@ import {
 import {
   LocalNode,
   NodeID,
-  NodeTypeName,
+  NodeType,
   V3LocalEdge,
   V3NodeConfig,
   V3NodeConfigsDict,
@@ -52,7 +52,7 @@ type SliceFlowContentV3Actions = {
   onEdgesChange: OnEdgesChange;
   onConnect: OnConnect;
 
-  addNode(type: NodeTypeName, x: number, y: number): void;
+  addNode(type: NodeType, x: number, y: number): void;
   removeNode(id: NodeID): void;
   updateNodeConfig(nodeId: NodeID, change: Partial<V3NodeConfig>): void;
 
@@ -196,7 +196,7 @@ export const createFlowServerSliceV3: StateCreator<
       });
     },
 
-    addNode(type: NodeTypeName, x: number, y: number): void {
+    addNode(type: NodeType, x: number, y: number): void {
       startProcessingEventGraph({
         type: ChangeEventType.ADDING_NODE,
         node: createNode(type, x, y),

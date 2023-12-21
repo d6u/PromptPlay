@@ -3,8 +3,8 @@ import FormHelperText from '@mui/joy/FormHelperText';
 import FormLabel from '@mui/joy/FormLabel';
 import Input from '@mui/joy/Input';
 import {
-  ELEVENLABS_NODE_DEFINITION,
   NodeID,
+  NodeType,
   V3ElevenLabsNodeConfig,
   VariableType,
 } from 'flow-models';
@@ -106,7 +106,7 @@ export default function ElevenLabsNode() {
         style={{ top: calculateInputHandleTop(-1) }}
       />
       <NodeBox
-        nodeType={ELEVENLABS_NODE_DEFINITION.nodeTypeName}
+        nodeType={NodeType.ElevenLabs}
         state={
           augment?.isRunning
             ? NodeState.Running

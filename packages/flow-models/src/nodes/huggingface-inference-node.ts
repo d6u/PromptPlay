@@ -1,3 +1,4 @@
+import NodeType from '../NodeType';
 import { NodeID } from '../basic-types';
 import { NodeDefinition } from '../common/node-definition-base-types';
 import { VariableType, VariableValueType } from '../v3-flow-content-types';
@@ -5,22 +6,20 @@ import { asV3VariableID } from '../v3-flow-utils';
 
 // Reference: https://huggingface.co/docs/api-inference/index
 
-const NODE_TYPE_NAME = 'HuggingFaceInference';
-
 export type V3HuggingFaceInferenceNodeConfig = {
   nodeId: NodeID;
-  type: typeof NODE_TYPE_NAME;
+  type: NodeType.HuggingFaceInference;
   model: string;
 };
 
 export const HUGGINGFACE_INFERENCE_NODE_DEFINITION: NodeDefinition = {
-  nodeTypeName: NODE_TYPE_NAME,
+  nodeType: NodeType.HuggingFaceInference,
 
   createDefaultNodeConfig: (node) => {
     return {
       nodeConfig: {
         nodeId: node.id,
-        type: NODE_TYPE_NAME,
+        type: NodeType.HuggingFaceInference,
         model: 'gpt2',
       },
       variableConfigList: [

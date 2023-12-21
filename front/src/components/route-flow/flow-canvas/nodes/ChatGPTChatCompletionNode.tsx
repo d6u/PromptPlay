@@ -6,9 +6,9 @@ import Input from '@mui/joy/Input';
 import Option from '@mui/joy/Option';
 import Select from '@mui/joy/Select';
 import {
-  CHATGPT_CHAT_COMPLETION_NODE_DEFINITION,
   ChatGPTChatCompletionResponseFormatType,
   NodeID,
+  NodeType,
   OpenAIChatModel,
   V3ChatGPTChatCompletionNodeConfig,
   VariableType,
@@ -142,7 +142,7 @@ export default function ChatGPTChatCompletionNode() {
         style={{ top: calculateInputHandleTop(-1) }}
       />
       <NodeBox
-        nodeType={CHATGPT_CHAT_COMPLETION_NODE_DEFINITION.nodeTypeName}
+        nodeType={NodeType.ChatGPTChatCompletionNode}
         state={
           augment?.isRunning
             ? NodeState.Running

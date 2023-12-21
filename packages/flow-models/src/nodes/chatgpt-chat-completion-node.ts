@@ -1,13 +1,12 @@
 import { asV3VariableID } from '../..';
+import NodeType from '../NodeType';
 import { NodeID } from '../basic-types';
 import { NodeDefinition } from '../common/node-definition-base-types';
 import { VariableType, VariableValueType } from '../v3-flow-content-types';
 
-const NODE_TYPE_NAME = 'ChatGPTChatCompletionNode';
-
 export type V3ChatGPTChatCompletionNodeConfig = {
+  type: NodeType.ChatGPTChatCompletionNode;
   nodeId: NodeID;
-  type: typeof NODE_TYPE_NAME;
   model: OpenAIChatModel;
   temperature: number;
   seed: number | null;
@@ -31,13 +30,13 @@ export enum ChatGPTChatCompletionResponseFormatType {
 }
 
 export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition = {
-  nodeTypeName: NODE_TYPE_NAME,
+  nodeType: NodeType.ChatGPTChatCompletionNode,
 
   createDefaultNodeConfig: (node) => {
     return {
       nodeConfig: {
         nodeId: node.id,
-        type: NODE_TYPE_NAME,
+        type: NodeType.ChatGPTChatCompletionNode,
         model: OpenAIChatModel.GPT_4,
         temperature: 1,
         stop: [],
