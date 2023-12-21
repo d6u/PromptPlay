@@ -1,22 +1,25 @@
 import {
   NodeOutputVariable,
   V3ElevenLabsNodeConfig,
-  V3VariableID,
   V3VariableValueLookUpDict,
-  VariablesDict,
   VariableType,
 } from 'flow-models';
 import * as ElevenLabs from 'integrations/eleven-labs';
 import { defer, from, map, Observable, throwError } from 'rxjs';
 import invariant from 'ts-invariant';
 import { useLocalStorageStore, useSpaceStore } from '../state/appState';
+import type { RunContext } from './run-single';
 
 export function handleElevenLabsNode(
   data: V3ElevenLabsNodeConfig,
-  variableMap: VariablesDict,
-  inputIdToOutputIdMap: Record<V3VariableID, V3VariableID>,
-  variableValueMap: V3VariableValueLookUpDict,
+  context: RunContext,
 ): Observable<V3VariableValueLookUpDict> {
+  const {
+    variablesDict: variableMap,
+    edgeTargetHandleToSourceHandleLookUpDict: inputIdToOutputIdMap,
+    outputIdToValueMap: variableValueMap,
+  } = context;
+
   return defer(() => {
     // Prepare inputs
     // ----------

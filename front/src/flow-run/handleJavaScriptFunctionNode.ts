@@ -1,21 +1,23 @@
 import {
   NodeOutputVariable,
   V3JavaScriptFunctionNodeConfig,
-  V3VariableID,
   V3VariableValueLookUpDict,
-  VariablesDict,
   VariableType,
 } from 'flow-models';
-import { defer, Observable } from 'rxjs';
+import { Observable, defer } from 'rxjs';
 import invariant from 'ts-invariant';
-import { AsyncFunction } from './run-single';
+import { AsyncFunction, type RunContext } from './run-single';
 
 export function handleJavaScriptFunctionNode(
   data: V3JavaScriptFunctionNodeConfig,
-  variableMap: VariablesDict,
-  inputIdToOutputIdMap: Record<V3VariableID, V3VariableID>,
-  variableValueMap: V3VariableValueLookUpDict,
+  context: RunContext,
 ): Observable<V3VariableValueLookUpDict> {
+  const {
+    variablesDict: variableMap,
+    edgeTargetHandleToSourceHandleLookUpDict: inputIdToOutputIdMap,
+    outputIdToValueMap: variableValueMap,
+  } = context;
+
   return defer(async () => {
     let outputVariable: NodeOutputVariable | null = null;
     const pairs: Array<[string, unknown]> = [];

@@ -2,22 +2,25 @@ import { A } from '@mobily/ts-belt';
 import {
   NodeOutputVariable,
   V3ChatGPTMessageNodeConfig,
-  V3VariableID,
   V3VariableValueLookUpDict,
   VariableType,
-  VariablesDict,
 } from 'flow-models';
 import * as OpenAI from 'integrations/openai';
 import mustache from 'mustache';
 import { Observable, of } from 'rxjs';
 import invariant from 'ts-invariant';
+import type { RunContext } from './run-single';
 
 export function handleChatGPTMessageNode(
   data: V3ChatGPTMessageNodeConfig,
-  variableMap: VariablesDict,
-  inputIdToOutputIdMap: Record<V3VariableID, V3VariableID>,
-  variableValueMap: V3VariableValueLookUpDict,
+  context: RunContext,
 ): Observable<V3VariableValueLookUpDict> {
+  const {
+    variablesDict: variableMap,
+    edgeTargetHandleToSourceHandleLookUpDict: inputIdToOutputIdMap,
+    outputIdToValueMap: variableValueMap,
+  } = context;
+
   // Prepare inputs
   // ----------
   let variableMessage: NodeOutputVariable | null = null;

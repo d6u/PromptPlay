@@ -208,80 +208,36 @@ function createTopologicalSortNodeConfigListObservable({
   });
 }
 
-type ArgumentsCreateNodeConfigExecutionObservable = {
-  nodeConfig: V3NodeConfig;
-  context: {
-    variablesDict: VariablesDict;
-    edgeTargetHandleToSourceHandleLookUpDict: Record<
-      V3VariableID,
-      V3VariableID
-    >;
-    outputIdToValueMap: V3VariableValueLookUpDict;
-    useStreaming: boolean;
-  };
+export type RunContext = {
+  variablesDict: VariablesDict;
+  edgeTargetHandleToSourceHandleLookUpDict: Record<V3VariableID, V3VariableID>;
+  outputIdToValueMap: V3VariableValueLookUpDict;
+  useStreaming: boolean;
 };
 
 function createNodeConfigExecutionObservable({
   nodeConfig,
-  context: {
-    variablesDict,
-    edgeTargetHandleToSourceHandleLookUpDict,
-    outputIdToValueMap,
-    useStreaming,
-  },
-}: ArgumentsCreateNodeConfigExecutionObservable): Observable<V3VariableValueLookUpDict> {
+  context,
+}: {
+  nodeConfig: V3NodeConfig;
+  context: RunContext;
+}): Observable<V3VariableValueLookUpDict> {
   switch (nodeConfig.type) {
     case NodeType.InputNode:
       return EMPTY;
     case NodeType.OutputNode:
-      return handleOutputNode(
-        nodeConfig,
-        variablesDict,
-        edgeTargetHandleToSourceHandleLookUpDict,
-        outputIdToValueMap,
-      );
+      return handleOutputNode(nodeConfig, context);
     case NodeType.JavaScriptFunctionNode:
-      return handleJavaScriptFunctionNode(
-        nodeConfig,
-        variablesDict,
-        edgeTargetHandleToSourceHandleLookUpDict,
-        outputIdToValueMap,
-      );
+      return handleJavaScriptFunctionNode(nodeConfig, context);
     case NodeType.ChatGPTMessageNode:
-      return handleChatGPTMessageNode(
-        nodeConfig,
-        variablesDict,
-        edgeTargetHandleToSourceHandleLookUpDict,
-        outputIdToValueMap,
-      );
+      return handleChatGPTMessageNode(nodeConfig, context);
     case NodeType.ChatGPTChatCompletionNode:
-      return handleChatGPTChatNode(
-        nodeConfig,
-        variablesDict,
-        edgeTargetHandleToSourceHandleLookUpDict,
-        outputIdToValueMap,
-        useStreaming,
-      );
+      return handleChatGPTChatNode(nodeConfig, context);
     case NodeType.TextTemplate:
-      return handleTextTemplateNode(
-        nodeConfig,
-        variablesDict,
-        edgeTargetHandleToSourceHandleLookUpDict,
-        outputIdToValueMap,
-      );
+      return handleTextTemplateNode(nodeConfig, context);
     case NodeType.HuggingFaceInference:
-      return handleHuggingFaceInferenceNode(
-        nodeConfig,
-        variablesDict,
-        edgeTargetHandleToSourceHandleLookUpDict,
-        outputIdToValueMap,
-      );
+      return handleHuggingFaceInferenceNode(nodeConfig, context);
     case NodeType.ElevenLabs:
-      return handleElevenLabsNode(
-        nodeConfig,
-        variablesDict,
-        edgeTargetHandleToSourceHandleLookUpDict,
-        outputIdToValueMap,
-      );
+      return handleElevenLabsNode(nodeConfig, context);
   }
 }

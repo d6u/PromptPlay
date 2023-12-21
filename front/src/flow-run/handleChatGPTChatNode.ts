@@ -2,9 +2,7 @@ import { A } from '@mobily/ts-belt';
 import {
   NodeOutputVariable,
   V3ChatGPTChatCompletionNodeConfig,
-  V3VariableID,
   V3VariableValueLookUpDict,
-  VariablesDict,
   VariableType,
 } from 'flow-models';
 import * as OpenAI from 'integrations/openai';
@@ -21,14 +19,19 @@ import {
 } from 'rxjs';
 import invariant from 'ts-invariant';
 import { useLocalStorageStore, useSpaceStore } from '../state/appState';
+import type { RunContext } from './run-single';
 
 export function handleChatGPTChatNode(
   data: V3ChatGPTChatCompletionNodeConfig,
-  variableMap: VariablesDict,
-  inputIdToOutputIdMap: Record<V3VariableID, V3VariableID>,
-  variableValueMap: V3VariableValueLookUpDict,
-  useStreaming: boolean,
+  context: RunContext,
 ): Observable<V3VariableValueLookUpDict> {
+  const {
+    variablesDict: variableMap,
+    edgeTargetHandleToSourceHandleLookUpDict: inputIdToOutputIdMap,
+    outputIdToValueMap: variableValueMap,
+    useStreaming,
+  } = context;
+
   return defer(() => {
     // Prepare inputs
     // ----------

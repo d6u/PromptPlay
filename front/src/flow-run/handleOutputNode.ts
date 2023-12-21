@@ -1,18 +1,21 @@
 import {
   V3OutputNodeConfig,
-  V3VariableID,
   V3VariableValueLookUpDict,
   VariableType,
-  VariablesDict,
 } from 'flow-models';
 import { Observable, of } from 'rxjs';
+import type { RunContext } from './run-single';
 
 export function handleOutputNode(
   data: V3OutputNodeConfig,
-  variableMap: VariablesDict,
-  inputIdToOutputIdMap: Record<V3VariableID, V3VariableID>,
-  variableValueMap: V3VariableValueLookUpDict,
+  context: RunContext,
 ): Observable<V3VariableValueLookUpDict> {
+  const {
+    variablesDict: variableMap,
+    edgeTargetHandleToSourceHandleLookUpDict: inputIdToOutputIdMap,
+    outputIdToValueMap: variableValueMap,
+  } = context;
+
   const changes: V3VariableValueLookUpDict = {};
 
   for (const input of Object.values(variableMap)) {

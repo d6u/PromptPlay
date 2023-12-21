@@ -1,21 +1,24 @@
 import {
   NodeOutputVariable,
   V3TextTemplateNodeConfig,
-  V3VariableID,
   V3VariableValueLookUpDict,
-  VariablesDict,
   VariableType,
 } from 'flow-models';
 import mustache from 'mustache';
-import { defer, Observable, of } from 'rxjs';
+import { Observable, defer, of } from 'rxjs';
 import invariant from 'ts-invariant';
+import type { RunContext } from './run-single';
 
 export function handleTextTemplateNode(
   data: V3TextTemplateNodeConfig,
-  variableMap: VariablesDict,
-  inputIdToOutputIdMap: Record<V3VariableID, V3VariableID>,
-  variableValueMap: V3VariableValueLookUpDict,
+  context: RunContext,
 ): Observable<V3VariableValueLookUpDict> {
+  const {
+    variablesDict: variableMap,
+    edgeTargetHandleToSourceHandleLookUpDict: inputIdToOutputIdMap,
+    outputIdToValueMap: variableValueMap,
+  } = context;
+
   return defer(() => {
     // Prepare inputs
     // ----------
