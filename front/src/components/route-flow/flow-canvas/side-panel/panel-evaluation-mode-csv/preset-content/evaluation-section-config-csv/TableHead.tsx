@@ -66,10 +66,12 @@ export default function TableHead(props: Props) {
       <th key={inputItem.id}>
         <Select
           placeholder="Choose a column"
-          value={variableIdToCsvColumnIndexMap[inputItem.id]}
+          // NOTE: Must fallback to null, otherwise when value is undefined,
+          // the select component will become uncontrolled.
+          value={variableIdToCsvColumnIndexMap[inputItem.id] ?? null}
           onChange={(_event, index) => {
             // NOTE: When the list of <Option> changes, onChange might be called
-            // as well if it causes the selected value to be invalid.
+            // if it causes the selected value to become invalid.
             setVariableIdToCsvColumnIndexMap(() => ({
               [inputItem.id]: index,
             }));
@@ -100,10 +102,12 @@ export default function TableHead(props: Props) {
       <th key={outputItem.id}>
         <Select
           placeholder="Choose a column"
-          value={variableIdToCsvColumnIndexMap[outputItem.id]}
+          // NOTE: Must fallback to null, otherwise when value is undefined,
+          // the select component will become uncontrolled.
+          value={variableIdToCsvColumnIndexMap[outputItem.id] ?? null}
           onChange={(_event, index) => {
             // NOTE: When the list of <Option> changes, onChange might be called
-            // as well if it causes the selected value to be invalid.
+            // if it causes the selected value to become invalid.
             setVariableIdToCsvColumnIndexMap(() => ({
               [outputItem.id]: index,
             }));
