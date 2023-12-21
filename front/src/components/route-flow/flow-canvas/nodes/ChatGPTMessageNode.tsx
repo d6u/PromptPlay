@@ -30,6 +30,7 @@ import NodeInputModifyRow, {
 } from './node-common/NodeInputModifyRow';
 import NodeOutputRow from './node-common/NodeOutputRow';
 import {
+  ConditionInHandle,
   InputHandle,
   OutputHandle,
   Section,
@@ -66,6 +67,10 @@ export default function ChatGPTMessageNode() {
   );
   const defaultVariableValueMap = useStore(flowStore, (s) =>
     s.getDefaultVariableValueLookUpDict(),
+  );
+  const isConnectStartOnConditionNodeOutput = useStore(
+    flowStore,
+    (s) => s.isConnectStartOnConditionNodeOutput,
   );
 
   // !SECTION
@@ -110,31 +115,35 @@ export default function ChatGPTMessageNode() {
 
   return (
     <>
-      <InputHandle
-        key={0}
-        type="target"
-        id={inputs[0].id}
-        position={Position.Left}
-        style={{ top: calculateInputHandleTop(0) }}
-      />
-      {inputs.map((input, i) => {
-        if (i === 0) return null;
+      {isConnectStartOnConditionNodeOutput && <ConditionInHandle />}
+      {!isConnectStartOnConditionNodeOutput && (
+        <InputHandle
+          key={0}
+          type="target"
+          id={inputs[0].id}
+          position={Position.Left}
+          style={{ top: calculateInputHandleTop(0) }}
+        />
+      )}
+      {!isConnectStartOnConditionNodeOutput &&
+        inputs.map((input, i) => {
+          if (i === 0) return null;
 
-        return (
-          <InputHandle
-            key={i}
-            type="target"
-            id={input.id}
-            position={Position.Left}
-            style={{
-              top:
-                calculateInputHandleTop(i - (isCurrentUserOwner ? 0 : 1)) +
-                MESSAGES_HELPER_SECTION_HEIGHT +
-                ROW_MARGIN_TOP,
-            }}
-          />
-        );
-      })}
+          return (
+            <InputHandle
+              key={i}
+              type="target"
+              id={input.id}
+              position={Position.Left}
+              style={{
+                top:
+                  calculateInputHandleTop(i - (isCurrentUserOwner ? 0 : 1)) +
+                  MESSAGES_HELPER_SECTION_HEIGHT +
+                  ROW_MARGIN_TOP,
+              }}
+            />
+          );
+        })}
       <NodeBox nodeType={NodeType.ChatGPTMessageNode}>
         <HeaderSection
           isCurrentUserOwner={isCurrentUserOwner}

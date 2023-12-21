@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { Handle } from 'reactflow';
+import { Handle, Position } from 'reactflow';
 import IconGear from '../../../../icons/IconGear';
 import { BACKDROP_PADDING } from './NodeBox';
 
@@ -38,3 +38,18 @@ export const StyledIconGear = styled(IconGear)`
   width: 20px;
   fill: #636b74;
 `;
+
+const ConditionInHandleImpl = styled(Handle)`
+  width: ${HANDLE_HEIGHT}px;
+  height: ${HANDLE_WIDTH}px;
+  border-radius: ${HANDLE_WIDTH / 2}px;
+  background: #0057df;
+  transform: none;
+  top: -${HANDLE_WIDTH / 2 - BACKDROP_PADDING / 2}px;
+  // Align with node title
+  left: 12px;
+`;
+
+export function ConditionInHandle() {
+  return <ConditionInHandleImpl type="target" position={Position.Top} />;
+}

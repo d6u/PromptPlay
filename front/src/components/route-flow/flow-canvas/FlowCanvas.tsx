@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { NodeType } from 'flow-models';
+import { NodeID, NodeType, V3VariableID } from 'flow-models';
 import { useContext } from 'react';
 import ReactFlow, {
   Background,
@@ -44,6 +44,14 @@ export default function FlowCanvas() {
   const onNodesChange = useStore(flowStore, (s) => s.onNodesChange);
   const onEdgesChange = useStore(flowStore, (s) => s.onEdgesChange);
   const onConnect = useStore(flowStore, (s) => s.onConnect);
+  const maybeStartConnectingOnConditionNodeOutput = useStore(
+    flowStore,
+    (s) => s.maybeStartConnectingOnConditionNodeOutput,
+  );
+  const stopConnectingOnConditionNodeOutput = useStore(
+    flowStore,
+    (s) => s.stopConnectingOnConditionNodeOutput,
+  );
 
   return (
     <Container>
@@ -74,6 +82,15 @@ export default function FlowCanvas() {
           if (isCurrentUserOwner) {
             onConnect(connection);
           }
+        }}
+        onConnectStart={(event, params) => {
+          maybeStartConnectingOnConditionNodeOutput({
+            nodeId: params.nodeId as NodeID,
+            handleId: params.handleId as V3VariableID,
+          });
+        }}
+        onConnectEnd={() => {
+          stopConnectingOnConditionNodeOutput();
         }}
       >
         <Controls />

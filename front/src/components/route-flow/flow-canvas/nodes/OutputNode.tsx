@@ -40,6 +40,10 @@ export default function OutputNode() {
   const addVariable = useStore(flowStore, (s) => s.addVariable);
   const updateVariable = useStore(flowStore, (s) => s.updateVariable);
   const removeVariable = useStore(flowStore, (s) => s.removeVariable);
+  const isConnectStartOnConditionNodeOutput = useStore(
+    flowStore,
+    (s) => s.isConnectStartOnConditionNodeOutput,
+  );
 
   const nodeConfig = useMemo(
     () => nodeConfigsDict[nodeId] as V3OutputNodeConfig | undefined,
@@ -58,15 +62,16 @@ export default function OutputNode() {
 
   return (
     <>
-      {flowOutputs.map((output, i) => (
-        <InputHandle
-          key={i}
-          type="target"
-          id={output.id}
-          position={Position.Left}
-          style={{ top: calculateInputHandleTop(i) }}
-        />
-      ))}
+      {!isConnectStartOnConditionNodeOutput &&
+        flowOutputs.map((output, i) => (
+          <InputHandle
+            key={i}
+            type="target"
+            id={output.id}
+            position={Position.Left}
+            style={{ top: calculateInputHandleTop(i) }}
+          />
+        ))}
       <NodeBox nodeType={NodeType.OutputNode}>
         <HeaderSection
           isCurrentUserOwner={isCurrentUserOwner}

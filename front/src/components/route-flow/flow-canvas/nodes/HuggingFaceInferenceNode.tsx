@@ -26,7 +26,12 @@ import HelperTextContainer from './node-common/HelperTextContainer';
 import NodeBox, { NodeState } from './node-common/NodeBox';
 import NodeInputModifyRow from './node-common/NodeInputModifyRow';
 import NodeOutputRow from './node-common/NodeOutputRow';
-import { InputHandle, OutputHandle, Section } from './node-common/node-common';
+import {
+  ConditionInHandle,
+  InputHandle,
+  OutputHandle,
+  Section,
+} from './node-common/node-common';
 import {
   calculateInputHandleTop,
   calculateOutputHandleBottom,
@@ -57,6 +62,10 @@ export default function HuggingFaceInferenceNode() {
   const localNodeAugments = useStore(flowStore, (s) => s.nodeMetadataDict);
   const defaultVariableValueMap = useStore(flowStore, (s) =>
     s.getDefaultVariableValueLookUpDict(),
+  );
+  const isConnectStartOnConditionNodeOutput = useStore(
+    flowStore,
+    (s) => s.isConnectStartOnConditionNodeOutput,
   );
 
   // !SECTION
@@ -99,12 +108,15 @@ export default function HuggingFaceInferenceNode() {
 
   return (
     <>
-      <InputHandle
-        type="target"
-        id={inputVariables[0].id}
-        position={Position.Left}
-        style={{ top: calculateInputHandleTop(-1) }}
-      />
+      {isConnectStartOnConditionNodeOutput && <ConditionInHandle />}
+      {!isConnectStartOnConditionNodeOutput && (
+        <InputHandle
+          type="target"
+          id={inputVariables[0].id}
+          position={Position.Left}
+          style={{ top: calculateInputHandleTop(-1) }}
+        />
+      )}
       <NodeBox
         nodeType={NodeType.HuggingFaceInference}
         state={

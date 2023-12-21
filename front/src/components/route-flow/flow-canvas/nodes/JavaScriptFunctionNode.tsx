@@ -21,6 +21,7 @@ import NodeBox, { NodeState } from './node-common/NodeBox';
 import NodeInputModifyRow from './node-common/NodeInputModifyRow';
 import NodeOutputRow from './node-common/NodeOutputRow';
 import {
+  ConditionInHandle,
   InputHandle,
   OutputHandle,
   Section,
@@ -49,6 +50,10 @@ export default function JavaScriptFunctionNode() {
   const nodeMetadataDict = useStore(flowStore, (s) => s.nodeMetadataDict);
   const defaultVariableValueMap = useStore(flowStore, (s) =>
     s.getDefaultVariableValueLookUpDict(),
+  );
+  const isConnectStartOnConditionNodeOutput = useStore(
+    flowStore,
+    (s) => s.isConnectStartOnConditionNodeOutput,
   );
 
   // !SECTION
@@ -89,17 +94,19 @@ export default function JavaScriptFunctionNode() {
 
   return (
     <>
-      {inputs.map((input, i) => (
-        <InputHandle
-          key={i}
-          type="target"
-          id={input.id}
-          position={Position.Left}
-          style={{
-            top: calculateInputHandleTop(i - (isCurrentUserOwner ? 0 : 1)),
-          }}
-        />
-      ))}
+      {isConnectStartOnConditionNodeOutput && <ConditionInHandle />}
+      {!isConnectStartOnConditionNodeOutput &&
+        inputs.map((input, i) => (
+          <InputHandle
+            key={i}
+            type="target"
+            id={input.id}
+            position={Position.Left}
+            style={{
+              top: calculateInputHandleTop(i - (isCurrentUserOwner ? 0 : 1)),
+            }}
+          />
+        ))}
       <NodeBox
         nodeType={NodeType.JavaScriptFunctionNode}
         state={

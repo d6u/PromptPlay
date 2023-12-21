@@ -12,6 +12,7 @@ import NodeBox from './node-common/NodeBox';
 import NodeInputModifyRow from './node-common/NodeInputModifyRow';
 import NodeOutputModifyRow from './node-common/NodeOutputModifyRow';
 import {
+  ConditionInHandle,
   InputHandle,
   OutputHandle,
   Section,
@@ -37,6 +38,14 @@ export default function ConditionNode() {
   const addVariable = useStore(flowStore, (s) => s.addVariable);
   const updateVariable = useStore(flowStore, (s) => s.updateVariable);
   const removeVariable = useStore(flowStore, (s) => s.removeVariable);
+  const isConnectStartOnConditionNodeOutput = useStore(
+    flowStore,
+    (s) => s.isConnectStartOnConditionNodeOutput,
+  );
+  const connectStartConditionNodeId = useStore(
+    flowStore,
+    (s) => s.connectStartConditionNodeId,
+  );
 
   // !SECTION
 
@@ -60,17 +69,20 @@ export default function ConditionNode() {
 
   return (
     <>
-      {nodeInputs.map((flowInput, i) => (
-        <InputHandle
-          key={flowInput.id}
-          type="target"
-          id={flowInput.id}
-          position={Position.Left}
-          style={{
-            top: calculateInputHandleTop(nodeInputs.length - 2 - i),
-          }}
-        />
-      ))}
+      {isConnectStartOnConditionNodeOutput &&
+        connectStartConditionNodeId !== nodeId && <ConditionInHandle />}
+      {!isConnectStartOnConditionNodeOutput &&
+        nodeInputs.map((flowInput, i) => (
+          <InputHandle
+            key={flowInput.id}
+            type="target"
+            id={flowInput.id}
+            position={Position.Left}
+            style={{
+              top: calculateInputHandleTop(nodeInputs.length - 2 - i),
+            }}
+          />
+        ))}
       <NodeBox nodeType={NodeType.InputNode}>
         <HeaderSection
           isCurrentUserOwner={isCurrentUserOwner}

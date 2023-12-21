@@ -2,7 +2,9 @@ import { D } from '@mobily/ts-belt';
 import {
   NodeExecutionEventType,
   NodeID,
+  NodeType,
   V3FlowContent,
+  V3VariableID,
   V3VariableValueLookUpDict,
   VariableType,
   VariablesDict,
@@ -32,11 +34,15 @@ type RootSliceState = {
   // TODO: Does readonly make any difference here?
   readonly spaceId: string;
   readonly subscriptionBag: Subscription;
+
   isInitialized: boolean;
+  isRunning: boolean;
+  isConnectStartOnConditionNodeOutput: boolean;
+  connectStartConditionNodeId: NodeID | null;
+
   detailPanelContentType: DetailPanelContentType;
   detailPanelSelectedNodeId: NodeID | null;
   nodeMetadataDict: NodeMetadataDict;
-  isRunning: boolean;
 };
 
 export type RootSlice = RootSliceState & {
@@ -47,6 +53,11 @@ export type RootSlice = RootSliceState & {
   updateNodeAugment(nodeId: NodeID, change: Partial<NodeMetadata>): void;
   runFlow(): void;
   stopRunningFlow(): void;
+  maybeStartConnectingOnConditionNodeOutput(params: {
+    nodeId: NodeID;
+    handleId: V3VariableID;
+  }): void;
+  stopConnectingOnConditionNodeOutput(): void;
 };
 
 type InitProps = {
@@ -97,6 +108,8 @@ export function createRootSlice(
 
     isInitialized: false,
     isRunning: false,
+    isConnectStartOnConditionNodeOutput: false,
+    connectStartConditionNodeId: null,
 
     detailPanelContentType: DetailPanelContentType.Off,
     detailPanelSelectedNodeId: null,
@@ -265,6 +278,37 @@ export function createRootSlice(
       runSingleSubscription = null;
 
       setIsRunning(false);
+    },
+
+    maybeStartConnectingOnConditionNodeOutput(params: {
+      nodeId: NodeID;
+      handleId: V3VariableID;
+    }): void {
+      set((state) => {
+        const currentNodeConfig = state.nodeConfigsDict[params.nodeId];
+        const variable = state.variablesDict[params.handleId];
+
+        invariant(currentNodeConfig != null);
+        invariant(variable != null);
+
+        if (
+          currentNodeConfig.type !== NodeType.ConditionNode ||
+          variable.type !== VariableType.NodeOutput
+        ) {
+          return state;
+        }
+
+        return {
+          isConnectStartOnConditionNodeOutput: true,
+          connectStartConditionNodeId: params.nodeId,
+        };
+      });
+    },
+    stopConnectingOnConditionNodeOutput(): void {
+      set(() => ({
+        isConnectStartOnConditionNodeOutput: false,
+        connectStartConditionNodeId: null,
+      }));
     },
   };
 }
