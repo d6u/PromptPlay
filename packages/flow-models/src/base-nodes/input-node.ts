@@ -1,21 +1,15 @@
+import chance from 'common-utils/chance';
 import randomId from 'common-utils/randomId';
 import { of } from 'rxjs';
 import invariant from 'ts-invariant';
-import NodeType from '../NodeType';
-import { NodeID } from '../basic-types';
 import {
   NodeDefinition,
   NodeExecutionEvent,
   NodeExecutionEventType,
-} from '../common/node-definition-base-types';
-import { chance } from '../common/utils';
-import { VariableType, VariableValueType } from '../v3-flow-content-types';
-import { asV3VariableID } from '../v3-flow-utils';
-
-export type V3InputNodeConfig = {
-  type: NodeType.InputNode;
-  nodeId: NodeID;
-};
+} from '../base/node-definition-base-types';
+import { NodeType } from '../base/node-types';
+import { VariableType, VariableValueType } from '../base/v3-flow-content-types';
+import { asV3VariableID } from '../base/v3-flow-utils';
 
 export const INPUT_NODE_DEFINITION: NodeDefinition = {
   nodeType: NodeType.InputNode,

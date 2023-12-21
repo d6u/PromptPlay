@@ -1,24 +1,17 @@
 import { defer, endWith, startWith } from 'rxjs';
 import invariant from 'ts-invariant';
-import NodeType from '../NodeType';
-import { NodeID } from '../basic-types';
 import {
   NodeDefinition,
   NodeExecutionEvent,
   NodeExecutionEventType,
-} from '../common/node-definition-base-types';
+} from '../base/node-definition-base-types';
+import { NodeType } from '../base/node-types';
 import {
   NodeOutputVariable,
   VariableType,
   VariableValueType,
-} from '../v3-flow-content-types';
-import { asV3VariableID } from '../v3-flow-utils';
-
-export type V3JavaScriptFunctionNodeConfig = {
-  type: NodeType.JavaScriptFunctionNode;
-  nodeId: NodeID;
-  javaScriptCode: string;
-};
+} from '../base/v3-flow-content-types';
+import { asV3VariableID } from '../base/v3-flow-utils';
 
 export const JAVASCRIPT_NODE_DEFINITION: NodeDefinition = {
   nodeType: NodeType.JavaScriptFunctionNode,

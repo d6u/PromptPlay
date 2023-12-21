@@ -1,5 +1,5 @@
 import { A } from '@mobily/ts-belt';
-import Chance from 'chance';
+import chance from 'common-utils/chance';
 import randomId from 'common-utils/randomId';
 import {
   EdgeID,
@@ -20,7 +20,7 @@ import {
   VariableValueType,
   VariablesDict,
   asV3VariableID,
-  createNodeConfig,
+  getNodeDefinitionForNodeTypeName,
 } from 'flow-models';
 import { current, produce } from 'immer';
 import {
@@ -37,8 +37,6 @@ import { ChangeEvent, ChangeEventType } from './event-graph-types';
 import { CsvEvaluationConfigContent } from './slice-csv-evaluation-preset';
 import { assignLocalEdgeProperties } from './state-utils';
 import { FlowState } from './store-flow-state-types';
-
-const chance = new Chance();
 
 type EventHandlerResult = [Partial<FlowState>, ChangeEvent[]];
 
@@ -327,7 +325,9 @@ function handleAddingNode(
   const content: Partial<FlowState> = {};
   const events: ChangeEvent[] = [];
 
-  const { nodeConfig, variableConfigList } = createNodeConfig(node);
+  const { nodeConfig, variableConfigList } = getNodeDefinitionForNodeTypeName(
+    node.type,
+  ).createDefaultNodeConfig(node);
 
   const nodes = produce(prevNodes, (draft) => {
     draft.push({

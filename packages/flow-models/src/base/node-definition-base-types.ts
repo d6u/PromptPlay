@@ -1,13 +1,12 @@
 import type { Observable } from 'rxjs';
-import type NodeType from '../NodeType';
-import type { NodeID, V3VariableID } from '../basic-types';
-import type { V3NodeConfig } from '../node-definitions';
+import type { NodeID, V3VariableID } from './id-types';
+import type { NodeType, V3NodeConfig } from './node-types';
 import type {
   LocalNode,
   V3VariableValueLookUpDict,
   Variable,
   VariablesDict,
-} from '../v3-flow-content-types';
+} from './v3-flow-content-types';
 
 export enum NodeExecutionEventType {
   // NOTE: All node execution will guarantee to have a start and finish event.

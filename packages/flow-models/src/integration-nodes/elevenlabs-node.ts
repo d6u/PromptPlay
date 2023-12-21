@@ -1,25 +1,18 @@
 import * as ElevenLabs from 'integrations/eleven-labs';
 import { Observable, defer, endWith, from, map, of, startWith } from 'rxjs';
 import invariant from 'ts-invariant';
-import NodeType from '../NodeType';
-import { NodeID } from '../basic-types';
 import {
   NodeDefinition,
   NodeExecutionEvent,
   NodeExecutionEventType,
-} from '../common/node-definition-base-types';
+} from '../base/node-definition-base-types';
+import { NodeType } from '../base/node-types';
 import {
   NodeOutputVariable,
   VariableType,
   VariableValueType,
-} from '../v3-flow-content-types';
-import { asV3VariableID } from '../v3-flow-utils';
-
-export type V3ElevenLabsNodeConfig = {
-  nodeId: NodeID;
-  type: NodeType.ElevenLabs;
-  voiceId: string;
-};
+} from '../base/v3-flow-content-types';
+import { asV3VariableID } from '../base/v3-flow-utils';
 
 export const ELEVENLABS_NODE_DEFINITION: NodeDefinition = {
   nodeType: NodeType.ElevenLabs,

@@ -1,25 +1,19 @@
+import chance from 'common-utils/chance';
 import randomId from 'common-utils/randomId';
 import { of } from 'rxjs';
 import invariant from 'ts-invariant';
-import NodeType from '../NodeType';
-import { NodeID } from '../basic-types';
 import {
   NodeDefinition,
   NodeExecutionEvent,
   NodeExecutionEventType,
-} from '../common/node-definition-base-types';
-import { chance } from '../common/utils';
+} from '../base/node-definition-base-types';
+import { NodeType } from '../base/node-types';
 import {
   V3VariableValueLookUpDict,
   VariableType,
   VariableValueType,
-} from '../v3-flow-content-types';
-import { asV3VariableID } from '../v3-flow-utils';
-
-export type V3OutputNodeConfig = {
-  type: NodeType.OutputNode;
-  nodeId: NodeID;
-};
+} from '../base/v3-flow-content-types';
+import { asV3VariableID } from '../base/v3-flow-utils';
 
 export const OUTPUT_NODE_DEFINITION: NodeDefinition = {
   nodeType: NodeType.OutputNode,

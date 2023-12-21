@@ -1,7 +1,6 @@
-import { Edge, Node } from 'reactflow';
-import NodeType from './NodeType';
-import { EdgeID, NodeID, V3VariableID } from './basic-types';
-import { V3NodeConfig } from './node-definitions';
+import type { Edge, Node } from 'reactflow';
+import type { EdgeID, NodeID, V3VariableID } from './id-types';
+import type { NodeType, V3NodeConfig } from './node-types';
 
 // ANCHOR: V3 Root Types
 
