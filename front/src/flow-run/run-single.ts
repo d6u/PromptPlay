@@ -2,17 +2,10 @@ import { D } from '@mobily/ts-belt';
 import {
   NodeID,
   NodeType,
-  V3ChatGPTChatCompletionNodeConfig,
-  V3ChatGPTMessageNodeConfig,
-  V3ElevenLabsNodeConfig,
   V3FlowContent,
-  V3HuggingFaceInferenceNodeConfig,
-  V3JavaScriptFunctionNodeConfig,
   V3NodeConfig,
   V3NodeConfigsDict,
-  V3OutputNodeConfig,
   V3ServerEdge,
-  V3TextTemplateNodeConfig,
   V3VariableID,
   V3VariableValueLookUpDict,
   VariablesDict,
@@ -242,28 +235,28 @@ function createNodeConfigExecutionObservable({
       return EMPTY;
     case NodeType.OutputNode:
       return handleOutputNode(
-        nodeConfig as V3OutputNodeConfig,
+        nodeConfig,
         variablesDict,
         edgeTargetHandleToSourceHandleLookUpDict,
         outputIdToValueMap,
       );
     case NodeType.JavaScriptFunctionNode:
       return handleJavaScriptFunctionNode(
-        nodeConfig as V3JavaScriptFunctionNodeConfig,
+        nodeConfig,
         variablesDict,
         edgeTargetHandleToSourceHandleLookUpDict,
         outputIdToValueMap,
       );
     case NodeType.ChatGPTMessageNode:
       return handleChatGPTMessageNode(
-        nodeConfig as V3ChatGPTMessageNodeConfig,
+        nodeConfig,
         variablesDict,
         edgeTargetHandleToSourceHandleLookUpDict,
         outputIdToValueMap,
       );
     case NodeType.ChatGPTChatCompletionNode:
       return handleChatGPTChatNode(
-        nodeConfig as V3ChatGPTChatCompletionNodeConfig,
+        nodeConfig,
         variablesDict,
         edgeTargetHandleToSourceHandleLookUpDict,
         outputIdToValueMap,
@@ -271,21 +264,21 @@ function createNodeConfigExecutionObservable({
       );
     case NodeType.TextTemplate:
       return handleTextTemplateNode(
-        nodeConfig as V3TextTemplateNodeConfig,
+        nodeConfig,
         variablesDict,
         edgeTargetHandleToSourceHandleLookUpDict,
         outputIdToValueMap,
       );
     case NodeType.HuggingFaceInference:
       return handleHuggingFaceInferenceNode(
-        nodeConfig as V3HuggingFaceInferenceNodeConfig,
+        nodeConfig,
         variablesDict,
         edgeTargetHandleToSourceHandleLookUpDict,
         outputIdToValueMap,
       );
     case NodeType.ElevenLabs:
       return handleElevenLabsNode(
-        nodeConfig as V3ElevenLabsNodeConfig,
+        nodeConfig,
         variablesDict,
         edgeTargetHandleToSourceHandleLookUpDict,
         outputIdToValueMap,

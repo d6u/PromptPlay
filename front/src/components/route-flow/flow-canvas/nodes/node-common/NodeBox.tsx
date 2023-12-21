@@ -6,11 +6,25 @@ import background from '../../../../../assets/warning-background.svg';
 export const BACKDROP_PADDING = 3;
 export const NODE_BOX_WIDTH = 300;
 
+type Props = {
+  nodeType: NodeType;
+  state?: NodeState;
+  children: React.ReactNode;
+};
+
 // eslint-disable-next-line react-refresh/only-export-components
 export enum NodeState {
   Idle,
   Running,
   Error,
+}
+
+export default function NodeBox(props: Props) {
+  return (
+    <Backdrop $type={props.nodeType} $state={props.state ?? NodeState.Idle}>
+      <Content>{props.children}</Content>
+    </Backdrop>
+  );
 }
 
 const Backdrop = styled.div<{ $type: NodeType; $state: NodeState }>`
@@ -95,17 +109,3 @@ const Content = styled.div`
   background: #fff;
   border-radius: 5px;
 `;
-
-type Props = {
-  nodeType: NodeType;
-  state?: NodeState;
-  children: React.ReactNode;
-};
-
-export default function NodeBox(props: Props) {
-  return (
-    <Backdrop $type={props.nodeType} $state={props.state ?? NodeState.Idle}>
-      <Content>{props.children}</Content>
-    </Backdrop>
-  );
-}
