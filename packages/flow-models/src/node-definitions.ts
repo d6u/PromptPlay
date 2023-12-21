@@ -1,5 +1,4 @@
 import NodeType from './NodeType';
-import { NodeDefinition } from './common/node-definition-base-types';
 import {
   CHATGPT_CHAT_COMPLETION_NODE_DEFINITION,
   CHATGPT_MESSAGE_NODE_DEFINITION,
@@ -17,7 +16,8 @@ import {
   V3JavaScriptFunctionNodeConfig,
   V3OutputNodeConfig,
   V3TextTemplateNodeConfig,
-} from './nodes';
+} from './base-nodes';
+import { NodeDefinition } from './common/node-definition-base-types';
 
 export type V3NodeConfig =
   | V3InputNodeConfig
