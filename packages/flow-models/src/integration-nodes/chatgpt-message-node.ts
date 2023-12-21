@@ -1,4 +1,4 @@
-import { A } from '@mobily/ts-belt';
+import { A, F } from '@mobily/ts-belt';
 import randomId from 'common-utils/randomId';
 import * as OpenAI from 'integrations/openai';
 import mustache from 'mustache';
@@ -124,7 +124,7 @@ export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition = {
       content: mustache.render(nodeConfig.content, argsMap),
     };
 
-    messages = A.append(messages, message);
+    messages = F.toMutable(A.append(messages, message));
 
     // ANCHOR: Update outputs
 

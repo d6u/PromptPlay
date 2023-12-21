@@ -1,6 +1,6 @@
-import { Observable } from 'rxjs';
+import type { Observable } from 'rxjs';
 import type NodeType from '../NodeType';
-import { NodeID, V3VariableID } from '../basic-types';
+import type { NodeID, V3VariableID } from '../basic-types';
 import type { V3NodeConfig } from '../node-definitions';
 import type {
   LocalNode,

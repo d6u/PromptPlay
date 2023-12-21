@@ -1,4 +1,4 @@
-import { A } from '@mobily/ts-belt';
+import { A, F } from '@mobily/ts-belt';
 import {
   ChatGPTMessage,
   getNonStreamingCompletion,
@@ -221,7 +221,7 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition = {
           ),
           defer(() => {
             const message = { role, content };
-            messages = A.append(messages, message);
+            messages = F.toMutable(A.append(messages, message));
 
             invariant(variableContent != null);
             invariant(variableMessage != null);
@@ -256,7 +256,7 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition = {
 
             const content = choice.message.content;
             const message = choice.message;
-            messages = A.append(messages, message);
+            messages = F.toMutable(A.append(messages, message));
 
             invariant(variableContent != null);
             invariant(variableMessage != null);
