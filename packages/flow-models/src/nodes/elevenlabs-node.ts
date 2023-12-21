@@ -1,8 +1,19 @@
-import { asV3VariableID } from '../..';
+import * as ElevenLabs from 'integrations/eleven-labs';
+import { Observable, defer, endWith, from, map, of, startWith } from 'rxjs';
+import invariant from 'ts-invariant';
 import NodeType from '../NodeType';
 import { NodeID } from '../basic-types';
-import { NodeDefinition } from '../common/node-definition-base-types';
-import { VariableType, VariableValueType } from '../v3-flow-content-types';
+import {
+  NodeDefinition,
+  NodeExecutionEvent,
+  NodeExecutionEventType,
+} from '../common/node-definition-base-types';
+import {
+  NodeOutputVariable,
+  VariableType,
+  VariableValueType,
+} from '../v3-flow-content-types';
+import { asV3VariableID } from '../v3-flow-utils';
 
 export type V3ElevenLabsNodeConfig = {
   nodeId: NodeID;
@@ -39,5 +50,98 @@ export const ELEVENLABS_NODE_DEFINITION: NodeDefinition = {
         },
       ],
     };
+  },
+
+  createNodeExecutionObservable: (nodeConfig, context) => {
+    invariant(nodeConfig.type === NodeType.ElevenLabs);
+
+    const {
+      variablesDict: variableMap,
+      edgeTargetHandleToSourceHandleLookUpDict: inputIdToOutputIdMap,
+      outputIdToValueMap: variableValueMap,
+      elevenLabsApiKey,
+    } = context;
+
+    return defer<Observable<NodeExecutionEvent>>(() => {
+      // ANCHOR: Prepare inputs
+
+      if (!elevenLabsApiKey) {
+        return of<NodeExecutionEvent>({
+          type: NodeExecutionEventType.Errors,
+          nodeId: nodeConfig.nodeId,
+          errMessages: ['Eleven Labs API key is missing'],
+        });
+      }
+
+      let variableAudio: NodeOutputVariable | null = null;
+
+      const argsMap: { [key: string]: unknown } = {};
+
+      for (const variable of Object.values(variableMap)) {
+        if (variable.nodeId !== nodeConfig.nodeId) {
+          continue;
+        }
+
+        if (variable.type === VariableType.NodeInput) {
+          const outputId = inputIdToOutputIdMap[variable.id];
+
+          if (outputId) {
+            const outputValue = variableValueMap[outputId];
+            argsMap[variable.name] = outputValue ?? null;
+          } else {
+            argsMap[variable.name] = null;
+          }
+        } else if (variable.type === VariableType.NodeOutput) {
+          if (variable.index === 0) {
+            variableAudio = variable;
+          }
+        }
+      }
+
+      invariant(variableAudio != null);
+
+      // ANCHOR: Execute logic
+
+      const text = argsMap['text'];
+
+      invariant(typeof text === 'string');
+
+      return from(
+        ElevenLabs.textToSpeech({
+          text,
+          voiceId: nodeConfig.voiceId,
+          apiKey: elevenLabsApiKey,
+        }),
+      ).pipe(
+        map((result): NodeExecutionEvent => {
+          if (result.isError) {
+            throw result.data;
+          }
+
+          const url = URL.createObjectURL(result.data);
+
+          invariant(variableAudio != null);
+
+          variableValueMap[variableAudio.id] = url;
+
+          return {
+            type: NodeExecutionEventType.VariableValues,
+            nodeId: nodeConfig.nodeId,
+            variableValuesLookUpDict: {
+              [variableAudio.id]: url,
+            },
+          };
+        }),
+      );
+    }).pipe(
+      startWith<NodeExecutionEvent>({
+        type: NodeExecutionEventType.Start,
+        nodeId: nodeConfig.nodeId,
+      }),
+      endWith<NodeExecutionEvent>({
+        type: NodeExecutionEventType.Finish,
+        nodeId: nodeConfig.nodeId,
+      }),
+    );
   },
 };

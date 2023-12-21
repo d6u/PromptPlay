@@ -1,7 +1,13 @@
 import randomId from 'common-utils/randomId';
+import { of } from 'rxjs';
+import invariant from 'ts-invariant';
 import NodeType from '../NodeType';
 import { NodeID } from '../basic-types';
-import { NodeDefinition } from '../common/node-definition-base-types';
+import {
+  NodeDefinition,
+  NodeExecutionEvent,
+  NodeExecutionEventType,
+} from '../common/node-definition-base-types';
 import { chance } from '../common/utils';
 import { VariableType, VariableValueType } from '../v3-flow-content-types';
 import { asV3VariableID } from '../v3-flow-utils';
@@ -31,5 +37,20 @@ export const INPUT_NODE_DEFINITION: NodeDefinition = {
         },
       ],
     };
+  },
+
+  createNodeExecutionObservable: (nodeConfig, context) => {
+    invariant(nodeConfig.type === NodeType.InputNode);
+
+    return of<NodeExecutionEvent[]>(
+      {
+        type: NodeExecutionEventType.Start,
+        nodeId: nodeConfig.nodeId,
+      },
+      {
+        type: NodeExecutionEventType.Finish,
+        nodeId: nodeConfig.nodeId,
+      },
+    );
   },
 };

@@ -1,5 +1,6 @@
 import { D } from '@mobily/ts-belt';
 import {
+  NodeExecutionEventType,
   NodeID,
   V3FlowContent,
   V3VariableValueLookUpDict,
@@ -14,7 +15,6 @@ import { invariant } from 'ts-invariant';
 import { OperationResult } from 'urql';
 import { StateCreator } from 'zustand';
 import { runSingle } from '../../../flow-run/run-single';
-import { RunEventType } from '../../../flow-run/run-types';
 import { ContentVersion, SpaceFlowQueryQuery } from '../../../gql/graphql';
 import { fetchFlowContent, updateSpaceContentV3 } from '../graphql';
 import {
@@ -208,17 +208,17 @@ export function createRootSlice(
       }).subscribe({
         next(data) {
           switch (data.type) {
-            case RunEventType.NodeStarted: {
+            case NodeExecutionEventType.Start: {
               const { nodeId } = data;
               get().updateNodeAugment(nodeId, { isRunning: true });
               break;
             }
-            case RunEventType.NodeFinished: {
+            case NodeExecutionEventType.Finish: {
               const { nodeId } = data;
               get().updateNodeAugment(nodeId, { isRunning: false });
               break;
             }
-            case RunEventType.NodeError: {
+            case NodeExecutionEventType.Errors: {
               const { nodeId } = data;
               get().updateNodeAugment(nodeId, {
                 isRunning: false,
@@ -226,8 +226,8 @@ export function createRootSlice(
               });
               break;
             }
-            case RunEventType.VariableValueChanges: {
-              const { changes } = data;
+            case NodeExecutionEventType.VariableValues: {
+              const { variableValuesLookUpDict: changes } = data;
               for (const [outputId, value] of Object.entries(changes)) {
                 get().updateVariableValueMap(asV3VariableID(outputId), value);
               }

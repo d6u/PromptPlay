@@ -1,39 +1,3 @@
-import { NodeID, VariableValueMap } from 'flow-models';
-
-export enum RunEventType {
-  VariableValueChanges = 'VariableValueChanges',
-  NodeStarted = 'NodeStarted',
-  NodeFinished = 'NodeFinished',
-  NodeError = 'NodeError',
-}
-
-export type RunEvent =
-  | VariableValueChangeEvent
-  | NodeStartedEvent
-  | NodeFinishedEvent
-  | NodeErrorEvent;
-
-export type VariableValueChangeEvent = {
-  type: RunEventType.VariableValueChanges;
-  changes: VariableValueMap;
-};
-
-export type NodeStartedEvent = {
-  type: RunEventType.NodeStarted;
-  nodeId: NodeID;
-};
-
-export type NodeFinishedEvent = {
-  type: RunEventType.NodeFinished;
-  nodeId: NodeID;
-};
-
-export type NodeErrorEvent = {
-  type: RunEventType.NodeError;
-  nodeId: NodeID;
-  error: string;
-};
-
 export type RunMetadata = {
   overallStatus: OverallStatus;
   errors: string[];

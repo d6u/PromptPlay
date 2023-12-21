@@ -1,14 +1,15 @@
 import { D } from '@mobily/ts-belt';
 import {
+  NodeExecutionEvent,
+  NodeExecutionEventType,
   NodeID,
-  NodeType,
   V3FlowContent,
   V3NodeConfig,
   V3NodeConfigsDict,
   V3ServerEdge,
   V3VariableID,
   V3VariableValueLookUpDict,
-  VariablesDict,
+  getNodeDefinitionForNodeTypeName,
 } from 'flow-models';
 import {
   BehaviorSubject,
@@ -18,36 +19,23 @@ import {
   catchError,
   concatAll,
   defer,
-  endWith,
   from,
   map,
   mergeMap,
   of,
-  startWith,
   tap,
 } from 'rxjs';
-import { handleChatGPTChatNode } from './handleChatGPTChatNode';
-import { handleChatGPTMessageNode } from './handleChatGPTMessageNode';
-import { handleElevenLabsNode } from './handleElevenLabsNode';
-import { handleHuggingFaceInferenceNode } from './handleHuggingFaceInferenceNode';
-import { handleJavaScriptFunctionNode } from './handleJavaScriptFunctionNode';
-import { handleOutputNode } from './handleOutputNode';
-import { handleTextTemplateNode } from './handleTextTemplateNode';
-import { RunEvent, RunEventType } from './run-types';
-
-export const AsyncFunction = async function () {}.constructor;
-
-type Arguments = {
-  flowContent: Readonly<V3FlowContent>;
-  inputVariableMap: Readonly<V3VariableValueLookUpDict>;
-  useStreaming?: boolean;
-};
+import { useLocalStorageStore } from '../state/appState';
 
 export function runSingle({
   flowContent,
   inputVariableMap,
   useStreaming = false,
-}: Arguments): Observable<RunEvent> {
+}: {
+  flowContent: Readonly<V3FlowContent>;
+  inputVariableMap: Readonly<V3VariableValueLookUpDict>;
+  useStreaming?: boolean;
+}): Observable<NodeExecutionEvent> {
   const { nodeConfigsDict, edges, variablesDict } = flowContent;
 
   const outputIdToValueMap: V3VariableValueLookUpDict = { ...inputVariableMap };
@@ -72,7 +60,7 @@ export function runSingle({
 
   function handleNodeConfigList(
     listOfNodeConfigs: V3NodeConfig[],
-  ): Observable<RunEvent> {
+  ): Observable<NodeExecutionEvent> {
     if (listOfNodeConfigs.length === 0) {
       // Completing the `signalSubject` will complete the observable after
       // the returned observable is completed.
@@ -80,39 +68,46 @@ export function runSingle({
       return EMPTY;
     }
 
-    const obsList = listOfNodeConfigs.map<Observable<RunEvent>>(
-      (nodeConfig) => {
-        return createNodeConfigExecutionObservable({
-          nodeConfig,
-          context: {
+    const obsList = listOfNodeConfigs.map(
+      (nodeConfig): Observable<NodeExecutionEvent> => {
+        return getNodeDefinitionForNodeTypeName(nodeConfig.type)
+          .createNodeExecutionObservable(nodeConfig, {
             variablesDict,
             edgeTargetHandleToSourceHandleLookUpDict,
             outputIdToValueMap,
             useStreaming,
-          },
-        }).pipe(
-          map<V3VariableValueLookUpDict, RunEvent>((changes) => ({
-            type: RunEventType.VariableValueChanges,
-            changes,
-          })),
-          startWith<RunEvent>({
-            type: RunEventType.NodeStarted,
-            nodeId: nodeConfig.nodeId,
-          }),
-          // Either `endWith` or `catchError` will be triggered but not both.
-          endWith<RunEvent>({
-            type: RunEventType.NodeFinished,
-            nodeId: nodeConfig.nodeId,
-          }),
-          catchError<RunEvent, Observable<RunEvent>>((err) => {
-            signalSubject.complete();
-            return of({
-              type: RunEventType.NodeError,
-              nodeId: nodeConfig.nodeId,
-              error: JSON.stringify(err),
-            });
-          }),
-        );
+            openAiApiKey: useLocalStorageStore.getState().openAiApiKey,
+            huggingFaceApiToken:
+              useLocalStorageStore.getState().huggingFaceApiToken,
+            elevenLabsApiKey: useLocalStorageStore.getState().elevenLabsApiKey,
+          })
+          .pipe(
+            // NOTE: Expected errors from the observable will be emitted as
+            // NodeExecutionEventType.Errors event.
+            //
+            // For unexpected errors, we will convert that to
+            // NodeExecutionEventType.Errors.
+            //
+            // Always end with NodeExecutionEventType.Finish event per
+            // expectation.
+            catchError<NodeExecutionEvent, Observable<NodeExecutionEvent>>(
+              (err) => {
+                signalSubject.complete();
+
+                return of<NodeExecutionEvent[]>(
+                  {
+                    type: NodeExecutionEventType.Errors,
+                    nodeId: nodeConfig.nodeId,
+                    errMessages: [JSON.stringify(err)],
+                  },
+                  {
+                    type: NodeExecutionEventType.Finish,
+                    nodeId: nodeConfig.nodeId,
+                  },
+                );
+              },
+            ),
+          );
       },
     );
 
@@ -132,14 +127,12 @@ export function runSingle({
     signalSubject,
     nodeConfigsDict,
     edges,
-  }).pipe(mergeMap<V3NodeConfig[], Observable<RunEvent>>(handleNodeConfigList));
+  }).pipe(
+    mergeMap<V3NodeConfig[], Observable<NodeExecutionEvent>>(
+      handleNodeConfigList,
+    ),
+  );
 }
-
-type ArgumentsCreateTopologicalSortNodeConfigListObservable = {
-  signalSubject: Subject<void>;
-  nodeConfigsDict: Readonly<V3NodeConfigsDict>;
-  edges: ReadonlyArray<V3ServerEdge>;
-};
 
 /**
  * - Create an observable that emits a list of NodeConfig in topological order.
@@ -152,11 +145,14 @@ function createTopologicalSortNodeConfigListObservable({
   signalSubject,
   nodeConfigsDict,
   edges,
-}: ArgumentsCreateTopologicalSortNodeConfigListObservable): Observable<
-  V3NodeConfig[]
-> {
+}: {
+  signalSubject: Subject<void>;
+  nodeConfigsDict: Readonly<V3NodeConfigsDict>;
+  edges: ReadonlyArray<V3ServerEdge>;
+}): Observable<V3NodeConfig[]> {
   return defer(() => {
-    // SECTION: Initialize graph related objects
+    // ANCHOR: Initialize graph related objects
+
     const nodeGraph: Record<NodeID, NodeID[]> = {};
     const nodeIndegree: Record<NodeID, number> = {};
 
@@ -164,9 +160,9 @@ function createTopologicalSortNodeConfigListObservable({
       nodeGraph[nodeId] = [];
       nodeIndegree[nodeId] = 0;
     }
-    // !SECTION
 
-    // SECTION: Build graph
+    // ANCHOR: Build graph
+
     for (const edge of edges) {
       // `nodeGraph[edge.source]` will contain duplicate edge.target,
       // because there can be multiple edges between two nodes.
@@ -174,9 +170,9 @@ function createTopologicalSortNodeConfigListObservable({
       nodeGraph[edge.source]!.push(edge.target);
       nodeIndegree[edge.target] += 1;
     }
-    // !SECTION
 
-    // SECTION: Create iniial group of nodes with indegree 0.
+    // ANCHOR: Create iniial group of nodes with indegree 0.
+
     let group: NodeID[] = [];
 
     for (const [key, count] of Object.entries(nodeIndegree)) {
@@ -185,7 +181,8 @@ function createTopologicalSortNodeConfigListObservable({
         group.push(nodeId);
       }
     }
-    // !SECTION
+
+    // ANCHOR: Create observable
 
     return signalSubject.pipe(
       map<void, V3NodeConfig[]>(() => {
@@ -206,38 +203,4 @@ function createTopologicalSortNodeConfigListObservable({
       }),
     );
   });
-}
-
-export type RunContext = {
-  variablesDict: VariablesDict;
-  edgeTargetHandleToSourceHandleLookUpDict: Record<V3VariableID, V3VariableID>;
-  outputIdToValueMap: V3VariableValueLookUpDict;
-  useStreaming: boolean;
-};
-
-function createNodeConfigExecutionObservable({
-  nodeConfig,
-  context,
-}: {
-  nodeConfig: V3NodeConfig;
-  context: RunContext;
-}): Observable<V3VariableValueLookUpDict> {
-  switch (nodeConfig.type) {
-    case NodeType.InputNode:
-      return EMPTY;
-    case NodeType.OutputNode:
-      return handleOutputNode(nodeConfig, context);
-    case NodeType.JavaScriptFunctionNode:
-      return handleJavaScriptFunctionNode(nodeConfig, context);
-    case NodeType.ChatGPTMessageNode:
-      return handleChatGPTMessageNode(nodeConfig, context);
-    case NodeType.ChatGPTChatCompletionNode:
-      return handleChatGPTChatNode(nodeConfig, context);
-    case NodeType.TextTemplate:
-      return handleTextTemplateNode(nodeConfig, context);
-    case NodeType.HuggingFaceInference:
-      return handleHuggingFaceInferenceNode(nodeConfig, context);
-    case NodeType.ElevenLabs:
-      return handleElevenLabsNode(nodeConfig, context);
-  }
 }
