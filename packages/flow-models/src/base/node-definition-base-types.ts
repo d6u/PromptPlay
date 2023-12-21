@@ -43,6 +43,9 @@ export type NodeExecutionEvent =
 export interface NodeDefinition {
   nodeType: NodeType;
 
+  isEnabledInToolbar?: boolean;
+  toolbarLabel?: string;
+
   createDefaultNodeConfig: (node: LocalNode) => {
     nodeConfig: V3NodeConfig;
     variableConfigList: Variable[];

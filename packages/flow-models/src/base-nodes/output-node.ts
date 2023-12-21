@@ -18,6 +18,9 @@ import { asV3VariableID } from '../base/v3-flow-utils';
 export const OUTPUT_NODE_DEFINITION: NodeDefinition = {
   nodeType: NodeType.OutputNode,
 
+  isEnabledInToolbar: true,
+  toolbarLabel: 'Output',
+
   createDefaultNodeConfig: (node) => {
     return {
       nodeConfig: {

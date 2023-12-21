@@ -4,6 +4,7 @@ import { NodeID } from './id-types';
 export enum NodeType {
   InputNode = 'InputNode',
   OutputNode = 'OutputNode',
+  ConditionNode = 'ConditionNode',
   JavaScriptFunctionNode = 'JavaScriptFunctionNode',
   ChatGPTMessageNode = 'ChatGPTMessageNode',
   ChatGPTChatCompletionNode = 'ChatGPTChatCompletionNode',
@@ -15,6 +16,7 @@ export enum NodeType {
 export type V3NodeConfig =
   | V3InputNodeConfig
   | V3OutputNodeConfig
+  | V3ConditionNodeConfig
   | V3JavaScriptFunctionNodeConfig
   | V3ChatGPTMessageNodeConfig
   | V3ChatGPTChatCompletionNodeConfig
@@ -33,6 +35,13 @@ export type V3InputNodeConfig = {
 
 export type V3OutputNodeConfig = {
   type: NodeType.OutputNode;
+  nodeId: NodeID;
+};
+
+// ANCHOR: Condition Node
+
+export type V3ConditionNodeConfig = {
+  type: NodeType.ConditionNode;
   nodeId: NodeID;
 };
 

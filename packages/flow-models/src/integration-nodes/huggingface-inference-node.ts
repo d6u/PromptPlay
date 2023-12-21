@@ -19,6 +19,9 @@ import { asV3VariableID } from '../base/v3-flow-utils';
 export const HUGGINGFACE_INFERENCE_NODE_DEFINITION: NodeDefinition = {
   nodeType: NodeType.HuggingFaceInference,
 
+  isEnabledInToolbar: true,
+  toolbarLabel: 'Hugging Face Inference',
+
   createDefaultNodeConfig: (node) => {
     return {
       nodeConfig: {

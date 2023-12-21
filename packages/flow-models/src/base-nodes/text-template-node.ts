@@ -18,6 +18,9 @@ import { asV3VariableID } from '../base/v3-flow-utils';
 export const TEXT_TEMPLATE_NODE_DEFINITION: NodeDefinition = {
   nodeType: NodeType.TextTemplate,
 
+  isEnabledInToolbar: true,
+  toolbarLabel: 'Text',
+
   createDefaultNodeConfig: (node) => {
     return {
       nodeConfig: {

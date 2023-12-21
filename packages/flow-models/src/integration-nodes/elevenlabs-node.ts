@@ -17,6 +17,9 @@ import { asV3VariableID } from '../base/v3-flow-utils';
 export const ELEVENLABS_NODE_DEFINITION: NodeDefinition = {
   nodeType: NodeType.ElevenLabs,
 
+  isEnabledInToolbar: true,
+  toolbarLabel: 'Eleven Labs Text to Speech',
+
   createDefaultNodeConfig: (node) => {
     return {
       nodeConfig: {

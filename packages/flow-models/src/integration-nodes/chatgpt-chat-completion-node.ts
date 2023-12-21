@@ -33,6 +33,9 @@ import { asV3VariableID } from '../base/v3-flow-utils';
 export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition = {
   nodeType: NodeType.ChatGPTChatCompletionNode,
 
+  isEnabledInToolbar: true,
+  toolbarLabel: 'ChatGPT Chat Completion',
+
   createDefaultNodeConfig: (node) => {
     return {
       nodeConfig: {

@@ -10,8 +10,12 @@ import {
   ToggleButtonGroup,
   Typography,
 } from '@mui/joy';
-import { NodeType } from 'flow-models';
-import { useCallback, useContext, useEffect, useState } from 'react';
+import {
+  NodeType,
+  getAllNodeTypes,
+  getNodeDefinitionForNodeTypeName,
+} from 'flow-models';
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useStoreApi } from 'reactflow';
 import { useStore } from 'zustand';
 import FlowContext from '../FlowContext';
@@ -81,40 +85,17 @@ export default function ToolBar() {
     };
   }, []);
 
-  const options = [
-    {
-      label: 'Add Input',
-      onClick: () => addNodeWithType(NodeType.InputNode),
-    },
-    {
-      label: 'Add Output',
-      onClick: () => addNodeWithType(NodeType.OutputNode),
-    },
-    {
-      label: 'Add JavaScript',
-      onClick: () => addNodeWithType(NodeType.JavaScriptFunctionNode),
-    },
-    {
-      label: 'Add Text',
-      onClick: () => addNodeWithType(NodeType.TextTemplate),
-    },
-    {
-      label: 'Add ChatGPT Message',
-      onClick: () => addNodeWithType(NodeType.ChatGPTMessageNode),
-    },
-    {
-      label: 'Add ChatGPT Chat Completion',
-      onClick: () => addNodeWithType(NodeType.ChatGPTChatCompletionNode),
-    },
-    {
-      label: 'Add Hugging Face Inference',
-      onClick: () => addNodeWithType(NodeType.HuggingFaceInference),
-    },
-    {
-      label: 'Add Eleven Labs Text to Speech',
-      onClick: () => addNodeWithType(NodeType.ElevenLabs),
-    },
-  ];
+  const options = useMemo(() => {
+    return getAllNodeTypes()
+      .map((nodeType) => getNodeDefinitionForNodeTypeName(nodeType))
+      .filter((nodeDefinition) => nodeDefinition.isEnabledInToolbar)
+      .map((nodeDefinition) => {
+        return {
+          label: `Add ${nodeDefinition.toolbarLabel}`,
+          onClick: () => addNodeWithType(nodeDefinition.nodeType),
+        };
+      });
+  }, [addNodeWithType]);
 
   const runButtonConfig = {
     shouldShowRunButton:

@@ -16,6 +16,9 @@ import { asV3VariableID } from '../base/v3-flow-utils';
 export const JAVASCRIPT_NODE_DEFINITION: NodeDefinition = {
   nodeType: NodeType.JavaScriptFunctionNode,
 
+  isEnabledInToolbar: true,
+  toolbarLabel: 'JavaScript',
+
   createDefaultNodeConfig: (node) => {
     return {
       nodeConfig: {

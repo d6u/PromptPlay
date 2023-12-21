@@ -13,6 +13,7 @@ import FlowContext from '../FlowContext';
 import { useStoreFromFlowStoreContext } from '../store/FlowStoreContext';
 import ChatGPTChatCompletionNode from './nodes/ChatGPTChatCompletionNode';
 import ChatGPTMessageNode from './nodes/ChatGPTMessageNode';
+import ConditionNode from './nodes/ConditionNode';
 import ElevenLabsNode from './nodes/ElevenLabsNode';
 import HuggingFaceInferenceNode from './nodes/HuggingFaceInferenceNode';
 import InputNode from './nodes/InputNode';
@@ -21,9 +22,11 @@ import OutputNode from './nodes/OutputNode';
 import TextTemplateNode from './nodes/TextTemplateNode';
 import SidePanel from './side-panel/SidePanel';
 
+// TODO: Enforce type safety
 const NODE_TYPES = {
   [NodeType.InputNode]: InputNode,
   [NodeType.OutputNode]: OutputNode,
+  [NodeType.ConditionNode]: ConditionNode,
   [NodeType.JavaScriptFunctionNode]: JavaScriptFunctionNode,
   [NodeType.ChatGPTMessageNode]: ChatGPTMessageNode,
   [NodeType.ChatGPTChatCompletionNode]: ChatGPTChatCompletionNode,

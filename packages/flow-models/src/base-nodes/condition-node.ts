@@ -1,5 +1,3 @@
-import chance from 'common-utils/chance';
-import randomId from 'common-utils/randomId';
 import { of } from 'rxjs';
 import invariant from 'ts-invariant';
 import {
@@ -11,26 +9,42 @@ import { NodeType } from '../base/node-types';
 import { VariableType, VariableValueType } from '../base/v3-flow-content-types';
 import { asV3VariableID } from '../base/v3-flow-utils';
 
-export const INPUT_NODE_DEFINITION: NodeDefinition = {
-  nodeType: NodeType.InputNode,
+export const CONDITION_NODE_DEFINITION: NodeDefinition = {
+  nodeType: NodeType.ConditionNode,
 
   isEnabledInToolbar: true,
-  toolbarLabel: 'Input',
+  toolbarLabel: 'Condition',
 
   createDefaultNodeConfig: (node) => {
     return {
       nodeConfig: {
+        type: NodeType.ConditionNode,
         nodeId: node.id,
-        type: NodeType.InputNode,
       },
       variableConfigList: [
         {
-          type: VariableType.FlowInput,
-          id: asV3VariableID(`${node.id}/${randomId()}`),
+          type: VariableType.NodeInput,
+          id: asV3VariableID(`${node.id}/input`),
           nodeId: node.id,
           index: 0,
-          name: chance.word(),
-          valueType: VariableValueType.String,
+          name: 'input',
+          valueType: VariableValueType.Unknown,
+        },
+        {
+          type: VariableType.NodeOutput,
+          id: asV3VariableID(`${node.id}/condition1`),
+          nodeId: node.id,
+          index: 0,
+          name: 'condition 1',
+          valueType: VariableValueType.Unknown,
+        },
+        {
+          type: VariableType.NodeOutput,
+          id: asV3VariableID(`${node.id}/condition2`),
+          nodeId: node.id,
+          index: 1,
+          name: 'condition 2',
+          valueType: VariableValueType.Unknown,
         },
       ],
     };

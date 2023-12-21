@@ -20,6 +20,9 @@ import { asV3VariableID } from '../base/v3-flow-utils';
 export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition = {
   nodeType: NodeType.ChatGPTMessageNode,
 
+  isEnabledInToolbar: true,
+  toolbarLabel: 'ChatGPT Message',
+
   createDefaultNodeConfig: (node) => {
     return {
       nodeConfig: {
