@@ -107,17 +107,25 @@ export const createFlowServerSliceV3: StateCreator<
   );
 
   function startProcessingEventGraph(startEvent: ChangeEvent) {
-    console.group('Processing Event Graph');
+    // SECTION: Processing event graph
+    console.group('Processing event graph...');
 
     const queue: ChangeEvent[] = [startEvent];
 
     let state = get();
+    let isDirty = false;
 
     while (queue.length > 0) {
       const currentEvent = queue.shift()!;
       const [stateChange, derivedEvents] = handleEvent(state, currentEvent);
 
-      state = { ...state, ...stateChange };
+      const { isFlowContentDirty, ...restStateChange } = stateChange;
+      state = { ...state, ...restStateChange };
+
+      // NOTE: We should not simply merge `isFlowContentDirty` into `state`.
+      // Because `isFlowContentDirty` might be false after some events, we want
+      // to avoid `isFlowContentDirty === true` being overriden by `false`.
+      isDirty = isDirty || (isFlowContentDirty ?? false);
 
       // Validate to prevent circular events
       const allowedDerivedEventTypes = EVENT_VALIDATION_MAP[currentEvent.type];
@@ -134,10 +142,11 @@ export const createFlowServerSliceV3: StateCreator<
     }
 
     console.groupEnd();
+    // !SECTION
 
     set(state);
 
-    if (!get().isFlowContentDirty) {
+    if (!isDirty) {
       return;
     }
 
