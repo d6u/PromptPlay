@@ -2,8 +2,6 @@ import { D, Option } from '@mobily/ts-belt';
 import {
   Condition,
   ConditionTarget,
-  ControlType,
-  ControlsDict,
   FlowInputVariable,
   FlowOutputVariable,
   LocalNode,
@@ -42,59 +40,61 @@ export type VariableTypeToVariableConfigTypeMap = {
   [VariableType.NodeOutput]: NodeOutputVariable;
   [VariableType.FlowInput]: FlowInputVariable;
   [VariableType.FlowOutput]: FlowOutputVariable;
+  [VariableType.Condition]: Condition;
+  [VariableType.ConditionTarget]: ConditionTarget;
 };
 
-export function selectVariables<T extends VariableType>(
+export function selectVariables<
+  T extends
+    | VariableType.NodeInput
+    | VariableType.NodeOutput
+    | VariableType.FlowInput
+    | VariableType.FlowOutput,
+>(
   nodeId: NodeID,
   type: T,
   variableConfigs: VariablesDict,
 ): VariableTypeToVariableConfigTypeMap[T][] {
-  return Object.values(variableConfigs)
-    .filter(
-      (
-        variableConfig,
-      ): variableConfig is VariableTypeToVariableConfigTypeMap[T] => {
-        return variableConfig.nodeId === nodeId && variableConfig.type === type;
-      },
-    )
+  return D.values(variableConfigs)
+    .filter((v): v is VariableTypeToVariableConfigTypeMap[T] => {
+      return v.nodeId === nodeId && v.type === type;
+    })
     .sort((a, b) => a.index - b.index);
 }
 
-export function selectAllVariables<T extends VariableType>(
+export function selectAllVariables<
+  T extends
+    | VariableType.NodeInput
+    | VariableType.NodeOutput
+    | VariableType.FlowInput
+    | VariableType.FlowOutput,
+>(
   type: T,
   variableMap: VariablesDict,
 ): VariableTypeToVariableConfigTypeMap[T][] {
   return Object.values(variableMap)
-    .filter(
-      (
-        variableConfig,
-      ): variableConfig is VariableTypeToVariableConfigTypeMap[T] => {
-        return variableConfig.type === type;
-      },
-    )
+    .filter((v): v is VariableTypeToVariableConfigTypeMap[T] => {
+      return v.type === type;
+    })
     .sort((a, b) => a.index - b.index);
 }
 
 export function selectConditions(
   nodeId: NodeID,
-  controlsDict: ControlsDict,
+  variablesDict: VariablesDict,
 ): Condition[] {
-  return D.values(controlsDict)
-    .filter((control): control is Condition => {
-      return (
-        control.nodeId === nodeId && control.type === ControlType.Condition
-      );
+  return D.values(variablesDict)
+    .filter((c): c is Condition => {
+      return c.nodeId === nodeId && c.type === VariableType.Condition;
     })
     .sort((a, b) => a.index - b.index);
 }
 
 export function selectConditionTarget(
   nodeId: NodeID,
-  controlsDict: ControlsDict,
+  variablesDict: VariablesDict,
 ): Option<ConditionTarget> {
-  return D.values(controlsDict).find((control): control is ConditionTarget => {
-    return (
-      control.nodeId === nodeId && control.type === ControlType.ConditionTarget
-    );
+  return D.values(variablesDict).find((c): c is ConditionTarget => {
+    return c.nodeId === nodeId && c.type === VariableType.ConditionTarget;
   });
 }

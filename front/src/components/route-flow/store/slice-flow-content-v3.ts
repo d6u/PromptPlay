@@ -38,7 +38,6 @@ const FLOW_SERVER_SLICE_INITIAL_STATE_V2: SliceFlowContentV3State = {
   nodeConfigsDict: {},
   variablesDict: {},
   variableValueLookUpDicts: [{}],
-  controlsDict: {},
   controlResultsLookUpDicts: {},
   // Local
   isFlowContentDirty: false,
@@ -153,7 +152,6 @@ export const createFlowServerSliceV3: StateCreator<
       nodeConfigsDict: get().nodeConfigsDict,
       variablesDict: get().variablesDict,
       variableValueLookUpDicts: get().variableValueLookUpDicts,
-      controlsDict: get().controlsDict,
       controlResultsLookUpDicts: get().controlResultsLookUpDicts,
     });
 

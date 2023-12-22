@@ -30,7 +30,6 @@ import NodeInputModifyRow, {
 } from './node-common/NodeInputModifyRow';
 import NodeOutputRow from './node-common/NodeOutputRow';
 import {
-  ConditionTargetHandle,
   InputHandle,
   OutputHandle,
   Section,
@@ -115,7 +114,7 @@ export default function ChatGPTMessageNode() {
 
   return (
     <>
-      {isConnectStartOnConditionNodeOutput && <ConditionTargetHandle />}
+      {/* {isConnectStartOnConditionNodeOutput && <ConditionTargetHandle />} */}
       {!isConnectStartOnConditionNodeOutput && (
         <InputHandle
           key={0}

@@ -3,10 +3,7 @@ import chance from 'common-utils/chance';
 import randomId from 'common-utils/randomId';
 import {
   ConditionTarget,
-  Control,
   ControlResultsLookUpDict,
-  ControlType,
-  ControlsDict,
   EdgeID,
   FlowInputVariable,
   FlowOutputVariable,
@@ -67,7 +64,6 @@ export function handleEvent(
         state.edges,
         state.nodeConfigsDict,
         state.variablesDict,
-        state.controlsDict,
       );
     // Nodes
     case ChangeEventType.ADDING_NODE:
@@ -76,7 +72,6 @@ export function handleEvent(
         state.nodes,
         state.nodeConfigsDict,
         state.variablesDict,
-        state.controlsDict,
       );
     case ChangeEventType.REMOVING_NODE:
       return handleRemovingNode(
@@ -262,7 +257,6 @@ function handleRfOnConnect(
   prevEdges: V3LocalEdge[],
   nodeConfigs: V3NodeConfigsDict,
   variableConfigs: VariablesDict,
-  prevControlsDict: ControlsDict,
 ): EventHandlerResult {
   const content: Partial<FlowState> = {};
   const events: ChangeEvent[] = [];
@@ -359,7 +353,6 @@ function handleRfOnConnect(
 
       content.isFlowContentDirty = true;
       content.edges = assignLocalEdgeProperties(nextEdges);
-      content.controlsDict = controlsDict;
     }
   }
 
@@ -371,15 +364,15 @@ function handleAddingNode(
   prevNodes: LocalNode[],
   prevNodeConfigs: V3NodeConfigsDict,
   prevVariableConfigs: VariablesDict,
-  prevControlsDict: ControlsDict,
 ): EventHandlerResult {
   const content: Partial<FlowState> = {};
   const events: ChangeEvent[] = [];
 
   // ANCHOR: Update node and variables
 
-  const { nodeConfig, variableConfigList, controlsList } =
-    getNodeDefinitionForNodeTypeName(node.type).createDefaultNodeConfig(node);
+  const { nodeConfig, variableConfigList } = getNodeDefinitionForNodeTypeName(
+    node.type,
+  ).createDefaultNodeConfig(node);
 
   const nodes = produce(prevNodes, (draft) => {
     draft.push({

@@ -45,6 +45,11 @@ export const TEXT_TEMPLATE_NODE_DEFINITION: NodeDefinition = {
           index: 0,
           valueType: VariableValueType.Unknown,
         },
+        {
+          type: VariableType.ConditionTarget,
+          id: `${node.id}/${randomId()}`,
+          nodeId: node.id,
+        },
       ],
     };
   },

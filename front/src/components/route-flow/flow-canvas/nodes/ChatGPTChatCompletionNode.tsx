@@ -32,12 +32,7 @@ import HelperTextContainer from './node-common/HelperTextContainer';
 import NodeBox, { NodeState } from './node-common/NodeBox';
 import NodeInputModifyRow from './node-common/NodeInputModifyRow';
 import NodeOutputRow from './node-common/NodeOutputRow';
-import {
-  ConditionTargetHandle,
-  InputHandle,
-  OutputHandle,
-  Section,
-} from './node-common/node-common';
+import { InputHandle, OutputHandle, Section } from './node-common/node-common';
 import {
   calculateInputHandleTop,
   calculateOutputHandleBottom,
@@ -144,7 +139,7 @@ export default function ChatGPTChatCompletionNode() {
 
   return (
     <>
-      {isConnectStartOnConditionNodeOutput && <ConditionTargetHandle />}
+      {/* {isConnectStartOnConditionNodeOutput && <ConditionTargetHandle />} */}
       {!isConnectStartOnConditionNodeOutput && (
         <InputHandle
           type="target"

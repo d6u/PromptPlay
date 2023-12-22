@@ -2,7 +2,6 @@ import type { Observable } from 'rxjs';
 import type { NodeID, V3VariableID } from './id-types';
 import type { NodeType, V3NodeConfig } from './node-types';
 import type {
-  Control,
   LocalNode,
   V3VariableValueLookUpDict,
   Variable,
@@ -50,7 +49,6 @@ export interface NodeDefinition {
   createDefaultNodeConfig: (node: LocalNode) => {
     nodeConfig: V3NodeConfig;
     variableConfigList: Variable[];
-    controlsList?: Control[];
   };
 
   createNodeExecutionObservable: (

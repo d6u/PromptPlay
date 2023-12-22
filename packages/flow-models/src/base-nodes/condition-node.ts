@@ -7,11 +7,7 @@ import {
   NodeExecutionEventType,
 } from '../base/node-definition-base-types';
 import { NodeType } from '../base/node-types';
-import {
-  ControlType,
-  VariableType,
-  VariableValueType,
-} from '../base/v3-flow-content-types';
+import { VariableType, VariableValueType } from '../base/v3-flow-content-types';
 import { asV3VariableID } from '../base/v3-flow-utils';
 
 export const CONDITION_NODE_DEFINITION: NodeDefinition = {
@@ -35,21 +31,24 @@ export const CONDITION_NODE_DEFINITION: NodeDefinition = {
           name: 'input',
           valueType: VariableValueType.Unknown,
         },
-      ],
-      controlsList: [
         {
-          type: ControlType.Condition,
+          type: VariableType.Condition,
           id: `${node.id}/${randomId()}`,
           index: 0,
           nodeId: node.id,
           eq: 'Value A',
         },
         {
-          type: ControlType.Condition,
+          type: VariableType.Condition,
           id: `${node.id}/${randomId()}`,
           index: 1,
           nodeId: node.id,
           eq: 'Value B',
+        },
+        {
+          type: VariableType.ConditionTarget,
+          id: `${node.id}/${randomId()}`,
+          nodeId: node.id,
         },
       ],
     };

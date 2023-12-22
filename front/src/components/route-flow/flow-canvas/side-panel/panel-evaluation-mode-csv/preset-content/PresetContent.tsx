@@ -32,7 +32,6 @@ export default function PresetContent() {
   const variableValueLookUpDicts = useFlowStore(
     (s) => s.variableValueLookUpDicts,
   );
-  const controlsDict = useFlowStore((s) => s.controlsDict);
   const controlResultsLookUpDicts = useFlowStore(
     (s) => s.controlResultsLookUpDicts,
   );
@@ -109,7 +108,6 @@ export default function PresetContent() {
         nodeConfigsDict,
         variablesDict,
         variableValueLookUpDicts,
-        controlsDict,
         controlResultsLookUpDicts,
       },
       csvBody,
@@ -221,7 +219,6 @@ export default function PresetContent() {
     nodeConfigsDict,
     variablesDict,
     variableValueLookUpDicts,
-    controlsDict,
     controlResultsLookUpDicts,
     variableIdToCsvColumnIndexMap,
     concurrencyLimit,

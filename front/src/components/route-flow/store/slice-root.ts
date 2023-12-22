@@ -146,7 +146,6 @@ export function createRootSlice(
                   draft.variablesDict = draft.variablesDict ?? {};
                   draft.variableValueLookUpDicts =
                     draft.variableValueLookUpDicts ?? [{}];
-                  draft.controlsDict = draft.controlsDict ?? {};
                   draft.controlResultsLookUpDicts =
                     draft.controlResultsLookUpDicts ?? {};
                 }) as V3FlowContent;
@@ -230,7 +229,6 @@ export function createRootSlice(
         nodeConfigsDict,
         variablesDict,
         variableValueLookUpDicts,
-        controlsDict,
         controlResultsLookUpDicts,
       } = get();
 
@@ -240,7 +238,6 @@ export function createRootSlice(
         nodeConfigsDict,
         variablesDict,
         variableValueLookUpDicts,
-        controlsDict,
         controlResultsLookUpDicts,
       };
       const variableValueLookUpDict = get().getDefaultVariableValueLookUpDict();

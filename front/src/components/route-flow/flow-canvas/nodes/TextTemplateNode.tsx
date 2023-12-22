@@ -3,7 +3,6 @@ import FormHelperText from '@mui/joy/FormHelperText';
 import FormLabel from '@mui/joy/FormLabel';
 import IconButton from '@mui/joy/IconButton';
 import Textarea from '@mui/joy/Textarea';
-import randomId from 'common-utils/randomId';
 import {
   NodeID,
   NodeType,
@@ -12,6 +11,7 @@ import {
 } from 'flow-models';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { Position, useNodeId, useUpdateNodeInternals } from 'reactflow';
+import invariant from 'ts-invariant';
 import { useStore } from 'zustand';
 import FlowContext from '../../FlowContext';
 import TextareaReadonly from '../../common/TextareaReadonly';
@@ -51,7 +51,6 @@ export default function TextTemplateNode() {
 
   const nodeConfigs = useStore(flowStore, (s) => s.nodeConfigsDict);
   const variableConfigs = useStore(flowStore, (s) => s.variablesDict);
-  const controlsDict = useStore(flowStore, (s) => s.controlsDict);
   const updateNodeConfig = useStore(flowStore, (s) => s.updateNodeConfig);
   const removeNode = useStore(flowStore, (s) => s.removeNode);
   const addVariable = useStore(flowStore, (s) => s.addVariable);
@@ -88,8 +87,10 @@ export default function TextTemplateNode() {
   }, [nodeConfigs, nodeId]);
 
   const conditionTarget = useMemo(() => {
-    return selectConditionTarget(nodeId, controlsDict);
-  }, [controlsDict, nodeId]);
+    return selectConditionTarget(nodeId, variableConfigs);
+  }, [variableConfigs, nodeId]);
+
+  invariant(conditionTarget != null);
 
   // It's OK to force unwrap here because nodeConfig will be undefined only
   // when Node is being deleted.
@@ -99,10 +100,6 @@ export default function TextTemplateNode() {
     setContent(() => nodeConfig?.content ?? '');
   }, [nodeConfig]);
 
-  const conditionTargetHandleId = useMemo(() => {
-    return conditionTarget?.id ?? `${nodeId}/${randomId()}`;
-  }, [conditionTarget?.id, nodeId]);
-
   if (!nodeConfig) {
     return null;
   }
@@ -110,10 +107,8 @@ export default function TextTemplateNode() {
   return (
     <>
       <ConditionTargetHandle
-        controlId={conditionTargetHandleId}
-        isVisible={
-          isConnectStartOnConditionNodeOutput || conditionTarget != null
-        }
+        controlId={conditionTarget.id}
+        isVisible={isConnectStartOnConditionNodeOutput}
       />
       {!isConnectStartOnConditionNodeOutput &&
         inputs.map((input, i) => (

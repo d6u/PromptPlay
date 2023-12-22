@@ -21,7 +21,6 @@ import NodeBox, { NodeState } from './node-common/NodeBox';
 import NodeInputModifyRow from './node-common/NodeInputModifyRow';
 import NodeOutputRow from './node-common/NodeOutputRow';
 import {
-  ConditionTargetHandle,
   InputHandle,
   OutputHandle,
   Section,
@@ -94,7 +93,7 @@ export default function JavaScriptFunctionNode() {
 
   return (
     <>
-      {isConnectStartOnConditionNodeOutput && <ConditionTargetHandle />}
+      {/* {isConnectStartOnConditionNodeOutput && <ConditionTargetHandle />} */}
       {!isConnectStartOnConditionNodeOutput &&
         inputs.map((input, i) => (
           <InputHandle

@@ -1,5 +1,4 @@
 import {
-  Control,
   LocalNode,
   NodeID,
   V3LocalEdge,
@@ -151,7 +150,6 @@ export type ChangeEvent =
       type: ChangeEventType.NODE_AND_VARIABLES_ADDED;
       node: LocalNode;
       variableConfigList: Variable[];
-      controlsList: Control[];
     }
   | {
       type: ChangeEventType.NODE_REMOVED;

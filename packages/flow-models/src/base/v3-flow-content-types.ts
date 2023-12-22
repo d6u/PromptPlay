@@ -10,7 +10,6 @@ export type V3FlowContent = {
   nodeConfigsDict: V3NodeConfigsDict;
   variablesDict: VariablesDict;
   variableValueLookUpDicts: V3VariableValueLookUpDict[];
-  controlsDict: ControlsDict;
   controlResultsLookUpDicts: ControlResultsLookUpDict;
 };
 
@@ -49,22 +48,26 @@ export type V3LocalEdge = Omit<
 
 export type V3NodeConfigsDict = Record<NodeID, V3NodeConfig>;
 
-// ANCHOR: V3 Variable Types
+// ANCHOR: V3 Connector Types
 
 export type VariablesDict = Record<V3VariableID, Variable>;
+
+export enum VariableType {
+  FlowInput = 'FlowInput',
+  FlowOutput = 'FlowOutput',
+  NodeInput = 'NodeInput',
+  NodeOutput = 'NodeOutput',
+  Condition = 'Condition',
+  ConditionTarget = 'ConditionTarget',
+}
 
 export type Variable =
   | FlowInputVariable
   | FlowOutputVariable
   | NodeInputVariable
-  | NodeOutputVariable;
-
-export enum VariableType {
-  NodeInput = 'NodeInput',
-  NodeOutput = 'NodeOutput',
-  FlowInput = 'FlowInput',
-  FlowOutput = 'FlowOutput',
-}
+  | NodeOutputVariable
+  | Condition
+  | ConditionTarget;
 
 export enum VariableValueType {
   Number = 'Number',
@@ -100,23 +103,8 @@ export type NodeOutputVariable = VariableConfigCommon & {
   valueType: VariableValueType.Unknown | VariableValueType.Audio;
 };
 
-// ANCHOR: V3 Variable Value Types
-
-export type V3VariableValueLookUpDict = Record<V3VariableID, unknown>;
-
-// ANCHOR: Control Types
-
-export type ControlsDict = Record<string, Control>;
-
-export enum ControlType {
-  Condition = 'Condition',
-  ConditionTarget = 'ConditionTarget',
-}
-
-export type Control = Condition | ConditionTarget;
-
 export type Condition = {
-  type: ControlType.Condition;
+  type: VariableType.Condition;
   id: string;
   nodeId: NodeID;
   index: number;
@@ -124,10 +112,14 @@ export type Condition = {
 };
 
 export type ConditionTarget = {
-  type: ControlType.ConditionTarget;
+  type: VariableType.ConditionTarget;
   id: string;
   nodeId: NodeID;
 };
+
+// ANCHOR: V3 Variable Value Types
+
+export type V3VariableValueLookUpDict = Record<V3VariableID, unknown>;
 
 // ANCHOR: Control Result Types
 

@@ -5,7 +5,11 @@ import invariant from 'ts-invariant';
 import { useStore } from 'zustand';
 import FlowContext from '../../FlowContext';
 import { useStoreFromFlowStoreContext } from '../../store/FlowStoreContext';
-import { selectConditions, selectVariables } from '../../store/state-utils';
+import {
+  selectConditionTarget,
+  selectConditions,
+  selectVariables,
+} from '../../store/state-utils';
 import AddVariableButton from './node-common/AddVariableButton';
 import HeaderSection from './node-common/HeaderSection';
 import NodeBox from './node-common/NodeBox';
@@ -34,7 +38,6 @@ export default function ConditionNode() {
 
   const nodeConfigsDict = useStore(flowStore, (s) => s.nodeConfigsDict);
   const variablesDict = useStore(flowStore, (s) => s.variablesDict);
-  const controlsDict = useStore(flowStore, (s) => s.controlsDict);
   const removeNode = useStore(flowStore, (s) => s.removeNode);
   // const addVariable = useStore(flowStore, (s) => s.addVariable);
   const updateVariable = useStore(flowStore, (s) => s.updateVariable);
@@ -59,8 +62,14 @@ export default function ConditionNode() {
   }, [nodeId, variablesDict]);
 
   const conditions = useMemo(() => {
-    return selectConditions(nodeId, controlsDict);
-  }, [controlsDict, nodeId]);
+    return selectConditions(nodeId, variablesDict);
+  }, [nodeId, variablesDict]);
+
+  const conditionTarget = useMemo(() => {
+    return selectConditionTarget(nodeId, variablesDict);
+  }, [nodeId, variablesDict]);
+
+  invariant(conditionTarget != null);
 
   if (!nodeConfig) {
     return null;
@@ -70,8 +79,13 @@ export default function ConditionNode() {
 
   return (
     <>
-      {isConnectStartOnConditionNodeOutput &&
-        connectStartConditionNodeId !== nodeId && <ConditionTargetHandle />}
+      <ConditionTargetHandle
+        controlId={conditionTarget.id}
+        isVisible={
+          isConnectStartOnConditionNodeOutput &&
+          connectStartConditionNodeId !== nodeId
+        }
+      />
       {!isConnectStartOnConditionNodeOutput &&
         nodeInputs.map((flowInput, i) => (
           <InputHandle
