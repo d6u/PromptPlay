@@ -3,7 +3,12 @@ import Button from '@mui/joy/Button';
 
 const StyledButton = styled(Button)``;
 
-export default function AddVariableButton(props: { onClick: () => void }) {
+type Props = {
+  label?: string;
+  onClick: () => void;
+};
+
+export default function AddVariableButton(props: Props) {
   return (
     <StyledButton
       color="success"
@@ -11,7 +16,7 @@ export default function AddVariableButton(props: { onClick: () => void }) {
       variant="outlined"
       onClick={props.onClick}
     >
-      Add variable
+      Add {props.label ?? 'Variable'}
     </StyledButton>
   );
 }

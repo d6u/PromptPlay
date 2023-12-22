@@ -5,16 +5,16 @@ import invariant from 'ts-invariant';
 import { useStore } from 'zustand';
 import FlowContext from '../../FlowContext';
 import { useStoreFromFlowStoreContext } from '../../store/FlowStoreContext';
-import { selectVariables } from '../../store/state-utils';
+import { selectConditions, selectVariables } from '../../store/state-utils';
 import AddVariableButton from './node-common/AddVariableButton';
 import HeaderSection from './node-common/HeaderSection';
 import NodeBox from './node-common/NodeBox';
 import NodeInputModifyRow from './node-common/NodeInputModifyRow';
 import NodeOutputModifyRow from './node-common/NodeOutputModifyRow';
 import {
-  ConditionInHandle,
+  ConditionHandle,
+  ConditionTargetHandle,
   InputHandle,
-  OutputHandle,
   Section,
   SmallSection,
 } from './node-common/node-common';
@@ -34,8 +34,9 @@ export default function ConditionNode() {
 
   const nodeConfigsDict = useStore(flowStore, (s) => s.nodeConfigsDict);
   const variablesDict = useStore(flowStore, (s) => s.variablesDict);
+  const controlsDict = useStore(flowStore, (s) => s.controlsDict);
   const removeNode = useStore(flowStore, (s) => s.removeNode);
-  const addVariable = useStore(flowStore, (s) => s.addVariable);
+  // const addVariable = useStore(flowStore, (s) => s.addVariable);
   const updateVariable = useStore(flowStore, (s) => s.updateVariable);
   const removeVariable = useStore(flowStore, (s) => s.removeVariable);
   const isConnectStartOnConditionNodeOutput = useStore(
@@ -57,9 +58,9 @@ export default function ConditionNode() {
     return selectVariables(nodeId, VariableType.NodeInput, variablesDict);
   }, [nodeId, variablesDict]);
 
-  const nodeOutputs = useMemo(() => {
-    return selectVariables(nodeId, VariableType.NodeOutput, variablesDict);
-  }, [nodeId, variablesDict]);
+  const conditions = useMemo(() => {
+    return selectConditions(nodeId, controlsDict);
+  }, [controlsDict, nodeId]);
 
   if (!nodeConfig) {
     return null;
@@ -70,7 +71,7 @@ export default function ConditionNode() {
   return (
     <>
       {isConnectStartOnConditionNodeOutput &&
-        connectStartConditionNodeId !== nodeId && <ConditionInHandle />}
+        connectStartConditionNodeId !== nodeId && <ConditionTargetHandle />}
       {!isConnectStartOnConditionNodeOutput &&
         nodeInputs.map((flowInput, i) => (
           <InputHandle
@@ -110,38 +111,39 @@ export default function ConditionNode() {
         <SmallSection>
           {isCurrentUserOwner && (
             <AddVariableButton
+              label="Condition"
               onClick={() => {
-                addVariable(nodeId, VariableType.FlowInput, nodeOutputs.length);
+                // addVariable(nodeId, VariableType.FlowInput, nodeOutputs.length);
                 updateNodeInternals(nodeId);
               }}
             />
           )}
         </SmallSection>
         <Section>
-          {nodeOutputs.map((flowInput, i) => (
+          {conditions.map((condition, i) => (
             <NodeOutputModifyRow
-              key={flowInput.id}
-              name={flowInput.name}
+              key={condition.id}
+              name={condition.eq}
               isReadOnly={!isCurrentUserOwner}
               onConfirmNameChange={(name) => {
-                updateVariable(flowInput.id, { name });
+                // updateVariable(flowInput.id, { name });
               }}
               onRemove={() => {
-                removeVariable(flowInput.id);
+                // removeVariable(flowInput.id);
                 updateNodeInternals(nodeId);
               }}
             />
           ))}
         </Section>
       </NodeBox>
-      {nodeOutputs.map((flowInput, i) => (
-        <OutputHandle
-          key={flowInput.id}
+      {conditions.map((condition, i) => (
+        <ConditionHandle
+          key={condition.id}
           type="source"
-          id={flowInput.id}
+          id={condition.id}
           position={Position.Right}
           style={{
-            bottom: calculateOutputHandleBottom(nodeOutputs.length - 1 - i),
+            bottom: calculateOutputHandleBottom(conditions.length - 1 - i),
           }}
         />
       ))}

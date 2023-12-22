@@ -1,4 +1,7 @@
 import {
+  Condition,
+  ControlType,
+  ControlsDict,
   FlowInputVariable,
   FlowOutputVariable,
   LocalNode,
@@ -39,23 +42,46 @@ export type VariableTypeToVariableConfigTypeMap = {
   [VariableType.FlowOutput]: FlowOutputVariable;
 };
 
-export function selectVariables<
-  T extends VariableType,
-  R = VariableTypeToVariableConfigTypeMap[T],
->(nodeId: NodeID, type: T, variableConfigs: VariablesDict): R[] {
+export function selectVariables<T extends VariableType>(
+  nodeId: NodeID,
+  type: T,
+  variableConfigs: VariablesDict,
+): VariableTypeToVariableConfigTypeMap[T][] {
   return Object.values(variableConfigs)
     .filter(
-      (variableConfig) =>
-        variableConfig.nodeId === nodeId && variableConfig.type === type,
+      (
+        variableConfig,
+      ): variableConfig is VariableTypeToVariableConfigTypeMap[T] => {
+        return variableConfig.nodeId === nodeId && variableConfig.type === type;
+      },
     )
-    .sort((a, b) => a.index - b.index) as R[];
+    .sort((a, b) => a.index - b.index);
 }
 
-export function selectAllVariables<
-  T extends VariableType,
-  R = VariableTypeToVariableConfigTypeMap[T],
->(type: T, variableMap: VariablesDict): R[] {
+export function selectAllVariables<T extends VariableType>(
+  type: T,
+  variableMap: VariablesDict,
+): VariableTypeToVariableConfigTypeMap[T][] {
   return Object.values(variableMap)
-    .filter((variableConfig) => variableConfig.type === type)
-    .sort((a, b) => a.index - b.index) as R[];
+    .filter(
+      (
+        variableConfig,
+      ): variableConfig is VariableTypeToVariableConfigTypeMap[T] => {
+        return variableConfig.type === type;
+      },
+    )
+    .sort((a, b) => a.index - b.index);
+}
+
+export function selectConditions(
+  nodeId: NodeID,
+  controlsDict: ControlsDict,
+): Condition[] {
+  return Object.values(controlsDict)
+    .filter((control): control is Condition => {
+      return (
+        control.nodeId === nodeId && control.type === ControlType.Condition
+      );
+    })
+    .sort((a, b) => a.index - b.index);
 }
