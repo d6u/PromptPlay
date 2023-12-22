@@ -106,10 +106,7 @@ export default function TextTemplateNode() {
 
   return (
     <>
-      <ConditionTargetHandle
-        controlId={conditionTarget.id}
-        isVisible={isConnectStartOnConditionNodeOutput}
-      />
+      <ConditionTargetHandle controlId={conditionTarget.id} isVisible={true} />
       {!isConnectStartOnConditionNodeOutput &&
         inputs.map((input, i) => (
           <InputHandle

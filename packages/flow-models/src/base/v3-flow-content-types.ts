@@ -105,7 +105,7 @@ export type NodeOutputVariable = VariableConfigCommon & {
 
 export type Condition = {
   type: VariableType.Condition;
-  id: string;
+  id: V3VariableID;
   nodeId: NodeID;
   index: number;
   eq: string;
@@ -113,7 +113,7 @@ export type Condition = {
 
 export type ConditionTarget = {
   type: VariableType.ConditionTarget;
-  id: string;
+  id: V3VariableID;
   nodeId: NodeID;
 };
 

@@ -47,7 +47,7 @@ export const TEXT_TEMPLATE_NODE_DEFINITION: NodeDefinition = {
         },
         {
           type: VariableType.ConditionTarget,
-          id: `${node.id}/${randomId()}`,
+          id: asV3VariableID(`${node.id}/${randomId()}`),
           nodeId: node.id,
         },
       ],

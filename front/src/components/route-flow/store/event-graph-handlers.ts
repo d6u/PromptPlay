@@ -2,7 +2,6 @@ import { A } from '@mobily/ts-belt';
 import chance from 'common-utils/chance';
 import randomId from 'common-utils/randomId';
 import {
-  ConditionTarget,
   ControlResultsLookUpDict,
   EdgeID,
   FlowInputVariable,
@@ -106,7 +105,6 @@ export function handleEvent(
     case ChangeEventType.NODE_AND_VARIABLES_ADDED:
       return handleNodeAndVariablesAdded(
         event.variableConfigList,
-        event.controlsList,
         state.variableValueLookUpDicts,
         state.controlResultsLookUpDicts,
       );
@@ -272,12 +270,15 @@ function handleRfOnConnect(
   // Assign a shorter ID for readability
   addedEdge.id = randomId() as EdgeID;
 
-  const srcVariable = variableConfigs[addedEdge.sourceHandle] as
-    | Variable
-    | undefined;
+  const srcVariable = variableConfigs[addedEdge.sourceHandle];
 
-  if (srcVariable != null) {
-    // ANCHOR: New edge is a variable edge
+  if (
+    srcVariable.type === VariableType.FlowInput ||
+    srcVariable.type === VariableType.FlowOutput ||
+    srcVariable.type === VariableType.NodeInput ||
+    srcVariable.type === VariableType.NodeOutput
+  ) {
+    // NOTE: New edge connects two variables
 
     // SECTION: Check if new edge has valid destination value type
 
@@ -293,68 +294,37 @@ function handleRfOnConnect(
     }
 
     // !SECTION
-
-    // SECTION: Check if this is a replacing or adding
-
-    const [acceptedEdges, rejectedEdges] = A.partition(
-      nextEdges,
-      (edge) =>
-        edge.id === addedEdge.id ||
-        edge.targetHandle !== addedEdge.targetHandle,
-    );
-
-    if (rejectedEdges.length) {
-      const oldEdge = rejectedEdges[0];
-      invariant(oldEdge != null);
-      // --- Replace edge ---
-      events.push({
-        type: ChangeEventType.EDGE_REPLACED,
-        oldEdge,
-        newEdge: addedEdge,
-      });
-    } else {
-      // --- Add edge ---
-      events.push({
-        type: ChangeEventType.EDGE_ADDED,
-        edge: addedEdge,
-      });
-    }
-
-    // !SECTION
-
-    content.isFlowContentDirty = true;
-    content.edges = assignLocalEdgeProperties(acceptedEdges);
-  } else {
-    const conditionTarget = prevControlsDict[addedEdge.targetHandle] as
-      | Control
-      | undefined;
-
-    if (conditionTarget != null) {
-      console.log('New condition edge 1');
-      // ANCHOR: New edge is a condition edge that has been connected already.
-    } else {
-      // ANCHOR: New edge is a condition edge, and it hasn't been connected yet.
-
-      console.log('New condition edge 2');
-
-      const controlsDict = produce(prevControlsDict, (draft) => {
-        const dstControl: ConditionTarget = {
-          type: ControlType.ConditionTarget,
-          id: addedEdge.targetHandle,
-          nodeId: addedEdge.target,
-        };
-
-        draft[dstControl.id] = dstControl;
-
-        events.push({
-          type: ChangeEventType.CONDITION_TARGET_ADDED,
-        });
-      });
-
-      content.isFlowContentDirty = true;
-      content.edges = assignLocalEdgeProperties(nextEdges);
-    }
   }
+
+  // SECTION: Check if this is a replacing or adding
+
+  const [acceptedEdges, rejectedEdges] = A.partition(nextEdges, (edge) => {
+    return (
+      edge.id === addedEdge.id || edge.targetHandle !== addedEdge.targetHandle
+    );
+  });
+
+  if (rejectedEdges.length) {
+    const oldEdge = rejectedEdges[0];
+    invariant(oldEdge != null);
+    // Replace edge
+    events.push({
+      type: ChangeEventType.EDGE_REPLACED,
+      oldEdge,
+      newEdge: addedEdge,
+    });
+  } else {
+    // Add edge
+    events.push({
+      type: ChangeEventType.EDGE_ADDED,
+      edge: addedEdge,
+    });
+  }
+
+  // !SECTION
+
+  content.isFlowContentDirty = true;
+  content.edges = assignLocalEdgeProperties(acceptedEdges);
 
   return [content, events];
 }
@@ -391,28 +361,16 @@ function handleAddingNode(
     }
   });
 
-  // ANCHOR: Update controls
-
-  const controlsDict = produce(prevControlsDict, (draft) => {
-    if (controlsList) {
-      for (const control of controlsList) {
-        draft[control.id] = control;
-      }
-    }
-  });
-
   events.push({
     type: ChangeEventType.NODE_AND_VARIABLES_ADDED,
     node,
     variableConfigList,
-    controlsList: controlsList ?? [],
   });
 
   content.isFlowContentDirty = true;
   content.nodes = nodes;
   content.nodeConfigsDict = nodeConfigs;
   content.variablesDict = variableConfigs;
-  content.controlsDict = controlsDict;
 
   return [content, events];
 }
@@ -592,7 +550,6 @@ function handleUpdatingVariable(
 
 function handleNodeAndVariablesAdded(
   variableConfigList: Variable[],
-  controlsList: Control[],
   prevVariableValueMaps: V3VariableValueLookUpDict[],
   prevControlResultsLookUpDicts: ControlResultsLookUpDict,
 ): EventHandlerResult {
@@ -603,35 +560,49 @@ function handleNodeAndVariablesAdded(
 
   const variableValueMaps = produce(prevVariableValueMaps, (draft) => {
     for (const variableConfig of variableConfigList) {
-      draft[0][variableConfig.id] = null;
+      if (
+        variableConfig.type === VariableType.FlowInput ||
+        variableConfig.type === VariableType.FlowOutput ||
+        variableConfig.type === VariableType.NodeInput ||
+        variableConfig.type === VariableType.NodeOutput
+      ) {
+        draft[0][variableConfig.id] = null;
+      }
     }
   });
 
-  events.push({
-    type: ChangeEventType.VAR_VALUE_MAP_UPDATED,
-  });
+  if (variableValueMaps !== prevVariableValueMaps) {
+    events.push({
+      type: ChangeEventType.VAR_VALUE_MAP_UPDATED,
+    });
+  }
 
   // ANCHOR: Update control results
 
   const controlResultsLookUpDicts = produce(
     prevControlResultsLookUpDicts,
     (draft) => {
-      if (controlsList.length > 0) {
-        for (const control of controlsList) {
-          draft[control.id] = {
-            controlId: control.id,
+      for (const connector of variableConfigList) {
+        if (connector.type === VariableType.Condition) {
+          draft[connector.id] = {
+            controlId: connector.id,
             isMeetingCondition: false,
           };
         }
-
-        events.push({
-          type: ChangeEventType.CONTROL_RESULT_MAP_UPDATED,
-        });
       }
     },
   );
 
-  content.isFlowContentDirty = true;
+  if (controlResultsLookUpDicts !== prevControlResultsLookUpDicts) {
+    events.push({
+      type: ChangeEventType.CONTROL_RESULT_MAP_UPDATED,
+    });
+  }
+
+  content.isFlowContentDirty =
+    variableValueMaps !== prevVariableValueMaps ||
+    controlResultsLookUpDicts !== prevControlResultsLookUpDicts;
+
   content.variableValueLookUpDicts = variableValueMaps;
   content.controlResultsLookUpDicts = controlResultsLookUpDicts;
 
@@ -675,24 +646,31 @@ function handleEdgeAdded(
   const variableConfigs = produce(prevVariableConfigs, (draft) => {
     const srcVariableConfig = draft[asV3VariableID(addedEdge.sourceHandle)];
 
-    if (srcVariableConfig.valueType === VariableValueType.Audio) {
-      const dstVariableConfig = draft[asV3VariableID(addedEdge.targetHandle)];
+    if (
+      srcVariableConfig.type === VariableType.FlowInput ||
+      srcVariableConfig.type === VariableType.FlowOutput ||
+      srcVariableConfig.type === VariableType.NodeInput ||
+      srcVariableConfig.type === VariableType.NodeOutput
+    ) {
+      if (srcVariableConfig.valueType === VariableValueType.Audio) {
+        const dstVariableConfig = draft[asV3VariableID(addedEdge.targetHandle)];
 
-      invariant(dstVariableConfig.type === VariableType.FlowOutput);
+        invariant(dstVariableConfig.type === VariableType.FlowOutput);
 
-      const prevVariableConfig = current(dstVariableConfig);
+        const prevVariableConfig = current(dstVariableConfig);
 
-      dstVariableConfig.valueType = VariableValueType.Audio;
+        dstVariableConfig.valueType = VariableValueType.Audio;
 
-      events.push({
-        type: ChangeEventType.VARIABLE_UPDATED,
-        prevVariableConfig,
-        nextVariableConfig: current(dstVariableConfig),
-      });
+        events.push({
+          type: ChangeEventType.VARIABLE_UPDATED,
+          prevVariableConfig,
+          nextVariableConfig: current(dstVariableConfig),
+        });
+      }
     }
   });
 
-  content.isFlowContentDirty = true;
+  content.isFlowContentDirty = variableConfigs !== prevVariableConfigs;
   content.variablesDict = variableConfigs;
 
   return [content, events];
@@ -742,7 +720,7 @@ function handleEdgeRemoved(
 
   // !SECTION
 
-  content.isFlowContentDirty = true;
+  content.isFlowContentDirty = variableConfigs !== prevVariableConfigs;
   content.variablesDict = variableConfigs;
 
   return [content, events];
@@ -819,7 +797,7 @@ function handleEdgeReplaced(
     }
   });
 
-  content.isFlowContentDirty = true;
+  content.isFlowContentDirty = variableConfigs !== prevVariableConfigs;
   content.variablesDict = variableConfigs;
 
   return [content, events];
@@ -923,8 +901,19 @@ function handleVariableUpdated(
   const events: ChangeEvent[] = [];
 
   const variableValueMaps = produce(prevVariableValueMaps, (draft) => {
-    if (prevVariableConfig.valueType !== nextVariableConfig.valueType) {
-      draft[0][nextVariableConfig.id] = null;
+    if (
+      (prevVariableConfig.type === VariableType.FlowInput ||
+        prevVariableConfig.type === VariableType.FlowOutput ||
+        prevVariableConfig.type === VariableType.NodeInput ||
+        prevVariableConfig.type === VariableType.NodeOutput) &&
+      (nextVariableConfig.type === VariableType.FlowInput ||
+        nextVariableConfig.type === VariableType.FlowOutput ||
+        nextVariableConfig.type === VariableType.NodeInput ||
+        nextVariableConfig.type === VariableType.NodeOutput)
+    ) {
+      if (prevVariableConfig.valueType !== nextVariableConfig.valueType) {
+        draft[0][nextVariableConfig.id] = null;
+      }
     }
   });
 

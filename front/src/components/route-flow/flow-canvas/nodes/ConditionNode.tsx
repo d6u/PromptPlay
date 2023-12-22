@@ -79,13 +79,7 @@ export default function ConditionNode() {
 
   return (
     <>
-      <ConditionTargetHandle
-        controlId={conditionTarget.id}
-        isVisible={
-          isConnectStartOnConditionNodeOutput &&
-          connectStartConditionNodeId !== nodeId
-        }
-      />
+      <ConditionTargetHandle controlId={conditionTarget.id} isVisible={true} />
       {!isConnectStartOnConditionNodeOutput &&
         nodeInputs.map((flowInput, i) => (
           <InputHandle
