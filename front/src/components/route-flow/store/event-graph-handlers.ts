@@ -153,9 +153,6 @@ export function handleEvent(
         event.nextVariableConfig,
         state.variableValueLookUpDicts,
       );
-    // Derived Conditions
-    case ChangeEventType.CONDITION_TARGET_ADDED:
-      return [state, []];
     // Derived Other
     case ChangeEventType.VAR_VALUE_MAP_UPDATED:
     case ChangeEventType.CONTROL_RESULT_MAP_UPDATED:
