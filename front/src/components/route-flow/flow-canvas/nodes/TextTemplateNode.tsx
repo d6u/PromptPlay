@@ -3,6 +3,7 @@ import FormHelperText from '@mui/joy/FormHelperText';
 import FormLabel from '@mui/joy/FormLabel';
 import IconButton from '@mui/joy/IconButton';
 import Textarea from '@mui/joy/Textarea';
+import randomId from 'common-utils/randomId';
 import {
   NodeID,
   NodeType,
@@ -16,7 +17,10 @@ import FlowContext from '../../FlowContext';
 import TextareaReadonly from '../../common/TextareaReadonly';
 import { CopyIcon, LabelWithIconContainer } from '../../common/flow-common';
 import { useStoreFromFlowStoreContext } from '../../store/FlowStoreContext';
-import { selectVariables } from '../../store/state-utils';
+import {
+  selectConditionTarget,
+  selectVariables,
+} from '../../store/state-utils';
 import { DetailPanelContentType } from '../../store/store-flow-state-types';
 import AddVariableButton from './node-common/AddVariableButton';
 import HeaderSection from './node-common/HeaderSection';
@@ -38,6 +42,7 @@ import {
 
 export default function TextTemplateNode() {
   const nodeId = useNodeId() as NodeID;
+  const updateNodeInternals = useUpdateNodeInternals();
 
   const { isCurrentUserOwner } = useContext(FlowContext);
   const flowStore = useStoreFromFlowStoreContext();
@@ -46,6 +51,7 @@ export default function TextTemplateNode() {
 
   const nodeConfigs = useStore(flowStore, (s) => s.nodeConfigsDict);
   const variableConfigs = useStore(flowStore, (s) => s.variablesDict);
+  const controlsDict = useStore(flowStore, (s) => s.controlsDict);
   const updateNodeConfig = useStore(flowStore, (s) => s.updateNodeConfig);
   const removeNode = useStore(flowStore, (s) => s.removeNode);
   const addVariable = useStore(flowStore, (s) => s.addVariable);
@@ -81,7 +87,9 @@ export default function TextTemplateNode() {
     return nodeConfigs[nodeId] as V3TextTemplateNodeConfig | undefined;
   }, [nodeConfigs, nodeId]);
 
-  const updateNodeInternals = useUpdateNodeInternals();
+  const conditionTarget = useMemo(() => {
+    return selectConditionTarget(nodeId, controlsDict);
+  }, [controlsDict, nodeId]);
 
   // It's OK to force unwrap here because nodeConfig will be undefined only
   // when Node is being deleted.
@@ -91,13 +99,22 @@ export default function TextTemplateNode() {
     setContent(() => nodeConfig?.content ?? '');
   }, [nodeConfig]);
 
+  const conditionTargetHandleId = useMemo(() => {
+    return conditionTarget?.id ?? `${nodeId}/${randomId()}`;
+  }, [conditionTarget?.id, nodeId]);
+
   if (!nodeConfig) {
     return null;
   }
 
   return (
     <>
-      {isConnectStartOnConditionNodeOutput && <ConditionTargetHandle />}
+      <ConditionTargetHandle
+        controlId={conditionTargetHandleId}
+        isVisible={
+          isConnectStartOnConditionNodeOutput || conditionTarget != null
+        }
+      />
       {!isConnectStartOnConditionNodeOutput &&
         inputs.map((input, i) => (
           <InputHandle

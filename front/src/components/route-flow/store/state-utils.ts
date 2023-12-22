@@ -1,5 +1,7 @@
+import { D, Option } from '@mobily/ts-belt';
 import {
   Condition,
+  ConditionTarget,
   ControlType,
   ControlsDict,
   FlowInputVariable,
@@ -77,11 +79,22 @@ export function selectConditions(
   nodeId: NodeID,
   controlsDict: ControlsDict,
 ): Condition[] {
-  return Object.values(controlsDict)
+  return D.values(controlsDict)
     .filter((control): control is Condition => {
       return (
         control.nodeId === nodeId && control.type === ControlType.Condition
       );
     })
     .sort((a, b) => a.index - b.index);
+}
+
+export function selectConditionTarget(
+  nodeId: NodeID,
+  controlsDict: ControlsDict,
+): Option<ConditionTarget> {
+  return D.values(controlsDict).find((control): control is ConditionTarget => {
+    return (
+      control.nodeId === nodeId && control.type === ControlType.ConditionTarget
+    );
+  });
 }

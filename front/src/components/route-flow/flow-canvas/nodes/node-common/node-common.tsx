@@ -60,12 +60,22 @@ const StyledHorizontalHandle = styled(Handle)`
   left: 12px;
 `;
 
-export function ConditionTargetHandle() {
+type Props = {
+  controlId: string;
+  isVisible: boolean;
+};
+
+export function ConditionTargetHandle(props: Props) {
   return (
     <StyledHorizontalHandle
       type="target"
       position={Position.Top}
-      id="condition-target"
+      id={props.controlId}
+      // NOTE: Because we are using @emotion/styled, it doesn't seem to support
+      // transient props that styled-components supports. Thus, we use style
+      // prop instead.
+      // https://styled-components.com/docs/api#transient-props
+      style={{ visibility: props.isVisible ? 'visible' : 'hidden' }}
     />
   );
 }

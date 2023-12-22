@@ -39,14 +39,14 @@ export const CONDITION_NODE_DEFINITION: NodeDefinition = {
       controlsList: [
         {
           type: ControlType.Condition,
-          id: asV3VariableID(`${node.id}/${randomId()}`),
+          id: `${node.id}/${randomId()}`,
           index: 0,
           nodeId: node.id,
           eq: 'Value A',
         },
         {
           type: ControlType.Condition,
-          id: asV3VariableID(`${node.id}/${randomId()}`),
+          id: `${node.id}/${randomId()}`,
           index: 1,
           nodeId: node.id,
           eq: 'Value B',

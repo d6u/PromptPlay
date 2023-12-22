@@ -2,8 +2,10 @@ import { A } from '@mobily/ts-belt';
 import chance from 'common-utils/chance';
 import randomId from 'common-utils/randomId';
 import {
+  ConditionTarget,
   Control,
   ControlResultsLookUpDict,
+  ControlType,
   ControlsDict,
   EdgeID,
   FlowInputVariable,
@@ -65,6 +67,7 @@ export function handleEvent(
         state.edges,
         state.nodeConfigsDict,
         state.variablesDict,
+        state.controlsDict,
       );
     // Nodes
     case ChangeEventType.ADDING_NODE:
@@ -156,6 +159,9 @@ export function handleEvent(
         event.nextVariableConfig,
         state.variableValueLookUpDicts,
       );
+    // Derived Conditions
+    case ChangeEventType.CONDITION_TARGET_ADDED:
+      return [state, []];
     // Derived Other
     case ChangeEventType.VAR_VALUE_MAP_UPDATED:
     case ChangeEventType.CONTROL_RESULT_MAP_UPDATED:
@@ -256,6 +262,7 @@ function handleRfOnConnect(
   prevEdges: V3LocalEdge[],
   nodeConfigs: V3NodeConfigsDict,
   variableConfigs: VariablesDict,
+  prevControlsDict: ControlsDict,
 ): EventHandlerResult {
   const content: Partial<FlowState> = {};
   const events: ChangeEvent[] = [];
@@ -266,25 +273,19 @@ function handleRfOnConnect(
 
   const nextEdges = addEdge(connection, prevEdges) as V3LocalEdge[];
   const addedEdge = A.difference(nextEdges, prevEdges)[0];
+  invariant(addedEdge != null);
+
   // Assign a shorter ID for readability
   addedEdge.id = randomId() as EdgeID;
 
-  invariant(addedEdge != null);
+  const srcVariable = variableConfigs[addedEdge.sourceHandle] as
+    | Variable
+    | undefined;
 
-  if (addedEdge.targetHandle === 'condition-target') {
-    // SECTION: New edge is a condition edge
+  if (srcVariable != null) {
+    // ANCHOR: New edge is a variable edge
 
-    console.log('Condition edge added');
-
-    // !SECTION
-
-    return [content, events];
-  } else {
     // SECTION: Check if new edge has valid destination value type
-
-    const srcVariable = variableConfigs[addedEdge.sourceHandle];
-
-    invariant(srcVariable != null);
 
     if (srcVariable.valueType === VariableValueType.Audio) {
       const dstNodeConfig = nodeConfigs[addedEdge.target];
@@ -329,9 +330,40 @@ function handleRfOnConnect(
 
     content.isFlowContentDirty = true;
     content.edges = assignLocalEdgeProperties(acceptedEdges);
+  } else {
+    const conditionTarget = prevControlsDict[addedEdge.targetHandle] as
+      | Control
+      | undefined;
 
-    return [content, events];
+    if (conditionTarget != null) {
+      console.log('New condition edge 1');
+      // ANCHOR: New edge is a condition edge that has been connected already.
+    } else {
+      // ANCHOR: New edge is a condition edge, and it hasn't been connected yet.
+
+      console.log('New condition edge 2');
+
+      const controlsDict = produce(prevControlsDict, (draft) => {
+        const dstControl: ConditionTarget = {
+          type: ControlType.ConditionTarget,
+          id: addedEdge.targetHandle,
+          nodeId: addedEdge.target,
+        };
+
+        draft[dstControl.id] = dstControl;
+
+        events.push({
+          type: ChangeEventType.CONDITION_TARGET_ADDED,
+        });
+      });
+
+      content.isFlowContentDirty = true;
+      content.edges = assignLocalEdgeProperties(nextEdges);
+      content.controlsDict = controlsDict;
+    }
   }
+
+  return [content, events];
 }
 
 function handleAddingNode(
