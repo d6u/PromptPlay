@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { NodeID, NodeType, V3VariableID } from 'flow-models';
+import { NodeID, NodeType } from 'flow-models';
 import { useContext } from 'react';
 import ReactFlow, {
   Background,
@@ -86,7 +86,7 @@ export default function FlowCanvas() {
         onConnectStart={(event, params) => {
           maybeStartConnectingOnConditionNodeOutput({
             nodeId: params.nodeId as NodeID,
-            handleId: params.handleId as V3VariableID,
+            handleId: params.handleId!,
           });
         }}
         onConnectEnd={() => {

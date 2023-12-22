@@ -271,7 +271,7 @@ function handleRfOnConnect(
 
   invariant(addedEdge != null);
 
-  if (addedEdge.targetHandle === 'condition-in') {
+  if (addedEdge.targetHandle === 'condition-target') {
     // SECTION: New edge is a condition edge
 
     console.log('Condition edge added');

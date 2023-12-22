@@ -2,10 +2,10 @@ import { D } from '@mobily/ts-belt';
 import {
   NodeExecutionEventType,
   NodeID,
-  NodeType,
   V3FlowContent,
   V3VariableID,
   V3VariableValueLookUpDict,
+  Variable,
   VariableType,
   VariablesDict,
   asV3VariableID,
@@ -57,7 +57,7 @@ export type RootSlice = RootSliceState & {
   stopRunningFlow(): void;
   maybeStartConnectingOnConditionNodeOutput(params: {
     nodeId: NodeID;
-    handleId: V3VariableID;
+    handleId: string;
   }): void;
   stopConnectingOnConditionNodeOutput(): void;
 };
@@ -319,19 +319,14 @@ export function createRootSlice(
 
     maybeStartConnectingOnConditionNodeOutput(params: {
       nodeId: NodeID;
-      handleId: V3VariableID;
+      handleId: string;
     }): void {
       set((state) => {
-        const currentNodeConfig = state.nodeConfigsDict[params.nodeId];
-        const variable = state.variablesDict[params.handleId];
+        const variable = state.variablesDict[
+          params.handleId as V3VariableID
+        ] as Variable | undefined;
 
-        invariant(currentNodeConfig != null);
-        invariant(variable != null);
-
-        if (
-          currentNodeConfig.type !== NodeType.ConditionNode ||
-          variable.type !== VariableType.NodeOutput
-        ) {
+        if (variable != null) {
           return state;
         }
 

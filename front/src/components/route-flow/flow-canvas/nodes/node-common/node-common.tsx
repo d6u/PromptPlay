@@ -65,7 +65,7 @@ export function ConditionTargetHandle() {
     <StyledHorizontalHandle
       type="target"
       position={Position.Top}
-      id="condition-in"
+      id="condition-target"
     />
   );
 }
