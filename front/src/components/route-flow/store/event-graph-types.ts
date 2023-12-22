@@ -1,4 +1,5 @@
 import {
+  Condition,
   LocalNode,
   NodeID,
   V3LocalEdge,
@@ -36,11 +37,16 @@ export enum ChangeEventType {
   VARIABLE_ADDED = 'VARIABLE_ADDED',
   VARIABLE_REMOVED = 'VARIABLE_REMOVED',
   VARIABLE_UPDATED = 'VARIABLE_UPDATED',
+  // Derived Conditions
+  CONDITION_REMOVED = 'CONDITION_REMOVED',
+  CONDITION_TARGET_REMOVED = 'CONDITION_TARGET_REMOVED',
   // Derived Other
   VAR_VALUE_MAP_UPDATED = 'VAR_VALUE_MAP_UPDATED',
   CONTROL_RESULT_MAP_UPDATED = 'CONTROL_RESULT_MAP_UPDATED',
 }
 
+// NOTE: This map is used to prevent infinite loop caused by circular
+// dependencies among events
 export const EVENT_VALIDATION_MAP: {
   [key in ChangeEventType]: ChangeEventType[];
 } = {
@@ -73,6 +79,8 @@ export const EVENT_VALIDATION_MAP: {
   [ChangeEventType.NODE_REMOVED]: [
     ChangeEventType.EDGE_REMOVED,
     ChangeEventType.VARIABLE_REMOVED,
+    ChangeEventType.CONDITION_REMOVED,
+    ChangeEventType.CONDITION_TARGET_REMOVED,
   ],
   // Derived Edges
   [ChangeEventType.EDGE_ADDED]: [
@@ -91,6 +99,11 @@ export const EVENT_VALIDATION_MAP: {
     ChangeEventType.EDGE_REMOVED,
   ],
   [ChangeEventType.VARIABLE_UPDATED]: [ChangeEventType.VAR_VALUE_MAP_UPDATED],
+  // Derived Conditions
+  [ChangeEventType.CONDITION_REMOVED]: [
+    ChangeEventType.CONTROL_RESULT_MAP_UPDATED,
+  ],
+  [ChangeEventType.CONDITION_TARGET_REMOVED]: [],
   // Derived Other
   [ChangeEventType.VAR_VALUE_MAP_UPDATED]: [],
   [ChangeEventType.CONTROL_RESULT_MAP_UPDATED]: [],
@@ -186,6 +199,14 @@ export type ChangeEvent =
   | {
       type: ChangeEventType.VARIABLE_REMOVED;
       removedVariable: Variable;
+    }
+  // Derived Conditions
+  | {
+      type: ChangeEventType.CONDITION_REMOVED;
+      removedCondition: Condition;
+    }
+  | {
+      type: ChangeEventType.CONDITION_TARGET_REMOVED;
     }
   // Derived Other
   | {

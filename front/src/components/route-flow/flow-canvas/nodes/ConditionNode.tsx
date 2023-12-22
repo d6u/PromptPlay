@@ -69,13 +69,14 @@ export default function ConditionNode() {
     return selectConditionTarget(nodeId, variablesDict);
   }, [nodeId, variablesDict]);
 
-  invariant(conditionTarget != null);
-
   if (!nodeConfig) {
+    // NOTE: This will happen when the node is removed in store, but not yet
+    // reflected in react-flow store.
     return null;
   }
 
   invariant(nodeConfig.type === NodeType.ConditionNode);
+  invariant(conditionTarget != null);
 
   return (
     <>

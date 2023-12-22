@@ -1,7 +1,8 @@
-import { A } from '@mobily/ts-belt';
+import { A, D } from '@mobily/ts-belt';
 import chance from 'common-utils/chance';
 import randomId from 'common-utils/randomId';
 import {
+  Condition,
   ControlResultsLookUpDict,
   EdgeID,
   FlowInputVariable,
@@ -153,6 +154,14 @@ export function handleEvent(
         event.nextVariableConfig,
         state.variableValueLookUpDicts,
       );
+    // Derived Conditions
+    case ChangeEventType.CONDITION_REMOVED:
+      return handleConditionRemoved(
+        event.removedCondition,
+        state.controlResultsLookUpDicts,
+      );
+    case ChangeEventType.CONDITION_TARGET_REMOVED:
+      return [state, []];
     // Derived Other
     case ChangeEventType.VAR_VALUE_MAP_UPDATED:
     case ChangeEventType.CONTROL_RESULT_MAP_UPDATED:
@@ -412,6 +421,9 @@ function handleRemovingNode(
   let nodeConfigs = prevNodeConfigs;
 
   if (rejectedNodes.length) {
+    // NOTE: There should be at most one rejected node, because this event
+    // will only be triggered in UI for one node.
+
     const removingNodeConfig = prevNodeConfigs[nodeId];
 
     nodeConfigs = produce(prevNodeConfigs, (draft) => {
@@ -420,7 +432,7 @@ function handleRemovingNode(
 
     events.push({
       type: ChangeEventType.NODE_REMOVED,
-      node: rejectedNodes[0],
+      node: rejectedNodes[0]!,
       nodeConfig: removingNodeConfig,
     });
   }
@@ -639,15 +651,36 @@ function handleNodeRemoved(
   const events: ChangeEvent[] = [];
 
   const variableConfigs = produce(prevVariableConfigs, (draft) => {
-    for (const variableConfig of Object.values(draft)) {
-      if (variableConfig.nodeId === removedNode.id) {
+    for (const connector of D.values(draft)) {
+      if (connector.nodeId !== removedNode.id) {
+        continue;
+      }
+
+      const removedConnector = current(connector);
+
+      if (
+        removedConnector.type === VariableType.FlowInput ||
+        removedConnector.type === VariableType.FlowOutput ||
+        removedConnector.type === VariableType.NodeInput ||
+        removedConnector.type === VariableType.NodeOutput
+      ) {
         events.push({
           type: ChangeEventType.VARIABLE_REMOVED,
-          removedVariable: current(draft[variableConfig.id]),
+          removedVariable: removedConnector,
         });
-
-        delete draft[variableConfig.id];
+      } else if (removedConnector.type === VariableType.Condition) {
+        events.push({
+          type: ChangeEventType.CONDITION_REMOVED,
+          removedCondition: removedConnector,
+        });
+      } else {
+        invariant(removedConnector.type === VariableType.ConditionTarget);
+        events.push({
+          type: ChangeEventType.CONDITION_TARGET_REMOVED,
+        });
       }
+
+      delete draft[connector.id];
     }
   });
 
@@ -979,6 +1012,32 @@ function handleVariableUpdated(
 
   content.isFlowContentDirty = true;
   content.variableValueLookUpDicts = variableValueMaps;
+
+  return [content, events];
+}
+
+function handleConditionRemoved(
+  removedCondition: Condition,
+  prevControlResultsLookUpDicts: ControlResultsLookUpDict,
+): EventHandlerResult {
+  const content: Partial<FlowState> = {};
+  const events: ChangeEvent[] = [];
+
+  const controlResultsLookUpDicts = produce(
+    prevControlResultsLookUpDicts,
+    (draft) => {
+      events.push({
+        type: ChangeEventType.CONTROL_RESULT_MAP_UPDATED,
+      });
+
+      delete draft[removedCondition.id];
+    },
+  );
+
+  content.isFlowContentDirty =
+    controlResultsLookUpDicts !== prevControlResultsLookUpDicts;
+
+  content.controlResultsLookUpDicts = controlResultsLookUpDicts;
 
   return [content, events];
 }

@@ -90,8 +90,6 @@ export default function TextTemplateNode() {
     return selectConditionTarget(nodeId, variableConfigs);
   }, [variableConfigs, nodeId]);
 
-  invariant(conditionTarget != null);
-
   // It's OK to force unwrap here because nodeConfig will be undefined only
   // when Node is being deleted.
   const [content, setContent] = useState(() => nodeConfig!.content);
@@ -101,8 +99,13 @@ export default function TextTemplateNode() {
   }, [nodeConfig]);
 
   if (!nodeConfig) {
+    // NOTE: This will happen when the node is removed in store, but not yet
+    // reflected in react-flow store.
     return null;
   }
+
+  invariant(nodeConfig.type === NodeType.TextTemplate);
+  invariant(conditionTarget != null);
 
   return (
     <>
