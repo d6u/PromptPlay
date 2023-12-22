@@ -12,13 +12,15 @@ import {
 } from 'flow-models';
 import { produce } from 'immer';
 import posthog from 'posthog-js';
-import { Subscription, mergeMap } from 'rxjs';
+import { Subscription, from, map, tap } from 'rxjs';
 import { invariant } from 'ts-invariant';
 import { OperationResult } from 'urql';
 import { StateCreator } from 'zustand';
 import { runSingle } from '../../../flow-run/run-single';
+import { graphql } from '../../../gql';
 import { ContentVersion, SpaceFlowQueryQuery } from '../../../gql/graphql';
-import { fetchFlowContent, updateSpaceContentV3 } from '../graphql';
+import { client } from '../../../state/urql';
+import { updateSpaceContentV3 } from '../graphql';
 import {
   assignLocalEdgeProperties,
   assignLocalNodeProperties,
@@ -118,33 +120,62 @@ export function createRootSlice(
     initialize(): void {
       console.log('FlowStore: initializing...');
 
-      const subscription = fetchFlowContent(initProps.spaceId)
-        .pipe(mergeMap(createFlowContentHandler(initProps.spaceId)))
-        .subscribe({
-          next({
-            nodes,
-            edges,
-            nodeConfigsDict,
-            variablesDict,
-            variableValueLookUpDicts,
-          }) {
+      const subscription = from(querySpace(initProps.spaceId))
+        .pipe(
+          map((result) => {
+            // TODO: Report to telemetry
+            invariant(result.data?.result?.space != null);
+
+            const version = result.data.result.space.contentVersion;
+            const contentV3Str = result.data.result.space.contentV3;
+
+            // TODO: Report to telemetry
+            invariant(version === ContentVersion.V3, 'Only v3 is supported');
+
+            switch (version) {
+              case ContentVersion.V3: {
+                invariant(contentV3Str != null, 'contentV3Str');
+
+                // TODO: Report parse error to telemetry
+                const data = JSON.parse(contentV3Str) as Partial<V3FlowContent>;
+
+                const dataWithDefaults = produce(data, (draft) => {
+                  draft.nodes = draft.nodes ?? [];
+                  draft.edges = draft.edges ?? [];
+                  draft.nodeConfigsDict = draft.nodeConfigsDict ?? {};
+                  draft.variablesDict = draft.variablesDict ?? {};
+                  draft.variableValueLookUpDicts =
+                    draft.variableValueLookUpDicts ?? [{}];
+                  draft.controlsDict = draft.controlsDict ?? {};
+                  draft.controlResultsLookUpDicts =
+                    draft.controlResultsLookUpDicts ?? {};
+                }) as V3FlowContent;
+
+                return {
+                  flowContent: dataWithDefaults,
+                  // immer was able to detect if the object has actually
+                  // been changed or not. Only update if it has been changed.
+                  // Save some loading time.
+                  isUpdated: data !== dataWithDefaults,
+                };
+              }
+            }
+          }),
+          tap(({ flowContent, isUpdated }) => {
+            if (isUpdated) {
+              updateSpaceContentV3(initProps.spaceId, flowContent);
+            }
+          }),
+          tap(({ flowContent: { nodes, edges, ...rest } }) => {
             nodes = assignLocalNodeProperties(nodes);
             edges = assignLocalEdgeProperties(edges);
-
-            set({
-              nodes,
-              edges,
-              nodeConfigsDict,
-              variablesDict,
-              variableValueLookUpDicts,
-            });
-          },
+            set({ nodes, edges, ...rest, isInitialized: true });
+          }),
+        )
+        .subscribe({
           error(error) {
             // TODO: Report to telemetry
             console.error('Error fetching content', error);
-          },
-          complete() {
-            set({ isInitialized: true });
           },
         });
 
@@ -199,8 +230,19 @@ export function createRootSlice(
         nodeConfigsDict,
         variablesDict,
         variableValueLookUpDicts,
+        controlsDict,
+        controlResultsLookUpDicts,
       } = get();
 
+      const flowContent: V3FlowContent = {
+        nodes,
+        edges,
+        nodeConfigsDict,
+        variablesDict,
+        variableValueLookUpDicts,
+        controlsDict,
+        controlResultsLookUpDicts,
+      };
       const variableValueLookUpDict = get().getDefaultVariableValueLookUpDict();
       const flowInputVariableValueLookUpDict = selectFlowInputVariableValue(
         variablesDict,
@@ -208,14 +250,9 @@ export function createRootSlice(
       );
 
       runSingleSubscription?.unsubscribe();
+
       runSingleSubscription = runSingle({
-        flowContent: {
-          nodes,
-          edges,
-          nodeConfigsDict,
-          variablesDict,
-          variableValueLookUpDicts,
-        },
+        flowContent,
         inputVariableMap: flowInputVariableValueLookUpDict,
         useStreaming: true,
       }).subscribe({
@@ -315,38 +352,6 @@ export function createRootSlice(
 
 // SECTION: Utilities
 
-function createFlowContentHandler(
-  spaceId: string,
-): (result: OperationResult<SpaceFlowQueryQuery>) => Promise<V3FlowContent> {
-  return async (result) => {
-    // TODO: Report to telemetry
-    invariant(result.data?.result?.space != null);
-
-    const version = result.data.result.space.contentVersion;
-    const contentV3Str = result.data.result.space.contentV3;
-
-    // TODO: Report to telemetry
-    invariant(version === ContentVersion.V3, 'Only v3 is supported');
-
-    switch (version) {
-      case ContentVersion.V3: {
-        invariant(contentV3Str != null, 'contentV3Str');
-        // TODO: Report parse error to telemetry
-        const data = JSON.parse(contentV3Str) as Partial<V3FlowContent>;
-        const contentV3: V3FlowContent = {
-          nodes: data.nodes ?? [],
-          edges: data.edges ?? [],
-          nodeConfigsDict: data.nodeConfigsDict ?? {},
-          variablesDict: data.variablesDict ?? {},
-          variableValueLookUpDicts: data.variableValueLookUpDicts ?? [{}],
-        };
-        await updateSpaceContentV3(spaceId, contentV3);
-        return contentV3;
-      }
-    }
-  };
-}
-
 function selectFlowInputVariableValue(
   variablesDict: VariablesDict,
   variableValueLookUpDict: V3VariableValueLookUpDict,
@@ -361,6 +366,29 @@ function selectFlowInputVariableValue(
   }
 
   return flowInputVariableValueLookUpDict;
+}
+
+async function querySpace(
+  spaceId: string,
+): Promise<OperationResult<SpaceFlowQueryQuery>> {
+  return await client
+    .query(
+      graphql(`
+        query SpaceFlowQuery($spaceId: UUID!) {
+          result: space(id: $spaceId) {
+            space {
+              id
+              name
+              contentVersion
+              contentV3
+            }
+          }
+        }
+      `),
+      { spaceId },
+      { requestPolicy: 'network-only' },
+    )
+    .toPromise();
 }
 
 // !SECTION

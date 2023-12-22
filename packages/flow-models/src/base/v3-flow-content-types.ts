@@ -10,6 +10,8 @@ export type V3FlowContent = {
   nodeConfigsDict: V3NodeConfigsDict;
   variablesDict: VariablesDict;
   variableValueLookUpDicts: V3VariableValueLookUpDict[];
+  controlsDict: ControlsDict;
+  controlResultsLookUpDicts: ControlResultsLookUpDict;
 };
 
 // ANCHOR: Node Types
@@ -101,6 +103,39 @@ export type NodeOutputVariable = VariableConfigCommon & {
 // ANCHOR: V3 Variable Value Types
 
 export type V3VariableValueLookUpDict = Record<V3VariableID, unknown>;
+
+// ANCHOR: Control Types
+
+export type ControlsDict = Record<string, Control>;
+
+export enum ControlType {
+  Condition = 'Condition',
+  ConditionTarget = 'ConditionTarget',
+}
+
+export type Control = Condition | ConditionTarget;
+
+export type Condition = {
+  type: ControlType.Condition;
+  id: string;
+  nodeId: NodeID;
+  index: number;
+};
+
+export type ConditionTarget = {
+  type: ControlType.ConditionTarget;
+  id: string;
+  nodeId: NodeID;
+};
+
+// ANCHOR: Control Result Types
+
+export type ControlResultsLookUpDict = Record<string, ControlResult>;
+
+export type ControlResult = {
+  id: string;
+  isMeetingCondition: boolean;
+};
 
 // ANCHOR: Legacy Types
 

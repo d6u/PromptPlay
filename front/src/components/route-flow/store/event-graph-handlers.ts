@@ -264,56 +264,67 @@ function handleRfOnConnect(
 
   invariant(addedEdge != null);
 
-  // SECTION: Check if new edge has valid destination value type
+  if (addedEdge.targetHandle === 'condition-in') {
+    // SECTION: New edge is a condition edge
 
-  const srcVariable = variableConfigs[addedEdge.sourceHandle];
+    console.log('Condition edge added');
 
-  invariant(srcVariable != null);
+    // !SECTION
 
-  if (srcVariable.valueType === VariableValueType.Audio) {
-    const dstNodeConfig = nodeConfigs[addedEdge.target];
-    invariant(dstNodeConfig != null);
-    if (dstNodeConfig.type !== NodeType.OutputNode) {
-      // TODO: Change this to a non-blocking alert UI
-      alert('You can only connect an audio output to an output node.');
-
-      return [content, events];
-    }
-  }
-
-  // !SECTION
-
-  // SECTION: Check if this is a replacing or adding
-
-  const [acceptedEdges, rejectedEdges] = A.partition(
-    nextEdges,
-    (edge) =>
-      edge.id === addedEdge.id || edge.targetHandle !== addedEdge.targetHandle,
-  );
-
-  if (rejectedEdges.length) {
-    const oldEdge = rejectedEdges[0];
-    invariant(oldEdge != null);
-    // --- Replace edge ---
-    events.push({
-      type: ChangeEventType.EDGE_REPLACED,
-      oldEdge,
-      newEdge: addedEdge,
-    });
+    return [content, events];
   } else {
-    // --- Add edge ---
-    events.push({
-      type: ChangeEventType.EDGE_ADDED,
-      edge: addedEdge,
-    });
+    // SECTION: Check if new edge has valid destination value type
+
+    const srcVariable = variableConfigs[addedEdge.sourceHandle];
+
+    invariant(srcVariable != null);
+
+    if (srcVariable.valueType === VariableValueType.Audio) {
+      const dstNodeConfig = nodeConfigs[addedEdge.target];
+      invariant(dstNodeConfig != null);
+      if (dstNodeConfig.type !== NodeType.OutputNode) {
+        // TODO: Change this to a non-blocking alert UI
+        alert('You can only connect an audio output to an output node.');
+
+        return [content, events];
+      }
+    }
+
+    // !SECTION
+
+    // SECTION: Check if this is a replacing or adding
+
+    const [acceptedEdges, rejectedEdges] = A.partition(
+      nextEdges,
+      (edge) =>
+        edge.id === addedEdge.id ||
+        edge.targetHandle !== addedEdge.targetHandle,
+    );
+
+    if (rejectedEdges.length) {
+      const oldEdge = rejectedEdges[0];
+      invariant(oldEdge != null);
+      // --- Replace edge ---
+      events.push({
+        type: ChangeEventType.EDGE_REPLACED,
+        oldEdge,
+        newEdge: addedEdge,
+      });
+    } else {
+      // --- Add edge ---
+      events.push({
+        type: ChangeEventType.EDGE_ADDED,
+        edge: addedEdge,
+      });
+    }
+
+    // !SECTION
+
+    content.isFlowContentDirty = true;
+    content.edges = assignLocalEdgeProperties(acceptedEdges);
+
+    return [content, events];
   }
-
-  // !SECTION
-
-  content.isFlowContentDirty = true;
-  content.edges = assignLocalEdgeProperties(acceptedEdges);
-
-  return [content, events];
 }
 
 function handleAddingNode(

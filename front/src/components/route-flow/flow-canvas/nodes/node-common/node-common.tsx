@@ -51,5 +51,11 @@ const ConditionInHandleImpl = styled(Handle)`
 `;
 
 export function ConditionInHandle() {
-  return <ConditionInHandleImpl type="target" position={Position.Top} />;
+  return (
+    <ConditionInHandleImpl
+      type="target"
+      position={Position.Top}
+      id="condition-in"
+    />
+  );
 }

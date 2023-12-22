@@ -9,16 +9,13 @@ import {
 } from 'reactflow';
 
 import {
-  LocalNode,
   NodeID,
   NodeType,
-  V3LocalEdge,
+  V3FlowContent,
   V3NodeConfig,
-  V3NodeConfigsDict,
   V3VariableID,
   V3VariableValueLookUpDict,
   VariableType,
-  VariablesDict,
   createNode,
 } from 'flow-models';
 import { debounce } from 'lodash';
@@ -41,6 +38,8 @@ const FLOW_SERVER_SLICE_INITIAL_STATE_V2: SliceFlowContentV3State = {
   nodeConfigsDict: {},
   variablesDict: {},
   variableValueLookUpDicts: [{}],
+  controlsDict: {},
+  controlResultsLookUpDicts: {},
   // Local
   isFlowContentDirty: false,
   isFlowContentSaving: false,
@@ -82,19 +81,11 @@ export const createFlowServerSliceV3: StateCreator<
 > = (set, get) => {
   // Debounce wrapper of `updateContentV3`
   const saveSpaceDebounced = debounce(
-    async (
-      spaceId: string,
-      flowContent: {
-        nodes: LocalNode[];
-        edges: V3LocalEdge[];
-        nodeConfigsDict: V3NodeConfigsDict;
-        variablesDict: VariablesDict;
-        variableValueLookUpDicts: V3VariableValueLookUpDict[];
-      },
-    ) => {
+    async (spaceId: string, flowContent: V3FlowContent) => {
       set(() => ({ isFlowContentSaving: true }));
 
       await updateSpaceContentV3(spaceId, {
+        ...flowContent,
         nodes: A.map(
           flowContent.nodes,
           D.selectKeys(['id', 'type', 'position', 'data']),
@@ -109,9 +100,6 @@ export const createFlowServerSliceV3: StateCreator<
             'targetHandle',
           ]),
         ),
-        nodeConfigsDict: flowContent.nodeConfigsDict,
-        variablesDict: flowContent.variablesDict,
-        variableValueLookUpDicts: flowContent.variableValueLookUpDicts,
       });
 
       set(() => ({ isFlowContentSaving: false }));
@@ -165,6 +153,8 @@ export const createFlowServerSliceV3: StateCreator<
       nodeConfigsDict: get().nodeConfigsDict,
       variablesDict: get().variablesDict,
       variableValueLookUpDicts: get().variableValueLookUpDicts,
+      controlsDict: get().controlsDict,
+      controlResultsLookUpDicts: get().controlResultsLookUpDicts,
     });
 
     set(() => ({ isFlowContentDirty: false }));
