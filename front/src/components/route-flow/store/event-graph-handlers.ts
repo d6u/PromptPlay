@@ -2,6 +2,9 @@ import { A } from '@mobily/ts-belt';
 import chance from 'common-utils/chance';
 import randomId from 'common-utils/randomId';
 import {
+  Control,
+  ControlResultsLookUpDict,
+  ControlsDict,
   EdgeID,
   FlowInputVariable,
   FlowOutputVariable,
@@ -70,6 +73,7 @@ export function handleEvent(
         state.nodes,
         state.nodeConfigsDict,
         state.variablesDict,
+        state.controlsDict,
       );
     case ChangeEventType.REMOVING_NODE:
       return handleRemovingNode(
@@ -104,7 +108,9 @@ export function handleEvent(
     case ChangeEventType.NODE_AND_VARIABLES_ADDED:
       return handleNodeAndVariablesAdded(
         event.variableConfigList,
+        event.controlsList,
         state.variableValueLookUpDicts,
+        state.controlResultsLookUpDicts,
       );
     case ChangeEventType.NODE_REMOVED:
       return handleNodeRemoved(
@@ -152,6 +158,7 @@ export function handleEvent(
       );
     // Derived Other
     case ChangeEventType.VAR_VALUE_MAP_UPDATED:
+    case ChangeEventType.CONTROL_RESULT_MAP_UPDATED:
       return [state, []];
   }
 }
@@ -332,13 +339,15 @@ function handleAddingNode(
   prevNodes: LocalNode[],
   prevNodeConfigs: V3NodeConfigsDict,
   prevVariableConfigs: VariablesDict,
+  prevControlsDict: ControlsDict,
 ): EventHandlerResult {
   const content: Partial<FlowState> = {};
   const events: ChangeEvent[] = [];
 
-  const { nodeConfig, variableConfigList } = getNodeDefinitionForNodeTypeName(
-    node.type,
-  ).createDefaultNodeConfig(node);
+  // ANCHOR: Update node and variables
+
+  const { nodeConfig, variableConfigList, controlsList } =
+    getNodeDefinitionForNodeTypeName(node.type).createDefaultNodeConfig(node);
 
   const nodes = produce(prevNodes, (draft) => {
     draft.push({
@@ -357,16 +366,28 @@ function handleAddingNode(
     }
   });
 
+  // ANCHOR: Update controls
+
+  const controlsDict = produce(prevControlsDict, (draft) => {
+    if (controlsList) {
+      for (const control of controlsList) {
+        draft[control.id] = control;
+      }
+    }
+  });
+
   events.push({
     type: ChangeEventType.NODE_AND_VARIABLES_ADDED,
     node,
     variableConfigList,
+    controlsList: controlsList ?? [],
   });
 
   content.isFlowContentDirty = true;
   content.nodes = nodes;
   content.nodeConfigsDict = nodeConfigs;
   content.variablesDict = variableConfigs;
+  content.controlsDict = controlsDict;
 
   return [content, events];
 }
@@ -546,10 +567,14 @@ function handleUpdatingVariable(
 
 function handleNodeAndVariablesAdded(
   variableConfigList: Variable[],
+  controlsList: Control[],
   prevVariableValueMaps: V3VariableValueLookUpDict[],
+  prevControlResultsLookUpDicts: ControlResultsLookUpDict,
 ): EventHandlerResult {
   const content: Partial<FlowState> = {};
   const events: ChangeEvent[] = [];
+
+  // ANCHOR: Update variable values
 
   const variableValueMaps = produce(prevVariableValueMaps, (draft) => {
     for (const variableConfig of variableConfigList) {
@@ -561,8 +586,29 @@ function handleNodeAndVariablesAdded(
     type: ChangeEventType.VAR_VALUE_MAP_UPDATED,
   });
 
+  // ANCHOR: Update control results
+
+  const controlResultsLookUpDicts = produce(
+    prevControlResultsLookUpDicts,
+    (draft) => {
+      if (controlsList.length > 0) {
+        for (const control of controlsList) {
+          draft[control.id] = {
+            controlId: control.id,
+            isMeetingCondition: false,
+          };
+        }
+
+        events.push({
+          type: ChangeEventType.CONTROL_RESULT_MAP_UPDATED,
+        });
+      }
+    },
+  );
+
   content.isFlowContentDirty = true;
   content.variableValueLookUpDicts = variableValueMaps;
+  content.controlResultsLookUpDicts = controlResultsLookUpDicts;
 
   return [content, events];
 }

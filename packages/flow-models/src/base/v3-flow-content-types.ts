@@ -120,6 +120,7 @@ export type Condition = {
   id: string;
   nodeId: NodeID;
   index: number;
+  eq: string;
 };
 
 export type ConditionTarget = {
@@ -133,7 +134,7 @@ export type ConditionTarget = {
 export type ControlResultsLookUpDict = Record<string, ControlResult>;
 
 export type ControlResult = {
-  id: string;
+  controlId: string;
   isMeetingCondition: boolean;
 };
 

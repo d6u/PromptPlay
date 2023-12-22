@@ -1,3 +1,4 @@
+import randomId from 'common-utils/randomId';
 import { of } from 'rxjs';
 import invariant from 'ts-invariant';
 import {
@@ -6,7 +7,11 @@ import {
   NodeExecutionEventType,
 } from '../base/node-definition-base-types';
 import { NodeType } from '../base/node-types';
-import { VariableType, VariableValueType } from '../base/v3-flow-content-types';
+import {
+  ControlType,
+  VariableType,
+  VariableValueType,
+} from '../base/v3-flow-content-types';
 import { asV3VariableID } from '../base/v3-flow-utils';
 
 export const CONDITION_NODE_DEFINITION: NodeDefinition = {
@@ -30,21 +35,21 @@ export const CONDITION_NODE_DEFINITION: NodeDefinition = {
           name: 'input',
           valueType: VariableValueType.Unknown,
         },
+      ],
+      controlsList: [
         {
-          type: VariableType.NodeOutput,
-          id: asV3VariableID(`${node.id}/condition1`),
-          nodeId: node.id,
+          type: ControlType.Condition,
+          id: asV3VariableID(`${node.id}/${randomId()}`),
           index: 0,
-          name: 'condition 1',
-          valueType: VariableValueType.Unknown,
+          nodeId: node.id,
+          eq: 'Value A',
         },
         {
-          type: VariableType.NodeOutput,
-          id: asV3VariableID(`${node.id}/condition2`),
-          nodeId: node.id,
+          type: ControlType.Condition,
+          id: asV3VariableID(`${node.id}/${randomId()}`),
           index: 1,
-          name: 'condition 2',
-          valueType: VariableValueType.Unknown,
+          nodeId: node.id,
+          eq: 'Value B',
         },
       ],
     };

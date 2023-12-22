@@ -1,4 +1,5 @@
 import {
+  Control,
   LocalNode,
   NodeID,
   V3LocalEdge,
@@ -38,6 +39,7 @@ export enum ChangeEventType {
   VARIABLE_UPDATED = 'VARIABLE_UPDATED',
   // Derived Other
   VAR_VALUE_MAP_UPDATED = 'VAR_VALUE_MAP_UPDATED',
+  CONTROL_RESULT_MAP_UPDATED = 'CONTROL_RESULT_MAP_UPDATED',
 }
 
 export const EVENT_VALIDATION_MAP: {
@@ -65,6 +67,7 @@ export const EVENT_VALIDATION_MAP: {
   // Derived Nodes
   [ChangeEventType.NODE_AND_VARIABLES_ADDED]: [
     ChangeEventType.VAR_VALUE_MAP_UPDATED,
+    ChangeEventType.CONTROL_RESULT_MAP_UPDATED,
   ],
   [ChangeEventType.NODE_MOVED]: [],
   [ChangeEventType.NODE_CONFIG_UPDATED]: [],
@@ -88,6 +91,7 @@ export const EVENT_VALIDATION_MAP: {
   [ChangeEventType.VARIABLE_UPDATED]: [ChangeEventType.VAR_VALUE_MAP_UPDATED],
   // Derived Other
   [ChangeEventType.VAR_VALUE_MAP_UPDATED]: [],
+  [ChangeEventType.CONTROL_RESULT_MAP_UPDATED]: [],
 };
 
 export type ChangeEvent =
@@ -140,6 +144,7 @@ export type ChangeEvent =
       type: ChangeEventType.NODE_AND_VARIABLES_ADDED;
       node: LocalNode;
       variableConfigList: Variable[];
+      controlsList: Control[];
     }
   | {
       type: ChangeEventType.NODE_REMOVED;
@@ -184,4 +189,7 @@ export type ChangeEvent =
   // Derived Other
   | {
       type: ChangeEventType.VAR_VALUE_MAP_UPDATED;
+    }
+  | {
+      type: ChangeEventType.CONTROL_RESULT_MAP_UPDATED;
     };
