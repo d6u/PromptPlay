@@ -83,7 +83,10 @@ export const EVENT_VALIDATION_MAP: {
     ChangeEventType.EDGE_REMOVED,
     ChangeEventType.VARIABLE_UPDATED,
   ],
-  [ChangeEventType.EDGE_REMOVED]: [ChangeEventType.VARIABLE_UPDATED],
+  [ChangeEventType.EDGE_REMOVED]: [
+    ChangeEventType.VARIABLE_UPDATED,
+    ChangeEventType.CONTROL_RESULT_MAP_UPDATED,
+  ],
   [ChangeEventType.EDGE_REPLACED]: [ChangeEventType.VARIABLE_UPDATED],
   // Derived Variables
   [ChangeEventType.VARIABLE_ADDED]: [ChangeEventType.VAR_VALUE_MAP_UPDATED],

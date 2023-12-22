@@ -126,6 +126,7 @@ export function handleEvent(
         event.removedEdge,
         event.edgeSrcVariableConfig,
         state.variablesDict,
+        state.controlResultsLookUpDicts,
       );
     case ChangeEventType.EDGE_REPLACED:
       return handleEdgeReplaced(
@@ -260,12 +261,20 @@ function handleRfOnConnect(
   const events: ChangeEvent[] = [];
 
   if (connection.source === connection.target) {
+    // NOTE: Ignore self connection
     return [content, events];
   }
 
   const nextEdges = addEdge(connection, prevEdges) as V3LocalEdge[];
-  const addedEdge = A.difference(nextEdges, prevEdges)[0];
-  invariant(addedEdge != null);
+  const addedEdges = A.difference(nextEdges, prevEdges);
+
+  if (addedEdges.length === 0) {
+    // NOTE: This happens when connecting between two handles that are already
+    // connected in React Flow.
+    return [content, events];
+  }
+
+  const addedEdge = addedEdges[0]!;
 
   // Assign a shorter ID for readability
   addedEdge.id = randomId() as EdgeID;
@@ -294,37 +303,52 @@ function handleRfOnConnect(
     }
 
     // !SECTION
-  }
 
-  // SECTION: Check if this is a replacing or adding
+    // SECTION: Check if this is a replacing or adding
 
-  const [acceptedEdges, rejectedEdges] = A.partition(nextEdges, (edge) => {
-    return (
-      edge.id === addedEdge.id || edge.targetHandle !== addedEdge.targetHandle
-    );
-  });
-
-  if (rejectedEdges.length) {
-    const oldEdge = rejectedEdges[0];
-    invariant(oldEdge != null);
-    // Replace edge
-    events.push({
-      type: ChangeEventType.EDGE_REPLACED,
-      oldEdge,
-      newEdge: addedEdge,
+    const [acceptedEdges, rejectedEdges] = A.partition(nextEdges, (edge) => {
+      return (
+        edge.id === addedEdge.id || edge.targetHandle !== addedEdge.targetHandle
+      );
     });
+
+    if (rejectedEdges.length) {
+      const oldEdge = rejectedEdges[0];
+      invariant(oldEdge != null);
+
+      // Replace edge
+      events.push({
+        type: ChangeEventType.EDGE_REPLACED,
+        oldEdge,
+        newEdge: addedEdge,
+      });
+    } else {
+      // Add edge
+      events.push({
+        type: ChangeEventType.EDGE_ADDED,
+        edge: addedEdge,
+      });
+    }
+
+    // !SECTION
+
+    content.isFlowContentDirty = true;
+    content.edges = assignLocalEdgeProperties(acceptedEdges);
   } else {
-    // Add edge
+    // NOTE: New edge connects a condition and a condition target
+
+    // NOTE: For condition edge, we allow same source with multiple targets
+    // as well as same target with multiple sources. Thus, we won't generate
+    // edge replace event.
+
     events.push({
       type: ChangeEventType.EDGE_ADDED,
       edge: addedEdge,
     });
+
+    content.isFlowContentDirty = true;
+    content.edges = assignLocalEdgeProperties(nextEdges);
   }
-
-  // !SECTION
-
-  content.isFlowContentDirty = true;
-  content.edges = assignLocalEdgeProperties(acceptedEdges);
 
   return [content, events];
 }
@@ -678,50 +702,84 @@ function handleEdgeAdded(
 
 function handleEdgeRemoved(
   removedEdge: V3LocalEdge,
-  edgeSrcVariableConfig: Variable | null,
+  edgeSrcConnector: Variable | null,
   prevVariableConfigs: VariablesDict,
+  prevControlResultsLookUpDicts: ControlResultsLookUpDict,
 ): EventHandlerResult {
   const content: Partial<FlowState> = {};
   const events: ChangeEvent[] = [];
 
-  // SECTION: Target Variable Type
+  // SECTION: Variable Type
 
   const variableConfigs = produce(prevVariableConfigs, (draft) => {
     if (draft[removedEdge.targetHandle] == null) {
-      // Edge was removed because destination variable was removed
+      // NOTE: Edge was removed because destination variable was removed.
+      // Do nothing in this case.
       return;
     }
 
-    const srcVariableConfig =
-      edgeSrcVariableConfig ?? draft[removedEdge.sourceHandle];
+    const srcConnector = edgeSrcConnector ?? draft[removedEdge.sourceHandle];
 
-    invariant(
-      srcVariableConfig.type === VariableType.NodeOutput ||
-        srcVariableConfig.type === VariableType.FlowInput,
-    );
+    if (
+      srcConnector.type === VariableType.FlowInput ||
+      srcConnector.type === VariableType.FlowOutput ||
+      srcConnector.type === VariableType.NodeInput ||
+      srcConnector.type === VariableType.NodeOutput
+    ) {
+      invariant(
+        srcConnector.type === VariableType.FlowInput ||
+          srcConnector.type === VariableType.NodeOutput,
+      );
 
-    if (srcVariableConfig.valueType === VariableValueType.Audio) {
-      // Get the destination input
-      const dstVariableConfig = draft[asV3VariableID(removedEdge.targetHandle)];
+      if (srcConnector.valueType === VariableValueType.Audio) {
+        // NOTE: Source variable of removed edge is audio.
+        // We need to change the destination variable back to default type.
 
-      invariant(dstVariableConfig.type === VariableType.FlowOutput);
+        const dstConnector = draft[asV3VariableID(removedEdge.targetHandle)];
+        invariant(dstConnector.type === VariableType.FlowOutput);
 
-      const prevVariableConfig = current(dstVariableConfig);
+        const prevVariableConfig = current(dstConnector);
 
-      dstVariableConfig.valueType = VariableValueType.String;
+        dstConnector.valueType = VariableValueType.String;
 
-      events.push({
-        type: ChangeEventType.VARIABLE_UPDATED,
-        prevVariableConfig,
-        nextVariableConfig: current(dstVariableConfig),
-      });
+        events.push({
+          type: ChangeEventType.VARIABLE_UPDATED,
+          prevVariableConfig,
+          nextVariableConfig: current(dstConnector),
+        });
+      }
     }
   });
 
   // !SECTION
 
-  content.isFlowContentDirty = variableConfigs !== prevVariableConfigs;
+  // SECTION: Control type
+
+  const controlResultsLookUpDicts = produce(
+    prevControlResultsLookUpDicts,
+    (draft) => {
+      const srcConnector =
+        edgeSrcConnector ?? variableConfigs[removedEdge.sourceHandle];
+
+      if (srcConnector.type === VariableType.Condition) {
+        // NOTE: Reset control result after removing edge
+        draft[srcConnector.id].isMeetingCondition = false;
+
+        events.push({
+          type: ChangeEventType.CONTROL_RESULT_MAP_UPDATED,
+        });
+      }
+    },
+  );
+
+  // !SECTION
+
+  content.isFlowContentDirty =
+    variableConfigs !== prevVariableConfigs ||
+    controlResultsLookUpDicts !== prevControlResultsLookUpDicts;
+
   content.variablesDict = variableConfigs;
+  content.controlResultsLookUpDicts = controlResultsLookUpDicts;
 
   return [content, events];
 }
@@ -734,11 +792,14 @@ function handleEdgeReplaced(
   const content: Partial<FlowState> = {};
   const events: ChangeEvent[] = [];
 
-  // --- Handle variable type change ---
+  // NOTE: There won't be edge replaced event for edges between condition
+  // and condition target.
+
+  // SECTION: Variable type
 
   const variableConfigs = produce(prevVariableConfigs, (draft) => {
-    const oldSrcVariableConfig = draft[asV3VariableID(oldEdge.sourceHandle)];
-    const newSrcVariableConfig = draft[asV3VariableID(newEdge.sourceHandle)];
+    const oldSrcVariableConfig = draft[oldEdge.sourceHandle];
+    const newSrcVariableConfig = draft[newEdge.sourceHandle];
 
     invariant(
       oldSrcVariableConfig.type === VariableType.FlowInput ||
@@ -796,6 +857,8 @@ function handleEdgeReplaced(
       });
     }
   });
+
+  // !SECTION
 
   content.isFlowContentDirty = variableConfigs !== prevVariableConfigs;
   content.variablesDict = variableConfigs;
