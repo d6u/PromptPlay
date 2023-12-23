@@ -1,3 +1,4 @@
+import { D } from '@mobily/ts-belt';
 import chance from 'common-utils/chance';
 import randomId from 'common-utils/randomId';
 import { of } from 'rxjs';
@@ -39,6 +40,14 @@ export const INPUT_NODE_DEFINITION: NodeDefinition = {
   createNodeExecutionObservable: (nodeConfig, context) => {
     invariant(nodeConfig.type === NodeType.InputNode);
 
+    const connectorIds = D.values(context.variablesDict)
+      .filter((c) => {
+        return (
+          c.nodeId === nodeConfig.nodeId && c.type === VariableType.FlowInput
+        );
+      })
+      .map((c) => c.id);
+
     return of<NodeExecutionEvent[]>(
       {
         type: NodeExecutionEventType.Start,
@@ -47,6 +56,7 @@ export const INPUT_NODE_DEFINITION: NodeDefinition = {
       {
         type: NodeExecutionEventType.Finish,
         nodeId: nodeConfig.nodeId,
+        finishedConnectorIds: connectorIds,
       },
     );
   },

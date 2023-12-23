@@ -147,6 +147,7 @@ export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition = {
       {
         type: NodeExecutionEventType.Finish,
         nodeId: nodeConfig.nodeId,
+        finishedConnectorIds: [variableMessage.id, variableMessages.id],
       },
     );
   },

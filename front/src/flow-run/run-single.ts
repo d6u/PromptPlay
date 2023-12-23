@@ -103,6 +103,7 @@ export function runSingle({
                   {
                     type: NodeExecutionEventType.Finish,
                     nodeId: nodeConfig.nodeId,
+                    finishedConnectorIds: [],
                   },
                 );
               },

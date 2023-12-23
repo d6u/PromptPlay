@@ -60,44 +60,44 @@ export const HUGGINGFACE_INFERENCE_NODE_DEFINITION: NodeDefinition = {
       huggingFaceApiToken,
     } = context;
 
+    // ANCHOR: Prepare inputs
+
+    if (!huggingFaceApiToken) {
+      return of<NodeExecutionEvent>({
+        type: NodeExecutionEventType.Errors,
+        nodeId: nodeConfig.nodeId,
+        errMessages: ['Hugging Face API token is missing'],
+      });
+    }
+
+    let variableOutput: NodeOutputVariable | null = null;
+
+    const argsMap: { [key: string]: unknown } = {};
+
+    for (const variable of Object.values(variableMap)) {
+      if (variable.nodeId !== nodeConfig.nodeId) {
+        continue;
+      }
+
+      if (variable.type === VariableType.NodeInput) {
+        const outputId = inputIdToOutputIdMap[variable.id];
+
+        if (outputId) {
+          const outputValue = variableValueMap[outputId];
+          argsMap[variable.name] = outputValue ?? null;
+        } else {
+          argsMap[variable.name] = null;
+        }
+      } else if (variable.type === VariableType.NodeOutput) {
+        if (variable.index === 0) {
+          variableOutput = variable;
+        }
+      }
+    }
+
+    invariant(variableOutput != null);
+
     return defer<Observable<NodeExecutionEvent>>(() => {
-      // ANCHOR: Prepare inputs
-
-      if (!huggingFaceApiToken) {
-        return of<NodeExecutionEvent>({
-          type: NodeExecutionEventType.Errors,
-          nodeId: nodeConfig.nodeId,
-          errMessages: ['Hugging Face API token is missing'],
-        });
-      }
-
-      let variableOutput: NodeOutputVariable | null = null;
-
-      const argsMap: { [key: string]: unknown } = {};
-
-      for (const variable of Object.values(variableMap)) {
-        if (variable.nodeId !== nodeConfig.nodeId) {
-          continue;
-        }
-
-        if (variable.type === VariableType.NodeInput) {
-          const outputId = inputIdToOutputIdMap[variable.id];
-
-          if (outputId) {
-            const outputValue = variableValueMap[outputId];
-            argsMap[variable.name] = outputValue ?? null;
-          } else {
-            argsMap[variable.name] = null;
-          }
-        } else if (variable.type === VariableType.NodeOutput) {
-          if (variable.index === 0) {
-            variableOutput = variable;
-          }
-        }
-      }
-
-      invariant(variableOutput != null);
-
       // ANCHOR: Execute logic
 
       return from(
@@ -136,6 +136,7 @@ export const HUGGINGFACE_INFERENCE_NODE_DEFINITION: NodeDefinition = {
       endWith<NodeExecutionEvent>({
         type: NodeExecutionEventType.Finish,
         nodeId: nodeConfig.nodeId,
+        finishedConnectorIds: [variableOutput.id],
       }),
     );
   },

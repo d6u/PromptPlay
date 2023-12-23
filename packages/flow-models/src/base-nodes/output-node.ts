@@ -78,6 +78,7 @@ export const OUTPUT_NODE_DEFINITION: NodeDefinition = {
       {
         type: NodeExecutionEventType.Finish,
         nodeId: nodeConfig.nodeId,
+        finishedConnectorIds: [],
       },
     );
   },

@@ -2,6 +2,7 @@ import randomId from 'common-utils/randomId';
 import mustache from 'mustache';
 import { defer, of } from 'rxjs';
 import invariant from 'ts-invariant';
+import { V3VariableID } from '../..';
 import {
   NodeDefinition,
   NodeExecutionEvent,
@@ -69,6 +70,7 @@ export const TEXT_TEMPLATE_NODE_DEFINITION: NodeDefinition = {
       let variableContent: NodeOutputVariable | null = null;
 
       const argsMap: Record<string, unknown> = {};
+      const finishedConnectorIds: V3VariableID[] = [];
 
       for (const variable of Object.values(variableMap)) {
         if (variable.nodeId !== nodeConfig.nodeId) {
@@ -85,6 +87,8 @@ export const TEXT_TEMPLATE_NODE_DEFINITION: NodeDefinition = {
             argsMap[variable.name] = null;
           }
         } else if (variable.type === VariableType.NodeOutput) {
+          finishedConnectorIds.push(variable.id);
+
           if (variable.index === 0) {
             variableContent = variable;
           }
@@ -116,6 +120,7 @@ export const TEXT_TEMPLATE_NODE_DEFINITION: NodeDefinition = {
         {
           type: NodeExecutionEventType.Finish,
           nodeId: nodeConfig.nodeId,
+          finishedConnectorIds,
         },
       );
     });

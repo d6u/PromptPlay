@@ -48,44 +48,44 @@ export const JAVASCRIPT_NODE_DEFINITION: NodeDefinition = {
       outputIdToValueMap: variableValueMap,
     } = context;
 
-    return defer<Promise<NodeExecutionEvent>>(async () => {
-      let outputVariable: NodeOutputVariable | null = null;
-      const pairs: Array<[string, unknown]> = [];
+    let outputVariable: NodeOutputVariable | null = null;
+    const pairs: Array<[string, unknown]> = [];
 
-      for (const variable of Object.values(variableMap)) {
-        if (variable.nodeId !== nodeConfig.nodeId) {
-          continue;
-        }
-
-        if (variable.type === VariableType.NodeInput) {
-          const outputId = inputIdToOutputIdMap[variable.id];
-
-          if (outputId) {
-            const outputValue = variableValueMap[outputId];
-            pairs.push([variable.name, outputValue ?? null]);
-          } else {
-            pairs.push([variable.name, null]);
-          }
-        } else if (variable.type === VariableType.NodeOutput) {
-          outputVariable = variable;
-        }
+    for (const variable of Object.values(variableMap)) {
+      if (variable.nodeId !== nodeConfig.nodeId) {
+        continue;
       }
 
-      invariant(outputVariable != null);
+      if (variable.type === VariableType.NodeInput) {
+        const outputId = inputIdToOutputIdMap[variable.id];
 
-      const fn = AsyncFunction(
-        ...pairs.map((pair) => pair[0]),
-        nodeConfig.javaScriptCode,
-      );
+        if (outputId) {
+          const outputValue = variableValueMap[outputId];
+          pairs.push([variable.name, outputValue ?? null]);
+        } else {
+          pairs.push([variable.name, null]);
+        }
+      } else if (variable.type === VariableType.NodeOutput) {
+        outputVariable = variable;
+      }
+    }
 
+    invariant(outputVariable != null);
+
+    const fn = AsyncFunction(
+      ...pairs.map((pair) => pair[0]),
+      nodeConfig.javaScriptCode,
+    );
+
+    return defer<Promise<NodeExecutionEvent>>(async () => {
       const result = await fn(...pairs.map((pair) => pair[1]));
 
-      variableValueMap[outputVariable.id] = result;
+      variableValueMap[outputVariable!.id] = result;
 
       return {
         type: NodeExecutionEventType.VariableValues,
         nodeId: nodeConfig.nodeId,
-        variableValuesLookUpDict: { [outputVariable.id]: result },
+        variableValuesLookUpDict: { [outputVariable!.id]: result },
       };
     }).pipe(
       startWith<NodeExecutionEvent>({
@@ -95,6 +95,7 @@ export const JAVASCRIPT_NODE_DEFINITION: NodeDefinition = {
       endWith<NodeExecutionEvent>({
         type: NodeExecutionEventType.Finish,
         nodeId: nodeConfig.nodeId,
+        finishedConnectorIds: [outputVariable!.id],
       }),
     );
   },

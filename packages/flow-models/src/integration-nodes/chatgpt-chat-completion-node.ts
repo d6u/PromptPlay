@@ -95,52 +95,52 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition = {
       openAiApiKey,
     } = context;
 
+    // ANCHOR: Prepare inputs
+
+    if (!openAiApiKey) {
+      return of({
+        type: NodeExecutionEventType.Errors,
+        nodeId: nodeConfig.nodeId,
+        errMessages: ['OpenAI API key is missing'],
+      });
+    }
+
+    let variableContent: NodeOutputVariable | null = null;
+    let variableMessage: NodeOutputVariable | null = null;
+    let variableMessages: NodeOutputVariable | null = null;
+
+    const argsMap: { [key: string]: unknown } = {};
+
+    for (const variable of Object.values(variableMap)) {
+      if (variable.nodeId !== nodeConfig.nodeId) {
+        continue;
+      }
+
+      if (variable.type === VariableType.NodeInput) {
+        const outputId = inputIdToOutputIdMap[variable.id];
+
+        if (outputId) {
+          const outputValue = variableValueMap[outputId];
+          argsMap[variable.name] = outputValue ?? null;
+        } else {
+          argsMap[variable.name] = null;
+        }
+      } else if (variable.type === VariableType.NodeOutput) {
+        if (variable.index === 0) {
+          variableContent = variable;
+        } else if (variable.index === 1) {
+          variableMessage = variable;
+        } else if (variable.index === 2) {
+          variableMessages = variable;
+        }
+      }
+    }
+
+    invariant(variableContent != null);
+    invariant(variableMessage != null);
+    invariant(variableMessages != null);
+
     return defer<Observable<NodeExecutionEvent>>(() => {
-      // ANCHOR: Prepare inputs
-
-      if (!openAiApiKey) {
-        return of({
-          type: NodeExecutionEventType.Errors,
-          nodeId: nodeConfig.nodeId,
-          errMessages: ['OpenAI API key is missing'],
-        });
-      }
-
-      let variableContent: NodeOutputVariable | null = null;
-      let variableMessage: NodeOutputVariable | null = null;
-      let variableMessages: NodeOutputVariable | null = null;
-
-      const argsMap: { [key: string]: unknown } = {};
-
-      for (const variable of Object.values(variableMap)) {
-        if (variable.nodeId !== nodeConfig.nodeId) {
-          continue;
-        }
-
-        if (variable.type === VariableType.NodeInput) {
-          const outputId = inputIdToOutputIdMap[variable.id];
-
-          if (outputId) {
-            const outputValue = variableValueMap[outputId];
-            argsMap[variable.name] = outputValue ?? null;
-          } else {
-            argsMap[variable.name] = null;
-          }
-        } else if (variable.type === VariableType.NodeOutput) {
-          if (variable.index === 0) {
-            variableContent = variable;
-          } else if (variable.index === 1) {
-            variableMessage = variable;
-          } else if (variable.index === 2) {
-            variableMessages = variable;
-          }
-        }
-      }
-
-      invariant(variableContent != null);
-      invariant(variableMessage != null);
-      invariant(variableMessages != null);
-
       // ANCHOR: Execute logic
 
       let messages = (argsMap['messages'] ?? []) as ChatGPTMessage[];
@@ -273,6 +273,11 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition = {
       endWith<NodeExecutionEvent>({
         type: NodeExecutionEventType.Finish,
         nodeId: nodeConfig.nodeId,
+        finishedConnectorIds: [
+          variableContent!.id,
+          variableMessage!.id,
+          variableMessages!.id,
+        ],
       }),
     );
   },

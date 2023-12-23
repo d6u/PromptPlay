@@ -26,6 +26,7 @@ export type NodeExecutionEvent =
   | {
       type: NodeExecutionEventType.Finish;
       nodeId: NodeID;
+      finishedConnectorIds: V3VariableID[];
     }
   | {
       type: NodeExecutionEventType.VariableValues;
