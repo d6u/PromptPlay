@@ -158,6 +158,7 @@ export function handleEvent(
     case ChangeEventType.CONDITION_REMOVED:
       return handleConditionRemoved(
         event.removedCondition,
+        state.edges,
         state.controlResultsLookUpDicts,
       );
     case ChangeEventType.CONDITION_TARGET_REMOVED:
@@ -792,6 +793,12 @@ function handleEdgeRemoved(
         edgeSrcConnector ?? variableConfigs[removedEdge.sourceHandle];
 
       if (srcConnector.type === VariableType.Condition) {
+        if (draft[srcConnector.id] == null) {
+          // NOTE: Edge could be removed because the condition was removed.
+          // Do nothing in this case.
+          return;
+        }
+
         // NOTE: Reset control result after removing edge
         draft[srcConnector.id].isMeetingCondition = false;
 
@@ -1018,10 +1025,36 @@ function handleVariableUpdated(
 
 function handleConditionRemoved(
   removedCondition: Condition,
+  prevEdges: V3LocalEdge[],
   prevControlResultsLookUpDicts: ControlResultsLookUpDict,
 ): EventHandlerResult {
   const content: Partial<FlowState> = {};
   const events: ChangeEvent[] = [];
+
+  // SECTION: Process Edges Removal
+
+  const [acceptedEdges, rejectedEdges] = A.partition(
+    prevEdges,
+    (edge) =>
+      edge.sourceHandle !== removedCondition.id &&
+      edge.targetHandle !== removedCondition.id,
+  );
+
+  for (const removingEdge of rejectedEdges) {
+    events.push({
+      type: ChangeEventType.EDGE_REMOVED,
+      removedEdge: removingEdge,
+      // NOTE: If the removed connector is a source handle, assign it here.
+      edgeSrcVariableConfig:
+        removedCondition.id === removingEdge.sourceHandle
+          ? removedCondition
+          : null,
+    });
+  }
+
+  // !SECTION
+
+  // SECTION: Update control results
 
   const controlResultsLookUpDicts = produce(
     prevControlResultsLookUpDicts,
@@ -1034,9 +1067,13 @@ function handleConditionRemoved(
     },
   );
 
+  // !SECTION
+
   content.isFlowContentDirty =
+    rejectedEdges.length > 0 ||
     controlResultsLookUpDicts !== prevControlResultsLookUpDicts;
 
+  content.edges = acceptedEdges;
   content.controlResultsLookUpDicts = controlResultsLookUpDicts;
 
   return [content, events];

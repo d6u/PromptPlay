@@ -95,12 +95,13 @@ export const EVENT_VALIDATION_MAP: {
   // Derived Variables
   [ChangeEventType.VARIABLE_ADDED]: [ChangeEventType.VAR_VALUE_MAP_UPDATED],
   [ChangeEventType.VARIABLE_REMOVED]: [
-    ChangeEventType.VAR_VALUE_MAP_UPDATED,
     ChangeEventType.EDGE_REMOVED,
+    ChangeEventType.VAR_VALUE_MAP_UPDATED,
   ],
   [ChangeEventType.VARIABLE_UPDATED]: [ChangeEventType.VAR_VALUE_MAP_UPDATED],
   // Derived Conditions
   [ChangeEventType.CONDITION_REMOVED]: [
+    ChangeEventType.EDGE_REMOVED,
     ChangeEventType.CONTROL_RESULT_MAP_UPDATED,
   ],
   [ChangeEventType.CONDITION_TARGET_REMOVED]: [],

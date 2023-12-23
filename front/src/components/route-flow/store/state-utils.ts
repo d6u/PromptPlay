@@ -38,7 +38,7 @@ export function assignLocalEdgeProperties(
     for (const edge of draft) {
       if (!edge.style) {
         const srcConnector = connectorsDict[edge.sourceHandle];
-        invariant(srcConnector != null);
+        invariant(srcConnector != null, 'srcConnector != null');
 
         if (srcConnector.type === VariableType.Condition) {
           // TODO: Render a different stroke color for condition edges,
