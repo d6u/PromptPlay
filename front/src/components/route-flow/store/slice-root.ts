@@ -248,6 +248,9 @@ export function createRootSlice(
         variableValueLookUpDict,
       );
 
+      // NOTE: Reset variable values except flow inputs values
+      set({ variableValueLookUpDicts: [flowInputVariableIdToValueMap] });
+
       // NOTE: Stop previous run if there is one
       runSingleSubscription?.unsubscribe();
 

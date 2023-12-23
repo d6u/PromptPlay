@@ -103,6 +103,14 @@ export function runSingle({
     }
   }
 
+  if (initialListOfNodeIds.length === 0) {
+    console.warn('No valid initial nodes found.');
+    return EMPTY;
+  }
+
+  // NOTE: Used to determine when to complete the observable.
+  let queuedNodeCount = initialListOfNodeIds.length;
+
   // NOTE: `listOfNodeIdsSubject` will node IDs in topological order.
   const listOfNodeIdsSubject = new BehaviorSubject<NodeID[]>(
     initialListOfNodeIds,
@@ -111,7 +119,6 @@ export function runSingle({
   return listOfNodeIdsSubject.pipe(
     mergeMap((nodeIds) => {
       if (nodeIds.length === 0) {
-        listOfNodeIdsSubject.complete();
         return EMPTY;
       }
 
@@ -143,11 +150,9 @@ export function runSingle({
                 // NOTE: Expected errors from the observable will be emitted as
                 // NodeExecutionEventType.Errors event.
                 //
-                // For unexpected errors, we will convert that to
-                // NodeExecutionEventType.Errors.
-                //
-                // Always end with NodeExecutionEventType.Finish event per
-                // expectation.
+                // For unexpected errors, we will convert them to
+                // NodeExecutionEventType.Errors and always end with
+                // NodeExecutionEventType.Finish event per expectation.
                 listOfNodeIdsSubject.complete();
 
                 return of<NodeExecutionEvent[]>(
@@ -175,28 +180,54 @@ export function runSingle({
     // observable at the same time to maximize the concurrency.
     concatAll(),
     tap((event) => {
-      if (event.type === NodeExecutionEventType.Finish) {
-        const nextListOfNodeIds: NodeID[] = [];
+      switch (event.type) {
+        case NodeExecutionEventType.Start:
+          break;
+        case NodeExecutionEventType.Finish: {
+          const nextListOfNodeIds: NodeID[] = [];
 
-        for (const finishedConnectorId of event.finishedConnectorIds) {
-          // NOTE: `finishedConnectorIds` might contain source connector
-          // that is not connected by a edge.
-          const targetNodeIds = sourceConnectorIdToTargetNodeIdMap[
-            finishedConnectorId
-          ] as NodeID[] | undefined;
+          for (const finishedConnectorId of event.finishedConnectorIds) {
+            // NOTE: `finishedConnectorIds` might contain source connector
+            // that is not connected by a edge.
+            const targetNodeIds = sourceConnectorIdToTargetNodeIdMap[
+              finishedConnectorId
+            ] as NodeID[] | undefined;
 
-          if (targetNodeIds != null) {
-            for (const targetNodeId of targetNodeIds) {
-              nodeIndegree[targetNodeId] -= 1;
+            if (targetNodeIds != null) {
+              for (const targetNodeId of targetNodeIds) {
+                nodeIndegree[targetNodeId] -= 1;
 
-              if (nodeIndegree[targetNodeId] === 0) {
-                nextListOfNodeIds.push(targetNodeId);
+                if (nodeIndegree[targetNodeId] === 0) {
+                  nextListOfNodeIds.push(targetNodeId);
+                }
               }
             }
           }
+
+          queuedNodeCount -= 1;
+
+          if (nextListOfNodeIds.length === 0) {
+            if (queuedNodeCount === 0) {
+              listOfNodeIdsSubject.complete();
+            }
+          } else {
+            // NOTE: Incrementing count on NodeExecutionEventType.Start event
+            // won't work, because both `queuedNodeCount` and
+            // `nextListOfNodeIds.length` could be 0 while there are still
+            // values in `listOfNodeIdsSubject` waiting to be processed.
+            //
+            // I.e. `listOfNodeIdsSubject.complete()` will complete the subject
+            // immediately, even though there are still values in the subject.
+            queuedNodeCount += nextListOfNodeIds.length;
+            listOfNodeIdsSubject.next(nextListOfNodeIds);
+          }
+
+          break;
         }
 
-        listOfNodeIdsSubject.next(nextListOfNodeIds);
+        case NodeExecutionEventType.VariableValues:
+        case NodeExecutionEventType.Errors:
+          break;
       }
     }),
   );
