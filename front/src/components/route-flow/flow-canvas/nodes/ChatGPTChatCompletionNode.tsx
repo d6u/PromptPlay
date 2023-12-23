@@ -62,10 +62,6 @@ export default function ChatGPTChatCompletionNode() {
   const defaultVariableValueMap = useStore(flowStore, (s) =>
     s.getDefaultVariableValueLookUpDict(),
   );
-  const isConnectStartOnConditionNodeOutput = useStore(
-    flowStore,
-    (s) => s.connectStartEdgeType,
-  );
 
   const { openAiApiKey, setOpenAiApiKey } =
     useLocalStorageStore(persistSelector);
@@ -139,15 +135,12 @@ export default function ChatGPTChatCompletionNode() {
 
   return (
     <>
-      {/* {isConnectStartOnConditionNodeOutput && <ConditionTargetHandle />} */}
-      {!isConnectStartOnConditionNodeOutput && (
-        <InputHandle
-          type="target"
-          id={inputVariables[0].id}
-          position={Position.Left}
-          style={{ top: calculateInputHandleTop(-1) }}
-        />
-      )}
+      <InputHandle
+        type="target"
+        id={inputVariables[0].id}
+        position={Position.Left}
+        style={{ top: calculateInputHandleTop(-1) }}
+      />
       <NodeBox
         nodeType={NodeType.ChatGPTChatCompletionNode}
         state={
