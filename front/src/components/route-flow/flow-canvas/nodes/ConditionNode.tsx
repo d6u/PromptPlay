@@ -39,7 +39,7 @@ export default function ConditionNode() {
   const nodeConfigsDict = useStore(flowStore, (s) => s.nodeConfigsDict);
   const variablesDict = useStore(flowStore, (s) => s.variablesDict);
   const removeNode = useStore(flowStore, (s) => s.removeNode);
-  // const addVariable = useStore(flowStore, (s) => s.addVariable);
+  const addVariable = useStore(flowStore, (s) => s.addVariable);
   const updateVariable = useStore(flowStore, (s) => s.updateVariable);
   const removeVariable = useStore(flowStore, (s) => s.removeVariable);
 
@@ -113,7 +113,7 @@ export default function ConditionNode() {
             <AddVariableButton
               label="Condition"
               onClick={() => {
-                // addVariable(nodeId, VariableType.FlowInput, nodeOutputs.length);
+                addVariable(nodeId, VariableType.Condition, conditions.length);
                 updateNodeInternals(nodeId);
               }}
             />

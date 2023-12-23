@@ -521,6 +521,19 @@ function handleAddingVariable(
         draft[variableConfig.id] = variableConfig;
         break;
       }
+      case VariableType.Condition: {
+        const variableConfig: Condition = {
+          id: asV3VariableID(`${nodeId}/${randomId()}`),
+          type: VariableType.Condition,
+          nodeId,
+          index,
+          eq: 'some value',
+        };
+        draft[variableConfig.id] = variableConfig;
+        break;
+      }
+      case VariableType.ConditionTarget:
+        break;
     }
 
     events.push({
