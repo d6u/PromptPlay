@@ -64,6 +64,11 @@ export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition = {
           index: 1,
           valueType: VariableValueType.Unknown,
         },
+        {
+          type: VariableType.ConditionTarget,
+          id: asV3VariableID(`${node.id}/${randomId()}`),
+          nodeId: node.id,
+        },
       ],
     };
   },

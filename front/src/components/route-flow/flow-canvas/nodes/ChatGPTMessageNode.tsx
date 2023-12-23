@@ -14,12 +14,16 @@ import {
 import { ChatGPTMessageRole } from 'integrations/openai';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { Position, useNodeId, useUpdateNodeInternals } from 'reactflow';
+import invariant from 'ts-invariant';
 import { useStore } from 'zustand';
 import FlowContext from '../../FlowContext';
 import TextareaReadonly from '../../common/TextareaReadonly';
 import { CopyIcon, LabelWithIconContainer } from '../../common/flow-common';
 import { useStoreFromFlowStoreContext } from '../../store/FlowStoreContext';
-import { selectVariables } from '../../store/state-utils';
+import {
+  selectConditionTarget,
+  selectVariables,
+} from '../../store/state-utils';
 import { DetailPanelContentType } from '../../store/store-flow-state-types';
 import AddVariableButton from './node-common/AddVariableButton';
 import HeaderSection from './node-common/HeaderSection';
@@ -30,6 +34,7 @@ import NodeInputModifyRow, {
 } from './node-common/NodeInputModifyRow';
 import NodeOutputRow from './node-common/NodeOutputRow';
 import {
+  ConditionTargetHandle,
   InputHandle,
   OutputHandle,
   Section,
@@ -43,6 +48,7 @@ import {
 
 export default function ChatGPTMessageNode() {
   const nodeId = useNodeId() as NodeID;
+  const updateNodeInternals = useUpdateNodeInternals();
 
   const { isCurrentUserOwner } = useContext(FlowContext);
   const flowStore = useStoreFromFlowStoreContext();
@@ -80,17 +86,18 @@ export default function ChatGPTMessageNode() {
     variablesDict,
   );
 
-  const nodeConfig = useMemo(
-    () => nodeConfigsDict[nodeId] as V3ChatGPTMessageNodeConfig | undefined,
-    [nodeConfigsDict, nodeId],
-  );
-
-  const updateNodeInternals = useUpdateNodeInternals();
+  const nodeConfig = useMemo(() => {
+    return nodeConfigsDict[nodeId] as V3ChatGPTMessageNodeConfig | undefined;
+  }, [nodeConfigsDict, nodeId]);
 
   // SECTION: Input Variables
 
   const inputs = useMemo(() => {
     return selectVariables(nodeId, VariableType.NodeInput, variablesDict);
+  }, [nodeId, variablesDict]);
+
+  const conditionTarget = useMemo(() => {
+    return selectConditionTarget(nodeId, variablesDict);
   }, [nodeId, variablesDict]);
 
   // !SECTION
@@ -109,12 +116,17 @@ export default function ChatGPTMessageNode() {
   }, [nodeConfig]);
 
   if (!nodeConfig) {
+    // NOTE: This will happen when the node is removed in store, but not yet
+    // reflected in react-flow store.
     return null;
   }
 
+  invariant(nodeConfig.type === NodeType.ChatGPTMessageNode);
+  invariant(conditionTarget != null);
+
   return (
     <>
-      {/* {isConnectStartOnConditionNodeOutput && <ConditionTargetHandle />} */}
+      <ConditionTargetHandle controlId={conditionTarget.id} isVisible={true} />
       {!isConnectStartOnConditionNodeOutput && (
         <InputHandle
           key={0}

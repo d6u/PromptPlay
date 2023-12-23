@@ -70,6 +70,10 @@ export default function TextTemplateNode() {
 
   // !SECTION
 
+  const nodeConfig = useMemo(() => {
+    return nodeConfigs[nodeId] as V3TextTemplateNodeConfig | undefined;
+  }, [nodeConfigs, nodeId]);
+
   const inputs = useMemo(() => {
     return selectVariables(nodeId, VariableType.NodeInput, variableConfigs);
   }, [nodeId, variableConfigs]);
@@ -77,10 +81,6 @@ export default function TextTemplateNode() {
   const outputs = useMemo(() => {
     return selectVariables(nodeId, VariableType.NodeOutput, variableConfigs);
   }, [nodeId, variableConfigs]);
-
-  const nodeConfig = useMemo(() => {
-    return nodeConfigs[nodeId] as V3TextTemplateNodeConfig | undefined;
-  }, [nodeConfigs, nodeId]);
 
   const conditionTarget = useMemo(() => {
     return selectConditionTarget(nodeId, variableConfigs);
