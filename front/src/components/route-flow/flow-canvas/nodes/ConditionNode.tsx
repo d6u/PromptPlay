@@ -129,7 +129,7 @@ export default function ConditionNode() {
                 updateVariable(condition.id, { eq });
               }}
               onRemove={() => {
-                // removeVariable(condition.id);
+                removeVariable(condition.id);
                 updateNodeInternals(nodeId);
               }}
             />

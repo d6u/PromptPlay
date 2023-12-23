@@ -155,6 +155,8 @@ export function handleEvent(
         state.variableValueLookUpDicts,
       );
     // Derived Conditions
+    case ChangeEventType.CONDITION_ADDED:
+      return [state, []];
     case ChangeEventType.CONDITION_REMOVED:
       return handleConditionRemoved(
         event.removedCondition,
@@ -536,10 +538,21 @@ function handleAddingVariable(
         break;
     }
 
-    events.push({
-      type: ChangeEventType.VARIABLE_ADDED,
-      variableId: commonFields.id,
-    });
+    if (
+      varType === VariableType.FlowInput ||
+      varType === VariableType.FlowOutput ||
+      varType === VariableType.NodeInput ||
+      varType === VariableType.NodeOutput
+    ) {
+      events.push({
+        type: ChangeEventType.VARIABLE_ADDED,
+        variableId: commonFields.id,
+      });
+    } else if (varType === VariableType.Condition) {
+      events.push({
+        type: ChangeEventType.CONDITION_ADDED,
+      });
+    }
   });
 
   content.isFlowContentDirty = true;
@@ -556,10 +569,24 @@ function handleRemovingVariable(
   const events: ChangeEvent[] = [];
 
   const variableConfigs = produce(prevVariableConfigs, (draft) => {
-    events.push({
-      type: ChangeEventType.VARIABLE_REMOVED,
-      removedVariable: current(draft[variableId]),
-    });
+    const connector = current(draft[variableId]);
+
+    if (
+      connector.type === VariableType.FlowInput ||
+      connector.type === VariableType.FlowOutput ||
+      connector.type === VariableType.NodeInput ||
+      connector.type === VariableType.NodeOutput
+    ) {
+      events.push({
+        type: ChangeEventType.VARIABLE_REMOVED,
+        removedVariable: connector,
+      });
+    } else if (connector.type === VariableType.Condition) {
+      events.push({
+        type: ChangeEventType.CONDITION_REMOVED,
+        removedCondition: connector,
+      });
+    }
 
     delete draft[variableId];
   });

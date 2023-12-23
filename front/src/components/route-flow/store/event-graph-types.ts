@@ -38,6 +38,7 @@ export enum ChangeEventType {
   VARIABLE_REMOVED = 'VARIABLE_REMOVED',
   VARIABLE_UPDATED = 'VARIABLE_UPDATED',
   // Derived Conditions
+  CONDITION_ADDED = 'CONDITION_ADDED',
   CONDITION_REMOVED = 'CONDITION_REMOVED',
   CONDITION_TARGET_REMOVED = 'CONDITION_TARGET_REMOVED',
   // Derived Other
@@ -65,8 +66,14 @@ export const EVENT_VALIDATION_MAP: {
   [ChangeEventType.REMOVING_NODE]: [ChangeEventType.NODE_REMOVED],
   [ChangeEventType.UPDATING_NODE_CONFIG]: [ChangeEventType.NODE_CONFIG_UPDATED],
   // Variables
-  [ChangeEventType.ADDING_VARIABLE]: [ChangeEventType.VARIABLE_ADDED],
-  [ChangeEventType.REMOVING_VARIABLE]: [ChangeEventType.VARIABLE_REMOVED],
+  [ChangeEventType.ADDING_VARIABLE]: [
+    ChangeEventType.VARIABLE_ADDED,
+    ChangeEventType.CONDITION_ADDED,
+  ],
+  [ChangeEventType.REMOVING_VARIABLE]: [
+    ChangeEventType.VARIABLE_REMOVED,
+    ChangeEventType.CONDITION_REMOVED,
+  ],
   [ChangeEventType.UPDATING_VARIABLE]: [ChangeEventType.VARIABLE_UPDATED],
   // ANCHOR: Derived
   // Derived Nodes
@@ -100,6 +107,7 @@ export const EVENT_VALIDATION_MAP: {
   ],
   [ChangeEventType.VARIABLE_UPDATED]: [ChangeEventType.VAR_VALUE_MAP_UPDATED],
   // Derived Conditions
+  [ChangeEventType.CONDITION_ADDED]: [],
   [ChangeEventType.CONDITION_REMOVED]: [
     ChangeEventType.EDGE_REMOVED,
     ChangeEventType.CONTROL_RESULT_MAP_UPDATED,
@@ -202,6 +210,9 @@ export type ChangeEvent =
       removedVariable: Variable;
     }
   // Derived Conditions
+  | {
+      type: ChangeEventType.CONDITION_ADDED;
+    }
   | {
       type: ChangeEventType.CONDITION_REMOVED;
       removedCondition: Condition;
