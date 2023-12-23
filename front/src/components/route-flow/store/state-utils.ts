@@ -13,7 +13,12 @@ import {
   VariablesDict,
 } from 'flow-models';
 import { produce } from 'immer';
-import { DEFAULT_EDGE_STYLE, DRAG_HANDLE_CLASS_NAME } from '../constants';
+import invariant from 'ts-invariant';
+import {
+  CONDITION_EDGE_STYLE,
+  DEFAULT_EDGE_STYLE,
+  DRAG_HANDLE_CLASS_NAME,
+} from '../constants';
 
 export function assignLocalNodeProperties(nodes: LocalNode[]): LocalNode[] {
   return produce(nodes, (draft) => {
@@ -25,11 +30,23 @@ export function assignLocalNodeProperties(nodes: LocalNode[]): LocalNode[] {
   });
 }
 
-export function assignLocalEdgeProperties(edges: V3LocalEdge[]): V3LocalEdge[] {
+export function assignLocalEdgeProperties(
+  edges: V3LocalEdge[],
+  connectorsDict: VariablesDict,
+): V3LocalEdge[] {
   return produce(edges, (draft) => {
     for (const edge of draft) {
       if (!edge.style) {
-        edge.style = DEFAULT_EDGE_STYLE;
+        const srcConnector = connectorsDict[edge.sourceHandle];
+        invariant(srcConnector != null);
+
+        if (srcConnector.type === VariableType.Condition) {
+          // TODO: Render a different stroke color for condition edges,
+          // but preserve the selected appearance.
+          edge.style = CONDITION_EDGE_STYLE;
+        } else {
+          edge.style = DEFAULT_EDGE_STYLE;
+        }
       }
     }
   });

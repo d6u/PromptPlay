@@ -23,7 +23,7 @@ export enum ChangeEventType {
   ADDING_VARIABLE = 'ADDING_VARIABLE',
   REMOVING_VARIABLE = 'REMOVING_VARIABLE',
   UPDATING_VARIABLE = 'UPDATING_VARIABLE',
-  // --- Derived ---
+  // ANCHOR: Derived
   // Derived Nodes
   NODE_AND_VARIABLES_ADDED = 'NODE_AND_VARIABLES_ADDED',
   NODE_REMOVED = 'NODE_REMOVED',
@@ -68,7 +68,7 @@ export const EVENT_VALIDATION_MAP: {
   [ChangeEventType.ADDING_VARIABLE]: [ChangeEventType.VARIABLE_ADDED],
   [ChangeEventType.REMOVING_VARIABLE]: [ChangeEventType.VARIABLE_REMOVED],
   [ChangeEventType.UPDATING_VARIABLE]: [ChangeEventType.VARIABLE_UPDATED],
-  // --- Derived ---
+  // ANCHOR: Derived
   // Derived Nodes
   [ChangeEventType.NODE_AND_VARIABLES_ADDED]: [
     ChangeEventType.VAR_VALUE_MAP_UPDATED,
@@ -153,7 +153,7 @@ export type ChangeEvent =
       variableId: V3VariableID;
       change: Partial<Variable>;
     }
-  // --- Derived ---
+  // ANCHOR: Derived
   // Derived Nodes
   | {
       type: ChangeEventType.NODE_AND_VARIABLES_ADDED;

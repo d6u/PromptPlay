@@ -165,10 +165,10 @@ export function createRootSlice(
               updateSpaceContentV3(initProps.spaceId, flowContent);
             }
           }),
-          tap(({ flowContent: { nodes, edges, ...rest } }) => {
+          tap(({ flowContent: { nodes, edges, variablesDict, ...rest } }) => {
             nodes = assignLocalNodeProperties(nodes);
-            edges = assignLocalEdgeProperties(edges);
-            set({ nodes, edges, ...rest, isInitialized: true });
+            edges = assignLocalEdgeProperties(edges, variablesDict);
+            set({ nodes, edges, variablesDict, ...rest, isInitialized: true });
           }),
         )
         .subscribe({

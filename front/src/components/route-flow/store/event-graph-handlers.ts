@@ -46,7 +46,7 @@ export function handleEvent(
   state: FlowState,
   event: ChangeEvent,
 ): EventHandlerResult {
-  console.log(event.type, event);
+  console.debug(event.type, D.deleteKey(event, 'type'));
 
   switch (event.type) {
     // React Flow
@@ -101,7 +101,7 @@ export function handleEvent(
         event.change,
         state.variablesDict,
       );
-    // --- Derived ---
+    // ANCHOR: Derived
     // Derived Nodes
     case ChangeEventType.NODE_AND_VARIABLES_ADDED:
       return handleNodeAndVariablesAdded(
@@ -261,7 +261,7 @@ function handleRfOnConnect(
   connection: Connection,
   prevEdges: V3LocalEdge[],
   nodeConfigs: V3NodeConfigsDict,
-  variableConfigs: VariablesDict,
+  variablesDict: VariablesDict,
 ): EventHandlerResult {
   const content: Partial<FlowState> = {};
   const events: ChangeEvent[] = [];
@@ -285,7 +285,7 @@ function handleRfOnConnect(
   // Assign a shorter ID for readability
   addedEdge.id = randomId() as EdgeID;
 
-  const srcVariable = variableConfigs[addedEdge.sourceHandle];
+  const srcVariable = variablesDict[addedEdge.sourceHandle];
 
   if (
     srcVariable.type === VariableType.FlowInput ||
@@ -339,7 +339,7 @@ function handleRfOnConnect(
     // !SECTION
 
     content.isFlowContentDirty = true;
-    content.edges = assignLocalEdgeProperties(acceptedEdges);
+    content.edges = assignLocalEdgeProperties(acceptedEdges, variablesDict);
   } else {
     // NOTE: New edge connects a condition and a condition target
 
@@ -353,7 +353,7 @@ function handleRfOnConnect(
     });
 
     content.isFlowContentDirty = true;
-    content.edges = assignLocalEdgeProperties(nextEdges);
+    content.edges = assignLocalEdgeProperties(nextEdges, variablesDict);
   }
 
   return [content, events];
