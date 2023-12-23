@@ -1,5 +1,6 @@
-import { D } from '@mobily/ts-belt';
+import { D, pipe } from '@mobily/ts-belt';
 import {
+  FlowInputVariable,
   NodeExecutionEventType,
   NodeID,
   V3FlowContent,
@@ -239,17 +240,20 @@ export function createRootSlice(
         variableValueLookUpDicts,
         controlResultsLookUpDicts,
       };
+
       const variableValueLookUpDict = get().getDefaultVariableValueLookUpDict();
-      const flowInputVariableValueLookUpDict = selectFlowInputVariableValue(
+
+      const flowInputVariableIdToValueMap = selectFlowInputVariableIdToValueMap(
         variablesDict,
         variableValueLookUpDict,
       );
 
+      // NOTE: Stop previous run if there is one
       runSingleSubscription?.unsubscribe();
 
       runSingleSubscription = runSingle({
         flowContent,
-        inputVariableMap: flowInputVariableValueLookUpDict,
+        inputVariableMap: flowInputVariableIdToValueMap,
         useStreaming: true,
       }).subscribe({
         next(data) {
@@ -344,20 +348,20 @@ export function createRootSlice(
 
 // SECTION: Utilities
 
-function selectFlowInputVariableValue(
+function selectFlowInputVariableIdToValueMap(
   variablesDict: VariablesDict,
   variableValueLookUpDict: V3VariableValueLookUpDict,
 ): V3VariableValueLookUpDict {
-  const flowInputVariableValueLookUpDict: V3VariableValueLookUpDict = {};
-
-  for (const variable of Object.values(variablesDict)) {
-    if (variable.type === VariableType.FlowInput) {
-      flowInputVariableValueLookUpDict[variable.id] =
-        variableValueLookUpDict[variable.id];
-    }
-  }
-
-  return flowInputVariableValueLookUpDict;
+  return pipe(
+    variablesDict,
+    D.filter((connector): connector is FlowInputVariable => {
+      return connector.type === VariableType.FlowInput;
+    }),
+    D.map((connector) => {
+      invariant(connector != null);
+      return variableValueLookUpDict[connector.id];
+    }),
+  );
 }
 
 async function querySpace(

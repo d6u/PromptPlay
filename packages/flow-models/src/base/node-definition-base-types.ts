@@ -56,11 +56,11 @@ export interface NodeDefinition {
     nodeConfig: V3NodeConfig,
     context: {
       variablesDict: VariablesDict;
-      edgeTargetHandleToSourceHandleLookUpDict: Record<
+      targetConnectorIdToSourceConnectorIdMap: Record<
         V3VariableID,
         V3VariableID
       >;
-      outputIdToValueMap: V3VariableValueLookUpDict;
+      sourceIdToValueMap: V3VariableValueLookUpDict;
       useStreaming: boolean;
       openAiApiKey: string | null;
       huggingFaceApiToken: string | null;

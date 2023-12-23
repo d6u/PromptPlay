@@ -125,11 +125,11 @@ export default function ConditionNode() {
               key={condition.id}
               name={condition.eq}
               isReadOnly={!isCurrentUserOwner}
-              onConfirmNameChange={(name) => {
-                // updateVariable(flowInput.id, { name });
+              onConfirmNameChange={(eq) => {
+                updateVariable(condition.id, { eq });
               }}
               onRemove={() => {
-                // removeVariable(flowInput.id);
+                // removeVariable(condition.id);
                 updateNodeInternals(nodeId);
               }}
             />

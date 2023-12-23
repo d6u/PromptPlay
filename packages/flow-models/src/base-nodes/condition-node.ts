@@ -66,8 +66,8 @@ export const CONDITION_NODE_DEFINITION: NodeDefinition = {
 
     const {
       variablesDict,
-      edgeTargetHandleToSourceHandleLookUpDict: targetToSourceMap,
-      outputIdToValueMap: sourceToValueMap,
+      targetConnectorIdToSourceConnectorIdMap: targetToSourceMap,
+      sourceIdToValueMap: sourceToValueMap,
     } = context;
 
     // ANCHOR: Prepare inputs

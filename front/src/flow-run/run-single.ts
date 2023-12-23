@@ -4,23 +4,18 @@ import {
   NodeExecutionEventType,
   NodeID,
   V3FlowContent,
-  V3NodeConfig,
-  V3NodeConfigsDict,
-  V3ServerEdge,
   V3VariableID,
   V3VariableValueLookUpDict,
+  VariableType,
   getNodeDefinitionForNodeTypeName,
 } from 'flow-models';
 import {
   BehaviorSubject,
   EMPTY,
   Observable,
-  Subject,
   catchError,
   concatAll,
-  defer,
   from,
-  map,
   mergeMap,
   of,
   tap,
@@ -38,61 +33,122 @@ export function runSingle({
 }): Observable<NodeExecutionEvent> {
   const { nodeConfigsDict, edges, variablesDict } = flowContent;
 
-  const outputIdToValueMap: V3VariableValueLookUpDict = { ...inputVariableMap };
-  const edgeTargetHandleToSourceHandleLookUpDict: Record<
+  // ANCHOR: Prepare initial input values
+
+  // NOTE: Copy object to avoid mutation.
+  const sourceIdToValueMap: V3VariableValueLookUpDict = { ...inputVariableMap };
+
+  // ANCHOR: Create ID maps for easy lookup
+
+  // NOTE: `sourceConnectorIdToTargetNodeIdMap` value is an array because
+  // one source connector can be connected to multiple target nodes.
+  const sourceConnectorIdToTargetNodeIdMap: Record<V3VariableID, NodeID[]> = {};
+
+  const targetConnectorIdToSourceConnectorIdMap: Record<
     V3VariableID,
     V3VariableID
   > = {};
 
   for (const edge of edges) {
-    edgeTargetHandleToSourceHandleLookUpDict[edge.targetHandle] =
-      edge.sourceHandle!;
+    if (sourceConnectorIdToTargetNodeIdMap[edge.sourceHandle] == null) {
+      sourceConnectorIdToTargetNodeIdMap[edge.sourceHandle] = [];
+    }
+    sourceConnectorIdToTargetNodeIdMap[edge.sourceHandle].push(edge.target);
+
+    const connector = variablesDict[edge.sourceHandle];
+    // NOTE: We only need to map variable IDs.
+    // Condition IDs are not mappable because one target ID can be connected to
+    // multiple source IDs.
+    if (
+      connector.type === VariableType.FlowInput ||
+      connector.type === VariableType.NodeOutput
+    ) {
+      targetConnectorIdToSourceConnectorIdMap[edge.targetHandle] =
+        edge.sourceHandle;
+    }
   }
 
-  // `signalSubject` is to control the pace of the execution and the
-  // termination.
-  //
-  // Because the observable below will emit all the nodes at once, we give
-  // `signalSubject` a value one at a time and only give `signalSubject` a new
-  // value after one node in the observable is finished executing. So that we
-  // can execute the node graph in topological order.
-  const signalSubject = new BehaviorSubject<void>(undefined);
+  console.table(sourceConnectorIdToTargetNodeIdMap);
 
-  function handleNodeConfigList(
-    listOfNodeConfigs: V3NodeConfig[],
-  ): Observable<NodeExecutionEvent> {
-    if (listOfNodeConfigs.length === 0) {
-      // Completing the `signalSubject` will complete the observable after
-      // the returned observable is completed.
-      signalSubject.complete();
-      return EMPTY;
+  // ANCHOR: Initialize graph related objects
+
+  const nodeGraph: Record<NodeID, NodeID[]> = {};
+  const nodeIndegree: Record<NodeID, number> = {};
+
+  for (const nodeId of D.keys(nodeConfigsDict)) {
+    nodeGraph[nodeId] = [];
+    nodeIndegree[nodeId] = 0;
+  }
+
+  // ANCHOR: Build graph
+
+  for (const edge of edges) {
+    // NOTE: `nodeGraph[edge.source]` will contain duplicate edge.target,
+    // because there can be multiple edges between two nodes.
+    // We must reduce indegree equal number of times in the while loop below.
+    nodeGraph[edge.source]!.push(edge.target);
+    nodeIndegree[edge.target] += 1;
+  }
+
+  console.table(nodeIndegree);
+
+  // ANCHOR: Create group of nodes with indegree 0.
+
+  const initialListOfNodeIds: NodeID[] = [];
+
+  // NOTE: We are mutating `nodeIndegree` here.
+  for (const [nodeId, count] of Object.entries(nodeIndegree)) {
+    if (count === 0) {
+      initialListOfNodeIds.push(nodeId as NodeID);
     }
+  }
 
-    const obsList = listOfNodeConfigs.map(
-      (nodeConfig): Observable<NodeExecutionEvent> => {
-        return getNodeDefinitionForNodeTypeName(nodeConfig.type)
-          .createNodeExecutionObservable(nodeConfig, {
-            variablesDict,
-            edgeTargetHandleToSourceHandleLookUpDict,
-            outputIdToValueMap,
-            useStreaming,
-            openAiApiKey: useLocalStorageStore.getState().openAiApiKey,
-            huggingFaceApiToken:
-              useLocalStorageStore.getState().huggingFaceApiToken,
-            elevenLabsApiKey: useLocalStorageStore.getState().elevenLabsApiKey,
-          })
-          .pipe(
-            // NOTE: Expected errors from the observable will be emitted as
-            // NodeExecutionEventType.Errors event.
-            //
-            // For unexpected errors, we will convert that to
-            // NodeExecutionEventType.Errors.
-            //
-            // Always end with NodeExecutionEventType.Finish event per
-            // expectation.
+  // NOTE: `listOfNodeIdsSubject` will node IDs in topological order.
+  const listOfNodeIdsSubject = new BehaviorSubject<NodeID[]>(
+    initialListOfNodeIds,
+  );
+
+  return listOfNodeIdsSubject.pipe(
+    mergeMap((nodeIds) => {
+      if (nodeIds.length === 0) {
+        listOfNodeIdsSubject.complete();
+        return EMPTY;
+      }
+
+      const listOfExecutionObs = nodeIds
+        .map((nodeId) => nodeConfigsDict[nodeId])
+        .map((nodeConfig) => {
+          const nodeDefinition = getNodeDefinitionForNodeTypeName(
+            nodeConfig.type,
+          );
+
+          const executionObs = nodeDefinition.createNodeExecutionObservable(
+            nodeConfig,
+            {
+              variablesDict,
+              targetConnectorIdToSourceConnectorIdMap,
+              sourceIdToValueMap,
+              useStreaming,
+              openAiApiKey: useLocalStorageStore.getState().openAiApiKey,
+              huggingFaceApiToken:
+                useLocalStorageStore.getState().huggingFaceApiToken,
+              elevenLabsApiKey:
+                useLocalStorageStore.getState().elevenLabsApiKey,
+            },
+          );
+
+          executionObs.pipe(
             catchError<NodeExecutionEvent, Observable<NodeExecutionEvent>>(
               (err) => {
-                signalSubject.complete();
+                // NOTE: Expected errors from the observable will be emitted as
+                // NodeExecutionEventType.Errors event.
+                //
+                // For unexpected errors, we will convert that to
+                // NodeExecutionEventType.Errors.
+                //
+                // Always end with NodeExecutionEventType.Finish event per
+                // expectation.
+                listOfNodeIdsSubject.complete();
 
                 return of<NodeExecutionEvent[]>(
                   {
@@ -109,99 +165,39 @@ export function runSingle({
               },
             ),
           );
-      },
-    );
 
-    return from(obsList).pipe(
-      // NOTE: Switch from concatAll() to mergeAll() to subscribe to each
-      // observable at the same time to maximize the concurrency.
-      concatAll(),
-      tap({
-        complete() {
-          signalSubject.next();
-        },
-      }),
-    );
-  }
+          return executionObs;
+        });
 
-  return createTopologicalSortNodeConfigListObservable({
-    signalSubject,
-    nodeConfigsDict,
-    edges,
-  }).pipe(
-    mergeMap<V3NodeConfig[], Observable<NodeExecutionEvent>>(
-      handleNodeConfigList,
-    ),
-  );
-}
+      return from(listOfExecutionObs);
+    }),
+    // NOTE: Switch from concatAll() to mergeAll() to subscribe to each
+    // observable at the same time to maximize the concurrency.
+    concatAll(),
+    tap((event) => {
+      if (event.type === NodeExecutionEventType.Finish) {
+        const nextListOfNodeIds: NodeID[] = [];
 
-/**
- * - Create an observable that emits a list of NodeConfig in topological order.
- * - Every time `signalSubject` emits a signal, the observable will emit a new
- *   list.
- * - The list of NodeConfig won't have any dependencies among them. So they can
- *   be handled at the same time.
- */
-function createTopologicalSortNodeConfigListObservable({
-  signalSubject,
-  nodeConfigsDict,
-  edges,
-}: {
-  signalSubject: Subject<void>;
-  nodeConfigsDict: Readonly<V3NodeConfigsDict>;
-  edges: ReadonlyArray<V3ServerEdge>;
-}): Observable<V3NodeConfig[]> {
-  return defer(() => {
-    // ANCHOR: Initialize graph related objects
+        for (const finishedConnectorId of event.finishedConnectorIds) {
+          // NOTE: `finishedConnectorIds` might contain source connector
+          // that is not connected by a edge.
+          const targetNodeIds = sourceConnectorIdToTargetNodeIdMap[
+            finishedConnectorId
+          ] as NodeID[] | undefined;
 
-    const nodeGraph: Record<NodeID, NodeID[]> = {};
-    const nodeIndegree: Record<NodeID, number> = {};
+          if (targetNodeIds != null) {
+            for (const targetNodeId of targetNodeIds) {
+              nodeIndegree[targetNodeId] -= 1;
 
-    for (const nodeId of D.keys(nodeConfigsDict)) {
-      nodeGraph[nodeId] = [];
-      nodeIndegree[nodeId] = 0;
-    }
-
-    // ANCHOR: Build graph
-
-    for (const edge of edges) {
-      // `nodeGraph[edge.source]` will contain duplicate edge.target,
-      // because there can be multiple edges between two nodes.
-      // We must reduce indegree equal number of times in the while loop below.
-      nodeGraph[edge.source]!.push(edge.target);
-      nodeIndegree[edge.target] += 1;
-    }
-
-    // ANCHOR: Create iniial group of nodes with indegree 0.
-
-    let group: NodeID[] = [];
-
-    for (const [key, count] of Object.entries(nodeIndegree)) {
-      const nodeId = key as NodeID;
-      if (count === 0) {
-        group.push(nodeId);
-      }
-    }
-
-    // ANCHOR: Create observable
-
-    return signalSubject.pipe(
-      map<void, V3NodeConfig[]>(() => {
-        const nextGroup: NodeID[] = [];
-
-        for (const nodeId of group) {
-          for (const nextId of nodeGraph[nodeId]!) {
-            nodeIndegree[nextId] -= 1;
-            if (nodeIndegree[nextId] === 0) {
-              nextGroup.push(nextId);
+              if (nodeIndegree[targetNodeId] === 0) {
+                nextListOfNodeIds.push(targetNodeId);
+              }
             }
           }
         }
 
-        const nodeConfigList = group.map((nodeId) => nodeConfigsDict[nodeId]!);
-        group = nextGroup;
-        return nodeConfigList;
-      }),
-    );
-  });
+        listOfNodeIdsSubject.next(nextListOfNodeIds);
+      }
+    }),
+  );
 }

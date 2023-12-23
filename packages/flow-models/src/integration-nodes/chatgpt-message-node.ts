@@ -78,8 +78,8 @@ export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition = {
 
     const {
       variablesDict: variableMap,
-      edgeTargetHandleToSourceHandleLookUpDict: inputIdToOutputIdMap,
-      outputIdToValueMap: variableValueMap,
+      targetConnectorIdToSourceConnectorIdMap: inputIdToOutputIdMap,
+      sourceIdToValueMap: variableValueMap,
     } = context;
 
     // ANCHOR: Prepare inputs

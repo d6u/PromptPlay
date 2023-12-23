@@ -567,6 +567,7 @@ function handleUpdatingVariable(
 
   const variableConfigs = produce(prevVariableConfigs, (draft) => {
     const prevVariableConfig = current(draft[variableId]);
+
     Object.assign(draft[variableId], change);
 
     events.push({

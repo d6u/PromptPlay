@@ -55,8 +55,8 @@ export const HUGGINGFACE_INFERENCE_NODE_DEFINITION: NodeDefinition = {
 
     const {
       variablesDict: variableMap,
-      edgeTargetHandleToSourceHandleLookUpDict: inputIdToOutputIdMap,
-      outputIdToValueMap: variableValueMap,
+      targetConnectorIdToSourceConnectorIdMap: inputIdToOutputIdMap,
+      sourceIdToValueMap: variableValueMap,
       huggingFaceApiToken,
     } = context;
 

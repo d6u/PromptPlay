@@ -89,8 +89,8 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition = {
 
     const {
       variablesDict: variableMap,
-      edgeTargetHandleToSourceHandleLookUpDict: inputIdToOutputIdMap,
-      outputIdToValueMap: variableValueMap,
+      targetConnectorIdToSourceConnectorIdMap: inputIdToOutputIdMap,
+      sourceIdToValueMap: variableValueMap,
       useStreaming,
       openAiApiKey,
     } = context;

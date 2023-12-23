@@ -45,8 +45,8 @@ export const OUTPUT_NODE_DEFINITION: NodeDefinition = {
 
     const {
       variablesDict: variableMap,
-      edgeTargetHandleToSourceHandleLookUpDict: inputIdToOutputIdMap,
-      outputIdToValueMap: variableValueMap,
+      targetConnectorIdToSourceConnectorIdMap: inputIdToOutputIdMap,
+      sourceIdToValueMap: variableValueMap,
     } = context;
 
     const changes: V3VariableValueLookUpDict = {};
