@@ -1,11 +1,11 @@
-import { redirect } from "react-router-dom";
-import { map } from "rxjs";
-import { SpaceContentVersionQuery } from "../../appGraphql";
-import { ContentVersion } from "../../gql/graphql";
-import { client } from "../../state/urql";
-import { fromWonka } from "../../utils/graphql-utils";
-import { createObservableLoader } from "../../utils/react-router-utils";
-import { pathToCurrentContent } from "../../utils/route-utils";
+import { redirect } from 'react-router-dom';
+import { map } from 'rxjs';
+import { SpaceContentVersionQuery } from '../../appGraphql';
+import { ContentVersion } from '../../gql/graphql';
+import { client } from '../../state/urql';
+import { fromWonka } from '../../utils/graphql-utils';
+import { createObservableLoader } from '../../utils/react-router-utils';
+import { pathToCurrentContent } from '../../utils/route-utils';
 
 export type FlowLoaderData = {
   isCurrentUserOwner: boolean;
@@ -18,7 +18,7 @@ const loader = createObservableLoader<FlowLoaderData>((params) => {
     client.query(
       SpaceContentVersionQuery,
       { spaceId },
-      { requestPolicy: "network-only" },
+      { requestPolicy: 'network-only' },
     ),
   ).pipe(
     map((result) => {
@@ -27,7 +27,7 @@ const loader = createObservableLoader<FlowLoaderData>((params) => {
       }
 
       if (!result.data?.space) {
-        throw new Error("Not found");
+        throw new Error('Not found');
       }
 
       const contentVersion = result?.data?.space?.space.contentVersion;

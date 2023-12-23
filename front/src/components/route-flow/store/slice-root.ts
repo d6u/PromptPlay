@@ -1,45 +1,53 @@
-import { D } from "@mobily/ts-belt";
-import { NodeID } from "flow-models/v2-flow-content-types";
+import { D, pipe } from '@mobily/ts-belt';
 import {
-  asV3VariableID,
-  convertV2ContentToV3Content,
-} from "flow-models/v2-to-v3-flow-utils";
-import {
+  FlowInputVariable,
+  NodeExecutionEventType,
+  NodeID,
   V3FlowContent,
+  V3VariableID,
   V3VariableValueLookUpDict,
-  VariablesDict,
+  Variable,
   VariableType,
-} from "flow-models/v3-flow-content-types";
-import { produce } from "immer";
-import posthog from "posthog-js";
-import { mergeMap, Subscription } from "rxjs";
-import { invariant } from "ts-invariant";
-import { OperationResult } from "urql";
-import { StateCreator } from "zustand";
-import { runSingle } from "../../../flow-run/run-single";
-import { RunEventType } from "../../../flow-run/run-types";
-import { ContentVersion, SpaceFlowQueryQuery } from "../../../gql/graphql";
-import { fetchFlowContent, updateSpaceContentV3 } from "../graphql";
+  VariablesDict,
+  asV3VariableID,
+} from 'flow-models';
+import { produce } from 'immer';
+import posthog from 'posthog-js';
+import { OnConnectStartParams } from 'reactflow';
+import { Subscription, from, map, tap } from 'rxjs';
+import { invariant } from 'ts-invariant';
+import { OperationResult } from 'urql';
+import { StateCreator } from 'zustand';
+import { runSingle } from '../../../flow-run/run-single';
+import { graphql } from '../../../gql';
+import { ContentVersion, SpaceFlowQueryQuery } from '../../../gql/graphql';
+import { client } from '../../../state/urql';
+import { updateSpaceContentV3 } from '../graphql';
 import {
   assignLocalEdgeProperties,
   assignLocalNodeProperties,
-} from "./state-utils";
+} from './state-utils';
 import {
+  ConnectStartEdgeType,
   DetailPanelContentType,
   FlowState,
   NodeMetadata,
   NodeMetadataDict,
-} from "./store-flow-state-types";
+} from './store-flow-state-types';
 
 type RootSliceState = {
   // TODO: Does readonly make any difference here?
   readonly spaceId: string;
   readonly subscriptionBag: Subscription;
+
   isInitialized: boolean;
+  isRunning: boolean;
+  connectStartEdgeType: ConnectStartEdgeType | null;
+  connectStartStartNodeId: NodeID | null;
+
   detailPanelContentType: DetailPanelContentType;
   detailPanelSelectedNodeId: NodeID | null;
   nodeMetadataDict: NodeMetadataDict;
-  isRunning: boolean;
 };
 
 export type RootSlice = RootSliceState & {
@@ -50,6 +58,8 @@ export type RootSlice = RootSliceState & {
   updateNodeAugment(nodeId: NodeID, change: Partial<NodeMetadata>): void;
   runFlow(): void;
   stopRunningFlow(): void;
+  onEdgeConnectStart(params: OnConnectStartParams): void;
+  onEdgeConnectStop(): void;
 };
 
 type InitProps = {
@@ -100,41 +110,71 @@ export function createRootSlice(
 
     isInitialized: false,
     isRunning: false,
+    connectStartEdgeType: null,
+    connectStartStartNodeId: null,
 
     detailPanelContentType: DetailPanelContentType.Off,
     detailPanelSelectedNodeId: null,
     nodeMetadataDict: {},
 
     initialize(): void {
-      console.log("FlowStore: initializing...");
+      console.log('FlowStore: initializing...');
 
-      const subscription = fetchFlowContent(initProps.spaceId)
-        .pipe(mergeMap(createFlowContentHandler(initProps.spaceId)))
-        .subscribe({
-          next({
-            nodes,
-            edges,
-            nodeConfigsDict,
-            variablesDict,
-            variableValueLookUpDicts,
-          }) {
+      const subscription = from(querySpace(initProps.spaceId))
+        .pipe(
+          map((result) => {
+            // TODO: Report to telemetry
+            invariant(result.data?.result?.space != null);
+
+            const version = result.data.result.space.contentVersion;
+            const contentV3Str = result.data.result.space.contentV3;
+
+            // TODO: Report to telemetry
+            invariant(version === ContentVersion.V3, 'Only v3 is supported');
+
+            switch (version) {
+              case ContentVersion.V3: {
+                invariant(contentV3Str != null, 'contentV3Str');
+
+                // TODO: Report parse error to telemetry
+                const data = JSON.parse(contentV3Str) as Partial<V3FlowContent>;
+
+                const dataWithDefaults = produce(data, (draft) => {
+                  draft.nodes = draft.nodes ?? [];
+                  draft.edges = draft.edges ?? [];
+                  draft.nodeConfigsDict = draft.nodeConfigsDict ?? {};
+                  draft.variablesDict = draft.variablesDict ?? {};
+                  draft.variableValueLookUpDicts =
+                    draft.variableValueLookUpDicts ?? [{}];
+                  draft.controlResultsLookUpDicts =
+                    draft.controlResultsLookUpDicts ?? {};
+                }) as V3FlowContent;
+
+                return {
+                  flowContent: dataWithDefaults,
+                  // immer was able to detect if the object has actually
+                  // been changed or not. Only update if it has been changed.
+                  // Save some loading time.
+                  isUpdated: data !== dataWithDefaults,
+                };
+              }
+            }
+          }),
+          tap(({ flowContent, isUpdated }) => {
+            if (isUpdated) {
+              updateSpaceContentV3(initProps.spaceId, flowContent);
+            }
+          }),
+          tap(({ flowContent: { nodes, edges, variablesDict, ...rest } }) => {
             nodes = assignLocalNodeProperties(nodes);
-            edges = assignLocalEdgeProperties(edges);
-
-            set({
-              nodes,
-              edges,
-              nodeConfigsDict,
-              variablesDict,
-              variableValueLookUpDicts,
-            });
-          },
+            edges = assignLocalEdgeProperties(edges, variablesDict);
+            set({ nodes, edges, variablesDict, ...rest, isInitialized: true });
+          }),
+        )
+        .subscribe({
           error(error) {
             // TODO: Report to telemetry
-            console.error("Error fetching content", error);
-          },
-          complete() {
-            set({ isInitialized: true });
+            console.error('Error fetching content', error);
           },
         });
 
@@ -142,7 +182,7 @@ export function createRootSlice(
     },
 
     deinitialize(): void {
-      console.groupCollapsed("FlowStore: deinitializing...");
+      console.groupCollapsed('FlowStore: deinitializing...');
       get().subscriptionBag.unsubscribe();
       console.groupEnd();
     },
@@ -174,7 +214,7 @@ export function createRootSlice(
     },
 
     runFlow() {
-      posthog.capture("Starting Simple Evaluation", {
+      posthog.capture('Starting Simple Evaluation', {
         flowId: get().spaceId,
       });
 
@@ -189,39 +229,49 @@ export function createRootSlice(
         nodeConfigsDict,
         variablesDict,
         variableValueLookUpDicts,
+        controlResultsLookUpDicts,
       } = get();
 
+      const flowContent: V3FlowContent = {
+        nodes,
+        edges,
+        nodeConfigsDict,
+        variablesDict,
+        variableValueLookUpDicts,
+        controlResultsLookUpDicts,
+      };
+
       const variableValueLookUpDict = get().getDefaultVariableValueLookUpDict();
-      const flowInputVariableValueLookUpDict = selectFlowInputVariableValue(
+
+      const flowInputVariableIdToValueMap = selectFlowInputVariableIdToValueMap(
         variablesDict,
         variableValueLookUpDict,
       );
 
+      // NOTE: Reset variable values except flow inputs values
+      set({ variableValueLookUpDicts: [flowInputVariableIdToValueMap] });
+
+      // NOTE: Stop previous run if there is one
       runSingleSubscription?.unsubscribe();
+
       runSingleSubscription = runSingle({
-        flowContent: {
-          nodes,
-          edges,
-          nodeConfigsDict,
-          variablesDict,
-          variableValueLookUpDicts,
-        },
-        inputVariableMap: flowInputVariableValueLookUpDict,
+        flowContent,
+        inputVariableMap: flowInputVariableIdToValueMap,
         useStreaming: true,
       }).subscribe({
         next(data) {
           switch (data.type) {
-            case RunEventType.NodeStarted: {
+            case NodeExecutionEventType.Start: {
               const { nodeId } = data;
               get().updateNodeAugment(nodeId, { isRunning: true });
               break;
             }
-            case RunEventType.NodeFinished: {
+            case NodeExecutionEventType.Finish: {
               const { nodeId } = data;
               get().updateNodeAugment(nodeId, { isRunning: false });
               break;
             }
-            case RunEventType.NodeError: {
+            case NodeExecutionEventType.Errors: {
               const { nodeId } = data;
               get().updateNodeAugment(nodeId, {
                 isRunning: false,
@@ -229,8 +279,8 @@ export function createRootSlice(
               });
               break;
             }
-            case RunEventType.VariableValueChanges: {
-              const { changes } = data;
+            case NodeExecutionEventType.VariableValues: {
+              const { variableValuesLookUpDict: changes } = data;
               for (const [outputId, value] of Object.entries(changes)) {
                 get().updateVariableValueMap(asV3VariableID(outputId), value);
               }
@@ -239,7 +289,7 @@ export function createRootSlice(
           }
         },
         error(error) {
-          posthog.capture("Finished Simple Evaluation with Error", {
+          posthog.capture('Finished Simple Evaluation with Error', {
             flowId: get().spaceId,
           });
 
@@ -248,7 +298,7 @@ export function createRootSlice(
           setIsRunning(false);
         },
         complete() {
-          posthog.capture("Finished Simple Evaluation", {
+          posthog.capture('Finished Simple Evaluation', {
             flowId: get().spaceId,
           });
 
@@ -260,7 +310,7 @@ export function createRootSlice(
     },
 
     stopRunningFlow() {
-      posthog.capture("Manually Stopped Simple Evaluation", {
+      posthog.capture('Manually Stopped Simple Evaluation', {
         flowId: get().spaceId,
       });
 
@@ -269,66 +319,75 @@ export function createRootSlice(
 
       setIsRunning(false);
     },
+
+    onEdgeConnectStart(params: OnConnectStartParams): void {
+      set((state) => {
+        const connector = state.variablesDict[
+          params.handleId as V3VariableID
+        ] as Variable | undefined;
+
+        if (connector == null) {
+          return state;
+        }
+
+        return {
+          connectStartEdgeType:
+            connector.type === VariableType.Condition ||
+            connector.type === VariableType.ConditionTarget
+              ? ConnectStartEdgeType.Condition
+              : ConnectStartEdgeType.Variable,
+          connectStartStartNodeId: params.nodeId as NodeID,
+        };
+      });
+    },
+    onEdgeConnectStop(): void {
+      set(() => ({
+        connectStartEdgeType: null,
+        connectStartStartNodeId: null,
+      }));
+    },
   };
 }
 
 // SECTION: Utilities
 
-function createFlowContentHandler(
-  spaceId: string,
-): (result: OperationResult<SpaceFlowQueryQuery>) => Promise<V3FlowContent> {
-  return async (result) => {
-    // TODO: Report to telemetry
-    invariant(result.data?.result?.space != null);
-
-    const version = result.data.result.space.contentVersion;
-    const contentV2Str = result.data.result.space.flowContent;
-    const contentV3Str = result.data.result.space.contentV3;
-
-    // TODO: Report to telemetry
-    invariant(version != ContentVersion.V1, "version should not be v1");
-
-    switch (version) {
-      case ContentVersion.V2: {
-        invariant(contentV2Str != null, "contentV2Str");
-        // TODO: Report parse error to telemetry
-        const contentV2 = JSON.parse(contentV2Str);
-        const contentV3 = convertV2ContentToV3Content(contentV2);
-        await updateSpaceContentV3(spaceId, contentV3);
-        return contentV3;
-      }
-      case ContentVersion.V3: {
-        invariant(contentV3Str != null, "contentV3Str");
-        // TODO: Report parse error to telemetry
-        const data = JSON.parse(contentV3Str) as Partial<V3FlowContent>;
-        const contentV3: V3FlowContent = {
-          nodes: data.nodes ?? [],
-          edges: data.edges ?? [],
-          nodeConfigsDict: data.nodeConfigsDict ?? {},
-          variablesDict: data.variablesDict ?? {},
-          variableValueLookUpDicts: data.variableValueLookUpDicts ?? [{}],
-        };
-        await updateSpaceContentV3(spaceId, contentV3);
-        return contentV3;
-      }
-    }
-  };
-}
-
-function selectFlowInputVariableValue(
+function selectFlowInputVariableIdToValueMap(
   variablesDict: VariablesDict,
   variableValueLookUpDict: V3VariableValueLookUpDict,
 ): V3VariableValueLookUpDict {
-  const flowInputVariableValueLookUpDict: V3VariableValueLookUpDict = {};
+  return pipe(
+    variablesDict,
+    D.filter((connector): connector is FlowInputVariable => {
+      return connector.type === VariableType.FlowInput;
+    }),
+    D.map((connector) => {
+      invariant(connector != null);
+      return variableValueLookUpDict[connector.id];
+    }),
+  );
+}
 
-  for (const variable of Object.values(variablesDict)) {
-    if (variable.type === VariableType.FlowInput) {
-      flowInputVariableValueLookUpDict[variable.id] =
-        variableValueLookUpDict[variable.id];
-    }
-  }
-
-  return flowInputVariableValueLookUpDict;
+async function querySpace(
+  spaceId: string,
+): Promise<OperationResult<SpaceFlowQueryQuery>> {
+  return await client
+    .query(
+      graphql(`
+        query SpaceFlowQuery($spaceId: UUID!) {
+          result: space(id: $spaceId) {
+            space {
+              id
+              name
+              contentVersion
+              contentV3
+            }
+          }
+        }
+      `),
+      { spaceId },
+      { requestPolicy: 'network-only' },
+    )
+    .toPromise();
 }
 
 // !SECTION

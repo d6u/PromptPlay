@@ -1,4 +1,4 @@
 export enum DashboardTileType {
-  ADD = "ADD",
-  SPACE = "SPACE",
+  ADD = 'ADD',
+  SPACE = 'SPACE',
 }

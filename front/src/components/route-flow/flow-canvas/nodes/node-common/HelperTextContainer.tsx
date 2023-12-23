@@ -1,23 +1,23 @@
-import { ClassNames } from "@emotion/react";
-import FormHelperText from "@mui/joy/FormHelperText";
-import { ReactNode } from "react";
+import { ClassNames } from '@emotion/react';
+import FormHelperText from '@mui/joy/FormHelperText';
+import { ReactNode } from 'react';
 
 type Props = {
-  color?: "danger" | "success";
+  color?: 'danger' | 'success';
   children: ReactNode;
 };
 
 export default function HelperTextContainer(props: Props) {
   let color: string;
   switch (props.color) {
-    case "danger":
-      color = "var(--joy-palette-danger-500, #C41C1C)";
+    case 'danger':
+      color = 'var(--joy-palette-danger-500, #C41C1C)';
       break;
-    case "success":
-      color = "var(--joy-palette-success-500, #1F7A1F)";
+    case 'success':
+      color = 'var(--joy-palette-success-500, #1F7A1F)';
       break;
     case undefined:
-      color = "var(--FormHelperText-color, var(--joy-palette-text-tertiary))";
+      color = 'var(--FormHelperText-color, var(--joy-palette-text-tertiary))';
       break;
   }
 

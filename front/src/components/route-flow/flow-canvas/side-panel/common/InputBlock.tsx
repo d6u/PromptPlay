@@ -1,13 +1,12 @@
-import styled from "@emotion/styled";
-import Input from "@mui/joy/Input";
-import Option from "@mui/joy/Option";
-import Select from "@mui/joy/Select";
-import Textarea from "@mui/joy/Textarea";
-import { InputValueType } from "flow-models/v2-flow-content-types";
-import { VariableValueType } from "flow-models/v3-flow-content-types";
-import { ReactNode, useEffect, useState } from "react";
-import InputReadonly from "../../../common/InputReadonly";
-import TextareaReadonly from "../../../common/TextareaReadonly";
+import styled from '@emotion/styled';
+import Input from '@mui/joy/Input';
+import Option from '@mui/joy/Option';
+import Select from '@mui/joy/Select';
+import Textarea from '@mui/joy/Textarea';
+import { VariableValueType } from 'flow-models';
+import { ReactNode, useEffect, useState } from 'react';
+import InputReadonly from '../../../common/InputReadonly';
+import TextareaReadonly from '../../../common/TextareaReadonly';
 
 const Container = styled.div`
   margin-bottom: 10px;
@@ -58,22 +57,22 @@ export default function InputBlock(props: Props) {
   switch (type) {
     case VariableValueType.String:
       valueInput = props.isReadOnly ? (
-        <TextareaReadonly minRows={2} value={value ?? ""} />
+        <TextareaReadonly minRows={2} value={value ?? ''} />
       ) : (
         <Textarea
           color="primary"
           minRows={2}
-          value={value ?? ""}
+          value={value ?? ''}
           onChange={(e) => {
             setValue(e.target.value);
           }}
           onKeyUp={(e) => {
-            if (e.key === "Enter") {
-              props.onSaveValue(value ?? "");
+            if (e.key === 'Enter') {
+              props.onSaveValue(value ?? '');
             }
           }}
           onBlur={() => {
-            props.onSaveValue(value ?? "");
+            props.onSaveValue(value ?? '');
           }}
         />
       );
@@ -91,7 +90,7 @@ export default function InputBlock(props: Props) {
             setValue(Number(e.target.value));
           }}
           onKeyUp={(e) => {
-            if (e.key === "Enter") {
+            if (e.key === 'Enter') {
               props.onSaveValue(value ?? 0);
             }
           }}
@@ -116,7 +115,10 @@ export default function InputBlock(props: Props) {
             props.onSaveType(type);
           }}
         >
-          {Object.values(InputValueType).map((type) => (
+          {Object.values({
+            [VariableValueType.String]: VariableValueType.String,
+            [VariableValueType.Number]: VariableValueType.Number,
+          }).map((type) => (
             <Option key={type} value={type}>
               {type}
             </Option>

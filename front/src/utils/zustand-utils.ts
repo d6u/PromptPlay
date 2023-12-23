@@ -1,4 +1,4 @@
-import { StoreApi, UseBoundStore } from "zustand";
+import { StoreApi, UseBoundStore } from 'zustand';
 
 // See https://docs.pmnd.rs/zustand/guides/auto-generating-selectors
 // for reference.

@@ -1,36 +1,35 @@
-import { A, D } from "@mobily/ts-belt";
-import { produce } from "immer";
+import { A, D } from '@mobily/ts-belt';
+import { produce } from 'immer';
 import {
   EdgeChange,
   NodeChange,
   OnConnect,
   OnEdgesChange,
   OnNodesChange,
-} from "reactflow";
+} from 'reactflow';
 
-import { LocalNode, NodeID, NodeType } from "flow-models/v2-flow-content-types";
 import {
-  V3LocalEdge,
+  NodeID,
+  NodeType,
+  V3FlowContent,
   V3NodeConfig,
-  V3NodeConfigsDict,
   V3VariableID,
   V3VariableValueLookUpDict,
   VariableType,
-  VariablesDict,
-} from "flow-models/v3-flow-content-types";
-import { createNode } from "flow-models/v3-flow-utils";
-import { debounce } from "lodash";
-import invariant from "ts-invariant";
-import { StateCreator } from "zustand";
-import { updateSpaceContentV3 } from "../graphql";
-import { handleEvent } from "./event-graph-handlers";
+  createNode,
+} from 'flow-models';
+import { debounce } from 'lodash';
+import invariant from 'ts-invariant';
+import { StateCreator } from 'zustand';
+import { updateSpaceContentV3 } from '../graphql';
+import { handleEvent } from './event-graph-handlers';
 import {
   ChangeEvent,
   ChangeEventType,
   EVENT_VALIDATION_MAP,
-} from "./event-graph-types";
-import { VariableTypeToVariableConfigTypeMap } from "./state-utils";
-import { FlowState, SliceFlowContentV3State } from "./store-flow-state-types";
+} from './event-graph-types';
+import { VariableTypeToVariableConfigTypeMap } from './state-utils';
+import { FlowState, SliceFlowContentV3State } from './store-flow-state-types';
 
 const FLOW_SERVER_SLICE_INITIAL_STATE_V2: SliceFlowContentV3State = {
   // Persist to server
@@ -39,6 +38,7 @@ const FLOW_SERVER_SLICE_INITIAL_STATE_V2: SliceFlowContentV3State = {
   nodeConfigsDict: {},
   variablesDict: {},
   variableValueLookUpDicts: [{}],
+  controlResultsLookUpDicts: {},
   // Local
   isFlowContentDirty: false,
   isFlowContentSaving: false,
@@ -74,42 +74,31 @@ export type SliceFlowContentV3 = SliceFlowContentV3State &
 
 export const createFlowServerSliceV3: StateCreator<
   FlowState,
-  [["zustand/devtools", never]],
+  [['zustand/devtools', never]],
   [],
   SliceFlowContentV3
 > = (set, get) => {
   // Debounce wrapper of `updateContentV3`
   const saveSpaceDebounced = debounce(
-    async (
-      spaceId: string,
-      flowContent: {
-        nodes: LocalNode[];
-        edges: V3LocalEdge[];
-        nodeConfigsDict: V3NodeConfigsDict;
-        variablesDict: VariablesDict;
-        variableValueLookUpDicts: V3VariableValueLookUpDict[];
-      },
-    ) => {
+    async (spaceId: string, flowContent: V3FlowContent) => {
       set(() => ({ isFlowContentSaving: true }));
 
       await updateSpaceContentV3(spaceId, {
+        ...flowContent,
         nodes: A.map(
           flowContent.nodes,
-          D.selectKeys(["id", "type", "position", "data"]),
+          D.selectKeys(['id', 'type', 'position', 'data']),
         ),
         edges: A.map(
           flowContent.edges,
           D.selectKeys([
-            "id",
-            "source",
-            "sourceHandle",
-            "target",
-            "targetHandle",
+            'id',
+            'source',
+            'sourceHandle',
+            'target',
+            'targetHandle',
           ]),
         ),
-        nodeConfigsDict: flowContent.nodeConfigsDict,
-        variablesDict: flowContent.variablesDict,
-        variableValueLookUpDicts: flowContent.variableValueLookUpDicts,
       });
 
       set(() => ({ isFlowContentSaving: false }));
@@ -118,17 +107,25 @@ export const createFlowServerSliceV3: StateCreator<
   );
 
   function startProcessingEventGraph(startEvent: ChangeEvent) {
-    console.group("Processing Event Graph");
+    // SECTION: Processing event graph
+    console.group('Processing event graph...');
 
     const queue: ChangeEvent[] = [startEvent];
 
     let state = get();
+    let isDirty = false;
 
     while (queue.length > 0) {
       const currentEvent = queue.shift()!;
       const [stateChange, derivedEvents] = handleEvent(state, currentEvent);
 
-      state = { ...state, ...stateChange };
+      const { isFlowContentDirty, ...restStateChange } = stateChange;
+      state = { ...state, ...restStateChange };
+
+      // NOTE: We should not simply merge `isFlowContentDirty` into `state`.
+      // Because `isFlowContentDirty` might be false after some events, we want
+      // to avoid `isFlowContentDirty === true` being overriden by `false`.
+      isDirty = isDirty || (isFlowContentDirty ?? false);
 
       // Validate to prevent circular events
       const allowedDerivedEventTypes = EVENT_VALIDATION_MAP[currentEvent.type];
@@ -145,10 +142,11 @@ export const createFlowServerSliceV3: StateCreator<
     }
 
     console.groupEnd();
+    // !SECTION
 
     set(state);
 
-    if (!get().isFlowContentDirty) {
+    if (!isDirty) {
       return;
     }
 
@@ -163,6 +161,7 @@ export const createFlowServerSliceV3: StateCreator<
       nodeConfigsDict: get().nodeConfigsDict,
       variablesDict: get().variablesDict,
       variableValueLookUpDicts: get().variableValueLookUpDicts,
+      controlResultsLookUpDicts: get().controlResultsLookUpDicts,
     });
 
     set(() => ({ isFlowContentDirty: false }));

@@ -1,9 +1,9 @@
-import { API_SERVER_BASE_URL } from "../constants";
-import { ContentVersion } from "../gql/graphql";
+import { API_SERVER_BASE_URL } from '../constants';
+import { ContentVersion } from '../gql/graphql';
 
-export const ROOT_PATH = "/";
+export const ROOT_PATH = '/';
 
-export const FLOWS_PATH_PATTERN = "/flows/:spaceId";
+export const FLOWS_PATH_PATTERN = '/flows/:spaceId';
 
 export function pathToFlow(spaceId: string) {
   return `/flows/${spaceId}`;
@@ -16,8 +16,8 @@ export function pathToCurrentContent(
   switch (contentVersion) {
     case ContentVersion.V1:
       // TODO: Report to telemetry
-      console.warn("V1 is not supported anymore");
-      return "";
+      console.warn('V1 is not supported anymore');
+      return '';
     case ContentVersion.V2:
       return pathToFlow(id);
     case ContentVersion.V3:

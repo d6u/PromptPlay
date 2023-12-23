@@ -1,13 +1,13 @@
-import styled from "@emotion/styled";
-import { Handle } from "reactflow";
-import IconGear from "../../../../icons/IconGear";
-import { BACKDROP_PADDING } from "./NodeBox";
+import styled from '@emotion/styled';
+import { Handle, Position } from 'reactflow';
+import IconGear from '../../../../icons/IconGear';
+import { BACKDROP_PADDING } from './NodeBox';
 
 export const SECTION_PADDING_BOTTOM = 10;
 export const HANDLE_WIDTH = 15;
 export const HANDLE_HEIGHT = 34;
 
-export const StyledHandle = styled(Handle)`
+const StyleVerticaldHandle = styled(Handle)`
   width: ${HANDLE_WIDTH}px;
   height: ${HANDLE_HEIGHT}px;
   border-radius: ${HANDLE_WIDTH / 2}px;
@@ -15,11 +15,11 @@ export const StyledHandle = styled(Handle)`
   transform: none;
 `;
 
-export const InputHandle = styled(StyledHandle)`
+export const InputHandle = styled(StyleVerticaldHandle)`
   left: -${HANDLE_WIDTH / 2 - BACKDROP_PADDING / 2}px;
 `;
 
-export const OutputHandle = styled(StyledHandle)`
+export const OutputHandle = styled(StyleVerticaldHandle)`
   top: unset;
   right: -${HANDLE_WIDTH / 2 - BACKDROP_PADDING / 2}px;
 `;
@@ -38,3 +38,44 @@ export const StyledIconGear = styled(IconGear)`
   width: 20px;
   fill: #636b74;
 `;
+
+// ANCHOR: Condition Handle
+
+export const ConditionHandle = styled(StyleVerticaldHandle)`
+  background: #7a00df;
+  top: unset;
+  right: -${HANDLE_WIDTH / 2 - BACKDROP_PADDING / 2}px;
+`;
+
+// ANCHOR: Condition Target Handle
+
+const StyledHorizontalHandle = styled(Handle)`
+  width: ${HANDLE_HEIGHT}px;
+  height: ${HANDLE_WIDTH}px;
+  border-radius: ${HANDLE_WIDTH / 2}px;
+  background: #7a00df;
+  transform: none;
+  top: -${HANDLE_WIDTH / 2 - BACKDROP_PADDING / 2}px;
+  // Align with node title
+  left: 12px;
+`;
+
+type Props = {
+  controlId: string;
+  isVisible: boolean;
+};
+
+export function ConditionTargetHandle(props: Props) {
+  return (
+    <StyledHorizontalHandle
+      type="target"
+      position={Position.Top}
+      id={props.controlId}
+      // NOTE: Because we are using @emotion/styled, it doesn't seem to support
+      // transient props that styled-components supports. Thus, we use style
+      // prop instead.
+      // https://styled-components.com/docs/api#transient-props
+      style={{ visibility: props.isVisible ? 'visible' : 'hidden' }}
+    />
+  );
+}

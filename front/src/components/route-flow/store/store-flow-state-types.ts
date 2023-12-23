@@ -1,13 +1,15 @@
-import { LocalNode, NodeID } from "flow-models/v2-flow-content-types";
 import {
+  ControlResultsLookUpDict,
+  LocalNode,
+  NodeID,
   V3LocalEdge,
   V3NodeConfigsDict,
   V3VariableValueLookUpDict,
   VariablesDict,
-} from "flow-models/v3-flow-content-types";
-import { CsvEvaluationPresetSlice } from "./slice-csv-evaluation-preset";
-import { SliceFlowContentV3 } from "./slice-flow-content-v3";
-import { RootSlice } from "./slice-root";
+} from 'flow-models';
+import { CsvEvaluationPresetSlice } from './slice-csv-evaluation-preset';
+import { SliceFlowContentV3 } from './slice-flow-content-v3';
+import { RootSlice } from './slice-root';
 
 export type FlowState = SliceFlowContentV3 &
   RootSlice &
@@ -20,6 +22,7 @@ export type SliceFlowContentV3State = {
   nodeConfigsDict: V3NodeConfigsDict;
   variablesDict: VariablesDict;
   variableValueLookUpDicts: V3VariableValueLookUpDict[];
+  controlResultsLookUpDicts: ControlResultsLookUpDict;
   // Local
   isFlowContentDirty: boolean;
   isFlowContentSaving: boolean;
@@ -33,9 +36,14 @@ export type NodeMetadata = {
 };
 
 export enum DetailPanelContentType {
-  Off = "Off",
-  EvaluationModeSimple = "EvaluationModeSimple",
-  EvaluationModeCSV = "EvaluationModeCSV",
-  NodeConfig = "NodeConfig",
-  ChatGPTMessageConfig = "ChatGPTMessageConfig",
+  Off = 'Off',
+  EvaluationModeSimple = 'EvaluationModeSimple',
+  EvaluationModeCSV = 'EvaluationModeCSV',
+  NodeConfig = 'NodeConfig',
+  ChatGPTMessageConfig = 'ChatGPTMessageConfig',
+}
+
+export enum ConnectStartEdgeType {
+  Variable = 'Variable',
+  Condition = 'Condition',
 }

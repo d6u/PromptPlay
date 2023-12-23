@@ -1,14 +1,14 @@
-import styled from "@emotion/styled";
-import IconButton from "@mui/joy/IconButton";
-import { ReactNode } from "react";
-import { useStore } from "zustand";
-import CrossIcon from "../../../icons/CrossIcon";
-import { useStoreFromFlowStoreContext } from "../../store/FlowStoreContext";
-import { DetailPanelContentType } from "../../store/store-flow-state-types";
-import PanelChatGPTMessageConfig from "./chat-gpt-message-config/PanelChatGPTMessageConfig";
-import PanelNodeConfig from "./node-config/PanelNodeConfig";
-import PanelEvaluationModeCSV from "./panel-evaluation-mode-csv/PanelEvaluationModeCSV";
-import PanelEvaluationModeSimple from "./simple-evaluaton/PanelEvaluationModeSimple";
+import styled from '@emotion/styled';
+import IconButton from '@mui/joy/IconButton';
+import { ReactNode } from 'react';
+import { useStore } from 'zustand';
+import CrossIcon from '../../../icons/CrossIcon';
+import { useStoreFromFlowStoreContext } from '../../store/FlowStoreContext';
+import { DetailPanelContentType } from '../../store/store-flow-state-types';
+import PanelChatGPTMessageConfig from './chat-gpt-message-config/PanelChatGPTMessageConfig';
+import PanelNodeConfig from './node-config/PanelNodeConfig';
+import PanelEvaluationModeCSV from './panel-evaluation-mode-csv/PanelEvaluationModeCSV';
+import PanelEvaluationModeSimple from './simple-evaluaton/PanelEvaluationModeSimple';
 
 export default function SidePanel() {
   const flowStore = useStoreFromFlowStoreContext();
@@ -67,7 +67,7 @@ const Container = styled.div<{ $hide: boolean }>`
   height: 100%;
   background-color: #fff;
   border-left: 1px solid #ddd;
-  display: ${(props) => (props.$hide ? "none" : "initial")};
+  display: ${(props) => (props.$hide ? 'none' : 'initial')};
 `;
 
 const StyledCloseButtonWrapper = styled.div`

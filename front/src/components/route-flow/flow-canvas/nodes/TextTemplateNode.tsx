@@ -1,41 +1,48 @@
-import FormControl from "@mui/joy/FormControl";
-import FormHelperText from "@mui/joy/FormHelperText";
-import FormLabel from "@mui/joy/FormLabel";
-import IconButton from "@mui/joy/IconButton";
-import Textarea from "@mui/joy/Textarea";
-import { NodeID, NodeType } from "flow-models/v2-flow-content-types";
+import FormControl from '@mui/joy/FormControl';
+import FormHelperText from '@mui/joy/FormHelperText';
+import FormLabel from '@mui/joy/FormLabel';
+import IconButton from '@mui/joy/IconButton';
+import Textarea from '@mui/joy/Textarea';
 import {
+  NodeID,
+  NodeType,
   V3TextTemplateNodeConfig,
   VariableType,
-} from "flow-models/v3-flow-content-types";
-import { useContext, useEffect, useMemo, useState } from "react";
-import { Position, useNodeId, useUpdateNodeInternals } from "reactflow";
-import { useStore } from "zustand";
-import FlowContext from "../../FlowContext";
-import TextareaReadonly from "../../common/TextareaReadonly";
-import { CopyIcon, LabelWithIconContainer } from "../../common/flow-common";
-import { useStoreFromFlowStoreContext } from "../../store/FlowStoreContext";
-import { selectVariables } from "../../store/state-utils";
-import { DetailPanelContentType } from "../../store/store-flow-state-types";
-import AddVariableButton from "./node-common/AddVariableButton";
-import HeaderSection from "./node-common/HeaderSection";
-import NodeBox from "./node-common/NodeBox";
-import NodeInputModifyRow from "./node-common/NodeInputModifyRow";
-import NodeOutputRow from "./node-common/NodeOutputRow";
+} from 'flow-models';
+import { useContext, useEffect, useMemo, useState } from 'react';
+import { Position, useNodeId, useUpdateNodeInternals } from 'reactflow';
+import invariant from 'ts-invariant';
+import { useStore } from 'zustand';
+import FlowContext from '../../FlowContext';
+import TextareaReadonly from '../../common/TextareaReadonly';
+import { CopyIcon, LabelWithIconContainer } from '../../common/flow-common';
+import { useStoreFromFlowStoreContext } from '../../store/FlowStoreContext';
 import {
+  selectConditionTarget,
+  selectVariables,
+} from '../../store/state-utils';
+import { DetailPanelContentType } from '../../store/store-flow-state-types';
+import AddVariableButton from './node-common/AddVariableButton';
+import HeaderSection from './node-common/HeaderSection';
+import NodeBox from './node-common/NodeBox';
+import NodeInputModifyRow from './node-common/NodeInputModifyRow';
+import NodeOutputRow from './node-common/NodeOutputRow';
+import {
+  ConditionTargetHandle,
   InputHandle,
   OutputHandle,
   Section,
   SmallSection,
   StyledIconGear,
-} from "./node-common/node-common";
+} from './node-common/node-common';
 import {
   calculateInputHandleTop,
   calculateOutputHandleBottom,
-} from "./node-common/utils";
+} from './node-common/utils';
 
 export default function TextTemplateNode() {
   const nodeId = useNodeId() as NodeID;
+  const updateNodeInternals = useUpdateNodeInternals();
 
   const { isCurrentUserOwner } = useContext(FlowContext);
   const flowStore = useStoreFromFlowStoreContext();
@@ -63,6 +70,10 @@ export default function TextTemplateNode() {
 
   // !SECTION
 
+  const nodeConfig = useMemo(() => {
+    return nodeConfigs[nodeId] as V3TextTemplateNodeConfig | undefined;
+  }, [nodeConfigs, nodeId]);
+
   const inputs = useMemo(() => {
     return selectVariables(nodeId, VariableType.NodeInput, variableConfigs);
   }, [nodeId, variableConfigs]);
@@ -71,26 +82,30 @@ export default function TextTemplateNode() {
     return selectVariables(nodeId, VariableType.NodeOutput, variableConfigs);
   }, [nodeId, variableConfigs]);
 
-  const nodeConfig = useMemo(() => {
-    return nodeConfigs[nodeId] as V3TextTemplateNodeConfig | undefined;
-  }, [nodeConfigs, nodeId]);
-
-  const updateNodeInternals = useUpdateNodeInternals();
+  const conditionTarget = useMemo(() => {
+    return selectConditionTarget(nodeId, variableConfigs);
+  }, [variableConfigs, nodeId]);
 
   // It's OK to force unwrap here because nodeConfig will be undefined only
   // when Node is being deleted.
   const [content, setContent] = useState(() => nodeConfig!.content);
 
   useEffect(() => {
-    setContent(() => nodeConfig!.content ?? "");
+    setContent(() => nodeConfig?.content ?? '');
   }, [nodeConfig]);
 
   if (!nodeConfig) {
+    // NOTE: This will happen when the node is removed in store, but not yet
+    // reflected in react-flow store.
     return null;
   }
 
+  invariant(nodeConfig.type === NodeType.TextTemplate);
+  invariant(conditionTarget != null);
+
   return (
     <>
+      <ConditionTargetHandle controlId={conditionTarget.id} isVisible={true} />
       {inputs.map((input, i) => (
         <InputHandle
           key={i}
@@ -158,7 +173,7 @@ export default function TextTemplateNode() {
                   setContent(e.target.value);
                 }}
                 onKeyDown={(e) => {
-                  if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+                  if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
                     updateNodeConfig(nodeId, { content });
                   }
                 }}
@@ -177,8 +192,8 @@ export default function TextTemplateNode() {
                   rel="noreferrer"
                 >
                   Mustache template
-                </a>{" "}
-                is used here. TL;DR: use <code>{"{{variableName}}"}</code> to
+                </a>{' '}
+                is used here. TL;DR: use <code>{'{{variableName}}'}</code> to
                 insert a variable.
               </div>
             </FormHelperText>

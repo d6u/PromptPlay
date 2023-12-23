@@ -1,8 +1,8 @@
-import styled from "@emotion/styled";
-import Input from "@mui/joy/Input";
-import { useState } from "react";
-import InputReadonly from "../../../common/InputReadonly";
-import RemoveButton from "./RemoveButton";
+import styled from '@emotion/styled';
+import Input from '@mui/joy/Input';
+import { useState } from 'react';
+import InputReadonly from '../../../common/InputReadonly';
+import RemoveButton from './RemoveButton';
 
 export const ROW_MARGIN_TOP = 5;
 
@@ -59,7 +59,7 @@ export default function NodeInputModifyRow(props: Props) {
             if (props.isReadOnly) {
               return;
             }
-            if (e.key === "Enter") {
+            if (e.key === 'Enter') {
               props.onConfirmNameChange(name);
             }
           }}

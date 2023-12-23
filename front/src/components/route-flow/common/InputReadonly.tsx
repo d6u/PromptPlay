@@ -1,20 +1,20 @@
-import Input from "@mui/joy/Input";
+import Input from '@mui/joy/Input';
 
 export default function InputReadonly(
-  props: React.ComponentProps<typeof Input>
+  props: React.ComponentProps<typeof Input>,
 ) {
   return (
     <Input
       sx={{
-        "--Input-focusedHighlight": "rgb(205, 215, 225)",
-        "--Input-focusedThickness": "1px",
+        '--Input-focusedHighlight': 'rgb(205, 215, 225)',
+        '--Input-focusedThickness': '1px',
         flexGrow: 1,
-        color: "#747474",
+        color: '#747474',
       }}
       slotProps={{
         input: {
           sx: {
-            cursor: "not-allowed",
+            cursor: 'not-allowed',
           },
         },
       }}

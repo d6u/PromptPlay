@@ -1,25 +1,25 @@
-import { A, D } from "@mobily/ts-belt";
-import { AccordionGroup } from "@mui/joy";
-import { V3VariableValueLookUpDict } from "flow-models/v3-flow-content-types";
-import { produce } from "immer";
-import Papa from "papaparse";
-import posthog from "posthog-js";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Subscription, debounceTime, tap } from "rxjs";
-import invariant from "ts-invariant";
+import { A, D } from '@mobily/ts-belt';
+import { AccordionGroup } from '@mui/joy';
+import { V3VariableValueLookUpDict } from 'flow-models';
+import { produce } from 'immer';
+import Papa from 'papaparse';
+import posthog from 'posthog-js';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Subscription, debounceTime, tap } from 'rxjs';
+import invariant from 'ts-invariant';
 import {
   SingleRunEventType,
   runForEachRow,
-} from "../../../../../../flow-run/run-each-row";
-import { OverallStatus } from "../../../../../../flow-run/run-types";
-import { useFlowStore } from "../../../../store/FlowStoreContext";
+} from '../../../../../../flow-run/run-each-row';
+import { OverallStatus } from '../../../../../../flow-run/run-types';
+import { useFlowStore } from '../../../../store/FlowStoreContext';
 import {
   IterationIndex,
   RowIndex,
-} from "../../../../store/slice-csv-evaluation-preset";
-import { CSVData, CSVHeader } from "../common";
-import EvaluationSectionImportCSV from "./EvaluationSectionImportCSV";
-import EvaluationSectionConfigCSV from "./evaluation-section-config-csv/EvaluationSectionConfigCSV";
+} from '../../../../store/slice-csv-evaluation-preset';
+import { CSVData, CSVHeader } from '../common';
+import EvaluationSectionImportCSV from './EvaluationSectionImportCSV';
+import EvaluationSectionConfigCSV from './evaluation-section-config-csv/EvaluationSectionConfigCSV';
 
 export default function PresetContent() {
   // SECTION: Select store state
@@ -31,6 +31,9 @@ export default function PresetContent() {
   const variablesDict = useFlowStore((s) => s.variablesDict);
   const variableValueLookUpDicts = useFlowStore(
     (s) => s.variableValueLookUpDicts,
+  );
+  const controlResultsLookUpDicts = useFlowStore(
+    (s) => s.controlResultsLookUpDicts,
   );
   const csvContent = useFlowStore((s) => s.csvStr);
   const repeatTimes = useFlowStore((s) => s.getRepeatTimes());
@@ -56,7 +59,7 @@ export default function PresetContent() {
     csvBody: CSVData;
   }>(() => {
     if (csvData.length === 0) {
-      return { csvHeaders: [""], csvBody: [[""]] };
+      return { csvHeaders: [''], csvBody: [['']] };
     }
 
     return { csvHeaders: csvData[0], csvBody: csvData.slice(1) };
@@ -71,7 +74,7 @@ export default function PresetContent() {
       return;
     }
 
-    posthog.capture("Starting CSV Evaluation", {
+    posthog.capture('Starting CSV Evaluation', {
       flowId: spaceId,
       contentRowCount: csvBody.length,
       repeatCount: repeatTimes,
@@ -105,6 +108,7 @@ export default function PresetContent() {
         nodeConfigsDict,
         variablesDict,
         variableValueLookUpDicts,
+        controlResultsLookUpDicts,
       },
       csvBody,
       variableIdToCsvColumnIndexMap,
@@ -118,10 +122,10 @@ export default function PresetContent() {
               setRunMetadataTable((prev) => {
                 return produce(prev, (draft) => {
                   const row = draft[event.rowIndex as RowIndex];
-                  invariant(row != null, "Status row should not be null");
+                  invariant(row != null, 'Status row should not be null');
 
                   const metadata = row[event.iteratonIndex as IterationIndex];
-                  invariant(metadata != null, "Metadata should not be null");
+                  invariant(metadata != null, 'Metadata should not be null');
 
                   metadata.overallStatus = OverallStatus.Running;
                 });
@@ -132,10 +136,10 @@ export default function PresetContent() {
               setRunMetadataTable((prev) => {
                 return produce(prev, (draft) => {
                   const row = draft[event.rowIndex as RowIndex];
-                  invariant(row != null, "Status row should not be null");
+                  invariant(row != null, 'Status row should not be null');
 
                   const metadata = row[event.iteratonIndex as IterationIndex];
-                  invariant(metadata != null, "Metadata should not be null");
+                  invariant(metadata != null, 'Metadata should not be null');
 
                   if (
                     metadata.overallStatus === OverallStatus.NotStarted ||
@@ -152,10 +156,10 @@ export default function PresetContent() {
               setRunMetadataTable((prev) => {
                 return produce(prev, (draft) => {
                   const row = draft[event.rowIndex as RowIndex];
-                  invariant(row != null, "Status row should not be null");
+                  invariant(row != null, 'Status row should not be null');
 
                   const metadata = row[event.iteratonIndex as IterationIndex];
-                  invariant(metadata != null, "Metadata should not be null");
+                  invariant(metadata != null, 'Metadata should not be null');
 
                   metadata.overallStatus = OverallStatus.Interrupted;
                   metadata.errors.push(event.error);
@@ -167,7 +171,7 @@ export default function PresetContent() {
               setGeneratedResult((prev) => {
                 return produce(prev, (draft) => {
                   const row = draft[event.rowIndex as RowIndex];
-                  invariant(row != null, "Result row should not be null");
+                  invariant(row != null, 'Result row should not be null');
 
                   row[event.iteratonIndex as IterationIndex] = {
                     ...row[event.iteratonIndex as IterationIndex],
@@ -190,7 +194,7 @@ export default function PresetContent() {
           setIsRunning(false);
           runningSubscriptionRef.current = null;
 
-          posthog.capture("Finished CSV Evaluation with Error", {
+          posthog.capture('Finished CSV Evaluation with Error', {
             flowId: spaceId,
           });
         },
@@ -199,7 +203,7 @@ export default function PresetContent() {
           runningSubscriptionRef.current = null;
           savePresetConfigContentIfSelected();
 
-          posthog.capture("Finished CSV Evaluation", {
+          posthog.capture('Finished CSV Evaluation', {
             flowId: spaceId,
           });
         },
@@ -208,15 +212,16 @@ export default function PresetContent() {
     spaceId,
     csvBody,
     repeatTimes,
+    setGeneratedResult,
+    setRunMetadataTable,
     nodes,
     edges,
     nodeConfigsDict,
     variablesDict,
     variableValueLookUpDicts,
+    controlResultsLookUpDicts,
     variableIdToCsvColumnIndexMap,
     concurrencyLimit,
-    setGeneratedResult,
-    setRunMetadataTable,
     savePresetConfigContentIfSelected,
   ]);
 

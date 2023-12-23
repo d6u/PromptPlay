@@ -1,51 +1,49 @@
-import styled from "@emotion/styled";
-import Input from "@mui/joy/Input";
-import { useEffect, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
-import { useMutation, useQuery } from "urql";
-import { graphql } from "../../../gql";
-import { UPDATE_SPACE_NAME_MUTATION } from "../../../state/spaceGraphQl";
-
-const SpaceNameInput = styled(Input)`
-  width: 250px;
-`;
-
-const Name = styled.div`
-  font-size: 14px;
-`;
-
-const HEADER_SPACE_NAME_QUERY = graphql(`
-  query HeaderSpaceNameQuery($spaceId: UUID!) {
-    result: space(id: $spaceId) {
-      isReadOnly
-      space {
-        id
-        name
-      }
-    }
-  }
-`);
+import styled from '@emotion/styled';
+import Input from '@mui/joy/Input';
+import { useEffect, useRef, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { useMutation, useQuery } from 'urql';
+import { graphql } from '../../../gql';
 
 export default function SpaceName() {
   // TODO: Properly handle spaceId not being present
-  const { spaceId = "" } = useParams<{ spaceId: string }>();
+  const { spaceId = '' } = useParams<{ spaceId: string }>();
 
   const [queryResult] = useQuery({
-    query: HEADER_SPACE_NAME_QUERY,
-    requestPolicy: "network-only",
+    query: graphql(`
+      query HeaderSpaceNameQuery($spaceId: UUID!) {
+        result: space(id: $spaceId) {
+          isReadOnly
+          space {
+            id
+            name
+          }
+        }
+      }
+    `),
+    requestPolicy: 'network-only',
     pause: !spaceId,
     variables: { spaceId },
   });
 
-  const [name, setName] = useState<string>("");
+  const [name, setName] = useState<string>('');
 
   useEffect(() => {
-    setName(queryResult.data?.result?.space.name ?? "");
+    setName(queryResult.data?.result?.space.name ?? '');
   }, [queryResult.data?.result?.space.name]);
 
   const currentNameRef = useRef<string>(name);
   const [isEditingName, setIsEditingName] = useState<boolean>(false);
-  const [, updateSpaceName] = useMutation(UPDATE_SPACE_NAME_MUTATION);
+  const [, updateSpaceName] = useMutation(
+    graphql(`
+      mutation UpdateSpaceNameMutation($spaceId: ID!, $name: String!) {
+        updateSpace(id: $spaceId, name: $name) {
+          id
+          name
+        }
+      }
+    `),
+  );
   const [isComposing, setIsComposing] = useState<boolean>(false);
 
   if (!spaceId) {
@@ -63,14 +61,14 @@ export default function SpaceName() {
   return isEditingName && !queryResult.data.result.isReadOnly ? (
     <SpaceNameInput
       ref={(element) => {
-        element?.querySelector("input")?.focus();
+        element?.querySelector('input')?.focus();
       }}
       type="text"
       size="sm"
       placeholder="Enter a name for this space"
       slotProps={{
         input: {
-          style: { textAlign: "center" },
+          style: { textAlign: 'center' },
         },
       }}
       value={name}
@@ -85,10 +83,10 @@ export default function SpaceName() {
           return;
         }
 
-        if (e.key === "Enter") {
+        if (e.key === 'Enter') {
           setIsEditingName(false);
           updateSpaceName({ spaceId, name });
-        } else if (e.key === "Escape") {
+        } else if (e.key === 'Escape') {
           setIsEditingName(false);
           setName(currentNameRef.current);
         }
@@ -101,7 +99,17 @@ export default function SpaceName() {
         setIsEditingName(true);
       }}
     >
-      {name || "[EMPTY]"}
+      {name || '[EMPTY]'}
     </Name>
   );
 }
+
+// ANCHOR: Styled Components
+
+const SpaceNameInput = styled(Input)`
+  width: 250px;
+`;
+
+const Name = styled.div`
+  font-size: 14px;
+`;

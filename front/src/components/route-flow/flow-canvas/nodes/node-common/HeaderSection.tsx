@@ -1,7 +1,7 @@
-import styled from "@emotion/styled";
-import IconThreeDots from "../../../../icons/IconThreeDots";
-import { DRAG_HANDLE_CLASS_NAME } from "../../../constants";
-import RemoveButton from "./RemoveButton";
+import styled from '@emotion/styled';
+import IconThreeDots from '../../../../icons/IconThreeDots';
+import { DRAG_HANDLE_CLASS_NAME } from '../../../constants';
+import RemoveButton from './RemoveButton';
 
 export const TITLE_PADDING_TOP = 10;
 export const TITLE_HEIGHT = 32;

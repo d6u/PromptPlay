@@ -1,21 +1,18 @@
-import styled from "@emotion/styled";
-import { Button } from "@mui/joy";
-import {
-  VariableType,
-  VariableValueType,
-} from "flow-models/v3-flow-content-types";
-import { useContext, useMemo } from "react";
-import { useStore } from "zustand";
-import FlowContext from "../../../FlowContext";
-import { useStoreFromFlowStoreContext } from "../../../store/FlowStoreContext";
-import { selectAllVariables } from "../../../store/state-utils";
-import InputBlock from "../common/InputBlock";
-import OutputRenderer from "../common/OutputRenderer";
+import styled from '@emotion/styled';
+import { Button } from '@mui/joy';
+import { VariableType, VariableValueType } from 'flow-models';
+import { useContext, useMemo } from 'react';
+import { useStore } from 'zustand';
+import FlowContext from '../../../FlowContext';
+import { useStoreFromFlowStoreContext } from '../../../store/FlowStoreContext';
+import { selectAllVariables } from '../../../store/state-utils';
+import InputBlock from '../common/InputBlock';
+import OutputRenderer from '../common/OutputRenderer';
 import {
   HeaderSection,
   HeaderSectionHeader,
   Section,
-} from "../common/controls-common";
+} from '../common/controls-common';
 
 export default function PanelEvaluationModeSimple() {
   const { isCurrentUserOwner } = useContext(FlowContext);
@@ -52,10 +49,10 @@ export default function PanelEvaluationModeSimple() {
         <HeaderSectionHeader>Input variables</HeaderSectionHeader>
         {isCurrentUserOwner && (
           <Button
-            color={isRunning ? "danger" : "success"}
+            color={isRunning ? 'danger' : 'success'}
             onClick={isRunning ? stopRunningFlow : runFlow}
           >
-            {isRunning ? "Stop" : "Run"}
+            {isRunning ? 'Stop' : 'Run'}
           </Button>
         )}
       </HeaderSection>
@@ -75,7 +72,7 @@ export default function PanelEvaluationModeSimple() {
               if (newType !== variable.valueType) {
                 switch (newType) {
                   case VariableValueType.String:
-                    updateVariableValueMap(variable.id, "");
+                    updateVariableValueMap(variable.id, '');
                     break;
                   case VariableValueType.Number:
                     updateVariableValueMap(variable.id, 0);

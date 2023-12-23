@@ -1,48 +1,53 @@
 import {
+  Condition,
   LocalNode,
-  NodeConfig,
   NodeID,
-} from "flow-models/v2-flow-content-types";
-import {
   V3LocalEdge,
   V3NodeConfig,
   V3VariableID,
   Variable,
   VariableType,
-} from "flow-models/v3-flow-content-types";
-import { Connection, EdgeChange, NodeChange } from "reactflow";
+} from 'flow-models';
+import { Connection, EdgeChange, NodeChange } from 'reactflow';
 
 export enum ChangeEventType {
   // React Flow
-  RF_EDGES_CHANGE = "RF_EDGES_CHANGE",
-  RF_NODES_CHANGE = "RF_NODES_CHANGE",
-  RF_ON_CONNECT = "RF_ON_CONNECT",
+  RF_EDGES_CHANGE = 'RF_EDGES_CHANGE',
+  RF_NODES_CHANGE = 'RF_NODES_CHANGE',
+  RF_ON_CONNECT = 'RF_ON_CONNECT',
   // Nodes
-  ADDING_NODE = "ADDING_NODE",
-  REMOVING_NODE = "REMOVING_NODE",
-  UPDATING_NODE_CONFIG = "UPDATING_NODE_CONFIG",
+  ADDING_NODE = 'ADDING_NODE',
+  REMOVING_NODE = 'REMOVING_NODE',
+  UPDATING_NODE_CONFIG = 'UPDATING_NODE_CONFIG',
   // Variables
-  ADDING_VARIABLE = "ADDING_VARIABLE",
-  REMOVING_VARIABLE = "REMOVING_VARIABLE",
-  UPDATING_VARIABLE = "UPDATING_VARIABLE",
-  // --- Derived ---
+  ADDING_VARIABLE = 'ADDING_VARIABLE',
+  REMOVING_VARIABLE = 'REMOVING_VARIABLE',
+  UPDATING_VARIABLE = 'UPDATING_VARIABLE',
+  // ANCHOR: Derived
   // Derived Nodes
-  NODE_AND_VARIABLES_ADDED = "NODE_AND_VARIABLES_ADDED",
-  NODE_REMOVED = "NODE_REMOVED",
-  NODE_MOVED = "NODE_MOVED",
-  NODE_CONFIG_UPDATED = "NODE_CONFIG_UPDATED",
+  NODE_AND_VARIABLES_ADDED = 'NODE_AND_VARIABLES_ADDED',
+  NODE_REMOVED = 'NODE_REMOVED',
+  NODE_MOVED = 'NODE_MOVED',
+  NODE_CONFIG_UPDATED = 'NODE_CONFIG_UPDATED',
   // Derived Edges
-  EDGE_ADDED = "EDGE_ADDED",
-  EDGE_REMOVED = "EDGE_REMOVED",
-  EDGE_REPLACED = "EDGE_REPLACED",
+  EDGE_ADDED = 'EDGE_ADDED',
+  EDGE_REMOVED = 'EDGE_REMOVED',
+  EDGE_REPLACED = 'EDGE_REPLACED',
   // Derived Variables
-  VARIABLE_ADDED = "VARIABLE_ADDED",
-  VARIABLE_REMOVED = "VARIABLE_REMOVED",
-  VARIABLE_UPDATED = "VARIABLE_UPDATED",
+  VARIABLE_ADDED = 'VARIABLE_ADDED',
+  VARIABLE_REMOVED = 'VARIABLE_REMOVED',
+  VARIABLE_UPDATED = 'VARIABLE_UPDATED',
+  // Derived Conditions
+  CONDITION_ADDED = 'CONDITION_ADDED',
+  CONDITION_REMOVED = 'CONDITION_REMOVED',
+  CONDITION_TARGET_REMOVED = 'CONDITION_TARGET_REMOVED',
   // Derived Other
-  VAR_VALUE_MAP_UPDATED = "VAR_VALUE_MAP_UPDATED",
+  VAR_VALUE_MAP_UPDATED = 'VAR_VALUE_MAP_UPDATED',
+  CONTROL_RESULT_MAP_UPDATED = 'CONTROL_RESULT_MAP_UPDATED',
 }
 
+// NOTE: This map is used to prevent infinite loop caused by circular
+// dependencies among events
 export const EVENT_VALIDATION_MAP: {
   [key in ChangeEventType]: ChangeEventType[];
 } = {
@@ -61,36 +66,56 @@ export const EVENT_VALIDATION_MAP: {
   [ChangeEventType.REMOVING_NODE]: [ChangeEventType.NODE_REMOVED],
   [ChangeEventType.UPDATING_NODE_CONFIG]: [ChangeEventType.NODE_CONFIG_UPDATED],
   // Variables
-  [ChangeEventType.ADDING_VARIABLE]: [ChangeEventType.VARIABLE_ADDED],
-  [ChangeEventType.REMOVING_VARIABLE]: [ChangeEventType.VARIABLE_REMOVED],
+  [ChangeEventType.ADDING_VARIABLE]: [
+    ChangeEventType.VARIABLE_ADDED,
+    ChangeEventType.CONDITION_ADDED,
+  ],
+  [ChangeEventType.REMOVING_VARIABLE]: [
+    ChangeEventType.VARIABLE_REMOVED,
+    ChangeEventType.CONDITION_REMOVED,
+  ],
   [ChangeEventType.UPDATING_VARIABLE]: [ChangeEventType.VARIABLE_UPDATED],
-  // --- Derived ---
+  // ANCHOR: Derived
   // Derived Nodes
   [ChangeEventType.NODE_AND_VARIABLES_ADDED]: [
     ChangeEventType.VAR_VALUE_MAP_UPDATED,
+    ChangeEventType.CONTROL_RESULT_MAP_UPDATED,
   ],
   [ChangeEventType.NODE_MOVED]: [],
   [ChangeEventType.NODE_CONFIG_UPDATED]: [],
   [ChangeEventType.NODE_REMOVED]: [
     ChangeEventType.EDGE_REMOVED,
     ChangeEventType.VARIABLE_REMOVED,
+    ChangeEventType.CONDITION_REMOVED,
+    ChangeEventType.CONDITION_TARGET_REMOVED,
   ],
   // Derived Edges
   [ChangeEventType.EDGE_ADDED]: [
     ChangeEventType.EDGE_REMOVED,
     ChangeEventType.VARIABLE_UPDATED,
   ],
-  [ChangeEventType.EDGE_REMOVED]: [ChangeEventType.VARIABLE_UPDATED],
+  [ChangeEventType.EDGE_REMOVED]: [
+    ChangeEventType.VARIABLE_UPDATED,
+    ChangeEventType.CONTROL_RESULT_MAP_UPDATED,
+  ],
   [ChangeEventType.EDGE_REPLACED]: [ChangeEventType.VARIABLE_UPDATED],
   // Derived Variables
   [ChangeEventType.VARIABLE_ADDED]: [ChangeEventType.VAR_VALUE_MAP_UPDATED],
   [ChangeEventType.VARIABLE_REMOVED]: [
-    ChangeEventType.VAR_VALUE_MAP_UPDATED,
     ChangeEventType.EDGE_REMOVED,
+    ChangeEventType.VAR_VALUE_MAP_UPDATED,
   ],
   [ChangeEventType.VARIABLE_UPDATED]: [ChangeEventType.VAR_VALUE_MAP_UPDATED],
+  // Derived Conditions
+  [ChangeEventType.CONDITION_ADDED]: [],
+  [ChangeEventType.CONDITION_REMOVED]: [
+    ChangeEventType.EDGE_REMOVED,
+    ChangeEventType.CONTROL_RESULT_MAP_UPDATED,
+  ],
+  [ChangeEventType.CONDITION_TARGET_REMOVED]: [],
   // Derived Other
   [ChangeEventType.VAR_VALUE_MAP_UPDATED]: [],
+  [ChangeEventType.CONTROL_RESULT_MAP_UPDATED]: [],
 };
 
 export type ChangeEvent =
@@ -119,7 +144,7 @@ export type ChangeEvent =
   | {
       type: ChangeEventType.UPDATING_NODE_CONFIG;
       nodeId: NodeID;
-      change: Partial<NodeConfig>;
+      change: Partial<V3NodeConfig>;
     }
   // Variables
   | {
@@ -137,7 +162,7 @@ export type ChangeEvent =
       variableId: V3VariableID;
       change: Partial<Variable>;
     }
-  // --- Derived ---
+  // ANCHOR: Derived
   // Derived Nodes
   | {
       type: ChangeEventType.NODE_AND_VARIABLES_ADDED;
@@ -184,7 +209,21 @@ export type ChangeEvent =
       type: ChangeEventType.VARIABLE_REMOVED;
       removedVariable: Variable;
     }
+  // Derived Conditions
+  | {
+      type: ChangeEventType.CONDITION_ADDED;
+    }
+  | {
+      type: ChangeEventType.CONDITION_REMOVED;
+      removedCondition: Condition;
+    }
+  | {
+      type: ChangeEventType.CONDITION_TARGET_REMOVED;
+    }
   // Derived Other
   | {
       type: ChangeEventType.VAR_VALUE_MAP_UPDATED;
+    }
+  | {
+      type: ChangeEventType.CONTROL_RESULT_MAP_UPDATED;
     };

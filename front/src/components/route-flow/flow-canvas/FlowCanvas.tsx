@@ -1,29 +1,32 @@
-import styled from "@emotion/styled";
-import { NodeType } from "flow-models/v2-flow-content-types";
-import { useContext } from "react";
+import styled from '@emotion/styled';
+import { NodeType } from 'flow-models';
+import { useContext } from 'react';
 import ReactFlow, {
   Background,
   BackgroundVariant,
   Controls,
   PanOnScrollMode,
-} from "reactflow";
-import "reactflow/dist/style.css";
-import { useStore } from "zustand";
-import FlowContext from "../FlowContext";
-import { useStoreFromFlowStoreContext } from "../store/FlowStoreContext";
-import ChatGPTChatCompletionNode from "./nodes/ChatGPTChatCompletionNode";
-import ChatGPTMessageNode from "./nodes/ChatGPTMessageNode";
-import ElevenLabsNode from "./nodes/ElevenLabsNode";
-import HuggingFaceInferenceNode from "./nodes/HuggingFaceInferenceNode";
-import InputNode from "./nodes/InputNode";
-import JavaScriptFunctionNode from "./nodes/JavaScriptFunctionNode";
-import OutputNode from "./nodes/OutputNode";
-import TextTemplateNode from "./nodes/TextTemplateNode";
-import SidePanel from "./side-panel/SidePanel";
+} from 'reactflow';
+import 'reactflow/dist/style.css';
+import { useStore } from 'zustand';
+import FlowContext from '../FlowContext';
+import { useStoreFromFlowStoreContext } from '../store/FlowStoreContext';
+import ChatGPTChatCompletionNode from './nodes/ChatGPTChatCompletionNode';
+import ChatGPTMessageNode from './nodes/ChatGPTMessageNode';
+import ConditionNode from './nodes/ConditionNode';
+import ElevenLabsNode from './nodes/ElevenLabsNode';
+import HuggingFaceInferenceNode from './nodes/HuggingFaceInferenceNode';
+import InputNode from './nodes/InputNode';
+import JavaScriptFunctionNode from './nodes/JavaScriptFunctionNode';
+import OutputNode from './nodes/OutputNode';
+import TextTemplateNode from './nodes/TextTemplateNode';
+import SidePanel from './side-panel/SidePanel';
 
+// TODO: Enforce type safety
 const NODE_TYPES = {
   [NodeType.InputNode]: InputNode,
   [NodeType.OutputNode]: OutputNode,
+  [NodeType.ConditionNode]: ConditionNode,
   [NodeType.JavaScriptFunctionNode]: JavaScriptFunctionNode,
   [NodeType.ChatGPTMessageNode]: ChatGPTMessageNode,
   [NodeType.ChatGPTChatCompletionNode]: ChatGPTChatCompletionNode,
@@ -41,6 +44,8 @@ export default function FlowCanvas() {
   const onNodesChange = useStore(flowStore, (s) => s.onNodesChange);
   const onEdgesChange = useStore(flowStore, (s) => s.onEdgesChange);
   const onConnect = useStore(flowStore, (s) => s.onConnect);
+  const onEdgeConnectStart = useStore(flowStore, (s) => s.onEdgeConnectStart);
+  const onEdgeConnectStop = useStore(flowStore, (s) => s.onEdgeConnectStop);
 
   return (
     <Container>
@@ -71,6 +76,12 @@ export default function FlowCanvas() {
           if (isCurrentUserOwner) {
             onConnect(connection);
           }
+        }}
+        onConnectStart={(event, params) => {
+          onEdgeConnectStart(params);
+        }}
+        onConnectEnd={() => {
+          onEdgeConnectStop();
         }}
       >
         <Controls />

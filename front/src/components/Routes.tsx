@@ -1,16 +1,16 @@
-import styled from "@emotion/styled";
-import { useMemo } from "react";
+import styled from '@emotion/styled';
+import { useMemo } from 'react';
 import {
+  Navigate,
+  Outlet,
   RouterProvider,
   createBrowserRouter,
-  Outlet,
-  Navigate,
-} from "react-router-dom";
-import { ROOT_PATH, FLOWS_PATH_PATTERN } from "../utils/route-utils";
-import Header from "./common/header/Header";
-import RouteFlow from "./route-flow";
-import flowLoader from "./route-flow/route-loader";
-import RootRoute from "./route-root";
+} from 'react-router-dom';
+import { FLOWS_PATH_PATTERN, ROOT_PATH } from '../utils/route-utils';
+import Header from './common/header/Header';
+import RouteFlow from './route-flow';
+import flowLoader from './route-flow/route-loader';
+import RootRoute from './route-root';
 
 export default function Routes() {
   const router = useMemo(() => {
@@ -25,7 +25,7 @@ export default function Routes() {
         ),
         children: [
           {
-            path: "/",
+            path: '/',
             element: <RootRoute />,
           },
           {
@@ -36,7 +36,7 @@ export default function Routes() {
         ],
       },
       {
-        path: "*",
+        path: '*',
         element: <Navigate to="/" />,
       },
     ]);

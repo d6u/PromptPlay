@@ -1,4 +1,4 @@
-import { F } from "@mobily/ts-belt";
+import { F } from '@mobily/ts-belt';
 import {
   Accordion,
   AccordionSummary,
@@ -7,21 +7,21 @@ import {
   FormLabel,
   Input,
   Table,
-} from "@mui/joy";
-import { VariableType } from "flow-models/v3-flow-content-types";
-import Papa from "papaparse";
-import posthog from "posthog-js";
-import { useMemo } from "react";
-import { useFlowStore } from "../../../../../store/FlowStoreContext";
+} from '@mui/joy';
+import { VariableType } from 'flow-models';
+import Papa from 'papaparse';
+import posthog from 'posthog-js';
+import { useMemo } from 'react';
+import { useFlowStore } from '../../../../../store/FlowStoreContext';
 import {
   IterationIndex,
   RowIndex,
-} from "../../../../../store/slice-csv-evaluation-preset";
-import { selectAllVariables } from "../../../../../store/state-utils";
-import { Section } from "../../../common/controls-common";
-import { CSVData, CSVRow, CustomAccordionDetails } from "../../common";
-import TableBody from "./TableBody";
-import TableHead from "./TableHead";
+} from '../../../../../store/slice-csv-evaluation-preset';
+import { selectAllVariables } from '../../../../../store/state-utils';
+import { Section } from '../../../common/controls-common';
+import { CSVData, CSVRow, CustomAccordionDetails } from '../../common';
+import TableBody from './TableBody';
+import TableHead from './TableHead';
 
 type Props = {
   csvHeaders: CSVRow;
@@ -59,7 +59,7 @@ export default function EvaluationSectionConfigCSV(props: Props) {
     <Accordion defaultExpanded>
       <AccordionSummary>Configurate</AccordionSummary>
       <CustomAccordionDetails>
-        <Section style={{ overflow: "auto", display: "flex", gap: 10 }}>
+        <Section style={{ overflow: 'auto', display: 'flex', gap: 10 }}>
           <FormControl size="sm" orientation="horizontal">
             <FormLabel>Reapt</FormLabel>
             <Input
@@ -111,9 +111,9 @@ export default function EvaluationSectionConfigCSV(props: Props) {
 
               // Status
 
-              resultCsv[0].push("Status");
+              resultCsv[0].push('Status');
               for (let i = 0; i < repeatTimes - 1; i++) {
-                resultCsv[0].push("");
+                resultCsv[0].push('');
               }
 
               if (repeatTimes > 1) {
@@ -121,7 +121,7 @@ export default function EvaluationSectionConfigCSV(props: Props) {
                   resultCsv[1].push(`Run ${i + 1}`);
                 }
               } else {
-                resultCsv[1].push("");
+                resultCsv[1].push('');
               }
 
               // Inputs
@@ -133,7 +133,7 @@ export default function EvaluationSectionConfigCSV(props: Props) {
                 resultCsv[1].push(
                   index != null
                     ? props.csvHeaders.filter(F.identity)[index]
-                    : "",
+                    : '',
                 );
               }
 
@@ -142,16 +142,16 @@ export default function EvaluationSectionConfigCSV(props: Props) {
               for (const outputItem of flowOutputVariables) {
                 resultCsv[0].push(outputItem.name);
                 for (let i = 0; i < repeatTimes; i++) {
-                  resultCsv[0].push("");
+                  resultCsv[0].push('');
                 }
 
-                resultCsv[1].push("");
+                resultCsv[1].push('');
                 if (repeatTimes > 1) {
                   for (let i = 0; i < repeatTimes; i++) {
                     resultCsv[1].push(`Result ${i + 1}`);
                   }
                 } else {
-                  resultCsv[1].push("Result");
+                  resultCsv[1].push('Result');
                 }
               }
 
@@ -162,28 +162,28 @@ export default function EvaluationSectionConfigCSV(props: Props) {
 
                 // Status
                 for (let i = 0; i < repeatTimes; i++) {
-                  cells.push("");
+                  cells.push('');
                 }
 
                 // Inputs
                 for (const inputItem of flowInputVariables) {
                   const index = variableIdToCsvColumnIndexMap[inputItem.id];
-                  cells.push(index != null ? row[index] : "");
+                  cells.push(index != null ? row[index] : '');
                 }
 
                 // Outputs
                 for (const outputItem of flowOutputVariables) {
                   const index = variableIdToCsvColumnIndexMap[outputItem.id];
-                  cells.push(index != null ? row[index] : "");
+                  cells.push(index != null ? row[index] : '');
 
                   for (let i = 0; i < repeatTimes; i++) {
                     const value =
                       runOutputTable[rowIndex as RowIndex]?.[
                         i as IterationIndex
-                      ]?.[outputItem.id] ?? "";
+                      ]?.[outputItem.id] ?? '';
 
                     cells.push(
-                      typeof value === "string" ? value : JSON.stringify(value),
+                      typeof value === 'string' ? value : JSON.stringify(value),
                     );
                   }
                 }
@@ -193,11 +193,11 @@ export default function EvaluationSectionConfigCSV(props: Props) {
 
               const csv = Papa.unparse(resultCsv);
 
-              const blob = new Blob([csv], { type: "text/plain" });
+              const blob = new Blob([csv], { type: 'text/plain' });
               const url = URL.createObjectURL(blob);
-              const a = document.createElement("a");
+              const a = document.createElement('a');
               a.href = url;
-              a.download = "result.csv";
+              a.download = 'result.csv';
               document.body.appendChild(a);
               a.click();
               document.body.removeChild(a);
@@ -206,17 +206,17 @@ export default function EvaluationSectionConfigCSV(props: Props) {
               navigator.clipboard
                 .writeText(csv)
                 .then(() => {
-                  posthog.capture("Copied CSV Evaluation Result to Clipboard");
+                  posthog.capture('Copied CSV Evaluation Result to Clipboard');
                 })
                 .catch((err) => {
-                  console.error("Could not copy text: ", err);
+                  console.error('Could not copy text: ', err);
                 });
             }}
           >
             Download result as CSV
           </Button>
         </Section>
-        <Section style={{ overflow: "auto" }}>
+        <Section style={{ overflow: 'auto' }}>
           <Table>
             <TableHead csvHeaders={props.csvHeaders} />
             <TableBody csvBody={props.csvBody} />

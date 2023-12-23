@@ -1,16 +1,30 @@
 import { css } from '@emotion/react';
 import styled from '@emotion/styled';
-import { NodeType } from 'flow-models/v2-flow-content-types';
+import { NodeType } from 'flow-models';
 import background from '../../../../../assets/warning-background.svg';
 
 export const BACKDROP_PADDING = 3;
 export const NODE_BOX_WIDTH = 300;
+
+type Props = {
+  nodeType: NodeType;
+  state?: NodeState;
+  children: React.ReactNode;
+};
 
 // eslint-disable-next-line react-refresh/only-export-components
 export enum NodeState {
   Idle,
   Running,
   Error,
+}
+
+export default function NodeBox(props: Props) {
+  return (
+    <Backdrop $type={props.nodeType} $state={props.state ?? NodeState.Idle}>
+      <Content>{props.children}</Content>
+    </Backdrop>
+  );
 }
 
 const Backdrop = styled.div<{ $type: NodeType; $state: NodeState }>`
@@ -58,6 +72,12 @@ const Backdrop = styled.div<{ $type: NodeType; $state: NodeState }>`
         return css`
           background: linear-gradient(39deg, #daf1bd 14.47%, #8eec63 87.64%);
         `;
+      case NodeType.JavaScriptFunctionNode:
+        // background will be included as data URL if its size is smaller
+        // than a threshold. That's why we need to add "" around the url.
+        return css`
+          background: url(\"${background}\");
+        `;
       case NodeType.ChatGPTMessageNode:
         return css`
           background: linear-gradient(22deg, #98ecff 0%, #5cc5e0 100%);
@@ -65,12 +85,6 @@ const Backdrop = styled.div<{ $type: NodeType; $state: NodeState }>`
       case NodeType.ChatGPTChatCompletionNode:
         return css`
           background: linear-gradient(22deg, #fa97b6 0%, #e081fe 100%);
-        `;
-      case NodeType.JavaScriptFunctionNode:
-        // background will be included as data URL if its size is smaller
-        // than a threshold. That's why we need to add "" around the url.
-        return css`
-          background: url(\"${background}\");
         `;
       case NodeType.TextTemplate: {
         return css`
@@ -95,17 +109,3 @@ const Content = styled.div`
   background: #fff;
   border-radius: 5px;
 `;
-
-type Props = {
-  nodeType: NodeType;
-  state?: NodeState;
-  children: React.ReactNode;
-};
-
-export default function NodeBox(props: Props) {
-  return (
-    <Backdrop $type={props.nodeType} $state={props.state ?? NodeState.Idle}>
-      <Content>{props.children}</Content>
-    </Backdrop>
-  );
-}

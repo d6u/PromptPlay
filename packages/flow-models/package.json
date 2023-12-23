@@ -7,6 +7,13 @@
     "chance": "^1.1.11",
     "common-utils": "workspace:^",
     "integrations": "workspace:^",
-    "reactflow": "^11.8.3"
+    "mustache": "^4.2.0",
+    "reactflow": "^11.8.3",
+    "rxjs": "^7.8.1",
+    "ts-invariant": "^0.10.3"
+  },
+  "devDependencies": {
+    "@types/chance": "^1.1.6",
+    "@types/mustache": "^4.2.2"
   }
 }
