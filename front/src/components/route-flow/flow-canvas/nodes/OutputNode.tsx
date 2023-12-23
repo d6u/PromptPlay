@@ -42,7 +42,7 @@ export default function OutputNode() {
   const removeVariable = useStore(flowStore, (s) => s.removeVariable);
   const isConnectStartOnConditionNodeOutput = useStore(
     flowStore,
-    (s) => s.isConnectStartOnConditionNodeOutput,
+    (s) => s.connectStartEdgeType,
   );
 
   const nodeConfig = useMemo(

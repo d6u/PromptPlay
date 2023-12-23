@@ -69,7 +69,7 @@ export default function ChatGPTMessageNode() {
   );
   const isConnectStartOnConditionNodeOutput = useStore(
     flowStore,
-    (s) => s.isConnectStartOnConditionNodeOutput,
+    (s) => s.connectStartEdgeType,
   );
 
   // !SECTION

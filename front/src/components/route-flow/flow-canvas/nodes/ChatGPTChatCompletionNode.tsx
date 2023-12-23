@@ -64,7 +64,7 @@ export default function ChatGPTChatCompletionNode() {
   );
   const isConnectStartOnConditionNodeOutput = useStore(
     flowStore,
-    (s) => s.isConnectStartOnConditionNodeOutput,
+    (s) => s.connectStartEdgeType,
   );
 
   const { openAiApiKey, setOpenAiApiKey } =

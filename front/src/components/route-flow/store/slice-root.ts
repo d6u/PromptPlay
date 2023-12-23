@@ -12,6 +12,7 @@ import {
 } from 'flow-models';
 import { produce } from 'immer';
 import posthog from 'posthog-js';
+import { OnConnectStartParams } from 'reactflow';
 import { Subscription, from, map, tap } from 'rxjs';
 import { invariant } from 'ts-invariant';
 import { OperationResult } from 'urql';
@@ -26,6 +27,7 @@ import {
   assignLocalNodeProperties,
 } from './state-utils';
 import {
+  ConnectStartEdgeType,
   DetailPanelContentType,
   FlowState,
   NodeMetadata,
@@ -39,8 +41,8 @@ type RootSliceState = {
 
   isInitialized: boolean;
   isRunning: boolean;
-  isConnectStartOnConditionNodeOutput: boolean;
-  connectStartConditionNodeId: NodeID | null;
+  connectStartEdgeType: ConnectStartEdgeType | null;
+  connectStartStartNodeId: NodeID | null;
 
   detailPanelContentType: DetailPanelContentType;
   detailPanelSelectedNodeId: NodeID | null;
@@ -55,11 +57,8 @@ export type RootSlice = RootSliceState & {
   updateNodeAugment(nodeId: NodeID, change: Partial<NodeMetadata>): void;
   runFlow(): void;
   stopRunningFlow(): void;
-  maybeStartConnectingOnConditionNodeOutput(params: {
-    nodeId: NodeID;
-    handleId: string;
-  }): void;
-  stopConnectingOnConditionNodeOutput(): void;
+  onEdgeConnectStart(params: OnConnectStartParams): void;
+  onEdgeConnectStop(): void;
 };
 
 type InitProps = {
@@ -110,8 +109,8 @@ export function createRootSlice(
 
     isInitialized: false,
     isRunning: false,
-    isConnectStartOnConditionNodeOutput: false,
-    connectStartConditionNodeId: null,
+    connectStartEdgeType: null,
+    connectStartStartNodeId: null,
 
     detailPanelContentType: DetailPanelContentType.Off,
     detailPanelSelectedNodeId: null,
@@ -314,29 +313,30 @@ export function createRootSlice(
       setIsRunning(false);
     },
 
-    maybeStartConnectingOnConditionNodeOutput(params: {
-      nodeId: NodeID;
-      handleId: string;
-    }): void {
+    onEdgeConnectStart(params: OnConnectStartParams): void {
       set((state) => {
-        const variable = state.variablesDict[
+        const connector = state.variablesDict[
           params.handleId as V3VariableID
         ] as Variable | undefined;
 
-        if (variable != null) {
+        if (connector == null) {
           return state;
         }
 
         return {
-          isConnectStartOnConditionNodeOutput: true,
-          connectStartConditionNodeId: params.nodeId,
+          connectStartEdgeType:
+            connector.type === VariableType.Condition ||
+            connector.type === VariableType.ConditionTarget
+              ? ConnectStartEdgeType.Condition
+              : ConnectStartEdgeType.Variable,
+          connectStartStartNodeId: params.nodeId as NodeID,
         };
       });
     },
-    stopConnectingOnConditionNodeOutput(): void {
+    onEdgeConnectStop(): void {
       set(() => ({
-        isConnectStartOnConditionNodeOutput: false,
-        connectStartConditionNodeId: null,
+        connectStartEdgeType: null,
+        connectStartStartNodeId: null,
       }));
     },
   };

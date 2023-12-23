@@ -67,10 +67,6 @@ export default function TextTemplateNode() {
   const defaultVariableValueMap = useStore(flowStore, (s) =>
     s.getDefaultVariableValueLookUpDict(),
   );
-  const isConnectStartOnConditionNodeOutput = useStore(
-    flowStore,
-    (s) => s.isConnectStartOnConditionNodeOutput,
-  );
 
   // !SECTION
 
@@ -110,18 +106,17 @@ export default function TextTemplateNode() {
   return (
     <>
       <ConditionTargetHandle controlId={conditionTarget.id} isVisible={true} />
-      {!isConnectStartOnConditionNodeOutput &&
-        inputs.map((input, i) => (
-          <InputHandle
-            key={i}
-            type="target"
-            id={input.id}
-            position={Position.Left}
-            style={{
-              top: calculateInputHandleTop(i - (isCurrentUserOwner ? 0 : 1)),
-            }}
-          />
-        ))}
+      {inputs.map((input, i) => (
+        <InputHandle
+          key={i}
+          type="target"
+          id={input.id}
+          position={Position.Left}
+          style={{
+            top: calculateInputHandleTop(i - (isCurrentUserOwner ? 0 : 1)),
+          }}
+        />
+      ))}
       <NodeBox nodeType={NodeType.TextTemplate}>
         <HeaderSection
           isCurrentUserOwner={isCurrentUserOwner}

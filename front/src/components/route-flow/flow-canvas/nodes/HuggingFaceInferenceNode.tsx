@@ -60,7 +60,7 @@ export default function HuggingFaceInferenceNode() {
   );
   const isConnectStartOnConditionNodeOutput = useStore(
     flowStore,
-    (s) => s.isConnectStartOnConditionNodeOutput,
+    (s) => s.connectStartEdgeType,
   );
 
   // !SECTION

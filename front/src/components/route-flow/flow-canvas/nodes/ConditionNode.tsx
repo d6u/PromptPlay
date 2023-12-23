@@ -42,14 +42,6 @@ export default function ConditionNode() {
   // const addVariable = useStore(flowStore, (s) => s.addVariable);
   const updateVariable = useStore(flowStore, (s) => s.updateVariable);
   const removeVariable = useStore(flowStore, (s) => s.removeVariable);
-  const isConnectStartOnConditionNodeOutput = useStore(
-    flowStore,
-    (s) => s.isConnectStartOnConditionNodeOutput,
-  );
-  const connectStartConditionNodeId = useStore(
-    flowStore,
-    (s) => s.connectStartConditionNodeId,
-  );
 
   // !SECTION
 
@@ -81,18 +73,17 @@ export default function ConditionNode() {
   return (
     <>
       <ConditionTargetHandle controlId={conditionTarget.id} isVisible={true} />
-      {!isConnectStartOnConditionNodeOutput &&
-        nodeInputs.map((flowInput, i) => (
-          <InputHandle
-            key={flowInput.id}
-            type="target"
-            id={flowInput.id}
-            position={Position.Left}
-            style={{
-              top: calculateInputHandleTop(nodeInputs.length - 2 - i),
-            }}
-          />
-        ))}
+      {nodeInputs.map((flowInput, i) => (
+        <InputHandle
+          key={flowInput.id}
+          type="target"
+          id={flowInput.id}
+          position={Position.Left}
+          style={{
+            top: calculateInputHandleTop(nodeInputs.length - 2 - i),
+          }}
+        />
+      ))}
       <NodeBox nodeType={NodeType.InputNode}>
         <HeaderSection
           isCurrentUserOwner={isCurrentUserOwner}

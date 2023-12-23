@@ -44,14 +44,8 @@ export default function FlowCanvas() {
   const onNodesChange = useStore(flowStore, (s) => s.onNodesChange);
   const onEdgesChange = useStore(flowStore, (s) => s.onEdgesChange);
   const onConnect = useStore(flowStore, (s) => s.onConnect);
-  const maybeStartConnectingOnConditionNodeOutput = useStore(
-    flowStore,
-    (s) => s.maybeStartConnectingOnConditionNodeOutput,
-  );
-  const stopConnectingOnConditionNodeOutput = useStore(
-    flowStore,
-    (s) => s.stopConnectingOnConditionNodeOutput,
-  );
+  const onEdgeConnectStart = useStore(flowStore, (s) => s.onEdgeConnectStart);
+  const onEdgeConnectStop = useStore(flowStore, (s) => s.onEdgeConnectStop);
 
   return (
     <Container>
@@ -83,15 +77,12 @@ export default function FlowCanvas() {
             onConnect(connection);
           }
         }}
-        // onConnectStart={(event, params) => {
-        //   maybeStartConnectingOnConditionNodeOutput({
-        //     nodeId: params.nodeId as NodeID,
-        //     handleId: params.handleId!,
-        //   });
-        // }}
-        // onConnectEnd={() => {
-        //   stopConnectingOnConditionNodeOutput();
-        // }}
+        onConnectStart={(event, params) => {
+          onEdgeConnectStart(params);
+        }}
+        onConnectEnd={() => {
+          onEdgeConnectStop();
+        }}
       >
         <Controls />
         <Background variant={BackgroundVariant.Dots} gap={20} size={1} />

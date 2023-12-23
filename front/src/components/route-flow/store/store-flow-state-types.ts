@@ -42,3 +42,8 @@ export enum DetailPanelContentType {
   NodeConfig = 'NodeConfig',
   ChatGPTMessageConfig = 'ChatGPTMessageConfig',
 }
+
+export enum ConnectStartEdgeType {
+  Variable = 'Variable',
+  Condition = 'Condition',
+}
