@@ -147,8 +147,6 @@ export function createRootSlice(
                   draft.variablesDict = draft.variablesDict ?? {};
                   draft.variableValueLookUpDicts =
                     draft.variableValueLookUpDicts ?? [{}];
-                  draft.controlResultsLookUpDicts =
-                    draft.controlResultsLookUpDicts ?? {};
                 }) as V3FlowContent;
 
                 return {

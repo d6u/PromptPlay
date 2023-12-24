@@ -1,5 +1,4 @@
 import {
-  ControlResultsLookUpDict,
   LocalNode,
   NodeID,
   V3LocalEdge,
@@ -22,7 +21,6 @@ export type SliceFlowContentV3State = {
   nodeConfigsDict: V3NodeConfigsDict;
   variablesDict: VariablesDict;
   variableValueLookUpDicts: V3VariableValueLookUpDict[];
-  controlResultsLookUpDicts: ControlResultsLookUpDict;
   // Local
   isFlowContentDirty: boolean;
   isFlowContentSaving: boolean;

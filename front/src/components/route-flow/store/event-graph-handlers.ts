@@ -3,7 +3,6 @@ import chance from 'common-utils/chance';
 import randomId from 'common-utils/randomId';
 import {
   Condition,
-  ControlResultsLookUpDict,
   EdgeID,
   FlowInputVariable,
   FlowOutputVariable,
@@ -107,7 +106,6 @@ export function handleEvent(
       return handleNodeAndVariablesAdded(
         event.variableConfigList,
         state.variableValueLookUpDicts,
-        state.controlResultsLookUpDicts,
       );
     case ChangeEventType.NODE_REMOVED:
       return handleNodeRemoved(
@@ -127,7 +125,6 @@ export function handleEvent(
         event.removedEdge,
         event.edgeSrcVariableConfig,
         state.variablesDict,
-        state.controlResultsLookUpDicts,
       );
     case ChangeEventType.EDGE_REPLACED:
       return handleEdgeReplaced(
@@ -158,16 +155,11 @@ export function handleEvent(
     case ChangeEventType.CONDITION_ADDED:
       return [state, []];
     case ChangeEventType.CONDITION_REMOVED:
-      return handleConditionRemoved(
-        event.removedCondition,
-        state.edges,
-        state.controlResultsLookUpDicts,
-      );
+      return handleConditionRemoved(event.removedCondition, state.edges);
     case ChangeEventType.CONDITION_TARGET_REMOVED:
       return [state, []];
     // Derived Other
     case ChangeEventType.VAR_VALUE_MAP_UPDATED:
-    case ChangeEventType.CONTROL_RESULT_MAP_UPDATED:
       return [state, []];
   }
 }
@@ -626,7 +618,6 @@ function handleUpdatingVariable(
 function handleNodeAndVariablesAdded(
   variableConfigList: Variable[],
   prevVariableValueMaps: V3VariableValueLookUpDict[],
-  prevControlResultsLookUpDicts: ControlResultsLookUpDict,
 ): EventHandlerResult {
   const content: Partial<FlowState> = {};
   const events: ChangeEvent[] = [];
@@ -652,34 +643,8 @@ function handleNodeAndVariablesAdded(
     });
   }
 
-  // ANCHOR: Update control results
-
-  const controlResultsLookUpDicts = produce(
-    prevControlResultsLookUpDicts,
-    (draft) => {
-      for (const connector of variableConfigList) {
-        if (connector.type === VariableType.Condition) {
-          draft[connector.id] = {
-            controlId: connector.id,
-            isMeetingCondition: false,
-          };
-        }
-      }
-    },
-  );
-
-  if (controlResultsLookUpDicts !== prevControlResultsLookUpDicts) {
-    events.push({
-      type: ChangeEventType.CONTROL_RESULT_MAP_UPDATED,
-    });
-  }
-
-  content.isFlowContentDirty =
-    variableValueMaps !== prevVariableValueMaps ||
-    controlResultsLookUpDicts !== prevControlResultsLookUpDicts;
-
+  content.isFlowContentDirty = variableValueMaps !== prevVariableValueMaps;
   content.variableValueLookUpDicts = variableValueMaps;
-  content.controlResultsLookUpDicts = controlResultsLookUpDicts;
 
   return [content, events];
 }
@@ -776,7 +741,6 @@ function handleEdgeRemoved(
   removedEdge: V3LocalEdge,
   edgeSrcConnector: Variable | null,
   prevVariableConfigs: VariablesDict,
-  prevControlResultsLookUpDicts: ControlResultsLookUpDict,
 ): EventHandlerResult {
   const content: Partial<FlowState> = {};
   const events: ChangeEvent[] = [];
@@ -825,39 +789,8 @@ function handleEdgeRemoved(
 
   // !SECTION
 
-  // SECTION: Control type
-
-  const controlResultsLookUpDicts = produce(
-    prevControlResultsLookUpDicts,
-    (draft) => {
-      const srcConnector =
-        edgeSrcConnector ?? variableConfigs[removedEdge.sourceHandle];
-
-      if (srcConnector.type === VariableType.Condition) {
-        if (draft[srcConnector.id] == null) {
-          // NOTE: Edge could be removed because the condition was removed.
-          // Do nothing in this case.
-          return;
-        }
-
-        // NOTE: Reset control result after removing edge
-        draft[srcConnector.id].isMeetingCondition = false;
-
-        events.push({
-          type: ChangeEventType.CONTROL_RESULT_MAP_UPDATED,
-        });
-      }
-    },
-  );
-
-  // !SECTION
-
-  content.isFlowContentDirty =
-    variableConfigs !== prevVariableConfigs ||
-    controlResultsLookUpDicts !== prevControlResultsLookUpDicts;
-
+  content.isFlowContentDirty = variableConfigs !== prevVariableConfigs;
   content.variablesDict = variableConfigs;
-  content.controlResultsLookUpDicts = controlResultsLookUpDicts;
 
   return [content, events];
 }
@@ -1067,7 +1000,6 @@ function handleVariableUpdated(
 function handleConditionRemoved(
   removedCondition: Condition,
   prevEdges: V3LocalEdge[],
-  prevControlResultsLookUpDicts: ControlResultsLookUpDict,
 ): EventHandlerResult {
   const content: Partial<FlowState> = {};
   const events: ChangeEvent[] = [];
@@ -1095,27 +1027,8 @@ function handleConditionRemoved(
 
   // !SECTION
 
-  // SECTION: Update control results
-
-  const controlResultsLookUpDicts = produce(
-    prevControlResultsLookUpDicts,
-    (draft) => {
-      events.push({
-        type: ChangeEventType.CONTROL_RESULT_MAP_UPDATED,
-      });
-
-      delete draft[removedCondition.id];
-    },
-  );
-
-  // !SECTION
-
-  content.isFlowContentDirty =
-    rejectedEdges.length > 0 ||
-    controlResultsLookUpDicts !== prevControlResultsLookUpDicts;
-
+  content.isFlowContentDirty = rejectedEdges.length > 0;
   content.edges = acceptedEdges;
-  content.controlResultsLookUpDicts = controlResultsLookUpDicts;
 
   return [content, events];
 }

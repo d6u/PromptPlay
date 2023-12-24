@@ -10,7 +10,6 @@ export type V3FlowContent = {
   nodeConfigsDict: V3NodeConfigsDict;
   variablesDict: VariablesDict;
   variableValueLookUpDicts: V3VariableValueLookUpDict[];
-  controlResultsLookUpDicts: ControlResultsLookUpDict;
 };
 
 // ANCHOR: Node Types
@@ -123,12 +122,12 @@ export type V3VariableValueLookUpDict = Record<V3VariableID, unknown>;
 
 // ANCHOR: Control Result Types
 
-export type ControlResultsLookUpDict = Record<string, ControlResult>;
+// export type ControlResultsLookUpDict = Record<string, ControlResult>;
 
-export type ControlResult = {
-  controlId: string;
-  isMeetingCondition: boolean;
-};
+// export type ControlResult = {
+//   controlId: string;
+//   isMeetingCondition: boolean;
+// };
 
 // ANCHOR: Legacy Types
 

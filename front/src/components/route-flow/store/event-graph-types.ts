@@ -43,7 +43,6 @@ export enum ChangeEventType {
   CONDITION_TARGET_REMOVED = 'CONDITION_TARGET_REMOVED',
   // Derived Other
   VAR_VALUE_MAP_UPDATED = 'VAR_VALUE_MAP_UPDATED',
-  CONTROL_RESULT_MAP_UPDATED = 'CONTROL_RESULT_MAP_UPDATED',
 }
 
 // NOTE: This map is used to prevent infinite loop caused by circular
@@ -79,7 +78,6 @@ export const EVENT_VALIDATION_MAP: {
   // Derived Nodes
   [ChangeEventType.NODE_AND_VARIABLES_ADDED]: [
     ChangeEventType.VAR_VALUE_MAP_UPDATED,
-    ChangeEventType.CONTROL_RESULT_MAP_UPDATED,
   ],
   [ChangeEventType.NODE_MOVED]: [],
   [ChangeEventType.NODE_CONFIG_UPDATED]: [],
@@ -94,10 +92,7 @@ export const EVENT_VALIDATION_MAP: {
     ChangeEventType.EDGE_REMOVED,
     ChangeEventType.VARIABLE_UPDATED,
   ],
-  [ChangeEventType.EDGE_REMOVED]: [
-    ChangeEventType.VARIABLE_UPDATED,
-    ChangeEventType.CONTROL_RESULT_MAP_UPDATED,
-  ],
+  [ChangeEventType.EDGE_REMOVED]: [ChangeEventType.VARIABLE_UPDATED],
   [ChangeEventType.EDGE_REPLACED]: [ChangeEventType.VARIABLE_UPDATED],
   // Derived Variables
   [ChangeEventType.VARIABLE_ADDED]: [ChangeEventType.VAR_VALUE_MAP_UPDATED],
@@ -108,14 +103,10 @@ export const EVENT_VALIDATION_MAP: {
   [ChangeEventType.VARIABLE_UPDATED]: [ChangeEventType.VAR_VALUE_MAP_UPDATED],
   // Derived Conditions
   [ChangeEventType.CONDITION_ADDED]: [],
-  [ChangeEventType.CONDITION_REMOVED]: [
-    ChangeEventType.EDGE_REMOVED,
-    ChangeEventType.CONTROL_RESULT_MAP_UPDATED,
-  ],
+  [ChangeEventType.CONDITION_REMOVED]: [ChangeEventType.EDGE_REMOVED],
   [ChangeEventType.CONDITION_TARGET_REMOVED]: [],
   // Derived Other
   [ChangeEventType.VAR_VALUE_MAP_UPDATED]: [],
-  [ChangeEventType.CONTROL_RESULT_MAP_UPDATED]: [],
 };
 
 export type ChangeEvent =
@@ -223,7 +214,4 @@ export type ChangeEvent =
   // Derived Other
   | {
       type: ChangeEventType.VAR_VALUE_MAP_UPDATED;
-    }
-  | {
-      type: ChangeEventType.CONTROL_RESULT_MAP_UPDATED;
     };
