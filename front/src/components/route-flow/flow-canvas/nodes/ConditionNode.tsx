@@ -56,10 +56,13 @@ export default function ConditionNode() {
     return nodeMetadataDict[nodeId];
   }, [nodeMetadataDict, nodeId]);
 
+<<<<<<< HEAD
   const conditionTarget = useMemo(() => {
     return selectConditionTarget(nodeId, variablesDict);
   }, [nodeId, variablesDict]);
 
+=======
+>>>>>>> e148961 (Show error state for Condition Node)
   const nodeInputs = useMemo(() => {
     return selectVariables(nodeId, VariableType.NodeInput, variablesDict);
   }, [nodeId, variablesDict]);
