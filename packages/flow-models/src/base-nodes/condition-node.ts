@@ -1,4 +1,5 @@
 import randomId from 'common-utils/randomId';
+import jsonata from 'jsonata';
 import { Observable } from 'rxjs';
 import invariant from 'ts-invariant';
 import { V3VariableID } from '../base/id-types';
@@ -72,40 +73,61 @@ export const CONDITION_NODE_DEFINITION: NodeDefinition = {
         nodeId: nodeConfig.nodeId,
       });
 
-      const inputVariable = connectorList.find(
-        (connector): connector is NodeInputVariable => {
-          return connector.type === VariableType.NodeInput;
-        },
-      );
+      (async function () {
+        const inputVariable = connectorList.find(
+          (connector): connector is NodeInputVariable => {
+            return connector.type === VariableType.NodeInput;
+          },
+        );
 
-      invariant(inputVariable != null);
+        invariant(inputVariable != null);
 
-      const inputValue = nodeInputValueMap[inputVariable.id];
+        const inputValue = nodeInputValueMap[inputVariable.id];
 
-      // NOTE: Main Logic
+        const conditions = connectorList
+          .filter((connector): connector is Condition => {
+            return connector.type === VariableType.Condition;
+          })
+          .sort((a, b) => a.index - b.index);
 
-      const conditions = connectorList
-        .filter((connector): connector is Condition => {
-          return connector.type === VariableType.Condition;
-        })
-        .sort((a, b) => a.index - b.index);
+        const finishedConnectorIds: V3VariableID[] = [];
 
-      const finishedConnectorIds: V3VariableID[] = [];
+        // NOTE: Main Logic
 
-      for (const condition of conditions) {
-        if (inputValue === condition.eq) {
-          finishedConnectorIds.push(condition.id);
-          break;
+        for (const condition of conditions) {
+          let result: unknown;
+
+          const expression = jsonata(condition.eq);
+          result = await expression.evaluate(inputValue);
+
+          if (result) {
+            finishedConnectorIds.push(condition.id);
+            break;
+          }
         }
-      }
 
-      subscriber.next({
-        type: NodeExecutionEventType.Finish,
-        nodeId: nodeConfig.nodeId,
-        finishedConnectorIds,
-      });
+        subscriber.next({
+          type: NodeExecutionEventType.Finish,
+          nodeId: nodeConfig.nodeId,
+          finishedConnectorIds,
+        });
+      })()
+        .catch((err) => {
+          subscriber.next({
+            type: NodeExecutionEventType.Errors,
+            nodeId: nodeConfig.nodeId,
+            errMessages: [err instanceof Error ? err.message : 'Unknown error'],
+          });
 
-      subscriber.complete();
+          subscriber.next({
+            type: NodeExecutionEventType.Finish,
+            nodeId: nodeConfig.nodeId,
+            finishedConnectorIds: [],
+          });
+        })
+        .finally(() => {
+          subscriber.complete();
+        });
     });
   },
 };

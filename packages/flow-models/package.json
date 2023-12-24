@@ -7,6 +7,7 @@
     "chance": "^1.1.11",
     "common-utils": "workspace:^",
     "integrations": "workspace:^",
+    "jsonata": "^2.0.3",
     "mustache": "^4.2.0",
     "reactflow": "^11.8.3",
     "rxjs": "^7.8.1",
