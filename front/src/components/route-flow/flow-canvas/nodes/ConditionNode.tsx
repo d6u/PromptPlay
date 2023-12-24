@@ -1,3 +1,4 @@
+import { FormHelperText } from '@mui/joy';
 import { NodeID, NodeType, VariableType } from 'flow-models';
 import { useContext, useMemo } from 'react';
 import { Position, useNodeId, useUpdateNodeInternals } from 'reactflow';
@@ -12,9 +13,10 @@ import {
 } from '../../store/state-utils';
 import AddVariableButton from './node-common/AddVariableButton';
 import HeaderSection from './node-common/HeaderSection';
-import NodeBox from './node-common/NodeBox';
+import NodeBox, { NodeState } from './node-common/NodeBox';
 import NodeInputModifyRow from './node-common/NodeInputModifyRow';
 import NodeOutputModifyRow from './node-common/NodeOutputModifyRow';
+import NodeOutputRow from './node-common/NodeOutputRow';
 import {
   ConditionHandle,
   ConditionTargetHandle,
@@ -37,6 +39,7 @@ export default function ConditionNode() {
   // SECTION: Select state from store
 
   const nodeConfigsDict = useStore(flowStore, (s) => s.nodeConfigsDict);
+  const nodeMetadataDict = useStore(flowStore, (s) => s.nodeMetadataDict);
   const variablesDict = useStore(flowStore, (s) => s.variablesDict);
   const removeNode = useStore(flowStore, (s) => s.removeNode);
   const addVariable = useStore(flowStore, (s) => s.addVariable);
@@ -49,6 +52,14 @@ export default function ConditionNode() {
     return nodeConfigsDict[nodeId];
   }, [nodeConfigsDict, nodeId]);
 
+  const augment = useMemo(() => {
+    return nodeMetadataDict[nodeId];
+  }, [nodeMetadataDict, nodeId]);
+
+  const conditionTarget = useMemo(() => {
+    return selectConditionTarget(nodeId, variablesDict);
+  }, [nodeId, variablesDict]);
+
   const nodeInputs = useMemo(() => {
     return selectVariables(nodeId, VariableType.NodeInput, variablesDict);
   }, [nodeId, variablesDict]);
@@ -57,9 +68,8 @@ export default function ConditionNode() {
     return selectConditions(nodeId, variablesDict);
   }, [nodeId, variablesDict]);
 
-  const conditionTarget = useMemo(() => {
-    return selectConditionTarget(nodeId, variablesDict);
-  }, [nodeId, variablesDict]);
+  const defaultCaseCondition = useMemo(() => conditions[0], [conditions]);
+  const normalConditions = useMemo(() => conditions.slice(1), [conditions]);
 
   if (!nodeConfig) {
     // NOTE: This will happen when the node is removed in store, but not yet
@@ -84,7 +94,16 @@ export default function ConditionNode() {
           }}
         />
       ))}
-      <NodeBox nodeType={NodeType.InputNode}>
+      <NodeBox
+        nodeType={NodeType.InputNode}
+        state={
+          augment?.isRunning
+            ? NodeState.Running
+            : augment?.hasError
+              ? NodeState.Error
+              : NodeState.Idle
+        }
+      >
         <HeaderSection
           isCurrentUserOwner={isCurrentUserOwner}
           title="Condition"
@@ -113,20 +132,24 @@ export default function ConditionNode() {
             <AddVariableButton
               label="Condition"
               onClick={() => {
-                addVariable(nodeId, VariableType.Condition, conditions.length);
+                addVariable(
+                  nodeId,
+                  VariableType.Condition,
+                  normalConditions.length,
+                );
                 updateNodeInternals(nodeId);
               }}
             />
           )}
         </SmallSection>
         <Section>
-          {conditions.map((condition, i) => (
+          {normalConditions.map((condition, i) => (
             <NodeOutputModifyRow
               key={condition.id}
-              name={condition.eq}
+              name={condition.expressionString}
               isReadOnly={!isCurrentUserOwner}
-              onConfirmNameChange={(eq) => {
-                updateVariable(condition.id, { eq });
+              onConfirmNameChange={(expressionString) => {
+                updateVariable(condition.id, { expressionString });
               }}
               onRemove={() => {
                 removeVariable(condition.id);
@@ -135,18 +158,37 @@ export default function ConditionNode() {
             />
           ))}
         </Section>
+        <Section>
+          <NodeOutputRow id={defaultCaseCondition.id} name="Default case" />
+          <FormHelperText>
+            The default case is matched when no other condition have matched.
+          </FormHelperText>
+        </Section>
       </NodeBox>
-      {conditions.map((condition, i) => (
+      {normalConditions.map((condition, i) => (
         <ConditionHandle
           key={condition.id}
           type="source"
           id={condition.id}
           position={Position.Right}
           style={{
-            bottom: calculateOutputHandleBottom(conditions.length - 1 - i),
+            bottom:
+              calculateOutputHandleBottom(conditions.length - i - 1) +
+              40 +
+              5 +
+              5,
           }}
         />
       ))}
+      <ConditionHandle
+        key={defaultCaseCondition.id}
+        type="source"
+        id={defaultCaseCondition.id}
+        position={Position.Right}
+        style={{
+          bottom: calculateOutputHandleBottom(0) + 40 + 5,
+        }}
+      />
     </>
   );
 }

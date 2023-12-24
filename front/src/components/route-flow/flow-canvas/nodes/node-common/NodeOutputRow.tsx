@@ -9,7 +9,7 @@ import { ROW_MARGIN_TOP } from './NodeInputModifyRow';
 type Props = {
   id: string;
   name: string;
-  value: unknown;
+  value?: unknown;
   onClick?: () => void;
 };
 
@@ -38,8 +38,14 @@ export default function NodeOutputRow(props: Props) {
           })
         }
       >
-        <Name>{props.name} =&nbsp;</Name>
-        <Value>{JSON.stringify(props.value)}</Value>
+        {props.value !== undefined ? (
+          <>
+            <Name>{props.name} =&nbsp;</Name>
+            <Value>{JSON.stringify(props.value)}</Value>
+          </>
+        ) : (
+          <Name>{props.name}</Name>
+        )}
       </Content>
     </Container>
   );
