@@ -11,6 +11,7 @@ type Props = {
   name: string;
   value?: unknown;
   onClick?: () => void;
+  style?: React.CSSProperties;
 };
 
 export default function NodeOutputRow(props: Props) {
@@ -28,7 +29,7 @@ export default function NodeOutputRow(props: Props) {
   const nodeId = useNodeId() as NodeID;
 
   return (
-    <Container>
+    <Container style={props.style}>
       <Content
         onClick={
           props.onClick ??

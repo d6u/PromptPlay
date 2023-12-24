@@ -167,10 +167,9 @@ export default function ConditionNode() {
             />
           )}
         </SmallSection>
-        <Section>
-          {normalConditions.map((condition, i) => (
+        {normalConditions.map((condition, i) => (
+          <Section key={condition.id}>
             <NodeOutputModifyRow
-              key={condition.id}
               name={condition.expressionString}
               isReadOnly={!isCurrentUserOwner}
               onConfirmNameChange={(expressionString) => {
@@ -181,8 +180,14 @@ export default function ConditionNode() {
                 updateNodeInternals(nodeId);
               }}
             />
-          ))}
-        </Section>
+            <NodeOutputRow
+              id={defaultCaseCondition.id}
+              name="is matched"
+              value="unknown"
+              style={{ marginTop: '5px' }}
+            />
+          </Section>
+        ))}
         <Section>
           <NodeOutputRow id={defaultCaseCondition.id} name="Default case" />
           <FormHelperText>
@@ -198,9 +203,9 @@ export default function ConditionNode() {
           position={Position.Right}
           style={{
             bottom:
-              calculateOutputHandleBottom(conditions.length - i - 1) +
+              calculateOutputHandleBottom((conditions.length - i - 1) * 2) +
+              (conditions.length - i - 1) * 5 +
               40 +
-              5 +
               5,
           }}
         />
