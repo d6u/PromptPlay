@@ -1,8 +1,10 @@
 import { D, pipe } from '@mobily/ts-belt';
+import randomId from 'common-utils/randomId';
 import {
   FlowInputVariable,
   NodeExecutionEventType,
   NodeID,
+  NodeType,
   V3FlowContent,
   V3VariableID,
   V3VariableValueLookUpDict,
@@ -147,6 +149,38 @@ export function createRootSlice(
                   draft.variablesDict = draft.variablesDict ?? {};
                   draft.variableValueLookUpDicts =
                     draft.variableValueLookUpDicts ?? [{}];
+
+                  // TODO: Migrate all backend data to remove this local
+                  // migration
+                  for (const nodeConfig of D.values(draft.nodeConfigsDict)) {
+                    if (
+                      nodeConfig.type === NodeType.InputNode ||
+                      nodeConfig.type === NodeType.OutputNode
+                    ) {
+                      continue;
+                    }
+
+                    if (
+                      D.values(draft.variablesDict).find((connector) => {
+                        return (
+                          connector.nodeId === nodeConfig.nodeId &&
+                          connector.type === VariableType.ConditionTarget
+                        );
+                      }) != null
+                    ) {
+                      continue;
+                    }
+
+                    const connectorId = asV3VariableID(
+                      `${nodeConfig.nodeId}/${randomId()}`,
+                    );
+
+                    draft.variablesDict[connectorId] = {
+                      type: VariableType.ConditionTarget,
+                      id: connectorId,
+                      nodeId: nodeConfig.nodeId,
+                    };
+                  }
                 }) as V3FlowContent;
 
                 return {
