@@ -33,15 +33,15 @@ import {
   tap,
 } from 'rxjs';
 
-type FlowConfig = {
+export type FlowConfig = {
   edgeList: GraphEdge[];
   nodeConfigMap: V3NodeConfigsDict;
   connectorMap: VariablesDict;
 };
 
-type RunParams = {
+export type RunParams = {
   inputValueMap: V3VariableValueLookUpDict;
-  useStreaming?: boolean;
+  useStreaming: boolean;
   openAiApiKey: string | null;
   huggingFaceApiToken: string | null;
   elevenLabsApiKey: string | null;
@@ -55,7 +55,7 @@ export const runSingle = (
     const { edgeList, nodeConfigMap, connectorMap } = flowConfig;
     const {
       inputValueMap,
-      useStreaming = true,
+      useStreaming,
       openAiApiKey,
       huggingFaceApiToken,
       elevenLabsApiKey,
