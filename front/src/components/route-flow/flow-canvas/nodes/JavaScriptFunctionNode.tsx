@@ -9,18 +9,23 @@ import {
 } from 'flow-models';
 import { useContext, useMemo, useState } from 'react';
 import { Position, useNodeId, useUpdateNodeInternals } from 'reactflow';
+import invariant from 'ts-invariant';
 import { useStore } from 'zustand';
 import FlowContext from '../../FlowContext';
 import TextareaReadonly from '../../common/TextareaReadonly';
 import { CopyIcon, LabelWithIconContainer } from '../../common/flow-common';
 import { useStoreFromFlowStoreContext } from '../../store/FlowStoreContext';
-import { selectVariables } from '../../store/state-utils';
+import {
+  selectConditionTarget,
+  selectVariables,
+} from '../../store/state-utils';
 import AddVariableButton from './node-common/AddVariableButton';
 import HeaderSection from './node-common/HeaderSection';
 import NodeBox, { NodeState } from './node-common/NodeBox';
 import NodeInputModifyRow from './node-common/NodeInputModifyRow';
 import NodeOutputRow from './node-common/NodeOutputRow';
 import {
+  ConditionTargetHandle,
   InputHandle,
   OutputHandle,
   Section,
@@ -33,6 +38,7 @@ import {
 
 export default function JavaScriptFunctionNode() {
   const nodeId = useNodeId() as NodeID;
+  const updateNodeInternals = useUpdateNodeInternals();
 
   const { isCurrentUserOwner } = useContext(FlowContext);
   const flowStore = useStoreFromFlowStoreContext();
@@ -49,10 +55,6 @@ export default function JavaScriptFunctionNode() {
   const nodeMetadataDict = useStore(flowStore, (s) => s.nodeMetadataDict);
   const defaultVariableValueMap = useStore(flowStore, (s) =>
     s.getDefaultVariableValueLookUpDict(),
-  );
-  const isConnectStartOnConditionNodeOutput = useStore(
-    flowStore,
-    (s) => s.connectStartEdgeType,
   );
 
   // !SECTION
@@ -75,7 +77,9 @@ export default function JavaScriptFunctionNode() {
     [nodeMetadataDict, nodeId],
   );
 
-  const updateNodeInternals = useUpdateNodeInternals();
+  const conditionTarget = useMemo(() => {
+    return selectConditionTarget(nodeId, variablesDict);
+  }, [variablesDict, nodeId]);
 
   // It's OK to force unwrap here because nodeConfig will be undefined only
   // when Node is being deleted.
@@ -87,25 +91,26 @@ export default function JavaScriptFunctionNode() {
     return null;
   }
 
+  invariant(conditionTarget != null);
+
   const functionDefinitionPrefix = `async function (${inputs
     .map((v) => v.name)
     .join(', ')}) {`;
 
   return (
     <>
-      {/* {isConnectStartOnConditionNodeOutput && <ConditionTargetHandle />} */}
-      {!isConnectStartOnConditionNodeOutput &&
-        inputs.map((input, i) => (
-          <InputHandle
-            key={i}
-            type="target"
-            id={input.id}
-            position={Position.Left}
-            style={{
-              top: calculateInputHandleTop(i - (isCurrentUserOwner ? 0 : 1)),
-            }}
-          />
-        ))}
+      <ConditionTargetHandle controlId={conditionTarget.id} />
+      {inputs.map((input, i) => (
+        <InputHandle
+          key={i}
+          type="target"
+          id={input.id}
+          position={Position.Left}
+          style={{
+            top: calculateInputHandleTop(i - (isCurrentUserOwner ? 0 : 1)),
+          }}
+        />
+      ))}
       <NodeBox
         nodeType={NodeType.JavaScriptFunctionNode}
         state={

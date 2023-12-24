@@ -1,4 +1,5 @@
 import { A } from '@mobily/ts-belt';
+import randomId from 'common-utils/randomId';
 import {
   ChatGPTMessage,
   getNonStreamingCompletion,
@@ -69,6 +70,11 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition = {
           name: 'messages',
           index: 2,
           valueType: VariableValueType.Unknown,
+        },
+        {
+          type: VariableType.ConditionTarget,
+          id: asV3VariableID(`${node.id}/${randomId()}`),
+          nodeId: node.id,
         },
       ],
     };

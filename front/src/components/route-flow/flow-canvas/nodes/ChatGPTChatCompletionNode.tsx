@@ -16,6 +16,7 @@ import {
 import { NEW_LINE_SYMBOL } from 'integrations/openai';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { Position, useNodeId } from 'reactflow';
+import invariant from 'ts-invariant';
 import { useStore } from 'zustand';
 import {
   LocalStorageState,
@@ -26,13 +27,21 @@ import {
 import FlowContext from '../../FlowContext';
 import InputReadonly from '../../common/InputReadonly';
 import { useStoreFromFlowStoreContext } from '../../store/FlowStoreContext';
-import { selectVariables } from '../../store/state-utils';
+import {
+  selectConditionTarget,
+  selectVariables,
+} from '../../store/state-utils';
 import HeaderSection from './node-common/HeaderSection';
 import HelperTextContainer from './node-common/HelperTextContainer';
 import NodeBox, { NodeState } from './node-common/NodeBox';
 import NodeInputModifyRow from './node-common/NodeInputModifyRow';
 import NodeOutputRow from './node-common/NodeOutputRow';
-import { InputHandle, OutputHandle, Section } from './node-common/node-common';
+import {
+  ConditionTargetHandle,
+  InputHandle,
+  OutputHandle,
+  Section,
+} from './node-common/node-common';
 import {
   calculateInputHandleTop,
   calculateOutputHandleBottom,
@@ -69,16 +78,27 @@ export default function ChatGPTChatCompletionNode() {
   const { missingOpenAiApiKey, setMissingOpenAiApiKey } =
     useSpaceStore(selector);
 
-  const nodeConfig = useMemo(
-    () =>
-      nodeConfigsDict[nodeId] as V3ChatGPTChatCompletionNodeConfig | undefined,
-    [nodeConfigsDict, nodeId],
-  );
+  const nodeConfig = useMemo(() => {
+    return nodeConfigsDict[nodeId] as
+      | V3ChatGPTChatCompletionNodeConfig
+      | undefined;
+  }, [nodeConfigsDict, nodeId]);
 
-  const augment = useMemo(
-    () => nodeMetadataDict[nodeId],
-    [nodeMetadataDict, nodeId],
-  );
+  const augment = useMemo(() => {
+    return nodeMetadataDict[nodeId];
+  }, [nodeMetadataDict, nodeId]);
+
+  const conditionTarget = useMemo(() => {
+    return selectConditionTarget(nodeId, variablesDict);
+  }, [nodeId, variablesDict]);
+
+  const inputVariables = useMemo(() => {
+    return selectVariables(nodeId, VariableType.NodeInput, variablesDict);
+  }, [nodeId, variablesDict]);
+
+  const outputVariables = useMemo(() => {
+    return selectVariables(nodeId, VariableType.NodeOutput, variablesDict);
+  }, [nodeId, variablesDict]);
 
   // It's OK to force unwrap here because nodeConfig will be undefined only
   // when Node is being deleted.
@@ -121,20 +141,11 @@ export default function ChatGPTChatCompletionNode() {
     return null;
   }
 
-  const inputVariables = selectVariables(
-    nodeId,
-    VariableType.NodeInput,
-    variablesDict,
-  );
-
-  const outputVariables = selectVariables(
-    nodeId,
-    VariableType.NodeOutput,
-    variablesDict,
-  );
+  invariant(conditionTarget != null);
 
   return (
     <>
+      <ConditionTargetHandle controlId={conditionTarget.id} />
       <InputHandle
         type="target"
         id={inputVariables[0].id}

@@ -72,7 +72,7 @@ export default function ConditionNode() {
 
   return (
     <>
-      <ConditionTargetHandle controlId={conditionTarget.id} isVisible={true} />
+      <ConditionTargetHandle controlId={conditionTarget.id} />
       {nodeInputs.map((flowInput, i) => (
         <InputHandle
           key={flowInput.id}

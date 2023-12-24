@@ -1,3 +1,4 @@
+import randomId from 'common-utils/randomId';
 import * as ElevenLabs from 'integrations/eleven-labs';
 import { Observable } from 'rxjs';
 import invariant from 'ts-invariant';
@@ -44,6 +45,11 @@ export const ELEVENLABS_NODE_DEFINITION: NodeDefinition = {
           nodeId: node.id,
           index: 0,
           valueType: VariableValueType.Audio,
+        },
+        {
+          type: VariableType.ConditionTarget,
+          id: asV3VariableID(`${node.id}/${randomId()}`),
+          nodeId: node.id,
         },
       ],
     };
