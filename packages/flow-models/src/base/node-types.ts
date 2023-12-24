@@ -6,9 +6,9 @@ export enum NodeType {
   OutputNode = 'OutputNode',
   ConditionNode = 'ConditionNode',
   JavaScriptFunctionNode = 'JavaScriptFunctionNode',
+  TextTemplate = 'TextTemplate',
   ChatGPTMessageNode = 'ChatGPTMessageNode',
   ChatGPTChatCompletionNode = 'ChatGPTChatCompletionNode',
-  TextTemplate = 'TextTemplate',
   HuggingFaceInference = 'HuggingFaceInference',
   ElevenLabs = 'ElevenLabs',
 }
@@ -54,6 +54,14 @@ export type V3JavaScriptFunctionNodeConfig = {
   javaScriptCode: string;
 };
 
+// ANCHOR: Text Template Node
+
+export type V3TextTemplateNodeConfig = {
+  nodeId: NodeID;
+  type: NodeType.TextTemplate;
+  content: string;
+};
+
 // ANCHOR: ChatGPT Message Node
 
 export type V3ChatGPTMessageNodeConfig = {
@@ -89,14 +97,6 @@ export enum OpenAIChatModel {
 export enum ChatGPTChatCompletionResponseFormatType {
   JsonObject = 'json_object',
 }
-
-// ANCHOR: Text Template Node
-
-export type V3TextTemplateNodeConfig = {
-  nodeId: NodeID;
-  type: NodeType.TextTemplate;
-  content: string;
-};
 
 // ANCHOR: HuggingFace Inference Node
 
