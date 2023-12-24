@@ -12,7 +12,7 @@ import {
 } from '../../store/state-utils';
 import AddVariableButton from './node-common/AddVariableButton';
 import HeaderSection from './node-common/HeaderSection';
-import NodeBox from './node-common/NodeBox';
+import NodeBox, { NodeState } from './node-common/NodeBox';
 import NodeInputModifyRow from './node-common/NodeInputModifyRow';
 import NodeOutputModifyRow from './node-common/NodeOutputModifyRow';
 import {
@@ -37,6 +37,7 @@ export default function ConditionNode() {
   // SECTION: Select state from store
 
   const nodeConfigsDict = useStore(flowStore, (s) => s.nodeConfigsDict);
+  const nodeMetadataDict = useStore(flowStore, (s) => s.nodeMetadataDict);
   const variablesDict = useStore(flowStore, (s) => s.variablesDict);
   const removeNode = useStore(flowStore, (s) => s.removeNode);
   const addVariable = useStore(flowStore, (s) => s.addVariable);
@@ -48,6 +49,10 @@ export default function ConditionNode() {
   const nodeConfig = useMemo(() => {
     return nodeConfigsDict[nodeId];
   }, [nodeConfigsDict, nodeId]);
+
+  const augment = useMemo(() => {
+    return nodeMetadataDict[nodeId];
+  }, [nodeMetadataDict, nodeId]);
 
   const nodeInputs = useMemo(() => {
     return selectVariables(nodeId, VariableType.NodeInput, variablesDict);
@@ -84,7 +89,16 @@ export default function ConditionNode() {
           }}
         />
       ))}
-      <NodeBox nodeType={NodeType.InputNode}>
+      <NodeBox
+        nodeType={NodeType.InputNode}
+        state={
+          augment?.isRunning
+            ? NodeState.Running
+            : augment?.hasError
+              ? NodeState.Error
+              : NodeState.Idle
+        }
+      >
         <HeaderSection
           isCurrentUserOwner={isCurrentUserOwner}
           title="Condition"
