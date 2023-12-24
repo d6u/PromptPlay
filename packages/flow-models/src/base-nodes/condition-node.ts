@@ -97,20 +97,30 @@ export const CONDITION_NODE_DEFINITION: NodeDefinition = {
           })
           .sort((a, b) => a.index - b.index);
 
+        const defaultCaseCondition = conditions[0];
+        const normalConditions = conditions.slice(1);
+
         const finishedConnectorIds: V3VariableID[] = [];
 
         // NOTE: Main Logic
 
-        for (const condition of conditions) {
+        let matched = false;
+
+        for (const condition of normalConditions) {
           let result: unknown;
 
           const expression = jsonata(condition.expressionString);
           result = await expression.evaluate(inputValue);
 
           if (result) {
+            matched = true;
             finishedConnectorIds.push(condition.id);
             break;
           }
+        }
+
+        if (!matched) {
+          finishedConnectorIds.push(defaultCaseCondition.id);
         }
 
         subscriber.next({
