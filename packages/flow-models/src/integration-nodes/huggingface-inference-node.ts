@@ -1,3 +1,4 @@
+import randomId from 'common-utils/randomId';
 import * as HuggingFace from 'integrations/hugging-face';
 import { Observable } from 'rxjs';
 import invariant from 'ts-invariant';
@@ -46,6 +47,11 @@ export const HUGGINGFACE_INFERENCE_NODE_DEFINITION: NodeDefinition = {
           nodeId: node.id,
           index: 0,
           valueType: VariableValueType.Unknown,
+        },
+        {
+          type: VariableType.ConditionTarget,
+          id: asV3VariableID(`${node.id}/${randomId()}`),
+          nodeId: node.id,
         },
       ],
     };

@@ -122,7 +122,7 @@ export default function ChatGPTMessageNode() {
 
   return (
     <>
-      <ConditionTargetHandle controlId={conditionTarget.id} isVisible={true} />
+      <ConditionTargetHandle controlId={conditionTarget.id} />
       <InputHandle
         key={0}
         type="target"

@@ -10,6 +10,7 @@ import {
 } from 'flow-models';
 import { useContext, useMemo, useState } from 'react';
 import { Position, useNodeId } from 'reactflow';
+import invariant from 'ts-invariant';
 import { useStore } from 'zustand';
 import {
   LocalStorageState,
@@ -20,13 +21,21 @@ import {
 import FlowContext from '../../FlowContext';
 import InputReadonly from '../../common/InputReadonly';
 import { useStoreFromFlowStoreContext } from '../../store/FlowStoreContext';
-import { selectVariables } from '../../store/state-utils';
+import {
+  selectConditionTarget,
+  selectVariables,
+} from '../../store/state-utils';
 import HeaderSection from './node-common/HeaderSection';
 import HelperTextContainer from './node-common/HelperTextContainer';
 import NodeBox, { NodeState } from './node-common/NodeBox';
 import NodeInputModifyRow from './node-common/NodeInputModifyRow';
 import NodeOutputRow from './node-common/NodeOutputRow';
-import { InputHandle, OutputHandle, Section } from './node-common/node-common';
+import {
+  ConditionTargetHandle,
+  InputHandle,
+  OutputHandle,
+  Section,
+} from './node-common/node-common';
 import {
   calculateInputHandleTop,
   calculateOutputHandleBottom,
@@ -57,10 +66,6 @@ export default function ElevenLabsNode() {
   const localNodeAugments = useStore(flowStore, (s) => s.nodeMetadataDict);
   const defaultVariableValueMap = useStore(flowStore, (s) =>
     s.getDefaultVariableValueLookUpDict(),
-  );
-  const isConnectStartOnConditionNodeOutput = useStore(
-    flowStore,
-    (s) => s.connectStartEdgeType,
   );
 
   // !SECTION
@@ -93,6 +98,10 @@ export default function ElevenLabsNode() {
     [localNodeAugments, nodeId],
   );
 
+  const conditionTarget = useMemo(() => {
+    return selectConditionTarget(nodeId, variableConfigs);
+  }, [nodeId, variableConfigs]);
+
   // It's OK to force unwrap here because nodeConfig will be undefined only
   // when Node is being deleted.
   const [voiceId, setVoiceId] = useState(() => nodeConfig!.voiceId);
@@ -101,17 +110,17 @@ export default function ElevenLabsNode() {
     return null;
   }
 
+  invariant(conditionTarget != null);
+
   return (
     <>
-      {/* {isConnectStartOnConditionNodeOutput && <ConditionTargetHandle />} */}
-      {!isConnectStartOnConditionNodeOutput && (
-        <InputHandle
-          type="target"
-          id={inputVariables[0].id}
-          position={Position.Left}
-          style={{ top: calculateInputHandleTop(-1) }}
-        />
-      )}
+      <ConditionTargetHandle controlId={conditionTarget.id} />
+      <InputHandle
+        type="target"
+        id={inputVariables[0].id}
+        position={Position.Left}
+        style={{ top: calculateInputHandleTop(-1) }}
+      />
       <NodeBox
         nodeType={NodeType.ElevenLabs}
         state={

@@ -105,7 +105,7 @@ export default function TextTemplateNode() {
 
   return (
     <>
-      <ConditionTargetHandle controlId={conditionTarget.id} isVisible={true} />
+      <ConditionTargetHandle controlId={conditionTarget.id} />
       {inputs.map((input, i) => (
         <InputHandle
           key={i}

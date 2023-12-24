@@ -1,3 +1,4 @@
+import randomId from 'common-utils/randomId';
 import { Observable } from 'rxjs';
 import invariant from 'ts-invariant';
 import {
@@ -34,6 +35,11 @@ export const JAVASCRIPT_NODE_DEFINITION: NodeDefinition = {
           name: 'output',
           index: 0,
           valueType: VariableValueType.Unknown,
+        },
+        {
+          type: VariableType.ConditionTarget,
+          id: asV3VariableID(`${node.id}/${randomId()}`),
+          nodeId: node.id,
         },
       ],
     };
