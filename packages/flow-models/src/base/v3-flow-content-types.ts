@@ -118,16 +118,15 @@ export type ConditionTarget = {
 
 // ANCHOR: V3 Variable Value Types
 
-export type V3VariableValueLookUpDict = Record<V3VariableID, unknown>;
+export type V3VariableValueLookUpDict = Record<
+  V3VariableID,
+  ConditionResult | unknown
+>;
 
-// ANCHOR: Control Result Types
-
-// export type ControlResultsLookUpDict = Record<string, ControlResult>;
-
-// export type ControlResult = {
-//   controlId: string;
-//   isMeetingCondition: boolean;
-// };
+export type ConditionResult = {
+  conditionId: V3VariableID;
+  isConditionMatched: boolean;
+};
 
 // ANCHOR: Legacy Types
 

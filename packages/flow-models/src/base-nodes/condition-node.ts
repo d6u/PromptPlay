@@ -1,3 +1,4 @@
+import { D, pipe } from '@mobily/ts-belt';
 import randomId from 'common-utils/randomId';
 import jsonata from 'jsonata';
 import { Observable } from 'rxjs';
@@ -11,6 +12,7 @@ import {
 import { NodeType } from '../base/node-types';
 import {
   Condition,
+  ConditionResult,
   NodeInputVariable,
   VariableType,
   VariableValueType,
@@ -101,11 +103,11 @@ export const CONDITION_NODE_DEFINITION: NodeDefinition = {
         const defaultCaseCondition = conditions[0];
         const normalConditions = conditions.slice(1);
 
-        const finishedConnectorIds: V3VariableID[] = [];
+        const conditionResultMap: Record<V3VariableID, ConditionResult> = {};
 
         // NOTE: Main Logic
 
-        let matched = false;
+        let hasMatch = false;
 
         for (const condition of normalConditions) {
           let result: unknown;
@@ -114,22 +116,45 @@ export const CONDITION_NODE_DEFINITION: NodeDefinition = {
           result = await expression.evaluate(inputValue);
 
           if (result) {
-            matched = true;
-            finishedConnectorIds.push(condition.id);
+            hasMatch = true;
+
+            conditionResultMap[condition.id] = {
+              conditionId: condition.id,
+              isConditionMatched: true,
+            };
+
             if (nodeConfig.stopAtTheFirstMatch) {
               break;
             }
+          } else {
+            conditionResultMap[condition.id] = {
+              conditionId: condition.id,
+              isConditionMatched: false,
+            };
           }
         }
 
-        if (!matched) {
-          finishedConnectorIds.push(defaultCaseCondition.id);
+        if (!hasMatch) {
+          conditionResultMap[defaultCaseCondition.id] = {
+            conditionId: defaultCaseCondition.id,
+            isConditionMatched: true,
+          };
         }
+
+        subscriber.next({
+          type: NodeExecutionEventType.VariableValues,
+          nodeId: nodeConfig.nodeId,
+          variableValuesLookUpDict: conditionResultMap,
+        });
 
         subscriber.next({
           type: NodeExecutionEventType.Finish,
           nodeId: nodeConfig.nodeId,
-          finishedConnectorIds,
+          finishedConnectorIds: pipe(
+            conditionResultMap,
+            D.filter((result) => result.isConditionMatched),
+            D.keys,
+          ),
         });
       })()
         .catch((err) => {

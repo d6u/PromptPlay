@@ -1,5 +1,5 @@
 import { Checkbox, FormControl, FormHelperText, FormLabel } from '@mui/joy';
-import { NodeID, NodeType, VariableType } from 'flow-models';
+import { ConditionResult, NodeID, NodeType, VariableType } from 'flow-models';
 import { useContext, useMemo } from 'react';
 import { Position, useNodeId, useUpdateNodeInternals } from 'reactflow';
 import invariant from 'ts-invariant';
@@ -38,9 +38,12 @@ export default function ConditionNode() {
 
   // SECTION: Select state from store
 
-  const nodeConfigsDict = useStore(flowStore, (s) => s.nodeConfigsDict);
-  const nodeMetadataDict = useStore(flowStore, (s) => s.nodeMetadataDict);
-  const variablesDict = useStore(flowStore, (s) => s.variablesDict);
+  const nodeConfigMap = useStore(flowStore, (s) => s.nodeConfigsDict);
+  const nodeMetadataMap = useStore(flowStore, (s) => s.nodeMetadataDict);
+  const connectorMap = useStore(flowStore, (s) => s.variablesDict);
+  const connectorResultMap = useStore(flowStore, (s) =>
+    s.getDefaultVariableValueLookUpDict(),
+  );
   const removeNode = useStore(flowStore, (s) => s.removeNode);
   const updateNodeConfig = useStore(flowStore, (s) => s.updateNodeConfig);
   const addVariable = useStore(flowStore, (s) => s.addVariable);
@@ -50,24 +53,24 @@ export default function ConditionNode() {
   // !SECTION
 
   const nodeConfig = useMemo(() => {
-    return nodeConfigsDict[nodeId];
-  }, [nodeConfigsDict, nodeId]);
+    return nodeConfigMap[nodeId];
+  }, [nodeConfigMap, nodeId]);
 
   const augment = useMemo(() => {
-    return nodeMetadataDict[nodeId];
-  }, [nodeMetadataDict, nodeId]);
+    return nodeMetadataMap[nodeId];
+  }, [nodeMetadataMap, nodeId]);
 
   const conditionTarget = useMemo(() => {
-    return selectConditionTarget(nodeId, variablesDict);
-  }, [nodeId, variablesDict]);
+    return selectConditionTarget(nodeId, connectorMap);
+  }, [nodeId, connectorMap]);
 
   const nodeInputs = useMemo(() => {
-    return selectVariables(nodeId, VariableType.NodeInput, variablesDict);
-  }, [nodeId, variablesDict]);
+    return selectVariables(nodeId, VariableType.NodeInput, connectorMap);
+  }, [nodeId, connectorMap]);
 
   const conditions = useMemo(() => {
-    return selectConditions(nodeId, variablesDict);
-  }, [nodeId, variablesDict]);
+    return selectConditions(nodeId, connectorMap);
+  }, [nodeId, connectorMap]);
 
   const defaultCaseCondition = useMemo(() => conditions[0], [conditions]);
   const normalConditions = useMemo(() => conditions.slice(1), [conditions]);
@@ -167,10 +170,9 @@ export default function ConditionNode() {
             />
           )}
         </SmallSection>
-        <Section>
-          {normalConditions.map((condition, i) => (
+        {normalConditions.map((condition, i) => (
+          <Section key={condition.id}>
             <NodeOutputModifyRow
-              key={condition.id}
               name={condition.expressionString}
               isReadOnly={!isCurrentUserOwner}
               onConfirmNameChange={(expressionString) => {
@@ -181,8 +183,20 @@ export default function ConditionNode() {
                 updateNodeInternals(nodeId);
               }}
             />
-          ))}
-        </Section>
+            <NodeOutputRow
+              id={defaultCaseCondition.id}
+              name="is matched"
+              value={
+                (
+                  connectorResultMap[condition.id] as
+                    | ConditionResult
+                    | undefined
+                )?.isConditionMatched
+              }
+              style={{ marginTop: '5px' }}
+            />
+          </Section>
+        ))}
         <Section>
           <NodeOutputRow id={defaultCaseCondition.id} name="Default case" />
           <FormHelperText>
@@ -198,9 +212,9 @@ export default function ConditionNode() {
           position={Position.Right}
           style={{
             bottom:
-              calculateOutputHandleBottom(conditions.length - i - 1) +
+              calculateOutputHandleBottom((conditions.length - i - 1) * 2) +
+              (conditions.length - i - 1) * 5 +
               40 +
-              5 +
               5,
           }}
         />
