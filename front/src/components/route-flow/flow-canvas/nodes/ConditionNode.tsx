@@ -1,4 +1,4 @@
-import { FormHelperText } from '@mui/joy';
+import { Checkbox, FormControl, FormHelperText, FormLabel } from '@mui/joy';
 import { NodeID, NodeType, VariableType } from 'flow-models';
 import { useContext, useMemo } from 'react';
 import { Position, useNodeId, useUpdateNodeInternals } from 'reactflow';
@@ -42,6 +42,7 @@ export default function ConditionNode() {
   const nodeMetadataDict = useStore(flowStore, (s) => s.nodeMetadataDict);
   const variablesDict = useStore(flowStore, (s) => s.variablesDict);
   const removeNode = useStore(flowStore, (s) => s.removeNode);
+  const updateNodeConfig = useStore(flowStore, (s) => s.updateNodeConfig);
   const addVariable = useStore(flowStore, (s) => s.addVariable);
   const updateVariable = useStore(flowStore, (s) => s.updateVariable);
   const removeVariable = useStore(flowStore, (s) => s.removeVariable);
@@ -126,6 +127,30 @@ export default function ConditionNode() {
               }}
             />
           ))}
+        </Section>
+        <Section>
+          <FormControl>
+            <FormLabel>Stop at the first match</FormLabel>
+            <Checkbox
+              disabled={!isCurrentUserOwner}
+              size="sm"
+              variant="outlined"
+              checked={nodeConfig.stopAtTheFirstMatch}
+              onChange={(event) => {
+                if (!isCurrentUserOwner) {
+                  return;
+                }
+
+                updateNodeConfig(nodeId, {
+                  stopAtTheFirstMatch: event.target.checked,
+                });
+              }}
+            />
+          </FormControl>
+          <FormHelperText>
+            In either case, the default case will be matched if no condition has
+            matched.
+          </FormHelperText>
         </Section>
         <SmallSection>
           {isCurrentUserOwner && (

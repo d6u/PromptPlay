@@ -18,9 +18,9 @@ export type V3NodeConfig =
   | V3OutputNodeConfig
   | V3ConditionNodeConfig
   | V3JavaScriptFunctionNodeConfig
+  | V3TextTemplateNodeConfig
   | V3ChatGPTMessageNodeConfig
   | V3ChatGPTChatCompletionNodeConfig
-  | V3TextTemplateNodeConfig
   | V3HuggingFaceInferenceNodeConfig
   | V3ElevenLabsNodeConfig;
 
@@ -43,6 +43,7 @@ export type V3OutputNodeConfig = {
 export type V3ConditionNodeConfig = {
   type: NodeType.ConditionNode;
   nodeId: NodeID;
+  stopAtTheFirstMatch: boolean;
 };
 
 // ANCHOR: JavaScript Function Node

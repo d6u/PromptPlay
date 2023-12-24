@@ -28,6 +28,7 @@ export const CONDITION_NODE_DEFINITION: NodeDefinition = {
       nodeConfig: {
         type: NodeType.ConditionNode,
         nodeId: node.id,
+        stopAtTheFirstMatch: true,
       },
       variableConfigList: [
         {
@@ -115,7 +116,9 @@ export const CONDITION_NODE_DEFINITION: NodeDefinition = {
           if (result) {
             matched = true;
             finishedConnectorIds.push(condition.id);
-            break;
+            if (nodeConfig.stopAtTheFirstMatch) {
+              break;
+            }
           }
         }
 
