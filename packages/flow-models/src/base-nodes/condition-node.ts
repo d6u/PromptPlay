@@ -41,6 +41,13 @@ export const CONDITION_NODE_DEFINITION: NodeDefinition = {
         {
           type: VariableType.Condition,
           id: asV3VariableID(`${node.id}/${randomId()}`),
+          index: -1, // Special condition for default case
+          nodeId: node.id,
+          expressionString: '',
+        },
+        {
+          type: VariableType.Condition,
+          id: asV3VariableID(`${node.id}/${randomId()}`),
           index: 0,
           nodeId: node.id,
           expressionString: '$ = "Value A"',
