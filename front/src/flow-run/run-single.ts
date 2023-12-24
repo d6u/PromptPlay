@@ -144,6 +144,8 @@ export const runSingle = (
             return execute(nodeExecutionContext, config, params).pipe(
               catchError<NodeExecutionEvent, Observable<NodeExecutionEvent>>(
                 (err) => {
+                  console.error(err);
+
                   // NOTE: Expected errors from the observable will be emitted as
                   // NodeExecutionEventType.Errors event.
                   //

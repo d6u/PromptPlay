@@ -104,6 +104,8 @@ export const TEXT_TEMPLATE_NODE_DEFINITION: NodeDefinition = {
         nodeId: nodeConfig.nodeId,
         finishedConnectorIds: [outputVariable.id],
       });
+
+      subscriber.complete();
     });
   },
 };

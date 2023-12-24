@@ -104,6 +104,8 @@ export const CONDITION_NODE_DEFINITION: NodeDefinition = {
         nodeId: nodeConfig.nodeId,
         finishedConnectorIds,
       });
+
+      subscriber.complete();
     });
   },
 };
