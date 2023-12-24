@@ -5,21 +5,21 @@ import {
   mergeMap,
   throwError,
   timeout,
-} from "rxjs";
-import { fromFetch } from "rxjs/fetch";
+} from 'rxjs';
+import { fromFetch } from 'rxjs/fetch';
 
-export const NEW_LINE_SYMBOL = "↵";
+export const NEW_LINE_SYMBOL = '↵';
 
-const OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
+const OPENAI_API_URL = 'https://api.openai.com/v1/chat/completions';
 
-type GetCompletionArguments = {
+export type GetCompletionArguments = {
   apiKey: string;
   model: string;
   temperature: number;
   messages: ChatGPTMessage[];
   stop: string[];
   seed?: number | null;
-  responseFormat?: { type: "json_object" } | null;
+  responseFormat?: { type: 'json_object' } | null;
 };
 
 export function getStreamingCompletion({
@@ -34,9 +34,9 @@ export function getStreamingCompletion({
   ChatCompletionStreamResponse | ChatCompletionErrorResponse
 > {
   const fetchOptions = {
-    method: "POST",
+    method: 'POST',
     headers: {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
       Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
@@ -54,18 +54,18 @@ export function getStreamingCompletion({
     ...fetchOptions,
     selector: (response) => {
       if (response.body == null) {
-        return throwError(() => new Error("response body is null"));
+        return throwError(() => new Error('response body is null'));
       }
 
       return response.body?.pipeThrough(
-        new TextDecoderStream()
+        new TextDecoderStream(),
       ) as ReadableStreamLike<string>;
     },
   }).pipe(
     mergeMap((chunk) => parserStreamChunk(chunk)),
     map<string, ChatCompletionStreamResponse | ChatCompletionErrorResponse>(
-      (content) => JSON.parse(content)
-    )
+      (content) => JSON.parse(content),
+    ),
   );
 }
 
@@ -82,9 +82,9 @@ export function getNonStreamingCompletion({
   | { isError: true; data: ChatCompletionErrorResponse }
 > {
   const fetchOptions = {
-    method: "POST",
+    method: 'POST',
     headers: {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
       Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
@@ -160,9 +160,9 @@ export type ChatGPTMessage = {
 };
 
 export enum ChatGPTMessageRole {
-  system = "system",
-  user = "user",
-  assistant = "assistant",
+  system = 'system',
+  user = 'user',
+  assistant = 'assistant',
 }
 
 type ChoiceCommon = {
@@ -180,12 +180,12 @@ type ChatCompletionResponseCommon = {
 // Utils
 
 function parserStreamChunk(chunk: string): string[] {
-  if (!chunk.startsWith("data:")) {
+  if (!chunk.startsWith('data:')) {
     return [chunk];
   }
 
   return chunk
-    .split("\n")
-    .map((line) => line.replace("data:", "").trim())
-    .filter((line) => line && !line.includes("[DONE]"));
+    .split('\n')
+    .map((line) => line.replace('data:', '').trim())
+    .filter((line) => line && !line.includes('[DONE]'));
 }

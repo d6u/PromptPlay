@@ -21,6 +21,7 @@ import { StateCreator } from 'zustand';
 import { runSingle } from '../../../flow-run/run-single';
 import { graphql } from '../../../gql';
 import { ContentVersion, SpaceFlowQueryQuery } from '../../../gql/graphql';
+import { useLocalStorageStore } from '../../../state/appState';
 import { client } from '../../../state/urql';
 import { updateSpaceContentV3 } from '../graphql';
 import {
@@ -252,9 +253,10 @@ export function createRootSlice(
         {
           inputValueMap: flowInputVariableIdToValueMap,
           useStreaming: true,
-          openAiApiKey: null,
-          huggingFaceApiToken: null,
-          elevenLabsApiKey: null,
+          openAiApiKey: useLocalStorageStore.getState().openAiApiKey,
+          huggingFaceApiToken:
+            useLocalStorageStore.getState().huggingFaceApiToken,
+          elevenLabsApiKey: useLocalStorageStore.getState().elevenLabsApiKey,
         },
       ).subscribe({
         next(data) {
