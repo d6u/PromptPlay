@@ -1,6 +1,6 @@
 import chance from 'common-utils/chance';
 import randomId from 'common-utils/randomId';
-import { of } from 'rxjs';
+import { Observable } from 'rxjs';
 import invariant from 'ts-invariant';
 import {
   NodeDefinition,
@@ -42,36 +42,40 @@ export const OUTPUT_NODE_DEFINITION: NodeDefinition = {
   },
 
   createNodeExecutionObservable(context, nodeExecutionConfig, params) {
-    const { nodeConfig, connectorList } = nodeExecutionConfig;
-    const { nodeInputValueMap } = params;
+    return new Observable<NodeExecutionEvent>((subscriber) => {
+      const { nodeConfig, connectorList } = nodeExecutionConfig;
+      const { nodeInputValueMap } = params;
 
-    invariant(nodeConfig.type === NodeType.OutputNode);
+      invariant(nodeConfig.type === NodeType.OutputNode);
 
-    const flowOutputValueMap: V3VariableValueLookUpDict = {};
-
-    connectorList
-      .filter((connector): connector is FlowOutputVariable => {
-        return connector.type === VariableType.FlowOutput;
-      })
-      .forEach((connector) => {
-        flowOutputValueMap[connector.id] = nodeInputValueMap[connector.id];
-      });
-
-    return of<NodeExecutionEvent[]>(
-      {
+      subscriber.next({
         type: NodeExecutionEventType.Start,
         nodeId: nodeConfig.nodeId,
-      },
-      {
+      });
+
+      const flowOutputValueMap: V3VariableValueLookUpDict = {};
+
+      connectorList
+        .filter((connector): connector is FlowOutputVariable => {
+          return connector.type === VariableType.FlowOutput;
+        })
+        .forEach((connector) => {
+          flowOutputValueMap[connector.id] = nodeInputValueMap[connector.id];
+        });
+
+      subscriber.next({
         type: NodeExecutionEventType.VariableValues,
         nodeId: nodeConfig.nodeId,
         variableValuesLookUpDict: flowOutputValueMap,
-      },
-      {
+      });
+
+      subscriber.next({
         type: NodeExecutionEventType.Finish,
         nodeId: nodeConfig.nodeId,
         finishedConnectorIds: [],
-      },
-    );
+      });
+
+      subscriber.complete();
+    });
   },
 };

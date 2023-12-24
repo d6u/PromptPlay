@@ -1,6 +1,6 @@
 import randomId from 'common-utils/randomId';
 import mustache from 'mustache';
-import { defer, of } from 'rxjs';
+import { Observable } from 'rxjs';
 import invariant from 'ts-invariant';
 import {
   NodeDefinition,
@@ -55,12 +55,17 @@ export const TEXT_TEMPLATE_NODE_DEFINITION: NodeDefinition = {
     };
   },
 
-  createNodeExecutionObservable: (context, nodeExecutionConfig, params) =>
-    defer(() => {
+  createNodeExecutionObservable: (context, nodeExecutionConfig, params) => {
+    return new Observable<NodeExecutionEvent>((subscriber) => {
       const { nodeConfig, connectorList } = nodeExecutionConfig;
       const { nodeInputValueMap } = params;
 
       invariant(nodeConfig.type === NodeType.TextTemplate);
+
+      subscriber.next({
+        type: NodeExecutionEventType.Start,
+        nodeId: nodeConfig.nodeId,
+      });
 
       const argsMap: Record<string, unknown> = {};
 
@@ -72,12 +77,6 @@ export const TEXT_TEMPLATE_NODE_DEFINITION: NodeDefinition = {
           argsMap[connector.name] = nodeInputValueMap[connector.id] ?? null;
         });
 
-      // SECTION: Main Logic
-
-      const content = mustache.render(nodeConfig.content, argsMap);
-
-      // !SECTION
-
       const outputVariable = connectorList.find(
         (connector): connector is NodeOutputVariable => {
           return connector.type === VariableType.NodeOutput;
@@ -86,23 +85,25 @@ export const TEXT_TEMPLATE_NODE_DEFINITION: NodeDefinition = {
 
       invariant(outputVariable != null);
 
-      return of<NodeExecutionEvent[]>(
-        {
-          type: NodeExecutionEventType.Start,
-          nodeId: nodeConfig.nodeId,
+      // SECTION: Main Logic
+
+      const content = mustache.render(nodeConfig.content, argsMap);
+
+      // !SECTION
+
+      subscriber.next({
+        type: NodeExecutionEventType.VariableValues,
+        nodeId: nodeConfig.nodeId,
+        variableValuesLookUpDict: {
+          [outputVariable.id]: content,
         },
-        {
-          type: NodeExecutionEventType.VariableValues,
-          nodeId: nodeConfig.nodeId,
-          variableValuesLookUpDict: {
-            [outputVariable.id]: content,
-          },
-        },
-        {
-          type: NodeExecutionEventType.Finish,
-          nodeId: nodeConfig.nodeId,
-          finishedConnectorIds: [outputVariable.id],
-        },
-      );
-    }),
+      });
+
+      subscriber.next({
+        type: NodeExecutionEventType.Finish,
+        nodeId: nodeConfig.nodeId,
+        finishedConnectorIds: [outputVariable.id],
+      });
+    });
+  },
 };

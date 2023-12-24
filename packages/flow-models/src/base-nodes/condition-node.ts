@@ -1,6 +1,5 @@
-import { D } from '@mobily/ts-belt';
 import randomId from 'common-utils/randomId';
-import { of } from 'rxjs';
+import { Observable } from 'rxjs';
 import invariant from 'ts-invariant';
 import { V3VariableID } from '../base/id-types';
 import {
@@ -61,59 +60,50 @@ export const CONDITION_NODE_DEFINITION: NodeDefinition = {
     };
   },
 
-  createNodeExecutionObservable: (nodeConfig, context) => {
-    invariant(nodeConfig.type === NodeType.ConditionNode);
+  createNodeExecutionObservable: (context, nodeExecutionConfig, params) => {
+    return new Observable<NodeExecutionEvent>((subscriber) => {
+      const { nodeConfig, connectorList } = nodeExecutionConfig;
+      const { nodeInputValueMap } = params;
 
-    const {
-      variablesDict,
-      targetConnectorIdToSourceConnectorIdMap: targetToSourceMap,
-      sourceIdToValueMap: sourceToValueMap,
-    } = context;
+      invariant(nodeConfig.type === NodeType.ConditionNode);
 
-    // ANCHOR: Prepare inputs
-
-    const inputVariable = D.values(variablesDict).find(
-      (c): c is NodeInputVariable => {
-        return (
-          c.nodeId === nodeConfig.nodeId && c.type === VariableType.NodeInput
-        );
-      },
-    );
-    invariant(inputVariable != null);
-
-    const sourceId = targetToSourceMap[inputVariable.id];
-    invariant(sourceId != null);
-
-    const inputValue = sourceToValueMap[sourceId];
-
-    // ANCHOR: Execute logic
-
-    const conditions = D.values(variablesDict)
-      .filter((c): c is Condition => {
-        return (
-          c.nodeId === nodeConfig.nodeId && c.type === VariableType.Condition
-        );
-      })
-      .sort((a, b) => a.index - b.index);
-
-    const finishedConnectorIds: V3VariableID[] = [];
-
-    for (const condition of conditions) {
-      if (inputValue === condition.eq) {
-        finishedConnectorIds.push(condition.id);
-      }
-    }
-
-    return of<NodeExecutionEvent[]>(
-      {
+      subscriber.next({
         type: NodeExecutionEventType.Start,
         nodeId: nodeConfig.nodeId,
-      },
-      {
+      });
+
+      const inputVariable = connectorList.find(
+        (connector): connector is NodeInputVariable => {
+          return connector.type === VariableType.NodeInput;
+        },
+      );
+
+      invariant(inputVariable != null);
+
+      const inputValue = nodeInputValueMap[inputVariable.id];
+
+      // NOTE: Main Logic
+
+      const conditions = connectorList
+        .filter((connector): connector is Condition => {
+          return connector.type === VariableType.Condition;
+        })
+        .sort((a, b) => a.index - b.index);
+
+      const finishedConnectorIds: V3VariableID[] = [];
+
+      for (const condition of conditions) {
+        if (inputValue === condition.eq) {
+          finishedConnectorIds.push(condition.id);
+          break;
+        }
+      }
+
+      subscriber.next({
         type: NodeExecutionEventType.Finish,
         nodeId: nodeConfig.nodeId,
         finishedConnectorIds,
-      },
-    );
+      });
+    });
   },
 };

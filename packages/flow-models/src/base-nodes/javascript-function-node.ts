@@ -1,4 +1,4 @@
-import { defer, endWith, from, map, startWith } from 'rxjs';
+import { Observable } from 'rxjs';
 import invariant from 'ts-invariant';
 import {
   NodeDefinition,
@@ -39,12 +39,17 @@ export const JAVASCRIPT_NODE_DEFINITION: NodeDefinition = {
     };
   },
 
-  createNodeExecutionObservable: (context, nodeExecutionConfig, params) =>
-    defer(() => {
+  createNodeExecutionObservable: (context, nodeExecutionConfig, params) => {
+    return new Observable<NodeExecutionEvent>((subscriber) => {
       const { nodeConfig, connectorList } = nodeExecutionConfig;
       const { nodeInputValueMap } = params;
 
       invariant(nodeConfig.type === NodeType.JavaScriptFunctionNode);
+
+      subscriber.next({
+        type: NodeExecutionEventType.Start,
+        nodeId: nodeConfig.nodeId,
+      });
 
       const pairs: [string, unknown][] = connectorList
         .filter((connector): connector is NodeInputVariable => {
@@ -69,31 +74,23 @@ export const JAVASCRIPT_NODE_DEFINITION: NodeDefinition = {
         nodeConfig.javaScriptCode,
       );
 
-      const resultPromise: Promise<unknown> = fn(
-        ...pairs.map((pair) => pair[1]),
-      );
-
-      return from(resultPromise).pipe(
-        map((value): NodeExecutionEvent => {
-          return {
-            type: NodeExecutionEventType.VariableValues,
-            nodeId: nodeConfig.nodeId,
-            variableValuesLookUpDict: {
-              [outputVariable.id]: value,
-            },
-          };
-        }),
-        startWith<NodeExecutionEvent>({
-          type: NodeExecutionEventType.Start,
+      fn(...pairs.map((pair) => pair[1])).then((value: unknown) => {
+        subscriber.next({
+          type: NodeExecutionEventType.VariableValues,
           nodeId: nodeConfig.nodeId,
-        }),
-        endWith<NodeExecutionEvent>({
+          variableValuesLookUpDict: {
+            [outputVariable.id]: value,
+          },
+        });
+
+        subscriber.next({
           type: NodeExecutionEventType.Finish,
           nodeId: nodeConfig.nodeId,
           finishedConnectorIds: [outputVariable.id],
-        }),
-      );
-    }),
+        });
+      });
+    });
+  },
 };
 
 const AsyncFunction = async function () {}.constructor;
