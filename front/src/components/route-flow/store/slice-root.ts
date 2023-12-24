@@ -218,28 +218,15 @@ export function createRootSlice(
         flowId: get().spaceId,
       });
 
+      // NOTE: Stop previous run if there is one
+      runSingleSubscription?.unsubscribe();
+
       // TODO: Give a default for every node instead of empty object
       set({ nodeMetadataDict: {} });
 
       setIsRunning(true);
 
-      const {
-        nodes,
-        edges,
-        nodeConfigsDict,
-        variablesDict,
-        variableValueLookUpDicts,
-        controlResultsLookUpDicts,
-      } = get();
-
-      const flowContent: V3FlowContent = {
-        nodes,
-        edges,
-        nodeConfigsDict,
-        variablesDict,
-        variableValueLookUpDicts,
-        controlResultsLookUpDicts,
-      };
+      const { edges, nodeConfigsDict, variablesDict } = get();
 
       const variableValueLookUpDict = get().getDefaultVariableValueLookUpDict();
 
@@ -251,14 +238,25 @@ export function createRootSlice(
       // NOTE: Reset variable values except flow inputs values
       set({ variableValueLookUpDicts: [flowInputVariableIdToValueMap] });
 
-      // NOTE: Stop previous run if there is one
-      runSingleSubscription?.unsubscribe();
-
-      runSingleSubscription = runSingle({
-        flowContent,
-        inputVariableMap: flowInputVariableIdToValueMap,
-        useStreaming: true,
-      }).subscribe({
+      runSingleSubscription = runSingle(
+        {
+          edgeList: edges.map((edge) => ({
+            sourceNode: edge.source,
+            sourceConnector: edge.sourceHandle,
+            targetNode: edge.target,
+            targetConnector: edge.targetHandle,
+          })),
+          nodeConfigMap: nodeConfigsDict,
+          connectorMap: variablesDict,
+        },
+        {
+          inputValueMap: flowInputVariableIdToValueMap,
+          useStreaming: true,
+          openAiApiKey: null,
+          huggingFaceApiToken: null,
+          elevenLabsApiKey: null,
+        },
+      ).subscribe({
         next(data) {
           switch (data.type) {
             case NodeExecutionEventType.Start: {

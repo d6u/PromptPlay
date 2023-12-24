@@ -9,6 +9,7 @@ import {
 } from '../base/node-definition-base-types';
 import { NodeType } from '../base/node-types';
 import {
+  FlowOutputVariable,
   V3VariableValueLookUpDict,
   VariableType,
   VariableValueType,
@@ -40,30 +41,21 @@ export const OUTPUT_NODE_DEFINITION: NodeDefinition = {
     };
   },
 
-  createNodeExecutionObservable: (nodeConfig, context) => {
+  createNodeExecutionObservable(context, nodeExecutionConfig, params) {
+    const { nodeConfig, connectorList } = nodeExecutionConfig;
+    const { nodeInputValueMap } = params;
+
     invariant(nodeConfig.type === NodeType.OutputNode);
 
-    const {
-      variablesDict: variableMap,
-      targetConnectorIdToSourceConnectorIdMap: inputIdToOutputIdMap,
-      sourceIdToValueMap: variableValueMap,
-    } = context;
+    const flowOutputValueMap: V3VariableValueLookUpDict = {};
 
-    const changes: V3VariableValueLookUpDict = {};
-
-    for (const input of Object.values(variableMap)) {
-      if (
-        input.type === VariableType.FlowOutput &&
-        input.nodeId === nodeConfig.nodeId
-      ) {
-        const outputId = inputIdToOutputIdMap[input.id];
-
-        if (outputId) {
-          const outputValue = variableValueMap[outputId];
-          changes[input.id] = outputValue ?? null;
-        }
-      }
-    }
+    connectorList
+      .filter((connector): connector is FlowOutputVariable => {
+        return connector.type === VariableType.FlowOutput;
+      })
+      .forEach((connector) => {
+        flowOutputValueMap[connector.id] = nodeInputValueMap[connector.id];
+      });
 
     return of<NodeExecutionEvent[]>(
       {
@@ -73,7 +65,7 @@ export const OUTPUT_NODE_DEFINITION: NodeDefinition = {
       {
         type: NodeExecutionEventType.VariableValues,
         nodeId: nodeConfig.nodeId,
-        variableValuesLookUpDict: changes,
+        variableValuesLookUpDict: flowOutputValueMap,
       },
       {
         type: NodeExecutionEventType.Finish,
