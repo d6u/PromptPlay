@@ -1,4 +1,4 @@
-import { defer, endWith, startWith } from 'rxjs';
+import { defer, endWith, from, map, startWith } from 'rxjs';
 import invariant from 'ts-invariant';
 import {
   NodeDefinition,
@@ -7,7 +7,7 @@ import {
 } from '../base/node-definition-base-types';
 import { NodeType } from '../base/node-types';
 import {
-  NodeOutputVariable,
+  NodeInputVariable,
   VariableType,
   VariableValueType,
 } from '../base/v3-flow-content-types';
@@ -39,66 +39,61 @@ export const JAVASCRIPT_NODE_DEFINITION: NodeDefinition = {
     };
   },
 
-  createNodeExecutionObservable: (nodeConfig, context) => {
-    invariant(nodeConfig.type === NodeType.JavaScriptFunctionNode);
+  createNodeExecutionObservable: (context, nodeExecutionConfig, params) =>
+    defer(() => {
+      const { nodeConfig, connectorList } = nodeExecutionConfig;
+      const { nodeInputValueMap } = params;
 
-    const {
-      variablesDict: variableMap,
-      targetConnectorIdToSourceConnectorIdMap: inputIdToOutputIdMap,
-      sourceIdToValueMap: variableValueMap,
-    } = context;
+      invariant(nodeConfig.type === NodeType.JavaScriptFunctionNode);
 
-    let outputVariable: NodeOutputVariable | null = null;
-    const pairs: Array<[string, unknown]> = [];
+      const pairs: [string, unknown][] = connectorList
+        .filter((connector): connector is NodeInputVariable => {
+          return connector.type === VariableType.NodeInput;
+        })
+        .sort((a, b) => a.index - b.index)
+        .map((connector) => {
+          return [connector.name, nodeInputValueMap[connector.id] ?? null];
+        });
 
-    for (const variable of Object.values(variableMap)) {
-      if (variable.nodeId !== nodeConfig.nodeId) {
-        continue;
-      }
+      const outputVariable = connectorList.find(
+        (connector): connector is NodeInputVariable =>
+          connector.type === VariableType.NodeOutput,
+      );
 
-      if (variable.type === VariableType.NodeInput) {
-        const outputId = inputIdToOutputIdMap[variable.id];
+      invariant(outputVariable != null);
 
-        if (outputId) {
-          const outputValue = variableValueMap[outputId];
-          pairs.push([variable.name, outputValue ?? null]);
-        } else {
-          pairs.push([variable.name, null]);
-        }
-      } else if (variable.type === VariableType.NodeOutput) {
-        outputVariable = variable;
-      }
-    }
+      // NOTE: Main Logic
 
-    invariant(outputVariable != null);
+      const fn = AsyncFunction(
+        ...pairs.map((pair) => pair[0]),
+        nodeConfig.javaScriptCode,
+      );
 
-    const fn = AsyncFunction(
-      ...pairs.map((pair) => pair[0]),
-      nodeConfig.javaScriptCode,
-    );
+      const resultPromise: Promise<unknown> = fn(
+        ...pairs.map((pair) => pair[1]),
+      );
 
-    return defer<Promise<NodeExecutionEvent>>(async () => {
-      const result = await fn(...pairs.map((pair) => pair[1]));
-
-      variableValueMap[outputVariable!.id] = result;
-
-      return {
-        type: NodeExecutionEventType.VariableValues,
-        nodeId: nodeConfig.nodeId,
-        variableValuesLookUpDict: { [outputVariable!.id]: result },
-      };
-    }).pipe(
-      startWith<NodeExecutionEvent>({
-        type: NodeExecutionEventType.Start,
-        nodeId: nodeConfig.nodeId,
-      }),
-      endWith<NodeExecutionEvent>({
-        type: NodeExecutionEventType.Finish,
-        nodeId: nodeConfig.nodeId,
-        finishedConnectorIds: [outputVariable!.id],
-      }),
-    );
-  },
+      return from(resultPromise).pipe(
+        map((value): NodeExecutionEvent => {
+          return {
+            type: NodeExecutionEventType.VariableValues,
+            nodeId: nodeConfig.nodeId,
+            variableValuesLookUpDict: {
+              [outputVariable.id]: value,
+            },
+          };
+        }),
+        startWith<NodeExecutionEvent>({
+          type: NodeExecutionEventType.Start,
+          nodeId: nodeConfig.nodeId,
+        }),
+        endWith<NodeExecutionEvent>({
+          type: NodeExecutionEventType.Finish,
+          nodeId: nodeConfig.nodeId,
+          finishedConnectorIds: [outputVariable.id],
+        }),
+      );
+    }),
 };
 
 const AsyncFunction = async function () {}.constructor;

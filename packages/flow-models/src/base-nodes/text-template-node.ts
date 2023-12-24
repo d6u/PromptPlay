@@ -69,7 +69,7 @@ export const TEXT_TEMPLATE_NODE_DEFINITION: NodeDefinition = {
           return connector.type === VariableType.NodeInput;
         })
         .forEach((connector) => {
-          argsMap[connector.name] = nodeInputValueMap[connector.id];
+          argsMap[connector.name] = nodeInputValueMap[connector.id] ?? null;
         });
 
       // SECTION: Main Logic

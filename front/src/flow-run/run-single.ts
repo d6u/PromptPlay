@@ -177,6 +177,7 @@ export const runSingle = (
       concatAll(),
       tap((event) => {
         console.log(event);
+
         if (event.type === NodeExecutionEventType.VariableValues) {
           // NOTE: Update `allVariableValueMap` with values from
           // node execution outputs.

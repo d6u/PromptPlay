@@ -128,11 +128,7 @@ export class FlowExecutionContext {
   }
 
   getSrcConnectorIdFromDstConnectorId(connectorId: V3VariableID): V3VariableID {
-    const srcConnectorId = this.variableDstConnIdToSrcConnIdMap[connectorId];
-    if (srcConnectorId == null) {
-      throw new Error("Provied connector ID doesn't belong to a variable.");
-    }
-    return srcConnectorId;
+    return this.variableDstConnIdToSrcConnIdMap[connectorId] ?? [];
   }
 
   // NOTE: Return the list of nodes that have indegree become zero after
