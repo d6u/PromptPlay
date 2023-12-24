@@ -178,8 +178,6 @@ export const runSingle = (
       // observable at the same time to maximize the concurrency.
       concatAll(),
       tap((event) => {
-        console.log(event);
-
         if (event.type === NodeExecutionEventType.VariableValues) {
           // NOTE: Update `allVariableValueMap` with values from
           // node execution outputs.
