@@ -1,214 +1,205 @@
-import { D } from '@mobily/ts-belt';
+import { A, D, pipe } from '@mobily/ts-belt';
 import {
+  FlowExecutionContext,
+  FlowOutputVariable,
+  GraphEdge,
+  NodeExecutionConfig,
+  NodeExecutionContext,
   NodeExecutionEvent,
   NodeExecutionEventType,
+  NodeExecutionParams,
   NodeID,
-  V3FlowContent,
+  NodeInputVariable,
+  NodeType,
+  V3NodeConfig,
+  V3NodeConfigsDict,
   V3VariableID,
   V3VariableValueLookUpDict,
   VariableType,
+  VariablesDict,
   getNodeDefinitionForNodeTypeName,
 } from 'flow-models';
+import { produce } from 'immer';
 import {
   BehaviorSubject,
   EMPTY,
   Observable,
   catchError,
   concatAll,
+  defer,
   from,
   mergeMap,
   of,
   tap,
 } from 'rxjs';
-import { useLocalStorageStore } from '../state/appState';
 
-export function runSingle({
-  flowContent,
-  inputVariableMap,
-  useStreaming = false,
-}: {
-  flowContent: Readonly<V3FlowContent>;
-  inputVariableMap: Readonly<V3VariableValueLookUpDict>;
-  useStreaming?: boolean;
-}): Observable<NodeExecutionEvent> {
-  const { nodeConfigsDict, edges, variablesDict } = flowContent;
+export type FlowConfig = {
+  edgeList: GraphEdge[];
+  nodeConfigMap: V3NodeConfigsDict;
+  connectorMap: VariablesDict;
+};
 
-  // ANCHOR: Prepare initial input values
+export type RunParams = {
+  inputValueMap: V3VariableValueLookUpDict;
+  useStreaming: boolean;
+  openAiApiKey: string | null;
+  huggingFaceApiToken: string | null;
+  elevenLabsApiKey: string | null;
+};
 
-  // NOTE: Copy object to avoid mutation.
-  const sourceIdToValueMap: V3VariableValueLookUpDict = { ...inputVariableMap };
+export const runSingle = (
+  flowConfig: FlowConfig,
+  params: RunParams,
+): Observable<NodeExecutionEvent> =>
+  defer((): Observable<NodeExecutionEvent> => {
+    const { edgeList, nodeConfigMap, connectorMap } = flowConfig;
+    const {
+      inputValueMap,
+      useStreaming,
+      openAiApiKey,
+      huggingFaceApiToken,
+      elevenLabsApiKey,
+    } = params;
 
-  // ANCHOR: Create ID maps for easy lookup
+    let allVariableValueMap = inputValueMap;
 
-  // NOTE: `sourceConnectorIdToTargetNodeIdMap` value is an array because
-  // one source connector can be connected to multiple target nodes.
-  const sourceConnectorIdToTargetNodeIdMap: Record<V3VariableID, NodeID[]> = {};
+    const context = new FlowExecutionContext(
+      edgeList,
+      nodeConfigMap,
+      connectorMap,
+    );
 
-  const targetConnectorIdToSourceConnectorIdMap: Record<
-    V3VariableID,
-    V3VariableID
-  > = {};
+    const initialNodeIdList = context.getNodeIdListWithIndegreeZero();
 
-  for (const edge of edges) {
-    if (sourceConnectorIdToTargetNodeIdMap[edge.sourceHandle] == null) {
-      sourceConnectorIdToTargetNodeIdMap[edge.sourceHandle] = [];
+    if (initialNodeIdList.length === 0) {
+      console.warn('No valid initial nodes found.');
+      return EMPTY;
     }
-    sourceConnectorIdToTargetNodeIdMap[edge.sourceHandle].push(edge.target);
 
-    const connector = variablesDict[edge.sourceHandle];
-    // NOTE: We only need to map variable IDs.
-    // Condition IDs are not mappable because one target ID can be connected to
-    // multiple source IDs.
-    if (
-      connector.type === VariableType.FlowInput ||
-      connector.type === VariableType.NodeOutput
-    ) {
-      targetConnectorIdToSourceConnectorIdMap[edge.targetHandle] =
-        edge.sourceHandle;
-    }
-  }
+    // NOTE: Used to determine when to complete the observable.
+    let queuedNodeCount = initialNodeIdList.length;
 
-  console.table(sourceConnectorIdToTargetNodeIdMap);
+    const nodeIdListSubject = new BehaviorSubject<NodeID[]>(initialNodeIdList);
 
-  // ANCHOR: Initialize graph related objects
+    return nodeIdListSubject.pipe(
+      mergeMap((nodeIdList): Observable<Observable<NodeExecutionEvent>> => {
+        return pipe(
+          nodeIdList,
+          A.map((nodeId): V3NodeConfig => nodeConfigMap[nodeId]),
+          A.map((nodeConfig): Observable<NodeExecutionEvent> => {
+            const { createNodeExecutionObservable: execute } =
+              getNodeDefinitionForNodeTypeName(nodeConfig.type);
 
-  const nodeGraph: Record<NodeID, NodeID[]> = {};
-  const nodeIndegree: Record<NodeID, number> = {};
+            // NOTE: Context
 
-  for (const nodeId of D.keys(nodeConfigsDict)) {
-    nodeGraph[nodeId] = [];
-    nodeIndegree[nodeId] = 0;
-  }
+            const nodeExecutionContext = new NodeExecutionContext(context);
 
-  // ANCHOR: Build graph
+            // NOTE: NodeExecutionConfig
 
-  for (const edge of edges) {
-    // NOTE: `nodeGraph[edge.source]` will contain duplicate edge.target,
-    // because there can be multiple edges between two nodes.
-    // We must reduce indegree equal number of times in the while loop below.
-    nodeGraph[edge.source]!.push(edge.target);
-    nodeIndegree[edge.target] += 1;
-  }
+            const connectorList = pipe(
+              connectorMap,
+              D.values,
+              A.filter((connector) => connector.nodeId === nodeConfig.nodeId),
+            );
 
-  console.table(nodeIndegree);
+            const config: NodeExecutionConfig = {
+              nodeConfig,
+              connectorList,
+            };
 
-  // ANCHOR: Create group of nodes with indegree 0.
+            // NOTE: NodeExecutionParams
 
-  const initialListOfNodeIds: NodeID[] = [];
+            const nodeInputValueMap: V3VariableValueLookUpDict = {};
 
-  // NOTE: We are mutating `nodeIndegree` here.
-  for (const [nodeId, count] of Object.entries(nodeIndegree)) {
-    if (count === 0) {
-      initialListOfNodeIds.push(nodeId as NodeID);
-    }
-  }
-
-  if (initialListOfNodeIds.length === 0) {
-    console.warn('No valid initial nodes found.');
-    return EMPTY;
-  }
-
-  // NOTE: Used to determine when to complete the observable.
-  let queuedNodeCount = initialListOfNodeIds.length;
-
-  // NOTE: `listOfNodeIdsSubject` will node IDs in topological order.
-  const listOfNodeIdsSubject = new BehaviorSubject<NodeID[]>(
-    initialListOfNodeIds,
-  );
-
-  return listOfNodeIdsSubject.pipe(
-    mergeMap((nodeIds) => {
-      if (nodeIds.length === 0) {
-        return EMPTY;
-      }
-
-      const listOfExecutionObs = nodeIds
-        .map((nodeId) => nodeConfigsDict[nodeId])
-        .map((nodeConfig) => {
-          const nodeDefinition = getNodeDefinitionForNodeTypeName(
-            nodeConfig.type,
-          );
-
-          const executionObs = nodeDefinition.createNodeExecutionObservable(
-            nodeConfig,
-            {
-              variablesDict,
-              targetConnectorIdToSourceConnectorIdMap,
-              sourceIdToValueMap,
-              useStreaming,
-              openAiApiKey: useLocalStorageStore.getState().openAiApiKey,
-              huggingFaceApiToken:
-                useLocalStorageStore.getState().huggingFaceApiToken,
-              elevenLabsApiKey:
-                useLocalStorageStore.getState().elevenLabsApiKey,
-            },
-          );
-
-          executionObs.pipe(
-            catchError<NodeExecutionEvent, Observable<NodeExecutionEvent>>(
-              (err) => {
-                // NOTE: Expected errors from the observable will be emitted as
-                // NodeExecutionEventType.Errors event.
-                //
-                // For unexpected errors, we will convert them to
-                // NodeExecutionEventType.Errors and always end with
-                // NodeExecutionEventType.Finish event per expectation.
-                listOfNodeIdsSubject.complete();
-
-                return of<NodeExecutionEvent[]>(
-                  {
-                    type: NodeExecutionEventType.Errors,
-                    nodeId: nodeConfig.nodeId,
-                    errMessages: [JSON.stringify(err)],
-                  },
-                  {
-                    type: NodeExecutionEventType.Finish,
-                    nodeId: nodeConfig.nodeId,
-                    finishedConnectorIds: [],
-                  },
-                );
-              },
-            ),
-          );
-
-          return executionObs;
-        });
-
-      return from(listOfExecutionObs);
-    }),
-    // NOTE: Switch from concatAll() to mergeAll() to subscribe to each
-    // observable at the same time to maximize the concurrency.
-    concatAll(),
-    tap((event) => {
-      switch (event.type) {
-        case NodeExecutionEventType.Start:
-          break;
-        case NodeExecutionEventType.Finish: {
-          const nextListOfNodeIds: NodeID[] = [];
-
-          for (const finishedConnectorId of event.finishedConnectorIds) {
-            // NOTE: `finishedConnectorIds` might contain source connector
-            // that is not connected by a edge.
-            const targetNodeIds = sourceConnectorIdToTargetNodeIdMap[
-              finishedConnectorId
-            ] as NodeID[] | undefined;
-
-            if (targetNodeIds != null) {
-              for (const targetNodeId of targetNodeIds) {
-                nodeIndegree[targetNodeId] -= 1;
-
-                if (nodeIndegree[targetNodeId] === 0) {
-                  nextListOfNodeIds.push(targetNodeId);
-                }
-              }
+            if (nodeConfig.type === NodeType.InputNode) {
+              connectorList.forEach((connector) => {
+                nodeInputValueMap[connector.id] =
+                  allVariableValueMap[connector.id];
+              });
+            } else {
+              connectorList
+                .filter(
+                  (conn): conn is FlowOutputVariable | NodeInputVariable =>
+                    conn.type === VariableType.NodeInput ||
+                    conn.type === VariableType.FlowOutput,
+                )
+                .forEach((connector) => {
+                  const srcConnectorId =
+                    context.getSrcConnectorIdFromDstConnectorId(connector.id);
+                  nodeInputValueMap[connector.id] =
+                    allVariableValueMap[srcConnectorId];
+                });
             }
-          }
+
+            const params: NodeExecutionParams = {
+              nodeInputValueMap,
+              useStreaming,
+              openAiApiKey,
+              huggingFaceApiToken,
+              elevenLabsApiKey,
+            };
+
+            // NOTE: Execute
+
+            return execute(nodeExecutionContext, config, params).pipe(
+              catchError<NodeExecutionEvent, Observable<NodeExecutionEvent>>(
+                (err) => {
+                  console.error(err);
+
+                  // NOTE: Expected errors from the observable will be emitted as
+                  // NodeExecutionEventType.Errors event.
+                  //
+                  // For unexpected errors, we will convert them to
+                  // NodeExecutionEventType.Errors and always end with
+                  // NodeExecutionEventType.Finish event per expectation.
+
+                  nodeIdListSubject.complete();
+
+                  return of<NodeExecutionEvent[]>(
+                    {
+                      type: NodeExecutionEventType.Errors,
+                      nodeId: nodeConfig.nodeId,
+                      errMessages: [JSON.stringify(err)],
+                    },
+                    {
+                      type: NodeExecutionEventType.Finish,
+                      nodeId: nodeConfig.nodeId,
+                      finishedConnectorIds: [],
+                    },
+                  );
+                },
+              ),
+            );
+          }),
+          from,
+        );
+      }),
+      // NOTE: Switch from concatAll() to mergeAll() to subscribe to each
+      // observable at the same time to maximize the concurrency.
+      concatAll(),
+      tap((event) => {
+        if (event.type === NodeExecutionEventType.VariableValues) {
+          // NOTE: Update `allVariableValueMap` with values from
+          // node execution outputs.
+          allVariableValueMap = produce(allVariableValueMap, (draft) => {
+            pipe(
+              event.variableValuesLookUpDict,
+              D.toPairs,
+              A.forEach(([id, value]) => {
+                draft[id as V3VariableID] = value;
+              }),
+            );
+          });
+        } else if (event.type === NodeExecutionEventType.Finish) {
+          const nextNodeIdList = context.reduceNodeIndegrees(
+            event.finishedConnectorIds,
+          );
 
           queuedNodeCount -= 1;
 
-          if (nextListOfNodeIds.length === 0) {
+          if (nextNodeIdList.length === 0) {
             if (queuedNodeCount === 0) {
-              listOfNodeIdsSubject.complete();
+              nodeIdListSubject.complete();
             }
           } else {
             // NOTE: Incrementing count on NodeExecutionEventType.Start event
@@ -218,17 +209,12 @@ export function runSingle({
             //
             // I.e. `listOfNodeIdsSubject.complete()` will complete the subject
             // immediately, even though there are still values in the subject.
-            queuedNodeCount += nextListOfNodeIds.length;
-            listOfNodeIdsSubject.next(nextListOfNodeIds);
+
+            queuedNodeCount += nextNodeIdList.length;
+
+            nodeIdListSubject.next(nextNodeIdList);
           }
-
-          break;
         }
-
-        case NodeExecutionEventType.VariableValues:
-        case NodeExecutionEventType.Errors:
-          break;
-      }
-    }),
-  );
-}
+      }),
+    );
+  });

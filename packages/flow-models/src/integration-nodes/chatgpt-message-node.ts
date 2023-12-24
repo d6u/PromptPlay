@@ -2,7 +2,7 @@ import { A, F } from '@mobily/ts-belt';
 import randomId from 'common-utils/randomId';
 import * as OpenAI from 'integrations/openai';
 import mustache from 'mustache';
-import { of } from 'rxjs';
+import { Observable } from 'rxjs';
 import invariant from 'ts-invariant';
 import {
   NodeDefinition,
@@ -11,6 +11,7 @@ import {
 } from '../base/node-definition-base-types';
 import { NodeType } from '../base/node-types';
 import {
+  NodeInputVariable,
   NodeOutputVariable,
   VariableType,
   VariableValueType,
@@ -73,82 +74,69 @@ export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition = {
     };
   },
 
-  createNodeExecutionObservable: (nodeConfig, context) => {
-    invariant(nodeConfig.type === NodeType.ChatGPTMessageNode);
+  createNodeExecutionObservable: (context, nodeExecutionConfig, params) => {
+    return new Observable<NodeExecutionEvent>((subscriber) => {
+      const { nodeConfig, connectorList } = nodeExecutionConfig;
+      const { nodeInputValueMap } = params;
 
-    const {
-      variablesDict: variableMap,
-      targetConnectorIdToSourceConnectorIdMap: inputIdToOutputIdMap,
-      sourceIdToValueMap: variableValueMap,
-    } = context;
+      invariant(nodeConfig.type === NodeType.ChatGPTMessageNode);
 
-    // ANCHOR: Prepare inputs
-
-    let variableMessage: NodeOutputVariable | null = null;
-    let variableMessages: NodeOutputVariable | null = null;
-
-    const argsMap: Record<string, unknown> = {};
-
-    for (const variable of Object.values(variableMap)) {
-      if (variable.nodeId !== nodeConfig.nodeId) {
-        continue;
-      }
-
-      if (variable.type === VariableType.NodeInput) {
-        const outputId = inputIdToOutputIdMap[variable.id];
-
-        if (outputId) {
-          const outputValue = variableValueMap[outputId];
-          argsMap[variable.name] = outputValue ?? null;
-        } else {
-          argsMap[variable.name] = null;
-        }
-      } else if (variable.type === VariableType.NodeOutput) {
-        if (variable.index === 0) {
-          variableMessage = variable;
-        } else if (variable.index === 1) {
-          variableMessages = variable;
-        }
-      }
-    }
-
-    invariant(variableMessage != null);
-    invariant(variableMessages != null);
-
-    // ANCHOR: Execute logic
-
-    let messages = (argsMap['messages'] ?? []) as OpenAI.ChatGPTMessage[];
-
-    const message = {
-      role: nodeConfig.role,
-      content: mustache.render(nodeConfig.content, argsMap),
-    };
-
-    messages = F.toMutable(A.append(messages, message));
-
-    // ANCHOR: Update outputs
-
-    variableValueMap[variableMessage.id] = message;
-    variableValueMap[variableMessages.id] = messages;
-
-    return of<NodeExecutionEvent[]>(
-      {
+      subscriber.next({
         type: NodeExecutionEventType.Start,
         nodeId: nodeConfig.nodeId,
-      },
-      {
+      });
+
+      const argsMap: Record<string, unknown> = {};
+
+      connectorList
+        .filter((connector): connector is NodeInputVariable => {
+          return connector.type === VariableType.NodeInput;
+        })
+        .forEach((connector) => {
+          argsMap[connector.name] = nodeInputValueMap[connector.id] ?? null;
+        });
+
+      // NOTE: Main logic
+
+      let messages = (argsMap['messages'] ?? []) as OpenAI.ChatGPTMessage[];
+
+      const message = {
+        role: nodeConfig.role,
+        content: mustache.render(nodeConfig.content, argsMap),
+      };
+
+      messages = F.toMutable(A.append(messages, message));
+
+      const variableMessage = connectorList.find(
+        (conn): conn is NodeOutputVariable => {
+          return conn.type === VariableType.NodeOutput && conn.index === 0;
+        },
+      );
+      const variableMessages = connectorList.find(
+        (conn): conn is NodeOutputVariable => {
+          return conn.type === VariableType.NodeOutput && conn.index === 1;
+        },
+      );
+
+      invariant(variableMessage != null);
+      invariant(variableMessages != null);
+
+      subscriber.next({
         type: NodeExecutionEventType.VariableValues,
         nodeId: nodeConfig.nodeId,
         variableValuesLookUpDict: {
           [variableMessage.id]: message,
           [variableMessages.id]: messages,
         },
-      },
-      {
+      });
+
+      subscriber.next({
         type: NodeExecutionEventType.Finish,
         nodeId: nodeConfig.nodeId,
         finishedConnectorIds: [variableMessage.id, variableMessages.id],
-      },
-    );
+      });
+
+      subscriber.complete();
+    });
   },
 };

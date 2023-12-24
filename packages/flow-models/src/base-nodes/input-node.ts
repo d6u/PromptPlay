@@ -1,7 +1,6 @@
-import { D } from '@mobily/ts-belt';
 import chance from 'common-utils/chance';
 import randomId from 'common-utils/randomId';
-import { of } from 'rxjs';
+import { Observable } from 'rxjs';
 import invariant from 'ts-invariant';
 import {
   NodeDefinition,
@@ -9,7 +8,11 @@ import {
   NodeExecutionEventType,
 } from '../base/node-definition-base-types';
 import { NodeType } from '../base/node-types';
-import { VariableType, VariableValueType } from '../base/v3-flow-content-types';
+import {
+  FlowInputVariable,
+  VariableType,
+  VariableValueType,
+} from '../base/v3-flow-content-types';
 import { asV3VariableID } from '../base/v3-flow-utils';
 
 export const INPUT_NODE_DEFINITION: NodeDefinition = {
@@ -18,7 +21,7 @@ export const INPUT_NODE_DEFINITION: NodeDefinition = {
   isEnabledInToolbar: true,
   toolbarLabel: 'Input',
 
-  createDefaultNodeConfig: (node) => {
+  createDefaultNodeConfig(node) {
     return {
       nodeConfig: {
         nodeId: node.id,
@@ -37,27 +40,30 @@ export const INPUT_NODE_DEFINITION: NodeDefinition = {
     };
   },
 
-  createNodeExecutionObservable: (nodeConfig, context) => {
-    invariant(nodeConfig.type === NodeType.InputNode);
+  createNodeExecutionObservable(context, nodeExecutionConfig, params) {
+    return new Observable<NodeExecutionEvent>((subscriber) => {
+      const { nodeConfig, connectorList } = nodeExecutionConfig;
 
-    const connectorIds = D.values(context.variablesDict)
-      .filter((c) => {
-        return (
-          c.nodeId === nodeConfig.nodeId && c.type === VariableType.FlowInput
-        );
-      })
-      .map((c) => c.id);
+      invariant(nodeConfig.type === NodeType.InputNode);
 
-    return of<NodeExecutionEvent[]>(
-      {
+      subscriber.next({
         type: NodeExecutionEventType.Start,
         nodeId: nodeConfig.nodeId,
-      },
-      {
+      });
+
+      const connectorIdList = connectorList
+        .filter((connector): connector is FlowInputVariable => {
+          return connector.type === VariableType.FlowInput;
+        })
+        .map((connector) => connector.id);
+
+      subscriber.next({
         type: NodeExecutionEventType.Finish,
         nodeId: nodeConfig.nodeId,
-        finishedConnectorIds: connectorIds,
-      },
-    );
+        finishedConnectorIds: connectorIdList,
+      });
+
+      subscriber.complete();
+    });
   },
 };

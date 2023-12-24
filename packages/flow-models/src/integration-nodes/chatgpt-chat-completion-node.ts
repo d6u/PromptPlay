@@ -1,21 +1,10 @@
-import { A, F } from '@mobily/ts-belt';
+import { A } from '@mobily/ts-belt';
 import {
   ChatGPTMessage,
   getNonStreamingCompletion,
   getStreamingCompletion,
 } from 'integrations/openai';
-import {
-  Observable,
-  TimeoutError,
-  concat,
-  defer,
-  endWith,
-  map,
-  of,
-  retry,
-  startWith,
-  tap,
-} from 'rxjs';
+import { Observable, TimeoutError, endWith, map, retry, scan, tap } from 'rxjs';
 import invariant from 'ts-invariant';
 import {
   NodeDefinition,
@@ -24,6 +13,7 @@ import {
 } from '../base/node-definition-base-types';
 import { NodeType, OpenAIChatModel } from '../base/node-types';
 import {
+  NodeInputVariable,
   NodeOutputVariable,
   VariableType,
   VariableValueType,
@@ -84,68 +74,68 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition = {
     };
   },
 
-  createNodeExecutionObservable: (nodeConfig, context) => {
-    invariant(nodeConfig.type === NodeType.ChatGPTChatCompletionNode);
+  createNodeExecutionObservable: (context, nodeExecutionConfig, params) => {
+    return new Observable<NodeExecutionEvent>((subscriber) => {
+      const { nodeConfig, connectorList } = nodeExecutionConfig;
+      const { nodeInputValueMap, openAiApiKey, useStreaming } = params;
 
-    const {
-      variablesDict: variableMap,
-      targetConnectorIdToSourceConnectorIdMap: inputIdToOutputIdMap,
-      sourceIdToValueMap: variableValueMap,
-      useStreaming,
-      openAiApiKey,
-    } = context;
+      invariant(nodeConfig.type === NodeType.ChatGPTChatCompletionNode);
 
-    // ANCHOR: Prepare inputs
-
-    if (!openAiApiKey) {
-      return of({
-        type: NodeExecutionEventType.Errors,
+      subscriber.next({
+        type: NodeExecutionEventType.Start,
         nodeId: nodeConfig.nodeId,
-        errMessages: ['OpenAI API key is missing'],
       });
-    }
 
-    let variableContent: NodeOutputVariable | null = null;
-    let variableMessage: NodeOutputVariable | null = null;
-    let variableMessages: NodeOutputVariable | null = null;
+      if (!openAiApiKey) {
+        subscriber.next({
+          type: NodeExecutionEventType.Errors,
+          nodeId: nodeConfig.nodeId,
+          errMessages: ['OpenAI API key is missing'],
+        });
 
-    const argsMap: { [key: string]: unknown } = {};
+        subscriber.next({
+          type: NodeExecutionEventType.Finish,
+          nodeId: nodeConfig.nodeId,
+          finishedConnectorIds: [],
+        });
 
-    for (const variable of Object.values(variableMap)) {
-      if (variable.nodeId !== nodeConfig.nodeId) {
-        continue;
+        subscriber.complete();
+        return;
       }
 
-      if (variable.type === VariableType.NodeInput) {
-        const outputId = inputIdToOutputIdMap[variable.id];
+      const argsMap: Record<string, unknown> = {};
 
-        if (outputId) {
-          const outputValue = variableValueMap[outputId];
-          argsMap[variable.name] = outputValue ?? null;
-        } else {
-          argsMap[variable.name] = null;
-        }
-      } else if (variable.type === VariableType.NodeOutput) {
-        if (variable.index === 0) {
-          variableContent = variable;
-        } else if (variable.index === 1) {
-          variableMessage = variable;
-        } else if (variable.index === 2) {
-          variableMessages = variable;
-        }
-      }
-    }
+      connectorList
+        .filter((connector): connector is NodeInputVariable => {
+          return connector.type === VariableType.NodeInput;
+        })
+        .forEach((connector) => {
+          argsMap[connector.name] = nodeInputValueMap[connector.id] ?? null;
+        });
 
-    invariant(variableContent != null);
-    invariant(variableMessage != null);
-    invariant(variableMessages != null);
+      const variableContent = connectorList.find(
+        (conn): conn is NodeOutputVariable => {
+          return conn.type === VariableType.NodeOutput && conn.index === 0;
+        },
+      );
+      const variableMessage = connectorList.find(
+        (conn): conn is NodeOutputVariable => {
+          return conn.type === VariableType.NodeOutput && conn.index === 1;
+        },
+      );
+      const variableMessages = connectorList.find(
+        (conn): conn is NodeOutputVariable => {
+          return conn.type === VariableType.NodeOutput && conn.index === 2;
+        },
+      );
 
-    return defer<Observable<NodeExecutionEvent>>(() => {
-      // ANCHOR: Execute logic
+      invariant(variableContent != null);
+      invariant(variableMessage != null);
+      invariant(variableMessages != null);
+
+      // NOTE: Main Logic
 
       let messages = (argsMap['messages'] ?? []) as ChatGPTMessage[];
-      let role = 'assistant';
-      let content = '';
 
       const options = {
         apiKey: openAiApiKey,
@@ -160,14 +150,18 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition = {
             : null,
       };
 
+      let variableValuesEventObservable: Observable<NodeExecutionEvent>;
+
       if (useStreaming) {
-        return concat(
-          getStreamingCompletion(options).pipe(
-            map((piece): NodeExecutionEvent => {
+        variableValuesEventObservable = getStreamingCompletion(options).pipe(
+          scan(
+            (acc: ChatGPTMessage, piece): ChatGPTMessage => {
               if ('error' in piece) {
                 // console.error(piece.error.message);
                 throw piece.error.message;
               }
+
+              let { role, content } = acc;
 
               const choice = piece.choices[0];
 
@@ -176,85 +170,40 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition = {
               if (choice.delta.role) {
                 role = choice.delta.role;
               }
+
               if (choice.delta.content) {
                 content += choice.delta.content;
               }
-              const message = { role, content };
 
-              invariant(variableContent != null);
-              invariant(variableMessage != null);
-              invariant(variableMessages != null);
-
-              return {
-                type: NodeExecutionEventType.VariableValues,
-                nodeId: nodeConfig.nodeId,
-                variableValuesLookUpDict: {
-                  [variableContent.id]: content,
-                  [variableMessage.id]: message,
-                  [variableMessages.id]: A.append(messages, message),
-                },
-              };
-            }),
+              return { role, content };
+            },
+            {
+              role: 'assistant',
+              content: '',
+            },
           ),
-          defer(() => {
-            const message = { role, content };
-            messages = F.toMutable(A.append(messages, message));
-
-            invariant(variableContent != null);
-            invariant(variableMessage != null);
-            invariant(variableMessages != null);
-
-            variableValueMap[variableContent.id] = content;
-            variableValueMap[variableMessage.id] = message;
-            variableValueMap[variableMessages.id] = messages;
-
-            return of<NodeExecutionEvent>({
-              type: NodeExecutionEventType.VariableValues,
-              nodeId: nodeConfig.nodeId,
-              variableValuesLookUpDict: {
-                [variableContent.id]: content,
-                [variableMessage.id]: message,
-                [variableMessages.id]: messages,
-              },
-            });
-          }),
-        );
-      } else {
-        return getNonStreamingCompletion(options).pipe(
-          map((result): NodeExecutionEvent => {
-            if (result.isError) {
-              console.error(result.data);
-              throw result.data;
-            }
-
-            const choice = result.data.choices[0];
-
-            invariant(choice != null);
-
-            const content = choice.message.content;
-            const message = choice.message;
-            messages = F.toMutable(A.append(messages, message));
-
-            invariant(variableContent != null);
-            invariant(variableMessage != null);
-            invariant(variableMessages != null);
-
-            variableValueMap[variableContent.id] = content;
-            variableValueMap[variableMessage.id] = message;
-            variableValueMap[variableMessages.id] = messages;
-
+          map((message: ChatGPTMessage): NodeExecutionEvent => {
             return {
               type: NodeExecutionEventType.VariableValues,
               nodeId: nodeConfig.nodeId,
               variableValuesLookUpDict: {
-                [variableContent.id]: content,
+                [variableContent.id]: message.content,
                 [variableMessage.id]: message,
-                [variableMessages.id]: messages,
+                [variableMessages.id]: A.append(messages, message),
               },
             };
           }),
+        );
+      } else {
+        variableValuesEventObservable = getNonStreamingCompletion(options).pipe(
           tap({
-            error: (error) => {
+            next(result) {
+              if (result.isError) {
+                console.error(result.data);
+                throw result.data;
+              }
+            },
+            error(error) {
               if (error instanceof TimeoutError) {
                 console.debug('ERROR: OpenAI API call timed out.');
               } else {
@@ -263,22 +212,40 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition = {
             },
           }),
           retry(2),
+          map((result): NodeExecutionEvent => {
+            invariant(!result.isError);
+
+            const choice = result.data.choices[0];
+
+            invariant(choice != null);
+
+            return {
+              type: NodeExecutionEventType.VariableValues,
+              nodeId: nodeConfig.nodeId,
+              variableValuesLookUpDict: {
+                [variableContent.id]: choice.message.content,
+                [variableMessage.id]: choice.message,
+                [variableMessages.id]: A.append(messages, choice.message),
+              },
+            };
+          }),
         );
       }
-    }).pipe(
-      startWith<NodeExecutionEvent>({
-        type: NodeExecutionEventType.Start,
-        nodeId: nodeConfig.nodeId,
-      }),
-      endWith<NodeExecutionEvent>({
-        type: NodeExecutionEventType.Finish,
-        nodeId: nodeConfig.nodeId,
-        finishedConnectorIds: [
-          variableContent!.id,
-          variableMessage!.id,
-          variableMessages!.id,
-        ],
-      }),
-    );
+
+      // NOTE: Teardown logic
+      return variableValuesEventObservable
+        .pipe(
+          endWith<NodeExecutionEvent>({
+            type: NodeExecutionEventType.Finish,
+            nodeId: nodeConfig.nodeId,
+            finishedConnectorIds: [
+              variableContent.id,
+              variableMessage.id,
+              variableMessages.id,
+            ],
+          }),
+        )
+        .subscribe(subscriber);
+    });
   },
 };

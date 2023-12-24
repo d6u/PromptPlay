@@ -1,5 +1,5 @@
 import * as HuggingFace from 'integrations/hugging-face';
-import { Observable, defer, endWith, from, map, of, startWith } from 'rxjs';
+import { Observable } from 'rxjs';
 import invariant from 'ts-invariant';
 import {
   NodeDefinition,
@@ -8,6 +8,7 @@ import {
 } from '../base/node-definition-base-types';
 import { NodeType } from '../base/node-types';
 import {
+  NodeInputVariable,
   NodeOutputVariable,
   VariableType,
   VariableValueType,
@@ -50,94 +51,111 @@ export const HUGGINGFACE_INFERENCE_NODE_DEFINITION: NodeDefinition = {
     };
   },
 
-  createNodeExecutionObservable: (nodeConfig, context) => {
-    invariant(nodeConfig.type === NodeType.HuggingFaceInference);
+  createNodeExecutionObservable: (context, nodeExecutionConfig, params) => {
+    return new Observable<NodeExecutionEvent>((subscriber) => {
+      const { nodeConfig, connectorList } = nodeExecutionConfig;
+      const { nodeInputValueMap, huggingFaceApiToken } = params;
 
-    const {
-      variablesDict: variableMap,
-      targetConnectorIdToSourceConnectorIdMap: inputIdToOutputIdMap,
-      sourceIdToValueMap: variableValueMap,
-      huggingFaceApiToken,
-    } = context;
+      invariant(nodeConfig.type === NodeType.HuggingFaceInference);
 
-    // ANCHOR: Prepare inputs
-
-    if (!huggingFaceApiToken) {
-      return of<NodeExecutionEvent>({
-        type: NodeExecutionEventType.Errors,
-        nodeId: nodeConfig.nodeId,
-        errMessages: ['Hugging Face API token is missing'],
-      });
-    }
-
-    let variableOutput: NodeOutputVariable | null = null;
-
-    const argsMap: { [key: string]: unknown } = {};
-
-    for (const variable of Object.values(variableMap)) {
-      if (variable.nodeId !== nodeConfig.nodeId) {
-        continue;
-      }
-
-      if (variable.type === VariableType.NodeInput) {
-        const outputId = inputIdToOutputIdMap[variable.id];
-
-        if (outputId) {
-          const outputValue = variableValueMap[outputId];
-          argsMap[variable.name] = outputValue ?? null;
-        } else {
-          argsMap[variable.name] = null;
-        }
-      } else if (variable.type === VariableType.NodeOutput) {
-        if (variable.index === 0) {
-          variableOutput = variable;
-        }
-      }
-    }
-
-    invariant(variableOutput != null);
-
-    return defer<Observable<NodeExecutionEvent>>(() => {
-      // ANCHOR: Execute logic
-
-      return from(
-        HuggingFace.callInferenceApi(
-          { apiToken: huggingFaceApiToken, model: nodeConfig.model },
-          argsMap['parameters'],
-        ),
-      ).pipe(
-        map((result): NodeExecutionEvent => {
-          if (result.isError) {
-            if (result.data) {
-              throw result.data;
-            } else {
-              throw new Error('Unknown error');
-            }
-          }
-
-          invariant(variableOutput != null);
-
-          variableValueMap[variableOutput.id] = result.data;
-
-          return {
-            type: NodeExecutionEventType.VariableValues,
-            nodeId: nodeConfig.nodeId,
-            variableValuesLookUpDict: {
-              [variableOutput.id]: result.data,
-            },
-          };
-        }),
-      );
-    }).pipe(
-      startWith<NodeExecutionEvent>({
+      subscriber.next({
         type: NodeExecutionEventType.Start,
         nodeId: nodeConfig.nodeId,
-      }),
-      endWith<NodeExecutionEvent>({
-        type: NodeExecutionEventType.Finish,
-        nodeId: nodeConfig.nodeId,
-        finishedConnectorIds: [variableOutput.id],
-      }),
-    );
+      });
+
+      if (!huggingFaceApiToken) {
+        subscriber.next({
+          type: NodeExecutionEventType.Errors,
+          nodeId: nodeConfig.nodeId,
+          errMessages: ['Hugging Face API token is missing'],
+        });
+
+        subscriber.next({
+          type: NodeExecutionEventType.Finish,
+          nodeId: nodeConfig.nodeId,
+          finishedConnectorIds: [],
+        });
+
+        subscriber.complete();
+        return;
+      }
+
+      const argsMap: Record<string, unknown> = {};
+
+      connectorList
+        .filter((connector): connector is NodeInputVariable => {
+          return connector.type === VariableType.NodeInput;
+        })
+        .forEach((connector) => {
+          argsMap[connector.name] = nodeInputValueMap[connector.id] ?? null;
+        });
+
+      const variableOutput = connectorList.find(
+        (conn): conn is NodeOutputVariable => {
+          return conn.type === VariableType.NodeOutput && conn.index === 0;
+        },
+      );
+
+      invariant(variableOutput != null);
+
+      // NOTE: Main logic
+
+      HuggingFace.callInferenceApi(
+        {
+          apiToken: huggingFaceApiToken,
+          model: nodeConfig.model,
+        },
+        argsMap['parameters'],
+      )
+        .then((result) => {
+          if (result.isError) {
+            subscriber.next({
+              type: NodeExecutionEventType.Errors,
+              nodeId: nodeConfig.nodeId,
+              errMessages: [
+                result.data != null
+                  ? JSON.stringify(result.data)
+                  : 'Unknown error',
+              ],
+            });
+
+            subscriber.next({
+              type: NodeExecutionEventType.Finish,
+              nodeId: nodeConfig.nodeId,
+              finishedConnectorIds: [],
+            });
+          } else {
+            subscriber.next({
+              type: NodeExecutionEventType.VariableValues,
+              nodeId: nodeConfig.nodeId,
+              variableValuesLookUpDict: {
+                [variableOutput.id]: result.data,
+              },
+            });
+
+            subscriber.next({
+              type: NodeExecutionEventType.Finish,
+              nodeId: nodeConfig.nodeId,
+              finishedConnectorIds: [variableOutput.id],
+            });
+          }
+        })
+        .catch((err) => {
+          subscriber.next({
+            type: NodeExecutionEventType.Errors,
+            nodeId: nodeConfig.nodeId,
+            errMessages: [err.message != null ? err.message : 'Unknown error'],
+          });
+
+          subscriber.next({
+            type: NodeExecutionEventType.Finish,
+            nodeId: nodeConfig.nodeId,
+            finishedConnectorIds: [],
+          });
+        })
+        .finally(() => {
+          subscriber.complete();
+        });
+    });
   },
 };

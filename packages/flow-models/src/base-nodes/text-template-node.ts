@@ -1,8 +1,7 @@
 import randomId from 'common-utils/randomId';
 import mustache from 'mustache';
-import { defer, of } from 'rxjs';
+import { Observable } from 'rxjs';
 import invariant from 'ts-invariant';
-import { V3VariableID } from '../..';
 import {
   NodeDefinition,
   NodeExecutionEvent,
@@ -10,6 +9,7 @@ import {
 } from '../base/node-definition-base-types';
 import { NodeType } from '../base/node-types';
 import {
+  NodeInputVariable,
   NodeOutputVariable,
   VariableType,
   VariableValueType,
@@ -55,74 +55,57 @@ export const TEXT_TEMPLATE_NODE_DEFINITION: NodeDefinition = {
     };
   },
 
-  createNodeExecutionObservable: (nodeConfig, context) => {
-    invariant(nodeConfig.type === NodeType.TextTemplate);
+  createNodeExecutionObservable: (context, nodeExecutionConfig, params) => {
+    return new Observable<NodeExecutionEvent>((subscriber) => {
+      const { nodeConfig, connectorList } = nodeExecutionConfig;
+      const { nodeInputValueMap } = params;
 
-    const {
-      variablesDict: variableMap,
-      targetConnectorIdToSourceConnectorIdMap: inputIdToOutputIdMap,
-      sourceIdToValueMap: variableValueMap,
-    } = context;
+      invariant(nodeConfig.type === NodeType.TextTemplate);
 
-    return defer(() => {
-      // ANCHOR: Prepare inputs
-
-      let variableContent: NodeOutputVariable | null = null;
+      subscriber.next({
+        type: NodeExecutionEventType.Start,
+        nodeId: nodeConfig.nodeId,
+      });
 
       const argsMap: Record<string, unknown> = {};
-      const finishedConnectorIds: V3VariableID[] = [];
 
-      for (const variable of Object.values(variableMap)) {
-        if (variable.nodeId !== nodeConfig.nodeId) {
-          continue;
-        }
+      connectorList
+        .filter((connector): connector is NodeInputVariable => {
+          return connector.type === VariableType.NodeInput;
+        })
+        .forEach((connector) => {
+          argsMap[connector.name] = nodeInputValueMap[connector.id] ?? null;
+        });
 
-        if (variable.type === VariableType.NodeInput) {
-          const outputId = inputIdToOutputIdMap[variable.id];
+      const outputVariable = connectorList.find(
+        (connector): connector is NodeOutputVariable => {
+          return connector.type === VariableType.NodeOutput;
+        },
+      );
 
-          if (outputId) {
-            const outputValue = variableValueMap[outputId];
-            argsMap[variable.name] = outputValue ?? null;
-          } else {
-            argsMap[variable.name] = null;
-          }
-        } else if (variable.type === VariableType.NodeOutput) {
-          finishedConnectorIds.push(variable.id);
+      invariant(outputVariable != null);
 
-          if (variable.index === 0) {
-            variableContent = variable;
-          }
-        }
-      }
-
-      invariant(variableContent != null);
-
-      // ANCHOR: Execute logic
+      // SECTION: Main Logic
 
       const content = mustache.render(nodeConfig.content, argsMap);
 
-      // ANCHOR: Update outputs
+      // !SECTION
 
-      variableValueMap[variableContent.id] = content;
+      subscriber.next({
+        type: NodeExecutionEventType.VariableValues,
+        nodeId: nodeConfig.nodeId,
+        variableValuesLookUpDict: {
+          [outputVariable.id]: content,
+        },
+      });
 
-      return of<NodeExecutionEvent[]>(
-        {
-          type: NodeExecutionEventType.Start,
-          nodeId: nodeConfig.nodeId,
-        },
-        {
-          type: NodeExecutionEventType.VariableValues,
-          nodeId: nodeConfig.nodeId,
-          variableValuesLookUpDict: {
-            [variableContent.id]: content,
-          },
-        },
-        {
-          type: NodeExecutionEventType.Finish,
-          nodeId: nodeConfig.nodeId,
-          finishedConnectorIds,
-        },
-      );
+      subscriber.next({
+        type: NodeExecutionEventType.Finish,
+        nodeId: nodeConfig.nodeId,
+        finishedConnectorIds: [outputVariable.id],
+      });
+
+      subscriber.complete();
     });
   },
 };

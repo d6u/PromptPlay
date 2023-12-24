@@ -1,5 +1,5 @@
 import * as ElevenLabs from 'integrations/eleven-labs';
-import { Observable, defer, endWith, from, map, of, startWith } from 'rxjs';
+import { Observable } from 'rxjs';
 import invariant from 'ts-invariant';
 import {
   NodeDefinition,
@@ -8,6 +8,7 @@ import {
 } from '../base/node-definition-base-types';
 import { NodeType } from '../base/node-types';
 import {
+  NodeInputVariable,
   NodeOutputVariable,
   VariableType,
   VariableValueType,
@@ -48,97 +49,108 @@ export const ELEVENLABS_NODE_DEFINITION: NodeDefinition = {
     };
   },
 
-  createNodeExecutionObservable: (nodeConfig, context) => {
-    invariant(nodeConfig.type === NodeType.ElevenLabs);
+  createNodeExecutionObservable: (context, nodeExecutionConfig, params) => {
+    return new Observable<NodeExecutionEvent>((subscriber) => {
+      const { nodeConfig, connectorList } = nodeExecutionConfig;
+      const { nodeInputValueMap, elevenLabsApiKey } = params;
 
-    const {
-      variablesDict: variableMap,
-      targetConnectorIdToSourceConnectorIdMap: inputIdToOutputIdMap,
-      sourceIdToValueMap: variableValueMap,
-      elevenLabsApiKey,
-    } = context;
+      invariant(nodeConfig.type === NodeType.ElevenLabs);
 
-    // ANCHOR: Prepare inputs
+      if (!elevenLabsApiKey) {
+        subscriber.next({
+          type: NodeExecutionEventType.Errors,
+          nodeId: nodeConfig.nodeId,
+          errMessages: ['Eleven Labs API key is missing'],
+        });
 
-    if (!elevenLabsApiKey) {
-      return of<NodeExecutionEvent>({
-        type: NodeExecutionEventType.Errors,
-        nodeId: nodeConfig.nodeId,
-        errMessages: ['Eleven Labs API key is missing'],
-      });
-    }
+        subscriber.next({
+          type: NodeExecutionEventType.Finish,
+          nodeId: nodeConfig.nodeId,
+          finishedConnectorIds: [],
+        });
 
-    let variableAudio: NodeOutputVariable | null = null;
-
-    const argsMap: { [key: string]: unknown } = {};
-
-    for (const variable of Object.values(variableMap)) {
-      if (variable.nodeId !== nodeConfig.nodeId) {
-        continue;
+        subscriber.complete();
+        return;
       }
 
-      if (variable.type === VariableType.NodeInput) {
-        const outputId = inputIdToOutputIdMap[variable.id];
+      const argsMap: Record<string, unknown> = {};
 
-        if (outputId) {
-          const outputValue = variableValueMap[outputId];
-          argsMap[variable.name] = outputValue ?? null;
-        } else {
-          argsMap[variable.name] = null;
-        }
-      } else if (variable.type === VariableType.NodeOutput) {
-        if (variable.index === 0) {
-          variableAudio = variable;
-        }
-      }
-    }
+      connectorList
+        .filter((connector): connector is NodeInputVariable => {
+          return connector.type === VariableType.NodeInput;
+        })
+        .forEach((connector) => {
+          argsMap[connector.name] = nodeInputValueMap[connector.id] ?? null;
+        });
 
-    invariant(variableAudio != null);
+      const variableAudio = connectorList.find(
+        (conn): conn is NodeOutputVariable => {
+          return conn.type === VariableType.NodeOutput && conn.index === 0;
+        },
+      );
 
-    return defer<Observable<NodeExecutionEvent>>(() => {
-      // ANCHOR: Execute logic
+      invariant(variableAudio != null);
 
       const text = argsMap['text'];
 
       invariant(typeof text === 'string');
 
-      return from(
-        ElevenLabs.textToSpeech({
-          text,
-          voiceId: nodeConfig.voiceId,
-          apiKey: elevenLabsApiKey,
-        }),
-      ).pipe(
-        map((result): NodeExecutionEvent => {
+      ElevenLabs.textToSpeech({
+        text,
+        voiceId: nodeConfig.voiceId,
+        apiKey: elevenLabsApiKey,
+      })
+        .then((result) => {
           if (result.isError) {
-            throw result.data;
+            subscriber.next({
+              type: NodeExecutionEventType.Errors,
+              nodeId: nodeConfig.nodeId,
+              errMessages: [
+                result.data != null
+                  ? JSON.stringify(result.data)
+                  : 'Unknown error',
+              ],
+            });
+
+            subscriber.next({
+              type: NodeExecutionEventType.Finish,
+              nodeId: nodeConfig.nodeId,
+              finishedConnectorIds: [],
+            });
+          } else {
+            const url = URL.createObjectURL(result.data);
+
+            subscriber.next({
+              type: NodeExecutionEventType.VariableValues,
+              nodeId: nodeConfig.nodeId,
+              variableValuesLookUpDict: {
+                [variableAudio.id]: url,
+              },
+            });
+
+            subscriber.next({
+              type: NodeExecutionEventType.Finish,
+              nodeId: nodeConfig.nodeId,
+              finishedConnectorIds: [variableAudio.id],
+            });
           }
-
-          const url = URL.createObjectURL(result.data);
-
-          invariant(variableAudio != null);
-
-          variableValueMap[variableAudio.id] = url;
-
-          return {
-            type: NodeExecutionEventType.VariableValues,
+        })
+        .catch((err) => {
+          subscriber.next({
+            type: NodeExecutionEventType.Errors,
             nodeId: nodeConfig.nodeId,
-            variableValuesLookUpDict: {
-              [variableAudio.id]: url,
-            },
-          };
-        }),
-      );
-    }).pipe(
-      startWith<NodeExecutionEvent>({
-        type: NodeExecutionEventType.Start,
-        nodeId: nodeConfig.nodeId,
-      }),
-      endWith<NodeExecutionEvent>({
-        type: NodeExecutionEventType.Finish,
-        nodeId: nodeConfig.nodeId,
-        finishedConnectorIds: [variableAudio.id],
-      }),
-    );
+            errMessages: [err.message != null ? err.message : 'Unknown error'],
+          });
+
+          subscriber.next({
+            type: NodeExecutionEventType.Finish,
+            nodeId: nodeConfig.nodeId,
+            finishedConnectorIds: [],
+          });
+        })
+        .finally(() => {
+          subscriber.complete();
+        });
+    });
   },
 };

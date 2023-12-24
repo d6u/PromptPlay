@@ -18,7 +18,8 @@ import {
 } from 'rxjs';
 import { CSVData } from '../components/route-flow/flow-canvas/side-panel/panel-evaluation-mode-csv/common';
 import { VariableIdToCsvColumnIndexMap } from '../components/route-flow/store/slice-csv-evaluation-preset';
-import { runSingle } from './run-single';
+import { useLocalStorageStore } from '../state/appState';
+import { FlowConfig, runSingle } from './run-single';
 
 export enum SingleRunEventType {
   Start = 'Start',
@@ -72,6 +73,19 @@ export function runForEachRow({
   repeatTimes: number;
   concurrencyLimit: number;
 }): Observable<SingleRunEvent> {
+  const { edges, nodeConfigsDict, variablesDict } = flowContent;
+
+  const flowConfig: FlowConfig = {
+    edgeList: edges.map((edge) => ({
+      sourceNode: edge.source,
+      sourceConnector: edge.sourceHandle,
+      targetNode: edge.target,
+      targetConnector: edge.targetHandle,
+    })),
+    nodeConfigMap: nodeConfigsDict,
+    connectorMap: variablesDict,
+  };
+
   return range(0, repeatCount).pipe(
     mergeMap((iteratonIndex) => {
       return from(csvBody).pipe(
@@ -81,7 +95,7 @@ export function runForEachRow({
       );
     }),
     mergeMap(({ iteratonIndex, row, rowIndex }) => {
-      // Map the column index into actual value in the CSV
+      // NOTE: Map the column index into actual value in the CSV
       const inputVariableMap = D.map(
         variableIdToCsvColumnIndexMap,
         (colIndex) => {
@@ -89,9 +103,13 @@ export function runForEachRow({
         },
       );
 
-      return runSingle({
-        flowContent,
-        inputVariableMap,
+      return runSingle(flowConfig, {
+        inputValueMap: inputVariableMap,
+        useStreaming: false,
+        openAiApiKey: useLocalStorageStore.getState().openAiApiKey,
+        huggingFaceApiToken:
+          useLocalStorageStore.getState().huggingFaceApiToken,
+        elevenLabsApiKey: useLocalStorageStore.getState().elevenLabsApiKey,
       }).pipe(
         mergeMap<NodeExecutionEvent, Observable<SingleRunEvent>>((event) => {
           switch (event.type) {
