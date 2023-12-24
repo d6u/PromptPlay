@@ -74,23 +74,38 @@ export const JAVASCRIPT_NODE_DEFINITION: NodeDefinition = {
         nodeConfig.javaScriptCode,
       );
 
-      fn(...pairs.map((pair) => pair[1])).then((value: unknown) => {
-        subscriber.next({
-          type: NodeExecutionEventType.VariableValues,
-          nodeId: nodeConfig.nodeId,
-          variableValuesLookUpDict: {
-            [outputVariable.id]: value,
-          },
-        });
+      fn(...pairs.map((pair) => pair[1]))
+        .then((value: unknown) => {
+          subscriber.next({
+            type: NodeExecutionEventType.VariableValues,
+            nodeId: nodeConfig.nodeId,
+            variableValuesLookUpDict: {
+              [outputVariable.id]: value,
+            },
+          });
 
-        subscriber.next({
-          type: NodeExecutionEventType.Finish,
-          nodeId: nodeConfig.nodeId,
-          finishedConnectorIds: [outputVariable.id],
-        });
+          subscriber.next({
+            type: NodeExecutionEventType.Finish,
+            nodeId: nodeConfig.nodeId,
+            finishedConnectorIds: [outputVariable.id],
+          });
+        })
+        .catch((err: Error) => {
+          subscriber.next({
+            type: NodeExecutionEventType.Errors,
+            nodeId: nodeConfig.nodeId,
+            errMessages: [err.message != null ? err.message : 'Unknown error'],
+          });
 
-        subscriber.complete();
-      });
+          subscriber.next({
+            type: NodeExecutionEventType.Finish,
+            nodeId: nodeConfig.nodeId,
+            finishedConnectorIds: [],
+          });
+        })
+        .finally(() => {
+          subscriber.complete();
+        });
     });
   },
 };

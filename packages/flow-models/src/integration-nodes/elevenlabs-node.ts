@@ -135,6 +135,19 @@ export const ELEVENLABS_NODE_DEFINITION: NodeDefinition = {
             });
           }
         })
+        .catch((err) => {
+          subscriber.next({
+            type: NodeExecutionEventType.Errors,
+            nodeId: nodeConfig.nodeId,
+            errMessages: [err.message != null ? err.message : 'Unknown error'],
+          });
+
+          subscriber.next({
+            type: NodeExecutionEventType.Finish,
+            nodeId: nodeConfig.nodeId,
+            finishedConnectorIds: [],
+          });
+        })
         .finally(() => {
           subscriber.complete();
         });
