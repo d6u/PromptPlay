@@ -43,14 +43,14 @@ export const CONDITION_NODE_DEFINITION: NodeDefinition = {
           id: asV3VariableID(`${node.id}/${randomId()}`),
           index: 0,
           nodeId: node.id,
-          eq: 'Value A',
+          expressionString: '$ = "Value A"',
         },
         {
           type: VariableType.Condition,
           id: asV3VariableID(`${node.id}/${randomId()}`),
           index: 1,
           nodeId: node.id,
-          eq: 'Value B',
+          expressionString: '$ = "Value B"',
         },
         {
           type: VariableType.ConditionTarget,
@@ -97,7 +97,7 @@ export const CONDITION_NODE_DEFINITION: NodeDefinition = {
         for (const condition of conditions) {
           let result: unknown;
 
-          const expression = jsonata(condition.eq);
+          const expression = jsonata(condition.expressionString);
           result = await expression.evaluate(inputValue);
 
           if (result) {

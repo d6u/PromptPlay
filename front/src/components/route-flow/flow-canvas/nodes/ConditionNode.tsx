@@ -137,10 +137,10 @@ export default function ConditionNode() {
           {conditions.map((condition, i) => (
             <NodeOutputModifyRow
               key={condition.id}
-              name={condition.eq}
+              name={condition.expressionString}
               isReadOnly={!isCurrentUserOwner}
-              onConfirmNameChange={(eq) => {
-                updateVariable(condition.id, { eq });
+              onConfirmNameChange={(expressionString) => {
+                updateVariable(condition.id, { expressionString });
               }}
               onRemove={() => {
                 removeVariable(condition.id);

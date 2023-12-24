@@ -107,7 +107,7 @@ export type Condition = {
   id: V3VariableID;
   nodeId: NodeID;
   index: number;
-  eq: string;
+  expressionString: string;
 };
 
 export type ConditionTarget = {

@@ -521,7 +521,7 @@ function handleAddingVariable(
           type: VariableType.Condition,
           nodeId,
           index,
-          eq: 'some value',
+          expressionString: 'some value',
         };
         draft[variableConfig.id] = variableConfig;
         break;
