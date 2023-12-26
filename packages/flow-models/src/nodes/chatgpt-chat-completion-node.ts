@@ -9,9 +9,9 @@ import Joi from 'joi';
 import { Observable, TimeoutError, endWith, map, retry, scan, tap } from 'rxjs';
 import invariant from 'ts-invariant';
 import {
+  ConnectorType,
   NodeInputVariable,
   NodeOutputVariable,
-  VariableType,
   VariableValueType,
   asV3VariableID,
 } from '../base/connector-types';
@@ -83,7 +83,7 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<V3ChatGPTCh
         },
         variableConfigList: [
           {
-            type: VariableType.NodeInput,
+            type: ConnectorType.NodeInput,
             id: asV3VariableID(`${node.id}/messages_in`),
             nodeId: node.id,
             name: 'messages',
@@ -91,7 +91,7 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<V3ChatGPTCh
             valueType: VariableValueType.Unknown,
           },
           {
-            type: VariableType.NodeOutput,
+            type: ConnectorType.NodeOutput,
             id: asV3VariableID(`${node.id}/content`),
             nodeId: node.id,
             name: 'content',
@@ -99,7 +99,7 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<V3ChatGPTCh
             valueType: VariableValueType.Unknown,
           },
           {
-            type: VariableType.NodeOutput,
+            type: ConnectorType.NodeOutput,
             id: asV3VariableID(`${node.id}/message`),
             nodeId: node.id,
             name: 'message',
@@ -107,7 +107,7 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<V3ChatGPTCh
             valueType: VariableValueType.Unknown,
           },
           {
-            type: VariableType.NodeOutput,
+            type: ConnectorType.NodeOutput,
             id: asV3VariableID(`${node.id}/messages_out`),
             nodeId: node.id,
             name: 'messages',
@@ -115,7 +115,7 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<V3ChatGPTCh
             valueType: VariableValueType.Unknown,
           },
           {
-            type: VariableType.ConditionTarget,
+            type: ConnectorType.ConditionTarget,
             id: asV3VariableID(`${node.id}/${randomId()}`),
             nodeId: node.id,
           },
@@ -156,7 +156,7 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<V3ChatGPTCh
 
         connectorList
           .filter((connector): connector is NodeInputVariable => {
-            return connector.type === VariableType.NodeInput;
+            return connector.type === ConnectorType.NodeInput;
           })
           .forEach((connector) => {
             argsMap[connector.name] = nodeInputValueMap[connector.id] ?? null;
@@ -164,17 +164,17 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<V3ChatGPTCh
 
         const variableContent = connectorList.find(
           (conn): conn is NodeOutputVariable => {
-            return conn.type === VariableType.NodeOutput && conn.index === 0;
+            return conn.type === ConnectorType.NodeOutput && conn.index === 0;
           },
         );
         const variableMessage = connectorList.find(
           (conn): conn is NodeOutputVariable => {
-            return conn.type === VariableType.NodeOutput && conn.index === 1;
+            return conn.type === ConnectorType.NodeOutput && conn.index === 1;
           },
         );
         const variableMessages = connectorList.find(
           (conn): conn is NodeOutputVariable => {
-            return conn.type === VariableType.NodeOutput && conn.index === 2;
+            return conn.type === ConnectorType.NodeOutput && conn.index === 2;
           },
         );
 

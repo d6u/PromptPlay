@@ -1,5 +1,5 @@
 import { createLens, Getter, Setter } from '@dhmk/zustand-lens';
-import { V3VariableID, V3VariableValueLookUpDict } from 'flow-models';
+import { ConnectorID, ConnectorResultMap } from 'flow-models';
 import invariant from 'ts-invariant';
 import { OperationResult } from 'urql';
 import { StateCreator } from 'zustand';
@@ -342,13 +342,13 @@ export type ColumnIndex = number & { readonly '': unique symbol };
 export type IterationIndex = number & { readonly '': unique symbol };
 
 export type VariableIdToCsvColumnIndexMap = Record<
-  V3VariableID,
+  ConnectorID,
   ColumnIndex | null | undefined
 >;
 
 export type RunOutputTable = Record<
   RowIndex,
-  Record<IterationIndex, V3VariableValueLookUpDict | undefined> | undefined
+  Record<IterationIndex, ConnectorResultMap | undefined> | undefined
 >;
 
 export type RunMetadataTable = Record<

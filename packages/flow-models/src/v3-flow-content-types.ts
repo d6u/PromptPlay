@@ -1,8 +1,5 @@
 import randomId from 'common-utils/randomId';
-import type {
-  V3VariableValueLookUpDict,
-  VariablesDict,
-} from './base/connector-types';
+import type { ConnectorMap, ConnectorResultMap } from './base/connector-types';
 import { NodeID } from './base/id-types';
 import type { V3ServerEdge } from './base/ui-edge-types';
 import type { ServerNode } from './base/ui-node-types';
@@ -14,8 +11,8 @@ export type V3FlowContent = {
   nodes: ServerNode[];
   edges: V3ServerEdge[];
   nodeConfigsDict: NodeConfigMap;
-  variablesDict: VariablesDict;
-  variableValueLookUpDicts: V3VariableValueLookUpDict[];
+  variablesDict: ConnectorMap;
+  variableValueLookUpDicts: ConnectorResultMap[];
 };
 
 export function createNode(type: NodeType, x: number, y: number): ServerNode {

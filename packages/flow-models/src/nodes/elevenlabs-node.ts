@@ -4,9 +4,9 @@ import Joi from 'joi';
 import { Observable } from 'rxjs';
 import invariant from 'ts-invariant';
 import {
+  ConnectorType,
   NodeInputVariable,
   NodeOutputVariable,
-  VariableType,
   VariableValueType,
   asV3VariableID,
 } from '../base/connector-types';
@@ -45,7 +45,7 @@ export const ELEVENLABS_NODE_DEFINITION: NodeDefinition<V3ElevenLabsNodeConfig> 
         },
         variableConfigList: [
           {
-            type: VariableType.NodeInput,
+            type: ConnectorType.NodeInput,
             id: asV3VariableID(`${node.id}/text`),
             name: 'text',
             nodeId: node.id,
@@ -53,7 +53,7 @@ export const ELEVENLABS_NODE_DEFINITION: NodeDefinition<V3ElevenLabsNodeConfig> 
             valueType: VariableValueType.Unknown,
           },
           {
-            type: VariableType.NodeOutput,
+            type: ConnectorType.NodeOutput,
             id: asV3VariableID(`${node.id}/audio`),
             name: 'audio',
             nodeId: node.id,
@@ -61,7 +61,7 @@ export const ELEVENLABS_NODE_DEFINITION: NodeDefinition<V3ElevenLabsNodeConfig> 
             valueType: VariableValueType.Audio,
           },
           {
-            type: VariableType.ConditionTarget,
+            type: ConnectorType.ConditionTarget,
             id: asV3VariableID(`${node.id}/${randomId()}`),
             nodeId: node.id,
           },
@@ -97,7 +97,7 @@ export const ELEVENLABS_NODE_DEFINITION: NodeDefinition<V3ElevenLabsNodeConfig> 
 
         connectorList
           .filter((connector): connector is NodeInputVariable => {
-            return connector.type === VariableType.NodeInput;
+            return connector.type === ConnectorType.NodeInput;
           })
           .forEach((connector) => {
             argsMap[connector.name] = nodeInputValueMap[connector.id] ?? null;
@@ -105,7 +105,7 @@ export const ELEVENLABS_NODE_DEFINITION: NodeDefinition<V3ElevenLabsNodeConfig> 
 
         const variableAudio = connectorList.find(
           (conn): conn is NodeOutputVariable => {
-            return conn.type === VariableType.NodeOutput && conn.index === 0;
+            return conn.type === ConnectorType.NodeOutput && conn.index === 0;
           },
         );
 

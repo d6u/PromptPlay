@@ -1,5 +1,9 @@
 import { A, D, pipe } from '@mobily/ts-belt';
 import {
+  ConnectorID,
+  ConnectorMap,
+  ConnectorResultMap,
+  ConnectorType,
   FlowExecutionContext,
   FlowOutputVariable,
   GraphEdge,
@@ -13,10 +17,6 @@ import {
   NodeID,
   NodeInputVariable,
   NodeType,
-  V3VariableID,
-  V3VariableValueLookUpDict,
-  VariableType,
-  VariablesDict,
   getNodeDefinitionForNodeTypeName,
 } from 'flow-models';
 import { produce } from 'immer';
@@ -36,11 +36,11 @@ import {
 export type FlowConfig = {
   edgeList: GraphEdge[];
   nodeConfigMap: NodeConfigMap;
-  connectorMap: VariablesDict;
+  connectorMap: ConnectorMap;
 };
 
 export type RunParams = {
-  inputValueMap: V3VariableValueLookUpDict;
+  inputValueMap: ConnectorResultMap;
   useStreaming: boolean;
   openAiApiKey: string | null;
   huggingFaceApiToken: string | null;
@@ -110,7 +110,7 @@ export const runSingle = (
 
             // NOTE: NodeExecutionParams
 
-            const nodeInputValueMap: V3VariableValueLookUpDict = {};
+            const nodeInputValueMap: ConnectorResultMap = {};
 
             if (nodeConfig.type === NodeType.InputNode) {
               connectorList.forEach((connector) => {
@@ -121,8 +121,8 @@ export const runSingle = (
               connectorList
                 .filter(
                   (conn): conn is FlowOutputVariable | NodeInputVariable =>
-                    conn.type === VariableType.NodeInput ||
-                    conn.type === VariableType.FlowOutput,
+                    conn.type === ConnectorType.NodeInput ||
+                    conn.type === ConnectorType.FlowOutput,
                 )
                 .forEach((connector) => {
                   const srcConnectorId =
@@ -187,7 +187,7 @@ export const runSingle = (
               event.variableValuesLookUpDict,
               D.toPairs,
               A.forEach(([id, value]) => {
-                draft[id as V3VariableID] = value;
+                draft[id as ConnectorID] = value;
               }),
             );
           });

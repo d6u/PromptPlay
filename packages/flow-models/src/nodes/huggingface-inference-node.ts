@@ -4,9 +4,9 @@ import Joi from 'joi';
 import { Observable } from 'rxjs';
 import invariant from 'ts-invariant';
 import {
+  ConnectorType,
   NodeInputVariable,
   NodeOutputVariable,
-  VariableType,
   VariableValueType,
   asV3VariableID,
 } from '../base/connector-types';
@@ -47,7 +47,7 @@ export const HUGGINGFACE_INFERENCE_NODE_DEFINITION: NodeDefinition<V3HuggingFace
         },
         variableConfigList: [
           {
-            type: VariableType.NodeInput,
+            type: ConnectorType.NodeInput,
             id: asV3VariableID(`${node.id}/parameters`),
             name: 'parameters',
             nodeId: node.id,
@@ -55,7 +55,7 @@ export const HUGGINGFACE_INFERENCE_NODE_DEFINITION: NodeDefinition<V3HuggingFace
             valueType: VariableValueType.Unknown,
           },
           {
-            type: VariableType.NodeOutput,
+            type: ConnectorType.NodeOutput,
             id: asV3VariableID(`${node.id}/output`),
             name: 'output',
             nodeId: node.id,
@@ -63,7 +63,7 @@ export const HUGGINGFACE_INFERENCE_NODE_DEFINITION: NodeDefinition<V3HuggingFace
             valueType: VariableValueType.Unknown,
           },
           {
-            type: VariableType.ConditionTarget,
+            type: ConnectorType.ConditionTarget,
             id: asV3VariableID(`${node.id}/${randomId()}`),
             nodeId: node.id,
           },
@@ -104,7 +104,7 @@ export const HUGGINGFACE_INFERENCE_NODE_DEFINITION: NodeDefinition<V3HuggingFace
 
         connectorList
           .filter((connector): connector is NodeInputVariable => {
-            return connector.type === VariableType.NodeInput;
+            return connector.type === ConnectorType.NodeInput;
           })
           .forEach((connector) => {
             argsMap[connector.name] = nodeInputValueMap[connector.id] ?? null;
@@ -112,7 +112,7 @@ export const HUGGINGFACE_INFERENCE_NODE_DEFINITION: NodeDefinition<V3HuggingFace
 
         const variableOutput = connectorList.find(
           (conn): conn is NodeOutputVariable => {
-            return conn.type === VariableType.NodeOutput && conn.index === 0;
+            return conn.type === ConnectorType.NodeOutput && conn.index === 0;
           },
         );
 

@@ -2,6 +2,8 @@ import { D, Option } from '@mobily/ts-belt';
 import {
   Condition,
   ConditionTarget,
+  ConnectorMap,
+  ConnectorType,
   FlowInputVariable,
   FlowOutputVariable,
   LocalNode,
@@ -9,8 +11,6 @@ import {
   NodeInputVariable,
   NodeOutputVariable,
   V3LocalEdge,
-  VariableType,
-  VariablesDict,
 } from 'flow-models';
 import { produce } from 'immer';
 import invariant from 'ts-invariant';
@@ -32,7 +32,7 @@ export function assignLocalNodeProperties(nodes: LocalNode[]): LocalNode[] {
 
 export function assignLocalEdgeProperties(
   edges: V3LocalEdge[],
-  connectorsDict: VariablesDict,
+  connectorsDict: ConnectorMap,
 ): V3LocalEdge[] {
   return produce(edges, (draft) => {
     for (const edge of draft) {
@@ -40,7 +40,7 @@ export function assignLocalEdgeProperties(
         const srcConnector = connectorsDict[edge.sourceHandle];
         invariant(srcConnector != null, 'srcConnector != null');
 
-        if (srcConnector.type === VariableType.Condition) {
+        if (srcConnector.type === ConnectorType.Condition) {
           // TODO: Render a different stroke color for condition edges,
           // but preserve the selected appearance.
           edge.style = CONDITION_EDGE_STYLE;
@@ -53,24 +53,24 @@ export function assignLocalEdgeProperties(
 }
 
 export type VariableTypeToVariableConfigTypeMap = {
-  [VariableType.NodeInput]: NodeInputVariable;
-  [VariableType.NodeOutput]: NodeOutputVariable;
-  [VariableType.FlowInput]: FlowInputVariable;
-  [VariableType.FlowOutput]: FlowOutputVariable;
-  [VariableType.Condition]: Condition;
-  [VariableType.ConditionTarget]: ConditionTarget;
+  [ConnectorType.NodeInput]: NodeInputVariable;
+  [ConnectorType.NodeOutput]: NodeOutputVariable;
+  [ConnectorType.FlowInput]: FlowInputVariable;
+  [ConnectorType.FlowOutput]: FlowOutputVariable;
+  [ConnectorType.Condition]: Condition;
+  [ConnectorType.ConditionTarget]: ConditionTarget;
 };
 
 export function selectVariables<
   T extends
-    | VariableType.NodeInput
-    | VariableType.NodeOutput
-    | VariableType.FlowInput
-    | VariableType.FlowOutput,
+    | ConnectorType.NodeInput
+    | ConnectorType.NodeOutput
+    | ConnectorType.FlowInput
+    | ConnectorType.FlowOutput,
 >(
   nodeId: NodeID,
   type: T,
-  variableConfigs: VariablesDict,
+  variableConfigs: ConnectorMap,
 ): VariableTypeToVariableConfigTypeMap[T][] {
   return D.values(variableConfigs)
     .filter((v): v is VariableTypeToVariableConfigTypeMap[T] => {
@@ -81,13 +81,13 @@ export function selectVariables<
 
 export function selectAllVariables<
   T extends
-    | VariableType.NodeInput
-    | VariableType.NodeOutput
-    | VariableType.FlowInput
-    | VariableType.FlowOutput,
+    | ConnectorType.NodeInput
+    | ConnectorType.NodeOutput
+    | ConnectorType.FlowInput
+    | ConnectorType.FlowOutput,
 >(
   type: T,
-  variableMap: VariablesDict,
+  variableMap: ConnectorMap,
 ): VariableTypeToVariableConfigTypeMap[T][] {
   return Object.values(variableMap)
     .filter((v): v is VariableTypeToVariableConfigTypeMap[T] => {
@@ -98,20 +98,20 @@ export function selectAllVariables<
 
 export function selectConditions(
   nodeId: NodeID,
-  variablesDict: VariablesDict,
+  variablesDict: ConnectorMap,
 ): Condition[] {
   return D.values(variablesDict)
     .filter((c): c is Condition => {
-      return c.nodeId === nodeId && c.type === VariableType.Condition;
+      return c.nodeId === nodeId && c.type === ConnectorType.Condition;
     })
     .sort((a, b) => a.index - b.index);
 }
 
 export function selectConditionTarget(
   nodeId: NodeID,
-  variablesDict: VariablesDict,
+  variablesDict: ConnectorMap,
 ): Option<ConditionTarget> {
   return D.values(variablesDict).find((c): c is ConditionTarget => {
-    return c.nodeId === nodeId && c.type === VariableType.ConditionTarget;
+    return c.nodeId === nodeId && c.type === ConnectorType.ConditionTarget;
   });
 }

@@ -1,20 +1,20 @@
 import { D, F, pipe } from '@mobily/ts-belt';
 import type { NodeConfigMap } from '.';
-import { VariableType, type VariablesDict } from '../base/connector-types';
-import type { NodeID, V3VariableID } from '../base/id-types';
+import { ConnectorType, type ConnectorMap } from '../base/connector-types';
+import type { ConnectorID, NodeID } from '../base/id-types';
 
 export type GraphEdge = {
   sourceNode: NodeID;
-  sourceConnector: V3VariableID;
+  sourceConnector: ConnectorID;
   targetNode: NodeID;
-  targetConnector: V3VariableID;
+  targetConnector: ConnectorID;
 };
 
 export default class FlowExecutionContext {
   constructor(
     edgeList: GraphEdge[],
     nodeConfigMap: NodeConfigMap,
-    connectorMap: VariablesDict,
+    connectorMap: ConnectorMap,
   ) {
     this.srcConnIdToDstNodeIdListMap = {};
     this.variableDstConnIdToSrcConnIdMap = {};
@@ -33,8 +33,8 @@ export default class FlowExecutionContext {
       // NOTE: We only need to map variable IDs. Condition IDs are not
       // mappable because one target ID can be connected to multiple source IDs.
       if (
-        srcConnector.type === VariableType.FlowInput ||
-        srcConnector.type === VariableType.NodeOutput
+        srcConnector.type === ConnectorType.FlowInput ||
+        srcConnector.type === ConnectorType.NodeOutput
       ) {
         this.variableDstConnIdToSrcConnIdMap[edge.targetConnector] =
           edge.sourceConnector;
@@ -44,8 +44,8 @@ export default class FlowExecutionContext {
     }
   }
 
-  private srcConnIdToDstNodeIdListMap: Record<V3VariableID, NodeID[]>;
-  private variableDstConnIdToSrcConnIdMap: Record<V3VariableID, V3VariableID>;
+  private srcConnIdToDstNodeIdListMap: Record<ConnectorID, NodeID[]>;
+  private variableDstConnIdToSrcConnIdMap: Record<ConnectorID, ConnectorID>;
   private nodeIndegreeMap: Record<NodeID, number> = {};
 
   getNodeIdListWithIndegreeZero(): NodeID[] {
@@ -57,13 +57,13 @@ export default class FlowExecutionContext {
     );
   }
 
-  getSrcConnectorIdFromDstConnectorId(connectorId: V3VariableID): V3VariableID {
+  getSrcConnectorIdFromDstConnectorId(connectorId: ConnectorID): ConnectorID {
     return this.variableDstConnIdToSrcConnIdMap[connectorId] ?? [];
   }
 
   // NOTE: Return the list of nodes that have indegree become zero after
   // reducing the indegrees.
-  reduceNodeIndegrees(srcConnectorIdList: V3VariableID[]): NodeID[] {
+  reduceNodeIndegrees(srcConnectorIdList: ConnectorID[]): NodeID[] {
     const indegreeZeroNodeIdList: NodeID[] = [];
 
     for (const srcConnectorId of srcConnectorIdList) {

@@ -1,6 +1,6 @@
 import { F } from '@mobily/ts-belt';
 import { Option, Select } from '@mui/joy';
-import { VariableType } from 'flow-models';
+import { ConnectorType } from 'flow-models';
 import { ReactNode, useMemo } from 'react';
 import { useFlowStore } from '../../../../../store/FlowStoreContext';
 import { selectAllVariables } from '../../../../../store/state-utils';
@@ -26,11 +26,11 @@ export default function TableHead(props: Props) {
   // !SECTION
 
   const flowInputVariables = useMemo(() => {
-    return selectAllVariables(VariableType.FlowInput, variablesDict);
+    return selectAllVariables(ConnectorType.FlowInput, variablesDict);
   }, [variablesDict]);
 
   const flowOutputVariables = useMemo(() => {
-    return selectAllVariables(VariableType.FlowOutput, variablesDict);
+    return selectAllVariables(ConnectorType.FlowOutput, variablesDict);
   }, [variablesDict]);
 
   const variableMapTableHeaderRowFirst: ReactNode[] = [];

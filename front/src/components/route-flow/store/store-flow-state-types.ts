@@ -1,10 +1,10 @@
 import {
+  ConnectorMap,
+  ConnectorResultMap,
   LocalNode,
   NodeConfigMap,
   NodeID,
   V3LocalEdge,
-  V3VariableValueLookUpDict,
-  VariablesDict,
 } from 'flow-models';
 import { CsvEvaluationPresetSlice } from './slice-csv-evaluation-preset';
 import { SliceFlowContentV3 } from './slice-flow-content-v3';
@@ -19,8 +19,8 @@ export type SliceFlowContentV3State = {
   nodes: LocalNode[];
   edges: V3LocalEdge[];
   nodeConfigsDict: NodeConfigMap;
-  variablesDict: VariablesDict;
-  variableValueLookUpDicts: V3VariableValueLookUpDict[];
+  variablesDict: ConnectorMap;
+  variableValueLookUpDicts: ConnectorResultMap[];
   // Local
   isFlowContentDirty: boolean;
   isFlowContentSaving: boolean;

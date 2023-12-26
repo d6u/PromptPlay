@@ -1,12 +1,12 @@
 import { A, D } from '@mobily/ts-belt';
 import {
+  ConnectorID,
+  ConnectorResultMap,
+  ConnectorType,
   NodeConfig,
   NodeID,
   NodeType,
   V3FlowContent,
-  V3VariableID,
-  V3VariableValueLookUpDict,
-  VariableType,
   createNode,
 } from 'flow-models';
 import { produce } from 'immer';
@@ -52,19 +52,19 @@ type SliceFlowContentV3Actions = {
   removeNode(id: NodeID): void;
   updateNodeConfig(nodeId: NodeID, change: Partial<NodeConfig>): void;
 
-  addVariable(nodeId: NodeID, type: VariableType, index: number): void;
-  removeVariable(variableId: V3VariableID): void;
+  addVariable(nodeId: NodeID, type: ConnectorType, index: number): void;
+  removeVariable(variableId: ConnectorID): void;
   updateVariable<
-    T extends VariableType,
+    T extends ConnectorType,
     R = VariableTypeToVariableConfigTypeMap[T],
   >(
-    variableId: V3VariableID,
+    variableId: ConnectorID,
     change: Partial<R>,
   ): void;
-  updateVariableValueMap(variableId: V3VariableID, value: unknown): void;
+  updateVariableValueMap(variableId: ConnectorID, value: unknown): void;
 
   // Local Only
-  getDefaultVariableValueLookUpDict(): V3VariableValueLookUpDict;
+  getDefaultVariableValueLookUpDict(): ConnectorResultMap;
 };
 
 export type SliceFlowContentV3 = SliceFlowContentV3State &
@@ -167,7 +167,7 @@ export const createFlowServerSliceV3: StateCreator<
   return {
     ...FLOW_SERVER_SLICE_INITIAL_STATE_V2,
 
-    getDefaultVariableValueLookUpDict(): V3VariableValueLookUpDict {
+    getDefaultVariableValueLookUpDict(): ConnectorResultMap {
       return get().variableValueLookUpDicts[0]!;
     },
 
@@ -210,7 +210,7 @@ export const createFlowServerSliceV3: StateCreator<
       });
     },
 
-    addVariable(nodeId: NodeID, type: VariableType, index: number): void {
+    addVariable(nodeId: NodeID, type: ConnectorType, index: number): void {
       startProcessingEventGraph({
         type: ChangeEventType.ADDING_VARIABLE,
         nodeId,
@@ -218,16 +218,16 @@ export const createFlowServerSliceV3: StateCreator<
         index,
       });
     },
-    removeVariable(variableId: V3VariableID): void {
+    removeVariable(variableId: ConnectorID): void {
       startProcessingEventGraph({
         type: ChangeEventType.REMOVING_VARIABLE,
         variableId,
       });
     },
     updateVariable<
-      T extends VariableType,
+      T extends ConnectorType,
       R = VariableTypeToVariableConfigTypeMap[T],
-    >(variableId: V3VariableID, change: Partial<R>): void {
+    >(variableId: ConnectorID, change: Partial<R>): void {
       startProcessingEventGraph({
         type: ChangeEventType.UPDATING_VARIABLE,
         variableId,
@@ -235,7 +235,7 @@ export const createFlowServerSliceV3: StateCreator<
       });
     },
 
-    updateVariableValueMap(variableId: V3VariableID, value: unknown): void {
+    updateVariableValueMap(variableId: ConnectorID, value: unknown): void {
       const variableValueMaps = produce(
         get().variableValueLookUpDicts,
         (draft) => {

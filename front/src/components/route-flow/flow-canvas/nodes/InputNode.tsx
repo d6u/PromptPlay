@@ -1,5 +1,10 @@
 import IconButton from '@mui/joy/IconButton';
-import { NodeID, NodeType, V3InputNodeConfig, VariableType } from 'flow-models';
+import {
+  ConnectorType,
+  NodeID,
+  NodeType,
+  V3InputNodeConfig,
+} from 'flow-models';
 import { useContext, useMemo } from 'react';
 import { Position, useNodeId, useUpdateNodeInternals } from 'reactflow';
 import { useStore } from 'zustand';
@@ -41,7 +46,7 @@ export default function InputNode() {
   // !SECTION
 
   const flowInputs = useMemo(() => {
-    return selectVariables(nodeId, VariableType.FlowInput, variablesDict);
+    return selectVariables(nodeId, ConnectorType.FlowInput, variablesDict);
   }, [nodeId, variablesDict]);
 
   const nodeConfig = useMemo(
@@ -79,7 +84,7 @@ export default function InputNode() {
           {isCurrentUserOwner && (
             <AddVariableButton
               onClick={() => {
-                addVariable(nodeId, VariableType.FlowInput, flowInputs.length);
+                addVariable(nodeId, ConnectorType.FlowInput, flowInputs.length);
                 updateNodeInternals(nodeId);
               }}
             />

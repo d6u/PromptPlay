@@ -6,7 +6,7 @@ import {
   RadioGroup,
   Textarea,
 } from '@mui/joy';
-import { NodeType, VariableType } from 'flow-models';
+import { ConnectorType, NodeType } from 'flow-models';
 import { ChatGPTMessageRole } from 'integrations/openai';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import invariant from 'ts-invariant';
@@ -47,7 +47,7 @@ export default function PanelChatGPTMessageConfig() {
   const outputs = useMemo(() => {
     return selectVariables(
       detailPanelSelectedNodeId,
-      VariableType.NodeOutput,
+      ConnectorType.NodeOutput,
       variablesDict,
     );
   }, [detailPanelSelectedNodeId, variablesDict]);

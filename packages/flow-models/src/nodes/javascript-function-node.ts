@@ -3,8 +3,8 @@ import Joi from 'joi';
 import { Observable } from 'rxjs';
 import invariant from 'ts-invariant';
 import {
+  ConnectorType,
   NodeInputVariable,
-  VariableType,
   VariableValueType,
   asV3VariableID,
 } from '../base/connector-types';
@@ -44,7 +44,7 @@ export const JAVASCRIPT_NODE_DEFINITION: NodeDefinition<V3JavaScriptFunctionNode
         },
         variableConfigList: [
           {
-            type: VariableType.NodeOutput,
+            type: ConnectorType.NodeOutput,
             id: asV3VariableID(`${node.id}/output`),
             nodeId: node.id,
             name: 'output',
@@ -52,7 +52,7 @@ export const JAVASCRIPT_NODE_DEFINITION: NodeDefinition<V3JavaScriptFunctionNode
             valueType: VariableValueType.Unknown,
           },
           {
-            type: VariableType.ConditionTarget,
+            type: ConnectorType.ConditionTarget,
             id: asV3VariableID(`${node.id}/${randomId()}`),
             nodeId: node.id,
           },
@@ -74,7 +74,7 @@ export const JAVASCRIPT_NODE_DEFINITION: NodeDefinition<V3JavaScriptFunctionNode
 
         const pairs: [string, unknown][] = connectorList
           .filter((connector): connector is NodeInputVariable => {
-            return connector.type === VariableType.NodeInput;
+            return connector.type === ConnectorType.NodeInput;
           })
           .sort((a, b) => a.index - b.index)
           .map((connector) => {
@@ -83,7 +83,7 @@ export const JAVASCRIPT_NODE_DEFINITION: NodeDefinition<V3JavaScriptFunctionNode
 
         const outputVariable = connectorList.find(
           (connector): connector is NodeInputVariable =>
-            connector.type === VariableType.NodeOutput,
+            connector.type === ConnectorType.NodeOutput,
         );
 
         invariant(outputVariable != null);

@@ -1,4 +1,4 @@
-import { VariableType } from 'flow-models';
+import { ConnectorType } from 'flow-models';
 import { ReactNode, useMemo } from 'react';
 import { useStore } from 'zustand';
 import { OverallStatus } from '../../../../../../../flow-run/run-types';
@@ -31,11 +31,11 @@ export default function TableBody(props: Props) {
   // !SECTION
 
   const flowInputVariables = useMemo(() => {
-    return selectAllVariables(VariableType.FlowInput, variableMap);
+    return selectAllVariables(ConnectorType.FlowInput, variableMap);
   }, [variableMap]);
 
   const flowOutputVariables = useMemo(() => {
-    return selectAllVariables(VariableType.FlowOutput, variableMap);
+    return selectAllVariables(ConnectorType.FlowOutput, variableMap);
   }, [variableMap]);
 
   const variableMapTableBodyRows: ReactNode[] = [];

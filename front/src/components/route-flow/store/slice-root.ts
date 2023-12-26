@@ -1,16 +1,16 @@
 import { D, pipe } from '@mobily/ts-belt';
 import randomId from 'common-utils/randomId';
 import {
+  Connector,
+  ConnectorID,
+  ConnectorMap,
+  ConnectorResultMap,
+  ConnectorType,
   FlowInputVariable,
   NodeExecutionEventType,
   NodeID,
   NodeType,
   V3FlowContent,
-  V3VariableID,
-  V3VariableValueLookUpDict,
-  Variable,
-  VariableType,
-  VariablesDict,
   asV3VariableID,
 } from 'flow-models';
 import { produce } from 'immer';
@@ -164,7 +164,7 @@ export function createRootSlice(
                       D.values(draft.variablesDict).find((connector) => {
                         return (
                           connector.nodeId === nodeConfig.nodeId &&
-                          connector.type === VariableType.ConditionTarget
+                          connector.type === ConnectorType.ConditionTarget
                         );
                       }) != null
                     ) {
@@ -176,7 +176,7 @@ export function createRootSlice(
                     );
 
                     draft.variablesDict[connectorId] = {
-                      type: VariableType.ConditionTarget,
+                      type: ConnectorType.ConditionTarget,
                       id: connectorId,
                       nodeId: nodeConfig.nodeId,
                     };
@@ -355,8 +355,8 @@ export function createRootSlice(
     onEdgeConnectStart(params: OnConnectStartParams): void {
       set((state) => {
         const connector = state.variablesDict[
-          params.handleId as V3VariableID
-        ] as Variable | undefined;
+          params.handleId as ConnectorID
+        ] as Connector | undefined;
 
         if (connector == null) {
           return state;
@@ -364,8 +364,8 @@ export function createRootSlice(
 
         return {
           connectStartEdgeType:
-            connector.type === VariableType.Condition ||
-            connector.type === VariableType.ConditionTarget
+            connector.type === ConnectorType.Condition ||
+            connector.type === ConnectorType.ConditionTarget
               ? ConnectStartEdgeType.Condition
               : ConnectStartEdgeType.Variable,
           connectStartStartNodeId: params.nodeId as NodeID,
@@ -384,13 +384,13 @@ export function createRootSlice(
 // SECTION: Utilities
 
 function selectFlowInputVariableIdToValueMap(
-  variablesDict: VariablesDict,
-  variableValueLookUpDict: V3VariableValueLookUpDict,
-): V3VariableValueLookUpDict {
+  variablesDict: ConnectorMap,
+  variableValueLookUpDict: ConnectorResultMap,
+): ConnectorResultMap {
   return pipe(
     variablesDict,
     D.filter((connector): connector is FlowInputVariable => {
-      return connector.type === VariableType.FlowInput;
+      return connector.type === ConnectorType.FlowInput;
     }),
     D.map((connector) => {
       invariant(connector != null);

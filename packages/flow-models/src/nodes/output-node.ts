@@ -4,9 +4,9 @@ import Joi from 'joi';
 import { Observable } from 'rxjs';
 import invariant from 'ts-invariant';
 import {
+  ConnectorResultMap,
+  ConnectorType,
   FlowOutputVariable,
-  V3VariableValueLookUpDict,
-  VariableType,
   VariableValueType,
   asV3VariableID,
 } from '../base/connector-types';
@@ -42,7 +42,7 @@ export const OUTPUT_NODE_DEFINITION: NodeDefinition<V3OutputNodeConfig> = {
       },
       variableConfigList: [
         {
-          type: VariableType.FlowOutput,
+          type: ConnectorType.FlowOutput,
           id: asV3VariableID(`${node.id}/${randomId()}`),
           nodeId: node.id,
           index: 0,
@@ -65,11 +65,11 @@ export const OUTPUT_NODE_DEFINITION: NodeDefinition<V3OutputNodeConfig> = {
         nodeId: nodeConfig.nodeId,
       });
 
-      const flowOutputValueMap: V3VariableValueLookUpDict = {};
+      const flowOutputValueMap: ConnectorResultMap = {};
 
       connectorList
         .filter((connector): connector is FlowOutputVariable => {
-          return connector.type === VariableType.FlowOutput;
+          return connector.type === ConnectorType.FlowOutput;
         })
         .forEach((connector) => {
           flowOutputValueMap[connector.id] = nodeInputValueMap[connector.id];

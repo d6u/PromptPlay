@@ -4,9 +4,9 @@ import mustache from 'mustache';
 import { Observable } from 'rxjs';
 import invariant from 'ts-invariant';
 import {
+  ConnectorType,
   NodeInputVariable,
   NodeOutputVariable,
-  VariableType,
   VariableValueType,
   asV3VariableID,
 } from '../base/connector-types';
@@ -46,7 +46,7 @@ export const TEXT_TEMPLATE_NODE_DEFINITION: NodeDefinition<V3TextTemplateNodeCon
         },
         variableConfigList: [
           {
-            type: VariableType.NodeInput,
+            type: ConnectorType.NodeInput,
             id: asV3VariableID(`${node.id}/${randomId()}`),
             name: 'topic',
             nodeId: node.id,
@@ -54,7 +54,7 @@ export const TEXT_TEMPLATE_NODE_DEFINITION: NodeDefinition<V3TextTemplateNodeCon
             valueType: VariableValueType.Unknown,
           },
           {
-            type: VariableType.NodeOutput,
+            type: ConnectorType.NodeOutput,
             id: asV3VariableID(`${node.id}/content`),
             name: 'content',
             nodeId: node.id,
@@ -62,7 +62,7 @@ export const TEXT_TEMPLATE_NODE_DEFINITION: NodeDefinition<V3TextTemplateNodeCon
             valueType: VariableValueType.Unknown,
           },
           {
-            type: VariableType.ConditionTarget,
+            type: ConnectorType.ConditionTarget,
             id: asV3VariableID(`${node.id}/${randomId()}`),
             nodeId: node.id,
           },
@@ -86,7 +86,7 @@ export const TEXT_TEMPLATE_NODE_DEFINITION: NodeDefinition<V3TextTemplateNodeCon
 
         connectorList
           .filter((connector): connector is NodeInputVariable => {
-            return connector.type === VariableType.NodeInput;
+            return connector.type === ConnectorType.NodeInput;
           })
           .forEach((connector) => {
             argsMap[connector.name] = nodeInputValueMap[connector.id] ?? null;
@@ -94,7 +94,7 @@ export const TEXT_TEMPLATE_NODE_DEFINITION: NodeDefinition<V3TextTemplateNodeCon
 
         const outputVariable = connectorList.find(
           (connector): connector is NodeOutputVariable => {
-            return connector.type === VariableType.NodeOutput;
+            return connector.type === ConnectorType.NodeOutput;
           },
         );
 

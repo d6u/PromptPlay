@@ -2,10 +2,10 @@ import FormControl from '@mui/joy/FormControl';
 import FormLabel from '@mui/joy/FormLabel';
 import Textarea from '@mui/joy/Textarea';
 import {
+  ConnectorType,
   NodeID,
   NodeType,
   V3JavaScriptFunctionNodeConfig,
-  VariableType,
 } from 'flow-models';
 import { useContext, useMemo, useState } from 'react';
 import { Position, useNodeId, useUpdateNodeInternals } from 'reactflow';
@@ -60,11 +60,11 @@ export default function JavaScriptFunctionNode() {
   // !SECTION
 
   const inputs = useMemo(() => {
-    return selectVariables(nodeId, VariableType.NodeInput, variablesDict);
+    return selectVariables(nodeId, ConnectorType.NodeInput, variablesDict);
   }, [nodeId, variablesDict]);
 
   const outputs = useMemo(() => {
-    return selectVariables(nodeId, VariableType.NodeOutput, variablesDict);
+    return selectVariables(nodeId, ConnectorType.NodeOutput, variablesDict);
   }, [nodeId, variablesDict]);
 
   const nodeConfig = useMemo(
@@ -132,7 +132,7 @@ export default function JavaScriptFunctionNode() {
           <SmallSection>
             <AddVariableButton
               onClick={() => {
-                addVariable(nodeId, VariableType.NodeInput, inputs.length);
+                addVariable(nodeId, ConnectorType.NodeInput, inputs.length);
                 updateNodeInternals(nodeId);
               }}
             />

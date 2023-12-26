@@ -1,6 +1,6 @@
 import { A, D } from '@mobily/ts-belt';
 import { AccordionGroup } from '@mui/joy';
-import { V3VariableValueLookUpDict } from 'flow-models';
+import { ConnectorResultMap } from 'flow-models';
 import { produce } from 'immer';
 import Papa from 'papaparse';
 import posthog from 'posthog-js';
@@ -82,7 +82,7 @@ export default function PresetContent() {
     // Reset result table
     setGeneratedResult(
       A.makeWithIndex(csvBody.length, () =>
-        A.makeWithIndex(repeatTimes, D.makeEmpty<V3VariableValueLookUpDict>),
+        A.makeWithIndex(repeatTimes, D.makeEmpty<ConnectorResultMap>),
       ),
       /* replace */ true,
     );

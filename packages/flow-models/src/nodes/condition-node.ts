@@ -7,12 +7,12 @@ import invariant from 'ts-invariant';
 import {
   Condition,
   ConditionResult,
+  ConnectorType,
   NodeInputVariable,
-  VariableType,
   VariableValueType,
   asV3VariableID,
 } from '../base/connector-types';
-import { NodeID, V3VariableID } from '../base/id-types';
+import { ConnectorID, NodeID } from '../base/id-types';
 import {
   NodeDefinition,
   NodeExecutionEvent,
@@ -48,7 +48,7 @@ export const CONDITION_NODE_DEFINITION: NodeDefinition<V3ConditionNodeConfig> =
         },
         variableConfigList: [
           {
-            type: VariableType.NodeInput,
+            type: ConnectorType.NodeInput,
             id: asV3VariableID(`${node.id}/input`),
             nodeId: node.id,
             index: 0,
@@ -56,28 +56,28 @@ export const CONDITION_NODE_DEFINITION: NodeDefinition<V3ConditionNodeConfig> =
             valueType: VariableValueType.Unknown,
           },
           {
-            type: VariableType.Condition,
+            type: ConnectorType.Condition,
             id: asV3VariableID(`${node.id}/${randomId()}`),
             index: -1, // Special condition for default case
             nodeId: node.id,
             expressionString: '',
           },
           {
-            type: VariableType.Condition,
+            type: ConnectorType.Condition,
             id: asV3VariableID(`${node.id}/${randomId()}`),
             index: 0,
             nodeId: node.id,
             expressionString: '$ = "Value A"',
           },
           {
-            type: VariableType.Condition,
+            type: ConnectorType.Condition,
             id: asV3VariableID(`${node.id}/${randomId()}`),
             index: 1,
             nodeId: node.id,
             expressionString: '$ = "Value B"',
           },
           {
-            type: VariableType.ConditionTarget,
+            type: ConnectorType.ConditionTarget,
             id: asV3VariableID(`${node.id}/${randomId()}`),
             nodeId: node.id,
           },
@@ -100,7 +100,7 @@ export const CONDITION_NODE_DEFINITION: NodeDefinition<V3ConditionNodeConfig> =
         (async function () {
           const inputVariable = connectorList.find(
             (connector): connector is NodeInputVariable => {
-              return connector.type === VariableType.NodeInput;
+              return connector.type === ConnectorType.NodeInput;
             },
           );
 
@@ -110,14 +110,14 @@ export const CONDITION_NODE_DEFINITION: NodeDefinition<V3ConditionNodeConfig> =
 
           const conditions = connectorList
             .filter((connector): connector is Condition => {
-              return connector.type === VariableType.Condition;
+              return connector.type === ConnectorType.Condition;
             })
             .sort((a, b) => a.index - b.index);
 
           const defaultCaseCondition = conditions[0];
           const normalConditions = conditions.slice(1);
 
-          const conditionResultMap: Record<V3VariableID, ConditionResult> = {};
+          const conditionResultMap: Record<ConnectorID, ConditionResult> = {};
 
           // NOTE: Main Logic
 

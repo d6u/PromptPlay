@@ -5,4 +5,4 @@ export type NodeID = string & { readonly '': unique symbol };
 
 export type EdgeID = string & { readonly '': unique symbol };
 
-export type V3VariableID = string & { readonly '': unique symbol };
+export type ConnectorID = string & { readonly '': unique symbol };

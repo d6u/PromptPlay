@@ -8,7 +8,7 @@ import {
   Input,
   Table,
 } from '@mui/joy';
-import { VariableType } from 'flow-models';
+import { ConnectorType } from 'flow-models';
 import Papa from 'papaparse';
 import posthog from 'posthog-js';
 import { useMemo } from 'react';
@@ -48,11 +48,11 @@ export default function EvaluationSectionConfigCSV(props: Props) {
   // !SECTION
 
   const flowInputVariables = useMemo(() => {
-    return selectAllVariables(VariableType.FlowInput, variablesDict);
+    return selectAllVariables(ConnectorType.FlowInput, variablesDict);
   }, [variablesDict]);
 
   const flowOutputVariables = useMemo(() => {
-    return selectAllVariables(VariableType.FlowOutput, variablesDict);
+    return selectAllVariables(ConnectorType.FlowOutput, variablesDict);
   }, [variablesDict]);
 
   return (
