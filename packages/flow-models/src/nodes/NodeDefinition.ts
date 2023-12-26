@@ -1,11 +1,14 @@
 import type { Observable } from 'rxjs';
+import type {
+  V3VariableValueLookUpDict,
+  Variable,
+} from '../base/connector-types';
+import type { NodeID, V3VariableID } from '../base/id-types';
+import type { LocalNode } from '../base/ui-node-types';
 import NodeExecutionContext from './NodeExecutionContext';
-import type { V3VariableValueLookUpDict, Variable } from './connector-types';
-import type { NodeID, V3VariableID } from './id-types';
-import type { LocalNode } from './local-node-types';
 
 // NOTE: This is a circular dependency, only import type
-import type { NodeConfig } from '../nodes';
+import type { NodeConfig } from '.';
 
 export interface NodeDefinition<T extends NodeConfig> {
   nodeType: T['type'];

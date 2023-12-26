@@ -1,6 +1,6 @@
 import Joi from 'joi';
-import { NodeDefinition } from '../base/NodeDefinition';
 import { NodeID } from '../base/id-types';
+import { NodeDefinition } from './NodeDefinition';
 import NodeType from './NodeType';
 import {
   CHATGPT_CHAT_COMPLETION_NODE_DEFINITION,

@@ -1,11 +1,12 @@
-import type { Edge } from 'reactflow';
-import { NodeConfigMap } from '../nodes';
+import randomId from 'common-utils/randomId';
 import type {
   V3VariableValueLookUpDict,
   VariablesDict,
-} from './connector-types';
-import type { EdgeID, NodeID, V3VariableID } from './id-types';
-import type { ServerNode } from './local-node-types';
+} from './base/connector-types';
+import { NodeID } from './base/id-types';
+import type { V3ServerEdge } from './base/ui-edge-types';
+import type { ServerNode } from './base/ui-node-types';
+import { NodeConfigMap, NodeType } from './nodes';
 
 // ANCHOR: V3 Root Types
 
@@ -17,21 +18,14 @@ export type V3FlowContent = {
   variableValueLookUpDicts: V3VariableValueLookUpDict[];
 };
 
-// ANCHOR: V3 Edge Types
-
-export type V3ServerEdge = {
-  id: EdgeID;
-  source: NodeID;
-  sourceHandle: V3VariableID;
-  target: NodeID;
-  targetHandle: V3VariableID;
-};
-
-export type V3LocalEdge = Omit<
-  Edge<never>,
-  'id' | 'source' | 'sourceHandle' | 'target' | 'targetHandle'
-> &
-  V3ServerEdge;
+export function createNode(type: NodeType, x: number, y: number): ServerNode {
+  return {
+    id: randomId() as NodeID,
+    type,
+    position: { x, y },
+    data: null,
+  };
+}
 
 // ANCHOR: Legacy Types
 

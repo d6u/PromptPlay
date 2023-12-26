@@ -1,7 +1,7 @@
 import { D, F, pipe } from '@mobily/ts-belt';
-import type { NodeConfigMap } from '../nodes';
-import { VariableType, type VariablesDict } from './connector-types';
-import type { NodeID, V3VariableID } from './id-types';
+import type { NodeConfigMap } from '.';
+import { VariableType, type VariablesDict } from '../base/connector-types';
+import type { NodeID, V3VariableID } from '../base/id-types';
 
 export type GraphEdge = {
   sourceNode: NodeID;

@@ -3,17 +3,17 @@ import Joi from 'joi';
 import { Observable } from 'rxjs';
 import invariant from 'ts-invariant';
 import {
-  NodeDefinition,
-  NodeExecutionEvent,
-  NodeExecutionEventType,
-} from '../base/NodeDefinition';
-import {
   NodeInputVariable,
   VariableType,
   VariableValueType,
+  asV3VariableID,
 } from '../base/connector-types';
 import { NodeID } from '../base/id-types';
-import { asV3VariableID } from '../base/v3-flow-utils';
+import {
+  NodeDefinition,
+  NodeExecutionEvent,
+  NodeExecutionEventType,
+} from './NodeDefinition';
 import NodeType from './NodeType';
 
 export type V3JavaScriptFunctionNodeConfig = {

@@ -9,18 +9,18 @@ import Joi from 'joi';
 import { Observable, TimeoutError, endWith, map, retry, scan, tap } from 'rxjs';
 import invariant from 'ts-invariant';
 import {
-  NodeDefinition,
-  NodeExecutionEvent,
-  NodeExecutionEventType,
-} from '../base/NodeDefinition';
-import {
   NodeInputVariable,
   NodeOutputVariable,
   VariableType,
   VariableValueType,
+  asV3VariableID,
 } from '../base/connector-types';
 import { NodeID } from '../base/id-types';
-import { asV3VariableID } from '../base/v3-flow-utils';
+import {
+  NodeDefinition,
+  NodeExecutionEvent,
+  NodeExecutionEventType,
+} from './NodeDefinition';
 import NodeType from './NodeType';
 
 export type V3ChatGPTChatCompletionNodeConfig = {

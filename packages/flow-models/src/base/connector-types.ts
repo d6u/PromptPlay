@@ -57,6 +57,10 @@ export type NodeOutputVariable = VariableConfigCommon & {
   valueType: VariableValueType.Unknown | VariableValueType.Audio;
 };
 
+export function asV3VariableID(id: string): V3VariableID {
+  return id as unknown as V3VariableID;
+}
+
 // ANCHOR: Condition Types
 
 export type Condition = {
