@@ -1,4 +1,4 @@
-import { NodeDefinition } from './src/node-definition-base-types/NodeDefinition';
+import { NodeDefinition } from './src/node-definition-base-types/node-definition-interface';
 import {
   BULTIN_NODE_TYPES_ORDERED_ARRAY,
   INTEGRATION_NODE_TYPES_ORDERED_ARRAY,
@@ -13,8 +13,8 @@ export {
   default as FlowExecutionContext,
   type GraphEdge,
 } from './src/node-definition-base-types/FlowExecutionContext';
-export * from './src/node-definition-base-types/NodeDefinition';
 export { default as NodeExecutionContext } from './src/node-definition-base-types/NodeExecutionContext';
+export * from './src/node-definition-base-types/node-definition-interface';
 export * from './src/node-definitions';
 export * from './src/v3-flow-content-types';
 

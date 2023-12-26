@@ -17,8 +17,8 @@ import {
   NodeDefinition,
   NodeExecutionEvent,
   NodeExecutionEventType,
-} from '../node-definition-base-types/NodeDefinition';
-import NodeType from '../node-definition-base-types/NodeType';
+  NodeType,
+} from '../node-definition-base-types';
 
 export type V3ChatGPTMessageNodeConfig = {
   type: NodeType.ChatGPTMessageNode;

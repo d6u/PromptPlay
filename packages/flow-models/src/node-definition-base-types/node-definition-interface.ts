@@ -5,10 +5,8 @@ import type {
   ConnectorResultMap,
   NodeID,
 } from '../base-types';
-import NodeExecutionContext from './NodeExecutionContext';
-
-// NOTE: This is a circular dependency, only import type
 import type { NodeConfig } from '../node-definitions/index';
+import NodeExecutionContext from './NodeExecutionContext';
 
 export interface NodeDefinition<T extends NodeConfig> {
   nodeType: T['type'];

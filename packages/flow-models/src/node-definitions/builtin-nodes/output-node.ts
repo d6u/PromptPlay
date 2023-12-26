@@ -9,14 +9,14 @@ import {
   FlowOutputVariable,
   VariableValueType,
   asV3VariableID,
-} from '../base-types/connector-types';
-import { NodeID } from '../base-types/id-types';
+} from '../../base-types/connector-types';
+import { NodeID } from '../../base-types/id-types';
 import {
   NodeDefinition,
   NodeExecutionEvent,
   NodeExecutionEventType,
-} from '../node-definition-base-types/NodeDefinition';
-import NodeType from '../node-definition-base-types/NodeType';
+  NodeType,
+} from '../../node-definition-base-types';
 
 export type V3OutputNodeConfig = {
   type: NodeType.OutputNode;
