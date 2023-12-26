@@ -5,7 +5,7 @@ import {
   EdgeSchema,
   NodeSchema,
 } from './base-types';
-import { NodeConfigMapSchema } from './nodes';
+import { NodeConfigMapSchema } from './node-definitions';
 
 export const FlowConfigSchema = Joi.object({
   edges: Joi.array().items(EdgeSchema),

@@ -5,7 +5,7 @@ import {
   type ConnectorMap,
   type NodeID,
 } from '../base-types';
-import type { NodeConfigMap } from '../nodes';
+import type { NodeConfigMap } from '../node-definitions';
 
 export type GraphEdge = {
   sourceNode: NodeID;

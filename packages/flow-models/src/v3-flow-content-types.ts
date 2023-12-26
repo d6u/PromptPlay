@@ -6,7 +6,7 @@ import type {
   ServerNode,
   V3ServerEdge,
 } from './base-types';
-import { NodeConfigMap, NodeType } from './nodes';
+import { NodeConfigMap, NodeType } from './node-definitions';
 
 // ANCHOR: V3 Root Types
 

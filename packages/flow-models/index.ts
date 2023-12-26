@@ -5,7 +5,7 @@ import {
   NODE_TYPE_TO_NODE_DEFINITION_MAP,
   NodeType,
   NodeTypeToNodeConfigTypeMap,
-} from './src/nodes';
+} from './src/node-definitions';
 
 export * from './src/base-types';
 export * from './src/flow-config-schema';
@@ -15,7 +15,7 @@ export {
 } from './src/node-definition-base-types/FlowExecutionContext';
 export * from './src/node-definition-base-types/NodeDefinition';
 export { default as NodeExecutionContext } from './src/node-definition-base-types/NodeExecutionContext';
-export * from './src/nodes';
+export * from './src/node-definitions';
 export * from './src/v3-flow-content-types';
 
 export function getNodeDefinitionForNodeTypeName<T extends NodeType>(

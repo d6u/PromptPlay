@@ -3,7 +3,7 @@ import type { Node } from 'reactflow';
 import type { NodeID } from './id-types';
 
 // NOTE: This is a circular dependency, only import type
-import type { NodeType } from '../nodes';
+import type { NodeType } from '../node-definitions';
 
 export type ServerNode = {
   id: NodeID;
