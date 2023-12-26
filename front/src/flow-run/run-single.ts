@@ -3,6 +3,8 @@ import {
   FlowExecutionContext,
   FlowOutputVariable,
   GraphEdge,
+  NodeConfig,
+  NodeConfigMap,
   NodeExecutionConfig,
   NodeExecutionContext,
   NodeExecutionEvent,
@@ -11,8 +13,6 @@ import {
   NodeID,
   NodeInputVariable,
   NodeType,
-  V3NodeConfig,
-  V3NodeConfigsDict,
   V3VariableID,
   V3VariableValueLookUpDict,
   VariableType,
@@ -35,7 +35,7 @@ import {
 
 export type FlowConfig = {
   edgeList: GraphEdge[];
-  nodeConfigMap: V3NodeConfigsDict;
+  nodeConfigMap: NodeConfigMap;
   connectorMap: VariablesDict;
 };
 
@@ -85,7 +85,7 @@ export const runSingle = (
       mergeMap((nodeIdList): Observable<Observable<NodeExecutionEvent>> => {
         return pipe(
           nodeIdList,
-          A.map((nodeId): V3NodeConfig => nodeConfigMap[nodeId]),
+          A.map((nodeId): NodeConfig => nodeConfigMap[nodeId]),
           A.map((nodeConfig): Observable<NodeExecutionEvent> => {
             const { createNodeExecutionObservable: execute } =
               getNodeDefinitionForNodeTypeName(nodeConfig.type);
@@ -102,7 +102,8 @@ export const runSingle = (
               A.filter((connector) => connector.nodeId === nodeConfig.nodeId),
             );
 
-            const config: NodeExecutionConfig = {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const config: NodeExecutionConfig<any> = {
               nodeConfig,
               connectorList,
             };

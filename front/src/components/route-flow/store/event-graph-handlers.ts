@@ -7,13 +7,13 @@ import {
   FlowInputVariable,
   FlowOutputVariable,
   LocalNode,
+  NodeConfig,
+  NodeConfigMap,
   NodeID,
   NodeInputVariable,
   NodeOutputVariable,
   NodeType,
   V3LocalEdge,
-  V3NodeConfig,
-  V3NodeConfigsDict,
   V3VariableID,
   V3VariableValueLookUpDict,
   Variable,
@@ -200,7 +200,7 @@ function handleRfEdgeChanges(
 function handleRfNodesChange(
   changes: NodeChange[],
   prevNodes: LocalNode[],
-  prevNodeConfigs: V3NodeConfigsDict,
+  prevNodeConfigs: NodeConfigMap,
 ): EventHandlerResult {
   const content: Partial<FlowState> = {};
   const events: ChangeEvent[] = [];
@@ -255,7 +255,7 @@ function handleRfNodesChange(
 function handleRfOnConnect(
   connection: Connection,
   prevEdges: V3LocalEdge[],
-  nodeConfigs: V3NodeConfigsDict,
+  nodeConfigs: NodeConfigMap,
   variablesDict: VariablesDict,
 ): EventHandlerResult {
   const content: Partial<FlowState> = {};
@@ -357,7 +357,7 @@ function handleRfOnConnect(
 function handleAddingNode(
   node: LocalNode,
   prevNodes: LocalNode[],
-  prevNodeConfigs: V3NodeConfigsDict,
+  prevNodeConfigs: NodeConfigMap,
   prevVariableConfigs: VariablesDict,
 ): EventHandlerResult {
   const content: Partial<FlowState> = {};
@@ -403,7 +403,7 @@ function handleAddingNode(
 function handleRemovingNode(
   nodeId: NodeID,
   prevNodes: LocalNode[],
-  prevNodeConfigs: V3NodeConfigsDict,
+  prevNodeConfigs: NodeConfigMap,
 ): EventHandlerResult {
   const content: Partial<FlowState> = {};
   const events: ChangeEvent[] = [];
@@ -441,8 +441,8 @@ function handleRemovingNode(
 
 function handleUpdatingNodeConfig(
   nodeId: NodeID,
-  change: Partial<V3NodeConfig>,
-  prevNodeConfigs: V3NodeConfigsDict,
+  change: Partial<NodeConfig>,
+  prevNodeConfigs: NodeConfigMap,
 ): EventHandlerResult {
   const content: Partial<FlowState> = {};
   const events: ChangeEvent[] = [];
@@ -651,7 +651,7 @@ function handleNodeAndVariablesAdded(
 
 function handleNodeRemoved(
   removedNode: LocalNode,
-  removedNodeConfig: V3NodeConfig,
+  removedNodeConfig: NodeConfig,
   prevVariableConfigs: VariablesDict,
 ): EventHandlerResult {
   const content: Partial<FlowState> = {};

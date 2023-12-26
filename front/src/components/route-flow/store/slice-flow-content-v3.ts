@@ -1,5 +1,16 @@
 import { A, D } from '@mobily/ts-belt';
+import {
+  NodeConfig,
+  NodeID,
+  NodeType,
+  V3FlowContent,
+  V3VariableID,
+  V3VariableValueLookUpDict,
+  VariableType,
+  createNode,
+} from 'flow-models';
 import { produce } from 'immer';
+import { debounce } from 'lodash';
 import {
   EdgeChange,
   NodeChange,
@@ -7,18 +18,6 @@ import {
   OnEdgesChange,
   OnNodesChange,
 } from 'reactflow';
-
-import {
-  NodeID,
-  NodeType,
-  V3FlowContent,
-  V3NodeConfig,
-  V3VariableID,
-  V3VariableValueLookUpDict,
-  VariableType,
-  createNode,
-} from 'flow-models';
-import { debounce } from 'lodash';
 import invariant from 'ts-invariant';
 import { StateCreator } from 'zustand';
 import { updateSpaceContentV3 } from '../graphql';
@@ -51,7 +50,7 @@ type SliceFlowContentV3Actions = {
 
   addNode(type: NodeType, x: number, y: number): void;
   removeNode(id: NodeID): void;
-  updateNodeConfig(nodeId: NodeID, change: Partial<V3NodeConfig>): void;
+  updateNodeConfig(nodeId: NodeID, change: Partial<NodeConfig>): void;
 
   addVariable(nodeId: NodeID, type: VariableType, index: number): void;
   removeVariable(variableId: V3VariableID): void;
@@ -203,7 +202,7 @@ export const createFlowServerSliceV3: StateCreator<
         nodeId: id,
       });
     },
-    updateNodeConfig(nodeId: NodeID, change: Partial<V3NodeConfig>): void {
+    updateNodeConfig(nodeId: NodeID, change: Partial<NodeConfig>): void {
       startProcessingEventGraph({
         type: ChangeEventType.UPDATING_NODE_CONFIG,
         nodeId,
