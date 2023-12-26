@@ -1,5 +1,6 @@
 import randomId from 'common-utils/randomId';
 import * as HuggingFace from 'integrations/hugging-face';
+import Joi from 'joi';
 import { Observable } from 'rxjs';
 import invariant from 'ts-invariant';
 import {
@@ -24,6 +25,11 @@ export type V3HuggingFaceInferenceNodeConfig = {
   nodeId: NodeID;
   model: string;
 };
+
+export const HuggingFaceInferenceNodeConfigSchema = Joi.object({
+  type: Joi.string().required().valid(NodeType.HuggingFaceInference),
+  nodeId: Joi.string().required(),
+});
 
 export const HUGGINGFACE_INFERENCE_NODE_DEFINITION: NodeDefinition<V3HuggingFaceInferenceNodeConfig> =
   {

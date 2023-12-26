@@ -1,6 +1,7 @@
 import { A, F } from '@mobily/ts-belt';
 import randomId from 'common-utils/randomId';
 import * as OpenAI from 'integrations/openai';
+import Joi from 'joi';
 import mustache from 'mustache';
 import { Observable } from 'rxjs';
 import invariant from 'ts-invariant';
@@ -25,6 +26,13 @@ export type V3ChatGPTMessageNodeConfig = {
   role: OpenAI.ChatGPTMessageRole;
   content: string;
 };
+
+export const ChatgptMessageNodeConfigSchema = Joi.object({
+  type: Joi.string().required().valid(NodeType.ChatGPTMessageNode),
+  nodeId: Joi.string().required(),
+  role: Joi.string().required(),
+  content: Joi.string().required(),
+});
 
 export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition<V3ChatGPTMessageNodeConfig> =
   {

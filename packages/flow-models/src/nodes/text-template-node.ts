@@ -1,4 +1,5 @@
 import randomId from 'common-utils/randomId';
+import Joi from 'joi';
 import mustache from 'mustache';
 import { Observable } from 'rxjs';
 import invariant from 'ts-invariant';
@@ -22,6 +23,12 @@ export type V3TextTemplateNodeConfig = {
   type: NodeType.TextTemplate;
   content: string;
 };
+
+export const TextTemplateNodeConfigSchema = Joi.object({
+  type: Joi.string().required().valid(NodeType.TextTemplate),
+  nodeId: Joi.string().required(),
+  content: Joi.string().required(),
+});
 
 export const TEXT_TEMPLATE_NODE_DEFINITION: NodeDefinition<V3TextTemplateNodeConfig> =
   {

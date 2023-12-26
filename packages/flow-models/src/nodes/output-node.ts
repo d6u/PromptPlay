@@ -1,5 +1,6 @@
 import chance from 'common-utils/chance';
 import randomId from 'common-utils/randomId';
+import Joi from 'joi';
 import { Observable } from 'rxjs';
 import invariant from 'ts-invariant';
 import {
@@ -21,6 +22,11 @@ export type V3OutputNodeConfig = {
   type: NodeType.OutputNode;
   nodeId: NodeID;
 };
+
+export const OutputNodeConfigSchema = Joi.object({
+  type: Joi.string().required().valid(NodeType.OutputNode),
+  nodeId: Joi.string().required(),
+});
 
 export const OUTPUT_NODE_DEFINITION: NodeDefinition<V3OutputNodeConfig> = {
   nodeType: NodeType.OutputNode,

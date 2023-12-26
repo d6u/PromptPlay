@@ -1,34 +1,50 @@
+import Joi from 'joi';
 import { NodeDefinition } from '../base/NodeDefinition';
 import { NodeID } from '../base/id-types';
 import NodeType from './NodeType';
 import {
   CHATGPT_CHAT_COMPLETION_NODE_DEFINITION,
+  ChatgptChatCompletionNodeConfigSchema,
   V3ChatGPTChatCompletionNodeConfig,
 } from './chatgpt-chat-completion-node';
 import {
   CHATGPT_MESSAGE_NODE_DEFINITION,
+  ChatgptMessageNodeConfigSchema,
   V3ChatGPTMessageNodeConfig,
 } from './chatgpt-message-node';
 import {
   CONDITION_NODE_DEFINITION,
+  ConditionNodeConfigSchema,
   V3ConditionNodeConfig,
 } from './condition-node';
 import {
   ELEVENLABS_NODE_DEFINITION,
+  ElevenLabsNodeConfigSchema,
   V3ElevenLabsNodeConfig,
 } from './elevenlabs-node';
 import {
   HUGGINGFACE_INFERENCE_NODE_DEFINITION,
+  HuggingFaceInferenceNodeConfigSchema,
   V3HuggingFaceInferenceNodeConfig,
 } from './huggingface-inference-node';
-import { INPUT_NODE_DEFINITION, V3InputNodeConfig } from './input-node';
+import {
+  INPUT_NODE_DEFINITION,
+  InputNodeConfigSchema,
+  V3InputNodeConfig,
+} from './input-node';
 import {
   JAVASCRIPT_NODE_DEFINITION,
+  JavaScriptFunctionNodeConfigSchema,
   V3JavaScriptFunctionNodeConfig,
 } from './javascript-function-node';
-import { OUTPUT_NODE_DEFINITION, V3OutputNodeConfig } from './output-node';
+import {
+  OUTPUT_NODE_DEFINITION,
+  OutputNodeConfigSchema,
+  V3OutputNodeConfig,
+} from './output-node';
 import {
   TEXT_TEMPLATE_NODE_DEFINITION,
+  TextTemplateNodeConfigSchema,
   V3TextTemplateNodeConfig,
 } from './text-template-node';
 
@@ -60,6 +76,22 @@ export type NodeTypeToNodeConfigTypeMap = {
 };
 
 export type NodeConfigMap = Record<NodeID, V3NodeConfig>;
+
+// NOTE: Update this when adding new node types
+export const NodeConfigMapSchema = Joi.object().pattern(
+  Joi.string(),
+  Joi.alternatives().try(
+    InputNodeConfigSchema,
+    OutputNodeConfigSchema,
+    ConditionNodeConfigSchema,
+    JavaScriptFunctionNodeConfigSchema,
+    TextTemplateNodeConfigSchema,
+    ChatgptMessageNodeConfigSchema,
+    ChatgptChatCompletionNodeConfigSchema,
+    HuggingFaceInferenceNodeConfigSchema,
+    ElevenLabsNodeConfigSchema,
+  ),
+);
 
 // NOTE: Update this when adding new node types
 export const NODE_TYPE_TO_NODE_DEFINITION_MAP: {

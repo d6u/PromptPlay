@@ -5,6 +5,7 @@ import {
   getNonStreamingCompletion,
   getStreamingCompletion,
 } from 'integrations/openai';
+import Joi from 'joi';
 import { Observable, TimeoutError, endWith, map, retry, scan, tap } from 'rxjs';
 import invariant from 'ts-invariant';
 import {
@@ -46,6 +47,21 @@ export enum OpenAIChatModel {
 export enum ChatGPTChatCompletionResponseFormatType {
   JsonObject = 'json_object',
 }
+
+export const ChatgptChatCompletionNodeConfigSchema = Joi.object({
+  type: Joi.string().required().valid(NodeType.ChatGPTChatCompletionNode),
+  nodeId: Joi.string().required(),
+  model: Joi.string()
+    .required()
+    .valid(...Object.values(OpenAIChatModel)),
+  temperature: Joi.number().required(),
+  seed: Joi.number().required().allow(null),
+  responseFormatType: Joi.string()
+    .valid(ChatGPTChatCompletionResponseFormatType.JsonObject)
+    .required()
+    .allow(null),
+  stop: Joi.array().required().items(Joi.string()),
+});
 
 export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<V3ChatGPTChatCompletionNodeConfig> =
   {

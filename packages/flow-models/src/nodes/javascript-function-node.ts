@@ -1,4 +1,5 @@
 import randomId from 'common-utils/randomId';
+import Joi from 'joi';
 import { Observable } from 'rxjs';
 import invariant from 'ts-invariant';
 import {
@@ -20,6 +21,12 @@ export type V3JavaScriptFunctionNodeConfig = {
   nodeId: NodeID;
   javaScriptCode: string;
 };
+
+export const JavaScriptFunctionNodeConfigSchema = Joi.object({
+  type: Joi.string().required().valid(NodeType.JavaScriptFunctionNode),
+  nodeId: Joi.string().required(),
+  javaScriptCode: Joi.string().required(),
+});
 
 export const JAVASCRIPT_NODE_DEFINITION: NodeDefinition<V3JavaScriptFunctionNodeConfig> =
   {

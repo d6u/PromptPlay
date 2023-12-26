@@ -1,5 +1,6 @@
 import randomId from 'common-utils/randomId';
 import * as ElevenLabs from 'integrations/eleven-labs';
+import Joi from 'joi';
 import { Observable } from 'rxjs';
 import invariant from 'ts-invariant';
 import {
@@ -22,6 +23,11 @@ export type V3ElevenLabsNodeConfig = {
   nodeId: NodeID;
   voiceId: string;
 };
+
+export const ElevenLabsNodeConfigSchema = Joi.object({
+  type: Joi.string().required().valid(NodeType.ElevenLabs),
+  nodeId: Joi.string().required(),
+});
 
 export const ELEVENLABS_NODE_DEFINITION: NodeDefinition<V3ElevenLabsNodeConfig> =
   {

@@ -1,3 +1,4 @@
+// NOTE: Update this when adding new node types
 enum NodeType {
   InputNode = 'InputNode',
   OutputNode = 'OutputNode',
