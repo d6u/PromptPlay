@@ -1,7 +1,8 @@
 import randomId from 'common-utils/randomId';
 import NodeType from '../nodes/NodeType';
 import { NodeID, V3VariableID } from './id-types';
-import { ServerNode, VariableID } from './v3-flow-content-types';
+import { ServerNode } from './local-node-types';
+import { VariableID } from './v3-flow-content-types';
 
 export function createNode(type: NodeType, x: number, y: number): ServerNode {
   return {

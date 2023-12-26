@@ -2,18 +2,18 @@ import randomId from 'common-utils/randomId';
 import * as ElevenLabs from 'integrations/eleven-labs';
 import { Observable } from 'rxjs';
 import invariant from 'ts-invariant';
-import { NodeID } from '../base/id-types';
 import {
   NodeDefinition,
   NodeExecutionEvent,
   NodeExecutionEventType,
-} from '../base/node-definition-base-types';
+} from '../base/NodeDefinition';
 import {
   NodeInputVariable,
   NodeOutputVariable,
   VariableType,
   VariableValueType,
-} from '../base/v3-flow-content-types';
+} from '../base/connector-types';
+import { NodeID } from '../base/id-types';
 import { asV3VariableID } from '../base/v3-flow-utils';
 import NodeType from './NodeType';
 
@@ -25,6 +25,8 @@ export type V3ElevenLabsNodeConfig = {
 
 export const ELEVENLABS_NODE_DEFINITION: NodeDefinition<V3ElevenLabsNodeConfig> =
   {
+    nodeType: NodeType.ElevenLabs,
+
     isEnabledInToolbar: true,
     toolbarLabel: 'Eleven Labs Text to Speech',
 

@@ -2,17 +2,17 @@ import chance from 'common-utils/chance';
 import randomId from 'common-utils/randomId';
 import { Observable } from 'rxjs';
 import invariant from 'ts-invariant';
-import { NodeID } from '../base/id-types';
 import {
   NodeDefinition,
   NodeExecutionEvent,
   NodeExecutionEventType,
-} from '../base/node-definition-base-types';
+} from '../base/NodeDefinition';
 import {
   FlowInputVariable,
   VariableType,
   VariableValueType,
-} from '../base/v3-flow-content-types';
+} from '../base/connector-types';
+import { NodeID } from '../base/id-types';
 import { asV3VariableID } from '../base/v3-flow-utils';
 import NodeType from './NodeType';
 
@@ -22,6 +22,8 @@ export type V3InputNodeConfig = {
 };
 
 export const INPUT_NODE_DEFINITION: NodeDefinition<V3InputNodeConfig> = {
+  nodeType: NodeType.InputNode,
+
   isEnabledInToolbar: true,
   toolbarLabel: 'Input',
 

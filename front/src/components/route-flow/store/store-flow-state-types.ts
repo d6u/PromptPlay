@@ -1,8 +1,8 @@
 import {
   LocalNode,
+  NodeConfigMap,
   NodeID,
   V3LocalEdge,
-  V3NodeConfigsDict,
   V3VariableValueLookUpDict,
   VariablesDict,
 } from 'flow-models';
@@ -18,7 +18,7 @@ export type SliceFlowContentV3State = {
   // Persist to server
   nodes: LocalNode[];
   edges: V3LocalEdge[];
-  nodeConfigsDict: V3NodeConfigsDict;
+  nodeConfigsDict: NodeConfigMap;
   variablesDict: VariablesDict;
   variableValueLookUpDicts: V3VariableValueLookUpDict[];
   // Local

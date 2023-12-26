@@ -1,4 +1,5 @@
-import type { NodeDefinition } from '../base/node-definition-base-types';
+import { NodeDefinition } from '../base/NodeDefinition';
+import { NodeID } from '../base/id-types';
 import NodeType from './NodeType';
 import {
   CHATGPT_CHAT_COMPLETION_NODE_DEFINITION,
@@ -42,6 +43,7 @@ export * from './javascript-function-node';
 export * from './output-node';
 export * from './text-template-node';
 
+// NOTE: Update this when adding new node types
 export type V3NodeConfig =
   | V3InputNodeConfig
   | V3OutputNodeConfig
@@ -53,7 +55,16 @@ export type V3NodeConfig =
   | V3HuggingFaceInferenceNodeConfig
   | V3ElevenLabsNodeConfig;
 
-const NODE_DEFINITION_MAP = {
+export type NodeTypeToNodeConfigTypeMap = {
+  [T in V3NodeConfig as T['type']]: T;
+};
+
+export type NodeConfigMap = Record<NodeID, V3NodeConfig>;
+
+// NOTE: Update this when adding new node types
+export const NODE_TYPE_TO_NODE_DEFINITION_MAP: {
+  [key in NodeType]: NodeDefinition<NodeTypeToNodeConfigTypeMap[key]>;
+} = {
   [NodeType.InputNode]: INPUT_NODE_DEFINITION,
   [NodeType.OutputNode]: OUTPUT_NODE_DEFINITION,
   [NodeType.ConditionNode]: CONDITION_NODE_DEFINITION,
@@ -65,24 +76,18 @@ const NODE_DEFINITION_MAP = {
   [NodeType.ElevenLabs]: ELEVENLABS_NODE_DEFINITION,
 };
 
-const NODE_TYPES_ORDERED_ARRAY: ReadonlyArray<NodeType> = [
+export const BULTIN_NODE_TYPES_ORDERED_ARRAY: ReadonlyArray<NodeType> = [
   NodeType.InputNode,
   NodeType.OutputNode,
   NodeType.ConditionNode,
   NodeType.JavaScriptFunctionNode,
   NodeType.TextTemplate,
+];
+
+// NOTE: Update this when adding new node types
+export const INTEGRATION_NODE_TYPES_ORDERED_ARRAY: ReadonlyArray<NodeType> = [
   NodeType.ChatGPTMessageNode,
   NodeType.ChatGPTChatCompletionNode,
   NodeType.HuggingFaceInference,
   NodeType.ElevenLabs,
 ];
-
-export function getAllNodeTypes() {
-  return NODE_TYPES_ORDERED_ARRAY;
-}
-
-export function getNodeDefinitionForNodeTypeName<T extends V3NodeConfig>(
-  type: T['type'],
-): NodeDefinition<T> {
-  return NODE_DEFINITION_MAP[type] as NodeDefinition<T>;
-}

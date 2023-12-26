@@ -2,18 +2,18 @@ import randomId from 'common-utils/randomId';
 import * as HuggingFace from 'integrations/hugging-face';
 import { Observable } from 'rxjs';
 import invariant from 'ts-invariant';
-import { NodeID } from '../base/id-types';
 import {
   NodeDefinition,
   NodeExecutionEvent,
   NodeExecutionEventType,
-} from '../base/node-definition-base-types';
+} from '../base/NodeDefinition';
 import {
   NodeInputVariable,
   NodeOutputVariable,
   VariableType,
   VariableValueType,
-} from '../base/v3-flow-content-types';
+} from '../base/connector-types';
+import { NodeID } from '../base/id-types';
 import { asV3VariableID } from '../base/v3-flow-utils';
 import NodeType from './NodeType';
 
@@ -27,6 +27,8 @@ export type V3HuggingFaceInferenceNodeConfig = {
 
 export const HUGGINGFACE_INFERENCE_NODE_DEFINITION: NodeDefinition<V3HuggingFaceInferenceNodeConfig> =
   {
+    nodeType: NodeType.HuggingFaceInference,
+
     isEnabledInToolbar: true,
     toolbarLabel: 'Hugging Face Inference',
 

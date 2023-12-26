@@ -3,6 +3,7 @@ import {
   FlowExecutionContext,
   FlowOutputVariable,
   GraphEdge,
+  NodeConfigMap,
   NodeExecutionConfig,
   NodeExecutionContext,
   NodeExecutionEvent,
@@ -12,7 +13,6 @@ import {
   NodeInputVariable,
   NodeType,
   V3NodeConfig,
-  V3NodeConfigsDict,
   V3VariableID,
   V3VariableValueLookUpDict,
   VariableType,
@@ -35,7 +35,7 @@ import {
 
 export type FlowConfig = {
   edgeList: GraphEdge[];
-  nodeConfigMap: V3NodeConfigsDict;
+  nodeConfigMap: NodeConfigMap;
   connectorMap: VariablesDict;
 };
 
@@ -102,7 +102,8 @@ export const runSingle = (
               A.filter((connector) => connector.nodeId === nodeConfig.nodeId),
             );
 
-            const config: NodeExecutionConfig = {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const config: NodeExecutionConfig<any> = {
               nodeConfig,
               connectorList,
             };

@@ -1,64 +1,7 @@
 import { D, F, pipe } from '@mobily/ts-belt';
-import type { Observable } from 'rxjs';
-import type { V3NodeConfig } from '../nodes';
+import type { NodeConfigMap } from '../nodes';
+import { VariableType, type VariablesDict } from './connector-types';
 import type { NodeID, V3VariableID } from './id-types';
-import {
-  VariableType,
-  type LocalNode,
-  type V3NodeConfigsDict,
-  type V3VariableValueLookUpDict,
-  type Variable,
-  type VariablesDict,
-} from './v3-flow-content-types';
-
-export enum NodeExecutionEventType {
-  // NOTE: All node execution will guarantee to have a start and finish event.
-  Start = 'Start',
-  Finish = 'Finish',
-
-  VariableValues = 'NewVariableValues',
-  // NOTE: Errors won't necessarily stop the execution
-  Errors = 'Errors',
-}
-
-export type NodeExecutionEvent =
-  | {
-      type: NodeExecutionEventType.Start;
-      nodeId: NodeID;
-    }
-  | {
-      type: NodeExecutionEventType.Finish;
-      nodeId: NodeID;
-      finishedConnectorIds: V3VariableID[];
-    }
-  | {
-      type: NodeExecutionEventType.VariableValues;
-      nodeId: NodeID;
-      // NOTE: Event should always contain all variable values
-      variableValuesLookUpDict: V3VariableValueLookUpDict;
-    }
-  | {
-      type: NodeExecutionEventType.Errors;
-      nodeId: NodeID;
-      // NOTE: Event should always contain all error messages
-      errMessages: string[];
-    };
-
-export interface NodeDefinition<T extends V3NodeConfig> {
-  isEnabledInToolbar?: boolean;
-  toolbarLabel?: string;
-
-  createDefaultNodeConfig: (node: LocalNode) => {
-    nodeConfig: V3NodeConfig;
-    variableConfigList: Variable[];
-  };
-
-  createNodeExecutionObservable: (
-    context: NodeExecutionContext,
-    nodeExecutionConfig: NodeExecutionConfig,
-    params: NodeExecutionParams,
-  ) => Observable<NodeExecutionEvent>;
-}
 
 export type GraphEdge = {
   sourceNode: NodeID;
@@ -67,10 +10,10 @@ export type GraphEdge = {
   targetConnector: V3VariableID;
 };
 
-export class FlowExecutionContext {
+export default class FlowExecutionContext {
   constructor(
     edgeList: GraphEdge[],
-    nodeConfigMap: V3NodeConfigsDict,
+    nodeConfigMap: NodeConfigMap,
     connectorMap: VariablesDict,
   ) {
     this.srcConnIdToDstNodeIdListMap = {};
@@ -138,20 +81,3 @@ export class FlowExecutionContext {
     return indegreeZeroNodeIdList;
   }
 }
-
-export class NodeExecutionContext {
-  constructor(public flowExecutionContext: FlowExecutionContext) {}
-}
-
-export type NodeExecutionConfig = {
-  nodeConfig: V3NodeConfig;
-  connectorList: Variable[];
-};
-
-export type NodeExecutionParams = {
-  nodeInputValueMap: V3VariableValueLookUpDict;
-  useStreaming: boolean;
-  openAiApiKey: string | null;
-  huggingFaceApiToken: string | null;
-  elevenLabsApiKey: string | null;
-};
