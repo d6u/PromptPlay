@@ -7,7 +7,7 @@ import {
 } from 'integrations/openai';
 import Joi from 'joi';
 import { Observable, TimeoutError, endWith, map, retry, scan, tap } from 'rxjs';
-import invariant from 'ts-invariant';
+import { invariant } from 'ts-invariant';
 import {
   ConnectorType,
   NodeInputVariable,
@@ -184,7 +184,7 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<V3ChatGPTCh
 
         // NOTE: Main Logic
 
-        let messages = (argsMap['messages'] ?? []) as ChatGPTMessage[];
+        const messages = (argsMap['messages'] ?? []) as ChatGPTMessage[];
 
         const options = {
           apiKey: openAiApiKey,

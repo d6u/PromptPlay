@@ -2,7 +2,7 @@ import randomId from 'common-utils/randomId';
 import * as HuggingFace from 'integrations/hugging-face';
 import Joi from 'joi';
 import { Observable } from 'rxjs';
-import invariant from 'ts-invariant';
+import { invariant } from 'ts-invariant';
 import {
   ConnectorType,
   NodeInputVariable,

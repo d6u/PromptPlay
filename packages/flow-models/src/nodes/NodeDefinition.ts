@@ -4,7 +4,7 @@ import type { ConnectorID, NodeID } from '../base/id-types';
 import NodeExecutionContext from './NodeExecutionContext';
 
 // NOTE: This is a circular dependency, only import type
-import type { NodeConfig } from '.';
+import type { NodeConfig } from './index';
 
 export interface NodeDefinition<T extends NodeConfig> {
   nodeType: T['type'];

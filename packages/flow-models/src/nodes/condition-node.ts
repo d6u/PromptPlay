@@ -3,7 +3,7 @@ import randomId from 'common-utils/randomId';
 import Joi from 'joi';
 import jsonata from 'jsonata';
 import { Observable } from 'rxjs';
-import invariant from 'ts-invariant';
+import { invariant } from 'ts-invariant';
 import {
   Condition,
   ConditionResult,
@@ -124,10 +124,8 @@ export const CONDITION_NODE_DEFINITION: NodeDefinition<V3ConditionNodeConfig> =
           let hasMatch = false;
 
           for (const condition of normalConditions) {
-            let result: unknown;
-
             const expression = jsonata(condition.expressionString);
-            result = await expression.evaluate(inputValue);
+            const result = await expression.evaluate(inputValue);
 
             if (result) {
               hasMatch = true;
