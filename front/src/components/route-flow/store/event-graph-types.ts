@@ -1,9 +1,9 @@
 import {
   Condition,
   LocalNode,
+  NodeConfig,
   NodeID,
   V3LocalEdge,
-  V3NodeConfig,
   V3VariableID,
   Variable,
   VariableType,
@@ -135,7 +135,7 @@ export type ChangeEvent =
   | {
       type: ChangeEventType.UPDATING_NODE_CONFIG;
       nodeId: NodeID;
-      change: Partial<V3NodeConfig>;
+      change: Partial<NodeConfig>;
     }
   // Variables
   | {
@@ -163,7 +163,7 @@ export type ChangeEvent =
   | {
       type: ChangeEventType.NODE_REMOVED;
       node: LocalNode;
-      nodeConfig: V3NodeConfig;
+      nodeConfig: NodeConfig;
     }
   | {
       type: ChangeEventType.NODE_MOVED;

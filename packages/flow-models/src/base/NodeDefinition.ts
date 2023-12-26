@@ -1,11 +1,11 @@
 import type { Observable } from 'rxjs';
-import type { V3NodeConfig } from '../nodes';
+import type { NodeConfig } from '../nodes';
 import NodeExecutionContext from './NodeExecutionContext';
 import type { V3VariableValueLookUpDict, Variable } from './connector-types';
 import type { NodeID, V3VariableID } from './id-types';
 import type { LocalNode } from './local-node-types';
 
-export interface NodeDefinition<T extends V3NodeConfig> {
+export interface NodeDefinition<T extends NodeConfig> {
   nodeType: T['type'];
 
   isEnabledInToolbar?: boolean;
@@ -56,7 +56,7 @@ export type NodeExecutionEvent =
       errMessages: string[];
     };
 
-export type NodeExecutionConfig<T extends V3NodeConfig> = {
+export type NodeExecutionConfig<T extends NodeConfig> = {
   nodeConfig: T;
   connectorList: Variable[];
 };

@@ -7,13 +7,13 @@ import {
   FlowInputVariable,
   FlowOutputVariable,
   LocalNode,
+  NodeConfig,
   NodeConfigMap,
   NodeID,
   NodeInputVariable,
   NodeOutputVariable,
   NodeType,
   V3LocalEdge,
-  V3NodeConfig,
   V3VariableID,
   V3VariableValueLookUpDict,
   Variable,
@@ -441,7 +441,7 @@ function handleRemovingNode(
 
 function handleUpdatingNodeConfig(
   nodeId: NodeID,
-  change: Partial<V3NodeConfig>,
+  change: Partial<NodeConfig>,
   prevNodeConfigs: NodeConfigMap,
 ): EventHandlerResult {
   const content: Partial<FlowState> = {};
@@ -651,7 +651,7 @@ function handleNodeAndVariablesAdded(
 
 function handleNodeRemoved(
   removedNode: LocalNode,
-  removedNodeConfig: V3NodeConfig,
+  removedNodeConfig: NodeConfig,
   prevVariableConfigs: VariablesDict,
 ): EventHandlerResult {
   const content: Partial<FlowState> = {};

@@ -60,7 +60,7 @@ export * from './output-node';
 export * from './text-template-node';
 
 // NOTE: Update this when adding new node types
-export type V3NodeConfig =
+export type NodeConfig =
   | V3InputNodeConfig
   | V3OutputNodeConfig
   | V3ConditionNodeConfig
@@ -72,10 +72,10 @@ export type V3NodeConfig =
   | V3ElevenLabsNodeConfig;
 
 export type NodeTypeToNodeConfigTypeMap = {
-  [T in V3NodeConfig as T['type']]: T;
+  [T in NodeConfig as T['type']]: T;
 };
 
-export type NodeConfigMap = Record<NodeID, V3NodeConfig>;
+export type NodeConfigMap = Record<NodeID, NodeConfig>;
 
 // NOTE: Update this when adding new node types
 export const NodeConfigMapSchema = Joi.object().pattern(

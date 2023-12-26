@@ -3,6 +3,7 @@ import {
   FlowExecutionContext,
   FlowOutputVariable,
   GraphEdge,
+  NodeConfig,
   NodeConfigMap,
   NodeExecutionConfig,
   NodeExecutionContext,
@@ -12,7 +13,6 @@ import {
   NodeID,
   NodeInputVariable,
   NodeType,
-  V3NodeConfig,
   V3VariableID,
   V3VariableValueLookUpDict,
   VariableType,
@@ -85,7 +85,7 @@ export const runSingle = (
       mergeMap((nodeIdList): Observable<Observable<NodeExecutionEvent>> => {
         return pipe(
           nodeIdList,
-          A.map((nodeId): V3NodeConfig => nodeConfigMap[nodeId]),
+          A.map((nodeId): NodeConfig => nodeConfigMap[nodeId]),
           A.map((nodeConfig): Observable<NodeExecutionEvent> => {
             const { createNodeExecutionObservable: execute } =
               getNodeDefinitionForNodeTypeName(nodeConfig.type);
