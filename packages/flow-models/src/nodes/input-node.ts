@@ -14,8 +14,8 @@ import {
   NodeDefinition,
   NodeExecutionEvent,
   NodeExecutionEventType,
-} from './NodeDefinition';
-import NodeType from './NodeType';
+} from '../node-definition-base-types/NodeDefinition';
+import NodeType from '../node-definition-base-types/NodeType';
 
 export type V3InputNodeConfig = {
   type: NodeType.InputNode;

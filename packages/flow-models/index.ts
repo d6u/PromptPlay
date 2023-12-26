@@ -1,3 +1,4 @@
+import { NodeDefinition } from './src/node-definition-base-types/NodeDefinition';
 import {
   BULTIN_NODE_TYPES_ORDERED_ARRAY,
   INTEGRATION_NODE_TYPES_ORDERED_ARRAY,
@@ -5,17 +6,16 @@ import {
   NodeType,
   NodeTypeToNodeConfigTypeMap,
 } from './src/nodes';
-import { NodeDefinition } from './src/nodes/NodeDefinition';
 
 export * from './src/base-types';
 export * from './src/flow-config-schema';
-export * from './src/nodes';
 export {
   default as FlowExecutionContext,
   type GraphEdge,
-} from './src/nodes/FlowExecutionContext';
-export * from './src/nodes/NodeDefinition';
-export { default as NodeExecutionContext } from './src/nodes/NodeExecutionContext';
+} from './src/node-definition-base-types/FlowExecutionContext';
+export * from './src/node-definition-base-types/NodeDefinition';
+export { default as NodeExecutionContext } from './src/node-definition-base-types/NodeExecutionContext';
+export * from './src/nodes';
 export * from './src/v3-flow-content-types';
 
 export function getNodeDefinitionForNodeTypeName<T extends NodeType>(

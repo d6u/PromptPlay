@@ -15,8 +15,8 @@ import {
   NodeDefinition,
   NodeExecutionEvent,
   NodeExecutionEventType,
-} from './NodeDefinition';
-import NodeType from './NodeType';
+} from '../node-definition-base-types/NodeDefinition';
+import NodeType from '../node-definition-base-types/NodeType';
 
 // Reference: https://huggingface.co/docs/api-inference/index
 

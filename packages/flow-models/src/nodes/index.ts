@@ -1,7 +1,7 @@
 import Joi from 'joi';
 import { NodeID } from '../base-types/id-types';
-import { NodeDefinition } from './NodeDefinition';
-import NodeType from './NodeType';
+import { NodeDefinition } from '../node-definition-base-types/NodeDefinition';
+import NodeType from '../node-definition-base-types/NodeType';
 import {
   CHATGPT_CHAT_COMPLETION_NODE_DEFINITION,
   ChatgptChatCompletionNodeConfigSchema,
@@ -48,7 +48,7 @@ import {
   V3TextTemplateNodeConfig,
 } from './text-template-node';
 
-export { default as NodeType } from './NodeType';
+export { default as NodeType } from '../node-definition-base-types/NodeType';
 export * from './chatgpt-chat-completion-node';
 export * from './chatgpt-message-node';
 export * from './condition-node';

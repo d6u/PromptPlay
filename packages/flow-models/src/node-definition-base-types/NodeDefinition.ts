@@ -1,13 +1,14 @@
 import type { Observable } from 'rxjs';
 import type {
   Connector,
+  ConnectorID,
   ConnectorResultMap,
-} from '../base-types/connector-types';
-import type { ConnectorID, NodeID } from '../base-types/id-types';
+  NodeID,
+} from '../base-types';
 import NodeExecutionContext from './NodeExecutionContext';
 
 // NOTE: This is a circular dependency, only import type
-import type { NodeConfig } from './index';
+import type { NodeConfig } from '../nodes/index';
 
 export interface NodeDefinition<T extends NodeConfig> {
   nodeType: T['type'];
