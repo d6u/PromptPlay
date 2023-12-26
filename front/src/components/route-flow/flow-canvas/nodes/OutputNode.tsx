@@ -1,9 +1,9 @@
 import IconButton from '@mui/joy/IconButton';
 import {
+  ConnectorType,
   NodeID,
   NodeType,
   V3OutputNodeConfig,
-  VariableType,
 } from 'flow-models';
 import { useContext, useMemo } from 'react';
 import { Position, useNodeId, useUpdateNodeInternals } from 'reactflow';
@@ -47,7 +47,7 @@ export default function OutputNode() {
   );
 
   const flowOutputs = useMemo(() => {
-    return selectVariables(nodeId, VariableType.FlowOutput, variablesDict);
+    return selectVariables(nodeId, ConnectorType.FlowOutput, variablesDict);
   }, [nodeId, variablesDict]);
 
   const updateNodeInternals = useUpdateNodeInternals();
@@ -91,7 +91,7 @@ export default function OutputNode() {
               onClick={() => {
                 addVariable(
                   nodeId,
-                  VariableType.FlowOutput,
+                  ConnectorType.FlowOutput,
                   flowOutputs.length,
                 );
                 updateNodeInternals(nodeId);

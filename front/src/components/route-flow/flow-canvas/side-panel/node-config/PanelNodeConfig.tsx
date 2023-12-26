@@ -1,4 +1,4 @@
-import { VariableType } from 'flow-models';
+import { ConnectorType } from 'flow-models';
 import { useMemo } from 'react';
 import { useStore } from 'zustand';
 import { useStoreFromFlowStoreContext } from '../../../store/FlowStoreContext';
@@ -25,7 +25,7 @@ export default function PanelNodeConfig() {
       ? []
       : selectVariables(
           detailPanelSelectedNodeId,
-          VariableType.NodeOutput,
+          ConnectorType.NodeOutput,
           variablesDict,
         );
   }, [detailPanelSelectedNodeId, variablesDict]);

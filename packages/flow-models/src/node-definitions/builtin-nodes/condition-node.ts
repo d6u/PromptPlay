@@ -3,22 +3,22 @@ import randomId from 'common-utils/randomId';
 import Joi from 'joi';
 import jsonata from 'jsonata';
 import { Observable } from 'rxjs';
-import invariant from 'ts-invariant';
+import { invariant } from 'ts-invariant';
+import {
+  Condition,
+  ConditionResult,
+  ConnectorType,
+  NodeInputVariable,
+  VariableValueType,
+  asV3VariableID,
+} from '../../base-types/connector-types';
+import { ConnectorID, NodeID } from '../../base-types/id-types';
 import {
   NodeDefinition,
   NodeExecutionEvent,
   NodeExecutionEventType,
-} from '../base/NodeDefinition';
-import {
-  Condition,
-  ConditionResult,
-  NodeInputVariable,
-  VariableType,
-  VariableValueType,
-} from '../base/connector-types';
-import { NodeID, V3VariableID } from '../base/id-types';
-import { asV3VariableID } from '../base/v3-flow-utils';
-import NodeType from './NodeType';
+  NodeType,
+} from '../../node-definition-base-types';
 
 export type V3ConditionNodeConfig = {
   type: NodeType.ConditionNode;
@@ -39,47 +39,47 @@ export const CONDITION_NODE_DEFINITION: NodeDefinition<V3ConditionNodeConfig> =
     isEnabledInToolbar: true,
     toolbarLabel: 'Condition',
 
-    createDefaultNodeConfig: (node) => {
+    createDefaultNodeConfig: (nodeId) => {
       return {
         nodeConfig: {
           type: NodeType.ConditionNode,
-          nodeId: node.id,
+          nodeId: nodeId,
           stopAtTheFirstMatch: true,
         },
         variableConfigList: [
           {
-            type: VariableType.NodeInput,
-            id: asV3VariableID(`${node.id}/input`),
-            nodeId: node.id,
+            type: ConnectorType.NodeInput,
+            id: asV3VariableID(`${nodeId}/input`),
+            nodeId: nodeId,
             index: 0,
             name: 'input',
             valueType: VariableValueType.Unknown,
           },
           {
-            type: VariableType.Condition,
-            id: asV3VariableID(`${node.id}/${randomId()}`),
+            type: ConnectorType.Condition,
+            id: asV3VariableID(`${nodeId}/${randomId()}`),
             index: -1, // Special condition for default case
-            nodeId: node.id,
+            nodeId: nodeId,
             expressionString: '',
           },
           {
-            type: VariableType.Condition,
-            id: asV3VariableID(`${node.id}/${randomId()}`),
+            type: ConnectorType.Condition,
+            id: asV3VariableID(`${nodeId}/${randomId()}`),
             index: 0,
-            nodeId: node.id,
+            nodeId: nodeId,
             expressionString: '$ = "Value A"',
           },
           {
-            type: VariableType.Condition,
-            id: asV3VariableID(`${node.id}/${randomId()}`),
+            type: ConnectorType.Condition,
+            id: asV3VariableID(`${nodeId}/${randomId()}`),
             index: 1,
-            nodeId: node.id,
+            nodeId: nodeId,
             expressionString: '$ = "Value B"',
           },
           {
-            type: VariableType.ConditionTarget,
-            id: asV3VariableID(`${node.id}/${randomId()}`),
-            nodeId: node.id,
+            type: ConnectorType.ConditionTarget,
+            id: asV3VariableID(`${nodeId}/${randomId()}`),
+            nodeId: nodeId,
           },
         ],
       };
@@ -100,7 +100,7 @@ export const CONDITION_NODE_DEFINITION: NodeDefinition<V3ConditionNodeConfig> =
         (async function () {
           const inputVariable = connectorList.find(
             (connector): connector is NodeInputVariable => {
-              return connector.type === VariableType.NodeInput;
+              return connector.type === ConnectorType.NodeInput;
             },
           );
 
@@ -110,24 +110,22 @@ export const CONDITION_NODE_DEFINITION: NodeDefinition<V3ConditionNodeConfig> =
 
           const conditions = connectorList
             .filter((connector): connector is Condition => {
-              return connector.type === VariableType.Condition;
+              return connector.type === ConnectorType.Condition;
             })
             .sort((a, b) => a.index - b.index);
 
           const defaultCaseCondition = conditions[0];
           const normalConditions = conditions.slice(1);
 
-          const conditionResultMap: Record<V3VariableID, ConditionResult> = {};
+          const conditionResultMap: Record<ConnectorID, ConditionResult> = {};
 
           // NOTE: Main Logic
 
           let hasMatch = false;
 
           for (const condition of normalConditions) {
-            let result: unknown;
-
             const expression = jsonata(condition.expressionString);
-            result = await expression.evaluate(inputValue);
+            const result = await expression.evaluate(inputValue);
 
             if (result) {
               hasMatch = true;

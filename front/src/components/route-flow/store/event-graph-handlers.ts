@@ -3,6 +3,11 @@ import chance from 'common-utils/chance';
 import randomId from 'common-utils/randomId';
 import {
   Condition,
+  Connector,
+  ConnectorID,
+  ConnectorMap,
+  ConnectorResultMap,
+  ConnectorType,
   EdgeID,
   FlowInputVariable,
   FlowOutputVariable,
@@ -14,12 +19,7 @@ import {
   NodeOutputVariable,
   NodeType,
   V3LocalEdge,
-  V3VariableID,
-  V3VariableValueLookUpDict,
-  Variable,
-  VariableType,
   VariableValueType,
-  VariablesDict,
   asV3VariableID,
   getNodeDefinitionForNodeTypeName,
 } from 'flow-models';
@@ -256,7 +256,7 @@ function handleRfOnConnect(
   connection: Connection,
   prevEdges: V3LocalEdge[],
   nodeConfigs: NodeConfigMap,
-  variablesDict: VariablesDict,
+  variablesDict: ConnectorMap,
 ): EventHandlerResult {
   const content: Partial<FlowState> = {};
   const events: ChangeEvent[] = [];
@@ -283,10 +283,10 @@ function handleRfOnConnect(
   const srcVariable = variablesDict[addedEdge.sourceHandle];
 
   if (
-    srcVariable.type === VariableType.FlowInput ||
-    srcVariable.type === VariableType.FlowOutput ||
-    srcVariable.type === VariableType.NodeInput ||
-    srcVariable.type === VariableType.NodeOutput
+    srcVariable.type === ConnectorType.FlowInput ||
+    srcVariable.type === ConnectorType.FlowOutput ||
+    srcVariable.type === ConnectorType.NodeInput ||
+    srcVariable.type === ConnectorType.NodeOutput
   ) {
     // NOTE: New edge connects two variables
 
@@ -358,7 +358,7 @@ function handleAddingNode(
   node: LocalNode,
   prevNodes: LocalNode[],
   prevNodeConfigs: NodeConfigMap,
-  prevVariableConfigs: VariablesDict,
+  prevVariableConfigs: ConnectorMap,
 ): EventHandlerResult {
   const content: Partial<FlowState> = {};
   const events: ChangeEvent[] = [];
@@ -367,7 +367,7 @@ function handleAddingNode(
 
   const { nodeConfig, variableConfigList } = getNodeDefinitionForNodeTypeName(
     node.type,
-  ).createDefaultNodeConfig(node);
+  ).createDefaultNodeConfig(node.id);
 
   const nodes = produce(prevNodes, (draft) => {
     draft.push({
@@ -463,9 +463,9 @@ function handleUpdatingNodeConfig(
 
 function handleAddingVariable(
   nodeId: NodeID,
-  varType: VariableType,
+  varType: ConnectorType,
   index: number,
-  variableConfigs: VariablesDict,
+  variableConfigs: ConnectorMap,
 ): EventHandlerResult {
   const content: Partial<FlowState> = {};
   const events: ChangeEvent[] = [];
@@ -479,7 +479,7 @@ function handleAddingVariable(
     };
 
     switch (varType) {
-      case VariableType.NodeInput: {
+      case ConnectorType.NodeInput: {
         const variableConfig: NodeInputVariable = {
           ...commonFields,
           type: varType,
@@ -488,7 +488,7 @@ function handleAddingVariable(
         draft[variableConfig.id] = variableConfig;
         break;
       }
-      case VariableType.NodeOutput: {
+      case ConnectorType.NodeOutput: {
         const variableConfig: NodeOutputVariable = {
           ...commonFields,
           type: varType,
@@ -497,7 +497,7 @@ function handleAddingVariable(
         draft[variableConfig.id] = variableConfig;
         break;
       }
-      case VariableType.FlowInput: {
+      case ConnectorType.FlowInput: {
         const variableConfig: FlowInputVariable = {
           ...commonFields,
           type: varType,
@@ -506,7 +506,7 @@ function handleAddingVariable(
         draft[variableConfig.id] = variableConfig;
         break;
       }
-      case VariableType.FlowOutput: {
+      case ConnectorType.FlowOutput: {
         const variableConfig: FlowOutputVariable = {
           ...commonFields,
           type: varType,
@@ -515,10 +515,10 @@ function handleAddingVariable(
         draft[variableConfig.id] = variableConfig;
         break;
       }
-      case VariableType.Condition: {
+      case ConnectorType.Condition: {
         const variableConfig: Condition = {
           id: asV3VariableID(`${nodeId}/${randomId()}`),
-          type: VariableType.Condition,
+          type: ConnectorType.Condition,
           nodeId,
           index,
           expressionString: '$ = "Some value"',
@@ -526,21 +526,21 @@ function handleAddingVariable(
         draft[variableConfig.id] = variableConfig;
         break;
       }
-      case VariableType.ConditionTarget:
+      case ConnectorType.ConditionTarget:
         break;
     }
 
     if (
-      varType === VariableType.FlowInput ||
-      varType === VariableType.FlowOutput ||
-      varType === VariableType.NodeInput ||
-      varType === VariableType.NodeOutput
+      varType === ConnectorType.FlowInput ||
+      varType === ConnectorType.FlowOutput ||
+      varType === ConnectorType.NodeInput ||
+      varType === ConnectorType.NodeOutput
     ) {
       events.push({
         type: ChangeEventType.VARIABLE_ADDED,
         variableId: commonFields.id,
       });
-    } else if (varType === VariableType.Condition) {
+    } else if (varType === ConnectorType.Condition) {
       events.push({
         type: ChangeEventType.CONDITION_ADDED,
       });
@@ -554,8 +554,8 @@ function handleAddingVariable(
 }
 
 function handleRemovingVariable(
-  variableId: V3VariableID,
-  prevVariableConfigs: VariablesDict,
+  variableId: ConnectorID,
+  prevVariableConfigs: ConnectorMap,
 ): EventHandlerResult {
   const content: Partial<FlowState> = {};
   const events: ChangeEvent[] = [];
@@ -564,16 +564,16 @@ function handleRemovingVariable(
     const connector = current(draft[variableId]);
 
     if (
-      connector.type === VariableType.FlowInput ||
-      connector.type === VariableType.FlowOutput ||
-      connector.type === VariableType.NodeInput ||
-      connector.type === VariableType.NodeOutput
+      connector.type === ConnectorType.FlowInput ||
+      connector.type === ConnectorType.FlowOutput ||
+      connector.type === ConnectorType.NodeInput ||
+      connector.type === ConnectorType.NodeOutput
     ) {
       events.push({
         type: ChangeEventType.VARIABLE_REMOVED,
         removedVariable: connector,
       });
-    } else if (connector.type === VariableType.Condition) {
+    } else if (connector.type === ConnectorType.Condition) {
       events.push({
         type: ChangeEventType.CONDITION_REMOVED,
         removedCondition: connector,
@@ -590,9 +590,9 @@ function handleRemovingVariable(
 }
 
 function handleUpdatingVariable(
-  variableId: V3VariableID,
-  change: Partial<Variable>,
-  prevVariableConfigs: VariablesDict,
+  variableId: ConnectorID,
+  change: Partial<Connector>,
+  prevVariableConfigs: ConnectorMap,
 ): EventHandlerResult {
   const content: Partial<FlowState> = {};
   const events: ChangeEvent[] = [];
@@ -616,8 +616,8 @@ function handleUpdatingVariable(
 }
 
 function handleNodeAndVariablesAdded(
-  variableConfigList: Variable[],
-  prevVariableValueMaps: V3VariableValueLookUpDict[],
+  variableConfigList: Connector[],
+  prevVariableValueMaps: ConnectorResultMap[],
 ): EventHandlerResult {
   const content: Partial<FlowState> = {};
   const events: ChangeEvent[] = [];
@@ -627,10 +627,10 @@ function handleNodeAndVariablesAdded(
   const variableValueMaps = produce(prevVariableValueMaps, (draft) => {
     for (const variableConfig of variableConfigList) {
       if (
-        variableConfig.type === VariableType.FlowInput ||
-        variableConfig.type === VariableType.FlowOutput ||
-        variableConfig.type === VariableType.NodeInput ||
-        variableConfig.type === VariableType.NodeOutput
+        variableConfig.type === ConnectorType.FlowInput ||
+        variableConfig.type === ConnectorType.FlowOutput ||
+        variableConfig.type === ConnectorType.NodeInput ||
+        variableConfig.type === ConnectorType.NodeOutput
       ) {
         draft[0][variableConfig.id] = null;
       }
@@ -652,7 +652,7 @@ function handleNodeAndVariablesAdded(
 function handleNodeRemoved(
   removedNode: LocalNode,
   removedNodeConfig: NodeConfig,
-  prevVariableConfigs: VariablesDict,
+  prevVariableConfigs: ConnectorMap,
 ): EventHandlerResult {
   const content: Partial<FlowState> = {};
   const events: ChangeEvent[] = [];
@@ -666,22 +666,22 @@ function handleNodeRemoved(
       const removedConnector = current(connector);
 
       if (
-        removedConnector.type === VariableType.FlowInput ||
-        removedConnector.type === VariableType.FlowOutput ||
-        removedConnector.type === VariableType.NodeInput ||
-        removedConnector.type === VariableType.NodeOutput
+        removedConnector.type === ConnectorType.FlowInput ||
+        removedConnector.type === ConnectorType.FlowOutput ||
+        removedConnector.type === ConnectorType.NodeInput ||
+        removedConnector.type === ConnectorType.NodeOutput
       ) {
         events.push({
           type: ChangeEventType.VARIABLE_REMOVED,
           removedVariable: removedConnector,
         });
-      } else if (removedConnector.type === VariableType.Condition) {
+      } else if (removedConnector.type === ConnectorType.Condition) {
         events.push({
           type: ChangeEventType.CONDITION_REMOVED,
           removedCondition: removedConnector,
         });
       } else {
-        invariant(removedConnector.type === VariableType.ConditionTarget);
+        invariant(removedConnector.type === ConnectorType.ConditionTarget);
         events.push({
           type: ChangeEventType.CONDITION_TARGET_REMOVED,
         });
@@ -699,7 +699,7 @@ function handleNodeRemoved(
 
 function handleEdgeAdded(
   addedEdge: V3LocalEdge,
-  prevVariableConfigs: VariablesDict,
+  prevVariableConfigs: ConnectorMap,
 ): EventHandlerResult {
   const content: Partial<FlowState> = {};
   const events: ChangeEvent[] = [];
@@ -708,15 +708,15 @@ function handleEdgeAdded(
     const srcVariableConfig = draft[asV3VariableID(addedEdge.sourceHandle)];
 
     if (
-      srcVariableConfig.type === VariableType.FlowInput ||
-      srcVariableConfig.type === VariableType.FlowOutput ||
-      srcVariableConfig.type === VariableType.NodeInput ||
-      srcVariableConfig.type === VariableType.NodeOutput
+      srcVariableConfig.type === ConnectorType.FlowInput ||
+      srcVariableConfig.type === ConnectorType.FlowOutput ||
+      srcVariableConfig.type === ConnectorType.NodeInput ||
+      srcVariableConfig.type === ConnectorType.NodeOutput
     ) {
       if (srcVariableConfig.valueType === VariableValueType.Audio) {
         const dstVariableConfig = draft[asV3VariableID(addedEdge.targetHandle)];
 
-        invariant(dstVariableConfig.type === VariableType.FlowOutput);
+        invariant(dstVariableConfig.type === ConnectorType.FlowOutput);
 
         const prevVariableConfig = current(dstVariableConfig);
 
@@ -739,8 +739,8 @@ function handleEdgeAdded(
 
 function handleEdgeRemoved(
   removedEdge: V3LocalEdge,
-  edgeSrcConnector: Variable | null,
-  prevVariableConfigs: VariablesDict,
+  edgeSrcConnector: Connector | null,
+  prevVariableConfigs: ConnectorMap,
 ): EventHandlerResult {
   const content: Partial<FlowState> = {};
   const events: ChangeEvent[] = [];
@@ -757,14 +757,14 @@ function handleEdgeRemoved(
     const srcConnector = edgeSrcConnector ?? draft[removedEdge.sourceHandle];
 
     if (
-      srcConnector.type === VariableType.FlowInput ||
-      srcConnector.type === VariableType.FlowOutput ||
-      srcConnector.type === VariableType.NodeInput ||
-      srcConnector.type === VariableType.NodeOutput
+      srcConnector.type === ConnectorType.FlowInput ||
+      srcConnector.type === ConnectorType.FlowOutput ||
+      srcConnector.type === ConnectorType.NodeInput ||
+      srcConnector.type === ConnectorType.NodeOutput
     ) {
       invariant(
-        srcConnector.type === VariableType.FlowInput ||
-          srcConnector.type === VariableType.NodeOutput,
+        srcConnector.type === ConnectorType.FlowInput ||
+          srcConnector.type === ConnectorType.NodeOutput,
       );
 
       if (srcConnector.valueType === VariableValueType.Audio) {
@@ -772,7 +772,7 @@ function handleEdgeRemoved(
         // We need to change the destination variable back to default type.
 
         const dstConnector = draft[asV3VariableID(removedEdge.targetHandle)];
-        invariant(dstConnector.type === VariableType.FlowOutput);
+        invariant(dstConnector.type === ConnectorType.FlowOutput);
 
         const prevVariableConfig = current(dstConnector);
 
@@ -798,7 +798,7 @@ function handleEdgeRemoved(
 function handleEdgeReplaced(
   oldEdge: V3LocalEdge,
   newEdge: V3LocalEdge,
-  prevVariableConfigs: VariablesDict,
+  prevVariableConfigs: ConnectorMap,
 ): EventHandlerResult {
   const content: Partial<FlowState> = {};
   const events: ChangeEvent[] = [];
@@ -813,12 +813,12 @@ function handleEdgeReplaced(
     const newSrcVariableConfig = draft[newEdge.sourceHandle];
 
     invariant(
-      oldSrcVariableConfig.type === VariableType.FlowInput ||
-        oldSrcVariableConfig.type === VariableType.NodeOutput,
+      oldSrcVariableConfig.type === ConnectorType.FlowInput ||
+        oldSrcVariableConfig.type === ConnectorType.NodeOutput,
     );
     invariant(
-      newSrcVariableConfig.type === VariableType.FlowInput ||
-        newSrcVariableConfig.type === VariableType.NodeOutput,
+      newSrcVariableConfig.type === ConnectorType.FlowInput ||
+        newSrcVariableConfig.type === ConnectorType.NodeOutput,
     );
 
     if (oldSrcVariableConfig.valueType !== newSrcVariableConfig.valueType) {
@@ -827,33 +827,33 @@ function handleEdgeReplaced(
       const dstVariableConfig = draft[asV3VariableID(newEdge.targetHandle)];
 
       invariant(
-        dstVariableConfig.type === VariableType.FlowOutput ||
-          dstVariableConfig.type === VariableType.NodeInput,
+        dstVariableConfig.type === ConnectorType.FlowOutput ||
+          dstVariableConfig.type === ConnectorType.NodeInput,
       );
 
       const prevVariableConfig = current(dstVariableConfig);
 
       switch (newSrcVariableConfig.valueType) {
         case VariableValueType.Number:
-          if (dstVariableConfig.type === VariableType.FlowOutput) {
+          if (dstVariableConfig.type === ConnectorType.FlowOutput) {
             dstVariableConfig.valueType = VariableValueType.String;
           } else {
             dstVariableConfig.valueType = VariableValueType.Unknown;
           }
           break;
         case VariableValueType.String:
-          if (dstVariableConfig.type === VariableType.FlowOutput) {
+          if (dstVariableConfig.type === ConnectorType.FlowOutput) {
             dstVariableConfig.valueType = VariableValueType.String;
           } else {
             dstVariableConfig.valueType = VariableValueType.Unknown;
           }
           break;
         case VariableValueType.Audio:
-          invariant(dstVariableConfig.type === VariableType.FlowOutput);
+          invariant(dstVariableConfig.type === ConnectorType.FlowOutput);
           dstVariableConfig.valueType = VariableValueType.Audio;
           break;
         case VariableValueType.Unknown:
-          if (dstVariableConfig.type === VariableType.FlowOutput) {
+          if (dstVariableConfig.type === ConnectorType.FlowOutput) {
             dstVariableConfig.valueType = VariableValueType.String;
           } else {
             dstVariableConfig.valueType = VariableValueType.Unknown;
@@ -878,8 +878,8 @@ function handleEdgeReplaced(
 }
 
 function handleVariableAdded(
-  variableId: V3VariableID,
-  prevVariableValueMaps: V3VariableValueLookUpDict[],
+  variableId: ConnectorID,
+  prevVariableValueMaps: ConnectorResultMap[],
 ): EventHandlerResult {
   const content: Partial<FlowState> = {};
   const events: ChangeEvent[] = [];
@@ -904,9 +904,9 @@ function handleVariableRemoved({
   prevVariableValueMaps,
   prevCsvEvaluationConfigContent,
 }: {
-  removedVariable: Variable;
+  removedVariable: Connector;
   prevEdges: V3LocalEdge[];
-  prevVariableValueMaps: V3VariableValueLookUpDict[];
+  prevVariableValueMaps: ConnectorResultMap[];
   prevCsvEvaluationConfigContent: CsvEvaluationConfigContent;
 }): EventHandlerResult {
   const content: Partial<FlowState> = {};
@@ -967,23 +967,23 @@ function handleVariableRemoved({
 }
 
 function handleVariableUpdated(
-  prevVariableConfig: Variable,
-  nextVariableConfig: Variable,
-  prevVariableValueMaps: V3VariableValueLookUpDict[],
+  prevVariableConfig: Connector,
+  nextVariableConfig: Connector,
+  prevVariableValueMaps: ConnectorResultMap[],
 ): EventHandlerResult {
   const content: Partial<FlowState> = {};
   const events: ChangeEvent[] = [];
 
   const variableValueMaps = produce(prevVariableValueMaps, (draft) => {
     if (
-      (prevVariableConfig.type === VariableType.FlowInput ||
-        prevVariableConfig.type === VariableType.FlowOutput ||
-        prevVariableConfig.type === VariableType.NodeInput ||
-        prevVariableConfig.type === VariableType.NodeOutput) &&
-      (nextVariableConfig.type === VariableType.FlowInput ||
-        nextVariableConfig.type === VariableType.FlowOutput ||
-        nextVariableConfig.type === VariableType.NodeInput ||
-        nextVariableConfig.type === VariableType.NodeOutput)
+      (prevVariableConfig.type === ConnectorType.FlowInput ||
+        prevVariableConfig.type === ConnectorType.FlowOutput ||
+        prevVariableConfig.type === ConnectorType.NodeInput ||
+        prevVariableConfig.type === ConnectorType.NodeOutput) &&
+      (nextVariableConfig.type === ConnectorType.FlowInput ||
+        nextVariableConfig.type === ConnectorType.FlowOutput ||
+        nextVariableConfig.type === ConnectorType.NodeInput ||
+        nextVariableConfig.type === ConnectorType.NodeOutput)
     ) {
       if (prevVariableConfig.valueType !== nextVariableConfig.valueType) {
         draft[0][nextVariableConfig.id] = null;

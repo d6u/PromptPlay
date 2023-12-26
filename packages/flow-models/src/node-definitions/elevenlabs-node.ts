@@ -2,21 +2,21 @@ import randomId from 'common-utils/randomId';
 import * as ElevenLabs from 'integrations/eleven-labs';
 import Joi from 'joi';
 import { Observable } from 'rxjs';
-import invariant from 'ts-invariant';
+import { invariant } from 'ts-invariant';
+import {
+  ConnectorType,
+  NodeInputVariable,
+  NodeOutputVariable,
+  VariableValueType,
+  asV3VariableID,
+} from '../base-types/connector-types';
+import { NodeID } from '../base-types/id-types';
 import {
   NodeDefinition,
   NodeExecutionEvent,
   NodeExecutionEventType,
-} from '../base/NodeDefinition';
-import {
-  NodeInputVariable,
-  NodeOutputVariable,
-  VariableType,
-  VariableValueType,
-} from '../base/connector-types';
-import { NodeID } from '../base/id-types';
-import { asV3VariableID } from '../base/v3-flow-utils';
-import NodeType from './NodeType';
+  NodeType,
+} from '../node-definition-base-types';
 
 export type V3ElevenLabsNodeConfig = {
   type: NodeType.ElevenLabs;
@@ -36,34 +36,34 @@ export const ELEVENLABS_NODE_DEFINITION: NodeDefinition<V3ElevenLabsNodeConfig> 
     isEnabledInToolbar: true,
     toolbarLabel: 'Eleven Labs Text to Speech',
 
-    createDefaultNodeConfig: (node) => {
+    createDefaultNodeConfig: (nodeId) => {
       return {
         nodeConfig: {
-          nodeId: node.id,
+          nodeId: nodeId,
           type: NodeType.ElevenLabs,
           voiceId: '',
         },
         variableConfigList: [
           {
-            type: VariableType.NodeInput,
-            id: asV3VariableID(`${node.id}/text`),
+            type: ConnectorType.NodeInput,
+            id: asV3VariableID(`${nodeId}/text`),
             name: 'text',
-            nodeId: node.id,
+            nodeId: nodeId,
             index: 0,
             valueType: VariableValueType.Unknown,
           },
           {
-            type: VariableType.NodeOutput,
-            id: asV3VariableID(`${node.id}/audio`),
+            type: ConnectorType.NodeOutput,
+            id: asV3VariableID(`${nodeId}/audio`),
             name: 'audio',
-            nodeId: node.id,
+            nodeId: nodeId,
             index: 0,
             valueType: VariableValueType.Audio,
           },
           {
-            type: VariableType.ConditionTarget,
-            id: asV3VariableID(`${node.id}/${randomId()}`),
-            nodeId: node.id,
+            type: ConnectorType.ConditionTarget,
+            id: asV3VariableID(`${nodeId}/${randomId()}`),
+            nodeId: nodeId,
           },
         ],
       };
@@ -97,7 +97,7 @@ export const ELEVENLABS_NODE_DEFINITION: NodeDefinition<V3ElevenLabsNodeConfig> 
 
         connectorList
           .filter((connector): connector is NodeInputVariable => {
-            return connector.type === VariableType.NodeInput;
+            return connector.type === ConnectorType.NodeInput;
           })
           .forEach((connector) => {
             argsMap[connector.name] = nodeInputValueMap[connector.id] ?? null;
@@ -105,7 +105,7 @@ export const ELEVENLABS_NODE_DEFINITION: NodeDefinition<V3ElevenLabsNodeConfig> 
 
         const variableAudio = connectorList.find(
           (conn): conn is NodeOutputVariable => {
-            return conn.type === VariableType.NodeOutput && conn.index === 0;
+            return conn.type === ConnectorType.NodeOutput && conn.index === 0;
           },
         );
 

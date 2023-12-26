@@ -2,21 +2,21 @@ import randomId from 'common-utils/randomId';
 import * as HuggingFace from 'integrations/hugging-face';
 import Joi from 'joi';
 import { Observable } from 'rxjs';
-import invariant from 'ts-invariant';
+import { invariant } from 'ts-invariant';
+import {
+  ConnectorType,
+  NodeInputVariable,
+  NodeOutputVariable,
+  VariableValueType,
+  asV3VariableID,
+} from '../base-types/connector-types';
+import { NodeID } from '../base-types/id-types';
 import {
   NodeDefinition,
   NodeExecutionEvent,
   NodeExecutionEventType,
-} from '../base/NodeDefinition';
-import {
-  NodeInputVariable,
-  NodeOutputVariable,
-  VariableType,
-  VariableValueType,
-} from '../base/connector-types';
-import { NodeID } from '../base/id-types';
-import { asV3VariableID } from '../base/v3-flow-utils';
-import NodeType from './NodeType';
+  NodeType,
+} from '../node-definition-base-types';
 
 // Reference: https://huggingface.co/docs/api-inference/index
 
@@ -38,34 +38,34 @@ export const HUGGINGFACE_INFERENCE_NODE_DEFINITION: NodeDefinition<V3HuggingFace
     isEnabledInToolbar: true,
     toolbarLabel: 'Hugging Face Inference',
 
-    createDefaultNodeConfig: (node) => {
+    createDefaultNodeConfig: (nodeId) => {
       return {
         nodeConfig: {
-          nodeId: node.id,
+          nodeId: nodeId,
           type: NodeType.HuggingFaceInference,
           model: 'gpt2',
         },
         variableConfigList: [
           {
-            type: VariableType.NodeInput,
-            id: asV3VariableID(`${node.id}/parameters`),
+            type: ConnectorType.NodeInput,
+            id: asV3VariableID(`${nodeId}/parameters`),
             name: 'parameters',
-            nodeId: node.id,
+            nodeId: nodeId,
             index: 0,
             valueType: VariableValueType.Unknown,
           },
           {
-            type: VariableType.NodeOutput,
-            id: asV3VariableID(`${node.id}/output`),
+            type: ConnectorType.NodeOutput,
+            id: asV3VariableID(`${nodeId}/output`),
             name: 'output',
-            nodeId: node.id,
+            nodeId: nodeId,
             index: 0,
             valueType: VariableValueType.Unknown,
           },
           {
-            type: VariableType.ConditionTarget,
-            id: asV3VariableID(`${node.id}/${randomId()}`),
-            nodeId: node.id,
+            type: ConnectorType.ConditionTarget,
+            id: asV3VariableID(`${nodeId}/${randomId()}`),
+            nodeId: nodeId,
           },
         ],
       };
@@ -104,7 +104,7 @@ export const HUGGINGFACE_INFERENCE_NODE_DEFINITION: NodeDefinition<V3HuggingFace
 
         connectorList
           .filter((connector): connector is NodeInputVariable => {
-            return connector.type === VariableType.NodeInput;
+            return connector.type === ConnectorType.NodeInput;
           })
           .forEach((connector) => {
             argsMap[connector.name] = nodeInputValueMap[connector.id] ?? null;
@@ -112,7 +112,7 @@ export const HUGGINGFACE_INFERENCE_NODE_DEFINITION: NodeDefinition<V3HuggingFace
 
         const variableOutput = connectorList.find(
           (conn): conn is NodeOutputVariable => {
-            return conn.type === VariableType.NodeOutput && conn.index === 0;
+            return conn.type === ConnectorType.NodeOutput && conn.index === 0;
           },
         );
 

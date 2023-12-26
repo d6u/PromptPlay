@@ -2,21 +2,21 @@ import chance from 'common-utils/chance';
 import randomId from 'common-utils/randomId';
 import Joi from 'joi';
 import { Observable } from 'rxjs';
-import invariant from 'ts-invariant';
+import { invariant } from 'ts-invariant';
+import {
+  ConnectorResultMap,
+  ConnectorType,
+  FlowOutputVariable,
+  VariableValueType,
+  asV3VariableID,
+} from '../../base-types/connector-types';
+import { NodeID } from '../../base-types/id-types';
 import {
   NodeDefinition,
   NodeExecutionEvent,
   NodeExecutionEventType,
-} from '../base/NodeDefinition';
-import {
-  FlowOutputVariable,
-  V3VariableValueLookUpDict,
-  VariableType,
-  VariableValueType,
-} from '../base/connector-types';
-import { NodeID } from '../base/id-types';
-import { asV3VariableID } from '../base/v3-flow-utils';
-import NodeType from './NodeType';
+  NodeType,
+} from '../../node-definition-base-types';
 
 export type V3OutputNodeConfig = {
   type: NodeType.OutputNode;
@@ -34,17 +34,17 @@ export const OUTPUT_NODE_DEFINITION: NodeDefinition<V3OutputNodeConfig> = {
   isEnabledInToolbar: true,
   toolbarLabel: 'Output',
 
-  createDefaultNodeConfig: (node) => {
+  createDefaultNodeConfig: (nodeId) => {
     return {
       nodeConfig: {
-        nodeId: node.id,
+        nodeId: nodeId,
         type: NodeType.OutputNode,
       },
       variableConfigList: [
         {
-          type: VariableType.FlowOutput,
-          id: asV3VariableID(`${node.id}/${randomId()}`),
-          nodeId: node.id,
+          type: ConnectorType.FlowOutput,
+          id: asV3VariableID(`${nodeId}/${randomId()}`),
+          nodeId: nodeId,
           index: 0,
           name: chance.word(),
           valueType: VariableValueType.String,
@@ -65,11 +65,11 @@ export const OUTPUT_NODE_DEFINITION: NodeDefinition<V3OutputNodeConfig> = {
         nodeId: nodeConfig.nodeId,
       });
 
-      const flowOutputValueMap: V3VariableValueLookUpDict = {};
+      const flowOutputValueMap: ConnectorResultMap = {};
 
       connectorList
         .filter((connector): connector is FlowOutputVariable => {
-          return connector.type === VariableType.FlowOutput;
+          return connector.type === ConnectorType.FlowOutput;
         })
         .forEach((connector) => {
           flowOutputValueMap[connector.id] = nodeInputValueMap[connector.id];

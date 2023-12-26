@@ -4,10 +4,10 @@ import FormLabel from '@mui/joy/FormLabel';
 import IconButton from '@mui/joy/IconButton';
 import Textarea from '@mui/joy/Textarea';
 import {
+  ConnectorType,
   NodeID,
   NodeType,
   V3TextTemplateNodeConfig,
-  VariableType,
 } from 'flow-models';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { Position, useNodeId, useUpdateNodeInternals } from 'reactflow';
@@ -75,11 +75,11 @@ export default function TextTemplateNode() {
   }, [nodeConfigs, nodeId]);
 
   const inputs = useMemo(() => {
-    return selectVariables(nodeId, VariableType.NodeInput, variableConfigs);
+    return selectVariables(nodeId, ConnectorType.NodeInput, variableConfigs);
   }, [nodeId, variableConfigs]);
 
   const outputs = useMemo(() => {
-    return selectVariables(nodeId, VariableType.NodeOutput, variableConfigs);
+    return selectVariables(nodeId, ConnectorType.NodeOutput, variableConfigs);
   }, [nodeId, variableConfigs]);
 
   const conditionTarget = useMemo(() => {
@@ -129,7 +129,7 @@ export default function TextTemplateNode() {
           <SmallSection>
             <AddVariableButton
               onClick={() => {
-                addVariable(nodeId, VariableType.NodeInput, inputs.length);
+                addVariable(nodeId, ConnectorType.NodeInput, inputs.length);
                 updateNodeInternals(nodeId);
               }}
             />

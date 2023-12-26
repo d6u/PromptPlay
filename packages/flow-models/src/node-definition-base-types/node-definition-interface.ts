@@ -1,11 +1,12 @@
 import type { Observable } from 'rxjs';
+import type {
+  Connector,
+  ConnectorID,
+  ConnectorResultMap,
+  NodeID,
+} from '../base-types';
+import type { NodeConfig } from '../node-definitions/index';
 import NodeExecutionContext from './NodeExecutionContext';
-import type { V3VariableValueLookUpDict, Variable } from './connector-types';
-import type { NodeID, V3VariableID } from './id-types';
-import type { LocalNode } from './local-node-types';
-
-// NOTE: This is a circular dependency, only import type
-import type { NodeConfig } from '../nodes';
 
 export interface NodeDefinition<T extends NodeConfig> {
   nodeType: T['type'];
@@ -13,9 +14,9 @@ export interface NodeDefinition<T extends NodeConfig> {
   isEnabledInToolbar?: boolean;
   toolbarLabel?: string;
 
-  createDefaultNodeConfig: (node: LocalNode) => {
+  createDefaultNodeConfig: (nodeId: NodeID) => {
     nodeConfig: T;
-    variableConfigList: Variable[];
+    variableConfigList: Connector[];
   };
 
   createNodeExecutionObservable: (
@@ -43,13 +44,13 @@ export type NodeExecutionEvent =
   | {
       type: NodeExecutionEventType.Finish;
       nodeId: NodeID;
-      finishedConnectorIds: V3VariableID[];
+      finishedConnectorIds: ConnectorID[];
     }
   | {
       type: NodeExecutionEventType.VariableValues;
       nodeId: NodeID;
       // NOTE: Event should always contain all variable values
-      variableValuesLookUpDict: V3VariableValueLookUpDict;
+      variableValuesLookUpDict: ConnectorResultMap;
     }
   | {
       type: NodeExecutionEventType.Errors;
@@ -60,11 +61,11 @@ export type NodeExecutionEvent =
 
 export type NodeExecutionConfig<T extends NodeConfig> = {
   nodeConfig: T;
-  connectorList: Variable[];
+  connectorList: Connector[];
 };
 
 export type NodeExecutionParams = {
-  nodeInputValueMap: V3VariableValueLookUpDict;
+  nodeInputValueMap: ConnectorResultMap;
   useStreaming: boolean;
   openAiApiKey: string | null;
   huggingFaceApiToken: string | null;

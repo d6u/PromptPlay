@@ -2,20 +2,20 @@ import chance from 'common-utils/chance';
 import randomId from 'common-utils/randomId';
 import Joi from 'joi';
 import { Observable } from 'rxjs';
-import invariant from 'ts-invariant';
+import { invariant } from 'ts-invariant';
+import {
+  ConnectorType,
+  FlowInputVariable,
+  VariableValueType,
+  asV3VariableID,
+} from '../../base-types/connector-types';
+import { NodeID } from '../../base-types/id-types';
 import {
   NodeDefinition,
   NodeExecutionEvent,
   NodeExecutionEventType,
-} from '../base/NodeDefinition';
-import {
-  FlowInputVariable,
-  VariableType,
-  VariableValueType,
-} from '../base/connector-types';
-import { NodeID } from '../base/id-types';
-import { asV3VariableID } from '../base/v3-flow-utils';
-import NodeType from './NodeType';
+  NodeType,
+} from '../../node-definition-base-types';
 
 export type V3InputNodeConfig = {
   type: NodeType.InputNode;
@@ -33,17 +33,17 @@ export const INPUT_NODE_DEFINITION: NodeDefinition<V3InputNodeConfig> = {
   isEnabledInToolbar: true,
   toolbarLabel: 'Input',
 
-  createDefaultNodeConfig(node) {
+  createDefaultNodeConfig(nodeId) {
     return {
       nodeConfig: {
-        nodeId: node.id,
+        nodeId: nodeId,
         type: NodeType.InputNode,
       },
       variableConfigList: [
         {
-          type: VariableType.FlowInput,
-          id: asV3VariableID(`${node.id}/${randomId()}`),
-          nodeId: node.id,
+          type: ConnectorType.FlowInput,
+          id: asV3VariableID(`${nodeId}/${randomId()}`),
+          nodeId: nodeId,
           index: 0,
           name: chance.word(),
           valueType: VariableValueType.String,
@@ -65,7 +65,7 @@ export const INPUT_NODE_DEFINITION: NodeDefinition<V3InputNodeConfig> = {
 
       const connectorIdList = connectorList
         .filter((connector): connector is FlowInputVariable => {
-          return connector.type === VariableType.FlowInput;
+          return connector.type === ConnectorType.FlowInput;
         })
         .map((connector) => connector.id);
 

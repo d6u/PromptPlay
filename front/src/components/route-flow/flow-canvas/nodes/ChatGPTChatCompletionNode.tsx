@@ -7,11 +7,11 @@ import Option from '@mui/joy/Option';
 import Select from '@mui/joy/Select';
 import {
   ChatGPTChatCompletionResponseFormatType,
+  ConnectorType,
   NodeID,
   NodeType,
   OpenAIChatModel,
   V3ChatGPTChatCompletionNodeConfig,
-  VariableType,
 } from 'flow-models';
 import { NEW_LINE_SYMBOL } from 'integrations/openai';
 import { useContext, useEffect, useMemo, useState } from 'react';
@@ -93,11 +93,11 @@ export default function ChatGPTChatCompletionNode() {
   }, [nodeId, variablesDict]);
 
   const inputVariables = useMemo(() => {
-    return selectVariables(nodeId, VariableType.NodeInput, variablesDict);
+    return selectVariables(nodeId, ConnectorType.NodeInput, variablesDict);
   }, [nodeId, variablesDict]);
 
   const outputVariables = useMemo(() => {
-    return selectVariables(nodeId, VariableType.NodeOutput, variablesDict);
+    return selectVariables(nodeId, ConnectorType.NodeOutput, variablesDict);
   }, [nodeId, variablesDict]);
 
   // It's OK to force unwrap here because nodeConfig will be undefined only

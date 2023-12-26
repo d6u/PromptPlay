@@ -6,10 +6,10 @@ import Radio from '@mui/joy/Radio';
 import RadioGroup from '@mui/joy/RadioGroup';
 import Textarea from '@mui/joy/Textarea';
 import {
+  ConnectorType,
   NodeID,
   NodeType,
   V3ChatGPTMessageNodeConfig,
-  VariableType,
 } from 'flow-models';
 import { ChatGPTMessageRole } from 'integrations/openai';
 import { useContext, useEffect, useMemo, useState } from 'react';
@@ -78,7 +78,7 @@ export default function ChatGPTMessageNode() {
 
   const outputVariables = selectVariables(
     nodeId,
-    VariableType.NodeOutput,
+    ConnectorType.NodeOutput,
     variablesDict,
   );
 
@@ -89,7 +89,7 @@ export default function ChatGPTMessageNode() {
   // SECTION: Input Variables
 
   const inputs = useMemo(() => {
-    return selectVariables(nodeId, VariableType.NodeInput, variablesDict);
+    return selectVariables(nodeId, ConnectorType.NodeInput, variablesDict);
   }, [nodeId, variablesDict]);
 
   const conditionTarget = useMemo(() => {
@@ -160,7 +160,7 @@ export default function ChatGPTMessageNode() {
           <SmallSection>
             <AddVariableButton
               onClick={() => {
-                addVariable(nodeId, VariableType.NodeInput, inputs.length);
+                addVariable(nodeId, ConnectorType.NodeInput, inputs.length);
                 updateNodeInternals(nodeId);
               }}
             />

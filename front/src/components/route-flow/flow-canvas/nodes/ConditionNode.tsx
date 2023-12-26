@@ -1,5 +1,5 @@
 import { Checkbox, FormControl, FormHelperText, FormLabel } from '@mui/joy';
-import { ConditionResult, NodeID, NodeType, VariableType } from 'flow-models';
+import { ConditionResult, ConnectorType, NodeID, NodeType } from 'flow-models';
 import { useContext, useMemo } from 'react';
 import { Position, useNodeId, useUpdateNodeInternals } from 'reactflow';
 import invariant from 'ts-invariant';
@@ -65,7 +65,7 @@ export default function ConditionNode() {
   }, [nodeId, connectorMap]);
 
   const nodeInputs = useMemo(() => {
-    return selectVariables(nodeId, VariableType.NodeInput, connectorMap);
+    return selectVariables(nodeId, ConnectorType.NodeInput, connectorMap);
   }, [nodeId, connectorMap]);
 
   const conditions = useMemo(() => {
@@ -162,7 +162,7 @@ export default function ConditionNode() {
               onClick={() => {
                 addVariable(
                   nodeId,
-                  VariableType.Condition,
+                  ConnectorType.Condition,
                   normalConditions.length,
                 );
                 updateNodeInternals(nodeId);

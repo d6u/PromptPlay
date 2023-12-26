@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 import { Button } from '@mui/joy';
-import { VariableType, VariableValueType } from 'flow-models';
+import { ConnectorType, VariableValueType } from 'flow-models';
 import { useContext, useMemo } from 'react';
 import { useStore } from 'zustand';
 import FlowContext from '../../../FlowContext';
@@ -36,11 +36,11 @@ export default function PanelEvaluationModeSimple() {
   // !SECTION
 
   const flowInputs = useMemo(() => {
-    return selectAllVariables(VariableType.FlowInput, variableMap);
+    return selectAllVariables(ConnectorType.FlowInput, variableMap);
   }, [variableMap]);
 
   const flowOutputs = useMemo(() => {
-    return selectAllVariables(VariableType.FlowOutput, variableMap);
+    return selectAllVariables(ConnectorType.FlowOutput, variableMap);
   }, [variableMap]);
 
   return (

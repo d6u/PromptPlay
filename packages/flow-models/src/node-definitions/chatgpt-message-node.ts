@@ -4,21 +4,21 @@ import * as OpenAI from 'integrations/openai';
 import Joi from 'joi';
 import mustache from 'mustache';
 import { Observable } from 'rxjs';
-import invariant from 'ts-invariant';
+import { invariant } from 'ts-invariant';
+import {
+  ConnectorType,
+  NodeInputVariable,
+  NodeOutputVariable,
+  VariableValueType,
+  asV3VariableID,
+} from '../base-types/connector-types';
+import { NodeID } from '../base-types/id-types';
 import {
   NodeDefinition,
   NodeExecutionEvent,
   NodeExecutionEventType,
-} from '../base/NodeDefinition';
-import {
-  NodeInputVariable,
-  NodeOutputVariable,
-  VariableType,
-  VariableValueType,
-} from '../base/connector-types';
-import { NodeID } from '../base/id-types';
-import { asV3VariableID } from '../base/v3-flow-utils';
-import NodeType from './NodeType';
+  NodeType,
+} from '../node-definition-base-types';
 
 export type V3ChatGPTMessageNodeConfig = {
   type: NodeType.ChatGPTMessageNode;
@@ -41,51 +41,51 @@ export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition<V3ChatGPTMessageNod
     isEnabledInToolbar: true,
     toolbarLabel: 'ChatGPT Message',
 
-    createDefaultNodeConfig: (node) => {
+    createDefaultNodeConfig: (nodeId) => {
       return {
         nodeConfig: {
-          nodeId: node.id,
+          nodeId: nodeId,
           type: NodeType.ChatGPTMessageNode,
           role: OpenAI.ChatGPTMessageRole.user,
           content: 'Write a poem about {{topic}} in fewer than 20 words.',
         },
         variableConfigList: [
           {
-            type: VariableType.NodeInput,
-            id: asV3VariableID(`${node.id}/messages_in`),
-            nodeId: node.id,
+            type: ConnectorType.NodeInput,
+            id: asV3VariableID(`${nodeId}/messages_in`),
+            nodeId: nodeId,
             name: 'messages',
             index: 0,
             valueType: VariableValueType.Unknown,
           },
           {
-            type: VariableType.NodeInput,
-            id: asV3VariableID(`${node.id}/${randomId()}`),
-            nodeId: node.id,
+            type: ConnectorType.NodeInput,
+            id: asV3VariableID(`${nodeId}/${randomId()}`),
+            nodeId: nodeId,
             name: 'topic',
             index: 1,
             valueType: VariableValueType.Unknown,
           },
           {
-            type: VariableType.NodeOutput,
-            id: asV3VariableID(`${node.id}/message`),
-            nodeId: node.id,
+            type: ConnectorType.NodeOutput,
+            id: asV3VariableID(`${nodeId}/message`),
+            nodeId: nodeId,
             name: 'message',
             index: 0,
             valueType: VariableValueType.Unknown,
           },
           {
-            type: VariableType.NodeOutput,
-            id: asV3VariableID(`${node.id}/messages_out`),
-            nodeId: node.id,
+            type: ConnectorType.NodeOutput,
+            id: asV3VariableID(`${nodeId}/messages_out`),
+            nodeId: nodeId,
             name: 'messages',
             index: 1,
             valueType: VariableValueType.Unknown,
           },
           {
-            type: VariableType.ConditionTarget,
-            id: asV3VariableID(`${node.id}/${randomId()}`),
-            nodeId: node.id,
+            type: ConnectorType.ConditionTarget,
+            id: asV3VariableID(`${nodeId}/${randomId()}`),
+            nodeId: nodeId,
           },
         ],
       };
@@ -107,7 +107,7 @@ export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition<V3ChatGPTMessageNod
 
         connectorList
           .filter((connector): connector is NodeInputVariable => {
-            return connector.type === VariableType.NodeInput;
+            return connector.type === ConnectorType.NodeInput;
           })
           .forEach((connector) => {
             argsMap[connector.name] = nodeInputValueMap[connector.id] ?? null;
@@ -126,12 +126,12 @@ export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition<V3ChatGPTMessageNod
 
         const variableMessage = connectorList.find(
           (conn): conn is NodeOutputVariable => {
-            return conn.type === VariableType.NodeOutput && conn.index === 0;
+            return conn.type === ConnectorType.NodeOutput && conn.index === 0;
           },
         );
         const variableMessages = connectorList.find(
           (conn): conn is NodeOutputVariable => {
-            return conn.type === VariableType.NodeOutput && conn.index === 1;
+            return conn.type === ConnectorType.NodeOutput && conn.index === 1;
           },
         );
 

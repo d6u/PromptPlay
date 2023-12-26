@@ -3,10 +3,10 @@ import FormHelperText from '@mui/joy/FormHelperText';
 import FormLabel from '@mui/joy/FormLabel';
 import Input from '@mui/joy/Input';
 import {
+  ConnectorType,
   NodeID,
   NodeType,
   V3HuggingFaceInferenceNodeConfig,
-  VariableType,
 } from 'flow-models';
 import { useContext, useMemo, useState } from 'react';
 import { Position, useNodeId } from 'reactflow';
@@ -78,13 +78,13 @@ export default function HuggingFaceInferenceNode() {
 
   const inputVariables = selectVariables(
     nodeId,
-    VariableType.NodeInput,
+    ConnectorType.NodeInput,
     variableConfigs,
   );
 
   const outputVariables = selectVariables(
     nodeId,
-    VariableType.NodeOutput,
+    ConnectorType.NodeOutput,
     variableConfigs,
   );
 

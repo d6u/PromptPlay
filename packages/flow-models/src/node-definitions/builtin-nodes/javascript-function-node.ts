@@ -1,20 +1,20 @@
 import randomId from 'common-utils/randomId';
 import Joi from 'joi';
 import { Observable } from 'rxjs';
-import invariant from 'ts-invariant';
+import { invariant } from 'ts-invariant';
+import {
+  ConnectorType,
+  NodeInputVariable,
+  VariableValueType,
+  asV3VariableID,
+} from '../../base-types/connector-types';
+import { NodeID } from '../../base-types/id-types';
 import {
   NodeDefinition,
   NodeExecutionEvent,
   NodeExecutionEventType,
-} from '../base/NodeDefinition';
-import {
-  NodeInputVariable,
-  VariableType,
-  VariableValueType,
-} from '../base/connector-types';
-import { NodeID } from '../base/id-types';
-import { asV3VariableID } from '../base/v3-flow-utils';
-import NodeType from './NodeType';
+  NodeType,
+} from '../../node-definition-base-types';
 
 export type V3JavaScriptFunctionNodeConfig = {
   type: NodeType.JavaScriptFunctionNode;
@@ -35,26 +35,26 @@ export const JAVASCRIPT_NODE_DEFINITION: NodeDefinition<V3JavaScriptFunctionNode
     isEnabledInToolbar: true,
     toolbarLabel: 'JavaScript',
 
-    createDefaultNodeConfig: (node) => {
+    createDefaultNodeConfig: (nodeId) => {
       return {
         nodeConfig: {
-          nodeId: node.id,
+          nodeId: nodeId,
           type: NodeType.JavaScriptFunctionNode,
           javaScriptCode: 'return "Hello, World!"',
         },
         variableConfigList: [
           {
-            type: VariableType.NodeOutput,
-            id: asV3VariableID(`${node.id}/output`),
-            nodeId: node.id,
+            type: ConnectorType.NodeOutput,
+            id: asV3VariableID(`${nodeId}/output`),
+            nodeId: nodeId,
             name: 'output',
             index: 0,
             valueType: VariableValueType.Unknown,
           },
           {
-            type: VariableType.ConditionTarget,
-            id: asV3VariableID(`${node.id}/${randomId()}`),
-            nodeId: node.id,
+            type: ConnectorType.ConditionTarget,
+            id: asV3VariableID(`${nodeId}/${randomId()}`),
+            nodeId: nodeId,
           },
         ],
       };
@@ -74,7 +74,7 @@ export const JAVASCRIPT_NODE_DEFINITION: NodeDefinition<V3JavaScriptFunctionNode
 
         const pairs: [string, unknown][] = connectorList
           .filter((connector): connector is NodeInputVariable => {
-            return connector.type === VariableType.NodeInput;
+            return connector.type === ConnectorType.NodeInput;
           })
           .sort((a, b) => a.index - b.index)
           .map((connector) => {
@@ -83,7 +83,7 @@ export const JAVASCRIPT_NODE_DEFINITION: NodeDefinition<V3JavaScriptFunctionNode
 
         const outputVariable = connectorList.find(
           (connector): connector is NodeInputVariable =>
-            connector.type === VariableType.NodeOutput,
+            connector.type === ConnectorType.NodeOutput,
         );
 
         invariant(outputVariable != null);

@@ -1,12 +1,12 @@
 import {
   Condition,
+  Connector,
+  ConnectorID,
+  ConnectorType,
   LocalNode,
   NodeConfig,
   NodeID,
   V3LocalEdge,
-  V3VariableID,
-  Variable,
-  VariableType,
 } from 'flow-models';
 import { Connection, EdgeChange, NodeChange } from 'reactflow';
 
@@ -141,24 +141,24 @@ export type ChangeEvent =
   | {
       type: ChangeEventType.ADDING_VARIABLE;
       nodeId: NodeID;
-      varType: VariableType;
+      varType: ConnectorType;
       index: number;
     }
   | {
       type: ChangeEventType.REMOVING_VARIABLE;
-      variableId: V3VariableID;
+      variableId: ConnectorID;
     }
   | {
       type: ChangeEventType.UPDATING_VARIABLE;
-      variableId: V3VariableID;
-      change: Partial<Variable>;
+      variableId: ConnectorID;
+      change: Partial<Connector>;
     }
   // ANCHOR: Derived
   // Derived Nodes
   | {
       type: ChangeEventType.NODE_AND_VARIABLES_ADDED;
       node: LocalNode;
-      variableConfigList: Variable[];
+      variableConfigList: Connector[];
     }
   | {
       type: ChangeEventType.NODE_REMOVED;
@@ -179,7 +179,7 @@ export type ChangeEvent =
   | {
       type: ChangeEventType.EDGE_REMOVED;
       removedEdge: V3LocalEdge;
-      edgeSrcVariableConfig: Variable | null;
+      edgeSrcVariableConfig: Connector | null;
     }
   | {
       type: ChangeEventType.EDGE_REPLACED;
@@ -189,16 +189,16 @@ export type ChangeEvent =
   // Derived Variables
   | {
       type: ChangeEventType.VARIABLE_UPDATED;
-      prevVariableConfig: Variable;
-      nextVariableConfig: Variable;
+      prevVariableConfig: Connector;
+      nextVariableConfig: Connector;
     }
   | {
       type: ChangeEventType.VARIABLE_ADDED;
-      variableId: V3VariableID;
+      variableId: ConnectorID;
     }
   | {
       type: ChangeEventType.VARIABLE_REMOVED;
-      removedVariable: Variable;
+      removedVariable: Connector;
     }
   // Derived Conditions
   | {

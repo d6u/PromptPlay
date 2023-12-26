@@ -1,6 +1,9 @@
+import Joi from 'joi';
 import type { Node } from 'reactflow';
-import type { NodeType } from '../nodes';
-import { NodeID } from './id-types';
+import type { NodeID } from './id-types';
+
+// NOTE: This is a circular dependency, only import type
+import type { NodeType } from '../node-definitions';
 
 export type ServerNode = {
   id: NodeID;
@@ -14,3 +17,7 @@ export type ServerNode = {
 
 export type LocalNode = Omit<Node<null, NodeType>, 'id' | 'type' | 'data'> &
   ServerNode;
+
+export const NodeSchema = Joi.object({
+  id: Joi.string().required(),
+});
