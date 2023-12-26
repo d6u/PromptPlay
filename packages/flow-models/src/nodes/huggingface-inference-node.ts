@@ -38,34 +38,34 @@ export const HUGGINGFACE_INFERENCE_NODE_DEFINITION: NodeDefinition<V3HuggingFace
     isEnabledInToolbar: true,
     toolbarLabel: 'Hugging Face Inference',
 
-    createDefaultNodeConfig: (node) => {
+    createDefaultNodeConfig: (nodeId) => {
       return {
         nodeConfig: {
-          nodeId: node.id,
+          nodeId: nodeId,
           type: NodeType.HuggingFaceInference,
           model: 'gpt2',
         },
         variableConfigList: [
           {
             type: ConnectorType.NodeInput,
-            id: asV3VariableID(`${node.id}/parameters`),
+            id: asV3VariableID(`${nodeId}/parameters`),
             name: 'parameters',
-            nodeId: node.id,
+            nodeId: nodeId,
             index: 0,
             valueType: VariableValueType.Unknown,
           },
           {
             type: ConnectorType.NodeOutput,
-            id: asV3VariableID(`${node.id}/output`),
+            id: asV3VariableID(`${nodeId}/output`),
             name: 'output',
-            nodeId: node.id,
+            nodeId: nodeId,
             index: 0,
             valueType: VariableValueType.Unknown,
           },
           {
             type: ConnectorType.ConditionTarget,
-            id: asV3VariableID(`${node.id}/${randomId()}`),
-            nodeId: node.id,
+            id: asV3VariableID(`${nodeId}/${randomId()}`),
+            nodeId: nodeId,
           },
         ],
       };

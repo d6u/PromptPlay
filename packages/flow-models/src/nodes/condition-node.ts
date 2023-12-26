@@ -39,47 +39,47 @@ export const CONDITION_NODE_DEFINITION: NodeDefinition<V3ConditionNodeConfig> =
     isEnabledInToolbar: true,
     toolbarLabel: 'Condition',
 
-    createDefaultNodeConfig: (node) => {
+    createDefaultNodeConfig: (nodeId) => {
       return {
         nodeConfig: {
           type: NodeType.ConditionNode,
-          nodeId: node.id,
+          nodeId: nodeId,
           stopAtTheFirstMatch: true,
         },
         variableConfigList: [
           {
             type: ConnectorType.NodeInput,
-            id: asV3VariableID(`${node.id}/input`),
-            nodeId: node.id,
+            id: asV3VariableID(`${nodeId}/input`),
+            nodeId: nodeId,
             index: 0,
             name: 'input',
             valueType: VariableValueType.Unknown,
           },
           {
             type: ConnectorType.Condition,
-            id: asV3VariableID(`${node.id}/${randomId()}`),
+            id: asV3VariableID(`${nodeId}/${randomId()}`),
             index: -1, // Special condition for default case
-            nodeId: node.id,
+            nodeId: nodeId,
             expressionString: '',
           },
           {
             type: ConnectorType.Condition,
-            id: asV3VariableID(`${node.id}/${randomId()}`),
+            id: asV3VariableID(`${nodeId}/${randomId()}`),
             index: 0,
-            nodeId: node.id,
+            nodeId: nodeId,
             expressionString: '$ = "Value A"',
           },
           {
             type: ConnectorType.Condition,
-            id: asV3VariableID(`${node.id}/${randomId()}`),
+            id: asV3VariableID(`${nodeId}/${randomId()}`),
             index: 1,
-            nodeId: node.id,
+            nodeId: nodeId,
             expressionString: '$ = "Value B"',
           },
           {
             type: ConnectorType.ConditionTarget,
-            id: asV3VariableID(`${node.id}/${randomId()}`),
-            nodeId: node.id,
+            id: asV3VariableID(`${nodeId}/${randomId()}`),
+            nodeId: nodeId,
           },
         ],
       };

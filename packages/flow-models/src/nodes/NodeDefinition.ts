@@ -1,7 +1,6 @@
 import type { Observable } from 'rxjs';
 import type { Connector, ConnectorResultMap } from '../base/connector-types';
 import type { ConnectorID, NodeID } from '../base/id-types';
-import type { LocalNode } from '../base/ui-node-types';
 import NodeExecutionContext from './NodeExecutionContext';
 
 // NOTE: This is a circular dependency, only import type
@@ -13,7 +12,7 @@ export interface NodeDefinition<T extends NodeConfig> {
   isEnabledInToolbar?: boolean;
   toolbarLabel?: string;
 
-  createDefaultNodeConfig: (node: LocalNode) => {
+  createDefaultNodeConfig: (nodeId: NodeID) => {
     nodeConfig: T;
     variableConfigList: Connector[];
   };

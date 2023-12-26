@@ -37,34 +37,34 @@ export const TEXT_TEMPLATE_NODE_DEFINITION: NodeDefinition<V3TextTemplateNodeCon
     isEnabledInToolbar: true,
     toolbarLabel: 'Text',
 
-    createDefaultNodeConfig: (node) => {
+    createDefaultNodeConfig: (nodeId) => {
       return {
         nodeConfig: {
-          nodeId: node.id,
+          nodeId: nodeId,
           type: NodeType.TextTemplate,
           content: 'Write a poem about {{topic}} in fewer than 20 words.',
         },
         variableConfigList: [
           {
             type: ConnectorType.NodeInput,
-            id: asV3VariableID(`${node.id}/${randomId()}`),
+            id: asV3VariableID(`${nodeId}/${randomId()}`),
             name: 'topic',
-            nodeId: node.id,
+            nodeId: nodeId,
             index: 0,
             valueType: VariableValueType.Unknown,
           },
           {
             type: ConnectorType.NodeOutput,
-            id: asV3VariableID(`${node.id}/content`),
+            id: asV3VariableID(`${nodeId}/content`),
             name: 'content',
-            nodeId: node.id,
+            nodeId: nodeId,
             index: 0,
             valueType: VariableValueType.Unknown,
           },
           {
             type: ConnectorType.ConditionTarget,
-            id: asV3VariableID(`${node.id}/${randomId()}`),
-            nodeId: node.id,
+            id: asV3VariableID(`${nodeId}/${randomId()}`),
+            nodeId: nodeId,
           },
         ],
       };

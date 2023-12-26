@@ -41,10 +41,10 @@ export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition<V3ChatGPTMessageNod
     isEnabledInToolbar: true,
     toolbarLabel: 'ChatGPT Message',
 
-    createDefaultNodeConfig: (node) => {
+    createDefaultNodeConfig: (nodeId) => {
       return {
         nodeConfig: {
-          nodeId: node.id,
+          nodeId: nodeId,
           type: NodeType.ChatGPTMessageNode,
           role: OpenAI.ChatGPTMessageRole.user,
           content: 'Write a poem about {{topic}} in fewer than 20 words.',
@@ -52,40 +52,40 @@ export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition<V3ChatGPTMessageNod
         variableConfigList: [
           {
             type: ConnectorType.NodeInput,
-            id: asV3VariableID(`${node.id}/messages_in`),
-            nodeId: node.id,
+            id: asV3VariableID(`${nodeId}/messages_in`),
+            nodeId: nodeId,
             name: 'messages',
             index: 0,
             valueType: VariableValueType.Unknown,
           },
           {
             type: ConnectorType.NodeInput,
-            id: asV3VariableID(`${node.id}/${randomId()}`),
-            nodeId: node.id,
+            id: asV3VariableID(`${nodeId}/${randomId()}`),
+            nodeId: nodeId,
             name: 'topic',
             index: 1,
             valueType: VariableValueType.Unknown,
           },
           {
             type: ConnectorType.NodeOutput,
-            id: asV3VariableID(`${node.id}/message`),
-            nodeId: node.id,
+            id: asV3VariableID(`${nodeId}/message`),
+            nodeId: nodeId,
             name: 'message',
             index: 0,
             valueType: VariableValueType.Unknown,
           },
           {
             type: ConnectorType.NodeOutput,
-            id: asV3VariableID(`${node.id}/messages_out`),
-            nodeId: node.id,
+            id: asV3VariableID(`${nodeId}/messages_out`),
+            nodeId: nodeId,
             name: 'messages',
             index: 1,
             valueType: VariableValueType.Unknown,
           },
           {
             type: ConnectorType.ConditionTarget,
-            id: asV3VariableID(`${node.id}/${randomId()}`),
-            nodeId: node.id,
+            id: asV3VariableID(`${nodeId}/${randomId()}`),
+            nodeId: nodeId,
           },
         ],
       };

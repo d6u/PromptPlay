@@ -367,7 +367,7 @@ function handleAddingNode(
 
   const { nodeConfig, variableConfigList } = getNodeDefinitionForNodeTypeName(
     node.type,
-  ).createDefaultNodeConfig(node);
+  ).createDefaultNodeConfig(node.id);
 
   const nodes = produce(prevNodes, (draft) => {
     draft.push({

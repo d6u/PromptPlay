@@ -34,17 +34,17 @@ export const OUTPUT_NODE_DEFINITION: NodeDefinition<V3OutputNodeConfig> = {
   isEnabledInToolbar: true,
   toolbarLabel: 'Output',
 
-  createDefaultNodeConfig: (node) => {
+  createDefaultNodeConfig: (nodeId) => {
     return {
       nodeConfig: {
-        nodeId: node.id,
+        nodeId: nodeId,
         type: NodeType.OutputNode,
       },
       variableConfigList: [
         {
           type: ConnectorType.FlowOutput,
-          id: asV3VariableID(`${node.id}/${randomId()}`),
-          nodeId: node.id,
+          id: asV3VariableID(`${nodeId}/${randomId()}`),
+          nodeId: nodeId,
           index: 0,
           name: chance.word(),
           valueType: VariableValueType.String,

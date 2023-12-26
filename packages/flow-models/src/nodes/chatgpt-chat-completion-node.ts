@@ -70,10 +70,10 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<V3ChatGPTCh
     isEnabledInToolbar: true,
     toolbarLabel: 'ChatGPT Chat Completion',
 
-    createDefaultNodeConfig: (node) => {
+    createDefaultNodeConfig: (nodeId) => {
       return {
         nodeConfig: {
-          nodeId: node.id,
+          nodeId: nodeId,
           type: NodeType.ChatGPTChatCompletionNode,
           model: OpenAIChatModel.GPT_4,
           temperature: 1,
@@ -84,40 +84,40 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<V3ChatGPTCh
         variableConfigList: [
           {
             type: ConnectorType.NodeInput,
-            id: asV3VariableID(`${node.id}/messages_in`),
-            nodeId: node.id,
+            id: asV3VariableID(`${nodeId}/messages_in`),
+            nodeId: nodeId,
             name: 'messages',
             index: 0,
             valueType: VariableValueType.Unknown,
           },
           {
             type: ConnectorType.NodeOutput,
-            id: asV3VariableID(`${node.id}/content`),
-            nodeId: node.id,
+            id: asV3VariableID(`${nodeId}/content`),
+            nodeId: nodeId,
             name: 'content',
             index: 0,
             valueType: VariableValueType.Unknown,
           },
           {
             type: ConnectorType.NodeOutput,
-            id: asV3VariableID(`${node.id}/message`),
-            nodeId: node.id,
+            id: asV3VariableID(`${nodeId}/message`),
+            nodeId: nodeId,
             name: 'message',
             index: 1,
             valueType: VariableValueType.Unknown,
           },
           {
             type: ConnectorType.NodeOutput,
-            id: asV3VariableID(`${node.id}/messages_out`),
-            nodeId: node.id,
+            id: asV3VariableID(`${nodeId}/messages_out`),
+            nodeId: nodeId,
             name: 'messages',
             index: 2,
             valueType: VariableValueType.Unknown,
           },
           {
             type: ConnectorType.ConditionTarget,
-            id: asV3VariableID(`${node.id}/${randomId()}`),
-            nodeId: node.id,
+            id: asV3VariableID(`${nodeId}/${randomId()}`),
+            nodeId: nodeId,
           },
         ],
       };

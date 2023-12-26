@@ -33,17 +33,17 @@ export const INPUT_NODE_DEFINITION: NodeDefinition<V3InputNodeConfig> = {
   isEnabledInToolbar: true,
   toolbarLabel: 'Input',
 
-  createDefaultNodeConfig(node) {
+  createDefaultNodeConfig(nodeId) {
     return {
       nodeConfig: {
-        nodeId: node.id,
+        nodeId: nodeId,
         type: NodeType.InputNode,
       },
       variableConfigList: [
         {
           type: ConnectorType.FlowInput,
-          id: asV3VariableID(`${node.id}/${randomId()}`),
-          nodeId: node.id,
+          id: asV3VariableID(`${nodeId}/${randomId()}`),
+          nodeId: nodeId,
           index: 0,
           name: chance.word(),
           valueType: VariableValueType.String,

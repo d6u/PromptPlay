@@ -35,26 +35,26 @@ export const JAVASCRIPT_NODE_DEFINITION: NodeDefinition<V3JavaScriptFunctionNode
     isEnabledInToolbar: true,
     toolbarLabel: 'JavaScript',
 
-    createDefaultNodeConfig: (node) => {
+    createDefaultNodeConfig: (nodeId) => {
       return {
         nodeConfig: {
-          nodeId: node.id,
+          nodeId: nodeId,
           type: NodeType.JavaScriptFunctionNode,
           javaScriptCode: 'return "Hello, World!"',
         },
         variableConfigList: [
           {
             type: ConnectorType.NodeOutput,
-            id: asV3VariableID(`${node.id}/output`),
-            nodeId: node.id,
+            id: asV3VariableID(`${nodeId}/output`),
+            nodeId: nodeId,
             name: 'output',
             index: 0,
             valueType: VariableValueType.Unknown,
           },
           {
             type: ConnectorType.ConditionTarget,
-            id: asV3VariableID(`${node.id}/${randomId()}`),
-            nodeId: node.id,
+            id: asV3VariableID(`${nodeId}/${randomId()}`),
+            nodeId: nodeId,
           },
         ],
       };

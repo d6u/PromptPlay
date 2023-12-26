@@ -36,34 +36,34 @@ export const ELEVENLABS_NODE_DEFINITION: NodeDefinition<V3ElevenLabsNodeConfig> 
     isEnabledInToolbar: true,
     toolbarLabel: 'Eleven Labs Text to Speech',
 
-    createDefaultNodeConfig: (node) => {
+    createDefaultNodeConfig: (nodeId) => {
       return {
         nodeConfig: {
-          nodeId: node.id,
+          nodeId: nodeId,
           type: NodeType.ElevenLabs,
           voiceId: '',
         },
         variableConfigList: [
           {
             type: ConnectorType.NodeInput,
-            id: asV3VariableID(`${node.id}/text`),
+            id: asV3VariableID(`${nodeId}/text`),
             name: 'text',
-            nodeId: node.id,
+            nodeId: nodeId,
             index: 0,
             valueType: VariableValueType.Unknown,
           },
           {
             type: ConnectorType.NodeOutput,
-            id: asV3VariableID(`${node.id}/audio`),
+            id: asV3VariableID(`${nodeId}/audio`),
             name: 'audio',
-            nodeId: node.id,
+            nodeId: nodeId,
             index: 0,
             valueType: VariableValueType.Audio,
           },
           {
             type: ConnectorType.ConditionTarget,
-            id: asV3VariableID(`${node.id}/${randomId()}`),
-            nodeId: node.id,
+            id: asV3VariableID(`${nodeId}/${randomId()}`),
+            nodeId: nodeId,
           },
         ],
       };
