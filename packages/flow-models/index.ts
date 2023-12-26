@@ -11,6 +11,7 @@ export * from './src/base/connector-types';
 export * from './src/base/id-types';
 export * from './src/base/ui-edge-types';
 export * from './src/base/ui-node-types';
+export * from './src/flow-config-schema';
 export * from './src/nodes';
 export {
   default as FlowExecutionContext,
