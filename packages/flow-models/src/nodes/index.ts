@@ -1,5 +1,5 @@
 import Joi from 'joi';
-import { NodeID } from '../base/id-types';
+import { NodeID } from '../base-types/id-types';
 import { NodeDefinition } from './NodeDefinition';
 import NodeType from './NodeType';
 import {

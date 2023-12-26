@@ -2,9 +2,9 @@ import Joi from 'joi';
 import {
   ConnectorMapSchema,
   ConnectorResultMapSchema,
-} from './base/connector-types';
-import { EdgeSchema } from './base/ui-edge-types';
-import { NodeSchema } from './base/ui-node-types';
+  EdgeSchema,
+  NodeSchema,
+} from './base-types';
 import { NodeConfigMapSchema } from './nodes';
 
 export const FlowConfigSchema = Joi.object({

@@ -1,8 +1,11 @@
 import randomId from 'common-utils/randomId';
-import type { ConnectorMap, ConnectorResultMap } from './base/connector-types';
-import { NodeID } from './base/id-types';
-import type { V3ServerEdge } from './base/ui-edge-types';
-import type { ServerNode } from './base/ui-node-types';
+import type {
+  ConnectorMap,
+  ConnectorResultMap,
+  NodeID,
+  ServerNode,
+  V3ServerEdge,
+} from './base-types';
 import { NodeConfigMap, NodeType } from './nodes';
 
 // ANCHOR: V3 Root Types

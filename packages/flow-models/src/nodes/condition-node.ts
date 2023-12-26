@@ -11,8 +11,8 @@ import {
   NodeInputVariable,
   VariableValueType,
   asV3VariableID,
-} from '../base/connector-types';
-import { ConnectorID, NodeID } from '../base/id-types';
+} from '../base-types/connector-types';
+import { ConnectorID, NodeID } from '../base-types/id-types';
 import {
   NodeDefinition,
   NodeExecutionEvent,

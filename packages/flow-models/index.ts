@@ -7,10 +7,7 @@ import {
 } from './src/nodes';
 import { NodeDefinition } from './src/nodes/NodeDefinition';
 
-export * from './src/base/connector-types';
-export * from './src/base/id-types';
-export * from './src/base/ui-edge-types';
-export * from './src/base/ui-node-types';
+export * from './src/base-types';
 export * from './src/flow-config-schema';
 export * from './src/nodes';
 export {

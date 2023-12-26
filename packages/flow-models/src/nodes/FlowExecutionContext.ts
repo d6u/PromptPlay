@@ -1,7 +1,10 @@
 import { D, F, pipe } from '@mobily/ts-belt';
 import type { NodeConfigMap } from '.';
-import { ConnectorType, type ConnectorMap } from '../base/connector-types';
-import type { ConnectorID, NodeID } from '../base/id-types';
+import {
+  ConnectorType,
+  type ConnectorMap,
+} from '../base-types/connector-types';
+import type { ConnectorID, NodeID } from '../base-types/id-types';
 
 export type GraphEdge = {
   sourceNode: NodeID;
