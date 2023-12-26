@@ -1,7 +1,7 @@
-import { D, pipe } from '@mobily/ts-belt';
+import { D, F, pipe } from '@mobily/ts-belt';
 import type { Observable } from 'rxjs';
+import type { V3NodeConfig } from '../nodes';
 import type { NodeID, V3VariableID } from './id-types';
-import type { NodeType, V3NodeConfig } from './node-types';
 import {
   VariableType,
   type LocalNode,
@@ -44,9 +44,7 @@ export type NodeExecutionEvent =
       errMessages: string[];
     };
 
-export interface NodeDefinition {
-  nodeType: NodeType;
-
+export interface NodeDefinition<T extends V3NodeConfig> {
   isEnabledInToolbar?: boolean;
   toolbarLabel?: string;
 
@@ -59,18 +57,6 @@ export interface NodeDefinition {
     context: NodeExecutionContext,
     nodeExecutionConfig: NodeExecutionConfig,
     params: NodeExecutionParams,
-    // context: {
-    //   variablesDict: VariablesDict;
-    //   targetConnectorIdToSourceConnectorIdMap: Record<
-    //     V3VariableID,
-    //     V3VariableID
-    //   >;
-    //   sourceIdToValueMap: V3VariableValueLookUpDict;
-    //   useStreaming: boolean;
-    //   openAiApiKey: string | null;
-    //   huggingFaceApiToken: string | null;
-    //   elevenLabsApiKey: string | null;
-    // },
   ) => Observable<NodeExecutionEvent>;
 }
 
@@ -124,6 +110,7 @@ export class FlowExecutionContext {
       this.nodeIndegreeMap,
       D.filter((indegree) => indegree === 0),
       D.keys,
+      F.toMutable,
     );
   }
 

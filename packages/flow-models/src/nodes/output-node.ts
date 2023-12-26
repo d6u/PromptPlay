@@ -2,12 +2,12 @@ import chance from 'common-utils/chance';
 import randomId from 'common-utils/randomId';
 import { Observable } from 'rxjs';
 import invariant from 'ts-invariant';
+import { NodeID } from '../base/id-types';
 import {
   NodeDefinition,
   NodeExecutionEvent,
   NodeExecutionEventType,
 } from '../base/node-definition-base-types';
-import { NodeType } from '../base/node-types';
 import {
   FlowOutputVariable,
   V3VariableValueLookUpDict,
@@ -15,10 +15,14 @@ import {
   VariableValueType,
 } from '../base/v3-flow-content-types';
 import { asV3VariableID } from '../base/v3-flow-utils';
+import NodeType from './NodeType';
 
-export const OUTPUT_NODE_DEFINITION: NodeDefinition = {
-  nodeType: NodeType.OutputNode,
+export type V3OutputNodeConfig = {
+  type: NodeType.OutputNode;
+  nodeId: NodeID;
+};
 
+export const OUTPUT_NODE_DEFINITION: NodeDefinition<V3OutputNodeConfig> = {
   isEnabledInToolbar: true,
   toolbarLabel: 'Output',
 

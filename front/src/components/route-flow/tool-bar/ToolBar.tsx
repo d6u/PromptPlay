@@ -87,12 +87,15 @@ export default function ToolBar() {
 
   const options = useMemo(() => {
     return getAllNodeTypes()
-      .map((nodeType) => getNodeDefinitionForNodeTypeName(nodeType))
-      .filter((nodeDefinition) => nodeDefinition.isEnabledInToolbar)
-      .map((nodeDefinition) => {
+      .map((nodeType) => ({
+        nodeType,
+        nodeDefinition: getNodeDefinitionForNodeTypeName(nodeType),
+      }))
+      .filter(({ nodeDefinition }) => nodeDefinition.isEnabledInToolbar)
+      .map(({ nodeType, nodeDefinition }) => {
         return {
           label: `Add ${nodeDefinition.toolbarLabel}`,
-          onClick: () => addNodeWithType(nodeDefinition.nodeType),
+          onClick: () => addNodeWithType(nodeType),
         };
       });
   }, [addNodeWithType]);
