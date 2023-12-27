@@ -6,7 +6,7 @@ import Papa from 'papaparse';
 import posthog from 'posthog-js';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Subscription, debounceTime, tap } from 'rxjs';
-import invariant from 'ts-invariant';
+import invariant from 'tiny-invariant';
 import {
   SingleRunEventType,
   runForEachRow,

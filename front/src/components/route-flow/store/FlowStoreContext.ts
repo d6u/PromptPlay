@@ -1,5 +1,5 @@
 import { createContext, useContext } from 'react';
-import invariant from 'ts-invariant';
+import invariant from 'tiny-invariant';
 import { useStore } from 'zustand';
 import { FlowStore } from '.';
 import { FlowState } from './store-flow-state-types';

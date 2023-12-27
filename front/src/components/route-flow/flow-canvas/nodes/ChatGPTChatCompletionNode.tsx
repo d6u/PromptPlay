@@ -16,7 +16,7 @@ import {
 import { NEW_LINE_SYMBOL } from 'integrations/openai';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { Position, useNodeId } from 'reactflow';
-import invariant from 'ts-invariant';
+import invariant from 'tiny-invariant';
 import { useStore } from 'zustand';
 import {
   LocalStorageState,

@@ -1,6 +1,6 @@
 import { createLens, Getter, Setter } from '@dhmk/zustand-lens';
 import { ConnectorID, ConnectorResultMap } from 'flow-models';
-import invariant from 'ts-invariant';
+import invariant from 'tiny-invariant';
 import { OperationResult } from 'urql';
 import { StateCreator } from 'zustand';
 import { RunMetadata } from '../../../flow-run/run-types';

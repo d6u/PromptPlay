@@ -2,7 +2,7 @@ import { Checkbox, FormControl, FormHelperText, FormLabel } from '@mui/joy';
 import { ConditionResult, ConnectorType, NodeID, NodeType } from 'flow-models';
 import { useContext, useMemo } from 'react';
 import { Position, useNodeId, useUpdateNodeInternals } from 'reactflow';
-import invariant from 'ts-invariant';
+import invariant from 'tiny-invariant';
 import { useStore } from 'zustand';
 import FlowContext from '../../FlowContext';
 import { useStoreFromFlowStoreContext } from '../../store/FlowStoreContext';

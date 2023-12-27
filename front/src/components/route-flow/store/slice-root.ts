@@ -17,7 +17,7 @@ import { produce } from 'immer';
 import posthog from 'posthog-js';
 import { OnConnectStartParams } from 'reactflow';
 import { Subscription, from, map, tap } from 'rxjs';
-import { invariant } from 'ts-invariant';
+import invariant from 'tiny-invariant';
 import { OperationResult } from 'urql';
 import { StateCreator } from 'zustand';
 import { runSingle } from '../../../flow-run/run-single';

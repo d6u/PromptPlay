@@ -10,7 +10,7 @@ import {
 } from 'flow-models';
 import { useContext, useMemo, useState } from 'react';
 import { Position, useNodeId } from 'reactflow';
-import invariant from 'ts-invariant';
+import invariant from 'tiny-invariant';
 import { useStore } from 'zustand';
 import {
   LocalStorageState,

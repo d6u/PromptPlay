@@ -13,7 +13,7 @@ import {
   V3LocalEdge,
 } from 'flow-models';
 import { produce } from 'immer';
-import invariant from 'ts-invariant';
+import invariant from 'tiny-invariant';
 import {
   CONDITION_EDGE_STYLE,
   DEFAULT_EDGE_STYLE,

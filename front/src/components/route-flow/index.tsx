@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { useLoaderData, useParams } from 'react-router-dom';
 import { ReactFlowProvider } from 'reactflow';
 import 'reactflow/dist/style.css';
-import invariant from 'ts-invariant';
+import invariant from 'tiny-invariant';
 import { useStore } from 'zustand';
 import FlowContext from './FlowContext';
 import FlowCanvas from './flow-canvas/FlowCanvas';

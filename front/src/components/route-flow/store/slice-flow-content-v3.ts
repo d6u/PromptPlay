@@ -18,7 +18,7 @@ import {
   OnEdgesChange,
   OnNodesChange,
 } from 'reactflow';
-import invariant from 'ts-invariant';
+import invariant from 'tiny-invariant';
 import { StateCreator } from 'zustand';
 import { updateSpaceContentV3 } from '../graphql';
 import { handleEvent } from './event-graph-handlers';

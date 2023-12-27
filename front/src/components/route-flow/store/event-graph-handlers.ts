@@ -32,7 +32,7 @@ import {
   applyEdgeChanges,
   applyNodeChanges,
 } from 'reactflow';
-import invariant from 'ts-invariant';
+import invariant from 'tiny-invariant';
 import { DRAG_HANDLE_CLASS_NAME } from '../constants';
 import { ChangeEvent, ChangeEventType } from './event-graph-types';
 import { CsvEvaluationConfigContent } from './slice-csv-evaluation-preset';
