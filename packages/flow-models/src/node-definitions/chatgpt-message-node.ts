@@ -4,7 +4,7 @@ import * as OpenAI from 'integrations/openai';
 import Joi from 'joi';
 import mustache from 'mustache';
 import { Observable } from 'rxjs';
-import { invariant } from 'ts-invariant';
+import invariant from 'tiny-invariant';
 import {
   ConnectorType,
   NodeInputVariable,

@@ -7,7 +7,7 @@ import {
 } from 'integrations/openai';
 import Joi from 'joi';
 import { Observable, TimeoutError, endWith, map, retry, scan, tap } from 'rxjs';
-import { invariant } from 'ts-invariant';
+import invariant from 'tiny-invariant';
 import {
   ConnectorType,
   NodeInputVariable,

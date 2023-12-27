@@ -3,7 +3,7 @@ import randomId from 'common-utils/randomId';
 import Joi from 'joi';
 import jsonata from 'jsonata';
 import { Observable } from 'rxjs';
-import { invariant } from 'ts-invariant';
+import invariant from 'tiny-invariant';
 import {
   Condition,
   ConditionResult,
