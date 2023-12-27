@@ -70,7 +70,7 @@ export const FlowConfigSchema = Joi.object<V3FlowContent>({
         let conditionTarget = D.values(connectorMap).find(
           (connector): connector is ConditionTarget => {
             return (
-              connector.nodeId === connector.nodeId &&
+              connector.nodeId === nodeConfig.nodeId &&
               connector.type === ConnectorType.ConditionTarget
             );
           },
