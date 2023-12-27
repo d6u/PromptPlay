@@ -29,7 +29,7 @@ export type V3ConditionNodeConfig = {
 export const ConditionNodeConfigSchema = Joi.object({
   type: Joi.string().required().valid(NodeType.ConditionNode),
   nodeId: Joi.string().required(),
-  stopAtTheFirstMatch: Joi.boolean().required(),
+  stopAtTheFirstMatch: Joi.boolean().default(true),
 });
 
 export const CONDITION_NODE_DEFINITION: NodeDefinition<V3ConditionNodeConfig> =

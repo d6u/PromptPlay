@@ -44,6 +44,7 @@ export type FlowInputVariable = VariableCommon & {
 export const FlowInputVariableSchema = Joi.object({
   type: Joi.string().required().valid(ConnectorType.FlowInput),
   id: Joi.string().required(),
+  name: Joi.string().required(),
   nodeId: Joi.string().required(),
   index: Joi.number().required(),
   valueType: Joi.alternatives()
@@ -59,6 +60,7 @@ export type FlowOutputVariable = VariableCommon & {
 export const FlowOutputVariableSchema = Joi.object({
   type: Joi.string().required().valid(ConnectorType.FlowOutput),
   id: Joi.string().required(),
+  name: Joi.string().required(),
   nodeId: Joi.string().required(),
   index: Joi.number().required(),
   valueType: Joi.alternatives()
@@ -74,6 +76,7 @@ export type NodeInputVariable = VariableCommon & {
 export const NodeInputVariableSchema = Joi.object({
   type: Joi.string().required().valid(ConnectorType.NodeInput),
   id: Joi.string().required(),
+  name: Joi.string().required(),
   nodeId: Joi.string().required(),
   index: Joi.number().required(),
   valueType: Joi.alternatives()
@@ -89,6 +92,7 @@ export type NodeOutputVariable = VariableCommon & {
 export const NodeOutputVariableSchema = Joi.object({
   type: Joi.string().required().valid(ConnectorType.NodeOutput),
   id: Joi.string().required(),
+  name: Joi.string().required(),
   nodeId: Joi.string().required(),
   index: Joi.number().required(),
   valueType: Joi.alternatives()
