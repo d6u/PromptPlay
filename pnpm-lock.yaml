@@ -47,9 +47,6 @@ importers:
       '@urql/exchange-graphcache':
         specifier: ^6.3.2
         version: 6.4.0(graphql@16.8.1)
-      classnames:
-        specifier: ^2.3.2
-        version: 2.3.2
       common-utils:
         specifier: workspace:^
         version: link:../packages/common-utils
@@ -74,9 +71,6 @@ importers:
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
-      mustache:
-        specifier: ^4.2.0
-        version: 4.2.0
       papaparse:
         specifier: ^5.4.1
         version: 5.4.1
@@ -132,9 +126,6 @@ importers:
       '@types/lodash':
         specifier: ^4.14.197
         version: 4.14.202
-      '@types/mustache':
-        specifier: ^4.2.2
-        version: 4.2.5
       '@types/papaparse':
         specifier: ^5.3.8
         version: 5.3.14
@@ -147,9 +138,6 @@ importers:
       '@types/react-dom':
         specifier: ^18.2.7
         version: 18.2.17
-      '@types/uuid':
-        specifier: ^9.0.3
-        version: 9.0.7
       '@typescript-eslint/eslint-plugin':
         specifier: ^6.16.0
         version: 6.16.0(@typescript-eslint/parser@6.16.0)(eslint@8.55.0)(typescript@5.2.2)
@@ -5154,10 +5142,6 @@ packages:
 
   /classcat@5.0.4:
     resolution: {integrity: sha512-sbpkOw6z413p+HDGcBENe498WM9woqWHiJxCq7nvmxe9WmrUmqfAcxpIwAiMtM5Q3AhYkzXcNQHqsWq0mND51g==}
-
-  /classnames@2.3.2:
-    resolution: {integrity: sha512-CSbhY4cFEJRe6/GQzIk5qXZ4Jeg5pcsP7b5peFSDpffpe1cqjASH/n9UTjBwOp6XpMSTwQ8Za2K5V02ueA7Tmw==}
-    dev: false
 
   /clean-stack@2.2.0:
     resolution: {integrity: sha512-4diC9HaTE+KRAMWhDhrGOECgWZxoevMc5TlkObMqNSsVU62PYzXZ/SMTjzyGAFF1YusgxGcSWTEXBhp0CPwQ1A==}

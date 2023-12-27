@@ -10,7 +10,7 @@ import {
   createNode,
 } from 'flow-models';
 import { produce } from 'immer';
-import { debounce } from 'lodash';
+import debounce from 'lodash/debounce';
 import {
   EdgeChange,
   NodeChange,
