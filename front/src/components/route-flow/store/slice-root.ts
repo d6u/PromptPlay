@@ -6,6 +6,7 @@ import {
   ConnectorMap,
   ConnectorResultMap,
   ConnectorType,
+  FlowConfigSchema,
   FlowInputVariable,
   NodeExecutionEventType,
   NodeID,
@@ -141,6 +142,10 @@ export function createRootSlice(
 
                 // TODO: Report parse error to telemetry
                 const data = JSON.parse(contentV3Str) as Partial<V3FlowContent>;
+
+                const { error, value } = FlowConfigSchema.validate(data, {
+                  stripUnknown: true,
+                });
 
                 const dataWithDefaults = produce(data, (draft) => {
                   draft.nodes = draft.nodes ?? [];

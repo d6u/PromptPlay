@@ -1,4 +1,5 @@
 import randomId from 'common-utils/randomId';
+import Joi from 'joi';
 import type {
   ConnectorMap,
   ConnectorResultMap,
@@ -6,7 +7,16 @@ import type {
   ServerNode,
   V3ServerEdge,
 } from './base-types';
-import { NodeConfigMap, NodeType } from './node-definitions';
+import {
+  ConnectorMapSchema,
+  ConnectorResultMapSchema,
+  ServerEdgeSchema,
+} from './base-types';
+import {
+  NodeConfigMap,
+  NodeConfigMapSchema,
+  NodeType,
+} from './node-definitions';
 
 // ANCHOR: V3 Root Types
 
@@ -17,6 +27,29 @@ export type V3FlowContent = {
   variablesDict: ConnectorMap;
   variableValueLookUpDicts: ConnectorResultMap[];
 };
+
+// NOTE: Putting the schema here instead of ui-node-types.ts, because it depends on
+// NodeType, which would cause circular dependency if put in ui-node-types.ts.
+export const ServerNodeSchema = Joi.object({
+  id: Joi.string().required(),
+  type: Joi.string()
+    .required()
+    .valid(...Object.values(NodeType)),
+  position: Joi.object({
+    x: Joi.number().required(),
+    y: Joi.number().required(),
+  }).required(),
+});
+
+export const FlowConfigSchema = Joi.object({
+  edges: Joi.array().required().items(ServerEdgeSchema),
+  nodes: Joi.array().required().items(ServerNodeSchema),
+  nodeConfigsDict: NodeConfigMapSchema.required(),
+  variablesDict: ConnectorMapSchema.required(),
+  variableValueLookUpDicts: Joi.array()
+    .required()
+    .items(ConnectorResultMapSchema),
+});
 
 export function createNode(type: NodeType, x: number, y: number): ServerNode {
   return {

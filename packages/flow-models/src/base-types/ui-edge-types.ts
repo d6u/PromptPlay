@@ -16,7 +16,7 @@ export type V3LocalEdge = Omit<
 > &
   V3ServerEdge;
 
-export const EdgeSchema = Joi.object({
+export const ServerEdgeSchema = Joi.object({
   id: Joi.string().required(),
   source: Joi.string().required(),
   sourceHandle: Joi.string().required(),

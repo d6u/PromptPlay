@@ -57,8 +57,8 @@ export const ChatgptChatCompletionNodeConfigSchema = Joi.object({
   temperature: Joi.number().required(),
   seed: Joi.number().required().allow(null),
   responseFormatType: Joi.string()
-    .valid(ChatGPTChatCompletionResponseFormatType.JsonObject)
     .required()
+    .valid(ChatGPTChatCompletionResponseFormatType.JsonObject)
     .allow(null),
   stop: Joi.array().required().items(Joi.string()),
 });
