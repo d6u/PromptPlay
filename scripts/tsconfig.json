@@ -1,7 +1,10 @@
 {
   "extends": "common-tsconfig/tsconfig.json",
   "compilerOptions": {
-    "noUncheckedIndexedAccess": true
-  },
-  "exclude": ["node_modules"]
+    "lib": [
+      // TODO: Remove "dom" in script package. This is currently to fix an
+      // type checking error in packages/integrations
+      "dom"
+    ]
+  }
 }

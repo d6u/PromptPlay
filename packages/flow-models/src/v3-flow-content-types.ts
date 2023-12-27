@@ -42,13 +42,13 @@ export const ServerNodeSchema = Joi.object({
 });
 
 export const FlowConfigSchema = Joi.object({
-  edges: Joi.array().required().items(ServerEdgeSchema),
-  nodes: Joi.array().required().items(ServerNodeSchema),
-  nodeConfigsDict: NodeConfigMapSchema.required(),
-  variablesDict: ConnectorMapSchema.required(),
+  edges: Joi.array().items(ServerEdgeSchema).default([]),
+  nodes: Joi.array().items(ServerNodeSchema).default([]),
+  nodeConfigsDict: NodeConfigMapSchema.default({}),
+  variablesDict: ConnectorMapSchema.default({}),
   variableValueLookUpDicts: Joi.array()
-    .required()
-    .items(ConnectorResultMapSchema),
+    .items(ConnectorResultMapSchema)
+    .default([{}]),
 });
 
 export function createNode(type: NodeType, x: number, y: number): ServerNode {
