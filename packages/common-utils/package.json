@@ -2,10 +2,9 @@
   "name": "common-utils",
   "private": true,
   "version": "1.0.0",
-  "type": "module",
   "dependencies": {
     "chance": "^1.1.11",
-    "nanoid": "^4.0.2"
+    "nanoid": "^3.0.0"
   },
   "devDependencies": {
     "@types/chance": "^1.1.6"

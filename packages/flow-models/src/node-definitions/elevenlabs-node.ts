@@ -2,7 +2,7 @@ import randomId from 'common-utils/randomId';
 import * as ElevenLabs from 'integrations/eleven-labs';
 import Joi from 'joi';
 import { Observable } from 'rxjs';
-import { invariant } from 'ts-invariant';
+import invariant from 'tiny-invariant';
 import {
   ConnectorType,
   NodeInputVariable,

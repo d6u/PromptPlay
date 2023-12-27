@@ -7,7 +7,7 @@ import {
 } from 'integrations/openai';
 import Joi from 'joi';
 import { Observable, TimeoutError, endWith, map, retry, scan, tap } from 'rxjs';
-import { invariant } from 'ts-invariant';
+import invariant from 'tiny-invariant';
 import {
   ConnectorType,
   NodeInputVariable,
@@ -57,8 +57,8 @@ export const ChatgptChatCompletionNodeConfigSchema = Joi.object({
   temperature: Joi.number().required(),
   seed: Joi.number().required().allow(null),
   responseFormatType: Joi.string()
-    .valid(ChatGPTChatCompletionResponseFormatType.JsonObject)
     .required()
+    .valid(ChatGPTChatCompletionResponseFormatType.JsonObject)
     .allow(null),
   stop: Joi.array().required().items(Joi.string()),
 });

@@ -8,7 +8,6 @@ import {
 } from './src/node-definitions';
 
 export * from './src/base-types';
-export * from './src/flow-config-schema';
 export {
   default as FlowExecutionContext,
   type GraphEdge,

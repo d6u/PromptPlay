@@ -44,11 +44,12 @@ export type FlowInputVariable = VariableCommon & {
 export const FlowInputVariableSchema = Joi.object({
   type: Joi.string().required().valid(ConnectorType.FlowInput),
   id: Joi.string().required(),
+  name: Joi.string().required(),
   nodeId: Joi.string().required(),
   index: Joi.number().required(),
-  valueType: Joi.alternatives().try(
-    Joi.string().valid(VariableValueType.String, VariableValueType.Number),
-  ),
+  valueType: Joi.alternatives()
+    .try(Joi.string().valid(VariableValueType.String, VariableValueType.Number))
+    .required(),
 });
 
 export type FlowOutputVariable = VariableCommon & {
@@ -59,11 +60,12 @@ export type FlowOutputVariable = VariableCommon & {
 export const FlowOutputVariableSchema = Joi.object({
   type: Joi.string().required().valid(ConnectorType.FlowOutput),
   id: Joi.string().required(),
+  name: Joi.string().required(),
   nodeId: Joi.string().required(),
   index: Joi.number().required(),
-  valueType: Joi.alternatives().try(
-    Joi.string().valid(VariableValueType.String, VariableValueType.Audio),
-  ),
+  valueType: Joi.alternatives()
+    .try(Joi.string().valid(VariableValueType.String, VariableValueType.Audio))
+    .required(),
 });
 
 export type NodeInputVariable = VariableCommon & {
@@ -74,11 +76,12 @@ export type NodeInputVariable = VariableCommon & {
 export const NodeInputVariableSchema = Joi.object({
   type: Joi.string().required().valid(ConnectorType.NodeInput),
   id: Joi.string().required(),
+  name: Joi.string().required(),
   nodeId: Joi.string().required(),
   index: Joi.number().required(),
-  valueType: Joi.alternatives().try(
-    Joi.string().valid(VariableValueType.Unknown),
-  ),
+  valueType: Joi.alternatives()
+    .try(Joi.string().valid(VariableValueType.Unknown))
+    .required(),
 });
 
 export type NodeOutputVariable = VariableCommon & {
@@ -89,11 +92,12 @@ export type NodeOutputVariable = VariableCommon & {
 export const NodeOutputVariableSchema = Joi.object({
   type: Joi.string().required().valid(ConnectorType.NodeOutput),
   id: Joi.string().required(),
+  name: Joi.string().required(),
   nodeId: Joi.string().required(),
   index: Joi.number().required(),
-  valueType: Joi.alternatives().try(
-    Joi.string().valid(VariableValueType.Unknown, VariableValueType.Audio),
-  ),
+  valueType: Joi.alternatives()
+    .try(Joi.string().valid(VariableValueType.Unknown, VariableValueType.Audio))
+    .required(),
 });
 
 export function asV3VariableID(id: string): ConnectorID {
@@ -150,12 +154,18 @@ export const ConnectorMapSchema = Joi.object().pattern(
 
 export type ConnectorResultMap = Record<ConnectorID, ConditionResult | unknown>;
 
-export const ConnectorResultMapSchema = Joi.object().pattern(
-  Joi.string(),
-  Joi.any(),
-);
-
 export type ConditionResult = {
   conditionId: ConnectorID;
   isConditionMatched: boolean;
 };
+
+export const ConnectorResultMapSchema = Joi.object().pattern(
+  Joi.string(),
+  Joi.alternatives().try(
+    Joi.object({
+      conditionId: Joi.string().required(),
+      isConditionMatched: Joi.boolean().required(),
+    }),
+    Joi.any(),
+  ),
+);

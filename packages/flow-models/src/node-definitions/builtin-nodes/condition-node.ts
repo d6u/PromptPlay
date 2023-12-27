@@ -3,7 +3,7 @@ import randomId from 'common-utils/randomId';
 import Joi from 'joi';
 import jsonata from 'jsonata';
 import { Observable } from 'rxjs';
-import { invariant } from 'ts-invariant';
+import invariant from 'tiny-invariant';
 import {
   Condition,
   ConditionResult,
@@ -29,7 +29,7 @@ export type V3ConditionNodeConfig = {
 export const ConditionNodeConfigSchema = Joi.object({
   type: Joi.string().required().valid(NodeType.ConditionNode),
   nodeId: Joi.string().required(),
-  stopAtTheFirstMatch: Joi.boolean().required(),
+  stopAtTheFirstMatch: Joi.boolean().default(true),
 });
 
 export const CONDITION_NODE_DEFINITION: NodeDefinition<V3ConditionNodeConfig> =

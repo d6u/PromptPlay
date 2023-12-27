@@ -1,15 +1,15 @@
 import { D, pipe } from '@mobily/ts-belt';
-import randomId from 'common-utils/randomId';
+import deepEqual from 'deep-equal';
 import {
   Connector,
   ConnectorID,
   ConnectorMap,
   ConnectorResultMap,
   ConnectorType,
+  FlowConfigSchema,
   FlowInputVariable,
   NodeExecutionEventType,
   NodeID,
-  NodeType,
   V3FlowContent,
   asV3VariableID,
 } from 'flow-models';
@@ -142,53 +142,19 @@ export function createRootSlice(
                 // TODO: Report parse error to telemetry
                 const data = JSON.parse(contentV3Str) as Partial<V3FlowContent>;
 
-                const dataWithDefaults = produce(data, (draft) => {
-                  draft.nodes = draft.nodes ?? [];
-                  draft.edges = draft.edges ?? [];
-                  draft.nodeConfigsDict = draft.nodeConfigsDict ?? {};
-                  draft.variablesDict = draft.variablesDict ?? {};
-                  draft.variableValueLookUpDicts =
-                    draft.variableValueLookUpDicts ?? [{}];
+                const result = FlowConfigSchema.validate(data, {
+                  stripUnknown: true,
+                });
 
-                  // TODO: Migrate all backend data to remove this local
-                  // migration
-                  for (const nodeConfig of D.values(draft.nodeConfigsDict)) {
-                    if (
-                      nodeConfig.type === NodeType.InputNode ||
-                      nodeConfig.type === NodeType.OutputNode
-                    ) {
-                      continue;
-                    }
-
-                    if (
-                      D.values(draft.variablesDict).find((connector) => {
-                        return (
-                          connector.nodeId === nodeConfig.nodeId &&
-                          connector.type === ConnectorType.ConditionTarget
-                        );
-                      }) != null
-                    ) {
-                      continue;
-                    }
-
-                    const connectorId = asV3VariableID(
-                      `${nodeConfig.nodeId}/${randomId()}`,
-                    );
-
-                    draft.variablesDict[connectorId] = {
-                      type: ConnectorType.ConditionTarget,
-                      id: connectorId,
-                      nodeId: nodeConfig.nodeId,
-                    };
-                  }
-                }) as V3FlowContent;
+                // TODO: Report validation error
+                invariant(
+                  result.error == null,
+                  `Validation error: ${result.error?.message}`,
+                );
 
                 return {
-                  flowContent: dataWithDefaults,
-                  // immer was able to detect if the object has actually
-                  // been changed or not. Only update if it has been changed.
-                  // Save some loading time.
-                  isUpdated: data !== dataWithDefaults,
+                  flowContent: result.value,
+                  isUpdated: !deepEqual(data, result.value),
                 };
               }
             }
