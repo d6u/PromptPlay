@@ -29,7 +29,7 @@ const documents = {
     "\n            mutation SavePresetConfigContent(\n              $presetId: ID!\n              $configContent: String!\n            ) {\n              updateCsvEvaluationPreset(\n                presetId: $presetId\n                configContent: $configContent\n              ) {\n                id\n                configContent\n              }\n            }\n          ": types.SavePresetConfigContentDocument,
     "\n        query LoadCsvEvaluationPreset($spaceId: UUID!, $presetId: ID!) {\n          result: space(id: $spaceId) {\n            space {\n              id\n              csvEvaluationPreset(id: $presetId) {\n                id\n                csvContent\n                configContent\n              }\n            }\n          }\n        }\n      ": types.LoadCsvEvaluationPresetDocument,
     "\n        query SpaceFlowQuery($spaceId: UUID!) {\n          result: space(id: $spaceId) {\n            space {\n              id\n              name\n              contentVersion\n              contentV3\n            }\n          }\n        }\n      ": types.SpaceFlowQueryDocument,
-    "\n      query RootHeaderLoader {\n        isLoggedIn\n        isPlaceholderUserTokenInvalid\n        user {\n          id\n          email\n        }\n      }\n    ": types.RootHeaderLoaderDocument,
+    "\n      query RootRouteLoaderQuery {\n        isLoggedIn\n        isPlaceholderUserTokenInvalid\n        user {\n          id\n          email\n        }\n      }\n    ": types.RootRouteLoaderQueryDocument,
     "\n            mutation MergePlaceholderUserWithLoggedInUserMutation(\n              $placeholderUserToken: String!\n            ) {\n              result: mergePlaceholderUserWithLoggedInUser(\n                placeholderUserToken: $placeholderUserToken\n              ) {\n                id\n                spaces {\n                  id\n                }\n              }\n            }\n          ": types.MergePlaceholderUserWithLoggedInUserMutationDocument,
 };
 
@@ -114,7 +114,7 @@ export function graphql(source: "\n        query SpaceFlowQuery($spaceId: UUID!)
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n      query RootHeaderLoader {\n        isLoggedIn\n        isPlaceholderUserTokenInvalid\n        user {\n          id\n          email\n        }\n      }\n    "): (typeof documents)["\n      query RootHeaderLoader {\n        isLoggedIn\n        isPlaceholderUserTokenInvalid\n        user {\n          id\n          email\n        }\n      }\n    "];
+export function graphql(source: "\n      query RootRouteLoaderQuery {\n        isLoggedIn\n        isPlaceholderUserTokenInvalid\n        user {\n          id\n          email\n        }\n      }\n    "): (typeof documents)["\n      query RootRouteLoaderQuery {\n        isLoggedIn\n        isPlaceholderUserTokenInvalid\n        user {\n          id\n          email\n        }\n      }\n    "];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

@@ -5,12 +5,9 @@ import { useLocalStorageStore } from '../../state/appState';
 import { client } from '../../state/urql';
 
 const routeLoaderRoot: LoaderFunction = async (args) => {
-  const url = new URL(args.request.url);
-  const isNewUser = url.searchParams.get('new_user') === 'true';
-
-  const { data } = await client.query(
+  const queryResult = await client.query(
     graphql(`
-      query RootHeaderLoader {
+      query RootRouteLoaderQuery {
         isLoggedIn
         isPlaceholderUserTokenInvalid
         user {
@@ -23,29 +20,35 @@ const routeLoaderRoot: LoaderFunction = async (args) => {
     { requestPolicy: 'network-only' },
   );
 
-  if (data == null) {
-    throw new Error('No data');
+  if (queryResult.data == null) {
+    // TODO: Report error
+    return null;
   }
 
-  const { isLoggedIn, isPlaceholderUserTokenInvalid } = data;
+  const { isLoggedIn, isPlaceholderUserTokenInvalid } = queryResult.data;
 
   // ANCHOR: Analytics
 
   if (isLoggedIn) {
-    if (data.user?.id == null) {
-      throw new Error('No user id');
+    // TODO: Report when user ID is null
+    if (queryResult.data.user?.id != null) {
+      // NOTE: We can assume user ID never changes, because to log out or log in
+      // we have to redirect the page to another url.
+      posthog.identify(queryResult.data.user.id, {
+        email: queryResult.data.user.email,
+      });
     }
-    // NOTE: We can assume user ID never changes,
-    // because to log out, we reload the page.
-    posthog.identify(data.user.id, { email: data.user?.email });
   }
 
-  // ANCHOR: Placeholder user clear up
+  // ANCHOR: Merge placeholder user when conditions are met
 
   const { placeholderUserToken, setPlaceholderUserToken } =
     useLocalStorageStore.getState();
 
   if (placeholderUserToken) {
+    const url = new URL(args.request.url);
+    const isNewUser = url.searchParams.get('new_user') === 'true';
+
     if (isPlaceholderUserTokenInvalid) {
       setPlaceholderUserToken(null);
     } else if (isLoggedIn && isNewUser) {
