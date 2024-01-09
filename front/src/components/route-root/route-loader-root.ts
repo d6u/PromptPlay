@@ -1,8 +1,8 @@
 import posthog from 'posthog-js';
 import { LoaderFunction } from 'react-router-dom';
-import { graphql } from '../gql';
-import { useLocalStorageStore } from '../state/appState';
-import { client } from '../state/urql';
+import { graphql } from '../../gql';
+import { useLocalStorageStore } from '../../state/appState';
+import { client } from '../../state/urql';
 
 const routeLoaderRoot: LoaderFunction = async (args) => {
   const url = new URL(args.request.url);

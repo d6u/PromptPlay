@@ -1,7 +1,7 @@
 import styled from '@emotion/styled';
 import { useEffect } from 'react';
 import { Outlet, useSearchParams } from 'react-router-dom';
-import Header from './common/header/Header';
+import Header from '../common/header/Header';
 
 export default function RouteRoot() {
   const [searchParams, setSearchParams] = useSearchParams();
