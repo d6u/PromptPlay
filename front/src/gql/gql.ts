@@ -14,7 +14,7 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
  */
 const documents = {
     "\n  query SpaceContentVersionQuery($spaceId: UUID!) {\n    space(id: $spaceId) {\n      isReadOnly\n      space {\n        id\n        contentVersion\n      }\n    }\n  }\n": types.SpaceContentVersionQueryDocument,
-    "\n      query HeaderAccountDetailQuery {\n        isLoggedIn\n        user {\n          id\n          email\n          profilePictureUrl\n        }\n      }\n    ": types.HeaderAccountDetailQueryDocument,
+    "\n      query HeaderAccountDetailQuery {\n        user {\n          isPlaceholderUser\n          id\n          email\n          profilePictureUrl\n        }\n      }\n    ": types.HeaderAccountDetailQueryDocument,
     "\n      query HeaderSpaceNameQuery($spaceId: UUID!) {\n        result: space(id: $spaceId) {\n          isReadOnly\n          space {\n            id\n            name\n          }\n        }\n      }\n    ": types.HeaderSpaceNameQueryDocument,
     "\n      mutation UpdateSpaceNameMutation($spaceId: ID!, $name: String!) {\n        updateSpace(id: $spaceId, name: $name) {\n          id\n          name\n        }\n      }\n    ": types.UpdateSpaceNameMutationDocument,
     "\n      mutation CreateSpaceMutation {\n        result: createSpace {\n          id\n          name\n          updatedAt\n        }\n      }\n    ": types.CreateSpaceMutationDocument,
@@ -29,7 +29,7 @@ const documents = {
     "\n            mutation SavePresetConfigContent(\n              $presetId: ID!\n              $configContent: String!\n            ) {\n              updateCsvEvaluationPreset(\n                presetId: $presetId\n                configContent: $configContent\n              ) {\n                id\n                configContent\n              }\n            }\n          ": types.SavePresetConfigContentDocument,
     "\n        query LoadCsvEvaluationPreset($spaceId: UUID!, $presetId: ID!) {\n          result: space(id: $spaceId) {\n            space {\n              id\n              csvEvaluationPreset(id: $presetId) {\n                id\n                csvContent\n                configContent\n              }\n            }\n          }\n        }\n      ": types.LoadCsvEvaluationPresetDocument,
     "\n        query SpaceFlowQuery($spaceId: UUID!) {\n          result: space(id: $spaceId) {\n            space {\n              id\n              name\n              contentVersion\n              contentV3\n            }\n          }\n        }\n      ": types.SpaceFlowQueryDocument,
-    "\n        query RootRouteLoaderQuery {\n          isLoggedIn\n          user {\n            id\n            email\n          }\n        }\n      ": types.RootRouteLoaderQueryDocument,
+    "\n        query RootRouteLoaderQuery {\n          user {\n            isPlaceholderUser\n            id\n            email\n          }\n        }\n      ": types.RootRouteLoaderQueryDocument,
 };
 
 /**
@@ -53,7 +53,7 @@ export function graphql(source: "\n  query SpaceContentVersionQuery($spaceId: UU
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n      query HeaderAccountDetailQuery {\n        isLoggedIn\n        user {\n          id\n          email\n          profilePictureUrl\n        }\n      }\n    "): (typeof documents)["\n      query HeaderAccountDetailQuery {\n        isLoggedIn\n        user {\n          id\n          email\n          profilePictureUrl\n        }\n      }\n    "];
+export function graphql(source: "\n      query HeaderAccountDetailQuery {\n        user {\n          isPlaceholderUser\n          id\n          email\n          profilePictureUrl\n        }\n      }\n    "): (typeof documents)["\n      query HeaderAccountDetailQuery {\n        user {\n          isPlaceholderUser\n          id\n          email\n          profilePictureUrl\n        }\n      }\n    "];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -113,7 +113,7 @@ export function graphql(source: "\n        query SpaceFlowQuery($spaceId: UUID!)
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n        query RootRouteLoaderQuery {\n          isLoggedIn\n          user {\n            id\n            email\n          }\n        }\n      "): (typeof documents)["\n        query RootRouteLoaderQuery {\n          isLoggedIn\n          user {\n            id\n            email\n          }\n        }\n      "];
+export function graphql(source: "\n        query RootRouteLoaderQuery {\n          user {\n            isPlaceholderUser\n            id\n            email\n          }\n        }\n      "): (typeof documents)["\n        query RootRouteLoaderQuery {\n          user {\n            isPlaceholderUser\n            id\n            email\n          }\n        }\n      "];
 
 export function graphql(source: string) {
   return (documents as any)[source] ?? {};

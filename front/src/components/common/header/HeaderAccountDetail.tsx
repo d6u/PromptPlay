@@ -10,8 +10,8 @@ export default function HeaderAccountDetail() {
   const [queryResult] = useQuery({
     query: graphql(`
       query HeaderAccountDetailQuery {
-        isLoggedIn
         user {
+          isPlaceholderUser
           id
           email
           profilePictureUrl
@@ -41,7 +41,7 @@ export default function HeaderAccountDetail() {
 
   return (
     <AccountManagementContainer>
-      {queryResult.data?.isLoggedIn ? (
+      {queryResult.data?.user?.isPlaceholderUser === true ? (
         <>
           {queryResult.data.user?.profilePictureUrl && (
             <ProfilePicture

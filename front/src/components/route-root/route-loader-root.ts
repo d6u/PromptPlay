@@ -8,8 +8,8 @@ const routeLoaderRoot: LoaderFunction = async (args) => {
     .query(
       graphql(`
         query RootRouteLoaderQuery {
-          isLoggedIn
           user {
+            isPlaceholderUser
             id
             email
           }
@@ -20,23 +20,21 @@ const routeLoaderRoot: LoaderFunction = async (args) => {
     )
     .toPromise();
 
-  if (queryResult.data == null) {
-    // TODO: Report error
+  if (queryResult.error || !queryResult.data) {
+    // TODO: Report error or missing data
     return null;
   }
 
-  const { isLoggedIn } = queryResult.data;
+  const { user } = queryResult.data;
 
   // ANCHOR: Analytics
 
-  if (isLoggedIn) {
+  if (user && !user.isPlaceholderUser) {
     // TODO: Report when user ID is null
-    if (queryResult.data.user?.id != null) {
+    if (user.id) {
       // NOTE: We can assume user ID never changes, because to log out or log in
-      // we have to redirect the page to another url.
-      posthog.identify(queryResult.data.user.id, {
-        email: queryResult.data.user.email,
-      });
+      // we redirect the page to another url.
+      posthog.identify(user.id, { email: user.email });
     }
   }
 

@@ -35,32 +35,27 @@ export default function addQueryType(builder: BuilderType) {
             return `Hello World!`;
           },
         }),
-        isLoggedIn: t.boolean({
-          description:
-            'Check if there is a user and the user is not a placeholder user',
-          resolve(parent, args, context) {
-            return (
-              context.req.dbUser != null &&
-              !context.req.dbUser.isPlaceholderUser
-            );
-          },
-        }),
         user: t.field({
           type: User,
           nullable: true,
           async resolve(parent, args, context) {
-            if (context.req.dbUser == null) {
+            if (!context.req.dbUser) {
               return null;
             }
 
             if (context.req.dbUser.isPlaceholderUser) {
-              return new User({
-                id: context.req.dbUser.id,
-                // TODO: Remove unused fields from User class.
-                createdAt: 0,
-                updatedAt: 0,
-              });
+              return new User(
+                {
+                  id: context.req.dbUser.id,
+                  // TODO: Remove unused fields from User class.
+                  createdAt: 0,
+                  updatedAt: 0,
+                },
+                /* isPlaceholderUser */ true,
+              );
             } else {
+              // TODO: Load full dbUser on req so we don't have to load it
+              // again.
               const { Item: dbUser } = await UserEntity.get({
                 id: context.req.dbUser.id,
               });
@@ -69,7 +64,7 @@ export default function addQueryType(builder: BuilderType) {
                 throw new Error('User should not be null');
               }
 
-              return new User(dbUser);
+              return new User(dbUser, /* isPlaceholderUser */ false);
             }
           },
         }),
