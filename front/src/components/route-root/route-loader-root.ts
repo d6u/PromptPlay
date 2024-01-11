@@ -5,20 +5,22 @@ import { useLocalStorageStore } from '../../state/appState';
 import { client } from '../../state/urql';
 
 const routeLoaderRoot: LoaderFunction = async (args) => {
-  const queryResult = await client.query(
-    graphql(`
-      query RootRouteLoaderQuery {
-        isLoggedIn
-        isPlaceholderUserTokenInvalid
-        user {
-          id
-          email
+  const queryResult = await client
+    .query(
+      graphql(`
+        query RootRouteLoaderQuery {
+          isLoggedIn
+          isPlaceholderUserTokenInvalid
+          user {
+            id
+            email
+          }
         }
-      }
-    `),
-    {},
-    { requestPolicy: 'network-only' },
-  );
+      `),
+      {},
+      { requestPolicy: 'network-only' },
+    )
+    .toPromise();
 
   if (queryResult.data == null) {
     // TODO: Report error
@@ -55,10 +57,10 @@ const routeLoaderRoot: LoaderFunction = async (args) => {
       await client
         .mutation(
           graphql(`
-            mutation MergePlaceholderUserWithLoggedInUserMutation(
+            mutation MergePlaceholderUserIntoLoggedInUserMutation(
               $placeholderUserToken: String!
             ) {
-              result: mergePlaceholderUserWithLoggedInUser(
+              mergePlaceholderUserWithLoggedInUser(
                 placeholderUserToken: $placeholderUserToken
               ) {
                 id

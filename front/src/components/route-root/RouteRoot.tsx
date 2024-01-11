@@ -14,14 +14,14 @@ export default function RouteRoot() {
   }, [searchParams, setSearchParams]);
 
   return (
-    <RootContainer>
+    <Container>
       <Header />
       <Outlet />
-    </RootContainer>
+    </Container>
   );
 }
 
-const RootContainer = styled.div`
+const Container = styled.div`
   height: 100%;
   display: flex;
   flex-direction: column;

@@ -32,7 +32,11 @@ export default function addMutationType(builder: BuilderType) {
     .implement({
       fields(t) {
         return {
-          placeholderClientToken: t.exposeID('placeholderClientToken'),
+          placeholderClientToken: t.exposeID('placeholderClientToken', {
+            nullable: true,
+            deprecationReason:
+              'placeholderUserToken have been moved to session storage',
+          }),
           space: t.field({
             type: Space,
             resolve(parent) {
@@ -96,19 +100,18 @@ export default function addMutationType(builder: BuilderType) {
 
               placeholderClientToken = dbPlaceholderUser.placeholderClientToken;
 
-              dbUser = {
-                id: placeholderClientToken,
-                isPlaceholderUser: true,
-              };
-            } else {
-              if (!dbUser.isPlaceholderUser) {
-                throw new Error('Current user should be a placeholder user');
-              }
-
+              // NOTE: The key on session is different from the key in DB
+              context.req.session!.placeholderUserToken =
+                placeholderClientToken;
+            } else if (dbUser.isPlaceholderUser) {
               placeholderClientToken = dbUser.id;
+            } else {
+              throw new Error('Current user should be a placeholder user');
             }
 
-            const rawDbSpace = createSpaceWithExampleContent(dbUser.id);
+            const rawDbSpace = createSpaceWithExampleContent(
+              placeholderClientToken!,
+            );
 
             // NOTE: Because put doesn't return the default value,
             // e.g. createdAt, use this as a workaround.
@@ -119,7 +122,8 @@ export default function addMutationType(builder: BuilderType) {
             await SpaceEntity.put(dbSpace);
 
             return {
-              placeholderClientToken,
+              // TODO: Remove this field
+              placeholderClientToken: null,
               space: new Space(dbSpace),
             };
           },
@@ -473,7 +477,7 @@ export default function addMutationType(builder: BuilderType) {
 }
 
 type CreatePlaceholderUserAndExampleSpaceResultShape = {
-  placeholderClientToken: string;
+  placeholderClientToken: string | null;
   space: Space;
 };
 

@@ -6,35 +6,26 @@ import { pathToCurrentContent, pathToFlow } from '../../../utils/route-utils';
 import DashboardTile from './DashboardTile';
 import { DashboardTileType } from './dashboardTypes';
 
-const DASHBOARD_FRAGMENT = graphql(`
-  fragment Dashboard on User {
-    spaces {
-      id
-      name
-      updatedAt
-      contentVersion
-    }
-  }
-`);
-
-const CREATE_SPACE_MUTATION = graphql(`
-  mutation CreateSpaceMutation {
-    result: createSpace {
-      id
-      name
-      updatedAt
-    }
-  }
-`);
-
 export default function Dashboard({
   dashboardFragment,
 }: {
   dashboardFragment: FragmentType<typeof DASHBOARD_FRAGMENT>;
 }) {
   const navigate = useNavigate();
+
   const dashboard = useFragment(DASHBOARD_FRAGMENT, dashboardFragment);
-  const [, createSpace] = useMutation(CREATE_SPACE_MUTATION);
+
+  const [, createSpace] = useMutation(
+    graphql(`
+      mutation CreateSpaceMutation {
+        result: createSpace {
+          id
+          name
+          updatedAt
+        }
+      }
+    `),
+  );
 
   return (
     <Container>
@@ -73,6 +64,21 @@ export default function Dashboard({
     </Container>
   );
 }
+
+// ANCHOR: GraphQL
+
+const DASHBOARD_FRAGMENT = graphql(`
+  fragment Dashboard on User {
+    spaces {
+      id
+      name
+      updatedAt
+      contentVersion
+    }
+  }
+`);
+
+// ANCHOR: UI
 
 const Container = styled.div`
   width: 100%;
