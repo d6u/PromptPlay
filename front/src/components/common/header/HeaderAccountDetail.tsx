@@ -41,7 +41,7 @@ export default function HeaderAccountDetail() {
 
   return (
     <AccountManagementContainer>
-      {queryResult.data?.user?.isPlaceholderUser === true ? (
+      {queryResult.data?.user?.isPlaceholderUser === false ? (
         <>
           {queryResult.data.user?.profilePictureUrl && (
             <ProfilePicture
