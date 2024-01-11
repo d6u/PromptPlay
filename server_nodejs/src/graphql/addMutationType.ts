@@ -21,28 +21,6 @@ import {
 } from './graphql-types.js';
 
 export default function addMutationType(builder: BuilderType) {
-  const CreatePlaceholderUserAndExampleSpaceResult = builder
-    .objectRef<CreatePlaceholderUserAndExampleSpaceResultShape>(
-      'CreatePlaceholderUserAndExampleSpaceResult',
-    )
-    .implement({
-      fields(t) {
-        return {
-          placeholderClientToken: t.exposeID('placeholderClientToken', {
-            nullable: true,
-            deprecationReason:
-              'placeholderUserToken have been moved to session storage',
-          }),
-          space: t.field({
-            type: Space,
-            resolve(parent) {
-              return parent.space;
-            },
-          }),
-        };
-      },
-    });
-
   const CreateCsvEvaluationPresetResult = builder
     .objectRef<CreateCsvEvaluationPresetResultShape>(
       'CreateCsvEvaluationPresetResult',
@@ -79,8 +57,8 @@ export default function addMutationType(builder: BuilderType) {
   builder.mutationType({
     fields(t) {
       return {
-        createPlaceholderUserAndExampleSpace: t.field({
-          type: CreatePlaceholderUserAndExampleSpaceResult,
+        createExampleSpace: t.field({
+          type: Space,
           async resolve(parent, args, context) {
             let dbUser = context.req.dbUser;
             let placeholderClientToken: string;
@@ -117,11 +95,7 @@ export default function addMutationType(builder: BuilderType) {
 
             await SpaceEntity.put(dbSpace);
 
-            return {
-              // TODO: Remove this field
-              placeholderClientToken: null,
-              space: new Space(dbSpace),
-            };
+            return new Space(dbSpace);
           },
         }),
         createSpace: t.field({
@@ -398,11 +372,6 @@ export default function addMutationType(builder: BuilderType) {
     },
   });
 }
-
-type CreatePlaceholderUserAndExampleSpaceResultShape = {
-  placeholderClientToken: string | null;
-  space: Space;
-};
 
 type CreateCsvEvaluationPresetResultShape = {
   space: Space;

@@ -9,7 +9,7 @@ import { LOGIN_PATH, pathToFlow } from '../../utils/route-utils';
 import Dashboard from './dashboard/Dashboard';
 import { ROOT_ROUTE_QUERY } from './rootGraphql';
 
-export default function RootRoute() {
+export default function RouteDashboard() {
   const navigate = useNavigate();
 
   // --- GraphQL ---
@@ -21,11 +21,9 @@ export default function RootRoute() {
 
   const [, createExampleSpace] = useMutation(
     graphql(`
-      mutation CreatePlaceholderUserAndExampleSpaceMutation {
-        result: createPlaceholderUserAndExampleSpace {
-          space {
-            id
-          }
+      mutation RouteDashboardCreateExampleSpaceMutation {
+        space: createExampleSpace {
+          id
         }
       }
     `),
@@ -45,8 +43,8 @@ export default function RootRoute() {
       return;
     }
 
-    if (data.result.space.id) {
-      navigate(pathToFlow(data.result.space.id));
+    if (data.space.id) {
+      navigate(pathToFlow(data.space.id));
     }
   }, [createExampleSpace, navigate]);
 
@@ -80,7 +78,7 @@ export default function RootRoute() {
   return <Container>{content}</Container>;
 }
 
-// SECTION: UI Components
+// ANCHOR: UI
 
 const Container = styled.div`
   flex-grow: 1;
@@ -122,5 +120,3 @@ const BigButton = styled.button<{ $createExample?: boolean }>`
         `
       : null}
 `;
-
-// !SECTION
