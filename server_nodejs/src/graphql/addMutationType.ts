@@ -1,4 +1,3 @@
-import { A, D, F } from '@mobily/ts-belt';
 import {
   CsvEvaluationPresetEntity,
   CsvEvaluationPresetShape,
@@ -10,9 +9,7 @@ import {
   DbSpaceContentVersion,
   SpaceEntity,
   SpaceShape,
-  SpacesTable,
 } from 'dynamodb-models/space.js';
-import { UserEntity } from 'dynamodb-models/user.js';
 import { nullThrow } from '../utils/utils.js';
 import {
   BuilderType,
@@ -21,7 +18,6 @@ import {
   CsvEvaluationPresetFull,
   Space,
   SpaceContentVersion,
-  User,
 } from './graphql-types.js';
 
 export default function addMutationType(builder: BuilderType) {
@@ -126,79 +122,6 @@ export default function addMutationType(builder: BuilderType) {
               placeholderClientToken: null,
               space: new Space(dbSpace),
             };
-          },
-        }),
-        mergePlaceholderUserWithLoggedInUser: t.field({
-          type: User,
-          nullable: true,
-          args: {
-            placeholderUserToken: t.arg({ type: 'String', required: true }),
-          },
-          async resolve(parent, args, context) {
-            // ANCHOR: Make sure there is a logged in user to merge to
-
-            const dbUser = context.req.dbUser;
-
-            if (dbUser == null) {
-              return null;
-            }
-
-            if (dbUser.isPlaceholderUser) {
-              throw new Error('Current user should not be a placeholder user');
-            }
-
-            // ANCHOR: Make sure the provided placeholder user exists
-
-            const { Item: placeholderUser } = await PlaceholderUserEntity.get({
-              placeholderClientToken: args.placeholderUserToken,
-            });
-
-            if (placeholderUser == null) {
-              return null;
-            }
-
-            const placeholderUserId = args.placeholderUserToken;
-
-            // ANCHOR: Merge the placeholder user's spaces to the logged in user
-
-            const response = await SpaceEntity.query(placeholderUserId, {
-              index: 'OwnerIdIndex',
-              // Parse works because OwnerIdIndex projects all the attributes.
-              parseAsEntity: 'Space',
-            });
-
-            const spaces = F.toMutable(
-              A.map(response.Items ?? [], D.set('ownerId', dbUser.id)),
-            );
-
-            // ANCHOR: Delete the placeholder user
-
-            await SpacesTable.batchWrite(
-              spaces
-                // Using PutItem will replace the item with the same primary
-                // key. This will update `createdAt` that should have been
-                // immutable, which is OK, because we are merging spaces into
-                // the new user. It probably doesn't matter to throw away
-                // `createdAt` value.
-                .map((space) => SpaceEntity.putBatch(space))
-                .concat([
-                  PlaceholderUserEntity.deleteBatch({
-                    placeholderClientToken: placeholderUserId,
-                  }),
-                ]),
-            );
-
-            // ANCHOR: Finish
-
-            const { Item: fullDbUser } = await UserEntity.get({
-              id: dbUser.id,
-            });
-
-            if (fullDbUser == null) {
-              throw new Error('User should not be null');
-            }
-
-            return new User(fullDbUser);
           },
         }),
         createSpace: t.field({

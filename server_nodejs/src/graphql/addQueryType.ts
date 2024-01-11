@@ -1,4 +1,3 @@
-import { PlaceholderUserEntity } from 'dynamodb-models/placeholder-user.js';
 import { SpaceEntity } from 'dynamodb-models/space.js';
 import { UserEntity } from 'dynamodb-models/user.js';
 import { BuilderType, Space, User } from './graphql-types.js';
@@ -44,30 +43,6 @@ export default function addQueryType(builder: BuilderType) {
               context.req.dbUser != null &&
               !context.req.dbUser.isPlaceholderUser
             );
-          },
-        }),
-        isPlaceholderUserTokenInvalid: t.boolean({
-          description:
-            'When PlaceholderUserToken header is present and the token is not mapped to a user',
-          async resolve(parent, args, context) {
-            const placeholderUserToken = context.req.header(
-              // NOTE: This header name is in lower case.
-              'placeholderusertoken',
-            );
-
-            if (placeholderUserToken == null) {
-              // NOTE: If the header is not present, it is not invalid,
-              // i.e. it's valid.
-              return false;
-            }
-
-            const { Item: dbPlaceholderUser } = await PlaceholderUserEntity.get(
-              {
-                placeholderClientToken: placeholderUserToken,
-              },
-            );
-
-            return dbPlaceholderUser == null;
           },
         }),
         user: t.field({

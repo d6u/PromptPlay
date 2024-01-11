@@ -11,7 +11,6 @@ export default function HeaderAccountDetail() {
     query: graphql(`
       query HeaderAccountDetailQuery {
         isLoggedIn
-        isPlaceholderUserTokenInvalid
         user {
           id
           email

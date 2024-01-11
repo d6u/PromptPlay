@@ -1,7 +1,6 @@
 import posthog from 'posthog-js';
 import { LoaderFunction } from 'react-router-dom';
 import { graphql } from '../../gql';
-import { useLocalStorageStore } from '../../state/appState';
 import { client } from '../../state/urql';
 
 const routeLoaderRoot: LoaderFunction = async (args) => {
@@ -10,7 +9,6 @@ const routeLoaderRoot: LoaderFunction = async (args) => {
       graphql(`
         query RootRouteLoaderQuery {
           isLoggedIn
-          isPlaceholderUserTokenInvalid
           user {
             id
             email
@@ -27,7 +25,7 @@ const routeLoaderRoot: LoaderFunction = async (args) => {
     return null;
   }
 
-  const { isLoggedIn, isPlaceholderUserTokenInvalid } = queryResult.data;
+  const { isLoggedIn } = queryResult.data;
 
   // ANCHOR: Analytics
 
@@ -39,42 +37,6 @@ const routeLoaderRoot: LoaderFunction = async (args) => {
       posthog.identify(queryResult.data.user.id, {
         email: queryResult.data.user.email,
       });
-    }
-  }
-
-  // ANCHOR: Merge placeholder user when conditions are met
-
-  const { placeholderUserToken, setPlaceholderUserToken } =
-    useLocalStorageStore.getState();
-
-  if (placeholderUserToken) {
-    const url = new URL(args.request.url);
-    const isNewUser = url.searchParams.get('new_user') === 'true';
-
-    if (isPlaceholderUserTokenInvalid) {
-      setPlaceholderUserToken(null);
-    } else if (isLoggedIn && isNewUser) {
-      await client
-        .mutation(
-          graphql(`
-            mutation MergePlaceholderUserIntoLoggedInUserMutation(
-              $placeholderUserToken: String!
-            ) {
-              mergePlaceholderUserWithLoggedInUser(
-                placeholderUserToken: $placeholderUserToken
-              ) {
-                id
-                spaces {
-                  id
-                }
-              }
-            }
-          `),
-          { placeholderUserToken },
-        )
-        .toPromise();
-
-      setPlaceholderUserToken(null);
     }
   }
 
