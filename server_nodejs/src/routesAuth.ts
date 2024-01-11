@@ -75,6 +75,7 @@ export default function setupAuth(app: Express) {
       return;
     }
 
+    // TODO: Store id_token in a safe place, so we can use it in logout.
     if (!tokenSet.id_token) {
       // TODO: Handle missing id_token
       console.error('Missing id_token');
@@ -96,6 +97,7 @@ export default function setupAuth(app: Express) {
 
     if (response.Count === 0) {
       // NOTE: A new user.
+
       // NOTE: Because put doesn't return the default value,
       // e.g. createdAt, use this as a workaround.
       const dbUser = UserEntity.parse(
@@ -182,6 +184,7 @@ export default function setupAuth(app: Express) {
 
     // ANCHOR: Logout locally
 
+    delete req.session!.idToken;
     delete req.session!.userId;
 
     // ANCHOR: Logout from Auth0 and between Auth0 and IDPs
