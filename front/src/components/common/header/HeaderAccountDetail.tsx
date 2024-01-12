@@ -1,6 +1,7 @@
 import styled from '@emotion/styled';
 import { Button, IconButton } from '@mui/joy';
-import { useEffect, useState } from 'react';
+import posthog from 'posthog-js';
+import { useCallback, useEffect, useState } from 'react';
 import { useQuery } from 'urql';
 import { graphql } from '../../../gql';
 import { LOGIN_PATH, LOGOUT_PATH } from '../../../utils/route-utils';
@@ -39,6 +40,11 @@ export default function HeaderAccountDetail() {
     };
   }, []);
 
+  const onClickLogout = useCallback(() => {
+    posthog.reset();
+    window.location.assign(LOGOUT_PATH);
+  }, []);
+
   return (
     <AccountManagementContainer>
       {queryResult.data?.user?.isPlaceholderUser === false ? (
@@ -54,14 +60,11 @@ export default function HeaderAccountDetail() {
             <Email>{queryResult.data.user?.email}</Email>
           )}
           {useNarrowLayout ? (
-            <IconButton onClick={() => window.location.assign(LOGOUT_PATH)}>
+            <IconButton onClick={onClickLogout}>
               <StyledLogoutIcon />
             </IconButton>
           ) : (
-            <Button
-              variant="plain"
-              onClick={() => window.location.assign(LOGOUT_PATH)}
-            >
+            <Button variant="plain" onClick={onClickLogout}>
               Log Out
             </Button>
           )}

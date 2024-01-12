@@ -32,8 +32,9 @@ const routeLoaderRoot: LoaderFunction = async (args) => {
   if (user && !user.isPlaceholderUser) {
     // TODO: Report when user ID is null
     if (user.id) {
-      // NOTE: We can assume user ID never changes, because to log out or log in
-      // we redirect the page to another url.
+      // NOTE: We can assume user ID never changes unless page reloads,
+      // because to log out or log in we redirect the page to another url.
+      // NOTE: We also call reset during logout.
       posthog.identify(user.id, { email: user.email });
     }
   }
