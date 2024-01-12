@@ -4,7 +4,6 @@ interface CustomCookieSessionObject
   extends CookieSessionInterfaces.CookieSessionObject {
   userId?: string;
   nonce?: string;
-  idToken?: string;
   placeholderUserToken?: string;
 }
 
