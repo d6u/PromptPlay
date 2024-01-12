@@ -1,5 +1,6 @@
 import { A, D, F } from '@mobily/ts-belt';
 import { PlaceholderUserEntity } from 'dynamodb-models/placeholder-user.js';
+import { SessionEntity } from 'dynamodb-models/session.js';
 import { SpaceEntity, SpacesTable } from 'dynamodb-models/space.js';
 import { UserEntity, UsersTable } from 'dynamodb-models/user.js';
 import { Express, Response } from 'express';
@@ -75,20 +76,33 @@ export default function setupAuth(app: Express) {
       return;
     }
 
-    // TODO: Store id_token in a safe place, so we can use it in logout.
-    if (!tokenSet.id_token) {
+    // SECTION: Validate and store id_token in DB and session cookies
+    const idToken = tokenSet.id_token;
+
+    if (!idToken) {
       // TODO: Handle missing id_token
       console.error('Missing id_token');
       res.sendStatus(500);
       return;
     }
 
-    const idToken = tokenSet.claims();
+    // NOTE: Because put doesn't return the default value,
+    // e.g. createdAt, use this as a workaround.
+    const dbSession = SessionEntity.parse(
+      SessionEntity.putParams({ auth0IdToken: idToken }),
+    );
+
+    await SessionEntity.put(dbSession);
+
+    req.session!.sessionId = dbSession.id;
+    // !SECTION
+
+    const idTokenClaims = tokenSet.claims();
 
     // NOTE: DynamoDB GSI is eventually consistent, so there is a rare chance
     // that we cannot find the user yet. We will leave this here until we
     // switch off DynamoDB.
-    const response = await UsersTable.query(idToken.sub, {
+    const response = await UsersTable.query(idTokenClaims.sub, {
       index: 'Auth0UserIdIndex',
       limit: 1,
     });
@@ -102,10 +116,10 @@ export default function setupAuth(app: Express) {
       // e.g. createdAt, use this as a workaround.
       const dbUser = UserEntity.parse(
         UserEntity.putParams({
-          name: idToken.name,
-          email: idToken.email,
-          profilePictureUrl: idToken.picture,
-          auth0UserId: idToken.sub,
+          name: idTokenClaims.name,
+          email: idTokenClaims.email,
+          profilePictureUrl: idTokenClaims.picture,
+          auth0UserId: idTokenClaims.sub,
         }),
       );
 
@@ -168,9 +182,9 @@ export default function setupAuth(app: Express) {
 
       await UserEntity.update({
         id: userId,
-        name: idToken.name,
-        email: idToken.email,
-        profilePictureUrl: idToken.picture,
+        name: idTokenClaims.name,
+        email: idTokenClaims.email,
+        profilePictureUrl: idTokenClaims.picture,
       });
 
       req.session!.userId = userId;
@@ -180,20 +194,26 @@ export default function setupAuth(app: Express) {
   });
 
   app.get('/logout', async (req: RequestWithSession, res) => {
-    const idToken = req.session?.idToken;
+    const sessionId = req.session!.sessionId;
 
-    // ANCHOR: Logout locally
-
-    delete req.session!.idToken;
+    // NOTE: Log out locally
+    delete req.session!.sessionId;
     delete req.session!.userId;
 
-    // ANCHOR: Logout from Auth0 and between Auth0 and IDPs
+    const { Item: dbSession } = await SessionEntity.get({ id: sessionId });
 
-    if (idToken == null) {
+    const idToken = dbSession?.auth0IdToken;
+
+    if (!idToken) {
+      console.error('Missing id_token');
       res.redirect(process.env.AUTH_LOGOUT_FINISH_REDIRECT_URL);
       return;
     }
 
+    // NOTE: Clean up
+    await SessionEntity.delete(dbSession);
+
+    // ANCHOR: Logout from Auth0 and between Auth0 and IDPs
     const searchParams = new URLSearchParams({
       post_logout_redirect_uri: process.env.AUTH_LOGOUT_FINISH_REDIRECT_URL,
       id_token_hint: idToken,
