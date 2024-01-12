@@ -94,29 +94,19 @@ Resources:
             Path: /{proxy+}
       Policies:
         # ANCHOR: Users
-        - DynamoDBReadPolicy:
-            TableName: !Ref DynamodbTableNameUsers
-        - DynamoDBWritePolicy:
+        - DynamoDBCrudPolicy:
             TableName: !Ref DynamodbTableNameUsers
         # ANCHOR: Placeholder Users
-        - DynamoDBReadPolicy:
-            TableName: !Ref DynamodbTableNamePlaceholderUsers
-        - DynamoDBWritePolicy:
+        - DynamoDBCrudPolicy:
             TableName: !Ref DynamodbTableNamePlaceholderUsers
         # ANCHOR: Spaces
-        - DynamoDBReadPolicy:
-            TableName: !Ref DynamodbTableNameSpaces
-        - DynamoDBWritePolicy:
+        - DynamoDBCrudPolicy:
             TableName: !Ref DynamodbTableNameSpaces
         # ANCHOR: CsvEvaluationPresets
-        - DynamoDBReadPolicy:
-            TableName: !Ref DynamodbTableNameCsvEvaluationPresets
-        - DynamoDBWritePolicy:
+        - DynamoDBCrudPolicy:
             TableName: !Ref DynamodbTableNameCsvEvaluationPresets
         # ANCHOR: Sessions
-        - DynamoDBReadPolicy:
-            TableName: !Ref DynamodbTableNameSessions
-        - DynamoDBWritePolicy:
+        - DynamoDBCrudPolicy:
             TableName: !Ref DynamodbTableNameSessions
       Environment:
         Variables:
