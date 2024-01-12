@@ -33,7 +33,7 @@ import { client } from './shared.js';
 
   await client.send(
     new DeleteTableCommand({
-      TableName: process.env.DYNAMODB_TABLE_NAME_ID_TOKEN_PAIRS,
+      TableName: process.env.DYNAMODB_TABLE_NAME_SESSIONS,
     }),
   );
 

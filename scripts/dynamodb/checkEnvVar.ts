@@ -7,7 +7,7 @@ declare global {
       DYNAMODB_TABLE_NAME_PLACEHOLDER_USERS: string;
       DYNAMODB_TABLE_NAME_SPACES: string;
       DYNAMODB_TABLE_NAME_CSV_EVALUATION_PRESETS: string;
-      DYNAMODB_TABLE_NAME_ID_TOKEN_PAIRS: string;
+      DYNAMODB_TABLE_NAME_SESSIONS: string;
       // dev only, undefined in prod
       DEV_DYNAMODB_ENDPOINT?: string;
       DEBUG?: string;
@@ -20,7 +20,7 @@ const requiredEnvName = [
   'DYNAMODB_TABLE_NAME_PLACEHOLDER_USERS',
   'DYNAMODB_TABLE_NAME_SPACES',
   'DYNAMODB_TABLE_NAME_CSV_EVALUATION_PRESETS',
-  'DYNAMODB_TABLE_NAME_ID_TOKEN_PAIRS',
+  'DYNAMODB_TABLE_NAME_SESSIONS',
 ];
 
 const allEnvNames = requiredEnvName.concat(['DEV_DYNAMODB_ENDPOINT', 'DEBUG']);

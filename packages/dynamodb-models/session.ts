@@ -2,28 +2,28 @@ import { Entity, Table } from 'dynamodb-toolbox';
 import { v4 as uuidv4 } from 'uuid';
 import { DocumentClient } from './client.js';
 
-if (!process.env.DYNAMODB_TABLE_NAME_ID_TOKEN_PAIRS) {
-  throw new Error('DYNAMODB_TABLE_NAME_ID_TOKEN_PAIRS is not set');
+if (!process.env.DYNAMODB_TABLE_NAME_SESSIONS) {
+  throw new Error('DYNAMODB_TABLE_NAME_SESSIONS is not set');
 }
 
-export const IdTokenPairsTable = new Table({
-  name: process.env.DYNAMODB_TABLE_NAME_ID_TOKEN_PAIRS,
-  partitionKey: 'ClientToken',
+export const SessionsTable = new Table({
+  name: process.env.DYNAMODB_TABLE_NAME_SESSIONS,
+  partitionKey: 'Id',
   DocumentClient,
 });
 
-export const IdTokenPairEntity = new Entity({
-  table: IdTokenPairsTable,
-  name: 'IdTokenPair',
+export const SessionEntity = new Entity({
+  table: SessionsTable,
+  name: 'Session',
   attributes: {
-    clientToken: {
+    id: {
       partitionKey: true,
       type: 'string',
       default: () => uuidv4(),
     },
-    idToken: {
+    auth0IdToken: {
       type: 'string',
-      map: 'IdToken',
+      map: 'Auth0IdToken',
     },
     createdAt: {
       type: 'number',
@@ -45,9 +45,9 @@ export const IdTokenPairEntity = new Entity({
   typeHidden: true,
 } as const);
 
-export type IdTokenPairShape = {
-  clientToken: string;
-  idToken: string;
+export type SessionShape = {
+  id: string;
+  auth0IdToken: string;
   createdAt: number;
   updatedAt: number;
 };

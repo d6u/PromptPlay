@@ -5,7 +5,7 @@ interface CustomCookieSessionObject
   userId?: string;
   nonce?: string;
   placeholderUserToken?: string;
-  sessionClientToken?: string;
+  sessionId?: string;
 }
 
 export interface RequestWithSession extends Request {

@@ -152,19 +152,17 @@ import { client } from './shared.js';
   try {
     await client.send(
       new CreateTableCommand({
-        TableName: process.env.DYNAMODB_TABLE_NAME_ID_TOKEN_PAIRS,
+        TableName: process.env.DYNAMODB_TABLE_NAME_SESSIONS,
         TableClass: 'STANDARD',
         BillingMode: 'PAY_PER_REQUEST',
         DeletionProtectionEnabled: true,
-        AttributeDefinitions: [
-          { AttributeName: 'ClientToken', AttributeType: 'S' },
-        ],
-        KeySchema: [{ AttributeName: 'ClientToken', KeyType: 'HASH' }],
+        AttributeDefinitions: [{ AttributeName: 'Id', AttributeType: 'S' }],
+        KeySchema: [{ AttributeName: 'Id', KeyType: 'HASH' }],
       }),
     );
   } catch (err) {
     console.error(
-      `Error creating ${process.env.DYNAMODB_TABLE_NAME_ID_TOKEN_PAIRS} table`,
+      `Error creating ${process.env.DYNAMODB_TABLE_NAME_SESSIONS} table`,
       err,
     );
   }

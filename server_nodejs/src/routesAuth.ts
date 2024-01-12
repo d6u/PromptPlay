@@ -1,6 +1,6 @@
 import { A, D, F } from '@mobily/ts-belt';
-import { IdTokenPairEntity } from 'dynamodb-models/id-token-pair.js';
 import { PlaceholderUserEntity } from 'dynamodb-models/placeholder-user.js';
+import { SessionEntity } from 'dynamodb-models/session.js';
 import { SpaceEntity, SpacesTable } from 'dynamodb-models/space.js';
 import { UserEntity, UsersTable } from 'dynamodb-models/user.js';
 import { Express, Response } from 'express';
@@ -88,15 +88,13 @@ export default function setupAuth(app: Express) {
 
     // NOTE: Because put doesn't return the default value,
     // e.g. createdAt, use this as a workaround.
-    const dbIdTokenPair = IdTokenPairEntity.parse(
-      IdTokenPairEntity.putParams({
-        idToken,
-      }),
+    const dbSession = SessionEntity.parse(
+      SessionEntity.putParams({ auth0IdToken: idToken }),
     );
 
-    await IdTokenPairEntity.put(dbIdTokenPair);
+    await SessionEntity.put(dbSession);
 
-    req.session!.sessionClientToken = dbIdTokenPair.clientToken;
+    req.session!.sessionId = dbSession.id;
     // !SECTION
 
     const idTokenClaims = tokenSet.claims();
@@ -196,17 +194,15 @@ export default function setupAuth(app: Express) {
   });
 
   app.get('/logout', async (req: RequestWithSession, res) => {
-    const clientToken = req.session!.sessionClientToken;
+    const sessionId = req.session!.sessionId;
 
     // NOTE: Log out locally
-    delete req.session!.sessionClientToken;
+    delete req.session!.sessionId;
     delete req.session!.userId;
 
-    const { Item: dbIdTokenPair } = await IdTokenPairEntity.get({
-      clientToken,
-    });
+    const { Item: dbSession } = await SessionEntity.get({ id: sessionId });
 
-    const idToken = dbIdTokenPair?.idToken;
+    const idToken = dbSession?.auth0IdToken;
 
     if (!idToken) {
       console.error('Missing id_token');
@@ -215,7 +211,7 @@ export default function setupAuth(app: Express) {
     }
 
     // NOTE: Clean up
-    await IdTokenPairEntity.delete(dbIdTokenPair);
+    await SessionEntity.delete(dbSession);
 
     // ANCHOR: Logout from Auth0 and between Auth0 and IDPs
     const searchParams = new URLSearchParams({
