@@ -1,4 +1,4 @@
-version: "3.8"
+version: '3.8'
 
 services:
   db:
@@ -7,7 +7,7 @@ services:
     environment:
       POSTGRES_PASSWORD: example
     ports:
-      - "5432:5432"
+      - '5432:5432'
 
   adminer:
     image: adminer
@@ -17,12 +17,12 @@ services:
 
   dynamodb:
     container_name: dynamodb
-    command: "-jar DynamoDBLocal.jar -sharedDb -dbPath ./data"
-    image: "amazon/dynamodb-local:latest"
+    command: '-jar DynamoDBLocal.jar -sharedDb -dbPath ./data'
+    image: 'amazon/dynamodb-local:latest'
     ports:
-      - "8000:8000"
+      - '8000:8000'
     volumes:
-      - "./.artifacts/dynamodb:/home/dynamodblocal/data"
+      - './.artifacts/dynamodb:/home/dynamodblocal/data'
     working_dir: /home/dynamodblocal
 
   dev-api-server:
@@ -36,12 +36,13 @@ services:
       - ./server_nodejs/src:/home/node/app/server_nodejs/src
       - ./packages:/home/node/app/packages
     ports:
-      - "5050:5050"
+      - '5050:5050'
     environment:
       - DYNAMODB_TABLE_NAME_USERS=${DYNAMODB_TABLE_NAME_USERS}
       - DYNAMODB_TABLE_NAME_PLACEHOLDER_USERS=${DYNAMODB_TABLE_NAME_PLACEHOLDER_USERS}
       - DYNAMODB_TABLE_NAME_SPACES=${DYNAMODB_TABLE_NAME_SPACES}
       - DYNAMODB_TABLE_NAME_CSV_EVALUATION_PRESETS=${DYNAMODB_TABLE_NAME_CSV_EVALUATION_PRESETS}
+      - DYNAMODB_TABLE_NAME_ID_TOKEN_PAIRS=${DYNAMODB_TABLE_NAME_ID_TOKEN_PAIRS}
       - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS}
       - AUTH0_DOMAIN=${AUTH0_DOMAIN}
       - AUTH0_CLIENT_ID=${AUTH0_CLIENT_ID}
