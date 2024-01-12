@@ -200,6 +200,12 @@ export default function setupAuth(app: Express) {
     delete req.session!.sessionId;
     delete req.session!.userId;
 
+    if (!sessionId) {
+      console.error('Missing session ID');
+      res.redirect(process.env.AUTH_LOGOUT_FINISH_REDIRECT_URL);
+      return;
+    }
+
     const { Item: dbSession } = await SessionEntity.get({ id: sessionId });
 
     const idToken = dbSession?.auth0IdToken;

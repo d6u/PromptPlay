@@ -20,6 +20,8 @@ Parameters:
     Type: String
   DynamodbTableNameCsvEvaluationPresets:
     Type: String
+  DynamodbTableNameSessions:
+    Type: String
   # !SECTION
   CorsAllowedOrigins:
     Type: String
@@ -111,12 +113,18 @@ Resources:
             TableName: !Ref DynamodbTableNameCsvEvaluationPresets
         - DynamoDBWritePolicy:
             TableName: !Ref DynamodbTableNameCsvEvaluationPresets
+        # ANCHOR: Sessions
+        - DynamoDBReadPolicy:
+            TableName: !Ref DynamodbTableNameSessions
+        - DynamoDBWritePolicy:
+            TableName: !Ref DynamodbTableNameSessions
       Environment:
         Variables:
           DYNAMODB_TABLE_NAME_USERS: !Ref DynamodbTableNameUsers
           DYNAMODB_TABLE_NAME_PLACEHOLDER_USERS: !Ref DynamodbTableNamePlaceholderUsers
           DYNAMODB_TABLE_NAME_SPACES: !Ref DynamodbTableNameSpaces
           DYNAMODB_TABLE_NAME_CSV_EVALUATION_PRESETS: !Ref DynamodbTableNameCsvEvaluationPresets
+          DYNAMODB_TABLE_NAME_SESSIONS: !Ref DynamodbTableNameSessions
           CORS_ALLOWED_ORIGINS: !Ref CorsAllowedOrigins
           AUTH0_DOMAIN: !Ref Auth0Domain
           AUTH0_CLIENT_ID: !Ref Auth0ClientId

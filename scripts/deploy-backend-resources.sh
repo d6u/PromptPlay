@@ -25,6 +25,7 @@ sam deploy --stack-name $STACK_NAME \
   DynamodbTableNamePlaceholderUsers=$DYNAMODB_TABLE_NAME_PLACEHOLDER_USERS \
   DynamodbTableNameSpaces=$DYNAMODB_TABLE_NAME_SPACES \
   DynamodbTableNameCsvEvaluationPresets=$DYNAMODB_TABLE_NAME_CSV_EVALUATION_PRESETS \
+  DynamodbTableNameSessions=$DYNAMODB_TABLE_NAME_SESSIONS \
   CorsAllowedOrigins=$CORS_ALLOWED_ORIGINS \
   Auth0Domain=$AUTH0_DOMAIN \
   Auth0ClientId=$AUTH0_CLIENT_ID \
