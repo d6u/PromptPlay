@@ -1,4 +1,4 @@
-import { D } from "@mobily/ts-belt";
+import { D } from '@mobily/ts-belt';
 
 declare global {
   namespace NodeJS {
@@ -7,6 +7,7 @@ declare global {
       DYNAMODB_TABLE_NAME_PLACEHOLDER_USERS: string;
       DYNAMODB_TABLE_NAME_SPACES: string;
       DYNAMODB_TABLE_NAME_CSV_EVALUATION_PRESETS: string;
+      DYNAMODB_TABLE_NAME_ID_TOKEN_PAIRS: string;
       CORS_ALLOWED_ORIGINS: string;
       AUTH0_DOMAIN: string;
       AUTH0_CLIENT_ID: string;
@@ -23,39 +24,40 @@ declare global {
 }
 
 const requiredEnvName = [
-  "DYNAMODB_TABLE_NAME_USERS",
-  "DYNAMODB_TABLE_NAME_PLACEHOLDER_USERS",
-  "DYNAMODB_TABLE_NAME_SPACES",
-  "DYNAMODB_TABLE_NAME_CSV_EVALUATION_PRESETS",
-  "CORS_ALLOWED_ORIGINS",
-  "AUTH0_DOMAIN",
-  "AUTH0_CLIENT_ID",
-  "AUTH0_CLIENT_SECRET",
-  "AUTH_CALLBACK_URL",
-  "AUTH_LOGIN_FINISH_REDIRECT_URL",
-  "AUTH_LOGOUT_FINISH_REDIRECT_URL",
-  "SESSION_COOKIE_SECRET",
+  'DYNAMODB_TABLE_NAME_USERS',
+  'DYNAMODB_TABLE_NAME_PLACEHOLDER_USERS',
+  'DYNAMODB_TABLE_NAME_SPACES',
+  'DYNAMODB_TABLE_NAME_CSV_EVALUATION_PRESETS',
+  'DYNAMODB_TABLE_NAME_ID_TOKEN_PAIRS',
+  'CORS_ALLOWED_ORIGINS',
+  'AUTH0_DOMAIN',
+  'AUTH0_CLIENT_ID',
+  'AUTH0_CLIENT_SECRET',
+  'AUTH_CALLBACK_URL',
+  'AUTH_LOGIN_FINISH_REDIRECT_URL',
+  'AUTH_LOGOUT_FINISH_REDIRECT_URL',
+  'SESSION_COOKIE_SECRET',
 ];
 
-const allEnvNames = requiredEnvName.concat(["DEV_DYNAMODB_ENDPOINT"]);
+const allEnvNames = requiredEnvName.concat(['DEV_DYNAMODB_ENDPOINT']);
 
 function checkEnvVar() {
   const missingEnvNames = [];
 
   for (const key of requiredEnvName) {
-    if (process.env[key] == undefined || process.env[key] === "") {
+    if (process.env[key] == undefined || process.env[key] === '') {
       missingEnvNames.push(key);
     }
   }
 
   if (missingEnvNames.length > 0) {
     throw new Error(
-      `Missing environment variables:\n\n- ${missingEnvNames.join("\n- ")}\n`,
+      `Missing environment variables:\n\n- ${missingEnvNames.join('\n- ')}\n`,
     );
   }
 
   if (process.env.DEBUG) {
-    console.log("Environment variables:\n");
+    console.log('Environment variables:\n');
 
     for (const [key, value] of D.toPairs(
       D.selectKeys(process.env, allEnvNames),
@@ -63,7 +65,7 @@ function checkEnvVar() {
       console.log(`${key}=${value}`);
     }
 
-    console.log("\n");
+    console.log('\n');
   }
 }
 
