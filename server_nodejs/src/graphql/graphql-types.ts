@@ -28,7 +28,10 @@ export type BuilderType = PothosSchemaTypes.SchemaBuilder<
 // SECTION: User
 
 export class User {
-  constructor(public dbUser: UserShape) {}
+  constructor(
+    public dbUser: UserShape,
+    public isPlaceholderUser: boolean,
+  ) {}
 }
 
 // !SECTION

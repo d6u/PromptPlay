@@ -17,39 +17,44 @@ export async function attachUser(
   _res: Response,
   next: NextFunction,
 ) {
-  const userId = req.session?.userId;
+  let dbUser: DbUserShape | null = null;
+
+  const userId = req.session!.userId;
 
   if (userId != null) {
-    const { Item: dbUser } = await UserEntity.get({ id: userId });
+    const { Item: user } = await UserEntity.get({ id: userId });
 
-    if (dbUser != null) {
-      req.dbUser = {
-        id: dbUser.id,
+    if (user != null) {
+      dbUser = {
+        id: user.id,
         isPlaceholderUser: false,
       };
-      next();
-      return;
+    } else {
+      delete req.session!.userId;
     }
-
-    req.session = null;
   }
 
-  // NOTE: This header name is in lower cases.
-  const placeholderUserToken = req.header('placeholderusertoken');
+  if (dbUser == null) {
+    const placeholderUserToken = req.session!.placeholderUserToken;
 
-  if (placeholderUserToken != null) {
-    const { Item: dbPlaceholderUser } = await PlaceholderUserEntity.get({
-      placeholderClientToken: placeholderUserToken,
-    });
+    if (placeholderUserToken != null) {
+      const { Item: user } = await PlaceholderUserEntity.get({
+        placeholderClientToken: placeholderUserToken,
+      });
 
-    if (dbPlaceholderUser != null) {
-      req.dbUser = {
-        id: dbPlaceholderUser.placeholderClientToken,
-        isPlaceholderUser: true,
-      };
-      next();
-      return;
+      if (user != null) {
+        dbUser = {
+          id: user.placeholderClientToken,
+          isPlaceholderUser: true,
+        };
+      } else {
+        delete req.session!.placeholderUserToken;
+      }
     }
+  }
+
+  if (dbUser != null) {
+    req.dbUser = dbUser;
   }
 
   next();

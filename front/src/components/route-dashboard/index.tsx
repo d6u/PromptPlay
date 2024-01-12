@@ -5,19 +5,12 @@ import { useNavigate } from 'react-router-dom';
 import { useMutation, useQuery } from 'urql';
 import { IS_LOGIN_ENABLED } from '../../constants';
 import { graphql } from '../../gql';
-import { useLocalStorageStore } from '../../state/appState';
 import { LOGIN_PATH, pathToFlow } from '../../utils/route-utils';
 import Dashboard from './dashboard/Dashboard';
 import { ROOT_ROUTE_QUERY } from './rootGraphql';
 
-export default function RootRoute() {
+export default function RouteDashboard() {
   const navigate = useNavigate();
-
-  // --- Global State ---
-
-  const setPlaceholderUserToken = useLocalStorageStore(
-    (state) => state.setPlaceholderUserToken,
-  );
 
   // --- GraphQL ---
 
@@ -27,7 +20,13 @@ export default function RootRoute() {
   });
 
   const [, createExampleSpace] = useMutation(
-    CREATE_PLACEHOLDER_USER_AND_EXAMPLE_SPACE_MUTATION,
+    graphql(`
+      mutation RouteDashboardCreateExampleSpaceMutation {
+        space: createExampleSpace {
+          id
+        }
+      }
+    `),
   );
 
   const onClick = useCallback(async () => {
@@ -39,16 +38,15 @@ export default function RootRoute() {
       return;
     }
 
-    if (!data?.result?.placeholderClientToken) {
+    if (!data) {
+      // TODO: Report this
       return;
     }
 
-    setPlaceholderUserToken(data.result.placeholderClientToken);
-
-    if (data.result.space.id) {
-      navigate(pathToFlow(data.result.space.id));
+    if (data.space.id) {
+      navigate(pathToFlow(data.space.id));
     }
-  }, [createExampleSpace, setPlaceholderUserToken, navigate]);
+  }, [createExampleSpace, navigate]);
 
   if (queryResult.fetching) {
     return <div>Loading...</div>;
@@ -80,22 +78,7 @@ export default function RootRoute() {
   return <Container>{content}</Container>;
 }
 
-// SECTION: GraphQL
-
-const CREATE_PLACEHOLDER_USER_AND_EXAMPLE_SPACE_MUTATION = graphql(`
-  mutation CreatePlaceholderUserAndExampleSpaceMutation {
-    result: createPlaceholderUserAndExampleSpace {
-      placeholderClientToken
-      space {
-        id
-      }
-    }
-  }
-`);
-
-// !SECTION
-
-// SECTION: UI Components
+// ANCHOR: UI
 
 const Container = styled.div`
   flex-grow: 1;
@@ -137,5 +120,3 @@ const BigButton = styled.button<{ $createExample?: boolean }>`
         `
       : null}
 `;
-
-// !SECTION

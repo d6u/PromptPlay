@@ -17,14 +17,8 @@ type ElevenLabsApiKeyState = {
   setElevenLabsApiKey: (elevenLabsApiKey: string | null) => void;
 };
 
-type PlaceholderUserTokenState = {
-  placeholderUserToken: string | null;
-  setPlaceholderUserToken: (placeholderUserToken: string | null) => void;
-};
-
 export type LocalStorageState = OpenAIAPIKeyState &
   HuggingFaceApiTokenState &
-  PlaceholderUserTokenState &
   ElevenLabsApiKeyState;
 
 export const useLocalStorageStore = createSelectors(
@@ -37,8 +31,6 @@ export const useLocalStorageStore = createSelectors(
         setHuggingFaceApiToken: (huggingFaceApiToken) =>
           set(() => ({ huggingFaceApiToken })),
         placeholderUserToken: null,
-        setPlaceholderUserToken: (placeholderUserToken) =>
-          set(() => ({ placeholderUserToken })),
         elevenLabsApiKey: null,
         setElevenLabsApiKey: (elevenLabsApiKey: string | null) =>
           set(() => ({ elevenLabsApiKey })),

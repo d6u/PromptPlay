@@ -1,4 +1,3 @@
-import { A, D, F } from '@mobily/ts-belt';
 import {
   CsvEvaluationPresetEntity,
   CsvEvaluationPresetShape,
@@ -10,9 +9,7 @@ import {
   DbSpaceContentVersion,
   SpaceEntity,
   SpaceShape,
-  SpacesTable,
 } from 'dynamodb-models/space.js';
-import { UserEntity } from 'dynamodb-models/user.js';
 import { nullThrow } from '../utils/utils.js';
 import {
   BuilderType,
@@ -21,28 +18,9 @@ import {
   CsvEvaluationPresetFull,
   Space,
   SpaceContentVersion,
-  User,
 } from './graphql-types.js';
 
 export default function addMutationType(builder: BuilderType) {
-  const CreatePlaceholderUserAndExampleSpaceResult = builder
-    .objectRef<CreatePlaceholderUserAndExampleSpaceResultShape>(
-      'CreatePlaceholderUserAndExampleSpaceResult',
-    )
-    .implement({
-      fields(t) {
-        return {
-          placeholderClientToken: t.exposeID('placeholderClientToken'),
-          space: t.field({
-            type: Space,
-            resolve(parent) {
-              return parent.space;
-            },
-          }),
-        };
-      },
-    });
-
   const CreateCsvEvaluationPresetResult = builder
     .objectRef<CreateCsvEvaluationPresetResultShape>(
       'CreateCsvEvaluationPresetResult',
@@ -79,8 +57,8 @@ export default function addMutationType(builder: BuilderType) {
   builder.mutationType({
     fields(t) {
       return {
-        createPlaceholderUserAndExampleSpace: t.field({
-          type: CreatePlaceholderUserAndExampleSpaceResult,
+        createExampleSpace: t.field({
+          type: Space,
           async resolve(parent, args, context) {
             let dbUser = context.req.dbUser;
             let placeholderClientToken: string;
@@ -96,19 +74,18 @@ export default function addMutationType(builder: BuilderType) {
 
               placeholderClientToken = dbPlaceholderUser.placeholderClientToken;
 
-              dbUser = {
-                id: placeholderClientToken,
-                isPlaceholderUser: true,
-              };
-            } else {
-              if (!dbUser.isPlaceholderUser) {
-                throw new Error('Current user should be a placeholder user');
-              }
-
+              // NOTE: The key on session is different from the key in DB
+              context.req.session!.placeholderUserToken =
+                placeholderClientToken;
+            } else if (dbUser.isPlaceholderUser) {
               placeholderClientToken = dbUser.id;
+            } else {
+              throw new Error('Current user should be a placeholder user');
             }
 
-            const rawDbSpace = createSpaceWithExampleContent(dbUser.id);
+            const rawDbSpace = createSpaceWithExampleContent(
+              placeholderClientToken!,
+            );
 
             // NOTE: Because put doesn't return the default value,
             // e.g. createdAt, use this as a workaround.
@@ -118,83 +95,7 @@ export default function addMutationType(builder: BuilderType) {
 
             await SpaceEntity.put(dbSpace);
 
-            return {
-              placeholderClientToken,
-              space: new Space(dbSpace),
-            };
-          },
-        }),
-        mergePlaceholderUserWithLoggedInUser: t.field({
-          type: User,
-          nullable: true,
-          args: {
-            placeholderUserToken: t.arg({ type: 'String', required: true }),
-          },
-          async resolve(parent, args, context) {
-            // ANCHOR: Make sure there is a logged in user to merge to
-
-            const dbUser = context.req.dbUser;
-
-            if (dbUser == null) {
-              return null;
-            }
-
-            if (dbUser.isPlaceholderUser) {
-              throw new Error('Current user should not be a placeholder user');
-            }
-
-            // ANCHOR: Make sure the provided placeholder user exists
-
-            const { Item: placeholderUser } = await PlaceholderUserEntity.get({
-              placeholderClientToken: args.placeholderUserToken,
-            });
-
-            if (placeholderUser == null) {
-              return null;
-            }
-
-            const placeholderUserId = args.placeholderUserToken;
-
-            // ANCHOR: Merge the placeholder user's spaces to the logged in user
-
-            const response = await SpaceEntity.query(placeholderUserId, {
-              index: 'OwnerIdIndex',
-              // Parse works because OwnerIdIndex projects all the attributes.
-              parseAsEntity: 'Space',
-            });
-
-            const spaces = F.toMutable(
-              A.map(response.Items ?? [], D.set('ownerId', dbUser.id)),
-            );
-
-            // ANCHOR: Delete the placeholder user
-
-            await SpacesTable.batchWrite(
-              spaces
-                // Using PutItem will replace the item with the same primary
-                // key. This will update `createdAt` that should have been
-                // immutable, which is OK, because we are merging spaces into
-                // the new user. It probably doesn't matter to throw away
-                // `createdAt` value.
-                .map((space) => SpaceEntity.putBatch(space))
-                .concat([
-                  PlaceholderUserEntity.deleteBatch({
-                    placeholderClientToken: placeholderUserId,
-                  }),
-                ]),
-            );
-
-            // ANCHOR: Finish
-
-            const { Item: fullDbUser } = await UserEntity.get({
-              id: dbUser.id,
-            });
-
-            if (fullDbUser == null) {
-              throw new Error('User should not be null');
-            }
-
-            return new User(fullDbUser);
+            return new Space(dbSpace);
           },
         }),
         createSpace: t.field({
@@ -471,11 +372,6 @@ export default function addMutationType(builder: BuilderType) {
     },
   });
 }
-
-type CreatePlaceholderUserAndExampleSpaceResultShape = {
-  placeholderClientToken: string;
-  space: Space;
-};
 
 type CreateCsvEvaluationPresetResultShape = {
   space: Space;

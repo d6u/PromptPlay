@@ -1,10 +1,10 @@
-import { Request } from "express";
+import { Request } from 'express';
 
 interface CustomCookieSessionObject
   extends CookieSessionInterfaces.CookieSessionObject {
   userId?: string;
   nonce?: string;
-  idToken?: string;
+  placeholderUserToken?: string;
 }
 
 export interface RequestWithSession extends Request {

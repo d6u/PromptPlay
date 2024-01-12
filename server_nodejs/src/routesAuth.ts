@@ -1,3 +1,6 @@
+import { A, D, F } from '@mobily/ts-belt';
+import { PlaceholderUserEntity } from 'dynamodb-models/placeholder-user.js';
+import { SpaceEntity, SpacesTable } from 'dynamodb-models/space.js';
 import { UserEntity, UsersTable } from 'dynamodb-models/user.js';
 import { Express, Response } from 'express';
 import { BaseClient, Issuer, TokenSet, generators } from 'openid-client';
@@ -31,20 +34,24 @@ export default function setupAuth(app: Express) {
   app.get('/login', async (req: RequestWithSession, res: Response) => {
     const authClient = await getAuthClientCached();
 
-    req.session = {
-      nonce: generators.nonce(),
-    };
+    const nonce = generators.nonce();
+
+    req.session!.nonce = nonce;
 
     res.redirect(
       authClient.authorizationUrl({
         scope: 'openid email profile',
-        nonce: req.session!.nonce,
+        nonce,
       }),
     );
   });
 
   app.get('/auth', async (req: RequestWithSession, res: Response) => {
-    if (!req.session?.nonce) {
+    const nonce = req.session!.nonce;
+
+    delete req.session!.nonce;
+
+    if (!nonce) {
       console.error('Missing nonce');
       res.sendStatus(500);
       return;
@@ -60,7 +67,7 @@ export default function setupAuth(app: Express) {
         // Auth0 checks if the domain is the same.
         process.env.AUTH_CALLBACK_URL,
         params,
-        { nonce: req.session.nonce },
+        { nonce },
       );
     } catch (err) {
       console.error('OpenID Client callback handling error:', err);
@@ -68,6 +75,7 @@ export default function setupAuth(app: Express) {
       return;
     }
 
+    // TODO: Store id_token in a safe place, so we can use it in logout.
     if (!tokenSet.id_token) {
       // TODO: Handle missing id_token
       console.error('Missing id_token');
@@ -88,6 +96,8 @@ export default function setupAuth(app: Express) {
     let redirectUrl = process.env.AUTH_LOGIN_FINISH_REDIRECT_URL;
 
     if (response.Count === 0) {
+      // NOTE: A new user.
+
       // NOTE: Because put doesn't return the default value,
       // e.g. createdAt, use this as a workaround.
       const dbUser = UserEntity.parse(
@@ -101,10 +111,59 @@ export default function setupAuth(app: Express) {
 
       await UserEntity.put(dbUser);
 
-      req.session.userId = dbUser.id;
+      req.session!.userId = dbUser.id;
 
-      redirectUrl += '?new_user=true';
+      // SECTION: Merge placeholder user if there is one.
+      // Because this is a new user.
+      const placeholderUserId = req.session!.placeholderUserToken;
+
+      // NOTE: Always delete the placeholder user token from session.
+      // Because we either have merged the placeholder user or the
+      // placeholder user is invalid.
+      delete req.session!.placeholderUserToken;
+
+      if (placeholderUserId) {
+        console.log('placeholderUserToken is present');
+
+        const { Item: placeholderUser } = await PlaceholderUserEntity.get({
+          placeholderClientToken: placeholderUserId,
+        });
+
+        if (placeholderUser != null) {
+          console.log('Placeholder user is valid, merging with the new user');
+
+          const response = await SpaceEntity.query(placeholderUserId, {
+            index: 'OwnerIdIndex',
+            // Parse works because OwnerIdIndex projects all the attributes.
+            parseAsEntity: 'Space',
+          });
+
+          const spaces = F.toMutable(
+            A.map(response.Items ?? [], D.set('ownerId', dbUser.id)),
+          );
+
+          // TODO: Batch write only supports 25 items at a time.
+          // Split spaces into chunks of 25 items.
+          await SpacesTable.batchWrite(
+            spaces
+              // Using PutItem will replace the item with the same primary
+              // key. This will update `createdAt` that should have been
+              // immutable, which is OK, because we are merging spaces into
+              // the new user. It probably doesn't matter to throw away
+              // `createdAt` value.
+              .map((space) => SpaceEntity.putBatch(space))
+              .concat([
+                // NOTE: Delete the placeholder user.
+                PlaceholderUserEntity.deleteBatch({
+                  placeholderClientToken: placeholderUserId,
+                }),
+              ]),
+          );
+        }
+      }
+      // !SECTION
     } else {
+      // NOTE: Not a new user.
       const userId = response.Items![0]!['Id'] as string;
 
       await UserEntity.update({
@@ -114,7 +173,7 @@ export default function setupAuth(app: Express) {
         profilePictureUrl: idToken.picture,
       });
 
-      req.session.userId = userId;
+      req.session!.userId = userId;
     }
 
     res.redirect(redirectUrl);
@@ -125,7 +184,8 @@ export default function setupAuth(app: Express) {
 
     // ANCHOR: Logout locally
 
-    req.session = null;
+    delete req.session!.idToken;
+    delete req.session!.userId;
 
     // ANCHOR: Logout from Auth0 and between Auth0 and IDPs
 

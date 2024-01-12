@@ -18,6 +18,11 @@ export default function addObjectTypes(builder: BuilderType) {
     name: 'User',
     fields(t) {
       return {
+        isPlaceholderUser: t.boolean({
+          resolve(parent, args, context) {
+            return parent.isPlaceholderUser;
+          },
+        }),
         id: t.field({
           type: 'UUID',
           resolve(parent, args, context) {
