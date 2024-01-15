@@ -27,7 +27,7 @@ export type V3TextTemplateNodeConfig = {
 export const TextTemplateNodeConfigSchema = Joi.object({
   type: Joi.string().required().valid(NodeType.TextTemplate),
   nodeId: Joi.string().required(),
-  content: Joi.string().required(),
+  content: Joi.string().required().allow(''),
 });
 
 export const TEXT_TEMPLATE_NODE_DEFINITION: NodeDefinition<V3TextTemplateNodeConfig> =
