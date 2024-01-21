@@ -15,7 +15,7 @@ import {
   getAllNodeTypes,
   getNodeDefinitionForNodeTypeName,
 } from 'flow-models';
-import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { useCallback, useContext, useMemo } from 'react';
 import { useStoreApi } from 'reactflow';
 import { useStore } from 'zustand';
 import FlowContext from '../FlowContext';
@@ -67,24 +67,6 @@ export default function ToolBar() {
     [addNode, isCurrentUserOwner, storeApi],
   );
 
-  const [useNarrowLayout, setUseNarrowLayout] = useState(
-    window.innerWidth < USE_NARROW_LAYOUT_BREAKPOINT,
-  );
-
-  useEffect(() => {
-    function handleResize() {
-      if (window.innerWidth < USE_NARROW_LAYOUT_BREAKPOINT) {
-        setUseNarrowLayout(true);
-      } else {
-        setUseNarrowLayout(false);
-      }
-    }
-    window.addEventListener('resize', handleResize, { passive: true });
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
-  }, []);
-
   const options = useMemo(() => {
     return getAllNodeTypes()
       .map((nodeType) => ({
@@ -111,43 +93,23 @@ export default function ToolBar() {
   return (
     <Container>
       <LeftAligned>
-        {useNarrowLayout ? (
-          <>
-            <Dropdown>
-              <MenuButton color="primary">Add</MenuButton>
-              <Menu>
-                {options.map((option, i) => (
-                  <MenuItem key={i} color="primary" onClick={option.onClick}>
-                    {option.label}
-                  </MenuItem>
-                ))}
-              </Menu>
-            </Dropdown>
-            {runButtonConfig.shouldShowRunButton && (
-              <Button
-                color={isRunning ? 'danger' : 'success'}
-                onClick={runButtonConfig.onClick}
-              >
-                {runButtonConfig.label}
-              </Button>
-            )}
-          </>
-        ) : (
-          <>
+        <Dropdown>
+          <MenuButton color="primary">Add</MenuButton>
+          <Menu>
             {options.map((option, i) => (
-              <Button key={i} color="primary" onClick={option.onClick}>
+              <MenuItem key={i} color="primary" onClick={option.onClick}>
                 {option.label}
-              </Button>
+              </MenuItem>
             ))}
-            {runButtonConfig.shouldShowRunButton && (
-              <Button
-                color={isRunning ? 'danger' : 'success'}
-                onClick={runButtonConfig.onClick}
-              >
-                {runButtonConfig.label}
-              </Button>
-            )}
-          </>
+          </Menu>
+        </Dropdown>
+        {runButtonConfig.shouldShowRunButton && (
+          <Button
+            color={isRunning ? 'danger' : 'success'}
+            onClick={runButtonConfig.onClick}
+          >
+            {runButtonConfig.label}
+          </Button>
         )}
       </LeftAligned>
       <RightAligned>
@@ -181,8 +143,6 @@ export default function ToolBar() {
     </Container>
   );
 }
-
-const USE_NARROW_LAYOUT_BREAKPOINT = 2000;
 
 const Container = styled.div`
   height: 51px;
