@@ -16,7 +16,7 @@ import {
   getNodeDefinitionForNodeTypeName,
 } from 'flow-models';
 import { useCallback, useContext, useMemo } from 'react';
-import { useMatches, useNavigate, useParams } from 'react-router-dom';
+import { useMatches, useNavigate } from 'react-router-dom';
 import { useStoreApi } from 'reactflow';
 import { useStore } from 'zustand';
 import {
@@ -32,13 +32,12 @@ import RouteFlowContext from './RouteFlowContext';
 export default function SubHeader() {
   const navigate = useNavigate();
   const matches = useMatches();
-  const params = useParams<{ spaceId: string }>();
 
   const tabToggleValue = useMemo(() => {
     return (matches[2].handle as { tabType: FlowRouteTab }).tabType;
   }, [matches]);
 
-  const { isCurrentUserOwner } = useContext(RouteFlowContext);
+  const { isCurrentUserOwner, spaceId } = useContext(RouteFlowContext);
   const flowStore = useStoreFromFlowStoreContext();
 
   const isRunning = useStore(flowStore, (s) => s.isRunning);
@@ -106,70 +105,74 @@ export default function SubHeader() {
 
   return (
     <Container>
-      <LeftAligned>
-        <ToggleButtonGroup
-          size="sm"
-          value={tabToggleValue}
-          onChange={(e, newValue) => {
-            switch (newValue) {
-              case null:
-                break;
-              case FlowRouteTab.Canvas:
-                navigate(pathToFlowCanvasTab(params.spaceId!));
-                break;
-              case FlowRouteTab.BatchTest:
-                navigate(pathToFlowBatchTestTab(params.spaceId!));
-                break;
-            }
-          }}
-        >
-          <Button value={FlowRouteTab.Canvas}>Canvas</Button>
-          <Button value={FlowRouteTab.BatchTest}>Batch Test</Button>
-        </ToggleButtonGroup>
-        <Dropdown>
-          <MenuButton color="primary">Add</MenuButton>
-          <Menu>
-            {options.map((option, i) => (
-              <MenuItem key={i} color="primary" onClick={option.onClick}>
-                {option.label}
-              </MenuItem>
-            ))}
-          </Menu>
-        </Dropdown>
-        {runButtonConfig.shouldShowRunButton && (
-          <Button
-            color={isRunning ? 'danger' : 'success'}
-            onClick={runButtonConfig.onClick}
-          >
-            {runButtonConfig.label}
-          </Button>
-        )}
-      </LeftAligned>
-      <RightAligned>
-        <SavingIndicator color="success" level="body-sm" variant="plain">
-          {isFlowContentSaving
-            ? 'Saving...'
-            : isFlowContentDirty
-              ? 'Save pending'
-              : 'Saved'}
-        </SavingIndicator>
-        <FormControl size="md" orientation="horizontal">
-          <FormLabel sx={{ cursor: 'pointer' }}>Evaluation Mode</FormLabel>
-          <ToggleButtonGroup
-            size="sm"
-            value={detailPanelContentType}
-            onChange={(e, newValue) => {
-              if (newValue == null) return;
-              setDetailPanelContentType(newValue);
-            }}
-          >
-            <Button value={DetailPanelContentType.Off}>Off</Button>
-            <Button value={DetailPanelContentType.EvaluationModeSimple}>
-              Simple
-            </Button>
-          </ToggleButtonGroup>
-        </FormControl>
-      </RightAligned>
+      {isCurrentUserOwner && (
+        <>
+          <LeftAligned>
+            <ToggleButtonGroup
+              size="sm"
+              value={tabToggleValue}
+              onChange={(e, newValue) => {
+                switch (newValue) {
+                  case null:
+                    break;
+                  case FlowRouteTab.Canvas:
+                    navigate(pathToFlowCanvasTab(spaceId));
+                    break;
+                  case FlowRouteTab.BatchTest:
+                    navigate(pathToFlowBatchTestTab(spaceId));
+                    break;
+                }
+              }}
+            >
+              <Button value={FlowRouteTab.Canvas}>Canvas</Button>
+              <Button value={FlowRouteTab.BatchTest}>Batch Test</Button>
+            </ToggleButtonGroup>
+            <Dropdown>
+              <MenuButton color="primary">Add</MenuButton>
+              <Menu>
+                {options.map((option, i) => (
+                  <MenuItem key={i} color="primary" onClick={option.onClick}>
+                    {option.label}
+                  </MenuItem>
+                ))}
+              </Menu>
+            </Dropdown>
+            {runButtonConfig.shouldShowRunButton && (
+              <Button
+                color={isRunning ? 'danger' : 'success'}
+                onClick={runButtonConfig.onClick}
+              >
+                {runButtonConfig.label}
+              </Button>
+            )}
+          </LeftAligned>
+          <RightAligned>
+            <SavingIndicator color="success" level="body-sm" variant="plain">
+              {isFlowContentSaving
+                ? 'Saving...'
+                : isFlowContentDirty
+                  ? 'Save pending'
+                  : 'Saved'}
+            </SavingIndicator>
+            <FormControl size="md" orientation="horizontal">
+              <FormLabel sx={{ cursor: 'pointer' }}>Evaluation Mode</FormLabel>
+              <ToggleButtonGroup
+                size="sm"
+                value={detailPanelContentType}
+                onChange={(e, newValue) => {
+                  if (newValue == null) return;
+                  setDetailPanelContentType(newValue);
+                }}
+              >
+                <Button value={DetailPanelContentType.Off}>Off</Button>
+                <Button value={DetailPanelContentType.EvaluationModeSimple}>
+                  Simple
+                </Button>
+              </ToggleButtonGroup>
+            </FormControl>
+          </RightAligned>
+        </>
+      )}
     </Container>
   );
 }

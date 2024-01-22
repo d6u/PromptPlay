@@ -25,7 +25,7 @@ export default function RouteFlow() {
     >
       <FlowStoreContextManager spaceId={params.spaceId}>
         <ReactFlowProvider>
-          {isCurrentUserOwner && <SubHeader />}
+          <SubHeader />
           <Outlet />
         </ReactFlowProvider>
       </FlowStoreContextManager>
