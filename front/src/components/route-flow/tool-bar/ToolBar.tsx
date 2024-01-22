@@ -145,12 +145,11 @@ export default function ToolBar() {
 }
 
 const Container = styled.div`
-  height: 51px;
-  border-bottom: 1px solid #ececf1;
-  padding: 0 20px;
-  flex-shrink: 0;
+  grid-area: sub-header;
   display: grid;
   grid-template-columns: auto auto;
+  border-bottom: 1px solid #ececf1;
+  padding: 0 20px;
 `;
 
 const LeftAligned = styled.div`

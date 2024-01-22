@@ -113,6 +113,9 @@ export default function UITheme(props: Props) {
             '--font-family-mono':
               'source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace',
           },
+          code: {
+            fontFamily: 'var(--font-family-mono)',
+          },
           html: { height: '100%' },
           body: {
             height: '100%',
@@ -122,9 +125,13 @@ export default function UITheme(props: Props) {
           },
           '#root': {
             height: '100%',
-          },
-          code: {
-            fontFamily: 'var(--font-family-mono)',
+            display: 'grid',
+            'grid-template-columns': '1fr',
+            'grid-template-rows': '50px 50px auto 50px',
+            'grid-template-areas':
+              '"header"' + '"sub-header"' + '"work-area"' + '"bottom-tool-bar"',
+            'justify-content': 'stretch',
+            'align-content': 'stretch',
           },
         }}
       />

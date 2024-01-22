@@ -93,9 +93,7 @@ export default function FlowCanvas() {
 }
 
 const Container = styled.div`
-  height: 100%;
-  flex-grow: 1;
-  min-height: 0;
+  grid-area: work-area / work-area / bottom-tool-bar / bottom-tool-bar;
   display: flex;
   position: relative;
 `;

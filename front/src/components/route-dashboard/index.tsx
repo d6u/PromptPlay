@@ -81,7 +81,7 @@ export default function RouteDashboard() {
 // ANCHOR: UI
 
 const Container = styled.div`
-  flex-grow: 1;
+  grid-area: sub-header / sub-header / bottom-tool-bar / bottom-tool-bar;
   display: flex;
   align-items: center;
   justify-content: center;
