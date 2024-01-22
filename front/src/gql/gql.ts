@@ -17,9 +17,9 @@ const documents = {
     "\n      query HeaderAccountDetailQuery {\n        user {\n          isPlaceholderUser\n          id\n          email\n          profilePictureUrl\n        }\n      }\n    ": types.HeaderAccountDetailQueryDocument,
     "\n      query HeaderSpaceNameQuery($spaceId: UUID!) {\n        result: space(id: $spaceId) {\n          isReadOnly\n          space {\n            id\n            name\n          }\n        }\n      }\n    ": types.HeaderSpaceNameQueryDocument,
     "\n      mutation UpdateSpaceNameMutation($spaceId: ID!, $name: String!) {\n        updateSpace(id: $spaceId, name: $name) {\n          id\n          name\n        }\n      }\n    ": types.UpdateSpaceNameMutationDocument,
+    "\n      mutation RouteDashboardCreateExampleSpaceMutation {\n        space: createExampleSpace {\n          id\n        }\n      }\n    ": types.RouteDashboardCreateExampleSpaceMutationDocument,
     "\n      mutation CreateSpaceMutation {\n        result: createSpace {\n          id\n          name\n          updatedAt\n        }\n      }\n    ": types.CreateSpaceMutationDocument,
     "\n  fragment Dashboard on User {\n    spaces {\n      id\n      name\n      updatedAt\n      contentVersion\n    }\n  }\n": types.DashboardFragmentDoc,
-    "\n      mutation RouteDashboardCreateExampleSpaceMutation {\n        space: createExampleSpace {\n          id\n        }\n      }\n    ": types.RouteDashboardCreateExampleSpaceMutationDocument,
     "\n  query RootRouteQuery {\n    user {\n      id\n      ...Dashboard\n    }\n  }\n": types.RootRouteQueryDocument,
     "\n      query PresetSelectorQuery($spaceId: UUID!) {\n        result: space(id: $spaceId) {\n          space {\n            id\n            csvEvaluationPresets {\n              id\n              name\n            }\n          }\n        }\n      }\n    ": types.PresetSelectorQueryDocument,
     "\n      mutation UpdateSpaceContentV3Mutation(\n        $spaceId: ID!\n        $contentV3: String!\n      ) {\n        updateSpace(id: $spaceId, contentVersion: v3, contentV3: $contentV3) {\n          id\n          contentV3\n        }\n      }\n    ": types.UpdateSpaceContentV3MutationDocument,
@@ -65,15 +65,15 @@ export function graphql(source: "\n      mutation UpdateSpaceNameMutation($space
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function graphql(source: "\n      mutation RouteDashboardCreateExampleSpaceMutation {\n        space: createExampleSpace {\n          id\n        }\n      }\n    "): (typeof documents)["\n      mutation RouteDashboardCreateExampleSpaceMutation {\n        space: createExampleSpace {\n          id\n        }\n      }\n    "];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function graphql(source: "\n      mutation CreateSpaceMutation {\n        result: createSpace {\n          id\n          name\n          updatedAt\n        }\n      }\n    "): (typeof documents)["\n      mutation CreateSpaceMutation {\n        result: createSpace {\n          id\n          name\n          updatedAt\n        }\n      }\n    "];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "\n  fragment Dashboard on User {\n    spaces {\n      id\n      name\n      updatedAt\n      contentVersion\n    }\n  }\n"): (typeof documents)["\n  fragment Dashboard on User {\n    spaces {\n      id\n      name\n      updatedAt\n      contentVersion\n    }\n  }\n"];
-/**
- * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function graphql(source: "\n      mutation RouteDashboardCreateExampleSpaceMutation {\n        space: createExampleSpace {\n          id\n        }\n      }\n    "): (typeof documents)["\n      mutation RouteDashboardCreateExampleSpaceMutation {\n        space: createExampleSpace {\n          id\n        }\n      }\n    "];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
