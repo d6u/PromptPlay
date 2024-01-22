@@ -17,13 +17,13 @@ export default function RouteFlow() {
   }, [params.spaceId]);
 
   return (
-    <FlowStoreContextManager spaceId={params.spaceId!}>
-      <ReactFlowProvider>
-        <FlowContext.Provider value={{ isCurrentUserOwner }}>
+    <FlowContext.Provider value={{ isCurrentUserOwner }}>
+      <FlowStoreContextManager spaceId={params.spaceId!}>
+        <ReactFlowProvider>
           {isCurrentUserOwner && <SubHeader />}
           <Outlet />
-        </FlowContext.Provider>
-      </ReactFlowProvider>
-    </FlowStoreContextManager>
+        </ReactFlowProvider>
+      </FlowStoreContextManager>
+    </FlowContext.Provider>
   );
 }
