@@ -25,7 +25,7 @@ export default function App() {
         element: <RouteRoot />,
         children: [
           {
-            path: '/',
+            path: '',
             element: <RouteDashboard />,
           },
           {
