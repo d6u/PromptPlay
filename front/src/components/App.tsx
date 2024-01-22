@@ -7,7 +7,6 @@ import {
 import { Provider as GraphQLProvider } from 'urql';
 import { client } from '../state/urql';
 import { FLOWS_PATH_PATTERN, ROOT_PATH } from '../utils/route-utils';
-import UITheme from './UITheme';
 import RouteDashboard from './route-dashboard';
 import RouteFlow from './route-flow';
 import flowLoader from './route-flow/route-loader';
@@ -41,10 +40,8 @@ export default function App() {
   }, []);
 
   return (
-    <UITheme>
-      <GraphQLProvider value={client}>
-        <RouterProvider router={router} />
-      </GraphQLProvider>
-    </UITheme>
+    <GraphQLProvider value={client}>
+      <RouterProvider router={router} />
+    </GraphQLProvider>
   );
 }
