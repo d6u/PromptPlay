@@ -16,7 +16,7 @@ import {
   range,
   startWith,
 } from 'rxjs';
-import { CSVData } from '../components/route-batch-test/panel-evaluation-mode-csv/common';
+import { CSVData } from '../components/route-batch-test/utils/types';
 import { VariableIdToCsvColumnIndexMap } from '../components/route-flow/store/slice-csv-evaluation-preset';
 import { useLocalStorageStore } from '../state/appState';
 import { FlowConfig, runSingle } from './run-single';
