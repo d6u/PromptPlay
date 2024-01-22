@@ -126,12 +126,12 @@ export default function UITheme(props: Props) {
           '#root': {
             height: '100%',
             display: 'grid',
-            'grid-template-columns': '1fr',
-            'grid-template-rows': '50px 50px auto 50px',
-            'grid-template-areas':
+            gridTemplateColumns: '1fr',
+            gridTemplateRows: '50px 50px auto 50px',
+            gridTemplateAreas:
               '"header"' + '"sub-header"' + '"work-area"' + '"bottom-tool-bar"',
-            'justify-content': 'stretch',
-            'align-content': 'stretch',
+            justifyContent: 'stretch',
+            alignContent: 'stretch',
           },
         }}
       />
