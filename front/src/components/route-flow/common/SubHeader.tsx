@@ -17,7 +17,7 @@ import {
   getNodeDefinitionForNodeTypeName,
 } from 'flow-models';
 import { useCallback, useContext, useMemo } from 'react';
-import { useMatches, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useStoreApi } from 'reactflow';
 import { useStore } from 'zustand';
 import {
@@ -32,9 +32,9 @@ import RouteFlowContext from './RouteFlowContext';
 
 export default function SubHeader() {
   const navigate = useNavigate();
-  const matches = useMatches();
 
-  const { isCurrentUserOwner, spaceId } = useContext(RouteFlowContext);
+  const { isCurrentUserOwner, spaceId, flowTabType } =
+    useContext(RouteFlowContext);
   const flowStore = useStoreFromFlowStoreContext();
 
   const isRunning = useStore(flowStore, (s) => s.isRunning);
@@ -77,10 +77,6 @@ export default function SubHeader() {
     [addNode, isCurrentUserOwner, storeApi],
   );
 
-  const tabToggleValue = useMemo(() => {
-    return (matches[2].handle as { tabType: FlowRouteTab }).tabType;
-  }, [matches]);
-
   const isTesterOpen = useMemo(() => {
     return detailPanelContentType != DetailPanelContentType.Off;
   }, [detailPanelContentType]);
@@ -112,26 +108,24 @@ export default function SubHeader() {
     <Container>
       {isCurrentUserOwner && (
         <>
-          <LeftAligned>
-            <ToggleButtonGroup
-              size="sm"
-              value={tabToggleValue}
-              onChange={(e, newValue) => {
-                switch (newValue) {
-                  case null:
-                    break;
-                  case FlowRouteTab.Canvas:
-                    navigate(pathToFlowCanvasTab(spaceId));
-                    break;
-                  case FlowRouteTab.BatchTest:
-                    navigate(pathToFlowBatchTestTab(spaceId));
-                    break;
-                }
-              }}
-            >
-              <Button value={FlowRouteTab.Canvas}>Canvas</Button>
-              <Button value={FlowRouteTab.BatchTest}>Batch Test</Button>
-            </ToggleButtonGroup>
+          <TabSwitcherToggleButtonGroup
+            size="sm"
+            value={flowTabType}
+            onChange={(e, newValue) => {
+              switch (newValue as FlowRouteTab) {
+                case FlowRouteTab.Canvas:
+                  navigate(pathToFlowCanvasTab(spaceId));
+                  break;
+                case FlowRouteTab.BatchTest:
+                  navigate(pathToFlowBatchTestTab(spaceId));
+                  break;
+              }
+            }}
+          >
+            <Button value={FlowRouteTab.Canvas}>Canvas</Button>
+            <Button value={FlowRouteTab.BatchTest}>Batch Test</Button>
+          </TabSwitcherToggleButtonGroup>
+          <LeftPaneToggleWrapper>
             <Dropdown>
               <MenuButton color="primary">Add</MenuButton>
               <Menu>
@@ -150,34 +144,32 @@ export default function SubHeader() {
                 {runButtonConfig.label}
               </Button>
             )}
-          </LeftAligned>
-          <RightAligned>
-            <SavingIndicator color="success" level="body-sm" variant="plain">
-              {isFlowContentSaving
-                ? 'Saving...'
-                : isFlowContentDirty
-                  ? 'Save pending'
-                  : 'Saved'}
-            </SavingIndicator>
-            <FormControl size="md" orientation="horizontal">
-              <FormLabel sx={{ cursor: 'pointer' }}>Tester</FormLabel>
-              <Switch
-                color="neutral"
-                size="md"
-                variant={isTesterOpen ? 'solid' : 'outlined'}
-                // Reverse the value to match the position of the switch
-                // with the open state of the right panel
-                checked={!isTesterOpen}
-                onChange={(event) => {
-                  setDetailPanelContentType(
-                    event.target.checked
-                      ? DetailPanelContentType.Off
-                      : DetailPanelContentType.EvaluationModeSimple,
-                  );
-                }}
-              />
-            </FormControl>
-          </RightAligned>
+          </LeftPaneToggleWrapper>
+          <SavingIndicator color="success" level="body-sm" variant="plain">
+            {isFlowContentSaving
+              ? 'Saving...'
+              : isFlowContentDirty
+                ? 'Save pending'
+                : 'Saved'}
+          </SavingIndicator>
+          <RightPaneToggle size="md" orientation="horizontal">
+            <FormLabel sx={{ cursor: 'pointer' }}>Tester</FormLabel>
+            <Switch
+              color="neutral"
+              size="md"
+              variant={isTesterOpen ? 'solid' : 'outlined'}
+              // Reverse the value to match the position of the switch
+              // with the open state of the right panel
+              checked={!isTesterOpen}
+              onChange={(event) => {
+                setDetailPanelContentType(
+                  event.target.checked
+                    ? DetailPanelContentType.Off
+                    : DetailPanelContentType.EvaluationModeSimple,
+                );
+              }}
+            />
+          </RightPaneToggle>
         </>
       )}
     </Container>
@@ -187,24 +179,30 @@ export default function SubHeader() {
 const Container = styled.div`
   grid-area: sub-header;
   display: grid;
-  grid-template-columns: auto auto;
+  grid-template-columns: max-content max-content auto max-content max-content max-content;
+  grid-template-rows: 1fr;
+  grid-template-areas: 'tab-switcher left-pane-toggle . saving-indicator right-pane-toggle more-menu';
+  gap: 10px;
+  align-items: center;
   border-bottom: 1px solid #ececf1;
   padding: 0 20px;
 `;
 
-const LeftAligned = styled.div`
+const TabSwitcherToggleButtonGroup = styled(ToggleButtonGroup)`
+  grid-area: tab-switcher;
+`;
+
+const LeftPaneToggleWrapper = styled.div`
+  grid-area: left-pane-toggle;
   display: flex;
-  align-items: center;
   gap: 10px;
 `;
 
-const RightAligned = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 5px;
+const SavingIndicator = styled(Typography)`
+  grid-area: saving-indicator;
+  margin-right: 20px;
 `;
 
-const SavingIndicator = styled(Typography)`
-  margin-right: 20px;
+const RightPaneToggle = styled(FormControl)`
+  grid-area: right-pane-toggle;
 `;

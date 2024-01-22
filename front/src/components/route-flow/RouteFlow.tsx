@@ -1,9 +1,10 @@
 import posthog from 'posthog-js';
-import { useEffect } from 'react';
-import { Outlet, useLoaderData, useParams } from 'react-router-dom';
+import { useEffect, useMemo } from 'react';
+import { Outlet, useLoaderData, useMatches, useParams } from 'react-router-dom';
 import { ReactFlowProvider } from 'reactflow';
 import 'reactflow/dist/style.css';
 import invariant from 'tiny-invariant';
+import { FlowRouteTab } from '../../utils/route-utils';
 import FlowStoreContextManager from './common/FlowStoreContextManager';
 import RouteFlowContext from './common/RouteFlowContext';
 import SubHeader from './common/SubHeader';
@@ -12,6 +13,12 @@ import { FlowLoaderData } from './route-loader-flow';
 export default function RouteFlow() {
   const params = useParams<{ spaceId: string }>();
   const { isCurrentUserOwner } = useLoaderData() as FlowLoaderData;
+  const matches = useMatches();
+
+  const flowTabType = useMemo(() => {
+    const data = matches[2].handle as { tabType: FlowRouteTab };
+    return data.tabType;
+  }, [matches]);
 
   useEffect(() => {
     posthog.capture('Open Flow', { flowId: params.spaceId });
@@ -21,7 +28,11 @@ export default function RouteFlow() {
 
   return (
     <RouteFlowContext.Provider
-      value={{ isCurrentUserOwner, spaceId: params.spaceId }}
+      value={{
+        isCurrentUserOwner,
+        spaceId: params.spaceId,
+        flowTabType,
+      }}
     >
       <FlowStoreContextManager spaceId={params.spaceId}>
         <ReactFlowProvider>
