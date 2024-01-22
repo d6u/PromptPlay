@@ -24,7 +24,7 @@ import {
   pathToFlowBatchTestTab,
   pathToFlowCanvasTab,
 } from '../../../utils/route-utils';
-import { NODE_BOX_WIDTH } from '../route-canvas/flow-canvas/nodes/node-common/NodeBox';
+import { NODE_BOX_WIDTH } from '../../route-canvas/flow-canvas/nodes/node-common/NodeBox';
 import { useStoreFromFlowStoreContext } from '../store/FlowStoreContext';
 import { DetailPanelContentType } from '../store/store-flow-state-types';
 import FlowContext from './FlowContext';

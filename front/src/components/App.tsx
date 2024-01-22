@@ -8,10 +8,10 @@ import {
 import { Provider as GraphQLProvider } from 'urql';
 import { client } from '../state/urql';
 import { FlowRouteTab, pathToFlowCanvasTab } from '../utils/route-utils';
+import RouteBatchTest from './route-batch-test/RouteBatchTest';
+import RouteCanvas from './route-canvas/RouteCanvas';
 import RouteDashboard from './route-dashboard/RouteDashboard';
 import RouteFlow from './route-flow/RouteFlow';
-import PanelEvaluationModeCSV from './route-flow/route-batch-test/PanelEvaluationModeCSV';
-import RouteCanvas from './route-flow/route-canvas/RouteCanvas';
 import flowLoader from './route-flow/route-loader';
 import RouteRoot from './route-root/RouteRoot';
 import routeLoaderRoot from './route-root/route-loader-root';
@@ -50,7 +50,7 @@ export default function App() {
               },
               {
                 path: `${FlowRouteTab.BatchTest}`,
-                element: <PanelEvaluationModeCSV />,
+                element: <RouteBatchTest />,
                 handle: {
                   tabType: FlowRouteTab.BatchTest,
                 },
