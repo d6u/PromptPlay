@@ -3,10 +3,11 @@ import { useEffect } from 'react';
 import { Outlet, useLoaderData, useParams } from 'react-router-dom';
 import { ReactFlowProvider } from 'reactflow';
 import 'reactflow/dist/style.css';
-import FlowContext from './common/FlowContext';
+import invariant from 'tiny-invariant';
 import FlowStoreContextManager from './common/FlowStoreContextManager';
+import RouteFlowContext from './common/RouteFlowContext';
 import SubHeader from './common/SubHeader';
-import { FlowLoaderData } from './route-loader';
+import { FlowLoaderData } from './route-loader-flow';
 
 export default function RouteFlow() {
   const params = useParams<{ spaceId: string }>();
@@ -16,14 +17,18 @@ export default function RouteFlow() {
     posthog.capture('Open Flow', { flowId: params.spaceId });
   }, [params.spaceId]);
 
+  invariant(params.spaceId != null, 'spaceId should have value');
+
   return (
-    <FlowContext.Provider value={{ isCurrentUserOwner }}>
-      <FlowStoreContextManager spaceId={params.spaceId!}>
+    <RouteFlowContext.Provider
+      value={{ isCurrentUserOwner, spaceId: params.spaceId }}
+    >
+      <FlowStoreContextManager spaceId={params.spaceId}>
         <ReactFlowProvider>
           {isCurrentUserOwner && <SubHeader />}
           <Outlet />
         </ReactFlowProvider>
       </FlowStoreContextManager>
-    </FlowContext.Provider>
+    </RouteFlowContext.Provider>
   );
 }

@@ -8,7 +8,7 @@ import {
 import { useContext, useMemo } from 'react';
 import { Position, useNodeId, useUpdateNodeInternals } from 'reactflow';
 import { useStore } from 'zustand';
-import FlowContext from '../../../route-flow/common/FlowContext';
+import RouteFlowContext from '../../../route-flow/common/RouteFlowContext';
 import { useStoreFromFlowStoreContext } from '../../../route-flow/store/FlowStoreContext';
 import { selectVariables } from '../../../route-flow/store/state-utils';
 import { DetailPanelContentType } from '../../../route-flow/store/store-flow-state-types';
@@ -27,7 +27,7 @@ import { calculateOutputHandleBottom } from './node-common/utils';
 export default function InputNode() {
   const nodeId = useNodeId() as NodeID;
 
-  const { isCurrentUserOwner } = useContext(FlowContext);
+  const { isCurrentUserOwner } = useContext(RouteFlowContext);
   const flowStore = useStoreFromFlowStoreContext();
 
   // SECTION: Select state from store

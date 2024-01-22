@@ -9,7 +9,7 @@ import ReactFlow, {
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { useStore } from 'zustand';
-import FlowContext from '../../route-flow/common/FlowContext';
+import RouteFlowContext from '../../route-flow/common/RouteFlowContext';
 import { useStoreFromFlowStoreContext } from '../../route-flow/store/FlowStoreContext';
 import ChatGPTChatCompletionNode from './nodes/ChatGPTChatCompletionNode';
 import ChatGPTMessageNode from './nodes/ChatGPTMessageNode';
@@ -36,7 +36,7 @@ const NODE_TYPES = {
 };
 
 export default function FlowCanvas() {
-  const { isCurrentUserOwner } = useContext(FlowContext);
+  const { isCurrentUserOwner } = useContext(RouteFlowContext);
   const flowStore = useStoreFromFlowStoreContext();
 
   const nodes = useStore(flowStore, (s) => s.nodes);

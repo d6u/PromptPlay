@@ -18,8 +18,8 @@ import {
   useLocalStorageStore,
   useSpaceStore,
 } from '../../../../state/appState';
-import FlowContext from '../../../route-flow/common/FlowContext';
 import InputReadonly from '../../../route-flow/common/InputReadonly';
+import RouteFlowContext from '../../../route-flow/common/RouteFlowContext';
 import { useStoreFromFlowStoreContext } from '../../../route-flow/store/FlowStoreContext';
 import {
   selectConditionTarget,
@@ -54,7 +54,7 @@ const selector = (state: SpaceState) => ({
 export default function ElevenLabsNode() {
   const nodeId = useNodeId() as NodeID;
 
-  const { isCurrentUserOwner } = useContext(FlowContext);
+  const { isCurrentUserOwner } = useContext(RouteFlowContext);
   const flowStore = useStoreFromFlowStoreContext();
 
   // SECTION: Select state from store

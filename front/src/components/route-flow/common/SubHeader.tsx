@@ -27,7 +27,7 @@ import {
 import { NODE_BOX_WIDTH } from '../../route-canvas/flow-canvas/nodes/node-common/NodeBox';
 import { useStoreFromFlowStoreContext } from '../store/FlowStoreContext';
 import { DetailPanelContentType } from '../store/store-flow-state-types';
-import FlowContext from './FlowContext';
+import RouteFlowContext from './RouteFlowContext';
 
 export default function SubHeader() {
   const navigate = useNavigate();
@@ -38,7 +38,7 @@ export default function SubHeader() {
     return (matches[2].handle as { tabType: FlowRouteTab }).tabType;
   }, [matches]);
 
-  const { isCurrentUserOwner } = useContext(FlowContext);
+  const { isCurrentUserOwner } = useContext(RouteFlowContext);
   const flowStore = useStoreFromFlowStoreContext();
 
   const isRunning = useStore(flowStore, (s) => s.isRunning);

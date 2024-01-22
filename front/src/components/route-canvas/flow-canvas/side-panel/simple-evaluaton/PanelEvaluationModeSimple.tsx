@@ -3,7 +3,7 @@ import { Button } from '@mui/joy';
 import { ConnectorType, VariableValueType } from 'flow-models';
 import { useContext, useMemo } from 'react';
 import { useStore } from 'zustand';
-import FlowContext from '../../../../route-flow/common/FlowContext';
+import RouteFlowContext from '../../../../route-flow/common/RouteFlowContext';
 import { useStoreFromFlowStoreContext } from '../../../../route-flow/store/FlowStoreContext';
 import { selectAllVariables } from '../../../../route-flow/store/state-utils';
 import InputBlock from '../common/InputBlock';
@@ -15,7 +15,7 @@ import {
 } from '../common/controls-common';
 
 export default function PanelEvaluationModeSimple() {
-  const { isCurrentUserOwner } = useContext(FlowContext);
+  const { isCurrentUserOwner } = useContext(RouteFlowContext);
   const flowStore = useStoreFromFlowStoreContext();
 
   // SECTION: Select state from store

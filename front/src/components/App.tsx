@@ -12,7 +12,7 @@ import RouteBatchTest from './route-batch-test/RouteBatchTest';
 import RouteCanvas from './route-canvas/RouteCanvas';
 import RouteDashboard from './route-dashboard/RouteDashboard';
 import RouteFlow from './route-flow/RouteFlow';
-import flowLoader from './route-flow/route-loader';
+import flowLoader from './route-flow/route-loader-flow';
 import RouteRoot from './route-root/RouteRoot';
 import routeLoaderRoot from './route-root/route-loader-root';
 

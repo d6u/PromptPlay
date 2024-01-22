@@ -11,7 +11,7 @@ import { useContext, useMemo, useState } from 'react';
 import { Position, useNodeId, useUpdateNodeInternals } from 'reactflow';
 import invariant from 'tiny-invariant';
 import { useStore } from 'zustand';
-import FlowContext from '../../../route-flow/common/FlowContext';
+import RouteFlowContext from '../../../route-flow/common/RouteFlowContext';
 import TextareaReadonly from '../../../route-flow/common/TextareaReadonly';
 import {
   CopyIcon,
@@ -43,7 +43,7 @@ export default function JavaScriptFunctionNode() {
   const nodeId = useNodeId() as NodeID;
   const updateNodeInternals = useUpdateNodeInternals();
 
-  const { isCurrentUserOwner } = useContext(FlowContext);
+  const { isCurrentUserOwner } = useContext(RouteFlowContext);
   const flowStore = useStoreFromFlowStoreContext();
 
   // SECTION: Select state from store

@@ -1,9 +1,11 @@
 import { createContext } from 'react';
 
-const FlowContext = createContext<{
+const RouteFlowContext = createContext<{
   isCurrentUserOwner: boolean;
+  spaceId: string;
 }>({
   isCurrentUserOwner: false,
+  spaceId: '',
 });
 
-export default FlowContext;
+export default RouteFlowContext;

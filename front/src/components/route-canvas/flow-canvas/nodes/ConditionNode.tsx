@@ -4,7 +4,7 @@ import { useContext, useMemo } from 'react';
 import { Position, useNodeId, useUpdateNodeInternals } from 'reactflow';
 import invariant from 'tiny-invariant';
 import { useStore } from 'zustand';
-import FlowContext from '../../../route-flow/common/FlowContext';
+import RouteFlowContext from '../../../route-flow/common/RouteFlowContext';
 import { useStoreFromFlowStoreContext } from '../../../route-flow/store/FlowStoreContext';
 import {
   selectConditionTarget,
@@ -33,7 +33,7 @@ export default function ConditionNode() {
   const nodeId = useNodeId() as NodeID;
   const updateNodeInternals = useUpdateNodeInternals();
 
-  const { isCurrentUserOwner } = useContext(FlowContext);
+  const { isCurrentUserOwner } = useContext(RouteFlowContext);
   const flowStore = useStoreFromFlowStoreContext();
 
   // SECTION: Select state from store
