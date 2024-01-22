@@ -12,13 +12,13 @@ import { ConnectorType } from 'flow-models';
 import Papa from 'papaparse';
 import posthog from 'posthog-js';
 import { useMemo } from 'react';
-import { useFlowStore } from '../../../../../../store/FlowStoreContext';
+import { Section } from '../../../../route-canvas/flow-canvas/side-panel/common/controls-common';
+import { useFlowStore } from '../../../../store/FlowStoreContext';
 import {
   IterationIndex,
   RowIndex,
-} from '../../../../../../store/slice-csv-evaluation-preset';
-import { selectAllVariables } from '../../../../../../store/state-utils';
-import { Section } from '../../../common/controls-common';
+} from '../../../../store/slice-csv-evaluation-preset';
+import { selectAllVariables } from '../../../../store/state-utils';
 import { CSVData, CSVRow, CustomAccordionDetails } from '../../common';
 import TableBody from './TableBody';
 import TableHead from './TableHead';

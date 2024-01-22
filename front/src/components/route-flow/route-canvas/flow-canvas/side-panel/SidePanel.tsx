@@ -3,11 +3,11 @@ import IconButton from '@mui/joy/IconButton';
 import { ReactNode } from 'react';
 import { useStore } from 'zustand';
 import CrossIcon from '../../../../icons/CrossIcon';
+import PanelEvaluationModeCSV from '../../../route-batch-test/PanelEvaluationModeCSV';
 import { useStoreFromFlowStoreContext } from '../../../store/FlowStoreContext';
 import { DetailPanelContentType } from '../../../store/store-flow-state-types';
 import PanelChatGPTMessageConfig from './chat-gpt-message-config/PanelChatGPTMessageConfig';
 import PanelNodeConfig from './node-config/PanelNodeConfig';
-import PanelEvaluationModeCSV from './panel-evaluation-mode-csv/PanelEvaluationModeCSV';
 import PanelEvaluationModeSimple from './simple-evaluaton/PanelEvaluationModeSimple';
 
 export default function SidePanel() {

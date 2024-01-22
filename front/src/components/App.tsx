@@ -10,6 +10,7 @@ import { client } from '../state/urql';
 import { FlowRouteTab, pathToFlowCanvasTab } from '../utils/route-utils';
 import RouteDashboard from './route-dashboard/RouteDashboard';
 import RouteFlow from './route-flow/RouteFlow';
+import PanelEvaluationModeCSV from './route-flow/route-batch-test/PanelEvaluationModeCSV';
 import RouteCanvas from './route-flow/route-canvas/RouteCanvas';
 import flowLoader from './route-flow/route-loader';
 import RouteRoot from './route-root/RouteRoot';
@@ -49,7 +50,7 @@ export default function App() {
               },
               {
                 path: `${FlowRouteTab.BatchTest}`,
-                element: <div>Batch Test</div>,
+                element: <PanelEvaluationModeCSV />,
                 handle: {
                   tabType: FlowRouteTab.BatchTest,
                 },

@@ -1,6 +1,6 @@
 import { Accordion, AccordionSummary, Table, Textarea } from '@mui/joy';
-import { useFlowStore } from '../../../../../store/FlowStoreContext';
-import { Section } from '../../common/controls-common';
+import { Section } from '../../../route-canvas/flow-canvas/side-panel/common/controls-common';
+import { useFlowStore } from '../../../store/FlowStoreContext';
 import { CSVData, CSVRow, CustomAccordionDetails } from '../common';
 
 type Props = {

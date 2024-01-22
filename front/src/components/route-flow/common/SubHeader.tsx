@@ -167,9 +167,6 @@ export default function SubHeader() {
             <Button value={DetailPanelContentType.EvaluationModeSimple}>
               Simple
             </Button>
-            <Button value={DetailPanelContentType.EvaluationModeCSV}>
-              CSV
-            </Button>
           </ToggleButtonGroup>
         </FormControl>
       </RightAligned>
