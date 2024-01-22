@@ -4,6 +4,7 @@ import {
   Dropdown,
   FormControl,
   FormLabel,
+  IconButton,
   Menu,
   MenuButton,
   MenuItem,
@@ -25,6 +26,7 @@ import {
   pathToFlowBatchTestTab,
   pathToFlowCanvasTab,
 } from '../../../utils/route-utils';
+import IconThreeDots from '../../icons/IconThreeDots';
 import { NODE_BOX_WIDTH } from '../../route-canvas/flow-canvas/nodes/node-common/NodeBox';
 import { useStoreFromFlowStoreContext } from '../store/FlowStoreContext';
 import { DetailPanelContentType } from '../store/store-flow-state-types';
@@ -170,6 +172,17 @@ export default function SubHeader() {
               }}
             />
           </RightPaneToggle>
+          <Dropdown>
+            <MoreMenuButton
+              slots={{ root: IconButton }}
+              slotProps={{ root: { color: 'neutral' } }}
+            >
+              <IconThreeDots style={{ rotate: '90deg', width: '18px' }} />
+            </MoreMenuButton>
+            <Menu>
+              <MenuItem color="neutral">Placeholder</MenuItem>
+            </Menu>
+          </Dropdown>
         </>
       )}
     </Container>
@@ -200,9 +213,12 @@ const LeftPaneToggleWrapper = styled.div`
 
 const SavingIndicator = styled(Typography)`
   grid-area: saving-indicator;
-  margin-right: 20px;
 `;
 
 const RightPaneToggle = styled(FormControl)`
   grid-area: right-pane-toggle;
+`;
+
+const MoreMenuButton = styled(MenuButton)`
+  grid-area: more-menu;
 `;
