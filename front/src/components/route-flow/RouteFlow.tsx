@@ -1,12 +1,10 @@
 import posthog from 'posthog-js';
 import { useEffect } from 'react';
-import { useLoaderData, useParams } from 'react-router-dom';
+import { Outlet, useLoaderData, useParams } from 'react-router-dom';
 import { ReactFlowProvider } from 'reactflow';
 import 'reactflow/dist/style.css';
 import invariant from 'tiny-invariant';
-import { useStore } from 'zustand';
 import FlowContext from './FlowContext';
-import FlowCanvas from './flow-canvas/FlowCanvas';
 import { FlowLoaderData } from './route-loader';
 import { useStoreFromFlowStoreContext } from './store/FlowStoreContext';
 import FlowStoreContextManager from './store/FlowStoreContextManager';
@@ -34,12 +32,13 @@ function RouteFlowInner() {
 
   const flowStore = useStoreFromFlowStoreContext();
 
-  const isInitialized = useStore(flowStore, (s) => s.isInitialized);
+  // const isInitialized = useStore(flowStore, (s) => s.isInitialized);
+  // {isInitialized && <FlowCanvas />}
 
   return (
     <FlowContext.Provider value={{ isCurrentUserOwner }}>
       {isCurrentUserOwner && <SubHeader />}
-      {isInitialized && <FlowCanvas />}
+      <Outlet />
     </FlowContext.Provider>
   );
 }

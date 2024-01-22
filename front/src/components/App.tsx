@@ -3,10 +3,11 @@ import {
   Navigate,
   RouterProvider,
   createBrowserRouter,
+  redirect,
 } from 'react-router-dom';
 import { Provider as GraphQLProvider } from 'urql';
 import { client } from '../state/urql';
-import { FLOWS_PATH_PATTERN, ROOT_PATH } from '../utils/route-utils';
+import { FlowRouteTab, pathToFlowCanvasTab } from '../utils/route-utils';
 import RouteDashboard from './route-dashboard/RouteDashboard';
 import RouteFlow from './route-flow/RouteFlow';
 import flowLoader from './route-flow/route-loader';
@@ -17,7 +18,7 @@ export default function App() {
   const router = useMemo(() => {
     return createBrowserRouter([
       {
-        path: ROOT_PATH,
+        path: '/',
         loader: routeLoaderRoot,
         element: <RouteRoot />,
         children: [
@@ -26,9 +27,33 @@ export default function App() {
             element: <RouteDashboard />,
           },
           {
-            path: FLOWS_PATH_PATTERN,
+            path: 'flows/:spaceId',
             loader: flowLoader,
             element: <RouteFlow />,
+            children: [
+              {
+                path: '',
+                loader: ({ params }) => {
+                  return redirect(
+                    pathToFlowCanvasTab(params.spaceId as string),
+                  );
+                },
+              },
+              {
+                path: `${FlowRouteTab.Canvas}`,
+                element: <div>Canvas</div>,
+                handle: {
+                  tabType: FlowRouteTab.Canvas,
+                },
+              },
+              {
+                path: `${FlowRouteTab.BatchTest}`,
+                element: <div>Batch Test</div>,
+                handle: {
+                  tabType: FlowRouteTab.BatchTest,
+                },
+              },
+            ],
           },
         ],
       },

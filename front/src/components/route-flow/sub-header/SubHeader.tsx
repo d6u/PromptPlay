@@ -16,14 +16,24 @@ import {
   getNodeDefinitionForNodeTypeName,
 } from 'flow-models';
 import { useCallback, useContext, useMemo } from 'react';
+import { useMatches, useNavigate, useParams } from 'react-router-dom';
 import { useStoreApi } from 'reactflow';
 import { useStore } from 'zustand';
+import {
+  FlowRouteTab,
+  pathToFlowBatchTestTab,
+  pathToFlowCanvasTab,
+} from '../../../utils/route-utils';
 import FlowContext from '../FlowContext';
 import { NODE_BOX_WIDTH } from '../flow-canvas/nodes/node-common/NodeBox';
 import { useStoreFromFlowStoreContext } from '../store/FlowStoreContext';
 import { DetailPanelContentType } from '../store/store-flow-state-types';
 
 export default function ToolBar() {
+  const navigate = useNavigate();
+  const matches = useMatches();
+  const params = useParams<{ spaceId: string }>();
+
   const { isCurrentUserOwner } = useContext(FlowContext);
   const flowStore = useStoreFromFlowStoreContext();
 
@@ -93,6 +103,25 @@ export default function ToolBar() {
   return (
     <Container>
       <LeftAligned>
+        <ToggleButtonGroup
+          size="sm"
+          value={(matches[2].handle as { tabType: FlowRouteTab }).tabType}
+          onChange={(e, newValue) => {
+            if (newValue == null) return;
+
+            switch (newValue) {
+              case FlowRouteTab.Canvas:
+                navigate(pathToFlowCanvasTab(params.spaceId!));
+                break;
+              case FlowRouteTab.BatchTest:
+                navigate(pathToFlowBatchTestTab(params.spaceId!));
+                break;
+            }
+          }}
+        >
+          <Button value={FlowRouteTab.Canvas}>Canvas</Button>
+          <Button value={FlowRouteTab.BatchTest}>Batch Test</Button>
+        </ToggleButtonGroup>
         <Dropdown>
           <MenuButton color="primary">Add</MenuButton>
           <Menu>
