@@ -10,7 +10,7 @@ import FlowCanvas from './flow-canvas/FlowCanvas';
 import { FlowLoaderData } from './route-loader';
 import { useStoreFromFlowStoreContext } from './store/FlowStoreContext';
 import FlowStoreContextManager from './store/FlowStoreContextManager';
-import ToolBar from './tool-bar/ToolBar';
+import SubHeader from './sub-header/SubHeader';
 
 export default function RouteFlow() {
   const spaceId = useParams<{ spaceId: string }>().spaceId;
@@ -38,7 +38,7 @@ function RouteFlowInner() {
 
   return (
     <FlowContext.Provider value={{ isCurrentUserOwner }}>
-      {isCurrentUserOwner && <ToolBar />}
+      {isCurrentUserOwner && <SubHeader />}
       {isInitialized && <FlowCanvas />}
     </FlowContext.Provider>
   );
