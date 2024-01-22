@@ -27,11 +27,12 @@ import {
   pathToFlowCanvasTab,
 } from '../../../utils/route-utils';
 import IconThreeDots from '../../icons/IconThreeDots';
-import PresetSelector from '../../route-batch-test/panel-evaluation-mode-csv/preset-selector/PresetSelector';
+import { BatchTestTab } from '../../route-batch-test/utils/types';
 import { NODE_BOX_WIDTH } from '../../route-canvas/flow-canvas/nodes/node-common/NodeBox';
+import RouteFlowContext from '../common/RouteFlowContext';
 import { useStoreFromFlowStoreContext } from '../store/FlowStoreContext';
 import { DetailPanelContentType } from '../store/store-flow-state-types';
-import RouteFlowContext from './RouteFlowContext';
+import PresetSelector from './preset-selector/PresetSelector';
 
 export default function SubHeader() {
   const navigate = useNavigate();
@@ -54,6 +55,14 @@ export default function SubHeader() {
   const addNode = useStore(flowStore, (s) => s.addNode);
   const runFlow = useStore(flowStore, (s) => s.runFlow);
   const stopRunningFlow = useStore(flowStore, (s) => s.stopRunningFlow);
+  const selectedBatchTestTab = useStore(
+    flowStore,
+    (s) => s.selectedBatchTestTab,
+  );
+  const setSelectedBatchTestTab = useStore(
+    flowStore,
+    (s) => s.setSelectedBatchTestTab,
+  );
 
   const storeApi = useStoreApi();
 
@@ -128,8 +137,8 @@ export default function SubHeader() {
             <Button value={FlowRouteTab.Canvas}>Canvas</Button>
             <Button value={FlowRouteTab.BatchTest}>Batch Test</Button>
           </TabSwitcherToggleButtonGroup>
-          {flowTabType === FlowRouteTab.Canvas && (
-            <LeftPaneToggleWrapper>
+          {flowTabType === FlowRouteTab.Canvas ? (
+            <SubHeaderActionsWrapper>
               <Dropdown>
                 <MenuButton color="primary">Add</MenuButton>
                 <Menu>
@@ -148,7 +157,18 @@ export default function SubHeader() {
                   {runButtonConfig.label}
                 </Button>
               )}
-            </LeftPaneToggleWrapper>
+            </SubHeaderActionsWrapper>
+          ) : (
+            <BatchTestToggleButtonGroup
+              size="sm"
+              value={selectedBatchTestTab}
+              onChange={(e, newValue) => {
+                setSelectedBatchTestTab(newValue as BatchTestTab);
+              }}
+            >
+              <Button value={BatchTestTab.RunTests}>Run Tests</Button>
+              <Button value={BatchTestTab.UploadCsv}>Upload CSV</Button>
+            </BatchTestToggleButtonGroup>
           )}
           {flowTabType === FlowRouteTab.Canvas ? null : (
             <MiddleContent>
@@ -203,12 +223,14 @@ export default function SubHeader() {
   );
 }
 
+// ANCHOR: UI Components
+
 const Container = styled.div`
   grid-area: sub-header;
   display: grid;
-  grid-template-columns: max-content minmax(100px, max-content) auto max-content max-content max-content;
+  grid-template-columns: max-content max-content max-content auto max-content max-content max-content;
   grid-template-rows: 1fr;
-  grid-template-areas: 'tab-switcher left-pane-toggle middle saving-indicator right-pane-toggle more-menu';
+  grid-template-areas: 'tab-switcher left-pane-toggle sub-header-actions middle saving-indicator right-pane-toggle more-menu';
   gap: 10px;
   align-items: center;
   border-bottom: 1px solid #ececf1;
@@ -219,10 +241,14 @@ const TabSwitcherToggleButtonGroup = styled(ToggleButtonGroup)`
   grid-area: tab-switcher;
 `;
 
-const LeftPaneToggleWrapper = styled.div`
-  grid-area: left-pane-toggle;
+const SubHeaderActionsWrapper = styled.div`
+  grid-area: sub-header-actions;
   display: flex;
   gap: 10px;
+`;
+
+const BatchTestToggleButtonGroup = styled(ToggleButtonGroup)`
+  grid-area: sub-header-actions;
 `;
 
 const MiddleContent = styled.div`

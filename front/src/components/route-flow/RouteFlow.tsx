@@ -7,8 +7,8 @@ import invariant from 'tiny-invariant';
 import { FlowRouteTab } from '../../utils/route-utils';
 import FlowStoreContextManager from './common/FlowStoreContextManager';
 import RouteFlowContext from './common/RouteFlowContext';
-import SubHeader from './common/SubHeader';
 import { FlowLoaderData } from './route-loader-flow';
+import SubHeader from './sub-header/SubHeader';
 
 export default function RouteFlow() {
   const params = useParams<{ spaceId: string }>();

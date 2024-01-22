@@ -7,15 +7,20 @@ import { RunMetadata } from '../../../flow-run/run-types';
 import { graphql } from '../../../gql';
 import { LoadCsvEvaluationPresetQuery } from '../../../gql/graphql';
 import { client } from '../../../state/urql';
+import { BatchTestTab } from '../../route-batch-test/utils/types';
 import { FlowState } from './store-flow-state-types';
 
 export type CsvEvaluationPresetSlice = {
+  selectedBatchTestTab: BatchTestTab;
+
   csvModeSelectedPresetId: string | null;
   csvEvaluationIsLoading: boolean;
 
   // Persistable data
   csvStr: string;
   csvEvaluationConfigContent: CsvEvaluationConfigContent;
+
+  setSelectedBatchTestTab(tab: BatchTestTab): void;
 
   setCsvStr(csvStr: string): void;
   setRepeatTimes(repeatTimes: number): void;
@@ -62,6 +67,8 @@ export const createCsvEvaluationPresetSlice: StateCreator<
   );
 
   return {
+    selectedBatchTestTab: BatchTestTab.RunTests,
+
     csvModeSelectedPresetId: null,
     csvEvaluationIsLoading: false,
 
@@ -73,6 +80,10 @@ export const createCsvEvaluationPresetSlice: StateCreator<
       variableIdToCsvColumnIndexMap: {},
       runOutputTable: [],
       runMetadataTable: [],
+    },
+
+    setSelectedBatchTestTab(tab: BatchTestTab): void {
+      set({ selectedBatchTestTab: tab });
     },
 
     setCsvStr(csvStr: string): void {
