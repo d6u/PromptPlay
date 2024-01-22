@@ -1,7 +1,12 @@
 import { API_SERVER_BASE_URL } from '../constants';
 import { ContentVersion } from '../gql/graphql';
 
-export const ROOT_PATH = '/';
+// ANCHOR: API paths
+
+export const LOGIN_PATH = `${API_SERVER_BASE_URL}/login`;
+export const LOGOUT_PATH = `${API_SERVER_BASE_URL}/logout`;
+
+// ANCHOR: Top level paths
 
 export const FLOWS_PATH_PATTERN = '/flows/:spaceId';
 
@@ -25,5 +30,17 @@ export function pathToCurrentContent(
   }
 }
 
-export const LOGIN_PATH = `${API_SERVER_BASE_URL}/login`;
-export const LOGOUT_PATH = `${API_SERVER_BASE_URL}/logout`;
+// ANCHOR: Flow level paths
+
+export enum FlowRouteTab {
+  Canvas = 'canvas',
+  BatchTest = 'batch-test',
+}
+
+export function pathToFlowCanvasTab(spaceId: string) {
+  return `${pathToFlow(spaceId)}/${FlowRouteTab.Canvas}`;
+}
+
+export function pathToFlowBatchTestTab(spaceId: string) {
+  return `${pathToFlow(spaceId)}/${FlowRouteTab.BatchTest}`;
+}
