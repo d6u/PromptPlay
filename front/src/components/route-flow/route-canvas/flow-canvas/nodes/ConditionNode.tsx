@@ -4,7 +4,7 @@ import { useContext, useMemo } from 'react';
 import { Position, useNodeId, useUpdateNodeInternals } from 'reactflow';
 import invariant from 'tiny-invariant';
 import { useStore } from 'zustand';
-import FlowContext from '../../../FlowContext';
+import FlowContext from '../../../common/FlowContext';
 import { useStoreFromFlowStoreContext } from '../../../store/FlowStoreContext';
 import {
   selectConditionTarget,

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { FlowStore, createFlowStore } from '.';
-import { FlowStoreContext } from './FlowStoreContext';
+import { FlowStore, createFlowStore } from '../store';
+import { FlowStoreContext } from '../store/FlowStoreContext';
 
 type Props = {
   spaceId: string;

@@ -3,7 +3,7 @@ import { Button } from '@mui/joy';
 import { ConnectorType, VariableValueType } from 'flow-models';
 import { useContext, useMemo } from 'react';
 import { useStore } from 'zustand';
-import FlowContext from '../../../../FlowContext';
+import FlowContext from '../../../../common/FlowContext';
 import { useStoreFromFlowStoreContext } from '../../../../store/FlowStoreContext';
 import { selectAllVariables } from '../../../../store/state-utils';
 import InputBlock from '../common/InputBlock';

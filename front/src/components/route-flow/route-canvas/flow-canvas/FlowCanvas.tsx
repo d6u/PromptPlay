@@ -9,7 +9,7 @@ import ReactFlow, {
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { useStore } from 'zustand';
-import FlowContext from '../../FlowContext';
+import FlowContext from '../../common/FlowContext';
 import { useStoreFromFlowStoreContext } from '../../store/FlowStoreContext';
 import ChatGPTChatCompletionNode from './nodes/ChatGPTChatCompletionNode';
 import ChatGPTMessageNode from './nodes/ChatGPTMessageNode';

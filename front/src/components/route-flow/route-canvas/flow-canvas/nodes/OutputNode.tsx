@@ -8,7 +8,7 @@ import {
 import { useContext, useMemo } from 'react';
 import { Position, useNodeId, useUpdateNodeInternals } from 'reactflow';
 import { useStore } from 'zustand';
-import FlowContext from '../../../FlowContext';
+import FlowContext from '../../../common/FlowContext';
 import { useStoreFromFlowStoreContext } from '../../../store/FlowStoreContext';
 import { selectVariables } from '../../../store/state-utils';
 import { DetailPanelContentType } from '../../../store/store-flow-state-types';

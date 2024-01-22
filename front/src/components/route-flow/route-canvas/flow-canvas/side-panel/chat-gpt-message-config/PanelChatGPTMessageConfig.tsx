@@ -11,7 +11,7 @@ import { ChatGPTMessageRole } from 'integrations/openai';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import invariant from 'tiny-invariant';
 import { useStore } from 'zustand';
-import FlowContext from '../../../../FlowContext';
+import FlowContext from '../../../../common/FlowContext';
 import TextareaReadonly from '../../../../common/TextareaReadonly';
 import {
   CopyIcon,

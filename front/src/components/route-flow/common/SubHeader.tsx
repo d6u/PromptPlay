@@ -24,15 +24,19 @@ import {
   pathToFlowBatchTestTab,
   pathToFlowCanvasTab,
 } from '../../../utils/route-utils';
-import FlowContext from '../FlowContext';
 import { NODE_BOX_WIDTH } from '../route-canvas/flow-canvas/nodes/node-common/NodeBox';
 import { useStoreFromFlowStoreContext } from '../store/FlowStoreContext';
 import { DetailPanelContentType } from '../store/store-flow-state-types';
+import FlowContext from './FlowContext';
 
-export default function ToolBar() {
+export default function SubHeader() {
   const navigate = useNavigate();
   const matches = useMatches();
   const params = useParams<{ spaceId: string }>();
+
+  const tabToggleValue = useMemo(() => {
+    return (matches[2].handle as { tabType: FlowRouteTab }).tabType;
+  }, [matches]);
 
   const { isCurrentUserOwner } = useContext(FlowContext);
   const flowStore = useStoreFromFlowStoreContext();
@@ -105,11 +109,11 @@ export default function ToolBar() {
       <LeftAligned>
         <ToggleButtonGroup
           size="sm"
-          value={(matches[2].handle as { tabType: FlowRouteTab }).tabType}
+          value={tabToggleValue}
           onChange={(e, newValue) => {
-            if (newValue == null) return;
-
             switch (newValue) {
+              case null:
+                break;
               case FlowRouteTab.Canvas:
                 navigate(pathToFlowCanvasTab(params.spaceId!));
                 break;

@@ -24,7 +24,7 @@ import {
   useLocalStorageStore,
   useSpaceStore,
 } from '../../../../../state/appState';
-import FlowContext from '../../../FlowContext';
+import FlowContext from '../../../common/FlowContext';
 import InputReadonly from '../../../common/InputReadonly';
 import { useStoreFromFlowStoreContext } from '../../../store/FlowStoreContext';
 import {

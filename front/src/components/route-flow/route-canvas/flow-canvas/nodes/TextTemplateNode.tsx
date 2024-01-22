@@ -13,7 +13,7 @@ import { useContext, useEffect, useMemo, useState } from 'react';
 import { Position, useNodeId, useUpdateNodeInternals } from 'reactflow';
 import invariant from 'tiny-invariant';
 import { useStore } from 'zustand';
-import FlowContext from '../../../FlowContext';
+import FlowContext from '../../../common/FlowContext';
 import TextareaReadonly from '../../../common/TextareaReadonly';
 import { CopyIcon, LabelWithIconContainer } from '../../../common/flow-common';
 import { useStoreFromFlowStoreContext } from '../../../store/FlowStoreContext';
