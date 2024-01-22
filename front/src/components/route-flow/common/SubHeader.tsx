@@ -7,6 +7,7 @@ import {
   Menu,
   MenuButton,
   MenuItem,
+  Switch,
   ToggleButtonGroup,
   Typography,
 } from '@mui/joy';
@@ -32,10 +33,6 @@ import RouteFlowContext from './RouteFlowContext';
 export default function SubHeader() {
   const navigate = useNavigate();
   const matches = useMatches();
-
-  const tabToggleValue = useMemo(() => {
-    return (matches[2].handle as { tabType: FlowRouteTab }).tabType;
-  }, [matches]);
 
   const { isCurrentUserOwner, spaceId } = useContext(RouteFlowContext);
   const flowStore = useStoreFromFlowStoreContext();
@@ -79,6 +76,14 @@ export default function SubHeader() {
     },
     [addNode, isCurrentUserOwner, storeApi],
   );
+
+  const tabToggleValue = useMemo(() => {
+    return (matches[2].handle as { tabType: FlowRouteTab }).tabType;
+  }, [matches]);
+
+  const isTesterOpen = useMemo(() => {
+    return detailPanelContentType != DetailPanelContentType.Off;
+  }, [detailPanelContentType]);
 
   const options = useMemo(() => {
     return getAllNodeTypes()
@@ -155,20 +160,22 @@ export default function SubHeader() {
                   : 'Saved'}
             </SavingIndicator>
             <FormControl size="md" orientation="horizontal">
-              <FormLabel sx={{ cursor: 'pointer' }}>Evaluation Mode</FormLabel>
-              <ToggleButtonGroup
-                size="sm"
-                value={detailPanelContentType}
-                onChange={(e, newValue) => {
-                  if (newValue == null) return;
-                  setDetailPanelContentType(newValue);
+              <FormLabel sx={{ cursor: 'pointer' }}>Tester</FormLabel>
+              <Switch
+                color="neutral"
+                size="md"
+                variant={isTesterOpen ? 'solid' : 'outlined'}
+                // Reverse the value to match the position of the switch
+                // with the open state of the right panel
+                checked={!isTesterOpen}
+                onChange={(event) => {
+                  setDetailPanelContentType(
+                    event.target.checked
+                      ? DetailPanelContentType.Off
+                      : DetailPanelContentType.EvaluationModeSimple,
+                  );
                 }}
-              >
-                <Button value={DetailPanelContentType.Off}>Off</Button>
-                <Button value={DetailPanelContentType.EvaluationModeSimple}>
-                  Simple
-                </Button>
-              </ToggleButtonGroup>
+              />
             </FormControl>
           </RightAligned>
         </>
