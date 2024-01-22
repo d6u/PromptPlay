@@ -53,47 +53,43 @@ export default function PresetSelector() {
   } else {
     content = (
       <>
-        <LeftAlign>
-          <Autocomplete
-            size="sm"
-            openOnFocus
-            placeholder="Your preset"
-            sx={{ width: 400 }}
-            options={query.data?.result?.space.csvEvaluationPresets}
-            value={selectedPreset ?? null}
-            getOptionLabel={(option) => option.name}
-            onChange={(_event, value) => {
-              if (value?.id != null) {
-                selectAndLoadPreset(value.id);
-              } else {
-                unselectPreset();
+        <Autocomplete
+          size="sm"
+          openOnFocus
+          placeholder="Your preset"
+          sx={{ width: 400 }}
+          options={query.data?.result?.space.csvEvaluationPresets}
+          value={selectedPreset ?? null}
+          getOptionLabel={(option) => option.name}
+          onChange={(_event, value) => {
+            if (value?.id != null) {
+              selectAndLoadPreset(value.id);
+            } else {
+              unselectPreset();
+            }
+          }}
+          renderOption={(props, option) => (
+            <AutocompleteOption {...props} key={option.id}>
+              {option.name}
+            </AutocompleteOption>
+          )}
+        />
+        <Button variant="outlined" onClick={() => setIsModalOpen(true)}>
+          Save...
+        </Button>
+        {selectedPreset && (
+          <Button
+            variant="outlined"
+            onClick={() => {
+              const comfirmed = confirm('Deleted preset cannot be restored');
+              if (comfirmed) {
+                deleteAndUnselectPreset();
               }
             }}
-            renderOption={(props, option) => (
-              <AutocompleteOption {...props} key={option.id}>
-                {option.name}
-              </AutocompleteOption>
-            )}
-          />
-          <Button variant="outlined" onClick={() => setIsModalOpen(true)}>
-            Save...
+          >
+            Delete preset
           </Button>
-        </LeftAlign>
-        <RightAlign>
-          {selectedPreset && (
-            <Button
-              variant="outlined"
-              onClick={() => {
-                const comfirmed = confirm('Deleted preset cannot be restored');
-                if (comfirmed) {
-                  deleteAndUnselectPreset();
-                }
-              }}
-            >
-              Delete preset
-            </Button>
-          )}
-        </RightAlign>
+        )}
       </>
     );
   }
@@ -110,27 +106,9 @@ export default function PresetSelector() {
   );
 }
 
-// SECTION: UI Components
+// ANCHOR: UI Components
 
 const Container = styled.div`
-  height: 49px;
-  border-bottom: 1px solid #ddd;
-  padding: 0 20px;
   display: flex;
   gap: 10px;
-  justify-content: space-between;
 `;
-
-const LeftAlign = styled.div`
-  display: flex;
-  gap: 10px;
-  align-items: center;
-`;
-
-const RightAlign = styled.div`
-  display: flex;
-  gap: 10px;
-  align-items: center;
-`;
-
-// !SECTION

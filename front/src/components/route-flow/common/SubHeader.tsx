@@ -27,6 +27,7 @@ import {
   pathToFlowCanvasTab,
 } from '../../../utils/route-utils';
 import IconThreeDots from '../../icons/IconThreeDots';
+import PresetSelector from '../../route-batch-test/panel-evaluation-mode-csv/preset-selector/PresetSelector';
 import { NODE_BOX_WIDTH } from '../../route-canvas/flow-canvas/nodes/node-common/NodeBox';
 import { useStoreFromFlowStoreContext } from '../store/FlowStoreContext';
 import { DetailPanelContentType } from '../store/store-flow-state-types';
@@ -127,62 +128,75 @@ export default function SubHeader() {
             <Button value={FlowRouteTab.Canvas}>Canvas</Button>
             <Button value={FlowRouteTab.BatchTest}>Batch Test</Button>
           </TabSwitcherToggleButtonGroup>
-          <LeftPaneToggleWrapper>
+          {flowTabType === FlowRouteTab.Canvas && (
+            <LeftPaneToggleWrapper>
+              <Dropdown>
+                <MenuButton color="primary">Add</MenuButton>
+                <Menu>
+                  {options.map((option, i) => (
+                    <MenuItem key={i} color="primary" onClick={option.onClick}>
+                      {option.label}
+                    </MenuItem>
+                  ))}
+                </Menu>
+              </Dropdown>
+              {runButtonConfig.shouldShowRunButton && (
+                <Button
+                  color={isRunning ? 'danger' : 'success'}
+                  onClick={runButtonConfig.onClick}
+                >
+                  {runButtonConfig.label}
+                </Button>
+              )}
+            </LeftPaneToggleWrapper>
+          )}
+          {flowTabType === FlowRouteTab.Canvas ? null : (
+            <MiddleContent>
+              <PresetSelector />
+            </MiddleContent>
+          )}
+          {flowTabType === FlowRouteTab.Canvas && (
+            <SavingIndicator color="success" level="body-sm" variant="plain">
+              {isFlowContentSaving
+                ? 'Saving...'
+                : isFlowContentDirty
+                  ? 'Save pending'
+                  : 'Saved'}
+            </SavingIndicator>
+          )}
+          {flowTabType === FlowRouteTab.Canvas && (
+            <RightPaneToggle size="md" orientation="horizontal">
+              <FormLabel sx={{ cursor: 'pointer' }}>Tester</FormLabel>
+              <Switch
+                color="neutral"
+                size="md"
+                variant={isTesterOpen ? 'solid' : 'outlined'}
+                // Reverse the value to match the position of the switch
+                // with the open state of the right panel
+                checked={!isTesterOpen}
+                onChange={(event) => {
+                  setDetailPanelContentType(
+                    event.target.checked
+                      ? DetailPanelContentType.Off
+                      : DetailPanelContentType.EvaluationModeSimple,
+                  );
+                }}
+              />
+            </RightPaneToggle>
+          )}
+          {false && (
             <Dropdown>
-              <MenuButton color="primary">Add</MenuButton>
+              <MoreMenuButton
+                slots={{ root: IconButton }}
+                slotProps={{ root: { color: 'neutral' } }}
+              >
+                <IconThreeDots style={{ rotate: '90deg', width: '18px' }} />
+              </MoreMenuButton>
               <Menu>
-                {options.map((option, i) => (
-                  <MenuItem key={i} color="primary" onClick={option.onClick}>
-                    {option.label}
-                  </MenuItem>
-                ))}
+                <MenuItem color="neutral">Placeholder</MenuItem>
               </Menu>
             </Dropdown>
-            {runButtonConfig.shouldShowRunButton && (
-              <Button
-                color={isRunning ? 'danger' : 'success'}
-                onClick={runButtonConfig.onClick}
-              >
-                {runButtonConfig.label}
-              </Button>
-            )}
-          </LeftPaneToggleWrapper>
-          <SavingIndicator color="success" level="body-sm" variant="plain">
-            {isFlowContentSaving
-              ? 'Saving...'
-              : isFlowContentDirty
-                ? 'Save pending'
-                : 'Saved'}
-          </SavingIndicator>
-          <RightPaneToggle size="md" orientation="horizontal">
-            <FormLabel sx={{ cursor: 'pointer' }}>Tester</FormLabel>
-            <Switch
-              color="neutral"
-              size="md"
-              variant={isTesterOpen ? 'solid' : 'outlined'}
-              // Reverse the value to match the position of the switch
-              // with the open state of the right panel
-              checked={!isTesterOpen}
-              onChange={(event) => {
-                setDetailPanelContentType(
-                  event.target.checked
-                    ? DetailPanelContentType.Off
-                    : DetailPanelContentType.EvaluationModeSimple,
-                );
-              }}
-            />
-          </RightPaneToggle>
-          <Dropdown>
-            <MoreMenuButton
-              slots={{ root: IconButton }}
-              slotProps={{ root: { color: 'neutral' } }}
-            >
-              <IconThreeDots style={{ rotate: '90deg', width: '18px' }} />
-            </MoreMenuButton>
-            <Menu>
-              <MenuItem color="neutral">Placeholder</MenuItem>
-            </Menu>
-          </Dropdown>
+          )}
         </>
       )}
     </Container>
@@ -192,9 +206,9 @@ export default function SubHeader() {
 const Container = styled.div`
   grid-area: sub-header;
   display: grid;
-  grid-template-columns: max-content max-content auto max-content max-content max-content;
+  grid-template-columns: max-content minmax(100px, max-content) auto max-content max-content max-content;
   grid-template-rows: 1fr;
-  grid-template-areas: 'tab-switcher left-pane-toggle . saving-indicator right-pane-toggle more-menu';
+  grid-template-areas: 'tab-switcher left-pane-toggle middle saving-indicator right-pane-toggle more-menu';
   gap: 10px;
   align-items: center;
   border-bottom: 1px solid #ececf1;
@@ -209,6 +223,10 @@ const LeftPaneToggleWrapper = styled.div`
   grid-area: left-pane-toggle;
   display: flex;
   gap: 10px;
+`;
+
+const MiddleContent = styled.div`
+  grid-area: middle;
 `;
 
 const SavingIndicator = styled(Typography)`
