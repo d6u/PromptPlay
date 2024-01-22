@@ -25,7 +25,7 @@ import { graphql } from '../../../gql';
 import { ContentVersion, SpaceFlowQueryQuery } from '../../../gql/graphql';
 import { useLocalStorageStore } from '../../../state/appState';
 import { client } from '../../../state/urql';
-import { updateSpaceContentV3 } from '../graphql';
+import { updateSpaceContentV3 } from '../utils/graphql';
 import {
   assignLocalEdgeProperties,
   assignLocalNodeProperties,

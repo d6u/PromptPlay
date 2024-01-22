@@ -10,6 +10,7 @@ import { client } from '../state/urql';
 import { FlowRouteTab, pathToFlowCanvasTab } from '../utils/route-utils';
 import RouteDashboard from './route-dashboard/RouteDashboard';
 import RouteFlow from './route-flow/RouteFlow';
+import RouteCanvas from './route-flow/route-canvas/RouteCanvas';
 import flowLoader from './route-flow/route-loader';
 import RouteRoot from './route-root/RouteRoot';
 import routeLoaderRoot from './route-root/route-loader-root';
@@ -41,7 +42,7 @@ export default function App() {
               },
               {
                 path: `${FlowRouteTab.Canvas}`,
-                element: <div>Canvas</div>,
+                element: <RouteCanvas />,
                 handle: {
                   tabType: FlowRouteTab.Canvas,
                 },

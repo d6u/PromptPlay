@@ -20,7 +20,7 @@ import {
 } from 'reactflow';
 import invariant from 'tiny-invariant';
 import { StateCreator } from 'zustand';
-import { updateSpaceContentV3 } from '../graphql';
+import { updateSpaceContentV3 } from '../utils/graphql';
 import { handleEvent } from './event-graph-handlers';
 import {
   ChangeEvent,
