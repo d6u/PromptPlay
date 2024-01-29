@@ -1,3 +1,4 @@
+import { A } from '@mobily/ts-belt';
 import FormControl from '@mui/joy/FormControl';
 import FormHelperText from '@mui/joy/FormHelperText';
 import FormLabel from '@mui/joy/FormLabel';
@@ -6,13 +7,14 @@ import Radio from '@mui/joy/Radio';
 import RadioGroup from '@mui/joy/RadioGroup';
 import Textarea from '@mui/joy/Textarea';
 import {
+  ConnectorID,
   ConnectorType,
   NodeID,
   NodeType,
   V3ChatGPTMessageNodeConfig,
 } from 'flow-models';
 import { ChatGPTMessageRole } from 'integrations/openai';
-import { useContext, useEffect, useMemo, useState } from 'react';
+import { ReactNode, useContext, useEffect, useMemo, useState } from 'react';
 import { Position, useNodeId, useUpdateNodeInternals } from 'reactflow';
 import invariant from 'tiny-invariant';
 import { useStore } from 'zustand';
@@ -30,11 +32,8 @@ import {
 import { DetailPanelContentType } from '../../../route-flow/store/store-flow-state-types';
 import AddVariableButton from './node-common/AddVariableButton';
 import HeaderSection from './node-common/HeaderSection';
-import HelperTextContainer from './node-common/HelperTextContainer';
 import NodeBox from './node-common/NodeBox';
-import NodeInputModifyRow, {
-  ROW_MARGIN_TOP,
-} from './node-common/NodeInputModifyRow';
+import NodeInputModifyRow from './node-common/NodeInputModifyRow';
 import NodeOutputRow from './node-common/NodeOutputRow';
 import {
   ConditionTargetHandle,
@@ -45,11 +44,60 @@ import {
   StyledIconGear,
 } from './node-common/node-common';
 import {
-  calculateInputHandleTop,
+  calculateInputHandleTopV2,
   calculateOutputHandleBottom,
 } from './node-common/utils';
 
 export default function ChatGPTMessageNode() {
+  const nodeId = useNodeId() as NodeID;
+
+  const { isCurrentUserOwner } = useContext(RouteFlowContext);
+
+  const flowStore = useStoreFromFlowStoreContext();
+
+  const variablesDict = useStore(flowStore, (s) => s.variablesDict);
+
+  const inputs = useMemo(() => {
+    const inputArray = selectVariables(
+      nodeId,
+      ConnectorType.NodeInput,
+      variablesDict,
+    );
+
+    return inputArray.map((input, index) => {
+      return {
+        id: input.id,
+        name: input.name,
+        isReadOnly: !isCurrentUserOwner || index === 0,
+        helperMessage:
+          index === 0 ? (
+            <>
+              <code>messages</code> is a list of ChatGPT message. It's default
+              to an empty list if unspecified. The current message will be
+              appended to the list and output as the <code>messages</code>{' '}
+              output.
+            </>
+          ) : null,
+      };
+    });
+  }, [isCurrentUserOwner, nodeId, variablesDict]);
+
+  return <Inner nodeTitle="ChatGPT Message" destConnectors={inputs} />;
+}
+
+type DestConnector = {
+  id: string;
+  name: string;
+  isReadOnly: boolean;
+  helperMessage?: ReactNode;
+};
+
+type Props = {
+  nodeTitle: string;
+  destConnectors: DestConnector[];
+};
+
+function Inner(props: Props) {
   const nodeId = useNodeId() as NodeID;
   const updateNodeInternals = useUpdateNodeInternals();
 
@@ -91,10 +139,6 @@ export default function ChatGPTMessageNode() {
 
   // SECTION: Input Variables
 
-  const inputs = useMemo(() => {
-    return selectVariables(nodeId, ConnectorType.NodeInput, variablesDict);
-  }, [nodeId, variablesDict]);
-
   const conditionTarget = useMemo(() => {
     return selectConditionTarget(nodeId, variablesDict);
   }, [nodeId, variablesDict]);
@@ -105,6 +149,28 @@ export default function ChatGPTMessageNode() {
   // when Node is being deleted.
   const [content, setContent] = useState(() => nodeConfig!.content);
   const [role, setRole] = useState(() => nodeConfig!.role);
+
+  // SECTION: Manage height of each variable input box
+  const [destConnectorInputHeightArr, setDestConnectorInputHeightArr] =
+    useState<number[]>(() => {
+      return A.make(props.destConnectors.length, 0);
+    });
+
+  useEffect(() => {
+    if (props.destConnectors.length > destConnectorInputHeightArr.length) {
+      // NOTE: Increase the length of destConnectorInputHeightArr when needed
+      setDestConnectorInputHeightArr((state) => {
+        return state.concat(
+          A.make(props.destConnectors.length - state.length, 0),
+        );
+      });
+    }
+  }, [props.destConnectors.length, destConnectorInputHeightArr.length]);
+  // !SECTION
+
+  useEffect(() => {
+    updateNodeInternals(nodeId);
+  }, [destConnectorInputHeightArr, nodeId, updateNodeInternals]);
 
   useEffect(() => {
     setRole(nodeConfig?.role ?? ChatGPTMessageRole.user);
@@ -126,16 +192,7 @@ export default function ChatGPTMessageNode() {
   return (
     <>
       <ConditionTargetHandle controlId={conditionTarget.id} />
-      <InputHandle
-        key={0}
-        type="target"
-        id={inputs[0].id}
-        position={Position.Left}
-        style={{ top: calculateInputHandleTop(0) }}
-      />
-      {inputs.map((input, i) => {
-        if (i === 0) return null;
-
+      {props.destConnectors.map((input, i) => {
         return (
           <InputHandle
             key={i}
@@ -143,10 +200,7 @@ export default function ChatGPTMessageNode() {
             id={input.id}
             position={Position.Left}
             style={{
-              top:
-                calculateInputHandleTop(i - (isCurrentUserOwner ? 0 : 1)) +
-                MESSAGES_HELPER_SECTION_HEIGHT +
-                ROW_MARGIN_TOP,
+              top: calculateInputHandleTopV2(i, destConnectorInputHeightArr),
             }}
           />
         );
@@ -154,7 +208,7 @@ export default function ChatGPTMessageNode() {
       <NodeBox nodeType={NodeType.ChatGPTMessageNode}>
         <HeaderSection
           isCurrentUserOwner={isCurrentUserOwner}
-          title="ChatGPT Message"
+          title={props.nodeTitle}
           onClickRemove={() => {
             removeNode(nodeId);
           }}
@@ -163,41 +217,39 @@ export default function ChatGPTMessageNode() {
           <SmallSection>
             <AddVariableButton
               onClick={() => {
-                addVariable(nodeId, ConnectorType.NodeInput, inputs.length);
+                addVariable(
+                  nodeId,
+                  ConnectorType.NodeInput,
+                  props.destConnectors.length,
+                );
                 updateNodeInternals(nodeId);
               }}
             />
           </SmallSection>
         )}
         <Section>
-          <NodeInputModifyRow
-            key={inputs[0].id}
-            name={inputs[0].name}
-            isReadOnly
-          />
-        </Section>
-        <Section style={{ height: MESSAGES_HELPER_SECTION_HEIGHT }}>
-          <HelperTextContainer>
-            <code>messages</code> is a list of ChatGPT message. It's default to
-            an empty list if unspecified. The current message will be appended
-            to the list and output as the <code>messages</code> output.
-          </HelperTextContainer>
-        </Section>
-        <Section>
-          {inputs.map((input, i) => {
-            if (i === 0) return null;
-
+          {props.destConnectors.map((input, i) => {
             return (
               <NodeInputModifyRow
                 key={input.id}
                 name={input.name}
-                isReadOnly={!isCurrentUserOwner}
+                isReadOnly={input.isReadOnly}
+                helperMessage={input.helperMessage}
                 onConfirmNameChange={(name) => {
-                  updateVariable(input.id, { name });
+                  if (!input.isReadOnly) {
+                    updateVariable(input.id as ConnectorID, { name });
+                  }
                 }}
                 onRemove={() => {
-                  removeVariable(input.id);
-                  updateNodeInternals(nodeId);
+                  if (!input.isReadOnly) {
+                    removeVariable(input.id as ConnectorID);
+                    updateNodeInternals(nodeId);
+                  }
+                }}
+                onHeightChange={(height: number) => {
+                  setDestConnectorInputHeightArr((arr) => {
+                    return A.updateAt(arr, i, () => height);
+                  });
                 }}
               />
             );
@@ -333,5 +385,3 @@ export default function ChatGPTMessageNode() {
     </>
   );
 }
-
-const MESSAGES_HELPER_SECTION_HEIGHT = 81;
