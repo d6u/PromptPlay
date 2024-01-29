@@ -16,17 +16,21 @@ type Props = {
 
 export default function NodeInputModifyRow(props: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const resizeObservableRef = useRef<ResizeObserver>();
-  const heightRef = useRef<number>(0);
+  const prevHeightRef = useRef<number>(0);
+  const resizeObserverRef = useRef<ResizeObserver>();
 
-  const [name, setName] = useState(props.name);
+  const propsRef = useRef<Props>(props);
+  propsRef.current = props;
 
-  if (resizeObservableRef.current == null) {
-    resizeObservableRef.current = new ResizeObserver((entries) => {
-      if (heightRef.current !== entries[0].contentBoxSize[0].blockSize) {
-        heightRef.current = entries[0].contentBoxSize[0].blockSize;
+  if (resizeObserverRef.current == null) {
+    resizeObserverRef.current = new ResizeObserver((entries) => {
+      const newHeight = entries[0].contentBoxSize[0].blockSize;
+
+      if (prevHeightRef.current !== newHeight) {
+        prevHeightRef.current = newHeight;
+
         props.onHeightChange?.(
-          heightRef.current + (props.helperMessage ? 10 : 5),
+          prevHeightRef.current + (propsRef.current.helperMessage ? 10 : 5),
         );
       }
     });
@@ -34,13 +38,13 @@ export default function NodeInputModifyRow(props: Props) {
 
   useEffect(() => {
     const containerElement = containerRef.current!;
-
-    resizeObservableRef.current!.observe(containerElement);
-
+    resizeObserverRef.current!.observe(containerElement);
     return () => {
-      resizeObservableRef.current!.unobserve(containerElement);
+      resizeObserverRef.current!.unobserve(containerElement);
     };
-  }, [props]);
+  }, []);
+
+  const [name, setName] = useState(props.name);
 
   return (
     <Container ref={containerRef}>
