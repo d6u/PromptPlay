@@ -1,6 +1,6 @@
 import Input from '@mui/joy/Input';
 
-export default function InputReadonly(
+export default function NodeBoxIncomingVariableReadonly(
   props: React.ComponentProps<typeof Input>,
 ) {
   return (

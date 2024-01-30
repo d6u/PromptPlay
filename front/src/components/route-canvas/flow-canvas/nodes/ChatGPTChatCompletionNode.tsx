@@ -23,8 +23,8 @@ import {
 } from '../../../../state/appState';
 import ReactFlowNode from '../../../common-react-flow/ReactFlowNode';
 import NodeBoxHelperTextContainer from '../../../common-react-flow/node-box/NodeBoxHelperTextContainer';
+import NodeBoxIncomingVariableReadonly from '../../../common-react-flow/node-box/NodeBoxIncomingVariableReadonly';
 import NodeBoxSection from '../../../common-react-flow/node-box/NodeBoxSection';
-import InputReadonly from '../../../route-flow/common/InputReadonly';
 import RouteFlowContext from '../../../route-flow/common/RouteFlowContext';
 import { useFlowStore } from '../../../route-flow/store/FlowStoreContext';
 
@@ -199,7 +199,10 @@ export default function ChatGPTChatCompletionNode() {
               }}
             />
           ) : (
-            <InputReadonly type="number" value={temperature} />
+            <NodeBoxIncomingVariableReadonly
+              type="number"
+              value={temperature}
+            />
           )}
         </FormControl>
       </NodeBoxSection>
@@ -232,7 +235,10 @@ export default function ChatGPTChatCompletionNode() {
               }}
             />
           ) : (
-            <InputReadonly type="number" value={temperature} />
+            <NodeBoxIncomingVariableReadonly
+              type="number"
+              value={temperature}
+            />
           )}
         </FormControl>
       </NodeBoxSection>
@@ -294,7 +300,7 @@ export default function ChatGPTChatCompletionNode() {
               }}
             />
           ) : (
-            <InputReadonly
+            <NodeBoxIncomingVariableReadonly
               value={stop.length ? stop[0].replace(/\n/g, NEW_LINE_SYMBOL) : ''}
             />
           )}

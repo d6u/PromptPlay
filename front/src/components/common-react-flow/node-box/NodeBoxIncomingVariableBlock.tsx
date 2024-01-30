@@ -2,9 +2,9 @@ import styled from '@emotion/styled';
 import Input from '@mui/joy/Input';
 import { ReactNode, useCallback, useRef, useState } from 'react';
 import { useOnElementResize } from '../../../utils/ResizeObserver';
-import InputReadonly from '../../route-flow/common/InputReadonly';
 import NodeBoxCommonRemoveButton from './NodeBoxCommonRemoveButton';
 import NodeBoxHelperTextContainer from './NodeBoxHelperTextContainer';
+import NodeBoxIncomingVariableReadonly from './NodeBoxIncomingVariableReadonly';
 
 type Props = {
   isReadOnly: boolean;
@@ -43,7 +43,7 @@ export default function NodeBoxIncomingVariableBlock(props: Props) {
     <Container ref={containerRef}>
       <InputContainer>
         {props.isReadOnly ? (
-          <InputReadonly
+          <NodeBoxIncomingVariableReadonly
             color="neutral"
             size="sm"
             variant="outlined"

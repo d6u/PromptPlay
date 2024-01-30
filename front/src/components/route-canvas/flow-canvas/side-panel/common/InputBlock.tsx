@@ -5,7 +5,7 @@ import Select from '@mui/joy/Select';
 import Textarea from '@mui/joy/Textarea';
 import { VariableValueType } from 'flow-models';
 import { ReactNode, useEffect, useState } from 'react';
-import InputReadonly from '../../../../route-flow/common/InputReadonly';
+import NodeBoxIncomingVariableReadonly from '../../../../common-react-flow/node-box/NodeBoxIncomingVariableReadonly';
 import TextareaReadonly from '../../../../route-flow/common/TextareaReadonly';
 
 const Container = styled.div`
@@ -79,7 +79,7 @@ export default function InputBlock(props: Props) {
       break;
     case VariableValueType.Number:
       valueInput = props.isReadOnly ? (
-        <InputReadonly type="number" value={value ?? 0} />
+        <NodeBoxIncomingVariableReadonly type="number" value={value ?? 0} />
       ) : (
         <Input
           color="primary"

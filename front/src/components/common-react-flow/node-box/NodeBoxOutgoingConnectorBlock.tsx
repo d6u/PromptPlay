@@ -1,8 +1,8 @@
 import styled from '@emotion/styled';
 import Input from '@mui/joy/Input';
 import { useState } from 'react';
-import InputReadonly from '../../route-flow/common/InputReadonly';
 import NodeBoxCommonRemoveButton from './NodeBoxCommonRemoveButton';
+import NodeBoxIncomingVariableReadonly from './NodeBoxIncomingVariableReadonly';
 
 const Container = styled.div`
   margin-top: 5px;
@@ -33,7 +33,7 @@ export default function NodeBoxOutgoingConnectorBlock(props: Props) {
   return (
     <Container>
       {props.isReadOnly ? (
-        <InputReadonly value={name} />
+        <NodeBoxIncomingVariableReadonly value={name} />
       ) : (
         <Input
           color="primary"
