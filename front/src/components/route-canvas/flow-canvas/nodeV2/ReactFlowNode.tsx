@@ -1,15 +1,13 @@
 import { A } from '@mobily/ts-belt';
-import {
-  ConditionTarget,
-  ConnectorID,
-  ConnectorType,
-  NodeID,
-  NodeType,
-} from 'flow-models';
-import { ReactNode, useContext, useEffect, useState } from 'react';
+import { ConnectorID, ConnectorType, NodeID, NodeType } from 'flow-models';
+import { ReactNode, useContext, useEffect, useMemo, useState } from 'react';
 import { Position, useNodeId, useUpdateNodeInternals } from 'reactflow';
 import RouteFlowContext from '../../../route-flow/common/RouteFlowContext';
 import { useFlowStore } from '../../../route-flow/store/FlowStoreContext';
+import {
+  selectConditionTarget,
+  selectVariables,
+} from '../../../route-flow/store/state-utils';
 import { DetailPanelContentType } from '../../../route-flow/store/store-flow-state-types';
 import AddVariableButton from '../nodes/node-common/AddVariableButton';
 import HeaderSection from '../nodes/node-common/HeaderSection';
@@ -43,9 +41,8 @@ export type SrcConnector = {
 
 type Props = {
   nodeTitle: string;
-  conditionTarget?: ConditionTarget | null;
-  destConnectors: DestConnector[];
-  srcConnectors: SrcConnector[];
+  destConnectorReadOnlyConfigs?: boolean[];
+  destConnectorHelpMessages?: ReactNode[];
   children?: ReactNode;
 };
 
@@ -55,6 +52,56 @@ export default function ReactFlowNode(props: Props) {
   // ANCHOR: ReactFlow
   const nodeId = useNodeId() as NodeID;
   const updateNodeInternals = useUpdateNodeInternals();
+
+  // ANCHOR: Store Data
+  const variablesDict = useFlowStore((s) => s.variablesDict);
+  const defaultVariableValueMap = useFlowStore((s) =>
+    s.getDefaultVariableValueLookUpDict(),
+  );
+  const conditionTarget = useMemo(() => {
+    return selectConditionTarget(nodeId, variablesDict);
+  }, [nodeId, variablesDict]);
+
+  const destConnectors = useMemo(() => {
+    const inputArray = selectVariables(
+      nodeId,
+      ConnectorType.NodeInput,
+      variablesDict,
+    );
+
+    return inputArray.map<DestConnector>((input, index) => {
+      return {
+        id: input.id,
+        name: input.name,
+        isReadOnly:
+          !isCurrentUserOwner ||
+          (props.destConnectorReadOnlyConfigs?.[index] ?? false),
+        helperMessage: props.destConnectorHelpMessages?.[index],
+      };
+    });
+  }, [
+    isCurrentUserOwner,
+    nodeId,
+    variablesDict,
+    props.destConnectorHelpMessages,
+    props.destConnectorReadOnlyConfigs,
+  ]);
+
+  const srcConnectors = useMemo(() => {
+    const outputVariables = selectVariables(
+      nodeId,
+      ConnectorType.NodeOutput,
+      variablesDict,
+    );
+
+    return outputVariables.map<SrcConnector>((output) => {
+      return {
+        id: output.id,
+        name: output.name,
+        value: defaultVariableValueMap[output.id],
+      };
+    });
+  }, [defaultVariableValueMap, nodeId, variablesDict]);
 
   // ANCHOR: Node Operations
   const removeNode = useFlowStore((s) => s.removeNode);
@@ -75,19 +122,17 @@ export default function ReactFlowNode(props: Props) {
   // SECTION: Manage height of each variable input box
   const [destConnectorInputHeightArr, setDestConnectorInputHeightArr] =
     useState<number[]>(() => {
-      return A.make(props.destConnectors.length, 0);
+      return A.make(destConnectors.length, 0);
     });
 
   useEffect(() => {
-    if (props.destConnectors.length > destConnectorInputHeightArr.length) {
+    if (destConnectors.length > destConnectorInputHeightArr.length) {
       // NOTE: Increase the length of destConnectorInputHeightArr when needed
       setDestConnectorInputHeightArr((state) => {
-        return state.concat(
-          A.make(props.destConnectors.length - state.length, 0),
-        );
+        return state.concat(A.make(destConnectors.length - state.length, 0));
       });
     }
-  }, [props.destConnectors.length, destConnectorInputHeightArr.length]);
+  }, [destConnectors.length, destConnectorInputHeightArr.length]);
 
   useEffect(() => {
     updateNodeInternals(nodeId);
@@ -96,10 +141,10 @@ export default function ReactFlowNode(props: Props) {
 
   return (
     <>
-      {props.conditionTarget && (
-        <ConditionTargetHandle controlId={props.conditionTarget.id} />
+      {conditionTarget && (
+        <ConditionTargetHandle controlId={conditionTarget.id} />
       )}
-      {props.destConnectors.map((connector, i) => {
+      {destConnectors.map((connector, i) => {
         return (
           <InputHandle
             key={connector.id}
@@ -127,7 +172,7 @@ export default function ReactFlowNode(props: Props) {
                 addVariable(
                   nodeId,
                   ConnectorType.NodeInput,
-                  props.destConnectors.length,
+                  destConnectors.length,
                 );
                 updateNodeInternals(nodeId);
               }}
@@ -135,7 +180,7 @@ export default function ReactFlowNode(props: Props) {
           </SmallSection>
         )}
         <Section>
-          {props.destConnectors.map((connector, i) => {
+          {destConnectors.map((connector, i) => {
             return (
               <NodeInputModifyRow
                 key={connector.id}
@@ -164,7 +209,7 @@ export default function ReactFlowNode(props: Props) {
         </Section>
         {props.children}
         <Section>
-          {props.srcConnectors.map((connector) => (
+          {srcConnectors.map((connector) => (
             <NodeOutputRow
               key={connector.id}
               id={connector.id}
@@ -180,16 +225,14 @@ export default function ReactFlowNode(props: Props) {
           ))}
         </Section>
       </NodeBox>
-      {props.srcConnectors.map((connector, i) => (
+      {srcConnectors.map((connector, i) => (
         <OutputHandle
           key={connector.id}
           type="source"
           id={connector.id}
           position={Position.Right}
           style={{
-            bottom: calculateOutputHandleBottom(
-              props.srcConnectors.length - 1 - i,
-            ),
+            bottom: calculateOutputHandleBottom(srcConnectors.length - 1 - i),
           }}
         />
       ))}

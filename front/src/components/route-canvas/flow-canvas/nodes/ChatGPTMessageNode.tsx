@@ -5,7 +5,7 @@ import IconButton from '@mui/joy/IconButton';
 import Radio from '@mui/joy/Radio';
 import RadioGroup from '@mui/joy/RadioGroup';
 import Textarea from '@mui/joy/Textarea';
-import { ConnectorType, NodeID, V3ChatGPTMessageNodeConfig } from 'flow-models';
+import { NodeID, V3ChatGPTMessageNodeConfig } from 'flow-models';
 import { ChatGPTMessageRole } from 'integrations/openai';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { useNodeId } from 'reactflow';
@@ -16,83 +16,22 @@ import {
   LabelWithIconContainer,
 } from '../../../route-flow/common/flow-common';
 import { useFlowStore } from '../../../route-flow/store/FlowStoreContext';
-import {
-  selectConditionTarget,
-  selectVariables,
-} from '../../../route-flow/store/state-utils';
 import { DetailPanelContentType } from '../../../route-flow/store/store-flow-state-types';
-import ReactFlowNode, {
-  DestConnector,
-  SrcConnector,
-} from '../nodeV2/ReactFlowNode';
+import ReactFlowNode from '../nodeV2/ReactFlowNode';
 import { Section, StyledIconGear } from './node-common/node-common';
 
 export default function ChatGPTMessageNode() {
-  // SECTION: Generic properties
-
-  const nodeId = useNodeId() as NodeID;
-
   const { isCurrentUserOwner } = useContext(RouteFlowContext);
 
-  const variablesDict = useFlowStore((s) => s.variablesDict);
-  const defaultVariableValueMap = useFlowStore((s) =>
-    s.getDefaultVariableValueLookUpDict(),
-  );
+  // ANCHOR: ReactFlow
+  const nodeId = useNodeId() as NodeID;
 
-  const conditionTarget = useMemo(() => {
-    return selectConditionTarget(nodeId, variablesDict);
-  }, [nodeId, variablesDict]);
-
-  const inputs = useMemo(() => {
-    const inputArray = selectVariables(
-      nodeId,
-      ConnectorType.NodeInput,
-      variablesDict,
-    );
-
-    const messages: DestConnector = {
-      id: inputArray[0].id,
-      name: inputArray[0].name,
-      isReadOnly: true,
-      helperMessage: (
-        <>
-          <code>messages</code> is a list of ChatGPT message. It's default to an
-          empty list if unspecified. The current message will be appended to the
-          list and output as the <code>messages</code> output.
-        </>
-      ),
-    };
-
-    const rest = inputArray.slice(1).map<DestConnector>((input, index) => {
-      return {
-        id: input.id,
-        name: input.name,
-        isReadOnly: !isCurrentUserOwner,
-      };
-    });
-
-    return [messages].concat(rest);
-  }, [isCurrentUserOwner, nodeId, variablesDict]);
-
-  const outputs = useMemo(() => {
-    const outputVariables = selectVariables(
-      nodeId,
-      ConnectorType.NodeOutput,
-      variablesDict,
-    );
-
-    return outputVariables.map<SrcConnector>((output) => {
-      return {
-        id: output.id,
-        name: output.name,
-        value: defaultVariableValueMap[output.id],
-      };
-    });
-  }, [defaultVariableValueMap, nodeId, variablesDict]);
-
-  // !SECTION
-
+  // ANCHOR: Store Data
   const nodeConfigsDict = useFlowStore((s) => s.nodeConfigsDict);
+  const nodeConfig = useMemo(() => {
+    return nodeConfigsDict[nodeId] as V3ChatGPTMessageNodeConfig | undefined;
+  }, [nodeConfigsDict, nodeId]);
+
   const updateNodeConfig = useFlowStore((s) => s.updateNodeConfig);
   const setDetailPanelContentType = useFlowStore(
     (s) => s.setDetailPanelContentType,
@@ -101,18 +40,15 @@ export default function ChatGPTMessageNode() {
     (s) => s.setDetailPanelSelectedNodeId,
   );
 
-  const nodeConfig = useMemo(() => {
-    return nodeConfigsDict[nodeId] as V3ChatGPTMessageNodeConfig | undefined;
-  }, [nodeConfigsDict, nodeId]);
-
-  // It's OK to force unwrap here because nodeConfig will be undefined only
-  // when Node is being deleted.
-  const [content, setContent] = useState(() => nodeConfig!.content);
+  // NOTE: It's OK to force unwrap here because nodeConfig will be undefined
+  // only when Node is being deleted.
   const [role, setRole] = useState(() => nodeConfig!.role);
 
   useEffect(() => {
     setRole(nodeConfig?.role ?? ChatGPTMessageRole.user);
   }, [nodeConfig]);
+
+  const [content, setContent] = useState(() => nodeConfig!.content);
 
   useEffect(() => {
     setContent(() => nodeConfig!.content ?? '');
@@ -127,9 +63,14 @@ export default function ChatGPTMessageNode() {
   return (
     <ReactFlowNode
       nodeTitle="ChatGPT Message"
-      conditionTarget={conditionTarget}
-      destConnectors={inputs}
-      srcConnectors={outputs}
+      destConnectorReadOnlyConfigs={[true]}
+      destConnectorHelpMessages={[
+        <>
+          <code>messages</code> is a list of ChatGPT message. It's default to an
+          empty list if unspecified. The current message will be appended to the
+          list and output as the <code>messages</code> output.
+        </>,
+      ]}
     >
       <Section>
         <FormControl>
