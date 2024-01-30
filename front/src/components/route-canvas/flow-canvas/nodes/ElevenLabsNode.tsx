@@ -11,12 +11,12 @@ import {
   useLocalStorageStore,
   useSpaceStore,
 } from '../../../../state/appState';
+import NodeBoxSection from '../../../common-react-flow/node-box/NodeBoxSection';
 import InputReadonly from '../../../route-flow/common/InputReadonly';
 import RouteFlowContext from '../../../route-flow/common/RouteFlowContext';
 import { useFlowStore } from '../../../route-flow/store/FlowStoreContext';
 import ReactFlowNode from '../nodeV2/ReactFlowNode';
 import HelperTextContainer from './node-common/HelperTextContainer';
-import { Section } from './node-common/node-common';
 
 const persistSelector = (state: LocalStorageState) => ({
   elevenLabsApiKey: state.elevenLabsApiKey,
@@ -76,7 +76,7 @@ export default function ElevenLabsNode() {
       ]}
     >
       {isCurrentUserOwner && (
-        <Section>
+        <NodeBoxSection>
           <FormControl>
             <FormLabel>API Key</FormLabel>
             <Input
@@ -98,9 +98,9 @@ export default function ElevenLabsNode() {
               This is stored in your browser's local storage. Never uploaded.
             </FormHelperText>
           </FormControl>
-        </Section>
+        </NodeBoxSection>
       )}
-      <Section>
+      <NodeBoxSection>
         <FormControl>
           <FormLabel>Voice ID</FormLabel>
           {isCurrentUserOwner ? (
@@ -122,7 +122,7 @@ export default function ElevenLabsNode() {
             <InputReadonly value={voiceId} />
           )}
         </FormControl>
-      </Section>
+      </NodeBoxSection>
     </ReactFlowNode>
   );
 }

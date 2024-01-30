@@ -11,6 +11,7 @@ import NodeBox from '../../../common-react-flow/node-box/NodeBox';
 import NodeBoxAddConnectorButton from '../../../common-react-flow/node-box/NodeBoxAddConnectorButton';
 import NodeBoxHeaderSection from '../../../common-react-flow/node-box/NodeBoxHeaderSection';
 import NodeBoxIncomingVariableSection from '../../../common-react-flow/node-box/NodeBoxIncomingVariableSection';
+import NodeBoxSection from '../../../common-react-flow/node-box/NodeBoxSection';
 import NodeBoxSmallSection from '../../../common-react-flow/node-box/NodeBoxSmallSection';
 import RouteFlowContext from '../../../route-flow/common/RouteFlowContext';
 import { useStoreFromFlowStoreContext } from '../../../route-flow/store/FlowStoreContext';
@@ -22,7 +23,6 @@ import {
 import NodeInputModifyRow from './node-common/NodeInputModifyRow';
 import NodeOutputModifyRow from './node-common/NodeOutputModifyRow';
 import NodeOutputRow from './node-common/NodeOutputRow';
-import { Section } from './node-common/node-common';
 
 export default function ConditionNode() {
   const nodeId = useNodeId() as NodeID;
@@ -113,7 +113,7 @@ export default function ConditionNode() {
             />
           ))}
         </NodeBoxIncomingVariableSection>
-        <Section>
+        <NodeBoxSection>
           <FormControl>
             <FormLabel>Stop at the first match</FormLabel>
             <Checkbox
@@ -136,7 +136,7 @@ export default function ConditionNode() {
             In either case, the default case will be matched if no condition has
             matched.
           </FormHelperText>
-        </Section>
+        </NodeBoxSection>
         <NodeBoxSmallSection>
           {isCurrentUserOwner && (
             <NodeBoxAddConnectorButton
@@ -153,7 +153,7 @@ export default function ConditionNode() {
           )}
         </NodeBoxSmallSection>
         {normalConditions.map((condition, i) => (
-          <Section key={condition.id}>
+          <NodeBoxSection key={condition.id}>
             <NodeOutputModifyRow
               name={condition.expressionString}
               isReadOnly={!isCurrentUserOwner}
@@ -177,14 +177,14 @@ export default function ConditionNode() {
               }
               style={{ marginTop: '5px' }}
             />
-          </Section>
+          </NodeBoxSection>
         ))}
-        <Section>
+        <NodeBoxSection>
           <NodeOutputRow id={defaultCaseCondition.id} name="Default case" />
           <FormHelperText>
             The default case is matched when no other condition have matched.
           </FormHelperText>
-        </Section>
+        </NodeBoxSection>
       </NodeBox>
       {normalConditions.map((condition, i) => (
         <OutgoingConditionHandle

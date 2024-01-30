@@ -10,6 +10,7 @@ import { ChatGPTMessageRole } from 'integrations/openai';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { useNodeId } from 'reactflow';
 import NodeBoxIconGear from '../../../common-react-flow/node-box/NodeBoxIconGear';
+import NodeBoxSection from '../../../common-react-flow/node-box/NodeBoxSection';
 import RouteFlowContext from '../../../route-flow/common/RouteFlowContext';
 import TextareaReadonly from '../../../route-flow/common/TextareaReadonly';
 import {
@@ -19,7 +20,6 @@ import {
 import { useFlowStore } from '../../../route-flow/store/FlowStoreContext';
 import { DetailPanelContentType } from '../../../route-flow/store/store-flow-state-types';
 import ReactFlowNode from '../nodeV2/ReactFlowNode';
-import { Section } from './node-common/node-common';
 
 export default function ChatGPTMessageNode() {
   const { isCurrentUserOwner } = useContext(RouteFlowContext);
@@ -75,7 +75,7 @@ export default function ChatGPTMessageNode() {
         </>,
       ]}
     >
-      <Section>
+      <NodeBoxSection>
         <FormControl>
           <FormLabel>Role</FormLabel>
           <RadioGroup
@@ -112,8 +112,8 @@ export default function ChatGPTMessageNode() {
             />
           </RadioGroup>
         </FormControl>
-      </Section>
-      <Section>
+      </NodeBoxSection>
+      <NodeBoxSection>
         <FormControl>
           <LabelWithIconContainer>
             <FormLabel>Message content</FormLabel>
@@ -160,8 +160,8 @@ export default function ChatGPTMessageNode() {
             </div>
           </FormHelperText>
         </FormControl>
-      </Section>
-      <Section>
+      </NodeBoxSection>
+      <NodeBoxSection>
         <IconButton
           variant="outlined"
           onClick={() => {
@@ -173,7 +173,7 @@ export default function ChatGPTMessageNode() {
         >
           <NodeBoxIconGear />
         </IconButton>
-      </Section>
+      </NodeBoxSection>
     </ReactFlowNode>
   );
 }

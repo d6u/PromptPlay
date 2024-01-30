@@ -1,7 +1,7 @@
 import styled from '@emotion/styled';
-import { Section } from '../../route-canvas/flow-canvas/nodes/node-common/node-common';
+import NodeBoxSection from './NodeBoxSection';
 
-const NodeBoxSmallSection = styled(Section)`
+const NodeBoxSmallSection = styled(NodeBoxSection)`
   padding: 0 10px;
   display: flex;
   gap: 5px;

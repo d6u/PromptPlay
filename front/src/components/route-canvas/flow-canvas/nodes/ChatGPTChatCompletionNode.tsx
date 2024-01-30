@@ -21,12 +21,12 @@ import {
   useLocalStorageStore,
   useSpaceStore,
 } from '../../../../state/appState';
+import NodeBoxSection from '../../../common-react-flow/node-box/NodeBoxSection';
 import InputReadonly from '../../../route-flow/common/InputReadonly';
 import RouteFlowContext from '../../../route-flow/common/RouteFlowContext';
 import { useFlowStore } from '../../../route-flow/store/FlowStoreContext';
 import ReactFlowNode from '../nodeV2/ReactFlowNode';
 import HelperTextContainer from './node-common/HelperTextContainer';
-import { Section } from './node-common/node-common';
 
 const persistSelector = (state: LocalStorageState) => ({
   openAiApiKey: state.openAiApiKey,
@@ -114,7 +114,7 @@ export default function ChatGPTChatCompletionNode() {
       ]}
     >
       {isCurrentUserOwner && (
-        <Section>
+        <NodeBoxSection>
           <FormControl>
             <FormLabel>OpenAI API key</FormLabel>
             <Input
@@ -136,9 +136,9 @@ export default function ChatGPTChatCompletionNode() {
               This is stored in your browser's local storage. Never uploaded.
             </FormHelperText>
           </FormControl>
-        </Section>
+        </NodeBoxSection>
       )}
-      <Section>
+      <NodeBoxSection>
         <FormControl>
           <FormLabel>Model</FormLabel>
           <Select
@@ -157,8 +157,8 @@ export default function ChatGPTChatCompletionNode() {
             ))}
           </Select>
         </FormControl>
-      </Section>
-      <Section>
+      </NodeBoxSection>
+      <NodeBoxSection>
         <FormControl>
           <FormLabel>Temperature</FormLabel>
           {isCurrentUserOwner ? (
@@ -202,8 +202,8 @@ export default function ChatGPTChatCompletionNode() {
             <InputReadonly type="number" value={temperature} />
           )}
         </FormControl>
-      </Section>
-      <Section>
+      </NodeBoxSection>
+      <NodeBoxSection>
         <FormControl>
           <FormLabel>Seed (Optional, Beta)</FormLabel>
           {isCurrentUserOwner ? (
@@ -235,8 +235,8 @@ export default function ChatGPTChatCompletionNode() {
             <InputReadonly type="number" value={temperature} />
           )}
         </FormControl>
-      </Section>
-      <Section>
+      </NodeBoxSection>
+      <NodeBoxSection>
         <FormControl>
           <FormLabel>Use JSON Response Format</FormLabel>
           <Checkbox
@@ -260,8 +260,8 @@ export default function ChatGPTChatCompletionNode() {
             }}
           />
         </FormControl>
-      </Section>
-      <Section>
+      </NodeBoxSection>
+      <NodeBoxSection>
         <FormControl>
           <FormLabel>Stop sequence</FormLabel>
           {isCurrentUserOwner ? (
@@ -306,7 +306,7 @@ export default function ChatGPTChatCompletionNode() {
             </div>
           </FormHelperText>
         </FormControl>
-      </Section>
+      </NodeBoxSection>
     </ReactFlowNode>
   );
 }

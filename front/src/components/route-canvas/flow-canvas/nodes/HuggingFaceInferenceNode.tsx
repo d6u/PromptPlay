@@ -15,12 +15,12 @@ import {
   useLocalStorageStore,
   useSpaceStore,
 } from '../../../../state/appState';
+import NodeBoxSection from '../../../common-react-flow/node-box/NodeBoxSection';
 import InputReadonly from '../../../route-flow/common/InputReadonly';
 import RouteFlowContext from '../../../route-flow/common/RouteFlowContext';
 import { useFlowStore } from '../../../route-flow/store/FlowStoreContext';
 import ReactFlowNode from '../nodeV2/ReactFlowNode';
 import HelperTextContainer from './node-common/HelperTextContainer';
-import { Section } from './node-common/node-common';
 
 const persistSelector = (state: LocalStorageState) => ({
   huggingFaceApiToken: state.huggingFaceApiToken,
@@ -81,7 +81,7 @@ export default function HuggingFaceInferenceNode() {
       ]}
     >
       {isCurrentUserOwner && (
-        <Section>
+        <NodeBoxSection>
           <FormControl>
             <FormLabel>API Token</FormLabel>
             <Input
@@ -103,9 +103,9 @@ export default function HuggingFaceInferenceNode() {
               This is stored in your browser's local storage. Never uploaded.
             </FormHelperText>
           </FormControl>
-        </Section>
+        </NodeBoxSection>
       )}
-      <Section>
+      <NodeBoxSection>
         <FormControl>
           <FormLabel>Model</FormLabel>
           {isCurrentUserOwner ? (
@@ -127,7 +127,7 @@ export default function HuggingFaceInferenceNode() {
             <InputReadonly value={model} />
           )}
         </FormControl>
-      </Section>
+      </NodeBoxSection>
     </ReactFlowNode>
   );
 }
