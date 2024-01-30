@@ -64,22 +64,28 @@ export default function ChatGPTMessageNode() {
       variablesDict,
     );
 
-    return inputArray.map((input, index) => {
+    const messages: DestConnector = {
+      id: inputArray[0].id,
+      name: inputArray[0].name,
+      isReadOnly: true,
+      helperMessage: (
+        <>
+          <code>messages</code> is a list of ChatGPT message. It's default to an
+          empty list if unspecified. The current message will be appended to the
+          list and output as the <code>messages</code> output.
+        </>
+      ),
+    };
+
+    const rest = inputArray.slice(1).map<DestConnector>((input, index) => {
       return {
         id: input.id,
         name: input.name,
-        isReadOnly: !isCurrentUserOwner || index === 0,
-        helperMessage:
-          index === 0 ? (
-            <>
-              <code>messages</code> is a list of ChatGPT message. It's default
-              to an empty list if unspecified. The current message will be
-              appended to the list and output as the <code>messages</code>{' '}
-              output.
-            </>
-          ) : null,
+        isReadOnly: !isCurrentUserOwner,
       };
     });
+
+    return [messages].concat(rest);
   }, [isCurrentUserOwner, nodeId, variablesDict]);
 
   return <Inner nodeTitle="ChatGPT Message" destConnectors={inputs} />;
