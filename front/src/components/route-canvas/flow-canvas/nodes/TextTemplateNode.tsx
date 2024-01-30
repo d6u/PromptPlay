@@ -6,6 +6,7 @@ import Textarea from '@mui/joy/Textarea';
 import { NodeID, NodeType, V3TextTemplateNodeConfig } from 'flow-models';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { useNodeId } from 'reactflow';
+import ReactFlowNode from '../../../common-react-flow/ReactFlowNode';
 import NodeBoxIconGear from '../../../common-react-flow/node-box/NodeBoxIconGear';
 import NodeBoxSection from '../../../common-react-flow/node-box/NodeBoxSection';
 import RouteFlowContext from '../../../route-flow/common/RouteFlowContext';
@@ -16,7 +17,6 @@ import {
 } from '../../../route-flow/common/flow-common';
 import { useFlowStore } from '../../../route-flow/store/FlowStoreContext';
 import { DetailPanelContentType } from '../../../route-flow/store/store-flow-state-types';
-import ReactFlowNode from '../nodeV2/ReactFlowNode';
 
 export default function TextTemplateNode() {
   const { isCurrentUserOwner } = useContext(RouteFlowContext);

@@ -2,24 +2,24 @@ import { A } from '@mobily/ts-belt';
 import { ConnectorID, ConnectorType, NodeID, NodeType } from 'flow-models';
 import { ReactNode, useContext, useEffect, useMemo, useState } from 'react';
 import { useNodeId, useUpdateNodeInternals } from 'reactflow';
-import IncomingConditionHandle from '../../../common-react-flow/handles/IncomingConditionHandle';
-import IncomingVariableHandle from '../../../common-react-flow/handles/IncomingVariableHandle';
-import OutgoingVariableHandle from '../../../common-react-flow/handles/OutgoingVariableHandle';
-import NodeBox from '../../../common-react-flow/node-box/NodeBox';
-import NodeBoxAddConnectorButton from '../../../common-react-flow/node-box/NodeBoxAddConnectorButton';
-import NodeBoxHeaderSection from '../../../common-react-flow/node-box/NodeBoxHeaderSection';
-import NodeBoxIncomingVariableBlock from '../../../common-react-flow/node-box/NodeBoxIncomingVariableBlock';
-import NodeBoxIncomingVariableSection from '../../../common-react-flow/node-box/NodeBoxIncomingVariableSection';
-import NodeBoxOutgoingVariableBlock from '../../../common-react-flow/node-box/NodeBoxOutgoingVariableBlock';
-import NodeBoxSection from '../../../common-react-flow/node-box/NodeBoxSection';
-import NodeBoxSmallSection from '../../../common-react-flow/node-box/NodeBoxSmallSection';
-import RouteFlowContext from '../../../route-flow/common/RouteFlowContext';
-import { useFlowStore } from '../../../route-flow/store/FlowStoreContext';
+import RouteFlowContext from '../route-flow/common/RouteFlowContext';
+import { useFlowStore } from '../route-flow/store/FlowStoreContext';
 import {
   selectConditionTarget,
   selectVariables,
-} from '../../../route-flow/store/state-utils';
-import { DetailPanelContentType } from '../../../route-flow/store/store-flow-state-types';
+} from '../route-flow/store/state-utils';
+import { DetailPanelContentType } from '../route-flow/store/store-flow-state-types';
+import IncomingConditionHandle from './handles/IncomingConditionHandle';
+import IncomingVariableHandle from './handles/IncomingVariableHandle';
+import OutgoingVariableHandle from './handles/OutgoingVariableHandle';
+import NodeBox from './node-box/NodeBox';
+import NodeBoxAddConnectorButton from './node-box/NodeBoxAddConnectorButton';
+import NodeBoxHeaderSection from './node-box/NodeBoxHeaderSection';
+import NodeBoxIncomingVariableBlock from './node-box/NodeBoxIncomingVariableBlock';
+import NodeBoxIncomingVariableSection from './node-box/NodeBoxIncomingVariableSection';
+import NodeBoxOutgoingVariableBlock from './node-box/NodeBoxOutgoingVariableBlock';
+import NodeBoxSection from './node-box/NodeBoxSection';
+import NodeBoxSmallSection from './node-box/NodeBoxSmallSection';
 
 export type DestConnector = {
   id: string;
