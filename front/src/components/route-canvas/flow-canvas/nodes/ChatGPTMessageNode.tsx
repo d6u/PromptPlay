@@ -7,6 +7,7 @@ import Radio from '@mui/joy/Radio';
 import RadioGroup from '@mui/joy/RadioGroup';
 import Textarea from '@mui/joy/Textarea';
 import {
+  ConditionTarget,
   ConnectorID,
   ConnectorType,
   NodeID,
@@ -57,6 +58,10 @@ export default function ChatGPTMessageNode() {
 
   const variablesDict = useStore(flowStore, (s) => s.variablesDict);
 
+  const conditionTarget = useMemo(() => {
+    return selectConditionTarget(nodeId, variablesDict);
+  }, [nodeId, variablesDict]);
+
   const inputs = useMemo(() => {
     const inputArray = selectVariables(
       nodeId,
@@ -88,7 +93,13 @@ export default function ChatGPTMessageNode() {
     return [messages].concat(rest);
   }, [isCurrentUserOwner, nodeId, variablesDict]);
 
-  return <Inner nodeTitle="ChatGPT Message" destConnectors={inputs} />;
+  return (
+    <Inner
+      nodeTitle="ChatGPT Message"
+      destConnectors={inputs}
+      conditionTarget={conditionTarget}
+    />
+  );
 }
 
 type DestConnector = {
@@ -101,6 +112,7 @@ type DestConnector = {
 type Props = {
   nodeTitle: string;
   destConnectors: DestConnector[];
+  conditionTarget?: ConditionTarget | null;
 };
 
 function Inner(props: Props) {
@@ -142,14 +154,6 @@ function Inner(props: Props) {
   const nodeConfig = useMemo(() => {
     return nodeConfigsDict[nodeId] as V3ChatGPTMessageNodeConfig | undefined;
   }, [nodeConfigsDict, nodeId]);
-
-  // SECTION: Input Variables
-
-  const conditionTarget = useMemo(() => {
-    return selectConditionTarget(nodeId, variablesDict);
-  }, [nodeId, variablesDict]);
-
-  // !SECTION
 
   // It's OK to force unwrap here because nodeConfig will be undefined only
   // when Node is being deleted.
@@ -193,11 +197,12 @@ function Inner(props: Props) {
   }
 
   invariant(nodeConfig.type === NodeType.ChatGPTMessageNode);
-  invariant(conditionTarget != null);
 
   return (
     <>
-      <ConditionTargetHandle controlId={conditionTarget.id} />
+      {props.conditionTarget && (
+        <ConditionTargetHandle controlId={props.conditionTarget.id} />
+      )}
       {props.destConnectors.map((input, i) => {
         return (
           <InputHandle
