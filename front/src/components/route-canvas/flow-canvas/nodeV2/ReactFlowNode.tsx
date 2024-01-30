@@ -8,6 +8,7 @@ import OutgoingVariableHandle from '../../../common-react-flow/handles/OutgoingV
 import NodeBox from '../../../common-react-flow/node-box/NodeBox';
 import NodeBoxAddConnectorButton from '../../../common-react-flow/node-box/NodeBoxAddConnectorButton';
 import NodeBoxHeaderSection from '../../../common-react-flow/node-box/NodeBoxHeaderSection';
+import NodeBoxSmallSection from '../../../common-react-flow/node-box/NodeBoxSmallSection';
 import RouteFlowContext from '../../../route-flow/common/RouteFlowContext';
 import { useFlowStore } from '../../../route-flow/store/FlowStoreContext';
 import {
@@ -17,7 +18,7 @@ import {
 import { DetailPanelContentType } from '../../../route-flow/store/store-flow-state-types';
 import NodeInputModifyRow from '../nodes/node-common/NodeInputModifyRow';
 import NodeOutputRow from '../nodes/node-common/NodeOutputRow';
-import { Section, SmallSection } from '../nodes/node-common/node-common';
+import { Section } from '../nodes/node-common/node-common';
 
 export type DestConnector = {
   id: string;
@@ -167,7 +168,7 @@ export default function ReactFlowNode(props: Props) {
           }}
         />
         {props.allowAddVariable && isCurrentUserOwner && (
-          <SmallSection>
+          <NodeBoxSmallSection>
             <NodeBoxAddConnectorButton
               label="Variable"
               onClick={() => {
@@ -179,7 +180,7 @@ export default function ReactFlowNode(props: Props) {
                 updateNodeInternals(nodeId);
               }}
             />
-          </SmallSection>
+          </NodeBoxSmallSection>
         )}
         <Section>
           {destConnectors.map((connector, i) => {

@@ -32,12 +32,12 @@ export default function NodeBoxHeaderSection(props: Props) {
 
 const Container = styled.div`
   position: relative;
+  margin-bottom: ${HEADER_TITLE_MARGIN_BOTTOM}px;
 `;
 
 const TitleContainer = styled.div`
   cursor: grab;
   padding: ${HEADER_TITLE_PADDING_TOP}px 10px 0;
-  margin-bottom: ${HEADER_TITLE_MARGIN_BOTTOM}px;
 `;
 
 const Title = styled.h3`

@@ -12,16 +12,13 @@ import IncomingVariableHandle from '../../../common-react-flow/handles/IncomingV
 import NodeBox from '../../../common-react-flow/node-box/NodeBox';
 import NodeBoxAddConnectorButton from '../../../common-react-flow/node-box/NodeBoxAddConnectorButton';
 import NodeBoxHeaderSection from '../../../common-react-flow/node-box/NodeBoxHeaderSection';
+import NodeBoxSmallSection from '../../../common-react-flow/node-box/NodeBoxSmallSection';
 import RouteFlowContext from '../../../route-flow/common/RouteFlowContext';
 import { useStoreFromFlowStoreContext } from '../../../route-flow/store/FlowStoreContext';
 import { selectVariables } from '../../../route-flow/store/state-utils';
 import { DetailPanelContentType } from '../../../route-flow/store/store-flow-state-types';
 import NodeInputModifyRow from './node-common/NodeInputModifyRow';
-import {
-  Section,
-  SmallSection,
-  StyledIconGear,
-} from './node-common/node-common';
+import { Section, StyledIconGear } from './node-common/node-common';
 
 export default function OutputNode() {
   const nodeId = useNodeId() as NodeID;
@@ -68,7 +65,7 @@ export default function OutputNode() {
             removeNode(nodeId);
           }}
         />
-        <SmallSection>
+        <NodeBoxSmallSection>
           <IconButton
             variant="outlined"
             onClick={() =>
@@ -92,7 +89,7 @@ export default function OutputNode() {
               }}
             />
           )}
-        </SmallSection>
+        </NodeBoxSmallSection>
         <Section>
           {flowOutputs.map((input, i) => (
             <NodeInputModifyRow

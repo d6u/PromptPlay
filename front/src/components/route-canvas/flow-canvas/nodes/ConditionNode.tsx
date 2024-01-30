@@ -10,6 +10,7 @@ import OutgoingConditionHandle from '../../../common-react-flow/handles/Outgoing
 import NodeBox from '../../../common-react-flow/node-box/NodeBox';
 import NodeBoxAddConnectorButton from '../../../common-react-flow/node-box/NodeBoxAddConnectorButton';
 import NodeBoxHeaderSection from '../../../common-react-flow/node-box/NodeBoxHeaderSection';
+import NodeBoxSmallSection from '../../../common-react-flow/node-box/NodeBoxSmallSection';
 import RouteFlowContext from '../../../route-flow/common/RouteFlowContext';
 import { useStoreFromFlowStoreContext } from '../../../route-flow/store/FlowStoreContext';
 import {
@@ -20,7 +21,7 @@ import {
 import NodeInputModifyRow from './node-common/NodeInputModifyRow';
 import NodeOutputModifyRow from './node-common/NodeOutputModifyRow';
 import NodeOutputRow from './node-common/NodeOutputRow';
-import { Section, SmallSection } from './node-common/node-common';
+import { Section } from './node-common/node-common';
 
 export default function ConditionNode() {
   const nodeId = useNodeId() as NodeID;
@@ -135,7 +136,7 @@ export default function ConditionNode() {
             matched.
           </FormHelperText>
         </Section>
-        <SmallSection>
+        <NodeBoxSmallSection>
           {isCurrentUserOwner && (
             <NodeBoxAddConnectorButton
               label="Condition"
@@ -149,7 +150,7 @@ export default function ConditionNode() {
               }}
             />
           )}
-        </SmallSection>
+        </NodeBoxSmallSection>
         {normalConditions.map((condition, i) => (
           <Section key={condition.id}>
             <NodeOutputModifyRow
