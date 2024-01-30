@@ -17,7 +17,6 @@ import {
 import { ChatGPTMessageRole } from 'integrations/openai';
 import { ReactNode, useContext, useEffect, useMemo, useState } from 'react';
 import { Position, useNodeId, useUpdateNodeInternals } from 'reactflow';
-import invariant from 'tiny-invariant';
 import { useStore } from 'zustand';
 import RouteFlowContext from '../../../route-flow/common/RouteFlowContext';
 import TextareaReadonly from '../../../route-flow/common/TextareaReadonly';
@@ -50,6 +49,8 @@ import {
 } from './node-common/utils';
 
 export default function ChatGPTMessageNode() {
+  // SECTION: Generic properties
+
   const nodeId = useNodeId() as NodeID;
 
   const { isCurrentUserOwner } = useContext(RouteFlowContext);
@@ -112,13 +113,149 @@ export default function ChatGPTMessageNode() {
     });
   }, [defaultVariableValueMap, nodeId, variablesDict]);
 
+  // !SECTION
+
+  const nodeConfigsDict = useStore(flowStore, (s) => s.nodeConfigsDict);
+  const updateNodeConfig = useStore(flowStore, (s) => s.updateNodeConfig);
+  const setDetailPanelContentType = useStore(
+    flowStore,
+    (s) => s.setDetailPanelContentType,
+  );
+  const setDetailPanelSelectedNodeId = useStore(
+    flowStore,
+    (s) => s.setDetailPanelSelectedNodeId,
+  );
+
+  const nodeConfig = useMemo(() => {
+    return nodeConfigsDict[nodeId] as V3ChatGPTMessageNodeConfig | undefined;
+  }, [nodeConfigsDict, nodeId]);
+
+  // It's OK to force unwrap here because nodeConfig will be undefined only
+  // when Node is being deleted.
+  const [content, setContent] = useState(() => nodeConfig!.content);
+  const [role, setRole] = useState(() => nodeConfig!.role);
+
+  useEffect(() => {
+    setRole(nodeConfig?.role ?? ChatGPTMessageRole.user);
+  }, [nodeConfig]);
+
+  useEffect(() => {
+    setContent(() => nodeConfig!.content ?? '');
+  }, [nodeConfig]);
+
+  if (!nodeConfig) {
+    // NOTE: This will happen when the node is removed in store, but not yet
+    // reflected in react-flow store.
+    return null;
+  }
+
   return (
     <Inner
       nodeTitle="ChatGPT Message"
       conditionTarget={conditionTarget}
       destConnectors={inputs}
       srcConnectors={outputs}
-    />
+    >
+      <Section>
+        <FormControl>
+          <FormLabel>Role</FormLabel>
+          <RadioGroup
+            orientation="horizontal"
+            value={role}
+            onChange={(e) => {
+              const role = e.target.value as ChatGPTMessageRole;
+
+              setRole(role);
+
+              updateNodeConfig(nodeId, { role });
+            }}
+          >
+            <Radio
+              color="primary"
+              name="role"
+              label="system"
+              disabled={!isCurrentUserOwner}
+              value={ChatGPTMessageRole.system}
+            />
+            <Radio
+              color="primary"
+              name="role"
+              label="user"
+              disabled={!isCurrentUserOwner}
+              value={ChatGPTMessageRole.user}
+            />
+            <Radio
+              color="primary"
+              name="role"
+              label="assistant"
+              disabled={!isCurrentUserOwner}
+              value={ChatGPTMessageRole.assistant}
+            />
+          </RadioGroup>
+        </FormControl>
+      </Section>
+      <Section>
+        <FormControl>
+          <LabelWithIconContainer>
+            <FormLabel>Message content</FormLabel>
+            <CopyIcon
+              onClick={() => {
+                navigator.clipboard.writeText(content);
+              }}
+            />
+          </LabelWithIconContainer>
+          {isCurrentUserOwner ? (
+            <Textarea
+              color="neutral"
+              variant="outlined"
+              minRows={3}
+              maxRows={5}
+              placeholder="Write JavaScript here"
+              value={content}
+              onChange={(e) => {
+                setContent(e.target.value);
+              }}
+              onKeyDown={(e) => {
+                if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+                  updateNodeConfig(nodeId, { content });
+                }
+              }}
+              onBlur={() => {
+                updateNodeConfig(nodeId, { content });
+              }}
+            />
+          ) : (
+            <TextareaReadonly value={content} minRows={3} maxRows={5} />
+          )}
+          <FormHelperText>
+            <div>
+              <a
+                href="https://mustache.github.io/"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Mustache template
+              </a>{' '}
+              is used here. TL;DR: use <code>{'{{variableName}}'}</code> to
+              insert a variable.
+            </div>
+          </FormHelperText>
+        </FormControl>
+      </Section>
+      <Section>
+        <IconButton
+          variant="outlined"
+          onClick={() => {
+            setDetailPanelContentType(
+              DetailPanelContentType.ChatGPTMessageConfig,
+            );
+            setDetailPanelSelectedNodeId(nodeId);
+          }}
+        >
+          <StyledIconGear />
+        </IconButton>
+      </Section>
+    </Inner>
   );
 }
 
@@ -140,6 +277,7 @@ type Props = {
   conditionTarget?: ConditionTarget | null;
   destConnectors: DestConnector[];
   srcConnectors: SrcConnector[];
+  children?: ReactNode;
 };
 
 function Inner(props: Props) {
@@ -151,8 +289,6 @@ function Inner(props: Props) {
 
   // SECTION: Select state from store
 
-  const nodeConfigsDict = useStore(flowStore, (s) => s.nodeConfigsDict);
-  const updateNodeConfig = useStore(flowStore, (s) => s.updateNodeConfig);
   const removeNode = useStore(flowStore, (s) => s.removeNode);
   const addVariable = useStore(flowStore, (s) => s.addVariable);
   const updateVariable = useStore(flowStore, (s) => s.updateVariable);
@@ -167,15 +303,6 @@ function Inner(props: Props) {
   );
 
   // !SECTION
-
-  const nodeConfig = useMemo(() => {
-    return nodeConfigsDict[nodeId] as V3ChatGPTMessageNodeConfig | undefined;
-  }, [nodeConfigsDict, nodeId]);
-
-  // It's OK to force unwrap here because nodeConfig will be undefined only
-  // when Node is being deleted.
-  const [content, setContent] = useState(() => nodeConfig!.content);
-  const [role, setRole] = useState(() => nodeConfig!.role);
 
   // SECTION: Manage height of each variable input box
   const [destConnectorInputHeightArr, setDestConnectorInputHeightArr] =
@@ -198,22 +325,6 @@ function Inner(props: Props) {
   useEffect(() => {
     updateNodeInternals(nodeId);
   }, [destConnectorInputHeightArr, nodeId, updateNodeInternals]);
-
-  useEffect(() => {
-    setRole(nodeConfig?.role ?? ChatGPTMessageRole.user);
-  }, [nodeConfig]);
-
-  useEffect(() => {
-    setContent(() => nodeConfig!.content ?? '');
-  }, [nodeConfig]);
-
-  if (!nodeConfig) {
-    // NOTE: This will happen when the node is removed in store, but not yet
-    // reflected in react-flow store.
-    return null;
-  }
-
-  invariant(nodeConfig.type === NodeType.ChatGPTMessageNode);
 
   return (
     <>
@@ -283,105 +394,7 @@ function Inner(props: Props) {
             );
           })}
         </Section>
-        <Section>
-          <FormControl>
-            <FormLabel>Role</FormLabel>
-            <RadioGroup
-              orientation="horizontal"
-              value={role}
-              onChange={(e) => {
-                const role = e.target.value as ChatGPTMessageRole;
-
-                setRole(role);
-
-                updateNodeConfig(nodeId, { role });
-              }}
-            >
-              <Radio
-                color="primary"
-                name="role"
-                label="system"
-                disabled={!isCurrentUserOwner}
-                value={ChatGPTMessageRole.system}
-              />
-              <Radio
-                color="primary"
-                name="role"
-                label="user"
-                disabled={!isCurrentUserOwner}
-                value={ChatGPTMessageRole.user}
-              />
-              <Radio
-                color="primary"
-                name="role"
-                label="assistant"
-                disabled={!isCurrentUserOwner}
-                value={ChatGPTMessageRole.assistant}
-              />
-            </RadioGroup>
-          </FormControl>
-        </Section>
-        <Section>
-          <FormControl>
-            <LabelWithIconContainer>
-              <FormLabel>Message content</FormLabel>
-              <CopyIcon
-                onClick={() => {
-                  navigator.clipboard.writeText(content);
-                }}
-              />
-            </LabelWithIconContainer>
-            {isCurrentUserOwner ? (
-              <Textarea
-                color="neutral"
-                variant="outlined"
-                minRows={3}
-                maxRows={5}
-                placeholder="Write JavaScript here"
-                value={content}
-                onChange={(e) => {
-                  setContent(e.target.value);
-                }}
-                onKeyDown={(e) => {
-                  if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
-                    updateNodeConfig(nodeId, { content });
-                  }
-                }}
-                onBlur={() => {
-                  updateNodeConfig(nodeId, { content });
-                }}
-              />
-            ) : (
-              <TextareaReadonly value={content} minRows={3} maxRows={5} />
-            )}
-            <FormHelperText>
-              <div>
-                <a
-                  href="https://mustache.github.io/"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  Mustache template
-                </a>{' '}
-                is used here. TL;DR: use <code>{'{{variableName}}'}</code> to
-                insert a variable.
-              </div>
-            </FormHelperText>
-          </FormControl>
-        </Section>
-        <Section>
-          <IconButton
-            variant="outlined"
-            onClick={() => {
-              setDetailPanelContentType(
-                DetailPanelContentType.ChatGPTMessageConfig,
-              );
-              setDetailPanelSelectedNodeId(nodeId);
-            }}
-          >
-            <StyledIconGear />
-          </IconButton>
-        </Section>
+        {props.children}
         <Section>
           {props.srcConnectors.map((connector) => (
             <NodeOutputRow
