@@ -1,8 +1,8 @@
 import styled from '@emotion/styled';
 import Input from '@mui/joy/Input';
 import { useState } from 'react';
-import NodeBoxCommonRemoveButton from '../../../../common-react-flow/node-box/NodeBoxCommonRemoveButton';
-import InputReadonly from '../../../../route-flow/common/InputReadonly';
+import InputReadonly from '../../route-flow/common/InputReadonly';
+import NodeBoxCommonRemoveButton from './NodeBoxCommonRemoveButton';
 
 const Container = styled.div`
   margin-top: 5px;
@@ -27,7 +27,7 @@ type Props =
       name: string;
     };
 
-export default function NodeOutputModifyRow(props: Props) {
+export default function NodeBoxOutgoingConnectorBlock(props: Props) {
   const [name, setName] = useState(props.name);
 
   return (

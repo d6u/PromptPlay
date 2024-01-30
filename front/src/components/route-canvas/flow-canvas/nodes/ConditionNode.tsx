@@ -12,6 +12,7 @@ import NodeBoxAddConnectorButton from '../../../common-react-flow/node-box/NodeB
 import NodeBoxHeaderSection from '../../../common-react-flow/node-box/NodeBoxHeaderSection';
 import NodeBoxIncomingVariableBlock from '../../../common-react-flow/node-box/NodeBoxIncomingVariableBlock';
 import NodeBoxIncomingVariableSection from '../../../common-react-flow/node-box/NodeBoxIncomingVariableSection';
+import NodeBoxOutgoingConnectorBlock from '../../../common-react-flow/node-box/NodeBoxOutgoingConnectorBlock';
 import NodeBoxOutputVariableBlock from '../../../common-react-flow/node-box/NodeBoxOutputVariableBlock';
 import NodeBoxSection from '../../../common-react-flow/node-box/NodeBoxSection';
 import NodeBoxSmallSection from '../../../common-react-flow/node-box/NodeBoxSmallSection';
@@ -22,7 +23,6 @@ import {
   selectConditions,
   selectVariables,
 } from '../../../route-flow/store/state-utils';
-import NodeOutputModifyRow from './node-common/NodeOutputModifyRow';
 
 export default function ConditionNode() {
   const nodeId = useNodeId() as NodeID;
@@ -154,7 +154,7 @@ export default function ConditionNode() {
         </NodeBoxSmallSection>
         {normalConditions.map((condition, i) => (
           <NodeBoxSection key={condition.id}>
-            <NodeOutputModifyRow
+            <NodeBoxOutgoingConnectorBlock
               name={condition.expressionString}
               isReadOnly={!isCurrentUserOwner}
               onConfirmNameChange={(expressionString) => {

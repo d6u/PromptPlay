@@ -14,12 +14,12 @@ import NodeBoxAddConnectorButton from '../../../common-react-flow/node-box/NodeB
 import NodeBoxHeaderSection from '../../../common-react-flow/node-box/NodeBoxHeaderSection';
 import NodeBoxIconGear from '../../../common-react-flow/node-box/NodeBoxIconGear';
 import NodeBoxIncomingVariableSection from '../../../common-react-flow/node-box/NodeBoxIncomingVariableSection';
+import NodeBoxOutgoingConnectorBlock from '../../../common-react-flow/node-box/NodeBoxOutgoingConnectorBlock';
 import NodeBoxSmallSection from '../../../common-react-flow/node-box/NodeBoxSmallSection';
 import RouteFlowContext from '../../../route-flow/common/RouteFlowContext';
 import { useStoreFromFlowStoreContext } from '../../../route-flow/store/FlowStoreContext';
 import { selectVariables } from '../../../route-flow/store/state-utils';
 import { DetailPanelContentType } from '../../../route-flow/store/store-flow-state-types';
-import NodeOutputModifyRow from './node-common/NodeOutputModifyRow';
 
 export default function InputNode() {
   const nodeId = useNodeId() as NodeID;
@@ -90,7 +90,7 @@ export default function InputNode() {
         </NodeBoxSmallSection>
         <NodeBoxIncomingVariableSection>
           {flowInputs.map((flowInput, i) => (
-            <NodeOutputModifyRow
+            <NodeBoxOutgoingConnectorBlock
               key={flowInput.id}
               name={flowInput.name}
               isReadOnly={!isCurrentUserOwner}
