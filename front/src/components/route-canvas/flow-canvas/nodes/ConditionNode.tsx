@@ -6,9 +6,9 @@ import invariant from 'tiny-invariant';
 import { useStore } from 'zustand';
 import {
   ConditionTargetHandle,
-  IncomingConnectorHandle,
   OutgoingConditionHandle,
 } from '../../../common-react-flow/handles';
+import IncomingVariableHandle from '../../../common-react-flow/handles/IncomingVariableHandle';
 import RouteFlowContext from '../../../route-flow/common/RouteFlowContext';
 import { useStoreFromFlowStoreContext } from '../../../route-flow/store/FlowStoreContext';
 import {
@@ -87,11 +87,9 @@ export default function ConditionNode() {
     <>
       <ConditionTargetHandle connectorId={conditionTarget.id} />
       {nodeInputs.map((flowInput, i) => (
-        <IncomingConnectorHandle
+        <IncomingVariableHandle
           key={flowInput.id}
-          type="target"
           id={flowInput.id}
-          position={Position.Left}
           style={{
             top: calculateInputHandleTop(nodeInputs.length - 2 - i),
           }}

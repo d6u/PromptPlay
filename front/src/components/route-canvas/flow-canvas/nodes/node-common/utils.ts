@@ -1,4 +1,4 @@
-import { HANDLE_HEIGHT } from '../../../../common-react-flow/handles';
+import { HANDLE_HEIGHT } from '../../../../common-react-flow/handles/common';
 import { BACKDROP_PADDING } from '../../../../common-react-flow/ui-constants';
 import {
   TITLE_HEIGHT,

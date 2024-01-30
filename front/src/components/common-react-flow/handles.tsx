@@ -1,21 +1,7 @@
 import styled from '@emotion/styled';
-import { Handle, Position } from 'reactflow';
+import { Position } from 'reactflow';
+import { BaseHandle, HANDLE_WIDTH } from './handles/common';
 import { BACKDROP_PADDING } from './ui-constants';
-
-export const HANDLE_WIDTH = 15;
-export const HANDLE_HEIGHT = 34;
-
-const BaseHandle = styled(Handle)`
-  width: ${HANDLE_WIDTH}px;
-  height: ${HANDLE_HEIGHT}px;
-  border-radius: ${HANDLE_WIDTH / 2}px;
-  transform: none;
-`;
-
-export const IncomingConnectorHandle = styled(BaseHandle)`
-  background: #00b3ff;
-  left: -${HANDLE_WIDTH / 2 - BACKDROP_PADDING / 2}px;
-`;
 
 export const OutgoingConnectorHandle = styled(BaseHandle)`
   background: #00b3ff;
@@ -42,8 +28,8 @@ type ConditionTargetHandleProps = {
 export function ConditionTargetHandle(props: ConditionTargetHandleProps) {
   return (
     <IncomingConditionHandleImpl
-      type="target"
       position={Position.Left}
+      type="target"
       id={props.connectorId}
       // TODO: Hide and show this handle based on the connect start handle type.
       //

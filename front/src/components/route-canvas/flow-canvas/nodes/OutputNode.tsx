@@ -6,9 +6,9 @@ import {
   V3OutputNodeConfig,
 } from 'flow-models';
 import { useContext, useMemo } from 'react';
-import { Position, useNodeId, useUpdateNodeInternals } from 'reactflow';
+import { useNodeId, useUpdateNodeInternals } from 'reactflow';
 import { useStore } from 'zustand';
-import { IncomingConnectorHandle } from '../../../common-react-flow/handles';
+import IncomingVariableHandle from '../../../common-react-flow/handles/IncomingVariableHandle';
 import RouteFlowContext from '../../../route-flow/common/RouteFlowContext';
 import { useStoreFromFlowStoreContext } from '../../../route-flow/store/FlowStoreContext';
 import { selectVariables } from '../../../route-flow/store/state-utils';
@@ -59,11 +59,9 @@ export default function OutputNode() {
   return (
     <>
       {flowOutputs.map((output, i) => (
-        <IncomingConnectorHandle
+        <IncomingVariableHandle
           key={i}
-          type="target"
           id={output.id}
-          position={Position.Left}
           style={{ top: calculateInputHandleTop(i) }}
         />
       ))}

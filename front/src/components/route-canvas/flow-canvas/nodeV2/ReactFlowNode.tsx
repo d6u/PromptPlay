@@ -4,9 +4,9 @@ import { ReactNode, useContext, useEffect, useMemo, useState } from 'react';
 import { Position, useNodeId, useUpdateNodeInternals } from 'reactflow';
 import {
   ConditionTargetHandle,
-  IncomingConnectorHandle,
   OutgoingConnectorHandle,
 } from '../../../common-react-flow/handles';
+import IncomingVariableHandle from '../../../common-react-flow/handles/IncomingVariableHandle';
 import RouteFlowContext from '../../../route-flow/common/RouteFlowContext';
 import { useFlowStore } from '../../../route-flow/store/FlowStoreContext';
 import {
@@ -153,11 +153,9 @@ export default function ReactFlowNode(props: Props) {
       )}
       {destConnectors.map((connector, i) => {
         return (
-          <IncomingConnectorHandle
+          <IncomingVariableHandle
             key={connector.id}
-            type="target"
             id={connector.id}
-            position={Position.Left}
             style={{
               top: calculateInputHandleTopV2(
                 i,
