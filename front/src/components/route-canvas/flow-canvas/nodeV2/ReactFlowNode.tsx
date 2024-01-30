@@ -2,6 +2,7 @@ import { A } from '@mobily/ts-belt';
 import { ConnectorID, ConnectorType, NodeID, NodeType } from 'flow-models';
 import { ReactNode, useContext, useEffect, useMemo, useState } from 'react';
 import { useNodeId, useUpdateNodeInternals } from 'reactflow';
+import NodeBox, { NodeState } from '../../../common-react-flow/NodeBox';
 import IncomingConditionHandle from '../../../common-react-flow/handles/IncomingConditionHandle';
 import IncomingVariableHandle from '../../../common-react-flow/handles/IncomingVariableHandle';
 import OutgoingVariableHandle from '../../../common-react-flow/handles/OutgoingVariableHandle';
@@ -14,7 +15,6 @@ import {
 import { DetailPanelContentType } from '../../../route-flow/store/store-flow-state-types';
 import AddVariableButton from '../nodes/node-common/AddVariableButton';
 import HeaderSection from '../nodes/node-common/HeaderSection';
-import NodeBox, { NodeState } from '../nodes/node-common/NodeBox';
 import NodeInputModifyRow from '../nodes/node-common/NodeInputModifyRow';
 import NodeOutputRow from '../nodes/node-common/NodeOutputRow';
 import { Section, SmallSection } from '../nodes/node-common/node-common';

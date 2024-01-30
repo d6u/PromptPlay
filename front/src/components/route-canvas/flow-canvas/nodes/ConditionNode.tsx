@@ -4,6 +4,7 @@ import { useContext, useMemo } from 'react';
 import { useNodeId, useUpdateNodeInternals } from 'reactflow';
 import invariant from 'tiny-invariant';
 import { useStore } from 'zustand';
+import NodeBox, { NodeState } from '../../../common-react-flow/NodeBox';
 import IncomingConditionHandle from '../../../common-react-flow/handles/IncomingConditionHandle';
 import IncomingVariableHandle from '../../../common-react-flow/handles/IncomingVariableHandle';
 import OutgoingConditionHandle from '../../../common-react-flow/handles/OutgoingConditionHandle';
@@ -16,7 +17,6 @@ import {
 } from '../../../route-flow/store/state-utils';
 import AddVariableButton from './node-common/AddVariableButton';
 import HeaderSection from './node-common/HeaderSection';
-import NodeBox, { NodeState } from './node-common/NodeBox';
 import NodeInputModifyRow from './node-common/NodeInputModifyRow';
 import NodeOutputModifyRow from './node-common/NodeOutputModifyRow';
 import NodeOutputRow from './node-common/NodeOutputRow';

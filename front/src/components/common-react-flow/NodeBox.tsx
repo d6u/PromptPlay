@@ -1,11 +1,8 @@
 import { css } from '@emotion/react';
 import styled from '@emotion/styled';
 import { NodeType } from 'flow-models';
-import background from '../../../../../assets/warning-background.svg';
-import {
-  BACKDROP_PADDING,
-  NODE_BOX_WIDTH,
-} from '../../../../common-react-flow/ui-constants';
+import background from '../../assets/warning-background.svg';
+import { BACKDROP_PADDING, NODE_BOX_WIDTH } from './ui-constants';
 
 type Props = {
   nodeType: NodeType;
@@ -13,7 +10,6 @@ type Props = {
   children: React.ReactNode;
 };
 
-// eslint-disable-next-line react-refresh/only-export-components
 export enum NodeState {
   Idle,
   Running,

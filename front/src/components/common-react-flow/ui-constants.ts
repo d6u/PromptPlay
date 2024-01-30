@@ -13,4 +13,5 @@ export const TITLE_BLOCK_HEIGHT =
 export const ADD_VARIABLE_BUTTON_HEIGHT = 32;
 export const ADD_VARIABLE_BUTTON_MARGIN_BOTTOM = 5;
 
+// NOTE: This depends on the size of the helper text
 export const CONDITION_NODE_DEFAULT_CASE_HELPER_TEXT_HEIGHT = 40;

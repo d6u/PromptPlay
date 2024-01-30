@@ -8,6 +8,7 @@ import {
 import { useContext, useMemo } from 'react';
 import { useNodeId, useUpdateNodeInternals } from 'reactflow';
 import { useStore } from 'zustand';
+import NodeBox from '../../../common-react-flow/NodeBox';
 import OutgoingVariableHandle from '../../../common-react-flow/handles/OutgoingVariableHandle';
 import RouteFlowContext from '../../../route-flow/common/RouteFlowContext';
 import { useStoreFromFlowStoreContext } from '../../../route-flow/store/FlowStoreContext';
@@ -15,7 +16,6 @@ import { selectVariables } from '../../../route-flow/store/state-utils';
 import { DetailPanelContentType } from '../../../route-flow/store/store-flow-state-types';
 import AddVariableButton from './node-common/AddVariableButton';
 import HeaderSection from './node-common/HeaderSection';
-import NodeBox from './node-common/NodeBox';
 import NodeOutputModifyRow from './node-common/NodeOutputModifyRow';
 import {
   Section,
