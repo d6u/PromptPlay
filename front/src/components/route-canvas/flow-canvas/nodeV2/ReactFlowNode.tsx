@@ -2,10 +2,11 @@ import { A } from '@mobily/ts-belt';
 import { ConnectorID, ConnectorType, NodeID, NodeType } from 'flow-models';
 import { ReactNode, useContext, useEffect, useMemo, useState } from 'react';
 import { useNodeId, useUpdateNodeInternals } from 'reactflow';
-import NodeBox from '../../../common-react-flow/NodeBox';
 import IncomingConditionHandle from '../../../common-react-flow/handles/IncomingConditionHandle';
 import IncomingVariableHandle from '../../../common-react-flow/handles/IncomingVariableHandle';
 import OutgoingVariableHandle from '../../../common-react-flow/handles/OutgoingVariableHandle';
+import NodeBox from '../../../common-react-flow/node-box/NodeBox';
+import NodeBoxHeaderSection from '../../../common-react-flow/node-box/NodeBoxHeaderSection';
 import RouteFlowContext from '../../../route-flow/common/RouteFlowContext';
 import { useFlowStore } from '../../../route-flow/store/FlowStoreContext';
 import {
@@ -14,7 +15,6 @@ import {
 } from '../../../route-flow/store/state-utils';
 import { DetailPanelContentType } from '../../../route-flow/store/store-flow-state-types';
 import AddVariableButton from '../nodes/node-common/AddVariableButton';
-import HeaderSection from '../nodes/node-common/HeaderSection';
 import NodeInputModifyRow from '../nodes/node-common/NodeInputModifyRow';
 import NodeOutputRow from '../nodes/node-common/NodeOutputRow';
 import { Section, SmallSection } from '../nodes/node-common/node-common';
@@ -159,7 +159,7 @@ export default function ReactFlowNode(props: Props) {
         isRunning={augment?.isRunning}
         hasError={augment?.hasError}
       >
-        <HeaderSection
+        <NodeBoxHeaderSection
           isCurrentUserOwner={isCurrentUserOwner}
           title={props.nodeTitle}
           onClickRemove={() => {

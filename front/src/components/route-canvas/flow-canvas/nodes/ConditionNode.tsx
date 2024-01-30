@@ -4,10 +4,11 @@ import { useContext, useMemo } from 'react';
 import { useNodeId, useUpdateNodeInternals } from 'reactflow';
 import invariant from 'tiny-invariant';
 import { useStore } from 'zustand';
-import NodeBox from '../../../common-react-flow/NodeBox';
 import IncomingConditionHandle from '../../../common-react-flow/handles/IncomingConditionHandle';
 import IncomingVariableHandle from '../../../common-react-flow/handles/IncomingVariableHandle';
 import OutgoingConditionHandle from '../../../common-react-flow/handles/OutgoingConditionHandle';
+import NodeBox from '../../../common-react-flow/node-box/NodeBox';
+import NodeBoxHeaderSection from '../../../common-react-flow/node-box/NodeBoxHeaderSection';
 import RouteFlowContext from '../../../route-flow/common/RouteFlowContext';
 import { useStoreFromFlowStoreContext } from '../../../route-flow/store/FlowStoreContext';
 import {
@@ -16,7 +17,6 @@ import {
   selectVariables,
 } from '../../../route-flow/store/state-utils';
 import AddVariableButton from './node-common/AddVariableButton';
-import HeaderSection from './node-common/HeaderSection';
 import NodeInputModifyRow from './node-common/NodeInputModifyRow';
 import NodeOutputModifyRow from './node-common/NodeOutputModifyRow';
 import NodeOutputRow from './node-common/NodeOutputRow';
@@ -88,7 +88,7 @@ export default function ConditionNode() {
         isRunning={augment?.isRunning}
         hasError={augment?.hasError}
       >
-        <HeaderSection
+        <NodeBoxHeaderSection
           isCurrentUserOwner={isCurrentUserOwner}
           title="Condition"
           onClickRemove={() => {

@@ -8,14 +8,14 @@ import {
 import { useContext, useMemo } from 'react';
 import { useNodeId, useUpdateNodeInternals } from 'reactflow';
 import { useStore } from 'zustand';
-import NodeBox from '../../../common-react-flow/NodeBox';
 import IncomingVariableHandle from '../../../common-react-flow/handles/IncomingVariableHandle';
+import NodeBox from '../../../common-react-flow/node-box/NodeBox';
+import NodeBoxHeaderSection from '../../../common-react-flow/node-box/NodeBoxHeaderSection';
 import RouteFlowContext from '../../../route-flow/common/RouteFlowContext';
 import { useStoreFromFlowStoreContext } from '../../../route-flow/store/FlowStoreContext';
 import { selectVariables } from '../../../route-flow/store/state-utils';
 import { DetailPanelContentType } from '../../../route-flow/store/store-flow-state-types';
 import AddVariableButton from './node-common/AddVariableButton';
-import HeaderSection from './node-common/HeaderSection';
 import NodeInputModifyRow from './node-common/NodeInputModifyRow';
 import {
   Section,
@@ -61,7 +61,7 @@ export default function OutputNode() {
         <IncomingVariableHandle key={output.id} id={output.id} index={i} />
       ))}
       <NodeBox nodeType={NodeType.OutputNode}>
-        <HeaderSection
+        <NodeBoxHeaderSection
           isCurrentUserOwner={isCurrentUserOwner}
           title="Output"
           onClickRemove={() => {
