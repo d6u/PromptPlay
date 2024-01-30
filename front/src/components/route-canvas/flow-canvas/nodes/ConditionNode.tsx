@@ -1,9 +1,21 @@
 import { Checkbox, FormControl, FormHelperText, FormLabel } from '@mui/joy';
 import { ConditionResult, ConnectorType, NodeID, NodeType } from 'flow-models';
 import { useContext, useMemo } from 'react';
-import { Position, useNodeId, useUpdateNodeInternals } from 'reactflow';
+import { useNodeId, useUpdateNodeInternals } from 'reactflow';
 import invariant from 'tiny-invariant';
 import { useStore } from 'zustand';
+import IncomingConditionHandle from '../../../common-react-flow/handles/IncomingConditionHandle';
+import IncomingVariableHandle from '../../../common-react-flow/handles/IncomingVariableHandle';
+import OutgoingConditionHandle from '../../../common-react-flow/handles/OutgoingConditionHandle';
+import NodeBox from '../../../common-react-flow/node-box/NodeBox';
+import NodeBoxAddConnectorButton from '../../../common-react-flow/node-box/NodeBoxAddConnectorButton';
+import NodeBoxHeaderSection from '../../../common-react-flow/node-box/NodeBoxHeaderSection';
+import NodeBoxIncomingVariableBlock from '../../../common-react-flow/node-box/NodeBoxIncomingVariableBlock';
+import NodeBoxIncomingVariableSection from '../../../common-react-flow/node-box/NodeBoxIncomingVariableSection';
+import NodeBoxOutgoingConnectorBlock from '../../../common-react-flow/node-box/NodeBoxOutgoingConnectorBlock';
+import NodeBoxOutgoingVariableBlock from '../../../common-react-flow/node-box/NodeBoxOutgoingVariableBlock';
+import NodeBoxSection from '../../../common-react-flow/node-box/NodeBoxSection';
+import NodeBoxSmallSection from '../../../common-react-flow/node-box/NodeBoxSmallSection';
 import RouteFlowContext from '../../../route-flow/common/RouteFlowContext';
 import { useStoreFromFlowStoreContext } from '../../../route-flow/store/FlowStoreContext';
 import {
@@ -11,23 +23,6 @@ import {
   selectConditions,
   selectVariables,
 } from '../../../route-flow/store/state-utils';
-import AddVariableButton from './node-common/AddVariableButton';
-import HeaderSection from './node-common/HeaderSection';
-import NodeBox, { NodeState } from './node-common/NodeBox';
-import NodeInputModifyRow from './node-common/NodeInputModifyRow';
-import NodeOutputModifyRow from './node-common/NodeOutputModifyRow';
-import NodeOutputRow from './node-common/NodeOutputRow';
-import {
-  ConditionHandle,
-  ConditionTargetHandle,
-  InputHandle,
-  Section,
-  SmallSection,
-} from './node-common/node-common';
-import {
-  calculateInputHandleTop,
-  calculateOutputHandleBottom,
-} from './node-common/utils';
 
 export default function ConditionNode() {
   const nodeId = useNodeId() as NodeID;
@@ -86,38 +81,25 @@ export default function ConditionNode() {
 
   return (
     <>
-      <ConditionTargetHandle controlId={conditionTarget.id} />
+      <IncomingConditionHandle id={conditionTarget.id} />
       {nodeInputs.map((flowInput, i) => (
-        <InputHandle
-          key={flowInput.id}
-          type="target"
-          id={flowInput.id}
-          position={Position.Left}
-          style={{
-            top: calculateInputHandleTop(nodeInputs.length - 2 - i),
-          }}
-        />
+        <IncomingVariableHandle key={flowInput.id} id={flowInput.id} />
       ))}
       <NodeBox
         nodeType={NodeType.InputNode}
-        state={
-          augment?.isRunning
-            ? NodeState.Running
-            : augment?.hasError
-              ? NodeState.Error
-              : NodeState.Idle
-        }
+        isRunning={augment?.isRunning}
+        hasError={augment?.hasError}
       >
-        <HeaderSection
-          isCurrentUserOwner={isCurrentUserOwner}
+        <NodeBoxHeaderSection
+          isReadOnly={isCurrentUserOwner}
           title="Condition"
           onClickRemove={() => {
             removeNode(nodeId);
           }}
         />
-        <Section>
+        <NodeBoxIncomingVariableSection>
           {nodeInputs.map((flowInput, i) => (
-            <NodeInputModifyRow
+            <NodeBoxIncomingVariableBlock
               key={flowInput.id}
               name={flowInput.name}
               isReadOnly={!isCurrentUserOwner}
@@ -130,8 +112,8 @@ export default function ConditionNode() {
               }}
             />
           ))}
-        </Section>
-        <Section>
+        </NodeBoxIncomingVariableSection>
+        <NodeBoxSection>
           <FormControl>
             <FormLabel>Stop at the first match</FormLabel>
             <Checkbox
@@ -154,10 +136,10 @@ export default function ConditionNode() {
             In either case, the default case will be matched if no condition has
             matched.
           </FormHelperText>
-        </Section>
-        <SmallSection>
+        </NodeBoxSection>
+        <NodeBoxSmallSection>
           {isCurrentUserOwner && (
-            <AddVariableButton
+            <NodeBoxAddConnectorButton
               label="Condition"
               onClick={() => {
                 addVariable(
@@ -169,10 +151,10 @@ export default function ConditionNode() {
               }}
             />
           )}
-        </SmallSection>
+        </NodeBoxSmallSection>
         {normalConditions.map((condition, i) => (
-          <Section key={condition.id}>
-            <NodeOutputModifyRow
+          <NodeBoxSection key={condition.id}>
+            <NodeBoxOutgoingConnectorBlock
               name={condition.expressionString}
               isReadOnly={!isCurrentUserOwner}
               onConfirmNameChange={(expressionString) => {
@@ -183,7 +165,7 @@ export default function ConditionNode() {
                 updateNodeInternals(nodeId);
               }}
             />
-            <NodeOutputRow
+            <NodeBoxOutgoingVariableBlock
               id={defaultCaseCondition.id}
               name="is matched"
               value={
@@ -195,38 +177,30 @@ export default function ConditionNode() {
               }
               style={{ marginTop: '5px' }}
             />
-          </Section>
+          </NodeBoxSection>
         ))}
-        <Section>
-          <NodeOutputRow id={defaultCaseCondition.id} name="Default case" />
+        <NodeBoxSection>
+          <NodeBoxOutgoingVariableBlock
+            id={defaultCaseCondition.id}
+            name="Default case"
+          />
           <FormHelperText>
             The default case is matched when no other condition have matched.
           </FormHelperText>
-        </Section>
+        </NodeBoxSection>
       </NodeBox>
       {normalConditions.map((condition, i) => (
-        <ConditionHandle
+        <OutgoingConditionHandle
           key={condition.id}
-          type="source"
           id={condition.id}
-          position={Position.Right}
-          style={{
-            bottom:
-              calculateOutputHandleBottom((conditions.length - i - 1) * 2) +
-              (conditions.length - i - 1) * 5 +
-              40 +
-              5,
-          }}
+          index={i}
+          totalConditionCount={conditions.length}
         />
       ))}
-      <ConditionHandle
+      <OutgoingConditionHandle
         key={defaultCaseCondition.id}
-        type="source"
         id={defaultCaseCondition.id}
-        position={Position.Right}
-        style={{
-          bottom: calculateOutputHandleBottom(0) + 40 + 5,
-        }}
+        isDefaultCase
       />
     </>
   );

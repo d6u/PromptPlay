@@ -6,23 +6,20 @@ import {
   V3InputNodeConfig,
 } from 'flow-models';
 import { useContext, useMemo } from 'react';
-import { Position, useNodeId, useUpdateNodeInternals } from 'reactflow';
+import { useNodeId, useUpdateNodeInternals } from 'reactflow';
 import { useStore } from 'zustand';
+import OutgoingVariableHandle from '../../../common-react-flow/handles/OutgoingVariableHandle';
+import NodeBox from '../../../common-react-flow/node-box/NodeBox';
+import NodeBoxAddConnectorButton from '../../../common-react-flow/node-box/NodeBoxAddConnectorButton';
+import NodeBoxHeaderSection from '../../../common-react-flow/node-box/NodeBoxHeaderSection';
+import NodeBoxIconGear from '../../../common-react-flow/node-box/NodeBoxIconGear';
+import NodeBoxIncomingVariableSection from '../../../common-react-flow/node-box/NodeBoxIncomingVariableSection';
+import NodeBoxOutgoingConnectorBlock from '../../../common-react-flow/node-box/NodeBoxOutgoingConnectorBlock';
+import NodeBoxSmallSection from '../../../common-react-flow/node-box/NodeBoxSmallSection';
 import RouteFlowContext from '../../../route-flow/common/RouteFlowContext';
 import { useStoreFromFlowStoreContext } from '../../../route-flow/store/FlowStoreContext';
 import { selectVariables } from '../../../route-flow/store/state-utils';
 import { DetailPanelContentType } from '../../../route-flow/store/store-flow-state-types';
-import AddVariableButton from './node-common/AddVariableButton';
-import HeaderSection from './node-common/HeaderSection';
-import NodeBox from './node-common/NodeBox';
-import NodeOutputModifyRow from './node-common/NodeOutputModifyRow';
-import {
-  OutputHandle,
-  Section,
-  SmallSection,
-  StyledIconGear,
-} from './node-common/node-common';
-import { calculateOutputHandleBottom } from './node-common/utils';
 
 export default function InputNode() {
   const nodeId = useNodeId() as NodeID;
@@ -63,14 +60,14 @@ export default function InputNode() {
   return (
     <>
       <NodeBox nodeType={NodeType.InputNode}>
-        <HeaderSection
-          isCurrentUserOwner={isCurrentUserOwner}
+        <NodeBoxHeaderSection
+          isReadOnly={isCurrentUserOwner}
           title="Input"
           onClickRemove={() => {
             removeNode(nodeId);
           }}
         />
-        <SmallSection>
+        <NodeBoxSmallSection>
           <IconButton
             variant="outlined"
             onClick={() =>
@@ -79,20 +76,21 @@ export default function InputNode() {
               )
             }
           >
-            <StyledIconGear />
+            <NodeBoxIconGear />
           </IconButton>
           {isCurrentUserOwner && (
-            <AddVariableButton
+            <NodeBoxAddConnectorButton
+              label="Variable"
               onClick={() => {
                 addVariable(nodeId, ConnectorType.FlowInput, flowInputs.length);
                 updateNodeInternals(nodeId);
               }}
             />
           )}
-        </SmallSection>
-        <Section>
+        </NodeBoxSmallSection>
+        <NodeBoxIncomingVariableSection>
           {flowInputs.map((flowInput, i) => (
-            <NodeOutputModifyRow
+            <NodeBoxOutgoingConnectorBlock
               key={flowInput.id}
               name={flowInput.name}
               isReadOnly={!isCurrentUserOwner}
@@ -105,17 +103,14 @@ export default function InputNode() {
               }}
             />
           ))}
-        </Section>
+        </NodeBoxIncomingVariableSection>
       </NodeBox>
       {flowInputs.map((flowInput, i) => (
-        <OutputHandle
+        <OutgoingVariableHandle
           key={flowInput.id}
-          type="source"
           id={flowInput.id}
-          position={Position.Right}
-          style={{
-            bottom: calculateOutputHandleBottom(flowInputs.length - 1 - i),
-          }}
+          index={i}
+          totalVariableCount={flowInputs.length}
         />
       ))}
     </>

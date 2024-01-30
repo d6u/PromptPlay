@@ -6,6 +6,9 @@ import Textarea from '@mui/joy/Textarea';
 import { NodeID, NodeType, V3TextTemplateNodeConfig } from 'flow-models';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { useNodeId } from 'reactflow';
+import ReactFlowNode from '../../../common-react-flow/ReactFlowNode';
+import NodeBoxIconGear from '../../../common-react-flow/node-box/NodeBoxIconGear';
+import NodeBoxSection from '../../../common-react-flow/node-box/NodeBoxSection';
 import RouteFlowContext from '../../../route-flow/common/RouteFlowContext';
 import TextareaReadonly from '../../../route-flow/common/TextareaReadonly';
 import {
@@ -14,8 +17,6 @@ import {
 } from '../../../route-flow/common/flow-common';
 import { useFlowStore } from '../../../route-flow/store/FlowStoreContext';
 import { DetailPanelContentType } from '../../../route-flow/store/store-flow-state-types';
-import ReactFlowNode from '../nodeV2/ReactFlowNode';
-import { Section, StyledIconGear } from './node-common/node-common';
 
 export default function TextTemplateNode() {
   const { isCurrentUserOwner } = useContext(RouteFlowContext);
@@ -55,7 +56,7 @@ export default function TextTemplateNode() {
       nodeTitle="Text"
       allowAddVariable={true}
     >
-      <Section>
+      <NodeBoxSection>
         <FormControl>
           <LabelWithIconContainer>
             <FormLabel>Text content</FormLabel>
@@ -102,8 +103,8 @@ export default function TextTemplateNode() {
             </div>
           </FormHelperText>
         </FormControl>
-      </Section>
-      <Section>
+      </NodeBoxSection>
+      <NodeBoxSection>
         <IconButton
           variant="outlined"
           onClick={() => {
@@ -113,9 +114,9 @@ export default function TextTemplateNode() {
             setDetailPanelSelectedNodeId(nodeId);
           }}
         >
-          <StyledIconGear />
+          <NodeBoxIconGear />
         </IconButton>
-      </Section>
+      </NodeBoxSection>
     </ReactFlowNode>
   );
 }

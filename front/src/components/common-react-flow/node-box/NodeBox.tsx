@@ -1,30 +1,34 @@
 import { css } from '@emotion/react';
 import styled from '@emotion/styled';
 import { NodeType } from 'flow-models';
-import background from '../../../../../assets/warning-background.svg';
-
-export const BACKDROP_PADDING = 3;
-export const NODE_BOX_WIDTH = 300;
+import background from '../../../assets/warning-background.svg';
+import { BACKDROP_PADDING, NODE_BOX_WIDTH } from '../ui-constants';
 
 type Props = {
   nodeType: NodeType;
-  state?: NodeState;
+  isRunning?: boolean;
+  hasError?: boolean;
   children: React.ReactNode;
 };
 
-// eslint-disable-next-line react-refresh/only-export-components
-export enum NodeState {
-  Idle,
-  Running,
-  Error,
-}
-
 export default function NodeBox(props: Props) {
+  const nodeState = props.isRunning
+    ? NodeState.Running
+    : props.hasError
+      ? NodeState.Error
+      : NodeState.Idle;
+
   return (
-    <Backdrop $type={props.nodeType} $state={props.state ?? NodeState.Idle}>
+    <Backdrop $type={props.nodeType} $state={nodeState}>
       <Content>{props.children}</Content>
     </Backdrop>
   );
+}
+
+enum NodeState {
+  Idle,
+  Running,
+  Error,
 }
 
 const Backdrop = styled.div<{ $type: NodeType; $state: NodeState }>`
@@ -111,4 +115,5 @@ const Backdrop = styled.div<{ $type: NodeType; $state: NodeState }>`
 const Content = styled.div`
   background: #fff;
   border-radius: 5px;
+  overflow: hidden;
 `;

@@ -1,10 +1,10 @@
 import styled from '@emotion/styled';
 import Input from '@mui/joy/Input';
 import { ReactNode, useCallback, useRef, useState } from 'react';
-import { useOnElementResize } from '../../../../../utils/ResizeObserver';
-import InputReadonly from '../../../../route-flow/common/InputReadonly';
-import HelperTextContainer from './HelperTextContainer';
-import RemoveButton from './RemoveButton';
+import { useOnElementResize } from '../../../utils/ResizeObserver';
+import NodeBoxCommonRemoveButton from './NodeBoxCommonRemoveButton';
+import NodeBoxHelperTextContainer from './NodeBoxHelperTextContainer';
+import NodeBoxIncomingVariableReadonly from './NodeBoxIncomingVariableReadonly';
 
 type Props = {
   isReadOnly: boolean;
@@ -15,7 +15,7 @@ type Props = {
   onHeightChange?: (height: number) => void;
 };
 
-export default function NodeInputModifyRow(props: Props) {
+export default function NodeBoxIncomingVariableBlock(props: Props) {
   const { onHeightChange, helperMessage } = props;
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -43,7 +43,7 @@ export default function NodeInputModifyRow(props: Props) {
     <Container ref={containerRef}>
       <InputContainer>
         {props.isReadOnly ? (
-          <InputReadonly
+          <NodeBoxIncomingVariableReadonly
             color="neutral"
             size="sm"
             variant="outlined"
@@ -77,12 +77,14 @@ export default function NodeInputModifyRow(props: Props) {
           />
         )}
         {!props.isReadOnly && (
-          <RemoveButton onClick={() => props.onRemove?.()} />
+          <NodeBoxCommonRemoveButton onClick={() => props.onRemove?.()} />
         )}
       </InputContainer>
       {props.helperMessage && (
         <HelperMessageContainer>
-          <HelperTextContainer>{props.helperMessage}</HelperTextContainer>
+          <NodeBoxHelperTextContainer>
+            {props.helperMessage}
+          </NodeBoxHelperTextContainer>
         </HelperMessageContainer>
       )}
     </Container>

@@ -26,9 +26,9 @@ import {
   pathToFlowBatchTestTab,
   pathToFlowCanvasTab,
 } from '../../../utils/route-utils';
+import { NODE_BOX_WIDTH } from '../../common-react-flow/ui-constants';
 import IconThreeDots from '../../icons/IconThreeDots';
 import { BatchTestTab } from '../../route-batch-test/utils/types';
-import { NODE_BOX_WIDTH } from '../../route-canvas/flow-canvas/nodes/node-common/NodeBox';
 import RouteFlowContext from '../common/RouteFlowContext';
 import { useStoreFromFlowStoreContext } from '../store/FlowStoreContext';
 import { DetailPanelContentType } from '../store/store-flow-state-types';

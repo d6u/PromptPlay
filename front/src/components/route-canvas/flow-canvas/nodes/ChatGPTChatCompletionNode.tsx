@@ -21,12 +21,12 @@ import {
   useLocalStorageStore,
   useSpaceStore,
 } from '../../../../state/appState';
-import InputReadonly from '../../../route-flow/common/InputReadonly';
+import ReactFlowNode from '../../../common-react-flow/ReactFlowNode';
+import NodeBoxHelperTextContainer from '../../../common-react-flow/node-box/NodeBoxHelperTextContainer';
+import NodeBoxIncomingVariableReadonly from '../../../common-react-flow/node-box/NodeBoxIncomingVariableReadonly';
+import NodeBoxSection from '../../../common-react-flow/node-box/NodeBoxSection';
 import RouteFlowContext from '../../../route-flow/common/RouteFlowContext';
 import { useFlowStore } from '../../../route-flow/store/FlowStoreContext';
-import ReactFlowNode from '../nodeV2/ReactFlowNode';
-import HelperTextContainer from './node-common/HelperTextContainer';
-import { Section } from './node-common/node-common';
 
 const persistSelector = (state: LocalStorageState) => ({
   openAiApiKey: state.openAiApiKey,
@@ -114,7 +114,7 @@ export default function ChatGPTChatCompletionNode() {
       ]}
     >
       {isCurrentUserOwner && (
-        <Section>
+        <NodeBoxSection>
           <FormControl>
             <FormLabel>OpenAI API key</FormLabel>
             <Input
@@ -128,17 +128,17 @@ export default function ChatGPTChatCompletionNode() {
               }}
             />
             {missingOpenAiApiKey && (
-              <HelperTextContainer color="danger">
+              <NodeBoxHelperTextContainer color="danger">
                 Must specify an Open AI API key here.
-              </HelperTextContainer>
+              </NodeBoxHelperTextContainer>
             )}
             <FormHelperText>
               This is stored in your browser's local storage. Never uploaded.
             </FormHelperText>
           </FormControl>
-        </Section>
+        </NodeBoxSection>
       )}
-      <Section>
+      <NodeBoxSection>
         <FormControl>
           <FormLabel>Model</FormLabel>
           <Select
@@ -157,8 +157,8 @@ export default function ChatGPTChatCompletionNode() {
             ))}
           </Select>
         </FormControl>
-      </Section>
-      <Section>
+      </NodeBoxSection>
+      <NodeBoxSection>
         <FormControl>
           <FormLabel>Temperature</FormLabel>
           {isCurrentUserOwner ? (
@@ -199,11 +199,14 @@ export default function ChatGPTChatCompletionNode() {
               }}
             />
           ) : (
-            <InputReadonly type="number" value={temperature} />
+            <NodeBoxIncomingVariableReadonly
+              type="number"
+              value={temperature}
+            />
           )}
         </FormControl>
-      </Section>
-      <Section>
+      </NodeBoxSection>
+      <NodeBoxSection>
         <FormControl>
           <FormLabel>Seed (Optional, Beta)</FormLabel>
           {isCurrentUserOwner ? (
@@ -232,11 +235,14 @@ export default function ChatGPTChatCompletionNode() {
               }}
             />
           ) : (
-            <InputReadonly type="number" value={temperature} />
+            <NodeBoxIncomingVariableReadonly
+              type="number"
+              value={temperature}
+            />
           )}
         </FormControl>
-      </Section>
-      <Section>
+      </NodeBoxSection>
+      <NodeBoxSection>
         <FormControl>
           <FormLabel>Use JSON Response Format</FormLabel>
           <Checkbox
@@ -260,8 +266,8 @@ export default function ChatGPTChatCompletionNode() {
             }}
           />
         </FormControl>
-      </Section>
-      <Section>
+      </NodeBoxSection>
+      <NodeBoxSection>
         <FormControl>
           <FormLabel>Stop sequence</FormLabel>
           {isCurrentUserOwner ? (
@@ -294,7 +300,7 @@ export default function ChatGPTChatCompletionNode() {
               }}
             />
           ) : (
-            <InputReadonly
+            <NodeBoxIncomingVariableReadonly
               value={stop.length ? stop[0].replace(/\n/g, NEW_LINE_SYMBOL) : ''}
             />
           )}
@@ -306,7 +312,7 @@ export default function ChatGPTChatCompletionNode() {
             </div>
           </FormHelperText>
         </FormControl>
-      </Section>
+      </NodeBoxSection>
     </ReactFlowNode>
   );
 }

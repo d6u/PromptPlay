@@ -1,0 +1,19 @@
+export const DRAG_HANDLE_CLASS_NAME = 'node-drag-handle';
+
+export const SECTION_PADDING_BOTTOM = 10;
+
+export const NODE_BOX_WIDTH = 300;
+export const BACKDROP_PADDING = 3;
+
+export const HEADER_TITLE_PADDING_TOP = 10;
+export const HEADER_TITLE_HEIGHT = 32;
+export const HEADER_TITLE_MARGIN_BOTTOM = 5;
+
+export const HEADER_SECTION_HEIGHT =
+  HEADER_TITLE_PADDING_TOP + HEADER_TITLE_HEIGHT + HEADER_TITLE_MARGIN_BOTTOM;
+
+export const ADD_VARIABLE_BUTTON_HEIGHT = 32;
+export const ADD_VARIABLE_BUTTON_MARGIN_BOTTOM = 5;
+
+// NOTE: This depends on the size of the helper text
+export const CONDITION_NODE_DEFAULT_CASE_HELPER_TEXT_HEIGHT = 40;

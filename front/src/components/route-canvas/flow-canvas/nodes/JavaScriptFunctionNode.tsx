@@ -9,6 +9,8 @@ import {
 } from 'flow-models';
 import { useContext, useMemo, useState } from 'react';
 import { useNodeId } from 'reactflow';
+import ReactFlowNode from '../../../common-react-flow/ReactFlowNode';
+import NodeBoxSection from '../../../common-react-flow/node-box/NodeBoxSection';
 import RouteFlowContext from '../../../route-flow/common/RouteFlowContext';
 import TextareaReadonly from '../../../route-flow/common/TextareaReadonly';
 import {
@@ -17,8 +19,6 @@ import {
 } from '../../../route-flow/common/flow-common';
 import { useFlowStore } from '../../../route-flow/store/FlowStoreContext';
 import { selectVariables } from '../../../route-flow/store/state-utils';
-import ReactFlowNode from '../nodeV2/ReactFlowNode';
-import { Section } from './node-common/node-common';
 
 export default function JavaScriptFunctionNode() {
   const { isCurrentUserOwner } = useContext(RouteFlowContext);
@@ -58,7 +58,7 @@ export default function JavaScriptFunctionNode() {
       nodeTitle="JavaScript"
       allowAddVariable={true}
     >
-      <Section>
+      <NodeBoxSection>
         <FormControl>
           <LabelWithIconContainer>
             <FormLabel>
@@ -95,7 +95,7 @@ export default function JavaScriptFunctionNode() {
           )}
           <code style={{ fontSize: 12 }}>{'}'}</code>
         </FormControl>
-      </Section>
+      </NodeBoxSection>
     </ReactFlowNode>
   );
 }
