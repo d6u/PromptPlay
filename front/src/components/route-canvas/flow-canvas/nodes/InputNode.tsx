@@ -22,7 +22,6 @@ import {
   SmallSection,
   StyledIconGear,
 } from './node-common/node-common';
-import { calculateOutputHandleBottom } from './node-common/utils';
 
 export default function InputNode() {
   const nodeId = useNodeId() as NodeID;
@@ -111,9 +110,8 @@ export default function InputNode() {
         <OutgoingVariableHandle
           key={flowInput.id}
           id={flowInput.id}
-          style={{
-            bottom: calculateOutputHandleBottom(flowInputs.length - 1 - i),
-          }}
+          index={i}
+          totalVariableCount={flowInputs.length}
         />
       ))}
     </>

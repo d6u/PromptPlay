@@ -21,7 +21,6 @@ import NodeInputModifyRow from './node-common/NodeInputModifyRow';
 import NodeOutputModifyRow from './node-common/NodeOutputModifyRow';
 import NodeOutputRow from './node-common/NodeOutputRow';
 import { Section, SmallSection } from './node-common/node-common';
-import { calculateOutputHandleBottom } from './node-common/utils';
 
 export default function ConditionNode() {
   const nodeId = useNodeId() as NodeID;
@@ -194,21 +193,14 @@ export default function ConditionNode() {
         <OutgoingConditionHandle
           key={condition.id}
           id={condition.id}
-          style={{
-            bottom:
-              calculateOutputHandleBottom((conditions.length - i - 1) * 2) +
-              (conditions.length - i - 1) * 5 +
-              40 +
-              5,
-          }}
+          index={i}
+          totalConditionCount={conditions.length}
         />
       ))}
       <OutgoingConditionHandle
         key={defaultCaseCondition.id}
         id={defaultCaseCondition.id}
-        style={{
-          bottom: calculateOutputHandleBottom(0) + 40 + 5,
-        }}
+        isDefaultCase
       />
     </>
   );
