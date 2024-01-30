@@ -2,7 +2,7 @@ import { A } from '@mobily/ts-belt';
 import { ConnectorID, ConnectorType, NodeID, NodeType } from 'flow-models';
 import { ReactNode, useContext, useEffect, useMemo, useState } from 'react';
 import { useNodeId, useUpdateNodeInternals } from 'reactflow';
-import NodeBox, { NodeState } from '../../../common-react-flow/NodeBox';
+import NodeBox from '../../../common-react-flow/NodeBox';
 import IncomingConditionHandle from '../../../common-react-flow/handles/IncomingConditionHandle';
 import IncomingVariableHandle from '../../../common-react-flow/handles/IncomingVariableHandle';
 import OutgoingVariableHandle from '../../../common-react-flow/handles/OutgoingVariableHandle';
@@ -156,13 +156,8 @@ export default function ReactFlowNode(props: Props) {
       })}
       <NodeBox
         nodeType={props.nodeType}
-        state={
-          augment?.isRunning
-            ? NodeState.Running
-            : augment?.hasError
-              ? NodeState.Error
-              : NodeState.Idle
-        }
+        isRunning={augment?.isRunning}
+        hasError={augment?.hasError}
       >
         <HeaderSection
           isCurrentUserOwner={isCurrentUserOwner}

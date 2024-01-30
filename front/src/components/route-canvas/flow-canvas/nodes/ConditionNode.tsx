@@ -4,7 +4,7 @@ import { useContext, useMemo } from 'react';
 import { useNodeId, useUpdateNodeInternals } from 'reactflow';
 import invariant from 'tiny-invariant';
 import { useStore } from 'zustand';
-import NodeBox, { NodeState } from '../../../common-react-flow/NodeBox';
+import NodeBox from '../../../common-react-flow/NodeBox';
 import IncomingConditionHandle from '../../../common-react-flow/handles/IncomingConditionHandle';
 import IncomingVariableHandle from '../../../common-react-flow/handles/IncomingVariableHandle';
 import OutgoingConditionHandle from '../../../common-react-flow/handles/OutgoingConditionHandle';
@@ -85,13 +85,8 @@ export default function ConditionNode() {
       ))}
       <NodeBox
         nodeType={NodeType.InputNode}
-        state={
-          augment?.isRunning
-            ? NodeState.Running
-            : augment?.hasError
-              ? NodeState.Error
-              : NodeState.Idle
-        }
+        isRunning={augment?.isRunning}
+        hasError={augment?.hasError}
       >
         <HeaderSection
           isCurrentUserOwner={isCurrentUserOwner}
