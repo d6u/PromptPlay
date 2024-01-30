@@ -2,9 +2,9 @@ import styled from '@emotion/styled';
 import { NodeID } from 'flow-models';
 import { useNodeId } from 'reactflow';
 import { useStore } from 'zustand';
-import { useStoreFromFlowStoreContext } from '../../../../route-flow/store/FlowStoreContext';
-import { DetailPanelContentType } from '../../../../route-flow/store/store-flow-state-types';
-import { ROW_MARGIN_TOP } from './NodeInputModifyRow';
+import { ROW_MARGIN_TOP } from '../../route-canvas/flow-canvas/nodes/node-common/NodeInputModifyRow';
+import { useStoreFromFlowStoreContext } from '../../route-flow/store/FlowStoreContext';
+import { DetailPanelContentType } from '../../route-flow/store/store-flow-state-types';
 
 type Props = {
   id: string;
@@ -14,7 +14,7 @@ type Props = {
   style?: React.CSSProperties;
 };
 
-export default function NodeOutputRow(props: Props) {
+export default function NodeBoxOutputVariableBlock(props: Props) {
   const flowStore = useStoreFromFlowStoreContext();
 
   const setDetailPanelContentType = useStore(

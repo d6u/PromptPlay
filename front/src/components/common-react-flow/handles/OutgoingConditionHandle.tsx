@@ -2,7 +2,7 @@ import styled from '@emotion/styled';
 import { ComponentProps } from 'react';
 import { Position } from 'reactflow';
 import { ROW_MARGIN_TOP } from '../../route-canvas/flow-canvas/nodes/node-common/NodeInputModifyRow';
-import { VARIABLE_LABEL_HEIGHT } from '../../route-canvas/flow-canvas/nodes/node-common/NodeOutputRow';
+import { VARIABLE_LABEL_HEIGHT } from '../node-box/NodeBoxOutputVariableBlock';
 import {
   BACKDROP_PADDING,
   CONDITION_NODE_DEFAULT_CASE_HELPER_TEXT_HEIGHT,

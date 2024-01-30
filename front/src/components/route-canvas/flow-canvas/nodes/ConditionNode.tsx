@@ -11,6 +11,7 @@ import NodeBox from '../../../common-react-flow/node-box/NodeBox';
 import NodeBoxAddConnectorButton from '../../../common-react-flow/node-box/NodeBoxAddConnectorButton';
 import NodeBoxHeaderSection from '../../../common-react-flow/node-box/NodeBoxHeaderSection';
 import NodeBoxIncomingVariableSection from '../../../common-react-flow/node-box/NodeBoxIncomingVariableSection';
+import NodeBoxOutputVariableBlock from '../../../common-react-flow/node-box/NodeBoxOutputVariableBlock';
 import NodeBoxSection from '../../../common-react-flow/node-box/NodeBoxSection';
 import NodeBoxSmallSection from '../../../common-react-flow/node-box/NodeBoxSmallSection';
 import RouteFlowContext from '../../../route-flow/common/RouteFlowContext';
@@ -22,7 +23,6 @@ import {
 } from '../../../route-flow/store/state-utils';
 import NodeInputModifyRow from './node-common/NodeInputModifyRow';
 import NodeOutputModifyRow from './node-common/NodeOutputModifyRow';
-import NodeOutputRow from './node-common/NodeOutputRow';
 
 export default function ConditionNode() {
   const nodeId = useNodeId() as NodeID;
@@ -165,7 +165,7 @@ export default function ConditionNode() {
                 updateNodeInternals(nodeId);
               }}
             />
-            <NodeOutputRow
+            <NodeBoxOutputVariableBlock
               id={defaultCaseCondition.id}
               name="is matched"
               value={
@@ -180,7 +180,10 @@ export default function ConditionNode() {
           </NodeBoxSection>
         ))}
         <NodeBoxSection>
-          <NodeOutputRow id={defaultCaseCondition.id} name="Default case" />
+          <NodeBoxOutputVariableBlock
+            id={defaultCaseCondition.id}
+            name="Default case"
+          />
           <FormHelperText>
             The default case is matched when no other condition have matched.
           </FormHelperText>

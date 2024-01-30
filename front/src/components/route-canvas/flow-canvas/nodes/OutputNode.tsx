@@ -15,6 +15,7 @@ import NodeBoxAddConnectorButton from '../../../common-react-flow/node-box/NodeB
 import NodeBoxHeaderSection from '../../../common-react-flow/node-box/NodeBoxHeaderSection';
 import NodeBoxIconGear from '../../../common-react-flow/node-box/NodeBoxIconGear';
 import NodeBoxIncomingVariableSection from '../../../common-react-flow/node-box/NodeBoxIncomingVariableSection';
+import { VARIABLE_LABEL_HEIGHT } from '../../../common-react-flow/node-box/NodeBoxOutputVariableBlock';
 import NodeBoxSmallSection from '../../../common-react-flow/node-box/NodeBoxSmallSection';
 import RouteFlowContext from '../../../route-flow/common/RouteFlowContext';
 import { useStoreFromFlowStoreContext } from '../../../route-flow/store/FlowStoreContext';
@@ -23,7 +24,6 @@ import { DetailPanelContentType } from '../../../route-flow/store/store-flow-sta
 import NodeInputModifyRow, {
   ROW_MARGIN_TOP,
 } from './node-common/NodeInputModifyRow';
-import { VARIABLE_LABEL_HEIGHT } from './node-common/NodeOutputRow';
 
 export default function OutputNode() {
   const { isCurrentUserOwner } = useContext(RouteFlowContext);

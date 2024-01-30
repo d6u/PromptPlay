@@ -9,6 +9,7 @@ import NodeBox from '../../../common-react-flow/node-box/NodeBox';
 import NodeBoxAddConnectorButton from '../../../common-react-flow/node-box/NodeBoxAddConnectorButton';
 import NodeBoxHeaderSection from '../../../common-react-flow/node-box/NodeBoxHeaderSection';
 import NodeBoxIncomingVariableSection from '../../../common-react-flow/node-box/NodeBoxIncomingVariableSection';
+import NodeBoxOutputVariableBlock from '../../../common-react-flow/node-box/NodeBoxOutputVariableBlock';
 import NodeBoxSection from '../../../common-react-flow/node-box/NodeBoxSection';
 import NodeBoxSmallSection from '../../../common-react-flow/node-box/NodeBoxSmallSection';
 import RouteFlowContext from '../../../route-flow/common/RouteFlowContext';
@@ -19,7 +20,6 @@ import {
 } from '../../../route-flow/store/state-utils';
 import { DetailPanelContentType } from '../../../route-flow/store/store-flow-state-types';
 import NodeInputModifyRow from '../nodes/node-common/NodeInputModifyRow';
-import NodeOutputRow from '../nodes/node-common/NodeOutputRow';
 
 export type DestConnector = {
   id: string;
@@ -214,7 +214,7 @@ export default function ReactFlowNode(props: Props) {
         {props.children}
         <NodeBoxSection>
           {srcConnectors.map((connector) => (
-            <NodeOutputRow
+            <NodeBoxOutputVariableBlock
               key={connector.id}
               id={connector.id}
               name={connector.name}
