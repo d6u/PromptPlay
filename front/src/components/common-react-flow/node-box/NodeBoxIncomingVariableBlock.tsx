@@ -1,10 +1,10 @@
 import styled from '@emotion/styled';
 import Input from '@mui/joy/Input';
 import { ReactNode, useCallback, useRef, useState } from 'react';
-import { useOnElementResize } from '../../../../../utils/ResizeObserver';
-import NodeBoxCommonRemoveButton from '../../../../common-react-flow/node-box/NodeBoxCommonRemoveButton';
-import NodeBoxHelperTextContainer from '../../../../common-react-flow/node-box/NodeBoxHelperTextContainer';
-import InputReadonly from '../../../../route-flow/common/InputReadonly';
+import { useOnElementResize } from '../../../utils/ResizeObserver';
+import InputReadonly from '../../route-flow/common/InputReadonly';
+import NodeBoxCommonRemoveButton from './NodeBoxCommonRemoveButton';
+import NodeBoxHelperTextContainer from './NodeBoxHelperTextContainer';
 
 type Props = {
   isReadOnly: boolean;
@@ -15,7 +15,7 @@ type Props = {
   onHeightChange?: (height: number) => void;
 };
 
-export default function NodeInputModifyRow(props: Props) {
+export default function NodeBoxIncomingVariableBlock(props: Props) {
   const { onHeightChange, helperMessage } = props;
 
   const containerRef = useRef<HTMLDivElement>(null);

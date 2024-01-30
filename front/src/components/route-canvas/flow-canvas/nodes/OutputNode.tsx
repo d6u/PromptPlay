@@ -14,6 +14,9 @@ import NodeBox from '../../../common-react-flow/node-box/NodeBox';
 import NodeBoxAddConnectorButton from '../../../common-react-flow/node-box/NodeBoxAddConnectorButton';
 import NodeBoxHeaderSection from '../../../common-react-flow/node-box/NodeBoxHeaderSection';
 import NodeBoxIconGear from '../../../common-react-flow/node-box/NodeBoxIconGear';
+import NodeBoxIncomingVariableBlock, {
+  ROW_MARGIN_TOP,
+} from '../../../common-react-flow/node-box/NodeBoxIncomingVariableBlock';
 import NodeBoxIncomingVariableSection from '../../../common-react-flow/node-box/NodeBoxIncomingVariableSection';
 import { VARIABLE_LABEL_HEIGHT } from '../../../common-react-flow/node-box/NodeBoxOutputVariableBlock';
 import NodeBoxSmallSection from '../../../common-react-flow/node-box/NodeBoxSmallSection';
@@ -21,9 +24,6 @@ import RouteFlowContext from '../../../route-flow/common/RouteFlowContext';
 import { useStoreFromFlowStoreContext } from '../../../route-flow/store/FlowStoreContext';
 import { selectVariables } from '../../../route-flow/store/state-utils';
 import { DetailPanelContentType } from '../../../route-flow/store/store-flow-state-types';
-import NodeInputModifyRow, {
-  ROW_MARGIN_TOP,
-} from './node-common/NodeInputModifyRow';
 
 export default function OutputNode() {
   const { isCurrentUserOwner } = useContext(RouteFlowContext);
@@ -107,7 +107,7 @@ export default function OutputNode() {
         </NodeBoxSmallSection>
         <NodeBoxIncomingVariableSection>
           {flowOutputs.map((input, i) => (
-            <NodeInputModifyRow
+            <NodeBoxIncomingVariableBlock
               key={input.id}
               name={input.name}
               isReadOnly={!isCurrentUserOwner}

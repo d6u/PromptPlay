@@ -8,6 +8,7 @@ import OutgoingVariableHandle from '../../../common-react-flow/handles/OutgoingV
 import NodeBox from '../../../common-react-flow/node-box/NodeBox';
 import NodeBoxAddConnectorButton from '../../../common-react-flow/node-box/NodeBoxAddConnectorButton';
 import NodeBoxHeaderSection from '../../../common-react-flow/node-box/NodeBoxHeaderSection';
+import NodeBoxIncomingVariableBlock from '../../../common-react-flow/node-box/NodeBoxIncomingVariableBlock';
 import NodeBoxIncomingVariableSection from '../../../common-react-flow/node-box/NodeBoxIncomingVariableSection';
 import NodeBoxOutputVariableBlock from '../../../common-react-flow/node-box/NodeBoxOutputVariableBlock';
 import NodeBoxSection from '../../../common-react-flow/node-box/NodeBoxSection';
@@ -19,7 +20,6 @@ import {
   selectVariables,
 } from '../../../route-flow/store/state-utils';
 import { DetailPanelContentType } from '../../../route-flow/store/store-flow-state-types';
-import NodeInputModifyRow from '../nodes/node-common/NodeInputModifyRow';
 
 export type DestConnector = {
   id: string;
@@ -186,7 +186,7 @@ export default function ReactFlowNode(props: Props) {
         <NodeBoxIncomingVariableSection>
           {destConnectors.map((connector, i) => {
             return (
-              <NodeInputModifyRow
+              <NodeBoxIncomingVariableBlock
                 key={connector.id}
                 name={connector.name}
                 isReadOnly={connector.isReadOnly}

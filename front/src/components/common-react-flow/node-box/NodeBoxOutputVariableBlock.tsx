@@ -2,9 +2,9 @@ import styled from '@emotion/styled';
 import { NodeID } from 'flow-models';
 import { useNodeId } from 'reactflow';
 import { useStore } from 'zustand';
-import { ROW_MARGIN_TOP } from '../../route-canvas/flow-canvas/nodes/node-common/NodeInputModifyRow';
 import { useStoreFromFlowStoreContext } from '../../route-flow/store/FlowStoreContext';
 import { DetailPanelContentType } from '../../route-flow/store/store-flow-state-types';
+import { ROW_MARGIN_TOP } from './NodeBoxIncomingVariableBlock';
 
 type Props = {
   id: string;

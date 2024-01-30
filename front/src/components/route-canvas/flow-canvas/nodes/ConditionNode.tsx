@@ -10,6 +10,7 @@ import OutgoingConditionHandle from '../../../common-react-flow/handles/Outgoing
 import NodeBox from '../../../common-react-flow/node-box/NodeBox';
 import NodeBoxAddConnectorButton from '../../../common-react-flow/node-box/NodeBoxAddConnectorButton';
 import NodeBoxHeaderSection from '../../../common-react-flow/node-box/NodeBoxHeaderSection';
+import NodeBoxIncomingVariableBlock from '../../../common-react-flow/node-box/NodeBoxIncomingVariableBlock';
 import NodeBoxIncomingVariableSection from '../../../common-react-flow/node-box/NodeBoxIncomingVariableSection';
 import NodeBoxOutputVariableBlock from '../../../common-react-flow/node-box/NodeBoxOutputVariableBlock';
 import NodeBoxSection from '../../../common-react-flow/node-box/NodeBoxSection';
@@ -21,7 +22,6 @@ import {
   selectConditions,
   selectVariables,
 } from '../../../route-flow/store/state-utils';
-import NodeInputModifyRow from './node-common/NodeInputModifyRow';
 import NodeOutputModifyRow from './node-common/NodeOutputModifyRow';
 
 export default function ConditionNode() {
@@ -99,7 +99,7 @@ export default function ConditionNode() {
         />
         <NodeBoxIncomingVariableSection>
           {nodeInputs.map((flowInput, i) => (
-            <NodeInputModifyRow
+            <NodeBoxIncomingVariableBlock
               key={flowInput.id}
               name={flowInput.name}
               isReadOnly={!isCurrentUserOwner}
