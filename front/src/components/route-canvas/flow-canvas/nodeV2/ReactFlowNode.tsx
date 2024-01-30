@@ -1,12 +1,10 @@
 import { A } from '@mobily/ts-belt';
 import { ConnectorID, ConnectorType, NodeID, NodeType } from 'flow-models';
 import { ReactNode, useContext, useEffect, useMemo, useState } from 'react';
-import { Position, useNodeId, useUpdateNodeInternals } from 'reactflow';
-import {
-  ConditionTargetHandle,
-  OutgoingConnectorHandle,
-} from '../../../common-react-flow/handles';
+import { useNodeId, useUpdateNodeInternals } from 'reactflow';
+import { ConditionTargetHandle } from '../../../common-react-flow/handles';
 import IncomingVariableHandle from '../../../common-react-flow/handles/IncomingVariableHandle';
+import OutgoingVariableHandle from '../../../common-react-flow/handles/OutgoingVariableHandle';
 import RouteFlowContext from '../../../route-flow/common/RouteFlowContext';
 import { useFlowStore } from '../../../route-flow/store/FlowStoreContext';
 import {
@@ -244,11 +242,9 @@ export default function ReactFlowNode(props: Props) {
         </Section>
       </NodeBox>
       {srcConnectors.map((connector, i) => (
-        <OutgoingConnectorHandle
+        <OutgoingVariableHandle
           key={connector.id}
-          type="source"
           id={connector.id}
-          position={Position.Right}
           style={{
             bottom: calculateOutputHandleBottom(srcConnectors.length - 1 - i),
           }}

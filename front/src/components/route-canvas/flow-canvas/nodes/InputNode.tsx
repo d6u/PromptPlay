@@ -6,9 +6,9 @@ import {
   V3InputNodeConfig,
 } from 'flow-models';
 import { useContext, useMemo } from 'react';
-import { Position, useNodeId, useUpdateNodeInternals } from 'reactflow';
+import { useNodeId, useUpdateNodeInternals } from 'reactflow';
 import { useStore } from 'zustand';
-import { OutgoingConnectorHandle } from '../../../common-react-flow/handles';
+import OutgoingVariableHandle from '../../../common-react-flow/handles/OutgoingVariableHandle';
 import RouteFlowContext from '../../../route-flow/common/RouteFlowContext';
 import { useStoreFromFlowStoreContext } from '../../../route-flow/store/FlowStoreContext';
 import { selectVariables } from '../../../route-flow/store/state-utils';
@@ -108,11 +108,9 @@ export default function InputNode() {
         </Section>
       </NodeBox>
       {flowInputs.map((flowInput, i) => (
-        <OutgoingConnectorHandle
+        <OutgoingVariableHandle
           key={flowInput.id}
-          type="source"
           id={flowInput.id}
-          position={Position.Right}
           style={{
             bottom: calculateOutputHandleBottom(flowInputs.length - 1 - i),
           }}

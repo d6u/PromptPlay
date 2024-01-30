@@ -3,12 +3,6 @@ import { Position } from 'reactflow';
 import { BaseHandle, HANDLE_WIDTH } from './handles/common';
 import { BACKDROP_PADDING } from './ui-constants';
 
-export const OutgoingConnectorHandle = styled(BaseHandle)`
-  background: #00b3ff;
-  top: unset;
-  right: -${HANDLE_WIDTH / 2 - BACKDROP_PADDING / 2}px;
-`;
-
 export const OutgoingConditionHandle = styled(BaseHandle)`
   background: #7a00df;
   top: unset;
