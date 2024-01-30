@@ -1,14 +1,12 @@
 import { Checkbox, FormControl, FormHelperText, FormLabel } from '@mui/joy';
 import { ConditionResult, ConnectorType, NodeID, NodeType } from 'flow-models';
 import { useContext, useMemo } from 'react';
-import { Position, useNodeId, useUpdateNodeInternals } from 'reactflow';
+import { useNodeId, useUpdateNodeInternals } from 'reactflow';
 import invariant from 'tiny-invariant';
 import { useStore } from 'zustand';
-import {
-  ConditionTargetHandle,
-  OutgoingConditionHandle,
-} from '../../../common-react-flow/handles';
+import IncomingConditionHandle from '../../../common-react-flow/handles/IncomingConditionHandle';
 import IncomingVariableHandle from '../../../common-react-flow/handles/IncomingVariableHandle';
+import OutgoingConditionHandle from '../../../common-react-flow/handles/OutgoingConditionHandle';
 import RouteFlowContext from '../../../route-flow/common/RouteFlowContext';
 import { useStoreFromFlowStoreContext } from '../../../route-flow/store/FlowStoreContext';
 import {
@@ -85,7 +83,7 @@ export default function ConditionNode() {
 
   return (
     <>
-      <ConditionTargetHandle connectorId={conditionTarget.id} />
+      <IncomingConditionHandle id={conditionTarget.id} />
       {nodeInputs.map((flowInput, i) => (
         <IncomingVariableHandle
           key={flowInput.id}
@@ -204,9 +202,7 @@ export default function ConditionNode() {
       {normalConditions.map((condition, i) => (
         <OutgoingConditionHandle
           key={condition.id}
-          type="source"
           id={condition.id}
-          position={Position.Right}
           style={{
             bottom:
               calculateOutputHandleBottom((conditions.length - i - 1) * 2) +
@@ -218,9 +214,7 @@ export default function ConditionNode() {
       ))}
       <OutgoingConditionHandle
         key={defaultCaseCondition.id}
-        type="source"
         id={defaultCaseCondition.id}
-        position={Position.Right}
         style={{
           bottom: calculateOutputHandleBottom(0) + 40 + 5,
         }}

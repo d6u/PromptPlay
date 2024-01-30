@@ -2,7 +2,7 @@ import { A } from '@mobily/ts-belt';
 import { ConnectorID, ConnectorType, NodeID, NodeType } from 'flow-models';
 import { ReactNode, useContext, useEffect, useMemo, useState } from 'react';
 import { useNodeId, useUpdateNodeInternals } from 'reactflow';
-import { ConditionTargetHandle } from '../../../common-react-flow/handles';
+import IncomingConditionHandle from '../../../common-react-flow/handles/IncomingConditionHandle';
 import IncomingVariableHandle from '../../../common-react-flow/handles/IncomingVariableHandle';
 import OutgoingVariableHandle from '../../../common-react-flow/handles/OutgoingVariableHandle';
 import RouteFlowContext from '../../../route-flow/common/RouteFlowContext';
@@ -146,9 +146,7 @@ export default function ReactFlowNode(props: Props) {
 
   return (
     <>
-      {conditionTarget && (
-        <ConditionTargetHandle connectorId={conditionTarget.id} />
-      )}
+      {conditionTarget && <IncomingConditionHandle id={conditionTarget.id} />}
       {destConnectors.map((connector, i) => {
         return (
           <IncomingVariableHandle
