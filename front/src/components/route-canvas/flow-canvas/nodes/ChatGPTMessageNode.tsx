@@ -5,7 +5,7 @@ import IconButton from '@mui/joy/IconButton';
 import Radio from '@mui/joy/Radio';
 import RadioGroup from '@mui/joy/RadioGroup';
 import Textarea from '@mui/joy/Textarea';
-import { NodeID, V3ChatGPTMessageNodeConfig } from 'flow-models';
+import { NodeID, NodeType, V3ChatGPTMessageNodeConfig } from 'flow-models';
 import { ChatGPTMessageRole } from 'integrations/openai';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { useNodeId } from 'reactflow';
@@ -62,7 +62,9 @@ export default function ChatGPTMessageNode() {
 
   return (
     <ReactFlowNode
+      nodeType={NodeType.ChatGPTMessageNode}
       nodeTitle="ChatGPT Message"
+      allowAddVariable={true}
       destConnectorReadOnlyConfigs={[true]}
       destConnectorHelpMessages={[
         <>

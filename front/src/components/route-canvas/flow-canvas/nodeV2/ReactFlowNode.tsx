@@ -11,7 +11,7 @@ import {
 import { DetailPanelContentType } from '../../../route-flow/store/store-flow-state-types';
 import AddVariableButton from '../nodes/node-common/AddVariableButton';
 import HeaderSection from '../nodes/node-common/HeaderSection';
-import NodeBox from '../nodes/node-common/NodeBox';
+import NodeBox, { NodeState } from '../nodes/node-common/NodeBox';
 import NodeInputModifyRow from '../nodes/node-common/NodeInputModifyRow';
 import NodeOutputRow from '../nodes/node-common/NodeOutputRow';
 import {
@@ -40,7 +40,9 @@ export type SrcConnector = {
 };
 
 type Props = {
+  nodeType: NodeType;
   nodeTitle: string;
+  allowAddVariable: boolean;
   destConnectorReadOnlyConfigs?: boolean[];
   destConnectorHelpMessages?: ReactNode[];
   children?: ReactNode;
@@ -103,6 +105,12 @@ export default function ReactFlowNode(props: Props) {
     });
   }, [defaultVariableValueMap, nodeId, variablesDict]);
 
+  // ANCHOR: Node Metadata
+  const nodeMetadataDict = useFlowStore((s) => s.nodeMetadataDict);
+  const augment = useMemo(() => {
+    return nodeMetadataDict[nodeId];
+  }, [nodeMetadataDict, nodeId]);
+
   // ANCHOR: Node Operations
   const removeNode = useFlowStore((s) => s.removeNode);
 
@@ -152,12 +160,25 @@ export default function ReactFlowNode(props: Props) {
             id={connector.id}
             position={Position.Left}
             style={{
-              top: calculateInputHandleTopV2(i, destConnectorInputHeightArr),
+              top: calculateInputHandleTopV2(
+                i,
+                destConnectorInputHeightArr,
+                props.allowAddVariable,
+              ),
             }}
           />
         );
       })}
-      <NodeBox nodeType={NodeType.ChatGPTMessageNode}>
+      <NodeBox
+        nodeType={props.nodeType}
+        state={
+          augment?.isRunning
+            ? NodeState.Running
+            : augment?.hasError
+              ? NodeState.Error
+              : NodeState.Idle
+        }
+      >
         <HeaderSection
           isCurrentUserOwner={isCurrentUserOwner}
           title={props.nodeTitle}
@@ -165,7 +186,7 @@ export default function ReactFlowNode(props: Props) {
             removeNode(nodeId);
           }}
         />
-        {isCurrentUserOwner && (
+        {props.allowAddVariable && isCurrentUserOwner && (
           <SmallSection>
             <AddVariableButton
               onClick={() => {

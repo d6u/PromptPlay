@@ -29,9 +29,12 @@ export function calculateOutputHandleBottom(i: number): number {
 export function calculateInputHandleTopV2(
   index: number,
   sectionHeightArray: number[],
+  includingAddVariableButton: boolean,
 ): number {
   const fixHeight =
-    BACKDROP_PADDING + TITLE_LENGTH + BUTTON_HEIGHT + BUTTON_MARGIN_BOTTOM;
+    BACKDROP_PADDING +
+    TITLE_LENGTH +
+    (includingAddVariableButton ? BUTTON_HEIGHT + BUTTON_MARGIN_BOTTOM : 0);
   const center = VARIABLE_LABEL_HEIGHT / 2 - HANDLE_HEIGHT / 2;
 
   return (
