@@ -4,6 +4,7 @@ import { Outlet, useLoaderData, useMatches, useParams } from 'react-router-dom';
 import { ReactFlowProvider } from 'reactflow';
 import 'reactflow/dist/style.css';
 import invariant from 'tiny-invariant';
+import { ResizeObserverProvider } from '../../utils/ResizeObserver';
 import { FlowRouteTab } from '../../utils/route-utils';
 import FlowStoreContextManager from './common/FlowStoreContextManager';
 import RouteFlowContext from './common/RouteFlowContext';
@@ -27,19 +28,21 @@ export default function RouteFlow() {
   invariant(params.spaceId != null, 'spaceId should have value');
 
   return (
-    <RouteFlowContext.Provider
-      value={{
-        isCurrentUserOwner,
-        spaceId: params.spaceId,
-        flowTabType,
-      }}
-    >
-      <FlowStoreContextManager spaceId={params.spaceId}>
-        <ReactFlowProvider>
-          <SubHeader />
-          <Outlet />
-        </ReactFlowProvider>
-      </FlowStoreContextManager>
-    </RouteFlowContext.Provider>
+    <ResizeObserverProvider>
+      <RouteFlowContext.Provider
+        value={{
+          isCurrentUserOwner,
+          spaceId: params.spaceId,
+          flowTabType,
+        }}
+      >
+        <FlowStoreContextManager spaceId={params.spaceId}>
+          <ReactFlowProvider>
+            <SubHeader />
+            <Outlet />
+          </ReactFlowProvider>
+        </FlowStoreContextManager>
+      </RouteFlowContext.Provider>
+    </ResizeObserverProvider>
   );
 }

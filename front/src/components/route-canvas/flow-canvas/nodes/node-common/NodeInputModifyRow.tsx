@@ -1,6 +1,7 @@
 import styled from '@emotion/styled';
 import Input from '@mui/joy/Input';
-import { ReactNode, useEffect, useRef, useState } from 'react';
+import { ReactNode, useCallback, useRef, useState } from 'react';
+import { useOnElementResize } from '../../../../../utils/ResizeObserver';
 import InputReadonly from '../../../../route-flow/common/InputReadonly';
 import HelperTextContainer from './HelperTextContainer';
 import RemoveButton from './RemoveButton';
@@ -15,34 +16,26 @@ type Props = {
 };
 
 export default function NodeInputModifyRow(props: Props) {
+  const { onHeightChange, helperMessage } = props;
+
   const containerRef = useRef<HTMLDivElement>(null);
   const prevHeightRef = useRef<number>(0);
-  const resizeObserverRef = useRef<ResizeObserver>();
 
-  const propsRef = useRef<Props>(props);
-  propsRef.current = props;
+  useOnElementResize(
+    containerRef,
+    useCallback(
+      (contentRect) => {
+        const newHeight = contentRect.height;
 
-  if (resizeObserverRef.current == null) {
-    resizeObserverRef.current = new ResizeObserver((entries) => {
-      const newHeight = entries[0].contentBoxSize[0].blockSize;
+        if (prevHeightRef.current !== newHeight) {
+          prevHeightRef.current = newHeight;
 
-      if (prevHeightRef.current !== newHeight) {
-        prevHeightRef.current = newHeight;
-
-        props.onHeightChange?.(
-          prevHeightRef.current + (propsRef.current.helperMessage ? 10 : 5),
-        );
-      }
-    });
-  }
-
-  useEffect(() => {
-    const containerElement = containerRef.current!;
-    resizeObserverRef.current!.observe(containerElement);
-    return () => {
-      resizeObserverRef.current!.unobserve(containerElement);
-    };
-  }, []);
+          onHeightChange?.(prevHeightRef.current + (helperMessage ? 10 : 5));
+        }
+      },
+      [helperMessage, onHeightChange],
+    ),
+  );
 
   const [name, setName] = useState(props.name);
 
