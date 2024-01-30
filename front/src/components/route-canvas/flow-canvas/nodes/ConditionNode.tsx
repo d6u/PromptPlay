@@ -21,10 +21,7 @@ import NodeInputModifyRow from './node-common/NodeInputModifyRow';
 import NodeOutputModifyRow from './node-common/NodeOutputModifyRow';
 import NodeOutputRow from './node-common/NodeOutputRow';
 import { Section, SmallSection } from './node-common/node-common';
-import {
-  calculateInputHandleTop,
-  calculateOutputHandleBottom,
-} from './node-common/utils';
+import { calculateOutputHandleBottom } from './node-common/utils';
 
 export default function ConditionNode() {
   const nodeId = useNodeId() as NodeID;
@@ -85,13 +82,7 @@ export default function ConditionNode() {
     <>
       <IncomingConditionHandle id={conditionTarget.id} />
       {nodeInputs.map((flowInput, i) => (
-        <IncomingVariableHandle
-          key={flowInput.id}
-          id={flowInput.id}
-          style={{
-            top: calculateInputHandleTop(nodeInputs.length - 2 - i),
-          }}
-        />
+        <IncomingVariableHandle key={flowInput.id} id={flowInput.id} />
       ))}
       <NodeBox
         nodeType={NodeType.InputNode}

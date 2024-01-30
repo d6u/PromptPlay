@@ -22,7 +22,6 @@ import {
   SmallSection,
   StyledIconGear,
 } from './node-common/node-common';
-import { calculateInputHandleTop } from './node-common/utils';
 
 export default function OutputNode() {
   const nodeId = useNodeId() as NodeID;
@@ -59,11 +58,7 @@ export default function OutputNode() {
   return (
     <>
       {flowOutputs.map((output, i) => (
-        <IncomingVariableHandle
-          key={i}
-          id={output.id}
-          style={{ top: calculateInputHandleTop(i) }}
-        />
+        <IncomingVariableHandle key={output.id} id={output.id} index={i} />
       ))}
       <NodeBox nodeType={NodeType.OutputNode}>
         <HeaderSection

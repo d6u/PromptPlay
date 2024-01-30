@@ -18,10 +18,7 @@ import NodeBox, { NodeState } from '../nodes/node-common/NodeBox';
 import NodeInputModifyRow from '../nodes/node-common/NodeInputModifyRow';
 import NodeOutputRow from '../nodes/node-common/NodeOutputRow';
 import { Section, SmallSection } from '../nodes/node-common/node-common';
-import {
-  calculateInputHandleTopV2,
-  calculateOutputHandleBottom,
-} from '../nodes/node-common/utils';
+import { calculateOutputHandleBottom } from '../nodes/node-common/utils';
 
 export type DestConnector = {
   id: string;
@@ -152,13 +149,9 @@ export default function ReactFlowNode(props: Props) {
           <IncomingVariableHandle
             key={connector.id}
             id={connector.id}
-            style={{
-              top: calculateInputHandleTopV2(
-                i,
-                destConnectorInputHeightArr,
-                props.allowAddVariable,
-              ),
-            }}
+            index={i}
+            inputVariableBlockHeightList={destConnectorInputHeightArr}
+            isShowingAddInputVariableButton={props.allowAddVariable}
           />
         );
       })}
