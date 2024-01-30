@@ -41,18 +41,16 @@ const selector = (state: SpaceState) => ({
 export default function ChatGPTChatCompletionNode() {
   const { isCurrentUserOwner } = useContext(RouteFlowContext);
 
+  const { openAiApiKey, setOpenAiApiKey } =
+    useLocalStorageStore(persistSelector);
+  const { missingOpenAiApiKey, setMissingOpenAiApiKey } =
+    useSpaceStore(selector);
+
   // ANCHOR: ReactFlow
   const nodeId = useNodeId() as NodeID;
 
   const nodeConfigsDict = useFlowStore((s) => s.nodeConfigsDict);
-
   const updateNodeConfig = useFlowStore((s) => s.updateNodeConfig);
-
-  const { openAiApiKey, setOpenAiApiKey } =
-    useLocalStorageStore(persistSelector);
-
-  const { missingOpenAiApiKey, setMissingOpenAiApiKey } =
-    useSpaceStore(selector);
 
   const nodeConfig = useMemo(() => {
     return nodeConfigsDict[nodeId] as
@@ -65,12 +63,10 @@ export default function ChatGPTChatCompletionNode() {
   const [model, setModel] = useState(() => nodeConfig!.model);
   const [stop, setStop] = useState(() => nodeConfig!.stop);
 
-  // SECTION: Temperature Field
-
+  // ANCHOR: Temperature Field
   const [temperature, setTemperature] = useState<string>(
     () => nodeConfig?.temperature.toString() ?? '',
   );
-
   useEffect(() => {
     if (nodeConfig?.temperature != null) {
       setTemperature(nodeConfig.temperature.toString());
@@ -79,14 +75,10 @@ export default function ChatGPTChatCompletionNode() {
     }
   }, [nodeConfig?.temperature]);
 
-  // !SECTION
-
-  // SECTION: Seed Field
-
+  // ANCHOR: Seed Field
   const [seed, setSeed] = useState<string>(
     () => nodeConfig?.seed?.toString() ?? '',
   );
-
   useEffect(() => {
     if (nodeConfig?.seed != null) {
       setSeed(nodeConfig.seed.toString());
@@ -94,8 +86,6 @@ export default function ChatGPTChatCompletionNode() {
       setSeed('');
     }
   }, [nodeConfig?.seed]);
-
-  // !SECTION
 
   if (!nodeConfig) {
     return null;

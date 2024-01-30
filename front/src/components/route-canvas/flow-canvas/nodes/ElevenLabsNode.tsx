@@ -2,16 +2,9 @@ import FormControl from '@mui/joy/FormControl';
 import FormHelperText from '@mui/joy/FormHelperText';
 import FormLabel from '@mui/joy/FormLabel';
 import Input from '@mui/joy/Input';
-import {
-  ConnectorType,
-  NodeID,
-  NodeType,
-  V3ElevenLabsNodeConfig,
-} from 'flow-models';
+import { NodeID, NodeType, V3ElevenLabsNodeConfig } from 'flow-models';
 import { useContext, useMemo, useState } from 'react';
-import { Position, useNodeId } from 'reactflow';
-import invariant from 'tiny-invariant';
-import { useStore } from 'zustand';
+import { useNodeId } from 'reactflow';
 import {
   LocalStorageState,
   SpaceState,
@@ -20,26 +13,10 @@ import {
 } from '../../../../state/appState';
 import InputReadonly from '../../../route-flow/common/InputReadonly';
 import RouteFlowContext from '../../../route-flow/common/RouteFlowContext';
-import { useStoreFromFlowStoreContext } from '../../../route-flow/store/FlowStoreContext';
-import {
-  selectConditionTarget,
-  selectVariables,
-} from '../../../route-flow/store/state-utils';
-import HeaderSection from './node-common/HeaderSection';
+import { useFlowStore } from '../../../route-flow/store/FlowStoreContext';
+import ReactFlowNode from '../nodeV2/ReactFlowNode';
 import HelperTextContainer from './node-common/HelperTextContainer';
-import NodeBox, { NodeState } from './node-common/NodeBox';
-import NodeInputModifyRow from './node-common/NodeInputModifyRow';
-import NodeOutputRow from './node-common/NodeOutputRow';
-import {
-  ConditionTargetHandle,
-  InputHandle,
-  OutputHandle,
-  Section,
-} from './node-common/node-common';
-import {
-  calculateInputHandleTop,
-  calculateOutputHandleBottom,
-} from './node-common/utils';
+import { Section } from './node-common/node-common';
 
 const persistSelector = (state: LocalStorageState) => ({
   elevenLabsApiKey: state.elevenLabsApiKey,
@@ -52,55 +29,23 @@ const selector = (state: SpaceState) => ({
 });
 
 export default function ElevenLabsNode() {
-  const nodeId = useNodeId() as NodeID;
-
   const { isCurrentUserOwner } = useContext(RouteFlowContext);
-  const flowStore = useStoreFromFlowStoreContext();
-
-  // SECTION: Select state from store
-
-  const nodeConfigs = useStore(flowStore, (s) => s.nodeConfigsDict);
-  const variableConfigs = useStore(flowStore, (s) => s.variablesDict);
-  const updateNodeConfig = useStore(flowStore, (s) => s.updateNodeConfig);
-  const removeNode = useStore(flowStore, (s) => s.removeNode);
-  const localNodeAugments = useStore(flowStore, (s) => s.nodeMetadataDict);
-  const defaultVariableValueMap = useStore(flowStore, (s) =>
-    s.getDefaultVariableValueLookUpDict(),
-  );
-
-  // !SECTION
 
   const { elevenLabsApiKey, setElevenLabsApiKey } =
     useLocalStorageStore(persistSelector);
-
   const { missingElevenLabsApiKey, setMissingElevenLabsApiKey } =
     useSpaceStore(selector);
 
-  const inputVariables = selectVariables(
-    nodeId,
-    ConnectorType.NodeInput,
-    variableConfigs,
-  );
+  // ANCHOR: ReactFlow
+  const nodeId = useNodeId() as NodeID;
 
-  const outputVariables = selectVariables(
-    nodeId,
-    ConnectorType.NodeOutput,
-    variableConfigs,
-  );
+  const nodeConfigs = useFlowStore((s) => s.nodeConfigsDict);
+  const updateNodeConfig = useFlowStore((s) => s.updateNodeConfig);
 
   const nodeConfig = useMemo(
     () => nodeConfigs[nodeId] as V3ElevenLabsNodeConfig | undefined,
     [nodeConfigs, nodeId],
   );
-
-  const augment = useMemo(
-    () => localNodeAugments[nodeId],
-    [localNodeAugments, nodeId],
-  );
-
-  const conditionTarget = useMemo(() => {
-    return selectConditionTarget(nodeId, variableConfigs);
-  }, [nodeId, variableConfigs]);
 
   // It's OK to force unwrap here because nodeConfig will be undefined only
   // when Node is being deleted.
@@ -110,124 +55,74 @@ export default function ElevenLabsNode() {
     return null;
   }
 
-  invariant(conditionTarget != null);
-
   return (
-    <>
-      <ConditionTargetHandle controlId={conditionTarget.id} />
-      <InputHandle
-        type="target"
-        id={inputVariables[0].id}
-        position={Position.Left}
-        style={{ top: calculateInputHandleTop(-1) }}
-      />
-      <NodeBox
-        nodeType={NodeType.ElevenLabs}
-        state={
-          augment?.isRunning
-            ? NodeState.Running
-            : augment?.hasError
-              ? NodeState.Error
-              : NodeState.Idle
-        }
-      >
-        <HeaderSection
-          isCurrentUserOwner={isCurrentUserOwner}
-          title="Eleven Labs Text to Speech"
-          onClickRemove={() => {
-            removeNode(nodeId);
-          }}
-        />
-        <Section>
-          <NodeInputModifyRow
-            key={inputVariables[0].id}
-            name={inputVariables[0].name}
-            isReadOnly
-          />
-        </Section>
-        <Section>
-          <HelperTextContainer>
-            Check Elevent Labs's{' '}
-            <a
-              href="https://docs.elevenlabs.io/api-reference/text-to-speech"
-              target="_blank"
-              rel="noreferrer"
-            >
-              Text to Speech API Reference
-            </a>{' '}
-            for more information.
-          </HelperTextContainer>
-        </Section>
-        {isCurrentUserOwner && (
-          <Section>
-            <FormControl>
-              <FormLabel>API Key</FormLabel>
-              <Input
-                type="password"
-                color={missingElevenLabsApiKey ? 'danger' : 'neutral'}
-                value={elevenLabsApiKey ?? ''}
-                onChange={(e) => {
-                  const value = e.target.value.trim();
-                  setElevenLabsApiKey(value.length ? value : null);
-                  setMissingElevenLabsApiKey(false);
-                }}
-              />
-              {missingElevenLabsApiKey && (
-                <HelperTextContainer color="danger">
-                  Must provide a Eleven Labs API key.
-                </HelperTextContainer>
-              )}
-              <FormHelperText>
-                This is stored in your browser's local storage. Never uploaded.
-              </FormHelperText>
-            </FormControl>
-          </Section>
-        )}
+    <ReactFlowNode
+      nodeType={NodeType.ElevenLabs}
+      nodeTitle="Eleven Labs Text to Speech"
+      allowAddVariable={false}
+      destConnectorReadOnlyConfigs={[true]}
+      destConnectorHelpMessages={[
+        <>
+          Check Elevent Labs's{' '}
+          <a
+            href="https://docs.elevenlabs.io/api-reference/text-to-speech"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Text to Speech API Reference
+          </a>{' '}
+          for more information.
+        </>,
+      ]}
+    >
+      {isCurrentUserOwner && (
         <Section>
           <FormControl>
-            <FormLabel>Voice ID</FormLabel>
-            {isCurrentUserOwner ? (
-              <Input
-                value={voiceId}
-                onChange={(e) => {
-                  setVoiceId(e.target.value);
-                }}
-                onKeyUp={(e) => {
-                  if (e.key === 'Enter') {
-                    updateNodeConfig(nodeId, { voiceId });
-                  }
-                }}
-                onBlur={() => {
-                  updateNodeConfig(nodeId, { voiceId });
-                }}
-              />
-            ) : (
-              <InputReadonly value={voiceId} />
+            <FormLabel>API Key</FormLabel>
+            <Input
+              type="password"
+              color={missingElevenLabsApiKey ? 'danger' : 'neutral'}
+              value={elevenLabsApiKey ?? ''}
+              onChange={(e) => {
+                const value = e.target.value.trim();
+                setElevenLabsApiKey(value.length ? value : null);
+                setMissingElevenLabsApiKey(false);
+              }}
+            />
+            {missingElevenLabsApiKey && (
+              <HelperTextContainer color="danger">
+                Must provide a Eleven Labs API key.
+              </HelperTextContainer>
             )}
+            <FormHelperText>
+              This is stored in your browser's local storage. Never uploaded.
+            </FormHelperText>
           </FormControl>
         </Section>
-        <Section>
-          {outputVariables.map((output, i) => (
-            <NodeOutputRow
-              key={output.id}
-              id={output.id}
-              name={output.name}
-              value={defaultVariableValueMap[output.id]}
+      )}
+      <Section>
+        <FormControl>
+          <FormLabel>Voice ID</FormLabel>
+          {isCurrentUserOwner ? (
+            <Input
+              value={voiceId}
+              onChange={(e) => {
+                setVoiceId(e.target.value);
+              }}
+              onKeyUp={(e) => {
+                if (e.key === 'Enter') {
+                  updateNodeConfig(nodeId, { voiceId });
+                }
+              }}
+              onBlur={() => {
+                updateNodeConfig(nodeId, { voiceId });
+              }}
             />
-          ))}
-        </Section>
-      </NodeBox>
-      {outputVariables.map((output, i) => (
-        <OutputHandle
-          key={output.id}
-          type="source"
-          id={output.id}
-          position={Position.Right}
-          style={{
-            bottom: calculateOutputHandleBottom(outputVariables.length - 1 - i),
-          }}
-        />
-      ))}
-    </>
+          ) : (
+            <InputReadonly value={voiceId} />
+          )}
+        </FormControl>
+      </Section>
+    </ReactFlowNode>
   );
 }
