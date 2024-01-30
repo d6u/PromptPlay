@@ -1,12 +1,13 @@
+import { HANDLE_HEIGHT } from '../../../../common-react-flow/handles';
+import { BACKDROP_PADDING } from '../../../../common-react-flow/ui-constants';
 import {
   TITLE_HEIGHT,
   TITLE_MARGIN_BOTTOM,
   TITLE_PADDING_TOP,
 } from './HeaderSection';
-import { BACKDROP_PADDING } from './NodeBox';
 import { ROW_MARGIN_TOP } from './NodeInputModifyRow';
 import { VARIABLE_LABEL_HEIGHT } from './NodeOutputRow';
-import { HANDLE_HEIGHT, SECTION_PADDING_BOTTOM } from './node-common';
+import { SECTION_PADDING_BOTTOM } from './node-common';
 
 const TITLE_LENGTH = TITLE_PADDING_TOP + TITLE_HEIGHT + TITLE_MARGIN_BOTTOM;
 const BUTTON_HEIGHT = 32;

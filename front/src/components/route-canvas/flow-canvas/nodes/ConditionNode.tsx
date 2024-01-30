@@ -4,6 +4,11 @@ import { useContext, useMemo } from 'react';
 import { Position, useNodeId, useUpdateNodeInternals } from 'reactflow';
 import invariant from 'tiny-invariant';
 import { useStore } from 'zustand';
+import {
+  ConditionTargetHandle,
+  IncomingConnectorHandle,
+  OutgoingConditionHandle,
+} from '../../../common-react-flow/handles';
 import RouteFlowContext from '../../../route-flow/common/RouteFlowContext';
 import { useStoreFromFlowStoreContext } from '../../../route-flow/store/FlowStoreContext';
 import {
@@ -17,13 +22,7 @@ import NodeBox, { NodeState } from './node-common/NodeBox';
 import NodeInputModifyRow from './node-common/NodeInputModifyRow';
 import NodeOutputModifyRow from './node-common/NodeOutputModifyRow';
 import NodeOutputRow from './node-common/NodeOutputRow';
-import {
-  ConditionHandle,
-  ConditionTargetHandle,
-  InputHandle,
-  Section,
-  SmallSection,
-} from './node-common/node-common';
+import { Section, SmallSection } from './node-common/node-common';
 import {
   calculateInputHandleTop,
   calculateOutputHandleBottom,
@@ -86,9 +85,9 @@ export default function ConditionNode() {
 
   return (
     <>
-      <ConditionTargetHandle controlId={conditionTarget.id} />
+      <ConditionTargetHandle connectorId={conditionTarget.id} />
       {nodeInputs.map((flowInput, i) => (
-        <InputHandle
+        <IncomingConnectorHandle
           key={flowInput.id}
           type="target"
           id={flowInput.id}
@@ -205,7 +204,7 @@ export default function ConditionNode() {
         </Section>
       </NodeBox>
       {normalConditions.map((condition, i) => (
-        <ConditionHandle
+        <OutgoingConditionHandle
           key={condition.id}
           type="source"
           id={condition.id}
@@ -219,7 +218,7 @@ export default function ConditionNode() {
           }}
         />
       ))}
-      <ConditionHandle
+      <OutgoingConditionHandle
         key={defaultCaseCondition.id}
         type="source"
         id={defaultCaseCondition.id}

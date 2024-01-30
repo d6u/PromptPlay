@@ -2,6 +2,11 @@ import { A } from '@mobily/ts-belt';
 import { ConnectorID, ConnectorType, NodeID, NodeType } from 'flow-models';
 import { ReactNode, useContext, useEffect, useMemo, useState } from 'react';
 import { Position, useNodeId, useUpdateNodeInternals } from 'reactflow';
+import {
+  ConditionTargetHandle,
+  IncomingConnectorHandle,
+  OutgoingConnectorHandle,
+} from '../../../common-react-flow/handles';
 import RouteFlowContext from '../../../route-flow/common/RouteFlowContext';
 import { useFlowStore } from '../../../route-flow/store/FlowStoreContext';
 import {
@@ -14,13 +19,7 @@ import HeaderSection from '../nodes/node-common/HeaderSection';
 import NodeBox, { NodeState } from '../nodes/node-common/NodeBox';
 import NodeInputModifyRow from '../nodes/node-common/NodeInputModifyRow';
 import NodeOutputRow from '../nodes/node-common/NodeOutputRow';
-import {
-  ConditionTargetHandle,
-  InputHandle,
-  OutputHandle,
-  Section,
-  SmallSection,
-} from '../nodes/node-common/node-common';
+import { Section, SmallSection } from '../nodes/node-common/node-common';
 import {
   calculateInputHandleTopV2,
   calculateOutputHandleBottom,
@@ -150,11 +149,11 @@ export default function ReactFlowNode(props: Props) {
   return (
     <>
       {conditionTarget && (
-        <ConditionTargetHandle controlId={conditionTarget.id} />
+        <ConditionTargetHandle connectorId={conditionTarget.id} />
       )}
       {destConnectors.map((connector, i) => {
         return (
-          <InputHandle
+          <IncomingConnectorHandle
             key={connector.id}
             type="target"
             id={connector.id}
@@ -247,7 +246,7 @@ export default function ReactFlowNode(props: Props) {
         </Section>
       </NodeBox>
       {srcConnectors.map((connector, i) => (
-        <OutputHandle
+        <OutgoingConnectorHandle
           key={connector.id}
           type="source"
           id={connector.id}

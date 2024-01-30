@@ -2,9 +2,10 @@ import { css } from '@emotion/react';
 import styled from '@emotion/styled';
 import { NodeType } from 'flow-models';
 import background from '../../../../../assets/warning-background.svg';
-
-export const BACKDROP_PADDING = 3;
-export const NODE_BOX_WIDTH = 300;
+import {
+  BACKDROP_PADDING,
+  NODE_BOX_WIDTH,
+} from '../../../../common-react-flow/ui-constants';
 
 type Props = {
   nodeType: NodeType;

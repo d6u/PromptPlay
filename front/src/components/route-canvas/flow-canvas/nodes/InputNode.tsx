@@ -8,6 +8,7 @@ import {
 import { useContext, useMemo } from 'react';
 import { Position, useNodeId, useUpdateNodeInternals } from 'reactflow';
 import { useStore } from 'zustand';
+import { OutgoingConnectorHandle } from '../../../common-react-flow/handles';
 import RouteFlowContext from '../../../route-flow/common/RouteFlowContext';
 import { useStoreFromFlowStoreContext } from '../../../route-flow/store/FlowStoreContext';
 import { selectVariables } from '../../../route-flow/store/state-utils';
@@ -17,7 +18,6 @@ import HeaderSection from './node-common/HeaderSection';
 import NodeBox from './node-common/NodeBox';
 import NodeOutputModifyRow from './node-common/NodeOutputModifyRow';
 import {
-  OutputHandle,
   Section,
   SmallSection,
   StyledIconGear,
@@ -108,7 +108,7 @@ export default function InputNode() {
         </Section>
       </NodeBox>
       {flowInputs.map((flowInput, i) => (
-        <OutputHandle
+        <OutgoingConnectorHandle
           key={flowInput.id}
           type="source"
           id={flowInput.id}
