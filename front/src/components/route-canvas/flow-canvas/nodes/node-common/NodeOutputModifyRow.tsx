@@ -1,8 +1,8 @@
 import styled from '@emotion/styled';
 import Input from '@mui/joy/Input';
 import { useState } from 'react';
+import NodeBoxCommonRemoveButton from '../../../../common-react-flow/node-box/NodeBoxCommonRemoveButton';
 import InputReadonly from '../../../../route-flow/common/InputReadonly';
-import RemoveButton from './RemoveButton';
 
 const Container = styled.div`
   margin-top: 5px;
@@ -59,7 +59,9 @@ export default function NodeOutputModifyRow(props: Props) {
           }}
         />
       )}
-      {!props.isReadOnly && <RemoveButton onClick={() => props.onRemove()} />}
+      {!props.isReadOnly && (
+        <NodeBoxCommonRemoveButton onClick={() => props.onRemove()} />
+      )}
     </Container>
   );
 }

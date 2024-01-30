@@ -2,9 +2,9 @@ import styled from '@emotion/styled';
 import Input from '@mui/joy/Input';
 import { ReactNode, useCallback, useRef, useState } from 'react';
 import { useOnElementResize } from '../../../../../utils/ResizeObserver';
+import NodeBoxCommonRemoveButton from '../../../../common-react-flow/node-box/NodeBoxCommonRemoveButton';
 import InputReadonly from '../../../../route-flow/common/InputReadonly';
 import HelperTextContainer from './HelperTextContainer';
-import RemoveButton from './RemoveButton';
 
 type Props = {
   isReadOnly: boolean;
@@ -77,7 +77,7 @@ export default function NodeInputModifyRow(props: Props) {
           />
         )}
         {!props.isReadOnly && (
-          <RemoveButton onClick={() => props.onRemove?.()} />
+          <NodeBoxCommonRemoveButton onClick={() => props.onRemove?.()} />
         )}
       </InputContainer>
       {props.helperMessage && (

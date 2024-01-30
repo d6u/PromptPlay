@@ -63,7 +63,7 @@ export default function InputNode() {
     <>
       <NodeBox nodeType={NodeType.InputNode}>
         <NodeBoxHeaderSection
-          isCurrentUserOwner={isCurrentUserOwner}
+          isReadOnly={isCurrentUserOwner}
           title="Input"
           onClickRemove={() => {
             removeNode(nodeId);

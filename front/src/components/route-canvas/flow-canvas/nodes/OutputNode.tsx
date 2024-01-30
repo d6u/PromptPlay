@@ -62,7 +62,7 @@ export default function OutputNode() {
       ))}
       <NodeBox nodeType={NodeType.OutputNode}>
         <NodeBoxHeaderSection
-          isCurrentUserOwner={isCurrentUserOwner}
+          isReadOnly={isCurrentUserOwner}
           title="Output"
           onClickRemove={() => {
             removeNode(nodeId);

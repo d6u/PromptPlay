@@ -160,7 +160,7 @@ export default function ReactFlowNode(props: Props) {
         hasError={augment?.hasError}
       >
         <NodeBoxHeaderSection
-          isCurrentUserOwner={isCurrentUserOwner}
+          isReadOnly={isCurrentUserOwner}
           title={props.nodeTitle}
           onClickRemove={() => {
             removeNode(nodeId);

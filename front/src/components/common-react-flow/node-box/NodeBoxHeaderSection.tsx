@@ -1,16 +1,16 @@
 import styled from '@emotion/styled';
 import IconThreeDots from '../../icons/IconThreeDots';
-import RemoveButton from '../../route-canvas/flow-canvas/nodes/node-common/RemoveButton';
 import { DRAG_HANDLE_CLASS_NAME } from '../../route-flow/utils/constants';
 import {
   TITLE_HEIGHT,
   TITLE_MARGIN_BOTTOM,
   TITLE_PADDING_TOP,
 } from '../ui-constants';
+import NodeBoxCommonRemoveButton from './NodeBoxCommonRemoveButton';
 
 type Props = {
-  isCurrentUserOwner: boolean;
   title: string;
+  isReadOnly: boolean;
   onClickRemove: () => void;
 };
 
@@ -21,9 +21,9 @@ export default function NodeBoxHeaderSection(props: Props) {
         <Title>{props.title}</Title>
         <DragHandle />
       </TitleContainer>
-      {props.isCurrentUserOwner && (
+      {props.isReadOnly && (
         <RemoveButtonContainer>
-          <RemoveButton onClick={props.onClickRemove} />
+          <NodeBoxCommonRemoveButton onClick={props.onClickRemove} />
         </RemoveButtonContainer>
       )}
     </Container>
