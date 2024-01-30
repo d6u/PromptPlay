@@ -8,6 +8,7 @@ import IncomingConditionHandle from '../../../common-react-flow/handles/Incoming
 import IncomingVariableHandle from '../../../common-react-flow/handles/IncomingVariableHandle';
 import OutgoingConditionHandle from '../../../common-react-flow/handles/OutgoingConditionHandle';
 import NodeBox from '../../../common-react-flow/node-box/NodeBox';
+import NodeBoxAddConnectorButton from '../../../common-react-flow/node-box/NodeBoxAddConnectorButton';
 import NodeBoxHeaderSection from '../../../common-react-flow/node-box/NodeBoxHeaderSection';
 import RouteFlowContext from '../../../route-flow/common/RouteFlowContext';
 import { useStoreFromFlowStoreContext } from '../../../route-flow/store/FlowStoreContext';
@@ -16,7 +17,6 @@ import {
   selectConditions,
   selectVariables,
 } from '../../../route-flow/store/state-utils';
-import AddVariableButton from './node-common/AddVariableButton';
 import NodeInputModifyRow from './node-common/NodeInputModifyRow';
 import NodeOutputModifyRow from './node-common/NodeOutputModifyRow';
 import NodeOutputRow from './node-common/NodeOutputRow';
@@ -137,7 +137,7 @@ export default function ConditionNode() {
         </Section>
         <SmallSection>
           {isCurrentUserOwner && (
-            <AddVariableButton
+            <NodeBoxAddConnectorButton
               label="Condition"
               onClick={() => {
                 addVariable(

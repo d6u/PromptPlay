@@ -6,6 +6,7 @@ import IncomingConditionHandle from '../../../common-react-flow/handles/Incoming
 import IncomingVariableHandle from '../../../common-react-flow/handles/IncomingVariableHandle';
 import OutgoingVariableHandle from '../../../common-react-flow/handles/OutgoingVariableHandle';
 import NodeBox from '../../../common-react-flow/node-box/NodeBox';
+import NodeBoxAddConnectorButton from '../../../common-react-flow/node-box/NodeBoxAddConnectorButton';
 import NodeBoxHeaderSection from '../../../common-react-flow/node-box/NodeBoxHeaderSection';
 import RouteFlowContext from '../../../route-flow/common/RouteFlowContext';
 import { useFlowStore } from '../../../route-flow/store/FlowStoreContext';
@@ -14,7 +15,6 @@ import {
   selectVariables,
 } from '../../../route-flow/store/state-utils';
 import { DetailPanelContentType } from '../../../route-flow/store/store-flow-state-types';
-import AddVariableButton from '../nodes/node-common/AddVariableButton';
 import NodeInputModifyRow from '../nodes/node-common/NodeInputModifyRow';
 import NodeOutputRow from '../nodes/node-common/NodeOutputRow';
 import { Section, SmallSection } from '../nodes/node-common/node-common';
@@ -168,7 +168,8 @@ export default function ReactFlowNode(props: Props) {
         />
         {props.allowAddVariable && isCurrentUserOwner && (
           <SmallSection>
-            <AddVariableButton
+            <NodeBoxAddConnectorButton
+              label="Variable"
               onClick={() => {
                 addVariable(
                   nodeId,
