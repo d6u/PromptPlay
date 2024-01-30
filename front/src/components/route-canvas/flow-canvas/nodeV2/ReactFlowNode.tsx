@@ -8,6 +8,7 @@ import OutgoingVariableHandle from '../../../common-react-flow/handles/OutgoingV
 import NodeBox from '../../../common-react-flow/node-box/NodeBox';
 import NodeBoxAddConnectorButton from '../../../common-react-flow/node-box/NodeBoxAddConnectorButton';
 import NodeBoxHeaderSection from '../../../common-react-flow/node-box/NodeBoxHeaderSection';
+import NodeBoxIncomingVariableSection from '../../../common-react-flow/node-box/NodeBoxIncomingVariableSection';
 import NodeBoxSmallSection from '../../../common-react-flow/node-box/NodeBoxSmallSection';
 import RouteFlowContext from '../../../route-flow/common/RouteFlowContext';
 import { useFlowStore } from '../../../route-flow/store/FlowStoreContext';
@@ -122,23 +123,23 @@ export default function ReactFlowNode(props: Props) {
   );
 
   // SECTION: Manage height of each variable input box
-  const [destConnectorInputHeightArr, setDestConnectorInputHeightArr] =
+  const [inputVariableBlockHeightList, setInputVariableBlockHeightList] =
     useState<number[]>(() => {
       return A.make(destConnectors.length, 0);
     });
 
   useEffect(() => {
-    if (destConnectors.length > destConnectorInputHeightArr.length) {
+    if (destConnectors.length > inputVariableBlockHeightList.length) {
       // NOTE: Increase the length of destConnectorInputHeightArr when needed
-      setDestConnectorInputHeightArr((state) => {
+      setInputVariableBlockHeightList((state) => {
         return state.concat(A.make(destConnectors.length - state.length, 0));
       });
     }
-  }, [destConnectors.length, destConnectorInputHeightArr.length]);
+  }, [destConnectors.length, inputVariableBlockHeightList.length]);
 
   useEffect(() => {
     updateNodeInternals(nodeId);
-  }, [destConnectorInputHeightArr, nodeId, updateNodeInternals]);
+  }, [inputVariableBlockHeightList, nodeId, updateNodeInternals]);
   // !SECTION
 
   return (
@@ -150,7 +151,7 @@ export default function ReactFlowNode(props: Props) {
             key={connector.id}
             id={connector.id}
             index={i}
-            inputVariableBlockHeightList={destConnectorInputHeightArr}
+            inputVariableBlockHeightList={inputVariableBlockHeightList}
             isShowingAddInputVariableButton={props.allowAddVariable}
           />
         );
@@ -182,7 +183,7 @@ export default function ReactFlowNode(props: Props) {
             />
           </NodeBoxSmallSection>
         )}
-        <Section>
+        <NodeBoxIncomingVariableSection>
           {destConnectors.map((connector, i) => {
             return (
               <NodeInputModifyRow
@@ -202,14 +203,14 @@ export default function ReactFlowNode(props: Props) {
                   }
                 }}
                 onHeightChange={(height: number) => {
-                  setDestConnectorInputHeightArr((arr) => {
+                  setInputVariableBlockHeightList((arr) => {
                     return A.updateAt(arr, i, () => height);
                   });
                 }}
               />
             );
           })}
-        </Section>
+        </NodeBoxIncomingVariableSection>
         {props.children}
         <Section>
           {srcConnectors.map((connector) => (

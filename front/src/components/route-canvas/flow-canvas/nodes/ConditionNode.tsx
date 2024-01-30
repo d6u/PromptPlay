@@ -10,6 +10,7 @@ import OutgoingConditionHandle from '../../../common-react-flow/handles/Outgoing
 import NodeBox from '../../../common-react-flow/node-box/NodeBox';
 import NodeBoxAddConnectorButton from '../../../common-react-flow/node-box/NodeBoxAddConnectorButton';
 import NodeBoxHeaderSection from '../../../common-react-flow/node-box/NodeBoxHeaderSection';
+import NodeBoxIncomingVariableSection from '../../../common-react-flow/node-box/NodeBoxIncomingVariableSection';
 import NodeBoxSmallSection from '../../../common-react-flow/node-box/NodeBoxSmallSection';
 import RouteFlowContext from '../../../route-flow/common/RouteFlowContext';
 import { useStoreFromFlowStoreContext } from '../../../route-flow/store/FlowStoreContext';
@@ -96,7 +97,7 @@ export default function ConditionNode() {
             removeNode(nodeId);
           }}
         />
-        <Section>
+        <NodeBoxIncomingVariableSection>
           {nodeInputs.map((flowInput, i) => (
             <NodeInputModifyRow
               key={flowInput.id}
@@ -111,7 +112,7 @@ export default function ConditionNode() {
               }}
             />
           ))}
-        </Section>
+        </NodeBoxIncomingVariableSection>
         <Section>
           <FormControl>
             <FormLabel>Stop at the first match</FormLabel>

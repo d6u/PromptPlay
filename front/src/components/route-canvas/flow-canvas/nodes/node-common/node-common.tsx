@@ -1,7 +1,7 @@
 import styled from '@emotion/styled';
-
-export const SECTION_PADDING_BOTTOM = 10;
+import { SECTION_PADDING_BOTTOM } from '../../../../common-react-flow/ui-constants';
 
 export const Section = styled.div`
-  padding: 0 10px ${SECTION_PADDING_BOTTOM}px;
+  padding: 0 10px;
+  margin: ${SECTION_PADDING_BOTTOM}px 0;
 `;

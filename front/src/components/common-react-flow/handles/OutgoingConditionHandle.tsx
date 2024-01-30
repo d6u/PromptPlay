@@ -3,10 +3,10 @@ import { ComponentProps } from 'react';
 import { Position } from 'reactflow';
 import { ROW_MARGIN_TOP } from '../../route-canvas/flow-canvas/nodes/node-common/NodeInputModifyRow';
 import { VARIABLE_LABEL_HEIGHT } from '../../route-canvas/flow-canvas/nodes/node-common/NodeOutputRow';
-import { SECTION_PADDING_BOTTOM } from '../../route-canvas/flow-canvas/nodes/node-common/node-common';
 import {
   BACKDROP_PADDING,
   CONDITION_NODE_DEFAULT_CASE_HELPER_TEXT_HEIGHT,
+  SECTION_PADDING_BOTTOM,
 } from '../ui-constants';
 import { BaseHandle, HANDLE_HEIGHT, HANDLE_WIDTH } from './common';
 
