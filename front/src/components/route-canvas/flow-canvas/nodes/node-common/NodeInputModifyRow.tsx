@@ -3,8 +3,8 @@ import Input from '@mui/joy/Input';
 import { ReactNode, useCallback, useRef, useState } from 'react';
 import { useOnElementResize } from '../../../../../utils/ResizeObserver';
 import NodeBoxCommonRemoveButton from '../../../../common-react-flow/node-box/NodeBoxCommonRemoveButton';
+import NodeBoxHelperTextContainer from '../../../../common-react-flow/node-box/NodeBoxHelperTextContainer';
 import InputReadonly from '../../../../route-flow/common/InputReadonly';
-import HelperTextContainer from './HelperTextContainer';
 
 type Props = {
   isReadOnly: boolean;
@@ -82,7 +82,9 @@ export default function NodeInputModifyRow(props: Props) {
       </InputContainer>
       {props.helperMessage && (
         <HelperMessageContainer>
-          <HelperTextContainer>{props.helperMessage}</HelperTextContainer>
+          <NodeBoxHelperTextContainer>
+            {props.helperMessage}
+          </NodeBoxHelperTextContainer>
         </HelperMessageContainer>
       )}
     </Container>

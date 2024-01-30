@@ -7,7 +7,7 @@ type Props = {
   children: ReactNode;
 };
 
-export default function HelperTextContainer(props: Props) {
+export default function NodeBoxHelperTextContainer(props: Props) {
   let color: string;
   switch (props.color) {
     case 'danger':

@@ -15,12 +15,12 @@ import {
   useLocalStorageStore,
   useSpaceStore,
 } from '../../../../state/appState';
+import NodeBoxHelperTextContainer from '../../../common-react-flow/node-box/NodeBoxHelperTextContainer';
 import NodeBoxSection from '../../../common-react-flow/node-box/NodeBoxSection';
 import InputReadonly from '../../../route-flow/common/InputReadonly';
 import RouteFlowContext from '../../../route-flow/common/RouteFlowContext';
 import { useFlowStore } from '../../../route-flow/store/FlowStoreContext';
 import ReactFlowNode from '../nodeV2/ReactFlowNode';
-import HelperTextContainer from './node-common/HelperTextContainer';
 
 const persistSelector = (state: LocalStorageState) => ({
   huggingFaceApiToken: state.huggingFaceApiToken,
@@ -95,9 +95,9 @@ export default function HuggingFaceInferenceNode() {
               }}
             />
             {missingHuggingFaceApiToken && (
-              <HelperTextContainer color="danger">
+              <NodeBoxHelperTextContainer color="danger">
                 Must provide a Hugging Face API token.
-              </HelperTextContainer>
+              </NodeBoxHelperTextContainer>
             )}
             <FormHelperText>
               This is stored in your browser's local storage. Never uploaded.
