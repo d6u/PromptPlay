@@ -33,7 +33,7 @@ import {
   applyNodeChanges,
 } from 'reactflow';
 import invariant from 'tiny-invariant';
-import { DRAG_HANDLE_CLASS_NAME } from '../utils/constants';
+import { DRAG_HANDLE_CLASS_NAME } from '../../common-react-flow/ui-constants';
 import { ChangeEvent, ChangeEventType } from './event-graph-types';
 import { CsvEvaluationConfigContent } from './slice-csv-evaluation-preset';
 import { assignLocalEdgeProperties } from './state-utils';

@@ -14,11 +14,8 @@ import {
 } from 'flow-models';
 import { produce } from 'immer';
 import invariant from 'tiny-invariant';
-import {
-  CONDITION_EDGE_STYLE,
-  DEFAULT_EDGE_STYLE,
-  DRAG_HANDLE_CLASS_NAME,
-} from '../utils/constants';
+import { DRAG_HANDLE_CLASS_NAME } from '../../common-react-flow/ui-constants';
+import { CONDITION_EDGE_STYLE, DEFAULT_EDGE_STYLE } from '../utils/constants';
 
 export function assignLocalNodeProperties(nodes: LocalNode[]): LocalNode[] {
   return produce(nodes, (draft) => {

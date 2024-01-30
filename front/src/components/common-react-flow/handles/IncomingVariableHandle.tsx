@@ -6,7 +6,7 @@ import {
   ADD_VARIABLE_BUTTON_HEIGHT,
   ADD_VARIABLE_BUTTON_MARGIN_BOTTOM,
   BACKDROP_PADDING,
-  TITLE_BLOCK_HEIGHT,
+  HEADER_SECTION_HEIGHT,
 } from '../ui-constants';
 import { BaseHandle, HANDLE_HEIGHT, HANDLE_WIDTH } from './common';
 
@@ -54,7 +54,7 @@ function calcTop(
   inputVariableBlockHeightList: number[],
   isShowingAddInputVariableButton: boolean,
 ) {
-  let headerSectionHeight = BACKDROP_PADDING + TITLE_BLOCK_HEIGHT;
+  let headerSectionHeight = BACKDROP_PADDING + HEADER_SECTION_HEIGHT;
 
   if (isShowingAddInputVariableButton) {
     headerSectionHeight +=

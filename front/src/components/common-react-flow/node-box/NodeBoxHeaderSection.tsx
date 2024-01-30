@@ -1,10 +1,10 @@
 import styled from '@emotion/styled';
 import IconThreeDots from '../../icons/IconThreeDots';
-import { DRAG_HANDLE_CLASS_NAME } from '../../route-flow/utils/constants';
 import {
-  TITLE_HEIGHT,
-  TITLE_MARGIN_BOTTOM,
-  TITLE_PADDING_TOP,
+  DRAG_HANDLE_CLASS_NAME,
+  HEADER_TITLE_HEIGHT,
+  HEADER_TITLE_MARGIN_BOTTOM,
+  HEADER_TITLE_PADDING_TOP,
 } from '../ui-constants';
 import NodeBoxCommonRemoveButton from './NodeBoxCommonRemoveButton';
 
@@ -36,14 +36,14 @@ const Container = styled.div`
 
 const TitleContainer = styled.div`
   cursor: grab;
-  padding: ${TITLE_PADDING_TOP}px 10px 0;
-  margin-bottom: ${TITLE_MARGIN_BOTTOM}px;
+  padding: ${HEADER_TITLE_PADDING_TOP}px 10px 0;
+  margin-bottom: ${HEADER_TITLE_MARGIN_BOTTOM}px;
 `;
 
 const Title = styled.h3`
   margin: 0;
   font-size: 16px;
-  line-height: ${TITLE_HEIGHT}px;
+  line-height: ${HEADER_TITLE_HEIGHT}px;
 `;
 
 const DragHandle = styled(IconThreeDots)`
