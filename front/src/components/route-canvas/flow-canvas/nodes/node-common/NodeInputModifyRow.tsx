@@ -1,13 +1,99 @@
 import styled from '@emotion/styled';
 import Input from '@mui/joy/Input';
-import { useState } from 'react';
+import { ReactNode, useCallback, useRef, useState } from 'react';
+import { useOnElementResize } from '../../../../../utils/ResizeObserver';
 import InputReadonly from '../../../../route-flow/common/InputReadonly';
+import HelperTextContainer from './HelperTextContainer';
 import RemoveButton from './RemoveButton';
+
+type Props = {
+  isReadOnly: boolean;
+  name: string;
+  helperMessage?: ReactNode;
+  onConfirmNameChange?: (name: string) => void;
+  onRemove?: () => void;
+  onHeightChange?: (height: number) => void;
+};
+
+export default function NodeInputModifyRow(props: Props) {
+  const { onHeightChange, helperMessage } = props;
+
+  const containerRef = useRef<HTMLDivElement>(null);
+  const prevHeightRef = useRef<number>(0);
+
+  useOnElementResize(
+    containerRef,
+    useCallback(
+      (contentRect) => {
+        const newHeight = contentRect.height;
+
+        if (prevHeightRef.current !== newHeight) {
+          prevHeightRef.current = newHeight;
+
+          onHeightChange?.(prevHeightRef.current + (helperMessage ? 10 : 5));
+        }
+      },
+      [helperMessage, onHeightChange],
+    ),
+  );
+
+  const [name, setName] = useState(props.name);
+
+  return (
+    <Container ref={containerRef}>
+      <InputContainer>
+        {props.isReadOnly ? (
+          <InputReadonly
+            color="neutral"
+            size="sm"
+            variant="outlined"
+            value={name}
+          />
+        ) : (
+          <NameInput
+            color="primary"
+            size="sm"
+            variant="outlined"
+            value={name}
+            onChange={(e) => {
+              if (!props.isReadOnly) {
+                setName(e.target.value);
+              }
+            }}
+            onKeyUp={(e) => {
+              if (props.isReadOnly) {
+                return;
+              }
+              if (e.key === 'Enter') {
+                props.onConfirmNameChange?.(name);
+              }
+            }}
+            onBlur={() => {
+              if (props.isReadOnly) {
+                return;
+              }
+              props.onConfirmNameChange?.(name);
+            }}
+          />
+        )}
+        {!props.isReadOnly && (
+          <RemoveButton onClick={() => props.onRemove?.()} />
+        )}
+      </InputContainer>
+      {props.helperMessage && (
+        <HelperMessageContainer>
+          <HelperTextContainer>{props.helperMessage}</HelperTextContainer>
+        </HelperMessageContainer>
+      )}
+    </Container>
+  );
+}
+
+// ANCHOR: UI
 
 export const ROW_MARGIN_TOP = 5;
 
 const Container = styled.div`
-  display: flex;
   margin-top: ${ROW_MARGIN_TOP}px;
 
   &:first-of-type {
@@ -15,63 +101,16 @@ const Container = styled.div`
   }
 `;
 
+const InputContainer = styled.div`
+  display: flex;
+`;
+
 const NameInput = styled(Input)`
   margin-right: 5px;
   flex-grow: 1;
 `;
 
-type Props =
-  | {
-      isReadOnly?: false;
-      name: string;
-      onConfirmNameChange: (name: string) => void;
-      onRemove: () => void;
-    }
-  | {
-      isReadOnly: true;
-      name: string;
-    };
-
-export default function NodeInputModifyRow(props: Props) {
-  const [name, setName] = useState(props.name);
-
-  return (
-    <Container>
-      {props.isReadOnly ? (
-        <InputReadonly
-          color="neutral"
-          size="sm"
-          variant="outlined"
-          value={name}
-        />
-      ) : (
-        <NameInput
-          color="primary"
-          size="sm"
-          variant="outlined"
-          value={name}
-          onChange={(e) => {
-            if (!props.isReadOnly) {
-              setName(e.target.value);
-            }
-          }}
-          onKeyUp={(e) => {
-            if (props.isReadOnly) {
-              return;
-            }
-            if (e.key === 'Enter') {
-              props.onConfirmNameChange(name);
-            }
-          }}
-          onBlur={() => {
-            if (props.isReadOnly) {
-              return;
-            }
-            props.onConfirmNameChange(name);
-          }}
-        />
-      )}
-      {!props.isReadOnly && <RemoveButton onClick={() => props.onRemove()} />}
-    </Container>
-  );
-}
+const HelperMessageContainer = styled.div`
+  margin-top: 10px;
+  margin-bottom: 10px;
+`;
