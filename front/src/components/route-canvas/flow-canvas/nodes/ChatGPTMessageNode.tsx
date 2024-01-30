@@ -57,6 +57,9 @@ export default function ChatGPTMessageNode() {
   const flowStore = useStoreFromFlowStoreContext();
 
   const variablesDict = useStore(flowStore, (s) => s.variablesDict);
+  const defaultVariableValueMap = useStore(flowStore, (s) =>
+    s.getDefaultVariableValueLookUpDict(),
+  );
 
   const conditionTarget = useMemo(() => {
     return selectConditionTarget(nodeId, variablesDict);
@@ -93,11 +96,28 @@ export default function ChatGPTMessageNode() {
     return [messages].concat(rest);
   }, [isCurrentUserOwner, nodeId, variablesDict]);
 
+  const outputs = useMemo(() => {
+    const outputVariables = selectVariables(
+      nodeId,
+      ConnectorType.NodeOutput,
+      variablesDict,
+    );
+
+    return outputVariables.map<SrcConnector>((output) => {
+      return {
+        id: output.id,
+        name: output.name,
+        value: defaultVariableValueMap[output.id],
+      };
+    });
+  }, [defaultVariableValueMap, nodeId, variablesDict]);
+
   return (
     <Inner
       nodeTitle="ChatGPT Message"
-      destConnectors={inputs}
       conditionTarget={conditionTarget}
+      destConnectors={inputs}
+      srcConnectors={outputs}
     />
   );
 }
@@ -109,10 +129,17 @@ type DestConnector = {
   helperMessage?: ReactNode;
 };
 
+type SrcConnector = {
+  id: string;
+  name: string;
+  value: unknown;
+};
+
 type Props = {
   nodeTitle: string;
-  destConnectors: DestConnector[];
   conditionTarget?: ConditionTarget | null;
+  destConnectors: DestConnector[];
+  srcConnectors: SrcConnector[];
 };
 
 function Inner(props: Props) {
@@ -125,7 +152,6 @@ function Inner(props: Props) {
   // SECTION: Select state from store
 
   const nodeConfigsDict = useStore(flowStore, (s) => s.nodeConfigsDict);
-  const variablesDict = useStore(flowStore, (s) => s.variablesDict);
   const updateNodeConfig = useStore(flowStore, (s) => s.updateNodeConfig);
   const removeNode = useStore(flowStore, (s) => s.removeNode);
   const addVariable = useStore(flowStore, (s) => s.addVariable);
@@ -139,17 +165,8 @@ function Inner(props: Props) {
     flowStore,
     (s) => s.setDetailPanelSelectedNodeId,
   );
-  const defaultVariableValueMap = useStore(flowStore, (s) =>
-    s.getDefaultVariableValueLookUpDict(),
-  );
 
   // !SECTION
-
-  const outputVariables = selectVariables(
-    nodeId,
-    ConnectorType.NodeOutput,
-    variablesDict,
-  );
 
   const nodeConfig = useMemo(() => {
     return nodeConfigsDict[nodeId] as V3ChatGPTMessageNodeConfig | undefined;
@@ -203,12 +220,12 @@ function Inner(props: Props) {
       {props.conditionTarget && (
         <ConditionTargetHandle controlId={props.conditionTarget.id} />
       )}
-      {props.destConnectors.map((input, i) => {
+      {props.destConnectors.map((connector, i) => {
         return (
           <InputHandle
-            key={i}
+            key={connector.id}
             type="target"
-            id={input.id}
+            id={connector.id}
             position={Position.Left}
             style={{
               top: calculateInputHandleTopV2(i, destConnectorInputHeightArr),
@@ -239,21 +256,21 @@ function Inner(props: Props) {
           </SmallSection>
         )}
         <Section>
-          {props.destConnectors.map((input, i) => {
+          {props.destConnectors.map((connector, i) => {
             return (
               <NodeInputModifyRow
-                key={input.id}
-                name={input.name}
-                isReadOnly={input.isReadOnly}
-                helperMessage={input.helperMessage}
+                key={connector.id}
+                name={connector.name}
+                isReadOnly={connector.isReadOnly}
+                helperMessage={connector.helperMessage}
                 onConfirmNameChange={(name) => {
-                  if (!input.isReadOnly) {
-                    updateVariable(input.id as ConnectorID, { name });
+                  if (!connector.isReadOnly) {
+                    updateVariable(connector.id as ConnectorID, { name });
                   }
                 }}
                 onRemove={() => {
-                  if (!input.isReadOnly) {
-                    removeVariable(input.id as ConnectorID);
+                  if (!connector.isReadOnly) {
+                    removeVariable(connector.id as ConnectorID);
                     updateNodeInternals(nodeId);
                   }
                 }}
@@ -366,12 +383,12 @@ function Inner(props: Props) {
           </IconButton>
         </Section>
         <Section>
-          {outputVariables.map((output, i) => (
+          {props.srcConnectors.map((connector) => (
             <NodeOutputRow
-              key={output.id}
-              id={output.id}
-              name={output.name}
-              value={defaultVariableValueMap[output.id]}
+              key={connector.id}
+              id={connector.id}
+              name={connector.name}
+              value={connector.value}
               onClick={() => {
                 setDetailPanelContentType(
                   DetailPanelContentType.ChatGPTMessageConfig,
@@ -382,14 +399,16 @@ function Inner(props: Props) {
           ))}
         </Section>
       </NodeBox>
-      {outputVariables.map((output, i) => (
+      {props.srcConnectors.map((connector, i) => (
         <OutputHandle
-          key={output.id}
+          key={connector.id}
           type="source"
-          id={output.id}
+          id={connector.id}
           position={Position.Right}
           style={{
-            bottom: calculateOutputHandleBottom(outputVariables.length - 1 - i),
+            bottom: calculateOutputHandleBottom(
+              props.srcConnectors.length - 1 - i,
+            ),
           }}
         />
       ))}
