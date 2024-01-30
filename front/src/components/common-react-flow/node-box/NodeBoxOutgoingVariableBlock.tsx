@@ -14,7 +14,7 @@ type Props = {
   style?: React.CSSProperties;
 };
 
-export default function NodeBoxOutputVariableBlock(props: Props) {
+export default function NodeBoxOutgoingVariableBlock(props: Props) {
   const flowStore = useStoreFromFlowStoreContext();
 
   const setDetailPanelContentType = useStore(

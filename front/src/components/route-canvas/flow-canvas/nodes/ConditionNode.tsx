@@ -13,7 +13,7 @@ import NodeBoxHeaderSection from '../../../common-react-flow/node-box/NodeBoxHea
 import NodeBoxIncomingVariableBlock from '../../../common-react-flow/node-box/NodeBoxIncomingVariableBlock';
 import NodeBoxIncomingVariableSection from '../../../common-react-flow/node-box/NodeBoxIncomingVariableSection';
 import NodeBoxOutgoingConnectorBlock from '../../../common-react-flow/node-box/NodeBoxOutgoingConnectorBlock';
-import NodeBoxOutputVariableBlock from '../../../common-react-flow/node-box/NodeBoxOutputVariableBlock';
+import NodeBoxOutgoingVariableBlock from '../../../common-react-flow/node-box/NodeBoxOutgoingVariableBlock';
 import NodeBoxSection from '../../../common-react-flow/node-box/NodeBoxSection';
 import NodeBoxSmallSection from '../../../common-react-flow/node-box/NodeBoxSmallSection';
 import RouteFlowContext from '../../../route-flow/common/RouteFlowContext';
@@ -165,7 +165,7 @@ export default function ConditionNode() {
                 updateNodeInternals(nodeId);
               }}
             />
-            <NodeBoxOutputVariableBlock
+            <NodeBoxOutgoingVariableBlock
               id={defaultCaseCondition.id}
               name="is matched"
               value={
@@ -180,7 +180,7 @@ export default function ConditionNode() {
           </NodeBoxSection>
         ))}
         <NodeBoxSection>
-          <NodeBoxOutputVariableBlock
+          <NodeBoxOutgoingVariableBlock
             id={defaultCaseCondition.id}
             name="Default case"
           />

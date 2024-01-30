@@ -1,7 +1,7 @@
 import styled from '@emotion/styled';
 import { ComponentProps } from 'react';
 import { Position } from 'reactflow';
-import { VARIABLE_LABEL_HEIGHT } from '../node-box/NodeBoxOutputVariableBlock';
+import { VARIABLE_LABEL_HEIGHT } from '../node-box/NodeBoxOutgoingVariableBlock';
 import {
   ADD_VARIABLE_BUTTON_HEIGHT,
   ADD_VARIABLE_BUTTON_MARGIN_BOTTOM,

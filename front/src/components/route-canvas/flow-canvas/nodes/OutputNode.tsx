@@ -18,7 +18,7 @@ import NodeBoxIncomingVariableBlock, {
   ROW_MARGIN_TOP,
 } from '../../../common-react-flow/node-box/NodeBoxIncomingVariableBlock';
 import NodeBoxIncomingVariableSection from '../../../common-react-flow/node-box/NodeBoxIncomingVariableSection';
-import { VARIABLE_LABEL_HEIGHT } from '../../../common-react-flow/node-box/NodeBoxOutputVariableBlock';
+import { VARIABLE_LABEL_HEIGHT } from '../../../common-react-flow/node-box/NodeBoxOutgoingVariableBlock';
 import NodeBoxSmallSection from '../../../common-react-flow/node-box/NodeBoxSmallSection';
 import RouteFlowContext from '../../../route-flow/common/RouteFlowContext';
 import { useStoreFromFlowStoreContext } from '../../../route-flow/store/FlowStoreContext';

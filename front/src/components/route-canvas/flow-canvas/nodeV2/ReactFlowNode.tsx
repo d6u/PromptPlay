@@ -10,7 +10,7 @@ import NodeBoxAddConnectorButton from '../../../common-react-flow/node-box/NodeB
 import NodeBoxHeaderSection from '../../../common-react-flow/node-box/NodeBoxHeaderSection';
 import NodeBoxIncomingVariableBlock from '../../../common-react-flow/node-box/NodeBoxIncomingVariableBlock';
 import NodeBoxIncomingVariableSection from '../../../common-react-flow/node-box/NodeBoxIncomingVariableSection';
-import NodeBoxOutputVariableBlock from '../../../common-react-flow/node-box/NodeBoxOutputVariableBlock';
+import NodeBoxOutgoingVariableBlock from '../../../common-react-flow/node-box/NodeBoxOutgoingVariableBlock';
 import NodeBoxSection from '../../../common-react-flow/node-box/NodeBoxSection';
 import NodeBoxSmallSection from '../../../common-react-flow/node-box/NodeBoxSmallSection';
 import RouteFlowContext from '../../../route-flow/common/RouteFlowContext';
@@ -214,7 +214,7 @@ export default function ReactFlowNode(props: Props) {
         {props.children}
         <NodeBoxSection>
           {srcConnectors.map((connector) => (
-            <NodeBoxOutputVariableBlock
+            <NodeBoxOutgoingVariableBlock
               key={connector.id}
               id={connector.id}
               name={connector.name}
