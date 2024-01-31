@@ -3,7 +3,7 @@ import { NodeType } from 'flow-models';
 import { useContext } from 'react';
 import RouteFlowContext from '../../../route-flow/common/RouteFlowContext';
 
-export default function ChatGPTMessageNode() {
+export default function StandardNode() {
   const { isCurrentUserOwner } = useContext(RouteFlowContext);
 
   return (
