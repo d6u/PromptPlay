@@ -18,9 +18,12 @@
     /* Linting */
     "strict": true,
     "noUnusedLocals": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
     // "noUncheckedIndexedAccess": true
     // "noPropertyAccessFromIndexSignature": true
+    "paths": {
+      "icons/*": ["./src/icons/*"]
+    }
   },
   "include": ["src"],
   "references": [{ "path": "./tsconfig.node.json" }]

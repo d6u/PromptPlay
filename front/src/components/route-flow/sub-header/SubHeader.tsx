@@ -17,6 +17,7 @@ import {
   getAllNodeTypes,
   getNodeDefinitionForNodeTypeName,
 } from 'flow-models';
+import IconThreeDots from 'icons/IconThreeDots';
 import { useCallback, useContext, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStoreApi } from 'reactflow';
@@ -27,7 +28,6 @@ import {
   pathToFlowCanvasTab,
 } from '../../../utils/route-utils';
 import { NODE_BOX_WIDTH } from '../../common-react-flow/ui-constants';
-import IconThreeDots from '../../icons/IconThreeDots';
 import { BatchTestTab } from '../../route-batch-test/utils/types';
 import RouteFlowContext from '../common/RouteFlowContext';
 import { useStoreFromFlowStoreContext } from '../store/FlowStoreContext';

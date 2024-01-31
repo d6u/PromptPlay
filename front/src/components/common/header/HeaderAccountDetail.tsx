@@ -1,11 +1,11 @@
 import styled from '@emotion/styled';
 import { Button, IconButton } from '@mui/joy';
+import IconLogout from 'icons/IconLogout';
 import posthog from 'posthog-js';
 import { useCallback, useEffect, useState } from 'react';
 import { useQuery } from 'urql';
 import { graphql } from '../../../gql';
 import { LOGIN_PATH, LOGOUT_PATH } from '../../../utils/route-utils';
-import IconLogout from '../../icons/IconLogout';
 
 export default function HeaderAccountDetail() {
   const [queryResult] = useQuery({
