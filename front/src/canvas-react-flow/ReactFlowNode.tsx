@@ -1,8 +1,28 @@
-import { A } from '@mobily/ts-belt';
-import { ConnectorID, ConnectorType, NodeID, NodeType } from 'flow-models';
-import { ReactNode, useContext, useEffect, useMemo, useState } from 'react';
+import { A, D } from '@mobily/ts-belt';
+import {
+  FormControl,
+  FormHelperText,
+  FormLabel,
+  IconButton,
+  Radio,
+  RadioGroup,
+  Textarea,
+} from '@mui/joy';
+import {
+  ConnectorID,
+  ConnectorType,
+  NodeID,
+  NodeType,
+  getNodeDefinitionForNodeTypeName,
+} from 'flow-models';
+import { FieldType } from 'flow-models/src/node-definition-base-types';
+import { ReactNode, useEffect, useMemo, useState } from 'react';
 import { useNodeId, useUpdateNodeInternals } from 'reactflow';
-import RouteFlowContext from '../components/route-flow/common/RouteFlowContext';
+import TextareaReadonly from '../components/route-flow/common/TextareaReadonly';
+import {
+  CopyIcon,
+  LabelWithIconContainer,
+} from '../components/route-flow/common/flow-common';
 import { useFlowStore } from '../components/route-flow/store/FlowStoreContext';
 import {
   selectConditionTarget,
@@ -15,6 +35,7 @@ import OutgoingVariableHandle from './handles/OutgoingVariableHandle';
 import NodeBox from './node-box/NodeBox';
 import NodeBoxAddConnectorButton from './node-box/NodeBoxAddConnectorButton';
 import NodeBoxHeaderSection from './node-box/NodeBoxHeaderSection';
+import NodeBoxIconGear from './node-box/NodeBoxIconGear';
 import NodeBoxIncomingVariableBlock from './node-box/NodeBoxIncomingVariableBlock';
 import NodeBoxIncomingVariableSection from './node-box/NodeBoxIncomingVariableSection';
 import NodeBoxOutgoingVariableBlock from './node-box/NodeBoxOutgoingVariableBlock';
@@ -37,20 +58,31 @@ export type SrcConnector = {
 type Props = {
   nodeType: NodeType;
   nodeTitle: string;
-  allowAddVariable: boolean;
+  isNodeConfigReadOnly: boolean;
+  canAddVariable: boolean;
   destConnectorReadOnlyConfigs?: boolean[];
   destConnectorHelpMessages?: ReactNode[];
   children?: ReactNode;
 };
 
 export default function ReactFlowNode(props: Props) {
-  const { isCurrentUserOwner } = useContext(RouteFlowContext);
-
   // ANCHOR: ReactFlow
   const nodeId = useNodeId() as NodeID;
   const updateNodeInternals = useUpdateNodeInternals();
 
+  // ANCHOR: Node Definition
+  const nodeDefinition = useMemo(
+    () => getNodeDefinitionForNodeTypeName(props.nodeType),
+    [props.nodeType],
+  );
+
   // ANCHOR: Store Data
+  const nodeConfigsDict = useFlowStore((s) => s.nodeConfigsDict);
+  const nodeConfig = useMemo(() => {
+    return nodeConfigsDict[nodeId];
+  }, [nodeConfigsDict, nodeId]);
+  const updateNodeConfig = useFlowStore((s) => s.updateNodeConfig);
+
   const variablesDict = useFlowStore((s) => s.variablesDict);
   const defaultVariableValueMap = useFlowStore((s) =>
     s.getDefaultVariableValueLookUpDict(),
@@ -67,21 +99,23 @@ export default function ReactFlowNode(props: Props) {
     );
 
     return inputArray.map<DestConnector>((input, index) => {
+      const incomingVariableConfig =
+        nodeDefinition.incomingVariableConfigs?.[index];
+
       return {
         id: input.id,
         name: input.name,
         isReadOnly:
-          !isCurrentUserOwner ||
-          (props.destConnectorReadOnlyConfigs?.[index] ?? false),
-        helperMessage: props.destConnectorHelpMessages?.[index],
+          props.isNodeConfigReadOnly ||
+          (incomingVariableConfig?.isNonEditable ?? false),
+        helperMessage: incomingVariableConfig?.helperMessage,
       };
     });
   }, [
-    isCurrentUserOwner,
     nodeId,
     variablesDict,
-    props.destConnectorHelpMessages,
-    props.destConnectorReadOnlyConfigs,
+    nodeDefinition.incomingVariableConfigs,
+    props.isNodeConfigReadOnly,
   ]);
 
   const srcConnectors = useMemo(() => {
@@ -142,6 +176,141 @@ export default function ReactFlowNode(props: Props) {
   }, [inputVariableBlockHeightList, nodeId, updateNodeInternals]);
   // !SECTION
 
+  let bodyContent: ReactNode;
+
+  if (nodeDefinition.fieldDefinitions == null) {
+    bodyContent = props.children;
+  } else {
+    bodyContent = (
+      <>
+        {D.toPairs(nodeDefinition.fieldDefinitions).map(
+          ([fieldKey, fieldDefinition], index) => {
+            // NOTE: Hack to make TypeScript happy
+            const fieldValue = nodeConfig[
+              fieldKey as keyof typeof nodeConfig
+            ] as unknown;
+
+            // NOTE: It is fine to call `useState` and `useEffect` here
+            // because the fieldDefinitions should not change
+
+            // eslint-disable-next-line react-hooks/rules-of-hooks
+            const [localFieldValue, setLocalFieldValue] = useState(
+              () => fieldValue,
+            );
+
+            // eslint-disable-next-line react-hooks/rules-of-hooks
+            useEffect(() => {
+              setLocalFieldValue(() => fieldValue);
+            }, [fieldValue]);
+
+            switch (fieldDefinition.type) {
+              case FieldType.Text:
+                return null;
+              case FieldType.Textarea:
+                return (
+                  <NodeBoxSection key={fieldKey}>
+                    <FormControl>
+                      <LabelWithIconContainer>
+                        <FormLabel>{fieldDefinition.label}</FormLabel>
+                        <CopyIcon
+                          onClick={() => {
+                            navigator.clipboard.writeText(fieldValue as string);
+                          }}
+                        />
+                      </LabelWithIconContainer>
+                      {!props.isNodeConfigReadOnly ? (
+                        <Textarea
+                          color="neutral"
+                          variant="outlined"
+                          minRows={3}
+                          maxRows={5}
+                          placeholder={fieldDefinition.placeholder}
+                          value={localFieldValue as string}
+                          onChange={(e) => {
+                            setLocalFieldValue(e.target.value);
+                          }}
+                          onKeyDown={(e) => {
+                            if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+                              updateNodeConfig(nodeId, {
+                                [fieldKey]: localFieldValue,
+                              });
+                            }
+                          }}
+                          onBlur={() => {
+                            updateNodeConfig(nodeId, {
+                              [fieldKey]: localFieldValue,
+                            });
+                          }}
+                        />
+                      ) : (
+                        <TextareaReadonly
+                          value={localFieldValue as string}
+                          minRows={3}
+                          maxRows={5}
+                        />
+                      )}
+                      {fieldDefinition.helperMessage && (
+                        <FormHelperText>
+                          {fieldDefinition.helperMessage}
+                        </FormHelperText>
+                      )}
+                    </FormControl>
+                  </NodeBoxSection>
+                );
+              case FieldType.Radio:
+                return (
+                  <NodeBoxSection key={fieldKey}>
+                    <FormControl>
+                      <FormLabel>Role</FormLabel>
+                      <RadioGroup
+                        orientation="horizontal"
+                        value={localFieldValue as string}
+                        onChange={(e) => {
+                          const newFieldValue = e.target.value;
+                          setLocalFieldValue(newFieldValue);
+                          updateNodeConfig(nodeId, {
+                            [fieldKey]: newFieldValue,
+                          });
+                        }}
+                      >
+                        {fieldDefinition.options.map((option, i) => {
+                          return (
+                            <Radio
+                              key={i}
+                              color="primary"
+                              name="role"
+                              label={option}
+                              disabled={!!props.isNodeConfigReadOnly}
+                              value={option}
+                            />
+                          );
+                        })}
+                      </RadioGroup>
+                    </FormControl>
+                  </NodeBoxSection>
+                );
+            }
+          },
+        )}
+        {nodeDefinition.sidePanelType && (
+          <NodeBoxSection>
+            <IconButton
+              variant="outlined"
+              onClick={() => {
+                setDetailPanelContentType(
+                  nodeDefinition.sidePanelType as DetailPanelContentType,
+                );
+                setDetailPanelSelectedNodeId(nodeId);
+              }}
+            >
+              <NodeBoxIconGear />
+            </IconButton>
+          </NodeBoxSection>
+        )}
+      </>
+    );
+  }
+
   return (
     <>
       {conditionTarget && <IncomingConditionHandle id={conditionTarget.id} />}
@@ -152,7 +321,7 @@ export default function ReactFlowNode(props: Props) {
             id={connector.id}
             index={i}
             inputVariableBlockHeightList={inputVariableBlockHeightList}
-            isShowingAddInputVariableButton={props.allowAddVariable}
+            isShowingAddInputVariableButton={props.canAddVariable}
           />
         );
       })}
@@ -162,13 +331,13 @@ export default function ReactFlowNode(props: Props) {
         hasError={augment?.hasError}
       >
         <NodeBoxHeaderSection
-          isReadOnly={isCurrentUserOwner}
+          isReadOnly={!props.isNodeConfigReadOnly}
           title={props.nodeTitle}
           onClickRemove={() => {
             removeNode(nodeId);
           }}
         />
-        {props.allowAddVariable && isCurrentUserOwner && (
+        {props.canAddVariable && !props.isNodeConfigReadOnly && (
           <NodeBoxSmallSection>
             <NodeBoxAddConnectorButton
               label="Variable"
@@ -211,7 +380,7 @@ export default function ReactFlowNode(props: Props) {
             );
           })}
         </NodeBoxIncomingVariableSection>
-        {props.children}
+        {bodyContent}
         <NodeBoxSection>
           {srcConnectors.map((connector) => (
             <NodeBoxOutgoingVariableBlock

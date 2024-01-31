@@ -57,9 +57,10 @@ export default function ElevenLabsNode() {
 
   return (
     <ReactFlowNode
+      isNodeConfigReadOnly={!isCurrentUserOwner}
       nodeType={NodeType.ElevenLabs}
       nodeTitle="Eleven Labs Text to Speech"
-      allowAddVariable={false}
+      canAddVariable={false}
       destConnectorReadOnlyConfigs={[true]}
       destConnectorHelpMessages={[
         <>

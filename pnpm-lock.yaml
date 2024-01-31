@@ -254,6 +254,9 @@ importers:
       mustache:
         specifier: ^4.2.0
         version: 4.2.0
+      react:
+        specifier: ^18.2.0
+        version: 18.2.0
       reactflow:
         specifier: ^11.8.3
         version: 11.10.1(@types/react@18.2.45)(immer@10.0.3)(react-dom@18.2.0)(react@18.2.0)
@@ -270,6 +273,9 @@ importers:
       '@types/mustache':
         specifier: ^4.2.2
         version: 4.2.5
+      '@types/react':
+        specifier: ^18.2.15
+        version: 18.2.45
       '@typescript-eslint/eslint-plugin':
         specifier: ^6.16.0
         version: 6.16.0(@typescript-eslint/parser@6.16.0)(eslint@8.56.0)(typescript@5.2.2)

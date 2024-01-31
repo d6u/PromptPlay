@@ -52,9 +52,10 @@ export default function TextTemplateNode() {
 
   return (
     <ReactFlowNode
+      isNodeConfigReadOnly={!isCurrentUserOwner}
       nodeType={NodeType.TextTemplate}
       nodeTitle="Text"
-      allowAddVariable={true}
+      canAddVariable={true}
     >
       <NodeBoxSection>
         <FormControl>

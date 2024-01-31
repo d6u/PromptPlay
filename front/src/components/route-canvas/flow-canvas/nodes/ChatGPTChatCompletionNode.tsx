@@ -93,9 +93,10 @@ export default function ChatGPTChatCompletionNode() {
 
   return (
     <ReactFlowNode
+      isNodeConfigReadOnly={!isCurrentUserOwner}
       nodeType={NodeType.ChatGPTChatCompletionNode}
       nodeTitle="ChatGPT Chat Completion"
-      allowAddVariable={false}
+      canAddVariable={false}
       destConnectorReadOnlyConfigs={[true]}
       destConnectorHelpMessages={[
         <>

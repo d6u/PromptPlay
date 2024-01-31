@@ -19,6 +19,7 @@ import {
   NodeExecutionEventType,
   NodeType,
 } from '../node-definition-base-types';
+import { FieldType } from '../node-definition-base-types/field-definition-interfaces';
 
 export type V3ChatGPTMessageNodeConfig = {
   type: NodeType.ChatGPTMessageNode;
@@ -40,6 +41,50 @@ export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition<V3ChatGPTMessageNod
 
     isEnabledInToolbar: true,
     toolbarLabel: 'ChatGPT Message',
+
+    sidePanelType: 'ChatGPTMessageConfig',
+
+    incomingVariableConfigs: [
+      {
+        isNonEditable: true,
+        helperMessage: (
+          <>
+            <code>messages</code> is a list of ChatGPT message. It's default to
+            an empty list if unspecified. The current message will be appended
+            to the list and output as the <code>messages</code> output.
+          </>
+        ),
+      },
+    ],
+    fieldDefinitions: {
+      role: {
+        type: FieldType.Radio,
+        label: 'Role',
+        options: [
+          OpenAI.ChatGPTMessageRole.system,
+          OpenAI.ChatGPTMessageRole.user,
+          OpenAI.ChatGPTMessageRole.assistant,
+        ],
+      },
+      content: {
+        type: FieldType.Textarea,
+        label: 'Message content',
+        placeholder: 'Write message content here',
+        helperMessage: (
+          <div>
+            <a
+              href="https://mustache.github.io/"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Mustache template
+            </a>{' '}
+            is used here. TL;DR: use <code>{'{{variableName}}'}</code> to insert
+            a variable.
+          </div>
+        ),
+      },
+    },
 
     createDefaultNodeConfig: (nodeId) => {
       return {

@@ -54,9 +54,10 @@ export default function JavaScriptFunctionNode() {
 
   return (
     <ReactFlowNode
+      isNodeConfigReadOnly={!isCurrentUserOwner}
       nodeType={NodeType.JavaScriptFunctionNode}
       nodeTitle="JavaScript"
-      allowAddVariable={true}
+      canAddVariable={true}
     >
       <NodeBoxSection>
         <FormControl>

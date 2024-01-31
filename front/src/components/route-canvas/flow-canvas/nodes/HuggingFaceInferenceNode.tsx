@@ -60,9 +60,10 @@ export default function HuggingFaceInferenceNode() {
 
   return (
     <ReactFlowNode
+      isNodeConfigReadOnly={!isCurrentUserOwner}
       nodeType={NodeType.HuggingFaceInference}
       nodeTitle="Hugging Face Inference"
-      allowAddVariable={false}
+      canAddVariable={false}
       destConnectorReadOnlyConfigs={[true]}
       destConnectorHelpMessages={[
         <>
