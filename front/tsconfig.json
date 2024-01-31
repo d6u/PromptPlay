@@ -22,7 +22,9 @@
     // "noUncheckedIndexedAccess": true
     // "noPropertyAccessFromIndexSignature": true
     "paths": {
-      "icons/*": ["./src/icons/*"]
+      "assets/*": ["./src/assets/*"],
+      "icons/*": ["./src/icons/*"],
+      "canvas-react-flow/*": ["./src/canvas-react-flow/*"]
     }
   },
   "include": ["src"],

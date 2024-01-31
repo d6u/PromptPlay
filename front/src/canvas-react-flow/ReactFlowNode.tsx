@@ -2,13 +2,13 @@ import { A } from '@mobily/ts-belt';
 import { ConnectorID, ConnectorType, NodeID, NodeType } from 'flow-models';
 import { ReactNode, useContext, useEffect, useMemo, useState } from 'react';
 import { useNodeId, useUpdateNodeInternals } from 'reactflow';
-import RouteFlowContext from '../route-flow/common/RouteFlowContext';
-import { useFlowStore } from '../route-flow/store/FlowStoreContext';
+import RouteFlowContext from '../components/route-flow/common/RouteFlowContext';
+import { useFlowStore } from '../components/route-flow/store/FlowStoreContext';
 import {
   selectConditionTarget,
   selectVariables,
-} from '../route-flow/store/state-utils';
-import { DetailPanelContentType } from '../route-flow/store/store-flow-state-types';
+} from '../components/route-flow/store/state-utils';
+import { DetailPanelContentType } from '../components/route-flow/store/store-flow-state-types';
 import IncomingConditionHandle from './handles/IncomingConditionHandle';
 import IncomingVariableHandle from './handles/IncomingVariableHandle';
 import OutgoingVariableHandle from './handles/OutgoingVariableHandle';

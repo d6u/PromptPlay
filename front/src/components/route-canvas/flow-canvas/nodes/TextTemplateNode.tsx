@@ -3,12 +3,12 @@ import FormHelperText from '@mui/joy/FormHelperText';
 import FormLabel from '@mui/joy/FormLabel';
 import IconButton from '@mui/joy/IconButton';
 import Textarea from '@mui/joy/Textarea';
+import ReactFlowNode from 'canvas-react-flow/ReactFlowNode';
+import NodeBoxIconGear from 'canvas-react-flow/node-box/NodeBoxIconGear';
+import NodeBoxSection from 'canvas-react-flow/node-box/NodeBoxSection';
 import { NodeID, NodeType, V3TextTemplateNodeConfig } from 'flow-models';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { useNodeId } from 'reactflow';
-import ReactFlowNode from '../../../common-react-flow/ReactFlowNode';
-import NodeBoxIconGear from '../../../common-react-flow/node-box/NodeBoxIconGear';
-import NodeBoxSection from '../../../common-react-flow/node-box/NodeBoxSection';
 import RouteFlowContext from '../../../route-flow/common/RouteFlowContext';
 import TextareaReadonly from '../../../route-flow/common/TextareaReadonly';
 import {

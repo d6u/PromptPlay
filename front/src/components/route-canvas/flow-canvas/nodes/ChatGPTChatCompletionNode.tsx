@@ -5,6 +5,10 @@ import FormLabel from '@mui/joy/FormLabel';
 import Input from '@mui/joy/Input';
 import Option from '@mui/joy/Option';
 import Select from '@mui/joy/Select';
+import ReactFlowNode from 'canvas-react-flow/ReactFlowNode';
+import NodeBoxHelperTextContainer from 'canvas-react-flow/node-box/NodeBoxHelperTextContainer';
+import NodeBoxIncomingVariableReadonly from 'canvas-react-flow/node-box/NodeBoxIncomingVariableReadonly';
+import NodeBoxSection from 'canvas-react-flow/node-box/NodeBoxSection';
 import {
   ChatGPTChatCompletionResponseFormatType,
   NodeID,
@@ -21,10 +25,6 @@ import {
   useLocalStorageStore,
   useSpaceStore,
 } from '../../../../state/appState';
-import ReactFlowNode from '../../../common-react-flow/ReactFlowNode';
-import NodeBoxHelperTextContainer from '../../../common-react-flow/node-box/NodeBoxHelperTextContainer';
-import NodeBoxIncomingVariableReadonly from '../../../common-react-flow/node-box/NodeBoxIncomingVariableReadonly';
-import NodeBoxSection from '../../../common-react-flow/node-box/NodeBoxSection';
 import RouteFlowContext from '../../../route-flow/common/RouteFlowContext';
 import { useFlowStore } from '../../../route-flow/store/FlowStoreContext';
 

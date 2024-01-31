@@ -12,6 +12,7 @@ import {
   ToggleButtonGroup,
   Typography,
 } from '@mui/joy';
+import { NODE_BOX_WIDTH } from 'canvas-react-flow/ui-constants';
 import {
   NodeType,
   getAllNodeTypes,
@@ -27,7 +28,6 @@ import {
   pathToFlowBatchTestTab,
   pathToFlowCanvasTab,
 } from '../../../utils/route-utils';
-import { NODE_BOX_WIDTH } from '../../common-react-flow/ui-constants';
 import { BatchTestTab } from '../../route-batch-test/utils/types';
 import RouteFlowContext from '../common/RouteFlowContext';
 import { useStoreFromFlowStoreContext } from '../store/FlowStoreContext';

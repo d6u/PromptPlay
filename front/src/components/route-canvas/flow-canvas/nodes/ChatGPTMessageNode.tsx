@@ -5,13 +5,13 @@ import IconButton from '@mui/joy/IconButton';
 import Radio from '@mui/joy/Radio';
 import RadioGroup from '@mui/joy/RadioGroup';
 import Textarea from '@mui/joy/Textarea';
+import ReactFlowNode from 'canvas-react-flow/ReactFlowNode';
+import NodeBoxIconGear from 'canvas-react-flow/node-box/NodeBoxIconGear';
+import NodeBoxSection from 'canvas-react-flow/node-box/NodeBoxSection';
 import { NodeID, NodeType, V3ChatGPTMessageNodeConfig } from 'flow-models';
 import { ChatGPTMessageRole } from 'integrations/openai';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { useNodeId } from 'reactflow';
-import ReactFlowNode from '../../../common-react-flow/ReactFlowNode';
-import NodeBoxIconGear from '../../../common-react-flow/node-box/NodeBoxIconGear';
-import NodeBoxSection from '../../../common-react-flow/node-box/NodeBoxSection';
 import RouteFlowContext from '../../../route-flow/common/RouteFlowContext';
 import TextareaReadonly from '../../../route-flow/common/TextareaReadonly';
 import {
