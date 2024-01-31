@@ -24,6 +24,7 @@ export interface NodeDefinition<T extends NodeConfig> {
   // TODO: Abstract side panel rendering
   sidePanelType?: string;
 
+  canAddIncomingVariables?: boolean;
   incomingVariableConfigs?: IncomingVariableConfig[];
   fieldDefinitions?: Record<string, FieldDefinition>;
 

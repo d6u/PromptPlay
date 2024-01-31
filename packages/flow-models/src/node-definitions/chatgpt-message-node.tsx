@@ -44,6 +44,7 @@ export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition<V3ChatGPTMessageNod
 
     sidePanelType: 'ChatGPTMessageConfig',
 
+    canAddIncomingVariables: true,
     incomingVariableConfigs: [
       {
         isNonEditable: true,

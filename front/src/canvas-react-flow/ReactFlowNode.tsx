@@ -12,7 +12,6 @@ import {
   ConnectorID,
   ConnectorType,
   NodeID,
-  NodeType,
   getNodeDefinitionForNodeTypeName,
 } from 'flow-models';
 import { FieldType } from 'flow-models/src/node-definition-base-types';
@@ -56,10 +55,8 @@ export type SrcConnector = {
 };
 
 type Props = {
-  nodeType: NodeType;
-  nodeTitle: string;
   isNodeConfigReadOnly: boolean;
-  canAddVariable: boolean;
+  canAddVariable?: boolean;
   destConnectorReadOnlyConfigs?: boolean[];
   destConnectorHelpMessages?: ReactNode[];
   children?: ReactNode;
@@ -70,19 +67,21 @@ export default function ReactFlowNode(props: Props) {
   const nodeId = useNodeId() as NodeID;
   const updateNodeInternals = useUpdateNodeInternals();
 
-  // ANCHOR: Node Definition
-  const nodeDefinition = useMemo(
-    () => getNodeDefinitionForNodeTypeName(props.nodeType),
-    [props.nodeType],
-  );
-
-  // ANCHOR: Store Data
+  // ANCHOR: Node Config
   const nodeConfigsDict = useFlowStore((s) => s.nodeConfigsDict);
   const nodeConfig = useMemo(() => {
     return nodeConfigsDict[nodeId];
   }, [nodeConfigsDict, nodeId]);
+
   const updateNodeConfig = useFlowStore((s) => s.updateNodeConfig);
 
+  // ANCHOR: Node Definition
+  const nodeDefinition = useMemo(
+    () => getNodeDefinitionForNodeTypeName(nodeConfig.type),
+    [nodeConfig.type],
+  );
+
+  // ANCHOR: Store Data
   const variablesDict = useFlowStore((s) => s.variablesDict);
   const defaultVariableValueMap = useFlowStore((s) =>
     s.getDefaultVariableValueLookUpDict(),
@@ -326,32 +325,33 @@ export default function ReactFlowNode(props: Props) {
         );
       })}
       <NodeBox
-        nodeType={props.nodeType}
+        nodeType={nodeConfig.type}
         isRunning={augment?.isRunning}
         hasError={augment?.hasError}
       >
         <NodeBoxHeaderSection
           isReadOnly={!props.isNodeConfigReadOnly}
-          title={props.nodeTitle}
+          title={nodeDefinition.toolbarLabel!}
           onClickRemove={() => {
             removeNode(nodeId);
           }}
         />
-        {props.canAddVariable && !props.isNodeConfigReadOnly && (
-          <NodeBoxSmallSection>
-            <NodeBoxAddConnectorButton
-              label="Variable"
-              onClick={() => {
-                addVariable(
-                  nodeId,
-                  ConnectorType.NodeInput,
-                  destConnectors.length,
-                );
-                updateNodeInternals(nodeId);
-              }}
-            />
-          </NodeBoxSmallSection>
-        )}
+        {(props.canAddVariable || nodeDefinition.canAddIncomingVariables) &&
+          !props.isNodeConfigReadOnly && (
+            <NodeBoxSmallSection>
+              <NodeBoxAddConnectorButton
+                label="Variable"
+                onClick={() => {
+                  addVariable(
+                    nodeId,
+                    ConnectorType.NodeInput,
+                    destConnectors.length,
+                  );
+                  updateNodeInternals(nodeId);
+                }}
+              />
+            </NodeBoxSmallSection>
+          )}
         <NodeBoxIncomingVariableSection>
           {destConnectors.map((connector, i) => {
             return (
