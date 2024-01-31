@@ -6,7 +6,7 @@ import Textarea from '@mui/joy/Textarea';
 import ReactFlowNode from 'canvas-react-flow/ReactFlowNode';
 import NodeBoxIconGear from 'canvas-react-flow/node-box/NodeBoxIconGear';
 import NodeBoxSection from 'canvas-react-flow/node-box/NodeBoxSection';
-import { NodeID, NodeType, V3TextTemplateNodeConfig } from 'flow-models';
+import { NodeID, V3TextTemplateNodeConfig } from 'flow-models';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { useNodeId } from 'reactflow';
 import RouteFlowContext from '../../../route-flow/common/RouteFlowContext';
@@ -53,8 +53,6 @@ export default function TextTemplateNode() {
   return (
     <ReactFlowNode
       isNodeConfigReadOnly={!isCurrentUserOwner}
-      nodeType={NodeType.TextTemplate}
-      nodeTitle="Text"
       canAddVariable={true}
     >
       <NodeBoxSection>

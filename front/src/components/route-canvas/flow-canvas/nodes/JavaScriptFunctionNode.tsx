@@ -6,7 +6,6 @@ import NodeBoxSection from 'canvas-react-flow/node-box/NodeBoxSection';
 import {
   ConnectorType,
   NodeID,
-  NodeType,
   V3JavaScriptFunctionNodeConfig,
 } from 'flow-models';
 import { useContext, useMemo, useState } from 'react';
@@ -55,8 +54,6 @@ export default function JavaScriptFunctionNode() {
   return (
     <ReactFlowNode
       isNodeConfigReadOnly={!isCurrentUserOwner}
-      nodeType={NodeType.JavaScriptFunctionNode}
-      nodeTitle="JavaScript"
       canAddVariable={true}
     >
       <NodeBoxSection>

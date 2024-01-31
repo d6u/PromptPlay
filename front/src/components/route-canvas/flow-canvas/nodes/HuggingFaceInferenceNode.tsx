@@ -6,11 +6,7 @@ import ReactFlowNode from 'canvas-react-flow/ReactFlowNode';
 import NodeBoxHelperTextContainer from 'canvas-react-flow/node-box/NodeBoxHelperTextContainer';
 import NodeBoxIncomingVariableReadonly from 'canvas-react-flow/node-box/NodeBoxIncomingVariableReadonly';
 import NodeBoxSection from 'canvas-react-flow/node-box/NodeBoxSection';
-import {
-  NodeID,
-  NodeType,
-  V3HuggingFaceInferenceNodeConfig,
-} from 'flow-models';
+import { NodeID, V3HuggingFaceInferenceNodeConfig } from 'flow-models';
 import { useContext, useMemo, useState } from 'react';
 import { useNodeId } from 'reactflow';
 import {
@@ -61,8 +57,6 @@ export default function HuggingFaceInferenceNode() {
   return (
     <ReactFlowNode
       isNodeConfigReadOnly={!isCurrentUserOwner}
-      nodeType={NodeType.HuggingFaceInference}
-      nodeTitle="Hugging Face Inference"
       canAddVariable={false}
       destConnectorReadOnlyConfigs={[true]}
       destConnectorHelpMessages={[

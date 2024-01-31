@@ -6,7 +6,7 @@ import ReactFlowNode from 'canvas-react-flow/ReactFlowNode';
 import NodeBoxHelperTextContainer from 'canvas-react-flow/node-box/NodeBoxHelperTextContainer';
 import NodeBoxIncomingVariableReadonly from 'canvas-react-flow/node-box/NodeBoxIncomingVariableReadonly';
 import NodeBoxSection from 'canvas-react-flow/node-box/NodeBoxSection';
-import { NodeID, NodeType, V3ElevenLabsNodeConfig } from 'flow-models';
+import { NodeID, V3ElevenLabsNodeConfig } from 'flow-models';
 import { useContext, useMemo, useState } from 'react';
 import { useNodeId } from 'reactflow';
 import {
@@ -58,8 +58,6 @@ export default function ElevenLabsNode() {
   return (
     <ReactFlowNode
       isNodeConfigReadOnly={!isCurrentUserOwner}
-      nodeType={NodeType.ElevenLabs}
-      nodeTitle="Eleven Labs Text to Speech"
       canAddVariable={false}
       destConnectorReadOnlyConfigs={[true]}
       destConnectorHelpMessages={[

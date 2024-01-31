@@ -12,7 +12,6 @@ import NodeBoxSection from 'canvas-react-flow/node-box/NodeBoxSection';
 import {
   ChatGPTChatCompletionResponseFormatType,
   NodeID,
-  NodeType,
   OpenAIChatModel,
   V3ChatGPTChatCompletionNodeConfig,
 } from 'flow-models';
@@ -94,8 +93,6 @@ export default function ChatGPTChatCompletionNode() {
   return (
     <ReactFlowNode
       isNodeConfigReadOnly={!isCurrentUserOwner}
-      nodeType={NodeType.ChatGPTChatCompletionNode}
-      nodeTitle="ChatGPT Chat Completion"
       canAddVariable={false}
       destConnectorReadOnlyConfigs={[true]}
       destConnectorHelpMessages={[
