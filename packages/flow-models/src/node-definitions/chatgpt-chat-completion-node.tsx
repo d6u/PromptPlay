@@ -17,6 +17,7 @@ import {
 } from '../base-types/connector-types';
 import { NodeID } from '../base-types/id-types';
 import {
+  FieldType,
   NodeDefinition,
   NodeExecutionEvent,
   NodeExecutionEventType,
@@ -69,6 +70,65 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<V3ChatGPTCh
 
     isEnabledInToolbar: true,
     toolbarLabel: 'ChatGPT Chat Completion',
+
+    canAddIncomingVariables: false,
+    incomingVariableConfigs: [
+      {
+        isNonEditable: true,
+        helperMessage: (
+          <>
+            <code>messages</code> is a list of ChatGPT message. It's default to
+            an empty list if unspecified. The current message will be appended
+            to the list and output as the <code>messages</code> output.
+          </>
+        ),
+      },
+    ],
+    fieldDefinitions: {
+      model: {
+        type: FieldType.Select,
+        label: 'Model',
+        options: Object.values(OpenAIChatModel).map((value) => ({
+          label: value,
+          value,
+        })),
+      },
+      temperature: {
+        type: FieldType.Number,
+        label: 'Temperature',
+        min: 0,
+        max: 2,
+        step: 0.1,
+        transformBeforeSave: (value) => {
+          // We don't allow empty string for temperature,
+          // i.e. temperature must always be provided.
+          //
+          // Although we are already setting temperature
+          // to 1 when input value is an empty string,
+          // the useEffect above might not update local
+          // temperature state, because if the initial
+          // temperature is 1, the useEffect will not
+          // be triggered.
+          if (value === '') {
+            return 1;
+          } else {
+            return Number(value);
+          }
+        },
+      },
+      seed: {
+        type: FieldType.Number,
+        label: 'Seed (Optional, Beta)',
+        step: 1,
+        transformBeforeSave: (value) => {
+          if (value === '') {
+            return null;
+          } else {
+            return Math.trunc(Number(value));
+          }
+        },
+      },
+    },
 
     createDefaultNodeConfig: (nodeId) => {
       return {

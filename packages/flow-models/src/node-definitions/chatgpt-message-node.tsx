@@ -61,11 +61,13 @@ export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition<V3ChatGPTMessageNod
       role: {
         type: FieldType.Radio,
         label: 'Role',
-        options: [
-          OpenAI.ChatGPTMessageRole.system,
-          OpenAI.ChatGPTMessageRole.user,
-          OpenAI.ChatGPTMessageRole.assistant,
-        ],
+        options: Object.keys(OpenAI.ChatGPTMessageRole).map((key) => ({
+          label: key,
+          value:
+            OpenAI.ChatGPTMessageRole[
+              key as keyof typeof OpenAI.ChatGPTMessageRole
+            ],
+        })),
       },
       content: {
         type: FieldType.Textarea,

@@ -11,7 +11,6 @@ import 'reactflow/dist/style.css';
 import { useStore } from 'zustand';
 import RouteFlowContext from '../../route-flow/common/RouteFlowContext';
 import { useStoreFromFlowStoreContext } from '../../route-flow/store/FlowStoreContext';
-import ChatGPTChatCompletionNode from './nodes/ChatGPTChatCompletionNode';
 import ConditionNode from './nodes/ConditionNode';
 import ElevenLabsNode from './nodes/ElevenLabsNode';
 import HuggingFaceInferenceNode from './nodes/HuggingFaceInferenceNode';
@@ -29,7 +28,7 @@ const NODE_TYPES = {
   [NodeType.ConditionNode]: ConditionNode,
   [NodeType.JavaScriptFunctionNode]: JavaScriptFunctionNode,
   [NodeType.ChatGPTMessageNode]: StandardNode,
-  [NodeType.ChatGPTChatCompletionNode]: ChatGPTChatCompletionNode,
+  [NodeType.ChatGPTChatCompletionNode]: StandardNode,
   [NodeType.TextTemplate]: TextTemplateNode,
   [NodeType.HuggingFaceInference]: HuggingFaceInferenceNode,
   [NodeType.ElevenLabs]: ElevenLabsNode,
