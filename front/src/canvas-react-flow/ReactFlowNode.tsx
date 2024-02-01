@@ -4,7 +4,6 @@ import {
   FormHelperText,
   FormLabel,
   IconButton,
-  Input,
   Option,
   Radio,
   RadioGroup,
@@ -39,11 +38,11 @@ import NodeBoxAddConnectorButton from './node-box/NodeBoxAddConnectorButton';
 import NodeBoxHeaderSection from './node-box/NodeBoxHeaderSection';
 import NodeBoxIconGear from './node-box/NodeBoxIconGear';
 import NodeBoxIncomingVariableBlock from './node-box/NodeBoxIncomingVariableBlock';
-import NodeBoxIncomingVariableReadonly from './node-box/NodeBoxIncomingVariableReadonly';
 import NodeBoxIncomingVariableSection from './node-box/NodeBoxIncomingVariableSection';
 import NodeBoxOutgoingVariableBlock from './node-box/NodeBoxOutgoingVariableBlock';
 import NodeBoxSection from './node-box/NodeBoxSection';
 import NodeBoxSmallSection from './node-box/NodeBoxSmallSection';
+import NodeNumberField from './node-fields/NodeNumberField';
 
 export type DestConnector = {
   id: string;
@@ -212,71 +211,17 @@ export default function ReactFlowNode(props: Props) {
               case FieldType.Text:
                 return null;
               case FieldType.Number: {
-                const transformBeforeSave = fieldDefinition.transformBeforeSave;
-
                 return (
-                  <NodeBoxSection>
-                    <FormControl>
-                      <FormLabel>{fieldDefinition.label}</FormLabel>
-                      {props.isNodeConfigReadOnly ? (
-                        <NodeBoxIncomingVariableReadonly
-                          type="number"
-                          value={String(localFieldValue)}
-                        />
-                      ) : (
-                        <Input
-                          type="number"
-                          slotProps={{
-                            input: {
-                              min: fieldDefinition.min,
-                              max: fieldDefinition.max,
-                              step: fieldDefinition.step,
-                            },
-                          }}
-                          value={String(localFieldValue)}
-                          onChange={(event) => {
-                            setLocalFieldValue(event.target.value);
-                          }}
-                          onKeyUp={(event) => {
-                            if (event.key === 'Enter') {
-                              let finalValue: number | null = null;
-
-                              if (transformBeforeSave) {
-                                finalValue = transformBeforeSave(
-                                  String(localFieldValue),
-                                );
-                              }
-
-                              setLocalFieldValue(
-                                finalValue == null ? '' : finalValue.toString(),
-                              );
-
-                              updateNodeConfig(nodeId, {
-                                [fieldKey]: finalValue,
-                              });
-                            }
-                          }}
-                          onBlur={() => {
-                            let finalValue: number | null = null;
-
-                            if (transformBeforeSave) {
-                              finalValue = transformBeforeSave(
-                                String(localFieldValue),
-                              );
-                            }
-
-                            setLocalFieldValue(
-                              finalValue == null ? '' : finalValue.toString(),
-                            );
-
-                            updateNodeConfig(nodeId, {
-                              [fieldKey]: finalValue,
-                            });
-                          }}
-                        />
-                      )}
-                    </FormControl>
-                  </NodeBoxSection>
+                  <NodeNumberField
+                    key={fieldKey}
+                    fieldKey={fieldKey}
+                    fieldDefinition={fieldDefinition}
+                    fieldValue={fieldValue as number | null}
+                    isNodeConfigReadOnly={props.isNodeConfigReadOnly}
+                    onSave={(value) => {
+                      updateNodeConfig(nodeId, { [fieldKey]: value });
+                    }}
+                  />
                 );
               }
               case FieldType.Textarea:
@@ -364,7 +309,7 @@ export default function ReactFlowNode(props: Props) {
                 );
               case FieldType.Select:
                 return (
-                  <NodeBoxSection>
+                  <NodeBoxSection key={fieldKey}>
                     <FormControl>
                       <FormLabel>Model</FormLabel>
                       <Select

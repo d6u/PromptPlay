@@ -15,16 +15,7 @@ export type FieldDefinition =
       placeholder?: string;
       helperMessage?: ReactNode;
     }
-  | {
-      type: FieldType.Number;
-      label: string;
-      // Fallback value is used when the field is empty
-      min?: number;
-      max?: number;
-      step?: number;
-      transformBeforeSave?: (value: string) => number | null;
-      helperMessage?: ReactNode;
-    }
+  | NumberFieldDefinition
   | {
       type: FieldType.Textarea;
       label: string;
@@ -43,6 +34,17 @@ export type FieldDefinition =
       label: string;
       helperMessage?: ReactNode;
     };
+
+export type NumberFieldDefinition = {
+  type: FieldType.Number;
+  label: string;
+  // Fallback value is used when the field is empty
+  min?: number;
+  max?: number;
+  step?: number;
+  transformBeforeSave?: (value: string) => number | null;
+  helperMessage?: ReactNode;
+};
 
 export type FieldOption = {
   label: string;

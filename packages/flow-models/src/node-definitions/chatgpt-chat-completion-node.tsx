@@ -99,33 +99,26 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<V3ChatGPTCh
         min: 0,
         max: 2,
         step: 0.1,
+        // We don't allow empty string for temperature,
+        // i.e. temperature must always be provided.
+        //
+        // Although we are already setting temperature
+        // to 1 when input value is an empty string,
+        // the useEffect above might not update local
+        // temperature state, because if the initial
+        // temperature is 1, the useEffect will not
+        // be triggered.
         transformBeforeSave: (value) => {
-          // We don't allow empty string for temperature,
-          // i.e. temperature must always be provided.
-          //
-          // Although we are already setting temperature
-          // to 1 when input value is an empty string,
-          // the useEffect above might not update local
-          // temperature state, because if the initial
-          // temperature is 1, the useEffect will not
-          // be triggered.
-          if (value === '') {
-            return 1;
-          } else {
-            return Number(value);
-          }
+          return value === '' ? 1 : Number(value);
         },
       },
       seed: {
         type: FieldType.Number,
         label: 'Seed (Optional, Beta)',
         step: 1,
+        // Seed need to be integer if provided.
         transformBeforeSave: (value) => {
-          if (value === '') {
-            return null;
-          } else {
-            return Math.trunc(Number(value));
-          }
+          return value === '' ? null : Math.trunc(Number(value));
         },
       },
     },
