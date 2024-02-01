@@ -36,6 +36,7 @@ import NodeBoxOutgoingVariableBlock from './node-box/NodeBoxOutgoingVariableBloc
 import NodeBoxSection from './node-box/NodeBoxSection';
 import NodeBoxSmallSection from './node-box/NodeBoxSmallSection';
 import NodeNumberField from './node-fields/NodeNumberField';
+import NodeTextField from './node-fields/NodeTextField';
 import NodeTextareaField from './node-fields/NodeTextareaField';
 
 export type DestConnector = {
@@ -203,7 +204,18 @@ export default function ReactFlowNode(props: Props) {
 
             switch (fieldDefinition.type) {
               case FieldType.Text:
-                return null;
+                return (
+                  <NodeTextField
+                    key={fieldKey}
+                    fieldKey={fieldKey}
+                    fieldDefinition={fieldDefinition}
+                    fieldValue={fieldValue}
+                    isNodeConfigReadOnly={props.isNodeConfigReadOnly}
+                    onSave={(value) => {
+                      updateNodeConfig(nodeId, { [fieldKey]: value });
+                    }}
+                  />
+                );
               case FieldType.Number:
                 return (
                   <NodeNumberField

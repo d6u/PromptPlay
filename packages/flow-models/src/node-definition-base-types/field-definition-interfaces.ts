@@ -9,12 +9,7 @@ export enum FieldType {
 }
 
 export type FieldDefinition =
-  | {
-      type: FieldType.Text;
-      label: string;
-      placeholder?: string;
-      helperMessage?: ReactNode;
-    }
+  | TextFieldDefinition
   | NumberFieldDefinition
   | TextareaFieldDefinition
   | {
@@ -29,6 +24,15 @@ export type FieldDefinition =
       label: string;
       helperMessage?: ReactNode;
     };
+
+export type TextFieldDefinition = {
+  type: FieldType.Text;
+  label: string;
+  transformBeforeRender?: (value: unknown) => string;
+  transformBeforeSave?: (value: string) => unknown;
+  placeholder?: string;
+  helperMessage?: ReactNode;
+};
 
 export type NumberFieldDefinition = {
   type: FieldType.Number;
