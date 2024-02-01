@@ -7,13 +7,13 @@ import {
   Textarea,
 } from '@mui/joy';
 import NodeBoxCopyIcon from 'canvas-react-flow/node-box/NodeBoxCopyIcon';
+import NodeBoxLabelWithIconContainer from 'canvas-react-flow/node-box/NodeBoxLabelWithIconContainer';
+import TextareaReadonly from 'canvas-react-flow/node-box/NodeBoxTextareaReadonly';
 import { ConnectorType, NodeType } from 'flow-models';
 import { ChatGPTMessageRole } from 'integrations/openai';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import invariant from 'tiny-invariant';
 import { useStore } from 'zustand';
-import { NodeBoxLabelWithIconContainer } from '../../../../../canvas-react-flow/node-box/NodeBoxLabelWithIconContainer';
-import TextareaReadonly from '../../../../../canvas-react-flow/node-box/NodeBoxTextareaReadonly';
 import RouteFlowContext from '../../../../route-flow/common/RouteFlowContext';
 import { useStoreFromFlowStoreContext } from '../../../../route-flow/store/FlowStoreContext';
 import { selectVariables } from '../../../../route-flow/store/state-utils';
