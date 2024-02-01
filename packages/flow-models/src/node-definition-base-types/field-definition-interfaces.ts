@@ -16,12 +16,7 @@ export type FieldDefinition =
       helperMessage?: ReactNode;
     }
   | NumberFieldDefinition
-  | {
-      type: FieldType.Textarea;
-      label: string;
-      placeholder?: string;
-      helperMessage?: ReactNode;
-    }
+  | TextareaFieldDefinition
   | {
       type: FieldType.Radio;
       options: FieldOption[];
@@ -43,6 +38,13 @@ export type NumberFieldDefinition = {
   max?: number;
   step?: number;
   transformBeforeSave?: (value: string) => number | null;
+  helperMessage?: ReactNode;
+};
+
+export type TextareaFieldDefinition = {
+  type: FieldType.Textarea;
+  label: string;
+  placeholder?: string;
   helperMessage?: ReactNode;
 };
 

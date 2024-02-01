@@ -1,14 +1,12 @@
 import { A, D } from '@mobily/ts-belt';
 import {
   FormControl,
-  FormHelperText,
   FormLabel,
   IconButton,
   Option,
   Radio,
   RadioGroup,
   Select,
-  Textarea,
 } from '@mui/joy';
 import {
   ConnectorID,
@@ -19,11 +17,6 @@ import {
 import { FieldType } from 'flow-models/src/node-definition-base-types';
 import { ReactNode, useEffect, useMemo, useState } from 'react';
 import { useNodeId, useUpdateNodeInternals } from 'reactflow';
-import TextareaReadonly from '../components/route-flow/common/TextareaReadonly';
-import {
-  CopyIcon,
-  LabelWithIconContainer,
-} from '../components/route-flow/common/flow-common';
 import { useFlowStore } from '../components/route-flow/store/FlowStoreContext';
 import {
   selectConditionTarget,
@@ -43,6 +36,7 @@ import NodeBoxOutgoingVariableBlock from './node-box/NodeBoxOutgoingVariableBloc
 import NodeBoxSection from './node-box/NodeBoxSection';
 import NodeBoxSmallSection from './node-box/NodeBoxSmallSection';
 import NodeNumberField from './node-fields/NodeNumberField';
+import NodeTextareaField from './node-fields/NodeTextareaField';
 
 export type DestConnector = {
   id: string;
@@ -210,7 +204,7 @@ export default function ReactFlowNode(props: Props) {
             switch (fieldDefinition.type) {
               case FieldType.Text:
                 return null;
-              case FieldType.Number: {
+              case FieldType.Number:
                 return (
                   <NodeNumberField
                     key={fieldKey}
@@ -223,57 +217,18 @@ export default function ReactFlowNode(props: Props) {
                     }}
                   />
                 );
-              }
               case FieldType.Textarea:
                 return (
-                  <NodeBoxSection key={fieldKey}>
-                    <FormControl>
-                      <LabelWithIconContainer>
-                        <FormLabel>{fieldDefinition.label}</FormLabel>
-                        <CopyIcon
-                          onClick={() => {
-                            navigator.clipboard.writeText(fieldValue as string);
-                          }}
-                        />
-                      </LabelWithIconContainer>
-                      {!props.isNodeConfigReadOnly ? (
-                        <Textarea
-                          color="neutral"
-                          variant="outlined"
-                          minRows={3}
-                          maxRows={5}
-                          placeholder={fieldDefinition.placeholder}
-                          value={localFieldValue as string}
-                          onChange={(e) => {
-                            setLocalFieldValue(e.target.value);
-                          }}
-                          onKeyDown={(e) => {
-                            if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
-                              updateNodeConfig(nodeId, {
-                                [fieldKey]: localFieldValue,
-                              });
-                            }
-                          }}
-                          onBlur={() => {
-                            updateNodeConfig(nodeId, {
-                              [fieldKey]: localFieldValue,
-                            });
-                          }}
-                        />
-                      ) : (
-                        <TextareaReadonly
-                          value={localFieldValue as string}
-                          minRows={3}
-                          maxRows={5}
-                        />
-                      )}
-                      {fieldDefinition.helperMessage && (
-                        <FormHelperText>
-                          {fieldDefinition.helperMessage}
-                        </FormHelperText>
-                      )}
-                    </FormControl>
-                  </NodeBoxSection>
+                  <NodeTextareaField
+                    key={fieldKey}
+                    fieldKey={fieldKey}
+                    fieldDefinition={fieldDefinition}
+                    fieldValue={fieldValue as string}
+                    isNodeConfigReadOnly={props.isNodeConfigReadOnly}
+                    onSave={(value) => {
+                      updateNodeConfig(nodeId, { [fieldKey]: value });
+                    }}
+                  />
                 );
               case FieldType.Radio:
                 return (
