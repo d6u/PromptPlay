@@ -1,12 +1,10 @@
 import { FormControl, FormHelperText, FormLabel, Textarea } from '@mui/joy';
+import NodeBoxCopyIcon from 'canvas-react-flow/node-box/NodeBoxCopyIcon';
+import NodeBoxLabelWithIconContainer from 'canvas-react-flow/node-box/NodeBoxLabelWithIconContainer';
 import NodeBoxSection from 'canvas-react-flow/node-box/NodeBoxSection';
+import TextareaReadonly from 'canvas-react-flow/node-box/NodeBoxTextareaReadonly';
 import { TextareaFieldDefinition } from 'flow-models';
 import { useCallback, useEffect, useState } from 'react';
-import TextareaReadonly from '../../components/route-flow/common/TextareaReadonly';
-import {
-  CopyIcon,
-  LabelWithIconContainer,
-} from '../../components/route-flow/common/flow-common';
 
 type Props = {
   fieldKey: string;
@@ -35,14 +33,14 @@ function NodeTextareaField(props: Props) {
   return (
     <NodeBoxSection>
       <FormControl>
-        <LabelWithIconContainer>
+        <NodeBoxLabelWithIconContainer>
           <FormLabel>{fd.label}</FormLabel>
-          <CopyIcon
+          <NodeBoxCopyIcon
             onClick={() => {
               navigator.clipboard.writeText(localFieldValue);
             }}
           />
-        </LabelWithIconContainer>
+        </NodeBoxLabelWithIconContainer>
         {props.isNodeConfigReadOnly ? (
           <TextareaReadonly value={localFieldValue} minRows={3} maxRows={5} />
         ) : (

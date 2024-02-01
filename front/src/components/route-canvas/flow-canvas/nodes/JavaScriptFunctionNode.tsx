@@ -2,6 +2,8 @@ import FormControl from '@mui/joy/FormControl';
 import FormLabel from '@mui/joy/FormLabel';
 import Textarea from '@mui/joy/Textarea';
 import ReactFlowNode from 'canvas-react-flow/ReactFlowNode';
+import NodeBoxCopyIcon from 'canvas-react-flow/node-box/NodeBoxCopyIcon';
+import NodeBoxLabelWithIconContainer from 'canvas-react-flow/node-box/NodeBoxLabelWithIconContainer';
 import NodeBoxSection from 'canvas-react-flow/node-box/NodeBoxSection';
 import {
   ConnectorType,
@@ -10,12 +12,8 @@ import {
 } from 'flow-models';
 import { useContext, useMemo, useState } from 'react';
 import { useNodeId } from 'reactflow';
+import TextareaReadonly from '../../../../canvas-react-flow/node-box/NodeBoxTextareaReadonly';
 import RouteFlowContext from '../../../route-flow/common/RouteFlowContext';
-import TextareaReadonly from '../../../route-flow/common/TextareaReadonly';
-import {
-  CopyIcon,
-  LabelWithIconContainer,
-} from '../../../route-flow/common/flow-common';
 import { useFlowStore } from '../../../route-flow/store/FlowStoreContext';
 import { selectVariables } from '../../../route-flow/store/state-utils';
 
@@ -58,18 +56,18 @@ export default function JavaScriptFunctionNode() {
     >
       <NodeBoxSection>
         <FormControl>
-          <LabelWithIconContainer>
+          <NodeBoxLabelWithIconContainer>
             <FormLabel>
               <code>{functionDefinitionPrefix}</code>
             </FormLabel>
-            <CopyIcon
+            <NodeBoxCopyIcon
               onClick={() => {
                 navigator.clipboard.writeText(`${functionDefinitionPrefix}
   ${javaScriptCode.split('\n').join('\n  ')}
 }`);
               }}
             />
-          </LabelWithIconContainer>
+          </NodeBoxLabelWithIconContainer>
           {isCurrentUserOwner ? (
             <Textarea
               sx={{ fontFamily: 'var(--font-family-mono)' }}
