@@ -1,4 +1,4 @@
-import { D, pipe } from '@mobily/ts-belt';
+import { A, D, pipe } from '@mobily/ts-belt';
 import deepEqual from 'deep-equal';
 import {
   Connector,
@@ -8,10 +8,12 @@ import {
   ConnectorType,
   FlowConfigSchema,
   FlowInputVariable,
+  NodeConfig,
   NodeExecutionEventType,
   NodeID,
   V3FlowContent,
   asV3VariableID,
+  getNodeDefinitionForNodeTypeName,
 } from 'flow-models';
 import { produce } from 'immer';
 import posthog from 'posthog-js';
@@ -24,6 +26,7 @@ import { runSingle } from '../../../flow-run/run-single';
 import { graphql } from '../../../gql';
 import { ContentVersion, SpaceFlowQueryQuery } from '../../../gql/graphql';
 import { useLocalStorageStore } from '../../../state/appState';
+import { useNodeFieldFeedbackStore } from '../../../state/node-field-feedback-state';
 import { client } from '../../../state/urql';
 import { updateSpaceContentV3 } from '../utils/graphql';
 import {
@@ -223,9 +226,62 @@ export function createRootSlice(
       // TODO: Give a default for every node instead of empty object
       set({ nodeMetadataDict: {} });
 
-      setIsRunning(true);
+      const { edges, nodeConfigsDict, variablesDict, updateNodeAugment } =
+        get();
 
-      const { edges, nodeConfigsDict, variablesDict } = get();
+      // SECTION: Validate nodeConfigs
+      const { setFieldFeedbacks, hasAnyFeedbacks } =
+        useNodeFieldFeedbackStore.getState();
+
+      pipe(
+        nodeConfigsDict,
+        D.toPairs,
+        A.forEach(([nodeId, nodeConfig]) => {
+          const { fieldDefinitions } = getNodeDefinitionForNodeTypeName(
+            nodeConfig.type,
+          );
+
+          if (!fieldDefinitions) {
+            return;
+          }
+
+          D.toPairs(fieldDefinitions).forEach(([key, fd]) => {
+            if ('validate' in fd && fd.validate) {
+              let fieldValue: string;
+              if (fd.globalFieldDefinitionKey) {
+                fieldValue = useLocalStorageStore
+                  .getState()
+                  .getGlobalField(
+                    `${nodeConfig.type}:${fd.globalFieldDefinitionKey}`,
+                  );
+              } else {
+                fieldValue = nodeConfig[key as keyof NodeConfig];
+              }
+
+              const feedbackMap = fd.validate(fieldValue);
+
+              setFieldFeedbacks(`${nodeConfig.nodeId}:${key}`, feedbackMap);
+
+              updateNodeAugment(nodeId as NodeID, {
+                isRunning: false,
+                hasError: true,
+              });
+            }
+          });
+        }),
+      );
+
+      if (hasAnyFeedbacks()) {
+        posthog.capture('Simple Evaluation Has Node Config Validation Error', {
+          flowId: get().spaceId,
+        });
+
+        // Stop flow run if there is any validation error
+        return;
+      }
+      // !SECTION
+
+      setIsRunning(true);
 
       const variableValueLookUpDict = get().getDefaultVariableValueLookUpDict();
 

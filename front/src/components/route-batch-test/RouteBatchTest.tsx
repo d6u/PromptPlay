@@ -1,6 +1,11 @@
 import styled from '@emotion/styled';
-import { A, D } from '@mobily/ts-belt';
-import { ConnectorResultMap } from 'flow-models';
+import { A, D, pipe } from '@mobily/ts-belt';
+import {
+  ConnectorResultMap,
+  NodeConfig,
+  NodeID,
+  getNodeDefinitionForNodeTypeName,
+} from 'flow-models';
 import { produce } from 'immer';
 import Papa from 'papaparse';
 import posthog from 'posthog-js';
@@ -9,6 +14,8 @@ import { Subscription, debounceTime, tap } from 'rxjs';
 import invariant from 'tiny-invariant';
 import { SingleRunEventType, runForEachRow } from '../../flow-run/run-each-row';
 import { OverallStatus } from '../../flow-run/run-types';
+import { useLocalStorageStore } from '../../state/appState';
+import { useNodeFieldFeedbackStore } from '../../state/node-field-feedback-state';
 import { useFlowStore } from '../route-flow/store/FlowStoreContext';
 import {
   IterationIndex,
@@ -43,6 +50,8 @@ export default function RouteBatchTest() {
   );
   const selectedBatchTestTab = useFlowStore((s) => s.selectedBatchTestTab);
 
+  const updateNodeAugment = useFlowStore((s) => s.updateNodeAugment);
+
   // !SECTION
 
   const csvData = useMemo<CSVData>(() => {
@@ -74,6 +83,65 @@ export default function RouteBatchTest() {
       contentRowCount: csvBody.length,
       repeatCount: repeatTimes,
     });
+
+    // SECTION: Validate nodeConfigs
+    // TODO: Unifying the validation code
+
+    const { setFieldFeedbacks, hasAnyFeedbacks } =
+      useNodeFieldFeedbackStore.getState();
+
+    pipe(
+      nodeConfigsDict,
+      D.toPairs,
+      A.forEach(([nodeId, nodeConfig]) => {
+        const { fieldDefinitions } = getNodeDefinitionForNodeTypeName(
+          nodeConfig.type,
+        );
+
+        if (!fieldDefinitions) {
+          return;
+        }
+
+        D.toPairs(fieldDefinitions).forEach(([key, fd]) => {
+          if ('validate' in fd && fd.validate) {
+            let fieldValue: string;
+            if (fd.globalFieldDefinitionKey) {
+              fieldValue = useLocalStorageStore
+                .getState()
+                .getGlobalField(
+                  `${nodeConfig.type}:${fd.globalFieldDefinitionKey}`,
+                );
+            } else {
+              fieldValue = nodeConfig[key as keyof NodeConfig];
+            }
+
+            const feedbackMap = fd.validate(fieldValue);
+
+            setFieldFeedbacks(`${nodeConfig.nodeId}:${key}`, feedbackMap);
+
+            updateNodeAugment(nodeId as NodeID, {
+              isRunning: false,
+              hasError: true,
+            });
+          }
+        });
+      }),
+    );
+
+    if (hasAnyFeedbacks()) {
+      posthog.capture('CSV Evaluation Has Node Config Validation Error', {
+        flowId: spaceId,
+      });
+
+      // TODO: Show proper alert in the UI
+      alert(
+        'The validation for node configurations has failed. Please fix it in the canvas.',
+      );
+
+      // Stop flow run if there is any validation error
+      return;
+    }
+    // !SECTION
 
     setIsRunning(true);
 
@@ -206,15 +274,16 @@ export default function RouteBatchTest() {
     spaceId,
     csvBody,
     repeatTimes,
-    setGeneratedResult,
-    setRunMetadataTable,
+    nodeConfigsDict,
     nodes,
     edges,
-    nodeConfigsDict,
     variablesDict,
     variableValueLookUpDicts,
     variableIdToCsvColumnIndexMap,
     concurrencyLimit,
+    setGeneratedResult,
+    setRunMetadataTable,
+    updateNodeAugment,
     savePresetConfigContentIfSelected,
   ]);
 
