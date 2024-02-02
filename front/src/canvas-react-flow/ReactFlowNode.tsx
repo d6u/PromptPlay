@@ -9,6 +9,7 @@ import {
 import { FieldType } from 'flow-models/src/node-definition-base-types';
 import { ReactNode, useEffect, useMemo, useState } from 'react';
 import { useNodeId, useUpdateNodeInternals } from 'reactflow';
+import invariant from 'tiny-invariant';
 import { useFlowStore } from '../components/route-flow/store/FlowStoreContext';
 import {
   selectConditionTarget,
@@ -28,6 +29,7 @@ import NodeBoxOutgoingVariableBlock from './node-box/NodeBoxOutgoingVariableBloc
 import NodeBoxSection from './node-box/NodeBoxSection';
 import NodeBoxSmallSection from './node-box/NodeBoxSmallSection';
 import NodeCheckboxField from './node-fields/NodeCheckboxField';
+import NodeGlobalTextField from './node-fields/NodeGlobalTextField';
 import NodeNumberField from './node-fields/NodeNumberField';
 import NodeRadioField from './node-fields/NodeRadioField';
 import NodeSelectField from './node-fields/NodeSelectField';
@@ -176,33 +178,61 @@ export default function ReactFlowNode(props: Props) {
     bodyContent = (
       <>
         {D.toPairs(nodeDefinition.fieldDefinitions).map(
-          ([fieldKey, fieldDefinition], index) => {
+          ([fieldKey, fd], index) => {
             // TODO: Find a type safe way
             // NOTE: Hack to make TypeScript happy
             const fieldValue = nodeConfig[
               fieldKey as keyof typeof nodeConfig
             ] as unknown;
 
-            switch (fieldDefinition.type) {
+            switch (fd.type) {
               case FieldType.Text:
-                return (
-                  <NodeTextField
-                    key={fieldKey}
-                    fieldKey={fieldKey}
-                    fieldDefinition={fieldDefinition}
-                    fieldValue={fieldValue}
-                    isNodeConfigReadOnly={props.isNodeConfigReadOnly}
-                    onSave={(value) => {
-                      updateNodeConfig(nodeId, { [fieldKey]: value });
-                    }}
-                  />
-                );
+                if (fd.globalFieldDefinitionKey) {
+                  invariant(
+                    nodeDefinition.globalFieldDefinitions != null,
+                    'globalFieldDefinitions is not null',
+                  );
+
+                  const globalFieldDefinition =
+                    nodeDefinition.globalFieldDefinitions[
+                      fd.globalFieldDefinitionKey
+                    ];
+
+                  invariant(
+                    globalFieldDefinition != null,
+                    'globalFieldDefinition is not null',
+                  );
+
+                  return (
+                    <NodeGlobalTextField
+                      key={fieldKey}
+                      nodeType={nodeConfig.type}
+                      fieldKey={fieldKey}
+                      fieldDefinition={fd}
+                      globalFieldDefinition={globalFieldDefinition}
+                      isNodeConfigReadOnly={props.isNodeConfigReadOnly}
+                    />
+                  );
+                } else {
+                  return (
+                    <NodeTextField
+                      key={fieldKey}
+                      fieldKey={fieldKey}
+                      fieldDefinition={fd}
+                      fieldValue={fieldValue}
+                      isNodeConfigReadOnly={props.isNodeConfigReadOnly}
+                      onSave={(value) => {
+                        updateNodeConfig(nodeId, { [fieldKey]: value });
+                      }}
+                    />
+                  );
+                }
               case FieldType.Number:
                 return (
                   <NodeNumberField
                     key={fieldKey}
                     fieldKey={fieldKey}
-                    fieldDefinition={fieldDefinition}
+                    fieldDefinition={fd}
                     fieldValue={fieldValue as number | null}
                     isNodeConfigReadOnly={props.isNodeConfigReadOnly}
                     onSave={(value) => {
@@ -215,7 +245,7 @@ export default function ReactFlowNode(props: Props) {
                   <NodeTextareaField
                     key={fieldKey}
                     fieldKey={fieldKey}
-                    fieldDefinition={fieldDefinition}
+                    fieldDefinition={fd}
                     fieldValue={fieldValue as string}
                     isNodeConfigReadOnly={props.isNodeConfigReadOnly}
                     onSave={(value) => {
@@ -228,7 +258,7 @@ export default function ReactFlowNode(props: Props) {
                   <NodeRadioField
                     key={fieldKey}
                     fieldKey={fieldKey}
-                    fieldDefinition={fieldDefinition}
+                    fieldDefinition={fd}
                     fieldValue={fieldValue}
                     isNodeConfigReadOnly={props.isNodeConfigReadOnly}
                     onSave={(value) => {
@@ -241,7 +271,7 @@ export default function ReactFlowNode(props: Props) {
                   <NodeSelectField
                     key={fieldKey}
                     fieldKey={fieldKey}
-                    fieldDefinition={fieldDefinition}
+                    fieldDefinition={fd}
                     fieldValue={fieldValue}
                     isNodeConfigReadOnly={props.isNodeConfigReadOnly}
                     onSave={(value) => {
@@ -254,7 +284,7 @@ export default function ReactFlowNode(props: Props) {
                   <NodeCheckboxField
                     key={fieldKey}
                     fieldKey={fieldKey}
-                    fieldDefinition={fieldDefinition}
+                    fieldDefinition={fd}
                     fieldValue={fieldValue}
                     isNodeConfigReadOnly={props.isNodeConfigReadOnly}
                     onSave={(value) => {

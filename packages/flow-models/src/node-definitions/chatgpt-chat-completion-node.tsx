@@ -86,6 +86,14 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<V3ChatGPTCh
       },
     ],
     fieldDefinitions: {
+      openAiApiKey: {
+        type: FieldType.Text,
+        label: 'OpenAI API Key',
+        globalFieldDefinitionKey: 'openAiApiKey',
+        helperMessage: (
+          <>This is stored in your browser's local storage. Never uploaded.</>
+        ),
+      },
       model: {
         type: FieldType.Select,
         label: 'Model',
@@ -156,6 +164,11 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<V3ChatGPTCh
             .)
           </div>
         ),
+      },
+    },
+    globalFieldDefinitions: {
+      openAiApiKey: {
+        isSecret: true,
       },
     },
 

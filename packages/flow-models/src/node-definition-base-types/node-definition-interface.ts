@@ -8,7 +8,10 @@ import type {
 } from '../base-types';
 import type { NodeConfig } from '../node-definitions/index';
 import NodeExecutionContext from './NodeExecutionContext';
-import { FieldDefinition } from './field-definition-interfaces';
+import {
+  FieldDefinition,
+  GlobalFieldDefinition,
+} from './field-definition-interfaces';
 
 type IncomingVariableConfig = {
   isNonEditable: boolean;
@@ -27,6 +30,7 @@ export interface NodeDefinition<T extends NodeConfig> {
   canAddIncomingVariables?: boolean;
   incomingVariableConfigs?: IncomingVariableConfig[];
   fieldDefinitions?: Record<string, FieldDefinition>;
+  globalFieldDefinitions?: Record<string, GlobalFieldDefinition>;
 
   createDefaultNodeConfig: (nodeId: NodeID) => {
     nodeConfig: T;

@@ -64,9 +64,7 @@ function NodeTextField(props: Props) {
                 onSaveCallback();
               }
             }}
-            onBlur={() => {
-              onSaveCallback();
-            }}
+            onBlur={onSaveCallback}
           />
         )}
         {fd.helperMessage && (

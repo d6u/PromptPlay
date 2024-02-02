@@ -24,6 +24,7 @@ export type TextFieldDefinition = {
   transformBeforeSave?: (value: string) => unknown;
   placeholder?: string;
   helperMessage?: ReactNode;
+  globalFieldDefinitionKey?: string;
 };
 
 export type NumberFieldDefinition = {
@@ -69,4 +70,10 @@ export type CheckboxFieldDefinition = {
   transformBeforeRender?: (value: unknown) => boolean;
   transformBeforeSave?: (value: boolean) => unknown;
   helperMessage?: ReactNode;
+};
+
+// ANCHOR: Global
+
+export type GlobalFieldDefinition = {
+  isSecret: boolean;
 };

@@ -1,3 +1,4 @@
+import { createLens } from '@dhmk/zustand-lens';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { createSelectors } from '../utils/zustand-utils';
@@ -17,24 +18,43 @@ type ElevenLabsApiKeyState = {
   setElevenLabsApiKey: (elevenLabsApiKey: string | null) => void;
 };
 
+type GlobalFieldStorageState = {
+  globalFields: Record<string, string>;
+  getGlobalField: (key: string) => string;
+  setGlobalField: (key: string, value: string) => void;
+};
+
 export type LocalStorageState = OpenAIAPIKeyState &
   HuggingFaceApiTokenState &
-  ElevenLabsApiKeyState;
+  ElevenLabsApiKeyState &
+  GlobalFieldStorageState;
 
 export const useLocalStorageStore = createSelectors(
   create<LocalStorageState>()(
     persist(
-      (set) => ({
-        openAiApiKey: null,
-        setOpenAiApiKey: (openAiApiKey) => set(() => ({ openAiApiKey })),
-        huggingFaceApiToken: null,
-        setHuggingFaceApiToken: (huggingFaceApiToken) =>
-          set(() => ({ huggingFaceApiToken })),
-        placeholderUserToken: null,
-        elevenLabsApiKey: null,
-        setElevenLabsApiKey: (elevenLabsApiKey: string | null) =>
-          set(() => ({ elevenLabsApiKey })),
-      }),
+      (set, get) => {
+        const [setGlobalField, getGlobalField] = createLens(
+          set,
+          get,
+          'globalFields',
+        );
+
+        return {
+          openAiApiKey: null,
+          setOpenAiApiKey: (openAiApiKey) => set(() => ({ openAiApiKey })),
+          huggingFaceApiToken: null,
+          setHuggingFaceApiToken: (huggingFaceApiToken) =>
+            set(() => ({ huggingFaceApiToken })),
+          placeholderUserToken: null,
+          elevenLabsApiKey: null,
+          setElevenLabsApiKey: (elevenLabsApiKey: string | null) =>
+            set(() => ({ elevenLabsApiKey })),
+
+          globalFields: {},
+          getGlobalField: (key) => getGlobalField()[key],
+          setGlobalField: (key, value) => setGlobalField({ [key]: value }),
+        };
+      },
       { name: 'localUserSettings' },
     ),
   ),
