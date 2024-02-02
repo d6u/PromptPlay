@@ -1,4 +1,5 @@
 import { D, Option } from '@mobily/ts-belt';
+import { DRAG_HANDLE_CLASS_NAME } from 'canvas-react-flow/ui-constants';
 import {
   Condition,
   ConditionTarget,
@@ -14,7 +15,6 @@ import {
 } from 'flow-models';
 import { produce } from 'immer';
 import invariant from 'tiny-invariant';
-import { DRAG_HANDLE_CLASS_NAME } from '../../common-react-flow/ui-constants';
 import { CONDITION_EDGE_STYLE, DEFAULT_EDGE_STYLE } from '../utils/constants';
 
 export function assignLocalNodeProperties(nodes: LocalNode[]): LocalNode[] {

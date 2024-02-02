@@ -18,9 +18,14 @@
     /* Linting */
     "strict": true,
     "noUnusedLocals": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
     // "noUncheckedIndexedAccess": true
     // "noPropertyAccessFromIndexSignature": true
+    "paths": {
+      "assets/*": ["./src/assets/*"],
+      "icons/*": ["./src/icons/*"],
+      "canvas-react-flow/*": ["./src/canvas-react-flow/*"]
+    }
   },
   "include": ["src"],
   "references": [{ "path": "./tsconfig.node.json" }]

@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import IconThreeDots from '../../icons/IconThreeDots';
+import IconThreeDots from 'icons/IconThreeDots';
 import {
   DRAG_HANDLE_CLASS_NAME,
   HEADER_TITLE_HEIGHT,

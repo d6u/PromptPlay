@@ -1,13 +1,7 @@
 import styled from '@emotion/styled';
-import IconCopy from '../../icons/IconCopy';
+import IconCopy from 'icons/IconCopy';
 
-export const LabelWithIconContainer = styled.div`
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
-`;
-
-export const CopyIcon = styled(IconCopy)`
+const NodeBoxCopyIcon = styled(IconCopy)`
   width: 20px;
   height: 20px;
   cursor: pointer;
@@ -20,3 +14,5 @@ export const CopyIcon = styled(IconCopy)`
     fill: rgba(0, 0, 0, 1);
   }
 `;
+
+export default NodeBoxCopyIcon;

@@ -2,7 +2,11 @@ import FormControl from '@mui/joy/FormControl';
 import FormHelperText from '@mui/joy/FormHelperText';
 import FormLabel from '@mui/joy/FormLabel';
 import Input from '@mui/joy/Input';
-import { NodeID, NodeType, V3ElevenLabsNodeConfig } from 'flow-models';
+import ReactFlowNode from 'canvas-react-flow/ReactFlowNode';
+import NodeBoxHelperTextContainer from 'canvas-react-flow/node-box/NodeBoxHelperTextContainer';
+import NodeBoxIncomingVariableReadonly from 'canvas-react-flow/node-box/NodeBoxIncomingVariableReadonly';
+import NodeBoxSection from 'canvas-react-flow/node-box/NodeBoxSection';
+import { NodeID, V3ElevenLabsNodeConfig } from 'flow-models';
 import { useContext, useMemo, useState } from 'react';
 import { useNodeId } from 'reactflow';
 import {
@@ -11,10 +15,6 @@ import {
   useLocalStorageStore,
   useSpaceStore,
 } from '../../../../state/appState';
-import ReactFlowNode from '../../../common-react-flow/ReactFlowNode';
-import NodeBoxHelperTextContainer from '../../../common-react-flow/node-box/NodeBoxHelperTextContainer';
-import NodeBoxIncomingVariableReadonly from '../../../common-react-flow/node-box/NodeBoxIncomingVariableReadonly';
-import NodeBoxSection from '../../../common-react-flow/node-box/NodeBoxSection';
 import RouteFlowContext from '../../../route-flow/common/RouteFlowContext';
 import { useFlowStore } from '../../../route-flow/store/FlowStoreContext';
 
@@ -57,9 +57,8 @@ export default function ElevenLabsNode() {
 
   return (
     <ReactFlowNode
-      nodeType={NodeType.ElevenLabs}
-      nodeTitle="Eleven Labs Text to Speech"
-      allowAddVariable={false}
+      isNodeConfigReadOnly={!isCurrentUserOwner}
+      canAddVariable={false}
       destConnectorReadOnlyConfigs={[true]}
       destConnectorHelpMessages={[
         <>

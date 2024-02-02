@@ -1,7 +1,7 @@
 import styled from '@emotion/styled';
 import Input from '@mui/joy/Input';
 import { ReactNode, useCallback, useRef, useState } from 'react';
-import { useOnElementResize } from '../../../utils/ResizeObserver';
+import { useOnElementResize } from '../../utils/ResizeObserver';
 import NodeBoxCommonRemoveButton from './NodeBoxCommonRemoveButton';
 import NodeBoxHelperTextContainer from './NodeBoxHelperTextContainer';
 import NodeBoxIncomingVariableReadonly from './NodeBoxIncomingVariableReadonly';

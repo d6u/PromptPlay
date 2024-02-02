@@ -1,5 +1,16 @@
 import { A } from '@mobily/ts-belt';
 import IconButton from '@mui/joy/IconButton';
+import IncomingVariableHandle from 'canvas-react-flow/handles/IncomingVariableHandle';
+import NodeBox from 'canvas-react-flow/node-box/NodeBox';
+import NodeBoxAddConnectorButton from 'canvas-react-flow/node-box/NodeBoxAddConnectorButton';
+import NodeBoxHeaderSection from 'canvas-react-flow/node-box/NodeBoxHeaderSection';
+import NodeBoxIconGear from 'canvas-react-flow/node-box/NodeBoxIconGear';
+import NodeBoxIncomingVariableBlock, {
+  ROW_MARGIN_TOP,
+} from 'canvas-react-flow/node-box/NodeBoxIncomingVariableBlock';
+import NodeBoxIncomingVariableSection from 'canvas-react-flow/node-box/NodeBoxIncomingVariableSection';
+import { VARIABLE_LABEL_HEIGHT } from 'canvas-react-flow/node-box/NodeBoxOutgoingVariableBlock';
+import NodeBoxSmallSection from 'canvas-react-flow/node-box/NodeBoxSmallSection';
 import {
   ConnectorType,
   NodeID,
@@ -9,17 +20,6 @@ import {
 import { useContext, useMemo } from 'react';
 import { useNodeId, useUpdateNodeInternals } from 'reactflow';
 import { useStore } from 'zustand';
-import IncomingVariableHandle from '../../../common-react-flow/handles/IncomingVariableHandle';
-import NodeBox from '../../../common-react-flow/node-box/NodeBox';
-import NodeBoxAddConnectorButton from '../../../common-react-flow/node-box/NodeBoxAddConnectorButton';
-import NodeBoxHeaderSection from '../../../common-react-flow/node-box/NodeBoxHeaderSection';
-import NodeBoxIconGear from '../../../common-react-flow/node-box/NodeBoxIconGear';
-import NodeBoxIncomingVariableBlock, {
-  ROW_MARGIN_TOP,
-} from '../../../common-react-flow/node-box/NodeBoxIncomingVariableBlock';
-import NodeBoxIncomingVariableSection from '../../../common-react-flow/node-box/NodeBoxIncomingVariableSection';
-import { VARIABLE_LABEL_HEIGHT } from '../../../common-react-flow/node-box/NodeBoxOutgoingVariableBlock';
-import NodeBoxSmallSection from '../../../common-react-flow/node-box/NodeBoxSmallSection';
 import RouteFlowContext from '../../../route-flow/common/RouteFlowContext';
 import { useStoreFromFlowStoreContext } from '../../../route-flow/store/FlowStoreContext';
 import { selectVariables } from '../../../route-flow/store/state-utils';

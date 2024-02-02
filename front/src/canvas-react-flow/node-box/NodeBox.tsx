@@ -1,7 +1,7 @@
 import { css } from '@emotion/react';
 import styled from '@emotion/styled';
+import background from 'assets/warning-background.svg';
 import { NodeType } from 'flow-models';
-import background from '../../../assets/warning-background.svg';
 import { BACKDROP_PADDING, NODE_BOX_WIDTH } from '../ui-constants';
 
 type Props = {

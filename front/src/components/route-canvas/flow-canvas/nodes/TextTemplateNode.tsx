@@ -3,18 +3,16 @@ import FormHelperText from '@mui/joy/FormHelperText';
 import FormLabel from '@mui/joy/FormLabel';
 import IconButton from '@mui/joy/IconButton';
 import Textarea from '@mui/joy/Textarea';
-import { NodeID, NodeType, V3TextTemplateNodeConfig } from 'flow-models';
+import ReactFlowNode from 'canvas-react-flow/ReactFlowNode';
+import NodeBoxCopyIcon from 'canvas-react-flow/node-box/NodeBoxCopyIcon';
+import NodeBoxIconGear from 'canvas-react-flow/node-box/NodeBoxIconGear';
+import NodeBoxLabelWithIconContainer from 'canvas-react-flow/node-box/NodeBoxLabelWithIconContainer';
+import NodeBoxSection from 'canvas-react-flow/node-box/NodeBoxSection';
+import TextareaReadonly from 'canvas-react-flow/node-box/NodeBoxTextareaReadonly';
+import { NodeID, V3TextTemplateNodeConfig } from 'flow-models';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { useNodeId } from 'reactflow';
-import ReactFlowNode from '../../../common-react-flow/ReactFlowNode';
-import NodeBoxIconGear from '../../../common-react-flow/node-box/NodeBoxIconGear';
-import NodeBoxSection from '../../../common-react-flow/node-box/NodeBoxSection';
 import RouteFlowContext from '../../../route-flow/common/RouteFlowContext';
-import TextareaReadonly from '../../../route-flow/common/TextareaReadonly';
-import {
-  CopyIcon,
-  LabelWithIconContainer,
-} from '../../../route-flow/common/flow-common';
 import { useFlowStore } from '../../../route-flow/store/FlowStoreContext';
 import { DetailPanelContentType } from '../../../route-flow/store/store-flow-state-types';
 
@@ -52,20 +50,19 @@ export default function TextTemplateNode() {
 
   return (
     <ReactFlowNode
-      nodeType={NodeType.TextTemplate}
-      nodeTitle="Text"
-      allowAddVariable={true}
+      isNodeConfigReadOnly={!isCurrentUserOwner}
+      canAddVariable={true}
     >
       <NodeBoxSection>
         <FormControl>
-          <LabelWithIconContainer>
+          <NodeBoxLabelWithIconContainer>
             <FormLabel>Text content</FormLabel>
-            <CopyIcon
+            <NodeBoxCopyIcon
               onClick={() => {
                 navigator.clipboard.writeText(content);
               }}
             />
-          </LabelWithIconContainer>
+          </NodeBoxLabelWithIconContainer>
           {isCurrentUserOwner ? (
             <Textarea
               color="neutral"

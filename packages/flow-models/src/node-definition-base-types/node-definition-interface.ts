@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import type { Observable } from 'rxjs';
 import type {
   Connector,
@@ -7,12 +8,25 @@ import type {
 } from '../base-types';
 import type { NodeConfig } from '../node-definitions/index';
 import NodeExecutionContext from './NodeExecutionContext';
+import { FieldDefinition } from './field-definition-interfaces';
+
+type IncomingVariableConfig = {
+  isNonEditable: boolean;
+  helperMessage?: ReactNode;
+};
 
 export interface NodeDefinition<T extends NodeConfig> {
   nodeType: T['type'];
 
   isEnabledInToolbar?: boolean;
   toolbarLabel?: string;
+
+  // TODO: Abstract side panel rendering
+  sidePanelType?: string;
+
+  canAddIncomingVariables?: boolean;
+  incomingVariableConfigs?: IncomingVariableConfig[];
+  fieldDefinitions?: Record<string, FieldDefinition>;
 
   createDefaultNodeConfig: (nodeId: NodeID) => {
     nodeConfig: T;

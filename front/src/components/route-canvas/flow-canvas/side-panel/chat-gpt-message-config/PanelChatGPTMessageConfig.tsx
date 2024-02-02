@@ -6,17 +6,15 @@ import {
   RadioGroup,
   Textarea,
 } from '@mui/joy';
+import NodeBoxCopyIcon from 'canvas-react-flow/node-box/NodeBoxCopyIcon';
+import NodeBoxLabelWithIconContainer from 'canvas-react-flow/node-box/NodeBoxLabelWithIconContainer';
+import TextareaReadonly from 'canvas-react-flow/node-box/NodeBoxTextareaReadonly';
 import { ConnectorType, NodeType } from 'flow-models';
 import { ChatGPTMessageRole } from 'integrations/openai';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import invariant from 'tiny-invariant';
 import { useStore } from 'zustand';
 import RouteFlowContext from '../../../../route-flow/common/RouteFlowContext';
-import TextareaReadonly from '../../../../route-flow/common/TextareaReadonly';
-import {
-  CopyIcon,
-  LabelWithIconContainer,
-} from '../../../../route-flow/common/flow-common';
 import { useStoreFromFlowStoreContext } from '../../../../route-flow/store/FlowStoreContext';
 import { selectVariables } from '../../../../route-flow/store/state-utils';
 import OutputRenderer from '../common/OutputRenderer';
@@ -119,14 +117,14 @@ export default function PanelChatGPTMessageConfig() {
       </Section>
       <Section>
         <FormControl size="md">
-          <LabelWithIconContainer>
+          <NodeBoxLabelWithIconContainer>
             <FormLabel>Message content</FormLabel>
-            <CopyIcon
+            <NodeBoxCopyIcon
               onClick={() => {
                 navigator.clipboard.writeText(nodeConfig.content);
               }}
             />
-          </LabelWithIconContainer>
+          </NodeBoxLabelWithIconContainer>
           {isCurrentUserOwner ? (
             <Textarea
               color="neutral"

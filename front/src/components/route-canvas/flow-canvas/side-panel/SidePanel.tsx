@@ -1,8 +1,8 @@
 import styled from '@emotion/styled';
 import IconButton from '@mui/joy/IconButton';
+import CrossIcon from 'icons/CrossIcon';
 import { ReactNode } from 'react';
 import { useStore } from 'zustand';
-import CrossIcon from '../../../icons/CrossIcon';
 import RouteBatchTest from '../../../route-batch-test/RouteBatchTest';
 import { useStoreFromFlowStoreContext } from '../../../route-flow/store/FlowStoreContext';
 import { DetailPanelContentType } from '../../../route-flow/store/store-flow-state-types';

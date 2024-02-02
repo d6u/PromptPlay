@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 import IconButton from '@mui/joy/IconButton';
-import CrossIcon from '../../icons/CrossIcon';
+import CrossIcon from 'icons/CrossIcon';
 
 export default function NodeBoxCommonRemoveButton(props: {
   onClick: () => void;

@@ -1,4 +1,12 @@
 import IconButton from '@mui/joy/IconButton';
+import OutgoingVariableHandle from 'canvas-react-flow/handles/OutgoingVariableHandle';
+import NodeBox from 'canvas-react-flow/node-box/NodeBox';
+import NodeBoxAddConnectorButton from 'canvas-react-flow/node-box/NodeBoxAddConnectorButton';
+import NodeBoxHeaderSection from 'canvas-react-flow/node-box/NodeBoxHeaderSection';
+import NodeBoxIconGear from 'canvas-react-flow/node-box/NodeBoxIconGear';
+import NodeBoxIncomingVariableSection from 'canvas-react-flow/node-box/NodeBoxIncomingVariableSection';
+import NodeBoxOutgoingConnectorBlock from 'canvas-react-flow/node-box/NodeBoxOutgoingConnectorBlock';
+import NodeBoxSmallSection from 'canvas-react-flow/node-box/NodeBoxSmallSection';
 import {
   ConnectorType,
   NodeID,
@@ -8,14 +16,6 @@ import {
 import { useContext, useMemo } from 'react';
 import { useNodeId, useUpdateNodeInternals } from 'reactflow';
 import { useStore } from 'zustand';
-import OutgoingVariableHandle from '../../../common-react-flow/handles/OutgoingVariableHandle';
-import NodeBox from '../../../common-react-flow/node-box/NodeBox';
-import NodeBoxAddConnectorButton from '../../../common-react-flow/node-box/NodeBoxAddConnectorButton';
-import NodeBoxHeaderSection from '../../../common-react-flow/node-box/NodeBoxHeaderSection';
-import NodeBoxIconGear from '../../../common-react-flow/node-box/NodeBoxIconGear';
-import NodeBoxIncomingVariableSection from '../../../common-react-flow/node-box/NodeBoxIncomingVariableSection';
-import NodeBoxOutgoingConnectorBlock from '../../../common-react-flow/node-box/NodeBoxOutgoingConnectorBlock';
-import NodeBoxSmallSection from '../../../common-react-flow/node-box/NodeBoxSmallSection';
 import RouteFlowContext from '../../../route-flow/common/RouteFlowContext';
 import { useStoreFromFlowStoreContext } from '../../../route-flow/store/FlowStoreContext';
 import { selectVariables } from '../../../route-flow/store/state-utils';

@@ -11,14 +11,13 @@ import 'reactflow/dist/style.css';
 import { useStore } from 'zustand';
 import RouteFlowContext from '../../route-flow/common/RouteFlowContext';
 import { useStoreFromFlowStoreContext } from '../../route-flow/store/FlowStoreContext';
-import ChatGPTChatCompletionNode from './nodes/ChatGPTChatCompletionNode';
-import ChatGPTMessageNode from './nodes/ChatGPTMessageNode';
 import ConditionNode from './nodes/ConditionNode';
 import ElevenLabsNode from './nodes/ElevenLabsNode';
 import HuggingFaceInferenceNode from './nodes/HuggingFaceInferenceNode';
 import InputNode from './nodes/InputNode';
 import JavaScriptFunctionNode from './nodes/JavaScriptFunctionNode';
 import OutputNode from './nodes/OutputNode';
+import StandardNode from './nodes/StandardNode';
 import TextTemplateNode from './nodes/TextTemplateNode';
 import SidePanel from './side-panel/SidePanel';
 
@@ -28,8 +27,8 @@ const NODE_TYPES = {
   [NodeType.OutputNode]: OutputNode,
   [NodeType.ConditionNode]: ConditionNode,
   [NodeType.JavaScriptFunctionNode]: JavaScriptFunctionNode,
-  [NodeType.ChatGPTMessageNode]: ChatGPTMessageNode,
-  [NodeType.ChatGPTChatCompletionNode]: ChatGPTChatCompletionNode,
+  [NodeType.ChatGPTMessageNode]: StandardNode,
+  [NodeType.ChatGPTChatCompletionNode]: StandardNode,
   [NodeType.TextTemplate]: TextTemplateNode,
   [NodeType.HuggingFaceInference]: HuggingFaceInferenceNode,
   [NodeType.ElevenLabs]: ElevenLabsNode,
