@@ -206,6 +206,7 @@ export default function ReactFlowNode(props: Props) {
                   return (
                     <NodeGlobalTextField
                       key={fieldKey}
+                      nodeId={nodeId}
                       nodeType={nodeConfig.type}
                       fieldKey={fieldKey}
                       fieldDefinition={fd}

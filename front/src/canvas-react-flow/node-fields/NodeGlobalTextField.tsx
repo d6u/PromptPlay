@@ -1,4 +1,5 @@
 import { FormControl, FormHelperText, FormLabel, Input } from '@mui/joy';
+import NodeBoxHelperTextContainer from 'canvas-react-flow/node-box/NodeBoxHelperTextContainer';
 import NodeBoxSection from 'canvas-react-flow/node-box/NodeBoxSection';
 import {
   GlobalFieldDefinition,
@@ -8,8 +9,10 @@ import {
 import { useCallback, useEffect, useState } from 'react';
 import invariant from 'tiny-invariant';
 import { useLocalStorageStore } from '../../state/appState';
+import { useNodeFieldFeedbackStore } from '../../state/node-field-feedback-state';
 
 type Props = {
+  nodeId: string;
   nodeType: NodeType;
   fieldKey: string;
   fieldDefinition: TextFieldDefinition;
@@ -25,12 +28,14 @@ function NodeGlobalTextField(props: Props) {
 
   invariant(globalFieldDefinitionKey, 'globalFieldDefinitionKey is not null');
 
-  const storageKey = `${props.nodeType}:${globalFieldDefinitionKey}`;
+  const globalFieldStorageKey = `${props.nodeType}:${globalFieldDefinitionKey}`;
 
   const getGlobalField = useLocalStorageStore.use.getGlobalField();
   const setGlobalField = useLocalStorageStore.use.setGlobalField();
 
-  const globalFieldValue = getGlobalField(storageKey) as string | undefined;
+  const globalFieldValue = getGlobalField(globalFieldStorageKey) as
+    | string
+    | undefined;
 
   const [localFieldValue, setLocalFieldValue] = useState<string>(() => {
     return globalFieldValue ?? '';
@@ -41,13 +46,18 @@ function NodeGlobalTextField(props: Props) {
   }, [globalFieldValue]);
 
   const onSaveCallback = useCallback(() => {
-    setGlobalField(storageKey, localFieldValue);
-  }, [storageKey, localFieldValue, setGlobalField]);
+    setGlobalField(globalFieldStorageKey, localFieldValue);
+  }, [globalFieldStorageKey, localFieldValue, setGlobalField]);
+
+  const getFieldFeedbacks = useNodeFieldFeedbackStore.use.getFieldFeedbacks();
 
   // NOTE: Global fields are hidden in the UI if we are in read-only mode
   if (props.isNodeConfigReadOnly) {
     return null;
   }
+
+  const feedbackKey = `${props.nodeId}:${props.fieldKey}`;
+  const feedbacks = getFieldFeedbacks(feedbackKey);
 
   return (
     <NodeBoxSection>
@@ -55,6 +65,7 @@ function NodeGlobalTextField(props: Props) {
         <FormLabel>{fd.label}</FormLabel>
         <Input
           type={gfd.isSecret ? 'password' : 'text'}
+          color={feedbacks.length ? 'danger' : 'neutral'}
           placeholder={fd.placeholder}
           value={localFieldValue}
           onChange={(e) => {
@@ -67,6 +78,14 @@ function NodeGlobalTextField(props: Props) {
           }}
           onBlur={onSaveCallback}
         />
+        {feedbacks.length > 0 &&
+          feedbacks.map((feedback, i) => {
+            return (
+              <NodeBoxHelperTextContainer key={i} color="danger">
+                {feedback}
+              </NodeBoxHelperTextContainer>
+            );
+          })}
         {fd.helperMessage && (
           <FormHelperText>{fd.helperMessage}</FormHelperText>
         )}

@@ -25,6 +25,7 @@ export type TextFieldDefinition = {
   placeholder?: string;
   helperMessage?: ReactNode;
   globalFieldDefinitionKey?: string;
+  validate?: (value: string) => Record<string, ReactNode>;
 };
 
 export type NumberFieldDefinition = {

@@ -4,6 +4,7 @@ import {
   ConnectorMap,
   ConnectorResultMap,
   ConnectorType,
+  FieldType,
   FlowExecutionContext,
   FlowOutputVariable,
   GraphEdge,
@@ -20,6 +21,7 @@ import {
   getNodeDefinitionForNodeTypeName,
 } from 'flow-models';
 import { produce } from 'immer';
+import { unstable_batchedUpdates } from 'react-dom';
 import {
   BehaviorSubject,
   EMPTY,
@@ -32,6 +34,8 @@ import {
   of,
   tap,
 } from 'rxjs';
+import { useLocalStorageStore } from '../state/appState';
+import { useNodeFieldFeedbackStore } from '../state/node-field-feedback-state';
 
 export type FlowConfig = {
   edgeList: GraphEdge[];
@@ -87,8 +91,42 @@ export const runSingle = (
           nodeIdList,
           A.map((nodeId): NodeConfig => nodeConfigMap[nodeId]),
           A.map((nodeConfig): Observable<NodeExecutionEvent> => {
-            const { createNodeExecutionObservable: execute } =
+            const { fieldDefinitions, createNodeExecutionObservable: execute } =
               getNodeDefinitionForNodeTypeName(nodeConfig.type);
+
+            // NOTE: Validate field value
+
+            if (fieldDefinitions) {
+              D.toPairs(fieldDefinitions).map(([key, fd]) => {
+                if (fd.type === FieldType.Text && fd.validate) {
+                  let fieldValue: string;
+                  if (fd.globalFieldDefinitionKey) {
+                    fieldValue = useLocalStorageStore
+                      .getState()
+                      .getGlobalField(
+                        `${nodeConfig.type}:${fd.globalFieldDefinitionKey}`,
+                      );
+                  } else {
+                    fieldValue = nodeConfig[key as keyof NodeConfig];
+                  }
+
+                  const feedbackMap = fd.validate(fieldValue);
+
+                  unstable_batchedUpdates(() => {
+                    const setFieldFeedback =
+                      useNodeFieldFeedbackStore.getState().setFieldFeedback;
+
+                    D.keys(feedbackMap).forEach((messageKey) => {
+                      setFieldFeedback(
+                        `${nodeConfig.nodeId}:${key}`,
+                        messageKey,
+                        feedbackMap[messageKey],
+                      );
+                    });
+                  });
+                }
+              });
+            }
 
             // NOTE: Context
 
