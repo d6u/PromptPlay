@@ -3,10 +3,8 @@ import {
   FormControl,
   FormLabel,
   IconButton,
-  Option,
   Radio,
   RadioGroup,
-  Select,
 } from '@mui/joy';
 import {
   ConnectorID,
@@ -37,6 +35,7 @@ import NodeBoxSection from './node-box/NodeBoxSection';
 import NodeBoxSmallSection from './node-box/NodeBoxSmallSection';
 import NodeCheckboxField from './node-fields/NodeCheckboxField';
 import NodeNumberField from './node-fields/NodeNumberField';
+import NodeSelectField from './node-fields/NodeSelectField';
 import NodeTextField from './node-fields/NodeTextField';
 import NodeTextareaField from './node-fields/NodeTextareaField';
 
@@ -277,25 +276,16 @@ export default function ReactFlowNode(props: Props) {
                 );
               case FieldType.Select:
                 return (
-                  <NodeBoxSection key={fieldKey}>
-                    <FormControl>
-                      <FormLabel>Model</FormLabel>
-                      <Select
-                        disabled={props.isNodeConfigReadOnly}
-                        value={localFieldValue}
-                        onChange={(_, value) => {
-                          setLocalFieldValue(value);
-                          updateNodeConfig(nodeId, { [fieldKey]: value });
-                        }}
-                      >
-                        {fieldDefinition.options.map((option) => (
-                          <Option key={option.value} value={option.value}>
-                            {option.label}
-                          </Option>
-                        ))}
-                      </Select>
-                    </FormControl>
-                  </NodeBoxSection>
+                  <NodeSelectField
+                    key={fieldKey}
+                    fieldKey={fieldKey}
+                    fieldDefinition={fieldDefinition}
+                    fieldValue={fieldValue}
+                    isNodeConfigReadOnly={props.isNodeConfigReadOnly}
+                    onSave={(value) => {
+                      updateNodeConfig(nodeId, { [fieldKey]: value });
+                    }}
+                  />
                 );
               case FieldType.Checkbox:
                 return (

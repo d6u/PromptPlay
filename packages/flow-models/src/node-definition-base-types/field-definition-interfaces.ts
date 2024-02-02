@@ -19,12 +19,7 @@ export type FieldDefinition =
       label: string;
       helperMessage?: ReactNode;
     }
-  | {
-      type: FieldType.Select;
-      options: FieldOption[];
-      label: string;
-      helperMessage?: ReactNode;
-    }
+  | SelectFieldDefinition
   | CheckboxFieldDefinition;
 
 export type TextFieldDefinition = {
@@ -51,6 +46,13 @@ export type TextareaFieldDefinition = {
   type: FieldType.Textarea;
   label: string;
   placeholder?: string;
+  helperMessage?: ReactNode;
+};
+
+export type SelectFieldDefinition = {
+  type: FieldType.Select;
+  options: FieldOption[];
+  label: string;
   helperMessage?: ReactNode;
 };
 
