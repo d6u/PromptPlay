@@ -1,11 +1,5 @@
 import { A, D } from '@mobily/ts-belt';
-import {
-  FormControl,
-  FormLabel,
-  IconButton,
-  Radio,
-  RadioGroup,
-} from '@mui/joy';
+import { IconButton } from '@mui/joy';
 import {
   ConnectorID,
   ConnectorType,
@@ -35,6 +29,7 @@ import NodeBoxSection from './node-box/NodeBoxSection';
 import NodeBoxSmallSection from './node-box/NodeBoxSmallSection';
 import NodeCheckboxField from './node-fields/NodeCheckboxField';
 import NodeNumberField from './node-fields/NodeNumberField';
+import NodeRadioField from './node-fields/NodeRadioField';
 import NodeSelectField from './node-fields/NodeSelectField';
 import NodeTextField from './node-fields/NodeTextField';
 import NodeTextareaField from './node-fields/NodeTextareaField';
@@ -188,20 +183,6 @@ export default function ReactFlowNode(props: Props) {
               fieldKey as keyof typeof nodeConfig
             ] as unknown;
 
-            // NOTE: It is fine to call `useState` and `useEffect` here
-            // because the fieldDefinitions should not change
-
-            // TODO: When value is a number type, convert to string
-            // eslint-disable-next-line react-hooks/rules-of-hooks
-            const [localFieldValue, setLocalFieldValue] = useState(
-              () => fieldValue,
-            );
-
-            // eslint-disable-next-line react-hooks/rules-of-hooks
-            useEffect(() => {
-              setLocalFieldValue(() => fieldValue);
-            }, [fieldValue]);
-
             switch (fieldDefinition.type) {
               case FieldType.Text:
                 return (
@@ -244,35 +225,16 @@ export default function ReactFlowNode(props: Props) {
                 );
               case FieldType.Radio:
                 return (
-                  <NodeBoxSection key={fieldKey}>
-                    <FormControl>
-                      <FormLabel>Role</FormLabel>
-                      <RadioGroup
-                        orientation="horizontal"
-                        value={localFieldValue as string}
-                        onChange={(e) => {
-                          const newFieldValue = e.target.value;
-                          setLocalFieldValue(newFieldValue);
-                          updateNodeConfig(nodeId, {
-                            [fieldKey]: newFieldValue,
-                          });
-                        }}
-                      >
-                        {fieldDefinition.options.map((option, i) => {
-                          return (
-                            <Radio
-                              key={i}
-                              color="primary"
-                              name="role"
-                              label={option.label}
-                              disabled={!!props.isNodeConfigReadOnly}
-                              value={option.value}
-                            />
-                          );
-                        })}
-                      </RadioGroup>
-                    </FormControl>
-                  </NodeBoxSection>
+                  <NodeRadioField
+                    key={fieldKey}
+                    fieldKey={fieldKey}
+                    fieldDefinition={fieldDefinition}
+                    fieldValue={fieldValue}
+                    isNodeConfigReadOnly={props.isNodeConfigReadOnly}
+                    onSave={(value) => {
+                      updateNodeConfig(nodeId, { [fieldKey]: value });
+                    }}
+                  />
                 );
               case FieldType.Select:
                 return (

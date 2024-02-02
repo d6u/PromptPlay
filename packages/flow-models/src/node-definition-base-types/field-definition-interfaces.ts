@@ -13,12 +13,7 @@ export type FieldDefinition =
   | TextFieldDefinition
   | NumberFieldDefinition
   | TextareaFieldDefinition
-  | {
-      type: FieldType.Radio;
-      options: FieldOption[];
-      label: string;
-      helperMessage?: ReactNode;
-    }
+  | RadioFieldDefinition
   | SelectFieldDefinition
   | CheckboxFieldDefinition;
 
@@ -46,6 +41,13 @@ export type TextareaFieldDefinition = {
   type: FieldType.Textarea;
   label: string;
   placeholder?: string;
+  helperMessage?: ReactNode;
+};
+
+export type RadioFieldDefinition = {
+  type: FieldType.Radio;
+  options: FieldOption[];
+  label: string;
   helperMessage?: ReactNode;
 };
 
