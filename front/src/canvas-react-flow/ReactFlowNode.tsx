@@ -35,6 +35,7 @@ import NodeBoxIncomingVariableSection from './node-box/NodeBoxIncomingVariableSe
 import NodeBoxOutgoingVariableBlock from './node-box/NodeBoxOutgoingVariableBlock';
 import NodeBoxSection from './node-box/NodeBoxSection';
 import NodeBoxSmallSection from './node-box/NodeBoxSmallSection';
+import NodeCheckboxField from './node-fields/NodeCheckboxField';
 import NodeNumberField from './node-fields/NodeNumberField';
 import NodeTextField from './node-fields/NodeTextField';
 import NodeTextareaField from './node-fields/NodeTextareaField';
@@ -295,6 +296,19 @@ export default function ReactFlowNode(props: Props) {
                       </Select>
                     </FormControl>
                   </NodeBoxSection>
+                );
+              case FieldType.Checkbox:
+                return (
+                  <NodeCheckboxField
+                    key={fieldKey}
+                    fieldKey={fieldKey}
+                    fieldDefinition={fieldDefinition}
+                    fieldValue={fieldValue}
+                    isNodeConfigReadOnly={props.isNodeConfigReadOnly}
+                    onSave={(value) => {
+                      updateNodeConfig(nodeId, { [fieldKey]: value });
+                    }}
+                  />
                 );
             }
           },

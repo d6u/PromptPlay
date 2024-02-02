@@ -6,6 +6,7 @@ export enum FieldType {
   Textarea = 'Textarea',
   Radio = 'Radio',
   Select = 'Select',
+  Checkbox = 'Checkbox',
 }
 
 export type FieldDefinition =
@@ -23,7 +24,8 @@ export type FieldDefinition =
       options: FieldOption[];
       label: string;
       helperMessage?: ReactNode;
-    };
+    }
+  | CheckboxFieldDefinition;
 
 export type TextFieldDefinition = {
   type: FieldType.Text;
@@ -55,4 +57,12 @@ export type TextareaFieldDefinition = {
 export type FieldOption = {
   label: string;
   value: string;
+};
+
+export type CheckboxFieldDefinition = {
+  type: FieldType.Checkbox;
+  label: string;
+  transformBeforeRender?: (value: unknown) => boolean;
+  transformBeforeSave?: (value: boolean) => unknown;
+  helperMessage?: ReactNode;
 };

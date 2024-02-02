@@ -122,6 +122,18 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<V3ChatGPTCh
           return value === '' ? null : Math.trunc(Number(value));
         },
       },
+      responseFormatType: {
+        type: FieldType.Checkbox,
+        label: 'Use JSON Response Format',
+        transformBeforeRender: (value) => {
+          return value != null;
+        },
+        transformBeforeSave: (value) => {
+          return value
+            ? ChatGPTChatCompletionResponseFormatType.JsonObject
+            : null;
+        },
+      },
       stop: {
         type: FieldType.Text,
         label: 'Stop sequence',
