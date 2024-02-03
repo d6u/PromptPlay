@@ -1,65 +1,6 @@
-import { createLens } from '@dhmk/zustand-lens';
 import { create, StateCreator } from 'zustand';
-import { persist } from 'zustand/middleware';
 
 import { createSelectors } from 'generic-util/zustand';
-
-type OpenAIAPIKeyState = {
-  openAiApiKey: string | null;
-  setOpenAiApiKey: (openAiApiKey: string | null) => void;
-};
-
-type HuggingFaceApiTokenState = {
-  huggingFaceApiToken: string | null;
-  setHuggingFaceApiToken: (huggingFaceApiToken: string | null) => void;
-};
-
-type ElevenLabsApiKeyState = {
-  elevenLabsApiKey: string | null;
-  setElevenLabsApiKey: (elevenLabsApiKey: string | null) => void;
-};
-
-type GlobalFieldStorageState = {
-  globalFields: Record<string, string>;
-  getGlobalField: (key: string) => string;
-  setGlobalField: (key: string, value: string) => void;
-};
-
-export type LocalStorageState = OpenAIAPIKeyState &
-  HuggingFaceApiTokenState &
-  ElevenLabsApiKeyState &
-  GlobalFieldStorageState;
-
-const localStorageStateCreator: StateCreator<
-  LocalStorageState,
-  [['zustand/persist', unknown]],
-  [],
-  LocalStorageState
-> = (set, get) => {
-  const [setGlobalField, getGlobalField] = createLens(set, get, 'globalFields');
-
-  return {
-    openAiApiKey: null,
-    setOpenAiApiKey: (openAiApiKey) => set(() => ({ openAiApiKey })),
-    huggingFaceApiToken: null,
-    setHuggingFaceApiToken: (huggingFaceApiToken) =>
-      set(() => ({ huggingFaceApiToken })),
-    placeholderUserToken: null,
-    elevenLabsApiKey: null,
-    setElevenLabsApiKey: (elevenLabsApiKey: string | null) =>
-      set(() => ({ elevenLabsApiKey })),
-
-    globalFields: {},
-    getGlobalField: (key) => getGlobalField()[key],
-    setGlobalField: (key, value) => setGlobalField({ [key]: value }),
-  };
-};
-
-export const useLocalStorageStore = createSelectors(
-  create<LocalStorageState>()(
-    persist(localStorageStateCreator, { name: 'localUserSettings' }),
-  ),
-);
 
 export type SpaceState = {
   missingOpenAiApiKey: boolean;

@@ -23,8 +23,8 @@ import { produce } from 'immer';
 import posthog from 'posthog-js';
 import { OnConnectStartParams } from 'reactflow';
 import { Subscription, from, map, tap } from 'rxjs';
+import { useLocalStorageStore } from 'state-root/local-storage-state';
 import { useNodeFieldFeedbackStore } from 'state-root/node-field-feedback-state';
-import { useLocalStorageStore } from 'state-root/root-state';
 import invariant from 'tiny-invariant';
 import { OperationResult } from 'urql';
 import { StateCreator } from 'zustand';
@@ -247,16 +247,16 @@ export function createRootSlice(
 
           D.toPairs(fieldDefinitions).forEach(([key, fd]) => {
             if ('validate' in fd && fd.validate) {
-              let fieldValue: string;
-              if (fd.globalFieldDefinitionKey) {
-                fieldValue = useLocalStorageStore
-                  .getState()
-                  .getGlobalField(
-                    `${nodeConfig.type}:${fd.globalFieldDefinitionKey}`,
-                  );
-              } else {
-                fieldValue = nodeConfig[key as keyof NodeConfig];
-              }
+              const fieldValue = fd.globalFieldDefinitionKey
+                ? useLocalStorageStore
+                    .getState()
+                    .getLocalAccountLevelNodeFieldValue(
+                      nodeConfig.type,
+                      fd.globalFieldDefinitionKey,
+                    )
+                : nodeConfig[key as keyof NodeConfig];
+
+              invariant(fieldValue != null, 'fieldValue is not null');
 
               const feedbackMap = fd.validate(fieldValue);
 

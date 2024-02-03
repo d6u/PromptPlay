@@ -9,10 +9,9 @@ import RouteFlowContext from 'state-flow/context/FlowRouteContext';
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 import {
   LocalStorageState,
-  SpaceState,
   useLocalStorageStore,
-  useSpaceStore,
-} from 'state-root/root-state';
+} from 'state-root/local-storage-state';
+import { SpaceState, useSpaceStore } from 'state-root/root-state';
 import NodeBoxHelperTextContainer from '../node-box/NodeBoxHelperTextContainer';
 import NodeBoxIncomingVariableReadonly from '../node-box/NodeBoxIncomingVariableReadonly';
 import NodeBoxSection from '../node-box/NodeBoxSection';
