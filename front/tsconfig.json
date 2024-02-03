@@ -26,8 +26,11 @@
       "icons/*": ["./src/icons/*"],
       "global-config/*": ["./src/global-config/*"],
       "generic-util/*": ["./src/generic-util/*"],
+      // routes
       "route-dashboard/*": ["./src/route-dashboard/*"],
       "route-flow/*": ["./src/route-flow/*"],
+      // views
+      "sub-header-view/*": ["./src/sub-header-view/*"],
       "canvas-react-flow/*": ["./src/canvas-react-flow/*"]
     }
   },

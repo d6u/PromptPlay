@@ -5,11 +5,11 @@ import { useEffect, useMemo } from 'react';
 import { Outlet, useLoaderData, useMatches, useParams } from 'react-router-dom';
 import { ReactFlowProvider } from 'reactflow';
 import 'reactflow/dist/style.css';
+import SubHeaderView from 'sub-header-view/SubHeaderView';
 import invariant from 'tiny-invariant';
 import FlowStoreContextManager from './common/FlowStoreContextManager';
 import RouteFlowContext from './common/RouteFlowContext';
 import { FlowLoaderData } from './route-loader-flow';
-import SubHeader from './sub-header/SubHeader';
 
 export default function RouteFlow() {
   const params = useParams<{ spaceId: string }>();
@@ -38,7 +38,7 @@ export default function RouteFlow() {
       >
         <FlowStoreContextManager spaceId={params.spaceId}>
           <ReactFlowProvider>
-            <SubHeader />
+            <SubHeaderView />
             <Outlet />
           </ReactFlowProvider>
         </FlowStoreContextManager>

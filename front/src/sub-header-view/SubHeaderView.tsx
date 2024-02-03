@@ -27,14 +27,14 @@ import IconThreeDots from 'icons/IconThreeDots';
 import { useCallback, useContext, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStoreApi } from 'reactflow';
+import RouteFlowContext from 'route-flow/common/RouteFlowContext';
+import { useStoreFromFlowStoreContext } from 'route-flow/store/FlowStoreContext';
+import { DetailPanelContentType } from 'route-flow/store/store-flow-state-types';
 import { useStore } from 'zustand';
-import { BatchTestTab } from '../../components/route-batch-test/utils/types';
-import RouteFlowContext from '../common/RouteFlowContext';
-import { useStoreFromFlowStoreContext } from '../store/FlowStoreContext';
-import { DetailPanelContentType } from '../store/store-flow-state-types';
+import { BatchTestTab } from '../components/route-batch-test/utils/types';
 import PresetSelector from './preset-selector/PresetSelector';
 
-export default function SubHeader() {
+function SubHeaderView() {
   const navigate = useNavigate();
 
   const { isCurrentUserOwner, spaceId, flowTabType } =
@@ -266,3 +266,5 @@ const RightPaneToggle = styled(FormControl)`
 const MoreMenuButton = styled(MenuButton)`
   grid-area: more-menu;
 `;
+
+export default SubHeaderView;
