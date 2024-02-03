@@ -29,10 +29,9 @@ import { useNavigate } from 'react-router-dom';
 import { useStoreApi } from 'reactflow';
 import { BatchTestTab } from 'route-batch-test/utils/types';
 import RouteFlowContext from 'state-flow/context/FlowRouteContext';
-import { useStoreFromFlowStoreContext } from 'state-flow/context/FlowStoreContext';
+import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 import { DetailPanelContentType } from 'state-flow/store-flow-state-types';
 import { NODE_BOX_WIDTH } from 'view-flow-canvas/ui-constants';
-import { useStore } from 'zustand';
 import PresetSelector from './preset-selector/PresetSelector';
 
 function SubHeaderView() {
@@ -41,28 +40,19 @@ function SubHeaderView() {
   const flowTabType = useFlowRouteSubRouteHandle((handle) => handle.tabType);
 
   const { isCurrentUserOwner, spaceId } = useContext(RouteFlowContext);
-  const flowStore = useStoreFromFlowStoreContext();
 
-  const isRunning = useStore(flowStore, (s) => s.isRunning);
-  const isFlowContentDirty = useStore(flowStore, (s) => s.isFlowContentDirty);
-  const isFlowContentSaving = useStore(flowStore, (s) => s.isFlowContentSaving);
-  const detailPanelContentType = useStore(
-    flowStore,
-    (s) => s.detailPanelContentType,
-  );
-  const setDetailPanelContentType = useStore(
-    flowStore,
+  const isRunning = useFlowStore((s) => s.isRunning);
+  const isFlowContentDirty = useFlowStore((s) => s.isFlowContentDirty);
+  const isFlowContentSaving = useFlowStore((s) => s.isFlowContentSaving);
+  const detailPanelContentType = useFlowStore((s) => s.detailPanelContentType);
+  const setDetailPanelContentType = useFlowStore(
     (s) => s.setDetailPanelContentType,
   );
-  const addNode = useStore(flowStore, (s) => s.addNode);
-  const runFlow = useStore(flowStore, (s) => s.runFlow);
-  const stopRunningFlow = useStore(flowStore, (s) => s.stopRunningFlow);
-  const selectedBatchTestTab = useStore(
-    flowStore,
-    (s) => s.selectedBatchTestTab,
-  );
-  const setSelectedBatchTestTab = useStore(
-    flowStore,
+  const addNode = useFlowStore((s) => s.addNode);
+  const runFlow = useFlowStore((s) => s.runFlow);
+  const stopRunningFlow = useFlowStore((s) => s.stopRunningFlow);
+  const selectedBatchTestTab = useFlowStore((s) => s.selectedBatchTestTab);
+  const setSelectedBatchTestTab = useFlowStore(
     (s) => s.setSelectedBatchTestTab,
   );
 

@@ -3,14 +3,13 @@ import { ConditionResult, ConnectorType, NodeID, NodeType } from 'flow-models';
 import { useContext, useMemo } from 'react';
 import { useNodeId, useUpdateNodeInternals } from 'reactflow';
 import RouteFlowContext from 'state-flow/context/FlowRouteContext';
-import { useStoreFromFlowStoreContext } from 'state-flow/context/FlowStoreContext';
+import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 import {
   selectConditionTarget,
   selectConditions,
   selectVariables,
 } from 'state-flow/state-utils';
 import invariant from 'tiny-invariant';
-import { useStore } from 'zustand';
 import IncomingConditionHandle from '../handles/IncomingConditionHandle';
 import IncomingVariableHandle from '../handles/IncomingVariableHandle';
 import OutgoingConditionHandle from '../handles/OutgoingConditionHandle';
@@ -29,21 +28,20 @@ export default function ConditionNode() {
   const updateNodeInternals = useUpdateNodeInternals();
 
   const { isCurrentUserOwner } = useContext(RouteFlowContext);
-  const flowStore = useStoreFromFlowStoreContext();
 
   // SECTION: Select state from store
 
-  const nodeConfigMap = useStore(flowStore, (s) => s.nodeConfigsDict);
-  const nodeMetadataMap = useStore(flowStore, (s) => s.nodeMetadataDict);
-  const connectorMap = useStore(flowStore, (s) => s.variablesDict);
-  const connectorResultMap = useStore(flowStore, (s) =>
+  const nodeConfigMap = useFlowStore((s) => s.nodeConfigsDict);
+  const nodeMetadataMap = useFlowStore((s) => s.nodeMetadataDict);
+  const connectorMap = useFlowStore((s) => s.variablesDict);
+  const connectorResultMap = useFlowStore((s) =>
     s.getDefaultVariableValueLookUpDict(),
   );
-  const removeNode = useStore(flowStore, (s) => s.removeNode);
-  const updateNodeConfig = useStore(flowStore, (s) => s.updateNodeConfig);
-  const addVariable = useStore(flowStore, (s) => s.addVariable);
-  const updateVariable = useStore(flowStore, (s) => s.updateVariable);
-  const removeVariable = useStore(flowStore, (s) => s.removeVariable);
+  const removeNode = useFlowStore((s) => s.removeNode);
+  const updateNodeConfig = useFlowStore((s) => s.updateNodeConfig);
+  const addVariable = useFlowStore((s) => s.addVariable);
+  const updateVariable = useFlowStore((s) => s.updateVariable);
+  const removeVariable = useFlowStore((s) => s.removeVariable);
 
   // !SECTION
 

@@ -9,8 +9,7 @@ import ReactFlow, {
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import RouteFlowContext from 'state-flow/context/FlowRouteContext';
-import { useStoreFromFlowStoreContext } from 'state-flow/context/FlowStoreContext';
-import { useStore } from 'zustand';
+import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 import ConditionNode from './nodes/ConditionNode';
 import ElevenLabsNode from './nodes/ElevenLabsNode';
 import HuggingFaceInferenceNode from './nodes/HuggingFaceInferenceNode';
@@ -36,15 +35,14 @@ const NODE_TYPES = {
 
 function FlowCanvasView() {
   const { isCurrentUserOwner } = useContext(RouteFlowContext);
-  const flowStore = useStoreFromFlowStoreContext();
 
-  const nodes = useStore(flowStore, (s) => s.nodes);
-  const edges = useStore(flowStore, (s) => s.edges);
-  const onNodesChange = useStore(flowStore, (s) => s.onNodesChange);
-  const onEdgesChange = useStore(flowStore, (s) => s.onEdgesChange);
-  const onConnect = useStore(flowStore, (s) => s.onConnect);
-  const onEdgeConnectStart = useStore(flowStore, (s) => s.onEdgeConnectStart);
-  const onEdgeConnectStop = useStore(flowStore, (s) => s.onEdgeConnectStop);
+  const nodes = useFlowStore((s) => s.nodes);
+  const edges = useFlowStore((s) => s.edges);
+  const onNodesChange = useFlowStore((s) => s.onNodesChange);
+  const onEdgesChange = useFlowStore((s) => s.onEdgesChange);
+  const onConnect = useFlowStore((s) => s.onConnect);
+  const onEdgeConnectStart = useFlowStore((s) => s.onEdgeConnectStart);
+  const onEdgeConnectStop = useFlowStore((s) => s.onEdgeConnectStop);
 
   return (
     <Container>

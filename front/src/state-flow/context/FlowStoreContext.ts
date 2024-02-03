@@ -8,16 +8,11 @@ export const FlowStoreContext = createContext<{
   store?: FlowStore;
 }>({});
 
-export function useStoreFromFlowStoreContext() {
+export function useFlowStore<T>(selector: (state: FlowState) => T): T {
   const { store } = useContext(FlowStoreContext);
   invariant(
     store != null,
     'This component must be rendered within a <FlowStoreContextProvider />',
   );
-  return store;
-}
-
-export function useFlowStore<T>(selector: (state: FlowState) => T) {
-  const store = useStoreFromFlowStoreContext();
   return useStore(store, selector);
 }

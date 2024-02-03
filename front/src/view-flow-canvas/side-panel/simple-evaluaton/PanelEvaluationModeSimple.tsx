@@ -3,9 +3,8 @@ import { Button } from '@mui/joy';
 import { ConnectorType, VariableValueType } from 'flow-models';
 import { useContext, useMemo } from 'react';
 import RouteFlowContext from 'state-flow/context/FlowRouteContext';
-import { useStoreFromFlowStoreContext } from 'state-flow/context/FlowStoreContext';
+import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 import { selectAllVariables } from 'state-flow/state-utils';
-import { useStore } from 'zustand';
 import InputBlock from '../common/InputBlock';
 import OutputRenderer from '../common/OutputRenderer';
 import {
@@ -16,22 +15,18 @@ import {
 
 export default function PanelEvaluationModeSimple() {
   const { isCurrentUserOwner } = useContext(RouteFlowContext);
-  const flowStore = useStoreFromFlowStoreContext();
 
   // SECTION: Select state from store
 
-  const isRunning = useStore(flowStore, (s) => s.isRunning);
-  const variableMap = useStore(flowStore, (s) => s.variablesDict);
-  const runFlow = useStore(flowStore, (s) => s.runFlow);
-  const stopRunningFlow = useStore(flowStore, (s) => s.stopRunningFlow);
-  const defaultVariableValueMap = useStore(flowStore, (s) =>
+  const isRunning = useFlowStore((s) => s.isRunning);
+  const variableMap = useFlowStore((s) => s.variablesDict);
+  const runFlow = useFlowStore((s) => s.runFlow);
+  const stopRunningFlow = useFlowStore((s) => s.stopRunningFlow);
+  const defaultVariableValueMap = useFlowStore((s) =>
     s.getDefaultVariableValueLookUpDict(),
   );
-  const updateVariableValueMap = useStore(
-    flowStore,
-    (s) => s.updateVariableValueMap,
-  );
-  const updateVariable = useStore(flowStore, (s) => s.updateVariable);
+  const updateVariableValueMap = useFlowStore((s) => s.updateVariableValueMap);
+  const updateVariable = useFlowStore((s) => s.updateVariable);
 
   // !SECTION
 

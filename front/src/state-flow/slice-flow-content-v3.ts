@@ -20,13 +20,13 @@ import {
 } from 'reactflow';
 import invariant from 'tiny-invariant';
 import { StateCreator } from 'zustand';
-import { updateSpaceContentV3 } from '../route-flow/utils/graphql';
 import { handleEvent } from './event-graph-handlers';
 import {
   ChangeEvent,
   ChangeEventType,
   EVENT_VALIDATION_MAP,
 } from './event-graph-types';
+import { updateSpaceContentV3 } from './graphql';
 import { VariableTypeToVariableConfigTypeMap } from './state-utils';
 import { FlowState, SliceFlowContentV3State } from './store-flow-state-types';
 

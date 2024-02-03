@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { FlowStoreContext } from 'state-flow/context/FlowStoreContext';
 import { FlowStore, createFlowStore } from 'state-flow/flow-state';
 
 type Props = {
   spaceId: string;
-  children: React.ReactNode;
+  children: ReactNode;
 };
 
 export default function FlowStoreContextManager(props: Props) {

@@ -1,9 +1,9 @@
 import styled from '@emotion/styled';
 import { NodeID } from 'flow-models';
+import { CSSProperties } from 'react';
 import { useNodeId } from 'reactflow';
-import { useStoreFromFlowStoreContext } from 'state-flow/context/FlowStoreContext';
+import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 import { DetailPanelContentType } from 'state-flow/store-flow-state-types';
-import { useStore } from 'zustand';
 import { ROW_MARGIN_TOP } from './NodeBoxIncomingVariableBlock';
 
 type Props = {
@@ -11,18 +11,14 @@ type Props = {
   name: string;
   value?: unknown;
   onClick?: () => void;
-  style?: React.CSSProperties;
+  style?: CSSProperties;
 };
 
 export default function NodeBoxOutgoingVariableBlock(props: Props) {
-  const flowStore = useStoreFromFlowStoreContext();
-
-  const setDetailPanelContentType = useStore(
-    flowStore,
+  const setDetailPanelContentType = useFlowStore(
     (s) => s.setDetailPanelContentType,
   );
-  const setDetailPanelSelectedNodeId = useStore(
-    flowStore,
+  const setDetailPanelSelectedNodeId = useFlowStore(
     (s) => s.setDetailPanelSelectedNodeId,
   );
 

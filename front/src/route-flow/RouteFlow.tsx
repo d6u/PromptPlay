@@ -11,7 +11,7 @@ import { FlowLoaderData } from './flowRouteLoader';
 import 'reactflow/dist/style.css';
 
 export default function RouteFlow() {
-  const { spaceId } = useParams<{ spaceId: string }>();
+  const { spaceId } = useParams<{ spaceId: string | undefined }>();
 
   invariant(spaceId != null, 'spaceId should have value');
 
@@ -19,13 +19,10 @@ export default function RouteFlow() {
 
   return (
     <ResizeObserverProvider>
-      <RouteFlowContext.Provider
-        value={{
-          isCurrentUserOwner,
-          spaceId,
-        }}
-      >
+      <RouteFlowContext.Provider value={{ isCurrentUserOwner, spaceId }}>
         <FlowStoreContextManager spaceId={spaceId}>
+          {/* ReactFlowProvider must wrap SubHeaderView because SubHeaderView
+              has usage of ReactFlow API */}
           <ReactFlowProvider>
             <SubHeaderView />
             <Outlet />

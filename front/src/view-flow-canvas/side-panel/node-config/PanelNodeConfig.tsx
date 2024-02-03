@@ -1,8 +1,7 @@
 import { ConnectorType } from 'flow-models';
 import { useMemo } from 'react';
-import { useStoreFromFlowStoreContext } from 'state-flow/context/FlowStoreContext';
+import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 import { selectVariables } from 'state-flow/state-utils';
-import { useStore } from 'zustand';
 import OutputRenderer from '../common/OutputRenderer';
 import {
   HeaderSection,
@@ -12,11 +11,8 @@ import {
 } from '../common/controls-common';
 
 export default function PanelNodeConfig() {
-  const flowStore = useStoreFromFlowStoreContext();
-
-  const variablesDict = useStore(flowStore, (s) => s.variablesDict);
-  const detailPanelSelectedNodeId = useStore(
-    flowStore,
+  const variablesDict = useFlowStore((s) => s.variablesDict);
+  const detailPanelSelectedNodeId = useFlowStore(
     (s) => s.detailPanelSelectedNodeId,
   );
 

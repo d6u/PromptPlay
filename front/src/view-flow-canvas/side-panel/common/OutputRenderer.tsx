@@ -5,8 +5,7 @@ import {
   VariableValueType,
 } from 'flow-models';
 import { ReactNode } from 'react';
-import { useStoreFromFlowStoreContext } from 'state-flow/context/FlowStoreContext';
-import { useStore } from 'zustand';
+import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 import OutputDisplay from './OutputDisplay';
 
 type Props = {
@@ -14,9 +13,7 @@ type Props = {
 };
 
 export default function OutputRenderer(props: Props) {
-  const flowStore = useStoreFromFlowStoreContext();
-
-  const defaultVariableValueMap = useStore(flowStore, (s) =>
+  const defaultVariableValueMap = useFlowStore((s) =>
     s.getDefaultVariableValueLookUpDict(),
   );
 

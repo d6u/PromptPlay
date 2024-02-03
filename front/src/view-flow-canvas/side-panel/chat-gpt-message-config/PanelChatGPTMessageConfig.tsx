@@ -10,10 +10,9 @@ import { ConnectorType, NodeType } from 'flow-models';
 import { ChatGPTMessageRole } from 'integrations/openai';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import RouteFlowContext from 'state-flow/context/FlowRouteContext';
-import { useStoreFromFlowStoreContext } from 'state-flow/context/FlowStoreContext';
+import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 import { selectVariables } from 'state-flow/state-utils';
 import invariant from 'tiny-invariant';
-import { useStore } from 'zustand';
 import NodeBoxCopyIcon from '../../node-box/NodeBoxCopyIcon';
 import NodeBoxLabelWithIconContainer from '../../node-box/NodeBoxLabelWithIconContainer';
 import TextareaReadonly from '../../node-box/NodeBoxTextareaReadonly';
@@ -27,15 +26,13 @@ import {
 
 export default function PanelChatGPTMessageConfig() {
   const { isCurrentUserOwner } = useContext(RouteFlowContext);
-  const flowStore = useStoreFromFlowStoreContext();
 
-  const nodeConfigsDict = useStore(flowStore, (s) => s.nodeConfigsDict);
-  const variablesDict = useStore(flowStore, (s) => s.variablesDict);
-  const detailPanelSelectedNodeId = useStore(
-    flowStore,
+  const nodeConfigsDict = useFlowStore((s) => s.nodeConfigsDict);
+  const variablesDict = useFlowStore((s) => s.variablesDict);
+  const detailPanelSelectedNodeId = useFlowStore(
     (s) => s.detailPanelSelectedNodeId,
   );
-  const updateNodeConfig = useStore(flowStore, (s) => s.updateNodeConfig);
+  const updateNodeConfig = useFlowStore((s) => s.updateNodeConfig);
 
   invariant(detailPanelSelectedNodeId != null);
 

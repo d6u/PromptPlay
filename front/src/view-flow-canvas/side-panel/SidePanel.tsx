@@ -3,22 +3,15 @@ import IconButton from '@mui/joy/IconButton';
 import CrossIcon from 'icons/CrossIcon';
 import { ReactNode } from 'react';
 import RouteBatchTest from 'route-batch-test/RouteBatchTest';
-import { useStoreFromFlowStoreContext } from 'state-flow/context/FlowStoreContext';
+import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 import { DetailPanelContentType } from 'state-flow/store-flow-state-types';
-import { useStore } from 'zustand';
 import PanelChatGPTMessageConfig from './chat-gpt-message-config/PanelChatGPTMessageConfig';
 import PanelNodeConfig from './node-config/PanelNodeConfig';
 import PanelEvaluationModeSimple from './simple-evaluaton/PanelEvaluationModeSimple';
 
 export default function SidePanel() {
-  const flowStore = useStoreFromFlowStoreContext();
-
-  const detailPanelContentType = useStore(
-    flowStore,
-    (s) => s.detailPanelContentType,
-  );
-  const setDetailPanelContentType = useStore(
-    flowStore,
+  const detailPanelContentType = useFlowStore((s) => s.detailPanelContentType);
+  const setDetailPanelContentType = useFlowStore(
     (s) => s.setDetailPanelContentType,
   );
 

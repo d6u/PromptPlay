@@ -9,10 +9,9 @@ import {
 import { useContext, useMemo } from 'react';
 import { useNodeId, useUpdateNodeInternals } from 'reactflow';
 import RouteFlowContext from 'state-flow/context/FlowRouteContext';
-import { useStoreFromFlowStoreContext } from 'state-flow/context/FlowStoreContext';
+import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 import { selectVariables } from 'state-flow/state-utils';
 import { DetailPanelContentType } from 'state-flow/store-flow-state-types';
-import { useStore } from 'zustand';
 import IncomingVariableHandle from '../handles/IncomingVariableHandle';
 import NodeBox from '../node-box/NodeBox';
 import NodeBoxAddConnectorButton from '../node-box/NodeBoxAddConnectorButton';
@@ -31,18 +30,15 @@ export default function OutputNode() {
   const nodeId = useNodeId() as NodeID;
   const updateNodeInternals = useUpdateNodeInternals();
 
-  const flowStore = useStoreFromFlowStoreContext();
-
-  const setDetailPanelContentType = useStore(
-    flowStore,
+  const setDetailPanelContentType = useFlowStore(
     (s) => s.setDetailPanelContentType,
   );
-  const nodeConfigsDict = useStore(flowStore, (s) => s.nodeConfigsDict);
-  const variablesDict = useStore(flowStore, (s) => s.variablesDict);
-  const removeNode = useStore(flowStore, (s) => s.removeNode);
-  const addVariable = useStore(flowStore, (s) => s.addVariable);
-  const updateVariable = useStore(flowStore, (s) => s.updateVariable);
-  const removeVariable = useStore(flowStore, (s) => s.removeVariable);
+  const nodeConfigsDict = useFlowStore((s) => s.nodeConfigsDict);
+  const variablesDict = useFlowStore((s) => s.variablesDict);
+  const removeNode = useFlowStore((s) => s.removeNode);
+  const addVariable = useFlowStore((s) => s.addVariable);
+  const updateVariable = useFlowStore((s) => s.updateVariable);
+  const removeVariable = useFlowStore((s) => s.removeVariable);
 
   const nodeConfig = useMemo(
     () => nodeConfigsDict[nodeId] as V3OutputNodeConfig | undefined,
