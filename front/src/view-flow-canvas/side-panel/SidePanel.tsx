@@ -4,7 +4,7 @@ import CrossIcon from 'icons/CrossIcon';
 import { ReactNode } from 'react';
 import RouteBatchTest from 'route-batch-test/RouteBatchTest';
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
-import { DetailPanelContentType } from 'state-flow/store-flow-state-types';
+import { DetailPanelContentType } from 'state-flow/types';
 import PanelChatGPTMessageConfig from './chat-gpt-message-config/PanelChatGPTMessageConfig';
 import PanelNodeConfig from './node-config/PanelNodeConfig';
 import PanelEvaluationModeSimple from './simple-evaluaton/PanelEvaluationModeSimple';

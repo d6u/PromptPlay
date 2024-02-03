@@ -3,7 +3,7 @@ import { NodeID } from 'flow-models';
 import { CSSProperties } from 'react';
 import { useNodeId } from 'reactflow';
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
-import { DetailPanelContentType } from 'state-flow/store-flow-state-types';
+import { DetailPanelContentType } from 'state-flow/types';
 import { ROW_MARGIN_TOP } from './NodeBoxIncomingVariableBlock';
 
 type Props = {

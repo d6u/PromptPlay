@@ -9,7 +9,7 @@ import {
   IterationIndex,
   RowIndex,
 } from 'state-flow/slice-csv-evaluation-preset';
-import { selectAllVariables } from 'state-flow/state-utils';
+import { selectAllVariables } from 'state-flow/util/state-utils';
 import { Section } from 'view-flow-canvas/side-panel/common/controls-common';
 import { CSVData, CSVRow } from '../../utils/types';
 import TableBody from './TableBody';

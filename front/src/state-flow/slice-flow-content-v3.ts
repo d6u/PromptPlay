@@ -20,15 +20,15 @@ import {
 } from 'reactflow';
 import invariant from 'tiny-invariant';
 import { StateCreator } from 'zustand';
-import { handleEvent } from './event-graph-handlers';
+import { handleEvent } from './event-graph/event-graph-handlers';
 import {
   ChangeEvent,
   ChangeEventType,
   EVENT_VALIDATION_MAP,
-} from './event-graph-types';
-import { updateSpaceContentV3 } from './graphql';
-import { VariableTypeToVariableConfigTypeMap } from './state-utils';
-import { FlowState, SliceFlowContentV3State } from './store-flow-state-types';
+} from './event-graph/event-graph-types';
+import { updateSpaceContentV3 } from './graphql/graphql';
+import { FlowState, SliceFlowContentV3State } from './types';
+import { VariableTypeToVariableConfigTypeMap } from './util/state-utils';
 
 const FLOW_SERVER_SLICE_INITIAL_STATE_V2: SliceFlowContentV3State = {
   // Persist to server

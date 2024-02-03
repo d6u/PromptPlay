@@ -1,7 +1,7 @@
 import { ConnectorType } from 'flow-models';
 import { useMemo } from 'react';
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
-import { selectVariables } from 'state-flow/state-utils';
+import { selectVariables } from 'state-flow/util/state-utils';
 import OutputRenderer from '../common/OutputRenderer';
 import {
   HeaderSection,

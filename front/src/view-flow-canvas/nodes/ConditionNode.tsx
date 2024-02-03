@@ -8,7 +8,7 @@ import {
   selectConditionTarget,
   selectConditions,
   selectVariables,
-} from 'state-flow/state-utils';
+} from 'state-flow/util/state-utils';
 import invariant from 'tiny-invariant';
 import IncomingConditionHandle from '../handles/IncomingConditionHandle';
 import IncomingVariableHandle from '../handles/IncomingVariableHandle';

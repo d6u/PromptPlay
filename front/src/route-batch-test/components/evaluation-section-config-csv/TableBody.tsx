@@ -5,7 +5,7 @@ import {
   IterationIndex,
   RowIndex,
 } from 'state-flow/slice-csv-evaluation-preset';
-import { selectAllVariables } from 'state-flow/state-utils';
+import { selectAllVariables } from 'state-flow/util/state-utils';
 import OutputDisplay from 'view-flow-canvas/side-panel/common/OutputDisplay';
 import { OverallStatus } from '../../../flow-run/run-types';
 import { CSVData } from '../../utils/types';

@@ -8,7 +8,7 @@ import { OperationResult } from 'urql';
 import { StateCreator } from 'zustand';
 import { RunMetadata } from '../flow-run/run-types';
 import { client } from '../state/urql';
-import { FlowState } from './store-flow-state-types';
+import { FlowState } from './types';
 
 export type CsvEvaluationPresetSlice = {
   selectedBatchTestTab: BatchTestTab;

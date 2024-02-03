@@ -4,7 +4,7 @@ import { ConnectorType, VariableValueType } from 'flow-models';
 import { useContext, useMemo } from 'react';
 import RouteFlowContext from 'state-flow/context/FlowRouteContext';
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
-import { selectAllVariables } from 'state-flow/state-utils';
+import { selectAllVariables } from 'state-flow/util/state-utils';
 import InputBlock from '../common/InputBlock';
 import OutputRenderer from '../common/OutputRenderer';
 import {

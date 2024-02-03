@@ -28,18 +28,18 @@ import { runSingle } from '../flow-run/run-single';
 import { useLocalStorageStore } from '../state/appState';
 import { useNodeFieldFeedbackStore } from '../state/node-field-feedback-state';
 import { client } from '../state/urql';
-import { updateSpaceContentV3 } from './graphql';
-import {
-  assignLocalEdgeProperties,
-  assignLocalNodeProperties,
-} from './state-utils';
+import { updateSpaceContentV3 } from './graphql/graphql';
 import {
   ConnectStartEdgeType,
   DetailPanelContentType,
   FlowState,
   NodeMetadata,
   NodeMetadataDict,
-} from './store-flow-state-types';
+} from './types';
+import {
+  assignLocalEdgeProperties,
+  assignLocalNodeProperties,
+} from './util/state-utils';
 
 type RootSliceState = {
   // TODO: Does readonly make any difference here?

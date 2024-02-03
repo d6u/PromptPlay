@@ -11,7 +11,7 @@ import { ChatGPTMessageRole } from 'integrations/openai';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import RouteFlowContext from 'state-flow/context/FlowRouteContext';
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
-import { selectVariables } from 'state-flow/state-utils';
+import { selectVariables } from 'state-flow/util/state-utils';
 import invariant from 'tiny-invariant';
 import NodeBoxCopyIcon from '../../node-box/NodeBoxCopyIcon';
 import NodeBoxLabelWithIconContainer from '../../node-box/NodeBoxLabelWithIconContainer';

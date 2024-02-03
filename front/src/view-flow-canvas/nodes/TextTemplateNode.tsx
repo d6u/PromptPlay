@@ -8,7 +8,7 @@ import { useContext, useEffect, useMemo, useState } from 'react';
 import { useNodeId } from 'reactflow';
 import RouteFlowContext from 'state-flow/context/FlowRouteContext';
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
-import { DetailPanelContentType } from 'state-flow/store-flow-state-types';
+import { DetailPanelContentType } from 'state-flow/types';
 import ReactFlowNode from '../ReactFlowNode';
 import NodeBoxCopyIcon from '../node-box/NodeBoxCopyIcon';
 import NodeBoxIconGear from '../node-box/NodeBoxIconGear';

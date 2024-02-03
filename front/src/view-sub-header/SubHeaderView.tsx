@@ -30,7 +30,7 @@ import { useStoreApi } from 'reactflow';
 import { BatchTestTab } from 'route-batch-test/utils/types';
 import RouteFlowContext from 'state-flow/context/FlowRouteContext';
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
-import { DetailPanelContentType } from 'state-flow/store-flow-state-types';
+import { DetailPanelContentType } from 'state-flow/types';
 import { NODE_BOX_WIDTH } from 'view-flow-canvas/ui-constants';
 import PresetSelector from './preset-selector/PresetSelector';
 
