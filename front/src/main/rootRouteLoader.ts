@@ -1,7 +1,7 @@
 import { graphql } from 'gencode-gql';
+import { client } from 'graphql-util/client';
 import posthog from 'posthog-js';
 import { LoaderFunction } from 'react-router-dom';
-import { client } from '../state/urql';
 
 const rootRouteLoader: LoaderFunction = async (args) => {
   const queryResult = await client

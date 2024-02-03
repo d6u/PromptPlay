@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 import { FragmentType, graphql, useFragment } from 'gencode-gql';
-import { pathToCurrentContent, pathToFlow } from 'generic-util/route-utils';
+import { pathToCurrentContent, pathToFlow } from 'generic-util/route';
 import { useNavigate } from 'react-router-dom';
 import { useMutation } from 'urql';
 import DashboardTile from './DashboardTile';

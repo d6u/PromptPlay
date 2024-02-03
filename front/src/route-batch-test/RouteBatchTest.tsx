@@ -1,27 +1,29 @@
 import styled from '@emotion/styled';
 import { A, D, pipe } from '@mobily/ts-belt';
+import { produce } from 'immer';
+import Papa from 'papaparse';
+import posthog from 'posthog-js';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Subscription, debounceTime, tap } from 'rxjs';
+import invariant from 'tiny-invariant';
+
 import {
   ConnectorResultMap,
   NodeConfig,
   NodeID,
   getNodeDefinitionForNodeTypeName,
 } from 'flow-models';
+
 import { SingleRunEventType, runForEachRow } from 'flow-run/run-each-row';
 import { OverallStatus } from 'flow-run/run-types';
-import { produce } from 'immer';
-import Papa from 'papaparse';
-import posthog from 'posthog-js';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Subscription, debounceTime, tap } from 'rxjs';
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 import {
   IterationIndex,
   RowIndex,
 } from 'state-flow/slice-csv-evaluation-preset';
 import { BatchTestTab, CSVData, CSVHeader } from 'state-flow/types';
-import invariant from 'tiny-invariant';
-import { useLocalStorageStore } from '../state/appState';
-import { useNodeFieldFeedbackStore } from '../state/node-field-feedback-state';
+import { useLocalStorageStore } from 'state-root/local-storage-state';
+import { useNodeFieldFeedbackStore } from 'state-root/node-field-feedback-state';
 import EvaluationSectionImportCSV from './components/EvaluationSectionImportCSV';
 import EvaluationSectionConfigCSV from './components/evaluation-section-config-csv/EvaluationSectionConfigCSV';
 
@@ -104,16 +106,16 @@ export default function RouteBatchTest() {
 
         D.toPairs(fieldDefinitions).forEach(([key, fd]) => {
           if ('validate' in fd && fd.validate) {
-            let fieldValue: string;
-            if (fd.globalFieldDefinitionKey) {
-              fieldValue = useLocalStorageStore
-                .getState()
-                .getGlobalField(
-                  `${nodeConfig.type}:${fd.globalFieldDefinitionKey}`,
-                );
-            } else {
-              fieldValue = nodeConfig[key as keyof NodeConfig];
-            }
+            const fieldValue = fd.globalFieldDefinitionKey
+              ? useLocalStorageStore
+                  .getState()
+                  .getLocalAccountLevelNodeFieldValue(
+                    nodeConfig.type,
+                    fd.globalFieldDefinitionKey,
+                  )
+              : nodeConfig[key as keyof NodeConfig];
+
+            invariant(fieldValue != null, 'fieldValue is not null');
 
             const feedbackMap = fd.validate(fieldValue);
 

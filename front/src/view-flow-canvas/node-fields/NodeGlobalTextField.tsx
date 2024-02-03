@@ -5,9 +5,9 @@ import {
   TextFieldDefinition,
 } from 'flow-models';
 import { useCallback, useEffect, useState } from 'react';
+import { useLocalStorageStore } from 'state-root/local-storage-state';
+import { useNodeFieldFeedbackStore } from 'state-root/node-field-feedback-state';
 import invariant from 'tiny-invariant';
-import { useLocalStorageStore } from '../../state/appState';
-import { useNodeFieldFeedbackStore } from '../../state/node-field-feedback-state';
 import NodeBoxHelperTextContainer from '../node-box/NodeBoxHelperTextContainer';
 import NodeBoxSection from '../node-box/NodeBoxSection';
 
@@ -28,14 +28,15 @@ function NodeGlobalTextField(props: Props) {
 
   invariant(globalFieldDefinitionKey, 'globalFieldDefinitionKey is not null');
 
-  const globalFieldStorageKey = `${props.nodeType}:${globalFieldDefinitionKey}`;
+  const getGlobalField =
+    useLocalStorageStore.use.getLocalAccountLevelNodeFieldValue();
+  const setGlobalField =
+    useLocalStorageStore.use.setLocalAccountLevelNodeFieldValue();
 
-  const getGlobalField = useLocalStorageStore.use.getGlobalField();
-  const setGlobalField = useLocalStorageStore.use.setGlobalField();
-
-  const globalFieldValue = getGlobalField(globalFieldStorageKey) as
-    | string
-    | undefined;
+  const globalFieldValue = getGlobalField(
+    props.nodeType,
+    globalFieldDefinitionKey,
+  );
 
   const [localFieldValue, setLocalFieldValue] = useState<string>(() => {
     return globalFieldValue ?? '';
@@ -46,8 +47,13 @@ function NodeGlobalTextField(props: Props) {
   }, [globalFieldValue]);
 
   const onSaveCallback = useCallback(() => {
-    setGlobalField(globalFieldStorageKey, localFieldValue);
-  }, [globalFieldStorageKey, localFieldValue, setGlobalField]);
+    setGlobalField(props.nodeType, globalFieldDefinitionKey, localFieldValue);
+  }, [
+    globalFieldDefinitionKey,
+    localFieldValue,
+    props.nodeType,
+    setGlobalField,
+  ]);
 
   const getFieldFeedbacks = useNodeFieldFeedbackStore.use.getFieldFeedbacks();
 

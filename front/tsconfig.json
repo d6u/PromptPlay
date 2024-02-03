@@ -22,16 +22,18 @@
     // "noUncheckedIndexedAccess": true
     // "noPropertyAccessFromIndexSignature": true
     "paths": {
-      "gencode-gql": ["./src/gql"],
-      "gencode-gql/*": ["./src/gql/*"],
+      "gencode-gql": ["./src/gencode-gql"],
+      "gencode-gql/graphql": ["./src/gencode-gql/graphql"],
       "assets/*": ["./src/assets/*"],
       "icons/*": ["./src/icons/*"],
       "global-config/*": ["./src/global-config/*"],
       "generic-util/*": ["./src/generic-util/*"],
+      "graphql-util/*": ["./src/graphql-util/*"],
       "generic-components/*": ["./src/generic-components/*"],
       "flow-run/*": ["./src/flow-run/*"],
       // state
       "state-flow/*": ["./src/state-flow/*"],
+      "state-root/*": ["./src/state-root/*"],
       // routes
       "route-dashboard/*": ["./src/route-dashboard/*"],
       "route-flow/*": ["./src/route-flow/*"],
@@ -44,5 +46,9 @@
     }
   },
   "include": ["src"],
-  "references": [{ "path": "./tsconfig.node.json" }]
+  "references": [
+    {
+      "path": "./tsconfig.node.json"
+    }
+  ]
 }

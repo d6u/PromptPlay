@@ -1,4 +1,7 @@
 import { D, Option } from '@mobily/ts-belt';
+import { produce } from 'immer';
+import invariant from 'tiny-invariant';
+
 import {
   Condition,
   ConditionTarget,
@@ -12,10 +15,9 @@ import {
   NodeOutputVariable,
   V3LocalEdge,
 } from 'flow-models';
-import { produce } from 'immer';
-import invariant from 'tiny-invariant';
+
 import { DRAG_HANDLE_CLASS_NAME } from 'view-flow-canvas/ui-constants';
-import { CONDITION_EDGE_STYLE, DEFAULT_EDGE_STYLE } from '../constants';
+import { CONDITION_EDGE_STYLE, DEFAULT_EDGE_STYLE } from './constants';
 
 export function assignLocalNodeProperties(nodes: LocalNode[]): LocalNode[] {
   return produce(nodes, (draft) => {
