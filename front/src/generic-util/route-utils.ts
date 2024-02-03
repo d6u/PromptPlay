@@ -1,5 +1,5 @@
+import { ContentVersion } from 'gencode-gql/graphql';
 import { API_SERVER_BASE_URL } from 'global-config/global-config';
-import { ContentVersion } from '../gql/graphql';
 
 // ANCHOR: API paths
 

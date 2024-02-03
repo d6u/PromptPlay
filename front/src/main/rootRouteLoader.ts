@@ -1,6 +1,6 @@
+import { graphql } from 'gencode-gql';
 import posthog from 'posthog-js';
 import { LoaderFunction } from 'react-router-dom';
-import { graphql } from '../gql';
 import { client } from '../state/urql';
 
 const rootRouteLoader: LoaderFunction = async (args) => {

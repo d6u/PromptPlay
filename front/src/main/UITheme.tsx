@@ -1,10 +1,10 @@
 import CssBaseline from '@mui/joy/CssBaseline';
 import GlobalStyles from '@mui/joy/GlobalStyles';
 import { CssVarsProvider, extendTheme } from '@mui/joy/styles';
-import { useMemo } from 'react';
+import { ReactNode, useMemo } from 'react';
 
 type Props = {
-  children: React.ReactNode;
+  children: ReactNode;
 };
 
 export default function UITheme(props: Props) {

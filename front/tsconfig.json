@@ -22,6 +22,8 @@
     // "noUncheckedIndexedAccess": true
     // "noPropertyAccessFromIndexSignature": true
     "paths": {
+      "gencode-gql": ["./src/gql"],
+      "gencode-gql/*": ["./src/gql/*"],
       "assets/*": ["./src/assets/*"],
       "icons/*": ["./src/icons/*"],
       "global-config/*": ["./src/global-config/*"],

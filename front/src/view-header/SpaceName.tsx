@@ -1,9 +1,9 @@
 import styled from '@emotion/styled';
 import Input from '@mui/joy/Input';
+import { graphql } from 'gencode-gql';
 import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useMutation, useQuery } from 'urql';
-import { graphql } from '../gql';
 
 export default function SpaceName() {
   // TODO: Properly handle spaceId not being present

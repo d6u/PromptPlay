@@ -1,5 +1,5 @@
 import { V3FlowContent } from 'flow-models';
-import { graphql } from '../../gql';
+import { graphql } from 'gencode-gql';
 import { client } from '../../state/urql';
 
 export async function updateSpaceContentV3(

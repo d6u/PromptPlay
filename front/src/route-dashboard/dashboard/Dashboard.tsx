@@ -1,8 +1,8 @@
 import styled from '@emotion/styled';
+import { FragmentType, graphql, useFragment } from 'gencode-gql';
 import { pathToCurrentContent, pathToFlow } from 'generic-util/route-utils';
 import { useNavigate } from 'react-router-dom';
 import { useMutation } from 'urql';
-import { FragmentType, graphql, useFragment } from '../../gql';
 import DashboardTile from './DashboardTile';
 import { DashboardTileType } from './dashboardTypes';
 

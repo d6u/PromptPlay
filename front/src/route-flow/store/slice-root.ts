@@ -15,6 +15,8 @@ import {
   asV3VariableID,
   getNodeDefinitionForNodeTypeName,
 } from 'flow-models';
+import { graphql } from 'gencode-gql';
+import { ContentVersion, SpaceFlowQueryQuery } from 'gencode-gql/graphql';
 import { produce } from 'immer';
 import posthog from 'posthog-js';
 import { OnConnectStartParams } from 'reactflow';
@@ -23,8 +25,6 @@ import invariant from 'tiny-invariant';
 import { OperationResult } from 'urql';
 import { StateCreator } from 'zustand';
 import { runSingle } from '../../flow-run/run-single';
-import { graphql } from '../../gql';
-import { ContentVersion, SpaceFlowQueryQuery } from '../../gql/graphql';
 import { useLocalStorageStore } from '../../state/appState';
 import { useNodeFieldFeedbackStore } from '../../state/node-field-feedback-state';
 import { client } from '../../state/urql';

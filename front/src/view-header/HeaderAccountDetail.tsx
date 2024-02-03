@@ -1,11 +1,11 @@
 import styled from '@emotion/styled';
 import { Button, IconButton } from '@mui/joy';
+import { graphql } from 'gencode-gql';
 import { LOGIN_PATH, LOGOUT_PATH } from 'generic-util/route-utils';
 import IconLogout from 'icons/IconLogout';
 import posthog from 'posthog-js';
 import { useCallback, useEffect, useState } from 'react';
 import { useQuery } from 'urql';
-import { graphql } from '../gql';
 
 export default function HeaderAccountDetail() {
   const [queryResult] = useQuery({
