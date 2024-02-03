@@ -23,8 +23,9 @@
     // "noPropertyAccessFromIndexSignature": true
     "paths": {
       "assets/*": ["./src/assets/*"],
-      "global-config/*": ["./src/global-config/*"],
       "icons/*": ["./src/icons/*"],
+      "global-config/*": ["./src/global-config/*"],
+      "route-dashboard/*": ["./src/route-dashboard/*"],
       "canvas-react-flow/*": ["./src/canvas-react-flow/*"]
     }
   },
