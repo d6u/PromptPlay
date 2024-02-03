@@ -10,7 +10,7 @@ import RouteBatchTest from 'route-batch-test/RouteBatchTest';
 import RouteCanvas from 'route-canvas/RouteCanvas';
 import RouteDashboard from 'route-dashboard/RouteDashboard';
 import RouteFlow from 'route-flow/RouteFlow';
-import flowLoader from 'route-flow/route-loader-flow';
+import flowRouteLoader from 'route-flow/flowRouteLoader';
 import { Provider as GraphQLProvider } from 'urql';
 import { client } from '../state/urql';
 import RouteRoot from './RootView';
@@ -30,7 +30,7 @@ export default function App() {
           },
           {
             path: 'flows/:spaceId',
-            loader: flowLoader,
+            loader: flowRouteLoader,
             element: <RouteFlow />,
             children: [
               {

@@ -8,7 +8,7 @@ import { ResizeObserverProvider } from 'generic-util/ResizeObserver';
 import SubHeaderView from 'view-sub-header/SubHeaderView';
 import FlowStoreContextManager from './common/FlowStoreContextManager';
 import RouteFlowContext from './common/RouteFlowContext';
-import { FlowLoaderData } from './route-loader-flow';
+import { FlowLoaderData } from './flowRouteLoader';
 
 import 'reactflow/dist/style.css';
 

@@ -8,7 +8,7 @@ export type FlowLoaderData = {
   isCurrentUserOwner: boolean;
 };
 
-const routeLoaderFlow: LoaderFunction = async ({ params }) => {
+const flowRouteLoader: LoaderFunction = async ({ params }) => {
   const spaceId = params.spaceId!;
 
   const queryResult = await client
@@ -48,4 +48,4 @@ const routeLoaderFlow: LoaderFunction = async ({ params }) => {
   };
 };
 
-export default routeLoaderFlow;
+export default flowRouteLoader;
