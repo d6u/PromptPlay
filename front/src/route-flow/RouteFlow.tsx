@@ -1,5 +1,3 @@
-import posthog from 'posthog-js';
-import { useEffect } from 'react';
 import { Outlet, useLoaderData, useParams } from 'react-router-dom';
 import { ReactFlowProvider } from 'reactflow';
 import invariant from 'tiny-invariant';
@@ -13,24 +11,21 @@ import { FlowLoaderData } from './flowRouteLoader';
 import 'reactflow/dist/style.css';
 
 export default function RouteFlow() {
-  const params = useParams<{ spaceId: string }>();
+  const { spaceId } = useParams<{ spaceId: string }>();
+
+  invariant(spaceId != null, 'spaceId should have value');
+
   const { isCurrentUserOwner } = useLoaderData() as FlowLoaderData;
-
-  useEffect(() => {
-    posthog.capture('Open Flow', { flowId: params.spaceId });
-  }, [params.spaceId]);
-
-  invariant(params.spaceId != null, 'spaceId should have value');
 
   return (
     <ResizeObserverProvider>
       <RouteFlowContext.Provider
         value={{
           isCurrentUserOwner,
-          spaceId: params.spaceId,
+          spaceId,
         }}
       >
-        <FlowStoreContextManager spaceId={params.spaceId}>
+        <FlowStoreContextManager spaceId={spaceId}>
           <ReactFlowProvider>
             <SubHeaderView />
             <Outlet />
