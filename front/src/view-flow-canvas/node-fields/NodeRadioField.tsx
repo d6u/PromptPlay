@@ -1,7 +1,7 @@
 import { FormControl, FormLabel, Radio, RadioGroup } from '@mui/joy';
-import NodeBoxSection from 'canvas-react-flow/node-box/NodeBoxSection';
 import { RadioFieldDefinition } from 'flow-models';
 import { useEffect, useState } from 'react';
+import NodeBoxSection from '../node-box/NodeBoxSection';
 
 type Props = {
   fieldKey: string;

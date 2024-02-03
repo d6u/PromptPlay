@@ -2,10 +2,6 @@ import FormControl from '@mui/joy/FormControl';
 import FormHelperText from '@mui/joy/FormHelperText';
 import FormLabel from '@mui/joy/FormLabel';
 import Input from '@mui/joy/Input';
-import ReactFlowNode from 'canvas-react-flow/ReactFlowNode';
-import NodeBoxHelperTextContainer from 'canvas-react-flow/node-box/NodeBoxHelperTextContainer';
-import NodeBoxIncomingVariableReadonly from 'canvas-react-flow/node-box/NodeBoxIncomingVariableReadonly';
-import NodeBoxSection from 'canvas-react-flow/node-box/NodeBoxSection';
 import { NodeID, V3HuggingFaceInferenceNodeConfig } from 'flow-models';
 import { useContext, useMemo, useState } from 'react';
 import { useNodeId } from 'reactflow';
@@ -16,7 +12,11 @@ import {
   SpaceState,
   useLocalStorageStore,
   useSpaceStore,
-} from '../../../state/appState';
+} from '../../state/appState';
+import ReactFlowNode from '../ReactFlowNode';
+import NodeBoxHelperTextContainer from '../node-box/NodeBoxHelperTextContainer';
+import NodeBoxIncomingVariableReadonly from '../node-box/NodeBoxIncomingVariableReadonly';
+import NodeBoxSection from '../node-box/NodeBoxSection';
 
 const persistSelector = (state: LocalStorageState) => ({
   huggingFaceApiToken: state.huggingFaceApiToken,

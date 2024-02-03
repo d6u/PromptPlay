@@ -5,10 +5,6 @@ import FormLabel from '@mui/joy/FormLabel';
 import Input from '@mui/joy/Input';
 import Option from '@mui/joy/Option';
 import Select from '@mui/joy/Select';
-import ReactFlowNode from 'canvas-react-flow/ReactFlowNode';
-import NodeBoxHelperTextContainer from 'canvas-react-flow/node-box/NodeBoxHelperTextContainer';
-import NodeBoxIncomingVariableReadonly from 'canvas-react-flow/node-box/NodeBoxIncomingVariableReadonly';
-import NodeBoxSection from 'canvas-react-flow/node-box/NodeBoxSection';
 import {
   ChatGPTChatCompletionResponseFormatType,
   NodeID,
@@ -25,7 +21,11 @@ import {
   SpaceState,
   useLocalStorageStore,
   useSpaceStore,
-} from '../../../state/appState';
+} from '../../state/appState';
+import ReactFlowNode from '../ReactFlowNode';
+import NodeBoxHelperTextContainer from '../node-box/NodeBoxHelperTextContainer';
+import NodeBoxIncomingVariableReadonly from '../node-box/NodeBoxIncomingVariableReadonly';
+import NodeBoxSection from '../node-box/NodeBoxSection';
 
 const persistSelector = (state: LocalStorageState) => ({
   openAiApiKey: state.openAiApiKey,

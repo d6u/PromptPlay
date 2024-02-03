@@ -1,8 +1,8 @@
 import { FormControl, FormHelperText, FormLabel, Input } from '@mui/joy';
-import NodeBoxIncomingVariableReadonly from 'canvas-react-flow/node-box/NodeBoxIncomingVariableReadonly';
-import NodeBoxSection from 'canvas-react-flow/node-box/NodeBoxSection';
 import { TextFieldDefinition } from 'flow-models';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import NodeBoxIncomingVariableReadonly from '../node-box/NodeBoxIncomingVariableReadonly';
+import NodeBoxSection from '../node-box/NodeBoxSection';
 
 type Props = {
   fieldKey: string;

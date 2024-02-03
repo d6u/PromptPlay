@@ -1,10 +1,6 @@
 import FormControl from '@mui/joy/FormControl';
 import FormLabel from '@mui/joy/FormLabel';
 import Textarea from '@mui/joy/Textarea';
-import ReactFlowNode from 'canvas-react-flow/ReactFlowNode';
-import NodeBoxCopyIcon from 'canvas-react-flow/node-box/NodeBoxCopyIcon';
-import NodeBoxLabelWithIconContainer from 'canvas-react-flow/node-box/NodeBoxLabelWithIconContainer';
-import NodeBoxSection from 'canvas-react-flow/node-box/NodeBoxSection';
 import {
   ConnectorType,
   NodeID,
@@ -15,7 +11,11 @@ import { useNodeId } from 'reactflow';
 import RouteFlowContext from 'route-flow/common/RouteFlowContext';
 import { useFlowStore } from 'route-flow/store/FlowStoreContext';
 import { selectVariables } from 'route-flow/store/state-utils';
-import TextareaReadonly from '../../../canvas-react-flow/node-box/NodeBoxTextareaReadonly';
+import ReactFlowNode from '../ReactFlowNode';
+import NodeBoxCopyIcon from '../node-box/NodeBoxCopyIcon';
+import NodeBoxLabelWithIconContainer from '../node-box/NodeBoxLabelWithIconContainer';
+import NodeBoxSection from '../node-box/NodeBoxSection';
+import TextareaReadonly from '../node-box/NodeBoxTextareaReadonly';
 
 export default function JavaScriptFunctionNode() {
   const { isCurrentUserOwner } = useContext(RouteFlowContext);

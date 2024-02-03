@@ -1,16 +1,4 @@
 import { Checkbox, FormControl, FormHelperText, FormLabel } from '@mui/joy';
-import IncomingConditionHandle from 'canvas-react-flow/handles/IncomingConditionHandle';
-import IncomingVariableHandle from 'canvas-react-flow/handles/IncomingVariableHandle';
-import OutgoingConditionHandle from 'canvas-react-flow/handles/OutgoingConditionHandle';
-import NodeBox from 'canvas-react-flow/node-box/NodeBox';
-import NodeBoxAddConnectorButton from 'canvas-react-flow/node-box/NodeBoxAddConnectorButton';
-import NodeBoxHeaderSection from 'canvas-react-flow/node-box/NodeBoxHeaderSection';
-import NodeBoxIncomingVariableBlock from 'canvas-react-flow/node-box/NodeBoxIncomingVariableBlock';
-import NodeBoxIncomingVariableSection from 'canvas-react-flow/node-box/NodeBoxIncomingVariableSection';
-import NodeBoxOutgoingConnectorBlock from 'canvas-react-flow/node-box/NodeBoxOutgoingConnectorBlock';
-import NodeBoxOutgoingVariableBlock from 'canvas-react-flow/node-box/NodeBoxOutgoingVariableBlock';
-import NodeBoxSection from 'canvas-react-flow/node-box/NodeBoxSection';
-import NodeBoxSmallSection from 'canvas-react-flow/node-box/NodeBoxSmallSection';
 import { ConditionResult, ConnectorType, NodeID, NodeType } from 'flow-models';
 import { useContext, useMemo } from 'react';
 import { useNodeId, useUpdateNodeInternals } from 'reactflow';
@@ -23,6 +11,18 @@ import {
 } from 'route-flow/store/state-utils';
 import invariant from 'tiny-invariant';
 import { useStore } from 'zustand';
+import IncomingConditionHandle from '../handles/IncomingConditionHandle';
+import IncomingVariableHandle from '../handles/IncomingVariableHandle';
+import OutgoingConditionHandle from '../handles/OutgoingConditionHandle';
+import NodeBox from '../node-box/NodeBox';
+import NodeBoxAddConnectorButton from '../node-box/NodeBoxAddConnectorButton';
+import NodeBoxHeaderSection from '../node-box/NodeBoxHeaderSection';
+import NodeBoxIncomingVariableBlock from '../node-box/NodeBoxIncomingVariableBlock';
+import NodeBoxIncomingVariableSection from '../node-box/NodeBoxIncomingVariableSection';
+import NodeBoxOutgoingConnectorBlock from '../node-box/NodeBoxOutgoingConnectorBlock';
+import NodeBoxOutgoingVariableBlock from '../node-box/NodeBoxOutgoingVariableBlock';
+import NodeBoxSection from '../node-box/NodeBoxSection';
+import NodeBoxSmallSection from '../node-box/NodeBoxSmallSection';
 
 export default function ConditionNode() {
   const nodeId = useNodeId() as NodeID;

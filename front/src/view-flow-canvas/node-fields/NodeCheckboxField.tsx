@@ -1,5 +1,4 @@
 import { Checkbox, FormControl, FormLabel } from '@mui/joy';
-import NodeBoxSection from 'canvas-react-flow/node-box/NodeBoxSection';
 import { CheckboxFieldDefinition } from 'flow-models';
 import {
   ChangeEventHandler,
@@ -8,6 +7,7 @@ import {
   useMemo,
   useState,
 } from 'react';
+import NodeBoxSection from '../node-box/NodeBoxSection';
 
 type Props = {
   fieldKey: string;

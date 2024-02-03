@@ -1,10 +1,10 @@
 import { FormControl, FormHelperText, FormLabel, Textarea } from '@mui/joy';
-import NodeBoxCopyIcon from 'canvas-react-flow/node-box/NodeBoxCopyIcon';
-import NodeBoxLabelWithIconContainer from 'canvas-react-flow/node-box/NodeBoxLabelWithIconContainer';
-import NodeBoxSection from 'canvas-react-flow/node-box/NodeBoxSection';
-import TextareaReadonly from 'canvas-react-flow/node-box/NodeBoxTextareaReadonly';
 import { TextareaFieldDefinition } from 'flow-models';
 import { useCallback, useEffect, useState } from 'react';
+import NodeBoxCopyIcon from '../node-box/NodeBoxCopyIcon';
+import NodeBoxLabelWithIconContainer from '../node-box/NodeBoxLabelWithIconContainer';
+import NodeBoxSection from '../node-box/NodeBoxSection';
+import TextareaReadonly from '../node-box/NodeBoxTextareaReadonly';
 
 type Props = {
   fieldKey: string;

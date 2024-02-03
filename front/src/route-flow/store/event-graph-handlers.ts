@@ -1,5 +1,4 @@
 import { A, D } from '@mobily/ts-belt';
-import { DRAG_HANDLE_CLASS_NAME } from 'canvas-react-flow/ui-constants';
 import chance from 'common-utils/chance';
 import randomId from 'common-utils/randomId';
 import {
@@ -34,6 +33,7 @@ import {
   applyNodeChanges,
 } from 'reactflow';
 import invariant from 'tiny-invariant';
+import { DRAG_HANDLE_CLASS_NAME } from 'view-flow-canvas/ui-constants';
 import { ChangeEvent, ChangeEventType } from './event-graph-types';
 import { CsvEvaluationConfigContent } from './slice-csv-evaluation-preset';
 import { assignLocalEdgeProperties } from './state-utils';

@@ -3,10 +3,10 @@ import Input from '@mui/joy/Input';
 import Option from '@mui/joy/Option';
 import Select from '@mui/joy/Select';
 import Textarea from '@mui/joy/Textarea';
-import NodeBoxIncomingVariableReadonly from 'canvas-react-flow/node-box/NodeBoxIncomingVariableReadonly';
 import { VariableValueType } from 'flow-models';
 import { ReactNode, useEffect, useState } from 'react';
-import TextareaReadonly from '../../../../canvas-react-flow/node-box/NodeBoxTextareaReadonly';
+import NodeBoxIncomingVariableReadonly from '../../node-box/NodeBoxIncomingVariableReadonly';
+import TextareaReadonly from '../../node-box/NodeBoxTextareaReadonly';
 
 const Container = styled.div`
   margin-bottom: 10px;

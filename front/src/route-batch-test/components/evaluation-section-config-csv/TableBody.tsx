@@ -1,12 +1,12 @@
 import { ConnectorType } from 'flow-models';
 import { ReactNode, useMemo } from 'react';
-import OutputDisplay from 'route-canvas/flow-canvas/side-panel/common/OutputDisplay';
 import { useStoreFromFlowStoreContext } from 'route-flow/store/FlowStoreContext';
 import {
   IterationIndex,
   RowIndex,
 } from 'route-flow/store/slice-csv-evaluation-preset';
 import { selectAllVariables } from 'route-flow/store/state-utils';
+import OutputDisplay from 'view-flow-canvas/side-panel/common/OutputDisplay';
 import { useStore } from 'zustand';
 import { OverallStatus } from '../../../flow-run/run-types';
 import { CSVData } from '../../utils/types';

@@ -1,6 +1,4 @@
 import { FormControl, FormHelperText, FormLabel, Input } from '@mui/joy';
-import NodeBoxHelperTextContainer from 'canvas-react-flow/node-box/NodeBoxHelperTextContainer';
-import NodeBoxSection from 'canvas-react-flow/node-box/NodeBoxSection';
 import {
   GlobalFieldDefinition,
   NodeType,
@@ -10,6 +8,8 @@ import { useCallback, useEffect, useState } from 'react';
 import invariant from 'tiny-invariant';
 import { useLocalStorageStore } from '../../state/appState';
 import { useNodeFieldFeedbackStore } from '../../state/node-field-feedback-state';
+import NodeBoxHelperTextContainer from '../node-box/NodeBoxHelperTextContainer';
+import NodeBoxSection from '../node-box/NodeBoxSection';
 
 type Props = {
   nodeId: string;

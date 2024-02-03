@@ -3,18 +3,18 @@ import FormHelperText from '@mui/joy/FormHelperText';
 import FormLabel from '@mui/joy/FormLabel';
 import IconButton from '@mui/joy/IconButton';
 import Textarea from '@mui/joy/Textarea';
-import ReactFlowNode from 'canvas-react-flow/ReactFlowNode';
-import NodeBoxCopyIcon from 'canvas-react-flow/node-box/NodeBoxCopyIcon';
-import NodeBoxIconGear from 'canvas-react-flow/node-box/NodeBoxIconGear';
-import NodeBoxLabelWithIconContainer from 'canvas-react-flow/node-box/NodeBoxLabelWithIconContainer';
-import NodeBoxSection from 'canvas-react-flow/node-box/NodeBoxSection';
-import TextareaReadonly from 'canvas-react-flow/node-box/NodeBoxTextareaReadonly';
 import { NodeID, V3TextTemplateNodeConfig } from 'flow-models';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { useNodeId } from 'reactflow';
 import RouteFlowContext from 'route-flow/common/RouteFlowContext';
 import { useFlowStore } from 'route-flow/store/FlowStoreContext';
 import { DetailPanelContentType } from 'route-flow/store/store-flow-state-types';
+import ReactFlowNode from '../ReactFlowNode';
+import NodeBoxCopyIcon from '../node-box/NodeBoxCopyIcon';
+import NodeBoxIconGear from '../node-box/NodeBoxIconGear';
+import NodeBoxLabelWithIconContainer from '../node-box/NodeBoxLabelWithIconContainer';
+import NodeBoxSection from '../node-box/NodeBoxSection';
+import TextareaReadonly from '../node-box/NodeBoxTextareaReadonly';
 
 export default function TextTemplateNode() {
   const { isCurrentUserOwner } = useContext(RouteFlowContext);

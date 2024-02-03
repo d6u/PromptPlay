@@ -12,7 +12,6 @@ import {
   ToggleButtonGroup,
   Typography,
 } from '@mui/joy';
-import { NODE_BOX_WIDTH } from 'canvas-react-flow/ui-constants';
 import {
   NodeType,
   getAllNodeTypes,
@@ -31,6 +30,7 @@ import { BatchTestTab } from 'route-batch-test/utils/types';
 import RouteFlowContext from 'route-flow/common/RouteFlowContext';
 import { useStoreFromFlowStoreContext } from 'route-flow/store/FlowStoreContext';
 import { DetailPanelContentType } from 'route-flow/store/store-flow-state-types';
+import { NODE_BOX_WIDTH } from 'view-flow-canvas/ui-constants';
 import { useStore } from 'zustand';
 import PresetSelector from './preset-selector/PresetSelector';
 
