@@ -27,11 +27,11 @@ import IconThreeDots from 'icons/IconThreeDots';
 import { useCallback, useContext, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStoreApi } from 'reactflow';
+import { BatchTestTab } from 'route-batch-test/utils/types';
 import RouteFlowContext from 'route-flow/common/RouteFlowContext';
 import { useStoreFromFlowStoreContext } from 'route-flow/store/FlowStoreContext';
 import { DetailPanelContentType } from 'route-flow/store/store-flow-state-types';
 import { useStore } from 'zustand';
-import { BatchTestTab } from '../components/route-batch-test/utils/types';
 import PresetSelector from './preset-selector/PresetSelector';
 
 function SubHeaderView() {

@@ -1,9 +1,9 @@
 import { createLens, Getter, Setter } from '@dhmk/zustand-lens';
 import { ConnectorID, ConnectorResultMap } from 'flow-models';
+import { BatchTestTab } from 'route-batch-test/utils/types';
 import invariant from 'tiny-invariant';
 import { OperationResult } from 'urql';
 import { StateCreator } from 'zustand';
-import { BatchTestTab } from '../../components/route-batch-test/utils/types';
 import { RunMetadata } from '../../flow-run/run-types';
 import { graphql } from '../../gql';
 import { LoadCsvEvaluationPresetQuery } from '../../gql/graphql';

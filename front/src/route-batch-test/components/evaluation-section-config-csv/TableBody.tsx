@@ -8,7 +8,7 @@ import {
 } from 'route-flow/store/slice-csv-evaluation-preset';
 import { selectAllVariables } from 'route-flow/store/state-utils';
 import { useStore } from 'zustand';
-import { OverallStatus } from '../../../../flow-run/run-types';
+import { OverallStatus } from '../../../flow-run/run-types';
 import { CSVData } from '../../utils/types';
 
 type Props = {

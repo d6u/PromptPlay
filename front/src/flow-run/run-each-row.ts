@@ -5,6 +5,7 @@ import {
   V3FlowContent,
   VariableValueMap,
 } from 'flow-models';
+import { CSVData } from 'route-batch-test/utils/types';
 import { VariableIdToCsvColumnIndexMap } from 'route-flow/store/slice-csv-evaluation-preset';
 import {
   EMPTY,
@@ -17,7 +18,6 @@ import {
   range,
   startWith,
 } from 'rxjs';
-import { CSVData } from '../components/route-batch-test/utils/types';
 import { useLocalStorageStore } from '../state/appState';
 import { FlowConfig, runSingle } from './run-single';
 
