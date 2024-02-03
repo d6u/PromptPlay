@@ -1,14 +1,4 @@
 import { A, D } from '@mobily/ts-belt';
-import {
-  ConnectorID,
-  ConnectorResultMap,
-  ConnectorType,
-  NodeConfig,
-  NodeID,
-  NodeType,
-  V3FlowContent,
-  createNode,
-} from 'flow-models';
 import { produce } from 'immer';
 import debounce from 'lodash/debounce';
 import {
@@ -20,6 +10,18 @@ import {
 } from 'reactflow';
 import invariant from 'tiny-invariant';
 import { StateCreator } from 'zustand';
+
+import {
+  ConnectorID,
+  ConnectorResultMap,
+  ConnectorType,
+  NodeConfig,
+  NodeID,
+  NodeType,
+  V3FlowContent,
+  createNode,
+} from 'flow-models';
+
 import { handleEvent } from './event-graph/event-graph-handlers';
 import {
   ChangeEvent,
