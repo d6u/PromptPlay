@@ -6,7 +6,7 @@ import ReactFlowNode from 'canvas-react-flow/ReactFlowNode';
 import NodeBoxHelperTextContainer from 'canvas-react-flow/node-box/NodeBoxHelperTextContainer';
 import NodeBoxIncomingVariableReadonly from 'canvas-react-flow/node-box/NodeBoxIncomingVariableReadonly';
 import NodeBoxSection from 'canvas-react-flow/node-box/NodeBoxSection';
-import { NodeID, V3HuggingFaceInferenceNodeConfig } from 'flow-models';
+import { NodeID, V3ElevenLabsNodeConfig } from 'flow-models';
 import { useContext, useMemo, useState } from 'react';
 import { useNodeId } from 'reactflow';
 import RouteFlowContext from 'route-flow/common/RouteFlowContext';
@@ -16,39 +16,40 @@ import {
   SpaceState,
   useLocalStorageStore,
   useSpaceStore,
-} from '../../../../state/appState';
+} from '../../../state/appState';
 
 const persistSelector = (state: LocalStorageState) => ({
-  huggingFaceApiToken: state.huggingFaceApiToken,
-  setHuggingFaceApiToken: state.setHuggingFaceApiToken,
+  elevenLabsApiKey: state.elevenLabsApiKey,
+  setElevenLabsApiKey: state.setElevenLabsApiKey,
 });
 
 const selector = (state: SpaceState) => ({
-  missingHuggingFaceApiToken: state.missingHuggingFaceApiToken,
-  setMissingHuggingFaceApiToken: state.setMissingHuggingFaceApiToken,
+  missingElevenLabsApiKey: state.missingElevenLabsApiKey,
+  setMissingElevenLabsApiKey: state.setMissingElevenLabsApiKey,
 });
 
-export default function HuggingFaceInferenceNode() {
+export default function ElevenLabsNode() {
   const { isCurrentUserOwner } = useContext(RouteFlowContext);
 
-  const { huggingFaceApiToken, setHuggingFaceApiToken } =
+  const { elevenLabsApiKey, setElevenLabsApiKey } =
     useLocalStorageStore(persistSelector);
-  const { missingHuggingFaceApiToken, setMissingHuggingFaceApiToken } =
+  const { missingElevenLabsApiKey, setMissingElevenLabsApiKey } =
     useSpaceStore(selector);
 
+  // ANCHOR: ReactFlow
   const nodeId = useNodeId() as NodeID;
 
   const nodeConfigs = useFlowStore((s) => s.nodeConfigsDict);
   const updateNodeConfig = useFlowStore((s) => s.updateNodeConfig);
 
   const nodeConfig = useMemo(
-    () => nodeConfigs[nodeId] as V3HuggingFaceInferenceNodeConfig | undefined,
+    () => nodeConfigs[nodeId] as V3ElevenLabsNodeConfig | undefined,
     [nodeConfigs, nodeId],
   );
 
   // It's OK to force unwrap here because nodeConfig will be undefined only
   // when Node is being deleted.
-  const [model, setModel] = useState(() => nodeConfig!.model);
+  const [voiceId, setVoiceId] = useState(() => nodeConfig!.voiceId);
 
   if (!nodeConfig) {
     return null;
@@ -61,37 +62,35 @@ export default function HuggingFaceInferenceNode() {
       destConnectorReadOnlyConfigs={[true]}
       destConnectorHelpMessages={[
         <>
-          Check Hugging Face's free{' '}
+          Check Elevent Labs's{' '}
           <a
-            href="https://huggingface.co/docs/api-inference/quicktour"
+            href="https://docs.elevenlabs.io/api-reference/text-to-speech"
             target="_blank"
             rel="noreferrer"
           >
-            Inference API documentation
+            Text to Speech API Reference
           </a>{' '}
-          for more information about the <code>parameters</code> input.
-          Depending on the model you choose, you need to specify different
-          parameters.
+          for more information.
         </>,
       ]}
     >
       {isCurrentUserOwner && (
         <NodeBoxSection>
           <FormControl>
-            <FormLabel>API Token</FormLabel>
+            <FormLabel>API Key</FormLabel>
             <Input
               type="password"
-              color={missingHuggingFaceApiToken ? 'danger' : 'neutral'}
-              value={huggingFaceApiToken ?? ''}
+              color={missingElevenLabsApiKey ? 'danger' : 'neutral'}
+              value={elevenLabsApiKey ?? ''}
               onChange={(e) => {
                 const value = e.target.value.trim();
-                setHuggingFaceApiToken(value.length ? value : null);
-                setMissingHuggingFaceApiToken(false);
+                setElevenLabsApiKey(value.length ? value : null);
+                setMissingElevenLabsApiKey(false);
               }}
             />
-            {missingHuggingFaceApiToken && (
+            {missingElevenLabsApiKey && (
               <NodeBoxHelperTextContainer color="danger">
-                Must provide a Hugging Face API token.
+                Must provide a Eleven Labs API key.
               </NodeBoxHelperTextContainer>
             )}
             <FormHelperText>
@@ -102,24 +101,24 @@ export default function HuggingFaceInferenceNode() {
       )}
       <NodeBoxSection>
         <FormControl>
-          <FormLabel>Model</FormLabel>
+          <FormLabel>Voice ID</FormLabel>
           {isCurrentUserOwner ? (
             <Input
-              value={model}
+              value={voiceId}
               onChange={(e) => {
-                setModel(e.target.value);
+                setVoiceId(e.target.value);
               }}
               onKeyUp={(e) => {
                 if (e.key === 'Enter') {
-                  updateNodeConfig(nodeId, { model });
+                  updateNodeConfig(nodeId, { voiceId });
                 }
               }}
               onBlur={() => {
-                updateNodeConfig(nodeId, { model });
+                updateNodeConfig(nodeId, { voiceId });
               }}
             />
           ) : (
-            <NodeBoxIncomingVariableReadonly value={model} />
+            <NodeBoxIncomingVariableReadonly value={voiceId} />
           )}
         </FormControl>
       </NodeBoxSection>

@@ -1,6 +1,6 @@
 import { Table, Textarea } from '@mui/joy';
+import { Section } from 'route-canvas/flow-canvas/side-panel/common/controls-common';
 import { useFlowStore } from 'route-flow/store/FlowStoreContext';
-import { Section } from '../../route-canvas/flow-canvas/side-panel/common/controls-common';
 import { CSVData, CSVRow } from '../utils/types';
 
 type Props = {

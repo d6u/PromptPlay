@@ -15,7 +15,7 @@ import { useNodeId } from 'reactflow';
 import RouteFlowContext from 'route-flow/common/RouteFlowContext';
 import { useFlowStore } from 'route-flow/store/FlowStoreContext';
 import { selectVariables } from 'route-flow/store/state-utils';
-import TextareaReadonly from '../../../../canvas-react-flow/node-box/NodeBoxTextareaReadonly';
+import TextareaReadonly from '../../../canvas-react-flow/node-box/NodeBoxTextareaReadonly';
 
 export default function JavaScriptFunctionNode() {
   const { isCurrentUserOwner } = useContext(RouteFlowContext);

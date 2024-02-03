@@ -29,6 +29,7 @@
       // routes
       "route-dashboard/*": ["./src/route-dashboard/*"],
       "route-flow/*": ["./src/route-flow/*"],
+      "route-canvas/*": ["./src/route-canvas/*"],
       // views
       "view-sub-header/*": ["./src/view-sub-header/*"],
       "canvas-react-flow/*": ["./src/canvas-react-flow/*"]

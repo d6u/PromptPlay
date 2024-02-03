@@ -5,7 +5,7 @@ import { ReactNode } from 'react';
 import { useStoreFromFlowStoreContext } from 'route-flow/store/FlowStoreContext';
 import { DetailPanelContentType } from 'route-flow/store/store-flow-state-types';
 import { useStore } from 'zustand';
-import RouteBatchTest from '../../../route-batch-test/RouteBatchTest';
+import RouteBatchTest from '../../../components/route-batch-test/RouteBatchTest';
 import PanelChatGPTMessageConfig from './chat-gpt-message-config/PanelChatGPTMessageConfig';
 import PanelNodeConfig from './node-config/PanelNodeConfig';
 import PanelEvaluationModeSimple from './simple-evaluaton/PanelEvaluationModeSimple';

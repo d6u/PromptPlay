@@ -6,7 +6,7 @@ import Textarea from '@mui/joy/Textarea';
 import NodeBoxIncomingVariableReadonly from 'canvas-react-flow/node-box/NodeBoxIncomingVariableReadonly';
 import { VariableValueType } from 'flow-models';
 import { ReactNode, useEffect, useState } from 'react';
-import TextareaReadonly from '../../../../../canvas-react-flow/node-box/NodeBoxTextareaReadonly';
+import TextareaReadonly from '../../../../canvas-react-flow/node-box/NodeBoxTextareaReadonly';
 
 const Container = styled.div`
   margin-bottom: 10px;

@@ -25,7 +25,7 @@ import {
   SpaceState,
   useLocalStorageStore,
   useSpaceStore,
-} from '../../../../state/appState';
+} from '../../../state/appState';
 
 const persistSelector = (state: LocalStorageState) => ({
   openAiApiKey: state.openAiApiKey,
