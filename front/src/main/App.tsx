@@ -11,17 +11,17 @@ import RouteCanvas from '../components/route-canvas/RouteCanvas';
 import RouteDashboard from '../components/route-dashboard/RouteDashboard';
 import RouteFlow from '../components/route-flow/RouteFlow';
 import flowLoader from '../components/route-flow/route-loader-flow';
-import RouteRoot from '../components/route-root/RouteRoot';
-import routeLoaderRoot from '../components/route-root/route-loader-root';
 import { client } from '../state/urql';
 import { FlowRouteTab, pathToFlowCanvasTab } from '../utils/route-utils';
+import RouteRoot from './RootView';
+import rootRouteLoader from './rootRouteLoader';
 
 export default function App() {
   const router = useMemo(() => {
     return createBrowserRouter([
       {
         path: '/',
-        loader: routeLoaderRoot,
+        loader: rootRouteLoader,
         element: <RouteRoot />,
         children: [
           {

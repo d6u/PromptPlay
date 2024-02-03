@@ -1,9 +1,9 @@
 import posthog from 'posthog-js';
 import { LoaderFunction } from 'react-router-dom';
-import { graphql } from '../../gql';
-import { client } from '../../state/urql';
+import { graphql } from '../gql';
+import { client } from '../state/urql';
 
-const routeLoaderRoot: LoaderFunction = async (args) => {
+const rootRouteLoader: LoaderFunction = async (args) => {
   const queryResult = await client
     .query(
       graphql(`
@@ -42,4 +42,4 @@ const routeLoaderRoot: LoaderFunction = async (args) => {
   return null;
 };
 
-export default routeLoaderRoot;
+export default rootRouteLoader;
