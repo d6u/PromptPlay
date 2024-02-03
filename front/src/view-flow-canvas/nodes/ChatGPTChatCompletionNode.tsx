@@ -22,10 +22,10 @@ import {
   useLocalStorageStore,
   useSpaceStore,
 } from '../../state/appState';
-import ReactFlowNode from '../ReactFlowNode';
 import NodeBoxHelperTextContainer from '../node-box/NodeBoxHelperTextContainer';
 import NodeBoxIncomingVariableReadonly from '../node-box/NodeBoxIncomingVariableReadonly';
 import NodeBoxSection from '../node-box/NodeBoxSection';
+import ReactFlowNode from './ReactFlowNode';
 
 const persistSelector = (state: LocalStorageState) => ({
   openAiApiKey: state.openAiApiKey,

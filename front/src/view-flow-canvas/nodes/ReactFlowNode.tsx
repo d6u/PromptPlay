@@ -18,25 +18,25 @@ import {
   selectConditionTarget,
   selectVariables,
 } from 'state-flow/util/state-utils';
-import IncomingConditionHandle from './handles/IncomingConditionHandle';
-import IncomingVariableHandle from './handles/IncomingVariableHandle';
-import OutgoingVariableHandle from './handles/OutgoingVariableHandle';
-import NodeBox from './node-box/NodeBox';
-import NodeBoxAddConnectorButton from './node-box/NodeBoxAddConnectorButton';
-import NodeBoxHeaderSection from './node-box/NodeBoxHeaderSection';
-import NodeBoxIconGear from './node-box/NodeBoxIconGear';
-import NodeBoxIncomingVariableBlock from './node-box/NodeBoxIncomingVariableBlock';
-import NodeBoxIncomingVariableSection from './node-box/NodeBoxIncomingVariableSection';
-import NodeBoxOutgoingVariableBlock from './node-box/NodeBoxOutgoingVariableBlock';
-import NodeBoxSection from './node-box/NodeBoxSection';
-import NodeBoxSmallSection from './node-box/NodeBoxSmallSection';
-import NodeCheckboxField from './node-fields/NodeCheckboxField';
-import NodeGlobalTextField from './node-fields/NodeGlobalTextField';
-import NodeNumberField from './node-fields/NodeNumberField';
-import NodeRadioField from './node-fields/NodeRadioField';
-import NodeSelectField from './node-fields/NodeSelectField';
-import NodeTextField from './node-fields/NodeTextField';
-import NodeTextareaField from './node-fields/NodeTextareaField';
+import IncomingConditionHandle from '../handles/IncomingConditionHandle';
+import IncomingVariableHandle from '../handles/IncomingVariableHandle';
+import OutgoingVariableHandle from '../handles/OutgoingVariableHandle';
+import NodeBox from '../node-box/NodeBox';
+import NodeBoxAddConnectorButton from '../node-box/NodeBoxAddConnectorButton';
+import NodeBoxHeaderSection from '../node-box/NodeBoxHeaderSection';
+import NodeBoxIconGear from '../node-box/NodeBoxIconGear';
+import NodeBoxIncomingVariableBlock from '../node-box/NodeBoxIncomingVariableBlock';
+import NodeBoxIncomingVariableSection from '../node-box/NodeBoxIncomingVariableSection';
+import NodeBoxOutgoingVariableBlock from '../node-box/NodeBoxOutgoingVariableBlock';
+import NodeBoxSection from '../node-box/NodeBoxSection';
+import NodeBoxSmallSection from '../node-box/NodeBoxSmallSection';
+import NodeCheckboxField from '../node-fields/NodeCheckboxField';
+import NodeGlobalTextField from '../node-fields/NodeGlobalTextField';
+import NodeNumberField from '../node-fields/NodeNumberField';
+import NodeRadioField from '../node-fields/NodeRadioField';
+import NodeSelectField from '../node-fields/NodeSelectField';
+import NodeTextField from '../node-fields/NodeTextField';
+import NodeTextareaField from '../node-fields/NodeTextareaField';
 
 export type DestConnector = {
   id: string;

@@ -9,12 +9,12 @@ import { useNodeId } from 'reactflow';
 import RouteFlowContext from 'state-flow/context/FlowRouteContext';
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 import { DetailPanelContentType } from 'state-flow/types';
-import ReactFlowNode from '../ReactFlowNode';
 import NodeBoxCopyIcon from '../node-box/NodeBoxCopyIcon';
 import NodeBoxIconGear from '../node-box/NodeBoxIconGear';
 import NodeBoxLabelWithIconContainer from '../node-box/NodeBoxLabelWithIconContainer';
 import NodeBoxSection from '../node-box/NodeBoxSection';
 import TextareaReadonly from '../node-box/NodeBoxTextareaReadonly';
+import ReactFlowNode from './ReactFlowNode';
 
 export default function TextTemplateNode() {
   const { isCurrentUserOwner } = useContext(RouteFlowContext);
