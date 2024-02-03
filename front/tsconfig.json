@@ -30,7 +30,7 @@
       "route-dashboard/*": ["./src/route-dashboard/*"],
       "route-flow/*": ["./src/route-flow/*"],
       // views
-      "sub-header-view/*": ["./src/sub-header-view/*"],
+      "view-sub-header/*": ["./src/view-sub-header/*"],
       "canvas-react-flow/*": ["./src/canvas-react-flow/*"]
     }
   },
