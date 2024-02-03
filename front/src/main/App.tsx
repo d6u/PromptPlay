@@ -44,6 +44,7 @@ export default function App() {
               {
                 path: `${FlowRouteTab.Canvas}`,
                 element: <RouteCanvas />,
+                // NOTE: Keep this in sync with FlowRouteSubRouteHandle type
                 handle: {
                   tabType: FlowRouteTab.Canvas,
                 },
@@ -51,6 +52,7 @@ export default function App() {
               {
                 path: `${FlowRouteTab.BatchTest}`,
                 element: <RouteBatchTest />,
+                // NOTE: Keep this in sync with FlowRouteSubRouteHandle type
                 handle: {
                   tabType: FlowRouteTab.BatchTest,
                 },

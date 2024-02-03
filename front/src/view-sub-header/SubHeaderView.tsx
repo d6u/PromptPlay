@@ -21,6 +21,7 @@ import {
   FlowRouteTab,
   pathToFlowBatchTestTab,
   pathToFlowCanvasTab,
+  useFlowRouteSubRouteHandle,
 } from 'generic-util/route-utils';
 import IconThreeDots from 'icons/IconThreeDots';
 import { useCallback, useContext, useMemo } from 'react';
@@ -37,8 +38,9 @@ import PresetSelector from './preset-selector/PresetSelector';
 function SubHeaderView() {
   const navigate = useNavigate();
 
-  const { isCurrentUserOwner, spaceId, flowTabType } =
-    useContext(RouteFlowContext);
+  const flowTabType = useFlowRouteSubRouteHandle((handle) => handle.tabType);
+
+  const { isCurrentUserOwner, spaceId } = useContext(RouteFlowContext);
   const flowStore = useStoreFromFlowStoreContext();
 
   const isRunning = useStore(flowStore, (s) => s.isRunning);

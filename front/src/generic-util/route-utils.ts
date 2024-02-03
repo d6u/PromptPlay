@@ -1,5 +1,6 @@
 import { ContentVersion } from 'gencode-gql/graphql';
 import { API_SERVER_BASE_URL } from 'global-config/global-config';
+import { useMatches } from 'react-router-dom';
 
 // ANCHOR: API paths
 
@@ -35,6 +36,17 @@ export function pathToCurrentContent(
 export enum FlowRouteTab {
   Canvas = 'canvas',
   BatchTest = 'batch-test',
+}
+
+export type FlowRouteSubRouteHandle = {
+  tabType: FlowRouteTab;
+};
+
+export function useFlowRouteSubRouteHandle<T>(
+  selector: (handle: FlowRouteSubRouteHandle) => T,
+): T {
+  const matches = useMatches();
+  return selector(matches[2].handle as FlowRouteSubRouteHandle);
 }
 
 export function pathToFlowCanvasTab(spaceId: string) {
