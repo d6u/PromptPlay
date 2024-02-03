@@ -1,6 +1,6 @@
 import { css } from '@emotion/react';
 import styled from '@emotion/styled';
-import { IS_LOGIN_ENABLED } from 'global-config/constants';
+import { IS_LOGIN_ENABLED } from 'global-config/global-config';
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQuery } from 'urql';

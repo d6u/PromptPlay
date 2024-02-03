@@ -1,4 +1,4 @@
-import { POSTHOG_TOKEN } from 'global-config/constants.ts';
+import { POSTHOG_TOKEN } from 'global-config/global-config.ts';
 import posthog from 'posthog-js';
 import React from 'react';
 import ReactDOM from 'react-dom/client';

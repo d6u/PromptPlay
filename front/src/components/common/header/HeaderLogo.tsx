@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { PROVIDE_FEEDBACK_LINK } from 'global-config/constants';
+import { PROVIDE_FEEDBACK_LINK } from 'global-config/global-config';
 import { useEffect, useState } from 'react';
 import StyleResetLink from '../StyleResetLink';
 
