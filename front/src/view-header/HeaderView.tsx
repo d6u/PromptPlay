@@ -3,7 +3,7 @@ import HeaderAccountDetail from './HeaderAccountDetail';
 import HeaderLogo from './HeaderLogo';
 import SpaceName from './SpaceName';
 
-export default function Header() {
+function HeaderView() {
   return (
     <Container>
       <HeaderLogo />
@@ -44,3 +44,5 @@ const SpaceNameContainer = styled.div`
     }
   }
 `;
+
+export default HeaderView;

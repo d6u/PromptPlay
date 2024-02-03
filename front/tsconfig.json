@@ -32,6 +32,7 @@
       "route-canvas/*": ["./src/route-canvas/*"],
       "route-batch-test/*": ["./src/route-batch-test/*"],
       // views
+      "view-header/*": ["./src/view-header/*"],
       "view-sub-header/*": ["./src/view-sub-header/*"],
       "canvas-react-flow/*": ["./src/canvas-react-flow/*"]
     }

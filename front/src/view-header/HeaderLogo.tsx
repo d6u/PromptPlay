@@ -1,7 +1,7 @@
 import styled from '@emotion/styled';
 import { PROVIDE_FEEDBACK_LINK } from 'global-config/global-config';
 import { useEffect, useState } from 'react';
-import StyleResetLink from '../StyleResetLink';
+import StyleResetLink from '../components/common/StyleResetLink';
 
 export default function HeaderLogo() {
   const [useNarrowLayout, setUseNarrowLayout] = useState(

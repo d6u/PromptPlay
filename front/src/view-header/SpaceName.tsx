@@ -3,7 +3,7 @@ import Input from '@mui/joy/Input';
 import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useMutation, useQuery } from 'urql';
-import { graphql } from '../../../gql';
+import { graphql } from '../gql';
 
 export default function SpaceName() {
   // TODO: Properly handle spaceId not being present

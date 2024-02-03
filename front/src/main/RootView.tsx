@@ -1,10 +1,10 @@
 import { Outlet } from 'react-router-dom';
-import Header from '../components/common/header/Header';
+import HeaderView from 'view-header/HeaderView';
 
 export default function RouteRoot() {
   return (
     <>
-      <Header />
+      <HeaderView />
       <Outlet />
     </>
   );

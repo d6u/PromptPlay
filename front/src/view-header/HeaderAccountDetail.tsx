@@ -5,7 +5,7 @@ import IconLogout from 'icons/IconLogout';
 import posthog from 'posthog-js';
 import { useCallback, useEffect, useState } from 'react';
 import { useQuery } from 'urql';
-import { graphql } from '../../../gql';
+import { graphql } from '../gql';
 
 export default function HeaderAccountDetail() {
   const [queryResult] = useQuery({
