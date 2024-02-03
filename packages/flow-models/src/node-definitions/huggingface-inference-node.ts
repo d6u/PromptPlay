@@ -1,8 +1,10 @@
-import randomId from 'common-utils/randomId';
-import * as HuggingFace from 'integrations/hugging-face';
 import Joi from 'joi';
 import { Observable } from 'rxjs';
 import invariant from 'tiny-invariant';
+
+import randomId from 'common-utils/randomId';
+import * as HuggingFace from 'integrations/hugging-face';
+
 import {
   ConnectorType,
   NodeInputVariable,

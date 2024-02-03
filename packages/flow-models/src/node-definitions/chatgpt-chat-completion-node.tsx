@@ -1,4 +1,8 @@
 import { A } from '@mobily/ts-belt';
+import Joi from 'joi';
+import { Observable, TimeoutError, endWith, map, retry, scan, tap } from 'rxjs';
+import invariant from 'tiny-invariant';
+
 import randomId from 'common-utils/randomId';
 import {
   ChatGPTMessage,
@@ -6,9 +10,7 @@ import {
   getNonStreamingCompletion,
   getStreamingCompletion,
 } from 'integrations/openai';
-import Joi from 'joi';
-import { Observable, TimeoutError, endWith, map, retry, scan, tap } from 'rxjs';
-import invariant from 'tiny-invariant';
+
 import {
   ConnectorType,
   NodeInputVariable,
