@@ -1,4 +1,4 @@
-import { API_SERVER_BASE_URL } from '../constants';
+import { API_SERVER_BASE_URL } from 'global-config/constants';
 import { ContentVersion } from '../gql/graphql';
 
 // ANCHOR: API paths

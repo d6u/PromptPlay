@@ -1,9 +1,9 @@
+import { POSTHOG_TOKEN } from 'global-config/constants.ts';
 import posthog from 'posthog-js';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import App from './components/App.tsx';
-import UITheme from './components/UITheme.tsx';
-import { POSTHOG_TOKEN } from './constants.ts';
+import App from './App.tsx';
+import UITheme from './UITheme.tsx';
 
 // Disable anlytics in development
 if (

@@ -6,15 +6,15 @@ import {
   redirect,
 } from 'react-router-dom';
 import { Provider as GraphQLProvider } from 'urql';
+import RouteBatchTest from '../components/route-batch-test/RouteBatchTest';
+import RouteCanvas from '../components/route-canvas/RouteCanvas';
+import RouteDashboard from '../components/route-dashboard/RouteDashboard';
+import RouteFlow from '../components/route-flow/RouteFlow';
+import flowLoader from '../components/route-flow/route-loader-flow';
+import RouteRoot from '../components/route-root/RouteRoot';
+import routeLoaderRoot from '../components/route-root/route-loader-root';
 import { client } from '../state/urql';
 import { FlowRouteTab, pathToFlowCanvasTab } from '../utils/route-utils';
-import RouteBatchTest from './route-batch-test/RouteBatchTest';
-import RouteCanvas from './route-canvas/RouteCanvas';
-import RouteDashboard from './route-dashboard/RouteDashboard';
-import RouteFlow from './route-flow/RouteFlow';
-import flowLoader from './route-flow/route-loader-flow';
-import RouteRoot from './route-root/RouteRoot';
-import routeLoaderRoot from './route-root/route-loader-root';
 
 export default function App() {
   const router = useMemo(() => {

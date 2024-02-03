@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
+import { PROVIDE_FEEDBACK_LINK } from 'global-config/constants';
 import { useEffect, useState } from 'react';
-import { PROVIDE_FEEDBACK_LINK } from '../../../constants';
 import StyleResetLink from '../StyleResetLink';
 
 export default function HeaderLogo() {
