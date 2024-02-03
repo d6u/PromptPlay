@@ -19,8 +19,8 @@ import {
   RowIndex,
 } from 'state-flow/slice-csv-evaluation-preset';
 import { BatchTestTab, CSVData, CSVHeader } from 'state-flow/types';
-import { useLocalStorageStore } from 'state-root/appState';
 import { useNodeFieldFeedbackStore } from 'state-root/node-field-feedback-state';
+import { useLocalStorageStore } from 'state-root/root-state';
 import invariant from 'tiny-invariant';
 import EvaluationSectionImportCSV from './components/EvaluationSectionImportCSV';
 import EvaluationSectionConfigCSV from './components/evaluation-section-config-csv/EvaluationSectionConfigCSV';

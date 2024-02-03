@@ -1,7 +1,8 @@
 import { createLens } from '@dhmk/zustand-lens';
-import { createSelectors } from 'generic-util/zustand-utils';
 import { create, StateCreator } from 'zustand';
 import { persist } from 'zustand/middleware';
+
+import { createSelectors } from 'generic-util/zustand';
 
 type OpenAIAPIKeyState = {
   openAiApiKey: string | null;

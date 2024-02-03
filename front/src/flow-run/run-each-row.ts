@@ -20,7 +20,7 @@ import {
 
 import { VariableIdToCsvColumnIndexMap } from 'state-flow/slice-csv-evaluation-preset';
 import { CSVData } from 'state-flow/types';
-import { useLocalStorageStore } from 'state-root/appState';
+import { useLocalStorageStore } from 'state-root/root-state';
 import { FlowConfig, runSingle } from './run-single';
 
 export enum SingleRunEventType {

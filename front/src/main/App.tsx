@@ -1,4 +1,4 @@
-import { FlowRouteTab, pathToFlowCanvasTab } from 'generic-util/route-utils';
+import { FlowRouteTab, pathToFlowCanvasTab } from 'generic-util/route';
 import { client } from 'graphql-util/client';
 import { useMemo } from 'react';
 import {

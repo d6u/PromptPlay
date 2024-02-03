@@ -3,7 +3,7 @@ import { D } from '@mobily/ts-belt';
 import { ReactNode } from 'react';
 import { create, StateCreator } from 'zustand';
 
-import { createSelectors } from 'generic-util/zustand-utils';
+import { createSelectors } from 'generic-util/zustand';
 
 // TODO: Introduce feedback types: ERROR, WARNING, INFO, SUCCESS
 // Currently all feedbacks are ERROR

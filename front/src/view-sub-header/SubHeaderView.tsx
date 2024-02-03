@@ -22,7 +22,7 @@ import {
   pathToFlowBatchTestTab,
   pathToFlowCanvasTab,
   useFlowRouteSubRouteHandle,
-} from 'generic-util/route-utils';
+} from 'generic-util/route';
 import IconThreeDots from 'icons/IconThreeDots';
 import { useCallback, useContext, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
