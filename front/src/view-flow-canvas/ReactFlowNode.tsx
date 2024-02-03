@@ -1,5 +1,9 @@
 import { A, D } from '@mobily/ts-belt';
 import { IconButton } from '@mui/joy';
+import { ReactNode, useEffect, useMemo, useState } from 'react';
+import { useNodeId, useUpdateNodeInternals } from 'reactflow';
+import invariant from 'tiny-invariant';
+
 import {
   ConnectorID,
   ConnectorType,
@@ -7,15 +11,13 @@ import {
   getNodeDefinitionForNodeTypeName,
 } from 'flow-models';
 import { FieldType } from 'flow-models/src/node-definition-base-types';
-import { ReactNode, useEffect, useMemo, useState } from 'react';
-import { useNodeId, useUpdateNodeInternals } from 'reactflow';
+
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 import { DetailPanelContentType } from 'state-flow/types';
 import {
   selectConditionTarget,
   selectVariables,
 } from 'state-flow/util/state-utils';
-import invariant from 'tiny-invariant';
 import IncomingConditionHandle from './handles/IncomingConditionHandle';
 import IncomingVariableHandle from './handles/IncomingVariableHandle';
 import OutgoingVariableHandle from './handles/OutgoingVariableHandle';

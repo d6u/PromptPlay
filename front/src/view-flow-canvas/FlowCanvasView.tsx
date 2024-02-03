@@ -1,5 +1,3 @@
-import styled from '@emotion/styled';
-import { NodeType } from 'flow-models';
 import { useContext } from 'react';
 import ReactFlow, {
   Background,
@@ -7,7 +5,9 @@ import ReactFlow, {
   Controls,
   PanOnScrollMode,
 } from 'reactflow';
-import 'reactflow/dist/style.css';
+
+import { NodeType } from 'flow-models';
+
 import RouteFlowContext from 'state-flow/context/FlowRouteContext';
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 import ConditionNode from './nodes/ConditionNode';
@@ -18,7 +18,8 @@ import JavaScriptFunctionNode from './nodes/JavaScriptFunctionNode';
 import OutputNode from './nodes/OutputNode';
 import StandardNode from './nodes/StandardNode';
 import TextTemplateNode from './nodes/TextTemplateNode';
-import SidePanel from './side-panel/SidePanel';
+
+import 'reactflow/dist/style.css';
 
 // TODO: Enforce type safety
 const NODE_TYPES = {
@@ -45,54 +46,45 @@ function FlowCanvasView() {
   const onEdgeConnectStop = useFlowStore((s) => s.onEdgeConnectStop);
 
   return (
-    <Container>
-      <ReactFlow
-        panOnScroll
-        panOnScrollMode={PanOnScrollMode.Free}
-        minZoom={0.2}
-        maxZoom={1.2}
-        // Prevent select to trigger position change
-        nodeDragThreshold={1}
-        nodesConnectable={isCurrentUserOwner}
-        elementsSelectable={isCurrentUserOwner}
-        nodeTypes={NODE_TYPES}
-        nodes={nodes}
-        edges={edges}
-        onInit={(reactflow) => {
-          reactflow.fitView();
-        }}
-        onNodesChange={(changes) => {
-          onNodesChange(changes);
-        }}
-        onEdgesChange={(changes) => {
-          if (isCurrentUserOwner) {
-            onEdgesChange(changes);
-          }
-        }}
-        onConnect={(connection) => {
-          if (isCurrentUserOwner) {
-            onConnect(connection);
-          }
-        }}
-        onConnectStart={(event, params) => {
-          onEdgeConnectStart(params);
-        }}
-        onConnectEnd={() => {
-          onEdgeConnectStop();
-        }}
-      >
-        <Controls />
-        <Background variant={BackgroundVariant.Dots} gap={20} size={1} />
-      </ReactFlow>
-      <SidePanel />
-    </Container>
+    <ReactFlow
+      panOnScroll
+      panOnScrollMode={PanOnScrollMode.Free}
+      minZoom={0.2}
+      maxZoom={1.2}
+      // Prevent select to trigger position change
+      nodeDragThreshold={1}
+      nodesConnectable={isCurrentUserOwner}
+      elementsSelectable={isCurrentUserOwner}
+      nodeTypes={NODE_TYPES}
+      nodes={nodes}
+      edges={edges}
+      onInit={(reactflow) => {
+        reactflow.fitView();
+      }}
+      onNodesChange={(changes) => {
+        onNodesChange(changes);
+      }}
+      onEdgesChange={(changes) => {
+        if (isCurrentUserOwner) {
+          onEdgesChange(changes);
+        }
+      }}
+      onConnect={(connection) => {
+        if (isCurrentUserOwner) {
+          onConnect(connection);
+        }
+      }}
+      onConnectStart={(event, params) => {
+        onEdgeConnectStart(params);
+      }}
+      onConnectEnd={() => {
+        onEdgeConnectStop();
+      }}
+    >
+      <Background variant={BackgroundVariant.Dots} gap={20} size={1} />
+      <Controls />
+    </ReactFlow>
   );
 }
-
-const Container = styled.div`
-  grid-area: work-area / work-area / bottom-tool-bar / bottom-tool-bar;
-  display: flex;
-  position: relative;
-`;
 
 export default FlowCanvasView;
