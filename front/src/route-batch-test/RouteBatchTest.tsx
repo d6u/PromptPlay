@@ -6,6 +6,8 @@ import {
   NodeID,
   getNodeDefinitionForNodeTypeName,
 } from 'flow-models';
+import { SingleRunEventType, runForEachRow } from 'flow-run/run-each-row';
+import { OverallStatus } from 'flow-run/run-types';
 import { produce } from 'immer';
 import Papa from 'papaparse';
 import posthog from 'posthog-js';
@@ -18,8 +20,6 @@ import {
 } from 'state-flow/slice-csv-evaluation-preset';
 import { BatchTestTab, CSVData, CSVHeader } from 'state-flow/types';
 import invariant from 'tiny-invariant';
-import { SingleRunEventType, runForEachRow } from '../flow-run/run-each-row';
-import { OverallStatus } from '../flow-run/run-types';
 import { useLocalStorageStore } from '../state/appState';
 import { useNodeFieldFeedbackStore } from '../state/node-field-feedback-state';
 import EvaluationSectionImportCSV from './components/EvaluationSectionImportCSV';

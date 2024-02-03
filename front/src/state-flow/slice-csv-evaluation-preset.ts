@@ -1,11 +1,11 @@
 import { createLens, Getter, Setter } from '@dhmk/zustand-lens';
 import { ConnectorID, ConnectorResultMap } from 'flow-models';
+import { RunMetadata } from 'flow-run/run-types';
 import { graphql } from 'gencode-gql';
 import { LoadCsvEvaluationPresetQuery } from 'gencode-gql/graphql';
 import invariant from 'tiny-invariant';
 import { OperationResult } from 'urql';
 import { StateCreator } from 'zustand';
-import { RunMetadata } from '../flow-run/run-types';
 import { client } from '../state/urql';
 import { BatchTestTab, FlowState } from './types';
 

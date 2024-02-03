@@ -1,4 +1,5 @@
 import { ConnectorType } from 'flow-models';
+import { OverallStatus } from 'flow-run/run-types';
 import { ReactNode, useMemo } from 'react';
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 import {
@@ -8,7 +9,6 @@ import {
 import { CSVData } from 'state-flow/types';
 import { selectAllVariables } from 'state-flow/util/state-utils';
 import OutputDisplay from 'view-flow-canvas/side-panel/common/OutputDisplay';
-import { OverallStatus } from '../../../flow-run/run-types';
 
 type Props = {
   csvBody: CSVData;

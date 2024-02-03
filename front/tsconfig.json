@@ -29,6 +29,7 @@
       "global-config/*": ["./src/global-config/*"],
       "generic-util/*": ["./src/generic-util/*"],
       "generic-components/*": ["./src/generic-components/*"],
+      "flow-run/*": ["./src/flow-run/*"],
       // state
       "state-flow/*": ["./src/state-flow/*"],
       // routes
