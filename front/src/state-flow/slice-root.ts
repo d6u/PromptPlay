@@ -23,11 +23,11 @@ import { produce } from 'immer';
 import posthog from 'posthog-js';
 import { OnConnectStartParams } from 'reactflow';
 import { Subscription, from, map, tap } from 'rxjs';
+import { useLocalStorageStore } from 'state-root/appState';
+import { useNodeFieldFeedbackStore } from 'state-root/node-field-feedback-state';
 import invariant from 'tiny-invariant';
 import { OperationResult } from 'urql';
 import { StateCreator } from 'zustand';
-import { useLocalStorageStore } from '../state/appState';
-import { useNodeFieldFeedbackStore } from '../state/node-field-feedback-state';
 import { updateSpaceContentV3 } from './graphql/graphql';
 import {
   ConnectStartEdgeType,

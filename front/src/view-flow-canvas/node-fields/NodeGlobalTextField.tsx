@@ -5,9 +5,9 @@ import {
   TextFieldDefinition,
 } from 'flow-models';
 import { useCallback, useEffect, useState } from 'react';
+import { useLocalStorageStore } from 'state-root/appState';
+import { useNodeFieldFeedbackStore } from 'state-root/node-field-feedback-state';
 import invariant from 'tiny-invariant';
-import { useLocalStorageStore } from '../../state/appState';
-import { useNodeFieldFeedbackStore } from '../../state/node-field-feedback-state';
 import NodeBoxHelperTextContainer from '../node-box/NodeBoxHelperTextContainer';
 import NodeBoxSection from '../node-box/NodeBoxSection';
 

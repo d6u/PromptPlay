@@ -21,7 +21,7 @@ import {
   SpaceState,
   useLocalStorageStore,
   useSpaceStore,
-} from '../../state/appState';
+} from 'state-root/appState';
 import NodeBoxHelperTextContainer from '../node-box/NodeBoxHelperTextContainer';
 import NodeBoxIncomingVariableReadonly from '../node-box/NodeBoxIncomingVariableReadonly';
 import NodeBoxSection from '../node-box/NodeBoxSection';

@@ -33,6 +33,7 @@
       "flow-run/*": ["./src/flow-run/*"],
       // state
       "state-flow/*": ["./src/state-flow/*"],
+      "state-root/*": ["./src/state-root/*"],
       // routes
       "route-dashboard/*": ["./src/route-dashboard/*"],
       "route-flow/*": ["./src/route-flow/*"],
