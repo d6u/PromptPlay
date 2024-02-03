@@ -9,14 +9,14 @@ import NodeBoxSection from 'canvas-react-flow/node-box/NodeBoxSection';
 import { NodeID, V3HuggingFaceInferenceNodeConfig } from 'flow-models';
 import { useContext, useMemo, useState } from 'react';
 import { useNodeId } from 'reactflow';
+import RouteFlowContext from 'route-flow/common/RouteFlowContext';
+import { useFlowStore } from 'route-flow/store/FlowStoreContext';
 import {
   LocalStorageState,
   SpaceState,
   useLocalStorageStore,
   useSpaceStore,
 } from '../../../../state/appState';
-import RouteFlowContext from '../../../route-flow/common/RouteFlowContext';
-import { useFlowStore } from '../../../route-flow/store/FlowStoreContext';
 
 const persistSelector = (state: LocalStorageState) => ({
   huggingFaceApiToken: state.huggingFaceApiToken,

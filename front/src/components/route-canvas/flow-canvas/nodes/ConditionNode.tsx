@@ -14,15 +14,15 @@ import NodeBoxSmallSection from 'canvas-react-flow/node-box/NodeBoxSmallSection'
 import { ConditionResult, ConnectorType, NodeID, NodeType } from 'flow-models';
 import { useContext, useMemo } from 'react';
 import { useNodeId, useUpdateNodeInternals } from 'reactflow';
-import invariant from 'tiny-invariant';
-import { useStore } from 'zustand';
-import RouteFlowContext from '../../../route-flow/common/RouteFlowContext';
-import { useStoreFromFlowStoreContext } from '../../../route-flow/store/FlowStoreContext';
+import RouteFlowContext from 'route-flow/common/RouteFlowContext';
+import { useStoreFromFlowStoreContext } from 'route-flow/store/FlowStoreContext';
 import {
   selectConditionTarget,
   selectConditions,
   selectVariables,
-} from '../../../route-flow/store/state-utils';
+} from 'route-flow/store/state-utils';
+import invariant from 'tiny-invariant';
+import { useStore } from 'zustand';
 
 export default function ConditionNode() {
   const nodeId = useNodeId() as NodeID;

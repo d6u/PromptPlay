@@ -1,6 +1,6 @@
 import 'reactflow/dist/style.css';
+import { useStoreFromFlowStoreContext } from 'route-flow/store/FlowStoreContext';
 import { useStore } from 'zustand';
-import { useStoreFromFlowStoreContext } from '../route-flow/store/FlowStoreContext';
 import FlowCanvas from './flow-canvas/FlowCanvas';
 
 export default function RouteCanvas() {

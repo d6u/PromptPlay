@@ -3,11 +3,11 @@ import { ConnectorID, ConnectorResultMap } from 'flow-models';
 import invariant from 'tiny-invariant';
 import { OperationResult } from 'urql';
 import { StateCreator } from 'zustand';
-import { RunMetadata } from '../../../flow-run/run-types';
-import { graphql } from '../../../gql';
-import { LoadCsvEvaluationPresetQuery } from '../../../gql/graphql';
-import { client } from '../../../state/urql';
-import { BatchTestTab } from '../../route-batch-test/utils/types';
+import { BatchTestTab } from '../../components/route-batch-test/utils/types';
+import { RunMetadata } from '../../flow-run/run-types';
+import { graphql } from '../../gql';
+import { LoadCsvEvaluationPresetQuery } from '../../gql/graphql';
+import { client } from '../../state/urql';
 import { FlowState } from './store-flow-state-types';
 
 export type CsvEvaluationPresetSlice = {

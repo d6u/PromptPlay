@@ -1,6 +1,6 @@
 import { V3FlowContent } from 'flow-models';
-import { graphql } from '../../../gql';
-import { client } from '../../../state/urql';
+import { graphql } from '../../gql';
+import { client } from '../../state/urql';
 
 export async function updateSpaceContentV3(
   spaceId: string,

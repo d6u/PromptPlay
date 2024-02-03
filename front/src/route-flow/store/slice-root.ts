@@ -22,12 +22,12 @@ import { Subscription, from, map, tap } from 'rxjs';
 import invariant from 'tiny-invariant';
 import { OperationResult } from 'urql';
 import { StateCreator } from 'zustand';
-import { runSingle } from '../../../flow-run/run-single';
-import { graphql } from '../../../gql';
-import { ContentVersion, SpaceFlowQueryQuery } from '../../../gql/graphql';
-import { useLocalStorageStore } from '../../../state/appState';
-import { useNodeFieldFeedbackStore } from '../../../state/node-field-feedback-state';
-import { client } from '../../../state/urql';
+import { runSingle } from '../../flow-run/run-single';
+import { graphql } from '../../gql';
+import { ContentVersion, SpaceFlowQueryQuery } from '../../gql/graphql';
+import { useLocalStorageStore } from '../../state/appState';
+import { useNodeFieldFeedbackStore } from '../../state/node-field-feedback-state';
+import { client } from '../../state/urql';
 import { updateSpaceContentV3 } from '../utils/graphql';
 import {
   assignLocalEdgeProperties,

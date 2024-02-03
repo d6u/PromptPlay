@@ -28,7 +28,7 @@ import { useCallback, useContext, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStoreApi } from 'reactflow';
 import { useStore } from 'zustand';
-import { BatchTestTab } from '../../route-batch-test/utils/types';
+import { BatchTestTab } from '../../components/route-batch-test/utils/types';
 import RouteFlowContext from '../common/RouteFlowContext';
 import { useStoreFromFlowStoreContext } from '../store/FlowStoreContext';
 import { DetailPanelContentType } from '../store/store-flow-state-types';

@@ -5,8 +5,8 @@ import {
   VariableValueType,
 } from 'flow-models';
 import { ReactNode } from 'react';
+import { useStoreFromFlowStoreContext } from 'route-flow/store/FlowStoreContext';
 import { useStore } from 'zustand';
-import { useStoreFromFlowStoreContext } from '../../../../route-flow/store/FlowStoreContext';
 import OutputDisplay from './OutputDisplay';
 
 type Props = {

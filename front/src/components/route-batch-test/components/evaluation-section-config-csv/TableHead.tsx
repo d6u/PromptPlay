@@ -2,8 +2,8 @@ import { F } from '@mobily/ts-belt';
 import { Option, Select } from '@mui/joy';
 import { ConnectorType } from 'flow-models';
 import { ReactNode, useMemo } from 'react';
-import { useFlowStore } from '../../../route-flow/store/FlowStoreContext';
-import { selectAllVariables } from '../../../route-flow/store/state-utils';
+import { useFlowStore } from 'route-flow/store/FlowStoreContext';
+import { selectAllVariables } from 'route-flow/store/state-utils';
 import { CSVRow } from '../../utils/types';
 
 type Props = {

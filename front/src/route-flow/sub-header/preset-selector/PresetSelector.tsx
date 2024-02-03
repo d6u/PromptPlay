@@ -3,7 +3,7 @@ import { A } from '@mobily/ts-belt';
 import { Autocomplete, AutocompleteOption, Button } from '@mui/joy';
 import { ReactNode, useMemo, useState } from 'react';
 import { useQuery } from 'urql';
-import { graphql } from '../../../../gql';
+import { graphql } from '../../../gql';
 import { useFlowStore } from '../../store/FlowStoreContext';
 import PresetSaveModal from './PresetSaveModal';
 

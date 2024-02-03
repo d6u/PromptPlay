@@ -2,10 +2,10 @@ import styled from '@emotion/styled';
 import { Button } from '@mui/joy';
 import { ConnectorType, VariableValueType } from 'flow-models';
 import { useContext, useMemo } from 'react';
+import RouteFlowContext from 'route-flow/common/RouteFlowContext';
+import { useStoreFromFlowStoreContext } from 'route-flow/store/FlowStoreContext';
+import { selectAllVariables } from 'route-flow/store/state-utils';
 import { useStore } from 'zustand';
-import RouteFlowContext from '../../../../route-flow/common/RouteFlowContext';
-import { useStoreFromFlowStoreContext } from '../../../../route-flow/store/FlowStoreContext';
-import { selectAllVariables } from '../../../../route-flow/store/state-utils';
 import InputBlock from '../common/InputBlock';
 import OutputRenderer from '../common/OutputRenderer';
 import {

@@ -27,6 +27,7 @@
       "global-config/*": ["./src/global-config/*"],
       "generic-util/*": ["./src/generic-util/*"],
       "route-dashboard/*": ["./src/route-dashboard/*"],
+      "route-flow/*": ["./src/route-flow/*"],
       "canvas-react-flow/*": ["./src/canvas-react-flow/*"]
     }
   },

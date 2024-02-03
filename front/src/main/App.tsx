@@ -7,11 +7,11 @@ import {
   redirect,
 } from 'react-router-dom';
 import RouteDashboard from 'route-dashboard/RouteDashboard';
+import RouteFlow from 'route-flow/RouteFlow';
+import flowLoader from 'route-flow/route-loader-flow';
 import { Provider as GraphQLProvider } from 'urql';
 import RouteBatchTest from '../components/route-batch-test/RouteBatchTest';
 import RouteCanvas from '../components/route-canvas/RouteCanvas';
-import RouteFlow from '../components/route-flow/RouteFlow';
-import flowLoader from '../components/route-flow/route-loader-flow';
 import { client } from '../state/urql';
 import RouteRoot from './RootView';
 import rootRouteLoader from './rootRouteLoader';

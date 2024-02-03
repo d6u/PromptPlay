@@ -12,9 +12,9 @@ import TextareaReadonly from 'canvas-react-flow/node-box/NodeBoxTextareaReadonly
 import { NodeID, V3TextTemplateNodeConfig } from 'flow-models';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { useNodeId } from 'reactflow';
-import RouteFlowContext from '../../../route-flow/common/RouteFlowContext';
-import { useFlowStore } from '../../../route-flow/store/FlowStoreContext';
-import { DetailPanelContentType } from '../../../route-flow/store/store-flow-state-types';
+import RouteFlowContext from 'route-flow/common/RouteFlowContext';
+import { useFlowStore } from 'route-flow/store/FlowStoreContext';
+import { DetailPanelContentType } from 'route-flow/store/store-flow-state-types';
 
 export default function TextTemplateNode() {
   const { isCurrentUserOwner } = useContext(RouteFlowContext);

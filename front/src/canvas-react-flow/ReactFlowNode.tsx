@@ -9,13 +9,13 @@ import {
 import { FieldType } from 'flow-models/src/node-definition-base-types';
 import { ReactNode, useEffect, useMemo, useState } from 'react';
 import { useNodeId, useUpdateNodeInternals } from 'reactflow';
-import invariant from 'tiny-invariant';
-import { useFlowStore } from '../components/route-flow/store/FlowStoreContext';
+import { useFlowStore } from 'route-flow/store/FlowStoreContext';
 import {
   selectConditionTarget,
   selectVariables,
-} from '../components/route-flow/store/state-utils';
-import { DetailPanelContentType } from '../components/route-flow/store/store-flow-state-types';
+} from 'route-flow/store/state-utils';
+import { DetailPanelContentType } from 'route-flow/store/store-flow-state-types';
+import invariant from 'tiny-invariant';
 import IncomingConditionHandle from './handles/IncomingConditionHandle';
 import IncomingVariableHandle from './handles/IncomingVariableHandle';
 import OutgoingVariableHandle from './handles/OutgoingVariableHandle';

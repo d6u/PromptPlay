@@ -12,11 +12,11 @@ import TextareaReadonly from 'canvas-react-flow/node-box/NodeBoxTextareaReadonly
 import { ConnectorType, NodeType } from 'flow-models';
 import { ChatGPTMessageRole } from 'integrations/openai';
 import { useContext, useEffect, useMemo, useState } from 'react';
+import RouteFlowContext from 'route-flow/common/RouteFlowContext';
+import { useStoreFromFlowStoreContext } from 'route-flow/store/FlowStoreContext';
+import { selectVariables } from 'route-flow/store/state-utils';
 import invariant from 'tiny-invariant';
 import { useStore } from 'zustand';
-import RouteFlowContext from '../../../../route-flow/common/RouteFlowContext';
-import { useStoreFromFlowStoreContext } from '../../../../route-flow/store/FlowStoreContext';
-import { selectVariables } from '../../../../route-flow/store/state-utils';
 import OutputRenderer from '../common/OutputRenderer';
 import {
   HeaderSection,

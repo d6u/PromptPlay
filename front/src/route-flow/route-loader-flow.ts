@@ -1,8 +1,8 @@
 import { pathToCurrentContent } from 'generic-util/route-utils';
 import { LoaderFunction, redirect } from 'react-router-dom';
-import { graphql } from '../../gql';
-import { ContentVersion } from '../../gql/graphql';
-import { client } from '../../state/urql';
+import { graphql } from '../gql';
+import { ContentVersion } from '../gql/graphql';
+import { client } from '../state/urql';
 
 export type FlowLoaderData = {
   isCurrentUserOwner: boolean;
@@ -34,7 +34,7 @@ const routeLoaderFlow: LoaderFunction = async ({ params }) => {
     return null;
   }
 
-  const contentVersion = queryResult.data.space!.space!.contentVersion;
+  const contentVersion = queryResult.data.space!.space.contentVersion;
 
   if (
     contentVersion !== ContentVersion.V2 &&
