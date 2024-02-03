@@ -1,7 +1,7 @@
 import { Table, Textarea } from '@mui/joy';
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
+import { CSVData, CSVRow } from 'state-flow/types';
 import { Section } from 'view-flow-canvas/side-panel/common/controls-common';
-import { CSVData, CSVRow } from '../utils/types';
 
 type Props = {
   csvHeaders: CSVRow;

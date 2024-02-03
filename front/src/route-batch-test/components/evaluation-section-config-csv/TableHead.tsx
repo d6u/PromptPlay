@@ -3,8 +3,8 @@ import { Option, Select } from '@mui/joy';
 import { ConnectorType } from 'flow-models';
 import { ReactNode, useMemo } from 'react';
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
+import { CSVRow } from 'state-flow/types';
 import { selectAllVariables } from 'state-flow/util/state-utils';
-import { CSVRow } from '../../utils/types';
 
 type Props = {
   csvHeaders: CSVRow;

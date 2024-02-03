@@ -2,13 +2,12 @@ import { createLens, Getter, Setter } from '@dhmk/zustand-lens';
 import { ConnectorID, ConnectorResultMap } from 'flow-models';
 import { graphql } from 'gencode-gql';
 import { LoadCsvEvaluationPresetQuery } from 'gencode-gql/graphql';
-import { BatchTestTab } from 'route-batch-test/utils/types';
 import invariant from 'tiny-invariant';
 import { OperationResult } from 'urql';
 import { StateCreator } from 'zustand';
 import { RunMetadata } from '../flow-run/run-types';
 import { client } from '../state/urql';
-import { FlowState } from './types';
+import { BatchTestTab, FlowState } from './types';
 
 export type CsvEvaluationPresetSlice = {
   selectedBatchTestTab: BatchTestTab;
