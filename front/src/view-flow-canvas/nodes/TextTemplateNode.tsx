@@ -6,7 +6,7 @@ import Textarea from '@mui/joy/Textarea';
 import { NodeID, V3TextTemplateNodeConfig } from 'flow-models';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { useNodeId } from 'reactflow';
-import RouteFlowContext from 'route-flow/common/RouteFlowContext';
+import RouteFlowContext from 'state-flow/context/FlowRouteContext';
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 import { DetailPanelContentType } from 'state-flow/store-flow-state-types';
 import ReactFlowNode from '../ReactFlowNode';

@@ -8,7 +8,7 @@ import ReactFlow, {
   PanOnScrollMode,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
-import RouteFlowContext from 'route-flow/common/RouteFlowContext';
+import RouteFlowContext from 'state-flow/context/FlowRouteContext';
 import { useStoreFromFlowStoreContext } from 'state-flow/context/FlowStoreContext';
 import { useStore } from 'zustand';
 import ConditionNode from './nodes/ConditionNode';

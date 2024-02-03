@@ -8,7 +8,7 @@ import {
 } from 'flow-models';
 import { useContext, useMemo } from 'react';
 import { useNodeId, useUpdateNodeInternals } from 'reactflow';
-import RouteFlowContext from 'route-flow/common/RouteFlowContext';
+import RouteFlowContext from 'state-flow/context/FlowRouteContext';
 import { useStoreFromFlowStoreContext } from 'state-flow/context/FlowStoreContext';
 import { selectVariables } from 'state-flow/state-utils';
 import { DetailPanelContentType } from 'state-flow/store-flow-state-types';

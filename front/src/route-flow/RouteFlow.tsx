@@ -4,8 +4,8 @@ import invariant from 'tiny-invariant';
 
 import { ResizeObserverProvider } from 'generic-util/ResizeObserver';
 import SubHeaderView from 'view-sub-header/SubHeaderView';
-import FlowStoreContextManager from './common/FlowStoreContextManager';
-import RouteFlowContext from './common/RouteFlowContext';
+import RouteFlowContext from '../state-flow/context/FlowRouteContext';
+import FlowStoreContextManager from '../state-flow/context/FlowStoreContextManager';
 import { FlowLoaderData } from './flowRouteLoader';
 
 import 'reactflow/dist/style.css';

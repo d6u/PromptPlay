@@ -2,7 +2,7 @@ import { Checkbox, FormControl, FormHelperText, FormLabel } from '@mui/joy';
 import { ConditionResult, ConnectorType, NodeID, NodeType } from 'flow-models';
 import { useContext, useMemo } from 'react';
 import { useNodeId, useUpdateNodeInternals } from 'reactflow';
-import RouteFlowContext from 'route-flow/common/RouteFlowContext';
+import RouteFlowContext from 'state-flow/context/FlowRouteContext';
 import { useStoreFromFlowStoreContext } from 'state-flow/context/FlowStoreContext';
 import {
   selectConditionTarget,

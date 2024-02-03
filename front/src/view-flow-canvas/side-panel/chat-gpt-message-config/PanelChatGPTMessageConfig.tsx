@@ -9,7 +9,7 @@ import {
 import { ConnectorType, NodeType } from 'flow-models';
 import { ChatGPTMessageRole } from 'integrations/openai';
 import { useContext, useEffect, useMemo, useState } from 'react';
-import RouteFlowContext from 'route-flow/common/RouteFlowContext';
+import RouteFlowContext from 'state-flow/context/FlowRouteContext';
 import { useStoreFromFlowStoreContext } from 'state-flow/context/FlowStoreContext';
 import { selectVariables } from 'state-flow/state-utils';
 import invariant from 'tiny-invariant';
