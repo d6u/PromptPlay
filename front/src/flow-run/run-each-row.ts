@@ -1,11 +1,5 @@
 import { D } from '@mobily/ts-belt';
 import {
-  NodeExecutionEvent,
-  NodeExecutionEventType,
-  V3FlowContent,
-  VariableValueMap,
-} from 'flow-models';
-import {
   EMPTY,
   Observable,
   endWith,
@@ -16,8 +10,16 @@ import {
   range,
   startWith,
 } from 'rxjs';
-import { CSVData } from '../components/route-batch-test/utils/types';
-import { VariableIdToCsvColumnIndexMap } from '../components/route-flow/store/slice-csv-evaluation-preset';
+
+import {
+  NodeExecutionEvent,
+  NodeExecutionEventType,
+  V3FlowContent,
+  VariableValueMap,
+} from 'flow-models';
+
+import { VariableIdToCsvColumnIndexMap } from 'state-flow/slice-csv-evaluation-preset';
+import { CSVData } from 'state-flow/types';
 import { useLocalStorageStore } from '../state/appState';
 import { FlowConfig, runSingle } from './run-single';
 

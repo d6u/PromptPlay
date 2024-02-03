@@ -1,4 +1,18 @@
 import { A, D, pipe } from '@mobily/ts-belt';
+import { produce } from 'immer';
+import {
+  BehaviorSubject,
+  EMPTY,
+  Observable,
+  catchError,
+  concatAll,
+  defer,
+  from,
+  mergeMap,
+  of,
+  tap,
+} from 'rxjs';
+
 import {
   ConnectorID,
   ConnectorMap,
@@ -19,19 +33,6 @@ import {
   NodeType,
   getNodeDefinitionForNodeTypeName,
 } from 'flow-models';
-import { produce } from 'immer';
-import {
-  BehaviorSubject,
-  EMPTY,
-  Observable,
-  catchError,
-  concatAll,
-  defer,
-  from,
-  mergeMap,
-  of,
-  tap,
-} from 'rxjs';
 
 export type FlowConfig = {
   edgeList: GraphEdge[];

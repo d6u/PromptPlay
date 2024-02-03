@@ -93,6 +93,10 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<V3ChatGPTCh
         helperMessage: (
           <>This is stored in your browser's local storage. Never uploaded.</>
         ),
+        // TODO: Stricter type: value can be string or undefined.
+        validate: (value) => {
+          return value ? {} : { missing: 'OpenAI API Key is required' };
+        },
       },
       model: {
         type: FieldType.Select,

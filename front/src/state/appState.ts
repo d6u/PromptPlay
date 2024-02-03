@@ -1,7 +1,7 @@
 import { createLens } from '@dhmk/zustand-lens';
-import { create } from 'zustand';
+import { createSelectors } from 'generic-util/zustand-utils';
+import { create, StateCreator } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { createSelectors } from '../utils/zustand-utils';
 
 type OpenAIAPIKeyState = {
   openAiApiKey: string | null;
@@ -29,34 +29,34 @@ export type LocalStorageState = OpenAIAPIKeyState &
   ElevenLabsApiKeyState &
   GlobalFieldStorageState;
 
+const localStorageStateCreator: StateCreator<
+  LocalStorageState,
+  [['zustand/persist', unknown]],
+  [],
+  LocalStorageState
+> = (set, get) => {
+  const [setGlobalField, getGlobalField] = createLens(set, get, 'globalFields');
+
+  return {
+    openAiApiKey: null,
+    setOpenAiApiKey: (openAiApiKey) => set(() => ({ openAiApiKey })),
+    huggingFaceApiToken: null,
+    setHuggingFaceApiToken: (huggingFaceApiToken) =>
+      set(() => ({ huggingFaceApiToken })),
+    placeholderUserToken: null,
+    elevenLabsApiKey: null,
+    setElevenLabsApiKey: (elevenLabsApiKey: string | null) =>
+      set(() => ({ elevenLabsApiKey })),
+
+    globalFields: {},
+    getGlobalField: (key) => getGlobalField()[key],
+    setGlobalField: (key, value) => setGlobalField({ [key]: value }),
+  };
+};
+
 export const useLocalStorageStore = createSelectors(
   create<LocalStorageState>()(
-    persist(
-      (set, get) => {
-        const [setGlobalField, getGlobalField] = createLens(
-          set,
-          get,
-          'globalFields',
-        );
-
-        return {
-          openAiApiKey: null,
-          setOpenAiApiKey: (openAiApiKey) => set(() => ({ openAiApiKey })),
-          huggingFaceApiToken: null,
-          setHuggingFaceApiToken: (huggingFaceApiToken) =>
-            set(() => ({ huggingFaceApiToken })),
-          placeholderUserToken: null,
-          elevenLabsApiKey: null,
-          setElevenLabsApiKey: (elevenLabsApiKey: string | null) =>
-            set(() => ({ elevenLabsApiKey })),
-
-          globalFields: {},
-          getGlobalField: (key) => getGlobalField()[key],
-          setGlobalField: (key, value) => setGlobalField({ [key]: value }),
-        };
-      },
-      { name: 'localUserSettings' },
-    ),
+    persist(localStorageStateCreator, { name: 'localUserSettings' }),
   ),
 );
 
@@ -71,7 +71,9 @@ export type SpaceState = {
   setSpaceV2SelectedBlockId: (spaceV2SelectedBlockId: string | null) => void;
 };
 
-export const useSpaceStore = create<SpaceState>()((set) => ({
+const spaceStateCreator: StateCreator<SpaceState, [], [], SpaceState> = (
+  set,
+) => ({
   missingOpenAiApiKey: false,
   setMissingOpenAiApiKey: (missingOpenAiApiKey) =>
     set(() => ({ missingOpenAiApiKey })),
@@ -84,4 +86,8 @@ export const useSpaceStore = create<SpaceState>()((set) => ({
   spaceV2SelectedBlockId: null,
   setSpaceV2SelectedBlockId: (spaceV2SelectedBlockId) =>
     set(() => ({ spaceV2SelectedBlockId })),
-}));
+});
+
+export const useSpaceStore = createSelectors(
+  create<SpaceState>()(spaceStateCreator),
+);
