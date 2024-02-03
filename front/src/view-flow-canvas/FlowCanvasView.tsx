@@ -34,7 +34,7 @@ const NODE_TYPES = {
   [NodeType.ElevenLabs]: ElevenLabsNode,
 };
 
-export default function FlowCanvas() {
+function FlowCanvasView() {
   const { isCurrentUserOwner } = useContext(RouteFlowContext);
   const flowStore = useStoreFromFlowStoreContext();
 
@@ -96,3 +96,5 @@ const Container = styled.div`
   display: flex;
   position: relative;
 `;
+
+export default FlowCanvasView;

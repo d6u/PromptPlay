@@ -1,6 +1,6 @@
 import 'reactflow/dist/style.css';
 import { useStoreFromFlowStoreContext } from 'route-flow/store/FlowStoreContext';
-import FlowCanvas from 'view-flow-canvas/FlowCanvas';
+import FlowCanvasView from 'view-flow-canvas/FlowCanvasView';
 import { useStore } from 'zustand';
 
 export default function RouteCanvas() {
@@ -8,5 +8,5 @@ export default function RouteCanvas() {
 
   const isInitialized = useStore(flowStore, (s) => s.isInitialized);
 
-  return <>{isInitialized && <FlowCanvas />}</>;
+  return <>{isInitialized && <FlowCanvasView />}</>;
 }
