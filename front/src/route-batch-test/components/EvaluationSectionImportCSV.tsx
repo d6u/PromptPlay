@@ -1,5 +1,5 @@
 import { Table, Textarea } from '@mui/joy';
-import { useFlowStore } from 'route-flow/store/FlowStoreContext';
+import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 import { Section } from 'view-flow-canvas/side-panel/common/controls-common';
 import { CSVData, CSVRow } from '../utils/types';
 

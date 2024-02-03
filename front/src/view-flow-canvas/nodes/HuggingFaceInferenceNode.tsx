@@ -6,7 +6,7 @@ import { NodeID, V3HuggingFaceInferenceNodeConfig } from 'flow-models';
 import { useContext, useMemo, useState } from 'react';
 import { useNodeId } from 'reactflow';
 import RouteFlowContext from 'route-flow/common/RouteFlowContext';
-import { useFlowStore } from 'route-flow/store/FlowStoreContext';
+import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 import {
   LocalStorageState,
   SpaceState,

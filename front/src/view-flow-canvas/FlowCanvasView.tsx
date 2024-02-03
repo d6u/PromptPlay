@@ -9,7 +9,7 @@ import ReactFlow, {
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import RouteFlowContext from 'route-flow/common/RouteFlowContext';
-import { useStoreFromFlowStoreContext } from 'route-flow/store/FlowStoreContext';
+import { useStoreFromFlowStoreContext } from 'state-flow/context/FlowStoreContext';
 import { useStore } from 'zustand';
 import ConditionNode from './nodes/ConditionNode';
 import ElevenLabsNode from './nodes/ElevenLabsNode';

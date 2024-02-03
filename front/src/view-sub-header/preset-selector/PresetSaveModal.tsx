@@ -10,7 +10,7 @@ import {
   Typography,
 } from '@mui/joy';
 import { useEffect, useState } from 'react';
-import { useFlowStore } from 'route-flow/store/FlowStoreContext';
+import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 
 type Props = {
   isModalOpen: boolean;

@@ -24,11 +24,11 @@ import { Subscription, from, map, tap } from 'rxjs';
 import invariant from 'tiny-invariant';
 import { OperationResult } from 'urql';
 import { StateCreator } from 'zustand';
-import { runSingle } from '../../flow-run/run-single';
-import { useLocalStorageStore } from '../../state/appState';
-import { useNodeFieldFeedbackStore } from '../../state/node-field-feedback-state';
-import { client } from '../../state/urql';
-import { updateSpaceContentV3 } from '../utils/graphql';
+import { runSingle } from '../flow-run/run-single';
+import { updateSpaceContentV3 } from '../route-flow/utils/graphql';
+import { useLocalStorageStore } from '../state/appState';
+import { useNodeFieldFeedbackStore } from '../state/node-field-feedback-state';
+import { client } from '../state/urql';
 import {
   assignLocalEdgeProperties,
   assignLocalNodeProperties,

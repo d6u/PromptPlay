@@ -1,8 +1,8 @@
 import styled from '@emotion/styled';
 import { NodeID } from 'flow-models';
 import { useNodeId } from 'reactflow';
-import { useStoreFromFlowStoreContext } from 'route-flow/store/FlowStoreContext';
-import { DetailPanelContentType } from 'route-flow/store/store-flow-state-types';
+import { useStoreFromFlowStoreContext } from 'state-flow/context/FlowStoreContext';
+import { DetailPanelContentType } from 'state-flow/store-flow-state-types';
 import { useStore } from 'zustand';
 import { ROW_MARGIN_TOP } from './NodeBoxIncomingVariableBlock';
 

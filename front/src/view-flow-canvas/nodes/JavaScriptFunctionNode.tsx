@@ -9,8 +9,8 @@ import {
 import { useContext, useMemo, useState } from 'react';
 import { useNodeId } from 'reactflow';
 import RouteFlowContext from 'route-flow/common/RouteFlowContext';
-import { useFlowStore } from 'route-flow/store/FlowStoreContext';
-import { selectVariables } from 'route-flow/store/state-utils';
+import { useFlowStore } from 'state-flow/context/FlowStoreContext';
+import { selectVariables } from 'state-flow/state-utils';
 import ReactFlowNode from '../ReactFlowNode';
 import NodeBoxCopyIcon from '../node-box/NodeBoxCopyIcon';
 import NodeBoxLabelWithIconContainer from '../node-box/NodeBoxLabelWithIconContainer';

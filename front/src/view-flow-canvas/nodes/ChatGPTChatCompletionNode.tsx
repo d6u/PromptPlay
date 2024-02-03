@@ -15,7 +15,7 @@ import { NEW_LINE_SYMBOL } from 'integrations/openai';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { useNodeId } from 'reactflow';
 import RouteFlowContext from 'route-flow/common/RouteFlowContext';
-import { useFlowStore } from 'route-flow/store/FlowStoreContext';
+import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 import {
   LocalStorageState,
   SpaceState,

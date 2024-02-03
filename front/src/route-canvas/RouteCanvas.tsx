@@ -1,5 +1,5 @@
 import 'reactflow/dist/style.css';
-import { useStoreFromFlowStoreContext } from 'route-flow/store/FlowStoreContext';
+import { useStoreFromFlowStoreContext } from 'state-flow/context/FlowStoreContext';
 import FlowCanvasView from 'view-flow-canvas/FlowCanvasView';
 import { useStore } from 'zustand';
 

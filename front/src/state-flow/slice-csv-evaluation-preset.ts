@@ -6,8 +6,8 @@ import { BatchTestTab } from 'route-batch-test/utils/types';
 import invariant from 'tiny-invariant';
 import { OperationResult } from 'urql';
 import { StateCreator } from 'zustand';
-import { RunMetadata } from '../../flow-run/run-types';
-import { client } from '../../state/urql';
+import { RunMetadata } from '../flow-run/run-types';
+import { client } from '../state/urql';
 import { FlowState } from './store-flow-state-types';
 
 export type CsvEvaluationPresetSlice = {

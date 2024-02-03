@@ -9,9 +9,9 @@ import {
 import { useContext, useMemo } from 'react';
 import { useNodeId, useUpdateNodeInternals } from 'reactflow';
 import RouteFlowContext from 'route-flow/common/RouteFlowContext';
-import { useStoreFromFlowStoreContext } from 'route-flow/store/FlowStoreContext';
-import { selectVariables } from 'route-flow/store/state-utils';
-import { DetailPanelContentType } from 'route-flow/store/store-flow-state-types';
+import { useStoreFromFlowStoreContext } from 'state-flow/context/FlowStoreContext';
+import { selectVariables } from 'state-flow/state-utils';
+import { DetailPanelContentType } from 'state-flow/store-flow-state-types';
 import { useStore } from 'zustand';
 import IncomingVariableHandle from '../handles/IncomingVariableHandle';
 import NodeBox from '../node-box/NodeBox';

@@ -4,12 +4,12 @@ import { ConnectorType } from 'flow-models';
 import Papa from 'papaparse';
 import posthog from 'posthog-js';
 import { useMemo } from 'react';
-import { useFlowStore } from 'route-flow/store/FlowStoreContext';
+import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 import {
   IterationIndex,
   RowIndex,
-} from 'route-flow/store/slice-csv-evaluation-preset';
-import { selectAllVariables } from 'route-flow/store/state-utils';
+} from 'state-flow/slice-csv-evaluation-preset';
+import { selectAllVariables } from 'state-flow/state-utils';
 import { Section } from 'view-flow-canvas/side-panel/common/controls-common';
 import { CSVData, CSVRow } from '../../utils/types';
 import TableBody from './TableBody';

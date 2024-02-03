@@ -3,12 +3,12 @@ import { ConditionResult, ConnectorType, NodeID, NodeType } from 'flow-models';
 import { useContext, useMemo } from 'react';
 import { useNodeId, useUpdateNodeInternals } from 'reactflow';
 import RouteFlowContext from 'route-flow/common/RouteFlowContext';
-import { useStoreFromFlowStoreContext } from 'route-flow/store/FlowStoreContext';
+import { useStoreFromFlowStoreContext } from 'state-flow/context/FlowStoreContext';
 import {
   selectConditionTarget,
   selectConditions,
   selectVariables,
-} from 'route-flow/store/state-utils';
+} from 'state-flow/state-utils';
 import invariant from 'tiny-invariant';
 import { useStore } from 'zustand';
 import IncomingConditionHandle from '../handles/IncomingConditionHandle';
