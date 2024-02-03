@@ -1,4 +1,5 @@
 import { FlowRouteTab, pathToFlowCanvasTab } from 'generic-util/route-utils';
+import { client } from 'graphql-util/client';
 import { useMemo } from 'react';
 import {
   Navigate,
@@ -12,7 +13,6 @@ import RouteDashboard from 'route-dashboard/RouteDashboard';
 import RouteFlow from 'route-flow/RouteFlow';
 import flowRouteLoader from 'route-flow/flowRouteLoader';
 import { Provider as GraphQLProvider } from 'urql';
-import { client } from '../state/urql';
 import RouteRoot from './RootView';
 import rootRouteLoader from './rootRouteLoader';
 

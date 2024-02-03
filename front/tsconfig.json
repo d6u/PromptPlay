@@ -28,6 +28,7 @@
       "icons/*": ["./src/icons/*"],
       "global-config/*": ["./src/global-config/*"],
       "generic-util/*": ["./src/generic-util/*"],
+      "graphql-util/*": ["./src/graphql-util/*"],
       "generic-components/*": ["./src/generic-components/*"],
       "flow-run/*": ["./src/flow-run/*"],
       // state

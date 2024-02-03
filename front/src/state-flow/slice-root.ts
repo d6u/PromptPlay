@@ -18,6 +18,7 @@ import {
 import { runSingle } from 'flow-run/run-single';
 import { graphql } from 'gencode-gql';
 import { ContentVersion, SpaceFlowQueryQuery } from 'gencode-gql/graphql';
+import { client } from 'graphql-util/client';
 import { produce } from 'immer';
 import posthog from 'posthog-js';
 import { OnConnectStartParams } from 'reactflow';
@@ -27,7 +28,6 @@ import { OperationResult } from 'urql';
 import { StateCreator } from 'zustand';
 import { useLocalStorageStore } from '../state/appState';
 import { useNodeFieldFeedbackStore } from '../state/node-field-feedback-state';
-import { client } from '../state/urql';
 import { updateSpaceContentV3 } from './graphql/graphql';
 import {
   ConnectStartEdgeType,
