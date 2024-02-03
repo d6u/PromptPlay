@@ -49,6 +49,7 @@
     "@parcel/watcher": "^2.3.0",
     "@types/deep-equal": "^1.0.4",
     "@types/lodash": "^4.14.197",
+    "@types/node": "^20.11.16",
     "@types/papaparse": "^5.3.8",
     "@types/ramda": "^0.29.3",
     "@types/react": "^18.2.15",

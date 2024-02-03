@@ -22,8 +22,8 @@
     // "noUncheckedIndexedAccess": true
     // "noPropertyAccessFromIndexSignature": true
     "paths": {
-      "gencode-gql": ["./src/gql"],
-      "gencode-gql/*": ["./src/gql/*"],
+      "gencode-gql": ["./src/gencode-gql"],
+      "gencode-gql/graphql": ["./src/gencode-gql/graphql"],
       "assets/*": ["./src/assets/*"],
       "icons/*": ["./src/icons/*"],
       "global-config/*": ["./src/global-config/*"],
@@ -44,5 +44,9 @@
     }
   },
   "include": ["src"],
-  "references": [{ "path": "./tsconfig.node.json" }]
+  "references": [
+    {
+      "path": "./tsconfig.node.json"
+    }
+  ]
 }
