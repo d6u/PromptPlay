@@ -18,16 +18,16 @@ import {
   getAllNodeTypes,
   getNodeDefinitionForNodeTypeName,
 } from 'flow-models';
+import {
+  FlowRouteTab,
+  pathToFlowBatchTestTab,
+  pathToFlowCanvasTab,
+} from 'generic-util/route-utils';
 import IconThreeDots from 'icons/IconThreeDots';
 import { useCallback, useContext, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStoreApi } from 'reactflow';
 import { useStore } from 'zustand';
-import {
-  FlowRouteTab,
-  pathToFlowBatchTestTab,
-  pathToFlowCanvasTab,
-} from '../../../utils/route-utils';
 import { BatchTestTab } from '../../route-batch-test/utils/types';
 import RouteFlowContext from '../common/RouteFlowContext';
 import { useStoreFromFlowStoreContext } from '../store/FlowStoreContext';

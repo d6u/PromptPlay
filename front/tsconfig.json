@@ -25,6 +25,7 @@
       "assets/*": ["./src/assets/*"],
       "icons/*": ["./src/icons/*"],
       "global-config/*": ["./src/global-config/*"],
+      "generic-util/*": ["./src/generic-util/*"],
       "route-dashboard/*": ["./src/route-dashboard/*"],
       "canvas-react-flow/*": ["./src/canvas-react-flow/*"]
     }

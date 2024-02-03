@@ -1,3 +1,4 @@
+import { FlowRouteTab, pathToFlowCanvasTab } from 'generic-util/route-utils';
 import { useMemo } from 'react';
 import {
   Navigate,
@@ -12,7 +13,6 @@ import RouteCanvas from '../components/route-canvas/RouteCanvas';
 import RouteFlow from '../components/route-flow/RouteFlow';
 import flowLoader from '../components/route-flow/route-loader-flow';
 import { client } from '../state/urql';
-import { FlowRouteTab, pathToFlowCanvasTab } from '../utils/route-utils';
 import RouteRoot from './RootView';
 import rootRouteLoader from './rootRouteLoader';
 

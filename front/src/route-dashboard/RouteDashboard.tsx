@@ -1,11 +1,11 @@
 import { css } from '@emotion/react';
 import styled from '@emotion/styled';
+import { LOGIN_PATH, pathToFlow } from 'generic-util/route-utils';
 import { IS_LOGIN_ENABLED } from 'global-config/global-config';
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQuery } from 'urql';
 import { graphql } from '../gql';
-import { LOGIN_PATH, pathToFlow } from '../utils/route-utils';
 import Dashboard from './dashboard/Dashboard';
 import { ROOT_ROUTE_QUERY } from './rootGraphql';
 

@@ -1,8 +1,8 @@
+import { pathToCurrentContent } from 'generic-util/route-utils';
 import { LoaderFunction, redirect } from 'react-router-dom';
 import { graphql } from '../../gql';
 import { ContentVersion } from '../../gql/graphql';
 import { client } from '../../state/urql';
-import { pathToCurrentContent } from '../../utils/route-utils';
 
 export type FlowLoaderData = {
   isCurrentUserOwner: boolean;

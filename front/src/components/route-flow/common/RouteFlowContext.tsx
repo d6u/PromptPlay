@@ -1,5 +1,5 @@
+import { FlowRouteTab } from 'generic-util/route-utils';
 import { createContext } from 'react';
-import { FlowRouteTab } from '../../../utils/route-utils';
 
 const RouteFlowContext = createContext<{
   isCurrentUserOwner: boolean;
