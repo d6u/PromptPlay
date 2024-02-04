@@ -4,6 +4,7 @@ import {
   INTEGRATION_NODE_TYPES_ORDERED_ARRAY,
   NODE_TYPE_TO_NODE_DEFINITION_MAP,
   NodeType,
+  NodeTypeToNodeCompleteConfigTypeMap,
   NodeTypeToNodeConfigTypeMap,
 } from './src/node-definitions';
 
@@ -20,7 +21,10 @@ export * from './src/v3-flow-content-types';
 
 export function getNodeDefinitionForNodeTypeName<T extends NodeType>(
   type: T,
-): NodeDefinition<NodeTypeToNodeConfigTypeMap[T]> {
+): NodeDefinition<
+  NodeTypeToNodeConfigTypeMap[T],
+  NodeTypeToNodeCompleteConfigTypeMap[T]
+> {
   return NODE_TYPE_TO_NODE_DEFINITION_MAP[type];
 }
 

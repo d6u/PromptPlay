@@ -6,7 +6,7 @@ import type {
   ConnectorResultMap,
   NodeID,
 } from '../base-types';
-import type { NodeConfig } from '../node-definitions/index';
+import type { NodeCompleteConfig, NodeConfig } from '../node-definitions/index';
 import NodeExecutionContext from './NodeExecutionContext';
 import {
   FieldDefinition,
@@ -18,7 +18,10 @@ type IncomingVariableConfig = {
   helperMessage?: ReactNode;
 };
 
-export interface NodeDefinition<T extends NodeConfig> {
+export interface NodeDefinition<
+  T extends NodeConfig,
+  T2 extends NodeCompleteConfig,
+> {
   nodeType: T['type'];
 
   isEnabledInToolbar?: boolean;
@@ -39,7 +42,7 @@ export interface NodeDefinition<T extends NodeConfig> {
 
   createNodeExecutionObservable: (
     context: NodeExecutionContext,
-    nodeExecutionConfig: NodeExecutionConfig<T>,
+    nodeExecutionConfig: NodeExecutionConfig<T2>,
     params: NodeExecutionParams,
   ) => Observable<NodeExecutionEvent>;
 }

@@ -3,46 +3,55 @@ import { NodeID } from '../base-types';
 import { NodeDefinition, NodeType } from '../node-definition-base-types';
 import {
   CONDITION_NODE_DEFINITION,
+  ConditionNodeCompleteConfig,
   ConditionNodeConfigSchema,
   V3ConditionNodeConfig,
 } from './builtin-nodes/condition-node';
 import {
   INPUT_NODE_DEFINITION,
+  InputNodeCompleteConfig,
   InputNodeConfigSchema,
   V3InputNodeConfig,
 } from './builtin-nodes/input-node';
 import {
   JAVASCRIPT_NODE_DEFINITION,
+  JavaScriptFunctionNodeCompleteConfig,
   JavaScriptFunctionNodeConfigSchema,
   V3JavaScriptFunctionNodeConfig,
 } from './builtin-nodes/javascript-function-node';
 import {
   OUTPUT_NODE_DEFINITION,
+  OutputNodeCompleteConfig,
   OutputNodeConfigSchema,
   V3OutputNodeConfig,
 } from './builtin-nodes/output-node';
 import {
   TEXT_TEMPLATE_NODE_DEFINITION,
+  TextTemplateNodeCompleteConfig,
   TextTemplateNodeConfigSchema,
   V3TextTemplateNodeConfig,
 } from './builtin-nodes/text-template-node';
 import {
   CHATGPT_CHAT_COMPLETION_NODE_DEFINITION,
+  ChatGPTChatCompletionNodeCompleteConfig,
   ChatgptChatCompletionNodeConfigSchema,
   V3ChatGPTChatCompletionNodeConfig,
 } from './chatgpt-chat-completion-node';
 import {
   CHATGPT_MESSAGE_NODE_DEFINITION,
+  ChatGPTMessageNodeCompleteConfig,
   ChatgptMessageNodeConfigSchema,
   V3ChatGPTMessageNodeConfig,
 } from './chatgpt-message-node';
 import {
   ELEVENLABS_NODE_DEFINITION,
+  ElevenLabsNodeCompleteConfig,
   ElevenLabsNodeConfigSchema,
   V3ElevenLabsNodeConfig,
 } from './elevenlabs-node';
 import {
   HUGGINGFACE_INFERENCE_NODE_DEFINITION,
+  HuggingFaceInferenceNodeCompleteConfig,
   HuggingFaceInferenceNodeConfigSchema,
   V3HuggingFaceInferenceNodeConfig,
 } from './huggingface-inference-node';
@@ -58,8 +67,9 @@ export * from './chatgpt-message-node';
 export * from './elevenlabs-node';
 export * from './huggingface-inference-node';
 
-// NOTE: Update this when adding new node types
+// ANCHOR: Update this when adding new node types
 export type NodeConfig =
+  // Builtin node types
   | V3InputNodeConfig
   | V3OutputNodeConfig
   | V3ConditionNodeConfig
@@ -77,7 +87,25 @@ export type NodeTypeToNodeConfigTypeMap = {
 
 export type NodeConfigMap = Record<NodeID, NodeConfig>;
 
-// NOTE: Update this when adding new node types
+// ANCHOR: Update this when adding new node types
+export type NodeCompleteConfig =
+  // Builtin node types
+  | InputNodeCompleteConfig
+  | OutputNodeCompleteConfig
+  | ConditionNodeCompleteConfig
+  | JavaScriptFunctionNodeCompleteConfig
+  | TextTemplateNodeCompleteConfig
+  // Integration node types
+  | ChatGPTMessageNodeCompleteConfig
+  | ChatGPTChatCompletionNodeCompleteConfig
+  | HuggingFaceInferenceNodeCompleteConfig
+  | ElevenLabsNodeCompleteConfig;
+
+export type NodeTypeToNodeCompleteConfigTypeMap = {
+  [T in NodeCompleteConfig as T['type']]: T;
+};
+
+// ANCHOR: Update this when adding new node types
 export const NodeConfigMapSchema = Joi.object().pattern(
   Joi.string(),
   Joi.alternatives().try(
@@ -94,9 +122,12 @@ export const NodeConfigMapSchema = Joi.object().pattern(
   ),
 );
 
-// NOTE: Update this when adding new node types
+// ANCHOR: Update this when adding new node types
 export const NODE_TYPE_TO_NODE_DEFINITION_MAP: {
-  [key in NodeType]: NodeDefinition<NodeTypeToNodeConfigTypeMap[key]>;
+  [key in NodeType]: NodeDefinition<
+    NodeTypeToNodeConfigTypeMap[key],
+    NodeTypeToNodeCompleteConfigTypeMap[key]
+  >;
 } = {
   [NodeType.InputNode]: INPUT_NODE_DEFINITION,
   [NodeType.OutputNode]: OUTPUT_NODE_DEFINITION,
@@ -118,7 +149,7 @@ export const BULTIN_NODE_TYPES_ORDERED_ARRAY: ReadonlyArray<NodeType> = [
   NodeType.TextTemplate,
 ];
 
-// NOTE: Update this when adding new node types
+// ANCHOR: Update this when adding new node types
 export const INTEGRATION_NODE_TYPES_ORDERED_ARRAY: ReadonlyArray<NodeType> = [
   NodeType.ChatGPTMessageNode,
   NodeType.ChatGPTChatCompletionNode,
