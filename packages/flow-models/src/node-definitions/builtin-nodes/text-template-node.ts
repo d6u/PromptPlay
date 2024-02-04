@@ -37,8 +37,6 @@ export const TEXT_TEMPLATE_NODE_DEFINITION: NodeDefinition<
   TextTemplateNodeCompleteConfig
 > = {
   type: NodeType.TextTemplate,
-
-  isEnabledInToolbar: true,
   label: 'Text',
 
   createDefaultNodeConfig: (nodeId) => {

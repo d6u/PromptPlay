@@ -41,8 +41,6 @@ export const HUGGINGFACE_INFERENCE_NODE_DEFINITION: NodeDefinition<
   HuggingFaceInferenceNodeCompleteConfig
 > = {
   type: NodeType.HuggingFaceInference,
-
-  isEnabledInToolbar: true,
   label: 'Hugging Face Inference',
 
   createDefaultNodeConfig: (nodeId) => {

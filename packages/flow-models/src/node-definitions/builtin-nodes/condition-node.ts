@@ -39,8 +39,6 @@ export const CONDITION_NODE_DEFINITION: NodeDefinition<
   ConditionNodeCompleteConfig
 > = {
   type: NodeType.ConditionNode,
-
-  isEnabledInToolbar: true,
   label: 'Condition',
 
   createDefaultNodeConfig: (nodeId) => {

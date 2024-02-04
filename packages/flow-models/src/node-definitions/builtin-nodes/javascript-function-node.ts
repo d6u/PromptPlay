@@ -36,8 +36,6 @@ export const JAVASCRIPT_NODE_DEFINITION: NodeDefinition<
   JavaScriptFunctionNodeCompleteConfig
 > = {
   type: NodeType.JavaScriptFunctionNode,
-
-  isEnabledInToolbar: true,
   label: 'JavaScript',
 
   createDefaultNodeConfig: (nodeId) => {

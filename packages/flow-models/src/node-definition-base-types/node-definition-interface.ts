@@ -32,9 +32,8 @@ export interface NodeDefinition<
   T2 extends NodeCompleteConfig,
 > {
   type: T1['type'];
+  // Used for displaying in UI
   label: string;
-
-  isEnabledInToolbar?: boolean;
 
   // TODO: Abstract side panel rendering
   sidePanelType?: string;
