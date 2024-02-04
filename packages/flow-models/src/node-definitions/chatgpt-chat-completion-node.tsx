@@ -246,7 +246,10 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
       const { nodeConfig, connectorList } = nodeExecutionConfig;
       const { nodeInputValueMap, openAiApiKey, useStreaming } = params;
 
-      invariant(nodeConfig.type === NodeType.ChatGPTChatCompletionNode);
+      invariant(
+        nodeConfig.type === NodeType.ChatGPTChatCompletionNode,
+        "Node type is 'ChatGPTChatCompletionNode'",
+      );
 
       subscriber.next({
         type: NodeExecutionEventType.Start,

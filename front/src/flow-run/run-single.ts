@@ -21,6 +21,7 @@ import {
   FlowExecutionContext,
   FlowOutputVariable,
   GraphEdge,
+  NodeCompleteConfig,
   NodeConfig,
   NodeConfigMap,
   NodeExecutionConfig,
@@ -33,6 +34,8 @@ import {
   NodeType,
   getNodeDefinitionForNodeTypeName,
 } from 'flow-models';
+
+import { useLocalStorageStore } from 'state-root/local-storage-state';
 
 export type FlowConfig = {
   edgeList: GraphEdge[];
@@ -51,8 +54,8 @@ export type RunParams = {
 export const runSingle = (
   flowConfig: FlowConfig,
   params: RunParams,
-): Observable<NodeExecutionEvent> =>
-  defer((): Observable<NodeExecutionEvent> => {
+): Observable<NodeExecutionEvent> => {
+  return defer((): Observable<NodeExecutionEvent> => {
     const { edgeList, nodeConfigMap, connectorMap } = flowConfig;
     const {
       inputValueMap,
@@ -88,7 +91,7 @@ export const runSingle = (
           nodeIdList,
           A.map((nodeId): NodeConfig => nodeConfigMap[nodeId]),
           A.map((nodeConfig): Observable<NodeExecutionEvent> => {
-            const { createNodeExecutionObservable: execute } =
+            const { fieldDefinitions, createNodeExecutionObservable: execute } =
               getNodeDefinitionForNodeTypeName(nodeConfig.type);
 
             // NOTE: Context
@@ -103,9 +106,43 @@ export const runSingle = (
               A.filter((connector) => connector.nodeId === nodeConfig.nodeId),
             );
 
+            // SECTION: Create NodeCompleteConfig
+            // TODO: Enhance type safety
+            let nodeCompleteConfig: NodeCompleteConfig;
+            if (fieldDefinitions) {
+              const nodeCompleteConfigPartial = D.mapWithKey(
+                fieldDefinitions,
+                (key, fd) => {
+                  if (
+                    'globalFieldDefinitionKey' in fd &&
+                    fd.globalFieldDefinitionKey
+                  ) {
+                    // TODO: Remove dependency on state-root
+                    // move transformation of nodeConfig out of this function
+                    return useLocalStorageStore
+                      .getState()
+                      .getLocalAccountLevelNodeFieldValue(
+                        nodeConfig.type,
+                        fd.globalFieldDefinitionKey,
+                      );
+                  } else {
+                    return nodeConfig[key as keyof NodeConfig];
+                  }
+                },
+              ) as NodeCompleteConfig;
+              nodeCompleteConfig = {
+                ...nodeConfig,
+                ...nodeCompleteConfigPartial,
+              };
+            } else {
+              nodeCompleteConfig = nodeConfig as NodeCompleteConfig;
+            }
+            // !SECTION
+
+            // TODO: Improve typing
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const config: NodeExecutionConfig<any> = {
-              nodeConfig,
+              nodeConfig: nodeCompleteConfig,
               connectorList,
             };
 
@@ -142,18 +179,18 @@ export const runSingle = (
             };
 
             // NOTE: Execute
-
             return execute(nodeExecutionContext, config, params).pipe(
               catchError<NodeExecutionEvent, Observable<NodeExecutionEvent>>(
                 (err) => {
-                  console.error(err);
-
-                  // NOTE: Expected errors from the observable will be emitted as
+                  // NOTE: The observable will emit soft errors as
                   // NodeExecutionEventType.Errors event.
                   //
-                  // For unexpected errors, we will convert them to
+                  // This callback is for handling interruptive errors,
+                  // we will convert them to
                   // NodeExecutionEventType.Errors and always end with
                   // NodeExecutionEventType.Finish event per expectation.
+
+                  console.error(err);
 
                   nodeIdListSubject.complete();
 
@@ -220,3 +257,4 @@ export const runSingle = (
       }),
     );
   });
+};

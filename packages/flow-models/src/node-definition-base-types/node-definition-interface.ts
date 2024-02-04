@@ -19,10 +19,10 @@ type IncomingVariableConfig = {
 };
 
 export interface NodeDefinition<
-  T extends NodeConfig,
+  T1 extends NodeConfig,
   T2 extends NodeCompleteConfig,
 > {
-  nodeType: T['type'];
+  nodeType: T1['type'];
 
   isEnabledInToolbar?: boolean;
   toolbarLabel?: string;
@@ -36,7 +36,7 @@ export interface NodeDefinition<
   globalFieldDefinitions?: Record<string, GlobalFieldDefinition>;
 
   createDefaultNodeConfig: (nodeId: NodeID) => {
-    nodeConfig: T;
+    nodeConfig: T1;
     variableConfigList: Connector[];
   };
 

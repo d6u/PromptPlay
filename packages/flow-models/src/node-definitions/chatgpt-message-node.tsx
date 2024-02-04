@@ -148,7 +148,10 @@ export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition<
       const { nodeConfig, connectorList } = nodeExecutionConfig;
       const { nodeInputValueMap } = params;
 
-      invariant(nodeConfig.type === NodeType.ChatGPTMessageNode);
+      invariant(
+        nodeConfig.type === NodeType.ChatGPTMessageNode,
+        "Node type is 'ChatGPTMessageNode'",
+      );
 
       subscriber.next({
         type: NodeExecutionEventType.Start,
