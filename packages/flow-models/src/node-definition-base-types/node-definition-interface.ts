@@ -32,7 +32,7 @@ export interface NodeDefinition<
   T2 extends NodeCompleteConfig,
 > {
   type: T1['type'];
-  label?: string;
+  label: string;
 
   isEnabledInToolbar?: boolean;
 
