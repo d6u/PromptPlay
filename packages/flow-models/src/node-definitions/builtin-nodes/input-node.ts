@@ -22,12 +22,17 @@ export type V3InputNodeConfig = {
   nodeId: NodeID;
 };
 
+export type InputNodeCompleteConfig = V3InputNodeConfig;
+
 export const InputNodeConfigSchema = Joi.object({
   type: Joi.string().required().valid(NodeType.InputNode),
   nodeId: Joi.string().required(),
 });
 
-export const INPUT_NODE_DEFINITION: NodeDefinition<V3InputNodeConfig> = {
+export const INPUT_NODE_DEFINITION: NodeDefinition<
+  V3InputNodeConfig,
+  InputNodeCompleteConfig
+> = {
   nodeType: NodeType.InputNode,
 
   isEnabledInToolbar: true,

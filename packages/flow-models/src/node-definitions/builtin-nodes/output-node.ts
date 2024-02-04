@@ -23,12 +23,17 @@ export type V3OutputNodeConfig = {
   nodeId: NodeID;
 };
 
+export type OutputNodeCompleteConfig = V3OutputNodeConfig;
+
 export const OutputNodeConfigSchema = Joi.object({
   type: Joi.string().required().valid(NodeType.OutputNode),
   nodeId: Joi.string().required(),
 });
 
-export const OUTPUT_NODE_DEFINITION: NodeDefinition<V3OutputNodeConfig> = {
+export const OUTPUT_NODE_DEFINITION: NodeDefinition<
+  V3OutputNodeConfig,
+  OutputNodeCompleteConfig
+> = {
   nodeType: NodeType.OutputNode,
 
   isEnabledInToolbar: true,

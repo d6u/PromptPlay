@@ -28,146 +28,121 @@ export type V3HuggingFaceInferenceNodeConfig = {
   model: string;
 };
 
+export type HuggingFaceInferenceNodeCompleteConfig =
+  V3HuggingFaceInferenceNodeConfig;
+
 export const HuggingFaceInferenceNodeConfigSchema = Joi.object({
   type: Joi.string().required().valid(NodeType.HuggingFaceInference),
   nodeId: Joi.string().required(),
 });
 
-export const HUGGINGFACE_INFERENCE_NODE_DEFINITION: NodeDefinition<V3HuggingFaceInferenceNodeConfig> =
-  {
-    nodeType: NodeType.HuggingFaceInference,
+export const HUGGINGFACE_INFERENCE_NODE_DEFINITION: NodeDefinition<
+  V3HuggingFaceInferenceNodeConfig,
+  HuggingFaceInferenceNodeCompleteConfig
+> = {
+  nodeType: NodeType.HuggingFaceInference,
 
-    isEnabledInToolbar: true,
-    toolbarLabel: 'Hugging Face Inference',
+  isEnabledInToolbar: true,
+  toolbarLabel: 'Hugging Face Inference',
 
-    createDefaultNodeConfig: (nodeId) => {
-      return {
-        nodeConfig: {
+  createDefaultNodeConfig: (nodeId) => {
+    return {
+      nodeConfig: {
+        nodeId: nodeId,
+        type: NodeType.HuggingFaceInference,
+        model: 'gpt2',
+      },
+      variableConfigList: [
+        {
+          type: ConnectorType.NodeInput,
+          id: asV3VariableID(`${nodeId}/parameters`),
+          name: 'parameters',
           nodeId: nodeId,
-          type: NodeType.HuggingFaceInference,
-          model: 'gpt2',
+          index: 0,
+          valueType: VariableValueType.Unknown,
         },
-        variableConfigList: [
-          {
-            type: ConnectorType.NodeInput,
-            id: asV3VariableID(`${nodeId}/parameters`),
-            name: 'parameters',
-            nodeId: nodeId,
-            index: 0,
-            valueType: VariableValueType.Unknown,
-          },
-          {
-            type: ConnectorType.NodeOutput,
-            id: asV3VariableID(`${nodeId}/output`),
-            name: 'output',
-            nodeId: nodeId,
-            index: 0,
-            valueType: VariableValueType.Unknown,
-          },
-          {
-            type: ConnectorType.ConditionTarget,
-            id: asV3VariableID(`${nodeId}/${randomId()}`),
-            nodeId: nodeId,
-          },
-        ],
-      };
-    },
+        {
+          type: ConnectorType.NodeOutput,
+          id: asV3VariableID(`${nodeId}/output`),
+          name: 'output',
+          nodeId: nodeId,
+          index: 0,
+          valueType: VariableValueType.Unknown,
+        },
+        {
+          type: ConnectorType.ConditionTarget,
+          id: asV3VariableID(`${nodeId}/${randomId()}`),
+          nodeId: nodeId,
+        },
+      ],
+    };
+  },
 
-    createNodeExecutionObservable: (context, nodeExecutionConfig, params) => {
-      return new Observable<NodeExecutionEvent>((subscriber) => {
-        const { nodeConfig, connectorList } = nodeExecutionConfig;
-        const { nodeInputValueMap, huggingFaceApiToken } = params;
+  createNodeExecutionObservable: (context, nodeExecutionConfig, params) => {
+    return new Observable<NodeExecutionEvent>((subscriber) => {
+      const { nodeConfig, connectorList } = nodeExecutionConfig;
+      const { nodeInputValueMap, huggingFaceApiToken } = params;
 
-        invariant(nodeConfig.type === NodeType.HuggingFaceInference);
+      invariant(nodeConfig.type === NodeType.HuggingFaceInference);
 
+      subscriber.next({
+        type: NodeExecutionEventType.Start,
+        nodeId: nodeConfig.nodeId,
+      });
+
+      if (!huggingFaceApiToken) {
         subscriber.next({
-          type: NodeExecutionEventType.Start,
+          type: NodeExecutionEventType.Errors,
           nodeId: nodeConfig.nodeId,
+          errMessages: ['Hugging Face API token is missing'],
         });
 
-        if (!huggingFaceApiToken) {
-          subscriber.next({
-            type: NodeExecutionEventType.Errors,
-            nodeId: nodeConfig.nodeId,
-            errMessages: ['Hugging Face API token is missing'],
-          });
+        subscriber.next({
+          type: NodeExecutionEventType.Finish,
+          nodeId: nodeConfig.nodeId,
+          finishedConnectorIds: [],
+        });
 
-          subscriber.next({
-            type: NodeExecutionEventType.Finish,
-            nodeId: nodeConfig.nodeId,
-            finishedConnectorIds: [],
-          });
+        subscriber.complete();
+        return;
+      }
 
-          subscriber.complete();
-          return;
-        }
+      const argsMap: Record<string, unknown> = {};
 
-        const argsMap: Record<string, unknown> = {};
+      connectorList
+        .filter((connector): connector is NodeInputVariable => {
+          return connector.type === ConnectorType.NodeInput;
+        })
+        .forEach((connector) => {
+          argsMap[connector.name] = nodeInputValueMap[connector.id] ?? null;
+        });
 
-        connectorList
-          .filter((connector): connector is NodeInputVariable => {
-            return connector.type === ConnectorType.NodeInput;
-          })
-          .forEach((connector) => {
-            argsMap[connector.name] = nodeInputValueMap[connector.id] ?? null;
-          });
+      const variableOutput = connectorList.find(
+        (conn): conn is NodeOutputVariable => {
+          return conn.type === ConnectorType.NodeOutput && conn.index === 0;
+        },
+      );
 
-        const variableOutput = connectorList.find(
-          (conn): conn is NodeOutputVariable => {
-            return conn.type === ConnectorType.NodeOutput && conn.index === 0;
-          },
-        );
+      invariant(variableOutput != null);
 
-        invariant(variableOutput != null);
+      // NOTE: Main logic
 
-        // NOTE: Main logic
-
-        HuggingFace.callInferenceApi(
-          {
-            apiToken: huggingFaceApiToken,
-            model: nodeConfig.model,
-          },
-          argsMap['parameters'],
-        )
-          .then((result) => {
-            if (result.isError) {
-              subscriber.next({
-                type: NodeExecutionEventType.Errors,
-                nodeId: nodeConfig.nodeId,
-                errMessages: [
-                  result.data != null
-                    ? JSON.stringify(result.data)
-                    : 'Unknown error',
-                ],
-              });
-
-              subscriber.next({
-                type: NodeExecutionEventType.Finish,
-                nodeId: nodeConfig.nodeId,
-                finishedConnectorIds: [],
-              });
-            } else {
-              subscriber.next({
-                type: NodeExecutionEventType.VariableValues,
-                nodeId: nodeConfig.nodeId,
-                variableValuesLookUpDict: {
-                  [variableOutput.id]: result.data,
-                },
-              });
-
-              subscriber.next({
-                type: NodeExecutionEventType.Finish,
-                nodeId: nodeConfig.nodeId,
-                finishedConnectorIds: [variableOutput.id],
-              });
-            }
-          })
-          .catch((err) => {
+      HuggingFace.callInferenceApi(
+        {
+          apiToken: huggingFaceApiToken,
+          model: nodeConfig.model,
+        },
+        argsMap['parameters'],
+      )
+        .then((result) => {
+          if (result.isError) {
             subscriber.next({
               type: NodeExecutionEventType.Errors,
               nodeId: nodeConfig.nodeId,
               errMessages: [
-                err.message != null ? err.message : 'Unknown error',
+                result.data != null
+                  ? JSON.stringify(result.data)
+                  : 'Unknown error',
               ],
             });
 
@@ -176,10 +151,38 @@ export const HUGGINGFACE_INFERENCE_NODE_DEFINITION: NodeDefinition<V3HuggingFace
               nodeId: nodeConfig.nodeId,
               finishedConnectorIds: [],
             });
-          })
-          .finally(() => {
-            subscriber.complete();
+          } else {
+            subscriber.next({
+              type: NodeExecutionEventType.VariableValues,
+              nodeId: nodeConfig.nodeId,
+              variableValuesLookUpDict: {
+                [variableOutput.id]: result.data,
+              },
+            });
+
+            subscriber.next({
+              type: NodeExecutionEventType.Finish,
+              nodeId: nodeConfig.nodeId,
+              finishedConnectorIds: [variableOutput.id],
+            });
+          }
+        })
+        .catch((err) => {
+          subscriber.next({
+            type: NodeExecutionEventType.Errors,
+            nodeId: nodeConfig.nodeId,
+            errMessages: [err.message != null ? err.message : 'Unknown error'],
           });
-      });
-    },
-  };
+
+          subscriber.next({
+            type: NodeExecutionEventType.Finish,
+            nodeId: nodeConfig.nodeId,
+            finishedConnectorIds: [],
+          });
+        })
+        .finally(() => {
+          subscriber.complete();
+        });
+    });
+  },
+};

@@ -28,6 +28,8 @@ export type V3ChatGPTMessageNodeConfig = {
   content: string;
 };
 
+export type ChatGPTMessageNodeCompleteConfig = V3ChatGPTMessageNodeConfig;
+
 export const ChatgptMessageNodeConfigSchema = Joi.object({
   type: Joi.string().required().valid(NodeType.ChatGPTMessageNode),
   nodeId: Joi.string().required(),
@@ -35,173 +37,178 @@ export const ChatgptMessageNodeConfigSchema = Joi.object({
   content: Joi.string().required(),
 });
 
-export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition<V3ChatGPTMessageNodeConfig> =
-  {
-    nodeType: NodeType.ChatGPTMessageNode,
+export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition<
+  V3ChatGPTMessageNodeConfig,
+  ChatGPTMessageNodeCompleteConfig
+> = {
+  nodeType: NodeType.ChatGPTMessageNode,
 
-    isEnabledInToolbar: true,
-    toolbarLabel: 'ChatGPT Message',
+  isEnabledInToolbar: true,
+  toolbarLabel: 'ChatGPT Message',
 
-    sidePanelType: 'ChatGPTMessageConfig',
+  sidePanelType: 'ChatGPTMessageConfig',
 
-    canAddIncomingVariables: true,
-    incomingVariableConfigs: [
-      {
-        isNonEditable: true,
-        helperMessage: (
-          <>
-            <code>messages</code> is a list of ChatGPT message. It's default to
-            an empty list if unspecified. The current message will be appended
-            to the list and output as the <code>messages</code> output.
-          </>
-        ),
-      },
-    ],
-    fieldDefinitions: {
-      role: {
-        type: FieldType.Radio,
-        label: 'Role',
-        options: Object.keys(OpenAI.ChatGPTMessageRole).map((key) => ({
-          label: key,
-          value:
-            OpenAI.ChatGPTMessageRole[
-              key as keyof typeof OpenAI.ChatGPTMessageRole
-            ],
-        })),
-      },
-      content: {
-        type: FieldType.Textarea,
-        label: 'Message content',
-        placeholder: 'Write message content here',
-        helperMessage: (
-          <div>
-            <a
-              href="https://mustache.github.io/"
-              target="_blank"
-              rel="noreferrer"
-            >
-              Mustache template
-            </a>{' '}
-            is used here. TL;DR: use <code>{'{{variableName}}'}</code> to insert
-            a variable.
-          </div>
-        ),
-      },
+  canAddIncomingVariables: true,
+  incomingVariableConfigs: [
+    {
+      isNonEditable: true,
+      helperMessage: (
+        <>
+          <code>messages</code> is a list of ChatGPT message. It's default to an
+          empty list if unspecified. The current message will be appended to the
+          list and output as the <code>messages</code> output.
+        </>
+      ),
     },
+  ],
+  fieldDefinitions: {
+    role: {
+      type: FieldType.Radio,
+      label: 'Role',
+      options: Object.keys(OpenAI.ChatGPTMessageRole).map((key) => ({
+        label: key,
+        value:
+          OpenAI.ChatGPTMessageRole[
+            key as keyof typeof OpenAI.ChatGPTMessageRole
+          ],
+      })),
+    },
+    content: {
+      type: FieldType.Textarea,
+      label: 'Message content',
+      placeholder: 'Write message content here',
+      helperMessage: (
+        <div>
+          <a
+            href="https://mustache.github.io/"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Mustache template
+          </a>{' '}
+          is used here. TL;DR: use <code>{'{{variableName}}'}</code> to insert a
+          variable.
+        </div>
+      ),
+    },
+  },
 
-    createDefaultNodeConfig: (nodeId) => {
-      return {
-        nodeConfig: {
+  createDefaultNodeConfig: (nodeId) => {
+    return {
+      nodeConfig: {
+        nodeId: nodeId,
+        type: NodeType.ChatGPTMessageNode,
+        role: OpenAI.ChatGPTMessageRole.user,
+        content: 'Write a poem about {{topic}} in fewer than 20 words.',
+      },
+      variableConfigList: [
+        {
+          type: ConnectorType.NodeInput,
+          id: asV3VariableID(`${nodeId}/messages_in`),
           nodeId: nodeId,
-          type: NodeType.ChatGPTMessageNode,
-          role: OpenAI.ChatGPTMessageRole.user,
-          content: 'Write a poem about {{topic}} in fewer than 20 words.',
+          name: 'messages',
+          index: 0,
+          valueType: VariableValueType.Unknown,
         },
-        variableConfigList: [
-          {
-            type: ConnectorType.NodeInput,
-            id: asV3VariableID(`${nodeId}/messages_in`),
-            nodeId: nodeId,
-            name: 'messages',
-            index: 0,
-            valueType: VariableValueType.Unknown,
-          },
-          {
-            type: ConnectorType.NodeInput,
-            id: asV3VariableID(`${nodeId}/${randomId()}`),
-            nodeId: nodeId,
-            name: 'topic',
-            index: 1,
-            valueType: VariableValueType.Unknown,
-          },
-          {
-            type: ConnectorType.NodeOutput,
-            id: asV3VariableID(`${nodeId}/message`),
-            nodeId: nodeId,
-            name: 'message',
-            index: 0,
-            valueType: VariableValueType.Unknown,
-          },
-          {
-            type: ConnectorType.NodeOutput,
-            id: asV3VariableID(`${nodeId}/messages_out`),
-            nodeId: nodeId,
-            name: 'messages',
-            index: 1,
-            valueType: VariableValueType.Unknown,
-          },
-          {
-            type: ConnectorType.ConditionTarget,
-            id: asV3VariableID(`${nodeId}/${randomId()}`),
-            nodeId: nodeId,
-          },
-        ],
-      };
-    },
+        {
+          type: ConnectorType.NodeInput,
+          id: asV3VariableID(`${nodeId}/${randomId()}`),
+          nodeId: nodeId,
+          name: 'topic',
+          index: 1,
+          valueType: VariableValueType.Unknown,
+        },
+        {
+          type: ConnectorType.NodeOutput,
+          id: asV3VariableID(`${nodeId}/message`),
+          nodeId: nodeId,
+          name: 'message',
+          index: 0,
+          valueType: VariableValueType.Unknown,
+        },
+        {
+          type: ConnectorType.NodeOutput,
+          id: asV3VariableID(`${nodeId}/messages_out`),
+          nodeId: nodeId,
+          name: 'messages',
+          index: 1,
+          valueType: VariableValueType.Unknown,
+        },
+        {
+          type: ConnectorType.ConditionTarget,
+          id: asV3VariableID(`${nodeId}/${randomId()}`),
+          nodeId: nodeId,
+        },
+      ],
+    };
+  },
 
-    createNodeExecutionObservable: (context, nodeExecutionConfig, params) => {
-      return new Observable<NodeExecutionEvent>((subscriber) => {
-        const { nodeConfig, connectorList } = nodeExecutionConfig;
-        const { nodeInputValueMap } = params;
+  createNodeExecutionObservable: (context, nodeExecutionConfig, params) => {
+    return new Observable<NodeExecutionEvent>((subscriber) => {
+      const { nodeConfig, connectorList } = nodeExecutionConfig;
+      const { nodeInputValueMap } = params;
 
-        invariant(nodeConfig.type === NodeType.ChatGPTMessageNode);
+      invariant(
+        nodeConfig.type === NodeType.ChatGPTMessageNode,
+        "Node type is 'ChatGPTMessageNode'",
+      );
 
-        subscriber.next({
-          type: NodeExecutionEventType.Start,
-          nodeId: nodeConfig.nodeId,
-        });
-
-        const argsMap: Record<string, unknown> = {};
-
-        connectorList
-          .filter((connector): connector is NodeInputVariable => {
-            return connector.type === ConnectorType.NodeInput;
-          })
-          .forEach((connector) => {
-            argsMap[connector.name] = nodeInputValueMap[connector.id] ?? null;
-          });
-
-        // NOTE: Main logic
-
-        let messages = (argsMap['messages'] ?? []) as OpenAI.ChatGPTMessage[];
-
-        const message = {
-          role: nodeConfig.role,
-          content: mustache.render(nodeConfig.content, argsMap),
-        };
-
-        messages = F.toMutable(A.append(messages, message));
-
-        const variableMessage = connectorList.find(
-          (conn): conn is NodeOutputVariable => {
-            return conn.type === ConnectorType.NodeOutput && conn.index === 0;
-          },
-        );
-        const variableMessages = connectorList.find(
-          (conn): conn is NodeOutputVariable => {
-            return conn.type === ConnectorType.NodeOutput && conn.index === 1;
-          },
-        );
-
-        invariant(variableMessage != null);
-        invariant(variableMessages != null);
-
-        subscriber.next({
-          type: NodeExecutionEventType.VariableValues,
-          nodeId: nodeConfig.nodeId,
-          variableValuesLookUpDict: {
-            [variableMessage.id]: message,
-            [variableMessages.id]: messages,
-          },
-        });
-
-        subscriber.next({
-          type: NodeExecutionEventType.Finish,
-          nodeId: nodeConfig.nodeId,
-          finishedConnectorIds: [variableMessage.id, variableMessages.id],
-        });
-
-        subscriber.complete();
+      subscriber.next({
+        type: NodeExecutionEventType.Start,
+        nodeId: nodeConfig.nodeId,
       });
-    },
-  };
+
+      const argsMap: Record<string, unknown> = {};
+
+      connectorList
+        .filter((connector): connector is NodeInputVariable => {
+          return connector.type === ConnectorType.NodeInput;
+        })
+        .forEach((connector) => {
+          argsMap[connector.name] = nodeInputValueMap[connector.id] ?? null;
+        });
+
+      // NOTE: Main logic
+
+      let messages = (argsMap['messages'] ?? []) as OpenAI.ChatGPTMessage[];
+
+      const message = {
+        role: nodeConfig.role,
+        content: mustache.render(nodeConfig.content, argsMap),
+      };
+
+      messages = F.toMutable(A.append(messages, message));
+
+      const variableMessage = connectorList.find(
+        (conn): conn is NodeOutputVariable => {
+          return conn.type === ConnectorType.NodeOutput && conn.index === 0;
+        },
+      );
+      const variableMessages = connectorList.find(
+        (conn): conn is NodeOutputVariable => {
+          return conn.type === ConnectorType.NodeOutput && conn.index === 1;
+        },
+      );
+
+      invariant(variableMessage != null);
+      invariant(variableMessages != null);
+
+      subscriber.next({
+        type: NodeExecutionEventType.VariableValues,
+        nodeId: nodeConfig.nodeId,
+        variableValuesLookUpDict: {
+          [variableMessage.id]: message,
+          [variableMessages.id]: messages,
+        },
+      });
+
+      subscriber.next({
+        type: NodeExecutionEventType.Finish,
+        nodeId: nodeConfig.nodeId,
+        finishedConnectorIds: [variableMessage.id, variableMessages.id],
+      });
+
+      subscriber.complete();
+    });
+  },
+};

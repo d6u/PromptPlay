@@ -24,103 +24,107 @@ export type V3TextTemplateNodeConfig = {
   content: string;
 };
 
+export type TextTemplateNodeCompleteConfig = V3TextTemplateNodeConfig;
+
 export const TextTemplateNodeConfigSchema = Joi.object({
   type: Joi.string().required().valid(NodeType.TextTemplate),
   nodeId: Joi.string().required(),
   content: Joi.string().required().allow(''),
 });
 
-export const TEXT_TEMPLATE_NODE_DEFINITION: NodeDefinition<V3TextTemplateNodeConfig> =
-  {
-    nodeType: NodeType.TextTemplate,
+export const TEXT_TEMPLATE_NODE_DEFINITION: NodeDefinition<
+  V3TextTemplateNodeConfig,
+  TextTemplateNodeCompleteConfig
+> = {
+  nodeType: NodeType.TextTemplate,
 
-    isEnabledInToolbar: true,
-    toolbarLabel: 'Text',
+  isEnabledInToolbar: true,
+  toolbarLabel: 'Text',
 
-    createDefaultNodeConfig: (nodeId) => {
-      return {
-        nodeConfig: {
+  createDefaultNodeConfig: (nodeId) => {
+    return {
+      nodeConfig: {
+        nodeId: nodeId,
+        type: NodeType.TextTemplate,
+        content: 'Write a poem about {{topic}} in fewer than 20 words.',
+      },
+      variableConfigList: [
+        {
+          type: ConnectorType.NodeInput,
+          id: asV3VariableID(`${nodeId}/${randomId()}`),
+          name: 'topic',
           nodeId: nodeId,
-          type: NodeType.TextTemplate,
-          content: 'Write a poem about {{topic}} in fewer than 20 words.',
+          index: 0,
+          valueType: VariableValueType.Unknown,
         },
-        variableConfigList: [
-          {
-            type: ConnectorType.NodeInput,
-            id: asV3VariableID(`${nodeId}/${randomId()}`),
-            name: 'topic',
-            nodeId: nodeId,
-            index: 0,
-            valueType: VariableValueType.Unknown,
-          },
-          {
-            type: ConnectorType.NodeOutput,
-            id: asV3VariableID(`${nodeId}/content`),
-            name: 'content',
-            nodeId: nodeId,
-            index: 0,
-            valueType: VariableValueType.Unknown,
-          },
-          {
-            type: ConnectorType.ConditionTarget,
-            id: asV3VariableID(`${nodeId}/${randomId()}`),
-            nodeId: nodeId,
-          },
-        ],
-      };
-    },
+        {
+          type: ConnectorType.NodeOutput,
+          id: asV3VariableID(`${nodeId}/content`),
+          name: 'content',
+          nodeId: nodeId,
+          index: 0,
+          valueType: VariableValueType.Unknown,
+        },
+        {
+          type: ConnectorType.ConditionTarget,
+          id: asV3VariableID(`${nodeId}/${randomId()}`),
+          nodeId: nodeId,
+        },
+      ],
+    };
+  },
 
-    createNodeExecutionObservable: (context, nodeExecutionConfig, params) => {
-      return new Observable<NodeExecutionEvent>((subscriber) => {
-        const { nodeConfig, connectorList } = nodeExecutionConfig;
-        const { nodeInputValueMap } = params;
+  createNodeExecutionObservable: (context, nodeExecutionConfig, params) => {
+    return new Observable<NodeExecutionEvent>((subscriber) => {
+      const { nodeConfig, connectorList } = nodeExecutionConfig;
+      const { nodeInputValueMap } = params;
 
-        invariant(nodeConfig.type === NodeType.TextTemplate);
+      invariant(nodeConfig.type === NodeType.TextTemplate);
 
-        subscriber.next({
-          type: NodeExecutionEventType.Start,
-          nodeId: nodeConfig.nodeId,
-        });
-
-        const argsMap: Record<string, unknown> = {};
-
-        connectorList
-          .filter((connector): connector is NodeInputVariable => {
-            return connector.type === ConnectorType.NodeInput;
-          })
-          .forEach((connector) => {
-            argsMap[connector.name] = nodeInputValueMap[connector.id] ?? null;
-          });
-
-        const outputVariable = connectorList.find(
-          (connector): connector is NodeOutputVariable => {
-            return connector.type === ConnectorType.NodeOutput;
-          },
-        );
-
-        invariant(outputVariable != null);
-
-        // SECTION: Main Logic
-
-        const content = mustache.render(nodeConfig.content, argsMap);
-
-        // !SECTION
-
-        subscriber.next({
-          type: NodeExecutionEventType.VariableValues,
-          nodeId: nodeConfig.nodeId,
-          variableValuesLookUpDict: {
-            [outputVariable.id]: content,
-          },
-        });
-
-        subscriber.next({
-          type: NodeExecutionEventType.Finish,
-          nodeId: nodeConfig.nodeId,
-          finishedConnectorIds: [outputVariable.id],
-        });
-
-        subscriber.complete();
+      subscriber.next({
+        type: NodeExecutionEventType.Start,
+        nodeId: nodeConfig.nodeId,
       });
-    },
-  };
+
+      const argsMap: Record<string, unknown> = {};
+
+      connectorList
+        .filter((connector): connector is NodeInputVariable => {
+          return connector.type === ConnectorType.NodeInput;
+        })
+        .forEach((connector) => {
+          argsMap[connector.name] = nodeInputValueMap[connector.id] ?? null;
+        });
+
+      const outputVariable = connectorList.find(
+        (connector): connector is NodeOutputVariable => {
+          return connector.type === ConnectorType.NodeOutput;
+        },
+      );
+
+      invariant(outputVariable != null);
+
+      // SECTION: Main Logic
+
+      const content = mustache.render(nodeConfig.content, argsMap);
+
+      // !SECTION
+
+      subscriber.next({
+        type: NodeExecutionEventType.VariableValues,
+        nodeId: nodeConfig.nodeId,
+        variableValuesLookUpDict: {
+          [outputVariable.id]: content,
+        },
+      });
+
+      subscriber.next({
+        type: NodeExecutionEventType.Finish,
+        nodeId: nodeConfig.nodeId,
+        finishedConnectorIds: [outputVariable.id],
+      });
+
+      subscriber.complete();
+    });
+  },
+};
