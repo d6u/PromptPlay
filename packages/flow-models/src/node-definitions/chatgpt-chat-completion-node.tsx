@@ -27,7 +27,7 @@ import {
   NodeType,
 } from '../node-definition-base-types';
 
-export type V3ChatGPTChatCompletionNodeConfig = {
+export type ChatGPTChatCompletionNodeInstanceLevelConfig = {
   type: NodeType.ChatGPTChatCompletionNode;
   nodeId: NodeID;
   model: OpenAIChatModel;
@@ -37,12 +37,12 @@ export type V3ChatGPTChatCompletionNodeConfig = {
   stop: Array<string>;
 };
 
-type ChatGPTChatCompletionNodeAccountLevelConfig = {
+export type ChatGPTChatCompletionNodeAccountLevelConfig = {
   openAiApiKey: string;
 };
 
-export type ChatGPTChatCompletionNodeCompleteConfig =
-  V3ChatGPTChatCompletionNodeConfig &
+export type ChatGPTChatCompletionNodeAllLevelConfig =
+  ChatGPTChatCompletionNodeInstanceLevelConfig &
     ChatGPTChatCompletionNodeAccountLevelConfig;
 
 export enum OpenAIChatModel {
@@ -76,38 +76,24 @@ export const ChatgptChatCompletionNodeConfigSchema = Joi.object({
 });
 
 export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
-  V3ChatGPTChatCompletionNodeConfig,
-  ChatGPTChatCompletionNodeCompleteConfig
+  ChatGPTChatCompletionNodeInstanceLevelConfig,
+  ChatGPTChatCompletionNodeAllLevelConfig
 > = {
   type: NodeType.ChatGPTChatCompletionNode,
   label: 'ChatGPT Chat Completion',
 
-  canAddIncomingVariables: false,
-  incomingVariableConfigs: [
-    {
-      isNonEditable: true,
-      helperMessage: (
-        <>
-          <code>messages</code> is a list of ChatGPT message. It's default to an
-          empty list if unspecified. The current message will be appended to the
-          list and output as the <code>messages</code> output.
-        </>
-      ),
-    },
-  ],
-  fieldDefinitions: {
+  accountLevelConfigFieldDefinitions: {
     openAiApiKey: {
       type: FieldType.Text,
       label: 'OpenAI API Key',
-      globalFieldDefinitionKey: 'openAiApiKey',
-      helperMessage: (
-        <>This is stored in your browser's local storage. Never uploaded.</>
-      ),
-      // TODO: Stricter type: value can be string or undefined.
-      validate: (value) => {
-        return value ? {} : { missing: 'OpenAI API Key is required' };
-      },
+      placeholder: 'Enter API key here',
+      helperMessage:
+        "This is stored in your browser's local storage. Never uploaded.",
+      schema: Joi.string().required().label('OpenAI API Key'),
     },
+  },
+
+  instanceLevelConfigFieldDefinitions: {
     model: {
       type: FieldType.Select,
       label: 'Model',
@@ -180,9 +166,16 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
       ),
     },
   },
-  globalFieldDefinitions: {
-    openAiApiKey: {
-      isSecret: true,
+
+  fixedIncomingVariables: {
+    messages: {
+      helperMessage: (
+        <>
+          <code>messages</code> is a list of ChatGPT message. It's default to an
+          empty list if unspecified. The current message will be appended to the
+          list and output as the <code>messages</code> output.
+        </>
+      ),
     },
   },
 

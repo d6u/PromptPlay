@@ -14,6 +14,7 @@ import {
 } from '../base-types/connector-types';
 import { NodeID } from '../base-types/id-types';
 import {
+  FieldType,
   NodeDefinition,
   NodeExecutionEvent,
   NodeExecutionEventType,
@@ -22,14 +23,19 @@ import {
 
 // Reference: https://huggingface.co/docs/api-inference/index
 
-export type V3HuggingFaceInferenceNodeConfig = {
+export type HuggingFaceInferenceNodeInstanceLevelConfig = {
   type: NodeType.HuggingFaceInference;
   nodeId: NodeID;
   model: string;
 };
 
-export type HuggingFaceInferenceNodeCompleteConfig =
-  V3HuggingFaceInferenceNodeConfig;
+export type HuggingFaceInferenceNodeAccountLevelConfig = {
+  huggingFaceApiToken: string;
+};
+
+export type HuggingFaceInferenceNodeAllLevelConfig =
+  HuggingFaceInferenceNodeInstanceLevelConfig &
+    HuggingFaceInferenceNodeAccountLevelConfig;
 
 export const HuggingFaceInferenceNodeConfigSchema = Joi.object({
   type: Joi.string().required().valid(NodeType.HuggingFaceInference),
@@ -37,11 +43,28 @@ export const HuggingFaceInferenceNodeConfigSchema = Joi.object({
 });
 
 export const HUGGINGFACE_INFERENCE_NODE_DEFINITION: NodeDefinition<
-  V3HuggingFaceInferenceNodeConfig,
-  HuggingFaceInferenceNodeCompleteConfig
+  HuggingFaceInferenceNodeInstanceLevelConfig,
+  HuggingFaceInferenceNodeAllLevelConfig
 > = {
   type: NodeType.HuggingFaceInference,
   label: 'Hugging Face Inference',
+
+  accountLevelConfigFieldDefinitions: {
+    huggingFaceApiToken: {
+      type: FieldType.Text,
+      label: 'API Token',
+      placeholder: 'Enter API key here',
+      helperMessage:
+        "This is stored in your browser's local storage. Never uploaded.",
+      schema: Joi.string().required().label('API Token'),
+    },
+  },
+  instanceLevelConfigFieldDefinitions: {
+    model: {
+      type: FieldType.Text,
+      label: 'Model',
+    },
+  },
 
   createDefaultNodeConfig: (nodeId) => {
     return {

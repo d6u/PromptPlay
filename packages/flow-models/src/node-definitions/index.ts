@@ -3,57 +3,57 @@ import { NodeID } from '../base-types';
 import { NodeDefinition, NodeType } from '../node-definition-base-types';
 import {
   CONDITION_NODE_DEFINITION,
-  ConditionNodeCompleteConfig,
+  ConditionNodeAllLevelConfig,
   ConditionNodeConfigSchema,
-  V3ConditionNodeConfig,
+  ConditionNodeInstanceLevelConfig,
 } from './builtin-nodes/condition-node';
 import {
   INPUT_NODE_DEFINITION,
-  InputNodeCompleteConfig,
+  InputNodeAllLevelConfig,
   InputNodeConfigSchema,
-  V3InputNodeConfig,
+  InputNodeInstanceLevelConfig,
 } from './builtin-nodes/input-node';
 import {
   JAVASCRIPT_NODE_DEFINITION,
-  JavaScriptFunctionNodeCompleteConfig,
+  JavaScriptFunctionNodeAllLevelConfig,
   JavaScriptFunctionNodeConfigSchema,
-  V3JavaScriptFunctionNodeConfig,
+  JavaScriptFunctionNodeInstanceLevelConfig,
 } from './builtin-nodes/javascript-function-node';
 import {
   OUTPUT_NODE_DEFINITION,
-  OutputNodeCompleteConfig,
+  OutputNodeAllLevelConfig,
   OutputNodeConfigSchema,
-  V3OutputNodeConfig,
+  OutputNodeInstanceLevelConfig,
 } from './builtin-nodes/output-node';
 import {
   TEXT_TEMPLATE_NODE_DEFINITION,
-  TextTemplateNodeCompleteConfig,
+  TextTemplateNodeAllLevelConfig,
   TextTemplateNodeConfigSchema,
-  V3TextTemplateNodeConfig,
+  TextTemplateNodeInstanceLevelConfig,
 } from './builtin-nodes/text-template-node';
 import {
   CHATGPT_CHAT_COMPLETION_NODE_DEFINITION,
-  ChatGPTChatCompletionNodeCompleteConfig,
+  ChatGPTChatCompletionNodeAllLevelConfig,
+  ChatGPTChatCompletionNodeInstanceLevelConfig,
   ChatgptChatCompletionNodeConfigSchema,
-  V3ChatGPTChatCompletionNodeConfig,
 } from './chatgpt-chat-completion-node';
 import {
   CHATGPT_MESSAGE_NODE_DEFINITION,
-  ChatGPTMessageNodeCompleteConfig,
+  ChatGPTMessageNodeAllLevelConfig,
+  ChatGPTMessageNodeInstanceLevelConfig,
   ChatgptMessageNodeConfigSchema,
-  V3ChatGPTMessageNodeConfig,
 } from './chatgpt-message-node';
 import {
   ELEVENLABS_NODE_DEFINITION,
-  ElevenLabsNodeCompleteConfig,
+  ElevenLabsNodeAllLevelConfig,
   ElevenLabsNodeConfigSchema,
-  V3ElevenLabsNodeConfig,
+  ElevenLabsNodeInstanceLevelConfig,
 } from './elevenlabs-node';
 import {
   HUGGINGFACE_INFERENCE_NODE_DEFINITION,
-  HuggingFaceInferenceNodeCompleteConfig,
+  HuggingFaceInferenceNodeAllLevelConfig,
   HuggingFaceInferenceNodeConfigSchema,
-  V3HuggingFaceInferenceNodeConfig,
+  HuggingFaceInferenceNodeInstanceLevelConfig,
 } from './huggingface-inference-node';
 
 export { default as NodeType } from '../node-definition-base-types/NodeType';
@@ -70,16 +70,16 @@ export * from './huggingface-inference-node';
 // ANCHOR: Update this when adding new node types
 export type NodeConfig =
   // Builtin node types
-  | V3InputNodeConfig
-  | V3OutputNodeConfig
-  | V3ConditionNodeConfig
-  | V3JavaScriptFunctionNodeConfig
-  | V3TextTemplateNodeConfig
+  | InputNodeInstanceLevelConfig
+  | OutputNodeInstanceLevelConfig
+  | ConditionNodeInstanceLevelConfig
+  | JavaScriptFunctionNodeInstanceLevelConfig
+  | TextTemplateNodeInstanceLevelConfig
   // Integration node types
-  | V3ChatGPTMessageNodeConfig
-  | V3ChatGPTChatCompletionNodeConfig
-  | V3HuggingFaceInferenceNodeConfig
-  | V3ElevenLabsNodeConfig;
+  | ChatGPTMessageNodeInstanceLevelConfig
+  | ChatGPTChatCompletionNodeInstanceLevelConfig
+  | HuggingFaceInferenceNodeInstanceLevelConfig
+  | ElevenLabsNodeInstanceLevelConfig;
 
 export type NodeTypeToNodeConfigTypeMap = {
   [T in NodeConfig as T['type']]: T;
@@ -90,16 +90,16 @@ export type NodeConfigMap = Record<NodeID, NodeConfig>;
 // ANCHOR: Update this when adding new node types
 export type NodeCompleteConfig =
   // Builtin node types
-  | InputNodeCompleteConfig
-  | OutputNodeCompleteConfig
-  | ConditionNodeCompleteConfig
-  | JavaScriptFunctionNodeCompleteConfig
-  | TextTemplateNodeCompleteConfig
+  | InputNodeAllLevelConfig
+  | OutputNodeAllLevelConfig
+  | ConditionNodeAllLevelConfig
+  | JavaScriptFunctionNodeAllLevelConfig
+  | TextTemplateNodeAllLevelConfig
   // Integration node types
-  | ChatGPTMessageNodeCompleteConfig
-  | ChatGPTChatCompletionNodeCompleteConfig
-  | HuggingFaceInferenceNodeCompleteConfig
-  | ElevenLabsNodeCompleteConfig;
+  | ChatGPTMessageNodeAllLevelConfig
+  | ChatGPTChatCompletionNodeAllLevelConfig
+  | HuggingFaceInferenceNodeAllLevelConfig
+  | ElevenLabsNodeAllLevelConfig;
 
 export type NodeTypeToNodeCompleteConfigTypeMap = {
   [T in NodeCompleteConfig as T['type']]: T;

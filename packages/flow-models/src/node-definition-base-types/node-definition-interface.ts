@@ -7,53 +7,38 @@ import type {
   ConnectorResultMap,
   NodeID,
 } from '../base-types';
-import type {
-  NodeCompleteConfig,
-  NodeConfig,
-  NodeType,
-} from '../node-definitions/index';
+import type { NodeType } from '../node-definitions/index';
 import NodeExecutionContext from './NodeExecutionContext';
 import {
-  FieldDefinition,
-  GlobalFieldDefinition,
+  NodeAccountLevelTextFieldDefinition,
+  NodeInstanceLevelFieldDefinitionUnion,
 } from './field-definition-interfaces';
 
-type IncomingVariableConfig = {
-  isNonEditable: boolean;
+type BaseNodeInstanceLevelConfig = {
+  type: NodeType;
+  nodeId: string;
+};
+
+type ConvertToInstanceLevelFieldDefinitions<TInstanceLevel> = {
+  [P in keyof Omit<
+    TInstanceLevel,
+    keyof BaseNodeInstanceLevelConfig
+  >]: NodeInstanceLevelFieldDefinitionUnion;
+};
+
+type ConvertToAccountLevelFieldDefinitions<
+  TAllLevelConfig,
+  TInstanceLevelConfig,
+> = {
+  [P in keyof Omit<
+    TAllLevelConfig,
+    keyof TInstanceLevelConfig
+  >]: NodeAccountLevelTextFieldDefinition;
+};
+
+type FixedIncomingVariableDefinition = {
   helperMessage?: ReactNode;
 };
-
-type BaseNodeConfig = {
-  type: NodeType;
-};
-
-export interface NodeDefinition<
-  T1 extends NodeConfig,
-  T2 extends NodeCompleteConfig,
-> {
-  type: T1['type'];
-  // Used for displaying in UI
-  label: string;
-
-  canAddIncomingVariables?: boolean;
-  incomingVariableConfigs?: IncomingVariableConfig[];
-  fieldDefinitions?: Record<string, FieldDefinition>;
-  globalFieldDefinitions?: Record<string, GlobalFieldDefinition>;
-
-  createDefaultNodeConfig: (nodeId: NodeID) => {
-    nodeConfig: T1;
-    variableConfigList: Connector[];
-  };
-
-  createNodeExecutionObservable: (
-    context: NodeExecutionContext,
-    nodeExecutionConfig: NodeExecutionConfig<T2>,
-    params: NodeExecutionParams,
-  ) => Observable<NodeExecutionEvent>;
-
-  // TODO: Remove temporary properties
-  tmpSidePanelType?: string;
-}
 
 export enum NodeExecutionEventType {
   // NOTE: All node execution will guarantee to have a start and finish event.
@@ -88,7 +73,7 @@ export type NodeExecutionEvent =
       errMessages: string[];
     };
 
-export type NodeExecutionConfig<T extends NodeConfig> = {
+export type NodeExecutionConfig<T> = {
   nodeConfig: T;
   connectorList: Connector[];
 };
@@ -100,3 +85,42 @@ export type NodeExecutionParams = {
   huggingFaceApiToken: string | null;
   elevenLabsApiKey: string | null;
 };
+
+export interface NodeDefinition<
+  TInstanceLevelConfig extends BaseNodeInstanceLevelConfig,
+  TAllLevelConfig extends TInstanceLevelConfig = TInstanceLevelConfig,
+> {
+  type: TInstanceLevelConfig['type'];
+
+  // Used for displaying in UI
+  label: string;
+
+  // Node Config
+  accountLevelConfigFieldDefinitions?: ConvertToAccountLevelFieldDefinitions<
+    TAllLevelConfig,
+    TInstanceLevelConfig
+  >;
+  instanceLevelConfigFieldDefinitions: ConvertToInstanceLevelFieldDefinitions<TInstanceLevelConfig>;
+
+  // Variables
+  fixedIncomingVariables?: Record<string, FixedIncomingVariableDefinition>;
+  canUserAddIncomingVariables?: boolean;
+
+  // Initial config values
+  createDefaultNodeConfig: (nodeId: NodeID) => {
+    nodeConfig: TInstanceLevelConfig;
+    variableConfigList: Connector[];
+  };
+
+  // Execution
+  createNodeExecutionObservable: (
+    context: NodeExecutionContext,
+    nodeExecutionConfig: NodeExecutionConfig<
+      TInstanceLevelConfig & TAllLevelConfig
+    >,
+    params: NodeExecutionParams,
+  ) => Observable<NodeExecutionEvent>;
+
+  // TODO: Remove temporary properties
+  tmpSidePanelType?: string;
+}

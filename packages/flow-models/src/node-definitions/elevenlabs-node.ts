@@ -1,8 +1,10 @@
-import randomId from 'common-utils/randomId';
-import * as ElevenLabs from 'integrations/eleven-labs';
 import Joi from 'joi';
 import { Observable } from 'rxjs';
 import invariant from 'tiny-invariant';
+
+import randomId from 'common-utils/randomId';
+import * as ElevenLabs from 'integrations/eleven-labs';
+
 import {
   ConnectorType,
   NodeInputVariable,
@@ -12,19 +14,25 @@ import {
 } from '../base-types/connector-types';
 import { NodeID } from '../base-types/id-types';
 import {
+  FieldType,
   NodeDefinition,
   NodeExecutionEvent,
   NodeExecutionEventType,
   NodeType,
 } from '../node-definition-base-types';
 
-export type V3ElevenLabsNodeConfig = {
+export type ElevenLabsNodeInstanceLevelConfig = {
   type: NodeType.ElevenLabs;
   nodeId: NodeID;
   voiceId: string;
 };
 
-export type ElevenLabsNodeCompleteConfig = V3ElevenLabsNodeConfig;
+export type ElevenLabsNodeAccountLevelConfig = {
+  elevenLabsApiKey: string;
+};
+
+export type ElevenLabsNodeAllLevelConfig = ElevenLabsNodeInstanceLevelConfig &
+  ElevenLabsNodeAccountLevelConfig;
 
 export const ElevenLabsNodeConfigSchema = Joi.object({
   type: Joi.string().required().valid(NodeType.ElevenLabs),
@@ -32,11 +40,28 @@ export const ElevenLabsNodeConfigSchema = Joi.object({
 });
 
 export const ELEVENLABS_NODE_DEFINITION: NodeDefinition<
-  V3ElevenLabsNodeConfig,
-  ElevenLabsNodeCompleteConfig
+  ElevenLabsNodeInstanceLevelConfig,
+  ElevenLabsNodeAllLevelConfig
 > = {
   type: NodeType.ElevenLabs,
   label: 'Eleven Labs Text to Speech',
+
+  accountLevelConfigFieldDefinitions: {
+    elevenLabsApiKey: {
+      type: FieldType.Text,
+      label: 'API Key',
+      placeholder: 'Enter API key here',
+      helperMessage:
+        "This is stored in your browser's local storage. Never uploaded.",
+      schema: Joi.string().required().label('API Token'),
+    },
+  },
+  instanceLevelConfigFieldDefinitions: {
+    voiceId: {
+      type: FieldType.Text,
+      label: 'Voice ID',
+    },
+  },
 
   createDefaultNodeConfig: (nodeId) => {
     return {
