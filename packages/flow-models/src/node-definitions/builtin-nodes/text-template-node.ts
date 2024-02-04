@@ -39,7 +39,7 @@ export const TEXT_TEMPLATE_NODE_DEFINITION: NodeDefinition<
   type: NodeType.TextTemplate,
 
   isEnabledInToolbar: true,
-  toolbarLabel: 'Text',
+  label: 'Text',
 
   createDefaultNodeConfig: (nodeId) => {
     return {

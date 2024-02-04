@@ -37,7 +37,7 @@ export const OUTPUT_NODE_DEFINITION: NodeDefinition<
   type: NodeType.OutputNode,
 
   isEnabledInToolbar: true,
-  toolbarLabel: 'Output',
+  label: 'Output',
 
   createDefaultNodeConfig: (nodeId) => {
     return {

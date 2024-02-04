@@ -36,7 +36,7 @@ export const INPUT_NODE_DEFINITION: NodeDefinition<
   type: NodeType.InputNode,
 
   isEnabledInToolbar: true,
-  toolbarLabel: 'Input',
+  label: 'Input',
 
   createDefaultNodeConfig(nodeId) {
     return {

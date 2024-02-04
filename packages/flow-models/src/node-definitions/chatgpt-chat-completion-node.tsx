@@ -82,7 +82,7 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
   type: NodeType.ChatGPTChatCompletionNode,
 
   isEnabledInToolbar: true,
-  toolbarLabel: 'ChatGPT Chat Completion',
+  label: 'ChatGPT Chat Completion',
 
   canAddIncomingVariables: false,
   incomingVariableConfigs: [

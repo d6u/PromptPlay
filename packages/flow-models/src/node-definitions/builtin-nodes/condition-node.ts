@@ -41,7 +41,7 @@ export const CONDITION_NODE_DEFINITION: NodeDefinition<
   type: NodeType.ConditionNode,
 
   isEnabledInToolbar: true,
-  toolbarLabel: 'Condition',
+  label: 'Condition',
 
   createDefaultNodeConfig: (nodeId) => {
     return {

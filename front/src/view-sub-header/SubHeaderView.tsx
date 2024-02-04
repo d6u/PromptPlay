@@ -93,7 +93,7 @@ function SubHeaderView() {
       .filter(({ nodeDefinition }) => nodeDefinition.isEnabledInToolbar)
       .map(({ nodeType, nodeDefinition }) => {
         return {
-          label: `Add ${nodeDefinition.toolbarLabel}`,
+          label: `Add ${nodeDefinition.label}`,
           onClick: () => addNodeWithType(nodeType),
         };
       });

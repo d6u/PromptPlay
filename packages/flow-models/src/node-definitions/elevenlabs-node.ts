@@ -38,7 +38,7 @@ export const ELEVENLABS_NODE_DEFINITION: NodeDefinition<
   type: NodeType.ElevenLabs,
 
   isEnabledInToolbar: true,
-  toolbarLabel: 'Eleven Labs Text to Speech',
+  label: 'Eleven Labs Text to Speech',
 
   createDefaultNodeConfig: (nodeId) => {
     return {

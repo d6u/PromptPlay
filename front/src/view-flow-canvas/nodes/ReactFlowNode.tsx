@@ -338,7 +338,7 @@ export default function ReactFlowNode(props: Props) {
       >
         <NodeBoxHeaderSection
           isReadOnly={!props.isNodeConfigReadOnly}
-          title={nodeDefinition.toolbarLabel!}
+          title={nodeDefinition.label!}
           onClickRemove={() => {
             removeNode(nodeId);
           }}

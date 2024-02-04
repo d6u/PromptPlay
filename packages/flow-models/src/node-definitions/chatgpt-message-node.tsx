@@ -44,7 +44,7 @@ export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition<
   type: NodeType.ChatGPTMessageNode,
 
   isEnabledInToolbar: true,
-  toolbarLabel: 'ChatGPT Message',
+  label: 'ChatGPT Message',
 
   sidePanelType: 'ChatGPTMessageConfig',
 

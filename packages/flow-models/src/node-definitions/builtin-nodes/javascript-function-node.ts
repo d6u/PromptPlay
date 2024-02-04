@@ -38,7 +38,7 @@ export const JAVASCRIPT_NODE_DEFINITION: NodeDefinition<
   type: NodeType.JavaScriptFunctionNode,
 
   isEnabledInToolbar: true,
-  toolbarLabel: 'JavaScript',
+  label: 'JavaScript',
 
   createDefaultNodeConfig: (nodeId) => {
     return {
