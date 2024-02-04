@@ -298,13 +298,13 @@ export default function ReactFlowNode(props: Props) {
             }
           },
         )}
-        {nodeDefinition.sidePanelType && (
+        {nodeDefinition.tmpSidePanelType && (
           <NodeBoxSection>
             <IconButton
               variant="outlined"
               onClick={() => {
                 setDetailPanelContentType(
-                  nodeDefinition.sidePanelType as DetailPanelContentType,
+                  nodeDefinition.tmpSidePanelType as DetailPanelContentType,
                 );
                 setDetailPanelSelectedNodeId(nodeId);
               }}

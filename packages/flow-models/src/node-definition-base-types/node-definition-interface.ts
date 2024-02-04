@@ -35,9 +35,6 @@ export interface NodeDefinition<
   // Used for displaying in UI
   label: string;
 
-  // TODO: Abstract side panel rendering
-  sidePanelType?: string;
-
   canAddIncomingVariables?: boolean;
   incomingVariableConfigs?: IncomingVariableConfig[];
   fieldDefinitions?: Record<string, FieldDefinition>;
@@ -53,6 +50,9 @@ export interface NodeDefinition<
     nodeExecutionConfig: NodeExecutionConfig<T2>,
     params: NodeExecutionParams,
   ) => Observable<NodeExecutionEvent>;
+
+  // TODO: Remove temporary properties
+  tmpSidePanelType?: string;
 }
 
 export enum NodeExecutionEventType {

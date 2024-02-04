@@ -44,7 +44,7 @@ export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition<
   type: NodeType.ChatGPTMessageNode,
   label: 'ChatGPT Message',
 
-  sidePanelType: 'ChatGPTMessageConfig',
+  tmpSidePanelType: 'ChatGPTMessageConfig',
 
   canAddIncomingVariables: true,
   incomingVariableConfigs: [
