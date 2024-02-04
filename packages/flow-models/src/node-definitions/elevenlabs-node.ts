@@ -35,7 +35,7 @@ export const ELEVENLABS_NODE_DEFINITION: NodeDefinition<
   V3ElevenLabsNodeConfig,
   ElevenLabsNodeCompleteConfig
 > = {
-  nodeType: NodeType.ElevenLabs,
+  type: NodeType.ElevenLabs,
 
   isEnabledInToolbar: true,
   toolbarLabel: 'Eleven Labs Text to Speech',

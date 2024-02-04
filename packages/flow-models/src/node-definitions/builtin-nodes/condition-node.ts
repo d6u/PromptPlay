@@ -38,7 +38,7 @@ export const CONDITION_NODE_DEFINITION: NodeDefinition<
   V3ConditionNodeConfig,
   ConditionNodeCompleteConfig
 > = {
-  nodeType: NodeType.ConditionNode,
+  type: NodeType.ConditionNode,
 
   isEnabledInToolbar: true,
   toolbarLabel: 'Condition',

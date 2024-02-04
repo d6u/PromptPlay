@@ -33,7 +33,7 @@ export const INPUT_NODE_DEFINITION: NodeDefinition<
   V3InputNodeConfig,
   InputNodeCompleteConfig
 > = {
-  nodeType: NodeType.InputNode,
+  type: NodeType.InputNode,
 
   isEnabledInToolbar: true,
   toolbarLabel: 'Input',

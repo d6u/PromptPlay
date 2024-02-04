@@ -36,7 +36,7 @@ export const TEXT_TEMPLATE_NODE_DEFINITION: NodeDefinition<
   V3TextTemplateNodeConfig,
   TextTemplateNodeCompleteConfig
 > = {
-  nodeType: NodeType.TextTemplate,
+  type: NodeType.TextTemplate,
 
   isEnabledInToolbar: true,
   toolbarLabel: 'Text',

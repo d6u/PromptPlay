@@ -79,7 +79,7 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
   V3ChatGPTChatCompletionNodeConfig,
   ChatGPTChatCompletionNodeCompleteConfig
 > = {
-  nodeType: NodeType.ChatGPTChatCompletionNode,
+  type: NodeType.ChatGPTChatCompletionNode,
 
   isEnabledInToolbar: true,
   toolbarLabel: 'ChatGPT Chat Completion',

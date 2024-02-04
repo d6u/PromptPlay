@@ -34,7 +34,7 @@ export const OUTPUT_NODE_DEFINITION: NodeDefinition<
   V3OutputNodeConfig,
   OutputNodeCompleteConfig
 > = {
-  nodeType: NodeType.OutputNode,
+  type: NodeType.OutputNode,
 
   isEnabledInToolbar: true,
   toolbarLabel: 'Output',

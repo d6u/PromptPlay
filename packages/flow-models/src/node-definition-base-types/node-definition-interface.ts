@@ -1,12 +1,17 @@
 import type { ReactNode } from 'react';
 import type { Observable } from 'rxjs';
+
 import type {
   Connector,
   ConnectorID,
   ConnectorResultMap,
   NodeID,
 } from '../base-types';
-import type { NodeCompleteConfig, NodeConfig } from '../node-definitions/index';
+import type {
+  NodeCompleteConfig,
+  NodeConfig,
+  NodeType,
+} from '../node-definitions/index';
 import NodeExecutionContext from './NodeExecutionContext';
 import {
   FieldDefinition,
@@ -18,11 +23,15 @@ type IncomingVariableConfig = {
   helperMessage?: ReactNode;
 };
 
+type BaseNodeConfig = {
+  type: NodeType;
+};
+
 export interface NodeDefinition<
   T1 extends NodeConfig,
   T2 extends NodeCompleteConfig,
 > {
-  nodeType: T1['type'];
+  type: T1['type'];
 
   isEnabledInToolbar?: boolean;
   toolbarLabel?: string;

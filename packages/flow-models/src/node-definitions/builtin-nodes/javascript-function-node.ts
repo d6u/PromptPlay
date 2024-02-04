@@ -35,7 +35,7 @@ export const JAVASCRIPT_NODE_DEFINITION: NodeDefinition<
   V3JavaScriptFunctionNodeConfig,
   JavaScriptFunctionNodeCompleteConfig
 > = {
-  nodeType: NodeType.JavaScriptFunctionNode,
+  type: NodeType.JavaScriptFunctionNode,
 
   isEnabledInToolbar: true,
   toolbarLabel: 'JavaScript',
