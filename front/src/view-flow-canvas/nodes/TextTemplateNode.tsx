@@ -3,7 +3,7 @@ import FormHelperText from '@mui/joy/FormHelperText';
 import FormLabel from '@mui/joy/FormLabel';
 import IconButton from '@mui/joy/IconButton';
 import Textarea from '@mui/joy/Textarea';
-import { NodeID, V3TextTemplateNodeConfig } from 'flow-models';
+import { NodeID, TextTemplateNodeInstanceLevelConfig } from 'flow-models';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { useNodeId } from 'reactflow';
 import RouteFlowContext from 'state-flow/context/FlowRouteContext';
@@ -31,7 +31,9 @@ export default function TextTemplateNode() {
   );
 
   const nodeConfig = useMemo(() => {
-    return nodeConfigs[nodeId] as V3TextTemplateNodeConfig | undefined;
+    return nodeConfigs[nodeId] as
+      | TextTemplateNodeInstanceLevelConfig
+      | undefined;
   }, [nodeConfigs, nodeId]);
 
   // It's OK to force unwrap here because nodeConfig will be undefined only

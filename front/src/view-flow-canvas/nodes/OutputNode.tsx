@@ -4,7 +4,7 @@ import {
   ConnectorType,
   NodeID,
   NodeType,
-  V3OutputNodeConfig,
+  OutputNodeInstanceLevelConfig,
 } from 'flow-models';
 import { useContext, useMemo } from 'react';
 import { useNodeId, useUpdateNodeInternals } from 'reactflow';
@@ -41,7 +41,7 @@ export default function OutputNode() {
   const removeVariable = useFlowStore((s) => s.removeVariable);
 
   const nodeConfig = useMemo(
-    () => nodeConfigsDict[nodeId] as V3OutputNodeConfig | undefined,
+    () => nodeConfigsDict[nodeId] as OutputNodeInstanceLevelConfig | undefined,
     [nodeConfigsDict, nodeId],
   );
 

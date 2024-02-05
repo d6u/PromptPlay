@@ -1,9 +1,9 @@
 import IconButton from '@mui/joy/IconButton';
 import {
   ConnectorType,
+  InputNodeInstanceLevelConfig,
   NodeID,
   NodeType,
-  V3InputNodeConfig,
 } from 'flow-models';
 import { useContext, useMemo } from 'react';
 import { useNodeId, useUpdateNodeInternals } from 'reactflow';
@@ -44,7 +44,7 @@ export default function InputNode() {
   }, [nodeId, variablesDict]);
 
   const nodeConfig = useMemo(
-    () => nodeConfigsDict[nodeId] as V3InputNodeConfig | undefined,
+    () => nodeConfigsDict[nodeId] as InputNodeInstanceLevelConfig | undefined,
     [nodeConfigsDict, nodeId],
   );
 

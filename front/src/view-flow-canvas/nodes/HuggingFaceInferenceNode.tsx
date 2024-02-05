@@ -2,7 +2,10 @@ import FormControl from '@mui/joy/FormControl';
 import FormHelperText from '@mui/joy/FormHelperText';
 import FormLabel from '@mui/joy/FormLabel';
 import Input from '@mui/joy/Input';
-import { NodeID, V3HuggingFaceInferenceNodeConfig } from 'flow-models';
+import {
+  HuggingFaceInferenceNodeInstanceLevelConfig,
+  NodeID,
+} from 'flow-models';
 import { useContext, useMemo, useState } from 'react';
 import { useNodeId } from 'reactflow';
 import RouteFlowContext from 'state-flow/context/FlowRouteContext';
@@ -41,7 +44,10 @@ export default function HuggingFaceInferenceNode() {
   const updateNodeConfig = useFlowStore((s) => s.updateNodeConfig);
 
   const nodeConfig = useMemo(
-    () => nodeConfigs[nodeId] as V3HuggingFaceInferenceNodeConfig | undefined,
+    () =>
+      nodeConfigs[nodeId] as
+        | HuggingFaceInferenceNodeInstanceLevelConfig
+        | undefined,
     [nodeConfigs, nodeId],
   );
 

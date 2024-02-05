@@ -1,8 +1,7 @@
-import { A, D } from '@mobily/ts-belt';
+import { A } from '@mobily/ts-belt';
 import { IconButton } from '@mui/joy';
 import { ReactNode, useEffect, useMemo, useState } from 'react';
 import { useNodeId, useUpdateNodeInternals } from 'reactflow';
-import invariant from 'tiny-invariant';
 
 import {
   ConnectorID,
@@ -10,7 +9,6 @@ import {
   NodeID,
   getNodeDefinitionForNodeTypeName,
 } from 'flow-models';
-import { FieldType } from 'flow-models/src/node-definition-base-types';
 
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 import { DetailPanelContentType } from 'state-flow/types';
@@ -18,6 +16,9 @@ import {
   selectConditionTarget,
   selectVariables,
 } from 'state-flow/util/state-utils';
+
+import NodeBoxAccountLevelFields from 'view-flow-canvas/node-box/NodeBoxAccountLevelFields';
+import NodeBoxInstanceLevelFields from 'view-flow-canvas/node-box/NodeBoxInstanceLevelFields';
 import IncomingConditionHandle from '../handles/IncomingConditionHandle';
 import IncomingVariableHandle from '../handles/IncomingVariableHandle';
 import OutgoingVariableHandle from '../handles/OutgoingVariableHandle';
@@ -30,13 +31,6 @@ import NodeBoxIncomingVariableSection from '../node-box/NodeBoxIncomingVariableS
 import NodeBoxOutgoingVariableBlock from '../node-box/NodeBoxOutgoingVariableBlock';
 import NodeBoxSection from '../node-box/NodeBoxSection';
 import NodeBoxSmallSection from '../node-box/NodeBoxSmallSection';
-import NodeCheckboxField from '../node-fields/NodeCheckboxField';
-import NodeGlobalTextField from '../node-fields/NodeGlobalTextField';
-import NodeNumberField from '../node-fields/NodeNumberField';
-import NodeRadioField from '../node-fields/NodeRadioField';
-import NodeSelectField from '../node-fields/NodeSelectField';
-import NodeTextField from '../node-fields/NodeTextField';
-import NodeTextareaField from '../node-fields/NodeTextareaField';
 
 export type DestConnector = {
   id: string;
@@ -70,8 +64,6 @@ export default function ReactFlowNode(props: Props) {
     return nodeConfigsDict[nodeId];
   }, [nodeConfigsDict, nodeId]);
 
-  const updateNodeConfig = useFlowStore((s) => s.updateNodeConfig);
-
   // ANCHOR: Node Definition
   const nodeDefinition = useMemo(
     () => getNodeDefinitionForNodeTypeName(nodeConfig.type),
@@ -96,21 +88,20 @@ export default function ReactFlowNode(props: Props) {
 
     return inputArray.map<DestConnector>((input, index) => {
       const incomingVariableConfig =
-        nodeDefinition.incomingVariableConfigs?.[index];
+        nodeDefinition.fixedIncomingVariables?.[index];
 
       return {
         id: input.id,
         name: input.name,
         isReadOnly:
-          props.isNodeConfigReadOnly ||
-          (incomingVariableConfig?.isNonEditable ?? false),
+          props.isNodeConfigReadOnly || incomingVariableConfig != null,
         helperMessage: incomingVariableConfig?.helperMessage,
       };
     });
   }, [
     nodeId,
     variablesDict,
-    nodeDefinition.incomingVariableConfigs,
+    nodeDefinition.fixedIncomingVariables,
     props.isNodeConfigReadOnly,
   ]);
 
@@ -172,151 +163,6 @@ export default function ReactFlowNode(props: Props) {
   }, [inputVariableBlockHeightList, nodeId, updateNodeInternals]);
   // !SECTION
 
-  let bodyContent: ReactNode;
-
-  if (nodeDefinition.fieldDefinitions == null) {
-    bodyContent = props.children;
-  } else {
-    bodyContent = (
-      <>
-        {D.toPairs(nodeDefinition.fieldDefinitions).map(
-          ([fieldKey, fd], index) => {
-            // TODO: Find a type safe way
-            // NOTE: Hack to make TypeScript happy
-            const fieldValue = nodeConfig[
-              fieldKey as keyof typeof nodeConfig
-            ] as unknown;
-
-            switch (fd.type) {
-              case FieldType.Text:
-                if (fd.globalFieldDefinitionKey) {
-                  invariant(
-                    nodeDefinition.globalFieldDefinitions != null,
-                    'globalFieldDefinitions is not null',
-                  );
-
-                  const globalFieldDefinition =
-                    nodeDefinition.globalFieldDefinitions[
-                      fd.globalFieldDefinitionKey
-                    ];
-
-                  invariant(
-                    globalFieldDefinition != null,
-                    'globalFieldDefinition is not null',
-                  );
-
-                  return (
-                    <NodeGlobalTextField
-                      key={fieldKey}
-                      nodeId={nodeId}
-                      nodeType={nodeConfig.type}
-                      fieldKey={fieldKey}
-                      fieldDefinition={fd}
-                      globalFieldDefinition={globalFieldDefinition}
-                      isNodeConfigReadOnly={props.isNodeConfigReadOnly}
-                    />
-                  );
-                } else {
-                  return (
-                    <NodeTextField
-                      key={fieldKey}
-                      fieldKey={fieldKey}
-                      fieldDefinition={fd}
-                      fieldValue={fieldValue}
-                      isNodeConfigReadOnly={props.isNodeConfigReadOnly}
-                      onSave={(value) => {
-                        updateNodeConfig(nodeId, { [fieldKey]: value });
-                      }}
-                    />
-                  );
-                }
-              case FieldType.Number:
-                return (
-                  <NodeNumberField
-                    key={fieldKey}
-                    fieldKey={fieldKey}
-                    fieldDefinition={fd}
-                    fieldValue={fieldValue as number | null}
-                    isNodeConfigReadOnly={props.isNodeConfigReadOnly}
-                    onSave={(value) => {
-                      updateNodeConfig(nodeId, { [fieldKey]: value });
-                    }}
-                  />
-                );
-              case FieldType.Textarea:
-                return (
-                  <NodeTextareaField
-                    key={fieldKey}
-                    fieldKey={fieldKey}
-                    fieldDefinition={fd}
-                    fieldValue={fieldValue as string}
-                    isNodeConfigReadOnly={props.isNodeConfigReadOnly}
-                    onSave={(value) => {
-                      updateNodeConfig(nodeId, { [fieldKey]: value });
-                    }}
-                  />
-                );
-              case FieldType.Radio:
-                return (
-                  <NodeRadioField
-                    key={fieldKey}
-                    fieldKey={fieldKey}
-                    fieldDefinition={fd}
-                    fieldValue={fieldValue}
-                    isNodeConfigReadOnly={props.isNodeConfigReadOnly}
-                    onSave={(value) => {
-                      updateNodeConfig(nodeId, { [fieldKey]: value });
-                    }}
-                  />
-                );
-              case FieldType.Select:
-                return (
-                  <NodeSelectField
-                    key={fieldKey}
-                    fieldKey={fieldKey}
-                    fieldDefinition={fd}
-                    fieldValue={fieldValue}
-                    isNodeConfigReadOnly={props.isNodeConfigReadOnly}
-                    onSave={(value) => {
-                      updateNodeConfig(nodeId, { [fieldKey]: value });
-                    }}
-                  />
-                );
-              case FieldType.Checkbox:
-                return (
-                  <NodeCheckboxField
-                    key={fieldKey}
-                    fieldKey={fieldKey}
-                    fieldDefinition={fd}
-                    fieldValue={fieldValue}
-                    isNodeConfigReadOnly={props.isNodeConfigReadOnly}
-                    onSave={(value) => {
-                      updateNodeConfig(nodeId, { [fieldKey]: value });
-                    }}
-                  />
-                );
-            }
-          },
-        )}
-        {nodeDefinition.tmpSidePanelType && (
-          <NodeBoxSection>
-            <IconButton
-              variant="outlined"
-              onClick={() => {
-                setDetailPanelContentType(
-                  nodeDefinition.tmpSidePanelType as DetailPanelContentType,
-                );
-                setDetailPanelSelectedNodeId(nodeId);
-              }}
-            >
-              <NodeBoxIconGear />
-            </IconButton>
-          </NodeBoxSection>
-        )}
-      </>
-    );
-  }
-
   return (
     <>
       {conditionTarget && <IncomingConditionHandle id={conditionTarget.id} />}
@@ -343,7 +189,7 @@ export default function ReactFlowNode(props: Props) {
             removeNode(nodeId);
           }}
         />
-        {(props.canAddVariable || nodeDefinition.canAddIncomingVariables) &&
+        {(props.canAddVariable || nodeDefinition.canUserAddIncomingVariables) &&
           !props.isNodeConfigReadOnly && (
             <NodeBoxSmallSection>
               <NodeBoxAddConnectorButton
@@ -387,7 +233,35 @@ export default function ReactFlowNode(props: Props) {
             );
           })}
         </NodeBoxIncomingVariableSection>
-        {bodyContent}
+        <NodeBoxAccountLevelFields
+          isNodeConfigReadOnly={props.isNodeConfigReadOnly}
+          accountLevelConfigFieldDefinitions={
+            nodeDefinition.accountLevelConfigFieldDefinitions ?? {}
+          }
+          nodeConfig={nodeConfig}
+        />
+        <NodeBoxInstanceLevelFields
+          isNodeConfigReadOnly={props.isNodeConfigReadOnly}
+          instanceLevelConfigFieldDefinitions={
+            nodeDefinition.instanceLevelConfigFieldDefinitions
+          }
+          nodeConfig={nodeConfig}
+        />
+        {nodeDefinition.tmpSidePanelType && (
+          <NodeBoxSection>
+            <IconButton
+              variant="outlined"
+              onClick={() => {
+                setDetailPanelContentType(
+                  nodeDefinition.tmpSidePanelType as DetailPanelContentType,
+                );
+                setDetailPanelSelectedNodeId(nodeId);
+              }}
+            >
+              <NodeBoxIconGear />
+            </IconButton>
+          </NodeBoxSection>
+        )}
         <NodeBoxSection>
           {srcConnectors.map((connector) => (
             <NodeBoxOutgoingVariableBlock

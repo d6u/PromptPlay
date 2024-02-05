@@ -21,7 +21,7 @@ import {
   FlowExecutionContext,
   FlowOutputVariable,
   GraphEdge,
-  NodeCompleteConfig,
+  NodeAllLevelConfigUnion,
   NodeConfig,
   NodeConfigMap,
   NodeExecutionConfig,
@@ -91,8 +91,10 @@ export const runSingle = (
           nodeIdList,
           A.map((nodeId): NodeConfig => nodeConfigMap[nodeId]),
           A.map((nodeConfig): Observable<NodeExecutionEvent> => {
-            const { fieldDefinitions, createNodeExecutionObservable: execute } =
-              getNodeDefinitionForNodeTypeName(nodeConfig.type);
+            const {
+              accountLevelConfigFieldDefinitions,
+              createNodeExecutionObservable: execute,
+            } = getNodeDefinitionForNodeTypeName(nodeConfig.type);
 
             // NOTE: Context
 
@@ -108,41 +110,30 @@ export const runSingle = (
 
             // SECTION: Create NodeCompleteConfig
             // TODO: Enhance type safety
-            let nodeCompleteConfig: NodeCompleteConfig;
-            if (fieldDefinitions) {
-              const nodeCompleteConfigPartial = D.mapWithKey(
-                fieldDefinitions,
+            let nodeAllLevelConfig: NodeAllLevelConfigUnion;
+
+            if (accountLevelConfigFieldDefinitions) {
+              const nodeAllLevelConfigPartial = D.mapWithKey(
+                accountLevelConfigFieldDefinitions,
                 (key, fd) => {
-                  if (
-                    'globalFieldDefinitionKey' in fd &&
-                    fd.globalFieldDefinitionKey
-                  ) {
-                    // TODO: Remove dependency on state-root
-                    // move transformation of nodeConfig out of this function
-                    return useLocalStorageStore
-                      .getState()
-                      .getLocalAccountLevelNodeFieldValue(
-                        nodeConfig.type,
-                        fd.globalFieldDefinitionKey,
-                      );
-                  } else {
-                    return nodeConfig[key as keyof NodeConfig];
-                  }
+                  return useLocalStorageStore
+                    .getState()
+                    .getLocalAccountLevelNodeFieldValue(nodeConfig.type, key);
                 },
-              ) as NodeCompleteConfig;
-              nodeCompleteConfig = {
+              ) as NodeAllLevelConfigUnion;
+
+              nodeAllLevelConfig = {
                 ...nodeConfig,
-                ...nodeCompleteConfigPartial,
+                ...nodeAllLevelConfigPartial,
               };
             } else {
-              nodeCompleteConfig = nodeConfig as NodeCompleteConfig;
+              nodeAllLevelConfig = nodeConfig as NodeAllLevelConfigUnion;
             }
             // !SECTION
 
             // TODO: Improve typing
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const config: NodeExecutionConfig<any> = {
-              nodeConfig: nodeCompleteConfig,
+            const config: NodeExecutionConfig<NodeAllLevelConfigUnion> = {
+              nodeConfig: nodeAllLevelConfig,
               connectorList,
             };
 

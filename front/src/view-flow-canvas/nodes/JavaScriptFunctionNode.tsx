@@ -3,8 +3,8 @@ import FormLabel from '@mui/joy/FormLabel';
 import Textarea from '@mui/joy/Textarea';
 import {
   ConnectorType,
+  JavaScriptFunctionNodeInstanceLevelConfig,
   NodeID,
-  V3JavaScriptFunctionNodeConfig,
 } from 'flow-models';
 import { useContext, useMemo, useState } from 'react';
 import { useNodeId } from 'reactflow';
@@ -31,7 +31,10 @@ export default function JavaScriptFunctionNode() {
   }, [nodeId, variablesDict]);
 
   const nodeConfig = useMemo(
-    () => nodeConfigsDict[nodeId] as V3JavaScriptFunctionNodeConfig | undefined,
+    () =>
+      nodeConfigsDict[nodeId] as
+        | JavaScriptFunctionNodeInstanceLevelConfig
+        | undefined,
     [nodeConfigsDict, nodeId],
   );
 
