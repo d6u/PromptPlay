@@ -6,10 +6,10 @@ import Input from '@mui/joy/Input';
 import Option from '@mui/joy/Option';
 import Select from '@mui/joy/Select';
 import {
+  ChatGPTChatCompletionNodeInstanceLevelConfig,
   ChatGPTChatCompletionResponseFormatType,
   NodeID,
   OpenAIChatModel,
-  V3ChatGPTChatCompletionNodeConfig,
 } from 'flow-models';
 import { NEW_LINE_SYMBOL } from 'integrations/openai';
 import { useContext, useEffect, useMemo, useState } from 'react';
@@ -52,7 +52,7 @@ export default function ChatGPTChatCompletionNode() {
 
   const nodeConfig = useMemo(() => {
     return nodeConfigsDict[nodeId] as
-      | V3ChatGPTChatCompletionNodeConfig
+      | ChatGPTChatCompletionNodeInstanceLevelConfig
       | undefined;
   }, [nodeConfigsDict, nodeId]);
 

@@ -9,7 +9,6 @@ import invariant from 'tiny-invariant';
 
 import {
   ConnectorResultMap,
-  NodeConfig,
   NodeID,
   getNodeDefinitionForNodeTypeName,
 } from 'flow-models';
@@ -89,44 +88,53 @@ export default function RouteBatchTest() {
     // SECTION: Validate nodeConfigs
     // TODO: Unifying the validation code
 
-    const { setFieldFeedbacks, hasAnyFeedbacks } =
+    const { setFieldFeedbacks, removeFieldFeedbacks, hasAnyFeedbacks } =
       useNodeFieldFeedbackStore.getState();
 
     pipe(
       nodeConfigsDict,
       D.toPairs,
       A.forEach(([nodeId, nodeConfig]) => {
-        const { fieldDefinitions } = getNodeDefinitionForNodeTypeName(
-          nodeConfig.type,
-        );
+        const { accountLevelConfigFieldDefinitions } =
+          getNodeDefinitionForNodeTypeName(nodeConfig.type);
 
-        if (!fieldDefinitions) {
+        if (!accountLevelConfigFieldDefinitions) {
           return;
         }
 
-        D.toPairs(fieldDefinitions).forEach(([key, fd]) => {
-          if ('validate' in fd && fd.validate) {
-            const fieldValue = fd.globalFieldDefinitionKey
-              ? useLocalStorageStore
-                  .getState()
-                  .getLocalAccountLevelNodeFieldValue(
-                    nodeConfig.type,
-                    fd.globalFieldDefinitionKey,
-                  )
-              : nodeConfig[key as keyof NodeConfig];
+        Object.entries(accountLevelConfigFieldDefinitions).forEach(
+          ([key, fd]) => {
+            if (!fd.schema) {
+              return;
+            }
 
-            invariant(fieldValue != null, 'fieldValue is not null');
+            const fieldValue = useLocalStorageStore
+              .getState()
+              .getLocalAccountLevelNodeFieldValue(nodeConfig.type, key);
 
-            const feedbackMap = fd.validate(fieldValue);
+            const { error } = fd.schema.validate(fieldValue);
 
-            setFieldFeedbacks(`${nodeConfig.nodeId}:${key}`, feedbackMap);
+            if (error) {
+              setFieldFeedbacks(
+                nodeConfig.nodeId,
+                key,
+                error.details.map((detail) => detail.message),
+              );
 
-            updateNodeAugment(nodeId as NodeID, {
-              isRunning: false,
-              hasError: true,
-            });
-          }
-        });
+              updateNodeAugment(nodeId as NodeID, {
+                isRunning: false,
+                hasError: true,
+              });
+            } else {
+              removeFieldFeedbacks(nodeConfig.nodeId, key);
+
+              updateNodeAugment(nodeId as NodeID, {
+                isRunning: false,
+                hasError: false,
+              });
+            }
+          },
+        );
       }),
     );
 

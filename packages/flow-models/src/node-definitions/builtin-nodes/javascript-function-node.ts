@@ -10,20 +10,21 @@ import {
 } from '../../base-types/connector-types';
 import { NodeID } from '../../base-types/id-types';
 import {
+  FieldType,
   NodeDefinition,
   NodeExecutionEvent,
   NodeExecutionEventType,
   NodeType,
 } from '../../node-definition-base-types';
 
-export type V3JavaScriptFunctionNodeConfig = {
+export type JavaScriptFunctionNodeInstanceLevelConfig = {
   type: NodeType.JavaScriptFunctionNode;
   nodeId: NodeID;
   javaScriptCode: string;
 };
 
-export type JavaScriptFunctionNodeCompleteConfig =
-  V3JavaScriptFunctionNodeConfig;
+export type JavaScriptFunctionNodeAllLevelConfig =
+  JavaScriptFunctionNodeInstanceLevelConfig;
 
 export const JavaScriptFunctionNodeConfigSchema = Joi.object({
   type: Joi.string().required().valid(NodeType.JavaScriptFunctionNode),
@@ -32,13 +33,15 @@ export const JavaScriptFunctionNodeConfigSchema = Joi.object({
 });
 
 export const JAVASCRIPT_NODE_DEFINITION: NodeDefinition<
-  V3JavaScriptFunctionNodeConfig,
-  JavaScriptFunctionNodeCompleteConfig
+  JavaScriptFunctionNodeInstanceLevelConfig,
+  JavaScriptFunctionNodeAllLevelConfig
 > = {
-  nodeType: NodeType.JavaScriptFunctionNode,
+  type: NodeType.JavaScriptFunctionNode,
+  label: 'JavaScript',
 
-  isEnabledInToolbar: true,
-  toolbarLabel: 'JavaScript',
+  instanceLevelConfigFieldDefinitions: {
+    javaScriptCode: { type: FieldType.SpecialRendering },
+  },
 
   createDefaultNodeConfig: (nodeId) => {
     return {

@@ -1,8 +1,10 @@
-import chance from 'common-utils/chance';
-import randomId from 'common-utils/randomId';
 import Joi from 'joi';
 import { Observable } from 'rxjs';
 import invariant from 'tiny-invariant';
+
+import chance from 'common-utils/chance';
+import randomId from 'common-utils/randomId';
+
 import {
   ConnectorResultMap,
   ConnectorType,
@@ -18,12 +20,12 @@ import {
   NodeType,
 } from '../../node-definition-base-types';
 
-export type V3OutputNodeConfig = {
+export type OutputNodeInstanceLevelConfig = {
   type: NodeType.OutputNode;
   nodeId: NodeID;
 };
 
-export type OutputNodeCompleteConfig = V3OutputNodeConfig;
+export type OutputNodeAllLevelConfig = OutputNodeInstanceLevelConfig;
 
 export const OutputNodeConfigSchema = Joi.object({
   type: Joi.string().required().valid(NodeType.OutputNode),
@@ -31,13 +33,13 @@ export const OutputNodeConfigSchema = Joi.object({
 });
 
 export const OUTPUT_NODE_DEFINITION: NodeDefinition<
-  V3OutputNodeConfig,
-  OutputNodeCompleteConfig
+  OutputNodeInstanceLevelConfig,
+  OutputNodeAllLevelConfig
 > = {
-  nodeType: NodeType.OutputNode,
+  type: NodeType.OutputNode,
+  label: 'Output',
 
-  isEnabledInToolbar: true,
-  toolbarLabel: 'Output',
+  instanceLevelConfigFieldDefinitions: {},
 
   createDefaultNodeConfig: (nodeId) => {
     return {

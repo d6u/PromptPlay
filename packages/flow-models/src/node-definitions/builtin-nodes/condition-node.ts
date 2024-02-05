@@ -1,9 +1,11 @@
 import { D, F, pipe } from '@mobily/ts-belt';
-import randomId from 'common-utils/randomId';
 import Joi from 'joi';
 import jsonata from 'jsonata';
 import { Observable } from 'rxjs';
 import invariant from 'tiny-invariant';
+
+import randomId from 'common-utils/randomId';
+
 import {
   Condition,
   ConditionResult,
@@ -14,19 +16,20 @@ import {
 } from '../../base-types/connector-types';
 import { ConnectorID, NodeID } from '../../base-types/id-types';
 import {
+  FieldType,
   NodeDefinition,
   NodeExecutionEvent,
   NodeExecutionEventType,
   NodeType,
 } from '../../node-definition-base-types';
 
-export type V3ConditionNodeConfig = {
+export type ConditionNodeInstanceLevelConfig = {
   type: NodeType.ConditionNode;
   nodeId: NodeID;
   stopAtTheFirstMatch: boolean;
 };
 
-export type ConditionNodeCompleteConfig = V3ConditionNodeConfig;
+export type ConditionNodeAllLevelConfig = ConditionNodeInstanceLevelConfig;
 
 export const ConditionNodeConfigSchema = Joi.object({
   type: Joi.string().required().valid(NodeType.ConditionNode),
@@ -35,13 +38,15 @@ export const ConditionNodeConfigSchema = Joi.object({
 });
 
 export const CONDITION_NODE_DEFINITION: NodeDefinition<
-  V3ConditionNodeConfig,
-  ConditionNodeCompleteConfig
+  ConditionNodeInstanceLevelConfig,
+  ConditionNodeAllLevelConfig
 > = {
-  nodeType: NodeType.ConditionNode,
+  type: NodeType.ConditionNode,
+  label: 'Condition',
 
-  isEnabledInToolbar: true,
-  toolbarLabel: 'Condition',
+  instanceLevelConfigFieldDefinitions: {
+    stopAtTheFirstMatch: { type: FieldType.SpecialRendering },
+  },
 
   createDefaultNodeConfig: (nodeId) => {
     return {

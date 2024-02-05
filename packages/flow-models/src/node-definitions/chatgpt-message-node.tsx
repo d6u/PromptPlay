@@ -1,10 +1,12 @@
 import { A, F } from '@mobily/ts-belt';
-import randomId from 'common-utils/randomId';
-import * as OpenAI from 'integrations/openai';
 import Joi from 'joi';
 import mustache from 'mustache';
 import { Observable } from 'rxjs';
 import invariant from 'tiny-invariant';
+
+import randomId from 'common-utils/randomId';
+import * as OpenAI from 'integrations/openai';
+
 import {
   ConnectorType,
   NodeInputVariable,
@@ -21,14 +23,15 @@ import {
 } from '../node-definition-base-types';
 import { FieldType } from '../node-definition-base-types/field-definition-interfaces';
 
-export type V3ChatGPTMessageNodeConfig = {
+export type ChatGPTMessageNodeInstanceLevelConfig = {
   type: NodeType.ChatGPTMessageNode;
   nodeId: NodeID;
   role: OpenAI.ChatGPTMessageRole;
   content: string;
 };
 
-export type ChatGPTMessageNodeCompleteConfig = V3ChatGPTMessageNodeConfig;
+export type ChatGPTMessageNodeAllLevelConfig =
+  ChatGPTMessageNodeInstanceLevelConfig;
 
 export const ChatgptMessageNodeConfigSchema = Joi.object({
   type: Joi.string().required().valid(NodeType.ChatGPTMessageNode),
@@ -38,30 +41,13 @@ export const ChatgptMessageNodeConfigSchema = Joi.object({
 });
 
 export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition<
-  V3ChatGPTMessageNodeConfig,
-  ChatGPTMessageNodeCompleteConfig
+  ChatGPTMessageNodeInstanceLevelConfig,
+  ChatGPTMessageNodeAllLevelConfig
 > = {
-  nodeType: NodeType.ChatGPTMessageNode,
+  type: NodeType.ChatGPTMessageNode,
+  label: 'ChatGPT Message',
 
-  isEnabledInToolbar: true,
-  toolbarLabel: 'ChatGPT Message',
-
-  sidePanelType: 'ChatGPTMessageConfig',
-
-  canAddIncomingVariables: true,
-  incomingVariableConfigs: [
-    {
-      isNonEditable: true,
-      helperMessage: (
-        <>
-          <code>messages</code> is a list of ChatGPT message. It's default to an
-          empty list if unspecified. The current message will be appended to the
-          list and output as the <code>messages</code> output.
-        </>
-      ),
-    },
-  ],
-  fieldDefinitions: {
+  instanceLevelConfigFieldDefinitions: {
     role: {
       type: FieldType.Radio,
       label: 'Role',
@@ -92,6 +78,19 @@ export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition<
       ),
     },
   },
+
+  fixedIncomingVariables: {
+    messages: {
+      helperMessage: (
+        <>
+          <code>messages</code> is a list of ChatGPT message. It's default to an
+          empty list if unspecified. The current message will be appended to the
+          list and output as the <code>messages</code> output.
+        </>
+      ),
+    },
+  },
+  canUserAddIncomingVariables: true,
 
   createDefaultNodeConfig: (nodeId) => {
     return {
@@ -211,4 +210,6 @@ export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition<
       subscriber.complete();
     });
   },
+
+  tmpSidePanelType: 'ChatGPTMessageConfig',
 };

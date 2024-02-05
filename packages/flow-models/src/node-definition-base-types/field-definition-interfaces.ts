@@ -1,4 +1,5 @@
-import type { ReactNode } from 'react';
+import Joi from 'joi';
+import { ReactNode } from 'react';
 
 export enum FieldType {
   Text = 'Text',
@@ -7,25 +8,18 @@ export enum FieldType {
   Radio = 'Radio',
   Select = 'Select',
   Checkbox = 'Checkbox',
+  SpecialRendering = 'SpecialRendering',
 }
 
-export type FieldDefinition =
-  | TextFieldDefinition
-  | NumberFieldDefinition
-  | TextareaFieldDefinition
-  | RadioFieldDefinition
-  | SelectFieldDefinition
-  | CheckboxFieldDefinition;
+// ANCHOR: Instance Level Fields
 
-export type TextFieldDefinition = {
+export type TextFieldDefinition<T = unknown> = {
   type: FieldType.Text;
   label: string;
-  transformBeforeRender?: (value: unknown) => string;
-  transformBeforeSave?: (value: string) => unknown;
+  transformBeforeRender?: (value: T) => string;
+  transformBeforeSave?: (value: string) => T;
   placeholder?: string;
   helperMessage?: ReactNode;
-  globalFieldDefinitionKey?: string;
-  validate?: (value: string) => Record<string, ReactNode>;
 };
 
 export type NumberFieldDefinition = {
@@ -73,8 +67,29 @@ export type CheckboxFieldDefinition = {
   helperMessage?: ReactNode;
 };
 
-// ANCHOR: Global
+// Special Rendering field's logic will be held within the specific
+// node component.
+export type SpecialRenderingFieldDefinition = {
+  type: FieldType.SpecialRendering;
+};
 
-export type GlobalFieldDefinition = {
-  isSecret: boolean;
+export type NodeInstanceLevelFieldDefinitionUnion =
+  | TextFieldDefinition
+  | NumberFieldDefinition
+  | TextareaFieldDefinition
+  | RadioFieldDefinition
+  | SelectFieldDefinition
+  | CheckboxFieldDefinition
+  | SpecialRenderingFieldDefinition;
+
+// ANCHOR: Account Level Fields
+
+export type NodeAccountLevelTextFieldDefinition = {
+  type: FieldType.Text;
+  // Displaying in UI
+  label: string;
+  placeholder?: string;
+  helperMessage?: ReactNode;
+  // Validation
+  schema?: Joi.StringSchema;
 };

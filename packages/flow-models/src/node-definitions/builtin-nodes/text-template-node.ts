@@ -1,8 +1,10 @@
-import randomId from 'common-utils/randomId';
 import Joi from 'joi';
 import mustache from 'mustache';
 import { Observable } from 'rxjs';
 import invariant from 'tiny-invariant';
+
+import randomId from 'common-utils/randomId';
+
 import {
   ConnectorType,
   NodeInputVariable,
@@ -12,19 +14,21 @@ import {
 } from '../../base-types/connector-types';
 import { NodeID } from '../../base-types/id-types';
 import {
+  FieldType,
   NodeDefinition,
   NodeExecutionEvent,
   NodeExecutionEventType,
   NodeType,
 } from '../../node-definition-base-types';
 
-export type V3TextTemplateNodeConfig = {
+export type TextTemplateNodeInstanceLevelConfig = {
   nodeId: NodeID;
   type: NodeType.TextTemplate;
   content: string;
 };
 
-export type TextTemplateNodeCompleteConfig = V3TextTemplateNodeConfig;
+export type TextTemplateNodeAllLevelConfig =
+  TextTemplateNodeInstanceLevelConfig;
 
 export const TextTemplateNodeConfigSchema = Joi.object({
   type: Joi.string().required().valid(NodeType.TextTemplate),
@@ -33,13 +37,20 @@ export const TextTemplateNodeConfigSchema = Joi.object({
 });
 
 export const TEXT_TEMPLATE_NODE_DEFINITION: NodeDefinition<
-  V3TextTemplateNodeConfig,
-  TextTemplateNodeCompleteConfig
+  TextTemplateNodeInstanceLevelConfig,
+  TextTemplateNodeAllLevelConfig
 > = {
-  nodeType: NodeType.TextTemplate,
+  type: NodeType.TextTemplate,
+  label: 'Text',
 
-  isEnabledInToolbar: true,
-  toolbarLabel: 'Text',
+  instanceLevelConfigFieldDefinitions: {
+    content: {
+      type: FieldType.Text,
+      label: 'Text content',
+    },
+  },
+
+  canUserAddIncomingVariables: true,
 
   createDefaultNodeConfig: (nodeId) => {
     return {

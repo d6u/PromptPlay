@@ -1,13 +1,11 @@
 import { FormControl, FormHelperText, FormLabel, Input } from '@mui/joy';
-import {
-  GlobalFieldDefinition,
-  NodeType,
-  TextFieldDefinition,
-} from 'flow-models';
 import { useCallback, useEffect, useState } from 'react';
+
+import { NodeAccountLevelTextFieldDefinition, NodeType } from 'flow-models';
+
 import { useLocalStorageStore } from 'state-root/local-storage-state';
 import { useNodeFieldFeedbackStore } from 'state-root/node-field-feedback-state';
-import invariant from 'tiny-invariant';
+
 import NodeBoxHelperTextContainer from '../node-box/NodeBoxHelperTextContainer';
 import NodeBoxSection from '../node-box/NodeBoxSection';
 
@@ -15,28 +13,19 @@ type Props = {
   nodeId: string;
   nodeType: NodeType;
   fieldKey: string;
-  fieldDefinition: TextFieldDefinition;
-  globalFieldDefinition: GlobalFieldDefinition;
+  fieldDefinition: NodeAccountLevelTextFieldDefinition;
   isNodeConfigReadOnly: boolean;
 };
 
 function NodeGlobalTextField(props: Props) {
   const fd = props.fieldDefinition;
-  const gfd = props.globalFieldDefinition;
-
-  const globalFieldDefinitionKey = fd.globalFieldDefinitionKey;
-
-  invariant(globalFieldDefinitionKey, 'globalFieldDefinitionKey is not null');
 
   const getGlobalField =
     useLocalStorageStore.use.getLocalAccountLevelNodeFieldValue();
   const setGlobalField =
     useLocalStorageStore.use.setLocalAccountLevelNodeFieldValue();
 
-  const globalFieldValue = getGlobalField(
-    props.nodeType,
-    globalFieldDefinitionKey,
-  );
+  const globalFieldValue = getGlobalField(props.nodeType, props.fieldKey);
 
   const [localFieldValue, setLocalFieldValue] = useState<string>(() => {
     return globalFieldValue ?? '';
@@ -47,13 +36,8 @@ function NodeGlobalTextField(props: Props) {
   }, [globalFieldValue]);
 
   const onSaveCallback = useCallback(() => {
-    setGlobalField(props.nodeType, globalFieldDefinitionKey, localFieldValue);
-  }, [
-    globalFieldDefinitionKey,
-    localFieldValue,
-    props.nodeType,
-    setGlobalField,
-  ]);
+    setGlobalField(props.nodeType, props.fieldKey, localFieldValue);
+  }, [localFieldValue, props.fieldKey, props.nodeType, setGlobalField]);
 
   const getFieldFeedbacks = useNodeFieldFeedbackStore.use.getFieldFeedbacks();
 
@@ -62,15 +46,14 @@ function NodeGlobalTextField(props: Props) {
     return null;
   }
 
-  const feedbackKey = `${props.nodeId}:${props.fieldKey}`;
-  const feedbacks = getFieldFeedbacks(feedbackKey);
+  const feedbacks = getFieldFeedbacks(props.nodeId, props.fieldKey);
 
   return (
     <NodeBoxSection>
       <FormControl>
         <FormLabel>{fd.label}</FormLabel>
         <Input
-          type={gfd.isSecret ? 'password' : 'text'}
+          type="password"
           color={feedbacks.length ? 'danger' : 'neutral'}
           placeholder={fd.placeholder}
           value={localFieldValue}

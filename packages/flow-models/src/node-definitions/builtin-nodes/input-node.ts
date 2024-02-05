@@ -1,8 +1,10 @@
-import chance from 'common-utils/chance';
-import randomId from 'common-utils/randomId';
 import Joi from 'joi';
 import { Observable } from 'rxjs';
 import invariant from 'tiny-invariant';
+
+import chance from 'common-utils/chance';
+import randomId from 'common-utils/randomId';
+
 import {
   ConnectorType,
   FlowInputVariable,
@@ -17,12 +19,12 @@ import {
   NodeType,
 } from '../../node-definition-base-types';
 
-export type V3InputNodeConfig = {
+export type InputNodeInstanceLevelConfig = {
   type: NodeType.InputNode;
   nodeId: NodeID;
 };
 
-export type InputNodeCompleteConfig = V3InputNodeConfig;
+export type InputNodeAllLevelConfig = InputNodeInstanceLevelConfig;
 
 export const InputNodeConfigSchema = Joi.object({
   type: Joi.string().required().valid(NodeType.InputNode),
@@ -30,13 +32,13 @@ export const InputNodeConfigSchema = Joi.object({
 });
 
 export const INPUT_NODE_DEFINITION: NodeDefinition<
-  V3InputNodeConfig,
-  InputNodeCompleteConfig
+  InputNodeInstanceLevelConfig,
+  InputNodeAllLevelConfig
 > = {
-  nodeType: NodeType.InputNode,
+  type: NodeType.InputNode,
+  label: 'Input',
 
-  isEnabledInToolbar: true,
-  toolbarLabel: 'Input',
+  instanceLevelConfigFieldDefinitions: {},
 
   createDefaultNodeConfig(nodeId) {
     return {

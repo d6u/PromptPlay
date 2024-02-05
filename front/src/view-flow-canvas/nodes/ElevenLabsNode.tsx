@@ -2,7 +2,7 @@ import FormControl from '@mui/joy/FormControl';
 import FormHelperText from '@mui/joy/FormHelperText';
 import FormLabel from '@mui/joy/FormLabel';
 import Input from '@mui/joy/Input';
-import { NodeID, V3ElevenLabsNodeConfig } from 'flow-models';
+import { ElevenLabsNodeInstanceLevelConfig, NodeID } from 'flow-models';
 import { useContext, useMemo, useState } from 'react';
 import { useNodeId } from 'reactflow';
 import RouteFlowContext from 'state-flow/context/FlowRouteContext';
@@ -42,7 +42,7 @@ export default function ElevenLabsNode() {
   const updateNodeConfig = useFlowStore((s) => s.updateNodeConfig);
 
   const nodeConfig = useMemo(
-    () => nodeConfigs[nodeId] as V3ElevenLabsNodeConfig | undefined,
+    () => nodeConfigs[nodeId] as ElevenLabsNodeInstanceLevelConfig | undefined,
     [nodeConfigs, nodeId],
   );
 
