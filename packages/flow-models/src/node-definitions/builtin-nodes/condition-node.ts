@@ -37,164 +37,164 @@ export const ConditionNodeConfigSchema = Joi.object({
   stopAtTheFirstMatch: Joi.boolean().default(true),
 });
 
-export const CONDITION_NODE_DEFINITION: NodeDefinition<ConditionNodeInstanceLevelConfig> =
-  {
-    type: NodeType.ConditionNode,
-    label: 'Condition',
+export const CONDITION_NODE_DEFINITION: NodeDefinition<
+  ConditionNodeInstanceLevelConfig,
+  ConditionNodeAllLevelConfig
+> = {
+  type: NodeType.ConditionNode,
+  label: 'Condition',
 
-    instanceLevelConfigFieldDefinitions: {
-      stopAtTheFirstMatch: { type: FieldType.SpecialRendering },
-    },
+  instanceLevelConfigFieldDefinitions: {
+    stopAtTheFirstMatch: { type: FieldType.SpecialRendering },
+  },
 
-    createDefaultNodeConfig: (nodeId) => {
-      return {
-        nodeConfig: {
-          type: NodeType.ConditionNode,
+  createDefaultNodeConfig: (nodeId) => {
+    return {
+      nodeConfig: {
+        type: NodeType.ConditionNode,
+        nodeId: nodeId,
+        stopAtTheFirstMatch: true,
+      },
+      variableConfigList: [
+        {
+          type: ConnectorType.NodeInput,
+          id: asV3VariableID(`${nodeId}/input`),
           nodeId: nodeId,
-          stopAtTheFirstMatch: true,
+          index: 0,
+          name: 'input',
+          valueType: VariableValueType.Unknown,
         },
-        variableConfigList: [
-          {
-            type: ConnectorType.NodeInput,
-            id: asV3VariableID(`${nodeId}/input`),
-            nodeId: nodeId,
-            index: 0,
-            name: 'input',
-            valueType: VariableValueType.Unknown,
+        {
+          type: ConnectorType.Condition,
+          id: asV3VariableID(`${nodeId}/${randomId()}`),
+          index: -1, // Special condition for default case
+          nodeId: nodeId,
+          expressionString: '',
+        },
+        {
+          type: ConnectorType.Condition,
+          id: asV3VariableID(`${nodeId}/${randomId()}`),
+          index: 0,
+          nodeId: nodeId,
+          expressionString: '$ = "Value A"',
+        },
+        {
+          type: ConnectorType.Condition,
+          id: asV3VariableID(`${nodeId}/${randomId()}`),
+          index: 1,
+          nodeId: nodeId,
+          expressionString: '$ = "Value B"',
+        },
+        {
+          type: ConnectorType.ConditionTarget,
+          id: asV3VariableID(`${nodeId}/${randomId()}`),
+          nodeId: nodeId,
+        },
+      ],
+    };
+  },
+
+  createNodeExecutionObservable: (context, nodeExecutionConfig, params) => {
+    return new Observable<NodeExecutionEvent>((subscriber) => {
+      const { nodeConfig, connectorList } = nodeExecutionConfig;
+      const { nodeInputValueMap } = params;
+
+      invariant(nodeConfig.type === NodeType.ConditionNode);
+
+      subscriber.next({
+        type: NodeExecutionEventType.Start,
+        nodeId: nodeConfig.nodeId,
+      });
+
+      (async function () {
+        const inputVariable = connectorList.find(
+          (connector): connector is NodeInputVariable => {
+            return connector.type === ConnectorType.NodeInput;
           },
-          {
-            type: ConnectorType.Condition,
-            id: asV3VariableID(`${nodeId}/${randomId()}`),
-            index: -1, // Special condition for default case
-            nodeId: nodeId,
-            expressionString: '',
-          },
-          {
-            type: ConnectorType.Condition,
-            id: asV3VariableID(`${nodeId}/${randomId()}`),
-            index: 0,
-            nodeId: nodeId,
-            expressionString: '$ = "Value A"',
-          },
-          {
-            type: ConnectorType.Condition,
-            id: asV3VariableID(`${nodeId}/${randomId()}`),
-            index: 1,
-            nodeId: nodeId,
-            expressionString: '$ = "Value B"',
-          },
-          {
-            type: ConnectorType.ConditionTarget,
-            id: asV3VariableID(`${nodeId}/${randomId()}`),
-            nodeId: nodeId,
-          },
-        ],
-      };
-    },
+        );
 
-    createNodeExecutionObservable: (context, nodeExecutionConfig, params) => {
-      return new Observable<NodeExecutionEvent>((subscriber) => {
-        const { nodeConfig, connectorList } = nodeExecutionConfig;
-        const { nodeInputValueMap } = params;
+        invariant(inputVariable != null);
 
-        invariant(nodeConfig.type === NodeType.ConditionNode);
+        const inputValue = nodeInputValueMap[inputVariable.id];
 
-        subscriber.next({
-          type: NodeExecutionEventType.Start,
-          nodeId: nodeConfig.nodeId,
-        });
+        const conditions = connectorList
+          .filter((connector): connector is Condition => {
+            return connector.type === ConnectorType.Condition;
+          })
+          .sort((a, b) => a.index - b.index);
 
-        (async function () {
-          const inputVariable = connectorList.find(
-            (connector): connector is NodeInputVariable => {
-              return connector.type === ConnectorType.NodeInput;
-            },
-          );
+        const defaultCaseCondition = conditions[0];
+        const normalConditions = conditions.slice(1);
 
-          invariant(inputVariable != null);
+        const conditionResultMap: Record<ConnectorID, ConditionResult> = {};
 
-          const inputValue = nodeInputValueMap[inputVariable.id];
+        // NOTE: Main Logic
 
-          const conditions = connectorList
-            .filter((connector): connector is Condition => {
-              return connector.type === ConnectorType.Condition;
-            })
-            .sort((a, b) => a.index - b.index);
+        let hasMatch = false;
 
-          const defaultCaseCondition = conditions[0];
-          const normalConditions = conditions.slice(1);
+        for (const condition of normalConditions) {
+          const expression = jsonata(condition.expressionString);
+          const result = await expression.evaluate(inputValue);
 
-          const conditionResultMap: Record<ConnectorID, ConditionResult> = {};
+          if (result) {
+            hasMatch = true;
 
-          // NOTE: Main Logic
-
-          let hasMatch = false;
-
-          for (const condition of normalConditions) {
-            const expression = jsonata(condition.expressionString);
-            const result = await expression.evaluate(inputValue);
-
-            if (result) {
-              hasMatch = true;
-
-              conditionResultMap[condition.id] = {
-                conditionId: condition.id,
-                isConditionMatched: true,
-              };
-
-              if (nodeConfig.stopAtTheFirstMatch) {
-                break;
-              }
-            } else {
-              conditionResultMap[condition.id] = {
-                conditionId: condition.id,
-                isConditionMatched: false,
-              };
-            }
-          }
-
-          if (!hasMatch) {
-            conditionResultMap[defaultCaseCondition.id] = {
-              conditionId: defaultCaseCondition.id,
+            conditionResultMap[condition.id] = {
+              conditionId: condition.id,
               isConditionMatched: true,
             };
-          }
 
+            if (nodeConfig.stopAtTheFirstMatch) {
+              break;
+            }
+          } else {
+            conditionResultMap[condition.id] = {
+              conditionId: condition.id,
+              isConditionMatched: false,
+            };
+          }
+        }
+
+        if (!hasMatch) {
+          conditionResultMap[defaultCaseCondition.id] = {
+            conditionId: defaultCaseCondition.id,
+            isConditionMatched: true,
+          };
+        }
+
+        subscriber.next({
+          type: NodeExecutionEventType.VariableValues,
+          nodeId: nodeConfig.nodeId,
+          variableValuesLookUpDict: conditionResultMap,
+        });
+
+        subscriber.next({
+          type: NodeExecutionEventType.Finish,
+          nodeId: nodeConfig.nodeId,
+          finishedConnectorIds: pipe(
+            conditionResultMap,
+            D.filter((result) => result.isConditionMatched),
+            D.keys,
+            F.toMutable,
+          ),
+        });
+      })()
+        .catch((err) => {
           subscriber.next({
-            type: NodeExecutionEventType.VariableValues,
+            type: NodeExecutionEventType.Errors,
             nodeId: nodeConfig.nodeId,
-            variableValuesLookUpDict: conditionResultMap,
+            errMessages: [err instanceof Error ? err.message : 'Unknown error'],
           });
 
           subscriber.next({
             type: NodeExecutionEventType.Finish,
             nodeId: nodeConfig.nodeId,
-            finishedConnectorIds: pipe(
-              conditionResultMap,
-              D.filter((result) => result.isConditionMatched),
-              D.keys,
-              F.toMutable,
-            ),
+            finishedConnectorIds: [],
           });
-        })()
-          .catch((err) => {
-            subscriber.next({
-              type: NodeExecutionEventType.Errors,
-              nodeId: nodeConfig.nodeId,
-              errMessages: [
-                err instanceof Error ? err.message : 'Unknown error',
-              ],
-            });
-
-            subscriber.next({
-              type: NodeExecutionEventType.Finish,
-              nodeId: nodeConfig.nodeId,
-              finishedConnectorIds: [],
-            });
-          })
-          .finally(() => {
-            subscriber.complete();
-          });
-      });
-    },
-  };
+        })
+        .finally(() => {
+          subscriber.complete();
+        });
+    });
+  },
+};

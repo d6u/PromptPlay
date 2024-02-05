@@ -1,11 +1,8 @@
-import { NodeDefinition } from './src/node-definition-base-types/node-definition-interface';
 import {
   BULTIN_NODE_TYPES_ORDERED_ARRAY,
   INTEGRATION_NODE_TYPES_ORDERED_ARRAY,
   NODE_TYPE_TO_NODE_DEFINITION_MAP,
   NodeType,
-  NodeTypeToNodeCompleteConfigTypeMap,
-  NodeTypeToNodeConfigTypeMap,
 } from './src/node-definitions';
 
 export * from './src/base-types';
@@ -21,10 +18,7 @@ export * from './src/v3-flow-content-types';
 
 export function getNodeDefinitionForNodeTypeName<T extends NodeType>(
   type: T,
-): NodeDefinition<
-  NodeTypeToNodeConfigTypeMap[T],
-  NodeTypeToNodeCompleteConfigTypeMap[T]
-> {
+): (typeof NODE_TYPE_TO_NODE_DEFINITION_MAP)[T] {
   return NODE_TYPE_TO_NODE_DEFINITION_MAP[type];
 }
 

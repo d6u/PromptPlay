@@ -88,7 +88,7 @@ export type NodeExecutionParams = {
 
 export interface NodeDefinition<
   TInstanceLevelConfig extends BaseNodeInstanceLevelConfig,
-  TAllLevelConfig extends TInstanceLevelConfig = TInstanceLevelConfig,
+  TAllLevelConfig extends TInstanceLevelConfig,
 > {
   type: TInstanceLevelConfig['type'];
 

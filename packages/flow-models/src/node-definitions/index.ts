@@ -1,6 +1,6 @@
 import Joi from 'joi';
 import { NodeID } from '../base-types';
-import { NodeDefinition, NodeType } from '../node-definition-base-types';
+import { NodeType } from '../node-definition-base-types';
 import {
   CONDITION_NODE_DEFINITION,
   ConditionNodeAllLevelConfig,
@@ -88,7 +88,7 @@ export type NodeTypeToNodeConfigTypeMap = {
 export type NodeConfigMap = Record<NodeID, NodeConfig>;
 
 // ANCHOR: Update this when adding new node types
-export type NodeCompleteConfig =
+export type NodeAllLevelConfigUnion =
   // Builtin node types
   | InputNodeAllLevelConfig
   | OutputNodeAllLevelConfig
@@ -101,8 +101,8 @@ export type NodeCompleteConfig =
   | HuggingFaceInferenceNodeAllLevelConfig
   | ElevenLabsNodeAllLevelConfig;
 
-export type NodeTypeToNodeCompleteConfigTypeMap = {
-  [T in NodeCompleteConfig as T['type']]: T;
+export type NodeTypeToNodeAllLevelConfigTypeMap = {
+  [T in NodeAllLevelConfigUnion as T['type']]: T;
 };
 
 // ANCHOR: Update this when adding new node types
@@ -122,12 +122,24 @@ export const NodeConfigMapSchema = Joi.object().pattern(
   ),
 );
 
+type NodeDefinitionUnion =
+  | typeof INPUT_NODE_DEFINITION
+  | typeof OUTPUT_NODE_DEFINITION
+  | typeof CONDITION_NODE_DEFINITION
+  | typeof JAVASCRIPT_NODE_DEFINITION
+  | typeof TEXT_TEMPLATE_NODE_DEFINITION
+  | typeof CHATGPT_MESSAGE_NODE_DEFINITION
+  | typeof CHATGPT_CHAT_COMPLETION_NODE_DEFINITION
+  | typeof HUGGINGFACE_INFERENCE_NODE_DEFINITION
+  | typeof ELEVENLABS_NODE_DEFINITION;
+
+type NodeTypeToNodeDefinitionUnionMap = {
+  [T in NodeDefinitionUnion as T['type']]: T;
+};
+
 // ANCHOR: Update this when adding new node types
 export const NODE_TYPE_TO_NODE_DEFINITION_MAP: {
-  [key in NodeType]: NodeDefinition<
-    NodeTypeToNodeConfigTypeMap[key],
-    NodeTypeToNodeCompleteConfigTypeMap[key]
-  >;
+  [key in NodeType]: NodeTypeToNodeDefinitionUnionMap[key];
 } = {
   [NodeType.InputNode]: INPUT_NODE_DEFINITION,
   [NodeType.OutputNode]: OUTPUT_NODE_DEFINITION,
