@@ -18,6 +18,7 @@ import {
   ConnectorMap,
   ConnectorResultMap,
   ConnectorType,
+  CreateNodeExecutionObservableFunction,
   FlowExecutionContext,
   FlowOutputVariable,
   GraphEdge,
@@ -93,14 +94,28 @@ export const runSingle = (
           A.map((nodeConfig): Observable<NodeExecutionEvent> => {
             const {
               accountLevelConfigFieldDefinitions,
-              createNodeExecutionObservable: execute,
+              createNodeExecutionObservable,
             } = getNodeDefinitionForNodeTypeName(nodeConfig.type);
 
-            // NOTE: Context
+            // `createNodeExecutionObservable` is a union type like this:
+            //
+            // ```
+            // | CreateNodeExecutionObservableFunction<InputNodeInstanceLevelConfig>
+            // | CreateNodeExecutionObservableFunction<OutputNodeInstanceLevelConfig>
+            // | ...
+            // ```
+            //
+            // this will deduce the argument type of
+            // `createNodeExecutionObservable` to never when called.
+            // Cast it to a more flexible type to avoid this issue.
+            const execute =
+              createNodeExecutionObservable as CreateNodeExecutionObservableFunction<NodeAllLevelConfigUnion>;
+
+            // ANCHOR: Context
 
             const nodeExecutionContext = new NodeExecutionContext(context);
 
-            // NOTE: NodeExecutionConfig
+            // ANCHOR: NodeExecutionConfig
 
             const connectorList = pipe(
               connectorMap,
@@ -108,8 +123,10 @@ export const runSingle = (
               A.filter((connector) => connector.nodeId === nodeConfig.nodeId),
             );
 
-            // SECTION: Create NodeCompleteConfig
-            // TODO: Enhance type safety
+            // SECTION: Create NodeAllLevelConfig
+
+            // TODO: Add validation to ensure typesafety, this cannot be done
+            // in TypeScript due to the dynamic types used.
             let nodeAllLevelConfig: NodeAllLevelConfigUnion;
 
             if (accountLevelConfigFieldDefinitions) {
@@ -120,24 +137,24 @@ export const runSingle = (
                     .getState()
                     .getLocalAccountLevelNodeFieldValue(nodeConfig.type, key);
                 },
-              ) as NodeAllLevelConfigUnion;
+              );
 
               nodeAllLevelConfig = {
                 ...nodeConfig,
                 ...nodeAllLevelConfigPartial,
-              };
+              } as NodeAllLevelConfigUnion;
             } else {
               nodeAllLevelConfig = nodeConfig as NodeAllLevelConfigUnion;
             }
+
             // !SECTION
 
-            // TODO: Improve typing
             const config: NodeExecutionConfig<NodeAllLevelConfigUnion> = {
               nodeConfig: nodeAllLevelConfig,
               connectorList,
             };
 
-            // NOTE: NodeExecutionParams
+            // ANCHOR: NodeExecutionParams
 
             const nodeInputValueMap: ConnectorResultMap = {};
 
@@ -169,11 +186,12 @@ export const runSingle = (
               elevenLabsApiKey,
             };
 
-            // NOTE: Execute
+            // ANCHOR: Execute
+
             return execute(nodeExecutionContext, config, params).pipe(
               catchError<NodeExecutionEvent, Observable<NodeExecutionEvent>>(
                 (err) => {
-                  // NOTE: The observable will emit soft errors as
+                  // The observable will emit soft errors as
                   // NodeExecutionEventType.Errors event.
                   //
                   // This callback is for handling interruptive errors,
@@ -209,8 +227,8 @@ export const runSingle = (
       concatAll(),
       tap((event) => {
         if (event.type === NodeExecutionEventType.VariableValues) {
-          // NOTE: Update `allVariableValueMap` with values from
-          // node execution outputs.
+          // Update `allVariableValueMap` with values from node
+          // execution outputs.
           allVariableValueMap = produce(allVariableValueMap, (draft) => {
             pipe(
               event.variableValuesLookUpDict,
@@ -232,7 +250,7 @@ export const runSingle = (
               nodeIdListSubject.complete();
             }
           } else {
-            // NOTE: Incrementing count on NodeExecutionEventType.Start event
+            // Incrementing count on NodeExecutionEventType.Start event
             // won't work, because both `queuedNodeCount` and
             // `nextListOfNodeIds.length` could be 0 while there are still
             // values in `listOfNodeIdsSubject` waiting to be processed.

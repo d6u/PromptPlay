@@ -115,6 +115,9 @@ function NodeBoxInstanceLevelFields(props: Props) {
               }}
             />
           );
+        case FieldType.SpecialRendering: {
+          throw new Error('Should not handle SpecialRendering case');
+        }
       }
     },
   );

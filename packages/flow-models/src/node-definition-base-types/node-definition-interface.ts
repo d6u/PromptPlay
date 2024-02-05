@@ -86,6 +86,12 @@ export type NodeExecutionParams = {
   elevenLabsApiKey: string | null;
 };
 
+export type CreateNodeExecutionObservableFunction<T> = (
+  context: NodeExecutionContext,
+  nodeExecutionConfig: NodeExecutionConfig<T>,
+  params: NodeExecutionParams,
+) => Observable<NodeExecutionEvent>;
+
 export interface NodeDefinition<
   TInstanceLevelConfig extends BaseNodeInstanceLevelConfig,
   TAllLevelConfig extends TInstanceLevelConfig,
@@ -113,13 +119,7 @@ export interface NodeDefinition<
   };
 
   // Execution
-  createNodeExecutionObservable: (
-    context: NodeExecutionContext,
-    nodeExecutionConfig: NodeExecutionConfig<
-      TInstanceLevelConfig & TAllLevelConfig
-    >,
-    params: NodeExecutionParams,
-  ) => Observable<NodeExecutionEvent>;
+  createNodeExecutionObservable: CreateNodeExecutionObservableFunction<TAllLevelConfig>;
 
   // TODO: Remove temporary properties
   tmpSidePanelType?: string;
