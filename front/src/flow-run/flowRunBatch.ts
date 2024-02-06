@@ -1,5 +1,13 @@
 import { D, Option } from '@mobily/ts-belt';
-import { EMPTY, Observable, of } from 'rxjs';
+import {
+  EMPTY,
+  Observable,
+  endWith,
+  mergeMap,
+  of,
+  range,
+  startWith,
+} from 'rxjs';
 import invariant from 'tiny-invariant';
 
 import {
@@ -7,10 +15,13 @@ import {
   GraphEdge,
   ImmutableFlowNodeGraph,
   NodeConfig,
+  NodeExecutionEvent,
+  NodeExecutionEventType,
   NodeType,
 } from 'flow-models';
 
 import { CIRCULAR_DEPENDENCY_ERROR_MESSAGE } from './constants';
+import { executeFlow } from './execute-flow';
 import {
   FlowBatchRunEvent,
   FlowBatchRunEventType,
@@ -27,7 +38,7 @@ function flowRunBatch(params: {
   variableIdToCsvColumnIndexMap: Readonly<Record<string, Option<number>>>;
   repeatTimes: number;
   concurrencyLimit: number;
-  useStreaming: boolean;
+  preferStreaming: boolean;
   getAccountLevelFieldValue: (nodeType: NodeType, fieldKey: string) => string;
 }): Observable<FlowBatchRunEvent> {
   // SECTION[id=pre-execute-validation]: Pre execute validation
@@ -69,6 +80,66 @@ function flowRunBatch(params: {
   // !SECTION
 
   invariant(nodeAllLevelConfigs != null, 'nodeAllLevelConfigs is not null');
+
+  range(0, params.repeatTimes).pipe(
+    mergeMap((iterationIndex) => {
+      return params.csvTable.map((row, rowIndex) => {
+        return { iterationIndex, row, rowIndex };
+      });
+    }),
+    mergeMap(({ iterationIndex, row, rowIndex }) => {
+      // Extract actual value in the CSV as inputs
+      const inputValueMap = D.map(
+        params.variableIdToCsvColumnIndexMap,
+        (colIndex) => {
+          return colIndex != null ? row[colIndex] : null;
+        },
+      );
+
+      return executeFlow({
+        nodeConfigs: nodeAllLevelConfigs,
+        connectors: params.connectors,
+        inputValueMap,
+        preferStreaming: params.preferStreaming,
+        flowGraph: immutableFlowGraph,
+      }).pipe(
+        mergeMap<NodeExecutionEvent, Observable<FlowBatchRunEvent>>((event) => {
+          switch (event.type) {
+            case NodeExecutionEventType.VariableValues: {
+              return of<FlowBatchRunEvent>({
+                type: FlowBatchRunEventType.FlowVariableValues,
+                iterationIndex: iterationIndex,
+                rowIndex,
+                changes: event.variableValuesLookUpDict,
+              });
+            }
+            case NodeExecutionEventType.Errors: {
+              return of<FlowBatchRunEvent>({
+                type: FlowBatchRunEventType.FlowErrors,
+                iterationIndex,
+                rowIndex,
+                // TODO: Display all error messages
+                errorMessage: event.errMessages[0],
+              });
+            }
+            case NodeExecutionEventType.Start:
+            case NodeExecutionEventType.Finish:
+              return EMPTY;
+          }
+        }),
+        startWith<FlowBatchRunEvent>({
+          type: FlowBatchRunEventType.FlowStart,
+          iterationIndex,
+          rowIndex,
+        }),
+        endWith<FlowBatchRunEvent>({
+          type: FlowBatchRunEventType.FlowFinish,
+          iterationIndex,
+          rowIndex,
+        }),
+      );
+    }, params.concurrencyLimit),
+  );
 
   return EMPTY;
 }

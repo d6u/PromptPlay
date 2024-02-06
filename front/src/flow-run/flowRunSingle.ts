@@ -11,6 +11,7 @@ import {
 } from 'flow-models';
 
 import { CIRCULAR_DEPENDENCY_ERROR_MESSAGE } from './constants';
+import { executeFlow } from './execute-flow';
 import {
   FlowRunEvent,
   FlowRunEventType,
@@ -24,7 +25,7 @@ function flowRunSingle(params: {
   nodeConfigs: Readonly<Record<string, NodeConfig>>;
   connectors: Readonly<Record<string, Connector>>;
   inputValueMap: Readonly<Record<string, unknown>>;
-  useStreaming: boolean;
+  preferStreaming: boolean;
   getAccountLevelFieldValue: (nodeType: NodeType, fieldKey: string) => string;
 }): Observable<FlowRunEvent> {
   // SECTION[id=pre-execute-validation]: Pre execute validation
@@ -66,6 +67,14 @@ function flowRunSingle(params: {
   // !SECTION
 
   invariant(nodeAllLevelConfigs != null, 'nodeAllLevelConfigs is not null');
+
+  executeFlow({
+    nodeConfigs: nodeAllLevelConfigs,
+    connectors: params.connectors,
+    inputValueMap: params.inputValueMap,
+    preferStreaming: params.preferStreaming,
+    flowGraph: immutableFlowGraph,
+  });
 
   return EMPTY;
 }

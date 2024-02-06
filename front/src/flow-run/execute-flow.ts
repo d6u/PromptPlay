@@ -2,18 +2,18 @@ import { A, D, pipe } from '@mobily/ts-belt';
 import { produce } from 'immer';
 import {
   BehaviorSubject,
-  EMPTY,
   Observable,
   catchError,
   concatAll,
   defer,
-  from,
   mergeMap,
   of,
   tap,
 } from 'rxjs';
+import invariant from 'tiny-invariant';
 
 import {
+  Connector,
   ConnectorID,
   ConnectorMap,
   ConnectorResultMap,
@@ -23,7 +23,6 @@ import {
   GraphEdge,
   ImmutableFlowNodeGraph,
   NodeAllLevelConfigUnion,
-  NodeConfig,
   NodeConfigMap,
   NodeExecutionConfig,
   NodeExecutionContext,
@@ -36,68 +35,41 @@ import {
   getNodeDefinitionForNodeTypeName,
 } from 'flow-models';
 
-import { useLocalStorageStore } from 'state-root/local-storage-state';
-
 export type FlowConfig = {
   edgeList: GraphEdge[];
   nodeConfigMap: NodeConfigMap;
   connectorMap: ConnectorMap;
 };
 
-export type RunParams = {
-  inputValueMap: ConnectorResultMap;
-  useStreaming: boolean;
-  openAiApiKey: string | null;
-  huggingFaceApiToken: string | null;
-  elevenLabsApiKey: string | null;
-};
-
-export const runSingle = (
-  flowConfig: FlowConfig,
-  params: RunParams,
-): Observable<NodeExecutionEvent> => {
+export const executeFlow = (params: {
+  nodeConfigs: Readonly<Record<string, NodeAllLevelConfigUnion>>;
+  connectors: Readonly<Record<string, Connector>>;
+  inputValueMap: Readonly<Record<string, unknown>>;
+  preferStreaming: boolean;
+  flowGraph: ImmutableFlowNodeGraph;
+}): Observable<NodeExecutionEvent> => {
   return defer((): Observable<NodeExecutionEvent> => {
-    const { edgeList, nodeConfigMap, connectorMap } = flowConfig;
-    const {
-      inputValueMap,
-      useStreaming,
-      openAiApiKey,
-      huggingFaceApiToken,
-      elevenLabsApiKey,
-    } = params;
-
-    let allVariableValueMap = inputValueMap;
-
-    const immutableFlowGraph = new ImmutableFlowNodeGraph({
-      edges: edgeList,
-      nodeConfigMap,
-      connectorMap,
-    });
-
-    const mutableFlowGraph = immutableFlowGraph.getMutableCopy();
-
+    const mutableFlowGraph = params.flowGraph.getMutableCopy();
     const initialNodeIdList = mutableFlowGraph.getNodeIdListWithIndegreeZero();
 
-    if (initialNodeIdList.length === 0) {
-      console.warn('No valid initial nodes found.');
-      return EMPTY;
-    }
+    invariant(initialNodeIdList.length > 0, 'initialNodeIdList is not empty');
 
-    // NOTE: Used to determine when to complete the observable.
+    let allVariableValueMap = { ...params.inputValueMap };
+    // Track when to complete the observable.
     let queuedNodeCount = initialNodeIdList.length;
 
     const nodeIdListSubject = new BehaviorSubject<NodeID[]>(initialNodeIdList);
 
     return nodeIdListSubject.pipe(
-      mergeMap((nodeIdList): Observable<Observable<NodeExecutionEvent>> => {
+      // mergeMap converts ArrayLike to Observable automatically
+      mergeMap((nodeIdList): Observable<NodeExecutionEvent>[] => {
         return pipe(
           nodeIdList,
-          A.map((nodeId): NodeConfig => nodeConfigMap[nodeId]),
+          A.map((nodeId) => params.nodeConfigs[nodeId]),
           A.map((nodeConfig): Observable<NodeExecutionEvent> => {
-            const {
-              accountLevelConfigFieldDefinitions,
-              createNodeExecutionObservable,
-            } = getNodeDefinitionForNodeTypeName(nodeConfig.type);
+            const nodeDefinition = getNodeDefinitionForNodeTypeName(
+              nodeConfig.type,
+            );
 
             // `createNodeExecutionObservable` is a union type like this:
             //
@@ -111,50 +83,24 @@ export const runSingle = (
             // `createNodeExecutionObservable` to never when called.
             // Cast it to a more flexible type to avoid this issue.
             const execute =
-              createNodeExecutionObservable as CreateNodeExecutionObservableFunction<NodeAllLevelConfigUnion>;
+              nodeDefinition.createNodeExecutionObservable as CreateNodeExecutionObservableFunction<NodeAllLevelConfigUnion>;
 
             // ANCHOR: Context
 
             const nodeExecutionContext = new NodeExecutionContext(
-              immutableFlowGraph.getMutableCopy(),
+              mutableFlowGraph,
             );
 
             // ANCHOR: NodeExecutionConfig
 
             const connectorList = pipe(
-              connectorMap,
+              params.connectors,
               D.values,
               A.filter((connector) => connector.nodeId === nodeConfig.nodeId),
             );
 
-            // SECTION: Create NodeAllLevelConfig
-
-            // TODO: Add validation to ensure typesafety, this cannot be done
-            // in TypeScript due to the dynamic types used.
-            let nodeAllLevelConfig: NodeAllLevelConfigUnion;
-
-            if (accountLevelConfigFieldDefinitions) {
-              const nodeAllLevelConfigPartial = D.mapWithKey(
-                accountLevelConfigFieldDefinitions,
-                (key, fd) => {
-                  return useLocalStorageStore
-                    .getState()
-                    .getLocalAccountLevelNodeFieldValue(nodeConfig.type, key);
-                },
-              );
-
-              nodeAllLevelConfig = {
-                ...nodeConfig,
-                ...nodeAllLevelConfigPartial,
-              } as NodeAllLevelConfigUnion;
-            } else {
-              nodeAllLevelConfig = nodeConfig as NodeAllLevelConfigUnion;
-            }
-
-            // !SECTION
-
             const config: NodeExecutionConfig<NodeAllLevelConfigUnion> = {
-              nodeConfig: nodeAllLevelConfig,
+              nodeConfig,
               connectorList,
             };
 
@@ -184,17 +130,14 @@ export const runSingle = (
                 });
             }
 
-            const params: NodeExecutionParams = {
+            const executeParams: NodeExecutionParams = {
               nodeInputValueMap,
-              useStreaming,
-              openAiApiKey,
-              huggingFaceApiToken,
-              elevenLabsApiKey,
+              useStreaming: params.preferStreaming,
             };
 
             // ANCHOR: Execute
 
-            return execute(nodeExecutionContext, config, params).pipe(
+            return execute(nodeExecutionContext, config, executeParams).pipe(
               catchError<NodeExecutionEvent, Observable<NodeExecutionEvent>>(
                 (err) => {
                   // The observable will emit soft errors as
@@ -225,7 +168,6 @@ export const runSingle = (
               ),
             );
           }),
-          from,
         );
       }),
       // NOTE: Switch from concatAll() to mergeAll() to subscribe to each
