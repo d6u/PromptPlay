@@ -30,6 +30,10 @@ function flowRunBatch(params: {
   useStreaming: boolean;
   getAccountLevelFieldValue: (nodeType: NodeType, fieldKey: string) => string;
 }): Observable<FlowBatchRunEvent> {
+  // SECTION[id=pre-execute-validation]: Pre execute validation
+  // Keep this section in sync with:
+  // LINK ./flowRunSingle.ts#pre-execute-validation
+
   const errorMessages: ValidationError[] = [];
 
   const immutableFlowGraph = new ImmutableFlowNodeGraph({
@@ -62,6 +66,7 @@ function flowRunBatch(params: {
       errorMessages,
     });
   }
+  // !SECTION
 
   invariant(nodeAllLevelConfigs != null, 'nodeAllLevelConfigs is not null');
 
