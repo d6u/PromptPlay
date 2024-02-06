@@ -1,5 +1,6 @@
 export {
-  default as FlowExecutionContext,
+  ImmutableFlowNodeGraph,
+  MutableFlowNodeGraph,
   type GraphEdge,
 } from './FlowExecutionContext';
 export { default as NodeExecutionContext } from './NodeExecutionContext';

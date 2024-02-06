@@ -7,7 +7,8 @@ import {
 
 export * from './src/base-types';
 export {
-  default as FlowExecutionContext,
+  ImmutableFlowNodeGraph,
+  MutableFlowNodeGraph,
   type GraphEdge,
 } from './src/node-definition-base-types/FlowExecutionContext';
 export { default as NodeExecutionContext } from './src/node-definition-base-types/NodeExecutionContext';

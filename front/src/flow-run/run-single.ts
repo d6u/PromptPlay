@@ -19,9 +19,9 @@ import {
   ConnectorResultMap,
   ConnectorType,
   CreateNodeExecutionObservableFunction,
-  FlowExecutionContext,
   FlowOutputVariable,
   GraphEdge,
+  ImmutableFlowNodeGraph,
   NodeAllLevelConfigUnion,
   NodeConfig,
   NodeConfigMap,
@@ -68,13 +68,15 @@ export const runSingle = (
 
     let allVariableValueMap = inputValueMap;
 
-    const context = new FlowExecutionContext(
-      edgeList,
+    const immutableFlowGraph = new ImmutableFlowNodeGraph({
+      edges: edgeList,
       nodeConfigMap,
       connectorMap,
-    );
+    });
 
-    const initialNodeIdList = context.getNodeIdListWithIndegreeZero();
+    const mutableFlowGraph = immutableFlowGraph.getMutableCopy();
+
+    const initialNodeIdList = mutableFlowGraph.getNodeIdListWithIndegreeZero();
 
     if (initialNodeIdList.length === 0) {
       console.warn('No valid initial nodes found.');
@@ -113,7 +115,9 @@ export const runSingle = (
 
             // ANCHOR: Context
 
-            const nodeExecutionContext = new NodeExecutionContext(context);
+            const nodeExecutionContext = new NodeExecutionContext(
+              immutableFlowGraph.getMutableCopy(),
+            );
 
             // ANCHOR: NodeExecutionConfig
 
@@ -172,7 +176,9 @@ export const runSingle = (
                 )
                 .forEach((connector) => {
                   const srcConnectorId =
-                    context.getSrcConnectorIdFromDstConnectorId(connector.id);
+                    mutableFlowGraph.getSrcConnectorIdFromDstConnectorId(
+                      connector.id,
+                    );
                   nodeInputValueMap[connector.id] =
                     allVariableValueMap[srcConnectorId];
                 });
@@ -239,7 +245,7 @@ export const runSingle = (
             );
           });
         } else if (event.type === NodeExecutionEventType.Finish) {
-          const nextNodeIdList = context.reduceNodeIndegrees(
+          const nextNodeIdList = mutableFlowGraph.reduceNodeIndegrees(
             event.finishedConnectorIds,
           );
 
