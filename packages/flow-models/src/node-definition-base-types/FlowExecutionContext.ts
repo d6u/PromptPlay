@@ -1,4 +1,4 @@
-import { D, F, pipe } from '@mobily/ts-belt';
+import { A, D, F, pipe } from '@mobily/ts-belt';
 
 import {
   ConnectorType,
@@ -6,7 +6,6 @@ import {
   type ConnectorMap,
   type NodeID,
 } from '../base-types';
-import type { NodeConfigMap } from '../node-definitions';
 
 export type GraphEdge = {
   sourceNode: NodeID;
@@ -17,15 +16,18 @@ export type GraphEdge = {
 
 export class ImmutableFlowNodeGraph {
   constructor(params: {
-    edges: GraphEdge[];
-    nodeConfigMap: NodeConfigMap;
-    connectorMap: ConnectorMap;
+    edges: ReadonlyArray<GraphEdge>;
+    nodeIds: ReadonlyArray<string>;
+    connectors: ConnectorMap;
   }) {
     const srcConnIdToDstNodeIdsMap: Record<ConnectorID, Array<NodeID>> = {};
     const variableDstConnIdToSrcConnId: Record<ConnectorID, ConnectorID> = {};
-    const nodeIndegrees: Record<NodeID, number> = D.map(
-      params.nodeConfigMap,
-      () => 0,
+
+    const nodeIndegrees: Record<string, number> = pipe(
+      params.nodeIds,
+      F.toMutable,
+      A.map((nodeId) => [nodeId, 0] as const),
+      D.fromPairs,
     );
 
     for (const edge of params.edges) {
@@ -35,7 +37,7 @@ export class ImmutableFlowNodeGraph {
 
       srcConnIdToDstNodeIdsMap[edge.sourceConnector].push(edge.targetNode);
 
-      const srcConnector = params.connectorMap[edge.sourceConnector];
+      const srcConnector = params.connectors[edge.sourceConnector];
       // We only need to map variable IDs.
       // Condition IDs are not mappable because one target ID can be
       // connected to multiple source IDs.
