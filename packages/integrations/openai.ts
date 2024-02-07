@@ -64,7 +64,13 @@ export function getStreamingCompletion({
   }).pipe(
     mergeMap((chunk) => parserStreamChunk(chunk)),
     map<string, ChatCompletionStreamResponse | ChatCompletionErrorResponse>(
-      (content) => JSON.parse(content),
+      (content) => {
+        try {
+          return JSON.parse(content);
+        } catch (error) {
+          return {};
+        }
+      },
     ),
   );
 }
@@ -180,12 +186,21 @@ type ChatCompletionResponseCommon = {
 // Utils
 
 function parserStreamChunk(chunk: string): string[] {
+  chunk = chunk.trim();
+
   if (!chunk.startsWith('data:')) {
     return [chunk];
   }
 
-  return chunk
-    .split('\n')
-    .map((line) => line.replace('data:', '').trim())
-    .filter((line) => line && !line.includes('[DONE]'));
+  return (
+    chunk
+      .split('\n')
+      // Remove empty lines
+      .filter((line) => line !== '')
+      .map((line) => line.replace('data:', '').trim())
+      // TODO: Explicitly handle [DONE] message
+      .filter((line) => {
+        return line && !line.includes('[DONE]');
+      })
+  );
 }
