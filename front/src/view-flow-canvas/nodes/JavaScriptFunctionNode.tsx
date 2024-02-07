@@ -55,7 +55,7 @@ export default function JavaScriptFunctionNode() {
   return (
     <ReactFlowNode
       isNodeConfigReadOnly={!isCurrentUserOwner}
-      canAddVariable={true}
+      nodeConfig={nodeConfig}
     >
       <NodeBoxSection>
         <FormControl>

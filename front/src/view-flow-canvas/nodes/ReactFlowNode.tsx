@@ -17,9 +17,9 @@ import {
   selectConditionTarget,
   selectVariables,
 } from 'state-flow/util/state-utils';
-
 import NodeBoxAccountLevelFields from 'view-flow-canvas/node-box/NodeBoxAccountLevelFields';
 import NodeBoxInstanceLevelFields from 'view-flow-canvas/node-box/NodeBoxInstanceLevelFields';
+
 import IncomingConditionHandle from '../handles/IncomingConditionHandle';
 import IncomingVariableHandle from '../handles/IncomingVariableHandle';
 import OutgoingVariableHandle from '../handles/OutgoingVariableHandle';
@@ -56,9 +56,6 @@ type Props = {
   // Thus, we pass nodeConfig through props to ensure it is not null.
   nodeConfig: NodeConfig;
   isNodeConfigReadOnly: boolean;
-  canAddVariable?: boolean;
-  destConnectorReadOnlyConfigs?: boolean[];
-  destConnectorHelpMessages?: ReactNode[];
   children?: ReactNode;
 };
 
@@ -166,6 +163,32 @@ export default function ReactFlowNode(props: Props) {
   }, [inputVariableBlockHeightList, nodeId, updateNodeInternals]);
   // !SECTION
 
+  let children: ReactNode;
+  if (props.children) {
+    children = props.children;
+  } else {
+    children = (
+      <>
+        {nodeDefinition.accountLevelConfigFieldDefinitions && (
+          <NodeBoxAccountLevelFields
+            isNodeConfigReadOnly={props.isNodeConfigReadOnly}
+            accountLevelConfigFieldDefinitions={
+              nodeDefinition.accountLevelConfigFieldDefinitions
+            }
+            nodeConfig={props.nodeConfig}
+          />
+        )}
+        <NodeBoxInstanceLevelFields
+          isNodeConfigReadOnly={props.isNodeConfigReadOnly}
+          instanceLevelConfigFieldDefinitions={
+            nodeDefinition.instanceLevelConfigFieldDefinitions
+          }
+          nodeConfig={props.nodeConfig}
+        />
+      </>
+    );
+  }
+
   return (
     <>
       {conditionTarget && <IncomingConditionHandle id={conditionTarget.id} />}
@@ -177,7 +200,7 @@ export default function ReactFlowNode(props: Props) {
             index={i}
             inputVariableBlockHeightList={inputVariableBlockHeightList}
             isShowingAddInputVariableButton={
-              props.canAddVariable || nodeDefinition.canUserAddIncomingVariables
+              nodeDefinition.canUserAddIncomingVariables
             }
           />
         );
@@ -194,7 +217,7 @@ export default function ReactFlowNode(props: Props) {
             removeNode(nodeId);
           }}
         />
-        {(props.canAddVariable || nodeDefinition.canUserAddIncomingVariables) &&
+        {nodeDefinition.canUserAddIncomingVariables &&
           !props.isNodeConfigReadOnly && (
             <NodeBoxSmallSection>
               <NodeBoxAddConnectorButton
@@ -238,26 +261,7 @@ export default function ReactFlowNode(props: Props) {
             );
           })}
         </NodeBoxIncomingVariableSection>
-        {props.children ? (
-          props.children
-        ) : (
-          <>
-            <NodeBoxAccountLevelFields
-              isNodeConfigReadOnly={props.isNodeConfigReadOnly}
-              accountLevelConfigFieldDefinitions={
-                nodeDefinition.accountLevelConfigFieldDefinitions ?? {}
-              }
-              nodeConfig={props.nodeConfig}
-            />
-            <NodeBoxInstanceLevelFields
-              isNodeConfigReadOnly={props.isNodeConfigReadOnly}
-              instanceLevelConfigFieldDefinitions={
-                nodeDefinition.instanceLevelConfigFieldDefinitions
-              }
-              nodeConfig={props.nodeConfig}
-            />
-          </>
-        )}
+        {children}
         {nodeDefinition.tmpSidePanelType && (
           <NodeBoxSection>
             <IconButton
