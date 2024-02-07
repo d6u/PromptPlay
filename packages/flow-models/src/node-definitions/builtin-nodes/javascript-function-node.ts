@@ -37,18 +37,20 @@ export const JAVASCRIPT_NODE_DEFINITION: NodeDefinition<
   JavaScriptFunctionNodeAllLevelConfig
 > = {
   type: NodeType.JavaScriptFunctionNode,
-  label: 'JavaScript',
+  label: 'JavaScript Function',
 
   instanceLevelConfigFieldDefinitions: {
     javaScriptCode: { type: FieldType.SpecialRendering },
   },
+
+  canUserAddIncomingVariables: true,
 
   createDefaultNodeConfig: (nodeId) => {
     return {
       nodeConfig: {
         nodeId: nodeId,
         type: NodeType.JavaScriptFunctionNode,
-        javaScriptCode: 'return "Hello, World!"',
+        javaScriptCode: 'return `Hello, ${userName}!`',
       },
       variableConfigList: [
         {
@@ -57,6 +59,14 @@ export const JAVASCRIPT_NODE_DEFINITION: NodeDefinition<
           nodeId: nodeId,
           name: 'output',
           index: 0,
+          valueType: VariableValueType.Unknown,
+        },
+        {
+          type: ConnectorType.NodeInput,
+          id: asV3VariableID(`${nodeId}/${randomId()}`),
+          nodeId: nodeId,
+          name: 'userName',
+          index: 1,
           valueType: VariableValueType.Unknown,
         },
         {
@@ -96,7 +106,7 @@ export const JAVASCRIPT_NODE_DEFINITION: NodeDefinition<
 
       invariant(outputVariable != null);
 
-      // NOTE: Main Logic
+      // ANCHOR: Main Logic
 
       const fn = AsyncFunction(
         ...pairs.map((pair) => pair[0]),

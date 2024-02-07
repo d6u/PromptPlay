@@ -66,6 +66,26 @@ export const HUGGINGFACE_INFERENCE_NODE_DEFINITION: NodeDefinition<
     },
   },
 
+  fixedIncomingVariables: {
+    parameters: {
+      helperMessage: (
+        <>
+          Check Hugging Face's free{' '}
+          <a
+            href="https://huggingface.co/docs/api-inference/quicktour"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Inference API documentation
+          </a>{' '}
+          for more information about the <code>parameters</code> input.
+          Depending on the model you choose, you need to specify different
+          parameters.
+        </>
+      ),
+    },
+  },
+
   createDefaultNodeConfig: (nodeId) => {
     return {
       nodeConfig: {
@@ -102,7 +122,7 @@ export const HUGGINGFACE_INFERENCE_NODE_DEFINITION: NodeDefinition<
   createNodeExecutionObservable: (context, nodeExecutionConfig, params) => {
     return new Observable<NodeExecutionEvent>((subscriber) => {
       const { nodeConfig, connectorList } = nodeExecutionConfig;
-      const { nodeInputValueMap, huggingFaceApiToken } = params;
+      const { nodeInputValueMap } = params;
 
       invariant(nodeConfig.type === NodeType.HuggingFaceInference);
 
@@ -111,7 +131,7 @@ export const HUGGINGFACE_INFERENCE_NODE_DEFINITION: NodeDefinition<
         nodeId: nodeConfig.nodeId,
       });
 
-      if (!huggingFaceApiToken) {
+      if (!nodeConfig.huggingFaceApiToken) {
         subscriber.next({
           type: NodeExecutionEventType.Errors,
           nodeId: nodeConfig.nodeId,
@@ -150,7 +170,7 @@ export const HUGGINGFACE_INFERENCE_NODE_DEFINITION: NodeDefinition<
 
       HuggingFace.callInferenceApi(
         {
-          apiToken: huggingFaceApiToken,
+          apiToken: nodeConfig.huggingFaceApiToken,
           model: nodeConfig.model,
         },
         argsMap['parameters'],

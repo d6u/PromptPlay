@@ -63,6 +63,24 @@ export const ELEVENLABS_NODE_DEFINITION: NodeDefinition<
     },
   },
 
+  fixedIncomingVariables: {
+    text: {
+      helperMessage: (
+        <>
+          Check Elevent Labs's{' '}
+          <a
+            href="https://docs.elevenlabs.io/api-reference/text-to-speech"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Text to Speech API Reference
+          </a>{' '}
+          for more information.
+        </>
+      ),
+    },
+  },
+
   createDefaultNodeConfig: (nodeId) => {
     return {
       nodeConfig: {
@@ -99,11 +117,11 @@ export const ELEVENLABS_NODE_DEFINITION: NodeDefinition<
   createNodeExecutionObservable: (context, nodeExecutionConfig, params) => {
     return new Observable<NodeExecutionEvent>((subscriber) => {
       const { nodeConfig, connectorList } = nodeExecutionConfig;
-      const { nodeInputValueMap, elevenLabsApiKey } = params;
+      const { nodeInputValueMap } = params;
 
       invariant(nodeConfig.type === NodeType.ElevenLabs);
 
-      if (!elevenLabsApiKey) {
+      if (!nodeConfig.elevenLabsApiKey) {
         subscriber.next({
           type: NodeExecutionEventType.Errors,
           nodeId: nodeConfig.nodeId,
@@ -145,7 +163,7 @@ export const ELEVENLABS_NODE_DEFINITION: NodeDefinition<
       ElevenLabs.textToSpeech({
         text,
         voiceId: nodeConfig.voiceId,
-        apiKey: elevenLabsApiKey,
+        apiKey: nodeConfig.elevenLabsApiKey,
       })
         .then((result) => {
           if (result.isError) {

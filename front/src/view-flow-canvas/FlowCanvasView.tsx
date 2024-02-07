@@ -11,17 +11,13 @@ import { NodeType } from 'flow-models';
 import RouteFlowContext from 'state-flow/context/FlowRouteContext';
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 import ConditionNode from './nodes/ConditionNode';
-import ElevenLabsNode from './nodes/ElevenLabsNode';
-import HuggingFaceInferenceNode from './nodes/HuggingFaceInferenceNode';
 import InputNode from './nodes/InputNode';
 import JavaScriptFunctionNode from './nodes/JavaScriptFunctionNode';
 import OutputNode from './nodes/OutputNode';
 import StandardNode from './nodes/StandardNode';
-import TextTemplateNode from './nodes/TextTemplateNode';
 
 import 'reactflow/dist/style.css';
 
-// TODO: Enforce type safety
 const NODE_TYPES = {
   [NodeType.InputNode]: InputNode,
   [NodeType.OutputNode]: OutputNode,
@@ -29,9 +25,9 @@ const NODE_TYPES = {
   [NodeType.JavaScriptFunctionNode]: JavaScriptFunctionNode,
   [NodeType.ChatGPTMessageNode]: StandardNode,
   [NodeType.ChatGPTChatCompletionNode]: StandardNode,
-  [NodeType.TextTemplate]: TextTemplateNode,
-  [NodeType.HuggingFaceInference]: HuggingFaceInferenceNode,
-  [NodeType.ElevenLabs]: ElevenLabsNode,
+  [NodeType.TextTemplate]: StandardNode,
+  [NodeType.HuggingFaceInference]: StandardNode,
+  [NodeType.ElevenLabs]: StandardNode,
 };
 
 function FlowCanvasView() {
