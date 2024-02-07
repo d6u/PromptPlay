@@ -31,10 +31,10 @@ import { useNodeFieldFeedbackStore } from 'state-root/node-field-feedback-state'
 import { updateSpaceContentV3 } from './graphql/graphql';
 import {
   ConnectStartEdgeType,
-  DetailPanelContentType,
   FlowState,
   NodeMetadata,
   NodeMetadataDict,
+  RightSidePanelType,
 } from './types';
 import {
   assignLocalEdgeProperties,
@@ -51,7 +51,7 @@ type RootSliceState = {
   connectStartEdgeType: ConnectStartEdgeType | null;
   connectStartStartNodeId: NodeID | null;
 
-  detailPanelContentType: DetailPanelContentType;
+  detailPanelContentType: RightSidePanelType;
   detailPanelSelectedNodeId: NodeID | null;
   nodeMetadataDict: NodeMetadataDict;
 };
@@ -59,7 +59,7 @@ type RootSliceState = {
 export type RootSlice = RootSliceState & {
   initialize(): void;
   deinitialize(): void;
-  setDetailPanelContentType(type: DetailPanelContentType): void;
+  setDetailPanelContentType(type: RightSidePanelType): void;
   setDetailPanelSelectedNodeId(nodeId: NodeID): void;
   updateNodeAugment(nodeId: NodeID, change: Partial<NodeMetadata>): void;
   runFlow(): void;
@@ -119,7 +119,7 @@ export function createRootSlice(
     connectStartEdgeType: null,
     connectStartStartNodeId: null,
 
-    detailPanelContentType: DetailPanelContentType.Off,
+    detailPanelContentType: RightSidePanelType.Off,
     detailPanelSelectedNodeId: null,
     nodeMetadataDict: {},
 
@@ -189,7 +189,7 @@ export function createRootSlice(
       console.groupEnd();
     },
 
-    setDetailPanelContentType(type: DetailPanelContentType) {
+    setDetailPanelContentType(type: RightSidePanelType) {
       set({ detailPanelContentType: type });
     },
     setDetailPanelSelectedNodeId(id: NodeID) {

@@ -1,17 +1,20 @@
 import { A } from '@mobily/ts-belt';
-import IconButton from '@mui/joy/IconButton';
+import { IconButton } from '@mui/joy';
+import { useContext, useMemo } from 'react';
+import { useNodeId, useUpdateNodeInternals } from 'reactflow';
+
 import {
   ConnectorType,
   NodeID,
   NodeType,
   OutputNodeInstanceLevelConfig,
 } from 'flow-models';
-import { useContext, useMemo } from 'react';
-import { useNodeId, useUpdateNodeInternals } from 'reactflow';
+
 import RouteFlowContext from 'state-flow/context/FlowRouteContext';
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
-import { DetailPanelContentType } from 'state-flow/types';
+import { RightSidePanelType } from 'state-flow/types';
 import { selectVariables } from 'state-flow/util/state-utils';
+
 import IncomingVariableHandle from '../handles/IncomingVariableHandle';
 import NodeBox from '../node-box/NodeBox';
 import NodeBoxAddConnectorButton from '../node-box/NodeBoxAddConnectorButton';
@@ -79,11 +82,7 @@ export default function OutputNode() {
         <NodeBoxSmallSection>
           <IconButton
             variant="outlined"
-            onClick={() =>
-              setDetailPanelContentType(
-                DetailPanelContentType.EvaluationModeSimple,
-              )
-            }
+            onClick={() => setDetailPanelContentType(RightSidePanelType.Tester)}
           >
             <NodeBoxIconGear />
           </IconButton>

@@ -1,10 +1,13 @@
 import styled from '@emotion/styled';
 import { Button } from '@mui/joy';
-import { ConnectorType, VariableValueType } from 'flow-models';
 import { useContext, useMemo } from 'react';
+
+import { ConnectorType, VariableValueType } from 'flow-models';
+
 import RouteFlowContext from 'state-flow/context/FlowRouteContext';
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 import { selectAllVariables } from 'state-flow/util/state-utils';
+
 import InputBlock from '../common/InputBlock';
 import OutputRenderer from '../common/OutputRenderer';
 import {
@@ -13,7 +16,7 @@ import {
   Section,
 } from '../common/controls-common';
 
-export default function PanelEvaluationModeSimple() {
+function TesterPane() {
   const { isCurrentUserOwner } = useContext(RouteFlowContext);
 
   // SECTION: Select state from store
@@ -97,3 +100,5 @@ const Container = styled.div`
   max-width: 600px;
   padding: 20px;
 `;
+
+export default TesterPane;

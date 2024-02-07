@@ -1,23 +1,24 @@
-import FormControl from '@mui/joy/FormControl';
-import FormLabel from '@mui/joy/FormLabel';
-import Textarea from '@mui/joy/Textarea';
+import { FormControl, FormLabel, Textarea } from '@mui/joy';
+import { useContext, useMemo, useState } from 'react';
+import { useNodeId } from 'reactflow';
+
 import {
   ConnectorType,
   JavaScriptFunctionNodeInstanceLevelConfig,
   NodeID,
 } from 'flow-models';
-import { useContext, useMemo, useState } from 'react';
-import { useNodeId } from 'reactflow';
+
 import RouteFlowContext from 'state-flow/context/FlowRouteContext';
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 import { selectVariables } from 'state-flow/util/state-utils';
+
 import NodeBoxCopyIcon from '../node-box/NodeBoxCopyIcon';
 import NodeBoxLabelWithIconContainer from '../node-box/NodeBoxLabelWithIconContainer';
 import NodeBoxSection from '../node-box/NodeBoxSection';
 import TextareaReadonly from '../node-box/NodeBoxTextareaReadonly';
 import ReactFlowNode from './ReactFlowNode';
 
-export default function JavaScriptFunctionNode() {
+function JavaScriptFunctionNode() {
   const { isCurrentUserOwner } = useContext(RouteFlowContext);
 
   const nodeId = useNodeId() as NodeID;
@@ -98,3 +99,5 @@ export default function JavaScriptFunctionNode() {
     </ReactFlowNode>
   );
 }
+
+export default JavaScriptFunctionNode;

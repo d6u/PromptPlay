@@ -42,7 +42,8 @@
       // views
       "view-flow-canvas/*": ["./src/view-flow-canvas/*"],
       "view-header/*": ["./src/view-header/*"],
-      "view-sub-header/*": ["./src/view-sub-header/*"]
+      "view-sub-header/*": ["./src/view-sub-header/*"],
+      "view-right-side-pane/*": ["./src/view-right-side-pane/*"]
     }
   },
   "include": ["src"],

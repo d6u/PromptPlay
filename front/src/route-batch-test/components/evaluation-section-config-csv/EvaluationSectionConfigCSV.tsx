@@ -11,7 +11,7 @@ import {
 } from 'state-flow/slice-csv-evaluation-preset';
 import { CSVData, CSVRow } from 'state-flow/types';
 import { selectAllVariables } from 'state-flow/util/state-utils';
-import { Section } from 'view-flow-canvas/side-panel/common/controls-common';
+import { Section } from 'view-right-side-pane/common/controls-common';
 import TableBody from './TableBody';
 import TableHead from './TableHead';
 

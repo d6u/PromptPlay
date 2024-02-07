@@ -13,9 +13,9 @@ import RouteFlowContext from 'state-flow/context/FlowRouteContext';
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 import { selectVariables } from 'state-flow/util/state-utils';
 import invariant from 'tiny-invariant';
-import NodeBoxCopyIcon from '../../node-box/NodeBoxCopyIcon';
-import NodeBoxLabelWithIconContainer from '../../node-box/NodeBoxLabelWithIconContainer';
-import TextareaReadonly from '../../node-box/NodeBoxTextareaReadonly';
+import NodeBoxCopyIcon from '../../view-flow-canvas/node-box/NodeBoxCopyIcon';
+import NodeBoxLabelWithIconContainer from '../../view-flow-canvas/node-box/NodeBoxLabelWithIconContainer';
+import TextareaReadonly from '../../view-flow-canvas/node-box/NodeBoxTextareaReadonly';
 import OutputRenderer from '../common/OutputRenderer';
 import {
   HeaderSection,

@@ -1,7 +1,10 @@
-import { ConnectorType } from 'flow-models';
 import { useMemo } from 'react';
+
+import { ConnectorType } from 'flow-models';
+
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 import { selectVariables } from 'state-flow/util/state-utils';
+
 import OutputRenderer from '../common/OutputRenderer';
 import {
   HeaderSection,
@@ -10,21 +13,15 @@ import {
   Section,
 } from '../common/controls-common';
 
-export default function PanelNodeConfig() {
-  const variablesDict = useFlowStore((s) => s.variablesDict);
-  const detailPanelSelectedNodeId = useFlowStore(
-    (s) => s.detailPanelSelectedNodeId,
-  );
+function NodeConfigPane() {
+  const variables = useFlowStore((s) => s.variablesDict);
+  const selectedNodeId = useFlowStore((s) => s.detailPanelSelectedNodeId);
 
   const outputVariables = useMemo(() => {
-    return detailPanelSelectedNodeId == null
+    return selectedNodeId == null
       ? []
-      : selectVariables(
-          detailPanelSelectedNodeId,
-          ConnectorType.NodeOutput,
-          variablesDict,
-        );
-  }, [detailPanelSelectedNodeId, variablesDict]);
+      : selectVariables(selectedNodeId, ConnectorType.NodeOutput, variables);
+  }, [variables, selectedNodeId]);
 
   return (
     <PanelContentContainer>
@@ -39,3 +36,5 @@ export default function PanelNodeConfig() {
     </PanelContentContainer>
   );
 }
+
+export default NodeConfigPane;

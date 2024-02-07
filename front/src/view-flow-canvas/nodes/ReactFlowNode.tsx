@@ -12,7 +12,7 @@ import {
 } from 'flow-models';
 
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
-import { DetailPanelContentType } from 'state-flow/types';
+import { RightSidePanelType } from 'state-flow/types';
 import {
   selectConditionTarget,
   selectVariables,
@@ -262,21 +262,17 @@ export default function ReactFlowNode(props: Props) {
           })}
         </NodeBoxIncomingVariableSection>
         {children}
-        {nodeDefinition.tmpSidePanelType && (
-          <NodeBoxSection>
-            <IconButton
-              variant="outlined"
-              onClick={() => {
-                setDetailPanelContentType(
-                  nodeDefinition.tmpSidePanelType as DetailPanelContentType,
-                );
-                setDetailPanelSelectedNodeId(nodeId);
-              }}
-            >
-              <NodeBoxIconGear />
-            </IconButton>
-          </NodeBoxSection>
-        )}
+        <NodeBoxSection>
+          <IconButton
+            variant="outlined"
+            onClick={() => {
+              setDetailPanelContentType(RightSidePanelType.NodeConfig);
+              setDetailPanelSelectedNodeId(nodeId);
+            }}
+          >
+            <NodeBoxIconGear />
+          </IconButton>
+        </NodeBoxSection>
         <NodeBoxSection>
           {srcConnectors.map((connector) => (
             <NodeBoxOutgoingVariableBlock
@@ -285,9 +281,7 @@ export default function ReactFlowNode(props: Props) {
               name={connector.name}
               value={connector.value}
               onClick={() => {
-                setDetailPanelContentType(
-                  DetailPanelContentType.ChatGPTMessageConfig,
-                );
+                setDetailPanelContentType(RightSidePanelType.NodeConfig);
                 setDetailPanelSelectedNodeId(nodeId);
               }}
             />

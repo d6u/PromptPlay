@@ -8,7 +8,7 @@ import {
 } from 'state-flow/slice-csv-evaluation-preset';
 import { CSVData } from 'state-flow/types';
 import { selectAllVariables } from 'state-flow/util/state-utils';
-import OutputDisplay from 'view-flow-canvas/side-panel/common/OutputDisplay';
+import OutputDisplay from 'view-right-side-pane/common/OutputDisplay';
 
 type Props = {
   csvBody: CSVData;
