@@ -12,7 +12,6 @@ import RouteFlowContext from 'state-flow/context/FlowRouteContext';
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 import ConditionNode from './nodes/ConditionNode';
 import ElevenLabsNode from './nodes/ElevenLabsNode';
-import HuggingFaceInferenceNode from './nodes/HuggingFaceInferenceNode';
 import InputNode from './nodes/InputNode';
 import JavaScriptFunctionNode from './nodes/JavaScriptFunctionNode';
 import OutputNode from './nodes/OutputNode';
@@ -30,7 +29,7 @@ const NODE_TYPES = {
   [NodeType.ChatGPTMessageNode]: StandardNode,
   [NodeType.ChatGPTChatCompletionNode]: StandardNode,
   [NodeType.TextTemplate]: TextTemplateNode,
-  [NodeType.HuggingFaceInference]: HuggingFaceInferenceNode,
+  [NodeType.HuggingFaceInference]: StandardNode,
   [NodeType.ElevenLabs]: ElevenLabsNode,
 };
 
