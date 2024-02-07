@@ -107,7 +107,7 @@ export const ELEVENLABS_NODE_DEFINITION: NodeDefinition<
         subscriber.next({
           type: NodeExecutionEventType.Errors,
           nodeId: nodeConfig.nodeId,
-          errMessages: ['Eleven Labs API key is missing'],
+          errorMessages: ['Eleven Labs API key is missing'],
         });
 
         subscriber.next({
@@ -152,7 +152,7 @@ export const ELEVENLABS_NODE_DEFINITION: NodeDefinition<
             subscriber.next({
               type: NodeExecutionEventType.Errors,
               nodeId: nodeConfig.nodeId,
-              errMessages: [
+              errorMessages: [
                 result.data != null
                   ? JSON.stringify(result.data)
                   : 'Unknown error',
@@ -186,7 +186,9 @@ export const ELEVENLABS_NODE_DEFINITION: NodeDefinition<
           subscriber.next({
             type: NodeExecutionEventType.Errors,
             nodeId: nodeConfig.nodeId,
-            errMessages: [err.message != null ? err.message : 'Unknown error'],
+            errorMessages: [
+              err.message != null ? err.message : 'Unknown error',
+            ],
           });
 
           subscriber.next({

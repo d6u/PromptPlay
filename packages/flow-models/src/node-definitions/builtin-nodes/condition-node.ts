@@ -183,7 +183,9 @@ export const CONDITION_NODE_DEFINITION: NodeDefinition<
           subscriber.next({
             type: NodeExecutionEventType.Errors,
             nodeId: nodeConfig.nodeId,
-            errMessages: [err instanceof Error ? err.message : 'Unknown error'],
+            errorMessages: [
+              err instanceof Error ? err.message : 'Unknown error',
+            ],
           });
 
           subscriber.next({

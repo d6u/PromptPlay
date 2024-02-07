@@ -7,12 +7,12 @@ import {
   type NodeID,
 } from '../base-types';
 
-export type GraphEdge = {
+export type GraphEdge = Readonly<{
   sourceNode: NodeID;
   sourceConnector: ConnectorID;
   targetNode: NodeID;
   targetConnector: ConnectorID;
-};
+}>;
 
 export class ImmutableFlowNodeGraph {
   constructor(params: {

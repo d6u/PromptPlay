@@ -115,7 +115,7 @@ export const HUGGINGFACE_INFERENCE_NODE_DEFINITION: NodeDefinition<
         subscriber.next({
           type: NodeExecutionEventType.Errors,
           nodeId: nodeConfig.nodeId,
-          errMessages: ['Hugging Face API token is missing'],
+          errorMessages: ['Hugging Face API token is missing'],
         });
 
         subscriber.next({
@@ -160,7 +160,7 @@ export const HUGGINGFACE_INFERENCE_NODE_DEFINITION: NodeDefinition<
             subscriber.next({
               type: NodeExecutionEventType.Errors,
               nodeId: nodeConfig.nodeId,
-              errMessages: [
+              errorMessages: [
                 result.data != null
                   ? JSON.stringify(result.data)
                   : 'Unknown error',
@@ -192,7 +192,9 @@ export const HUGGINGFACE_INFERENCE_NODE_DEFINITION: NodeDefinition<
           subscriber.next({
             type: NodeExecutionEventType.Errors,
             nodeId: nodeConfig.nodeId,
-            errMessages: [err.message != null ? err.message : 'Unknown error'],
+            errorMessages: [
+              err.message != null ? err.message : 'Unknown error',
+            ],
           });
 
           subscriber.next({

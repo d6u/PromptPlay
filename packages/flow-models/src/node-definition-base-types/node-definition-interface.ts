@@ -70,20 +70,17 @@ export type NodeExecutionEvent =
       type: NodeExecutionEventType.Errors;
       nodeId: NodeID;
       // NOTE: Event should always contain all error messages
-      errMessages: string[];
+      errorMessages: string[];
     };
 
 export type NodeExecutionConfig<T> = {
-  nodeConfig: T;
+  nodeConfig: Readonly<T>;
   connectorList: Connector[];
 };
 
 export type NodeExecutionParams = {
   nodeInputValueMap: ConnectorResultMap;
   useStreaming: boolean;
-  openAiApiKey: string | null;
-  huggingFaceApiToken: string | null;
-  elevenLabsApiKey: string | null;
 };
 
 export type CreateNodeExecutionObservableFunction<T> = (

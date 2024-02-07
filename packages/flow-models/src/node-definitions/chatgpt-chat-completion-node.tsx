@@ -235,7 +235,7 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
   createNodeExecutionObservable: (context, nodeExecutionConfig, params) => {
     return new Observable<NodeExecutionEvent>((subscriber) => {
       const { nodeConfig, connectorList } = nodeExecutionConfig;
-      const { nodeInputValueMap, openAiApiKey, useStreaming } = params;
+      const { nodeInputValueMap, useStreaming } = params;
 
       invariant(
         nodeConfig.type === NodeType.ChatGPTChatCompletionNode,
@@ -247,11 +247,11 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
         nodeId: nodeConfig.nodeId,
       });
 
-      if (!openAiApiKey) {
+      if (!nodeConfig.openAiApiKey) {
         subscriber.next({
           type: NodeExecutionEventType.Errors,
           nodeId: nodeConfig.nodeId,
-          errMessages: ['OpenAI API key is missing'],
+          errorMessages: ['OpenAI API key is missing'],
         });
 
         subscriber.next({
@@ -299,7 +299,7 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
       const messages = (argsMap['messages'] ?? []) as ChatGPTMessage[];
 
       const options = {
-        apiKey: openAiApiKey,
+        apiKey: nodeConfig.openAiApiKey,
         model: nodeConfig.model,
         messages,
         temperature: nodeConfig.temperature,

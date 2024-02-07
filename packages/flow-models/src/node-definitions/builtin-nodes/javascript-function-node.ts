@@ -123,7 +123,9 @@ export const JAVASCRIPT_NODE_DEFINITION: NodeDefinition<
           subscriber.next({
             type: NodeExecutionEventType.Errors,
             nodeId: nodeConfig.nodeId,
-            errMessages: [err.message != null ? err.message : 'Unknown error'],
+            errorMessages: [
+              err.message != null ? err.message : 'Unknown error',
+            ],
           });
 
           subscriber.next({
