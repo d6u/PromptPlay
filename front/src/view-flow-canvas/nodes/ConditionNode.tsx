@@ -1,7 +1,10 @@
 import { Checkbox, FormControl, FormHelperText, FormLabel } from '@mui/joy';
-import { ConditionResult, ConnectorType, NodeID, NodeType } from 'flow-models';
 import { useContext, useMemo } from 'react';
 import { useNodeId, useUpdateNodeInternals } from 'reactflow';
+import invariant from 'tiny-invariant';
+
+import { ConditionResult, ConnectorType, NodeID, NodeType } from 'flow-models';
+
 import RouteFlowContext from 'state-flow/context/FlowRouteContext';
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 import {
@@ -9,7 +12,7 @@ import {
   selectConditions,
   selectVariables,
 } from 'state-flow/util/state-utils';
-import invariant from 'tiny-invariant';
+
 import IncomingConditionHandle from '../handles/IncomingConditionHandle';
 import IncomingVariableHandle from '../handles/IncomingVariableHandle';
 import OutgoingConditionHandle from '../handles/OutgoingConditionHandle';

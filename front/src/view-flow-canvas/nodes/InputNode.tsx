@@ -1,16 +1,19 @@
-import IconButton from '@mui/joy/IconButton';
+import { IconButton } from '@mui/joy';
+import { useContext, useMemo } from 'react';
+import { useNodeId, useUpdateNodeInternals } from 'reactflow';
+
 import {
   ConnectorType,
   InputNodeInstanceLevelConfig,
   NodeID,
   NodeType,
 } from 'flow-models';
-import { useContext, useMemo } from 'react';
-import { useNodeId, useUpdateNodeInternals } from 'reactflow';
+
 import RouteFlowContext from 'state-flow/context/FlowRouteContext';
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 import { DetailPanelContentType } from 'state-flow/types';
 import { selectVariables } from 'state-flow/util/state-utils';
+
 import OutgoingVariableHandle from '../handles/OutgoingVariableHandle';
 import NodeBox from '../node-box/NodeBox';
 import NodeBoxAddConnectorButton from '../node-box/NodeBoxAddConnectorButton';
