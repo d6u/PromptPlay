@@ -1,5 +1,5 @@
-import FlowExecutionContext from './FlowExecutionContext';
+import { MutableFlowNodeGraph } from './FlowExecutionContext';
 
 export default class NodeExecutionContext {
-  constructor(public flowExecutionContext: FlowExecutionContext) {}
+  constructor(public flowNodeGraph: MutableFlowNodeGraph) {}
 }

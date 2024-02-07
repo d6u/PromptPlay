@@ -1,3 +1,5 @@
+// TODO: Move these to more relavent places
+
 export type RunMetadata = {
   overallStatus: OverallStatus;
   errors: string[];

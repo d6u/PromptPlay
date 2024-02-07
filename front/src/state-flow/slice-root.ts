@@ -1,4 +1,4 @@
-import { A, D, pipe } from '@mobily/ts-belt';
+import { D, pipe } from '@mobily/ts-belt';
 import deepEqual from 'deep-equal';
 import { produce } from 'immer';
 import posthog from 'posthog-js';
@@ -16,14 +16,13 @@ import {
   ConnectorType,
   FlowConfigSchema,
   FlowInputVariable,
-  NodeExecutionEventType,
   NodeID,
+  NodeType,
   V3FlowContent,
-  asV3VariableID,
-  getNodeDefinitionForNodeTypeName,
 } from 'flow-models';
 
-import { runSingle } from 'flow-run/run-single';
+import { FlowRunEventType, ValidationErrorType } from 'flow-run/event-types';
+import flowRunSingle from 'flow-run/flowRunSingle';
 import { graphql } from 'gencode-gql';
 import { ContentVersion, SpaceFlowQueryQuery } from 'gencode-gql/graphql';
 import { client } from 'graphql-util/client';
@@ -221,133 +220,109 @@ export function createRootSlice(
         flowId: get().spaceId,
       });
 
+      const { edges, nodeConfigsDict, variablesDict, updateNodeAugment } =
+        get();
+      const variableValueLookUpDict = get().getDefaultVariableValueLookUpDict();
+
+      const flowInputVariableValueMap: Readonly<
+        Record<string, Readonly<unknown>>
+      > = selectFlowInputVariableIdToValueMap(
+        variablesDict,
+        variableValueLookUpDict,
+      );
+
       // NOTE: Stop previous run if there is one
       runSingleSubscription?.unsubscribe();
 
       // TODO: Give a default for every node instead of empty object
       set({ nodeMetadataDict: {} });
-
-      const { edges, nodeConfigsDict, variablesDict, updateNodeAugment } =
-        get();
-
-      // SECTION: Validate nodeConfigs
-      const { setFieldFeedbacks, removeFieldFeedbacks, hasAnyFeedbacks } =
-        useNodeFieldFeedbackStore.getState();
-
-      pipe(
-        nodeConfigsDict,
-        D.toPairs,
-        A.forEach(([nodeId, nodeConfig]) => {
-          const { accountLevelConfigFieldDefinitions } =
-            getNodeDefinitionForNodeTypeName(nodeConfig.type);
-
-          if (!accountLevelConfigFieldDefinitions) {
-            return;
-          }
-
-          Object.entries(accountLevelConfigFieldDefinitions).forEach(
-            ([key, fd]) => {
-              if (!fd.schema) {
-                return;
-              }
-
-              const fieldValue = useLocalStorageStore
-                .getState()
-                .getLocalAccountLevelNodeFieldValue(nodeConfig.type, key);
-
-              const { error } = fd.schema.validate(fieldValue);
-
-              if (error) {
-                setFieldFeedbacks(
-                  nodeConfig.nodeId,
-                  key,
-                  error.details.map((detail) => detail.message),
-                );
-
-                updateNodeAugment(nodeId as NodeID, {
-                  isRunning: false,
-                  hasError: true,
-                });
-              } else {
-                removeFieldFeedbacks(nodeConfig.nodeId, key);
-
-                updateNodeAugment(nodeId as NodeID, {
-                  isRunning: false,
-                  hasError: false,
-                });
-              }
-            },
-          );
-        }),
-      );
-
-      if (hasAnyFeedbacks()) {
-        posthog.capture('Simple Evaluation Has Node Config Validation Error', {
-          flowId: get().spaceId,
-        });
-
-        // Stop flow run if there is any validation error
-        return;
-      }
-      // !SECTION
-
       setIsRunning(true);
+      // Reset variable values except for flow inputs values
+      set({ variableValueLookUpDicts: [flowInputVariableValueMap] });
+      useNodeFieldFeedbackStore.getState().clearFieldFeedbacks();
 
-      const variableValueLookUpDict = get().getDefaultVariableValueLookUpDict();
-
-      const flowInputVariableIdToValueMap = selectFlowInputVariableIdToValueMap(
-        variablesDict,
-        variableValueLookUpDict,
-      );
-
-      // NOTE: Reset variable values except flow inputs values
-      set({ variableValueLookUpDicts: [flowInputVariableIdToValueMap] });
-
-      runSingleSubscription = runSingle(
-        {
-          edgeList: edges.map((edge) => ({
-            sourceNode: edge.source,
-            sourceConnector: edge.sourceHandle,
-            targetNode: edge.target,
-            targetConnector: edge.targetHandle,
-          })),
-          nodeConfigMap: nodeConfigsDict,
-          connectorMap: variablesDict,
+      runSingleSubscription = flowRunSingle({
+        edges: edges.map((edge) => ({
+          sourceNode: edge.source,
+          sourceConnector: edge.sourceHandle,
+          targetNode: edge.target,
+          targetConnector: edge.targetHandle,
+        })),
+        nodeConfigs: nodeConfigsDict,
+        connectors: variablesDict,
+        inputValueMap: flowInputVariableValueMap,
+        preferStreaming: true,
+        getAccountLevelFieldValue: (nodeType: NodeType, fieldKey: string) => {
+          return useLocalStorageStore
+            .getState()
+            .getLocalAccountLevelNodeFieldValue(nodeType, fieldKey);
         },
-        {
-          inputValueMap: flowInputVariableIdToValueMap,
-          useStreaming: true,
-          openAiApiKey: useLocalStorageStore.getState().openAiApiKey,
-          huggingFaceApiToken:
-            useLocalStorageStore.getState().huggingFaceApiToken,
-          elevenLabsApiKey: useLocalStorageStore.getState().elevenLabsApiKey,
-        },
-      ).subscribe({
+      }).subscribe({
         next(data) {
           switch (data.type) {
-            case NodeExecutionEventType.Start: {
-              const { nodeId } = data;
-              get().updateNodeAugment(nodeId, { isRunning: true });
+            case FlowRunEventType.ValidationErrors: {
+              data.errors.forEach((error) => {
+                switch (error.type) {
+                  case ValidationErrorType.FlowLevel: {
+                    // TODO: Show flow level errors in UI
+                    alert(error.message);
+                    break;
+                  }
+                  case ValidationErrorType.NodeLevel: {
+                    // TODO: Show node level errors in UI
+                    updateNodeAugment(error.nodeId as NodeID, {
+                      isRunning: false,
+                      hasError: true,
+                    });
+                    break;
+                  }
+                  case ValidationErrorType.FieldLevel: {
+                    useNodeFieldFeedbackStore.getState().setFieldFeedbacks(
+                      error.nodeId,
+                      error.fieldKey,
+                      // TODO: Allow setting multiple field level feedbacks
+                      // Currently, new error message will replace the old one.
+                      [error.message],
+                    );
+
+                    updateNodeAugment(error.nodeId as NodeID, {
+                      isRunning: false,
+                      hasError: true,
+                    });
+                    break;
+                  }
+                }
+              });
               break;
             }
-            case NodeExecutionEventType.Finish: {
+            case FlowRunEventType.NodeStart: {
               const { nodeId } = data;
-              get().updateNodeAugment(nodeId, { isRunning: false });
+              get().updateNodeAugment(nodeId as NodeID, {
+                isRunning: true,
+              });
               break;
             }
-            case NodeExecutionEventType.Errors: {
+            case FlowRunEventType.NodeFinish: {
               const { nodeId } = data;
-              get().updateNodeAugment(nodeId, {
+              get().updateNodeAugment(nodeId as NodeID, {
+                isRunning: false,
+              });
+              break;
+            }
+            case FlowRunEventType.NodeErrors: {
+              const { nodeId } = data;
+              get().updateNodeAugment(nodeId as NodeID, {
                 isRunning: false,
                 hasError: true,
               });
               break;
             }
-            case NodeExecutionEventType.VariableValues: {
-              const { variableValuesLookUpDict: changes } = data;
-              for (const [outputId, value] of Object.entries(changes)) {
-                get().updateVariableValueMap(asV3VariableID(outputId), value);
-              }
+            case FlowRunEventType.VariableValues: {
+              Object.entries(data.variableValues).forEach(
+                ([outputId, value]) => {
+                  get().updateVariableValueMap(outputId as ConnectorID, value);
+                },
+              );
               break;
             }
           }
@@ -413,20 +388,20 @@ export function createRootSlice(
   };
 }
 
-// SECTION: Utilities
+// ANCHOR: Utilities
 
 function selectFlowInputVariableIdToValueMap(
   variablesDict: ConnectorMap,
   variableValueLookUpDict: ConnectorResultMap,
-): ConnectorResultMap {
+): Record<string, Readonly<unknown>> {
   return pipe(
     variablesDict,
     D.filter((connector): connector is FlowInputVariable => {
       return connector.type === ConnectorType.FlowInput;
     }),
     D.map((connector) => {
-      invariant(connector != null);
-      return variableValueLookUpDict[connector.id];
+      invariant(connector != null, 'connector is not null');
+      return variableValueLookUpDict[connector.id] as Readonly<unknown>;
     }),
   );
 }
@@ -453,5 +428,3 @@ async function querySpace(
     )
     .toPromise();
 }
-
-// !SECTION

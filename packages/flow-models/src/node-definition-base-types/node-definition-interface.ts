@@ -70,21 +70,24 @@ export type NodeExecutionEvent =
       type: NodeExecutionEventType.Errors;
       nodeId: NodeID;
       // NOTE: Event should always contain all error messages
-      errMessages: string[];
+      errorMessages: string[];
     };
 
 export type NodeExecutionConfig<T> = {
-  nodeConfig: T;
+  nodeConfig: Readonly<T>;
   connectorList: Connector[];
 };
 
 export type NodeExecutionParams = {
   nodeInputValueMap: ConnectorResultMap;
   useStreaming: boolean;
-  openAiApiKey: string | null;
-  huggingFaceApiToken: string | null;
-  elevenLabsApiKey: string | null;
 };
+
+export type CreateNodeExecutionObservableFunction<T> = (
+  context: NodeExecutionContext,
+  nodeExecutionConfig: NodeExecutionConfig<T>,
+  params: NodeExecutionParams,
+) => Observable<NodeExecutionEvent>;
 
 export interface NodeDefinition<
   TInstanceLevelConfig extends BaseNodeInstanceLevelConfig,
@@ -113,13 +116,7 @@ export interface NodeDefinition<
   };
 
   // Execution
-  createNodeExecutionObservable: (
-    context: NodeExecutionContext,
-    nodeExecutionConfig: NodeExecutionConfig<
-      TInstanceLevelConfig & TAllLevelConfig
-    >,
-    params: NodeExecutionParams,
-  ) => Observable<NodeExecutionEvent>;
+  createNodeExecutionObservable: CreateNodeExecutionObservableFunction<TAllLevelConfig>;
 
   // TODO: Remove temporary properties
   tmpSidePanelType?: string;

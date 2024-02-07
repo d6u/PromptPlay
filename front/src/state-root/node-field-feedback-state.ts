@@ -13,6 +13,7 @@ type NodeFieldFeedbackState = {
   getFieldFeedbacks: (nodeId: string, key: string) => string[];
   setFieldFeedbacks: (nodeId: string, key: string, feedbacks: string[]) => void;
   removeFieldFeedbacks: (nodeId: string, key: string) => void;
+  clearFieldFeedbacks: () => void;
 };
 
 const stateCreator: StateCreator<
@@ -61,6 +62,9 @@ const stateCreator: StateCreator<
       fieldFeedbacksSet((state) => {
         return D.deleteKey(state, getKey(nodeId, key));
       });
+    },
+    clearFieldFeedbacks: (): void => {
+      fieldFeedbacksSet(() => ({}), true);
     },
   };
 };
