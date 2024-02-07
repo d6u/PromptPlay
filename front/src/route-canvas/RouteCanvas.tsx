@@ -4,7 +4,7 @@ import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 import FlowCanvasView from 'view-flow-canvas/FlowCanvasView';
 
 import 'reactflow/dist/style.css';
-import SidePanel from 'view-flow-canvas/side-panel/SidePanel';
+import SidePanel from 'view-right-side-pane/SidePanel';
 
 function RouteCanvas() {
   const isInitialized = useFlowStore((s) => s.isInitialized);
