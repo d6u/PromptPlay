@@ -91,12 +91,9 @@ function flowRunBatch(params: {
       });
     }),
     mergeMap(({ iterationIndex, row, rowIndex }) => {
-      // Extract actual value in the CSV as inputs
-      const inputValueMap = D.map(
+      const inputValueMap = extractInputValueMapForCurrentRun(
         params.variableIdToCsvColumnIndexMap,
-        (colIndex) => {
-          return colIndex != null ? row[colIndex] : null;
-        },
+        row,
       );
 
       return executeFlow({
@@ -106,30 +103,7 @@ function flowRunBatch(params: {
         preferStreaming: params.preferStreaming,
         flowGraph: immutableFlowGraph,
       }).pipe(
-        mergeMap((event: NodeExecutionEvent): Observable<FlowBatchRunEvent> => {
-          switch (event.type) {
-            case NodeExecutionEventType.VariableValues: {
-              return of<FlowBatchRunEvent>({
-                type: FlowBatchRunEventType.FlowVariableValues,
-                iterationIndex: iterationIndex,
-                rowIndex,
-                changes: event.variableValuesLookUpDict,
-              });
-            }
-            case NodeExecutionEventType.Errors: {
-              return of<FlowBatchRunEvent>({
-                type: FlowBatchRunEventType.FlowErrors,
-                iterationIndex,
-                rowIndex,
-                // TODO: Display all error messages
-                errorMessage: event.errorMessages[0],
-              });
-            }
-            case NodeExecutionEventType.Start:
-            case NodeExecutionEventType.Finish:
-              return EMPTY;
-          }
-        }),
+        mergeMap(transformEvent(iterationIndex, rowIndex)),
         startWith<FlowBatchRunEvent>({
           type: FlowBatchRunEventType.FlowStart,
           iterationIndex,
@@ -143,6 +117,45 @@ function flowRunBatch(params: {
       );
     }, params.concurrencyLimit),
   );
+}
+
+function extractInputValueMapForCurrentRun(
+  variableIdToCsvColumnIndexMap: Readonly<Record<string, Option<number>>>,
+  row: ReadonlyArray<string>,
+) {
+  return D.map(variableIdToCsvColumnIndexMap, (colIndex) => {
+    return colIndex != null ? row[colIndex] : null;
+  });
+}
+
+function transformEvent(
+  iterationIndex: number,
+  rowIndex: number,
+): (value: NodeExecutionEvent) => Observable<FlowBatchRunEvent> {
+  return (event: NodeExecutionEvent): Observable<FlowBatchRunEvent> => {
+    switch (event.type) {
+      case NodeExecutionEventType.Start:
+      case NodeExecutionEventType.Finish:
+        return EMPTY;
+      case NodeExecutionEventType.VariableValues: {
+        return of<FlowBatchRunEvent>({
+          type: FlowBatchRunEventType.FlowVariableValues,
+          iterationIndex,
+          rowIndex,
+          changes: event.variableValuesLookUpDict,
+        });
+      }
+      case NodeExecutionEventType.Errors: {
+        return of<FlowBatchRunEvent>({
+          type: FlowBatchRunEventType.FlowErrors,
+          iterationIndex,
+          rowIndex,
+          // TODO: Display all error messages
+          errorMessage: event.errorMessages[0],
+        });
+      }
+    }
+  };
 }
 
 export default flowRunBatch;
