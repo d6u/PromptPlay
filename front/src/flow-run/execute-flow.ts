@@ -156,7 +156,7 @@ export const executeFlow = (params: {
                     {
                       type: NodeExecutionEventType.Errors,
                       nodeId: nodeConfig.nodeId,
-                      errMessages: [JSON.stringify(err)],
+                      errorMessages: [JSON.stringify(err)],
                     },
                     {
                       type: NodeExecutionEventType.Finish,

@@ -4,20 +4,25 @@ import {
   NodeAccountLevelTextFieldDefinition,
   NodeAllLevelConfigUnion,
   NodeConfig,
-  NodeType,
   getNodeDefinitionForNodeTypeName,
 } from 'flow-models';
 
-import { NodeLevelValidationError, ValidationErrorType } from './types';
+import { ValidationError, ValidationErrorType } from './event-types';
+import { GetAccountLevelFieldValueFunction } from './run-param-types';
 
 export function getNodeAllLevelConfigOrValidationErrors(
   nodeConfigs: Readonly<Record<string, NodeConfig>>,
-  getAccountLevelFieldValue: (nodeType: NodeType, fieldKey: string) => string,
-): {
-  nodeLevelErrorMessages?: NodeLevelValidationError[];
-  nodeAllLevelConfigs?: Readonly<Record<string, NodeAllLevelConfigUnion>>;
-} {
-  const errorMessages: NodeLevelValidationError[] = [];
+  getAccountLevelFieldValue: GetAccountLevelFieldValueFunction,
+):
+  | {
+      nodeAllLevelConfigs?: never;
+      errors: ValidationError[];
+    }
+  | {
+      nodeAllLevelConfigs: Readonly<Record<string, NodeAllLevelConfigUnion>>;
+      errors?: never;
+    } {
+  const validationErrors: ValidationError[] = [];
 
   const nodeAllLevelConfigs: Readonly<Record<string, NodeAllLevelConfigUnion>> =
     D.mapWithKey(nodeConfigs, (key, instanceConfig) => {
@@ -49,10 +54,11 @@ export function getNodeAllLevelConfigOrValidationErrors(
         }
 
         error.details.forEach((detail) => {
-          errorMessages.push({
-            type: ValidationErrorType.NodeLevel,
+          validationErrors.push({
+            type: ValidationErrorType.FieldLevel,
             nodeId: instanceConfig.nodeId,
-            errorMessage: detail.message,
+            fieldKey: key,
+            message: detail.message,
           });
         });
 
@@ -65,9 +71,9 @@ export function getNodeAllLevelConfigOrValidationErrors(
       } as NodeAllLevelConfigUnion;
     });
 
-  if (errorMessages.length) {
-    return { nodeLevelErrorMessages: errorMessages };
+  if (validationErrors.length) {
+    return { errors: validationErrors };
+  } else {
+    return { nodeAllLevelConfigs };
   }
-
-  return { nodeAllLevelConfigs };
 }

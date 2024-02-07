@@ -1,5 +1,5 @@
 import { D } from '@mobily/ts-belt';
-import { EMPTY, Observable, of } from 'rxjs';
+import { Observable, map, of } from 'rxjs';
 import invariant from 'tiny-invariant';
 
 import {
@@ -7,76 +7,116 @@ import {
   GraphEdge,
   ImmutableFlowNodeGraph,
   NodeConfig,
-  NodeType,
+  NodeExecutionEvent,
+  NodeExecutionEventType,
 } from 'flow-models';
 
 import { CIRCULAR_DEPENDENCY_ERROR_MESSAGE } from './constants';
-import { executeFlow } from './execute-flow';
 import {
   FlowRunEvent,
   FlowRunEventType,
   ValidationError,
   ValidationErrorType,
-} from './types';
+} from './event-types';
+import { executeFlow } from './execute-flow';
+import { Edge, GetAccountLevelFieldValueFunction } from './run-param-types';
 import { getNodeAllLevelConfigOrValidationErrors } from './util';
 
 function flowRunSingle(params: {
-  edges: ReadonlyArray<GraphEdge>;
-  nodeConfigs: Readonly<Record<string, NodeConfig>>;
-  connectors: Readonly<Record<string, Connector>>;
-  inputValueMap: Readonly<Record<string, unknown>>;
+  edges: ReadonlyArray<Edge>;
+  nodeConfigs: Readonly<Record<string, Readonly<NodeConfig>>>;
+  connectors: Readonly<Record<string, Readonly<Connector>>>;
+  inputValueMap: Readonly<Record<string, Readonly<unknown>>>;
   preferStreaming: boolean;
-  getAccountLevelFieldValue: (nodeType: NodeType, fieldKey: string) => string;
+  getAccountLevelFieldValue: GetAccountLevelFieldValueFunction;
 }): Observable<FlowRunEvent> {
   // SECTION[id=pre-execute-validation]: Pre execute validation
   // Keep this section in sync with:
   // LINK ./flowRunBatch.ts#pre-execute-validation
 
-  const errorMessages: ValidationError[] = [];
+  const validationErrors: ValidationError[] = [];
 
   const immutableFlowGraph = new ImmutableFlowNodeGraph({
-    edges: params.edges,
+    // TODO: Remove casting once ID types are deprecated
+    edges: params.edges as ReadonlyArray<GraphEdge>,
     nodeIds: D.keys(params.nodeConfigs),
     connectors: params.connectors,
   });
 
   // Check for circular dependencies
   if (!immutableFlowGraph.canBeExecuted()) {
-    errorMessages.push({
+    console.log(
+      'immutableFlowGraph.canBeExecuted()',
+      immutableFlowGraph.canBeExecuted(),
+    );
+    validationErrors.push({
       type: ValidationErrorType.FlowLevel,
-      errorMessage: CIRCULAR_DEPENDENCY_ERROR_MESSAGE,
+      message: CIRCULAR_DEPENDENCY_ERROR_MESSAGE,
     });
   }
 
-  const { nodeAllLevelConfigs, nodeLevelErrorMessages } =
-    getNodeAllLevelConfigOrValidationErrors(
-      params.nodeConfigs,
-      params.getAccountLevelFieldValue,
-    );
+  const result = getNodeAllLevelConfigOrValidationErrors(
+    params.nodeConfigs,
+    params.getAccountLevelFieldValue,
+  );
 
-  if (nodeLevelErrorMessages) {
-    errorMessages.push(...nodeLevelErrorMessages);
+  if (result.errors) {
+    validationErrors.push(...result.errors);
   }
 
-  if (errorMessages.length) {
+  if (validationErrors.length) {
     return of({
       type: FlowRunEventType.ValidationErrors,
-      errorMessages,
+      errors: validationErrors,
     });
   }
   // !SECTION
 
-  invariant(nodeAllLevelConfigs != null, 'nodeAllLevelConfigs is not null');
+  invariant(
+    result.nodeAllLevelConfigs != null,
+    'nodeAllLevelConfigs is not null',
+  );
 
-  executeFlow({
-    nodeConfigs: nodeAllLevelConfigs,
+  return executeFlow({
+    nodeConfigs: result.nodeAllLevelConfigs,
     connectors: params.connectors,
     inputValueMap: params.inputValueMap,
     preferStreaming: params.preferStreaming,
     flowGraph: immutableFlowGraph,
-  });
+  }).pipe(map(transformEvent));
+}
 
-  return EMPTY;
+function transformEvent(event: NodeExecutionEvent): FlowRunEvent {
+  switch (event.type) {
+    case NodeExecutionEventType.Start: {
+      return {
+        type: FlowRunEventType.NodeStart,
+        nodeId: event.nodeId,
+      };
+    }
+    case NodeExecutionEventType.Finish: {
+      return {
+        type: FlowRunEventType.NodeFinish,
+        nodeId: event.nodeId,
+      };
+    }
+    case NodeExecutionEventType.VariableValues: {
+      return {
+        type: FlowRunEventType.VariableValues,
+        // TODO: Remove casting
+        variableValues: event.variableValuesLookUpDict as Readonly<
+          Record<string, Readonly<unknown>>
+        >,
+      };
+    }
+    case NodeExecutionEventType.Errors: {
+      return {
+        type: FlowRunEventType.NodeErrors,
+        nodeId: event.nodeId,
+        errorMessages: event.errorMessages,
+      };
+    }
+  }
 }
 
 export default flowRunSingle;

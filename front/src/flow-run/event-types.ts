@@ -1,24 +1,33 @@
-// ANCHOR: Error
+// ANCHOR: Validation Error
 
 export enum ValidationErrorType {
   FlowLevel = 'FlowLevel',
   NodeLevel = 'NodeLevel',
+  FieldLevel = 'FieldLevel',
 }
 
 export type FlowLevelValidationError = {
   type: ValidationErrorType.FlowLevel;
-  errorMessage: string;
+  message: string;
 };
 
 export type NodeLevelValidationError = {
   type: ValidationErrorType.NodeLevel;
   nodeId: string;
-  errorMessage: string;
+  message: string;
+};
+
+export type FieldLevelValidationError = {
+  type: ValidationErrorType.FieldLevel;
+  nodeId: string;
+  fieldKey: string;
+  message: string;
 };
 
 export type ValidationError =
   | FlowLevelValidationError
-  | NodeLevelValidationError;
+  | NodeLevelValidationError
+  | FieldLevelValidationError;
 
 // ANCHOR: Flow Run Event
 
@@ -32,7 +41,7 @@ export enum FlowRunEventType {
 
 export type FlowRunValidationErrorsEvent = {
   type: FlowRunEventType.ValidationErrors;
-  errorMessages: ReadonlyArray<ValidationError>;
+  errors: ReadonlyArray<ValidationError>;
 };
 
 export type FlowRunNodeStartEvent = {
@@ -47,7 +56,7 @@ export type FlowRunNodeFinishEvent = {
 
 export type FlowRunVariableValuesEvent = {
   type: FlowRunEventType.VariableValues;
-  variableValues: Readonly<Record<string, unknown>>;
+  variableValues: Readonly<Record<string, Readonly<unknown>>>;
 };
 
 export type FlowRunNodeErrorsEvent = {
@@ -75,7 +84,7 @@ export enum FlowBatchRunEventType {
 
 export type FlowBatchRunValidationErrorsEvent = {
   type: FlowBatchRunEventType.ValidationErrors;
-  errorMessages: ReadonlyArray<ValidationError>;
+  errors: ReadonlyArray<ValidationError>;
 };
 
 export type FlowBatchRunFlowStartEvent = {
