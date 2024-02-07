@@ -184,7 +184,7 @@ export default function ReactFlowNode(props: Props) {
       >
         <NodeBoxHeaderSection
           isReadOnly={!props.isNodeConfigReadOnly}
-          title={nodeDefinition.label!}
+          title={nodeDefinition.label}
           onClickRemove={() => {
             removeNode(nodeId);
           }}
@@ -233,20 +233,26 @@ export default function ReactFlowNode(props: Props) {
             );
           })}
         </NodeBoxIncomingVariableSection>
-        <NodeBoxAccountLevelFields
-          isNodeConfigReadOnly={props.isNodeConfigReadOnly}
-          accountLevelConfigFieldDefinitions={
-            nodeDefinition.accountLevelConfigFieldDefinitions ?? {}
-          }
-          nodeConfig={nodeConfig}
-        />
-        <NodeBoxInstanceLevelFields
-          isNodeConfigReadOnly={props.isNodeConfigReadOnly}
-          instanceLevelConfigFieldDefinitions={
-            nodeDefinition.instanceLevelConfigFieldDefinitions
-          }
-          nodeConfig={nodeConfig}
-        />
+        {props.children ? (
+          props.children
+        ) : (
+          <>
+            <NodeBoxAccountLevelFields
+              isNodeConfigReadOnly={props.isNodeConfigReadOnly}
+              accountLevelConfigFieldDefinitions={
+                nodeDefinition.accountLevelConfigFieldDefinitions ?? {}
+              }
+              nodeConfig={nodeConfig}
+            />
+            <NodeBoxInstanceLevelFields
+              isNodeConfigReadOnly={props.isNodeConfigReadOnly}
+              instanceLevelConfigFieldDefinitions={
+                nodeDefinition.instanceLevelConfigFieldDefinitions
+              }
+              nodeConfig={nodeConfig}
+            />
+          </>
+        )}
         {nodeDefinition.tmpSidePanelType && (
           <NodeBoxSection>
             <IconButton
