@@ -1,15 +1,18 @@
 import styled from '@emotion/styled';
-import IconButton from '@mui/joy/IconButton';
-import CrossIcon from 'icons/CrossIcon';
+import { IconButton } from '@mui/joy';
 import { ReactNode } from 'react';
+
+import CrossIcon from 'icons/CrossIcon';
+
 import RouteBatchTest from 'route-batch-test/RouteBatchTest';
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 import { DetailPanelContentType } from 'state-flow/types';
+
 import PanelChatGPTMessageConfig from './chat-gpt-message-config/PanelChatGPTMessageConfig';
 import PanelNodeConfig from './node-config/PanelNodeConfig';
 import PanelEvaluationModeSimple from './simple-evaluaton/PanelEvaluationModeSimple';
 
-export default function SidePanel() {
+function SidePanel() {
   const detailPanelContentType = useFlowStore((s) => s.detailPanelContentType);
   const setDetailPanelContentType = useFlowStore(
     (s) => s.setDetailPanelContentType,
@@ -53,7 +56,7 @@ export default function SidePanel() {
   );
 }
 
-// SECTION: UI Components
+// ANCHOR: UI Components
 
 const Container = styled.div<{ $hide: boolean }>`
   position: relative;
@@ -75,7 +78,8 @@ const StyledIconCross = styled(CrossIcon)`
 
 const Content = styled.div`
   height: 100%;
-  overflow-y: auto;
+  // NOTE: Don't use "auto" because it will cause horizontal scrollbar to appear
+  overflow-y: scroll;
 `;
 
-// !SECTION
+export default SidePanel;

@@ -1,7 +1,10 @@
 import { css } from '@emotion/react';
 import styled from '@emotion/styled';
-import background from 'assets/warning-background.svg';
+
 import { NodeType } from 'flow-models';
+
+import background from 'assets/warning-background.svg';
+
 import { BACKDROP_PADDING, NODE_BOX_WIDTH } from '../ui-constants';
 
 type Props = {
@@ -11,7 +14,7 @@ type Props = {
   children: React.ReactNode;
 };
 
-export default function NodeBox(props: Props) {
+function NodeBox(props: Props) {
   const nodeState = props.isRunning
     ? NodeState.Running
     : props.hasError
@@ -117,3 +120,5 @@ const Content = styled.div`
   border-radius: 5px;
   overflow: hidden;
 `;
+
+export default NodeBox;

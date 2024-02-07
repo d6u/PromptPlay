@@ -25,6 +25,9 @@ const Container = styled.div`
   grid-area: work-area / work-area / bottom-tool-bar / bottom-tool-bar;
   display: flex;
   position: relative;
+  // NOTE: Prevent grid item from expanding out of the grid area to fit the
+  // content, by default grid item has min-height: auto.
+  min-height: 0;
 `;
 
 export default RouteCanvas;
