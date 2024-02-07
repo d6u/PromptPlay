@@ -11,7 +11,6 @@ import { NodeType } from 'flow-models';
 import RouteFlowContext from 'state-flow/context/FlowRouteContext';
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 import ConditionNode from './nodes/ConditionNode';
-import ElevenLabsNode from './nodes/ElevenLabsNode';
 import InputNode from './nodes/InputNode';
 import JavaScriptFunctionNode from './nodes/JavaScriptFunctionNode';
 import OutputNode from './nodes/OutputNode';
@@ -30,7 +29,7 @@ const NODE_TYPES = {
   [NodeType.ChatGPTChatCompletionNode]: StandardNode,
   [NodeType.TextTemplate]: TextTemplateNode,
   [NodeType.HuggingFaceInference]: StandardNode,
-  [NodeType.ElevenLabs]: ElevenLabsNode,
+  [NodeType.ElevenLabs]: StandardNode,
 };
 
 function FlowCanvasView() {
