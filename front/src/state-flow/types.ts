@@ -34,12 +34,10 @@ export type NodeMetadata = {
   hasError: boolean;
 };
 
-export enum DetailPanelContentType {
+export enum RightSidePanelType {
   Off = 'Off',
-  EvaluationModeSimple = 'EvaluationModeSimple',
-  EvaluationModeCSV = 'EvaluationModeCSV',
+  Tester = 'Tester',
   NodeConfig = 'NodeConfig',
-  ChatGPTMessageConfig = 'ChatGPTMessageConfig',
 }
 
 export enum ConnectStartEdgeType {

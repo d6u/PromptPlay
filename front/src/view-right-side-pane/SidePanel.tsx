@@ -4,13 +4,11 @@ import { ReactNode } from 'react';
 
 import CrossIcon from 'icons/CrossIcon';
 
-import RouteBatchTest from 'route-batch-test/RouteBatchTest';
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
-import { DetailPanelContentType } from 'state-flow/types';
+import { RightSidePanelType } from 'state-flow/types';
 
-import PanelChatGPTMessageConfig from './chat-gpt-message-config/PanelChatGPTMessageConfig';
-import PanelNodeConfig from './node-config/PanelNodeConfig';
-import PanelEvaluationModeSimple from './simple-evaluaton/PanelEvaluationModeSimple';
+import NodeConfigPane from './node-config-pane/NodeConfigPane';
+import TesterPane from './tester-pane/TesterPane';
 
 function SidePanel() {
   const detailPanelContentType = useFlowStore((s) => s.detailPanelContentType);
@@ -20,33 +18,24 @@ function SidePanel() {
 
   let content: ReactNode;
   switch (detailPanelContentType) {
-    case DetailPanelContentType.Off: {
+    case RightSidePanelType.Off:
+      break;
+    case RightSidePanelType.Tester: {
+      content = <TesterPane />;
       break;
     }
-    case DetailPanelContentType.NodeConfig: {
-      content = <PanelNodeConfig />;
-      break;
-    }
-    case DetailPanelContentType.EvaluationModeSimple: {
-      content = <PanelEvaluationModeSimple />;
-      break;
-    }
-    case DetailPanelContentType.EvaluationModeCSV: {
-      content = <RouteBatchTest />;
-      break;
-    }
-    case DetailPanelContentType.ChatGPTMessageConfig: {
-      content = <PanelChatGPTMessageConfig />;
+    case RightSidePanelType.NodeConfig: {
+      content = <NodeConfigPane />;
       break;
     }
   }
 
   return (
-    <Container $hide={detailPanelContentType === DetailPanelContentType.Off}>
+    <Container $hide={detailPanelContentType === RightSidePanelType.Off}>
       <StyledCloseButtonWrapper>
         <IconButton
           size="md"
-          onClick={() => setDetailPanelContentType(DetailPanelContentType.Off)}
+          onClick={() => setDetailPanelContentType(RightSidePanelType.Off)}
         >
           <StyledIconCross />
         </IconButton>
@@ -79,7 +68,8 @@ const StyledIconCross = styled(CrossIcon)`
 const Content = styled.div`
   height: 100%;
   // NOTE: Don't use "auto" because it will cause horizontal scrollbar to appear
-  overflow-y: scroll;
+  overflow-x: hidden;
+  overflow-y: auto;
 `;
 
 export default SidePanel;

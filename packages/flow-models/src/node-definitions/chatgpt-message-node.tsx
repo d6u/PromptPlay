@@ -210,6 +210,4 @@ export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition<
       subscriber.complete();
     });
   },
-
-  tmpSidePanelType: 'ChatGPTMessageConfig',
 };

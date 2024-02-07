@@ -29,7 +29,7 @@ import { useNavigate } from 'react-router-dom';
 import { useStoreApi } from 'reactflow';
 import RouteFlowContext from 'state-flow/context/FlowRouteContext';
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
-import { BatchTestTab, DetailPanelContentType } from 'state-flow/types';
+import { BatchTestTab, RightSidePanelType } from 'state-flow/types';
 import { NODE_BOX_WIDTH } from 'view-flow-canvas/ui-constants';
 import PresetSelector from './preset-selector/PresetSelector';
 
@@ -81,7 +81,7 @@ function SubHeaderView() {
   );
 
   const isTesterOpen = useMemo(() => {
-    return detailPanelContentType != DetailPanelContentType.Off;
+    return detailPanelContentType != RightSidePanelType.Off;
   }, [detailPanelContentType]);
 
   const options = useMemo(() => {
@@ -99,9 +99,7 @@ function SubHeaderView() {
   }, [addNodeWithType]);
 
   const runButtonConfig = {
-    shouldShowRunButton:
-      detailPanelContentType !== DetailPanelContentType.EvaluationModeSimple &&
-      detailPanelContentType !== DetailPanelContentType.EvaluationModeCSV,
+    shouldShowRunButton: detailPanelContentType !== RightSidePanelType.Tester,
     label: isRunning ? 'Stop' : 'Run',
     onClick: isRunning ? stopRunningFlow : runFlow,
   };
@@ -187,8 +185,8 @@ function SubHeaderView() {
                 onChange={(event) => {
                   setDetailPanelContentType(
                     event.target.checked
-                      ? DetailPanelContentType.Off
-                      : DetailPanelContentType.EvaluationModeSimple,
+                      ? RightSidePanelType.Off
+                      : RightSidePanelType.Tester,
                   );
                 }}
               />

@@ -3,7 +3,7 @@ import { NodeID } from 'flow-models';
 import { CSSProperties } from 'react';
 import { useNodeId } from 'reactflow';
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
-import { DetailPanelContentType } from 'state-flow/types';
+import { RightSidePanelType } from 'state-flow/types';
 import { ROW_MARGIN_TOP } from './NodeBoxIncomingVariableBlock';
 
 type Props = {
@@ -30,7 +30,7 @@ export default function NodeBoxOutgoingVariableBlock(props: Props) {
         onClick={
           props.onClick ??
           (() => {
-            setDetailPanelContentType(DetailPanelContentType.NodeConfig);
+            setDetailPanelContentType(RightSidePanelType.NodeConfig);
             setDetailPanelSelectedNodeId(nodeId);
           })
         }

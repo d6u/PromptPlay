@@ -117,7 +117,4 @@ export interface NodeDefinition<
 
   // Execution
   createNodeExecutionObservable: CreateNodeExecutionObservableFunction<TAllLevelConfig>;
-
-  // TODO: Remove temporary properties
-  tmpSidePanelType?: string;
 }

@@ -11,7 +11,7 @@ import {
 
 import RouteFlowContext from 'state-flow/context/FlowRouteContext';
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
-import { DetailPanelContentType } from 'state-flow/types';
+import { RightSidePanelType } from 'state-flow/types';
 import { selectVariables } from 'state-flow/util/state-utils';
 
 import OutgoingVariableHandle from '../handles/OutgoingVariableHandle';
@@ -70,11 +70,7 @@ export default function InputNode() {
         <NodeBoxSmallSection>
           <IconButton
             variant="outlined"
-            onClick={() =>
-              setDetailPanelContentType(
-                DetailPanelContentType.EvaluationModeSimple,
-              )
-            }
+            onClick={() => setDetailPanelContentType(RightSidePanelType.Tester)}
           >
             <NodeBoxIconGear />
           </IconButton>
