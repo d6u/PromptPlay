@@ -6,6 +6,7 @@ import { useNodeId, useUpdateNodeInternals } from 'reactflow';
 import {
   ConnectorID,
   ConnectorType,
+  NodeConfig,
   NodeID,
   getNodeDefinitionForNodeTypeName,
 } from 'flow-models';
@@ -46,6 +47,14 @@ export type SrcConnector = {
 };
 
 type Props = {
+  // In this component, we assume nodeConfig is not null.
+  //
+  // When deleting a node, there is a small delay between
+  // deleting the nodeConfig and unmounting the node component,
+  // which could cause errors due to nodeConfig being null.
+  //
+  // Thus, we pass nodeConfig through props to ensure it is not null.
+  nodeConfig: NodeConfig;
   isNodeConfigReadOnly: boolean;
   canAddVariable?: boolean;
   destConnectorReadOnlyConfigs?: boolean[];
@@ -58,16 +67,10 @@ export default function ReactFlowNode(props: Props) {
   const nodeId = useNodeId() as NodeID;
   const updateNodeInternals = useUpdateNodeInternals();
 
-  // ANCHOR: Node Config
-  const nodeConfigsDict = useFlowStore((s) => s.nodeConfigsDict);
-  const nodeConfig = useMemo(() => {
-    return nodeConfigsDict[nodeId];
-  }, [nodeConfigsDict, nodeId]);
-
   // ANCHOR: Node Definition
   const nodeDefinition = useMemo(
-    () => getNodeDefinitionForNodeTypeName(nodeConfig.type),
-    [nodeConfig.type],
+    () => getNodeDefinitionForNodeTypeName(props.nodeConfig.type),
+    [props.nodeConfig.type],
   );
 
   // ANCHOR: Store Data
@@ -88,7 +91,7 @@ export default function ReactFlowNode(props: Props) {
 
     return inputArray.map<DestConnector>((input, index) => {
       const incomingVariableConfig =
-        nodeDefinition.fixedIncomingVariables?.[index];
+        nodeDefinition.fixedIncomingVariables?.[input.name];
 
       return {
         id: input.id,
@@ -173,12 +176,14 @@ export default function ReactFlowNode(props: Props) {
             id={connector.id}
             index={i}
             inputVariableBlockHeightList={inputVariableBlockHeightList}
-            isShowingAddInputVariableButton={props.canAddVariable}
+            isShowingAddInputVariableButton={
+              props.canAddVariable || nodeDefinition.canUserAddIncomingVariables
+            }
           />
         );
       })}
       <NodeBox
-        nodeType={nodeConfig.type}
+        nodeType={props.nodeConfig.type}
         isRunning={augment?.isRunning}
         hasError={augment?.hasError}
       >
@@ -242,14 +247,14 @@ export default function ReactFlowNode(props: Props) {
               accountLevelConfigFieldDefinitions={
                 nodeDefinition.accountLevelConfigFieldDefinitions ?? {}
               }
-              nodeConfig={nodeConfig}
+              nodeConfig={props.nodeConfig}
             />
             <NodeBoxInstanceLevelFields
               isNodeConfigReadOnly={props.isNodeConfigReadOnly}
               instanceLevelConfigFieldDefinitions={
                 nodeDefinition.instanceLevelConfigFieldDefinitions
               }
-              nodeConfig={nodeConfig}
+              nodeConfig={props.nodeConfig}
             />
           </>
         )}
