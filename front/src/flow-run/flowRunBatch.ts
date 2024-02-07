@@ -84,7 +84,7 @@ function flowRunBatch(params: {
     'nodeAllLevelConfigs is not null',
   );
 
-  range(0, params.repeatTimes).pipe(
+  return range(0, params.repeatTimes).pipe(
     mergeMap((iterationIndex) => {
       return params.csvTable.map((row, rowIndex) => {
         return { iterationIndex, row, rowIndex };
@@ -106,7 +106,7 @@ function flowRunBatch(params: {
         preferStreaming: params.preferStreaming,
         flowGraph: immutableFlowGraph,
       }).pipe(
-        mergeMap<NodeExecutionEvent, Observable<FlowBatchRunEvent>>((event) => {
+        mergeMap((event: NodeExecutionEvent): Observable<FlowBatchRunEvent> => {
           switch (event.type) {
             case NodeExecutionEventType.VariableValues: {
               return of<FlowBatchRunEvent>({
@@ -143,8 +143,6 @@ function flowRunBatch(params: {
       );
     }, params.concurrencyLimit),
   );
-
-  return EMPTY;
 }
 
 export default flowRunBatch;

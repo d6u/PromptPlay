@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { A, D, pipe } from '@mobily/ts-belt';
+import { A, D } from '@mobily/ts-belt';
 import { produce } from 'immer';
 import Papa from 'papaparse';
 import posthog from 'posthog-js';
@@ -7,13 +7,13 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Subscription, debounceTime, tap } from 'rxjs';
 import invariant from 'tiny-invariant';
 
-import {
-  ConnectorResultMap,
-  NodeID,
-  getNodeDefinitionForNodeTypeName,
-} from 'flow-models';
+import { ConnectorResultMap, NodeID, NodeType } from 'flow-models';
 
-import { SingleRunEventType, runForEachRow } from 'flow-run/run-each-row';
+import {
+  FlowBatchRunEventType,
+  ValidationErrorType,
+} from 'flow-run/event-types';
+import flowRunBatch from 'flow-run/flowRunBatch';
 import { OverallStatus } from 'flow-run/run-types';
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 import {
@@ -26,17 +26,13 @@ import { useNodeFieldFeedbackStore } from 'state-root/node-field-feedback-state'
 import EvaluationSectionImportCSV from './components/EvaluationSectionImportCSV';
 import EvaluationSectionConfigCSV from './components/evaluation-section-config-csv/EvaluationSectionConfigCSV';
 
-export default function RouteBatchTest() {
+function RouteBatchTest() {
   // SECTION: Select store state
 
   const spaceId = useFlowStore((s) => s.spaceId);
-  const nodes = useFlowStore((s) => s.nodes);
   const edges = useFlowStore((s) => s.edges);
   const nodeConfigsDict = useFlowStore((s) => s.nodeConfigsDict);
   const variablesDict = useFlowStore((s) => s.variablesDict);
-  const variableValueLookUpDicts = useFlowStore(
-    (s) => s.variableValueLookUpDicts,
-  );
   const csvContent = useFlowStore((s) => s.csvStr);
   const repeatTimes = useFlowStore((s) => s.getRepeatTimes());
   const concurrencyLimit = useFlowStore((s) => s.getConcurrencyLimit());
@@ -85,74 +81,6 @@ export default function RouteBatchTest() {
       repeatCount: repeatTimes,
     });
 
-    // SECTION: Validate nodeConfigs
-    // TODO: Unifying the validation code
-
-    const { setFieldFeedbacks, removeFieldFeedbacks, hasAnyFeedbacks } =
-      useNodeFieldFeedbackStore.getState();
-
-    pipe(
-      nodeConfigsDict,
-      D.toPairs,
-      A.forEach(([nodeId, nodeConfig]) => {
-        const { accountLevelConfigFieldDefinitions } =
-          getNodeDefinitionForNodeTypeName(nodeConfig.type);
-
-        if (!accountLevelConfigFieldDefinitions) {
-          return;
-        }
-
-        Object.entries(accountLevelConfigFieldDefinitions).forEach(
-          ([key, fd]) => {
-            if (!fd.schema) {
-              return;
-            }
-
-            const fieldValue = useLocalStorageStore
-              .getState()
-              .getLocalAccountLevelNodeFieldValue(nodeConfig.type, key);
-
-            const { error } = fd.schema.validate(fieldValue);
-
-            if (error) {
-              setFieldFeedbacks(
-                nodeConfig.nodeId,
-                key,
-                error.details.map((detail) => detail.message),
-              );
-
-              updateNodeAugment(nodeId as NodeID, {
-                isRunning: false,
-                hasError: true,
-              });
-            } else {
-              removeFieldFeedbacks(nodeConfig.nodeId, key);
-
-              updateNodeAugment(nodeId as NodeID, {
-                isRunning: false,
-                hasError: false,
-              });
-            }
-          },
-        );
-      }),
-    );
-
-    if (hasAnyFeedbacks()) {
-      posthog.capture('CSV Evaluation Has Node Config Validation Error', {
-        flowId: spaceId,
-      });
-
-      // TODO: Show proper alert in the UI
-      alert(
-        'The validation for node configurations has failed. Please fix it in the canvas.',
-      );
-
-      // Stop flow run if there is any validation error
-      return;
-    }
-    // !SECTION
-
     setIsRunning(true);
 
     // Reset result table
@@ -174,29 +102,86 @@ export default function RouteBatchTest() {
       /* replace */ true,
     );
 
-    runningSubscriptionRef.current = runForEachRow({
-      flowContent: {
-        nodes,
-        edges,
-        nodeConfigsDict,
-        variablesDict,
-        variableValueLookUpDicts,
-      },
-      csvBody,
+    // Clear field feedbacks
+    useNodeFieldFeedbackStore.getState().clearFieldFeedbacks();
+
+    runningSubscriptionRef.current = flowRunBatch({
+      edges: edges.map((edge) => ({
+        sourceNode: edge.source,
+        sourceConnector: edge.sourceHandle,
+        targetNode: edge.target,
+        targetConnector: edge.targetHandle,
+      })),
+      nodeConfigs: nodeConfigsDict,
+      connectors: variablesDict,
+      csvTable: csvBody,
       variableIdToCsvColumnIndexMap,
       repeatTimes,
       concurrencyLimit,
+      preferStreaming: false,
+      getAccountLevelFieldValue: (nodeType: NodeType, fieldKey: string) => {
+        return useLocalStorageStore
+          .getState()
+          .getLocalAccountLevelNodeFieldValue(nodeType, fieldKey);
+      },
     })
       .pipe(
         tap((event) => {
           switch (event.type) {
-            case SingleRunEventType.Start: {
+            case FlowBatchRunEventType.ValidationErrors: {
+              let hasError = false;
+              event.errors.forEach((error) => {
+                switch (error.type) {
+                  case ValidationErrorType.FlowLevel: {
+                    // TODO: Show flow level errors in UI
+                    alert(error.message);
+                    break;
+                  }
+                  case ValidationErrorType.NodeLevel: {
+                    // TODO: Show node level errors in UI
+                    updateNodeAugment(error.nodeId as NodeID, {
+                      isRunning: false,
+                      hasError: true,
+                    });
+
+                    hasError = true;
+                    break;
+                  }
+                  case ValidationErrorType.FieldLevel: {
+                    useNodeFieldFeedbackStore.getState().setFieldFeedbacks(
+                      error.nodeId,
+                      error.fieldKey,
+                      // TODO: Allow setting multiple field level feedbacks
+                      // Currently, new error message will replace the old one.
+                      [error.message],
+                    );
+
+                    updateNodeAugment(error.nodeId as NodeID, {
+                      isRunning: false,
+                      hasError: true,
+                    });
+
+                    hasError = true;
+                    break;
+                  }
+                }
+              });
+
+              if (hasError) {
+                // TODO: Show message in Batch Test tab
+                alert(
+                  'Validation errors found. Checkout the Canvas tab for detail.',
+                );
+              }
+              break;
+            }
+            case FlowBatchRunEventType.FlowStart: {
               setRunMetadataTable((prev) => {
                 return produce(prev, (draft) => {
                   const row = draft[event.rowIndex as RowIndex];
                   invariant(row != null, 'Status row should not be null');
 
-                  const metadata = row[event.iteratonIndex as IterationIndex];
+                  const metadata = row[event.iterationIndex as IterationIndex];
                   invariant(metadata != null, 'Metadata should not be null');
 
                   metadata.overallStatus = OverallStatus.Running;
@@ -204,13 +189,13 @@ export default function RouteBatchTest() {
               });
               break;
             }
-            case SingleRunEventType.End: {
+            case FlowBatchRunEventType.FlowFinish: {
               setRunMetadataTable((prev) => {
                 return produce(prev, (draft) => {
                   const row = draft[event.rowIndex as RowIndex];
                   invariant(row != null, 'Status row should not be null');
 
-                  const metadata = row[event.iteratonIndex as IterationIndex];
+                  const metadata = row[event.iterationIndex as IterationIndex];
                   invariant(metadata != null, 'Metadata should not be null');
 
                   if (
@@ -224,29 +209,29 @@ export default function RouteBatchTest() {
               });
               break;
             }
-            case SingleRunEventType.Error: {
+            case FlowBatchRunEventType.FlowErrors: {
               setRunMetadataTable((prev) => {
                 return produce(prev, (draft) => {
                   const row = draft[event.rowIndex as RowIndex];
                   invariant(row != null, 'Status row should not be null');
 
-                  const metadata = row[event.iteratonIndex as IterationIndex];
+                  const metadata = row[event.iterationIndex as IterationIndex];
                   invariant(metadata != null, 'Metadata should not be null');
 
                   metadata.overallStatus = OverallStatus.Interrupted;
-                  metadata.errors.push(event.error);
+                  metadata.errors.push(event.errorMessage);
                 });
               });
               break;
             }
-            case SingleRunEventType.VariableValueChanges: {
+            case FlowBatchRunEventType.FlowVariableValues: {
               setGeneratedResult((prev) => {
                 return produce(prev, (draft) => {
                   const row = draft[event.rowIndex as RowIndex];
                   invariant(row != null, 'Result row should not be null');
 
-                  row[event.iteratonIndex as IterationIndex] = {
-                    ...row[event.iteratonIndex as IterationIndex],
+                  row[event.iterationIndex as IterationIndex] = {
+                    ...row[event.iterationIndex as IterationIndex],
                     ...event.changes,
                   };
                 });
@@ -285,10 +270,8 @@ export default function RouteBatchTest() {
     csvBody,
     repeatTimes,
     nodeConfigsDict,
-    nodes,
     edges,
     variablesDict,
-    variableValueLookUpDicts,
     variableIdToCsvColumnIndexMap,
     concurrencyLimit,
     setGeneratedResult,
@@ -336,3 +319,5 @@ const Container = styled.div`
   grid-area: work-area / work-area / bottom-tool-bar / bottom-tool-bar;
   padding: 10px 20px;
 `;
+
+export default RouteBatchTest;

@@ -265,7 +265,7 @@ export function createRootSlice(
                 switch (error.type) {
                   case ValidationErrorType.FlowLevel: {
                     // TODO: Show flow level errors in UI
-                    console.error('FlowLevelValidationError', error.message);
+                    alert(error.message);
                     break;
                   }
                   case ValidationErrorType.NodeLevel: {
