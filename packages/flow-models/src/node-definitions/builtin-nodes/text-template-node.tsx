@@ -45,8 +45,22 @@ export const TEXT_TEMPLATE_NODE_DEFINITION: NodeDefinition<
 
   instanceLevelConfigFieldDefinitions: {
     content: {
-      type: FieldType.Text,
+      type: FieldType.Textarea,
       label: 'Text content',
+      placeholder: 'Write something...',
+      helperMessage: (
+        <div>
+          <a
+            href="https://mustache.github.io/"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Mustache template
+          </a>{' '}
+          is used here. TL;DR: use <code>{'{{variableName}}'}</code> to insert a
+          variable.
+        </div>
+      ),
     },
   },
 

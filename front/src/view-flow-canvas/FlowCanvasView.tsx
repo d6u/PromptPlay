@@ -15,11 +15,9 @@ import InputNode from './nodes/InputNode';
 import JavaScriptFunctionNode from './nodes/JavaScriptFunctionNode';
 import OutputNode from './nodes/OutputNode';
 import StandardNode from './nodes/StandardNode';
-import TextTemplateNode from './nodes/TextTemplateNode';
 
 import 'reactflow/dist/style.css';
 
-// TODO: Enforce type safety
 const NODE_TYPES = {
   [NodeType.InputNode]: InputNode,
   [NodeType.OutputNode]: OutputNode,
@@ -27,7 +25,7 @@ const NODE_TYPES = {
   [NodeType.JavaScriptFunctionNode]: JavaScriptFunctionNode,
   [NodeType.ChatGPTMessageNode]: StandardNode,
   [NodeType.ChatGPTChatCompletionNode]: StandardNode,
-  [NodeType.TextTemplate]: TextTemplateNode,
+  [NodeType.TextTemplate]: StandardNode,
   [NodeType.HuggingFaceInference]: StandardNode,
   [NodeType.ElevenLabs]: StandardNode,
 };
