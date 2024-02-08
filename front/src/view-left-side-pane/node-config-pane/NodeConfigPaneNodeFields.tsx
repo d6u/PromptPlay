@@ -2,8 +2,8 @@ import { useMemo } from 'react';
 
 import { NodeConfig, getNodeDefinitionForNodeTypeName } from 'flow-models';
 
+import NodeAccountLevelFields from 'components/node-fields/NodeAccountLevelFields';
 import NodeBoxInstanceLevelFields from 'components/node-fields/NodeInstanceLevelFields';
-import NodeBoxAccountLevelFields from 'view-flow-canvas/node-box/NodeBoxAccountLevelFields';
 
 type Props = {
   nodeConfig: NodeConfig;
@@ -19,7 +19,7 @@ function NodeConfigPaneNodeFields(props: Props) {
   return (
     <div>
       {nodeDefinition.accountLevelConfigFieldDefinitions && (
-        <NodeBoxAccountLevelFields
+        <NodeAccountLevelFields
           isNodeConfigReadOnly={props.isNodeConfigReadOnly}
           accountLevelConfigFieldDefinitions={
             nodeDefinition.accountLevelConfigFieldDefinitions

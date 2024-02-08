@@ -1,5 +1,5 @@
 import { ClassNames } from '@emotion/react';
-import FormHelperText from '@mui/joy/FormHelperText';
+import { FormHelperText } from '@mui/joy';
 import { ReactNode } from 'react';
 
 type Props = {
@@ -7,7 +7,7 @@ type Props = {
   children: ReactNode;
 };
 
-export default function NodeBoxHelperTextContainer(props: Props) {
+function NodeFieldHelperTextWithStatus(props: Props) {
   let color: string;
   switch (props.color) {
     case 'danger':
@@ -36,3 +36,5 @@ export default function NodeBoxHelperTextContainer(props: Props) {
     </ClassNames>
   );
 }
+
+export default NodeFieldHelperTextWithStatus;

@@ -1,12 +1,6 @@
-import { useNodeId } from 'reactflow';
+import { NodeAccountLevelTextFieldDefinition, NodeConfig } from 'flow-models';
 
-import {
-  NodeAccountLevelTextFieldDefinition,
-  NodeConfig,
-  NodeID,
-} from 'flow-models';
-
-import NodeGlobalTextField from 'view-flow-canvas/node-fields/NodeGlobalTextField';
+import NodeGlobalTextField from 'components/node-fields/NodeGlobalTextField';
 
 type Props = {
   isNodeConfigReadOnly: boolean;
@@ -17,15 +11,13 @@ type Props = {
   nodeConfig: NodeConfig;
 };
 
-function NodeBoxAccountLevelFields(props: Props) {
-  const nodeId = useNodeId() as NodeID;
-
+function NodeAccountLevelFields(props: Props) {
   return Object.entries(props.accountLevelConfigFieldDefinitions).map(
     ([fieldKey, fd]) => {
       return (
         <NodeGlobalTextField
           key={fieldKey}
-          nodeId={nodeId}
+          nodeId={props.nodeConfig.nodeId}
           nodeType={props.nodeConfig.type}
           fieldKey={fieldKey}
           fieldDefinition={fd}
@@ -36,4 +28,4 @@ function NodeBoxAccountLevelFields(props: Props) {
   );
 }
 
-export default NodeBoxAccountLevelFields;
+export default NodeAccountLevelFields;
