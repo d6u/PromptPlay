@@ -1,3 +1,4 @@
+import styled from '@emotion/styled';
 import { useMemo } from 'react';
 
 import { ConnectorType } from 'flow-models';
@@ -5,13 +6,11 @@ import { ConnectorType } from 'flow-models';
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 import { selectVariables } from 'state-flow/util/state-utils';
 
+import HeaderSection from 'components/side-pane/SidePaneHeaderSection';
+import HeaderSectionHeader from 'components/side-pane/SidePaneHeaderSectionHeader';
+import Section from 'components/side-pane/SidePaneSection';
+
 import OutputRenderer from '../../view-right-side-pane/common/OutputRenderer';
-import {
-  HeaderSection,
-  HeaderSectionHeader,
-  PanelContentContainer,
-  Section,
-} from '../../view-right-side-pane/common/controls-common';
 
 function NodeConfigPane() {
   const variables = useFlowStore((s) => s.variablesDict);
@@ -24,7 +23,7 @@ function NodeConfigPane() {
   }, [variables, selectedNodeId]);
 
   return (
-    <PanelContentContainer>
+    <Container>
       <HeaderSection>
         <HeaderSectionHeader>Output variables</HeaderSectionHeader>
       </HeaderSection>
@@ -33,8 +32,13 @@ function NodeConfigPane() {
           <OutputRenderer key={output.id} outputItem={output} />
         ))}
       </Section>
-    </PanelContentContainer>
+    </Container>
   );
 }
+
+const Container = styled.div`
+  padding: 20px 20px 0 20px;
+  width: 400px;
+`;
 
 export default NodeConfigPane;

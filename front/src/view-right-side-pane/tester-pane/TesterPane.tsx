@@ -4,17 +4,15 @@ import { useContext, useMemo } from 'react';
 
 import { ConnectorType, VariableValueType } from 'flow-models';
 
+import HeaderSection from 'components/side-pane/SidePaneHeaderSection';
 import RouteFlowContext from 'state-flow/context/FlowRouteContext';
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 import { selectAllVariables } from 'state-flow/util/state-utils';
 
+import HeaderSectionHeader from 'components/side-pane/SidePaneHeaderSectionHeader';
+import Section from 'components/side-pane/SidePaneSection';
 import InputBlock from '../common/InputBlock';
 import OutputRenderer from '../common/OutputRenderer';
-import {
-  HeaderSection,
-  HeaderSectionHeader,
-  Section,
-} from '../common/controls-common';
 
 function TesterPane() {
   const { isCurrentUserOwner } = useContext(RouteFlowContext);

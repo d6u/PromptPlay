@@ -31,6 +31,7 @@
       "graphql-util/*": ["./src/graphql-util/*"],
       "generic-components/*": ["./src/generic-components/*"],
       "flow-run/*": ["./src/flow-run/*"],
+      "components/*": ["./src/components/*"],
       // state
       "state-flow/*": ["./src/state-flow/*"],
       "state-root/*": ["./src/state-root/*"],
