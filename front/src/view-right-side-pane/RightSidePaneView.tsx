@@ -7,10 +7,9 @@ import CrossIcon from 'icons/CrossIcon';
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 import { RightSidePanelType } from 'state-flow/types';
 
-import NodeConfigPane from './node-config-pane/NodeConfigPane';
 import TesterPane from './tester-pane/TesterPane';
 
-function SidePanel() {
+function RightSidePaneView() {
   const detailPanelContentType = useFlowStore((s) => s.detailPanelContentType);
   const setDetailPanelContentType = useFlowStore(
     (s) => s.setDetailPanelContentType,
@@ -19,13 +18,10 @@ function SidePanel() {
   let content: ReactNode;
   switch (detailPanelContentType) {
     case RightSidePanelType.Off:
+    case RightSidePanelType.NodeConfig:
       break;
     case RightSidePanelType.Tester: {
       content = <TesterPane />;
-      break;
-    }
-    case RightSidePanelType.NodeConfig: {
-      content = <NodeConfigPane />;
       break;
     }
   }
@@ -72,4 +68,4 @@ const Content = styled.div`
   overflow-y: auto;
 `;
 
-export default SidePanel;
+export default RightSidePaneView;

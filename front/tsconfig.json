@@ -43,7 +43,8 @@
       "view-flow-canvas/*": ["./src/view-flow-canvas/*"],
       "view-header/*": ["./src/view-header/*"],
       "view-sub-header/*": ["./src/view-sub-header/*"],
-      "view-right-side-pane/*": ["./src/view-right-side-pane/*"]
+      "view-right-side-pane/*": ["./src/view-right-side-pane/*"],
+      "view-left-side-pane/*": ["./src/view-left-side-pane/*"]
     }
   },
   "include": ["src"],

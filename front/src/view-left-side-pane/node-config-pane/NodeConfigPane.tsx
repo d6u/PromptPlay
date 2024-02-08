@@ -5,13 +5,13 @@ import { ConnectorType } from 'flow-models';
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 import { selectVariables } from 'state-flow/util/state-utils';
 
-import OutputRenderer from '../common/OutputRenderer';
+import OutputRenderer from '../../view-right-side-pane/common/OutputRenderer';
 import {
   HeaderSection,
   HeaderSectionHeader,
   PanelContentContainer,
   Section,
-} from '../common/controls-common';
+} from '../../view-right-side-pane/common/controls-common';
 
 function NodeConfigPane() {
   const variables = useFlowStore((s) => s.variablesDict);
