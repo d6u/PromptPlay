@@ -1,22 +1,24 @@
-import { FormHelperText, FormLabel, Input } from '@mui/joy';
+import { FormHelperText, FormLabel, Textarea } from '@mui/joy';
 import { useCallback } from 'react';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 
-import { TextFieldDefinition } from 'flow-models';
+import { TextareaFieldDefinition } from 'flow-models';
 
-import ReadonlyInput from 'components/generic/ReadonlyInput';
+import CopyIconButton from 'components/generic/CopyIconButton';
+import ReadonlyTextarea from 'components/generic/ReadonlyTextarea';
 
+import NodeFieldLabelWithIconContainer from './NodeFieldLabelWithIconContainer';
 import NodeFieldSectionFormControl from './NodeFieldSectionFormControl';
 
 type Props = {
   isNodeConfigReadOnly: boolean;
   fieldKey: string;
-  fieldDefinition: TextFieldDefinition;
+  fieldDefinition: TextareaFieldDefinition;
   fieldValue: string;
   onUpdate: (value: string) => void;
 };
 
-function NodeTextField(props: Props) {
+function NodeTextareaField(props: Props) {
   const { onUpdate: propsOnUpdate, fieldDefinition: fd } = props;
 
   const { control, handleSubmit } = useForm<FormType>({
@@ -32,23 +34,34 @@ function NodeTextField(props: Props) {
 
   return (
     <NodeFieldSectionFormControl>
-      <FormLabel>{fd.label}</FormLabel>
+      <NodeFieldLabelWithIconContainer>
+        <FormLabel>{fd.label}</FormLabel>
+        <CopyIconButton
+          onClick={() => {
+            navigator.clipboard.writeText(props.fieldValue);
+          }}
+        />
+      </NodeFieldLabelWithIconContainer>
       {props.isNodeConfigReadOnly ? (
-        <ReadonlyInput value={props.fieldValue} />
+        <ReadonlyTextarea value={props.fieldValue} minRows={3} maxRows={5} />
       ) : (
         <Controller
           name="value"
           control={control}
           render={({ field }) => (
-            <Input
+            <Textarea
               {...field}
+              color="neutral"
+              variant="outlined"
+              minRows={3}
+              maxRows={5}
               placeholder={fd.placeholder}
               onBlur={() => {
                 field.onBlur();
                 handleSubmit(onSaveCallback)();
               }}
-              onKeyUp={(event) => {
-                if (event.key === 'Enter') {
+              onKeyDown={(e) => {
+                if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
                   handleSubmit(onSaveCallback)();
                 }
               }}
@@ -56,7 +69,7 @@ function NodeTextField(props: Props) {
           )}
         />
       )}
-      {fd.helperText && <FormHelperText>{fd.helperText}</FormHelperText>}
+      {fd.helperMessage && <FormHelperText>{fd.helperMessage}</FormHelperText>}
     </NodeFieldSectionFormControl>
   );
 }
@@ -65,4 +78,4 @@ type FormType = {
   value: string;
 };
 
-export default NodeTextField;
+export default NodeTextareaField;

@@ -12,10 +12,10 @@ import RouteFlowContext from 'state-flow/context/FlowRouteContext';
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 import { selectVariables } from 'state-flow/util/state-utils';
 
-import NodeBoxCopyIcon from '../node-box/NodeBoxCopyIcon';
-import NodeBoxLabelWithIconContainer from '../node-box/NodeBoxLabelWithIconContainer';
+import CopyIconButton from '../../components/generic/CopyIconButton';
+import ReadonlyTextarea from '../../components/generic/ReadonlyTextarea';
+import NodeFieldLabelWithIconContainer from '../../components/node-fields/NodeFieldLabelWithIconContainer';
 import NodeBoxSection from '../node-box/NodeBoxSection';
-import TextareaReadonly from '../node-box/NodeBoxTextareaReadonly';
 import ReactFlowNode from './ReactFlowNode';
 
 function JavaScriptFunctionNode() {
@@ -60,18 +60,18 @@ function JavaScriptFunctionNode() {
     >
       <NodeBoxSection>
         <FormControl>
-          <NodeBoxLabelWithIconContainer>
+          <NodeFieldLabelWithIconContainer>
             <FormLabel>
               <code>{functionDefinitionPrefix}</code>
             </FormLabel>
-            <NodeBoxCopyIcon
+            <CopyIconButton
               onClick={() => {
                 navigator.clipboard.writeText(`${functionDefinitionPrefix}
   ${javaScriptCode.split('\n').join('\n  ')}
 }`);
               }}
             />
-          </NodeBoxLabelWithIconContainer>
+          </NodeFieldLabelWithIconContainer>
           {isCurrentUserOwner ? (
             <Textarea
               sx={{ fontFamily: 'var(--font-family-mono)' }}
@@ -91,7 +91,7 @@ function JavaScriptFunctionNode() {
               }}
             />
           ) : (
-            <TextareaReadonly value={javaScriptCode} minRows={6} isCode />
+            <ReadonlyTextarea value={javaScriptCode} minRows={6} isCode />
           )}
           <code style={{ fontSize: 12 }}>{'}'}</code>
         </FormControl>

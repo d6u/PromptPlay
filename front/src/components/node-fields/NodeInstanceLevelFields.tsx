@@ -8,11 +8,11 @@ import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 
 import NodeCheckboxField from '../../view-flow-canvas/node-fields/NodeCheckboxField';
 import NodeNumberField from '../../view-flow-canvas/node-fields/NodeNumberField';
-import NodeTextareaField from '../../view-flow-canvas/node-fields/NodeTextareaField';
 import NodeRadioField from './NodeRadioField';
 import NodeSelectField from './NodeSelectField';
 import NodeStopSequenceField from './NodeStopSequenceField';
 import NodeTextField from './NodeTextField';
+import NodeTextareaField from './NodeTextareaField';
 
 type Props = {
   isNodeConfigReadOnly: boolean;
@@ -82,11 +82,11 @@ function NodeBoxInstanceLevelFields(props: Props) {
           return (
             <NodeTextareaField
               key={fieldKey}
+              isNodeConfigReadOnly={props.isNodeConfigReadOnly}
               fieldKey={fieldKey}
               fieldDefinition={fd}
               fieldValue={fieldValue as string}
-              isNodeConfigReadOnly={props.isNodeConfigReadOnly}
-              onSave={(value) => {
+              onUpdate={(value) => {
                 updateNodeConfig(props.nodeConfig.nodeId, {
                   [fieldKey]: value,
                 });

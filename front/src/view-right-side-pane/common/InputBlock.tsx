@@ -6,7 +6,7 @@ import Textarea from '@mui/joy/Textarea';
 import { VariableValueType } from 'flow-models';
 import { ReactNode, useEffect, useState } from 'react';
 import ReadonlyInput from '../../components/generic/ReadonlyInput';
-import TextareaReadonly from '../../view-flow-canvas/node-box/NodeBoxTextareaReadonly';
+import ReadonlyTextarea from '../../components/generic/ReadonlyTextarea';
 
 const Container = styled.div`
   margin-bottom: 10px;
@@ -57,7 +57,7 @@ export default function InputBlock(props: Props) {
   switch (type) {
     case VariableValueType.String:
       valueInput = props.isReadOnly ? (
-        <TextareaReadonly minRows={2} value={value ?? ''} />
+        <ReadonlyTextarea minRows={2} value={value ?? ''} />
       ) : (
         <Textarea
           color="primary"
