@@ -11,6 +11,7 @@ import NodeNumberField from '../../view-flow-canvas/node-fields/NodeNumberField'
 import NodeRadioField from '../../view-flow-canvas/node-fields/NodeRadioField';
 import NodeSelectField from '../../view-flow-canvas/node-fields/NodeSelectField';
 import NodeTextareaField from '../../view-flow-canvas/node-fields/NodeTextareaField';
+import NodeStopSequenceField from './NodeStopSequenceField';
 import NodeTextField from './NodeTextField';
 
 type Props = {
@@ -36,11 +37,26 @@ function NodeBoxInstanceLevelFields(props: Props) {
           return (
             <NodeTextField
               key={fieldKey}
+              isNodeConfigReadOnly={props.isNodeConfigReadOnly}
               fieldKey={fieldKey}
               fieldDefinition={fd}
-              fieldValue={fieldValue}
+              fieldValue={fieldValue as string}
+              onUpdate={(value) => {
+                updateNodeConfig(props.nodeConfig.nodeId, {
+                  [fieldKey]: value,
+                });
+              }}
+            />
+          );
+        case FieldType.StopSequence:
+          return (
+            <NodeStopSequenceField
+              key={fieldKey}
               isNodeConfigReadOnly={props.isNodeConfigReadOnly}
-              onSave={(value) => {
+              fieldKey={fieldKey}
+              fieldDefinition={fd}
+              fieldValue={fieldValue as string[]}
+              onUpdate={(value) => {
                 updateNodeConfig(props.nodeConfig.nodeId, {
                   [fieldKey]: value,
                 });

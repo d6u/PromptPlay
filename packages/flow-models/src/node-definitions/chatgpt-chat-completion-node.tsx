@@ -6,7 +6,6 @@ import invariant from 'tiny-invariant';
 import randomId from 'common-utils/randomId';
 import {
   ChatGPTMessage,
-  NEW_LINE_SYMBOL,
   getNonStreamingCompletion,
   getStreamingCompletion,
 } from 'integrations/openai';
@@ -143,27 +142,9 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
       },
     },
     stop: {
-      type: FieldType.Text,
+      type: FieldType.StopSequence,
       label: 'Stop sequence',
-      transformBeforeRender: (value) => {
-        const typedValue = value as string[];
-        return typedValue.length
-          ? typedValue[0].replace(/\n/g, NEW_LINE_SYMBOL)
-          : '';
-      },
-      transformBeforeSave: (value) => {
-        return value === ''
-          ? []
-          : [value.replace(RegExp(NEW_LINE_SYMBOL, 'g'), '\n')];
-      },
-      placeholder: 'Stop sequence',
-      helperMessage: (
-        <div>
-          Use <code>SHIFT</code> + <code>ENTER</code> to enter a new line
-          character. (Visually represented by <code>"{NEW_LINE_SYMBOL}"</code>
-          .)
-        </div>
-      ),
+      placeholder: 'Enter stop sequence',
     },
   },
 

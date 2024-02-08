@@ -2,7 +2,8 @@ import { FormHelperText, FormLabel, Input } from '@mui/joy';
 import { useCallback } from 'react';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 
-import { TextFieldDefinition } from 'flow-models';
+import { StopSequenceFieldDefinition } from 'flow-models';
+import { NEW_LINE_SYMBOL } from 'integrations/openai';
 
 import ReadonlyInput from 'components/generic/ReadonlyInput';
 
@@ -15,21 +16,23 @@ type FormType = {
 type Props = {
   isNodeConfigReadOnly: boolean;
   fieldKey: string;
-  fieldDefinition: TextFieldDefinition;
-  fieldValue: string;
-  onUpdate: (value: string) => void;
+  fieldDefinition: StopSequenceFieldDefinition;
+  fieldValue: string[];
+  onUpdate: (value: string[]) => void;
 };
 
-function NodeTextField(props: Props) {
+function NodeStopSequenceField(props: Props) {
   const { onUpdate: propsOnUpdate, fieldDefinition: fd } = props;
 
-  const { control, handleSubmit } = useForm<FormType>({
-    values: { value: props.fieldValue },
+  const localValue = props.fieldValue[0] ?? '';
+
+  const { control, handleSubmit, setValue, getValues } = useForm<FormType>({
+    values: { value: localValue },
   });
 
   const onSaveCallback = useCallback<SubmitHandler<FormType>>(
     (data) => {
-      propsOnUpdate(data.value);
+      propsOnUpdate(data.value === '' ? [] : [data.value]);
     },
     [propsOnUpdate],
   );
@@ -38,7 +41,7 @@ function NodeTextField(props: Props) {
     <NodeFieldSectionFormControl>
       <FormLabel>{fd.label}</FormLabel>
       {props.isNodeConfigReadOnly ? (
-        <ReadonlyInput value={props.fieldValue} />
+        <ReadonlyInput value={localValue} />
       ) : (
         <Controller
           name="value"
@@ -51,6 +54,12 @@ function NodeTextField(props: Props) {
                 field.onBlur();
                 handleSubmit(onSaveCallback)();
               }}
+              onKeyDown={(event) => {
+                if (event.shiftKey && event.key === 'Enter') {
+                  event.preventDefault();
+                  setValue('value', getValues().value + NEW_LINE_SYMBOL);
+                }
+              }}
               onKeyUp={(event) => {
                 if (event.key === 'Enter') {
                   handleSubmit(onSaveCallback)();
@@ -60,9 +69,16 @@ function NodeTextField(props: Props) {
           )}
         />
       )}
+      <FormHelperText>
+        <span>
+          Use <code>SHIFT</code> + <code>ENTER</code> to enter a new line
+          character. (Visually represented by <code>"{NEW_LINE_SYMBOL}"</code>
+          .)
+        </span>
+      </FormHelperText>
       {fd.helperText && <FormHelperText>{fd.helperText}</FormHelperText>}
     </NodeFieldSectionFormControl>
   );
 }
 
-export default NodeTextField;
+export default NodeStopSequenceField;

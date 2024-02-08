@@ -3,6 +3,7 @@ import { ReactNode } from 'react';
 
 export enum FieldType {
   Text = 'Text',
+  StopSequence = 'StopSequence',
   Number = 'Number',
   Textarea = 'Textarea',
   Radio = 'Radio',
@@ -13,13 +14,18 @@ export enum FieldType {
 
 // ANCHOR: Instance Level Fields
 
-export type TextFieldDefinition<T = unknown> = {
+export type TextFieldDefinition = {
   type: FieldType.Text;
   label: string;
-  transformBeforeRender?: (value: T) => string;
-  transformBeforeSave?: (value: string) => T;
   placeholder?: string;
-  helperMessage?: ReactNode;
+  helperText?: ReactNode;
+};
+
+export type StopSequenceFieldDefinition = {
+  type: FieldType.StopSequence;
+  label: string;
+  placeholder?: string;
+  helperText?: ReactNode;
 };
 
 export type NumberFieldDefinition = {
@@ -75,6 +81,7 @@ export type SpecialRenderingFieldDefinition = {
 
 export type NodeInstanceLevelFieldDefinitionUnion =
   | TextFieldDefinition
+  | StopSequenceFieldDefinition
   | NumberFieldDefinition
   | TextareaFieldDefinition
   | RadioFieldDefinition
