@@ -11,6 +11,7 @@ import {
   getNodeDefinitionForNodeTypeName,
 } from 'flow-models';
 
+import NodeBoxInstanceLevelFields from 'components/node-fields/NodeInstanceLevelFields';
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 import { RightSidePanelType } from 'state-flow/types';
 import {
@@ -18,7 +19,6 @@ import {
   selectVariables,
 } from 'state-flow/util/state-utils';
 import NodeBoxAccountLevelFields from 'view-flow-canvas/node-box/NodeBoxAccountLevelFields';
-import NodeBoxInstanceLevelFields from 'view-flow-canvas/node-box/NodeBoxInstanceLevelFields';
 
 import IncomingConditionHandle from '../handles/IncomingConditionHandle';
 import IncomingVariableHandle from '../handles/IncomingVariableHandle';

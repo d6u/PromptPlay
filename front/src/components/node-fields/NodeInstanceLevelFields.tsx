@@ -1,20 +1,17 @@
-import { useNodeId } from 'reactflow';
-
 import {
   FieldType,
   NodeConfig,
-  NodeID,
   NodeInstanceLevelFieldDefinitionUnion,
 } from 'flow-models';
 
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 
-import NodeCheckboxField from '../node-fields/NodeCheckboxField';
-import NodeNumberField from '../node-fields/NodeNumberField';
-import NodeRadioField from '../node-fields/NodeRadioField';
-import NodeSelectField from '../node-fields/NodeSelectField';
-import NodeTextField from '../node-fields/NodeTextField';
-import NodeTextareaField from '../node-fields/NodeTextareaField';
+import NodeCheckboxField from '../../view-flow-canvas/node-fields/NodeCheckboxField';
+import NodeNumberField from '../../view-flow-canvas/node-fields/NodeNumberField';
+import NodeRadioField from '../../view-flow-canvas/node-fields/NodeRadioField';
+import NodeSelectField from '../../view-flow-canvas/node-fields/NodeSelectField';
+import NodeTextareaField from '../../view-flow-canvas/node-fields/NodeTextareaField';
+import NodeTextField from './NodeTextField';
 
 type Props = {
   isNodeConfigReadOnly: boolean;
@@ -26,8 +23,6 @@ type Props = {
 };
 
 function NodeBoxInstanceLevelFields(props: Props) {
-  const nodeId = useNodeId() as NodeID;
-
   const updateNodeConfig = useFlowStore((s) => s.updateNodeConfig);
 
   return Object.entries(props.instanceLevelConfigFieldDefinitions).map(
@@ -46,7 +41,9 @@ function NodeBoxInstanceLevelFields(props: Props) {
               fieldValue={fieldValue}
               isNodeConfigReadOnly={props.isNodeConfigReadOnly}
               onSave={(value) => {
-                updateNodeConfig(nodeId, { [fieldKey]: value });
+                updateNodeConfig(props.nodeConfig.nodeId, {
+                  [fieldKey]: value,
+                });
               }}
             />
           );
@@ -59,7 +56,9 @@ function NodeBoxInstanceLevelFields(props: Props) {
               fieldValue={fieldValue as number | null}
               isNodeConfigReadOnly={props.isNodeConfigReadOnly}
               onSave={(value) => {
-                updateNodeConfig(nodeId, { [fieldKey]: value });
+                updateNodeConfig(props.nodeConfig.nodeId, {
+                  [fieldKey]: value,
+                });
               }}
             />
           );
@@ -72,7 +71,9 @@ function NodeBoxInstanceLevelFields(props: Props) {
               fieldValue={fieldValue as string}
               isNodeConfigReadOnly={props.isNodeConfigReadOnly}
               onSave={(value) => {
-                updateNodeConfig(nodeId, { [fieldKey]: value });
+                updateNodeConfig(props.nodeConfig.nodeId, {
+                  [fieldKey]: value,
+                });
               }}
             />
           );
@@ -85,7 +86,9 @@ function NodeBoxInstanceLevelFields(props: Props) {
               fieldValue={fieldValue}
               isNodeConfigReadOnly={props.isNodeConfigReadOnly}
               onSave={(value) => {
-                updateNodeConfig(nodeId, { [fieldKey]: value });
+                updateNodeConfig(props.nodeConfig.nodeId, {
+                  [fieldKey]: value,
+                });
               }}
             />
           );
@@ -98,7 +101,9 @@ function NodeBoxInstanceLevelFields(props: Props) {
               fieldValue={fieldValue}
               isNodeConfigReadOnly={props.isNodeConfigReadOnly}
               onSave={(value) => {
-                updateNodeConfig(nodeId, { [fieldKey]: value });
+                updateNodeConfig(props.nodeConfig.nodeId, {
+                  [fieldKey]: value,
+                });
               }}
             />
           );
@@ -111,7 +116,9 @@ function NodeBoxInstanceLevelFields(props: Props) {
               fieldValue={fieldValue}
               isNodeConfigReadOnly={props.isNodeConfigReadOnly}
               onSave={(value) => {
-                updateNodeConfig(nodeId, { [fieldKey]: value });
+                updateNodeConfig(props.nodeConfig.nodeId, {
+                  [fieldKey]: value,
+                });
               }}
             />
           );

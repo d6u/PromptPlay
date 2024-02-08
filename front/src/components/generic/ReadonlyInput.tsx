@@ -1,10 +1,10 @@
-import Input from '@mui/joy/Input';
+import { Input } from '@mui/joy';
+import { ComponentProps } from 'react';
 
-export default function NodeBoxIncomingVariableReadonly(
-  props: React.ComponentProps<typeof Input>,
-) {
+function ReadonlyInput(props: ComponentProps<typeof Input>) {
   return (
     <Input
+      {...props}
       sx={{
         '--Input-focusedHighlight': 'rgb(205, 215, 225)',
         '--Input-focusedThickness': '1px',
@@ -18,7 +18,8 @@ export default function NodeBoxIncomingVariableReadonly(
           },
         },
       }}
-      {...props}
     />
   );
 }
+
+export default ReadonlyInput;

@@ -1,7 +1,7 @@
 import { FormControl, FormLabel, Input } from '@mui/joy';
 import { NumberFieldDefinition } from 'flow-models';
 import { useCallback, useEffect, useState } from 'react';
-import NodeBoxIncomingVariableReadonly from '../node-box/NodeBoxIncomingVariableReadonly';
+import ReadonlyInput from '../../components/generic/ReadonlyInput';
 import NodeBoxSection from '../node-box/NodeBoxSection';
 
 type Props = {
@@ -37,10 +37,7 @@ function NodeNumberField(props: Props) {
       <FormControl>
         <FormLabel>{fd.label}</FormLabel>
         {props.isNodeConfigReadOnly ? (
-          <NodeBoxIncomingVariableReadonly
-            type="number"
-            value={String(localFieldValue)}
-          />
+          <ReadonlyInput type="number" value={String(localFieldValue)} />
         ) : (
           <Input
             type="number"

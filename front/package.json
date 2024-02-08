@@ -34,6 +34,7 @@
     "ramda": "^0.29.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-hook-form": "^7.50.1",
     "react-router-dom": "^6.15.0",
     "react-top-loading-bar": "^2.3.1",
     "reactflow": "^11.8.3",

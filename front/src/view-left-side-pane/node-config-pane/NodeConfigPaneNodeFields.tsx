@@ -1,7 +1,9 @@
-import { NodeConfig, getNodeDefinitionForNodeTypeName } from 'flow-models';
 import { useMemo } from 'react';
+
+import { NodeConfig, getNodeDefinitionForNodeTypeName } from 'flow-models';
+
+import NodeBoxInstanceLevelFields from 'components/node-fields/NodeInstanceLevelFields';
 import NodeBoxAccountLevelFields from 'view-flow-canvas/node-box/NodeBoxAccountLevelFields';
-import NodeBoxInstanceLevelFields from 'view-flow-canvas/node-box/NodeBoxInstanceLevelFields';
 
 type Props = {
   nodeConfig: NodeConfig;
