@@ -1,7 +1,8 @@
 import styled from '@emotion/styled';
-import { useMemo } from 'react';
+import { useContext, useMemo } from 'react';
+import invariant from 'tiny-invariant';
 
-import { ConnectorType } from 'flow-models';
+import { ConnectorType, NodeID, NodeType } from 'flow-models';
 
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 import { selectVariables } from 'state-flow/util/state-utils';
@@ -10,9 +11,14 @@ import HeaderSection from 'components/side-pane/SidePaneHeaderSection';
 import HeaderSectionHeader from 'components/side-pane/SidePaneHeaderSectionHeader';
 import Section from 'components/side-pane/SidePaneSection';
 
+import RouteFlowContext from 'state-flow/context/FlowRouteContext';
 import OutputRenderer from '../../view-right-side-pane/common/OutputRenderer';
+import NodeConfigPaneNodeFields from './NodeConfigPaneNodeFields';
 
 function NodeConfigPane() {
+  const { isCurrentUserOwner } = useContext(RouteFlowContext);
+
+  const nodeConfigs = useFlowStore((s) => s.nodeConfigsDict);
   const variables = useFlowStore((s) => s.variablesDict);
   const selectedNodeId = useFlowStore((s) => s.detailPanelSelectedNodeId);
 
@@ -21,6 +27,12 @@ function NodeConfigPane() {
       ? []
       : selectVariables(selectedNodeId, ConnectorType.NodeOutput, variables);
   }, [variables, selectedNodeId]);
+
+  const nodeConfig = useMemo(() => {
+    return nodeConfigs[selectedNodeId as NodeID];
+  }, [nodeConfigs, selectedNodeId]);
+
+  invariant(nodeConfig != null, 'nodeConfig is not null');
 
   return (
     <Container>
@@ -32,6 +44,17 @@ function NodeConfigPane() {
           <OutputRenderer key={output.id} outputItem={output} />
         ))}
       </Section>
+      {![
+        NodeType.InputNode,
+        NodeType.OutputNode,
+        NodeType.ConditionNode,
+        NodeType.JavaScriptFunctionNode,
+      ].includes(nodeConfig.type) && (
+        <NodeConfigPaneNodeFields
+          nodeConfig={nodeConfig}
+          isNodeConfigReadOnly={!isCurrentUserOwner}
+        />
+      )}
     </Container>
   );
 }

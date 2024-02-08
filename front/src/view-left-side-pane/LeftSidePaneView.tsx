@@ -9,7 +9,7 @@ function LeftSidePaneView() {
 
   return (
     <Container $hide={selectedNodeId == null}>
-      <NodeConfigPane />
+      {selectedNodeId != null && <NodeConfigPane />}
     </Container>
   );
 }
@@ -18,7 +18,7 @@ const Container = styled.div<{ $hide: boolean }>`
   position: relative;
   height: 100%;
   background-color: #fff;
-  border-left: 1px solid #ddd;
+  border-right: 1px solid #ddd;
   display: ${(props) => (props.$hide ? 'none' : 'initial')};
 `;
 
