@@ -7,7 +7,7 @@ import MiddleContent from './sub-header/MiddleContent';
 import MoreMenu from './sub-header/MoreMenu';
 import RightPaneToggle from './sub-header/RightPaneToggle';
 import SavingIndicator from './sub-header/SavingIndicator';
-import SubHeaderActions from './sub-header/SubHeaderActions';
+import SubHeaderActions from './sub-header/SubTabActions';
 import TabSwitcher from './sub-header/TabSwitcher';
 
 function SubHeaderView() {
@@ -36,7 +36,7 @@ const Container = styled.div`
   display: grid;
   grid-template-columns: max-content max-content max-content auto max-content max-content max-content;
   grid-template-rows: 1fr;
-  grid-template-areas: 'tab-switcher left-pane-toggle sub-header-actions middle saving-indicator right-pane-toggle more-menu';
+  grid-template-areas: 'tab-switcher left-pane-toggle sub-tab-actions middle saving-indicator right-pane-toggle more-menu';
   gap: 10px;
   align-items: center;
   border-bottom: 1px solid #ececf1;
