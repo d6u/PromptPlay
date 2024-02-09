@@ -1,0 +1,29 @@
+export const BACKDROP_PADDING = 3;
+
+// SECTION: Node Box Header
+export const DRAG_HANDLE_CLASS_NAME = 'node-drag-handle';
+export const NODE_BOX_HEADER_SECTION_PADDING_TOP = 10;
+export const NODE_BOX_HEADER_SECTION_MARGIN_BOTTOM = 5;
+export const NODE_BOX_HEADER_SUB_SECTION_PADDING_MARGIN_BETWEEN = 5;
+export const NODE_BOX_HEADER_SECTION_TITLE_HEIGHT = 32;
+// This variable is not used in defining the UI, so it has to be manually
+// keep up to date with the actual value in UI.
+export const NODE_BOX_HEADER_ACTION_SECTION_HEIGHT = 32;
+
+export const HEADER_SECTION_HEIGHT =
+  NODE_BOX_HEADER_SECTION_PADDING_TOP +
+  NODE_BOX_HEADER_SECTION_MARGIN_BOTTOM +
+  NODE_BOX_HEADER_SUB_SECTION_PADDING_MARGIN_BETWEEN +
+  NODE_BOX_HEADER_SECTION_TITLE_HEIGHT +
+  NODE_BOX_HEADER_ACTION_SECTION_HEIGHT;
+// !SECTION
+
+export const SECTION_PADDING_BOTTOM = 10;
+
+export const NODE_BOX_WIDTH = 300;
+
+export const ADD_VARIABLE_BUTTON_HEIGHT = 32;
+export const ADD_VARIABLE_BUTTON_MARGIN_BOTTOM = 5;
+
+// NOTE: This depends on the size of the helper text
+export const CONDITION_NODE_DEFAULT_CASE_HELPER_TEXT_HEIGHT = 40;

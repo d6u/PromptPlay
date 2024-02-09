@@ -16,15 +16,12 @@ import { selectVariables } from 'state-flow/util/state-utils';
 
 import IncomingVariableHandle from '../handles/IncomingVariableHandle';
 import NodeBox from '../node-box/NodeBox';
-import NodeBoxAddConnectorButton from '../node-box/NodeBoxAddConnectorButton';
 import NodeBoxHeaderSection from '../node-box/NodeBoxHeaderSection';
-import NodeBoxGearButton from '../node-box/NodeBoxIconGear';
 import NodeBoxIncomingVariableBlock, {
   ROW_MARGIN_TOP,
 } from '../node-box/NodeBoxIncomingVariableBlock';
 import NodeBoxIncomingVariableSection from '../node-box/NodeBoxIncomingVariableSection';
 import { VARIABLE_LABEL_HEIGHT } from '../node-box/NodeBoxOutgoingVariableBlock';
-import NodeBoxSmallSection from '../node-box/NodeBoxSmallSection';
 
 export default function OutputNode() {
   const { isCurrentUserOwner } = useContext(RouteFlowContext);
@@ -65,35 +62,24 @@ export default function OutputNode() {
           id={output.id}
           index={i}
           inputVariableBlockHeightList={inputVariableBlockHeightList}
-          isShowingAddInputVariableButton
         />
       ))}
       <NodeBox nodeType={NodeType.OutputNode}>
         <NodeBoxHeaderSection
-          isReadOnly={isCurrentUserOwner}
+          isReadOnly={!isCurrentUserOwner}
           title="Output"
           onClickRemove={() => {
             removeNode(nodeId);
           }}
+          onClickGearButton={() => {
+            setCanvasRightPaneType(CanvasRightPanelType.Tester);
+          }}
+          showAddVariableButton={true}
+          onClickAddVariableButton={() => {
+            addVariable(nodeId, ConnectorType.FlowOutput, flowOutputs.length);
+            updateNodeInternals(nodeId);
+          }}
         />
-        <NodeBoxSmallSection>
-          <NodeBoxGearButton
-            onClick={() => setCanvasRightPaneType(CanvasRightPanelType.Tester)}
-          />
-          {isCurrentUserOwner && (
-            <NodeBoxAddConnectorButton
-              label="Variable"
-              onClick={() => {
-                addVariable(
-                  nodeId,
-                  ConnectorType.FlowOutput,
-                  flowOutputs.length,
-                );
-                updateNodeInternals(nodeId);
-              }}
-            />
-          )}
-        </NodeBoxSmallSection>
         <NodeBoxIncomingVariableSection>
           {flowOutputs.map((input, i) => (
             <NodeBoxIncomingVariableBlock

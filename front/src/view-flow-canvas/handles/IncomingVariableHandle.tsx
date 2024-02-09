@@ -1,36 +1,21 @@
 import styled from '@emotion/styled';
 import { ComponentProps } from 'react';
 import { Position } from 'reactflow';
+
+import { BACKDROP_PADDING, HEADER_SECTION_HEIGHT } from '../constants';
 import { VARIABLE_LABEL_HEIGHT } from '../node-box/NodeBoxOutgoingVariableBlock';
-import {
-  ADD_VARIABLE_BUTTON_HEIGHT,
-  ADD_VARIABLE_BUTTON_MARGIN_BOTTOM,
-  BACKDROP_PADDING,
-  HEADER_SECTION_HEIGHT,
-} from '../ui-constants';
 import { BaseHandle, HANDLE_HEIGHT, HANDLE_WIDTH } from './common';
 
-const IncomingConnectorHandleImpl = styled(BaseHandle)`
-  background: #00b3ff;
-  left: -${HANDLE_WIDTH / 2 - BACKDROP_PADDING / 2}px;
-`;
-
-export default function IncomingVariableHandle(
+function IncomingVariableHandle(
   props: Omit<
     ComponentProps<typeof IncomingConnectorHandleImpl>,
     'position' | 'type'
   > & {
     index?: number;
     inputVariableBlockHeightList?: number[];
-    isShowingAddInputVariableButton?: boolean;
   },
 ) {
-  const {
-    index = 0,
-    inputVariableBlockHeightList = [],
-    isShowingAddInputVariableButton = false,
-    ...restProps
-  } = props;
+  const { index = 0, inputVariableBlockHeightList = [], ...restProps } = props;
 
   return (
     <IncomingConnectorHandleImpl
@@ -39,35 +24,28 @@ export default function IncomingVariableHandle(
       type="target"
       style={{
         ...props.style,
-        top: calcTop(
-          index,
-          inputVariableBlockHeightList,
-          isShowingAddInputVariableButton,
-        ),
+        top: calcTop(index, inputVariableBlockHeightList),
       }}
     />
   );
 }
 
-function calcTop(
-  index: number,
-  inputVariableBlockHeightList: number[],
-  isShowingAddInputVariableButton: boolean,
-) {
-  let headerSectionHeight = BACKDROP_PADDING + HEADER_SECTION_HEIGHT;
+const IncomingConnectorHandleImpl = styled(BaseHandle)`
+  background: #00b3ff;
+  left: -${HANDLE_WIDTH / 2 - BACKDROP_PADDING / 2}px;
+`;
 
-  if (isShowingAddInputVariableButton) {
-    headerSectionHeight +=
-      ADD_VARIABLE_BUTTON_HEIGHT + ADD_VARIABLE_BUTTON_MARGIN_BOTTOM;
-  }
-
-  const center = VARIABLE_LABEL_HEIGHT / 2 - HANDLE_HEIGHT / 2;
+function calcTop(index: number, inputVariableBlockHeightList: number[]) {
+  const CENTER = VARIABLE_LABEL_HEIGHT / 2 - HANDLE_HEIGHT / 2;
 
   return (
-    headerSectionHeight +
-    center +
+    BACKDROP_PADDING +
+    HEADER_SECTION_HEIGHT +
+    CENTER +
     inputVariableBlockHeightList
       .slice(0, index)
       .reduce<number>((acc, height) => acc + height, 0)
   );
 }
+
+export default IncomingVariableHandle;

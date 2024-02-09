@@ -23,14 +23,11 @@ import IncomingConditionHandle from '../handles/IncomingConditionHandle';
 import IncomingVariableHandle from '../handles/IncomingVariableHandle';
 import OutgoingVariableHandle from '../handles/OutgoingVariableHandle';
 import NodeBox from './NodeBox';
-import NodeBoxAddConnectorButton from './NodeBoxAddConnectorButton';
 import NodeBoxHeaderSection from './NodeBoxHeaderSection';
-import NodeBoxGearButton from './NodeBoxIconGear';
 import NodeBoxIncomingVariableBlock from './NodeBoxIncomingVariableBlock';
 import NodeBoxIncomingVariableSection from './NodeBoxIncomingVariableSection';
 import NodeBoxOutgoingVariableBlock from './NodeBoxOutgoingVariableBlock';
 import NodeBoxSection from './NodeBoxSection';
-import NodeBoxSmallSection from './NodeBoxSmallSection';
 
 export type DestConnector = {
   id: string;
@@ -198,9 +195,6 @@ function ReactFlowNode(props: Props) {
             id={connector.id}
             index={i}
             inputVariableBlockHeightList={inputVariableBlockHeightList}
-            isShowingAddInputVariableButton={
-              nodeDefinition.canUserAddIncomingVariables
-            }
           />
         );
       })}
@@ -210,28 +204,21 @@ function ReactFlowNode(props: Props) {
         hasError={augment?.hasError}
       >
         <NodeBoxHeaderSection
-          isReadOnly={!props.isNodeConfigReadOnly}
+          isReadOnly={props.isNodeConfigReadOnly}
           title={nodeDefinition.label}
           onClickRemove={() => {
             removeNode(nodeId);
           }}
+          onClickGearButton={() => {
+            setCanvasLeftPaneIsOpen(true);
+            setCanvasLeftPaneSelectedNodeId(nodeId);
+          }}
+          showAddVariableButton={!!nodeDefinition.canUserAddIncomingVariables}
+          onClickAddVariableButton={() => {
+            addVariable(nodeId, ConnectorType.NodeInput, destConnectors.length);
+            updateNodeInternals(nodeId);
+          }}
         />
-        {nodeDefinition.canUserAddIncomingVariables &&
-          !props.isNodeConfigReadOnly && (
-            <NodeBoxSmallSection>
-              <NodeBoxAddConnectorButton
-                label="Variable"
-                onClick={() => {
-                  addVariable(
-                    nodeId,
-                    ConnectorType.NodeInput,
-                    destConnectors.length,
-                  );
-                  updateNodeInternals(nodeId);
-                }}
-              />
-            </NodeBoxSmallSection>
-          )}
         <NodeBoxIncomingVariableSection>
           {destConnectors.map((connector, i) => {
             return (
@@ -261,14 +248,6 @@ function ReactFlowNode(props: Props) {
           })}
         </NodeBoxIncomingVariableSection>
         {children}
-        <NodeBoxSection>
-          <NodeBoxGearButton
-            onClick={() => {
-              setCanvasLeftPaneIsOpen(true);
-              setCanvasLeftPaneSelectedNodeId(nodeId);
-            }}
-          />
-        </NodeBoxSection>
         <NodeBoxSection>
           {srcConnectors.map((connector) => (
             <NodeBoxOutgoingVariableBlock

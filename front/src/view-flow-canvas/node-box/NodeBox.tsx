@@ -5,7 +5,7 @@ import { NodeType } from 'flow-models';
 
 import background from 'assets/warning-background.svg';
 
-import { BACKDROP_PADDING, NODE_BOX_WIDTH } from '../ui-constants';
+import { BACKDROP_PADDING, NODE_BOX_WIDTH } from '../constants';
 
 type Props = {
   nodeType: NodeType;

@@ -5,7 +5,7 @@ type Props = {
   onClick: () => void;
 };
 
-export default function NodeBoxAddConnectorButton(props: Props) {
+function NodeBoxAddConnectorButton(props: Props) {
   return (
     <Button
       color="success"
@@ -17,3 +17,5 @@ export default function NodeBoxAddConnectorButton(props: Props) {
     </Button>
   );
 }
+
+export default NodeBoxAddConnectorButton;

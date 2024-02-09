@@ -16,7 +16,7 @@ import {
   V3LocalEdge,
 } from 'flow-models';
 
-import { DRAG_HANDLE_CLASS_NAME } from 'view-flow-canvas/ui-constants';
+import { DRAG_HANDLE_CLASS_NAME } from 'view-flow-canvas/constants';
 import { CONDITION_EDGE_STYLE, DEFAULT_EDGE_STYLE } from './constants';
 
 export function assignLocalNodeProperties(nodes: LocalNode[]): LocalNode[] {

@@ -97,6 +97,10 @@ export default function ConditionNode() {
           onClickRemove={() => {
             removeNode(nodeId);
           }}
+          onClickGearButton={() => {
+            // TODO: Implement
+          }}
+          showAddVariableButton={false}
         />
         <NodeBoxIncomingVariableSection>
           {nodeInputs.map((flowInput, i) => (

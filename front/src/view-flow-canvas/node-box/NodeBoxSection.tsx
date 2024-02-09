@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { SECTION_PADDING_BOTTOM } from '../ui-constants';
+import { SECTION_PADDING_BOTTOM } from '../constants';
 
 const NodeBoxSection = styled.div`
   padding: 0 10px;

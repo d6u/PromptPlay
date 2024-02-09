@@ -15,12 +15,9 @@ import { selectVariables } from 'state-flow/util/state-utils';
 
 import OutgoingVariableHandle from '../handles/OutgoingVariableHandle';
 import NodeBox from '../node-box/NodeBox';
-import NodeBoxAddConnectorButton from '../node-box/NodeBoxAddConnectorButton';
 import NodeBoxHeaderSection from '../node-box/NodeBoxHeaderSection';
-import NodeBoxGearButton from '../node-box/NodeBoxIconGear';
 import NodeBoxIncomingVariableSection from '../node-box/NodeBoxIncomingVariableSection';
 import NodeBoxOutgoingConnectorBlock from '../node-box/NodeBoxOutgoingConnectorBlock';
-import NodeBoxSmallSection from '../node-box/NodeBoxSmallSection';
 
 export default function InputNode() {
   const nodeId = useNodeId() as NodeID;
@@ -58,26 +55,20 @@ export default function InputNode() {
     <>
       <NodeBox nodeType={NodeType.InputNode}>
         <NodeBoxHeaderSection
-          isReadOnly={isCurrentUserOwner}
+          isReadOnly={!isCurrentUserOwner}
           title="Input"
           onClickRemove={() => {
             removeNode(nodeId);
           }}
+          onClickGearButton={() => {
+            setCanvasRightPaneType(CanvasRightPanelType.Tester);
+          }}
+          showAddVariableButton={true}
+          onClickAddVariableButton={() => {
+            addVariable(nodeId, ConnectorType.FlowInput, flowInputs.length);
+            updateNodeInternals(nodeId);
+          }}
         />
-        <NodeBoxSmallSection>
-          <NodeBoxGearButton
-            onClick={() => setCanvasRightPaneType(CanvasRightPanelType.Tester)}
-          />
-          {isCurrentUserOwner && (
-            <NodeBoxAddConnectorButton
-              label="Variable"
-              onClick={() => {
-                addVariable(nodeId, ConnectorType.FlowInput, flowInputs.length);
-                updateNodeInternals(nodeId);
-              }}
-            />
-          )}
-        </NodeBoxSmallSection>
         <NodeBoxIncomingVariableSection>
           {flowInputs.map((flowInput, i) => (
             <NodeBoxOutgoingConnectorBlock
