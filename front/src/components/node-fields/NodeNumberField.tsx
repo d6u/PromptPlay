@@ -1,8 +1,10 @@
-import { FormControl, FormLabel, Input } from '@mui/joy';
-import { NumberFieldDefinition } from 'flow-models';
+import { FormLabel, Input } from '@mui/joy';
 import { useCallback, useEffect, useState } from 'react';
-import ReadonlyInput from '../../components/generic/ReadonlyInput';
-import NodeBoxSection from '../node-box/NodeBoxSection';
+
+import { NumberFieldDefinition } from 'flow-models';
+
+import ReadonlyInput from 'components/generic/ReadonlyInput';
+import NodeFieldSectionFormControl from './NodeFieldSectionFormControl';
 
 type Props = {
   fieldKey: string;
@@ -33,31 +35,29 @@ function NodeNumberField(props: Props) {
   }, [localFieldValue, propsOnSave, transformBeforeSave]);
 
   return (
-    <NodeBoxSection>
-      <FormControl>
-        <FormLabel>{fd.label}</FormLabel>
-        {props.isNodeConfigReadOnly ? (
-          <ReadonlyInput type="number" value={String(localFieldValue)} />
-        ) : (
-          <Input
-            type="number"
-            slotProps={{
-              input: { min: fd.min, max: fd.max, step: fd.step },
-            }}
-            value={localFieldValue}
-            onChange={(event) => {
-              setLocalFieldValue(event.target.value);
-            }}
-            onKeyUp={(event) => {
-              if (event.key === 'Enter') {
-                onSaveCallback();
-              }
-            }}
-            onBlur={onSaveCallback}
-          />
-        )}
-      </FormControl>
-    </NodeBoxSection>
+    <NodeFieldSectionFormControl>
+      <FormLabel>{fd.label}</FormLabel>
+      {props.isNodeConfigReadOnly ? (
+        <ReadonlyInput type="number" value={String(localFieldValue)} />
+      ) : (
+        <Input
+          type="number"
+          slotProps={{
+            input: { min: fd.min, max: fd.max, step: fd.step },
+          }}
+          value={localFieldValue}
+          onChange={(event) => {
+            setLocalFieldValue(event.target.value);
+          }}
+          onKeyUp={(event) => {
+            if (event.key === 'Enter') {
+              onSaveCallback();
+            }
+          }}
+          onBlur={onSaveCallback}
+        />
+      )}
+    </NodeFieldSectionFormControl>
   );
 }
 

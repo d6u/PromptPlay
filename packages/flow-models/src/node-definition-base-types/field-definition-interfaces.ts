@@ -65,12 +65,13 @@ export type FieldOption = {
   value: string;
 };
 
-export type CheckboxFieldDefinition = {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type CheckboxFieldDefinition<T = any> = {
   type: FieldType.Checkbox;
   label: string;
-  transformBeforeRender?: (value: unknown) => boolean;
-  transformBeforeSave?: (value: boolean) => unknown;
-  helperMessage?: ReactNode;
+  render?: (value: T) => boolean;
+  parse?: (value: boolean) => T;
+  helperText?: ReactNode;
 };
 
 // Special Rendering field's logic will be held within the specific

@@ -132,10 +132,14 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
     responseFormatType: {
       type: FieldType.Checkbox,
       label: 'Use JSON Response Format',
-      transformBeforeRender: (value) => {
+      render: (
+        value: ChatGPTChatCompletionResponseFormatType.JsonObject | null,
+      ) => {
         return value != null;
       },
-      transformBeforeSave: (value) => {
+      parse: (
+        value,
+      ): ChatGPTChatCompletionResponseFormatType.JsonObject | null => {
         return value
           ? ChatGPTChatCompletionResponseFormatType.JsonObject
           : null;
