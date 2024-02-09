@@ -4,7 +4,6 @@ import { ReactNode, useEffect, useMemo, useState } from 'react';
 import { useNodeId, useUpdateNodeInternals } from 'reactflow';
 
 import {
-  ConnectorID,
   ConnectorType,
   NodeConfig,
   NodeID,
@@ -24,8 +23,7 @@ import IncomingVariableHandle from '../handles/IncomingVariableHandle';
 import OutgoingVariableHandle from '../handles/OutgoingVariableHandle';
 import NodeBox from './NodeBox';
 import NodeBoxHeaderSection from './NodeBoxHeaderSection';
-import NodeBoxIncomingVariableBlock from './NodeBoxIncomingVariableBlock';
-import NodeBoxIncomingVariableSection from './NodeBoxIncomingVariableSection';
+import NodeBoxIncomingVariablesSection from './NodeBoxIncomingVariablesSection';
 import NodeBoxOutgoingVariableBlock from './NodeBoxOutgoingVariableBlock';
 import NodeBoxSection from './NodeBoxSection';
 
@@ -128,8 +126,6 @@ function ReactFlowNode(props: Props) {
 
   // ANCHOR: Variable Operations
   const addVariable = useFlowStore((s) => s.addVariable);
-  const updateVariable = useFlowStore((s) => s.updateVariable);
-  const removeVariable = useFlowStore((s) => s.removeVariable);
 
   // ANCHOR: Side Panel Operations
   const setCanvasLeftPaneIsOpen = useFlowStore(
@@ -219,34 +215,14 @@ function ReactFlowNode(props: Props) {
             updateNodeInternals(nodeId);
           }}
         />
-        <NodeBoxIncomingVariableSection>
-          {destConnectors.map((connector, i) => {
-            return (
-              <NodeBoxIncomingVariableBlock
-                key={connector.id}
-                name={connector.name}
-                isReadOnly={connector.isReadOnly}
-                helperMessage={connector.helperMessage}
-                onConfirmNameChange={(name) => {
-                  if (!connector.isReadOnly) {
-                    updateVariable(connector.id as ConnectorID, { name });
-                  }
-                }}
-                onRemove={() => {
-                  if (!connector.isReadOnly) {
-                    removeVariable(connector.id as ConnectorID);
-                    updateNodeInternals(nodeId);
-                  }
-                }}
-                onHeightChange={(height: number) => {
-                  setInputVariableBlockHeightList((arr) => {
-                    return A.updateAt(arr, i, () => height);
-                  });
-                }}
-              />
-            );
-          })}
-        </NodeBoxIncomingVariableSection>
+        <NodeBoxIncomingVariablesSection
+          destConnectors={destConnectors}
+          onRowHeightChange={(index, height) => {
+            setInputVariableBlockHeightList((arr) => {
+              return A.updateAt(arr, index, () => height);
+            });
+          }}
+        />
         {children}
         <NodeBoxSection>
           {srcConnectors.map((connector) => (

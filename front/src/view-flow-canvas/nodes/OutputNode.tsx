@@ -1,3 +1,4 @@
+import styled from '@emotion/styled';
 import { A } from '@mobily/ts-belt';
 import { useContext, useMemo } from 'react';
 import { useNodeId, useUpdateNodeInternals } from 'reactflow';
@@ -20,10 +21,9 @@ import NodeBoxHeaderSection from '../node-box/NodeBoxHeaderSection';
 import NodeBoxIncomingVariableBlock, {
   ROW_MARGIN_TOP,
 } from '../node-box/NodeBoxIncomingVariableBlock';
-import NodeBoxIncomingVariableSection from '../node-box/NodeBoxIncomingVariableSection';
 import { VARIABLE_LABEL_HEIGHT } from '../node-box/NodeBoxOutgoingVariableBlock';
 
-export default function OutputNode() {
+function OutputNode() {
   const { isCurrentUserOwner } = useContext(RouteFlowContext);
 
   const nodeId = useNodeId() as NodeID;
@@ -80,7 +80,7 @@ export default function OutputNode() {
             updateNodeInternals(nodeId);
           }}
         />
-        <NodeBoxIncomingVariableSection>
+        <NodeBoxFlowOutputVariablesSection>
           {flowOutputs.map((input, i) => (
             <NodeBoxIncomingVariableBlock
               key={input.id}
@@ -95,8 +95,16 @@ export default function OutputNode() {
               }}
             />
           ))}
-        </NodeBoxIncomingVariableSection>
+        </NodeBoxFlowOutputVariablesSection>
       </NodeBox>
     </>
   );
 }
+
+const NodeBoxFlowOutputVariablesSection = styled.div`
+  padding-left: 10px;
+  padding-right: 10px;
+  margin-bottom: 10px;
+`;
+
+export default OutputNode;

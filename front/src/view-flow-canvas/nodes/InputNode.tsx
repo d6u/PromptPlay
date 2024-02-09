@@ -1,3 +1,4 @@
+import styled from '@emotion/styled';
 import { useContext, useMemo } from 'react';
 import { useNodeId, useUpdateNodeInternals } from 'reactflow';
 
@@ -16,7 +17,6 @@ import { selectVariables } from 'state-flow/util/state-utils';
 import OutgoingVariableHandle from '../handles/OutgoingVariableHandle';
 import NodeBox from '../node-box/NodeBox';
 import NodeBoxHeaderSection from '../node-box/NodeBoxHeaderSection';
-import NodeBoxIncomingVariableSection from '../node-box/NodeBoxIncomingVariableSection';
 import NodeBoxOutgoingConnectorBlock from '../node-box/NodeBoxOutgoingConnectorBlock';
 
 export default function InputNode() {
@@ -69,7 +69,7 @@ export default function InputNode() {
             updateNodeInternals(nodeId);
           }}
         />
-        <NodeBoxIncomingVariableSection>
+        <NodeBoxFlowInputVariablesSection>
           {flowInputs.map((flowInput, i) => (
             <NodeBoxOutgoingConnectorBlock
               key={flowInput.id}
@@ -84,7 +84,7 @@ export default function InputNode() {
               }}
             />
           ))}
-        </NodeBoxIncomingVariableSection>
+        </NodeBoxFlowInputVariablesSection>
       </NodeBox>
       {flowInputs.map((flowInput, i) => (
         <OutgoingVariableHandle
@@ -97,3 +97,9 @@ export default function InputNode() {
     </>
   );
 }
+
+const NodeBoxFlowInputVariablesSection = styled.div`
+  padding-left: 10px;
+  padding-right: 10px;
+  margin-bottom: 10px;
+`;
