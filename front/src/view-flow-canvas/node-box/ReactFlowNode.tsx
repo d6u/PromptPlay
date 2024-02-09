@@ -1,3 +1,4 @@
+import styled from '@emotion/styled';
 import { A } from '@mobily/ts-belt';
 import { IconButton } from '@mui/joy';
 import { ReactNode, useEffect, useMemo, useState } from 'react';
@@ -12,7 +13,7 @@ import {
 } from 'flow-models';
 
 import NodeAccountLevelFields from 'components/node-fields/NodeAccountLevelFields';
-import NodeBoxInstanceLevelFields from 'components/node-fields/NodeInstanceLevelFields';
+import NodeInstanceLevelFields from 'components/node-fields/NodeInstanceLevelFields';
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 import { RightSidePanelType } from 'state-flow/types';
 import {
@@ -23,15 +24,15 @@ import {
 import IncomingConditionHandle from '../handles/IncomingConditionHandle';
 import IncomingVariableHandle from '../handles/IncomingVariableHandle';
 import OutgoingVariableHandle from '../handles/OutgoingVariableHandle';
-import NodeBox from '../node-box/NodeBox';
-import NodeBoxAddConnectorButton from '../node-box/NodeBoxAddConnectorButton';
-import NodeBoxHeaderSection from '../node-box/NodeBoxHeaderSection';
-import NodeBoxIconGear from '../node-box/NodeBoxIconGear';
-import NodeBoxIncomingVariableBlock from '../node-box/NodeBoxIncomingVariableBlock';
-import NodeBoxIncomingVariableSection from '../node-box/NodeBoxIncomingVariableSection';
-import NodeBoxOutgoingVariableBlock from '../node-box/NodeBoxOutgoingVariableBlock';
-import NodeBoxSection from '../node-box/NodeBoxSection';
-import NodeBoxSmallSection from '../node-box/NodeBoxSmallSection';
+import NodeBox from './NodeBox';
+import NodeBoxAddConnectorButton from './NodeBoxAddConnectorButton';
+import NodeBoxHeaderSection from './NodeBoxHeaderSection';
+import NodeBoxIconGear from './NodeBoxIconGear';
+import NodeBoxIncomingVariableBlock from './NodeBoxIncomingVariableBlock';
+import NodeBoxIncomingVariableSection from './NodeBoxIncomingVariableSection';
+import NodeBoxOutgoingVariableBlock from './NodeBoxOutgoingVariableBlock';
+import NodeBoxSection from './NodeBoxSection';
+import NodeBoxSmallSection from './NodeBoxSmallSection';
 
 export type DestConnector = {
   id: string;
@@ -59,7 +60,7 @@ type Props = {
   children?: ReactNode;
 };
 
-export default function ReactFlowNode(props: Props) {
+function ReactFlowNode(props: Props) {
   // ANCHOR: ReactFlow
   const nodeId = useNodeId() as NodeID;
   const updateNodeInternals = useUpdateNodeInternals();
@@ -168,7 +169,7 @@ export default function ReactFlowNode(props: Props) {
     children = props.children;
   } else {
     children = (
-      <>
+      <NodeFieldsContainer>
         {nodeDefinition.accountLevelConfigFieldDefinitions && (
           <NodeAccountLevelFields
             isNodeConfigReadOnly={props.isNodeConfigReadOnly}
@@ -178,14 +179,14 @@ export default function ReactFlowNode(props: Props) {
             nodeConfig={props.nodeConfig}
           />
         )}
-        <NodeBoxInstanceLevelFields
+        <NodeInstanceLevelFields
           isNodeConfigReadOnly={props.isNodeConfigReadOnly}
           instanceLevelConfigFieldDefinitions={
             nodeDefinition.instanceLevelConfigFieldDefinitions
           }
           nodeConfig={props.nodeConfig}
         />
-      </>
+      </NodeFieldsContainer>
     );
   }
 
@@ -299,3 +300,10 @@ export default function ReactFlowNode(props: Props) {
     </>
   );
 }
+
+const NodeFieldsContainer = styled.div`
+  margin-left: 10px;
+  margin-right: 10px;
+`;
+
+export default ReactFlowNode;

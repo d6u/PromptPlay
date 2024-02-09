@@ -16,7 +16,7 @@ import CopyIconButton from '../../components/generic/CopyIconButton';
 import ReadonlyTextarea from '../../components/generic/ReadonlyTextarea';
 import NodeFieldLabelWithIconContainer from '../../components/node-fields/NodeFieldLabelWithIconContainer';
 import NodeBoxSection from '../node-box/NodeBoxSection';
-import ReactFlowNode from './ReactFlowNode';
+import ReactFlowNode from '../node-box/ReactFlowNode';
 
 function JavaScriptFunctionNode() {
   const { isCurrentUserOwner } = useContext(RouteFlowContext);
