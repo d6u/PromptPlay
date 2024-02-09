@@ -23,16 +23,11 @@ import IncomingVariableHandle from '../handles/IncomingVariableHandle';
 import OutgoingVariableHandle from '../handles/OutgoingVariableHandle';
 import NodeBox from './NodeBox';
 import NodeBoxHeaderSection from './NodeBoxHeaderSection';
-import NodeBoxIncomingVariablesSection from './NodeBoxIncomingVariablesSection';
+import NodeBoxIncomingVariablesSection, {
+  type DestConnector,
+} from './NodeBoxIncomingVariablesSection';
 import NodeBoxOutgoingVariableBlock from './NodeBoxOutgoingVariableBlock';
 import NodeBoxSection from './NodeBoxSection';
-
-export type DestConnector = {
-  id: string;
-  name: string;
-  isReadOnly: boolean;
-  helperMessage?: ReactNode;
-};
 
 export type SrcConnector = {
   id: string;

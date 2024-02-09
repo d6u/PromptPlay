@@ -1,4 +1,5 @@
 import styled from '@emotion/styled';
+import { ReactNode } from 'react';
 import { useNodeId, useUpdateNodeInternals } from 'reactflow';
 
 import { ConnectorID, NodeID } from 'flow-models';
@@ -6,7 +7,13 @@ import { ConnectorID, NodeID } from 'flow-models';
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 
 import NodeBoxIncomingVariableBlock from './NodeBoxIncomingVariableBlock';
-import { DestConnector } from './ReactFlowNode';
+
+export type DestConnector = {
+  id: string;
+  name: string;
+  isReadOnly: boolean;
+  helperMessage?: ReactNode;
+};
 
 type Props = {
   destConnectors: DestConnector[];
