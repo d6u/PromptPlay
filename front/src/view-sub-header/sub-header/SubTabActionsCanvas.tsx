@@ -11,7 +11,6 @@ import {
 
 import RouteFlowContext from 'state-flow/context/FlowRouteContext';
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
-import { RightSidePanelType } from 'state-flow/types';
 import { NODE_BOX_WIDTH } from 'view-flow-canvas/ui-constants';
 
 function SubTabActionsCanvas() {
@@ -20,7 +19,6 @@ function SubTabActionsCanvas() {
   const storeApi = useStoreApi();
 
   const isRunning = useFlowStore((s) => s.isRunning);
-  const detailPanelContentType = useFlowStore((s) => s.detailPanelContentType);
   const addNode = useFlowStore((s) => s.addNode);
   const runFlow = useFlowStore((s) => s.runFlow);
   const stopRunningFlow = useFlowStore((s) => s.stopRunningFlow);
@@ -62,12 +60,6 @@ function SubTabActionsCanvas() {
       });
   }, [addNodeWithType]);
 
-  const runButtonConfig = {
-    shouldShowRunButton: detailPanelContentType !== RightSidePanelType.Tester,
-    label: isRunning ? 'Stop' : 'Run',
-    onClick: isRunning ? stopRunningFlow : runFlow,
-  };
-
   return (
     <Container>
       <Dropdown>
@@ -80,14 +72,12 @@ function SubTabActionsCanvas() {
           ))}
         </Menu>
       </Dropdown>
-      {runButtonConfig.shouldShowRunButton && (
-        <Button
-          color={isRunning ? 'danger' : 'success'}
-          onClick={runButtonConfig.onClick}
-        >
-          {runButtonConfig.label}
-        </Button>
-      )}
+      <Button
+        color={isRunning ? 'danger' : 'success'}
+        onClick={isRunning ? stopRunningFlow : runFlow}
+      >
+        {isRunning ? 'Stop' : 'Run'}
+      </Button>
     </Container>
   );
 }

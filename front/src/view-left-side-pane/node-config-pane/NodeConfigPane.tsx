@@ -50,17 +50,22 @@ function NodeConfigPane() {
         NodeType.ConditionNode,
         NodeType.JavaScriptFunctionNode,
       ].includes(nodeConfig.type) && (
-        <NodeConfigPaneNodeFields
-          nodeConfig={nodeConfig}
-          isNodeConfigReadOnly={!isCurrentUserOwner}
-        />
+        <>
+          <HeaderSection>
+            <HeaderSectionHeader>Node Config</HeaderSectionHeader>
+          </HeaderSection>
+          <NodeConfigPaneNodeFields
+            nodeConfig={nodeConfig}
+            isNodeConfigReadOnly={!isCurrentUserOwner}
+          />
+        </>
       )}
     </Container>
   );
 }
 
 const Container = styled.div`
-  padding: 20px 20px 0 20px;
+  padding: 15px 15px 0 15px;
 `;
 
 export default NodeConfigPane;

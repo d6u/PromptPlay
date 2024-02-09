@@ -12,7 +12,7 @@ type Props = {
   outputItem: FlowOutputVariable | NodeOutputVariable;
 };
 
-export default function OutputRenderer(props: Props) {
+function OutputRenderer(props: Props) {
   const defaultVariableValueMap = useFlowStore((s) =>
     s.getDefaultVariableValueLookUpDict(),
   );
@@ -47,16 +47,19 @@ const Container = styled.div`
 
 const Name = styled.code`
   margin: 0 0 5px 0;
-  font-size: 14px;
+  font-size: 12px;
   display: block;
 `;
 
 const ValueRaw = styled.pre`
   margin: 0;
   border: 1px solid #ddd;
-  padding: 10px;
+  padding: 5px 8px;
   border-radius: 5px;
   white-space: pre-wrap;
+  font-size: 12px;
 `;
 
 // !SECTION
+
+export default OutputRenderer;
