@@ -4,19 +4,17 @@ import { useMemo } from 'react';
 
 import { FlowRouteTab, useFlowRouteSubRouteHandle } from 'generic-util/route';
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
-import { RightSidePanelType } from 'state-flow/types';
+import { CanvasRightPanelType } from 'state-flow/types';
 
 function RightPaneToggle() {
   const flowTabType = useFlowRouteSubRouteHandle((handle) => handle.tabType);
 
-  const detailPanelContentType = useFlowStore((s) => s.detailPanelContentType);
-  const setDetailPanelContentType = useFlowStore(
-    (s) => s.setDetailPanelContentType,
-  );
+  const canvasRightPaneType = useFlowStore((s) => s.canvasRightPaneType);
+  const setCanvasRightPaneType = useFlowStore((s) => s.setCanvasRightPaneType);
 
   const isTesterOpen = useMemo(() => {
-    return detailPanelContentType != RightSidePanelType.Off;
-  }, [detailPanelContentType]);
+    return canvasRightPaneType != CanvasRightPanelType.Off;
+  }, [canvasRightPaneType]);
 
   switch (flowTabType) {
     case FlowRouteTab.Canvas:
@@ -31,10 +29,10 @@ function RightPaneToggle() {
             // with the open state of the right panel
             checked={!isTesterOpen}
             onChange={(event) => {
-              setDetailPanelContentType(
+              setCanvasRightPaneType(
                 event.target.checked
-                  ? RightSidePanelType.Off
-                  : RightSidePanelType.Tester,
+                  ? CanvasRightPanelType.Off
+                  : CanvasRightPanelType.Tester,
               );
             }}
           />

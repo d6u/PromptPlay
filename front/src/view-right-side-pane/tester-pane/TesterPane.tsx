@@ -5,30 +5,28 @@ import { useContext, useMemo } from 'react';
 import { ConnectorType, VariableValueType } from 'flow-models';
 
 import HeaderSection from 'components/side-pane/SidePaneHeaderSection';
+import HeaderSectionHeader from 'components/side-pane/SidePaneHeaderSectionHeader';
+import SidePaneOutputRenderer from 'components/side-pane/SidePaneOutputRenderer';
+import Section from 'components/side-pane/SidePaneSection';
 import RouteFlowContext from 'state-flow/context/FlowRouteContext';
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 import { selectAllVariables } from 'state-flow/util/state-utils';
 
-import HeaderSectionHeader from 'components/side-pane/SidePaneHeaderSectionHeader';
-import Section from 'components/side-pane/SidePaneSection';
 import InputBlock from '../common/InputBlock';
-import OutputRenderer from '../common/OutputRenderer';
 
 function TesterPane() {
   const { isCurrentUserOwner } = useContext(RouteFlowContext);
 
   // SECTION: Select state from store
-
   const isRunning = useFlowStore((s) => s.isRunning);
   const variableMap = useFlowStore((s) => s.variablesDict);
   const runFlow = useFlowStore((s) => s.runFlow);
   const stopRunningFlow = useFlowStore((s) => s.stopRunningFlow);
-  const defaultVariableValueMap = useFlowStore((s) =>
+  const variableValueMap = useFlowStore((s) =>
     s.getDefaultVariableValueLookUpDict(),
   );
   const updateVariableValueMap = useFlowStore((s) => s.updateVariableValueMap);
   const updateVariable = useFlowStore((s) => s.updateVariable);
-
   // !SECTION
 
   const flowInputs = useMemo(() => {
@@ -59,7 +57,7 @@ function TesterPane() {
             isReadOnly={!isCurrentUserOwner}
             id={variable.id}
             name={variable.name}
-            value={defaultVariableValueMap[variable.id]}
+            value={variableValueMap[variable.id]}
             onSaveValue={(value) => {
               updateVariableValueMap(variable.id, value);
             }}
@@ -86,7 +84,7 @@ function TesterPane() {
       </HeaderSection>
       <Section>
         {flowOutputs.map((output) => (
-          <OutputRenderer key={output.id} outputItem={output} />
+          <SidePaneOutputRenderer key={output.id} outputItem={output} />
         ))}
       </Section>
     </Container>

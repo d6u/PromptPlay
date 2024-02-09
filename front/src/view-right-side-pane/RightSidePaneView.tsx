@@ -2,26 +2,25 @@ import styled from '@emotion/styled';
 import { ReactNode } from 'react';
 
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
-import { RightSidePanelType } from 'state-flow/types';
+import { CanvasRightPanelType } from 'state-flow/types';
 
 import TesterPane from './tester-pane/TesterPane';
 
 function RightSidePaneView() {
-  const detailPanelContentType = useFlowStore((s) => s.detailPanelContentType);
+  const canvasRightPaneType = useFlowStore((s) => s.canvasRightPaneType);
 
   let content: ReactNode;
-  switch (detailPanelContentType) {
-    case RightSidePanelType.Off:
-    case RightSidePanelType.NodeConfig:
+  switch (canvasRightPaneType) {
+    case CanvasRightPanelType.Off:
       break;
-    case RightSidePanelType.Tester: {
+    case CanvasRightPanelType.Tester: {
       content = <TesterPane />;
       break;
     }
   }
 
   return (
-    <Container $hide={detailPanelContentType === RightSidePanelType.Off}>
+    <Container $hide={canvasRightPaneType === CanvasRightPanelType.Off}>
       {content}
     </Container>
   );

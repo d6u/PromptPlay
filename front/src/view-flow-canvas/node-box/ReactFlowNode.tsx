@@ -15,7 +15,6 @@ import {
 import NodeAccountLevelFields from 'components/node-fields/NodeAccountLevelFields';
 import NodeInstanceLevelFields from 'components/node-fields/NodeInstanceLevelFields';
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
-import { RightSidePanelType } from 'state-flow/types';
 import {
   selectConditionTarget,
   selectVariables,
@@ -137,11 +136,8 @@ function ReactFlowNode(props: Props) {
   const removeVariable = useFlowStore((s) => s.removeVariable);
 
   // ANCHOR: Side Panel Operations
-  const setDetailPanelContentType = useFlowStore(
-    (s) => s.setDetailPanelContentType,
-  );
-  const setDetailPanelSelectedNodeId = useFlowStore(
-    (s) => s.setDetailPanelSelectedNodeId,
+  const setCanvasLeftPaneSelectedNodeId = useFlowStore(
+    (s) => s.setCanvasLeftPaneSelectedNodeId,
   );
 
   // SECTION: Manage height of each variable input box
@@ -267,8 +263,7 @@ function ReactFlowNode(props: Props) {
           <IconButton
             variant="outlined"
             onClick={() => {
-              setDetailPanelContentType(RightSidePanelType.NodeConfig);
-              setDetailPanelSelectedNodeId(nodeId);
+              setCanvasLeftPaneSelectedNodeId(nodeId);
             }}
           >
             <NodeBoxIconGear />
@@ -282,8 +277,7 @@ function ReactFlowNode(props: Props) {
               name={connector.name}
               value={connector.value}
               onClick={() => {
-                setDetailPanelContentType(RightSidePanelType.NodeConfig);
-                setDetailPanelSelectedNodeId(nodeId);
+                setCanvasLeftPaneSelectedNodeId(nodeId);
               }}
             />
           ))}

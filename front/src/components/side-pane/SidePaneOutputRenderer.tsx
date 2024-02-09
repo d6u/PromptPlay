@@ -6,13 +6,13 @@ import {
 } from 'flow-models';
 import { ReactNode } from 'react';
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
-import OutputDisplay from './OutputDisplay';
+import OutputDisplay from '../../view-right-side-pane/common/OutputDisplay';
 
 type Props = {
   outputItem: FlowOutputVariable | NodeOutputVariable;
 };
 
-function OutputRenderer(props: Props) {
+function SidePaneOutputRenderer(props: Props) {
   const defaultVariableValueMap = useFlowStore((s) =>
     s.getDefaultVariableValueLookUpDict(),
   );
@@ -62,4 +62,4 @@ const ValueRaw = styled.pre`
 
 // !SECTION
 
-export default OutputRenderer;
+export default SidePaneOutputRenderer;

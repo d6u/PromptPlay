@@ -1,9 +1,9 @@
 import styled from '@emotion/styled';
-import { NodeID } from 'flow-models';
 import { CSSProperties } from 'react';
-import { useNodeId } from 'reactflow';
+
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
-import { RightSidePanelType } from 'state-flow/types';
+import { CanvasRightPanelType } from 'state-flow/types';
+
 import { ROW_MARGIN_TOP } from './NodeBoxIncomingVariableBlock';
 
 type Props = {
@@ -15,14 +15,7 @@ type Props = {
 };
 
 export default function NodeBoxOutgoingVariableBlock(props: Props) {
-  const setDetailPanelContentType = useFlowStore(
-    (s) => s.setDetailPanelContentType,
-  );
-  const setDetailPanelSelectedNodeId = useFlowStore(
-    (s) => s.setDetailPanelSelectedNodeId,
-  );
-
-  const nodeId = useNodeId() as NodeID;
+  const setCanvasRightPaneType = useFlowStore((s) => s.setCanvasRightPaneType);
 
   return (
     <Container style={props.style}>
@@ -30,8 +23,7 @@ export default function NodeBoxOutgoingVariableBlock(props: Props) {
         onClick={
           props.onClick ??
           (() => {
-            setDetailPanelContentType(RightSidePanelType.NodeConfig);
-            setDetailPanelSelectedNodeId(nodeId);
+            setCanvasRightPaneType(CanvasRightPanelType.Tester);
           })
         }
       >

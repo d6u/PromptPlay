@@ -5,7 +5,7 @@ import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 import NodeConfigPane from './node-config-pane/NodeConfigPane';
 
 function LeftSidePaneView() {
-  const selectedNodeId = useFlowStore((s) => s.detailPanelSelectedNodeId);
+  const selectedNodeId = useFlowStore((s) => s.canvasLeftPaneSelectedNodeId);
 
   return (
     <Container $hide={selectedNodeId == null}>
