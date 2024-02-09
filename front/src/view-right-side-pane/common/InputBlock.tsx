@@ -1,30 +1,11 @@
 import styled from '@emotion/styled';
-import Input from '@mui/joy/Input';
-import Option from '@mui/joy/Option';
-import Select from '@mui/joy/Select';
-import Textarea from '@mui/joy/Textarea';
-import { VariableValueType } from 'flow-models';
+import { Input, Option, Select, Textarea } from '@mui/joy';
 import { ReactNode, useEffect, useState } from 'react';
-import NodeBoxIncomingVariableReadonly from '../../view-flow-canvas/node-box/NodeBoxIncomingVariableReadonly';
-import TextareaReadonly from '../../view-flow-canvas/node-box/NodeBoxTextareaReadonly';
 
-const Container = styled.div`
-  margin-bottom: 10px;
-`;
+import { VariableValueType } from 'flow-models';
 
-const FirstRow = styled.div`
-  display: flex;
-  gap: 5px;
-  margin-bottom: 5px;
-`;
-
-const VariableName = styled.div`
-  height: 32px;
-  font-size: 14px;
-  line-height: 32px;
-  padding: 0 9px;
-  flex-grow: 1;
-`;
+import ReadonlyInput from 'components/generic/ReadonlyInput';
+import ReadonlyTextarea from 'components/generic/ReadonlyTextarea';
 
 type Props = {
   isReadOnly: boolean;
@@ -39,7 +20,7 @@ type Props = {
   ) => void;
 };
 
-export default function InputBlock(props: Props) {
+function InputBlock(props: Props) {
   const [value, setValue] = useState(props.value);
 
   useEffect(() => {
@@ -57,7 +38,7 @@ export default function InputBlock(props: Props) {
   switch (type) {
     case VariableValueType.String:
       valueInput = props.isReadOnly ? (
-        <TextareaReadonly minRows={2} value={value ?? ''} />
+        <ReadonlyTextarea minRows={2} value={value ?? ''} />
       ) : (
         <Textarea
           color="primary"
@@ -79,7 +60,7 @@ export default function InputBlock(props: Props) {
       break;
     case VariableValueType.Number:
       valueInput = props.isReadOnly ? (
-        <NodeBoxIncomingVariableReadonly type="number" value={value ?? 0} />
+        <ReadonlyInput type="number" value={value ?? 0} />
       ) : (
         <Input
           color="primary"
@@ -129,3 +110,23 @@ export default function InputBlock(props: Props) {
     </Container>
   );
 }
+
+const Container = styled.div`
+  margin-bottom: 10px;
+`;
+
+const FirstRow = styled.div`
+  display: flex;
+  gap: 5px;
+  margin-bottom: 5px;
+`;
+
+const VariableName = styled.div`
+  height: 32px;
+  font-size: 14px;
+  line-height: 32px;
+  padding: 0 9px;
+  flex-grow: 1;
+`;
+
+export default InputBlock;

@@ -6,7 +6,6 @@ import invariant from 'tiny-invariant';
 import randomId from 'common-utils/randomId';
 import {
   ChatGPTMessage,
-  NEW_LINE_SYMBOL,
   getNonStreamingCompletion,
   getStreamingCompletion,
 } from 'integrations/openai';
@@ -108,62 +107,34 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
       min: 0,
       max: 2,
       step: 0.1,
-      // We don't allow empty string for temperature,
-      // i.e. temperature must always be provided.
-      //
-      // Although we are already setting temperature
-      // to 1 when input value is an empty string,
-      // the useEffect above might not update local
-      // temperature state, because if the initial
-      // temperature is 1, the useEffect will not
-      // be triggered.
-      transformBeforeSave: (value) => {
-        return value === '' ? 1 : Number(value);
-      },
+      schema: Joi.number().required().min(0).max(2).label('Temperature'),
     },
     seed: {
       type: FieldType.Number,
       label: 'Seed (Optional, Beta)',
       step: 1,
-      // Seed need to be integer if provided.
-      transformBeforeSave: (value) => {
-        return value === '' ? null : Math.trunc(Number(value));
-      },
+      schema: Joi.number().integer().allow(null).label('Seed'),
     },
     responseFormatType: {
       type: FieldType.Checkbox,
       label: 'Use JSON Response Format',
-      transformBeforeRender: (value) => {
+      render: (
+        value: ChatGPTChatCompletionResponseFormatType.JsonObject | null,
+      ) => {
         return value != null;
       },
-      transformBeforeSave: (value) => {
+      parse: (
+        value,
+      ): ChatGPTChatCompletionResponseFormatType.JsonObject | null => {
         return value
           ? ChatGPTChatCompletionResponseFormatType.JsonObject
           : null;
       },
     },
     stop: {
-      type: FieldType.Text,
+      type: FieldType.StopSequence,
       label: 'Stop sequence',
-      transformBeforeRender: (value) => {
-        const typedValue = value as string[];
-        return typedValue.length
-          ? typedValue[0].replace(/\n/g, NEW_LINE_SYMBOL)
-          : '';
-      },
-      transformBeforeSave: (value) => {
-        return value === ''
-          ? []
-          : [value.replace(RegExp(NEW_LINE_SYMBOL, 'g'), '\n')];
-      },
-      placeholder: 'Stop sequence',
-      helperMessage: (
-        <div>
-          Use <code>SHIFT</code> + <code>ENTER</code> to enter a new line
-          character. (Visually represented by <code>"{NEW_LINE_SYMBOL}"</code>
-          .)
-        </div>
-      ),
+      placeholder: 'Enter stop sequence',
     },
   },
 

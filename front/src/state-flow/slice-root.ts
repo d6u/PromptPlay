@@ -28,13 +28,14 @@ import { ContentVersion, SpaceFlowQueryQuery } from 'gencode-gql/graphql';
 import { client } from 'graphql-util/client';
 import { useLocalStorageStore } from 'state-root/local-storage-state';
 import { useNodeFieldFeedbackStore } from 'state-root/node-field-feedback-state';
+
 import { updateSpaceContentV3 } from './graphql/graphql';
 import {
+  CanvasRightPanelType,
   ConnectStartEdgeType,
   FlowState,
   NodeMetadata,
   NodeMetadataDict,
-  RightSidePanelType,
 } from './types';
 import {
   assignLocalEdgeProperties,
@@ -51,16 +52,18 @@ type RootSliceState = {
   connectStartEdgeType: ConnectStartEdgeType | null;
   connectStartStartNodeId: NodeID | null;
 
-  detailPanelContentType: RightSidePanelType;
-  detailPanelSelectedNodeId: NodeID | null;
+  canvasLeftPaneIsOpen: boolean;
+  canvasLeftPaneSelectedNodeId: NodeID | null;
+  canvasRightPaneType: CanvasRightPanelType;
   nodeMetadataDict: NodeMetadataDict;
 };
 
 export type RootSlice = RootSliceState & {
   initialize(): void;
   deinitialize(): void;
-  setDetailPanelContentType(type: RightSidePanelType): void;
-  setDetailPanelSelectedNodeId(nodeId: NodeID): void;
+  setCanvasLeftPaneIsOpen(isOpen: boolean): void;
+  setCanvasLeftPaneSelectedNodeId(nodeId: NodeID | null): void;
+  setCanvasRightPaneType(type: CanvasRightPanelType): void;
   updateNodeAugment(nodeId: NodeID, change: Partial<NodeMetadata>): void;
   runFlow(): void;
   stopRunningFlow(): void;
@@ -119,8 +122,9 @@ export function createRootSlice(
     connectStartEdgeType: null,
     connectStartStartNodeId: null,
 
-    detailPanelContentType: RightSidePanelType.Off,
-    detailPanelSelectedNodeId: null,
+    canvasLeftPaneIsOpen: false,
+    canvasRightPaneType: CanvasRightPanelType.Off,
+    canvasLeftPaneSelectedNodeId: null,
     nodeMetadataDict: {},
 
     initialize(): void {
@@ -189,11 +193,14 @@ export function createRootSlice(
       console.groupEnd();
     },
 
-    setDetailPanelContentType(type: RightSidePanelType) {
-      set({ detailPanelContentType: type });
+    setCanvasLeftPaneIsOpen(isOpen: boolean): void {
+      set({ canvasLeftPaneIsOpen: isOpen });
     },
-    setDetailPanelSelectedNodeId(id: NodeID) {
-      set({ detailPanelSelectedNodeId: id });
+    setCanvasRightPaneType(type: CanvasRightPanelType) {
+      set({ canvasRightPaneType: type });
+    },
+    setCanvasLeftPaneSelectedNodeId(id: NodeID) {
+      set({ canvasLeftPaneSelectedNodeId: id });
     },
 
     updateNodeAugment(nodeId: NodeID, change: Partial<NodeMetadata>) {

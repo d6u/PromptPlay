@@ -11,7 +11,7 @@ import {
 
 import RouteFlowContext from 'state-flow/context/FlowRouteContext';
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
-import { RightSidePanelType } from 'state-flow/types';
+import { CanvasRightPanelType } from 'state-flow/types';
 import { selectVariables } from 'state-flow/util/state-utils';
 
 import OutgoingVariableHandle from '../handles/OutgoingVariableHandle';
@@ -30,9 +30,7 @@ export default function InputNode() {
 
   // SECTION: Select state from store
 
-  const setDetailPanelContentType = useFlowStore(
-    (s) => s.setDetailPanelContentType,
-  );
+  const setCanvasRightPaneType = useFlowStore((s) => s.setCanvasRightPaneType);
   const nodeConfigsDict = useFlowStore((s) => s.nodeConfigsDict);
   const variablesDict = useFlowStore((s) => s.variablesDict);
   const removeNode = useFlowStore((s) => s.removeNode);
@@ -70,7 +68,7 @@ export default function InputNode() {
         <NodeBoxSmallSection>
           <IconButton
             variant="outlined"
-            onClick={() => setDetailPanelContentType(RightSidePanelType.Tester)}
+            onClick={() => setCanvasRightPaneType(CanvasRightPanelType.Tester)}
           >
             <NodeBoxIconGear />
           </IconButton>

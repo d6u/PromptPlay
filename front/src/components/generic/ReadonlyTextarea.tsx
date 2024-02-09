@@ -1,10 +1,11 @@
 import Textarea from '@mui/joy/Textarea';
+import { ComponentProps } from 'react';
 
-type Props = React.ComponentProps<typeof Textarea> & {
+type Props = ComponentProps<typeof Textarea> & {
   isCode?: boolean;
 };
 
-function TextareaReadonly(props: Props) {
+function ReadonlyTextarea(props: Props) {
   const { isCode, ...restProps } = props;
 
   return (
@@ -25,4 +26,4 @@ function TextareaReadonly(props: Props) {
   );
 }
 
-export default TextareaReadonly;
+export default ReadonlyTextarea;

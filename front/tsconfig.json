@@ -31,6 +31,7 @@
       "graphql-util/*": ["./src/graphql-util/*"],
       "generic-components/*": ["./src/generic-components/*"],
       "flow-run/*": ["./src/flow-run/*"],
+      "components/*": ["./src/components/*"],
       // state
       "state-flow/*": ["./src/state-flow/*"],
       "state-root/*": ["./src/state-root/*"],
@@ -43,7 +44,8 @@
       "view-flow-canvas/*": ["./src/view-flow-canvas/*"],
       "view-header/*": ["./src/view-header/*"],
       "view-sub-header/*": ["./src/view-sub-header/*"],
-      "view-right-side-pane/*": ["./src/view-right-side-pane/*"]
+      "view-right-side-pane/*": ["./src/view-right-side-pane/*"],
+      "view-left-side-pane/*": ["./src/view-left-side-pane/*"]
     }
   },
   "include": ["src"],

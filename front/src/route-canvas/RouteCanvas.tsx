@@ -3,8 +3,10 @@ import styled from '@emotion/styled';
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 import FlowCanvasView from 'view-flow-canvas/FlowCanvasView';
 
+import LeftSidePaneView from 'view-left-side-pane/LeftSidePaneView';
+import RightSidePaneView from 'view-right-side-pane/RightSidePaneView';
+
 import 'reactflow/dist/style.css';
-import SidePanel from 'view-right-side-pane/SidePanel';
 
 function RouteCanvas() {
   const isInitialized = useFlowStore((s) => s.isInitialized);
@@ -15,8 +17,9 @@ function RouteCanvas() {
 
   return (
     <Container>
+      <LeftSidePaneView />
       <FlowCanvasView />
-      <SidePanel />
+      <RightSidePaneView />
     </Container>
   );
 }

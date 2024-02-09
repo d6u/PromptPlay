@@ -3,6 +3,7 @@ import { ReactNode } from 'react';
 
 export enum FieldType {
   Text = 'Text',
+  StopSequence = 'StopSequence',
   Number = 'Number',
   Textarea = 'Textarea',
   Radio = 'Radio',
@@ -13,45 +14,53 @@ export enum FieldType {
 
 // ANCHOR: Instance Level Fields
 
-export type TextFieldDefinition<T = unknown> = {
+export type TextFieldDefinition = {
   type: FieldType.Text;
   label: string;
-  transformBeforeRender?: (value: T) => string;
-  transformBeforeSave?: (value: string) => T;
   placeholder?: string;
-  helperMessage?: ReactNode;
+  helperText?: ReactNode;
 };
 
-export type NumberFieldDefinition = {
+export type StopSequenceFieldDefinition = {
+  type: FieldType.StopSequence;
+  label: string;
+  placeholder?: string;
+  helperText?: ReactNode;
+};
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type NumberFieldDefinition<T = any> = {
   type: FieldType.Number;
   label: string;
-  // Fallback value is used when the field is empty
   min?: number;
   max?: number;
   step?: number;
-  transformBeforeSave?: (value: string) => number | null;
-  helperMessage?: ReactNode;
+  helperText?: ReactNode;
+  // Validation and transformation
+  render?: (value: T) => number | null;
+  parse?: (value: number | null) => T;
+  schema?: Joi.NumberSchema;
 };
 
 export type TextareaFieldDefinition = {
   type: FieldType.Textarea;
   label: string;
   placeholder?: string;
-  helperMessage?: ReactNode;
+  helperText?: ReactNode;
 };
 
 export type RadioFieldDefinition = {
   type: FieldType.Radio;
   options: FieldOption[];
   label: string;
-  helperMessage?: ReactNode;
+  helperText?: ReactNode;
 };
 
 export type SelectFieldDefinition = {
   type: FieldType.Select;
   options: FieldOption[];
   label: string;
-  helperMessage?: ReactNode;
+  helperText?: ReactNode;
 };
 
 export type FieldOption = {
@@ -59,12 +68,13 @@ export type FieldOption = {
   value: string;
 };
 
-export type CheckboxFieldDefinition = {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type CheckboxFieldDefinition<T = any> = {
   type: FieldType.Checkbox;
   label: string;
-  transformBeforeRender?: (value: unknown) => boolean;
-  transformBeforeSave?: (value: boolean) => unknown;
-  helperMessage?: ReactNode;
+  render?: (value: T) => boolean;
+  parse?: (value: boolean) => T;
+  helperText?: ReactNode;
 };
 
 // Special Rendering field's logic will be held within the specific
@@ -75,6 +85,7 @@ export type SpecialRenderingFieldDefinition = {
 
 export type NodeInstanceLevelFieldDefinitionUnion =
   | TextFieldDefinition
+  | StopSequenceFieldDefinition
   | NumberFieldDefinition
   | TextareaFieldDefinition
   | RadioFieldDefinition

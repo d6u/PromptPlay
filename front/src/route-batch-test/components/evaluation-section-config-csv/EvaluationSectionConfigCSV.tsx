@@ -1,9 +1,12 @@
 import { F } from '@mobily/ts-belt';
 import { Button, FormControl, FormLabel, Input, Table } from '@mui/joy';
-import { ConnectorType } from 'flow-models';
 import Papa from 'papaparse';
 import posthog from 'posthog-js';
 import { useMemo } from 'react';
+
+import { ConnectorType } from 'flow-models';
+
+import Section from 'components/side-pane/SidePaneSection';
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 import {
   IterationIndex,
@@ -11,7 +14,6 @@ import {
 } from 'state-flow/slice-csv-evaluation-preset';
 import { CSVData, CSVRow } from 'state-flow/types';
 import { selectAllVariables } from 'state-flow/util/state-utils';
-import { Section } from 'view-right-side-pane/common/controls-common';
 import TableBody from './TableBody';
 import TableHead from './TableHead';
 

@@ -1,7 +1,7 @@
 import styled from '@emotion/styled';
 import IconCopy from 'icons/IconCopy';
 
-const NodeBoxCopyIcon = styled(IconCopy)`
+const CopyIconButton = styled(IconCopy)`
   width: 20px;
   height: 20px;
   cursor: pointer;
@@ -15,4 +15,4 @@ const NodeBoxCopyIcon = styled(IconCopy)`
   }
 `;
 
-export default NodeBoxCopyIcon;
+export default CopyIconButton;

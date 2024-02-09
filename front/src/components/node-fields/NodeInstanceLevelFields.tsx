@@ -1,20 +1,18 @@
-import { useNodeId } from 'reactflow';
-
 import {
   FieldType,
   NodeConfig,
-  NodeID,
   NodeInstanceLevelFieldDefinitionUnion,
 } from 'flow-models';
 
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 
-import NodeCheckboxField from '../node-fields/NodeCheckboxField';
-import NodeNumberField from '../node-fields/NodeNumberField';
-import NodeRadioField from '../node-fields/NodeRadioField';
-import NodeSelectField from '../node-fields/NodeSelectField';
-import NodeTextField from '../node-fields/NodeTextField';
-import NodeTextareaField from '../node-fields/NodeTextareaField';
+import NodeCheckboxField from './NodeCheckboxField';
+import NodeNumberField from './NodeNumberField';
+import NodeRadioField from './NodeRadioField';
+import NodeSelectField from './NodeSelectField';
+import NodeStopSequenceField from './NodeStopSequenceField';
+import NodeTextField from './NodeTextField';
+import NodeTextareaField from './NodeTextareaField';
 
 type Props = {
   isNodeConfigReadOnly: boolean;
@@ -26,8 +24,6 @@ type Props = {
 };
 
 function NodeBoxInstanceLevelFields(props: Props) {
-  const nodeId = useNodeId() as NodeID;
-
   const updateNodeConfig = useFlowStore((s) => s.updateNodeConfig);
 
   return Object.entries(props.instanceLevelConfigFieldDefinitions).map(
@@ -41,12 +37,29 @@ function NodeBoxInstanceLevelFields(props: Props) {
           return (
             <NodeTextField
               key={fieldKey}
+              isNodeConfigReadOnly={props.isNodeConfigReadOnly}
               fieldKey={fieldKey}
               fieldDefinition={fd}
-              fieldValue={fieldValue}
+              fieldValue={fieldValue as string}
+              onUpdate={(value) => {
+                updateNodeConfig(props.nodeConfig.nodeId, {
+                  [fieldKey]: value,
+                });
+              }}
+            />
+          );
+        case FieldType.StopSequence:
+          return (
+            <NodeStopSequenceField
+              key={fieldKey}
               isNodeConfigReadOnly={props.isNodeConfigReadOnly}
-              onSave={(value) => {
-                updateNodeConfig(nodeId, { [fieldKey]: value });
+              fieldKey={fieldKey}
+              fieldDefinition={fd}
+              fieldValue={fieldValue as string[]}
+              onUpdate={(value) => {
+                updateNodeConfig(props.nodeConfig.nodeId, {
+                  [fieldKey]: value,
+                });
               }}
             />
           );
@@ -58,8 +71,10 @@ function NodeBoxInstanceLevelFields(props: Props) {
               fieldDefinition={fd}
               fieldValue={fieldValue as number | null}
               isNodeConfigReadOnly={props.isNodeConfigReadOnly}
-              onSave={(value) => {
-                updateNodeConfig(nodeId, { [fieldKey]: value });
+              onUpdate={(value) => {
+                updateNodeConfig(props.nodeConfig.nodeId, {
+                  [fieldKey]: value,
+                });
               }}
             />
           );
@@ -67,12 +82,14 @@ function NodeBoxInstanceLevelFields(props: Props) {
           return (
             <NodeTextareaField
               key={fieldKey}
+              isNodeConfigReadOnly={props.isNodeConfigReadOnly}
               fieldKey={fieldKey}
               fieldDefinition={fd}
               fieldValue={fieldValue as string}
-              isNodeConfigReadOnly={props.isNodeConfigReadOnly}
-              onSave={(value) => {
-                updateNodeConfig(nodeId, { [fieldKey]: value });
+              onUpdate={(value) => {
+                updateNodeConfig(props.nodeConfig.nodeId, {
+                  [fieldKey]: value,
+                });
               }}
             />
           );
@@ -80,12 +97,14 @@ function NodeBoxInstanceLevelFields(props: Props) {
           return (
             <NodeRadioField
               key={fieldKey}
+              isNodeConfigReadOnly={props.isNodeConfigReadOnly}
               fieldKey={fieldKey}
               fieldDefinition={fd}
               fieldValue={fieldValue}
-              isNodeConfigReadOnly={props.isNodeConfigReadOnly}
-              onSave={(value) => {
-                updateNodeConfig(nodeId, { [fieldKey]: value });
+              onUpdate={(value) => {
+                updateNodeConfig(props.nodeConfig.nodeId, {
+                  [fieldKey]: value,
+                });
               }}
             />
           );
@@ -93,12 +112,14 @@ function NodeBoxInstanceLevelFields(props: Props) {
           return (
             <NodeSelectField
               key={fieldKey}
+              isNodeConfigReadOnly={props.isNodeConfigReadOnly}
               fieldKey={fieldKey}
               fieldDefinition={fd}
               fieldValue={fieldValue}
-              isNodeConfigReadOnly={props.isNodeConfigReadOnly}
-              onSave={(value) => {
-                updateNodeConfig(nodeId, { [fieldKey]: value });
+              onUpdate={(value) => {
+                updateNodeConfig(props.nodeConfig.nodeId, {
+                  [fieldKey]: value,
+                });
               }}
             />
           );
@@ -110,8 +131,10 @@ function NodeBoxInstanceLevelFields(props: Props) {
               fieldDefinition={fd}
               fieldValue={fieldValue}
               isNodeConfigReadOnly={props.isNodeConfigReadOnly}
-              onSave={(value) => {
-                updateNodeConfig(nodeId, { [fieldKey]: value });
+              onUpdate={(value) => {
+                updateNodeConfig(props.nodeConfig.nodeId, {
+                  [fieldKey]: value,
+                });
               }}
             />
           );

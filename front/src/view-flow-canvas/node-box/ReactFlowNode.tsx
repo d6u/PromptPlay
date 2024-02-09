@@ -1,3 +1,4 @@
+import styled from '@emotion/styled';
 import { A } from '@mobily/ts-belt';
 import { IconButton } from '@mui/joy';
 import { ReactNode, useEffect, useMemo, useState } from 'react';
@@ -11,27 +12,26 @@ import {
   getNodeDefinitionForNodeTypeName,
 } from 'flow-models';
 
+import NodeAccountLevelFields from 'components/node-fields/NodeAccountLevelFields';
+import NodeInstanceLevelFields from 'components/node-fields/NodeInstanceLevelFields';
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
-import { RightSidePanelType } from 'state-flow/types';
 import {
   selectConditionTarget,
   selectVariables,
 } from 'state-flow/util/state-utils';
-import NodeBoxAccountLevelFields from 'view-flow-canvas/node-box/NodeBoxAccountLevelFields';
-import NodeBoxInstanceLevelFields from 'view-flow-canvas/node-box/NodeBoxInstanceLevelFields';
 
 import IncomingConditionHandle from '../handles/IncomingConditionHandle';
 import IncomingVariableHandle from '../handles/IncomingVariableHandle';
 import OutgoingVariableHandle from '../handles/OutgoingVariableHandle';
-import NodeBox from '../node-box/NodeBox';
-import NodeBoxAddConnectorButton from '../node-box/NodeBoxAddConnectorButton';
-import NodeBoxHeaderSection from '../node-box/NodeBoxHeaderSection';
-import NodeBoxIconGear from '../node-box/NodeBoxIconGear';
-import NodeBoxIncomingVariableBlock from '../node-box/NodeBoxIncomingVariableBlock';
-import NodeBoxIncomingVariableSection from '../node-box/NodeBoxIncomingVariableSection';
-import NodeBoxOutgoingVariableBlock from '../node-box/NodeBoxOutgoingVariableBlock';
-import NodeBoxSection from '../node-box/NodeBoxSection';
-import NodeBoxSmallSection from '../node-box/NodeBoxSmallSection';
+import NodeBox from './NodeBox';
+import NodeBoxAddConnectorButton from './NodeBoxAddConnectorButton';
+import NodeBoxHeaderSection from './NodeBoxHeaderSection';
+import NodeBoxIconGear from './NodeBoxIconGear';
+import NodeBoxIncomingVariableBlock from './NodeBoxIncomingVariableBlock';
+import NodeBoxIncomingVariableSection from './NodeBoxIncomingVariableSection';
+import NodeBoxOutgoingVariableBlock from './NodeBoxOutgoingVariableBlock';
+import NodeBoxSection from './NodeBoxSection';
+import NodeBoxSmallSection from './NodeBoxSmallSection';
 
 export type DestConnector = {
   id: string;
@@ -59,7 +59,7 @@ type Props = {
   children?: ReactNode;
 };
 
-export default function ReactFlowNode(props: Props) {
+function ReactFlowNode(props: Props) {
   // ANCHOR: ReactFlow
   const nodeId = useNodeId() as NodeID;
   const updateNodeInternals = useUpdateNodeInternals();
@@ -136,11 +136,11 @@ export default function ReactFlowNode(props: Props) {
   const removeVariable = useFlowStore((s) => s.removeVariable);
 
   // ANCHOR: Side Panel Operations
-  const setDetailPanelContentType = useFlowStore(
-    (s) => s.setDetailPanelContentType,
+  const setCanvasLeftPaneIsOpen = useFlowStore(
+    (s) => s.setCanvasLeftPaneIsOpen,
   );
-  const setDetailPanelSelectedNodeId = useFlowStore(
-    (s) => s.setDetailPanelSelectedNodeId,
+  const setCanvasLeftPaneSelectedNodeId = useFlowStore(
+    (s) => s.setCanvasLeftPaneSelectedNodeId,
   );
 
   // SECTION: Manage height of each variable input box
@@ -168,9 +168,9 @@ export default function ReactFlowNode(props: Props) {
     children = props.children;
   } else {
     children = (
-      <>
+      <NodeFieldsContainer>
         {nodeDefinition.accountLevelConfigFieldDefinitions && (
-          <NodeBoxAccountLevelFields
+          <NodeAccountLevelFields
             isNodeConfigReadOnly={props.isNodeConfigReadOnly}
             accountLevelConfigFieldDefinitions={
               nodeDefinition.accountLevelConfigFieldDefinitions
@@ -178,14 +178,14 @@ export default function ReactFlowNode(props: Props) {
             nodeConfig={props.nodeConfig}
           />
         )}
-        <NodeBoxInstanceLevelFields
+        <NodeInstanceLevelFields
           isNodeConfigReadOnly={props.isNodeConfigReadOnly}
           instanceLevelConfigFieldDefinitions={
             nodeDefinition.instanceLevelConfigFieldDefinitions
           }
           nodeConfig={props.nodeConfig}
         />
-      </>
+      </NodeFieldsContainer>
     );
   }
 
@@ -266,8 +266,8 @@ export default function ReactFlowNode(props: Props) {
           <IconButton
             variant="outlined"
             onClick={() => {
-              setDetailPanelContentType(RightSidePanelType.NodeConfig);
-              setDetailPanelSelectedNodeId(nodeId);
+              setCanvasLeftPaneIsOpen(true);
+              setCanvasLeftPaneSelectedNodeId(nodeId);
             }}
           >
             <NodeBoxIconGear />
@@ -281,8 +281,8 @@ export default function ReactFlowNode(props: Props) {
               name={connector.name}
               value={connector.value}
               onClick={() => {
-                setDetailPanelContentType(RightSidePanelType.NodeConfig);
-                setDetailPanelSelectedNodeId(nodeId);
+                setCanvasLeftPaneIsOpen(true);
+                setCanvasLeftPaneSelectedNodeId(nodeId);
               }}
             />
           ))}
@@ -299,3 +299,10 @@ export default function ReactFlowNode(props: Props) {
     </>
   );
 }
+
+const NodeFieldsContainer = styled.div`
+  margin-left: 10px;
+  margin-right: 10px;
+`;
+
+export default ReactFlowNode;

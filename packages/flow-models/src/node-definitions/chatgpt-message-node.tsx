@@ -52,7 +52,7 @@ export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition<
       type: FieldType.Radio,
       label: 'Role',
       options: Object.keys(OpenAI.ChatGPTMessageRole).map((key) => ({
-        label: key,
+        label: key[0].toUpperCase() + key.slice(1),
         value:
           OpenAI.ChatGPTMessageRole[
             key as keyof typeof OpenAI.ChatGPTMessageRole
@@ -63,7 +63,7 @@ export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition<
       type: FieldType.Textarea,
       label: 'Message content',
       placeholder: 'Write message content here',
-      helperMessage: (
+      helperText: (
         <div>
           <a
             href="https://mustache.github.io/"

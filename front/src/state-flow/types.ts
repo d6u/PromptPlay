@@ -34,10 +34,9 @@ export type NodeMetadata = {
   hasError: boolean;
 };
 
-export enum RightSidePanelType {
+export enum CanvasRightPanelType {
   Off = 'Off',
   Tester = 'Tester',
-  NodeConfig = 'NodeConfig',
 }
 
 export enum ConnectStartEdgeType {
