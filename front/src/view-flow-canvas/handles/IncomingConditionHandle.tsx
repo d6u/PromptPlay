@@ -1,7 +1,7 @@
 import styled from '@emotion/styled';
 import { ComponentProps } from 'react';
 import { Position } from 'reactflow';
-import { BACKDROP_PADDING } from '../ui-constants';
+import { BACKDROP_PADDING } from '../constants';
 import { BaseHandle, HANDLE_WIDTH } from './common';
 
 const IncomingConditionHandleImpl = styled(BaseHandle)`

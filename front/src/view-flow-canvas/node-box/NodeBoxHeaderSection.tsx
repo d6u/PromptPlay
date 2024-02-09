@@ -1,49 +1,76 @@
 import styled from '@emotion/styled';
+
 import IconThreeDots from 'icons/IconThreeDots';
+
 import {
   DRAG_HANDLE_CLASS_NAME,
-  HEADER_TITLE_HEIGHT,
-  HEADER_TITLE_MARGIN_BOTTOM,
-  HEADER_TITLE_PADDING_TOP,
-} from '../ui-constants';
+  NODE_BOX_HEADER_SECTION_MARGIN_BOTTOM,
+  NODE_BOX_HEADER_SECTION_PADDING_TOP,
+  NODE_BOX_HEADER_SECTION_TITLE_HEIGHT,
+  NODE_BOX_HEADER_SUB_SECTION_PADDING_MARGIN_BETWEEN,
+} from '../constants';
+import NodeBoxAddConnectorButton from './NodeBoxAddConnectorButton';
 import NodeBoxCommonRemoveButton from './NodeBoxCommonRemoveButton';
+import NodeBoxGearButton from './NodeBoxIconGear';
 
 type Props = {
   title: string;
   isReadOnly: boolean;
   onClickRemove: () => void;
+  onClickGearButton: () => void;
+  showAddVariableButton: boolean;
+  onClickAddVariableButton?: () => void;
 };
 
-export default function NodeBoxHeaderSection(props: Props) {
+function NodeBoxHeaderSection(props: Props) {
   return (
     <Container>
-      <TitleContainer className={DRAG_HANDLE_CLASS_NAME}>
-        <Title>{props.title}</Title>
-        <DragHandle />
-      </TitleContainer>
-      {props.isReadOnly && (
-        <RemoveButtonContainer>
-          <NodeBoxCommonRemoveButton onClick={props.onClickRemove} />
-        </RemoveButtonContainer>
-      )}
+      <TitleSection>
+        <TitleContainer className={DRAG_HANDLE_CLASS_NAME}>
+          <Title>{props.title}</Title>
+          <DragHandle />
+        </TitleContainer>
+        {!props.isReadOnly && (
+          <RemoveButtonContainer>
+            <NodeBoxCommonRemoveButton onClick={props.onClickRemove} />
+          </RemoveButtonContainer>
+        )}
+      </TitleSection>
+      <ActionsSection>
+        <NodeBoxGearButton onClick={props.onClickGearButton} />
+        {!props.isReadOnly &&
+          props.showAddVariableButton &&
+          props.onClickAddVariableButton && (
+            <NodeBoxAddConnectorButton
+              label="Variable"
+              onClick={props.onClickAddVariableButton}
+            />
+          )}
+      </ActionsSection>
     </Container>
   );
 }
 
 const Container = styled.div`
+  margin-bottom: ${NODE_BOX_HEADER_SECTION_MARGIN_BOTTOM}px;
+`;
+
+const TitleSection = styled.div`
   position: relative;
-  margin-bottom: ${HEADER_TITLE_MARGIN_BOTTOM}px;
+  margin-bottom: ${NODE_BOX_HEADER_SUB_SECTION_PADDING_MARGIN_BETWEEN}px;
 `;
 
 const TitleContainer = styled.div`
   cursor: grab;
-  padding: ${HEADER_TITLE_PADDING_TOP}px 10px 0;
+  padding-top: ${NODE_BOX_HEADER_SECTION_PADDING_TOP}px;
+  padding-left: 10px;
+  padding-right: 10px;
 `;
 
 const Title = styled.h3`
   margin: 0;
   font-size: 16px;
-  line-height: ${HEADER_TITLE_HEIGHT}px;
+  line-height: ${NODE_BOX_HEADER_SECTION_TITLE_HEIGHT}px;
 `;
 
 const DragHandle = styled(IconThreeDots)`
@@ -59,3 +86,13 @@ const RemoveButtonContainer = styled.div`
   top: 10px;
   right: 10px;
 `;
+
+const ActionsSection = styled.div`
+  display: flex;
+  gap: 5px;
+  padding-left: 10px;
+  padding-right: 10px;
+  margin-top: 5px;
+`;
+
+export default NodeBoxHeaderSection;

@@ -11,7 +11,7 @@ import {
 
 import RouteFlowContext from 'state-flow/context/FlowRouteContext';
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
-import { NODE_BOX_WIDTH } from 'view-flow-canvas/ui-constants';
+import { NODE_BOX_WIDTH } from 'view-flow-canvas/constants';
 
 function SubTabActionsCanvas() {
   const { isCurrentUserOwner } = useContext(RouteFlowContext);

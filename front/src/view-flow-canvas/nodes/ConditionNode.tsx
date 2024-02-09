@@ -19,8 +19,7 @@ import OutgoingConditionHandle from '../handles/OutgoingConditionHandle';
 import NodeBox from '../node-box/NodeBox';
 import NodeBoxAddConnectorButton from '../node-box/NodeBoxAddConnectorButton';
 import NodeBoxHeaderSection from '../node-box/NodeBoxHeaderSection';
-import NodeBoxIncomingVariableBlock from '../node-box/NodeBoxIncomingVariableBlock';
-import NodeBoxIncomingVariableSection from '../node-box/NodeBoxIncomingVariableSection';
+import NodeBoxIncomingVariablesSection from '../node-box/NodeBoxIncomingVariablesSection';
 import NodeBoxOutgoingConnectorBlock from '../node-box/NodeBoxOutgoingConnectorBlock';
 import NodeBoxOutgoingVariableBlock from '../node-box/NodeBoxOutgoingVariableBlock';
 import NodeBoxSection from '../node-box/NodeBoxSection';
@@ -97,23 +96,18 @@ export default function ConditionNode() {
           onClickRemove={() => {
             removeNode(nodeId);
           }}
+          onClickGearButton={() => {
+            // TODO: Implement
+          }}
+          showAddVariableButton={false}
         />
-        <NodeBoxIncomingVariableSection>
-          {nodeInputs.map((flowInput, i) => (
-            <NodeBoxIncomingVariableBlock
-              key={flowInput.id}
-              name={flowInput.name}
-              isReadOnly={!isCurrentUserOwner}
-              onConfirmNameChange={(name) => {
-                updateVariable(flowInput.id, { name });
-              }}
-              onRemove={() => {
-                removeVariable(flowInput.id);
-                updateNodeInternals(nodeId);
-              }}
-            />
-          ))}
-        </NodeBoxIncomingVariableSection>
+        <NodeBoxIncomingVariablesSection
+          destConnectors={nodeInputs.map((input) => ({
+            id: input.id,
+            name: input.name,
+            isReadOnly: true,
+          }))}
+        />
         <NodeBoxSection>
           <FormControl>
             <FormLabel>Stop at the first match</FormLabel>

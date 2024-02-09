@@ -1,11 +1,9 @@
 import styled from '@emotion/styled';
 import { A } from '@mobily/ts-belt';
-import { IconButton } from '@mui/joy';
 import { ReactNode, useEffect, useMemo, useState } from 'react';
 import { useNodeId, useUpdateNodeInternals } from 'reactflow';
 
 import {
-  ConnectorID,
   ConnectorType,
   NodeConfig,
   NodeID,
@@ -24,21 +22,12 @@ import IncomingConditionHandle from '../handles/IncomingConditionHandle';
 import IncomingVariableHandle from '../handles/IncomingVariableHandle';
 import OutgoingVariableHandle from '../handles/OutgoingVariableHandle';
 import NodeBox from './NodeBox';
-import NodeBoxAddConnectorButton from './NodeBoxAddConnectorButton';
 import NodeBoxHeaderSection from './NodeBoxHeaderSection';
-import NodeBoxIconGear from './NodeBoxIconGear';
-import NodeBoxIncomingVariableBlock from './NodeBoxIncomingVariableBlock';
-import NodeBoxIncomingVariableSection from './NodeBoxIncomingVariableSection';
+import NodeBoxIncomingVariablesSection, {
+  type DestConnector,
+} from './NodeBoxIncomingVariablesSection';
 import NodeBoxOutgoingVariableBlock from './NodeBoxOutgoingVariableBlock';
 import NodeBoxSection from './NodeBoxSection';
-import NodeBoxSmallSection from './NodeBoxSmallSection';
-
-export type DestConnector = {
-  id: string;
-  name: string;
-  isReadOnly: boolean;
-  helperMessage?: ReactNode;
-};
 
 export type SrcConnector = {
   id: string;
@@ -132,8 +121,6 @@ function ReactFlowNode(props: Props) {
 
   // ANCHOR: Variable Operations
   const addVariable = useFlowStore((s) => s.addVariable);
-  const updateVariable = useFlowStore((s) => s.updateVariable);
-  const removeVariable = useFlowStore((s) => s.removeVariable);
 
   // ANCHOR: Side Panel Operations
   const setCanvasLeftPaneIsOpen = useFlowStore(
@@ -199,9 +186,6 @@ function ReactFlowNode(props: Props) {
             id={connector.id}
             index={i}
             inputVariableBlockHeightList={inputVariableBlockHeightList}
-            isShowingAddInputVariableButton={
-              nodeDefinition.canUserAddIncomingVariables
-            }
           />
         );
       })}
@@ -211,68 +195,30 @@ function ReactFlowNode(props: Props) {
         hasError={augment?.hasError}
       >
         <NodeBoxHeaderSection
-          isReadOnly={!props.isNodeConfigReadOnly}
+          isReadOnly={props.isNodeConfigReadOnly}
           title={nodeDefinition.label}
           onClickRemove={() => {
             removeNode(nodeId);
           }}
+          onClickGearButton={() => {
+            setCanvasLeftPaneIsOpen(true);
+            setCanvasLeftPaneSelectedNodeId(nodeId);
+          }}
+          showAddVariableButton={!!nodeDefinition.canUserAddIncomingVariables}
+          onClickAddVariableButton={() => {
+            addVariable(nodeId, ConnectorType.NodeInput, destConnectors.length);
+            updateNodeInternals(nodeId);
+          }}
         />
-        {nodeDefinition.canUserAddIncomingVariables &&
-          !props.isNodeConfigReadOnly && (
-            <NodeBoxSmallSection>
-              <NodeBoxAddConnectorButton
-                label="Variable"
-                onClick={() => {
-                  addVariable(
-                    nodeId,
-                    ConnectorType.NodeInput,
-                    destConnectors.length,
-                  );
-                  updateNodeInternals(nodeId);
-                }}
-              />
-            </NodeBoxSmallSection>
-          )}
-        <NodeBoxIncomingVariableSection>
-          {destConnectors.map((connector, i) => {
-            return (
-              <NodeBoxIncomingVariableBlock
-                key={connector.id}
-                name={connector.name}
-                isReadOnly={connector.isReadOnly}
-                helperMessage={connector.helperMessage}
-                onConfirmNameChange={(name) => {
-                  if (!connector.isReadOnly) {
-                    updateVariable(connector.id as ConnectorID, { name });
-                  }
-                }}
-                onRemove={() => {
-                  if (!connector.isReadOnly) {
-                    removeVariable(connector.id as ConnectorID);
-                    updateNodeInternals(nodeId);
-                  }
-                }}
-                onHeightChange={(height: number) => {
-                  setInputVariableBlockHeightList((arr) => {
-                    return A.updateAt(arr, i, () => height);
-                  });
-                }}
-              />
-            );
-          })}
-        </NodeBoxIncomingVariableSection>
+        <NodeBoxIncomingVariablesSection
+          destConnectors={destConnectors}
+          onRowHeightChange={(index, height) => {
+            setInputVariableBlockHeightList((arr) => {
+              return A.updateAt(arr, index, () => height);
+            });
+          }}
+        />
         {children}
-        <NodeBoxSection>
-          <IconButton
-            variant="outlined"
-            onClick={() => {
-              setCanvasLeftPaneIsOpen(true);
-              setCanvasLeftPaneSelectedNodeId(nodeId);
-            }}
-          >
-            <NodeBoxIconGear />
-          </IconButton>
-        </NodeBoxSection>
         <NodeBoxSection>
           {srcConnectors.map((connector) => (
             <NodeBoxOutgoingVariableBlock

@@ -1,4 +1,4 @@
-import { IconButton } from '@mui/joy';
+import styled from '@emotion/styled';
 import { useContext, useMemo } from 'react';
 import { useNodeId, useUpdateNodeInternals } from 'reactflow';
 
@@ -16,12 +16,8 @@ import { selectVariables } from 'state-flow/util/state-utils';
 
 import OutgoingVariableHandle from '../handles/OutgoingVariableHandle';
 import NodeBox from '../node-box/NodeBox';
-import NodeBoxAddConnectorButton from '../node-box/NodeBoxAddConnectorButton';
 import NodeBoxHeaderSection from '../node-box/NodeBoxHeaderSection';
-import NodeBoxIconGear from '../node-box/NodeBoxIconGear';
-import NodeBoxIncomingVariableSection from '../node-box/NodeBoxIncomingVariableSection';
 import NodeBoxOutgoingConnectorBlock from '../node-box/NodeBoxOutgoingConnectorBlock';
-import NodeBoxSmallSection from '../node-box/NodeBoxSmallSection';
 
 export default function InputNode() {
   const nodeId = useNodeId() as NodeID;
@@ -59,30 +55,21 @@ export default function InputNode() {
     <>
       <NodeBox nodeType={NodeType.InputNode}>
         <NodeBoxHeaderSection
-          isReadOnly={isCurrentUserOwner}
+          isReadOnly={!isCurrentUserOwner}
           title="Input"
           onClickRemove={() => {
             removeNode(nodeId);
           }}
+          onClickGearButton={() => {
+            setCanvasRightPaneType(CanvasRightPanelType.Tester);
+          }}
+          showAddVariableButton={true}
+          onClickAddVariableButton={() => {
+            addVariable(nodeId, ConnectorType.FlowInput, flowInputs.length);
+            updateNodeInternals(nodeId);
+          }}
         />
-        <NodeBoxSmallSection>
-          <IconButton
-            variant="outlined"
-            onClick={() => setCanvasRightPaneType(CanvasRightPanelType.Tester)}
-          >
-            <NodeBoxIconGear />
-          </IconButton>
-          {isCurrentUserOwner && (
-            <NodeBoxAddConnectorButton
-              label="Variable"
-              onClick={() => {
-                addVariable(nodeId, ConnectorType.FlowInput, flowInputs.length);
-                updateNodeInternals(nodeId);
-              }}
-            />
-          )}
-        </NodeBoxSmallSection>
-        <NodeBoxIncomingVariableSection>
+        <NodeBoxFlowInputVariablesSection>
           {flowInputs.map((flowInput, i) => (
             <NodeBoxOutgoingConnectorBlock
               key={flowInput.id}
@@ -97,7 +84,7 @@ export default function InputNode() {
               }}
             />
           ))}
-        </NodeBoxIncomingVariableSection>
+        </NodeBoxFlowInputVariablesSection>
       </NodeBox>
       {flowInputs.map((flowInput, i) => (
         <OutgoingVariableHandle
@@ -110,3 +97,9 @@ export default function InputNode() {
     </>
   );
 }
+
+const NodeBoxFlowInputVariablesSection = styled.div`
+  padding-left: 10px;
+  padding-right: 10px;
+  margin-bottom: 10px;
+`;
