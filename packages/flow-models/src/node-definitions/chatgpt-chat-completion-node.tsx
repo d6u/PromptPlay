@@ -107,27 +107,13 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
       min: 0,
       max: 2,
       step: 0.1,
-      // We don't allow empty string for temperature,
-      // i.e. temperature must always be provided.
-      //
-      // Although we are already setting temperature
-      // to 1 when input value is an empty string,
-      // the useEffect above might not update local
-      // temperature state, because if the initial
-      // temperature is 1, the useEffect will not
-      // be triggered.
-      transformBeforeSave: (value) => {
-        return value === '' ? 1 : Number(value);
-      },
+      schema: Joi.number().required().min(0).max(2).label('Temperature'),
     },
     seed: {
       type: FieldType.Number,
       label: 'Seed (Optional, Beta)',
       step: 1,
-      // Seed need to be integer if provided.
-      transformBeforeSave: (value) => {
-        return value === '' ? null : Math.trunc(Number(value));
-      },
+      schema: Joi.number().integer().allow(null).label('Seed'),
     },
     responseFormatType: {
       type: FieldType.Checkbox,

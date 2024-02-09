@@ -63,7 +63,7 @@ export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition<
       type: FieldType.Textarea,
       label: 'Message content',
       placeholder: 'Write message content here',
-      helperMessage: (
+      helperText: (
         <div>
           <a
             href="https://mustache.github.io/"

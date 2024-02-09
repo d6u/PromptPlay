@@ -28,36 +28,39 @@ export type StopSequenceFieldDefinition = {
   helperText?: ReactNode;
 };
 
-export type NumberFieldDefinition = {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type NumberFieldDefinition<T = any> = {
   type: FieldType.Number;
   label: string;
-  // Fallback value is used when the field is empty
   min?: number;
   max?: number;
   step?: number;
-  transformBeforeSave?: (value: string) => number | null;
-  helperMessage?: ReactNode;
+  helperText?: ReactNode;
+  // Validation and transformation
+  render?: (value: T) => number | null;
+  parse?: (value: number | null) => T;
+  schema?: Joi.NumberSchema;
 };
 
 export type TextareaFieldDefinition = {
   type: FieldType.Textarea;
   label: string;
   placeholder?: string;
-  helperMessage?: ReactNode;
+  helperText?: ReactNode;
 };
 
 export type RadioFieldDefinition = {
   type: FieldType.Radio;
   options: FieldOption[];
   label: string;
-  helperMessage?: ReactNode;
+  helperText?: ReactNode;
 };
 
 export type SelectFieldDefinition = {
   type: FieldType.Select;
   options: FieldOption[];
   label: string;
-  helperMessage?: ReactNode;
+  helperText?: ReactNode;
 };
 
 export type FieldOption = {

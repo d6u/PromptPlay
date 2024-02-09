@@ -1,77 +1,113 @@
+import { ErrorMessage } from '@hookform/error-message';
+import { joiResolver } from '@hookform/resolvers/joi';
 import { FormLabel, Input } from '@mui/joy';
-import { useCallback, useEffect, useState } from 'react';
+import Joi from 'joi';
+import { useCallback } from 'react';
+import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 
 import { NumberFieldDefinition } from 'flow-models';
 
 import ReadonlyInput from 'components/generic/ReadonlyInput';
+
+import NodeFieldHelperTextWithStatus from './NodeFieldHelperTextWithStatus';
 import NodeFieldSectionFormControl from './NodeFieldSectionFormControl';
 
 type Props = {
+  isNodeConfigReadOnly: boolean;
   fieldKey: string;
   fieldDefinition: NumberFieldDefinition;
-  fieldValue: number | null;
-  isNodeConfigReadOnly: boolean;
-  onSave: (value: number | null) => void;
+  fieldValue: unknown;
+  onUpdate: (value: unknown) => void;
 };
 
 function NodeNumberField(props: Props) {
-  const propsOnSave = props.onSave;
-  const fd = props.fieldDefinition;
-  const transformBeforeSave =
-    fd.transformBeforeSave ?? defaultTransformBeforeSave;
+  const { onUpdate: propsOnUpdate, fieldDefinition: fd } = props;
 
-  const [localFieldValue, setLocalFieldValue] = useState<string>(() =>
-    fieldValueToLocalValue(props.fieldValue),
+  const render = fd.render ?? defaultRender;
+  const parse = fd.parse ?? defaultParse;
+
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormType>({
+    values: { value: render(props.fieldValue) },
+    resolver:
+      fd.schema != null
+        ? joiResolver(Joi.object({ value: fd.schema }))
+        : undefined,
+  });
+
+  const onSaveCallback = useCallback<SubmitHandler<FormType>>(
+    (data) => {
+      propsOnUpdate(parse(data.value));
+    },
+    [parse, propsOnUpdate],
   );
-
-  useEffect(() => {
-    setLocalFieldValue(fieldValueToLocalValue(props.fieldValue));
-  }, [props.fieldValue]);
-
-  const onSaveCallback = useCallback(() => {
-    const newFieldValue = transformBeforeSave(localFieldValue);
-    setLocalFieldValue(fieldValueToLocalValue(newFieldValue));
-    propsOnSave(newFieldValue);
-  }, [localFieldValue, propsOnSave, transformBeforeSave]);
 
   return (
     <NodeFieldSectionFormControl>
       <FormLabel>{fd.label}</FormLabel>
       {props.isNodeConfigReadOnly ? (
-        <ReadonlyInput type="number" value={String(localFieldValue)} />
-      ) : (
-        <Input
+        <ReadonlyInput
           type="number"
-          slotProps={{
-            input: { min: fd.min, max: fd.max, step: fd.step },
-          }}
-          value={localFieldValue}
-          onChange={(event) => {
-            setLocalFieldValue(event.target.value);
-          }}
-          onKeyUp={(event) => {
-            if (event.key === 'Enter') {
-              onSaveCallback();
-            }
-          }}
-          onBlur={onSaveCallback}
+          value={render(props.fieldValue) ?? undefined}
+        />
+      ) : (
+        <Controller
+          name="value"
+          control={control}
+          render={({ field }) => (
+            <Input
+              {...field}
+              type="number"
+              slotProps={{
+                input: { min: fd.min, max: fd.max, step: fd.step },
+              }}
+              value={field.value != null ? String(field.value) : ''}
+              onChange={(event) => {
+                field.onChange(
+                  event.target.value !== '' ? Number(event.target.value) : null,
+                );
+              }}
+              onKeyUp={(event) => {
+                if (event.key === 'Enter') {
+                  handleSubmit(onSaveCallback)();
+                }
+              }}
+              onBlur={() => {
+                field.onBlur();
+                handleSubmit(onSaveCallback)();
+              }}
+            />
+          )}
         />
       )}
+      <ErrorMessage
+        errors={errors}
+        name="value"
+        render={({ message }) => (
+          <NodeFieldHelperTextWithStatus color="danger">
+            {message}
+          </NodeFieldHelperTextWithStatus>
+        )}
+      />
     </NodeFieldSectionFormControl>
   );
 }
 
-/**
- * NOTE: fieldValueToLocalValue and defaultTransformBeforeSave
- * needs to be able to called subsequently and arrive at the same value.
- */
+type FormType = {
+  value: number | null;
+};
 
-function fieldValueToLocalValue(fieldValue: number | null): string {
-  return fieldValue == null ? '' : fieldValue.toString();
+// NOTE: By default we assume the input is number | null
+
+function defaultRender(fieldValue: unknown): number | null {
+  return fieldValue as number;
 }
 
-function defaultTransformBeforeSave(value: string): number | null {
-  return value === '' ? null : Number(value);
+function defaultParse(value: number | null): unknown {
+  return value;
 }
 
 export default NodeNumberField;

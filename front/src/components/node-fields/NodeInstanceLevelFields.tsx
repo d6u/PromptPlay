@@ -71,7 +71,7 @@ function NodeBoxInstanceLevelFields(props: Props) {
               fieldDefinition={fd}
               fieldValue={fieldValue as number | null}
               isNodeConfigReadOnly={props.isNodeConfigReadOnly}
-              onSave={(value) => {
+              onUpdate={(value) => {
                 updateNodeConfig(props.nodeConfig.nodeId, {
                   [fieldKey]: value,
                 });
