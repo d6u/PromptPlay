@@ -61,7 +61,6 @@ function NodeConfigPane() {
 
 const Container = styled.div`
   padding: 20px 20px 0 20px;
-  width: 400px;
 `;
 
 export default NodeConfigPane;

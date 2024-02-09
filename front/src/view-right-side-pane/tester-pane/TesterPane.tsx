@@ -94,8 +94,6 @@ function TesterPane() {
 }
 
 const Container = styled.div`
-  width: 50vw;
-  max-width: 600px;
   padding: 20px;
 `;
 

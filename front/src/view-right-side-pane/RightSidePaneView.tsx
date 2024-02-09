@@ -1,8 +1,5 @@
 import styled from '@emotion/styled';
-import { IconButton } from '@mui/joy';
 import { ReactNode } from 'react';
-
-import CrossIcon from 'icons/CrossIcon';
 
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 import { RightSidePanelType } from 'state-flow/types';
@@ -11,9 +8,6 @@ import TesterPane from './tester-pane/TesterPane';
 
 function RightSidePaneView() {
   const detailPanelContentType = useFlowStore((s) => s.detailPanelContentType);
-  const setDetailPanelContentType = useFlowStore(
-    (s) => s.setDetailPanelContentType,
-  );
 
   let content: ReactNode;
   switch (detailPanelContentType) {
@@ -28,15 +22,7 @@ function RightSidePaneView() {
 
   return (
     <Container $hide={detailPanelContentType === RightSidePanelType.Off}>
-      <StyledCloseButtonWrapper>
-        <IconButton
-          size="md"
-          onClick={() => setDetailPanelContentType(RightSidePanelType.Off)}
-        >
-          <StyledIconCross />
-        </IconButton>
-      </StyledCloseButtonWrapper>
-      <Content>{content}</Content>
+      {content}
     </Container>
   );
 }
@@ -46,25 +32,11 @@ function RightSidePaneView() {
 const Container = styled.div<{ $hide: boolean }>`
   position: relative;
   height: 100%;
+  width: 500px;
   background-color: #fff;
   border-left: 1px solid #ddd;
   display: ${(props) => (props.$hide ? 'none' : 'initial')};
-`;
-
-const StyledCloseButtonWrapper = styled.div`
-  position: absolute;
-  top: 5px;
-  left: -45px;
-`;
-
-const StyledIconCross = styled(CrossIcon)`
-  width: 16px;
-`;
-
-const Content = styled.div`
-  height: 100%;
-  // NOTE: Don't use "auto" because it will cause horizontal scrollbar to appear
-  overflow-x: hidden;
+  flex-shrink: 0;
   overflow-y: auto;
 `;
 
