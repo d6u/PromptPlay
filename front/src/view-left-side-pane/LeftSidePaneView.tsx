@@ -5,11 +5,11 @@ import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 import NodeConfigPane from './node-config-pane/NodeConfigPane';
 
 function LeftSidePaneView() {
-  const selectedNodeId = useFlowStore((s) => s.canvasLeftPaneSelectedNodeId);
+  const canvasLeftPaneIsOpen = useFlowStore((s) => s.canvasLeftPaneIsOpen);
 
   return (
-    <Container $hide={selectedNodeId == null}>
-      {selectedNodeId != null && <NodeConfigPane />}
+    <Container $hide={!canvasLeftPaneIsOpen}>
+      {canvasLeftPaneIsOpen && <NodeConfigPane />}
     </Container>
   );
 }

@@ -136,6 +136,9 @@ function ReactFlowNode(props: Props) {
   const removeVariable = useFlowStore((s) => s.removeVariable);
 
   // ANCHOR: Side Panel Operations
+  const setCanvasLeftPaneIsOpen = useFlowStore(
+    (s) => s.setCanvasLeftPaneIsOpen,
+  );
   const setCanvasLeftPaneSelectedNodeId = useFlowStore(
     (s) => s.setCanvasLeftPaneSelectedNodeId,
   );
@@ -263,6 +266,7 @@ function ReactFlowNode(props: Props) {
           <IconButton
             variant="outlined"
             onClick={() => {
+              setCanvasLeftPaneIsOpen(true);
               setCanvasLeftPaneSelectedNodeId(nodeId);
             }}
           >
@@ -277,6 +281,7 @@ function ReactFlowNode(props: Props) {
               name={connector.name}
               value={connector.value}
               onClick={() => {
+                setCanvasLeftPaneIsOpen(true);
                 setCanvasLeftPaneSelectedNodeId(nodeId);
               }}
             />

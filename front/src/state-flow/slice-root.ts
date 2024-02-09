@@ -52,6 +52,7 @@ type RootSliceState = {
   connectStartEdgeType: ConnectStartEdgeType | null;
   connectStartStartNodeId: NodeID | null;
 
+  canvasLeftPaneIsOpen: boolean;
   canvasLeftPaneSelectedNodeId: NodeID | null;
   canvasRightPaneType: CanvasRightPanelType;
   nodeMetadataDict: NodeMetadataDict;
@@ -60,7 +61,8 @@ type RootSliceState = {
 export type RootSlice = RootSliceState & {
   initialize(): void;
   deinitialize(): void;
-  setCanvasLeftPaneSelectedNodeId(nodeId: NodeID): void;
+  setCanvasLeftPaneIsOpen(isOpen: boolean): void;
+  setCanvasLeftPaneSelectedNodeId(nodeId: NodeID | null): void;
   setCanvasRightPaneType(type: CanvasRightPanelType): void;
   updateNodeAugment(nodeId: NodeID, change: Partial<NodeMetadata>): void;
   runFlow(): void;
@@ -120,6 +122,7 @@ export function createRootSlice(
     connectStartEdgeType: null,
     connectStartStartNodeId: null,
 
+    canvasLeftPaneIsOpen: false,
     canvasRightPaneType: CanvasRightPanelType.Off,
     canvasLeftPaneSelectedNodeId: null,
     nodeMetadataDict: {},
@@ -190,6 +193,9 @@ export function createRootSlice(
       console.groupEnd();
     },
 
+    setCanvasLeftPaneIsOpen(isOpen: boolean): void {
+      set({ canvasLeftPaneIsOpen: isOpen });
+    },
     setCanvasRightPaneType(type: CanvasRightPanelType) {
       set({ canvasRightPaneType: type });
     },

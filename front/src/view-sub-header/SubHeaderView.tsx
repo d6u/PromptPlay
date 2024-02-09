@@ -3,6 +3,7 @@ import { useContext } from 'react';
 
 import RouteFlowContext from 'state-flow/context/FlowRouteContext';
 
+import LeftPaneToggle from './sub-header/LeftPaneToggle';
 import MiddleContent from './sub-header/MiddleContent';
 import MoreMenu from './sub-header/MoreMenu';
 import RightPaneToggle from './sub-header/RightPaneToggle';
@@ -18,6 +19,7 @@ function SubHeaderView() {
       {isCurrentUserOwner && (
         <>
           <TabSwitcher />
+          <LeftPaneToggle />
           <SubHeaderActions />
           <MiddleContent />
           <SavingIndicator />
