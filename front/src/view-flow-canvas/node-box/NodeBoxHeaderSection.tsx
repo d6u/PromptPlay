@@ -14,7 +14,7 @@ type Props = {
   onClickRemove: () => void;
 };
 
-export default function NodeBoxHeaderSection(props: Props) {
+function NodeBoxHeaderSection(props: Props) {
   return (
     <Container>
       <TitleContainer className={DRAG_HANDLE_CLASS_NAME}>
@@ -59,3 +59,5 @@ const RemoveButtonContainer = styled.div`
   top: 10px;
   right: 10px;
 `;
+
+export default NodeBoxHeaderSection;

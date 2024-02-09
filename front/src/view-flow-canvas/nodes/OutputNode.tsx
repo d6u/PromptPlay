@@ -1,5 +1,4 @@
 import { A } from '@mobily/ts-belt';
-import { IconButton } from '@mui/joy';
 import { useContext, useMemo } from 'react';
 import { useNodeId, useUpdateNodeInternals } from 'reactflow';
 
@@ -19,7 +18,7 @@ import IncomingVariableHandle from '../handles/IncomingVariableHandle';
 import NodeBox from '../node-box/NodeBox';
 import NodeBoxAddConnectorButton from '../node-box/NodeBoxAddConnectorButton';
 import NodeBoxHeaderSection from '../node-box/NodeBoxHeaderSection';
-import NodeBoxIconGear from '../node-box/NodeBoxIconGear';
+import NodeBoxGearButton from '../node-box/NodeBoxIconGear';
 import NodeBoxIncomingVariableBlock, {
   ROW_MARGIN_TOP,
 } from '../node-box/NodeBoxIncomingVariableBlock';
@@ -78,12 +77,9 @@ export default function OutputNode() {
           }}
         />
         <NodeBoxSmallSection>
-          <IconButton
-            variant="outlined"
+          <NodeBoxGearButton
             onClick={() => setCanvasRightPaneType(CanvasRightPanelType.Tester)}
-          >
-            <NodeBoxIconGear />
-          </IconButton>
+          />
           {isCurrentUserOwner && (
             <NodeBoxAddConnectorButton
               label="Variable"

@@ -1,4 +1,3 @@
-import { IconButton } from '@mui/joy';
 import { useContext, useMemo } from 'react';
 import { useNodeId, useUpdateNodeInternals } from 'reactflow';
 
@@ -18,7 +17,7 @@ import OutgoingVariableHandle from '../handles/OutgoingVariableHandle';
 import NodeBox from '../node-box/NodeBox';
 import NodeBoxAddConnectorButton from '../node-box/NodeBoxAddConnectorButton';
 import NodeBoxHeaderSection from '../node-box/NodeBoxHeaderSection';
-import NodeBoxIconGear from '../node-box/NodeBoxIconGear';
+import NodeBoxGearButton from '../node-box/NodeBoxIconGear';
 import NodeBoxIncomingVariableSection from '../node-box/NodeBoxIncomingVariableSection';
 import NodeBoxOutgoingConnectorBlock from '../node-box/NodeBoxOutgoingConnectorBlock';
 import NodeBoxSmallSection from '../node-box/NodeBoxSmallSection';
@@ -66,12 +65,9 @@ export default function InputNode() {
           }}
         />
         <NodeBoxSmallSection>
-          <IconButton
-            variant="outlined"
+          <NodeBoxGearButton
             onClick={() => setCanvasRightPaneType(CanvasRightPanelType.Tester)}
-          >
-            <NodeBoxIconGear />
-          </IconButton>
+          />
           {isCurrentUserOwner && (
             <NodeBoxAddConnectorButton
               label="Variable"

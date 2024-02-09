@@ -1,6 +1,5 @@
 import styled from '@emotion/styled';
 import { A } from '@mobily/ts-belt';
-import { IconButton } from '@mui/joy';
 import { ReactNode, useEffect, useMemo, useState } from 'react';
 import { useNodeId, useUpdateNodeInternals } from 'reactflow';
 
@@ -26,7 +25,7 @@ import OutgoingVariableHandle from '../handles/OutgoingVariableHandle';
 import NodeBox from './NodeBox';
 import NodeBoxAddConnectorButton from './NodeBoxAddConnectorButton';
 import NodeBoxHeaderSection from './NodeBoxHeaderSection';
-import NodeBoxIconGear from './NodeBoxIconGear';
+import NodeBoxGearButton from './NodeBoxIconGear';
 import NodeBoxIncomingVariableBlock from './NodeBoxIncomingVariableBlock';
 import NodeBoxIncomingVariableSection from './NodeBoxIncomingVariableSection';
 import NodeBoxOutgoingVariableBlock from './NodeBoxOutgoingVariableBlock';
@@ -263,15 +262,12 @@ function ReactFlowNode(props: Props) {
         </NodeBoxIncomingVariableSection>
         {children}
         <NodeBoxSection>
-          <IconButton
-            variant="outlined"
+          <NodeBoxGearButton
             onClick={() => {
               setCanvasLeftPaneIsOpen(true);
               setCanvasLeftPaneSelectedNodeId(nodeId);
             }}
-          >
-            <NodeBoxIconGear />
-          </IconButton>
+          />
         </NodeBoxSection>
         <NodeBoxSection>
           {srcConnectors.map((connector) => (
