@@ -46,6 +46,14 @@ function ConditionNode() {
   const updateVariable = useFlowStore((s) => s.updateVariable);
   const removeVariable = useFlowStore((s) => s.removeVariable);
 
+  // ANCHOR: Left Panel
+  const setCanvasLeftPaneIsOpen = useFlowStore(
+    (s) => s.setCanvasLeftPaneIsOpen,
+  );
+  const setCanvasLeftPaneSelectedNodeId = useFlowStore(
+    (s) => s.setCanvasLeftPaneSelectedNodeId,
+  );
+
   // !SECTION
 
   const nodeConfig = useMemo(() => {
@@ -98,7 +106,8 @@ function ConditionNode() {
             removeNode(nodeId);
           }}
           onClickGearButton={() => {
-            // TODO: Implement
+            setCanvasLeftPaneIsOpen(true);
+            setCanvasLeftPaneSelectedNodeId(nodeId);
           }}
           showAddVariableButton={false}
         />

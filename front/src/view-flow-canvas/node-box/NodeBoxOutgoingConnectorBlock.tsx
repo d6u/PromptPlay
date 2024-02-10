@@ -1,8 +1,9 @@
 import styled from '@emotion/styled';
-import Input from '@mui/joy/Input';
+import { Input } from '@mui/joy';
 import { useState } from 'react';
-import ReadonlyInput from '../../components/generic/ReadonlyInput';
-import NodeBoxCommonRemoveButton from './NodeBoxCommonRemoveButton';
+
+import ReadonlyInput from 'components/generic/ReadonlyInput';
+import RemoveButton from 'components/generic/RemoveButton';
 
 const Container = styled.div`
   margin-top: 5px;
@@ -59,9 +60,7 @@ export default function NodeBoxOutgoingConnectorBlock(props: Props) {
           }}
         />
       )}
-      {!props.isReadOnly && (
-        <NodeBoxCommonRemoveButton onClick={() => props.onRemove()} />
-      )}
+      {!props.isReadOnly && <RemoveButton onClick={() => props.onRemove()} />}
     </Container>
   );
 }

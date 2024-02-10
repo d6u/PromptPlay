@@ -6,7 +6,7 @@ type Props = {
   onClick: () => void;
 };
 
-function NodeBoxCommonRemoveButton(props: Props) {
+function RemoveButton(props: Props) {
   return (
     <IconButton color="danger" onClick={props.onClick}>
       <StyledCloseIcon />
@@ -19,4 +19,4 @@ const StyledCloseIcon = styled(CrossIcon)`
   fill: #c41c1c;
 `;
 
-export default NodeBoxCommonRemoveButton;
+export default RemoveButton;

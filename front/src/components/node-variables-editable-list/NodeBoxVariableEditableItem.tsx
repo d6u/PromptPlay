@@ -5,9 +5,9 @@ import { Input } from '@mui/joy';
 import { ReactNode, useCallback, useRef } from 'react';
 import { Control, Controller, FieldArrayWithId } from 'react-hook-form';
 
+import RemoveButton from 'components/generic/RemoveButton';
 import { useOnElementResize } from 'generic-util/ResizeObserver';
 
-import NodeBoxCommonRemoveButton from '../../view-flow-canvas/node-box/NodeBoxCommonRemoveButton';
 import ReadonlyInput from '../generic/ReadonlyInput';
 import NodeFieldHelperTextWithStatus from '../node-fields/NodeFieldHelperTextWithStatus';
 import DragHandle from './DragHandle';
@@ -95,9 +95,7 @@ function NodeBoxVariableEditableItem(props: Props) {
             )}
           />
         )}
-        {!props.isReadOnly && (
-          <NodeBoxCommonRemoveButton onClick={props.onRemove} />
-        )}
+        {!props.isReadOnly && <RemoveButton onClick={props.onRemove} />}
       </InputContainer>
       {props.helperText && (
         <HelperTextContainer>

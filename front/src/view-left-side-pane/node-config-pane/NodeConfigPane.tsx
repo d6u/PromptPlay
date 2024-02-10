@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { useContext, useMemo } from 'react';
+import { ReactNode, useContext, useMemo } from 'react';
 import invariant from 'tiny-invariant';
 
 import {
@@ -18,6 +18,7 @@ import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 import { selectVariables } from 'state-flow/util/state-utils';
 
 import NodeBoxVariablesEditableList from 'components/node-variables-editable-list/NodeBoxVariablesEditableList';
+import ConditionNodeConfigPanel from './ConditionNodeConfigPanel';
 import NodeConfigPaneNodeFields from './NodeConfigPaneNodeFields';
 
 function NodeConfigPane() {
@@ -66,22 +67,29 @@ function NodeConfigPane() {
 
   invariant(nodeConfig != null, 'nodeConfig is not null');
 
-  return (
-    <Container>
-      <HeaderSection>
-        <HeaderSectionHeader>Output variables</HeaderSectionHeader>
-      </HeaderSection>
-      <Section>
-        {outputVariables.map((output) => (
-          <SidePaneOutputRenderer key={output.id} outputItem={output} />
-        ))}
-      </Section>
-      {![
-        NodeType.InputNode,
-        NodeType.OutputNode,
-        NodeType.ConditionNode,
-        NodeType.JavaScriptFunctionNode,
-      ].includes(nodeConfig.type) && (
+  let content: ReactNode;
+  switch (nodeConfig.type) {
+    case NodeType.InputNode: {
+      throw new Error('Not implemented yet: NodeType.InputNode case');
+    }
+    case NodeType.OutputNode: {
+      throw new Error('Not implemented yet: NodeType.OutputNode case');
+    }
+    case NodeType.ConditionNode:
+      content = (
+        <ConditionNodeConfigPanel
+          isReadOnly={!isCurrentUserOwner}
+          nodeConfig={nodeConfig}
+          incomingVariables={incomingVariables}
+        />
+      );
+      break;
+    case NodeType.JavaScriptFunctionNode:
+      // TODO: Implement
+      content = null;
+      break;
+    default:
+      content = (
         <>
           <HeaderSection>
             <HeaderSectionHeader>
@@ -97,7 +105,26 @@ function NodeConfigPane() {
             isNodeConfigReadOnly={!isCurrentUserOwner}
           />
         </>
+      );
+      break;
+  }
+
+  return (
+    <Container>
+      {nodeConfig.type !== NodeType.ConditionNode && (
+        <>
+          <HeaderSection>
+            <HeaderSectionHeader>Output variables</HeaderSectionHeader>
+          </HeaderSection>
+
+          <Section>
+            {outputVariables.map((output) => (
+              <SidePaneOutputRenderer key={output.id} outputItem={output} />
+            ))}
+          </Section>
+        </>
       )}
+      {content}
     </Container>
   );
 }
