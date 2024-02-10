@@ -96,12 +96,21 @@ function NodeConditionsEditableList(props: Props) {
   return (
     <Container>
       {fields.map((field, index) => {
+        const condition = props.conditionConfigs[index];
+
+        // NOTE: This is a workaround for the case when the condition is
+        // removed
+        // TODO: Find a better way to handle this
+        if (condition == null) {
+          return null;
+        }
+
         return (
           <NodeConditionEditableItem
             key={field.id}
             isNodeReadOnly={props.isNodeReadOnly}
             isListSortable={!!props.isListSortable}
-            condition={props.conditionConfigs[index]}
+            condition={condition}
             control={control}
             formField={field}
             index={index}
