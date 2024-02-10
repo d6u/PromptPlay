@@ -10,6 +10,7 @@ import { useOnElementResize } from 'generic-util/ResizeObserver';
 import NodeBoxCommonRemoveButton from '../../view-flow-canvas/node-box/NodeBoxCommonRemoveButton';
 import ReadonlyInput from '../generic/ReadonlyInput';
 import NodeFieldHelperTextWithStatus from '../node-fields/NodeFieldHelperTextWithStatus';
+import DragHandle from './DragHandle';
 import { FormValue } from './types';
 
 type Props = {
@@ -70,7 +71,7 @@ function NodeBoxVariableEditableItem(props: Props) {
       {...attributes}
     >
       <InputContainer>
-        {isSortableEnabledForThisRow && <DragHandler {...listeners} />}
+        {isSortableEnabledForThisRow && <DragHandle {...listeners} />}
         {props.isReadOnly ? (
           <ReadonlyInput value={props.field.name} />
         ) : (
@@ -122,11 +123,6 @@ const Container = styled.div`
 const InputContainer = styled.div`
   display: flex;
   gap: 5px;
-`;
-
-const DragHandler = styled.div`
-  width: 10px;
-  background-color: lightblue;
 `;
 
 const NameInput = styled(Input)`
