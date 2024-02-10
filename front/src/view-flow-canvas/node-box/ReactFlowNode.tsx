@@ -12,17 +12,17 @@ import {
 
 import NodeAccountLevelFields from 'components/node-fields/NodeAccountLevelFields';
 import NodeInstanceLevelFields from 'components/node-fields/NodeInstanceLevelFields';
+import NodeBoxVariablesEditableList from 'components/node-variables-editable-list/NodeBoxVariablesEditableList';
+import { VariableConfig } from 'components/node-variables-editable-list/types';
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 import {
   selectConditionTarget,
   selectVariables,
 } from 'state-flow/util/state-utils';
-import { VariableConfig } from 'view-flow-canvas/variables-editable-list/types';
 
 import IncomingConditionHandle from '../handles/IncomingConditionHandle';
 import IncomingVariableHandle from '../handles/IncomingVariableHandle';
 import OutgoingVariableHandle from '../handles/OutgoingVariableHandle';
-import NodeBoxVariablesEditableList from '../variables-editable-list/NodeBoxVariablesEditableList';
 import NodeBox from './NodeBox';
 import NodeBoxHeaderSection from './NodeBoxHeaderSection';
 import NodeBoxOutgoingVariableBlock from './NodeBoxOutgoingVariableBlock';
@@ -154,7 +154,7 @@ function ReactFlowNode(props: Props) {
     children = props.children;
   } else {
     children = (
-      <NodeFieldsContainer>
+      <GenericContainer>
         {nodeDefinition.accountLevelConfigFieldDefinitions && (
           <NodeAccountLevelFields
             isNodeConfigReadOnly={props.isNodeConfigReadOnly}
@@ -171,7 +171,7 @@ function ReactFlowNode(props: Props) {
           }
           nodeConfig={props.nodeConfig}
         />
-      </NodeFieldsContainer>
+      </GenericContainer>
     );
   }
 
@@ -213,14 +213,16 @@ function ReactFlowNode(props: Props) {
             updateNodeInternals(nodeId);
           }}
         />
-        <NodeBoxVariablesEditableList
-          variables={incomingVariables}
-          onRowHeightChange={(index, height) => {
-            setInputVariableBlockHeightList((arr) => {
-              return A.updateAt(arr, index, () => height);
-            });
-          }}
-        />
+        <GenericContainer>
+          <NodeBoxVariablesEditableList
+            variables={incomingVariables}
+            onRowHeightChange={(index, height) => {
+              setInputVariableBlockHeightList((arr) => {
+                return A.updateAt(arr, index, () => height);
+              });
+            }}
+          />
+        </GenericContainer>
         {children}
         <NodeBoxSection>
           {srcConnectors.map((connector) => (
@@ -249,9 +251,9 @@ function ReactFlowNode(props: Props) {
   );
 }
 
-const NodeFieldsContainer = styled.div`
-  margin-left: 10px;
-  margin-right: 10px;
+const GenericContainer = styled.div`
+  padding-left: 10px;
+  padding-right: 10px;
 `;
 
 export default ReactFlowNode;

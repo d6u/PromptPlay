@@ -5,9 +5,9 @@ import { Control, Controller, FieldArrayWithId } from 'react-hook-form';
 
 import { useOnElementResize } from 'generic-util/ResizeObserver';
 
-import ReadonlyInput from '../../components/generic/ReadonlyInput';
-import NodeFieldHelperTextWithStatus from '../../components/node-fields/NodeFieldHelperTextWithStatus';
-import NodeBoxCommonRemoveButton from '../node-box/NodeBoxCommonRemoveButton';
+import NodeBoxCommonRemoveButton from '../../view-flow-canvas/node-box/NodeBoxCommonRemoveButton';
+import ReadonlyInput from '../generic/ReadonlyInput';
+import NodeFieldHelperTextWithStatus from '../node-fields/NodeFieldHelperTextWithStatus';
 import { FormValue } from './types';
 
 type Props = {

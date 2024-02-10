@@ -1,3 +1,4 @@
+import styled from '@emotion/styled';
 import { Checkbox, FormControl, FormHelperText, FormLabel } from '@mui/joy';
 import { useContext, useMemo } from 'react';
 import { useNodeId, useUpdateNodeInternals } from 'reactflow';
@@ -5,6 +6,7 @@ import invariant from 'tiny-invariant';
 
 import { ConditionResult, ConnectorType, NodeID, NodeType } from 'flow-models';
 
+import NodeBoxVariablesEditableList from 'components/node-variables-editable-list/NodeBoxVariablesEditableList';
 import RouteFlowContext from 'state-flow/context/FlowRouteContext';
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 import {
@@ -23,9 +25,8 @@ import NodeBoxOutgoingConnectorBlock from '../node-box/NodeBoxOutgoingConnectorB
 import NodeBoxOutgoingVariableBlock from '../node-box/NodeBoxOutgoingVariableBlock';
 import NodeBoxSection from '../node-box/NodeBoxSection';
 import NodeBoxSmallSection from '../node-box/NodeBoxSmallSection';
-import NodeBoxVariablesEditableList from '../variables-editable-list/NodeBoxVariablesEditableList';
 
-export default function ConditionNode() {
+function ConditionNode() {
   const nodeId = useNodeId() as NodeID;
   const updateNodeInternals = useUpdateNodeInternals();
 
@@ -101,13 +102,15 @@ export default function ConditionNode() {
           }}
           showAddVariableButton={false}
         />
-        <NodeBoxVariablesEditableList
-          variables={incomingVariables.map((variable) => ({
-            id: variable.id,
-            name: variable.name,
-            isReadOnly: true,
-          }))}
-        />
+        <GenericContainer>
+          <NodeBoxVariablesEditableList
+            variables={incomingVariables.map((variable) => ({
+              id: variable.id,
+              name: variable.name,
+              isReadOnly: true,
+            }))}
+          />
+        </GenericContainer>
         <NodeBoxSection>
           <FormControl>
             <FormLabel>Stop at the first match</FormLabel>
@@ -200,3 +203,10 @@ export default function ConditionNode() {
     </>
   );
 }
+
+const GenericContainer = styled.div`
+  padding-left: 10px;
+  padding-right: 10px;
+`;
+
+export default ConditionNode;

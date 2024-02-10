@@ -1,10 +1,9 @@
 import styled from '@emotion/styled';
 import { CSSProperties } from 'react';
 
+import { ROW_MARGIN_TOP } from 'components/node-variables-editable-list/NodeBoxVariableEditableItem';
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 import { CanvasRightPanelType } from 'state-flow/types';
-
-import { ROW_MARGIN_TOP } from '../variables-editable-list/NodeBoxVariableEditableItem';
 
 type Props = {
   id: string;
