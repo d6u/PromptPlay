@@ -1,3 +1,5 @@
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import styled from '@emotion/styled';
 import { Control, FieldArrayWithId } from 'react-hook-form';
 
@@ -24,9 +26,20 @@ function NodeConditionEditableItem(props: Props) {
     !props.condition.isReadOnly &&
     props.isListSortable;
 
+  const { attributes, listeners, setNodeRef, transform, transition } =
+    useSortable({
+      id: props.formField.id,
+      disabled: !isSortableEnabledForThisRow,
+    });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
   return (
-    <Container>
-      {isSortableEnabledForThisRow && <DragHandle />}
+    <Container ref={setNodeRef} style={style} {...attributes}>
+      {isSortableEnabledForThisRow && <DragHandle {...listeners} />}
       <EditorContainer>
         <EditorRow>
           <NodeConditionEditor
