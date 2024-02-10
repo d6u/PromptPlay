@@ -19,6 +19,11 @@ type Props = {
 };
 
 function NodeConditionEditableItem(props: Props) {
+  // const isSortableEnabledForThisRow =
+  //   !props.isNodeReadOnly &&
+  //   !props.condition.isReadOnly &&
+  //   props.isListSortable;
+
   return (
     <Container>
       <DragHandle />

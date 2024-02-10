@@ -13,9 +13,9 @@ import NodeConditionEditableItem from './NodeConditionEditableItem';
 import { ConditionConfig, FieldValues } from './types';
 
 type Props = {
-  isNodeReadOnly: boolean;
-  isListSortable: boolean;
   nodeId: string;
+  isNodeReadOnly: boolean;
+  isListSortable?: boolean;
   conditions: ConditionConfig[];
 };
 
@@ -29,8 +29,10 @@ function NodeConditionsEditableList(props: Props) {
     return props.conditions.map((condition) => {
       return {
         id: condition.id,
-        isReadOnly: condition.isReadOnly,
+        // NOTE: Map expressionString to value, because the underlining form
+        // is generic
         value: condition.expressionString,
+        isReadOnly: condition.isReadOnly,
       };
     });
   }, [props.conditions]);
@@ -65,7 +67,7 @@ function NodeConditionsEditableList(props: Props) {
         for (const changedVariable of updatedVariables) {
           invariant(
             !changedVariable.isReadOnly,
-            'Variable should not be readonly',
+            'Condition should not be readonly',
           );
           updateVariable(changedVariable.id as ConnectorID, {
             expressionString: changedVariable.value,
@@ -110,7 +112,7 @@ function NodeConditionsEditableList(props: Props) {
           <NodeConditionEditableItem
             key={field.id}
             isNodeReadOnly={props.isNodeReadOnly}
-            isListSortable={props.isListSortable}
+            isListSortable={!!props.isListSortable}
             condition={props.conditions[index]}
             control={control}
             formField={field}

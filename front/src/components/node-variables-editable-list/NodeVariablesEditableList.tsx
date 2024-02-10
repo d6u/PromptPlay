@@ -14,7 +14,7 @@ import {
 } from '@dnd-kit/sortable';
 import styled from '@emotion/styled';
 import { A } from '@mobily/ts-belt';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { SubmitHandler, useFieldArray, useForm } from 'react-hook-form';
 import { useNodeId, useUpdateNodeInternals } from 'reactflow';
 import invariant from 'tiny-invariant';
@@ -23,16 +23,18 @@ import { ConnectorID, NodeID } from 'flow-models';
 
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 
-import NodeBoxVariableEditableItem from './NodeBoxVariableEditableItem';
-import { FormValue, VariableConfig } from './types';
+import NodeVariableEditableItem from './NodeVariableEditableItem';
+import { FieldValues, VariableConfig } from './types';
 
 type Props = {
+  nodeId: string;
+  isNodeReadOnly: boolean;
+  isListSortable?: boolean;
   variables: VariableConfig[];
-  isSortable?: boolean;
   onRowHeightChange?: (index: number, height: number) => void;
 };
 
-function NodeBoxVariablesEditableList(props: Props) {
+function NodeVariablesEditableList(props: Props) {
   const nodeId = useNodeId() as NodeID;
   const updateNodeInternals = useUpdateNodeInternals();
 
@@ -46,9 +48,22 @@ function NodeBoxVariablesEditableList(props: Props) {
     }),
   );
 
-  const { control, handleSubmit } = useForm<FormValue>({
+  const connectorConfigs = useMemo(() => {
+    return props.variables.map((variable) => {
+      return {
+        id: variable.id,
+        // NOTE: Map name to value, because the underlining form
+        // is generic
+        value: variable.name,
+        isReadOnly: variable.isReadOnly,
+        helperText: variable.helperText,
+      };
+    });
+  }, [props.variables]);
+
+  const { control, handleSubmit } = useForm<FieldValues>({
     values: {
-      variables: props.variables,
+      list: connectorConfigs,
     },
   });
 
@@ -58,19 +73,22 @@ function NodeBoxVariablesEditableList(props: Props) {
   // variable object.
   const { fields, remove, move } = useFieldArray({
     control,
-    name: 'variables',
+    name: 'list',
   });
 
-  const updateVariables = useCallback<SubmitHandler<FormValue>>(
+  const updateVariables = useCallback<SubmitHandler<FieldValues>>(
     (data) => {
       // NOTE: We don't handle add variable here
 
-      if (props.variables.length === data.variables.length) {
+      if (connectorConfigs.length === data.list.length) {
         // This is an update
 
         // NOTE: Elements from the first array, not existing in the
         // second array.
-        const updatedVariables = A.difference(data.variables, props.variables);
+        const updatedVariables = A.difference(
+          data.list,
+          connectorConfigs,
+        ) as typeof connectorConfigs;
 
         for (const changedVariable of updatedVariables) {
           invariant(
@@ -78,7 +96,7 @@ function NodeBoxVariablesEditableList(props: Props) {
             'Variable should not be readonly',
           );
           updateVariable(changedVariable.id as ConnectorID, {
-            name: changedVariable.name,
+            name: changedVariable.value,
           });
         }
       } else {
@@ -87,7 +105,10 @@ function NodeBoxVariablesEditableList(props: Props) {
         // NOTE: Elements from the first array, not existing in the
         // second array. Note the order of the arguments is different from
         // above.
-        const removedVariables = A.difference(props.variables, data.variables);
+        const removedVariables = A.difference(
+          connectorConfigs,
+          data.list,
+        ) as typeof connectorConfigs;
 
         for (const removedVariable of removedVariables) {
           invariant(
@@ -102,11 +123,11 @@ function NodeBoxVariablesEditableList(props: Props) {
       }
     },
     [
-      props.variables,
       nodeId,
+      connectorConfigs,
+      updateVariable,
       removeVariable,
       updateNodeInternals,
-      updateVariable,
     ],
   );
 
@@ -124,12 +145,14 @@ function NodeBoxVariablesEditableList(props: Props) {
       move(oldIndex, newIndex);
 
       handleSubmit((data) => {
-        updateVariable(data.variables[oldIndex].id as ConnectorID, {
+        const list = data.list as typeof connectorConfigs;
+
+        updateVariable(list[oldIndex].id as ConnectorID, {
           // Which index to use for which variable is not important here
           // since data will contain variables in updated order.
           index: oldIndex,
         });
-        updateVariable(data.variables[newIndex].id as ConnectorID, {
+        updateVariable(list[newIndex].id as ConnectorID, {
           index: newIndex,
         });
 
@@ -140,9 +163,9 @@ function NodeBoxVariablesEditableList(props: Props) {
     [nodeId, fields, handleSubmit, move, updateNodeInternals, updateVariable],
   );
 
-  let editableItemStart = fields.findIndex((f) => !f.isReadOnly);
+  let editableItemStart = connectorConfigs.findIndex((f) => !f.isReadOnly);
   if (editableItemStart === -1) {
-    editableItemStart = fields.length;
+    editableItemStart = connectorConfigs.length;
   }
 
   return (
@@ -150,17 +173,16 @@ function NodeBoxVariablesEditableList(props: Props) {
       <div>
         {fields.slice(0, editableItemStart).map((field, index) => {
           // TODO: Find a way to avoid duplicating the mapper
-          const variable = props.variables[index];
           return (
-            <NodeBoxVariableEditableItem
+            <NodeVariableEditableItem
               key={field.id}
-              isReadOnly={variable.isReadOnly}
-              isSortable={false}
+              isNodeReadOnly={props.isNodeReadOnly}
+              isListSortable={false}
+              variable={props.variables[index]}
               control={control}
-              field={field}
+              formField={field}
               index={index}
-              helperText={variable.helperMessage}
-              onConfirmNameChange={() => {
+              onUpdate={() => {
                 handleSubmit(updateVariables)();
               }}
               onRemove={() => {
@@ -180,7 +202,7 @@ function NodeBoxVariablesEditableList(props: Props) {
         onDragEnd={onDragEnd}
       >
         <SortableContext
-          disabled={!props.isSortable}
+          disabled={!props.isListSortable}
           items={fields}
           strategy={verticalListSortingStrategy}
         >
@@ -189,20 +211,23 @@ function NodeBoxVariablesEditableList(props: Props) {
               index += editableItemStart;
               const variable = props.variables[index];
 
+              // NOTE: This is a workaround for the case when the variable is
+              // removed
+              // TODO: Find a better way to handle this
               if (variable == null) {
                 return null;
               }
 
               return (
-                <NodeBoxVariableEditableItem
+                <NodeVariableEditableItem
                   key={field.id}
-                  isReadOnly={variable.isReadOnly}
-                  isSortable={!!props.isSortable}
+                  isNodeReadOnly={props.isNodeReadOnly}
+                  isListSortable={!!props.isListSortable}
+                  variable={variable}
                   control={control}
-                  field={field}
+                  formField={field}
                   index={index}
-                  helperText={variable.helperMessage}
-                  onConfirmNameChange={() => {
+                  onUpdate={() => {
                     handleSubmit(updateVariables)();
                   }}
                   onRemove={() => {
@@ -229,4 +254,4 @@ const Container = styled.div`
   margin-bottom: 10px;
 `;
 
-export default NodeBoxVariablesEditableList;
+export default NodeVariablesEditableList;

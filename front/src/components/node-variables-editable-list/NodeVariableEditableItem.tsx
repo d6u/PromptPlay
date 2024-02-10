@@ -1,38 +1,37 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import styled from '@emotion/styled';
-import { Input } from '@mui/joy';
-import { ReactNode, useCallback, useRef } from 'react';
-import { Control, Controller, FieldArrayWithId } from 'react-hook-form';
+import { useCallback, useRef } from 'react';
+import { Control, FieldArrayWithId } from 'react-hook-form';
 
-import RemoveButton from 'components/generic/RemoveButton';
 import { useOnElementResize } from 'generic-util/ResizeObserver';
 
-import ReadonlyInput from '../generic/ReadonlyInput';
 import NodeFieldHelperTextWithStatus from '../node-fields/NodeFieldHelperTextWithStatus';
 import DragHandle from './DragHandle';
-import { FormValue } from './types';
+import NodeConnectorEditor from './NodeConnectorEditor';
+import { FieldValues, VariableConfig } from './types';
 
 type Props = {
-  isReadOnly: boolean;
-  isSortable: boolean;
-  control: Control<FormValue>;
-  field: FieldArrayWithId<FormValue, 'variables', 'id'>;
+  isNodeReadOnly: boolean;
+  isListSortable: boolean;
+  variable: VariableConfig;
+  control: Control<FieldValues>;
+  formField: FieldArrayWithId<FieldValues, 'list', 'id'>;
   index: number;
-  helperText?: ReactNode;
-  onConfirmNameChange: () => void;
+  onUpdate: () => void;
   onRemove: () => void;
   onHeightChange?: (height: number) => void;
 };
 
-function NodeBoxVariableEditableItem(props: Props) {
+function NodeVariableEditableItem(props: Props) {
   const { onHeightChange } = props;
 
-  const isSortableEnabledForThisRow = !props.isReadOnly && props.isSortable;
+  const isSortableEnabledForThisRow =
+    !props.isNodeReadOnly && !props.variable.isReadOnly && props.isListSortable;
 
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({
-      id: props.field.id,
+      id: props.formField.id,
       disabled: !isSortableEnabledForThisRow,
     });
 
@@ -49,10 +48,12 @@ function NodeBoxVariableEditableItem(props: Props) {
         if (prevHeightRef.current !== newHeight) {
           prevHeightRef.current = newHeight;
 
-          onHeightChange?.(prevHeightRef.current + (props.helperText ? 10 : 5));
+          onHeightChange?.(
+            prevHeightRef.current + (props.variable.helperText ? 10 : 5),
+          );
         }
       },
-      [props.helperText, onHeightChange],
+      [props.variable.helperText, onHeightChange],
     ),
   );
 
@@ -72,35 +73,19 @@ function NodeBoxVariableEditableItem(props: Props) {
     >
       <InputContainer>
         {isSortableEnabledForThisRow && <DragHandle {...listeners} />}
-        {props.isReadOnly ? (
-          <ReadonlyInput value={props.field.name} />
-        ) : (
-          <Controller
-            control={props.control}
-            name={`variables.${props.index}.name`}
-            render={({ field }) => (
-              <NameInput
-                {...field}
-                color="primary"
-                onKeyUp={(e) => {
-                  if (e.key === 'Enter') {
-                    props.onConfirmNameChange();
-                  }
-                }}
-                onBlur={() => {
-                  field.onBlur();
-                  props.onConfirmNameChange();
-                }}
-              />
-            )}
-          />
-        )}
-        {!props.isReadOnly && <RemoveButton onClick={props.onRemove} />}
+        <NodeConnectorEditor
+          isReadOnly={props.isNodeReadOnly || props.variable.isReadOnly}
+          control={props.control}
+          formField={props.formField}
+          index={props.index}
+          onUpdate={props.onUpdate}
+          onRemove={props.onRemove}
+        />
       </InputContainer>
-      {props.helperText && (
+      {props.variable.helperText && (
         <HelperTextContainer>
           <NodeFieldHelperTextWithStatus>
-            {props.helperText}
+            {props.variable.helperText}
           </NodeFieldHelperTextWithStatus>
         </HelperTextContainer>
       )}
@@ -123,13 +108,9 @@ const InputContainer = styled.div`
   gap: 5px;
 `;
 
-const NameInput = styled(Input)`
-  flex-grow: 1;
-`;
-
 const HelperTextContainer = styled.div`
   margin-top: 5px;
   margin-bottom: 10px;
 `;
 
-export default NodeBoxVariableEditableItem;
+export default NodeVariableEditableItem;
