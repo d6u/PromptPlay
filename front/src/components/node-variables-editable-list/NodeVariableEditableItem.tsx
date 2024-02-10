@@ -8,18 +8,18 @@ import { useOnElementResize } from 'generic-util/ResizeObserver';
 
 import NodeFieldHelperTextWithStatus from '../node-fields/NodeFieldHelperTextWithStatus';
 import DragHandle from './DragHandle';
-import NodeConnectorEditor from './NodeConnectorEditor';
-import { FieldValues, VariableConfig } from './types';
+import NodeVariableEditor from './NodeVariableEditor';
+import { VariableConfig, VariableFormValue } from './types';
 
 type Props = {
   isNodeReadOnly: boolean;
   isListSortable: boolean;
   variable: VariableConfig;
-  control: Control<FieldValues>;
-  formField: FieldArrayWithId<FieldValues, 'list', 'id'>;
+  control: Control<VariableFormValue>;
+  formField: FieldArrayWithId<VariableFormValue, 'list', 'id'>;
   index: number;
-  onUpdate: () => void;
   onRemove: () => void;
+  onUpdateTrigger: () => void;
   onHeightChange?: (height: number) => void;
 };
 
@@ -73,13 +73,13 @@ function NodeVariableEditableItem(props: Props) {
     >
       <InputContainer>
         {isSortableEnabledForThisRow && <DragHandle {...listeners} />}
-        <NodeConnectorEditor
+        <NodeVariableEditor
           isReadOnly={props.isNodeReadOnly || props.variable.isReadOnly}
           control={props.control}
           formField={props.formField}
           index={props.index}
-          onUpdate={props.onUpdate}
           onRemove={props.onRemove}
+          onUpdateTrigger={props.onUpdateTrigger}
         />
       </InputContainer>
       {props.variable.helperText && (

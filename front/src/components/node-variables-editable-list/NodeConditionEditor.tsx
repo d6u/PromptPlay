@@ -5,44 +5,53 @@ import { Control, Controller, FieldArrayWithId } from 'react-hook-form';
 import ReadonlyInput from 'components/generic/ReadonlyInput';
 import RemoveButton from 'components/generic/RemoveButton';
 
-import { FieldValues } from './types';
+import { ConditionFormValue } from './types';
 
 type Props = {
   isReadOnly: boolean;
-  control: Control<FieldValues>;
-  formField: FieldArrayWithId<FieldValues, 'list', 'id'>;
+  control: Control<ConditionFormValue>;
+  formField: FieldArrayWithId<ConditionFormValue, 'list', 'id'>;
   index: number;
-  onUpdate: () => void;
   onRemove: () => void;
+  onUpdateTrigger: () => void;
 };
 
-function NodeConnectorEditor(props: Props) {
+function NodeConditionEditor(props: Props) {
   if (props.isReadOnly) {
-    return <ReadonlyInput value={props.formField.value} />;
+    return <ReadonlyInput value={props.formField.expressionString} />;
   }
 
   return (
     <>
       <Controller
         control={props.control}
-        name={`list.${props.index}.value`}
+        name={`list.${props.index}.expressionString`}
         render={({ field }) => (
           <StyledInput
-            {...field}
             color="primary"
+            ref={field.ref}
+            name={field.name}
+            value={field.value}
+            disabled={field.disabled}
             onKeyUp={(e) => {
               if (e.key === 'Enter') {
-                props.onUpdate();
+                props.onUpdateTrigger();
               }
             }}
             onBlur={() => {
               field.onBlur();
-              props.onUpdate();
+              props.onUpdateTrigger();
             }}
+            onChange={field.onChange}
           />
         )}
       />
-      <RemoveButton onClick={props.onRemove} />
+      <RemoveButton
+        onClick={() => {
+          props.onRemove();
+          props.onUpdateTrigger();
+        }}
+      />
     </>
   );
 }
@@ -52,4 +61,4 @@ const StyledInput = styled(Input)`
   flex-grow: 1;
 `;
 
-export default NodeConnectorEditor;
+export default NodeConditionEditor;

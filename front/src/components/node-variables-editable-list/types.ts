@@ -1,13 +1,5 @@
 import { ReactNode } from 'react';
 
-export type FieldValues = {
-  list: ConnectorConfig[];
-};
-
-export type ConnectorConfig = Readonly<{
-  value: string;
-}>;
-
 export type VariableConfig = Readonly<{
   id: string;
   name: string;
@@ -20,5 +12,12 @@ export type ConditionConfig = Readonly<{
   expressionString: string;
   isReadOnly: boolean;
   isMatched: boolean;
-  helperMessage?: ReactNode;
 }>;
+
+export type VariableFormValue = {
+  list: VariableConfig[];
+};
+
+export type ConditionFormValue = {
+  list: ConditionConfig[];
+};

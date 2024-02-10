@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 import { A } from '@mobily/ts-belt';
-import { useCallback, useMemo } from 'react';
+import { useCallback } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { useUpdateNodeInternals } from 'reactflow';
 import invariant from 'tiny-invariant';
@@ -10,13 +10,13 @@ import { ConnectorID } from 'flow-models';
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 
 import NodeConditionEditableItem from './NodeConditionEditableItem';
-import { ConditionConfig, FieldValues } from './types';
+import { ConditionConfig, ConditionFormValue } from './types';
 
 type Props = {
   nodeId: string;
   isNodeReadOnly: boolean;
   isListSortable?: boolean;
-  conditions: ConditionConfig[];
+  conditionConfigs: ConditionConfig[];
 };
 
 function NodeConditionsEditableList(props: Props) {
@@ -25,20 +25,8 @@ function NodeConditionsEditableList(props: Props) {
   const updateVariable = useFlowStore((s) => s.updateVariable);
   const removeVariable = useFlowStore((s) => s.removeVariable);
 
-  const connectorConfigs = useMemo(() => {
-    return props.conditions.map((condition) => {
-      return {
-        id: condition.id,
-        // NOTE: Map expressionString to value, because the underlining form
-        // is generic
-        value: condition.expressionString,
-        isReadOnly: condition.isReadOnly,
-      };
-    });
-  }, [props.conditions]);
-
-  const { control, handleSubmit } = useForm<FieldValues>({
-    values: { list: connectorConfigs },
+  const { control, handleSubmit } = useForm<ConditionFormValue>({
+    values: { list: props.conditionConfigs },
   });
 
   // NOTE: field will contain all properties of the variable except
@@ -54,15 +42,15 @@ function NodeConditionsEditableList(props: Props) {
     handleSubmit((data) => {
       // NOTE: We don't handle add variable here
 
-      if (connectorConfigs.length === data.list.length) {
+      if (props.conditionConfigs.length === data.list.length) {
         // This is an update
 
         // NOTE: Elements from the first array, not existing in the
         // second array.
         const updatedVariables = A.difference(
           data.list,
-          connectorConfigs,
-        ) as typeof connectorConfigs;
+          props.conditionConfigs,
+        );
 
         for (const changedVariable of updatedVariables) {
           invariant(
@@ -70,7 +58,7 @@ function NodeConditionsEditableList(props: Props) {
             'Condition should not be readonly',
           );
           updateVariable(changedVariable.id as ConnectorID, {
-            expressionString: changedVariable.value,
+            expressionString: changedVariable.expressionString,
           });
         }
       } else {
@@ -80,9 +68,9 @@ function NodeConditionsEditableList(props: Props) {
         // second array. Note the order of the arguments is different from
         // above.
         const removedVariables = A.difference(
-          connectorConfigs,
+          props.conditionConfigs,
           data.list,
-        ) as typeof connectorConfigs;
+        );
 
         for (const removedVariable of removedVariables) {
           invariant(
@@ -97,12 +85,12 @@ function NodeConditionsEditableList(props: Props) {
       }
     })();
   }, [
+    props.conditionConfigs,
     props.nodeId,
-    connectorConfigs,
     handleSubmit,
     updateVariable,
-    removeVariable,
     updateNodeInternals,
+    removeVariable,
   ]);
 
   return (
@@ -113,15 +101,14 @@ function NodeConditionsEditableList(props: Props) {
             key={field.id}
             isNodeReadOnly={props.isNodeReadOnly}
             isListSortable={!!props.isListSortable}
-            condition={props.conditions[index]}
+            condition={props.conditionConfigs[index]}
             control={control}
             formField={field}
             index={index}
-            onUpdate={updateConditions}
             onRemove={() => {
               remove(index);
-              updateConditions();
             }}
+            onUpdateTrigger={updateConditions}
           />
         );
       })}

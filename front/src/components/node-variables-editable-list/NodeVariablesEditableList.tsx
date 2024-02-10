@@ -14,28 +14,27 @@ import {
 } from '@dnd-kit/sortable';
 import styled from '@emotion/styled';
 import { A } from '@mobily/ts-belt';
-import { useCallback, useMemo } from 'react';
-import { SubmitHandler, useFieldArray, useForm } from 'react-hook-form';
-import { useNodeId, useUpdateNodeInternals } from 'reactflow';
+import { useCallback } from 'react';
+import { useFieldArray, useForm } from 'react-hook-form';
+import { useUpdateNodeInternals } from 'reactflow';
 import invariant from 'tiny-invariant';
 
-import { ConnectorID, NodeID } from 'flow-models';
+import { ConnectorID } from 'flow-models';
 
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 
 import NodeVariableEditableItem from './NodeVariableEditableItem';
-import { FieldValues, VariableConfig } from './types';
+import { VariableConfig, VariableFormValue } from './types';
 
 type Props = {
   nodeId: string;
   isNodeReadOnly: boolean;
   isListSortable?: boolean;
-  variables: VariableConfig[];
+  variableConfigs: VariableConfig[];
   onRowHeightChange?: (index: number, height: number) => void;
 };
 
 function NodeVariablesEditableList(props: Props) {
-  const nodeId = useNodeId() as NodeID;
   const updateNodeInternals = useUpdateNodeInternals();
 
   const updateVariable = useFlowStore((s) => s.updateVariable);
@@ -48,22 +47,9 @@ function NodeVariablesEditableList(props: Props) {
     }),
   );
 
-  const connectorConfigs = useMemo(() => {
-    return props.variables.map((variable) => {
-      return {
-        id: variable.id,
-        // NOTE: Map name to value, because the underlining form
-        // is generic
-        value: variable.name,
-        isReadOnly: variable.isReadOnly,
-        helperText: variable.helperText,
-      };
-    });
-  }, [props.variables]);
-
-  const { control, handleSubmit } = useForm<FieldValues>({
+  const { control, handleSubmit } = useForm<VariableFormValue>({
     values: {
-      list: connectorConfigs,
+      list: props.variableConfigs,
     },
   });
 
@@ -76,19 +62,16 @@ function NodeVariablesEditableList(props: Props) {
     name: 'list',
   });
 
-  const updateVariables = useCallback<SubmitHandler<FieldValues>>(
-    (data) => {
+  const updateVariables = useCallback(() => {
+    handleSubmit((data) => {
       // NOTE: We don't handle add variable here
 
-      if (connectorConfigs.length === data.list.length) {
+      if (props.variableConfigs.length === data.list.length) {
         // This is an update
 
         // NOTE: Elements from the first array, not existing in the
         // second array.
-        const updatedVariables = A.difference(
-          data.list,
-          connectorConfigs,
-        ) as typeof connectorConfigs;
+        const updatedVariables = A.difference(data.list, props.variableConfigs);
 
         for (const changedVariable of updatedVariables) {
           invariant(
@@ -96,7 +79,7 @@ function NodeVariablesEditableList(props: Props) {
             'Variable should not be readonly',
           );
           updateVariable(changedVariable.id as ConnectorID, {
-            name: changedVariable.value,
+            name: changedVariable.name,
           });
         }
       } else {
@@ -105,10 +88,7 @@ function NodeVariablesEditableList(props: Props) {
         // NOTE: Elements from the first array, not existing in the
         // second array. Note the order of the arguments is different from
         // above.
-        const removedVariables = A.difference(
-          connectorConfigs,
-          data.list,
-        ) as typeof connectorConfigs;
+        const removedVariables = A.difference(props.variableConfigs, data.list);
 
         for (const removedVariable of removedVariables) {
           invariant(
@@ -119,17 +99,17 @@ function NodeVariablesEditableList(props: Props) {
         }
 
         // NOTE: Removing a variable will affect edge and handle positions.
-        updateNodeInternals(nodeId);
+        updateNodeInternals(props.nodeId);
       }
-    },
-    [
-      nodeId,
-      connectorConfigs,
-      updateVariable,
-      removeVariable,
-      updateNodeInternals,
-    ],
-  );
+    })();
+  }, [
+    props.nodeId,
+    props.variableConfigs,
+    handleSubmit,
+    updateVariable,
+    updateNodeInternals,
+    removeVariable,
+  ]);
 
   const onDragEnd = useCallback(
     (event: DragEndEvent) => {
@@ -145,27 +125,32 @@ function NodeVariablesEditableList(props: Props) {
       move(oldIndex, newIndex);
 
       handleSubmit((data) => {
-        const list = data.list as typeof connectorConfigs;
-
-        updateVariable(list[oldIndex].id as ConnectorID, {
+        updateVariable(data.list[oldIndex].id as ConnectorID, {
           // Which index to use for which variable is not important here
           // since data will contain variables in updated order.
           index: oldIndex,
         });
-        updateVariable(list[newIndex].id as ConnectorID, {
+        updateVariable(data.list[newIndex].id as ConnectorID, {
           index: newIndex,
         });
 
         // NOTE: Removing a variable will affect edge and handle positions.
-        updateNodeInternals(nodeId);
+        updateNodeInternals(props.nodeId);
       })();
     },
-    [nodeId, fields, handleSubmit, move, updateNodeInternals, updateVariable],
+    [
+      props.nodeId,
+      fields,
+      move,
+      handleSubmit,
+      updateVariable,
+      updateNodeInternals,
+    ],
   );
 
-  let editableItemStart = connectorConfigs.findIndex((f) => !f.isReadOnly);
+  let editableItemStart = props.variableConfigs.findIndex((c) => !c.isReadOnly);
   if (editableItemStart === -1) {
-    editableItemStart = connectorConfigs.length;
+    editableItemStart = props.variableConfigs.length;
   }
 
   return (
@@ -178,17 +163,14 @@ function NodeVariablesEditableList(props: Props) {
               key={field.id}
               isNodeReadOnly={props.isNodeReadOnly}
               isListSortable={false}
-              variable={props.variables[index]}
+              variable={props.variableConfigs[index]}
               control={control}
               formField={field}
               index={index}
-              onUpdate={() => {
-                handleSubmit(updateVariables)();
-              }}
               onRemove={() => {
                 remove(index);
-                handleSubmit(updateVariables)();
               }}
+              onUpdateTrigger={updateVariables}
               onHeightChange={(height) => {
                 props.onRowHeightChange?.(index, height);
               }}
@@ -209,7 +191,7 @@ function NodeVariablesEditableList(props: Props) {
           <div>
             {fields.slice(editableItemStart).map((field, index) => {
               index += editableItemStart;
-              const variable = props.variables[index];
+              const variable = props.variableConfigs[index];
 
               // NOTE: This is a workaround for the case when the variable is
               // removed
@@ -227,12 +209,10 @@ function NodeVariablesEditableList(props: Props) {
                   control={control}
                   formField={field}
                   index={index}
-                  onUpdate={() => {
-                    handleSubmit(updateVariables)();
-                  }}
+                  onUpdateTrigger={updateVariables}
                   onRemove={() => {
                     remove(index);
-                    handleSubmit(updateVariables)();
+                    updateVariables();
                   }}
                   onHeightChange={(height) => {
                     props.onRowHeightChange?.(index, height);
@@ -249,8 +229,6 @@ function NodeVariablesEditableList(props: Props) {
 
 const Container = styled.div`
   position: relative;
-  // padding-left: 10px;
-  // padding-right: 10px;
   margin-bottom: 10px;
 `;
 

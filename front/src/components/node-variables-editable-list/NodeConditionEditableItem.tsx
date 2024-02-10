@@ -2,19 +2,19 @@ import styled from '@emotion/styled';
 import { Control, FieldArrayWithId } from 'react-hook-form';
 
 import DragHandle from './DragHandle';
-import NodeConnectorEditor from './NodeConnectorEditor';
+import NodeConditionEditor from './NodeConditionEditor';
 import NodeConnectorResultDisplay from './NodeConnectorResultDisplay';
-import { ConditionConfig, FieldValues } from './types';
+import { ConditionConfig, ConditionFormValue } from './types';
 
 type Props = {
   isNodeReadOnly: boolean;
   isListSortable: boolean;
   condition: ConditionConfig;
-  control: Control<FieldValues>;
-  formField: FieldArrayWithId<FieldValues, 'list', 'id'>;
+  control: Control<ConditionFormValue>;
+  formField: FieldArrayWithId<ConditionFormValue, 'list', 'id'>;
   index: number;
-  onUpdate: () => void;
   onRemove: () => void;
+  onUpdateTrigger: () => void;
   onClickResult?: () => void;
 };
 
@@ -29,13 +29,13 @@ function NodeConditionEditableItem(props: Props) {
       <DragHandle />
       <EditorContainer>
         <EditorRow>
-          <NodeConnectorEditor
+          <NodeConditionEditor
             isReadOnly={props.isNodeReadOnly || props.condition.isReadOnly}
             control={props.control}
             formField={props.formField}
             index={props.index}
-            onUpdate={props.onUpdate}
             onRemove={props.onRemove}
+            onUpdateTrigger={props.onUpdateTrigger}
           />
         </EditorRow>
         <StyledNodeConnectorResultDisplay
