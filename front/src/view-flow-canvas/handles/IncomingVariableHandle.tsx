@@ -2,8 +2,9 @@ import styled from '@emotion/styled';
 import { ComponentProps } from 'react';
 import { Position } from 'reactflow';
 
+import { CONNECTOR_RESULT_DISPLAY_HEIGHT } from 'components/node-variables-editable-list/constants';
+
 import { BACKDROP_PADDING, HEADER_SECTION_HEIGHT } from '../constants';
-import { VARIABLE_LABEL_HEIGHT } from '../node-box/NodeBoxOutgoingVariableBlock';
 import { BaseHandle, HANDLE_HEIGHT, HANDLE_WIDTH } from './common';
 
 function IncomingVariableHandle(
@@ -36,7 +37,7 @@ const IncomingConnectorHandleImpl = styled(BaseHandle)`
 `;
 
 function calcTop(index: number, inputVariableBlockHeightList: number[]) {
-  const CENTER = VARIABLE_LABEL_HEIGHT / 2 - HANDLE_HEIGHT / 2;
+  const CENTER = CONNECTOR_RESULT_DISPLAY_HEIGHT / 2 - HANDLE_HEIGHT / 2;
 
   return (
     BACKDROP_PADDING +

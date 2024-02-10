@@ -29,6 +29,9 @@ importers:
       '@dnd-kit/sortable':
         specifier: ^7.0.2
         version: 7.0.2(@dnd-kit/core@6.1.0)(react@18.2.0)
+      '@dnd-kit/utilities':
+        specifier: ^3.2.2
+        version: 3.2.2(react@18.2.0)
       '@emotion/react':
         specifier: ^11.11.1
         version: 11.11.1(@types/react@18.2.45)(react@18.2.0)

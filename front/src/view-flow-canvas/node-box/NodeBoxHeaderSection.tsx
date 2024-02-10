@@ -1,5 +1,6 @@
 import styled from '@emotion/styled';
 
+import RemoveButton from 'components/generic/RemoveButton';
 import IconThreeDots from 'icons/IconThreeDots';
 
 import {
@@ -10,7 +11,6 @@ import {
   NODE_BOX_HEADER_SUB_SECTION_PADDING_MARGIN_BETWEEN,
 } from '../constants';
 import NodeBoxAddConnectorButton from './NodeBoxAddConnectorButton';
-import NodeBoxCommonRemoveButton from './NodeBoxCommonRemoveButton';
 import NodeBoxGearButton from './NodeBoxIconGear';
 
 type Props = {
@@ -32,7 +32,7 @@ function NodeBoxHeaderSection(props: Props) {
         </TitleContainer>
         {!props.isReadOnly && (
           <RemoveButtonContainer>
-            <NodeBoxCommonRemoveButton onClick={props.onClickRemove} />
+            <RemoveButton onClick={props.onClickRemove} />
           </RemoveButtonContainer>
         )}
       </TitleSection>

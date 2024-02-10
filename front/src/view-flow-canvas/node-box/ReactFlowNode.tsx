@@ -12,21 +12,19 @@ import {
 
 import NodeAccountLevelFields from 'components/node-fields/NodeAccountLevelFields';
 import NodeInstanceLevelFields from 'components/node-fields/NodeInstanceLevelFields';
+import NodeVariablesEditableList from 'components/node-variables-editable-list/NodeVariablesEditableList';
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 import {
   selectConditionTarget,
   selectVariables,
 } from 'state-flow/util/state-utils';
 
+import NodeConnectorResultDisplay from 'components/node-variables-editable-list/NodeConnectorResultDisplay';
 import IncomingConditionHandle from '../handles/IncomingConditionHandle';
 import IncomingVariableHandle from '../handles/IncomingVariableHandle';
 import OutgoingVariableHandle from '../handles/OutgoingVariableHandle';
 import NodeBox from './NodeBox';
 import NodeBoxHeaderSection from './NodeBoxHeaderSection';
-import NodeBoxIncomingVariablesSection, {
-  type DestConnector,
-} from './NodeBoxIncomingVariablesSection';
-import NodeBoxOutgoingVariableBlock from './NodeBoxOutgoingVariableBlock';
 import NodeBoxSection from './NodeBoxSection';
 
 export type SrcConnector = {
@@ -68,31 +66,9 @@ function ReactFlowNode(props: Props) {
     return selectConditionTarget(nodeId, variablesDict);
   }, [nodeId, variablesDict]);
 
-  const destConnectors = useMemo(() => {
-    const inputArray = selectVariables(
-      nodeId,
-      ConnectorType.NodeInput,
-      variablesDict,
-    );
-
-    return inputArray.map<DestConnector>((input, index) => {
-      const incomingVariableConfig =
-        nodeDefinition.fixedIncomingVariables?.[input.name];
-
-      return {
-        id: input.id,
-        name: input.name,
-        isReadOnly:
-          props.isNodeConfigReadOnly || incomingVariableConfig != null,
-        helperMessage: incomingVariableConfig?.helperMessage,
-      };
-    });
-  }, [
-    nodeId,
-    variablesDict,
-    nodeDefinition.fixedIncomingVariables,
-    props.isNodeConfigReadOnly,
-  ]);
+  const incomingVariables = useMemo(() => {
+    return selectVariables(nodeId, ConnectorType.NodeInput, variablesDict);
+  }, [nodeId, variablesDict]);
 
   const srcConnectors = useMemo(() => {
     const outputVariables = selectVariables(
@@ -133,17 +109,17 @@ function ReactFlowNode(props: Props) {
   // SECTION: Manage height of each variable input box
   const [inputVariableBlockHeightList, setInputVariableBlockHeightList] =
     useState<number[]>(() => {
-      return A.make(destConnectors.length, 0);
+      return A.make(incomingVariables.length, 0);
     });
 
   useEffect(() => {
-    if (destConnectors.length > inputVariableBlockHeightList.length) {
+    if (incomingVariables.length > inputVariableBlockHeightList.length) {
       // NOTE: Increase the length of destConnectorInputHeightArr when needed
       setInputVariableBlockHeightList((state) => {
-        return state.concat(A.make(destConnectors.length - state.length, 0));
+        return state.concat(A.make(incomingVariables.length - state.length, 0));
       });
     }
-  }, [destConnectors.length, inputVariableBlockHeightList.length]);
+  }, [incomingVariables.length, inputVariableBlockHeightList.length]);
 
   useEffect(() => {
     updateNodeInternals(nodeId);
@@ -155,7 +131,7 @@ function ReactFlowNode(props: Props) {
     children = props.children;
   } else {
     children = (
-      <NodeFieldsContainer>
+      <GenericContainer>
         {nodeDefinition.accountLevelConfigFieldDefinitions && (
           <NodeAccountLevelFields
             isNodeConfigReadOnly={props.isNodeConfigReadOnly}
@@ -172,14 +148,14 @@ function ReactFlowNode(props: Props) {
           }
           nodeConfig={props.nodeConfig}
         />
-      </NodeFieldsContainer>
+      </GenericContainer>
     );
   }
 
   return (
     <>
       {conditionTarget && <IncomingConditionHandle id={conditionTarget.id} />}
-      {destConnectors.map((connector, i) => {
+      {incomingVariables.map((connector, i) => {
         return (
           <IncomingVariableHandle
             key={connector.id}
@@ -206,25 +182,42 @@ function ReactFlowNode(props: Props) {
           }}
           showAddVariableButton={!!nodeDefinition.canUserAddIncomingVariables}
           onClickAddVariableButton={() => {
-            addVariable(nodeId, ConnectorType.NodeInput, destConnectors.length);
+            addVariable(
+              nodeId,
+              ConnectorType.NodeInput,
+              incomingVariables.length,
+            );
             updateNodeInternals(nodeId);
           }}
         />
-        <NodeBoxIncomingVariablesSection
-          destConnectors={destConnectors}
-          onRowHeightChange={(index, height) => {
-            setInputVariableBlockHeightList((arr) => {
-              return A.updateAt(arr, index, () => height);
-            });
-          }}
-        />
+        <GenericContainer>
+          <NodeVariablesEditableList
+            nodeId={nodeId}
+            isNodeReadOnly={props.isNodeConfigReadOnly}
+            variableConfigs={incomingVariables.map((variable) => {
+              const incomingVariableConfig =
+                nodeDefinition.fixedIncomingVariables?.[variable.name];
+
+              return {
+                id: variable.id,
+                name: variable.name,
+                isReadOnly: incomingVariableConfig != null,
+                helperMessage: incomingVariableConfig?.helperMessage,
+              };
+            })}
+            onRowHeightChange={(index, height) => {
+              setInputVariableBlockHeightList((arr) => {
+                return A.updateAt(arr, index, () => height);
+              });
+            }}
+          />
+        </GenericContainer>
         {children}
         <NodeBoxSection>
           {srcConnectors.map((connector) => (
-            <NodeBoxOutgoingVariableBlock
+            <NodeConnectorResultDisplay
               key={connector.id}
-              id={connector.id}
-              name={connector.name}
+              label={connector.name}
               value={connector.value}
               onClick={() => {
                 setCanvasLeftPaneIsOpen(true);
@@ -246,9 +239,9 @@ function ReactFlowNode(props: Props) {
   );
 }
 
-const NodeFieldsContainer = styled.div`
-  margin-left: 10px;
-  margin-right: 10px;
+const GenericContainer = styled.div`
+  padding-left: 10px;
+  padding-right: 10px;
 `;
 
 export default ReactFlowNode;

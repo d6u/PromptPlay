@@ -1,3 +1,4 @@
+import styled from '@emotion/styled';
 import { Checkbox, FormControl, FormHelperText, FormLabel } from '@mui/joy';
 import { useContext, useMemo } from 'react';
 import { useNodeId, useUpdateNodeInternals } from 'reactflow';
@@ -5,6 +6,9 @@ import invariant from 'tiny-invariant';
 
 import { ConditionResult, ConnectorType, NodeID, NodeType } from 'flow-models';
 
+import NodeConditionsEditableList from 'components/node-variables-editable-list/NodeConditionsEditableList';
+import NodeConnectorResultDisplay from 'components/node-variables-editable-list/NodeConnectorResultDisplay';
+import NodeVariablesEditableList from 'components/node-variables-editable-list/NodeVariablesEditableList';
 import RouteFlowContext from 'state-flow/context/FlowRouteContext';
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 import {
@@ -19,13 +23,10 @@ import OutgoingConditionHandle from '../handles/OutgoingConditionHandle';
 import NodeBox from '../node-box/NodeBox';
 import NodeBoxAddConnectorButton from '../node-box/NodeBoxAddConnectorButton';
 import NodeBoxHeaderSection from '../node-box/NodeBoxHeaderSection';
-import NodeBoxIncomingVariablesSection from '../node-box/NodeBoxIncomingVariablesSection';
-import NodeBoxOutgoingConnectorBlock from '../node-box/NodeBoxOutgoingConnectorBlock';
-import NodeBoxOutgoingVariableBlock from '../node-box/NodeBoxOutgoingVariableBlock';
 import NodeBoxSection from '../node-box/NodeBoxSection';
 import NodeBoxSmallSection from '../node-box/NodeBoxSmallSection';
 
-export default function ConditionNode() {
+function ConditionNode() {
   const nodeId = useNodeId() as NodeID;
   const updateNodeInternals = useUpdateNodeInternals();
 
@@ -42,8 +43,14 @@ export default function ConditionNode() {
   const removeNode = useFlowStore((s) => s.removeNode);
   const updateNodeConfig = useFlowStore((s) => s.updateNodeConfig);
   const addVariable = useFlowStore((s) => s.addVariable);
-  const updateVariable = useFlowStore((s) => s.updateVariable);
-  const removeVariable = useFlowStore((s) => s.removeVariable);
+
+  // ANCHOR: Left Panel
+  const setCanvasLeftPaneIsOpen = useFlowStore(
+    (s) => s.setCanvasLeftPaneIsOpen,
+  );
+  const setCanvasLeftPaneSelectedNodeId = useFlowStore(
+    (s) => s.setCanvasLeftPaneSelectedNodeId,
+  );
 
   // !SECTION
 
@@ -59,7 +66,7 @@ export default function ConditionNode() {
     return selectConditionTarget(nodeId, connectorMap);
   }, [nodeId, connectorMap]);
 
-  const nodeInputs = useMemo(() => {
+  const incomingVariables = useMemo(() => {
     return selectVariables(nodeId, ConnectorType.NodeInput, connectorMap);
   }, [nodeId, connectorMap]);
 
@@ -82,7 +89,7 @@ export default function ConditionNode() {
   return (
     <>
       <IncomingConditionHandle id={conditionTarget.id} />
-      {nodeInputs.map((flowInput, i) => (
+      {incomingVariables.map((flowInput, i) => (
         <IncomingVariableHandle key={flowInput.id} id={flowInput.id} />
       ))}
       <NodeBox
@@ -97,17 +104,22 @@ export default function ConditionNode() {
             removeNode(nodeId);
           }}
           onClickGearButton={() => {
-            // TODO: Implement
+            setCanvasLeftPaneIsOpen(true);
+            setCanvasLeftPaneSelectedNodeId(nodeId);
           }}
           showAddVariableButton={false}
         />
-        <NodeBoxIncomingVariablesSection
-          destConnectors={nodeInputs.map((input) => ({
-            id: input.id,
-            name: input.name,
-            isReadOnly: true,
-          }))}
-        />
+        <GenericContainer>
+          <NodeVariablesEditableList
+            nodeId={nodeId}
+            isNodeReadOnly={!isCurrentUserOwner}
+            variableConfigs={incomingVariables.map((variable) => ({
+              id: variable.id,
+              name: variable.name,
+              isReadOnly: true,
+            }))}
+          />
+        </GenericContainer>
         <NodeBoxSection>
           <FormControl>
             <FormLabel>Stop at the first match</FormLabel>
@@ -147,37 +159,36 @@ export default function ConditionNode() {
             />
           )}
         </NodeBoxSmallSection>
-        {normalConditions.map((condition, i) => (
-          <NodeBoxSection key={condition.id}>
-            <NodeBoxOutgoingConnectorBlock
-              name={condition.expressionString}
-              isReadOnly={!isCurrentUserOwner}
-              onConfirmNameChange={(expressionString) => {
-                updateVariable(condition.id, { expressionString });
-              }}
-              onRemove={() => {
-                removeVariable(condition.id);
-                updateNodeInternals(nodeId);
-              }}
-            />
-            <NodeBoxOutgoingVariableBlock
-              id={defaultCaseCondition.id}
-              name="is matched"
-              value={
+        <GenericContainer>
+          <NodeConditionsEditableList
+            nodeId={nodeId}
+            isNodeReadOnly={!isCurrentUserOwner}
+            conditionConfigs={normalConditions.map((condition) => {
+              const isMatched =
                 (
                   connectorResultMap[condition.id] as
                     | ConditionResult
                     | undefined
-                )?.isConditionMatched
-              }
-              style={{ marginTop: '5px' }}
-            />
-          </NodeBoxSection>
-        ))}
+                )?.isConditionMatched ?? false;
+
+              return {
+                ...condition,
+                isReadOnly: false,
+                isMatched,
+              };
+            })}
+          />
+        </GenericContainer>
         <NodeBoxSection>
-          <NodeBoxOutgoingVariableBlock
-            id={defaultCaseCondition.id}
-            name="Default case"
+          <NodeConnectorResultDisplay
+            label="Default case"
+            value={
+              (
+                connectorResultMap[defaultCaseCondition.id] as
+                  | ConditionResult
+                  | undefined
+              )?.isConditionMatched ?? false
+            }
           />
           <FormHelperText>
             The default case is matched when no other condition have matched.
@@ -200,3 +211,10 @@ export default function ConditionNode() {
     </>
   );
 }
+
+const GenericContainer = styled.div`
+  padding-left: 10px;
+  padding-right: 10px;
+`;
+
+export default ConditionNode;

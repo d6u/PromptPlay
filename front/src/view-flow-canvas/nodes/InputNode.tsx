@@ -9,6 +9,7 @@ import {
   NodeType,
 } from 'flow-models';
 
+import NodeVariablesEditableList from 'components/node-variables-editable-list/NodeVariablesEditableList';
 import RouteFlowContext from 'state-flow/context/FlowRouteContext';
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 import { CanvasRightPanelType } from 'state-flow/types';
@@ -17,26 +18,22 @@ import { selectVariables } from 'state-flow/util/state-utils';
 import OutgoingVariableHandle from '../handles/OutgoingVariableHandle';
 import NodeBox from '../node-box/NodeBox';
 import NodeBoxHeaderSection from '../node-box/NodeBoxHeaderSection';
-import NodeBoxOutgoingConnectorBlock from '../node-box/NodeBoxOutgoingConnectorBlock';
 
-export default function InputNode() {
-  const nodeId = useNodeId() as NodeID;
-
+function InputNode() {
   const { isCurrentUserOwner } = useContext(RouteFlowContext);
 
-  // SECTION: Select state from store
+  const nodeId = useNodeId() as NodeID;
+  const updateNodeInternals = useUpdateNodeInternals();
 
+  // SECTION: Select state from store
   const setCanvasRightPaneType = useFlowStore((s) => s.setCanvasRightPaneType);
   const nodeConfigsDict = useFlowStore((s) => s.nodeConfigsDict);
   const variablesDict = useFlowStore((s) => s.variablesDict);
   const removeNode = useFlowStore((s) => s.removeNode);
   const addVariable = useFlowStore((s) => s.addVariable);
-  const updateVariable = useFlowStore((s) => s.updateVariable);
-  const removeVariable = useFlowStore((s) => s.removeVariable);
-
   // !SECTION
 
-  const flowInputs = useMemo(() => {
+  const flowInputVariables = useMemo(() => {
     return selectVariables(nodeId, ConnectorType.FlowInput, variablesDict);
   }, [nodeId, variablesDict]);
 
@@ -44,8 +41,6 @@ export default function InputNode() {
     () => nodeConfigsDict[nodeId] as InputNodeInstanceLevelConfig | undefined,
     [nodeConfigsDict, nodeId],
   );
-
-  const updateNodeInternals = useUpdateNodeInternals();
 
   if (!nodeConfig) {
     return null;
@@ -65,41 +60,41 @@ export default function InputNode() {
           }}
           showAddVariableButton={true}
           onClickAddVariableButton={() => {
-            addVariable(nodeId, ConnectorType.FlowInput, flowInputs.length);
+            addVariable(
+              nodeId,
+              ConnectorType.FlowInput,
+              flowInputVariables.length,
+            );
             updateNodeInternals(nodeId);
           }}
         />
-        <NodeBoxFlowInputVariablesSection>
-          {flowInputs.map((flowInput, i) => (
-            <NodeBoxOutgoingConnectorBlock
-              key={flowInput.id}
-              name={flowInput.name}
-              isReadOnly={!isCurrentUserOwner}
-              onConfirmNameChange={(name) => {
-                updateVariable(flowInput.id, { name });
-              }}
-              onRemove={() => {
-                removeVariable(flowInput.id);
-                updateNodeInternals(nodeId);
-              }}
-            />
-          ))}
-        </NodeBoxFlowInputVariablesSection>
+        <GenericContainer>
+          <NodeVariablesEditableList
+            nodeId={nodeId}
+            isNodeReadOnly={!isCurrentUserOwner}
+            variableConfigs={flowInputVariables.map((variable) => ({
+              id: variable.id,
+              name: variable.name,
+              isReadOnly: false,
+            }))}
+          />
+        </GenericContainer>
       </NodeBox>
-      {flowInputs.map((flowInput, i) => (
+      {flowInputVariables.map((flowInput, i) => (
         <OutgoingVariableHandle
           key={flowInput.id}
           id={flowInput.id}
           index={i}
-          totalVariableCount={flowInputs.length}
+          totalVariableCount={flowInputVariables.length}
         />
       ))}
     </>
   );
 }
 
-const NodeBoxFlowInputVariablesSection = styled.div`
+const GenericContainer = styled.div`
   padding-left: 10px;
   padding-right: 10px;
-  margin-bottom: 10px;
 `;
+
+export default InputNode;
