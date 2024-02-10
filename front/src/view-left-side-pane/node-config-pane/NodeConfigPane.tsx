@@ -53,6 +53,7 @@ function NodeConfigPane() {
               id: variable.id,
               name: variable.name,
               isReadOnly: !isCurrentUserOwner || incomingVariableConfig != null,
+              helperMessage: incomingVariableConfig?.helperMessage,
             };
           },
         );
@@ -87,7 +88,10 @@ function NodeConfigPane() {
               {nodeDefinition.label} Config
             </HeaderSectionHeader>
           </HeaderSection>
-          <NodeBoxVariablesEditableList variables={incomingVariables} />
+          <NodeBoxVariablesEditableList
+            variables={incomingVariables}
+            isSortable
+          />
           <NodeConfigPaneNodeFields
             nodeConfig={nodeConfig}
             isNodeConfigReadOnly={!isCurrentUserOwner}

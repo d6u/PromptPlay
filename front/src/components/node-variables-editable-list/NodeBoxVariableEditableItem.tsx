@@ -1,3 +1,5 @@
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import styled from '@emotion/styled';
 import { Input } from '@mui/joy';
 import { ReactNode, useCallback, useRef } from 'react';
@@ -12,6 +14,7 @@ import { FormValue } from './types';
 
 type Props = {
   isReadOnly: boolean;
+  isSortable: boolean;
   control: Control<FormValue>;
   field: FieldArrayWithId<FormValue, 'variables', 'id'>;
   index: number;
@@ -24,7 +27,15 @@ type Props = {
 function NodeBoxVariableEditableItem(props: Props) {
   const { onHeightChange } = props;
 
-  const containerRef = useRef<HTMLDivElement>(null);
+  const isSortableEnabledForThisRow = !props.isReadOnly && props.isSortable;
+
+  const { attributes, listeners, setNodeRef, transform, transition } =
+    useSortable({
+      id: props.field.id,
+      disabled: !isSortableEnabledForThisRow,
+    });
+
+  const containerRef = useRef<HTMLDivElement | null>(null);
   const prevHeightRef = useRef<number>(0);
 
   // TODO: Don't attach observer when onHeightChange is not provided
@@ -44,9 +55,22 @@ function NodeBoxVariableEditableItem(props: Props) {
     ),
   );
 
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
   return (
-    <Container ref={containerRef}>
+    <Container
+      ref={(ref) => {
+        setNodeRef(ref);
+        containerRef.current = ref;
+      }}
+      style={style}
+      {...attributes}
+    >
       <InputContainer>
+        {isSortableEnabledForThisRow && <DragHandler {...listeners} />}
         {props.isReadOnly ? (
           <ReadonlyInput value={props.field.name} />
         ) : (
@@ -90,6 +114,7 @@ function NodeBoxVariableEditableItem(props: Props) {
 export const ROW_MARGIN_TOP = 5;
 
 const Container = styled.div`
+  position: relative;
   margin-top: ${ROW_MARGIN_TOP}px;
   margin-bottom: ${ROW_MARGIN_TOP}px;
 `;
@@ -97,6 +122,11 @@ const Container = styled.div`
 const InputContainer = styled.div`
   display: flex;
   gap: 5px;
+`;
+
+const DragHandler = styled.div`
+  width: 10px;
+  background-color: lightblue;
 `;
 
 const NameInput = styled(Input)`
