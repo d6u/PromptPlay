@@ -10,20 +10,18 @@ import {
   getNodeDefinitionForNodeTypeName,
 } from 'flow-models';
 
-import NodeBoxVariablesEditableList from 'components/node-variables-editable-list/NodeBoxVariablesEditableList';
 import NodeConditionsEditableList from 'components/node-variables-editable-list/NodeConditionsEditableList';
 import NodeConnectorResultDisplay from 'components/node-variables-editable-list/NodeConnectorResultDisplay';
-import { ConnectorConfig } from 'components/node-variables-editable-list/types';
+import NodeVariablesEditableList from 'components/node-variables-editable-list/NodeVariablesEditableList';
 import HeaderSection from 'components/side-pane/SidePaneHeaderSection';
 import HeaderSectionHeader from 'components/side-pane/SidePaneHeaderSectionHeader';
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
-import { selectConditions } from 'state-flow/util/state-utils';
+import { selectConditions, selectVariables } from 'state-flow/util/state-utils';
 import NodeBoxAddConnectorButton from 'view-flow-canvas/node-box/NodeBoxAddConnectorButton';
 
 type Props = {
   isReadOnly: boolean;
   nodeConfig: ConditionNodeInstanceLevelConfig;
-  incomingVariables: ConnectorConfig[];
 };
 
 function ConditionNodeConfigPanel(props: Props) {
@@ -40,6 +38,14 @@ function ConditionNodeConfigPanel(props: Props) {
     return getNodeDefinitionForNodeTypeName(props.nodeConfig.type);
   }, [props.nodeConfig.type]);
 
+  const incomingVariables = useMemo(() => {
+    return selectVariables(
+      props.nodeConfig.nodeId,
+      ConnectorType.NodeInput,
+      connectorMap,
+    );
+  }, [connectorMap, props.nodeConfig.nodeId]);
+
   const conditions = useMemo(() => {
     return selectConditions(props.nodeConfig.nodeId, connectorMap);
   }, [props.nodeConfig.nodeId, connectorMap]);
@@ -52,33 +58,33 @@ function ConditionNodeConfigPanel(props: Props) {
       <HeaderSection>
         <HeaderSectionHeader>{nodeDefinition.label} Config</HeaderSectionHeader>
       </HeaderSection>
-      <NodeBoxVariablesEditableList
-        variables={props.incomingVariables.map((variable) => {
-          return {
-            ...variable,
-            isReadOnly: true,
-          };
+      <NodeVariablesEditableList
+        nodeId={props.nodeConfig.nodeId}
+        isNodeReadOnly={props.isReadOnly}
+        variableConfigs={incomingVariables.map((variable) => {
+          return { id: variable.id, name: variable.name, isReadOnly: false };
         })}
-        isSortable
       />
-      <FormControl>
-        <FormLabel>Stop at the first match</FormLabel>
-        <Checkbox
-          disabled={props.isReadOnly}
-          size="sm"
-          variant="outlined"
-          checked={props.nodeConfig.stopAtTheFirstMatch}
-          onChange={(event) => {
-            updateNodeConfig(props.nodeConfig.nodeId, {
-              stopAtTheFirstMatch: event.target.checked,
-            });
-          }}
-        />
-      </FormControl>
-      <FormHelperText>
-        In either case, the default case will be matched if no condition has
-        matched.
-      </FormHelperText>
+      <Section>
+        <FormControl>
+          <FormLabel>Stop at the first match</FormLabel>
+          <Checkbox
+            disabled={props.isReadOnly}
+            size="sm"
+            variant="outlined"
+            checked={props.nodeConfig.stopAtTheFirstMatch}
+            onChange={(event) => {
+              updateNodeConfig(props.nodeConfig.nodeId, {
+                stopAtTheFirstMatch: event.target.checked,
+              });
+            }}
+          />
+        </FormControl>
+        <FormHelperText>
+          In either case, the default case will be matched if no condition has
+          matched.
+        </FormHelperText>
+      </Section>
       <Section>
         {!props.isReadOnly && (
           <NodeBoxAddConnectorButton
@@ -95,10 +101,10 @@ function ConditionNodeConfigPanel(props: Props) {
         )}
       </Section>
       <NodeConditionsEditableList
+        nodeId={props.nodeConfig.nodeId}
         isNodeReadOnly={props.isReadOnly}
         isListSortable
-        nodeId={props.nodeConfig.nodeId}
-        conditions={normalConditions.map((condition) => {
+        conditionConfigs={normalConditions.map((condition) => {
           const isMatched =
             (connectorResultMap[condition.id] as ConditionResult | undefined)
               ?.isConditionMatched ?? false;

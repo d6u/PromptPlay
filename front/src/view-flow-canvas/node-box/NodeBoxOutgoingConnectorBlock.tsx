@@ -28,7 +28,7 @@ type Props =
       name: string;
     };
 
-export default function NodeBoxOutgoingConnectorBlock(props: Props) {
+function NodeBoxOutgoingConnectorBlock(props: Props) {
   const [name, setName] = useState(props.name);
 
   return (
@@ -64,3 +64,5 @@ export default function NodeBoxOutgoingConnectorBlock(props: Props) {
     </Container>
   );
 }
+
+export default NodeBoxOutgoingConnectorBlock;

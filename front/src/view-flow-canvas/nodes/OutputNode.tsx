@@ -10,8 +10,8 @@ import {
   OutputNodeInstanceLevelConfig,
 } from 'flow-models';
 
-import { ROW_MARGIN_TOP } from 'components/node-variables-editable-list/NodeBoxVariableEditableItem';
-import NodeBoxVariablesEditableList from 'components/node-variables-editable-list/NodeBoxVariablesEditableList';
+import { ROW_MARGIN_TOP } from 'components/node-variables-editable-list/NodeVariableEditableItem';
+import NodeVariablesEditableList from 'components/node-variables-editable-list/NodeVariablesEditableList';
 import RouteFlowContext from 'state-flow/context/FlowRouteContext';
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 import { CanvasRightPanelType } from 'state-flow/types';
@@ -78,8 +78,8 @@ function OutputNode() {
           }}
         />
         <GenericContainer>
-          <NodeBoxVariablesEditableList
-            variables={flowOutputs.map((output) => ({
+          <NodeVariablesEditableList
+            variableConfigs={flowOutputs.map((output) => ({
               id: output.id,
               name: output.name,
               isReadOnly: !isCurrentUserOwner,

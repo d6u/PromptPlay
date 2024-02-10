@@ -2,7 +2,7 @@ import styled from '@emotion/styled';
 import { ComponentProps } from 'react';
 import { Position } from 'reactflow';
 
-import { ROW_MARGIN_TOP } from 'components/node-variables-editable-list/NodeBoxVariableEditableItem';
+import { ROW_MARGIN_TOP } from 'components/node-variables-editable-list/NodeVariableEditableItem';
 
 import {
   BACKDROP_PADDING,

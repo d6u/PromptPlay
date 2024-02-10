@@ -6,7 +6,9 @@ import invariant from 'tiny-invariant';
 
 import { ConditionResult, ConnectorType, NodeID, NodeType } from 'flow-models';
 
-import NodeBoxVariablesEditableList from 'components/node-variables-editable-list/NodeBoxVariablesEditableList';
+import NodeConditionsEditableList from 'components/node-variables-editable-list/NodeConditionsEditableList';
+import NodeConnectorResultDisplay from 'components/node-variables-editable-list/NodeConnectorResultDisplay';
+import NodeVariablesEditableList from 'components/node-variables-editable-list/NodeVariablesEditableList';
 import RouteFlowContext from 'state-flow/context/FlowRouteContext';
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 import {
@@ -21,8 +23,6 @@ import OutgoingConditionHandle from '../handles/OutgoingConditionHandle';
 import NodeBox from '../node-box/NodeBox';
 import NodeBoxAddConnectorButton from '../node-box/NodeBoxAddConnectorButton';
 import NodeBoxHeaderSection from '../node-box/NodeBoxHeaderSection';
-import NodeBoxOutgoingConnectorBlock from '../node-box/NodeBoxOutgoingConnectorBlock';
-import NodeBoxOutgoingVariableBlock from '../node-box/NodeBoxOutgoingVariableBlock';
 import NodeBoxSection from '../node-box/NodeBoxSection';
 import NodeBoxSmallSection from '../node-box/NodeBoxSmallSection';
 
@@ -43,8 +43,6 @@ function ConditionNode() {
   const removeNode = useFlowStore((s) => s.removeNode);
   const updateNodeConfig = useFlowStore((s) => s.updateNodeConfig);
   const addVariable = useFlowStore((s) => s.addVariable);
-  const updateVariable = useFlowStore((s) => s.updateVariable);
-  const removeVariable = useFlowStore((s) => s.removeVariable);
 
   // ANCHOR: Left Panel
   const setCanvasLeftPaneIsOpen = useFlowStore(
@@ -112,8 +110,8 @@ function ConditionNode() {
           showAddVariableButton={false}
         />
         <GenericContainer>
-          <NodeBoxVariablesEditableList
-            variables={incomingVariables.map((variable) => ({
+          <NodeVariablesEditableList
+            variableConfigs={incomingVariables.map((variable) => ({
               id: variable.id,
               name: variable.name,
               isReadOnly: true,
@@ -159,37 +157,36 @@ function ConditionNode() {
             />
           )}
         </NodeBoxSmallSection>
-        {normalConditions.map((condition, i) => (
-          <NodeBoxSection key={condition.id}>
-            <NodeBoxOutgoingConnectorBlock
-              name={condition.expressionString}
-              isReadOnly={!isCurrentUserOwner}
-              onConfirmNameChange={(expressionString) => {
-                updateVariable(condition.id, { expressionString });
-              }}
-              onRemove={() => {
-                removeVariable(condition.id);
-                updateNodeInternals(nodeId);
-              }}
-            />
-            <NodeBoxOutgoingVariableBlock
-              id={defaultCaseCondition.id}
-              name="is matched"
-              value={
+        <GenericContainer>
+          <NodeConditionsEditableList
+            nodeId={nodeId}
+            isNodeReadOnly={!isCurrentUserOwner}
+            conditionConfigs={normalConditions.map((condition) => {
+              const isMatched =
                 (
                   connectorResultMap[condition.id] as
                     | ConditionResult
                     | undefined
-                )?.isConditionMatched
-              }
-              style={{ marginTop: '5px' }}
-            />
-          </NodeBoxSection>
-        ))}
+                )?.isConditionMatched ?? false;
+
+              return {
+                ...condition,
+                isReadOnly: false,
+                isMatched,
+              };
+            })}
+          />
+        </GenericContainer>
         <NodeBoxSection>
-          <NodeBoxOutgoingVariableBlock
-            id={defaultCaseCondition.id}
-            name="Default case"
+          <NodeConnectorResultDisplay
+            label="Default case"
+            value={
+              (
+                connectorResultMap[defaultCaseCondition.id] as
+                  | ConditionResult
+                  | undefined
+              )?.isConditionMatched ?? false
+            }
           />
           <FormHelperText>
             The default case is matched when no other condition have matched.

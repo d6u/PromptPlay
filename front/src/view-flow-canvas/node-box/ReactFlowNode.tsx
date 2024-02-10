@@ -12,8 +12,8 @@ import {
 
 import NodeAccountLevelFields from 'components/node-fields/NodeAccountLevelFields';
 import NodeInstanceLevelFields from 'components/node-fields/NodeInstanceLevelFields';
-import NodeBoxVariablesEditableList from 'components/node-variables-editable-list/NodeBoxVariablesEditableList';
-import { VariableConfig } from 'components/node-variables-editable-list/types';
+import NodeVariablesEditableList from 'components/node-variables-editable-list/NodeVariablesEditableList';
+import { ConnectorConfig } from 'components/node-variables-editable-list/types';
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 import {
   selectConditionTarget,
@@ -74,7 +74,7 @@ function ReactFlowNode(props: Props) {
       variablesDict,
     );
 
-    return inputArray.map<VariableConfig>((input, index) => {
+    return inputArray.map<ConnectorConfig>((input, index) => {
       const incomingVariableConfig =
         nodeDefinition.fixedIncomingVariables?.[input.name];
 
@@ -214,8 +214,8 @@ function ReactFlowNode(props: Props) {
           }}
         />
         <GenericContainer>
-          <NodeBoxVariablesEditableList
-            variables={incomingVariables}
+          <NodeVariablesEditableList
+            variableConfigs={incomingVariables}
             onRowHeightChange={(index, height) => {
               setInputVariableBlockHeightList((arr) => {
                 return A.updateAt(arr, index, () => height);

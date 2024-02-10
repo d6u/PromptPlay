@@ -9,7 +9,7 @@ import {
   NodeType,
 } from 'flow-models';
 
-import NodeBoxVariablesEditableList from 'components/node-variables-editable-list/NodeBoxVariablesEditableList';
+import NodeVariablesEditableList from 'components/node-variables-editable-list/NodeVariablesEditableList';
 import RouteFlowContext from 'state-flow/context/FlowRouteContext';
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 import { CanvasRightPanelType } from 'state-flow/types';
@@ -69,8 +69,8 @@ function InputNode() {
           }}
         />
         <GenericContainer>
-          <NodeBoxVariablesEditableList
-            variables={flowInputVariables.map((variable) => ({
+          <NodeVariablesEditableList
+            variableConfigs={flowInputVariables.map((variable) => ({
               id: variable.id,
               name: variable.name,
               isReadOnly: !isCurrentUserOwner,

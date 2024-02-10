@@ -17,7 +17,7 @@ import RouteFlowContext from 'state-flow/context/FlowRouteContext';
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 import { selectVariables } from 'state-flow/util/state-utils';
 
-import NodeBoxVariablesEditableList from 'components/node-variables-editable-list/NodeBoxVariablesEditableList';
+import NodeVariablesEditableList from 'components/node-variables-editable-list/NodeVariablesEditableList';
 import ConditionNodeConfigPanel from './ConditionNodeConfigPanel';
 import NodeConfigPaneNodeFields from './NodeConfigPaneNodeFields';
 
@@ -54,7 +54,7 @@ function NodeConfigPane() {
               id: variable.id,
               name: variable.name,
               isReadOnly: !isCurrentUserOwner || incomingVariableConfig != null,
-              helperMessage: incomingVariableConfig?.helperMessage,
+              helperText: incomingVariableConfig?.helperMessage,
             };
           },
         );
@@ -80,7 +80,6 @@ function NodeConfigPane() {
         <ConditionNodeConfigPanel
           isReadOnly={!isCurrentUserOwner}
           nodeConfig={nodeConfig}
-          incomingVariables={incomingVariables}
         />
       );
       break;
@@ -96,9 +95,11 @@ function NodeConfigPane() {
               {nodeDefinition.label} Config
             </HeaderSectionHeader>
           </HeaderSection>
-          <NodeBoxVariablesEditableList
-            variables={incomingVariables}
-            isSortable
+          <NodeVariablesEditableList
+            variableConfigs={incomingVariables}
+            isListSortable
+            nodeId={nodeConfig.nodeId}
+            isNodeReadOnly={false}
           />
           <NodeConfigPaneNodeFields
             nodeConfig={nodeConfig}
