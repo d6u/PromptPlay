@@ -13,7 +13,6 @@ import {
 import NodeAccountLevelFields from 'components/node-fields/NodeAccountLevelFields';
 import NodeInstanceLevelFields from 'components/node-fields/NodeInstanceLevelFields';
 import NodeVariablesEditableList from 'components/node-variables-editable-list/NodeVariablesEditableList';
-import { ConnectorConfig } from 'components/node-variables-editable-list/types';
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 import {
   selectConditionTarget,
@@ -68,30 +67,8 @@ function ReactFlowNode(props: Props) {
   }, [nodeId, variablesDict]);
 
   const incomingVariables = useMemo(() => {
-    const inputArray = selectVariables(
-      nodeId,
-      ConnectorType.NodeInput,
-      variablesDict,
-    );
-
-    return inputArray.map<ConnectorConfig>((input, index) => {
-      const incomingVariableConfig =
-        nodeDefinition.fixedIncomingVariables?.[input.name];
-
-      return {
-        id: input.id,
-        name: input.name,
-        isReadOnly:
-          props.isNodeConfigReadOnly || incomingVariableConfig != null,
-        helperMessage: incomingVariableConfig?.helperMessage,
-      };
-    });
-  }, [
-    nodeId,
-    variablesDict,
-    nodeDefinition.fixedIncomingVariables,
-    props.isNodeConfigReadOnly,
-  ]);
+    return selectVariables(nodeId, ConnectorType.NodeInput, variablesDict);
+  }, [nodeId, variablesDict]);
 
   const srcConnectors = useMemo(() => {
     const outputVariables = selectVariables(
@@ -215,7 +192,19 @@ function ReactFlowNode(props: Props) {
         />
         <GenericContainer>
           <NodeVariablesEditableList
-            variableConfigs={incomingVariables}
+            nodeId={nodeId}
+            isNodeReadOnly={props.isNodeConfigReadOnly}
+            variableConfigs={incomingVariables.map((variable) => {
+              const incomingVariableConfig =
+                nodeDefinition.fixedIncomingVariables?.[variable.name];
+
+              return {
+                id: variable.id,
+                name: variable.name,
+                isReadOnly: incomingVariableConfig != null,
+                helperMessage: incomingVariableConfig?.helperMessage,
+              };
+            })}
             onRowHeightChange={(index, height) => {
               setInputVariableBlockHeightList((arr) => {
                 return A.updateAt(arr, index, () => height);

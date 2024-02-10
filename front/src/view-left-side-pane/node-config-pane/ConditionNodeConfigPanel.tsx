@@ -62,7 +62,7 @@ function ConditionNodeConfigPanel(props: Props) {
         nodeId={props.nodeConfig.nodeId}
         isNodeReadOnly={props.isReadOnly}
         variableConfigs={incomingVariables.map((variable) => {
-          return { id: variable.id, name: variable.name, isReadOnly: false };
+          return { id: variable.id, name: variable.name, isReadOnly: true };
         })}
       />
       <Section>

@@ -70,10 +70,12 @@ function InputNode() {
         />
         <GenericContainer>
           <NodeVariablesEditableList
+            nodeId={nodeId}
+            isNodeReadOnly={!isCurrentUserOwner}
             variableConfigs={flowInputVariables.map((variable) => ({
               id: variable.id,
               name: variable.name,
-              isReadOnly: !isCurrentUserOwner,
+              isReadOnly: false,
             }))}
           />
         </GenericContainer>

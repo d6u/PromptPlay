@@ -111,6 +111,8 @@ function ConditionNode() {
         />
         <GenericContainer>
           <NodeVariablesEditableList
+            nodeId={nodeId}
+            isNodeReadOnly={!isCurrentUserOwner}
             variableConfigs={incomingVariables.map((variable) => ({
               id: variable.id,
               name: variable.name,

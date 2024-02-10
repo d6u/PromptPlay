@@ -79,10 +79,12 @@ function OutputNode() {
         />
         <GenericContainer>
           <NodeVariablesEditableList
+            nodeId={nodeId}
+            isNodeReadOnly={!isCurrentUserOwner}
             variableConfigs={flowOutputs.map((output) => ({
               id: output.id,
               name: output.name,
-              isReadOnly: !isCurrentUserOwner,
+              isReadOnly: false,
             }))}
           />
         </GenericContainer>
