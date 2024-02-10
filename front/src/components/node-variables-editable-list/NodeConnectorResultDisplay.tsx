@@ -2,6 +2,8 @@ import styled from '@emotion/styled';
 import { D } from '@mobily/ts-belt';
 import { ComponentProps } from 'react';
 
+import { CONNECTOR_RESULT_DISPLAY_HEIGHT } from './constants';
+
 type Props = {
   label: string;
   value: unknown;
@@ -17,12 +19,10 @@ function NodeConnectorResultDisplay(props: Props) {
   );
 }
 
-const VARIABLE_LABEL_HEIGHT = 32;
-
 const Container = styled.div`
   margin-top: 5px;
   margin-bottom: 5px;
-  height: ${VARIABLE_LABEL_HEIGHT}px;
+  height: ${CONNECTOR_RESULT_DISPLAY_HEIGHT}px;
   border: 1px solid blue;
   padding-left: 6px;
   padding-right: 6px;

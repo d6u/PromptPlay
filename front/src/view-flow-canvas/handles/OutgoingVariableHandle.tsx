@@ -3,9 +3,9 @@ import { ComponentProps } from 'react';
 import { Position } from 'reactflow';
 
 import { ROW_MARGIN_TOP } from 'components/node-variables-editable-list/NodeVariableEditableItem';
+import { CONNECTOR_RESULT_DISPLAY_HEIGHT } from 'components/node-variables-editable-list/constants';
 
 import { BACKDROP_PADDING, SECTION_PADDING_BOTTOM } from '../constants';
-import { VARIABLE_LABEL_HEIGHT } from '../node-box/NodeBoxOutgoingVariableBlock';
 import { BaseHandle, HANDLE_HEIGHT, HANDLE_WIDTH } from './common';
 
 const OutgoingVariableHandleImpl = styled(BaseHandle)`
@@ -41,11 +41,12 @@ export default function OutgoingVariableHandle(
 function calcBottom(index: number, totalVariableCount: number) {
   const footerSectionHeight = BACKDROP_PADDING + SECTION_PADDING_BOTTOM;
 
-  const center = VARIABLE_LABEL_HEIGHT / 2 - HANDLE_HEIGHT / 2;
+  const center = CONNECTOR_RESULT_DISPLAY_HEIGHT / 2 - HANDLE_HEIGHT / 2;
 
   return (
     footerSectionHeight +
     center +
-    (totalVariableCount - 1 - index) * (ROW_MARGIN_TOP + VARIABLE_LABEL_HEIGHT)
+    (totalVariableCount - 1 - index) *
+      (ROW_MARGIN_TOP + CONNECTOR_RESULT_DISPLAY_HEIGHT)
   );
 }

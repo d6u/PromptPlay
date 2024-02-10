@@ -19,12 +19,12 @@ import {
   selectVariables,
 } from 'state-flow/util/state-utils';
 
+import NodeConnectorResultDisplay from 'components/node-variables-editable-list/NodeConnectorResultDisplay';
 import IncomingConditionHandle from '../handles/IncomingConditionHandle';
 import IncomingVariableHandle from '../handles/IncomingVariableHandle';
 import OutgoingVariableHandle from '../handles/OutgoingVariableHandle';
 import NodeBox from './NodeBox';
 import NodeBoxHeaderSection from './NodeBoxHeaderSection';
-import NodeBoxOutgoingVariableBlock from './NodeBoxOutgoingVariableBlock';
 import NodeBoxSection from './NodeBoxSection';
 
 export type SrcConnector = {
@@ -215,10 +215,9 @@ function ReactFlowNode(props: Props) {
         {children}
         <NodeBoxSection>
           {srcConnectors.map((connector) => (
-            <NodeBoxOutgoingVariableBlock
+            <NodeConnectorResultDisplay
               key={connector.id}
-              id={connector.id}
-              name={connector.name}
+              label={connector.name}
               value={connector.value}
               onClick={() => {
                 setCanvasLeftPaneIsOpen(true);

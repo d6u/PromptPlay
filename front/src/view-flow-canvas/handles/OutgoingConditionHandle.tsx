@@ -3,13 +3,13 @@ import { ComponentProps } from 'react';
 import { Position } from 'reactflow';
 
 import { ROW_MARGIN_TOP } from 'components/node-variables-editable-list/NodeVariableEditableItem';
+import { CONNECTOR_RESULT_DISPLAY_HEIGHT } from 'components/node-variables-editable-list/constants';
 
 import {
   BACKDROP_PADDING,
   CONDITION_NODE_DEFAULT_CASE_HELPER_TEXT_HEIGHT,
   SECTION_PADDING_BOTTOM,
 } from '../constants';
-import { VARIABLE_LABEL_HEIGHT } from '../node-box/NodeBoxOutgoingVariableBlock';
 import { BaseHandle, HANDLE_HEIGHT, HANDLE_WIDTH } from './common';
 
 const OutgoingConditionHandleImpl = styled(BaseHandle)`
@@ -59,7 +59,7 @@ function calcBottom(
     SECTION_PADDING_BOTTOM +
     BACKDROP_PADDING;
 
-  const center = VARIABLE_LABEL_HEIGHT / 2 - HANDLE_HEIGHT / 2;
+  const center = CONNECTOR_RESULT_DISPLAY_HEIGHT / 2 - HANDLE_HEIGHT / 2;
 
   if (isDefaultCase) {
     return footerSectionHeight + center;
@@ -69,6 +69,8 @@ function calcBottom(
     footerSectionHeight +
     center +
     (totalConditionCount - 1 - index) *
-      (SECTION_PADDING_BOTTOM + ROW_MARGIN_TOP + VARIABLE_LABEL_HEIGHT * 2)
+      (SECTION_PADDING_BOTTOM +
+        ROW_MARGIN_TOP +
+        CONNECTOR_RESULT_DISPLAY_HEIGHT * 2)
   );
 }

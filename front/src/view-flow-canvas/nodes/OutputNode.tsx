@@ -12,6 +12,7 @@ import {
 
 import { ROW_MARGIN_TOP } from 'components/node-variables-editable-list/NodeVariableEditableItem';
 import NodeVariablesEditableList from 'components/node-variables-editable-list/NodeVariablesEditableList';
+import { CONNECTOR_RESULT_DISPLAY_HEIGHT } from 'components/node-variables-editable-list/constants';
 import RouteFlowContext from 'state-flow/context/FlowRouteContext';
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 import { CanvasRightPanelType } from 'state-flow/types';
@@ -20,7 +21,6 @@ import { selectVariables } from 'state-flow/util/state-utils';
 import IncomingVariableHandle from '../handles/IncomingVariableHandle';
 import NodeBox from '../node-box/NodeBox';
 import NodeBoxHeaderSection from '../node-box/NodeBoxHeaderSection';
-import { VARIABLE_LABEL_HEIGHT } from '../node-box/NodeBoxOutgoingVariableBlock';
 
 function OutputNode() {
   const { isCurrentUserOwner } = useContext(RouteFlowContext);
@@ -44,7 +44,10 @@ function OutputNode() {
   }, [nodeId, variablesDict]);
 
   const inputVariableBlockHeightList = useMemo(() => {
-    return A.make(flowOutputs.length, VARIABLE_LABEL_HEIGHT + ROW_MARGIN_TOP);
+    return A.make(
+      flowOutputs.length,
+      CONNECTOR_RESULT_DISPLAY_HEIGHT + ROW_MARGIN_TOP,
+    );
   }, [flowOutputs.length]);
 
   if (!nodeConfig) {
