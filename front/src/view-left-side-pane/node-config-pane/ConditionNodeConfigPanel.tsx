@@ -12,13 +12,13 @@ import {
 
 import NodeBoxVariablesEditableList from 'components/node-variables-editable-list/NodeBoxVariablesEditableList';
 import NodeConditionsEditableList from 'components/node-variables-editable-list/NodeConditionsEditableList';
+import NodeConnectorResultDisplay from 'components/node-variables-editable-list/NodeConnectorResultDisplay';
 import { ConnectorConfig } from 'components/node-variables-editable-list/types';
 import HeaderSection from 'components/side-pane/SidePaneHeaderSection';
 import HeaderSectionHeader from 'components/side-pane/SidePaneHeaderSectionHeader';
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 import { selectConditions } from 'state-flow/util/state-utils';
 import NodeBoxAddConnectorButton from 'view-flow-canvas/node-box/NodeBoxAddConnectorButton';
-import NodeBoxOutgoingVariableBlock from 'view-flow-canvas/node-box/NodeBoxOutgoingVariableBlock';
 
 type Props = {
   isReadOnly: boolean;
@@ -110,15 +110,19 @@ function ConditionNodeConfigPanel(props: Props) {
           };
         })}
       />
-      <Section>
-        <NodeBoxOutgoingVariableBlock
-          id={defaultCaseCondition.id}
-          name="Default case"
-        />
-        <FormHelperText>
-          The default case is matched when no other condition have matched.
-        </FormHelperText>
-      </Section>
+      <NodeConnectorResultDisplay
+        label="Default case"
+        value={
+          (
+            connectorResultMap[defaultCaseCondition.id] as
+              | ConditionResult
+              | undefined
+          )?.isConditionMatched ?? false
+        }
+      />
+      <FormHelperText>
+        The default case is matched when no other condition have matched.
+      </FormHelperText>
     </>
   );
 }
