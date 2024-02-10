@@ -17,15 +17,14 @@ import {
   selectConditionTarget,
   selectVariables,
 } from 'state-flow/util/state-utils';
+import { VariableConfig } from 'view-flow-canvas/variables-editable-list/types';
 
 import IncomingConditionHandle from '../handles/IncomingConditionHandle';
 import IncomingVariableHandle from '../handles/IncomingVariableHandle';
 import OutgoingVariableHandle from '../handles/OutgoingVariableHandle';
+import NodeBoxVariablesEditableList from '../variables-editable-list/NodeBoxVariablesEditableList';
 import NodeBox from './NodeBox';
 import NodeBoxHeaderSection from './NodeBoxHeaderSection';
-import NodeBoxIncomingVariablesSection, {
-  type DestConnector,
-} from './NodeBoxIncomingVariablesSection';
 import NodeBoxOutgoingVariableBlock from './NodeBoxOutgoingVariableBlock';
 import NodeBoxSection from './NodeBoxSection';
 
@@ -68,14 +67,14 @@ function ReactFlowNode(props: Props) {
     return selectConditionTarget(nodeId, variablesDict);
   }, [nodeId, variablesDict]);
 
-  const destConnectors = useMemo(() => {
+  const incomingVariables = useMemo(() => {
     const inputArray = selectVariables(
       nodeId,
       ConnectorType.NodeInput,
       variablesDict,
     );
 
-    return inputArray.map<DestConnector>((input, index) => {
+    return inputArray.map<VariableConfig>((input, index) => {
       const incomingVariableConfig =
         nodeDefinition.fixedIncomingVariables?.[input.name];
 
@@ -133,17 +132,17 @@ function ReactFlowNode(props: Props) {
   // SECTION: Manage height of each variable input box
   const [inputVariableBlockHeightList, setInputVariableBlockHeightList] =
     useState<number[]>(() => {
-      return A.make(destConnectors.length, 0);
+      return A.make(incomingVariables.length, 0);
     });
 
   useEffect(() => {
-    if (destConnectors.length > inputVariableBlockHeightList.length) {
+    if (incomingVariables.length > inputVariableBlockHeightList.length) {
       // NOTE: Increase the length of destConnectorInputHeightArr when needed
       setInputVariableBlockHeightList((state) => {
-        return state.concat(A.make(destConnectors.length - state.length, 0));
+        return state.concat(A.make(incomingVariables.length - state.length, 0));
       });
     }
-  }, [destConnectors.length, inputVariableBlockHeightList.length]);
+  }, [incomingVariables.length, inputVariableBlockHeightList.length]);
 
   useEffect(() => {
     updateNodeInternals(nodeId);
@@ -179,7 +178,7 @@ function ReactFlowNode(props: Props) {
   return (
     <>
       {conditionTarget && <IncomingConditionHandle id={conditionTarget.id} />}
-      {destConnectors.map((connector, i) => {
+      {incomingVariables.map((connector, i) => {
         return (
           <IncomingVariableHandle
             key={connector.id}
@@ -206,12 +205,16 @@ function ReactFlowNode(props: Props) {
           }}
           showAddVariableButton={!!nodeDefinition.canUserAddIncomingVariables}
           onClickAddVariableButton={() => {
-            addVariable(nodeId, ConnectorType.NodeInput, destConnectors.length);
+            addVariable(
+              nodeId,
+              ConnectorType.NodeInput,
+              incomingVariables.length,
+            );
             updateNodeInternals(nodeId);
           }}
         />
-        <NodeBoxIncomingVariablesSection
-          destConnectors={destConnectors}
+        <NodeBoxVariablesEditableList
+          variables={incomingVariables}
           onRowHeightChange={(index, height) => {
             setInputVariableBlockHeightList((arr) => {
               return A.updateAt(arr, index, () => height);

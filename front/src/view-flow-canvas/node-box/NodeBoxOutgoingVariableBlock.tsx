@@ -4,7 +4,7 @@ import { CSSProperties } from 'react';
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 import { CanvasRightPanelType } from 'state-flow/types';
 
-import { ROW_MARGIN_TOP } from './NodeBoxIncomingVariableBlock';
+import { ROW_MARGIN_TOP } from '../variables-editable-list/NodeBoxVariableEditableItem';
 
 type Props = {
   id: string;

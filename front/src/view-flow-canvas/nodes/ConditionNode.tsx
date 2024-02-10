@@ -19,11 +19,11 @@ import OutgoingConditionHandle from '../handles/OutgoingConditionHandle';
 import NodeBox from '../node-box/NodeBox';
 import NodeBoxAddConnectorButton from '../node-box/NodeBoxAddConnectorButton';
 import NodeBoxHeaderSection from '../node-box/NodeBoxHeaderSection';
-import NodeBoxIncomingVariablesSection from '../node-box/NodeBoxIncomingVariablesSection';
 import NodeBoxOutgoingConnectorBlock from '../node-box/NodeBoxOutgoingConnectorBlock';
 import NodeBoxOutgoingVariableBlock from '../node-box/NodeBoxOutgoingVariableBlock';
 import NodeBoxSection from '../node-box/NodeBoxSection';
 import NodeBoxSmallSection from '../node-box/NodeBoxSmallSection';
+import NodeBoxVariablesEditableList from '../variables-editable-list/NodeBoxVariablesEditableList';
 
 export default function ConditionNode() {
   const nodeId = useNodeId() as NodeID;
@@ -59,7 +59,7 @@ export default function ConditionNode() {
     return selectConditionTarget(nodeId, connectorMap);
   }, [nodeId, connectorMap]);
 
-  const nodeInputs = useMemo(() => {
+  const incomingVariables = useMemo(() => {
     return selectVariables(nodeId, ConnectorType.NodeInput, connectorMap);
   }, [nodeId, connectorMap]);
 
@@ -82,7 +82,7 @@ export default function ConditionNode() {
   return (
     <>
       <IncomingConditionHandle id={conditionTarget.id} />
-      {nodeInputs.map((flowInput, i) => (
+      {incomingVariables.map((flowInput, i) => (
         <IncomingVariableHandle key={flowInput.id} id={flowInput.id} />
       ))}
       <NodeBox
@@ -101,10 +101,10 @@ export default function ConditionNode() {
           }}
           showAddVariableButton={false}
         />
-        <NodeBoxIncomingVariablesSection
-          destConnectors={nodeInputs.map((input) => ({
-            id: input.id,
-            name: input.name,
+        <NodeBoxVariablesEditableList
+          variables={incomingVariables.map((variable) => ({
+            id: variable.id,
+            name: variable.name,
             isReadOnly: true,
           }))}
         />

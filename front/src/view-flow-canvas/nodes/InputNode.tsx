@@ -1,4 +1,3 @@
-import styled from '@emotion/styled';
 import { useContext, useMemo } from 'react';
 import { useNodeId, useUpdateNodeInternals } from 'reactflow';
 
@@ -17,9 +16,9 @@ import { selectVariables } from 'state-flow/util/state-utils';
 import OutgoingVariableHandle from '../handles/OutgoingVariableHandle';
 import NodeBox from '../node-box/NodeBox';
 import NodeBoxHeaderSection from '../node-box/NodeBoxHeaderSection';
-import NodeBoxOutgoingConnectorBlock from '../node-box/NodeBoxOutgoingConnectorBlock';
+import NodeBoxVariablesEditableList from '../variables-editable-list/NodeBoxVariablesEditableList';
 
-export default function InputNode() {
+function InputNode() {
   const nodeId = useNodeId() as NodeID;
 
   const { isCurrentUserOwner } = useContext(RouteFlowContext);
@@ -31,12 +30,10 @@ export default function InputNode() {
   const variablesDict = useFlowStore((s) => s.variablesDict);
   const removeNode = useFlowStore((s) => s.removeNode);
   const addVariable = useFlowStore((s) => s.addVariable);
-  const updateVariable = useFlowStore((s) => s.updateVariable);
-  const removeVariable = useFlowStore((s) => s.removeVariable);
 
   // !SECTION
 
-  const flowInputs = useMemo(() => {
+  const flowInputVariables = useMemo(() => {
     return selectVariables(nodeId, ConnectorType.FlowInput, variablesDict);
   }, [nodeId, variablesDict]);
 
@@ -65,41 +62,32 @@ export default function InputNode() {
           }}
           showAddVariableButton={true}
           onClickAddVariableButton={() => {
-            addVariable(nodeId, ConnectorType.FlowInput, flowInputs.length);
+            addVariable(
+              nodeId,
+              ConnectorType.FlowInput,
+              flowInputVariables.length,
+            );
             updateNodeInternals(nodeId);
           }}
         />
-        <NodeBoxFlowInputVariablesSection>
-          {flowInputs.map((flowInput, i) => (
-            <NodeBoxOutgoingConnectorBlock
-              key={flowInput.id}
-              name={flowInput.name}
-              isReadOnly={!isCurrentUserOwner}
-              onConfirmNameChange={(name) => {
-                updateVariable(flowInput.id, { name });
-              }}
-              onRemove={() => {
-                removeVariable(flowInput.id);
-                updateNodeInternals(nodeId);
-              }}
-            />
-          ))}
-        </NodeBoxFlowInputVariablesSection>
+        <NodeBoxVariablesEditableList
+          variables={flowInputVariables.map((variable) => ({
+            id: variable.id,
+            name: variable.name,
+            isReadOnly: !isCurrentUserOwner,
+          }))}
+        />
       </NodeBox>
-      {flowInputs.map((flowInput, i) => (
+      {flowInputVariables.map((flowInput, i) => (
         <OutgoingVariableHandle
           key={flowInput.id}
           id={flowInput.id}
           index={i}
-          totalVariableCount={flowInputs.length}
+          totalVariableCount={flowInputVariables.length}
         />
       ))}
     </>
   );
 }
 
-const NodeBoxFlowInputVariablesSection = styled.div`
-  padding-left: 10px;
-  padding-right: 10px;
-  margin-bottom: 10px;
-`;
+export default InputNode;

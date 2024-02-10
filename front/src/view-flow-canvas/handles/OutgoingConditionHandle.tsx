@@ -6,8 +6,8 @@ import {
   CONDITION_NODE_DEFAULT_CASE_HELPER_TEXT_HEIGHT,
   SECTION_PADDING_BOTTOM,
 } from '../constants';
-import { ROW_MARGIN_TOP } from '../node-box/NodeBoxIncomingVariableBlock';
 import { VARIABLE_LABEL_HEIGHT } from '../node-box/NodeBoxOutgoingVariableBlock';
+import { ROW_MARGIN_TOP } from '../variables-editable-list/NodeBoxVariableEditableItem';
 import { BaseHandle, HANDLE_HEIGHT, HANDLE_WIDTH } from './common';
 
 const OutgoingConditionHandleImpl = styled(BaseHandle)`

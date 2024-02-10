@@ -1,4 +1,3 @@
-import styled from '@emotion/styled';
 import { A } from '@mobily/ts-belt';
 import { useContext, useMemo } from 'react';
 import { useNodeId, useUpdateNodeInternals } from 'reactflow';
@@ -18,10 +17,9 @@ import { selectVariables } from 'state-flow/util/state-utils';
 import IncomingVariableHandle from '../handles/IncomingVariableHandle';
 import NodeBox from '../node-box/NodeBox';
 import NodeBoxHeaderSection from '../node-box/NodeBoxHeaderSection';
-import NodeBoxIncomingVariableBlock, {
-  ROW_MARGIN_TOP,
-} from '../node-box/NodeBoxIncomingVariableBlock';
 import { VARIABLE_LABEL_HEIGHT } from '../node-box/NodeBoxOutgoingVariableBlock';
+import { ROW_MARGIN_TOP } from '../variables-editable-list/NodeBoxVariableEditableItem';
+import NodeBoxVariablesEditableList from '../variables-editable-list/NodeBoxVariablesEditableList';
 
 function OutputNode() {
   const { isCurrentUserOwner } = useContext(RouteFlowContext);
@@ -34,8 +32,6 @@ function OutputNode() {
   const variablesDict = useFlowStore((s) => s.variablesDict);
   const removeNode = useFlowStore((s) => s.removeNode);
   const addVariable = useFlowStore((s) => s.addVariable);
-  const updateVariable = useFlowStore((s) => s.updateVariable);
-  const removeVariable = useFlowStore((s) => s.removeVariable);
 
   const nodeConfig = useMemo(
     () => nodeConfigsDict[nodeId] as OutputNodeInstanceLevelConfig | undefined,
@@ -80,31 +76,16 @@ function OutputNode() {
             updateNodeInternals(nodeId);
           }}
         />
-        <NodeBoxFlowOutputVariablesSection>
-          {flowOutputs.map((input, i) => (
-            <NodeBoxIncomingVariableBlock
-              key={input.id}
-              name={input.name}
-              isReadOnly={!isCurrentUserOwner}
-              onConfirmNameChange={(name) => {
-                updateVariable(input.id, { name });
-              }}
-              onRemove={() => {
-                removeVariable(input.id);
-                updateNodeInternals(nodeId);
-              }}
-            />
-          ))}
-        </NodeBoxFlowOutputVariablesSection>
+        <NodeBoxVariablesEditableList
+          variables={flowOutputs.map((output) => ({
+            id: output.id,
+            name: output.name,
+            isReadOnly: !isCurrentUserOwner,
+          }))}
+        />
       </NodeBox>
     </>
   );
 }
-
-const NodeBoxFlowOutputVariablesSection = styled.div`
-  padding-left: 10px;
-  padding-right: 10px;
-  margin-bottom: 10px;
-`;
 
 export default OutputNode;

@@ -2,8 +2,8 @@ import styled from '@emotion/styled';
 import { ComponentProps } from 'react';
 import { Position } from 'reactflow';
 import { BACKDROP_PADDING, SECTION_PADDING_BOTTOM } from '../constants';
-import { ROW_MARGIN_TOP } from '../node-box/NodeBoxIncomingVariableBlock';
 import { VARIABLE_LABEL_HEIGHT } from '../node-box/NodeBoxOutgoingVariableBlock';
+import { ROW_MARGIN_TOP } from '../variables-editable-list/NodeBoxVariableEditableItem';
 import { BaseHandle, HANDLE_HEIGHT, HANDLE_WIDTH } from './common';
 
 const OutgoingVariableHandleImpl = styled(BaseHandle)`
