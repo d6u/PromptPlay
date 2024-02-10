@@ -11,19 +11,19 @@ import {
 } from 'flow-models';
 
 import NodeBoxVariablesEditableList from 'components/node-variables-editable-list/NodeBoxVariablesEditableList';
-import { VariableConfig } from 'components/node-variables-editable-list/types';
+import NodeConditionsEditableList from 'components/node-variables-editable-list/NodeConditionsEditableList';
+import { ConnectorConfig } from 'components/node-variables-editable-list/types';
 import HeaderSection from 'components/side-pane/SidePaneHeaderSection';
 import HeaderSectionHeader from 'components/side-pane/SidePaneHeaderSectionHeader';
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 import { selectConditions } from 'state-flow/util/state-utils';
 import NodeBoxAddConnectorButton from 'view-flow-canvas/node-box/NodeBoxAddConnectorButton';
-import NodeBoxOutgoingConnectorBlock from 'view-flow-canvas/node-box/NodeBoxOutgoingConnectorBlock';
 import NodeBoxOutgoingVariableBlock from 'view-flow-canvas/node-box/NodeBoxOutgoingVariableBlock';
 
 type Props = {
   isReadOnly: boolean;
   nodeConfig: ConditionNodeInstanceLevelConfig;
-  incomingVariables: VariableConfig[];
+  incomingVariables: ConnectorConfig[];
 };
 
 function ConditionNodeConfigPanel(props: Props) {
@@ -35,8 +35,6 @@ function ConditionNodeConfigPanel(props: Props) {
   );
   const updateNodeConfig = useFlowStore((s) => s.updateNodeConfig);
   const addVariable = useFlowStore((s) => s.addVariable);
-  const updateVariable = useFlowStore((s) => s.updateVariable);
-  const removeVariable = useFlowStore((s) => s.removeVariable);
 
   const nodeDefinition = useMemo(() => {
     return getNodeDefinitionForNodeTypeName(props.nodeConfig.type);
@@ -96,30 +94,22 @@ function ConditionNodeConfigPanel(props: Props) {
           />
         )}
       </Section>
-      {normalConditions.map((condition, i) => (
-        <Section key={condition.id}>
-          <NodeBoxOutgoingConnectorBlock
-            name={condition.expressionString}
-            isReadOnly={props.isReadOnly}
-            onConfirmNameChange={(expressionString) => {
-              updateVariable(condition.id, { expressionString });
-            }}
-            onRemove={() => {
-              removeVariable(condition.id);
-              updateNodeInternals(props.nodeConfig.nodeId);
-            }}
-          />
-          <NodeBoxOutgoingVariableBlock
-            id={defaultCaseCondition.id}
-            name="is matched"
-            value={
-              (connectorResultMap[condition.id] as ConditionResult | undefined)
-                ?.isConditionMatched
-            }
-            style={{ marginTop: '5px' }}
-          />
-        </Section>
-      ))}
+      <NodeConditionsEditableList
+        isNodeReadOnly={props.isReadOnly}
+        isListSortable
+        nodeId={props.nodeConfig.nodeId}
+        conditions={normalConditions.map((condition) => {
+          const isMatched =
+            (connectorResultMap[condition.id] as ConditionResult | undefined)
+              ?.isConditionMatched ?? false;
+
+          return {
+            ...condition,
+            isReadOnly: false,
+            isMatched,
+          };
+        })}
+      />
       <Section>
         <NodeBoxOutgoingVariableBlock
           id={defaultCaseCondition.id}
