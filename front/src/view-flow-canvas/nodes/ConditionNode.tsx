@@ -161,12 +161,9 @@ function ConditionNode() {
             nodeId={nodeId}
             isNodeReadOnly={!isCurrentUserOwner}
             conditionConfigs={normalConditions.map((condition) => {
-              const isMatched =
-                (
-                  connectorResultMap[condition.id] as
-                    | ConditionResult
-                    | undefined
-                )?.isConditionMatched ?? false;
+              const isMatched = (
+                connectorResultMap[condition.id] as ConditionResult | undefined
+              )?.isConditionMatched;
 
               return {
                 ...condition,
@@ -184,7 +181,7 @@ function ConditionNode() {
                 connectorResultMap[defaultCaseCondition.id] as
                   | ConditionResult
                   | undefined
-              )?.isConditionMatched ?? false
+              )?.isConditionMatched
             }
           />
           <FormHelperText>

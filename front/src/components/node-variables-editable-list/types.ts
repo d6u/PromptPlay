@@ -1,3 +1,4 @@
+import { Option } from '@mobily/ts-belt';
 import { ReactNode } from 'react';
 
 export type VariableConfig = Readonly<{
@@ -11,7 +12,7 @@ export type ConditionConfig = Readonly<{
   id: string;
   expressionString: string;
   isReadOnly: boolean;
-  isMatched: boolean;
+  isMatched: Option<boolean>;
 }>;
 
 export type VariableFormValue = {
