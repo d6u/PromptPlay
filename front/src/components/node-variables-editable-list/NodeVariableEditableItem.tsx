@@ -1,31 +1,36 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import styled from '@emotion/styled';
-import { useCallback, useRef } from 'react';
 import { Control, FieldArrayWithId } from 'react-hook-form';
+import { Position } from 'reactflow';
 
-import { useOnElementResize } from 'generic-util/ResizeObserver';
+import NodeFieldHelperTextWithStatus from 'components/node-fields/NodeFieldHelperTextWithStatus';
+import BaseFlowHandle from 'components/node-variables-editable-list/BaseFlowHandle';
 
-import NodeFieldHelperTextWithStatus from '../node-fields/NodeFieldHelperTextWithStatus';
 import DragHandle from './DragHandle';
 import NodeVariableEditor from './NodeVariableEditor';
 import { VariableConfig, VariableFormValue } from './types';
 
+export type HandlePosition = Position.Left | Position.Right | 'none';
+
 type Props = {
-  isNodeReadOnly: boolean;
+  // Won't change within current session
   isListSortable: boolean;
+  showConnectorHandle: HandlePosition;
+  // Node level
+  isNodeReadOnly: boolean;
+  // Variable level
+  index: number;
   variable: VariableConfig;
+  // react-hook-form
   control: Control<VariableFormValue>;
   formField: FieldArrayWithId<VariableFormValue, 'list', 'id'>;
-  index: number;
+  // Callbacks
   onRemove: () => void;
   onUpdateTrigger: () => void;
-  onHeightChange?: (height: number) => void;
 };
 
 function NodeVariableEditableItem(props: Props) {
-  const { onHeightChange } = props;
-
   const isSortableEnabledForThisRow =
     !props.isNodeReadOnly && !props.variable.isReadOnly && props.isListSortable;
 
@@ -35,42 +40,27 @@ function NodeVariableEditableItem(props: Props) {
       disabled: !isSortableEnabledForThisRow,
     });
 
-  const containerRef = useRef<HTMLDivElement | null>(null);
-  const prevHeightRef = useRef<number>(0);
-
-  // TODO: Don't attach observer when onHeightChange is not provided
-  useOnElementResize(
-    containerRef,
-    useCallback(
-      (contentRect) => {
-        const newHeight = contentRect.height;
-
-        if (prevHeightRef.current !== newHeight) {
-          prevHeightRef.current = newHeight;
-
-          onHeightChange?.(
-            prevHeightRef.current + (props.variable.helperText ? 10 : 5),
-          );
-        }
-      },
-      [props.variable.helperText, onHeightChange],
-    ),
-  );
-
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
   };
 
   return (
-    <Container
-      ref={(ref) => {
-        setNodeRef(ref);
-        containerRef.current = ref;
-      }}
-      style={style}
-      {...attributes}
-    >
+    <Container ref={setNodeRef} style={style} {...attributes}>
+      {props.showConnectorHandle !== 'none' && (
+        <StyledBaseFlowHandle
+          type={
+            props.showConnectorHandle === Position.Left ? 'target' : 'source'
+          }
+          position={props.showConnectorHandle}
+          id={props.variable.id}
+          style={{
+            left: props.showConnectorHandle === Position.Left ? -19 : undefined,
+            right:
+              props.showConnectorHandle === Position.Left ? undefined : -19,
+          }}
+        />
+      )}
       <InputContainer>
         {isSortableEnabledForThisRow && <DragHandle {...listeners} />}
         <NodeVariableEditor
@@ -111,6 +101,10 @@ const InputContainer = styled.div`
 const HelperTextContainer = styled.div`
   margin-top: 5px;
   margin-bottom: 10px;
+`;
+
+const StyledBaseFlowHandle = styled(BaseFlowHandle)`
+  background: #00b3ff;
 `;
 
 export default NodeVariableEditableItem;

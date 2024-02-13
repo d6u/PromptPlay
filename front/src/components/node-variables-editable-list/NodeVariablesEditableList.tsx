@@ -23,15 +23,20 @@ import { ConnectorID } from 'flow-models';
 
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 
-import NodeVariableEditableItem from './NodeVariableEditableItem';
+import NodeVariableEditableItem, {
+  HandlePosition,
+} from './NodeVariableEditableItem';
 import { VariableConfig, VariableFormValue } from './types';
 
 type Props = {
-  nodeId: string;
-  isNodeReadOnly: boolean;
+  // Won't change within current session
   isListSortable?: boolean;
+  showConnectorHandle?: HandlePosition;
+  // Won't change for the current node
+  nodeId: string;
+  // Might change
+  isNodeReadOnly: boolean;
   variableConfigs: VariableConfig[];
-  onRowHeightChange?: (index: number, height: number) => void;
 };
 
 function NodeVariablesEditableList(props: Props) {
@@ -161,8 +166,9 @@ function NodeVariablesEditableList(props: Props) {
           return (
             <NodeVariableEditableItem
               key={field.id}
-              isNodeReadOnly={props.isNodeReadOnly}
+              showConnectorHandle={props.showConnectorHandle ?? 'none'}
               isListSortable={false}
+              isNodeReadOnly={props.isNodeReadOnly}
               variable={props.variableConfigs[index]}
               control={control}
               formField={field}
@@ -171,9 +177,6 @@ function NodeVariablesEditableList(props: Props) {
                 remove(index);
               }}
               onUpdateTrigger={updateVariables}
-              onHeightChange={(height) => {
-                props.onRowHeightChange?.(index, height);
-              }}
             />
           );
         })}
@@ -203,8 +206,9 @@ function NodeVariablesEditableList(props: Props) {
               return (
                 <NodeVariableEditableItem
                   key={field.id}
-                  isNodeReadOnly={props.isNodeReadOnly}
                   isListSortable={!!props.isListSortable}
+                  showConnectorHandle={props.showConnectorHandle ?? 'none'}
+                  isNodeReadOnly={props.isNodeReadOnly}
                   variable={variable}
                   control={control}
                   formField={field}
@@ -213,9 +217,6 @@ function NodeVariablesEditableList(props: Props) {
                   onRemove={() => {
                     remove(index);
                     updateVariables();
-                  }}
-                  onHeightChange={(height) => {
-                    props.onRowHeightChange?.(index, height);
                   }}
                 />
               );
