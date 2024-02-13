@@ -14,11 +14,14 @@ import NodeBoxAddConnectorButton from './NodeBoxAddConnectorButton';
 import NodeBoxGearButton from './NodeBoxIconGear';
 
 type Props = {
+  // Static values
   title: string;
-  isReadOnly: boolean;
+  showAddVariableButton: boolean;
+  // Won't change for the current node
+  isNodeReadOnly: boolean;
+  // Callbacks
   onClickRemove: () => void;
   onClickGearButton: () => void;
-  showAddVariableButton: boolean;
   onClickAddVariableButton?: () => void;
 };
 
@@ -30,7 +33,7 @@ function NodeBoxHeaderSection(props: Props) {
           <Title>{props.title}</Title>
           <DragHandle />
         </TitleContainer>
-        {!props.isReadOnly && (
+        {!props.isNodeReadOnly && (
           <RemoveButtonContainer>
             <RemoveButton onClick={props.onClickRemove} />
           </RemoveButtonContainer>
@@ -38,7 +41,7 @@ function NodeBoxHeaderSection(props: Props) {
       </TitleSection>
       <ActionsSection>
         <NodeBoxGearButton onClick={props.onClickGearButton} />
-        {!props.isReadOnly &&
+        {!props.isNodeReadOnly &&
           props.showAddVariableButton &&
           props.onClickAddVariableButton && (
             <NodeBoxAddConnectorButton

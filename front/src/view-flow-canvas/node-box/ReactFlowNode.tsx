@@ -139,8 +139,9 @@ function ReactFlowNode(props: Props) {
         hasError={augment?.hasError}
       >
         <NodeBoxHeaderSection
-          isReadOnly={props.isNodeConfigReadOnly}
           title={nodeDefinition.label}
+          showAddVariableButton={!!nodeDefinition.canUserAddIncomingVariables}
+          isNodeReadOnly={props.isNodeConfigReadOnly}
           onClickRemove={() => {
             removeNode(nodeId);
           }}
@@ -148,7 +149,6 @@ function ReactFlowNode(props: Props) {
             setCanvasLeftPaneIsOpen(true);
             setCanvasLeftPaneSelectedNodeId(nodeId);
           }}
-          showAddVariableButton={!!nodeDefinition.canUserAddIncomingVariables}
           onClickAddVariableButton={() => {
             addVariable(
               nodeId,

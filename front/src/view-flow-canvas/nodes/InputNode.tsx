@@ -49,7 +49,7 @@ function InputNode() {
     <>
       <NodeBox nodeType={NodeType.InputNode}>
         <NodeBoxHeaderSection
-          isReadOnly={!isCurrentUserOwner}
+          isNodeReadOnly={!isCurrentUserOwner}
           title="Input"
           onClickRemove={() => {
             removeNode(nodeId);

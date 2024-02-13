@@ -8,7 +8,9 @@ import {
   NodeType,
   getNodeDefinitionForNodeTypeName,
 } from 'flow-models';
+import { useUpdateNodeInternals } from 'reactflow';
 
+import NodeVariablesEditableList from 'components/node-variables-editable-list/NodeVariablesEditableList';
 import HeaderSection from 'components/side-pane/SidePaneHeaderSection';
 import HeaderSectionHeader from 'components/side-pane/SidePaneHeaderSectionHeader';
 import SidePaneOutputRenderer from 'components/side-pane/SidePaneOutputRenderer';
@@ -16,17 +18,20 @@ import Section from 'components/side-pane/SidePaneSection';
 import RouteFlowContext from 'state-flow/context/FlowRouteContext';
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 import { selectVariables } from 'state-flow/util/state-utils';
+import NodeBoxAddConnectorButton from 'view-flow-canvas/node-box/NodeBoxAddConnectorButton';
 
-import NodeVariablesEditableList from 'components/node-variables-editable-list/NodeVariablesEditableList';
 import ConditionNodeConfigPanel from './ConditionNodeConfigPanel';
 import NodeConfigPaneNodeFields from './NodeConfigPaneNodeFields';
 
 function NodeConfigPane() {
   const { isCurrentUserOwner } = useContext(RouteFlowContext);
 
+  const updateNodeInternals = useUpdateNodeInternals();
+
   const nodeConfigs = useFlowStore((s) => s.nodeConfigsDict);
   const variables = useFlowStore((s) => s.variablesDict);
   const selectedNodeId = useFlowStore((s) => s.canvasLeftPaneSelectedNodeId);
+  const addVariable = useFlowStore((s) => s.addVariable);
 
   const nodeConfig = useMemo(() => {
     return nodeConfigs[selectedNodeId as NodeID];
@@ -95,6 +100,21 @@ function NodeConfigPane() {
               {nodeDefinition.label} Config
             </HeaderSectionHeader>
           </HeaderSection>
+          {nodeDefinition.canUserAddIncomingVariables && (
+            <AddConnectorButtonSection>
+              <NodeBoxAddConnectorButton
+                label="Variable"
+                onClick={() => {
+                  addVariable(
+                    nodeConfig.nodeId,
+                    ConnectorType.NodeInput,
+                    incomingVariables.length,
+                  );
+                  updateNodeInternals(nodeConfig.nodeId);
+                }}
+              />
+            </AddConnectorButtonSection>
+          )}
           <NodeVariablesEditableList
             variableConfigs={incomingVariables}
             isListSortable
@@ -117,7 +137,6 @@ function NodeConfigPane() {
           <HeaderSection>
             <HeaderSectionHeader>Output variables</HeaderSectionHeader>
           </HeaderSection>
-
           <Section>
             {outputVariables.map((output) => (
               <SidePaneOutputRenderer key={output.id} outputItem={output} />
@@ -132,6 +151,11 @@ function NodeConfigPane() {
 
 const Container = styled.div`
   padding: 15px 15px 0 15px;
+`;
+
+const AddConnectorButtonSection = styled.div`
+  margin-top: 10px;
+  margin-bottom: 10px;
 `;
 
 export default NodeConfigPane;
