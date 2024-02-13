@@ -2,19 +2,23 @@ import styled from '@emotion/styled';
 import { ComponentProps } from 'react';
 import { Position } from 'reactflow';
 
+import BaseFlowHandle, {
+  HANDLE_HEIGHT,
+  HANDLE_WIDTH,
+} from 'components/node-variables-editable-list/BaseFlowHandle';
 import { ROW_MARGIN_TOP } from 'components/node-variables-editable-list/NodeVariableEditableItem';
 import { CONNECTOR_RESULT_DISPLAY_HEIGHT } from 'components/node-variables-editable-list/constants';
 
 import { BACKDROP_PADDING, SECTION_PADDING_BOTTOM } from '../constants';
-import { BaseHandle, HANDLE_HEIGHT, HANDLE_WIDTH } from './common';
 
-const OutgoingVariableHandleImpl = styled(BaseHandle)`
+const OutgoingVariableHandleImpl = styled(BaseFlowHandle)`
   background: #00b3ff;
   top: unset;
   right: -${HANDLE_WIDTH / 2 - BACKDROP_PADDING / 2}px;
+  transform: none;
 `;
 
-export default function OutgoingVariableHandle(
+function OutgoingVariableHandle(
   props: Omit<
     ComponentProps<typeof OutgoingVariableHandleImpl>,
     'position' | 'type'
@@ -50,3 +54,5 @@ function calcBottom(index: number, totalVariableCount: number) {
       (ROW_MARGIN_TOP + CONNECTOR_RESULT_DISPLAY_HEIGHT)
   );
 }
+
+export default OutgoingVariableHandle;

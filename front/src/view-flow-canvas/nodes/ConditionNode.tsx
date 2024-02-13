@@ -1,7 +1,7 @@
 import styled from '@emotion/styled';
 import { Checkbox, FormControl, FormHelperText, FormLabel } from '@mui/joy';
 import { useContext, useMemo } from 'react';
-import { useNodeId, useUpdateNodeInternals } from 'reactflow';
+import { Position, useNodeId, useUpdateNodeInternals } from 'reactflow';
 import invariant from 'tiny-invariant';
 
 import { ConditionResult, ConnectorType, NodeID, NodeType } from 'flow-models';
@@ -18,7 +18,6 @@ import {
 } from 'state-flow/util/state-utils';
 
 import IncomingConditionHandle from '../handles/IncomingConditionHandle';
-import IncomingVariableHandle from '../handles/IncomingVariableHandle';
 import OutgoingConditionHandle from '../handles/OutgoingConditionHandle';
 import NodeBox from '../node-box/NodeBox';
 import NodeBoxAddConnectorButton from '../node-box/NodeBoxAddConnectorButton';
@@ -89,9 +88,6 @@ function ConditionNode() {
   return (
     <>
       <IncomingConditionHandle id={conditionTarget.id} />
-      {incomingVariables.map((flowInput, i) => (
-        <IncomingVariableHandle key={flowInput.id} id={flowInput.id} />
-      ))}
       <NodeBox
         nodeType={NodeType.InputNode}
         isRunning={augment?.isRunning}
@@ -111,6 +107,7 @@ function ConditionNode() {
         />
         <GenericContainer>
           <NodeVariablesEditableList
+            showConnectorHandle={Position.Left}
             nodeId={nodeId}
             isNodeReadOnly={!isCurrentUserOwner}
             variableConfigs={incomingVariables.map((variable) => ({

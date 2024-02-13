@@ -1,7 +1,6 @@
 import styled from '@emotion/styled';
-import { A } from '@mobily/ts-belt';
 import { useContext, useMemo } from 'react';
-import { useNodeId, useUpdateNodeInternals } from 'reactflow';
+import { Position, useNodeId, useUpdateNodeInternals } from 'reactflow';
 
 import {
   ConnectorType,
@@ -10,15 +9,12 @@ import {
   OutputNodeInstanceLevelConfig,
 } from 'flow-models';
 
-import { ROW_MARGIN_TOP } from 'components/node-variables-editable-list/NodeVariableEditableItem';
 import NodeVariablesEditableList from 'components/node-variables-editable-list/NodeVariablesEditableList';
-import { CONNECTOR_RESULT_DISPLAY_HEIGHT } from 'components/node-variables-editable-list/constants';
 import RouteFlowContext from 'state-flow/context/FlowRouteContext';
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 import { CanvasRightPanelType } from 'state-flow/types';
 import { selectVariables } from 'state-flow/util/state-utils';
 
-import IncomingVariableHandle from '../handles/IncomingVariableHandle';
 import NodeBox from '../node-box/NodeBox';
 import NodeBoxHeaderSection from '../node-box/NodeBoxHeaderSection';
 
@@ -43,27 +39,12 @@ function OutputNode() {
     return selectVariables(nodeId, ConnectorType.FlowOutput, variablesDict);
   }, [nodeId, variablesDict]);
 
-  const inputVariableBlockHeightList = useMemo(() => {
-    return A.make(
-      flowOutputs.length,
-      CONNECTOR_RESULT_DISPLAY_HEIGHT + ROW_MARGIN_TOP,
-    );
-  }, [flowOutputs.length]);
-
   if (!nodeConfig) {
     return null;
   }
 
   return (
     <>
-      {flowOutputs.map((output, i) => (
-        <IncomingVariableHandle
-          key={output.id}
-          id={output.id}
-          index={i}
-          inputVariableBlockHeightList={inputVariableBlockHeightList}
-        />
-      ))}
       <NodeBox nodeType={NodeType.OutputNode}>
         <NodeBoxHeaderSection
           isReadOnly={!isCurrentUserOwner}
@@ -82,6 +63,7 @@ function OutputNode() {
         />
         <GenericContainer>
           <NodeVariablesEditableList
+            showConnectorHandle={Position.Left}
             nodeId={nodeId}
             isNodeReadOnly={!isCurrentUserOwner}
             variableConfigs={flowOutputs.map((output) => ({

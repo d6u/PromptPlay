@@ -1,16 +1,21 @@
 import styled from '@emotion/styled';
 import { ComponentProps } from 'react';
 import { Position } from 'reactflow';
-import { BACKDROP_PADDING } from '../constants';
-import { BaseHandle, HANDLE_WIDTH } from './common';
 
-const IncomingConditionHandleImpl = styled(BaseHandle)`
+import BaseFlowHandle, {
+  HANDLE_WIDTH,
+} from 'components/node-variables-editable-list/BaseFlowHandle';
+
+import { BACKDROP_PADDING } from '../constants';
+
+const IncomingConditionHandleImpl = styled(BaseFlowHandle)`
   background: #7a00df;
   top: 12px;
   left: -${HANDLE_WIDTH / 2 - BACKDROP_PADDING / 2}px;
+  transform: none;
 `;
 
-export default function IncomingConditionHandle(
+function IncomingConditionHandle(
   props: Omit<
     ComponentProps<typeof IncomingConditionHandleImpl>,
     'position' | 'type'
@@ -30,3 +35,5 @@ export default function IncomingConditionHandle(
     />
   );
 }
+
+export default IncomingConditionHandle;

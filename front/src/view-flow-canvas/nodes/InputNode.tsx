@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 import { useContext, useMemo } from 'react';
-import { useNodeId, useUpdateNodeInternals } from 'reactflow';
+import { Position, useNodeId, useUpdateNodeInternals } from 'reactflow';
 
 import {
   ConnectorType,
@@ -15,7 +15,6 @@ import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 import { CanvasRightPanelType } from 'state-flow/types';
 import { selectVariables } from 'state-flow/util/state-utils';
 
-import OutgoingVariableHandle from '../handles/OutgoingVariableHandle';
 import NodeBox from '../node-box/NodeBox';
 import NodeBoxHeaderSection from '../node-box/NodeBoxHeaderSection';
 
@@ -70,6 +69,7 @@ function InputNode() {
         />
         <GenericContainer>
           <NodeVariablesEditableList
+            showConnectorHandle={Position.Right}
             nodeId={nodeId}
             isNodeReadOnly={!isCurrentUserOwner}
             variableConfigs={flowInputVariables.map((variable) => ({
@@ -80,14 +80,6 @@ function InputNode() {
           />
         </GenericContainer>
       </NodeBox>
-      {flowInputVariables.map((flowInput, i) => (
-        <OutgoingVariableHandle
-          key={flowInput.id}
-          id={flowInput.id}
-          index={i}
-          totalVariableCount={flowInputVariables.length}
-        />
-      ))}
     </>
   );
 }

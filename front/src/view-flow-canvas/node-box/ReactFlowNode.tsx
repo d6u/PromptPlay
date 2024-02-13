@@ -1,7 +1,6 @@
 import styled from '@emotion/styled';
-import { A } from '@mobily/ts-belt';
-import { ReactNode, useEffect, useMemo, useState } from 'react';
-import { useNodeId, useUpdateNodeInternals } from 'reactflow';
+import { ReactNode, useMemo } from 'react';
+import { Position, useNodeId, useUpdateNodeInternals } from 'reactflow';
 
 import {
   ConnectorType,
@@ -21,7 +20,6 @@ import {
 
 import NodeConnectorResultDisplay from 'components/node-variables-editable-list/NodeConnectorResultDisplay';
 import IncomingConditionHandle from '../handles/IncomingConditionHandle';
-import IncomingVariableHandle from '../handles/IncomingVariableHandle';
 import OutgoingVariableHandle from '../handles/OutgoingVariableHandle';
 import NodeBox from './NodeBox';
 import NodeBoxHeaderSection from './NodeBoxHeaderSection';
@@ -106,26 +104,6 @@ function ReactFlowNode(props: Props) {
     (s) => s.setCanvasLeftPaneSelectedNodeId,
   );
 
-  // SECTION: Manage height of each variable input box
-  const [inputVariableBlockHeightList, setInputVariableBlockHeightList] =
-    useState<number[]>(() => {
-      return A.make(incomingVariables.length, 0);
-    });
-
-  useEffect(() => {
-    if (incomingVariables.length > inputVariableBlockHeightList.length) {
-      // NOTE: Increase the length of destConnectorInputHeightArr when needed
-      setInputVariableBlockHeightList((state) => {
-        return state.concat(A.make(incomingVariables.length - state.length, 0));
-      });
-    }
-  }, [incomingVariables.length, inputVariableBlockHeightList.length]);
-
-  useEffect(() => {
-    updateNodeInternals(nodeId);
-  }, [inputVariableBlockHeightList, nodeId, updateNodeInternals]);
-  // !SECTION
-
   let children: ReactNode;
   if (props.children) {
     children = props.children;
@@ -155,16 +133,6 @@ function ReactFlowNode(props: Props) {
   return (
     <>
       {conditionTarget && <IncomingConditionHandle id={conditionTarget.id} />}
-      {incomingVariables.map((connector, i) => {
-        return (
-          <IncomingVariableHandle
-            key={connector.id}
-            id={connector.id}
-            index={i}
-            inputVariableBlockHeightList={inputVariableBlockHeightList}
-          />
-        );
-      })}
       <NodeBox
         nodeType={props.nodeConfig.type}
         isRunning={augment?.isRunning}
@@ -192,6 +160,7 @@ function ReactFlowNode(props: Props) {
         />
         <GenericContainer>
           <NodeVariablesEditableList
+            showConnectorHandle={Position.Left}
             nodeId={nodeId}
             isNodeReadOnly={props.isNodeConfigReadOnly}
             variableConfigs={incomingVariables.map((variable) => {
@@ -205,11 +174,6 @@ function ReactFlowNode(props: Props) {
                 helperMessage: incomingVariableConfig?.helperMessage,
               };
             })}
-            onRowHeightChange={(index, height) => {
-              setInputVariableBlockHeightList((arr) => {
-                return A.updateAt(arr, index, () => height);
-              });
-            }}
           />
         </GenericContainer>
         {children}

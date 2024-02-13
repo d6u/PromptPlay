@@ -118,7 +118,8 @@ const Backdrop = styled.div<{ $type: NodeType; $state: NodeState }>`
 const Content = styled.div`
   background: #fff;
   border-radius: 5px;
-  overflow: hidden;
+  // Prevent margin collapse
+  display: flow-root;
 `;
 
 export default NodeBox;
