@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 
-import RemoveButton from 'components/generic/RemoveButton';
+import RemoveButton from 'generic-components/RemoveButton';
 import IconThreeDots from 'icons/IconThreeDots';
 
 import {

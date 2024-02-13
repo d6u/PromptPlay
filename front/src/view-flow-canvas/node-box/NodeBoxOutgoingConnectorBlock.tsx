@@ -2,8 +2,8 @@ import styled from '@emotion/styled';
 import { Input } from '@mui/joy';
 import { useState } from 'react';
 
-import ReadonlyInput from 'components/generic/ReadonlyInput';
-import RemoveButton from 'components/generic/RemoveButton';
+import ReadonlyInput from 'generic-components/ReadonlyInput';
+import RemoveButton from 'generic-components/RemoveButton';
 
 const Container = styled.div`
   margin-top: 5px;

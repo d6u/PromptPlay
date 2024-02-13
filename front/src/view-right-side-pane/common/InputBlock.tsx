@@ -4,8 +4,8 @@ import { ReactNode, useEffect, useState } from 'react';
 
 import { VariableValueType } from 'flow-models';
 
-import ReadonlyInput from 'components/generic/ReadonlyInput';
-import ReadonlyTextarea from 'components/generic/ReadonlyTextarea';
+import ReadonlyInput from 'generic-components/ReadonlyInput';
+import ReadonlyTextarea from 'generic-components/ReadonlyTextarea';
 
 type Props = {
   isReadOnly: boolean;

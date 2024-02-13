@@ -2,8 +2,8 @@ import styled from '@emotion/styled';
 import { Input } from '@mui/joy';
 import { Control, Controller, FieldArrayWithId } from 'react-hook-form';
 
-import ReadonlyInput from 'components/generic/ReadonlyInput';
-import RemoveButton from 'components/generic/RemoveButton';
+import ReadonlyInput from 'generic-components/ReadonlyInput';
+import RemoveButton from 'generic-components/RemoveButton';
 
 import { ConditionFormValue } from './types';
 

@@ -8,13 +8,13 @@ import {
   NodeID,
 } from 'flow-models';
 
+import NodeFieldLabelWithIconContainer from 'components/node-fields/NodeFieldLabelWithIconContainer';
+import CopyIconButton from 'generic-components/CopyIconButton';
+import ReadonlyTextarea from 'generic-components/ReadonlyTextarea';
 import RouteFlowContext from 'state-flow/context/FlowRouteContext';
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 import { selectVariables } from 'state-flow/util/state-utils';
 
-import CopyIconButton from '../../components/generic/CopyIconButton';
-import ReadonlyTextarea from '../../components/generic/ReadonlyTextarea';
-import NodeFieldLabelWithIconContainer from '../../components/node-fields/NodeFieldLabelWithIconContainer';
 import NodeBoxSection from '../node-box/NodeBoxSection';
 import ReactFlowNode from '../node-box/ReactFlowNode';
 

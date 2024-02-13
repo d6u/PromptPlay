@@ -4,8 +4,8 @@ import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 
 import { TextareaFieldDefinition } from 'flow-models';
 
-import CopyIconButton from 'components/generic/CopyIconButton';
-import ReadonlyTextarea from 'components/generic/ReadonlyTextarea';
+import CopyIconButton from 'generic-components/CopyIconButton';
+import ReadonlyTextarea from 'generic-components/ReadonlyTextarea';
 
 import NodeFieldLabelWithIconContainer from './NodeFieldLabelWithIconContainer';
 import NodeFieldSectionFormControl from './NodeFieldSectionFormControl';

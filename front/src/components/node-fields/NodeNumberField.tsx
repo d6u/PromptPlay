@@ -7,7 +7,7 @@ import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 
 import { NumberFieldDefinition } from 'flow-models';
 
-import ReadonlyInput from 'components/generic/ReadonlyInput';
+import ReadonlyInput from 'generic-components/ReadonlyInput';
 
 import NodeFieldHelperTextWithStatus from './NodeFieldHelperTextWithStatus';
 import NodeFieldSectionFormControl from './NodeFieldSectionFormControl';

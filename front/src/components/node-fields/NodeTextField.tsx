@@ -4,7 +4,7 @@ import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 
 import { TextFieldDefinition } from 'flow-models';
 
-import ReadonlyInput from 'components/generic/ReadonlyInput';
+import ReadonlyInput from 'generic-components/ReadonlyInput';
 
 import NodeFieldSectionFormControl from './NodeFieldSectionFormControl';
 

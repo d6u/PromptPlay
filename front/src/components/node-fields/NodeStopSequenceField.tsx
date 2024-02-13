@@ -5,7 +5,7 @@ import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import { StopSequenceFieldDefinition } from 'flow-models';
 import { NEW_LINE_SYMBOL } from 'integrations/openai';
 
-import ReadonlyInput from 'components/generic/ReadonlyInput';
+import ReadonlyInput from 'generic-components/ReadonlyInput';
 
 import NodeFieldSectionFormControl from './NodeFieldSectionFormControl';
 
