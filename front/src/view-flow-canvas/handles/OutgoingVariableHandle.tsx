@@ -2,13 +2,13 @@ import styled from '@emotion/styled';
 import { ComponentProps } from 'react';
 import { Position } from 'reactflow';
 
-import { ROW_MARGIN_TOP } from 'components/node-variables-editable-list/NodeVariableEditableItem';
-import { CONNECTOR_RESULT_DISPLAY_HEIGHT } from 'components/node-variables-editable-list/constants';
-
 import BaseFlowHandle, {
   HANDLE_HEIGHT,
   HANDLE_WIDTH,
-} from '../../components/node-variables-editable-list/BaseFlowHandle';
+} from 'components/node-variables-editable-list/BaseFlowHandle';
+import { ROW_MARGIN_TOP } from 'components/node-variables-editable-list/NodeVariableEditableItem';
+import { CONNECTOR_RESULT_DISPLAY_HEIGHT } from 'components/node-variables-editable-list/constants';
+
 import { BACKDROP_PADDING, SECTION_PADDING_BOTTOM } from '../constants';
 
 const OutgoingVariableHandleImpl = styled(BaseFlowHandle)`

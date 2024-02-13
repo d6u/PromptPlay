@@ -2,13 +2,13 @@ import styled from '@emotion/styled';
 import { ComponentProps } from 'react';
 import { Position } from 'reactflow';
 
-import { ROW_MARGIN_TOP } from 'components/node-variables-editable-list/NodeVariableEditableItem';
-import { CONNECTOR_RESULT_DISPLAY_HEIGHT } from 'components/node-variables-editable-list/constants';
-
 import BaseFlowHandle, {
   HANDLE_HEIGHT,
   HANDLE_WIDTH,
-} from '../../components/node-variables-editable-list/BaseFlowHandle';
+} from 'components/node-variables-editable-list/BaseFlowHandle';
+import { ROW_MARGIN_TOP } from 'components/node-variables-editable-list/NodeVariableEditableItem';
+import { CONNECTOR_RESULT_DISPLAY_HEIGHT } from 'components/node-variables-editable-list/constants';
+
 import {
   BACKDROP_PADDING,
   CONDITION_NODE_DEFAULT_CASE_HELPER_TEXT_HEIGHT,
@@ -19,9 +19,10 @@ const OutgoingConditionHandleImpl = styled(BaseFlowHandle)`
   background: #7a00df;
   top: unset;
   right: -${HANDLE_WIDTH / 2 - BACKDROP_PADDING / 2}px;
+  transform: none;
 `;
 
-export default function OutgoingConditionHandle(
+function OutgoingConditionHandle(
   props: Omit<
     ComponentProps<typeof OutgoingConditionHandleImpl>,
     'position' | 'type'
@@ -77,3 +78,5 @@ function calcBottom(
         CONNECTOR_RESULT_DISPLAY_HEIGHT * 2)
   );
 }
+
+export default OutgoingConditionHandle;
