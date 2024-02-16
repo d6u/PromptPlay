@@ -213,11 +213,10 @@ function NodeVariablesEditableList(props: Props) {
                   control={control}
                   formField={field}
                   index={index}
-                  onUpdateTrigger={updateVariables}
                   onRemove={() => {
                     remove(index);
-                    updateVariables();
                   }}
+                  onUpdateTrigger={updateVariables}
                 />
               );
             })}
