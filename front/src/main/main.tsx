@@ -1,9 +1,14 @@
-import { POSTHOG_TOKEN } from 'global-config/global-config.ts';
+import { enablePatches } from 'immer';
 import posthog from 'posthog-js';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+
+import { POSTHOG_TOKEN } from 'global-config/global-config';
+
 import App from './App.tsx';
 import UITheme from './UITheme.tsx';
+
+enablePatches();
 
 // Disable anlytics in development
 if (
