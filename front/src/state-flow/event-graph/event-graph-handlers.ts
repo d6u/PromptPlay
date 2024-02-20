@@ -1,4 +1,15 @@
 import { A, D } from '@mobily/ts-belt';
+import { current, produce } from 'immer';
+import {
+  Connection,
+  EdgeChange,
+  NodeChange,
+  addEdge,
+  applyEdgeChanges,
+  applyNodeChanges,
+} from 'reactflow';
+import invariant from 'tiny-invariant';
+
 import chance from 'common-utils/chance';
 import randomId from 'common-utils/randomId';
 import {
@@ -23,17 +34,9 @@ import {
   asV3VariableID,
   getNodeDefinitionForNodeTypeName,
 } from 'flow-models';
-import { current, produce } from 'immer';
-import {
-  Connection,
-  EdgeChange,
-  NodeChange,
-  addEdge,
-  applyEdgeChanges,
-  applyNodeChanges,
-} from 'reactflow';
-import invariant from 'tiny-invariant';
+
 import { DRAG_HANDLE_CLASS_NAME } from 'view-flow-canvas/constants';
+
 import { CsvEvaluationConfigContent } from '../slice-csv-evaluation-preset';
 import { FlowState } from '../types';
 import { assignLocalEdgeProperties } from '../util/state-utils';

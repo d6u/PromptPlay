@@ -1,15 +1,18 @@
-import { ConnectorType } from 'flow-models';
+import { Connector, ConnectorType } from 'flow-models';
 
-import { createHandlerHolder } from './event-graph-util';
-import {
-  VariableUpdatedEvent,
-  updateVariableOnEdgeRemoval,
-} from './update-variable-on-edge-removal';
+import { ChangeEventType } from 'state-flow/event-graph/event-graph-types';
+import { createHandler } from './event-graph-util';
 
-export const updateVariableValueMapOnVariableUpdate = createHandlerHolder<
+export type VariableUpdatedEvent = {
+  type: ChangeEventType.VARIABLE_UPDATED;
+  prevVariableConfig: Connector;
+  nextVariableConfig: Connector;
+};
+
+export const updateVariableValueMapOnVariableUpdate = createHandler<
   VariableUpdatedEvent,
   never
->([updateVariableOnEdgeRemoval], (state, event) => {
+>((state, event) => {
   if (
     (event.prevVariableConfig.type === ConnectorType.FlowInput ||
       event.prevVariableConfig.type === ConnectorType.FlowOutput ||
