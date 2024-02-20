@@ -20,7 +20,7 @@ import {
   updateVariableOnEdgeAdded,
 } from './update-variable-on-edge-added';
 
-type ReactFlowConnectEvent = {
+export type ReactFlowConnectEvent = {
   type: ChangeEventType.RF_ON_CONNECT;
   connection: Connection;
 };
@@ -35,6 +35,9 @@ export const handleReactFlowConnect = createHandler<
   ReactFlowConnectEvent,
   EdgeReplacedEvent | EdgeAddedEvent
 >(
+  (event): event is ReactFlowConnectEvent => {
+    return event.type === ChangeEventType.RF_ON_CONNECT;
+  },
   (state, event) => {
     console.log('handleReactFlowConnect', event.connection);
     const events: (EdgeReplacedEvent | EdgeAddedEvent)[] = [];

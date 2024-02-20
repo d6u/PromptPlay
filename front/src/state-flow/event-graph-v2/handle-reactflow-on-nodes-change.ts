@@ -9,7 +9,7 @@ import {
   updateConnectorOnNodeRemoval,
 } from './update-connector-on-node-removal';
 
-type ReactFlowNodesChangeEvent = {
+export type ReactFlowNodesChangeEvent = {
   type: ChangeEventType.RF_NODES_CHANGE;
   changes: NodeChange[];
 };
@@ -18,6 +18,9 @@ export const handleReactFlowNodesChange = createHandler<
   ReactFlowNodesChangeEvent,
   NodeRemovedEvent
 >(
+  (event): event is ReactFlowNodesChangeEvent => {
+    return event.type === ChangeEventType.RF_NODES_CHANGE;
+  },
   (state, event) => {
     const events: NodeRemovedEvent[] = [];
 

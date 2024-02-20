@@ -9,7 +9,7 @@ import {
   updateVariableOnEdgeRemoval,
 } from './update-variable-on-edge-removal';
 
-type ReactFlowEdgesChangeEvent = {
+export type ReactFlowEdgesChangeEvent = {
   type: ChangeEventType.RF_EDGES_CHANGE;
   changes: EdgeChange[];
 };
@@ -18,6 +18,9 @@ export const handleReactFlowEdgesChange = createHandler<
   ReactFlowEdgesChangeEvent,
   EdgeRemovedEvent
 >(
+  (event): event is ReactFlowEdgesChangeEvent => {
+    return event.type === ChangeEventType.RF_EDGES_CHANGE;
+  },
   (state, event) => {
     const events: EdgeRemovedEvent[] = [];
 

@@ -22,9 +22,10 @@ import {
   createNode,
 } from 'flow-models';
 
-import { handleReactFlowConnect } from './event-graph-v2/handle-reactflow-connect';
-import { handleReactFlowEdgesChange } from './event-graph-v2/handle-reactflow-on-edges-change';
-import { handleReactFlowNodesChange } from './event-graph-v2/handle-reactflow-on-nodes-change';
+import {
+  AcceptedEvent,
+  handleAllEvent,
+} from './event-graph-v2/handle-all-event';
 import { handleEvent } from './event-graph/event-graph-handlers';
 import {
   ChangeEvent,
@@ -169,6 +170,17 @@ export const createFlowServerSliceV3: StateCreator<
     set(() => ({ isFlowContentDirty: false }));
   }
 
+  function processEventGraphEvent(event: AcceptedEvent) {
+    const [nextState, patches, inversePatches] = produceWithPatches(
+      get(),
+      (draft) => {
+        handleAllEvent(draft, event);
+      },
+    );
+
+    console.log(nextState === get(), patches, inversePatches);
+  }
+
   return {
     ...FLOW_SERVER_SLICE_INITIAL_STATE_V2,
 
@@ -177,17 +189,10 @@ export const createFlowServerSliceV3: StateCreator<
     },
 
     onEdgesChange(changes: EdgeChange[]): void {
-      const [nextState, patches, inversePatches] = produceWithPatches(
-        get(),
-        (draft) => {
-          handleReactFlowEdgesChange.processEvent(draft, {
-            type: ChangeEventType.RF_EDGES_CHANGE,
-            changes,
-          });
-        },
-      );
-
-      console.log(nextState === get(), patches, inversePatches);
+      processEventGraphEvent({
+        type: ChangeEventType.RF_EDGES_CHANGE,
+        changes,
+      });
 
       startProcessingEventGraph({
         type: ChangeEventType.RF_EDGES_CHANGE,
@@ -195,23 +200,10 @@ export const createFlowServerSliceV3: StateCreator<
       });
     },
     onNodesChange(changes: NodeChange[]): void {
-      const [nextState, patches, inversePatches] = produceWithPatches(
-        get(),
-        (draft) => {
-          handleReactFlowNodesChange.processEvent(draft, {
-            type: ChangeEventType.RF_NODES_CHANGE,
-            changes,
-          });
-        },
-      );
-
-      console.log(
-        'onNodesChange',
+      processEventGraphEvent({
+        type: ChangeEventType.RF_NODES_CHANGE,
         changes,
-        nextState === get(),
-        patches,
-        inversePatches,
-      );
+      });
 
       startProcessingEventGraph({
         type: ChangeEventType.RF_NODES_CHANGE,
@@ -219,17 +211,10 @@ export const createFlowServerSliceV3: StateCreator<
       });
     },
     onConnect(connection): void {
-      const [nextState, patches, inversePatches] = produceWithPatches(
-        get(),
-        (draft) => {
-          handleReactFlowConnect.processEvent(draft, {
-            type: ChangeEventType.RF_ON_CONNECT,
-            connection,
-          });
-        },
-      );
-
-      console.log('onConnect', nextState === get(), patches, inversePatches);
+      processEventGraphEvent({
+        type: ChangeEventType.RF_ON_CONNECT,
+        connection,
+      });
 
       startProcessingEventGraph({
         type: ChangeEventType.RF_ON_CONNECT,
