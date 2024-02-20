@@ -54,8 +54,9 @@ export const removeEdgeOnVariableRemoval = createHandler<
 
     delete state.variableValueLookUpDicts[0][event.removedVariable.id];
 
-    // TODO: Update state type
-    delete state.csvEvaluationConfigContent[event.removedVariable.id];
+    delete state.csvEvaluationConfigContent.variableIdToCsvColumnIndexMap[
+      event.removedVariable.id
+    ];
 
     return events;
   },
