@@ -26,6 +26,9 @@ export const removeEdgeOnVariableRemoval = createHandler<
   VariableRemovedEvent,
   EdgeRemovedEvent
 >(
+  (event): event is VariableRemovedEvent => {
+    return event.type === ChangeEventType.VARIABLE_REMOVED;
+  },
   (state, event) => {
     const events: EdgeRemovedEvent[] = [];
 
