@@ -223,18 +223,34 @@ export const createFlowServerSliceV3: StateCreator<
     },
 
     addNode(type: NodeType, x: number, y: number): void {
+      processEventGraphEvent({
+        type: ChangeEventType.ADDING_NODE,
+        node: createNode(type, x, y),
+      });
+
       startProcessingEventGraph({
         type: ChangeEventType.ADDING_NODE,
         node: createNode(type, x, y),
       });
     },
     removeNode(id: NodeID): void {
+      processEventGraphEvent({
+        type: ChangeEventType.REMOVING_NODE,
+        nodeId: id,
+      });
+
       startProcessingEventGraph({
         type: ChangeEventType.REMOVING_NODE,
         nodeId: id,
       });
     },
     updateNodeConfig(nodeId: NodeID, change: Partial<NodeConfig>): void {
+      processEventGraphEvent({
+        type: ChangeEventType.UPDATING_NODE_CONFIG,
+        nodeId,
+        change,
+      });
+
       startProcessingEventGraph({
         type: ChangeEventType.UPDATING_NODE_CONFIG,
         nodeId,
@@ -243,6 +259,13 @@ export const createFlowServerSliceV3: StateCreator<
     },
 
     addVariable(nodeId: NodeID, type: ConnectorType, index: number): void {
+      processEventGraphEvent({
+        type: ChangeEventType.ADDING_VARIABLE,
+        nodeId,
+        varType: type,
+        index,
+      });
+
       startProcessingEventGraph({
         type: ChangeEventType.ADDING_VARIABLE,
         nodeId,
@@ -251,6 +274,11 @@ export const createFlowServerSliceV3: StateCreator<
       });
     },
     removeVariable(variableId: ConnectorID): void {
+      processEventGraphEvent({
+        type: ChangeEventType.REMOVING_VARIABLE,
+        variableId,
+      });
+
       startProcessingEventGraph({
         type: ChangeEventType.REMOVING_VARIABLE,
         variableId,
