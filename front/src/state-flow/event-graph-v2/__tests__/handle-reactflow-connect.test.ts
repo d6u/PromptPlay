@@ -1,3 +1,4 @@
+import { produce } from 'immer';
 import { expect, test, vi } from 'vitest';
 
 import {
@@ -14,7 +15,6 @@ import {
 import { ChangeEventType } from 'state-flow/event-graph/event-graph-types';
 import { BatchTestTab } from 'state-flow/types';
 
-import { produce } from 'immer';
 import { handleReactFlowConnectEvent } from '../handle-reactflow-connect';
 
 vi.stubGlobal('alert', () => {});

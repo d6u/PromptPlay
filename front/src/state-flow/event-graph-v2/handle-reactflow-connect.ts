@@ -19,22 +19,20 @@ import {
   EdgeAddedEvent,
   updateVariableOnEdgeAdded,
 } from './update-variable-on-edge-added';
+import {
+  EdgeReplacedEvent,
+  updateVariableOnEdgeReplace,
+} from './update-variable-on-edge-replace';
 
 export type ReactFlowConnectEvent = {
   type: ChangeEventType.RF_ON_CONNECT;
   connection: Connection;
 };
 
-type EdgeReplacedEvent = {
-  type: ChangeEventType.EDGE_REPLACED;
-  oldEdge: V3LocalEdge;
-  newEdge: V3LocalEdge;
-};
-
 type OutputEvent = EdgeReplacedEvent | EdgeAddedEvent;
 
 export function handleReactFlowConnectEvent(
-  state: State,
+  state: Draft<State>,
   event: ReactFlowConnectEvent,
 ): OutputEvent[] {
   const events: OutputEvent[] = [];
@@ -157,5 +155,5 @@ export const handleReactFlowConnect = createHandler<
     return event.type === ChangeEventType.RF_ON_CONNECT;
   },
   handleReactFlowConnectEvent,
-  [updateVariableOnEdgeAdded],
+  [updateVariableOnEdgeAdded, updateVariableOnEdgeReplace],
 );
