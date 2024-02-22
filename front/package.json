@@ -9,7 +9,8 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "compile": "graphql-codegen",
-    "watch": "graphql-codegen -w"
+    "watch": "graphql-codegen -w",
+    "test": "vitest"
   },
   "dependencies": {
     "@dhmk/zustand-lens": "^3.0.4",
@@ -68,6 +69,7 @@
     "typescript": "^5.0.2",
     "vite": "^5.0.0",
     "vite-plugin-mkcert": "^1.17.1",
-    "vite-tsconfig-paths": "^4.3.1"
+    "vite-tsconfig-paths": "^4.3.1",
+    "vitest": "^1.3.1"
   }
 }

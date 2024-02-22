@@ -9,7 +9,7 @@ import { OperationResult } from 'urql';
 import { StateCreator } from 'zustand';
 import { BatchTestTab, FlowState } from './types';
 
-export type CsvEvaluationPresetSlice = {
+export type CsvEvaluationPresetState = {
   selectedBatchTestTab: BatchTestTab;
 
   csvModeSelectedPresetId: string | null;
@@ -18,7 +18,9 @@ export type CsvEvaluationPresetSlice = {
   // Persistable data
   csvStr: string;
   csvEvaluationConfigContent: CsvEvaluationConfigContent;
+};
 
+export type CsvEvaluationPresetSlice = CsvEvaluationPresetState & {
   setSelectedBatchTestTab(tab: BatchTestTab): void;
 
   setCsvStr(csvStr: string): void;
