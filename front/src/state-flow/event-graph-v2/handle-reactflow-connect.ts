@@ -1,6 +1,7 @@
 import { A } from '@mobily/ts-belt';
-import { Draft } from 'immer';
+import { Draft, current } from 'immer';
 import { Connection, addEdge } from 'reactflow';
+import invariant from 'tiny-invariant';
 
 import randomId from 'common-utils/randomId';
 import {
@@ -42,35 +43,37 @@ export function handleReactFlowConnectEvent(
     return [];
   }
 
-  const nextEdges = addEdge(event.connection, state.edges) as V3LocalEdge[];
-  const addedEdges = A.difference(nextEdges, state.edges);
+  const newEdgeArray = addEdge(event.connection, state.edges) as V3LocalEdge[];
+  const addedEdges = A.difference(newEdgeArray, state.edges);
 
-  // When connecting two handles that are already connected in React Flow.
+  // Connection already existed
   if (addedEdges.length === 0) {
     return [];
   }
 
-  const addedEdge = addedEdges[0];
+  invariant(addedEdges.length === 1, 'There should be only one new edge');
 
-  // Give shorter ID for readability
-  addedEdge.id = randomId() as EdgeID;
+  const newEdge = addedEdges[0];
 
-  const outgoingConnector = state.variablesDict[addedEdge.sourceHandle];
+  newEdge.id = randomId() as EdgeID; // Shorter ID for readability
+
+  const sourceConnector = state.variablesDict[newEdge.sourceHandle];
 
   if (
-    outgoingConnector.type === ConnectorType.FlowInput ||
-    outgoingConnector.type === ConnectorType.FlowOutput ||
-    outgoingConnector.type === ConnectorType.NodeInput ||
-    outgoingConnector.type === ConnectorType.NodeOutput
+    sourceConnector.type === ConnectorType.FlowInput ||
+    sourceConnector.type === ConnectorType.FlowOutput ||
+    sourceConnector.type === ConnectorType.NodeInput ||
+    sourceConnector.type === ConnectorType.NodeOutput
   ) {
-    // NOTE: New edge connects two variables
+    // When the new edge connects two variables
 
     // SECTION: Check if new edge has valid destination value type
+    // TODO: More systematic way to check type compatibility
 
-    if (outgoingConnector.valueType === VariableValueType.Audio) {
-      const dstNodeConfig = state.nodeConfigsDict[addedEdge.target];
+    if (sourceConnector.valueType === VariableValueType.Audio) {
+      const targetNodeConfig = state.nodeConfigsDict[newEdge.target];
 
-      if (dstNodeConfig.type !== NodeType.OutputNode) {
+      if (targetNodeConfig.type !== NodeType.OutputNode) {
         // TODO: Change this to a non-blocking alert UI
         alert('You can only connect an audio output to an output node.');
 
@@ -81,11 +84,13 @@ export function handleReactFlowConnectEvent(
     // !SECTION
 
     // SECTION: Check if this is a replacing or adding
-
     // NOTE: Incoming variable can only have a single incoming edge
-    const [acceptedEdges, rejectedEdges] = A.partition(nextEdges, (edge) => {
+
+    const [acceptedEdges, rejectedEdges] = A.partition(newEdgeArray, (edge) => {
+      // 1) an edge that's not the newEdge (newEdgeArray contains the newEdge)
+      // 2) and target the same variable
       return !(
-        edge.id !== addedEdge.id && edge.targetHandle === addedEdge.targetHandle
+        edge.id !== newEdge.id && edge.targetHandle === newEdge.targetHandle
       );
     });
 
@@ -94,17 +99,15 @@ export function handleReactFlowConnectEvent(
 
       events.push({
         type: ChangeEventType.EDGE_ADDED,
-        edge: addedEdge,
+        edge: newEdge,
       });
     } else {
       // Replace edge
 
-      const oldEdge = rejectedEdges[0];
-
       events.push({
         type: ChangeEventType.EDGE_REPLACED,
-        oldEdge,
-        newEdge: addedEdge,
+        oldEdge: current(rejectedEdges[0]),
+        newEdge,
       });
     }
 
@@ -112,7 +115,7 @@ export function handleReactFlowConnectEvent(
 
     state.edges = acceptedEdges;
   } else {
-    // NOTE: New edge connects a condition and a condition target
+    // When the new edge connects a condition and a condition target
 
     // NOTE: For condition edge, we allow same source with multiple targets
     // as well as same target with multiple sources. Thus, we won't generate
@@ -120,10 +123,10 @@ export function handleReactFlowConnectEvent(
 
     events.push({
       type: ChangeEventType.EDGE_ADDED,
-      edge: addedEdge,
+      edge: newEdge,
     });
 
-    state.edges = nextEdges;
+    state.edges = newEdgeArray;
   }
 
   addEdgeStyle(state.edges, state.variablesDict);
@@ -131,7 +134,10 @@ export function handleReactFlowConnectEvent(
   return events;
 }
 
-function addEdgeStyle(edges: Draft<V3LocalEdge[]>, connectors: ConnectorMap) {
+function addEdgeStyle(
+  edges: Draft<V3LocalEdge[]>,
+  connectors: Readonly<ConnectorMap>,
+) {
   for (const edge of edges) {
     if (!edge.style) {
       const srcConnector = connectors[edge.sourceHandle];
