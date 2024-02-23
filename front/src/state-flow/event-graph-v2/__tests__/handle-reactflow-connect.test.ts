@@ -446,7 +446,7 @@ test('handleReactFlowConnect should replace edge', () => {
   });
 });
 
-test('handleReactFlowConnect should replace edge and update dest variable value type', () => {
+test('handleReactFlowConnect should replace edge and update dest variable valueType', () => {
   const prevState: State = {
     ...MOCK_STATE,
     nodes: [
@@ -596,6 +596,127 @@ test('handleReactFlowConnect should replace edge and update dest variable value 
         name: 'var3',
         nodeId: 'Is8Op',
         type: 'FlowOutput',
+        valueType: 'Audio',
+      },
+    },
+  });
+});
+
+test('handleReactFlowConnect should add edge and update dest variable valueType', () => {
+  const prevState: State = {
+    ...MOCK_STATE,
+    nodes: [
+      {
+        id: 'Is8Op',
+        type: 'OutputNode',
+        position: {
+          x: 690,
+          y: 159,
+        },
+        data: null,
+        dragHandle: '.node-drag-handle',
+        width: 300,
+        height: 132,
+      },
+      {
+        id: 'gso6A',
+        type: 'ElevenLabs',
+        position: {
+          x: 261.9504000000001,
+          y: 61.293199999999956,
+        },
+        data: null,
+        dragHandle: '.node-drag-handle',
+        width: 300,
+        height: 352,
+      },
+    ],
+    edges: [],
+    nodeConfigsDict: {
+      Is8Op: {
+        nodeId: 'Is8Op',
+        type: 'OutputNode',
+      },
+      gso6A: {
+        nodeId: 'gso6A',
+        type: 'ElevenLabs',
+      },
+    },
+    variablesDict: {
+      'Is8Op/5TUFT': {
+        type: 'FlowOutput',
+        id: 'Is8Op/5TUFT',
+        nodeId: 'Is8Op',
+        index: 0,
+        name: 'var3',
+        valueType: 'String',
+      },
+      'gso6A/text': {
+        type: 'NodeInput',
+        id: 'gso6A/text',
+        name: 'text',
+        nodeId: 'gso6A',
+        index: 0,
+        valueType: 'Unknown',
+      },
+      'gso6A/audio': {
+        type: 'NodeOutput',
+        id: 'gso6A/audio',
+        name: 'audio',
+        nodeId: 'gso6A',
+        index: 0,
+        valueType: 'Audio',
+      },
+      'gso6A/MNYNr': {
+        type: 'ConditionTarget',
+        id: 'gso6A/MNYNr',
+        nodeId: 'gso6A',
+      },
+    },
+    variableValueLookUpDicts: [
+      {
+        'Is8Op/5TUFT': null,
+        'gso6A/text': null,
+        'gso6A/audio': null,
+      },
+    ],
+  };
+
+  const nextState = produce(prevState, (draft) => {
+    handleReactFlowConnect(draft, {
+      type: ChangeEventType.RF_ON_CONNECT,
+      connection: {
+        source: 'gso6A',
+        sourceHandle: 'gso6A/audio',
+        target: 'Is8Op',
+        targetHandle: 'Is8Op/5TUFT',
+      },
+    } as BaseEvent);
+  });
+
+  expect(nextState).toEqual({
+    ...prevState,
+    edges: [
+      {
+        id: expect.any(String),
+        source: 'gso6A',
+        sourceHandle: 'gso6A/audio',
+        target: 'Is8Op',
+        targetHandle: 'Is8Op/5TUFT',
+        style: {
+          strokeWidth: 2,
+        },
+      },
+    ],
+    variablesDict: {
+      ...prevState.variablesDict,
+      'Is8Op/5TUFT': {
+        id: 'Is8Op/5TUFT',
+        index: 0,
+        name: 'var3',
+        nodeId: 'Is8Op',
+        type: 'FlowOutput',
+        // TODO: Better presenting that valueType is changed
         valueType: 'Audio',
       },
     },
