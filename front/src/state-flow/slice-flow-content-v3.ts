@@ -202,6 +202,7 @@ export const createFlowServerSliceV3: StateCreator<
     },
 
     onEdgesChange(changes: EdgeChange[]): void {
+      console.log('onEdgesChange', changes);
       startProcessingEventGraph({
         type: ChangeEventType.RF_EDGES_CHANGE,
         changes,

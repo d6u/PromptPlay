@@ -185,11 +185,11 @@ test('handleEdgeReplacedEvent updates destination variables value type', () => {
     expect(r).toEqual([
       {
         type: ChangeEventType.VARIABLE_UPDATED,
-        prevVariableConfig: {
+        prevVariable: {
           type: ConnectorType.FlowOutput,
           valueType: VariableValueType.Unknown,
         },
-        nextVariableConfig: {
+        nextVariable: {
           type: ConnectorType.FlowOutput,
           valueType: VariableValueType.String,
         },
