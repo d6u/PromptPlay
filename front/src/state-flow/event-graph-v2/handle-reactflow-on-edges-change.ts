@@ -1,4 +1,6 @@
+import { current } from 'immer';
 import { EdgeChange, applyEdgeChanges } from 'reactflow';
+import invariant from 'tiny-invariant';
 
 import { V3LocalEdge } from 'flow-models';
 
@@ -26,18 +28,25 @@ export const handleReactFlowEdgesChange = createHandler<
 
     for (const change of event.changes) {
       switch (change.type) {
-        case 'remove': {
-          events.push({
-            type: ChangeEventType.EDGE_REMOVED,
-            removedEdge: state.edges.find((edge) => edge.id === change.id)!,
-            edgeSrcVariableConfig: null,
-          });
-          break;
-        }
         case 'add':
         case 'select':
         case 'reset':
           break;
+        case 'remove': {
+          const edgeSnapshot = current(
+            state.edges.find((edge) => edge.id === change.id),
+          );
+
+          invariant(edgeSnapshot != null, 'Edge is not null');
+
+          events.push({
+            type: ChangeEventType.EDGE_REMOVED,
+            removedEdge: edgeSnapshot,
+            edgeSrcVariableConfig: null,
+          });
+
+          break;
+        }
       }
     }
 

@@ -1,5 +1,5 @@
 import { A, D } from '@mobily/ts-belt';
-import { produce, produceWithPatches } from 'immer';
+import { produce } from 'immer';
 import debounce from 'lodash/debounce';
 import {
   EdgeChange,
@@ -12,11 +12,9 @@ import invariant from 'tiny-invariant';
 import { StateCreator } from 'zustand';
 
 import {
-  ConnectorID,
   ConnectorResultMap,
   ConnectorType,
   NodeConfig,
-  NodeID,
   NodeType,
   V3FlowContent,
   createNode,
@@ -55,19 +53,19 @@ type SliceFlowContentV3Actions = {
   onConnect: OnConnect;
 
   addNode(type: NodeType, x: number, y: number): void;
-  removeNode(id: NodeID): void;
-  updateNodeConfig(nodeId: NodeID, change: Partial<NodeConfig>): void;
+  removeNode(nodeId: string): void;
+  updateNodeConfig(nodeId: string, change: Partial<NodeConfig>): void;
 
-  addVariable(nodeId: NodeID, type: ConnectorType, index: number): void;
-  removeVariable(variableId: ConnectorID): void;
+  addVariable(nodeId: string, type: ConnectorType, index: number): void;
+  removeVariable(variableId: string): void;
   updateVariable<
     T extends ConnectorType,
     R = VariableTypeToVariableConfigTypeMap[T],
   >(
-    variableId: ConnectorID,
+    variableId: string,
     change: Partial<R>,
   ): void;
-  updateVariableValueMap(variableId: ConnectorID, value: unknown): void;
+  updateVariableValueMap(variableId: string, value: unknown): void;
 
   // Local Only
   getDefaultVariableValueLookUpDict(): ConnectorResultMap;
@@ -170,15 +168,30 @@ export const createFlowServerSliceV3: StateCreator<
     set(() => ({ isFlowContentDirty: false }));
   }
 
-  function processEventGraphEvent(event: AcceptedEvent) {
-    const [nextState, patches, inversePatches] = produceWithPatches(
-      get(),
-      (draft) => {
-        handleAllEvent(draft, event);
-      },
-    );
+  function processEventWithEventGraph(event: AcceptedEvent) {
+    let isDirty = false;
 
-    console.log(nextState === get(), patches, inversePatches);
+    set((state) => {
+      const nextState = produce(get(), (draft) => {
+        handleAllEvent(draft, event);
+      });
+      isDirty = nextState !== state;
+      return nextState;
+    });
+
+    if (isDirty) {
+      const spaceId = get().spaceId;
+
+      invariant(spaceId != null);
+
+      saveSpaceDebounced(spaceId, {
+        nodes: get().nodes,
+        edges: get().edges,
+        nodeConfigsDict: get().nodeConfigsDict,
+        variablesDict: get().variablesDict,
+        variableValueLookUpDicts: get().variableValueLookUpDicts,
+      });
+    }
   }
 
   return {
@@ -189,68 +202,37 @@ export const createFlowServerSliceV3: StateCreator<
     },
 
     onEdgesChange(changes: EdgeChange[]): void {
-      processEventGraphEvent({
-        type: ChangeEventType.RF_EDGES_CHANGE,
-        changes,
-      });
-
       startProcessingEventGraph({
         type: ChangeEventType.RF_EDGES_CHANGE,
         changes,
       });
     },
     onNodesChange(changes: NodeChange[]): void {
-      processEventGraphEvent({
-        type: ChangeEventType.RF_NODES_CHANGE,
-        changes,
-      });
-
       startProcessingEventGraph({
         type: ChangeEventType.RF_NODES_CHANGE,
         changes,
       });
     },
     onConnect(connection): void {
-      processEventGraphEvent({
-        type: ChangeEventType.RF_ON_CONNECT,
-        connection,
-      });
-
-      startProcessingEventGraph({
+      processEventWithEventGraph({
         type: ChangeEventType.RF_ON_CONNECT,
         connection,
       });
     },
 
     addNode(type: NodeType, x: number, y: number): void {
-      processEventGraphEvent({
-        type: ChangeEventType.ADDING_NODE,
-        node: createNode(type, x, y),
-      });
-
       startProcessingEventGraph({
         type: ChangeEventType.ADDING_NODE,
         node: createNode(type, x, y),
       });
     },
-    removeNode(id: NodeID): void {
-      processEventGraphEvent({
-        type: ChangeEventType.REMOVING_NODE,
-        nodeId: id,
-      });
-
+    removeNode(nodeId: string): void {
       startProcessingEventGraph({
         type: ChangeEventType.REMOVING_NODE,
-        nodeId: id,
+        nodeId: nodeId,
       });
     },
-    updateNodeConfig(nodeId: NodeID, change: Partial<NodeConfig>): void {
-      processEventGraphEvent({
-        type: ChangeEventType.UPDATING_NODE_CONFIG,
-        nodeId,
-        change,
-      });
-
+    updateNodeConfig(nodeId: string, change: Partial<NodeConfig>): void {
       startProcessingEventGraph({
         type: ChangeEventType.UPDATING_NODE_CONFIG,
         nodeId,
@@ -258,14 +240,7 @@ export const createFlowServerSliceV3: StateCreator<
       });
     },
 
-    addVariable(nodeId: NodeID, type: ConnectorType, index: number): void {
-      processEventGraphEvent({
-        type: ChangeEventType.ADDING_VARIABLE,
-        nodeId,
-        varType: type,
-        index,
-      });
-
+    addVariable(nodeId: string, type: ConnectorType, index: number): void {
       startProcessingEventGraph({
         type: ChangeEventType.ADDING_VARIABLE,
         nodeId,
@@ -273,12 +248,7 @@ export const createFlowServerSliceV3: StateCreator<
         index,
       });
     },
-    removeVariable(variableId: ConnectorID): void {
-      processEventGraphEvent({
-        type: ChangeEventType.REMOVING_VARIABLE,
-        variableId,
-      });
-
+    removeVariable(variableId: string): void {
       startProcessingEventGraph({
         type: ChangeEventType.REMOVING_VARIABLE,
         variableId,
@@ -287,7 +257,7 @@ export const createFlowServerSliceV3: StateCreator<
     updateVariable<
       T extends ConnectorType,
       R = VariableTypeToVariableConfigTypeMap[T],
-    >(variableId: ConnectorID, change: Partial<R>): void {
+    >(variableId: string, change: Partial<R>): void {
       startProcessingEventGraph({
         type: ChangeEventType.UPDATING_VARIABLE,
         variableId,
@@ -295,7 +265,7 @@ export const createFlowServerSliceV3: StateCreator<
       });
     },
 
-    updateVariableValueMap(variableId: ConnectorID, value: unknown): void {
+    updateVariableValueMap(variableId: string, value: unknown): void {
       const variableValueMaps = produce(
         get().variableValueLookUpDicts,
         (draft) => {
@@ -309,9 +279,20 @@ export const createFlowServerSliceV3: StateCreator<
         variableValueLookUpDicts: variableValueMaps,
       }));
 
-      startProcessingEventGraph({
-        type: ChangeEventType.VAR_VALUE_MAP_UPDATED,
+      // TODO: Deduplicate logic and make marking dirty async
+
+      const spaceId = get().spaceId;
+      invariant(spaceId != null);
+
+      saveSpaceDebounced(spaceId, {
+        nodes: get().nodes,
+        edges: get().edges,
+        nodeConfigsDict: get().nodeConfigsDict,
+        variablesDict: get().variablesDict,
+        variableValueLookUpDicts: get().variableValueLookUpDicts,
       });
+
+      set(() => ({ isFlowContentDirty: false }));
     },
   };
 };

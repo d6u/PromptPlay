@@ -1,16 +1,7 @@
 import { produce } from 'immer';
 import { expect, test, vi } from 'vitest';
 
-import {
-  ConnectorID,
-  ConnectorMap,
-  ConnectorType,
-  EdgeID,
-  NodeConfigMap,
-  NodeID,
-  NodeType,
-  VariableValueType,
-} from 'flow-models';
+import { ConnectorType, NodeType, VariableValueType } from 'flow-models';
 
 import { ChangeEventType } from 'state-flow/event-graph/event-graph-types';
 
@@ -48,11 +39,11 @@ test('handleReactFlowConnectEvent ignores existing connection', () => {
     ...MOCK_STATE,
     edges: [
       {
-        id: '1' as EdgeID,
-        source: 'a' as NodeID,
-        target: 'b' as NodeID,
-        sourceHandle: '1' as ConnectorID,
-        targetHandle: '2' as ConnectorID,
+        id: '1',
+        source: 'a',
+        target: 'b',
+        sourceHandle: '1',
+        targetHandle: '2',
       },
     ],
   };
@@ -79,26 +70,26 @@ test('handleReactFlowConnectEvent ignores Audio source variable with invalid tar
     ...MOCK_STATE,
     edges: [
       {
-        id: 'e' as EdgeID,
-        source: 'a' as NodeID,
-        target: 'b' as NodeID,
-        sourceHandle: '1' as ConnectorID,
-        targetHandle: '2' as ConnectorID,
+        id: 'e',
+        source: 'a',
+        target: 'b',
+        sourceHandle: '1',
+        targetHandle: '2',
       },
     ],
     variablesDict: {
       '1': {
-        id: '1' as ConnectorID,
+        id: '1',
         type: ConnectorType.NodeOutput,
         valueType: VariableValueType.Audio,
       },
-    } as ConnectorMap,
+    },
     nodeConfigsDict: {
       c: {
-        id: 'c' as NodeID,
+        id: 'c',
         type: NodeType.InputNode,
       },
-    } as NodeConfigMap,
+    },
   };
 
   const nextState = produce(prevState, (draft) => {
@@ -123,16 +114,16 @@ test('handleReactFlowConnectEvent add edge', () => {
     ...MOCK_STATE,
     variablesDict: {
       '1': {
-        id: '1' as ConnectorID,
+        id: '1',
         type: ConnectorType.NodeOutput,
         valueType: VariableValueType.Unknown,
       },
       '2': {
-        id: '2' as ConnectorID,
+        id: '2',
         type: ConnectorType.NodeInput,
         valueType: VariableValueType.Unknown,
       },
-    } as ConnectorMap,
+    },
   };
 
   const nextState = produce(prevState, (draft) => {
@@ -151,10 +142,10 @@ test('handleReactFlowConnectEvent add edge', () => {
         type: ChangeEventType.EDGE_ADDED,
         edge: {
           id: expect.any(String),
-          source: 'a' as NodeID,
-          target: 'b' as NodeID,
-          sourceHandle: '1' as ConnectorID,
-          targetHandle: '2' as ConnectorID,
+          source: 'a',
+          target: 'b',
+          sourceHandle: '1',
+          targetHandle: '2',
           style: expect.any(Object),
         },
       },
@@ -166,10 +157,10 @@ test('handleReactFlowConnectEvent add edge', () => {
     edges: [
       {
         id: expect.any(String),
-        source: 'a' as NodeID,
-        target: 'b' as NodeID,
-        sourceHandle: '1' as ConnectorID,
-        targetHandle: '2' as ConnectorID,
+        source: 'a',
+        target: 'b',
+        sourceHandle: '1',
+        targetHandle: '2',
         style: expect.any(Object),
       },
     ],
@@ -181,30 +172,30 @@ test('handleReactFlowConnectEvent replace edge', () => {
     ...MOCK_STATE,
     edges: [
       {
-        id: 'e' as EdgeID,
-        source: 'a' as NodeID,
-        target: 'b' as NodeID,
-        sourceHandle: '1' as ConnectorID,
-        targetHandle: '3' as ConnectorID,
+        id: 'e',
+        source: 'a',
+        target: 'b',
+        sourceHandle: '1',
+        targetHandle: '3',
       },
     ],
     variablesDict: {
       '1': {
-        id: '1' as ConnectorID,
+        id: '1',
         type: ConnectorType.NodeOutput,
         valueType: VariableValueType.Unknown,
       },
       '2': {
-        id: '2' as ConnectorID,
+        id: '2',
         type: ConnectorType.NodeOutput,
         valueType: VariableValueType.Unknown,
       },
       '3': {
-        id: '3' as ConnectorID,
+        id: '3',
         type: ConnectorType.NodeInput,
         valueType: VariableValueType.Unknown,
       },
-    } as ConnectorMap,
+    },
   };
 
   const nextState = produce(prevState, (draft) => {
@@ -223,17 +214,17 @@ test('handleReactFlowConnectEvent replace edge', () => {
         type: ChangeEventType.EDGE_REPLACED,
         oldEdge: {
           id: expect.any(String),
-          source: 'a' as NodeID,
-          target: 'b' as NodeID,
-          sourceHandle: '1' as ConnectorID,
-          targetHandle: '3' as ConnectorID,
+          source: 'a',
+          target: 'b',
+          sourceHandle: '1',
+          targetHandle: '3',
         },
         newEdge: {
           id: expect.any(String),
-          source: 'a' as NodeID,
-          target: 'b' as NodeID,
-          sourceHandle: '2' as ConnectorID,
-          targetHandle: '3' as ConnectorID,
+          source: 'a',
+          target: 'b',
+          sourceHandle: '2',
+          targetHandle: '3',
           style: expect.any(Object),
         },
       },
@@ -245,10 +236,10 @@ test('handleReactFlowConnectEvent replace edge', () => {
     edges: [
       {
         id: expect.any(String),
-        source: 'a' as NodeID,
-        target: 'b' as NodeID,
-        sourceHandle: '2' as ConnectorID,
-        targetHandle: '3' as ConnectorID,
+        source: 'a',
+        target: 'b',
+        sourceHandle: '2',
+        targetHandle: '3',
         style: expect.any(Object),
       },
     ],
@@ -260,16 +251,16 @@ test('handleReactFlowConnectEvent add condition', () => {
     ...MOCK_STATE,
     variablesDict: {
       '1': {
-        id: '1' as ConnectorID,
+        id: '1',
         type: ConnectorType.Condition,
         valueType: VariableValueType.Unknown,
       },
       '2': {
-        id: '2' as ConnectorID,
+        id: '2',
         type: ConnectorType.ConditionTarget,
         valueType: VariableValueType.Unknown,
       },
-    } as ConnectorMap,
+    },
   };
 
   const nextState = produce(prevState, (draft) => {
@@ -288,10 +279,10 @@ test('handleReactFlowConnectEvent add condition', () => {
         type: ChangeEventType.EDGE_ADDED,
         edge: {
           id: expect.any(String),
-          source: 'a' as NodeID,
-          target: 'b' as NodeID,
-          sourceHandle: '1' as ConnectorID,
-          targetHandle: '2' as ConnectorID,
+          source: 'a',
+          target: 'b',
+          sourceHandle: '1',
+          targetHandle: '2',
           style: expect.any(Object),
         },
       },
@@ -303,10 +294,10 @@ test('handleReactFlowConnectEvent add condition', () => {
     edges: [
       {
         id: expect.any(String),
-        source: 'a' as NodeID,
-        target: 'b' as NodeID,
-        sourceHandle: '1' as ConnectorID,
-        targetHandle: '2' as ConnectorID,
+        source: 'a',
+        target: 'b',
+        sourceHandle: '1',
+        targetHandle: '2',
         style: expect.any(Object),
       },
     ],
@@ -321,7 +312,7 @@ test('handleReactFlowConnect should replace edge', () => {
     nodes: [
       {
         id: 'ZUhTs',
-        type: 'InputNode',
+        type: NodeType.InputNode,
         position: {
           x: 228,
           y: 148,
@@ -333,7 +324,7 @@ test('handleReactFlowConnect should replace edge', () => {
       },
       {
         id: 'Is8Op',
-        type: 'OutputNode',
+        type: NodeType.OutputNode,
         position: {
           x: 690,
           y: 159,
@@ -345,7 +336,7 @@ test('handleReactFlowConnect should replace edge', () => {
       },
       {
         id: 'WHqYI',
-        type: 'InputNode',
+        type: NodeType.InputNode,
         position: {
           x: 229,
           y: 327,
@@ -371,41 +362,41 @@ test('handleReactFlowConnect should replace edge', () => {
     nodeConfigsDict: {
       ZUhTs: {
         nodeId: 'ZUhTs',
-        type: 'InputNode',
+        type: NodeType.InputNode,
       },
       Is8Op: {
         nodeId: 'Is8Op',
-        type: 'OutputNode',
+        type: NodeType.OutputNode,
       },
       WHqYI: {
         nodeId: 'WHqYI',
-        type: 'InputNode',
+        type: NodeType.InputNode,
       },
     },
     variablesDict: {
       'ZUhTs/aPZ3h': {
-        type: 'FlowInput',
+        type: ConnectorType.FlowInput,
         id: 'ZUhTs/aPZ3h',
         nodeId: 'ZUhTs',
         index: 0,
         name: 'var1',
-        valueType: 'String',
+        valueType: VariableValueType.String,
       },
       'Is8Op/5TUFT': {
-        type: 'FlowOutput',
+        type: ConnectorType.FlowOutput,
         id: 'Is8Op/5TUFT',
         nodeId: 'Is8Op',
         index: 0,
         name: 'var3',
-        valueType: 'String',
+        valueType: VariableValueType.String,
       },
       'WHqYI/p8a32': {
-        type: 'FlowInput',
+        type: ConnectorType.FlowInput,
         id: 'WHqYI/p8a32',
         nodeId: 'WHqYI',
         index: 0,
         name: 'var2',
-        valueType: 'String',
+        valueType: VariableValueType.String,
       },
     },
     variableValueLookUpDicts: [
@@ -452,7 +443,7 @@ test('handleReactFlowConnect should replace edge and update dest variable valueT
     nodes: [
       {
         id: 'Is8Op',
-        type: 'OutputNode',
+        type: NodeType.OutputNode,
         position: {
           x: 690,
           y: 159,
@@ -464,7 +455,7 @@ test('handleReactFlowConnect should replace edge and update dest variable valueT
       },
       {
         id: 'gso6A',
-        type: 'ElevenLabs',
+        type: NodeType.ElevenLabs,
         position: {
           x: 261.9504000000001,
           y: 61.293199999999956,
@@ -476,7 +467,7 @@ test('handleReactFlowConnect should replace edge and update dest variable valueT
       },
       {
         id: '7NHli',
-        type: 'InputNode',
+        type: NodeType.InputNode,
         position: {
           x: 260.58199999999994,
           y: 454.024,
@@ -500,56 +491,57 @@ test('handleReactFlowConnect should replace edge and update dest variable valueT
       },
     ],
     nodeConfigsDict: {
-      Is8Op: {
+      'Is8Op': {
         nodeId: 'Is8Op',
-        type: 'OutputNode',
+        type: NodeType.OutputNode,
       },
-      gso6A: {
+      'gso6A': {
         nodeId: 'gso6A',
-        type: 'ElevenLabs',
+        type: NodeType.ElevenLabs,
+        voiceId: '',
       },
       '7NHli': {
         nodeId: '7NHli',
-        type: 'InputNode',
+        type: NodeType.InputNode,
       },
     },
     variablesDict: {
       'Is8Op/5TUFT': {
-        type: 'FlowOutput',
+        type: ConnectorType.FlowOutput,
         id: 'Is8Op/5TUFT',
         nodeId: 'Is8Op',
         index: 0,
         name: 'var3',
-        valueType: 'String',
+        valueType: VariableValueType.String,
       },
       'gso6A/text': {
-        type: 'NodeInput',
+        type: ConnectorType.NodeInput,
         id: 'gso6A/text',
         name: 'text',
         nodeId: 'gso6A',
         index: 0,
-        valueType: 'Unknown',
+        valueType: VariableValueType.Unknown,
       },
       'gso6A/audio': {
-        type: 'NodeOutput',
+        type: ConnectorType.NodeOutput,
         id: 'gso6A/audio',
         name: 'audio',
         nodeId: 'gso6A',
         index: 0,
-        valueType: 'Audio',
+        valueType: VariableValueType.Audio,
       },
       'gso6A/MNYNr': {
-        type: 'ConditionTarget',
+        type: ConnectorType.ConditionTarget,
         id: 'gso6A/MNYNr',
         nodeId: 'gso6A',
       },
       '7NHli/g2iSG': {
-        type: 'FlowInput',
+        type: ConnectorType.FlowInput,
         id: '7NHli/g2iSG',
         nodeId: '7NHli',
         index: 0,
         name: 'tu',
-        valueType: 'String',
+        valueType: VariableValueType.String,
       },
     },
     variableValueLookUpDicts: [
@@ -608,7 +600,7 @@ test('handleReactFlowConnect should add edge', () => {
     nodes: [
       {
         id: 'Is8Op',
-        type: 'OutputNode',
+        type: NodeType.OutputNode,
         position: {
           x: 690,
           y: 159,
@@ -620,7 +612,7 @@ test('handleReactFlowConnect should add edge', () => {
       },
       {
         id: 'OYlVw',
-        type: 'InputNode',
+        type: NodeType.InputNode,
         position: {
           x: 321.8085333333334,
           y: 150.6265333333333,
@@ -635,29 +627,29 @@ test('handleReactFlowConnect should add edge', () => {
     nodeConfigsDict: {
       Is8Op: {
         nodeId: 'Is8Op',
-        type: 'OutputNode',
+        type: NodeType.OutputNode,
       },
       OYlVw: {
         nodeId: 'OYlVw',
-        type: 'InputNode',
+        type: NodeType.InputNode,
       },
     },
     variablesDict: {
       'Is8Op/5TUFT': {
-        type: 'FlowOutput',
+        type: ConnectorType.FlowOutput,
         id: 'Is8Op/5TUFT',
         nodeId: 'Is8Op',
         index: 0,
         name: 'var2',
-        valueType: 'String',
+        valueType: VariableValueType.String,
       },
       'OYlVw/u4bDV': {
-        type: 'FlowInput',
+        type: ConnectorType.FlowInput,
         id: 'OYlVw/u4bDV',
         nodeId: 'OYlVw',
         index: 0,
         name: 'var1',
-        valueType: 'String',
+        valueType: VariableValueType.String,
       },
     },
     variableValueLookUpDicts: [
@@ -703,7 +695,7 @@ test('handleReactFlowConnect should add edge and update dest variable valueType'
     nodes: [
       {
         id: 'Is8Op',
-        type: 'OutputNode',
+        type: NodeType.OutputNode,
         position: {
           x: 690,
           y: 159,
@@ -715,7 +707,7 @@ test('handleReactFlowConnect should add edge and update dest variable valueType'
       },
       {
         id: 'gso6A',
-        type: 'ElevenLabs',
+        type: NodeType.ElevenLabs,
         position: {
           x: 261.9504000000001,
           y: 61.293199999999956,
@@ -729,41 +721,42 @@ test('handleReactFlowConnect should add edge and update dest variable valueType'
     edges: [],
     nodeConfigsDict: {
       Is8Op: {
+        type: NodeType.OutputNode,
         nodeId: 'Is8Op',
-        type: 'OutputNode',
       },
       gso6A: {
+        type: NodeType.ElevenLabs,
         nodeId: 'gso6A',
-        type: 'ElevenLabs',
+        voiceId: '',
       },
     },
     variablesDict: {
       'Is8Op/5TUFT': {
-        type: 'FlowOutput',
+        type: ConnectorType.FlowOutput,
         id: 'Is8Op/5TUFT',
         nodeId: 'Is8Op',
         index: 0,
         name: 'var3',
-        valueType: 'String',
+        valueType: VariableValueType.String,
       },
       'gso6A/text': {
-        type: 'NodeInput',
+        type: ConnectorType.NodeInput,
         id: 'gso6A/text',
         name: 'text',
         nodeId: 'gso6A',
         index: 0,
-        valueType: 'Unknown',
+        valueType: VariableValueType.Unknown,
       },
       'gso6A/audio': {
-        type: 'NodeOutput',
+        type: ConnectorType.NodeOutput,
         id: 'gso6A/audio',
         name: 'audio',
         nodeId: 'gso6A',
         index: 0,
-        valueType: 'Audio',
+        valueType: VariableValueType.Audio,
       },
       'gso6A/MNYNr': {
-        type: 'ConditionTarget',
+        type: ConnectorType.ConditionTarget,
         id: 'gso6A/MNYNr',
         nodeId: 'gso6A',
       },

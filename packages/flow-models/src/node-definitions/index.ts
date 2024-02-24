@@ -1,5 +1,5 @@
 import Joi from 'joi';
-import { NodeID } from '../base-types';
+
 import { NodeType } from '../node-definition-base-types';
 import {
   CONDITION_NODE_DEFINITION,
@@ -85,7 +85,7 @@ export type NodeTypeToNodeConfigTypeMap = {
   [T in NodeConfig as T['type']]: T;
 };
 
-export type NodeConfigMap = Record<NodeID, NodeConfig>;
+export type NodeConfigMap = Record<string, NodeConfig>;
 
 // ANCHOR: Update this when adding new node types
 export type NodeAllLevelConfigUnion =

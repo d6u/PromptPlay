@@ -3,10 +3,8 @@ import randomId from 'common-utils/randomId';
 import Joi from 'joi';
 import type {
   ConditionTarget,
-  ConnectorID,
   ConnectorMap,
   ConnectorResultMap,
-  NodeID,
   ServerNode,
   V3ServerEdge,
 } from './base-types';
@@ -80,7 +78,7 @@ export const FlowConfigSchema = Joi.object<V3FlowContent>({
           continue;
         }
 
-        const connectorId = `${nodeConfig.nodeId}/${randomId()}` as ConnectorID;
+        const connectorId = `${nodeConfig.nodeId}/${randomId()}`;
 
         conditionTarget = {
           type: ConnectorType.ConditionTarget,
@@ -101,7 +99,7 @@ export const FlowConfigSchema = Joi.object<V3FlowContent>({
 
 export function createNode(type: NodeType, x: number, y: number): ServerNode {
   return {
-    id: randomId() as NodeID,
+    id: randomId(),
     type,
     position: { x, y },
     data: null,

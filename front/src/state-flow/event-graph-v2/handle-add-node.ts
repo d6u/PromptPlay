@@ -41,7 +41,7 @@ export const handleAddNode = createHandler<
       {
         type: ChangeEventType.NODE_AND_VARIABLES_ADDED,
         node: event.node,
-        variableConfigList,
+        variableConfigs: variableConfigList,
       },
     ];
   },

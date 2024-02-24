@@ -14,7 +14,6 @@ import invariant from 'tiny-invariant';
 
 import {
   Connector,
-  ConnectorID,
   ConnectorMap,
   ConnectorResultMap,
   ConnectorType,
@@ -29,7 +28,6 @@ import {
   NodeExecutionEvent,
   NodeExecutionEventType,
   NodeExecutionParams,
-  NodeID,
   NodeInputVariable,
   NodeType,
   getNodeDefinitionForNodeTypeName,
@@ -58,7 +56,7 @@ export const executeFlow = (params: {
     // Track when to complete the observable.
     let queuedNodeCount = initialNodeIdList.length;
 
-    const nodeIdListSubject = new BehaviorSubject<NodeID[]>(initialNodeIdList);
+    const nodeIdListSubject = new BehaviorSubject<string[]>(initialNodeIdList);
 
     return nodeIdListSubject.pipe(
       // mergeMap converts ArrayLike to Observable automatically
@@ -182,7 +180,7 @@ export const executeFlow = (params: {
               event.variableValuesLookUpDict,
               D.toPairs,
               A.forEach(([id, value]) => {
-                draft[id as ConnectorID] = value;
+                draft[id] = value;
               }),
             );
           });

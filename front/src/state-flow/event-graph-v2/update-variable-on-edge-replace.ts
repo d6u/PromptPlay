@@ -1,12 +1,7 @@
 import { Draft, current } from 'immer';
 import invariant from 'tiny-invariant';
 
-import {
-  ConnectorType,
-  V3LocalEdge,
-  VariableValueType,
-  asV3VariableID,
-} from 'flow-models';
+import { ConnectorType, V3LocalEdge, VariableValueType } from 'flow-models';
 
 import { ChangeEventType } from '../event-graph/event-graph-types';
 import { State, createHandler } from './event-graph-util';
@@ -28,8 +23,6 @@ export function handleEdgeReplacedEvent(
   // NOTE: There won't be edge replaced event for edges between condition
   // and condition target.
 
-  // SECTION: Variable type
-
   const oldSrcVariable = state.variablesDict[event.oldEdge.sourceHandle];
   const newSrcVariable = state.variablesDict[event.newEdge.sourceHandle];
 
@@ -47,15 +40,16 @@ export function handleEdgeReplacedEvent(
   if (oldSrcVariable.valueType !== newSrcVariable.valueType) {
     // It doesn't matter whether we use the old or the new edge to find the
     // destination variable config, they should point to the same one.
-    const dstVariable =
-      state.variablesDict[asV3VariableID(event.newEdge.targetHandle)];
+    const dstVariable = state.variablesDict[event.newEdge.targetHandle];
 
     invariant(
       dstVariable.type === ConnectorType.FlowOutput ||
         dstVariable.type === ConnectorType.NodeInput,
     );
 
-    const variableSnapshot = current(dstVariable);
+    const prevVariableSnapshot = current(dstVariable);
+
+    // TODO: Create a framework to handle complex variable value type updates
 
     switch (newSrcVariable.valueType) {
       case VariableValueType.Number:
@@ -88,13 +82,11 @@ export function handleEdgeReplacedEvent(
     return [
       {
         type: ChangeEventType.VARIABLE_UPDATED,
-        prevVariableConfig: variableSnapshot,
-        nextVariableConfig: current(dstVariable),
+        prevVariable: prevVariableSnapshot,
+        nextVariable: current(dstVariable),
       },
     ];
   }
-
-  // !SECTION
 
   return [];
 }

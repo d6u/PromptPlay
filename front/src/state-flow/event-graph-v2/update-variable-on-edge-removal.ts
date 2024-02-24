@@ -6,7 +6,6 @@ import {
   ConnectorType,
   V3LocalEdge,
   VariableValueType,
-  asV3VariableID,
 } from 'flow-models';
 
 import { ChangeEventType } from '../event-graph/event-graph-types';
@@ -55,7 +54,7 @@ export const updateVariableOnEdgeRemoval = createHandler<
         // We need to change the destination variable back to default type.
 
         const dstConnector =
-          state.variablesDict[asV3VariableID(event.removedEdge.targetHandle)];
+          state.variablesDict[event.removedEdge.targetHandle];
         invariant(dstConnector.type === ConnectorType.FlowOutput);
 
         const prevVariableConfig = current(dstConnector);
@@ -64,8 +63,8 @@ export const updateVariableOnEdgeRemoval = createHandler<
 
         events.push({
           type: ChangeEventType.VARIABLE_UPDATED,
-          prevVariableConfig,
-          nextVariableConfig: current(dstConnector),
+          prevVariable: prevVariableConfig,
+          nextVariable: current(dstConnector),
         });
       }
     }

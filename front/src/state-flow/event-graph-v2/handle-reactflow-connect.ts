@@ -7,7 +7,6 @@ import randomId from 'common-utils/randomId';
 import {
   ConnectorMap,
   ConnectorType,
-  EdgeID,
   NodeType,
   V3LocalEdge,
   VariableValueType,
@@ -30,7 +29,7 @@ export type ReactFlowConnectEvent = {
   connection: Connection;
 };
 
-type OutputEvent = EdgeReplacedEvent | EdgeAddedEvent;
+type OutputEvent = EdgeAddedEvent | EdgeReplacedEvent;
 
 export function handleReactFlowConnectEvent(
   state: Draft<State>,
@@ -55,7 +54,7 @@ export function handleReactFlowConnectEvent(
 
   const newEdge = addedEdges[0];
 
-  newEdge.id = randomId() as EdgeID; // Shorter ID for readability
+  newEdge.id = randomId(); // Shorter ID for readability
 
   const sourceConnector = state.variablesDict[newEdge.sourceHandle];
 
@@ -129,12 +128,12 @@ export function handleReactFlowConnectEvent(
     state.edges = newEdgeArray;
   }
 
-  addEdgeStyle(state.edges, state.variablesDict);
+  addStyleIfNotAlreadyAdded(state.edges, state.variablesDict);
 
   return events;
 }
 
-function addEdgeStyle(
+function addStyleIfNotAlreadyAdded(
   edges: Draft<V3LocalEdge[]>,
   connectors: Readonly<ConnectorMap>,
 ) {

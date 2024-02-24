@@ -1,11 +1,9 @@
 import {
   Condition,
   Connector,
-  ConnectorID,
   ConnectorType,
   LocalNode,
   NodeConfig,
-  NodeID,
   V3LocalEdge,
 } from 'flow-models';
 import { Connection, EdgeChange, NodeChange } from 'reactflow';
@@ -130,27 +128,27 @@ export type ChangeEvent =
     }
   | {
       type: ChangeEventType.REMOVING_NODE;
-      nodeId: NodeID;
+      nodeId: string;
     }
   | {
       type: ChangeEventType.UPDATING_NODE_CONFIG;
-      nodeId: NodeID;
+      nodeId: string;
       change: Partial<NodeConfig>;
     }
   // Variables
   | {
       type: ChangeEventType.ADDING_VARIABLE;
-      nodeId: NodeID;
+      nodeId: string;
       varType: ConnectorType;
       index: number;
     }
   | {
       type: ChangeEventType.REMOVING_VARIABLE;
-      variableId: ConnectorID;
+      variableId: string;
     }
   | {
       type: ChangeEventType.UPDATING_VARIABLE;
-      variableId: ConnectorID;
+      variableId: string;
       change: Partial<Connector>;
     }
   // ANCHOR: Derived
@@ -194,7 +192,7 @@ export type ChangeEvent =
     }
   | {
       type: ChangeEventType.VARIABLE_ADDED;
-      variableId: ConnectorID;
+      variableId: string;
     }
   | {
       type: ChangeEventType.VARIABLE_REMOVED;

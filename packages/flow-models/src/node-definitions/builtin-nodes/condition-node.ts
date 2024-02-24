@@ -12,9 +12,7 @@ import {
   ConnectorType,
   NodeInputVariable,
   VariableValueType,
-  asV3VariableID,
 } from '../../base-types/connector-types';
-import { ConnectorID, NodeID } from '../../base-types/id-types';
 import {
   FieldType,
   NodeDefinition,
@@ -25,7 +23,7 @@ import {
 
 export type ConditionNodeInstanceLevelConfig = {
   type: NodeType.ConditionNode;
-  nodeId: NodeID;
+  nodeId: string;
   stopAtTheFirstMatch: boolean;
 };
 
@@ -58,7 +56,7 @@ export const CONDITION_NODE_DEFINITION: NodeDefinition<
       variableConfigList: [
         {
           type: ConnectorType.NodeInput,
-          id: asV3VariableID(`${nodeId}/input`),
+          id: `${nodeId}/input`,
           nodeId: nodeId,
           index: 0,
           name: 'input',
@@ -66,28 +64,28 @@ export const CONDITION_NODE_DEFINITION: NodeDefinition<
         },
         {
           type: ConnectorType.Condition,
-          id: asV3VariableID(`${nodeId}/${randomId()}`),
+          id: `${nodeId}/${randomId()}`,
           index: -1, // Special condition for default case
           nodeId: nodeId,
           expressionString: '',
         },
         {
           type: ConnectorType.Condition,
-          id: asV3VariableID(`${nodeId}/${randomId()}`),
+          id: `${nodeId}/${randomId()}`,
           index: 0,
           nodeId: nodeId,
           expressionString: '$ = "Value A"',
         },
         {
           type: ConnectorType.Condition,
-          id: asV3VariableID(`${nodeId}/${randomId()}`),
+          id: `${nodeId}/${randomId()}`,
           index: 1,
           nodeId: nodeId,
           expressionString: '$ = "Value B"',
         },
         {
           type: ConnectorType.ConditionTarget,
-          id: asV3VariableID(`${nodeId}/${randomId()}`),
+          id: `${nodeId}/${randomId()}`,
           nodeId: nodeId,
         },
       ],
@@ -126,7 +124,7 @@ export const CONDITION_NODE_DEFINITION: NodeDefinition<
         const defaultCaseCondition = conditions[0];
         const normalConditions = conditions.slice(1);
 
-        const conditionResultMap: Record<ConnectorID, ConditionResult> = {};
+        const conditionResultMap: Record<string, ConditionResult> = {};
 
         // NOTE: Main Logic
 

@@ -1,12 +1,7 @@
 import { current } from 'immer';
 import invariant from 'tiny-invariant';
 
-import {
-  ConnectorType,
-  V3LocalEdge,
-  VariableValueType,
-  asV3VariableID,
-} from 'flow-models';
+import { ConnectorType, V3LocalEdge, VariableValueType } from 'flow-models';
 
 import { ChangeEventType } from '../event-graph/event-graph-types';
 import { createHandler } from './event-graph-util';
@@ -28,8 +23,7 @@ export const updateVariableOnEdgeAdded = createHandler<
     return event.type === ChangeEventType.EDGE_ADDED;
   },
   (state, event) => {
-    const srcVariable =
-      state.variablesDict[asV3VariableID(event.edge.sourceHandle)];
+    const srcVariable = state.variablesDict[event.edge.sourceHandle];
 
     if (
       srcVariable.type === ConnectorType.FlowInput ||
@@ -38,8 +32,7 @@ export const updateVariableOnEdgeAdded = createHandler<
       srcVariable.type === ConnectorType.NodeOutput
     ) {
       if (srcVariable.valueType === VariableValueType.Audio) {
-        const dstVariable =
-          state.variablesDict[asV3VariableID(event.edge.targetHandle)];
+        const dstVariable = state.variablesDict[event.edge.targetHandle];
 
         invariant(dstVariable.type === ConnectorType.FlowOutput);
 
@@ -50,8 +43,8 @@ export const updateVariableOnEdgeAdded = createHandler<
         return [
           {
             type: ChangeEventType.VARIABLE_UPDATED,
-            prevVariableConfig: prevVariable,
-            nextVariableConfig: current(dstVariable),
+            prevVariable: prevVariable,
+            nextVariable: current(dstVariable),
           },
         ];
       }

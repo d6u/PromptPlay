@@ -5,8 +5,8 @@ import { createHandler } from './event-graph-util';
 
 export type VariableUpdatedEvent = {
   type: ChangeEventType.VARIABLE_UPDATED;
-  prevVariableConfig: Connector;
-  nextVariableConfig: Connector;
+  prevVariable: Connector;
+  nextVariable: Connector;
 };
 
 export const updateVariableValueMapOnVariableUpdate = createHandler<
@@ -14,19 +14,17 @@ export const updateVariableValueMapOnVariableUpdate = createHandler<
   never
 >((state, event) => {
   if (
-    (event.prevVariableConfig.type === ConnectorType.FlowInput ||
-      event.prevVariableConfig.type === ConnectorType.FlowOutput ||
-      event.prevVariableConfig.type === ConnectorType.NodeInput ||
-      event.prevVariableConfig.type === ConnectorType.NodeOutput) &&
-    (event.nextVariableConfig.type === ConnectorType.FlowInput ||
-      event.nextVariableConfig.type === ConnectorType.FlowOutput ||
-      event.nextVariableConfig.type === ConnectorType.NodeInput ||
-      event.nextVariableConfig.type === ConnectorType.NodeOutput)
+    (event.prevVariable.type === ConnectorType.FlowInput ||
+      event.prevVariable.type === ConnectorType.FlowOutput ||
+      event.prevVariable.type === ConnectorType.NodeInput ||
+      event.prevVariable.type === ConnectorType.NodeOutput) &&
+    (event.nextVariable.type === ConnectorType.FlowInput ||
+      event.nextVariable.type === ConnectorType.FlowOutput ||
+      event.nextVariable.type === ConnectorType.NodeInput ||
+      event.nextVariable.type === ConnectorType.NodeOutput)
   ) {
-    if (
-      event.prevVariableConfig.valueType !== event.nextVariableConfig.valueType
-    ) {
-      state.variableValueLookUpDicts[0][event.nextVariableConfig.id] = null;
+    if (event.prevVariable.valueType !== event.nextVariable.valueType) {
+      state.variableValueLookUpDicts[0][event.nextVariable.id] = null;
     }
   }
 

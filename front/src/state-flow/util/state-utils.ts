@@ -10,7 +10,6 @@ import {
   FlowInputVariable,
   FlowOutputVariable,
   LocalNode,
-  NodeID,
   NodeInputVariable,
   NodeOutputVariable,
   V3LocalEdge,
@@ -67,7 +66,7 @@ export function selectVariables<
     | ConnectorType.FlowInput
     | ConnectorType.FlowOutput,
 >(
-  nodeId: NodeID,
+  nodeId: string,
   type: T,
   variableConfigs: ConnectorMap,
 ): VariableTypeToVariableConfigTypeMap[T][] {
@@ -96,7 +95,7 @@ export function selectAllVariables<
 }
 
 export function selectConditions(
-  nodeId: NodeID,
+  nodeId: string,
   variablesDict: ConnectorMap,
 ): Condition[] {
   return D.values(variablesDict)
@@ -107,7 +106,7 @@ export function selectConditions(
 }
 
 export function selectConditionTarget(
-  nodeId: NodeID,
+  nodeId: string,
   variablesDict: ConnectorMap,
 ): Option<ConditionTarget> {
   return D.values(variablesDict).find((c): c is ConditionTarget => {

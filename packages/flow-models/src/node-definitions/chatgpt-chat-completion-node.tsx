@@ -15,9 +15,7 @@ import {
   NodeInputVariable,
   NodeOutputVariable,
   VariableValueType,
-  asV3VariableID,
 } from '../base-types/connector-types';
-import { NodeID } from '../base-types/id-types';
 import {
   FieldType,
   NodeDefinition,
@@ -28,7 +26,7 @@ import {
 
 export type ChatGPTChatCompletionNodeInstanceLevelConfig = {
   type: NodeType.ChatGPTChatCompletionNode;
-  nodeId: NodeID;
+  nodeId: string;
   model: OpenAIChatModel;
   temperature: number;
   seed: number | null;
@@ -164,7 +162,7 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
       variableConfigList: [
         {
           type: ConnectorType.NodeInput,
-          id: asV3VariableID(`${nodeId}/messages_in`),
+          id: `${nodeId}/messages_in`,
           nodeId: nodeId,
           name: 'messages',
           index: 0,
@@ -172,7 +170,7 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
         },
         {
           type: ConnectorType.NodeOutput,
-          id: asV3VariableID(`${nodeId}/content`),
+          id: `${nodeId}/content`,
           nodeId: nodeId,
           name: 'content',
           index: 0,
@@ -180,7 +178,7 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
         },
         {
           type: ConnectorType.NodeOutput,
-          id: asV3VariableID(`${nodeId}/message`),
+          id: `${nodeId}/message`,
           nodeId: nodeId,
           name: 'message',
           index: 1,
@@ -188,7 +186,7 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
         },
         {
           type: ConnectorType.NodeOutput,
-          id: asV3VariableID(`${nodeId}/messages_out`),
+          id: `${nodeId}/messages_out`,
           nodeId: nodeId,
           name: 'messages',
           index: 2,
@@ -196,7 +194,7 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
         },
         {
           type: ConnectorType.ConditionTarget,
-          id: asV3VariableID(`${nodeId}/${randomId()}`),
+          id: `${nodeId}/${randomId()}`,
           nodeId: nodeId,
         },
       ],

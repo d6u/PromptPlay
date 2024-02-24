@@ -6,9 +6,7 @@ import {
   ConnectorType,
   NodeInputVariable,
   VariableValueType,
-  asV3VariableID,
 } from '../../base-types/connector-types';
-import { NodeID } from '../../base-types/id-types';
 import {
   FieldType,
   NodeDefinition,
@@ -19,7 +17,7 @@ import {
 
 export type JavaScriptFunctionNodeInstanceLevelConfig = {
   type: NodeType.JavaScriptFunctionNode;
-  nodeId: NodeID;
+  nodeId: string;
   javaScriptCode: string;
 };
 
@@ -55,7 +53,7 @@ export const JAVASCRIPT_NODE_DEFINITION: NodeDefinition<
       variableConfigList: [
         {
           type: ConnectorType.NodeOutput,
-          id: asV3VariableID(`${nodeId}/output`),
+          id: `${nodeId}/output`,
           nodeId: nodeId,
           name: 'output',
           index: 0,
@@ -63,7 +61,7 @@ export const JAVASCRIPT_NODE_DEFINITION: NodeDefinition<
         },
         {
           type: ConnectorType.NodeInput,
-          id: asV3VariableID(`${nodeId}/${randomId()}`),
+          id: `${nodeId}/${randomId()}`,
           nodeId: nodeId,
           name: 'userName',
           index: 1,
@@ -71,7 +69,7 @@ export const JAVASCRIPT_NODE_DEFINITION: NodeDefinition<
         },
         {
           type: ConnectorType.ConditionTarget,
-          id: asV3VariableID(`${nodeId}/${randomId()}`),
+          id: `${nodeId}/${randomId()}`,
           nodeId: nodeId,
         },
       ],

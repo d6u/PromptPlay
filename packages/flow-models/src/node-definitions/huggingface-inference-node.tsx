@@ -10,9 +10,7 @@ import {
   NodeInputVariable,
   NodeOutputVariable,
   VariableValueType,
-  asV3VariableID,
 } from '../base-types/connector-types';
-import { NodeID } from '../base-types/id-types';
 import {
   FieldType,
   NodeDefinition,
@@ -25,7 +23,7 @@ import {
 
 export type HuggingFaceInferenceNodeInstanceLevelConfig = {
   type: NodeType.HuggingFaceInference;
-  nodeId: NodeID;
+  nodeId: string;
   model: string;
 };
 
@@ -96,7 +94,7 @@ export const HUGGINGFACE_INFERENCE_NODE_DEFINITION: NodeDefinition<
       variableConfigList: [
         {
           type: ConnectorType.NodeInput,
-          id: asV3VariableID(`${nodeId}/parameters`),
+          id: `${nodeId}/parameters`,
           name: 'parameters',
           nodeId: nodeId,
           index: 0,
@@ -104,7 +102,7 @@ export const HUGGINGFACE_INFERENCE_NODE_DEFINITION: NodeDefinition<
         },
         {
           type: ConnectorType.NodeOutput,
-          id: asV3VariableID(`${nodeId}/output`),
+          id: `${nodeId}/output`,
           name: 'output',
           nodeId: nodeId,
           index: 0,
@@ -112,7 +110,7 @@ export const HUGGINGFACE_INFERENCE_NODE_DEFINITION: NodeDefinition<
         },
         {
           type: ConnectorType.ConditionTarget,
-          id: asV3VariableID(`${nodeId}/${randomId()}`),
+          id: `${nodeId}/${randomId()}`,
           nodeId: nodeId,
         },
       ],

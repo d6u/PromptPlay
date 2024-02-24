@@ -1,6 +1,8 @@
+import { current } from 'immer';
 import { NodeChange, applyNodeChanges } from 'reactflow';
+import invariant from 'tiny-invariant';
 
-import { LocalNode, NodeID } from 'flow-models';
+import { LocalNode } from 'flow-models';
 
 import { ChangeEventType } from '../event-graph/event-graph-types';
 import { createHandler } from './event-graph-util';
@@ -26,21 +28,28 @@ export const handleReactFlowNodesChange = createHandler<
 
     for (const change of event.changes) {
       switch (change.type) {
-        case 'remove': {
-          events.push({
-            type: ChangeEventType.NODE_REMOVED,
-            node: state.nodes.find((node) => node.id === change.id)!,
-            nodeConfig: state.nodeConfigsDict[change.id as NodeID],
-          });
-
-          delete state.nodeConfigsDict[change.id as NodeID];
-          break;
-        }
         case 'position':
         case 'add':
         case 'select':
         case 'dimensions':
-        case 'reset': {
+        case 'reset':
+          break;
+        case 'remove': {
+          const nodeSnapshot = current(
+            state.nodes.find((node) => node.id === change.id),
+          );
+          const nodeConfigSnapshot = current(state.nodeConfigsDict[change.id]);
+
+          invariant(nodeSnapshot != null, 'Node is not null');
+
+          delete state.nodeConfigsDict[change.id];
+
+          events.push({
+            type: ChangeEventType.NODE_REMOVED,
+            node: nodeSnapshot,
+            nodeConfig: nodeConfigSnapshot,
+          });
+
           break;
         }
       }

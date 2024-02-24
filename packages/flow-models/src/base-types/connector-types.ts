@@ -1,5 +1,4 @@
 import Joi from 'joi';
-import type { ConnectorID, NodeID } from './id-types';
 
 // ANCHOR: === Connector Types ===
 
@@ -30,8 +29,8 @@ export enum VariableValueType {
 }
 
 type VariableCommon = {
-  id: ConnectorID;
-  nodeId: NodeID;
+  id: string;
+  nodeId: string;
   index: number;
   name: string;
 };
@@ -100,16 +99,12 @@ export const NodeOutputVariableSchema = Joi.object({
     .required(),
 });
 
-export function asV3VariableID(id: string): ConnectorID {
-  return id as unknown as ConnectorID;
-}
-
 // ANCHOR: Condition Types
 
 export type Condition = {
   type: ConnectorType.Condition;
-  id: ConnectorID;
-  nodeId: NodeID;
+  id: string;
+  nodeId: string;
   index: number;
   expressionString: string;
 };
@@ -124,8 +119,8 @@ export const ConditionSchema = Joi.object({
 
 export type ConditionTarget = {
   type: ConnectorType.ConditionTarget;
-  id: ConnectorID;
-  nodeId: NodeID;
+  id: string;
+  nodeId: string;
 };
 
 export const ConditionTargetSchema = Joi.object({
@@ -136,7 +131,7 @@ export const ConditionTargetSchema = Joi.object({
 
 // ANCHOR: === Connector Map ===
 
-export type ConnectorMap = Record<ConnectorID, Connector>;
+export type ConnectorMap = Record<string, Connector>;
 
 export const ConnectorMapSchema = Joi.object().pattern(
   Joi.string(),
@@ -152,10 +147,10 @@ export const ConnectorMapSchema = Joi.object().pattern(
 
 // ANCHOR: === Connector Result Types ===
 
-export type ConnectorResultMap = Record<ConnectorID, ConditionResult | unknown>;
+export type ConnectorResultMap = Record<string, ConditionResult | unknown>;
 
 export type ConditionResult = {
-  conditionId: ConnectorID;
+  conditionId: string;
   isConditionMatched: boolean;
 };
 

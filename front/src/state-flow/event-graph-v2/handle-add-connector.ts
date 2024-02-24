@@ -5,13 +5,12 @@ import {
   ConnectorType,
   FlowInputVariable,
   FlowOutputVariable,
-  NodeID,
   NodeInputVariable,
   NodeOutputVariable,
   VariableValueType,
-  asV3VariableID,
 } from 'flow-models';
 
+import invariant from 'tiny-invariant';
 import { ChangeEventType } from '../event-graph/event-graph-types';
 import { createHandler } from './event-graph-util';
 import {
@@ -19,33 +18,33 @@ import {
   updateVariableValueMapOnVariableAdded,
 } from './update-variable-value-map-on-variable-added';
 
-export type AddVariableEvent = {
+export type AddConnectorEvent = {
   type: ChangeEventType.ADDING_VARIABLE;
-  nodeId: NodeID;
-  varType: ConnectorType;
-  index: number;
+  nodeId: string;
+  connectorType: ConnectorType;
+  connectorIndex: number;
 };
 
-export const handleAddVariable = createHandler<
-  AddVariableEvent,
+export const handleAddConnector = createHandler<
+  AddConnectorEvent,
   VariableAddedEvent
 >(
-  (event): event is AddVariableEvent => {
+  (event): event is AddConnectorEvent => {
     return event.type === ChangeEventType.ADDING_VARIABLE;
   },
   (state, event) => {
     const commonFields = {
-      id: asV3VariableID(`${event.nodeId}/${randomId()}`),
+      id: `${event.nodeId}/${randomId()}`,
       nodeId: event.nodeId,
-      index: event.index,
+      index: event.connectorIndex,
       name: chance.word(),
     };
 
-    switch (event.varType) {
+    switch (event.connectorType) {
       case ConnectorType.NodeInput: {
         const variableConfig: NodeInputVariable = {
           ...commonFields,
-          type: event.varType,
+          type: event.connectorType,
           valueType: VariableValueType.Unknown,
         };
         state.variablesDict[variableConfig.id] = variableConfig;
@@ -54,7 +53,7 @@ export const handleAddVariable = createHandler<
       case ConnectorType.NodeOutput: {
         const variableConfig: NodeOutputVariable = {
           ...commonFields,
-          type: event.varType,
+          type: event.connectorType,
           valueType: VariableValueType.Unknown,
         };
         state.variablesDict[variableConfig.id] = variableConfig;
@@ -63,7 +62,7 @@ export const handleAddVariable = createHandler<
       case ConnectorType.FlowInput: {
         const variableConfig: FlowInputVariable = {
           ...commonFields,
-          type: event.varType,
+          type: event.connectorType,
           valueType: VariableValueType.String,
         };
         state.variablesDict[variableConfig.id] = variableConfig;
@@ -72,7 +71,7 @@ export const handleAddVariable = createHandler<
       case ConnectorType.FlowOutput: {
         const variableConfig: FlowOutputVariable = {
           ...commonFields,
-          type: event.varType,
+          type: event.connectorType,
           valueType: VariableValueType.String,
         };
         state.variablesDict[variableConfig.id] = variableConfig;
@@ -80,24 +79,24 @@ export const handleAddVariable = createHandler<
       }
       case ConnectorType.Condition: {
         const variableConfig: Condition = {
-          id: asV3VariableID(`${event.nodeId}/${randomId()}`),
+          id: `${event.nodeId}/${randomId()}`,
           type: ConnectorType.Condition,
           nodeId: event.nodeId,
-          index: event.index,
+          index: event.connectorIndex,
           expressionString: '$ = "Some value"',
         };
         state.variablesDict[variableConfig.id] = variableConfig;
         break;
       }
       case ConnectorType.ConditionTarget:
-        break;
+        invariant(false, 'ConditionTarget cannot be added by directly');
     }
 
     if (
-      event.varType === ConnectorType.FlowInput ||
-      event.varType === ConnectorType.FlowOutput ||
-      event.varType === ConnectorType.NodeInput ||
-      event.varType === ConnectorType.NodeOutput
+      event.connectorType === ConnectorType.FlowInput ||
+      event.connectorType === ConnectorType.FlowOutput ||
+      event.connectorType === ConnectorType.NodeInput ||
+      event.connectorType === ConnectorType.NodeOutput
     ) {
       return [
         {

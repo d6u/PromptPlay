@@ -19,8 +19,6 @@ import { useFieldArray, useForm } from 'react-hook-form';
 import { useUpdateNodeInternals } from 'reactflow';
 import invariant from 'tiny-invariant';
 
-import { ConnectorID } from 'flow-models';
-
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 
 import NodeConditionEditableItem from './NodeConditionEditableItem';
@@ -78,7 +76,7 @@ function NodeConditionsEditableList(props: Props) {
             !changedVariable.isReadOnly,
             'Condition should not be readonly',
           );
-          updateVariable(changedVariable.id as ConnectorID, {
+          updateVariable(changedVariable.id, {
             expressionString: changedVariable.expressionString,
           });
         }
@@ -98,7 +96,7 @@ function NodeConditionsEditableList(props: Props) {
             !removedVariable.isReadOnly,
             'Variable should not be readonly',
           );
-          removeVariable(removedVariable.id as ConnectorID);
+          removeVariable(removedVariable.id);
         }
 
         // NOTE: Removing a variable will affect edge and handle positions.
@@ -128,12 +126,12 @@ function NodeConditionsEditableList(props: Props) {
       move(oldIndex, newIndex);
 
       handleSubmit((data) => {
-        updateVariable(data.list[oldIndex].id as ConnectorID, {
+        updateVariable(data.list[oldIndex].id, {
           // Which index to use for which variable is not important here
           // since data will contain variables in updated order.
           index: oldIndex,
         });
-        updateVariable(data.list[newIndex].id as ConnectorID, {
+        updateVariable(data.list[newIndex].id, {
           index: newIndex,
         });
 

@@ -1,11 +1,11 @@
-import { NodeConfig, NodeID } from 'flow-models';
+import { NodeConfig } from 'flow-models';
 
 import { ChangeEventType } from '../event-graph/event-graph-types';
 import { createHandler } from './event-graph-util';
 
 export type UpdateNodeConfigEvent = {
   type: ChangeEventType.UPDATING_NODE_CONFIG;
-  nodeId: NodeID;
+  nodeId: string;
   change: Partial<NodeConfig>;
 };
 

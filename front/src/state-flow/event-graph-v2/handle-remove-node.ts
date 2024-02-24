@@ -1,6 +1,6 @@
 import { A } from '@mobily/ts-belt';
-
-import { NodeID } from 'flow-models';
+import { current } from 'immer';
+import invariant from 'tiny-invariant';
 
 import { ChangeEventType } from '../event-graph/event-graph-types';
 import { createHandler } from './event-graph-util';
@@ -11,7 +11,7 @@ import {
 
 export type RemoveNodeEvent = {
   type: ChangeEventType.REMOVING_NODE;
-  nodeId: NodeID;
+  nodeId: string;
 };
 
 export const handleRemoveNode = createHandler<
@@ -27,24 +27,24 @@ export const handleRemoveNode = createHandler<
       (node) => node.id !== event.nodeId,
     );
 
-    state.nodes = acceptedNodes;
-
-    if (!rejectedNodes.length) {
+    if (rejectedNodes.length === 0) {
       return [];
     }
 
-    // NOTE: There should be at most one rejected node, because this event
-    // will only be triggered in UI for one node.
+    // NOTE: This event will only be triggered in UI for one node.
+    invariant(rejectedNodes.length === 1, 'There should be exactly one node');
 
-    const removingNodeConfig = state.nodeConfigsDict[event.nodeId];
+    const nodeSnapshot = current(rejectedNodes[0]);
+    const nodeConfigSnapshot = current(state.nodeConfigsDict[event.nodeId]);
 
+    state.nodes = acceptedNodes;
     delete state.nodeConfigsDict[event.nodeId];
 
     return [
       {
         type: ChangeEventType.NODE_REMOVED,
-        node: rejectedNodes[0]!,
-        nodeConfig: removingNodeConfig,
+        node: nodeSnapshot,
+        nodeConfig: nodeConfigSnapshot,
       },
     ];
   },

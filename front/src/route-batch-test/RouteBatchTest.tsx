@@ -7,7 +7,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Subscription, debounceTime, tap } from 'rxjs';
 import invariant from 'tiny-invariant';
 
-import { ConnectorResultMap, NodeID, NodeType } from 'flow-models';
+import { ConnectorResultMap, NodeType } from 'flow-models';
 
 import {
   FlowBatchRunEventType,
@@ -139,7 +139,7 @@ function RouteBatchTest() {
                   }
                   case ValidationErrorType.NodeLevel: {
                     // TODO: Show node level errors in UI
-                    updateNodeAugment(error.nodeId as NodeID, {
+                    updateNodeAugment(error.nodeId, {
                       isRunning: false,
                       hasError: true,
                     });
@@ -156,7 +156,7 @@ function RouteBatchTest() {
                       [error.message],
                     );
 
-                    updateNodeAugment(error.nodeId as NodeID, {
+                    updateNodeAugment(error.nodeId, {
                       isRunning: false,
                       hasError: true,
                     });

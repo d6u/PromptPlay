@@ -10,9 +10,7 @@ import {
   NodeInputVariable,
   NodeOutputVariable,
   VariableValueType,
-  asV3VariableID,
 } from '../base-types/connector-types';
-import { NodeID } from '../base-types/id-types';
 import {
   FieldType,
   NodeDefinition,
@@ -23,7 +21,7 @@ import {
 
 export type ElevenLabsNodeInstanceLevelConfig = {
   type: NodeType.ElevenLabs;
-  nodeId: NodeID;
+  nodeId: string;
   voiceId: string;
 };
 
@@ -91,7 +89,7 @@ export const ELEVENLABS_NODE_DEFINITION: NodeDefinition<
       variableConfigList: [
         {
           type: ConnectorType.NodeInput,
-          id: asV3VariableID(`${nodeId}/text`),
+          id: `${nodeId}/text`,
           name: 'text',
           nodeId: nodeId,
           index: 0,
@@ -99,7 +97,7 @@ export const ELEVENLABS_NODE_DEFINITION: NodeDefinition<
         },
         {
           type: ConnectorType.NodeOutput,
-          id: asV3VariableID(`${nodeId}/audio`),
+          id: `${nodeId}/audio`,
           name: 'audio',
           nodeId: nodeId,
           index: 0,
@@ -107,7 +105,7 @@ export const ELEVENLABS_NODE_DEFINITION: NodeDefinition<
         },
         {
           type: ConnectorType.ConditionTarget,
-          id: asV3VariableID(`${nodeId}/${randomId()}`),
+          id: `${nodeId}/${randomId()}`,
           nodeId: nodeId,
         },
       ],

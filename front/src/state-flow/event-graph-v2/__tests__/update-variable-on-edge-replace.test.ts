@@ -1,13 +1,7 @@
 import { produce } from 'immer';
 import { expect, test, vi } from 'vitest';
 
-import {
-  ConnectorID,
-  ConnectorType,
-  EdgeID,
-  NodeID,
-  VariableValueType,
-} from 'flow-models';
+import { ConnectorType, NodeType, VariableValueType } from 'flow-models';
 
 import { ChangeEventType } from 'state-flow/event-graph/event-graph-types';
 
@@ -23,7 +17,7 @@ test('handleEdgeReplacedEvent ignores old and new source variables with the same
     nodes: [
       {
         id: 'ZUhTs',
-        type: 'InputNode',
+        type: NodeType.InputNode,
         position: {
           x: 228,
           y: 148,
@@ -35,7 +29,7 @@ test('handleEdgeReplacedEvent ignores old and new source variables with the same
       },
       {
         id: 'Is8Op',
-        type: 'OutputNode',
+        type: NodeType.OutputNode,
         position: {
           x: 690,
           y: 159,
@@ -47,7 +41,7 @@ test('handleEdgeReplacedEvent ignores old and new source variables with the same
       },
       {
         id: 'WHqYI',
-        type: 'InputNode',
+        type: NodeType.InputNode,
         position: {
           x: 229,
           y: 327,
@@ -73,41 +67,41 @@ test('handleEdgeReplacedEvent ignores old and new source variables with the same
     nodeConfigsDict: {
       ZUhTs: {
         nodeId: 'ZUhTs',
-        type: 'InputNode',
+        type: NodeType.InputNode,
       },
       Is8Op: {
         nodeId: 'Is8Op',
-        type: 'OutputNode',
+        type: NodeType.OutputNode,
       },
       WHqYI: {
         nodeId: 'WHqYI',
-        type: 'InputNode',
+        type: NodeType.InputNode,
       },
     },
     variablesDict: {
       'ZUhTs/aPZ3h': {
-        type: 'FlowInput',
+        type: ConnectorType.FlowInput,
         id: 'ZUhTs/aPZ3h',
         nodeId: 'ZUhTs',
         index: 0,
         name: 'var1',
-        valueType: 'String',
+        valueType: VariableValueType.String,
       },
       'Is8Op/5TUFT': {
-        type: 'FlowOutput',
+        type: ConnectorType.FlowOutput,
         id: 'Is8Op/5TUFT',
         nodeId: 'Is8Op',
         index: 0,
         name: 'var3',
-        valueType: 'String',
+        valueType: VariableValueType.String,
       },
       'WHqYI/p8a32': {
-        type: 'FlowInput',
+        type: ConnectorType.FlowInput,
         id: 'WHqYI/p8a32',
         nodeId: 'WHqYI',
         index: 0,
         name: 'var2',
-        valueType: 'String',
+        valueType: VariableValueType.String,
       },
     },
     variableValueLookUpDicts: [
@@ -173,18 +167,18 @@ test('handleEdgeReplacedEvent updates destination variables value type', () => {
     const r = handleEdgeReplacedEvent(draft, {
       type: ChangeEventType.EDGE_REPLACED,
       oldEdge: {
-        id: 'e1' as EdgeID,
-        source: 'a' as NodeID,
-        sourceHandle: 'a1' as ConnectorID,
-        target: 'b' as NodeID,
-        targetHandle: 'b1' as ConnectorID,
+        id: 'e1',
+        source: 'a',
+        sourceHandle: 'a1',
+        target: 'b',
+        targetHandle: 'b1',
       },
       newEdge: {
-        id: 'e2' as EdgeID,
-        source: 'c' as NodeID,
-        sourceHandle: 'c1' as ConnectorID,
-        target: 'b' as NodeID,
-        targetHandle: 'b1' as ConnectorID,
+        id: 'e2',
+        source: 'c',
+        sourceHandle: 'c1',
+        target: 'b',
+        targetHandle: 'b1',
       },
     });
 

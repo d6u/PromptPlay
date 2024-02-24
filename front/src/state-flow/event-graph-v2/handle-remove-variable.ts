@@ -1,4 +1,6 @@
-import { ConnectorID, ConnectorType } from 'flow-models';
+import { current } from 'immer';
+
+import { ConnectorType } from 'flow-models';
 
 import { ChangeEventType } from '../event-graph/event-graph-types';
 import { createHandler } from './event-graph-util';
@@ -13,7 +15,7 @@ import {
 
 export type RemoveVariableEvent = {
   type: ChangeEventType.REMOVING_VARIABLE;
-  variableId: ConnectorID;
+  variableId: string;
 };
 
 export const handleRemoveVariable = createHandler<
@@ -24,27 +26,27 @@ export const handleRemoveVariable = createHandler<
     return event.type === ChangeEventType.REMOVING_VARIABLE;
   },
   (state, event) => {
-    const connector = state.variablesDict[event.variableId];
+    const connectorSnapshot = current(state.variablesDict[event.variableId]);
 
     delete state.variablesDict[event.variableId];
 
     if (
-      connector.type === ConnectorType.FlowInput ||
-      connector.type === ConnectorType.FlowOutput ||
-      connector.type === ConnectorType.NodeInput ||
-      connector.type === ConnectorType.NodeOutput
+      connectorSnapshot.type === ConnectorType.FlowInput ||
+      connectorSnapshot.type === ConnectorType.FlowOutput ||
+      connectorSnapshot.type === ConnectorType.NodeInput ||
+      connectorSnapshot.type === ConnectorType.NodeOutput
     ) {
       return [
         {
           type: ChangeEventType.VARIABLE_REMOVED,
-          removedVariable: connector,
+          removedVariable: connectorSnapshot,
         },
       ];
-    } else if (connector.type === ConnectorType.Condition) {
+    } else if (connectorSnapshot.type === ConnectorType.Condition) {
       return [
         {
           type: ChangeEventType.CONDITION_REMOVED,
-          removedCondition: connector,
+          removedCondition: connectorSnapshot,
         },
       ];
     }

@@ -1,5 +1,5 @@
 import { createLens, Getter, Setter } from '@dhmk/zustand-lens';
-import { ConnectorID, ConnectorResultMap } from 'flow-models';
+import { ConnectorResultMap } from 'flow-models';
 import { RunMetadata } from 'flow-run/run-types';
 import { graphql } from 'gencode-gql';
 import { LoadCsvEvaluationPresetQuery } from 'gencode-gql/graphql';
@@ -354,7 +354,7 @@ export type ColumnIndex = number & { readonly '': unique symbol };
 export type IterationIndex = number & { readonly '': unique symbol };
 
 export type VariableIdToCsvColumnIndexMap = Record<
-  ConnectorID,
+  string,
   ColumnIndex | null | undefined
 >;
 

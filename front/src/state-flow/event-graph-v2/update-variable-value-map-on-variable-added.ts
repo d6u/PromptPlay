@@ -1,11 +1,9 @@
-import { ConnectorID } from 'flow-models';
-
 import { ChangeEventType } from '../event-graph/event-graph-types';
 import { createHandler } from './event-graph-util';
 
 export type VariableAddedEvent = {
   type: ChangeEventType.VARIABLE_ADDED;
-  variableId: ConnectorID;
+  variableId: string;
 };
 
 export const updateVariableValueMapOnVariableAdded = createHandler<

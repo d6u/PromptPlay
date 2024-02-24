@@ -1,9 +1,8 @@
 import type { Node } from 'reactflow';
 import type { NodeType } from '../node-definitions';
-import type { NodeID } from './id-types';
 
 export type ServerNode = {
-  id: NodeID;
+  id: string;
   type: NodeType;
   position: {
     x: number;
