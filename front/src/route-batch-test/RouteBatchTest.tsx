@@ -17,10 +17,12 @@ import flowRunBatch from 'flow-run/flowRunBatch';
 import { OverallStatus } from 'flow-run/run-types';
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 import {
+  BatchTestTab,
+  CSVData,
+  CSVHeader,
   IterationIndex,
   RowIndex,
-} from 'state-flow/slice-csv-evaluation-preset';
-import { BatchTestTab, CSVData, CSVHeader } from 'state-flow/types';
+} from 'state-flow/types';
 import { useLocalStorageStore } from 'state-root/local-storage-state';
 import { useNodeFieldFeedbackStore } from 'state-root/node-field-feedback-state';
 

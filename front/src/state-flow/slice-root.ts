@@ -7,6 +7,7 @@ import { StateCreator } from 'zustand';
 import { Connector, ConnectorType } from 'flow-models';
 
 import {
+  BatchTestTab,
   CanvasRightPanelType,
   ConnectStartEdgeType,
   FlowState,
@@ -31,6 +32,8 @@ type RootSliceState = {
 
   isFlowContentDirty: boolean;
   isFlowContentSaving: boolean;
+
+  selectedBatchTestTab: BatchTestTab;
 };
 
 export type RootSlice = RootSliceState & {
@@ -72,6 +75,8 @@ export function createRootSlice(
 
     isFlowContentDirty: false,
     isFlowContentSaving: false,
+
+    selectedBatchTestTab: BatchTestTab.RunTests,
 
     initialize(): void {
       console.group('FlowStore: initializing...');

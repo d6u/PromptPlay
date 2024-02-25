@@ -8,11 +8,7 @@ import { ConnectorType } from 'flow-models';
 
 import Section from 'components/side-pane/SidePaneSection';
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
-import {
-  IterationIndex,
-  RowIndex,
-} from 'state-flow/slice-csv-evaluation-preset';
-import { CSVData, CSVRow } from 'state-flow/types';
+import { CSVData, CSVRow, IterationIndex, RowIndex } from 'state-flow/types';
 import { selectAllVariables } from 'state-flow/util/state-utils';
 import TableBody from './TableBody';
 import TableHead from './TableHead';

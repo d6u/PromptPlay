@@ -3,18 +3,20 @@ import invariant from 'tiny-invariant';
 import { OperationResult } from 'urql';
 import { StateCreator } from 'zustand';
 
-import { ConnectorResultMap } from 'flow-models';
-
-import { RunMetadata } from 'flow-run/run-types';
 import { graphql } from 'gencode-gql';
 import { LoadCsvEvaluationPresetQuery } from 'gencode-gql/graphql';
 import { client } from 'graphql-util/client';
 
-import { BatchTestTab, FlowState } from './types';
+import {
+  BatchTestTab,
+  CsvEvaluationConfigContent,
+  FlowState,
+  RunMetadataTable,
+  RunOutputTable,
+  VariableIdToCsvColumnIndexMap,
+} from './types';
 
 export type CsvEvaluationPresetState = {
-  selectedBatchTestTab: BatchTestTab;
-
   csvModeSelectedPresetId: string | null;
   csvEvaluationIsLoading: boolean;
 
@@ -71,8 +73,6 @@ export const createCsvEvaluationPresetSlice: StateCreator<
   );
 
   return {
-    selectedBatchTestTab: BatchTestTab.RunTests,
-
     csvModeSelectedPresetId: null,
     csvEvaluationIsLoading: false,
 
@@ -312,8 +312,6 @@ export const createCsvEvaluationPresetSlice: StateCreator<
   };
 };
 
-// SECTION: Utilitiy Functions
-
 async function loadPreset(
   spaceId: string,
   presetId: string,
@@ -341,32 +339,3 @@ async function loadPreset(
     )
     .toPromise();
 }
-
-// !SECTION
-
-export type CsvEvaluationConfigContent = {
-  repeatTimes: number;
-  concurrencyLimit: number;
-  variableIdToCsvColumnIndexMap: VariableIdToCsvColumnIndexMap;
-  runOutputTable: RunOutputTable;
-  runMetadataTable: RunMetadataTable;
-};
-
-export type RowIndex = number & { readonly '': unique symbol };
-export type ColumnIndex = number & { readonly '': unique symbol };
-export type IterationIndex = number & { readonly '': unique symbol };
-
-export type VariableIdToCsvColumnIndexMap = Record<
-  string,
-  ColumnIndex | null | undefined
->;
-
-export type RunOutputTable = Record<
-  RowIndex,
-  Record<IterationIndex, ConnectorResultMap | undefined> | undefined
->;
-
-export type RunMetadataTable = Record<
-  RowIndex,
-  Record<IterationIndex, RunMetadata | undefined> | undefined
->;

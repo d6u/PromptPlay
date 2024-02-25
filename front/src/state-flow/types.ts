@@ -1,3 +1,7 @@
+import { ConnectorResultMap } from 'flow-models';
+
+import { RunMetadata } from 'flow-run/run-types';
+
 import { CsvEvaluationPresetSlice } from './slice-csv-evaluation-preset';
 import { RootSlice } from './slice-root';
 import { SliceV2 } from './slice-v2';
@@ -29,3 +33,30 @@ export enum BatchTestTab {
   RunTests = 'RunTests',
   UploadCsv = 'UploadCsv',
 }
+
+export type CsvEvaluationConfigContent = {
+  repeatTimes: number;
+  concurrencyLimit: number;
+  variableIdToCsvColumnIndexMap: VariableIdToCsvColumnIndexMap;
+  runOutputTable: RunOutputTable;
+  runMetadataTable: RunMetadataTable;
+};
+
+export type RowIndex = number & { readonly '': unique symbol };
+export type ColumnIndex = number & { readonly '': unique symbol };
+export type IterationIndex = number & { readonly '': unique symbol };
+
+export type VariableIdToCsvColumnIndexMap = Record<
+  string,
+  ColumnIndex | null | undefined
+>;
+
+export type RunOutputTable = Record<
+  RowIndex,
+  Record<IterationIndex, ConnectorResultMap | undefined> | undefined
+>;
+
+export type RunMetadataTable = Record<
+  RowIndex,
+  Record<IterationIndex, RunMetadata | undefined> | undefined
+>;

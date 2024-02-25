@@ -44,11 +44,11 @@ import { ChangeEventType } from './event-graph/event-types';
 import { AcceptedEvent, handleAllEvent } from './event-graph/handle-all-event';
 import { updateSpaceContentV3 } from './graphql/graphql';
 import {
+  FlowState,
   RunMetadataTable,
   RunOutputTable,
   VariableIdToCsvColumnIndexMap,
-} from './slice-csv-evaluation-preset';
-import { FlowState } from './types';
+} from './types';
 import { createWithImmer } from './util/lens-util';
 import {
   VariableTypeToVariableConfigTypeMap,
