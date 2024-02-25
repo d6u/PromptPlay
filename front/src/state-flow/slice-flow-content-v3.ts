@@ -202,14 +202,13 @@ export const createFlowServerSliceV3: StateCreator<
     },
 
     onEdgesChange(changes: EdgeChange[]): void {
-      console.log('onEdgesChange', changes);
-      startProcessingEventGraph({
+      processEventWithEventGraph({
         type: ChangeEventType.RF_EDGES_CHANGE,
         changes,
       });
     },
     onNodesChange(changes: NodeChange[]): void {
-      startProcessingEventGraph({
+      processEventWithEventGraph({
         type: ChangeEventType.RF_NODES_CHANGE,
         changes,
       });
@@ -228,7 +227,7 @@ export const createFlowServerSliceV3: StateCreator<
       });
     },
     removeNode(nodeId: string): void {
-      startProcessingEventGraph({
+      processEventWithEventGraph({
         type: ChangeEventType.REMOVING_NODE,
         nodeId: nodeId,
       });
