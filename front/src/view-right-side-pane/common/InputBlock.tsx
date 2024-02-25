@@ -14,9 +14,9 @@ type Props = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any;
   onSaveValue: (value: string) => void;
-  type: VariableValueType.String | VariableValueType.Number;
+  type: typeof VariableValueType.String | typeof VariableValueType.Number;
   onSaveType: (
-    type: VariableValueType.String | VariableValueType.Number,
+    type: typeof VariableValueType.String | typeof VariableValueType.Number,
   ) => void;
 };
 

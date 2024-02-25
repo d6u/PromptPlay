@@ -24,12 +24,15 @@ export type Connector =
 
 // ANCHOR: Variable Types
 
-export enum VariableValueType {
-  Number = 'Number',
-  String = 'String',
-  Audio = 'Audio',
-  Unknown = 'Unknown',
-}
+export const VariableValueType = {
+  Number: 'Number',
+  String: 'String',
+  Audio: 'Audio',
+  Unknown: 'Unknown',
+} as const;
+
+export type VariableValueTypeEnum =
+  (typeof VariableValueType)[keyof typeof VariableValueType];
 
 type VariableCommon = {
   id: string;
@@ -40,7 +43,7 @@ type VariableCommon = {
 
 export type FlowInputVariable = VariableCommon & {
   type: typeof ConnectorType.FlowInput;
-  valueType: VariableValueType.String | VariableValueType.Number;
+  valueType: typeof VariableValueType.String | typeof VariableValueType.Number;
 };
 
 export const FlowInputVariableSchema = Joi.object({
@@ -56,7 +59,7 @@ export const FlowInputVariableSchema = Joi.object({
 
 export type FlowOutputVariable = VariableCommon & {
   type: typeof ConnectorType.FlowOutput;
-  valueType: VariableValueType.String | VariableValueType.Audio;
+  valueType: typeof VariableValueType.String | typeof VariableValueType.Audio;
 };
 
 export const FlowOutputVariableSchema = Joi.object({
@@ -72,7 +75,7 @@ export const FlowOutputVariableSchema = Joi.object({
 
 export type NodeInputVariable = VariableCommon & {
   type: typeof ConnectorType.NodeInput;
-  valueType: VariableValueType.Unknown;
+  valueType: typeof VariableValueType.Unknown;
 };
 
 export const NodeInputVariableSchema = Joi.object({
@@ -88,7 +91,7 @@ export const NodeInputVariableSchema = Joi.object({
 
 export type NodeOutputVariable = VariableCommon & {
   type: typeof ConnectorType.NodeOutput;
-  valueType: VariableValueType.Unknown | VariableValueType.Audio;
+  valueType: typeof VariableValueType.Unknown | typeof VariableValueType.Audio;
 };
 
 export const NodeOutputVariableSchema = Joi.object({

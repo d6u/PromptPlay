@@ -1,8 +1,6 @@
 import { produce } from 'immer';
 import { expect, test, vi } from 'vitest';
 
-import { VariableValueType } from 'flow-models';
-
 import { ChangeEventType } from 'state-flow/event-graph/event-graph-types';
 
 import { State } from '../event-graph-util';
@@ -85,7 +83,7 @@ test('handleEdgeReplacedEvent ignores old and new source variables with the same
         nodeId: 'ZUhTs',
         index: 0,
         name: 'var1',
-        valueType: VariableValueType.String,
+        valueType: 'String',
       },
       'Is8Op/5TUFT': {
         type: 'FlowOutput',
@@ -93,7 +91,7 @@ test('handleEdgeReplacedEvent ignores old and new source variables with the same
         nodeId: 'Is8Op',
         index: 0,
         name: 'var3',
-        valueType: VariableValueType.String,
+        valueType: 'String',
       },
       'WHqYI/p8a32': {
         type: 'FlowInput',
@@ -101,7 +99,7 @@ test('handleEdgeReplacedEvent ignores old and new source variables with the same
         nodeId: 'WHqYI',
         index: 0,
         name: 'var2',
-        valueType: VariableValueType.String,
+        valueType: 'String',
       },
     },
     variableValueLookUpDicts: [
@@ -150,15 +148,15 @@ test('handleEdgeReplacedEvent updates destination variables value type', () => {
     variablesDict: {
       a1: {
         type: 'NodeOutput',
-        valueType: VariableValueType.Unknown,
+        valueType: 'Unknown',
       },
       c1: {
         type: 'NodeOutput',
-        valueType: VariableValueType.String,
+        valueType: 'String',
       },
       b1: {
         type: 'FlowOutput',
-        valueType: VariableValueType.Unknown,
+        valueType: 'Unknown',
       },
     },
   };
@@ -187,11 +185,11 @@ test('handleEdgeReplacedEvent updates destination variables value type', () => {
         type: ChangeEventType.VARIABLE_UPDATED,
         prevVariable: {
           type: 'FlowOutput',
-          valueType: VariableValueType.Unknown,
+          valueType: 'Unknown',
         },
         nextVariable: {
           type: 'FlowOutput',
-          valueType: VariableValueType.String,
+          valueType: 'String',
         },
       },
     ]);
@@ -203,7 +201,7 @@ test('handleEdgeReplacedEvent updates destination variables value type', () => {
       ...prevState.variablesDict,
       b1: {
         type: 'FlowOutput',
-        valueType: VariableValueType.String,
+        valueType: 'String',
       },
     },
   });
