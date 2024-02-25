@@ -1,12 +1,13 @@
+import { Connection, EdgeChange, NodeChange } from 'reactflow';
+
 import {
   Condition,
   Connector,
-  ConnectorType,
+  ConnectorTypeEnum,
   LocalNode,
   NodeConfig,
   V3LocalEdge,
 } from 'flow-models';
-import { Connection, EdgeChange, NodeChange } from 'reactflow';
 
 export enum ChangeEventType {
   // React Flow
@@ -139,7 +140,7 @@ export type ChangeEvent =
   | {
       type: ChangeEventType.ADDING_VARIABLE;
       nodeId: string;
-      varType: ConnectorType;
+      varType: ConnectorTypeEnum;
       index: number;
     }
   | {

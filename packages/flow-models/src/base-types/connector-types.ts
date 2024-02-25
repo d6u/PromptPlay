@@ -2,14 +2,17 @@ import Joi from 'joi';
 
 // ANCHOR: === Connector Types ===
 
-export enum ConnectorType {
-  FlowInput = 'FlowInput',
-  FlowOutput = 'FlowOutput',
-  NodeInput = 'NodeInput',
-  NodeOutput = 'NodeOutput',
-  Condition = 'Condition',
-  ConditionTarget = 'ConditionTarget',
-}
+export const ConnectorType = {
+  FlowInput: 'FlowInput',
+  FlowOutput: 'FlowOutput',
+  NodeInput: 'NodeInput',
+  NodeOutput: 'NodeOutput',
+  Condition: 'Condition',
+  ConditionTarget: 'ConditionTarget',
+} as const;
+
+export type ConnectorTypeEnum =
+  (typeof ConnectorType)[keyof typeof ConnectorType];
 
 export type Connector =
   | FlowInputVariable
@@ -36,7 +39,7 @@ type VariableCommon = {
 };
 
 export type FlowInputVariable = VariableCommon & {
-  type: ConnectorType.FlowInput;
+  type: typeof ConnectorType.FlowInput;
   valueType: VariableValueType.String | VariableValueType.Number;
 };
 
@@ -52,7 +55,7 @@ export const FlowInputVariableSchema = Joi.object({
 });
 
 export type FlowOutputVariable = VariableCommon & {
-  type: ConnectorType.FlowOutput;
+  type: typeof ConnectorType.FlowOutput;
   valueType: VariableValueType.String | VariableValueType.Audio;
 };
 
@@ -68,7 +71,7 @@ export const FlowOutputVariableSchema = Joi.object({
 });
 
 export type NodeInputVariable = VariableCommon & {
-  type: ConnectorType.NodeInput;
+  type: typeof ConnectorType.NodeInput;
   valueType: VariableValueType.Unknown;
 };
 
@@ -84,7 +87,7 @@ export const NodeInputVariableSchema = Joi.object({
 });
 
 export type NodeOutputVariable = VariableCommon & {
-  type: ConnectorType.NodeOutput;
+  type: typeof ConnectorType.NodeOutput;
   valueType: VariableValueType.Unknown | VariableValueType.Audio;
 };
 
@@ -102,7 +105,7 @@ export const NodeOutputVariableSchema = Joi.object({
 // ANCHOR: Condition Types
 
 export type Condition = {
-  type: ConnectorType.Condition;
+  type: typeof ConnectorType.Condition;
   id: string;
   nodeId: string;
   index: number;
@@ -118,7 +121,7 @@ export const ConditionSchema = Joi.object({
 });
 
 export type ConditionTarget = {
-  type: ConnectorType.ConditionTarget;
+  type: typeof ConnectorType.ConditionTarget;
   id: string;
   nodeId: string;
 };

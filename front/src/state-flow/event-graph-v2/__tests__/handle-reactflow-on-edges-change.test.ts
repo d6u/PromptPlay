@@ -1,7 +1,7 @@
 import { produce } from 'immer';
 import { expect, test } from 'vitest';
 
-import { ConnectorType, VariableValueType } from 'flow-models';
+import { VariableValueType } from 'flow-models';
 
 import { ChangeEventType } from 'state-flow/event-graph/event-graph-types';
 
@@ -64,7 +64,7 @@ test('handleReactFlowEdgesChange should select edge', () => {
     },
     variablesDict: {
       'Is8Op/5TUFT': {
-        type: ConnectorType.FlowOutput,
+        type: 'FlowOutput',
         id: 'Is8Op/5TUFT',
         nodeId: 'Is8Op',
         index: 0,
@@ -72,7 +72,7 @@ test('handleReactFlowEdgesChange should select edge', () => {
         valueType: VariableValueType.String,
       },
       'OYlVw/u4bDV': {
-        type: ConnectorType.FlowInput,
+        type: 'FlowInput',
         id: 'OYlVw/u4bDV',
         nodeId: 'OYlVw',
         index: 0,

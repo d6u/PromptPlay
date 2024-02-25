@@ -13,7 +13,7 @@ import { StateCreator } from 'zustand';
 
 import {
   ConnectorResultMap,
-  ConnectorType,
+  ConnectorTypeEnum,
   NodeConfig,
   NodeTypeEnum,
   V3FlowContent,
@@ -56,10 +56,10 @@ type SliceFlowContentV3Actions = {
   removeNode(nodeId: string): void;
   updateNodeConfig(nodeId: string, change: Partial<NodeConfig>): void;
 
-  addVariable(nodeId: string, type: ConnectorType, index: number): void;
+  addVariable(nodeId: string, type: ConnectorTypeEnum, index: number): void;
   removeVariable(variableId: string): void;
   updateVariable<
-    T extends ConnectorType,
+    T extends ConnectorTypeEnum,
     R = VariableTypeToVariableConfigTypeMap[T],
   >(
     variableId: string,
@@ -241,7 +241,7 @@ export const createFlowServerSliceV3: StateCreator<
       });
     },
 
-    addVariable(nodeId: string, type: ConnectorType, index: number): void {
+    addVariable(nodeId: string, type: ConnectorTypeEnum, index: number): void {
       startProcessingEventGraph({
         type: ChangeEventType.ADDING_VARIABLE,
         nodeId,
@@ -256,7 +256,7 @@ export const createFlowServerSliceV3: StateCreator<
       });
     },
     updateVariable<
-      T extends ConnectorType,
+      T extends ConnectorTypeEnum,
       R = VariableTypeToVariableConfigTypeMap[T],
     >(variableId: string, change: Partial<R>): void {
       startProcessingEventGraph({

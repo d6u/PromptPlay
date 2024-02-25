@@ -1,8 +1,11 @@
+import invariant from 'tiny-invariant';
+
 import chance from 'common-utils/chance';
 import randomId from 'common-utils/randomId';
 import {
   Condition,
   ConnectorType,
+  ConnectorTypeEnum,
   FlowInputVariable,
   FlowOutputVariable,
   NodeInputVariable,
@@ -10,7 +13,6 @@ import {
   VariableValueType,
 } from 'flow-models';
 
-import invariant from 'tiny-invariant';
 import { ChangeEventType } from '../event-graph/event-graph-types';
 import { createHandler } from './event-graph-util';
 import {
@@ -21,7 +23,7 @@ import {
 export type AddConnectorEvent = {
   type: ChangeEventType.ADDING_VARIABLE;
   nodeId: string;
-  connectorType: ConnectorType;
+  connectorType: ConnectorTypeEnum;
   connectorIndex: number;
 };
 

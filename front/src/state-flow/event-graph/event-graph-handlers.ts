@@ -18,6 +18,7 @@ import {
   ConnectorMap,
   ConnectorResultMap,
   ConnectorType,
+  ConnectorTypeEnum,
   FlowInputVariable,
   FlowOutputVariable,
   LocalNode,
@@ -462,7 +463,7 @@ function handleUpdatingNodeConfig(
 
 function handleAddingVariable(
   nodeId: string,
-  varType: ConnectorType,
+  varType: ConnectorTypeEnum,
   index: number,
   variableConfigs: ConnectorMap,
 ): EventHandlerResult {
