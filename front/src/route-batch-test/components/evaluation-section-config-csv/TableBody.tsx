@@ -18,7 +18,7 @@ export default function TableBody(props: Props) {
     variableIdToCsvColumnIndexMap: variableIdToCsvColumnIndexLookUpDict,
     runOutputTable: csvRunResultTable,
     runMetadataTable: runStatusTable,
-  } = useFlowStore((s) => s.csvEvaluationConfigContent);
+  } = useFlowStore((s) => s.getBatchTestConfig());
   // !SECTION
 
   const flowInputVariables = useMemo(() => {

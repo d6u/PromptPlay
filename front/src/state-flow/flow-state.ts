@@ -1,7 +1,6 @@
 import { createStore } from 'zustand';
 import { devtools } from 'zustand/middleware';
 
-import { createCsvEvaluationPresetSlice } from './slice-csv-evaluation-preset';
 import { createRootSlice } from './slice-root';
 import { createSliceV2 } from './slice-v2';
 import { FlowState } from './types';
@@ -15,7 +14,6 @@ export function createFlowStore(initProps: InitProps) {
     devtools(
       (...a) => ({
         ...createRootSlice(initProps, ...a),
-        ...createCsvEvaluationPresetSlice(...a),
         ...createSliceV2(...a),
       }),
       {

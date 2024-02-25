@@ -34,6 +34,8 @@ type RootSliceState = {
   isFlowContentSaving: boolean;
 
   selectedBatchTestTab: BatchTestTab;
+  csvModeSelectedPresetId: string | null;
+  csvEvaluationIsLoading: boolean;
 };
 
 export type RootSlice = RootSliceState & {
@@ -79,6 +81,8 @@ export function createRootSlice(
     isFlowContentSaving: false,
 
     selectedBatchTestTab: BatchTestTab.RunTests,
+    csvModeSelectedPresetId: null,
+    csvEvaluationIsLoading: false,
 
     initialize(): void {
       console.group('FlowStore: initializing...');

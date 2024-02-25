@@ -2,11 +2,10 @@ import { ConnectorResultMap } from 'flow-models';
 
 import { RunMetadata } from 'flow-run/run-types';
 
-import { CsvEvaluationPresetSlice } from './slice-csv-evaluation-preset';
 import { RootSlice } from './slice-root';
 import { SliceV2 } from './slice-v2';
 
-export type FlowState = RootSlice & CsvEvaluationPresetSlice & SliceV2;
+export type FlowState = RootSlice & SliceV2;
 
 export type NodeMetadataDict = Record<string, NodeMetadata | undefined>;
 

@@ -38,7 +38,9 @@ function RouteBatchTest() {
     (s) => s.getFlowContent().nodeConfigsDict,
   );
   const variablesDict = useFlowStore((s) => s.getFlowContent().variablesDict);
-  const csvContent = useFlowStore((s) => s.csvStr);
+  const csvContent = useFlowStore(
+    (s) => s.getEventGraphState().batchTestConfigCsvString,
+  );
   const repeatTimes = useFlowStore((s) => s.getRepeatTimes());
   const concurrencyLimit = useFlowStore((s) => s.getConcurrencyLimit());
   const variableIdToCsvColumnIndexMap = useFlowStore((s) =>

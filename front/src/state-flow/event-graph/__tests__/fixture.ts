@@ -15,4 +15,5 @@ export const MOCK_STATE: State = {
     runOutputTable: [],
     runMetadataTable: [],
   },
+  batchTestConfigCsvString: '',
 };
