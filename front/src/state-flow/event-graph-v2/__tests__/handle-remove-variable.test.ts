@@ -3,12 +3,12 @@ import { expect, test } from 'vitest';
 
 import { ChangeEventType } from 'state-flow/event-graph/event-graph-types';
 import { BaseEvent, State } from '../event-graph-util';
-import { handleAddConnector } from '../handle-add-connector';
+import { handleRemoveVariable } from '../handle-remove-variable';
 import { MOCK_STATE } from './fixture';
 
-// ANCHOR: Test cases for handleAddConnector
+// ANCHOR: Test cases for handleRemoveVariable
 
-test('handleAddConnector should add variable', () => {
+test('handleRemoveVariable should remove variable', () => {
   const prevState: State = {
     ...MOCK_STATE,
     nodes: [
@@ -22,7 +22,7 @@ test('handleAddConnector should add variable', () => {
         data: null,
         dragHandle: '.node-drag-handle',
         width: 300,
-        height: 132,
+        height: 169,
       },
     ],
     edges: [],
@@ -41,50 +41,46 @@ test('handleAddConnector should add variable', () => {
         name: 'var1',
         valueType: 'String',
       },
+      'Z6dPf/zrLpE': {
+        id: 'Z6dPf/zrLpE',
+        nodeId: 'Z6dPf',
+        index: 1,
+        name: 'var2',
+        type: 'FlowInput',
+        valueType: 'String',
+      },
+    },
+    variableValueLookUpDicts: [
+      {
+        'Z6dPf/wZf7M': null,
+        'Z6dPf/zrLpE': null,
+      },
+    ],
+  };
+
+  const nextState = produce(prevState, (draft) => {
+    handleRemoveVariable(draft, {
+      type: ChangeEventType.REMOVING_VARIABLE,
+      variableId: 'Z6dPf/zrLpE',
+    } as BaseEvent);
+  });
+
+  expect(nextState).toEqual({
+    ...prevState,
+    variablesDict: {
+      'Z6dPf/wZf7M': {
+        type: 'FlowInput',
+        id: 'Z6dPf/wZf7M',
+        nodeId: 'Z6dPf',
+        index: 0,
+        name: 'var1',
+        valueType: 'String',
+      },
     },
     variableValueLookUpDicts: [
       {
         'Z6dPf/wZf7M': null,
       },
     ],
-  };
-
-  const nextState = produce(prevState, (draft) => {
-    handleAddConnector(draft, {
-      type: ChangeEventType.ADDING_VARIABLE,
-      nodeId: 'Z6dPf',
-      connectorType: 'FlowInput',
-      connectorIndex: 1,
-    } as BaseEvent);
   });
-
-  expect(nextState).toEqual({
-    ...prevState,
-    variablesDict: expect.anything(),
-    variableValueLookUpDicts: expect.anything(),
-  });
-
-  expect(Object.values(nextState.variablesDict)).toEqual([
-    {
-      type: 'FlowInput',
-      id: 'Z6dPf/wZf7M',
-      nodeId: 'Z6dPf',
-      index: 0,
-      name: 'var1',
-      valueType: 'String',
-    },
-    {
-      id: expect.any(String),
-      nodeId: 'Z6dPf',
-      index: 1,
-      name: expect.any(String),
-      type: 'FlowInput',
-      valueType: 'String',
-    },
-  ]);
-
-  expect(Object.values(nextState.variableValueLookUpDicts[0])).toEqual([
-    null,
-    null,
-  ]);
 });

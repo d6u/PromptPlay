@@ -249,7 +249,7 @@ export const createFlowServerSliceV3: StateCreator<
       });
     },
     removeVariable(variableId: string): void {
-      startProcessingEventGraph({
+      processEventWithEventGraph({
         type: ChangeEventType.REMOVING_VARIABLE,
         variableId,
       });
