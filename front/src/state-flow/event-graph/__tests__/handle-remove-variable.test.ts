@@ -1,7 +1,7 @@
 import { produce } from 'immer';
 import { expect, test } from 'vitest';
 
-import { ChangeEventType } from 'state-flow/event-graph/event-graph-types';
+import { ChangeEventType } from 'state-flow/event-graph/event-types';
 import { BaseEvent, State } from '../event-graph-util';
 import { handleRemoveVariable } from '../handle-remove-variable';
 import { MOCK_STATE } from './fixture';

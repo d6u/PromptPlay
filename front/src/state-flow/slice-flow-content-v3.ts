@@ -20,16 +20,8 @@ import {
   createNode,
 } from 'flow-models';
 
-import {
-  AcceptedEvent,
-  handleAllEvent,
-} from './event-graph-v2/handle-all-event';
-import { handleEvent } from './event-graph/event-graph-handlers';
-import {
-  ChangeEvent,
-  ChangeEventType,
-  EVENT_VALIDATION_MAP,
-} from './event-graph/event-graph-types';
+import { ChangeEventType } from './event-graph/event-types';
+import { AcceptedEvent, handleAllEvent } from './event-graph/handle-all-event';
 import { updateSpaceContentV3 } from './graphql/graphql';
 import { FlowState, SliceFlowContentV3State } from './types';
 import { VariableTypeToVariableConfigTypeMap } from './util/state-utils';
@@ -108,76 +100,20 @@ export const createFlowServerSliceV3: StateCreator<
     500,
   );
 
-  function startProcessingEventGraph(startEvent: ChangeEvent) {
-    // SECTION: Processing event graph
-    console.group('Processing event graph...');
-
-    const queue: ChangeEvent[] = [startEvent];
-
-    let state = get();
-    let isDirty = false;
-
-    while (queue.length > 0) {
-      const currentEvent = queue.shift()!;
-      const [stateChange, derivedEvents] = handleEvent(state, currentEvent);
-
-      const { isFlowContentDirty, ...restStateChange } = stateChange;
-      state = { ...state, ...restStateChange };
-
-      // NOTE: We should not simply merge `isFlowContentDirty` into `state`.
-      // Because `isFlowContentDirty` might be false after some events, we want
-      // to avoid `isFlowContentDirty === true` being overriden by `false`.
-      isDirty = isDirty || (isFlowContentDirty ?? false);
-
-      // Validate to prevent circular events
-      const allowedDerivedEventTypes = EVENT_VALIDATION_MAP[currentEvent.type];
-
-      for (const derivedEvent of derivedEvents) {
-        if (!allowedDerivedEventTypes.includes(derivedEvent.type)) {
-          throw new Error(
-            `${currentEvent.type} should not generate ${derivedEvent.type} event.`,
-          );
-        }
-      }
-
-      queue.push(...derivedEvents);
-    }
-
-    console.groupEnd();
-    // !SECTION
-
-    set(state);
-
-    if (!isDirty) {
-      return;
-    }
-
-    set(() => ({ isFlowContentSaving: true }));
-
-    const spaceId = get().spaceId;
-    invariant(spaceId != null);
-
-    saveSpaceDebounced(spaceId, {
-      nodes: get().nodes,
-      edges: get().edges,
-      nodeConfigsDict: get().nodeConfigsDict,
-      variablesDict: get().variablesDict,
-      variableValueLookUpDicts: get().variableValueLookUpDicts,
-    });
-
-    set(() => ({ isFlowContentDirty: false }));
-  }
-
   function processEventWithEventGraph(event: AcceptedEvent) {
     let isDirty = false;
 
-    set((state) => {
-      const nextState = produce(get(), (draft) => {
-        handleAllEvent(draft, event);
-      });
-      isDirty = nextState !== state;
-      return nextState;
-    });
+    set(
+      (state) => {
+        const nextState = produce(get(), (draft) => {
+          handleAllEvent(draft, event);
+        });
+        isDirty = nextState !== state;
+        return nextState;
+      },
+      false,
+      event,
+    );
 
     if (isDirty) {
       const spaceId = get().spaceId;
@@ -258,7 +194,7 @@ export const createFlowServerSliceV3: StateCreator<
       T extends ConnectorTypeEnum,
       R = VariableTypeToVariableConfigTypeMap[T],
     >(variableId: string, change: Partial<R>): void {
-      startProcessingEventGraph({
+      processEventWithEventGraph({
         type: ChangeEventType.UPDATING_VARIABLE,
         variableId,
         change,

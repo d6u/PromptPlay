@@ -1,7 +1,7 @@
 import { produce } from 'immer';
 import { expect, test, vi } from 'vitest';
 
-import { ChangeEventType } from 'state-flow/event-graph/event-graph-types';
+import { ChangeEventType } from 'state-flow/event-graph/event-types';
 
 import { State } from '../event-graph-util';
 import { handleEdgeReplacedEvent } from '../update-variable-on-edge-replace';

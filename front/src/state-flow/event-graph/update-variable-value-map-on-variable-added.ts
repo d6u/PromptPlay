@@ -1,5 +1,5 @@
-import { ChangeEventType } from '../event-graph/event-graph-types';
 import { createHandler } from './event-graph-util';
+import { ChangeEventType } from './event-types';
 
 export type VariableAddedEvent = {
   type: ChangeEventType.VARIABLE_ADDED;

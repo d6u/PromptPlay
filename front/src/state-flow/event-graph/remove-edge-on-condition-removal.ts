@@ -3,8 +3,8 @@ import { current } from 'immer';
 
 import { Condition } from 'flow-models';
 
-import { ChangeEventType } from '../event-graph/event-graph-types';
 import { createHandler } from './event-graph-util';
+import { ChangeEventType } from './event-types';
 import {
   EdgeRemovedEvent,
   updateVariableOnEdgeRemoval,

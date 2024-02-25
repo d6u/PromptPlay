@@ -2,8 +2,8 @@ import { A } from '@mobily/ts-belt';
 import { current } from 'immer';
 import invariant from 'tiny-invariant';
 
-import { ChangeEventType } from '../event-graph/event-graph-types';
 import { createHandler } from './event-graph-util';
+import { ChangeEventType } from './event-types';
 import {
   NodeRemovedEvent,
   removeConnectorOnNodeRemoval,

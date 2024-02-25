@@ -1,14 +1,14 @@
 import { produce } from 'immer';
 import { expect, test } from 'vitest';
 
-import { ChangeEventType } from 'state-flow/event-graph/event-graph-types';
+import { ChangeEventType } from 'state-flow/event-graph/event-types';
 import { BaseEvent, State } from '../event-graph-util';
-import { handleAddConnector } from '../handle-add-connector';
+import { handleUpdateVariable } from '../handle-update-variable';
 import { MOCK_STATE } from './fixture';
 
-// ANCHOR: Test cases for handleAddConnector
+// ANCHOR: Test cases for handleUpdateVariable
 
-test('handleAddConnector should add variable', () => {
+test('handleUpdateVariable should remove variable', () => {
   const prevState: State = {
     ...MOCK_STATE,
     nodes: [
@@ -50,41 +50,26 @@ test('handleAddConnector should add variable', () => {
   };
 
   const nextState = produce(prevState, (draft) => {
-    handleAddConnector(draft, {
-      type: ChangeEventType.ADDING_VARIABLE,
-      nodeId: 'Z6dPf',
-      connectorType: 'FlowInput',
-      connectorIndex: 1,
+    handleUpdateVariable(draft, {
+      type: ChangeEventType.UPDATING_VARIABLE,
+      variableId: 'Z6dPf/wZf7M',
+      change: {
+        name: 'var2',
+      },
     } as BaseEvent);
   });
 
   expect(nextState).toEqual({
     ...prevState,
-    variablesDict: expect.anything(),
-    variableValueLookUpDicts: expect.anything(),
+    variablesDict: {
+      'Z6dPf/wZf7M': {
+        type: 'FlowInput',
+        id: 'Z6dPf/wZf7M',
+        nodeId: 'Z6dPf',
+        index: 0,
+        name: 'var2',
+        valueType: 'String',
+      },
+    },
   });
-
-  expect(Object.values(nextState.variablesDict)).toEqual([
-    {
-      type: 'FlowInput',
-      id: 'Z6dPf/wZf7M',
-      nodeId: 'Z6dPf',
-      index: 0,
-      name: 'var1',
-      valueType: 'String',
-    },
-    {
-      id: expect.any(String),
-      nodeId: 'Z6dPf',
-      index: 1,
-      name: expect.any(String),
-      type: 'FlowInput',
-      valueType: 'String',
-    },
-  ]);
-
-  expect(Object.values(nextState.variableValueLookUpDicts[0])).toEqual([
-    null,
-    null,
-  ]);
 });

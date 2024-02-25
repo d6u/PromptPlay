@@ -2,8 +2,8 @@ import { LocalNode, getNodeDefinitionForNodeTypeName } from 'flow-models';
 
 import { DRAG_HANDLE_CLASS_NAME } from 'view-flow-canvas/constants';
 
-import { ChangeEventType } from '../event-graph/event-graph-types';
 import { createHandler } from './event-graph-util';
+import { ChangeEventType } from './event-types';
 import {
   NodeAndVariableAddedEvent,
   updateVariableValueMapOnNodeAndVariableAdded,

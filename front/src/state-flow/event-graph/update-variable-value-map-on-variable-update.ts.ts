@@ -1,7 +1,7 @@
 import { Connector, ConnectorType } from 'flow-models';
 
-import { ChangeEventType } from '../event-graph/event-graph-types';
 import { createHandler } from './event-graph-util';
+import { ChangeEventType } from './event-types';
 
 export type VariableUpdatedEvent = {
   type: ChangeEventType.VARIABLE_UPDATED;

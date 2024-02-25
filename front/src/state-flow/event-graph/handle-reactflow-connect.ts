@@ -12,9 +12,9 @@ import {
   VariableValueType,
 } from 'flow-models';
 
-import { ChangeEventType } from '../event-graph/event-graph-types';
 import { CONDITION_EDGE_STYLE, DEFAULT_EDGE_STYLE } from '../util/constants';
 import { State, createHandler } from './event-graph-util';
+import { ChangeEventType } from './event-types';
 import {
   EdgeAddedEvent,
   updateVariableOnEdgeAdded,

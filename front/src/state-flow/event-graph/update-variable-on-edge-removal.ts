@@ -8,12 +8,12 @@ import {
   VariableValueType,
 } from 'flow-models';
 
-import { ChangeEventType } from '../event-graph/event-graph-types';
-import { createHandler } from './event-graph-util';
+import { createHandler } from './event-graph-util.ts';
+import { ChangeEventType } from './event-types.ts';
 import {
   VariableUpdatedEvent,
   updateVariableValueMapOnVariableUpdate,
-} from './update-variable-value-map-on-variable-update.ts';
+} from './update-variable-value-map-on-variable-update.ts.ts';
 
 export type EdgeRemovedEvent = {
   type: ChangeEventType.EDGE_REMOVED;

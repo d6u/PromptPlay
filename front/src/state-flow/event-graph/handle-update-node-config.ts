@@ -1,7 +1,7 @@
 import { NodeConfig } from 'flow-models';
 
-import { ChangeEventType } from '../event-graph/event-graph-types';
 import { createHandler } from './event-graph-util';
+import { ChangeEventType } from './event-types';
 
 export type UpdateNodeConfigEvent = {
   type: ChangeEventType.UPDATING_NODE_CONFIG;
