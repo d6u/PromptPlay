@@ -1,11 +1,11 @@
 import styled from '@emotion/styled';
 import { ReactNode, useMemo } from 'react';
 import { Position, useNodeId, useUpdateNodeInternals } from 'reactflow';
+import invariant from 'tiny-invariant';
 
 import {
   ConnectorType,
   NodeConfig,
-  NodeID,
   getNodeDefinitionForNodeTypeName,
 } from 'flow-models';
 
@@ -46,7 +46,10 @@ type Props = {
 
 function ReactFlowNode(props: Props) {
   // ANCHOR: ReactFlow
-  const nodeId = useNodeId() as NodeID;
+  const nodeId = useNodeId();
+
+  invariant(nodeId != null, 'nodeId is not null');
+
   const updateNodeInternals = useUpdateNodeInternals();
 
   // ANCHOR: Node Definition

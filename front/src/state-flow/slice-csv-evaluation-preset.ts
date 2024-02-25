@@ -1,5 +1,5 @@
 import { createLens, Getter, Setter } from '@dhmk/zustand-lens';
-import { ConnectorID, ConnectorResultMap } from 'flow-models';
+import { ConnectorResultMap } from 'flow-models';
 import { RunMetadata } from 'flow-run/run-types';
 import { graphql } from 'gencode-gql';
 import { LoadCsvEvaluationPresetQuery } from 'gencode-gql/graphql';
@@ -9,7 +9,7 @@ import { OperationResult } from 'urql';
 import { StateCreator } from 'zustand';
 import { BatchTestTab, FlowState } from './types';
 
-export type CsvEvaluationPresetSlice = {
+export type CsvEvaluationPresetState = {
   selectedBatchTestTab: BatchTestTab;
 
   csvModeSelectedPresetId: string | null;
@@ -18,7 +18,9 @@ export type CsvEvaluationPresetSlice = {
   // Persistable data
   csvStr: string;
   csvEvaluationConfigContent: CsvEvaluationConfigContent;
+};
 
+export type CsvEvaluationPresetSlice = CsvEvaluationPresetState & {
   setSelectedBatchTestTab(tab: BatchTestTab): void;
 
   setCsvStr(csvStr: string): void;
@@ -352,7 +354,7 @@ export type ColumnIndex = number & { readonly '': unique symbol };
 export type IterationIndex = number & { readonly '': unique symbol };
 
 export type VariableIdToCsvColumnIndexMap = Record<
-  ConnectorID,
+  string,
   ColumnIndex | null | undefined
 >;
 

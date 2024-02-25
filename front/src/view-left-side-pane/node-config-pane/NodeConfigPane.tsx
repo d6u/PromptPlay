@@ -1,14 +1,13 @@
 import styled from '@emotion/styled';
 import { ReactNode, useContext, useMemo } from 'react';
+import { useUpdateNodeInternals } from 'reactflow';
 import invariant from 'tiny-invariant';
 
 import {
   ConnectorType,
-  NodeID,
   NodeType,
   getNodeDefinitionForNodeTypeName,
 } from 'flow-models';
-import { useUpdateNodeInternals } from 'reactflow';
 
 import NodeVariablesEditableList from 'components/node-variables-editable-list/NodeVariablesEditableList';
 import HeaderSection from 'components/side-pane/SidePaneHeaderSection';
@@ -34,7 +33,7 @@ function NodeConfigPane() {
   const addVariable = useFlowStore((s) => s.addVariable);
 
   const nodeConfig = useMemo(() => {
-    return nodeConfigs[selectedNodeId as NodeID];
+    return nodeConfigs[selectedNodeId!];
   }, [nodeConfigs, selectedNodeId]);
 
   const nodeDefinition = useMemo(() => {

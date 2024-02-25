@@ -10,9 +10,7 @@ import {
   ConnectorType,
   FlowOutputVariable,
   VariableValueType,
-  asV3VariableID,
 } from '../../base-types/connector-types';
-import { NodeID } from '../../base-types/id-types';
 import {
   NodeDefinition,
   NodeExecutionEvent,
@@ -21,8 +19,8 @@ import {
 } from '../../node-definition-base-types';
 
 export type OutputNodeInstanceLevelConfig = {
-  type: NodeType.OutputNode;
-  nodeId: NodeID;
+  type: typeof NodeType.OutputNode;
+  nodeId: string;
 };
 
 export type OutputNodeAllLevelConfig = OutputNodeInstanceLevelConfig;
@@ -50,7 +48,7 @@ export const OUTPUT_NODE_DEFINITION: NodeDefinition<
       variableConfigList: [
         {
           type: ConnectorType.FlowOutput,
-          id: asV3VariableID(`${nodeId}/${randomId()}`),
+          id: `${nodeId}/${randomId()}`,
           nodeId: nodeId,
           index: 0,
           name: chance.word(),

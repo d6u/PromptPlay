@@ -2,7 +2,7 @@ import { FormHelperText, FormLabel, Input } from '@mui/joy';
 import { useCallback } from 'react';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 
-import { NodeAccountLevelTextFieldDefinition, NodeType } from 'flow-models';
+import { NodeAccountLevelTextFieldDefinition, NodeTypeEnum } from 'flow-models';
 
 import { useLocalStorageStore } from 'state-root/local-storage-state';
 import { useNodeFieldFeedbackStore } from 'state-root/node-field-feedback-state';
@@ -13,7 +13,7 @@ import NodeFieldSectionFormControl from './NodeFieldSectionFormControl';
 type Props = {
   isNodeConfigReadOnly: boolean;
   nodeId: string;
-  nodeType: NodeType;
+  nodeType: NodeTypeEnum;
   fieldKey: string;
   fieldDefinition: NodeAccountLevelTextFieldDefinition;
 };

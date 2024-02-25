@@ -1,12 +1,12 @@
 import { D } from '@mobily/ts-belt';
-import randomId from 'common-utils/randomId';
 import Joi from 'joi';
+
+import randomId from 'common-utils/randomId';
+
 import type {
   ConditionTarget,
-  ConnectorID,
   ConnectorMap,
   ConnectorResultMap,
-  NodeID,
   ServerNode,
   V3ServerEdge,
 } from './base-types';
@@ -16,11 +16,8 @@ import {
   ConnectorType,
   ServerEdgeSchema,
 } from './base-types';
-import {
-  NodeConfigMap,
-  NodeConfigMapSchema,
-  NodeType,
-} from './node-definitions';
+import { NodeType, NodeTypeEnum } from './node-definition-base-types';
+import { NodeConfigMap, NodeConfigMapSchema } from './node-definitions';
 
 // ANCHOR: V3 Root Types
 
@@ -80,7 +77,7 @@ export const FlowConfigSchema = Joi.object<V3FlowContent>({
           continue;
         }
 
-        const connectorId = `${nodeConfig.nodeId}/${randomId()}` as ConnectorID;
+        const connectorId = `${nodeConfig.nodeId}/${randomId()}`;
 
         conditionTarget = {
           type: ConnectorType.ConditionTarget,
@@ -99,9 +96,13 @@ export const FlowConfigSchema = Joi.object<V3FlowContent>({
     .default([{}]),
 });
 
-export function createNode(type: NodeType, x: number, y: number): ServerNode {
+export function createNode(
+  type: NodeTypeEnum,
+  x: number,
+  y: number,
+): ServerNode {
   return {
-    id: randomId() as NodeID,
+    id: randomId(),
     type,
     position: { x, y },
     data: null,

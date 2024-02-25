@@ -1,11 +1,11 @@
 import { FormControl, FormLabel, Textarea } from '@mui/joy';
 import { useContext, useMemo, useState } from 'react';
 import { useNodeId } from 'reactflow';
+import invariant from 'tiny-invariant';
 
 import {
   ConnectorType,
   JavaScriptFunctionNodeInstanceLevelConfig,
-  NodeID,
 } from 'flow-models';
 
 import NodeFieldLabelWithIconContainer from 'components/node-fields/NodeFieldLabelWithIconContainer';
@@ -21,7 +21,9 @@ import ReactFlowNode from '../node-box/ReactFlowNode';
 function JavaScriptFunctionNode() {
   const { isCurrentUserOwner } = useContext(RouteFlowContext);
 
-  const nodeId = useNodeId() as NodeID;
+  const nodeId = useNodeId();
+
+  invariant(nodeId != null, 'nodeId is not null');
 
   const nodeConfigsDict = useFlowStore((s) => s.nodeConfigsDict);
   const variablesDict = useFlowStore((s) => s.variablesDict);

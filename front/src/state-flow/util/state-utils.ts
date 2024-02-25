@@ -10,13 +10,13 @@ import {
   FlowInputVariable,
   FlowOutputVariable,
   LocalNode,
-  NodeID,
   NodeInputVariable,
   NodeOutputVariable,
   V3LocalEdge,
 } from 'flow-models';
 
 import { DRAG_HANDLE_CLASS_NAME } from 'view-flow-canvas/constants';
+
 import { CONDITION_EDGE_STYLE, DEFAULT_EDGE_STYLE } from './constants';
 
 export function assignLocalNodeProperties(nodes: LocalNode[]): LocalNode[] {
@@ -62,12 +62,12 @@ export type VariableTypeToVariableConfigTypeMap = {
 
 export function selectVariables<
   T extends
-    | ConnectorType.NodeInput
-    | ConnectorType.NodeOutput
-    | ConnectorType.FlowInput
-    | ConnectorType.FlowOutput,
+    | typeof ConnectorType.NodeInput
+    | typeof ConnectorType.NodeOutput
+    | typeof ConnectorType.FlowInput
+    | typeof ConnectorType.FlowOutput,
 >(
-  nodeId: NodeID,
+  nodeId: string,
   type: T,
   variableConfigs: ConnectorMap,
 ): VariableTypeToVariableConfigTypeMap[T][] {
@@ -80,10 +80,10 @@ export function selectVariables<
 
 export function selectAllVariables<
   T extends
-    | ConnectorType.NodeInput
-    | ConnectorType.NodeOutput
-    | ConnectorType.FlowInput
-    | ConnectorType.FlowOutput,
+    | typeof ConnectorType.NodeInput
+    | typeof ConnectorType.NodeOutput
+    | typeof ConnectorType.FlowInput
+    | typeof ConnectorType.FlowOutput,
 >(
   type: T,
   variableMap: ConnectorMap,
@@ -96,7 +96,7 @@ export function selectAllVariables<
 }
 
 export function selectConditions(
-  nodeId: NodeID,
+  nodeId: string,
   variablesDict: ConnectorMap,
 ): Condition[] {
   return D.values(variablesDict)
@@ -107,7 +107,7 @@ export function selectConditions(
 }
 
 export function selectConditionTarget(
-  nodeId: NodeID,
+  nodeId: string,
   variablesDict: ConnectorMap,
 ): Option<ConditionTarget> {
   return D.values(variablesDict).find((c): c is ConditionTarget => {

@@ -1,13 +1,12 @@
 import Joi from 'joi';
 import type { Edge } from 'reactflow';
-import type { ConnectorID, EdgeID, NodeID } from './id-types';
 
 export type V3ServerEdge = {
-  id: EdgeID;
-  source: NodeID;
-  sourceHandle: ConnectorID;
-  target: NodeID;
-  targetHandle: ConnectorID;
+  id: string;
+  source: string;
+  sourceHandle: string;
+  target: string;
+  targetHandle: string;
 };
 
 export type V3LocalEdge = Omit<

@@ -1,21 +1,16 @@
 import type { ReactNode } from 'react';
 import type { Observable } from 'rxjs';
 
-import type {
-  Connector,
-  ConnectorID,
-  ConnectorResultMap,
-  NodeID,
-} from '../base-types';
-import type { NodeType } from '../node-definitions/index';
+import type { Connector, ConnectorResultMap } from '../base-types';
 import NodeExecutionContext from './NodeExecutionContext';
+import { type NodeTypeEnum } from './NodeType';
 import {
   NodeAccountLevelTextFieldDefinition,
   NodeInstanceLevelFieldDefinitionUnion,
 } from './field-definition-interfaces';
 
 type BaseNodeInstanceLevelConfig = {
-  type: NodeType;
+  type: NodeTypeEnum;
   nodeId: string;
 };
 
@@ -53,22 +48,22 @@ export enum NodeExecutionEventType {
 export type NodeExecutionEvent =
   | {
       type: NodeExecutionEventType.Start;
-      nodeId: NodeID;
+      nodeId: string;
     }
   | {
       type: NodeExecutionEventType.Finish;
-      nodeId: NodeID;
-      finishedConnectorIds: ConnectorID[];
+      nodeId: string;
+      finishedConnectorIds: string[];
     }
   | {
       type: NodeExecutionEventType.VariableValues;
-      nodeId: NodeID;
+      nodeId: string;
       // NOTE: Event should always contain all variable values
       variableValuesLookUpDict: ConnectorResultMap;
     }
   | {
       type: NodeExecutionEventType.Errors;
-      nodeId: NodeID;
+      nodeId: string;
       // NOTE: Event should always contain all error messages
       errorMessages: string[];
     };
@@ -110,7 +105,7 @@ export interface NodeDefinition<
   canUserAddIncomingVariables?: boolean;
 
   // Initial config values
-  createDefaultNodeConfig: (nodeId: NodeID) => {
+  createDefaultNodeConfig: (nodeId: string) => {
     nodeConfig: TInstanceLevelConfig;
     variableConfigList: Connector[];
   };

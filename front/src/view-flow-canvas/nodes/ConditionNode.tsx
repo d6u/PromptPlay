@@ -4,7 +4,7 @@ import { useContext, useMemo } from 'react';
 import { Position, useNodeId, useUpdateNodeInternals } from 'reactflow';
 import invariant from 'tiny-invariant';
 
-import { ConditionResult, ConnectorType, NodeID, NodeType } from 'flow-models';
+import { ConditionResult, ConnectorType, NodeType } from 'flow-models';
 
 import NodeConditionsEditableList from 'components/node-variables-editable-list/NodeConditionsEditableList';
 import NodeConnectorResultDisplay from 'components/node-variables-editable-list/NodeConnectorResultDisplay';
@@ -26,7 +26,10 @@ import NodeBoxSection from '../node-box/NodeBoxSection';
 import NodeBoxSmallSection from '../node-box/NodeBoxSmallSection';
 
 function ConditionNode() {
-  const nodeId = useNodeId() as NodeID;
+  const nodeId = useNodeId();
+
+  invariant(nodeId != null, 'nodeId is not null');
+
   const updateNodeInternals = useUpdateNodeInternals();
 
   const { isCurrentUserOwner } = useContext(RouteFlowContext);

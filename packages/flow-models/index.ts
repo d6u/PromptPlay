@@ -1,23 +1,16 @@
+import { NodeTypeEnum } from './src/node-definition-base-types';
 import {
   BULTIN_NODE_TYPES_ORDERED_ARRAY,
   INTEGRATION_NODE_TYPES_ORDERED_ARRAY,
   NODE_TYPE_TO_NODE_DEFINITION_MAP,
-  NodeType,
 } from './src/node-definitions';
 
 export * from './src/base-types';
-export {
-  ImmutableFlowNodeGraph,
-  MutableFlowNodeGraph,
-  type GraphEdge,
-} from './src/node-definition-base-types/FlowExecutionContext';
-export { default as NodeExecutionContext } from './src/node-definition-base-types/NodeExecutionContext';
-export * from './src/node-definition-base-types/field-definition-interfaces';
-export * from './src/node-definition-base-types/node-definition-interface';
+export * from './src/node-definition-base-types';
 export * from './src/node-definitions';
 export * from './src/v3-flow-content-types';
 
-export function getNodeDefinitionForNodeTypeName<T extends NodeType>(
+export function getNodeDefinitionForNodeTypeName<T extends NodeTypeEnum>(
   type: T,
 ): (typeof NODE_TYPE_TO_NODE_DEFINITION_MAP)[T] {
   return NODE_TYPE_TO_NODE_DEFINITION_MAP[type];

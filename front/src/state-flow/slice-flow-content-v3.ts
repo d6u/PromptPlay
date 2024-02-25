@@ -12,22 +12,16 @@ import invariant from 'tiny-invariant';
 import { StateCreator } from 'zustand';
 
 import {
-  ConnectorID,
   ConnectorResultMap,
-  ConnectorType,
+  ConnectorTypeEnum,
   NodeConfig,
-  NodeID,
-  NodeType,
+  NodeTypeEnum,
   V3FlowContent,
   createNode,
 } from 'flow-models';
 
-import { handleEvent } from './event-graph/event-graph-handlers';
-import {
-  ChangeEvent,
-  ChangeEventType,
-  EVENT_VALIDATION_MAP,
-} from './event-graph/event-graph-types';
+import { ChangeEventType } from './event-graph/event-types';
+import { AcceptedEvent, handleAllEvent } from './event-graph/handle-all-event';
 import { updateSpaceContentV3 } from './graphql/graphql';
 import { FlowState, SliceFlowContentV3State } from './types';
 import { VariableTypeToVariableConfigTypeMap } from './util/state-utils';
@@ -50,20 +44,20 @@ type SliceFlowContentV3Actions = {
   onEdgesChange: OnEdgesChange;
   onConnect: OnConnect;
 
-  addNode(type: NodeType, x: number, y: number): void;
-  removeNode(id: NodeID): void;
-  updateNodeConfig(nodeId: NodeID, change: Partial<NodeConfig>): void;
+  addNode(type: NodeTypeEnum, x: number, y: number): void;
+  removeNode(nodeId: string): void;
+  updateNodeConfig(nodeId: string, change: Partial<NodeConfig>): void;
 
-  addVariable(nodeId: NodeID, type: ConnectorType, index: number): void;
-  removeVariable(variableId: ConnectorID): void;
+  addVariable(nodeId: string, type: ConnectorTypeEnum, index: number): void;
+  removeVariable(variableId: string): void;
   updateVariable<
-    T extends ConnectorType,
+    T extends ConnectorTypeEnum,
     R = VariableTypeToVariableConfigTypeMap[T],
   >(
-    variableId: ConnectorID,
+    variableId: string,
     change: Partial<R>,
   ): void;
-  updateVariableValueMap(variableId: ConnectorID, value: unknown): void;
+  updateVariableValueMap(variableId: string, value: unknown): void;
 
   // Local Only
   getDefaultVariableValueLookUpDict(): ConnectorResultMap;
@@ -106,64 +100,34 @@ export const createFlowServerSliceV3: StateCreator<
     500,
   );
 
-  function startProcessingEventGraph(startEvent: ChangeEvent) {
-    // SECTION: Processing event graph
-    console.group('Processing event graph...');
-
-    const queue: ChangeEvent[] = [startEvent];
-
-    let state = get();
+  function processEventWithEventGraph(event: AcceptedEvent) {
     let isDirty = false;
 
-    while (queue.length > 0) {
-      const currentEvent = queue.shift()!;
-      const [stateChange, derivedEvents] = handleEvent(state, currentEvent);
+    set(
+      (state) => {
+        const nextState = produce(get(), (draft) => {
+          handleAllEvent(draft, event);
+        });
+        isDirty = nextState !== state;
+        return nextState;
+      },
+      false,
+      event,
+    );
 
-      const { isFlowContentDirty, ...restStateChange } = stateChange;
-      state = { ...state, ...restStateChange };
+    if (isDirty) {
+      const spaceId = get().spaceId;
 
-      // NOTE: We should not simply merge `isFlowContentDirty` into `state`.
-      // Because `isFlowContentDirty` might be false after some events, we want
-      // to avoid `isFlowContentDirty === true` being overriden by `false`.
-      isDirty = isDirty || (isFlowContentDirty ?? false);
+      invariant(spaceId != null);
 
-      // Validate to prevent circular events
-      const allowedDerivedEventTypes = EVENT_VALIDATION_MAP[currentEvent.type];
-
-      for (const derivedEvent of derivedEvents) {
-        if (!allowedDerivedEventTypes.includes(derivedEvent.type)) {
-          throw new Error(
-            `${currentEvent.type} should not generate ${derivedEvent.type} event.`,
-          );
-        }
-      }
-
-      queue.push(...derivedEvents);
+      saveSpaceDebounced(spaceId, {
+        nodes: get().nodes,
+        edges: get().edges,
+        nodeConfigsDict: get().nodeConfigsDict,
+        variablesDict: get().variablesDict,
+        variableValueLookUpDicts: get().variableValueLookUpDicts,
+      });
     }
-
-    console.groupEnd();
-    // !SECTION
-
-    set(state);
-
-    if (!isDirty) {
-      return;
-    }
-
-    set(() => ({ isFlowContentSaving: true }));
-
-    const spaceId = get().spaceId;
-    invariant(spaceId != null);
-
-    saveSpaceDebounced(spaceId, {
-      nodes: get().nodes,
-      edges: get().edges,
-      nodeConfigsDict: get().nodeConfigsDict,
-      variablesDict: get().variablesDict,
-      variableValueLookUpDicts: get().variableValueLookUpDicts,
-    });
-
-    set(() => ({ isFlowContentDirty: false }));
   }
 
   return {
@@ -174,70 +138,70 @@ export const createFlowServerSliceV3: StateCreator<
     },
 
     onEdgesChange(changes: EdgeChange[]): void {
-      startProcessingEventGraph({
+      processEventWithEventGraph({
         type: ChangeEventType.RF_EDGES_CHANGE,
         changes,
       });
     },
     onNodesChange(changes: NodeChange[]): void {
-      startProcessingEventGraph({
+      processEventWithEventGraph({
         type: ChangeEventType.RF_NODES_CHANGE,
         changes,
       });
     },
     onConnect(connection): void {
-      startProcessingEventGraph({
+      processEventWithEventGraph({
         type: ChangeEventType.RF_ON_CONNECT,
         connection,
       });
     },
 
-    addNode(type: NodeType, x: number, y: number): void {
-      startProcessingEventGraph({
+    addNode(type: NodeTypeEnum, x: number, y: number): void {
+      processEventWithEventGraph({
         type: ChangeEventType.ADDING_NODE,
         node: createNode(type, x, y),
       });
     },
-    removeNode(id: NodeID): void {
-      startProcessingEventGraph({
+    removeNode(nodeId: string): void {
+      processEventWithEventGraph({
         type: ChangeEventType.REMOVING_NODE,
-        nodeId: id,
+        nodeId: nodeId,
       });
     },
-    updateNodeConfig(nodeId: NodeID, change: Partial<NodeConfig>): void {
-      startProcessingEventGraph({
+    updateNodeConfig(nodeId: string, change: Partial<NodeConfig>): void {
+      processEventWithEventGraph({
         type: ChangeEventType.UPDATING_NODE_CONFIG,
         nodeId,
         change,
       });
     },
 
-    addVariable(nodeId: NodeID, type: ConnectorType, index: number): void {
-      startProcessingEventGraph({
+    addVariable(nodeId: string, type: ConnectorTypeEnum, index: number): void {
+      processEventWithEventGraph({
         type: ChangeEventType.ADDING_VARIABLE,
         nodeId,
-        varType: type,
-        index,
+        connectorType: type,
+        connectorIndex: index,
       });
     },
-    removeVariable(variableId: ConnectorID): void {
-      startProcessingEventGraph({
+    removeVariable(variableId: string): void {
+      processEventWithEventGraph({
         type: ChangeEventType.REMOVING_VARIABLE,
         variableId,
       });
     },
     updateVariable<
-      T extends ConnectorType,
+      T extends ConnectorTypeEnum,
       R = VariableTypeToVariableConfigTypeMap[T],
-    >(variableId: ConnectorID, change: Partial<R>): void {
-      startProcessingEventGraph({
+    >(variableId: string, change: Partial<R>): void {
+      processEventWithEventGraph({
         type: ChangeEventType.UPDATING_VARIABLE,
         variableId,
         change,
       });
     },
 
-    updateVariableValueMap(variableId: ConnectorID, value: unknown): void {
+    updateVariableValueMap(variableId: string, value: unknown): void {
       const variableValueMaps = produce(
         get().variableValueLookUpDicts,
         (draft) => {
@@ -251,9 +215,20 @@ export const createFlowServerSliceV3: StateCreator<
         variableValueLookUpDicts: variableValueMaps,
       }));
 
-      startProcessingEventGraph({
-        type: ChangeEventType.VAR_VALUE_MAP_UPDATED,
+      // TODO: Deduplicate logic and make marking dirty async
+
+      const spaceId = get().spaceId;
+      invariant(spaceId != null);
+
+      saveSpaceDebounced(spaceId, {
+        nodes: get().nodes,
+        edges: get().edges,
+        nodeConfigsDict: get().nodeConfigsDict,
+        variablesDict: get().variablesDict,
+        variableValueLookUpDicts: get().variableValueLookUpDicts,
       });
+
+      set(() => ({ isFlowContentDirty: false }));
     },
   };
 };

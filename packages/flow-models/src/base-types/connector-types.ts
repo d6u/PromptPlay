@@ -1,16 +1,18 @@
 import Joi from 'joi';
-import type { ConnectorID, NodeID } from './id-types';
 
 // ANCHOR: === Connector Types ===
 
-export enum ConnectorType {
-  FlowInput = 'FlowInput',
-  FlowOutput = 'FlowOutput',
-  NodeInput = 'NodeInput',
-  NodeOutput = 'NodeOutput',
-  Condition = 'Condition',
-  ConditionTarget = 'ConditionTarget',
-}
+export const ConnectorType = {
+  FlowInput: 'FlowInput',
+  FlowOutput: 'FlowOutput',
+  NodeInput: 'NodeInput',
+  NodeOutput: 'NodeOutput',
+  Condition: 'Condition',
+  ConditionTarget: 'ConditionTarget',
+} as const;
+
+export type ConnectorTypeEnum =
+  (typeof ConnectorType)[keyof typeof ConnectorType];
 
 export type Connector =
   | FlowInputVariable
@@ -22,23 +24,26 @@ export type Connector =
 
 // ANCHOR: Variable Types
 
-export enum VariableValueType {
-  Number = 'Number',
-  String = 'String',
-  Audio = 'Audio',
-  Unknown = 'Unknown',
-}
+export const VariableValueType = {
+  Number: 'Number',
+  String: 'String',
+  Audio: 'Audio',
+  Unknown: 'Unknown',
+} as const;
+
+export type VariableValueTypeEnum =
+  (typeof VariableValueType)[keyof typeof VariableValueType];
 
 type VariableCommon = {
-  id: ConnectorID;
-  nodeId: NodeID;
+  id: string;
+  nodeId: string;
   index: number;
   name: string;
 };
 
 export type FlowInputVariable = VariableCommon & {
-  type: ConnectorType.FlowInput;
-  valueType: VariableValueType.String | VariableValueType.Number;
+  type: typeof ConnectorType.FlowInput;
+  valueType: typeof VariableValueType.String | typeof VariableValueType.Number;
 };
 
 export const FlowInputVariableSchema = Joi.object({
@@ -53,8 +58,8 @@ export const FlowInputVariableSchema = Joi.object({
 });
 
 export type FlowOutputVariable = VariableCommon & {
-  type: ConnectorType.FlowOutput;
-  valueType: VariableValueType.String | VariableValueType.Audio;
+  type: typeof ConnectorType.FlowOutput;
+  valueType: typeof VariableValueType.String | typeof VariableValueType.Audio;
 };
 
 export const FlowOutputVariableSchema = Joi.object({
@@ -69,8 +74,8 @@ export const FlowOutputVariableSchema = Joi.object({
 });
 
 export type NodeInputVariable = VariableCommon & {
-  type: ConnectorType.NodeInput;
-  valueType: VariableValueType.Unknown;
+  type: typeof ConnectorType.NodeInput;
+  valueType: typeof VariableValueType.Unknown;
 };
 
 export const NodeInputVariableSchema = Joi.object({
@@ -85,8 +90,8 @@ export const NodeInputVariableSchema = Joi.object({
 });
 
 export type NodeOutputVariable = VariableCommon & {
-  type: ConnectorType.NodeOutput;
-  valueType: VariableValueType.Unknown | VariableValueType.Audio;
+  type: typeof ConnectorType.NodeOutput;
+  valueType: typeof VariableValueType.Unknown | typeof VariableValueType.Audio;
 };
 
 export const NodeOutputVariableSchema = Joi.object({
@@ -100,16 +105,12 @@ export const NodeOutputVariableSchema = Joi.object({
     .required(),
 });
 
-export function asV3VariableID(id: string): ConnectorID {
-  return id as unknown as ConnectorID;
-}
-
 // ANCHOR: Condition Types
 
 export type Condition = {
-  type: ConnectorType.Condition;
-  id: ConnectorID;
-  nodeId: NodeID;
+  type: typeof ConnectorType.Condition;
+  id: string;
+  nodeId: string;
   index: number;
   expressionString: string;
 };
@@ -123,9 +124,9 @@ export const ConditionSchema = Joi.object({
 });
 
 export type ConditionTarget = {
-  type: ConnectorType.ConditionTarget;
-  id: ConnectorID;
-  nodeId: NodeID;
+  type: typeof ConnectorType.ConditionTarget;
+  id: string;
+  nodeId: string;
 };
 
 export const ConditionTargetSchema = Joi.object({
@@ -136,7 +137,7 @@ export const ConditionTargetSchema = Joi.object({
 
 // ANCHOR: === Connector Map ===
 
-export type ConnectorMap = Record<ConnectorID, Connector>;
+export type ConnectorMap = Record<string, Connector>;
 
 export const ConnectorMapSchema = Joi.object().pattern(
   Joi.string(),
@@ -152,10 +153,10 @@ export const ConnectorMapSchema = Joi.object().pattern(
 
 // ANCHOR: === Connector Result Types ===
 
-export type ConnectorResultMap = Record<ConnectorID, ConditionResult | unknown>;
+export type ConnectorResultMap = Record<string, ConditionResult | unknown>;
 
 export type ConditionResult = {
-  conditionId: ConnectorID;
+  conditionId: string;
   isConditionMatched: boolean;
 };
 

@@ -10,9 +10,7 @@ import {
   NodeInputVariable,
   NodeOutputVariable,
   VariableValueType,
-  asV3VariableID,
 } from '../../base-types/connector-types';
-import { NodeID } from '../../base-types/id-types';
 import {
   FieldType,
   NodeDefinition,
@@ -22,8 +20,8 @@ import {
 } from '../../node-definition-base-types';
 
 export type TextTemplateNodeInstanceLevelConfig = {
-  nodeId: NodeID;
-  type: NodeType.TextTemplate;
+  type: typeof NodeType.TextTemplate;
+  nodeId: string;
   content: string;
 };
 
@@ -76,7 +74,7 @@ export const TEXT_TEMPLATE_NODE_DEFINITION: NodeDefinition<
       variableConfigList: [
         {
           type: ConnectorType.NodeInput,
-          id: asV3VariableID(`${nodeId}/${randomId()}`),
+          id: `${nodeId}/${randomId()}`,
           name: 'topic',
           nodeId: nodeId,
           index: 0,
@@ -84,7 +82,7 @@ export const TEXT_TEMPLATE_NODE_DEFINITION: NodeDefinition<
         },
         {
           type: ConnectorType.NodeOutput,
-          id: asV3VariableID(`${nodeId}/content`),
+          id: `${nodeId}/content`,
           name: 'content',
           nodeId: nodeId,
           index: 0,
@@ -92,7 +90,7 @@ export const TEXT_TEMPLATE_NODE_DEFINITION: NodeDefinition<
         },
         {
           type: ConnectorType.ConditionTarget,
-          id: asV3VariableID(`${nodeId}/${randomId()}`),
+          id: `${nodeId}/${randomId()}`,
           nodeId: nodeId,
         },
       ],

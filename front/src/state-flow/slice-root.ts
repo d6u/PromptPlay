@@ -10,14 +10,12 @@ import { StateCreator } from 'zustand';
 
 import {
   Connector,
-  ConnectorID,
   ConnectorMap,
   ConnectorResultMap,
   ConnectorType,
   FlowConfigSchema,
   FlowInputVariable,
-  NodeID,
-  NodeType,
+  NodeTypeEnum,
   V3FlowContent,
 } from 'flow-models';
 
@@ -50,10 +48,10 @@ type RootSliceState = {
   isInitialized: boolean;
   isRunning: boolean;
   connectStartEdgeType: ConnectStartEdgeType | null;
-  connectStartStartNodeId: NodeID | null;
+  connectStartStartNodeId: string | null;
 
   canvasLeftPaneIsOpen: boolean;
-  canvasLeftPaneSelectedNodeId: NodeID | null;
+  canvasLeftPaneSelectedNodeId: string | null;
   canvasRightPaneType: CanvasRightPanelType;
   nodeMetadataDict: NodeMetadataDict;
 };
@@ -62,9 +60,9 @@ export type RootSlice = RootSliceState & {
   initialize(): void;
   deinitialize(): void;
   setCanvasLeftPaneIsOpen(isOpen: boolean): void;
-  setCanvasLeftPaneSelectedNodeId(nodeId: NodeID | null): void;
+  setCanvasLeftPaneSelectedNodeId(nodeId: string | null): void;
   setCanvasRightPaneType(type: CanvasRightPanelType): void;
-  updateNodeAugment(nodeId: NodeID, change: Partial<NodeMetadata>): void;
+  updateNodeAugment(nodeId: string, change: Partial<NodeMetadata>): void;
   runFlow(): void;
   stopRunningFlow(): void;
   onEdgeConnectStart(params: OnConnectStartParams): void;
@@ -199,11 +197,11 @@ export function createRootSlice(
     setCanvasRightPaneType(type: CanvasRightPanelType) {
       set({ canvasRightPaneType: type });
     },
-    setCanvasLeftPaneSelectedNodeId(id: NodeID) {
+    setCanvasLeftPaneSelectedNodeId(id: string) {
       set({ canvasLeftPaneSelectedNodeId: id });
     },
 
-    updateNodeAugment(nodeId: NodeID, change: Partial<NodeMetadata>) {
+    updateNodeAugment(nodeId: string, change: Partial<NodeMetadata>) {
       const prevNodeMetadataDict = get().nodeMetadataDict;
       let nodeMetadata = prevNodeMetadataDict[nodeId];
 
@@ -259,7 +257,10 @@ export function createRootSlice(
         connectors: variablesDict,
         inputValueMap: flowInputVariableValueMap,
         preferStreaming: true,
-        getAccountLevelFieldValue: (nodeType: NodeType, fieldKey: string) => {
+        getAccountLevelFieldValue: (
+          nodeType: NodeTypeEnum,
+          fieldKey: string,
+        ) => {
           return useLocalStorageStore
             .getState()
             .getLocalAccountLevelNodeFieldValue(nodeType, fieldKey);
@@ -277,7 +278,7 @@ export function createRootSlice(
                   }
                   case ValidationErrorType.NodeLevel: {
                     // TODO: Show node level errors in UI
-                    updateNodeAugment(error.nodeId as NodeID, {
+                    updateNodeAugment(error.nodeId, {
                       isRunning: false,
                       hasError: true,
                     });
@@ -292,7 +293,7 @@ export function createRootSlice(
                       [error.message],
                     );
 
-                    updateNodeAugment(error.nodeId as NodeID, {
+                    updateNodeAugment(error.nodeId, {
                       isRunning: false,
                       hasError: true,
                     });
@@ -304,21 +305,21 @@ export function createRootSlice(
             }
             case FlowRunEventType.NodeStart: {
               const { nodeId } = data;
-              get().updateNodeAugment(nodeId as NodeID, {
+              get().updateNodeAugment(nodeId, {
                 isRunning: true,
               });
               break;
             }
             case FlowRunEventType.NodeFinish: {
               const { nodeId } = data;
-              get().updateNodeAugment(nodeId as NodeID, {
+              get().updateNodeAugment(nodeId, {
                 isRunning: false,
               });
               break;
             }
             case FlowRunEventType.NodeErrors: {
               const { nodeId } = data;
-              get().updateNodeAugment(nodeId as NodeID, {
+              get().updateNodeAugment(nodeId, {
                 isRunning: false,
                 hasError: true,
               });
@@ -327,7 +328,7 @@ export function createRootSlice(
             case FlowRunEventType.VariableValues: {
               Object.entries(data.variableValues).forEach(
                 ([outputId, value]) => {
-                  get().updateVariableValueMap(outputId as ConnectorID, value);
+                  get().updateVariableValueMap(outputId, value);
                 },
               );
               break;
@@ -367,10 +368,14 @@ export function createRootSlice(
     },
 
     onEdgeConnectStart(params: OnConnectStartParams): void {
+      const { handleId } = params;
+
+      invariant(handleId != null, 'handleId is not null');
+
       set((state) => {
-        const connector = state.variablesDict[
-          params.handleId as ConnectorID
-        ] as Connector | undefined;
+        const connector = state.variablesDict[handleId] as
+          | Connector
+          | undefined;
 
         if (connector == null) {
           return state;
@@ -382,7 +387,7 @@ export function createRootSlice(
             connector.type === ConnectorType.ConditionTarget
               ? ConnectStartEdgeType.Condition
               : ConnectStartEdgeType.Variable,
-          connectStartStartNodeId: params.nodeId as NodeID,
+          connectStartStartNodeId: params.nodeId,
         };
       });
     },

@@ -3,7 +3,6 @@ import {
   ConnectorResultMap,
   LocalNode,
   NodeConfigMap,
-  NodeID,
   V3LocalEdge,
 } from 'flow-models';
 
@@ -27,7 +26,7 @@ export type SliceFlowContentV3State = {
   isFlowContentSaving: boolean;
 };
 
-export type NodeMetadataDict = Record<NodeID, NodeMetadata | undefined>;
+export type NodeMetadataDict = Record<string, NodeMetadata | undefined>;
 
 export type NodeMetadata = {
   isRunning: boolean;

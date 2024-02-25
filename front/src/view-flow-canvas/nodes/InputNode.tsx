@@ -1,11 +1,11 @@
 import styled from '@emotion/styled';
 import { useContext, useMemo } from 'react';
 import { Position, useNodeId, useUpdateNodeInternals } from 'reactflow';
+import invariant from 'tiny-invariant';
 
 import {
   ConnectorType,
   InputNodeInstanceLevelConfig,
-  NodeID,
   NodeType,
 } from 'flow-models';
 
@@ -21,7 +21,10 @@ import NodeBoxHeaderSection from '../node-box/NodeBoxHeaderSection';
 function InputNode() {
   const { isCurrentUserOwner } = useContext(RouteFlowContext);
 
-  const nodeId = useNodeId() as NodeID;
+  const nodeId = useNodeId();
+
+  invariant(nodeId != null, 'nodeId is not null');
+
   const updateNodeInternals = useUpdateNodeInternals();
 
   // SECTION: Select state from store

@@ -1,17 +1,12 @@
 import { A, D, F, pipe } from '@mobily/ts-belt';
 
-import {
-  ConnectorType,
-  type ConnectorID,
-  type ConnectorMap,
-  type NodeID,
-} from '../base-types';
+import { ConnectorType, type ConnectorMap } from '../base-types';
 
 export type GraphEdge = Readonly<{
-  sourceNode: NodeID;
-  sourceConnector: ConnectorID;
-  targetNode: NodeID;
-  targetConnector: ConnectorID;
+  sourceNode: string;
+  sourceConnector: string;
+  targetNode: string;
+  targetConnector: string;
 }>;
 
 export class ImmutableFlowNodeGraph {
@@ -20,8 +15,8 @@ export class ImmutableFlowNodeGraph {
     nodeIds: ReadonlyArray<string>;
     connectors: ConnectorMap;
   }) {
-    const srcConnIdToDstNodeIdsMap: Record<ConnectorID, Array<NodeID>> = {};
-    const variableDstConnIdToSrcConnId: Record<ConnectorID, ConnectorID> = {};
+    const srcConnIdToDstNodeIdsMap: Record<string, Array<string>> = {};
+    const variableDstConnIdToSrcConnId: Record<string, string> = {};
 
     const nodeIndegrees: Record<string, number> = pipe(
       params.nodeIds,
@@ -58,12 +53,10 @@ export class ImmutableFlowNodeGraph {
   }
 
   private srcConnIdToDstNodeIdsMap: Readonly<
-    Record<ConnectorID, ReadonlyArray<NodeID>>
+    Record<string, ReadonlyArray<string>>
   >;
-  private variableDstConnIdToSrcConnId: Readonly<
-    Record<ConnectorID, ConnectorID>
-  >;
-  private nodeIndegrees: Readonly<Record<NodeID, number>>;
+  private variableDstConnIdToSrcConnId: Readonly<Record<string, string>>;
+  private nodeIndegrees: Readonly<Record<string, number>>;
 
   canBeExecuted(): boolean {
     // A flow can be executed when it has at least one node with indegree zero.
@@ -86,15 +79,15 @@ export class ImmutableFlowNodeGraph {
 export class MutableFlowNodeGraph {
   constructor(
     private readonly srcConnIdToDstNodeIdsMap: Readonly<
-      Record<ConnectorID, ReadonlyArray<NodeID>>
+      Record<string, ReadonlyArray<string>>
     >,
     private readonly variableDstConnIdToSrcConnId: Readonly<
-      Record<ConnectorID, ConnectorID>
+      Record<string, string>
     >,
-    private readonly nodeIndegrees: Record<NodeID, number>,
+    private readonly nodeIndegrees: Record<string, number>,
   ) {}
 
-  getNodeIdListWithIndegreeZero(): NodeID[] {
+  getNodeIdListWithIndegreeZero(): string[] {
     return pipe(
       this.nodeIndegrees,
       D.filter((n) => n === 0),
@@ -103,14 +96,14 @@ export class MutableFlowNodeGraph {
     );
   }
 
-  getSrcConnectorIdFromDstConnectorId(connectorId: ConnectorID): ConnectorID {
+  getSrcConnectorIdFromDstConnectorId(connectorId: string): string {
     return this.variableDstConnIdToSrcConnId[connectorId] ?? [];
   }
 
   // Return the list of nodes that have indegree become zero after
   // reducing the indegrees.
-  reduceNodeIndegrees(srcConnectorIds: ConnectorID[]): NodeID[] {
-    const indegreeZeroNodeIds: NodeID[] = [];
+  reduceNodeIndegrees(srcConnectorIds: string[]): string[] {
+    const indegreeZeroNodeIds: string[] = [];
 
     for (const srcConnectorId of srcConnectorIds) {
       // NOTE: `srcConnectorIds` can contain source connector that is not

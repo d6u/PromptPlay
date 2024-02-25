@@ -12,9 +12,7 @@ import {
   NodeInputVariable,
   NodeOutputVariable,
   VariableValueType,
-  asV3VariableID,
 } from '../base-types/connector-types';
-import { NodeID } from '../base-types/id-types';
 import {
   NodeDefinition,
   NodeExecutionEvent,
@@ -24,8 +22,8 @@ import {
 import { FieldType } from '../node-definition-base-types/field-definition-interfaces';
 
 export type ChatGPTMessageNodeInstanceLevelConfig = {
-  type: NodeType.ChatGPTMessageNode;
-  nodeId: NodeID;
+  type: typeof NodeType.ChatGPTMessageNode;
+  nodeId: string;
   role: OpenAI.ChatGPTMessageRole;
   content: string;
 };
@@ -103,7 +101,7 @@ export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition<
       variableConfigList: [
         {
           type: ConnectorType.NodeInput,
-          id: asV3VariableID(`${nodeId}/messages_in`),
+          id: `${nodeId}/messages_in`,
           nodeId: nodeId,
           name: 'messages',
           index: 0,
@@ -111,7 +109,7 @@ export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition<
         },
         {
           type: ConnectorType.NodeInput,
-          id: asV3VariableID(`${nodeId}/${randomId()}`),
+          id: `${nodeId}/${randomId()}`,
           nodeId: nodeId,
           name: 'topic',
           index: 1,
@@ -119,7 +117,7 @@ export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition<
         },
         {
           type: ConnectorType.NodeOutput,
-          id: asV3VariableID(`${nodeId}/message`),
+          id: `${nodeId}/message`,
           nodeId: nodeId,
           name: 'message',
           index: 0,
@@ -127,7 +125,7 @@ export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition<
         },
         {
           type: ConnectorType.NodeOutput,
-          id: asV3VariableID(`${nodeId}/messages_out`),
+          id: `${nodeId}/messages_out`,
           nodeId: nodeId,
           name: 'messages',
           index: 1,
@@ -135,7 +133,7 @@ export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition<
         },
         {
           type: ConnectorType.ConditionTarget,
-          id: asV3VariableID(`${nodeId}/${randomId()}`),
+          id: `${nodeId}/${randomId()}`,
           nodeId: nodeId,
         },
       ],
