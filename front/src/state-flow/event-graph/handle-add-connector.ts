@@ -49,7 +49,7 @@ export const handleAddConnector = createHandler<
           type: event.connectorType,
           valueType: VariableValueType.Unknown,
         };
-        state.variablesDict[variableConfig.id] = variableConfig;
+        state.flowContent.variablesDict[variableConfig.id] = variableConfig;
         break;
       }
       case ConnectorType.NodeOutput: {
@@ -58,7 +58,7 @@ export const handleAddConnector = createHandler<
           type: event.connectorType,
           valueType: VariableValueType.Unknown,
         };
-        state.variablesDict[variableConfig.id] = variableConfig;
+        state.flowContent.variablesDict[variableConfig.id] = variableConfig;
         break;
       }
       case ConnectorType.FlowInput: {
@@ -67,7 +67,7 @@ export const handleAddConnector = createHandler<
           type: event.connectorType,
           valueType: VariableValueType.String,
         };
-        state.variablesDict[variableConfig.id] = variableConfig;
+        state.flowContent.variablesDict[variableConfig.id] = variableConfig;
         break;
       }
       case ConnectorType.FlowOutput: {
@@ -76,7 +76,7 @@ export const handleAddConnector = createHandler<
           type: event.connectorType,
           valueType: VariableValueType.String,
         };
-        state.variablesDict[variableConfig.id] = variableConfig;
+        state.flowContent.variablesDict[variableConfig.id] = variableConfig;
         break;
       }
       case ConnectorType.Condition: {
@@ -87,7 +87,7 @@ export const handleAddConnector = createHandler<
           index: event.connectorIndex,
           expressionString: '$ = "Some value"',
         };
-        state.variablesDict[variableConfig.id] = variableConfig;
+        state.flowContent.variablesDict[variableConfig.id] = variableConfig;
         break;
       }
       case ConnectorType.ConditionTarget:

@@ -1,26 +1,20 @@
-import {
-  ConnectorMap,
-  ConnectorResultMap,
-  LocalNode,
-  NodeConfigMap,
-  V3LocalEdge,
-} from 'flow-models';
-
 import { CsvEvaluationPresetSlice } from './slice-csv-evaluation-preset';
 import { SliceFlowContentV3 } from './slice-flow-content-v3';
 import { RootSlice } from './slice-root';
+import { SliceV2 } from './slice-v2';
 
 export type FlowState = SliceFlowContentV3 &
   RootSlice &
-  CsvEvaluationPresetSlice;
+  CsvEvaluationPresetSlice &
+  SliceV2;
 
 export type SliceFlowContentV3State = {
   // Persist to server
-  nodes: LocalNode[];
-  edges: V3LocalEdge[];
-  nodeConfigsDict: NodeConfigMap;
-  variablesDict: ConnectorMap;
-  variableValueLookUpDicts: ConnectorResultMap[];
+  // nodes: LocalNode[];
+  // edges: V3LocalEdge[];
+  // nodeConfigsDict: NodeConfigMap;
+  // variablesDict: ConnectorMap;
+  // variableValueLookUpDicts: ConnectorResultMap[];
   // Local
   isFlowContentDirty: boolean;
   isFlowContentSaving: boolean;

@@ -59,7 +59,7 @@ function ReactFlowNode(props: Props) {
   );
 
   // ANCHOR: Store Data
-  const variablesDict = useFlowStore((s) => s.variablesDict);
+  const variablesDict = useFlowStore((s) => s.getFlowContent().variablesDict);
   const defaultVariableValueMap = useFlowStore((s) =>
     s.getDefaultVariableValueLookUpDict(),
   );

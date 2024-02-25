@@ -28,7 +28,7 @@ type Props = {
 export default function EvaluationSectionConfigCSV(props: Props) {
   // SECTION: Select state from store
 
-  const variablesDict = useFlowStore((s) => s.variablesDict);
+  const variablesDict = useFlowStore((s) => s.getFlowContent().variablesDict);
   const repeatTimes = useFlowStore((s) => s.getRepeatTimes());
   const concurrencyLimit = useFlowStore((s) => s.getConcurrencyLimit());
   const variableIdToCsvColumnIndexMap = useFlowStore((s) =>

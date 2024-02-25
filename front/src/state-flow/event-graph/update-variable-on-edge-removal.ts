@@ -33,7 +33,9 @@ export const updateVariableOnEdgeRemoval = createHandler<
   (state, event) => {
     const events: VariableUpdatedEvent[] = [];
 
-    if (state.variablesDict[event.removedEdge.targetHandle] == null) {
+    if (
+      state.flowContent.variablesDict[event.removedEdge.targetHandle] == null
+    ) {
       // NOTE: Edge was removed because destination variable was removed.
       // Do nothing in this case.
       return [];
@@ -42,7 +44,7 @@ export const updateVariableOnEdgeRemoval = createHandler<
     const sourceConnector =
       'removedEdgeSourceVariable' in event
         ? event.removedEdgeSourceVariable
-        : state.variablesDict[event.removedEdge.sourceHandle];
+        : state.flowContent.variablesDict[event.removedEdge.sourceHandle];
 
     if (
       sourceConnector.type === ConnectorType.FlowInput ||
@@ -60,7 +62,7 @@ export const updateVariableOnEdgeRemoval = createHandler<
         // We need to change the destination variable back to default type.
 
         const targetVariable =
-          state.variablesDict[event.removedEdge.targetHandle];
+          state.flowContent.variablesDict[event.removedEdge.targetHandle];
 
         invariant(targetVariable.type === ConnectorType.FlowOutput);
 

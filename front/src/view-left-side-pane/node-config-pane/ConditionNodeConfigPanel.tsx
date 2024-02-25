@@ -27,7 +27,7 @@ type Props = {
 function ConditionNodeConfigPanel(props: Props) {
   const updateNodeInternals = useUpdateNodeInternals();
 
-  const connectorMap = useFlowStore((s) => s.variablesDict);
+  const connectorMap = useFlowStore((s) => s.getFlowContent().variablesDict);
   const connectorResultMap = useFlowStore((s) =>
     s.getDefaultVariableValueLookUpDict(),
   );

@@ -12,42 +12,44 @@ import { MOCK_STATE } from './fixture';
 test('handleAddConnector should add variable', () => {
   const prevState: State = {
     ...MOCK_STATE,
-    nodes: [
-      {
-        id: 'Z6dPf',
-        type: 'InputNode',
-        position: {
-          x: 328,
-          y: 135,
+    flowContent: {
+      nodes: [
+        {
+          id: 'Z6dPf',
+          type: 'InputNode',
+          position: {
+            x: 328,
+            y: 135,
+          },
+          data: null,
+          dragHandle: '.node-drag-handle',
+          width: 300,
+          height: 132,
         },
-        data: null,
-        dragHandle: '.node-drag-handle',
-        width: 300,
-        height: 132,
+      ],
+      edges: [],
+      nodeConfigsDict: {
+        Z6dPf: {
+          nodeId: 'Z6dPf',
+          type: 'InputNode',
+        },
       },
-    ],
-    edges: [],
-    nodeConfigsDict: {
-      Z6dPf: {
-        nodeId: 'Z6dPf',
-        type: 'InputNode',
+      variablesDict: {
+        'Z6dPf/wZf7M': {
+          type: 'FlowInput',
+          id: 'Z6dPf/wZf7M',
+          nodeId: 'Z6dPf',
+          index: 0,
+          name: 'var1',
+          valueType: 'String',
+        },
       },
+      variableValueLookUpDicts: [
+        {
+          'Z6dPf/wZf7M': null,
+        },
+      ],
     },
-    variablesDict: {
-      'Z6dPf/wZf7M': {
-        type: 'FlowInput',
-        id: 'Z6dPf/wZf7M',
-        nodeId: 'Z6dPf',
-        index: 0,
-        name: 'var1',
-        valueType: 'String',
-      },
-    },
-    variableValueLookUpDicts: [
-      {
-        'Z6dPf/wZf7M': null,
-      },
-    ],
   };
 
   const nextState = produce(prevState, (draft) => {
@@ -61,11 +63,14 @@ test('handleAddConnector should add variable', () => {
 
   expect(nextState).toEqual({
     ...prevState,
-    variablesDict: expect.anything(),
-    variableValueLookUpDicts: expect.anything(),
+    flowContent: {
+      ...prevState.flowContent,
+      variablesDict: expect.anything(),
+      variableValueLookUpDicts: expect.anything(),
+    },
   });
 
-  expect(Object.values(nextState.variablesDict)).toEqual([
+  expect(Object.values(nextState.flowContent.variablesDict)).toEqual([
     {
       type: 'FlowInput',
       id: 'Z6dPf/wZf7M',
@@ -84,8 +89,7 @@ test('handleAddConnector should add variable', () => {
     },
   ]);
 
-  expect(Object.values(nextState.variableValueLookUpDicts[0])).toEqual([
-    null,
-    null,
-  ]);
+  expect(
+    Object.values(nextState.flowContent.variableValueLookUpDicts[0]),
+  ).toEqual([null, null]);
 });

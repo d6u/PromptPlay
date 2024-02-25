@@ -13,42 +13,44 @@ import { MOCK_STATE } from './fixture';
 test('handleRemoveNode should remove node, nodeConfig, and connectors', () => {
   const prevState: State = {
     ...MOCK_STATE,
-    nodes: [
-      {
-        id: '8e2At',
-        type: 'InputNode',
-        position: {
-          x: 510,
-          y: 200,
+    flowContent: {
+      nodes: [
+        {
+          id: '8e2At',
+          type: 'InputNode',
+          position: {
+            x: 510,
+            y: 200,
+          },
+          data: null,
+          dragHandle: '.node-drag-handle',
+          width: 300,
+          height: 132,
         },
-        data: null,
-        dragHandle: '.node-drag-handle',
-        width: 300,
-        height: 132,
+      ],
+      edges: [],
+      nodeConfigsDict: {
+        '8e2At': {
+          nodeId: '8e2At',
+          type: 'InputNode',
+        },
       },
-    ],
-    edges: [],
-    nodeConfigsDict: {
-      '8e2At': {
-        nodeId: '8e2At',
-        type: 'InputNode',
+      variablesDict: {
+        '8e2At/hqpZx': {
+          type: 'FlowInput',
+          id: '8e2At/hqpZx',
+          nodeId: '8e2At',
+          index: 0,
+          name: 'kazuwuv',
+          valueType: 'String',
+        },
       },
+      variableValueLookUpDicts: [
+        {
+          '8e2At/hqpZx': null,
+        },
+      ],
     },
-    variablesDict: {
-      '8e2At/hqpZx': {
-        type: 'FlowInput',
-        id: '8e2At/hqpZx',
-        nodeId: '8e2At',
-        index: 0,
-        name: 'kazuwuv',
-        valueType: 'String',
-      },
-    },
-    variableValueLookUpDicts: [
-      {
-        '8e2At/hqpZx': null,
-      },
-    ],
   };
 
   const nextState = produce(prevState, (draft) => {
@@ -60,10 +62,12 @@ test('handleRemoveNode should remove node, nodeConfig, and connectors', () => {
 
   expect(nextState).toEqual({
     ...prevState,
-    nodes: [],
-    edges: [],
-    nodeConfigsDict: {},
-    variablesDict: {},
-    variableValueLookUpDicts: [{}],
+    flowContent: {
+      nodes: [],
+      edges: [],
+      nodeConfigsDict: {},
+      variablesDict: {},
+      variableValueLookUpDicts: [{}],
+    },
   });
 });

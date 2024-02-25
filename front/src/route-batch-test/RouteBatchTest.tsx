@@ -31,9 +31,11 @@ function RouteBatchTest() {
   // SECTION: Select store state
 
   const spaceId = useFlowStore((s) => s.spaceId);
-  const edges = useFlowStore((s) => s.edges);
-  const nodeConfigsDict = useFlowStore((s) => s.nodeConfigsDict);
-  const variablesDict = useFlowStore((s) => s.variablesDict);
+  const edges = useFlowStore((s) => s.getFlowContent().edges);
+  const nodeConfigsDict = useFlowStore(
+    (s) => s.getFlowContent().nodeConfigsDict,
+  );
+  const variablesDict = useFlowStore((s) => s.getFlowContent().variablesDict);
   const csvContent = useFlowStore((s) => s.csvStr);
   const repeatTimes = useFlowStore((s) => s.getRepeatTimes());
   const concurrencyLimit = useFlowStore((s) => s.getConcurrencyLimit());

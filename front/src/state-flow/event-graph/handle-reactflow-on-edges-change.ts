@@ -34,7 +34,7 @@ export const handleReactFlowEdgesChange = createHandler<
           break;
         case 'remove': {
           const edgeSnapshot = current(
-            state.edges.find((edge) => edge.id === change.id),
+            state.flowContent.edges.find((edge) => edge.id === change.id),
           );
 
           invariant(edgeSnapshot != null, 'Edge is not null');
@@ -49,7 +49,10 @@ export const handleReactFlowEdgesChange = createHandler<
       }
     }
 
-    state.edges = applyEdgeChanges(event.changes, state.edges) as V3LocalEdge[];
+    state.flowContent.edges = applyEdgeChanges(
+      event.changes,
+      state.flowContent.edges,
+    ) as V3LocalEdge[];
 
     return events;
   },

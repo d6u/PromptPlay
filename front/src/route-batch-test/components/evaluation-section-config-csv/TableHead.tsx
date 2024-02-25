@@ -13,7 +13,7 @@ type Props = {
 export default function TableHead(props: Props) {
   // SECTION: Select state from store
 
-  const variablesDict = useFlowStore((s) => s.variablesDict);
+  const variablesDict = useFlowStore((s) => s.getFlowContent().variablesDict);
   const repeatTimes = useFlowStore((s) => s.getRepeatTimes());
   const variableIdToCsvColumnIndexMap = useFlowStore((s) =>
     s.getVariableIdToCsvColumnIndexMap(),

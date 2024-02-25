@@ -23,7 +23,7 @@ export const handleUpdateVariable = createHandler<
     return event.type === ChangeEventType.UPDATING_VARIABLE;
   },
   (state, event) => {
-    const variable = state.variablesDict[event.variableId];
+    const variable = state.flowContent.variablesDict[event.variableId];
 
     const prevVariableSnapshot = current(variable);
 

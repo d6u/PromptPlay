@@ -42,8 +42,11 @@ export function handleReactFlowConnectEvent(
     return [];
   }
 
-  const newEdgeArray = addEdge(event.connection, state.edges) as V3LocalEdge[];
-  const addedEdges = A.difference(newEdgeArray, state.edges);
+  const newEdgeArray = addEdge(
+    event.connection,
+    state.flowContent.edges,
+  ) as V3LocalEdge[];
+  const addedEdges = A.difference(newEdgeArray, state.flowContent.edges);
 
   // Connection already existed
   if (addedEdges.length === 0) {
@@ -56,7 +59,7 @@ export function handleReactFlowConnectEvent(
 
   newEdge.id = randomId(); // Shorter ID for readability
 
-  const sourceConnector = state.variablesDict[newEdge.sourceHandle];
+  const sourceConnector = state.flowContent.variablesDict[newEdge.sourceHandle];
 
   if (
     sourceConnector.type === ConnectorType.FlowInput ||
@@ -70,7 +73,8 @@ export function handleReactFlowConnectEvent(
     // TODO: More systematic way to check type compatibility
 
     if (sourceConnector.valueType === VariableValueType.Audio) {
-      const targetNodeConfig = state.nodeConfigsDict[newEdge.target];
+      const targetNodeConfig =
+        state.flowContent.nodeConfigsDict[newEdge.target];
 
       if (targetNodeConfig.type !== NodeType.OutputNode) {
         // TODO: Change this to a non-blocking alert UI
@@ -112,7 +116,7 @@ export function handleReactFlowConnectEvent(
 
     // !SECTION
 
-    state.edges = acceptedEdges;
+    state.flowContent.edges = acceptedEdges;
   } else {
     // When the new edge connects a condition and a condition target
 
@@ -125,10 +129,13 @@ export function handleReactFlowConnectEvent(
       edge: newEdge,
     });
 
-    state.edges = newEdgeArray;
+    state.flowContent.edges = newEdgeArray;
   }
 
-  addStyleIfNotAlreadyAdded(state.edges, state.variablesDict);
+  addStyleIfNotAlreadyAdded(
+    state.flowContent.edges,
+    state.flowContent.variablesDict,
+  );
 
   return events;
 }

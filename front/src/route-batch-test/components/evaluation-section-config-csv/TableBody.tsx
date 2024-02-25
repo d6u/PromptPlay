@@ -16,7 +16,7 @@ type Props = {
 
 export default function TableBody(props: Props) {
   // SECTION: Select state from store
-  const variableMap = useFlowStore((s) => s.variablesDict);
+  const variableMap = useFlowStore((s) => s.getFlowContent().variablesDict);
   const {
     repeatTimes,
     variableIdToCsvColumnIndexMap: variableIdToCsvColumnIndexLookUpDict,

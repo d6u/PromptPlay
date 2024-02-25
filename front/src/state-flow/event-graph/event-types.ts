@@ -1,7 +1,6 @@
-import { CsvEvaluationPresetState } from '../slice-csv-evaluation-preset';
-import { SliceFlowContentV3State } from '../types';
+import { SliceV2State } from '../slice-v2';
 
-export type State = SliceFlowContentV3State & CsvEvaluationPresetState;
+export type State = SliceV2State['eventGraphState'];
 
 export enum ChangeEventType {
   // React Flow
