@@ -91,7 +91,7 @@ export const handleAddConnector = createHandler<
         break;
       }
       case ConnectorType.ConditionTarget:
-        invariant(false, 'ConditionTarget cannot be added by directly');
+        invariant(false, 'ConditionTarget cannot be added directly');
     }
 
     if (

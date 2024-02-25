@@ -241,11 +241,11 @@ export const createFlowServerSliceV3: StateCreator<
     },
 
     addVariable(nodeId: string, type: ConnectorTypeEnum, index: number): void {
-      startProcessingEventGraph({
+      processEventWithEventGraph({
         type: ChangeEventType.ADDING_VARIABLE,
         nodeId,
-        varType: type,
-        index,
+        connectorType: type,
+        connectorIndex: index,
       });
     },
     removeVariable(variableId: string): void {
