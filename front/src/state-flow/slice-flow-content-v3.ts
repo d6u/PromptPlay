@@ -221,7 +221,7 @@ export const createFlowServerSliceV3: StateCreator<
     },
 
     addNode(type: NodeTypeEnum, x: number, y: number): void {
-      startProcessingEventGraph({
+      processEventWithEventGraph({
         type: ChangeEventType.ADDING_NODE,
         node: createNode(type, x, y),
       });
@@ -233,7 +233,7 @@ export const createFlowServerSliceV3: StateCreator<
       });
     },
     updateNodeConfig(nodeId: string, change: Partial<NodeConfig>): void {
-      startProcessingEventGraph({
+      processEventWithEventGraph({
         type: ChangeEventType.UPDATING_NODE_CONFIG,
         nodeId,
         change,

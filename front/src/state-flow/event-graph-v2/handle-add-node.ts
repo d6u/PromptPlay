@@ -22,9 +22,10 @@ export const handleAddNode = createHandler<
     return event.type === ChangeEventType.ADDING_NODE;
   },
   (state, event) => {
-    const { nodeConfig, variableConfigList } = getNodeDefinitionForNodeTypeName(
-      event.node.type,
-    ).createDefaultNodeConfig(event.node.id);
+    const { nodeConfig, variableConfigList: connectors } =
+      getNodeDefinitionForNodeTypeName(event.node.type).createDefaultNodeConfig(
+        event.node.id,
+      );
 
     state.nodes.push({
       ...event.node,
@@ -33,15 +34,15 @@ export const handleAddNode = createHandler<
 
     state.nodeConfigsDict[event.node.id] = nodeConfig;
 
-    for (const variableConfig of variableConfigList) {
-      state.variablesDict[variableConfig.id] = variableConfig;
+    for (const connector of connectors) {
+      state.variablesDict[connector.id] = connector;
     }
 
     return [
       {
         type: ChangeEventType.NODE_AND_VARIABLES_ADDED,
         node: event.node,
-        variableConfigs: variableConfigList,
+        connectors,
       },
     ];
   },

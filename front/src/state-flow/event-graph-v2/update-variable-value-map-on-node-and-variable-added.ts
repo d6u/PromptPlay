@@ -6,21 +6,21 @@ import { createHandler } from './event-graph-util';
 export type NodeAndVariableAddedEvent = {
   type: ChangeEventType.NODE_AND_VARIABLES_ADDED;
   node: LocalNode;
-  variableConfigs: Connector[];
+  connectors: Connector[];
 };
 
 export const updateVariableValueMapOnNodeAndVariableAdded = createHandler<
   NodeAndVariableAddedEvent,
   never
 >((state, event) => {
-  for (const variableConfig of event.variableConfigs) {
+  for (const connector of event.connectors) {
     if (
-      variableConfig.type === ConnectorType.FlowInput ||
-      variableConfig.type === ConnectorType.FlowOutput ||
-      variableConfig.type === ConnectorType.NodeInput ||
-      variableConfig.type === ConnectorType.NodeOutput
+      connector.type === ConnectorType.FlowInput ||
+      connector.type === ConnectorType.FlowOutput ||
+      connector.type === ConnectorType.NodeInput ||
+      connector.type === ConnectorType.NodeOutput
     ) {
-      state.variableValueLookUpDicts[0][variableConfig.id] = null;
+      state.variableValueLookUpDicts[0][connector.id] = null;
     }
   }
 
