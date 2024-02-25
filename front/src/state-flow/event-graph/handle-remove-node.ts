@@ -23,7 +23,7 @@ export const handleRemoveNode = createHandler<
   },
   (state, event) => {
     const [acceptedNodes, rejectedNodes] = A.partition(
-      state.nodes,
+      state.flowContent.nodes,
       (node) => node.id !== event.nodeId,
     );
 
@@ -35,10 +35,12 @@ export const handleRemoveNode = createHandler<
     invariant(rejectedNodes.length === 1, 'There should be exactly one node');
 
     const nodeSnapshot = current(rejectedNodes[0]);
-    const nodeConfigSnapshot = current(state.nodeConfigsDict[event.nodeId]);
+    const nodeConfigSnapshot = current(
+      state.flowContent.nodeConfigsDict[event.nodeId],
+    );
 
-    state.nodes = acceptedNodes;
-    delete state.nodeConfigsDict[event.nodeId];
+    state.flowContent.nodes = acceptedNodes;
+    delete state.flowContent.nodeConfigsDict[event.nodeId];
 
     return [
       {

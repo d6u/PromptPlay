@@ -2,7 +2,8 @@ import { produce } from 'immer';
 import { expect, test } from 'vitest';
 
 import { ChangeEventType } from 'state-flow/event-graph/event-types';
-import { BaseEvent, State } from '../event-graph-util';
+import { BaseEvent } from '../event-graph-util';
+import { State } from '../event-types';
 import { handleRemoveVariable } from '../handle-remove-variable';
 import { MOCK_STATE } from './fixture';
 
@@ -11,51 +12,53 @@ import { MOCK_STATE } from './fixture';
 test('handleRemoveVariable should remove variable', () => {
   const prevState: State = {
     ...MOCK_STATE,
-    nodes: [
-      {
-        id: 'Z6dPf',
-        type: 'InputNode',
-        position: {
-          x: 328,
-          y: 135,
+    flowContent: {
+      nodes: [
+        {
+          id: 'Z6dPf',
+          type: 'InputNode',
+          position: {
+            x: 328,
+            y: 135,
+          },
+          data: null,
+          dragHandle: '.node-drag-handle',
+          width: 300,
+          height: 169,
         },
-        data: null,
-        dragHandle: '.node-drag-handle',
-        width: 300,
-        height: 169,
+      ],
+      edges: [],
+      nodeConfigsDict: {
+        Z6dPf: {
+          nodeId: 'Z6dPf',
+          type: 'InputNode',
+        },
       },
-    ],
-    edges: [],
-    nodeConfigsDict: {
-      Z6dPf: {
-        nodeId: 'Z6dPf',
-        type: 'InputNode',
+      variablesDict: {
+        'Z6dPf/wZf7M': {
+          type: 'FlowInput',
+          id: 'Z6dPf/wZf7M',
+          nodeId: 'Z6dPf',
+          index: 0,
+          name: 'var1',
+          valueType: 'String',
+        },
+        'Z6dPf/zrLpE': {
+          id: 'Z6dPf/zrLpE',
+          nodeId: 'Z6dPf',
+          index: 1,
+          name: 'var2',
+          type: 'FlowInput',
+          valueType: 'String',
+        },
       },
+      variableValueLookUpDicts: [
+        {
+          'Z6dPf/wZf7M': null,
+          'Z6dPf/zrLpE': null,
+        },
+      ],
     },
-    variablesDict: {
-      'Z6dPf/wZf7M': {
-        type: 'FlowInput',
-        id: 'Z6dPf/wZf7M',
-        nodeId: 'Z6dPf',
-        index: 0,
-        name: 'var1',
-        valueType: 'String',
-      },
-      'Z6dPf/zrLpE': {
-        id: 'Z6dPf/zrLpE',
-        nodeId: 'Z6dPf',
-        index: 1,
-        name: 'var2',
-        type: 'FlowInput',
-        valueType: 'String',
-      },
-    },
-    variableValueLookUpDicts: [
-      {
-        'Z6dPf/wZf7M': null,
-        'Z6dPf/zrLpE': null,
-      },
-    ],
   };
 
   const nextState = produce(prevState, (draft) => {
@@ -67,20 +70,23 @@ test('handleRemoveVariable should remove variable', () => {
 
   expect(nextState).toEqual({
     ...prevState,
-    variablesDict: {
-      'Z6dPf/wZf7M': {
-        type: 'FlowInput',
-        id: 'Z6dPf/wZf7M',
-        nodeId: 'Z6dPf',
-        index: 0,
-        name: 'var1',
-        valueType: 'String',
+    flowContent: {
+      ...prevState.flowContent,
+      variablesDict: {
+        'Z6dPf/wZf7M': {
+          type: 'FlowInput',
+          id: 'Z6dPf/wZf7M',
+          nodeId: 'Z6dPf',
+          index: 0,
+          name: 'var1',
+          valueType: 'String',
+        },
       },
+      variableValueLookUpDicts: [
+        {
+          'Z6dPf/wZf7M': null,
+        },
+      ],
     },
-    variableValueLookUpDicts: [
-      {
-        'Z6dPf/wZf7M': null,
-      },
-    ],
   });
 });

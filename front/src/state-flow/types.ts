@@ -1,30 +1,11 @@
-import {
-  ConnectorMap,
-  ConnectorResultMap,
-  LocalNode,
-  NodeConfigMap,
-  V3LocalEdge,
-} from 'flow-models';
+import { ConnectorResultMap } from 'flow-models';
 
-import { CsvEvaluationPresetSlice } from './slice-csv-evaluation-preset';
-import { SliceFlowContentV3 } from './slice-flow-content-v3';
+import { RunMetadata } from 'flow-run/run-types';
+
+import { EventGraphSlice } from './slice-event-graph';
 import { RootSlice } from './slice-root';
 
-export type FlowState = SliceFlowContentV3 &
-  RootSlice &
-  CsvEvaluationPresetSlice;
-
-export type SliceFlowContentV3State = {
-  // Persist to server
-  nodes: LocalNode[];
-  edges: V3LocalEdge[];
-  nodeConfigsDict: NodeConfigMap;
-  variablesDict: ConnectorMap;
-  variableValueLookUpDicts: ConnectorResultMap[];
-  // Local
-  isFlowContentDirty: boolean;
-  isFlowContentSaving: boolean;
-};
+export type FlowState = RootSlice & EventGraphSlice;
 
 export type NodeMetadataDict = Record<string, NodeMetadata | undefined>;
 
@@ -51,3 +32,30 @@ export enum BatchTestTab {
   RunTests = 'RunTests',
   UploadCsv = 'UploadCsv',
 }
+
+export type CsvEvaluationConfigContent = {
+  repeatTimes: number;
+  concurrencyLimit: number;
+  variableIdToCsvColumnIndexMap: VariableIdToCsvColumnIndexMap;
+  runOutputTable: RunOutputTable;
+  runMetadataTable: RunMetadataTable;
+};
+
+export type RowIndex = number & { readonly '': unique symbol };
+export type ColumnIndex = number & { readonly '': unique symbol };
+export type IterationIndex = number & { readonly '': unique symbol };
+
+export type VariableIdToCsvColumnIndexMap = Record<
+  string,
+  ColumnIndex | null | undefined
+>;
+
+export type RunOutputTable = Record<
+  RowIndex,
+  Record<IterationIndex, ConnectorResultMap | undefined> | undefined
+>;
+
+export type RunMetadataTable = Record<
+  RowIndex,
+  Record<IterationIndex, RunMetadata | undefined> | undefined
+>;

@@ -19,7 +19,7 @@ function TesterPane() {
 
   // SECTION: Select state from store
   const isRunning = useFlowStore((s) => s.isRunning);
-  const variableMap = useFlowStore((s) => s.variablesDict);
+  const variableMap = useFlowStore((s) => s.getFlowContent().variablesDict);
   const runFlow = useFlowStore((s) => s.runFlow);
   const stopRunningFlow = useFlowStore((s) => s.stopRunningFlow);
   const variableValueMap = useFlowStore((s) =>

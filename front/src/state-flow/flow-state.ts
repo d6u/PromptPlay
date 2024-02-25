@@ -1,8 +1,7 @@
 import { createStore } from 'zustand';
 import { devtools } from 'zustand/middleware';
 
-import { createCsvEvaluationPresetSlice } from './slice-csv-evaluation-preset';
-import { createFlowServerSliceV3 } from './slice-flow-content-v3';
+import { createEventGraphSlice } from './slice-event-graph';
 import { createRootSlice } from './slice-root';
 import { FlowState } from './types';
 
@@ -15,13 +14,11 @@ export function createFlowStore(initProps: InitProps) {
     devtools(
       (...a) => ({
         ...createRootSlice(initProps, ...a),
-        ...createFlowServerSliceV3(...a),
-        ...createCsvEvaluationPresetSlice(...a),
+        ...createEventGraphSlice(...a),
       }),
       {
-        // enabled?: boolean;
-        // anonymousActionType?: string;
         store: 'FlowStore',
+        // enabled?: boolean;
       },
     ),
   );

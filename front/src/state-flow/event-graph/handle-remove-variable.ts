@@ -26,9 +26,11 @@ export const handleRemoveVariable = createHandler<
     return event.type === ChangeEventType.REMOVING_VARIABLE;
   },
   (state, event) => {
-    const connectorSnapshot = current(state.variablesDict[event.variableId]);
+    const connectorSnapshot = current(
+      state.flowContent.variablesDict[event.variableId],
+    );
 
-    delete state.variablesDict[event.variableId];
+    delete state.flowContent.variablesDict[event.variableId];
 
     if (
       connectorSnapshot.type === ConnectorType.FlowInput ||

@@ -27,15 +27,15 @@ export const handleAddNode = createHandler<
         event.node.id,
       );
 
-    state.nodes.push({
+    state.flowContent.nodes.push({
       ...event.node,
       dragHandle: `.${DRAG_HANDLE_CLASS_NAME}`,
     });
 
-    state.nodeConfigsDict[event.node.id] = nodeConfig;
+    state.flowContent.nodeConfigsDict[event.node.id] = nodeConfig;
 
     for (const connector of connectors) {
-      state.variablesDict[connector.id] = connector;
+      state.flowContent.variablesDict[connector.id] = connector;
     }
 
     return [

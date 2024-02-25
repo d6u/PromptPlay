@@ -23,7 +23,8 @@ export const updateVariableOnEdgeAdded = createHandler<
     return event.type === ChangeEventType.EDGE_ADDED;
   },
   (state, event) => {
-    const srcVariable = state.variablesDict[event.edge.sourceHandle];
+    const srcVariable =
+      state.flowContent.variablesDict[event.edge.sourceHandle];
 
     if (
       srcVariable.type === ConnectorType.FlowInput ||
@@ -32,7 +33,8 @@ export const updateVariableOnEdgeAdded = createHandler<
       srcVariable.type === ConnectorType.NodeOutput
     ) {
       if (srcVariable.valueType === VariableValueType.Audio) {
-        const dstVariable = state.variablesDict[event.edge.targetHandle];
+        const dstVariable =
+          state.flowContent.variablesDict[event.edge.targetHandle];
 
         invariant(dstVariable.type === ConnectorType.FlowOutput);
 

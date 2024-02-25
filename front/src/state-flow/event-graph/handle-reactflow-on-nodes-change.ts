@@ -36,12 +36,12 @@ export const handleReactFlowNodesChange = createHandler<
           break;
         case 'remove': {
           const nodeSnapshot = current(
-            state.nodes.find((node) => node.id === change.id),
+            state.flowContent.nodes.find((node) => node.id === change.id),
           );
 
           invariant(nodeSnapshot != null, 'nodeSnapshot is not null');
 
-          delete state.nodeConfigsDict[change.id];
+          delete state.flowContent.nodeConfigsDict[change.id];
 
           events.push({
             type: ChangeEventType.NODE_REMOVED,
@@ -53,7 +53,10 @@ export const handleReactFlowNodesChange = createHandler<
       }
     }
 
-    state.nodes = applyNodeChanges(event.changes, state.nodes) as LocalNode[];
+    state.flowContent.nodes = applyNodeChanges(
+      event.changes,
+      state.flowContent.nodes,
+    ) as LocalNode[];
 
     return events;
   },

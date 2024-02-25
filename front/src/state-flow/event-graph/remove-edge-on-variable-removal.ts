@@ -40,13 +40,13 @@ export const removeEdgeOnVariableRemoval = createHandler<
     const events: OutputEvent[] = [];
 
     const [acceptedEdges, rejectedEdges] = A.partition(
-      state.edges,
+      state.flowContent.edges,
       (edge) =>
         edge.sourceHandle !== event.removedVariable.id &&
         edge.targetHandle !== event.removedVariable.id,
     );
 
-    state.edges = acceptedEdges;
+    state.flowContent.edges = acceptedEdges;
 
     for (const removedEdge of rejectedEdges) {
       const removedEdgeSnapshot = current(removedEdge);
@@ -67,9 +67,11 @@ export const removeEdgeOnVariableRemoval = createHandler<
 
     // TODO: Is it better to move these to dedicated handler?
 
-    delete state.variableValueLookUpDicts[0][event.removedVariable.id];
+    delete state.flowContent.variableValueLookUpDicts[0][
+      event.removedVariable.id
+    ];
 
-    delete state.csvEvaluationConfigContent.variableIdToCsvColumnIndexMap[
+    delete state.batchTestConfig.variableIdToCsvColumnIndexMap[
       event.removedVariable.id
     ];
 

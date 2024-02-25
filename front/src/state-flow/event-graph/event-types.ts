@@ -1,3 +1,7 @@
+import { EventGraphSliceState } from '../slice-event-graph';
+
+export type State = EventGraphSliceState['eventGraphState'];
+
 export enum ChangeEventType {
   // React Flow
   RF_EDGES_CHANGE = 'RF_EDGES_CHANGE',

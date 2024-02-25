@@ -2,11 +2,7 @@ import { ConnectorType } from 'flow-models';
 import { OverallStatus } from 'flow-run/run-types';
 import { ReactNode, useMemo } from 'react';
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
-import {
-  IterationIndex,
-  RowIndex,
-} from 'state-flow/slice-csv-evaluation-preset';
-import { CSVData } from 'state-flow/types';
+import { CSVData, IterationIndex, RowIndex } from 'state-flow/types';
 import { selectAllVariables } from 'state-flow/util/state-utils';
 import OutputDisplay from 'view-right-side-pane/common/OutputDisplay';
 
@@ -16,13 +12,13 @@ type Props = {
 
 export default function TableBody(props: Props) {
   // SECTION: Select state from store
-  const variableMap = useFlowStore((s) => s.variablesDict);
+  const variableMap = useFlowStore((s) => s.getFlowContent().variablesDict);
   const {
     repeatTimes,
     variableIdToCsvColumnIndexMap: variableIdToCsvColumnIndexLookUpDict,
     runOutputTable: csvRunResultTable,
     runMetadataTable: runStatusTable,
-  } = useFlowStore((s) => s.csvEvaluationConfigContent);
+  } = useFlowStore((s) => s.getBatchTestConfig());
   // !SECTION
 
   const flowInputVariables = useMemo(() => {

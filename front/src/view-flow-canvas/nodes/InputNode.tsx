@@ -29,8 +29,10 @@ function InputNode() {
 
   // SECTION: Select state from store
   const setCanvasRightPaneType = useFlowStore((s) => s.setCanvasRightPaneType);
-  const nodeConfigsDict = useFlowStore((s) => s.nodeConfigsDict);
-  const variablesDict = useFlowStore((s) => s.variablesDict);
+  const nodeConfigsDict = useFlowStore(
+    (s) => s.getFlowContent().nodeConfigsDict,
+  );
+  const variablesDict = useFlowStore((s) => s.getFlowContent().variablesDict);
   const removeNode = useFlowStore((s) => s.removeNode);
   const addVariable = useFlowStore((s) => s.addVariable);
   // !SECTION

@@ -17,10 +17,12 @@ import flowRunBatch from 'flow-run/flowRunBatch';
 import { OverallStatus } from 'flow-run/run-types';
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 import {
+  BatchTestTab,
+  CSVData,
+  CSVHeader,
   IterationIndex,
   RowIndex,
-} from 'state-flow/slice-csv-evaluation-preset';
-import { BatchTestTab, CSVData, CSVHeader } from 'state-flow/types';
+} from 'state-flow/types';
 import { useLocalStorageStore } from 'state-root/local-storage-state';
 import { useNodeFieldFeedbackStore } from 'state-root/node-field-feedback-state';
 
@@ -31,10 +33,14 @@ function RouteBatchTest() {
   // SECTION: Select store state
 
   const spaceId = useFlowStore((s) => s.spaceId);
-  const edges = useFlowStore((s) => s.edges);
-  const nodeConfigsDict = useFlowStore((s) => s.nodeConfigsDict);
-  const variablesDict = useFlowStore((s) => s.variablesDict);
-  const csvContent = useFlowStore((s) => s.csvStr);
+  const edges = useFlowStore((s) => s.getFlowContent().edges);
+  const nodeConfigsDict = useFlowStore(
+    (s) => s.getFlowContent().nodeConfigsDict,
+  );
+  const variablesDict = useFlowStore((s) => s.getFlowContent().variablesDict);
+  const csvContent = useFlowStore(
+    (s) => s.getEventGraphState().batchTestConfigCsvString,
+  );
   const repeatTimes = useFlowStore((s) => s.getRepeatTimes());
   const concurrencyLimit = useFlowStore((s) => s.getConcurrencyLimit());
   const variableIdToCsvColumnIndexMap = useFlowStore((s) =>

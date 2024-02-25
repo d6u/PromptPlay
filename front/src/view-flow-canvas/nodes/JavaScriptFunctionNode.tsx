@@ -25,8 +25,10 @@ function JavaScriptFunctionNode() {
 
   invariant(nodeId != null, 'nodeId is not null');
 
-  const nodeConfigsDict = useFlowStore((s) => s.nodeConfigsDict);
-  const variablesDict = useFlowStore((s) => s.variablesDict);
+  const nodeConfigsDict = useFlowStore(
+    (s) => s.getFlowContent().nodeConfigsDict,
+  );
+  const variablesDict = useFlowStore((s) => s.getFlowContent().variablesDict);
   const updateNodeConfig = useFlowStore((s) => s.updateNodeConfig);
 
   const inputs = useMemo(() => {

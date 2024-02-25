@@ -3,8 +3,8 @@ import invariant from 'tiny-invariant';
 
 import { ConnectorType, V3LocalEdge, VariableValueType } from 'flow-models';
 
-import { State, createHandler } from './event-graph-util.ts';
-import { ChangeEventType } from './event-types.ts';
+import { createHandler } from './event-graph-util.ts';
+import { ChangeEventType, State } from './event-types.ts';
 import {
   VariableUpdatedEvent,
   updateVariableValueMapOnVariableUpdate,
@@ -23,8 +23,10 @@ export function handleEdgeReplacedEvent(
   // NOTE: There won't be edge replaced event for edges between condition
   // and condition target.
 
-  const oldSrcVariable = state.variablesDict[event.oldEdge.sourceHandle];
-  const newSrcVariable = state.variablesDict[event.newEdge.sourceHandle];
+  const oldSrcVariable =
+    state.flowContent.variablesDict[event.oldEdge.sourceHandle];
+  const newSrcVariable =
+    state.flowContent.variablesDict[event.newEdge.sourceHandle];
 
   invariant(
     oldSrcVariable.type === ConnectorType.FlowInput ||
@@ -40,7 +42,8 @@ export function handleEdgeReplacedEvent(
   if (oldSrcVariable.valueType !== newSrcVariable.valueType) {
     // It doesn't matter whether we use the old or the new edge to find the
     // destination variable config, they should point to the same one.
-    const dstVariable = state.variablesDict[event.newEdge.targetHandle];
+    const dstVariable =
+      state.flowContent.variablesDict[event.newEdge.targetHandle];
 
     invariant(
       dstVariable.type === ConnectorType.FlowOutput ||

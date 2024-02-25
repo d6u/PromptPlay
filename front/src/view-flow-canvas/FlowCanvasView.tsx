@@ -33,8 +33,8 @@ const NODE_TYPES = {
 function FlowCanvasView() {
   const { isCurrentUserOwner } = useContext(RouteFlowContext);
 
-  const nodes = useFlowStore((s) => s.nodes);
-  const edges = useFlowStore((s) => s.edges);
+  const nodes = useFlowStore((s) => s.getFlowContent().nodes);
+  const edges = useFlowStore((s) => s.getFlowContent().edges);
   const onNodesChange = useFlowStore((s) => s.onNodesChange);
   const onEdgesChange = useFlowStore((s) => s.onEdgesChange);
   const onConnect = useFlowStore((s) => s.onConnect);

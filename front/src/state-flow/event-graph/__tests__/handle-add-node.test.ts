@@ -2,7 +2,8 @@ import { produce } from 'immer';
 import { expect, test } from 'vitest';
 
 import { ChangeEventType } from 'state-flow/event-graph/event-types';
-import { BaseEvent, State } from '../event-graph-util';
+import { BaseEvent } from '../event-graph-util';
+import { State } from '../event-types';
 import { handleAddNode } from '../handle-add-node';
 import { MOCK_STATE } from './fixture';
 
@@ -11,11 +12,6 @@ import { MOCK_STATE } from './fixture';
 test('handleAddNode should add node and nodeConfig', () => {
   const prevState: State = {
     ...MOCK_STATE,
-    nodes: [],
-    edges: [],
-    nodeConfigsDict: {},
-    variablesDict: {},
-    variableValueLookUpDicts: [{}],
   };
 
   const nextState = produce(prevState, (draft) => {
@@ -35,30 +31,32 @@ test('handleAddNode should add node and nodeConfig', () => {
 
   expect(nextState).toEqual({
     ...prevState,
-    nodes: [
-      {
-        id: 'yv1vr',
-        type: 'InputNode',
-        position: {
-          x: 510,
-          y: 200,
+    flowContent: {
+      nodes: [
+        {
+          id: 'yv1vr',
+          type: 'InputNode',
+          position: {
+            x: 510,
+            y: 200,
+          },
+          data: null,
+          dragHandle: '.node-drag-handle',
         },
-        data: null,
-        dragHandle: '.node-drag-handle',
+      ],
+      edges: [],
+      nodeConfigsDict: {
+        yv1vr: {
+          nodeId: 'yv1vr',
+          type: 'InputNode',
+        },
       },
-    ],
-    edges: [],
-    nodeConfigsDict: {
-      yv1vr: {
-        nodeId: 'yv1vr',
-        type: 'InputNode',
-      },
+      variablesDict: expect.anything(),
+      variableValueLookUpDicts: expect.anything(),
     },
-    variablesDict: expect.anything(),
-    variableValueLookUpDicts: expect.anything(),
   });
 
-  expect(Object.values(nextState.variablesDict)).toEqual([
+  expect(Object.values(nextState.flowContent.variablesDict)).toEqual([
     {
       type: 'FlowInput',
       id: expect.any(String),
@@ -69,5 +67,7 @@ test('handleAddNode should add node and nodeConfig', () => {
     },
   ]);
 
-  expect(Object.values(nextState.variableValueLookUpDicts[0])).toEqual([null]);
+  expect(
+    Object.values(nextState.flowContent.variableValueLookUpDicts[0]),
+  ).toEqual([null]);
 });

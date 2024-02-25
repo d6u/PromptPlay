@@ -20,6 +20,9 @@ importers:
 
   front:
     dependencies:
+      '@dhmk/utils':
+        specifier: ^4.3.3
+        version: 4.3.3
       '@dhmk/zustand-lens':
         specifier: ^3.0.4
         version: 3.0.4(zustand@4.4.7)
@@ -1566,6 +1569,10 @@ packages:
 
   /@dhmk/utils@2.4.2:
     resolution: {integrity: sha512-xNF77VfjTPocSkgs5LkEvNUHE7fqzKr5B9LllMoCbU8BobRSqwssIwIL/zMM6oiMGZoHyYHOj/XpzLdvULZZ1A==}
+    dev: false
+
+  /@dhmk/utils@4.3.3:
+    resolution: {integrity: sha512-exxhD1uCs4yzpDjtAXdgDGGZ6BBDdxYKHSg6Qo3tsw/bTIRFTJZSPvYh/XuKTaaHiN44d+UTViBIP4TDmTHSeg==}
     dev: false
 
   /@dhmk/zustand-lens@3.0.4(zustand@4.4.7):

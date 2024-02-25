@@ -16,7 +16,7 @@ export const removeEdgeOnConditionRemoval = createHandler<
     return event.type === ChangeEventType.CONDITION_REMOVED;
   },
   (state, event) => {
-    state.edges = state.edges.filter(
+    state.flowContent.edges = state.flowContent.edges.filter(
       (edge) =>
         edge.sourceHandle !== event.removedCondition.id &&
         edge.targetHandle !== event.removedCondition.id,

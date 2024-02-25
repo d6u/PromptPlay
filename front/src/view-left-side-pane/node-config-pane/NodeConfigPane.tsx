@@ -27,8 +27,8 @@ function NodeConfigPane() {
 
   const updateNodeInternals = useUpdateNodeInternals();
 
-  const nodeConfigs = useFlowStore((s) => s.nodeConfigsDict);
-  const variables = useFlowStore((s) => s.variablesDict);
+  const nodeConfigs = useFlowStore((s) => s.getFlowContent().nodeConfigsDict);
+  const variables = useFlowStore((s) => s.getFlowContent().variablesDict);
   const selectedNodeId = useFlowStore((s) => s.canvasLeftPaneSelectedNodeId);
   const addVariable = useFlowStore((s) => s.addVariable);
 

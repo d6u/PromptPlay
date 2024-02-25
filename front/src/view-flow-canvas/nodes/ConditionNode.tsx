@@ -36,9 +36,9 @@ function ConditionNode() {
 
   // SECTION: Select state from store
 
-  const nodeConfigMap = useFlowStore((s) => s.nodeConfigsDict);
+  const nodeConfigMap = useFlowStore((s) => s.getFlowContent().nodeConfigsDict);
   const nodeMetadataMap = useFlowStore((s) => s.nodeMetadataDict);
-  const connectorMap = useFlowStore((s) => s.variablesDict);
+  const connectorMap = useFlowStore((s) => s.getFlowContent().variablesDict);
   const connectorResultMap = useFlowStore((s) =>
     s.getDefaultVariableValueLookUpDict(),
   );
