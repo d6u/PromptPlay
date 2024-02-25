@@ -161,6 +161,18 @@ export const createSliceV2: StateCreator<
     });
 
     console.log('processEventWithEventGraph', isDirty, patches);
+
+    // if (isDirty) {
+    //   const spaceId = get().spaceId;
+    //   invariant(spaceId != null);
+    //   saveSpaceDebounced(spaceId, {
+    //     nodes: get().nodes,
+    //     edges: get().edges,
+    //     nodeConfigsDict: get().nodeConfigsDict,
+    //     variablesDict: get().variablesDict,
+    //     variableValueLookUpDicts: get().variableValueLookUpDicts,
+    //   });
+    // }
   }
 
   function setIsRunning(isRunning: boolean) {

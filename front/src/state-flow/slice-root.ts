@@ -28,6 +28,9 @@ type RootSliceState = {
   canvasLeftPaneSelectedNodeId: string | null;
   canvasRightPaneType: CanvasRightPanelType;
   nodeMetadataDict: NodeMetadataDict;
+
+  isFlowContentDirty: boolean;
+  isFlowContentSaving: boolean;
 };
 
 export type RootSlice = RootSliceState & {
@@ -66,6 +69,9 @@ export function createRootSlice(
     canvasRightPaneType: CanvasRightPanelType.Off,
     canvasLeftPaneSelectedNodeId: null,
     nodeMetadataDict: {},
+
+    isFlowContentDirty: false,
+    isFlowContentSaving: false,
 
     initialize(): void {
       console.group('FlowStore: initializing...');
