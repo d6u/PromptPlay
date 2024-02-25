@@ -45,6 +45,8 @@ export type RootSlice = RootSliceState & {
   updateNodeAugment(nodeId: string, change: Partial<NodeMetadata>): void;
   onEdgeConnectStart(params: OnConnectStartParams): void;
   onEdgeConnectStop(): void;
+
+  setSelectedBatchTestTab(tab: BatchTestTab): void;
 };
 
 type InitProps = {
@@ -148,6 +150,10 @@ export function createRootSlice(
         connectStartEdgeType: null,
         connectStartStartNodeId: null,
       }));
+    },
+
+    setSelectedBatchTestTab(tab: BatchTestTab): void {
+      set({ selectedBatchTestTab: tab });
     },
   };
 }

@@ -78,7 +78,7 @@ export type SliceV2State = {
 type SliceV2Action = {
   initializeCanvas(): void;
 
-  // From React Flow
+  // SECTION: Canvas events
   onNodesChange: OnNodesChange;
   onEdgesChange: OnEdgesChange;
   onConnect: OnConnect;
@@ -98,6 +98,11 @@ type SliceV2Action = {
   ): void;
 
   updateVariableValueMap(variableId: string, value: unknown): void;
+  // !SECTION
+
+  // SECTION: Batch tests events
+
+  // !SECTION
 
   // Getter
   getFlowContent(): V3FlowContent;

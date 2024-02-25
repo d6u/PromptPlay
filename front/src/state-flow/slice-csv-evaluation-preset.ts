@@ -8,7 +8,6 @@ import { LoadCsvEvaluationPresetQuery } from 'gencode-gql/graphql';
 import { client } from 'graphql-util/client';
 
 import {
-  BatchTestTab,
   CsvEvaluationConfigContent,
   FlowState,
   RunMetadataTable,
@@ -26,8 +25,6 @@ export type CsvEvaluationPresetState = {
 };
 
 export type CsvEvaluationPresetSlice = CsvEvaluationPresetState & {
-  setSelectedBatchTestTab(tab: BatchTestTab): void;
-
   setCsvStr(csvStr: string): void;
   setRepeatTimes(repeatTimes: number): void;
   getRepeatTimes(): number;
@@ -84,10 +81,6 @@ export const createCsvEvaluationPresetSlice: StateCreator<
       variableIdToCsvColumnIndexMap: {},
       runOutputTable: [],
       runMetadataTable: [],
-    },
-
-    setSelectedBatchTestTab(tab: BatchTestTab): void {
-      set({ selectedBatchTestTab: tab });
     },
 
     setCsvStr(csvStr: string): void {
