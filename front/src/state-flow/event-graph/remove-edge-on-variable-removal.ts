@@ -11,6 +11,7 @@ import {
 import { createHandler } from './event-graph-util';
 import { ChangeEventType } from './event-types';
 import {
+  EdgeRemovedDueToSourceVariableRemovalEvent,
   EdgeRemovedEvent,
   updateVariableOnEdgeRemoval,
 } from './update-variable-on-edge-removal';
@@ -24,15 +25,19 @@ export type VariableRemovedEvent = {
     | NodeOutputVariable;
 };
 
+type OutputEvent =
+  | EdgeRemovedEvent
+  | EdgeRemovedDueToSourceVariableRemovalEvent;
+
 export const removeEdgeOnVariableRemoval = createHandler<
   VariableRemovedEvent,
-  EdgeRemovedEvent
+  OutputEvent
 >(
   (event): event is VariableRemovedEvent => {
     return event.type === ChangeEventType.VARIABLE_REMOVED;
   },
   (state, event) => {
-    const events: EdgeRemovedEvent[] = [];
+    const events: OutputEvent[] = [];
 
     const [acceptedEdges, rejectedEdges] = A.partition(
       state.edges,
@@ -44,14 +49,20 @@ export const removeEdgeOnVariableRemoval = createHandler<
     state.edges = acceptedEdges;
 
     for (const removedEdge of rejectedEdges) {
-      events.push({
-        type: ChangeEventType.EDGE_REMOVED,
-        removedEdge: current(removedEdge),
-        removedEdgeSourceVariable:
-          event.removedVariable.id === removedEdge.sourceHandle
-            ? event.removedVariable
-            : null,
-      });
+      const removedEdgeSnapshot = current(removedEdge);
+
+      if (removedEdge.sourceHandle === event.removedVariable.id) {
+        events.push({
+          type: ChangeEventType.EDGE_REMOVED_DUE_TO_SOURCE_VARIABLE_REMOVAL,
+          removedEdge: removedEdgeSnapshot,
+          removedEdgeSourceVariable: event.removedVariable,
+        });
+      } else {
+        events.push({
+          type: ChangeEventType.EDGE_REMOVED,
+          removedEdge: removedEdgeSnapshot,
+        });
+      }
     }
 
     // TODO: Is it better to move these to dedicated handler?

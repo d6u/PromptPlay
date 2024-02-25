@@ -18,11 +18,16 @@ import {
 export type EdgeRemovedEvent = {
   type: ChangeEventType.EDGE_REMOVED;
   removedEdge: V3LocalEdge;
-  removedEdgeSourceVariable?: Connector | null;
+};
+
+export type EdgeRemovedDueToSourceVariableRemovalEvent = {
+  type: ChangeEventType.EDGE_REMOVED_DUE_TO_SOURCE_VARIABLE_REMOVAL;
+  removedEdge: V3LocalEdge;
+  removedEdgeSourceVariable: Connector;
 };
 
 export const updateVariableOnEdgeRemoval = createHandler<
-  EdgeRemovedEvent,
+  EdgeRemovedEvent | EdgeRemovedDueToSourceVariableRemovalEvent,
   VariableUpdatedEvent
 >(
   (state, event) => {
@@ -34,22 +39,23 @@ export const updateVariableOnEdgeRemoval = createHandler<
       return [];
     }
 
-    const srcConnector =
-      event.removedEdgeSourceVariable ??
-      state.variablesDict[event.removedEdge.sourceHandle];
+    const sourceConnector =
+      'removedEdgeSourceVariable' in event
+        ? event.removedEdgeSourceVariable
+        : state.variablesDict[event.removedEdge.sourceHandle];
 
     if (
-      srcConnector.type === ConnectorType.FlowInput ||
-      srcConnector.type === ConnectorType.FlowOutput ||
-      srcConnector.type === ConnectorType.NodeInput ||
-      srcConnector.type === ConnectorType.NodeOutput
+      sourceConnector.type === ConnectorType.FlowInput ||
+      sourceConnector.type === ConnectorType.FlowOutput ||
+      sourceConnector.type === ConnectorType.NodeInput ||
+      sourceConnector.type === ConnectorType.NodeOutput
     ) {
       invariant(
-        srcConnector.type === ConnectorType.FlowInput ||
-          srcConnector.type === ConnectorType.NodeOutput,
+        sourceConnector.type === ConnectorType.FlowInput ||
+          sourceConnector.type === ConnectorType.NodeOutput,
       );
 
-      if (srcConnector.valueType === VariableValueType.Audio) {
+      if (sourceConnector.valueType === VariableValueType.Audio) {
         // NOTE: Source variable of removed edge is audio.
         // We need to change the destination variable back to default type.
 
