@@ -128,3 +128,107 @@ test('handleReactFlowNodesChange should remove node', () => {
     ],
   });
 });
+
+test('handleReactFlowNodesChange should remove multiple nodes', () => {
+  const prevState: State = {
+    ...MOCK_STATE,
+    nodes: [
+      {
+        id: 'Is8Op',
+        type: 'OutputNode',
+        position: {
+          x: 1020.7297300886163,
+          y: 195.92526667211996,
+        },
+        data: null,
+        dragHandle: '.node-drag-handle',
+        width: 300,
+        height: 132,
+        selected: true,
+        positionAbsolute: {
+          x: 1020.7297300886163,
+          y: 195.92526667211996,
+        },
+        dragging: false,
+      },
+      {
+        id: 'ZMITb',
+        type: 'InputNode',
+        position: {
+          x: 652.3963967552829,
+          y: 194.0086000054533,
+        },
+        data: null,
+        dragHandle: '.node-drag-handle',
+        width: 300,
+        height: 132,
+        selected: true,
+        positionAbsolute: {
+          x: 652.3963967552829,
+          y: 194.0086000054533,
+        },
+        dragging: false,
+      },
+    ],
+    edges: [],
+    nodeConfigsDict: {
+      Is8Op: {
+        nodeId: 'Is8Op',
+        type: 'OutputNode',
+      },
+      ZMITb: {
+        nodeId: 'ZMITb',
+        type: 'InputNode',
+      },
+    },
+    variablesDict: {
+      'Is8Op/5TUFT': {
+        type: 'FlowOutput',
+        id: 'Is8Op/5TUFT',
+        nodeId: 'Is8Op',
+        index: 0,
+        name: 'var2',
+        valueType: 'String',
+      },
+      'ZMITb/PNDNu': {
+        type: 'FlowInput',
+        id: 'ZMITb/PNDNu',
+        nodeId: 'ZMITb',
+        index: 0,
+        name: 'var1',
+        valueType: 'String',
+      },
+    },
+    variableValueLookUpDicts: [
+      {
+        'Is8Op/5TUFT': null,
+        'ZMITb/PNDNu': null,
+      },
+    ],
+  };
+
+  const nextState = produce(prevState, (draft) => {
+    handleReactFlowNodesChange(draft, {
+      type: ChangeEventType.RF_NODES_CHANGE,
+      changes: [
+        {
+          id: 'Is8Op',
+          type: 'remove',
+        },
+        {
+          id: 'ZMITb',
+          type: 'remove',
+        },
+      ],
+    } as BaseEvent);
+  });
+
+  expect(nextState).toEqual({
+    ...prevState,
+    nodes: [],
+    edges: [],
+    nodeConfigsDict: {},
+    variablesDict: {},
+    variableValueLookUpDicts: [{}],
+  });
+});
