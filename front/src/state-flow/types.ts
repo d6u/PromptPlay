@@ -2,10 +2,10 @@ import { ConnectorResultMap } from 'flow-models';
 
 import { RunMetadata } from 'flow-run/run-types';
 
+import { EventGraphSlice } from './slice-event-graph';
 import { RootSlice } from './slice-root';
-import { SliceV2 } from './slice-v2';
 
-export type FlowState = RootSlice & SliceV2;
+export type FlowState = RootSlice & EventGraphSlice;
 
 export type NodeMetadataDict = Record<string, NodeMetadata | undefined>;
 

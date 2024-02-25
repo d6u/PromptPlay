@@ -1,8 +1,8 @@
 import { createStore } from 'zustand';
 import { devtools } from 'zustand/middleware';
 
+import { createEventGraphSlice } from './slice-event-graph';
 import { createRootSlice } from './slice-root';
-import { createSliceV2 } from './slice-v2';
 import { FlowState } from './types';
 
 type InitProps = {
@@ -14,7 +14,7 @@ export function createFlowStore(initProps: InitProps) {
     devtools(
       (...a) => ({
         ...createRootSlice(initProps, ...a),
-        ...createSliceV2(...a),
+        ...createEventGraphSlice(...a),
       }),
       {
         store: 'FlowStore',

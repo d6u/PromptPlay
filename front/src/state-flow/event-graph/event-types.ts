@@ -1,6 +1,6 @@
-import { SliceV2State } from '../slice-v2';
+import { EventGraphSliceState } from '../slice-event-graph';
 
-export type State = SliceV2State['eventGraphState'];
+export type State = EventGraphSliceState['eventGraphState'];
 
 export enum ChangeEventType {
   // React Flow

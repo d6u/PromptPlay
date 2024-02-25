@@ -61,7 +61,7 @@ import {
   assignLocalNodeProperties,
 } from './util/state-utils';
 
-export type SliceV2State = {
+export type EventGraphSliceState = {
   eventGraphState: {
     flowContent: {
       nodes: LocalNode[];
@@ -81,7 +81,7 @@ export type SliceV2State = {
   };
 };
 
-type SliceV2Action = {
+type EventGraphSliceAction = {
   initializeCanvas(): void;
 
   // SECTION: Canvas events
@@ -128,11 +128,13 @@ type SliceV2Action = {
   // !SECTION
 
   // Getter
-  getEventGraphState: Getter<PropType<SliceV2State, ['eventGraphState']>>;
+  getEventGraphState: Getter<
+    PropType<EventGraphSliceState, ['eventGraphState']>
+  >;
   getFlowContent: Getter<V3FlowContent>;
   getDefaultVariableValueLookUpDict(): ConnectorResultMap;
   getBatchTestConfig: Getter<
-    PropType<SliceV2State, ['eventGraphState', 'batchTestConfig']>
+    PropType<EventGraphSliceState, ['eventGraphState', 'batchTestConfig']>
   >;
 
   // Execute flow run
@@ -140,13 +142,13 @@ type SliceV2Action = {
   stopRunningFlow(): void;
 };
 
-export type SliceV2 = SliceV2State & SliceV2Action;
+export type EventGraphSlice = EventGraphSliceState & EventGraphSliceAction;
 
-export const createSliceV2: StateCreator<
+export const createEventGraphSlice: StateCreator<
   FlowState,
   [['zustand/devtools', never]],
   [],
-  SliceV2
+  EventGraphSlice
 > = (set, get) => {
   // SECTION: Lenses
   const [setEventGraphState, getEventGraphState] = createLens(
@@ -186,12 +188,12 @@ export const createSliceV2: StateCreator<
 
   // SECTION: With Immer
   const { setWithPatches: setEventGraphStateWithPatches } = createWithImmer<
-    SliceV2State,
+    EventGraphSliceState,
     ['eventGraphState']
   >([setEventGraphState, getEventGraphState]);
 
   const { set: setFlowContentProduce } = createWithImmer<
-    SliceV2State,
+    EventGraphSliceState,
     ['eventGraphState', 'flowContent']
   >([setFlowContent, getFlowContent]);
   // !SECTION
