@@ -15,7 +15,7 @@ import {
   ConnectorType,
   FlowConfigSchema,
   FlowInputVariable,
-  NodeType,
+  NodeTypeEnum,
   V3FlowContent,
 } from 'flow-models';
 
@@ -257,7 +257,10 @@ export function createRootSlice(
         connectors: variablesDict,
         inputValueMap: flowInputVariableValueMap,
         preferStreaming: true,
-        getAccountLevelFieldValue: (nodeType: NodeType, fieldKey: string) => {
+        getAccountLevelFieldValue: (
+          nodeType: NodeTypeEnum,
+          fieldKey: string,
+        ) => {
           return useLocalStorageStore
             .getState()
             .getLocalAccountLevelNodeFieldValue(nodeType, fieldKey);

@@ -22,7 +22,7 @@ import {
 // Reference: https://huggingface.co/docs/api-inference/index
 
 export type HuggingFaceInferenceNodeInstanceLevelConfig = {
-  type: NodeType.HuggingFaceInference;
+  type: typeof NodeType.HuggingFaceInference;
   nodeId: string;
   model: string;
 };

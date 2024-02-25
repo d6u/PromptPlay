@@ -4,7 +4,7 @@ import { useCallback, useContext, useMemo } from 'react';
 import { useStoreApi } from 'reactflow';
 
 import {
-  NodeType,
+  NodeTypeEnum,
   getAllNodeTypes,
   getNodeDefinitionForNodeTypeName,
 } from 'flow-models';
@@ -24,7 +24,7 @@ function SubTabActionsCanvas() {
   const stopRunningFlow = useFlowStore((s) => s.stopRunningFlow);
 
   const addNodeWithType = useCallback(
-    (type: NodeType) => {
+    (type: NodeTypeEnum) => {
       if (!isCurrentUserOwner) return;
 
       const {

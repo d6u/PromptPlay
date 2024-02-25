@@ -20,7 +20,7 @@ import {
 } from '../node-definition-base-types';
 
 export type ElevenLabsNodeInstanceLevelConfig = {
-  type: NodeType.ElevenLabs;
+  type: typeof NodeType.ElevenLabs;
   nodeId: string;
   voiceId: string;
 };

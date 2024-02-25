@@ -19,7 +19,7 @@ import {
 } from '../../node-definition-base-types';
 
 export type OutputNodeInstanceLevelConfig = {
-  type: NodeType.OutputNode;
+  type: typeof NodeType.OutputNode;
   nodeId: string;
 };
 

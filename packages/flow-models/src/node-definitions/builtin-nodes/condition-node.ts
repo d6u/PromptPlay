@@ -22,7 +22,7 @@ import {
 } from '../../node-definition-base-types';
 
 export type ConditionNodeInstanceLevelConfig = {
-  type: NodeType.ConditionNode;
+  type: typeof NodeType.ConditionNode;
   nodeId: string;
   stopAtTheFirstMatch: boolean;
 };

@@ -22,7 +22,7 @@ import {
 import { FieldType } from '../node-definition-base-types/field-definition-interfaces';
 
 export type ChatGPTMessageNodeInstanceLevelConfig = {
-  type: NodeType.ChatGPTMessageNode;
+  type: typeof NodeType.ChatGPTMessageNode;
   nodeId: string;
   role: OpenAI.ChatGPTMessageRole;
   content: string;

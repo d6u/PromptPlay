@@ -1,9 +1,10 @@
 import type { Node } from 'reactflow';
-import type { NodeType } from '../node-definitions';
+
+import type { NodeTypeEnum } from '../node-definition-base-types';
 
 export type ServerNode = {
   id: string;
-  type: NodeType;
+  type: NodeTypeEnum;
   position: {
     x: number;
     y: number;
@@ -11,5 +12,5 @@ export type ServerNode = {
   data: null;
 };
 
-export type LocalNode = Omit<Node<null, NodeType>, 'id' | 'type' | 'data'> &
+export type LocalNode = Omit<Node<null, NodeTypeEnum>, 'id' | 'type' | 'data'> &
   ServerNode;

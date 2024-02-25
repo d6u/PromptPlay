@@ -1,7 +1,7 @@
 import { produce } from 'immer';
 import { expect, test, vi } from 'vitest';
 
-import { ConnectorType, NodeType, VariableValueType } from 'flow-models';
+import { ConnectorType, VariableValueType } from 'flow-models';
 
 import { ChangeEventType } from 'state-flow/event-graph/event-graph-types';
 
@@ -87,7 +87,7 @@ test('handleReactFlowConnectEvent ignores Audio source variable with invalid tar
     nodeConfigsDict: {
       c: {
         id: 'c',
-        type: NodeType.InputNode,
+        type: 'InputNode',
       },
     },
   };
@@ -312,7 +312,7 @@ test('handleReactFlowConnect should replace edge', () => {
     nodes: [
       {
         id: 'ZUhTs',
-        type: NodeType.InputNode,
+        type: 'InputNode',
         position: {
           x: 228,
           y: 148,
@@ -324,7 +324,7 @@ test('handleReactFlowConnect should replace edge', () => {
       },
       {
         id: 'Is8Op',
-        type: NodeType.OutputNode,
+        type: 'OutputNode',
         position: {
           x: 690,
           y: 159,
@@ -336,7 +336,7 @@ test('handleReactFlowConnect should replace edge', () => {
       },
       {
         id: 'WHqYI',
-        type: NodeType.InputNode,
+        type: 'InputNode',
         position: {
           x: 229,
           y: 327,
@@ -362,15 +362,15 @@ test('handleReactFlowConnect should replace edge', () => {
     nodeConfigsDict: {
       ZUhTs: {
         nodeId: 'ZUhTs',
-        type: NodeType.InputNode,
+        type: 'InputNode',
       },
       Is8Op: {
         nodeId: 'Is8Op',
-        type: NodeType.OutputNode,
+        type: 'OutputNode',
       },
       WHqYI: {
         nodeId: 'WHqYI',
-        type: NodeType.InputNode,
+        type: 'InputNode',
       },
     },
     variablesDict: {
@@ -443,7 +443,7 @@ test('handleReactFlowConnect should replace edge and update dest variable valueT
     nodes: [
       {
         id: 'Is8Op',
-        type: NodeType.OutputNode,
+        type: 'OutputNode',
         position: {
           x: 690,
           y: 159,
@@ -455,7 +455,7 @@ test('handleReactFlowConnect should replace edge and update dest variable valueT
       },
       {
         id: 'gso6A',
-        type: NodeType.ElevenLabs,
+        type: 'ElevenLabs',
         position: {
           x: 261.9504000000001,
           y: 61.293199999999956,
@@ -467,7 +467,7 @@ test('handleReactFlowConnect should replace edge and update dest variable valueT
       },
       {
         id: '7NHli',
-        type: NodeType.InputNode,
+        type: 'InputNode',
         position: {
           x: 260.58199999999994,
           y: 454.024,
@@ -493,16 +493,16 @@ test('handleReactFlowConnect should replace edge and update dest variable valueT
     nodeConfigsDict: {
       'Is8Op': {
         nodeId: 'Is8Op',
-        type: NodeType.OutputNode,
+        type: 'OutputNode',
       },
       'gso6A': {
         nodeId: 'gso6A',
-        type: NodeType.ElevenLabs,
+        type: 'ElevenLabs',
         voiceId: '',
       },
       '7NHli': {
         nodeId: '7NHli',
-        type: NodeType.InputNode,
+        type: 'InputNode',
       },
     },
     variablesDict: {
@@ -600,7 +600,7 @@ test('handleReactFlowConnect should add edge', () => {
     nodes: [
       {
         id: 'Is8Op',
-        type: NodeType.OutputNode,
+        type: 'OutputNode',
         position: {
           x: 690,
           y: 159,
@@ -612,7 +612,7 @@ test('handleReactFlowConnect should add edge', () => {
       },
       {
         id: 'OYlVw',
-        type: NodeType.InputNode,
+        type: 'InputNode',
         position: {
           x: 321.8085333333334,
           y: 150.6265333333333,
@@ -627,11 +627,11 @@ test('handleReactFlowConnect should add edge', () => {
     nodeConfigsDict: {
       Is8Op: {
         nodeId: 'Is8Op',
-        type: NodeType.OutputNode,
+        type: 'OutputNode',
       },
       OYlVw: {
         nodeId: 'OYlVw',
-        type: NodeType.InputNode,
+        type: 'InputNode',
       },
     },
     variablesDict: {
@@ -695,7 +695,7 @@ test('handleReactFlowConnect should add edge and update dest variable valueType'
     nodes: [
       {
         id: 'Is8Op',
-        type: NodeType.OutputNode,
+        type: 'OutputNode',
         position: {
           x: 690,
           y: 159,
@@ -707,7 +707,7 @@ test('handleReactFlowConnect should add edge and update dest variable valueType'
       },
       {
         id: 'gso6A',
-        type: NodeType.ElevenLabs,
+        type: 'ElevenLabs',
         position: {
           x: 261.9504000000001,
           y: 61.293199999999956,
@@ -721,11 +721,11 @@ test('handleReactFlowConnect should add edge and update dest variable valueType'
     edges: [],
     nodeConfigsDict: {
       Is8Op: {
-        type: NodeType.OutputNode,
+        type: 'OutputNode',
         nodeId: 'Is8Op',
       },
       gso6A: {
-        type: NodeType.ElevenLabs,
+        type: 'ElevenLabs',
         nodeId: 'gso6A',
         voiceId: '',
       },

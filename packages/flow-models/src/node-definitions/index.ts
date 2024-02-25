@@ -1,6 +1,6 @@
 import Joi from 'joi';
 
-import { NodeType } from '../node-definition-base-types';
+import { NodeType, NodeTypeEnum } from '../node-definition-base-types';
 import {
   CONDITION_NODE_DEFINITION,
   ConditionNodeAllLevelConfig,
@@ -56,7 +56,6 @@ import {
   HuggingFaceInferenceNodeInstanceLevelConfig,
 } from './huggingface-inference-node';
 
-export { default as NodeType } from '../node-definition-base-types/NodeType';
 export * from './builtin-nodes/condition-node';
 export * from './builtin-nodes/input-node';
 export * from './builtin-nodes/javascript-function-node';
@@ -139,7 +138,7 @@ type NodeTypeToNodeDefinitionUnionMap = {
 
 // ANCHOR: Update this when adding new node types
 export const NODE_TYPE_TO_NODE_DEFINITION_MAP: {
-  [key in NodeType]: NodeTypeToNodeDefinitionUnionMap[key];
+  [key in NodeTypeEnum]: NodeTypeToNodeDefinitionUnionMap[key];
 } = {
   [NodeType.InputNode]: INPUT_NODE_DEFINITION,
   [NodeType.OutputNode]: OUTPUT_NODE_DEFINITION,
@@ -153,7 +152,7 @@ export const NODE_TYPE_TO_NODE_DEFINITION_MAP: {
   [NodeType.ElevenLabs]: ELEVENLABS_NODE_DEFINITION,
 };
 
-export const BULTIN_NODE_TYPES_ORDERED_ARRAY: ReadonlyArray<NodeType> = [
+export const BULTIN_NODE_TYPES_ORDERED_ARRAY: ReadonlyArray<NodeTypeEnum> = [
   NodeType.InputNode,
   NodeType.OutputNode,
   NodeType.ConditionNode,
@@ -162,9 +161,10 @@ export const BULTIN_NODE_TYPES_ORDERED_ARRAY: ReadonlyArray<NodeType> = [
 ];
 
 // ANCHOR: Update this when adding new node types
-export const INTEGRATION_NODE_TYPES_ORDERED_ARRAY: ReadonlyArray<NodeType> = [
-  NodeType.ChatGPTMessageNode,
-  NodeType.ChatGPTChatCompletionNode,
-  NodeType.HuggingFaceInference,
-  NodeType.ElevenLabs,
-];
+export const INTEGRATION_NODE_TYPES_ORDERED_ARRAY: ReadonlyArray<NodeTypeEnum> =
+  [
+    NodeType.ChatGPTMessageNode,
+    NodeType.ChatGPTChatCompletionNode,
+    NodeType.HuggingFaceInference,
+    NodeType.ElevenLabs,
+  ];

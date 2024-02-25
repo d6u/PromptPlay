@@ -7,7 +7,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Subscription, debounceTime, tap } from 'rxjs';
 import invariant from 'tiny-invariant';
 
-import { ConnectorResultMap, NodeType } from 'flow-models';
+import { ConnectorResultMap, NodeTypeEnum } from 'flow-models';
 
 import {
   FlowBatchRunEventType,
@@ -23,6 +23,7 @@ import {
 import { BatchTestTab, CSVData, CSVHeader } from 'state-flow/types';
 import { useLocalStorageStore } from 'state-root/local-storage-state';
 import { useNodeFieldFeedbackStore } from 'state-root/node-field-feedback-state';
+
 import EvaluationSectionImportCSV from './components/EvaluationSectionImportCSV';
 import EvaluationSectionConfigCSV from './components/evaluation-section-config-csv/EvaluationSectionConfigCSV';
 
@@ -119,7 +120,7 @@ function RouteBatchTest() {
       repeatTimes,
       concurrencyLimit,
       preferStreaming: false,
-      getAccountLevelFieldValue: (nodeType: NodeType, fieldKey: string) => {
+      getAccountLevelFieldValue: (nodeType: NodeTypeEnum, fieldKey: string) => {
         return useLocalStorageStore
           .getState()
           .getLocalAccountLevelNodeFieldValue(nodeType, fieldKey);

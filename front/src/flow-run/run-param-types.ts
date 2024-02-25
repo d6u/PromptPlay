@@ -1,6 +1,6 @@
 import { Option } from '@mobily/ts-belt';
 
-import { NodeType } from 'flow-models';
+import { NodeTypeEnum } from 'flow-models';
 
 export type Edge = Readonly<{
   sourceNode: string;
@@ -10,6 +10,6 @@ export type Edge = Readonly<{
 }>;
 
 export type GetAccountLevelFieldValueFunction = (
-  nodeType: NodeType,
+  nodeType: NodeTypeEnum,
   fieldKey: string,
 ) => Option<string>;

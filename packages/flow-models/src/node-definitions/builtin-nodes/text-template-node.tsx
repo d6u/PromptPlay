@@ -20,8 +20,8 @@ import {
 } from '../../node-definition-base-types';
 
 export type TextTemplateNodeInstanceLevelConfig = {
+  type: typeof NodeType.TextTemplate;
   nodeId: string;
-  type: NodeType.TextTemplate;
   content: string;
 };
 

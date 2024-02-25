@@ -1,9 +1,10 @@
 import { createLens } from '@dhmk/zustand-lens';
+import { Option } from '@mobily/ts-belt';
 import { create, StateCreator } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-import { Option } from '@mobily/ts-belt';
-import { NodeType } from 'flow-models';
+import { NodeTypeEnum } from 'flow-models';
+
 import { createSelectors } from 'generic-util/zustand';
 
 type OpenAIAPIKeyState = {
@@ -26,11 +27,11 @@ export type LocalStorageState = OpenAIAPIKeyState &
   ElevenLabsApiKeyState & {
     localAccountLevelNodeFieldValues: Record<string, string>;
     getLocalAccountLevelNodeFieldValue: (
-      nodeType: NodeType,
+      nodeType: NodeTypeEnum,
       fieldKey: string,
     ) => Option<string>;
     setLocalAccountLevelNodeFieldValue: (
-      nodeType: NodeType,
+      nodeType: NodeTypeEnum,
       fieldKey: string,
       value: string,
     ) => void;
@@ -61,14 +62,14 @@ const localStorageStateCreator: StateCreator<
 
     localAccountLevelNodeFieldValues: {},
     getLocalAccountLevelNodeFieldValue: (
-      nodeType: NodeType,
+      nodeType: NodeTypeEnum,
       fieldKey: string,
     ): Option<string> => {
       const key = getKeyForLocalAccountLevelNodeFieldValue(nodeType, fieldKey);
       return localAccountLevelNodeFieldValuesGet()[key] as Option<string>;
     },
     setLocalAccountLevelNodeFieldValue: (
-      nodeType: NodeType,
+      nodeType: NodeTypeEnum,
       fieldKey: string,
       value: string,
     ): void => {
@@ -85,7 +86,7 @@ export const useLocalStorageStore = createSelectors(
 );
 
 function getKeyForLocalAccountLevelNodeFieldValue(
-  nodeType: NodeType,
+  nodeType: NodeTypeEnum,
   fieldKey: string,
 ): string {
   return `${nodeType}:${fieldKey}`;

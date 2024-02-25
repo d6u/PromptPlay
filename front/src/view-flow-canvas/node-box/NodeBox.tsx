@@ -1,14 +1,14 @@
 import { css } from '@emotion/react';
 import styled from '@emotion/styled';
 
-import { NodeType } from 'flow-models';
+import { NodeType, NodeTypeEnum } from 'flow-models';
 
 import background from 'assets/warning-background.svg';
 
 import { BACKDROP_PADDING, NODE_BOX_WIDTH } from '../constants';
 
 type Props = {
-  nodeType: NodeType;
+  nodeType: NodeTypeEnum;
   isRunning?: boolean;
   hasError?: boolean;
   children: React.ReactNode;
@@ -34,7 +34,7 @@ enum NodeState {
   Error,
 }
 
-const Backdrop = styled.div<{ $type: NodeType; $state: NodeState }>`
+const Backdrop = styled.div<{ $type: NodeTypeEnum; $state: NodeState }>`
   width: ${NODE_BOX_WIDTH}px;
   padding: ${BACKDROP_PADDING}px;
   border-radius: 8px;

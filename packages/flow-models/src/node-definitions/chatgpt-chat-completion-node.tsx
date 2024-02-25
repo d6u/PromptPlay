@@ -25,7 +25,7 @@ import {
 } from '../node-definition-base-types';
 
 export type ChatGPTChatCompletionNodeInstanceLevelConfig = {
-  type: NodeType.ChatGPTChatCompletionNode;
+  type: typeof NodeType.ChatGPTChatCompletionNode;
   nodeId: string;
   model: OpenAIChatModel;
   temperature: number;

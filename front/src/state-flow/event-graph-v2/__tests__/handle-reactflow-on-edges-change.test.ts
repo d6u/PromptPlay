@@ -1,7 +1,7 @@
 import { produce } from 'immer';
 import { expect, test } from 'vitest';
 
-import { ConnectorType, NodeType, VariableValueType } from 'flow-models';
+import { ConnectorType, VariableValueType } from 'flow-models';
 
 import { ChangeEventType } from 'state-flow/event-graph/event-graph-types';
 
@@ -17,7 +17,7 @@ test('handleReactFlowEdgesChange should select edge', () => {
     nodes: [
       {
         id: 'Is8Op',
-        type: NodeType.OutputNode,
+        type: 'OutputNode',
         position: {
           x: 690,
           y: 159,
@@ -29,7 +29,7 @@ test('handleReactFlowEdgesChange should select edge', () => {
       },
       {
         id: 'OYlVw',
-        type: NodeType.InputNode,
+        type: 'InputNode',
         position: {
           x: 321.8085333333334,
           y: 150.6265333333333,
@@ -55,11 +55,11 @@ test('handleReactFlowEdgesChange should select edge', () => {
     nodeConfigsDict: {
       Is8Op: {
         nodeId: 'Is8Op',
-        type: NodeType.OutputNode,
+        type: 'OutputNode',
       },
       OYlVw: {
         nodeId: 'OYlVw',
-        type: NodeType.InputNode,
+        type: 'InputNode',
       },
     },
     variablesDict: {

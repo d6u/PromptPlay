@@ -15,7 +15,7 @@ import {
   ConnectorResultMap,
   ConnectorType,
   NodeConfig,
-  NodeType,
+  NodeTypeEnum,
   V3FlowContent,
   createNode,
 } from 'flow-models';
@@ -52,7 +52,7 @@ type SliceFlowContentV3Actions = {
   onEdgesChange: OnEdgesChange;
   onConnect: OnConnect;
 
-  addNode(type: NodeType, x: number, y: number): void;
+  addNode(type: NodeTypeEnum, x: number, y: number): void;
   removeNode(nodeId: string): void;
   updateNodeConfig(nodeId: string, change: Partial<NodeConfig>): void;
 
@@ -221,7 +221,7 @@ export const createFlowServerSliceV3: StateCreator<
       });
     },
 
-    addNode(type: NodeType, x: number, y: number): void {
+    addNode(type: NodeTypeEnum, x: number, y: number): void {
       startProcessingEventGraph({
         type: ChangeEventType.ADDING_NODE,
         node: createNode(type, x, y),

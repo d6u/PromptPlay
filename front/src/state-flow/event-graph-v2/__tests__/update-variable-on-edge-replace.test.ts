@@ -1,7 +1,7 @@
 import { produce } from 'immer';
 import { expect, test, vi } from 'vitest';
 
-import { ConnectorType, NodeType, VariableValueType } from 'flow-models';
+import { ConnectorType, VariableValueType } from 'flow-models';
 
 import { ChangeEventType } from 'state-flow/event-graph/event-graph-types';
 
@@ -17,7 +17,7 @@ test('handleEdgeReplacedEvent ignores old and new source variables with the same
     nodes: [
       {
         id: 'ZUhTs',
-        type: NodeType.InputNode,
+        type: 'InputNode',
         position: {
           x: 228,
           y: 148,
@@ -29,7 +29,7 @@ test('handleEdgeReplacedEvent ignores old and new source variables with the same
       },
       {
         id: 'Is8Op',
-        type: NodeType.OutputNode,
+        type: 'OutputNode',
         position: {
           x: 690,
           y: 159,
@@ -41,7 +41,7 @@ test('handleEdgeReplacedEvent ignores old and new source variables with the same
       },
       {
         id: 'WHqYI',
-        type: NodeType.InputNode,
+        type: 'InputNode',
         position: {
           x: 229,
           y: 327,
@@ -67,15 +67,15 @@ test('handleEdgeReplacedEvent ignores old and new source variables with the same
     nodeConfigsDict: {
       ZUhTs: {
         nodeId: 'ZUhTs',
-        type: NodeType.InputNode,
+        type: 'InputNode',
       },
       Is8Op: {
         nodeId: 'Is8Op',
-        type: NodeType.OutputNode,
+        type: 'OutputNode',
       },
       WHqYI: {
         nodeId: 'WHqYI',
-        type: NodeType.InputNode,
+        type: 'InputNode',
       },
     },
     variablesDict: {

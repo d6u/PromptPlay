@@ -2,15 +2,15 @@ import type { ReactNode } from 'react';
 import type { Observable } from 'rxjs';
 
 import type { Connector, ConnectorResultMap } from '../base-types';
-import type { NodeType } from '../node-definitions/index';
 import NodeExecutionContext from './NodeExecutionContext';
+import { type NodeTypeEnum } from './NodeType';
 import {
   NodeAccountLevelTextFieldDefinition,
   NodeInstanceLevelFieldDefinitionUnion,
 } from './field-definition-interfaces';
 
 type BaseNodeInstanceLevelConfig = {
-  type: NodeType;
+  type: NodeTypeEnum;
   nodeId: string;
 };
 

@@ -16,7 +16,7 @@ import {
 } from '../../node-definition-base-types';
 
 export type JavaScriptFunctionNodeInstanceLevelConfig = {
-  type: NodeType.JavaScriptFunctionNode;
+  type: typeof NodeType.JavaScriptFunctionNode;
   nodeId: string;
   javaScriptCode: string;
 };
