@@ -199,12 +199,13 @@ export const createEventGraphSlice: StateCreator<
   // !SECTION
 
   let runSingleSubscription: Subscription | null = null;
+  let prevSyncedData: V3FlowContent | null = null;
 
   const saveSpaceDebounced = debounce(async () => {
     const spaceId = get().spaceId;
     const flowContent = getFlowContent();
 
-    await updateSpaceContentV3(spaceId, {
+    const nextSyncedData: V3FlowContent = {
       ...flowContent,
       nodes: A.map(
         flowContent.nodes,
@@ -220,27 +221,26 @@ export const createEventGraphSlice: StateCreator<
           'targetHandle',
         ]),
       ),
-    });
+    };
+
+    // console.time('deepEqual');
+    const hasChange = !deepEqual(prevSyncedData, nextSyncedData);
+    // console.timeEnd('deepEqual');
+
+    if (prevSyncedData == null || hasChange) {
+      await updateSpaceContentV3(spaceId, nextSyncedData);
+    }
+
+    prevSyncedData = nextSyncedData;
   }, 500);
 
   function processEventWithEventGraph(event: AcceptedEvent) {
-    const [isDirty, patches] = setEventGraphStateWithPatches((draft) => {
+    // console.time('processEventWithEventGraph');
+    setEventGraphStateWithPatches((draft) => {
       handleAllEvent(draft, event);
     });
-
-    console.log('processEventWithEventGraph', isDirty, patches);
-
-    // if (isDirty) {
-    //   const spaceId = get().spaceId;
-    //   invariant(spaceId != null);
-    //   saveSpaceDebounced(spaceId, {
-    //     nodes: get().nodes,
-    //     edges: get().edges,
-    //     nodeConfigsDict: get().nodeConfigsDict,
-    //     variablesDict: get().variablesDict,
-    //     variableValueLookUpDicts: get().variableValueLookUpDicts,
-    //   });
-    // }
+    // console.timeEnd('processEventWithEventGraph');
+    saveSpaceDebounced();
   }
 
   function setIsRunning(isRunning: boolean) {
