@@ -40,7 +40,7 @@ export const handleReactFlowNodesChange = createHandler<
           );
           const nodeConfigSnapshot = current(state.nodeConfigsDict[change.id]);
 
-          invariant(nodeSnapshot != null, 'Node is not null');
+          invariant(nodeSnapshot != null, 'nodeSnapshot is not null');
 
           delete state.nodeConfigsDict[change.id];
 
