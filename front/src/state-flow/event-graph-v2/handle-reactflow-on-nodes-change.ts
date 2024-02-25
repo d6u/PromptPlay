@@ -8,8 +8,8 @@ import { ChangeEventType } from '../event-graph/event-graph-types';
 import { createHandler } from './event-graph-util';
 import {
   NodeRemovedEvent,
-  updateConnectorOnNodeRemoval,
-} from './update-connector-on-node-removal';
+  removeConnectorOnNodeRemoval,
+} from './remove-connector-on-node-removal';
 
 export type ReactFlowNodesChangeEvent = {
   type: ChangeEventType.RF_NODES_CHANGE;
@@ -38,7 +38,6 @@ export const handleReactFlowNodesChange = createHandler<
           const nodeSnapshot = current(
             state.nodes.find((node) => node.id === change.id),
           );
-          const nodeConfigSnapshot = current(state.nodeConfigsDict[change.id]);
 
           invariant(nodeSnapshot != null, 'nodeSnapshot is not null');
 
@@ -47,7 +46,6 @@ export const handleReactFlowNodesChange = createHandler<
           events.push({
             type: ChangeEventType.NODE_REMOVED,
             node: nodeSnapshot,
-            nodeConfig: nodeConfigSnapshot,
           });
 
           break;
@@ -59,5 +57,5 @@ export const handleReactFlowNodesChange = createHandler<
 
     return events;
   },
-  [updateConnectorOnNodeRemoval],
+  [removeConnectorOnNodeRemoval],
 );

@@ -129,6 +129,137 @@ test('handleReactFlowNodesChange should remove node', () => {
   });
 });
 
+test('handleReactFlowNodesChange should remove connector and edge connected', () => {
+  const prevState: State = {
+    ...MOCK_STATE,
+    nodes: [
+      {
+        id: 'HIbCf',
+        type: 'InputNode',
+        position: {
+          x: 672.6255634219496,
+          y: 144.8419333387866,
+        },
+        data: null,
+        dragHandle: '.node-drag-handle',
+        width: 300,
+        height: 132,
+        selected: true,
+      },
+      {
+        id: 'sn268',
+        type: 'OutputNode',
+        position: {
+          x: 1049.2943134219495,
+          y: 152.27110000545335,
+        },
+        data: null,
+        dragHandle: '.node-drag-handle',
+        width: 300,
+        height: 132,
+      },
+    ],
+    edges: [
+      {
+        source: 'HIbCf',
+        sourceHandle: 'HIbCf/sCWR7',
+        target: 'sn268',
+        targetHandle: 'sn268/mt4IG',
+        id: 'gcU08',
+        style: {
+          strokeWidth: 2,
+        },
+      },
+    ],
+    nodeConfigsDict: {
+      HIbCf: {
+        nodeId: 'HIbCf',
+        type: 'InputNode',
+      },
+      sn268: {
+        nodeId: 'sn268',
+        type: 'OutputNode',
+      },
+    },
+    variablesDict: {
+      'HIbCf/sCWR7': {
+        type: 'FlowInput',
+        id: 'HIbCf/sCWR7',
+        nodeId: 'HIbCf',
+        index: 0,
+        name: 'var1',
+        valueType: 'String',
+      },
+      'sn268/mt4IG': {
+        type: 'FlowOutput',
+        id: 'sn268/mt4IG',
+        nodeId: 'sn268',
+        index: 0,
+        name: 'var2',
+        valueType: 'String',
+      },
+    },
+    variableValueLookUpDicts: [
+      {
+        'HIbCf/sCWR7': null,
+        'sn268/mt4IG': null,
+      },
+    ],
+  };
+
+  const nextState = produce(prevState, (draft) => {
+    handleReactFlowNodesChange(draft, {
+      type: ChangeEventType.RF_NODES_CHANGE,
+      changes: [
+        {
+          id: 'HIbCf',
+          type: 'remove',
+        },
+      ],
+    } as BaseEvent);
+  });
+
+  expect(nextState).toEqual({
+    ...prevState,
+    nodes: [
+      {
+        id: 'sn268',
+        type: 'OutputNode',
+        position: {
+          x: 1049.2943134219495,
+          y: 152.27110000545335,
+        },
+        data: null,
+        dragHandle: '.node-drag-handle',
+        width: 300,
+        height: 132,
+      },
+    ],
+    edges: [],
+    nodeConfigsDict: {
+      sn268: {
+        nodeId: 'sn268',
+        type: 'OutputNode',
+      },
+    },
+    variablesDict: {
+      'sn268/mt4IG': {
+        type: 'FlowOutput',
+        id: 'sn268/mt4IG',
+        nodeId: 'sn268',
+        index: 0,
+        name: 'var2',
+        valueType: 'String',
+      },
+    },
+    variableValueLookUpDicts: [
+      {
+        'sn268/mt4IG': null,
+      },
+    ],
+  });
+});
+
 test('handleReactFlowNodesChange should remove multiple nodes', () => {
   const prevState: State = {
     ...MOCK_STATE,

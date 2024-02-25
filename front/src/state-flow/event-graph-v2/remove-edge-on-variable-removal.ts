@@ -1,3 +1,6 @@
+import { A } from '@mobily/ts-belt';
+import { current } from 'immer';
+
 import {
   FlowInputVariable,
   FlowOutputVariable,
@@ -5,7 +8,6 @@ import {
   NodeOutputVariable,
 } from 'flow-models';
 
-import { A } from '@mobily/ts-belt';
 import { ChangeEventType } from '../event-graph/event-graph-types';
 import { createHandler } from './event-graph-util';
 import {
@@ -41,16 +43,18 @@ export const removeEdgeOnVariableRemoval = createHandler<
 
     state.edges = acceptedEdges;
 
-    for (const removingEdge of rejectedEdges) {
+    for (const removedEdge of rejectedEdges) {
       events.push({
         type: ChangeEventType.EDGE_REMOVED,
-        removedEdge: removingEdge,
-        edgeSrcVariableConfig:
-          event.removedVariable.id === removingEdge.sourceHandle
+        removedEdge: current(removedEdge),
+        removedEdgeSourceVariable:
+          event.removedVariable.id === removedEdge.sourceHandle
             ? event.removedVariable
             : null,
       });
     }
+
+    // TODO: Is it better to move these to dedicated handler?
 
     delete state.variableValueLookUpDicts[0][event.removedVariable.id];
 

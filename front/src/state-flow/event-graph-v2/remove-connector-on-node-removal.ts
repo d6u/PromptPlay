@@ -1,7 +1,7 @@
 import { D } from '@mobily/ts-belt';
-import invariant from 'tiny-invariant';
+import { current } from 'immer';
 
-import { ConnectorType, LocalNode, NodeConfig } from 'flow-models';
+import { ConnectorType, LocalNode } from 'flow-models';
 
 import { ChangeEventType } from '../event-graph/event-graph-types';
 import { createHandler } from './event-graph-util';
@@ -17,12 +17,11 @@ import {
 export type NodeRemovedEvent = {
   type: ChangeEventType.NODE_REMOVED;
   node: LocalNode;
-  nodeConfig: NodeConfig;
 };
 
 type OutputEvent = VariableRemovedEvent | ConditionRemovedEvent;
 
-export const updateConnectorOnNodeRemoval = createHandler<
+export const removeConnectorOnNodeRemoval = createHandler<
   NodeRemovedEvent,
   OutputEvent
 >(
@@ -34,26 +33,28 @@ export const updateConnectorOnNodeRemoval = createHandler<
         continue;
       }
 
+      const connectorSnapshot = current(connector);
+
       if (
-        connector.type === ConnectorType.FlowInput ||
-        connector.type === ConnectorType.FlowOutput ||
-        connector.type === ConnectorType.NodeInput ||
-        connector.type === ConnectorType.NodeOutput
+        connectorSnapshot.type === ConnectorType.FlowInput ||
+        connectorSnapshot.type === ConnectorType.FlowOutput ||
+        connectorSnapshot.type === ConnectorType.NodeInput ||
+        connectorSnapshot.type === ConnectorType.NodeOutput
       ) {
         events.push({
           type: ChangeEventType.VARIABLE_REMOVED,
-          removedVariable: connector,
+          removedVariable: connectorSnapshot,
         });
-      } else if (connector.type === ConnectorType.Condition) {
+      } else if (connectorSnapshot.type === ConnectorType.Condition) {
         events.push({
           type: ChangeEventType.CONDITION_REMOVED,
-          removedCondition: connector,
+          removedCondition: connectorSnapshot,
         });
       } else {
-        invariant(connector.type === ConnectorType.ConditionTarget);
+        // No event for removing condition target connector
       }
 
-      delete state.variablesDict[connector.id];
+      delete state.variablesDict[connectorSnapshot.id];
     }
 
     return events;

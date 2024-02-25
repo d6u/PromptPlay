@@ -42,7 +42,6 @@ export const handleReactFlowEdgesChange = createHandler<
           events.push({
             type: ChangeEventType.EDGE_REMOVED,
             removedEdge: edgeSnapshot,
-            edgeSrcVariableConfig: null,
           });
 
           break;

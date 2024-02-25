@@ -6,8 +6,8 @@ import { ChangeEventType } from '../event-graph/event-graph-types';
 import { createHandler } from './event-graph-util';
 import {
   NodeRemovedEvent,
-  updateConnectorOnNodeRemoval,
-} from './update-connector-on-node-removal';
+  removeConnectorOnNodeRemoval,
+} from './remove-connector-on-node-removal';
 
 export type RemoveNodeEvent = {
   type: ChangeEventType.REMOVING_NODE;
@@ -48,5 +48,5 @@ export const handleRemoveNode = createHandler<
       },
     ];
   },
-  [updateConnectorOnNodeRemoval],
+  [removeConnectorOnNodeRemoval],
 );

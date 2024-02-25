@@ -1,4 +1,5 @@
 import { A } from '@mobily/ts-belt';
+import { current } from 'immer';
 
 import { Condition } from 'flow-models';
 
@@ -36,9 +37,9 @@ export const removeEdgeOnConditionRemoval = createHandler<
     for (const removingEdge of rejectedEdges) {
       events.push({
         type: ChangeEventType.EDGE_REMOVED,
-        removedEdge: removingEdge,
+        removedEdge: current(removingEdge),
         // NOTE: If the removed connector is a source handle, assign it here.
-        edgeSrcVariableConfig:
+        removedEdgeSourceVariable:
           event.removedCondition.id === removingEdge.sourceHandle
             ? event.removedCondition
             : null,

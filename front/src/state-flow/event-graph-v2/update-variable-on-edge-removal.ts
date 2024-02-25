@@ -18,7 +18,7 @@ import {
 export type EdgeRemovedEvent = {
   type: ChangeEventType.EDGE_REMOVED;
   removedEdge: V3LocalEdge;
-  edgeSrcVariableConfig: Connector | null;
+  removedEdgeSourceVariable?: Connector | null;
 };
 
 export const updateVariableOnEdgeRemoval = createHandler<
@@ -35,7 +35,7 @@ export const updateVariableOnEdgeRemoval = createHandler<
     }
 
     const srcConnector =
-      event.edgeSrcVariableConfig ??
+      event.removedEdgeSourceVariable ??
       state.variablesDict[event.removedEdge.sourceHandle];
 
     if (
@@ -53,18 +53,19 @@ export const updateVariableOnEdgeRemoval = createHandler<
         // NOTE: Source variable of removed edge is audio.
         // We need to change the destination variable back to default type.
 
-        const dstConnector =
+        const targetVariable =
           state.variablesDict[event.removedEdge.targetHandle];
-        invariant(dstConnector.type === ConnectorType.FlowOutput);
 
-        const prevVariableConfig = current(dstConnector);
+        invariant(targetVariable.type === ConnectorType.FlowOutput);
 
-        dstConnector.valueType = VariableValueType.String;
+        const prevVariableSnapshot = current(targetVariable);
+
+        targetVariable.valueType = VariableValueType.String;
 
         events.push({
           type: ChangeEventType.VARIABLE_UPDATED,
-          prevVariable: prevVariableConfig,
-          nextVariable: current(dstConnector),
+          prevVariable: prevVariableSnapshot,
+          nextVariable: current(targetVariable),
         });
       }
     }
