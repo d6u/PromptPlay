@@ -1,5 +1,5 @@
 import { BatchTestTab } from 'state-flow/types';
-import { State } from '../event-graph-util';
+import { State } from '../event-types';
 
 export const MOCK_STATE: State = {
   // Persist to server

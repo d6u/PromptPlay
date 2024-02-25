@@ -2,10 +2,7 @@ import { G } from '@mobily/ts-belt';
 import { Draft } from 'immer';
 import invariant from 'tiny-invariant';
 
-import { CsvEvaluationPresetState } from '../slice-csv-evaluation-preset';
-import { SliceFlowContentV3State } from '../types';
-
-export type State = SliceFlowContentV3State & CsvEvaluationPresetState;
+import { State } from './event-types';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type BaseEvent = { type: any };

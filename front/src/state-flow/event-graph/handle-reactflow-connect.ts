@@ -13,8 +13,8 @@ import {
 } from 'flow-models';
 
 import { CONDITION_EDGE_STYLE, DEFAULT_EDGE_STYLE } from '../util/constants';
-import { State, createHandler } from './event-graph-util';
-import { ChangeEventType } from './event-types';
+import { createHandler } from './event-graph-util';
+import { ChangeEventType, State } from './event-types';
 import {
   EdgeAddedEvent,
   updateVariableOnEdgeAdded,

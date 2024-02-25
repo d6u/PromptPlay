@@ -3,7 +3,7 @@ import { expect, test, vi } from 'vitest';
 
 import { ChangeEventType } from 'state-flow/event-graph/event-types';
 
-import { State } from '../event-graph-util';
+import { State } from '../event-types';
 import { handleEdgeReplacedEvent } from '../update-variable-on-edge-replace';
 import { MOCK_STATE } from './fixture';
 

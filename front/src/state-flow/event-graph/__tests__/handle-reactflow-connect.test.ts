@@ -3,7 +3,8 @@ import { expect, test, vi } from 'vitest';
 
 import { ChangeEventType } from 'state-flow/event-graph/event-types';
 
-import { BaseEvent, State } from '../event-graph-util';
+import { BaseEvent } from '../event-graph-util';
+import { State } from '../event-types';
 import {
   handleReactFlowConnect,
   handleReactFlowConnectEvent,

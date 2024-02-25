@@ -1,12 +1,15 @@
 import { createLens, Getter, Setter } from '@dhmk/zustand-lens';
+import invariant from 'tiny-invariant';
+import { OperationResult } from 'urql';
+import { StateCreator } from 'zustand';
+
 import { ConnectorResultMap } from 'flow-models';
+
 import { RunMetadata } from 'flow-run/run-types';
 import { graphql } from 'gencode-gql';
 import { LoadCsvEvaluationPresetQuery } from 'gencode-gql/graphql';
 import { client } from 'graphql-util/client';
-import invariant from 'tiny-invariant';
-import { OperationResult } from 'urql';
-import { StateCreator } from 'zustand';
+
 import { BatchTestTab, FlowState } from './types';
 
 export type CsvEvaluationPresetState = {

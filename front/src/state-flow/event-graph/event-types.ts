@@ -1,3 +1,8 @@
+import { CsvEvaluationPresetState } from '../slice-csv-evaluation-preset';
+import { SliceFlowContentV3State } from '../types';
+
+export type State = SliceFlowContentV3State & CsvEvaluationPresetState;
+
 export enum ChangeEventType {
   // React Flow
   RF_EDGES_CHANGE = 'RF_EDGES_CHANGE',

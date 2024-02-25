@@ -3,7 +3,8 @@ import { expect, test } from 'vitest';
 
 import { ChangeEventType } from 'state-flow/event-graph/event-types';
 
-import { BaseEvent, State } from '../event-graph-util';
+import { BaseEvent } from '../event-graph-util';
+import { State } from '../event-types';
 import { handleRemoveNode } from '../handle-remove-node';
 import { MOCK_STATE } from './fixture';
 
