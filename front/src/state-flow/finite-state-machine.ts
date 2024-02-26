@@ -143,6 +143,7 @@ export const canvasStateMachine = createMachine({
                 flowContentNoUploadNeeded: { target: 'Idle' },
                 flowContentUploadSuccess: [
                   {
+                    // Local might become dirty because uploading is async
                     target: 'UploadingDebouncing',
                     guard: ({ context }) => context.hasUnsavedChanges,
                   },
