@@ -63,6 +63,9 @@ export const canvasStateMachine = createMachine({
       entry: [assign({ canvasUiState: 'initialized' })],
       on: {
         leave: 'Uninitialized',
+        updated: {
+          target: ['.localChange.Changed', '.syncStatus.Updating'],
+        },
       },
       type: 'parallel',
       states: {
@@ -71,9 +74,6 @@ export const canvasStateMachine = createMachine({
           states: {
             Unchanged: {
               entry: [assign({ hasUnsavedChanges: false })],
-              on: {
-                updated: 'Changed',
-              },
             },
             Changed: {
               entry: [assign({ hasUnsavedChanges: true })],

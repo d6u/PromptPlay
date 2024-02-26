@@ -1,9 +1,8 @@
 import { PropType } from '@dhmk/utils';
 import { Getter, Setter, createLens } from '@dhmk/zustand-lens';
-import { A, D, pipe } from '@mobily/ts-belt';
+import { D, pipe } from '@mobily/ts-belt';
 import deepEqual from 'deep-equal';
 import { produce } from 'immer';
-import debounce from 'lodash/debounce';
 import posthog from 'posthog-js';
 import {
   EdgeChange,
@@ -48,7 +47,6 @@ import { useNodeFieldFeedbackStore } from 'state-root/node-field-feedback-state'
 import { ChangeEventType } from './event-graph/event-types';
 import { AcceptedEvent, handleAllEvent } from './event-graph/handle-all-event';
 import { StateMachineAction } from './finite-state-machine';
-import { updateSpaceContentV3 } from './graphql/graphql';
 import {
   FlowState,
   RunMetadataTable,
@@ -202,48 +200,19 @@ export const createEventGraphSlice: StateCreator<
 
   let initializationSubscription: Subscription | null = null;
   let runSingleSubscription: Subscription | null = null;
-  let prevSyncedData: V3FlowContent | null = null;
-
-  const saveSpaceDebounced = debounce(async () => {
-    const spaceId = get().spaceId;
-    const flowContent = getFlowContent();
-
-    const nextSyncedData: V3FlowContent = {
-      ...flowContent,
-      nodes: A.map(
-        flowContent.nodes,
-        D.selectKeys(['id', 'type', 'position', 'data']),
-      ),
-      edges: A.map(
-        flowContent.edges,
-        D.selectKeys([
-          'id',
-          'source',
-          'sourceHandle',
-          'target',
-          'targetHandle',
-        ]),
-      ),
-    };
-
-    // console.time('deepEqual');
-    const hasChange = !deepEqual(prevSyncedData, nextSyncedData);
-    // console.timeEnd('deepEqual');
-
-    if (prevSyncedData == null || hasChange) {
-      await updateSpaceContentV3(spaceId, nextSyncedData);
-    }
-
-    prevSyncedData = nextSyncedData;
-  }, 500);
 
   function processEventWithEventGraph(event: AcceptedEvent) {
     // console.time('processEventWithEventGraph');
-    setEventGraphStateWithPatches((draft) => {
-      handleAllEvent(draft, event);
-    });
+    setEventGraphStateWithPatches(
+      (draft) => {
+        handleAllEvent(draft, event);
+      },
+      false,
+      event,
+    );
     // console.timeEnd('processEventWithEventGraph');
-    saveSpaceDebounced();
+
+    get().actorSend({ type: StateMachineAction.Updated });
   }
 
   function setIsRunning(isRunning: boolean) {
