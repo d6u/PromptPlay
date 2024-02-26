@@ -8,6 +8,7 @@ import RightSidePaneView from 'view-right-side-pane/RightSidePaneView';
 function RouteCanvas() {
   const uiState = useFlowStore((s) => s.getStateMachineContext().uiState);
 
+  // TODO: Render other states
   if (uiState !== 'initialized') {
     return null;
   }

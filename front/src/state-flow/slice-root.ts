@@ -7,6 +7,7 @@ import { StateCreator } from 'zustand';
 
 import { Connector, ConnectorType } from 'flow-models';
 
+import { updateSpaceContentV3 } from './graphql/graphql';
 import {
   BatchTestTab,
   CanvasRightPanelType,
@@ -19,7 +20,8 @@ import {
 export enum StateMachineAction {
   Initialize = 'initialize',
   Error = 'error',
-  Success = 'success',
+  SuccessNoUpdate = 'success.noUpdate',
+  SuccessHasUpdates = 'success.hasUpdates',
   Retry = 'retry',
   Leave = 'leave',
 }
@@ -33,7 +35,6 @@ type RootSliceState = {
   readonly spaceId: string;
   readonly subscriptionBag: Subscription;
 
-  isInitialized: boolean;
   isRunning: boolean;
   connectStartEdgeType: ConnectStartEdgeType | null;
   connectStartStartNodeId: string | null;
@@ -95,9 +96,15 @@ export function createRootSlice(
         entry: [assign({ uiState: 'fetching' }), 'initializeCanvas'],
         exit: ['cancelCanvasInitializationIfInProgress'],
         on: {
-          error: 'Error',
-          success: 'Initialized',
-          leave: 'Uninitialized',
+          'error': 'Error',
+          'success.noUpdate': 'Initialized',
+          'success.hasUpdates': {
+            target: [
+              'Initialized.localChange.Changed',
+              'Initialized.syncStatus.Updating',
+            ],
+          },
+          'leave': 'Uninitialized',
         },
       },
       Error: {
@@ -111,6 +118,29 @@ export function createRootSlice(
         entry: [assign({ uiState: 'initialized' })],
         on: {
           leave: 'Uninitialized',
+        },
+        type: 'parallel',
+        states: {
+          localChange: {
+            initial: 'Unchanged',
+            states: {
+              Unchanged: {},
+              Changed: {},
+            },
+          },
+          syncStatus: {
+            initial: 'Synced',
+            states: {
+              Synced: {},
+              Updating: {
+                entry: [
+                  () => {
+                    updateSpaceContentV3(get().spaceId, get().getFlowContent());
+                  },
+                ],
+              },
+            },
+          },
         },
       },
     },
@@ -131,7 +161,7 @@ export function createRootSlice(
 
   // TODO: Memory leak here because we never unsubscribe
   actor.subscribe((snapshot) => {
-    console.log('[State Machine]', snapshot.value);
+    console.log('[State Machine]', JSON.stringify(snapshot.value, null, 2));
   });
 
   actor.start();
@@ -140,7 +170,6 @@ export function createRootSlice(
     spaceId: initProps.spaceId,
     subscriptionBag: new Subscription(),
 
-    isInitialized: false,
     isRunning: false,
     connectStartEdgeType: null,
     connectStartStartNodeId: null,

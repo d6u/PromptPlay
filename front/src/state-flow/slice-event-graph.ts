@@ -12,7 +12,7 @@ import {
   OnEdgesChange,
   OnNodesChange,
 } from 'reactflow';
-import { Subscription, from, map, tap } from 'rxjs';
+import { Subscription, from, map } from 'rxjs';
 import invariant from 'tiny-invariant';
 import { OperationResult } from 'urql';
 import { StateCreator } from 'zustand';
@@ -294,14 +294,9 @@ export const createEventGraphSlice: StateCreator<
       const spaceId = get().spaceId;
 
       initializationSubscription = from(querySpace(spaceId))
-        .pipe(
-          map(parseQueryResult),
-          tap(({ flowContent, isUpdated }) => {
-            if (isUpdated) {
-              updateSpaceContentV3(spaceId, flowContent);
-            }
-          }),
-          tap(({ flowContent }) => {
+        .pipe(map(parseQueryResult))
+        .subscribe({
+          next({ flowContent, isUpdated }) {
             const { nodes, edges, variablesDict, ...rest } = flowContent;
 
             const updatedNodes = assignLocalNodeProperties(nodes);
@@ -322,11 +317,12 @@ export const createEventGraphSlice: StateCreator<
               false,
               { type: 'initializeCanvas', flowContent },
             );
-          }),
-        )
-        .subscribe({
-          complete() {
-            get().actorSend({ type: StateMachineAction.Success });
+
+            if (isUpdated) {
+              get().actorSend({ type: StateMachineAction.SuccessHasUpdates });
+            } else {
+              get().actorSend({ type: StateMachineAction.SuccessNoUpdate });
+            }
           },
           error(error) {
             // TODO: Report to telemetry
