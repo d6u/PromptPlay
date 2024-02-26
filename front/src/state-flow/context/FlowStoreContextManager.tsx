@@ -1,7 +1,7 @@
 import { ReactNode, useEffect, useState } from 'react';
 import { FlowStoreContext } from 'state-flow/context/FlowStoreContext';
+import { StateMachineAction } from 'state-flow/finite-state-machine';
 import { FlowStore, createFlowStore } from 'state-flow/flow-state';
-import { StateMachineAction } from 'state-flow/slice-root';
 
 type Props = {
   spaceId: string;

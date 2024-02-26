@@ -2,11 +2,16 @@ import { D } from '@mobily/ts-belt';
 import { OnConnectStartParams } from 'reactflow';
 import { Subscription } from 'rxjs';
 import invariant from 'tiny-invariant';
-import { AnyEventObject, assign, createActor, createMachine } from 'xstate';
+import { AnyEventObject, createActor } from 'xstate';
 import { StateCreator } from 'zustand';
 
 import { Connector, ConnectorType } from 'flow-models';
 
+import {
+  StateMachineAction,
+  StateMachineContext,
+  canvasStateMachine,
+} from './finite-state-machine';
 import { updateSpaceContentV3 } from './graphql/graphql';
 import {
   BatchTestTab,
@@ -16,18 +21,6 @@ import {
   NodeMetadata,
   NodeMetadataDict,
 } from './types';
-
-export enum StateMachineAction {
-  Initialize = 'initialize',
-  Error = 'error',
-  Success = 'success',
-  Retry = 'retry',
-  Leave = 'leave',
-}
-
-type StateMachineContext = {
-  uiState: 'empty' | 'fetching' | 'error' | 'initialized';
-};
 
 type RootSliceState = {
   // TODO: Does readonly make any difference here?
@@ -77,75 +70,7 @@ export function createRootSlice(
 ): ReturnType<RootSliceStateCreator> {
   const [set, get] = rest;
 
-  const canvasStateMachine = createMachine({
-    types: {} as {
-      context: StateMachineContext;
-    },
-    id: 'canvas-state-machine',
-    context: { uiState: 'empty' },
-    initial: 'Uninitialized',
-    states: {
-      Uninitialized: {
-        entry: [assign({ uiState: 'empty' })],
-        on: {
-          initialize: 'FetchingCanvasContent',
-        },
-      },
-      FetchingCanvasContent: {
-        entry: [assign({ uiState: 'fetching' }), 'initializeCanvas'],
-        exit: ['cancelCanvasInitializationIfInProgress'],
-        on: {
-          error: 'Error',
-          success: [
-            {
-              target: 'Initialized.syncStatus.Updating',
-              guard: ({ event }) => event.isUpdated,
-            },
-            { target: 'Initialized' },
-          ],
-          leave: 'Uninitialized',
-        },
-      },
-      Error: {
-        entry: [assign({ uiState: 'error' })],
-        on: {
-          retry: 'FetchingCanvasContent',
-          leave: 'Uninitialized',
-        },
-      },
-      Initialized: {
-        entry: [assign({ uiState: 'initialized' })],
-        on: {
-          leave: 'Uninitialized',
-        },
-        type: 'parallel',
-        states: {
-          localChange: {
-            initial: 'Unchanged',
-            states: {
-              Unchanged: {},
-              Changed: {},
-            },
-          },
-          syncStatus: {
-            initial: 'Synced',
-            states: {
-              Synced: {},
-              Updating: {
-                entry: [
-                  () => {
-                    updateSpaceContentV3(get().spaceId, get().getFlowContent());
-                  },
-                ],
-              },
-            },
-          },
-        },
-      },
-    },
-  });
-
-  const actor = createActor(
+  const fsmActor = createActor(
     canvasStateMachine.provide({
       actions: {
         initializeCanvas: () => {
@@ -154,16 +79,29 @@ export function createRootSlice(
         cancelCanvasInitializationIfInProgress: () => {
           get().cancelCanvasInitializationIfInProgress();
         },
+        syncFlowContent: () => {
+          get().actorSend({ type: StateMachineAction.StartSyncing });
+
+          updateSpaceContentV3(get().spaceId, get().getFlowContent())
+            .then(() => {
+              get().actorSend({
+                type: StateMachineAction.SyncSuccess,
+              });
+            })
+            .catch(() => {
+              // TODO: Report to telemetry
+            });
+        },
       },
     }),
   );
 
   // TODO: Memory leak here because we never unsubscribe
-  actor.subscribe((snapshot) => {
+  fsmActor.subscribe((snapshot) => {
     console.log('[State Machine]', JSON.stringify(snapshot.value, null, 2));
   });
 
-  actor.start();
+  fsmActor.start();
 
   return {
     spaceId: initProps.spaceId,
@@ -186,12 +124,12 @@ export function createRootSlice(
     csvEvaluationIsLoading: false,
 
     actorSend(event: AnyEventObject): void {
-      actor.send(event);
+      fsmActor.send(event);
       // NOTE: Manually trigger a re-render
       set({});
     },
     getStateMachineContext(): StateMachineContext {
-      return actor.getSnapshot().context;
+      return fsmActor.getSnapshot().context;
     },
 
     setCanvasLeftPaneIsOpen(isOpen: boolean): void {

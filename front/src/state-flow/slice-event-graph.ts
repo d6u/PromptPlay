@@ -47,8 +47,8 @@ import { useNodeFieldFeedbackStore } from 'state-root/node-field-feedback-state'
 
 import { ChangeEventType } from './event-graph/event-types';
 import { AcceptedEvent, handleAllEvent } from './event-graph/handle-all-event';
+import { StateMachineAction } from './finite-state-machine';
 import { updateSpaceContentV3 } from './graphql/graphql';
-import { StateMachineAction } from './slice-root';
 import {
   FlowState,
   RunMetadataTable,
@@ -318,10 +318,7 @@ export const createEventGraphSlice: StateCreator<
               { type: 'initializeCanvas', flowContent },
             );
 
-            get().actorSend({
-              type: StateMachineAction.Success,
-              isUpdated: isUpdated,
-            });
+            get().actorSend({ type: StateMachineAction.Success, isUpdated });
           },
           error(error) {
             // TODO: Report to telemetry
