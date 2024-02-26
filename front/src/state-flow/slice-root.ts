@@ -16,6 +16,18 @@ import {
   NodeMetadataDict,
 } from './types';
 
+export enum StateMachineAction {
+  Initialize = 'initialize',
+  Error = 'error',
+  Success = 'success',
+  Retry = 'retry',
+  Leave = 'leave',
+}
+
+type StateMachineContext = {
+  uiState: 'empty' | 'fetching' | 'error' | 'initialized';
+};
+
 type RootSliceState = {
   // TODO: Does readonly make any difference here?
   readonly spaceId: string;
@@ -41,6 +53,7 @@ type RootSliceState = {
 
 export type RootSlice = RootSliceState & {
   actorSend(event: AnyEventObject): void;
+  getStateMachineContext(): StateMachineContext;
 
   setCanvasLeftPaneIsOpen(isOpen: boolean): void;
   setCanvasLeftPaneSelectedNodeId(nodeId: string | null): void;
@@ -58,14 +71,6 @@ type InitProps = {
 
 type RootSliceStateCreator = StateCreator<FlowState, [], [], RootSlice>;
 
-export enum StateMachineAction {
-  Initialize = 'initialize',
-  Error = 'error',
-  Success = 'success',
-  Retry = 'retry',
-  Leave = 'leave',
-}
-
 export function createRootSlice(
   initProps: InitProps,
   ...rest: Parameters<RootSliceStateCreator>
@@ -74,7 +79,7 @@ export function createRootSlice(
 
   const canvasStateMachine = createMachine({
     types: {} as {
-      context: { uiState: 'empty' | 'fetching' | 'error' | 'initialized' };
+      context: StateMachineContext;
     },
     id: 'canvas-state-machine',
     context: { uiState: 'empty' },
@@ -154,6 +159,11 @@ export function createRootSlice(
 
     actorSend(event: AnyEventObject): void {
       actor.send(event);
+      // NOTE: Manually trigger a re-render
+      set({});
+    },
+    getStateMachineContext(): StateMachineContext {
+      return actor.getSnapshot().context;
     },
 
     setCanvasLeftPaneIsOpen(isOpen: boolean): void {

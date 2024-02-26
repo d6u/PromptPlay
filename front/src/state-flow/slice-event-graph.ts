@@ -48,6 +48,7 @@ import { useNodeFieldFeedbackStore } from 'state-root/node-field-feedback-state'
 import { ChangeEventType } from './event-graph/event-types';
 import { AcceptedEvent, handleAllEvent } from './event-graph/handle-all-event';
 import { updateSpaceContentV3 } from './graphql/graphql';
+import { StateMachineAction } from './slice-root';
 import {
   FlowState,
   RunMetadataTable,
@@ -321,14 +322,16 @@ export const createEventGraphSlice: StateCreator<
               false,
               { type: 'initializeCanvas', flowContent },
             );
-
-            set({ isInitialized: true });
           }),
         )
         .subscribe({
+          complete() {
+            get().actorSend({ type: StateMachineAction.Success });
+          },
           error(error) {
             // TODO: Report to telemetry
             console.error('Error fetching content', error);
+            get().actorSend({ type: StateMachineAction.Error });
           },
         });
     },
