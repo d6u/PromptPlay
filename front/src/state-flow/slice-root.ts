@@ -36,9 +36,6 @@ type RootSliceState = {
   canvasRightPaneType: CanvasRightPanelType;
   nodeMetadataDict: NodeMetadataDict;
 
-  isFlowContentDirty: boolean;
-  isFlowContentSaving: boolean;
-
   selectedBatchTestTab: BatchTestTab;
   csvModeSelectedPresetId: string | null;
   csvEvaluationIsLoading: boolean;
@@ -115,9 +112,6 @@ export function createRootSlice(
     canvasRightPaneType: CanvasRightPanelType.Off,
     canvasLeftPaneSelectedNodeId: null,
     nodeMetadataDict: {},
-
-    isFlowContentDirty: false,
-    isFlowContentSaving: false,
 
     selectedBatchTestTab: BatchTestTab.RunTests,
     csvModeSelectedPresetId: null,

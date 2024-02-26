@@ -14,11 +14,13 @@ export enum StateMachineAction {
 export type StateMachineContext = {
   canvasUiState: 'empty' | 'fetching' | 'error' | 'initialized';
   hasUnsavedChanges: boolean;
+  isSavingFlowContent: boolean;
 };
 
 export const INITIAL_CONTEXT: StateMachineContext = {
   canvasUiState: 'empty',
   hasUnsavedChanges: false,
+  isSavingFlowContent: false,
 };
 
 export const canvasStateMachine = createMachine({
@@ -84,9 +86,11 @@ export const canvasStateMachine = createMachine({
         syncStatus: {
           initial: 'Synced',
           states: {
-            Synced: {},
+            Synced: {
+              entry: [assign({ isSavingFlowContent: false })],
+            },
             Updating: {
-              entry: ['syncFlowContent'],
+              entry: [assign({ isSavingFlowContent: true }), 'syncFlowContent'],
               on: {
                 syncSuccess: [
                   {
