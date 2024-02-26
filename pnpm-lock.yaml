@@ -122,6 +122,9 @@ importers:
       wonka:
         specifier: ^6.3.4
         version: 6.3.4
+      xstate:
+        specifier: ^5.8.0
+        version: 5.8.0
       zustand:
         specifier: ^4.4.1
         version: 4.4.7(@types/react@18.2.45)(immer@10.0.3)(react@18.2.0)
@@ -9721,6 +9724,10 @@ packages:
       utf-8-validate:
         optional: true
     dev: true
+
+  /xstate@5.8.0:
+    resolution: {integrity: sha512-YoJDJFRmmXcI6ZrL7H15Ew2Q5HjM/X3zcz1cqLT4OEeF/ktXDkWMGyIZOOMItM5ELR6sSqm1GY5el11M/JAb/A==}
+    dev: false
 
   /xtend@4.0.2:
     resolution: {integrity: sha512-LKYU1iAXJXUgAXn9URjiu+MWhyUXHsvfp7mcuYm9dSUKK0/CjtrUwFAxD82/mCWbtLsGjFIad0wIsod4zrTAEQ==}

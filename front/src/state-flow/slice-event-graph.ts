@@ -83,6 +83,7 @@ export type EventGraphSliceState = {
 
 type EventGraphSliceAction = {
   initializeCanvas(): void;
+  cancelCanvasInitializationIfInProgress(): void;
 
   // SECTION: Canvas events
   onNodesChange: OnNodesChange;
@@ -198,6 +199,7 @@ export const createEventGraphSlice: StateCreator<
   >([setFlowContent, getFlowContent]);
   // !SECTION
 
+  let initializationSubscription: Subscription | null = null;
   let runSingleSubscription: Subscription | null = null;
   let prevSyncedData: V3FlowContent | null = null;
 
@@ -290,7 +292,7 @@ export const createEventGraphSlice: StateCreator<
     initializeCanvas(): void {
       const spaceId = get().spaceId;
 
-      const subscription = from(querySpace(spaceId))
+      initializationSubscription = from(querySpace(spaceId))
         .pipe(
           map(parseQueryResult),
           tap(({ flowContent, isUpdated }) => {
@@ -329,8 +331,10 @@ export const createEventGraphSlice: StateCreator<
             console.error('Error fetching content', error);
           },
         });
-
-      get().subscriptionBag.add(subscription);
+    },
+    cancelCanvasInitializationIfInProgress(): void {
+      initializationSubscription?.unsubscribe();
+      initializationSubscription = null;
     },
 
     onEdgesChange(changes: EdgeChange[]): void {

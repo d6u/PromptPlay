@@ -2,6 +2,7 @@ import { D } from '@mobily/ts-belt';
 import { OnConnectStartParams } from 'reactflow';
 import { Subscription } from 'rxjs';
 import invariant from 'tiny-invariant';
+import { AnyEventObject, assign, createActor, createMachine } from 'xstate';
 import { StateCreator } from 'zustand';
 
 import { Connector, ConnectorType } from 'flow-models';
@@ -39,8 +40,8 @@ type RootSliceState = {
 };
 
 export type RootSlice = RootSliceState & {
-  initialize(): void;
-  deinitialize(): void;
+  actorSend(event: AnyEventObject): void;
+
   setCanvasLeftPaneIsOpen(isOpen: boolean): void;
   setCanvasLeftPaneSelectedNodeId(nodeId: string | null): void;
   setCanvasRightPaneType(type: CanvasRightPanelType): void;
@@ -57,11 +58,78 @@ type InitProps = {
 
 type RootSliceStateCreator = StateCreator<FlowState, [], [], RootSlice>;
 
+export enum StateMachineAction {
+  Initialize = 'initialize',
+  Error = 'error',
+  Success = 'success',
+  Retry = 'retry',
+  Leave = 'leave',
+}
+
 export function createRootSlice(
   initProps: InitProps,
   ...rest: Parameters<RootSliceStateCreator>
 ): ReturnType<RootSliceStateCreator> {
   const [set, get] = rest;
+
+  const canvasStateMachine = createMachine({
+    types: {} as {
+      context: { uiState: 'empty' | 'fetching' | 'error' | 'initialized' };
+    },
+    id: 'canvas-state-machine',
+    context: { uiState: 'empty' },
+    initial: 'Uninitialized',
+    states: {
+      Uninitialized: {
+        entry: [assign({ uiState: 'empty' })],
+        on: {
+          initialize: 'FetchingCanvasContent',
+        },
+      },
+      FetchingCanvasContent: {
+        entry: [assign({ uiState: 'fetching' }), 'initializeCanvas'],
+        exit: ['cancelCanvasInitializationIfInProgress'],
+        on: {
+          error: 'Error',
+          success: 'Initialized',
+          leave: 'Uninitialized',
+        },
+      },
+      Error: {
+        entry: [assign({ uiState: 'error' })],
+        on: {
+          retry: 'FetchingCanvasContent',
+          leave: 'Uninitialized',
+        },
+      },
+      Initialized: {
+        entry: [assign({ uiState: 'initialized' })],
+        on: {
+          leave: 'Uninitialized',
+        },
+      },
+    },
+  });
+
+  const actor = createActor(
+    canvasStateMachine.provide({
+      actions: {
+        initializeCanvas: () => {
+          get().initializeCanvas();
+        },
+        cancelCanvasInitializationIfInProgress: () => {
+          get().cancelCanvasInitializationIfInProgress();
+        },
+      },
+    }),
+  );
+
+  // TODO: Memory leak here because we never unsubscribe
+  actor.subscribe((snapshot) => {
+    console.log('[State Machine]', snapshot.value);
+  });
+
+  actor.start();
 
   return {
     spaceId: initProps.spaceId,
@@ -84,16 +152,8 @@ export function createRootSlice(
     csvModeSelectedPresetId: null,
     csvEvaluationIsLoading: false,
 
-    initialize(): void {
-      console.group('FlowStore: initializing...');
-      get().initializeCanvas();
-      console.groupEnd();
-    },
-
-    deinitialize(): void {
-      console.group('FlowStore: deinitializing...');
-      get().subscriptionBag.unsubscribe();
-      console.groupEnd();
+    actorSend(event: AnyEventObject): void {
+      actor.send(event);
     },
 
     setCanvasLeftPaneIsOpen(isOpen: boolean): void {

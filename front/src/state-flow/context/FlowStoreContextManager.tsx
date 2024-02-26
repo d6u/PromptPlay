@@ -1,6 +1,7 @@
 import { ReactNode, useEffect, useState } from 'react';
 import { FlowStoreContext } from 'state-flow/context/FlowStoreContext';
 import { FlowStore, createFlowStore } from 'state-flow/flow-state';
+import { StateMachineAction } from 'state-flow/slice-root';
 
 type Props = {
   spaceId: string;
@@ -12,12 +13,14 @@ export default function FlowStoreContextManager(props: Props) {
 
   useEffect(() => {
     const localStore = createFlowStore({ spaceId: props.spaceId });
-    localStore.getState().initialize();
+
+    localStore.getState().actorSend({ type: StateMachineAction.Initialize });
 
     setStore(localStore);
 
     return () => {
-      localStore.getState().deinitialize();
+      localStore.getState().actorSend({ type: StateMachineAction.Leave });
+
       setStore(null);
     };
   }, [props.spaceId]);
