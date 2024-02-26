@@ -3,12 +3,13 @@ import { assign, createMachine } from 'xstate';
 export enum StateMachineAction {
   Initialize = 'initialize',
   FetchingCanvasContentError = 'fetchingCanvasContentError',
-  Retry = 'retry',
+  RetryFetchingFlowContent = 'retryFetchingFlowContent',
   FetchingCanvasContentSuccess = 'fetchingCanvasContentSuccess',
-  FlowContentUpdated = 'flowContentUpdated',
+  FlowContentTouched = 'flowContentTouched',
+  StartUploadingFlowContent = 'startUploadingFlowContent',
+  FlowContentNoUploadNeeded = 'flowContentNoUploadNeeded',
   FlowContentUploadSuccess = 'flowContentUploadSuccess',
-  Leave = 'leave',
-  StartSyncing = 'startSyncing',
+  LeaveFlowRoute = 'leaveFlowRoute',
 }
 
 export type StateMachineEvent =
@@ -19,23 +20,26 @@ export type StateMachineEvent =
       type: StateMachineAction.FetchingCanvasContentError;
     }
   | {
+      type: StateMachineAction.RetryFetchingFlowContent;
+    }
+  | {
       type: StateMachineAction.FetchingCanvasContentSuccess;
       isUpdated: boolean;
     }
   | {
-      type: StateMachineAction.Leave;
+      type: StateMachineAction.FlowContentTouched;
     }
   | {
-      type: StateMachineAction.Retry;
+      type: StateMachineAction.StartUploadingFlowContent;
     }
   | {
-      type: StateMachineAction.StartSyncing;
+      type: StateMachineAction.FlowContentNoUploadNeeded;
     }
   | {
       type: StateMachineAction.FlowContentUploadSuccess;
     }
   | {
-      type: StateMachineAction.FlowContentUpdated;
+      type: StateMachineAction.LeaveFlowRoute;
     };
 
 export type StateMachineContext = {
@@ -62,14 +66,14 @@ export const canvasStateMachine = createMachine({
     Uninitialized: {
       entry: [assign({ canvasUiState: 'empty' })],
       on: {
-        initialize: 'FetchingCanvasContent',
+        initialize: { target: 'FetchingCanvasContent' },
       },
     },
     FetchingCanvasContent: {
       entry: [assign({ canvasUiState: 'fetching' }), 'initializeCanvas'],
       exit: ['cancelCanvasInitializationIfInProgress'],
       on: {
-        fetchingCanvasContentError: 'Error',
+        fetchingCanvasContentError: { target: 'Error' },
         fetchingCanvasContentSuccess: [
           {
             target: 'Initialized.SyncState.Uploading',
@@ -77,20 +81,20 @@ export const canvasStateMachine = createMachine({
           },
           { target: 'Initialized' },
         ],
-        leave: 'Uninitialized',
+        leaveFlowRoute: { target: 'Uninitialized' },
       },
     },
     Error: {
       entry: [assign({ canvasUiState: 'error' })],
       on: {
-        retry: 'FetchingCanvasContent',
-        leave: 'Uninitialized',
+        retryFetchingFlowContent: { target: 'FetchingCanvasContent' },
+        leaveFlowRoute: { target: 'Uninitialized' },
       },
     },
     Initialized: {
       entry: [assign({ canvasUiState: 'initialized' })],
       on: {
-        leave: 'Uninitialized',
+        leaveFlowRoute: { target: 'Uninitialized' },
       },
       type: 'parallel',
       states: {
@@ -100,13 +104,13 @@ export const canvasStateMachine = createMachine({
             Clean: {
               entry: [assign({ hasUnsavedChanges: false })],
               on: {
-                flowContentUpdated: 'Dirty',
+                flowContentTouched: { target: 'Dirty' },
               },
             },
             Dirty: {
               entry: [assign({ hasUnsavedChanges: true })],
               on: {
-                startSyncing: 'Clean',
+                startUploadingFlowContent: { target: 'Clean' },
               },
             },
           },
@@ -117,16 +121,29 @@ export const canvasStateMachine = createMachine({
             Idle: {
               entry: [assign({ isSavingFlowContent: false })],
               on: {
-                flowContentUpdated: 'Uploading',
+                flowContentTouched: { target: 'UploadingDebouncing' },
+              },
+            },
+            UploadingDebouncing: {
+              entry: [
+                assign({ isSavingFlowContent: false }),
+                'transitionToUploadingDebounced',
+              ],
+              on: {
+                // This is essentially a debounced delayed transition
+                flowContentTouched: {
+                  actions: 'transitionToUploadingDebounced',
+                },
+                startUploadingFlowContent: { target: 'Uploading' },
               },
             },
             Uploading: {
               entry: [assign({ isSavingFlowContent: true }), 'syncFlowContent'],
               on: {
+                flowContentNoUploadNeeded: { target: 'Idle' },
                 flowContentUploadSuccess: [
                   {
-                    target: 'Uploading',
-                    reenter: true,
+                    target: 'UploadingDebouncing',
                     guard: ({ context }) => context.hasUnsavedChanges,
                   },
                   { target: 'Idle' },

@@ -19,7 +19,9 @@ export default function FlowStoreContextManager(props: Props) {
     setStore(localStore);
 
     return () => {
-      localStore.getState().actorSend({ type: StateMachineAction.Leave });
+      localStore
+        .getState()
+        .actorSend({ type: StateMachineAction.LeaveFlowRoute });
 
       setStore(null);
     };

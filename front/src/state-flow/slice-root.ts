@@ -1,5 +1,6 @@
 import { A, D } from '@mobily/ts-belt';
 import deepEqual from 'deep-equal';
+import debounce from 'lodash/debounce';
 import { OnConnectStartParams } from 'reactflow';
 import { Subscription } from 'rxjs';
 import invariant from 'tiny-invariant';
@@ -80,9 +81,12 @@ export function createRootSlice(
         cancelCanvasInitializationIfInProgress: () => {
           get().cancelCanvasInitializationIfInProgress();
         },
+        transitionToUploadingDebounced: debounce(() => {
+          get().actorSend({
+            type: StateMachineAction.StartUploadingFlowContent,
+          });
+        }, 1000),
         syncFlowContent: () => {
-          get().actorSend({ type: StateMachineAction.StartSyncing });
-
           const flowContent = get().getFlowContent();
 
           const nextSyncedData: V3FlowContent = {
@@ -103,7 +107,6 @@ export function createRootSlice(
             ),
           };
 
-          // TODO: Debounce
           const hasChange =
             prevSyncedData != null &&
             !deepEqual(prevSyncedData, nextSyncedData);
@@ -113,31 +116,41 @@ export function createRootSlice(
           if (hasChange) {
             const spaceId = get().spaceId;
 
-            console.warn('updateSpaceContentV3');
-            // TODO: Debounce
+            console.time('updateSpaceContentV3');
             updateSpaceContentV3(spaceId, nextSyncedData)
               .then(() => {
-                console.warn('updateSpaceContentV3 done');
+                console.timeEnd('updateSpaceContentV3');
                 get().actorSend({
                   type: StateMachineAction.FlowContentUploadSuccess,
                 });
               })
               .catch(() => {
-                // TODO: Report to telemetry
+                console.timeEnd('updateSpaceContentV3');
+                // TODO: Report to telemetry and handle in state machine
               });
           } else {
             get().actorSend({
-              type: StateMachineAction.FlowContentUploadSuccess,
+              type: StateMachineAction.FlowContentNoUploadNeeded,
             });
           }
         },
       },
     }),
+    {
+      inspect(event) {
+        if (event.type === '@xstate.event') {
+          console.log('[State Machine] event:', event.event);
+        }
+      },
+    },
   );
 
   // TODO: Memory leak here because we never unsubscribe
   fsmActor.subscribe((snapshot) => {
-    console.log('[State Machine]', JSON.stringify(snapshot.value, null, 2));
+    console.log(
+      '[State Machine] state:',
+      JSON.stringify(snapshot.value, null, 2),
+    );
   });
 
   fsmActor.start();
@@ -160,7 +173,6 @@ export function createRootSlice(
     csvEvaluationIsLoading: false,
 
     actorSend(event: StateMachineEvent): void {
-      console.log('[State Machine] event:', event);
       fsmActor.send(event);
       // NOTE: Manually trigger a re-render
       set({});

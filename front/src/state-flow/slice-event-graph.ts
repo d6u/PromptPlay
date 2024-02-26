@@ -214,7 +214,7 @@ export const createEventGraphSlice: StateCreator<
     );
     // console.timeEnd('processEventWithEventGraph');
 
-    get().actorSend({ type: StateMachineAction.FlowContentUpdated });
+    get().actorSend({ type: StateMachineAction.FlowContentTouched });
   }
 
   function setIsRunning(isRunning: boolean) {
