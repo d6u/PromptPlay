@@ -20,8 +20,7 @@ import {
 export enum StateMachineAction {
   Initialize = 'initialize',
   Error = 'error',
-  SuccessNoUpdate = 'success.noUpdate',
-  SuccessHasUpdates = 'success.hasUpdates',
+  Success = 'success',
   Retry = 'retry',
   Leave = 'leave',
 }
@@ -96,15 +95,15 @@ export function createRootSlice(
         entry: [assign({ uiState: 'fetching' }), 'initializeCanvas'],
         exit: ['cancelCanvasInitializationIfInProgress'],
         on: {
-          'error': 'Error',
-          'success.noUpdate': 'Initialized',
-          'success.hasUpdates': {
-            target: [
-              'Initialized.localChange.Changed',
-              'Initialized.syncStatus.Updating',
-            ],
-          },
-          'leave': 'Uninitialized',
+          error: 'Error',
+          success: [
+            {
+              target: 'Initialized.syncStatus.Updating',
+              guard: ({ event }) => event.isUpdated,
+            },
+            { target: 'Initialized' },
+          ],
+          leave: 'Uninitialized',
         },
       },
       Error: {

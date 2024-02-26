@@ -318,11 +318,10 @@ export const createEventGraphSlice: StateCreator<
               { type: 'initializeCanvas', flowContent },
             );
 
-            if (isUpdated) {
-              get().actorSend({ type: StateMachineAction.SuccessHasUpdates });
-            } else {
-              get().actorSend({ type: StateMachineAction.SuccessNoUpdate });
-            }
+            get().actorSend({
+              type: StateMachineAction.Success,
+              isUpdated: isUpdated,
+            });
           },
           error(error) {
             // TODO: Report to telemetry
