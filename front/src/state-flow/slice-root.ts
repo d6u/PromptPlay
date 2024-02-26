@@ -1,10 +1,9 @@
 import { A, D } from '@mobily/ts-belt';
 import deepEqual from 'deep-equal';
-import debounce from 'lodash/debounce';
 import { OnConnectStartParams } from 'reactflow';
 import { Subscription } from 'rxjs';
 import invariant from 'tiny-invariant';
-import { AnyEventObject, createActor } from 'xstate';
+import { createActor } from 'xstate';
 import { StateCreator } from 'zustand';
 
 import { Connector, ConnectorType, V3FlowContent } from 'flow-models';
@@ -12,6 +11,7 @@ import { Connector, ConnectorType, V3FlowContent } from 'flow-models';
 import {
   StateMachineAction,
   StateMachineContext,
+  StateMachineEvent,
   canvasStateMachine,
 } from './finite-state-machine';
 import { updateSpaceContentV3 } from './graphql/graphql';
@@ -44,7 +44,7 @@ type RootSliceState = {
 };
 
 export type RootSlice = RootSliceState & {
-  actorSend(event: AnyEventObject): void;
+  actorSend(event: StateMachineEvent): void;
   getStateMachineContext(): StateMachineContext;
 
   setCanvasLeftPaneIsOpen(isOpen: boolean): void;
@@ -80,10 +80,7 @@ export function createRootSlice(
         cancelCanvasInitializationIfInProgress: () => {
           get().cancelCanvasInitializationIfInProgress();
         },
-        // TODO: WIP
-        syncFlowContent: debounce(() => {
-          console.log('syncFlowContent');
-
+        syncFlowContent: () => {
           get().actorSend({ type: StateMachineAction.StartSyncing });
 
           const flowContent = get().getFlowContent();
@@ -106,6 +103,7 @@ export function createRootSlice(
             ),
           };
 
+          // TODO: Debounce
           const hasChange =
             prevSyncedData != null &&
             !deepEqual(prevSyncedData, nextSyncedData);
@@ -115,17 +113,24 @@ export function createRootSlice(
           if (hasChange) {
             const spaceId = get().spaceId;
 
+            console.warn('updateSpaceContentV3');
+            // TODO: Debounce
             updateSpaceContentV3(spaceId, nextSyncedData)
               .then(() => {
-                get().actorSend({ type: StateMachineAction.SyncSuccess });
+                console.warn('updateSpaceContentV3 done');
+                get().actorSend({
+                  type: StateMachineAction.FlowContentUploadSuccess,
+                });
               })
               .catch(() => {
                 // TODO: Report to telemetry
               });
           } else {
-            get().actorSend({ type: StateMachineAction.SyncSuccess });
+            get().actorSend({
+              type: StateMachineAction.FlowContentUploadSuccess,
+            });
           }
-        }, 500),
+        },
       },
     }),
   );
@@ -154,7 +159,7 @@ export function createRootSlice(
     csvModeSelectedPresetId: null,
     csvEvaluationIsLoading: false,
 
-    actorSend(event: AnyEventObject): void {
+    actorSend(event: StateMachineEvent): void {
       console.log('[State Machine] event:', event);
       fsmActor.send(event);
       // NOTE: Manually trigger a re-render

@@ -202,6 +202,8 @@ export const createEventGraphSlice: StateCreator<
   let runSingleSubscription: Subscription | null = null;
 
   function processEventWithEventGraph(event: AcceptedEvent) {
+    console.log('processEventWithEventGraph', event);
+
     // console.time('processEventWithEventGraph');
     setEventGraphStateWithPatches(
       (draft) => {
@@ -212,7 +214,7 @@ export const createEventGraphSlice: StateCreator<
     );
     // console.timeEnd('processEventWithEventGraph');
 
-    get().actorSend({ type: StateMachineAction.Updated });
+    get().actorSend({ type: StateMachineAction.FlowContentUpdated });
   }
 
   function setIsRunning(isRunning: boolean) {
@@ -287,12 +289,17 @@ export const createEventGraphSlice: StateCreator<
               { type: 'initializeCanvas', flowContent },
             );
 
-            get().actorSend({ type: StateMachineAction.Success, isUpdated });
+            get().actorSend({
+              type: StateMachineAction.FetchingCanvasContentSuccess,
+              isUpdated,
+            });
           },
           error(error) {
             // TODO: Report to telemetry
             console.error('Error fetching content', error);
-            get().actorSend({ type: StateMachineAction.Error });
+            get().actorSend({
+              type: StateMachineAction.FetchingCanvasContentError,
+            });
           },
         });
     },

@@ -2,14 +2,41 @@ import { assign, createMachine } from 'xstate';
 
 export enum StateMachineAction {
   Initialize = 'initialize',
-  Error = 'error',
-  Success = 'success',
-  SyncSuccess = 'syncSuccess',
+  FetchingCanvasContentError = 'fetchingCanvasContentError',
   Retry = 'retry',
+  FetchingCanvasContentSuccess = 'fetchingCanvasContentSuccess',
+  FlowContentUpdated = 'flowContentUpdated',
+  FlowContentUploadSuccess = 'flowContentUploadSuccess',
   Leave = 'leave',
   StartSyncing = 'startSyncing',
-  Updated = 'updated',
 }
+
+export type StateMachineEvent =
+  | {
+      type: StateMachineAction.Initialize;
+    }
+  | {
+      type: StateMachineAction.FetchingCanvasContentError;
+    }
+  | {
+      type: StateMachineAction.FetchingCanvasContentSuccess;
+      isUpdated: boolean;
+    }
+  | {
+      type: StateMachineAction.Leave;
+    }
+  | {
+      type: StateMachineAction.Retry;
+    }
+  | {
+      type: StateMachineAction.StartSyncing;
+    }
+  | {
+      type: StateMachineAction.FlowContentUploadSuccess;
+    }
+  | {
+      type: StateMachineAction.FlowContentUpdated;
+    };
 
 export type StateMachineContext = {
   canvasUiState: 'empty' | 'fetching' | 'error' | 'initialized';
@@ -26,6 +53,7 @@ export const INITIAL_CONTEXT: StateMachineContext = {
 export const canvasStateMachine = createMachine({
   types: {} as {
     context: StateMachineContext;
+    events: StateMachineEvent;
   },
   id: 'canvas-state-machine',
   context: INITIAL_CONTEXT,
@@ -41,10 +69,10 @@ export const canvasStateMachine = createMachine({
       entry: [assign({ canvasUiState: 'fetching' }), 'initializeCanvas'],
       exit: ['cancelCanvasInitializationIfInProgress'],
       on: {
-        error: 'Error',
-        success: [
+        fetchingCanvasContentError: 'Error',
+        fetchingCanvasContentSuccess: [
           {
-            target: 'Initialized.syncStatus.Updating',
+            target: 'Initialized.SyncState.Uploading',
             guard: ({ event }) => event.isUpdated,
           },
           { target: 'Initialized' },
@@ -63,42 +91,45 @@ export const canvasStateMachine = createMachine({
       entry: [assign({ canvasUiState: 'initialized' })],
       on: {
         leave: 'Uninitialized',
-        updated: {
-          target: ['.localChange.Changed', '.syncStatus.Updating'],
-        },
       },
       type: 'parallel',
       states: {
-        localChange: {
-          initial: 'Unchanged',
+        LocalChangeState: {
+          initial: 'Clean',
           states: {
-            Unchanged: {
+            Clean: {
               entry: [assign({ hasUnsavedChanges: false })],
+              on: {
+                flowContentUpdated: 'Dirty',
+              },
             },
-            Changed: {
+            Dirty: {
               entry: [assign({ hasUnsavedChanges: true })],
               on: {
-                startSyncing: 'Unchanged',
+                startSyncing: 'Clean',
               },
             },
           },
         },
-        syncStatus: {
-          initial: 'Synced',
+        SyncState: {
+          initial: 'Idle',
           states: {
-            Synced: {
+            Idle: {
               entry: [assign({ isSavingFlowContent: false })],
+              on: {
+                flowContentUpdated: 'Uploading',
+              },
             },
-            Updating: {
+            Uploading: {
               entry: [assign({ isSavingFlowContent: true }), 'syncFlowContent'],
               on: {
-                syncSuccess: [
+                flowContentUploadSuccess: [
                   {
-                    target: 'Updating',
+                    target: 'Uploading',
                     reenter: true,
                     guard: ({ context }) => context.hasUnsavedChanges,
                   },
-                  { target: 'Synced' },
+                  { target: 'Idle' },
                 ],
               },
             },
