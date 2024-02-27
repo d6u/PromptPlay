@@ -26,7 +26,7 @@ function TesterPane() {
     s.getDefaultVariableValueLookUpDict(),
   );
   const updateVariableValueMap = useFlowStore((s) => s.updateVariableValueMap);
-  const updateVariable = useFlowStore((s) => s.updateVariable);
+  const updateVariable = useFlowStore((s) => s.updateConnector);
   // !SECTION
 
   const flowInputs = useMemo(() => {

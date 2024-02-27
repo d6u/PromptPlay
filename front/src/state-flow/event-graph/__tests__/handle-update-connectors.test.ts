@@ -4,7 +4,7 @@ import { expect, test } from 'vitest';
 import { ChangeEventType } from 'state-flow/event-graph/event-types';
 import { BaseEvent } from '../event-graph-util';
 import { State } from '../event-types';
-import { handleUpdateVariable } from '../handle-update-variable';
+import { handleUpdateConnectors } from '../handle-update-connectors';
 import { MOCK_STATE } from './fixture';
 
 // ANCHOR: Test cases for handleUpdateVariable
@@ -53,8 +53,8 @@ test('handleUpdateVariable should remove variable', () => {
   };
 
   const nextState = produce(prevState, (draft) => {
-    handleUpdateVariable(draft, {
-      type: ChangeEventType.UPDATING_VARIABLE,
+    handleUpdateConnectors(draft, {
+      type: ChangeEventType.UPDATE_CONNECTORS,
       updates: [
         {
           variableId: 'Z6dPf/wZf7M',

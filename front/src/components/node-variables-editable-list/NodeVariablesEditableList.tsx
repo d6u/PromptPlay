@@ -40,8 +40,8 @@ type Props = {
 function NodeVariablesEditableList(props: Props) {
   const updateNodeInternals = useUpdateNodeInternals();
 
-  const updateVariable = useFlowStore((s) => s.updateVariable);
-  const updateVariables = useFlowStore((s) => s.updateVariables);
+  const updateVariable = useFlowStore((s) => s.updateConnector);
+  const updateVariables = useFlowStore((s) => s.updateConnectors);
   const removeVariable = useFlowStore((s) => s.removeVariable);
 
   const sensors = useSensors(

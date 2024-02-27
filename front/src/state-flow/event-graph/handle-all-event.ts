@@ -19,13 +19,13 @@ import {
   handleRemoveVariable,
 } from './handle-remove-variable';
 import {
+  UpdateConnectorsEvent,
+  handleUpdateConnectors,
+} from './handle-update-connectors';
+import {
   UpdateNodeConfigEvent,
   handleUpdateNodeConfig,
 } from './handle-update-node-config';
-import {
-  UpdateVariableEvent,
-  handleUpdateVariable,
-} from './handle-update-variable';
 import {
   UpdateVariableValueEvent,
   handleUpdateVariableValue,
@@ -40,7 +40,7 @@ export type AcceptedEvent =
   | UpdateNodeConfigEvent
   | AddConnectorEvent
   | RemoveVariableEvent
-  | UpdateVariableEvent
+  | UpdateConnectorsEvent
   | UpdateVariableValueEvent;
 
 export const handleAllEvent = createHandler<AcceptedEvent, AcceptedEvent>(
@@ -56,7 +56,7 @@ export const handleAllEvent = createHandler<AcceptedEvent, AcceptedEvent>(
     handleUpdateNodeConfig,
     handleAddConnector,
     handleRemoveVariable,
-    handleUpdateVariable,
+    handleUpdateConnectors,
     handleUpdateVariableValue,
   ],
 );

@@ -96,14 +96,14 @@ type EventGraphSliceAction = {
 
   addVariable(nodeId: string, type: ConnectorTypeEnum, index: number): void;
   removeVariable(variableId: string): void;
-  updateVariable<
+  updateConnector<
     T extends ConnectorTypeEnum,
     R = VariableTypeToVariableConfigTypeMap[T],
   >(
     variableId: string,
     change: Partial<R>,
   ): void;
-  updateVariables(
+  updateConnectors(
     updates: { variableId: string; change: Record<string, unknown> }[],
   ): void;
 
@@ -366,20 +366,20 @@ export const createEventGraphSlice: StateCreator<
         variableId,
       });
     },
-    updateVariable<
+    updateConnector<
       T extends ConnectorTypeEnum,
       R = VariableTypeToVariableConfigTypeMap[T],
     >(variableId: string, change: Partial<R>): void {
       processEventWithEventGraph({
-        type: ChangeEventType.UPDATING_VARIABLE,
+        type: ChangeEventType.UPDATE_CONNECTORS,
         updates: [{ variableId, change }],
       });
     },
-    updateVariables(
+    updateConnectors(
       updates: { variableId: string; change: Partial<Connector> }[],
     ): void {
       processEventWithEventGraph({
-        type: ChangeEventType.UPDATING_VARIABLE,
+        type: ChangeEventType.UPDATE_CONNECTORS,
         updates,
       });
     },

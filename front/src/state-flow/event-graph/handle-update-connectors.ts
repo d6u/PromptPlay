@@ -9,20 +9,20 @@ import {
   updateVariableValueMapOnVariableUpdate,
 } from './update-variable-value-map-on-variable-update.ts.ts';
 
-export type UpdateVariableEvent = {
-  type: ChangeEventType.UPDATING_VARIABLE;
+export type UpdateConnectorsEvent = {
+  type: ChangeEventType.UPDATE_CONNECTORS;
   updates: {
     variableId: string;
     change: Partial<Connector>;
   }[];
 };
 
-export const handleUpdateVariable = createHandler<
-  UpdateVariableEvent,
+export const handleUpdateConnectors = createHandler<
+  UpdateConnectorsEvent,
   VariableUpdatedEvent
 >(
-  (event): event is UpdateVariableEvent => {
-    return event.type === ChangeEventType.UPDATING_VARIABLE;
+  (event): event is UpdateConnectorsEvent => {
+    return event.type === ChangeEventType.UPDATE_CONNECTORS;
   },
   (state, event) => {
     return event.updates.map((update) => {
