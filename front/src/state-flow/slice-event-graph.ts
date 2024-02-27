@@ -733,10 +733,10 @@ export const createEventGraphSlice: StateCreator<
               break;
             }
             case FlowRunEventType.VariableValues: {
-              Object.entries(data.variableValues).forEach(
-                ([outputId, value]) => {
-                  get().updateVariableValue(outputId, value);
-                },
+              get().updateVariableValues(
+                Object.entries(data.variableValues).map(
+                  ([variableId, value]) => ({ variableId, value }),
+                ),
               );
               break;
             }
