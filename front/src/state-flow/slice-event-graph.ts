@@ -1,5 +1,4 @@
-import { PropType } from '@dhmk/utils';
-import { Getter, Setter, createLens } from '@dhmk/zustand-lens';
+import { Getter, createLens, lens } from '@dhmk/zustand-lens';
 import { D, pipe } from '@mobily/ts-belt';
 import deepEqual from 'deep-equal';
 import { produce } from 'immer';
@@ -36,11 +35,7 @@ import {
 import { FlowRunEventType, ValidationErrorType } from 'flow-run/event-types';
 import flowRunSingle from 'flow-run/flowRunSingle';
 import { graphql } from 'gencode-gql';
-import {
-  ContentVersion,
-  LoadCsvEvaluationPresetQuery,
-  SpaceFlowQueryQuery,
-} from 'gencode-gql/graphql';
+import { ContentVersion, SpaceFlowQueryQuery } from 'gencode-gql/graphql';
 import { client } from 'graphql-util/client';
 import { useLocalStorageStore } from 'state-root/local-storage-state';
 import { useNodeFieldFeedbackStore } from 'state-root/node-field-feedback-state';
@@ -48,12 +43,8 @@ import { useNodeFieldFeedbackStore } from 'state-root/node-field-feedback-state'
 import { ChangeEventType } from './event-graph/event-types';
 import { AcceptedEvent, handleAllEvent } from './event-graph/handle-all-event';
 import { StateMachineAction } from './finite-state-machine';
-import {
-  FlowState,
-  RunMetadataTable,
-  RunOutputTable,
-  VariableIdToCsvColumnIndexMap,
-} from './types';
+import { BatchTestState, createBatchTestLens } from './lens/batch-test-lens';
+import { FlowState } from './types';
 import { createWithImmer } from './util/lens-util';
 import {
   VariableTypeToVariableConfigTypeMap,
@@ -70,18 +61,9 @@ export type EventGraphSliceState = {
       variablesDict: ConnectorMap;
       variableValueLookUpDicts: ConnectorResultMap[];
     };
-    batchTestConfig: {
-      repeatTimes: number;
-      concurrencyLimit: number;
-      variableIdToCsvColumnIndexMap: VariableIdToCsvColumnIndexMap;
-      runOutputTable: RunOutputTable;
-      runMetadataTable: RunMetadataTable;
-    };
-    batchTestConfigCsvString: string;
+    batchTest: BatchTestState;
   };
-};
 
-type EventGraphSliceAction = {
   initializeCanvas(): void;
   cancelCanvasInitializationIfInProgress(): void;
 
@@ -111,36 +93,9 @@ type EventGraphSliceAction = {
   updateVariableValues(updates: { variableId: string; value: unknown }[]): void;
   // !SECTION
 
-  // SECTION: Batch tests events
-  setCsvStr(csvStr: string): void;
-  setRepeatTimes(repeatTimes: number): void;
-  getRepeatTimes(): number;
-  setConcurrencyLimit(concurrencyLimit: number): void;
-  getConcurrencyLimit(): number;
-  setVariableIdToCsvColumnIndexMap: Setter<VariableIdToCsvColumnIndexMap>;
-  getVariableIdToCsvColumnIndexMap: Getter<VariableIdToCsvColumnIndexMap>;
-  setRunOutputTable: Setter<RunOutputTable>;
-  getRunOutputTable: Getter<RunOutputTable>;
-  setRunMetadataTable: Setter<RunMetadataTable>;
-  getRunMetadataTable: Getter<RunMetadataTable>;
-
-  selectAndLoadPreset(presetId: string): Promise<void>;
-  unselectPreset(): void;
-  deleteAndUnselectPreset(): Promise<void>;
-  createAndSelectPreset({ name }: { name: string }): Promise<void>;
-  updateSelectedPreset({ name }: { name: string }): Promise<void>;
-  savePresetConfigContentIfSelected(): Promise<void>;
-  // !SECTION
-
   // Getter
-  getEventGraphState: Getter<
-    PropType<EventGraphSliceState, ['eventGraphState']>
-  >;
   getFlowContent: Getter<V3FlowContent>;
   getDefaultVariableValueLookUpDict(): ConnectorResultMap;
-  getBatchTestConfig: Getter<
-    PropType<EventGraphSliceState, ['eventGraphState', 'batchTestConfig']>
-  >;
 
   // Flow run
   startFlowSingleRun(): void;
@@ -149,7 +104,7 @@ type EventGraphSliceAction = {
   __stopFlowSingleRunImpl(): void;
 };
 
-export type EventGraphSlice = EventGraphSliceState & EventGraphSliceAction;
+export type EventGraphSlice = EventGraphSliceState;
 
 export const createEventGraphSlice: StateCreator<
   FlowState,
@@ -163,33 +118,10 @@ export const createEventGraphSlice: StateCreator<
     get,
     'eventGraphState',
   );
-
   const [setFlowContent, getFlowContent] = createLens(
     setEventGraphState,
     getEventGraphState,
     'flowContent',
-  );
-  const [setBatchTestConfig, getBatchTestConfig] = createLens(
-    setEventGraphState,
-    getEventGraphState,
-    'batchTestConfig',
-  );
-
-  const [setVariableIdToCsvColumnIndexMap, getVariableIdToCsvColumnIndexMap] =
-    createLens(
-      setBatchTestConfig,
-      getBatchTestConfig,
-      'variableIdToCsvColumnIndexMap',
-    );
-  const [setRunOutputTable, getRunOutputTable] = createLens(
-    setBatchTestConfig,
-    getBatchTestConfig,
-    'runOutputTable',
-  );
-  const [setRunMetadataTable, getRunMetadataTable] = createLens(
-    setBatchTestConfig,
-    getBatchTestConfig,
-    'runMetadataTable',
   );
   // !SECTION
 
@@ -252,23 +184,18 @@ export const createEventGraphSlice: StateCreator<
   }
 
   return {
-    eventGraphState: {
-      flowContent: {
-        nodes: [],
-        edges: [],
-        nodeConfigsDict: {},
-        variablesDict: {},
-        variableValueLookUpDicts: [{}],
-      },
-      batchTestConfig: {
-        repeatTimes: 1,
-        concurrencyLimit: 2,
-        variableIdToCsvColumnIndexMap: {},
-        runOutputTable: [],
-        runMetadataTable: [],
-      },
-      batchTestConfigCsvString: '',
-    },
+    eventGraphState: lens(() => {
+      return {
+        flowContent: {
+          nodes: [],
+          edges: [],
+          nodeConfigsDict: {},
+          variablesDict: {},
+          variableValueLookUpDicts: [{}],
+        },
+        batchTest: createBatchTestLens(get),
+      };
+    }),
 
     initializeCanvas(): void {
       const spaceId = get().spaceId;
@@ -403,231 +330,12 @@ export const createEventGraphSlice: StateCreator<
       });
     },
 
-    setCsvStr(csvStr: string): void {
-      setEventGraphState({ batchTestConfigCsvString: csvStr });
-    },
-    setRepeatTimes(repeatTimes: number): void {
-      setBatchTestConfig(() => ({ repeatTimes }));
-    },
-    getRepeatTimes(): number {
-      return getBatchTestConfig().repeatTimes;
-    },
-    setConcurrencyLimit(concurrencyLimit: number): void {
-      setBatchTestConfig(() => ({ concurrencyLimit }));
-    },
-    getConcurrencyLimit(): number {
-      return getBatchTestConfig().concurrencyLimit;
-    },
-    setVariableIdToCsvColumnIndexMap,
-    getVariableIdToCsvColumnIndexMap,
-    setRunOutputTable,
-    getRunOutputTable,
-    setRunMetadataTable,
-    getRunMetadataTable,
-
-    async selectAndLoadPreset(presetId: string): Promise<void> {
-      set({
-        csvModeSelectedPresetId: presetId,
-        csvEvaluationIsLoading: true,
-      });
-
-      const result = await loadPreset(get().spaceId, presetId);
-
-      if (result.error) {
-        console.error(result.error);
-        return;
-      }
-
-      const preset = result.data?.result?.space?.csvEvaluationPreset;
-
-      if (preset == null) {
-        console.error('Preset not found');
-        return;
-      }
-
-      const { csvContent, configContent } = preset;
-
-      setEventGraphState({
-        batchTestConfigCsvString: csvContent,
-      });
-
-      set({
-        csvEvaluationIsLoading: false,
-      });
-
-      setBatchTestConfig(() =>
-        configContent == null
-          ? {
-              variableIdToCsvColumnIndexMap: {},
-              runOutputTable: [],
-              runMetadataTable: [],
-            }
-          : JSON.parse(configContent),
-      );
-    },
-    unselectPreset(): void {
-      set(() => ({
-        csvModeSelectedPresetId: null,
-        csvStr: '',
-      }));
-
-      setBatchTestConfig(() => ({
-        variableIdToCsvColumnIndexMap: {},
-        runOutputTable: [],
-        runMetadataTable: [],
-      }));
-    },
-    async deleteAndUnselectPreset(): Promise<void> {
-      const presetId = get().csvModeSelectedPresetId;
-      invariant(presetId != null, 'Preset ID should not be null');
-
-      await client
-        .mutation(
-          graphql(`
-            mutation DeleteCsvEvaluationPresetMutation($presetId: ID!) {
-              space: deleteCsvEvaluationPreset(id: $presetId) {
-                id
-                csvEvaluationPresets {
-                  id
-                }
-              }
-            }
-          `),
-          {
-            presetId,
-          },
-        )
-        .toPromise();
-
-      get().unselectPreset();
-    },
-    async createAndSelectPreset({ name }: { name: string }): Promise<void> {
-      const { spaceId } = get();
-      const csvContent = getEventGraphState().batchTestConfigCsvString;
-      const configContent = getBatchTestConfig();
-
-      const result = await client
-        .mutation(
-          graphql(`
-            mutation CreateCsvEvaluationPresetMutation(
-              $spaceId: ID!
-              $name: String!
-              $csvContent: String
-              $configContent: String
-            ) {
-              result: createCsvEvaluationPreset(
-                spaceId: $spaceId
-                name: $name
-                csvContent: $csvContent
-                configContent: $configContent
-              ) {
-                space {
-                  id
-                  csvEvaluationPresets {
-                    id
-                  }
-                }
-                csvEvaluationPreset {
-                  id
-                  name
-                  csvContent
-                  configContent
-                }
-              }
-            }
-          `),
-          {
-            spaceId,
-            name,
-            csvContent,
-            configContent: JSON.stringify(configContent),
-          },
-        )
-        .toPromise();
-
-      const presetId = result.data?.result?.csvEvaluationPreset?.id;
-      invariant(presetId != null, 'Preset ID should not be null');
-
-      get().selectAndLoadPreset(presetId);
-    },
-    async updateSelectedPreset({ name }: { name: string }): Promise<void> {
-      const { csvModeSelectedPresetId: presetId } = get();
-      const csvContent = getEventGraphState().batchTestConfigCsvString;
-      const configContent = getBatchTestConfig();
-
-      invariant(presetId != null, 'Preset ID should not be null');
-
-      await client
-        .mutation(
-          graphql(`
-            mutation UpdateCsvEvaluationPresetMutation(
-              $presetId: ID!
-              $name: String
-              $csvContent: String
-              $configContent: String
-            ) {
-              updateCsvEvaluationPreset(
-                presetId: $presetId
-                name: $name
-                csvContent: $csvContent
-                configContent: $configContent
-              ) {
-                id
-                name
-                csvContent
-                configContent
-              }
-            }
-          `),
-          {
-            presetId,
-            name,
-            csvContent,
-            configContent: JSON.stringify(configContent),
-          },
-        )
-        .toPromise();
-    },
-    async savePresetConfigContentIfSelected(): Promise<void> {
-      const { csvModeSelectedPresetId: presetId } = get();
-      const configContent = getBatchTestConfig();
-
-      if (presetId == null) {
-        return;
-      }
-
-      await client
-        .mutation(
-          graphql(`
-            mutation SavePresetConfigContent(
-              $presetId: ID!
-              $configContent: String!
-            ) {
-              updateCsvEvaluationPreset(
-                presetId: $presetId
-                configContent: $configContent
-              ) {
-                id
-                configContent
-              }
-            }
-          `),
-          {
-            presetId,
-            configContent: JSON.stringify(configContent),
-          },
-        )
-        .toPromise();
-    },
-
-    getEventGraphState,
     getFlowContent(): V3FlowContent {
       return getFlowContent();
     },
     getDefaultVariableValueLookUpDict(): ConnectorResultMap {
       return getFlowContent().variableValueLookUpDicts[0]!;
     },
-    getBatchTestConfig,
 
     startFlowSingleRun() {
       get().actorSend({ type: StateMachineAction.StartExecutingFlowSingleRun });
@@ -852,34 +560,6 @@ function parseQueryResult(result: OperationResult<SpaceFlowQueryQuery>) {
       };
     }
   }
-}
-
-async function loadPreset(
-  spaceId: string,
-  presetId: string,
-): Promise<OperationResult<LoadCsvEvaluationPresetQuery>> {
-  return await client
-    .query(
-      graphql(`
-        query LoadCsvEvaluationPreset($spaceId: UUID!, $presetId: ID!) {
-          result: space(id: $spaceId) {
-            space {
-              id
-              csvEvaluationPreset(id: $presetId) {
-                id
-                csvContent
-                configContent
-              }
-            }
-          }
-        }
-      `),
-      {
-        spaceId,
-        presetId,
-      },
-    )
-    .toPromise();
 }
 
 function selectFlowInputVariableIdToValueMap(

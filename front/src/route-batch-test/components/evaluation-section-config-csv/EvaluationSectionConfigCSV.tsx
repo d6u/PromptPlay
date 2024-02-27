@@ -25,15 +25,25 @@ export default function EvaluationSectionConfigCSV(props: Props) {
   // SECTION: Select state from store
 
   const variablesDict = useFlowStore((s) => s.getFlowContent().variablesDict);
-  const repeatTimes = useFlowStore((s) => s.getRepeatTimes());
-  const concurrencyLimit = useFlowStore((s) => s.getConcurrencyLimit());
-  const variableIdToCsvColumnIndexMap = useFlowStore((s) =>
-    s.getVariableIdToCsvColumnIndexMap(),
+  const repeatTimes = useFlowStore(
+    (s) => s.eventGraphState.batchTest.config.repeatTimes,
   );
-  const runOutputTable = useFlowStore((s) => s.getRunOutputTable());
+  const concurrencyLimit = useFlowStore(
+    (s) => s.eventGraphState.batchTest.config.concurrencyLimit,
+  );
+  const variableIdToCsvColumnIndexMap = useFlowStore(
+    (s) => s.eventGraphState.batchTest.config.variableIdToCsvColumnIndexMap,
+  );
+  const runOutputTable = useFlowStore(
+    (s) => s.eventGraphState.batchTest.config.runOutputTable,
+  );
 
-  const setRepeatTimes = useFlowStore((s) => s.setRepeatTimes);
-  const setConcurrencyLimit = useFlowStore((s) => s.setConcurrencyLimit);
+  const setRepeatTimes = useFlowStore(
+    (s) => s.eventGraphState.batchTest.configActions.setRepeatTimes,
+  );
+  const setConcurrencyLimit = useFlowStore(
+    (s) => s.eventGraphState.batchTest.configActions.setConcurrencyLimit,
+  );
 
   // !SECTION
 
