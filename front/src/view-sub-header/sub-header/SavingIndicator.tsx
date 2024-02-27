@@ -21,7 +21,7 @@ function SavingIndicator() {
           {isSavingFlowContent
             ? 'Saving...'
             : hasUnsavedChanges
-              ? 'Change unsaved'
+              ? 'Unsaved'
               : 'Saved'}
         </Container>
       );

@@ -373,10 +373,11 @@ export const createEventGraphSlice: StateCreator<
     },
 
     updateVariableValueMap(variableId: string, value: unknown): void {
-      setFlowContentProduce((draft) => {
-        draft.variableValueLookUpDicts[0]![variableId] = value;
+      processEventWithEventGraph({
+        type: ChangeEventType.UPDATE_VARIABLE_VALUE,
+        variableId,
+        value,
       });
-      saveSpaceDebounced();
     },
 
     setCsvStr(csvStr: string): void {

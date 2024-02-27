@@ -26,6 +26,10 @@ import {
   UpdateVariableEvent,
   handleUpdateVariable,
 } from './handle-update-variable';
+import {
+  UpdateVariableValueEvent,
+  handleUpdateVariableValue,
+} from './handle-variable-value-update';
 
 export type AcceptedEvent =
   | ReactFlowEdgesChangeEvent
@@ -36,7 +40,8 @@ export type AcceptedEvent =
   | UpdateNodeConfigEvent
   | AddConnectorEvent
   | RemoveVariableEvent
-  | UpdateVariableEvent;
+  | UpdateVariableEvent
+  | UpdateVariableValueEvent;
 
 export const handleAllEvent = createHandler<AcceptedEvent, AcceptedEvent>(
   (state, event) => {
@@ -52,5 +57,6 @@ export const handleAllEvent = createHandler<AcceptedEvent, AcceptedEvent>(
     handleAddConnector,
     handleRemoveVariable,
     handleUpdateVariable,
+    handleUpdateVariableValue,
   ],
 );
