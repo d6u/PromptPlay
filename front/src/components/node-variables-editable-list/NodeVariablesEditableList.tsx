@@ -41,6 +41,7 @@ function NodeVariablesEditableList(props: Props) {
   const updateNodeInternals = useUpdateNodeInternals();
 
   const updateVariable = useFlowStore((s) => s.updateVariable);
+  const updateVariables = useFlowStore((s) => s.updateVariables);
   const removeVariable = useFlowStore((s) => s.removeVariable);
 
   const sensors = useSensors(
@@ -65,7 +66,7 @@ function NodeVariablesEditableList(props: Props) {
     name: 'list',
   });
 
-  const updateVariables = useCallback(() => {
+  const update = useCallback(() => {
     handleSubmit((data) => {
       // NOTE: We don't handle add variable here
 
@@ -128,14 +129,22 @@ function NodeVariablesEditableList(props: Props) {
       move(oldIndex, newIndex);
 
       handleSubmit((data) => {
-        updateVariable(data.list[oldIndex].id, {
-          // Which index to use for which variable is not important here
-          // since data will contain variables in updated order.
-          index: oldIndex,
-        });
-        updateVariable(data.list[newIndex].id, {
-          index: newIndex,
-        });
+        updateVariables([
+          {
+            variableId: data.list[oldIndex].id,
+            change: {
+              // Which index to use for which variable is not important here
+              // since data will contain variables in updated order.
+              index: oldIndex,
+            },
+          },
+          {
+            variableId: data.list[newIndex].id,
+            change: {
+              index: newIndex,
+            },
+          },
+        ]);
 
         // NOTE: Removing a variable will affect edge and handle positions.
         updateNodeInternals(props.nodeId);
@@ -146,7 +155,7 @@ function NodeVariablesEditableList(props: Props) {
       fields,
       move,
       handleSubmit,
-      updateVariable,
+      updateVariables,
       updateNodeInternals,
     ],
   );
@@ -174,7 +183,7 @@ function NodeVariablesEditableList(props: Props) {
               onRemove={() => {
                 remove(index);
               }}
-              onUpdateTrigger={updateVariables}
+              onUpdateTrigger={update}
             />
           );
         })}
@@ -214,7 +223,7 @@ function NodeVariablesEditableList(props: Props) {
                   onRemove={() => {
                     remove(index);
                   }}
-                  onUpdateTrigger={updateVariables}
+                  onUpdateTrigger={update}
                 />
               );
             })}

@@ -2,9 +2,11 @@ import { createHandler } from './event-graph-util.ts';
 import { ChangeEventType } from './event-types.ts';
 
 export type UpdateVariableValueEvent = {
-  type: ChangeEventType.UPDATE_VARIABLE_VALUE;
-  variableId: string;
-  value: unknown;
+  type: ChangeEventType.UPDATE_VARIABLE_VALUES;
+  updates: {
+    variableId: string;
+    value: unknown;
+  }[];
 };
 
 export const handleUpdateVariableValue = createHandler<
@@ -12,11 +14,12 @@ export const handleUpdateVariableValue = createHandler<
   never
 >(
   (event): event is UpdateVariableValueEvent => {
-    return event.type === ChangeEventType.UPDATE_VARIABLE_VALUE;
+    return event.type === ChangeEventType.UPDATE_VARIABLE_VALUES;
   },
   (state, event) => {
-    state.flowContent.variableValueLookUpDicts[0][event.variableId] =
-      event.value;
+    for (const { variableId, value } of event.updates) {
+      state.flowContent.variableValueLookUpDicts[0][variableId] = value;
+    }
 
     return [];
   },

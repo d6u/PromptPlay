@@ -55,10 +55,14 @@ test('handleUpdateVariable should remove variable', () => {
   const nextState = produce(prevState, (draft) => {
     handleUpdateVariable(draft, {
       type: ChangeEventType.UPDATING_VARIABLE,
-      variableId: 'Z6dPf/wZf7M',
-      change: {
-        name: 'var2',
-      },
+      updates: [
+        {
+          variableId: 'Z6dPf/wZf7M',
+          change: {
+            name: 'var2',
+          },
+        },
+      ],
     } as BaseEvent);
   });
 

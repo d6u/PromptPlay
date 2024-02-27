@@ -1,4 +1,5 @@
 import { V3FlowContent } from 'flow-models';
+
 import { graphql } from 'gencode-gql';
 import { client } from 'graphql-util/client';
 
@@ -6,7 +7,6 @@ export async function updateSpaceContentV3(
   spaceId: string,
   contentV3: V3FlowContent,
 ) {
-  console.log('updateSpaceContentV3');
   await client.mutation(
     graphql(`
       mutation UpdateSpaceContentV3Mutation(

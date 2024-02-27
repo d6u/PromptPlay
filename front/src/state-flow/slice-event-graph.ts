@@ -17,6 +17,7 @@ import { OperationResult } from 'urql';
 import { StateCreator } from 'zustand';
 
 import {
+  Connector,
   ConnectorMap,
   ConnectorResultMap,
   ConnectorType,
@@ -102,8 +103,12 @@ type EventGraphSliceAction = {
     variableId: string,
     change: Partial<R>,
   ): void;
+  updateVariables(
+    updates: { variableId: string; change: Record<string, unknown> }[],
+  ): void;
 
   updateVariableValueMap(variableId: string, value: unknown): void;
+  updateVariableValues(updates: { variableId: string; value: unknown }[]): void;
   // !SECTION
 
   // SECTION: Batch tests events
@@ -367,16 +372,30 @@ export const createEventGraphSlice: StateCreator<
     >(variableId: string, change: Partial<R>): void {
       processEventWithEventGraph({
         type: ChangeEventType.UPDATING_VARIABLE,
-        variableId,
-        change,
+        updates: [{ variableId, change }],
+      });
+    },
+    updateVariables(
+      updates: { variableId: string; change: Partial<Connector> }[],
+    ): void {
+      processEventWithEventGraph({
+        type: ChangeEventType.UPDATING_VARIABLE,
+        updates,
       });
     },
 
     updateVariableValueMap(variableId: string, value: unknown): void {
       processEventWithEventGraph({
-        type: ChangeEventType.UPDATE_VARIABLE_VALUE,
-        variableId,
-        value,
+        type: ChangeEventType.UPDATE_VARIABLE_VALUES,
+        updates: [{ variableId, value }],
+      });
+    },
+    updateVariableValues(
+      updates: { variableId: string; value: unknown }[],
+    ): void {
+      processEventWithEventGraph({
+        type: ChangeEventType.UPDATE_VARIABLE_VALUES,
+        updates,
       });
     },
 

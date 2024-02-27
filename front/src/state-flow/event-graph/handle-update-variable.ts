@@ -11,8 +11,10 @@ import {
 
 export type UpdateVariableEvent = {
   type: ChangeEventType.UPDATING_VARIABLE;
-  variableId: string;
-  change: Partial<Connector>;
+  updates: {
+    variableId: string;
+    change: Partial<Connector>;
+  }[];
 };
 
 export const handleUpdateVariable = createHandler<
@@ -23,19 +25,19 @@ export const handleUpdateVariable = createHandler<
     return event.type === ChangeEventType.UPDATING_VARIABLE;
   },
   (state, event) => {
-    const variable = state.flowContent.variablesDict[event.variableId];
+    return event.updates.map((update) => {
+      const variable = state.flowContent.variablesDict[update.variableId];
 
-    const prevVariableSnapshot = current(variable);
+      const prevVariableSnapshot = current(variable);
 
-    Object.assign(variable, event.change);
+      Object.assign(variable, update.change);
 
-    return [
-      {
+      return {
         type: ChangeEventType.VARIABLE_UPDATED,
         prevVariable: prevVariableSnapshot,
         nextVariable: current(variable),
-      },
-    ];
+      };
+    });
   },
   [updateVariableValueMapOnVariableUpdate],
 );
