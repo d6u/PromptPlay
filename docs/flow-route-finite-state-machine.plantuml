@@ -1,0 +1,37 @@
+@startuml flow route finite state machine
+
+[*] --> Uninitialized
+
+Uninitialized --> FetchingCanvasContent: initialize
+
+FetchingCanvasContent --> Error: fetchingCanvasContentError
+FetchingCanvasContent --> Initialized: fetchingCanvasContentSuccess
+FetchingCanvasContent --> Uninitialized: leaveFlowRoute
+
+Error --> FetchingCanvasContent: retryFetchingFlowContent
+Error --> Uninitialized: leaveFlowRoute
+
+state Initialized {
+  [*] --> Clean
+  Clean --> Dirty: flowContentTouched
+  Dirty --> Clean: startUploadingFlowContent
+
+  ---
+
+  [*] --> Idle: fetchingCanvasContentSuccess (isUpdated == false)
+  [*] --> Uploading: fetchingCanvasContentSuccess (isUpdated == true)
+  Idle --> UploadingDebouncing: flowContentTouched
+  UploadingDebouncing --> UploadingDebouncing: flowContentTouched
+  UploadingDebouncing --> Uploading: startUploadingFlowContent
+  Uploading --> UploadingDebouncing: flowContentUploadSuccess (hasUnsavedChanges == true)
+  Uploading --> Idle: flowContentUploadSuccess (hasUnsavedChanges == false)
+
+  ---
+
+  [*] --> FlowRunSingleIdle
+  FlowRunSingleIdle --> FlowRunExecuting
+}
+
+Initialized --> Uninitialized: leaveFlowRoute
+
+@enduml

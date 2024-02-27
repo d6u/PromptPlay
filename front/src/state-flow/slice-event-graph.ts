@@ -1,9 +1,8 @@
 import { PropType } from '@dhmk/utils';
 import { Getter, Setter, createLens } from '@dhmk/zustand-lens';
-import { A, D, pipe } from '@mobily/ts-belt';
+import { D, pipe } from '@mobily/ts-belt';
 import deepEqual from 'deep-equal';
 import { produce } from 'immer';
-import debounce from 'lodash/debounce';
 import posthog from 'posthog-js';
 import {
   EdgeChange,
@@ -12,12 +11,13 @@ import {
   OnEdgesChange,
   OnNodesChange,
 } from 'reactflow';
-import { Subscription, from, map, tap } from 'rxjs';
+import { Subscription, from, map } from 'rxjs';
 import invariant from 'tiny-invariant';
 import { OperationResult } from 'urql';
 import { StateCreator } from 'zustand';
 
 import {
+  Connector,
   ConnectorMap,
   ConnectorResultMap,
   ConnectorType,
@@ -47,7 +47,7 @@ import { useNodeFieldFeedbackStore } from 'state-root/node-field-feedback-state'
 
 import { ChangeEventType } from './event-graph/event-types';
 import { AcceptedEvent, handleAllEvent } from './event-graph/handle-all-event';
-import { updateSpaceContentV3 } from './graphql/graphql';
+import { StateMachineAction } from './finite-state-machine';
 import {
   FlowState,
   RunMetadataTable,
@@ -83,6 +83,7 @@ export type EventGraphSliceState = {
 
 type EventGraphSliceAction = {
   initializeCanvas(): void;
+  cancelCanvasInitializationIfInProgress(): void;
 
   // SECTION: Canvas events
   onNodesChange: OnNodesChange;
@@ -95,15 +96,19 @@ type EventGraphSliceAction = {
 
   addVariable(nodeId: string, type: ConnectorTypeEnum, index: number): void;
   removeVariable(variableId: string): void;
-  updateVariable<
+  updateConnector<
     T extends ConnectorTypeEnum,
     R = VariableTypeToVariableConfigTypeMap[T],
   >(
     variableId: string,
     change: Partial<R>,
   ): void;
+  updateConnectors(
+    updates: { variableId: string; change: Record<string, unknown> }[],
+  ): void;
 
-  updateVariableValueMap(variableId: string, value: unknown): void;
+  updateVariableValue(variableId: string, value: unknown): void;
+  updateVariableValues(updates: { variableId: string; value: unknown }[]): void;
   // !SECTION
 
   // SECTION: Batch tests events
@@ -137,9 +142,11 @@ type EventGraphSliceAction = {
     PropType<EventGraphSliceState, ['eventGraphState', 'batchTestConfig']>
   >;
 
-  // Execute flow run
-  runFlow(): void;
-  stopRunningFlow(): void;
+  // Flow run
+  startFlowSingleRun(): void;
+  stopFlowSingleRun(): void;
+  __startFlowSingleRunImpl(): void;
+  __stopFlowSingleRunImpl(): void;
 };
 
 export type EventGraphSlice = EventGraphSliceState & EventGraphSliceAction;
@@ -198,52 +205,28 @@ export const createEventGraphSlice: StateCreator<
   >([setFlowContent, getFlowContent]);
   // !SECTION
 
+  let initializationSubscription: Subscription | null = null;
   let runSingleSubscription: Subscription | null = null;
-  let prevSyncedData: V3FlowContent | null = null;
-
-  const saveSpaceDebounced = debounce(async () => {
-    const spaceId = get().spaceId;
-    const flowContent = getFlowContent();
-
-    const nextSyncedData: V3FlowContent = {
-      ...flowContent,
-      nodes: A.map(
-        flowContent.nodes,
-        D.selectKeys(['id', 'type', 'position', 'data']),
-      ),
-      edges: A.map(
-        flowContent.edges,
-        D.selectKeys([
-          'id',
-          'source',
-          'sourceHandle',
-          'target',
-          'targetHandle',
-        ]),
-      ),
-    };
-
-    // console.time('deepEqual');
-    const hasChange = !deepEqual(prevSyncedData, nextSyncedData);
-    // console.timeEnd('deepEqual');
-
-    if (prevSyncedData == null || hasChange) {
-      await updateSpaceContentV3(spaceId, nextSyncedData);
-    }
-
-    prevSyncedData = nextSyncedData;
-  }, 500);
 
   function processEventWithEventGraph(event: AcceptedEvent) {
+    console.log('processEventWithEventGraph', event);
+
     // console.time('processEventWithEventGraph');
-    setEventGraphStateWithPatches((draft) => {
-      handleAllEvent(draft, event);
-    });
+    setEventGraphStateWithPatches(
+      (draft) => {
+        handleAllEvent(draft, event);
+      },
+      false,
+      event,
+    );
     // console.timeEnd('processEventWithEventGraph');
-    saveSpaceDebounced();
+
+    get().actorSend({ type: StateMachineAction.FlowContentTouched });
   }
 
-  function setIsRunning(isRunning: boolean) {
+  function resetEdgeAndMetadataBaseOnFlowRunSingleExecutingState(
+    isRunning: boolean,
+  ) {
     setFlowContentProduce((draft) => {
       for (const edge of draft.edges) {
         if (edge.animated !== isRunning) {
@@ -265,7 +248,7 @@ export const createEventGraphSlice: StateCreator<
       });
     }
 
-    set({ isRunning, nodeMetadataDict });
+    set({ nodeMetadataDict });
   }
 
   return {
@@ -290,15 +273,10 @@ export const createEventGraphSlice: StateCreator<
     initializeCanvas(): void {
       const spaceId = get().spaceId;
 
-      const subscription = from(querySpace(spaceId))
-        .pipe(
-          map(parseQueryResult),
-          tap(({ flowContent, isUpdated }) => {
-            if (isUpdated) {
-              updateSpaceContentV3(spaceId, flowContent);
-            }
-          }),
-          tap(({ flowContent }) => {
+      initializationSubscription = from(querySpace(spaceId))
+        .pipe(map(parseQueryResult))
+        .subscribe({
+          next({ flowContent, isUpdated }) {
             const { nodes, edges, variablesDict, ...rest } = flowContent;
 
             const updatedNodes = assignLocalNodeProperties(nodes);
@@ -320,17 +298,23 @@ export const createEventGraphSlice: StateCreator<
               { type: 'initializeCanvas', flowContent },
             );
 
-            set({ isInitialized: true });
-          }),
-        )
-        .subscribe({
+            get().actorSend({
+              type: StateMachineAction.FetchingCanvasContentSuccess,
+              isUpdated,
+            });
+          },
           error(error) {
             // TODO: Report to telemetry
             console.error('Error fetching content', error);
+            get().actorSend({
+              type: StateMachineAction.FetchingCanvasContentError,
+            });
           },
         });
-
-      get().subscriptionBag.add(subscription);
+    },
+    cancelCanvasInitializationIfInProgress(): void {
+      initializationSubscription?.unsubscribe();
+      initializationSubscription = null;
     },
 
     onEdgesChange(changes: EdgeChange[]): void {
@@ -386,22 +370,37 @@ export const createEventGraphSlice: StateCreator<
         variableId,
       });
     },
-    updateVariable<
+    updateConnector<
       T extends ConnectorTypeEnum,
       R = VariableTypeToVariableConfigTypeMap[T],
     >(variableId: string, change: Partial<R>): void {
       processEventWithEventGraph({
-        type: ChangeEventType.UPDATING_VARIABLE,
-        variableId,
-        change,
+        type: ChangeEventType.UPDATE_CONNECTORS,
+        updates: [{ variableId, change }],
+      });
+    },
+    updateConnectors(
+      updates: { variableId: string; change: Partial<Connector> }[],
+    ): void {
+      processEventWithEventGraph({
+        type: ChangeEventType.UPDATE_CONNECTORS,
+        updates,
       });
     },
 
-    updateVariableValueMap(variableId: string, value: unknown): void {
-      setFlowContentProduce((draft) => {
-        draft.variableValueLookUpDicts[0]![variableId] = value;
+    updateVariableValue(variableId: string, value: unknown): void {
+      processEventWithEventGraph({
+        type: ChangeEventType.UPDATE_VARIABLE_VALUES,
+        updates: [{ variableId, value }],
       });
-      saveSpaceDebounced();
+    },
+    updateVariableValues(
+      updates: { variableId: string; value: unknown }[],
+    ): void {
+      processEventWithEventGraph({
+        type: ChangeEventType.UPDATE_VARIABLE_VALUES,
+        updates,
+      });
     },
 
     setCsvStr(csvStr: string): void {
@@ -630,13 +629,25 @@ export const createEventGraphSlice: StateCreator<
     },
     getBatchTestConfig,
 
-    runFlow() {
+    startFlowSingleRun() {
+      get().actorSend({ type: StateMachineAction.StartExecutingFlowSingleRun });
+    },
+    stopFlowSingleRun() {
+      posthog.capture('Manually Stopped Simple Evaluation', {
+        flowId: get().spaceId,
+      });
+
+      get().actorSend({
+        type: StateMachineAction.StopExecutingFlowSingleRun,
+      });
+    },
+
+    __startFlowSingleRunImpl() {
       posthog.capture('Starting Simple Evaluation', {
         flowId: get().spaceId,
       });
 
       const { edges, nodeConfigsDict, variablesDict } = get().getFlowContent();
-      const updateNodeAugment = get().updateNodeAugment;
       const variableValueLookUpDict = get().getDefaultVariableValueLookUpDict();
 
       const flowInputVariableValueMap: Readonly<
@@ -651,11 +662,14 @@ export const createEventGraphSlice: StateCreator<
 
       // TODO: Give a default for every node instead of empty object
       set({ nodeMetadataDict: {} });
-      setIsRunning(true);
+
+      resetEdgeAndMetadataBaseOnFlowRunSingleExecutingState(true);
+
       // Reset variable values except for flow inputs values
       setFlowContentProduce((draft) => {
         draft.variableValueLookUpDicts = [flowInputVariableValueMap];
       });
+
       useNodeFieldFeedbackStore.getState().clearFieldFeedbacks();
 
       runSingleSubscription = flowRunSingle({
@@ -690,7 +704,7 @@ export const createEventGraphSlice: StateCreator<
                   }
                   case ValidationErrorType.NodeLevel: {
                     // TODO: Show node level errors in UI
-                    updateNodeAugment(error.nodeId, {
+                    get().updateNodeAugment(error.nodeId, {
                       isRunning: false,
                       hasError: true,
                     });
@@ -705,7 +719,7 @@ export const createEventGraphSlice: StateCreator<
                       [error.message],
                     );
 
-                    updateNodeAugment(error.nodeId, {
+                    get().updateNodeAugment(error.nodeId, {
                       isRunning: false,
                       hasError: true,
                     });
@@ -738,10 +752,10 @@ export const createEventGraphSlice: StateCreator<
               break;
             }
             case FlowRunEventType.VariableValues: {
-              Object.entries(data.variableValues).forEach(
-                ([outputId, value]) => {
-                  get().updateVariableValueMap(outputId, value);
-                },
+              get().updateVariableValues(
+                Object.entries(data.variableValues).map(
+                  ([variableId, value]) => ({ variableId, value }),
+                ),
               );
               break;
             }
@@ -754,29 +768,30 @@ export const createEventGraphSlice: StateCreator<
 
           console.error(error);
 
-          setIsRunning(false);
+          get().actorSend({
+            type: StateMachineAction.FinishedExecutingFlowSingleRun,
+          });
+
+          resetEdgeAndMetadataBaseOnFlowRunSingleExecutingState(false);
         },
         complete() {
           posthog.capture('Finished Simple Evaluation', {
             flowId: get().spaceId,
           });
 
-          setIsRunning(false);
+          get().actorSend({
+            type: StateMachineAction.FinishedExecutingFlowSingleRun,
+          });
+
+          resetEdgeAndMetadataBaseOnFlowRunSingleExecutingState(false);
         },
       });
-
-      get().subscriptionBag.add(runSingleSubscription);
     },
-
-    stopRunningFlow() {
-      posthog.capture('Manually Stopped Simple Evaluation', {
-        flowId: get().spaceId,
-      });
-
+    __stopFlowSingleRunImpl() {
       runSingleSubscription?.unsubscribe();
       runSingleSubscription = null;
 
-      setIsRunning(false);
+      resetEdgeAndMetadataBaseOnFlowRunSingleExecutingState(false);
     },
   };
 };

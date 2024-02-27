@@ -1,11 +1,19 @@
-import { D } from '@mobily/ts-belt';
+import { A, D } from '@mobily/ts-belt';
+import deepEqual from 'deep-equal';
 import { OnConnectStartParams } from 'reactflow';
-import { Subscription } from 'rxjs';
 import invariant from 'tiny-invariant';
+import { createActor } from 'xstate';
 import { StateCreator } from 'zustand';
 
-import { Connector, ConnectorType } from 'flow-models';
+import { Connector, ConnectorType, V3FlowContent } from 'flow-models';
 
+import {
+  StateMachineAction,
+  StateMachineContext,
+  StateMachineEvent,
+  canvasStateMachine,
+} from './finite-state-machine';
+import { updateSpaceContentV3 } from './graphql/graphql';
 import {
   BatchTestTab,
   CanvasRightPanelType,
@@ -18,10 +26,7 @@ import {
 type RootSliceState = {
   // TODO: Does readonly make any difference here?
   readonly spaceId: string;
-  readonly subscriptionBag: Subscription;
 
-  isInitialized: boolean;
-  isRunning: boolean;
   connectStartEdgeType: ConnectStartEdgeType | null;
   connectStartStartNodeId: string | null;
 
@@ -30,17 +35,15 @@ type RootSliceState = {
   canvasRightPaneType: CanvasRightPanelType;
   nodeMetadataDict: NodeMetadataDict;
 
-  isFlowContentDirty: boolean;
-  isFlowContentSaving: boolean;
-
   selectedBatchTestTab: BatchTestTab;
   csvModeSelectedPresetId: string | null;
   csvEvaluationIsLoading: boolean;
 };
 
 export type RootSlice = RootSliceState & {
-  initialize(): void;
-  deinitialize(): void;
+  actorSend(event: StateMachineEvent): void;
+  getStateMachineContext(): StateMachineContext;
+
   setCanvasLeftPaneIsOpen(isOpen: boolean): void;
   setCanvasLeftPaneSelectedNodeId(nodeId: string | null): void;
   setCanvasRightPaneType(type: CanvasRightPanelType): void;
@@ -63,12 +66,98 @@ export function createRootSlice(
 ): ReturnType<RootSliceStateCreator> {
   const [set, get] = rest;
 
+  let prevSyncedData: V3FlowContent | null = null;
+
+  const fsmActor = createActor(
+    canvasStateMachine.provide({
+      actions: {
+        initializeCanvas: () => {
+          get().initializeCanvas();
+        },
+        cancelCanvasInitializationIfInProgress: () => {
+          get().cancelCanvasInitializationIfInProgress();
+        },
+        syncFlowContent: async () => {
+          const flowContent = get().getFlowContent();
+
+          const nextSyncedData: V3FlowContent = {
+            ...flowContent,
+            nodes: A.map(
+              flowContent.nodes,
+              D.selectKeys(['id', 'type', 'position', 'data']),
+            ),
+            edges: A.map(
+              flowContent.edges,
+              D.selectKeys([
+                'id',
+                'source',
+                'sourceHandle',
+                'target',
+                'targetHandle',
+              ]),
+            ),
+          };
+
+          const hasChange =
+            prevSyncedData != null &&
+            !deepEqual(prevSyncedData, nextSyncedData);
+
+          prevSyncedData = nextSyncedData;
+
+          if (!hasChange) {
+            get().actorSend({
+              type: StateMachineAction.FlowContentNoUploadNeeded,
+            });
+            return;
+          }
+          get().actorSend({
+            type: StateMachineAction.StartUploadingFlowContent,
+          });
+
+          const spaceId = get().spaceId;
+
+          try {
+            console.time('updateSpaceContentV3');
+            await updateSpaceContentV3(spaceId, nextSyncedData);
+            console.timeEnd('updateSpaceContentV3');
+            get().actorSend({
+              type: StateMachineAction.FlowContentUploadSuccess,
+            });
+          } catch (error) {
+            console.timeEnd('updateSpaceContentV3');
+            // TODO: Report to telemetry and handle in state machine
+          }
+        },
+        executeFlowSingleRun: () => {
+          get().__startFlowSingleRunImpl();
+        },
+        cancelFlowSingleRunIfInProgress: () => {
+          get().__stopFlowSingleRunImpl();
+        },
+      },
+    }),
+    {
+      inspect(event) {
+        if (event.type === '@xstate.event') {
+          console.log('[State Machine] event:', event.event);
+        }
+      },
+    },
+  );
+
+  // TODO: Memory leak here because we never unsubscribe
+  fsmActor.subscribe((snapshot) => {
+    console.log(
+      '[State Machine] state:',
+      JSON.stringify(snapshot.value, null, 2),
+    );
+  });
+
+  fsmActor.start();
+
   return {
     spaceId: initProps.spaceId,
-    subscriptionBag: new Subscription(),
 
-    isInitialized: false,
-    isRunning: false,
     connectStartEdgeType: null,
     connectStartStartNodeId: null,
 
@@ -77,23 +166,17 @@ export function createRootSlice(
     canvasLeftPaneSelectedNodeId: null,
     nodeMetadataDict: {},
 
-    isFlowContentDirty: false,
-    isFlowContentSaving: false,
-
     selectedBatchTestTab: BatchTestTab.RunTests,
     csvModeSelectedPresetId: null,
     csvEvaluationIsLoading: false,
 
-    initialize(): void {
-      console.group('FlowStore: initializing...');
-      get().initializeCanvas();
-      console.groupEnd();
+    actorSend(event: StateMachineEvent): void {
+      fsmActor.send(event);
+      // NOTE: Manually trigger a re-render
+      set({});
     },
-
-    deinitialize(): void {
-      console.group('FlowStore: deinitializing...');
-      get().subscriptionBag.unsubscribe();
-      console.groupEnd();
+    getStateMachineContext(): StateMachineContext {
+      return fsmActor.getSnapshot().context;
     },
 
     setCanvasLeftPaneIsOpen(isOpen: boolean): void {

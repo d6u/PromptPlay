@@ -7,17 +7,21 @@ import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 function SavingIndicator() {
   const flowTabType = useFlowRouteSubRouteHandle((handle) => handle.tabType);
 
-  const isFlowContentDirty = useFlowStore((s) => s.isFlowContentDirty);
-  const isFlowContentSaving = useFlowStore((s) => s.isFlowContentSaving);
+  const isSavingFlowContent = useFlowStore(
+    (s) => s.getStateMachineContext().isSavingFlowContent,
+  );
+  const hasUnsavedChanges = useFlowStore(
+    (s) => s.getStateMachineContext().hasUnsavedChanges,
+  );
 
   switch (flowTabType) {
     case FlowRouteTab.Canvas:
       return (
         <Container color="success" level="body-sm" variant="plain">
-          {isFlowContentSaving
+          {isSavingFlowContent
             ? 'Saving...'
-            : isFlowContentDirty
-              ? 'Save pending'
+            : hasUnsavedChanges
+              ? 'Unsaved'
               : 'Saved'}
         </Container>
       );

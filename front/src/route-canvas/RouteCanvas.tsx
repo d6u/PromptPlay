@@ -6,9 +6,10 @@ import LeftSidePaneView from 'view-left-side-pane/LeftSidePaneView';
 import RightSidePaneView from 'view-right-side-pane/RightSidePaneView';
 
 function RouteCanvas() {
-  const isInitialized = useFlowStore((s) => s.isInitialized);
+  const uiState = useFlowStore((s) => s.getStateMachineContext().canvasUiState);
 
-  if (!isInitialized) {
+  // TODO: Render other states
+  if (uiState !== 'initialized') {
     return null;
   }
 

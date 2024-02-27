@@ -34,7 +34,8 @@ type Props = {
 function NodeConditionsEditableList(props: Props) {
   const updateNodeInternals = useUpdateNodeInternals();
 
-  const updateVariable = useFlowStore((s) => s.updateVariable);
+  const updateVariable = useFlowStore((s) => s.updateConnector);
+  const updateVariables = useFlowStore((s) => s.updateConnectors);
   const removeVariable = useFlowStore((s) => s.removeVariable);
 
   const sensors = useSensors(
@@ -57,7 +58,7 @@ function NodeConditionsEditableList(props: Props) {
     name: 'list',
   });
 
-  const updateConditions = useCallback(() => {
+  const update = useCallback(() => {
     handleSubmit((data) => {
       // NOTE: We don't handle add variable here
 
@@ -126,14 +127,22 @@ function NodeConditionsEditableList(props: Props) {
       move(oldIndex, newIndex);
 
       handleSubmit((data) => {
-        updateVariable(data.list[oldIndex].id, {
-          // Which index to use for which variable is not important here
-          // since data will contain variables in updated order.
-          index: oldIndex,
-        });
-        updateVariable(data.list[newIndex].id, {
-          index: newIndex,
-        });
+        updateVariables([
+          {
+            variableId: data.list[oldIndex].id,
+            change: {
+              // Which index to use for which variable is not important here
+              // since data will contain variables in updated order.
+              index: oldIndex,
+            },
+          },
+          {
+            variableId: data.list[newIndex].id,
+            change: {
+              index: newIndex,
+            },
+          },
+        ]);
 
         // NOTE: Removing a variable will affect edge and handle positions.
         updateNodeInternals(props.nodeId);
@@ -144,7 +153,7 @@ function NodeConditionsEditableList(props: Props) {
       fields,
       move,
       handleSubmit,
-      updateVariable,
+      updateVariables,
       updateNodeInternals,
     ],
   );
@@ -183,7 +192,7 @@ function NodeConditionsEditableList(props: Props) {
                 onRemove={() => {
                   remove(index);
                 }}
-                onUpdateTrigger={updateConditions}
+                onUpdateTrigger={update}
               />
             );
           })}

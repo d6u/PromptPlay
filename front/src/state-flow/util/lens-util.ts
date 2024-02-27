@@ -11,7 +11,12 @@ type CreateWithImmerReturn<T> = {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ...args: any[]
   ) => void;
-  setWithPatches: (recipe: Recipe<T>) => [boolean, Patch[], Patch[]];
+  setWithPatches: (
+    recipe: Recipe<T>,
+    replace?: boolean | undefined,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ...args: any[]
+  ) => [boolean, Patch[], Patch[]];
   get: () => T;
 };
 
@@ -35,23 +40,30 @@ export function createWithImmer<T, P extends string[], State = PropType<T, P>>(
     );
   }
 
-  function setWithPatches(recipe: Recipe<State>): [boolean, Patch[], Patch[]] {
+  function setWithPatches(
+    recipe: Recipe<State>,
+    replace?: boolean | undefined,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ...args: any[]
+  ): [boolean, Patch[], Patch[]] {
     let isDirty: boolean;
     let patches: Patch[];
     let inversePatches: Patch[];
 
-    setLens((state) => {
-      const [nextState, patchesInner, inversePatchesInner] = produceWithPatches(
-        state,
-        (draft) => recipe(draft),
-      );
+    setLens(
+      (state) => {
+        const [nextState, patchesInner, inversePatchesInner] =
+          produceWithPatches(state, (draft) => recipe(draft));
 
-      isDirty = nextState !== state;
-      patches = patchesInner;
-      inversePatches = inversePatchesInner;
+        isDirty = nextState !== state;
+        patches = patchesInner;
+        inversePatches = inversePatchesInner;
 
-      return nextState;
-    });
+        return nextState;
+      },
+      replace,
+      ...args,
+    );
 
     return [isDirty!, patches!, inversePatches!];
   }
