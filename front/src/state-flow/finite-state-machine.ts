@@ -76,7 +76,10 @@ export const canvasStateMachine = createMachine({
         fetchingCanvasContentError: { target: 'Error' },
         fetchingCanvasContentSuccess: [
           {
-            target: 'Initialized.SyncState.Uploading',
+            target: [
+              'Initialized.LocalChangeState.Dirty',
+              'Initialized.SyncState.Uploading',
+            ],
             guard: ({ event }) => event.isUpdated,
           },
           { target: 'Initialized' },
@@ -110,6 +113,7 @@ export const canvasStateMachine = createMachine({
             Dirty: {
               entry: [assign({ hasUnsavedChanges: true })],
               on: {
+                flowContentNoUploadNeeded: { target: 'Clean' },
                 startUploadingFlowContent: { target: 'Clean' },
               },
             },
@@ -125,16 +129,18 @@ export const canvasStateMachine = createMachine({
               },
             },
             UploadingDebouncing: {
-              entry: [
-                assign({ isSavingFlowContent: false }),
-                'transitionToUploadingDebounced',
-              ],
+              entry: [assign({ isSavingFlowContent: false })],
               on: {
-                // This is essentially a debounced delayed transition
                 flowContentTouched: {
-                  actions: 'transitionToUploadingDebounced',
+                  target: 'UploadingDebouncing',
+                  // Reenter will reset the delayed transition
+                  reenter: true,
                 },
-                startUploadingFlowContent: { target: 'Uploading' },
+              },
+              after: {
+                // The delayed transition and reenter event above
+                // serve as a debouncing mechanism
+                500: { target: 'Uploading' },
               },
             },
             Uploading: {

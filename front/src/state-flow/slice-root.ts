@@ -1,6 +1,5 @@
 import { A, D } from '@mobily/ts-belt';
 import deepEqual from 'deep-equal';
-import debounce from 'lodash/debounce';
 import { OnConnectStartParams } from 'reactflow';
 import { Subscription } from 'rxjs';
 import invariant from 'tiny-invariant';
@@ -81,12 +80,7 @@ export function createRootSlice(
         cancelCanvasInitializationIfInProgress: () => {
           get().cancelCanvasInitializationIfInProgress();
         },
-        transitionToUploadingDebounced: debounce(() => {
-          get().actorSend({
-            type: StateMachineAction.StartUploadingFlowContent,
-          });
-        }, 1000),
-        syncFlowContent: () => {
+        syncFlowContent: async () => {
           const flowContent = get().getFlowContent();
 
           const nextSyncedData: V3FlowContent = {
@@ -113,25 +107,28 @@ export function createRootSlice(
 
           prevSyncedData = nextSyncedData;
 
-          if (hasChange) {
-            const spaceId = get().spaceId;
-
-            console.time('updateSpaceContentV3');
-            updateSpaceContentV3(spaceId, nextSyncedData)
-              .then(() => {
-                console.timeEnd('updateSpaceContentV3');
-                get().actorSend({
-                  type: StateMachineAction.FlowContentUploadSuccess,
-                });
-              })
-              .catch(() => {
-                console.timeEnd('updateSpaceContentV3');
-                // TODO: Report to telemetry and handle in state machine
-              });
-          } else {
+          if (!hasChange) {
             get().actorSend({
               type: StateMachineAction.FlowContentNoUploadNeeded,
             });
+            return;
+          }
+          get().actorSend({
+            type: StateMachineAction.StartUploadingFlowContent,
+          });
+
+          const spaceId = get().spaceId;
+
+          try {
+            console.time('updateSpaceContentV3');
+            await updateSpaceContentV3(spaceId, nextSyncedData);
+            console.timeEnd('updateSpaceContentV3');
+            get().actorSend({
+              type: StateMachineAction.FlowContentUploadSuccess,
+            });
+          } catch (error) {
+            console.timeEnd('updateSpaceContentV3');
+            // TODO: Report to telemetry and handle in state machine
           }
         },
       },
