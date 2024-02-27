@@ -20,8 +20,12 @@ type Props = {
 
 export default function PresetSaveModal(props: Props) {
   // SECTION: Select state from store
-  const createAndSelectPreset = useFlowStore((s) => s.createAndSelectPreset);
-  const updateSelectedPreset = useFlowStore((s) => s.updateSelectedPreset);
+  const createAndSelectPreset = useFlowStore(
+    (s) => s.eventGraphState.batchTest.createAndSelectPreset,
+  );
+  const updateSelectedPreset = useFlowStore(
+    (s) => s.eventGraphState.batchTest.updateSelectedPreset,
+  );
   // !SECTION
 
   const [name, setName] = useState(() => props.preset?.name ?? '');

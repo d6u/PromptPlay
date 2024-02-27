@@ -11,10 +11,8 @@ type Props = {
 };
 
 export default function EvaluationSectionImportCSV(props: Props) {
-  const csvStr = useFlowStore(
-    (s) => s.getEventGraphState().batchTestConfigCsvString,
-  );
-  const setCsvStr = useFlowStore((s) => s.setCsvStr);
+  const csvStr = useFlowStore((s) => s.eventGraphState.batchTest.csvString);
+  const setCsvStr = useFlowStore((s) => s.eventGraphState.batchTest.setCsvStr);
 
   return (
     <>

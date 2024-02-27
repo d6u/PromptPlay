@@ -1,6 +1,23 @@
-import { EventGraphSliceState } from '../slice-event-graph';
+import {
+  RunMetadataTable,
+  RunOutputTable,
+  VariableIdToCsvColumnIndexMap,
+} from 'state-flow/types';
 
-export type State = EventGraphSliceState['eventGraphState'];
+import { FlowContentState } from '../slice-event-graph';
+
+export type State = {
+  flowContent: FlowContentState;
+  batchTest: {
+    config: {
+      repeatTimes: number;
+      concurrencyLimit: number;
+      variableIdToCsvColumnIndexMap: VariableIdToCsvColumnIndexMap;
+      runOutputTable: RunOutputTable;
+      runMetadataTable: RunMetadataTable;
+    };
+  };
+};
 
 export enum ChangeEventType {
   // React Flow

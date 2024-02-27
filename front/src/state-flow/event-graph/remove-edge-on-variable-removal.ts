@@ -71,7 +71,7 @@ export const removeEdgeOnVariableRemoval = createHandler<
       event.removedVariable.id
     ];
 
-    delete state.batchTestConfig.variableIdToCsvColumnIndexMap[
+    delete state.batchTest.config.variableIdToCsvColumnIndexMap[
       event.removedVariable.id
     ];
 

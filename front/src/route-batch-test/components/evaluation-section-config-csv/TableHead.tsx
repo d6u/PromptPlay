@@ -14,13 +14,17 @@ export default function TableHead(props: Props) {
   // SECTION: Select state from store
 
   const variablesDict = useFlowStore((s) => s.getFlowContent().variablesDict);
-  const repeatTimes = useFlowStore((s) => s.getRepeatTimes());
-  const variableIdToCsvColumnIndexMap = useFlowStore((s) =>
-    s.getVariableIdToCsvColumnIndexMap(),
+  const repeatTimes = useFlowStore(
+    (s) => s.eventGraphState.batchTest.config.repeatTimes,
+  );
+  const variableIdToCsvColumnIndexMap = useFlowStore(
+    (s) => s.eventGraphState.batchTest.config.variableIdToCsvColumnIndexMap,
   );
 
   const setVariableIdToCsvColumnIndexMap = useFlowStore(
-    (s) => s.setVariableIdToCsvColumnIndexMap,
+    (s) =>
+      s.eventGraphState.batchTest.configActions
+        .setVariableIdToCsvColumnIndexMap,
   );
 
   // !SECTION

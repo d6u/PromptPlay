@@ -36,8 +36,6 @@ type RootSliceState = {
   nodeMetadataDict: NodeMetadataDict;
 
   selectedBatchTestTab: BatchTestTab;
-  csvModeSelectedPresetId: string | null;
-  csvEvaluationIsLoading: boolean;
 };
 
 export type RootSlice = RootSliceState & {
@@ -58,7 +56,12 @@ type InitProps = {
   spaceId: string;
 };
 
-type RootSliceStateCreator = StateCreator<FlowState, [], [], RootSlice>;
+type RootSliceStateCreator = StateCreator<
+  FlowState,
+  [['zustand/devtools', never]],
+  [],
+  RootSlice
+>;
 
 export function createRootSlice(
   initProps: InitProps,
@@ -167,8 +170,6 @@ export function createRootSlice(
     nodeMetadataDict: {},
 
     selectedBatchTestTab: BatchTestTab.RunTests,
-    csvModeSelectedPresetId: null,
-    csvEvaluationIsLoading: false,
 
     actorSend(event: StateMachineEvent): void {
       fsmActor.send(event);
