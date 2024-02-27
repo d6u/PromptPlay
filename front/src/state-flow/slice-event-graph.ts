@@ -52,15 +52,17 @@ import {
   assignLocalNodeProperties,
 } from './util/state-utils';
 
+export type FlowContentState = {
+  nodes: LocalNode[];
+  edges: V3LocalEdge[];
+  nodeConfigsDict: NodeConfigMap;
+  variablesDict: ConnectorMap;
+  variableValueLookUpDicts: ConnectorResultMap[];
+};
+
 export type EventGraphSliceState = {
   eventGraphState: {
-    flowContent: {
-      nodes: LocalNode[];
-      edges: V3LocalEdge[];
-      nodeConfigsDict: NodeConfigMap;
-      variablesDict: ConnectorMap;
-      variableValueLookUpDicts: ConnectorResultMap[];
-    };
+    flowContent: FlowContentState;
     batchTest: BatchTestState;
   };
 

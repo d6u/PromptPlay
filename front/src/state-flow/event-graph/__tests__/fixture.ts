@@ -8,10 +8,7 @@ export const MOCK_STATE: State = {
     variablesDict: {},
     variableValueLookUpDicts: [{}],
   },
-
   batchTest: {
-    csvString: '',
-
     config: {
       repeatTimes: 1,
       concurrencyLimit: 2,
