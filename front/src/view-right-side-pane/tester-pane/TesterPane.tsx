@@ -18,10 +18,12 @@ function TesterPane() {
   const { isCurrentUserOwner } = useContext(RouteFlowContext);
 
   // SECTION: Select state from store
-  const isRunning = useFlowStore((s) => s.isRunning);
+  const isExecutingFlowSingleRun = useFlowStore(
+    (s) => s.getStateMachineContext().isExecutingFlowSingleRun,
+  );
   const variableMap = useFlowStore((s) => s.getFlowContent().variablesDict);
-  const runFlow = useFlowStore((s) => s.runFlow);
-  const stopRunningFlow = useFlowStore((s) => s.stopRunningFlow);
+  const runFlow = useFlowStore((s) => s.startFlowSingleRun);
+  const stopRunningFlow = useFlowStore((s) => s.stopFlowSingleRun);
   const variableValueMap = useFlowStore((s) =>
     s.getDefaultVariableValueLookUpDict(),
   );
@@ -43,10 +45,10 @@ function TesterPane() {
         <HeaderSectionHeader>Input variables</HeaderSectionHeader>
         {isCurrentUserOwner && (
           <Button
-            color={isRunning ? 'danger' : 'success'}
-            onClick={isRunning ? stopRunningFlow : runFlow}
+            color={isExecutingFlowSingleRun ? 'danger' : 'success'}
+            onClick={isExecutingFlowSingleRun ? stopRunningFlow : runFlow}
           >
-            {isRunning ? 'Stop' : 'Run'}
+            {isExecutingFlowSingleRun ? 'Stop' : 'Run'}
           </Button>
         )}
       </HeaderSection>

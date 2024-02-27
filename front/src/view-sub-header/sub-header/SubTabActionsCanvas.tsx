@@ -18,10 +18,12 @@ function SubTabActionsCanvas() {
 
   const storeApi = useStoreApi();
 
-  const isRunning = useFlowStore((s) => s.isRunning);
+  const isExecutingFlowSingleRun = useFlowStore(
+    (s) => s.getStateMachineContext().isExecutingFlowSingleRun,
+  );
   const addNode = useFlowStore((s) => s.addNode);
-  const runFlow = useFlowStore((s) => s.runFlow);
-  const stopRunningFlow = useFlowStore((s) => s.stopRunningFlow);
+  const runFlow = useFlowStore((s) => s.startFlowSingleRun);
+  const stopRunningFlow = useFlowStore((s) => s.stopFlowSingleRun);
 
   const addNodeWithType = useCallback(
     (type: NodeTypeEnum) => {
@@ -73,10 +75,10 @@ function SubTabActionsCanvas() {
         </Menu>
       </Dropdown>
       <Button
-        color={isRunning ? 'danger' : 'success'}
-        onClick={isRunning ? stopRunningFlow : runFlow}
+        color={isExecutingFlowSingleRun ? 'danger' : 'success'}
+        onClick={isExecutingFlowSingleRun ? stopRunningFlow : runFlow}
       >
-        {isRunning ? 'Stop' : 'Run'}
+        {isExecutingFlowSingleRun ? 'Stop' : 'Run'}
       </Button>
     </Container>
   );

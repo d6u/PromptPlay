@@ -142,9 +142,11 @@ type EventGraphSliceAction = {
     PropType<EventGraphSliceState, ['eventGraphState', 'batchTestConfig']>
   >;
 
-  // Execute flow run
-  runFlow(): void;
-  stopRunningFlow(): void;
+  // Flow run
+  startFlowSingleRun(): void;
+  stopFlowSingleRun(): void;
+  __startFlowSingleRunImpl(): void;
+  __stopFlowSingleRunImpl(): void;
 };
 
 export type EventGraphSlice = EventGraphSliceState & EventGraphSliceAction;
@@ -222,7 +224,9 @@ export const createEventGraphSlice: StateCreator<
     get().actorSend({ type: StateMachineAction.FlowContentTouched });
   }
 
-  function setIsRunning(isRunning: boolean) {
+  function resetEdgeAndMetadataBaseOnFlowRunSingleExecutingState(
+    isRunning: boolean,
+  ) {
     setFlowContentProduce((draft) => {
       for (const edge of draft.edges) {
         if (edge.animated !== isRunning) {
@@ -244,7 +248,7 @@ export const createEventGraphSlice: StateCreator<
       });
     }
 
-    set({ isRunning, nodeMetadataDict });
+    set({ nodeMetadataDict });
   }
 
   return {
@@ -625,13 +629,25 @@ export const createEventGraphSlice: StateCreator<
     },
     getBatchTestConfig,
 
-    runFlow() {
+    startFlowSingleRun() {
+      get().actorSend({ type: StateMachineAction.StartExecutingFlowSingleRun });
+    },
+    stopFlowSingleRun() {
+      posthog.capture('Manually Stopped Simple Evaluation', {
+        flowId: get().spaceId,
+      });
+
+      get().actorSend({
+        type: StateMachineAction.StopExecutingFlowSingleRun,
+      });
+    },
+
+    __startFlowSingleRunImpl() {
       posthog.capture('Starting Simple Evaluation', {
         flowId: get().spaceId,
       });
 
       const { edges, nodeConfigsDict, variablesDict } = get().getFlowContent();
-      const updateNodeAugment = get().updateNodeAugment;
       const variableValueLookUpDict = get().getDefaultVariableValueLookUpDict();
 
       const flowInputVariableValueMap: Readonly<
@@ -646,11 +662,14 @@ export const createEventGraphSlice: StateCreator<
 
       // TODO: Give a default for every node instead of empty object
       set({ nodeMetadataDict: {} });
-      setIsRunning(true);
+
+      resetEdgeAndMetadataBaseOnFlowRunSingleExecutingState(true);
+
       // Reset variable values except for flow inputs values
       setFlowContentProduce((draft) => {
         draft.variableValueLookUpDicts = [flowInputVariableValueMap];
       });
+
       useNodeFieldFeedbackStore.getState().clearFieldFeedbacks();
 
       runSingleSubscription = flowRunSingle({
@@ -685,7 +704,7 @@ export const createEventGraphSlice: StateCreator<
                   }
                   case ValidationErrorType.NodeLevel: {
                     // TODO: Show node level errors in UI
-                    updateNodeAugment(error.nodeId, {
+                    get().updateNodeAugment(error.nodeId, {
                       isRunning: false,
                       hasError: true,
                     });
@@ -700,7 +719,7 @@ export const createEventGraphSlice: StateCreator<
                       [error.message],
                     );
 
-                    updateNodeAugment(error.nodeId, {
+                    get().updateNodeAugment(error.nodeId, {
                       isRunning: false,
                       hasError: true,
                     });
@@ -749,30 +768,30 @@ export const createEventGraphSlice: StateCreator<
 
           console.error(error);
 
-          setIsRunning(false);
+          get().actorSend({
+            type: StateMachineAction.FinishedExecutingFlowSingleRun,
+          });
+
+          resetEdgeAndMetadataBaseOnFlowRunSingleExecutingState(false);
         },
         complete() {
           posthog.capture('Finished Simple Evaluation', {
             flowId: get().spaceId,
           });
 
-          setIsRunning(false);
+          get().actorSend({
+            type: StateMachineAction.FinishedExecutingFlowSingleRun,
+          });
+
+          resetEdgeAndMetadataBaseOnFlowRunSingleExecutingState(false);
         },
       });
-
-      // TODO: Unscubscribe when leave
-      get().subscriptionBag.add(runSingleSubscription);
     },
-
-    stopRunningFlow() {
-      posthog.capture('Manually Stopped Simple Evaluation', {
-        flowId: get().spaceId,
-      });
-
+    __stopFlowSingleRunImpl() {
       runSingleSubscription?.unsubscribe();
       runSingleSubscription = null;
 
-      setIsRunning(false);
+      resetEdgeAndMetadataBaseOnFlowRunSingleExecutingState(false);
     },
   };
 };

@@ -9,6 +9,9 @@ export enum StateMachineAction {
   StartUploadingFlowContent = 'startUploadingFlowContent',
   FlowContentNoUploadNeeded = 'flowContentNoUploadNeeded',
   FlowContentUploadSuccess = 'flowContentUploadSuccess',
+  StartExecutingFlowSingleRun = 'startExecutingFlowSingleRun',
+  StopExecutingFlowSingleRun = 'stopExecutingFlowSingleRun',
+  FinishedExecutingFlowSingleRun = 'finishedExecutingFlowSingleRun',
   LeaveFlowRoute = 'leaveFlowRoute',
 }
 
@@ -39,6 +42,15 @@ export type StateMachineEvent =
       type: StateMachineAction.FlowContentUploadSuccess;
     }
   | {
+      type: StateMachineAction.StartExecutingFlowSingleRun;
+    }
+  | {
+      type: StateMachineAction.StopExecutingFlowSingleRun;
+    }
+  | {
+      type: StateMachineAction.FinishedExecutingFlowSingleRun;
+    }
+  | {
       type: StateMachineAction.LeaveFlowRoute;
     };
 
@@ -46,12 +58,14 @@ export type StateMachineContext = {
   canvasUiState: 'empty' | 'fetching' | 'error' | 'initialized';
   hasUnsavedChanges: boolean;
   isSavingFlowContent: boolean;
+  isExecutingFlowSingleRun: boolean;
 };
 
 export const INITIAL_CONTEXT: StateMachineContext = {
   canvasUiState: 'empty',
   hasUnsavedChanges: false,
   isSavingFlowContent: false,
+  isExecutingFlowSingleRun: false,
 };
 
 export const canvasStateMachine = createMachine({
@@ -155,6 +169,28 @@ export const canvasStateMachine = createMachine({
                   },
                   { target: 'Idle' },
                 ],
+              },
+            },
+          },
+        },
+        FlowRunSingle: {
+          initial: 'Idle',
+          states: {
+            Idle: {
+              entry: [assign({ isExecutingFlowSingleRun: false })],
+              on: {
+                startExecutingFlowSingleRun: { target: 'Executing' },
+              },
+            },
+            Executing: {
+              entry: [
+                assign({ isExecutingFlowSingleRun: true }),
+                'executeFlowSingleRun',
+              ],
+              exit: ['cancelFlowSingleRunIfInProgress'],
+              on: {
+                stopExecutingFlowSingleRun: { target: 'Idle' },
+                finishedExecutingFlowSingleRun: { target: 'Idle' },
               },
             },
           },

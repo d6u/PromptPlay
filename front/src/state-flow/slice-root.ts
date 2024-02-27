@@ -1,7 +1,6 @@
 import { A, D } from '@mobily/ts-belt';
 import deepEqual from 'deep-equal';
 import { OnConnectStartParams } from 'reactflow';
-import { Subscription } from 'rxjs';
 import invariant from 'tiny-invariant';
 import { createActor } from 'xstate';
 import { StateCreator } from 'zustand';
@@ -27,9 +26,7 @@ import {
 type RootSliceState = {
   // TODO: Does readonly make any difference here?
   readonly spaceId: string;
-  readonly subscriptionBag: Subscription;
 
-  isRunning: boolean;
   connectStartEdgeType: ConnectStartEdgeType | null;
   connectStartStartNodeId: string | null;
 
@@ -131,6 +128,12 @@ export function createRootSlice(
             // TODO: Report to telemetry and handle in state machine
           }
         },
+        executeFlowSingleRun: () => {
+          get().__startFlowSingleRunImpl();
+        },
+        cancelFlowSingleRunIfInProgress: () => {
+          get().__stopFlowSingleRunImpl();
+        },
       },
     }),
     {
@@ -154,9 +157,7 @@ export function createRootSlice(
 
   return {
     spaceId: initProps.spaceId,
-    subscriptionBag: new Subscription(),
 
-    isRunning: false,
     connectStartEdgeType: null,
     connectStartStartNodeId: null,
 
