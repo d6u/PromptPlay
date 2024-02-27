@@ -107,7 +107,7 @@ type EventGraphSliceAction = {
     updates: { variableId: string; change: Record<string, unknown> }[],
   ): void;
 
-  updateVariableValueMap(variableId: string, value: unknown): void;
+  updateVariableValue(variableId: string, value: unknown): void;
   updateVariableValues(updates: { variableId: string; value: unknown }[]): void;
   // !SECTION
 
@@ -384,7 +384,7 @@ export const createEventGraphSlice: StateCreator<
       });
     },
 
-    updateVariableValueMap(variableId: string, value: unknown): void {
+    updateVariableValue(variableId: string, value: unknown): void {
       processEventWithEventGraph({
         type: ChangeEventType.UPDATE_VARIABLE_VALUES,
         updates: [{ variableId, value }],
@@ -735,7 +735,7 @@ export const createEventGraphSlice: StateCreator<
             case FlowRunEventType.VariableValues: {
               Object.entries(data.variableValues).forEach(
                 ([outputId, value]) => {
-                  get().updateVariableValueMap(outputId, value);
+                  get().updateVariableValue(outputId, value);
                 },
               );
               break;
