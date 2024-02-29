@@ -1,7 +1,9 @@
 import { F } from '@mobily/ts-belt';
 import { Option, Select } from '@mui/joy';
-import { ConnectorType } from 'flow-models';
 import { ReactNode, useMemo } from 'react';
+
+import { ConnectorType } from 'flow-models';
+
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 import { CSVRow } from 'state-flow/types';
 import { selectAllVariables } from 'state-flow/util/state-utils';
@@ -15,16 +17,14 @@ export default function TableHead(props: Props) {
 
   const variablesDict = useFlowStore((s) => s.getFlowContent().variablesDict);
   const repeatTimes = useFlowStore(
-    (s) => s.eventGraphState.batchTest.config.repeatTimes,
+    (s) => s.batchTest.config.content.repeatTimes,
   );
   const variableIdToCsvColumnIndexMap = useFlowStore(
-    (s) => s.eventGraphState.batchTest.config.variableIdToCsvColumnIndexMap,
+    (s) => s.batchTest.config.content.variableIdToCsvColumnIndexMap,
   );
 
   const setVariableIdToCsvColumnIndexMap = useFlowStore(
-    (s) =>
-      s.eventGraphState.batchTest.configActions
-        .setVariableIdToCsvColumnIndexMap,
+    (s) => s.batchTest.config.setVariableIdToCsvColumnIndexMap,
   );
 
   // !SECTION

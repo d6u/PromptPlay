@@ -8,10 +8,10 @@ function SavingIndicator() {
   const flowTabType = useFlowRouteSubRouteHandle((handle) => handle.tabType);
 
   const isSavingFlowContent = useFlowStore(
-    (s) => s.getStateMachineContext().isSavingFlowContent,
+    (s) => s.canvasStateMachine.getSnapshot().context.isSavingFlowContent,
   );
   const hasUnsavedChanges = useFlowStore(
-    (s) => s.getStateMachineContext().hasUnsavedChanges,
+    (s) => s.canvasStateMachine.getSnapshot().context.hasUnsavedChanges,
   );
 
   switch (flowTabType) {

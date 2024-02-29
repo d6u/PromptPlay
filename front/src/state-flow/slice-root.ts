@@ -1,162 +1,146 @@
-import { A, D } from '@mobily/ts-belt';
+import { createLens } from '@dhmk/zustand-lens';
+import { A, D, pipe } from '@mobily/ts-belt';
 import deepEqual from 'deep-equal';
-import { OnConnectStartParams } from 'reactflow';
+import { produce } from 'immer';
+import posthog from 'posthog-js';
+import { EdgeChange, NodeChange, OnConnectStartParams } from 'reactflow';
+import { Subscription, from, map } from 'rxjs';
 import invariant from 'tiny-invariant';
-import { createActor } from 'xstate';
+import { OperationResult } from 'urql';
 import { StateCreator } from 'zustand';
 
-import { Connector, ConnectorType, V3FlowContent } from 'flow-models';
-
 import {
-  StateMachineAction,
-  StateMachineContext,
-  StateMachineEvent,
-  canvasStateMachine,
-} from './finite-state-machine';
+  Connector,
+  ConnectorMap,
+  ConnectorResultMap,
+  ConnectorType,
+  ConnectorTypeEnum,
+  FlowConfigSchema,
+  FlowInputVariable,
+  NodeConfig,
+  NodeTypeEnum,
+  V3FlowContent,
+  createNode,
+} from 'flow-models';
+
+import { FlowRunEventType, ValidationErrorType } from 'flow-run/event-types';
+import flowRunSingle from 'flow-run/flowRunSingle';
+import { ContentVersion, SpaceFlowQueryQuery } from 'gencode-gql/graphql';
+import { client } from 'graphql-util/client';
+import { useLocalStorageStore } from 'state-root/local-storage-state';
+import { useNodeFieldFeedbackStore } from 'state-root/node-field-feedback-state';
+
+import { graphql } from '../gencode-gql/gql';
+import { ChangeEventType } from './event-graph/event-types';
+import { AcceptedEvent, handleAllEvent } from './event-graph/handle-all-event';
 import { updateSpaceContentV3 } from './graphql/graphql';
+import { createBatchTestLens } from './lenses/batch-test-lens';
+import { canvasStateMachine } from './state-machines/canvasStateMachine';
 import {
   BatchTestTab,
   CanvasRightPanelType,
+  CanvasStateMachineActions,
+  CanvasStateMachineContext,
+  CanvasStateMachineEvent,
+  CanvasStateMachineEventType,
   ConnectStartEdgeType,
   FlowState,
   NodeMetadata,
-  NodeMetadataDict,
 } from './types';
+import { createWithImmer } from './util/lens-util';
+import { withActor } from './util/middleware';
+import {
+  VariableTypeToVariableConfigTypeMap,
+  assignLocalEdgeProperties,
+  assignLocalNodeProperties,
+} from './util/state-utils';
 
-type RootSliceState = {
-  // TODO: Does readonly make any difference here?
-  readonly spaceId: string;
-
-  connectStartEdgeType: ConnectStartEdgeType | null;
-  connectStartStartNodeId: string | null;
-
-  canvasLeftPaneIsOpen: boolean;
-  canvasLeftPaneSelectedNodeId: string | null;
-  canvasRightPaneType: CanvasRightPanelType;
-  nodeMetadataDict: NodeMetadataDict;
-
-  selectedBatchTestTab: BatchTestTab;
-};
-
-export type RootSlice = RootSliceState & {
-  actorSend(event: StateMachineEvent): void;
-  getStateMachineContext(): StateMachineContext;
-
-  setCanvasLeftPaneIsOpen(isOpen: boolean): void;
-  setCanvasLeftPaneSelectedNodeId(nodeId: string | null): void;
-  setCanvasRightPaneType(type: CanvasRightPanelType): void;
-  updateNodeAugment(nodeId: string, change: Partial<NodeMetadata>): void;
-  onEdgeConnectStart(params: OnConnectStartParams): void;
-  onEdgeConnectStop(): void;
-
-  setSelectedBatchTestTab(tab: BatchTestTab): void;
-};
+type FlowStateCreator = StateCreator<FlowState, [], [], FlowState>;
 
 type InitProps = {
   spaceId: string;
 };
 
-type RootSliceStateCreator = StateCreator<
-  FlowState,
-  [['zustand/devtools', never]],
-  [],
-  RootSlice
->;
-
 export function createRootSlice(
   initProps: InitProps,
-  ...rest: Parameters<RootSliceStateCreator>
-): ReturnType<RootSliceStateCreator> {
-  const [set, get] = rest;
+  ...args: Parameters<FlowStateCreator>
+): ReturnType<FlowStateCreator> {
+  const [set, get] = args;
 
   let prevSyncedData: V3FlowContent | null = null;
 
-  const fsmActor = createActor(
-    canvasStateMachine.provide({
-      actions: {
-        initializeCanvas: () => {
-          get().initializeCanvas();
-        },
-        cancelCanvasInitializationIfInProgress: () => {
-          get().cancelCanvasInitializationIfInProgress();
-        },
-        syncFlowContent: async () => {
-          const flowContent = get().getFlowContent();
-
-          const nextSyncedData: V3FlowContent = {
-            ...flowContent,
-            nodes: A.map(
-              flowContent.nodes,
-              D.selectKeys(['id', 'type', 'position', 'data']),
-            ),
-            edges: A.map(
-              flowContent.edges,
-              D.selectKeys([
-                'id',
-                'source',
-                'sourceHandle',
-                'target',
-                'targetHandle',
-              ]),
-            ),
-          };
-
-          const hasChange =
-            prevSyncedData != null &&
-            !deepEqual(prevSyncedData, nextSyncedData);
-
-          prevSyncedData = nextSyncedData;
-
-          if (!hasChange) {
-            get().actorSend({
-              type: StateMachineAction.FlowContentNoUploadNeeded,
-            });
-            return;
-          }
-          get().actorSend({
-            type: StateMachineAction.StartUploadingFlowContent,
-          });
-
-          const spaceId = get().spaceId;
-
-          try {
-            console.time('updateSpaceContentV3');
-            await updateSpaceContentV3(spaceId, nextSyncedData);
-            console.timeEnd('updateSpaceContentV3');
-            get().actorSend({
-              type: StateMachineAction.FlowContentUploadSuccess,
-            });
-          } catch (error) {
-            console.timeEnd('updateSpaceContentV3');
-            // TODO: Report to telemetry and handle in state machine
-          }
-        },
-        executeFlowSingleRun: () => {
-          get().__startFlowSingleRunImpl();
-        },
-        cancelFlowSingleRunIfInProgress: () => {
-          get().__stopFlowSingleRunImpl();
-        },
-      },
-    }),
-    {
-      inspect(event) {
-        if (event.type === '@xstate.event') {
-          console.log('[State Machine] event:', event.event);
-        }
-      },
-    },
+  // SECTION: Lenses
+  const [setEventGraphState, getEventGraphState] = createLens(
+    set,
+    get,
+    'canvas',
   );
+  const [setFlowContent, getFlowContent] = createLens(
+    setEventGraphState,
+    getEventGraphState,
+    'flowContent',
+  );
+  // !SECTION
 
-  // TODO: Memory leak here because we never unsubscribe
-  fsmActor.subscribe((snapshot) => {
-    console.log(
-      '[State Machine] state:',
-      JSON.stringify(snapshot.value, null, 2),
+  // SECTION: With Immer
+  const { setWithPatches: setEventGraphStateWithPatches } = createWithImmer<
+    FlowState,
+    ['canvas']
+  >([setEventGraphState, getEventGraphState]);
+
+  const { set: setFlowContentProduce } = createWithImmer<
+    FlowState,
+    ['canvas', 'flowContent']
+  >([setFlowContent, getFlowContent]);
+  // !SECTION
+
+  let initializationSubscription: Subscription | null = null;
+  let runSingleSubscription: Subscription | null = null;
+
+  function processEventWithEventGraph(event: AcceptedEvent) {
+    console.log('processEventWithEventGraph', event);
+
+    // console.time('processEventWithEventGraph');
+    setEventGraphStateWithPatches(
+      (draft) => {
+        handleAllEvent(draft, event);
+      },
+      false,
+      event,
     );
-  });
+    // console.timeEnd('processEventWithEventGraph');
 
-  fsmActor.start();
+    get().canvasStateMachine.send({
+      type: CanvasStateMachineEventType.FlowContentTouched,
+    });
+  }
+
+  function resetEdgeAndMetadataBaseOnFlowRunSingleExecutingState(
+    isRunning: boolean,
+  ) {
+    setFlowContentProduce((draft) => {
+      for (const edge of draft.edges) {
+        if (edge.animated !== isRunning) {
+          edge.animated = isRunning;
+        }
+      }
+    });
+
+    let nodeMetadataDict = get().nodeMetadataDict;
+
+    if (!isRunning) {
+      // It is important to reset node metadata, because node's running status
+      // doesn't depend on global isRunning state.
+      nodeMetadataDict = produce(nodeMetadataDict, (draft) => {
+        for (const nodeMetadata of Object.values(draft)) {
+          invariant(nodeMetadata != null);
+          nodeMetadata.isRunning = false;
+        }
+      });
+    }
+
+    set({ nodeMetadataDict });
+  }
 
   return {
     spaceId: initProps.spaceId,
@@ -171,13 +155,73 @@ export function createRootSlice(
 
     selectedBatchTestTab: BatchTestTab.RunTests,
 
-    actorSend(event: StateMachineEvent): void {
-      fsmActor.send(event);
-      // NOTE: Manually trigger a re-render
-      set({});
+    canvas: {
+      flowContent: {
+        nodes: [],
+        edges: [],
+        nodeConfigsDict: {},
+        variablesDict: {},
+        variableValueLookUpDicts: [{}],
+      },
     },
-    getStateMachineContext(): StateMachineContext {
-      return fsmActor.getSnapshot().context;
+
+    batchTest: createBatchTestLens(get),
+
+    canvasStateMachine: withActor<
+      CanvasStateMachineContext,
+      CanvasStateMachineEvent,
+      CanvasStateMachineActions
+    >(canvasStateMachine),
+
+    syncFlowContent: async () => {
+      const flowContent = get().getFlowContent();
+      const nextSyncedData: V3FlowContent = {
+        ...flowContent,
+        nodes: A.map(
+          flowContent.nodes,
+          D.selectKeys(['id', 'type', 'position', 'data']),
+        ),
+        edges: A.map(
+          flowContent.edges,
+          D.selectKeys([
+            'id',
+            'source',
+            'sourceHandle',
+            'target',
+            'targetHandle',
+          ]),
+        ),
+      };
+      const hasChange =
+        prevSyncedData != null && !deepEqual(prevSyncedData, nextSyncedData);
+      prevSyncedData = nextSyncedData;
+      if (!hasChange) {
+        get().canvasStateMachine.send({
+          type: CanvasStateMachineEventType.FlowContentNoUploadNeeded,
+        });
+        return;
+      }
+      get().canvasStateMachine.send({
+        type: CanvasStateMachineEventType.StartUploadingFlowContent,
+      });
+      const spaceId = get().spaceId;
+      try {
+        console.time('updateSpaceContentV3');
+        await updateSpaceContentV3(spaceId, nextSyncedData);
+        console.timeEnd('updateSpaceContentV3');
+        get().canvasStateMachine.send({
+          type: CanvasStateMachineEventType.FlowContentUploadSuccess,
+        });
+      } catch (error) {
+        console.timeEnd('updateSpaceContentV3');
+        // TODO: Report to telemetry and handle in state machine
+      }
+    },
+    executeFlowSingleRun: () => {
+      get().__startFlowSingleRunImpl();
+    },
+    cancelFlowSingleRunIfInProgress: () => {
+      get().__stopFlowSingleRunImpl();
     },
 
     setCanvasLeftPaneIsOpen(isOpen: boolean): void {
@@ -215,7 +259,7 @@ export function createRootSlice(
       invariant(handleId != null, 'handleId is not null');
 
       set((state) => {
-        const connector = state.getFlowContent().variablesDict[handleId] as
+        const connector = get().getFlowContent().variablesDict[handleId] as
           | Connector
           | undefined;
 
@@ -243,5 +287,386 @@ export function createRootSlice(
     setSelectedBatchTestTab(tab: BatchTestTab): void {
       set({ selectedBatchTestTab: tab });
     },
+
+    initializeCanvas(): void {
+      const spaceId = get().spaceId;
+
+      initializationSubscription = from(querySpace(spaceId))
+        .pipe(map(parseQueryResult))
+        .subscribe({
+          next({ flowContent, isUpdated }) {
+            const { nodes, edges, variablesDict, ...rest } = flowContent;
+
+            const updatedNodes = assignLocalNodeProperties(nodes);
+            const updatedEdges = assignLocalEdgeProperties(
+              edges,
+              variablesDict,
+            );
+
+            setFlowContentProduce(
+              () => {
+                return {
+                  nodes: updatedNodes,
+                  edges: updatedEdges,
+                  variablesDict,
+                  ...rest,
+                };
+              },
+              false,
+              { type: 'initializeCanvas', flowContent },
+            );
+
+            get().canvasStateMachine.send({
+              type: CanvasStateMachineEventType.FetchingCanvasContentSuccess,
+              isUpdated,
+            });
+          },
+          error(error) {
+            // TODO: Report to telemetry
+            console.error('Error fetching content', error);
+            get().canvasStateMachine.send({
+              type: CanvasStateMachineEventType.FetchingCanvasContentError,
+            });
+          },
+        });
+    },
+    cancelCanvasInitializationIfInProgress(): void {
+      initializationSubscription?.unsubscribe();
+      initializationSubscription = null;
+    },
+
+    onEdgesChange(changes: EdgeChange[]): void {
+      processEventWithEventGraph({
+        type: ChangeEventType.RF_EDGES_CHANGE,
+        changes,
+      });
+    },
+    onNodesChange(changes: NodeChange[]): void {
+      processEventWithEventGraph({
+        type: ChangeEventType.RF_NODES_CHANGE,
+        changes,
+      });
+    },
+    onConnect(connection): void {
+      processEventWithEventGraph({
+        type: ChangeEventType.RF_ON_CONNECT,
+        connection,
+      });
+    },
+
+    addNode(type: NodeTypeEnum, x: number, y: number): void {
+      processEventWithEventGraph({
+        type: ChangeEventType.ADDING_NODE,
+        node: createNode(type, x, y),
+      });
+    },
+    removeNode(nodeId: string): void {
+      processEventWithEventGraph({
+        type: ChangeEventType.REMOVING_NODE,
+        nodeId: nodeId,
+      });
+    },
+    updateNodeConfig(nodeId: string, change: Partial<NodeConfig>): void {
+      processEventWithEventGraph({
+        type: ChangeEventType.UPDATING_NODE_CONFIG,
+        nodeId,
+        change,
+      });
+    },
+
+    addVariable(nodeId: string, type: ConnectorTypeEnum, index: number): void {
+      processEventWithEventGraph({
+        type: ChangeEventType.ADDING_VARIABLE,
+        nodeId,
+        connectorType: type,
+        connectorIndex: index,
+      });
+    },
+    removeVariable(variableId: string): void {
+      processEventWithEventGraph({
+        type: ChangeEventType.REMOVING_VARIABLE,
+        variableId,
+      });
+    },
+    updateConnector<
+      T extends ConnectorTypeEnum,
+      R = VariableTypeToVariableConfigTypeMap[T],
+    >(variableId: string, change: Partial<R>): void {
+      processEventWithEventGraph({
+        type: ChangeEventType.UPDATE_CONNECTORS,
+        updates: [{ variableId, change }],
+      });
+    },
+    updateConnectors(
+      updates: { variableId: string; change: Partial<Connector> }[],
+    ): void {
+      processEventWithEventGraph({
+        type: ChangeEventType.UPDATE_CONNECTORS,
+        updates,
+      });
+    },
+
+    updateVariableValue(variableId: string, value: unknown): void {
+      processEventWithEventGraph({
+        type: ChangeEventType.UPDATE_VARIABLE_VALUES,
+        updates: [{ variableId, value }],
+      });
+    },
+    updateVariableValues(
+      updates: { variableId: string; value: unknown }[],
+    ): void {
+      processEventWithEventGraph({
+        type: ChangeEventType.UPDATE_VARIABLE_VALUES,
+        updates,
+      });
+    },
+
+    getFlowContent(): V3FlowContent {
+      return getFlowContent();
+    },
+    getDefaultVariableValueLookUpDict(): ConnectorResultMap {
+      return getFlowContent().variableValueLookUpDicts[0]!;
+    },
+
+    startFlowSingleRun() {
+      get().canvasStateMachine.send({
+        type: CanvasStateMachineEventType.StartExecutingFlowSingleRun,
+      });
+    },
+    stopFlowSingleRun() {
+      posthog.capture('Manually Stopped Simple Evaluation', {
+        flowId: get().spaceId,
+      });
+
+      get().canvasStateMachine.send({
+        type: CanvasStateMachineEventType.StopExecutingFlowSingleRun,
+      });
+    },
+
+    __startFlowSingleRunImpl() {
+      posthog.capture('Starting Simple Evaluation', {
+        flowId: get().spaceId,
+      });
+
+      const { edges, nodeConfigsDict, variablesDict } = get().getFlowContent();
+      const variableValueLookUpDict = get().getDefaultVariableValueLookUpDict();
+
+      const flowInputVariableValueMap: Readonly<
+        Record<string, Readonly<unknown>>
+      > = selectFlowInputVariableIdToValueMap(
+        variablesDict,
+        variableValueLookUpDict,
+      );
+
+      // NOTE: Stop previous run if there is one
+      runSingleSubscription?.unsubscribe();
+
+      // TODO: Give a default for every node instead of empty object
+      set({ nodeMetadataDict: {} });
+
+      resetEdgeAndMetadataBaseOnFlowRunSingleExecutingState(true);
+
+      // Reset variable values except for flow inputs values
+      setFlowContentProduce((draft) => {
+        draft.variableValueLookUpDicts = [flowInputVariableValueMap];
+      });
+
+      useNodeFieldFeedbackStore.getState().clearFieldFeedbacks();
+
+      runSingleSubscription = flowRunSingle({
+        edges: edges.map((edge) => ({
+          sourceNode: edge.source,
+          sourceConnector: edge.sourceHandle,
+          targetNode: edge.target,
+          targetConnector: edge.targetHandle,
+        })),
+        nodeConfigs: nodeConfigsDict,
+        connectors: variablesDict,
+        inputValueMap: flowInputVariableValueMap,
+        preferStreaming: true,
+        getAccountLevelFieldValue: (
+          nodeType: NodeTypeEnum,
+          fieldKey: string,
+        ) => {
+          return useLocalStorageStore
+            .getState()
+            .getLocalAccountLevelNodeFieldValue(nodeType, fieldKey);
+        },
+      }).subscribe({
+        next(data) {
+          switch (data.type) {
+            case FlowRunEventType.ValidationErrors: {
+              data.errors.forEach((error) => {
+                switch (error.type) {
+                  case ValidationErrorType.FlowLevel: {
+                    // TODO: Show flow level errors in UI
+                    alert(error.message);
+                    break;
+                  }
+                  case ValidationErrorType.NodeLevel: {
+                    // TODO: Show node level errors in UI
+                    get().updateNodeAugment(error.nodeId, {
+                      isRunning: false,
+                      hasError: true,
+                    });
+                    break;
+                  }
+                  case ValidationErrorType.FieldLevel: {
+                    useNodeFieldFeedbackStore.getState().setFieldFeedbacks(
+                      error.nodeId,
+                      error.fieldKey,
+                      // TODO: Allow setting multiple field level feedbacks
+                      // Currently, new error message will replace the old one.
+                      [error.message],
+                    );
+
+                    get().updateNodeAugment(error.nodeId, {
+                      isRunning: false,
+                      hasError: true,
+                    });
+                    break;
+                  }
+                }
+              });
+              break;
+            }
+            case FlowRunEventType.NodeStart: {
+              const { nodeId } = data;
+              get().updateNodeAugment(nodeId, {
+                isRunning: true,
+              });
+              break;
+            }
+            case FlowRunEventType.NodeFinish: {
+              const { nodeId } = data;
+              get().updateNodeAugment(nodeId, {
+                isRunning: false,
+              });
+              break;
+            }
+            case FlowRunEventType.NodeErrors: {
+              const { nodeId } = data;
+              get().updateNodeAugment(nodeId, {
+                isRunning: false,
+                hasError: true,
+              });
+              break;
+            }
+            case FlowRunEventType.VariableValues: {
+              get().updateVariableValues(
+                Object.entries(data.variableValues).map(
+                  ([variableId, value]) => ({ variableId, value }),
+                ),
+              );
+              break;
+            }
+          }
+        },
+        error(error) {
+          posthog.capture('Finished Simple Evaluation with Error', {
+            flowId: get().spaceId,
+          });
+
+          console.error(error);
+
+          get().canvasStateMachine.send({
+            type: CanvasStateMachineEventType.FinishedExecutingFlowSingleRun,
+          });
+
+          resetEdgeAndMetadataBaseOnFlowRunSingleExecutingState(false);
+        },
+        complete() {
+          posthog.capture('Finished Simple Evaluation', {
+            flowId: get().spaceId,
+          });
+
+          get().canvasStateMachine.send({
+            type: CanvasStateMachineEventType.FinishedExecutingFlowSingleRun,
+          });
+
+          resetEdgeAndMetadataBaseOnFlowRunSingleExecutingState(false);
+        },
+      });
+    },
+    __stopFlowSingleRunImpl() {
+      runSingleSubscription?.unsubscribe();
+      runSingleSubscription = null;
+
+      resetEdgeAndMetadataBaseOnFlowRunSingleExecutingState(false);
+    },
   };
+}
+
+async function querySpace(
+  spaceId: string,
+): Promise<OperationResult<SpaceFlowQueryQuery>> {
+  return await client
+    .query(
+      graphql(`
+        query SpaceFlowQuery($spaceId: UUID!) {
+          result: space(id: $spaceId) {
+            space {
+              id
+              name
+              contentVersion
+              contentV3
+            }
+          }
+        }
+      `),
+      { spaceId },
+      { requestPolicy: 'network-only' },
+    )
+    .toPromise();
+}
+
+function parseQueryResult(result: OperationResult<SpaceFlowQueryQuery>) {
+  // TODO: Report to telemetry
+  invariant(result.data?.result?.space != null);
+
+  const version = result.data.result.space.contentVersion;
+  const contentV3Str = result.data.result.space.contentV3;
+
+  // TODO: Report to telemetry
+  invariant(version === ContentVersion.V3, 'Only v3 is supported');
+
+  switch (version) {
+    case ContentVersion.V3: {
+      invariant(contentV3Str != null, 'contentV3Str is not null');
+
+      // TODO: Report parse error to telemetry
+      const data = JSON.parse(contentV3Str) as Partial<V3FlowContent>;
+
+      const result = FlowConfigSchema.validate(data, {
+        stripUnknown: true,
+      });
+
+      // TODO: Report validation error
+      invariant(
+        result.error == null,
+        `Validation error: ${result.error?.message}`,
+      );
+
+      return {
+        flowContent: result.value,
+        isUpdated: !deepEqual(data, result.value),
+      };
+    }
+  }
+}
+
+function selectFlowInputVariableIdToValueMap(
+  variablesDict: ConnectorMap,
+  variableValueLookUpDict: ConnectorResultMap,
+): Record<string, Readonly<unknown>> {
+  return pipe(
+    variablesDict,
+    D.filter((connector): connector is FlowInputVariable => {
+      return connector.type === ConnectorType.FlowInput;
+    }),
+    D.map((connector) => {
+      invariant(connector != null, 'connector is not null');
+      return variableValueLookUpDict[connector.id] as Readonly<unknown>;
+    }),
+  );
 }

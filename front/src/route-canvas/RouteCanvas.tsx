@@ -6,7 +6,9 @@ import LeftSidePaneView from 'view-left-side-pane/LeftSidePaneView';
 import RightSidePaneView from 'view-right-side-pane/RightSidePaneView';
 
 function RouteCanvas() {
-  const uiState = useFlowStore((s) => s.getStateMachineContext().canvasUiState);
+  const uiState = useFlowStore(
+    (s) => s.canvasStateMachine.getSnapshot().context.canvasUiState,
+  );
 
   // TODO: Render other states
   if (uiState !== 'initialized') {

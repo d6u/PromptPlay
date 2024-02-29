@@ -12,16 +12,14 @@ export default function PresetSelector() {
 
   const spaceId = useFlowStore((s) => s.spaceId);
   const selectedPresetId = useFlowStore(
-    (s) => s.eventGraphState.batchTest.csvModeSelectedPresetId,
+    (s) => s.batchTest.csvModeSelectedPresetId,
   );
   const selectAndLoadPreset = useFlowStore(
-    (s) => s.eventGraphState.batchTest.selectAndLoadPreset,
+    (s) => s.batchTest.selectAndLoadPreset,
   );
-  const unselectPreset = useFlowStore(
-    (s) => s.eventGraphState.batchTest.unselectPreset,
-  );
+  const unselectPreset = useFlowStore((s) => s.batchTest.unselectPreset);
   const deleteAndUnselectPreset = useFlowStore(
-    (s) => s.eventGraphState.batchTest.deleteAndUnselectPreset,
+    (s) => s.batchTest.deleteAndUnselectPreset,
   );
 
   // !SECTION

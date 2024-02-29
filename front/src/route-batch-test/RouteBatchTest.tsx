@@ -38,25 +38,25 @@ function RouteBatchTest() {
     (s) => s.getFlowContent().nodeConfigsDict,
   );
   const variablesDict = useFlowStore((s) => s.getFlowContent().variablesDict);
-  const csvContent = useFlowStore((s) => s.eventGraphState.batchTest.csvString);
+  const csvContent = useFlowStore((s) => s.batchTest.csvString);
   const repeatTimes = useFlowStore(
-    (s) => s.eventGraphState.batchTest.config.repeatTimes,
+    (s) => s.batchTest.config.content.repeatTimes,
   );
   const concurrencyLimit = useFlowStore(
-    (s) => s.eventGraphState.batchTest.config.concurrencyLimit,
+    (s) => s.batchTest.config.content.concurrencyLimit,
   );
   const variableIdToCsvColumnIndexMap = useFlowStore(
-    (s) => s.eventGraphState.batchTest.config.variableIdToCsvColumnIndexMap,
+    (s) => s.batchTest.config.content.variableIdToCsvColumnIndexMap,
   );
 
   const setGeneratedResult = useFlowStore(
-    (s) => s.eventGraphState.batchTest.configActions.setRunOutputTable,
+    (s) => s.batchTest.config.setRunOutputTable,
   );
   const setRunMetadataTable = useFlowStore(
-    (s) => s.eventGraphState.batchTest.configActions.setRunMetadataTable,
+    (s) => s.batchTest.config.setRunMetadataTable,
   );
   const savePresetConfigContentIfSelected = useFlowStore(
-    (s) => s.eventGraphState.batchTest.savePresetConfigContentIfSelected,
+    (s) => s.batchTest.savePresetConfigContentIfSelected,
   );
   const selectedBatchTestTab = useFlowStore((s) => s.selectedBatchTestTab);
 
