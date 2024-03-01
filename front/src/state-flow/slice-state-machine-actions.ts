@@ -1,4 +1,5 @@
 import { createLens } from '@dhmk/zustand-lens';
+import { A, D } from '@mobily/ts-belt';
 import deepEqual from 'deep-equal';
 import { Subscription, from, map } from 'rxjs';
 import invariant from 'tiny-invariant';
@@ -11,12 +12,11 @@ import { graphql } from 'gencode-gql';
 import { ContentVersion, SpaceFlowQueryQuery } from 'gencode-gql/graphql';
 import { client } from 'graphql-util/client';
 
-import { A, D } from '@mobily/ts-belt';
 import { updateSpaceContentV3 } from './graphql/graphql';
 import {
   CanvasStateMachineEventType,
   FlowState,
-  StateMachineSliceState,
+  StateMachineActionsStateSlice,
 } from './types';
 import { createWithImmer } from './util/lens-util';
 import {
@@ -24,9 +24,14 @@ import {
   assignLocalNodeProperties,
 } from './util/state-utils';
 
-type FlowStateCreator = StateCreator<FlowState, [], [], StateMachineSliceState>;
+type StateMachineActionsSliceStateCreator = StateCreator<
+  FlowState,
+  [],
+  [],
+  StateMachineActionsStateSlice
+>;
 
-export const createStateMachineSlice: FlowStateCreator = (set, get) => {
+const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
   // SECTION: Lenses
   const [setFlowContent, getFlowContent] = createLens(set, get, [
     'canvas',
@@ -178,12 +183,12 @@ async function querySpace(
   );
 }
 
-function parseQueryResult(result: OperationResult<SpaceFlowQueryQuery>) {
+function parseQueryResult(input: OperationResult<SpaceFlowQueryQuery>) {
   // TODO: Report to telemetry
-  invariant(result.data?.result?.space != null);
+  invariant(input.data?.result?.space != null);
 
-  const version = result.data.result.space.contentVersion;
-  const contentV3Str = result.data.result.space.contentV3;
+  const version = input.data.result.space.contentVersion;
+  const contentV3Str = input.data.result.space.contentV3;
 
   // TODO: Report to telemetry
   invariant(version === ContentVersion.V3, 'Only v3 is supported');
@@ -212,3 +217,5 @@ function parseQueryResult(result: OperationResult<SpaceFlowQueryQuery>) {
     }
   }
 }
+
+export { createSlice as createStateMachineActionsSlice };

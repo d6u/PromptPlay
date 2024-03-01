@@ -78,9 +78,9 @@ export type RunMetadataTable = Record<
   Record<IterationIndex, RunMetadata | undefined> | undefined
 >;
 
-// ANCHOR: State Machine Slice
+// ANCHOR: State Machine Actions Slice
 
-export type StateMachineSliceState = {
+export type StateMachineActionsStateSlice = {
   initializeCanvas(): void;
   cancelCanvasInitializationIfInProgress(): void;
   syncFlowContent(): Promise<void>;
@@ -172,7 +172,7 @@ export type FlowActions = {
   __stopFlowSingleRunImpl(): void;
 };
 
-export type FlowState = FlowProps & FlowActions & StateMachineSliceState;
+export type FlowState = FlowProps & FlowActions & StateMachineActionsStateSlice;
 
 // ANCHOR: State Machine
 
@@ -238,4 +238,4 @@ export type CanvasStateMachineEvent =
     };
 
 export type CanvasStateMachineActions =
-  StateObjectToParameterizedObject<StateMachineSliceState>;
+  StateObjectToParameterizedObject<StateMachineActionsStateSlice>;
