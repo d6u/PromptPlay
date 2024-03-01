@@ -5,10 +5,10 @@ import { devtools } from 'zustand/middleware';
 import { InitProps, createRootSlice } from './slice-root';
 import { createStateMachineActionsSlice } from './slice-state-machine-actions';
 import { FlowActions, FlowProps, StateMachineActionsStateSlice } from './types';
-import { withStateMachine } from './util/state-machine-middleware';
+import { startActors, withStateMachine } from './util/state-machine-middleware';
 
 export function createFlowStore(initProps: InitProps) {
-  return createStore(
+  const store = createStore(
     devtools(
       withStateMachine<FlowProps, FlowActions & StateMachineActionsStateSlice>(
         withLenses((...a) => ({
@@ -23,6 +23,8 @@ export function createFlowStore(initProps: InitProps) {
       },
     ),
   );
+
+  return startActors(store);
 }
 
 export type FlowStore = ReturnType<typeof createFlowStore>;

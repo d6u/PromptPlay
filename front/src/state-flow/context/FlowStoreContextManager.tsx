@@ -14,10 +14,6 @@ export default function FlowStoreContextManager(props: Props) {
   useEffect(() => {
     const localStore = createFlowStore({ spaceId: props.spaceId });
 
-    console.log('state', localStore.getState());
-
-    localStore.getState().canvasStateMachine.start();
-
     localStore.getState().canvasStateMachine.send({
       type: CanvasStateMachineEventType.Initialize,
     });
@@ -28,8 +24,6 @@ export default function FlowStoreContextManager(props: Props) {
       localStore.getState().canvasStateMachine.send({
         type: CanvasStateMachineEventType.LeaveFlowRoute,
       });
-
-      localStore.getState().canvasStateMachine.stop();
 
       setStore(null);
     };

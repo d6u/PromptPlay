@@ -15,6 +15,8 @@ import { StateCreator, StoreApi } from 'zustand';
 
 import { DefaultStateMachine, FlattenObject } from './state-machine-util';
 
+// ANCHOR: Middleware
+
 export function withStateMachine<
   State,
   Actions extends Record<string, unknown>,
@@ -35,6 +37,8 @@ export function withStateMachine<
     return storeWithStateMachines;
   };
 }
+
+// ANCHOR: Store wrapper
 
 function flattenStateToActions<State>(
   initialState: State,
@@ -63,8 +67,6 @@ export type ActorFor<
   Context extends MachineContext,
   Event extends AnyEventObject,
 > = {
-  start: () => void;
-  stop: () => void;
   send: (event: Event) => void;
   getSnapshot: () => MachineSnapshot<
     Context, // context
@@ -129,30 +131,49 @@ function createActorForStateMachines<State, FlattenActions>(
       },
     );
 
-    let subscription: ReturnType<typeof actor.subscribe> | null = null;
-
     storeWithStateMachines[key] = {
-      start: () => {
-        subscription = actor.subscribe((snapshot) => {
-          console.log(
-            '[State Machine] state:',
-            JSON.stringify(snapshot.value, null, 2),
-          );
+      [ActorInState.isInstanceFlag]: true,
 
+      // NOTE: This method is not expose on state, but it can still be called
+      __start: () => {
+        actor.subscribe((snapshot) => {
+          console.log(`[${key}] state:`, JSON.stringify(snapshot.value));
           api.setState({});
         });
 
         actor.start();
-        console.log(`after start`);
       },
-      stop: () => {
-        subscription?.unsubscribe();
-        actor.stop();
-      },
+
       send: (event: AnyEventObject) => actor.send(event),
       getSnapshot: () => actor.getSnapshot(),
     };
   }
 
   return { ...initialState, ...storeWithStateMachines } as State;
+}
+
+// NOTE: This class is only for type checking using instanceOf
+export class ActorInState {
+  static isInstanceFlag = Symbol('ActorInState');
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  static [Symbol.hasInstance](obj: any) {
+    return obj != null && obj[ActorInState.isInstanceFlag];
+  }
+
+  // Just for type checking
+  __start() {}
+}
+
+export function startActors<S>(store: StoreApi<S>): StoreApi<S> {
+  const state = store.getState();
+
+  for (const key in state) {
+    const value = state[key];
+    if (value instanceof ActorInState) {
+      value.__start();
+    }
+  }
+
+  return store;
 }
