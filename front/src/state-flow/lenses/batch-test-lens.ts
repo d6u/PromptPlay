@@ -11,6 +11,14 @@ import {
   VariableIdToCsvColumnIndexMap,
 } from '../types';
 
+const INITIAL_CONFIG_CONTENT: BatchTestState['config']['content'] = {
+  repeatTimes: 1,
+  concurrencyLimit: 2,
+  variableIdToCsvColumnIndexMap: {},
+  runOutputTable: [],
+  runMetadataTable: [],
+};
+
 export type BatchTestState = {
   csvModeSelectedPresetId: string | null;
   csvEvaluationIsLoading: boolean;
@@ -28,6 +36,8 @@ export type BatchTestState = {
 };
 
 export type BatchTestActions = {
+  leaveFlowRoute(): void;
+
   setCsvStr: Setter<string>;
 
   config: {
@@ -58,6 +68,21 @@ export function createBatchTestLens(
     ]);
 
     return {
+      leaveFlowRoute(): void {
+        set(
+          {
+            csvModeSelectedPresetId: null,
+            csvEvaluationIsLoading: false,
+            csvString: '',
+          },
+          false,
+          { type: 'batchTest.leaveFlowRoute' },
+        );
+        setConfigContent(INITIAL_CONFIG_CONTENT, false, {
+          type: 'batchTest.leaveFlowRoute',
+        });
+      },
+
       csvModeSelectedPresetId: null,
       csvEvaluationIsLoading: false,
       csvString: '',
@@ -100,28 +125,26 @@ export function createBatchTestLens(
           csvEvaluationIsLoading: true,
         });
 
-        const result = await client
-          .query(
-            graphql(`
-              query LoadCsvEvaluationPreset($spaceId: UUID!, $presetId: ID!) {
-                result: space(id: $spaceId) {
-                  space {
+        const result = await client.query(
+          graphql(`
+            query LoadCsvEvaluationPreset($spaceId: UUID!, $presetId: ID!) {
+              result: space(id: $spaceId) {
+                space {
+                  id
+                  csvEvaluationPreset(id: $presetId) {
                     id
-                    csvEvaluationPreset(id: $presetId) {
-                      id
-                      csvContent
-                      configContent
-                    }
+                    csvContent
+                    configContent
                   }
                 }
               }
-            `),
-            {
-              spaceId: getRoot().spaceId,
-              presetId,
-            },
-          )
-          .toPromise();
+            }
+          `),
+          {
+            spaceId: getRoot().spaceId,
+            presetId,
+          },
+        );
 
         if (result.error) {
           console.error(result.error);
@@ -171,23 +194,21 @@ export function createBatchTestLens(
         const presetId = get().csvModeSelectedPresetId;
         invariant(presetId != null, 'Preset ID should not be null');
 
-        await client
-          .mutation(
-            graphql(`
-              mutation DeleteCsvEvaluationPresetMutation($presetId: ID!) {
-                space: deleteCsvEvaluationPreset(id: $presetId) {
+        await client.mutation(
+          graphql(`
+            mutation DeleteCsvEvaluationPresetMutation($presetId: ID!) {
+              space: deleteCsvEvaluationPreset(id: $presetId) {
+                id
+                csvEvaluationPresets {
                   id
-                  csvEvaluationPresets {
-                    id
-                  }
                 }
               }
-            `),
-            {
-              presetId,
-            },
-          )
-          .toPromise();
+            }
+          `),
+          {
+            presetId,
+          },
+        );
 
         get().unselectPreset();
       },
@@ -200,44 +221,42 @@ export function createBatchTestLens(
         const csvContent = get().csvString;
         const configContent = getConfigContent();
 
-        const result = await client
-          .mutation(
-            graphql(`
-              mutation CreateCsvEvaluationPresetMutation(
-                $spaceId: ID!
-                $name: String!
-                $csvContent: String
-                $configContent: String
+        const result = await client.mutation(
+          graphql(`
+            mutation CreateCsvEvaluationPresetMutation(
+              $spaceId: ID!
+              $name: String!
+              $csvContent: String
+              $configContent: String
+            ) {
+              result: createCsvEvaluationPreset(
+                spaceId: $spaceId
+                name: $name
+                csvContent: $csvContent
+                configContent: $configContent
               ) {
-                result: createCsvEvaluationPreset(
-                  spaceId: $spaceId
-                  name: $name
-                  csvContent: $csvContent
-                  configContent: $configContent
-                ) {
-                  space {
+                space {
+                  id
+                  csvEvaluationPresets {
                     id
-                    csvEvaluationPresets {
-                      id
-                    }
-                  }
-                  csvEvaluationPreset {
-                    id
-                    name
-                    csvContent
-                    configContent
                   }
                 }
+                csvEvaluationPreset {
+                  id
+                  name
+                  csvContent
+                  configContent
+                }
               }
-            `),
-            {
-              spaceId,
-              name,
-              csvContent,
-              configContent: JSON.stringify(configContent),
-            },
-          )
-          .toPromise();
+            }
+          `),
+          {
+            spaceId,
+            name,
+            csvContent,
+            configContent: JSON.stringify(configContent),
+          },
+        );
 
         const presetId = result.data?.result?.csvEvaluationPreset?.id;
         invariant(presetId != null, 'Preset ID should not be null');
@@ -252,36 +271,34 @@ export function createBatchTestLens(
 
         invariant(presetId != null, 'Preset ID should not be null');
 
-        await client
-          .mutation(
-            graphql(`
-              mutation UpdateCsvEvaluationPresetMutation(
-                $presetId: ID!
-                $name: String
-                $csvContent: String
-                $configContent: String
+        await client.mutation(
+          graphql(`
+            mutation UpdateCsvEvaluationPresetMutation(
+              $presetId: ID!
+              $name: String
+              $csvContent: String
+              $configContent: String
+            ) {
+              updateCsvEvaluationPreset(
+                presetId: $presetId
+                name: $name
+                csvContent: $csvContent
+                configContent: $configContent
               ) {
-                updateCsvEvaluationPreset(
-                  presetId: $presetId
-                  name: $name
-                  csvContent: $csvContent
-                  configContent: $configContent
-                ) {
-                  id
-                  name
-                  csvContent
-                  configContent
-                }
+                id
+                name
+                csvContent
+                configContent
               }
-            `),
-            {
-              presetId,
-              name,
-              csvContent,
-              configContent: JSON.stringify(configContent),
-            },
-          )
-          .toPromise();
+            }
+          `),
+          {
+            presetId,
+            name,
+            csvContent,
+            configContent: JSON.stringify(configContent),
+          },
+        );
       },
 
       async savePresetConfigContentIfSelected(): Promise<void> {
@@ -292,28 +309,26 @@ export function createBatchTestLens(
           return;
         }
 
-        await client
-          .mutation(
-            graphql(`
-              mutation SavePresetConfigContent(
-                $presetId: ID!
-                $configContent: String!
+        await client.mutation(
+          graphql(`
+            mutation SavePresetConfigContent(
+              $presetId: ID!
+              $configContent: String!
+            ) {
+              updateCsvEvaluationPreset(
+                presetId: $presetId
+                configContent: $configContent
               ) {
-                updateCsvEvaluationPreset(
-                  presetId: $presetId
-                  configContent: $configContent
-                ) {
-                  id
-                  configContent
-                }
+                id
+                configContent
               }
-            `),
-            {
-              presetId,
-              configContent: JSON.stringify(configContent),
-            },
-          )
-          .toPromise();
+            }
+          `),
+          {
+            presetId,
+            configContent: JSON.stringify(configContent),
+          },
+        );
       },
     };
   });

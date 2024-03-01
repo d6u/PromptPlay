@@ -12,7 +12,6 @@ import {
   ConnectorTypeEnum,
   NodeConfig,
   NodeTypeEnum,
-  V3FlowContent,
   createNode,
 } from 'flow-models';
 
@@ -36,32 +35,44 @@ import { createWithImmer } from './util/lens-util';
 import { actorFor } from './util/state-machine-middleware';
 import { VariableTypeToVariableConfigTypeMap } from './util/state-utils';
 
+const RESETABLE_INITIAL_STATE: Partial<FlowState> = {
+  canvas: {
+    flowContent: {
+      nodes: [],
+      edges: [],
+      nodeConfigsDict: {},
+      variablesDict: {},
+      variableValueLookUpDicts: [{}],
+    },
+  },
+  nodeMetadataDict: {},
+  canvasLeftPaneIsOpen: false,
+  canvasRightPaneType: CanvasRightPanelType.Off,
+  canvasLeftPaneSelectedNodeId: null,
+  connectStartEdgeType: null,
+  connectStartStartNodeId: null,
+
+  selectedBatchTestTab: BatchTestTab.RunTests,
+};
+
 type RootSliceStateCreator = StateCreator<
   FlowState,
-  [],
+  [['zustand/devtools', never]],
   [],
   FlowProps & FlowActions
 >;
 
 export const createRootSlice: RootSliceStateCreator = (set, get) => {
-  // SECTION: Lenses
-  const [setEventGraphState, getEventGraphState] = createLens(
-    set,
-    get,
-    'canvas',
-  );
-  const [, getFlowContent] = createLens(
-    setEventGraphState,
-    getEventGraphState,
-    'flowContent',
-  );
-  // !SECTION
-
-  // SECTION: With Immer
+  // SECTION: canvas lens
+  const [setCanvas, getCanvas] = createLens(set, get, 'canvas');
   const { setWithPatches: setEventGraphStateWithPatches } = createWithImmer<
     FlowState,
     ['canvas']
-  >([setEventGraphState, getEventGraphState]);
+  >([setCanvas, getCanvas]);
+  // !SECTION
+
+  // SECTION: flowContent lens
+  const [, getFlowContent] = createLens(setCanvas, getCanvas, 'flowContent');
   // !SECTION
 
   function processEventWithEventGraph(event: AcceptedEvent) {
@@ -83,10 +94,19 @@ export const createRootSlice: RootSliceStateCreator = (set, get) => {
   }
 
   return {
+    // SECTION: State Machine
+    canvasStateMachine: actorFor<
+      CanvasStateMachineContext,
+      CanvasStateMachineEvent
+    >(canvasStateMachine),
+    // !SECTION
+
+    // SECTION: Must set during initialization
     spaceId: null,
+    // !SECTION
 
     enterFlowRoute: (spaceId: string) => {
-      set({ spaceId });
+      set({ spaceId }, false, { type: 'enterFlowRoute' });
       get().canvasStateMachine.send({
         type: CanvasStateMachineEventType.Initialize,
       });
@@ -95,22 +115,14 @@ export const createRootSlice: RootSliceStateCreator = (set, get) => {
       get().canvasStateMachine.send({
         type: CanvasStateMachineEventType.LeaveFlowRoute,
       });
-      set({ spaceId: null });
+      get().batchTest.leaveFlowRoute();
+      set({ spaceId: null, ...RESETABLE_INITIAL_STATE }, false, {
+        type: 'leaveFlowRoute',
+      });
     },
 
-    canvasStateMachine: actorFor<
-      CanvasStateMachineContext,
-      CanvasStateMachineEvent
-    >(canvasStateMachine),
-
-    connectStartEdgeType: null,
-    connectStartStartNodeId: null,
-    canvasLeftPaneIsOpen: false,
-    canvasRightPaneType: CanvasRightPanelType.Off,
-    canvasLeftPaneSelectedNodeId: null,
-    nodeMetadataDict: {},
-    selectedBatchTestTab: BatchTestTab.RunTests,
-
+    // SECTION: Must reset when leaving route
+    // ANCHOR: Canvas View
     canvas: {
       flowContent: {
         nodes: [],
@@ -120,9 +132,23 @@ export const createRootSlice: RootSliceStateCreator = (set, get) => {
         variableValueLookUpDicts: [{}],
       },
     },
+    nodeMetadataDict: {},
+    canvasLeftPaneIsOpen: false,
+    canvasRightPaneType: CanvasRightPanelType.Off,
+    canvasLeftPaneSelectedNodeId: null,
+    connectStartEdgeType: null,
+    connectStartStartNodeId: null,
 
+    // ANCHOR: Batch Test View
     batchTest: createBatchTestLens(get),
+    selectedBatchTestTab: BatchTestTab.RunTests,
+    // !SECTION
 
+    // SECTION: Simple getters and setters
+    getFlowContent: getFlowContent,
+    getDefaultVariableValueLookUpDict(): ConnectorResultMap {
+      return getFlowContent().variableValueLookUpDicts[0]!;
+    },
     setCanvasLeftPaneIsOpen(isOpen: boolean): void {
       set({ canvasLeftPaneIsOpen: isOpen });
     },
@@ -132,6 +158,98 @@ export const createRootSlice: RootSliceStateCreator = (set, get) => {
     setCanvasLeftPaneSelectedNodeId(id: string) {
       set({ canvasLeftPaneSelectedNodeId: id });
     },
+    setSelectedBatchTestTab(tab: BatchTestTab): void {
+      set({ selectedBatchTestTab: tab });
+    },
+    // !SECTION
+
+    // SECTION: Event Graph
+    // ANCHOR: Reactflow
+    onEdgesChange(changes: EdgeChange[]): void {
+      processEventWithEventGraph({
+        type: ChangeEventType.RF_EDGES_CHANGE,
+        changes,
+      });
+    },
+    onNodesChange(changes: NodeChange[]): void {
+      processEventWithEventGraph({
+        type: ChangeEventType.RF_NODES_CHANGE,
+        changes,
+      });
+    },
+    onConnect(connection): void {
+      processEventWithEventGraph({
+        type: ChangeEventType.RF_ON_CONNECT,
+        connection,
+      });
+    },
+    // ANCHOR: Node
+    addNode(type: NodeTypeEnum, x: number, y: number): void {
+      processEventWithEventGraph({
+        type: ChangeEventType.ADDING_NODE,
+        node: createNode(type, x, y),
+      });
+    },
+    removeNode(nodeId: string): void {
+      processEventWithEventGraph({
+        type: ChangeEventType.REMOVING_NODE,
+        nodeId: nodeId,
+      });
+    },
+    updateNodeConfig(nodeId: string, change: Partial<NodeConfig>): void {
+      processEventWithEventGraph({
+        type: ChangeEventType.UPDATING_NODE_CONFIG,
+        nodeId,
+        change,
+      });
+    },
+    // ANCHOR: Variable
+    addVariable(nodeId: string, type: ConnectorTypeEnum, index: number): void {
+      processEventWithEventGraph({
+        type: ChangeEventType.ADDING_VARIABLE,
+        nodeId,
+        connectorType: type,
+        connectorIndex: index,
+      });
+    },
+    removeVariable(variableId: string): void {
+      processEventWithEventGraph({
+        type: ChangeEventType.REMOVING_VARIABLE,
+        variableId,
+      });
+    },
+    updateConnector<
+      T extends ConnectorTypeEnum,
+      R = VariableTypeToVariableConfigTypeMap[T],
+    >(variableId: string, change: Partial<R>): void {
+      processEventWithEventGraph({
+        type: ChangeEventType.UPDATE_CONNECTORS,
+        updates: [{ variableId, change }],
+      });
+    },
+    updateConnectors(
+      updates: { variableId: string; change: Partial<Connector> }[],
+    ): void {
+      processEventWithEventGraph({
+        type: ChangeEventType.UPDATE_CONNECTORS,
+        updates,
+      });
+    },
+    updateVariableValue(variableId: string, value: unknown): void {
+      processEventWithEventGraph({
+        type: ChangeEventType.UPDATE_VARIABLE_VALUES,
+        updates: [{ variableId, value }],
+      });
+    },
+    updateVariableValues(
+      updates: { variableId: string; value: unknown }[],
+    ): void {
+      processEventWithEventGraph({
+        type: ChangeEventType.UPDATE_VARIABLE_VALUES,
+        updates,
+      });
+    },
+    // !SECTION: Event Graph
 
     updateNodeAugment(nodeId: string, change: Partial<NodeMetadata>) {
       const prevNodeMetadataDict = get().nodeMetadataDict;
@@ -176,6 +294,7 @@ export const createRootSlice: RootSliceStateCreator = (set, get) => {
         };
       });
     },
+
     onEdgeConnectStop(): void {
       set(() => ({
         connectStartEdgeType: null,
@@ -183,103 +302,7 @@ export const createRootSlice: RootSliceStateCreator = (set, get) => {
       }));
     },
 
-    setSelectedBatchTestTab(tab: BatchTestTab): void {
-      set({ selectedBatchTestTab: tab });
-    },
-
-    onEdgesChange(changes: EdgeChange[]): void {
-      processEventWithEventGraph({
-        type: ChangeEventType.RF_EDGES_CHANGE,
-        changes,
-      });
-    },
-    onNodesChange(changes: NodeChange[]): void {
-      processEventWithEventGraph({
-        type: ChangeEventType.RF_NODES_CHANGE,
-        changes,
-      });
-    },
-    onConnect(connection): void {
-      processEventWithEventGraph({
-        type: ChangeEventType.RF_ON_CONNECT,
-        connection,
-      });
-    },
-
-    addNode(type: NodeTypeEnum, x: number, y: number): void {
-      processEventWithEventGraph({
-        type: ChangeEventType.ADDING_NODE,
-        node: createNode(type, x, y),
-      });
-    },
-    removeNode(nodeId: string): void {
-      processEventWithEventGraph({
-        type: ChangeEventType.REMOVING_NODE,
-        nodeId: nodeId,
-      });
-    },
-    updateNodeConfig(nodeId: string, change: Partial<NodeConfig>): void {
-      processEventWithEventGraph({
-        type: ChangeEventType.UPDATING_NODE_CONFIG,
-        nodeId,
-        change,
-      });
-    },
-
-    addVariable(nodeId: string, type: ConnectorTypeEnum, index: number): void {
-      processEventWithEventGraph({
-        type: ChangeEventType.ADDING_VARIABLE,
-        nodeId,
-        connectorType: type,
-        connectorIndex: index,
-      });
-    },
-    removeVariable(variableId: string): void {
-      processEventWithEventGraph({
-        type: ChangeEventType.REMOVING_VARIABLE,
-        variableId,
-      });
-    },
-    updateConnector<
-      T extends ConnectorTypeEnum,
-      R = VariableTypeToVariableConfigTypeMap[T],
-    >(variableId: string, change: Partial<R>): void {
-      processEventWithEventGraph({
-        type: ChangeEventType.UPDATE_CONNECTORS,
-        updates: [{ variableId, change }],
-      });
-    },
-    updateConnectors(
-      updates: { variableId: string; change: Partial<Connector> }[],
-    ): void {
-      processEventWithEventGraph({
-        type: ChangeEventType.UPDATE_CONNECTORS,
-        updates,
-      });
-    },
-
-    updateVariableValue(variableId: string, value: unknown): void {
-      processEventWithEventGraph({
-        type: ChangeEventType.UPDATE_VARIABLE_VALUES,
-        updates: [{ variableId, value }],
-      });
-    },
-    updateVariableValues(
-      updates: { variableId: string; value: unknown }[],
-    ): void {
-      processEventWithEventGraph({
-        type: ChangeEventType.UPDATE_VARIABLE_VALUES,
-        updates,
-      });
-    },
-
-    getFlowContent(): V3FlowContent {
-      return getFlowContent();
-    },
-    getDefaultVariableValueLookUpDict(): ConnectorResultMap {
-      return getFlowContent().variableValueLookUpDicts[0]!;
-    },
-
+    // SECTION: Flow Run
     startFlowSingleRun() {
       get().canvasStateMachine.send({
         type: CanvasStateMachineEventType.StartExecutingFlowSingleRun,
@@ -289,10 +312,10 @@ export const createRootSlice: RootSliceStateCreator = (set, get) => {
       posthog.capture('Manually Stopped Simple Evaluation', {
         flowId: get().spaceId,
       });
-
       get().canvasStateMachine.send({
         type: CanvasStateMachineEventType.StopExecutingFlowSingleRun,
       });
     },
+    // !SECTION
   };
 };
