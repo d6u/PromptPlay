@@ -13,7 +13,7 @@ import {
 } from 'xstate';
 import { StateCreator, StoreApi } from 'zustand';
 
-import { FlattenObjectKeys } from 'generic-util/typing';
+import { DefaultStateMachine, FlattenObject } from './state-machine-util';
 
 export type SetState<T> = (
   updater: T | Partial<T> | ((state: T) => T | Partial<T>),
@@ -28,7 +28,7 @@ export function withMiddlewares<State, Actions extends Record<string, unknown>>(
   return (set, get, api) => {
     const initialState = initializer(set, get, api);
 
-    const actions = flattenActions<Actions>(initialState);
+    const actions = flattenStateToActions<Actions>(initialState);
 
     const storeWithStateMachines = createActorForStateMachines(
       initialState,
@@ -42,13 +42,12 @@ export function withMiddlewares<State, Actions extends Record<string, unknown>>(
 
 // ANCHOR: Flatten actions
 
-function flattenActions<Actions extends Record<string, unknown>>(
-  _initialState: Actions,
+function flattenStateToActions<Actions>(
+  initialState: Actions,
   path: string[] = [],
+  // TODO: Should this be Record<string, Function>?
   actions: Record<string, unknown> = {},
-): FlattenObjectKeys<Actions> {
-  const initialState = _initialState as Record<string, unknown>;
-
+): FlattenObject<Actions> {
   for (const key in initialState) {
     const value = initialState[key];
 
@@ -58,11 +57,11 @@ function flattenActions<Actions extends Record<string, unknown>>(
       // Ignore StateMachine, because it's also an object
       continue;
     } else if (G.isObject(value)) {
-      flattenActions(value, [...path, key], actions);
+      flattenStateToActions(value, [...path, key], actions);
     }
   }
 
-  return actions as unknown as FlattenObjectKeys<Actions>;
+  return actions as FlattenObject<Actions>;
 }
 
 // ANCHOR: Create actor for state machines
@@ -102,20 +101,6 @@ export function withActor<
 ): WithActor<Context, Event> {
   return stateMachine as unknown as WithActor<Context, Event>;
 }
-
-type DefaultStateMachine = StateMachine<
-  MachineContext, // context
-  AnyEventObject, // event
-  Record<string, AnyActorRef | undefined>, // children
-  ProvidedActor, // actor
-  ParameterizedObject, // actions
-  ParameterizedObject, // guards
-  string, // delay
-  StateValue, // state value
-  string, // tag
-  unknown, // input
-  NonReducibleUnknown // output
->;
 
 function createActorForStateMachines<State, FlattenActions>(
   _initialState: State,

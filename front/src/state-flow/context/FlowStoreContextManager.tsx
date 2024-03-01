@@ -1,6 +1,6 @@
 import { ReactNode, useEffect, useState } from 'react';
 import { FlowStoreContext } from 'state-flow/context/FlowStoreContext';
-import { FlowStore, createFlowStore } from 'state-flow/flow-state';
+import { FlowStore, createFlowStore } from 'state-flow/flow-store';
 import { CanvasStateMachineEventType } from 'state-flow/types';
 
 type Props = {

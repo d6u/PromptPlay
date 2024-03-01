@@ -20,9 +20,9 @@ import {
 
 import { RunMetadata } from 'flow-run/run-types';
 
-import { Distribute, FlattenObjectKeys } from 'generic-util/typing';
 import { BatchTestActions, BatchTestState } from './lenses/batch-test-lens';
 import { WithActor } from './util/middleware';
+import { StateObjectToParameterizedObject } from './util/state-machine-util';
 import { VariableTypeToVariableConfigTypeMap } from './util/state-utils';
 
 export type NodeMetadataDict = Record<string, NodeMetadata | undefined>;
@@ -78,6 +78,16 @@ export type RunMetadataTable = Record<
   Record<IterationIndex, RunMetadata | undefined> | undefined
 >;
 
+// ANCHOR: State Machine Slice
+
+export type StateMachineSliceState = {
+  initializeCanvas(): void;
+  cancelCanvasInitializationIfInProgress(): void;
+  syncFlowContent(): Promise<void>;
+  executeFlowSingleRun(): void;
+  cancelFlowSingleRunIfInProgress(): void;
+};
+
 // ANCHOR: Store State
 
 export type FlowContentState = {
@@ -126,13 +136,6 @@ export type FlowActions = {
 
   batchTest: BatchTestActions;
 
-  initializeCanvas(): void;
-  cancelCanvasInitializationIfInProgress(): void;
-
-  syncFlowContent(): Promise<void>;
-  executeFlowSingleRun(): void;
-  cancelFlowSingleRunIfInProgress(): void;
-
   // SECTION: Canvas events
   onNodesChange: OnNodesChange;
   onEdgesChange: OnEdgesChange;
@@ -169,7 +172,7 @@ export type FlowActions = {
   __stopFlowSingleRunImpl(): void;
 };
 
-export type FlowState = FlowProps & FlowActions;
+export type FlowState = FlowProps & FlowActions & StateMachineSliceState;
 
 // ANCHOR: State Machine
 
@@ -234,6 +237,5 @@ export type CanvasStateMachineEvent =
       type: CanvasStateMachineEventType.LeaveFlowRoute;
     };
 
-export type CanvasStateMachineActions = Distribute<
-  FlattenObjectKeys<FlowActions>
->;
+export type CanvasStateMachineActions =
+  StateObjectToParameterizedObject<StateMachineSliceState>;

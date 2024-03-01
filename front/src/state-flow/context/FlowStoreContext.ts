@@ -2,7 +2,7 @@ import { createContext, useContext } from 'react';
 import invariant from 'tiny-invariant';
 import { useStore } from 'zustand';
 
-import { FlowStore } from '../flow-state';
+import { FlowStore } from '../flow-store';
 import { FlowState } from '../types';
 
 export const FlowStoreContext = createContext<{
