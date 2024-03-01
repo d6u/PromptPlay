@@ -32,7 +32,6 @@ import { canvasStateMachine } from './state-machines/canvasStateMachine';
 import {
   BatchTestTab,
   CanvasRightPanelType,
-  CanvasStateMachineActions,
   CanvasStateMachineContext,
   CanvasStateMachineEvent,
   CanvasStateMachineEventType,
@@ -43,7 +42,7 @@ import {
   NodeMetadata,
 } from './types';
 import { createWithImmer } from './util/lens-util';
-import { withActor } from './util/middleware';
+import { actorFor } from './util/state-machine-middleware';
 import { VariableTypeToVariableConfigTypeMap } from './util/state-utils';
 
 type FlowStateCreator = StateCreator<
@@ -53,7 +52,7 @@ type FlowStateCreator = StateCreator<
   FlowProps & FlowActions
 >;
 
-type InitProps = {
+export type InitProps = {
   spaceId: string;
 };
 
@@ -160,10 +159,9 @@ export function createRootSlice(
 
     batchTest: createBatchTestLens(get),
 
-    canvasStateMachine: withActor<
+    canvasStateMachine: actorFor<
       CanvasStateMachineContext,
-      CanvasStateMachineEvent,
-      CanvasStateMachineActions
+      CanvasStateMachineEvent
     >(canvasStateMachine),
 
     setCanvasLeftPaneIsOpen(isOpen: boolean): void {

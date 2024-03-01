@@ -15,14 +15,10 @@ import { StateCreator, StoreApi } from 'zustand';
 
 import { DefaultStateMachine, FlattenObject } from './state-machine-util';
 
-export type SetState<T> = (
-  updater: T | Partial<T> | ((state: T) => T | Partial<T>),
-  replace?: boolean | undefined,
-) => void;
-
-export type GetState<T> = () => T;
-
-export function withMiddlewares<State, Actions extends Record<string, unknown>>(
+export function withStateMachine<
+  State,
+  Actions extends Record<string, unknown>,
+>(
   initializer: StateCreator<State & Actions, [], []>,
 ): StateCreator<State & Actions, [], []> {
   return (set, get, api) => {
@@ -40,14 +36,13 @@ export function withMiddlewares<State, Actions extends Record<string, unknown>>(
   };
 }
 
-// ANCHOR: Flatten actions
-
-function flattenStateToActions<Actions>(
-  initialState: Actions,
+function flattenStateToActions<State>(
+  initialState: State,
   path: string[] = [],
   // TODO: Should this be Record<string, Function>?
   actions: Record<string, unknown> = {},
-): FlattenObject<Actions> {
+  // TODO: Improve FlattenObject by filtering functions in type
+): FlattenObject<State> {
   for (const key in initialState) {
     const value = initialState[key];
 
@@ -61,36 +56,36 @@ function flattenStateToActions<Actions>(
     }
   }
 
-  return actions as FlattenObject<Actions>;
+  return actions as FlattenObject<State>;
 }
 
-// ANCHOR: Create actor for state machines
-
-export type WithActor<Context extends MachineContext, Event> = {
+export type ActorFor<
+  Context extends MachineContext,
+  Event extends AnyEventObject,
+> = {
   start: () => void;
   stop: () => void;
   send: (event: Event) => void;
   getSnapshot: () => MachineSnapshot<
-    Context,
-    AnyEventObject,
-    Record<string, AnyActorRef | undefined>,
-    StateValue,
-    string,
-    unknown
+    Context, // context
+    Event, // event
+    Record<string, AnyActorRef | undefined>, // children
+    StateValue, // state value
+    string, // tag
+    NonReducibleUnknown // output
   >;
 };
 
-export function withActor<
+export function actorFor<
   Context extends MachineContext,
   Event extends AnyEventObject,
-  Actions extends ParameterizedObject,
 >(
   stateMachine: StateMachine<
     Context, // context
     Event, // event
     Record<string, AnyActorRef | undefined>, // children
     ProvidedActor, // actor
-    Actions, // actions
+    ParameterizedObject, // actions
     ParameterizedObject, // guards
     string, // delay
     StateValue, // state value
@@ -98,8 +93,8 @@ export function withActor<
     unknown, // input
     NonReducibleUnknown // output
   >,
-): WithActor<Context, Event> {
-  return stateMachine as unknown as WithActor<Context, Event>;
+): ActorFor<Context, Event> {
+  return stateMachine as unknown as ActorFor<Context, Event>;
 }
 
 function createActorForStateMachines<State, FlattenActions>(

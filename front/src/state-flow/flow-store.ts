@@ -2,19 +2,15 @@ import { withLenses } from '@dhmk/zustand-lens';
 import { createStore } from 'zustand';
 import { devtools } from 'zustand/middleware';
 
-import { createRootSlice } from './slice-root';
+import { InitProps, createRootSlice } from './slice-root';
 import { createStateMachineActionsSlice } from './slice-state-machine-actions';
 import { FlowActions, FlowProps, StateMachineActionsStateSlice } from './types';
-import { withMiddlewares } from './util/middleware';
-
-type InitProps = {
-  spaceId: string;
-};
+import { withStateMachine } from './util/state-machine-middleware';
 
 export function createFlowStore(initProps: InitProps) {
   return createStore(
     devtools(
-      withMiddlewares<FlowProps, FlowActions & StateMachineActionsStateSlice>(
+      withStateMachine<FlowProps, FlowActions & StateMachineActionsStateSlice>(
         withLenses((...a) => ({
           ...createRootSlice(initProps, ...a),
           ...createStateMachineActionsSlice(...a),

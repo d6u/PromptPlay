@@ -21,7 +21,7 @@ import {
 import { RunMetadata } from 'flow-run/run-types';
 
 import { BatchTestActions, BatchTestState } from './lenses/batch-test-lens';
-import { WithActor } from './util/middleware';
+import { ActorFor } from './util/state-machine-middleware';
 import { StateObjectToParameterizedObject } from './util/state-machine-util';
 import { VariableTypeToVariableConfigTypeMap } from './util/state-utils';
 
@@ -102,7 +102,7 @@ export type FlowProps = {
   // TODO: Does readonly make any difference here?
   readonly spaceId: string;
 
-  canvasStateMachine: WithActor<
+  canvasStateMachine: ActorFor<
     CanvasStateMachineContext,
     CanvasStateMachineEvent
   >;

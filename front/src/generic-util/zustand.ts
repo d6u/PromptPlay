@@ -1,5 +1,14 @@
 import { StoreApi, UseBoundStore } from 'zustand';
 
+export type SetState<T> = (
+  updater: T | Partial<T> | ((state: T) => T | Partial<T>),
+  replace?: boolean | undefined,
+) => void;
+
+export type GetState<T> = () => T;
+
+// ANCHOR: Auto Generating Selectors
+
 // See https://docs.pmnd.rs/zustand/guides/auto-generating-selectors
 // for reference.
 
