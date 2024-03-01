@@ -7,9 +7,10 @@ import { useMemo } from 'react';
 import { ConnectorType } from 'flow-models';
 
 import Section from 'components/side-pane/SidePaneSection';
-import { useFlowStore } from 'state-flow/context/FlowStoreContext';
+import { useFlowStore } from 'state-flow/flow-store';
 import { CSVData, CSVRow, IterationIndex, RowIndex } from 'state-flow/types';
 import { selectAllVariables } from 'state-flow/util/state-utils';
+
 import TableBody from './TableBody';
 import TableHead from './TableHead';
 

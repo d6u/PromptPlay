@@ -15,7 +15,7 @@ import NodeConnectorResultDisplay from 'components/node-variables-editable-list/
 import NodeVariablesEditableList from 'components/node-variables-editable-list/NodeVariablesEditableList';
 import HeaderSection from 'components/side-pane/SidePaneHeaderSection';
 import HeaderSectionHeader from 'components/side-pane/SidePaneHeaderSectionHeader';
-import { useFlowStore } from 'state-flow/context/FlowStoreContext';
+import { useFlowStore } from 'state-flow/flow-store';
 import { selectConditions, selectVariables } from 'state-flow/util/state-utils';
 import NodeBoxAddConnectorButton from 'view-flow-canvas/node-box/NodeBoxAddConnectorButton';
 

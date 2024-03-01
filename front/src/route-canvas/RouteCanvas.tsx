@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 
-import { useFlowStore } from 'state-flow/context/FlowStoreContext';
+import { useFlowStore } from 'state-flow/flow-store';
 import FlowCanvasView from 'view-flow-canvas/FlowCanvasView';
 import LeftSidePaneView from 'view-left-side-pane/LeftSidePaneView';
 import RightSidePaneView from 'view-right-side-pane/RightSidePaneView';

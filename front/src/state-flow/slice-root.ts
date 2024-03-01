@@ -36,23 +36,14 @@ import { createWithImmer } from './util/lens-util';
 import { actorFor } from './util/state-machine-middleware';
 import { VariableTypeToVariableConfigTypeMap } from './util/state-utils';
 
-type FlowStateCreator = StateCreator<
+type RootSliceStateCreator = StateCreator<
   FlowState,
   [],
   [],
   FlowProps & FlowActions
 >;
 
-export type InitProps = {
-  spaceId: string;
-};
-
-export function createRootSlice(
-  initProps: InitProps,
-  ...args: Parameters<FlowStateCreator>
-): ReturnType<FlowStateCreator> {
-  const [set, get] = args;
-
+export const createRootSlice: RootSliceStateCreator = (set, get) => {
   // SECTION: Lenses
   const [setEventGraphState, getEventGraphState] = createLens(
     set,
@@ -92,7 +83,20 @@ export function createRootSlice(
   }
 
   return {
-    spaceId: initProps.spaceId,
+    spaceId: null,
+
+    enterFlowRoute: (spaceId: string) => {
+      set({ spaceId });
+      get().canvasStateMachine.send({
+        type: CanvasStateMachineEventType.Initialize,
+      });
+    },
+    leaveFlowRoute: () => {
+      get().canvasStateMachine.send({
+        type: CanvasStateMachineEventType.LeaveFlowRoute,
+      });
+      set({ spaceId: null });
+    },
 
     canvasStateMachine: actorFor<
       CanvasStateMachineContext,
@@ -291,4 +295,4 @@ export function createRootSlice(
       });
     },
   };
-}
+};

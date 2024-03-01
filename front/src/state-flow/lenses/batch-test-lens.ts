@@ -48,7 +48,9 @@ export type BatchTestActions = {
 
 export type BatchTestShape = BatchTestState & BatchTestActions;
 
-export function createBatchTestLens(getRoot: Getter<{ spaceId: string }>) {
+export function createBatchTestLens(
+  getRoot: Getter<{ spaceId: string | null }>,
+) {
   return lens<BatchTestShape>((set, get) => {
     const [setConfigContent, getConfigContent] = createLens(set, get, [
       'config',
@@ -192,6 +194,9 @@ export function createBatchTestLens(getRoot: Getter<{ spaceId: string }>) {
 
       async createAndSelectPreset({ name }: { name: string }): Promise<void> {
         const spaceId = getRoot().spaceId;
+
+        invariant(spaceId != null, 'spaceId is not null');
+
         const csvContent = get().csvString;
         const configContent = getConfigContent();
 

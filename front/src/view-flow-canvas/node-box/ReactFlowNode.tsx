@@ -12,7 +12,7 @@ import {
 import NodeAccountLevelFields from 'components/node-fields/NodeAccountLevelFields';
 import NodeInstanceLevelFields from 'components/node-fields/NodeInstanceLevelFields';
 import NodeVariablesEditableList from 'components/node-variables-editable-list/NodeVariablesEditableList';
-import { useFlowStore } from 'state-flow/context/FlowStoreContext';
+import { useFlowStore } from 'state-flow/flow-store';
 import {
   selectConditionTarget,
   selectVariables,

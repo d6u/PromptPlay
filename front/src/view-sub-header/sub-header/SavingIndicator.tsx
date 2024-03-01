@@ -2,7 +2,7 @@ import styled from '@emotion/styled';
 import { Typography } from '@mui/joy';
 
 import { FlowRouteTab, useFlowRouteSubRouteHandle } from 'generic-util/route';
-import { useFlowStore } from 'state-flow/context/FlowStoreContext';
+import { useFlowStore } from 'state-flow/flow-store';
 
 function SavingIndicator() {
   const flowTabType = useFlowRouteSubRouteHandle((handle) => handle.tabType);

@@ -3,7 +3,7 @@ import { FormControl, FormLabel, Switch } from '@mui/joy';
 import { useMemo } from 'react';
 
 import { FlowRouteTab, useFlowRouteSubRouteHandle } from 'generic-util/route';
-import { useFlowStore } from 'state-flow/context/FlowStoreContext';
+import { useFlowStore } from 'state-flow/flow-store';
 import { CanvasRightPanelType } from 'state-flow/types';
 
 function RightPaneToggle() {

@@ -96,6 +96,8 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
     _initializeCanvas(): void {
       const spaceId = get().spaceId;
 
+      invariant(spaceId != null, 'spaceId is not null');
+
       initializationSubscription = from(querySpace(spaceId))
         .pipe(map(parseQueryResult))
         .subscribe({
@@ -179,6 +181,8 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
       });
 
       const spaceId = get().spaceId;
+
+      invariant(spaceId != null, 'spaceId is not null');
 
       try {
         console.time('updateSpaceContentV3');

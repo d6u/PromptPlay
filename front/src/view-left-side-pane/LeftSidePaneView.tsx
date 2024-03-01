@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 
-import { useFlowStore } from 'state-flow/context/FlowStoreContext';
+import { useFlowStore } from 'state-flow/flow-store';
 
 import NodeConfigPane from './node-config-pane/NodeConfigPane';
 

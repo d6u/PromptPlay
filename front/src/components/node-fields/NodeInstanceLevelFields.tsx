@@ -4,7 +4,7 @@ import {
   NodeInstanceLevelFieldDefinitionUnion,
 } from 'flow-models';
 
-import { useFlowStore } from 'state-flow/context/FlowStoreContext';
+import { useFlowStore } from 'state-flow/flow-store';
 
 import NodeCheckboxField from './NodeCheckboxField';
 import NodeNumberField from './NodeNumberField';

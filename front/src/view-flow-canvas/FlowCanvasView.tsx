@@ -9,7 +9,7 @@ import ReactFlow, {
 import { NodeType } from 'flow-models';
 
 import RouteFlowContext from 'state-flow/context/FlowRouteContext';
-import { useFlowStore } from 'state-flow/context/FlowStoreContext';
+import { useFlowStore } from 'state-flow/flow-store';
 import ConditionNode from './nodes/ConditionNode';
 import InputNode from './nodes/InputNode';
 import JavaScriptFunctionNode from './nodes/JavaScriptFunctionNode';

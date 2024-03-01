@@ -9,7 +9,7 @@ import HeaderSectionHeader from 'components/side-pane/SidePaneHeaderSectionHeade
 import SidePaneOutputRenderer from 'components/side-pane/SidePaneOutputRenderer';
 import Section from 'components/side-pane/SidePaneSection';
 import RouteFlowContext from 'state-flow/context/FlowRouteContext';
-import { useFlowStore } from 'state-flow/context/FlowStoreContext';
+import { useFlowStore } from 'state-flow/flow-store';
 import { selectAllVariables } from 'state-flow/util/state-utils';
 
 import InputBlock from '../common/InputBlock';

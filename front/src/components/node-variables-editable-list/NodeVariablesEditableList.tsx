@@ -19,7 +19,7 @@ import { useFieldArray, useForm } from 'react-hook-form';
 import { useUpdateNodeInternals } from 'reactflow';
 import invariant from 'tiny-invariant';
 
-import { useFlowStore } from 'state-flow/context/FlowStoreContext';
+import { useFlowStore } from 'state-flow/flow-store';
 
 import NodeVariableEditableItem, {
   HandlePosition,

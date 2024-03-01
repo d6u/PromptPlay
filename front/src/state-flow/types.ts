@@ -100,8 +100,7 @@ export type FlowContentState = {
 };
 
 export type FlowProps = {
-  // TODO: Does readonly make any difference here?
-  readonly spaceId: string;
+  spaceId: string | null;
 
   // TODO: Until we have a better way to filter functions from state,
   // when generating types for actions, we have to keep this in Props type
@@ -127,6 +126,9 @@ export type FlowProps = {
 };
 
 export type FlowActions = {
+  enterFlowRoute(spaceId: string): void;
+  leaveFlowRoute(): void;
+
   setCanvasLeftPaneIsOpen(isOpen: boolean): void;
   setCanvasLeftPaneSelectedNodeId(nodeId: string | null): void;
   setCanvasRightPaneType(type: CanvasRightPanelType): void;
