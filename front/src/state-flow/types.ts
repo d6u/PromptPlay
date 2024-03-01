@@ -168,8 +168,6 @@ export type FlowActions = {
   // Flow run
   startFlowSingleRun(): void;
   stopFlowSingleRun(): void;
-  __startFlowSingleRunImpl(): void;
-  __stopFlowSingleRunImpl(): void;
 };
 
 export type FlowState = FlowProps & FlowActions & StateMachineActionsStateSlice;
