@@ -41,8 +41,8 @@ export const canvasStateMachine = createMachine<
       },
     },
     FetchingCanvasContent: {
-      entry: [assign({ canvasUiState: 'fetching' }), 'initializeCanvas'],
-      exit: ['cancelCanvasInitializationIfInProgress'],
+      entry: [assign({ canvasUiState: 'fetching' }), '_initializeCanvas'],
+      exit: ['_cancelCanvasInitializationIfInProgress'],
       on: {
         fetchingCanvasContentError: { target: 'Error' },
         fetchingCanvasContentSuccess: [
@@ -115,7 +115,10 @@ export const canvasStateMachine = createMachine<
               },
             },
             Uploading: {
-              entry: [assign({ isSavingFlowContent: true }), 'syncFlowContent'],
+              entry: [
+                assign({ isSavingFlowContent: true }),
+                '_syncFlowContent',
+              ],
               on: {
                 flowContentNoUploadNeeded: { target: 'Idle' },
                 flowContentUploadSuccess: [
@@ -142,9 +145,9 @@ export const canvasStateMachine = createMachine<
             Executing: {
               entry: [
                 assign({ isExecutingFlowSingleRun: true }),
-                'executeFlowSingleRun',
+                '_executeFlowSingleRun',
               ],
-              exit: ['cancelFlowSingleRunIfInProgress'],
+              exit: ['_cancelFlowSingleRunIfInProgress'],
               on: {
                 stopExecutingFlowSingleRun: { target: 'Idle' },
                 finishedExecutingFlowSingleRun: { target: 'Idle' },

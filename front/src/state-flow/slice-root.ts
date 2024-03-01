@@ -94,14 +94,17 @@ export function createRootSlice(
   return {
     spaceId: initProps.spaceId,
 
+    canvasStateMachine: actorFor<
+      CanvasStateMachineContext,
+      CanvasStateMachineEvent
+    >(canvasStateMachine),
+
     connectStartEdgeType: null,
     connectStartStartNodeId: null,
-
     canvasLeftPaneIsOpen: false,
     canvasRightPaneType: CanvasRightPanelType.Off,
     canvasLeftPaneSelectedNodeId: null,
     nodeMetadataDict: {},
-
     selectedBatchTestTab: BatchTestTab.RunTests,
 
     canvas: {
@@ -115,11 +118,6 @@ export function createRootSlice(
     },
 
     batchTest: createBatchTestLens(get),
-
-    canvasStateMachine: actorFor<
-      CanvasStateMachineContext,
-      CanvasStateMachineEvent
-    >(canvasStateMachine),
 
     setCanvasLeftPaneIsOpen(isOpen: boolean): void {
       set({ canvasLeftPaneIsOpen: isOpen });

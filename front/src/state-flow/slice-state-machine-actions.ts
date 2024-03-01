@@ -93,7 +93,7 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
   // !SECTION
 
   return {
-    initializeCanvas(): void {
+    _initializeCanvas(): void {
       const spaceId = get().spaceId;
 
       initializationSubscription = from(querySpace(spaceId))
@@ -136,12 +136,12 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
         });
     },
 
-    cancelCanvasInitializationIfInProgress(): void {
+    _cancelCanvasInitializationIfInProgress(): void {
       initializationSubscription?.unsubscribe();
       initializationSubscription = null;
     },
 
-    syncFlowContent: async () => {
+    _syncFlowContent: async () => {
       const flowContent = get().getFlowContent();
 
       const nextSyncedData: V3FlowContent = {
@@ -196,7 +196,7 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
       }
     },
 
-    executeFlowSingleRun() {
+    _executeFlowSingleRun() {
       posthog.capture('Starting Simple Evaluation', {
         flowId: get().spaceId,
       });
@@ -342,7 +342,7 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
       });
     },
 
-    cancelFlowSingleRunIfInProgress() {
+    _cancelFlowSingleRunIfInProgress() {
       runSingleSubscription?.unsubscribe();
       runSingleSubscription = null;
 

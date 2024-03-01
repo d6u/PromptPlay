@@ -81,11 +81,12 @@ export type RunMetadataTable = Record<
 // ANCHOR: State Machine Actions Slice
 
 export type StateMachineActionsStateSlice = {
-  initializeCanvas(): void;
-  cancelCanvasInitializationIfInProgress(): void;
-  syncFlowContent(): Promise<void>;
-  executeFlowSingleRun(): void;
-  cancelFlowSingleRunIfInProgress(): void;
+  // NOTE: These functions should only be used by state machines
+  _initializeCanvas(): void;
+  _cancelCanvasInitializationIfInProgress(): void;
+  _syncFlowContent(): Promise<void>;
+  _executeFlowSingleRun(): void;
+  _cancelFlowSingleRunIfInProgress(): void;
 };
 
 // ANCHOR: Store State
@@ -102,6 +103,9 @@ export type FlowProps = {
   // TODO: Does readonly make any difference here?
   readonly spaceId: string;
 
+  // TODO: Until we have a better way to filter functions from state,
+  // when generating types for actions, we have to keep this in Props type
+  // of state.
   canvasStateMachine: ActorFor<
     CanvasStateMachineContext,
     CanvasStateMachineEvent
@@ -109,12 +113,10 @@ export type FlowProps = {
 
   connectStartEdgeType: ConnectStartEdgeType | null;
   connectStartStartNodeId: string | null;
-
   canvasLeftPaneIsOpen: boolean;
   canvasLeftPaneSelectedNodeId: string | null;
   canvasRightPaneType: CanvasRightPanelType;
   nodeMetadataDict: NodeMetadataDict;
-
   selectedBatchTestTab: BatchTestTab;
 
   canvas: {
@@ -161,6 +163,7 @@ export type FlowActions = {
   updateVariableValue(variableId: string, value: unknown): void;
   updateVariableValues(updates: { variableId: string; value: unknown }[]): void;
   // !SECTION
+
   // Getter
   getFlowContent: Getter<V3FlowContent>;
   getDefaultVariableValueLookUpDict(): ConnectorResultMap;
