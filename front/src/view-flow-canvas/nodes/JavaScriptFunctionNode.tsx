@@ -12,7 +12,7 @@ import NodeFieldLabelWithIconContainer from 'components/node-fields/NodeFieldLab
 import CopyIconButton from 'generic-components/CopyIconButton';
 import ReadonlyTextarea from 'generic-components/ReadonlyTextarea';
 import RouteFlowContext from 'state-flow/context/FlowRouteContext';
-import { useFlowStore } from 'state-flow/context/FlowStoreContext';
+import { useFlowStore } from 'state-flow/flow-store';
 import { selectVariables } from 'state-flow/util/state-utils';
 
 import NodeBoxSection from '../node-box/NodeBoxSection';

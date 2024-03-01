@@ -11,7 +11,7 @@ import {
   StateValue,
   createActor,
 } from 'xstate';
-import { StateCreator, StoreApi } from 'zustand';
+import { StateCreator, StoreApi, UseBoundStore } from 'zustand';
 
 import { DefaultStateMachine, FlattenObject } from './state-machine-util';
 
@@ -165,8 +165,10 @@ export class ActorInState {
   __start() {}
 }
 
-export function startActors<S>(store: StoreApi<S>): StoreApi<S> {
-  const state = store.getState();
+export function startActors<S extends UseBoundStore<StoreApi<object>>>(
+  store: S,
+): S {
+  const state = store.getState() as Record<string, unknown>;
 
   for (const key in state) {
     const value = state[key];

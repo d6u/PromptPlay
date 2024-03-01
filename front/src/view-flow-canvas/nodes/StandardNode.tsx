@@ -5,7 +5,7 @@ import invariant from 'tiny-invariant';
 import { NodeConfig } from 'flow-models';
 
 import RouteFlowContext from 'state-flow/context/FlowRouteContext';
-import { useFlowStore } from 'state-flow/context/FlowStoreContext';
+import { useFlowStore } from 'state-flow/flow-store';
 
 import ReactFlowNode from '../node-box/ReactFlowNode';
 

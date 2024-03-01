@@ -1,6 +1,6 @@
 import { Button, ToggleButtonGroup } from '@mui/joy';
 
-import { useFlowStore } from 'state-flow/context/FlowStoreContext';
+import { useFlowStore } from 'state-flow/flow-store';
 import { BatchTestTab } from 'state-flow/types';
 
 function SubTabActionsBatchTest() {

@@ -10,13 +10,13 @@ import {
 } from 'flow-models';
 
 import RouteFlowContext from 'state-flow/context/FlowRouteContext';
-import { useFlowStore } from 'state-flow/context/FlowStoreContext';
+import { useFlowStore } from 'state-flow/flow-store';
 import { NODE_BOX_WIDTH } from 'view-flow-canvas/constants';
 
 function SubTabActionsCanvas() {
   const { isCurrentUserOwner } = useContext(RouteFlowContext);
 
-  const storeApi = useStoreApi();
+  const reactflowStoreApi = useStoreApi();
 
   const isExecutingFlowSingleRun = useFlowStore(
     (s) => s.canvasStateMachine.getSnapshot().context.isExecutingFlowSingleRun,
@@ -32,7 +32,7 @@ function SubTabActionsCanvas() {
       const {
         width,
         transform: [transformX, transformY, zoomLevel],
-      } = storeApi.getState();
+      } = reactflowStoreApi.getState();
 
       const zoomMultiplier = 1 / zoomLevel;
 
@@ -45,7 +45,7 @@ function SubTabActionsCanvas() {
 
       addNode(type, centerX - NODE_BOX_WIDTH / 2, centerY);
     },
-    [addNode, isCurrentUserOwner, storeApi],
+    [addNode, isCurrentUserOwner, reactflowStoreApi],
   );
 
   const options = useMemo(() => {

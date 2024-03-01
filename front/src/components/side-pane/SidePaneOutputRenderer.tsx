@@ -7,8 +7,8 @@ import {
   VariableValueType,
 } from 'flow-models';
 
-import { useFlowStore } from 'state-flow/context/FlowStoreContext';
-import OutputDisplay from '../../view-right-side-pane/common/OutputDisplay';
+import { useFlowStore } from 'state-flow/flow-store';
+import OutputDisplay from 'view-right-side-pane/common/OutputDisplay';
 
 type Props = {
   outputItem: FlowOutputVariable | NodeOutputVariable;

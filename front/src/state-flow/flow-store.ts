@@ -1,18 +1,18 @@
 import { withLenses } from '@dhmk/zustand-lens';
-import { createStore } from 'zustand';
+import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 
-import { InitProps, createRootSlice } from './slice-root';
+import { createRootSlice } from './slice-root';
 import { createStateMachineActionsSlice } from './slice-state-machine-actions';
 import { FlowActions, FlowProps, StateMachineActionsStateSlice } from './types';
 import { startActors, withStateMachine } from './util/state-machine-middleware';
 
-export function createFlowStore(initProps: InitProps) {
-  const store = createStore(
+export const useFlowStore = startActors(
+  create(
     devtools(
       withStateMachine<FlowProps, FlowActions & StateMachineActionsStateSlice>(
         withLenses((...a) => ({
-          ...createRootSlice(initProps, ...a),
+          ...createRootSlice(...a),
           ...createStateMachineActionsSlice(...a),
         })),
       ),
@@ -22,9 +22,5 @@ export function createFlowStore(initProps: InitProps) {
         // enabled?: boolean;
       },
     ),
-  );
-
-  return startActors(store);
-}
-
-export type FlowStore = ReturnType<typeof createFlowStore>;
+  ),
+);

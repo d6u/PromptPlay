@@ -4,7 +4,7 @@ import { ReactNode, useMemo } from 'react';
 
 import { ConnectorType } from 'flow-models';
 
-import { useFlowStore } from 'state-flow/context/FlowStoreContext';
+import { useFlowStore } from 'state-flow/flow-store';
 import { CSVRow } from 'state-flow/types';
 import { selectAllVariables } from 'state-flow/util/state-utils';
 

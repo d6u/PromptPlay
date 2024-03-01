@@ -15,7 +15,7 @@ import {
 } from 'flow-run/event-types';
 import flowRunBatch from 'flow-run/flowRunBatch';
 import { OverallStatus } from 'flow-run/run-types';
-import { useFlowStore } from 'state-flow/context/FlowStoreContext';
+import { useFlowStore } from 'state-flow/flow-store';
 import {
   BatchTestTab,
   CSVData,
