@@ -1,14 +1,14 @@
 import { enablePatches } from 'immer';
+
+enablePatches();
+
 import posthog from 'posthog-js';
-import React from 'react';
 import ReactDOM from 'react-dom/client';
 
 import { POSTHOG_TOKEN } from 'global-config/global-config';
 
 import App from './App.tsx';
 import UITheme from './UITheme.tsx';
-
-enablePatches();
 
 // Disable anlytics in development
 if (
@@ -19,9 +19,9 @@ if (
 }
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
-    <UITheme>
-      <App />
-    </UITheme>
-  </React.StrictMode>,
+  // <React.StrictMode>
+  <UITheme>
+    <App />
+  </UITheme>,
+  // </React.StrictMode>,
 );

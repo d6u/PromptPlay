@@ -1,78 +1,35 @@
-import { assign, createMachine } from 'xstate';
+import {
+  NonReducibleUnknown,
+  ParameterizedObject,
+  ProvidedActor,
+  assign,
+  createMachine,
+} from 'xstate';
 
-export enum StateMachineAction {
-  Initialize = 'initialize',
-  FetchingCanvasContentError = 'fetchingCanvasContentError',
-  RetryFetchingFlowContent = 'retryFetchingFlowContent',
-  FetchingCanvasContentSuccess = 'fetchingCanvasContentSuccess',
-  FlowContentTouched = 'flowContentTouched',
-  StartUploadingFlowContent = 'startUploadingFlowContent',
-  FlowContentNoUploadNeeded = 'flowContentNoUploadNeeded',
-  FlowContentUploadSuccess = 'flowContentUploadSuccess',
-  StartExecutingFlowSingleRun = 'startExecutingFlowSingleRun',
-  StopExecutingFlowSingleRun = 'stopExecutingFlowSingleRun',
-  FinishedExecutingFlowSingleRun = 'finishedExecutingFlowSingleRun',
-  LeaveFlowRoute = 'leaveFlowRoute',
-}
+import {
+  CanvasStateMachineActions,
+  CanvasStateMachineContext,
+  CanvasStateMachineEvent,
+} from '../types';
 
-export type StateMachineEvent =
-  | {
-      type: StateMachineAction.Initialize;
-    }
-  | {
-      type: StateMachineAction.FetchingCanvasContentError;
-    }
-  | {
-      type: StateMachineAction.RetryFetchingFlowContent;
-    }
-  | {
-      type: StateMachineAction.FetchingCanvasContentSuccess;
-      isUpdated: boolean;
-    }
-  | {
-      type: StateMachineAction.FlowContentTouched;
-    }
-  | {
-      type: StateMachineAction.StartUploadingFlowContent;
-    }
-  | {
-      type: StateMachineAction.FlowContentNoUploadNeeded;
-    }
-  | {
-      type: StateMachineAction.FlowContentUploadSuccess;
-    }
-  | {
-      type: StateMachineAction.StartExecutingFlowSingleRun;
-    }
-  | {
-      type: StateMachineAction.StopExecutingFlowSingleRun;
-    }
-  | {
-      type: StateMachineAction.FinishedExecutingFlowSingleRun;
-    }
-  | {
-      type: StateMachineAction.LeaveFlowRoute;
-    };
-
-export type StateMachineContext = {
-  canvasUiState: 'empty' | 'fetching' | 'error' | 'initialized';
-  hasUnsavedChanges: boolean;
-  isSavingFlowContent: boolean;
-  isExecutingFlowSingleRun: boolean;
-};
-
-export const INITIAL_CONTEXT: StateMachineContext = {
+const INITIAL_CONTEXT: CanvasStateMachineContext = {
   canvasUiState: 'empty',
   hasUnsavedChanges: false,
   isSavingFlowContent: false,
   isExecutingFlowSingleRun: false,
 };
 
-export const canvasStateMachine = createMachine({
-  types: {} as {
-    context: StateMachineContext;
-    events: StateMachineEvent;
-  },
+export const canvasStateMachine = createMachine<
+  CanvasStateMachineContext, // context
+  CanvasStateMachineEvent, // event
+  ProvidedActor, // actor
+  CanvasStateMachineActions, // actions
+  ParameterizedObject, // guards
+  string, // delay
+  string, // tag
+  unknown, // input
+  NonReducibleUnknown // output
+>({
   id: 'canvas-state-machine',
   context: INITIAL_CONTEXT,
   initial: 'Uninitialized',
@@ -84,8 +41,8 @@ export const canvasStateMachine = createMachine({
       },
     },
     FetchingCanvasContent: {
-      entry: [assign({ canvasUiState: 'fetching' }), 'initializeCanvas'],
-      exit: ['cancelCanvasInitializationIfInProgress'],
+      entry: [assign({ canvasUiState: 'fetching' }), '_initializeCanvas'],
+      exit: ['_cancelCanvasInitializationIfInProgress'],
       on: {
         fetchingCanvasContentError: { target: 'Error' },
         fetchingCanvasContentSuccess: [
@@ -158,7 +115,10 @@ export const canvasStateMachine = createMachine({
               },
             },
             Uploading: {
-              entry: [assign({ isSavingFlowContent: true }), 'syncFlowContent'],
+              entry: [
+                assign({ isSavingFlowContent: true }),
+                '_syncFlowContent',
+              ],
               on: {
                 flowContentNoUploadNeeded: { target: 'Idle' },
                 flowContentUploadSuccess: [
@@ -185,9 +145,9 @@ export const canvasStateMachine = createMachine({
             Executing: {
               entry: [
                 assign({ isExecutingFlowSingleRun: true }),
-                'executeFlowSingleRun',
+                '_executeFlowSingleRun',
               ],
-              exit: ['cancelFlowSingleRunIfInProgress'],
+              exit: ['_cancelFlowSingleRunIfInProgress'],
               on: {
                 stopExecutingFlowSingleRun: { target: 'Idle' },
                 finishedExecutingFlowSingleRun: { target: 'Idle' },

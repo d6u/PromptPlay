@@ -26,23 +26,21 @@ export default function EvaluationSectionConfigCSV(props: Props) {
 
   const variablesDict = useFlowStore((s) => s.getFlowContent().variablesDict);
   const repeatTimes = useFlowStore(
-    (s) => s.eventGraphState.batchTest.config.repeatTimes,
+    (s) => s.batchTest.config.content.repeatTimes,
   );
   const concurrencyLimit = useFlowStore(
-    (s) => s.eventGraphState.batchTest.config.concurrencyLimit,
+    (s) => s.batchTest.config.content.concurrencyLimit,
   );
   const variableIdToCsvColumnIndexMap = useFlowStore(
-    (s) => s.eventGraphState.batchTest.config.variableIdToCsvColumnIndexMap,
+    (s) => s.batchTest.config.content.variableIdToCsvColumnIndexMap,
   );
   const runOutputTable = useFlowStore(
-    (s) => s.eventGraphState.batchTest.config.runOutputTable,
+    (s) => s.batchTest.config.content.runOutputTable,
   );
 
-  const setRepeatTimes = useFlowStore(
-    (s) => s.eventGraphState.batchTest.configActions.setRepeatTimes,
-  );
+  const setRepeatTimes = useFlowStore((s) => s.batchTest.config.setRepeatTimes);
   const setConcurrencyLimit = useFlowStore(
-    (s) => s.eventGraphState.batchTest.configActions.setConcurrencyLimit,
+    (s) => s.batchTest.config.setConcurrencyLimit,
   );
 
   // !SECTION

@@ -1,35 +1,21 @@
-import { Getter, createLens, lens } from '@dhmk/zustand-lens';
-import { D, pipe } from '@mobily/ts-belt';
+import { createLens } from '@dhmk/zustand-lens';
+import { A, D, pipe } from '@mobily/ts-belt';
 import deepEqual from 'deep-equal';
 import { produce } from 'immer';
 import posthog from 'posthog-js';
-import {
-  EdgeChange,
-  NodeChange,
-  OnConnect,
-  OnEdgesChange,
-  OnNodesChange,
-} from 'reactflow';
 import { Subscription, from, map } from 'rxjs';
 import invariant from 'tiny-invariant';
 import { OperationResult } from 'urql';
 import { StateCreator } from 'zustand';
 
 import {
-  Connector,
   ConnectorMap,
   ConnectorResultMap,
   ConnectorType,
-  ConnectorTypeEnum,
   FlowConfigSchema,
   FlowInputVariable,
-  LocalNode,
-  NodeConfig,
-  NodeConfigMap,
   NodeTypeEnum,
   V3FlowContent,
-  V3LocalEdge,
-  createNode,
 } from 'flow-models';
 
 import { FlowRunEventType, ValidationErrorType } from 'flow-run/event-types';
@@ -40,124 +26,44 @@ import { client } from 'graphql-util/client';
 import { useLocalStorageStore } from 'state-root/local-storage-state';
 import { useNodeFieldFeedbackStore } from 'state-root/node-field-feedback-state';
 
-import { ChangeEventType } from './event-graph/event-types';
-import { AcceptedEvent, handleAllEvent } from './event-graph/handle-all-event';
-import { StateMachineAction } from './finite-state-machine';
-import { BatchTestState, createBatchTestLens } from './lens/batch-test-lens';
-import { FlowState } from './types';
+import { updateSpaceContentV3 } from './graphql/graphql';
+import {
+  CanvasStateMachineEventType,
+  FlowState,
+  StateMachineActionsStateSlice,
+} from './types';
 import { createWithImmer } from './util/lens-util';
 import {
-  VariableTypeToVariableConfigTypeMap,
   assignLocalEdgeProperties,
   assignLocalNodeProperties,
 } from './util/state-utils';
 
-export type FlowContentState = {
-  nodes: LocalNode[];
-  edges: V3LocalEdge[];
-  nodeConfigsDict: NodeConfigMap;
-  variablesDict: ConnectorMap;
-  variableValueLookUpDicts: ConnectorResultMap[];
-};
-
-export type EventGraphSliceState = {
-  eventGraphState: {
-    flowContent: FlowContentState;
-    batchTest: BatchTestState;
-  };
-
-  initializeCanvas(): void;
-  cancelCanvasInitializationIfInProgress(): void;
-
-  // SECTION: Canvas events
-  onNodesChange: OnNodesChange;
-  onEdgesChange: OnEdgesChange;
-  onConnect: OnConnect;
-
-  addNode(type: NodeTypeEnum, x: number, y: number): void;
-  removeNode(nodeId: string): void;
-  updateNodeConfig(nodeId: string, change: Partial<NodeConfig>): void;
-
-  addVariable(nodeId: string, type: ConnectorTypeEnum, index: number): void;
-  removeVariable(variableId: string): void;
-  updateConnector<
-    T extends ConnectorTypeEnum,
-    R = VariableTypeToVariableConfigTypeMap[T],
-  >(
-    variableId: string,
-    change: Partial<R>,
-  ): void;
-  updateConnectors(
-    updates: { variableId: string; change: Record<string, unknown> }[],
-  ): void;
-
-  updateVariableValue(variableId: string, value: unknown): void;
-  updateVariableValues(updates: { variableId: string; value: unknown }[]): void;
-  // !SECTION
-
-  // Getter
-  getFlowContent: Getter<V3FlowContent>;
-  getDefaultVariableValueLookUpDict(): ConnectorResultMap;
-
-  // Flow run
-  startFlowSingleRun(): void;
-  stopFlowSingleRun(): void;
-  __startFlowSingleRunImpl(): void;
-  __stopFlowSingleRunImpl(): void;
-};
-
-export type EventGraphSlice = EventGraphSliceState;
-
-export const createEventGraphSlice: StateCreator<
+type StateMachineActionsSliceStateCreator = StateCreator<
   FlowState,
-  [['zustand/devtools', never]],
   [],
-  EventGraphSlice
-> = (set, get) => {
+  [],
+  StateMachineActionsStateSlice
+>;
+
+const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
   // SECTION: Lenses
-  const [setEventGraphState, getEventGraphState] = createLens(
-    set,
-    get,
-    'eventGraphState',
-  );
-  const [setFlowContent, getFlowContent] = createLens(
-    setEventGraphState,
-    getEventGraphState,
+  const [setFlowContent, getFlowContent] = createLens(set, get, [
+    'canvas',
     'flowContent',
-  );
-  // !SECTION
-
-  // SECTION: With Immer
-  const { setWithPatches: setEventGraphStateWithPatches } = createWithImmer<
-    EventGraphSliceState,
-    ['eventGraphState']
-  >([setEventGraphState, getEventGraphState]);
-
+  ]);
   const { set: setFlowContentProduce } = createWithImmer<
-    EventGraphSliceState,
-    ['eventGraphState', 'flowContent']
+    FlowState,
+    ['canvas', 'flowContent']
   >([setFlowContent, getFlowContent]);
   // !SECTION
 
+  // SECTION: Private data
   let initializationSubscription: Subscription | null = null;
+  let prevSyncedData: V3FlowContent | null = null;
   let runSingleSubscription: Subscription | null = null;
+  // !SECTION
 
-  function processEventWithEventGraph(event: AcceptedEvent) {
-    console.log('processEventWithEventGraph', event);
-
-    // console.time('processEventWithEventGraph');
-    setEventGraphStateWithPatches(
-      (draft) => {
-        handleAllEvent(draft, event);
-      },
-      false,
-      event,
-    );
-    // console.timeEnd('processEventWithEventGraph');
-
-    get().actorSend({ type: StateMachineAction.FlowContentTouched });
-  }
-
+  // SECTION: Private functions
   function resetEdgeAndMetadataBaseOnFlowRunSingleExecutingState(
     isRunning: boolean,
   ) {
@@ -184,22 +90,10 @@ export const createEventGraphSlice: StateCreator<
 
     set({ nodeMetadataDict });
   }
+  // !SECTION
 
   return {
-    eventGraphState: lens(() => {
-      return {
-        flowContent: {
-          nodes: [],
-          edges: [],
-          nodeConfigsDict: {},
-          variablesDict: {},
-          variableValueLookUpDicts: [{}],
-        },
-        batchTest: createBatchTestLens(get),
-      };
-    }),
-
-    initializeCanvas(): void {
+    _initializeCanvas(): void {
       const spaceId = get().spaceId;
 
       initializationSubscription = from(querySpace(spaceId))
@@ -227,132 +121,82 @@ export const createEventGraphSlice: StateCreator<
               { type: 'initializeCanvas', flowContent },
             );
 
-            get().actorSend({
-              type: StateMachineAction.FetchingCanvasContentSuccess,
+            get().canvasStateMachine.send({
+              type: CanvasStateMachineEventType.FetchingCanvasContentSuccess,
               isUpdated,
             });
           },
           error(error) {
             // TODO: Report to telemetry
             console.error('Error fetching content', error);
-            get().actorSend({
-              type: StateMachineAction.FetchingCanvasContentError,
+            get().canvasStateMachine.send({
+              type: CanvasStateMachineEventType.FetchingCanvasContentError,
             });
           },
         });
     },
-    cancelCanvasInitializationIfInProgress(): void {
+
+    _cancelCanvasInitializationIfInProgress(): void {
       initializationSubscription?.unsubscribe();
       initializationSubscription = null;
     },
 
-    onEdgesChange(changes: EdgeChange[]): void {
-      processEventWithEventGraph({
-        type: ChangeEventType.RF_EDGES_CHANGE,
-        changes,
-      });
-    },
-    onNodesChange(changes: NodeChange[]): void {
-      processEventWithEventGraph({
-        type: ChangeEventType.RF_NODES_CHANGE,
-        changes,
-      });
-    },
-    onConnect(connection): void {
-      processEventWithEventGraph({
-        type: ChangeEventType.RF_ON_CONNECT,
-        connection,
-      });
-    },
+    _syncFlowContent: async () => {
+      const flowContent = get().getFlowContent();
 
-    addNode(type: NodeTypeEnum, x: number, y: number): void {
-      processEventWithEventGraph({
-        type: ChangeEventType.ADDING_NODE,
-        node: createNode(type, x, y),
-      });
-    },
-    removeNode(nodeId: string): void {
-      processEventWithEventGraph({
-        type: ChangeEventType.REMOVING_NODE,
-        nodeId: nodeId,
-      });
-    },
-    updateNodeConfig(nodeId: string, change: Partial<NodeConfig>): void {
-      processEventWithEventGraph({
-        type: ChangeEventType.UPDATING_NODE_CONFIG,
-        nodeId,
-        change,
-      });
-    },
+      const nextSyncedData: V3FlowContent = {
+        ...flowContent,
+        nodes: A.map(
+          flowContent.nodes,
+          D.selectKeys(['id', 'type', 'position', 'data']),
+        ),
+        edges: A.map(
+          flowContent.edges,
+          D.selectKeys([
+            'id',
+            'source',
+            'sourceHandle',
+            'target',
+            'targetHandle',
+          ]),
+        ),
+      };
 
-    addVariable(nodeId: string, type: ConnectorTypeEnum, index: number): void {
-      processEventWithEventGraph({
-        type: ChangeEventType.ADDING_VARIABLE,
-        nodeId,
-        connectorType: type,
-        connectorIndex: index,
-      });
-    },
-    removeVariable(variableId: string): void {
-      processEventWithEventGraph({
-        type: ChangeEventType.REMOVING_VARIABLE,
-        variableId,
-      });
-    },
-    updateConnector<
-      T extends ConnectorTypeEnum,
-      R = VariableTypeToVariableConfigTypeMap[T],
-    >(variableId: string, change: Partial<R>): void {
-      processEventWithEventGraph({
-        type: ChangeEventType.UPDATE_CONNECTORS,
-        updates: [{ variableId, change }],
-      });
-    },
-    updateConnectors(
-      updates: { variableId: string; change: Partial<Connector> }[],
-    ): void {
-      processEventWithEventGraph({
-        type: ChangeEventType.UPDATE_CONNECTORS,
-        updates,
-      });
-    },
+      const hasChange =
+        prevSyncedData != null && !deepEqual(prevSyncedData, nextSyncedData);
 
-    updateVariableValue(variableId: string, value: unknown): void {
-      processEventWithEventGraph({
-        type: ChangeEventType.UPDATE_VARIABLE_VALUES,
-        updates: [{ variableId, value }],
-      });
-    },
-    updateVariableValues(
-      updates: { variableId: string; value: unknown }[],
-    ): void {
-      processEventWithEventGraph({
-        type: ChangeEventType.UPDATE_VARIABLE_VALUES,
-        updates,
-      });
-    },
+      prevSyncedData = nextSyncedData;
 
-    getFlowContent(): V3FlowContent {
-      return getFlowContent();
-    },
-    getDefaultVariableValueLookUpDict(): ConnectorResultMap {
-      return getFlowContent().variableValueLookUpDicts[0]!;
-    },
+      if (!hasChange) {
+        get().canvasStateMachine.send({
+          type: CanvasStateMachineEventType.FlowContentNoUploadNeeded,
+        });
+        return;
+      }
 
-    startFlowSingleRun() {
-      get().actorSend({ type: StateMachineAction.StartExecutingFlowSingleRun });
-    },
-    stopFlowSingleRun() {
-      posthog.capture('Manually Stopped Simple Evaluation', {
-        flowId: get().spaceId,
+      get().canvasStateMachine.send({
+        type: CanvasStateMachineEventType.StartUploadingFlowContent,
       });
 
-      get().actorSend({
-        type: StateMachineAction.StopExecutingFlowSingleRun,
-      });
+      const spaceId = get().spaceId;
+
+      try {
+        console.time('updateSpaceContentV3');
+
+        await updateSpaceContentV3(spaceId, nextSyncedData);
+
+        console.timeEnd('updateSpaceContentV3');
+
+        get().canvasStateMachine.send({
+          type: CanvasStateMachineEventType.FlowContentUploadSuccess,
+        });
+      } catch (error) {
+        console.timeEnd('updateSpaceContentV3');
+        // TODO: Report to telemetry and handle in state machine
+      }
     },
 
-    __startFlowSingleRunImpl() {
+    _executeFlowSingleRun() {
       posthog.capture('Starting Simple Evaluation', {
         flowId: get().spaceId,
       });
@@ -478,8 +322,8 @@ export const createEventGraphSlice: StateCreator<
 
           console.error(error);
 
-          get().actorSend({
-            type: StateMachineAction.FinishedExecutingFlowSingleRun,
+          get().canvasStateMachine.send({
+            type: CanvasStateMachineEventType.FinishedExecutingFlowSingleRun,
           });
 
           resetEdgeAndMetadataBaseOnFlowRunSingleExecutingState(false);
@@ -489,15 +333,16 @@ export const createEventGraphSlice: StateCreator<
             flowId: get().spaceId,
           });
 
-          get().actorSend({
-            type: StateMachineAction.FinishedExecutingFlowSingleRun,
+          get().canvasStateMachine.send({
+            type: CanvasStateMachineEventType.FinishedExecutingFlowSingleRun,
           });
 
           resetEdgeAndMetadataBaseOnFlowRunSingleExecutingState(false);
         },
       });
     },
-    __stopFlowSingleRunImpl() {
+
+    _cancelFlowSingleRunIfInProgress() {
       runSingleSubscription?.unsubscribe();
       runSingleSubscription = null;
 
@@ -509,32 +354,30 @@ export const createEventGraphSlice: StateCreator<
 async function querySpace(
   spaceId: string,
 ): Promise<OperationResult<SpaceFlowQueryQuery>> {
-  return await client
-    .query(
-      graphql(`
-        query SpaceFlowQuery($spaceId: UUID!) {
-          result: space(id: $spaceId) {
-            space {
-              id
-              name
-              contentVersion
-              contentV3
-            }
+  return await client.query(
+    graphql(`
+      query SpaceFlowQuery($spaceId: UUID!) {
+        result: space(id: $spaceId) {
+          space {
+            id
+            name
+            contentVersion
+            contentV3
           }
         }
-      `),
-      { spaceId },
-      { requestPolicy: 'network-only' },
-    )
-    .toPromise();
+      }
+    `),
+    { spaceId },
+    { requestPolicy: 'network-only' },
+  );
 }
 
-function parseQueryResult(result: OperationResult<SpaceFlowQueryQuery>) {
+function parseQueryResult(input: OperationResult<SpaceFlowQueryQuery>) {
   // TODO: Report to telemetry
-  invariant(result.data?.result?.space != null);
+  invariant(input.data?.result?.space != null);
 
-  const version = result.data.result.space.contentVersion;
-  const contentV3Str = result.data.result.space.contentV3;
+  const version = input.data.result.space.contentVersion;
+  const contentV3Str = input.data.result.space.contentV3;
 
   // TODO: Report to telemetry
   invariant(version === ContentVersion.V3, 'Only v3 is supported');
@@ -579,3 +422,5 @@ function selectFlowInputVariableIdToValueMap(
     }),
   );
 }
+
+export { createSlice as createStateMachineActionsSlice };

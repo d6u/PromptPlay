@@ -1,7 +1,7 @@
 import { ReactNode, useEffect, useState } from 'react';
 import { FlowStoreContext } from 'state-flow/context/FlowStoreContext';
-import { StateMachineAction } from 'state-flow/finite-state-machine';
-import { FlowStore, createFlowStore } from 'state-flow/flow-state';
+import { FlowStore, createFlowStore } from 'state-flow/flow-store';
+import { CanvasStateMachineEventType } from 'state-flow/types';
 
 type Props = {
   spaceId: string;
@@ -14,14 +14,16 @@ export default function FlowStoreContextManager(props: Props) {
   useEffect(() => {
     const localStore = createFlowStore({ spaceId: props.spaceId });
 
-    localStore.getState().actorSend({ type: StateMachineAction.Initialize });
+    localStore.getState().canvasStateMachine.send({
+      type: CanvasStateMachineEventType.Initialize,
+    });
 
     setStore(localStore);
 
     return () => {
-      localStore
-        .getState()
-        .actorSend({ type: StateMachineAction.LeaveFlowRoute });
+      localStore.getState().canvasStateMachine.send({
+        type: CanvasStateMachineEventType.LeaveFlowRoute,
+      });
 
       setStore(null);
     };

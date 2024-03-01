@@ -17,6 +17,7 @@ export default function StandardNode() {
   invariant(nodeId != null, 'nodeId is not null');
 
   const nodeConfigs = useFlowStore((s) => s.getFlowContent().nodeConfigsDict);
+
   const nodeConfig = useMemo(() => {
     return nodeConfigs[nodeId] as NodeConfig | undefined;
   }, [nodeConfigs, nodeId]);

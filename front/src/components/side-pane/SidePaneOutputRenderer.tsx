@@ -1,10 +1,12 @@
 import styled from '@emotion/styled';
+import { ReactNode } from 'react';
+
 import {
   FlowOutputVariable,
   NodeOutputVariable,
   VariableValueType,
 } from 'flow-models';
-import { ReactNode } from 'react';
+
 import { useFlowStore } from 'state-flow/context/FlowStoreContext';
 import OutputDisplay from '../../view-right-side-pane/common/OutputDisplay';
 

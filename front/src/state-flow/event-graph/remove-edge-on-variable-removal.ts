@@ -1,29 +1,13 @@
 import { A } from '@mobily/ts-belt';
 import { current } from 'immer';
 
-import {
-  FlowInputVariable,
-  FlowOutputVariable,
-  NodeInputVariable,
-  NodeOutputVariable,
-} from 'flow-models';
-
 import { createHandler } from './event-graph-util';
-import { ChangeEventType } from './event-types';
+import { ChangeEventType, VariableRemovedEvent } from './event-types';
 import {
   EdgeRemovedDueToSourceVariableRemovalEvent,
   EdgeRemovedEvent,
   updateVariableOnEdgeRemoval,
 } from './update-variable-on-edge-removal';
-
-export type VariableRemovedEvent = {
-  type: ChangeEventType.VARIABLE_REMOVED;
-  removedVariable:
-    | FlowInputVariable
-    | FlowOutputVariable
-    | NodeInputVariable
-    | NodeOutputVariable;
-};
 
 type OutputEvent =
   | EdgeRemovedEvent
@@ -64,16 +48,6 @@ export const removeEdgeOnVariableRemoval = createHandler<
         });
       }
     }
-
-    // TODO: Is it better to move these to dedicated handler?
-
-    delete state.flowContent.variableValueLookUpDicts[0][
-      event.removedVariable.id
-    ];
-
-    delete state.batchTest.config.variableIdToCsvColumnIndexMap[
-      event.removedVariable.id
-    ];
 
     return events;
   },

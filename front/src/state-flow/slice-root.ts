@@ -1,184 +1,123 @@
-import { A, D } from '@mobily/ts-belt';
-import deepEqual from 'deep-equal';
-import { OnConnectStartParams } from 'reactflow';
+import { createLens } from '@dhmk/zustand-lens';
+import { D } from '@mobily/ts-belt';
+import posthog from 'posthog-js';
+import { EdgeChange, NodeChange, OnConnectStartParams } from 'reactflow';
 import invariant from 'tiny-invariant';
-import { createActor } from 'xstate';
 import { StateCreator } from 'zustand';
 
-import { Connector, ConnectorType, V3FlowContent } from 'flow-models';
-
 import {
-  StateMachineAction,
-  StateMachineContext,
-  StateMachineEvent,
-  canvasStateMachine,
-} from './finite-state-machine';
-import { updateSpaceContentV3 } from './graphql/graphql';
+  Connector,
+  ConnectorResultMap,
+  ConnectorType,
+  ConnectorTypeEnum,
+  NodeConfig,
+  NodeTypeEnum,
+  V3FlowContent,
+  createNode,
+} from 'flow-models';
+
+import { ChangeEventType } from './event-graph/event-types';
+import { AcceptedEvent, handleAllEvent } from './event-graph/handle-all-event';
+import { createBatchTestLens } from './lenses/batch-test-lens';
+import { canvasStateMachine } from './state-machines/canvasStateMachine';
 import {
   BatchTestTab,
   CanvasRightPanelType,
+  CanvasStateMachineContext,
+  CanvasStateMachineEvent,
+  CanvasStateMachineEventType,
   ConnectStartEdgeType,
+  FlowActions,
+  FlowProps,
   FlowState,
   NodeMetadata,
-  NodeMetadataDict,
 } from './types';
+import { createWithImmer } from './util/lens-util';
+import { actorFor } from './util/state-machine-middleware';
+import { VariableTypeToVariableConfigTypeMap } from './util/state-utils';
 
-type RootSliceState = {
-  // TODO: Does readonly make any difference here?
-  readonly spaceId: string;
+type FlowStateCreator = StateCreator<
+  FlowState,
+  [],
+  [],
+  FlowProps & FlowActions
+>;
 
-  connectStartEdgeType: ConnectStartEdgeType | null;
-  connectStartStartNodeId: string | null;
-
-  canvasLeftPaneIsOpen: boolean;
-  canvasLeftPaneSelectedNodeId: string | null;
-  canvasRightPaneType: CanvasRightPanelType;
-  nodeMetadataDict: NodeMetadataDict;
-
-  selectedBatchTestTab: BatchTestTab;
-};
-
-export type RootSlice = RootSliceState & {
-  actorSend(event: StateMachineEvent): void;
-  getStateMachineContext(): StateMachineContext;
-
-  setCanvasLeftPaneIsOpen(isOpen: boolean): void;
-  setCanvasLeftPaneSelectedNodeId(nodeId: string | null): void;
-  setCanvasRightPaneType(type: CanvasRightPanelType): void;
-  updateNodeAugment(nodeId: string, change: Partial<NodeMetadata>): void;
-  onEdgeConnectStart(params: OnConnectStartParams): void;
-  onEdgeConnectStop(): void;
-
-  setSelectedBatchTestTab(tab: BatchTestTab): void;
-};
-
-type InitProps = {
+export type InitProps = {
   spaceId: string;
 };
 
-type RootSliceStateCreator = StateCreator<
-  FlowState,
-  [['zustand/devtools', never]],
-  [],
-  RootSlice
->;
-
 export function createRootSlice(
   initProps: InitProps,
-  ...rest: Parameters<RootSliceStateCreator>
-): ReturnType<RootSliceStateCreator> {
-  const [set, get] = rest;
+  ...args: Parameters<FlowStateCreator>
+): ReturnType<FlowStateCreator> {
+  const [set, get] = args;
 
-  let prevSyncedData: V3FlowContent | null = null;
-
-  const fsmActor = createActor(
-    canvasStateMachine.provide({
-      actions: {
-        initializeCanvas: () => {
-          get().initializeCanvas();
-        },
-        cancelCanvasInitializationIfInProgress: () => {
-          get().cancelCanvasInitializationIfInProgress();
-        },
-        syncFlowContent: async () => {
-          const flowContent = get().getFlowContent();
-
-          const nextSyncedData: V3FlowContent = {
-            ...flowContent,
-            nodes: A.map(
-              flowContent.nodes,
-              D.selectKeys(['id', 'type', 'position', 'data']),
-            ),
-            edges: A.map(
-              flowContent.edges,
-              D.selectKeys([
-                'id',
-                'source',
-                'sourceHandle',
-                'target',
-                'targetHandle',
-              ]),
-            ),
-          };
-
-          const hasChange =
-            prevSyncedData != null &&
-            !deepEqual(prevSyncedData, nextSyncedData);
-
-          prevSyncedData = nextSyncedData;
-
-          if (!hasChange) {
-            get().actorSend({
-              type: StateMachineAction.FlowContentNoUploadNeeded,
-            });
-            return;
-          }
-          get().actorSend({
-            type: StateMachineAction.StartUploadingFlowContent,
-          });
-
-          const spaceId = get().spaceId;
-
-          try {
-            console.time('updateSpaceContentV3');
-            await updateSpaceContentV3(spaceId, nextSyncedData);
-            console.timeEnd('updateSpaceContentV3');
-            get().actorSend({
-              type: StateMachineAction.FlowContentUploadSuccess,
-            });
-          } catch (error) {
-            console.timeEnd('updateSpaceContentV3');
-            // TODO: Report to telemetry and handle in state machine
-          }
-        },
-        executeFlowSingleRun: () => {
-          get().__startFlowSingleRunImpl();
-        },
-        cancelFlowSingleRunIfInProgress: () => {
-          get().__stopFlowSingleRunImpl();
-        },
-      },
-    }),
-    {
-      inspect(event) {
-        if (event.type === '@xstate.event') {
-          console.log('[State Machine] event:', event.event);
-        }
-      },
-    },
+  // SECTION: Lenses
+  const [setEventGraphState, getEventGraphState] = createLens(
+    set,
+    get,
+    'canvas',
   );
+  const [, getFlowContent] = createLens(
+    setEventGraphState,
+    getEventGraphState,
+    'flowContent',
+  );
+  // !SECTION
 
-  // TODO: Memory leak here because we never unsubscribe
-  fsmActor.subscribe((snapshot) => {
-    console.log(
-      '[State Machine] state:',
-      JSON.stringify(snapshot.value, null, 2),
+  // SECTION: With Immer
+  const { setWithPatches: setEventGraphStateWithPatches } = createWithImmer<
+    FlowState,
+    ['canvas']
+  >([setEventGraphState, getEventGraphState]);
+  // !SECTION
+
+  function processEventWithEventGraph(event: AcceptedEvent) {
+    console.log('processEventWithEventGraph', event);
+
+    // console.time('processEventWithEventGraph');
+    setEventGraphStateWithPatches(
+      (draft) => {
+        handleAllEvent(draft, event);
+      },
+      false,
+      event,
     );
-  });
+    // console.timeEnd('processEventWithEventGraph');
 
-  fsmActor.start();
+    get().canvasStateMachine.send({
+      type: CanvasStateMachineEventType.FlowContentTouched,
+    });
+  }
 
   return {
     spaceId: initProps.spaceId,
 
+    canvasStateMachine: actorFor<
+      CanvasStateMachineContext,
+      CanvasStateMachineEvent
+    >(canvasStateMachine),
+
     connectStartEdgeType: null,
     connectStartStartNodeId: null,
-
     canvasLeftPaneIsOpen: false,
     canvasRightPaneType: CanvasRightPanelType.Off,
     canvasLeftPaneSelectedNodeId: null,
     nodeMetadataDict: {},
-
     selectedBatchTestTab: BatchTestTab.RunTests,
 
-    actorSend(event: StateMachineEvent): void {
-      fsmActor.send(event);
-      // NOTE: Manually trigger a re-render
-      set({});
+    canvas: {
+      flowContent: {
+        nodes: [],
+        edges: [],
+        nodeConfigsDict: {},
+        variablesDict: {},
+        variableValueLookUpDicts: [{}],
+      },
     },
-    getStateMachineContext(): StateMachineContext {
-      return fsmActor.getSnapshot().context;
-    },
+
+    batchTest: createBatchTestLens(get),
 
     setCanvasLeftPaneIsOpen(isOpen: boolean): void {
       set({ canvasLeftPaneIsOpen: isOpen });
@@ -215,7 +154,7 @@ export function createRootSlice(
       invariant(handleId != null, 'handleId is not null');
 
       set((state) => {
-        const connector = state.getFlowContent().variablesDict[handleId] as
+        const connector = get().getFlowContent().variablesDict[handleId] as
           | Connector
           | undefined;
 
@@ -242,6 +181,114 @@ export function createRootSlice(
 
     setSelectedBatchTestTab(tab: BatchTestTab): void {
       set({ selectedBatchTestTab: tab });
+    },
+
+    onEdgesChange(changes: EdgeChange[]): void {
+      processEventWithEventGraph({
+        type: ChangeEventType.RF_EDGES_CHANGE,
+        changes,
+      });
+    },
+    onNodesChange(changes: NodeChange[]): void {
+      processEventWithEventGraph({
+        type: ChangeEventType.RF_NODES_CHANGE,
+        changes,
+      });
+    },
+    onConnect(connection): void {
+      processEventWithEventGraph({
+        type: ChangeEventType.RF_ON_CONNECT,
+        connection,
+      });
+    },
+
+    addNode(type: NodeTypeEnum, x: number, y: number): void {
+      processEventWithEventGraph({
+        type: ChangeEventType.ADDING_NODE,
+        node: createNode(type, x, y),
+      });
+    },
+    removeNode(nodeId: string): void {
+      processEventWithEventGraph({
+        type: ChangeEventType.REMOVING_NODE,
+        nodeId: nodeId,
+      });
+    },
+    updateNodeConfig(nodeId: string, change: Partial<NodeConfig>): void {
+      processEventWithEventGraph({
+        type: ChangeEventType.UPDATING_NODE_CONFIG,
+        nodeId,
+        change,
+      });
+    },
+
+    addVariable(nodeId: string, type: ConnectorTypeEnum, index: number): void {
+      processEventWithEventGraph({
+        type: ChangeEventType.ADDING_VARIABLE,
+        nodeId,
+        connectorType: type,
+        connectorIndex: index,
+      });
+    },
+    removeVariable(variableId: string): void {
+      processEventWithEventGraph({
+        type: ChangeEventType.REMOVING_VARIABLE,
+        variableId,
+      });
+    },
+    updateConnector<
+      T extends ConnectorTypeEnum,
+      R = VariableTypeToVariableConfigTypeMap[T],
+    >(variableId: string, change: Partial<R>): void {
+      processEventWithEventGraph({
+        type: ChangeEventType.UPDATE_CONNECTORS,
+        updates: [{ variableId, change }],
+      });
+    },
+    updateConnectors(
+      updates: { variableId: string; change: Partial<Connector> }[],
+    ): void {
+      processEventWithEventGraph({
+        type: ChangeEventType.UPDATE_CONNECTORS,
+        updates,
+      });
+    },
+
+    updateVariableValue(variableId: string, value: unknown): void {
+      processEventWithEventGraph({
+        type: ChangeEventType.UPDATE_VARIABLE_VALUES,
+        updates: [{ variableId, value }],
+      });
+    },
+    updateVariableValues(
+      updates: { variableId: string; value: unknown }[],
+    ): void {
+      processEventWithEventGraph({
+        type: ChangeEventType.UPDATE_VARIABLE_VALUES,
+        updates,
+      });
+    },
+
+    getFlowContent(): V3FlowContent {
+      return getFlowContent();
+    },
+    getDefaultVariableValueLookUpDict(): ConnectorResultMap {
+      return getFlowContent().variableValueLookUpDicts[0]!;
+    },
+
+    startFlowSingleRun() {
+      get().canvasStateMachine.send({
+        type: CanvasStateMachineEventType.StartExecutingFlowSingleRun,
+      });
+    },
+    stopFlowSingleRun() {
+      posthog.capture('Manually Stopped Simple Evaluation', {
+        flowId: get().spaceId,
+      });
+
+      get().canvasStateMachine.send({
+        type: CanvasStateMachineEventType.StopExecutingFlowSingleRun,
+      });
     },
   };
 }

@@ -1,22 +1,14 @@
 import {
-  RunMetadataTable,
-  RunOutputTable,
-  VariableIdToCsvColumnIndexMap,
-} from 'state-flow/types';
+  FlowInputVariable,
+  FlowOutputVariable,
+  NodeInputVariable,
+  NodeOutputVariable,
+} from 'flow-models';
 
-import { FlowContentState } from '../slice-event-graph';
+import { FlowContentState } from 'state-flow/types';
 
 export type State = {
   flowContent: FlowContentState;
-  batchTest: {
-    config: {
-      repeatTimes: number;
-      concurrencyLimit: number;
-      variableIdToCsvColumnIndexMap: VariableIdToCsvColumnIndexMap;
-      runOutputTable: RunOutputTable;
-      runMetadataTable: RunMetadataTable;
-    };
-  };
 };
 
 export enum ChangeEventType {
@@ -56,3 +48,14 @@ export enum ChangeEventType {
   // Derived Other
   VAR_VALUE_MAP_UPDATED = 'VAR_VALUE_MAP_UPDATED',
 }
+
+// ANCHOR: Event shared by multiple handlers
+
+export type VariableRemovedEvent = {
+  type: ChangeEventType.VARIABLE_REMOVED;
+  removedVariable:
+    | FlowInputVariable
+    | FlowOutputVariable
+    | NodeInputVariable
+    | NodeOutputVariable;
+};

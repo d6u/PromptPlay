@@ -4,15 +4,13 @@ import { current } from 'immer';
 import { ConnectorType, LocalNode } from 'flow-models';
 
 import { createHandler } from './event-graph-util';
-import { ChangeEventType } from './event-types';
+import { ChangeEventType, VariableRemovedEvent } from './event-types';
 import {
   ConditionRemovedEvent,
   removeEdgeOnConditionRemoval,
 } from './remove-edge-on-condition-removal';
-import {
-  VariableRemovedEvent,
-  removeEdgeOnVariableRemoval,
-} from './remove-edge-on-variable-removal';
+import { removeEdgeOnVariableRemoval } from './remove-edge-on-variable-removal';
+import { updateVariableValueMapOnVariableRemoved } from './update-variable-value-map-on-variable-removed';
 
 export type NodeRemovedEvent = {
   type: ChangeEventType.NODE_REMOVED;
@@ -59,5 +57,9 @@ export const removeConnectorOnNodeRemoval = createHandler<
 
     return events;
   },
-  [removeEdgeOnVariableRemoval, removeEdgeOnConditionRemoval],
+  [
+    removeEdgeOnVariableRemoval,
+    removeEdgeOnConditionRemoval,
+    updateVariableValueMapOnVariableRemoved,
+  ],
 );

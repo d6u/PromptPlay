@@ -13,12 +13,13 @@ type Props = {
 export default function TableBody(props: Props) {
   // SECTION: Select state from store
   const variableMap = useFlowStore((s) => s.getFlowContent().variablesDict);
+
   const {
     repeatTimes,
     variableIdToCsvColumnIndexMap: variableIdToCsvColumnIndexLookUpDict,
     runOutputTable: csvRunResultTable,
     runMetadataTable: runStatusTable,
-  } = useFlowStore((s) => s.eventGraphState.batchTest.config);
+  } = useFlowStore((s) => s.batchTest.config.content);
   // !SECTION
 
   const flowInputVariables = useMemo(() => {

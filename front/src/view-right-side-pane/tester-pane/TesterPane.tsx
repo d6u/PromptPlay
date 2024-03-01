@@ -19,7 +19,7 @@ function TesterPane() {
 
   // SECTION: Select state from store
   const isExecutingFlowSingleRun = useFlowStore(
-    (s) => s.getStateMachineContext().isExecutingFlowSingleRun,
+    (s) => s.canvasStateMachine.getSnapshot().context.isExecutingFlowSingleRun,
   );
   const variableMap = useFlowStore((s) => s.getFlowContent().variablesDict);
   const runFlow = useFlowStore((s) => s.startFlowSingleRun);

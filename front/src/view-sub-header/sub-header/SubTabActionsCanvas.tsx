@@ -19,7 +19,7 @@ function SubTabActionsCanvas() {
   const storeApi = useStoreApi();
 
   const isExecutingFlowSingleRun = useFlowStore(
-    (s) => s.getStateMachineContext().isExecutingFlowSingleRun,
+    (s) => s.canvasStateMachine.getSnapshot().context.isExecutingFlowSingleRun,
   );
   const addNode = useFlowStore((s) => s.addNode);
   const runFlow = useFlowStore((s) => s.startFlowSingleRun);

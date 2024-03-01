@@ -8,13 +8,4 @@ export const MOCK_STATE: State = {
     variablesDict: {},
     variableValueLookUpDicts: [{}],
   },
-  batchTest: {
-    config: {
-      repeatTimes: 1,
-      concurrencyLimit: 2,
-      variableIdToCsvColumnIndexMap: {},
-      runOutputTable: [],
-      runMetadataTable: [],
-    },
-  },
 };
