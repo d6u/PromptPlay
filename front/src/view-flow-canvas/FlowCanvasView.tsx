@@ -9,14 +9,14 @@ import ReactFlow, {
 import RouteFlowContext from 'state-flow/context/FlowRouteContext';
 import { useFlowStore } from 'state-flow/flow-store';
 
-import CustomNode from './CustomNode';
+import FlowCanvasNode from './FlowCanvasNode';
 
 import 'reactflow/dist/style.css';
 
 const TYPE_NAME_FOR_CUSTOM_NODE = 'CUSTOM_NODE_TYPE';
 
 const NODE_TYPES = {
-  [TYPE_NAME_FOR_CUSTOM_NODE]: CustomNode,
+  [TYPE_NAME_FOR_CUSTOM_NODE]: FlowCanvasNode,
 };
 
 function FlowCanvasView() {

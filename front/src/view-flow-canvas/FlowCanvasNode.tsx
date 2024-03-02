@@ -18,7 +18,7 @@ import InputNode from './nodes/InputNode';
 import JavaScriptFunctionNode from './nodes/JavaScriptFunctionNode';
 import OutputNode from './nodes/OutputNode';
 
-function CustomNode() {
+function FlowCanvasNode() {
   const { isCurrentUserOwner } = useContext(RouteFlowContext);
 
   const nodeId = useNodeId();
@@ -95,4 +95,4 @@ function CustomNode() {
   }
 }
 
-export default CustomNode;
+export default FlowCanvasNode;
