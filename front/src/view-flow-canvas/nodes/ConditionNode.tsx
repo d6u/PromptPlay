@@ -6,8 +6,8 @@ import invariant from 'tiny-invariant';
 
 import { ConditionResult, ConnectorType, NodeType } from 'flow-models';
 
+import NodeConditionDefaultItem from 'components/node-connector/NodeConditionDefaultItem';
 import NodeConditionsEditableList from 'components/node-connector/NodeConditionsEditableList';
-import NodeConnectorResultDisplay from 'components/node-connector/NodeConnectorResultDisplay';
 import NodeVariablesEditableList from 'components/node-connector/NodeVariablesEditableList';
 import RouteFlowContext from 'state-flow/context/FlowRouteContext';
 import { useFlowStore } from 'state-flow/flow-store';
@@ -18,7 +18,6 @@ import {
 } from 'state-flow/util/state-utils';
 
 import IncomingConditionHandle from '../handles/IncomingConditionHandle';
-import OutgoingConditionHandle from '../handles/OutgoingConditionHandle';
 import NodeBox from '../node-box/NodeBox';
 import NodeBoxAddConnectorButton from '../node-box/NodeBoxAddConnectorButton';
 import NodeBoxHeaderSection from '../node-box/NodeBoxHeaderSection';
@@ -178,9 +177,11 @@ function ConditionNode() {
           />
         </GenericContainer>
         <NodeBoxSection>
-          <NodeConnectorResultDisplay
-            label="Default case"
-            value={
+          <NodeConditionDefaultItem
+            showHandle
+            nodeId={nodeId}
+            conditionId={defaultCaseCondition.id}
+            conditionValue={
               (
                 connectorResultMap[defaultCaseCondition.id] as
                   | ConditionResult
@@ -193,11 +194,6 @@ function ConditionNode() {
           </FormHelperText>
         </NodeBoxSection>
       </NodeBox>
-      <OutgoingConditionHandle
-        key={defaultCaseCondition.id}
-        id={defaultCaseCondition.id}
-        isDefaultCase
-      />
     </>
   );
 }
