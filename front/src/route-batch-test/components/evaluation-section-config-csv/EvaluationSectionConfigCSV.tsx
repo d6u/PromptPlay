@@ -6,7 +6,7 @@ import { useMemo } from 'react';
 
 import { ConnectorType } from 'flow-models';
 
-import Section from 'components/side-pane/SidePaneSection';
+import SidePaneSection from 'components/side-pane/SidePaneSection';
 import { useFlowStore } from 'state-flow/flow-store';
 import { CSVData, CSVRow, IterationIndex, RowIndex } from 'state-flow/types';
 import { selectAllVariables } from 'state-flow/util/state-utils';
@@ -56,7 +56,7 @@ export default function EvaluationSectionConfigCSV(props: Props) {
 
   return (
     <>
-      <Section style={{ overflow: 'auto', display: 'flex', gap: 10 }}>
+      <SidePaneSection style={{ overflow: 'auto', display: 'flex', gap: 10 }}>
         <FormControl size="sm" orientation="horizontal">
           <FormLabel>Reapt</FormLabel>
           <Input
@@ -210,13 +210,13 @@ export default function EvaluationSectionConfigCSV(props: Props) {
         >
           Download result as CSV
         </Button>
-      </Section>
-      <Section style={{ overflow: 'auto' }}>
+      </SidePaneSection>
+      <SidePaneSection style={{ overflow: 'auto' }}>
         <Table>
           <TableHead csvHeaders={props.csvHeaders} />
           <TableBody csvBody={props.csvBody} />
         </Table>
-      </Section>
+      </SidePaneSection>
     </>
   );
 }

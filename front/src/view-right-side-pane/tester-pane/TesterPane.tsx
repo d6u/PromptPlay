@@ -4,10 +4,10 @@ import { useContext, useMemo } from 'react';
 
 import { ConnectorType, VariableValueType } from 'flow-models';
 
-import HeaderSection from 'components/side-pane/SidePaneHeaderSection';
+import SidePaneHeaderSection from 'components/side-pane/SidePaneHeaderSection';
 import HeaderSectionHeader from 'components/side-pane/SidePaneHeaderSectionHeader';
 import SidePaneOutputRenderer from 'components/side-pane/SidePaneOutputRenderer';
-import Section from 'components/side-pane/SidePaneSection';
+import SidePaneSection from 'components/side-pane/SidePaneSection';
 import RouteFlowContext from 'state-flow/context/FlowRouteContext';
 import { useFlowStore } from 'state-flow/flow-store';
 import { selectAllVariables } from 'state-flow/util/state-utils';
@@ -41,7 +41,7 @@ function TesterPane() {
 
   return (
     <Container>
-      <HeaderSection>
+      <SidePaneHeaderSection>
         <HeaderSectionHeader>Input variables</HeaderSectionHeader>
         {isCurrentUserOwner && (
           <Button
@@ -51,8 +51,8 @@ function TesterPane() {
             {isExecutingFlowSingleRun ? 'Stop' : 'Run'}
           </Button>
         )}
-      </HeaderSection>
-      <Section>
+      </SidePaneHeaderSection>
+      <SidePaneSection>
         {flowInputs.map((variable, i) => (
           <InputBlock
             key={variable.id}
@@ -80,15 +80,15 @@ function TesterPane() {
             }}
           />
         ))}
-      </Section>
-      <HeaderSection>
+      </SidePaneSection>
+      <SidePaneHeaderSection>
         <HeaderSectionHeader>Output values</HeaderSectionHeader>
-      </HeaderSection>
-      <Section>
+      </SidePaneHeaderSection>
+      <SidePaneSection>
         {flowOutputs.map((output) => (
           <SidePaneOutputRenderer key={output.id} outputItem={output} />
         ))}
-      </Section>
+      </SidePaneSection>
     </Container>
   );
 }

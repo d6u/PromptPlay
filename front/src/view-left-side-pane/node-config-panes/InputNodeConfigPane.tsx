@@ -8,7 +8,7 @@ import {
 } from 'flow-models';
 
 import NodeVariablesEditableList from 'components/node-connector/NodeVariablesEditableList';
-import HeaderSection from 'components/side-pane/SidePaneHeaderSection';
+import SidePaneHeaderSection from 'components/side-pane/SidePaneHeaderSection';
 import HeaderSectionHeader from 'components/side-pane/SidePaneHeaderSectionHeader';
 import { useFlowStore } from 'state-flow/flow-store';
 import { selectVariables } from 'state-flow/util/state-utils';
@@ -39,9 +39,9 @@ function InputNodeConfigPane(props: Props) {
 
   return (
     <NodeConfigPaneContainer>
-      <HeaderSection>
+      <SidePaneHeaderSection>
         <HeaderSectionHeader>{nodeDefinition.label} Config</HeaderSectionHeader>
-      </HeaderSection>
+      </SidePaneHeaderSection>
       <NodeConfigPaneAddConnectorButton
         label="Variable"
         onClick={() => {

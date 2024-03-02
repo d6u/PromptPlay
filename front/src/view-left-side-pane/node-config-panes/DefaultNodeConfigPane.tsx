@@ -14,10 +14,10 @@ import {
 } from 'flow-models';
 
 import NodeVariablesEditableList from 'components/node-connector/NodeVariablesEditableList';
-import HeaderSection from 'components/side-pane/SidePaneHeaderSection';
+import SidePaneHeaderSection from 'components/side-pane/SidePaneHeaderSection';
 import HeaderSectionHeader from 'components/side-pane/SidePaneHeaderSectionHeader';
 import SidePaneOutputRenderer from 'components/side-pane/SidePaneOutputRenderer';
-import Section from 'components/side-pane/SidePaneSection';
+import SidePaneSection from 'components/side-pane/SidePaneSection';
 import { useFlowStore } from 'state-flow/flow-store';
 
 import NodeConfigPaneAddConnectorButton from 'view-left-side-pane/node-config-pane-base-ui/NodeConfigPaneAddConnectorButton';
@@ -68,17 +68,17 @@ function DefaultNodeConfigPane(props: Props) {
 
   return (
     <NodeConfigPaneContainer>
-      <HeaderSection>
+      <SidePaneHeaderSection>
         <HeaderSectionHeader>Output variables</HeaderSectionHeader>
-      </HeaderSection>
-      <Section>
+      </SidePaneHeaderSection>
+      <SidePaneSection>
         {props.outputVariables.map((output) => (
           <SidePaneOutputRenderer key={output.id} outputItem={output} />
         ))}
-      </Section>
-      <HeaderSection>
+      </SidePaneSection>
+      <SidePaneHeaderSection>
         <HeaderSectionHeader>{nodeDefinition.label} Config</HeaderSectionHeader>
-      </HeaderSection>
+      </SidePaneHeaderSection>
       {nodeDefinition.canUserAddIncomingVariables && (
         <NodeConfigPaneAddConnectorButton
           label="Variable"

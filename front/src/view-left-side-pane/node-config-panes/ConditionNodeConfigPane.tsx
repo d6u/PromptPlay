@@ -11,15 +11,15 @@ import {
   getNodeDefinitionForNodeTypeName,
 } from 'flow-models';
 
-import NodeAddConnectorButton from 'components/NodeAddConnectorButton';
 import NodeConditionDefaultItem from 'components/node-connector/NodeConditionDefaultItem';
 import NodeConditionsEditableList from 'components/node-connector/NodeConditionsEditableList';
 import NodeVariablesEditableList from 'components/node-connector/NodeVariablesEditableList';
-import HeaderSection from 'components/side-pane/SidePaneHeaderSection';
+import SidePaneHeaderSection from 'components/side-pane/SidePaneHeaderSection';
 import HeaderSectionHeader from 'components/side-pane/SidePaneHeaderSectionHeader';
 import { useFlowStore } from 'state-flow/flow-store';
 import { selectConditions } from 'state-flow/util/state-utils';
 
+import NodeConfigPaneAddConnectorButton from 'view-left-side-pane/node-config-pane-base-ui/NodeConfigPaneAddConnectorButton';
 import NodeConfigPaneContainer from '../node-config-pane-base-ui/NodeConfigPaneContainer';
 
 type Props = {
@@ -52,9 +52,9 @@ function ConditionNodeConfigPane(props: Props) {
 
   return (
     <NodeConfigPaneContainer>
-      <HeaderSection>
+      <SidePaneHeaderSection>
         <HeaderSectionHeader>{nodeDefinition.label} Config</HeaderSectionHeader>
-      </HeaderSection>
+      </SidePaneHeaderSection>
       <NodeVariablesEditableList
         nodeId={props.nodeId}
         isNodeReadOnly={props.isNodeReadOnly}
@@ -62,7 +62,7 @@ function ConditionNodeConfigPane(props: Props) {
           return { id: variable.id, name: variable.name, isReadOnly: true };
         })}
       />
-      <Section>
+      <GenericSection>
         <FormControl>
           <FormLabel>Stop at the first match</FormLabel>
           <Checkbox
@@ -81,22 +81,20 @@ function ConditionNodeConfigPane(props: Props) {
           In either case, the default case will be matched if no condition has
           matched.
         </FormHelperText>
-      </Section>
-      <Section>
-        {!props.isNodeReadOnly && (
-          <NodeAddConnectorButton
-            label="Condition"
-            onClick={() => {
-              addVariable(
-                props.nodeId,
-                ConnectorType.Condition,
-                customConditions.length,
-              );
-              updateNodeInternals(props.nodeId);
-            }}
-          />
-        )}
-      </Section>
+      </GenericSection>
+      {!props.isNodeReadOnly && (
+        <NodeConfigPaneAddConnectorButton
+          label="Condition"
+          onClick={() => {
+            addVariable(
+              props.nodeId,
+              ConnectorType.Condition,
+              customConditions.length,
+            );
+            updateNodeInternals(props.nodeId);
+          }}
+        />
+      )}
       <NodeConditionsEditableList
         nodeId={props.nodeId}
         isNodeReadOnly={props.isNodeReadOnly}
@@ -128,7 +126,7 @@ function ConditionNodeConfigPane(props: Props) {
   );
 }
 
-const Section = styled.div`
+const GenericSection = styled.div`
   margin-top: 10px;
   margin-top: 10px;
 `;
