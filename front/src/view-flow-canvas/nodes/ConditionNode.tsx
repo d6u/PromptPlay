@@ -1,22 +1,25 @@
 import styled from '@emotion/styled';
+import { Option } from '@mobily/ts-belt';
 import { Checkbox, FormControl, FormHelperText, FormLabel } from '@mui/joy';
-import { useContext, useMemo } from 'react';
-import { Position, useNodeId, useUpdateNodeInternals } from 'reactflow';
-import invariant from 'tiny-invariant';
+import { useMemo } from 'react';
+import { Position, useUpdateNodeInternals } from 'reactflow';
 
-import { ConditionResult, ConnectorType, NodeType } from 'flow-models';
+import {
+  ConditionNodeAllLevelConfig,
+  ConditionResult,
+  ConditionTarget,
+  ConnectorType,
+  NodeInputVariable,
+  NodeType,
+} from 'flow-models';
 
 import NodeConditionDefaultItem from 'components/node-connector/NodeConditionDefaultItem';
 import NodeConditionsEditableList from 'components/node-connector/NodeConditionsEditableList';
 import NodeTargetConditionHandle from 'components/node-connector/NodeTargetConditionHandle';
 import NodeVariablesEditableList from 'components/node-connector/NodeVariablesEditableList';
-import RouteFlowContext from 'state-flow/context/FlowRouteContext';
 import { useFlowStore } from 'state-flow/flow-store';
-import {
-  selectConditionTarget,
-  selectConditions,
-  selectVariables,
-} from 'state-flow/util/state-utils';
+import { NodeMetadata } from 'state-flow/types';
+import { selectConditions } from 'state-flow/util/state-utils';
 
 import NodeBox from '../node-box/NodeBox';
 import NodeBoxAddConnectorButton from '../node-box/NodeBoxAddConnectorButton';
@@ -24,83 +27,55 @@ import NodeBoxHeaderSection from '../node-box/NodeBoxHeaderSection';
 import NodeBoxSection from '../node-box/NodeBoxSection';
 import NodeBoxSmallSection from '../node-box/NodeBoxSmallSection';
 
-function ConditionNode() {
-  const nodeId = useNodeId();
+type Props = {
+  nodeId: string;
+  isNodeConfigReadOnly: boolean;
+  nodeConfig: ConditionNodeAllLevelConfig;
+  inputVariables: NodeInputVariable[];
+  conditionTarget: ConditionTarget;
+  nodeMetadata: Option<NodeMetadata>;
+};
 
-  invariant(nodeId != null, 'nodeId is not null');
-
+function ConditionNode(props: Props) {
   const updateNodeInternals = useUpdateNodeInternals();
 
-  const { isCurrentUserOwner } = useContext(RouteFlowContext);
-
-  // SECTION: Select state from store
-
-  const nodeConfigMap = useFlowStore((s) => s.getFlowContent().nodeConfigsDict);
-  const nodeMetadataMap = useFlowStore((s) => s.nodeMetadataDict);
-  const connectorMap = useFlowStore((s) => s.getFlowContent().variablesDict);
-  const connectorResultMap = useFlowStore((s) =>
-    s.getDefaultVariableValueLookUpDict(),
-  );
   const updateNodeConfig = useFlowStore((s) => s.updateNodeConfig);
   const addVariable = useFlowStore((s) => s.addVariable);
 
-  // !SECTION
-
-  const nodeConfig = useMemo(() => {
-    return nodeConfigMap[nodeId];
-  }, [nodeConfigMap, nodeId]);
-
-  const augment = useMemo(() => {
-    return nodeMetadataMap[nodeId];
-  }, [nodeMetadataMap, nodeId]);
-
-  const conditionTarget = useMemo(() => {
-    return selectConditionTarget(nodeId, connectorMap);
-  }, [nodeId, connectorMap]);
-
-  const incomingVariables = useMemo(() => {
-    return selectVariables(nodeId, ConnectorType.NodeInput, connectorMap);
-  }, [nodeId, connectorMap]);
-
+  const connectors = useFlowStore((s) => s.getFlowContent().variablesDict);
   const conditions = useMemo(() => {
-    return selectConditions(nodeId, connectorMap);
-  }, [nodeId, connectorMap]);
+    return selectConditions(props.nodeId, connectors);
+  }, [props.nodeId, connectors]);
+  const defaultCondition = useMemo(() => conditions[0], [conditions]);
+  const customConditions = useMemo(() => conditions.slice(1), [conditions]);
 
-  const defaultCaseCondition = useMemo(() => conditions[0], [conditions]);
-  const normalConditions = useMemo(() => conditions.slice(1), [conditions]);
-
-  if (!nodeConfig) {
-    // NOTE: This will happen when the node is removed in store, but not yet
-    // reflected in react-flow store.
-    return null;
-  }
-
-  invariant(nodeConfig.type === NodeType.ConditionNode);
-  invariant(conditionTarget != null);
+  const connectorResults = useFlowStore((s) =>
+    s.getDefaultVariableValueLookUpDict(),
+  );
 
   return (
     <>
       <NodeTargetConditionHandle
-        nodeId={nodeId}
-        conditionId={conditionTarget.id}
+        nodeId={props.nodeId}
+        conditionId={props.conditionTarget.id}
       />
       <NodeBox
         nodeType={NodeType.InputNode}
-        isRunning={augment?.isRunning}
-        hasError={augment?.hasError}
+        isRunning={props.nodeMetadata?.isRunning}
+        hasError={props.nodeMetadata?.hasError}
       >
         <NodeBoxHeaderSection
-          isNodeReadOnly={!isCurrentUserOwner}
+          isNodeReadOnly={props.isNodeConfigReadOnly}
           title="Condition"
-          nodeId={nodeId}
+          nodeId={props.nodeId}
           showAddVariableButton={false}
         />
         <GenericContainer>
           <NodeVariablesEditableList
             showConnectorHandle={Position.Left}
-            nodeId={nodeId}
-            isNodeReadOnly={!isCurrentUserOwner}
-            variableConfigs={incomingVariables.map((variable) => ({
+            nodeId={props.nodeId}
+            isNodeReadOnly={props.isNodeConfigReadOnly}
+            variableConfigs={props.inputVariables.map((variable) => ({
               id: variable.id,
               name: variable.name,
               isReadOnly: true,
@@ -111,16 +86,16 @@ function ConditionNode() {
           <FormControl>
             <FormLabel>Stop at the first match</FormLabel>
             <Checkbox
-              disabled={!isCurrentUserOwner}
+              disabled={props.isNodeConfigReadOnly}
               size="sm"
               variant="outlined"
-              checked={nodeConfig.stopAtTheFirstMatch}
+              checked={props.nodeConfig.stopAtTheFirstMatch}
               onChange={(event) => {
-                if (!isCurrentUserOwner) {
+                if (props.isNodeConfigReadOnly) {
                   return;
                 }
 
-                updateNodeConfig(nodeId, {
+                updateNodeConfig(props.nodeId, {
                   stopAtTheFirstMatch: event.target.checked,
                 });
               }}
@@ -132,28 +107,28 @@ function ConditionNode() {
           </FormHelperText>
         </NodeBoxSection>
         <NodeBoxSmallSection>
-          {isCurrentUserOwner && (
+          {!props.isNodeConfigReadOnly && (
             <NodeBoxAddConnectorButton
               label="Condition"
               onClick={() => {
                 addVariable(
-                  nodeId,
+                  props.nodeId,
                   ConnectorType.Condition,
-                  normalConditions.length,
+                  customConditions.length,
                 );
-                updateNodeInternals(nodeId);
+                updateNodeInternals(props.nodeId);
               }}
             />
           )}
         </NodeBoxSmallSection>
         <GenericContainer>
           <NodeConditionsEditableList
-            nodeId={nodeId}
-            isNodeReadOnly={!isCurrentUserOwner}
+            nodeId={props.nodeId}
+            isNodeReadOnly={props.isNodeConfigReadOnly}
             showHandles
-            conditionConfigs={normalConditions.map((condition) => {
+            conditionConfigs={customConditions.map((condition) => {
               const isMatched = (
-                connectorResultMap[condition.id] as ConditionResult | undefined
+                connectorResults[condition.id] as ConditionResult | undefined
               )?.isConditionMatched;
 
               return {
@@ -167,11 +142,11 @@ function ConditionNode() {
         <NodeBoxSection>
           <NodeConditionDefaultItem
             showHandle
-            nodeId={nodeId}
-            conditionId={defaultCaseCondition.id}
+            nodeId={props.nodeId}
+            conditionId={defaultCondition.id}
             conditionValue={
               (
-                connectorResultMap[defaultCaseCondition.id] as
+                connectorResults[defaultCondition.id] as
                   | ConditionResult
                   | undefined
               )?.isConditionMatched

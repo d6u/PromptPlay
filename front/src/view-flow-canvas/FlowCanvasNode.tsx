@@ -20,6 +20,7 @@ import OutputNode from './nodes/OutputNode';
 
 function FlowCanvasNode() {
   const { isCurrentUserOwner } = useContext(RouteFlowContext);
+  const isNodeReadOnly = !isCurrentUserOwner;
 
   const nodeId = useNodeId();
 
@@ -69,18 +70,41 @@ function FlowCanvasNode() {
 
   switch (nodeConfig.type) {
     case NodeType.InputNode:
-      return <InputNode />;
+      return (
+        <InputNode
+          nodeId={nodeId}
+          isNodeConfigReadOnly={isNodeReadOnly}
+          nodeConfig={nodeConfig}
+        />
+      );
     case NodeType.OutputNode:
-      return <OutputNode />;
+      return (
+        <OutputNode
+          nodeId={nodeId}
+          isNodeConfigReadOnly={isNodeReadOnly}
+          nodeConfig={nodeConfig}
+        />
+      );
     case NodeType.ConditionNode:
-      return <ConditionNode />;
+      invariant(conditionTarget != null, 'conditionTarget is not null');
+
+      return (
+        <ConditionNode
+          nodeId={nodeId}
+          isNodeConfigReadOnly={isNodeReadOnly}
+          nodeConfig={nodeConfig}
+          inputVariables={inputVariables}
+          conditionTarget={conditionTarget}
+          nodeMetadata={nodeMetadata}
+        />
+      );
     case NodeType.JavaScriptFunctionNode:
       invariant(conditionTarget != null, 'conditionTarget is not null');
 
       return (
         <JavaScriptFunctionNode
           nodeId={nodeId}
-          isNodeConfigReadOnly={!isCurrentUserOwner}
+          isNodeConfigReadOnly={isNodeReadOnly}
           nodeConfig={nodeConfig}
           inputVariables={inputVariables}
           outputVariables={outputVariables}
@@ -94,7 +118,7 @@ function FlowCanvasNode() {
       return (
         <DefaultNode
           nodeId={nodeId}
-          isNodeConfigReadOnly={!isCurrentUserOwner}
+          isNodeConfigReadOnly={isNodeReadOnly}
           nodeConfig={nodeConfig}
           inputVariables={inputVariables}
           outputVariables={outputVariables}

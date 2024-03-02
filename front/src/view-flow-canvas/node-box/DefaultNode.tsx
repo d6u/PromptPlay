@@ -87,8 +87,6 @@ function DefaultNode(props: Props) {
     });
   }, [props.outputVariables, defaultVariableValueMap]);
 
-  // ANCHOR: Variable Operations
-
   let children: ReactNode;
   if (props.children) {
     children = props.children;
