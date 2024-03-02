@@ -99,7 +99,7 @@ function ConditionNode() {
         hasError={augment?.hasError}
       >
         <NodeBoxHeaderSection
-          isNodeReadOnly={isCurrentUserOwner}
+          isNodeReadOnly={!isCurrentUserOwner}
           title="Condition"
           onClickRemove={() => {
             removeNode(nodeId);
