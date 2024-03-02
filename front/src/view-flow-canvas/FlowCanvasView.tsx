@@ -10,6 +10,7 @@ import { NodeType } from 'flow-models';
 
 import RouteFlowContext from 'state-flow/context/FlowRouteContext';
 import { useFlowStore } from 'state-flow/flow-store';
+
 import ConditionNode from './nodes/ConditionNode';
 import InputNode from './nodes/InputNode';
 import JavaScriptFunctionNode from './nodes/JavaScriptFunctionNode';
@@ -76,6 +77,8 @@ function FlowCanvasView() {
       onConnectEnd={() => {
         onEdgeConnectStop();
       }}
+      // NOTE: We are not using isValidConnection to prevent invalid connection
+      // because it get called too frequent
     >
       <Background variant={BackgroundVariant.Dots} gap={20} size={1} />
       <Controls />

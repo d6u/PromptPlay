@@ -21,7 +21,7 @@ test('handleReactFlowConnectEvent ignores self connect', () => {
   };
 
   const state = produce(prevState, (draft) => {
-    const r = handleReactFlowConnectEvent(draft, {
+    const events = handleReactFlowConnectEvent(draft, {
       type: ChangeEventType.RF_ON_CONNECT,
       connection: {
         source: 'a',
@@ -31,41 +31,103 @@ test('handleReactFlowConnectEvent ignores self connect', () => {
       },
     });
 
-    expect(r).toEqual([]);
+    expect(events).toEqual([]);
   });
 
   expect(state).toEqual(MOCK_STATE);
 });
 
 test('handleReactFlowConnectEvent ignores existing connection', () => {
-  const prevState = {
+  const prevState: State = {
     ...MOCK_STATE,
     flowContent: {
-      ...MOCK_STATE.flowContent,
+      nodes: [
+        {
+          id: 'TmZiV',
+          type: 'InputNode',
+          position: {
+            x: 304,
+            y: 147,
+          },
+          data: null,
+          dragHandle: '.node-drag-handle',
+          width: 300,
+          height: 132,
+        },
+        {
+          id: 'af2pT',
+          type: 'OutputNode',
+          position: {
+            x: 686,
+            y: 107,
+          },
+          data: null,
+          dragHandle: '.node-drag-handle',
+          width: 300,
+          height: 132,
+        },
+      ],
       edges: [
         {
-          id: '1',
-          source: 'a',
-          target: 'b',
-          sourceHandle: '1',
-          targetHandle: '2',
+          source: 'TmZiV',
+          sourceHandle: 'TmZiV/yhv1Z',
+          target: 'af2pT',
+          targetHandle: 'af2pT/goHde',
+          id: 'vBtz0',
+          style: {
+            strokeWidth: 2,
+          },
+        },
+      ],
+      nodeConfigsDict: {
+        TmZiV: {
+          nodeId: 'TmZiV',
+          type: 'InputNode',
+        },
+        af2pT: {
+          nodeId: 'af2pT',
+          type: 'OutputNode',
+        },
+      },
+      variablesDict: {
+        'TmZiV/yhv1Z': {
+          type: 'FlowInput',
+          id: 'TmZiV/yhv1Z',
+          nodeId: 'TmZiV',
+          index: 0,
+          name: 'os',
+          valueType: 'String',
+        },
+        'af2pT/goHde': {
+          type: 'FlowOutput',
+          id: 'af2pT/goHde',
+          nodeId: 'af2pT',
+          index: 0,
+          name: 'veow',
+          valueType: 'String',
+        },
+      },
+      variableValueLookUpDicts: [
+        {
+          'TmZiV/yhv1Z': null,
+          'af2pT/goHde': null,
         },
       ],
     },
   };
 
   const nextState = produce(prevState, (draft) => {
-    const r = handleReactFlowConnectEvent(draft, {
+    const events = handleReactFlowConnectEvent(draft, {
       type: ChangeEventType.RF_ON_CONNECT,
       connection: {
-        source: 'a',
-        target: 'b',
-        sourceHandle: '1',
-        targetHandle: '2',
+        source: 'TmZiV',
+        target: 'af2pT',
+        sourceHandle: 'TmZiV/yhv1Z',
+        targetHandle: 'af2pT/goHde',
       },
     });
 
-    expect(r).toEqual([]);
+    expect(events).toEqual([]);
   });
 
   expect(nextState).toEqual(prevState);
@@ -75,47 +137,112 @@ test('handleReactFlowConnectEvent ignores Audio source variable with invalid tar
   const prevState: State = {
     ...MOCK_STATE,
     flowContent: {
-      ...MOCK_STATE.flowContent,
-      edges: [
+      nodes: [
         {
-          id: 'e',
-          source: 'a',
-          target: 'b',
-          sourceHandle: '1',
-          targetHandle: '2',
+          id: 'Lbola',
+          type: 'ElevenLabs',
+          position: {
+            x: 231.66666666666663,
+            y: -25.75000000000003,
+          },
+          data: null,
+          dragHandle: '.node-drag-handle',
+          width: 300,
+          height: 352,
+        },
+        {
+          id: 'jvWCV',
+          type: 'TextTemplate',
+          position: {
+            x: 627.5,
+            y: -13.250000000000028,
+          },
+          data: null,
+          dragHandle: '.node-drag-handle',
+          width: 300,
+          height: 328,
         },
       ],
-      variablesDict: {
-        '1': {
-          id: '1',
-          type: 'NodeOutput',
-          valueType: 'Audio',
-          nodeId: '',
-          index: 0,
-          name: 'var1',
-        },
-      },
+      edges: [],
       nodeConfigsDict: {
-        c: {
-          nodeId: 'c',
-          type: 'InputNode',
+        Lbola: {
+          nodeId: 'Lbola',
+          type: 'ElevenLabs',
+          voiceId: '',
+        },
+        jvWCV: {
+          nodeId: 'jvWCV',
+          type: 'TextTemplate',
+          content: 'Write a poem about {{topic}} in fewer than 20 words.',
         },
       },
+      variablesDict: {
+        'Lbola/text': {
+          type: 'NodeInput',
+          id: 'Lbola/text',
+          name: 'text',
+          nodeId: 'Lbola',
+          index: 0,
+          valueType: 'Unknown',
+        },
+        'Lbola/audio': {
+          type: 'NodeOutput',
+          id: 'Lbola/audio',
+          name: 'audio',
+          nodeId: 'Lbola',
+          index: 0,
+          valueType: 'Audio',
+        },
+        'Lbola/wvQiz': {
+          type: 'ConditionTarget',
+          id: 'Lbola/wvQiz',
+          nodeId: 'Lbola',
+        },
+        'jvWCV/ouGHs': {
+          type: 'NodeInput',
+          id: 'jvWCV/ouGHs',
+          name: 'topic',
+          nodeId: 'jvWCV',
+          index: 0,
+          valueType: 'Unknown',
+        },
+        'jvWCV/content': {
+          type: 'NodeOutput',
+          id: 'jvWCV/content',
+          name: 'content',
+          nodeId: 'jvWCV',
+          index: 0,
+          valueType: 'Unknown',
+        },
+        'jvWCV/DBCCW': {
+          type: 'ConditionTarget',
+          id: 'jvWCV/DBCCW',
+          nodeId: 'jvWCV',
+        },
+      },
+      variableValueLookUpDicts: [
+        {
+          'Lbola/text': null,
+          'Lbola/audio': null,
+          'jvWCV/ouGHs': null,
+          'jvWCV/content': null,
+        },
+      ],
     },
   };
 
   const nextState = produce(prevState, (draft) => {
-    const r = handleReactFlowConnectEvent(draft, {
+    const events = handleReactFlowConnectEvent(draft, {
       type: ChangeEventType.RF_ON_CONNECT,
       connection: {
-        source: 'a',
-        target: 'c',
-        sourceHandle: '1',
-        targetHandle: '2',
+        source: 'Lbola',
+        target: 'jvWCV',
+        sourceHandle: 'Lbola/audio',
+        targetHandle: 'jvWCV/ouGHs',
       },
     });
 
-    expect(r).toEqual([]);
+    expect(events).toEqual([]);
   });
 
   expect(nextState).toEqual(prevState);
@@ -148,7 +275,7 @@ test('handleReactFlowConnectEvent add edge', () => {
   };
 
   const nextState = produce(prevState, (draft) => {
-    const r = handleReactFlowConnectEvent(draft, {
+    const events = handleReactFlowConnectEvent(draft, {
       type: ChangeEventType.RF_ON_CONNECT,
       connection: {
         source: 'a',
@@ -158,7 +285,7 @@ test('handleReactFlowConnectEvent add edge', () => {
       },
     });
 
-    expect(r).toEqual([
+    expect(events).toEqual([
       {
         type: ChangeEventType.EDGE_ADDED,
         edge: {
@@ -235,7 +362,7 @@ test('handleReactFlowConnectEvent replace edge', () => {
   };
 
   const nextState = produce(prevState, (draft) => {
-    const r = handleReactFlowConnectEvent(draft, {
+    const events = handleReactFlowConnectEvent(draft, {
       type: ChangeEventType.RF_ON_CONNECT,
       connection: {
         source: 'a',
@@ -245,7 +372,7 @@ test('handleReactFlowConnectEvent replace edge', () => {
       },
     });
 
-    expect(r).toEqual([
+    expect(events).toEqual([
       {
         type: ChangeEventType.EDGE_REPLACED,
         oldEdge: {

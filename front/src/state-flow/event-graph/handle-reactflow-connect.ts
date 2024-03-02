@@ -37,8 +37,36 @@ export function handleReactFlowConnectEvent(
 ): OutputEvent[] {
   const events: OutputEvent[] = [];
 
-  // TODO: Change this to invariant after we blocked this in the UI
   if (event.connection.source === event.connection.target) {
+    // Can't connect to itself
+    return [];
+  }
+
+  const { sourceHandle, targetHandle } = event.connection;
+
+  invariant(sourceHandle != null, 'sourceHandle is not null');
+  invariant(targetHandle != null, 'targetHandle is not null');
+
+  const sourceConnector = state.flowContent.variablesDict[sourceHandle];
+  const targetConnector = state.flowContent.variablesDict[targetHandle];
+
+  const sourceConnectorIsVariable =
+    sourceConnector.type === ConnectorType.FlowInput ||
+    sourceConnector.type === ConnectorType.FlowOutput ||
+    sourceConnector.type === ConnectorType.NodeInput ||
+    sourceConnector.type === ConnectorType.NodeOutput;
+
+  const targetConnectorIsVariable =
+    targetConnector.type === ConnectorType.FlowInput ||
+    targetConnector.type === ConnectorType.FlowOutput ||
+    targetConnector.type === ConnectorType.NodeInput ||
+    targetConnector.type === ConnectorType.NodeOutput;
+
+  if (
+    (sourceConnectorIsVariable && !targetConnectorIsVariable) ||
+    (!sourceConnectorIsVariable && targetConnectorIsVariable)
+  ) {
+    // Can't connect variable with non-variable
     return [];
   }
 
@@ -59,14 +87,7 @@ export function handleReactFlowConnectEvent(
 
   newEdge.id = randomId(); // Shorter ID for readability
 
-  const sourceConnector = state.flowContent.variablesDict[newEdge.sourceHandle];
-
-  if (
-    sourceConnector.type === ConnectorType.FlowInput ||
-    sourceConnector.type === ConnectorType.FlowOutput ||
-    sourceConnector.type === ConnectorType.NodeInput ||
-    sourceConnector.type === ConnectorType.NodeOutput
-  ) {
+  if (sourceConnectorIsVariable) {
     // When the new edge connects two variables
 
     // SECTION: Check if new edge has valid destination value type
