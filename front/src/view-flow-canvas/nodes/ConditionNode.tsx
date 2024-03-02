@@ -41,17 +41,8 @@ function ConditionNode() {
   const connectorResultMap = useFlowStore((s) =>
     s.getDefaultVariableValueLookUpDict(),
   );
-  const removeNode = useFlowStore((s) => s.removeNode);
   const updateNodeConfig = useFlowStore((s) => s.updateNodeConfig);
   const addVariable = useFlowStore((s) => s.addVariable);
-
-  // ANCHOR: Left Panel
-  const setCanvasLeftPaneIsOpen = useFlowStore(
-    (s) => s.setCanvasLeftPaneIsOpen,
-  );
-  const setCanvasLeftPaneSelectedNodeId = useFlowStore(
-    (s) => s.setCanvasLeftPaneSelectedNodeId,
-  );
 
   // !SECTION
 
@@ -101,13 +92,7 @@ function ConditionNode() {
         <NodeBoxHeaderSection
           isNodeReadOnly={!isCurrentUserOwner}
           title="Condition"
-          onClickRemove={() => {
-            removeNode(nodeId);
-          }}
-          onClickGearButton={() => {
-            setCanvasLeftPaneIsOpen(true);
-            setCanvasLeftPaneSelectedNodeId(nodeId);
-          }}
+          nodeId={nodeId}
           showAddVariableButton={false}
         />
         <GenericContainer>

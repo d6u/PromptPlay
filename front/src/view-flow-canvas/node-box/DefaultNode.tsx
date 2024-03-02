@@ -87,19 +87,8 @@ function DefaultNode(props: Props) {
     return nodeMetadataDict[props.nodeId];
   }, [nodeMetadataDict, props.nodeId]);
 
-  // ANCHOR: Node Operations
-  const removeNode = useFlowStore((s) => s.removeNode);
-
   // ANCHOR: Variable Operations
   const addVariable = useFlowStore((s) => s.addVariable);
-
-  // ANCHOR: Side Panel Operations
-  const setCanvasLeftPaneIsOpen = useFlowStore(
-    (s) => s.setCanvasLeftPaneIsOpen,
-  );
-  const setCanvasLeftPaneSelectedNodeId = useFlowStore(
-    (s) => s.setCanvasLeftPaneSelectedNodeId,
-  );
 
   let children: ReactNode;
   if (props.children) {
@@ -141,14 +130,8 @@ function DefaultNode(props: Props) {
         <NodeBoxHeaderSection
           title={nodeDefinition.label}
           showAddVariableButton={!!nodeDefinition.canUserAddIncomingVariables}
+          nodeId={props.nodeId}
           isNodeReadOnly={props.isNodeConfigReadOnly}
-          onClickRemove={() => {
-            removeNode(props.nodeId);
-          }}
-          onClickGearButton={() => {
-            setCanvasLeftPaneIsOpen(true);
-            setCanvasLeftPaneSelectedNodeId(props.nodeId);
-          }}
           onClickAddVariableButton={() => {
             addVariable(
               props.nodeId,

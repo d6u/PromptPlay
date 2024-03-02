@@ -2,6 +2,7 @@ import styled from '@emotion/styled';
 
 import RemoveButton from 'generic-components/RemoveButton';
 import IconThreeDots from 'icons/IconThreeDots';
+import { useFlowStore } from 'state-flow/flow-store';
 
 import {
   DRAG_HANDLE_CLASS_NAME,
@@ -16,16 +17,26 @@ import NodeBoxGearButton from './NodeBoxIconGear';
 type Props = {
   // Static values
   title: string;
-  showAddVariableButton: boolean;
-  // Won't change for the current node
+  // Node Level
+  nodeId: string;
   isNodeReadOnly: boolean;
-  // Callbacks
-  onClickRemove: () => void;
-  onClickGearButton: () => void;
-  onClickAddVariableButton?: () => void;
-};
+} & (
+  | { showAddVariableButton: false }
+  | {
+      showAddVariableButton: true;
+      onClickAddVariableButton: () => void;
+    }
+);
 
 function NodeBoxHeaderSection(props: Props) {
+  const removeNode = useFlowStore((s) => s.removeNode);
+  const setCanvasLeftPaneIsOpen = useFlowStore(
+    (s) => s.setCanvasLeftPaneIsOpen,
+  );
+  const setCanvasLeftPaneSelectedNodeId = useFlowStore(
+    (s) => s.setCanvasLeftPaneSelectedNodeId,
+  );
+
   return (
     <Container>
       <TitleSection>
@@ -35,12 +46,17 @@ function NodeBoxHeaderSection(props: Props) {
         </TitleContainer>
         {!props.isNodeReadOnly && (
           <RemoveButtonContainer>
-            <RemoveButton onClick={props.onClickRemove} />
+            <RemoveButton onClick={() => removeNode(props.nodeId)} />
           </RemoveButtonContainer>
         )}
       </TitleSection>
       <ActionsSection>
-        <NodeBoxGearButton onClick={props.onClickGearButton} />
+        <NodeBoxGearButton
+          onClick={() => {
+            setCanvasLeftPaneIsOpen(true);
+            setCanvasLeftPaneSelectedNodeId(props.nodeId);
+          }}
+        />
         {!props.isNodeReadOnly &&
           props.showAddVariableButton &&
           props.onClickAddVariableButton && (

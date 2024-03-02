@@ -12,7 +12,6 @@ import {
 import NodeVariablesEditableList from 'components/node-connector/NodeVariablesEditableList';
 import RouteFlowContext from 'state-flow/context/FlowRouteContext';
 import { useFlowStore } from 'state-flow/flow-store';
-import { CanvasRightPanelType } from 'state-flow/types';
 import { selectVariables } from 'state-flow/util/state-utils';
 
 import NodeBox from '../node-box/NodeBox';
@@ -28,12 +27,10 @@ function InputNode() {
   const updateNodeInternals = useUpdateNodeInternals();
 
   // SECTION: Select state from store
-  const setCanvasRightPaneType = useFlowStore((s) => s.setCanvasRightPaneType);
   const nodeConfigsDict = useFlowStore(
     (s) => s.getFlowContent().nodeConfigsDict,
   );
   const variablesDict = useFlowStore((s) => s.getFlowContent().variablesDict);
-  const removeNode = useFlowStore((s) => s.removeNode);
   const addVariable = useFlowStore((s) => s.addVariable);
   // !SECTION
 
@@ -56,12 +53,7 @@ function InputNode() {
         <NodeBoxHeaderSection
           isNodeReadOnly={!isCurrentUserOwner}
           title="Input"
-          onClickRemove={() => {
-            removeNode(nodeId);
-          }}
-          onClickGearButton={() => {
-            setCanvasRightPaneType(CanvasRightPanelType.Tester);
-          }}
+          nodeId={nodeId}
           showAddVariableButton={true}
           onClickAddVariableButton={() => {
             addVariable(
