@@ -9,6 +9,7 @@ import {
   getNodeDefinitionForNodeTypeName,
 } from 'flow-models';
 
+import NodeTargetConditionHandle from 'components/node-connector/NodeTargetConditionHandle';
 import NodeVariableResultItem from 'components/node-connector/NodeVariableResultItem';
 import NodeVariablesEditableList from 'components/node-connector/NodeVariablesEditableList';
 import NodeAccountLevelFields from 'components/node-fields/NodeAccountLevelFields';
@@ -19,7 +20,6 @@ import {
   selectVariables,
 } from 'state-flow/util/state-utils';
 
-import NodeTargetConditionHandle from 'components/node-connector/NodeTargetConditionHandle';
 import NodeBox from './NodeBox';
 import NodeBoxHeaderSection from './NodeBoxHeaderSection';
 import NodeBoxSection from './NodeBoxSection';

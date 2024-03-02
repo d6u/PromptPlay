@@ -6,8 +6,8 @@ import { Position } from 'reactflow';
 
 import NodeFieldHelperTextWithStatus from 'components/node-fields/NodeFieldHelperTextWithStatus';
 import { useFlowStore } from 'state-flow/flow-store';
-
 import { EdgeConnectStartConnectorClass } from 'state-flow/types';
+
 import DragHandle from './DragHandle';
 import NodeVariableEditor from './NodeVariableEditor';
 import { BaseVariableHandle } from './base-connector-handles';
