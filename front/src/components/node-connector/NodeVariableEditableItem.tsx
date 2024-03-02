@@ -5,10 +5,12 @@ import { Control, FieldArrayWithId } from 'react-hook-form';
 import { Position } from 'reactflow';
 
 import NodeFieldHelperTextWithStatus from 'components/node-fields/NodeFieldHelperTextWithStatus';
-import BaseFlowHandle from 'components/node-variables-editable-list/BaseFlowHandle';
+import { useFlowStore } from 'state-flow/flow-store';
+import { EdgeConnectStartConnectorClass } from 'state-flow/types';
 
 import DragHandle from './DragHandle';
 import NodeVariableEditor from './NodeVariableEditor';
+import { BaseVariableHandle } from './base-connector-handles';
 import { VariableConfig, VariableFormValue } from './types';
 
 export type HandlePosition = Position.Left | Position.Right | 'none';
@@ -16,8 +18,9 @@ export type HandlePosition = Position.Left | Position.Right | 'none';
 type Props = {
   // Won't change within current session
   isListSortable: boolean;
-  showConnectorHandle: HandlePosition;
+  connectorHandlePosition: HandlePosition;
   // Node level
+  nodeId: string;
   isNodeReadOnly: boolean;
   // Variable level
   index: number;
@@ -34,6 +37,33 @@ function NodeVariableEditableItem(props: Props) {
   const isSortableEnabledForThisRow =
     !props.isNodeReadOnly && !props.variable.isReadOnly && props.isListSortable;
 
+  const paramsOnUserStartConnectingEdge = useFlowStore(
+    (s) => s.paramsOnUserStartConnectingEdge,
+  );
+
+  let grayOutHandle = false;
+
+  if (paramsOnUserStartConnectingEdge) {
+    const { nodeId, handleId, handleType, connectorClass } =
+      paramsOnUserStartConnectingEdge;
+
+    const isThisTheStartHandle = handleId === props.variable.id;
+    const isThisOnTheSameNode = nodeId === props.nodeId;
+    const isThisInTheSameConnectorClass =
+      connectorClass === EdgeConnectStartConnectorClass.Variable;
+    const isThisTheSameHandleType =
+      (handleType === 'source' &&
+        props.connectorHandlePosition === Position.Right) ||
+      (handleType === 'target' &&
+        props.connectorHandlePosition === Position.Left);
+
+    grayOutHandle =
+      !isThisTheStartHandle &&
+      (isThisOnTheSameNode ||
+        !isThisInTheSameConnectorClass ||
+        isThisTheSameHandleType);
+  }
+
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({
       id: props.formField.id,
@@ -47,17 +77,22 @@ function NodeVariableEditableItem(props: Props) {
 
   return (
     <Container ref={setNodeRef} style={style} {...attributes}>
-      {props.showConnectorHandle !== 'none' && (
-        <StyledBaseFlowHandle
+      {props.connectorHandlePosition !== 'none' && (
+        <BaseVariableHandle
           type={
-            props.showConnectorHandle === Position.Left ? 'target' : 'source'
+            props.connectorHandlePosition === Position.Left
+              ? 'target'
+              : 'source'
           }
-          position={props.showConnectorHandle}
+          position={props.connectorHandlePosition}
           id={props.variable.id}
           style={{
-            left: props.showConnectorHandle === Position.Left ? -19 : undefined,
+            left:
+              props.connectorHandlePosition === Position.Left ? -19 : undefined,
             right:
-              props.showConnectorHandle === Position.Left ? undefined : -19,
+              props.connectorHandlePosition === Position.Left ? undefined : -19,
+            background: grayOutHandle ? '#c2c2c2' : undefined,
+            cursor: grayOutHandle ? 'not-allowed' : undefined,
           }}
         />
       )}
@@ -101,10 +136,6 @@ const InputContainer = styled.div`
 const HelperTextContainer = styled.div`
   margin-top: 5px;
   margin-bottom: 10px;
-`;
-
-const StyledBaseFlowHandle = styled(BaseFlowHandle)`
-  background: #00b3ff;
 `;
 
 export default NodeVariableEditableItem;

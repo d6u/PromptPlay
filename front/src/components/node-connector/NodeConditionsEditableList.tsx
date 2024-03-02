@@ -25,9 +25,13 @@ import NodeConditionEditableItem from './NodeConditionEditableItem';
 import { ConditionConfig, ConditionFormValue } from './types';
 
 type Props = {
-  nodeId: string;
-  isNodeReadOnly: boolean;
+  // Won't change within current session
   isListSortable?: boolean;
+  showHandles?: boolean;
+  // Node level
+  nodeId: string;
+  // Might change
+  isNodeReadOnly: boolean;
   conditionConfigs: ConditionConfig[];
 };
 
@@ -183,8 +187,10 @@ function NodeConditionsEditableList(props: Props) {
             return (
               <NodeConditionEditableItem
                 key={field.id}
-                isNodeReadOnly={props.isNodeReadOnly}
                 isListSortable={!!props.isListSortable}
+                showHandle={!!props.showHandles}
+                nodeId={props.nodeId}
+                isNodeReadOnly={props.isNodeReadOnly}
                 condition={condition}
                 control={control}
                 formField={field}

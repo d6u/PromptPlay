@@ -10,9 +10,9 @@ import {
   getNodeDefinitionForNodeTypeName,
 } from 'flow-models';
 
-import NodeConditionsEditableList from 'components/node-variables-editable-list/NodeConditionsEditableList';
-import NodeConnectorResultDisplay from 'components/node-variables-editable-list/NodeConnectorResultDisplay';
-import NodeVariablesEditableList from 'components/node-variables-editable-list/NodeVariablesEditableList';
+import NodeConditionDefaultItem from 'components/node-connector/NodeConditionDefaultItem';
+import NodeConditionsEditableList from 'components/node-connector/NodeConditionsEditableList';
+import NodeVariablesEditableList from 'components/node-connector/NodeVariablesEditableList';
 import HeaderSection from 'components/side-pane/SidePaneHeaderSection';
 import HeaderSectionHeader from 'components/side-pane/SidePaneHeaderSectionHeader';
 import { useFlowStore } from 'state-flow/flow-store';
@@ -116,9 +116,10 @@ function ConditionNodeConfigPanel(props: Props) {
           };
         })}
       />
-      <NodeConnectorResultDisplay
-        label="Default case"
-        value={
+      <NodeConditionDefaultItem
+        nodeId={props.nodeConfig.nodeId}
+        conditionId={defaultCaseCondition.id}
+        conditionValue={
           (
             connectorResultMap[defaultCaseCondition.id] as
               | ConditionResult

@@ -6,9 +6,10 @@ import invariant from 'tiny-invariant';
 
 import { ConditionResult, ConnectorType, NodeType } from 'flow-models';
 
-import NodeConditionsEditableList from 'components/node-variables-editable-list/NodeConditionsEditableList';
-import NodeConnectorResultDisplay from 'components/node-variables-editable-list/NodeConnectorResultDisplay';
-import NodeVariablesEditableList from 'components/node-variables-editable-list/NodeVariablesEditableList';
+import NodeConditionDefaultItem from 'components/node-connector/NodeConditionDefaultItem';
+import NodeConditionsEditableList from 'components/node-connector/NodeConditionsEditableList';
+import NodeTargetConditionHandle from 'components/node-connector/NodeTargetConditionHandle';
+import NodeVariablesEditableList from 'components/node-connector/NodeVariablesEditableList';
 import RouteFlowContext from 'state-flow/context/FlowRouteContext';
 import { useFlowStore } from 'state-flow/flow-store';
 import {
@@ -17,8 +18,6 @@ import {
   selectVariables,
 } from 'state-flow/util/state-utils';
 
-import IncomingConditionHandle from '../handles/IncomingConditionHandle';
-import OutgoingConditionHandle from '../handles/OutgoingConditionHandle';
 import NodeBox from '../node-box/NodeBox';
 import NodeBoxAddConnectorButton from '../node-box/NodeBoxAddConnectorButton';
 import NodeBoxHeaderSection from '../node-box/NodeBoxHeaderSection';
@@ -90,7 +89,10 @@ function ConditionNode() {
 
   return (
     <>
-      <IncomingConditionHandle id={conditionTarget.id} />
+      <NodeTargetConditionHandle
+        nodeId={nodeId}
+        conditionId={conditionTarget.id}
+      />
       <NodeBox
         nodeType={NodeType.InputNode}
         isRunning={augment?.isRunning}
@@ -163,6 +165,7 @@ function ConditionNode() {
           <NodeConditionsEditableList
             nodeId={nodeId}
             isNodeReadOnly={!isCurrentUserOwner}
+            showHandles
             conditionConfigs={normalConditions.map((condition) => {
               const isMatched = (
                 connectorResultMap[condition.id] as ConditionResult | undefined
@@ -177,9 +180,11 @@ function ConditionNode() {
           />
         </GenericContainer>
         <NodeBoxSection>
-          <NodeConnectorResultDisplay
-            label="Default case"
-            value={
+          <NodeConditionDefaultItem
+            showHandle
+            nodeId={nodeId}
+            conditionId={defaultCaseCondition.id}
+            conditionValue={
               (
                 connectorResultMap[defaultCaseCondition.id] as
                   | ConditionResult
@@ -192,19 +197,6 @@ function ConditionNode() {
           </FormHelperText>
         </NodeBoxSection>
       </NodeBox>
-      {normalConditions.map((condition, i) => (
-        <OutgoingConditionHandle
-          key={condition.id}
-          id={condition.id}
-          index={i}
-          totalConditionCount={conditions.length}
-        />
-      ))}
-      <OutgoingConditionHandle
-        key={defaultCaseCondition.id}
-        id={defaultCaseCondition.id}
-        isDefaultCase
-      />
     </>
   );
 }

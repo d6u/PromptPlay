@@ -1,5 +1,6 @@
 import { Getter } from '@dhmk/zustand-lens';
 import {
+  HandleType,
   OnConnect,
   OnConnectStartParams,
   OnEdgesChange,
@@ -37,7 +38,7 @@ export enum CanvasRightPanelType {
   Tester = 'Tester',
 }
 
-export enum ConnectStartEdgeType {
+export enum EdgeConnectStartConnectorClass {
   Variable = 'Variable',
   Condition = 'Condition',
 }
@@ -110,18 +111,23 @@ export type FlowProps = {
     CanvasStateMachineEvent
   >;
 
-  connectStartEdgeType: ConnectStartEdgeType | null;
-  connectStartStartNodeId: string | null;
-  canvasLeftPaneIsOpen: boolean;
-  canvasLeftPaneSelectedNodeId: string | null;
-  canvasRightPaneType: CanvasRightPanelType;
-  nodeMetadataDict: NodeMetadataDict;
-  selectedBatchTestTab: BatchTestTab;
-
+  // ANCHOR: Canvas View
   canvas: {
     flowContent: FlowContentState;
   };
+  nodeMetadataDict: NodeMetadataDict;
+  canvasLeftPaneIsOpen: boolean;
+  canvasLeftPaneSelectedNodeId: string | null;
+  canvasRightPaneType: CanvasRightPanelType;
+  paramsOnUserStartConnectingEdge: {
+    nodeId: string;
+    handleId: string;
+    handleType: HandleType;
+    connectorClass: EdgeConnectStartConnectorClass;
+  } | null;
 
+  // ANCHOR: Batch Test View
+  selectedBatchTestTab: BatchTestTab;
   batchTest: BatchTestState;
 };
 

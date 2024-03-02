@@ -9,18 +9,17 @@ import {
   getNodeDefinitionForNodeTypeName,
 } from 'flow-models';
 
+import NodeTargetConditionHandle from 'components/node-connector/NodeTargetConditionHandle';
+import NodeVariableResultItem from 'components/node-connector/NodeVariableResultItem';
+import NodeVariablesEditableList from 'components/node-connector/NodeVariablesEditableList';
 import NodeAccountLevelFields from 'components/node-fields/NodeAccountLevelFields';
 import NodeInstanceLevelFields from 'components/node-fields/NodeInstanceLevelFields';
-import NodeVariablesEditableList from 'components/node-variables-editable-list/NodeVariablesEditableList';
 import { useFlowStore } from 'state-flow/flow-store';
 import {
   selectConditionTarget,
   selectVariables,
 } from 'state-flow/util/state-utils';
 
-import NodeConnectorResultDisplay from 'components/node-variables-editable-list/NodeConnectorResultDisplay';
-import IncomingConditionHandle from '../handles/IncomingConditionHandle';
-import OutgoingVariableHandle from '../handles/OutgoingVariableHandle';
 import NodeBox from './NodeBox';
 import NodeBoxHeaderSection from './NodeBoxHeaderSection';
 import NodeBoxSection from './NodeBoxSection';
@@ -135,7 +134,12 @@ function ReactFlowNode(props: Props) {
 
   return (
     <>
-      {conditionTarget && <IncomingConditionHandle id={conditionTarget.id} />}
+      {conditionTarget && (
+        <NodeTargetConditionHandle
+          nodeId={nodeId}
+          conditionId={conditionTarget.id}
+        />
+      )}
       <NodeBox
         nodeType={props.nodeConfig.type}
         isRunning={augment?.isRunning}
@@ -182,26 +186,16 @@ function ReactFlowNode(props: Props) {
         {children}
         <NodeBoxSection>
           {srcConnectors.map((connector) => (
-            <NodeConnectorResultDisplay
+            <NodeVariableResultItem
               key={connector.id}
-              label={connector.name}
-              value={connector.value}
-              onClick={() => {
-                setCanvasLeftPaneIsOpen(true);
-                setCanvasLeftPaneSelectedNodeId(nodeId);
-              }}
+              variableId={connector.id}
+              variableName={connector.name}
+              variableValue={connector.value}
+              nodeId={nodeId}
             />
           ))}
         </NodeBoxSection>
       </NodeBox>
-      {srcConnectors.map((connector, i) => (
-        <OutgoingVariableHandle
-          key={connector.id}
-          id={connector.id}
-          index={i}
-          totalVariableCount={srcConnectors.length}
-        />
-      ))}
     </>
   );
 }
