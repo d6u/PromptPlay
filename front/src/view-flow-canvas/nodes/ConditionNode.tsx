@@ -6,9 +6,9 @@ import invariant from 'tiny-invariant';
 
 import { ConditionResult, ConnectorType, NodeType } from 'flow-models';
 
-import NodeConditionsEditableList from 'components/node-variables-editable-list/NodeConditionsEditableList';
-import NodeConnectorResultDisplay from 'components/node-variables-editable-list/NodeConnectorResultDisplay';
-import NodeVariablesEditableList from 'components/node-variables-editable-list/NodeVariablesEditableList';
+import NodeConditionsEditableList from 'components/node-connector/NodeConditionsEditableList';
+import NodeConnectorResultDisplay from 'components/node-connector/NodeConnectorResultDisplay';
+import NodeVariablesEditableList from 'components/node-connector/NodeVariablesEditableList';
 import RouteFlowContext from 'state-flow/context/FlowRouteContext';
 import { useFlowStore } from 'state-flow/flow-store';
 import {

@@ -10,9 +10,9 @@ import {
   getNodeDefinitionForNodeTypeName,
 } from 'flow-models';
 
-import NodeConditionsEditableList from 'components/node-variables-editable-list/NodeConditionsEditableList';
-import NodeConnectorResultDisplay from 'components/node-variables-editable-list/NodeConnectorResultDisplay';
-import NodeVariablesEditableList from 'components/node-variables-editable-list/NodeVariablesEditableList';
+import NodeConditionsEditableList from 'components/node-connector/NodeConditionsEditableList';
+import NodeConnectorResultDisplay from 'components/node-connector/NodeConnectorResultDisplay';
+import NodeVariablesEditableList from 'components/node-connector/NodeVariablesEditableList';
 import HeaderSection from 'components/side-pane/SidePaneHeaderSection';
 import HeaderSectionHeader from 'components/side-pane/SidePaneHeaderSectionHeader';
 import { useFlowStore } from 'state-flow/flow-store';

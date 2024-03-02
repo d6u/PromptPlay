@@ -2,13 +2,13 @@ import styled from '@emotion/styled';
 import { ComponentProps } from 'react';
 import { Position } from 'reactflow';
 
-import { ROW_MARGIN_TOP } from 'components/node-variables-editable-list/NodeVariableEditableItem';
+import { ROW_MARGIN_TOP } from 'components/node-connector/NodeVariableEditableItem';
 import {
   BaseConnectorHandle,
   HANDLE_HEIGHT,
   HANDLE_WIDTH,
-} from 'components/node-variables-editable-list/connector-handles';
-import { CONNECTOR_RESULT_DISPLAY_HEIGHT } from 'components/node-variables-editable-list/constants';
+} from 'components/node-connector/connector-handles';
+import { CONNECTOR_RESULT_DISPLAY_HEIGHT } from 'components/node-connector/constants';
 
 import {
   BACKDROP_PADDING,

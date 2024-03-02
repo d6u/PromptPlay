@@ -9,10 +9,10 @@ import {
   getNodeDefinitionForNodeTypeName,
 } from 'flow-models';
 
+import NodeVariableResultItem from 'components/node-connector/NodeVariableResultItem';
+import NodeVariablesEditableList from 'components/node-connector/NodeVariablesEditableList';
 import NodeAccountLevelFields from 'components/node-fields/NodeAccountLevelFields';
 import NodeInstanceLevelFields from 'components/node-fields/NodeInstanceLevelFields';
-import NodeVariableResultItem from 'components/node-variables-editable-list/NodeVariableResultItem';
-import NodeVariablesEditableList from 'components/node-variables-editable-list/NodeVariablesEditableList';
 import { useFlowStore } from 'state-flow/flow-store';
 import {
   selectConditionTarget,
