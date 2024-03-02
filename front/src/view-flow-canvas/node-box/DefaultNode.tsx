@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 import { Option } from '@mobily/ts-belt';
-import { ReactNode, useMemo } from 'react';
+import { useMemo } from 'react';
 import { Position, useUpdateNodeInternals } from 'reactflow';
 
 import {
@@ -8,6 +8,7 @@ import {
   ConditionTarget,
   ConnectorType,
   InputNodeInstanceLevelConfig,
+  JavaScriptFunctionNodeInstanceLevelConfig,
   NodeConfig,
   NodeInputVariable,
   NodeOutputVariable,
@@ -50,14 +51,13 @@ type Props = {
     | InputNodeInstanceLevelConfig
     | OutputNodeInstanceLevelConfig
     | ConditionNodeInstanceLevelConfig
+    | JavaScriptFunctionNodeInstanceLevelConfig
   >;
   inputVariables: NodeInputVariable[];
   outputVariables: NodeOutputVariable[];
   conditionTarget: ConditionTarget;
   // Node Level but not save to server
   nodeMetadata: Option<NodeMetadata>;
-  // UI Level
-  children?: ReactNode;
 };
 
 function DefaultNode(props: Props) {
@@ -86,32 +86,6 @@ function DefaultNode(props: Props) {
       };
     });
   }, [props.outputVariables, defaultVariableValueMap]);
-
-  let children: ReactNode;
-  if (props.children) {
-    children = props.children;
-  } else {
-    children = (
-      <GenericContainer>
-        {nodeDefinition.accountLevelConfigFieldDefinitions && (
-          <NodeAccountLevelFields
-            isNodeConfigReadOnly={props.isNodeConfigReadOnly}
-            accountLevelConfigFieldDefinitions={
-              nodeDefinition.accountLevelConfigFieldDefinitions
-            }
-            nodeConfig={props.nodeConfig}
-          />
-        )}
-        <NodeInstanceLevelFields
-          isNodeConfigReadOnly={props.isNodeConfigReadOnly}
-          instanceLevelConfigFieldDefinitions={
-            nodeDefinition.instanceLevelConfigFieldDefinitions
-          }
-          nodeConfig={props.nodeConfig}
-        />
-      </GenericContainer>
-    );
-  }
 
   return (
     <>
@@ -156,7 +130,24 @@ function DefaultNode(props: Props) {
             })}
           />
         </GenericContainer>
-        {children}
+        <GenericContainer>
+          {nodeDefinition.accountLevelConfigFieldDefinitions && (
+            <NodeAccountLevelFields
+              isNodeConfigReadOnly={props.isNodeConfigReadOnly}
+              accountLevelConfigFieldDefinitions={
+                nodeDefinition.accountLevelConfigFieldDefinitions
+              }
+              nodeConfig={props.nodeConfig}
+            />
+          )}
+          <NodeInstanceLevelFields
+            isNodeConfigReadOnly={props.isNodeConfigReadOnly}
+            instanceLevelConfigFieldDefinitions={
+              nodeDefinition.instanceLevelConfigFieldDefinitions
+            }
+            nodeConfig={props.nodeConfig}
+          />
+        </GenericContainer>
         <NodeBoxSection>
           {srcConnectors.map((connector) => (
             <NodeVariableResultItem
