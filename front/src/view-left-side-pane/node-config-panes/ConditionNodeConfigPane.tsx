@@ -11,6 +11,7 @@ import {
   getNodeDefinitionForNodeTypeName,
 } from 'flow-models';
 
+import NodeAddConnectorButton from 'components/NodeAddConnectorButton';
 import NodeConditionDefaultItem from 'components/node-connector/NodeConditionDefaultItem';
 import NodeConditionsEditableList from 'components/node-connector/NodeConditionsEditableList';
 import NodeVariablesEditableList from 'components/node-connector/NodeVariablesEditableList';
@@ -18,18 +19,17 @@ import HeaderSection from 'components/side-pane/SidePaneHeaderSection';
 import HeaderSectionHeader from 'components/side-pane/SidePaneHeaderSectionHeader';
 import { useFlowStore } from 'state-flow/flow-store';
 import { selectConditions } from 'state-flow/util/state-utils';
-import NodeBoxAddConnectorButton from 'view-flow-canvas/node-box/NodeBoxAddConnectorButton';
 
-import NodeConfigPaneContainer from '../../components/side-pane/NodeConfigPaneContainer';
+import NodeConfigPaneContainer from '../node-config-pane-base-ui/NodeConfigPaneContainer';
 
 type Props = {
   nodeId: string;
-  isReadOnly: boolean;
+  isNodeReadOnly: boolean;
   nodeConfig: ConditionNodeInstanceLevelConfig;
   inputVariables: NodeInputVariable[];
 };
 
-function ConditionNodeConfigPanel(props: Props) {
+function ConditionNodeConfigPane(props: Props) {
   const updateNodeInternals = useUpdateNodeInternals();
 
   const connectors = useFlowStore((s) => s.getFlowContent().variablesDict);
@@ -57,7 +57,7 @@ function ConditionNodeConfigPanel(props: Props) {
       </HeaderSection>
       <NodeVariablesEditableList
         nodeId={props.nodeId}
-        isNodeReadOnly={props.isReadOnly}
+        isNodeReadOnly={props.isNodeReadOnly}
         variableConfigs={props.inputVariables.map((variable) => {
           return { id: variable.id, name: variable.name, isReadOnly: true };
         })}
@@ -66,7 +66,7 @@ function ConditionNodeConfigPanel(props: Props) {
         <FormControl>
           <FormLabel>Stop at the first match</FormLabel>
           <Checkbox
-            disabled={props.isReadOnly}
+            disabled={props.isNodeReadOnly}
             size="sm"
             variant="outlined"
             checked={props.nodeConfig.stopAtTheFirstMatch}
@@ -83,8 +83,8 @@ function ConditionNodeConfigPanel(props: Props) {
         </FormHelperText>
       </Section>
       <Section>
-        {!props.isReadOnly && (
-          <NodeBoxAddConnectorButton
+        {!props.isNodeReadOnly && (
+          <NodeAddConnectorButton
             label="Condition"
             onClick={() => {
               addVariable(
@@ -99,7 +99,7 @@ function ConditionNodeConfigPanel(props: Props) {
       </Section>
       <NodeConditionsEditableList
         nodeId={props.nodeId}
-        isNodeReadOnly={props.isReadOnly}
+        isNodeReadOnly={props.isNodeReadOnly}
         isListSortable
         conditionConfigs={customConditions.map((condition) => {
           const isMatched =
@@ -133,4 +133,4 @@ const Section = styled.div`
   margin-top: 10px;
 `;
 
-export default ConditionNodeConfigPanel;
+export default ConditionNodeConfigPane;

@@ -1,4 +1,3 @@
-import styled from '@emotion/styled';
 import { FormControl, FormLabel, Textarea } from '@mui/joy';
 import { useMemo, useState } from 'react';
 import { useUpdateNodeInternals } from 'reactflow';
@@ -20,7 +19,9 @@ import Section from 'components/side-pane/SidePaneSection';
 import CopyIconButton from 'generic-components/CopyIconButton';
 import ReadonlyTextarea from 'generic-components/ReadonlyTextarea';
 import { useFlowStore } from 'state-flow/flow-store';
-import NodeBoxAddConnectorButton from 'view-flow-canvas/node-box/NodeBoxAddConnectorButton';
+
+import NodeConfigPaneAddConnectorButton from '../node-config-pane-base-ui/NodeConfigPaneAddConnectorButton';
+import NodeConfigPaneContainer from '../node-config-pane-base-ui/NodeConfigPaneContainer';
 
 type Props = {
   nodeId: string;
@@ -68,7 +69,7 @@ function JavaScriptNodeConfigPane(props: Props) {
     .join(', ')}) {`;
 
   return (
-    <Container>
+    <NodeConfigPaneContainer>
       <HeaderSection>
         <HeaderSectionHeader>Output variables</HeaderSectionHeader>
       </HeaderSection>
@@ -80,21 +81,17 @@ function JavaScriptNodeConfigPane(props: Props) {
       <HeaderSection>
         <HeaderSectionHeader>{nodeDefinition.label} Config</HeaderSectionHeader>
       </HeaderSection>
-      {nodeDefinition.canUserAddIncomingVariables && (
-        <AddConnectorButtonSection>
-          <NodeBoxAddConnectorButton
-            label="Variable"
-            onClick={() => {
-              addVariable(
-                props.nodeConfig.nodeId,
-                ConnectorType.NodeInput,
-                inputVariableConfig.length,
-              );
-              updateNodeInternals(props.nodeConfig.nodeId);
-            }}
-          />
-        </AddConnectorButtonSection>
-      )}
+      <NodeConfigPaneAddConnectorButton
+        label="Variable"
+        onClick={() => {
+          addVariable(
+            props.nodeConfig.nodeId,
+            ConnectorType.NodeInput,
+            inputVariableConfig.length,
+          );
+          updateNodeInternals(props.nodeConfig.nodeId);
+        }}
+      />
       <NodeVariablesEditableList
         variableConfigs={inputVariableConfig}
         isListSortable
@@ -137,17 +134,8 @@ ${javaScriptCode.split('\n').join('\n  ')}
         )}
         <code style={{ fontSize: 12 }}>{'}'}</code>
       </FormControl>
-    </Container>
+    </NodeConfigPaneContainer>
   );
 }
-
-const Container = styled.div`
-  padding: 15px 15px 0 15px;
-`;
-
-const AddConnectorButtonSection = styled.div`
-  margin-top: 10px;
-  margin-bottom: 10px;
-`;
 
 export default JavaScriptNodeConfigPane;

@@ -4,6 +4,7 @@ import RemoveButton from 'generic-components/RemoveButton';
 import IconThreeDots from 'icons/IconThreeDots';
 import { useFlowStore } from 'state-flow/flow-store';
 
+import NodeAddConnectorButton from '../../components/NodeAddConnectorButton';
 import {
   DRAG_HANDLE_CLASS_NAME,
   NODE_BOX_HEADER_SECTION_MARGIN_BOTTOM,
@@ -11,7 +12,6 @@ import {
   NODE_BOX_HEADER_SECTION_TITLE_HEIGHT,
   NODE_BOX_HEADER_SUB_SECTION_PADDING_MARGIN_BETWEEN,
 } from '../constants';
-import NodeBoxAddConnectorButton from './NodeBoxAddConnectorButton';
 import NodeBoxGearButton from './NodeBoxIconGear';
 
 type Props = {
@@ -60,7 +60,7 @@ function NodeBoxHeaderSection(props: Props) {
         {!props.isNodeReadOnly &&
           props.showAddVariableButton &&
           props.onClickAddVariableButton && (
-            <NodeBoxAddConnectorButton
+            <NodeAddConnectorButton
               label="Variable"
               onClick={props.onClickAddVariableButton}
             />

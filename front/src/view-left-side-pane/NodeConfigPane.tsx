@@ -7,7 +7,7 @@ import RouteFlowContext from 'state-flow/context/FlowRouteContext';
 import { useFlowStore } from 'state-flow/flow-store';
 import { selectVariables } from 'state-flow/util/state-utils';
 
-import ConditionNodeConfigPanel from './node-config-panes/ConditionNodeConfigPane';
+import ConditionNodeConfigPane from './node-config-panes/ConditionNodeConfigPane';
 import DefaultNodeConfigPane from './node-config-panes/DefaultNodeConfigPane';
 import InputNodeConfigPane from './node-config-panes/InputNodeConfigPane';
 import JavaScriptNodeConfigPane from './node-config-panes/JavaScriptNodeConfigPane';
@@ -39,7 +39,7 @@ function NodeConfigPane() {
       return (
         <InputNodeConfigPane
           nodeId={nodeId}
-          isReadOnly={isReadOnly}
+          isNodeReadOnly={isReadOnly}
           nodeConfig={nodeConfig}
         />
       );
@@ -47,15 +47,15 @@ function NodeConfigPane() {
       return (
         <OutputNodeConfigPane
           nodeId={nodeId}
-          isReadOnly={isReadOnly}
+          isNodeReadOnly={isReadOnly}
           nodeConfig={nodeConfig}
         />
       );
     case NodeType.ConditionNode:
       return (
-        <ConditionNodeConfigPanel
+        <ConditionNodeConfigPane
           nodeId={nodeConfig.nodeId}
-          isReadOnly={isReadOnly}
+          isNodeReadOnly={isReadOnly}
           nodeConfig={nodeConfig}
           inputVariables={inputVariables}
         />
@@ -74,7 +74,7 @@ function NodeConfigPane() {
       return (
         <DefaultNodeConfigPane
           nodeId={nodeConfig.nodeId}
-          isReadOnly={isReadOnly}
+          isNodeReadOnly={isReadOnly}
           nodeConfig={nodeConfig}
           inputVariables={inputVariables}
           outputVariables={outputVariables}

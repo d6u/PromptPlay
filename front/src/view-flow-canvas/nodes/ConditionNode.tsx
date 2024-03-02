@@ -21,8 +21,8 @@ import { useFlowStore } from 'state-flow/flow-store';
 import { NodeMetadata } from 'state-flow/types';
 import { selectConditions } from 'state-flow/util/state-utils';
 
+import NodeAddConnectorButton from '../../components/NodeAddConnectorButton';
 import NodeBox from '../node-box/NodeBox';
-import NodeBoxAddConnectorButton from '../node-box/NodeBoxAddConnectorButton';
 import NodeBoxHeaderSection from '../node-box/NodeBoxHeaderSection';
 import NodeBoxSection from '../node-box/NodeBoxSection';
 import NodeBoxSmallSection from '../node-box/NodeBoxSmallSection';
@@ -108,7 +108,7 @@ function ConditionNode(props: Props) {
         </NodeBoxSection>
         <NodeBoxSmallSection>
           {!props.isNodeReadOnly && (
-            <NodeBoxAddConnectorButton
+            <NodeAddConnectorButton
               label="Condition"
               onClick={() => {
                 addVariable(
