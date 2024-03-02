@@ -11,6 +11,7 @@ import {
 
 import NodeAccountLevelFields from 'components/node-fields/NodeAccountLevelFields';
 import NodeInstanceLevelFields from 'components/node-fields/NodeInstanceLevelFields';
+import NodeVariableResultItem from 'components/node-variables-editable-list/NodeVariableResultItem';
 import NodeVariablesEditableList from 'components/node-variables-editable-list/NodeVariablesEditableList';
 import { useFlowStore } from 'state-flow/flow-store';
 import {
@@ -18,9 +19,7 @@ import {
   selectVariables,
 } from 'state-flow/util/state-utils';
 
-import NodeConnectorResultDisplay from 'components/node-variables-editable-list/NodeConnectorResultDisplay';
 import IncomingConditionHandle from '../handles/IncomingConditionHandle';
-import OutgoingVariableHandle from '../handles/OutgoingVariableHandle';
 import NodeBox from './NodeBox';
 import NodeBoxHeaderSection from './NodeBoxHeaderSection';
 import NodeBoxSection from './NodeBoxSection';
@@ -182,26 +181,16 @@ function ReactFlowNode(props: Props) {
         {children}
         <NodeBoxSection>
           {srcConnectors.map((connector) => (
-            <NodeConnectorResultDisplay
+            <NodeVariableResultItem
               key={connector.id}
-              label={connector.name}
-              value={connector.value}
-              onClick={() => {
-                setCanvasLeftPaneIsOpen(true);
-                setCanvasLeftPaneSelectedNodeId(nodeId);
-              }}
+              variableId={connector.id}
+              variableName={connector.name}
+              variableValue={connector.value}
+              nodeId={nodeId}
             />
           ))}
         </NodeBoxSection>
       </NodeBox>
-      {srcConnectors.map((connector, i) => (
-        <OutgoingVariableHandle
-          key={connector.id}
-          id={connector.id}
-          index={i}
-          totalVariableCount={srcConnectors.length}
-        />
-      ))}
     </>
   );
 }

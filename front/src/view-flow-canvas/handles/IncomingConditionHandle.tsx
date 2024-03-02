@@ -2,13 +2,14 @@ import styled from '@emotion/styled';
 import { ComponentProps } from 'react';
 import { Position } from 'reactflow';
 
-import BaseFlowHandle, {
+import {
+  BaseConnectorHandle,
   HANDLE_WIDTH,
-} from 'components/node-variables-editable-list/BaseFlowHandle';
+} from 'components/node-variables-editable-list/connector-handles';
 
 import { BACKDROP_PADDING } from '../constants';
 
-const IncomingConditionHandleImpl = styled(BaseFlowHandle)`
+const IncomingConditionHandleImpl = styled(BaseConnectorHandle)`
   background: #7a00df;
   top: 12px;
   left: -${HANDLE_WIDTH / 2 - BACKDROP_PADDING / 2}px;

@@ -2,11 +2,12 @@ import styled from '@emotion/styled';
 import { ComponentProps } from 'react';
 import { Position } from 'reactflow';
 
-import BaseFlowHandle, {
+import { ROW_MARGIN_TOP } from 'components/node-variables-editable-list/NodeVariableEditableItem';
+import {
+  BaseConnectorHandle,
   HANDLE_HEIGHT,
   HANDLE_WIDTH,
-} from 'components/node-variables-editable-list/BaseFlowHandle';
-import { ROW_MARGIN_TOP } from 'components/node-variables-editable-list/NodeVariableEditableItem';
+} from 'components/node-variables-editable-list/connector-handles';
 import { CONNECTOR_RESULT_DISPLAY_HEIGHT } from 'components/node-variables-editable-list/constants';
 
 import {
@@ -15,7 +16,7 @@ import {
   SECTION_PADDING_BOTTOM,
 } from '../constants';
 
-const OutgoingConditionHandleImpl = styled(BaseFlowHandle)`
+const OutgoingConditionHandleImpl = styled(BaseConnectorHandle)`
   background: #7a00df;
   top: unset;
   right: -${HANDLE_WIDTH / 2 - BACKDROP_PADDING / 2}px;

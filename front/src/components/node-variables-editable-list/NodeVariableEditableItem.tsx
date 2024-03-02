@@ -5,12 +5,12 @@ import { Control, FieldArrayWithId } from 'react-hook-form';
 import { Position } from 'reactflow';
 
 import NodeFieldHelperTextWithStatus from 'components/node-fields/NodeFieldHelperTextWithStatus';
-import BaseFlowHandle from 'components/node-variables-editable-list/BaseFlowHandle';
 import { useFlowStore } from 'state-flow/flow-store';
 
 import { EdgeConnectStartConnectorClass } from 'state-flow/types';
 import DragHandle from './DragHandle';
 import NodeVariableEditor from './NodeVariableEditor';
+import { BaseVariableHandle } from './connector-handles';
 import { VariableConfig, VariableFormValue } from './types';
 
 export type HandlePosition = Position.Left | Position.Right | 'none';
@@ -78,7 +78,7 @@ function NodeVariableEditableItem(props: Props) {
   return (
     <Container ref={setNodeRef} style={style} {...attributes}>
       {props.connectorHandlePosition !== 'none' && (
-        <StyledBaseFlowHandle
+        <BaseVariableHandle
           type={
             props.connectorHandlePosition === Position.Left
               ? 'target'
@@ -136,10 +136,6 @@ const InputContainer = styled.div`
 const HelperTextContainer = styled.div`
   margin-top: 5px;
   margin-bottom: 10px;
-`;
-
-const StyledBaseFlowHandle = styled(BaseFlowHandle)`
-  background: #00b3ff;
 `;
 
 export default NodeVariableEditableItem;
