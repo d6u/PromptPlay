@@ -173,8 +173,9 @@ function NodeVariablesEditableList(props: Props) {
           return (
             <NodeVariableEditableItem
               key={field.id}
-              showConnectorHandle={props.showConnectorHandle ?? 'none'}
+              connectorHandlePosition={props.showConnectorHandle ?? 'none'}
               isListSortable={false}
+              nodeId={props.nodeId}
               isNodeReadOnly={props.isNodeReadOnly}
               variable={props.variableConfigs[index]}
               control={control}
@@ -214,7 +215,8 @@ function NodeVariablesEditableList(props: Props) {
                 <NodeVariableEditableItem
                   key={field.id}
                   isListSortable={!!props.isListSortable}
-                  showConnectorHandle={props.showConnectorHandle ?? 'none'}
+                  connectorHandlePosition={props.showConnectorHandle ?? 'none'}
+                  nodeId={props.nodeId}
                   isNodeReadOnly={props.isNodeReadOnly}
                   variable={variable}
                   control={control}

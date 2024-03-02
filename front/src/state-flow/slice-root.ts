@@ -25,7 +25,7 @@ import {
   CanvasStateMachineContext,
   CanvasStateMachineEvent,
   CanvasStateMachineEventType,
-  ConnectStartEdgeType,
+  EdgeConnectStartConnectorClass,
   FlowActions,
   FlowProps,
   FlowState,
@@ -49,8 +49,7 @@ const RESETABLE_INITIAL_STATE: Partial<FlowState> = {
   canvasLeftPaneIsOpen: false,
   canvasRightPaneType: CanvasRightPanelType.Off,
   canvasLeftPaneSelectedNodeId: null,
-  connectStartEdgeType: null,
-  connectStartStartNodeId: null,
+  paramsOnUserStartConnectingEdge: null,
 
   selectedBatchTestTab: BatchTestTab.RunTests,
 };
@@ -134,10 +133,9 @@ export const createRootSlice: RootSliceStateCreator = (set, get) => {
     },
     nodeMetadataDict: {},
     canvasLeftPaneIsOpen: false,
-    canvasRightPaneType: CanvasRightPanelType.Off,
     canvasLeftPaneSelectedNodeId: null,
-    connectStartEdgeType: null,
-    connectStartStartNodeId: null,
+    canvasRightPaneType: CanvasRightPanelType.Off,
+    paramsOnUserStartConnectingEdge: null,
 
     // ANCHOR: Batch Test View
     batchTest: createBatchTestLens(get),
@@ -271,35 +269,34 @@ export const createRootSlice: RootSliceStateCreator = (set, get) => {
     },
 
     onEdgeConnectStart(params: OnConnectStartParams): void {
-      const { handleId } = params;
+      const { nodeId, handleId, handleType } = params;
 
+      invariant(nodeId != null, 'nodeId is not null');
       invariant(handleId != null, 'handleId is not null');
+      invariant(handleType != null, 'handleType is not null');
 
-      set((state) => {
-        const connector = get().getFlowContent().variablesDict[handleId] as
-          | Connector
-          | undefined;
+      const connector = getFlowContent().variablesDict[handleId] as
+        | Connector
+        | undefined;
 
-        if (connector == null) {
-          return state;
-        }
+      invariant(connector != null, 'connector is not null');
 
-        return {
-          connectStartEdgeType:
+      set({
+        paramsOnUserStartConnectingEdge: {
+          nodeId,
+          handleId,
+          handleType,
+          connectorClass:
             connector.type === ConnectorType.Condition ||
             connector.type === ConnectorType.ConditionTarget
-              ? ConnectStartEdgeType.Condition
-              : ConnectStartEdgeType.Variable,
-          connectStartStartNodeId: params.nodeId,
-        };
+              ? EdgeConnectStartConnectorClass.Condition
+              : EdgeConnectStartConnectorClass.Variable,
+        },
       });
     },
 
     onEdgeConnectStop(): void {
-      set(() => ({
-        connectStartEdgeType: null,
-        connectStartStartNodeId: null,
-      }));
+      set({ paramsOnUserStartConnectingEdge: null });
     },
 
     // SECTION: Flow Run
