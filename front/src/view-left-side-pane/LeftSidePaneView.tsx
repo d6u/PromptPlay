@@ -2,7 +2,7 @@ import styled from '@emotion/styled';
 
 import { useFlowStore } from 'state-flow/flow-store';
 
-import NodeConfigPane from './node-config-pane/NodeConfigPane';
+import NodeConfigPane from './NodeConfigPane';
 
 function LeftSidePaneView() {
   const canvasLeftPaneIsOpen = useFlowStore((s) => s.canvasLeftPaneIsOpen);

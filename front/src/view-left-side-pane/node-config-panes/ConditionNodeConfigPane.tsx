@@ -20,6 +20,7 @@ import { selectConditions, selectVariables } from 'state-flow/util/state-utils';
 import NodeBoxAddConnectorButton from 'view-flow-canvas/node-box/NodeBoxAddConnectorButton';
 
 type Props = {
+  nodeId: string;
   isReadOnly: boolean;
   nodeConfig: ConditionNodeInstanceLevelConfig;
 };
@@ -39,27 +40,23 @@ function ConditionNodeConfigPanel(props: Props) {
   }, [props.nodeConfig.type]);
 
   const incomingVariables = useMemo(() => {
-    return selectVariables(
-      props.nodeConfig.nodeId,
-      ConnectorType.NodeInput,
-      connectorMap,
-    );
-  }, [connectorMap, props.nodeConfig.nodeId]);
+    return selectVariables(props.nodeId, ConnectorType.NodeInput, connectorMap);
+  }, [connectorMap, props.nodeId]);
 
   const conditions = useMemo(() => {
-    return selectConditions(props.nodeConfig.nodeId, connectorMap);
-  }, [props.nodeConfig.nodeId, connectorMap]);
+    return selectConditions(props.nodeId, connectorMap);
+  }, [props.nodeId, connectorMap]);
 
   const defaultCaseCondition = useMemo(() => conditions[0], [conditions]);
   const normalConditions = useMemo(() => conditions.slice(1), [conditions]);
 
   return (
-    <>
+    <Container>
       <HeaderSection>
         <HeaderSectionHeader>{nodeDefinition.label} Config</HeaderSectionHeader>
       </HeaderSection>
       <NodeVariablesEditableList
-        nodeId={props.nodeConfig.nodeId}
+        nodeId={props.nodeId}
         isNodeReadOnly={props.isReadOnly}
         variableConfigs={incomingVariables.map((variable) => {
           return { id: variable.id, name: variable.name, isReadOnly: true };
@@ -74,7 +71,7 @@ function ConditionNodeConfigPanel(props: Props) {
             variant="outlined"
             checked={props.nodeConfig.stopAtTheFirstMatch}
             onChange={(event) => {
-              updateNodeConfig(props.nodeConfig.nodeId, {
+              updateNodeConfig(props.nodeId, {
                 stopAtTheFirstMatch: event.target.checked,
               });
             }}
@@ -91,17 +88,17 @@ function ConditionNodeConfigPanel(props: Props) {
             label="Condition"
             onClick={() => {
               addVariable(
-                props.nodeConfig.nodeId,
+                props.nodeId,
                 ConnectorType.Condition,
                 normalConditions.length,
               );
-              updateNodeInternals(props.nodeConfig.nodeId);
+              updateNodeInternals(props.nodeId);
             }}
           />
         )}
       </Section>
       <NodeConditionsEditableList
-        nodeId={props.nodeConfig.nodeId}
+        nodeId={props.nodeId}
         isNodeReadOnly={props.isReadOnly}
         isListSortable
         conditionConfigs={normalConditions.map((condition) => {
@@ -117,7 +114,7 @@ function ConditionNodeConfigPanel(props: Props) {
         })}
       />
       <NodeConditionDefaultItem
-        nodeId={props.nodeConfig.nodeId}
+        nodeId={props.nodeId}
         conditionId={defaultCaseCondition.id}
         conditionValue={
           (
@@ -130,9 +127,13 @@ function ConditionNodeConfigPanel(props: Props) {
       <FormHelperText>
         The default case is matched when no other condition have matched.
       </FormHelperText>
-    </>
+    </Container>
   );
 }
+
+const Container = styled.div`
+  padding: 15px 15px 0 15px;
+`;
 
 const Section = styled.div`
   margin-top: 10px;
