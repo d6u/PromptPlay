@@ -122,12 +122,14 @@ function JavaScriptFunctionNode(props: Props) {
               <CopyIconButton
                 onClick={() => {
                   navigator.clipboard.writeText(`${functionDefinitionPrefix}
-  ${javaScriptCode.split('\n').join('\n  ')}
+${javaScriptCode.split('\n').join('\n  ')}
 }`);
                 }}
               />
             </NodeFieldLabelWithIconContainer>
             {props.isNodeConfigReadOnly ? (
+              <ReadonlyTextarea value={javaScriptCode} minRows={6} isCode />
+            ) : (
               <Textarea
                 sx={{ fontFamily: 'var(--font-family-mono)' }}
                 minRows={6}
@@ -145,8 +147,6 @@ function JavaScriptFunctionNode(props: Props) {
                   updateNodeConfig(props.nodeId, { javaScriptCode });
                 }}
               />
-            ) : (
-              <ReadonlyTextarea value={javaScriptCode} minRows={6} isCode />
             )}
             <code style={{ fontSize: 12 }}>{'}'}</code>
           </FormControl>
