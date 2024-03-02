@@ -24,9 +24,9 @@ import NodeInstanceLevelFields from 'components/node-fields/NodeInstanceLevelFie
 import { useFlowStore } from 'state-flow/flow-store';
 import { NodeMetadata } from 'state-flow/types';
 
-import NodeBox from './NodeBox';
-import NodeBoxHeaderSection from './NodeBoxHeaderSection';
-import NodeBoxSection from './NodeBoxSection';
+import NodeBox from '../node-box/NodeBox';
+import NodeBoxHeaderSection from '../node-box/NodeBoxHeaderSection';
+import NodeBoxSection from '../node-box/NodeBoxSection';
 
 export type SrcConnector = {
   id: string;

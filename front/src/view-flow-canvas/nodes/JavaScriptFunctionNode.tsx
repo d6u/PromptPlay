@@ -22,10 +22,10 @@ import ReadonlyTextarea from 'generic-components/ReadonlyTextarea';
 import { useFlowStore } from 'state-flow/flow-store';
 import { NodeMetadata } from 'state-flow/types';
 
-import { SrcConnector } from '../node-box/DefaultNode';
 import NodeBox from '../node-box/NodeBox';
 import NodeBoxHeaderSection from '../node-box/NodeBoxHeaderSection';
 import NodeBoxSection from '../node-box/NodeBoxSection';
+import { SrcConnector } from './DefaultNode';
 
 type Props = {
   nodeId: string;

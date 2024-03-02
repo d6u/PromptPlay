@@ -7,7 +7,7 @@ import NodeBoxInstanceLevelFields from 'components/node-fields/NodeInstanceLevel
 
 type Props = {
   nodeConfig: NodeConfig;
-  isNodeConfigReadOnly: boolean;
+  isNodeReadOnly: boolean;
 };
 
 function NodeConfigPaneNodeFields(props: Props) {
@@ -20,7 +20,7 @@ function NodeConfigPaneNodeFields(props: Props) {
     <div>
       {nodeDefinition.accountLevelConfigFieldDefinitions && (
         <NodeAccountLevelFields
-          isNodeConfigReadOnly={props.isNodeConfigReadOnly}
+          isNodeConfigReadOnly={props.isNodeReadOnly}
           accountLevelConfigFieldDefinitions={
             nodeDefinition.accountLevelConfigFieldDefinitions
           }
@@ -28,7 +28,7 @@ function NodeConfigPaneNodeFields(props: Props) {
         />
       )}
       <NodeBoxInstanceLevelFields
-        isNodeConfigReadOnly={props.isNodeConfigReadOnly}
+        isNodeConfigReadOnly={props.isNodeReadOnly}
         instanceLevelConfigFieldDefinitions={
           nodeDefinition.instanceLevelConfigFieldDefinitions
         }

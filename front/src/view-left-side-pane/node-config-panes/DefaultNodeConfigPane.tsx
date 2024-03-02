@@ -102,7 +102,7 @@ function DefaultNodeConfigPane(props: Props) {
       />
       <NodeConfigPaneNodeFields
         nodeConfig={props.nodeConfig}
-        isNodeConfigReadOnly={props.isReadOnly}
+        isNodeReadOnly={props.isReadOnly}
       />
     </Container>
   );

@@ -14,6 +14,8 @@ import { selectVariables } from 'state-flow/util/state-utils';
 
 import ConditionNodeConfigPanel from './node-config-panes/ConditionNodeConfigPane';
 import DefaultNodeConfigPane from './node-config-panes/DefaultNodeConfigPane';
+import InputNodeConfigPane from './node-config-panes/InputNodeConfigPane';
+import OutputNodeConfigPane from './node-config-panes/OutputNodeConfigPane';
 
 function NodeConfigPane() {
   const { isCurrentUserOwner } = useContext(RouteFlowContext);
@@ -36,15 +38,23 @@ function NodeConfigPane() {
     return selectVariables(nodeId, ConnectorType.NodeOutput, variables);
   }, [variables, nodeId]);
 
-  let content: ReactNode;
-
   switch (nodeConfig.type) {
-    case NodeType.InputNode: {
-      throw new Error('Not implemented yet: NodeType.InputNode case');
-    }
-    case NodeType.OutputNode: {
-      throw new Error('Not implemented yet: NodeType.OutputNode case');
-    }
+    case NodeType.InputNode:
+      return (
+        <InputNodeConfigPane
+          nodeId={nodeId}
+          isReadOnly={isReadOnly}
+          nodeConfig={nodeConfig}
+        />
+      );
+    case NodeType.OutputNode:
+      return (
+        <OutputNodeConfigPane
+          nodeId={nodeId}
+          isReadOnly={isReadOnly}
+          nodeConfig={nodeConfig}
+        />
+      );
     case NodeType.ConditionNode:
       return (
         <ConditionNodeConfigPanel
@@ -54,9 +64,22 @@ function NodeConfigPane() {
         />
       );
     case NodeType.JavaScriptFunctionNode:
-      // TODO: Implement
-      content = null;
-      break;
+      let content: ReactNode;
+
+      return (
+        <Container>
+          <HeaderSection>
+            <HeaderSectionHeader>Output variables</HeaderSectionHeader>
+          </HeaderSection>
+          <Section>
+            {outputVariables.map((output) => (
+              <SidePaneOutputRenderer key={output.id} outputItem={output} />
+            ))}
+          </Section>
+          {content}
+        </Container>
+      );
+
     default:
       return (
         <DefaultNodeConfigPane
@@ -68,20 +91,6 @@ function NodeConfigPane() {
         />
       );
   }
-
-  return (
-    <Container>
-      <HeaderSection>
-        <HeaderSectionHeader>Output variables</HeaderSectionHeader>
-      </HeaderSection>
-      <Section>
-        {outputVariables.map((output) => (
-          <SidePaneOutputRenderer key={output.id} outputItem={output} />
-        ))}
-      </Section>
-      {content}
-    </Container>
-  );
 }
 
 const Container = styled.div`

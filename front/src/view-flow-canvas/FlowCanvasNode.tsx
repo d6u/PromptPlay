@@ -12,8 +12,8 @@ import {
 } from 'state-flow/util/state-utils';
 
 import invariant from 'tiny-invariant';
-import DefaultNode from './node-box/DefaultNode';
 import ConditionNode from './nodes/ConditionNode';
+import DefaultNode from './nodes/DefaultNode';
 import InputNode from './nodes/InputNode';
 import JavaScriptFunctionNode from './nodes/JavaScriptFunctionNode';
 import OutputNode from './nodes/OutputNode';
