@@ -163,6 +163,7 @@ function ConditionNode() {
           <NodeConditionsEditableList
             nodeId={nodeId}
             isNodeReadOnly={!isCurrentUserOwner}
+            showHandles
             conditionConfigs={normalConditions.map((condition) => {
               const isMatched = (
                 connectorResultMap[condition.id] as ConditionResult | undefined
@@ -192,14 +193,6 @@ function ConditionNode() {
           </FormHelperText>
         </NodeBoxSection>
       </NodeBox>
-      {normalConditions.map((condition, i) => (
-        <OutgoingConditionHandle
-          key={condition.id}
-          id={condition.id}
-          index={i}
-          totalConditionCount={conditions.length}
-        />
-      ))}
       <OutgoingConditionHandle
         key={defaultCaseCondition.id}
         id={defaultCaseCondition.id}

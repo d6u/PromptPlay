@@ -13,3 +13,7 @@ export const BaseConnectorHandle = styled(Handle)`
 export const BaseVariableHandle = styled(BaseConnectorHandle)`
   background: #00b3ff;
 `;
+
+export const BaseConditionHandle = styled(BaseConnectorHandle)`
+  background: #7a00df;
+`;
