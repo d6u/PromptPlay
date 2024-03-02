@@ -22,17 +22,17 @@ function NodeConfigPane() {
   invariant(nodeId != null, 'nodeId is not null');
 
   const nodeConfigs = useFlowStore((s) => s.getFlowContent().nodeConfigsDict);
-  const variables = useFlowStore((s) => s.getFlowContent().variablesDict);
+  const connectors = useFlowStore((s) => s.getFlowContent().variablesDict);
 
   const nodeConfig = useMemo(() => nodeConfigs[nodeId], [nodeConfigs, nodeId]);
 
   const inputVariables = useMemo(() => {
-    return selectVariables(nodeId, ConnectorType.NodeInput, variables);
-  }, [variables, nodeId]);
+    return selectVariables(nodeId, ConnectorType.NodeInput, connectors);
+  }, [connectors, nodeId]);
 
   const outputVariables = useMemo(() => {
-    return selectVariables(nodeId, ConnectorType.NodeOutput, variables);
-  }, [variables, nodeId]);
+    return selectVariables(nodeId, ConnectorType.NodeOutput, connectors);
+  }, [connectors, nodeId]);
 
   switch (nodeConfig.type) {
     case NodeType.InputNode:
@@ -57,6 +57,7 @@ function NodeConfigPane() {
           nodeId={nodeConfig.nodeId}
           isReadOnly={isReadOnly}
           nodeConfig={nodeConfig}
+          inputVariables={inputVariables}
         />
       );
     case NodeType.JavaScriptFunctionNode:
