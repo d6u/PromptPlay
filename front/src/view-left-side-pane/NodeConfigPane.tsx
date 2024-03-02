@@ -1,13 +1,8 @@
-import styled from '@emotion/styled';
-import { ReactNode, useContext, useMemo } from 'react';
+import { useContext, useMemo } from 'react';
 import invariant from 'tiny-invariant';
 
 import { ConnectorType, NodeType } from 'flow-models';
 
-import HeaderSection from 'components/side-pane/SidePaneHeaderSection';
-import HeaderSectionHeader from 'components/side-pane/SidePaneHeaderSectionHeader';
-import SidePaneOutputRenderer from 'components/side-pane/SidePaneOutputRenderer';
-import Section from 'components/side-pane/SidePaneSection';
 import RouteFlowContext from 'state-flow/context/FlowRouteContext';
 import { useFlowStore } from 'state-flow/flow-store';
 import { selectVariables } from 'state-flow/util/state-utils';
@@ -15,6 +10,7 @@ import { selectVariables } from 'state-flow/util/state-utils';
 import ConditionNodeConfigPanel from './node-config-panes/ConditionNodeConfigPane';
 import DefaultNodeConfigPane from './node-config-panes/DefaultNodeConfigPane';
 import InputNodeConfigPane from './node-config-panes/InputNodeConfigPane';
+import JavaScriptNodeConfigPane from './node-config-panes/JavaScriptNodeConfigPane';
 import OutputNodeConfigPane from './node-config-panes/OutputNodeConfigPane';
 
 function NodeConfigPane() {
@@ -64,22 +60,15 @@ function NodeConfigPane() {
         />
       );
     case NodeType.JavaScriptFunctionNode:
-      let content: ReactNode;
-
       return (
-        <Container>
-          <HeaderSection>
-            <HeaderSectionHeader>Output variables</HeaderSectionHeader>
-          </HeaderSection>
-          <Section>
-            {outputVariables.map((output) => (
-              <SidePaneOutputRenderer key={output.id} outputItem={output} />
-            ))}
-          </Section>
-          {content}
-        </Container>
+        <JavaScriptNodeConfigPane
+          nodeId={nodeConfig.nodeId}
+          isNodeReadOnly={isReadOnly}
+          nodeConfig={nodeConfig}
+          inputVariables={inputVariables}
+          outputVariables={outputVariables}
+        />
       );
-
     default:
       return (
         <DefaultNodeConfigPane
@@ -92,9 +81,5 @@ function NodeConfigPane() {
       );
   }
 }
-
-const Container = styled.div`
-  padding: 15px 15px 0 15px;
-`;
 
 export default NodeConfigPane;
