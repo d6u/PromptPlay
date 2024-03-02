@@ -5,7 +5,7 @@ import { useFlowStore } from 'state-flow/flow-store';
 
 import { EdgeConnectStartConnectorClass } from 'state-flow/types';
 import NodeConnectorResultDisplay from './NodeConnectorResultDisplay';
-import { BaseVariableHandle } from './connector-handles';
+import { BaseVariableHandle } from './base-connector-handles';
 
 type Props = {
   nodeId: string;

@@ -9,7 +9,7 @@ import { EdgeConnectStartConnectorClass } from 'state-flow/types';
 import DragHandle from './DragHandle';
 import NodeConditionEditor from './NodeConditionEditor';
 import NodeConnectorResultDisplay from './NodeConnectorResultDisplay';
-import { BaseConditionHandle, HANDLE_HEIGHT } from './connector-handles';
+import { BaseConditionHandle, HANDLE_HEIGHT } from './base-connector-handles';
 import { ConditionConfig, ConditionFormValue } from './types';
 
 type Props = {

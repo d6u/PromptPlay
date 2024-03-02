@@ -5,7 +5,7 @@ import { Position } from 'reactflow';
 import {
   BaseConnectorHandle,
   HANDLE_WIDTH,
-} from 'components/node-connector/connector-handles';
+} from 'components/node-connector/base-connector-handles';
 
 import { BACKDROP_PADDING } from '../constants';
 

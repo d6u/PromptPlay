@@ -10,7 +10,7 @@ import { useFlowStore } from 'state-flow/flow-store';
 import { EdgeConnectStartConnectorClass } from 'state-flow/types';
 import DragHandle from './DragHandle';
 import NodeVariableEditor from './NodeVariableEditor';
-import { BaseVariableHandle } from './connector-handles';
+import { BaseVariableHandle } from './base-connector-handles';
 import { VariableConfig, VariableFormValue } from './types';
 
 export type HandlePosition = Position.Left | Position.Right | 'none';

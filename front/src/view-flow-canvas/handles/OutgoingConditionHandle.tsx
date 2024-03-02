@@ -7,7 +7,7 @@ import {
   BaseConnectorHandle,
   HANDLE_HEIGHT,
   HANDLE_WIDTH,
-} from 'components/node-connector/connector-handles';
+} from 'components/node-connector/base-connector-handles';
 import { CONNECTOR_RESULT_DISPLAY_HEIGHT } from 'components/node-connector/constants';
 
 import {
