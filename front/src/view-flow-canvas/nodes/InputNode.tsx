@@ -1,82 +1,54 @@
 import styled from '@emotion/styled';
-import { useContext, useMemo } from 'react';
-import { Position, useNodeId, useUpdateNodeInternals } from 'reactflow';
-import invariant from 'tiny-invariant';
+import { useMemo } from 'react';
+import { Position, useUpdateNodeInternals } from 'reactflow';
 
-import {
-  ConnectorType,
-  InputNodeInstanceLevelConfig,
-  NodeType,
-} from 'flow-models';
+import { ConnectorType, InputNodeAllLevelConfig, NodeType } from 'flow-models';
 
 import NodeVariablesEditableList from 'components/node-connector/NodeVariablesEditableList';
-import RouteFlowContext from 'state-flow/context/FlowRouteContext';
 import { useFlowStore } from 'state-flow/flow-store';
-import { CanvasRightPanelType } from 'state-flow/types';
 import { selectVariables } from 'state-flow/util/state-utils';
 
 import NodeBox from '../node-box/NodeBox';
 import NodeBoxHeaderSection from '../node-box/NodeBoxHeaderSection';
 
-function InputNode() {
-  const { isCurrentUserOwner } = useContext(RouteFlowContext);
+type Props = {
+  nodeId: string;
+  isNodeReadOnly: boolean;
+  nodeConfig: InputNodeAllLevelConfig;
+};
 
-  const nodeId = useNodeId();
-
-  invariant(nodeId != null, 'nodeId is not null');
-
+function InputNode(props: Props) {
   const updateNodeInternals = useUpdateNodeInternals();
 
-  // SECTION: Select state from store
-  const setCanvasRightPaneType = useFlowStore((s) => s.setCanvasRightPaneType);
-  const nodeConfigsDict = useFlowStore(
-    (s) => s.getFlowContent().nodeConfigsDict,
-  );
-  const variablesDict = useFlowStore((s) => s.getFlowContent().variablesDict);
-  const removeNode = useFlowStore((s) => s.removeNode);
+  const variables = useFlowStore((s) => s.getFlowContent().variablesDict);
   const addVariable = useFlowStore((s) => s.addVariable);
-  // !SECTION
 
   const flowInputVariables = useMemo(() => {
-    return selectVariables(nodeId, ConnectorType.FlowInput, variablesDict);
-  }, [nodeId, variablesDict]);
-
-  const nodeConfig = useMemo(
-    () => nodeConfigsDict[nodeId] as InputNodeInstanceLevelConfig | undefined,
-    [nodeConfigsDict, nodeId],
-  );
-
-  if (!nodeConfig) {
-    return null;
-  }
+    return selectVariables(props.nodeId, ConnectorType.FlowInput, variables);
+  }, [props.nodeId, variables]);
 
   return (
     <>
       <NodeBox nodeType={NodeType.InputNode}>
         <NodeBoxHeaderSection
-          isNodeReadOnly={!isCurrentUserOwner}
+          isNodeReadOnly={props.isNodeReadOnly}
           title="Input"
-          onClickRemove={() => {
-            removeNode(nodeId);
-          }}
-          onClickGearButton={() => {
-            setCanvasRightPaneType(CanvasRightPanelType.Tester);
-          }}
+          nodeId={props.nodeId}
           showAddVariableButton={true}
           onClickAddVariableButton={() => {
             addVariable(
-              nodeId,
+              props.nodeId,
               ConnectorType.FlowInput,
               flowInputVariables.length,
             );
-            updateNodeInternals(nodeId);
+            updateNodeInternals(props.nodeId);
           }}
         />
         <GenericContainer>
           <NodeVariablesEditableList
             showConnectorHandle={Position.Right}
-            nodeId={nodeId}
-            isNodeReadOnly={!isCurrentUserOwner}
+            nodeId={props.nodeId}
+            isNodeReadOnly={props.isNodeReadOnly}
             variableConfigs={flowInputVariables.map((variable) => ({
               id: variable.id,
               name: variable.name,

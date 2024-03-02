@@ -1,53 +1,71 @@
 import styled from '@emotion/styled';
 import { Option } from '@mobily/ts-belt';
-import { FormControl, FormLabel, Textarea } from '@mui/joy';
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { Position, useUpdateNodeInternals } from 'reactflow';
 
 import {
+  ConditionNodeInstanceLevelConfig,
   ConditionTarget,
   ConnectorType,
+  InputNodeInstanceLevelConfig,
   JavaScriptFunctionNodeInstanceLevelConfig,
+  NodeConfig,
   NodeInputVariable,
   NodeOutputVariable,
+  OutputNodeInstanceLevelConfig,
   getNodeDefinitionForNodeTypeName,
 } from 'flow-models';
 
 import NodeTargetConditionHandle from 'components/node-connector/NodeTargetConditionHandle';
 import NodeVariableResultItem from 'components/node-connector/NodeVariableResultItem';
 import NodeVariablesEditableList from 'components/node-connector/NodeVariablesEditableList';
-import NodeFieldLabelWithIconContainer from 'components/node-fields/NodeFieldLabelWithIconContainer';
-import CopyIconButton from 'generic-components/CopyIconButton';
-import ReadonlyTextarea from 'generic-components/ReadonlyTextarea';
+import NodeAccountLevelFields from 'components/node-fields/NodeAccountLevelFields';
+import NodeInstanceLevelFields from 'components/node-fields/NodeInstanceLevelFields';
 import { useFlowStore } from 'state-flow/flow-store';
 import { NodeMetadata } from 'state-flow/types';
 
-import { SrcConnector } from '../node-box/DefaultNode';
-import NodeBox from '../node-box/NodeBox';
-import NodeBoxHeaderSection from '../node-box/NodeBoxHeaderSection';
-import NodeBoxSection from '../node-box/NodeBoxSection';
+import NodeBox from './NodeBox';
+import NodeBoxHeaderSection from './NodeBoxHeaderSection';
+import NodeBoxSection from './NodeBoxSection';
+
+export type SrcConnector = {
+  id: string;
+  name: string;
+  value: unknown;
+};
 
 type Props = {
+  // Node Definition Level
+  // Node Level
   nodeId: string;
   isNodeReadOnly: boolean;
-  nodeConfig: JavaScriptFunctionNodeInstanceLevelConfig;
+  nodeConfig: Exclude<
+    NodeConfig,
+    | InputNodeInstanceLevelConfig
+    | OutputNodeInstanceLevelConfig
+    | ConditionNodeInstanceLevelConfig
+    | JavaScriptFunctionNodeInstanceLevelConfig
+  >;
   inputVariables: NodeInputVariable[];
   outputVariables: NodeOutputVariable[];
   conditionTarget: ConditionTarget;
+  // Node Level but not save to server
   nodeMetadata: Option<NodeMetadata>;
 };
 
-function JavaScriptFunctionNode(props: Props) {
+function DefaultNode(props: Props) {
+  // ANCHOR: ReactFlow
   const updateNodeInternals = useUpdateNodeInternals();
 
+  const addVariable = useFlowStore((s) => s.addVariable);
+
+  // ANCHOR: Node Definition
   const nodeDefinition = useMemo(
     () => getNodeDefinitionForNodeTypeName(props.nodeConfig.type),
     [props.nodeConfig.type],
   );
 
-  const updateNodeConfig = useFlowStore((s) => s.updateNodeConfig);
-  const addVariable = useFlowStore((s) => s.addVariable);
-
+  // ANCHOR: Store Data
   const defaultVariableValueMap = useFlowStore((s) =>
     s.getDefaultVariableValueLookUpDict(),
   );
@@ -61,14 +79,6 @@ function JavaScriptFunctionNode(props: Props) {
       };
     });
   }, [props.outputVariables, defaultVariableValueMap]);
-
-  const [javaScriptCode, setJavaScriptCode] = useState(
-    () => props.nodeConfig.javaScriptCode,
-  );
-
-  const functionDefinitionPrefix = `async function (${props.inputVariables
-    .map((v) => v.name)
-    .join(', ')}) {`;
 
   return (
     <>
@@ -113,44 +123,24 @@ function JavaScriptFunctionNode(props: Props) {
             })}
           />
         </GenericContainer>
-        <NodeBoxSection>
-          <FormControl>
-            <NodeFieldLabelWithIconContainer>
-              <FormLabel>
-                <code>{functionDefinitionPrefix}</code>
-              </FormLabel>
-              <CopyIconButton
-                onClick={() => {
-                  navigator.clipboard.writeText(`${functionDefinitionPrefix}
-${javaScriptCode.split('\n').join('\n  ')}
-}`);
-                }}
-              />
-            </NodeFieldLabelWithIconContainer>
-            {props.isNodeReadOnly ? (
-              <ReadonlyTextarea value={javaScriptCode} minRows={6} isCode />
-            ) : (
-              <Textarea
-                sx={{ fontFamily: 'var(--font-family-mono)' }}
-                minRows={6}
-                placeholder="Write JavaScript here"
-                value={javaScriptCode}
-                onChange={(e) => {
-                  setJavaScriptCode(e.target.value);
-                }}
-                onKeyDown={(e) => {
-                  if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
-                    updateNodeConfig(props.nodeId, { javaScriptCode });
-                  }
-                }}
-                onBlur={() => {
-                  updateNodeConfig(props.nodeId, { javaScriptCode });
-                }}
-              />
-            )}
-            <code style={{ fontSize: 12 }}>{'}'}</code>
-          </FormControl>
-        </NodeBoxSection>
+        <GenericContainer>
+          {nodeDefinition.accountLevelConfigFieldDefinitions && (
+            <NodeAccountLevelFields
+              isNodeConfigReadOnly={props.isNodeReadOnly}
+              accountLevelConfigFieldDefinitions={
+                nodeDefinition.accountLevelConfigFieldDefinitions
+              }
+              nodeConfig={props.nodeConfig}
+            />
+          )}
+          <NodeInstanceLevelFields
+            isNodeConfigReadOnly={props.isNodeReadOnly}
+            instanceLevelConfigFieldDefinitions={
+              nodeDefinition.instanceLevelConfigFieldDefinitions
+            }
+            nodeConfig={props.nodeConfig}
+          />
+        </GenericContainer>
         <NodeBoxSection>
           {srcConnectors.map((connector) => (
             <NodeVariableResultItem
@@ -172,4 +162,4 @@ const GenericContainer = styled.div`
   padding-right: 10px;
 `;
 
-export default JavaScriptFunctionNode;
+export default DefaultNode;

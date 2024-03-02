@@ -6,29 +6,17 @@ import ReactFlow, {
   PanOnScrollMode,
 } from 'reactflow';
 
-import { NodeType } from 'flow-models';
-
 import RouteFlowContext from 'state-flow/context/FlowRouteContext';
 import { useFlowStore } from 'state-flow/flow-store';
 
-import ConditionNode from './nodes/ConditionNode';
-import InputNode from './nodes/InputNode';
-import JavaScriptFunctionNode from './nodes/JavaScriptFunctionNode';
-import OutputNode from './nodes/OutputNode';
-import StandardNode from './nodes/StandardNode';
+import FlowCanvasNode from './FlowCanvasNode';
 
 import 'reactflow/dist/style.css';
 
+const TYPE_NAME_FOR_CANVAS_NODE = 'CANVAS_NODE';
+
 const NODE_TYPES = {
-  [NodeType.InputNode]: InputNode,
-  [NodeType.OutputNode]: OutputNode,
-  [NodeType.ConditionNode]: ConditionNode,
-  [NodeType.JavaScriptFunctionNode]: JavaScriptFunctionNode,
-  [NodeType.ChatGPTMessageNode]: StandardNode,
-  [NodeType.ChatGPTChatCompletionNode]: StandardNode,
-  [NodeType.TextTemplate]: StandardNode,
-  [NodeType.HuggingFaceInference]: StandardNode,
-  [NodeType.ElevenLabs]: StandardNode,
+  [TYPE_NAME_FOR_CANVAS_NODE]: FlowCanvasNode,
 };
 
 function FlowCanvasView() {
@@ -53,7 +41,10 @@ function FlowCanvasView() {
       nodesConnectable={isCurrentUserOwner}
       elementsSelectable={isCurrentUserOwner}
       nodeTypes={NODE_TYPES}
-      nodes={nodes}
+      nodes={nodes.map((node) => ({
+        ...node,
+        type: TYPE_NAME_FOR_CANVAS_NODE,
+      }))}
       edges={edges}
       onInit={(reactflow) => {
         reactflow.fitView();
