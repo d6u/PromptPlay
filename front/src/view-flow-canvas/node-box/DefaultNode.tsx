@@ -1,4 +1,5 @@
 import styled from '@emotion/styled';
+import { Option } from '@mobily/ts-belt';
 import { ReactNode, useMemo } from 'react';
 import { Position, useUpdateNodeInternals } from 'reactflow';
 
@@ -20,6 +21,7 @@ import NodeVariablesEditableList from 'components/node-connector/NodeVariablesEd
 import NodeAccountLevelFields from 'components/node-fields/NodeAccountLevelFields';
 import NodeInstanceLevelFields from 'components/node-fields/NodeInstanceLevelFields';
 import { useFlowStore } from 'state-flow/flow-store';
+import { NodeMetadata } from 'state-flow/types';
 
 import NodeBox from './NodeBox';
 import NodeBoxHeaderSection from './NodeBoxHeaderSection';
@@ -52,6 +54,8 @@ type Props = {
   inputVariables: NodeInputVariable[];
   outputVariables: NodeOutputVariable[];
   conditionTarget: ConditionTarget;
+  // Node Level but not save to server
+  nodeMetadata: Option<NodeMetadata>;
   // UI Level
   children?: ReactNode;
 };
@@ -59,6 +63,8 @@ type Props = {
 function DefaultNode(props: Props) {
   // ANCHOR: ReactFlow
   const updateNodeInternals = useUpdateNodeInternals();
+
+  const addVariable = useFlowStore((s) => s.addVariable);
 
   // ANCHOR: Node Definition
   const nodeDefinition = useMemo(
@@ -81,14 +87,7 @@ function DefaultNode(props: Props) {
     });
   }, [props.outputVariables, defaultVariableValueMap]);
 
-  // ANCHOR: Node Metadata
-  const nodeMetadataDict = useFlowStore((s) => s.nodeMetadataDict);
-  const augment = useMemo(() => {
-    return nodeMetadataDict[props.nodeId];
-  }, [nodeMetadataDict, props.nodeId]);
-
   // ANCHOR: Variable Operations
-  const addVariable = useFlowStore((s) => s.addVariable);
 
   let children: ReactNode;
   if (props.children) {
@@ -124,8 +123,8 @@ function DefaultNode(props: Props) {
       />
       <NodeBox
         nodeType={props.nodeConfig.type}
-        isRunning={augment?.isRunning}
-        hasError={augment?.hasError}
+        isRunning={props.nodeMetadata?.isRunning}
+        hasError={props.nodeMetadata?.hasError}
       >
         <NodeBoxHeaderSection
           title={nodeDefinition.label}

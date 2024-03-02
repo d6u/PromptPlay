@@ -1,3 +1,4 @@
+import { Option } from '@mobily/ts-belt';
 import { FormControl, FormLabel, Textarea } from '@mui/joy';
 import { useState } from 'react';
 
@@ -12,6 +13,7 @@ import NodeFieldLabelWithIconContainer from 'components/node-fields/NodeFieldLab
 import CopyIconButton from 'generic-components/CopyIconButton';
 import ReadonlyTextarea from 'generic-components/ReadonlyTextarea';
 import { useFlowStore } from 'state-flow/flow-store';
+import { NodeMetadata } from 'state-flow/types';
 
 import DefaultNode from '../node-box/DefaultNode';
 import NodeBoxSection from '../node-box/NodeBoxSection';
@@ -23,6 +25,7 @@ type Props = {
   inputVariables: NodeInputVariable[];
   outputVariables: NodeOutputVariable[];
   conditionTarget: ConditionTarget;
+  nodeMetadata: Option<NodeMetadata>;
 };
 
 function JavaScriptFunctionNode(props: Props) {
@@ -46,6 +49,7 @@ function JavaScriptFunctionNode(props: Props) {
       inputVariables={props.inputVariables}
       outputVariables={props.outputVariables}
       conditionTarget={props.conditionTarget}
+      nodeMetadata={props.nodeMetadata}
     >
       <NodeBoxSection>
         <FormControl>

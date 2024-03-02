@@ -25,6 +25,7 @@ function FlowCanvasNode() {
 
   const nodeConfigs = useFlowStore((s) => s.getFlowContent().nodeConfigsDict);
   const variablesDict = useFlowStore((s) => s.getFlowContent().variablesDict);
+  const nodeMetadataDict = useFlowStore((s) => s.nodeMetadataDict);
 
   let nodeConfig: Option<NodeConfig> = null;
 
@@ -55,6 +56,13 @@ function FlowCanvasNode() {
     return selectConditionTarget(nodeId, variablesDict);
   }, [nodeId, variablesDict]);
 
+  const nodeMetadata = useMemo(() => {
+    if (nodeId == null) {
+      return null;
+    }
+    return nodeMetadataDict[nodeId];
+  }, [nodeId, nodeMetadataDict]);
+
   if (nodeId == null || nodeConfig == null) {
     return null;
   }
@@ -77,6 +85,7 @@ function FlowCanvasNode() {
           inputVariables={inputVariables}
           outputVariables={outputVariables}
           conditionTarget={conditionTarget}
+          nodeMetadata={nodeMetadata}
         />
       );
     default:
@@ -90,6 +99,7 @@ function FlowCanvasNode() {
           inputVariables={inputVariables}
           outputVariables={outputVariables}
           conditionTarget={conditionTarget}
+          nodeMetadata={nodeMetadata}
         />
       );
   }
