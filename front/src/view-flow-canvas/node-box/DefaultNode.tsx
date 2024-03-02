@@ -1,11 +1,13 @@
 import styled from '@emotion/styled';
 import { ReactNode, useMemo } from 'react';
-import { Position, useNodeId, useUpdateNodeInternals } from 'reactflow';
-import invariant from 'tiny-invariant';
+import { Position, useUpdateNodeInternals } from 'reactflow';
 
 import {
+  ConditionTarget,
   ConnectorType,
   NodeConfig,
+  NodeInputVariable,
+  NodeOutputVariable,
   getNodeDefinitionForNodeTypeName,
 } from 'flow-models';
 
@@ -15,10 +17,6 @@ import NodeVariablesEditableList from 'components/node-connector/NodeVariablesEd
 import NodeAccountLevelFields from 'components/node-fields/NodeAccountLevelFields';
 import NodeInstanceLevelFields from 'components/node-fields/NodeInstanceLevelFields';
 import { useFlowStore } from 'state-flow/flow-store';
-import {
-  selectConditionTarget,
-  selectVariables,
-} from 'state-flow/util/state-utils';
 
 import NodeBox from './NodeBox';
 import NodeBoxHeaderSection from './NodeBoxHeaderSection';
@@ -31,6 +29,9 @@ export type SrcConnector = {
 };
 
 type Props = {
+  // Node Definition Level
+  // Node Level
+  nodeId: string;
   // In this component, we assume nodeConfig is not null.
   //
   // When deleting a node, there is a small delay between
@@ -38,17 +39,17 @@ type Props = {
   // which could cause errors due to nodeConfig being null.
   //
   // Thus, we pass nodeConfig through props to ensure it is not null.
-  nodeConfig: NodeConfig;
   isNodeConfigReadOnly: boolean;
+  nodeConfig: NodeConfig;
+  inputVariables: NodeInputVariable[];
+  outputVariables: NodeOutputVariable[];
+  conditionTarget: ConditionTarget;
+  // UI Level
   children?: ReactNode;
 };
 
-function ReactFlowNode(props: Props) {
+function DefaultNode(props: Props) {
   // ANCHOR: ReactFlow
-  const nodeId = useNodeId();
-
-  invariant(nodeId != null, 'nodeId is not null');
-
   const updateNodeInternals = useUpdateNodeInternals();
 
   // ANCHOR: Node Definition
@@ -58,39 +59,25 @@ function ReactFlowNode(props: Props) {
   );
 
   // ANCHOR: Store Data
-  const variablesDict = useFlowStore((s) => s.getFlowContent().variablesDict);
   const defaultVariableValueMap = useFlowStore((s) =>
     s.getDefaultVariableValueLookUpDict(),
   );
-  const conditionTarget = useMemo(() => {
-    return selectConditionTarget(nodeId, variablesDict);
-  }, [nodeId, variablesDict]);
-
-  const incomingVariables = useMemo(() => {
-    return selectVariables(nodeId, ConnectorType.NodeInput, variablesDict);
-  }, [nodeId, variablesDict]);
 
   const srcConnectors = useMemo(() => {
-    const outputVariables = selectVariables(
-      nodeId,
-      ConnectorType.NodeOutput,
-      variablesDict,
-    );
-
-    return outputVariables.map<SrcConnector>((output) => {
+    return props.outputVariables.map<SrcConnector>((output) => {
       return {
         id: output.id,
         name: output.name,
         value: defaultVariableValueMap[output.id],
       };
     });
-  }, [defaultVariableValueMap, nodeId, variablesDict]);
+  }, [props.outputVariables, defaultVariableValueMap]);
 
   // ANCHOR: Node Metadata
   const nodeMetadataDict = useFlowStore((s) => s.nodeMetadataDict);
   const augment = useMemo(() => {
-    return nodeMetadataDict[nodeId];
-  }, [nodeMetadataDict, nodeId]);
+    return nodeMetadataDict[props.nodeId];
+  }, [nodeMetadataDict, props.nodeId]);
 
   // ANCHOR: Node Operations
   const removeNode = useFlowStore((s) => s.removeNode);
@@ -134,10 +121,10 @@ function ReactFlowNode(props: Props) {
 
   return (
     <>
-      {conditionTarget && (
+      {props.conditionTarget && (
         <NodeTargetConditionHandle
-          nodeId={nodeId}
-          conditionId={conditionTarget.id}
+          nodeId={props.nodeId}
+          conditionId={props.conditionTarget.id}
         />
       )}
       <NodeBox
@@ -150,27 +137,27 @@ function ReactFlowNode(props: Props) {
           showAddVariableButton={!!nodeDefinition.canUserAddIncomingVariables}
           isNodeReadOnly={props.isNodeConfigReadOnly}
           onClickRemove={() => {
-            removeNode(nodeId);
+            removeNode(props.nodeId);
           }}
           onClickGearButton={() => {
             setCanvasLeftPaneIsOpen(true);
-            setCanvasLeftPaneSelectedNodeId(nodeId);
+            setCanvasLeftPaneSelectedNodeId(props.nodeId);
           }}
           onClickAddVariableButton={() => {
             addVariable(
-              nodeId,
+              props.nodeId,
               ConnectorType.NodeInput,
-              incomingVariables.length,
+              props.inputVariables.length,
             );
-            updateNodeInternals(nodeId);
+            updateNodeInternals(props.nodeId);
           }}
         />
         <GenericContainer>
           <NodeVariablesEditableList
             showConnectorHandle={Position.Left}
-            nodeId={nodeId}
+            nodeId={props.nodeId}
             isNodeReadOnly={props.isNodeConfigReadOnly}
-            variableConfigs={incomingVariables.map((variable) => {
+            variableConfigs={props.inputVariables.map((variable) => {
               const incomingVariableConfig =
                 nodeDefinition.fixedIncomingVariables?.[variable.name];
 
@@ -191,7 +178,7 @@ function ReactFlowNode(props: Props) {
               variableId={connector.id}
               variableName={connector.name}
               variableValue={connector.value}
-              nodeId={nodeId}
+              nodeId={props.nodeId}
             />
           ))}
         </NodeBoxSection>
@@ -205,4 +192,4 @@ const GenericContainer = styled.div`
   padding-right: 10px;
 `;
 
-export default ReactFlowNode;
+export default DefaultNode;

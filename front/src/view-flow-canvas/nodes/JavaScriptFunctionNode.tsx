@@ -13,10 +13,13 @@ import CopyIconButton from 'generic-components/CopyIconButton';
 import ReadonlyTextarea from 'generic-components/ReadonlyTextarea';
 import RouteFlowContext from 'state-flow/context/FlowRouteContext';
 import { useFlowStore } from 'state-flow/flow-store';
-import { selectVariables } from 'state-flow/util/state-utils';
+import {
+  selectConditionTarget,
+  selectVariables,
+} from 'state-flow/util/state-utils';
 
+import DefaultNode from '../node-box/DefaultNode';
 import NodeBoxSection from '../node-box/NodeBoxSection';
-import ReactFlowNode from '../node-box/ReactFlowNode';
 
 function JavaScriptFunctionNode() {
   const { isCurrentUserOwner } = useContext(RouteFlowContext);
@@ -43,6 +46,18 @@ function JavaScriptFunctionNode() {
     [nodeConfigsDict, nodeId],
   );
 
+  const inputVariables = useMemo(() => {
+    return selectVariables(nodeId, ConnectorType.NodeInput, variablesDict);
+  }, [nodeId, variablesDict]);
+
+  const outputVariables = useMemo(() => {
+    return selectVariables(nodeId, ConnectorType.NodeOutput, variablesDict);
+  }, [nodeId, variablesDict]);
+
+  const conditionTarget = useMemo(() => {
+    return selectConditionTarget(nodeId, variablesDict);
+  }, [nodeId, variablesDict]);
+
   // It's OK to force unwrap here because nodeConfig will be undefined only
   // when Node is being deleted.
   const [javaScriptCode, setJavaScriptCode] = useState(
@@ -57,10 +72,16 @@ function JavaScriptFunctionNode() {
     .map((v) => v.name)
     .join(', ')}) {`;
 
+  invariant(conditionTarget != null, 'conditionTarget is not null');
+
   return (
-    <ReactFlowNode
+    <DefaultNode
+      nodeId={nodeId}
       isNodeConfigReadOnly={!isCurrentUserOwner}
       nodeConfig={nodeConfig}
+      inputVariables={inputVariables}
+      outputVariables={outputVariables}
+      conditionTarget={conditionTarget}
     >
       <NodeBoxSection>
         <FormControl>
@@ -100,7 +121,7 @@ function JavaScriptFunctionNode() {
           <code style={{ fontSize: 12 }}>{'}'}</code>
         </FormControl>
       </NodeBoxSection>
-    </ReactFlowNode>
+    </DefaultNode>
   );
 }
 
