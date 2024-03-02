@@ -67,7 +67,18 @@ function CustomNode() {
     case NodeType.ConditionNode:
       return <ConditionNode />;
     case NodeType.JavaScriptFunctionNode:
-      return <JavaScriptFunctionNode />;
+      invariant(conditionTarget != null, 'conditionTarget is not null');
+
+      return (
+        <JavaScriptFunctionNode
+          nodeId={nodeId}
+          isNodeConfigReadOnly={!isCurrentUserOwner}
+          nodeConfig={nodeConfig}
+          inputVariables={inputVariables}
+          outputVariables={outputVariables}
+          conditionTarget={conditionTarget}
+        />
+      );
     default:
       invariant(conditionTarget != null, 'conditionTarget is not null');
 

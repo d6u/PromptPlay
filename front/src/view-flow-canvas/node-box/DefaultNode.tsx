@@ -3,11 +3,14 @@ import { ReactNode, useMemo } from 'react';
 import { Position, useUpdateNodeInternals } from 'reactflow';
 
 import {
+  ConditionNodeInstanceLevelConfig,
   ConditionTarget,
   ConnectorType,
+  InputNodeInstanceLevelConfig,
   NodeConfig,
   NodeInputVariable,
   NodeOutputVariable,
+  OutputNodeInstanceLevelConfig,
   getNodeDefinitionForNodeTypeName,
 } from 'flow-models';
 
@@ -32,6 +35,7 @@ type Props = {
   // Node Definition Level
   // Node Level
   nodeId: string;
+  isNodeConfigReadOnly: boolean;
   // In this component, we assume nodeConfig is not null.
   //
   // When deleting a node, there is a small delay between
@@ -39,8 +43,12 @@ type Props = {
   // which could cause errors due to nodeConfig being null.
   //
   // Thus, we pass nodeConfig through props to ensure it is not null.
-  isNodeConfigReadOnly: boolean;
-  nodeConfig: NodeConfig;
+  nodeConfig: Exclude<
+    NodeConfig,
+    | InputNodeInstanceLevelConfig
+    | OutputNodeInstanceLevelConfig
+    | ConditionNodeInstanceLevelConfig
+  >;
   inputVariables: NodeInputVariable[];
   outputVariables: NodeOutputVariable[];
   conditionTarget: ConditionTarget;
@@ -121,12 +129,10 @@ function DefaultNode(props: Props) {
 
   return (
     <>
-      {props.conditionTarget && (
-        <NodeTargetConditionHandle
-          nodeId={props.nodeId}
-          conditionId={props.conditionTarget.id}
-        />
-      )}
+      <NodeTargetConditionHandle
+        nodeId={props.nodeId}
+        conditionId={props.conditionTarget.id}
+      />
       <NodeBox
         nodeType={props.nodeConfig.type}
         isRunning={augment?.isRunning}

@@ -1,87 +1,51 @@
 import { FormControl, FormLabel, Textarea } from '@mui/joy';
-import { useContext, useMemo, useState } from 'react';
-import { useNodeId } from 'reactflow';
-import invariant from 'tiny-invariant';
+import { useState } from 'react';
 
 import {
-  ConnectorType,
+  ConditionTarget,
   JavaScriptFunctionNodeInstanceLevelConfig,
+  NodeInputVariable,
+  NodeOutputVariable,
 } from 'flow-models';
 
 import NodeFieldLabelWithIconContainer from 'components/node-fields/NodeFieldLabelWithIconContainer';
 import CopyIconButton from 'generic-components/CopyIconButton';
 import ReadonlyTextarea from 'generic-components/ReadonlyTextarea';
-import RouteFlowContext from 'state-flow/context/FlowRouteContext';
 import { useFlowStore } from 'state-flow/flow-store';
-import {
-  selectConditionTarget,
-  selectVariables,
-} from 'state-flow/util/state-utils';
 
 import DefaultNode from '../node-box/DefaultNode';
 import NodeBoxSection from '../node-box/NodeBoxSection';
 
-function JavaScriptFunctionNode() {
-  const { isCurrentUserOwner } = useContext(RouteFlowContext);
+type Props = {
+  nodeId: string;
+  isNodeConfigReadOnly: boolean;
+  nodeConfig: JavaScriptFunctionNodeInstanceLevelConfig;
+  inputVariables: NodeInputVariable[];
+  outputVariables: NodeOutputVariable[];
+  conditionTarget: ConditionTarget;
+};
 
-  const nodeId = useNodeId();
-
-  invariant(nodeId != null, 'nodeId is not null');
-
-  const nodeConfigsDict = useFlowStore(
-    (s) => s.getFlowContent().nodeConfigsDict,
-  );
-  const variablesDict = useFlowStore((s) => s.getFlowContent().variablesDict);
+function JavaScriptFunctionNode(props: Props) {
   const updateNodeConfig = useFlowStore((s) => s.updateNodeConfig);
-
-  const inputs = useMemo(() => {
-    return selectVariables(nodeId, ConnectorType.NodeInput, variablesDict);
-  }, [nodeId, variablesDict]);
-
-  const nodeConfig = useMemo(
-    () =>
-      nodeConfigsDict[nodeId] as
-        | JavaScriptFunctionNodeInstanceLevelConfig
-        | undefined,
-    [nodeConfigsDict, nodeId],
-  );
-
-  const inputVariables = useMemo(() => {
-    return selectVariables(nodeId, ConnectorType.NodeInput, variablesDict);
-  }, [nodeId, variablesDict]);
-
-  const outputVariables = useMemo(() => {
-    return selectVariables(nodeId, ConnectorType.NodeOutput, variablesDict);
-  }, [nodeId, variablesDict]);
-
-  const conditionTarget = useMemo(() => {
-    return selectConditionTarget(nodeId, variablesDict);
-  }, [nodeId, variablesDict]);
 
   // It's OK to force unwrap here because nodeConfig will be undefined only
   // when Node is being deleted.
   const [javaScriptCode, setJavaScriptCode] = useState(
-    () => nodeConfig!.javaScriptCode,
+    () => props.nodeConfig.javaScriptCode,
   );
 
-  if (!nodeConfig) {
-    return null;
-  }
-
-  const functionDefinitionPrefix = `async function (${inputs
+  const functionDefinitionPrefix = `async function (${props.inputVariables
     .map((v) => v.name)
     .join(', ')}) {`;
 
-  invariant(conditionTarget != null, 'conditionTarget is not null');
-
   return (
     <DefaultNode
-      nodeId={nodeId}
-      isNodeConfigReadOnly={!isCurrentUserOwner}
-      nodeConfig={nodeConfig}
-      inputVariables={inputVariables}
-      outputVariables={outputVariables}
-      conditionTarget={conditionTarget}
+      nodeId={props.nodeId}
+      isNodeConfigReadOnly={!props.isNodeConfigReadOnly}
+      nodeConfig={props.nodeConfig}
+      inputVariables={props.inputVariables}
+      outputVariables={props.outputVariables}
+      conditionTarget={props.conditionTarget}
     >
       <NodeBoxSection>
         <FormControl>
@@ -97,7 +61,7 @@ function JavaScriptFunctionNode() {
               }}
             />
           </NodeFieldLabelWithIconContainer>
-          {isCurrentUserOwner ? (
+          {props.isNodeConfigReadOnly ? (
             <Textarea
               sx={{ fontFamily: 'var(--font-family-mono)' }}
               minRows={6}
@@ -108,11 +72,11 @@ function JavaScriptFunctionNode() {
               }}
               onKeyDown={(e) => {
                 if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
-                  updateNodeConfig(nodeId, { javaScriptCode });
+                  updateNodeConfig(props.nodeId, { javaScriptCode });
                 }
               }}
               onBlur={() => {
-                updateNodeConfig(nodeId, { javaScriptCode });
+                updateNodeConfig(props.nodeId, { javaScriptCode });
               }}
             />
           ) : (

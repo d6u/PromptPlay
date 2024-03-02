@@ -19,6 +19,13 @@ import {
 import { NodeType, NodeTypeEnum } from './node-definition-base-types';
 import { NodeConfigMap, NodeConfigMapSchema } from './node-definitions';
 
+export type {
+  ConditionNodeInstanceLevelConfig,
+  InputNodeInstanceLevelConfig,
+  JavaScriptFunctionNodeAllLevelConfig,
+  OutputNodeInstanceLevelConfig,
+} from './node-definitions';
+
 // ANCHOR: V3 Root Types
 
 export type V3FlowContent = {
