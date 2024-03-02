@@ -1,6 +1,6 @@
 import { Table, Textarea } from '@mui/joy';
 
-import Section from 'components/side-pane/SidePaneSection';
+import SidePaneSection from 'components/side-pane/SidePaneSection';
 import { useFlowStore } from 'state-flow/flow-store';
 import { CSVData, CSVRow } from 'state-flow/types';
 
@@ -16,7 +16,7 @@ export default function EvaluationSectionImportCSV(props: Props) {
 
   return (
     <>
-      <Section>
+      <SidePaneSection>
         <Textarea
           disabled={props.isRunning}
           spellCheck={false}
@@ -25,8 +25,8 @@ export default function EvaluationSectionImportCSV(props: Props) {
           value={csvStr}
           onChange={(event) => setCsvStr(event.target.value)}
         />
-      </Section>
-      <Section style={{ overflow: 'auto' }}>
+      </SidePaneSection>
+      <SidePaneSection style={{ overflow: 'auto' }}>
         <Table>
           <thead>
             <tr>
@@ -45,7 +45,7 @@ export default function EvaluationSectionImportCSV(props: Props) {
             ))}
           </tbody>
         </Table>
-      </Section>
+      </SidePaneSection>
     </>
   );
 }

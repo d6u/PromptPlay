@@ -1,4 +1,3 @@
-import styled from '@emotion/styled';
 import { useMemo } from 'react';
 import { useUpdateNodeInternals } from 'reactflow';
 
@@ -9,15 +8,17 @@ import {
 } from 'flow-models';
 
 import NodeVariablesEditableList from 'components/node-connector/NodeVariablesEditableList';
-import HeaderSection from 'components/side-pane/SidePaneHeaderSection';
+import SidePaneHeaderSection from 'components/side-pane/SidePaneHeaderSection';
 import HeaderSectionHeader from 'components/side-pane/SidePaneHeaderSectionHeader';
 import { useFlowStore } from 'state-flow/flow-store';
 import { selectVariables } from 'state-flow/util/state-utils';
-import NodeBoxAddConnectorButton from 'view-flow-canvas/node-box/NodeBoxAddConnectorButton';
+
+import NodeConfigPaneAddConnectorButton from '../node-config-pane-base-ui/NodeConfigPaneAddConnectorButton';
+import NodeConfigPaneContainer from '../node-config-pane-base-ui/NodeConfigPaneContainer';
 
 type Props = {
   nodeId: string;
-  isReadOnly: boolean;
+  isNodeReadOnly: boolean;
   nodeConfig: OutputNodeAllLevelConfig;
 };
 
@@ -37,23 +38,21 @@ function OutputNodeConfigPane(props: Props) {
   }, [props.nodeId, variables]);
 
   return (
-    <Container>
-      <HeaderSection>
+    <NodeConfigPaneContainer>
+      <SidePaneHeaderSection>
         <HeaderSectionHeader>{nodeDefinition.label} Config</HeaderSectionHeader>
-      </HeaderSection>
-      <AddConnectorButtonSection>
-        <NodeBoxAddConnectorButton
-          label="Variable"
-          onClick={() => {
-            addVariable(
-              props.nodeConfig.nodeId,
-              ConnectorType.FlowOutput,
-              flowOutputVariables.length,
-            );
-            updateNodeInternals(props.nodeConfig.nodeId);
-          }}
-        />
-      </AddConnectorButtonSection>
+      </SidePaneHeaderSection>
+      <NodeConfigPaneAddConnectorButton
+        label="Variable"
+        onClick={() => {
+          addVariable(
+            props.nodeConfig.nodeId,
+            ConnectorType.FlowOutput,
+            flowOutputVariables.length,
+          );
+          updateNodeInternals(props.nodeConfig.nodeId);
+        }}
+      />
       <NodeVariablesEditableList
         isListSortable
         nodeId={props.nodeConfig.nodeId}
@@ -64,17 +63,8 @@ function OutputNodeConfigPane(props: Props) {
           isReadOnly: false,
         }))}
       />
-    </Container>
+    </NodeConfigPaneContainer>
   );
 }
-
-const Container = styled.div`
-  padding: 15px 15px 0 15px;
-`;
-
-const AddConnectorButtonSection = styled.div`
-  margin-top: 10px;
-  margin-bottom: 10px;
-`;
 
 export default OutputNodeConfigPane;

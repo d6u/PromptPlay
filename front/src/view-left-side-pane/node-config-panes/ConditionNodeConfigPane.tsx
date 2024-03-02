@@ -7,29 +7,33 @@ import {
   ConditionNodeInstanceLevelConfig,
   ConditionResult,
   ConnectorType,
+  NodeInputVariable,
   getNodeDefinitionForNodeTypeName,
 } from 'flow-models';
 
 import NodeConditionDefaultItem from 'components/node-connector/NodeConditionDefaultItem';
 import NodeConditionsEditableList from 'components/node-connector/NodeConditionsEditableList';
 import NodeVariablesEditableList from 'components/node-connector/NodeVariablesEditableList';
-import HeaderSection from 'components/side-pane/SidePaneHeaderSection';
+import SidePaneHeaderSection from 'components/side-pane/SidePaneHeaderSection';
 import HeaderSectionHeader from 'components/side-pane/SidePaneHeaderSectionHeader';
 import { useFlowStore } from 'state-flow/flow-store';
-import { selectConditions, selectVariables } from 'state-flow/util/state-utils';
-import NodeBoxAddConnectorButton from 'view-flow-canvas/node-box/NodeBoxAddConnectorButton';
+import { selectConditions } from 'state-flow/util/state-utils';
+
+import NodeConfigPaneAddConnectorButton from 'view-left-side-pane/node-config-pane-base-ui/NodeConfigPaneAddConnectorButton';
+import NodeConfigPaneContainer from '../node-config-pane-base-ui/NodeConfigPaneContainer';
 
 type Props = {
   nodeId: string;
-  isReadOnly: boolean;
+  isNodeReadOnly: boolean;
   nodeConfig: ConditionNodeInstanceLevelConfig;
+  inputVariables: NodeInputVariable[];
 };
 
-function ConditionNodeConfigPanel(props: Props) {
+function ConditionNodeConfigPane(props: Props) {
   const updateNodeInternals = useUpdateNodeInternals();
 
-  const connectorMap = useFlowStore((s) => s.getFlowContent().variablesDict);
-  const connectorResultMap = useFlowStore((s) =>
+  const connectors = useFlowStore((s) => s.getFlowContent().variablesDict);
+  const connectorResults = useFlowStore((s) =>
     s.getDefaultVariableValueLookUpDict(),
   );
   const updateNodeConfig = useFlowStore((s) => s.updateNodeConfig);
@@ -39,34 +43,30 @@ function ConditionNodeConfigPanel(props: Props) {
     return getNodeDefinitionForNodeTypeName(props.nodeConfig.type);
   }, [props.nodeConfig.type]);
 
-  const incomingVariables = useMemo(() => {
-    return selectVariables(props.nodeId, ConnectorType.NodeInput, connectorMap);
-  }, [connectorMap, props.nodeId]);
-
   const conditions = useMemo(() => {
-    return selectConditions(props.nodeId, connectorMap);
-  }, [props.nodeId, connectorMap]);
+    return selectConditions(props.nodeId, connectors);
+  }, [props.nodeId, connectors]);
 
-  const defaultCaseCondition = useMemo(() => conditions[0], [conditions]);
-  const normalConditions = useMemo(() => conditions.slice(1), [conditions]);
+  const defaultCondition = useMemo(() => conditions[0], [conditions]);
+  const customConditions = useMemo(() => conditions.slice(1), [conditions]);
 
   return (
-    <Container>
-      <HeaderSection>
+    <NodeConfigPaneContainer>
+      <SidePaneHeaderSection>
         <HeaderSectionHeader>{nodeDefinition.label} Config</HeaderSectionHeader>
-      </HeaderSection>
+      </SidePaneHeaderSection>
       <NodeVariablesEditableList
         nodeId={props.nodeId}
-        isNodeReadOnly={props.isReadOnly}
-        variableConfigs={incomingVariables.map((variable) => {
+        isNodeReadOnly={props.isNodeReadOnly}
+        variableConfigs={props.inputVariables.map((variable) => {
           return { id: variable.id, name: variable.name, isReadOnly: true };
         })}
       />
-      <Section>
+      <GenericSection>
         <FormControl>
           <FormLabel>Stop at the first match</FormLabel>
           <Checkbox
-            disabled={props.isReadOnly}
+            disabled={props.isNodeReadOnly}
             size="sm"
             variant="outlined"
             checked={props.nodeConfig.stopAtTheFirstMatch}
@@ -81,29 +81,27 @@ function ConditionNodeConfigPanel(props: Props) {
           In either case, the default case will be matched if no condition has
           matched.
         </FormHelperText>
-      </Section>
-      <Section>
-        {!props.isReadOnly && (
-          <NodeBoxAddConnectorButton
-            label="Condition"
-            onClick={() => {
-              addVariable(
-                props.nodeId,
-                ConnectorType.Condition,
-                normalConditions.length,
-              );
-              updateNodeInternals(props.nodeId);
-            }}
-          />
-        )}
-      </Section>
+      </GenericSection>
+      {!props.isNodeReadOnly && (
+        <NodeConfigPaneAddConnectorButton
+          label="Condition"
+          onClick={() => {
+            addVariable(
+              props.nodeId,
+              ConnectorType.Condition,
+              customConditions.length,
+            );
+            updateNodeInternals(props.nodeId);
+          }}
+        />
+      )}
       <NodeConditionsEditableList
         nodeId={props.nodeId}
-        isNodeReadOnly={props.isReadOnly}
+        isNodeReadOnly={props.isNodeReadOnly}
         isListSortable
-        conditionConfigs={normalConditions.map((condition) => {
+        conditionConfigs={customConditions.map((condition) => {
           const isMatched =
-            (connectorResultMap[condition.id] as ConditionResult | undefined)
+            (connectorResults[condition.id] as ConditionResult | undefined)
               ?.isConditionMatched ?? false;
 
           return {
@@ -115,29 +113,22 @@ function ConditionNodeConfigPanel(props: Props) {
       />
       <NodeConditionDefaultItem
         nodeId={props.nodeId}
-        conditionId={defaultCaseCondition.id}
+        conditionId={defaultCondition.id}
         conditionValue={
-          (
-            connectorResultMap[defaultCaseCondition.id] as
-              | ConditionResult
-              | undefined
-          )?.isConditionMatched ?? false
+          (connectorResults[defaultCondition.id] as ConditionResult | undefined)
+            ?.isConditionMatched ?? false
         }
       />
       <FormHelperText>
         The default case is matched when no other condition have matched.
       </FormHelperText>
-    </Container>
+    </NodeConfigPaneContainer>
   );
 }
 
-const Container = styled.div`
-  padding: 15px 15px 0 15px;
-`;
-
-const Section = styled.div`
+const GenericSection = styled.div`
   margin-top: 10px;
   margin-top: 10px;
 `;
 
-export default ConditionNodeConfigPanel;
+export default ConditionNodeConfigPane;

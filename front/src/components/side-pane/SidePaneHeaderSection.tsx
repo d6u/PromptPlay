@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 
-const HeaderSection = styled.div`
+const SidePaneHeaderSection = styled.div`
   margin: 0 0 10px 0;
   padding-bottom: 5px;
   border-bottom: 1px solid #000;
@@ -10,4 +10,4 @@ const HeaderSection = styled.div`
   height: ${32 + 5}px;
 `;
 
-export default HeaderSection;
+export default SidePaneHeaderSection;

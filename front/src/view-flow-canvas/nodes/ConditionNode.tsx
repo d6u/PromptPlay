@@ -21,8 +21,8 @@ import { useFlowStore } from 'state-flow/flow-store';
 import { NodeMetadata } from 'state-flow/types';
 import { selectConditions } from 'state-flow/util/state-utils';
 
+import NodeAddConnectorButton from '../../components/NodeAddConnectorButton';
 import NodeBox from '../node-box/NodeBox';
-import NodeBoxAddConnectorButton from '../node-box/NodeBoxAddConnectorButton';
 import NodeBoxHeaderSection from '../node-box/NodeBoxHeaderSection';
 import NodeBoxSection from '../node-box/NodeBoxSection';
 import NodeBoxSmallSection from '../node-box/NodeBoxSmallSection';
@@ -70,7 +70,7 @@ function ConditionNode(props: Props) {
           nodeId={props.nodeId}
           showAddVariableButton={false}
         />
-        <GenericContainer>
+        <GenericSection>
           <NodeVariablesEditableList
             showConnectorHandle={Position.Left}
             nodeId={props.nodeId}
@@ -81,7 +81,7 @@ function ConditionNode(props: Props) {
               isReadOnly: true,
             }))}
           />
-        </GenericContainer>
+        </GenericSection>
         <NodeBoxSection>
           <FormControl>
             <FormLabel>Stop at the first match</FormLabel>
@@ -108,7 +108,7 @@ function ConditionNode(props: Props) {
         </NodeBoxSection>
         <NodeBoxSmallSection>
           {!props.isNodeReadOnly && (
-            <NodeBoxAddConnectorButton
+            <NodeAddConnectorButton
               label="Condition"
               onClick={() => {
                 addVariable(
@@ -121,7 +121,7 @@ function ConditionNode(props: Props) {
             />
           )}
         </NodeBoxSmallSection>
-        <GenericContainer>
+        <GenericSection>
           <NodeConditionsEditableList
             nodeId={props.nodeId}
             isNodeReadOnly={props.isNodeReadOnly}
@@ -138,7 +138,7 @@ function ConditionNode(props: Props) {
               };
             })}
           />
-        </GenericContainer>
+        </GenericSection>
         <NodeBoxSection>
           <NodeConditionDefaultItem
             showHandle
@@ -161,7 +161,7 @@ function ConditionNode(props: Props) {
   );
 }
 
-const GenericContainer = styled.div`
+const GenericSection = styled.div`
   padding-left: 10px;
   padding-right: 10px;
 `;

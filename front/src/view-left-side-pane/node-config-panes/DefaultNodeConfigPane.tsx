@@ -1,4 +1,3 @@
-import styled from '@emotion/styled';
 import { useMemo } from 'react';
 import { useUpdateNodeInternals } from 'reactflow';
 
@@ -15,18 +14,19 @@ import {
 } from 'flow-models';
 
 import NodeVariablesEditableList from 'components/node-connector/NodeVariablesEditableList';
-import HeaderSection from 'components/side-pane/SidePaneHeaderSection';
+import SidePaneHeaderSection from 'components/side-pane/SidePaneHeaderSection';
 import HeaderSectionHeader from 'components/side-pane/SidePaneHeaderSectionHeader';
 import SidePaneOutputRenderer from 'components/side-pane/SidePaneOutputRenderer';
-import Section from 'components/side-pane/SidePaneSection';
+import SidePaneSection from 'components/side-pane/SidePaneSection';
 import { useFlowStore } from 'state-flow/flow-store';
-import NodeBoxAddConnectorButton from 'view-flow-canvas/node-box/NodeBoxAddConnectorButton';
 
-import NodeConfigPaneNodeFields from './NodeConfigPaneNodeFields';
+import NodeConfigPaneAddConnectorButton from 'view-left-side-pane/node-config-pane-base-ui/NodeConfigPaneAddConnectorButton';
+import NodeConfigPaneContainer from '../node-config-pane-base-ui/NodeConfigPaneContainer';
+import NodeConfigPaneNodeFields from '../node-config-pane-base-ui/NodeConfigPaneNodeFields';
 
 type Props = {
   nodeId: string;
-  isReadOnly: boolean;
+  isNodeReadOnly: boolean;
   nodeConfig: Exclude<
     NodeConfig,
     | InputNodeInstanceLevelConfig
@@ -56,43 +56,41 @@ function DefaultNodeConfigPane(props: Props) {
       return {
         id: variable.id,
         name: variable.name,
-        isReadOnly: props.isReadOnly || incomingVariableConfig != null,
+        isReadOnly: props.isNodeReadOnly || incomingVariableConfig != null,
         helperText: incomingVariableConfig?.helperMessage,
       };
     });
   }, [
     props.inputVariables,
-    props.isReadOnly,
+    props.isNodeReadOnly,
     nodeDefinition.fixedIncomingVariables,
   ]);
 
   return (
-    <Container>
-      <HeaderSection>
+    <NodeConfigPaneContainer>
+      <SidePaneHeaderSection>
         <HeaderSectionHeader>Output variables</HeaderSectionHeader>
-      </HeaderSection>
-      <Section>
+      </SidePaneHeaderSection>
+      <SidePaneSection>
         {props.outputVariables.map((output) => (
           <SidePaneOutputRenderer key={output.id} outputItem={output} />
         ))}
-      </Section>
-      <HeaderSection>
+      </SidePaneSection>
+      <SidePaneHeaderSection>
         <HeaderSectionHeader>{nodeDefinition.label} Config</HeaderSectionHeader>
-      </HeaderSection>
+      </SidePaneHeaderSection>
       {nodeDefinition.canUserAddIncomingVariables && (
-        <AddConnectorButtonSection>
-          <NodeBoxAddConnectorButton
-            label="Variable"
-            onClick={() => {
-              addVariable(
-                props.nodeConfig.nodeId,
-                ConnectorType.NodeInput,
-                inputVariableConfig.length,
-              );
-              updateNodeInternals(props.nodeConfig.nodeId);
-            }}
-          />
-        </AddConnectorButtonSection>
+        <NodeConfigPaneAddConnectorButton
+          label="Variable"
+          onClick={() => {
+            addVariable(
+              props.nodeConfig.nodeId,
+              ConnectorType.NodeInput,
+              inputVariableConfig.length,
+            );
+            updateNodeInternals(props.nodeConfig.nodeId);
+          }}
+        />
       )}
       <NodeVariablesEditableList
         variableConfigs={inputVariableConfig}
@@ -102,19 +100,10 @@ function DefaultNodeConfigPane(props: Props) {
       />
       <NodeConfigPaneNodeFields
         nodeConfig={props.nodeConfig}
-        isNodeReadOnly={props.isReadOnly}
+        isNodeReadOnly={props.isNodeReadOnly}
       />
-    </Container>
+    </NodeConfigPaneContainer>
   );
 }
-
-const Container = styled.div`
-  padding: 15px 15px 0 15px;
-`;
-
-const AddConnectorButtonSection = styled.div`
-  margin-top: 10px;
-  margin-bottom: 10px;
-`;
 
 export default DefaultNodeConfigPane;
