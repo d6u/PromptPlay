@@ -29,7 +29,7 @@ import NodeBoxSection from '../node-box/NodeBoxSection';
 
 type Props = {
   nodeId: string;
-  isNodeConfigReadOnly: boolean;
+  isNodeReadOnly: boolean;
   nodeConfig: JavaScriptFunctionNodeInstanceLevelConfig;
   inputVariables: NodeInputVariable[];
   outputVariables: NodeOutputVariable[];
@@ -85,7 +85,7 @@ function JavaScriptFunctionNode(props: Props) {
           title={nodeDefinition.label}
           showAddVariableButton={!!nodeDefinition.canUserAddIncomingVariables}
           nodeId={props.nodeId}
-          isNodeReadOnly={props.isNodeConfigReadOnly}
+          isNodeReadOnly={props.isNodeReadOnly}
           onClickAddVariableButton={() => {
             addVariable(
               props.nodeId,
@@ -99,7 +99,7 @@ function JavaScriptFunctionNode(props: Props) {
           <NodeVariablesEditableList
             showConnectorHandle={Position.Left}
             nodeId={props.nodeId}
-            isNodeReadOnly={props.isNodeConfigReadOnly}
+            isNodeReadOnly={props.isNodeReadOnly}
             variableConfigs={props.inputVariables.map((variable) => {
               const incomingVariableConfig =
                 nodeDefinition.fixedIncomingVariables?.[variable.name];
@@ -127,7 +127,7 @@ ${javaScriptCode.split('\n').join('\n  ')}
                 }}
               />
             </NodeFieldLabelWithIconContainer>
-            {props.isNodeConfigReadOnly ? (
+            {props.isNodeReadOnly ? (
               <ReadonlyTextarea value={javaScriptCode} minRows={6} isCode />
             ) : (
               <Textarea

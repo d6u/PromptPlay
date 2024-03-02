@@ -13,7 +13,7 @@ import NodeBoxHeaderSection from '../node-box/NodeBoxHeaderSection';
 
 type Props = {
   nodeId: string;
-  isNodeConfigReadOnly: boolean;
+  isNodeReadOnly: boolean;
   nodeConfig: OutputNodeAllLevelConfig;
 };
 
@@ -31,7 +31,7 @@ function OutputNode(props: Props) {
     <>
       <NodeBox nodeType={NodeType.OutputNode}>
         <NodeBoxHeaderSection
-          isNodeReadOnly={props.isNodeConfigReadOnly}
+          isNodeReadOnly={props.isNodeReadOnly}
           title="Output"
           nodeId={props.nodeId}
           showAddVariableButton={true}
@@ -48,7 +48,7 @@ function OutputNode(props: Props) {
           <NodeVariablesEditableList
             showConnectorHandle={Position.Left}
             nodeId={props.nodeId}
-            isNodeReadOnly={props.isNodeConfigReadOnly}
+            isNodeReadOnly={props.isNodeReadOnly}
             variableConfigs={flowOutputVariables.map((output) => ({
               id: output.id,
               name: output.name,

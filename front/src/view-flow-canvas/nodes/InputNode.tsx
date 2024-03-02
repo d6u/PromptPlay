@@ -13,7 +13,7 @@ import NodeBoxHeaderSection from '../node-box/NodeBoxHeaderSection';
 
 type Props = {
   nodeId: string;
-  isNodeConfigReadOnly: boolean;
+  isNodeReadOnly: boolean;
   nodeConfig: InputNodeAllLevelConfig;
 };
 
@@ -31,7 +31,7 @@ function InputNode(props: Props) {
     <>
       <NodeBox nodeType={NodeType.InputNode}>
         <NodeBoxHeaderSection
-          isNodeReadOnly={props.isNodeConfigReadOnly}
+          isNodeReadOnly={props.isNodeReadOnly}
           title="Input"
           nodeId={props.nodeId}
           showAddVariableButton={true}
@@ -48,7 +48,7 @@ function InputNode(props: Props) {
           <NodeVariablesEditableList
             showConnectorHandle={Position.Right}
             nodeId={props.nodeId}
-            isNodeReadOnly={props.isNodeConfigReadOnly}
+            isNodeReadOnly={props.isNodeReadOnly}
             variableConfigs={flowInputVariables.map((variable) => ({
               id: variable.id,
               name: variable.name,

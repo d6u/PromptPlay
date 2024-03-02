@@ -73,7 +73,7 @@ function FlowCanvasNode() {
       return (
         <InputNode
           nodeId={nodeId}
-          isNodeConfigReadOnly={isNodeReadOnly}
+          isNodeReadOnly={isNodeReadOnly}
           nodeConfig={nodeConfig}
         />
       );
@@ -81,7 +81,7 @@ function FlowCanvasNode() {
       return (
         <OutputNode
           nodeId={nodeId}
-          isNodeConfigReadOnly={isNodeReadOnly}
+          isNodeReadOnly={isNodeReadOnly}
           nodeConfig={nodeConfig}
         />
       );
@@ -91,7 +91,7 @@ function FlowCanvasNode() {
       return (
         <ConditionNode
           nodeId={nodeId}
-          isNodeConfigReadOnly={isNodeReadOnly}
+          isNodeReadOnly={isNodeReadOnly}
           nodeConfig={nodeConfig}
           inputVariables={inputVariables}
           conditionTarget={conditionTarget}
@@ -104,7 +104,7 @@ function FlowCanvasNode() {
       return (
         <JavaScriptFunctionNode
           nodeId={nodeId}
-          isNodeConfigReadOnly={isNodeReadOnly}
+          isNodeReadOnly={isNodeReadOnly}
           nodeConfig={nodeConfig}
           inputVariables={inputVariables}
           outputVariables={outputVariables}
@@ -118,7 +118,7 @@ function FlowCanvasNode() {
       return (
         <DefaultNode
           nodeId={nodeId}
-          isNodeConfigReadOnly={isNodeReadOnly}
+          isNodeReadOnly={isNodeReadOnly}
           nodeConfig={nodeConfig}
           inputVariables={inputVariables}
           outputVariables={outputVariables}

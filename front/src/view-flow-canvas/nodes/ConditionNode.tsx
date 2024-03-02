@@ -29,7 +29,7 @@ import NodeBoxSmallSection from '../node-box/NodeBoxSmallSection';
 
 type Props = {
   nodeId: string;
-  isNodeConfigReadOnly: boolean;
+  isNodeReadOnly: boolean;
   nodeConfig: ConditionNodeAllLevelConfig;
   inputVariables: NodeInputVariable[];
   conditionTarget: ConditionTarget;
@@ -65,7 +65,7 @@ function ConditionNode(props: Props) {
         hasError={props.nodeMetadata?.hasError}
       >
         <NodeBoxHeaderSection
-          isNodeReadOnly={props.isNodeConfigReadOnly}
+          isNodeReadOnly={props.isNodeReadOnly}
           title="Condition"
           nodeId={props.nodeId}
           showAddVariableButton={false}
@@ -74,7 +74,7 @@ function ConditionNode(props: Props) {
           <NodeVariablesEditableList
             showConnectorHandle={Position.Left}
             nodeId={props.nodeId}
-            isNodeReadOnly={props.isNodeConfigReadOnly}
+            isNodeReadOnly={props.isNodeReadOnly}
             variableConfigs={props.inputVariables.map((variable) => ({
               id: variable.id,
               name: variable.name,
@@ -86,12 +86,12 @@ function ConditionNode(props: Props) {
           <FormControl>
             <FormLabel>Stop at the first match</FormLabel>
             <Checkbox
-              disabled={props.isNodeConfigReadOnly}
+              disabled={props.isNodeReadOnly}
               size="sm"
               variant="outlined"
               checked={props.nodeConfig.stopAtTheFirstMatch}
               onChange={(event) => {
-                if (props.isNodeConfigReadOnly) {
+                if (props.isNodeReadOnly) {
                   return;
                 }
 
@@ -107,7 +107,7 @@ function ConditionNode(props: Props) {
           </FormHelperText>
         </NodeBoxSection>
         <NodeBoxSmallSection>
-          {!props.isNodeConfigReadOnly && (
+          {!props.isNodeReadOnly && (
             <NodeBoxAddConnectorButton
               label="Condition"
               onClick={() => {
@@ -124,7 +124,7 @@ function ConditionNode(props: Props) {
         <GenericContainer>
           <NodeConditionsEditableList
             nodeId={props.nodeId}
-            isNodeReadOnly={props.isNodeConfigReadOnly}
+            isNodeReadOnly={props.isNodeReadOnly}
             showHandles
             conditionConfigs={customConditions.map((condition) => {
               const isMatched = (

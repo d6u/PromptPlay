@@ -38,14 +38,7 @@ type Props = {
   // Node Definition Level
   // Node Level
   nodeId: string;
-  isNodeConfigReadOnly: boolean;
-  // In this component, we assume nodeConfig is not null.
-  //
-  // When deleting a node, there is a small delay between
-  // deleting the nodeConfig and unmounting the node component,
-  // which could cause errors due to nodeConfig being null.
-  //
-  // Thus, we pass nodeConfig through props to ensure it is not null.
+  isNodeReadOnly: boolean;
   nodeConfig: Exclude<
     NodeConfig,
     | InputNodeInstanceLevelConfig
@@ -102,7 +95,7 @@ function DefaultNode(props: Props) {
           title={nodeDefinition.label}
           showAddVariableButton={!!nodeDefinition.canUserAddIncomingVariables}
           nodeId={props.nodeId}
-          isNodeReadOnly={props.isNodeConfigReadOnly}
+          isNodeReadOnly={props.isNodeReadOnly}
           onClickAddVariableButton={() => {
             addVariable(
               props.nodeId,
@@ -116,7 +109,7 @@ function DefaultNode(props: Props) {
           <NodeVariablesEditableList
             showConnectorHandle={Position.Left}
             nodeId={props.nodeId}
-            isNodeReadOnly={props.isNodeConfigReadOnly}
+            isNodeReadOnly={props.isNodeReadOnly}
             variableConfigs={props.inputVariables.map((variable) => {
               const incomingVariableConfig =
                 nodeDefinition.fixedIncomingVariables?.[variable.name];
@@ -133,7 +126,7 @@ function DefaultNode(props: Props) {
         <GenericContainer>
           {nodeDefinition.accountLevelConfigFieldDefinitions && (
             <NodeAccountLevelFields
-              isNodeConfigReadOnly={props.isNodeConfigReadOnly}
+              isNodeConfigReadOnly={props.isNodeReadOnly}
               accountLevelConfigFieldDefinitions={
                 nodeDefinition.accountLevelConfigFieldDefinitions
               }
@@ -141,7 +134,7 @@ function DefaultNode(props: Props) {
             />
           )}
           <NodeInstanceLevelFields
-            isNodeConfigReadOnly={props.isNodeConfigReadOnly}
+            isNodeConfigReadOnly={props.isNodeReadOnly}
             instanceLevelConfigFieldDefinitions={
               nodeDefinition.instanceLevelConfigFieldDefinitions
             }

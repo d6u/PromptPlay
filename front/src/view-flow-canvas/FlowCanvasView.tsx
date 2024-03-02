@@ -13,10 +13,10 @@ import FlowCanvasNode from './FlowCanvasNode';
 
 import 'reactflow/dist/style.css';
 
-const TYPE_NAME_FOR_CUSTOM_NODE = 'CUSTOM_NODE_TYPE';
+const TYPE_NAME_FOR_CANVAS_NODE = 'CANVAS_NODE';
 
 const NODE_TYPES = {
-  [TYPE_NAME_FOR_CUSTOM_NODE]: FlowCanvasNode,
+  [TYPE_NAME_FOR_CANVAS_NODE]: FlowCanvasNode,
 };
 
 function FlowCanvasView() {
@@ -43,7 +43,7 @@ function FlowCanvasView() {
       nodeTypes={NODE_TYPES}
       nodes={nodes.map((node) => ({
         ...node,
-        type: TYPE_NAME_FOR_CUSTOM_NODE,
+        type: TYPE_NAME_FOR_CANVAS_NODE,
       }))}
       edges={edges}
       onInit={(reactflow) => {
