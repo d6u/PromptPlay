@@ -20,6 +20,8 @@ import { useFlowStore } from 'state-flow/flow-store';
 import { selectConditions } from 'state-flow/util/state-utils';
 import NodeBoxAddConnectorButton from 'view-flow-canvas/node-box/NodeBoxAddConnectorButton';
 
+import NodeConfigPaneContainer from '../../components/side-pane/NodeConfigPaneContainer';
+
 type Props = {
   nodeId: string;
   isReadOnly: boolean;
@@ -49,7 +51,7 @@ function ConditionNodeConfigPanel(props: Props) {
   const customConditions = useMemo(() => conditions.slice(1), [conditions]);
 
   return (
-    <Container>
+    <NodeConfigPaneContainer>
       <HeaderSection>
         <HeaderSectionHeader>{nodeDefinition.label} Config</HeaderSectionHeader>
       </HeaderSection>
@@ -122,13 +124,9 @@ function ConditionNodeConfigPanel(props: Props) {
       <FormHelperText>
         The default case is matched when no other condition have matched.
       </FormHelperText>
-    </Container>
+    </NodeConfigPaneContainer>
   );
 }
-
-const Container = styled.div`
-  padding: 15px 15px 0 15px;
-`;
 
 const Section = styled.div`
   margin-top: 10px;
