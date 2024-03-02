@@ -19,7 +19,7 @@ import {
   selectVariables,
 } from 'state-flow/util/state-utils';
 
-import IncomingConditionHandle from '../handles/IncomingConditionHandle';
+import NodeTargetConditionHandle from 'components/node-connector/NodeTargetConditionHandle';
 import NodeBox from './NodeBox';
 import NodeBoxHeaderSection from './NodeBoxHeaderSection';
 import NodeBoxSection from './NodeBoxSection';
@@ -134,7 +134,12 @@ function ReactFlowNode(props: Props) {
 
   return (
     <>
-      {conditionTarget && <IncomingConditionHandle id={conditionTarget.id} />}
+      {conditionTarget && (
+        <NodeTargetConditionHandle
+          nodeId={nodeId}
+          conditionId={conditionTarget.id}
+        />
+      )}
       <NodeBox
         nodeType={props.nodeConfig.type}
         isRunning={augment?.isRunning}

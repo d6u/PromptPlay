@@ -8,6 +8,7 @@ import { ConditionResult, ConnectorType, NodeType } from 'flow-models';
 
 import NodeConditionDefaultItem from 'components/node-connector/NodeConditionDefaultItem';
 import NodeConditionsEditableList from 'components/node-connector/NodeConditionsEditableList';
+import NodeTargetConditionHandle from 'components/node-connector/NodeTargetConditionHandle';
 import NodeVariablesEditableList from 'components/node-connector/NodeVariablesEditableList';
 import RouteFlowContext from 'state-flow/context/FlowRouteContext';
 import { useFlowStore } from 'state-flow/flow-store';
@@ -17,7 +18,6 @@ import {
   selectVariables,
 } from 'state-flow/util/state-utils';
 
-import IncomingConditionHandle from '../handles/IncomingConditionHandle';
 import NodeBox from '../node-box/NodeBox';
 import NodeBoxAddConnectorButton from '../node-box/NodeBoxAddConnectorButton';
 import NodeBoxHeaderSection from '../node-box/NodeBoxHeaderSection';
@@ -89,7 +89,10 @@ function ConditionNode() {
 
   return (
     <>
-      <IncomingConditionHandle id={conditionTarget.id} />
+      <NodeTargetConditionHandle
+        nodeId={nodeId}
+        conditionId={conditionTarget.id}
+      />
       <NodeBox
         nodeType={NodeType.InputNode}
         isRunning={augment?.isRunning}
