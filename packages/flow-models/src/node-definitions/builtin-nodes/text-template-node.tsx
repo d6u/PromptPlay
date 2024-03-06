@@ -1,7 +1,7 @@
-import Joi from 'joi';
 import mustache from 'mustache';
 import { Observable } from 'rxjs';
 import invariant from 'tiny-invariant';
+import { z } from 'zod';
 
 import randomId from 'common-utils/randomId';
 
@@ -28,10 +28,10 @@ export type TextTemplateNodeInstanceLevelConfig = {
 export type TextTemplateNodeAllLevelConfig =
   TextTemplateNodeInstanceLevelConfig;
 
-export const TextTemplateNodeConfigSchema = Joi.object({
-  type: Joi.string().required().valid(NodeType.TextTemplate),
-  nodeId: Joi.string().required(),
-  content: Joi.string().required().allow(''),
+export const TextTemplateNodeConfigSchema = z.object({
+  type: z.literal(NodeType.TextTemplate),
+  nodeId: z.string(),
+  content: z.string(),
 });
 
 export const TEXT_TEMPLATE_NODE_DEFINITION: NodeDefinition<

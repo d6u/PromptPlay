@@ -1,6 +1,6 @@
-import Joi from 'joi';
 import { Observable } from 'rxjs';
 import invariant from 'tiny-invariant';
+import { z } from 'zod';
 
 import randomId from 'common-utils/randomId';
 import * as HuggingFace from 'integrations/hugging-face';
@@ -35,9 +35,9 @@ export type HuggingFaceInferenceNodeAllLevelConfig =
   HuggingFaceInferenceNodeInstanceLevelConfig &
     HuggingFaceInferenceNodeAccountLevelConfig;
 
-export const HuggingFaceInferenceNodeConfigSchema = Joi.object({
-  type: Joi.string().required().valid(NodeType.HuggingFaceInference),
-  nodeId: Joi.string().required(),
+export const HuggingFaceInferenceNodeConfigSchema = z.object({
+  type: z.literal(NodeType.HuggingFaceInference),
+  nodeId: z.string(),
 });
 
 export const HUGGINGFACE_INFERENCE_NODE_DEFINITION: NodeDefinition<
@@ -54,7 +54,9 @@ export const HUGGINGFACE_INFERENCE_NODE_DEFINITION: NodeDefinition<
       placeholder: 'Enter API key here',
       helperMessage:
         "This is stored in your browser's local storage. Never uploaded.",
-      schema: Joi.string().required().label('API Token'),
+      schema: z.string().min(1, {
+        message: 'API Token is required',
+      }),
     },
   },
   instanceLevelConfigFieldDefinitions: {

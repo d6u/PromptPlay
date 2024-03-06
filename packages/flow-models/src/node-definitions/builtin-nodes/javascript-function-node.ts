@@ -1,7 +1,9 @@
-import randomId from 'common-utils/randomId';
-import Joi from 'joi';
 import { Observable } from 'rxjs';
 import invariant from 'tiny-invariant';
+import { z } from 'zod';
+
+import randomId from 'common-utils/randomId';
+
 import {
   ConnectorType,
   NodeInputVariable,
@@ -24,10 +26,10 @@ export type JavaScriptFunctionNodeInstanceLevelConfig = {
 export type JavaScriptFunctionNodeAllLevelConfig =
   JavaScriptFunctionNodeInstanceLevelConfig;
 
-export const JavaScriptFunctionNodeConfigSchema = Joi.object({
-  type: Joi.string().required().valid(NodeType.JavaScriptFunctionNode),
-  nodeId: Joi.string().required(),
-  javaScriptCode: Joi.string().required(),
+export const JavaScriptFunctionNodeConfigSchema = z.object({
+  type: z.literal(NodeType.JavaScriptFunctionNode),
+  nodeId: z.string(),
+  javaScriptCode: z.string(),
 });
 
 export const JAVASCRIPT_NODE_DEFINITION: NodeDefinition<

@@ -376,7 +376,10 @@ async function querySpace(
   );
 }
 
-function parseQueryResult(input: OperationResult<SpaceFlowQueryQuery>) {
+function parseQueryResult(input: OperationResult<SpaceFlowQueryQuery>): {
+  flowContent: V3FlowContent;
+  isUpdated: boolean;
+} {
   // TODO: Report to telemetry
   invariant(input.data?.result?.space != null);
 
@@ -390,22 +393,20 @@ function parseQueryResult(input: OperationResult<SpaceFlowQueryQuery>) {
     case ContentVersion.V3: {
       invariant(contentV3Str != null, 'contentV3Str is not null');
 
-      // TODO: Report parse error to telemetry
-      const data = JSON.parse(contentV3Str) as Partial<V3FlowContent>;
+      // TODO: Report JSON parse error to telemetry
+      const data = JSON.parse(contentV3Str);
 
-      const result = FlowConfigSchema.validate(data, {
-        stripUnknown: true,
-      });
+      const result = FlowConfigSchema.safeParse(data);
 
-      // TODO: Report validation error
-      invariant(
-        result.error == null,
-        `Validation error: ${result.error?.message}`,
-      );
+      if (!result.success) {
+        // TODO: Report validation error
+        invariant(false, `Validation error: ${result.error.message}`);
+      }
 
       return {
-        flowContent: result.value,
-        isUpdated: !deepEqual(data, result.value),
+        // TODO: Remove the type cast
+        flowContent: result.data as V3FlowContent,
+        isUpdated: !deepEqual(data, result.data),
       };
     }
   }

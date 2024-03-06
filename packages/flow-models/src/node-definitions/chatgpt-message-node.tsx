@@ -1,8 +1,8 @@
 import { A, F } from '@mobily/ts-belt';
-import Joi from 'joi';
 import mustache from 'mustache';
 import { Observable } from 'rxjs';
 import invariant from 'tiny-invariant';
+import { z } from 'zod';
 
 import randomId from 'common-utils/randomId';
 import * as OpenAI from 'integrations/openai';
@@ -31,11 +31,12 @@ export type ChatGPTMessageNodeInstanceLevelConfig = {
 export type ChatGPTMessageNodeAllLevelConfig =
   ChatGPTMessageNodeInstanceLevelConfig;
 
-export const ChatgptMessageNodeConfigSchema = Joi.object({
-  type: Joi.string().required().valid(NodeType.ChatGPTMessageNode),
-  nodeId: Joi.string().required(),
-  role: Joi.string().required(),
-  content: Joi.string().required(),
+export const ChatgptMessageNodeConfigSchema = z.object({
+  type: z.literal(NodeType.ChatGPTMessageNode),
+  nodeId: z.string(),
+  // TODO: Use enum to validate
+  role: z.string(),
+  content: z.string(),
 });
 
 export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition<

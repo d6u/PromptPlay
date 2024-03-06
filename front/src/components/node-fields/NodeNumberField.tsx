@@ -1,9 +1,9 @@
 import { ErrorMessage } from '@hookform/error-message';
-import { joiResolver } from '@hookform/resolvers/joi';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { FormLabel, Input } from '@mui/joy';
-import Joi from 'joi';
 import { useCallback } from 'react';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
+import z from 'zod';
 
 import { NumberFieldDefinition } from 'flow-models';
 
@@ -34,7 +34,7 @@ function NodeNumberField(props: Props) {
     values: { value: render(props.fieldValue) },
     resolver:
       fd.schema != null
-        ? joiResolver(Joi.object({ value: fd.schema }))
+        ? zodResolver(z.object({ value: fd.schema }))
         : undefined,
   });
 

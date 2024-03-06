@@ -32,7 +32,6 @@
     "graphql": "^16.8.0",
     "immer": "^10.0.2",
     "integrations": "workspace:^",
-    "joi": "^17.11.0",
     "lodash": "^4.17.21",
     "papaparse": "^5.4.1",
     "posthog-js": "^1.91.1",
@@ -48,6 +47,7 @@
     "urql": "^4.0.5",
     "wonka": "^6.3.4",
     "xstate": "^5.8.0",
+    "zod": "^3.22.4",
     "zustand": "^4.4.1"
   },
   "devDependencies": {

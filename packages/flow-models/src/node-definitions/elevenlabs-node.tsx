@@ -1,6 +1,6 @@
-import Joi from 'joi';
 import { Observable } from 'rxjs';
 import invariant from 'tiny-invariant';
+import { z } from 'zod';
 
 import randomId from 'common-utils/randomId';
 import * as ElevenLabs from 'integrations/eleven-labs';
@@ -32,9 +32,9 @@ export type ElevenLabsNodeAccountLevelConfig = {
 export type ElevenLabsNodeAllLevelConfig = ElevenLabsNodeInstanceLevelConfig &
   ElevenLabsNodeAccountLevelConfig;
 
-export const ElevenLabsNodeConfigSchema = Joi.object({
-  type: Joi.string().required().valid(NodeType.ElevenLabs),
-  nodeId: Joi.string().required(),
+export const ElevenLabsNodeConfigSchema = z.object({
+  type: z.literal(NodeType.ElevenLabs),
+  nodeId: z.string(),
 });
 
 export const ELEVENLABS_NODE_DEFINITION: NodeDefinition<
@@ -51,7 +51,9 @@ export const ELEVENLABS_NODE_DEFINITION: NodeDefinition<
       placeholder: 'Enter API key here',
       helperMessage:
         "This is stored in your browser's local storage. Never uploaded.",
-      schema: Joi.string().required().label('API Token'),
+      schema: z.string().min(1, {
+        message: 'API Key is required',
+      }),
     },
   },
   instanceLevelConfigFieldDefinitions: {

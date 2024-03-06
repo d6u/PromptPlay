@@ -125,7 +125,7 @@ function createActorForStateMachines<State, FlattenActions>(
       {
         inspect(event) {
           if (event.type === '@xstate.event') {
-            console.log(`[${key}] event:`, event.event);
+            console.debug(`[${key}] event:`, event.event);
           }
         },
       },
@@ -137,7 +137,7 @@ function createActorForStateMachines<State, FlattenActions>(
       // NOTE: This method is not expose on state, but it can still be called
       __start: () => {
         actor.subscribe((snapshot) => {
-          console.log(`[${key}] state:`, JSON.stringify(snapshot.value));
+          console.debug(`[${key}] state:`, JSON.stringify(snapshot.value));
           api.setState({});
         });
 

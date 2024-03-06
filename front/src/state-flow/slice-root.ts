@@ -75,7 +75,7 @@ export const createRootSlice: RootSliceStateCreator = (set, get) => {
   // !SECTION
 
   function processEventWithEventGraph(event: AcceptedEvent) {
-    console.log('processEventWithEventGraph', event);
+    console.debug('processEventWithEventGraph', event);
 
     // console.time('processEventWithEventGraph');
     setEventGraphStateWithPatches(
