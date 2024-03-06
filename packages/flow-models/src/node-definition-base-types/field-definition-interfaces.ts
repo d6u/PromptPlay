@@ -1,5 +1,5 @@
-import Joi from 'joi';
 import { ReactNode } from 'react';
+import { ZodSchema } from 'zod';
 
 export enum FieldType {
   Text = 'Text',
@@ -39,7 +39,7 @@ export type NumberFieldDefinition<T = any> = {
   // Validation and transformation
   render?: (value: T) => number | null;
   parse?: (value: number | null) => T;
-  schema?: Joi.NumberSchema;
+  schema?: ZodSchema;
 };
 
 export type TextareaFieldDefinition = {
@@ -102,5 +102,5 @@ export type NodeAccountLevelTextFieldDefinition = {
   placeholder?: string;
   helperMessage?: ReactNode;
   // Validation
-  schema?: Joi.StringSchema;
+  schema?: ZodSchema;
 };

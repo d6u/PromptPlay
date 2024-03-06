@@ -1,4 +1,4 @@
-import Joi from 'joi';
+import z from 'zod';
 
 import { NodeType, NodeTypeEnum } from '../node-definition-base-types';
 import {
@@ -105,9 +105,8 @@ export type NodeTypeToNodeAllLevelConfigTypeMap = {
 };
 
 // ANCHOR: Update this when adding new node types
-export const NodeConfigMapSchema = Joi.object().pattern(
-  Joi.string(),
-  Joi.alternatives().try(
+export const NodeConfigMapSchema = z.record(
+  z.union([
     InputNodeConfigSchema,
     OutputNodeConfigSchema,
     ConditionNodeConfigSchema,
@@ -118,7 +117,7 @@ export const NodeConfigMapSchema = Joi.object().pattern(
     ChatgptChatCompletionNodeConfigSchema,
     HuggingFaceInferenceNodeConfigSchema,
     ElevenLabsNodeConfigSchema,
-  ),
+  ]),
 );
 
 type NodeDefinitionUnion =

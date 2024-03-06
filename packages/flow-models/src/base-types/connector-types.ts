@@ -1,4 +1,4 @@
-import Joi from 'joi';
+import z from 'zod';
 
 // ANCHOR: === Connector Types ===
 
@@ -46,15 +46,13 @@ export type FlowInputVariable = VariableCommon & {
   valueType: typeof VariableValueType.String | typeof VariableValueType.Number;
 };
 
-export const FlowInputVariableSchema = Joi.object({
-  type: Joi.string().required().valid(ConnectorType.FlowInput),
-  id: Joi.string().required(),
-  name: Joi.string().required(),
-  nodeId: Joi.string().required(),
-  index: Joi.number().required(),
-  valueType: Joi.alternatives()
-    .try(Joi.string().valid(VariableValueType.String, VariableValueType.Number))
-    .required(),
+export const FlowInputVariableSchema = z.object({
+  type: z.literal(ConnectorType.FlowInput),
+  id: z.string(),
+  name: z.string(),
+  nodeId: z.string(),
+  index: z.number(),
+  valueType: z.enum([VariableValueType.String, VariableValueType.Number]),
 });
 
 export type FlowOutputVariable = VariableCommon & {
@@ -62,15 +60,13 @@ export type FlowOutputVariable = VariableCommon & {
   valueType: typeof VariableValueType.String | typeof VariableValueType.Audio;
 };
 
-export const FlowOutputVariableSchema = Joi.object({
-  type: Joi.string().required().valid(ConnectorType.FlowOutput),
-  id: Joi.string().required(),
-  name: Joi.string().required(),
-  nodeId: Joi.string().required(),
-  index: Joi.number().required(),
-  valueType: Joi.alternatives()
-    .try(Joi.string().valid(VariableValueType.String, VariableValueType.Audio))
-    .required(),
+export const FlowOutputVariableSchema = z.object({
+  type: z.literal(ConnectorType.FlowOutput),
+  id: z.string(),
+  name: z.string(),
+  nodeId: z.string(),
+  index: z.number(),
+  valueType: z.enum([VariableValueType.String, VariableValueType.Audio]),
 });
 
 export type NodeInputVariable = VariableCommon & {
@@ -78,15 +74,13 @@ export type NodeInputVariable = VariableCommon & {
   valueType: typeof VariableValueType.Unknown;
 };
 
-export const NodeInputVariableSchema = Joi.object({
-  type: Joi.string().required().valid(ConnectorType.NodeInput),
-  id: Joi.string().required(),
-  name: Joi.string().required(),
-  nodeId: Joi.string().required(),
-  index: Joi.number().required(),
-  valueType: Joi.alternatives()
-    .try(Joi.string().valid(VariableValueType.Unknown))
-    .required(),
+export const NodeInputVariableSchema = z.object({
+  type: z.literal(ConnectorType.NodeInput),
+  id: z.string(),
+  name: z.string(),
+  nodeId: z.string(),
+  index: z.number(),
+  valueType: z.enum([VariableValueType.Unknown]),
 });
 
 export type NodeOutputVariable = VariableCommon & {
@@ -94,15 +88,13 @@ export type NodeOutputVariable = VariableCommon & {
   valueType: typeof VariableValueType.Unknown | typeof VariableValueType.Audio;
 };
 
-export const NodeOutputVariableSchema = Joi.object({
-  type: Joi.string().required().valid(ConnectorType.NodeOutput),
-  id: Joi.string().required(),
-  name: Joi.string().required(),
-  nodeId: Joi.string().required(),
-  index: Joi.number().required(),
-  valueType: Joi.alternatives()
-    .try(Joi.string().valid(VariableValueType.Unknown, VariableValueType.Audio))
-    .required(),
+export const NodeOutputVariableSchema = z.object({
+  type: z.literal(ConnectorType.NodeOutput),
+  id: z.string(),
+  name: z.string(),
+  nodeId: z.string(),
+  index: z.number(),
+  valueType: z.enum([VariableValueType.Unknown, VariableValueType.Audio]),
 });
 
 // ANCHOR: Condition Types
@@ -115,12 +107,12 @@ export type Condition = {
   expressionString: string;
 };
 
-export const ConditionSchema = Joi.object({
-  type: Joi.string().required().valid(ConnectorType.Condition),
-  id: Joi.string().required(),
-  nodeId: Joi.string().required(),
-  index: Joi.number().required(),
-  expressionString: Joi.string().required().allow('', null),
+export const ConditionSchema = z.object({
+  type: z.literal(ConnectorType.Condition),
+  id: z.string(),
+  nodeId: z.string(),
+  index: z.number(),
+  expressionString: z.string().nullable(),
 });
 
 export type ConditionTarget = {
@@ -129,26 +121,25 @@ export type ConditionTarget = {
   nodeId: string;
 };
 
-export const ConditionTargetSchema = Joi.object({
-  type: Joi.string().required().valid(ConnectorType.ConditionTarget),
-  id: Joi.string().required(),
-  nodeId: Joi.string().required(),
+export const ConditionTargetSchema = z.object({
+  type: z.literal(ConnectorType.ConditionTarget),
+  id: z.string(),
+  nodeId: z.string(),
 });
 
 // ANCHOR: === Connector Map ===
 
 export type ConnectorMap = Record<string, Connector>;
 
-export const ConnectorMapSchema = Joi.object().pattern(
-  Joi.string(),
-  Joi.alternatives().try(
+export const ConnectorMapSchema = z.record(
+  z.union([
     FlowInputVariableSchema,
     FlowOutputVariableSchema,
     NodeInputVariableSchema,
     NodeOutputVariableSchema,
     ConditionSchema,
     ConditionTargetSchema,
-  ),
+  ]),
 );
 
 // ANCHOR: === Connector Result Types ===
@@ -160,13 +151,12 @@ export type ConditionResult = {
   isConditionMatched: boolean;
 };
 
-export const ConnectorResultMapSchema = Joi.object().pattern(
-  Joi.string(),
-  Joi.alternatives().try(
-    Joi.object({
-      conditionId: Joi.string().required(),
-      isConditionMatched: Joi.boolean().required(),
+export const ConnectorResultMapSchema = z.record(
+  z.union([
+    z.object({
+      conditionId: z.string(),
+      isConditionMatched: z.boolean(),
     }),
-    Joi.any(),
-  ),
+    z.unknown(),
+  ]),
 );

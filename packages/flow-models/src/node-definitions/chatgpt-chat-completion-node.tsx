@@ -1,7 +1,7 @@
 import { A } from '@mobily/ts-belt';
-import Joi from 'joi';
 import { Observable, TimeoutError, endWith, map, retry, scan, tap } from 'rxjs';
 import invariant from 'tiny-invariant';
+import { z } from 'zod';
 
 import randomId from 'common-utils/randomId';
 import {
@@ -57,19 +57,16 @@ export enum ChatGPTChatCompletionResponseFormatType {
   JsonObject = 'json_object',
 }
 
-export const ChatgptChatCompletionNodeConfigSchema = Joi.object({
-  type: Joi.string().required().valid(NodeType.ChatGPTChatCompletionNode),
-  nodeId: Joi.string().required(),
-  model: Joi.string()
-    .required()
-    .valid(...Object.values(OpenAIChatModel)),
-  temperature: Joi.number().required(),
-  seed: Joi.number().required().allow(null),
-  responseFormatType: Joi.string()
-    .required()
-    .valid(ChatGPTChatCompletionResponseFormatType.JsonObject)
-    .allow(null),
-  stop: Joi.array().required().items(Joi.string()),
+export const ChatgptChatCompletionNodeConfigSchema = z.object({
+  type: z.literal(NodeType.ChatGPTChatCompletionNode),
+  nodeId: z.string(),
+  model: z.nativeEnum(OpenAIChatModel),
+  temperature: z.number(),
+  seed: z.number().nullable(),
+  responseFormatType: z
+    .enum([ChatGPTChatCompletionResponseFormatType.JsonObject])
+    .nullable(),
+  stop: z.array(z.string()),
 });
 
 export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
@@ -86,7 +83,9 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
       placeholder: 'Enter API key here',
       helperMessage:
         "This is stored in your browser's local storage. Never uploaded.",
-      schema: Joi.string().required().label('OpenAI API Key'),
+      schema: z.string().min(1, {
+        message: 'OpenAI API Key is required',
+      }),
     },
   },
 
@@ -105,13 +104,16 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
       min: 0,
       max: 2,
       step: 0.1,
-      schema: Joi.number().required().min(0).max(2).label('Temperature'),
+      schema: z
+        .number()
+        .min(0, { message: 'Must be between 0 and 2' })
+        .max(2, { message: 'Must be between 0 and 2' }),
     },
     seed: {
       type: FieldType.Number,
       label: 'Seed (Optional, Beta)',
       step: 1,
-      schema: Joi.number().integer().allow(null).label('Seed'),
+      schema: z.number().int({ message: 'Seed must be an integer' }).nullable(),
     },
     responseFormatType: {
       type: FieldType.Checkbox,

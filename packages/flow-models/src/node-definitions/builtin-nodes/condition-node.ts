@@ -1,8 +1,8 @@
 import { D, F, pipe } from '@mobily/ts-belt';
-import Joi from 'joi';
 import jsonata from 'jsonata';
 import { Observable } from 'rxjs';
 import invariant from 'tiny-invariant';
+import { z } from 'zod';
 
 import randomId from 'common-utils/randomId';
 
@@ -29,10 +29,10 @@ export type ConditionNodeInstanceLevelConfig = {
 
 export type ConditionNodeAllLevelConfig = ConditionNodeInstanceLevelConfig;
 
-export const ConditionNodeConfigSchema = Joi.object({
-  type: Joi.string().required().valid(NodeType.ConditionNode),
-  nodeId: Joi.string().required(),
-  stopAtTheFirstMatch: Joi.boolean().default(true),
+export const ConditionNodeConfigSchema = z.object({
+  type: z.literal(NodeType.ConditionNode),
+  nodeId: z.string(),
+  stopAtTheFirstMatch: z.boolean().default(true),
 });
 
 export const CONDITION_NODE_DEFINITION: NodeDefinition<

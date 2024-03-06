@@ -1,6 +1,6 @@
-import Joi from 'joi';
 import { Observable } from 'rxjs';
 import invariant from 'tiny-invariant';
+import { z } from 'zod';
 
 import chance from 'common-utils/chance';
 import randomId from 'common-utils/randomId';
@@ -25,9 +25,9 @@ export type OutputNodeInstanceLevelConfig = {
 
 export type OutputNodeAllLevelConfig = OutputNodeInstanceLevelConfig;
 
-export const OutputNodeConfigSchema = Joi.object({
-  type: Joi.string().required().valid(NodeType.OutputNode),
-  nodeId: Joi.string().required(),
+export const OutputNodeConfigSchema = z.object({
+  type: z.literal(NodeType.OutputNode),
+  nodeId: z.string(),
 });
 
 export const OUTPUT_NODE_DEFINITION: NodeDefinition<

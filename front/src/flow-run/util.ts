@@ -47,18 +47,18 @@ export function getNodeAllLevelConfigOrValidationErrors(
           return value;
         }
 
-        const { error } = fd.schema.validate(value);
+        const result = fd.schema.safeParse(value);
 
-        if (!error) {
+        if (result.success) {
           return value;
         }
 
-        error.details.forEach((detail) => {
+        result.error.errors.forEach((issue) => {
           validationErrors.push({
             type: ValidationErrorType.FieldLevel,
             nodeId: instanceConfig.nodeId,
             fieldKey: key,
-            message: detail.message,
+            message: issue.message,
           });
         });
 
