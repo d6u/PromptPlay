@@ -4,7 +4,6 @@ import invariant from 'tiny-invariant';
 
 import {
   Connector,
-  GraphEdge,
   ImmutableFlowNodeGraph,
   NodeConfig,
   NodeExecutionEvent,
@@ -37,18 +36,13 @@ function flowRunSingle(params: {
   const validationErrors: ValidationError[] = [];
 
   const immutableFlowGraph = new ImmutableFlowNodeGraph({
-    // TODO: Remove casting once ID types are deprecated
-    edges: params.edges as ReadonlyArray<GraphEdge>,
+    edges: params.edges,
     nodeIds: D.keys(params.nodeConfigs),
     connectors: params.connectors,
   });
 
   // Check for circular dependencies
   if (!immutableFlowGraph.canBeExecuted()) {
-    console.log(
-      'immutableFlowGraph.canBeExecuted()',
-      immutableFlowGraph.canBeExecuted(),
-    );
     validationErrors.push({
       type: ValidationErrorType.FlowLevel,
       message: CIRCULAR_DEPENDENCY_ERROR_MESSAGE,
@@ -70,6 +64,7 @@ function flowRunSingle(params: {
       errors: validationErrors,
     });
   }
+
   // !SECTION
 
   invariant(
