@@ -14,15 +14,12 @@ import invariant from 'tiny-invariant';
 
 import {
   Connector,
-  ConnectorMap,
   ConnectorResultMap,
   ConnectorType,
   CreateNodeExecutionObservableFunction,
   FlowOutputVariable,
-  GraphEdge,
   ImmutableFlowNodeGraph,
   NodeAllLevelConfigUnion,
-  NodeConfigMap,
   NodeExecutionConfig,
   NodeExecutionContext,
   NodeExecutionEvent,
@@ -32,12 +29,6 @@ import {
   NodeType,
   getNodeDefinitionForNodeTypeName,
 } from 'flow-models';
-
-export type FlowConfig = {
-  edgeList: GraphEdge[];
-  nodeConfigMap: NodeConfigMap;
-  connectorMap: ConnectorMap;
-};
 
 export const executeFlow = (params: {
   nodeConfigs: Readonly<Record<string, NodeAllLevelConfigUnion>>;
@@ -120,7 +111,7 @@ export const executeFlow = (params: {
                 )
                 .forEach((connector) => {
                   const srcConnectorId =
-                    mutableFlowGraph.getSrcConnectorIdFromDstConnectorId(
+                    mutableFlowGraph.getSrcVariableIdFromDstVariableId(
                       connector.id,
                     );
                   nodeInputValueMap[connector.id] =

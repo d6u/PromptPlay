@@ -1,5 +1,6 @@
 import { A, D, F, pipe } from '@mobily/ts-belt';
 
+import invariant from 'tiny-invariant';
 import { ConnectorType, type ConnectorMap } from '../base-types';
 
 export type GraphEdge = Readonly<{
@@ -15,10 +16,19 @@ export class ImmutableFlowNodeGraph {
     nodeIds: ReadonlyArray<string>;
     connectors: ConnectorMap;
   }) {
-    const srcConnIdToDstNodeIdsMap: Record<string, Array<string>> = {};
+    const srcConnIdToDstNodeIds: Record<string, Array<string>> = {};
     const variableDstConnIdToSrcConnId: Record<string, string> = {};
 
-    const nodeIndegrees: Record<string, number> = pipe(
+    // We need to track variable and condition indegrees separately, because
+    // one node can have multiple condition indegrees, but we only need one
+    // condition to satisfy to unblock the node.
+    const nodeVariableIndegrees: Record<string, number> = pipe(
+      params.nodeIds,
+      F.toMutable,
+      A.map((nodeId) => [nodeId, 0] as const),
+      D.fromPairs,
+    );
+    const nodeConditionIndegrees: Record<string, number> = pipe(
       params.nodeIds,
       F.toMutable,
       A.map((nodeId) => [nodeId, 0] as const),
@@ -26,77 +36,107 @@ export class ImmutableFlowNodeGraph {
     );
 
     for (const edge of params.edges) {
-      if (srcConnIdToDstNodeIdsMap[edge.sourceConnector] == null) {
-        srcConnIdToDstNodeIdsMap[edge.sourceConnector] = [];
+      if (srcConnIdToDstNodeIds[edge.sourceConnector] == null) {
+        srcConnIdToDstNodeIds[edge.sourceConnector] = [];
       }
 
-      srcConnIdToDstNodeIdsMap[edge.sourceConnector].push(edge.targetNode);
+      srcConnIdToDstNodeIds[edge.sourceConnector].push(edge.targetNode);
 
-      const srcConnector = params.connectors[edge.sourceConnector];
-      // We only need to map variable IDs.
-      // Condition IDs are not mappable because one target ID can be
-      // connected to multiple source IDs.
+      const sourceConnector = params.connectors[edge.sourceConnector];
+
+      // Source variable connector can be a FlowInput or a NodeOutput.
       if (
-        srcConnector.type === ConnectorType.FlowInput ||
-        srcConnector.type === ConnectorType.NodeOutput
+        sourceConnector.type === ConnectorType.FlowInput ||
+        sourceConnector.type === ConnectorType.NodeOutput
       ) {
-        variableDstConnIdToSrcConnId[edge.targetConnector] =
-          edge.sourceConnector;
+        // We only need to map variable IDs.
+        // Condition IDs are not mappable because one target ID can be
+        // connected to multiple source IDs.
+        variableDstConnIdToSrcConnId[edge.targetConnector] = sourceConnector.id;
+        nodeVariableIndegrees[edge.targetNode] += 1;
+      } else if (sourceConnector.type === ConnectorType.Condition) {
+        // We only need to one condition to satisfy to unblock the node.
+        nodeConditionIndegrees[edge.targetNode] = 1;
+      } else {
+        invariant(
+          false,
+          `Source connector should not have ${sourceConnector.type} type`,
+        );
       }
-
-      nodeIndegrees[edge.targetNode] += 1;
     }
 
-    this.srcConnIdToDstNodeIdsMap = srcConnIdToDstNodeIdsMap;
+    this.nodeIds = params.nodeIds;
+    this.connectors = params.connectors;
+    this.srcConnIdToDstNodeIds = srcConnIdToDstNodeIds;
     this.variableDstConnIdToSrcConnId = variableDstConnIdToSrcConnId;
-    this.nodeIndegrees = nodeIndegrees;
+    this.nodeVariableIndegrees = nodeVariableIndegrees;
+    this.nodeConditionIndegrees = nodeConditionIndegrees;
   }
 
-  private srcConnIdToDstNodeIdsMap: Readonly<
+  private nodeIds: ReadonlyArray<string>;
+  private connectors: ConnectorMap;
+  private srcConnIdToDstNodeIds: Readonly<
     Record<string, ReadonlyArray<string>>
   >;
   private variableDstConnIdToSrcConnId: Readonly<Record<string, string>>;
-  private nodeIndegrees: Readonly<Record<string, number>>;
+  private nodeVariableIndegrees: Readonly<Record<string, number>>;
+  private nodeConditionIndegrees: Readonly<Record<string, number>>;
 
   canBeExecuted(): boolean {
     // A flow can be executed when it has at least one node with indegree zero.
-    return pipe(
-      this.nodeIndegrees,
-      D.filter((n) => n === 0),
-      D.isNotEmpty,
+    return (
+      pipe(
+        this.nodeVariableIndegrees,
+        D.filter((n) => n === 0),
+        D.isNotEmpty,
+      ) &&
+      pipe(
+        this.nodeConditionIndegrees,
+        D.filter((n) => n === 0),
+        D.isNotEmpty,
+      )
     );
   }
 
   getMutableCopy(): MutableFlowNodeGraph {
     return new MutableFlowNodeGraph(
-      this.srcConnIdToDstNodeIdsMap,
+      this.nodeIds,
+      this.connectors,
+      this.srcConnIdToDstNodeIds,
       this.variableDstConnIdToSrcConnId,
-      { ...this.nodeIndegrees },
+      { ...this.nodeVariableIndegrees },
+      { ...this.nodeConditionIndegrees },
     );
   }
 }
 
 export class MutableFlowNodeGraph {
   constructor(
+    private readonly nodeIds: ReadonlyArray<string>,
+    private readonly connectors: ConnectorMap,
     private readonly srcConnIdToDstNodeIdsMap: Readonly<
       Record<string, ReadonlyArray<string>>
     >,
     private readonly variableDstConnIdToSrcConnId: Readonly<
       Record<string, string>
     >,
-    private readonly nodeIndegrees: Record<string, number>,
+    private readonly nodeVariableIndegrees: Record<string, number>,
+    private readonly nodeConditionIndegrees: Record<string, number>,
   ) {}
 
   getNodeIdListWithIndegreeZero(): string[] {
     return pipe(
-      this.nodeIndegrees,
-      D.filter((n) => n === 0),
-      D.keys,
+      this.nodeIds,
       F.toMutable,
+      A.filter(
+        (nodeId) =>
+          this.nodeVariableIndegrees[nodeId] === 0 &&
+          this.nodeConditionIndegrees[nodeId] === 0,
+      ),
     );
   }
 
-  getSrcConnectorIdFromDstConnectorId(connectorId: string): string {
+  getSrcVariableIdFromDstVariableId(connectorId: string): string {
     return this.variableDstConnIdToSrcConnId[connectorId] ?? [];
   }
 
@@ -108,13 +148,38 @@ export class MutableFlowNodeGraph {
     for (const srcConnectorId of srcConnectorIds) {
       // NOTE: `srcConnectorIds` can contain source connector that is not
       // connected by a edge.
-      this.srcConnIdToDstNodeIdsMap[srcConnectorId]?.forEach((nodeId) => {
-        this.nodeIndegrees[nodeId] -= 1;
+      const nodeIds = this.srcConnIdToDstNodeIdsMap[srcConnectorId] ?? [];
 
-        if (this.nodeIndegrees[nodeId] === 0) {
+      if (nodeIds.length === 0) {
+        continue;
+      }
+
+      const sourceConnector = this.connectors[srcConnectorId];
+
+      for (const nodeId of nodeIds) {
+        // Source variable connector can be a FlowInput or a NodeOutput.
+        if (
+          sourceConnector.type === ConnectorType.FlowInput ||
+          sourceConnector.type === ConnectorType.NodeOutput
+        ) {
+          this.nodeVariableIndegrees[nodeId] -= 1;
+        } else if (sourceConnector.type === ConnectorType.Condition) {
+          // We only need to one condition to satisfy to unblock the node.
+          this.nodeConditionIndegrees[nodeId] = 0;
+        } else {
+          invariant(
+            false,
+            `Source connector should not have ${sourceConnector.type} type`,
+          );
+        }
+
+        if (
+          this.nodeVariableIndegrees[nodeId] === 0 &&
+          this.nodeConditionIndegrees[nodeId] === 0
+        ) {
           indegreeZeroNodeIds.push(nodeId);
         }
-      });
+      }
     }
 
     return indegreeZeroNodeIds;

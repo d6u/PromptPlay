@@ -12,7 +12,6 @@ import invariant from 'tiny-invariant';
 
 import {
   Connector,
-  GraphEdge,
   ImmutableFlowNodeGraph,
   NodeConfig,
   NodeExecutionEvent,
@@ -48,8 +47,7 @@ function flowRunBatch(params: {
   const validationErrors: ValidationError[] = [];
 
   const immutableFlowGraph = new ImmutableFlowNodeGraph({
-    // TODO: Remove casting once ID types are deprecated
-    edges: params.edges as ReadonlyArray<GraphEdge>,
+    edges: params.edges,
     nodeIds: D.keys(params.nodeConfigs),
     connectors: params.connectors,
   });
@@ -77,6 +75,7 @@ function flowRunBatch(params: {
       errors: validationErrors,
     });
   }
+
   // !SECTION
 
   invariant(
