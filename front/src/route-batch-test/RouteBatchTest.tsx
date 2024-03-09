@@ -154,13 +154,14 @@ function RouteBatchTest() {
                     break;
                   }
                   case ValidationErrorType.FieldLevel: {
-                    useNodeFieldFeedbackStore.getState().setFieldFeedbacks(
-                      error.nodeId,
-                      error.fieldKey,
-                      // TODO: Allow setting multiple field level feedbacks
-                      // Currently, new error message will replace the old one.
-                      [error.message],
-                    );
+                    // TODO: Show in batch test specific UI
+                    // useNodeFieldFeedbackStore.getState().setFieldFeedbacks(
+                    //   error.nodeId,
+                    //   error.fieldKey,
+                    //   // TODO: Allow setting multiple field level feedbacks
+                    //   // Currently, new error message will replace the old one.
+                    //   [error.message],
+                    // );
                     hasError = true;
                     break;
                   }

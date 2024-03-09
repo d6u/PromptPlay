@@ -30,6 +30,7 @@ import { updateSpaceContentV3 } from './graphql/graphql';
 import {
   CanvasStateMachineEventType,
   FlowState,
+  NodeExecutionMessageType,
   NodeExecutionStatus,
   StateMachineActionsStateSlice,
 } from './types';
@@ -229,6 +230,12 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
                       type: ChangeEventType.FLOW_SINGLE_RUN_NODE_EXECUTION_STATE_CHANGE,
                       nodeId: error.nodeId,
                       state: NodeExecutionStatus.Error,
+                      newMessages: [
+                        {
+                          type: NodeExecutionMessageType.Error,
+                          content: error.message,
+                        },
+                      ],
                     });
                     break;
                   }
@@ -273,6 +280,10 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
                 type: ChangeEventType.FLOW_SINGLE_RUN_NODE_EXECUTION_STATE_CHANGE,
                 nodeId: data.nodeId,
                 state: NodeExecutionStatus.Error,
+                newMessages: data.errorMessages.map((message) => ({
+                  type: NodeExecutionMessageType.Error,
+                  content: message,
+                })),
               });
               break;
             }
