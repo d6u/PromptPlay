@@ -4,8 +4,8 @@ import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 
 import { NodeAccountLevelTextFieldDefinition, NodeTypeEnum } from 'flow-models';
 
+import { useFlowStore } from 'state-flow/flow-store';
 import { useLocalStorageStore } from 'state-root/local-storage-state';
-import { useNodeFieldFeedbackStore } from 'state-root/node-field-feedback-state';
 
 import NodeFieldHelperTextWithStatus from './NodeFieldHelperTextWithStatus';
 import NodeFieldSectionFormControl from './NodeFieldSectionFormControl';
@@ -25,7 +25,10 @@ function NodeGlobalTextField(props: Props) {
     useLocalStorageStore.use.getLocalAccountLevelNodeFieldValue();
   const setGlobalField =
     useLocalStorageStore.use.setLocalAccountLevelNodeFieldValue();
-  const getFieldFeedbacks = useNodeFieldFeedbackStore.use.getFieldFeedbacks();
+
+  const nodeAccountLevelFieldsValidationErrors = useFlowStore(
+    (s) => s.getFlowContent().nodeAccountLevelFieldsValidationErrors,
+  );
 
   const globalFieldValue = getGlobalField(props.nodeType, props.fieldKey) ?? '';
 
@@ -45,7 +48,9 @@ function NodeGlobalTextField(props: Props) {
     return null;
   }
 
-  const feedbacks = getFieldFeedbacks(props.nodeId, props.fieldKey);
+  const errorMessage = nodeAccountLevelFieldsValidationErrors[
+    `${props.nodeType}:${props.fieldKey}`
+  ] as string | undefined;
 
   return (
     <NodeFieldSectionFormControl>
@@ -57,7 +62,7 @@ function NodeGlobalTextField(props: Props) {
           <Input
             {...field}
             type="password"
-            color={feedbacks.length ? 'danger' : 'neutral'}
+            color={errorMessage != null ? 'danger' : 'neutral'}
             placeholder={fd.placeholder}
             onBlur={() => {
               field.onBlur();
@@ -71,11 +76,9 @@ function NodeGlobalTextField(props: Props) {
           />
         )}
       />
-      {feedbacks.map((feedback, i) => (
-        <NodeFieldHelperTextWithStatus key={i} color="danger">
-          {feedback}
-        </NodeFieldHelperTextWithStatus>
-      ))}
+      <NodeFieldHelperTextWithStatus color="danger">
+        {errorMessage}
+      </NodeFieldHelperTextWithStatus>
       {fd.helperMessage && <FormHelperText>{fd.helperMessage}</FormHelperText>}
     </NodeFieldSectionFormControl>
   );

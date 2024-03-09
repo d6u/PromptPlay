@@ -2,6 +2,10 @@ import { createHandler } from './event-graph-util';
 import { AddConnectorEvent, handleAddConnector } from './handle-add-connector';
 import { AddNodeEvent, handleAddNode } from './handle-add-node';
 import {
+  FlowSingleRunAccountLevelFieldErrorEvent,
+  handleFlowSingleRunAccountLevelFieldError,
+} from './handle-flow-single-run-account-level-field-error';
+import {
   FlowSingleRunNodeExecutionStateChangeEvent,
   handleFlowSingleNodeExecutionStateChange,
 } from './handle-flow-single-run-node-execution-state-change';
@@ -56,7 +60,8 @@ export type AcceptedEvent =
   | UpdateVariableValueEvent
   | FlowSingleRunStartedEvent
   | FlowSingleRunStoppedEvent
-  | FlowSingleRunNodeExecutionStateChangeEvent;
+  | FlowSingleRunNodeExecutionStateChangeEvent
+  | FlowSingleRunAccountLevelFieldErrorEvent;
 
 export const handleAllEvent = createHandler<AcceptedEvent, AcceptedEvent>(
   (state, event) => {
@@ -76,5 +81,6 @@ export const handleAllEvent = createHandler<AcceptedEvent, AcceptedEvent>(
     handleFlowSingleRunStarted,
     handleFlowSingleRunStopped,
     handleFlowSingleNodeExecutionStateChange,
+    handleFlowSingleRunAccountLevelFieldError,
   ],
 );
