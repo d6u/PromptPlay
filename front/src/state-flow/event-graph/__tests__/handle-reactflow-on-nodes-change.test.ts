@@ -131,6 +131,7 @@ test('handleReactFlowNodesChange should remove node', () => {
         },
       ],
       nodeExecutionStates: {},
+      nodeAccountLevelFieldsValidationErrors: {},
     },
   });
 });
@@ -268,6 +269,7 @@ test('handleReactFlowNodesChange should remove connector and edge connected', ()
         },
       ],
       nodeExecutionStates: {},
+      nodeAccountLevelFieldsValidationErrors: {},
     },
   });
 });
@@ -376,6 +378,7 @@ test('handleReactFlowNodesChange should remove multiple nodes', () => {
       variablesDict: {},
       variableValueLookUpDicts: [{}],
       nodeExecutionStates: {},
+      nodeAccountLevelFieldsValidationErrors: {},
     },
   });
 });

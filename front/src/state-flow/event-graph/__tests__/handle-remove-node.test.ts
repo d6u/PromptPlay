@@ -68,6 +68,7 @@ test('handleRemoveNode should remove node, nodeConfig, and connectors', () => {
       variablesDict: {},
       variableValueLookUpDicts: [{}],
       nodeExecutionStates: {},
+      nodeAccountLevelFieldsValidationErrors: {},
     },
   });
 });

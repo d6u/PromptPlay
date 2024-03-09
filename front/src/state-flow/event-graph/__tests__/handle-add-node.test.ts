@@ -52,6 +52,7 @@ test('handleAddNode should add node and nodeConfig', () => {
       variablesDict: expect.anything(),
       variableValueLookUpDicts: expect.anything(),
       nodeExecutionStates: expect.anything(),
+      nodeAccountLevelFieldsValidationErrors: expect.anything(),
     },
   });
 
