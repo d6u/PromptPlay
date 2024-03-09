@@ -22,6 +22,7 @@ import ReadonlyTextarea from 'generic-components/ReadonlyTextarea';
 import { useFlowStore } from 'state-flow/flow-store';
 import { NodeExecutionState, NodeExecutionStatus } from 'state-flow/types';
 
+import NodeExecutionMessageDisplay from 'components/node-execution-state/NodeExecutionMessageDisplay';
 import NodeBox from '../node-box/NodeBox';
 import NodeBoxHeaderSection from '../node-box/NodeBoxHeaderSection';
 import NodeBoxSection from '../node-box/NodeBoxSection';
@@ -166,9 +167,11 @@ ${javaScriptCode.split('\n').join('\n  ')}
             />
           ))}
         </NodeBoxSection>
-        <NodeErrorsContainer>
-          {props.nodeExecutionState?.messages.map((message) => message.content)}
-        </NodeErrorsContainer>
+        <NodeBoxSection>
+          {props.nodeExecutionState?.messages.map((message, index) => (
+            <NodeExecutionMessageDisplay key={index} message={message} />
+          ))}
+        </NodeBoxSection>
       </NodeBox>
     </>
   );
@@ -177,10 +180,6 @@ ${javaScriptCode.split('\n').join('\n  ')}
 const GenericContainer = styled.div`
   padding-left: 10px;
   padding-right: 10px;
-`;
-
-const NodeErrorsContainer = styled(NodeBoxSection)`
-  word-break: break-word;
 `;
 
 export default JavaScriptFunctionNode;

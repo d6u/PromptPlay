@@ -24,6 +24,7 @@ import NodeInstanceLevelFields from 'components/node-fields/NodeInstanceLevelFie
 import { useFlowStore } from 'state-flow/flow-store';
 import { NodeExecutionState, NodeExecutionStatus } from 'state-flow/types';
 
+import NodeExecutionMessageDisplay from 'components/node-execution-state/NodeExecutionMessageDisplay';
 import NodeBox from '../node-box/NodeBox';
 import NodeBoxHeaderSection from '../node-box/NodeBoxHeaderSection';
 import NodeBoxSection from '../node-box/NodeBoxSection';
@@ -156,9 +157,11 @@ function DefaultNode(props: Props) {
             />
           ))}
         </NodeBoxSection>
-        <NodeErrorsContainer>
-          {props.nodeExecutionState?.messages.map((message) => message.content)}
-        </NodeErrorsContainer>
+        <NodeBoxSection>
+          {props.nodeExecutionState?.messages.map((message, index) => (
+            <NodeExecutionMessageDisplay key={index} message={message} />
+          ))}
+        </NodeBoxSection>
       </NodeBox>
     </>
   );
@@ -166,10 +169,6 @@ function DefaultNode(props: Props) {
 
 const GenericContainer = styled.div`
   padding: 0 10px;
-`;
-
-const NodeErrorsContainer = styled(NodeBoxSection)`
-  word-break: break-word;
 `;
 
 export default DefaultNode;
