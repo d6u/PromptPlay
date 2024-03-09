@@ -16,10 +16,6 @@ export const handleFlowSingleRunStarted = createHandler<
     return event.type === ChangeEventType.FLOW_SINGLE_RUN_STARTED;
   },
   (state, event) => {
-    for (const edge of state.flowContent.edges) {
-      edge.animated = true;
-    }
-
     state.flowContent.nodeExecutionStates = D.map(
       state.flowContent.nodeConfigsDict,
       (): NodeExecutionState => ({
@@ -27,6 +23,12 @@ export const handleFlowSingleRunStarted = createHandler<
         messages: [],
       }),
     );
+
+    state.flowContent.nodeAccountLevelFieldsValidationErrors = {};
+
+    for (const edge of state.flowContent.edges) {
+      edge.animated = true;
+    }
 
     return [];
   },

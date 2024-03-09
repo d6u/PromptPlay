@@ -23,7 +23,6 @@ import { graphql } from 'gencode-gql';
 import { ContentVersion, SpaceFlowQueryQuery } from 'gencode-gql/graphql';
 import { client } from 'graphql-util/client';
 import { useLocalStorageStore } from 'state-root/local-storage-state';
-import { useNodeFieldFeedbackStore } from 'state-root/node-field-feedback-state';
 
 import { ChangeEventType } from './event-graph/event-types';
 import { updateSpaceContentV3 } from './graphql/graphql';
@@ -90,6 +89,7 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
                   edges: updatedEdges,
                   variablesDict,
                   nodeExecutionStates: {},
+                  nodeAccountLevelFieldsValidationErrors: {},
                   ...rest,
                 };
               },
@@ -192,8 +192,6 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
         draft.variableValueLookUpDicts = [flowInputVariableValueMap];
       });
 
-      useNodeFieldFeedbackStore.getState().clearFieldFeedbacks();
-
       runSingleSubscription = flowRunSingle({
         edges: edges.map((edge) => ({
           sourceNode: edge.source,
@@ -219,6 +217,12 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
             case FlowRunEventType.ValidationErrors:
               event.errors.forEach((error) => {
                 switch (error.type) {
+                  case ValidationErrorType.AccountLevel:
+                    get()._processEventWithEventGraph({
+                      type: ChangeEventType.FLOW_SINGLE_RUN_ACCOUNT_LEVEL_FIELD_ERROR,
+                      error: error,
+                    });
+                    break;
                   case ValidationErrorType.FlowLevel:
                     // TODO: Show flow level errors in UI
                     alert(error.message);
@@ -237,22 +241,6 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
                       ],
                     });
                     break;
-                  case ValidationErrorType.FieldLevel: {
-                    useNodeFieldFeedbackStore.getState().setFieldFeedbacks(
-                      error.nodeId,
-                      error.fieldKey,
-                      // TODO: Allow setting multiple field level feedbacks
-                      // Currently, new error message will replace the old one.
-                      [error.message],
-                    );
-
-                    get()._processEventWithEventGraph({
-                      type: ChangeEventType.FLOW_SINGLE_RUN_NODE_EXECUTION_STATE_CHANGE,
-                      nodeId: error.nodeId,
-                      state: NodeExecutionStatus.Error,
-                    });
-                    break;
-                  }
                 }
               });
               break;

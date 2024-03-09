@@ -7,69 +7,76 @@ import {
   getNodeDefinitionForNodeTypeName,
 } from 'flow-models';
 
-import { ValidationError, ValidationErrorType } from './event-types';
+import {
+  AccountLevelValidationError,
+  ValidationErrorType,
+} from './event-types';
 import { GetAccountLevelFieldValueFunction } from './run-param-types';
+
+type Error = {
+  nodeAllLevelConfigs?: never;
+  errors: AccountLevelValidationError[];
+};
+
+type Success = {
+  nodeAllLevelConfigs: Readonly<Record<string, NodeAllLevelConfigUnion>>;
+  errors?: never;
+};
 
 export function getNodeAllLevelConfigOrValidationErrors(
   nodeConfigs: Readonly<Record<string, NodeConfig>>,
   getAccountLevelFieldValue: GetAccountLevelFieldValueFunction,
-):
-  | {
-      nodeAllLevelConfigs?: never;
-      errors: ValidationError[];
-    }
-  | {
-      nodeAllLevelConfigs: Readonly<Record<string, NodeAllLevelConfigUnion>>;
-      errors?: never;
-    } {
-  const validationErrors: ValidationError[] = [];
+): Error | Success {
+  const validationErrors: AccountLevelValidationError[] = [];
 
-  const nodeAllLevelConfigs: Readonly<Record<string, NodeAllLevelConfigUnion>> =
-    D.mapWithKey(nodeConfigs, (key, instanceConfig) => {
-      const nodeDefinition = getNodeDefinitionForNodeTypeName(
-        instanceConfig.type,
-      );
+  const nodeAllLevelConfigs = D.map(nodeConfigs, (nodeConfig) => {
+    const nodeDefinition = getNodeDefinitionForNodeTypeName(nodeConfig.type);
 
-      const afds = nodeDefinition.accountLevelConfigFieldDefinitions as
+    const accountLevelConfigFieldDefinitions =
+      nodeDefinition.accountLevelConfigFieldDefinitions as
         | Record<string, NodeAccountLevelTextFieldDefinition>
         | undefined;
 
-      // TODO: Add validation to ensure typesafety, this cannot be done
-      // in TypeScript due to the dynamic types used.
-      if (!afds) {
-        return instanceConfig as NodeAllLevelConfigUnion;
-      }
+    // TODO: Add validation to ensure typesafety, this cannot be done
+    // in TypeScript due to the dynamic types used.
+    if (!accountLevelConfigFieldDefinitions) {
+      return nodeConfig as NodeAllLevelConfigUnion;
+    }
 
-      const partialConfig = D.mapWithKey(afds, (key, fd) => {
-        const value = getAccountLevelFieldValue(instanceConfig.type, key);
+    const accountLevelConfig = D.mapWithKey(
+      accountLevelConfigFieldDefinitions,
+      (fieldKey, accountLevelConfigFieldDefinition) => {
+        const fieldValue = getAccountLevelFieldValue(nodeConfig.type, fieldKey);
 
-        if (!fd.schema) {
-          return value;
+        if (!accountLevelConfigFieldDefinition.schema) {
+          return fieldValue;
         }
 
-        const result = fd.schema.safeParse(value);
+        const result =
+          accountLevelConfigFieldDefinition.schema.safeParse(fieldValue);
 
         if (result.success) {
-          return value;
+          return fieldValue;
         }
 
         result.error.errors.forEach((issue) => {
           validationErrors.push({
-            type: ValidationErrorType.FieldLevel,
-            nodeId: instanceConfig.nodeId,
-            fieldKey: key,
+            type: ValidationErrorType.AccountLevel,
+            nodeType: nodeConfig.type,
+            fieldKey: fieldKey,
             message: issue.message,
           });
         });
 
         return null;
-      });
+      },
+    );
 
-      return {
-        ...instanceConfig,
-        ...partialConfig,
-      } as NodeAllLevelConfigUnion;
-    });
+    return {
+      ...nodeConfig,
+      ...accountLevelConfig,
+    } as NodeAllLevelConfigUnion;
+  });
 
   if (validationErrors.length) {
     return { errors: validationErrors };

@@ -24,7 +24,6 @@ import {
   RowIndex,
 } from 'state-flow/types';
 import { useLocalStorageStore } from 'state-root/local-storage-state';
-import { useNodeFieldFeedbackStore } from 'state-root/node-field-feedback-state';
 
 import EvaluationSectionImportCSV from './components/EvaluationSectionImportCSV';
 import EvaluationSectionConfigCSV from './components/evaluation-section-config-csv/EvaluationSectionConfigCSV';
@@ -113,9 +112,6 @@ function RouteBatchTest() {
       /* replace */ true,
     );
 
-    // Clear field feedbacks
-    useNodeFieldFeedbackStore.getState().clearFieldFeedbacks();
-
     runningSubscriptionRef.current = flowRunBatch({
       edges: edges.map((edge) => ({
         sourceNode: edge.source,
@@ -141,30 +137,22 @@ function RouteBatchTest() {
           switch (event.type) {
             case FlowBatchRunEventType.ValidationErrors: {
               let hasError = false;
+
               event.errors.forEach((error) => {
                 switch (error.type) {
-                  case ValidationErrorType.FlowLevel: {
-                    // TODO: Show flow level errors in UI
-                    alert(error.message);
-                    break;
-                  }
-                  case ValidationErrorType.NodeLevel: {
-                    // TODO: Show node level errors in UI
-                    hasError = true;
-                    break;
-                  }
-                  case ValidationErrorType.FieldLevel: {
+                  case ValidationErrorType.AccountLevel:
                     // TODO: Show in batch test specific UI
-                    // useNodeFieldFeedbackStore.getState().setFieldFeedbacks(
-                    //   error.nodeId,
-                    //   error.fieldKey,
-                    //   // TODO: Allow setting multiple field level feedbacks
-                    //   // Currently, new error message will replace the old one.
-                    //   [error.message],
-                    // );
                     hasError = true;
                     break;
-                  }
+                  case ValidationErrorType.FlowLevel:
+                    // TODO: Show in batch test specific UI
+                    alert(error.message);
+                    hasError = true;
+                    break;
+                  case ValidationErrorType.NodeLevel:
+                    // TODO: Show in batch test specific UI
+                    hasError = true;
+                    break;
                 }
               });
 
@@ -176,7 +164,7 @@ function RouteBatchTest() {
               }
               break;
             }
-            case FlowBatchRunEventType.FlowStart: {
+            case FlowBatchRunEventType.FlowStart:
               setRunMetadataTable((prev) => {
                 return produce(prev, (draft) => {
                   const row = draft[event.rowIndex as RowIndex];
@@ -189,8 +177,7 @@ function RouteBatchTest() {
                 });
               });
               break;
-            }
-            case FlowBatchRunEventType.FlowFinish: {
+            case FlowBatchRunEventType.FlowFinish:
               setRunMetadataTable((prev) => {
                 return produce(prev, (draft) => {
                   const row = draft[event.rowIndex as RowIndex];
@@ -209,8 +196,7 @@ function RouteBatchTest() {
                 });
               });
               break;
-            }
-            case FlowBatchRunEventType.FlowErrors: {
+            case FlowBatchRunEventType.FlowErrors:
               setRunMetadataTable((prev) => {
                 return produce(prev, (draft) => {
                   const row = draft[event.rowIndex as RowIndex];
@@ -224,8 +210,7 @@ function RouteBatchTest() {
                 });
               });
               break;
-            }
-            case FlowBatchRunEventType.FlowVariableValues: {
+            case FlowBatchRunEventType.FlowVariableValues:
               setGeneratedResult((prev) => {
                 return produce(prev, (draft) => {
                   const row = draft[event.rowIndex as RowIndex];
@@ -238,7 +223,6 @@ function RouteBatchTest() {
                 });
               });
               break;
-            }
           }
         }),
         debounceTime(500),

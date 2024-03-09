@@ -1,10 +1,29 @@
+import { NodeTypeEnum } from 'flow-models';
+
+// ANCHOR: Event Types
+
+export enum FlowRunEventType {
+  ValidationErrors = 'ValidationErrors',
+  NodeStart = 'NodeStart',
+  NodeFinish = 'Finish',
+  NodeErrors = 'Errors',
+  VariableValues = 'VariableValues',
+}
+
 // ANCHOR: Validation Error
 
 export enum ValidationErrorType {
+  AccountLevel = 'AccountLevel',
   FlowLevel = 'FlowLevel',
   NodeLevel = 'NodeLevel',
-  FieldLevel = 'FieldLevel',
 }
+
+export type AccountLevelValidationError = {
+  type: ValidationErrorType.AccountLevel;
+  nodeType: NodeTypeEnum;
+  fieldKey: string;
+  message: string;
+};
 
 export type FlowLevelValidationError = {
   type: ValidationErrorType.FlowLevel;
@@ -17,32 +36,17 @@ export type NodeLevelValidationError = {
   message: string;
 };
 
-export type FieldLevelValidationError = {
-  type: ValidationErrorType.FieldLevel;
-  nodeId: string;
-  fieldKey: string;
-  message: string;
-};
-
 export type ValidationError =
+  | AccountLevelValidationError
   | FlowLevelValidationError
-  | NodeLevelValidationError
-  | FieldLevelValidationError;
-
-// ANCHOR: Flow Run Event
-
-export enum FlowRunEventType {
-  ValidationErrors = 'ValidationErrors',
-  NodeStart = 'NodeStart',
-  NodeFinish = 'Finish',
-  NodeErrors = 'Errors',
-  VariableValues = 'VariableValues',
-}
+  | NodeLevelValidationError;
 
 export type FlowRunValidationErrorsEvent = {
   type: FlowRunEventType.ValidationErrors;
   errors: ReadonlyArray<ValidationError>;
 };
+
+// ANCHOR: Other
 
 export type FlowRunNodeStartEvent = {
   type: FlowRunEventType.NodeStart;
@@ -64,6 +68,8 @@ export type FlowRunNodeErrorsEvent = {
   nodeId: string;
   errorMessages: ReadonlyArray<string>;
 };
+
+// ANCHOR: Union Event
 
 export type FlowRunEvent =
   | FlowRunValidationErrorsEvent

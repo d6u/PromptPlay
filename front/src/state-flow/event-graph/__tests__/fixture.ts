@@ -8,5 +8,6 @@ export const MOCK_STATE: State = {
     variablesDict: {},
     variableValueLookUpDicts: [{}],
     nodeExecutionStates: {},
+    nodeAccountLevelFieldsValidationErrors: {},
   },
 };

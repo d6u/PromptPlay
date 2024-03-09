@@ -123,6 +123,7 @@ export type FlowContentState = {
   variablesDict: ConnectorMap;
   variableValueLookUpDicts: ConnectorResultMap[];
   nodeExecutionStates: NodeExecutionStateRecords;
+  nodeAccountLevelFieldsValidationErrors: Record<string, string>;
 };
 
 export type FlowProps = {
