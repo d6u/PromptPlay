@@ -1,7 +1,6 @@
 import { createLens } from '@dhmk/zustand-lens';
 import { D, pipe } from '@mobily/ts-belt';
 import deepEqual from 'deep-equal';
-import { produce } from 'immer';
 import posthog from 'posthog-js';
 import { Subscription, from, map } from 'rxjs';
 import invariant from 'tiny-invariant';
@@ -31,6 +30,7 @@ import { updateSpaceContentV3 } from './graphql/graphql';
 import {
   CanvasStateMachineEventType,
   FlowState,
+  NodeExecutionStatus,
   StateMachineActionsStateSlice,
 } from './types';
 import { createWithImmer } from './util/lens-util';
@@ -62,27 +62,6 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
   let initializationSubscription: Subscription | null = null;
   let prevSyncedData: V3FlowContent | null = null;
   let runSingleSubscription: Subscription | null = null;
-  // !SECTION
-
-  // SECTION: Private functions
-  function resetEdgeAndMetadataBaseOnFlowRunSingleExecutingState(
-    isRunning: boolean,
-  ) {
-    let nodeMetadataDict = get().nodeMetadataDict;
-
-    if (!isRunning) {
-      // It is important to reset node metadata, because node's running status
-      // doesn't depend on global isRunning state.
-      nodeMetadataDict = produce(nodeMetadataDict, (draft) => {
-        for (const nodeMetadata of Object.values(draft)) {
-          invariant(nodeMetadata != null);
-          nodeMetadata.isRunning = false;
-        }
-      });
-    }
-
-    set({ nodeMetadataDict });
-  }
   // !SECTION
 
   return {
@@ -203,14 +182,9 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
       // NOTE: Stop previous run if there is one
       runSingleSubscription?.unsubscribe();
 
-      // TODO: Give a default for every node instead of empty object
-      set({ nodeMetadataDict: {} });
-
       get()._processEventWithEventGraph({
         type: ChangeEventType.FLOW_SINGLE_RUN_STARTED,
       });
-
-      resetEdgeAndMetadataBaseOnFlowRunSingleExecutingState(true);
 
       // Reset variable values except for flow inputs values
       setFlowContentProduce((draft) => {
@@ -251,9 +225,10 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
                   }
                   case ValidationErrorType.NodeLevel: {
                     // TODO: Show node level errors in UI
-                    get().updateNodeAugment(error.nodeId, {
-                      isRunning: false,
-                      hasError: true,
+                    get()._processEventWithEventGraph({
+                      type: ChangeEventType.FLOW_SINGLE_RUN_NODE_EXECUTION_STATE_CHANGE,
+                      nodeId: error.nodeId,
+                      state: NodeExecutionStatus.Error,
                     });
                     break;
                   }
@@ -266,9 +241,10 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
                       [error.message],
                     );
 
-                    get().updateNodeAugment(error.nodeId, {
-                      isRunning: false,
-                      hasError: true,
+                    get()._processEventWithEventGraph({
+                      type: ChangeEventType.FLOW_SINGLE_RUN_NODE_EXECUTION_STATE_CHANGE,
+                      nodeId: error.nodeId,
+                      state: NodeExecutionStatus.Error,
                     });
                     break;
                   }
@@ -277,24 +253,26 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
               break;
             }
             case FlowRunEventType.NodeStart: {
-              const { nodeId } = data;
-              get().updateNodeAugment(nodeId, {
-                isRunning: true,
+              get()._processEventWithEventGraph({
+                type: ChangeEventType.FLOW_SINGLE_RUN_NODE_EXECUTION_STATE_CHANGE,
+                nodeId: data.nodeId,
+                state: NodeExecutionStatus.Executing,
               });
               break;
             }
             case FlowRunEventType.NodeFinish: {
-              const { nodeId } = data;
-              get().updateNodeAugment(nodeId, {
-                isRunning: false,
+              get()._processEventWithEventGraph({
+                type: ChangeEventType.FLOW_SINGLE_RUN_NODE_EXECUTION_STATE_CHANGE,
+                nodeId: data.nodeId,
+                state: NodeExecutionStatus.Success,
               });
               break;
             }
             case FlowRunEventType.NodeErrors: {
-              const { nodeId } = data;
-              get().updateNodeAugment(nodeId, {
-                isRunning: false,
-                hasError: true,
+              get()._processEventWithEventGraph({
+                type: ChangeEventType.FLOW_SINGLE_RUN_NODE_EXECUTION_STATE_CHANGE,
+                nodeId: data.nodeId,
+                state: NodeExecutionStatus.Error,
               });
               break;
             }
@@ -322,8 +300,6 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
           get()._processEventWithEventGraph({
             type: ChangeEventType.FLOW_SINGLE_RUN_STOPPED,
           });
-
-          resetEdgeAndMetadataBaseOnFlowRunSingleExecutingState(false);
         },
         complete() {
           posthog.capture('Finished Simple Evaluation', {
@@ -337,8 +313,6 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
           get()._processEventWithEventGraph({
             type: ChangeEventType.FLOW_SINGLE_RUN_STOPPED,
           });
-
-          resetEdgeAndMetadataBaseOnFlowRunSingleExecutingState(false);
         },
       });
     },
@@ -346,8 +320,6 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
     _cancelFlowSingleRunIfInProgress() {
       runSingleSubscription?.unsubscribe();
       runSingleSubscription = null;
-
-      resetEdgeAndMetadataBaseOnFlowRunSingleExecutingState(false);
 
       get()._processEventWithEventGraph({
         type: ChangeEventType.FLOW_SINGLE_RUN_STOPPED,

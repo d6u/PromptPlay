@@ -22,7 +22,7 @@ import NodeVariablesEditableList from 'components/node-connector/NodeVariablesEd
 import NodeAccountLevelFields from 'components/node-fields/NodeAccountLevelFields';
 import NodeInstanceLevelFields from 'components/node-fields/NodeInstanceLevelFields';
 import { useFlowStore } from 'state-flow/flow-store';
-import { NodeMetadata } from 'state-flow/types';
+import { NodeExecutionState, NodeExecutionStatus } from 'state-flow/types';
 
 import NodeBox from '../node-box/NodeBox';
 import NodeBoxHeaderSection from '../node-box/NodeBoxHeaderSection';
@@ -50,7 +50,7 @@ type Props = {
   outputVariables: NodeOutputVariable[];
   conditionTarget: ConditionTarget;
   // Node Level but not save to server
-  nodeMetadata: Option<NodeMetadata>;
+  nodeExecuteState: Option<NodeExecutionState>;
 };
 
 function DefaultNode(props: Props) {
@@ -88,8 +88,10 @@ function DefaultNode(props: Props) {
       />
       <NodeBox
         nodeType={props.nodeConfig.type}
-        isRunning={props.nodeMetadata?.isRunning}
-        hasError={props.nodeMetadata?.hasError}
+        isRunning={
+          props.nodeExecuteState?.status === NodeExecutionStatus.Executing
+        }
+        hasError={props.nodeExecuteState?.status === NodeExecutionStatus.Error}
       >
         <NodeBoxHeaderSection
           title={nodeDefinition.label}

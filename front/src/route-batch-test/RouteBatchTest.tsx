@@ -60,8 +60,6 @@ function RouteBatchTest() {
   );
   const selectedBatchTestTab = useFlowStore((s) => s.selectedBatchTestTab);
 
-  const updateNodeAugment = useFlowStore((s) => s.updateNodeAugment);
-
   // !SECTION
 
   const csvData = useMemo<CSVData>(() => {
@@ -152,11 +150,6 @@ function RouteBatchTest() {
                   }
                   case ValidationErrorType.NodeLevel: {
                     // TODO: Show node level errors in UI
-                    updateNodeAugment(error.nodeId, {
-                      isRunning: false,
-                      hasError: true,
-                    });
-
                     hasError = true;
                     break;
                   }
@@ -168,12 +161,6 @@ function RouteBatchTest() {
                       // Currently, new error message will replace the old one.
                       [error.message],
                     );
-
-                    updateNodeAugment(error.nodeId, {
-                      isRunning: false,
-                      hasError: true,
-                    });
-
                     hasError = true;
                     break;
                   }
@@ -289,7 +276,6 @@ function RouteBatchTest() {
     concurrencyLimit,
     setGeneratedResult,
     setRunMetadataTable,
-    updateNodeAugment,
     savePresetConfigContentIfSelected,
   ]);
 

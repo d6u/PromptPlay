@@ -26,7 +26,9 @@ function FlowCanvasNode() {
 
   const nodeConfigs = useFlowStore((s) => s.getFlowContent().nodeConfigsDict);
   const variablesDict = useFlowStore((s) => s.getFlowContent().variablesDict);
-  const nodeMetadataDict = useFlowStore((s) => s.nodeMetadataDict);
+  const nodeExecuteStates = useFlowStore(
+    (s) => s.getFlowContent().nodeExecuteStates,
+  );
 
   let nodeConfig: Option<NodeConfig> = null;
 
@@ -57,12 +59,12 @@ function FlowCanvasNode() {
     return selectConditionTarget(nodeId, variablesDict);
   }, [nodeId, variablesDict]);
 
-  const nodeMetadata = useMemo(() => {
+  const nodeExecuteState = useMemo(() => {
     if (nodeId == null) {
       return null;
     }
-    return nodeMetadataDict[nodeId];
-  }, [nodeId, nodeMetadataDict]);
+    return nodeExecuteStates[nodeId];
+  }, [nodeId, nodeExecuteStates]);
 
   if (nodeId == null || nodeConfig == null) {
     return null;
@@ -95,7 +97,7 @@ function FlowCanvasNode() {
           nodeConfig={nodeConfig}
           inputVariables={inputVariables}
           conditionTarget={conditionTarget}
-          nodeMetadata={nodeMetadata}
+          nodeExecuteState={nodeExecuteState}
         />
       );
     case NodeType.JavaScriptFunctionNode:
@@ -109,7 +111,7 @@ function FlowCanvasNode() {
           inputVariables={inputVariables}
           outputVariables={outputVariables}
           conditionTarget={conditionTarget}
-          nodeMetadata={nodeMetadata}
+          nodeExecuteState={nodeExecuteState}
         />
       );
     default:
@@ -123,7 +125,7 @@ function FlowCanvasNode() {
           inputVariables={inputVariables}
           outputVariables={outputVariables}
           conditionTarget={conditionTarget}
-          nodeMetadata={nodeMetadata}
+          nodeExecuteState={nodeExecuteState}
         />
       );
   }

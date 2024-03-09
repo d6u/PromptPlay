@@ -1,5 +1,4 @@
 import { createLens } from '@dhmk/zustand-lens';
-import { D } from '@mobily/ts-belt';
 import posthog from 'posthog-js';
 import { EdgeChange, NodeChange, OnConnectStartParams } from 'reactflow';
 import invariant from 'tiny-invariant';
@@ -29,7 +28,6 @@ import {
   FlowActions,
   FlowProps,
   FlowState,
-  NodeMetadata,
 } from './types';
 import { createWithImmer } from './util/lens-util';
 import { actorFor } from './util/state-machine-middleware';
@@ -46,7 +44,6 @@ const RESETABLE_INITIAL_STATE: Partial<FlowState> = {
       nodeExecuteStates: {},
     },
   },
-  nodeMetadataDict: {},
   canvasLeftPaneIsOpen: false,
   canvasRightPaneType: CanvasRightPanelType.Off,
   canvasLeftPaneSelectedNodeId: null,
@@ -133,7 +130,6 @@ export const createRootSlice: RootSliceStateCreator = (set, get) => {
         nodeExecuteStates: {},
       },
     },
-    nodeMetadataDict: {},
     canvasLeftPaneIsOpen: false,
     canvasLeftPaneSelectedNodeId: null,
     canvasRightPaneType: CanvasRightPanelType.Off,
@@ -250,25 +246,6 @@ export const createRootSlice: RootSliceStateCreator = (set, get) => {
       });
     },
     // !SECTION: Event Graph
-
-    updateNodeAugment(nodeId: string, change: Partial<NodeMetadata>) {
-      const prevNodeMetadataDict = get().nodeMetadataDict;
-      let nodeMetadata = prevNodeMetadataDict[nodeId];
-
-      if (nodeMetadata) {
-        nodeMetadata = { ...nodeMetadata, ...change };
-      } else {
-        nodeMetadata = { isRunning: false, hasError: false, ...change };
-      }
-
-      const nodeMetadataDict = D.set(
-        prevNodeMetadataDict,
-        nodeId,
-        nodeMetadata,
-      );
-
-      set({ nodeMetadataDict });
-    },
 
     onEdgeConnectStart(params: OnConnectStartParams): void {
       const { nodeId, handleId, handleType } = params;

@@ -2,6 +2,10 @@ import { createHandler } from './event-graph-util';
 import { AddConnectorEvent, handleAddConnector } from './handle-add-connector';
 import { AddNodeEvent, handleAddNode } from './handle-add-node';
 import {
+  FlowSingleRunNodeExecutionStateChangeEvent,
+  handleFlowSingleNodeExecutionStateChange,
+} from './handle-flow-single-run-error';
+import {
   FlowSingleRunStartedEvent,
   handleFlowSingleRunStarted,
 } from './handle-flow-single-run-started';
@@ -51,7 +55,8 @@ export type AcceptedEvent =
   | UpdateConnectorsEvent
   | UpdateVariableValueEvent
   | FlowSingleRunStartedEvent
-  | FlowSingleRunStoppedEvent;
+  | FlowSingleRunStoppedEvent
+  | FlowSingleRunNodeExecutionStateChangeEvent;
 
 export const handleAllEvent = createHandler<AcceptedEvent, AcceptedEvent>(
   (state, event) => {
@@ -70,5 +75,6 @@ export const handleAllEvent = createHandler<AcceptedEvent, AcceptedEvent>(
     handleUpdateVariableValue,
     handleFlowSingleRunStarted,
     handleFlowSingleRunStopped,
+    handleFlowSingleNodeExecutionStateChange,
   ],
 );

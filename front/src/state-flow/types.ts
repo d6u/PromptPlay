@@ -15,7 +15,6 @@ import {
   NodeConfig,
   NodeConfigMap,
   NodeTypeEnum,
-  V3FlowContent,
   V3LocalEdge,
 } from 'flow-models';
 
@@ -27,20 +26,31 @@ import { ActorFor } from './util/state-machine-middleware';
 import { StateObjectToParameterizedObject } from './util/state-machine-util';
 import { VariableTypeToVariableConfigTypeMap } from './util/state-utils';
 
-export type NodeMetadataDict = Record<string, NodeMetadata | undefined>;
+export enum NodeExecutionStatus {
+  Pending = 'Pending',
+  Executing = 'Executing',
+  Error = 'Error',
+  Success = 'Success',
+  Canceled = 'Canceled',
+  Skipped = 'Skipped',
+}
 
-export type NodeExecuteState = {
-  nodeStatus:
-    | 'pending'
-    | 'executing'
-    | 'error'
-    | 'success'
-    | 'canceled'
-    | 'skipped';
-  nodeMessages: { type: 'error' | 'info'; message: string }[];
+export enum NodeExecutionMessageType {
+  Error = 'Error',
+  Info = 'Info',
+}
+
+export type NodeExecutionMessage = {
+  type: NodeExecutionMessageType;
+  content: string;
 };
 
-export type NodeExecuteStates = Record<string, NodeExecuteState>;
+export type NodeExecutionState = {
+  status: NodeExecutionStatus;
+  messages: NodeExecutionMessage[];
+};
+
+export type NodeExecuteStates = Record<string, NodeExecutionState>;
 
 export type NodeMetadata = {
   isRunning: boolean;
@@ -130,7 +140,6 @@ export type FlowProps = {
   canvas: {
     flowContent: FlowContentState;
   };
-  nodeMetadataDict: NodeMetadataDict;
   canvasLeftPaneIsOpen: boolean;
   canvasLeftPaneSelectedNodeId: string | null;
   canvasRightPaneType: CanvasRightPanelType;
@@ -155,7 +164,6 @@ export type FlowActions = {
   setCanvasLeftPaneIsOpen(isOpen: boolean): void;
   setCanvasLeftPaneSelectedNodeId(nodeId: string | null): void;
   setCanvasRightPaneType(type: CanvasRightPanelType): void;
-  updateNodeAugment(nodeId: string, change: Partial<NodeMetadata>): void;
   onEdgeConnectStart(params: OnConnectStartParams): void;
   onEdgeConnectStop(): void;
 
@@ -190,7 +198,7 @@ export type FlowActions = {
   // !SECTION
 
   // Getter
-  getFlowContent: Getter<V3FlowContent>;
+  getFlowContent: Getter<FlowContentState>;
   getDefaultVariableValueLookUpDict(): ConnectorResultMap;
 
   // Flow run
