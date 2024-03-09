@@ -21,6 +21,7 @@ import {
 
 import { RunMetadata } from 'flow-run/run-types';
 
+import { AcceptedEvent } from './event-graph/handle-all-event';
 import { BatchTestActions, BatchTestState } from './lenses/batch-test-lens';
 import { ActorFor } from './util/state-machine-middleware';
 import { StateObjectToParameterizedObject } from './util/state-machine-util';
@@ -147,6 +148,8 @@ export type FlowProps = {
 };
 
 export type FlowActions = {
+  _processEventWithEventGraph(event: AcceptedEvent): void;
+
   enterFlowRoute(spaceId: string): void;
   leaveFlowRoute(): void;
 

@@ -26,6 +26,7 @@ import { client } from 'graphql-util/client';
 import { useLocalStorageStore } from 'state-root/local-storage-state';
 import { useNodeFieldFeedbackStore } from 'state-root/node-field-feedback-state';
 
+import { ChangeEventType } from './event-graph/event-types';
 import { updateSpaceContentV3 } from './graphql/graphql';
 import {
   CanvasStateMachineEventType,
@@ -67,13 +68,13 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
   function resetEdgeAndMetadataBaseOnFlowRunSingleExecutingState(
     isRunning: boolean,
   ) {
-    setFlowContentProduce((draft) => {
-      for (const edge of draft.edges) {
-        if (edge.animated !== isRunning) {
-          edge.animated = isRunning;
-        }
-      }
-    });
+    // setFlowContentProduce((draft) => {
+    //   for (const edge of draft.edges) {
+    //     if (edge.animated !== isRunning) {
+    //       edge.animated = isRunning;
+    //     }
+    //   }
+    // });
 
     let nodeMetadataDict = get().nodeMetadataDict;
 
@@ -212,6 +213,10 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
 
       // TODO: Give a default for every node instead of empty object
       set({ nodeMetadataDict: {} });
+
+      get()._processEventWithEventGraph({
+        type: ChangeEventType.START_EXECUTING_FLOW_SINGLE_RUN,
+      });
 
       resetEdgeAndMetadataBaseOnFlowRunSingleExecutingState(true);
 

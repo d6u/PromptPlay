@@ -19,6 +19,10 @@ import {
   handleRemoveVariable,
 } from './handle-remove-variable';
 import {
+  StartExecutingFlowSingleRunEvent,
+  handleStartExecutingFlowSingleRun,
+} from './handle-start-executing-flow-single-run';
+import {
   UpdateConnectorsEvent,
   handleUpdateConnectors,
 } from './handle-update-connectors';
@@ -41,7 +45,8 @@ export type AcceptedEvent =
   | AddConnectorEvent
   | RemoveVariableEvent
   | UpdateConnectorsEvent
-  | UpdateVariableValueEvent;
+  | UpdateVariableValueEvent
+  | StartExecutingFlowSingleRunEvent;
 
 export const handleAllEvent = createHandler<AcceptedEvent, AcceptedEvent>(
   (state, event) => {
@@ -58,5 +63,6 @@ export const handleAllEvent = createHandler<AcceptedEvent, AcceptedEvent>(
     handleRemoveVariable,
     handleUpdateConnectors,
     handleUpdateVariableValue,
+    handleStartExecutingFlowSingleRun,
   ],
 );
