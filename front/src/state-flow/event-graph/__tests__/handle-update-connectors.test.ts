@@ -13,6 +13,7 @@ test('handleUpdateVariable should remove variable', () => {
   const prevState: State = {
     ...MOCK_STATE,
     flowContent: {
+      ...MOCK_STATE.flowContent,
       nodes: [
         {
           id: 'Z6dPf',

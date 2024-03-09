@@ -13,6 +13,7 @@ test('handleEdgeReplacedEvent ignores old and new source variables with the same
   const prevState: State = {
     ...MOCK_STATE,
     flowContent: {
+      ...MOCK_STATE.flowContent,
       nodes: [
         {
           id: 'ZUhTs',

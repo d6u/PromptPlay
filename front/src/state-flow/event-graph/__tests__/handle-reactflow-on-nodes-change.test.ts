@@ -14,6 +14,7 @@ test('handleReactFlowNodesChange should remove node', () => {
   const prevState: State = {
     ...MOCK_STATE,
     flowContent: {
+      ...MOCK_STATE.flowContent,
       nodes: [
         {
           id: 'Is8Op',
@@ -138,6 +139,7 @@ test('handleReactFlowNodesChange should remove connector and edge connected', ()
   const prevState: State = {
     ...MOCK_STATE,
     flowContent: {
+      ...MOCK_STATE.flowContent,
       nodes: [
         {
           id: 'HIbCf',
@@ -273,6 +275,7 @@ test('handleReactFlowNodesChange should remove multiple nodes', () => {
   const prevState: State = {
     ...MOCK_STATE,
     flowContent: {
+      ...MOCK_STATE.flowContent,
       nodes: [
         {
           id: 'Is8Op',

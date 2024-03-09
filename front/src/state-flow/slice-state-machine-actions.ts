@@ -116,6 +116,7 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
                   nodes: updatedNodes,
                   edges: updatedEdges,
                   variablesDict,
+                  nodeStates: {},
                   ...rest,
                 };
               },
@@ -155,6 +156,8 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
       // only when `prevSyncedData != null`
       const hasChange =
         prevSyncedData != null && !deepEqual(prevSyncedData, nextSyncedData);
+
+      console.log('_syncFlowContent', hasChange, nextSyncedData);
 
       prevSyncedData = nextSyncedData;
 

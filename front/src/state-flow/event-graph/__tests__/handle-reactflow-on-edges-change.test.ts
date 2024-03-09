@@ -14,6 +14,7 @@ test('handleReactFlowEdgesChange should select edge', () => {
   const prevState: State = {
     ...MOCK_STATE,
     flowContent: {
+      ...MOCK_STATE.flowContent,
       nodes: [
         {
           id: 'Is8Op',
@@ -127,6 +128,7 @@ test('handleReactFlowEdgesChange should remove edge', () => {
   const prevState: State = {
     ...MOCK_STATE,
     flowContent: {
+      ...MOCK_STATE.flowContent,
       nodes: [
         {
           id: 'Is8Op',
@@ -228,6 +230,7 @@ test('handleReactFlowEdgesChange should remove multiple edges', () => {
   const prevState: State = {
     ...MOCK_STATE,
     flowContent: {
+      ...MOCK_STATE.flowContent,
       nodes: [
         {
           id: 'HIbCf',
@@ -411,6 +414,7 @@ test('handleReactFlowEdgesChange should remove edge and reset the value type of 
   const prevState: State = {
     ...MOCK_STATE,
     flowContent: {
+      ...MOCK_STATE.flowContent,
       nodes: [
         {
           id: 'Is8Op',

@@ -14,6 +14,7 @@ test('handleRemoveNode should remove node, nodeConfig, and connectors', () => {
   const prevState: State = {
     ...MOCK_STATE,
     flowContent: {
+      ...MOCK_STATE.flowContent,
       nodes: [
         {
           id: '8e2At',
