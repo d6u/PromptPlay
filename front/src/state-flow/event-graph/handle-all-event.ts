@@ -2,6 +2,14 @@ import { createHandler } from './event-graph-util';
 import { AddConnectorEvent, handleAddConnector } from './handle-add-connector';
 import { AddNodeEvent, handleAddNode } from './handle-add-node';
 import {
+  FlowSingleRunStartedEvent,
+  handleFlowSingleRunStarted,
+} from './handle-flow-single-run-started';
+import {
+  FlowSingleRunStoppedEvent,
+  handleFlowSingleRunStopped,
+} from './handle-flow-single-run-stopped';
+import {
   ReactFlowConnectEvent,
   handleReactFlowConnect,
 } from './handle-reactflow-connect';
@@ -18,10 +26,6 @@ import {
   RemoveVariableEvent,
   handleRemoveVariable,
 } from './handle-remove-variable';
-import {
-  StartExecutingFlowSingleRunEvent,
-  handleStartExecutingFlowSingleRun,
-} from './handle-start-executing-flow-single-run';
 import {
   UpdateConnectorsEvent,
   handleUpdateConnectors,
@@ -46,7 +50,8 @@ export type AcceptedEvent =
   | RemoveVariableEvent
   | UpdateConnectorsEvent
   | UpdateVariableValueEvent
-  | StartExecutingFlowSingleRunEvent;
+  | FlowSingleRunStartedEvent
+  | FlowSingleRunStoppedEvent;
 
 export const handleAllEvent = createHandler<AcceptedEvent, AcceptedEvent>(
   (state, event) => {
@@ -63,6 +68,7 @@ export const handleAllEvent = createHandler<AcceptedEvent, AcceptedEvent>(
     handleRemoveVariable,
     handleUpdateConnectors,
     handleUpdateVariableValue,
-    handleStartExecutingFlowSingleRun,
+    handleFlowSingleRunStarted,
+    handleFlowSingleRunStopped,
   ],
 );

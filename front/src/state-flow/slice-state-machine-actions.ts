@@ -68,14 +68,6 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
   function resetEdgeAndMetadataBaseOnFlowRunSingleExecutingState(
     isRunning: boolean,
   ) {
-    // setFlowContentProduce((draft) => {
-    //   for (const edge of draft.edges) {
-    //     if (edge.animated !== isRunning) {
-    //       edge.animated = isRunning;
-    //     }
-    //   }
-    // });
-
     let nodeMetadataDict = get().nodeMetadataDict;
 
     if (!isRunning) {
@@ -215,7 +207,7 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
       set({ nodeMetadataDict: {} });
 
       get()._processEventWithEventGraph({
-        type: ChangeEventType.START_EXECUTING_FLOW_SINGLE_RUN,
+        type: ChangeEventType.FLOW_SINGLE_RUN_STARTED,
       });
 
       resetEdgeAndMetadataBaseOnFlowRunSingleExecutingState(true);
@@ -327,6 +319,10 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
             type: CanvasStateMachineEventType.FinishedExecutingFlowSingleRun,
           });
 
+          get()._processEventWithEventGraph({
+            type: ChangeEventType.FLOW_SINGLE_RUN_STOPPED,
+          });
+
           resetEdgeAndMetadataBaseOnFlowRunSingleExecutingState(false);
         },
         complete() {
@@ -336,6 +332,10 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
 
           get().canvasStateMachine.send({
             type: CanvasStateMachineEventType.FinishedExecutingFlowSingleRun,
+          });
+
+          get()._processEventWithEventGraph({
+            type: ChangeEventType.FLOW_SINGLE_RUN_STOPPED,
           });
 
           resetEdgeAndMetadataBaseOnFlowRunSingleExecutingState(false);
@@ -348,6 +348,10 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
       runSingleSubscription = null;
 
       resetEdgeAndMetadataBaseOnFlowRunSingleExecutingState(false);
+
+      get()._processEventWithEventGraph({
+        type: ChangeEventType.FLOW_SINGLE_RUN_STOPPED,
+      });
     },
   };
 };
