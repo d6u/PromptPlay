@@ -1,20 +1,18 @@
+import { mergeDeep } from '@dhmk/utils';
 import { produce } from 'immer';
 import { expect, test } from 'vitest';
 
 import { ChangeEventType } from 'state-flow/event-graph/event-types';
 
 import { BaseEvent } from '../event-graph-util';
-import { State } from '../event-types';
 import { handleRemoveNode } from '../handle-remove-node';
 import { MOCK_STATE } from './fixture';
 
 // ANCHOR: Test cases for handleRemoveNode
 
 test('handleRemoveNode should remove node, nodeConfig, and connectors', () => {
-  const prevState: State = {
-    ...MOCK_STATE,
+  const prevState = mergeDeep(MOCK_STATE, {
     flowContent: {
-      ...MOCK_STATE.flowContent,
       nodes: [
         {
           id: '8e2At',
@@ -52,7 +50,7 @@ test('handleRemoveNode should remove node, nodeConfig, and connectors', () => {
         },
       ],
     },
-  };
+  });
 
   const nextState = produce(prevState, (draft) => {
     handleRemoveNode(draft, {
@@ -69,6 +67,7 @@ test('handleRemoveNode should remove node, nodeConfig, and connectors', () => {
       nodeConfigsDict: {},
       variablesDict: {},
       variableValueLookUpDicts: [{}],
+      nodeExecutionStates: {},
     },
   });
 });
