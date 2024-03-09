@@ -1,5 +1,5 @@
 import { createLens } from '@dhmk/zustand-lens';
-import { A, D, pipe } from '@mobily/ts-belt';
+import { D, pipe } from '@mobily/ts-belt';
 import deepEqual from 'deep-equal';
 import { produce } from 'immer';
 import posthog from 'posthog-js';
@@ -146,24 +146,13 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
     _syncFlowContent: async () => {
       const flowContent = get().getFlowContent();
 
-      const nextSyncedData: V3FlowContent = {
-        ...flowContent,
-        nodes: A.map(
-          flowContent.nodes,
-          D.selectKeys(['id', 'type', 'position', 'data']),
-        ),
-        edges: A.map(
-          flowContent.edges,
-          D.selectKeys([
-            'id',
-            'source',
-            'sourceHandle',
-            'target',
-            'targetHandle',
-          ]),
-        ),
-      };
+      // TODO: Remove type cast
+      const nextSyncedData = FlowConfigSchema.parse(
+        flowContent,
+      ) as V3FlowContent;
 
+      // TODO: It might be a bug to assume hasChange
+      // only when `prevSyncedData != null`
       const hasChange =
         prevSyncedData != null && !deepEqual(prevSyncedData, nextSyncedData);
 
