@@ -20,7 +20,7 @@ export const handleFlowSingleRunStarted = createHandler<
       edge.animated = true;
     }
 
-    state.flowContent.nodeExecuteStates = D.map(
+    state.flowContent.nodeExecutionStates = D.map(
       state.flowContent.nodeConfigsDict,
       (): NodeExecutionState => ({
         status: NodeExecutionStatus.Pending,

@@ -50,7 +50,7 @@ export type NodeExecutionState = {
   messages: NodeExecutionMessage[];
 };
 
-export type NodeExecuteStates = Record<string, NodeExecutionState>;
+export type NodeExecutionStateRecords = Record<string, NodeExecutionState>;
 
 export type NodeMetadata = {
   isRunning: boolean;
@@ -122,7 +122,7 @@ export type FlowContentState = {
   nodeConfigsDict: NodeConfigMap;
   variablesDict: ConnectorMap;
   variableValueLookUpDicts: ConnectorResultMap[];
-  nodeExecuteStates: NodeExecuteStates;
+  nodeExecutionStates: NodeExecutionStateRecords;
 };
 
 export type FlowProps = {

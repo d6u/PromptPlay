@@ -50,7 +50,7 @@ type Props = {
   outputVariables: NodeOutputVariable[];
   conditionTarget: ConditionTarget;
   // Node Level but not save to server
-  nodeExecuteState: Option<NodeExecutionState>;
+  nodeExecutionState: Option<NodeExecutionState>;
 };
 
 function DefaultNode(props: Props) {
@@ -89,9 +89,11 @@ function DefaultNode(props: Props) {
       <NodeBox
         nodeType={props.nodeConfig.type}
         isRunning={
-          props.nodeExecuteState?.status === NodeExecutionStatus.Executing
+          props.nodeExecutionState?.status === NodeExecutionStatus.Executing
         }
-        hasError={props.nodeExecuteState?.status === NodeExecutionStatus.Error}
+        hasError={
+          props.nodeExecutionState?.status === NodeExecutionStatus.Error
+        }
       >
         <NodeBoxHeaderSection
           title={nodeDefinition.label}

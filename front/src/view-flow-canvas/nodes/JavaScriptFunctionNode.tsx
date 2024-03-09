@@ -34,7 +34,7 @@ type Props = {
   inputVariables: NodeInputVariable[];
   outputVariables: NodeOutputVariable[];
   conditionTarget: ConditionTarget;
-  nodeExecuteState: Option<NodeExecutionState>;
+  nodeExecutionState: Option<NodeExecutionState>;
 };
 
 function JavaScriptFunctionNode(props: Props) {
@@ -79,9 +79,11 @@ function JavaScriptFunctionNode(props: Props) {
       <NodeBox
         nodeType={props.nodeConfig.type}
         isRunning={
-          props.nodeExecuteState?.status === NodeExecutionStatus.Executing
+          props.nodeExecutionState?.status === NodeExecutionStatus.Executing
         }
-        hasError={props.nodeExecuteState?.status === NodeExecutionStatus.Error}
+        hasError={
+          props.nodeExecutionState?.status === NodeExecutionStatus.Error
+        }
       >
         <NodeBoxHeaderSection
           title={nodeDefinition.label}

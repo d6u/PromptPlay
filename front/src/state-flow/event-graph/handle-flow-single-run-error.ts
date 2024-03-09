@@ -19,7 +19,8 @@ export const handleFlowSingleNodeExecutionStateChange = createHandler<
     );
   },
   (state, event) => {
-    const nodeExecuteState = state.flowContent.nodeExecuteStates[event.nodeId];
+    const nodeExecuteState =
+      state.flowContent.nodeExecutionStates[event.nodeId];
 
     // NOTE: flow run will always emit a success event even when there
     // was previously an error event, but we want to show final state as error

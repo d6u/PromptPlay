@@ -33,7 +33,7 @@ type Props = {
   nodeConfig: ConditionNodeAllLevelConfig;
   inputVariables: NodeInputVariable[];
   conditionTarget: ConditionTarget;
-  nodeExecuteState: Option<NodeExecutionState>;
+  nodeExecutionState: Option<NodeExecutionState>;
 };
 
 function ConditionNode(props: Props) {
@@ -62,9 +62,11 @@ function ConditionNode(props: Props) {
       <NodeBox
         nodeType={NodeType.InputNode}
         isRunning={
-          props.nodeExecuteState?.status === NodeExecutionStatus.Executing
+          props.nodeExecutionState?.status === NodeExecutionStatus.Executing
         }
-        hasError={props.nodeExecuteState?.status === NodeExecutionStatus.Error}
+        hasError={
+          props.nodeExecutionState?.status === NodeExecutionStatus.Error
+        }
       >
         <NodeBoxHeaderSection
           isNodeReadOnly={props.isNodeReadOnly}

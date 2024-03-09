@@ -20,8 +20,8 @@ export const handleFlowSingleRunStopped = createHandler<
       edge.animated = false;
     }
 
-    for (const nodeId of D.keys(state.flowContent.nodeExecuteStates)) {
-      const nodeExecuteState = state.flowContent.nodeExecuteStates[nodeId];
+    for (const nodeId of D.keys(state.flowContent.nodeExecutionStates)) {
+      const nodeExecuteState = state.flowContent.nodeExecutionStates[nodeId];
 
       if (nodeExecuteState.status === NodeExecutionStatus.Pending) {
         nodeExecuteState.status = NodeExecutionStatus.Skipped;
