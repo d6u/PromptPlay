@@ -109,7 +109,7 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
                   nodes: updatedNodes,
                   edges: updatedEdges,
                   variablesDict,
-                  nodeStates: {},
+                  nodeExecuteStates: {},
                   ...rest,
                 };
               },

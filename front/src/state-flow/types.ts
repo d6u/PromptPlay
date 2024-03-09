@@ -29,19 +29,18 @@ import { VariableTypeToVariableConfigTypeMap } from './util/state-utils';
 
 export type NodeMetadataDict = Record<string, NodeMetadata | undefined>;
 
-export type NodeStateRecords = Record<
-  string,
-  {
-    nodeStatus:
-      | 'pending'
-      | 'executing'
-      | 'error'
-      | 'success'
-      | 'canceled'
-      | 'skipped';
-    nodeMessages: { type: 'error' | 'info'; message: string }[];
-  }
->;
+export type NodeExecuteState = {
+  nodeStatus:
+    | 'pending'
+    | 'executing'
+    | 'error'
+    | 'success'
+    | 'canceled'
+    | 'skipped';
+  nodeMessages: { type: 'error' | 'info'; message: string }[];
+};
+
+export type NodeExecuteStates = Record<string, NodeExecuteState>;
 
 export type NodeMetadata = {
   isRunning: boolean;
@@ -113,7 +112,7 @@ export type FlowContentState = {
   nodeConfigsDict: NodeConfigMap;
   variablesDict: ConnectorMap;
   variableValueLookUpDicts: ConnectorResultMap[];
-  nodeStates: NodeStateRecords;
+  nodeExecuteStates: NodeExecuteStates;
 };
 
 export type FlowProps = {
