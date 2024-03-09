@@ -24,11 +24,12 @@ import NodeInstanceLevelFields from 'components/node-fields/NodeInstanceLevelFie
 import { useFlowStore } from 'state-flow/flow-store';
 import { NodeExecutionState, NodeExecutionStatus } from 'state-flow/types';
 
+import NodeExecutionMessageDisplay from 'components/node-execution-state/NodeExecutionMessageDisplay';
 import NodeBox from '../node-box/NodeBox';
 import NodeBoxHeaderSection from '../node-box/NodeBoxHeaderSection';
 import NodeBoxSection from '../node-box/NodeBoxSection';
 
-export type SrcConnector = {
+export type SourceConnector = {
   id: string;
   name: string;
   value: unknown;
@@ -70,8 +71,8 @@ function DefaultNode(props: Props) {
     s.getDefaultVariableValueLookUpDict(),
   );
 
-  const srcConnectors = useMemo(() => {
-    return props.outputVariables.map<SrcConnector>((output) => {
+  const sourceConnectors = useMemo(() => {
+    return props.outputVariables.map<SourceConnector>((output) => {
       return {
         id: output.id,
         name: output.name,
@@ -146,7 +147,7 @@ function DefaultNode(props: Props) {
           />
         </GenericContainer>
         <NodeBoxSection>
-          {srcConnectors.map((connector) => (
+          {sourceConnectors.map((connector) => (
             <NodeVariableResultItem
               key={connector.id}
               variableId={connector.id}
@@ -156,14 +157,18 @@ function DefaultNode(props: Props) {
             />
           ))}
         </NodeBoxSection>
+        <NodeBoxSection>
+          {props.nodeExecutionState?.messages.map((message, index) => (
+            <NodeExecutionMessageDisplay key={index} message={message} />
+          ))}
+        </NodeBoxSection>
       </NodeBox>
     </>
   );
 }
 
 const GenericContainer = styled.div`
-  padding-left: 10px;
-  padding-right: 10px;
+  padding: 0 10px;
 `;
 
 export default DefaultNode;

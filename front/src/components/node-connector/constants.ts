@@ -1,1 +1,0 @@
-export const CONNECTOR_RESULT_DISPLAY_HEIGHT = 32;

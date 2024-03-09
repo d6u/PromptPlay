@@ -22,6 +22,10 @@ export const handleFlowSingleNodeExecutionStateChange = createHandler<
     const nodeExecuteState =
       state.flowContent.nodeExecutionStates[event.nodeId];
 
+    if (event.newMessages) {
+      nodeExecuteState.messages.push(...event.newMessages);
+    }
+
     // NOTE: flow run will always emit a success event even when there
     // was previously an error event, but we want to show final state as error
     // to users.

@@ -22,10 +22,11 @@ import ReadonlyTextarea from 'generic-components/ReadonlyTextarea';
 import { useFlowStore } from 'state-flow/flow-store';
 import { NodeExecutionState, NodeExecutionStatus } from 'state-flow/types';
 
+import NodeExecutionMessageDisplay from 'components/node-execution-state/NodeExecutionMessageDisplay';
 import NodeBox from '../node-box/NodeBox';
 import NodeBoxHeaderSection from '../node-box/NodeBoxHeaderSection';
 import NodeBoxSection from '../node-box/NodeBoxSection';
-import { SrcConnector } from './DefaultNode';
+import { SourceConnector } from './DefaultNode';
 
 type Props = {
   nodeId: string;
@@ -53,7 +54,7 @@ function JavaScriptFunctionNode(props: Props) {
   );
 
   const srcConnectors = useMemo(() => {
-    return props.outputVariables.map<SrcConnector>((output) => {
+    return props.outputVariables.map<SourceConnector>((output) => {
       return {
         id: output.id,
         name: output.name,
@@ -164,6 +165,11 @@ ${javaScriptCode.split('\n').join('\n  ')}
               variableValue={connector.value}
               nodeId={props.nodeId}
             />
+          ))}
+        </NodeBoxSection>
+        <NodeBoxSection>
+          {props.nodeExecutionState?.messages.map((message, index) => (
+            <NodeExecutionMessageDisplay key={index} message={message} />
           ))}
         </NodeBoxSection>
       </NodeBox>

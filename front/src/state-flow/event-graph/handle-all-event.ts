@@ -4,7 +4,7 @@ import { AddNodeEvent, handleAddNode } from './handle-add-node';
 import {
   FlowSingleRunNodeExecutionStateChangeEvent,
   handleFlowSingleNodeExecutionStateChange,
-} from './handle-flow-single-run-error';
+} from './handle-flow-single-run-node-execution-state-change';
 import {
   FlowSingleRunStartedEvent,
   handleFlowSingleRunStarted,

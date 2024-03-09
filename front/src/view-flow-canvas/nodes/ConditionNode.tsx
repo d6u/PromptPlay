@@ -22,6 +22,7 @@ import { useFlowStore } from 'state-flow/flow-store';
 import { NodeExecutionState, NodeExecutionStatus } from 'state-flow/types';
 import { selectConditions } from 'state-flow/util/state-utils';
 
+import NodeExecutionMessageDisplay from 'components/node-execution-state/NodeExecutionMessageDisplay';
 import NodeBox from '../node-box/NodeBox';
 import NodeBoxHeaderSection from '../node-box/NodeBoxHeaderSection';
 import NodeBoxSection from '../node-box/NodeBoxSection';
@@ -159,6 +160,11 @@ function ConditionNode(props: Props) {
           <FormHelperText>
             The default case is matched when no other condition have matched.
           </FormHelperText>
+        </NodeBoxSection>
+        <NodeBoxSection>
+          {props.nodeExecutionState?.messages.map((message, index) => (
+            <NodeExecutionMessageDisplay key={index} message={message} />
+          ))}
         </NodeBoxSection>
       </NodeBox>
     </>

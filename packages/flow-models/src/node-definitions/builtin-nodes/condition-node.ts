@@ -181,9 +181,8 @@ export const CONDITION_NODE_DEFINITION: NodeDefinition<
           subscriber.next({
             type: NodeExecutionEventType.Errors,
             nodeId: nodeConfig.nodeId,
-            errorMessages: [
-              err instanceof Error ? err.message : 'Unknown error',
-            ],
+            // TODO: Report to telemetry to improve error message
+            errorMessages: ['message' in err ? err.message : 'Unknown error'],
           });
 
           subscriber.next({
