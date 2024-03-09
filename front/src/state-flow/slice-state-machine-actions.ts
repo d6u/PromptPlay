@@ -214,17 +214,16 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
             .getLocalAccountLevelNodeFieldValue(nodeType, fieldKey);
         },
       }).subscribe({
-        next(data) {
-          switch (data.type) {
-            case FlowRunEventType.ValidationErrors: {
-              data.errors.forEach((error) => {
+        next(event) {
+          switch (event.type) {
+            case FlowRunEventType.ValidationErrors:
+              event.errors.forEach((error) => {
                 switch (error.type) {
-                  case ValidationErrorType.FlowLevel: {
+                  case ValidationErrorType.FlowLevel:
                     // TODO: Show flow level errors in UI
                     alert(error.message);
                     break;
-                  }
-                  case ValidationErrorType.NodeLevel: {
+                  case ValidationErrorType.NodeLevel:
                     // TODO: Show node level errors in UI
                     get()._processEventWithEventGraph({
                       type: ChangeEventType.FLOW_SINGLE_RUN_NODE_EXECUTION_STATE_CHANGE,
@@ -238,7 +237,6 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
                       ],
                     });
                     break;
-                  }
                   case ValidationErrorType.FieldLevel: {
                     useNodeFieldFeedbackStore.getState().setFieldFeedbacks(
                       error.nodeId,
@@ -258,43 +256,38 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
                 }
               });
               break;
-            }
-            case FlowRunEventType.NodeStart: {
+            case FlowRunEventType.NodeStart:
               get()._processEventWithEventGraph({
                 type: ChangeEventType.FLOW_SINGLE_RUN_NODE_EXECUTION_STATE_CHANGE,
-                nodeId: data.nodeId,
+                nodeId: event.nodeId,
                 state: NodeExecutionStatus.Executing,
               });
               break;
-            }
-            case FlowRunEventType.NodeFinish: {
+            case FlowRunEventType.NodeFinish:
               get()._processEventWithEventGraph({
                 type: ChangeEventType.FLOW_SINGLE_RUN_NODE_EXECUTION_STATE_CHANGE,
-                nodeId: data.nodeId,
+                nodeId: event.nodeId,
                 state: NodeExecutionStatus.Success,
               });
               break;
-            }
-            case FlowRunEventType.NodeErrors: {
+            case FlowRunEventType.NodeErrors:
               get()._processEventWithEventGraph({
                 type: ChangeEventType.FLOW_SINGLE_RUN_NODE_EXECUTION_STATE_CHANGE,
-                nodeId: data.nodeId,
+                nodeId: event.nodeId,
                 state: NodeExecutionStatus.Error,
-                newMessages: data.errorMessages.map((message) => ({
+                newMessages: event.errorMessages.map((message) => ({
                   type: NodeExecutionMessageType.Error,
                   content: message,
                 })),
               });
               break;
-            }
-            case FlowRunEventType.VariableValues: {
+            case FlowRunEventType.VariableValues:
               get().updateVariableValues(
-                Object.entries(data.variableValues).map(
+                Object.entries(event.variableValues).map(
                   ([variableId, value]) => ({ variableId, value }),
                 ),
               );
               break;
-            }
           }
         },
         error(error) {

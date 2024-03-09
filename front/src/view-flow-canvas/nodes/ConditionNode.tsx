@@ -160,6 +160,9 @@ function ConditionNode(props: Props) {
             The default case is matched when no other condition have matched.
           </FormHelperText>
         </NodeBoxSection>
+        <NodeErrorsContainer>
+          {props.nodeExecutionState?.messages.map((message) => message.content)}
+        </NodeErrorsContainer>
       </NodeBox>
     </>
   );
@@ -168,6 +171,10 @@ function ConditionNode(props: Props) {
 const GenericSection = styled.div`
   padding-left: 10px;
   padding-right: 10px;
+`;
+
+const NodeErrorsContainer = styled(NodeBoxSection)`
+  word-break: break-word;
 `;
 
 export default ConditionNode;

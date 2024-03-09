@@ -25,7 +25,7 @@ import { NodeExecutionState, NodeExecutionStatus } from 'state-flow/types';
 import NodeBox from '../node-box/NodeBox';
 import NodeBoxHeaderSection from '../node-box/NodeBoxHeaderSection';
 import NodeBoxSection from '../node-box/NodeBoxSection';
-import { SrcConnector } from './DefaultNode';
+import { SourceConnector } from './DefaultNode';
 
 type Props = {
   nodeId: string;
@@ -53,7 +53,7 @@ function JavaScriptFunctionNode(props: Props) {
   );
 
   const srcConnectors = useMemo(() => {
-    return props.outputVariables.map<SrcConnector>((output) => {
+    return props.outputVariables.map<SourceConnector>((output) => {
       return {
         id: output.id,
         name: output.name,
@@ -166,6 +166,9 @@ ${javaScriptCode.split('\n').join('\n  ')}
             />
           ))}
         </NodeBoxSection>
+        <NodeErrorsContainer>
+          {props.nodeExecutionState?.messages.map((message) => message.content)}
+        </NodeErrorsContainer>
       </NodeBox>
     </>
   );
@@ -174,6 +177,10 @@ ${javaScriptCode.split('\n').join('\n  ')}
 const GenericContainer = styled.div`
   padding-left: 10px;
   padding-right: 10px;
+`;
+
+const NodeErrorsContainer = styled(NodeBoxSection)`
+  word-break: break-word;
 `;
 
 export default JavaScriptFunctionNode;

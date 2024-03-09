@@ -28,7 +28,7 @@ import NodeBox from '../node-box/NodeBox';
 import NodeBoxHeaderSection from '../node-box/NodeBoxHeaderSection';
 import NodeBoxSection from '../node-box/NodeBoxSection';
 
-export type SrcConnector = {
+export type SourceConnector = {
   id: string;
   name: string;
   value: unknown;
@@ -70,8 +70,8 @@ function DefaultNode(props: Props) {
     s.getDefaultVariableValueLookUpDict(),
   );
 
-  const srcConnectors = useMemo(() => {
-    return props.outputVariables.map<SrcConnector>((output) => {
+  const sourceConnectors = useMemo(() => {
+    return props.outputVariables.map<SourceConnector>((output) => {
       return {
         id: output.id,
         name: output.name,
@@ -146,7 +146,7 @@ function DefaultNode(props: Props) {
           />
         </GenericContainer>
         <NodeBoxSection>
-          {srcConnectors.map((connector) => (
+          {sourceConnectors.map((connector) => (
             <NodeVariableResultItem
               key={connector.id}
               variableId={connector.id}
@@ -156,14 +156,20 @@ function DefaultNode(props: Props) {
             />
           ))}
         </NodeBoxSection>
+        <NodeErrorsContainer>
+          {props.nodeExecutionState?.messages.map((message) => message.content)}
+        </NodeErrorsContainer>
       </NodeBox>
     </>
   );
 }
 
 const GenericContainer = styled.div`
-  padding-left: 10px;
-  padding-right: 10px;
+  padding: 0 10px;
+`;
+
+const NodeErrorsContainer = styled(NodeBoxSection)`
+  word-break: break-word;
 `;
 
 export default DefaultNode;
