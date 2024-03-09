@@ -1,5 +1,4 @@
 import { createLens } from '@dhmk/zustand-lens';
-import { D } from '@mobily/ts-belt';
 import posthog from 'posthog-js';
 import { EdgeChange, NodeChange, OnConnectStartParams } from 'reactflow';
 import invariant from 'tiny-invariant';
@@ -29,7 +28,6 @@ import {
   FlowActions,
   FlowProps,
   FlowState,
-  NodeMetadata,
 } from './types';
 import { createWithImmer } from './util/lens-util';
 import { actorFor } from './util/state-machine-middleware';
@@ -43,9 +41,9 @@ const RESETABLE_INITIAL_STATE: Partial<FlowState> = {
       nodeConfigsDict: {},
       variablesDict: {},
       variableValueLookUpDicts: [{}],
+      nodeExecutionStates: {},
     },
   },
-  nodeMetadataDict: {},
   canvasLeftPaneIsOpen: false,
   canvasRightPaneType: CanvasRightPanelType.Off,
   canvasLeftPaneSelectedNodeId: null,
@@ -74,24 +72,6 @@ export const createRootSlice: RootSliceStateCreator = (set, get) => {
   const [, getFlowContent] = createLens(setCanvas, getCanvas, 'flowContent');
   // !SECTION
 
-  function processEventWithEventGraph(event: AcceptedEvent) {
-    console.debug('processEventWithEventGraph', event);
-
-    // console.time('processEventWithEventGraph');
-    setEventGraphStateWithPatches(
-      (draft) => {
-        handleAllEvent(draft, event);
-      },
-      false,
-      event,
-    );
-    // console.timeEnd('processEventWithEventGraph');
-
-    get().canvasStateMachine.send({
-      type: CanvasStateMachineEventType.FlowContentTouched,
-    });
-  }
-
   return {
     // SECTION: State Machine
     canvasStateMachine: actorFor<
@@ -103,6 +83,24 @@ export const createRootSlice: RootSliceStateCreator = (set, get) => {
     // SECTION: Must set during initialization
     spaceId: null,
     // !SECTION
+
+    _processEventWithEventGraph(event: AcceptedEvent): void {
+      console.debug('processEventWithEventGraph', event);
+
+      // console.time('processEventWithEventGraph');
+      setEventGraphStateWithPatches(
+        (draft) => {
+          handleAllEvent(draft, event);
+        },
+        false,
+        event,
+      );
+      // console.timeEnd('processEventWithEventGraph');
+
+      get().canvasStateMachine.send({
+        type: CanvasStateMachineEventType.FlowContentTouched,
+      });
+    },
 
     enterFlowRoute: (spaceId: string) => {
       set({ spaceId }, false, { type: 'enterFlowRoute' });
@@ -129,9 +127,9 @@ export const createRootSlice: RootSliceStateCreator = (set, get) => {
         nodeConfigsDict: {},
         variablesDict: {},
         variableValueLookUpDicts: [{}],
+        nodeExecutionStates: {},
       },
     },
-    nodeMetadataDict: {},
     canvasLeftPaneIsOpen: false,
     canvasLeftPaneSelectedNodeId: null,
     canvasRightPaneType: CanvasRightPanelType.Off,
@@ -164,38 +162,38 @@ export const createRootSlice: RootSliceStateCreator = (set, get) => {
     // SECTION: Event Graph
     // ANCHOR: Reactflow
     onEdgesChange(changes: EdgeChange[]): void {
-      processEventWithEventGraph({
+      get()._processEventWithEventGraph({
         type: ChangeEventType.RF_EDGES_CHANGE,
         changes,
       });
     },
     onNodesChange(changes: NodeChange[]): void {
-      processEventWithEventGraph({
+      get()._processEventWithEventGraph({
         type: ChangeEventType.RF_NODES_CHANGE,
         changes,
       });
     },
     onConnect(connection): void {
-      processEventWithEventGraph({
+      get()._processEventWithEventGraph({
         type: ChangeEventType.RF_ON_CONNECT,
         connection,
       });
     },
     // ANCHOR: Node
     addNode(type: NodeTypeEnum, x: number, y: number): void {
-      processEventWithEventGraph({
+      get()._processEventWithEventGraph({
         type: ChangeEventType.ADDING_NODE,
         node: createNode(type, x, y),
       });
     },
     removeNode(nodeId: string): void {
-      processEventWithEventGraph({
+      get()._processEventWithEventGraph({
         type: ChangeEventType.REMOVING_NODE,
         nodeId: nodeId,
       });
     },
     updateNodeConfig(nodeId: string, change: Partial<NodeConfig>): void {
-      processEventWithEventGraph({
+      get()._processEventWithEventGraph({
         type: ChangeEventType.UPDATING_NODE_CONFIG,
         nodeId,
         change,
@@ -203,7 +201,7 @@ export const createRootSlice: RootSliceStateCreator = (set, get) => {
     },
     // ANCHOR: Variable
     addVariable(nodeId: string, type: ConnectorTypeEnum, index: number): void {
-      processEventWithEventGraph({
+      get()._processEventWithEventGraph({
         type: ChangeEventType.ADDING_VARIABLE,
         nodeId,
         connectorType: type,
@@ -211,7 +209,7 @@ export const createRootSlice: RootSliceStateCreator = (set, get) => {
       });
     },
     removeVariable(variableId: string): void {
-      processEventWithEventGraph({
+      get()._processEventWithEventGraph({
         type: ChangeEventType.REMOVING_VARIABLE,
         variableId,
       });
@@ -220,7 +218,7 @@ export const createRootSlice: RootSliceStateCreator = (set, get) => {
       T extends ConnectorTypeEnum,
       R = VariableTypeToVariableConfigTypeMap[T],
     >(variableId: string, change: Partial<R>): void {
-      processEventWithEventGraph({
+      get()._processEventWithEventGraph({
         type: ChangeEventType.UPDATE_CONNECTORS,
         updates: [{ variableId, change }],
       });
@@ -228,13 +226,13 @@ export const createRootSlice: RootSliceStateCreator = (set, get) => {
     updateConnectors(
       updates: { variableId: string; change: Partial<Connector> }[],
     ): void {
-      processEventWithEventGraph({
+      get()._processEventWithEventGraph({
         type: ChangeEventType.UPDATE_CONNECTORS,
         updates,
       });
     },
     updateVariableValue(variableId: string, value: unknown): void {
-      processEventWithEventGraph({
+      get()._processEventWithEventGraph({
         type: ChangeEventType.UPDATE_VARIABLE_VALUES,
         updates: [{ variableId, value }],
       });
@@ -242,31 +240,12 @@ export const createRootSlice: RootSliceStateCreator = (set, get) => {
     updateVariableValues(
       updates: { variableId: string; value: unknown }[],
     ): void {
-      processEventWithEventGraph({
+      get()._processEventWithEventGraph({
         type: ChangeEventType.UPDATE_VARIABLE_VALUES,
         updates,
       });
     },
     // !SECTION: Event Graph
-
-    updateNodeAugment(nodeId: string, change: Partial<NodeMetadata>) {
-      const prevNodeMetadataDict = get().nodeMetadataDict;
-      let nodeMetadata = prevNodeMetadataDict[nodeId];
-
-      if (nodeMetadata) {
-        nodeMetadata = { ...nodeMetadata, ...change };
-      } else {
-        nodeMetadata = { isRunning: false, hasError: false, ...change };
-      }
-
-      const nodeMetadataDict = D.set(
-        prevNodeMetadataDict,
-        nodeId,
-        nodeMetadata,
-      );
-
-      set({ nodeMetadataDict });
-    },
 
     onEdgeConnectStart(params: OnConnectStartParams): void {
       const { nodeId, handleId, handleType } = params;

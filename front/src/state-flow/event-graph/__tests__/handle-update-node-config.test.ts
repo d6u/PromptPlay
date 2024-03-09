@@ -13,6 +13,7 @@ test('handleUpdateNodeConfig should add node and nodeConfig', () => {
   const prevState: State = {
     ...MOCK_STATE,
     flowContent: {
+      ...MOCK_STATE.flowContent,
       nodes: [
         {
           id: 'I6L6E',

@@ -15,18 +15,42 @@ import {
   NodeConfig,
   NodeConfigMap,
   NodeTypeEnum,
-  V3FlowContent,
   V3LocalEdge,
 } from 'flow-models';
 
 import { RunMetadata } from 'flow-run/run-types';
 
+import { AcceptedEvent } from './event-graph/handle-all-event';
 import { BatchTestActions, BatchTestState } from './lenses/batch-test-lens';
 import { ActorFor } from './util/state-machine-middleware';
 import { StateObjectToParameterizedObject } from './util/state-machine-util';
 import { VariableTypeToVariableConfigTypeMap } from './util/state-utils';
 
-export type NodeMetadataDict = Record<string, NodeMetadata | undefined>;
+export enum NodeExecutionStatus {
+  Pending = 'Pending',
+  Executing = 'Executing',
+  Error = 'Error',
+  Success = 'Success',
+  Canceled = 'Canceled',
+  Skipped = 'Skipped',
+}
+
+export enum NodeExecutionMessageType {
+  Error = 'Error',
+  Info = 'Info',
+}
+
+export type NodeExecutionMessage = {
+  type: NodeExecutionMessageType;
+  content: string;
+};
+
+export type NodeExecutionState = {
+  status: NodeExecutionStatus;
+  messages: NodeExecutionMessage[];
+};
+
+export type NodeExecutionStateRecords = Record<string, NodeExecutionState>;
 
 export type NodeMetadata = {
   isRunning: boolean;
@@ -98,6 +122,7 @@ export type FlowContentState = {
   nodeConfigsDict: NodeConfigMap;
   variablesDict: ConnectorMap;
   variableValueLookUpDicts: ConnectorResultMap[];
+  nodeExecutionStates: NodeExecutionStateRecords;
 };
 
 export type FlowProps = {
@@ -115,7 +140,6 @@ export type FlowProps = {
   canvas: {
     flowContent: FlowContentState;
   };
-  nodeMetadataDict: NodeMetadataDict;
   canvasLeftPaneIsOpen: boolean;
   canvasLeftPaneSelectedNodeId: string | null;
   canvasRightPaneType: CanvasRightPanelType;
@@ -132,13 +156,14 @@ export type FlowProps = {
 };
 
 export type FlowActions = {
+  _processEventWithEventGraph(event: AcceptedEvent): void;
+
   enterFlowRoute(spaceId: string): void;
   leaveFlowRoute(): void;
 
   setCanvasLeftPaneIsOpen(isOpen: boolean): void;
   setCanvasLeftPaneSelectedNodeId(nodeId: string | null): void;
   setCanvasRightPaneType(type: CanvasRightPanelType): void;
-  updateNodeAugment(nodeId: string, change: Partial<NodeMetadata>): void;
   onEdgeConnectStart(params: OnConnectStartParams): void;
   onEdgeConnectStop(): void;
 
@@ -173,7 +198,7 @@ export type FlowActions = {
   // !SECTION
 
   // Getter
-  getFlowContent: Getter<V3FlowContent>;
+  getFlowContent: Getter<FlowContentState>;
   getDefaultVariableValueLookUpDict(): ConnectorResultMap;
 
   // Flow run

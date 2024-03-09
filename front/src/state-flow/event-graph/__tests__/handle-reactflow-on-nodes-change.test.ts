@@ -1,3 +1,4 @@
+import { mergeDeep } from '@dhmk/utils';
 import { produce } from 'immer';
 import { expect, test } from 'vitest';
 
@@ -11,8 +12,7 @@ import { MOCK_STATE } from './fixture';
 // ANCHOR: handleReactFlowNodesChange test cases
 
 test('handleReactFlowNodesChange should remove node', () => {
-  const prevState: State = {
-    ...MOCK_STATE,
+  const prevState = mergeDeep(MOCK_STATE, {
     flowContent: {
       nodes: [
         {
@@ -77,7 +77,7 @@ test('handleReactFlowNodesChange should remove node', () => {
         },
       ],
     },
-  };
+  });
 
   const nextState = produce(prevState, (draft) => {
     handleReactFlowNodesChange(draft, {
@@ -130,6 +130,7 @@ test('handleReactFlowNodesChange should remove node', () => {
           'Is8Op/5TUFT': null,
         },
       ],
+      nodeExecutionStates: {},
     },
   });
 });
@@ -138,6 +139,7 @@ test('handleReactFlowNodesChange should remove connector and edge connected', ()
   const prevState: State = {
     ...MOCK_STATE,
     flowContent: {
+      ...MOCK_STATE.flowContent,
       nodes: [
         {
           id: 'HIbCf',
@@ -265,13 +267,13 @@ test('handleReactFlowNodesChange should remove connector and edge connected', ()
           'sn268/mt4IG': null,
         },
       ],
+      nodeExecutionStates: {},
     },
   });
 });
 
 test('handleReactFlowNodesChange should remove multiple nodes', () => {
-  const prevState: State = {
-    ...MOCK_STATE,
+  const prevState = mergeDeep(MOCK_STATE, {
     flowContent: {
       nodes: [
         {
@@ -347,7 +349,7 @@ test('handleReactFlowNodesChange should remove multiple nodes', () => {
         },
       ],
     },
-  };
+  });
 
   const nextState = produce(prevState, (draft) => {
     handleReactFlowNodesChange(draft, {
@@ -373,6 +375,7 @@ test('handleReactFlowNodesChange should remove multiple nodes', () => {
       nodeConfigsDict: {},
       variablesDict: {},
       variableValueLookUpDicts: [{}],
+      nodeExecutionStates: {},
     },
   });
 });

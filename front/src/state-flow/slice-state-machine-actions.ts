@@ -1,7 +1,6 @@
 import { createLens } from '@dhmk/zustand-lens';
-import { A, D, pipe } from '@mobily/ts-belt';
+import { D, pipe } from '@mobily/ts-belt';
 import deepEqual from 'deep-equal';
-import { produce } from 'immer';
 import posthog from 'posthog-js';
 import { Subscription, from, map } from 'rxjs';
 import invariant from 'tiny-invariant';
@@ -26,10 +25,12 @@ import { client } from 'graphql-util/client';
 import { useLocalStorageStore } from 'state-root/local-storage-state';
 import { useNodeFieldFeedbackStore } from 'state-root/node-field-feedback-state';
 
+import { ChangeEventType } from './event-graph/event-types';
 import { updateSpaceContentV3 } from './graphql/graphql';
 import {
   CanvasStateMachineEventType,
   FlowState,
+  NodeExecutionStatus,
   StateMachineActionsStateSlice,
 } from './types';
 import { createWithImmer } from './util/lens-util';
@@ -63,35 +64,6 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
   let runSingleSubscription: Subscription | null = null;
   // !SECTION
 
-  // SECTION: Private functions
-  function resetEdgeAndMetadataBaseOnFlowRunSingleExecutingState(
-    isRunning: boolean,
-  ) {
-    setFlowContentProduce((draft) => {
-      for (const edge of draft.edges) {
-        if (edge.animated !== isRunning) {
-          edge.animated = isRunning;
-        }
-      }
-    });
-
-    let nodeMetadataDict = get().nodeMetadataDict;
-
-    if (!isRunning) {
-      // It is important to reset node metadata, because node's running status
-      // doesn't depend on global isRunning state.
-      nodeMetadataDict = produce(nodeMetadataDict, (draft) => {
-        for (const nodeMetadata of Object.values(draft)) {
-          invariant(nodeMetadata != null);
-          nodeMetadata.isRunning = false;
-        }
-      });
-    }
-
-    set({ nodeMetadataDict });
-  }
-  // !SECTION
-
   return {
     _initializeCanvas(): void {
       const spaceId = get().spaceId;
@@ -116,6 +88,7 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
                   nodes: updatedNodes,
                   edges: updatedEdges,
                   variablesDict,
+                  nodeExecutionStates: {},
                   ...rest,
                 };
               },
@@ -146,26 +119,17 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
     _syncFlowContent: async () => {
       const flowContent = get().getFlowContent();
 
-      const nextSyncedData: V3FlowContent = {
-        ...flowContent,
-        nodes: A.map(
-          flowContent.nodes,
-          D.selectKeys(['id', 'type', 'position', 'data']),
-        ),
-        edges: A.map(
-          flowContent.edges,
-          D.selectKeys([
-            'id',
-            'source',
-            'sourceHandle',
-            'target',
-            'targetHandle',
-          ]),
-        ),
-      };
+      // TODO: Remove type cast
+      const nextSyncedData = FlowConfigSchema.parse(
+        flowContent,
+      ) as V3FlowContent;
 
+      // TODO: It might be a bug to assume hasChange
+      // only when `prevSyncedData != null`
       const hasChange =
         prevSyncedData != null && !deepEqual(prevSyncedData, nextSyncedData);
+
+      console.log('_syncFlowContent', hasChange, nextSyncedData);
 
       prevSyncedData = nextSyncedData;
 
@@ -218,10 +182,9 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
       // NOTE: Stop previous run if there is one
       runSingleSubscription?.unsubscribe();
 
-      // TODO: Give a default for every node instead of empty object
-      set({ nodeMetadataDict: {} });
-
-      resetEdgeAndMetadataBaseOnFlowRunSingleExecutingState(true);
+      get()._processEventWithEventGraph({
+        type: ChangeEventType.FLOW_SINGLE_RUN_STARTED,
+      });
 
       // Reset variable values except for flow inputs values
       setFlowContentProduce((draft) => {
@@ -262,9 +225,10 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
                   }
                   case ValidationErrorType.NodeLevel: {
                     // TODO: Show node level errors in UI
-                    get().updateNodeAugment(error.nodeId, {
-                      isRunning: false,
-                      hasError: true,
+                    get()._processEventWithEventGraph({
+                      type: ChangeEventType.FLOW_SINGLE_RUN_NODE_EXECUTION_STATE_CHANGE,
+                      nodeId: error.nodeId,
+                      state: NodeExecutionStatus.Error,
                     });
                     break;
                   }
@@ -277,9 +241,10 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
                       [error.message],
                     );
 
-                    get().updateNodeAugment(error.nodeId, {
-                      isRunning: false,
-                      hasError: true,
+                    get()._processEventWithEventGraph({
+                      type: ChangeEventType.FLOW_SINGLE_RUN_NODE_EXECUTION_STATE_CHANGE,
+                      nodeId: error.nodeId,
+                      state: NodeExecutionStatus.Error,
                     });
                     break;
                   }
@@ -288,24 +253,26 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
               break;
             }
             case FlowRunEventType.NodeStart: {
-              const { nodeId } = data;
-              get().updateNodeAugment(nodeId, {
-                isRunning: true,
+              get()._processEventWithEventGraph({
+                type: ChangeEventType.FLOW_SINGLE_RUN_NODE_EXECUTION_STATE_CHANGE,
+                nodeId: data.nodeId,
+                state: NodeExecutionStatus.Executing,
               });
               break;
             }
             case FlowRunEventType.NodeFinish: {
-              const { nodeId } = data;
-              get().updateNodeAugment(nodeId, {
-                isRunning: false,
+              get()._processEventWithEventGraph({
+                type: ChangeEventType.FLOW_SINGLE_RUN_NODE_EXECUTION_STATE_CHANGE,
+                nodeId: data.nodeId,
+                state: NodeExecutionStatus.Success,
               });
               break;
             }
             case FlowRunEventType.NodeErrors: {
-              const { nodeId } = data;
-              get().updateNodeAugment(nodeId, {
-                isRunning: false,
-                hasError: true,
+              get()._processEventWithEventGraph({
+                type: ChangeEventType.FLOW_SINGLE_RUN_NODE_EXECUTION_STATE_CHANGE,
+                nodeId: data.nodeId,
+                state: NodeExecutionStatus.Error,
               });
               break;
             }
@@ -330,7 +297,9 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
             type: CanvasStateMachineEventType.FinishedExecutingFlowSingleRun,
           });
 
-          resetEdgeAndMetadataBaseOnFlowRunSingleExecutingState(false);
+          get()._processEventWithEventGraph({
+            type: ChangeEventType.FLOW_SINGLE_RUN_STOPPED,
+          });
         },
         complete() {
           posthog.capture('Finished Simple Evaluation', {
@@ -341,7 +310,9 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
             type: CanvasStateMachineEventType.FinishedExecutingFlowSingleRun,
           });
 
-          resetEdgeAndMetadataBaseOnFlowRunSingleExecutingState(false);
+          get()._processEventWithEventGraph({
+            type: ChangeEventType.FLOW_SINGLE_RUN_STOPPED,
+          });
         },
       });
     },
@@ -350,7 +321,9 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
       runSingleSubscription?.unsubscribe();
       runSingleSubscription = null;
 
-      resetEdgeAndMetadataBaseOnFlowRunSingleExecutingState(false);
+      get()._processEventWithEventGraph({
+        type: ChangeEventType.FLOW_SINGLE_RUN_STOPPED,
+      });
     },
   };
 };

@@ -41,6 +41,7 @@ test('handleReactFlowConnectEvent ignores existing connection', () => {
   const prevState: State = {
     ...MOCK_STATE,
     flowContent: {
+      ...MOCK_STATE.flowContent,
       nodes: [
         {
           id: 'TmZiV',
@@ -137,6 +138,7 @@ test('handleReactFlowConnectEvent ignores Audio source variable with invalid tar
   const prevState: State = {
     ...MOCK_STATE,
     flowContent: {
+      ...MOCK_STATE.flowContent,
       nodes: [
         {
           id: 'Lbola',
@@ -484,6 +486,7 @@ test('handleReactFlowConnect should replace edge', () => {
   const prevState: State = {
     ...MOCK_STATE,
     flowContent: {
+      ...MOCK_STATE.flowContent,
       nodes: [
         {
           id: 'ZUhTs',
@@ -620,6 +623,7 @@ test('handleReactFlowConnect should replace edge and update dest variable valueT
   const prevState: State = {
     ...MOCK_STATE,
     flowContent: {
+      ...MOCK_STATE.flowContent,
       nodes: [
         {
           id: 'Is8Op',
@@ -782,6 +786,7 @@ test('handleReactFlowConnect should add edge', () => {
   const prevState: State = {
     ...MOCK_STATE,
     flowContent: {
+      ...MOCK_STATE.flowContent,
       nodes: [
         {
           id: 'Is8Op',
@@ -882,6 +887,7 @@ test('handleReactFlowConnect should add edge and update dest variable valueType'
   const prevState: State = {
     ...MOCK_STATE,
     flowContent: {
+      ...MOCK_STATE.flowContent,
       nodes: [
         {
           id: 'Is8Op',

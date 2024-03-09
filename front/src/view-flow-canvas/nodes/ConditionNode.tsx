@@ -13,15 +13,15 @@ import {
   NodeType,
 } from 'flow-models';
 
+import NodeAddConnectorButton from 'components/NodeAddConnectorButton';
 import NodeConditionDefaultItem from 'components/node-connector/NodeConditionDefaultItem';
 import NodeConditionsEditableList from 'components/node-connector/NodeConditionsEditableList';
 import NodeTargetConditionHandle from 'components/node-connector/NodeTargetConditionHandle';
 import NodeVariablesEditableList from 'components/node-connector/NodeVariablesEditableList';
 import { useFlowStore } from 'state-flow/flow-store';
-import { NodeMetadata } from 'state-flow/types';
+import { NodeExecutionState, NodeExecutionStatus } from 'state-flow/types';
 import { selectConditions } from 'state-flow/util/state-utils';
 
-import NodeAddConnectorButton from '../../components/NodeAddConnectorButton';
 import NodeBox from '../node-box/NodeBox';
 import NodeBoxHeaderSection from '../node-box/NodeBoxHeaderSection';
 import NodeBoxSection from '../node-box/NodeBoxSection';
@@ -33,7 +33,7 @@ type Props = {
   nodeConfig: ConditionNodeAllLevelConfig;
   inputVariables: NodeInputVariable[];
   conditionTarget: ConditionTarget;
-  nodeMetadata: Option<NodeMetadata>;
+  nodeExecutionState: Option<NodeExecutionState>;
 };
 
 function ConditionNode(props: Props) {
@@ -61,8 +61,12 @@ function ConditionNode(props: Props) {
       />
       <NodeBox
         nodeType={NodeType.InputNode}
-        isRunning={props.nodeMetadata?.isRunning}
-        hasError={props.nodeMetadata?.hasError}
+        isRunning={
+          props.nodeExecutionState?.status === NodeExecutionStatus.Executing
+        }
+        hasError={
+          props.nodeExecutionState?.status === NodeExecutionStatus.Error
+        }
       >
         <NodeBoxHeaderSection
           isNodeReadOnly={props.isNodeReadOnly}

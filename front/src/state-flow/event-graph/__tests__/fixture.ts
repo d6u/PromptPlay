@@ -7,5 +7,6 @@ export const MOCK_STATE: State = {
     nodeConfigsDict: {},
     variablesDict: {},
     variableValueLookUpDicts: [{}],
+    nodeExecutionStates: {},
   },
 };

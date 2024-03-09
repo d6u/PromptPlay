@@ -20,7 +20,7 @@ import NodeFieldLabelWithIconContainer from 'components/node-fields/NodeFieldLab
 import CopyIconButton from 'generic-components/CopyIconButton';
 import ReadonlyTextarea from 'generic-components/ReadonlyTextarea';
 import { useFlowStore } from 'state-flow/flow-store';
-import { NodeMetadata } from 'state-flow/types';
+import { NodeExecutionState, NodeExecutionStatus } from 'state-flow/types';
 
 import NodeBox from '../node-box/NodeBox';
 import NodeBoxHeaderSection from '../node-box/NodeBoxHeaderSection';
@@ -34,7 +34,7 @@ type Props = {
   inputVariables: NodeInputVariable[];
   outputVariables: NodeOutputVariable[];
   conditionTarget: ConditionTarget;
-  nodeMetadata: Option<NodeMetadata>;
+  nodeExecutionState: Option<NodeExecutionState>;
 };
 
 function JavaScriptFunctionNode(props: Props) {
@@ -78,8 +78,12 @@ function JavaScriptFunctionNode(props: Props) {
       />
       <NodeBox
         nodeType={props.nodeConfig.type}
-        isRunning={props.nodeMetadata?.isRunning}
-        hasError={props.nodeMetadata?.hasError}
+        isRunning={
+          props.nodeExecutionState?.status === NodeExecutionStatus.Executing
+        }
+        hasError={
+          props.nodeExecutionState?.status === NodeExecutionStatus.Error
+        }
       >
         <NodeBoxHeaderSection
           title={nodeDefinition.label}
