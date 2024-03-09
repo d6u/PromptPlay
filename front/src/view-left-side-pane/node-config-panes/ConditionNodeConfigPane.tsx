@@ -1,4 +1,5 @@
 import styled from '@emotion/styled';
+import { Option } from '@mobily/ts-belt';
 import { Checkbox, FormControl, FormHelperText, FormLabel } from '@mui/joy';
 import { useMemo } from 'react';
 import { useUpdateNodeInternals } from 'reactflow';
@@ -14,12 +15,15 @@ import {
 import NodeConditionDefaultItem from 'components/node-connector/NodeConditionDefaultItem';
 import NodeConditionsEditableList from 'components/node-connector/NodeConditionsEditableList';
 import NodeVariablesEditableList from 'components/node-connector/NodeVariablesEditableList';
+import NodeExecutionMessageDisplay from 'components/node-execution-state/NodeExecutionMessageDisplay';
 import SidePaneHeaderSection from 'components/side-pane/SidePaneHeaderSection';
 import HeaderSectionHeader from 'components/side-pane/SidePaneHeaderSectionHeader';
+import SidePaneSection from 'components/side-pane/SidePaneSection';
 import { useFlowStore } from 'state-flow/flow-store';
+import { NodeExecutionState } from 'state-flow/types';
 import { selectConditions } from 'state-flow/util/state-utils';
 
-import NodeConfigPaneAddConnectorButton from 'view-left-side-pane/node-config-pane-base-ui/NodeConfigPaneAddConnectorButton';
+import NodeConfigPaneAddConnectorButton from '../node-config-pane-base-ui/NodeConfigPaneAddConnectorButton';
 import NodeConfigPaneContainer from '../node-config-pane-base-ui/NodeConfigPaneContainer';
 
 type Props = {
@@ -27,6 +31,8 @@ type Props = {
   isNodeReadOnly: boolean;
   nodeConfig: ConditionNodeInstanceLevelConfig;
   inputVariables: NodeInputVariable[];
+  // Node Level but not save to server
+  nodeExecutionState: Option<NodeExecutionState>;
 };
 
 function ConditionNodeConfigPane(props: Props) {
@@ -52,6 +58,21 @@ function ConditionNodeConfigPane(props: Props) {
 
   return (
     <NodeConfigPaneContainer>
+      {props.nodeExecutionState != null &&
+        props.nodeExecutionState.messages.length !== 0 && (
+          <>
+            <SidePaneHeaderSection>
+              <HeaderSectionHeader>
+                Message from Previous Run
+              </HeaderSectionHeader>
+            </SidePaneHeaderSection>
+            <SidePaneSection>
+              {props.nodeExecutionState.messages.map((message, index) => (
+                <NodeExecutionMessageDisplay key={index} message={message} />
+              ))}
+            </SidePaneSection>
+          </>
+        )}
       <SidePaneHeaderSection>
         <HeaderSectionHeader>{nodeDefinition.label} Config</HeaderSectionHeader>
       </SidePaneHeaderSection>

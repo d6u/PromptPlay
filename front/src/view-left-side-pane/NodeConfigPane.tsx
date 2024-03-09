@@ -23,6 +23,9 @@ function NodeConfigPane() {
 
   const nodeConfigs = useFlowStore((s) => s.getFlowContent().nodeConfigsDict);
   const connectors = useFlowStore((s) => s.getFlowContent().variablesDict);
+  const nodeExecutionStates = useFlowStore(
+    (s) => s.getFlowContent().nodeExecutionStates,
+  );
 
   const nodeConfig = useMemo(() => nodeConfigs[nodeId], [nodeConfigs, nodeId]);
 
@@ -33,6 +36,10 @@ function NodeConfigPane() {
   const outputVariables = useMemo(() => {
     return selectVariables(nodeId, ConnectorType.NodeOutput, connectors);
   }, [connectors, nodeId]);
+
+  const nodeExecutionState = useMemo(() => {
+    return nodeId != null ? nodeExecutionStates[nodeId] : null;
+  }, [nodeId, nodeExecutionStates]);
 
   switch (nodeConfig.type) {
     case NodeType.InputNode:
@@ -58,6 +65,7 @@ function NodeConfigPane() {
           isNodeReadOnly={isReadOnly}
           nodeConfig={nodeConfig}
           inputVariables={inputVariables}
+          nodeExecutionState={nodeExecutionState}
         />
       );
     case NodeType.JavaScriptFunctionNode:
@@ -68,6 +76,7 @@ function NodeConfigPane() {
           nodeConfig={nodeConfig}
           inputVariables={inputVariables}
           outputVariables={outputVariables}
+          nodeExecutionState={nodeExecutionState}
         />
       );
     default:
@@ -78,6 +87,7 @@ function NodeConfigPane() {
           nodeConfig={nodeConfig}
           inputVariables={inputVariables}
           outputVariables={outputVariables}
+          nodeExecutionState={nodeExecutionState}
         />
       );
   }
