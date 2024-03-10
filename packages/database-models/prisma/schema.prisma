@@ -32,7 +32,7 @@ model User {
   userType UserType
 
   // Registered user only
-  email             String? @unique
+  email             String?
   name              String?
   profilePictureUrl String?
   auth0UserId       String? @unique
@@ -43,31 +43,45 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  spaces           Space[]
+  flows            Flow[]
   batchTestPresets BatchTestPreset[]
 }
 
-model Space {
-  id             String   @id @default(uuid())
-  name           String
-  contentVersion String
-  contentV3      String
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+enum CanvasDataSchemaVersion {
+  V3
+}
+
+model Flow {
+  id        String   @id @default(uuid())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  canvasDataSchemaVersion CanvasDataSchemaVersion
+  canvasDataV3            Json
 
   User   User?   @relation(fields: [userId], references: [id])
   userId String?
+
+  batchTestPresets BatchTestPreset[]
+}
+
+enum BatchTestPresetConfigDataSchemaVersion {
+  V1
 }
 
 model BatchTestPreset {
-  id                   String   @id @default(uuid())
-  name                 String
-  csv                  String
-  configContentVersion String
-  configContentV1      String
-  createdAt            DateTime @default(now())
-  updatedAt            DateTime @updatedAt
+  id        String   @id @default(uuid())
+  name      String
+  csv       String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  configDataSchemaVersion BatchTestPresetConfigDataSchemaVersion
+  configDataV1            Json
 
   User   User?   @relation(fields: [userId], references: [id])
   userId String?
+  Flow   Flow?   @relation(fields: [flowId], references: [id])
+  flowId String?
 }
