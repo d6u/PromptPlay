@@ -53,7 +53,7 @@ CREATE TABLE "BatchTestPreset" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "configDataSchemaVersion" "BatchTestPresetConfigDataSchemaVersion" NOT NULL,
-    "configDataV1" TEXT NOT NULL,
+    "configDataV1" JSONB NOT NULL,
     "userId" TEXT,
     "flowId" TEXT,
 

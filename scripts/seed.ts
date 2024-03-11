@@ -111,6 +111,7 @@ async function importPlaceholderUsers() {
 
 async function importFlows() {
   let total = 0;
+  let failed = 0;
 
   let response = await SpaceEntity.scan({ limit: 25 });
 
@@ -128,19 +129,26 @@ async function importFlows() {
       response.Items.map(async (_item) => {
         const item = _item as SpaceShape;
 
-        return await prisma.flow.upsert({
-          where: { id: item.id },
-          update: {},
-          create: {
-            id: item.id,
-            name: item.name,
-            canvasDataSchemaVersion: CanvasDataSchemaVersion.V3,
-            canvasDataV3: item.contentV3,
-            createdAt: new Date(item.createdAt),
-            updatedAt: new Date(item.updatedAt),
-            userId: item.ownerId,
-          },
-        });
+        try {
+          return await prisma.flow.upsert({
+            where: { id: item.id },
+            update: {},
+            create: {
+              id: item.id,
+              name: item.name,
+              canvasDataSchemaVersion: CanvasDataSchemaVersion.V3,
+              canvasDataV3: item.contentV3,
+              createdAt: new Date(item.createdAt),
+              updatedAt: new Date(item.updatedAt),
+              userId: item.ownerId,
+            },
+          });
+        } catch (error) {
+          // console.error(error);
+          // console.log(item);
+          failed++;
+          return null;
+        }
       }),
     );
 
@@ -151,7 +159,11 @@ async function importFlows() {
     response = await response.next();
   }
 
-  console.log(`Finished, processed ${total} spaces in total`);
+  console.log(
+    `Finished, processed ${total} spaces in total, ${failed} failed to import, succeeded ${
+      total - failed
+    }`,
+  );
 }
 
 async function importBatchTests() {
