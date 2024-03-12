@@ -1,6 +1,6 @@
 import { Entity, Table } from 'dynamodb-toolbox';
 import { v4 as uuidv4 } from 'uuid';
-import { DocumentClient } from './client.js';
+import { DocumentClient } from './client';
 
 if (!process.env.DYNAMODB_TABLE_NAME_USERS) {
   throw new Error('DYNAMODB_TABLE_NAME_USERS is not set');

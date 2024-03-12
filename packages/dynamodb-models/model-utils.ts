@@ -1,4 +1,4 @@
-import { DbSpaceContentVersion, SpaceShape } from './space.js';
+import { DbSpaceContentVersion, SpaceShape } from './space';
 
 export function createSpaceWithExampleContent(
   dbUserId: string,
@@ -155,13 +155,13 @@ function createExampleSpaceContentV3(): Record<string, unknown> {
         responseFormatType: null,
       },
       '7pl1l': { type: 'InputNode', nodeId: '7pl1l' },
-      SpmQE: {
+      'SpmQE': {
         role: 'user',
         type: 'ChatGPTMessageNode',
         nodeId: 'SpmQE',
         content: 'Write a poem about {{topic}} in fewer than 20 words.',
       },
-      fXtmo: { type: 'OutputNode', nodeId: 'fXtmo' },
+      'fXtmo': { type: 'OutputNode', nodeId: 'fXtmo' },
     },
     variableValueLookUpDicts: [
       {
