@@ -6,6 +6,13 @@
     "clean": "rm -rf dist",
     "build-ts": "rm -rf dist && tsc"
   },
+  "exports": {
+    "./*": {
+      "types": "./src/*.ts",
+      "ts-node": "./src/*.ts",
+      "default": "./dist/*.js"
+    }
+  },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.474.0",
     "@aws-sdk/lib-dynamodb": "^3.470.0",
