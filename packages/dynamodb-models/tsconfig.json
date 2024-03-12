@@ -1,8 +1,7 @@
 {
-  "extends": "common-tsconfig/tsconfig.json",
+  "extends": "@tsconfig/node18/tsconfig.json",
   "compilerOptions": {
-    "noEmit": false,
-    "noUncheckedIndexedAccess": true
-  },
-  "exclude": ["node_modules"]
+    "outDir": "dist",
+    "pretty": true
+  }
 }

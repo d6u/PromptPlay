@@ -1,19 +1,24 @@
 {
   "name": "database-models",
   "private": true,
+  "type": "module",
   "version": "1.0.0",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "seed": "ts-node prisma/seed.ts"
+    "build-ts": "rm -rf dist && tsc"
+  },
+  "exports": {
+    "types": "./src/index.ts",
+    "ts-node": "./src/index.ts",
+    "default": "./dist/index.js"
   },
   "dependencies": {
     "@prisma/client": "5.10.2"
   },
   "devDependencies": {
+    "@tsconfig/node18": "^18.2.2",
     "@types/node": "^20.11.25",
     "common-tsconfig": "workspace:^",
     "prisma": "^5.10.2",
-    "ts-node": "^10.9.2",
     "typescript": "^5.4.2"
   }
 }

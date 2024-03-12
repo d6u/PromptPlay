@@ -1,7 +1,11 @@
 {
   "name": "dynamodb-models",
   "private": true,
+  "type": "module",
   "version": "1.0.0",
+  "scripts": {
+    "build-ts": "rm -rf dist && tsc"
+  },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.474.0",
     "@aws-sdk/lib-dynamodb": "^3.470.0",
@@ -10,11 +14,9 @@
     "uuid": "^9.0.1"
   },
   "devDependencies": {
+    "@tsconfig/node18": "^18.2.2",
     "@types/uuid": "^9.0.7",
     "common-tsconfig": "workspace:^",
     "typescript": "~5.2.0"
-  },
-  "scripts": {
-    "build": "tsc --pretty"
   }
 }

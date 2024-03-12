@@ -1,20 +1,21 @@
+import invariant from 'tiny-invariant';
+
 import {
   BatchTestPresetConfigDataSchemaVersion,
   CanvasDataSchemaVersion,
   PrismaClient,
   UserType,
-} from 'database-models/src/index';
+} from 'database-models';
 import {
   CsvEvaluationPresetEntity,
   CsvEvaluationPresetShape,
-} from 'dynamodb-models/csv-evaluation-preset';
+} from 'dynamodb-models/csv-evaluation-preset.js';
 import {
   PlaceholderUserEntity,
   PlaceholderUserShape,
-} from 'dynamodb-models/placeholder-user';
-import { SpaceEntity, SpaceShape } from 'dynamodb-models/space';
-import { UserEntity, UserShape } from 'dynamodb-models/user';
-import invariant from 'tiny-invariant';
+} from 'dynamodb-models/placeholder-user.js';
+import { SpaceEntity, SpaceShape } from 'dynamodb-models/space.js';
+import { UserEntity, UserShape } from 'dynamodb-models/user.js';
 
 const prisma = new PrismaClient();
 
