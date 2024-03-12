@@ -3,9 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "scripts": {
-    "test": "mocha tests/unit/",
-    "build-ts": "rm -rf dist && tsc",
-    "node-ts": "node -r ts-node/register --no-warnings --conditions=ts-node"
+    "build-ts": "rm -rf dist && tsc"
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.441.0",
@@ -34,10 +32,8 @@
     "@types/express": "^4.17.21",
     "@types/node": "^20.8.10",
     "@types/uuid": "^9.0.7",
-    "chai": "^4.3.6",
     "common-tsconfig": "workspace:^",
     "dotenv-cli": "^7.3.0",
-    "mocha": "^10.1.0",
     "nodemon": "^3.0.1",
     "ts-node": "^10.9.2",
     "typescript": "~5.2.0"
