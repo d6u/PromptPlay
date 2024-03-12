@@ -1,7 +1,7 @@
-import { PlaceholderUserEntity } from 'dynamodb-models/placeholder-user.js';
-import { UserEntity } from 'dynamodb-models/user.js';
+import { PlaceholderUserEntity } from 'dynamodb-models/placeholder-user';
+import { UserEntity } from 'dynamodb-models/user';
 import { NextFunction, Response } from 'express';
-import { RequestWithSession } from '../types.js';
+import { RequestWithSession } from '../types';
 
 type DbUserShape = {
   id: string;

@@ -1,11 +1,7 @@
-// Keep this consistent with tsconfig.json at repo root.
-// For notes and comments, see tsconfig.json at repo root.
 {
-  "extends": "common-tsconfig/tsconfig.json",
+  "extends": "@tsconfig/node18/tsconfig.json",
   "compilerOptions": {
-    "noEmit": false,
     "outDir": "dist",
-    "noUncheckedIndexedAccess": true
-  },
-  "include": ["src/**/*"]
+    "pretty": true
+  }
 }

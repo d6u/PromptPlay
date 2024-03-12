@@ -3,6 +3,9 @@
   "private": true,
   "type": "module",
   "version": "1.0.0",
+  "scripts": {
+    "node-ts": "node --loader ts-node/esm --no-warnings --conditions=ts-node"
+  },
   "devDependencies": {
     "@aws-sdk/client-dynamodb": "^3.468.0",
     "@mobily/ts-belt": "^3.13.1",
@@ -28,8 +31,5 @@
     "tslib": "^2.6.2",
     "typescript": "~5.2.0",
     "uuid": "^9.0.1"
-  },
-  "scripts": {
-    "node-ts": "node --loader ts-node/esm --no-warnings --conditions=ts-node"
   }
 }

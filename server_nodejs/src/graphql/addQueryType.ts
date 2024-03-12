@@ -1,6 +1,6 @@
-import { SpaceEntity } from 'dynamodb-models/space.js';
-import { UserEntity } from 'dynamodb-models/user.js';
-import { BuilderType, Space, User } from './graphql-types.js';
+import { SpaceEntity } from 'dynamodb-models/space';
+import { UserEntity } from 'dynamodb-models/user';
+import { BuilderType, Space, User } from './graphql-types';
 
 export default function addQueryType(builder: BuilderType) {
   const QuerySpaceResult = builder

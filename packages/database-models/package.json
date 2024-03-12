@@ -1,7 +1,6 @@
 {
   "name": "database-models",
   "private": true,
-  "type": "module",
   "version": "1.0.0",
   "scripts": {
     "build-ts": "rm -rf dist && tsc"

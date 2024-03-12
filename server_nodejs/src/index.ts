@@ -1,12 +1,12 @@
-import './utils/checkEnvVar.js';
+import './utils/checkEnvVar';
 // Check if the environment variables are set correctly first.
 
 import cookieSession from 'cookie-session';
 import cors from 'cors';
 import express from 'express';
 import serverless from 'serverless-http';
-import setupAuth from './routesAuth.js';
-import setupGraphql from './routesGraphql.js';
+import setupAuth from './routesAuth';
+import setupGraphql from './routesGraphql';
 
 const app = express();
 

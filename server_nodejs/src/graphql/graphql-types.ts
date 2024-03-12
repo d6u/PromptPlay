@@ -1,7 +1,7 @@
-import { CsvEvaluationPresetShape } from 'dynamodb-models/csv-evaluation-preset.js';
-import { DbSpaceContentVersion, SpaceShape } from 'dynamodb-models/space.js';
-import { UserShape } from 'dynamodb-models/user.js';
-import { RequestWithUser } from '../middleware/user.js';
+import { CsvEvaluationPresetShape } from 'dynamodb-models/csv-evaluation-preset';
+import { DbSpaceContentVersion, SpaceShape } from 'dynamodb-models/space';
+import { UserShape } from 'dynamodb-models/user';
+import { RequestWithUser } from '../middleware/user';
 
 type Context = {
   req: RequestWithUser;
