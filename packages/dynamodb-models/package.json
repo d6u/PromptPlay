@@ -3,6 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "scripts": {
+    "clean": "rm -rf dist",
     "build-ts": "rm -rf dist && tsc"
   },
   "dependencies": {

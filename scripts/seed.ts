@@ -9,13 +9,13 @@ import {
 import {
   CsvEvaluationPresetEntity,
   CsvEvaluationPresetShape,
-} from 'dynamodb-models/csv-evaluation-preset.js';
+} from 'dynamodb-models/csv-evaluation-preset';
 import {
   PlaceholderUserEntity,
   PlaceholderUserShape,
-} from 'dynamodb-models/placeholder-user.js';
-import { SpaceEntity, SpaceShape } from 'dynamodb-models/space.js';
-import { UserEntity, UserShape } from 'dynamodb-models/user.js';
+} from 'dynamodb-models/placeholder-user';
+import { SpaceEntity, SpaceShape } from 'dynamodb-models/space';
+import { UserEntity, UserShape } from 'dynamodb-models/user';
 
 const prisma = new PrismaClient();
 
