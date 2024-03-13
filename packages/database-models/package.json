@@ -7,8 +7,8 @@
     "build-ts": "rm -rf dist && tsc"
   },
   "exports": {
+    "ts": "./src/index.ts",
     "types": "./src/index.ts",
-    "ts-node": "./src/index.ts",
     "default": "./dist/index.js"
   },
   "dependencies": {

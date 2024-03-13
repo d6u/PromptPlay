@@ -5,6 +5,11 @@
   "scripts": {
     "lint": "eslint index.ts src"
   },
+  "exports": {
+    "ts": "./src/index.ts",
+    "types": "./src/index.ts",
+    "default": "./dist/index.js"
+  },
   "dependencies": {
     "@mobily/ts-belt": "^3.13.1",
     "chance": "^1.1.11",

@@ -8,8 +8,8 @@
   },
   "exports": {
     "./*": {
+      "ts": "./src/*.ts",
       "types": "./src/*.ts",
-      "ts-node": "./src/*.ts",
       "default": "./dist/*.js"
     }
   },
