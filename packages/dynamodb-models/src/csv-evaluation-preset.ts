@@ -1,32 +1,35 @@
 import { Entity, Table } from 'dynamodb-toolbox';
 import { deflateSync, inflateSync } from 'node:zlib';
 import { v4 as uuidv4 } from 'uuid';
-import { DocumentClient } from './client.js';
+import { DocumentClient } from './client';
 
-if (!process.env.DYNAMODB_TABLE_NAME_SPACES) {
-  throw new Error('DYNAMODB_TABLE_NAME_SPACES is not set');
+if (!process.env.DYNAMODB_TABLE_NAME_CSV_EVALUATION_PRESETS) {
+  throw new Error('DYNAMODB_TABLE_NAME_CSV_EVALUATION_PRESETS is not set');
 }
 
-export enum DbSpaceContentVersion {
-  v2 = 'v2',
-  v3 = 'v3',
+export enum DbCsvEvaluationPresetConfigContentVersion {
+  v1 = 'v1',
 }
 
-export const SpacesTable = new Table({
-  name: process.env.DYNAMODB_TABLE_NAME_SPACES,
+export const CsvEvaluationPresetsTable = new Table({
+  name: process.env.DYNAMODB_TABLE_NAME_CSV_EVALUATION_PRESETS,
   partitionKey: 'Id',
   indexes: {
+    SpaceIdIndex: {
+      partitionKey: 'SpaceId',
+      sortKey: 'Id',
+    },
     OwnerIdIndex: {
       partitionKey: 'OwnerId',
-      sortKey: 'UpdatedAt',
+      sortKey: 'Id',
     },
   },
   DocumentClient,
 });
 
-export const SpaceEntity = new Entity({
-  table: SpacesTable,
-  name: 'Space',
+export const CsvEvaluationPresetEntity = new Entity({
+  table: CsvEvaluationPresetsTable,
+  name: 'CsvEvaluationPreset',
   attributes: {
     id: {
       partitionKey: true,
@@ -38,20 +41,30 @@ export const SpaceEntity = new Entity({
       required: true,
       map: 'OwnerId',
     },
+    spaceId: {
+      type: 'string',
+      required: true,
+      map: 'SpaceId',
+    },
     name: {
       type: 'string',
       required: true,
       map: 'Name',
     },
-    contentVersion: {
+    csvString: {
       type: 'string',
       required: true,
-      map: 'ContentVersion',
+      map: 'CsvString',
     },
-    contentV3: {
+    configContentVersion: {
+      type: 'string',
+      required: true,
+      map: 'ConfigContentVersion',
+    },
+    configContentV1: {
       type: 'binary',
       required: true,
-      map: 'ContentV3',
+      map: 'ConfigContentV1',
       // Because transform and format don't support returning promise,
       // use the sync version of methods.
       transform(value) {
@@ -82,12 +95,14 @@ export const SpaceEntity = new Entity({
   typeHidden: true,
 } as const);
 
-export type SpaceShape = {
+export type CsvEvaluationPresetShape = {
   id: string;
   ownerId: string;
+  spaceId: string;
   name: string;
-  contentVersion: string;
-  contentV3: string;
+  csvString: string;
+  configContentVersion: string;
+  configContentV1: string;
   createdAt: number;
   updatedAt: number;
 };

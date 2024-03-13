@@ -1,12 +1,12 @@
 import { A, D, F } from '@mobily/ts-belt';
-import { PlaceholderUserEntity } from 'dynamodb-models/placeholder-user.js';
-import { SessionEntity } from 'dynamodb-models/session.js';
-import { SpaceEntity, SpacesTable } from 'dynamodb-models/space.js';
-import { UserEntity, UsersTable } from 'dynamodb-models/user.js';
+import { PlaceholderUserEntity } from 'dynamodb-models/placeholder-user';
+import { SessionEntity } from 'dynamodb-models/session';
+import { SpaceEntity, SpacesTable } from 'dynamodb-models/space';
+import { UserEntity, UsersTable } from 'dynamodb-models/user';
 import { Express, Response } from 'express';
 import { BaseClient, Issuer, TokenSet, generators } from 'openid-client';
-import { RequestWithUser, attachUser } from './middleware/user.js';
-import { RequestWithSession } from './types.js';
+import { RequestWithUser, attachUser } from './middleware/user';
+import { RequestWithSession } from './types';
 
 async function getAuthClient() {
   const authIssuer = await Issuer.discover(

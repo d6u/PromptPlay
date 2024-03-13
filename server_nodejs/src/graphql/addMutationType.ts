@@ -2,15 +2,15 @@ import {
   CsvEvaluationPresetEntity,
   CsvEvaluationPresetShape,
   DbCsvEvaluationPresetConfigContentVersion,
-} from 'dynamodb-models/csv-evaluation-preset.js';
-import { createSpaceWithExampleContent } from 'dynamodb-models/model-utils.js';
-import { PlaceholderUserEntity } from 'dynamodb-models/placeholder-user.js';
+} from 'dynamodb-models/csv-evaluation-preset';
+import { createSpaceWithExampleContent } from 'dynamodb-models/model-utils';
+import { PlaceholderUserEntity } from 'dynamodb-models/placeholder-user';
 import {
   DbSpaceContentVersion,
   SpaceEntity,
   SpaceShape,
-} from 'dynamodb-models/space.js';
-import { nullThrow } from '../utils/utils.js';
+} from 'dynamodb-models/space';
+import { nullThrow } from '../utils/utils';
 import {
   BuilderType,
   CsvEvaluationPreset,
@@ -18,7 +18,7 @@ import {
   CsvEvaluationPresetFull,
   Space,
   SpaceContentVersion,
-} from './graphql-types.js';
+} from './graphql-types';
 
 export default function addMutationType(builder: BuilderType) {
   const CreateCsvEvaluationPresetResult = builder

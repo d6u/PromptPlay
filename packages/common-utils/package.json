@@ -2,11 +2,23 @@
   "name": "common-utils",
   "private": true,
   "version": "1.0.0",
+  "exports": {
+    "./*": {
+      "ts": "./src/*.ts",
+      "types": "./src/*.ts",
+      "default": "./dist/*.js"
+    }
+  },
+  "scripts": {
+    "clean": "rm -rf dist",
+    "build-ts": "rm -rf dist && tsc"
+  },
   "dependencies": {
     "chance": "^1.1.11",
     "nanoid": "^3.0.0"
   },
   "devDependencies": {
-    "@types/chance": "^1.1.6"
+    "@types/chance": "^1.1.6",
+    "common-tsconfig": "workspace:^"
   }
 }

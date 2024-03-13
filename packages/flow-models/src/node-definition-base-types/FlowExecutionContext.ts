@@ -133,6 +133,7 @@ export class MutableFlowNodeGraph {
           this.nodeVariableIndegrees[nodeId] === 0 &&
           this.nodeConditionIndegrees[nodeId] === 0,
       ),
+      F.toMutable,
     );
   }
 

@@ -1,10 +1,6 @@
 {
   "extends": "common-tsconfig/tsconfig.json",
   "compilerOptions": {
-    "lib": [
-      // TODO: Remove "dom" in script package. This is currently to fix an
-      // type checking error in packages/integrations
-      "dom"
-    ]
+    "noEmit": true
   }
 }

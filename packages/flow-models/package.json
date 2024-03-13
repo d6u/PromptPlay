@@ -2,8 +2,15 @@
   "name": "flow-models",
   "private": true,
   "version": "1.0.0",
+  "exports": {
+    "ts": "./src/index.ts",
+    "types": "./src/index.ts",
+    "default": "./dist/index.js"
+  },
   "scripts": {
-    "lint": "eslint index.ts src"
+    "lint": "eslint index.ts src",
+    "clean": "rm -rf dist",
+    "build-ts": "rm -rf dist && tsc"
   },
   "dependencies": {
     "@mobily/ts-belt": "^3.13.1",
@@ -24,6 +31,7 @@
     "@types/react": "^18.2.15",
     "@typescript-eslint/eslint-plugin": "^6.16.0",
     "@typescript-eslint/parser": "^6.16.0",
+    "common-tsconfig": "workspace:^",
     "eslint": "^8.56.0",
     "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-react": "^7.33.2"

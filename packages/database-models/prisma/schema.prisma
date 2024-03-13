@@ -1,0 +1,87 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// LoginSession is used for mapping session ID stored in browser cookies
+// to idToken obtained from idp. It doesn't directly link to a specific user.
+model LoginSession {
+  id           String   @id @default(uuid())
+  auth0IdToken String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+enum UserType {
+  RegisteredUser
+  PlaceholderUser
+}
+
+model User {
+  id       String   @id @default(uuid())
+  userType UserType
+
+  // Registered user only
+  email             String?
+  name              String?
+  profilePictureUrl String?
+  auth0UserId       String? @unique
+
+  // Placeholder user only
+  placeholderClientToken String? @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  flows            Flow[]
+  batchTestPresets BatchTestPreset[]
+}
+
+enum CanvasDataSchemaVersion {
+  V3
+}
+
+model Flow {
+  id        String   @id @default(uuid())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  canvasDataSchemaVersion CanvasDataSchemaVersion
+  canvasDataV3            Json
+
+  User   User?   @relation(fields: [userId], references: [id])
+  userId String?
+
+  batchTestPresets BatchTestPreset[]
+}
+
+enum BatchTestPresetConfigDataSchemaVersion {
+  V1
+}
+
+model BatchTestPreset {
+  id        String   @id @default(uuid())
+  name      String
+  csv       String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  configDataSchemaVersion BatchTestPresetConfigDataSchemaVersion
+  configDataV1            Json
+
+  User   User?   @relation(fields: [userId], references: [id])
+  userId String?
+  Flow   Flow?   @relation(fields: [flowId], references: [id])
+  flowId String?
+}

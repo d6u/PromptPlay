@@ -1,7 +1,7 @@
 import { Express } from 'express';
 import { createYoga } from 'graphql-yoga';
-import schemaBuilder from './graphql/schemaBuilder.js';
-import { attachUser } from './middleware/user.js';
+import schemaBuilder from './graphql/schemaBuilder';
+import { attachUser } from './middleware/user';
 
 const yoga = createYoga({
   schema: schemaBuilder.toSchema(),

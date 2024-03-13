@@ -1,29 +1,46 @@
 import { Entity, Table } from 'dynamodb-toolbox';
 import { v4 as uuidv4 } from 'uuid';
-import { DocumentClient } from './client.js';
+import { DocumentClient } from './client';
 
-if (!process.env.DYNAMODB_TABLE_NAME_SESSIONS) {
-  throw new Error('DYNAMODB_TABLE_NAME_SESSIONS is not set');
+if (!process.env.DYNAMODB_TABLE_NAME_USERS) {
+  throw new Error('DYNAMODB_TABLE_NAME_USERS is not set');
 }
 
-export const SessionsTable = new Table({
-  name: process.env.DYNAMODB_TABLE_NAME_SESSIONS,
+export const UsersTable = new Table({
+  name: process.env.DYNAMODB_TABLE_NAME_USERS,
   partitionKey: 'Id',
+  indexes: {
+    Auth0UserIdIndex: {
+      partitionKey: 'Auth0UserId',
+    },
+  },
   DocumentClient,
 });
 
-export const SessionEntity = new Entity({
-  table: SessionsTable,
-  name: 'Session',
+export const UserEntity = new Entity({
+  table: UsersTable,
+  name: 'User',
   attributes: {
     id: {
       partitionKey: true,
       type: 'string',
       default: () => uuidv4(),
     },
-    auth0IdToken: {
+    name: {
       type: 'string',
-      map: 'Auth0IdToken',
+      map: 'Name',
+    },
+    email: {
+      type: 'string',
+      map: 'Email',
+    },
+    profilePictureUrl: {
+      type: 'string',
+      map: 'ProfilePictureUrl',
+    },
+    auth0UserId: {
+      type: 'string',
+      map: 'Auth0UserId',
     },
     createdAt: {
       type: 'number',
@@ -45,9 +62,12 @@ export const SessionEntity = new Entity({
   typeHidden: true,
 } as const);
 
-export type SessionShape = {
+export type UserShape = {
   id: string;
-  auth0IdToken: string;
+  name?: string;
+  email?: string;
+  profilePictureUrl?: string;
+  auth0UserId?: string;
   createdAt: number;
   updatedAt: number;
 };
