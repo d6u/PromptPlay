@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "scripts": {
-    "node-ts": "node -r ts-node/register --no-warnings --conditions=ts-node"
+    "node-ts": "node -r ts-node/register --no-warnings --conditions=ts"
   },
   "devDependencies": {
     "@aws-sdk/client-dynamodb": "^3.468.0",

@@ -2,20 +2,19 @@
   "name": "database-models",
   "private": true,
   "version": "1.0.0",
-  "scripts": {
-    "clean": "rm -rf dist",
-    "build-ts": "rm -rf dist && tsc"
-  },
   "exports": {
     "ts": "./src/index.ts",
     "types": "./src/index.ts",
     "default": "./dist/index.js"
   },
+  "scripts": {
+    "clean": "rm -rf dist",
+    "build-ts": "rm -rf dist && tsc"
+  },
   "dependencies": {
     "@prisma/client": "5.10.2"
   },
   "devDependencies": {
-    "@tsconfig/node18": "^18.2.2",
     "@types/node": "^20.11.25",
     "common-tsconfig": "workspace:^",
     "prisma": "^5.10.2",

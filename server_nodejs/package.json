@@ -5,7 +5,7 @@
   "scripts": {
     "clean": "rm -rf dist",
     "build-ts": "rm -rf dist && tsc",
-    "node-ts": "node -r ts-node/register --no-warnings --conditions=ts-node"
+    "node-ts": "node -r ts-node/register --no-warnings --conditions=ts"
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.441.0",

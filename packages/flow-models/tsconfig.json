@@ -1,3 +1,6 @@
 {
-  "extends": "../../front/tsconfig.json"
+  "extends": "common-tsconfig/tsconfig.json",
+  "compilerOptions": {
+    "outDir": "dist"
+  }
 }

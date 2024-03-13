@@ -1,14 +1,14 @@
-import { NodeTypeEnum } from './src/node-definition-base-types';
+import { NodeTypeEnum } from './node-definition-base-types';
 import {
   BULTIN_NODE_TYPES_ORDERED_ARRAY,
   INTEGRATION_NODE_TYPES_ORDERED_ARRAY,
   NODE_TYPE_TO_NODE_DEFINITION_MAP,
-} from './src/node-definitions';
+} from './node-definitions';
 
-export * from './src/base-types';
-export * from './src/node-definition-base-types';
-export * from './src/node-definitions';
-export * from './src/v3-flow-content-types';
+export * from './base-types';
+export * from './node-definition-base-types';
+export * from './node-definitions';
+export * from './v3-flow-content-types';
 
 export function getNodeDefinitionForNodeTypeName<T extends NodeTypeEnum>(
   type: T,
