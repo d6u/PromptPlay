@@ -17,4 +17,9 @@ export default defineConfig({
   server: {
     port: 3000,
   },
+  resolve: {
+    // match with local packages' conditional "exports",
+    // so we can load up .ts files directly without compile packages
+    conditions: ['ts'],
+  },
 });
