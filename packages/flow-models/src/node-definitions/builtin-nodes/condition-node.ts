@@ -12,7 +12,7 @@ import {
   ConnectorType,
   NodeInputVariable,
   VariableValueType,
-} from '../../base-types/connector-types';
+} from '../../base-types';
 import {
   FieldType,
   NodeDefinition,

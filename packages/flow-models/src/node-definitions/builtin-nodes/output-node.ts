@@ -10,7 +10,7 @@ import {
   ConnectorType,
   FlowOutputVariable,
   VariableValueType,
-} from '../../base-types/connector-types';
+} from '../../base-types';
 import {
   NodeDefinition,
   NodeExecutionEvent,
