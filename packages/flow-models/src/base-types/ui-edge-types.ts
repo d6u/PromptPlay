@@ -1,7 +1,7 @@
 import type { Edge } from 'reactflow';
 import z from 'zod';
 
-export type V3ServerEdge = {
+export type ServerEdge = {
   id: string;
   source: string;
   sourceHandle: string;
@@ -9,11 +9,11 @@ export type V3ServerEdge = {
   targetHandle: string;
 };
 
-export type V3LocalEdge = Omit<
+export type LocalEdge = Omit<
   Edge<never>,
   'id' | 'source' | 'sourceHandle' | 'target' | 'targetHandle'
 > &
-  V3ServerEdge;
+  ServerEdge;
 
 export const ServerEdgeSchema = z.object({
   id: z.string(),

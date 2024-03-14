@@ -9,10 +9,10 @@ import {
   ConnectorType,
   FlowInputVariable,
   FlowOutputVariable,
+  LocalEdge,
   LocalNode,
   NodeInputVariable,
   NodeOutputVariable,
-  V3LocalEdge,
 } from 'flow-models';
 
 import { DRAG_HANDLE_CLASS_NAME } from 'view-flow-canvas/constants';
@@ -30,9 +30,9 @@ export function assignLocalNodeProperties(nodes: LocalNode[]): LocalNode[] {
 }
 
 export function assignLocalEdgeProperties(
-  edges: V3LocalEdge[],
+  edges: LocalEdge[],
   connectorsDict: ConnectorMap,
-): V3LocalEdge[] {
+): LocalEdge[] {
   return produce(edges, (draft) => {
     for (const edge of draft) {
       if (!edge.style) {

@@ -2,7 +2,7 @@ import { current } from 'immer';
 import { EdgeChange, applyEdgeChanges } from 'reactflow';
 import invariant from 'tiny-invariant';
 
-import { V3LocalEdge } from 'flow-models';
+import { LocalEdge } from 'flow-models';
 
 import { createHandler } from './event-graph-util';
 import { ChangeEventType } from './event-types';
@@ -52,7 +52,7 @@ export const handleReactFlowEdgesChange = createHandler<
     state.flowContent.edges = applyEdgeChanges(
       event.changes,
       state.flowContent.edges,
-    ) as V3LocalEdge[];
+    ) as LocalEdge[];
 
     return events;
   },

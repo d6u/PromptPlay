@@ -11,11 +11,11 @@ import {
   ConnectorMap,
   ConnectorResultMap,
   ConnectorTypeEnum,
+  LocalEdge,
   LocalNode,
   NodeConfig,
   NodeConfigMap,
   NodeTypeEnum,
-  V3LocalEdge,
 } from 'flow-models';
 
 import { RunMetadata } from 'flow-run/run-types';
@@ -118,7 +118,7 @@ export type StateMachineActionsStateSlice = {
 
 export type FlowContentState = {
   nodes: LocalNode[];
-  edges: V3LocalEdge[];
+  edges: LocalEdge[];
   nodeConfigsDict: NodeConfigMap;
   variablesDict: ConnectorMap;
   variableValueLookUpDicts: ConnectorResultMap[];

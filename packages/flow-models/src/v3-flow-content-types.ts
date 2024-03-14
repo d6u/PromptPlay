@@ -7,8 +7,8 @@ import type {
   ConditionTarget,
   ConnectorMap,
   ConnectorResultMap,
+  ServerEdge,
   ServerNode,
-  V3ServerEdge,
 } from './base-types';
 import {
   ConnectorMapSchema,
@@ -30,7 +30,7 @@ export type {
 
 export type V3FlowContent = {
   nodes: ServerNode[];
-  edges: V3ServerEdge[];
+  edges: ServerEdge[];
   nodeConfigsDict: NodeConfigMap;
   variablesDict: ConnectorMap;
   variableValueLookUpDicts: ConnectorResultMap[];

@@ -7,8 +7,8 @@ import randomId from 'common-utils/randomId';
 import {
   ConnectorMap,
   ConnectorType,
+  LocalEdge,
   NodeType,
-  V3LocalEdge,
   VariableValueType,
 } from 'flow-models';
 
@@ -73,7 +73,7 @@ export function handleReactFlowConnectEvent(
   const newEdgeArray = addEdge(
     event.connection,
     state.flowContent.edges,
-  ) as V3LocalEdge[];
+  ) as LocalEdge[];
   const addedEdges = A.difference(newEdgeArray, state.flowContent.edges);
 
   // Connection already existed
@@ -162,7 +162,7 @@ export function handleReactFlowConnectEvent(
 }
 
 function addStyleIfNotAlreadyAdded(
-  edges: Draft<V3LocalEdge[]>,
+  edges: Draft<LocalEdge[]>,
   connectors: Readonly<ConnectorMap>,
 ) {
   for (const edge of edges) {
