@@ -58,6 +58,8 @@ export const JAVASCRIPT_NODE_DEFINITION: NodeDefinition<
           name: 'output',
           index: 0,
           valueType: VariableValueType.Unknown,
+          isGlobal: true,
+          globalVariableId: null,
         },
         {
           type: ConnectorType.NodeInput,
@@ -66,6 +68,8 @@ export const JAVASCRIPT_NODE_DEFINITION: NodeDefinition<
           name: 'userName',
           index: 1,
           valueType: VariableValueType.Unknown,
+          isGlobal: true,
+          globalVariableId: null,
         },
         {
           type: ConnectorType.ConditionTarget,

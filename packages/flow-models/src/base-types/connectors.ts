@@ -27,6 +27,8 @@ export const NodeInputVariableSchema = z.object({
   nodeId: z.string(),
   index: z.number(),
   valueType: z.enum([VariableValueType.Unknown]),
+  isGlobal: z.boolean().default(false),
+  globalVariableId: z.string().nullable().default(null),
 });
 
 export const NodeOutputVariableSchema = z.object({
@@ -36,6 +38,8 @@ export const NodeOutputVariableSchema = z.object({
   nodeId: z.string(),
   index: z.number(),
   valueType: z.enum([VariableValueType.Unknown, VariableValueType.Audio]),
+  isGlobal: z.boolean().default(false),
+  globalVariableId: z.string().nullable().default(null),
 });
 
 export const ConditionSchema = z.object({

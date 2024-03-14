@@ -248,6 +248,8 @@ test('executeFlow should unblock node has multiple conditions even when only one
         nodeId: '1w9JM',
         index: 0,
         valueType: 'Unknown',
+        isGlobal: true,
+        globalVariableId: null,
       },
       '1w9JM/fR2hj': {
         type: 'Condition',
@@ -282,6 +284,8 @@ test('executeFlow should unblock node has multiple conditions even when only one
         nodeId: '2WvHf',
         index: 0,
         valueType: 'Unknown',
+        isGlobal: true,
+        globalVariableId: null,
       },
       '2WvHf/w92gJ': {
         type: 'ConditionTarget',
@@ -295,6 +299,8 @@ test('executeFlow should unblock node has multiple conditions even when only one
         nodeId: 'eSpTO',
         index: 0,
         valueType: 'Unknown',
+        isGlobal: true,
+        globalVariableId: null,
       },
       'eSpTO/44B0L': {
         type: 'ConditionTarget',
@@ -508,6 +514,8 @@ test('executeFlow should fallback to default case when no condition was met', ()
         nodeId: '1w9JM',
         index: 0,
         valueType: 'Unknown',
+        isGlobal: true,
+        globalVariableId: null,
       },
       '1w9JM/fR2hj': {
         type: 'Condition',
@@ -542,6 +550,8 @@ test('executeFlow should fallback to default case when no condition was met', ()
         nodeId: '2WvHf',
         index: 0,
         valueType: 'Unknown',
+        isGlobal: true,
+        globalVariableId: null,
       },
       '2WvHf/w92gJ': {
         type: 'ConditionTarget',
@@ -555,6 +565,8 @@ test('executeFlow should fallback to default case when no condition was met', ()
         nodeId: 'eSpTO',
         index: 0,
         valueType: 'Unknown',
+        isGlobal: true,
+        globalVariableId: null,
       },
       'eSpTO/44B0L': {
         type: 'ConditionTarget',

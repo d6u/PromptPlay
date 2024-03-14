@@ -95,6 +95,8 @@ export const ELEVENLABS_NODE_DEFINITION: NodeDefinition<
           nodeId: nodeId,
           index: 0,
           valueType: VariableValueType.Unknown,
+          isGlobal: true,
+          globalVariableId: null,
         },
         {
           type: ConnectorType.NodeOutput,
@@ -103,6 +105,8 @@ export const ELEVENLABS_NODE_DEFINITION: NodeDefinition<
           nodeId: nodeId,
           index: 0,
           valueType: VariableValueType.Audio,
+          isGlobal: true,
+          globalVariableId: null,
         },
         {
           type: ConnectorType.ConditionTarget,

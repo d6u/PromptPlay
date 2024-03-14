@@ -100,6 +100,8 @@ export const HUGGINGFACE_INFERENCE_NODE_DEFINITION: NodeDefinition<
           nodeId: nodeId,
           index: 0,
           valueType: VariableValueType.Unknown,
+          isGlobal: true,
+          globalVariableId: null,
         },
         {
           type: ConnectorType.NodeOutput,
@@ -108,6 +110,8 @@ export const HUGGINGFACE_INFERENCE_NODE_DEFINITION: NodeDefinition<
           nodeId: nodeId,
           index: 0,
           valueType: VariableValueType.Unknown,
+          isGlobal: true,
+          globalVariableId: null,
         },
         {
           type: ConnectorType.ConditionTarget,

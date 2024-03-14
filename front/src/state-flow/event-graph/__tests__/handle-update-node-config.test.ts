@@ -44,6 +44,8 @@ test('handleUpdateNodeConfig should add node and nodeConfig', () => {
           nodeId: 'I6L6E',
           index: 0,
           valueType: 'Unknown',
+          isGlobal: true,
+          globalVariableId: null,
         },
         'I6L6E/content': {
           type: 'NodeOutput',
@@ -52,6 +54,8 @@ test('handleUpdateNodeConfig should add node and nodeConfig', () => {
           nodeId: 'I6L6E',
           index: 0,
           valueType: 'Unknown',
+          isGlobal: true,
+          globalVariableId: null,
         },
         'I6L6E/niU2H': {
           type: 'ConditionTarget',
