@@ -5,21 +5,22 @@ import invariant from 'tiny-invariant';
 import {
   Condition,
   ConditionTarget,
-  ConnectorMap,
+  ConnectorRecords,
   ConnectorType,
   FlowInputVariable,
   FlowOutputVariable,
-  LocalNode,
+  LocalEdge,
   NodeInputVariable,
   NodeOutputVariable,
-  V3LocalEdge,
 } from 'flow-models';
 
 import { DRAG_HANDLE_CLASS_NAME } from 'view-flow-canvas/constants';
 
 import { CONDITION_EDGE_STYLE, DEFAULT_EDGE_STYLE } from './constants';
 
-export function assignLocalNodeProperties(nodes: LocalNode[]): LocalNode[] {
+export function assignLocalNodeProperties<T extends { dragHandle?: string }>(
+  nodes: T[],
+): T[] {
   return produce(nodes, (draft) => {
     for (const node of draft) {
       if (!node.dragHandle) {
@@ -30,9 +31,9 @@ export function assignLocalNodeProperties(nodes: LocalNode[]): LocalNode[] {
 }
 
 export function assignLocalEdgeProperties(
-  edges: V3LocalEdge[],
-  connectorsDict: ConnectorMap,
-): V3LocalEdge[] {
+  edges: LocalEdge[],
+  connectorsDict: ConnectorRecords,
+): LocalEdge[] {
   return produce(edges, (draft) => {
     for (const edge of draft) {
       if (!edge.style) {
@@ -69,7 +70,7 @@ export function selectVariables<
 >(
   nodeId: string,
   type: T,
-  variableConfigs: ConnectorMap,
+  variableConfigs: ConnectorRecords,
 ): VariableTypeToVariableConfigTypeMap[T][] {
   return D.values(variableConfigs)
     .filter((v): v is VariableTypeToVariableConfigTypeMap[T] => {
@@ -86,7 +87,7 @@ export function selectAllVariables<
     | typeof ConnectorType.FlowOutput,
 >(
   type: T,
-  variableMap: ConnectorMap,
+  variableMap: ConnectorRecords,
 ): VariableTypeToVariableConfigTypeMap[T][] {
   return Object.values(variableMap)
     .filter((v): v is VariableTypeToVariableConfigTypeMap[T] => {
@@ -97,7 +98,7 @@ export function selectAllVariables<
 
 export function selectConditions(
   nodeId: string,
-  variablesDict: ConnectorMap,
+  variablesDict: ConnectorRecords,
 ): Condition[] {
   return D.values(variablesDict)
     .filter((c): c is Condition => {
@@ -108,7 +109,7 @@ export function selectConditions(
 
 export function selectConditionTarget(
   nodeId: string,
-  variablesDict: ConnectorMap,
+  variablesDict: ConnectorRecords,
 ): Option<ConditionTarget> {
   return D.values(variablesDict).find((c): c is ConditionTarget => {
     return c.nodeId === nodeId && c.type === ConnectorType.ConditionTarget;

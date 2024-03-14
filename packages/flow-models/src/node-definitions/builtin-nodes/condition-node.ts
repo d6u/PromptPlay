@@ -12,7 +12,7 @@ import {
   ConnectorType,
   NodeInputVariable,
   VariableValueType,
-} from '../../base-types/connector-types';
+} from '../../base-types';
 import {
   FieldType,
   NodeDefinition,
@@ -21,19 +21,17 @@ import {
   NodeType,
 } from '../../node-definition-base-types';
 
-export type ConditionNodeInstanceLevelConfig = {
-  type: typeof NodeType.ConditionNode;
-  nodeId: string;
-  stopAtTheFirstMatch: boolean;
-};
-
-export type ConditionNodeAllLevelConfig = ConditionNodeInstanceLevelConfig;
-
 export const ConditionNodeConfigSchema = z.object({
   type: z.literal(NodeType.ConditionNode),
   nodeId: z.string(),
   stopAtTheFirstMatch: z.boolean().default(true),
 });
+
+export type ConditionNodeInstanceLevelConfig = z.infer<
+  typeof ConditionNodeConfigSchema
+>;
+
+export type ConditionNodeAllLevelConfig = ConditionNodeInstanceLevelConfig;
 
 export const CONDITION_NODE_DEFINITION: NodeDefinition<
   ConditionNodeInstanceLevelConfig,

@@ -17,7 +17,7 @@ test('handleUpdateNodeConfig should add node and nodeConfig', () => {
       nodes: [
         {
           id: 'I6L6E',
-          type: 'TextTemplate',
+          type: 'CANVAS_NODE',
           position: {
             x: 482,
             y: 57,

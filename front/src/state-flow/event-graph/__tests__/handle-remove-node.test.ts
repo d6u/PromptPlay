@@ -16,7 +16,7 @@ test('handleRemoveNode should remove node, nodeConfig, and connectors', () => {
       nodes: [
         {
           id: '8e2At',
-          type: 'InputNode',
+          type: 'CANVAS_NODE',
           position: {
             x: 510,
             y: 200,

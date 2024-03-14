@@ -1,5 +1,5 @@
 // NOTE: Update this when adding new node types
-const NodeType = {
+export const NodeType = {
   InputNode: 'InputNode',
   OutputNode: 'OutputNode',
   ConditionNode: 'ConditionNode',
@@ -10,7 +10,5 @@ const NodeType = {
   HuggingFaceInference: 'HuggingFaceInference',
   ElevenLabs: 'ElevenLabs',
 } as const;
-
-export default NodeType;
 
 export type NodeTypeEnum = (typeof NodeType)[keyof typeof NodeType];

@@ -1,4 +1,9 @@
-import { LocalNode, getNodeDefinitionForNodeTypeName } from 'flow-models';
+import {
+  LocalNode,
+  NodeTypeEnum,
+  createNode,
+  getNodeDefinitionForNodeTypeName,
+} from 'flow-models';
 
 import { DRAG_HANDLE_CLASS_NAME } from 'view-flow-canvas/constants';
 
@@ -11,7 +16,9 @@ import {
 
 export type AddNodeEvent = {
   type: ChangeEventType.ADDING_NODE;
-  node: LocalNode;
+  nodeType: NodeTypeEnum;
+  x: number;
+  y: number;
 };
 
 export const handleAddNode = createHandler<
@@ -22,17 +29,19 @@ export const handleAddNode = createHandler<
     return event.type === ChangeEventType.ADDING_NODE;
   },
   (state, event) => {
+    const node = createNode(event.x, event.y) as LocalNode;
+
     const { nodeConfig, variableConfigList: connectors } =
-      getNodeDefinitionForNodeTypeName(event.node.type).createDefaultNodeConfig(
-        event.node.id,
+      getNodeDefinitionForNodeTypeName(event.nodeType).createDefaultNodeConfig(
+        node.id,
       );
 
     state.flowContent.nodes.push({
-      ...event.node,
+      ...node,
       dragHandle: `.${DRAG_HANDLE_CLASS_NAME}`,
     });
 
-    state.flowContent.nodeConfigsDict[event.node.id] = nodeConfig;
+    state.flowContent.nodeConfigsDict[node.id] = nodeConfig;
 
     for (const connector of connectors) {
       state.flowContent.variablesDict[connector.id] = connector;
@@ -41,7 +50,7 @@ export const handleAddNode = createHandler<
     return [
       {
         type: ChangeEventType.NODE_AND_VARIABLES_ADDED,
-        node: event.node,
+        node,
         connectors,
       },
     ];

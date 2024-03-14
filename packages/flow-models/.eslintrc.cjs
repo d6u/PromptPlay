@@ -30,5 +30,6 @@ module.exports = {
   rules: {
     'import/no-cycle': 'error',
     '@typescript-eslint/no-unused-vars': ['warn', { args: 'none' }],
+    'import/no-unresolved': 'off',
   },
 };

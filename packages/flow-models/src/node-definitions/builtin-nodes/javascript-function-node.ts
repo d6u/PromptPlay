@@ -8,7 +8,7 @@ import {
   ConnectorType,
   NodeInputVariable,
   VariableValueType,
-} from '../../base-types/connector-types';
+} from '../../base-types';
 import {
   FieldType,
   NodeDefinition,
@@ -17,20 +17,18 @@ import {
   NodeType,
 } from '../../node-definition-base-types';
 
-export type JavaScriptFunctionNodeInstanceLevelConfig = {
-  type: typeof NodeType.JavaScriptFunctionNode;
-  nodeId: string;
-  javaScriptCode: string;
-};
-
-export type JavaScriptFunctionNodeAllLevelConfig =
-  JavaScriptFunctionNodeInstanceLevelConfig;
-
 export const JavaScriptFunctionNodeConfigSchema = z.object({
   type: z.literal(NodeType.JavaScriptFunctionNode),
   nodeId: z.string(),
   javaScriptCode: z.string(),
 });
+
+export type JavaScriptFunctionNodeInstanceLevelConfig = z.infer<
+  typeof JavaScriptFunctionNodeConfigSchema
+>;
+
+export type JavaScriptFunctionNodeAllLevelConfig =
+  JavaScriptFunctionNodeInstanceLevelConfig;
 
 export const JAVASCRIPT_NODE_DEFINITION: NodeDefinition<
   JavaScriptFunctionNodeInstanceLevelConfig,

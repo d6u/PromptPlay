@@ -5,10 +5,10 @@ import invariant from 'tiny-invariant';
 
 import randomId from 'common-utils/randomId';
 import {
-  ConnectorMap,
+  ConnectorRecords,
   ConnectorType,
+  LocalEdge,
   NodeType,
-  V3LocalEdge,
   VariableValueType,
 } from 'flow-models';
 
@@ -73,7 +73,7 @@ export function handleReactFlowConnectEvent(
   const newEdgeArray = addEdge(
     event.connection,
     state.flowContent.edges,
-  ) as V3LocalEdge[];
+  ) as LocalEdge[];
   const addedEdges = A.difference(newEdgeArray, state.flowContent.edges);
 
   // Connection already existed
@@ -162,8 +162,8 @@ export function handleReactFlowConnectEvent(
 }
 
 function addStyleIfNotAlreadyAdded(
-  edges: Draft<V3LocalEdge[]>,
-  connectors: Readonly<ConnectorMap>,
+  edges: Draft<LocalEdge[]>,
+  connectors: Readonly<ConnectorRecords>,
 ) {
   for (const edge of edges) {
     if (!edge.style) {

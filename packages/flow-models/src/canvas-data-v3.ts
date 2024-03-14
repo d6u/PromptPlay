@@ -3,58 +3,25 @@ import z from 'zod';
 
 import randomId from 'common-utils/randomId';
 
-import type {
-  ConditionTarget,
-  ConnectorMap,
-  ConnectorResultMap,
-  ServerNode,
-  V3ServerEdge,
-} from './base-types';
+import type { ConditionTarget } from './base-types';
 import {
-  ConnectorMapSchema,
+  ConnectorRecordsSchema,
   ConnectorResultMapSchema,
   ConnectorType,
   ServerEdgeSchema,
+  ServerNodeSchema,
 } from './base-types';
-import { NodeType, NodeTypeEnum } from './node-definition-base-types';
-import { NodeConfigMap, NodeConfigMapSchema } from './node-definitions';
+import { NodeType } from './node-definition-base-types';
+import { NodeConfigRecordsSchema } from './node-definitions';
 
-export type {
-  ConditionNodeInstanceLevelConfig,
-  InputNodeInstanceLevelConfig,
-  JavaScriptFunctionNodeAllLevelConfig,
-  OutputNodeInstanceLevelConfig,
-} from './node-definitions';
-
-// ANCHOR: V3 Root Types
-
-export type V3FlowContent = {
-  nodes: ServerNode[];
-  edges: V3ServerEdge[];
-  nodeConfigsDict: NodeConfigMap;
-  variablesDict: ConnectorMap;
-  variableValueLookUpDicts: ConnectorResultMap[];
-};
-
-// NOTE: Putting the schema here instead of ui-node-types.ts, because it depends on
-// NodeType, which would cause circular dependency if put in ui-node-types.ts.
-export const ServerNodeSchema = z.object({
-  id: z.string(),
-  type: z.nativeEnum(NodeType),
-  position: z.object({
-    x: z.number(),
-    y: z.number(),
-  }),
-});
-
-export const FlowConfigSchema = z
+export const CanvasDataSchemaV3 = z
   .object({
     // NOTE: Must provide default value each field, because when creating new
     // flow the backend will create an empty {} as flowConfig.
     edges: z.array(ServerEdgeSchema).default([]),
     nodes: z.array(ServerNodeSchema).default([]),
-    nodeConfigsDict: NodeConfigMapSchema.default({}),
-    variablesDict: ConnectorMapSchema.default({}),
+    nodeConfigsDict: NodeConfigRecordsSchema.default({}),
+    variablesDict: ConnectorRecordsSchema.default({}),
     variableValueLookUpDicts: z.array(ConnectorResultMapSchema).default([{}]),
   })
   .transform((flowConfig) => {
@@ -102,24 +69,4 @@ export const FlowConfigSchema = z
     };
   });
 
-export function createNode(
-  type: NodeTypeEnum,
-  x: number,
-  y: number,
-): ServerNode {
-  return {
-    id: randomId(),
-    type,
-    position: { x, y },
-    data: null,
-  };
-}
-
-// ANCHOR: Legacy Types
-
-export type NodeInputID = string & { readonly '': unique symbol };
-export type NodeOutputID = string & { readonly '': unique symbol };
-
-export type VariableID = NodeInputID | NodeOutputID;
-
-export type VariableValueMap = Record<VariableID, unknown>;
+export type CanvasDataV3 = z.infer<typeof CanvasDataSchemaV3>;

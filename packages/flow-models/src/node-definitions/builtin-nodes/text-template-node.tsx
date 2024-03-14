@@ -10,7 +10,7 @@ import {
   NodeInputVariable,
   NodeOutputVariable,
   VariableValueType,
-} from '../../base-types/connector-types';
+} from '../../base-types';
 import {
   FieldType,
   NodeDefinition,
@@ -19,20 +19,18 @@ import {
   NodeType,
 } from '../../node-definition-base-types';
 
-export type TextTemplateNodeInstanceLevelConfig = {
-  type: typeof NodeType.TextTemplate;
-  nodeId: string;
-  content: string;
-};
-
-export type TextTemplateNodeAllLevelConfig =
-  TextTemplateNodeInstanceLevelConfig;
-
 export const TextTemplateNodeConfigSchema = z.object({
   type: z.literal(NodeType.TextTemplate),
   nodeId: z.string(),
   content: z.string(),
 });
+
+export type TextTemplateNodeInstanceLevelConfig = z.infer<
+  typeof TextTemplateNodeConfigSchema
+>;
+
+export type TextTemplateNodeAllLevelConfig =
+  TextTemplateNodeInstanceLevelConfig;
 
 export const TEXT_TEMPLATE_NODE_DEFINITION: NodeDefinition<
   TextTemplateNodeInstanceLevelConfig,

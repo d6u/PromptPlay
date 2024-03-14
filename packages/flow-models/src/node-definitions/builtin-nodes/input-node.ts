@@ -9,7 +9,7 @@ import {
   ConnectorType,
   FlowInputVariable,
   VariableValueType,
-} from '../../base-types/connector-types';
+} from '../../base-types';
 import {
   NodeDefinition,
   NodeExecutionEvent,
@@ -17,17 +17,16 @@ import {
   NodeType,
 } from '../../node-definition-base-types';
 
-export type InputNodeInstanceLevelConfig = {
-  type: typeof NodeType.InputNode;
-  nodeId: string;
-};
-
-export type InputNodeAllLevelConfig = InputNodeInstanceLevelConfig;
-
 export const InputNodeConfigSchema = z.object({
   type: z.literal(NodeType.InputNode),
   nodeId: z.string(),
 });
+
+export type InputNodeInstanceLevelConfig = z.infer<
+  typeof InputNodeConfigSchema
+>;
+
+export type InputNodeAllLevelConfig = InputNodeInstanceLevelConfig;
 
 export const INPUT_NODE_DEFINITION: NodeDefinition<
   InputNodeInstanceLevelConfig,

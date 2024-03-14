@@ -4,8 +4,8 @@ import { useCallback, useContext, useMemo } from 'react';
 import { useStoreApi } from 'reactflow';
 
 import {
+  NodeType,
   NodeTypeEnum,
-  getAllNodeTypes,
   getNodeDefinitionForNodeTypeName,
 } from 'flow-models';
 
@@ -49,7 +49,7 @@ function SubTabActionsCanvas() {
   );
 
   const options = useMemo(() => {
-    return getAllNodeTypes()
+    return Object.values(NodeType)
       .map((nodeType) => ({
         nodeType,
         nodeDefinition: getNodeDefinitionForNodeTypeName(nodeType),

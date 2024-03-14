@@ -4,7 +4,7 @@ import invariant from 'tiny-invariant';
 import {
   Connector,
   ConnectorType,
-  V3LocalEdge,
+  LocalEdge,
   VariableValueType,
 } from 'flow-models';
 
@@ -17,12 +17,12 @@ import {
 
 export type EdgeRemovedEvent = {
   type: ChangeEventType.EDGE_REMOVED;
-  removedEdge: V3LocalEdge;
+  removedEdge: LocalEdge;
 };
 
 export type EdgeRemovedDueToSourceVariableRemovalEvent = {
   type: ChangeEventType.EDGE_REMOVED_DUE_TO_SOURCE_VARIABLE_REMOVAL;
-  removedEdge: V3LocalEdge;
+  removedEdge: LocalEdge;
   removedEdgeSourceVariable: Connector;
 };
 

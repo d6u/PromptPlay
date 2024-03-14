@@ -17,7 +17,7 @@ test('handleEdgeReplacedEvent ignores old and new source variables with the same
       nodes: [
         {
           id: 'ZUhTs',
-          type: 'InputNode',
+          type: 'CANVAS_NODE',
           position: {
             x: 228,
             y: 148,
@@ -29,7 +29,7 @@ test('handleEdgeReplacedEvent ignores old and new source variables with the same
         },
         {
           id: 'Is8Op',
-          type: 'OutputNode',
+          type: 'CANVAS_NODE',
           position: {
             x: 690,
             y: 159,
@@ -41,7 +41,7 @@ test('handleEdgeReplacedEvent ignores old and new source variables with the same
         },
         {
           id: 'WHqYI',
-          type: 'InputNode',
+          type: 'CANVAS_NODE',
           position: {
             x: 229,
             y: 327,

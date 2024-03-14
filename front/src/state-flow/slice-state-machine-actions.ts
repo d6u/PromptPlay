@@ -8,13 +8,14 @@ import { OperationResult } from 'urql';
 import { StateCreator } from 'zustand';
 
 import {
-  ConnectorMap,
+  CanvasDataSchemaV3,
+  CanvasDataV3,
+  ConnectorRecords,
   ConnectorResultMap,
   ConnectorType,
-  FlowConfigSchema,
   FlowInputVariable,
+  LocalNode,
   NodeTypeEnum,
-  V3FlowContent,
 } from 'flow-models';
 
 import { FlowRunEventType, ValidationErrorType } from 'flow-run/event-types';
@@ -60,7 +61,7 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
 
   // SECTION: Private data
   let initializationSubscription: Subscription | null = null;
-  let prevSyncedData: V3FlowContent | null = null;
+  let prevSyncedData: CanvasDataV3 | null = null;
   let runSingleSubscription: Subscription | null = null;
   // !SECTION
 
@@ -76,10 +77,15 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
           next({ flowContent, isUpdated }) {
             const { nodes, edges, variablesDict, ...rest } = flowContent;
 
-            const updatedNodes = assignLocalNodeProperties(nodes);
             const updatedEdges = assignLocalEdgeProperties(
               edges,
               variablesDict,
+            );
+
+            // Force cast to LocalNode[] here because we know ReactFlow will
+            // automatically populate the missing properties.
+            const updatedNodes = assignLocalNodeProperties(
+              nodes as LocalNode[],
             );
 
             setFlowContentProduce(
@@ -121,9 +127,9 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
       const flowContent = get().getFlowContent();
 
       // TODO: Remove type cast
-      const nextSyncedData = FlowConfigSchema.parse(
+      const nextSyncedData = CanvasDataSchemaV3.parse(
         flowContent,
-      ) as V3FlowContent;
+      ) as CanvasDataV3;
 
       // TODO: It might be a bug to assume hasChange
       // only when `prevSyncedData != null`
@@ -342,7 +348,7 @@ async function querySpace(
 }
 
 function parseQueryResult(input: OperationResult<SpaceFlowQueryQuery>): {
-  flowContent: V3FlowContent;
+  flowContent: CanvasDataV3;
   isUpdated: boolean;
 } {
   // TODO: Report to telemetry
@@ -361,7 +367,7 @@ function parseQueryResult(input: OperationResult<SpaceFlowQueryQuery>): {
       // TODO: Report JSON parse error to telemetry
       const data = JSON.parse(contentV3Str);
 
-      const result = FlowConfigSchema.safeParse(data);
+      const result = CanvasDataSchemaV3.safeParse(data);
 
       if (!result.success) {
         // TODO: Report validation error
@@ -370,7 +376,7 @@ function parseQueryResult(input: OperationResult<SpaceFlowQueryQuery>): {
 
       return {
         // TODO: Remove the type cast
-        flowContent: result.data as V3FlowContent,
+        flowContent: result.data as CanvasDataV3,
         isUpdated: !deepEqual(data, result.data),
       };
     }
@@ -378,7 +384,7 @@ function parseQueryResult(input: OperationResult<SpaceFlowQueryQuery>): {
 }
 
 function selectFlowInputVariableIdToValueMap(
-  variablesDict: ConnectorMap,
+  variablesDict: ConnectorRecords,
   variableValueLookUpDict: ConnectorResultMap,
 ): Record<string, Readonly<unknown>> {
   return pipe(

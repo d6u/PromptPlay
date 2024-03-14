@@ -1,7 +1,7 @@
 import { current } from 'immer';
 import invariant from 'tiny-invariant';
 
-import { ConnectorType, V3LocalEdge, VariableValueType } from 'flow-models';
+import { ConnectorType, LocalEdge, VariableValueType } from 'flow-models';
 
 import { createHandler } from './event-graph-util.ts';
 import { ChangeEventType } from './event-types.ts';
@@ -12,7 +12,7 @@ import {
 
 export type EdgeAddedEvent = {
   type: ChangeEventType.EDGE_ADDED;
-  edge: V3LocalEdge;
+  edge: LocalEdge;
 };
 
 export const updateVariableOnEdgeAdded = createHandler<

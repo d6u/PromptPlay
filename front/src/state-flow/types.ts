@@ -8,14 +8,14 @@ import {
 } from 'reactflow';
 
 import {
-  ConnectorMap,
+  ConnectorRecords,
   ConnectorResultMap,
   ConnectorTypeEnum,
+  LocalEdge,
   LocalNode,
   NodeConfig,
-  NodeConfigMap,
+  NodeConfigRecords,
   NodeTypeEnum,
-  V3LocalEdge,
 } from 'flow-models';
 
 import { RunMetadata } from 'flow-run/run-types';
@@ -118,9 +118,9 @@ export type StateMachineActionsStateSlice = {
 
 export type FlowContentState = {
   nodes: LocalNode[];
-  edges: V3LocalEdge[];
-  nodeConfigsDict: NodeConfigMap;
-  variablesDict: ConnectorMap;
+  edges: LocalEdge[];
+  nodeConfigsDict: NodeConfigRecords;
+  variablesDict: ConnectorRecords;
   variableValueLookUpDicts: ConnectorResultMap[];
   nodeExecutionStates: NodeExecutionStateRecords;
   nodeAccountLevelFieldsValidationErrors: Record<string, string>;
