@@ -3,9 +3,9 @@ import { TestScheduler } from 'rxjs/testing';
 import { beforeEach, expect, test } from 'vitest';
 
 import {
+  CanvasDataV3,
   ImmutableFlowNodeGraph,
   NodeTypeEnum,
-  V3FlowContent,
 } from 'flow-models';
 
 import { tap } from 'rxjs';
@@ -21,7 +21,7 @@ beforeEach(() => {
 });
 
 test('executeFlow should execute', () => {
-  const flowContent: V3FlowContent = {
+  const flowContent: CanvasDataV3 = {
     nodes: [
       {
         id: 'GjREx',
@@ -147,7 +147,7 @@ test('executeFlow should execute', () => {
 });
 
 test('executeFlow should unblock node has multiple conditions even when only one condition was met', () => {
-  const flowContent: V3FlowContent = {
+  const flowContent: CanvasDataV3 = {
     nodes: [
       {
         id: '1w9JM',
@@ -407,7 +407,7 @@ test('executeFlow should unblock node has multiple conditions even when only one
 });
 
 test('executeFlow should fallback to default case when no condition was met', () => {
-  const flowContent: V3FlowContent = {
+  const flowContent: CanvasDataV3 = {
     nodes: [
       {
         id: '1w9JM',

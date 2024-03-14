@@ -3,13 +3,7 @@ import z from 'zod';
 
 import randomId from 'common-utils/randomId';
 
-import type {
-  ConditionTarget,
-  ConnectorMap,
-  ConnectorResultMap,
-  ServerEdge,
-  ServerNode,
-} from './base-types';
+import type { ConditionTarget } from './base-types';
 import {
   ConnectorMapSchema,
   ConnectorResultMapSchema,
@@ -18,26 +12,9 @@ import {
   ServerNodeSchema,
 } from './base-types';
 import { NodeType } from './node-definition-base-types';
-import { NodeConfigMap, NodeConfigMapSchema } from './node-definitions';
+import { NodeConfigMapSchema } from './node-definitions';
 
-export type {
-  ConditionNodeInstanceLevelConfig,
-  InputNodeInstanceLevelConfig,
-  JavaScriptFunctionNodeAllLevelConfig,
-  OutputNodeInstanceLevelConfig,
-} from './node-definitions';
-
-// ANCHOR: V3 Root Types
-
-export type V3FlowContent = {
-  nodes: ServerNode[];
-  edges: ServerEdge[];
-  nodeConfigsDict: NodeConfigMap;
-  variablesDict: ConnectorMap;
-  variableValueLookUpDicts: ConnectorResultMap[];
-};
-
-export const FlowConfigSchema = z
+export const CanvasDataSchemaV3 = z
   .object({
     // NOTE: Must provide default value each field, because when creating new
     // flow the backend will create an empty {} as flowConfig.
@@ -92,11 +69,4 @@ export const FlowConfigSchema = z
     };
   });
 
-// ANCHOR: Legacy Types
-
-export type NodeInputID = string & { readonly '': unique symbol };
-export type NodeOutputID = string & { readonly '': unique symbol };
-
-export type VariableID = NodeInputID | NodeOutputID;
-
-export type VariableValueMap = Record<VariableID, unknown>;
+export type CanvasDataV3 = z.infer<typeof CanvasDataSchemaV3>;

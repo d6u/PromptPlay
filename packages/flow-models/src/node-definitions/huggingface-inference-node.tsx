@@ -38,6 +38,7 @@ export type HuggingFaceInferenceNodeAllLevelConfig =
 export const HuggingFaceInferenceNodeConfigSchema = z.object({
   type: z.literal(NodeType.HuggingFaceInference),
   nodeId: z.string(),
+  model: z.string(),
 });
 
 export const HUGGINGFACE_INFERENCE_NODE_DEFINITION: NodeDefinition<

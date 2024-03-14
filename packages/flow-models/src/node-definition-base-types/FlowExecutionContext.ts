@@ -1,7 +1,7 @@
 import { A, D, F, pipe } from '@mobily/ts-belt';
-
 import invariant from 'tiny-invariant';
-import { ConnectorType, type ConnectorMap } from '../base-types';
+
+import { ConnectorMap, ConnectorType } from '../base-types';
 
 export type GraphEdge = Readonly<{
   sourceNode: string;

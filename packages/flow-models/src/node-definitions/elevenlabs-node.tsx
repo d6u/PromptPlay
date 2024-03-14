@@ -35,6 +35,7 @@ export type ElevenLabsNodeAllLevelConfig = ElevenLabsNodeInstanceLevelConfig &
 export const ElevenLabsNodeConfigSchema = z.object({
   type: z.literal(NodeType.ElevenLabs),
   nodeId: z.string(),
+  voiceId: z.string(),
 });
 
 export const ELEVENLABS_NODE_DEFINITION: NodeDefinition<

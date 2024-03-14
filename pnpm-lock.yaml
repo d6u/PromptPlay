@@ -283,9 +283,6 @@ importers:
       react:
         specifier: ^18.2.0
         version: 18.2.0
-      reactflow:
-        specifier: ^11.8.3
-        version: 11.10.1(@types/react@18.2.45)(immer@10.0.3)(react-dom@18.2.0)(react@18.2.0)
       rxjs:
         specifier: ^7.8.1
         version: 7.8.1
@@ -323,6 +320,9 @@ importers:
       eslint-plugin-react:
         specifier: ^7.33.2
         version: 7.33.2(eslint@8.56.0)
+      reactflow:
+        specifier: ^11.10.1
+        version: 11.10.1(@types/react@18.2.45)(immer@10.0.3)(react-dom@18.2.0)(react@18.2.0)
 
   packages/integrations:
     dependencies:

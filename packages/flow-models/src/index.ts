@@ -6,9 +6,9 @@ import {
 } from './node-definitions';
 
 export * from './base-types';
+export * from './canvas-data-v3';
 export * from './node-definition-base-types';
 export * from './node-definitions';
-export * from './v3-flow-content-types';
 
 export function getNodeDefinitionForNodeTypeName<T extends NodeTypeEnum>(
   type: T,

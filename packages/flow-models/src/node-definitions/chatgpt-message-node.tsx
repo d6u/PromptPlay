@@ -35,7 +35,11 @@ export const ChatgptMessageNodeConfigSchema = z.object({
   type: z.literal(NodeType.ChatGPTMessageNode),
   nodeId: z.string(),
   // TODO: Use enum to validate
-  role: z.string(),
+  role: z.enum([
+    OpenAI.ChatGPTMessageRole.system,
+    OpenAI.ChatGPTMessageRole.user,
+    OpenAI.ChatGPTMessageRole.assistant,
+  ]),
   content: z.string(),
 });
 

@@ -1,9 +1,9 @@
 import { expect, test } from 'vitest';
 
-import { FlowConfigSchema } from '../v3-flow-content-types';
+import { CanvasDataSchemaV3 } from '../canvas-data-v3';
 
 test('FlowConfigSchema should provide default value for all root level fields', () => {
-  const data = FlowConfigSchema.parse({});
+  const data = CanvasDataSchemaV3.parse({});
 
   expect(data).toEqual({
     edges: [],
@@ -15,7 +15,7 @@ test('FlowConfigSchema should provide default value for all root level fields', 
 });
 
 test('FlowConfigSchema should add condition target to node when needed', () => {
-  const data = FlowConfigSchema.parse({
+  const data = CanvasDataSchemaV3.parse({
     nodeConfigsDict: {
       yv1vr: {
         nodeId: 'yv1vr',
@@ -49,7 +49,7 @@ test('FlowConfigSchema should add condition target to node when needed', () => {
 });
 
 test('FlowConfigSchema should does not add condition target to when node already has one', () => {
-  const data = FlowConfigSchema.parse({
+  const data = CanvasDataSchemaV3.parse({
     nodeConfigsDict: {
       yv1vr: {
         nodeId: 'yv1vr',
