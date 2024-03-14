@@ -45,7 +45,7 @@ test('handleReactFlowConnectEvent ignores existing connection', () => {
       nodes: [
         {
           id: 'TmZiV',
-          type: 'InputNode',
+          type: 'CANVAS_NODE',
           position: {
             x: 304,
             y: 147,
@@ -57,7 +57,7 @@ test('handleReactFlowConnectEvent ignores existing connection', () => {
         },
         {
           id: 'af2pT',
-          type: 'OutputNode',
+          type: 'CANVAS_NODE',
           position: {
             x: 686,
             y: 107,
@@ -142,7 +142,7 @@ test('handleReactFlowConnectEvent ignores Audio source variable with invalid tar
       nodes: [
         {
           id: 'Lbola',
-          type: 'ElevenLabs',
+          type: 'CANVAS_NODE',
           position: {
             x: 231.66666666666663,
             y: -25.75000000000003,
@@ -154,7 +154,7 @@ test('handleReactFlowConnectEvent ignores Audio source variable with invalid tar
         },
         {
           id: 'jvWCV',
-          type: 'TextTemplate',
+          type: 'CANVAS_NODE',
           position: {
             x: 627.5,
             y: -13.250000000000028,
@@ -490,7 +490,7 @@ test('handleReactFlowConnect should replace edge', () => {
       nodes: [
         {
           id: 'ZUhTs',
-          type: 'InputNode',
+          type: 'CANVAS_NODE',
           position: {
             x: 228,
             y: 148,
@@ -502,7 +502,7 @@ test('handleReactFlowConnect should replace edge', () => {
         },
         {
           id: 'Is8Op',
-          type: 'OutputNode',
+          type: 'CANVAS_NODE',
           position: {
             x: 690,
             y: 159,
@@ -514,7 +514,7 @@ test('handleReactFlowConnect should replace edge', () => {
         },
         {
           id: 'WHqYI',
-          type: 'InputNode',
+          type: 'CANVAS_NODE',
           position: {
             x: 229,
             y: 327,
@@ -627,7 +627,7 @@ test('handleReactFlowConnect should replace edge and update dest variable valueT
       nodes: [
         {
           id: 'Is8Op',
-          type: 'OutputNode',
+          type: 'CANVAS_NODE',
           position: {
             x: 690,
             y: 159,
@@ -639,7 +639,7 @@ test('handleReactFlowConnect should replace edge and update dest variable valueT
         },
         {
           id: 'gso6A',
-          type: 'ElevenLabs',
+          type: 'CANVAS_NODE',
           position: {
             x: 261.9504000000001,
             y: 61.293199999999956,
@@ -651,7 +651,7 @@ test('handleReactFlowConnect should replace edge and update dest variable valueT
         },
         {
           id: '7NHli',
-          type: 'InputNode',
+          type: 'CANVAS_NODE',
           position: {
             x: 260.58199999999994,
             y: 454.024,
@@ -790,7 +790,7 @@ test('handleReactFlowConnect should add edge', () => {
       nodes: [
         {
           id: 'Is8Op',
-          type: 'OutputNode',
+          type: 'CANVAS_NODE',
           position: {
             x: 690,
             y: 159,
@@ -802,7 +802,7 @@ test('handleReactFlowConnect should add edge', () => {
         },
         {
           id: 'OYlVw',
-          type: 'InputNode',
+          type: 'CANVAS_NODE',
           position: {
             x: 321.8085333333334,
             y: 150.6265333333333,
@@ -891,7 +891,7 @@ test('handleReactFlowConnect should add edge and update dest variable valueType'
       nodes: [
         {
           id: 'Is8Op',
-          type: 'OutputNode',
+          type: 'CANVAS_NODE',
           position: {
             x: 690,
             y: 159,
@@ -903,7 +903,7 @@ test('handleReactFlowConnect should add edge and update dest variable valueType'
         },
         {
           id: 'gso6A',
-          type: 'ElevenLabs',
+          type: 'CANVAS_NODE',
           position: {
             x: 261.9504000000001,
             y: 61.293199999999956,

@@ -13,6 +13,7 @@ import {
   ConnectorType,
   FlowConfigSchema,
   FlowInputVariable,
+  LocalNode,
   NodeTypeEnum,
   V3FlowContent,
 } from 'flow-models';
@@ -76,10 +77,15 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
           next({ flowContent, isUpdated }) {
             const { nodes, edges, variablesDict, ...rest } = flowContent;
 
-            const updatedNodes = assignLocalNodeProperties(nodes);
             const updatedEdges = assignLocalEdgeProperties(
               edges,
               variablesDict,
+            );
+
+            // Force cast to LocalNode[] here because we know ReactFlow will
+            // automatically populate the missing properties.
+            const updatedNodes = assignLocalNodeProperties(
+              nodes as LocalNode[],
             );
 
             setFlowContentProduce(

@@ -10,7 +10,6 @@ import {
   FlowInputVariable,
   FlowOutputVariable,
   LocalEdge,
-  LocalNode,
   NodeInputVariable,
   NodeOutputVariable,
 } from 'flow-models';
@@ -19,7 +18,9 @@ import { DRAG_HANDLE_CLASS_NAME } from 'view-flow-canvas/constants';
 
 import { CONDITION_EDGE_STYLE, DEFAULT_EDGE_STYLE } from './constants';
 
-export function assignLocalNodeProperties(nodes: LocalNode[]): LocalNode[] {
+export function assignLocalNodeProperties<T extends { dragHandle?: string }>(
+  nodes: T[],
+): T[] {
   return produce(nodes, (draft) => {
     for (const node of draft) {
       if (!node.dragHandle) {

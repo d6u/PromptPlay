@@ -25,21 +25,19 @@ test('executeFlow should execute', () => {
     nodes: [
       {
         id: 'GjREx',
-        type: 'InputNode',
+        type: 'CANVAS_NODE',
         position: {
           x: 246,
           y: 208,
         },
-        data: null,
       },
       {
         id: '9hKOz',
-        type: 'OutputNode',
+        type: 'CANVAS_NODE',
         position: {
           x: 637,
           y: 207,
         },
-        data: null,
       },
     ],
     edges: [
@@ -153,39 +151,35 @@ test('executeFlow should unblock node has multiple conditions even when only one
     nodes: [
       {
         id: '1w9JM',
-        type: 'ConditionNode',
+        type: 'CANVAS_NODE',
         position: {
           x: 482,
           y: 69.64087591240872,
         },
-        data: null,
       },
       {
         id: '2WvHf',
-        type: 'TextTemplate',
+        type: 'CANVAS_NODE',
         position: {
           x: 947.950364963504,
           y: -42.51094890510956,
         },
-        data: null,
       },
       {
         id: 'eSpTO',
-        type: 'TextTemplate',
+        type: 'CANVAS_NODE',
         position: {
           x: 950.1595433394162,
           y: 308.9402734945255,
         },
-        data: null,
       },
       {
         id: 'itI1z',
-        type: 'InputNode',
+        type: 'CANVAS_NODE',
         position: {
           x: 127.98250194599467,
           y: 52.26505737267897,
         },
-        data: null,
       },
     ],
     edges: [
@@ -417,39 +411,35 @@ test('executeFlow should fallback to default case when no condition was met', ()
     nodes: [
       {
         id: '1w9JM',
-        type: 'ConditionNode',
+        type: 'CANVAS_NODE',
         position: {
           x: 482,
           y: 69.64087591240872,
         },
-        data: null,
       },
       {
         id: '2WvHf',
-        type: 'TextTemplate',
+        type: 'CANVAS_NODE',
         position: {
           x: 947.950364963504,
           y: -42.51094890510956,
         },
-        data: null,
       },
       {
         id: 'eSpTO',
-        type: 'TextTemplate',
+        type: 'CANVAS_NODE',
         position: {
           x: 950.1595433394162,
           y: 308.9402734945255,
         },
-        data: null,
       },
       {
         id: 'itI1z',
-        type: 'InputNode',
+        type: 'CANVAS_NODE',
         position: {
           x: 127.98250194599467,
           y: 52.26505737267897,
         },
-        data: null,
       },
     ],
     edges: [

@@ -17,7 +17,7 @@ test('handleReactFlowNodesChange should remove node', () => {
       nodes: [
         {
           id: 'Is8Op',
-          type: 'OutputNode',
+          type: 'CANVAS_NODE',
           position: {
             x: 888.2297300886163,
             y: 225.92526667211996,
@@ -29,7 +29,7 @@ test('handleReactFlowNodesChange should remove node', () => {
         },
         {
           id: 'xAw4x',
-          type: 'InputNode',
+          type: 'CANVAS_NODE',
           position: {
             x: 487.48366504430805,
             y: 230.14659999999998,
@@ -144,7 +144,7 @@ test('handleReactFlowNodesChange should remove connector and edge connected', ()
       nodes: [
         {
           id: 'HIbCf',
-          type: 'InputNode',
+          type: 'CANVAS_NODE',
           position: {
             x: 672.6255634219496,
             y: 144.8419333387866,
@@ -157,7 +157,7 @@ test('handleReactFlowNodesChange should remove connector and edge connected', ()
         },
         {
           id: 'sn268',
-          type: 'OutputNode',
+          type: 'CANVAS_NODE',
           position: {
             x: 1049.2943134219495,
             y: 152.27110000545335,
@@ -280,7 +280,7 @@ test('handleReactFlowNodesChange should remove multiple nodes', () => {
       nodes: [
         {
           id: 'Is8Op',
-          type: 'OutputNode',
+          type: 'CANVAS_NODE',
           position: {
             x: 1020.7297300886163,
             y: 195.92526667211996,
@@ -298,7 +298,7 @@ test('handleReactFlowNodesChange should remove multiple nodes', () => {
         },
         {
           id: 'ZMITb',
-          type: 'InputNode',
+          type: 'CANVAS_NODE',
           position: {
             x: 652.3963967552829,
             y: 194.0086000054533,

@@ -11,7 +11,6 @@ import {
   ConnectorTypeEnum,
   NodeConfig,
   NodeTypeEnum,
-  createNode,
 } from 'flow-models';
 
 import { ChangeEventType } from './event-graph/event-types';
@@ -185,7 +184,9 @@ export const createRootSlice: RootSliceStateCreator = (set, get) => {
     addNode(type: NodeTypeEnum, x: number, y: number): void {
       get()._processEventWithEventGraph({
         type: ChangeEventType.ADDING_NODE,
-        node: createNode(type, x, y),
+        nodeType: type,
+        x,
+        y,
       });
     },
     removeNode(nodeId: string): void {

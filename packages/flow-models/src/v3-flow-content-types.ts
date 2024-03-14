@@ -15,8 +15,9 @@ import {
   ConnectorResultMapSchema,
   ConnectorType,
   ServerEdgeSchema,
+  ServerNodeSchema,
 } from './base-types';
-import { NodeType, NodeTypeEnum } from './node-definition-base-types';
+import { NodeType } from './node-definition-base-types';
 import { NodeConfigMap, NodeConfigMapSchema } from './node-definitions';
 
 export type {
@@ -35,17 +36,6 @@ export type V3FlowContent = {
   variablesDict: ConnectorMap;
   variableValueLookUpDicts: ConnectorResultMap[];
 };
-
-// NOTE: Putting the schema here instead of ui-node-types.ts, because it depends on
-// NodeType, which would cause circular dependency if put in ui-node-types.ts.
-export const ServerNodeSchema = z.object({
-  id: z.string(),
-  type: z.nativeEnum(NodeType),
-  position: z.object({
-    x: z.number(),
-    y: z.number(),
-  }),
-});
 
 export const FlowConfigSchema = z
   .object({
@@ -101,19 +91,6 @@ export const FlowConfigSchema = z
       variablesDict: connectors,
     };
   });
-
-export function createNode(
-  type: NodeTypeEnum,
-  x: number,
-  y: number,
-): ServerNode {
-  return {
-    id: randomId(),
-    type,
-    position: { x, y },
-    data: null,
-  };
-}
 
 // ANCHOR: Legacy Types
 

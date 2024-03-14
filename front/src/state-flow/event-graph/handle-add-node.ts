@@ -1,4 +1,5 @@
 import {
+  LocalNode,
   NodeTypeEnum,
   createNode,
   getNodeDefinitionForNodeTypeName,
@@ -28,7 +29,7 @@ export const handleAddNode = createHandler<
     return event.type === ChangeEventType.ADDING_NODE;
   },
   (state, event) => {
-    const node = createNode(event.nodeType, event.x, event.y);
+    const node = createNode(event.x, event.y) as LocalNode;
 
     const { nodeConfig, variableConfigList: connectors } =
       getNodeDefinitionForNodeTypeName(event.nodeType).createDefaultNodeConfig(

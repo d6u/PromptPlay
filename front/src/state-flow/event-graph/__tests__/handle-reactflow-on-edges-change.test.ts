@@ -18,7 +18,7 @@ test('handleReactFlowEdgesChange should select edge', () => {
       nodes: [
         {
           id: 'Is8Op',
-          type: 'OutputNode',
+          type: 'CANVAS_NODE',
           position: {
             x: 690,
             y: 159,
@@ -30,7 +30,7 @@ test('handleReactFlowEdgesChange should select edge', () => {
         },
         {
           id: 'OYlVw',
-          type: 'InputNode',
+          type: 'CANVAS_NODE',
           position: {
             x: 321.8085333333334,
             y: 150.6265333333333,
@@ -132,7 +132,7 @@ test('handleReactFlowEdgesChange should remove edge', () => {
       nodes: [
         {
           id: 'Is8Op',
-          type: 'OutputNode',
+          type: 'CANVAS_NODE',
           position: {
             x: 690,
             y: 159,
@@ -144,7 +144,7 @@ test('handleReactFlowEdgesChange should remove edge', () => {
         },
         {
           id: 'OYlVw',
-          type: 'InputNode',
+          type: 'CANVAS_NODE',
           position: {
             x: 321.8085333333334,
             y: 150.6265333333333,
@@ -234,7 +234,7 @@ test('handleReactFlowEdgesChange should remove multiple edges', () => {
       nodes: [
         {
           id: 'HIbCf',
-          type: 'InputNode',
+          type: 'CANVAS_NODE',
           position: {
             x: 606.5630634219496,
             y: 144.8419333387866,
@@ -252,7 +252,7 @@ test('handleReactFlowEdgesChange should remove multiple edges', () => {
         },
         {
           id: 'sn268',
-          type: 'OutputNode',
+          type: 'CANVAS_NODE',
           position: {
             x: 1439.0630634219494,
             y: 131.50860000545333,
@@ -270,7 +270,7 @@ test('handleReactFlowEdgesChange should remove multiple edges', () => {
         },
         {
           id: 'AkRxM',
-          type: 'TextTemplate',
+          type: 'CANVAS_NODE',
           position: {
             x: 989.0630634219492,
             y: 179.0086000054534,
@@ -418,7 +418,7 @@ test('handleReactFlowEdgesChange should remove edge and reset the value type of 
       nodes: [
         {
           id: 'Is8Op',
-          type: 'OutputNode',
+          type: 'CANVAS_NODE',
           position: {
             x: 888.2297300886163,
             y: 225.92526667211996,
@@ -430,7 +430,7 @@ test('handleReactFlowEdgesChange should remove edge and reset the value type of 
         },
         {
           id: 'VhWOu',
-          type: 'ElevenLabs',
+          type: 'CANVAS_NODE',
           position: {
             x: 540.0709333333333,
             y: 211.22993333333335,

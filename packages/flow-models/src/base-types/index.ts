@@ -1,5 +1,5 @@
 export * from './connector-type';
 export * from './connectors';
-export * from './ui-edge-types';
-export * from './ui-node-types';
+export * from './edge';
+export * from './node';
 export * from './variable-value-type';

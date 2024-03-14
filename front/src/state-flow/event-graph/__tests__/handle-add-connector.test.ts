@@ -17,7 +17,7 @@ test('handleAddConnector should add variable', () => {
       nodes: [
         {
           id: 'Z6dPf',
-          type: 'InputNode',
+          type: 'CANVAS_NODE',
           position: {
             x: 328,
             y: 135,
