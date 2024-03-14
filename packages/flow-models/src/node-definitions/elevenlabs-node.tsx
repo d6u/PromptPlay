@@ -19,11 +19,15 @@ import {
   NodeType,
 } from '../node-definition-base-types';
 
-export type ElevenLabsNodeInstanceLevelConfig = {
-  type: typeof NodeType.ElevenLabs;
-  nodeId: string;
-  voiceId: string;
-};
+export const ElevenLabsNodeConfigSchema = z.object({
+  type: z.literal(NodeType.ElevenLabs),
+  nodeId: z.string(),
+  voiceId: z.string(),
+});
+
+export type ElevenLabsNodeInstanceLevelConfig = z.infer<
+  typeof ElevenLabsNodeConfigSchema
+>;
 
 export type ElevenLabsNodeAccountLevelConfig = {
   elevenLabsApiKey: string;
@@ -31,12 +35,6 @@ export type ElevenLabsNodeAccountLevelConfig = {
 
 export type ElevenLabsNodeAllLevelConfig = ElevenLabsNodeInstanceLevelConfig &
   ElevenLabsNodeAccountLevelConfig;
-
-export const ElevenLabsNodeConfigSchema = z.object({
-  type: z.literal(NodeType.ElevenLabs),
-  nodeId: z.string(),
-  voiceId: z.string(),
-});
 
 export const ELEVENLABS_NODE_DEFINITION: NodeDefinition<
   ElevenLabsNodeInstanceLevelConfig,

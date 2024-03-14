@@ -24,24 +24,6 @@ import {
   NodeType,
 } from '../node-definition-base-types';
 
-export type ChatGPTChatCompletionNodeInstanceLevelConfig = {
-  type: typeof NodeType.ChatGPTChatCompletionNode;
-  nodeId: string;
-  model: OpenAIChatModel;
-  temperature: number;
-  seed: number | null;
-  responseFormatType: ChatGPTChatCompletionResponseFormatType.JsonObject | null;
-  stop: Array<string>;
-};
-
-export type ChatGPTChatCompletionNodeAccountLevelConfig = {
-  openAiApiKey: string;
-};
-
-export type ChatGPTChatCompletionNodeAllLevelConfig =
-  ChatGPTChatCompletionNodeInstanceLevelConfig &
-    ChatGPTChatCompletionNodeAccountLevelConfig;
-
 export enum OpenAIChatModel {
   GPT_4_1106_PREVIEW = 'gpt-4-1106-preview',
   GPT_4 = 'gpt-4',
@@ -68,6 +50,18 @@ export const ChatgptChatCompletionNodeConfigSchema = z.object({
     .nullable(),
   stop: z.array(z.string()),
 });
+
+export type ChatGPTChatCompletionNodeInstanceLevelConfig = z.infer<
+  typeof ChatgptChatCompletionNodeConfigSchema
+>;
+
+export type ChatGPTChatCompletionNodeAccountLevelConfig = {
+  openAiApiKey: string;
+};
+
+export type ChatGPTChatCompletionNodeAllLevelConfig =
+  ChatGPTChatCompletionNodeInstanceLevelConfig &
+    ChatGPTChatCompletionNodeAccountLevelConfig;
 
 export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
   ChatGPTChatCompletionNodeInstanceLevelConfig,

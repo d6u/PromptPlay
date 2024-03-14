@@ -21,16 +21,6 @@ import {
 } from '../node-definition-base-types';
 import { FieldType } from '../node-definition-base-types/field-definition-interfaces';
 
-export type ChatGPTMessageNodeInstanceLevelConfig = {
-  type: typeof NodeType.ChatGPTMessageNode;
-  nodeId: string;
-  role: OpenAI.ChatGPTMessageRole;
-  content: string;
-};
-
-export type ChatGPTMessageNodeAllLevelConfig =
-  ChatGPTMessageNodeInstanceLevelConfig;
-
 export const ChatgptMessageNodeConfigSchema = z.object({
   type: z.literal(NodeType.ChatGPTMessageNode),
   nodeId: z.string(),
@@ -42,6 +32,13 @@ export const ChatgptMessageNodeConfigSchema = z.object({
   ]),
   content: z.string(),
 });
+
+export type ChatGPTMessageNodeInstanceLevelConfig = z.infer<
+  typeof ChatgptMessageNodeConfigSchema
+>;
+
+export type ChatGPTMessageNodeAllLevelConfig =
+  ChatGPTMessageNodeInstanceLevelConfig;
 
 export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition<
   ChatGPTMessageNodeInstanceLevelConfig,

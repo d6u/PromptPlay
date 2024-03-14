@@ -21,11 +21,15 @@ import {
 
 // Reference: https://huggingface.co/docs/api-inference/index
 
-export type HuggingFaceInferenceNodeInstanceLevelConfig = {
-  type: typeof NodeType.HuggingFaceInference;
-  nodeId: string;
-  model: string;
-};
+export const HuggingFaceInferenceNodeConfigSchema = z.object({
+  type: z.literal(NodeType.HuggingFaceInference),
+  nodeId: z.string(),
+  model: z.string(),
+});
+
+export type HuggingFaceInferenceNodeInstanceLevelConfig = z.infer<
+  typeof HuggingFaceInferenceNodeConfigSchema
+>;
 
 export type HuggingFaceInferenceNodeAccountLevelConfig = {
   huggingFaceApiToken: string;
@@ -34,12 +38,6 @@ export type HuggingFaceInferenceNodeAccountLevelConfig = {
 export type HuggingFaceInferenceNodeAllLevelConfig =
   HuggingFaceInferenceNodeInstanceLevelConfig &
     HuggingFaceInferenceNodeAccountLevelConfig;
-
-export const HuggingFaceInferenceNodeConfigSchema = z.object({
-  type: z.literal(NodeType.HuggingFaceInference),
-  nodeId: z.string(),
-  model: z.string(),
-});
 
 export const HUGGINGFACE_INFERENCE_NODE_DEFINITION: NodeDefinition<
   HuggingFaceInferenceNodeInstanceLevelConfig,
