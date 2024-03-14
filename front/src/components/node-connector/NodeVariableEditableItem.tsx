@@ -1,13 +1,15 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import styled from '@emotion/styled';
-import { Control, FieldArrayWithId } from 'react-hook-form';
+import { Control, FieldArrayWithId, useController } from 'react-hook-form';
 import { Position } from 'reactflow';
 
 import NodeFieldHelperTextWithStatus from 'components/node-fields/NodeFieldHelperTextWithStatus';
 import { useFlowStore } from 'state-flow/flow-store';
 import { EdgeConnectStartConnectorClass } from 'state-flow/types';
 
+import RemoveButton from 'generic-components/RemoveButton';
+import ToggleGlobalVariableButton from 'generic-components/ToggleGlobalVariableButton';
 import DragHandle from './DragHandle';
 import NodeVariableEditor from './NodeVariableEditor';
 import { BaseVariableHandle } from './base-connector-handles';
@@ -70,10 +72,17 @@ function NodeVariableEditableItem(props: Props) {
       disabled: !isSortableEnabledForThisRow,
     });
 
+  const { field: isGlobalField } = useController({
+    name: `list.${props.index}.isGlobal`,
+    control: props.control,
+  });
+
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
   };
+
+  const isVariableReadOnly = props.isNodeReadOnly || props.variable.isReadOnly;
 
   return (
     <Container ref={setNodeRef} style={style} {...attributes}>
@@ -99,13 +108,30 @@ function NodeVariableEditableItem(props: Props) {
       <InputContainer>
         {isSortableEnabledForThisRow && <DragHandle {...listeners} />}
         <NodeVariableEditor
-          isReadOnly={props.isNodeReadOnly || props.variable.isReadOnly}
+          isReadOnly={isVariableReadOnly}
           control={props.control}
           formField={props.formField}
           index={props.index}
           onRemove={props.onRemove}
           onUpdateTrigger={props.onUpdateTrigger}
         />
+        {!props.isNodeReadOnly && (
+          <ToggleGlobalVariableButton
+            isActive={isGlobalField.value}
+            onClick={() => {
+              isGlobalField.onChange(!isGlobalField.value);
+              props.onUpdateTrigger();
+            }}
+          />
+        )}
+        {!isVariableReadOnly && (
+          <RemoveButton
+            onClick={() => {
+              props.onRemove();
+              props.onUpdateTrigger();
+            }}
+          />
+        )}
       </InputContainer>
       {props.variable.helperText && (
         <HelperTextContainer>

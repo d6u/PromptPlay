@@ -3,7 +3,6 @@ import { Input } from '@mui/joy';
 import { Control, Controller, FieldArrayWithId } from 'react-hook-form';
 
 import ReadonlyInput from 'generic-components/ReadonlyInput';
-import RemoveButton from 'generic-components/RemoveButton';
 
 import { VariableFormValue } from './types';
 
@@ -22,37 +21,29 @@ function NodeVariableEditor(props: Props) {
   }
 
   return (
-    <>
-      <Controller
-        control={props.control}
-        name={`list.${props.index}.name`}
-        render={({ field }) => (
-          <StyledInput
-            color="primary"
-            ref={field.ref}
-            name={field.name}
-            value={field.value}
-            disabled={field.disabled}
-            onKeyUp={(e) => {
-              if (e.key === 'Enter') {
-                props.onUpdateTrigger();
-              }
-            }}
-            onBlur={() => {
-              field.onBlur();
+    <Controller
+      control={props.control}
+      name={`list.${props.index}.name`}
+      render={({ field }) => (
+        <StyledInput
+          color="primary"
+          ref={field.ref}
+          name={field.name}
+          value={field.value}
+          disabled={field.disabled}
+          onKeyUp={(e) => {
+            if (e.key === 'Enter') {
               props.onUpdateTrigger();
-            }}
-            onChange={field.onChange}
-          />
-        )}
-      />
-      <RemoveButton
-        onClick={() => {
-          props.onRemove();
-          props.onUpdateTrigger();
-        }}
-      />
-    </>
+            }
+          }}
+          onBlur={() => {
+            field.onBlur();
+            props.onUpdateTrigger();
+          }}
+          onChange={field.onChange}
+        />
+      )}
+    />
   );
 }
 

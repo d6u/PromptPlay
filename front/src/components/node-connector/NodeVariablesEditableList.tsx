@@ -78,12 +78,23 @@ function NodeVariablesEditableList(props: Props) {
         const updatedVariables = A.difference(data.list, props.variableConfigs);
 
         for (const changedVariable of updatedVariables) {
-          invariant(
-            !changedVariable.isReadOnly,
-            'Variable should not be readonly',
-          );
+          invariant(!props.isNodeReadOnly, 'Node should not be readonly');
+
+          const index = data.list.indexOf(changedVariable);
+          const prevVariable = props.variableConfigs[index];
+
+          if (prevVariable.name !== changedVariable.name) {
+            // If variable name has changed, make sure it's not readonly
+            invariant(
+              !changedVariable.isReadOnly,
+              'Variable should not be readonly',
+            );
+          }
+
           updateVariable(changedVariable.id, {
             name: changedVariable.name,
+            isGlobal: changedVariable.isGlobal,
+            globalVariableId: changedVariable.globalVariableId,
           });
         }
       } else {
@@ -95,6 +106,7 @@ function NodeVariablesEditableList(props: Props) {
         const removedVariables = A.difference(props.variableConfigs, data.list);
 
         for (const removedVariable of removedVariables) {
+          invariant(!props.isNodeReadOnly, 'Node should not be readonly');
           invariant(
             !removedVariable.isReadOnly,
             'Variable should not be readonly',
@@ -107,8 +119,9 @@ function NodeVariablesEditableList(props: Props) {
       }
     })();
   }, [
-    props.nodeId,
     props.variableConfigs,
+    props.nodeId,
+    props.isNodeReadOnly,
     handleSubmit,
     updateVariable,
     updateNodeInternals,

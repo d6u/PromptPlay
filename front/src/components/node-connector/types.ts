@@ -4,6 +4,8 @@ import { ReactNode } from 'react';
 export type VariableConfig = Readonly<{
   id: string;
   name: string;
+  isGlobal: boolean;
+  globalVariableId: string | null;
   isReadOnly: boolean;
   helperText?: ReactNode;
 }>;
