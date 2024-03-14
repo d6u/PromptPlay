@@ -5,7 +5,7 @@ import invariant from 'tiny-invariant';
 
 import randomId from 'common-utils/randomId';
 import {
-  ConnectorMap,
+  ConnectorRecords,
   ConnectorType,
   LocalEdge,
   NodeType,
@@ -163,7 +163,7 @@ export function handleReactFlowConnectEvent(
 
 function addStyleIfNotAlreadyAdded(
   edges: Draft<LocalEdge[]>,
-  connectors: Readonly<ConnectorMap>,
+  connectors: Readonly<ConnectorRecords>,
 ) {
   for (const edge of edges) {
     if (!edge.style) {

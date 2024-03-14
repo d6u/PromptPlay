@@ -70,9 +70,9 @@ const ConnectorSchema = z.union([
 
 export type Connector = z.infer<typeof ConnectorSchema>;
 
-export const ConnectorMapSchema = z.record(ConnectorSchema);
+export const ConnectorRecordsSchema = z.record(ConnectorSchema);
 
-export type ConnectorMap = z.infer<typeof ConnectorMapSchema>;
+export type ConnectorRecords = z.infer<typeof ConnectorRecordsSchema>;
 
 export const ConnectorResultMapSchema = z.record(
   z.union([

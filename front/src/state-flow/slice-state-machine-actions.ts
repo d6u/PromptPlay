@@ -10,7 +10,7 @@ import { StateCreator } from 'zustand';
 import {
   CanvasDataSchemaV3,
   CanvasDataV3,
-  ConnectorMap,
+  ConnectorRecords,
   ConnectorResultMap,
   ConnectorType,
   FlowInputVariable,
@@ -384,7 +384,7 @@ function parseQueryResult(input: OperationResult<SpaceFlowQueryQuery>): {
 }
 
 function selectFlowInputVariableIdToValueMap(
-  variablesDict: ConnectorMap,
+  variablesDict: ConnectorRecords,
   variableValueLookUpDict: ConnectorResultMap,
 ): Record<string, Readonly<unknown>> {
   return pipe(

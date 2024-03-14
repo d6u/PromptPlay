@@ -1,7 +1,7 @@
 import { A, D, F, pipe } from '@mobily/ts-belt';
 import invariant from 'tiny-invariant';
 
-import { ConnectorMap, ConnectorType } from '../base-types';
+import { ConnectorRecords, ConnectorType } from '../base-types';
 
 export type GraphEdge = Readonly<{
   sourceNode: string;
@@ -14,7 +14,7 @@ export class ImmutableFlowNodeGraph {
   constructor(params: {
     edges: ReadonlyArray<GraphEdge>;
     nodeIds: ReadonlyArray<string>;
-    connectors: ConnectorMap;
+    connectors: ConnectorRecords;
   }) {
     const srcConnIdToDstNodeIds: Record<string, Array<string>> = {};
     const variableDstConnIdToSrcConnId: Record<string, string> = {};
@@ -74,7 +74,7 @@ export class ImmutableFlowNodeGraph {
   }
 
   private nodeIds: ReadonlyArray<string>;
-  private connectors: ConnectorMap;
+  private connectors: ConnectorRecords;
   private srcConnIdToDstNodeIds: Readonly<
     Record<string, ReadonlyArray<string>>
   >;
@@ -113,7 +113,7 @@ export class ImmutableFlowNodeGraph {
 export class MutableFlowNodeGraph {
   constructor(
     private readonly nodeIds: ReadonlyArray<string>,
-    private readonly connectors: ConnectorMap,
+    private readonly connectors: ConnectorRecords,
     private readonly srcConnIdToDstNodeIdsMap: Readonly<
       Record<string, ReadonlyArray<string>>
     >,

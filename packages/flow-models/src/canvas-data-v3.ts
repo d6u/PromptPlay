@@ -5,14 +5,14 @@ import randomId from 'common-utils/randomId';
 
 import type { ConditionTarget } from './base-types';
 import {
-  ConnectorMapSchema,
+  ConnectorRecordsSchema,
   ConnectorResultMapSchema,
   ConnectorType,
   ServerEdgeSchema,
   ServerNodeSchema,
 } from './base-types';
 import { NodeType } from './node-definition-base-types';
-import { NodeConfigMapSchema } from './node-definitions';
+import { NodeConfigRecordsSchema } from './node-definitions';
 
 export const CanvasDataSchemaV3 = z
   .object({
@@ -20,8 +20,8 @@ export const CanvasDataSchemaV3 = z
     // flow the backend will create an empty {} as flowConfig.
     edges: z.array(ServerEdgeSchema).default([]),
     nodes: z.array(ServerNodeSchema).default([]),
-    nodeConfigsDict: NodeConfigMapSchema.default({}),
-    variablesDict: ConnectorMapSchema.default({}),
+    nodeConfigsDict: NodeConfigRecordsSchema.default({}),
+    variablesDict: ConnectorRecordsSchema.default({}),
     variableValueLookUpDicts: z.array(ConnectorResultMapSchema).default([{}]),
   })
   .transform((flowConfig) => {
