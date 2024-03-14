@@ -77,10 +77,6 @@ export const NodeConfigRecordsSchema = z.record(NodeConfigSchema);
 
 export type NodeConfigRecords = z.infer<typeof NodeConfigRecordsSchema>;
 
-export type NodeTypeToNodeConfigTypeMap = {
-  [T in NodeConfig as T['type']]: T;
-};
-
 export type NodeAllLevelConfigUnion =
   // Builtin node types
   | InputNodeAllLevelConfig
@@ -94,25 +90,7 @@ export type NodeAllLevelConfigUnion =
   | HuggingFaceInferenceNodeAllLevelConfig
   | ElevenLabsNodeAllLevelConfig;
 
-type NodeDefinitionUnion =
-  | typeof INPUT_NODE_DEFINITION
-  | typeof OUTPUT_NODE_DEFINITION
-  | typeof CONDITION_NODE_DEFINITION
-  | typeof JAVASCRIPT_NODE_DEFINITION
-  | typeof TEXT_TEMPLATE_NODE_DEFINITION
-  // ANCHOR: Update this when adding new node types
-  | typeof CHATGPT_MESSAGE_NODE_DEFINITION
-  | typeof CHATGPT_CHAT_COMPLETION_NODE_DEFINITION
-  | typeof HUGGINGFACE_INFERENCE_NODE_DEFINITION
-  | typeof ELEVENLABS_NODE_DEFINITION;
-
-type NodeTypeToNodeDefinitionUnionMap = {
-  [T in NodeDefinitionUnion as T['type']]: T;
-};
-
-export const NODE_TYPE_TO_NODE_DEFINITION_MAP: {
-  [key in NodeTypeEnum]: NodeTypeToNodeDefinitionUnionMap[key];
-} = {
+const NODE_TYPE_TO_NODE_DEFINITION_MAP = {
   [NodeType.InputNode]: INPUT_NODE_DEFINITION,
   [NodeType.OutputNode]: OUTPUT_NODE_DEFINITION,
   [NodeType.ConditionNode]: CONDITION_NODE_DEFINITION,
@@ -124,3 +102,9 @@ export const NODE_TYPE_TO_NODE_DEFINITION_MAP: {
   [NodeType.HuggingFaceInference]: HUGGINGFACE_INFERENCE_NODE_DEFINITION,
   [NodeType.ElevenLabs]: ELEVENLABS_NODE_DEFINITION,
 };
+
+export function getNodeDefinitionForNodeTypeName<T extends NodeTypeEnum>(
+  type: T,
+): (typeof NODE_TYPE_TO_NODE_DEFINITION_MAP)[T] {
+  return NODE_TYPE_TO_NODE_DEFINITION_MAP[type];
+}
