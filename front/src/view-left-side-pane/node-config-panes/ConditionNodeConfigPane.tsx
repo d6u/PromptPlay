@@ -79,9 +79,13 @@ function ConditionNodeConfigPane(props: Props) {
       <NodeVariablesEditableList
         nodeId={props.nodeId}
         isNodeReadOnly={props.isNodeReadOnly}
-        variableConfigs={props.inputVariables.map((variable) => {
-          return { id: variable.id, name: variable.name, isReadOnly: true };
-        })}
+        variableConfigs={props.inputVariables.map((variable) => ({
+          id: variable.id,
+          name: variable.name,
+          isGlobal: variable.isGlobal,
+          globalVariableId: variable.globalVariableId,
+          isReadOnly: true,
+        }))}
       />
       <GenericSection>
         <FormControl>

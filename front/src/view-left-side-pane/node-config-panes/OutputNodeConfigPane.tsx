@@ -60,6 +60,8 @@ function OutputNodeConfigPane(props: Props) {
         variableConfigs={flowOutputVariables.map((variable) => ({
           id: variable.id,
           name: variable.name,
+          isGlobal: false,
+          globalVariableId: null,
           isReadOnly: false,
         }))}
       />

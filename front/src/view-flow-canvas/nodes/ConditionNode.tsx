@@ -83,6 +83,8 @@ function ConditionNode(props: Props) {
             variableConfigs={props.inputVariables.map((variable) => ({
               id: variable.id,
               name: variable.name,
+              isGlobal: variable.isGlobal,
+              globalVariableId: variable.globalVariableId,
               isReadOnly: true,
             }))}
           />

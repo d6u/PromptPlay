@@ -24,6 +24,7 @@ import ReadonlyTextarea from 'generic-components/ReadonlyTextarea';
 import { useFlowStore } from 'state-flow/flow-store';
 import { NodeExecutionState } from 'state-flow/types';
 
+import { VariableConfig } from 'components/node-connector/types';
 import NodeConfigPaneAddConnectorButton from '../node-config-pane-base-ui/NodeConfigPaneAddConnectorButton';
 import NodeConfigPaneContainer from '../node-config-pane-base-ui/NodeConfigPaneContainer';
 
@@ -48,7 +49,7 @@ function JavaScriptNodeConfigPane(props: Props) {
   const updateNodeConfig = useFlowStore((s) => s.updateNodeConfig);
   const addVariable = useFlowStore((s) => s.addVariable);
 
-  const inputVariableConfig = useMemo(() => {
+  const inputVariableConfig: VariableConfig[] = useMemo(() => {
     return props.inputVariables.map((variable) => {
       const incomingVariableConfig =
         nodeDefinition.fixedIncomingVariables?.[variable.name];
@@ -56,6 +57,8 @@ function JavaScriptNodeConfigPane(props: Props) {
       return {
         id: variable.id,
         name: variable.name,
+        isGlobal: variable.isGlobal,
+        globalVariableId: variable.globalVariableId,
         isReadOnly: props.isNodeReadOnly || incomingVariableConfig != null,
         helperText: incomingVariableConfig?.helperMessage,
       };

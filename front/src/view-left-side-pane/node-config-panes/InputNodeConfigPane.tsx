@@ -60,6 +60,8 @@ function InputNodeConfigPane(props: Props) {
         variableConfigs={flowInputVariables.map((variable) => ({
           id: variable.id,
           name: variable.name,
+          isGlobal: false,
+          globalVariableId: null,
           isReadOnly: false,
         }))}
       />

@@ -52,6 +52,8 @@ function OutputNode(props: Props) {
             variableConfigs={flowOutputVariables.map((output) => ({
               id: output.id,
               name: output.name,
+              isGlobal: false,
+              globalVariableId: null,
               isReadOnly: false,
             }))}
           />

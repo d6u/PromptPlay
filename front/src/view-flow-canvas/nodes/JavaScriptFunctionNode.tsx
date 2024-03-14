@@ -112,6 +112,8 @@ function JavaScriptFunctionNode(props: Props) {
               return {
                 id: variable.id,
                 name: variable.name,
+                isGlobal: variable.isGlobal,
+                globalVariableId: variable.globalVariableId,
                 isReadOnly: incomingVariableConfig != null,
                 helperMessage: incomingVariableConfig?.helperMessage,
               };

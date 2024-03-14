@@ -23,6 +23,7 @@ import SidePaneSection from 'components/side-pane/SidePaneSection';
 import { useFlowStore } from 'state-flow/flow-store';
 import { NodeExecutionState } from 'state-flow/types';
 
+import { VariableConfig } from 'components/node-connector/types';
 import NodeConfigPaneAddConnectorButton from '../node-config-pane-base-ui/NodeConfigPaneAddConnectorButton';
 import NodeConfigPaneContainer from '../node-config-pane-base-ui/NodeConfigPaneContainer';
 import NodeConfigPaneNodeFields from '../node-config-pane-base-ui/NodeConfigPaneNodeFields';
@@ -53,7 +54,7 @@ function DefaultNodeConfigPane(props: Props) {
     [props.nodeConfig.type],
   );
 
-  const inputVariableConfig = useMemo(() => {
+  const inputVariableConfig: VariableConfig[] = useMemo(() => {
     return props.inputVariables.map((variable) => {
       const incomingVariableConfig =
         nodeDefinition.fixedIncomingVariables?.[variable.name];
@@ -61,6 +62,8 @@ function DefaultNodeConfigPane(props: Props) {
       return {
         id: variable.id,
         name: variable.name,
+        isGlobal: variable.isGlobal,
+        globalVariableId: variable.globalVariableId,
         isReadOnly: props.isNodeReadOnly || incomingVariableConfig != null,
         helperText: incomingVariableConfig?.helperMessage,
       };
