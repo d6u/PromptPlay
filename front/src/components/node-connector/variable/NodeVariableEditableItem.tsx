@@ -163,6 +163,7 @@ function NodeVariableEditableItem(props: Props) {
           {props.variable.isGlobal && (
             <NodeVariableGlobalVariableConfigRow
               isNodeReadOnly={props.isNodeReadOnly}
+              variable={props.variable}
               control={props.control}
               formField={props.formField}
               index={props.index}

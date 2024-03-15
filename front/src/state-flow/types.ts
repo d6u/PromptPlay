@@ -199,7 +199,7 @@ export type FlowActions = {
   updateVariableValue(variableId: string, value: unknown): void;
   updateVariableValues(updates: { variableId: string; value: unknown }[]): void;
 
-  createGlobalVariable(name: string): void;
+  createGlobalVariable(name: string, assignToVariableId: string): void;
   // !SECTION
 
   // Getter

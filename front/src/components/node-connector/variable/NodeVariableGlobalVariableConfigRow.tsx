@@ -17,10 +17,11 @@ import ReadonlyInput from 'generic-components/ReadonlyInput';
 import PlusIcon from 'icons/PlusIcon';
 import { useFlowStore } from 'state-flow/flow-store';
 
-import { VariableFormValue } from '../types';
+import { VariableConfig, VariableFormValue } from '../types';
 
 type Props = {
   isNodeReadOnly: boolean;
+  variable: VariableConfig;
   control: Control<VariableFormValue>;
   formField: FieldArrayWithId<VariableFormValue, 'list', 'id'>;
   index: number;
@@ -105,9 +106,19 @@ function NodeVariableGlobalVariableConfigRow(props: Props) {
             <Button
               color="success"
               onClick={() => {
-                setModalOpen(false);
-                createGlobalVariable(globalVariableName);
-                setGlobalVariableName('');
+                if (
+                  Object.values(globalVariables).find(
+                    (globalVariable) =>
+                      globalVariable.name === globalVariableName,
+                  )
+                ) {
+                  // TODO: Use a proper alert component
+                  alert('Name already exists');
+                } else {
+                  setModalOpen(false);
+                  createGlobalVariable(globalVariableName, props.variable.id);
+                  setGlobalVariableName('');
+                }
               }}
             >
               Create

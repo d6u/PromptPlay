@@ -252,10 +252,11 @@ export const createRootSlice: RootSliceStateCreator = (set, get) => {
       });
     },
 
-    createGlobalVariable(name: string): void {
+    createGlobalVariable(name: string, assignToVariableId: string): void {
       get()._processEventWithEventGraph({
         type: ChangeEventType.CREATE_GLOBAL_VARIABLE,
         name,
+        assignToVariableId,
       });
     },
     // !SECTION: Event Graph
