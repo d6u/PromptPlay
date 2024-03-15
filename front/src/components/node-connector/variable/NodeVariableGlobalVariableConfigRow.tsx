@@ -1,5 +1,6 @@
 import styled from '@emotion/styled';
 import { Autocomplete, IconButton } from '@mui/joy';
+
 import PlusIcon from 'icons/PlusIcon';
 
 function NodeVariableGlobalVariableConfigRow() {

@@ -12,9 +12,9 @@ import {
   getNodeDefinitionForNodeTypeName,
 } from 'flow-models';
 
-import NodeConditionDefaultItem from 'components/node-connector/NodeConditionDefaultItem';
-import NodeConditionsEditableList from 'components/node-connector/NodeConditionsEditableList';
-import NodeVariablesEditableList from 'components/node-connector/NodeVariablesEditableList';
+import NodeConditionDefaultItem from 'components/node-connector/condition/NodeConditionDefaultItem';
+import NodeConditionsEditableList from 'components/node-connector/condition/NodeConditionsEditableList';
+import NodeVariablesEditableList from 'components/node-connector/variable/NodeVariablesEditableList';
 import NodeExecutionMessageDisplay from 'components/node-execution-state/NodeExecutionMessageDisplay';
 import SidePaneHeaderSection from 'components/side-pane/SidePaneHeaderSection';
 import HeaderSectionHeader from 'components/side-pane/SidePaneHeaderSectionHeader';

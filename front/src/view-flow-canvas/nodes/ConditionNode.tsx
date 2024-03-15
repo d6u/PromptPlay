@@ -14,10 +14,10 @@ import {
 } from 'flow-models';
 
 import NodeAddConnectorButton from 'components/NodeAddConnectorButton';
-import NodeConditionDefaultItem from 'components/node-connector/NodeConditionDefaultItem';
-import NodeConditionsEditableList from 'components/node-connector/NodeConditionsEditableList';
-import NodeTargetConditionHandle from 'components/node-connector/NodeTargetConditionHandle';
-import NodeVariablesEditableList from 'components/node-connector/NodeVariablesEditableList';
+import NodeConditionDefaultItem from 'components/node-connector/condition/NodeConditionDefaultItem';
+import NodeConditionsEditableList from 'components/node-connector/condition/NodeConditionsEditableList';
+import NodeTargetConditionHandle from 'components/node-connector/condition/NodeTargetConditionHandle';
+import NodeVariablesEditableList from 'components/node-connector/variable/NodeVariablesEditableList';
 import { useFlowStore } from 'state-flow/flow-store';
 import { NodeExecutionState, NodeExecutionStatus } from 'state-flow/types';
 import { selectConditions } from 'state-flow/util/state-utils';

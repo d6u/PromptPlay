@@ -11,7 +11,7 @@ import {
   getNodeDefinitionForNodeTypeName,
 } from 'flow-models';
 
-import NodeVariablesEditableList from 'components/node-connector/NodeVariablesEditableList';
+import NodeVariablesEditableList from 'components/node-connector/variable/NodeVariablesEditableList';
 import NodeExecutionMessageDisplay from 'components/node-execution-state/NodeExecutionMessageDisplay';
 import NodeFieldLabelWithIconContainer from 'components/node-fields/NodeFieldLabelWithIconContainer';
 import NodeFieldSectionFormControl from 'components/node-fields/NodeFieldSectionFormControl';

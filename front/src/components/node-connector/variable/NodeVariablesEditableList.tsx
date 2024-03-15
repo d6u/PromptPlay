@@ -21,10 +21,10 @@ import invariant from 'tiny-invariant';
 
 import { useFlowStore } from 'state-flow/flow-store';
 
+import { VariableConfig, VariableFormValue } from '../types';
 import NodeVariableEditableItem, {
   HandlePosition,
 } from './NodeVariableEditableItem';
-import { VariableConfig, VariableFormValue } from './types';
 
 type Props = {
   // Won't change within current session

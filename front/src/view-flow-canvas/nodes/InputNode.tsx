@@ -4,7 +4,7 @@ import { Position, useUpdateNodeInternals } from 'reactflow';
 
 import { ConnectorType, InputNodeAllLevelConfig, NodeType } from 'flow-models';
 
-import NodeVariablesEditableList from 'components/node-connector/NodeVariablesEditableList';
+import NodeVariablesEditableList from 'components/node-connector/variable/NodeVariablesEditableList';
 import { useFlowStore } from 'state-flow/flow-store';
 import { selectVariables } from 'state-flow/util/state-utils';
 

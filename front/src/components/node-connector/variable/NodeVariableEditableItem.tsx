@@ -5,16 +5,16 @@ import { Control, FieldArrayWithId, useController } from 'react-hook-form';
 import { Position } from 'reactflow';
 
 import NodeFieldHelperTextWithStatus from 'components/node-fields/NodeFieldHelperTextWithStatus';
+import RemoveButton from 'generic-components/RemoveButton';
+import ToggleGlobalVariableButton from 'generic-components/ToggleGlobalVariableButton';
 import { useFlowStore } from 'state-flow/flow-store';
 import { EdgeConnectStartConnectorClass } from 'state-flow/types';
 
-import RemoveButton from 'generic-components/RemoveButton';
-import ToggleGlobalVariableButton from 'generic-components/ToggleGlobalVariableButton';
-import DragHandle from './DragHandle';
+import DragHandle from '../DragHandle';
+import { BaseVariableHandle, HANDLE_HEIGHT } from '../base-connector-handles';
+import { VariableConfig, VariableFormValue } from '../types';
 import NodeVariableEditor from './NodeVariableEditor';
 import NodeVariableGlobalVariableConfigRow from './NodeVariableGlobalVariableConfigRow';
-import { BaseVariableHandle, HANDLE_HEIGHT } from './base-connector-handles';
-import { VariableConfig, VariableFormValue } from './types';
 
 export type HandlePosition = Position.Left | Position.Right | 'none';
 

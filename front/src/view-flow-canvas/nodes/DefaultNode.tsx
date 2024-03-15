@@ -16,9 +16,9 @@ import {
   getNodeDefinitionForNodeTypeName,
 } from 'flow-models';
 
-import NodeTargetConditionHandle from 'components/node-connector/NodeTargetConditionHandle';
-import NodeVariableResultItem from 'components/node-connector/NodeVariableResultItem';
-import NodeVariablesEditableList from 'components/node-connector/NodeVariablesEditableList';
+import NodeTargetConditionHandle from 'components/node-connector/condition/NodeTargetConditionHandle';
+import NodeVariableResultItem from 'components/node-connector/variable/NodeVariableResultItem';
+import NodeVariablesEditableList from 'components/node-connector/variable/NodeVariablesEditableList';
 import NodeAccountLevelFields from 'components/node-fields/NodeAccountLevelFields';
 import NodeInstanceLevelFields from 'components/node-fields/NodeInstanceLevelFields';
 import { useFlowStore } from 'state-flow/flow-store';

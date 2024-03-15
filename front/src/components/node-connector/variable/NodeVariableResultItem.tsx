@@ -4,8 +4,8 @@ import { Position } from 'reactflow';
 import { useFlowStore } from 'state-flow/flow-store';
 
 import { EdgeConnectStartConnectorClass } from 'state-flow/types';
-import NodeConnectorResultDisplay from './NodeConnectorResultDisplay';
-import { BaseVariableHandle } from './base-connector-handles';
+import { BaseVariableHandle } from '../base-connector-handles';
+import NodeConnectorResultDisplay from '../condition/NodeConnectorResultDisplay';
 
 type Props = {
   nodeId: string;

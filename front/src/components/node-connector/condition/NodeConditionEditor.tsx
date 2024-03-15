@@ -5,7 +5,7 @@ import { Control, Controller, FieldArrayWithId } from 'react-hook-form';
 import ReadonlyInput from 'generic-components/ReadonlyInput';
 import RemoveButton from 'generic-components/RemoveButton';
 
-import { ConditionFormValue } from './types';
+import { ConditionFormValue } from '../types';
 
 type Props = {
   isReadOnly: boolean;

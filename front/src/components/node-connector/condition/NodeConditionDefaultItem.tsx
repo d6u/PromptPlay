@@ -5,8 +5,8 @@ import { Position } from 'reactflow';
 import { useFlowStore } from 'state-flow/flow-store';
 import { EdgeConnectStartConnectorClass } from 'state-flow/types';
 
+import { BaseConditionHandle } from '../base-connector-handles';
 import NodeConnectorResultDisplay from './NodeConnectorResultDisplay';
-import { BaseConditionHandle } from './base-connector-handles';
 
 type Props = {
   showHandle?: boolean;

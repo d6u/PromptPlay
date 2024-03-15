@@ -4,7 +4,7 @@ import { Control, Controller, FieldArrayWithId } from 'react-hook-form';
 
 import ReadonlyInput from 'generic-components/ReadonlyInput';
 
-import { VariableFormValue } from './types';
+import { VariableFormValue } from '../types';
 
 type Props = {
   isReadOnly: boolean;

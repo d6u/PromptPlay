@@ -7,7 +7,7 @@ import {
   getNodeDefinitionForNodeTypeName,
 } from 'flow-models';
 
-import NodeVariablesEditableList from 'components/node-connector/NodeVariablesEditableList';
+import NodeVariablesEditableList from 'components/node-connector/variable/NodeVariablesEditableList';
 import SidePaneHeaderSection from 'components/side-pane/SidePaneHeaderSection';
 import HeaderSectionHeader from 'components/side-pane/SidePaneHeaderSectionHeader';
 import { useFlowStore } from 'state-flow/flow-store';
