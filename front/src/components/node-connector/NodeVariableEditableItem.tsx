@@ -12,7 +12,8 @@ import RemoveButton from 'generic-components/RemoveButton';
 import ToggleGlobalVariableButton from 'generic-components/ToggleGlobalVariableButton';
 import DragHandle from './DragHandle';
 import NodeVariableEditor from './NodeVariableEditor';
-import { BaseVariableHandle } from './base-connector-handles';
+import NodeVariableGlobalVariableConfigRow from './NodeVariableGlobalVariableConfigRow';
+import { BaseVariableHandle, HANDLE_HEIGHT } from './base-connector-handles';
 import { VariableConfig, VariableFormValue } from './types';
 
 export type HandlePosition = Position.Left | Position.Right | 'none';
@@ -78,15 +79,21 @@ function NodeVariableEditableItem(props: Props) {
   });
 
   const style = {
-    transform: CSS.Transform.toString(transform),
+    transform: CSS.Translate.toString(transform),
     transition,
+    // Because each item might have different height due to `isGlobal`,
+    // specify explicit height to avoid sizing issue when sorting.
+    // NOTE: This would be problematic if this item has `helperText`,
+    // because `helperText` height is cannot be determined in advance.
+    // But it's OK for now since none of sortable variable has `helperText`.
+    height: props.variable.isGlobal ? 69 : undefined,
   };
 
   const isVariableReadOnly = props.isNodeReadOnly || props.variable.isReadOnly;
 
   return (
     <Container ref={setNodeRef} style={style} {...attributes}>
-      {props.connectorHandlePosition !== 'none' && (
+      {props.connectorHandlePosition !== 'none' && !props.variable.isGlobal && (
         <BaseVariableHandle
           type={
             props.connectorHandlePosition === Position.Left
@@ -96,6 +103,7 @@ function NodeVariableEditableItem(props: Props) {
           position={props.connectorHandlePosition}
           id={props.variable.id}
           style={{
+            top: HANDLE_HEIGHT / 2,
             left:
               props.connectorHandlePosition === Position.Left ? -19 : undefined,
             right:
@@ -105,63 +113,72 @@ function NodeVariableEditableItem(props: Props) {
           }}
         />
       )}
-      <InputContainer>
+      <BoxA>
         {isSortableEnabledForThisRow && <DragHandle {...listeners} />}
-        <NodeVariableEditor
-          isReadOnly={isVariableReadOnly}
-          control={props.control}
-          formField={props.formField}
-          index={props.index}
-          onRemove={props.onRemove}
-          onUpdateTrigger={props.onUpdateTrigger}
-        />
-        {!props.isNodeReadOnly && (
-          <ToggleGlobalVariableButton
-            isActive={isGlobalField.value}
-            onClick={() => {
-              isGlobalField.onChange(!isGlobalField.value);
-              props.onUpdateTrigger();
-            }}
-          />
-        )}
-        {!isVariableReadOnly && (
-          <RemoveButton
-            onClick={() => {
-              props.onRemove();
-              props.onUpdateTrigger();
-            }}
-          />
-        )}
-      </InputContainer>
-      {props.variable.helperText && (
-        <HelperTextContainer>
-          <NodeFieldHelperTextWithStatus>
-            {props.variable.helperText}
-          </NodeFieldHelperTextWithStatus>
-        </HelperTextContainer>
-      )}
+        <BoxAA>
+          <VariableConfigRow>
+            <NodeVariableEditor
+              isReadOnly={isVariableReadOnly}
+              control={props.control}
+              formField={props.formField}
+              index={props.index}
+              onRemove={props.onRemove}
+              onUpdateTrigger={props.onUpdateTrigger}
+            />
+            {!props.isNodeReadOnly && (
+              <ToggleGlobalVariableButton
+                isActive={isGlobalField.value}
+                onClick={() => {
+                  isGlobalField.onChange(!isGlobalField.value);
+                  props.onUpdateTrigger();
+                }}
+              />
+            )}
+            {!isVariableReadOnly && (
+              <RemoveButton
+                onClick={() => {
+                  props.onRemove();
+                  props.onUpdateTrigger();
+                }}
+              />
+            )}
+          </VariableConfigRow>
+          {props.variable.isGlobal && <NodeVariableGlobalVariableConfigRow />}
+          {props.variable.helperText && (
+            <HelperTextRow>
+              <NodeFieldHelperTextWithStatus>
+                {props.variable.helperText}
+              </NodeFieldHelperTextWithStatus>
+            </HelperTextRow>
+          )}
+        </BoxAA>
+      </BoxA>
     </Container>
   );
 }
 
-// ANCHOR: UI
-
-export const ROW_MARGIN_TOP = 5;
-
 const Container = styled.div`
+  margin-top: 10px;
+  margin-bottom: 10px;
   position: relative;
-  margin-top: ${ROW_MARGIN_TOP}px;
-  margin-bottom: ${ROW_MARGIN_TOP}px;
 `;
 
-const InputContainer = styled.div`
+const BoxA = styled.div`
   display: flex;
   gap: 5px;
 `;
 
-const HelperTextContainer = styled.div`
+const BoxAA = styled.div`
+  flex-grow: 1;
+`;
+
+const VariableConfigRow = styled.div`
+  display: flex;
+  gap: 5px;
+`;
+
+const HelperTextRow = styled.div`
   margin-top: 5px;
-  margin-bottom: 10px;
 `;
 
 export default NodeVariableEditableItem;
