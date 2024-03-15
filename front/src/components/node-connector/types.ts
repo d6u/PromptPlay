@@ -6,7 +6,7 @@ export type VariableConfig = Readonly<{
   name: string;
   isGlobal: boolean;
   globalVariableId: string | null;
-  isReadOnly: boolean;
+  isVariableFixed: boolean;
   helperText?: ReactNode;
 }>;
 

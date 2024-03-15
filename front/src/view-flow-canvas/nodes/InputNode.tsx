@@ -8,6 +8,7 @@ import NodeVariablesEditableList from 'components/node-connector/variable/NodeVa
 import { useFlowStore } from 'state-flow/flow-store';
 import { selectVariables } from 'state-flow/util/state-utils';
 
+import { VariableConfig } from 'components/node-connector/types';
 import NodeBox from '../node-box/NodeBox';
 import NodeBoxHeaderSection from '../node-box/NodeBoxHeaderSection';
 
@@ -49,13 +50,15 @@ function InputNode(props: Props) {
             showConnectorHandle={Position.Right}
             nodeId={props.nodeId}
             isNodeReadOnly={props.isNodeReadOnly}
-            variableConfigs={flowInputVariables.map((variable) => ({
-              id: variable.id,
-              name: variable.name,
-              isGlobal: false,
-              globalVariableId: null,
-              isReadOnly: false,
-            }))}
+            variableConfigs={flowInputVariables.map<VariableConfig>(
+              (variable) => ({
+                id: variable.id,
+                name: variable.name,
+                isGlobal: false,
+                globalVariableId: null,
+                isVariableFixed: false,
+              }),
+            )}
           />
         </GenericContainer>
       </NodeBox>

@@ -2,13 +2,14 @@ import styled from '@emotion/styled';
 import { Autocomplete, IconButton } from '@mui/joy';
 import { Control, Controller, FieldArrayWithId } from 'react-hook-form';
 
+import ReadonlyInput from 'generic-components/ReadonlyInput';
 import PlusIcon from 'icons/PlusIcon';
 import { useFlowStore } from 'state-flow/flow-store';
 
 import { VariableFormValue } from '../types';
 
 type Props = {
-  isReadOnly: boolean;
+  isNodeReadOnly: boolean;
   control: Control<VariableFormValue>;
   formField: FieldArrayWithId<VariableFormValue, 'list', 'id'>;
   index: number;
@@ -21,6 +22,20 @@ function NodeVariableGlobalVariableConfigRow(props: Props) {
   );
 
   const createGlobalVariable = useFlowStore((s) => s.createGlobalVariable);
+
+  if (props.isNodeReadOnly) {
+    return (
+      <Container>
+        <ReadonlyInput
+          value={
+            props.formField.globalVariableId != null
+              ? globalVariables[props.formField.globalVariableId].name
+              : undefined
+          }
+        />
+      </Container>
+    );
+  }
 
   return (
     <Container>

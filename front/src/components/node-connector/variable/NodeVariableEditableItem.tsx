@@ -38,7 +38,9 @@ type Props = {
 
 function NodeVariableEditableItem(props: Props) {
   const isSortableEnabledForThisRow =
-    !props.isNodeReadOnly && !props.variable.isReadOnly && props.isListSortable;
+    !props.isNodeReadOnly &&
+    !props.variable.isVariableFixed &&
+    props.isListSortable;
 
   const paramsOnUserStartConnectingEdge = useFlowStore(
     (s) => s.paramsOnUserStartConnectingEdge,
@@ -78,18 +80,22 @@ function NodeVariableEditableItem(props: Props) {
     control: props.control,
   });
 
+  const isVariableReadOnly =
+    props.isNodeReadOnly || props.variable.isVariableFixed;
+
   const style = {
     transform: CSS.Translate.toString(transform),
     transition,
     // Because each item might have different height due to `isGlobal`,
     // specify explicit height to avoid sizing issue when sorting.
-    // NOTE: This would be problematic if this item has `helperText`,
+    //
+    // This would be problematic if this item has `helperText`,
     // because `helperText` height is cannot be determined in advance.
-    // But it's OK for now since none of sortable variable has `helperText`.
-    height: props.variable.isGlobal ? 69 : undefined,
+    //
+    // But it's OK for now since when `isVariableFixed` is true
+    //  of sortable variable has `helperText`.
+    height: !isVariableReadOnly && props.variable.isGlobal ? 69 : undefined,
   };
-
-  const isVariableReadOnly = props.isNodeReadOnly || props.variable.isReadOnly;
 
   return (
     <Container ref={setNodeRef} style={style} {...attributes}>
@@ -125,7 +131,18 @@ function NodeVariableEditableItem(props: Props) {
               onRemove={props.onRemove}
               onUpdateTrigger={props.onUpdateTrigger}
             />
-            {!props.isNodeReadOnly && (
+            {props.isNodeReadOnly ? (
+              props.variable.isGlobal && (
+                <ToggleGlobalVariableButton
+                  disabled
+                  isActive={isGlobalField.value}
+                  onClick={() => {
+                    isGlobalField.onChange(!isGlobalField.value);
+                    props.onUpdateTrigger();
+                  }}
+                />
+              )
+            ) : (
               <ToggleGlobalVariableButton
                 isActive={isGlobalField.value}
                 onClick={() => {
@@ -145,7 +162,7 @@ function NodeVariableEditableItem(props: Props) {
           </VariableConfigRow>
           {props.variable.isGlobal && (
             <NodeVariableGlobalVariableConfigRow
-              isReadOnly={isVariableReadOnly}
+              isNodeReadOnly={props.isNodeReadOnly}
               control={props.control}
               formField={props.formField}
               index={props.index}

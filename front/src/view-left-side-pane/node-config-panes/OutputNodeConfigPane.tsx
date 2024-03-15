@@ -13,6 +13,7 @@ import HeaderSectionHeader from 'components/side-pane/SidePaneHeaderSectionHeade
 import { useFlowStore } from 'state-flow/flow-store';
 import { selectVariables } from 'state-flow/util/state-utils';
 
+import { VariableConfig } from 'components/node-connector/types';
 import NodeConfigPaneAddConnectorButton from '../node-config-pane-base-ui/NodeConfigPaneAddConnectorButton';
 import NodeConfigPaneContainer from '../node-config-pane-base-ui/NodeConfigPaneContainer';
 
@@ -57,13 +58,15 @@ function OutputNodeConfigPane(props: Props) {
         isListSortable
         nodeId={props.nodeConfig.nodeId}
         isNodeReadOnly={false}
-        variableConfigs={flowOutputVariables.map((variable) => ({
-          id: variable.id,
-          name: variable.name,
-          isGlobal: false,
-          globalVariableId: null,
-          isReadOnly: false,
-        }))}
+        variableConfigs={flowOutputVariables.map<VariableConfig>(
+          (variable) => ({
+            id: variable.id,
+            name: variable.name,
+            isGlobal: false,
+            globalVariableId: null,
+            isVariableFixed: false,
+          }),
+        )}
       />
     </NodeConfigPaneContainer>
   );

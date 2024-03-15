@@ -86,7 +86,7 @@ function NodeVariablesEditableList(props: Props) {
           if (prevVariable.name !== changedVariable.name) {
             // If variable name has changed, make sure it's not readonly
             invariant(
-              !changedVariable.isReadOnly,
+              !changedVariable.isVariableFixed,
               'Variable should not be readonly',
             );
           }
@@ -108,7 +108,7 @@ function NodeVariablesEditableList(props: Props) {
         for (const removedVariable of removedVariables) {
           invariant(!props.isNodeReadOnly, 'Node should not be readonly');
           invariant(
-            !removedVariable.isReadOnly,
+            !removedVariable.isVariableFixed,
             'Variable should not be readonly',
           );
           removeVariable(removedVariable.id);
@@ -173,7 +173,9 @@ function NodeVariablesEditableList(props: Props) {
     ],
   );
 
-  let editableItemStart = props.variableConfigs.findIndex((c) => !c.isReadOnly);
+  let editableItemStart = props.variableConfigs.findIndex(
+    (c) => !c.isVariableFixed,
+  );
   if (editableItemStart === -1) {
     editableItemStart = props.variableConfigs.length;
   }

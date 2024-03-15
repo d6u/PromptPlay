@@ -4,6 +4,7 @@ import IconButton from '@mui/joy/IconButton';
 import GlobeIcon from 'icons/GlobeIcon';
 
 type Props = {
+  disabled?: boolean;
   isActive: boolean;
   onClick: () => void;
 };
@@ -12,6 +13,7 @@ function ToggleGlobalVariableButton(props: Props) {
   return (
     <IconButton
       color="neutral"
+      disabled={props.disabled}
       variant={props.isActive ? 'soft' : 'plain'}
       onClick={props.onClick}
     >

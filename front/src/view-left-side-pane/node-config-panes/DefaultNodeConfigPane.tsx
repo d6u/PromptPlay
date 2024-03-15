@@ -54,8 +54,8 @@ function DefaultNodeConfigPane(props: Props) {
     [props.nodeConfig.type],
   );
 
-  const inputVariableConfig: VariableConfig[] = useMemo(() => {
-    return props.inputVariables.map((variable) => {
+  const inputVariableConfig = useMemo(() => {
+    return props.inputVariables.map<VariableConfig>((variable) => {
       const incomingVariableConfig =
         nodeDefinition.fixedIncomingVariables?.[variable.name];
 
@@ -64,7 +64,7 @@ function DefaultNodeConfigPane(props: Props) {
         name: variable.name,
         isGlobal: variable.isGlobal,
         globalVariableId: variable.globalVariableId,
-        isReadOnly: props.isNodeReadOnly || incomingVariableConfig != null,
+        isVariableFixed: props.isNodeReadOnly || incomingVariableConfig != null,
         helperText: incomingVariableConfig?.helperMessage,
       };
     });
