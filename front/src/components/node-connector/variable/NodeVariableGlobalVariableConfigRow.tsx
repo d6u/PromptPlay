@@ -1,5 +1,16 @@
 import styled from '@emotion/styled';
-import { Autocomplete, IconButton } from '@mui/joy';
+import {
+  Autocomplete,
+  Button,
+  FormControl,
+  FormLabel,
+  IconButton,
+  Input,
+  Modal,
+  ModalDialog,
+  Typography,
+} from '@mui/joy';
+import { useState } from 'react';
 import { Control, Controller, FieldArrayWithId } from 'react-hook-form';
 
 import ReadonlyInput from 'generic-components/ReadonlyInput';
@@ -22,6 +33,9 @@ function NodeVariableGlobalVariableConfigRow(props: Props) {
   );
 
   const createGlobalVariable = useFlowStore((s) => s.createGlobalVariable);
+
+  const [modalOpen, setModalOpen] = useState(false);
+  const [globalVariableName, setGlobalVariableName] = useState('');
 
   if (props.isNodeReadOnly) {
     return (
@@ -55,13 +69,52 @@ function NodeVariableGlobalVariableConfigRow(props: Props) {
           />
         )}
       />
-      <IconButton
-        onClick={() => {
-          createGlobalVariable('New Variable');
-        }}
-      >
+      <IconButton onClick={() => setModalOpen(true)}>
         <StyledPlusIcon />
       </IconButton>
+      <Modal
+        slotProps={{ backdrop: { style: { backdropFilter: 'none' } } }}
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+      >
+        <ModalDialog sx={{ width: 600 }}>
+          <ModalSection>
+            <Typography level="h4">Create new global variable</Typography>
+          </ModalSection>
+          <ModalSection>
+            <FormControl size="md">
+              <FormLabel>Name</FormLabel>
+              <Input
+                placeholder="Enter a name"
+                value={globalVariableName}
+                onChange={(e) => setGlobalVariableName(e.target.value)}
+              />
+            </FormControl>
+          </ModalSection>
+          <ModalButtons>
+            <Button
+              variant="outlined"
+              onClick={() => {
+                setModalOpen(false);
+                // Restore name to the original value when closing modal
+                setGlobalVariableName('');
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              color="success"
+              onClick={() => {
+                setModalOpen(false);
+                createGlobalVariable(globalVariableName);
+                setGlobalVariableName('');
+              }}
+            >
+              Create
+            </Button>
+          </ModalButtons>
+        </ModalDialog>
+      </Modal>
     </Container>
   );
 }
@@ -79,6 +132,16 @@ const StyledAutocomplete = styled(Autocomplete)`
 const StyledPlusIcon = styled(PlusIcon)`
   width: 16px;
   fill: #666666;
+`;
+
+const ModalSection = styled.div`
+  margin-bottom: 10px;
+`;
+
+const ModalButtons = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
 `;
 
 export default NodeVariableGlobalVariableConfigRow;
