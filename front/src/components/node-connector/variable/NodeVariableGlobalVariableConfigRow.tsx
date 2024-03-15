@@ -1,13 +1,50 @@
 import styled from '@emotion/styled';
 import { Autocomplete, IconButton } from '@mui/joy';
+import { Control, Controller, FieldArrayWithId } from 'react-hook-form';
 
 import PlusIcon from 'icons/PlusIcon';
+import { useFlowStore } from 'state-flow/flow-store';
 
-function NodeVariableGlobalVariableConfigRow() {
+import { VariableFormValue } from '../types';
+
+type Props = {
+  isReadOnly: boolean;
+  control: Control<VariableFormValue>;
+  formField: FieldArrayWithId<VariableFormValue, 'list', 'id'>;
+  index: number;
+  onUpdateTrigger: () => void;
+};
+
+function NodeVariableGlobalVariableConfigRow(props: Props) {
+  const globalVariables = useFlowStore(
+    (s) => s.canvas.flowContent.globalVariables,
+  );
+
+  const createGlobalVariable = useFlowStore((s) => s.createGlobalVariable);
+
   return (
     <Container>
-      <StyledAutocomplete size="sm" options={['Option 1', 'Option 2']} />
-      <IconButton>
+      <Controller
+        control={props.control}
+        name={`list.${props.index}.globalVariableId`}
+        render={({ field }) => (
+          <StyledAutocomplete
+            size="sm"
+            options={Object.keys(globalVariables)}
+            getOptionLabel={(option) => globalVariables[option as string].name}
+            value={field.value}
+            onChange={(_, newValue) => {
+              field.onChange(newValue);
+              props.onUpdateTrigger();
+            }}
+          />
+        )}
+      />
+      <IconButton
+        onClick={() => {
+          createGlobalVariable('New Variable');
+        }}
+      >
         <StyledPlusIcon />
       </IconButton>
     </Container>

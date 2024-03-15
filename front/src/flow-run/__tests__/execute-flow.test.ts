@@ -83,6 +83,7 @@ test('executeFlow should execute', () => {
         '9hKOz/c5NYh': null,
       },
     ],
+    globalVariables: {},
   };
 
   const immutableFlowGraph = new ImmutableFlowNodeGraph({
@@ -323,6 +324,7 @@ test('executeFlow should unblock node has multiple conditions even when only one
         '2WvHf/content': null,
       },
     ],
+    globalVariables: {},
   };
 
   const immutableFlowGraph = new ImmutableFlowNodeGraph({
@@ -589,6 +591,7 @@ test('executeFlow should fallback to default case when no condition was met', ()
         '2WvHf/content': null,
       },
     ],
+    globalVariables: {},
   };
 
   const immutableFlowGraph = new ImmutableFlowNodeGraph({

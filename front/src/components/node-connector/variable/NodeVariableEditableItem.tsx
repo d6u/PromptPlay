@@ -143,7 +143,15 @@ function NodeVariableEditableItem(props: Props) {
               />
             )}
           </VariableConfigRow>
-          {props.variable.isGlobal && <NodeVariableGlobalVariableConfigRow />}
+          {props.variable.isGlobal && (
+            <NodeVariableGlobalVariableConfigRow
+              isReadOnly={isVariableReadOnly}
+              control={props.control}
+              formField={props.formField}
+              index={props.index}
+              onUpdateTrigger={props.onUpdateTrigger}
+            />
+          )}
           {props.variable.helperText && (
             <HelperTextRow>
               <NodeFieldHelperTextWithStatus>

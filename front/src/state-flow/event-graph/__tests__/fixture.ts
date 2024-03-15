@@ -9,5 +9,6 @@ export const MOCK_STATE: State = {
     variableValueLookUpDicts: [{}],
     nodeExecutionStates: {},
     nodeAccountLevelFieldsValidationErrors: {},
+    globalVariables: {},
   },
 };
