@@ -17,7 +17,6 @@ import {
 } from 'flow-models';
 
 import NodeTargetConditionHandle from 'components/node-connector/condition/NodeTargetConditionHandle';
-import NodeVariableResultItem from 'components/node-connector/variable/NodeVariableResultItem';
 import NodeVariablesEditableList from 'components/node-connector/variable/NodeVariablesEditableList';
 import NodeAccountLevelFields from 'components/node-fields/NodeAccountLevelFields';
 import NodeInstanceLevelFields from 'components/node-fields/NodeInstanceLevelFields';
@@ -25,6 +24,7 @@ import { useFlowStore } from 'state-flow/flow-store';
 import { NodeExecutionState, NodeExecutionStatus } from 'state-flow/types';
 
 import { VariableConfig } from 'components/node-connector/types';
+import NodeOutputVariableList from 'components/node-connector/variable/NodeOutputVariableList';
 import NodeExecutionMessageDisplay from 'components/node-execution-state/NodeExecutionMessageDisplay';
 import NodeBox from '../node-box/NodeBox';
 import NodeBoxHeaderSection from '../node-box/NodeBoxHeaderSection';
@@ -152,15 +152,14 @@ function DefaultNode(props: Props) {
           />
         </GenericContainer>
         <NodeBoxSection>
-          {sourceConnectors.map((connector) => (
-            <NodeVariableResultItem
-              key={connector.id}
-              variableId={connector.id}
-              variableName={connector.name}
-              variableValue={connector.value}
-              nodeId={props.nodeId}
-            />
-          ))}
+          <NodeOutputVariableList
+            nodeId={props.nodeId}
+            nodeOutputVariables={sourceConnectors.map((connector) => ({
+              id: connector.id,
+              name: connector.name,
+              value: connector.value,
+            }))}
+          />
         </NodeBoxSection>
         <NodeBoxSection>
           {props.nodeExecutionState?.messages.map((message, index) => (
