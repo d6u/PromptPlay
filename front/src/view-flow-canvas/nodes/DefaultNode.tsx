@@ -67,21 +67,6 @@ function DefaultNode(props: Props) {
     [props.nodeConfig.type],
   );
 
-  // ANCHOR: Store Data
-  const defaultVariableValueMap = useFlowStore((s) =>
-    s.getDefaultVariableValueLookUpDict(),
-  );
-
-  const sourceConnectors = useMemo(() => {
-    return props.outputVariables.map<SourceConnector>((output) => {
-      return {
-        id: output.id,
-        name: output.name,
-        value: defaultVariableValueMap[output.id],
-      };
-    });
-  }, [props.outputVariables, defaultVariableValueMap]);
-
   return (
     <>
       <NodeTargetConditionHandle
@@ -154,11 +139,8 @@ function DefaultNode(props: Props) {
         <NodeBoxSection>
           <NodeOutputVariableList
             nodeId={props.nodeId}
-            nodeOutputVariables={sourceConnectors.map((connector) => ({
-              id: connector.id,
-              name: connector.name,
-              value: connector.value,
-            }))}
+            isNodeReadOnly={props.isNodeReadOnly}
+            variables={props.outputVariables}
           />
         </NodeBoxSection>
         <NodeBoxSection>

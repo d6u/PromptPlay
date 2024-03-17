@@ -24,3 +24,16 @@ export type VariableFormValue = {
 export type ConditionFormValue = {
   list: ConditionConfig[];
 };
+
+// ANCHOR: Node Output Variable
+
+export type NodeOutputVariableProps = {
+  id: string;
+  name: string;
+  value: unknown;
+  isGlobal: boolean;
+};
+
+export type NodeOutputVariablePropsArrayFieldValues = {
+  list: NodeOutputVariableProps[];
+};

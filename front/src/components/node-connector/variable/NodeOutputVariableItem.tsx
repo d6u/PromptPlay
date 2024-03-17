@@ -2,19 +2,30 @@ import styled from '@emotion/styled';
 import { Position } from 'reactflow';
 
 import { useFlowStore } from 'state-flow/flow-store';
-
 import { EdgeConnectStartConnectorClass } from 'state-flow/types';
+
+import { Control, FieldArrayWithId, useController } from 'react-hook-form';
 import { BaseVariableHandle } from '../base-connector-handles';
 import NodeConnectorResultDisplay from '../condition/NodeConnectorResultDisplay';
+import { NodeOutputVariablePropsArrayFieldValues } from '../types';
+import NodeVariableToggleIsGlobalButton from './NodeVariableToggleIsGlobalButton';
 
 type Props = {
   nodeId: string;
   variableId: string;
-  variableName: string;
-  variableValue: unknown;
+  // react-hook-form
+  control: Control<NodeOutputVariablePropsArrayFieldValues>;
+  formField: FieldArrayWithId<
+    NodeOutputVariablePropsArrayFieldValues,
+    'list',
+    'id'
+  >;
+  index: number;
+  // Callbacks
+  onUpdateTrigger: () => void;
 };
 
-function NodeVariableResultItem(props: Props) {
+function NodeOutputVariableItem(props: Props) {
   const setCanvasLeftPaneIsOpen = useFlowStore(
     (s) => s.setCanvasLeftPaneIsOpen,
   );
@@ -25,6 +36,11 @@ function NodeVariableResultItem(props: Props) {
   const paramsOnUserStartConnectingEdge = useFlowStore(
     (s) => s.paramsOnUserStartConnectingEdge,
   );
+
+  const { field: formFieldIsGlobal } = useController({
+    name: `list.${props.index}.isGlobal`,
+    control: props.control,
+  });
 
   let grayOutHandle = false;
 
@@ -47,14 +63,24 @@ function NodeVariableResultItem(props: Props) {
 
   return (
     <Container>
-      <NodeConnectorResultDisplay
-        label={props.variableName}
-        value={props.variableValue}
-        onClick={() => {
-          setCanvasLeftPaneIsOpen(true);
-          setCanvasLeftPaneSelectedNodeId(props.nodeId);
-        }}
-      />
+      <RowA>
+        <NodeConnectorResultDisplay
+          label={props.formField.name}
+          value={props.formField.value}
+          onClick={() => {
+            setCanvasLeftPaneIsOpen(true);
+            setCanvasLeftPaneSelectedNodeId(props.nodeId);
+          }}
+        />
+        <NodeVariableToggleIsGlobalButton
+          disabled={false}
+          isActive={formFieldIsGlobal.value}
+          onClick={() => {
+            formFieldIsGlobal.onChange(!formFieldIsGlobal.value);
+            props.onUpdateTrigger();
+          }}
+        />
+      </RowA>
       <BaseVariableHandle
         type="source"
         position={Position.Right}
@@ -70,7 +96,14 @@ function NodeVariableResultItem(props: Props) {
 }
 
 const Container = styled.div`
+  margin-top: 10px;
+  margin-bottom: 10px;
   position: relative;
 `;
 
-export default NodeVariableResultItem;
+const RowA = styled.div`
+  display: flex;
+  gap: 5px;
+`;
+
+export default NodeOutputVariableItem;

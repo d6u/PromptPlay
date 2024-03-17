@@ -18,12 +18,10 @@ function NodeConnectorResultDisplay(props: Props) {
 }
 
 const Container = styled.div`
-  margin-top: 5px;
-  margin-bottom: 5px;
   height: 32px;
-  border: 1px solid blue;
   padding-left: 6px;
   padding-right: 6px;
+  border: 1px solid blue;
   display: flex;
   align-items: center;
   justify-content: space-between;

@@ -22,15 +22,14 @@ function NodeVariableToggleIsGlobalButton(props: Props) {
         },
       })}
     >
-      <StyledGlobeIcon $active={props.isActive} />
+      <StyledGlobeIcon style={{ fill: props.isActive ? 'white' : undefined }} />
     </IconButton>
   );
 }
 
-const StyledGlobeIcon = styled(GlobeIcon)<{ $active: boolean }>`
+const StyledGlobeIcon = styled(GlobeIcon)`
   width: 15px;
   fill: #666666;
-  ${({ $active }) => $active && 'fill: white;'}
 `;
 
 export default NodeVariableToggleIsGlobalButton;

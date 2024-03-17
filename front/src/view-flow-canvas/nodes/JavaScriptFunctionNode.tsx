@@ -27,7 +27,6 @@ import NodeExecutionMessageDisplay from 'components/node-execution-state/NodeExe
 import NodeBox from '../node-box/NodeBox';
 import NodeBoxHeaderSection from '../node-box/NodeBoxHeaderSection';
 import NodeBoxSection from '../node-box/NodeBoxSection';
-import { SourceConnector } from './DefaultNode';
 
 type Props = {
   nodeId: string;
@@ -49,20 +48,6 @@ function JavaScriptFunctionNode(props: Props) {
 
   const updateNodeConfig = useFlowStore((s) => s.updateNodeConfig);
   const addVariable = useFlowStore((s) => s.addVariable);
-
-  const defaultVariableValueMap = useFlowStore((s) =>
-    s.getDefaultVariableValueLookUpDict(),
-  );
-
-  const srcConnectors = useMemo(() => {
-    return props.outputVariables.map<SourceConnector>((output) => {
-      return {
-        id: output.id,
-        name: output.name,
-        value: defaultVariableValueMap[output.id],
-      };
-    });
-  }, [props.outputVariables, defaultVariableValueMap]);
 
   const [javaScriptCode, setJavaScriptCode] = useState(
     () => props.nodeConfig.javaScriptCode,
@@ -164,11 +149,8 @@ ${javaScriptCode.split('\n').join('\n  ')}
         <NodeBoxSection>
           <NodeOutputVariableList
             nodeId={props.nodeId}
-            nodeOutputVariables={srcConnectors.map((connector) => ({
-              id: connector.id,
-              name: connector.name,
-              value: connector.value,
-            }))}
+            isNodeReadOnly={props.isNodeReadOnly}
+            variables={props.outputVariables}
           />
         </NodeBoxSection>
         <NodeBoxSection>
