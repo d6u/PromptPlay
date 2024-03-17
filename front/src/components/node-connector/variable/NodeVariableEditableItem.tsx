@@ -75,7 +75,7 @@ function NodeVariableEditableItem(props: Props) {
       disabled: !isSortableEnabledForThisRow,
     });
 
-  const { field: isGlobalField } = useController({
+  const { field: formFieldIsGlobal } = useController({
     name: `list.${props.index}.isGlobal`,
     control: props.control,
   });
@@ -131,23 +131,15 @@ function NodeVariableEditableItem(props: Props) {
               onRemove={props.onRemove}
               onUpdateTrigger={props.onUpdateTrigger}
             />
-            {props.isNodeReadOnly ? (
-              props.variable.isGlobal && (
-                <ToggleGlobalVariableButton
-                  disabled
-                  isActive={isGlobalField.value}
-                  onClick={() => {
-                    isGlobalField.onChange(!isGlobalField.value);
-                    props.onUpdateTrigger();
-                  }}
-                />
-              )
-            ) : (
+            {props.isNodeReadOnly && !props.variable.isGlobal ? null : (
               <ToggleGlobalVariableButton
-                isActive={isGlobalField.value}
+                disabled={props.isNodeReadOnly}
+                isActive={formFieldIsGlobal.value}
                 onClick={() => {
-                  isGlobalField.onChange(!isGlobalField.value);
-                  props.onUpdateTrigger();
+                  if (!props.isNodeReadOnly) {
+                    formFieldIsGlobal.onChange(!formFieldIsGlobal.value);
+                    props.onUpdateTrigger();
+                  }
                 }}
               />
             )}

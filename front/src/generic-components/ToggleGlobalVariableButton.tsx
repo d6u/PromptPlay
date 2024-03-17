@@ -12,19 +12,25 @@ type Props = {
 function ToggleGlobalVariableButton(props: Props) {
   return (
     <IconButton
-      color="neutral"
+      color={props.isActive ? 'primary' : 'neutral'}
       disabled={props.disabled}
-      variant={props.isActive ? 'soft' : 'plain'}
+      variant={props.isActive ? 'solid' : 'plain'}
       onClick={props.onClick}
+      sx={(theme) => ({
+        '&:disabled': {
+          background: theme.vars.palette.primary.solidBg,
+        },
+      })}
     >
-      <StyledGlobeIcon />
+      <StyledGlobeIcon $active={props.isActive} />
     </IconButton>
   );
 }
 
-const StyledGlobeIcon = styled(GlobeIcon)`
+const StyledGlobeIcon = styled(GlobeIcon)<{ $active: boolean }>`
   width: 15px;
   fill: #666666;
+  ${({ $active }) => $active && 'fill: white;'}
 `;
 
 export default ToggleGlobalVariableButton;
