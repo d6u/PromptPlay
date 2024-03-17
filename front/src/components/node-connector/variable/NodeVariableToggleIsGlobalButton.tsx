@@ -9,7 +9,7 @@ type Props = {
   onClick: () => void;
 };
 
-function ToggleGlobalVariableButton(props: Props) {
+function NodeVariableToggleIsGlobalButton(props: Props) {
   return (
     <IconButton
       color={props.isActive ? 'primary' : 'neutral'}
@@ -33,4 +33,4 @@ const StyledGlobeIcon = styled(GlobeIcon)<{ $active: boolean }>`
   ${({ $active }) => $active && 'fill: white;'}
 `;
 
-export default ToggleGlobalVariableButton;
+export default NodeVariableToggleIsGlobalButton;

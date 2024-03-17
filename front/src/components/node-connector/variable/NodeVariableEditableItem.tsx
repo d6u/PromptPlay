@@ -4,9 +4,9 @@ import styled from '@emotion/styled';
 import { Control, FieldArrayWithId, useController } from 'react-hook-form';
 import { Position } from 'reactflow';
 
+import NodeVariableToggleIsGlobalButton from 'components/node-connector/variable/NodeVariableToggleIsGlobalButton';
 import NodeFieldHelperTextWithStatus from 'components/node-fields/NodeFieldHelperTextWithStatus';
 import RemoveButton from 'generic-components/RemoveButton';
-import ToggleGlobalVariableButton from 'generic-components/ToggleGlobalVariableButton';
 import { useFlowStore } from 'state-flow/flow-store';
 import { EdgeConnectStartConnectorClass } from 'state-flow/types';
 
@@ -132,7 +132,7 @@ function NodeVariableEditableItem(props: Props) {
               onUpdateTrigger={props.onUpdateTrigger}
             />
             {props.isNodeReadOnly && !props.variable.isGlobal ? null : (
-              <ToggleGlobalVariableButton
+              <NodeVariableToggleIsGlobalButton
                 disabled={props.isNodeReadOnly}
                 isActive={formFieldIsGlobal.value}
                 onClick={() => {
