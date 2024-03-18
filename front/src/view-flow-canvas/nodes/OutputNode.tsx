@@ -4,11 +4,11 @@ import { Position, useUpdateNodeInternals } from 'reactflow';
 
 import { ConnectorType, NodeType, OutputNodeAllLevelConfig } from 'flow-models';
 
+import { VariableConfig } from 'components/node-connector/types';
 import NodeRenamableVariableList from 'components/node-connector/variable/NodeRenamableVariableList';
 import { useFlowStore } from 'state-flow/flow-store';
 import { selectVariables } from 'state-flow/util/state-utils';
 
-import { VariableConfig } from 'components/node-connector/types';
 import NodeBox from '../node-box/NodeBox';
 import NodeBoxHeaderSection from '../node-box/NodeBoxHeaderSection';
 
@@ -24,8 +24,8 @@ function OutputNode(props: Props) {
   const variables = useFlowStore((s) => s.getFlowContent().variablesDict);
   const addVariable = useFlowStore((s) => s.addVariable);
 
-  const flowOutputVariables = useMemo(() => {
-    return selectVariables(props.nodeId, ConnectorType.FlowOutput, variables);
+  const nodeInputVariables = useMemo(() => {
+    return selectVariables(props.nodeId, ConnectorType.NodeInput, variables);
   }, [props.nodeId, variables]);
 
   return (
@@ -39,8 +39,8 @@ function OutputNode(props: Props) {
           onClickAddVariableButton={() => {
             addVariable(
               props.nodeId,
-              ConnectorType.FlowOutput,
-              flowOutputVariables.length,
+              ConnectorType.NodeInput,
+              nodeInputVariables.length,
             );
             updateNodeInternals(props.nodeId);
           }}
@@ -50,12 +50,12 @@ function OutputNode(props: Props) {
             showConnectorHandle={Position.Left}
             nodeId={props.nodeId}
             isNodeReadOnly={props.isNodeReadOnly}
-            variableConfigs={flowOutputVariables.map<VariableConfig>(
-              (output) => ({
-                id: output.id,
-                name: output.name,
-                isGlobal: false,
-                globalVariableId: null,
+            variableConfigs={nodeInputVariables.map<VariableConfig>(
+              (nodeInputVariable) => ({
+                id: nodeInputVariable.id,
+                name: nodeInputVariable.name,
+                isGlobal: nodeInputVariable.isGlobal,
+                globalVariableId: nodeInputVariable.globalVariableId,
                 isVariableFixed: false,
               }),
             )}

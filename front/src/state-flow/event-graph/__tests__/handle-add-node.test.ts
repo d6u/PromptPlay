@@ -15,15 +15,9 @@ test('handleAddNode should add node and nodeConfig', () => {
   const nextState = produce(prevState, (draft) => {
     handleAddNode(draft, {
       type: ChangeEventType.ADDING_NODE,
-      node: {
-        id: 'yv1vr',
-        type: 'InputNode',
-        position: {
-          x: 510,
-          y: 200,
-        },
-        data: null,
-      },
+      nodeType: 'InputNode',
+      x: 510,
+      y: 200,
     } as BaseEvent);
   });
 
@@ -32,38 +26,42 @@ test('handleAddNode should add node and nodeConfig', () => {
     flowContent: {
       nodes: [
         {
-          id: 'yv1vr',
-          type: 'InputNode',
+          id: expect.any(String),
+          type: 'CANVAS_NODE',
           position: {
             x: 510,
             y: 200,
           },
-          data: null,
           dragHandle: '.node-drag-handle',
         },
       ],
       edges: [],
-      nodeConfigsDict: {
-        yv1vr: {
-          nodeId: 'yv1vr',
-          type: 'InputNode',
-        },
-      },
+      nodeConfigsDict: expect.anything(),
       variablesDict: expect.anything(),
       variableValueLookUpDicts: expect.anything(),
       nodeExecutionStates: expect.anything(),
       nodeAccountLevelFieldsValidationErrors: expect.anything(),
+      globalVariables: {},
     },
   });
 
+  expect(Object.values(nextState.flowContent.nodeConfigsDict)).toEqual([
+    {
+      nodeId: expect.any(String),
+      type: 'InputNode',
+    },
+  ]);
+
   expect(Object.values(nextState.flowContent.variablesDict)).toEqual([
     {
-      type: 'FlowInput',
+      type: 'NodeOutput',
       id: expect.any(String),
-      nodeId: 'yv1vr',
+      nodeId: expect.any(String),
       index: 0,
       name: expect.any(String),
       valueType: 'String',
+      isGlobal: true,
+      globalVariableId: null,
     },
   ]);
 

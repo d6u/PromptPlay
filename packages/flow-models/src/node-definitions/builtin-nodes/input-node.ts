@@ -5,11 +5,7 @@ import { z } from 'zod';
 import chance from 'common-utils/chance';
 import randomId from 'common-utils/randomId';
 
-import {
-  ConnectorType,
-  FlowInputVariable,
-  VariableValueType,
-} from '../../base-types';
+import { ConnectorType, VariableValueType } from '../../base-types';
 import {
   NodeDefinition,
   NodeExecutionEvent,
@@ -45,12 +41,14 @@ export const INPUT_NODE_DEFINITION: NodeDefinition<
       },
       variableConfigList: [
         {
-          type: ConnectorType.FlowInput,
+          type: ConnectorType.NodeOutput,
           id: `${nodeId}/${randomId()}`,
           nodeId: nodeId,
           index: 0,
           name: chance.word(),
           valueType: VariableValueType.String,
+          isGlobal: true,
+          globalVariableId: null,
         },
       ],
     };
@@ -67,11 +65,7 @@ export const INPUT_NODE_DEFINITION: NodeDefinition<
         nodeId: nodeConfig.nodeId,
       });
 
-      const connectorIdList = connectorList
-        .filter((connector): connector is FlowInputVariable => {
-          return connector.type === ConnectorType.FlowInput;
-        })
-        .map((connector) => connector.id);
+      const connectorIdList = connectorList.map((connector) => connector.id);
 
       subscriber.next({
         type: NodeExecutionEventType.Finish,

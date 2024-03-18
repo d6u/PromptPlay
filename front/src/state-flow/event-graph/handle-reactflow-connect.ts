@@ -51,14 +51,10 @@ export function handleReactFlowConnectEvent(
   const targetConnector = state.flowContent.variablesDict[targetHandle];
 
   const sourceConnectorIsVariable =
-    sourceConnector.type === ConnectorType.FlowInput ||
-    sourceConnector.type === ConnectorType.FlowOutput ||
     sourceConnector.type === ConnectorType.NodeInput ||
     sourceConnector.type === ConnectorType.NodeOutput;
 
   const targetConnectorIsVariable =
-    targetConnector.type === ConnectorType.FlowInput ||
-    targetConnector.type === ConnectorType.FlowOutput ||
     targetConnector.type === ConnectorType.NodeInput ||
     targetConnector.type === ConnectorType.NodeOutput;
 

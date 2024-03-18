@@ -35,7 +35,7 @@ function OutputNodeConfigPane(props: Props) {
   const addVariable = useFlowStore((s) => s.addVariable);
 
   const flowOutputVariables = useMemo(() => {
-    return selectVariables(props.nodeId, ConnectorType.FlowOutput, variables);
+    return selectVariables(props.nodeId, ConnectorType.NodeInput, variables);
   }, [props.nodeId, variables]);
 
   return (
@@ -48,7 +48,7 @@ function OutputNodeConfigPane(props: Props) {
         onClick={() => {
           addVariable(
             props.nodeConfig.nodeId,
-            ConnectorType.FlowOutput,
+            ConnectorType.NodeInput,
             flowOutputVariables.length,
           );
           updateNodeInternals(props.nodeConfig.nodeId);

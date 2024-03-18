@@ -3,11 +3,9 @@ import { current } from 'immer';
 import { Connector } from 'flow-models';
 
 import { createHandler } from './event-graph-util.ts';
-import { ChangeEventType } from './event-types.ts';
-import {
-  VariableUpdatedEvent,
-  updateVariableValueMapOnVariableUpdate,
-} from './update-variable-value-map-on-variable-update.ts.ts';
+import { ChangeEventType, VariableUpdatedEvent } from './event-types.ts';
+import { removeEdgeOnVariableUpdate } from './remove-edge-on-variable-update.ts';
+import { updateVariableValueMapOnVariableUpdate } from './update-variable-value-map-on-variable-update.ts.ts';
 
 export type UpdateConnectorsEvent = {
   type: ChangeEventType.UPDATE_CONNECTORS;
@@ -32,12 +30,14 @@ export const handleUpdateConnectors = createHandler<
 
       Object.assign(variable, update.change);
 
+      const nextVariableSnapshot = current(variable);
+
       return {
         type: ChangeEventType.VARIABLE_UPDATED,
         prevVariable: prevVariableSnapshot,
-        nextVariable: current(variable),
+        nextVariable: nextVariableSnapshot,
       };
     });
   },
-  [updateVariableValueMapOnVariableUpdate],
+  [updateVariableValueMapOnVariableUpdate, removeEdgeOnVariableUpdate],
 );

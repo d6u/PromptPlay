@@ -2,15 +2,16 @@ import styled from '@emotion/styled';
 import { Button } from '@mui/joy';
 import { useContext, useMemo } from 'react';
 
-import { ConnectorType, VariableValueType } from 'flow-models';
-
 import SidePaneHeaderSection from 'components/side-pane/SidePaneHeaderSection';
 import HeaderSectionHeader from 'components/side-pane/SidePaneHeaderSectionHeader';
 import SidePaneOutputRenderer from 'components/side-pane/SidePaneOutputRenderer';
 import SidePaneSection from 'components/side-pane/SidePaneSection';
 import RouteFlowContext from 'state-flow/context/FlowRouteContext';
 import { useFlowStore } from 'state-flow/flow-store';
-import { selectAllVariables } from 'state-flow/util/state-utils';
+import {
+  selectVariablesOnAllEndNodes,
+  selectVariablesOnAllStartNodes,
+} from 'state-flow/util/state-utils';
 
 import InputBlock from '../common/InputBlock';
 
@@ -22,22 +23,23 @@ function TesterPane() {
     (s) => s.canvasStateMachine.getSnapshot().context.isExecutingFlowSingleRun,
   );
   const variableMap = useFlowStore((s) => s.getFlowContent().variablesDict);
+  const nodeConfigs = useFlowStore((s) => s.getFlowContent().nodeConfigsDict);
+
   const runFlow = useFlowStore((s) => s.startFlowSingleRun);
   const stopRunningFlow = useFlowStore((s) => s.stopFlowSingleRun);
   const variableValueMap = useFlowStore((s) =>
     s.getDefaultVariableValueLookUpDict(),
   );
   const updateVariableValueMap = useFlowStore((s) => s.updateVariableValue);
-  const updateVariable = useFlowStore((s) => s.updateConnector);
   // !SECTION
 
   const flowInputs = useMemo(() => {
-    return selectAllVariables(ConnectorType.FlowInput, variableMap);
-  }, [variableMap]);
+    return selectVariablesOnAllStartNodes(variableMap, nodeConfigs);
+  }, [nodeConfigs, variableMap]);
 
   const flowOutputs = useMemo(() => {
-    return selectAllVariables(ConnectorType.FlowOutput, variableMap);
-  }, [variableMap]);
+    return selectVariablesOnAllEndNodes(variableMap, nodeConfigs);
+  }, [nodeConfigs, variableMap]);
 
   return (
     <Container>
@@ -62,21 +64,6 @@ function TesterPane() {
             value={variableValueMap[variable.id]}
             onSaveValue={(value) => {
               updateVariableValueMap(variable.id, value);
-            }}
-            type={variable.valueType}
-            onSaveType={(newType) => {
-              if (newType !== variable.valueType) {
-                switch (newType) {
-                  case VariableValueType.String:
-                    updateVariableValueMap(variable.id, '');
-                    break;
-                  case VariableValueType.Number:
-                    updateVariableValueMap(variable.id, 0);
-                    break;
-                }
-              }
-
-              updateVariable(variable.id, { valueType: newType });
             }}
           />
         ))}

@@ -1,4 +1,4 @@
-import { D, Option } from '@mobily/ts-belt';
+import { A, D, Option, pipe } from '@mobily/ts-belt';
 import { produce } from 'immer';
 import invariant from 'tiny-invariant';
 
@@ -6,12 +6,13 @@ import {
   Condition,
   ConditionTarget,
   ConnectorRecords,
+  ConnectorResultMap,
   ConnectorType,
-  FlowInputVariable,
-  FlowOutputVariable,
   LocalEdge,
+  NodeConfigRecords,
   NodeInputVariable,
   NodeOutputVariable,
+  NodeType,
 } from 'flow-models';
 
 import { DRAG_HANDLE_CLASS_NAME } from 'view-flow-canvas/constants';
@@ -55,18 +56,12 @@ export function assignLocalEdgeProperties(
 export type VariableTypeToVariableConfigTypeMap = {
   [ConnectorType.NodeInput]: NodeInputVariable;
   [ConnectorType.NodeOutput]: NodeOutputVariable;
-  [ConnectorType.FlowInput]: FlowInputVariable;
-  [ConnectorType.FlowOutput]: FlowOutputVariable;
   [ConnectorType.Condition]: Condition;
   [ConnectorType.ConditionTarget]: ConditionTarget;
 };
 
 export function selectVariables<
-  T extends
-    | typeof ConnectorType.NodeInput
-    | typeof ConnectorType.NodeOutput
-    | typeof ConnectorType.FlowInput
-    | typeof ConnectorType.FlowOutput,
+  T extends typeof ConnectorType.NodeInput | typeof ConnectorType.NodeOutput,
 >(
   nodeId: string,
   type: T,
@@ -80,11 +75,7 @@ export function selectVariables<
 }
 
 export function selectAllVariables<
-  T extends
-    | typeof ConnectorType.NodeInput
-    | typeof ConnectorType.NodeOutput
-    | typeof ConnectorType.FlowInput
-    | typeof ConnectorType.FlowOutput,
+  T extends typeof ConnectorType.NodeInput | typeof ConnectorType.NodeOutput,
 >(
   type: T,
   variableMap: ConnectorRecords,
@@ -94,6 +85,46 @@ export function selectAllVariables<
       return v.type === type;
     })
     .sort((a, b) => a.index - b.index);
+}
+
+export function selectVariablesOnAllStartNodes(
+  connectors: ConnectorRecords,
+  nodeConfigs: NodeConfigRecords,
+): VariableTypeToVariableConfigTypeMap[typeof ConnectorType.NodeOutput][] {
+  type VariableType =
+    VariableTypeToVariableConfigTypeMap[typeof ConnectorType.NodeOutput];
+
+  const startNodeIds = Object.keys(nodeConfigs).filter((nodeId) => {
+    return nodeConfigs[nodeId].type === NodeType.InputNode;
+  });
+
+  return Object.values(connectors)
+    .filter((v): v is VariableType => {
+      return (
+        v.type === ConnectorType.NodeOutput && startNodeIds.includes(v.nodeId)
+      );
+    })
+    .sort((a, b) => a.name.localeCompare(b.name));
+}
+
+export function selectVariablesOnAllEndNodes(
+  connectors: ConnectorRecords,
+  nodeConfigs: NodeConfigRecords,
+): VariableTypeToVariableConfigTypeMap[typeof ConnectorType.NodeInput][] {
+  type VariableType =
+    VariableTypeToVariableConfigTypeMap[typeof ConnectorType.NodeInput];
+
+  const endNodeIds = Object.keys(nodeConfigs).filter((nodeId) => {
+    return nodeConfigs[nodeId].type === NodeType.OutputNode;
+  });
+
+  return Object.values(connectors)
+    .filter((v): v is VariableType => {
+      return (
+        v.type === ConnectorType.NodeInput && endNodeIds.includes(v.nodeId)
+      );
+    })
+    .sort((a, b) => a.name.localeCompare(b.name));
 }
 
 export function selectConditions(
@@ -114,4 +145,24 @@ export function selectConditionTarget(
   return D.values(variablesDict).find((c): c is ConditionTarget => {
     return c.nodeId === nodeId && c.type === ConnectorType.ConditionTarget;
   });
+}
+
+export function selectStartNodeVariableIdToValueMap(
+  connectors: ConnectorRecords,
+  connectorResults: ConnectorResultMap,
+  nodeConfigs: NodeConfigRecords,
+): Record<string, Readonly<unknown>> {
+  const variables = selectVariablesOnAllStartNodes(connectors, nodeConfigs);
+
+  return pipe(
+    variables,
+    A.map((connector) => {
+      invariant(connector != null, 'connector is not null');
+      return [
+        connector.id,
+        connectorResults[connector.id] as Readonly<unknown>,
+      ] as const;
+    }),
+    D.fromPairs<Readonly<unknown>, string>,
+  );
 }

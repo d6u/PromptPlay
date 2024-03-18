@@ -1,11 +1,12 @@
 import { ReactNode, useMemo } from 'react';
 
-import { ConnectorType } from 'flow-models';
-
 import { OverallStatus } from 'flow-run/run-types';
 import { useFlowStore } from 'state-flow/flow-store';
 import { CSVData, IterationIndex, RowIndex } from 'state-flow/types';
-import { selectAllVariables } from 'state-flow/util/state-utils';
+import {
+  selectVariablesOnAllEndNodes,
+  selectVariablesOnAllStartNodes,
+} from 'state-flow/util/state-utils';
 import OutputDisplay from 'view-right-side-pane/common/OutputDisplay';
 
 type Props = {
@@ -15,6 +16,7 @@ type Props = {
 export default function TableBody(props: Props) {
   // SECTION: Select state from store
   const variableMap = useFlowStore((s) => s.getFlowContent().variablesDict);
+  const nodeConfigs = useFlowStore((s) => s.getFlowContent().nodeConfigsDict);
 
   const {
     repeatTimes,
@@ -25,12 +27,12 @@ export default function TableBody(props: Props) {
   // !SECTION
 
   const flowInputVariables = useMemo(() => {
-    return selectAllVariables(ConnectorType.FlowInput, variableMap);
-  }, [variableMap]);
+    return selectVariablesOnAllStartNodes(variableMap, nodeConfigs);
+  }, [nodeConfigs, variableMap]);
 
   const flowOutputVariables = useMemo(() => {
-    return selectAllVariables(ConnectorType.FlowOutput, variableMap);
-  }, [variableMap]);
+    return selectVariablesOnAllEndNodes(variableMap, nodeConfigs);
+  }, [nodeConfigs, variableMap]);
 
   const variableMapTableBodyRows: ReactNode[] = [];
 

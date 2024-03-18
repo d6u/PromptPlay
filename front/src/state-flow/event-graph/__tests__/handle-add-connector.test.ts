@@ -2,6 +2,7 @@ import { produce } from 'immer';
 import { expect, test } from 'vitest';
 
 import { ChangeEventType } from 'state-flow/event-graph/event-types';
+
 import { BaseEvent } from '../event-graph-util';
 import { State } from '../event-types';
 import { handleAddConnector } from '../handle-add-connector';
@@ -37,12 +38,14 @@ test('handleAddConnector should add variable', () => {
       },
       variablesDict: {
         'Z6dPf/wZf7M': {
-          type: 'FlowInput',
+          type: 'NodeOutput',
           id: 'Z6dPf/wZf7M',
           nodeId: 'Z6dPf',
           index: 0,
           name: 'var1',
           valueType: 'String',
+          isGlobal: false,
+          globalVariableId: null,
         },
       },
       variableValueLookUpDicts: [
@@ -57,8 +60,9 @@ test('handleAddConnector should add variable', () => {
     handleAddConnector(draft, {
       type: ChangeEventType.ADDING_VARIABLE,
       nodeId: 'Z6dPf',
-      connectorType: 'FlowInput',
+      connectorType: 'NodeOutput',
       connectorIndex: 1,
+      variableValueType: 'String',
     } as BaseEvent);
   });
 
@@ -73,20 +77,24 @@ test('handleAddConnector should add variable', () => {
 
   expect(Object.values(nextState.flowContent.variablesDict)).toEqual([
     {
-      type: 'FlowInput',
+      type: 'NodeOutput',
       id: 'Z6dPf/wZf7M',
       nodeId: 'Z6dPf',
       index: 0,
       name: 'var1',
       valueType: 'String',
+      isGlobal: false,
+      globalVariableId: null,
     },
     {
+      type: 'NodeOutput',
       id: expect.any(String),
       nodeId: 'Z6dPf',
       index: 1,
       name: expect.any(String),
-      type: 'FlowInput',
       valueType: 'String',
+      isGlobal: true,
+      globalVariableId: null,
     },
   ]);
 

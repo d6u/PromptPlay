@@ -8,7 +8,6 @@ import randomId from 'common-utils/randomId';
 import {
   ConnectorResultMap,
   ConnectorType,
-  FlowOutputVariable,
   VariableValueType,
 } from '../../base-types';
 import {
@@ -46,12 +45,14 @@ export const OUTPUT_NODE_DEFINITION: NodeDefinition<
       },
       variableConfigList: [
         {
-          type: ConnectorType.FlowOutput,
+          type: ConnectorType.NodeInput,
           id: `${nodeId}/${randomId()}`,
           nodeId: nodeId,
           index: 0,
           name: chance.word(),
-          valueType: VariableValueType.String,
+          valueType: VariableValueType.Any,
+          isGlobal: true,
+          globalVariableId: null,
         },
       ],
     };
@@ -71,13 +72,9 @@ export const OUTPUT_NODE_DEFINITION: NodeDefinition<
 
       const flowOutputValueMap: ConnectorResultMap = {};
 
-      connectorList
-        .filter((connector): connector is FlowOutputVariable => {
-          return connector.type === ConnectorType.FlowOutput;
-        })
-        .forEach((connector) => {
-          flowOutputValueMap[connector.id] = nodeInputValueMap[connector.id];
-        });
+      connectorList.forEach((connector) => {
+        flowOutputValueMap[connector.id] = nodeInputValueMap[connector.id];
+      });
 
       subscriber.next({
         type: NodeExecutionEventType.VariableValues,

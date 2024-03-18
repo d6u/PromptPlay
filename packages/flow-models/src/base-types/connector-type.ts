@@ -1,6 +1,4 @@
 export const ConnectorType = {
-  FlowInput: 'FlowInput',
-  FlowOutput: 'FlowOutput',
   NodeInput: 'NodeInput',
   NodeOutput: 'NodeOutput',
   Condition: 'Condition',

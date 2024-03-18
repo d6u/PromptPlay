@@ -37,20 +37,24 @@ test('handleRemoveVariable should remove variable', () => {
       },
       variablesDict: {
         'Z6dPf/wZf7M': {
-          type: 'FlowInput',
+          type: 'NodeOutput',
           id: 'Z6dPf/wZf7M',
           nodeId: 'Z6dPf',
           index: 0,
           name: 'var1',
           valueType: 'String',
+          isGlobal: false,
+          globalVariableId: null,
         },
         'Z6dPf/zrLpE': {
+          type: 'NodeOutput',
           id: 'Z6dPf/zrLpE',
           nodeId: 'Z6dPf',
           index: 1,
           name: 'var2',
-          type: 'FlowInput',
           valueType: 'String',
+          isGlobal: false,
+          globalVariableId: null,
         },
       },
       variableValueLookUpDicts: [
@@ -75,12 +79,14 @@ test('handleRemoveVariable should remove variable', () => {
       ...prevState.flowContent,
       variablesDict: {
         'Z6dPf/wZf7M': {
-          type: 'FlowInput',
+          type: 'NodeOutput',
           id: 'Z6dPf/wZf7M',
           nodeId: 'Z6dPf',
           index: 0,
           name: 'var1',
           valueType: 'String',
+          isGlobal: false,
+          globalVariableId: null,
         },
       },
       variableValueLookUpDicts: [

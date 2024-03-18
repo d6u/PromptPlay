@@ -1,9 +1,4 @@
-import {
-  FlowInputVariable,
-  FlowOutputVariable,
-  NodeInputVariable,
-  NodeOutputVariable,
-} from 'flow-models';
+import { Connector, NodeInputVariable, NodeOutputVariable } from 'flow-models';
 
 import { FlowContentState } from 'state-flow/types';
 
@@ -40,8 +35,6 @@ export enum ChangeEventType {
   NODE_CONFIG_UPDATED = 'NODE_CONFIG_UPDATED',
   // Derived Edges
   EDGE_ADDED = 'EDGE_ADDED',
-  EDGE_REMOVED = 'EDGE_REMOVED',
-  EDGE_REMOVED_DUE_TO_SOURCE_VARIABLE_REMOVAL = 'EDGE_REMOVED_DUE_TO_SOURCE_VARIABLE_REMOVAL',
   EDGE_REPLACED = 'EDGE_REPLACED',
   // Derived Variables
   VARIABLE_ADDED = 'VARIABLE_ADDED',
@@ -59,9 +52,11 @@ export enum ChangeEventType {
 
 export type VariableRemovedEvent = {
   type: ChangeEventType.VARIABLE_REMOVED;
-  removedVariable:
-    | FlowInputVariable
-    | FlowOutputVariable
-    | NodeInputVariable
-    | NodeOutputVariable;
+  removedVariable: NodeInputVariable | NodeOutputVariable;
+};
+
+export type VariableUpdatedEvent = {
+  type: ChangeEventType.VARIABLE_UPDATED;
+  prevVariable: Connector;
+  nextVariable: Connector;
 };

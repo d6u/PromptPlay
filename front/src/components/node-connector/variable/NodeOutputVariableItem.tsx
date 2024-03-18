@@ -97,16 +97,18 @@ function NodeOutputVariableItem(props: Props) {
           onUpdateTrigger={props.onUpdateTrigger}
         />
       )}
-      <BaseVariableHandle
-        type="source"
-        position={Position.Right}
-        id={props.variableId}
-        style={{
-          right: -19,
-          background: grayOutHandle ? '#c2c2c2' : undefined,
-          cursor: grayOutHandle ? 'not-allowed' : undefined,
-        }}
-      />
+      {!formFieldIsGlobal.value && (
+        <BaseVariableHandle
+          type="source"
+          position={Position.Right}
+          id={props.variableId}
+          style={{
+            right: -19,
+            background: grayOutHandle ? '#c2c2c2' : undefined,
+            cursor: grayOutHandle ? 'not-allowed' : undefined,
+          }}
+        />
+      )}
     </Container>
   );
 }

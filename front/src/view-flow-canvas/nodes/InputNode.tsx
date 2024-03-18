@@ -4,11 +4,11 @@ import { Position, useUpdateNodeInternals } from 'reactflow';
 
 import { ConnectorType, InputNodeAllLevelConfig, NodeType } from 'flow-models';
 
+import { VariableConfig } from 'components/node-connector/types';
 import NodeRenamableVariableList from 'components/node-connector/variable/NodeRenamableVariableList';
 import { useFlowStore } from 'state-flow/flow-store';
 import { selectVariables } from 'state-flow/util/state-utils';
 
-import { VariableConfig } from 'components/node-connector/types';
 import NodeBox from '../node-box/NodeBox';
 import NodeBoxHeaderSection from '../node-box/NodeBoxHeaderSection';
 
@@ -25,7 +25,7 @@ function InputNode(props: Props) {
   const addVariable = useFlowStore((s) => s.addVariable);
 
   const flowInputVariables = useMemo(() => {
-    return selectVariables(props.nodeId, ConnectorType.FlowInput, variables);
+    return selectVariables(props.nodeId, ConnectorType.NodeOutput, variables);
   }, [props.nodeId, variables]);
 
   return (
@@ -39,7 +39,7 @@ function InputNode(props: Props) {
           onClickAddVariableButton={() => {
             addVariable(
               props.nodeId,
-              ConnectorType.FlowInput,
+              ConnectorType.NodeOutput,
               flowInputVariables.length,
             );
             updateNodeInternals(props.nodeId);
@@ -54,8 +54,8 @@ function InputNode(props: Props) {
               (variable) => ({
                 id: variable.id,
                 name: variable.name,
-                isGlobal: false,
-                globalVariableId: null,
+                isGlobal: variable.isGlobal,
+                globalVariableId: variable.globalVariableId,
                 isVariableFixed: false,
               }),
             )}

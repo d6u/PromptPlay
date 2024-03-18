@@ -17,7 +17,6 @@ import {
   ConnectorResultMap,
   ConnectorType,
   CreateNodeExecutionObservableFunction,
-  FlowOutputVariable,
   ImmutableFlowNodeGraph,
   NodeAllLevelConfigUnion,
   NodeExecutionConfig,
@@ -105,9 +104,8 @@ export const executeFlow = (params: {
             } else {
               connectorList
                 .filter(
-                  (conn): conn is FlowOutputVariable | NodeInputVariable =>
-                    conn.type === ConnectorType.NodeInput ||
-                    conn.type === ConnectorType.FlowOutput,
+                  (conn): conn is NodeInputVariable =>
+                    conn.type === ConnectorType.NodeInput,
                 )
                 .forEach((connector) => {
                   const srcConnectorId =

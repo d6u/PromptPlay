@@ -1,14 +1,10 @@
-import { current } from 'immer';
 import invariant from 'tiny-invariant';
 
 import { ConnectorType, LocalEdge, VariableValueType } from 'flow-models';
 
 import { createHandler } from './event-graph-util.ts';
-import { ChangeEventType } from './event-types.ts';
-import {
-  VariableUpdatedEvent,
-  updateVariableValueMapOnVariableUpdate,
-} from './update-variable-value-map-on-variable-update.ts.ts';
+import { ChangeEventType, VariableUpdatedEvent } from './event-types.ts';
+import { updateVariableValueMapOnVariableUpdate } from './update-variable-value-map-on-variable-update.ts.ts';
 
 export type EdgeAddedEvent = {
   type: ChangeEventType.EDGE_ADDED;
@@ -27,28 +23,45 @@ export const updateVariableOnEdgeAdded = createHandler<
       state.flowContent.variablesDict[event.edge.sourceHandle];
 
     if (
-      srcVariable.type === ConnectorType.FlowInput ||
-      srcVariable.type === ConnectorType.FlowOutput ||
       srcVariable.type === ConnectorType.NodeInput ||
       srcVariable.type === ConnectorType.NodeOutput
     ) {
-      if (srcVariable.valueType === VariableValueType.Audio) {
-        const dstVariable =
-          state.flowContent.variablesDict[event.edge.targetHandle];
+      invariant(
+        srcVariable.type === ConnectorType.NodeOutput,
+        "Source variable type should be 'NodeOutput'",
+      );
 
-        invariant(dstVariable.type === ConnectorType.FlowOutput);
+      const dstVariable =
+        state.flowContent.variablesDict[event.edge.targetHandle];
 
-        const prevVariable = current(dstVariable);
+      invariant(
+        dstVariable.type === ConnectorType.NodeInput,
+        "Destination variable type should be 'NodeInput'",
+      );
 
-        dstVariable.valueType = VariableValueType.Audio;
+      // TODO: Create a framework to handle complex variable value type updates
 
-        return [
-          {
-            type: ChangeEventType.VARIABLE_UPDATED,
-            prevVariable: prevVariable,
-            nextVariable: current(dstVariable),
-          },
-        ];
+      switch (srcVariable.valueType) {
+        case VariableValueType.Structured:
+          invariant(
+            dstVariable.valueType === VariableValueType.Any ||
+              dstVariable.valueType === VariableValueType.Structured,
+            "When source variable type is 'Structured', destination variable value type must be 'Any' or 'Structured'",
+          );
+          break;
+        case VariableValueType.String:
+          invariant(
+            dstVariable.valueType === VariableValueType.Any ||
+              dstVariable.valueType === VariableValueType.String,
+            "When source variable type is 'String', destination variable value type must be 'Any' or 'String'",
+          );
+          break;
+        case VariableValueType.Audio:
+          invariant(
+            dstVariable.valueType === VariableValueType.Any,
+            "When source variable type is 'Audio', destination variable value type must be 'Any'",
+          );
+          break;
       }
     }
 

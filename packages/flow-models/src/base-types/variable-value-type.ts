@@ -1,8 +1,9 @@
 export const VariableValueType = {
-  Number: 'Number',
+  Structured: 'Structured',
   String: 'String',
   Audio: 'Audio',
-  Unknown: 'Unknown',
+  Any: 'Any',
+  Unspecified: 'Unspecified',
 } as const;
 
 export type VariableValueTypeEnum =

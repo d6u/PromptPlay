@@ -36,7 +36,7 @@ test('handleRemoveNode should remove node, nodeConfig, and connectors', () => {
       },
       variablesDict: {
         '8e2At/hqpZx': {
-          type: 'FlowInput',
+          type: 'NodeOutput',
           id: '8e2At/hqpZx',
           nodeId: '8e2At',
           index: 0,
@@ -69,6 +69,7 @@ test('handleRemoveNode should remove node, nodeConfig, and connectors', () => {
       variableValueLookUpDicts: [{}],
       nodeExecutionStates: {},
       nodeAccountLevelFieldsValidationErrors: {},
+      globalVariables: {},
     },
   });
 });

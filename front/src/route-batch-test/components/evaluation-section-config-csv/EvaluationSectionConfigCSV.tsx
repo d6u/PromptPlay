@@ -4,12 +4,13 @@ import Papa from 'papaparse';
 import posthog from 'posthog-js';
 import { useMemo } from 'react';
 
-import { ConnectorType } from 'flow-models';
-
 import SidePaneSection from 'components/side-pane/SidePaneSection';
 import { useFlowStore } from 'state-flow/flow-store';
 import { CSVData, CSVRow, IterationIndex, RowIndex } from 'state-flow/types';
-import { selectAllVariables } from 'state-flow/util/state-utils';
+import {
+  selectVariablesOnAllEndNodes,
+  selectVariablesOnAllStartNodes,
+} from 'state-flow/util/state-utils';
 
 import TableBody from './TableBody';
 import TableHead from './TableHead';
@@ -26,6 +27,7 @@ export default function EvaluationSectionConfigCSV(props: Props) {
   // SECTION: Select state from store
 
   const variablesDict = useFlowStore((s) => s.getFlowContent().variablesDict);
+  const nodeConfigs = useFlowStore((s) => s.getFlowContent().nodeConfigsDict);
   const repeatTimes = useFlowStore(
     (s) => s.batchTest.config.content.repeatTimes,
   );
@@ -47,12 +49,12 @@ export default function EvaluationSectionConfigCSV(props: Props) {
   // !SECTION
 
   const flowInputVariables = useMemo(() => {
-    return selectAllVariables(ConnectorType.FlowInput, variablesDict);
-  }, [variablesDict]);
+    return selectVariablesOnAllStartNodes(variablesDict, nodeConfigs);
+  }, [nodeConfigs, variablesDict]);
 
   const flowOutputVariables = useMemo(() => {
-    return selectAllVariables(ConnectorType.FlowOutput, variablesDict);
-  }, [variablesDict]);
+    return selectVariablesOnAllEndNodes(variablesDict, nodeConfigs);
+  }, [nodeConfigs, variablesDict]);
 
   return (
     <>

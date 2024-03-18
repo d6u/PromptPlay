@@ -54,20 +54,24 @@ test('handleReactFlowNodesChange should remove node', () => {
       },
       variablesDict: {
         'Is8Op/5TUFT': {
-          type: 'FlowOutput',
+          type: 'NodeInput',
           id: 'Is8Op/5TUFT',
           nodeId: 'Is8Op',
           index: 0,
           name: 'var2',
           valueType: 'String',
+          isGlobal: false,
+          globalVariableId: null,
         },
         'xAw4x/DWHIh': {
-          type: 'FlowInput',
+          type: 'NodeOutput',
           id: 'xAw4x/DWHIh',
           nodeId: 'xAw4x',
           index: 0,
           name: 'var1',
           valueType: 'String',
+          isGlobal: false,
+          globalVariableId: null,
         },
       },
       variableValueLookUpDicts: [
@@ -97,7 +101,7 @@ test('handleReactFlowNodesChange should remove node', () => {
       nodes: [
         {
           id: 'Is8Op',
-          type: 'OutputNode',
+          type: 'CANVAS_NODE',
           position: {
             x: 888.2297300886163,
             y: 225.92526667211996,
@@ -117,12 +121,14 @@ test('handleReactFlowNodesChange should remove node', () => {
       },
       variablesDict: {
         'Is8Op/5TUFT': {
-          type: 'FlowOutput',
+          type: 'NodeInput',
           id: 'Is8Op/5TUFT',
           nodeId: 'Is8Op',
           index: 0,
           name: 'var2',
           valueType: 'String',
+          isGlobal: false,
+          globalVariableId: null,
         },
       },
       variableValueLookUpDicts: [
@@ -132,6 +138,7 @@ test('handleReactFlowNodesChange should remove node', () => {
       ],
       nodeExecutionStates: {},
       nodeAccountLevelFieldsValidationErrors: {},
+      globalVariables: {},
     },
   });
 });
@@ -192,20 +199,24 @@ test('handleReactFlowNodesChange should remove connector and edge connected', ()
       },
       variablesDict: {
         'HIbCf/sCWR7': {
-          type: 'FlowInput',
+          type: 'NodeOutput',
           id: 'HIbCf/sCWR7',
           nodeId: 'HIbCf',
           index: 0,
           name: 'var1',
           valueType: 'String',
+          isGlobal: false,
+          globalVariableId: null,
         },
         'sn268/mt4IG': {
-          type: 'FlowOutput',
+          type: 'NodeInput',
           id: 'sn268/mt4IG',
           nodeId: 'sn268',
           index: 0,
           name: 'var2',
           valueType: 'String',
+          isGlobal: false,
+          globalVariableId: null,
         },
       },
       variableValueLookUpDicts: [
@@ -235,7 +246,7 @@ test('handleReactFlowNodesChange should remove connector and edge connected', ()
       nodes: [
         {
           id: 'sn268',
-          type: 'OutputNode',
+          type: 'CANVAS_NODE',
           position: {
             x: 1049.2943134219495,
             y: 152.27110000545335,
@@ -255,12 +266,14 @@ test('handleReactFlowNodesChange should remove connector and edge connected', ()
       },
       variablesDict: {
         'sn268/mt4IG': {
-          type: 'FlowOutput',
+          type: 'NodeInput',
           id: 'sn268/mt4IG',
           nodeId: 'sn268',
           index: 0,
           name: 'var2',
           valueType: 'String',
+          isGlobal: false,
+          globalVariableId: null,
         },
       },
       variableValueLookUpDicts: [
@@ -270,6 +283,7 @@ test('handleReactFlowNodesChange should remove connector and edge connected', ()
       ],
       nodeExecutionStates: {},
       nodeAccountLevelFieldsValidationErrors: {},
+      globalVariables: {},
     },
   });
 });
@@ -328,7 +342,7 @@ test('handleReactFlowNodesChange should remove multiple nodes', () => {
       },
       variablesDict: {
         'Is8Op/5TUFT': {
-          type: 'FlowOutput',
+          type: 'NodeInput',
           id: 'Is8Op/5TUFT',
           nodeId: 'Is8Op',
           index: 0,
@@ -336,7 +350,7 @@ test('handleReactFlowNodesChange should remove multiple nodes', () => {
           valueType: 'String',
         },
         'ZMITb/PNDNu': {
-          type: 'FlowInput',
+          type: 'NodeOutput',
           id: 'ZMITb/PNDNu',
           nodeId: 'ZMITb',
           index: 0,
@@ -379,6 +393,7 @@ test('handleReactFlowNodesChange should remove multiple nodes', () => {
       variableValueLookUpDicts: [{}],
       nodeExecutionStates: {},
       nodeAccountLevelFieldsValidationErrors: {},
+      globalVariables: {},
     },
   });
 });

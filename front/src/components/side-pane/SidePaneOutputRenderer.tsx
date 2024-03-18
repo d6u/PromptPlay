@@ -2,7 +2,7 @@ import styled from '@emotion/styled';
 import { ReactNode } from 'react';
 
 import {
-  FlowOutputVariable,
+  NodeInputVariable,
   NodeOutputVariable,
   VariableValueType,
 } from 'flow-models';
@@ -11,7 +11,7 @@ import { useFlowStore } from 'state-flow/flow-store';
 import OutputDisplay from 'view-right-side-pane/common/OutputDisplay';
 
 type Props = {
-  outputItem: FlowOutputVariable | NodeOutputVariable;
+  outputItem: NodeOutputVariable | NodeInputVariable;
 };
 
 function SidePaneOutputRenderer(props: Props) {
