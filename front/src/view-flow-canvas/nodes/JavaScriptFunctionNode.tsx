@@ -13,20 +13,20 @@ import {
   getNodeDefinitionForNodeTypeName,
 } from 'flow-models';
 
-import NodeTargetConditionHandle from 'components/node-connector/NodeTargetConditionHandle';
-import NodeVariableResultItem from 'components/node-connector/NodeVariableResultItem';
-import NodeVariablesEditableList from 'components/node-connector/NodeVariablesEditableList';
+import NodeTargetConditionHandle from 'components/node-connector/condition/NodeTargetConditionHandle';
+import NodeRenamableVariableList from 'components/node-connector/variable/NodeRenamableVariableList';
 import NodeFieldLabelWithIconContainer from 'components/node-fields/NodeFieldLabelWithIconContainer';
 import CopyIconButton from 'generic-components/CopyIconButton';
 import ReadonlyTextarea from 'generic-components/ReadonlyTextarea';
 import { useFlowStore } from 'state-flow/flow-store';
 import { NodeExecutionState, NodeExecutionStatus } from 'state-flow/types';
 
+import { VariableConfig } from 'components/node-connector/types';
+import NodeOutputVariableList from 'components/node-connector/variable/NodeOutputVariableList';
 import NodeExecutionMessageDisplay from 'components/node-execution-state/NodeExecutionMessageDisplay';
 import NodeBox from '../node-box/NodeBox';
 import NodeBoxHeaderSection from '../node-box/NodeBoxHeaderSection';
 import NodeBoxSection from '../node-box/NodeBoxSection';
-import { SourceConnector } from './DefaultNode';
 
 type Props = {
   nodeId: string;
@@ -48,20 +48,6 @@ function JavaScriptFunctionNode(props: Props) {
 
   const updateNodeConfig = useFlowStore((s) => s.updateNodeConfig);
   const addVariable = useFlowStore((s) => s.addVariable);
-
-  const defaultVariableValueMap = useFlowStore((s) =>
-    s.getDefaultVariableValueLookUpDict(),
-  );
-
-  const srcConnectors = useMemo(() => {
-    return props.outputVariables.map<SourceConnector>((output) => {
-      return {
-        id: output.id,
-        name: output.name,
-        value: defaultVariableValueMap[output.id],
-      };
-    });
-  }, [props.outputVariables, defaultVariableValueMap]);
 
   const [javaScriptCode, setJavaScriptCode] = useState(
     () => props.nodeConfig.javaScriptCode,
@@ -101,21 +87,25 @@ function JavaScriptFunctionNode(props: Props) {
           }}
         />
         <GenericContainer>
-          <NodeVariablesEditableList
+          <NodeRenamableVariableList
             showConnectorHandle={Position.Left}
             nodeId={props.nodeId}
             isNodeReadOnly={props.isNodeReadOnly}
-            variableConfigs={props.inputVariables.map((variable) => {
-              const incomingVariableConfig =
-                nodeDefinition.fixedIncomingVariables?.[variable.name];
+            variableConfigs={props.inputVariables.map<VariableConfig>(
+              (variable) => {
+                const incomingVariableConfig =
+                  nodeDefinition.fixedIncomingVariables?.[variable.name];
 
-              return {
-                id: variable.id,
-                name: variable.name,
-                isReadOnly: incomingVariableConfig != null,
-                helperMessage: incomingVariableConfig?.helperMessage,
-              };
-            })}
+                return {
+                  id: variable.id,
+                  name: variable.name,
+                  isGlobal: variable.isGlobal,
+                  globalVariableId: variable.globalVariableId,
+                  isVariableFixed: incomingVariableConfig != null,
+                  helperMessage: incomingVariableConfig?.helperMessage,
+                };
+              },
+            )}
           />
         </GenericContainer>
         <NodeBoxSection>
@@ -157,15 +147,11 @@ ${javaScriptCode.split('\n').join('\n  ')}
           </FormControl>
         </NodeBoxSection>
         <NodeBoxSection>
-          {srcConnectors.map((connector) => (
-            <NodeVariableResultItem
-              key={connector.id}
-              variableId={connector.id}
-              variableName={connector.name}
-              variableValue={connector.value}
-              nodeId={props.nodeId}
-            />
-          ))}
+          <NodeOutputVariableList
+            nodeId={props.nodeId}
+            isNodeReadOnly={props.isNodeReadOnly}
+            variables={props.outputVariables}
+          />
         </NodeBoxSection>
         <NodeBoxSection>
           {props.nodeExecutionState?.messages.map((message, index) => (

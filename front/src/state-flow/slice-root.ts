@@ -42,6 +42,7 @@ const RESETABLE_INITIAL_STATE: Partial<FlowState> = {
       variableValueLookUpDicts: [{}],
       nodeExecutionStates: {},
       nodeAccountLevelFieldsValidationErrors: {},
+      globalVariables: {},
     },
   },
   canvasLeftPaneIsOpen: false,
@@ -129,6 +130,7 @@ export const createRootSlice: RootSliceStateCreator = (set, get) => {
         variableValueLookUpDicts: [{}],
         nodeExecutionStates: {},
         nodeAccountLevelFieldsValidationErrors: {},
+        globalVariables: {},
       },
     },
     canvasLeftPaneIsOpen: false,
@@ -234,6 +236,7 @@ export const createRootSlice: RootSliceStateCreator = (set, get) => {
         updates,
       });
     },
+
     updateVariableValue(variableId: string, value: unknown): void {
       get()._processEventWithEventGraph({
         type: ChangeEventType.UPDATE_VARIABLE_VALUES,
@@ -246,6 +249,14 @@ export const createRootSlice: RootSliceStateCreator = (set, get) => {
       get()._processEventWithEventGraph({
         type: ChangeEventType.UPDATE_VARIABLE_VALUES,
         updates,
+      });
+    },
+
+    createGlobalVariable(name: string, assignToVariableId: string): void {
+      get()._processEventWithEventGraph({
+        type: ChangeEventType.CREATE_GLOBAL_VARIABLE,
+        name,
+        assignToVariableId,
       });
     },
     // !SECTION: Event Graph

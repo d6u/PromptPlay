@@ -11,6 +11,7 @@ import {
   ConnectorRecords,
   ConnectorResultMap,
   ConnectorTypeEnum,
+  GlobalVariableRecords,
   LocalEdge,
   LocalNode,
   NodeConfig,
@@ -124,6 +125,7 @@ export type FlowContentState = {
   variableValueLookUpDicts: ConnectorResultMap[];
   nodeExecutionStates: NodeExecutionStateRecords;
   nodeAccountLevelFieldsValidationErrors: Record<string, string>;
+  globalVariables: GlobalVariableRecords;
 };
 
 export type FlowProps = {
@@ -196,6 +198,8 @@ export type FlowActions = {
 
   updateVariableValue(variableId: string, value: unknown): void;
   updateVariableValues(updates: { variableId: string; value: unknown }[]): void;
+
+  createGlobalVariable(name: string, assignToVariableId: string): void;
   // !SECTION
 
   // Getter

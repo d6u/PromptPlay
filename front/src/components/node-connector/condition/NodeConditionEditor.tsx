@@ -5,27 +5,27 @@ import { Control, Controller, FieldArrayWithId } from 'react-hook-form';
 import ReadonlyInput from 'generic-components/ReadonlyInput';
 import RemoveButton from 'generic-components/RemoveButton';
 
-import { VariableFormValue } from './types';
+import { ConditionFormValue } from '../types';
 
 type Props = {
   isReadOnly: boolean;
-  control: Control<VariableFormValue>;
-  formField: FieldArrayWithId<VariableFormValue, 'list', 'id'>;
+  control: Control<ConditionFormValue>;
+  formField: FieldArrayWithId<ConditionFormValue, 'list', 'id'>;
   index: number;
   onRemove: () => void;
   onUpdateTrigger: () => void;
 };
 
-function NodeVariableEditor(props: Props) {
+function NodeConditionEditor(props: Props) {
   if (props.isReadOnly) {
-    return <ReadonlyInput value={props.formField.name} />;
+    return <ReadonlyInput value={props.formField.expressionString} />;
   }
 
   return (
     <>
       <Controller
         control={props.control}
-        name={`list.${props.index}.name`}
+        name={`list.${props.index}.expressionString`}
         render={({ field }) => (
           <StyledInput
             color="primary"
@@ -61,4 +61,4 @@ const StyledInput = styled(Input)`
   flex-grow: 1;
 `;
 
-export default NodeVariableEditor;
+export default NodeConditionEditor;

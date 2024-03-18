@@ -358,6 +358,8 @@ test('handleReactFlowEdgesChange should remove multiple edges', () => {
           nodeId: 'AkRxM',
           index: 0,
           valueType: 'Unknown',
+          isGlobal: true,
+          globalVariableId: null,
         },
         'AkRxM/content': {
           type: 'NodeOutput',
@@ -366,6 +368,8 @@ test('handleReactFlowEdgesChange should remove multiple edges', () => {
           nodeId: 'AkRxM',
           index: 0,
           valueType: 'Unknown',
+          isGlobal: true,
+          globalVariableId: null,
         },
         'AkRxM/5qUcP': {
           type: 'ConditionTarget',
@@ -481,6 +485,8 @@ test('handleReactFlowEdgesChange should remove edge and reset the value type of 
           nodeId: 'VhWOu',
           index: 0,
           valueType: 'Unknown',
+          isGlobal: true,
+          globalVariableId: null,
         },
         'VhWOu/audio': {
           type: 'NodeOutput',
@@ -489,6 +495,8 @@ test('handleReactFlowEdgesChange should remove edge and reset the value type of 
           nodeId: 'VhWOu',
           index: 0,
           valueType: 'Audio',
+          isGlobal: true,
+          globalVariableId: null,
         },
         'VhWOu/H8v1p': {
           type: 'ConditionTarget',

@@ -8,7 +8,7 @@ import {
   BaseConditionHandle,
   HANDLE_HEIGHT,
   HANDLE_WIDTH,
-} from './base-connector-handles';
+} from '../base-connector-handles';
 
 type Props = {
   conditionId: string;

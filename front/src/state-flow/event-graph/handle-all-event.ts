@@ -2,6 +2,10 @@ import { createHandler } from './event-graph-util';
 import { AddConnectorEvent, handleAddConnector } from './handle-add-connector';
 import { AddNodeEvent, handleAddNode } from './handle-add-node';
 import {
+  CreateGlobalVariableEvent,
+  handleCreateGlobalVariable,
+} from './handle-create-global-variable';
+import {
   FlowSingleRunAccountLevelFieldErrorEvent,
   handleFlowSingleRunAccountLevelFieldError,
 } from './handle-flow-single-run-account-level-field-error';
@@ -58,6 +62,7 @@ export type AcceptedEvent =
   | RemoveVariableEvent
   | UpdateConnectorsEvent
   | UpdateVariableValueEvent
+  | CreateGlobalVariableEvent
   | FlowSingleRunStartedEvent
   | FlowSingleRunStoppedEvent
   | FlowSingleRunNodeExecutionStateChangeEvent
@@ -78,6 +83,7 @@ export const handleAllEvent = createHandler<AcceptedEvent, AcceptedEvent>(
     handleRemoveVariable,
     handleUpdateConnectors,
     handleUpdateVariableValue,
+    handleCreateGlobalVariable,
     handleFlowSingleRunStarted,
     handleFlowSingleRunStopped,
     handleFlowSingleNodeExecutionStateChange,

@@ -8,6 +8,7 @@ import {
   ConnectorRecordsSchema,
   ConnectorResultMapSchema,
   ConnectorType,
+  GlobalVariableRecordsSchema,
   ServerEdgeSchema,
   ServerNodeSchema,
 } from './base-types';
@@ -23,6 +24,7 @@ export const CanvasDataSchemaV3 = z
     nodeConfigsDict: NodeConfigRecordsSchema.default({}),
     variablesDict: ConnectorRecordsSchema.default({}),
     variableValueLookUpDicts: z.array(ConnectorResultMapSchema).default([{}]),
+    globalVariables: GlobalVariableRecordsSchema.default({}),
   })
   .transform((flowConfig) => {
     // This transform creates a Condition Target for nodes (except

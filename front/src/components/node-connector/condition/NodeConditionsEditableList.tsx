@@ -21,8 +21,8 @@ import invariant from 'tiny-invariant';
 
 import { useFlowStore } from 'state-flow/flow-store';
 
+import { ConditionConfig, ConditionFormValue } from '../types';
 import NodeConditionEditableItem from './NodeConditionEditableItem';
-import { ConditionConfig, ConditionFormValue } from './types';
 
 type Props = {
   // Won't change within current session

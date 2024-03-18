@@ -11,7 +11,7 @@ import {
   getNodeDefinitionForNodeTypeName,
 } from 'flow-models';
 
-import NodeVariablesEditableList from 'components/node-connector/NodeVariablesEditableList';
+import NodeRenamableVariableList from 'components/node-connector/variable/NodeRenamableVariableList';
 import NodeExecutionMessageDisplay from 'components/node-execution-state/NodeExecutionMessageDisplay';
 import NodeFieldLabelWithIconContainer from 'components/node-fields/NodeFieldLabelWithIconContainer';
 import NodeFieldSectionFormControl from 'components/node-fields/NodeFieldSectionFormControl';
@@ -24,6 +24,7 @@ import ReadonlyTextarea from 'generic-components/ReadonlyTextarea';
 import { useFlowStore } from 'state-flow/flow-store';
 import { NodeExecutionState } from 'state-flow/types';
 
+import { VariableConfig } from 'components/node-connector/types';
 import NodeConfigPaneAddConnectorButton from '../node-config-pane-base-ui/NodeConfigPaneAddConnectorButton';
 import NodeConfigPaneContainer from '../node-config-pane-base-ui/NodeConfigPaneContainer';
 
@@ -49,14 +50,16 @@ function JavaScriptNodeConfigPane(props: Props) {
   const addVariable = useFlowStore((s) => s.addVariable);
 
   const inputVariableConfig = useMemo(() => {
-    return props.inputVariables.map((variable) => {
+    return props.inputVariables.map<VariableConfig>((variable) => {
       const incomingVariableConfig =
         nodeDefinition.fixedIncomingVariables?.[variable.name];
 
       return {
         id: variable.id,
         name: variable.name,
-        isReadOnly: props.isNodeReadOnly || incomingVariableConfig != null,
+        isGlobal: variable.isGlobal,
+        globalVariableId: variable.globalVariableId,
+        isVariableFixed: props.isNodeReadOnly || incomingVariableConfig != null,
         helperText: incomingVariableConfig?.helperMessage,
       };
     });
@@ -113,11 +116,11 @@ function JavaScriptNodeConfigPane(props: Props) {
           updateNodeInternals(props.nodeConfig.nodeId);
         }}
       />
-      <NodeVariablesEditableList
-        variableConfigs={inputVariableConfig}
+      <NodeRenamableVariableList
         isListSortable
         nodeId={props.nodeConfig.nodeId}
         isNodeReadOnly={false}
+        variableConfigs={inputVariableConfig}
       />
       <NodeFieldSectionFormControl>
         <NodeFieldLabelWithIconContainer>

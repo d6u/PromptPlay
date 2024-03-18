@@ -163,6 +163,8 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
           name: 'messages',
           index: 0,
           valueType: VariableValueType.Unknown,
+          isGlobal: true,
+          globalVariableId: null,
         },
         {
           type: ConnectorType.NodeOutput,
@@ -171,6 +173,8 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
           name: 'content',
           index: 0,
           valueType: VariableValueType.Unknown,
+          isGlobal: true,
+          globalVariableId: null,
         },
         {
           type: ConnectorType.NodeOutput,
@@ -179,6 +183,8 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
           name: 'message',
           index: 1,
           valueType: VariableValueType.Unknown,
+          isGlobal: true,
+          globalVariableId: null,
         },
         {
           type: ConnectorType.NodeOutput,
@@ -187,6 +193,8 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
           name: 'messages',
           index: 2,
           valueType: VariableValueType.Unknown,
+          isGlobal: true,
+          globalVariableId: null,
         },
         {
           type: ConnectorType.ConditionTarget,

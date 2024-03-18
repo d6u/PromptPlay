@@ -186,6 +186,8 @@ test('handleReactFlowConnectEvent ignores Audio source variable with invalid tar
           nodeId: 'Lbola',
           index: 0,
           valueType: 'Unknown',
+          isGlobal: true,
+          globalVariableId: null,
         },
         'Lbola/audio': {
           type: 'NodeOutput',
@@ -194,6 +196,8 @@ test('handleReactFlowConnectEvent ignores Audio source variable with invalid tar
           nodeId: 'Lbola',
           index: 0,
           valueType: 'Audio',
+          isGlobal: true,
+          globalVariableId: null,
         },
         'Lbola/wvQiz': {
           type: 'ConditionTarget',
@@ -207,6 +211,8 @@ test('handleReactFlowConnectEvent ignores Audio source variable with invalid tar
           nodeId: 'jvWCV',
           index: 0,
           valueType: 'Unknown',
+          isGlobal: true,
+          globalVariableId: null,
         },
         'jvWCV/content': {
           type: 'NodeOutput',
@@ -215,6 +221,8 @@ test('handleReactFlowConnectEvent ignores Audio source variable with invalid tar
           nodeId: 'jvWCV',
           index: 0,
           valueType: 'Unknown',
+          isGlobal: true,
+          globalVariableId: null,
         },
         'jvWCV/DBCCW': {
           type: 'ConditionTarget',
@@ -263,6 +271,8 @@ test('handleReactFlowConnectEvent add edge', () => {
           nodeId: '',
           index: 0,
           name: 'var1',
+          isGlobal: true,
+          globalVariableId: null,
         },
         '2': {
           id: '2',
@@ -271,6 +281,8 @@ test('handleReactFlowConnectEvent add edge', () => {
           nodeId: '',
           index: 0,
           name: 'var1',
+          isGlobal: true,
+          globalVariableId: null,
         },
       },
     },
@@ -342,6 +354,8 @@ test('handleReactFlowConnectEvent replace edge', () => {
           nodeId: '',
           index: 0,
           name: 'var1',
+          isGlobal: true,
+          globalVariableId: null,
         },
         '2': {
           id: '2',
@@ -350,6 +364,8 @@ test('handleReactFlowConnectEvent replace edge', () => {
           nodeId: '',
           index: 1,
           name: 'var1',
+          isGlobal: true,
+          globalVariableId: null,
         },
         '3': {
           id: '3',
@@ -358,6 +374,8 @@ test('handleReactFlowConnectEvent replace edge', () => {
           nodeId: '',
           index: 0,
           name: 'var1',
+          isGlobal: true,
+          globalVariableId: null,
         },
       },
     },
@@ -705,6 +723,8 @@ test('handleReactFlowConnect should replace edge and update dest variable valueT
           nodeId: 'gso6A',
           index: 0,
           valueType: 'Unknown',
+          isGlobal: true,
+          globalVariableId: null,
         },
         'gso6A/audio': {
           type: 'NodeOutput',
@@ -713,6 +733,8 @@ test('handleReactFlowConnect should replace edge and update dest variable valueT
           nodeId: 'gso6A',
           index: 0,
           valueType: 'Audio',
+          isGlobal: true,
+          globalVariableId: null,
         },
         'gso6A/MNYNr': {
           type: 'ConditionTarget',
@@ -942,6 +964,8 @@ test('handleReactFlowConnect should add edge and update dest variable valueType'
           nodeId: 'gso6A',
           index: 0,
           valueType: 'Unknown',
+          isGlobal: true,
+          globalVariableId: null,
         },
         'gso6A/audio': {
           type: 'NodeOutput',
@@ -950,6 +974,8 @@ test('handleReactFlowConnect should add edge and update dest variable valueType'
           nodeId: 'gso6A',
           index: 0,
           valueType: 'Audio',
+          isGlobal: true,
+          globalVariableId: null,
         },
         'gso6A/MNYNr': {
           type: 'ConditionTarget',

@@ -16,14 +16,15 @@ import {
   getNodeDefinitionForNodeTypeName,
 } from 'flow-models';
 
-import NodeTargetConditionHandle from 'components/node-connector/NodeTargetConditionHandle';
-import NodeVariableResultItem from 'components/node-connector/NodeVariableResultItem';
-import NodeVariablesEditableList from 'components/node-connector/NodeVariablesEditableList';
+import NodeTargetConditionHandle from 'components/node-connector/condition/NodeTargetConditionHandle';
+import NodeRenamableVariableList from 'components/node-connector/variable/NodeRenamableVariableList';
 import NodeAccountLevelFields from 'components/node-fields/NodeAccountLevelFields';
 import NodeInstanceLevelFields from 'components/node-fields/NodeInstanceLevelFields';
 import { useFlowStore } from 'state-flow/flow-store';
 import { NodeExecutionState, NodeExecutionStatus } from 'state-flow/types';
 
+import { VariableConfig } from 'components/node-connector/types';
+import NodeOutputVariableList from 'components/node-connector/variable/NodeOutputVariableList';
 import NodeExecutionMessageDisplay from 'components/node-execution-state/NodeExecutionMessageDisplay';
 import NodeBox from '../node-box/NodeBox';
 import NodeBoxHeaderSection from '../node-box/NodeBoxHeaderSection';
@@ -66,21 +67,6 @@ function DefaultNode(props: Props) {
     [props.nodeConfig.type],
   );
 
-  // ANCHOR: Store Data
-  const defaultVariableValueMap = useFlowStore((s) =>
-    s.getDefaultVariableValueLookUpDict(),
-  );
-
-  const sourceConnectors = useMemo(() => {
-    return props.outputVariables.map<SourceConnector>((output) => {
-      return {
-        id: output.id,
-        name: output.name,
-        value: defaultVariableValueMap[output.id],
-      };
-    });
-  }, [props.outputVariables, defaultVariableValueMap]);
-
   return (
     <>
       <NodeTargetConditionHandle
@@ -111,21 +97,25 @@ function DefaultNode(props: Props) {
           }}
         />
         <GenericContainer>
-          <NodeVariablesEditableList
+          <NodeRenamableVariableList
             showConnectorHandle={Position.Left}
             nodeId={props.nodeId}
             isNodeReadOnly={props.isNodeReadOnly}
-            variableConfigs={props.inputVariables.map((variable) => {
-              const incomingVariableConfig =
-                nodeDefinition.fixedIncomingVariables?.[variable.name];
+            variableConfigs={props.inputVariables.map<VariableConfig>(
+              (variable) => {
+                const incomingVariableConfig =
+                  nodeDefinition.fixedIncomingVariables?.[variable.name];
 
-              return {
-                id: variable.id,
-                name: variable.name,
-                isReadOnly: incomingVariableConfig != null,
-                helperMessage: incomingVariableConfig?.helperMessage,
-              };
-            })}
+                return {
+                  id: variable.id,
+                  name: variable.name,
+                  isGlobal: variable.isGlobal,
+                  globalVariableId: variable.globalVariableId,
+                  isVariableFixed: incomingVariableConfig != null,
+                  helperMessage: incomingVariableConfig?.helperMessage,
+                };
+              },
+            )}
           />
         </GenericContainer>
         <GenericContainer>
@@ -147,15 +137,11 @@ function DefaultNode(props: Props) {
           />
         </GenericContainer>
         <NodeBoxSection>
-          {sourceConnectors.map((connector) => (
-            <NodeVariableResultItem
-              key={connector.id}
-              variableId={connector.id}
-              variableName={connector.name}
-              variableValue={connector.value}
-              nodeId={props.nodeId}
-            />
-          ))}
+          <NodeOutputVariableList
+            nodeId={props.nodeId}
+            isNodeReadOnly={props.isNodeReadOnly}
+            variables={props.outputVariables}
+          />
         </NodeBoxSection>
         <NodeBoxSection>
           {props.nodeExecutionState?.messages.map((message, index) => (

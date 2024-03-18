@@ -4,10 +4,11 @@ import { Position, useUpdateNodeInternals } from 'reactflow';
 
 import { ConnectorType, InputNodeAllLevelConfig, NodeType } from 'flow-models';
 
-import NodeVariablesEditableList from 'components/node-connector/NodeVariablesEditableList';
+import NodeRenamableVariableList from 'components/node-connector/variable/NodeRenamableVariableList';
 import { useFlowStore } from 'state-flow/flow-store';
 import { selectVariables } from 'state-flow/util/state-utils';
 
+import { VariableConfig } from 'components/node-connector/types';
 import NodeBox from '../node-box/NodeBox';
 import NodeBoxHeaderSection from '../node-box/NodeBoxHeaderSection';
 
@@ -45,15 +46,19 @@ function InputNode(props: Props) {
           }}
         />
         <GenericContainer>
-          <NodeVariablesEditableList
+          <NodeRenamableVariableList
             showConnectorHandle={Position.Right}
             nodeId={props.nodeId}
             isNodeReadOnly={props.isNodeReadOnly}
-            variableConfigs={flowInputVariables.map((variable) => ({
-              id: variable.id,
-              name: variable.name,
-              isReadOnly: false,
-            }))}
+            variableConfigs={flowInputVariables.map<VariableConfig>(
+              (variable) => ({
+                id: variable.id,
+                name: variable.name,
+                isGlobal: false,
+                globalVariableId: null,
+                isVariableFixed: false,
+              }),
+            )}
           />
         </GenericContainer>
       </NodeBox>

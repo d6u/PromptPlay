@@ -48,6 +48,8 @@ export const handleAddConnector = createHandler<
           ...commonFields,
           type: event.connectorType,
           valueType: VariableValueType.Unknown,
+          isGlobal: true,
+          globalVariableId: null,
         };
         state.flowContent.variablesDict[variableConfig.id] = variableConfig;
         break;
@@ -57,6 +59,8 @@ export const handleAddConnector = createHandler<
           ...commonFields,
           type: event.connectorType,
           valueType: VariableValueType.Unknown,
+          isGlobal: true,
+          globalVariableId: null,
         };
         state.flowContent.variablesDict[variableConfig.id] = variableConfig;
         break;

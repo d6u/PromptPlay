@@ -59,6 +59,8 @@ export const CONDITION_NODE_DEFINITION: NodeDefinition<
           index: 0,
           name: 'input',
           valueType: VariableValueType.Unknown,
+          isGlobal: true,
+          globalVariableId: null,
         },
         {
           type: ConnectorType.Condition,

@@ -14,14 +14,15 @@ import {
 } from 'flow-models';
 
 import NodeAddConnectorButton from 'components/NodeAddConnectorButton';
-import NodeConditionDefaultItem from 'components/node-connector/NodeConditionDefaultItem';
-import NodeConditionsEditableList from 'components/node-connector/NodeConditionsEditableList';
-import NodeTargetConditionHandle from 'components/node-connector/NodeTargetConditionHandle';
-import NodeVariablesEditableList from 'components/node-connector/NodeVariablesEditableList';
+import NodeConditionDefaultItem from 'components/node-connector/condition/NodeConditionDefaultItem';
+import NodeConditionsEditableList from 'components/node-connector/condition/NodeConditionsEditableList';
+import NodeTargetConditionHandle from 'components/node-connector/condition/NodeTargetConditionHandle';
+import NodeRenamableVariableList from 'components/node-connector/variable/NodeRenamableVariableList';
 import { useFlowStore } from 'state-flow/flow-store';
 import { NodeExecutionState, NodeExecutionStatus } from 'state-flow/types';
 import { selectConditions } from 'state-flow/util/state-utils';
 
+import { VariableConfig } from 'components/node-connector/types';
 import NodeExecutionMessageDisplay from 'components/node-execution-state/NodeExecutionMessageDisplay';
 import NodeBox from '../node-box/NodeBox';
 import NodeBoxHeaderSection from '../node-box/NodeBoxHeaderSection';
@@ -76,15 +77,19 @@ function ConditionNode(props: Props) {
           showAddVariableButton={false}
         />
         <GenericSection>
-          <NodeVariablesEditableList
+          <NodeRenamableVariableList
             showConnectorHandle={Position.Left}
             nodeId={props.nodeId}
             isNodeReadOnly={props.isNodeReadOnly}
-            variableConfigs={props.inputVariables.map((variable) => ({
-              id: variable.id,
-              name: variable.name,
-              isReadOnly: true,
-            }))}
+            variableConfigs={props.inputVariables.map<VariableConfig>(
+              (variable) => ({
+                id: variable.id,
+                name: variable.name,
+                isGlobal: variable.isGlobal,
+                globalVariableId: variable.globalVariableId,
+                isVariableFixed: true,
+              }),
+            )}
           />
         </GenericSection>
         <NodeBoxSection>

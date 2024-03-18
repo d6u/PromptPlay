@@ -21,23 +21,22 @@ import invariant from 'tiny-invariant';
 
 import { useFlowStore } from 'state-flow/flow-store';
 
-import NodeVariableEditableItem, {
+import { VariableConfig, VariableFormValue } from '../types';
+import NodeRenamableVariableItem, {
   HandlePosition,
-} from './NodeVariableEditableItem';
-import { VariableConfig, VariableFormValue } from './types';
+} from './NodeRenamableVariableItem';
 
 type Props = {
-  // Won't change within current session
+  // Depend on rendering location
   isListSortable?: boolean;
   showConnectorHandle?: HandlePosition;
-  // Won't change for the current node
+  // Node level
   nodeId: string;
-  // Might change
   isNodeReadOnly: boolean;
   variableConfigs: VariableConfig[];
 };
 
-function NodeVariablesEditableList(props: Props) {
+function NodeRenamableVariableList(props: Props) {
   const updateNodeInternals = useUpdateNodeInternals();
 
   const updateVariable = useFlowStore((s) => s.updateConnector);
@@ -78,12 +77,23 @@ function NodeVariablesEditableList(props: Props) {
         const updatedVariables = A.difference(data.list, props.variableConfigs);
 
         for (const changedVariable of updatedVariables) {
-          invariant(
-            !changedVariable.isReadOnly,
-            'Variable should not be readonly',
-          );
+          invariant(!props.isNodeReadOnly, 'Node should not be readonly');
+
+          const index = data.list.indexOf(changedVariable);
+          const prevVariable = props.variableConfigs[index];
+
+          if (prevVariable.name !== changedVariable.name) {
+            // If variable name has changed, make sure it's not readonly
+            invariant(
+              !changedVariable.isVariableFixed,
+              'Variable should not be readonly',
+            );
+          }
+
           updateVariable(changedVariable.id, {
             name: changedVariable.name,
+            isGlobal: changedVariable.isGlobal,
+            globalVariableId: changedVariable.globalVariableId,
           });
         }
       } else {
@@ -95,8 +105,9 @@ function NodeVariablesEditableList(props: Props) {
         const removedVariables = A.difference(props.variableConfigs, data.list);
 
         for (const removedVariable of removedVariables) {
+          invariant(!props.isNodeReadOnly, 'Node should not be readonly');
           invariant(
-            !removedVariable.isReadOnly,
+            !removedVariable.isVariableFixed,
             'Variable should not be readonly',
           );
           removeVariable(removedVariable.id);
@@ -107,8 +118,9 @@ function NodeVariablesEditableList(props: Props) {
       }
     })();
   }, [
-    props.nodeId,
     props.variableConfigs,
+    props.nodeId,
+    props.isNodeReadOnly,
     handleSubmit,
     updateVariable,
     updateNodeInternals,
@@ -160,7 +172,9 @@ function NodeVariablesEditableList(props: Props) {
     ],
   );
 
-  let editableItemStart = props.variableConfigs.findIndex((c) => !c.isReadOnly);
+  let editableItemStart = props.variableConfigs.findIndex(
+    (c) => !c.isVariableFixed,
+  );
   if (editableItemStart === -1) {
     editableItemStart = props.variableConfigs.length;
   }
@@ -171,7 +185,7 @@ function NodeVariablesEditableList(props: Props) {
         {fields.slice(0, editableItemStart).map((field, index) => {
           // TODO: Find a way to avoid duplicating the mapper
           return (
-            <NodeVariableEditableItem
+            <NodeRenamableVariableItem
               key={field.id}
               connectorHandlePosition={props.showConnectorHandle ?? 'none'}
               isListSortable={false}
@@ -212,7 +226,7 @@ function NodeVariablesEditableList(props: Props) {
               }
 
               return (
-                <NodeVariableEditableItem
+                <NodeRenamableVariableItem
                   key={field.id}
                   isListSortable={!!props.isListSortable}
                   connectorHandlePosition={props.showConnectorHandle ?? 'none'}
@@ -241,4 +255,4 @@ const Container = styled.div`
   margin-bottom: 10px;
 `;
 
-export default NodeVariablesEditableList;
+export default NodeRenamableVariableList;

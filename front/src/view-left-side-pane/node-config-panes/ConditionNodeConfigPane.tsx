@@ -12,9 +12,9 @@ import {
   getNodeDefinitionForNodeTypeName,
 } from 'flow-models';
 
-import NodeConditionDefaultItem from 'components/node-connector/NodeConditionDefaultItem';
-import NodeConditionsEditableList from 'components/node-connector/NodeConditionsEditableList';
-import NodeVariablesEditableList from 'components/node-connector/NodeVariablesEditableList';
+import NodeConditionDefaultItem from 'components/node-connector/condition/NodeConditionDefaultItem';
+import NodeConditionsEditableList from 'components/node-connector/condition/NodeConditionsEditableList';
+import NodeRenamableVariableList from 'components/node-connector/variable/NodeRenamableVariableList';
 import NodeExecutionMessageDisplay from 'components/node-execution-state/NodeExecutionMessageDisplay';
 import SidePaneHeaderSection from 'components/side-pane/SidePaneHeaderSection';
 import HeaderSectionHeader from 'components/side-pane/SidePaneHeaderSectionHeader';
@@ -23,6 +23,7 @@ import { useFlowStore } from 'state-flow/flow-store';
 import { NodeExecutionState } from 'state-flow/types';
 import { selectConditions } from 'state-flow/util/state-utils';
 
+import { VariableConfig } from 'components/node-connector/types';
 import NodeConfigPaneAddConnectorButton from '../node-config-pane-base-ui/NodeConfigPaneAddConnectorButton';
 import NodeConfigPaneContainer from '../node-config-pane-base-ui/NodeConfigPaneContainer';
 
@@ -76,12 +77,18 @@ function ConditionNodeConfigPane(props: Props) {
       <SidePaneHeaderSection>
         <HeaderSectionHeader>{nodeDefinition.label} Config</HeaderSectionHeader>
       </SidePaneHeaderSection>
-      <NodeVariablesEditableList
+      <NodeRenamableVariableList
         nodeId={props.nodeId}
         isNodeReadOnly={props.isNodeReadOnly}
-        variableConfigs={props.inputVariables.map((variable) => {
-          return { id: variable.id, name: variable.name, isReadOnly: true };
-        })}
+        variableConfigs={props.inputVariables.map<VariableConfig>(
+          (variable) => ({
+            id: variable.id,
+            name: variable.name,
+            isGlobal: variable.isGlobal,
+            globalVariableId: variable.globalVariableId,
+            isVariableFixed: true,
+          }),
+        )}
       />
       <GenericSection>
         <FormControl>
