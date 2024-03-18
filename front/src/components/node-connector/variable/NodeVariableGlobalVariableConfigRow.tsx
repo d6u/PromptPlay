@@ -17,13 +17,18 @@ import ReadonlyInput from 'generic-components/ReadonlyInput';
 import PlusIcon from 'icons/PlusIcon';
 import { useFlowStore } from 'state-flow/flow-store';
 
-import { VariableConfig, VariableFormValue } from '../types';
+export type VariableGlobalVariableIdArrayFieldValues = {
+  list: { globalVariableId: string | null }[];
+};
 
 type Props = {
+  // Node level
   isNodeReadOnly: boolean;
-  variable: VariableConfig;
-  control: Control<VariableFormValue>;
-  formField: FieldArrayWithId<VariableFormValue, 'list', 'id'>;
+  // Variable level
+  variableId: string;
+  // react-hook-form
+  control: Control<VariableGlobalVariableIdArrayFieldValues>;
+  formField: FieldArrayWithId<VariableGlobalVariableIdArrayFieldValues, 'list'>;
   index: number;
   onUpdateTrigger: () => void;
 };
@@ -116,7 +121,7 @@ function NodeVariableGlobalVariableConfigRow(props: Props) {
                   alert('Name already exists');
                 } else {
                   setModalOpen(false);
-                  createGlobalVariable(globalVariableName, props.variable.id);
+                  createGlobalVariable(globalVariableName, props.variableId);
                   setGlobalVariableName('');
                 }
               }}

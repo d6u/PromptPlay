@@ -1,7 +1,12 @@
-import { NodeOutputVariable } from 'flow-models';
+import { A } from '@mobily/ts-belt';
 import { useCallback, useMemo } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
+import invariant from 'tiny-invariant';
+
+import { NodeOutputVariable } from 'flow-models';
+
 import { useFlowStore } from 'state-flow/flow-store';
+
 import {
   NodeOutputVariableProps,
   NodeOutputVariablePropsArrayFieldValues,
@@ -19,13 +24,16 @@ function NodeOutputVariableList(props: Props) {
     s.getDefaultVariableValueLookUpDict(),
   );
 
+  const updateVariable = useFlowStore((s) => s.updateConnector);
+
   const variablePropsArray = useMemo(() => {
     return props.variables.map<NodeOutputVariableProps>((variable) => {
       return {
         id: variable.id,
         name: variable.name,
-        isGlobal: variable.isGlobal,
         value: connectorResults[variable.id],
+        isGlobal: variable.isGlobal,
+        globalVariableId: variable.globalVariableId,
       };
     });
   }, [props.variables, connectorResults]);
@@ -46,14 +54,26 @@ function NodeOutputVariableList(props: Props) {
 
   const update = useCallback(() => {
     handleSubmit((data) => {
-      console.log('NodeOutputVariableList update', data);
+      // NOTE: Elements from the first array, not existing in the
+      // second array.
+      const updatedVariables = A.difference(data.list, variablePropsArray);
+
+      for (const changedVariable of updatedVariables) {
+        invariant(!props.isNodeReadOnly, 'Node should not be readonly');
+
+        updateVariable(changedVariable.id, {
+          isGlobal: changedVariable.isGlobal,
+          globalVariableId: changedVariable.globalVariableId,
+        });
+      }
     })();
-  }, [handleSubmit]);
+  }, [props.isNodeReadOnly, variablePropsArray, handleSubmit, updateVariable]);
 
   return fields.map((field, index) => (
     <NodeOutputVariableItem
       key={field.id}
       nodeId={props.nodeId}
+      isNodeReadOnly={props.isNodeReadOnly}
       variableId={props.variables[index].id}
       control={control}
       formField={field}

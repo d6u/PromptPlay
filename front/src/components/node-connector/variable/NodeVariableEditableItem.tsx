@@ -14,7 +14,9 @@ import DragHandle from '../DragHandle';
 import { BaseVariableHandle, HANDLE_HEIGHT } from '../base-connector-handles';
 import { VariableConfig, VariableFormValue } from '../types';
 import NodeVariableEditor from './NodeVariableEditor';
-import NodeVariableGlobalVariableConfigRow from './NodeVariableGlobalVariableConfigRow';
+import NodeVariableGlobalVariableConfigRow, {
+  VariableGlobalVariableIdArrayFieldValues,
+} from './NodeVariableGlobalVariableConfigRow';
 
 export type HandlePosition = Position.Left | Position.Right | 'none';
 
@@ -155,8 +157,12 @@ function NodeVariableEditableItem(props: Props) {
           {props.variable.isGlobal && (
             <NodeVariableGlobalVariableConfigRow
               isNodeReadOnly={props.isNodeReadOnly}
-              variable={props.variable}
-              control={props.control}
+              variableId={props.variable.id}
+              control={
+                // TODO: Until react-hook-form handles generic type better:
+                // https://github.com/react-hook-form/react-hook-form/issues/11617
+                props.control as unknown as Control<VariableGlobalVariableIdArrayFieldValues>
+              }
               formField={props.formField}
               index={props.index}
               onUpdateTrigger={props.onUpdateTrigger}

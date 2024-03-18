@@ -32,6 +32,7 @@ export type NodeOutputVariableProps = {
   name: string;
   value: unknown;
   isGlobal: boolean;
+  globalVariableId: string | null;
 };
 
 export type NodeOutputVariablePropsArrayFieldValues = {
