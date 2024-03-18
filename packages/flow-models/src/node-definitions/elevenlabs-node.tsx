@@ -94,7 +94,7 @@ export const ELEVENLABS_NODE_DEFINITION: NodeDefinition<
           name: 'text',
           nodeId: nodeId,
           index: 0,
-          valueType: VariableValueType.Unknown,
+          valueType: VariableValueType.String,
           isGlobal: true,
           globalVariableId: null,
         },

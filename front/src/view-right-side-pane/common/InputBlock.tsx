@@ -1,10 +1,9 @@
 import styled from '@emotion/styled';
-import { Input, Option, Select, Textarea } from '@mui/joy';
+import { Option, Select, Textarea } from '@mui/joy';
 import { ReactNode, useEffect, useState } from 'react';
 
 import { VariableValueType } from 'flow-models';
 
-import ReadonlyInput from 'generic-components/ReadonlyInput';
 import ReadonlyTextarea from 'generic-components/ReadonlyTextarea';
 
 type Props = {
@@ -14,10 +13,6 @@ type Props = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any;
   onSaveValue: (value: string) => void;
-  type: typeof VariableValueType.String | typeof VariableValueType.Number;
-  onSaveType: (
-    type: typeof VariableValueType.String | typeof VariableValueType.Number,
-  ) => void;
 };
 
 function InputBlock(props: Props) {
@@ -27,61 +22,26 @@ function InputBlock(props: Props) {
     setValue(props.value);
   }, [props.value]);
 
-  const [type, setType] = useState(props.type);
-
-  useEffect(() => {
-    setType(props.type);
-  }, [props.type]);
-
-  let valueInput: ReactNode;
-
-  switch (type) {
-    case VariableValueType.String:
-      valueInput = props.isReadOnly ? (
-        <ReadonlyTextarea minRows={2} value={value ?? ''} />
-      ) : (
-        <Textarea
-          color="primary"
-          minRows={2}
-          value={value ?? ''}
-          onChange={(e) => {
-            setValue(e.target.value);
-          }}
-          onKeyUp={(e) => {
-            if (e.key === 'Enter') {
-              props.onSaveValue(value ?? '');
-            }
-          }}
-          onBlur={() => {
-            props.onSaveValue(value ?? '');
-          }}
-        />
-      );
-      break;
-    case VariableValueType.Number:
-      valueInput = props.isReadOnly ? (
-        <ReadonlyInput type="number" value={value ?? 0} />
-      ) : (
-        <Input
-          color="primary"
-          type="number"
-          slotProps={{ input: { step: 0.1 } }}
-          value={value ?? 0}
-          onChange={(e) => {
-            setValue(Number(e.target.value));
-          }}
-          onKeyUp={(e) => {
-            if (e.key === 'Enter') {
-              props.onSaveValue(value ?? 0);
-            }
-          }}
-          onBlur={() => {
-            props.onSaveValue(value ?? 0);
-          }}
-        />
-      );
-      break;
-  }
+  const valueInput: ReactNode = props.isReadOnly ? (
+    <ReadonlyTextarea minRows={2} value={value ?? ''} />
+  ) : (
+    <Textarea
+      color="primary"
+      minRows={2}
+      value={value ?? ''}
+      onChange={(e) => {
+        setValue(e.target.value);
+      }}
+      onKeyUp={(e) => {
+        if (e.key === 'Enter') {
+          props.onSaveValue(value ?? '');
+        }
+      }}
+      onBlur={() => {
+        props.onSaveValue(value ?? '');
+      }}
+    />
+  );
 
   return (
     <Container>
@@ -89,16 +49,11 @@ function InputBlock(props: Props) {
         <VariableName>{props.name}</VariableName>
         <Select
           disabled={props.isReadOnly}
-          value={type}
-          onChange={(e, value) => {
-            const type = value!;
-            setType(type);
-            props.onSaveType(type);
-          }}
+          value={VariableValueType.String}
+          onChange={(e, value) => {}}
         >
           {Object.values({
             [VariableValueType.String]: VariableValueType.String,
-            [VariableValueType.Number]: VariableValueType.Number,
           }).map((type) => (
             <Option key={type} value={type}>
               {type}

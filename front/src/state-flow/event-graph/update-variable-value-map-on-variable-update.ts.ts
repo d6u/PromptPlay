@@ -14,13 +14,9 @@ export const updateVariableValueMapOnVariableUpdate = createHandler<
   never
 >((state, event) => {
   if (
-    (event.prevVariable.type === ConnectorType.FlowInput ||
-      event.prevVariable.type === ConnectorType.FlowOutput ||
-      event.prevVariable.type === ConnectorType.NodeInput ||
+    (event.prevVariable.type === ConnectorType.NodeInput ||
       event.prevVariable.type === ConnectorType.NodeOutput) &&
-    (event.nextVariable.type === ConnectorType.FlowInput ||
-      event.nextVariable.type === ConnectorType.FlowOutput ||
-      event.nextVariable.type === ConnectorType.NodeInput ||
+    (event.nextVariable.type === ConnectorType.NodeInput ||
       event.nextVariable.type === ConnectorType.NodeOutput)
   ) {
     if (event.prevVariable.valueType !== event.nextVariable.valueType) {

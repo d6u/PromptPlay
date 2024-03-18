@@ -15,8 +15,6 @@ export const updateVariableValueMapOnNodeAndVariableAdded = createHandler<
 >((state, event) => {
   for (const connector of event.connectors) {
     if (
-      connector.type === ConnectorType.FlowInput ||
-      connector.type === ConnectorType.FlowOutput ||
       connector.type === ConnectorType.NodeInput ||
       connector.type === ConnectorType.NodeOutput
     ) {

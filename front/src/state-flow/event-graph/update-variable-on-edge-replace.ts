@@ -29,14 +29,12 @@ export function handleEdgeReplacedEvent(
     state.flowContent.variablesDict[event.newEdge.sourceHandle];
 
   invariant(
-    oldSrcVariable.type === ConnectorType.FlowInput ||
-      oldSrcVariable.type === ConnectorType.NodeOutput,
-    "Old source variable type should be 'FlowInput' or 'NodeOutput'",
+    oldSrcVariable.type === ConnectorType.NodeOutput,
+    "Old source variable type should be 'NodeOutput'",
   );
   invariant(
-    newSrcVariable.type === ConnectorType.FlowInput ||
-      newSrcVariable.type === ConnectorType.NodeOutput,
-    "New source variable type should be 'FlowInput' or 'NodeOutput'",
+    newSrcVariable.type === ConnectorType.NodeOutput,
+    "New source variable type should be 'NodeOutput'",
   );
 
   if (oldSrcVariable.valueType !== newSrcVariable.valueType) {
@@ -46,8 +44,8 @@ export function handleEdgeReplacedEvent(
       state.flowContent.variablesDict[event.newEdge.targetHandle];
 
     invariant(
-      dstVariable.type === ConnectorType.FlowOutput ||
-        dstVariable.type === ConnectorType.NodeInput,
+      dstVariable.type === ConnectorType.NodeInput,
+      "Destination variable type should be 'NodeInput'",
     );
 
     const prevVariableSnapshot = current(dstVariable);
@@ -55,30 +53,25 @@ export function handleEdgeReplacedEvent(
     // TODO: Create a framework to handle complex variable value type updates
 
     switch (newSrcVariable.valueType) {
-      case VariableValueType.Number:
-        if (dstVariable.type === ConnectorType.FlowOutput) {
-          dstVariable.valueType = VariableValueType.String;
-        } else {
-          dstVariable.valueType = VariableValueType.Unknown;
-        }
+      case VariableValueType.Structured:
+        invariant(
+          dstVariable.valueType === VariableValueType.Any ||
+            dstVariable.valueType === VariableValueType.Structured,
+          "When source variable type is 'Structured', destination variable value type must be 'Any' or 'Structured'",
+        );
         break;
       case VariableValueType.String:
-        if (dstVariable.type === ConnectorType.FlowOutput) {
-          dstVariable.valueType = VariableValueType.String;
-        } else {
-          dstVariable.valueType = VariableValueType.Unknown;
-        }
+        invariant(
+          dstVariable.valueType === VariableValueType.Any ||
+            dstVariable.valueType === VariableValueType.String,
+          "When source variable type is 'String', destination variable value type must be 'Any' or 'String'",
+        );
         break;
       case VariableValueType.Audio:
-        invariant(dstVariable.type === ConnectorType.FlowOutput);
-        dstVariable.valueType = VariableValueType.Audio;
-        break;
-      case VariableValueType.Unknown:
-        if (dstVariable.type === ConnectorType.FlowOutput) {
-          dstVariable.valueType = VariableValueType.String;
-        } else {
-          dstVariable.valueType = VariableValueType.Unknown;
-        }
+        invariant(
+          dstVariable.valueType === VariableValueType.Any,
+          "When source variable type is 'Audio', destination variable value type must be 'Any'",
+        );
         break;
     }
 

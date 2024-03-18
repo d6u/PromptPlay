@@ -11,6 +11,7 @@ import {
   ConnectorTypeEnum,
   NodeConfig,
   NodeTypeEnum,
+  VariableValueTypeEnum,
 } from 'flow-models';
 
 import { ChangeEventType } from './event-graph/event-types';
@@ -205,12 +206,18 @@ export const createRootSlice: RootSliceStateCreator = (set, get) => {
       });
     },
     // ANCHOR: Variable
-    addVariable(nodeId: string, type: ConnectorTypeEnum, index: number): void {
+    addVariable(
+      nodeId: string,
+      type: ConnectorTypeEnum,
+      index: number,
+      variableValueType?: VariableValueTypeEnum,
+    ): void {
       get()._processEventWithEventGraph({
         type: ChangeEventType.ADDING_VARIABLE,
         nodeId,
         connectorType: type,
         connectorIndex: index,
+        variableValueType,
       });
     },
     removeVariable(variableId: string): void {

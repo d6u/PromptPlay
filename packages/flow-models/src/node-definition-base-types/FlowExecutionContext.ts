@@ -44,11 +44,8 @@ export class ImmutableFlowNodeGraph {
 
       const sourceConnector = params.connectors[edge.sourceConnector];
 
-      // Source variable connector can be a FlowInput or a NodeOutput.
-      if (
-        sourceConnector.type === ConnectorType.FlowInput ||
-        sourceConnector.type === ConnectorType.NodeOutput
-      ) {
+      // Source variable connector should be NodeOutput.
+      if (sourceConnector.type === ConnectorType.NodeOutput) {
         // We only need to map variable IDs.
         // Condition IDs are not mappable because one target ID can be
         // connected to multiple source IDs.
@@ -159,10 +156,7 @@ export class MutableFlowNodeGraph {
 
       for (const nodeId of nodeIds) {
         // Source variable connector can be a FlowInput or a NodeOutput.
-        if (
-          sourceConnector.type === ConnectorType.FlowInput ||
-          sourceConnector.type === ConnectorType.NodeOutput
-        ) {
+        if (sourceConnector.type === ConnectorType.NodeOutput) {
           this.nodeVariableIndegrees[nodeId] -= 1;
         } else if (sourceConnector.type === ConnectorType.Condition) {
           // We only need to one condition to satisfy to unblock the node.

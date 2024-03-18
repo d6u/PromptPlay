@@ -31,7 +31,7 @@ export const handleCreateGlobalVariable = createHandler<
     state.flowContent.globalVariables[globalVariableId] = {
       id: globalVariableId,
       name: event.name,
-      valueType: VariableValueType.Unknown,
+      valueType: VariableValueType.Unspecified,
     };
 
     const variable = state.flowContent.variablesDict[event.assignToVariableId];

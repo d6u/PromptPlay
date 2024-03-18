@@ -1,5 +1,4 @@
 import { createLens } from '@dhmk/zustand-lens';
-import { D, pipe } from '@mobily/ts-belt';
 import deepEqual from 'deep-equal';
 import posthog from 'posthog-js';
 import { Subscription, from, map } from 'rxjs';
@@ -10,10 +9,6 @@ import { StateCreator } from 'zustand';
 import {
   CanvasDataSchemaV3,
   CanvasDataV3,
-  ConnectorRecords,
-  ConnectorResultMap,
-  ConnectorType,
-  FlowInputVariable,
   LocalNode,
   NodeTypeEnum,
 } from 'flow-models';
@@ -38,6 +33,7 @@ import { createWithImmer } from './util/lens-util';
 import {
   assignLocalEdgeProperties,
   assignLocalNodeProperties,
+  selectStartNodeVariableIdToValueMap,
 } from './util/state-utils';
 
 type StateMachineActionsSliceStateCreator = StateCreator<
@@ -126,10 +122,7 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
     _syncFlowContent: async () => {
       const flowContent = get().getFlowContent();
 
-      // TODO: Remove type cast
-      const nextSyncedData = CanvasDataSchemaV3.parse(
-        flowContent,
-      ) as CanvasDataV3;
+      const nextSyncedData = CanvasDataSchemaV3.parse(flowContent);
 
       // TODO: It might be a bug to assume hasChange
       // only when `prevSyncedData != null`
@@ -181,9 +174,10 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
 
       const flowInputVariableValueMap: Readonly<
         Record<string, Readonly<unknown>>
-      > = selectFlowInputVariableIdToValueMap(
+      > = selectStartNodeVariableIdToValueMap(
         variablesDict,
         variableValueLookUpDict,
+        nodeConfigsDict,
       );
 
       // NOTE: Stop previous run if there is one
@@ -375,28 +369,11 @@ function parseQueryResult(input: OperationResult<SpaceFlowQueryQuery>): {
       }
 
       return {
-        // TODO: Remove the type cast
-        flowContent: result.data as CanvasDataV3,
+        flowContent: result.data,
         isUpdated: !deepEqual(data, result.data),
       };
     }
   }
-}
-
-function selectFlowInputVariableIdToValueMap(
-  variablesDict: ConnectorRecords,
-  variableValueLookUpDict: ConnectorResultMap,
-): Record<string, Readonly<unknown>> {
-  return pipe(
-    variablesDict,
-    D.filter((connector): connector is FlowInputVariable => {
-      return connector.type === ConnectorType.FlowInput;
-    }),
-    D.map((connector) => {
-      invariant(connector != null, 'connector is not null');
-      return variableValueLookUpDict[connector.id] as Readonly<unknown>;
-    }),
-  );
 }
 
 export { createSlice as createStateMachineActionsSlice };

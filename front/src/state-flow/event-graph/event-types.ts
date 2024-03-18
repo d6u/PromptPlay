@@ -1,9 +1,4 @@
-import {
-  FlowInputVariable,
-  FlowOutputVariable,
-  NodeInputVariable,
-  NodeOutputVariable,
-} from 'flow-models';
+import { NodeInputVariable, NodeOutputVariable } from 'flow-models';
 
 import { FlowContentState } from 'state-flow/types';
 
@@ -59,9 +54,5 @@ export enum ChangeEventType {
 
 export type VariableRemovedEvent = {
   type: ChangeEventType.VARIABLE_REMOVED;
-  removedVariable:
-    | FlowInputVariable
-    | FlowOutputVariable
-    | NodeInputVariable
-    | NodeOutputVariable;
+  removedVariable: NodeInputVariable | NodeOutputVariable;
 };

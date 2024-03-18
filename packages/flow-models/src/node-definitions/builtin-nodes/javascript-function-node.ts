@@ -57,7 +57,9 @@ export const JAVASCRIPT_NODE_DEFINITION: NodeDefinition<
           nodeId: nodeId,
           name: 'output',
           index: 0,
-          valueType: VariableValueType.Unknown,
+          // TODO: JS code can output both structured, string, and audio
+          // Need to find a way to let us validate data type
+          valueType: VariableValueType.Structured,
           isGlobal: true,
           globalVariableId: null,
         },
@@ -67,7 +69,7 @@ export const JAVASCRIPT_NODE_DEFINITION: NodeDefinition<
           nodeId: nodeId,
           name: 'userName',
           index: 1,
-          valueType: VariableValueType.Unknown,
+          valueType: VariableValueType.Any,
           isGlobal: true,
           globalVariableId: null,
         },

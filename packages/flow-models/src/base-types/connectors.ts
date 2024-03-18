@@ -2,22 +2,19 @@ import z from 'zod';
 import { ConnectorType } from './connector-type';
 import { VariableValueType } from './variable-value-type';
 
-export const FlowInputVariableSchema = z.object({
-  type: z.literal(ConnectorType.FlowInput),
+export const NodeOutputVariableSchema = z.object({
+  type: z.literal(ConnectorType.NodeOutput),
   id: z.string(),
   name: z.string(),
   nodeId: z.string(),
   index: z.number(),
-  valueType: z.enum([VariableValueType.String, VariableValueType.Number]),
-});
-
-export const FlowOutputVariableSchema = z.object({
-  type: z.literal(ConnectorType.FlowOutput),
-  id: z.string(),
-  name: z.string(),
-  nodeId: z.string(),
-  index: z.number(),
-  valueType: z.enum([VariableValueType.String, VariableValueType.Audio]),
+  valueType: z.enum([
+    VariableValueType.Structured,
+    VariableValueType.String,
+    VariableValueType.Audio,
+  ]),
+  isGlobal: z.boolean().default(false),
+  globalVariableId: z.string().nullable().default(null),
 });
 
 export const NodeInputVariableSchema = z.object({
@@ -26,18 +23,11 @@ export const NodeInputVariableSchema = z.object({
   name: z.string(),
   nodeId: z.string(),
   index: z.number(),
-  valueType: z.enum([VariableValueType.Unknown]),
-  isGlobal: z.boolean().default(false),
-  globalVariableId: z.string().nullable().default(null),
-});
-
-export const NodeOutputVariableSchema = z.object({
-  type: z.literal(ConnectorType.NodeOutput),
-  id: z.string(),
-  name: z.string(),
-  nodeId: z.string(),
-  index: z.number(),
-  valueType: z.enum([VariableValueType.Unknown, VariableValueType.Audio]),
+  valueType: z.enum([
+    VariableValueType.Structured,
+    VariableValueType.String,
+    VariableValueType.Any,
+  ]),
   isGlobal: z.boolean().default(false),
   globalVariableId: z.string().nullable().default(null),
 });
@@ -56,18 +46,14 @@ export const ConditionTargetSchema = z.object({
   nodeId: z.string(),
 });
 
-export type FlowInputVariable = z.infer<typeof FlowInputVariableSchema>;
-export type FlowOutputVariable = z.infer<typeof FlowOutputVariableSchema>;
-export type NodeInputVariable = z.infer<typeof NodeInputVariableSchema>;
 export type NodeOutputVariable = z.infer<typeof NodeOutputVariableSchema>;
+export type NodeInputVariable = z.infer<typeof NodeInputVariableSchema>;
 export type Condition = z.infer<typeof ConditionSchema>;
 export type ConditionTarget = z.infer<typeof ConditionTargetSchema>;
 
 const ConnectorSchema = z.union([
-  FlowInputVariableSchema,
-  FlowOutputVariableSchema,
-  NodeInputVariableSchema,
   NodeOutputVariableSchema,
+  NodeInputVariableSchema,
   ConditionSchema,
   ConditionTargetSchema,
 ]);

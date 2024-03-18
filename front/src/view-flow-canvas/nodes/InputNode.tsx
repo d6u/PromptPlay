@@ -25,7 +25,7 @@ function InputNode(props: Props) {
   const addVariable = useFlowStore((s) => s.addVariable);
 
   const flowInputVariables = useMemo(() => {
-    return selectVariables(props.nodeId, ConnectorType.FlowInput, variables);
+    return selectVariables(props.nodeId, ConnectorType.NodeOutput, variables);
   }, [props.nodeId, variables]);
 
   return (
@@ -39,7 +39,7 @@ function InputNode(props: Props) {
           onClickAddVariableButton={() => {
             addVariable(
               props.nodeId,
-              ConnectorType.FlowInput,
+              ConnectorType.NodeOutput,
               flowInputVariables.length,
             );
             updateNodeInternals(props.nodeId);

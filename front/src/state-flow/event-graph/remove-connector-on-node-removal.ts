@@ -34,8 +34,6 @@ export const removeConnectorOnNodeRemoval = createHandler<
       const connectorSnapshot = current(connector);
 
       if (
-        connectorSnapshot.type === ConnectorType.FlowInput ||
-        connectorSnapshot.type === ConnectorType.FlowOutput ||
         connectorSnapshot.type === ConnectorType.NodeInput ||
         connectorSnapshot.type === ConnectorType.NodeOutput
       ) {
