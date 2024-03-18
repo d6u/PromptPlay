@@ -11,6 +11,7 @@ test('FlowConfigSchema should provide default value for all root level fields', 
     nodeConfigsDict: {},
     variablesDict: {},
     variableValueLookUpDicts: [{}],
+    globalVariables: {},
   });
 });
 
@@ -37,6 +38,7 @@ test('FlowConfigSchema should add condition target to node when needed', () => {
     },
     variablesDict: expect.anything(),
     variableValueLookUpDicts: [{}],
+    globalVariables: {},
   });
 
   expect(Object.values(data.variablesDict)).toEqual([
@@ -84,5 +86,6 @@ test('FlowConfigSchema should does not add condition target to when node already
       },
     },
     variableValueLookUpDicts: [{}],
+    globalVariables: {},
   });
 });
