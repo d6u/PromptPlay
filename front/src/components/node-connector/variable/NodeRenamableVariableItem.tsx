@@ -13,8 +13,8 @@ import { EdgeConnectStartConnectorClass } from 'state-flow/types';
 import DragHandle from '../DragHandle';
 import { BaseVariableHandle, HANDLE_HEIGHT } from '../base-connector-handles';
 import { VariableConfig, VariableFormValue } from '../types';
-import NodeVariableEditor from './NodeVariableEditor';
-import NodeVariableGlobalVariableConfigRow, {
+import NodeRenamableVariableNameInput from './NodeRenamableVariableNameInput';
+import NodeVariableGlobalVariableSelectorRow, {
   VariableGlobalVariableIdArrayFieldValues,
 } from './NodeVariableGlobalVariableConfigRow';
 
@@ -38,7 +38,7 @@ type Props = {
   onUpdateTrigger: () => void;
 };
 
-function NodeVariableEditableItem(props: Props) {
+function NodeRenamableVariableItem(props: Props) {
   const isSortableEnabledForThisRow =
     !props.isNodeReadOnly &&
     !props.variable.isVariableFixed &&
@@ -125,7 +125,7 @@ function NodeVariableEditableItem(props: Props) {
         {isSortableEnabledForThisRow && <DragHandle {...listeners} />}
         <BoxAA>
           <VariableConfigRow>
-            <NodeVariableEditor
+            <NodeRenamableVariableNameInput
               isReadOnly={isVariableReadOnly}
               control={props.control}
               formField={props.formField}
@@ -155,7 +155,7 @@ function NodeVariableEditableItem(props: Props) {
             )}
           </VariableConfigRow>
           {props.variable.isGlobal && (
-            <NodeVariableGlobalVariableConfigRow
+            <NodeVariableGlobalVariableSelectorRow
               isNodeReadOnly={props.isNodeReadOnly}
               variableId={props.variable.id}
               control={
@@ -205,4 +205,4 @@ const HelperTextRow = styled.div`
   margin-top: 5px;
 `;
 
-export default NodeVariableEditableItem;
+export default NodeRenamableVariableItem;

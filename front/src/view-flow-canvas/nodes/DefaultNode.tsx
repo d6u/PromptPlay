@@ -17,7 +17,7 @@ import {
 } from 'flow-models';
 
 import NodeTargetConditionHandle from 'components/node-connector/condition/NodeTargetConditionHandle';
-import NodeVariablesEditableList from 'components/node-connector/variable/NodeVariablesEditableList';
+import NodeRenamableVariableList from 'components/node-connector/variable/NodeRenamableVariableList';
 import NodeAccountLevelFields from 'components/node-fields/NodeAccountLevelFields';
 import NodeInstanceLevelFields from 'components/node-fields/NodeInstanceLevelFields';
 import { useFlowStore } from 'state-flow/flow-store';
@@ -97,7 +97,7 @@ function DefaultNode(props: Props) {
           }}
         />
         <GenericContainer>
-          <NodeVariablesEditableList
+          <NodeRenamableVariableList
             showConnectorHandle={Position.Left}
             nodeId={props.nodeId}
             isNodeReadOnly={props.isNodeReadOnly}

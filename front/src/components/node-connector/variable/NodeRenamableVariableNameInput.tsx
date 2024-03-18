@@ -15,7 +15,7 @@ type Props = {
   onUpdateTrigger: () => void;
 };
 
-function NodeVariableEditor(props: Props) {
+function NodeRenamableVariableNameInput(props: Props) {
   if (props.isReadOnly) {
     return <ReadonlyInput value={props.formField.name} />;
   }
@@ -52,4 +52,4 @@ const StyledInput = styled(Input)`
   flex-grow: 1;
 `;
 
-export default NodeVariableEditor;
+export default NodeRenamableVariableNameInput;

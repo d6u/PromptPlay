@@ -4,7 +4,7 @@ import { Position, useUpdateNodeInternals } from 'reactflow';
 
 import { ConnectorType, NodeType, OutputNodeAllLevelConfig } from 'flow-models';
 
-import NodeVariablesEditableList from 'components/node-connector/variable/NodeVariablesEditableList';
+import NodeRenamableVariableList from 'components/node-connector/variable/NodeRenamableVariableList';
 import { useFlowStore } from 'state-flow/flow-store';
 import { selectVariables } from 'state-flow/util/state-utils';
 
@@ -46,7 +46,7 @@ function OutputNode(props: Props) {
           }}
         />
         <GenericContainer>
-          <NodeVariablesEditableList
+          <NodeRenamableVariableList
             showConnectorHandle={Position.Left}
             nodeId={props.nodeId}
             isNodeReadOnly={props.isNodeReadOnly}

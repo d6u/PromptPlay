@@ -17,7 +17,7 @@ import NodeAddConnectorButton from 'components/NodeAddConnectorButton';
 import NodeConditionDefaultItem from 'components/node-connector/condition/NodeConditionDefaultItem';
 import NodeConditionsEditableList from 'components/node-connector/condition/NodeConditionsEditableList';
 import NodeTargetConditionHandle from 'components/node-connector/condition/NodeTargetConditionHandle';
-import NodeVariablesEditableList from 'components/node-connector/variable/NodeVariablesEditableList';
+import NodeRenamableVariableList from 'components/node-connector/variable/NodeRenamableVariableList';
 import { useFlowStore } from 'state-flow/flow-store';
 import { NodeExecutionState, NodeExecutionStatus } from 'state-flow/types';
 import { selectConditions } from 'state-flow/util/state-utils';
@@ -77,7 +77,7 @@ function ConditionNode(props: Props) {
           showAddVariableButton={false}
         />
         <GenericSection>
-          <NodeVariablesEditableList
+          <NodeRenamableVariableList
             showConnectorHandle={Position.Left}
             nodeId={props.nodeId}
             isNodeReadOnly={props.isNodeReadOnly}

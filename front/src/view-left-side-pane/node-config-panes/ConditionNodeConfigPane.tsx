@@ -14,7 +14,7 @@ import {
 
 import NodeConditionDefaultItem from 'components/node-connector/condition/NodeConditionDefaultItem';
 import NodeConditionsEditableList from 'components/node-connector/condition/NodeConditionsEditableList';
-import NodeVariablesEditableList from 'components/node-connector/variable/NodeVariablesEditableList';
+import NodeRenamableVariableList from 'components/node-connector/variable/NodeRenamableVariableList';
 import NodeExecutionMessageDisplay from 'components/node-execution-state/NodeExecutionMessageDisplay';
 import SidePaneHeaderSection from 'components/side-pane/SidePaneHeaderSection';
 import HeaderSectionHeader from 'components/side-pane/SidePaneHeaderSectionHeader';
@@ -77,7 +77,7 @@ function ConditionNodeConfigPane(props: Props) {
       <SidePaneHeaderSection>
         <HeaderSectionHeader>{nodeDefinition.label} Config</HeaderSectionHeader>
       </SidePaneHeaderSection>
-      <NodeVariablesEditableList
+      <NodeRenamableVariableList
         nodeId={props.nodeId}
         isNodeReadOnly={props.isNodeReadOnly}
         variableConfigs={props.inputVariables.map<VariableConfig>(

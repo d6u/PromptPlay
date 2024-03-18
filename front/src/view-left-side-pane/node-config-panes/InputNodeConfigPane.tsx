@@ -7,7 +7,7 @@ import {
   getNodeDefinitionForNodeTypeName,
 } from 'flow-models';
 
-import NodeVariablesEditableList from 'components/node-connector/variable/NodeVariablesEditableList';
+import NodeRenamableVariableList from 'components/node-connector/variable/NodeRenamableVariableList';
 import SidePaneHeaderSection from 'components/side-pane/SidePaneHeaderSection';
 import HeaderSectionHeader from 'components/side-pane/SidePaneHeaderSectionHeader';
 import { useFlowStore } from 'state-flow/flow-store';
@@ -54,7 +54,7 @@ function InputNodeConfigPane(props: Props) {
           updateNodeInternals(props.nodeConfig.nodeId);
         }}
       />
-      <NodeVariablesEditableList
+      <NodeRenamableVariableList
         isListSortable
         nodeId={props.nodeConfig.nodeId}
         isNodeReadOnly={false}

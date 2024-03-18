@@ -8,7 +8,7 @@ import { Control, FieldArrayWithId, useController } from 'react-hook-form';
 import { BaseVariableHandle } from '../base-connector-handles';
 import NodeConnectorResultDisplay from '../condition/NodeConnectorResultDisplay';
 import { NodeOutputVariablePropsArrayFieldValues } from '../types';
-import NodeVariableGlobalVariableConfigRow, {
+import NodeVariableGlobalVariableSelectorRow, {
   VariableGlobalVariableIdArrayFieldValues,
 } from './NodeVariableGlobalVariableConfigRow';
 import NodeVariableToggleIsGlobalButton from './NodeVariableToggleIsGlobalButton';
@@ -84,7 +84,7 @@ function NodeOutputVariableItem(props: Props) {
         />
       </RowA>
       {formFieldIsGlobal.value && (
-        <NodeVariableGlobalVariableConfigRow
+        <NodeVariableGlobalVariableSelectorRow
           isNodeReadOnly={props.isNodeReadOnly}
           variableId={props.variableId}
           control={

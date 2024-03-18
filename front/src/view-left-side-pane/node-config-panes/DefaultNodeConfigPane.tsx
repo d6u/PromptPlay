@@ -14,7 +14,7 @@ import {
   getNodeDefinitionForNodeTypeName,
 } from 'flow-models';
 
-import NodeVariablesEditableList from 'components/node-connector/variable/NodeVariablesEditableList';
+import NodeRenamableVariableList from 'components/node-connector/variable/NodeRenamableVariableList';
 import NodeExecutionMessageDisplay from 'components/node-execution-state/NodeExecutionMessageDisplay';
 import SidePaneHeaderSection from 'components/side-pane/SidePaneHeaderSection';
 import HeaderSectionHeader from 'components/side-pane/SidePaneHeaderSectionHeader';
@@ -115,11 +115,11 @@ function DefaultNodeConfigPane(props: Props) {
           }}
         />
       )}
-      <NodeVariablesEditableList
-        variableConfigs={inputVariableConfig}
+      <NodeRenamableVariableList
         isListSortable
         nodeId={props.nodeConfig.nodeId}
         isNodeReadOnly={false}
+        variableConfigs={inputVariableConfig}
       />
       <NodeConfigPaneNodeFields
         nodeConfig={props.nodeConfig}

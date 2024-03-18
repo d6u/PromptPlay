@@ -11,7 +11,7 @@ import {
   getNodeDefinitionForNodeTypeName,
 } from 'flow-models';
 
-import NodeVariablesEditableList from 'components/node-connector/variable/NodeVariablesEditableList';
+import NodeRenamableVariableList from 'components/node-connector/variable/NodeRenamableVariableList';
 import NodeExecutionMessageDisplay from 'components/node-execution-state/NodeExecutionMessageDisplay';
 import NodeFieldLabelWithIconContainer from 'components/node-fields/NodeFieldLabelWithIconContainer';
 import NodeFieldSectionFormControl from 'components/node-fields/NodeFieldSectionFormControl';
@@ -116,11 +116,11 @@ function JavaScriptNodeConfigPane(props: Props) {
           updateNodeInternals(props.nodeConfig.nodeId);
         }}
       />
-      <NodeVariablesEditableList
-        variableConfigs={inputVariableConfig}
+      <NodeRenamableVariableList
         isListSortable
         nodeId={props.nodeConfig.nodeId}
         isNodeReadOnly={false}
+        variableConfigs={inputVariableConfig}
       />
       <NodeFieldSectionFormControl>
         <NodeFieldLabelWithIconContainer>

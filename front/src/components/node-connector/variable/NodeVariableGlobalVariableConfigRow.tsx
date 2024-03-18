@@ -33,7 +33,7 @@ type Props = {
   onUpdateTrigger: () => void;
 };
 
-function NodeVariableGlobalVariableConfigRow(props: Props) {
+function NodeVariableGlobalVariableSelectorRow(props: Props) {
   const globalVariables = useFlowStore(
     (s) => s.canvas.flowContent.globalVariables,
   );
@@ -160,4 +160,4 @@ const ModalButtons = styled.div`
   gap: 10px;
 `;
 
-export default NodeVariableGlobalVariableConfigRow;
+export default NodeVariableGlobalVariableSelectorRow;

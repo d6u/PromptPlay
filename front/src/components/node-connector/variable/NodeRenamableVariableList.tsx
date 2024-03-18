@@ -22,22 +22,21 @@ import invariant from 'tiny-invariant';
 import { useFlowStore } from 'state-flow/flow-store';
 
 import { VariableConfig, VariableFormValue } from '../types';
-import NodeVariableEditableItem, {
+import NodeRenamableVariableItem, {
   HandlePosition,
-} from './NodeVariableEditableItem';
+} from './NodeRenamableVariableItem';
 
 type Props = {
-  // Won't change within current session
+  // Depend on rendering location
   isListSortable?: boolean;
   showConnectorHandle?: HandlePosition;
-  // Won't change for the current node
+  // Node level
   nodeId: string;
-  // Might change
   isNodeReadOnly: boolean;
   variableConfigs: VariableConfig[];
 };
 
-function NodeVariablesEditableList(props: Props) {
+function NodeRenamableVariableList(props: Props) {
   const updateNodeInternals = useUpdateNodeInternals();
 
   const updateVariable = useFlowStore((s) => s.updateConnector);
@@ -186,7 +185,7 @@ function NodeVariablesEditableList(props: Props) {
         {fields.slice(0, editableItemStart).map((field, index) => {
           // TODO: Find a way to avoid duplicating the mapper
           return (
-            <NodeVariableEditableItem
+            <NodeRenamableVariableItem
               key={field.id}
               connectorHandlePosition={props.showConnectorHandle ?? 'none'}
               isListSortable={false}
@@ -227,7 +226,7 @@ function NodeVariablesEditableList(props: Props) {
               }
 
               return (
-                <NodeVariableEditableItem
+                <NodeRenamableVariableItem
                   key={field.id}
                   isListSortable={!!props.isListSortable}
                   connectorHandlePosition={props.showConnectorHandle ?? 'none'}
@@ -256,4 +255,4 @@ const Container = styled.div`
   margin-bottom: 10px;
 `;
 
-export default NodeVariablesEditableList;
+export default NodeRenamableVariableList;
