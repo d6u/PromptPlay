@@ -4,11 +4,8 @@ import invariant from 'tiny-invariant';
 import { ConnectorType, LocalEdge, VariableValueType } from 'flow-models';
 
 import { createHandler } from './event-graph-util.ts';
-import { ChangeEventType, State } from './event-types.ts';
-import {
-  VariableUpdatedEvent,
-  updateVariableValueMapOnVariableUpdate,
-} from './update-variable-value-map-on-variable-update.ts.ts';
+import { ChangeEventType, State, VariableUpdatedEvent } from './event-types.ts';
+import { updateVariableValueMapOnVariableUpdate } from './update-variable-value-map-on-variable-update.ts.ts';
 
 export type EdgeReplacedEvent = {
   type: ChangeEventType.EDGE_REPLACED;

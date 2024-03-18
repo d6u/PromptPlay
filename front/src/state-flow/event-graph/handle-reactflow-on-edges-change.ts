@@ -6,10 +6,6 @@ import { LocalEdge } from 'flow-models';
 
 import { createHandler } from './event-graph-util';
 import { ChangeEventType } from './event-types';
-import {
-  EdgeRemovedEvent,
-  updateVariableOnEdgeRemoval,
-} from './update-variable-on-edge-removal';
 
 export type ReactFlowEdgesChangeEvent = {
   type: ChangeEventType.RF_EDGES_CHANGE;
@@ -18,14 +14,12 @@ export type ReactFlowEdgesChangeEvent = {
 
 export const handleReactFlowEdgesChange = createHandler<
   ReactFlowEdgesChangeEvent,
-  EdgeRemovedEvent
+  never
 >(
   (event): event is ReactFlowEdgesChangeEvent => {
     return event.type === ChangeEventType.RF_EDGES_CHANGE;
   },
   (state, event) => {
-    const events: EdgeRemovedEvent[] = [];
-
     for (const change of event.changes) {
       switch (change.type) {
         case 'add':
@@ -39,11 +33,6 @@ export const handleReactFlowEdgesChange = createHandler<
 
           invariant(edgeSnapshot != null, 'Edge is not null');
 
-          events.push({
-            type: ChangeEventType.EDGE_REMOVED,
-            removedEdge: edgeSnapshot,
-          });
-
           break;
         }
       }
@@ -54,7 +43,7 @@ export const handleReactFlowEdgesChange = createHandler<
       state.flowContent.edges,
     ) as LocalEdge[];
 
-    return events;
+    return [];
   },
-  [updateVariableOnEdgeRemoval],
+  [],
 );
