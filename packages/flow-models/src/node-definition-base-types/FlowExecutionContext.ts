@@ -121,6 +121,10 @@ export class MutableFlowNodeGraph {
     private readonly nodeConditionIndegrees: Record<string, number>,
   ) {}
 
+  // Prevent duplicate execution of the same node, which might happen when
+  // the node has multiple incoming edge connect to the same condition target.
+  private executedNodeIdSet = new Set<string>();
+
   getNodeIdListWithIndegreeZero(): string[] {
     return pipe(
       this.nodeIds,
@@ -169,9 +173,11 @@ export class MutableFlowNodeGraph {
 
         if (
           this.nodeVariableIndegrees[nodeId] === 0 &&
-          this.nodeConditionIndegrees[nodeId] === 0
+          this.nodeConditionIndegrees[nodeId] === 0 &&
+          !this.executedNodeIdSet.has(nodeId)
         ) {
           indegreeZeroNodeIds.push(nodeId);
+          this.executedNodeIdSet.add(nodeId);
         }
       }
     }
