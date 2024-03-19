@@ -134,6 +134,17 @@ export function selectConditionTarget(
   });
 }
 
+export function selectRegularOutgoingCondition(
+  nodeId: string,
+  connectors: ConnectorRecords,
+): Condition {
+  const condition = D.values(connectors).find((c): c is Condition => {
+    return c.nodeId === nodeId && c.type === ConnectorType.Condition;
+  });
+  invariant(condition != null, 'condition is not null');
+  return condition;
+}
+
 export function selectStartNodeVariableIdToValueMap(
   connectors: ConnectorRecords,
   connectorResults: ConnectorResultMap,

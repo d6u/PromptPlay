@@ -113,6 +113,13 @@ export const ELEVENLABS_NODE_DEFINITION: NodeDefinition<
           id: `${nodeId}/${randomId()}`,
           nodeId: nodeId,
         },
+        {
+          type: ConnectorType.Condition,
+          id: `${nodeId}/${randomId()}`,
+          index: 0,
+          nodeId: nodeId,
+          expressionString: '',
+        },
       ],
     };
   },

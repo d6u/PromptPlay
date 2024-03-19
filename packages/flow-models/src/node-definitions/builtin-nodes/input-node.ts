@@ -50,6 +50,13 @@ export const INPUT_NODE_DEFINITION: NodeDefinition<
           isGlobal: true,
           globalVariableId: null,
         },
+        {
+          type: ConnectorType.Condition,
+          id: `${nodeId}/${randomId()}`,
+          index: 0,
+          nodeId: nodeId,
+          expressionString: '',
+        },
       ],
     };
   },

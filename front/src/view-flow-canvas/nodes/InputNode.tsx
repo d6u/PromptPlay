@@ -4,6 +4,7 @@ import { Position, useUpdateNodeInternals } from 'reactflow';
 
 import { ConnectorType, InputNodeAllLevelConfig, NodeType } from 'flow-models';
 
+import NodeRegularOutgoingConditionHandle from 'components/node-connector/condition/NodeRegularOutgoingConditionHandle';
 import { VariableConfig } from 'components/node-connector/types';
 import NodeRenamableVariableList from 'components/node-connector/variable/NodeRenamableVariableList';
 import { useFlowStore } from 'state-flow/flow-store';
@@ -21,15 +22,16 @@ type Props = {
 function InputNode(props: Props) {
   const updateNodeInternals = useUpdateNodeInternals();
 
-  const variables = useFlowStore((s) => s.getFlowContent().variablesDict);
+  const connectors = useFlowStore((s) => s.getFlowContent().variablesDict);
   const addVariable = useFlowStore((s) => s.addConnector);
 
   const flowInputVariables = useMemo(() => {
-    return selectVariables(props.nodeId, ConnectorType.NodeOutput, variables);
-  }, [props.nodeId, variables]);
+    return selectVariables(props.nodeId, ConnectorType.NodeOutput, connectors);
+  }, [props.nodeId, connectors]);
 
   return (
     <>
+      <NodeRegularOutgoingConditionHandle nodeId={props.nodeId} />
       <NodeBox nodeType={NodeType.InputNode}>
         <NodeBoxHeaderSection
           isNodeReadOnly={props.isNodeReadOnly}
