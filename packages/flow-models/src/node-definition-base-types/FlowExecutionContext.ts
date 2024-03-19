@@ -155,11 +155,10 @@ export class MutableFlowNodeGraph {
       const sourceConnector = this.connectors[srcConnectorId];
 
       for (const nodeId of nodeIds) {
-        // Source variable connector can be a FlowInput or a NodeOutput.
         if (sourceConnector.type === ConnectorType.NodeOutput) {
           this.nodeVariableIndegrees[nodeId] -= 1;
         } else if (sourceConnector.type === ConnectorType.Condition) {
-          // We only need to one condition to satisfy to unblock the node.
+          // We only need one condition to be met to unblock the next node.
           this.nodeConditionIndegrees[nodeId] = 0;
         } else {
           invariant(
