@@ -205,7 +205,7 @@ export const executeFlow = (params: {
           });
         } else if (event.type === NodeExecutionEventType.Finish) {
           // Make a copy
-          const finishedConnectorIds = event.finishedConnectorIds.slice();
+          let finishedConnectorIds = event.finishedConnectorIds.slice();
 
           // TODO: Generalize this for all node types
           if (
@@ -221,6 +221,9 @@ export const executeFlow = (params: {
 
             if (regularOutgoingCondition != null) {
               finishedConnectorIds.push(regularOutgoingCondition.id);
+
+              // Deduplicate
+              finishedConnectorIds = [...new Set(finishedConnectorIds)];
             }
           }
 
