@@ -187,16 +187,15 @@ export const executeFlow = (params: {
               event.variableValuesLookUpDict,
               D.toPairs,
               A.forEach(([id, value]) => {
-                const variable = params.connectors[id];
+                const connector = params.connectors[id];
 
-                invariant(
-                  variable.type === ConnectorType.NodeInput ||
-                    variable.type === ConnectorType.NodeOutput,
-                  'Variable Type is NodeInput or NodeOutput',
-                );
-
-                if (variable.isGlobal && variable.globalVariableId != null) {
-                  draft[variable.globalVariableId] = value;
+                if (
+                  (connector.type === ConnectorType.NodeInput ||
+                    connector.type === ConnectorType.NodeOutput) &&
+                  connector.isGlobal &&
+                  connector.globalVariableId != null
+                ) {
+                  draft[connector.globalVariableId] = value;
                 } else {
                   draft[id] = value;
                 }
