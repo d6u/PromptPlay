@@ -21,6 +21,7 @@ import ReadonlyTextarea from 'generic-components/ReadonlyTextarea';
 import { useFlowStore } from 'state-flow/flow-store';
 import { NodeExecutionState, NodeExecutionStatus } from 'state-flow/types';
 
+import NodeRegularOutgoingConditionHandle from 'components/node-connector/condition/NodeRegularOutgoingConditionHandle';
 import { VariableConfig } from 'components/node-connector/types';
 import NodeOutputVariableList from 'components/node-connector/variable/NodeOutputVariableList';
 import NodeExecutionMessageDisplay from 'components/node-execution-state/NodeExecutionMessageDisplay';
@@ -59,6 +60,7 @@ function JavaScriptFunctionNode(props: Props) {
 
   return (
     <>
+      <NodeRegularOutgoingConditionHandle nodeId={props.nodeId} />
       <NodeTargetConditionHandle
         nodeId={props.nodeId}
         conditionId={props.conditionTarget.id}

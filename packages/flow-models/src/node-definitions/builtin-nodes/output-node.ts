@@ -57,6 +57,11 @@ export const OUTPUT_NODE_DEFINITION: NodeDefinition<
           isGlobal: true,
           globalVariableId: null,
         },
+        {
+          type: ConnectorType.ConditionTarget,
+          id: `${nodeId}/${randomId()}`,
+          nodeId: nodeId,
+        },
       ],
     };
   },

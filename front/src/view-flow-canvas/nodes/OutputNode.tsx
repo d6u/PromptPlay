@@ -2,8 +2,14 @@ import styled from '@emotion/styled';
 import { useMemo } from 'react';
 import { Position, useUpdateNodeInternals } from 'reactflow';
 
-import { ConnectorType, NodeType, OutputNodeAllLevelConfig } from 'flow-models';
+import {
+  ConditionTarget,
+  ConnectorType,
+  NodeType,
+  OutputNodeAllLevelConfig,
+} from 'flow-models';
 
+import NodeTargetConditionHandle from 'components/node-connector/condition/NodeTargetConditionHandle';
 import { VariableConfig } from 'components/node-connector/types';
 import NodeRenamableVariableList from 'components/node-connector/variable/NodeRenamableVariableList';
 import { useFlowStore } from 'state-flow/flow-store';
@@ -16,6 +22,7 @@ type Props = {
   nodeId: string;
   isNodeReadOnly: boolean;
   nodeConfig: OutputNodeAllLevelConfig;
+  conditionTarget: ConditionTarget;
 };
 
 function OutputNode(props: Props) {
@@ -30,6 +37,10 @@ function OutputNode(props: Props) {
 
   return (
     <>
+      <NodeTargetConditionHandle
+        nodeId={props.nodeId}
+        conditionId={props.conditionTarget.id}
+      />
       <NodeBox nodeType={NodeType.OutputNode}>
         <NodeBoxHeaderSection
           isNodeReadOnly={props.isNodeReadOnly}

@@ -13,6 +13,7 @@ import {
 import invariant from 'tiny-invariant';
 
 import {
+  Condition,
   Connector,
   ConnectorResultMap,
   ConnectorType,
@@ -203,9 +204,31 @@ export const executeFlow = (params: {
             );
           });
         } else if (event.type === NodeExecutionEventType.Finish) {
-          const nextNodeIdList = mutableFlowGraph.reduceNodeIndegrees(
-            event.finishedConnectorIds,
-          );
+          // Make a copy
+          let finishedConnectorIds = event.finishedConnectorIds.slice();
+
+          // TODO: Generalize this for all node types
+          if (
+            params.nodeConfigs[event.nodeId].type !== NodeType.ConditionNode
+          ) {
+            // NOTE: For non-ConditionNode, we need to add the regular
+            // outgoing condition to the finishedConnectorIds list manually.
+            const regularOutgoingCondition = D.values(params.connectors).find(
+              (connector): connector is Condition =>
+                connector.nodeId === event.nodeId &&
+                connector.type === ConnectorType.Condition,
+            );
+
+            if (regularOutgoingCondition != null) {
+              finishedConnectorIds.push(regularOutgoingCondition.id);
+
+              // Deduplicate
+              finishedConnectorIds = [...new Set(finishedConnectorIds)];
+            }
+          }
+
+          const nextNodeIdList =
+            mutableFlowGraph.reduceNodeIndegrees(finishedConnectorIds);
 
           queuedNodeCount -= 1;
 
