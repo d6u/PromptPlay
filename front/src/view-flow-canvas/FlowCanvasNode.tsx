@@ -80,11 +80,14 @@ function FlowCanvasNode() {
         />
       );
     case NodeType.OutputNode:
+      invariant(conditionTarget != null, 'conditionTarget is not null');
+
       return (
         <OutputNode
           nodeId={nodeId}
           isNodeReadOnly={isNodeReadOnly}
           nodeConfig={nodeConfig}
+          conditionTarget={conditionTarget}
         />
       );
     case NodeType.ConditionNode:
