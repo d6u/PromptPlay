@@ -81,50 +81,68 @@ export const executeFlow = (params: {
 
             // ANCHOR: NodeExecutionConfig
 
-            const connectorList = pipe(
+            const nodeConnectors = pipe(
               params.connectors,
               D.values,
               A.filter((connector) => connector.nodeId === nodeConfig.nodeId),
             );
 
-            const config: NodeExecutionConfig<NodeAllLevelConfigUnion> = {
-              nodeConfig,
-              connectorList,
-            };
+            const nodeExecutionConfig: NodeExecutionConfig<NodeAllLevelConfigUnion> =
+              {
+                nodeConfig,
+                connectorList: nodeConnectors,
+              };
 
             // ANCHOR: NodeExecutionParams
+
+            // TODO: We need to emit the NodeInput variable value to store
+            // as well, otherwise we cannot inspect node input variable values.
+            // Currently, we only emit NodeOutput variable values or
+            // OutputNode's NodeInput variable values.
 
             const nodeInputValueMap: ConnectorResultMap = {};
 
             if (nodeConfig.type === NodeType.InputNode) {
-              connectorList.forEach((connector) => {
+              nodeConnectors.forEach((connector) => {
                 nodeInputValueMap[connector.id] =
                   allVariableValueMap[connector.id];
               });
             } else {
-              connectorList
+              nodeConnectors
                 .filter(
                   (conn): conn is NodeInputVariable =>
                     conn.type === ConnectorType.NodeInput,
                 )
-                .forEach((connector) => {
-                  const srcConnectorId =
-                    mutableFlowGraph.getSrcVariableIdFromDstVariableId(
-                      connector.id,
-                    );
-                  nodeInputValueMap[connector.id] =
-                    allVariableValueMap[srcConnectorId];
+                .forEach((variable) => {
+                  if (variable.isGlobal) {
+                    if (variable.globalVariableId != null) {
+                      nodeInputValueMap[variable.id] =
+                        allVariableValueMap[variable.globalVariableId];
+                    }
+                  } else {
+                    const sourceVariableId =
+                      mutableFlowGraph.getSrcVariableIdFromDstVariableId(
+                        variable.id,
+                      );
+
+                    nodeInputValueMap[variable.id] =
+                      allVariableValueMap[sourceVariableId];
+                  }
                 });
             }
 
-            const executeParams: NodeExecutionParams = {
+            const nodeExecutionParams: NodeExecutionParams = {
               nodeInputValueMap,
               useStreaming: params.preferStreaming,
             };
 
             // ANCHOR: Execute
 
-            return execute(nodeExecutionContext, config, executeParams).pipe(
+            return execute(
+              nodeExecutionContext,
+              nodeExecutionConfig,
+              nodeExecutionParams,
+            ).pipe(
               catchError<NodeExecutionEvent, Observable<NodeExecutionEvent>>(
                 (err) => {
                   // The observable will emit soft errors as
@@ -169,7 +187,19 @@ export const executeFlow = (params: {
               event.variableValuesLookUpDict,
               D.toPairs,
               A.forEach(([id, value]) => {
-                draft[id] = value;
+                const variable = params.connectors[id];
+
+                invariant(
+                  variable.type === ConnectorType.NodeInput ||
+                    variable.type === ConnectorType.NodeOutput,
+                  'Variable Type is NodeInput or NodeOutput',
+                );
+
+                if (variable.isGlobal && variable.globalVariableId != null) {
+                  draft[variable.globalVariableId] = value;
+                } else {
+                  draft[id] = value;
+                }
               }),
             );
           });
