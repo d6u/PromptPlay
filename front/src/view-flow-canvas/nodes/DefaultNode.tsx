@@ -59,7 +59,7 @@ function DefaultNode(props: Props) {
   // ANCHOR: ReactFlow
   const updateNodeInternals = useUpdateNodeInternals();
 
-  const addVariable = useFlowStore((s) => s.addVariable);
+  const addVariable = useFlowStore((s) => s.addConnector);
 
   // ANCHOR: Node Definition
   const nodeDefinition = useMemo(

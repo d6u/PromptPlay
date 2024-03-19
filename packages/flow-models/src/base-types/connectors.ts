@@ -2,21 +2,6 @@ import z from 'zod';
 import { ConnectorType } from './connector-type';
 import { VariableValueType } from './variable-value-type';
 
-export const NodeOutputVariableSchema = z.object({
-  type: z.literal(ConnectorType.NodeOutput),
-  id: z.string(),
-  name: z.string(),
-  nodeId: z.string(),
-  index: z.number(),
-  valueType: z.enum([
-    VariableValueType.Structured,
-    VariableValueType.String,
-    VariableValueType.Audio,
-  ]),
-  isGlobal: z.boolean().default(false),
-  globalVariableId: z.string().nullable().default(null),
-});
-
 export const NodeInputVariableSchema = z.object({
   type: z.literal(ConnectorType.NodeInput),
   id: z.string(),
@@ -27,6 +12,21 @@ export const NodeInputVariableSchema = z.object({
     VariableValueType.Structured,
     VariableValueType.String,
     VariableValueType.Any,
+  ]),
+  isGlobal: z.boolean().default(false),
+  globalVariableId: z.string().nullable().default(null),
+});
+
+export const NodeOutputVariableSchema = z.object({
+  type: z.literal(ConnectorType.NodeOutput),
+  id: z.string(),
+  name: z.string(),
+  nodeId: z.string(),
+  index: z.number(),
+  valueType: z.enum([
+    VariableValueType.Structured,
+    VariableValueType.String,
+    VariableValueType.Audio,
   ]),
   isGlobal: z.boolean().default(false),
   globalVariableId: z.string().nullable().default(null),
@@ -46,14 +46,14 @@ export const ConditionTargetSchema = z.object({
   nodeId: z.string(),
 });
 
-export type NodeOutputVariable = z.infer<typeof NodeOutputVariableSchema>;
 export type NodeInputVariable = z.infer<typeof NodeInputVariableSchema>;
+export type NodeOutputVariable = z.infer<typeof NodeOutputVariableSchema>;
 export type Condition = z.infer<typeof ConditionSchema>;
 export type ConditionTarget = z.infer<typeof ConditionTargetSchema>;
 
 const ConnectorSchema = z.union([
-  NodeOutputVariableSchema,
   NodeInputVariableSchema,
+  NodeOutputVariableSchema,
   ConditionSchema,
   ConditionTargetSchema,
 ]);

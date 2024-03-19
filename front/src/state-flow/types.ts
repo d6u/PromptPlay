@@ -183,7 +183,7 @@ export type FlowActions = {
   removeNode(nodeId: string): void;
   updateNodeConfig(nodeId: string, change: Partial<NodeConfig>): void;
 
-  addVariable(nodeId: string, type: ConnectorTypeEnum, index: number): void;
+  addConnector(nodeId: string, type: ConnectorTypeEnum, index: number): void;
   removeVariable(variableId: string): void;
   updateConnector<
     T extends ConnectorTypeEnum,

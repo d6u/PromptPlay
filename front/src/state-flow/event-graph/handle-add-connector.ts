@@ -8,8 +8,9 @@ import {
   ConnectorTypeEnum,
   NodeInputVariable,
   NodeOutputVariable,
+  NodeType,
   VariableValueType,
-  VariableValueTypeEnum,
+  getNodeDefinitionForNodeTypeName,
 } from 'flow-models';
 
 import { createHandler } from './event-graph-util';
@@ -24,7 +25,6 @@ export type AddConnectorEvent = {
   nodeId: string;
   connectorType: ConnectorTypeEnum;
   connectorIndex: number;
-  variableValueType?: VariableValueTypeEnum;
 };
 
 export const handleAddConnector = createHandler<
@@ -35,6 +35,20 @@ export const handleAddConnector = createHandler<
     return event.type === ChangeEventType.ADDING_VARIABLE;
   },
   (state, event) => {
+    const nodeType = state.flowContent.nodeConfigsDict[event.nodeId].type;
+    const nodeDefinition = getNodeDefinitionForNodeTypeName(nodeType);
+
+    invariant(
+      nodeDefinition.canUserAddIncomingVariables ||
+        nodeType === NodeType.InputNode,
+      'User can add incoming variables',
+    );
+    invariant(
+      nodeDefinition.variableValueTypeForUserAddedIncomingVariable != null ||
+        nodeType === NodeType.InputNode,
+      'incomingVariableType is defined',
+    );
+
     const commonFields = {
       id: `${event.nodeId}/${randomId()}`,
       nodeId: event.nodeId,
@@ -44,16 +58,11 @@ export const handleAddConnector = createHandler<
 
     switch (event.connectorType) {
       case ConnectorType.NodeOutput: {
-        invariant(
-          event.variableValueType === VariableValueType.Structured ||
-            event.variableValueType === VariableValueType.String ||
-            event.variableValueType === VariableValueType.Audio,
-          'Variable value type is Structured, String or Audio',
-        );
+        // NOTE: The only node can add output variables is InputNode
         const variableConfig: NodeOutputVariable = {
           ...commonFields,
           type: event.connectorType,
-          valueType: event.variableValueType,
+          valueType: VariableValueType.String,
           isGlobal: true,
           globalVariableId: null,
         };
@@ -62,15 +71,19 @@ export const handleAddConnector = createHandler<
       }
       case ConnectorType.NodeInput: {
         invariant(
-          event.variableValueType === VariableValueType.Structured ||
-            event.variableValueType === VariableValueType.String ||
-            event.variableValueType === VariableValueType.Any,
-          'Variable value type is Structured, String or Any',
+          nodeDefinition.variableValueTypeForUserAddedIncomingVariable ===
+            VariableValueType.Structured ||
+            nodeDefinition.variableValueTypeForUserAddedIncomingVariable ===
+              VariableValueType.String ||
+            nodeDefinition.variableValueTypeForUserAddedIncomingVariable ===
+              VariableValueType.Any,
+          `Variable value type ${nodeDefinition.variableValueTypeForUserAddedIncomingVariable} is Structured, String or Any`,
         );
         const variableConfig: NodeInputVariable = {
           ...commonFields,
           type: event.connectorType,
-          valueType: event.variableValueType,
+          valueType:
+            nodeDefinition.variableValueTypeForUserAddedIncomingVariable,
           isGlobal: true,
           globalVariableId: null,
         };

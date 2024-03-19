@@ -47,7 +47,7 @@ function JavaScriptFunctionNode(props: Props) {
   );
 
   const updateNodeConfig = useFlowStore((s) => s.updateNodeConfig);
-  const addVariable = useFlowStore((s) => s.addVariable);
+  const addVariable = useFlowStore((s) => s.addConnector);
 
   const [javaScriptCode, setJavaScriptCode] = useState(
     () => props.nodeConfig.javaScriptCode,

@@ -91,6 +91,7 @@ export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition<
     },
   },
   canUserAddIncomingVariables: true,
+  variableValueTypeForUserAddedIncomingVariable: VariableValueType.String,
 
   createDefaultNodeConfig: (nodeId) => {
     return {
