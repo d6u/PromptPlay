@@ -1,7 +1,11 @@
 import type { ReactNode } from 'react';
 import type { Observable } from 'rxjs';
 
-import { Connector, ConnectorResultMap } from '../base-types';
+import {
+  Connector,
+  ConnectorResultMap,
+  VariableValueTypeEnum,
+} from '../base-types';
 import NodeExecutionContext from './NodeExecutionContext';
 import {
   NodeAccountLevelTextFieldDefinition,
@@ -103,6 +107,7 @@ export interface NodeDefinition<
   // Variables
   fixedIncomingVariables?: Record<string, FixedIncomingVariableDefinition>;
   canUserAddIncomingVariables?: boolean;
+  variableValueTypeForUserAddedIncomingVariable?: VariableValueTypeEnum;
 
   // Initial config values
   createDefaultNodeConfig: (nodeId: string) => {

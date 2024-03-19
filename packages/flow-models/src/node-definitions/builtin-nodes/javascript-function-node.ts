@@ -42,6 +42,7 @@ export const JAVASCRIPT_NODE_DEFINITION: NodeDefinition<
   },
 
   canUserAddIncomingVariables: true,
+  variableValueTypeForUserAddedIncomingVariable: VariableValueType.Any,
 
   createDefaultNodeConfig: (nodeId) => {
     return {

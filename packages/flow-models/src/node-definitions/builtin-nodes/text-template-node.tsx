@@ -61,6 +61,7 @@ export const TEXT_TEMPLATE_NODE_DEFINITION: NodeDefinition<
   },
 
   canUserAddIncomingVariables: true,
+  variableValueTypeForUserAddedIncomingVariable: VariableValueType.String,
 
   createDefaultNodeConfig: (nodeId) => {
     return {

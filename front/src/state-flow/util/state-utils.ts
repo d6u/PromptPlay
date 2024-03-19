@@ -74,19 +74,6 @@ export function selectVariables<
     .sort((a, b) => a.index - b.index);
 }
 
-export function selectAllVariables<
-  T extends typeof ConnectorType.NodeInput | typeof ConnectorType.NodeOutput,
->(
-  type: T,
-  variableMap: ConnectorRecords,
-): VariableTypeToVariableConfigTypeMap[T][] {
-  return Object.values(variableMap)
-    .filter((v): v is VariableTypeToVariableConfigTypeMap[T] => {
-      return v.type === type;
-    })
-    .sort((a, b) => a.index - b.index);
-}
-
 export function selectVariablesOnAllStartNodes(
   connectors: ConnectorRecords,
   nodeConfigs: NodeConfigRecords,

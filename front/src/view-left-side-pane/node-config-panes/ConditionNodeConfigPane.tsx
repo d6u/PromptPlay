@@ -44,7 +44,7 @@ function ConditionNodeConfigPane(props: Props) {
     s.getDefaultVariableValueLookUpDict(),
   );
   const updateNodeConfig = useFlowStore((s) => s.updateNodeConfig);
-  const addVariable = useFlowStore((s) => s.addVariable);
+  const addVariable = useFlowStore((s) => s.addConnector);
 
   const nodeDefinition = useMemo(() => {
     return getNodeDefinitionForNodeTypeName(props.nodeConfig.type);

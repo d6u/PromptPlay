@@ -42,7 +42,7 @@ function ConditionNode(props: Props) {
   const updateNodeInternals = useUpdateNodeInternals();
 
   const updateNodeConfig = useFlowStore((s) => s.updateNodeConfig);
-  const addVariable = useFlowStore((s) => s.addVariable);
+  const addVariable = useFlowStore((s) => s.addConnector);
 
   const connectors = useFlowStore((s) => s.getFlowContent().variablesDict);
   const conditions = useMemo(() => {

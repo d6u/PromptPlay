@@ -22,7 +22,7 @@ function OutputNode(props: Props) {
   const updateNodeInternals = useUpdateNodeInternals();
 
   const variables = useFlowStore((s) => s.getFlowContent().variablesDict);
-  const addVariable = useFlowStore((s) => s.addVariable);
+  const addVariable = useFlowStore((s) => s.addConnector);
 
   const nodeInputVariables = useMemo(() => {
     return selectVariables(props.nodeId, ConnectorType.NodeInput, variables);

@@ -32,7 +32,7 @@ function OutputNodeConfigPane(props: Props) {
   );
 
   const variables = useFlowStore((s) => s.getFlowContent().variablesDict);
-  const addVariable = useFlowStore((s) => s.addVariable);
+  const addVariable = useFlowStore((s) => s.addConnector);
 
   const flowOutputVariables = useMemo(() => {
     return selectVariables(props.nodeId, ConnectorType.NodeInput, variables);

@@ -47,7 +47,7 @@ function JavaScriptNodeConfigPane(props: Props) {
   );
 
   const updateNodeConfig = useFlowStore((s) => s.updateNodeConfig);
-  const addVariable = useFlowStore((s) => s.addVariable);
+  const addVariable = useFlowStore((s) => s.addConnector);
 
   const inputVariableConfig = useMemo(() => {
     return props.inputVariables.map<VariableConfig>((variable) => {

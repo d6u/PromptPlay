@@ -47,7 +47,7 @@ type Props = {
 function DefaultNodeConfigPane(props: Props) {
   const updateNodeInternals = useUpdateNodeInternals();
 
-  const addVariable = useFlowStore((s) => s.addVariable);
+  const addVariable = useFlowStore((s) => s.addConnector);
 
   const nodeDefinition = useMemo(
     () => getNodeDefinitionForNodeTypeName(props.nodeConfig.type),

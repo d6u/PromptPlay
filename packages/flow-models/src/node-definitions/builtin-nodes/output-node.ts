@@ -37,6 +37,9 @@ export const OUTPUT_NODE_DEFINITION: NodeDefinition<
 
   instanceLevelConfigFieldDefinitions: {},
 
+  canUserAddIncomingVariables: true,
+  variableValueTypeForUserAddedIncomingVariable: VariableValueType.Any,
+
   createDefaultNodeConfig: (nodeId) => {
     return {
       nodeConfig: {
