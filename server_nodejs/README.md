@@ -19,7 +19,7 @@ If you want to start the API server as well
 docker compose \
   --env-file .environments/api-server/local.env \
   --env-file .environments/dynamodb/local.env \
-  up --profile api-server
+  --profile api-server up
 ```
 
 ### Start API Server on Host Machine (without Docker)
