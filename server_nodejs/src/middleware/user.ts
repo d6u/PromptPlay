@@ -1,5 +1,4 @@
-import { PlaceholderUserEntity } from 'dynamodb-models/placeholder-user';
-import { UserEntity } from 'dynamodb-models/user';
+import { prismaClient } from 'database-models';
 import { NextFunction, Response } from 'express';
 import { RequestWithSession } from '../types';
 
@@ -22,13 +21,10 @@ export async function attachUser(
   const userId = req.session!.userId;
 
   if (userId != null) {
-    const { Item: user } = await UserEntity.get({ id: userId });
+    const user = await prismaClient.user.findUnique({ where: { id: userId } });
 
     if (user != null) {
-      dbUser = {
-        id: user.id,
-        isPlaceholderUser: false,
-      };
+      dbUser = { id: user.id, isPlaceholderUser: false };
     } else {
       delete req.session!.userId;
     }
@@ -38,15 +34,12 @@ export async function attachUser(
     const placeholderUserToken = req.session!.placeholderUserToken;
 
     if (placeholderUserToken != null) {
-      const { Item: user } = await PlaceholderUserEntity.get({
-        placeholderClientToken: placeholderUserToken,
+      const user = await prismaClient.user.findUnique({
+        where: { placeholderClientToken: placeholderUserToken },
       });
 
       if (user != null) {
-        dbUser = {
-          id: user.placeholderClientToken,
-          isPlaceholderUser: true,
-        };
+        dbUser = { id: user.id, isPlaceholderUser: true };
       } else {
         delete req.session!.placeholderUserToken;
       }
