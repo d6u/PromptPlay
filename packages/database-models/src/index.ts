@@ -31,12 +31,14 @@ export function toSpecificUser(user: User): RegisteredUser | PlaceholderUser {
 
 export function createSpaceWithExampleContent(
   userId: string,
-): Prisma.FlowUncheckedCreateInput {
+): Prisma.FlowCreateInput {
   return {
-    userId: userId,
     name: 'Example Space',
     canvasDataSchemaVersion: CanvasDataSchemaVersion.V3,
     canvasDataV3: createExampleSpaceContentV3(),
+    User: {
+      connect: { id: userId },
+    },
   };
 }
 

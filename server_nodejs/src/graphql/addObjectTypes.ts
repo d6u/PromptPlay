@@ -63,7 +63,13 @@ builder.objectType(GraphQlSpace, {
           return parent.canvasDataSchemaVersion;
         },
       }),
-      contentV3: t.exposeString('canvasDataSchemaVersion', { nullable: true }),
+      contentV3: t.field({
+        nullable: true,
+        type: 'String',
+        resolve(parent, args, context) {
+          return JSON.stringify(parent.canvasDataV3);
+        },
+      }),
       updatedAt: t.field({
         type: 'DateTime',
         resolve(parent, args, context) {

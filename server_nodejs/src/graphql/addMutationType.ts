@@ -7,7 +7,6 @@ import {
   prismaClient,
 } from 'database-models';
 import { v4 as uuidv4 } from 'uuid';
-import { nullThrow } from '../utils/utils';
 import builder, {
   GraphQlCreateCsvEvaluationPresetResult,
   GraphQlCsvEvaluationPreset,
@@ -34,9 +33,9 @@ builder.mutationType({
               user.placeholderClientToken ?? undefined;
           }
 
-          const flow = createSpaceWithExampleContent(user.id);
-
-          return await prismaClient.flow.create({ data: flow });
+          return await prismaClient.flow.create({
+            data: createSpaceWithExampleContent(user.id),
+          });
         },
       }),
       createSpace: t.field({
@@ -51,10 +50,12 @@ builder.mutationType({
 
           return await prismaClient.flow.create({
             data: {
-              userId: user.id,
               name: 'Untitled',
               canvasDataSchemaVersion: CanvasDataSchemaVersion.V3,
-              canvasDataV3: JSON.stringify({}),
+              canvasDataV3: Prisma.JsonNull,
+              User: {
+                connect: { id: user.id },
+              },
             },
           });
         },
@@ -77,7 +78,7 @@ builder.mutationType({
             return null;
           }
 
-          const flowUpdateData: Prisma.FlowUncheckedUpdateInput = {};
+          const flowUpdateData: Prisma.FlowUpdateInput = {};
 
           if (args.name !== undefined) {
             if (args.name === null) {
@@ -96,12 +97,30 @@ builder.mutationType({
           }
 
           if (args.contentV3 !== undefined) {
-            flowUpdateData.canvasDataV3 = nullThrow(args.contentV3);
+            if (args.contentV3 === null) {
+              throw new Error('contentV3 cannot be null');
+            } else {
+              flowUpdateData.canvasDataV3 = args.contentV3;
+            }
           }
 
-          return await prismaClient.flow.update({
-            where: { id: args.id as string, userId: user.id },
-            data: flowUpdateData,
+          return await prismaClient.$transaction(async (tx) => {
+            const flow = await tx.flow.findUnique({
+              where: {
+                id: args.id as string,
+                userId: user.id,
+              },
+            });
+
+            // Update will throw if the record is not found
+            if (flow == null) {
+              return null;
+            }
+
+            return await tx.flow.update({
+              where: { id: args.id as string },
+              data: flowUpdateData,
+            });
           });
         },
       }),
@@ -118,17 +137,22 @@ builder.mutationType({
             return false;
           }
 
-          const flow = await prismaClient.flow.findUnique({
-            where: { id: args.id as string, userId: user.id },
+          return await prismaClient.$transaction(async (tx) => {
+            const flow = await tx.flow.findUnique({
+              where: {
+                id: args.id as string,
+                userId: user.id,
+              },
+            });
+
+            if (flow == null) {
+              return false;
+            }
+
+            await tx.flow.delete({ where: { id: flow.id } });
+
+            return true;
           });
-
-          if (flow == null) {
-            return false;
-          }
-
-          await prismaClient.flow.delete({ where: { id: flow.id } });
-
-          return true;
         },
       }),
       createCsvEvaluationPreset: t.field({
@@ -147,33 +171,39 @@ builder.mutationType({
             return null;
           }
 
-          const flow = await prismaClient.flow.findUnique({
-            where: {
-              id: args.spaceId as string,
-              userId: user.id,
-            },
+          return await prismaClient.$transaction(async (tx) => {
+            const flow = await tx.flow.findUnique({
+              where: {
+                id: args.spaceId as string,
+                userId: user.id,
+              },
+            });
+
+            if (flow == null) {
+              return null;
+            }
+
+            const batchTestPreset = await tx.batchTestPreset.create({
+              data: {
+                name: args.name,
+                csv: args.csvContent ?? '',
+                configDataSchemaVersion:
+                  BatchTestPresetConfigDataSchemaVersion.V1,
+                configDataV1: Prisma.JsonNull,
+                User: {
+                  connect: { id: user.id },
+                },
+                Flow: {
+                  connect: { id: flow.id },
+                },
+              },
+            });
+
+            return {
+              space: flow,
+              csvEvaluationPreset: batchTestPreset,
+            };
           });
-
-          if (flow == null) {
-            return null;
-          }
-
-          const batchTestPreset = await prismaClient.batchTestPreset.create({
-            data: {
-              userId: user.id,
-              flowId: flow.id,
-              name: args.name,
-              csv: args.csvContent ?? '',
-              configDataSchemaVersion:
-                BatchTestPresetConfigDataSchemaVersion.V1,
-              configDataV1: args.configContent ?? '',
-            },
-          });
-
-          return {
-            space: flow,
-            csvEvaluationPreset: batchTestPreset,
-          };
         },
       }),
       updateCsvEvaluationPreset: t.field({
@@ -186,13 +216,13 @@ builder.mutationType({
           configContent: t.arg({ type: 'String' }),
         },
         async resolve(parent, args, context) {
-          const dbUser = context.req.user;
+          const user = context.req.user;
 
-          if (dbUser == null) {
+          if (user == null) {
             return null;
           }
 
-          const batchTestPresetUpdateData: Prisma.BatchTestPresetUncheckedUpdateInput =
+          const batchTestPresetUpdateData: Prisma.BatchTestPresetUpdateInput =
             {};
 
           if (args.name !== undefined) {
@@ -212,17 +242,30 @@ builder.mutationType({
           }
 
           if (args.configContent !== undefined) {
-            batchTestPresetUpdateData.configDataV1 = nullThrow(
-              args.configContent,
-            );
+            if (args.configContent === null) {
+              throw new Error('configContent cannot be null');
+            } else {
+              batchTestPresetUpdateData.configDataV1 = args.configContent;
+            }
           }
 
-          return await prismaClient.batchTestPreset.update({
-            where: {
-              id: args.presetId as string,
-              userId: dbUser.id,
-            },
-            data: batchTestPresetUpdateData,
+          return await prismaClient.$transaction(async (tx) => {
+            const batchTestPreset = await tx.batchTestPreset.findUnique({
+              where: {
+                id: args.presetId as string,
+                userId: user.id,
+              },
+            });
+
+            // Update will throw if the record is not found
+            if (batchTestPreset == null) {
+              return null;
+            }
+
+            return await tx.batchTestPreset.update({
+              where: { id: args.presetId as string },
+              data: batchTestPresetUpdateData,
+            });
           });
         },
       }),
@@ -239,35 +282,26 @@ builder.mutationType({
             return null;
           }
 
-          const batchTestPreset = await prismaClient.batchTestPreset.findUnique(
-            {
+          return await prismaClient.$transaction(async (tx) => {
+            const batchTestPreset = await tx.batchTestPreset.findUnique({
               where: {
                 id: args.id as string,
                 userId: user.id,
               },
-            },
-          );
+            });
 
-          if (batchTestPreset == null) {
-            return null;
-          }
+            if (batchTestPreset == null) {
+              return null;
+            }
 
-          const flowId = batchTestPreset.flowId!;
+            await tx.batchTestPreset.delete({
+              where: { id: args.id as string },
+            });
 
-          await prismaClient.batchTestPreset.delete({
-            where: { id: flowId },
+            return await tx.flow.findUnique({
+              where: { id: batchTestPreset.flowId },
+            });
           });
-
-          const flow = await prismaClient.flow.findUnique({
-            where: { id: flowId },
-          });
-
-          if (flow == null) {
-            console.warn('Space not found when deleting CSV Evaluation Preset');
-            return null;
-          }
-
-          return flow;
         },
       }),
     };
