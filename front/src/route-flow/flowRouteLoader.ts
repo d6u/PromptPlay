@@ -38,7 +38,10 @@ const flowRouteLoader: LoaderFunction = async ({ params }) => {
 
   const contentVersion = queryResult.data.space!.space.contentVersion;
 
-  if (contentVersion !== ContentVersion.V3) {
+  if (
+    contentVersion !== ContentVersion.V2 &&
+    contentVersion !== ContentVersion.V3
+  ) {
     return redirect(pathToCurrentContent(spaceId, contentVersion));
   }
 

@@ -26,8 +26,6 @@ services:
     working_dir: /home/dynamodblocal
 
   dev-api-server:
-    profiles:
-      - 'api-server'
     container_name: dev-api-server
     depends_on:
       - dynamodb
