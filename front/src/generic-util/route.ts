@@ -20,12 +20,6 @@ export function pathToCurrentContent(
   contentVersion: ContentVersion,
 ): string {
   switch (contentVersion) {
-    case ContentVersion.V1:
-      // TODO: Report to telemetry
-      console.warn('V1 is not supported anymore');
-      return '';
-    case ContentVersion.V2:
-      return pathToFlow(id);
     case ContentVersion.V3:
       return pathToFlow(id);
   }

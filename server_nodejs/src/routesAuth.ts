@@ -1,11 +1,7 @@
-import { A, D, F } from '@mobily/ts-belt';
-import { PlaceholderUserEntity } from 'dynamodb-models/placeholder-user';
-import { SessionEntity } from 'dynamodb-models/session';
-import { SpaceEntity, SpacesTable } from 'dynamodb-models/space';
-import { UserEntity, UsersTable } from 'dynamodb-models/user';
+import { UserType, prismaClient } from 'database-models';
 import { Express, Response } from 'express';
 import { BaseClient, Issuer, TokenSet, generators } from 'openid-client';
-import { RequestWithUser, attachUser } from './middleware/user';
+import attachUser, { RequestWithUser } from './middleware/attachUser';
 import { RequestWithSession } from './types';
 
 async function getAuthClient() {
@@ -86,46 +82,35 @@ export default function setupAuth(app: Express) {
       return;
     }
 
-    // NOTE: Because put doesn't return the default value,
-    // e.g. createdAt, use this as a workaround.
-    const dbSession = SessionEntity.parse(
-      SessionEntity.putParams({ auth0IdToken: idToken }),
-    );
+    const loginSession = await prismaClient.loginSession.create({
+      data: { auth0IdToken: idToken },
+    });
 
-    await SessionEntity.put(dbSession);
-
-    req.session!.sessionId = dbSession.id;
+    req.session!.sessionId = loginSession.id;
     // !SECTION
 
     const idTokenClaims = tokenSet.claims();
 
-    // NOTE: DynamoDB GSI is eventually consistent, so there is a rare chance
-    // that we cannot find the user yet. We will leave this here until we
-    // switch off DynamoDB.
-    const response = await UsersTable.query(idTokenClaims.sub, {
-      index: 'Auth0UserIdIndex',
-      limit: 1,
+    let user = await prismaClient.user.findUnique({
+      where: { auth0UserId: idTokenClaims.sub },
     });
 
     let redirectUrl = process.env.AUTH_LOGIN_FINISH_REDIRECT_URL;
 
-    if (response.Count === 0) {
-      // NOTE: A new user.
+    if (user == null) {
+      // This is a new user.
 
-      // NOTE: Because put doesn't return the default value,
-      // e.g. createdAt, use this as a workaround.
-      const dbUser = UserEntity.parse(
-        UserEntity.putParams({
-          name: idTokenClaims.name,
+      user = await prismaClient.user.create({
+        data: {
+          userType: UserType.RegisteredUser,
           email: idTokenClaims.email,
+          name: idTokenClaims.name,
           profilePictureUrl: idTokenClaims.picture,
           auth0UserId: idTokenClaims.sub,
-        }),
-      );
+        },
+      });
 
-      await UserEntity.put(dbUser);
-
-      req.session!.userId = dbUser.id;
+      req.session!.userId = user.id;
 
       // SECTION: Merge placeholder user if there is one.
       // Because this is a new user.
@@ -139,52 +124,34 @@ export default function setupAuth(app: Express) {
       if (placeholderUserId) {
         console.log('placeholderUserToken is present');
 
-        const { Item: placeholderUser } = await PlaceholderUserEntity.get({
-          placeholderClientToken: placeholderUserId,
+        const placeholderUser = await prismaClient.user.findUnique({
+          where: { placeholderClientToken: placeholderUserId },
         });
 
         if (placeholderUser != null) {
           console.log('Placeholder user is valid, merging with the new user');
 
-          const response = await SpaceEntity.query(placeholderUserId, {
-            index: 'OwnerIdIndex',
-            // Parse works because OwnerIdIndex projects all the attributes.
-            parseAsEntity: 'Space',
-          });
-
-          const spaces = F.toMutable(
-            A.map(response.Items ?? [], D.set('ownerId', dbUser.id)),
-          );
-
-          // TODO: Batch write only supports 25 items at a time.
-          // Split spaces into chunks of 25 items.
-          await SpacesTable.batchWrite(
-            spaces
-              // Using PutItem will replace the item with the same primary
-              // key. This will update `createdAt` that should have been
-              // immutable, which is OK, because we are merging spaces into
-              // the new user. It probably doesn't matter to throw away
-              // `createdAt` value.
-              .map((space) => SpaceEntity.putBatch(space))
-              .concat([
-                // NOTE: Delete the placeholder user.
-                PlaceholderUserEntity.deleteBatch({
-                  placeholderClientToken: placeholderUserId,
-                }),
-              ]),
-          );
+          await prismaClient.$transaction([
+            prismaClient.flow.updateMany({
+              where: { userId: placeholderUser.id },
+              data: { userId: user.id },
+            }),
+            prismaClient.user.delete({ where: { id: placeholderUser.id } }),
+          ]);
         }
       }
       // !SECTION
     } else {
-      // NOTE: Not a new user.
-      const userId = response.Items![0]!['Id'] as string;
+      // Not a new user.
+      const userId = user.id;
 
-      await UserEntity.update({
-        id: userId,
-        name: idTokenClaims.name,
-        email: idTokenClaims.email,
-        profilePictureUrl: idTokenClaims.picture,
+      await prismaClient.user.update({
+        where: { id: userId },
+        data: {
+          email: idTokenClaims.email,
+          name: idTokenClaims.name,
+          profilePictureUrl: idTokenClaims.picture,
+        },
       });
 
       req.session!.userId = userId;
@@ -196,7 +163,7 @@ export default function setupAuth(app: Express) {
   app.get('/logout', async (req: RequestWithSession, res) => {
     const sessionId = req.session!.sessionId;
 
-    // NOTE: Log out locally
+    // Log out locally
     delete req.session!.sessionId;
     delete req.session!.userId;
 
@@ -206,9 +173,11 @@ export default function setupAuth(app: Express) {
       return;
     }
 
-    const { Item: dbSession } = await SessionEntity.get({ id: sessionId });
+    const loginSession = await prismaClient.loginSession.findUnique({
+      where: { id: sessionId },
+    });
 
-    const idToken = dbSession?.auth0IdToken;
+    const idToken = loginSession?.auth0IdToken;
 
     if (!idToken) {
       console.error('Missing id_token');
@@ -216,8 +185,8 @@ export default function setupAuth(app: Express) {
       return;
     }
 
-    // NOTE: Clean up
-    await SessionEntity.delete(dbSession);
+    // Clean up
+    await prismaClient.loginSession.delete({ where: { id: sessionId } });
 
     // ANCHOR: Logout from Auth0 and between Auth0 and IDPs
     const searchParams = new URLSearchParams({
@@ -235,13 +204,15 @@ export default function setupAuth(app: Express) {
   });
 
   app.get('/hello', attachUser, async (req: RequestWithUser, res) => {
-    if (!req.dbUser) {
+    if (!req.user) {
       res.send('Hello World!');
       return;
     }
 
     res.send(
-      `Hello ${req.dbUser.isPlaceholderUser ? 'Guest Player 1' : 'Player 1'}!`,
+      `Hello ${
+        req.user.userType === UserType.PlaceholderUser ? 'Guest' : req.user.name
+      }!`,
     );
   });
 }
