@@ -1,100 +1,55 @@
-import { SpaceEntity } from 'dynamodb-models/space';
-import { UserEntity } from 'dynamodb-models/user';
-import { BuilderType, Space, User } from './graphql-types';
+import { prismaClient, UserType } from 'database-models';
+import builder, { GraphQlQuerySpaceResult, GraphQlUser } from './schemaBuilder';
 
-export default function addQueryType(builder: BuilderType) {
-  const QuerySpaceResult = builder
-    .objectRef<QuerySpaceResultShape>('QuerySpaceResult')
-    .implement({
-      fields(t) {
-        return {
-          space: t.field({
-            type: Space,
-            resolve(parent, args, context) {
-              return parent.space;
-            },
-          }),
-          isReadOnly: t.exposeBoolean('isReadOnly'),
-        };
-      },
-    });
-
-  builder.queryType({
-    fields(t) {
-      return {
-        hello: t.string({
-          resolve(parent, args, context) {
-            if (context.req.dbUser != null) {
-              return `Hello ${
-                context.req.dbUser.isPlaceholderUser
-                  ? 'Guest Player 1'
-                  : 'Player 1'
-              }!`;
-            }
-
+builder.queryType({
+  fields(t) {
+    return {
+      hello: t.string({
+        resolve(parent, args, context) {
+          if (context.req.user == null) {
             return `Hello World!`;
-          },
-        }),
-        user: t.field({
-          type: User,
-          nullable: true,
-          async resolve(parent, args, context) {
-            if (!context.req.dbUser) {
-              return null;
-            }
+          }
 
-            if (context.req.dbUser.isPlaceholderUser) {
-              return new User(
-                {
-                  id: context.req.dbUser.id,
-                  // TODO: Remove unused fields from User class.
-                  createdAt: 0,
-                  updatedAt: 0,
-                },
-                /* isPlaceholderUser */ true,
-              );
-            } else {
-              // TODO: Load full dbUser on req so we don't have to load it
-              // again.
-              const { Item: dbUser } = await UserEntity.get({
-                id: context.req.dbUser.id,
-              });
+          return `Hello ${
+            context.req.user.userType === UserType.PlaceholderUser
+              ? 'Guest'
+              : context.req.user.name
+          }!`;
+        },
+      }),
+      user: t.field({
+        type: GraphQlUser,
+        nullable: true,
+        async resolve(parent, args, context) {
+          if (!context.req.user) {
+            return null;
+          }
 
-              if (dbUser == null) {
-                throw new Error('User should not be null');
-              }
+          return context.req.user;
+        },
+      }),
+      space: t.field({
+        type: GraphQlQuerySpaceResult,
+        nullable: true,
+        args: {
+          id: t.arg({ type: 'UUID', required: true }),
+        },
+        async resolve(parent, args, context) {
+          const flow = await prismaClient.flow.findUnique({
+            where: { id: args.id },
+          });
 
-              return new User(dbUser, /* isPlaceholderUser */ false);
-            }
-          },
-        }),
-        space: t.field({
-          type: QuerySpaceResult,
-          nullable: true,
-          args: {
-            id: t.arg({ type: 'UUID', required: true }),
-          },
-          async resolve(parent, args, context) {
-            const { Item: dbSpace } = await SpaceEntity.get({ id: args.id });
+          if (flow == null) {
+            return null;
+          }
 
-            if (dbSpace == null) {
-              return null;
-            }
-
-            return {
-              space: new Space(dbSpace),
-              isReadOnly:
-                context.req.dbUser == null ||
-                context.req.dbUser.id !== dbSpace.ownerId,
-            };
-          },
-        }),
-      };
-    },
-  });
-}
-
-type QuerySpaceResultShape = {
-  isReadOnly: boolean;
-  space: Space;
-};
+          return {
+            space: flow,
+            isReadOnly:
+              context.req.user == null || context.req.user.id !== flow.userId,
+          };
+        },
+      }),
+    };
+  },
+});

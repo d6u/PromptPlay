@@ -1,176 +1,153 @@
 import {
-  CsvEvaluationPresetEntity,
-  CsvEvaluationPresetsTable,
-} from 'dynamodb-models/csv-evaluation-preset';
-import { SpaceEntity } from 'dynamodb-models/space';
-import {
-  BuilderType,
-  CsvEvaluationPreset,
-  CsvEvaluationPresetFromSpaceIdIndex,
-  CsvEvaluationPresetFull,
-  Space,
-  SpaceContentVersion,
-  User,
-} from './graphql-types';
+  CanvasDataSchemaVersion,
+  UserType,
+  prismaClient,
+} from 'database-models';
+import builder, {
+  GraphQlCreateCsvEvaluationPresetResult,
+  GraphQlCsvEvaluationPreset,
+  GraphQlQuerySpaceResult,
+  GraphQlSpace,
+  GraphQlUser,
+} from './schemaBuilder';
 
-export default function addObjectTypes(builder: BuilderType) {
-  builder.objectType(User, {
-    name: 'User',
-    fields(t) {
-      return {
-        isPlaceholderUser: t.boolean({
-          resolve(parent, args, context) {
-            return parent.isPlaceholderUser;
-          },
-        }),
-        id: t.field({
-          type: 'UUID',
-          resolve(parent, args, context) {
-            return parent.dbUser.id;
-          },
-        }),
-        email: t.string({
-          nullable: true,
-          resolve(parent, args, context) {
-            return parent.dbUser.email;
-          },
-        }),
-        profilePictureUrl: t.string({
-          nullable: true,
-          resolve(parent, args, context) {
-            return parent.dbUser.profilePictureUrl;
-          },
-        }),
-        spaces: t.field({
-          type: [Space],
-          async resolve(parent, args, context) {
-            const response = await SpaceEntity.query(parent.dbUser.id, {
-              index: 'OwnerIdIndex',
-              // Sort by UpdatedAt in descending order.
-              // (OwnerIdIndex is using UpdatedAt as the sort key.)
-              reverse: true,
-            });
+builder.objectType(GraphQlUser, {
+  fields(t) {
+    return {
+      isPlaceholderUser: t.boolean({
+        resolve(parent, args, context) {
+          return parent.userType === UserType.PlaceholderUser;
+        },
+      }),
+      id: t.field({
+        type: 'UUID',
+        resolve(parent, args, context) {
+          return parent.id;
+        },
+      }),
+      email: t.string({
+        nullable: true,
+        resolve(parent, args, context) {
+          return parent.email;
+        },
+      }),
+      profilePictureUrl: t.string({
+        nullable: true,
+        resolve(parent, args, context) {
+          return parent.profilePictureUrl;
+        },
+      }),
+      spaces: t.field({
+        type: [GraphQlSpace],
+        async resolve(parent, args, context) {
+          const flows = await prismaClient.flow.findMany({
+            where: { userId: parent.id },
+            orderBy: { updatedAt: 'desc' },
+          });
 
-            const spaces = response.Items ?? [];
+          return flows;
+        },
+      }),
+    };
+  },
+});
 
-            return spaces.map((space) => new Space(space));
-          },
-        }),
-      };
-    },
-  });
+builder.objectType(GraphQlSpace, {
+  fields(t) {
+    return {
+      id: t.exposeID('id'),
+      name: t.exposeString('name'),
+      contentVersion: t.field({
+        type: CanvasDataSchemaVersion,
+        resolve(parent, args, context) {
+          return parent.canvasDataSchemaVersion;
+        },
+      }),
+      contentV3: t.exposeString('canvasDataSchemaVersion', { nullable: true }),
+      updatedAt: t.field({
+        type: 'DateTime',
+        resolve(parent, args, context) {
+          return parent.updatedAt;
+        },
+      }),
+      csvEvaluationPresets: t.field({
+        type: [GraphQlCsvEvaluationPreset],
+        async resolve(parent, args, context) {
+          const batchTestPresets = await prismaClient.batchTestPreset.findMany({
+            where: { flowId: parent.id },
+            orderBy: { createdAt: 'desc' },
+          });
 
-  builder.objectType(Space, {
-    name: 'Space',
-    fields(t) {
-      return {
-        id: t.exposeID('id'),
-        name: t.exposeString('name'),
-        contentVersion: t.field({
-          type: SpaceContentVersion,
-          resolve(parent, args, context) {
-            return parent.contentVersion;
-          },
-        }),
-        contentV3: t.exposeString('contentV3', { nullable: true }),
-        updatedAt: t.field({
-          type: 'DateTime',
-          resolve(parent, args, context) {
-            return parent.updatedAt;
-          },
-        }),
-        csvEvaluationPresets: t.field({
-          type: [CsvEvaluationPreset],
-          async resolve(parent, args, context) {
-            // TODO: Sort by updatedAt?
-            const response = await CsvEvaluationPresetsTable.query(parent.id, {
-              index: 'SpaceIdIndex',
-            });
+          return batchTestPresets;
+        },
+      }),
+      csvEvaluationPreset: t.field({
+        type: GraphQlCsvEvaluationPreset,
+        args: {
+          id: t.arg({ type: 'ID', required: true }),
+        },
+        async resolve(parent, args, context) {
+          const batchTestPreset = await prismaClient.batchTestPreset.findUnique(
+            {
+              where: { id: args.id as string },
+            },
+          );
 
-            const items = response.Items ?? [];
+          // TODO: This should be nullable, fix the client side first then fix
+          // here.
+          return batchTestPreset!;
+        },
+      }),
+    };
+  },
+});
 
-            return items.map((csvEvaluationPreset) => {
-              return new CsvEvaluationPresetFromSpaceIdIndex({
-                spaceId: parent.id as string,
-                id: csvEvaluationPreset['Id'] as string,
-                name: csvEvaluationPreset['Name'] as string,
-              });
-            });
-          },
-        }),
-        // TODO: This should be null, fix the client side first then fix here.
-        csvEvaluationPreset: t.field({
-          type: CsvEvaluationPreset,
-          args: {
-            id: t.arg({ type: 'ID', required: true }),
-          },
-          async resolve(parent, args, context) {
-            const { Item: dbCsvEvaluationPreset } =
-              await CsvEvaluationPresetEntity.get({ id: args.id as string });
+builder.objectType(GraphQlQuerySpaceResult, {
+  fields(t) {
+    return {
+      space: t.field({
+        type: GraphQlSpace,
+        resolve(parent, args, context) {
+          return parent.space;
+        },
+      }),
+      isReadOnly: t.exposeBoolean('isReadOnly'),
+    };
+  },
+});
 
-            if (dbCsvEvaluationPreset == null) {
-              return null;
-            }
+builder.objectType(GraphQlCsvEvaluationPreset, {
+  name: 'CSVEvaluationPreset',
+  fields(t) {
+    return {
+      id: t.exposeID('id'),
+      name: t.exposeString('name'),
+      csvContent: t.exposeString('csv'),
+      configContent: t.string({
+        nullable: true,
+        async resolve(parent, args, context) {
+          return JSON.stringify(parent.configDataV1);
+        },
+      }),
+    };
+  },
+});
 
-            return new CsvEvaluationPresetFull(dbCsvEvaluationPreset);
-          },
-        }),
-      };
-    },
-  });
-
-  builder.objectType(CsvEvaluationPreset, {
-    name: 'CSVEvaluationPreset',
-    fields(t) {
-      return {
-        id: t.id({
-          resolve(parent, args, context) {
-            if (
-              parent instanceof CsvEvaluationPresetFull ||
-              parent instanceof CsvEvaluationPresetFromSpaceIdIndex
-            ) {
-              return parent.id;
-            } else {
-              throw new Error(`Invalid parent: ${parent}`);
-            }
-          },
-        }),
-        name: t.string({
-          resolve(parent, args, context) {
-            if (
-              parent instanceof CsvEvaluationPresetFull ||
-              parent instanceof CsvEvaluationPresetFromSpaceIdIndex
-            ) {
-              return parent.name;
-            } else {
-              throw new Error(`Invalid parent: ${parent}`);
-            }
-          },
-        }),
-        csvContent: t.string({
-          async resolve(parent, args, context) {
-            if (parent instanceof CsvEvaluationPresetFull) {
-              return parent.csvString;
-            } else if (parent instanceof CsvEvaluationPresetFromSpaceIdIndex) {
-              return await parent.getCsvContent();
-            } else {
-              throw new Error(`Invalid parent: ${parent}`);
-            }
-          },
-        }),
-        configContent: t.string({
-          nullable: true,
-          async resolve(parent, args, context) {
-            if (parent instanceof CsvEvaluationPresetFull) {
-              return parent.configContentV1;
-            } else if (parent instanceof CsvEvaluationPresetFromSpaceIdIndex) {
-              return await parent.getConfigContent();
-            } else {
-              throw new Error(`Invalid parent: ${parent}`);
-            }
-          },
-        }),
-      };
-    },
-  });
-}
+builder.objectType(GraphQlCreateCsvEvaluationPresetResult, {
+  fields(t) {
+    return {
+      space: t.field({
+        type: GraphQlSpace,
+        resolve(parent) {
+          return parent.space;
+        },
+      }),
+      csvEvaluationPreset: t.field({
+        type: GraphQlCsvEvaluationPreset,
+        resolve(parent) {
+          return parent.csvEvaluationPreset;
+        },
+      }),
+    };
+  },
+});

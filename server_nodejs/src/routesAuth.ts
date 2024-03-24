@@ -1,7 +1,7 @@
 import { UserType, prismaClient } from 'database-models';
 import { Express, Response } from 'express';
 import { BaseClient, Issuer, TokenSet, generators } from 'openid-client';
-import { RequestWithUser, attachUser } from './middleware/user';
+import attachUser, { RequestWithUser } from './middleware/attachUser';
 import { RequestWithSession } from './types';
 
 async function getAuthClient() {
@@ -204,13 +204,15 @@ export default function setupAuth(app: Express) {
   });
 
   app.get('/hello', attachUser, async (req: RequestWithUser, res) => {
-    if (!req.dbUser) {
+    if (!req.user) {
       res.send('Hello World!');
       return;
     }
 
     res.send(
-      `Hello ${req.dbUser.isPlaceholderUser ? 'Guest Player 1' : 'Player 1'}!`,
+      `Hello ${
+        req.user.userType === UserType.PlaceholderUser ? 'Guest' : req.user.name
+      }!`,
     );
   });
 }

@@ -1,7 +1,15 @@
 import { Express } from 'express';
 import { createYoga } from 'graphql-yoga';
+import attachUser from './middleware/attachUser';
+
+// Order is important for below imports
 import schemaBuilder from './graphql/schemaBuilder';
-import { attachUser } from './middleware/user';
+
+import './graphql/addObjectTypes';
+
+import './graphql/addQueryType';
+
+import './graphql/addMutationType';
 
 const yoga = createYoga({
   schema: schemaBuilder.toSchema(),
