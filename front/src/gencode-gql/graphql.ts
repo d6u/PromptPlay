@@ -28,8 +28,6 @@ export type CsvEvaluationPreset = {
 };
 
 export enum ContentVersion {
-  V1 = 'v1',
-  V2 = 'v2',
   V3 = 'v3'
 }
 
