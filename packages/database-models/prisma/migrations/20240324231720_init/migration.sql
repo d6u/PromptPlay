@@ -2,10 +2,10 @@
 CREATE TYPE "UserType" AS ENUM ('RegisteredUser', 'PlaceholderUser');
 
 -- CreateEnum
-CREATE TYPE "CanvasDataSchemaVersion" AS ENUM ('V3');
+CREATE TYPE "CanvasDataSchemaVersion" AS ENUM ('v3');
 
 -- CreateEnum
-CREATE TYPE "BatchTestPresetConfigDataSchemaVersion" AS ENUM ('V1');
+CREATE TYPE "BatchTestPresetConfigDataSchemaVersion" AS ENUM ('v1');
 
 -- CreateTable
 CREATE TABLE "LoginSession" (

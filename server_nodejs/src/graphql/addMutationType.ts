@@ -51,7 +51,7 @@ builder.mutationType({
           return await prismaClient.flow.create({
             data: {
               name: 'Untitled',
-              canvasDataSchemaVersion: CanvasDataSchemaVersion.V3,
+              canvasDataSchemaVersion: CanvasDataSchemaVersion.v3,
               canvasDataV3: Prisma.JsonNull,
               User: {
                 connect: { id: user.id },
@@ -188,7 +188,7 @@ builder.mutationType({
                 name: args.name,
                 csv: args.csvContent ?? '',
                 configDataSchemaVersion:
-                  BatchTestPresetConfigDataSchemaVersion.V1,
+                  BatchTestPresetConfigDataSchemaVersion.v1,
                 configDataV1: Prisma.JsonNull,
                 User: {
                   connect: { id: user.id },

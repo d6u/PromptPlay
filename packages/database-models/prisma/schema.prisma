@@ -42,7 +42,7 @@ model User {
 }
 
 enum CanvasDataSchemaVersion {
-  V3
+  v3
 }
 
 model Flow {
@@ -61,7 +61,7 @@ model Flow {
 }
 
 enum BatchTestPresetConfigDataSchemaVersion {
-  V1
+  v1
 }
 
 model BatchTestPreset {

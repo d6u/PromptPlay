@@ -34,7 +34,7 @@ export function createSpaceWithExampleContent(
 ): Prisma.FlowCreateInput {
   return {
     name: 'Example Space',
-    canvasDataSchemaVersion: CanvasDataSchemaVersion.V3,
+    canvasDataSchemaVersion: CanvasDataSchemaVersion.v3,
     canvasDataV3: createExampleSpaceContentV3(),
     User: {
       connect: { id: userId },
