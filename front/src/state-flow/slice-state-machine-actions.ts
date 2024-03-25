@@ -359,7 +359,9 @@ function parseQueryResult(input: OperationResult<SpaceFlowQueryQuery>): {
       invariant(contentV3Str != null, 'contentV3Str is not null');
 
       // TODO: Report JSON parse error to telemetry
-      const data = JSON.parse(contentV3Str);
+      //
+      // contentV3Str can be parsed to null
+      const data = JSON.parse(contentV3Str) ?? {};
 
       const result = CanvasDataSchemaV3.safeParse(data);
 
