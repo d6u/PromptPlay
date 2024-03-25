@@ -11,7 +11,28 @@ COPY packages ./packages
 COPY server_nodejs/package.json server_nodejs/tsconfig.json ./server_nodejs/
 COPY server_nodejs/src ./server_nodejs/src
 
+# `pnpm install` will trigger postinstall scripts from "@prisma/client",
+# and give us warnings like these:
+#
+# .../node_modules/@prisma/engines postinstall$ node scripts/postinstall.js
+# .../node_modules/@prisma/engines postinstall: Done
+# .../prisma@5.10.2/node_modules/prisma preinstall$ node scripts/preinstall-entry.js
+# .../prisma@5.10.2/node_modules/prisma preinstall: Done
+# .../node_modules/@prisma/client postinstall$ node scripts/postinstall.js
+# .../node_modules/@prisma/client postinstall: prisma:warn We could not find your Prisma schema at `prisma/schema.prisma`.
+# .../node_modules/@prisma/client postinstall: If you have a Prisma schema file in a custom path, you will need to run
+# .../node_modules/@prisma/client postinstall: `prisma generate --schema=./path/to/your/schema.prisma` to generate Prisma Client.
+# .../node_modules/@prisma/client postinstall: If you do not have a Prisma schema file yet, you can ignore this message.
+# .../node_modules/@prisma/client postinstall: Done
+#
+# This can be ignored, because we will run `prisma generate` in its dedicated
+# step later.
+ENV PRISMA_SKIP_POSTINSTALL_GENERATE 1
+
 RUN pnpm install
+
+RUN pnpm -F database-models exec prisma generate
+
 RUN pnpm -r run build-ts
 
 

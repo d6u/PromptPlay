@@ -17,6 +17,7 @@
     "rxjs": "^7.8.1"
   },
   "devDependencies": {
-    "common-tsconfig": "workspace:^"
+    "common-tsconfig": "workspace:^",
+    "typescript": "^5.4.3"
   }
 }

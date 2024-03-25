@@ -12,7 +12,7 @@ sam build --parameter-overrides ServerlessFunctionImageVersion=v$IMAGE_VERSION_N
 
 printf v$IMAGE_VERSION_NUMBER >../SERVERLESS_FUNCTION_IMAGE_VERSION
 
-sam deploy --stack-name $STACK_NAME \
+sam deploy --debug --stack-name $STACK_NAME \
   --resolve-image-repos \
   --resolve-s3 \
   --capabilities CAPABILITY_IAM \
@@ -26,6 +26,7 @@ sam deploy --stack-name $STACK_NAME \
   DynamodbTableNameSpaces=$DYNAMODB_TABLE_NAME_SPACES \
   DynamodbTableNameCsvEvaluationPresets=$DYNAMODB_TABLE_NAME_CSV_EVALUATION_PRESETS \
   DynamodbTableNameSessions=$DYNAMODB_TABLE_NAME_SESSIONS \
+  PostgresDatabaseUrl=$DATABASE_URL \
   CorsAllowedOrigins=$CORS_ALLOWED_ORIGINS \
   Auth0Domain=$AUTH0_DOMAIN \
   Auth0ClientId=$AUTH0_CLIENT_ID \
