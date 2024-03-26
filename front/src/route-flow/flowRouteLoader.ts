@@ -1,9 +1,7 @@
 import posthog from 'posthog-js';
-import { LoaderFunction, redirect } from 'react-router-dom';
+import { LoaderFunction } from 'react-router-dom';
 
 import { graphql } from 'gencode-gql';
-import { ContentVersion } from 'gencode-gql/graphql';
-import { pathToCurrentContent } from 'generic-util/route';
 import { client } from 'graphql-util/client';
 
 export type FlowLoaderData = {
@@ -34,12 +32,6 @@ const flowRouteLoader: LoaderFunction = async ({ params }) => {
   if (queryResult.error || !queryResult.data) {
     // TODO: Report error or missing data
     return null;
-  }
-
-  const contentVersion = queryResult.data.space!.space.canvasDataSchemaVersion;
-
-  if (contentVersion !== ContentVersion.V3) {
-    return redirect(pathToCurrentContent(spaceId, contentVersion));
   }
 
   posthog.capture('Open Flow', { flowId: spaceId });

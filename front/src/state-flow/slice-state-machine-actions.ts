@@ -129,7 +129,14 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
         args.context.shouldForceSync ||
         (prevSyncedData != null && !deepEqual(prevSyncedData, nextSyncedData));
 
-      console.log('_syncFlowContent', hasChange, nextSyncedData);
+      console.debug(
+        'sync canvas data: shouldForceSync =',
+        args.context.shouldForceSync,
+        ', hasChange =',
+        hasChange,
+        ', nextSyncedData =',
+        nextSyncedData,
+      );
 
       prevSyncedData = nextSyncedData;
 
@@ -149,17 +156,17 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
       invariant(spaceId != null, 'spaceId is not null');
 
       try {
-        console.time('updateSpaceContentV3');
+        console.time('updateSpaceContentV4');
 
         await updateSpaceContentV4(spaceId, nextSyncedData);
 
-        console.timeEnd('updateSpaceContentV3');
+        console.timeEnd('updateSpaceContentV4');
 
         get().canvasStateMachine.send({
           type: CanvasStateMachineEventType.FlowContentUploadSuccess,
         });
       } catch (error) {
-        console.timeEnd('updateSpaceContentV3');
+        console.timeEnd('updateSpaceContentV4');
         // TODO: Report to telemetry and handle in state machine
       }
     },
