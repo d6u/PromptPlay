@@ -171,7 +171,7 @@ function NodeRenamableVariableItem(props: Props) {
           {props.variable.helperText && (
             <HelperTextRow>
               <NodeFieldHelperTextWithStatus>
-                {props.variable.helperText}
+                {props.variable.helperText()}
               </NodeFieldHelperTextWithStatus>
             </HelperTextRow>
           )}

@@ -1,6 +1,7 @@
 import z from 'zod';
 
 import randomId from 'common-utils/randomId';
+
 import {
   ConnectorRecordsSchema,
   ConnectorResultMapSchema,
@@ -129,6 +130,68 @@ export function migrateV3ToV4(data: any): any {
         }
         break;
       }
+      case NodeType.ConditionNode: {
+        for (const _connector of Object.values(data.variablesDict)) {
+          const connector = _connector as {
+            nodeId: string;
+            type: ConnectorTypeEnum;
+          };
+          if (
+            connector.nodeId === nodeConfig.nodeId &&
+            connector.type === ConnectorType.NodeInput
+          ) {
+            (connector as NodeInputVariable).valueType = VariableValueType.Any;
+          }
+        }
+        break;
+      }
+      case NodeType.TextTemplate: {
+        for (const _connector of Object.values(data.variablesDict)) {
+          const connector = _connector as {
+            nodeId: string;
+            type: ConnectorTypeEnum;
+          };
+          if (
+            connector.nodeId === nodeConfig.nodeId &&
+            connector.type === ConnectorType.NodeInput
+          ) {
+            (connector as NodeInputVariable).valueType =
+              VariableValueType.String;
+          }
+
+          if (
+            connector.nodeId === nodeConfig.nodeId &&
+            connector.type === ConnectorType.NodeOutput
+          ) {
+            (connector as NodeOutputVariable).valueType =
+              VariableValueType.String;
+          }
+        }
+        break;
+      }
+      case NodeType.JavaScriptFunctionNode: {
+        for (const _connector of Object.values(data.variablesDict)) {
+          const connector = _connector as {
+            nodeId: string;
+            type: ConnectorTypeEnum;
+          };
+          if (
+            connector.nodeId === nodeConfig.nodeId &&
+            connector.type === ConnectorType.NodeInput
+          ) {
+            (connector as NodeInputVariable).valueType = VariableValueType.Any;
+          }
+
+          if (
+            connector.nodeId === nodeConfig.nodeId &&
+            connector.type === ConnectorType.NodeOutput
+          ) {
+            (connector as NodeOutputVariable).valueType =
+              VariableValueType.Structured;
+          }
+        }
+        break;
+      }
       case NodeType.ChatGPTMessageNode: {
         for (const _connector of Object.values(data.variablesDict)) {
           const connector = _connector as {
@@ -201,6 +264,29 @@ export function migrateV3ToV4(data: any): any {
           ) {
             (connector as NodeInputVariable).valueType =
               VariableValueType.String;
+          }
+        }
+        break;
+      }
+      case NodeType.HuggingFaceInference: {
+        for (const _connector of Object.values(data.variablesDict)) {
+          const connector = _connector as {
+            nodeId: string;
+            type: ConnectorTypeEnum;
+          };
+          if (
+            connector.nodeId === nodeConfig.nodeId &&
+            connector.type === ConnectorType.NodeInput
+          ) {
+            (connector as NodeInputVariable).valueType = VariableValueType.Any;
+          }
+
+          if (
+            connector.nodeId === nodeConfig.nodeId &&
+            connector.type === ConnectorType.NodeOutput
+          ) {
+            (connector as NodeInputVariable).valueType =
+              VariableValueType.Structured;
           }
         }
         break;

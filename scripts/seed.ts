@@ -16,6 +16,7 @@ import {
 } from 'dynamodb-models/placeholder-user';
 import { SpaceEntity, SpaceShape } from 'dynamodb-models/space';
 import { UserEntity, UserShape } from 'dynamodb-models/user';
+import { migrateV3ToV4 } from 'flow-models';
 
 async function importRegularUsers() {
   let total = 0;
@@ -139,13 +140,18 @@ async function importFlows() {
       response.Items.map(async (_item) => {
         const item = _item as SpaceShape;
 
+        const canvasDataV3 = JSON.parse(item.contentV3);
+
+        const canvasDataV4 = migrateV3ToV4(canvasDataV3);
+
         try {
           await prismaClient.flow.upsert({
             where: { id: item.id },
             update: {
               name: item.name,
-              canvasDataSchemaVersion: CanvasDataSchemaVersion.v3,
-              canvasDataV3: JSON.parse(item.contentV3),
+              canvasDataSchemaVersion: CanvasDataSchemaVersion.v4,
+              canvasDataV3: canvasDataV3,
+              canvasDataV4: canvasDataV4,
               createdAt: new Date(item.createdAt),
               updatedAt: new Date(item.updatedAt),
               User: {
@@ -155,8 +161,9 @@ async function importFlows() {
             create: {
               id: item.id,
               name: item.name,
-              canvasDataSchemaVersion: CanvasDataSchemaVersion.v3,
-              canvasDataV3: JSON.parse(item.contentV3),
+              canvasDataSchemaVersion: CanvasDataSchemaVersion.v4,
+              canvasDataV3: canvasDataV3,
+              canvasDataV4: canvasDataV4,
               createdAt: new Date(item.createdAt),
               updatedAt: new Date(item.updatedAt),
               User: {
@@ -165,7 +172,7 @@ async function importFlows() {
             },
           });
         } catch (error) {
-          console.error(error);
+          // console.error(error);
           // console.log(item);
           failed++;
         }
@@ -250,10 +257,10 @@ async function importBatchTests() {
 }
 
 async function main() {
-  await importRegularUsers();
-  await importPlaceholderUsers();
+  // await importRegularUsers();
+  // await importPlaceholderUsers();
   await importFlows();
-  await importBatchTests();
+  // await importBatchTests();
 }
 
 main()

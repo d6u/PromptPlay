@@ -18,14 +18,16 @@ export type TextFieldDefinition = {
   type: FieldType.Text;
   label: string;
   placeholder?: string;
-  helperText?: ReactNode;
+  // Define helperText as a function so that we don't have to execute it's
+  // jsx code when not needed, e.g. on the server side.
+  helperText?: () => ReactNode;
 };
 
 export type StopSequenceFieldDefinition = {
   type: FieldType.StopSequence;
   label: string;
   placeholder?: string;
-  helperText?: ReactNode;
+  helperText?: () => ReactNode;
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -35,7 +37,7 @@ export type NumberFieldDefinition<T = any> = {
   min?: number;
   max?: number;
   step?: number;
-  helperText?: ReactNode;
+  helperText?: () => ReactNode;
   // Validation and transformation
   render?: (value: T) => number | null;
   parse?: (value: number | null) => T;
@@ -46,21 +48,21 @@ export type TextareaFieldDefinition = {
   type: FieldType.Textarea;
   label: string;
   placeholder?: string;
-  helperText?: ReactNode;
+  helperText?: () => ReactNode;
 };
 
 export type RadioFieldDefinition = {
   type: FieldType.Radio;
   options: FieldOption[];
   label: string;
-  helperText?: ReactNode;
+  helperText?: () => ReactNode;
 };
 
 export type SelectFieldDefinition = {
   type: FieldType.Select;
   options: FieldOption[];
   label: string;
-  helperText?: ReactNode;
+  helperText?: () => ReactNode;
 };
 
 export type FieldOption = {
@@ -74,7 +76,7 @@ export type CheckboxFieldDefinition<T = any> = {
   label: string;
   render?: (value: T) => boolean;
   parse?: (value: boolean) => T;
-  helperText?: ReactNode;
+  helperText?: () => ReactNode;
 };
 
 // Special Rendering field's logic will be held within the specific

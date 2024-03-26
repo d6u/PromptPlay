@@ -134,7 +134,7 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
 
   fixedIncomingVariables: {
     messages: {
-      helperMessage: (
+      helperMessage: () => (
         <>
           <code>messages</code> is a list of ChatGPT message. It's default to an
           empty list if unspecified. The current message will be appended to the

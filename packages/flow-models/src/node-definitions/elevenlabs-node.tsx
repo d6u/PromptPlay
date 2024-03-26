@@ -67,7 +67,7 @@ export const ELEVENLABS_NODE_DEFINITION: NodeDefinition<
 
   fixedIncomingVariables: {
     text: {
-      helperMessage: (
+      helperMessage: () => (
         <>
           Check Elevent Labs's{' '}
           <a

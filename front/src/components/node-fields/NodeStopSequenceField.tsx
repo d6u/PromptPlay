@@ -76,7 +76,7 @@ function NodeStopSequenceField(props: Props) {
           .)
         </span>
       </FormHelperText>
-      {fd.helperText && <FormHelperText>{fd.helperText}</FormHelperText>}
+      {fd.helperText && <FormHelperText>{fd.helperText()}</FormHelperText>}
     </NodeFieldSectionFormControl>
   );
 }
