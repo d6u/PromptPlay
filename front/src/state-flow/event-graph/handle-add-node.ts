@@ -53,7 +53,7 @@ export const handleAddNode = createHandler<
         node,
         connectors,
       },
-    ];
+    ] as NodeAndVariableAddedEvent[];
   },
   [updateVariableValueMapOnNodeAndVariableAdded],
 );

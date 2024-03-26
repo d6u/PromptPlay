@@ -69,7 +69,7 @@ function NodeTextareaField(props: Props) {
           )}
         />
       )}
-      {fd.helperText && <FormHelperText>{fd.helperText}</FormHelperText>}
+      {fd.helperText && <FormHelperText>{fd.helperText()}</FormHelperText>}
     </NodeFieldSectionFormControl>
   );
 }

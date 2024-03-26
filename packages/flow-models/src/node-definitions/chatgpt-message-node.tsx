@@ -63,7 +63,7 @@ export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition<
       type: FieldType.Textarea,
       label: 'Message content',
       placeholder: 'Write message content here',
-      helperText: (
+      helperText: () => (
         <div>
           <a
             href="https://mustache.github.io/"
@@ -81,7 +81,7 @@ export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition<
 
   fixedIncomingVariables: {
     messages: {
-      helperMessage: (
+      helperMessage: () => (
         <>
           <code>messages</code> is a list of ChatGPT message. It's default to an
           empty list if unspecified. The current message will be appended to the

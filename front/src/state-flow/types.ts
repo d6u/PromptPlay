@@ -6,6 +6,11 @@ import {
   OnEdgesChange,
   OnNodesChange,
 } from 'reactflow';
+import type {
+  ActionFunction,
+  ParameterizedObject,
+  ProvidedActor,
+} from 'xstate';
 
 import {
   ConnectorRecords,
@@ -106,11 +111,22 @@ export type RunMetadataTable = Record<
 
 // ANCHOR: State Machine Actions Slice
 
+type StateMachineActionFunction = ActionFunction<
+  CanvasStateMachineContext, // context
+  CanvasStateMachineEvent, // event
+  CanvasStateMachineEvent, // event
+  undefined, // params
+  ProvidedActor, // actor
+  ParameterizedObject, // actions
+  ParameterizedObject, // guards
+  string // delay
+>;
+
 export type StateMachineActionsStateSlice = {
   // NOTE: These functions should only be used by state machines
   _initializeCanvas(): void;
   _cancelCanvasInitializationIfInProgress(): void;
-  _syncFlowContent(): Promise<void>;
+  _syncFlowContent: StateMachineActionFunction;
   _executeFlowSingleRun(): void;
   _cancelFlowSingleRunIfInProgress(): void;
 };
@@ -218,6 +234,7 @@ export type FlowState = FlowProps & FlowActions & StateMachineActionsStateSlice;
 export type CanvasStateMachineContext = {
   canvasUiState: 'empty' | 'fetching' | 'error' | 'initialized';
   hasUnsavedChanges: boolean;
+  shouldForceSync: boolean;
   isSavingFlowContent: boolean;
   isExecutingFlowSingleRun: boolean;
 };

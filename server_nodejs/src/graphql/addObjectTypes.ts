@@ -57,17 +57,22 @@ builder.objectType(GraphQlSpace, {
     return {
       id: t.exposeID('id'),
       name: t.exposeString('name'),
-      contentVersion: t.field({
+      canvasDataSchemaVersion: t.field({
         type: CanvasDataSchemaVersion,
         resolve(parent, args, context) {
           return parent.canvasDataSchemaVersion;
         },
       }),
-      contentV3: t.field({
+      canvasData: t.field({
         nullable: true,
         type: 'String',
         resolve(parent, args, context) {
-          return JSON.stringify(parent.canvasDataV3);
+          switch (parent.canvasDataSchemaVersion) {
+            case CanvasDataSchemaVersion.v3:
+              return JSON.stringify(parent.canvasDataV3);
+            case CanvasDataSchemaVersion.v4:
+              return JSON.stringify(parent.canvasDataV4);
+          }
         },
       }),
       updatedAt: t.field({

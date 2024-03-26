@@ -44,7 +44,7 @@ export const TEXT_TEMPLATE_NODE_DEFINITION: NodeDefinition<
       type: FieldType.Textarea,
       label: 'Text content',
       placeholder: 'Write something...',
-      helperText: (
+      helperText: () => (
         <div>
           <a
             href="https://mustache.github.io/"

@@ -51,7 +51,7 @@ builder.mutationType({
           return await prismaClient.flow.create({
             data: {
               name: 'Untitled',
-              canvasDataSchemaVersion: CanvasDataSchemaVersion.v3,
+              canvasDataSchemaVersion: CanvasDataSchemaVersion.v4,
               canvasDataV3: Prisma.JsonNull,
               User: {
                 connect: { id: user.id },
@@ -66,9 +66,8 @@ builder.mutationType({
           id: t.arg({ type: 'ID', required: true }),
           name: t.arg({ type: 'String' }),
           contentVersion: t.arg({ type: CanvasDataSchemaVersion }),
-          content: t.arg({ type: 'String' }),
-          flowContent: t.arg({ type: 'String' }),
           contentV3: t.arg({ type: 'String' }),
+          canvasDataV4: t.arg({ type: 'String' }),
         },
         nullable: true,
         async resolve(parent, args, context) {
@@ -100,7 +99,15 @@ builder.mutationType({
             if (args.contentV3 === null) {
               throw new Error('contentV3 cannot be null');
             } else {
-              flowUpdateData.canvasDataV3 = args.contentV3;
+              flowUpdateData.canvasDataV3 = JSON.parse(args.contentV3);
+            }
+          }
+
+          if (args.canvasDataV4 !== undefined) {
+            if (args.canvasDataV4 === null) {
+              throw new Error('canvasDataV4 cannot be null');
+            } else {
+              flowUpdateData.canvasDataV4 = JSON.parse(args.canvasDataV4);
             }
           }
 

@@ -1,13 +1,23 @@
 # Database Models
 
-## Apply migrations and generate Prisma client
+## Workflow
 
-In repo root:
+**Run all commands in repo root, unless otherwise specified.**
+
+### Create a migration based on changes in schema file and re-generate Prisma client
 
 ```sh
 pnpm exec dotenv \
   -e .environments/postgresql/dev.env \
   -- pnpm -F database-models exec prisma migrate dev
+```
+
+### Apply pending migrations to the database in production/staging
+
+```sh
+pnpm exec dotenv \
+  -e .environments/postgresql/prod.env \
+  -- pnpm -F database-models exec prisma migrate deploy
 ```
 
 ## Useful SQL commands

@@ -7,7 +7,7 @@ export type VariableConfig = Readonly<{
   isGlobal: boolean;
   globalVariableId: string | null;
   isVariableFixed: boolean;
-  helperText?: ReactNode;
+  helperText?: () => ReactNode;
 }>;
 
 export type ConditionConfig = Readonly<{

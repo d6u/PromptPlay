@@ -1,14 +1,14 @@
 import { D } from '@mobily/ts-belt';
+import { lastValueFrom, tap } from 'rxjs';
 import { TestScheduler } from 'rxjs/testing';
 import { beforeEach, expect, test } from 'vitest';
 
 import {
-  CanvasDataV3,
+  CanvasDataV4,
   ImmutableFlowNodeGraph,
   NodeTypeEnum,
 } from 'flow-models';
 
-import { tap } from 'rxjs';
 import { executeFlow } from '../execute-flow';
 import { getNodeAllLevelConfigOrValidationErrors } from '../util';
 
@@ -21,7 +21,7 @@ beforeEach(() => {
 });
 
 test('executeFlow should execute', () => {
-  const flowContent: CanvasDataV3 = {
+  const flowContent: CanvasDataV4 = {
     nodes: [
       {
         id: 'GjREx',
@@ -115,6 +115,13 @@ test('executeFlow should execute', () => {
         nodeId: 'GjREx',
       },
       {
+        type: 'NewVariableValues',
+        nodeId: 'GjREx',
+        variableValuesLookUpDict: {
+          'GjREx/URLME': 'test',
+        },
+      },
+      {
         type: 'Finish',
         nodeId: 'GjREx',
         finishedConnectorIds: ['GjREx/URLME'],
@@ -137,7 +144,7 @@ test('executeFlow should execute', () => {
       },
     ];
 
-    const expected = '(01234|)';
+    const expected = '(012345|)';
 
     const obs = executeFlow({
       nodeConfigs: result.nodeAllLevelConfigs!,
@@ -151,8 +158,8 @@ test('executeFlow should execute', () => {
   });
 });
 
-test('executeFlow should unblock node has multiple conditions even when only one condition was met', () => {
-  const flowContent: CanvasDataV3 = {
+test('executeFlow should unblock node has multiple conditions even when only one condition was met', async () => {
+  const flowContent: CanvasDataV4 = {
     nodes: [
       {
         id: '1w9JM',
@@ -189,6 +196,13 @@ test('executeFlow should unblock node has multiple conditions even when only one
     ],
     edges: [
       {
+        id: '8tl2S',
+        source: 'itI1z',
+        sourceHandle: 'itI1z/7cpZ9',
+        target: '1w9JM',
+        targetHandle: '1w9JM/input',
+      },
+      {
         id: 'W8Kmy',
         source: '1w9JM',
         sourceHandle: '1w9JM/hvZie',
@@ -216,15 +230,12 @@ test('executeFlow should unblock node has multiple conditions even when only one
         target: 'qclxl',
         targetHandle: 'qclxl/l56QJ',
       },
-      {
-        id: '8tl2S',
-        source: 'itI1z',
-        sourceHandle: 'itI1z/7cpZ9',
-        target: '1w9JM',
-        targetHandle: '1w9JM/input',
-      },
     ],
     nodeConfigsDict: {
+      'itI1z': {
+        type: 'InputNode',
+        nodeId: 'itI1z',
+      },
       '1w9JM': {
         type: 'ConditionNode',
         nodeId: '1w9JM',
@@ -240,10 +251,6 @@ test('executeFlow should unblock node has multiple conditions even when only one
         nodeId: 'eSpTO',
         content: 'Write a poem about B in fewer than 20 words.',
       },
-      'itI1z': {
-        type: 'InputNode',
-        nodeId: 'itI1z',
-      },
     },
     variablesDict: {
       '1w9JM/input': {
@@ -253,7 +260,7 @@ test('executeFlow should unblock node has multiple conditions even when only one
         nodeId: '1w9JM',
         index: 0,
         valueType: 'Any',
-        isGlobal: true,
+        isGlobal: false,
         globalVariableId: null,
       },
       '1w9JM/fR2hj': {
@@ -289,7 +296,7 @@ test('executeFlow should unblock node has multiple conditions even when only one
         nodeId: '2WvHf',
         index: 0,
         valueType: 'String',
-        isGlobal: true,
+        isGlobal: false,
         globalVariableId: null,
       },
       '2WvHf/w92gJ': {
@@ -304,7 +311,7 @@ test('executeFlow should unblock node has multiple conditions even when only one
         nodeId: 'eSpTO',
         index: 0,
         valueType: 'String',
-        isGlobal: true,
+        isGlobal: false,
         globalVariableId: null,
       },
       'eSpTO/44B0L': {
@@ -365,6 +372,13 @@ test('executeFlow should unblock node has multiple conditions even when only one
       nodeId: 'itI1z',
     },
     {
+      type: 'NewVariableValues',
+      nodeId: 'itI1z',
+      variableValuesLookUpDict: {
+        'itI1z/7cpZ9': 'Value A',
+      },
+    },
+    {
       type: 'Finish',
       nodeId: 'itI1z',
       finishedConnectorIds: ['itI1z/7cpZ9'],
@@ -406,8 +420,8 @@ test('executeFlow should unblock node has multiple conditions even when only one
     },
   ];
 
-  obs
-    .pipe(
+  await lastValueFrom(
+    obs.pipe(
       // Must run expect in tap because when expect throwing error in subscribe,
       // it does not stop the subscription.
       tap((event) => {
@@ -416,12 +430,12 @@ test('executeFlow should unblock node has multiple conditions even when only one
         );
         n++;
       }),
-    )
-    .subscribe();
+    ),
+  );
 });
 
-test('executeFlow should fallback to default case when no condition was met', () => {
-  const flowContent: CanvasDataV3 = {
+test('executeFlow should fallback to default case when no condition was met', async () => {
+  const flowContent: CanvasDataV4 = {
     nodes: [
       {
         id: '1w9JM',
@@ -522,7 +536,7 @@ test('executeFlow should fallback to default case when no condition was met', ()
         nodeId: '1w9JM',
         index: 0,
         valueType: 'Any',
-        isGlobal: true,
+        isGlobal: false,
         globalVariableId: null,
       },
       '1w9JM/fR2hj': {
@@ -558,7 +572,7 @@ test('executeFlow should fallback to default case when no condition was met', ()
         nodeId: '2WvHf',
         index: 0,
         valueType: 'String',
-        isGlobal: true,
+        isGlobal: false,
         globalVariableId: null,
       },
       '2WvHf/w92gJ': {
@@ -573,7 +587,7 @@ test('executeFlow should fallback to default case when no condition was met', ()
         nodeId: 'eSpTO',
         index: 0,
         valueType: 'String',
-        isGlobal: true,
+        isGlobal: false,
         globalVariableId: null,
       },
       'eSpTO/44B0L': {
@@ -634,6 +648,13 @@ test('executeFlow should fallback to default case when no condition was met', ()
       nodeId: 'itI1z',
     },
     {
+      type: 'NewVariableValues',
+      nodeId: 'itI1z',
+      variableValuesLookUpDict: {
+        'itI1z/7cpZ9': 'nothing matches',
+      },
+    },
+    {
       type: 'Finish',
       nodeId: 'itI1z',
       finishedConnectorIds: ['itI1z/7cpZ9'],
@@ -683,8 +704,8 @@ test('executeFlow should fallback to default case when no condition was met', ()
     },
   ];
 
-  obs
-    .pipe(
+  await lastValueFrom(
+    obs.pipe(
       // Must run expect in tap because when expect throwing error in subscribe,
       // it does not stop the subscription.
       tap((event) => {
@@ -693,6 +714,6 @@ test('executeFlow should fallback to default case when no condition was met', ()
         );
         n++;
       }),
-    )
-    .subscribe();
+    ),
+  );
 });

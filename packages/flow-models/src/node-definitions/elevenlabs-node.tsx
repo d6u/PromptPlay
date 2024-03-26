@@ -22,7 +22,10 @@ import {
 export const ElevenLabsNodeConfigSchema = z.object({
   type: z.literal(NodeType.ElevenLabs),
   nodeId: z.string(),
-  voiceId: z.string(),
+  voiceId: z.string().catch((ctx) => {
+    // Fix some old configs that doesn't have voiceId property
+    return '';
+  }),
 });
 
 export type ElevenLabsNodeInstanceLevelConfig = z.infer<
@@ -64,7 +67,7 @@ export const ELEVENLABS_NODE_DEFINITION: NodeDefinition<
 
   fixedIncomingVariables: {
     text: {
-      helperMessage: (
+      helperMessage: () => (
         <>
           Check Elevent Labs's{' '}
           <a

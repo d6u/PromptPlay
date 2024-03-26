@@ -24,7 +24,10 @@ import {
 export const HuggingFaceInferenceNodeConfigSchema = z.object({
   type: z.literal(NodeType.HuggingFaceInference),
   nodeId: z.string(),
-  model: z.string(),
+  model: z.string().catch(() => {
+    // Fix some old configs that doesn't have model property
+    return '';
+  }),
 });
 
 export type HuggingFaceInferenceNodeInstanceLevelConfig = z.infer<
@@ -67,7 +70,7 @@ export const HUGGINGFACE_INFERENCE_NODE_DEFINITION: NodeDefinition<
 
   fixedIncomingVariables: {
     parameters: {
-      helperMessage: (
+      helperMessage: () => (
         <>
           Check Hugging Face's free{' '}
           <a

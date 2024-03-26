@@ -19,6 +19,7 @@
   },
   "devDependencies": {
     "@types/chance": "^1.1.6",
-    "common-tsconfig": "workspace:^"
+    "common-tsconfig": "workspace:^",
+    "typescript": "^5.4.3"
   }
 }

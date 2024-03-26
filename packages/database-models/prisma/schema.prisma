@@ -43,6 +43,7 @@ model User {
 
 enum CanvasDataSchemaVersion {
   v3
+  v4
 }
 
 model Flow {
@@ -53,6 +54,7 @@ model Flow {
 
   canvasDataSchemaVersion CanvasDataSchemaVersion
   canvasDataV3            Json
+  canvasDataV4            Json                    @default("null")
 
   User   User   @relation(fields: [userId], references: [id])
   userId String @db.Uuid

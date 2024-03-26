@@ -1,6 +1,8 @@
 {
   "extends": "common-tsconfig/tsconfig.json",
   "compilerOptions": {
-    "noEmit": true
+    "noEmit": true,
+    // flow-models contains jsx files
+    "jsx": "react"
   }
 }

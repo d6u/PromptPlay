@@ -36,7 +36,9 @@ type ConvertToAccountLevelFieldDefinitions<
 };
 
 type FixedIncomingVariableDefinition = {
-  helperMessage?: ReactNode;
+  // Define helperMessage as a function so that we don't have to execute it's
+  // jsx code when not needed, e.g. on the server side.
+  helperMessage?: () => ReactNode;
 };
 
 export enum NodeExecutionEventType {

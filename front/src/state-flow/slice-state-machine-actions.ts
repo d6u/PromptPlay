@@ -7,10 +7,11 @@ import { OperationResult } from 'urql';
 import { StateCreator } from 'zustand';
 
 import {
-  CanvasDataSchemaV3,
-  CanvasDataV3,
+  CanvasDataSchemaV4,
+  CanvasDataV4,
   LocalNode,
   NodeTypeEnum,
+  migrateV3ToV4,
 } from 'flow-models';
 
 import { FlowRunEventType, ValidationErrorType } from 'flow-run/event-types';
@@ -21,7 +22,7 @@ import { client } from 'graphql-util/client';
 import { useLocalStorageStore } from 'state-root/local-storage-state';
 
 import { ChangeEventType } from './event-graph/event-types';
-import { updateSpaceContentV3 } from './graphql/graphql';
+import { updateSpaceContentV4 } from './graphql/graphql';
 import {
   CanvasStateMachineEventType,
   FlowState,
@@ -57,7 +58,7 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
 
   // SECTION: Private data
   let initializationSubscription: Subscription | null = null;
-  let prevSyncedData: CanvasDataV3 | null = null;
+  let prevSyncedData: CanvasDataV4 | null = null;
   let runSingleSubscription: Subscription | null = null;
   // !SECTION
 
@@ -119,17 +120,23 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
       initializationSubscription = null;
     },
 
-    _syncFlowContent: async () => {
+    _syncFlowContent: async (args) => {
       const flowContent = get().getFlowContent();
 
-      const nextSyncedData = CanvasDataSchemaV3.parse(flowContent);
+      const nextSyncedData = CanvasDataSchemaV4.parse(flowContent);
 
-      // TODO: It might be a bug to assume hasChange
-      // only when `prevSyncedData != null`
       const hasChange =
-        prevSyncedData != null && !deepEqual(prevSyncedData, nextSyncedData);
+        args.context.shouldForceSync ||
+        (prevSyncedData != null && !deepEqual(prevSyncedData, nextSyncedData));
 
-      console.log('_syncFlowContent', hasChange, nextSyncedData);
+      console.debug(
+        'sync canvas data: shouldForceSync =',
+        args.context.shouldForceSync,
+        ', hasChange =',
+        hasChange,
+        ', nextSyncedData =',
+        nextSyncedData,
+      );
 
       prevSyncedData = nextSyncedData;
 
@@ -149,17 +156,17 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
       invariant(spaceId != null, 'spaceId is not null');
 
       try {
-        console.time('updateSpaceContentV3');
+        console.time('updateSpaceContentV4');
 
-        await updateSpaceContentV3(spaceId, nextSyncedData);
+        await updateSpaceContentV4(spaceId, nextSyncedData);
 
-        console.timeEnd('updateSpaceContentV3');
+        console.timeEnd('updateSpaceContentV4');
 
         get().canvasStateMachine.send({
           type: CanvasStateMachineEventType.FlowContentUploadSuccess,
         });
       } catch (error) {
-        console.timeEnd('updateSpaceContentV3');
+        console.timeEnd('updateSpaceContentV4');
         // TODO: Report to telemetry and handle in state machine
       }
     },
@@ -330,8 +337,8 @@ async function querySpace(
           space {
             id
             name
-            contentVersion
-            contentV3
+            canvasDataSchemaVersion
+            canvasData
           }
         }
       }
@@ -342,28 +349,31 @@ async function querySpace(
 }
 
 function parseQueryResult(input: OperationResult<SpaceFlowQueryQuery>): {
-  flowContent: CanvasDataV3;
+  flowContent: CanvasDataV4;
   isUpdated: boolean;
 } {
   // TODO: Report to telemetry
   invariant(input.data?.result?.space != null);
 
-  const version = input.data.result.space.contentVersion;
-  const contentV3Str = input.data.result.space.contentV3;
+  const canvasDataSchemaVersion =
+    input.data.result.space.canvasDataSchemaVersion;
 
-  // TODO: Report to telemetry
-  invariant(version === ContentVersion.V3, 'Only v3 is supported');
+  const canvasDataString = input.data.result.space.canvasData;
+  invariant(canvasDataString != null, 'canvasDataString is not null');
 
-  switch (version) {
-    case ContentVersion.V3: {
-      invariant(contentV3Str != null, 'contentV3Str is not null');
+  // canvasDataString can be parsed to null
+  // TODO: Report JSON parse error to telemetry
+  let canvasData = JSON.parse(canvasDataString) ?? {};
+  let isMigrated = false;
 
-      // TODO: Report JSON parse error to telemetry
-      //
-      // contentV3Str can be parsed to null
-      const data = JSON.parse(contentV3Str) ?? {};
-
-      const result = CanvasDataSchemaV3.safeParse(data);
+  switch (canvasDataSchemaVersion) {
+    // @ts-expect-error Expected fallthrough
+    case ContentVersion.V3:
+      canvasData = migrateV3ToV4(canvasData);
+      isMigrated = true;
+    // fallthrough
+    case ContentVersion.V4: {
+      const result = CanvasDataSchemaV4.safeParse(canvasData);
 
       if (!result.success) {
         // TODO: Report validation error
@@ -372,7 +382,9 @@ function parseQueryResult(input: OperationResult<SpaceFlowQueryQuery>): {
 
       return {
         flowContent: result.data,
-        isUpdated: !deepEqual(data, result.data),
+        // NOTE: isUpdated == true will force the state machine to upload the
+        // canvasData.
+        isUpdated: isMigrated || !deepEqual(canvasData, result.data),
       };
     }
   }

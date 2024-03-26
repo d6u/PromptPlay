@@ -3,7 +3,7 @@ import invariant from 'tiny-invariant';
 import {
   BatchTestPresetConfigDataSchemaVersion,
   CanvasDataSchemaVersion,
-  PrismaClient,
+  prismaClient,
   UserType,
 } from 'database-models';
 import {
@@ -16,8 +16,7 @@ import {
 } from 'dynamodb-models/placeholder-user';
 import { SpaceEntity, SpaceShape } from 'dynamodb-models/space';
 import { UserEntity, UserShape } from 'dynamodb-models/user';
-
-const prisma = new PrismaClient();
+import { migrateV3ToV4 } from 'flow-models';
 
 async function importRegularUsers() {
   let total = 0;
@@ -38,9 +37,16 @@ async function importRegularUsers() {
       response.Items.map(async (_item) => {
         const item = _item as UserShape;
 
-        return await prisma.user.upsert({
+        await prismaClient.user.upsert({
           where: { id: item.id },
-          update: {},
+          update: {
+            email: item.email,
+            name: item.name,
+            profilePictureUrl: item.profilePictureUrl,
+            auth0UserId: item.auth0UserId,
+            createdAt: new Date(item.createdAt),
+            updatedAt: new Date(item.updatedAt),
+          },
           create: {
             id: item.id,
             userType: UserType.RegisteredUser,
@@ -86,9 +92,13 @@ async function importPlaceholderUsers() {
       response.Items.map(async (_item) => {
         const item = _item as PlaceholderUserShape;
 
-        return await prisma.user.upsert({
+        await prismaClient.user.upsert({
           where: { id: item.placeholderClientToken },
-          update: {},
+          update: {
+            placeholderClientToken: item.placeholderClientToken,
+            createdAt: new Date(item.createdAt),
+            updatedAt: new Date(item.updatedAt),
+          },
           create: {
             id: item.placeholderClientToken,
             userType: UserType.PlaceholderUser,
@@ -130,25 +140,41 @@ async function importFlows() {
       response.Items.map(async (_item) => {
         const item = _item as SpaceShape;
 
+        const canvasDataV3 = JSON.parse(item.contentV3);
+
+        const canvasDataV4 = migrateV3ToV4(canvasDataV3);
+
         try {
-          return await prisma.flow.upsert({
+          await prismaClient.flow.upsert({
             where: { id: item.id },
-            update: {},
+            update: {
+              name: item.name,
+              canvasDataSchemaVersion: CanvasDataSchemaVersion.v4,
+              canvasDataV3: canvasDataV3,
+              canvasDataV4: canvasDataV4,
+              createdAt: new Date(item.createdAt),
+              updatedAt: new Date(item.updatedAt),
+              User: {
+                connect: { id: item.ownerId },
+              },
+            },
             create: {
               id: item.id,
               name: item.name,
-              canvasDataSchemaVersion: CanvasDataSchemaVersion.V3,
-              canvasDataV3: item.contentV3,
+              canvasDataSchemaVersion: CanvasDataSchemaVersion.v4,
+              canvasDataV3: canvasDataV3,
+              canvasDataV4: canvasDataV4,
               createdAt: new Date(item.createdAt),
               updatedAt: new Date(item.updatedAt),
-              userId: item.ownerId,
+              User: {
+                connect: { id: item.ownerId },
+              },
             },
           });
         } catch (error) {
           // console.error(error);
           // console.log(item);
           failed++;
-          return null;
         }
       }),
     );
@@ -186,19 +212,35 @@ async function importBatchTests() {
       response.Items.map(async (_item) => {
         const item = _item as CsvEvaluationPresetShape;
 
-        return await prisma.batchTestPreset.upsert({
+        await prismaClient.batchTestPreset.upsert({
           where: { id: item.id },
-          update: {},
+          update: {
+            csv: item.csvString,
+            configDataSchemaVersion: BatchTestPresetConfigDataSchemaVersion.v1,
+            configDataV1: item.configContentV1,
+            createdAt: new Date(item.createdAt),
+            updatedAt: new Date(item.updatedAt),
+            User: {
+              connect: { id: item.ownerId },
+            },
+            Flow: {
+              connect: { id: item.spaceId },
+            },
+          },
           create: {
             id: item.id,
             name: item.name,
             csv: item.csvString,
-            configDataSchemaVersion: BatchTestPresetConfigDataSchemaVersion.V1,
+            configDataSchemaVersion: BatchTestPresetConfigDataSchemaVersion.v1,
             configDataV1: item.configContentV1,
             createdAt: new Date(item.createdAt),
             updatedAt: new Date(item.updatedAt),
-            userId: item.ownerId,
-            flowId: item.spaceId,
+            User: {
+              connect: { id: item.ownerId },
+            },
+            Flow: {
+              connect: { id: item.spaceId },
+            },
           },
         });
       }),
@@ -215,18 +257,18 @@ async function importBatchTests() {
 }
 
 async function main() {
-  await importRegularUsers();
-  await importPlaceholderUsers();
+  // await importRegularUsers();
+  // await importPlaceholderUsers();
   await importFlows();
-  await importBatchTests();
+  // await importBatchTests();
 }
 
 main()
   .then(async () => {
-    await prisma.$disconnect();
+    await prismaClient.$disconnect();
   })
   .catch(async (error) => {
     console.error(error);
-    await prisma.$disconnect();
+    await prismaClient.$disconnect();
     process.exit(1);
   });

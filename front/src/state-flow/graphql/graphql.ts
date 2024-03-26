@@ -1,27 +1,31 @@
-import { CanvasDataV3 } from 'flow-models';
+import { CanvasDataV4 } from 'flow-models';
 
 import { graphql } from 'gencode-gql';
 import { client } from 'graphql-util/client';
 
-export async function updateSpaceContentV3(
+export async function updateSpaceContentV4(
   spaceId: string,
-  contentV3: CanvasDataV3,
+  canvasData: CanvasDataV4,
 ) {
   await client.mutation(
     graphql(`
-      mutation UpdateSpaceContentV3Mutation(
+      mutation UpdateSpaceContentV4Mutation(
         $spaceId: ID!
-        $contentV3: String!
+        $canvasData: String!
       ) {
-        updateSpace(id: $spaceId, contentVersion: v3, contentV3: $contentV3) {
+        updateSpace(
+          id: $spaceId
+          contentVersion: v4
+          canvasDataV4: $canvasData
+        ) {
           id
-          contentV3
+          canvasData
         }
       }
     `),
     {
       spaceId,
-      contentV3: JSON.stringify(contentV3),
+      canvasData: JSON.stringify(canvasData),
     },
   );
 }
