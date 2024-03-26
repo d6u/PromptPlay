@@ -21,7 +21,11 @@ import invariant from 'tiny-invariant';
 
 import { useFlowStore } from 'state-flow/flow-store';
 
-import { VariableConfig, VariableFormValue } from '../types';
+import {
+  VariableConfig,
+  VariableFormValue,
+  type VariableDefinition,
+} from '../types';
 import NodeRenamableVariableItem, {
   HandlePosition,
 } from './NodeRenamableVariableItem';
@@ -34,6 +38,7 @@ type Props = {
   nodeId: string;
   isNodeReadOnly: boolean;
   variableConfigs: VariableConfig[];
+  variableDefinitions: VariableDefinition[];
 };
 
 function NodeRenamableVariableList(props: Props) {
@@ -81,11 +86,12 @@ function NodeRenamableVariableList(props: Props) {
 
           const index = data.list.indexOf(changedVariable);
           const prevVariable = props.variableConfigs[index];
+          const variableDefinition = props.variableDefinitions[index];
 
           if (prevVariable.name !== changedVariable.name) {
             // If variable name has changed, make sure it's not readonly
             invariant(
-              !changedVariable.isVariableFixed,
+              !variableDefinition.isVariableFixed,
               'Variable should not be readonly',
             );
           }
@@ -106,8 +112,12 @@ function NodeRenamableVariableList(props: Props) {
 
         for (const removedVariable of removedVariables) {
           invariant(!props.isNodeReadOnly, 'Node should not be readonly');
+
+          const index = props.variableConfigs.indexOf(removedVariable);
+          const variableDefinition = props.variableDefinitions[index];
+
           invariant(
-            !removedVariable.isVariableFixed,
+            !variableDefinition.isVariableFixed,
             'Variable should not be readonly',
           );
           removeVariable(removedVariable.id);
@@ -119,6 +129,7 @@ function NodeRenamableVariableList(props: Props) {
     })();
   }, [
     props.variableConfigs,
+    props.variableDefinitions,
     props.nodeId,
     props.isNodeReadOnly,
     handleSubmit,
@@ -172,7 +183,7 @@ function NodeRenamableVariableList(props: Props) {
     ],
   );
 
-  let editableItemStart = props.variableConfigs.findIndex(
+  let editableItemStart = props.variableDefinitions.findIndex(
     (c) => !c.isVariableFixed,
   );
   if (editableItemStart === -1) {
@@ -192,6 +203,7 @@ function NodeRenamableVariableList(props: Props) {
               nodeId={props.nodeId}
               isNodeReadOnly={props.isNodeReadOnly}
               variable={props.variableConfigs[index]}
+              variableDefinition={props.variableDefinitions[index]}
               control={control}
               formField={field}
               index={index}
@@ -233,6 +245,7 @@ function NodeRenamableVariableList(props: Props) {
                   nodeId={props.nodeId}
                   isNodeReadOnly={props.isNodeReadOnly}
                   variable={variable}
+                  variableDefinition={props.variableDefinitions[index]}
                   control={control}
                   formField={field}
                   index={index}

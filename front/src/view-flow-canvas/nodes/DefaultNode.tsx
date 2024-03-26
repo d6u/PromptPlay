@@ -24,7 +24,10 @@ import { useFlowStore } from 'state-flow/flow-store';
 import { NodeExecutionState, NodeExecutionStatus } from 'state-flow/types';
 
 import NodeRegularOutgoingConditionHandle from 'components/node-connector/condition/NodeRegularOutgoingConditionHandle';
-import { VariableConfig } from 'components/node-connector/types';
+import {
+  VariableConfig,
+  type VariableDefinition,
+} from 'components/node-connector/types';
 import NodeOutputVariableList from 'components/node-connector/variable/NodeOutputVariableList';
 import NodeExecutionMessageDisplay from 'components/node-execution-state/NodeExecutionMessageDisplay';
 import NodeBox from '../node-box/NodeBox';
@@ -105,14 +108,20 @@ function DefaultNode(props: Props) {
             isNodeReadOnly={props.isNodeReadOnly}
             variableConfigs={props.inputVariables.map<VariableConfig>(
               (variable) => {
-                const incomingVariableConfig =
-                  nodeDefinition.fixedIncomingVariables?.[variable.name];
-
                 return {
                   id: variable.id,
                   name: variable.name,
                   isGlobal: variable.isGlobal,
                   globalVariableId: variable.globalVariableId,
+                };
+              },
+            )}
+            variableDefinitions={props.inputVariables.map<VariableDefinition>(
+              (variable) => {
+                const incomingVariableConfig =
+                  nodeDefinition.fixedIncomingVariables?.[variable.name];
+
+                return {
                   isVariableFixed: incomingVariableConfig != null,
                   helperMessage: incomingVariableConfig?.helperMessage,
                 };

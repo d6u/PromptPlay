@@ -10,7 +10,10 @@ import {
 } from 'flow-models';
 
 import NodeTargetConditionHandle from 'components/node-connector/condition/NodeTargetConditionHandle';
-import { VariableConfig } from 'components/node-connector/types';
+import {
+  VariableConfig,
+  type VariableDefinition,
+} from 'components/node-connector/types';
 import NodeRenamableVariableList from 'components/node-connector/variable/NodeRenamableVariableList';
 import { useFlowStore } from 'state-flow/flow-store';
 import { selectVariables } from 'state-flow/util/state-utils';
@@ -67,8 +70,10 @@ function OutputNode(props: Props) {
                 name: nodeInputVariable.name,
                 isGlobal: nodeInputVariable.isGlobal,
                 globalVariableId: nodeInputVariable.globalVariableId,
-                isVariableFixed: false,
               }),
+            )}
+            variableDefinitions={nodeInputVariables.map<VariableDefinition>(
+              () => ({ isVariableFixed: false }),
             )}
           />
         </GenericContainer>

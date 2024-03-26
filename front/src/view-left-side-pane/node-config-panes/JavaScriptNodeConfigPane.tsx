@@ -24,7 +24,10 @@ import ReadonlyTextarea from 'generic-components/ReadonlyTextarea';
 import { useFlowStore } from 'state-flow/flow-store';
 import { NodeExecutionState } from 'state-flow/types';
 
-import { VariableConfig } from 'components/node-connector/types';
+import {
+  VariableConfig,
+  type VariableDefinition,
+} from 'components/node-connector/types';
 import NodeConfigPaneAddConnectorButton from '../node-config-pane-base-ui/NodeConfigPaneAddConnectorButton';
 import NodeConfigPaneContainer from '../node-config-pane-base-ui/NodeConfigPaneContainer';
 
@@ -51,22 +54,29 @@ function JavaScriptNodeConfigPane(props: Props) {
 
   const inputVariableConfig = useMemo(() => {
     return props.inputVariables.map<VariableConfig>((variable) => {
-      const incomingVariableConfig =
-        nodeDefinition.fixedIncomingVariables?.[variable.name];
-
       return {
         id: variable.id,
         name: variable.name,
         isGlobal: variable.isGlobal,
         globalVariableId: variable.globalVariableId,
+      };
+    });
+  }, [props.inputVariables]);
+
+  const inputVariableDefinitions = useMemo(() => {
+    return props.inputVariables.map<VariableDefinition>((variable) => {
+      const incomingVariableConfig =
+        nodeDefinition.fixedIncomingVariables?.[variable.name];
+
+      return {
         isVariableFixed: props.isNodeReadOnly || incomingVariableConfig != null,
         helperText: incomingVariableConfig?.helperMessage,
       };
     });
   }, [
+    nodeDefinition.fixedIncomingVariables,
     props.inputVariables,
     props.isNodeReadOnly,
-    nodeDefinition.fixedIncomingVariables,
   ]);
 
   const [javaScriptCode, setJavaScriptCode] = useState(
@@ -121,6 +131,7 @@ function JavaScriptNodeConfigPane(props: Props) {
         nodeId={props.nodeConfig.nodeId}
         isNodeReadOnly={false}
         variableConfigs={inputVariableConfig}
+        variableDefinitions={inputVariableDefinitions}
       />
       <NodeFieldSectionFormControl>
         <NodeFieldLabelWithIconContainer>

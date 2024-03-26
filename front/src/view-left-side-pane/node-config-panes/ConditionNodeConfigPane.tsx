@@ -23,7 +23,10 @@ import { useFlowStore } from 'state-flow/flow-store';
 import { NodeExecutionState } from 'state-flow/types';
 import { selectConditions } from 'state-flow/util/state-utils';
 
-import { VariableConfig } from 'components/node-connector/types';
+import {
+  VariableConfig,
+  type VariableDefinition,
+} from 'components/node-connector/types';
 import NodeConfigPaneAddConnectorButton from '../node-config-pane-base-ui/NodeConfigPaneAddConnectorButton';
 import NodeConfigPaneContainer from '../node-config-pane-base-ui/NodeConfigPaneContainer';
 
@@ -86,6 +89,10 @@ function ConditionNodeConfigPane(props: Props) {
             name: variable.name,
             isGlobal: variable.isGlobal,
             globalVariableId: variable.globalVariableId,
+          }),
+        )}
+        variableDefinitions={props.inputVariables.map<VariableDefinition>(
+          () => ({
             isVariableFixed: true,
           }),
         )}

@@ -5,7 +5,10 @@ import { Position, useUpdateNodeInternals } from 'reactflow';
 import { ConnectorType, InputNodeAllLevelConfig, NodeType } from 'flow-models';
 
 import NodeRegularOutgoingConditionHandle from 'components/node-connector/condition/NodeRegularOutgoingConditionHandle';
-import { VariableConfig } from 'components/node-connector/types';
+import {
+  VariableConfig,
+  type VariableDefinition,
+} from 'components/node-connector/types';
 import NodeRenamableVariableList from 'components/node-connector/variable/NodeRenamableVariableList';
 import { useFlowStore } from 'state-flow/flow-store';
 import { selectVariables } from 'state-flow/util/state-utils';
@@ -58,8 +61,10 @@ function InputNode(props: Props) {
                 name: variable.name,
                 isGlobal: variable.isGlobal,
                 globalVariableId: variable.globalVariableId,
-                isVariableFixed: false,
               }),
+            )}
+            variableDefinitions={flowInputVariables.map<VariableDefinition>(
+              () => ({ isVariableFixed: false }),
             )}
           />
         </GenericContainer>
