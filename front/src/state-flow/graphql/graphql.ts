@@ -9,13 +9,13 @@ export async function updateSpaceContentV4(
 ) {
   await client.mutation(
     graphql(`
-      mutation UpdateSpaceContentV3Mutation(
+      mutation UpdateSpaceContentV4Mutation(
         $spaceId: ID!
         $canvasData: String!
       ) {
         updateSpace(
           id: $spaceId
-          contentVersion: v3
+          contentVersion: v4
           canvasDataV4: $canvasData
         ) {
           id
