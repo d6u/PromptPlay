@@ -22,7 +22,10 @@ import { useFlowStore } from 'state-flow/flow-store';
 import { NodeExecutionState, NodeExecutionStatus } from 'state-flow/types';
 import { selectConditions } from 'state-flow/util/state-utils';
 
-import { VariableConfig } from 'components/node-connector/types';
+import {
+  VariableConfig,
+  type VariableDefinition,
+} from 'components/node-connector/types';
 import NodeExecutionMessageDisplay from 'components/node-execution-state/NodeExecutionMessageDisplay';
 import NodeBox from '../node-box/NodeBox';
 import NodeBoxHeaderSection from '../node-box/NodeBoxHeaderSection';
@@ -82,13 +85,17 @@ function ConditionNode(props: Props) {
             nodeId={props.nodeId}
             isNodeReadOnly={props.isNodeReadOnly}
             variableConfigs={props.inputVariables.map<VariableConfig>(
-              (variable) => ({
-                id: variable.id,
-                name: variable.name,
-                isGlobal: variable.isGlobal,
-                globalVariableId: variable.globalVariableId,
-                isVariableFixed: true,
-              }),
+              (variable) => {
+                return {
+                  id: variable.id,
+                  name: variable.name,
+                  isGlobal: variable.isGlobal,
+                  globalVariableId: variable.globalVariableId,
+                };
+              },
+            )}
+            variableDefinitions={props.inputVariables.map<VariableDefinition>(
+              () => ({ isVariableFixed: true }),
             )}
           />
         </GenericSection>

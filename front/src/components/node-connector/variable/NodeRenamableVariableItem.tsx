@@ -12,7 +12,11 @@ import { EdgeConnectStartConnectorClass } from 'state-flow/types';
 
 import DragHandle from '../DragHandle';
 import { BaseVariableHandle, HANDLE_HEIGHT } from '../base-connector-handles';
-import { VariableConfig, VariableFormValue } from '../types';
+import {
+  VariableConfig,
+  VariableFormValue,
+  type VariableDefinition,
+} from '../types';
 import NodeRenamableVariableNameInput from './NodeRenamableVariableNameInput';
 import NodeVariableGlobalVariableSelectorRow, {
   VariableGlobalVariableIdArrayFieldValues,
@@ -30,6 +34,7 @@ type Props = {
   // Variable level
   index: number;
   variable: VariableConfig;
+  variableDefinition: VariableDefinition;
   // react-hook-form
   control: Control<VariableFormValue>;
   formField: FieldArrayWithId<VariableFormValue, 'list', 'id'>;
@@ -41,7 +46,7 @@ type Props = {
 function NodeRenamableVariableItem(props: Props) {
   const isSortableEnabledForThisRow =
     !props.isNodeReadOnly &&
-    !props.variable.isVariableFixed &&
+    !props.variableDefinition.isVariableFixed &&
     props.isListSortable;
 
   const paramsOnUserStartConnectingEdge = useFlowStore(
@@ -83,7 +88,7 @@ function NodeRenamableVariableItem(props: Props) {
   });
 
   const isVariableReadOnly =
-    props.isNodeReadOnly || props.variable.isVariableFixed;
+    props.isNodeReadOnly || props.variableDefinition.isVariableFixed;
 
   const style = {
     transform: CSS.Translate.toString(transform),
@@ -168,10 +173,10 @@ function NodeRenamableVariableItem(props: Props) {
               onUpdateTrigger={props.onUpdateTrigger}
             />
           )}
-          {props.variable.helperText && (
+          {props.variableDefinition.helperText && (
             <HelperTextRow>
               <NodeFieldHelperTextWithStatus>
-                {props.variable.helperText()}
+                {props.variableDefinition.helperText()}
               </NodeFieldHelperTextWithStatus>
             </HelperTextRow>
           )}
