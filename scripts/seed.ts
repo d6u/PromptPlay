@@ -145,7 +145,7 @@ async function importFlows() {
             update: {
               name: item.name,
               canvasDataSchemaVersion: CanvasDataSchemaVersion.v3,
-              canvasDataV3: item.contentV3,
+              canvasDataV3: JSON.parse(item.contentV3),
               createdAt: new Date(item.createdAt),
               updatedAt: new Date(item.updatedAt),
               User: {
@@ -156,7 +156,7 @@ async function importFlows() {
               id: item.id,
               name: item.name,
               canvasDataSchemaVersion: CanvasDataSchemaVersion.v3,
-              canvasDataV3: item.contentV3,
+              canvasDataV3: JSON.parse(item.contentV3),
               createdAt: new Date(item.createdAt),
               updatedAt: new Date(item.updatedAt),
               User: {
