@@ -62,7 +62,7 @@ export function migrateV3ToV4(data: any): any {
 
         data.variablesDict[conditionId] = {
           type: ConnectorType.Condition,
-          id: `${nodeConfig.nodeId}/${randomId()}`,
+          id: conditionId,
           index: 0,
           nodeId: nodeConfig.nodeId,
           expressionString: '',
@@ -90,7 +90,7 @@ export function migrateV3ToV4(data: any): any {
 
         data.variablesDict[conditionTargetId] = {
           type: ConnectorType.ConditionTarget,
-          id: `${nodeConfig.nodeId}/${randomId()}`,
+          id: conditionTargetId,
           nodeId: nodeConfig.nodeId,
         };
       }
