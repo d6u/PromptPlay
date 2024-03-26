@@ -27,6 +27,7 @@ export const canvasStateMachine = createMachine<
   id: 'canvas-state-machine',
   context: {
     canvasUiState: 'empty',
+    shouldForceSync: false,
     hasUnsavedChanges: false,
     isSavingFlowContent: false,
     isExecutingFlowSingleRun: false,
@@ -46,6 +47,7 @@ export const canvasStateMachine = createMachine<
         fetchingCanvasContentError: { target: 'Error' },
         fetchingCanvasContentSuccess: [
           {
+            actions: assign({ shouldForceSync: true }),
             target: [
               'Initialized.LocalChangeState.Dirty',
               'Initialized.SyncState.Uploading',
@@ -118,6 +120,7 @@ export const canvasStateMachine = createMachine<
                 assign({ isSavingFlowContent: true }),
                 '_syncFlowContent',
               ],
+              exit: [assign({ shouldForceSync: false })],
               on: {
                 flowContentNoUploadNeeded: { target: 'Idle' },
                 flowContentUploadSuccess: [

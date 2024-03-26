@@ -35,8 +35,6 @@ export function migrateV3ToV4(data: any): any {
     return data;
   }
 
-  console.log('migrateV3ToV4', data);
-
   for (const _nodeConfig of Object.values(data.nodeConfigsDict ?? {})) {
     const nodeConfig = _nodeConfig as NodeConfig;
 

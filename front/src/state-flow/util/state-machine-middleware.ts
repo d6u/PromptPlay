@@ -137,7 +137,7 @@ function createActorForStateMachines<State, FlattenActions>(
       // NOTE: This method is not expose on state, but it can still be called
       __start: () => {
         actor.subscribe((snapshot) => {
-          console.debug(`[${key}] state:`, JSON.stringify(snapshot.value));
+          console.debug(`[${key}] snapshot:`, snapshot);
           api.setState({});
         });
 
