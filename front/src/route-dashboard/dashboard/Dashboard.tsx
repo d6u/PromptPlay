@@ -49,7 +49,7 @@ export default function Dashboard({
         {dashboard.spaces.map((space) => {
           const id = space.id;
           const name = space.name;
-          const url = pathToCurrentContent(id, space.contentVersion);
+          const url = pathToCurrentContent(id, space.canvasDataSchemaVersion);
 
           return (
             <DashboardTile key={id} type={DashboardTileType.SPACE} href={url}>
@@ -73,7 +73,7 @@ const DASHBOARD_FRAGMENT = graphql(`
       id
       name
       updatedAt
-      contentVersion
+      canvasDataSchemaVersion
     }
   }
 `);

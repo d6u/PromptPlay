@@ -21,7 +21,7 @@ const flowRouteLoader: LoaderFunction = async ({ params }) => {
             isReadOnly
             space {
               id
-              contentVersion
+              canvasDataSchemaVersion
             }
           }
         }
@@ -36,7 +36,7 @@ const flowRouteLoader: LoaderFunction = async ({ params }) => {
     return null;
   }
 
-  const contentVersion = queryResult.data.space!.space.contentVersion;
+  const contentVersion = queryResult.data.space!.space.canvasDataSchemaVersion;
 
   if (contentVersion !== ContentVersion.V3) {
     return redirect(pathToCurrentContent(spaceId, contentVersion));

@@ -21,6 +21,7 @@ export function pathToCurrentContent(
 ): string {
   switch (contentVersion) {
     case ContentVersion.V3:
+    case ContentVersion.V4:
       return pathToFlow(id);
   }
 }
