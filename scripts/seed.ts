@@ -257,10 +257,10 @@ async function importBatchTests() {
 }
 
 async function main() {
-  // await importRegularUsers();
-  // await importPlaceholderUsers();
+  await importRegularUsers();
+  await importPlaceholderUsers();
   await importFlows();
-  // await importBatchTests();
+  await importBatchTests();
 }
 
 main()

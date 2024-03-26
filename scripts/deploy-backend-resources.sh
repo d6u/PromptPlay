@@ -3,6 +3,8 @@
 # Exit immediately if a command exits with a non-zero status.
 set -e
 
+set -x
+
 pushd server_nodejs
 
 IMAGE_VERSION_NUMBER=$(awk -F'v' '/v/ {print $2}' ../SERVERLESS_FUNCTION_IMAGE_VERSION)
