@@ -17,6 +17,7 @@ import RouteBatchTest from 'route-batch-test/RouteBatchTest';
 import RouteCanvas from 'route-canvas/RouteCanvas';
 import RouteDashboard from 'route-dashboard/RouteDashboard';
 
+import RouteChatbots from '../route-chatbots/RouteChatbots';
 import RouteFlow from '../route-flow/RouteFlow';
 import flowRouteLoader from '../route-flow/flowRouteLoader';
 import RouteRoot from './RootView';
@@ -44,7 +45,7 @@ export default function App() {
           },
           {
             path: RootRouteSubRoute.ChatBots,
-            element: <RouteDashboard />,
+            element: <RouteChatbots />,
             // NOTE: Keep this in sync with RootRouteSubRouteHandle type
             handle: {
               subRouteType: RootRouteSubRoute.ChatBots,
