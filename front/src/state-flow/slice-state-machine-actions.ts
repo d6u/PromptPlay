@@ -333,13 +333,11 @@ async function querySpace(
   return await client.query(
     graphql(`
       query SpaceFlowQuery($spaceId: UUID!) {
-        result: space(id: $spaceId) {
-          space {
-            id
-            name
-            canvasDataSchemaVersion
-            canvasData
-          }
+        space(id: $spaceId) {
+          id
+          name
+          canvasDataSchemaVersion
+          canvasData
         }
       }
     `),
@@ -353,12 +351,11 @@ function parseQueryResult(input: OperationResult<SpaceFlowQueryQuery>): {
   isUpdated: boolean;
 } {
   // TODO: Report to telemetry
-  invariant(input.data?.result?.space != null);
+  invariant(input.data?.space != null);
 
-  const canvasDataSchemaVersion =
-    input.data.result.space.canvasDataSchemaVersion;
+  const canvasDataSchemaVersion = input.data.space.canvasDataSchemaVersion;
 
-  const canvasDataString = input.data.result.space.canvasData;
+  const canvasDataString = input.data.space.canvasData;
   invariant(canvasDataString != null, 'canvasDataString is not null');
 
   // canvasDataString can be parsed to null

@@ -16,11 +16,9 @@ const flowRouteLoader: LoaderFunction = async ({ params }) => {
       graphql(`
         query SpaceContentVersionQuery($spaceId: UUID!) {
           space(id: $spaceId) {
+            id
             isReadOnly
-            space {
-              id
-              canvasDataSchemaVersion
-            }
+            canvasDataSchemaVersion
           }
         }
       `),

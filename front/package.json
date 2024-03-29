@@ -25,7 +25,6 @@
     "@hookform/resolvers": "^3.3.4",
     "@mobily/ts-belt": "^3.13.1",
     "@mui/joy": "^5.0.0-beta.4",
-    "@urql/exchange-graphcache": "^6.3.2",
     "common-utils": "workspace:^",
     "deep-equal": "^2.2.3",
     "flow-models": "workspace:^",

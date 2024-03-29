@@ -128,14 +128,12 @@ export function createBatchTestLens(
         const result = await client.query(
           graphql(`
             query LoadCsvEvaluationPreset($spaceId: UUID!, $presetId: ID!) {
-              result: space(id: $spaceId) {
-                space {
+              space(id: $spaceId) {
+                id
+                csvEvaluationPreset(id: $presetId) {
                   id
-                  csvEvaluationPreset(id: $presetId) {
-                    id
-                    csvContent
-                    configContent
-                  }
+                  csvContent
+                  configContent
                 }
               }
             }
@@ -151,7 +149,7 @@ export function createBatchTestLens(
           return;
         }
 
-        const preset = result.data?.result?.space?.csvEvaluationPreset;
+        const preset = result.data?.space?.csvEvaluationPreset;
 
         if (preset == null) {
           console.error('Preset not found');

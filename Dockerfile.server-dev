@@ -11,5 +11,7 @@ COPY server_nodejs/package.json server_nodejs/tsconfig.json ./server_nodejs/
 
 RUN pnpm install
 
+RUN pnpm -F database-models exec prisma generate
+
 # Somehow use array format help docker compose to quit sooner when stopped.
 CMD ["pnpm", "-F", "server_nodejs", "exec", "nodemon", "-e", "ts", "--exec", "pnpm", "run", "node-ts", "src/index.ts"]

@@ -53,11 +53,6 @@ export const GraphQlUser = builder.objectRef<User>('User');
 
 export const GraphQlSpace = builder.objectRef<Flow>('Space');
 
-export const GraphQlQuerySpaceResult = builder.objectRef<{
-  isReadOnly: boolean;
-  space: Flow;
-}>('QuerySpaceResult');
-
 export const GraphQlCsvEvaluationPreset = builder.objectRef<BatchTestPreset>(
   'CsvEvaluationPreset',
 );

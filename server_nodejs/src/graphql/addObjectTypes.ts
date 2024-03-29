@@ -6,7 +6,6 @@ import {
 import builder, {
   GraphQlCreateCsvEvaluationPresetResult,
   GraphQlCsvEvaluationPreset,
-  GraphQlQuerySpaceResult,
   GraphQlSpace,
   GraphQlUser,
 } from './schemaBuilder';
@@ -56,6 +55,14 @@ builder.objectType(GraphQlSpace, {
   fields(t) {
     return {
       id: t.exposeID('id'),
+      isReadOnly: t.field({
+        type: 'Boolean',
+        resolve(parent, args, context) {
+          return (
+            context.req.user == null || context.req.user.id !== parent.userId
+          );
+        },
+      }),
       name: t.exposeString('name'),
       canvasDataSchemaVersion: t.field({
         type: CanvasDataSchemaVersion,
@@ -109,20 +116,6 @@ builder.objectType(GraphQlSpace, {
           return batchTestPreset!;
         },
       }),
-    };
-  },
-});
-
-builder.objectType(GraphQlQuerySpaceResult, {
-  fields(t) {
-    return {
-      space: t.field({
-        type: GraphQlSpace,
-        resolve(parent, args, context) {
-          return parent.space;
-        },
-      }),
-      isReadOnly: t.exposeBoolean('isReadOnly'),
     };
   },
 });

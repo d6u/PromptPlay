@@ -1,5 +1,4 @@
 import styled from '@emotion/styled';
-import { A } from '@mobily/ts-belt';
 import { Autocomplete, AutocompleteOption, Button } from '@mui/joy';
 import { ReactNode, useMemo, useState } from 'react';
 import { useQuery } from 'urql';
@@ -29,13 +28,11 @@ export default function PresetSelector() {
   const [query] = useQuery({
     query: graphql(`
       query PresetSelectorQuery($spaceId: UUID!) {
-        result: space(id: $spaceId) {
-          space {
+        space(id: $spaceId) {
+          id
+          csvEvaluationPresets {
             id
-            csvEvaluationPresets {
-              id
-              name
-            }
+            name
           }
         }
       }
@@ -44,9 +41,9 @@ export default function PresetSelector() {
   });
 
   const selectedPreset = useMemo(() => {
-    const presets = query.data?.result?.space.csvEvaluationPresets ?? [];
-    return A.find(presets, (p) => p.id === selectedPresetId);
-  }, [query.data?.result?.space.csvEvaluationPresets, selectedPresetId]);
+    const presets = query.data?.space?.csvEvaluationPresets ?? [];
+    return presets.find((p) => p.id === selectedPresetId);
+  }, [query.data?.space?.csvEvaluationPresets, selectedPresetId]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -54,7 +51,7 @@ export default function PresetSelector() {
 
   if (query.fetching) {
     content = null;
-  } else if (query.error || !query.data?.result) {
+  } else if (query.error || query.data?.space == null) {
     content = null;
   } else {
     content = (
@@ -64,7 +61,7 @@ export default function PresetSelector() {
           openOnFocus
           placeholder="Your preset"
           sx={{ width: 400 }}
-          options={query.data?.result?.space.csvEvaluationPresets}
+          options={query.data.space.csvEvaluationPresets}
           value={selectedPreset ?? null}
           getOptionLabel={(option) => option.name}
           onChange={(_event, value) => {

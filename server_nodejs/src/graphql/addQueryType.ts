@@ -1,5 +1,5 @@
 import { prismaClient, UserType } from 'database-models';
-import builder, { GraphQlQuerySpaceResult, GraphQlUser } from './schemaBuilder';
+import builder, { GraphQlSpace, GraphQlUser } from './schemaBuilder';
 
 builder.queryType({
   fields(t) {
@@ -29,7 +29,7 @@ builder.queryType({
         },
       }),
       space: t.field({
-        type: GraphQlQuerySpaceResult,
+        type: GraphQlSpace,
         nullable: true,
         args: {
           id: t.arg({ type: 'UUID', required: true }),
@@ -43,11 +43,7 @@ builder.queryType({
             return null;
           }
 
-          return {
-            space: flow,
-            isReadOnly:
-              context.req.user == null || context.req.user.id !== flow.userId,
-          };
+          return flow;
         },
       }),
     };

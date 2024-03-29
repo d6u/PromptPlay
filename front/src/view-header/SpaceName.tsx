@@ -12,12 +12,10 @@ export default function SpaceName() {
   const [queryResult] = useQuery({
     query: graphql(`
       query HeaderSpaceNameQuery($spaceId: UUID!) {
-        result: space(id: $spaceId) {
+        space(id: $spaceId) {
+          id
           isReadOnly
-          space {
-            id
-            name
-          }
+          name
         }
       }
     `),
@@ -29,15 +27,15 @@ export default function SpaceName() {
   const [name, setName] = useState<string>('');
 
   useEffect(() => {
-    setName(queryResult.data?.result?.space.name ?? '');
-  }, [queryResult.data?.result?.space.name]);
+    setName(queryResult.data?.space?.name ?? '');
+  }, [queryResult.data?.space?.name]);
 
   const currentNameRef = useRef<string>(name);
   const [isEditingName, setIsEditingName] = useState<boolean>(false);
   const [, updateSpaceName] = useMutation(
     graphql(`
       mutation UpdateSpaceNameMutation($spaceId: ID!, $name: String!) {
-        updateSpace(id: $spaceId, name: $name) {
+        space: updateSpace(id: $spaceId, name: $name) {
           id
           name
         }
@@ -54,11 +52,11 @@ export default function SpaceName() {
     return null;
   }
 
-  if (queryResult.error || !queryResult.data?.result) {
+  if (queryResult.error || queryResult.data == null) {
     return null;
   }
 
-  return isEditingName && !queryResult.data.result.isReadOnly ? (
+  return isEditingName && !queryResult.data.space?.isReadOnly ? (
     <SpaceNameInput
       ref={(element) => {
         element?.querySelector('input')?.focus();
