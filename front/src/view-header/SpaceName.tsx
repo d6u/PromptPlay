@@ -1,11 +1,12 @@
 import styled from '@emotion/styled';
-import Input from '@mui/joy/Input';
-import { graphql } from 'gencode-gql';
+import { Input } from '@mui/joy';
 import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useMutation, useQuery } from 'urql';
 
-export default function SpaceName() {
+import { graphql } from 'gencode-gql';
+
+function SpaceName() {
   // TODO: Properly handle spaceId not being present
   const { spaceId = '' } = useParams<{ spaceId: string }>();
 
@@ -111,3 +112,5 @@ const SpaceNameInput = styled(Input)`
 const Name = styled.div`
   font-size: 14px;
 `;
+
+export default SpaceName;

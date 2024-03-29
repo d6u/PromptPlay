@@ -1,5 +1,3 @@
-import { FlowRouteTab, pathToFlowCanvasTab } from 'generic-util/route';
-import { client } from 'graphql-util/client';
 import { useMemo } from 'react';
 import {
   Navigate,
@@ -7,10 +5,18 @@ import {
   createBrowserRouter,
   redirect,
 } from 'react-router-dom';
+import { Provider as GraphQLProvider } from 'urql';
+
+import {
+  FlowRouteTab,
+  RootRouteSubRoute,
+  pathToFlowCanvasTab,
+} from 'generic-util/route';
+import { client } from 'graphql-util/client';
 import RouteBatchTest from 'route-batch-test/RouteBatchTest';
 import RouteCanvas from 'route-canvas/RouteCanvas';
 import RouteDashboard from 'route-dashboard/RouteDashboard';
-import { Provider as GraphQLProvider } from 'urql';
+
 import RouteFlow from '../route-flow/RouteFlow';
 import flowRouteLoader from '../route-flow/flowRouteLoader';
 import RouteRoot from './RootView';
@@ -27,11 +33,17 @@ export default function App() {
           {
             path: '',
             element: <RouteDashboard />,
+            handle: {
+              subRouteType: RootRouteSubRoute.Dashboard,
+            },
           },
           {
             path: 'flows/:spaceId',
             loader: flowRouteLoader,
             element: <RouteFlow />,
+            handle: {
+              subRouteType: RootRouteSubRoute.Flows,
+            },
             children: [
               {
                 path: '',

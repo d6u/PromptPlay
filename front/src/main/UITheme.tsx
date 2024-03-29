@@ -14,6 +14,13 @@ export default function UITheme(props: Props) {
         body: '"Inter", sans-serif',
       },
       components: {
+        JoyButtonGroup: {
+          defaultProps: {
+            size: 'sm',
+            variant: 'outlined',
+            color: 'neutral',
+          },
+        },
         JoyInput: {
           defaultProps: {
             size: 'sm',
@@ -91,10 +98,10 @@ export default function UITheme(props: Props) {
             noWrap: true,
             hoverRow: true,
             sx: {
-              tableLayout: 'auto',
+              'tableLayout': 'auto',
               '--Table-headerUnderlineThickness': '1px',
               '--TableCell-headBackground': '#ebebeb',
-              td: {
+              'td': {
                 whiteSpace: 'normal',
               },
             },
@@ -113,11 +120,11 @@ export default function UITheme(props: Props) {
             '--font-family-mono':
               'source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace',
           },
-          code: {
+          'code': {
             fontFamily: 'var(--font-family-mono)',
           },
-          html: { height: '100%' },
-          body: {
+          'html': { height: '100%' },
+          'body': {
             height: '100%',
             backgroundColor: '#fff',
             webkitFontSmoothing: 'antialiased',

@@ -26,6 +26,22 @@ export function pathToCurrentContent(
   }
 }
 
+export enum RootRouteSubRoute {
+  Dashboard = 'Dashboard',
+  Flows = 'Flows',
+}
+
+export type RootRouteSubRouteHandle = {
+  subRouteType: RootRouteSubRoute;
+};
+
+export function useRootRouteSubRouteHandle<T>(
+  selector: (handle: RootRouteSubRouteHandle) => T,
+): T {
+  const matches = useMatches();
+  return selector(matches[1].handle as RootRouteSubRouteHandle);
+}
+
 // ANCHOR: Flow level paths
 
 export enum FlowRouteTab {
