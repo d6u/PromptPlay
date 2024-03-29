@@ -373,6 +373,7 @@ function parseQueryResult(input: OperationResult<SpaceFlowQueryQuery>): {
       const result = CanvasDataSchemaV4.safeParse(canvasData);
 
       if (!result.success) {
+        console.error(canvasData);
         // TODO: Report validation error
         invariant(false, `Validation error: ${result.error.message}`);
       }

@@ -14,7 +14,7 @@ import {
   type NodeInputVariable,
   type NodeOutputVariable,
 } from './base-types';
-import { NodeType } from './node-definition-base-types';
+import { NodeClass, NodeType } from './node-definition-base-types';
 import { NodeConfigRecordsSchema, type NodeConfig } from './node-definitions';
 
 export const CanvasDataSchemaV4 = z.object({
@@ -39,6 +39,19 @@ export function migrateV3ToV4(data: any): any {
   for (const _nodeConfig of Object.values(data.nodeConfigsDict ?? {})) {
     const nodeConfig = _nodeConfig as NodeConfig;
 
+    // Add missing node fields
+    let inputNodeCount = 1;
+    if (nodeConfig.type === NodeType.InputNode) {
+      nodeConfig.class = NodeClass.Start;
+      nodeConfig.nodeName = `input ${inputNodeCount}`;
+      inputNodeCount += 1;
+    } else if (nodeConfig.type === NodeType.OutputNode) {
+      nodeConfig.class = NodeClass.Finish;
+    } else {
+      nodeConfig.class = NodeClass.Process;
+    }
+
+    // Add missing outgoing condition
     if (
       nodeConfig.type !== NodeType.ConditionNode &&
       nodeConfig.type !== NodeType.OutputNode
@@ -70,6 +83,7 @@ export function migrateV3ToV4(data: any): any {
       }
     }
 
+    // Add missing condition target
     if (nodeConfig.type !== NodeType.InputNode) {
       const conditionTarget = Object.values(data.variablesDict).find(
         (_connector) => {
@@ -96,6 +110,7 @@ export function migrateV3ToV4(data: any): any {
       }
     }
 
+    // Migrate variable value type
     switch (nodeConfig.type) {
       case NodeType.InputNode: {
         for (const _connector of Object.values(data.variablesDict)) {
