@@ -40,6 +40,8 @@ export const INPUT_NODE_DEFINITION: NodeDefinition<
 
   instanceLevelConfigFieldDefinitions: {},
 
+  canUserAddNodeOutputVariable: true,
+
   createDefaultNodeConfig(nodeId) {
     return {
       nodeConfig: {

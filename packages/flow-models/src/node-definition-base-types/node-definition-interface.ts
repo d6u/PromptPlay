@@ -111,6 +111,8 @@ export interface NodeDefinition<
   // Variables
   fixedIncomingVariables?: Record<string, FixedIncomingVariableDefinition>;
   canUserAddIncomingVariables?: boolean;
+  // For start class only
+  canUserAddNodeOutputVariable?: boolean;
   variableValueTypeForUserAddedIncomingVariable?: VariableValueTypeEnum;
 
   // Initial config values

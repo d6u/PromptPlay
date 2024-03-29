@@ -47,10 +47,10 @@ function StartClassNode(props: Props) {
       <NodeRegularOutgoingConditionHandle nodeId={props.nodeId} />
       <NodeBox nodeType={props.nodeConfig.type}>
         <NodeBoxHeaderSection
+          nodeId={props.nodeId}
           isNodeReadOnly={props.isNodeReadOnly}
           title={nodeDefinition.label}
-          nodeId={props.nodeId}
-          showAddVariableButton={true}
+          showAddVariableButton={!!nodeDefinition.canUserAddNodeOutputVariable}
           onClickAddVariableButton={() => {
             addVariable(
               props.nodeId,

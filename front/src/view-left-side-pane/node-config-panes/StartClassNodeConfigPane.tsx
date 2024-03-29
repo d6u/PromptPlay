@@ -49,17 +49,19 @@ function StartClassNodeConfigPane(props: Props) {
       <SidePaneHeaderSection>
         <HeaderSectionHeader>{nodeDefinition.label} Config</HeaderSectionHeader>
       </SidePaneHeaderSection>
-      <NodeConfigPaneAddConnectorButton
-        label="Variable"
-        onClick={() => {
-          addVariable(
-            props.nodeConfig.nodeId,
-            ConnectorType.NodeOutput,
-            flowInputVariables.length,
-          );
-          updateNodeInternals(props.nodeConfig.nodeId);
-        }}
-      />
+      {nodeDefinition.canUserAddNodeOutputVariable && (
+        <NodeConfigPaneAddConnectorButton
+          label="Variable"
+          onClick={() => {
+            addVariable(
+              props.nodeConfig.nodeId,
+              ConnectorType.NodeOutput,
+              flowInputVariables.length,
+            );
+            updateNodeInternals(props.nodeConfig.nodeId);
+          }}
+        />
+      )}
       <NodeRenamableVariableList
         isListSortable
         nodeId={props.nodeConfig.nodeId}
