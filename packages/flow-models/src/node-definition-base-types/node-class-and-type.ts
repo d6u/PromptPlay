@@ -10,6 +10,7 @@ export type NodeClassEnum = (typeof NodeClass)[keyof typeof NodeClass];
 export const NodeType = {
   InputNode: 'InputNode',
   OutputNode: 'OutputNode',
+  GenericChatbotStart: 'GenericChatbotStart',
   ConditionNode: 'ConditionNode',
   JavaScriptFunctionNode: 'JavaScriptFunctionNode',
   TextTemplate: 'TextTemplate',

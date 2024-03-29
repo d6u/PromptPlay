@@ -42,6 +42,11 @@ import {
   ElevenLabsNodeConfigSchema,
 } from './elevenlabs-node';
 import {
+  GENERIC_CHATBOT_START_NODE_DEFINITION,
+  GenericChatbotStartNodeConfigSchema,
+  type GenericChatbotStartNodeAllLevelConfig,
+} from './generic-chatbot-start-node';
+import {
   HUGGINGFACE_INFERENCE_NODE_DEFINITION,
   HuggingFaceInferenceNodeAllLevelConfig,
   HuggingFaceInferenceNodeConfigSchema,
@@ -65,6 +70,7 @@ const NodeConfigSchema = z.union([
   JavaScriptFunctionNodeConfigSchema,
   TextTemplateNodeConfigSchema,
   // ANCHOR: Update this section when adding new node types
+  GenericChatbotStartNodeConfigSchema,
   ChatgptMessageNodeConfigSchema,
   ChatgptChatCompletionNodeConfigSchema,
   HuggingFaceInferenceNodeConfigSchema,
@@ -85,6 +91,7 @@ export type NodeAllLevelConfigUnion =
   | JavaScriptFunctionNodeAllLevelConfig
   | TextTemplateNodeAllLevelConfig
   // ANCHOR: Update this when adding new node types
+  | GenericChatbotStartNodeAllLevelConfig
   | ChatGPTMessageNodeAllLevelConfig
   | ChatGPTChatCompletionNodeAllLevelConfig
   | HuggingFaceInferenceNodeAllLevelConfig
@@ -97,6 +104,7 @@ const NODE_TYPE_TO_NODE_DEFINITION_MAP = {
   [NodeType.JavaScriptFunctionNode]: JAVASCRIPT_NODE_DEFINITION,
   [NodeType.TextTemplate]: TEXT_TEMPLATE_NODE_DEFINITION,
   // ANCHOR: Update this when adding new node types
+  [NodeType.GenericChatbotStart]: GENERIC_CHATBOT_START_NODE_DEFINITION,
   [NodeType.ChatGPTMessageNode]: CHATGPT_MESSAGE_NODE_DEFINITION,
   [NodeType.ChatGPTChatCompletionNode]: CHATGPT_CHAT_COMPLETION_NODE_DEFINITION,
   [NodeType.HuggingFaceInference]: HUGGINGFACE_INFERENCE_NODE_DEFINITION,
