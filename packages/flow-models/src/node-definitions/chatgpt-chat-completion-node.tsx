@@ -18,6 +18,7 @@ import {
 } from '../base-types';
 import {
   FieldType,
+  NodeClass,
   NodeDefinition,
   NodeExecutionEvent,
   NodeExecutionEventType,
@@ -40,6 +41,7 @@ export enum ChatGPTChatCompletionResponseFormatType {
 }
 
 export const ChatgptChatCompletionNodeConfigSchema = z.object({
+  class: z.literal(NodeClass.Process),
   type: z.literal(NodeType.ChatGPTChatCompletionNode),
   nodeId: z.string(),
   model: z.nativeEnum(OpenAIChatModel),
@@ -147,6 +149,7 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
   createDefaultNodeConfig: (nodeId) => {
     return {
       nodeConfig: {
+        class: NodeClass.Process,
         nodeId: nodeId,
         type: NodeType.ChatGPTChatCompletionNode,
         model: OpenAIChatModel.GPT_4,

@@ -1,3 +1,11 @@
+export const NodeClass = {
+  Start: 'Start',
+  Finish: 'Finish',
+  Process: 'Process',
+} as const;
+
+export type NodeClassEnum = (typeof NodeClass)[keyof typeof NodeClass];
+
 // NOTE: Update this when adding new node types
 export const NodeType = {
   InputNode: 'InputNode',

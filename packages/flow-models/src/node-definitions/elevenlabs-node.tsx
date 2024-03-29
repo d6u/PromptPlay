@@ -13,6 +13,7 @@ import {
 } from '../base-types';
 import {
   FieldType,
+  NodeClass,
   NodeDefinition,
   NodeExecutionEvent,
   NodeExecutionEventType,
@@ -20,6 +21,7 @@ import {
 } from '../node-definition-base-types';
 
 export const ElevenLabsNodeConfigSchema = z.object({
+  class: z.literal(NodeClass.Process),
   type: z.literal(NodeType.ElevenLabs),
   nodeId: z.string(),
   voiceId: z.string().catch((ctx) => {
@@ -86,6 +88,7 @@ export const ELEVENLABS_NODE_DEFINITION: NodeDefinition<
   createDefaultNodeConfig: (nodeId) => {
     return {
       nodeConfig: {
+        class: NodeClass.Process,
         nodeId: nodeId,
         type: NodeType.ElevenLabs,
         voiceId: '',

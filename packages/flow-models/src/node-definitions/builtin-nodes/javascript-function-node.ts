@@ -11,6 +11,7 @@ import {
 } from '../../base-types';
 import {
   FieldType,
+  NodeClass,
   NodeDefinition,
   NodeExecutionEvent,
   NodeExecutionEventType,
@@ -18,6 +19,7 @@ import {
 } from '../../node-definition-base-types';
 
 export const JavaScriptFunctionNodeConfigSchema = z.object({
+  class: z.literal(NodeClass.Process),
   type: z.literal(NodeType.JavaScriptFunctionNode),
   nodeId: z.string(),
   javaScriptCode: z.string(),
@@ -47,6 +49,7 @@ export const JAVASCRIPT_NODE_DEFINITION: NodeDefinition<
   createDefaultNodeConfig: (nodeId) => {
     return {
       nodeConfig: {
+        class: NodeClass.Process,
         nodeId: nodeId,
         type: NodeType.JavaScriptFunctionNode,
         javaScriptCode: 'return `Hello, ${userName}!`',

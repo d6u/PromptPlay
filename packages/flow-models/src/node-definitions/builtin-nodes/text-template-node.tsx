@@ -13,6 +13,7 @@ import {
 } from '../../base-types';
 import {
   FieldType,
+  NodeClass,
   NodeDefinition,
   NodeExecutionEvent,
   NodeExecutionEventType,
@@ -20,6 +21,7 @@ import {
 } from '../../node-definition-base-types';
 
 export const TextTemplateNodeConfigSchema = z.object({
+  class: z.literal(NodeClass.Process),
   type: z.literal(NodeType.TextTemplate),
   nodeId: z.string(),
   content: z.string(),
@@ -66,6 +68,7 @@ export const TEXT_TEMPLATE_NODE_DEFINITION: NodeDefinition<
   createDefaultNodeConfig: (nodeId) => {
     return {
       nodeConfig: {
+        class: NodeClass.Process,
         nodeId: nodeId,
         type: NodeType.TextTemplate,
         content: 'Write a poem about {{topic}} in fewer than 20 words.',

@@ -11,6 +11,7 @@ import {
   VariableValueType,
 } from '../../base-types';
 import {
+  NodeClass,
   NodeDefinition,
   NodeExecutionEvent,
   NodeExecutionEventType,
@@ -18,8 +19,10 @@ import {
 } from '../../node-definition-base-types';
 
 export const InputNodeConfigSchema = z.object({
+  class: z.literal(NodeClass.Start),
   type: z.literal(NodeType.InputNode),
   nodeId: z.string(),
+  nodeName: z.string(),
 });
 
 export type InputNodeInstanceLevelConfig = z.infer<
@@ -40,8 +43,10 @@ export const INPUT_NODE_DEFINITION: NodeDefinition<
   createDefaultNodeConfig(nodeId) {
     return {
       nodeConfig: {
+        class: NodeClass.Start,
         nodeId: nodeId,
         type: NodeType.InputNode,
+        nodeName: 'input',
       },
       variableConfigList: [
         {

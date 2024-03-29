@@ -11,6 +11,7 @@ import {
   VariableValueType,
 } from '../../base-types';
 import {
+  NodeClass,
   NodeDefinition,
   NodeExecutionEvent,
   NodeExecutionEventType,
@@ -18,6 +19,7 @@ import {
 } from '../../node-definition-base-types';
 
 export const OutputNodeConfigSchema = z.object({
+  class: z.literal(NodeClass.Finish),
   type: z.literal(NodeType.OutputNode),
   nodeId: z.string(),
 });
@@ -43,6 +45,7 @@ export const OUTPUT_NODE_DEFINITION: NodeDefinition<
   createDefaultNodeConfig: (nodeId) => {
     return {
       nodeConfig: {
+        class: NodeClass.Finish,
         nodeId: nodeId,
         type: NodeType.OutputNode,
       },

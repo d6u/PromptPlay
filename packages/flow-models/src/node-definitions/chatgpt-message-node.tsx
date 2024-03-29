@@ -14,6 +14,7 @@ import {
   VariableValueType,
 } from '../base-types';
 import {
+  NodeClass,
   NodeDefinition,
   NodeExecutionEvent,
   NodeExecutionEventType,
@@ -22,6 +23,7 @@ import {
 import { FieldType } from '../node-definition-base-types/field-definition-interfaces';
 
 export const ChatgptMessageNodeConfigSchema = z.object({
+  class: z.literal(NodeClass.Process),
   type: z.literal(NodeType.ChatGPTMessageNode),
   nodeId: z.string(),
   // TODO: Use enum to validate
@@ -96,6 +98,7 @@ export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition<
   createDefaultNodeConfig: (nodeId) => {
     return {
       nodeConfig: {
+        class: NodeClass.Process,
         nodeId: nodeId,
         type: NodeType.ChatGPTMessageNode,
         role: OpenAI.ChatGPTMessageRole.user,

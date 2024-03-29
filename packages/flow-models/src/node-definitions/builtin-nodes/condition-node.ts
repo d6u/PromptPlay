@@ -15,6 +15,7 @@ import {
 } from '../../base-types';
 import {
   FieldType,
+  NodeClass,
   NodeDefinition,
   NodeExecutionEvent,
   NodeExecutionEventType,
@@ -22,6 +23,7 @@ import {
 } from '../../node-definition-base-types';
 
 export const ConditionNodeConfigSchema = z.object({
+  class: z.literal(NodeClass.Process),
   type: z.literal(NodeType.ConditionNode),
   nodeId: z.string(),
   stopAtTheFirstMatch: z.boolean().default(true),
@@ -47,6 +49,7 @@ export const CONDITION_NODE_DEFINITION: NodeDefinition<
   createDefaultNodeConfig: (nodeId) => {
     return {
       nodeConfig: {
+        class: NodeClass.Process,
         type: NodeType.ConditionNode,
         nodeId: nodeId,
         stopAtTheFirstMatch: true,
