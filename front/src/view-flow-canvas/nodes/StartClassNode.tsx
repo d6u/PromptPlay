@@ -2,7 +2,12 @@ import styled from '@emotion/styled';
 import { useMemo } from 'react';
 import { Position, useUpdateNodeInternals } from 'reactflow';
 
-import { ConnectorType, InputNodeAllLevelConfig, NodeType } from 'flow-models';
+import {
+  ConnectorType,
+  GenericChatbotStartNodeAllLevelConfig,
+  InputNodeAllLevelConfig,
+  getNodeDefinitionForNodeTypeName,
+} from 'flow-models';
 
 import NodeRegularOutgoingConditionHandle from 'components/node-connector/condition/NodeRegularOutgoingConditionHandle';
 import {
@@ -19,14 +24,19 @@ import NodeBoxHeaderSection from '../node-box/NodeBoxHeaderSection';
 type Props = {
   nodeId: string;
   isNodeReadOnly: boolean;
-  nodeConfig: InputNodeAllLevelConfig;
+  nodeConfig: InputNodeAllLevelConfig | GenericChatbotStartNodeAllLevelConfig;
 };
 
-function InputNode(props: Props) {
+function StartClassNode(props: Props) {
   const updateNodeInternals = useUpdateNodeInternals();
 
   const connectors = useFlowStore((s) => s.getFlowContent().variablesDict);
   const addVariable = useFlowStore((s) => s.addConnector);
+
+  const nodeDefinition = useMemo(
+    () => getNodeDefinitionForNodeTypeName(props.nodeConfig.type),
+    [props.nodeConfig.type],
+  );
 
   const flowInputVariables = useMemo(() => {
     return selectVariables(props.nodeId, ConnectorType.NodeOutput, connectors);
@@ -35,10 +45,10 @@ function InputNode(props: Props) {
   return (
     <>
       <NodeRegularOutgoingConditionHandle nodeId={props.nodeId} />
-      <NodeBox nodeType={NodeType.InputNode}>
+      <NodeBox nodeType={props.nodeConfig.type}>
         <NodeBoxHeaderSection
           isNodeReadOnly={props.isNodeReadOnly}
-          title="Input"
+          title={nodeDefinition.label}
           nodeId={props.nodeId}
           showAddVariableButton={true}
           onClickAddVariableButton={() => {
@@ -64,7 +74,15 @@ function InputNode(props: Props) {
               }),
             )}
             variableDefinitions={flowInputVariables.map<VariableDefinition>(
-              () => ({ isVariableFixed: false }),
+              (variable) => {
+                const incomingVariableConfig =
+                  nodeDefinition.fixedIncomingVariables?.[variable.name];
+
+                return {
+                  isVariableFixed: incomingVariableConfig != null,
+                  helperMessage: incomingVariableConfig?.helperMessage,
+                };
+              },
             )}
           />
         </GenericContainer>
@@ -78,4 +96,4 @@ const GenericContainer = styled.div`
   padding-right: 10px;
 `;
 
-export default InputNode;
+export default StartClassNode;

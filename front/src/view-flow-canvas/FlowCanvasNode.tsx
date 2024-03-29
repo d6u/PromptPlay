@@ -2,7 +2,7 @@ import { Option } from '@mobily/ts-belt';
 import { useContext, useMemo } from 'react';
 import { useNodeId } from 'reactflow';
 
-import { ConnectorType, NodeConfig, NodeType } from 'flow-models';
+import { ConnectorType, NodeClass, NodeConfig, NodeType } from 'flow-models';
 
 import RouteFlowContext from 'state-flow/context/FlowRouteContext';
 import { useFlowStore } from 'state-flow/flow-store';
@@ -14,9 +14,9 @@ import {
 import invariant from 'tiny-invariant';
 import ConditionNode from './nodes/ConditionNode';
 import DefaultNode from './nodes/DefaultNode';
-import InputNode from './nodes/InputNode';
 import JavaScriptFunctionNode from './nodes/JavaScriptFunctionNode';
 import OutputNode from './nodes/OutputNode';
+import StartClassNode from './nodes/StartClassNode';
 
 function FlowCanvasNode() {
   const { isCurrentUserOwner } = useContext(RouteFlowContext);
@@ -70,18 +70,23 @@ function FlowCanvasNode() {
     return null;
   }
 
-  switch (nodeConfig.type) {
-    case NodeType.InputNode:
+  if (nodeConfig.class === NodeClass.Start) {
+    if (
+      nodeConfig.type === NodeType.InputNode ||
+      nodeConfig.type === NodeType.GenericChatbotStart
+    ) {
       return (
-        <InputNode
+        <StartClassNode
           nodeId={nodeId}
           isNodeReadOnly={isNodeReadOnly}
           nodeConfig={nodeConfig}
         />
       );
-    case NodeType.OutputNode:
-      invariant(conditionTarget != null, 'conditionTarget is not null');
+    }
+  } else if (nodeConfig.class === NodeClass.Finish) {
+    invariant(conditionTarget != null, 'conditionTarget is not null');
 
+    if (nodeConfig.type === NodeType.OutputNode) {
       return (
         <OutputNode
           nodeId={nodeId}
@@ -90,9 +95,11 @@ function FlowCanvasNode() {
           conditionTarget={conditionTarget}
         />
       );
-    case NodeType.ConditionNode:
-      invariant(conditionTarget != null, 'conditionTarget is not null');
+    }
+  } else {
+    invariant(conditionTarget != null, 'conditionTarget is not null');
 
+    if (nodeConfig.type === NodeType.ConditionNode) {
       return (
         <ConditionNode
           nodeId={nodeId}
@@ -103,9 +110,7 @@ function FlowCanvasNode() {
           nodeExecutionState={nodeExecutionState}
         />
       );
-    case NodeType.JavaScriptFunctionNode:
-      invariant(conditionTarget != null, 'conditionTarget is not null');
-
+    } else if (nodeConfig.type === NodeType.JavaScriptFunctionNode) {
       return (
         <JavaScriptFunctionNode
           nodeId={nodeId}
@@ -117,9 +122,7 @@ function FlowCanvasNode() {
           nodeExecutionState={nodeExecutionState}
         />
       );
-    default:
-      invariant(conditionTarget != null, 'conditionTarget is not null');
-
+    } else {
       return (
         <DefaultNode
           nodeId={nodeId}
@@ -131,6 +134,7 @@ function FlowCanvasNode() {
           nodeExecutionState={nodeExecutionState}
         />
       );
+    }
   }
 }
 

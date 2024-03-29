@@ -60,6 +60,7 @@ export * from './builtin-nodes/text-template-node';
 export * from './chatgpt-chat-completion-node';
 export * from './chatgpt-message-node';
 export * from './elevenlabs-node';
+export * from './generic-chatbot-start-node';
 export * from './huggingface-inference-node';
 
 const NodeConfigSchema = z.union([
