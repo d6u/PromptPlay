@@ -1,10 +1,12 @@
 import styled from '@emotion/styled';
 
+import { NodeClass, type NodeClassEnum } from 'flow-models';
+
+import NodeAddConnectorButton from 'components/NodeAddConnectorButton';
 import RemoveButton from 'generic-components/RemoveButton';
 import IconThreeDots from 'icons/IconThreeDots';
 import { useFlowStore } from 'state-flow/flow-store';
 
-import NodeAddConnectorButton from '../../components/NodeAddConnectorButton';
 import {
   DRAG_HANDLE_CLASS_NAME,
   NODE_BOX_HEADER_SECTION_MARGIN_BOTTOM,
@@ -13,11 +15,13 @@ import {
   NODE_BOX_HEADER_SUB_SECTION_PADDING_MARGIN_BETWEEN,
 } from '../constants';
 import NodeBoxGearButton from './NodeBoxIconGear';
+import NodeBoxIconRename from './NodeBoxIconRename';
 
 type Props = {
   // Static values
   title: string;
   // Node Level
+  nodeClass: NodeClassEnum;
   nodeId: string;
   isNodeReadOnly: boolean;
 } & (
@@ -51,6 +55,14 @@ function NodeBoxHeaderSection(props: Props) {
         )}
       </TitleSection>
       <ActionsSection>
+        {props.nodeClass === NodeClass.Start && (
+          <NodeBoxIconRename
+            onClick={() => {
+              // setCanvasLeftPaneIsOpen(true);
+              // setCanvasLeftPaneSelectedNodeId(props.nodeId);
+            }}
+          />
+        )}
         <NodeBoxGearButton
           onClick={() => {
             setCanvasLeftPaneIsOpen(true);

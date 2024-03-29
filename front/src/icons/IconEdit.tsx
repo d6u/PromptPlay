@@ -1,6 +1,6 @@
 import { SVGProps } from 'react';
 
-export default function IconEdit(props: SVGProps<SVGSVGElement>) {
+function IconEdit(props: SVGProps<SVGSVGElement>) {
   return (
     <svg
       version="1.1"
@@ -15,3 +15,5 @@ export default function IconEdit(props: SVGProps<SVGSVGElement>) {
     </svg>
   );
 }
+
+export default IconEdit;
