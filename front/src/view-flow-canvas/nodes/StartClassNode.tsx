@@ -50,7 +50,8 @@ function StartClassNode(props: Props) {
           nodeClass={props.nodeConfig.class}
           nodeId={props.nodeId}
           isNodeReadOnly={props.isNodeReadOnly}
-          title={nodeDefinition.label}
+          title={props.nodeConfig.nodeName}
+          subTitle={nodeDefinition.label}
           showAddVariableButton={!!nodeDefinition.canUserAddNodeOutputVariable}
           onClickAddVariableButton={() => {
             addVariable(

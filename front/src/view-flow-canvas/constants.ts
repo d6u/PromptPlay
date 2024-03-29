@@ -1,11 +1,4 @@
-export const BACKDROP_PADDING = 3;
-
-// SECTION: Node Box Header
 export const DRAG_HANDLE_CLASS_NAME = 'node-drag-handle';
-export const NODE_BOX_HEADER_SECTION_PADDING_TOP = 10;
-export const NODE_BOX_HEADER_SECTION_MARGIN_BOTTOM = 5;
-export const NODE_BOX_HEADER_SUB_SECTION_PADDING_MARGIN_BETWEEN = 5;
-export const NODE_BOX_HEADER_SECTION_TITLE_HEIGHT = 32;
-// !SECTION
 
+export const BACKDROP_PADDING = 3;
 export const NODE_BOX_WIDTH = 300;
