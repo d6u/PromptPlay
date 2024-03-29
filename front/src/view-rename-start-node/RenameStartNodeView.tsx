@@ -8,32 +8,35 @@ import {
   ModalDialog,
   Typography,
 } from '@mui/joy';
-import { NodeClass } from 'flow-models';
 import { useEffect, useMemo, useState } from 'react';
-import { useFlowStore } from 'state-flow/flow-store';
 import invariant from 'tiny-invariant';
+
+import { NodeClass } from 'flow-models';
+
+import { useFlowStore } from 'state-flow/flow-store';
 
 function RenameStartNodeView() {
   const canvasRenameNodeId = useFlowStore((s) => s.canvasRenameNodeId);
   const nodeConfigs = useFlowStore((s) => s.getFlowContent().nodeConfigsDict);
   const setCanvasRenameNodeId = useFlowStore((s) => s.setCanvasRenameNodeId);
+  const updateNodeConfig = useFlowStore((s) => s.updateNodeConfig);
 
   const selectedNodeConfig = useMemo(() => {
     if (canvasRenameNodeId == null) {
       return null;
     }
-    return nodeConfigs[canvasRenameNodeId];
+    const nodeConfig = nodeConfigs[canvasRenameNodeId];
+    invariant(
+      nodeConfig.class === NodeClass.Start,
+      'Node class should be Start',
+    );
+    return nodeConfig;
   }, [canvasRenameNodeId, nodeConfigs]);
 
   const [name, setName] = useState('');
 
   useEffect(() => {
     if (selectedNodeConfig) {
-      invariant(
-        selectedNodeConfig.class === NodeClass.Start,
-        'Node class should be Start',
-      );
-
       setName(selectedNodeConfig.nodeName);
     } else {
       setName('');
@@ -74,6 +77,8 @@ function RenameStartNodeView() {
             color="success"
             onClick={() => {
               setCanvasRenameNodeId(null);
+              invariant(canvasRenameNodeId != null, 'Node id is not null');
+              updateNodeConfig(canvasRenameNodeId, { nodeName: name });
             }}
           >
             Save
