@@ -32,15 +32,29 @@ export default function App() {
         children: [
           {
             path: '',
+            element: <Navigate to="/workspace" />,
+          },
+          {
+            path: RootRouteSubRoute.Workspace,
             element: <RouteDashboard />,
+            // NOTE: Keep this in sync with RootRouteSubRouteHandle type
             handle: {
-              subRouteType: RootRouteSubRoute.Dashboard,
+              subRouteType: RootRouteSubRoute.Workspace,
+            },
+          },
+          {
+            path: RootRouteSubRoute.ChatBots,
+            element: <RouteDashboard />,
+            // NOTE: Keep this in sync with RootRouteSubRouteHandle type
+            handle: {
+              subRouteType: RootRouteSubRoute.ChatBots,
             },
           },
           {
             path: 'flows/:spaceId',
             loader: flowRouteLoader,
             element: <RouteFlow />,
+            // NOTE: Keep this in sync with RootRouteSubRouteHandle type
             handle: {
               subRouteType: RootRouteSubRoute.Flows,
             },
@@ -75,7 +89,7 @@ export default function App() {
       },
       {
         path: '*',
-        element: <Navigate to="/" />,
+        element: <Navigate to="/workspace" />,
       },
     ]);
   }, []);

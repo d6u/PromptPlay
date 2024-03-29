@@ -12,11 +12,14 @@ import HeaderLogo from './HeaderLogo';
 import SpaceName from './SpaceName';
 
 function HeaderView() {
-  const subRouteType = useRootRouteSubRouteHandle((h) => h.subRouteType);
+  const subRouteType = useRootRouteSubRouteHandle(
+    (h) => h?.subRouteType ?? null,
+  );
 
-  let middleContent: ReactNode;
+  let middleContent: ReactNode = null;
   switch (subRouteType) {
-    case RootRouteSubRoute.Dashboard: {
+    case RootRouteSubRoute.Workspace:
+    case RootRouteSubRoute.ChatBots: {
       middleContent = <DashboardTabSwitcher />;
       break;
     }
@@ -24,6 +27,8 @@ function HeaderView() {
       middleContent = <SpaceName />;
       break;
     }
+    default:
+      break;
   }
 
   return (
