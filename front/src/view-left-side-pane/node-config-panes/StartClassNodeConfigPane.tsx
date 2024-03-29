@@ -5,28 +5,31 @@ import {
   ConnectorType,
   InputNodeInstanceLevelConfig,
   getNodeDefinitionForNodeTypeName,
+  type GenericChatbotStartNodeInstanceLevelConfig,
 } from 'flow-models';
 
+import {
+  VariableConfig,
+  type VariableDefinition,
+} from 'components/node-connector/types';
 import NodeRenamableVariableList from 'components/node-connector/variable/NodeRenamableVariableList';
 import SidePaneHeaderSection from 'components/side-pane/SidePaneHeaderSection';
 import HeaderSectionHeader from 'components/side-pane/SidePaneHeaderSectionHeader';
 import { useFlowStore } from 'state-flow/flow-store';
 import { selectVariables } from 'state-flow/util/state-utils';
 
-import {
-  VariableConfig,
-  type VariableDefinition,
-} from 'components/node-connector/types';
 import NodeConfigPaneAddConnectorButton from '../node-config-pane-base-ui/NodeConfigPaneAddConnectorButton';
 import NodeConfigPaneContainer from '../node-config-pane-base-ui/NodeConfigPaneContainer';
 
 type Props = {
   nodeId: string;
   isNodeReadOnly: boolean;
-  nodeConfig: InputNodeInstanceLevelConfig;
+  nodeConfig:
+    | InputNodeInstanceLevelConfig
+    | GenericChatbotStartNodeInstanceLevelConfig;
 };
 
-function InputNodeConfigPane(props: Props) {
+function StartClassNodeConfigPane(props: Props) {
   const updateNodeInternals = useUpdateNodeInternals();
 
   const nodeDefinition = useMemo(
@@ -67,12 +70,20 @@ function InputNodeConfigPane(props: Props) {
           isGlobal: false,
           globalVariableId: null,
         }))}
-        variableDefinitions={flowInputVariables.map<VariableDefinition>(() => ({
-          isVariableFixed: false,
-        }))}
+        variableDefinitions={flowInputVariables.map<VariableDefinition>(
+          (variable) => {
+            const incomingVariableConfig =
+              nodeDefinition.fixedIncomingVariables?.[variable.name];
+
+            return {
+              isVariableFixed: incomingVariableConfig != null,
+              helperMessage: incomingVariableConfig?.helperMessage,
+            };
+          },
+        )}
       />
     </NodeConfigPaneContainer>
   );
 }
 
-export default InputNodeConfigPane;
+export default StartClassNodeConfigPane;

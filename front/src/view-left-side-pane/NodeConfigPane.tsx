@@ -1,7 +1,7 @@
 import { useContext, useMemo } from 'react';
 import invariant from 'tiny-invariant';
 
-import { ConnectorType, NodeType } from 'flow-models';
+import { ConnectorType, NodeClass, NodeType } from 'flow-models';
 
 import RouteFlowContext from 'state-flow/context/FlowRouteContext';
 import { useFlowStore } from 'state-flow/flow-store';
@@ -9,9 +9,9 @@ import { selectVariables } from 'state-flow/util/state-utils';
 
 import ConditionNodeConfigPane from './node-config-panes/ConditionNodeConfigPane';
 import DefaultNodeConfigPane from './node-config-panes/DefaultNodeConfigPane';
-import InputNodeConfigPane from './node-config-panes/InputNodeConfigPane';
 import JavaScriptNodeConfigPane from './node-config-panes/JavaScriptNodeConfigPane';
 import OutputNodeConfigPane from './node-config-panes/OutputNodeConfigPane';
+import StartClassNodeConfigPane from './node-config-panes/StartClassNodeConfigPane';
 
 function NodeConfigPane() {
   const { isCurrentUserOwner } = useContext(RouteFlowContext);
@@ -41,16 +41,21 @@ function NodeConfigPane() {
     return nodeId != null ? nodeExecutionStates[nodeId] : null;
   }, [nodeId, nodeExecutionStates]);
 
-  switch (nodeConfig.type) {
-    case NodeType.InputNode:
+  if (nodeConfig.class === NodeClass.Start) {
+    if (
+      nodeConfig.type === NodeType.InputNode ||
+      nodeConfig.type === NodeType.GenericChatbotStart
+    ) {
       return (
-        <InputNodeConfigPane
+        <StartClassNodeConfigPane
           nodeId={nodeId}
           isNodeReadOnly={isReadOnly}
           nodeConfig={nodeConfig}
         />
       );
-    case NodeType.OutputNode:
+    }
+  } else if (nodeConfig.class === NodeClass.Finish) {
+    if (nodeConfig.type === NodeType.OutputNode) {
       return (
         <OutputNodeConfigPane
           nodeId={nodeId}
@@ -58,38 +63,42 @@ function NodeConfigPane() {
           nodeConfig={nodeConfig}
         />
       );
-    case NodeType.ConditionNode:
-      return (
-        <ConditionNodeConfigPane
-          nodeId={nodeConfig.nodeId}
-          isNodeReadOnly={isReadOnly}
-          nodeConfig={nodeConfig}
-          inputVariables={inputVariables}
-          nodeExecutionState={nodeExecutionState}
-        />
-      );
-    case NodeType.JavaScriptFunctionNode:
-      return (
-        <JavaScriptNodeConfigPane
-          nodeId={nodeConfig.nodeId}
-          isNodeReadOnly={isReadOnly}
-          nodeConfig={nodeConfig}
-          inputVariables={inputVariables}
-          outputVariables={outputVariables}
-          nodeExecutionState={nodeExecutionState}
-        />
-      );
-    default:
-      return (
-        <DefaultNodeConfigPane
-          nodeId={nodeConfig.nodeId}
-          isNodeReadOnly={isReadOnly}
-          nodeConfig={nodeConfig}
-          inputVariables={inputVariables}
-          outputVariables={outputVariables}
-          nodeExecutionState={nodeExecutionState}
-        />
-      );
+    }
+  } else {
+    switch (nodeConfig.type) {
+      case NodeType.ConditionNode:
+        return (
+          <ConditionNodeConfigPane
+            nodeId={nodeConfig.nodeId}
+            isNodeReadOnly={isReadOnly}
+            nodeConfig={nodeConfig}
+            inputVariables={inputVariables}
+            nodeExecutionState={nodeExecutionState}
+          />
+        );
+      case NodeType.JavaScriptFunctionNode:
+        return (
+          <JavaScriptNodeConfigPane
+            nodeId={nodeConfig.nodeId}
+            isNodeReadOnly={isReadOnly}
+            nodeConfig={nodeConfig}
+            inputVariables={inputVariables}
+            outputVariables={outputVariables}
+            nodeExecutionState={nodeExecutionState}
+          />
+        );
+      default:
+        return (
+          <DefaultNodeConfigPane
+            nodeId={nodeConfig.nodeId}
+            isNodeReadOnly={isReadOnly}
+            nodeConfig={nodeConfig}
+            inputVariables={inputVariables}
+            outputVariables={outputVariables}
+            nodeExecutionState={nodeExecutionState}
+          />
+        );
+    }
   }
 }
 
