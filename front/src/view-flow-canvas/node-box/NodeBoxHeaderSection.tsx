@@ -35,6 +35,7 @@ function NodeBoxHeaderSection(props: Props) {
   const setCanvasLeftPaneSelectedNodeId = useFlowStore(
     (s) => s.setCanvasLeftPaneSelectedNodeId,
   );
+  const setCanvasRenameNodeId = useFlowStore((s) => s.setCanvasRenameNodeId);
 
   return (
     <Container>
@@ -58,8 +59,7 @@ function NodeBoxHeaderSection(props: Props) {
         {props.nodeClass === NodeClass.Start && (
           <NodeBoxIconRename
             onClick={() => {
-              // setCanvasLeftPaneIsOpen(true);
-              // setCanvasLeftPaneSelectedNodeId(props.nodeId);
+              setCanvasRenameNodeId(props.nodeId);
             }}
           />
         )}

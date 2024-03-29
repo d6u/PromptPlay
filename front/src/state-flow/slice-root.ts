@@ -136,6 +136,7 @@ export const createRootSlice: RootSliceStateCreator = (set, get) => {
     canvasLeftPaneIsOpen: false,
     canvasLeftPaneSelectedNodeId: null,
     canvasRightPaneType: CanvasRightPanelType.Off,
+    canvasRenameNodeId: null,
     paramsOnUserStartConnectingEdge: null,
 
     // ANCHOR: Batch Test View
@@ -159,6 +160,9 @@ export const createRootSlice: RootSliceStateCreator = (set, get) => {
     },
     setSelectedBatchTestTab(tab: BatchTestTab): void {
       set({ selectedBatchTestTab: tab });
+    },
+    setCanvasRenameNodeId(nodeId: string | null): void {
+      set({ canvasRenameNodeId: nodeId });
     },
     // !SECTION
 

@@ -4,6 +4,7 @@ import { useFlowStore } from 'state-flow/flow-store';
 import FlowCanvasView from 'view-flow-canvas/FlowCanvasView';
 import LeftSidePaneView from 'view-left-side-pane/LeftSidePaneView';
 import RightSidePaneView from 'view-right-side-pane/RightSidePaneView';
+import RenameStartNodeView from '../view-rename-start-node/RenameStartNodeView';
 
 function RouteCanvas() {
   const uiState = useFlowStore(
@@ -20,6 +21,7 @@ function RouteCanvas() {
       <LeftSidePaneView />
       <FlowCanvasView />
       <RightSidePaneView />
+      <RenameStartNodeView />
     </Container>
   );
 }
