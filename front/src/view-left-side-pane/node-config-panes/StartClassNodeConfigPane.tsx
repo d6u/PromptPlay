@@ -67,8 +67,8 @@ function StartClassNodeConfigPane(props: Props) {
         variableConfigs={flowInputVariables.map<VariableConfig>((variable) => ({
           id: variable.id,
           name: variable.name,
-          isGlobal: false,
-          globalVariableId: null,
+          isGlobal: variable.isGlobal,
+          globalVariableId: variable.globalVariableId,
         }))}
         variableDefinitions={flowInputVariables.map<VariableDefinition>(
           (variable) => {
