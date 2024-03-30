@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { Button, Dropdown, Menu, MenuButton, MenuItem } from '@mui/joy';
+import { Dropdown, Menu, MenuButton, MenuItem } from '@mui/joy';
 import { useCallback, useContext, useMemo } from 'react';
 import { useStoreApi } from 'reactflow';
 
@@ -18,12 +18,7 @@ function SubTabActionsCanvas() {
 
   const reactflowStoreApi = useStoreApi();
 
-  const isExecutingFlowSingleRun = useFlowStore(
-    (s) => s.canvasStateMachine.getSnapshot().context.isExecutingFlowSingleRun,
-  );
   const addNode = useFlowStore((s) => s.addNode);
-  const runFlow = useFlowStore((s) => s.startFlowSingleRun);
-  const stopRunningFlow = useFlowStore((s) => s.stopFlowSingleRun);
 
   const addNodeWithType = useCallback(
     (type: NodeTypeEnum) => {
@@ -74,12 +69,6 @@ function SubTabActionsCanvas() {
           ))}
         </Menu>
       </Dropdown>
-      <Button
-        color={isExecutingFlowSingleRun ? 'danger' : 'success'}
-        onClick={isExecutingFlowSingleRun ? stopRunningFlow : runFlow}
-      >
-        {isExecutingFlowSingleRun ? 'Stop' : 'Run'}
-      </Button>
     </Container>
   );
 }
