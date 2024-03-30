@@ -49,6 +49,8 @@ test('handleAddNode should add node and nodeConfig', () => {
     {
       nodeId: expect.any(String),
       type: 'InputNode',
+      class: 'Start',
+      nodeName: 'input',
     },
   ]);
 

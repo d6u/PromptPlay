@@ -33,6 +33,8 @@ test('handleRemoveVariable should remove variable', () => {
         Z6dPf: {
           nodeId: 'Z6dPf',
           type: 'InputNode',
+          class: 'Start',
+          nodeName: 'input1',
         },
       },
       variablesDict: {

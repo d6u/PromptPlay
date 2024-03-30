@@ -34,6 +34,7 @@ test('handleUpdateNodeConfig should add node and nodeConfig', () => {
           nodeId: 'I6L6E',
           type: 'TextTemplate',
           content: 'Write a poem about {{topic}} in fewer than 10 words.',
+          class: 'Process',
         },
       },
       variablesDict: {
@@ -91,6 +92,7 @@ test('handleUpdateNodeConfig should add node and nodeConfig', () => {
           nodeId: 'I6L6E',
           type: 'TextTemplate',
           content: 'Write a poem about {{topic}} in fewer than 20 words.',
+          class: 'Process',
         },
       },
     },

@@ -84,10 +84,13 @@ test('handleReactFlowConnectEvent ignores existing connection', () => {
         TmZiV: {
           nodeId: 'TmZiV',
           type: 'InputNode',
+          class: 'Start',
+          nodeName: 'input1',
         },
         af2pT: {
           nodeId: 'af2pT',
           type: 'OutputNode',
+          class: 'Finish',
         },
       },
       variablesDict: {
@@ -175,11 +178,13 @@ test('handleReactFlowConnectEvent ignores Audio source variable with invalid tar
           nodeId: 'Lbola',
           type: 'ElevenLabs',
           voiceId: '',
+          class: 'Process',
         },
         jvWCV: {
           nodeId: 'jvWCV',
           type: 'TextTemplate',
           content: 'Write a poem about {{topic}} in fewer than 20 words.',
+          class: 'Process',
         },
       },
       variablesDict: {
@@ -563,14 +568,19 @@ test('handleReactFlowConnect should replace edge', () => {
         ZUhTs: {
           nodeId: 'ZUhTs',
           type: 'InputNode',
+          class: 'Start',
+          nodeName: 'input1',
         },
         Is8Op: {
           nodeId: 'Is8Op',
           type: 'OutputNode',
+          class: 'Finish',
         },
         WHqYI: {
           nodeId: 'WHqYI',
           type: 'InputNode',
+          class: 'Start',
+          nodeName: 'input2',
         },
       },
       variablesDict: {
@@ -706,15 +716,19 @@ test('handleReactFlowConnect should replace edge and update dest variable valueT
         'Is8Op': {
           nodeId: 'Is8Op',
           type: 'OutputNode',
+          class: 'Finish',
         },
         'gso6A': {
           nodeId: 'gso6A',
           type: 'ElevenLabs',
           voiceId: '',
+          class: 'Process',
         },
         '7NHli': {
           nodeId: '7NHli',
           type: 'InputNode',
+          class: 'Start',
+          nodeName: 'input1',
         },
       },
       variablesDict: {
@@ -856,10 +870,13 @@ test('handleReactFlowConnect should add edge', () => {
         Is8Op: {
           nodeId: 'Is8Op',
           type: 'OutputNode',
+          class: 'Finish',
         },
         OYlVw: {
           nodeId: 'OYlVw',
           type: 'InputNode',
+          class: 'Start',
+          nodeName: 'input1',
         },
       },
       variablesDict: {
@@ -961,11 +978,13 @@ test('handleReactFlowConnect should add edge and update dest variable valueType'
         Is8Op: {
           type: 'OutputNode',
           nodeId: 'Is8Op',
+          class: 'Finish',
         },
         gso6A: {
           type: 'ElevenLabs',
           nodeId: 'gso6A',
           voiceId: '',
+          class: 'Process',
         },
       },
       variablesDict: {

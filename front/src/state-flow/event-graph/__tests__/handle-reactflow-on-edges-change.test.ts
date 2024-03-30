@@ -57,10 +57,13 @@ test('handleReactFlowEdgesChange should select edge', () => {
         Is8Op: {
           nodeId: 'Is8Op',
           type: 'OutputNode',
+          class: 'Finish',
         },
         OYlVw: {
           nodeId: 'OYlVw',
           type: 'InputNode',
+          class: 'Start',
+          nodeName: 'input1',
         },
       },
       variablesDict: {
@@ -176,10 +179,13 @@ test('handleReactFlowEdgesChange should remove edge', () => {
         Is8Op: {
           nodeId: 'Is8Op',
           type: 'OutputNode',
+          class: 'Finish',
         },
         OYlVw: {
           nodeId: 'OYlVw',
           type: 'InputNode',
+          class: 'Start',
+          nodeName: 'input1',
         },
       },
       variablesDict: {
@@ -323,15 +329,19 @@ test('handleReactFlowEdgesChange should remove multiple edges', () => {
         HIbCf: {
           nodeId: 'HIbCf',
           type: 'InputNode',
+          class: 'Start',
+          nodeName: 'input1',
         },
         sn268: {
           nodeId: 'sn268',
           type: 'OutputNode',
+          class: 'Finish',
         },
         AkRxM: {
           nodeId: 'AkRxM',
           type: 'TextTemplate',
           content: 'Write a poem about {{topic}} in fewer than 20 words.',
+          class: 'Process',
         },
       },
       variablesDict: {
@@ -476,11 +486,13 @@ test('handleReactFlowEdgesChange should remove edge and reset the value type of 
         Is8Op: {
           nodeId: 'Is8Op',
           type: 'OutputNode',
+          class: 'Finish',
         },
         VhWOu: {
           nodeId: 'VhWOu',
           type: 'ElevenLabs',
           voiceId: '',
+          class: 'Process',
         },
       },
       variablesDict: {

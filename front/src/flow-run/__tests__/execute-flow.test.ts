@@ -53,10 +53,13 @@ test('executeFlow should execute', () => {
       'GjREx': {
         type: 'InputNode',
         nodeId: 'GjREx',
+        class: 'Start',
+        nodeName: 'input1',
       },
       '9hKOz': {
         type: 'OutputNode',
         nodeId: '9hKOz',
+        class: 'Finish',
       },
     },
     variablesDict: {
@@ -235,21 +238,26 @@ test('executeFlow should unblock node has multiple conditions even when only one
       'itI1z': {
         type: 'InputNode',
         nodeId: 'itI1z',
+        class: 'Start',
+        nodeName: 'input1',
       },
       '1w9JM': {
         type: 'ConditionNode',
         nodeId: '1w9JM',
         stopAtTheFirstMatch: true,
+        class: 'Process',
       },
       '2WvHf': {
         type: 'TextTemplate',
         nodeId: '2WvHf',
         content: 'Write a poem about A in fewer than 20 words.',
+        class: 'Process',
       },
       'eSpTO': {
         type: 'TextTemplate',
         nodeId: 'eSpTO',
         content: 'Write a poem about B in fewer than 20 words.',
+        class: 'Process',
       },
     },
     variablesDict: {
@@ -512,20 +520,25 @@ test('executeFlow should fallback to default case when no condition was met', as
         type: 'ConditionNode',
         nodeId: '1w9JM',
         stopAtTheFirstMatch: true,
+        class: 'Process',
       },
       '2WvHf': {
         type: 'TextTemplate',
         nodeId: '2WvHf',
         content: 'Write a poem about A in fewer than 20 words.',
+        class: 'Process',
       },
       'eSpTO': {
         type: 'TextTemplate',
         nodeId: 'eSpTO',
         content: 'Write a poem about B in fewer than 20 words.',
+        class: 'Process',
       },
       'itI1z': {
         type: 'InputNode',
         nodeId: 'itI1z',
+        class: 'Start',
+        nodeName: 'input1',
       },
     },
     variablesDict: {

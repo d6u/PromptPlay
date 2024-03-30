@@ -191,10 +191,13 @@ test('handleReactFlowNodesChange should remove connector and edge connected', ()
         HIbCf: {
           nodeId: 'HIbCf',
           type: 'InputNode',
+          class: 'Start',
+          nodeName: 'input1',
         },
         sn268: {
           nodeId: 'sn268',
           type: 'OutputNode',
+          class: 'Finish',
         },
       },
       variablesDict: {
@@ -262,6 +265,7 @@ test('handleReactFlowNodesChange should remove connector and edge connected', ()
         sn268: {
           nodeId: 'sn268',
           type: 'OutputNode',
+          class: 'Finish',
         },
       },
       variablesDict: {
