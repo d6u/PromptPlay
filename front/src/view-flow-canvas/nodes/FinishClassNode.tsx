@@ -8,6 +8,8 @@ import {
   NodeClass,
   NodeType,
   OutputNodeAllLevelConfig,
+  getNodeDefinitionForNodeTypeName,
+  type GenericChatbotFinishNodeAllLevelConfig,
 } from 'flow-models';
 
 import NodeTargetConditionHandle from 'components/node-connector/condition/NodeTargetConditionHandle';
@@ -25,15 +27,20 @@ import NodeBoxHeaderSection from '../node-box/NodeBoxHeaderSection';
 type Props = {
   nodeId: string;
   isNodeReadOnly: boolean;
-  nodeConfig: OutputNodeAllLevelConfig;
+  nodeConfig: OutputNodeAllLevelConfig | GenericChatbotFinishNodeAllLevelConfig;
   conditionTarget: ConditionTarget;
 };
 
-function OutputNode(props: Props) {
+function FinishClassNode(props: Props) {
   const updateNodeInternals = useUpdateNodeInternals();
 
   const variables = useFlowStore((s) => s.getFlowContent().variablesDict);
   const addVariable = useFlowStore((s) => s.addConnector);
+
+  const nodeDefinition = useMemo(
+    () => getNodeDefinitionForNodeTypeName(props.nodeConfig.type),
+    [props.nodeConfig.type],
+  );
 
   const nodeInputVariables = useMemo(() => {
     return selectVariables(props.nodeId, ConnectorType.NodeInput, variables);
@@ -49,9 +56,9 @@ function OutputNode(props: Props) {
         <NodeBoxHeaderSection
           nodeClass={NodeClass.Finish}
           isNodeReadOnly={props.isNodeReadOnly}
-          title="Output"
+          title={nodeDefinition.label}
           nodeId={props.nodeId}
-          showAddVariableButton={true}
+          showAddVariableButton={!!nodeDefinition.canUserAddIncomingVariables}
           onClickAddVariableButton={() => {
             addVariable(
               props.nodeId,
@@ -66,16 +73,22 @@ function OutputNode(props: Props) {
             showConnectorHandle={Position.Left}
             nodeId={props.nodeId}
             isNodeReadOnly={props.isNodeReadOnly}
-            variableConfigs={nodeInputVariables.map<VariableConfig>(
-              (nodeInputVariable) => ({
-                id: nodeInputVariable.id,
-                name: nodeInputVariable.name,
-                isGlobal: nodeInputVariable.isGlobal,
-                globalVariableId: nodeInputVariable.globalVariableId,
-              }),
-            )}
+            variableConfigs={nodeInputVariables.map<VariableConfig>((v) => ({
+              id: v.id,
+              name: v.name,
+              isGlobal: v.isGlobal,
+              globalVariableId: v.globalVariableId,
+            }))}
             variableDefinitions={nodeInputVariables.map<VariableDefinition>(
-              () => ({ isVariableFixed: false }),
+              (variable) => {
+                const incomingVariableConfig =
+                  nodeDefinition.fixedIncomingVariables?.[variable.name];
+
+                return {
+                  isVariableFixed: incomingVariableConfig != null,
+                  helperMessage: incomingVariableConfig?.helperMessage,
+                };
+              },
             )}
           />
         </GenericContainer>
@@ -89,4 +102,4 @@ const GenericContainer = styled.div`
   padding-right: 10px;
 `;
 
-export default OutputNode;
+export default FinishClassNode;

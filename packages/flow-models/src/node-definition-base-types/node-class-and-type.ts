@@ -11,6 +11,7 @@ export const NodeType = {
   InputNode: 'InputNode',
   OutputNode: 'OutputNode',
   GenericChatbotStart: 'GenericChatbotStart',
+  GenericChatbotFinish: 'GenericChatbotFinish',
   ConditionNode: 'ConditionNode',
   JavaScriptFunctionNode: 'JavaScriptFunctionNode',
   TextTemplate: 'TextTemplate',

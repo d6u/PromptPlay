@@ -9,8 +9,8 @@ import { selectVariables } from 'state-flow/util/state-utils';
 
 import ConditionNodeConfigPane from './node-config-panes/ConditionNodeConfigPane';
 import DefaultNodeConfigPane from './node-config-panes/DefaultNodeConfigPane';
+import FinishClassNodeConfigPane from './node-config-panes/FinishClassNodeConfigPane';
 import JavaScriptNodeConfigPane from './node-config-panes/JavaScriptNodeConfigPane';
-import OutputNodeConfigPane from './node-config-panes/OutputNodeConfigPane';
 import StartClassNodeConfigPane from './node-config-panes/StartClassNodeConfigPane';
 
 function NodeConfigPane() {
@@ -42,28 +42,21 @@ function NodeConfigPane() {
   }, [nodeId, nodeExecutionStates]);
 
   if (nodeConfig.class === NodeClass.Start) {
-    if (
-      nodeConfig.type === NodeType.InputNode ||
-      nodeConfig.type === NodeType.GenericChatbotStart
-    ) {
-      return (
-        <StartClassNodeConfigPane
-          nodeId={nodeId}
-          isNodeReadOnly={isReadOnly}
-          nodeConfig={nodeConfig}
-        />
-      );
-    }
+    return (
+      <StartClassNodeConfigPane
+        nodeId={nodeId}
+        isNodeReadOnly={isReadOnly}
+        nodeConfig={nodeConfig}
+      />
+    );
   } else if (nodeConfig.class === NodeClass.Finish) {
-    if (nodeConfig.type === NodeType.OutputNode) {
-      return (
-        <OutputNodeConfigPane
-          nodeId={nodeId}
-          isNodeReadOnly={isReadOnly}
-          nodeConfig={nodeConfig}
-        />
-      );
-    }
+    return (
+      <FinishClassNodeConfigPane
+        nodeId={nodeId}
+        isNodeReadOnly={isReadOnly}
+        nodeConfig={nodeConfig}
+      />
+    );
   } else {
     switch (nodeConfig.type) {
       case NodeType.ConditionNode:

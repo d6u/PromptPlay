@@ -5,6 +5,7 @@ import {
   ConnectorType,
   OutputNodeAllLevelConfig,
   getNodeDefinitionForNodeTypeName,
+  type GenericChatbotFinishNodeAllLevelConfig,
 } from 'flow-models';
 
 import NodeRenamableVariableList from 'components/node-connector/variable/NodeRenamableVariableList';
@@ -23,21 +24,21 @@ import NodeConfigPaneContainer from '../node-config-pane-base-ui/NodeConfigPaneC
 type Props = {
   nodeId: string;
   isNodeReadOnly: boolean;
-  nodeConfig: OutputNodeAllLevelConfig;
+  nodeConfig: OutputNodeAllLevelConfig | GenericChatbotFinishNodeAllLevelConfig;
 };
 
-function OutputNodeConfigPane(props: Props) {
+function FinishClassNodeConfigPane(props: Props) {
   const updateNodeInternals = useUpdateNodeInternals();
+
+  const variables = useFlowStore((s) => s.getFlowContent().variablesDict);
+  const addVariable = useFlowStore((s) => s.addConnector);
 
   const nodeDefinition = useMemo(
     () => getNodeDefinitionForNodeTypeName(props.nodeConfig.type),
     [props.nodeConfig.type],
   );
 
-  const variables = useFlowStore((s) => s.getFlowContent().variablesDict);
-  const addVariable = useFlowStore((s) => s.addConnector);
-
-  const flowOutputVariables = useMemo(() => {
+  const nodeInputVariables = useMemo(() => {
     return selectVariables(props.nodeId, ConnectorType.NodeInput, variables);
   }, [props.nodeId, variables]);
 
@@ -46,35 +47,43 @@ function OutputNodeConfigPane(props: Props) {
       <SidePaneHeaderSection>
         <HeaderSectionHeader>{nodeDefinition.label} Config</HeaderSectionHeader>
       </SidePaneHeaderSection>
-      <NodeConfigPaneAddConnectorButton
-        label="Variable"
-        onClick={() => {
-          addVariable(
-            props.nodeConfig.nodeId,
-            ConnectorType.NodeInput,
-            flowOutputVariables.length,
-          );
-          updateNodeInternals(props.nodeConfig.nodeId);
-        }}
-      />
+      {nodeDefinition.canUserAddIncomingVariables && (
+        <NodeConfigPaneAddConnectorButton
+          label="Variable"
+          onClick={() => {
+            addVariable(
+              props.nodeConfig.nodeId,
+              ConnectorType.NodeInput,
+              nodeInputVariables.length,
+            );
+            updateNodeInternals(props.nodeConfig.nodeId);
+          }}
+        />
+      )}
       <NodeRenamableVariableList
         isListSortable
         nodeId={props.nodeConfig.nodeId}
         isNodeReadOnly={false}
-        variableConfigs={flowOutputVariables.map<VariableConfig>(
-          (variable) => ({
-            id: variable.id,
-            name: variable.name,
-            isGlobal: false,
-            globalVariableId: null,
-          }),
-        )}
-        variableDefinitions={flowOutputVariables.map<VariableDefinition>(
-          () => ({ isVariableFixed: false }),
+        variableConfigs={nodeInputVariables.map<VariableConfig>((v) => ({
+          id: v.id,
+          name: v.name,
+          isGlobal: v.isGlobal,
+          globalVariableId: v.globalVariableId,
+        }))}
+        variableDefinitions={nodeInputVariables.map<VariableDefinition>(
+          (variable) => {
+            const incomingVariableConfig =
+              nodeDefinition.fixedIncomingVariables?.[variable.name];
+
+            return {
+              isVariableFixed: incomingVariableConfig != null,
+              helperMessage: incomingVariableConfig?.helperMessage,
+            };
+          },
         )}
       />
     </NodeConfigPaneContainer>
   );
 }
 
-export default OutputNodeConfigPane;
+export default FinishClassNodeConfigPane;

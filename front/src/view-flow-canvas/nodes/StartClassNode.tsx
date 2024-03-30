@@ -38,7 +38,7 @@ function StartClassNode(props: Props) {
     [props.nodeConfig.type],
   );
 
-  const flowInputVariables = useMemo(() => {
+  const nodeOutputVariables = useMemo(() => {
     return selectVariables(props.nodeId, ConnectorType.NodeOutput, connectors);
   }, [props.nodeId, connectors]);
 
@@ -57,7 +57,7 @@ function StartClassNode(props: Props) {
             addVariable(
               props.nodeId,
               ConnectorType.NodeOutput,
-              flowInputVariables.length,
+              nodeOutputVariables.length,
             );
             updateNodeInternals(props.nodeId);
           }}
@@ -67,7 +67,7 @@ function StartClassNode(props: Props) {
             showConnectorHandle={Position.Right}
             nodeId={props.nodeId}
             isNodeReadOnly={props.isNodeReadOnly}
-            variableConfigs={flowInputVariables.map<VariableConfig>(
+            variableConfigs={nodeOutputVariables.map<VariableConfig>(
               (variable) => ({
                 id: variable.id,
                 name: variable.name,
@@ -75,7 +75,7 @@ function StartClassNode(props: Props) {
                 globalVariableId: variable.globalVariableId,
               }),
             )}
-            variableDefinitions={flowInputVariables.map<VariableDefinition>(
+            variableDefinitions={nodeOutputVariables.map<VariableDefinition>(
               (variable) => {
                 const incomingVariableConfig =
                   nodeDefinition.fixedIncomingVariables?.[variable.name];

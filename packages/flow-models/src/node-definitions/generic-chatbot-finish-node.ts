@@ -1,0 +1,114 @@
+import { Observable } from 'rxjs';
+import invariant from 'tiny-invariant';
+import { z } from 'zod';
+
+import randomId from 'common-utils/randomId';
+
+import {
+  ConnectorResultMap,
+  ConnectorType,
+  VariableValueType,
+  type NodeInputVariable,
+} from '../base-types';
+import {
+  NodeClass,
+  NodeDefinition,
+  NodeExecutionEvent,
+  NodeExecutionEventType,
+  NodeType,
+} from '../node-definition-base-types';
+
+export const GenericChatbotFinishNodeConfigSchema = z.object({
+  class: z.literal(NodeClass.Finish),
+  type: z.literal(NodeType.GenericChatbotFinish),
+  nodeId: z.string(),
+});
+
+export type GenericChatbotFinishNodeInstanceLevelConfig = z.infer<
+  typeof GenericChatbotFinishNodeConfigSchema
+>;
+
+export type GenericChatbotFinishNodeAllLevelConfig =
+  GenericChatbotFinishNodeInstanceLevelConfig;
+
+export const GENERIC_CHATBOT_FINISH_NODE_DEFINITION: NodeDefinition<
+  GenericChatbotFinishNodeInstanceLevelConfig,
+  GenericChatbotFinishNodeAllLevelConfig
+> = {
+  type: NodeType.GenericChatbotFinish,
+  label: 'Generic Chatbot Finish',
+
+  instanceLevelConfigFieldDefinitions: {},
+
+  canUserAddIncomingVariables: false,
+  variableValueTypeForUserAddedIncomingVariable: VariableValueType.Any,
+
+  fixedIncomingVariables: {
+    messages: {},
+  },
+
+  createDefaultNodeConfig: (nodeId) => {
+    return {
+      nodeConfig: {
+        class: NodeClass.Finish,
+        nodeId: nodeId,
+        type: NodeType.GenericChatbotFinish,
+      },
+      variableConfigList: [
+        {
+          type: ConnectorType.ConditionTarget,
+          id: `${nodeId}/${randomId()}`,
+          nodeId: nodeId,
+        },
+        {
+          type: ConnectorType.NodeInput,
+          id: `${nodeId}/${randomId()}`,
+          nodeId: nodeId,
+          index: 0,
+          name: 'messages',
+          valueType: VariableValueType.Any,
+          isGlobal: false,
+          globalVariableId: null,
+        },
+      ],
+    };
+  },
+
+  createNodeExecutionObservable(context, nodeExecutionConfig, params) {
+    return new Observable<NodeExecutionEvent>((subscriber) => {
+      const { nodeConfig, connectorList } = nodeExecutionConfig;
+      const { nodeInputValueMap } = params;
+
+      invariant(nodeConfig.type === NodeType.GenericChatbotFinish);
+
+      subscriber.next({
+        type: NodeExecutionEventType.Start,
+        nodeId: nodeConfig.nodeId,
+      });
+
+      const flowOutputVariableValues: ConnectorResultMap = {};
+
+      connectorList
+        .filter(
+          (c): c is NodeInputVariable => c.type === ConnectorType.NodeInput,
+        )
+        .forEach((v) => {
+          flowOutputVariableValues[v.id] = nodeInputValueMap[v.id];
+        });
+
+      subscriber.next({
+        type: NodeExecutionEventType.VariableValues,
+        nodeId: nodeConfig.nodeId,
+        variableValuesLookUpDict: flowOutputVariableValues,
+      });
+
+      subscriber.next({
+        type: NodeExecutionEventType.Finish,
+        nodeId: nodeConfig.nodeId,
+        finishedConnectorIds: [],
+      });
+
+      subscriber.complete();
+    });
+  },
+};

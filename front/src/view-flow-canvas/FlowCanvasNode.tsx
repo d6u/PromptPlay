@@ -14,8 +14,8 @@ import {
 import invariant from 'tiny-invariant';
 import ConditionNode from './nodes/ConditionNode';
 import DefaultNode from './nodes/DefaultNode';
+import FinishClassNode from './nodes/FinishClassNode';
 import JavaScriptFunctionNode from './nodes/JavaScriptFunctionNode';
-import OutputNode from './nodes/OutputNode';
 import StartClassNode from './nodes/StartClassNode';
 
 function FlowCanvasNode() {
@@ -71,31 +71,24 @@ function FlowCanvasNode() {
   }
 
   if (nodeConfig.class === NodeClass.Start) {
-    if (
-      nodeConfig.type === NodeType.InputNode ||
-      nodeConfig.type === NodeType.GenericChatbotStart
-    ) {
-      return (
-        <StartClassNode
-          nodeId={nodeId}
-          isNodeReadOnly={isNodeReadOnly}
-          nodeConfig={nodeConfig}
-        />
-      );
-    }
+    return (
+      <StartClassNode
+        nodeId={nodeId}
+        isNodeReadOnly={isNodeReadOnly}
+        nodeConfig={nodeConfig}
+      />
+    );
   } else if (nodeConfig.class === NodeClass.Finish) {
     invariant(conditionTarget != null, 'conditionTarget is not null');
 
-    if (nodeConfig.type === NodeType.OutputNode) {
-      return (
-        <OutputNode
-          nodeId={nodeId}
-          isNodeReadOnly={isNodeReadOnly}
-          nodeConfig={nodeConfig}
-          conditionTarget={conditionTarget}
-        />
-      );
-    }
+    return (
+      <FinishClassNode
+        nodeId={nodeId}
+        isNodeReadOnly={isNodeReadOnly}
+        nodeConfig={nodeConfig}
+        conditionTarget={conditionTarget}
+      />
+    );
   } else {
     invariant(conditionTarget != null, 'conditionTarget is not null');
 
