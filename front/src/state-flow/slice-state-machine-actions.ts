@@ -34,7 +34,6 @@ import { createWithImmer } from './util/lens-util';
 import {
   assignLocalEdgeProperties,
   assignLocalNodeProperties,
-  selectStartNodeVariableIdToValueMap,
 } from './util/state-utils';
 
 type StateMachineActionsSliceStateCreator = StateCreator<
@@ -171,22 +170,24 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
       }
     },
 
-    _executeFlowSingleRun() {
+    _executeFlowSingleRun(args) {
+      const { event } = args;
+
+      invariant(
+        event.type === CanvasStateMachineEventType.StartExecutingFlowSingleRun,
+        'Event type is StartExecutingFlowSingleRun',
+      );
+
+      // Analytics
+
       posthog.capture('Starting Simple Evaluation', {
         flowId: get().spaceId,
       });
 
-      const { edges, nodeConfigsDict, variablesDict } = get().getFlowContent();
-      const variableValueLookUpDict = get().getDefaultVariableValueLookUpDict();
-      const { canvasTesterStartNodeId } = get();
+      // Main execution logic
 
-      const flowInputVariableValueMap: Readonly<
-        Record<string, Readonly<unknown>>
-      > = selectStartNodeVariableIdToValueMap(
-        variablesDict,
-        variableValueLookUpDict,
-        nodeConfigsDict,
-      );
+      const { edges, nodeConfigsDict, variablesDict } = get().getFlowContent();
+      const canvasTesterStartNodeId = get().canvasTesterStartNodeId;
 
       // NOTE: Stop previous run if there is one
       runSingleSubscription?.unsubscribe();
@@ -195,9 +196,9 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
         type: ChangeEventType.FLOW_SINGLE_RUN_STARTED,
       });
 
-      // Reset variable values except for flow inputs values
+      // Reset variable values except for start node values
       setFlowContentProduce((draft) => {
-        draft.variableValueLookUpDicts = [flowInputVariableValueMap];
+        draft.variableValueLookUpDicts = [event.params.variableValues];
       });
 
       runSingleSubscription = flowRunSingle({
@@ -211,7 +212,7 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
         })),
         nodeConfigs: nodeConfigsDict,
         connectors: variablesDict,
-        inputValueMap: flowInputVariableValueMap,
+        inputValueMap: event.params.variableValues,
         preferStreaming: true,
         getAccountLevelFieldValue: (
           nodeType: NodeTypeEnum,

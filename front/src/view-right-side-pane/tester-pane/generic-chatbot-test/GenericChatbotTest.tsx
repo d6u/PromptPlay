@@ -1,9 +1,16 @@
 import styled from '@emotion/styled';
 import { Textarea } from '@mui/joy';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
-import type { GenericChatbotStartNodeAllLevelConfig } from 'flow-models';
+import {
+  ConnectorType,
+  type GenericChatbotStartNodeAllLevelConfig,
+  type NodeOutputVariable,
+} from 'flow-models';
 
+import { useFlowStore } from 'state-flow/flow-store';
+
+import invariant from 'tiny-invariant';
 import ChatMessageBox, { Message } from './ChatMessageBox';
 
 type Props = {
@@ -11,6 +18,39 @@ type Props = {
 };
 
 function GenericChatbotTest(props: Props) {
+  const connectors = useFlowStore((s) => s.getFlowContent().variablesDict);
+
+  const startFlowSingleRun = useFlowStore((s) => s.startFlowSingleRun);
+
+  const chatHistoryVariableId = useMemo(() => {
+    const chatHistoryVariable = Object.values(connectors).find(
+      (connector): connector is NodeOutputVariable =>
+        connector.nodeId === props.nodeConfig.nodeId &&
+        connector.type === ConnectorType.NodeOutput &&
+        connector.index === 0,
+    );
+
+    invariant(chatHistoryVariable != null, 'chatHistoryVariable is not null');
+
+    return chatHistoryVariable.id;
+  }, [props.nodeConfig.nodeId, connectors]);
+
+  const currentMessageVariableId = useMemo(() => {
+    const currentMessageVariable = Object.values(connectors).find(
+      (connector): connector is NodeOutputVariable =>
+        connector.nodeId === props.nodeConfig.nodeId &&
+        connector.type === ConnectorType.NodeOutput &&
+        connector.index === 1,
+    );
+
+    invariant(
+      currentMessageVariable != null,
+      'currentMessageVariable is not null',
+    );
+
+    return currentMessageVariable.id;
+  }, [props.nodeConfig.nodeId, connectors]);
+
   const [messages, setMessages] = useState<Message[]>([
     {
       senderName: 'Bot',
@@ -67,7 +107,15 @@ function GenericChatbotTest(props: Props) {
                   messageContent: currentMessageContent,
                 },
               ]);
+
               setCurrentMessageContent('');
+
+              startFlowSingleRun({
+                variableValues: {
+                  [chatHistoryVariableId]: messages,
+                  [currentMessageVariableId]: currentMessageContent,
+                },
+              });
             }
           }}
         />

@@ -20,6 +20,7 @@ import {
   CreateNodeExecutionObservableFunction,
   ImmutableFlowNodeGraph,
   NodeAllLevelConfigUnion,
+  NodeClass,
   NodeExecutionConfig,
   NodeExecutionContext,
   NodeExecutionEvent,
@@ -45,7 +46,7 @@ export const executeFlow = (params: Params): Observable<NodeExecutionEvent> => {
 
     invariant(initialNodeIdList.length > 0, 'initialNodeIdList is not empty');
 
-    let allVariableValueMap = { ...params.inputValueMap };
+    let allVariableValues = { ...params.inputValueMap };
     // Track when to complete the observable.
     let queuedNodeCount = initialNodeIdList.length;
 
@@ -103,24 +104,28 @@ export const executeFlow = (params: Params): Observable<NodeExecutionEvent> => {
             // Currently, we only emit NodeOutput variable values or
             // OutputNode's NodeInput variable values.
 
-            const nodeInputValueMap: ConnectorResultMap = {};
+            const nodeInputVariableValues: ConnectorResultMap = {};
 
-            if (nodeConfig.type === NodeType.InputNode) {
-              nodeConnectors.forEach((connector) => {
-                nodeInputValueMap[connector.id] =
-                  allVariableValueMap[connector.id];
+            if (nodeConfig.class === NodeClass.Start) {
+              // When current node class is Start, we need to collect
+              // NodeOutput variable values other than NodeInput variable
+              // values.
+              nodeConnectors.forEach((c) => {
+                nodeInputVariableValues[c.id] = allVariableValues[c.id];
               });
             } else {
+              // For non-Start node class, we need to collect NodeInput
+              // variable values.
               nodeConnectors
                 .filter(
-                  (conn): conn is NodeInputVariable =>
-                    conn.type === ConnectorType.NodeInput,
+                  (c): c is NodeInputVariable =>
+                    c.type === ConnectorType.NodeInput,
                 )
                 .forEach((variable) => {
                   if (variable.isGlobal) {
                     if (variable.globalVariableId != null) {
-                      nodeInputValueMap[variable.id] =
-                        allVariableValueMap[variable.globalVariableId];
+                      nodeInputVariableValues[variable.id] =
+                        allVariableValues[variable.globalVariableId];
                     }
                   } else {
                     const sourceVariableId =
@@ -128,14 +133,14 @@ export const executeFlow = (params: Params): Observable<NodeExecutionEvent> => {
                         variable.id,
                       );
 
-                    nodeInputValueMap[variable.id] =
-                      allVariableValueMap[sourceVariableId];
+                    nodeInputVariableValues[variable.id] =
+                      allVariableValues[sourceVariableId];
                   }
                 });
             }
 
             const nodeExecutionParams: NodeExecutionParams = {
-              nodeInputValueMap,
+              nodeInputValueMap: nodeInputVariableValues,
               useStreaming: params.preferStreaming,
             };
 
@@ -185,7 +190,7 @@ export const executeFlow = (params: Params): Observable<NodeExecutionEvent> => {
         if (event.type === NodeExecutionEventType.VariableValues) {
           // Update `allVariableValueMap` with values from node
           // execution outputs.
-          allVariableValueMap = produce(allVariableValueMap, (draft) => {
+          allVariableValues = produce(allVariableValues, (draft) => {
             pipe(
               event.variableValuesLookUpDict,
               D.toPairs,

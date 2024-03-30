@@ -27,6 +27,8 @@ import {
   FlowActions,
   FlowProps,
   FlowState,
+  type StartFlowSingleRunParams,
+  type VariableValueUpdate,
 } from './types';
 import { createWithImmer } from './util/lens-util';
 import { actorFor } from './util/state-machine-middleware';
@@ -251,9 +253,7 @@ export const createRootSlice: RootSliceStateCreator = (set, get) => {
         updates: [{ variableId, value }],
       });
     },
-    updateVariableValues(
-      updates: { variableId: string; value: unknown }[],
-    ): void {
+    updateVariableValues(updates: VariableValueUpdate[]): void {
       get()._processEventWithEventGraph({
         type: ChangeEventType.UPDATE_VARIABLE_VALUES,
         updates,
@@ -300,12 +300,15 @@ export const createRootSlice: RootSliceStateCreator = (set, get) => {
       set({ paramsOnUserStartConnectingEdge: null });
     },
 
-    // SECTION: Flow Run
-    startFlowSingleRun() {
+    // ANCHOR: Flow run
+
+    startFlowSingleRun(params: StartFlowSingleRunParams) {
       get().canvasStateMachine.send({
         type: CanvasStateMachineEventType.StartExecutingFlowSingleRun,
+        params,
       });
     },
+
     stopFlowSingleRun() {
       posthog.capture('Manually Stopped Simple Evaluation', {
         flowId: get().spaceId,
@@ -314,6 +317,5 @@ export const createRootSlice: RootSliceStateCreator = (set, get) => {
         type: CanvasStateMachineEventType.StopExecutingFlowSingleRun,
       });
     },
-    // !SECTION
   };
 };

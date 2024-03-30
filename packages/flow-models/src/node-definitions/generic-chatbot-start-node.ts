@@ -8,6 +8,7 @@ import {
   ConnectorResultMap,
   ConnectorType,
   VariableValueType,
+  type NodeOutputVariable,
 } from '../base-types';
 import {
   NodeClass,
@@ -97,16 +98,20 @@ export const GENERIC_CHATBOT_START_NODE_DEFINITION: NodeDefinition<
         nodeId: nodeConfig.nodeId,
       });
 
-      const flowOutputValueMap: ConnectorResultMap = {};
+      const outputVariableValues: ConnectorResultMap = {};
 
-      connectorList.forEach((connector) => {
-        flowOutputValueMap[connector.id] = nodeInputValueMap[connector.id];
-      });
+      connectorList
+        .filter(
+          (c): c is NodeOutputVariable => c.type === ConnectorType.NodeOutput,
+        )
+        .forEach((v) => {
+          outputVariableValues[v.id] = nodeInputValueMap[v.id];
+        });
 
       subscriber.next({
         type: NodeExecutionEventType.VariableValues,
         nodeId: nodeConfig.nodeId,
-        variableValuesLookUpDict: flowOutputValueMap,
+        variableValuesLookUpDict: outputVariableValues,
       });
 
       const connectorIdList = connectorList.map((connector) => connector.id);

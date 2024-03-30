@@ -58,7 +58,12 @@ function GenericInputOutputTest(props: Props) {
         {isCurrentUserOwner && (
           <Button
             color={isExecutingFlowSingleRun ? 'danger' : 'success'}
-            onClick={isExecutingFlowSingleRun ? stopRunningFlow : runFlow}
+            onClick={() => {
+              if (isExecutingFlowSingleRun) {
+                stopRunningFlow();
+              }
+              runFlow({ variableValues: {} });
+            }}
           >
             {isExecutingFlowSingleRun ? 'Stop' : 'Run'}
           </Button>

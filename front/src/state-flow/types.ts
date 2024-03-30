@@ -127,7 +127,7 @@ export type StateMachineActionsStateSlice = {
   _initializeCanvas(): void;
   _cancelCanvasInitializationIfInProgress(): void;
   _syncFlowContent: StateMachineActionFunction;
-  _executeFlowSingleRun(): void;
+  _executeFlowSingleRun: StateMachineActionFunction;
   _cancelFlowSingleRunIfInProgress(): void;
 };
 
@@ -176,6 +176,15 @@ export type FlowProps = {
   batchTest: BatchTestState;
 };
 
+export type StartFlowSingleRunParams = {
+  variableValues: Readonly<Record<string, Readonly<unknown>>>;
+};
+
+export type VariableValueUpdate = {
+  variableId: string;
+  value: unknown;
+};
+
 export type FlowActions = {
   _processEventWithEventGraph(event: AcceptedEvent): void;
 
@@ -217,7 +226,7 @@ export type FlowActions = {
   ): void;
 
   updateVariableValue(variableId: string, value: unknown): void;
-  updateVariableValues(updates: { variableId: string; value: unknown }[]): void;
+  updateVariableValues(updates: VariableValueUpdate[]): void;
 
   createGlobalVariable(name: string, assignToVariableId: string): void;
   // !SECTION
@@ -227,7 +236,7 @@ export type FlowActions = {
   getDefaultVariableValueLookUpDict(): ConnectorResultMap;
 
   // Flow run
-  startFlowSingleRun(): void;
+  startFlowSingleRun(params: StartFlowSingleRunParams): void;
   stopFlowSingleRun(): void;
 };
 
@@ -286,6 +295,7 @@ export type CanvasStateMachineEvent =
     }
   | {
       type: CanvasStateMachineEventType.StartExecutingFlowSingleRun;
+      params: StartFlowSingleRunParams;
     }
   | {
       type: CanvasStateMachineEventType.StopExecutingFlowSingleRun;
