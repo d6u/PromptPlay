@@ -5,8 +5,13 @@ import posthog from 'posthog-js';
 import { useMemo } from 'react';
 
 import SidePaneSection from 'components/side-pane/SidePaneSection';
+import {
+  CSVData,
+  CSVRow,
+  IterationIndex,
+  RowIndex,
+} from 'state-flow/common-types';
 import { useFlowStore } from 'state-flow/flow-store';
-import { CSVData, CSVRow, IterationIndex, RowIndex } from 'state-flow/types';
 import {
   selectVariablesOnAllEndNodes,
   selectVariablesOnAllStartNodes,

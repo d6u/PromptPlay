@@ -1,4 +1,7 @@
-import { NodeExecutionMessage, NodeExecutionStatus } from '../types';
+import {
+  NodeExecutionMessage,
+  NodeExecutionStatus,
+} from 'state-flow/common-types';
 import { createHandler } from './event-graph-util';
 import { ChangeEventType } from './event-types';
 

@@ -2,8 +2,8 @@ import { F } from '@mobily/ts-belt';
 import { Option, Select } from '@mui/joy';
 import { ReactNode, useMemo } from 'react';
 
+import { CSVRow } from 'state-flow/common-types';
 import { useFlowStore } from 'state-flow/flow-store';
-import { CSVRow } from 'state-flow/types';
 import {
   selectVariablesOnAllEndNodes,
   selectVariablesOnAllStartNodes,

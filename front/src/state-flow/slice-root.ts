@@ -13,17 +13,20 @@ import {
   NodeTypeEnum,
 } from 'flow-models';
 
+import type { EventObject } from 'xstate';
+import {
+  BatchTestTab,
+  CanvasRightPanelType,
+  EdgeConnectStartConnectorClass,
+} from './common-types';
 import { ChangeEventType } from './event-graph/event-types';
 import { AcceptedEvent, handleAllEvent } from './event-graph/handle-all-event';
 import { createBatchTestLens } from './lenses/batch-test-lens';
 import { canvasStateMachine } from './state-machines/canvasStateMachine';
 import {
-  BatchTestTab,
-  CanvasRightPanelType,
   CanvasStateMachineContext,
   CanvasStateMachineEvent,
   CanvasStateMachineEventType,
-  EdgeConnectStartConnectorClass,
   FlowActions,
   FlowProps,
   FlowState,
@@ -79,7 +82,8 @@ export const createRootSlice: RootSliceStateCreator = (set, get) => {
     // SECTION: State Machine
     canvasStateMachine: actorFor<
       CanvasStateMachineContext,
-      CanvasStateMachineEvent
+      CanvasStateMachineEvent,
+      EventObject
     >(canvasStateMachine),
     // !SECTION
 
@@ -303,6 +307,8 @@ export const createRootSlice: RootSliceStateCreator = (set, get) => {
     // ANCHOR: Flow run
 
     startFlowSingleRun(params: StartFlowSingleRunParams) {
+      // get().canvasStateMachine
+
       get().canvasStateMachine.send({
         type: CanvasStateMachineEventType.StartExecutingFlowSingleRun,
         params,

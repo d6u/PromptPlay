@@ -15,14 +15,14 @@ import {
 } from 'flow-run/event-types';
 import flowRunBatch from 'flow-run/flowRunBatch';
 import { OverallStatus } from 'flow-run/run-types';
-import { useFlowStore } from 'state-flow/flow-store';
 import {
   BatchTestTab,
   CSVData,
   CSVHeader,
   IterationIndex,
   RowIndex,
-} from 'state-flow/types';
+} from 'state-flow/common-types';
+import { useFlowStore } from 'state-flow/flow-store';
 import { useLocalStorageStore } from 'state-root/local-storage-state';
 
 import EvaluationSectionImportCSV from './components/EvaluationSectionImportCSV';

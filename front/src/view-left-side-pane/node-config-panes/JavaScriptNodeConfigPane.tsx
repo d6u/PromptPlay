@@ -21,8 +21,8 @@ import SidePaneOutputRenderer from 'components/side-pane/SidePaneOutputRenderer'
 import SidePaneSection from 'components/side-pane/SidePaneSection';
 import CopyIconButton from 'generic-components/CopyIconButton';
 import ReadonlyTextarea from 'generic-components/ReadonlyTextarea';
+import { NodeExecutionState } from 'state-flow/common-types';
 import { useFlowStore } from 'state-flow/flow-store';
-import { NodeExecutionState } from 'state-flow/types';
 
 import {
   VariableConfig,

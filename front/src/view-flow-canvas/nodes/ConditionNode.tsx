@@ -19,8 +19,11 @@ import NodeConditionDefaultItem from 'components/node-connector/condition/NodeCo
 import NodeConditionsEditableList from 'components/node-connector/condition/NodeConditionsEditableList';
 import NodeTargetConditionHandle from 'components/node-connector/condition/NodeTargetConditionHandle';
 import NodeRenamableVariableList from 'components/node-connector/variable/NodeRenamableVariableList';
+import {
+  NodeExecutionState,
+  NodeExecutionStatus,
+} from 'state-flow/common-types';
 import { useFlowStore } from 'state-flow/flow-store';
-import { NodeExecutionState, NodeExecutionStatus } from 'state-flow/types';
 import { selectConditions } from 'state-flow/util/state-utils';
 
 import {

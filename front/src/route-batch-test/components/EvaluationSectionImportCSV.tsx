@@ -1,8 +1,8 @@
 import { Table, Textarea } from '@mui/joy';
 
 import SidePaneSection from 'components/side-pane/SidePaneSection';
+import { CSVData, CSVRow } from 'state-flow/common-types';
 import { useFlowStore } from 'state-flow/flow-store';
-import { CSVData, CSVRow } from 'state-flow/types';
 
 type Props = {
   csvHeaders: CSVRow;

@@ -7,8 +7,8 @@ import { Position } from 'reactflow';
 import NodeVariableToggleIsGlobalButton from 'components/node-connector/variable/NodeVariableToggleIsGlobalButton';
 import NodeFieldHelperTextWithStatus from 'components/node-fields/NodeFieldHelperTextWithStatus';
 import RemoveButton from 'generic-components/RemoveButton';
+import { EdgeConnectStartConnectorClass } from 'state-flow/common-types';
 import { useFlowStore } from 'state-flow/flow-store';
-import { EdgeConnectStartConnectorClass } from 'state-flow/types';
 
 import DragHandle from '../DragHandle';
 import { BaseVariableHandle, HANDLE_HEIGHT } from '../base-connector-handles';

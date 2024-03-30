@@ -1,8 +1,8 @@
 import { ReactNode, useMemo } from 'react';
 
 import { OverallStatus } from 'flow-run/run-types';
+import { CSVData, IterationIndex, RowIndex } from 'state-flow/common-types';
 import { useFlowStore } from 'state-flow/flow-store';
-import { CSVData, IterationIndex, RowIndex } from 'state-flow/types';
 import {
   selectVariablesOnAllEndNodes,
   selectVariablesOnAllStartNodes,

@@ -21,13 +21,12 @@ import { ContentVersion, SpaceFlowQueryQuery } from 'gencode-gql/graphql';
 import { client } from 'graphql-util/client';
 import { useLocalStorageStore } from 'state-root/local-storage-state';
 
+import { NodeExecutionMessageType, NodeExecutionStatus } from './common-types';
 import { ChangeEventType } from './event-graph/event-types';
 import { updateSpaceContentV4 } from './graphql/graphql';
 import {
   CanvasStateMachineEventType,
   FlowState,
-  NodeExecutionMessageType,
-  NodeExecutionStatus,
   StateMachineActionsStateSlice,
 } from './types';
 import { createWithImmer } from './util/lens-util';

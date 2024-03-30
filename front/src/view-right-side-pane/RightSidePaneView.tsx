@@ -1,8 +1,8 @@
 import styled from '@emotion/styled';
 import { ReactNode } from 'react';
 
+import { CanvasRightPanelType } from 'state-flow/common-types';
 import { useFlowStore } from 'state-flow/flow-store';
-import { CanvasRightPanelType } from 'state-flow/types';
 
 import TesterPane from './tester-pane/TesterPane';
 

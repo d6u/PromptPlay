@@ -10,35 +10,13 @@ import {
   StateMachine,
   StateValue,
   createActor,
+  type EventObject,
 } from 'xstate';
 import { StateCreator, StoreApi, UseBoundStore } from 'zustand';
 
 import { DefaultStateMachine, FlattenObject } from './state-machine-util';
 
-// ANCHOR: Middleware
-
-export function withStateMachine<
-  State,
-  Actions extends Record<string, unknown>,
->(
-  initializer: StateCreator<State & Actions, [], []>,
-): StateCreator<State & Actions, [], []> {
-  return (set, get, api) => {
-    const initialState = initializer(set, get, api);
-
-    const actions = flattenStateToActions<Actions>(initialState);
-
-    const storeWithStateMachines = createActorForStateMachines(
-      initialState,
-      actions,
-      api,
-    );
-
-    return storeWithStateMachines;
-  };
-}
-
-// ANCHOR: Store wrapper
+// ANCHOR: Utilities
 
 function flattenStateToActions<State>(
   initialState: State,
@@ -63,40 +41,17 @@ function flattenStateToActions<State>(
   return actions as FlattenObject<State>;
 }
 
-export type ActorFor<
-  Context extends MachineContext,
-  Event extends AnyEventObject,
-> = {
-  send: (event: Event) => void;
-  getSnapshot: () => MachineSnapshot<
-    Context, // context
-    Event, // event
-    Record<string, AnyActorRef | undefined>, // children
-    StateValue, // state value
-    string, // tag
-    NonReducibleUnknown // output
-  >;
-};
+// NOTE: This class is only for type checking using instanceOf
+class ActorInState {
+  static isInstanceFlag = Symbol('ActorInState');
 
-export function actorFor<
-  Context extends MachineContext,
-  Event extends AnyEventObject,
->(
-  stateMachine: StateMachine<
-    Context, // context
-    Event, // event
-    Record<string, AnyActorRef | undefined>, // children
-    ProvidedActor, // actor
-    ParameterizedObject, // actions
-    ParameterizedObject, // guards
-    string, // delay
-    StateValue, // state value
-    string, // tag
-    unknown, // input
-    NonReducibleUnknown // output
-  >,
-): ActorFor<Context, Event> {
-  return stateMachine as unknown as ActorFor<Context, Event>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  static [Symbol.hasInstance](obj: any) {
+    return obj != null && obj[ActorInState.isInstanceFlag];
+  }
+
+  // Just for type checking
+  __start() {}
 }
 
 function createActorForStateMachines<State, FlattenActions>(
@@ -118,10 +73,8 @@ function createActorForStateMachines<State, FlattenActions>(
     const value = _value as DefaultStateMachine;
 
     const actor = createActor(
-      value.provide({
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        actions: actions as Record<string, any>,
-      }),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      value.provide({ actions: actions as Record<string, any> }),
       {
         inspect(event) {
           if (event.type === '@xstate.event') {
@@ -134,6 +87,13 @@ function createActorForStateMachines<State, FlattenActions>(
     storeWithStateMachines[key] = {
       [ActorInState.isInstanceFlag]: true,
 
+      send: (event: AnyEventObject) => actor.send(event),
+      getSnapshot: () => actor.getSnapshot(),
+      on: (
+        type: string,
+        handler: (emitted: EventObject & { type: string }) => void,
+      ) => actor.on(type, handler),
+
       // NOTE: This method is not expose on state, but it can still be called
       __start: () => {
         actor.subscribe((snapshot) => {
@@ -142,28 +102,83 @@ function createActorForStateMachines<State, FlattenActions>(
         });
 
         actor.start();
-      },
 
-      send: (event: AnyEventObject) => actor.send(event),
-      getSnapshot: () => actor.getSnapshot(),
+        actor.on('*', (event) => {
+          console.log(`---> [${key}] event:`, event);
+        });
+      },
     };
   }
 
   return { ...initialState, ...storeWithStateMachines } as State;
 }
 
-// NOTE: This class is only for type checking using instanceOf
-export class ActorInState {
-  static isInstanceFlag = Symbol('ActorInState');
+// ANCHOR: Middleware
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  static [Symbol.hasInstance](obj: any) {
-    return obj != null && obj[ActorInState.isInstanceFlag];
-  }
+export function withStateMachine<
+  State,
+  Actions extends Record<string, unknown>,
+>(
+  initializer: StateCreator<State & Actions, [], []>,
+): StateCreator<State & Actions, [], []> {
+  return (set, get, api) => {
+    const initialState = initializer(set, get, api);
 
-  // Just for type checking
-  __start() {}
+    const actions = flattenStateToActions<Actions>(initialState);
+
+    const storeWithStateMachines = createActorForStateMachines(
+      initialState,
+      actions,
+      api,
+    );
+
+    return storeWithStateMachines;
+  };
 }
+
+// ANCHOR: State creator
+
+export type ActorFor<
+  Context extends MachineContext,
+  Event extends AnyEventObject,
+  Emitted extends EventObject,
+> = {
+  send: (event: Event) => void;
+  getSnapshot: () => MachineSnapshot<
+    Context, // context
+    Event, // event
+    Record<string, AnyActorRef | undefined>, // children
+    StateValue, // state value
+    string, // tag
+    NonReducibleUnknown // output
+  >;
+  on: (type: Emitted['type'], handler: (emitted: Emitted) => void) => void;
+};
+
+export function actorFor<
+  Context extends MachineContext,
+  Event extends AnyEventObject,
+  Emitted extends EventObject,
+>(
+  stateMachine: StateMachine<
+    Context, // context
+    Event, // event
+    Record<string, AnyActorRef | undefined>, // children
+    ProvidedActor, // actor
+    ParameterizedObject, // actions
+    ParameterizedObject, // guards
+    string, // delay
+    StateValue, // state value
+    string, // tag
+    unknown, // input
+    NonReducibleUnknown, // output
+    Emitted // emitted
+  >,
+): ActorFor<Context, Event, Emitted> {
+  return stateMachine as unknown as ActorFor<Context, Event, Emitted>;
+}
+
+// ANCHOR: Store wrapper
 
 export function startActors<S extends UseBoundStore<StoreApi<object>>>(
   store: S,

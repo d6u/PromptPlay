@@ -3,7 +3,7 @@ import styled from '@emotion/styled';
 import {
   NodeExecutionMessage,
   NodeExecutionMessageType,
-} from 'state-flow/types';
+} from 'state-flow/common-types';
 
 type Props = {
   message: NodeExecutionMessage;
