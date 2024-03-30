@@ -162,6 +162,7 @@ export type FlowProps = {
   canvasLeftPaneIsOpen: boolean;
   canvasLeftPaneSelectedNodeId: string | null;
   canvasRightPaneType: CanvasRightPanelType;
+  canvasTesterStartNodeId: string | null;
   canvasRenameNodeId: string | null;
   paramsOnUserStartConnectingEdge: {
     nodeId: string;
@@ -184,6 +185,7 @@ export type FlowActions = {
   setCanvasLeftPaneIsOpen(isOpen: boolean): void;
   setCanvasLeftPaneSelectedNodeId(nodeId: string | null): void;
   setCanvasRightPaneType(type: CanvasRightPanelType): void;
+  setCanvasTesterStartNodeId(nodeId: string | null): void;
   setCanvasRenameNodeId(nodeId: string | null): void;
   onEdgeConnectStart(params: OnConnectStartParams): void;
   onEdgeConnectStop(): void;

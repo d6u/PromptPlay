@@ -1,4 +1,3 @@
-import { D } from '@mobily/ts-belt';
 import { Observable, map, of } from 'rxjs';
 import invariant from 'tiny-invariant';
 
@@ -21,14 +20,17 @@ import { executeFlow } from './execute-flow';
 import { Edge, GetAccountLevelFieldValueFunction } from './run-param-types';
 import { getNodeAllLevelConfigOrValidationErrors } from './util';
 
-function flowRunSingle(params: {
+type Params = {
+  startNodeIds: ReadonlyArray<string>;
   edges: ReadonlyArray<Edge>;
   nodeConfigs: Readonly<Record<string, Readonly<NodeConfig>>>;
   connectors: Readonly<Record<string, Readonly<Connector>>>;
   inputValueMap: Readonly<Record<string, Readonly<unknown>>>;
   preferStreaming: boolean;
   getAccountLevelFieldValue: GetAccountLevelFieldValueFunction;
-}): Observable<FlowRunEvent> {
+};
+
+function flowRunSingle(params: Params): Observable<FlowRunEvent> {
   // SECTION[id=pre-execute-validation]: Pre execute validation
   // Keep this section in sync with:
   // LINK ./flowRunBatch.ts#pre-execute-validation
@@ -36,8 +38,9 @@ function flowRunSingle(params: {
   const validationErrors: ValidationError[] = [];
 
   const immutableFlowGraph = new ImmutableFlowNodeGraph({
+    startNodeIds: params.startNodeIds,
+    nodeConfigs: params.nodeConfigs,
     edges: params.edges,
-    nodeIds: D.keys(params.nodeConfigs),
     connectors: params.connectors,
   });
 

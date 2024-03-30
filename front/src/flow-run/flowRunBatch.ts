@@ -47,8 +47,9 @@ function flowRunBatch(params: {
   const validationErrors: ValidationError[] = [];
 
   const immutableFlowGraph = new ImmutableFlowNodeGraph({
+    startNodeIds: [],
+    nodeConfigs: params.nodeConfigs,
     edges: params.edges,
-    nodeIds: D.keys(params.nodeConfigs),
     connectors: params.connectors,
   });
 

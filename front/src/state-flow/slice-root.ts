@@ -136,6 +136,7 @@ export const createRootSlice: RootSliceStateCreator = (set, get) => {
     canvasLeftPaneIsOpen: false,
     canvasLeftPaneSelectedNodeId: null,
     canvasRightPaneType: CanvasRightPanelType.Off,
+    canvasTesterStartNodeId: null,
     canvasRenameNodeId: null,
     paramsOnUserStartConnectingEdge: null,
 
@@ -152,11 +153,14 @@ export const createRootSlice: RootSliceStateCreator = (set, get) => {
     setCanvasLeftPaneIsOpen(isOpen: boolean): void {
       set({ canvasLeftPaneIsOpen: isOpen });
     },
+    setCanvasLeftPaneSelectedNodeId(id: string) {
+      set({ canvasLeftPaneSelectedNodeId: id });
+    },
     setCanvasRightPaneType(type: CanvasRightPanelType) {
       set({ canvasRightPaneType: type });
     },
-    setCanvasLeftPaneSelectedNodeId(id: string) {
-      set({ canvasLeftPaneSelectedNodeId: id });
+    setCanvasTesterStartNodeId(nodeId: string | null): void {
+      set({ canvasTesterStartNodeId: nodeId });
     },
     setSelectedBatchTestTab(tab: BatchTestTab): void {
       set({ selectedBatchTestTab: tab });

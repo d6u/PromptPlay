@@ -2,6 +2,8 @@ import { A, D, F, pipe } from '@mobily/ts-belt';
 import invariant from 'tiny-invariant';
 
 import { ConnectorRecords, ConnectorType } from '../base-types';
+import type { NodeConfig } from '../node-definitions';
+import { NodeClass } from './node-class-and-type';
 
 export type GraphEdge = Readonly<{
   sourceNode: string;
@@ -10,12 +12,15 @@ export type GraphEdge = Readonly<{
   targetConnector: string;
 }>;
 
+type Params = {
+  startNodeIds: ReadonlyArray<string>;
+  nodeConfigs: Readonly<Record<string, Readonly<NodeConfig>>>;
+  edges: ReadonlyArray<GraphEdge>;
+  connectors: ConnectorRecords;
+};
+
 export class ImmutableFlowNodeGraph {
-  constructor(params: {
-    edges: ReadonlyArray<GraphEdge>;
-    nodeIds: ReadonlyArray<string>;
-    connectors: ConnectorRecords;
-  }) {
+  constructor(params: Params) {
     const srcConnIdToDstNodeIds: Record<string, Array<string>> = {};
     const variableDstConnIdToSrcConnId: Record<string, string> = {};
 
@@ -23,17 +28,30 @@ export class ImmutableFlowNodeGraph {
     // one node can have multiple condition indegrees, but we only need one
     // condition to satisfy to unblock the node.
     const nodeVariableIndegrees: Record<string, number> = pipe(
-      params.nodeIds,
+      params.nodeConfigs,
+      D.keys,
       F.toMutable,
       A.map((nodeId) => [nodeId, 0] as const),
       D.fromPairs,
     );
     const nodeConditionIndegrees: Record<string, number> = pipe(
-      params.nodeIds,
+      params.nodeConfigs,
+      D.keys,
       F.toMutable,
       A.map((nodeId) => [nodeId, 0] as const),
       D.fromPairs,
     );
+
+    // Add indegrees for nodeConfig with Start class and it's not one of
+    // startNodeIds, so we can conditionally unblock certain Start nodes.
+    for (const nodeConfig of D.values(params.nodeConfigs)) {
+      if (
+        nodeConfig.class === NodeClass.Start &&
+        !params.startNodeIds.includes(nodeConfig.nodeId)
+      ) {
+        nodeConditionIndegrees[nodeConfig.nodeId] = 1;
+      }
+    }
 
     for (const edge of params.edges) {
       if (srcConnIdToDstNodeIds[edge.sourceConnector] == null) {
@@ -62,7 +80,7 @@ export class ImmutableFlowNodeGraph {
       }
     }
 
-    this.nodeIds = params.nodeIds;
+    this.nodeIds = D.keys(params.nodeConfigs);
     this.connectors = params.connectors;
     this.srcConnIdToDstNodeIds = srcConnIdToDstNodeIds;
     this.variableDstConnIdToSrcConnId = variableDstConnIdToSrcConnId;
@@ -144,7 +162,7 @@ export class MutableFlowNodeGraph {
 
   // Return the list of nodes that have indegree become zero after
   // reducing the indegrees.
-  reduceNodeIndegrees(srcConnectorIds: string[]): string[] {
+  reduceNodeIndegrees(srcConnectorIds: ReadonlyArray<string>): string[] {
     const indegreeZeroNodeIds: string[] = [];
 
     for (const srcConnectorId of srcConnectorIds) {

@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 import { Option, Select } from '@mui/joy';
-import { useMemo, useState, type ReactNode } from 'react';
+import { useMemo, type ReactNode } from 'react';
 import invariant from 'tiny-invariant';
 
 import { NodeClass, NodeType } from 'flow-models';
@@ -13,22 +13,30 @@ import GenericChatbotTest from './generic-chatbot-test/GenericChatbotTest';
 function TesterPane() {
   const nodeConfigs = useFlowStore((s) => s.getFlowContent().nodeConfigsDict);
 
+  const canvasTesterStartNodeId = useFlowStore(
+    (s) => s.canvasTesterStartNodeId,
+  );
+  const setCanvasTesterStartNodeId = useFlowStore(
+    (s) => s.setCanvasTesterStartNodeId,
+  );
+
   const startNodeConfigs = useMemo(() => {
     return Object.values(nodeConfigs).filter((nodeConfig) => {
       return nodeConfig.class === NodeClass.Start;
     });
   }, [nodeConfigs]);
 
-  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
-
   const selectedNodeConfig = useMemo(() => {
-    if (selectedNodeId == null) {
+    if (canvasTesterStartNodeId == null) {
       return null;
     }
-    const nodeConfig = nodeConfigs[selectedNodeId];
+    const nodeConfig = nodeConfigs[canvasTesterStartNodeId];
+    if (nodeConfig == null) {
+      return null;
+    }
     invariant(nodeConfig.class === NodeClass.Start, 'Node class is Start');
     return nodeConfig;
-  }, [nodeConfigs, selectedNodeId]);
+  }, [nodeConfigs, canvasTesterStartNodeId]);
 
   let testerContent: ReactNode;
 
@@ -45,9 +53,9 @@ function TesterPane() {
       <SelectContainer>
         <Select
           placeholder="Select start node"
-          value={selectedNodeId}
+          value={canvasTesterStartNodeId}
           onChange={(_, value) => {
-            setSelectedNodeId(value);
+            setCanvasTesterStartNodeId(value);
           }}
         >
           {startNodeConfigs.map((nodeConfig) => {

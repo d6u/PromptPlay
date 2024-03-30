@@ -30,13 +30,15 @@ import {
   getNodeDefinitionForNodeTypeName,
 } from 'flow-models';
 
-export const executeFlow = (params: {
+type Params = {
   nodeConfigs: Readonly<Record<string, NodeAllLevelConfigUnion>>;
   connectors: Readonly<Record<string, Connector>>;
   inputValueMap: Readonly<Record<string, unknown>>;
   preferStreaming: boolean;
   flowGraph: ImmutableFlowNodeGraph;
-}): Observable<NodeExecutionEvent> => {
+};
+
+export const executeFlow = (params: Params): Observable<NodeExecutionEvent> => {
   return defer((): Observable<NodeExecutionEvent> => {
     const mutableFlowGraph = params.flowGraph.getMutableCopy();
     const initialNodeIdList = mutableFlowGraph.getNodeIdListWithIndegreeZero();

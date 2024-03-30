@@ -1,4 +1,3 @@
-import { D } from '@mobily/ts-belt';
 import { lastValueFrom, tap } from 'rxjs';
 import { TestScheduler } from 'rxjs/testing';
 import { beforeEach, expect, test } from 'vitest';
@@ -94,13 +93,14 @@ test('executeFlow should execute', () => {
   };
 
   const immutableFlowGraph = new ImmutableFlowNodeGraph({
+    startNodeIds: [],
+    nodeConfigs: flowContent.nodeConfigsDict,
     edges: flowContent.edges.map((edge) => ({
       sourceNode: edge.source,
       sourceConnector: edge.sourceHandle,
       targetNode: edge.target,
       targetConnector: edge.targetHandle,
     })),
-    nodeIds: D.keys(flowContent.nodeConfigsDict),
     connectors: flowContent.variablesDict,
   });
 
@@ -349,13 +349,14 @@ test('executeFlow should unblock node has multiple conditions even when only one
   };
 
   const immutableFlowGraph = new ImmutableFlowNodeGraph({
+    startNodeIds: [],
+    nodeConfigs: flowContent.nodeConfigsDict,
     edges: flowContent.edges.map((edge) => ({
       sourceNode: edge.source,
       sourceConnector: edge.sourceHandle,
       targetNode: edge.target,
       targetConnector: edge.targetHandle,
     })),
-    nodeIds: D.keys(flowContent.nodeConfigsDict),
     connectors: flowContent.variablesDict,
   });
 
@@ -630,13 +631,14 @@ test('executeFlow should fallback to default case when no condition was met', as
   };
 
   const immutableFlowGraph = new ImmutableFlowNodeGraph({
+    startNodeIds: [],
+    nodeConfigs: flowContent.nodeConfigsDict,
     edges: flowContent.edges.map((edge) => ({
       sourceNode: edge.source,
       sourceConnector: edge.sourceHandle,
       targetNode: edge.target,
       targetConnector: edge.targetHandle,
     })),
-    nodeIds: D.keys(flowContent.nodeConfigsDict),
     connectors: flowContent.variablesDict,
   });
 

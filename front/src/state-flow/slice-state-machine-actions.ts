@@ -178,6 +178,7 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
 
       const { edges, nodeConfigsDict, variablesDict } = get().getFlowContent();
       const variableValueLookUpDict = get().getDefaultVariableValueLookUpDict();
+      const { canvasTesterStartNodeId } = get();
 
       const flowInputVariableValueMap: Readonly<
         Record<string, Readonly<unknown>>
@@ -200,6 +201,8 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
       });
 
       runSingleSubscription = flowRunSingle({
+        startNodeIds:
+          canvasTesterStartNodeId != null ? [canvasTesterStartNodeId] : [],
         edges: edges.map((edge) => ({
           sourceNode: edge.source,
           sourceConnector: edge.sourceHandle,
