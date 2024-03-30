@@ -5,6 +5,7 @@ import { Position, useUpdateNodeInternals } from 'reactflow';
 import {
   ConditionTarget,
   ConnectorType,
+  NodeClass,
   NodeType,
   OutputNodeAllLevelConfig,
 } from 'flow-models';
@@ -46,6 +47,7 @@ function OutputNode(props: Props) {
       />
       <NodeBox nodeType={NodeType.OutputNode}>
         <NodeBoxHeaderSection
+          nodeClass={NodeClass.Finish}
           isNodeReadOnly={props.isNodeReadOnly}
           title="Output"
           nodeId={props.nodeId}

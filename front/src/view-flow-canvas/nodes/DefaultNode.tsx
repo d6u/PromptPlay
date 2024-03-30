@@ -9,6 +9,7 @@ import {
   ConnectorType,
   InputNodeInstanceLevelConfig,
   JavaScriptFunctionNodeInstanceLevelConfig,
+  NodeClass,
   NodeConfig,
   NodeInputVariable,
   NodeOutputVariable,
@@ -88,6 +89,7 @@ function DefaultNode(props: Props) {
         }
       >
         <NodeBoxHeaderSection
+          nodeClass={NodeClass.Process}
           title={nodeDefinition.label}
           showAddVariableButton={!!nodeDefinition.canUserAddIncomingVariables}
           nodeId={props.nodeId}

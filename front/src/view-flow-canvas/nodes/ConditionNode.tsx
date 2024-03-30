@@ -9,6 +9,7 @@ import {
   ConditionResult,
   ConditionTarget,
   ConnectorType,
+  NodeClass,
   NodeInputVariable,
   NodeType,
 } from 'flow-models';
@@ -74,6 +75,7 @@ function ConditionNode(props: Props) {
         }
       >
         <NodeBoxHeaderSection
+          nodeClass={NodeClass.Process}
           isNodeReadOnly={props.isNodeReadOnly}
           title="Condition"
           nodeId={props.nodeId}

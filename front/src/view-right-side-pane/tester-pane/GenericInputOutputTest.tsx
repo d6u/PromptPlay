@@ -1,3 +1,4 @@
+import styled from '@emotion/styled';
 import { Button } from '@mui/joy';
 import {
   ConnectorType,
@@ -51,7 +52,7 @@ function GenericInputOutputTest(props: Props) {
   }, [nodeConfigs, connectors]);
 
   return (
-    <>
+    <Conatiner>
       <SidePaneHeaderSection>
         <HeaderSectionHeader>Input variables</HeaderSectionHeader>
         {isCurrentUserOwner && (
@@ -85,8 +86,15 @@ function GenericInputOutputTest(props: Props) {
           <SidePaneOutputRenderer key={output.id} outputItem={output} />
         ))}
       </SidePaneSection>
-    </>
+    </Conatiner>
   );
 }
+
+const Conatiner = styled.div`
+  padding-left: 10px;
+  padding-right: 10px;
+  height: 100%;
+  overflow-y: auto;
+`;
 
 export default GenericInputOutputTest;
