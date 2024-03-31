@@ -8,7 +8,6 @@ import {
 } from 'reactflow';
 import type {
   ActionFunction,
-  EventObject,
   ParameterizedObject,
   ProvidedActor,
 } from 'xstate';
@@ -97,10 +96,21 @@ export type CanvasStateMachineEvent =
     }
   | {
       type: CanvasStateMachineEventType.FinishedExecutingFlowSingleRun;
+      hasError: boolean;
+      result: FlowSingleRunResult;
     }
   | {
       type: CanvasStateMachineEventType.LeaveFlowRoute;
     };
+
+export enum CanvasStateMachineEmittedEventType {
+  FlowSingleRunResult = 'FlowSingleRunResult',
+}
+
+export type CanvasStateMachineEmittedEvent = {
+  type: CanvasStateMachineEmittedEventType.FlowSingleRunResult;
+  result: FlowSingleRunResult;
+};
 
 type StateMachineActionFunction = ActionFunction<
   CanvasStateMachineContext, // context
@@ -111,7 +121,7 @@ type StateMachineActionFunction = ActionFunction<
   ParameterizedObject, // actions
   ParameterizedObject, // guards
   string, // delay
-  EventObject // emitted
+  CanvasStateMachineEmittedEvent // emitted
 >;
 
 export type StateMachineActionsStateSlice = {
@@ -148,7 +158,7 @@ export type FlowProps = {
   canvasStateMachine: ActorFor<
     CanvasStateMachineContext,
     CanvasStateMachineEvent,
-    EventObject
+    CanvasStateMachineEmittedEvent
   >;
 
   // ANCHOR: Canvas View
@@ -174,13 +184,17 @@ export type FlowProps = {
 
 // ANCHOR: Store actions
 
+export type VariableValueUpdate = {
+  variableId: string;
+  value: unknown;
+};
+
 export type StartFlowSingleRunParams = {
   variableValues: Readonly<Record<string, Readonly<unknown>>>;
 };
 
-export type VariableValueUpdate = {
-  variableId: string;
-  value: unknown;
+export type FlowSingleRunResult = {
+  variableValues: Readonly<Record<string, Readonly<unknown>>>;
 };
 
 export type FlowActions = {
@@ -235,6 +249,9 @@ export type FlowActions = {
 
   // Flow run
   startFlowSingleRun(params: StartFlowSingleRunParams): void;
+  startFlowSingleRunForResult(
+    params: StartFlowSingleRunParams,
+  ): Promise<FlowSingleRunResult>;
   stopFlowSingleRun(): void;
 };
 

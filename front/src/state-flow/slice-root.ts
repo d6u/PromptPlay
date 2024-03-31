@@ -13,7 +13,6 @@ import {
   NodeTypeEnum,
 } from 'flow-models';
 
-import type { EventObject } from 'xstate';
 import {
   BatchTestTab,
   CanvasRightPanelType,
@@ -25,11 +24,14 @@ import { createBatchTestLens } from './lenses/batch-test-lens';
 import { canvasStateMachine } from './state-machines/canvasStateMachine';
 import {
   CanvasStateMachineContext,
+  CanvasStateMachineEmittedEventType,
   CanvasStateMachineEvent,
   CanvasStateMachineEventType,
   FlowActions,
   FlowProps,
   FlowState,
+  type CanvasStateMachineEmittedEvent,
+  type FlowSingleRunResult,
   type StartFlowSingleRunParams,
   type VariableValueUpdate,
 } from './types';
@@ -83,7 +85,7 @@ export const createRootSlice: RootSliceStateCreator = (set, get) => {
     canvasStateMachine: actorFor<
       CanvasStateMachineContext,
       CanvasStateMachineEvent,
-      EventObject
+      CanvasStateMachineEmittedEvent
     >(canvasStateMachine),
     // !SECTION
 
@@ -307,11 +309,28 @@ export const createRootSlice: RootSliceStateCreator = (set, get) => {
     // ANCHOR: Flow run
 
     startFlowSingleRun(params: StartFlowSingleRunParams) {
-      // get().canvasStateMachine
-
       get().canvasStateMachine.send({
         type: CanvasStateMachineEventType.StartExecutingFlowSingleRun,
         params,
+      });
+    },
+
+    startFlowSingleRunForResult(
+      params: StartFlowSingleRunParams,
+    ): Promise<FlowSingleRunResult> {
+      return new Promise((resolve) => {
+        const subscription = get().canvasStateMachine.on(
+          CanvasStateMachineEmittedEventType.FlowSingleRunResult,
+          (emitted) => {
+            subscription.unsubscribe();
+            resolve({ variableValues: emitted.result.variableValues });
+          },
+        );
+
+        get().canvasStateMachine.send({
+          type: CanvasStateMachineEventType.StartExecutingFlowSingleRun,
+          params,
+        });
       });
     },
 

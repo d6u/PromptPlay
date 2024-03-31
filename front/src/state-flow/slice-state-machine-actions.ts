@@ -293,10 +293,13 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
             flowId: get().spaceId,
           });
 
+          // TODO: Report to telemetry
           console.error(error);
 
           get().canvasStateMachine.send({
             type: CanvasStateMachineEventType.FinishedExecutingFlowSingleRun,
+            hasError: true,
+            result: { variableValues: {} },
           });
 
           get()._processEventWithEventGraph({
@@ -310,6 +313,14 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
 
           get().canvasStateMachine.send({
             type: CanvasStateMachineEventType.FinishedExecutingFlowSingleRun,
+            hasError: false,
+            result: {
+              // TODO: Remove casting
+              variableValues: get().getFlowContent()
+                .variableValueLookUpDicts[0] as Readonly<
+                Record<string, Readonly<unknown>>
+              >,
+            },
           });
 
           get()._processEventWithEventGraph({

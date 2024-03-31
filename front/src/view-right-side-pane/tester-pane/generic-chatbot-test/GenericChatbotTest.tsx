@@ -1,16 +1,17 @@
 import styled from '@emotion/styled';
 import { Textarea } from '@mui/joy';
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
+import invariant from 'tiny-invariant';
 
 import {
   ConnectorType,
+  NodeClass,
   type GenericChatbotStartNodeAllLevelConfig,
   type NodeOutputVariable,
 } from 'flow-models';
 
 import { useFlowStore } from 'state-flow/flow-store';
 
-import invariant from 'tiny-invariant';
 import ChatMessageBox, { Message } from './ChatMessageBox';
 
 type Props = {
@@ -18,9 +19,12 @@ type Props = {
 };
 
 function GenericChatbotTest(props: Props) {
+  const nodeConfigs = useFlowStore((s) => s.getFlowContent().nodeConfigsDict);
   const connectors = useFlowStore((s) => s.getFlowContent().variablesDict);
 
-  const startFlowSingleRun = useFlowStore((s) => s.startFlowSingleRun);
+  const startFlowSingleRunForResult = useFlowStore(
+    (s) => s.startFlowSingleRunForResult,
+  );
 
   const chatHistoryVariableId = useMemo(() => {
     const chatHistoryVariable = Object.values(connectors).find(
@@ -51,31 +55,57 @@ function GenericChatbotTest(props: Props) {
     return currentMessageVariable.id;
   }, [props.nodeConfig.nodeId, connectors]);
 
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      senderName: 'Bot',
-      fromLocalSender: false,
-      messageContent: 'Hello! How can I help you?',
-    },
-    {
-      senderName: 'User',
-      fromLocalSender: true,
-      messageContent: 'I need help with my account',
-    },
-    {
-      senderName: 'Bot',
-      fromLocalSender: false,
-      messageContent: 'Sure! What do you need help with?',
-    },
-    {
-      senderName: 'User',
-      fromLocalSender: true,
-      messageContent: 'I need to reset my password',
-    },
-  ]);
+  const [messages, setMessages] = useState<Message[]>([]);
 
   const [currentMessageContent, setCurrentMessageContent] =
     useState<string>('');
+
+  const submitMessageForReply = useCallback(
+    async (chatHistory: Message[], currentMessage: string) => {
+      const result = await startFlowSingleRunForResult({
+        variableValues: {
+          [chatHistoryVariableId]: chatHistory,
+          [currentMessageVariableId]: currentMessage,
+        },
+      });
+
+      const messagesVariableId = Object.keys(result.variableValues).find(
+        (variableId) => {
+          const variable = connectors[variableId];
+
+          return (
+            variable != null &&
+            nodeConfigs[variable.nodeId].class === NodeClass.Finish &&
+            variable.type === ConnectorType.NodeInput &&
+            variable.name === 'messages'
+          );
+        },
+      );
+
+      invariant(messagesVariableId != null, 'messagesVariableId is not null');
+
+      setMessages((messages) => {
+        return messages.concat(
+          (result.variableValues[messagesVariableId] as string[]).map(
+            (message) => {
+              return {
+                senderName: 'Bot',
+                fromLocalSender: false,
+                messageContent: message,
+              };
+            },
+          ),
+        );
+      });
+    },
+    [
+      chatHistoryVariableId,
+      connectors,
+      currentMessageVariableId,
+      nodeConfigs,
+      startFlowSingleRunForResult,
+    ],
+  );
 
   return (
     <Conatiner>
@@ -99,23 +129,20 @@ function GenericChatbotTest(props: Props) {
                 return;
               }
 
-              setMessages([
-                ...messages,
-                {
-                  senderName: 'User',
-                  fromLocalSender: true,
-                  messageContent: currentMessageContent,
-                },
-              ]);
+              setMessages((messages) => {
+                return [
+                  ...messages,
+                  {
+                    senderName: 'User',
+                    fromLocalSender: true,
+                    messageContent: currentMessageContent,
+                  },
+                ];
+              });
 
               setCurrentMessageContent('');
 
-              startFlowSingleRun({
-                variableValues: {
-                  [chatHistoryVariableId]: messages,
-                  [currentMessageVariableId]: currentMessageContent,
-                },
-              });
+              submitMessageForReply(messages, currentMessageContent);
             }
           }}
         />

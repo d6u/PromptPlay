@@ -11,6 +11,7 @@ import {
   StateValue,
   createActor,
   type EventObject,
+  type Subscription,
 } from 'xstate';
 import { StateCreator, StoreApi, UseBoundStore } from 'zustand';
 
@@ -152,7 +153,10 @@ export type ActorFor<
     string, // tag
     NonReducibleUnknown // output
   >;
-  on: (type: Emitted['type'], handler: (emitted: Emitted) => void) => void;
+  on: (
+    type: Emitted['type'],
+    handler: (emitted: Emitted) => void,
+  ) => Subscription;
 };
 
 export function actorFor<
