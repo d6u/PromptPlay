@@ -3,7 +3,7 @@ import type { Observable } from 'rxjs';
 
 import {
   Connector,
-  ConnectorResultMap,
+  ConnectorResultRecords,
   VariableValueTypeEnum,
 } from '../base-types';
 import NodeExecutionContext from './NodeExecutionContext';
@@ -59,15 +59,15 @@ export type NodeExecutionConfig<T> = {
 };
 
 export type NodeExecutionParams = {
-  nodeInputValueMap: ConnectorResultMap;
+  nodeInputValueMap: ConnectorResultRecords;
   useStreaming: boolean;
 };
 
-export type RunNodeResult = {
+export type RunNodeResult = Partial<{
   errors: Array<string>;
-  connectorResults: Record<string, Readonly<unknown>>;
+  connectorResults: ConnectorResultRecords;
   completedConnectorIds: Array<string>;
-};
+}>;
 
 export type CreateNodeExecutionObservableFunction<T> = (
   context: NodeExecutionContext,

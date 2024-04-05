@@ -4,7 +4,7 @@ import randomId from 'common-utils/randomId';
 
 import {
   ConnectorRecordsSchema,
-  ConnectorResultMapSchema,
+  ConnectorResultRecordsSchema,
   ConnectorType,
   GlobalVariableRecordsSchema,
   ServerEdgeSchema,
@@ -24,7 +24,7 @@ export const CanvasDataSchemaV4 = z.object({
   nodes: z.array(ServerNodeSchema).default([]),
   nodeConfigsDict: NodeConfigRecordsSchema.default({}),
   variablesDict: ConnectorRecordsSchema.default({}),
-  variableValueLookUpDicts: z.array(ConnectorResultMapSchema).default([{}]),
+  variableValueLookUpDicts: z.array(ConnectorResultRecordsSchema).default([{}]),
   globalVariables: GlobalVariableRecordsSchema.default({}),
 });
 

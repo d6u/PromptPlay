@@ -2,12 +2,13 @@ import { A, D, pipe } from '@mobily/ts-belt';
 import { produce } from 'immer';
 import {
   BehaviorSubject,
+  EMPTY,
   Observable,
   catchError,
+  concat,
   concatAll,
+  defer,
   ignoreElements,
-  map,
-  materialize,
   mergeMap,
   of,
   tap,
@@ -16,9 +17,8 @@ import {
 import invariant from 'tiny-invariant';
 
 import {
-  Condition,
   Connector,
-  ConnectorResultMap,
+  ConnectorResultRecords,
   ConnectorType,
   CreateNodeExecutionObservableFunction,
   ImmutableFlowNodeGraph,
@@ -30,7 +30,9 @@ import {
   NodeInputVariable,
   NodeType,
   getNodeDefinitionForNodeTypeName,
+  type Condition,
   type RunNodeResult,
+  type VariableResultRecords,
 } from 'flow-models';
 
 import {
@@ -42,7 +44,7 @@ import {
 type Params = {
   nodeConfigs: Readonly<Record<string, NodeAllLevelConfigUnion>>;
   connectors: Readonly<Record<string, Connector>>;
-  inputValueMap: Readonly<Record<string, Readonly<unknown>>>;
+  inputValueMap: VariableResultRecords;
   preferStreaming: boolean;
   flowGraph: ImmutableFlowNodeGraph;
   progressObserver: Observer<RunNodeProgressEvent>;
@@ -57,13 +59,13 @@ function runFlow(params: Params): Observable<RunFlowResult> {
     'initialNodeIdList should not be empty',
   );
 
-  let allVariableValues = { ...params.inputValueMap };
   // Track when to complete the observable.
   let queuedNodeCount = initialNodeIdList.length;
+  let allVariableValues: VariableResultRecords = { ...params.inputValueMap };
 
   const nodeIdListSubject = new BehaviorSubject<string[]>(initialNodeIdList);
 
-  return nodeIdListSubject.pipe(
+  const obs1 = nodeIdListSubject.pipe(
     // mergeMap converts ArrayLike to Observable automatically
     mergeMap((nodeIdList): Observable<never>[] => {
       return nodeIdList.map((nodeId): Observable<never> => {
@@ -107,7 +109,7 @@ function runFlow(params: Params): Observable<RunFlowResult> {
         // as well, otherwise we cannot inspect node input variable values.
         // Currently, we only emit NodeOutput variable values or
         // OutputNode's NodeInput variable values.
-        const nodeInputVariableValues: ConnectorResultMap = {};
+        const nodeInputVariableValues: ConnectorResultRecords = {};
 
         if (nodeConfig.class === NodeClass.Start) {
           // When current node class is Start, we need to collect
@@ -146,11 +148,7 @@ function runFlow(params: Params): Observable<RunFlowResult> {
           useStreaming: params.preferStreaming,
         };
 
-        let runNodeResult: RunNodeResult = {
-          errors: [],
-          connectorResults: {},
-          completedConnectorIds: [],
-        };
+        let allCompletedConnectorIds: string[] = [];
 
         params.progressObserver.next({
           type: RunNodeProgressEventType.Started,
@@ -158,143 +156,149 @@ function runFlow(params: Params): Observable<RunFlowResult> {
         });
 
         // ANCHOR: Execute
-        return runNode(
-          nodeExecutionContext,
-          nodeExecutionConfig,
-          nodeExecutionParams,
-        ).pipe(
-          // Handle uncaught error and convert it into RunNodeResult
-          catchError<RunNodeResult, Observable<RunNodeResult>>((err) => {
-            console.error(err);
+        return concat(
+          runNode(
+            nodeExecutionContext,
+            nodeExecutionConfig,
+            nodeExecutionParams,
+          ).pipe(
+            catchError<RunNodeResult, Observable<RunNodeResult>>((err) => {
+              console.error(err);
 
-            nodeIdListSubject.complete();
+              nodeIdListSubject.complete();
 
-            return of({
-              errors: [JSON.stringify(err)],
-              connectorResults: {},
-              completedConnectorIds: [],
-            });
-          }),
-          map((result) => {
-            runNodeResult = mergeRunNodeResult(runNodeResult, result);
-            return runNodeResult;
-          }),
-          materialize(),
-          tap((event) => {
-            if (event.kind === 'N') {
-              // Update `allVariableValueMap` with values from node
-              // execution outputs.
-              allVariableValues = produce(allVariableValues, (draft) => {
-                const pairs = D.toPairs(event.value.connectorResults);
-
-                for (const [connectorId, result] of pairs) {
-                  const connector = params.connectors[connectorId];
-
-                  if (
-                    (connector.type === ConnectorType.NodeInput ||
-                      connector.type === ConnectorType.NodeOutput) &&
-                    connector.isGlobal &&
-                    connector.globalVariableId != null
-                  ) {
-                    draft[connector.globalVariableId] = result;
-                  } else {
-                    draft[connectorId] = result;
-                  }
-                }
-              });
-
+              return of({ errors: [JSON.stringify(err)] });
+            }),
+            tap((result) => {
               params.progressObserver.next({
                 type: RunNodeProgressEventType.Updated,
                 nodeId: nodeId,
-                result: event.value,
+                result: result,
               });
-            } else if (event.kind === 'C') {
-              // Make a copy
-              let finishedConnectorIds =
-                runNodeResult.completedConnectorIds.slice();
 
-              // TODO: Generalize this for all node types
-              if (params.nodeConfigs[nodeId].type !== NodeType.ConditionNode) {
-                // NOTE: For non-ConditionNode, we need to add the regular
-                // outgoing condition to the finishedConnectorIds list manually.
-                const regularOutgoingCondition = D.values(
-                  params.connectors,
-                ).find(
-                  (connector): connector is Condition =>
-                    connector.nodeId === nodeId &&
-                    connector.type === ConnectorType.Condition,
+              const { connectorResults, completedConnectorIds } = result;
+
+              if (connectorResults != null) {
+                allVariableValues = produce(allVariableValues, (draft) => {
+                  const pairs = D.toPairs(connectorResults);
+
+                  for (const [connectorId, result] of pairs) {
+                    const connector = params.connectors[connectorId];
+
+                    if (
+                      (connector.type === ConnectorType.NodeInput ||
+                        connector.type === ConnectorType.NodeOutput) &&
+                      connector.isGlobal &&
+                      connector.globalVariableId != null
+                    ) {
+                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                      draft[connector.globalVariableId] = result as any;
+                    } else {
+                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                      draft[connectorId] = result as any;
+                    }
+                  }
+                });
+              }
+
+              if (completedConnectorIds != null) {
+                allCompletedConnectorIds = Array.from(
+                  new Set([
+                    ...allCompletedConnectorIds,
+                    ...completedConnectorIds,
+                  ]),
                 );
-
-                if (regularOutgoingCondition != null) {
-                  finishedConnectorIds.push(regularOutgoingCondition.id);
-
-                  // Deduplicate
-                  finishedConnectorIds = [...new Set(finishedConnectorIds)];
-                }
               }
+            }),
+            ignoreElements(),
+          ),
+          defer(() => {
+            params.progressObserver.next({
+              type: RunNodeProgressEventType.Finished,
+              nodeId: nodeConfig.nodeId,
+            });
 
-              const nextNodeIdList =
-                mutableFlowGraph.reduceNodeIndegrees(finishedConnectorIds);
+            // Make a copy
+            let finishedConnectorIds = allCompletedConnectorIds.slice();
 
-              queuedNodeCount -= 1;
+            // TODO: Generalize this for all node types
+            if (params.nodeConfigs[nodeId].type !== NodeType.ConditionNode) {
+              // NOTE: For non-ConditionNode, we need to add the regular
+              // outgoing condition to the finishedConnectorIds list manually.
+              const regularOutgoingCondition = D.values(params.connectors).find(
+                (connector): connector is Condition =>
+                  connector.nodeId === nodeId &&
+                  connector.type === ConnectorType.Condition,
+              );
 
-              if (nextNodeIdList.length === 0) {
-                if (queuedNodeCount === 0) {
-                  nodeIdListSubject.complete();
-                }
-              } else {
-                // Incrementing count on NodeExecutionEventType.Start event
-                // won't work, because both `queuedNodeCount` and
-                // `nextListOfNodeIds.length` could be 0 while there are still
-                // values in `listOfNodeIdsSubject` waiting to be processed.
-                //
-                // I.e. `listOfNodeIdsSubject.complete()` will complete the subject
-                // immediately, even though there are still values in the subject.
-                queuedNodeCount += nextNodeIdList.length;
+              if (regularOutgoingCondition != null) {
+                finishedConnectorIds.push(regularOutgoingCondition.id);
 
-                nodeIdListSubject.next(nextNodeIdList);
+                // Deduplicate
+                finishedConnectorIds = [...new Set(finishedConnectorIds)];
               }
-
-              params.progressObserver.next({
-                type: RunNodeProgressEventType.Finished,
-                nodeId: nodeConfig.nodeId,
-              });
-            } else {
-              // TODO: Report to telemetry
-              throw event.error;
             }
+
+            const nextNodeIdList =
+              mutableFlowGraph.reduceNodeIndegrees(finishedConnectorIds);
+
+            queuedNodeCount -= 1;
+
+            if (nextNodeIdList.length === 0) {
+              if (queuedNodeCount === 0) {
+                nodeIdListSubject.complete();
+              }
+            } else {
+              // Incrementing count on NodeExecutionEventType.Start event
+              // won't work, because both `queuedNodeCount` and
+              // `nextListOfNodeIds.length` could be 0 while there are still
+              // values in `listOfNodeIdsSubject` waiting to be processed.
+              //
+              // I.e. `listOfNodeIdsSubject.complete()` will complete the subject
+              // immediately, even though there are still values in the subject.
+              queuedNodeCount += nextNodeIdList.length;
+
+              nodeIdListSubject.next(nextNodeIdList);
+            }
+
+            return EMPTY;
           }),
-          ignoreElements(),
         );
       });
     }),
     // NOTE: Switch from concatAll() to mergeAll() to subscribe to each
     // observable at the same time to maximize the concurrency.
     concatAll(),
-    materialize(),
-    map((event) => {
-      invariant(event.kind === 'C', 'event kind is complete');
-      return { variableResults: allVariableValues };
+  );
+
+  return concat(
+    obs1,
+    defer(() => {
+      return of({ variableResults: allVariableValues });
     }),
   );
 }
 
 function mergeRunNodeResult(
-  original: Readonly<RunNodeResult>,
+  original: Readonly<Required<RunNodeResult>>,
   override: Readonly<RunNodeResult>,
-): RunNodeResult {
+): Required<RunNodeResult> {
   return {
-    errors: [...original.errors, ...override.errors],
+    errors: override.errors
+      ? [...original.errors, ...override.errors]
+      : original.errors,
     connectorResults: {
       ...original.connectorResults,
       ...override.connectorResults,
     },
-    completedConnectorIds: Array.from(
-      new Set([
-        ...original.completedConnectorIds,
-        ...override.completedConnectorIds,
-      ]),
-    ),
+    completedConnectorIds: override.completedConnectorIds
+      ? Array.from(
+          new Set([
+            ...original.completedConnectorIds,
+            ...override.completedConnectorIds,
+          ]),
+        )
+      : original.completedConnectorIds,
   };
 }
 

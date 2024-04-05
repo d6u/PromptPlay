@@ -6,7 +6,7 @@ import { StateCreator } from 'zustand';
 
 import {
   Connector,
-  ConnectorResultMap,
+  ConnectorResultRecords,
   ConnectorType,
   ConnectorTypeEnum,
   NodeConfig,
@@ -155,7 +155,7 @@ export const createRootSlice: RootSliceStateCreator = (set, get) => {
 
     // SECTION: Simple getters and setters
     getFlowContent: getFlowContent,
-    getDefaultVariableValueLookUpDict(): ConnectorResultMap {
+    getDefaultVariableValueLookUpDict(): ConnectorResultRecords {
       return getFlowContent().variableValueLookUpDicts[0]!;
     },
     setCanvasLeftPaneIsOpen(isOpen: boolean): void {

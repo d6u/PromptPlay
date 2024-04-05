@@ -1,4 +1,4 @@
-import { Subject, lastValueFrom, tap } from 'rxjs';
+import { ReplaySubject, Subject, lastValueFrom, tap } from 'rxjs';
 import { TestScheduler } from 'rxjs/testing';
 import { beforeEach, expect, test } from 'vitest';
 
@@ -19,7 +19,7 @@ beforeEach(() => {
   });
 });
 
-test('executeFlow should execute', () => {
+test('runFlow should execute', () => {
   const flowContent: CanvasDataV4 = {
     nodes: [
       {
@@ -85,15 +85,15 @@ test('executeFlow should execute', () => {
     },
     variableValueLookUpDicts: [
       {
-        'GjREx/URLME': 'test',
-        '9hKOz/c5NYh': null,
+        'GjREx/URLME': { value: 'test' },
+        '9hKOz/c5NYh': { value: null },
       },
     ],
     globalVariables: {},
   };
 
   const immutableFlowGraph = new ImmutableFlowNodeGraph({
-    startNodeIds: [],
+    startNodeIds: ['GjREx'],
     nodeConfigs: flowContent.nodeConfigsDict,
     edges: flowContent.edges.map((edge) => ({
       sourceNode: edge.source,
@@ -112,42 +112,7 @@ test('executeFlow should execute', () => {
   testScheduler.run((helpers) => {
     const { expectObservable } = helpers;
 
-    const values = [
-      {
-        type: 'Start',
-        nodeId: 'GjREx',
-      },
-      {
-        type: 'NewVariableValues',
-        nodeId: 'GjREx',
-        variableValuesLookUpDict: {
-          'GjREx/URLME': 'test',
-        },
-      },
-      {
-        type: 'Finish',
-        nodeId: 'GjREx',
-        finishedConnectorIds: ['GjREx/URLME'],
-      },
-      {
-        type: 'Start',
-        nodeId: '9hKOz',
-      },
-      {
-        type: 'NewVariableValues',
-        nodeId: '9hKOz',
-        variableValuesLookUpDict: {
-          '9hKOz/c5NYh': 'test',
-        },
-      },
-      {
-        type: 'Finish',
-        nodeId: '9hKOz',
-        finishedConnectorIds: [],
-      },
-    ];
-
-    const expected = '(012345|)';
+    const progressObserver = new ReplaySubject();
 
     const obs = runFlow({
       nodeConfigs: result.nodeAllLevelConfigs!,
@@ -157,14 +122,60 @@ test('executeFlow should execute', () => {
       >,
       preferStreaming: false,
       flowGraph: immutableFlowGraph,
-      progressObserver: new Subject(),
+      progressObserver: progressObserver,
     });
 
-    expectObservable(obs).toBe(expected, values);
+    expectObservable(obs).toBe('(0|)', [
+      {
+        variableResults: {
+          'GjREx/URLME': { value: 'test' },
+          '9hKOz/c5NYh': { value: 'test' },
+        },
+      },
+    ]);
+
+    expectObservable(progressObserver).toBe('(012345)', [
+      {
+        type: 'Started',
+        nodeId: 'GjREx',
+      },
+      {
+        type: 'Updated',
+        nodeId: 'GjREx',
+        result: {
+          connectorResults: {
+            'GjREx/URLME': { value: 'test' },
+          },
+          completedConnectorIds: ['GjREx/URLME'],
+          errors: [],
+        },
+      },
+      {
+        type: 'Finished',
+        nodeId: 'GjREx',
+      },
+      {
+        type: 'Started',
+        nodeId: '9hKOz',
+      },
+      {
+        type: 'Updated',
+        nodeId: '9hKOz',
+        result: {
+          connectorResults: {
+            '9hKOz/c5NYh': { value: 'test' },
+          },
+        },
+      },
+      {
+        type: 'Finished',
+        nodeId: '9hKOz',
+      },
+    ]);
   });
 });
 
-test('executeFlow should unblock node has multiple conditions even when only one condition was met', async () => {
+test('runFlow should unblock node has multiple conditions even when only one condition was met', async () => {
   const flowContent: CanvasDataV4 = {
     nodes: [
       {
@@ -343,16 +354,16 @@ test('executeFlow should unblock node has multiple conditions even when only one
     },
     variableValueLookUpDicts: [
       {
-        'itI1z/7cpZ9': 'Value A',
-        '1w9JM/hvZie': null,
-        '2WvHf/content': null,
+        'itI1z/7cpZ9': { value: 'Value A' },
+        '1w9JM/hvZie': { value: null },
+        '2WvHf/content': { value: null },
       },
     ],
     globalVariables: {},
   };
 
   const immutableFlowGraph = new ImmutableFlowNodeGraph({
-    startNodeIds: [],
+    startNodeIds: ['itI1z'],
     nodeConfigs: flowContent.nodeConfigsDict,
     edges: flowContent.edges.map((edge) => ({
       sourceNode: edge.source,
@@ -449,7 +460,7 @@ test('executeFlow should unblock node has multiple conditions even when only one
   );
 });
 
-test('executeFlow should fallback to default case when no condition was met', async () => {
+test('runFlow should fallback to default case when no condition was met', async () => {
   const flowContent: CanvasDataV4 = {
     nodes: [
       {
@@ -628,16 +639,16 @@ test('executeFlow should fallback to default case when no condition was met', as
     },
     variableValueLookUpDicts: [
       {
-        'itI1z/7cpZ9': 'nothing matches',
-        '1w9JM/hvZie': null,
-        '2WvHf/content': null,
+        'itI1z/7cpZ9': { value: 'nothing matches' },
+        '1w9JM/hvZie': { value: null },
+        '2WvHf/content': { value: null },
       },
     ],
     globalVariables: {},
   };
 
   const immutableFlowGraph = new ImmutableFlowNodeGraph({
-    startNodeIds: [],
+    startNodeIds: ['itI1z'],
     nodeConfigs: flowContent.nodeConfigsDict,
     edges: flowContent.edges.map((edge) => ({
       sourceNode: edge.source,

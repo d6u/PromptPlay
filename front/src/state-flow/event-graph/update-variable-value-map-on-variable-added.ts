@@ -10,7 +10,9 @@ export const updateVariableValueMapOnVariableAdded = createHandler<
   VariableAddedEvent,
   never
 >((state, event) => {
-  state.flowContent.variableValueLookUpDicts[0][event.variableId] = null;
+  state.flowContent.variableValueLookUpDicts[0][event.variableId] = {
+    value: null,
+  };
 
   return [];
 });

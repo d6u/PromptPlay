@@ -1,4 +1,5 @@
 import z from 'zod';
+
 import { ConnectorType } from './connector-type';
 import { VariableValueType } from './variable-value-type';
 
@@ -64,19 +65,25 @@ export const ConnectorRecordsSchema = z.record(ConnectorSchema);
 
 export type ConnectorRecords = z.infer<typeof ConnectorRecordsSchema>;
 
-export const ConnectorResultMapSchema = z.record(
-  z.union([
-    z.object({
-      conditionId: z.string(),
-      isConditionMatched: z.boolean(),
-    }),
-    z.unknown(),
-  ]),
+const ConditionResultSchema = z.object({
+  conditionId: z.string(),
+  isConditionMatched: z.boolean(),
+});
+
+export type ConditionResult = z.infer<typeof ConditionResultSchema>;
+
+const VariableResultSchema = z.object({
+  value: z.unknown(),
+});
+
+export type VariableResult = z.infer<typeof VariableResultSchema>;
+
+export const ConnectorResultRecordsSchema = z.record(
+  z.union([ConditionResultSchema, VariableResultSchema]),
 );
 
-export type ConnectorResultMap = Record<string, ConditionResult | unknown>;
+export type ConnectorResultRecords = z.infer<
+  typeof ConnectorResultRecordsSchema
+>;
 
-export type ConditionResult = {
-  conditionId: string;
-  isConditionMatched: boolean;
-};
+export type VariableResultRecords = Record<string, VariableResult>;

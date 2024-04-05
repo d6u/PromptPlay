@@ -51,7 +51,7 @@ test('handleUpdateConnectors should rename variable', () => {
       },
       variableValueLookUpDicts: [
         {
-          'Z6dPf/wZf7M': null,
+          'Z6dPf/wZf7M': { value: null },
         },
       ],
     },
@@ -164,7 +164,12 @@ test('handleUpdateConnectors should remove edge when isGlobal become true', () =
           globalVariableId: null,
         },
       },
-      variableValueLookUpDicts: [{ 'opVRl/tBBxU': null, '4R9uw/qWffq': null }],
+      variableValueLookUpDicts: [
+        {
+          'opVRl/tBBxU': { value: null },
+          '4R9uw/qWffq': { value: null },
+        },
+      ],
       nodeExecutionStates: {},
       nodeAccountLevelFieldsValidationErrors: {},
       globalVariables: {},

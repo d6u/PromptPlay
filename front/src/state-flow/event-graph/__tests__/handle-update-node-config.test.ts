@@ -66,8 +66,8 @@ test('handleUpdateNodeConfig should add node and nodeConfig', () => {
       },
       variableValueLookUpDicts: [
         {
-          'I6L6E/Ou3oJ': null,
-          'I6L6E/content': null,
+          'I6L6E/Ou3oJ': { value: null },
+          'I6L6E/content': { value: null },
         },
       ],
     },

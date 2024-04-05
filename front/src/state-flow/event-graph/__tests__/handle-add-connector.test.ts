@@ -52,7 +52,7 @@ test('handleAddConnector should add variable', () => {
       },
       variableValueLookUpDicts: [
         {
-          'Z6dPf/wZf7M': null,
+          'Z6dPf/wZf7M': { value: null },
         },
       ],
     },

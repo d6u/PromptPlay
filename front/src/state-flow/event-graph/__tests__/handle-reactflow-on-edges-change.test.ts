@@ -90,8 +90,8 @@ test('handleReactFlowEdgesChange should select edge', () => {
       },
       variableValueLookUpDicts: [
         {
-          'Is8Op/5TUFT': null,
-          'OYlVw/u4bDV': null,
+          'Is8Op/5TUFT': { value: null },
+          'OYlVw/u4bDV': { value: null },
         },
       ],
     },
@@ -212,8 +212,8 @@ test('handleReactFlowEdgesChange should remove edge', () => {
       },
       variableValueLookUpDicts: [
         {
-          'Is8Op/5TUFT': null,
-          'OYlVw/u4bDV': null,
+          'Is8Op/5TUFT': { value: null },
+          'OYlVw/u4bDV': { value: null },
         },
       ],
     },
@@ -403,11 +403,11 @@ test('handleReactFlowEdgesChange should remove multiple edges', () => {
       },
       variableValueLookUpDicts: [
         {
-          'HIbCf/sCWR7': null,
-          'sn268/mt4IG': null,
-          'sn268/TweWr': null,
-          'AkRxM/QCSCO': null,
-          'AkRxM/content': null,
+          'HIbCf/sCWR7': { value: null },
+          'sn268/mt4IG': { value: null },
+          'sn268/TweWr': { value: null },
+          'AkRxM/QCSCO': { value: null },
+          'AkRxM/content': { value: null },
         },
       ],
     },
@@ -534,9 +534,9 @@ test('handleReactFlowEdgesChange should remove edge and reset the value type of 
       },
       variableValueLookUpDicts: [
         {
-          'Is8Op/5TUFT': null,
-          'VhWOu/text': null,
-          'VhWOu/audio': null,
+          'Is8Op/5TUFT': { value: null },
+          'VhWOu/text': { value: null },
+          'VhWOu/audio': { value: null },
         },
       ],
     },

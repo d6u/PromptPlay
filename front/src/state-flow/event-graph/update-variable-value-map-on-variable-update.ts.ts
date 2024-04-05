@@ -14,8 +14,9 @@ export const updateVariableValueMapOnVariableUpdate = createHandler<
       event.nextVariable.type === ConnectorType.NodeOutput)
   ) {
     if (event.prevVariable.valueType !== event.nextVariable.valueType) {
-      state.flowContent.variableValueLookUpDicts[0][event.nextVariable.id] =
-        null;
+      state.flowContent.variableValueLookUpDicts[0][event.nextVariable.id] = {
+        value: null,
+      };
     }
   }
 

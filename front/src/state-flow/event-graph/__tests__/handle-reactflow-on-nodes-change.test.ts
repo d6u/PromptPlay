@@ -76,8 +76,8 @@ test('handleReactFlowNodesChange should remove node', () => {
       },
       variableValueLookUpDicts: [
         {
-          'Is8Op/5TUFT': null,
-          'xAw4x/DWHIh': null,
+          'Is8Op/5TUFT': { value: null },
+          'xAw4x/DWHIh': { value: null },
         },
       ],
     },
@@ -224,8 +224,8 @@ test('handleReactFlowNodesChange should remove connector and edge connected', ()
       },
       variableValueLookUpDicts: [
         {
-          'HIbCf/sCWR7': null,
-          'sn268/mt4IG': null,
+          'HIbCf/sCWR7': { value: null },
+          'sn268/mt4IG': { value: null },
         },
       ],
     },
@@ -364,8 +364,8 @@ test('handleReactFlowNodesChange should remove multiple nodes', () => {
       },
       variableValueLookUpDicts: [
         {
-          'Is8Op/5TUFT': null,
-          'ZMITb/PNDNu': null,
+          'Is8Op/5TUFT': { value: null },
+          'ZMITb/PNDNu': { value: null },
         },
       ],
     },

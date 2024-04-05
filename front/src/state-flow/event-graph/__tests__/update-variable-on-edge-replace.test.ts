@@ -117,9 +117,9 @@ test('handleEdgeReplacedEvent ignores old and new source variables with the same
       },
       variableValueLookUpDicts: [
         {
-          'ZUhTs/aPZ3h': null,
-          'Is8Op/5TUFT': null,
-          'WHqYI/p8a32': null,
+          'ZUhTs/aPZ3h': { value: null },
+          'Is8Op/5TUFT': { value: null },
+          'WHqYI/p8a32': { value: null },
         },
       ],
     },

@@ -13,9 +13,8 @@ import {
   FieldType,
   NodeClass,
   NodeDefinition,
-  NodeExecutionEvent,
-  NodeExecutionEventType,
   NodeType,
+  type RunNodeResult,
 } from '../../node-definition-base-types';
 
 export const JavaScriptFunctionNodeConfigSchema = z.object({
@@ -94,16 +93,11 @@ export const JAVASCRIPT_NODE_DEFINITION: NodeDefinition<
   },
 
   createNodeExecutionObservable: (context, nodeExecutionConfig, params) => {
-    return new Observable<NodeExecutionEvent>((subscriber) => {
+    return new Observable<RunNodeResult>((subscriber) => {
       const { nodeConfig, connectorList } = nodeExecutionConfig;
       const { nodeInputValueMap } = params;
 
       invariant(nodeConfig.type === NodeType.JavaScriptFunctionNode);
-
-      subscriber.next({
-        type: NodeExecutionEventType.Start,
-        nodeId: nodeConfig.nodeId,
-      });
 
       const pairs: [string, unknown][] = connectorList
         .filter((connector): connector is NodeInputVariable => {
@@ -131,32 +125,15 @@ export const JAVASCRIPT_NODE_DEFINITION: NodeDefinition<
       fn(...pairs.map((pair) => pair[1]))
         .then((value: unknown) => {
           subscriber.next({
-            type: NodeExecutionEventType.VariableValues,
-            nodeId: nodeConfig.nodeId,
-            variableValuesLookUpDict: {
-              [outputVariable.id]: value,
+            connectorResults: {
+              [outputVariable.id]: { value },
             },
-          });
-
-          subscriber.next({
-            type: NodeExecutionEventType.Finish,
-            nodeId: nodeConfig.nodeId,
-            finishedConnectorIds: [outputVariable.id],
+            completedConnectorIds: [outputVariable.id],
           });
         })
         .catch((err: Error) => {
           subscriber.next({
-            type: NodeExecutionEventType.Errors,
-            nodeId: nodeConfig.nodeId,
-            errorMessages: [
-              err.message != null ? err.message : 'Unknown error',
-            ],
-          });
-
-          subscriber.next({
-            type: NodeExecutionEventType.Finish,
-            nodeId: nodeConfig.nodeId,
-            finishedConnectorIds: [],
+            errors: [err.message != null ? err.message : 'Unknown error'],
           });
         })
         .finally(() => {

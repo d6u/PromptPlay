@@ -6,16 +6,15 @@ import chance from 'common-utils/chance';
 import randomId from 'common-utils/randomId';
 
 import {
-  ConnectorResultMap,
+  ConnectorResultRecords,
   ConnectorType,
   VariableValueType,
 } from '../../base-types';
 import {
   NodeClass,
   NodeDefinition,
-  NodeExecutionEvent,
-  NodeExecutionEventType,
   NodeType,
+  type RunNodeResult,
 } from '../../node-definition-base-types';
 
 export const InputNodeConfigSchema = z.object({
@@ -73,35 +72,24 @@ export const INPUT_NODE_DEFINITION: NodeDefinition<
   },
 
   createNodeExecutionObservable(context, nodeExecutionConfig, params) {
-    return new Observable<NodeExecutionEvent>((subscriber) => {
+    return new Observable<RunNodeResult>((subscriber) => {
       const { nodeConfig, connectorList } = nodeExecutionConfig;
       const { nodeInputValueMap } = params;
 
       invariant(nodeConfig.type === NodeType.InputNode);
 
-      subscriber.next({
-        type: NodeExecutionEventType.Start,
-        nodeId: nodeConfig.nodeId,
-      });
-
-      const flowOutputValueMap: ConnectorResultMap = {};
+      const flowOutputValueMap: ConnectorResultRecords = {};
 
       connectorList.forEach((connector) => {
         flowOutputValueMap[connector.id] = nodeInputValueMap[connector.id];
       });
 
-      subscriber.next({
-        type: NodeExecutionEventType.VariableValues,
-        nodeId: nodeConfig.nodeId,
-        variableValuesLookUpDict: flowOutputValueMap,
-      });
-
       const connectorIdList = connectorList.map((connector) => connector.id);
 
       subscriber.next({
-        type: NodeExecutionEventType.Finish,
-        nodeId: nodeConfig.nodeId,
-        finishedConnectorIds: connectorIdList,
+        errors: [],
+        connectorResults: flowOutputValueMap,
+        completedConnectorIds: connectorIdList,
       });
 
       subscriber.complete();

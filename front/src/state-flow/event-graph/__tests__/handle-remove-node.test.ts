@@ -46,7 +46,7 @@ test('handleRemoveNode should remove node, nodeConfig, and connectors', () => {
       },
       variableValueLookUpDicts: [
         {
-          '8e2At/hqpZx': null,
+          '8e2At/hqpZx': { value: null },
         },
       ],
     },

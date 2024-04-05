@@ -117,8 +117,8 @@ test('handleReactFlowConnectEvent ignores existing connection', () => {
       },
       variableValueLookUpDicts: [
         {
-          'TmZiV/yhv1Z': null,
-          'af2pT/goHde': null,
+          'TmZiV/yhv1Z': { value: null },
+          'af2pT/goHde': { value: null },
         },
       ],
     },
@@ -241,10 +241,10 @@ test('handleReactFlowConnectEvent ignores Audio source variable with invalid tar
       },
       variableValueLookUpDicts: [
         {
-          'Lbola/text': null,
-          'Lbola/audio': null,
-          'jvWCV/ouGHs': null,
-          'jvWCV/content': null,
+          'Lbola/text': { value: null },
+          'Lbola/audio': { value: null },
+          'jvWCV/ouGHs': { value: null },
+          'jvWCV/content': { value: null },
         },
       ],
     },
@@ -617,9 +617,9 @@ test('handleReactFlowConnect should replace edge', () => {
       },
       variableValueLookUpDicts: [
         {
-          'ZUhTs/aPZ3h': null,
-          'Is8Op/5TUFT': null,
-          'WHqYI/p8a32': null,
+          'ZUhTs/aPZ3h': { value: null },
+          'Is8Op/5TUFT': { value: null },
+          'WHqYI/p8a32': { value: null },
         },
       ],
     },
@@ -780,10 +780,10 @@ test('handleReactFlowConnect should replace edge and update dest variable valueT
       },
       variableValueLookUpDicts: [
         {
-          'Is8Op/5TUFT': null,
-          'gso6A/text': null,
-          'gso6A/audio': null,
-          '7NHli/g2iSG': null,
+          'Is8Op/5TUFT': { value: null },
+          'gso6A/text': { value: null },
+          'gso6A/audio': { value: null },
+          '7NHli/g2iSG': { value: null },
         },
       ],
     },
@@ -903,8 +903,8 @@ test('handleReactFlowConnect should add edge', () => {
       },
       variableValueLookUpDicts: [
         {
-          'Is8Op/5TUFT': null,
-          'OYlVw/u4bDV': null,
+          'Is8Op/5TUFT': { value: null },
+          'OYlVw/u4bDV': { value: null },
         },
       ],
     },
@@ -1026,9 +1026,9 @@ test('handleReactFlowConnect should add edge and update dest variable valueType'
       },
       variableValueLookUpDicts: [
         {
-          'Is8Op/5TUFT': null,
-          'gso6A/text': null,
-          'gso6A/audio': null,
+          'Is8Op/5TUFT': { value: null },
+          'gso6A/text': { value: null },
+          'gso6A/audio': { value: null },
         },
       ],
     },

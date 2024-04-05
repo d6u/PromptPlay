@@ -14,7 +14,7 @@ import type {
 
 import {
   ConnectorRecords,
-  ConnectorResultMap,
+  ConnectorResultRecords,
   ConnectorTypeEnum,
   GlobalVariableRecords,
   LocalEdge,
@@ -143,7 +143,7 @@ export type FlowContentState = {
   edges: LocalEdge[];
   nodeConfigsDict: NodeConfigRecords;
   variablesDict: ConnectorRecords;
-  variableValueLookUpDicts: ConnectorResultMap[];
+  variableValueLookUpDicts: ConnectorResultRecords[];
   nodeExecutionStates: NodeExecutionStateRecords;
   nodeAccountLevelFieldsValidationErrors: Record<string, string>;
   globalVariables: GlobalVariableRecords;
@@ -245,7 +245,7 @@ export type FlowActions = {
 
   // Getter
   getFlowContent: Getter<FlowContentState>;
-  getDefaultVariableValueLookUpDict(): ConnectorResultMap;
+  getDefaultVariableValueLookUpDict(): ConnectorResultRecords;
 
   // Flow run
   startFlowSingleRun(params: StartFlowSingleRunParams): void;

@@ -15,9 +15,8 @@ import {
   FieldType,
   NodeClass,
   NodeDefinition,
-  NodeExecutionEvent,
-  NodeExecutionEventType,
   NodeType,
+  type RunNodeResult,
 } from '../../node-definition-base-types';
 
 export const TextTemplateNodeConfigSchema = z.object({
@@ -111,16 +110,11 @@ export const TEXT_TEMPLATE_NODE_DEFINITION: NodeDefinition<
   },
 
   createNodeExecutionObservable: (context, nodeExecutionConfig, params) => {
-    return new Observable<NodeExecutionEvent>((subscriber) => {
+    return new Observable<RunNodeResult>((subscriber) => {
       const { nodeConfig, connectorList } = nodeExecutionConfig;
       const { nodeInputValueMap } = params;
 
       invariant(nodeConfig.type === NodeType.TextTemplate);
-
-      subscriber.next({
-        type: NodeExecutionEventType.Start,
-        nodeId: nodeConfig.nodeId,
-      });
 
       const argsMap: Record<string, unknown> = {};
 
@@ -147,17 +141,10 @@ export const TEXT_TEMPLATE_NODE_DEFINITION: NodeDefinition<
       // !SECTION
 
       subscriber.next({
-        type: NodeExecutionEventType.VariableValues,
-        nodeId: nodeConfig.nodeId,
-        variableValuesLookUpDict: {
-          [outputVariable.id]: content,
+        connectorResults: {
+          [outputVariable.id]: { value: content },
         },
-      });
-
-      subscriber.next({
-        type: NodeExecutionEventType.Finish,
-        nodeId: nodeConfig.nodeId,
-        finishedConnectorIds: [outputVariable.id],
+        completedConnectorIds: [outputVariable.id],
       });
 
       subscriber.complete();

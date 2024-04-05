@@ -1,4 +1,4 @@
-import type { ConnectorResultMap } from 'flow-models';
+import type { ConnectorResultRecords } from 'flow-models';
 import type { RunMetadata } from 'flow-run/run-types';
 
 export enum NodeExecutionStatus {
@@ -70,7 +70,7 @@ export type VariableIdToCsvColumnIndexMap = Record<
 
 export type RunOutputTable = Record<
   RowIndex,
-  Record<IterationIndex, ConnectorResultMap | undefined> | undefined
+  Record<IterationIndex, ConnectorResultRecords | undefined> | undefined
 >;
 
 export type RunMetadataTable = Record<

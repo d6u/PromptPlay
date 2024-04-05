@@ -17,9 +17,8 @@ import {
   FieldType,
   NodeClass,
   NodeDefinition,
-  NodeExecutionEvent,
-  NodeExecutionEventType,
   NodeType,
+  type RunNodeResult,
 } from '../../node-definition-base-types';
 
 export const ConditionNodeConfigSchema = z.object({
@@ -96,16 +95,11 @@ export const CONDITION_NODE_DEFINITION: NodeDefinition<
   },
 
   createNodeExecutionObservable: (context, nodeExecutionConfig, params) => {
-    return new Observable<NodeExecutionEvent>((subscriber) => {
+    return new Observable<RunNodeResult>((subscriber) => {
       const { nodeConfig, connectorList } = nodeExecutionConfig;
       const { nodeInputValueMap } = params;
 
       invariant(nodeConfig.type === NodeType.ConditionNode);
-
-      subscriber.next({
-        type: NodeExecutionEventType.Start,
-        nodeId: nodeConfig.nodeId,
-      });
 
       (async function () {
         const inputVariable = connectorList.find(
@@ -164,15 +158,9 @@ export const CONDITION_NODE_DEFINITION: NodeDefinition<
         }
 
         subscriber.next({
-          type: NodeExecutionEventType.VariableValues,
-          nodeId: nodeConfig.nodeId,
-          variableValuesLookUpDict: conditionResultMap,
-        });
-
-        subscriber.next({
-          type: NodeExecutionEventType.Finish,
-          nodeId: nodeConfig.nodeId,
-          finishedConnectorIds: pipe(
+          errors: [],
+          connectorResults: conditionResultMap,
+          completedConnectorIds: pipe(
             conditionResultMap,
             D.filter((result) => result.isConditionMatched),
             D.keys,
@@ -182,16 +170,10 @@ export const CONDITION_NODE_DEFINITION: NodeDefinition<
       })()
         .catch((err) => {
           subscriber.next({
-            type: NodeExecutionEventType.Errors,
-            nodeId: nodeConfig.nodeId,
             // TODO: Report to telemetry to improve error message
-            errorMessages: ['message' in err ? err.message : 'Unknown error'],
-          });
-
-          subscriber.next({
-            type: NodeExecutionEventType.Finish,
-            nodeId: nodeConfig.nodeId,
-            finishedConnectorIds: [],
+            errors: ['message' in err ? err.message : 'Unknown error'],
+            connectorResults: {},
+            completedConnectorIds: [],
           });
         })
         .finally(() => {

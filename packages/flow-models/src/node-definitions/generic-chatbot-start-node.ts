@@ -5,7 +5,7 @@ import { z } from 'zod';
 import randomId from 'common-utils/randomId';
 
 import {
-  ConnectorResultMap,
+  ConnectorResultRecords,
   ConnectorType,
   VariableValueType,
   type NodeOutputVariable,
@@ -13,9 +13,8 @@ import {
 import {
   NodeClass,
   NodeDefinition,
-  NodeExecutionEvent,
-  NodeExecutionEventType,
   NodeType,
+  type RunNodeResult,
 } from '../node-definition-base-types';
 
 export const GenericChatbotStartNodeConfigSchema = z.object({
@@ -87,18 +86,13 @@ export const GENERIC_CHATBOT_START_NODE_DEFINITION: NodeDefinition<
   },
 
   createNodeExecutionObservable(context, nodeExecutionConfig, params) {
-    return new Observable<NodeExecutionEvent>((subscriber) => {
+    return new Observable<RunNodeResult>((subscriber) => {
       const { nodeConfig, connectorList } = nodeExecutionConfig;
       const { nodeInputValueMap } = params;
 
       invariant(nodeConfig.type === NodeType.GenericChatbotStart);
 
-      subscriber.next({
-        type: NodeExecutionEventType.Start,
-        nodeId: nodeConfig.nodeId,
-      });
-
-      const outputVariableValues: ConnectorResultMap = {};
+      const outputVariableValues: ConnectorResultRecords = {};
 
       connectorList
         .filter(
@@ -108,18 +102,11 @@ export const GENERIC_CHATBOT_START_NODE_DEFINITION: NodeDefinition<
           outputVariableValues[v.id] = nodeInputValueMap[v.id];
         });
 
-      subscriber.next({
-        type: NodeExecutionEventType.VariableValues,
-        nodeId: nodeConfig.nodeId,
-        variableValuesLookUpDict: outputVariableValues,
-      });
-
       const connectorIdList = connectorList.map((connector) => connector.id);
 
       subscriber.next({
-        type: NodeExecutionEventType.Finish,
-        nodeId: nodeConfig.nodeId,
-        finishedConnectorIds: connectorIdList,
+        connectorResults: outputVariableValues,
+        completedConnectorIds: connectorIdList,
       });
 
       subscriber.complete();

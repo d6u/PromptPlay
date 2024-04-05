@@ -16,9 +16,8 @@ import {
 import {
   NodeClass,
   NodeDefinition,
-  NodeExecutionEvent,
-  NodeExecutionEventType,
   NodeType,
+  type RunNodeResult,
 } from '../node-definition-base-types';
 import { FieldType } from '../node-definition-base-types/field-definition-interfaces';
 
@@ -162,7 +161,7 @@ export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition<
   },
 
   createNodeExecutionObservable: (context, nodeExecutionConfig, params) => {
-    return new Observable<NodeExecutionEvent>((subscriber) => {
+    return new Observable<RunNodeResult>((subscriber) => {
       const { nodeConfig, connectorList } = nodeExecutionConfig;
       const { nodeInputValueMap } = params;
 
@@ -170,11 +169,6 @@ export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition<
         nodeConfig.type === NodeType.ChatGPTMessageNode,
         "Node type is 'ChatGPTMessageNode'",
       );
-
-      subscriber.next({
-        type: NodeExecutionEventType.Start,
-        nodeId: nodeConfig.nodeId,
-      });
 
       const argsMap: Record<string, unknown> = {};
 
@@ -212,18 +206,11 @@ export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition<
       invariant(variableMessages != null);
 
       subscriber.next({
-        type: NodeExecutionEventType.VariableValues,
-        nodeId: nodeConfig.nodeId,
-        variableValuesLookUpDict: {
-          [variableMessage.id]: message,
-          [variableMessages.id]: messages,
+        connectorResults: {
+          [variableMessage.id]: { value: message },
+          [variableMessages.id]: { value: messages },
         },
-      });
-
-      subscriber.next({
-        type: NodeExecutionEventType.Finish,
-        nodeId: nodeConfig.nodeId,
-        finishedConnectorIds: [variableMessage.id, variableMessages.id],
+        completedConnectorIds: [variableMessage.id, variableMessages.id],
       });
 
       subscriber.complete();

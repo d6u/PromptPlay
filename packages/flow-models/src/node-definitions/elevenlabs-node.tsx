@@ -15,9 +15,8 @@ import {
   FieldType,
   NodeClass,
   NodeDefinition,
-  NodeExecutionEvent,
-  NodeExecutionEventType,
   NodeType,
+  type RunNodeResult,
 } from '../node-definition-base-types';
 
 export const ElevenLabsNodeConfigSchema = z.object({
@@ -131,7 +130,7 @@ export const ELEVENLABS_NODE_DEFINITION: NodeDefinition<
   },
 
   createNodeExecutionObservable: (context, nodeExecutionConfig, params) => {
-    return new Observable<NodeExecutionEvent>((subscriber) => {
+    return new Observable<RunNodeResult>((subscriber) => {
       const { nodeConfig, connectorList } = nodeExecutionConfig;
       const { nodeInputValueMap } = params;
 
@@ -139,15 +138,7 @@ export const ELEVENLABS_NODE_DEFINITION: NodeDefinition<
 
       if (!nodeConfig.elevenLabsApiKey) {
         subscriber.next({
-          type: NodeExecutionEventType.Errors,
-          nodeId: nodeConfig.nodeId,
-          errorMessages: ['Eleven Labs API key is missing'],
-        });
-
-        subscriber.next({
-          type: NodeExecutionEventType.Finish,
-          nodeId: nodeConfig.nodeId,
-          finishedConnectorIds: [],
+          errors: ['Eleven Labs API key is missing'],
         });
 
         subscriber.complete();
@@ -184,51 +175,26 @@ export const ELEVENLABS_NODE_DEFINITION: NodeDefinition<
         .then((result) => {
           if (result.isError) {
             subscriber.next({
-              type: NodeExecutionEventType.Errors,
-              nodeId: nodeConfig.nodeId,
-              errorMessages: [
+              errors: [
                 result.data != null
                   ? JSON.stringify(result.data)
                   : 'Unknown error',
               ],
             });
-
-            subscriber.next({
-              type: NodeExecutionEventType.Finish,
-              nodeId: nodeConfig.nodeId,
-              finishedConnectorIds: [],
-            });
           } else {
             const url = URL.createObjectURL(result.data);
 
             subscriber.next({
-              type: NodeExecutionEventType.VariableValues,
-              nodeId: nodeConfig.nodeId,
-              variableValuesLookUpDict: {
-                [variableAudio.id]: url,
+              connectorResults: {
+                [variableAudio.id]: { value: url },
               },
-            });
-
-            subscriber.next({
-              type: NodeExecutionEventType.Finish,
-              nodeId: nodeConfig.nodeId,
-              finishedConnectorIds: [variableAudio.id],
+              completedConnectorIds: [variableAudio.id],
             });
           }
         })
         .catch((err) => {
           subscriber.next({
-            type: NodeExecutionEventType.Errors,
-            nodeId: nodeConfig.nodeId,
-            errorMessages: [
-              err.message != null ? err.message : 'Unknown error',
-            ],
-          });
-
-          subscriber.next({
-            type: NodeExecutionEventType.Finish,
-            nodeId: nodeConfig.nodeId,
-            finishedConnectorIds: [],
+            errors: [err.message != null ? err.message : 'Unknown error'],
           });
         })
         .finally(() => {
