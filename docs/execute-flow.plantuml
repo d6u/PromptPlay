@@ -1,0 +1,61 @@
+@startuml
+
+participant UI
+
+box "Single Run"
+  participant singleRun
+  participant progressObs
+end box
+
+participant executeFlow
+participant executeNode
+
+UI -> singleRun
+
+note over singleRun
+  1. Check for circular dependencies
+  2. Validation account level fields
+  3. Check whether start node required finish node can be reached
+end note
+
+singleRun -> singleRun: Validation
+
+singleRun -> executeFlow
+activate executeFlow
+
+loop repeat for each node
+  progressObs <- executeFlow: event NodeExecutionStarted
+  executeFlow -> executeNode
+  activate executeNode
+
+  loop until complete
+    executeFlow <-- executeNode: {errors, connectorResults, completedConnectorIds}
+    executeFlow -> executeFlow: merge with existing data
+    progressObs <- executeFlow: event NodeExecutionProgress
+  end
+
+  alt complete
+    executeFlow <-- executeNode
+    progressObs <- executeFlow: event NodeExecutionFinished
+  else error
+    note over executeFlow
+      uncaught error from executeNode
+      is converted into event.
+    end note
+
+    executeFlow <-- executeNode: error
+    progressObs <- executeFlow: event NodeExecutionProgress
+    progressObs <- executeFlow: event NodeExecutionFinished
+  end
+  deactivate executeNode
+end
+
+executeFlow -> executeFlow: select Finish nodes' variableResults
+singleRun <-- executeFlow: Finish nodes' variableResults
+
+singleRun -> singleRun: Transform
+UI <-- singleRun
+
+@enduml
+
+

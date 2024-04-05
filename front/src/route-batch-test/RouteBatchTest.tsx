@@ -13,8 +13,8 @@ import {
   FlowBatchRunEventType,
   ValidationErrorType,
 } from 'flow-run/event-types';
-import flowRunBatch from 'flow-run/flowRunBatch';
 import { OverallStatus } from 'flow-run/run-types';
+import flowRunBatch from 'flow-run/runFlowForBatchTest';
 import {
   BatchTestTab,
   CSVData,

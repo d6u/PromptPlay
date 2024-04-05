@@ -1,4 +1,4 @@
-import { lastValueFrom, tap } from 'rxjs';
+import { Subject, lastValueFrom, tap } from 'rxjs';
 import { TestScheduler } from 'rxjs/testing';
 import { beforeEach, expect, test } from 'vitest';
 
@@ -8,7 +8,7 @@ import {
   NodeTypeEnum,
 } from 'flow-models';
 
-import { executeFlow } from '../execute-flow';
+import runFlow from '../runFlow';
 import { getNodeAllLevelConfigOrValidationErrors } from '../util';
 
 let testScheduler: TestScheduler;
@@ -149,12 +149,15 @@ test('executeFlow should execute', () => {
 
     const expected = '(012345|)';
 
-    const obs = executeFlow({
+    const obs = runFlow({
       nodeConfigs: result.nodeAllLevelConfigs!,
       connectors: flowContent.variablesDict,
-      inputValueMap: flowContent.variableValueLookUpDicts[0],
+      inputValueMap: flowContent.variableValueLookUpDicts[0] as Readonly<
+        Record<string, Readonly<unknown>>
+      >,
       preferStreaming: false,
       flowGraph: immutableFlowGraph,
+      progressObserver: new Subject(),
     });
 
     expectObservable(obs).toBe(expected, values);
@@ -365,12 +368,15 @@ test('executeFlow should unblock node has multiple conditions even when only one
     (nodeType: NodeTypeEnum, fieldKey: string) => '',
   );
 
-  const obs = executeFlow({
+  const obs = runFlow({
     nodeConfigs: result.nodeAllLevelConfigs!,
     connectors: flowContent.variablesDict,
-    inputValueMap: flowContent.variableValueLookUpDicts[0],
+    inputValueMap: flowContent.variableValueLookUpDicts[0] as Readonly<
+      Record<string, Readonly<unknown>>
+    >,
     preferStreaming: false,
     flowGraph: immutableFlowGraph,
+    progressObserver: new Subject(),
   });
 
   let n = 0;
@@ -647,12 +653,15 @@ test('executeFlow should fallback to default case when no condition was met', as
     (nodeType: NodeTypeEnum, fieldKey: string) => '',
   );
 
-  const obs = executeFlow({
+  const obs = runFlow({
     nodeConfigs: result.nodeAllLevelConfigs!,
     connectors: flowContent.variablesDict,
-    inputValueMap: flowContent.variableValueLookUpDicts[0],
+    inputValueMap: flowContent.variableValueLookUpDicts[0] as Readonly<
+      Record<string, Readonly<unknown>>
+    >,
     preferStreaming: false,
     flowGraph: immutableFlowGraph,
+    progressObserver: new Subject(),
   });
 
   let n = 0;

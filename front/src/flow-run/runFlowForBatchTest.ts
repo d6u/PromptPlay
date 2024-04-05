@@ -2,6 +2,7 @@ import { D, Option } from '@mobily/ts-belt';
 import {
   EMPTY,
   Observable,
+  Subject,
   endWith,
   mergeMap,
   of,
@@ -14,7 +15,6 @@ import {
   Connector,
   ImmutableFlowNodeGraph,
   NodeConfig,
-  NodeExecutionEvent,
   NodeExecutionEventType,
 } from 'flow-models';
 
@@ -24,9 +24,10 @@ import {
   FlowBatchRunEventType,
   ValidationError,
   ValidationErrorType,
+  type RunNodeProgressEvent,
 } from './event-types';
-import { executeFlow } from './execute-flow';
 import { Edge, GetAccountLevelFieldValueFunction } from './run-param-types';
+import runFlow from './runFlow';
 import { getNodeAllLevelConfigOrValidationErrors } from './util';
 
 function flowRunBatch(params: {
@@ -96,12 +97,15 @@ function flowRunBatch(params: {
         row,
       );
 
-      return executeFlow({
+      const subject = new Subject<RunNodeProgressEvent>();
+
+      return runFlow({
         nodeConfigs: result.nodeAllLevelConfigs,
         connectors: params.connectors,
         inputValueMap,
         preferStreaming: params.preferStreaming,
         flowGraph: immutableFlowGraph,
+        progressObserver: subject,
       }).pipe(
         mergeMap(transformEvent(iterationIndex, rowIndex)),
         startWith<FlowBatchRunEvent>({
@@ -122,10 +126,10 @@ function flowRunBatch(params: {
 function extractInputValueMapForCurrentRun(
   variableIdToCsvColumnIndexMap: Readonly<Record<string, Option<number>>>,
   row: ReadonlyArray<string>,
-) {
+): Readonly<Record<string, Readonly<unknown>>> {
   return D.map(variableIdToCsvColumnIndexMap, (colIndex) => {
     return colIndex != null ? row[colIndex] : null;
-  });
+  }) as Readonly<Record<string, Readonly<unknown>>>;
 }
 
 function transformEvent(

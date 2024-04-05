@@ -1,23 +1,19 @@
-import { Observable, map, of } from 'rxjs';
+import { Observable, Subject, ignoreElements, map, merge, of } from 'rxjs';
 import invariant from 'tiny-invariant';
 
-import {
-  Connector,
-  ImmutableFlowNodeGraph,
-  NodeConfig,
-  NodeExecutionEvent,
-  NodeExecutionEventType,
-} from 'flow-models';
+import { Connector, ImmutableFlowNodeGraph, NodeConfig } from 'flow-models';
 
 import { CIRCULAR_DEPENDENCY_ERROR_MESSAGE } from './constants';
 import {
   FlowRunEvent,
   FlowRunEventType,
+  RunNodeProgressEventType,
   ValidationError,
   ValidationErrorType,
+  type RunNodeProgressEvent,
 } from './event-types';
-import { executeFlow } from './execute-flow';
 import { Edge, GetAccountLevelFieldValueFunction } from './run-param-types';
+import runFlow from './runFlow';
 import { getNodeAllLevelConfigOrValidationErrors } from './util';
 
 type Params = {
@@ -30,7 +26,7 @@ type Params = {
   getAccountLevelFieldValue: GetAccountLevelFieldValueFunction;
 };
 
-function flowRunSingle(params: Params): Observable<FlowRunEvent> {
+function runFlowForCanvasTester(params: Params): Observable<FlowRunEvent> {
   // SECTION[id=pre-execute-validation]: Pre execute validation
   // Keep this section in sync with:
   // LINK ./flowRunBatch.ts#pre-execute-validation
@@ -75,46 +71,50 @@ function flowRunSingle(params: Params): Observable<FlowRunEvent> {
     'nodeAllLevelConfigs is not null',
   );
 
-  return executeFlow({
-    nodeConfigs: result.nodeAllLevelConfigs,
-    connectors: params.connectors,
-    inputValueMap: params.inputValueMap,
-    preferStreaming: params.preferStreaming,
-    flowGraph: immutableFlowGraph,
-  }).pipe(map(transformEvent));
+  const subject = new Subject<RunNodeProgressEvent>();
+
+  return merge(
+    subject.pipe(map(transformEvent)),
+    runFlow({
+      nodeConfigs: result.nodeAllLevelConfigs,
+      connectors: params.connectors,
+      inputValueMap: params.inputValueMap,
+      preferStreaming: params.preferStreaming,
+      flowGraph: immutableFlowGraph,
+      progressObserver: subject,
+    }).pipe(
+      // TODO: Make use of event here in the chatbot tester UI
+      ignoreElements(),
+    ),
+  );
 }
 
-function transformEvent(event: NodeExecutionEvent): FlowRunEvent {
+function transformEvent(event: RunNodeProgressEvent): FlowRunEvent {
   switch (event.type) {
-    case NodeExecutionEventType.Start: {
+    case RunNodeProgressEventType.Started:
       return {
         type: FlowRunEventType.NodeStart,
         nodeId: event.nodeId,
       };
+    case RunNodeProgressEventType.Updated: {
+      return {
+        type: FlowRunEventType.VariableValues,
+        variableValues: event.result.connectorResults,
+      };
+
+      // return {
+      //   type: FlowRunEventType.NodeErrors,
+      //   nodeId: event.nodeId,
+      //   errorMessages: event.errorMessages,
+      // };
+      break;
     }
-    case NodeExecutionEventType.Finish: {
+    case RunNodeProgressEventType.Finished:
       return {
         type: FlowRunEventType.NodeFinish,
         nodeId: event.nodeId,
       };
-    }
-    case NodeExecutionEventType.VariableValues: {
-      return {
-        type: FlowRunEventType.VariableValues,
-        // TODO: Remove casting
-        variableValues: event.variableValuesLookUpDict as Readonly<
-          Record<string, Readonly<unknown>>
-        >,
-      };
-    }
-    case NodeExecutionEventType.Errors: {
-      return {
-        type: FlowRunEventType.NodeErrors,
-        nodeId: event.nodeId,
-        errorMessages: event.errorMessages,
-      };
-    }
   }
 }
 
-export default flowRunSingle;
+export default runFlowForCanvasTester;

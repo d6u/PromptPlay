@@ -15,7 +15,7 @@ import {
 } from 'flow-models';
 
 import { FlowRunEventType, ValidationErrorType } from 'flow-run/event-types';
-import flowRunSingle from 'flow-run/flowRunSingle';
+import runFlowForCanvasTester from 'flow-run/runFlowForCanvasTester';
 import { graphql } from 'gencode-gql';
 import { ContentVersion, SpaceFlowQueryQuery } from 'gencode-gql/graphql';
 import { client } from 'graphql-util/client';
@@ -200,7 +200,7 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
         draft.variableValueLookUpDicts = [event.params.variableValues];
       });
 
-      runSingleSubscription = flowRunSingle({
+      runSingleSubscription = runFlowForCanvasTester({
         startNodeIds:
           canvasTesterStartNodeId != null ? [canvasTesterStartNodeId] : [],
         edges: edges.map((edge) => ({

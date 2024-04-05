@@ -53,29 +53,6 @@ export enum NodeExecutionEventType {
   Errors = 'Errors',
 }
 
-export type NodeExecutionEvent =
-  | {
-      type: NodeExecutionEventType.Start;
-      nodeId: string;
-    }
-  | {
-      type: NodeExecutionEventType.Finish;
-      nodeId: string;
-      finishedConnectorIds: string[];
-    }
-  | {
-      type: NodeExecutionEventType.VariableValues;
-      nodeId: string;
-      // NOTE: Event should always contain all variable values
-      variableValuesLookUpDict: ConnectorResultMap;
-    }
-  | {
-      type: NodeExecutionEventType.Errors;
-      nodeId: string;
-      // NOTE: Event should always contain all error messages
-      errorMessages: string[];
-    };
-
 export type NodeExecutionConfig<T> = {
   nodeConfig: Readonly<T>;
   connectorList: Connector[];
@@ -86,11 +63,17 @@ export type NodeExecutionParams = {
   useStreaming: boolean;
 };
 
+export type RunNodeResult = {
+  errors: Array<string>;
+  connectorResults: Record<string, Readonly<unknown>>;
+  completedConnectorIds: Array<string>;
+};
+
 export type CreateNodeExecutionObservableFunction<T> = (
   context: NodeExecutionContext,
   nodeExecutionConfig: NodeExecutionConfig<T>,
   params: NodeExecutionParams,
-) => Observable<NodeExecutionEvent>;
+) => Observable<RunNodeResult>;
 
 export interface NodeDefinition<
   TInstanceLevelConfig extends BaseNodeInstanceLevelConfig,
