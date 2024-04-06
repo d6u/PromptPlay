@@ -1,4 +1,3 @@
-import type { ConditionResultRecords } from 'flow-models';
 import type { RunMetadata } from 'flow-run/run-types';
 
 export enum NodeExecutionStatus {
@@ -70,7 +69,7 @@ export type VariableIdToCsvColumnIndexMap = Record<
 
 export type RunOutputTable = Record<
   RowIndex,
-  Record<IterationIndex, ConditionResultRecords | undefined> | undefined
+  Record<IterationIndex, Record<string, unknown> | undefined> | undefined
 >;
 
 export type RunMetadataTable = Record<
