@@ -329,7 +329,7 @@ export function migrateV3ToV4(data: any): CanvasDataV4 {
       continue;
     }
 
-    if ('conditionId' in result) {
+    if (result.conditionId != null) {
       conditionResults[connectorId] = result;
     } else {
       variableResults[connectorId] = { value: result };

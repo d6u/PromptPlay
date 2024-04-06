@@ -264,6 +264,8 @@ function createRunNodeWrapperObservable(
       if (variableResults != null) {
         scope.allVariableValues = produce(scope.allVariableValues, (draft) => {
           for (const [connectorId, result] of Object.entries(variableResults)) {
+            console.log('connectorId', connectorId, result);
+
             const connector = params.connectors[connectorId];
 
             invariant(

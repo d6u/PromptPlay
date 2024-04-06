@@ -8,6 +8,7 @@ import randomId from 'common-utils/randomId';
 import {
   ConnectorType,
   VariableValueType,
+  type NodeOutputVariable,
   type VariableResultRecords,
 } from '../../base-types';
 import {
@@ -80,9 +81,13 @@ export const INPUT_NODE_DEFINITION: NodeDefinition<
 
       const outputResults: VariableResultRecords = {};
 
-      connectorList.forEach((connector) => {
-        outputResults[connector.id] = nodeInputValueMap[connector.id];
-      });
+      connectorList
+        .filter(
+          (c): c is NodeOutputVariable => c.type === ConnectorType.NodeOutput,
+        )
+        .forEach((v) => {
+          outputResults[v.id] = nodeInputValueMap[v.id];
+        });
 
       const connectorIdList = connectorList.map((connector) => connector.id);
 

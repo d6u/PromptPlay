@@ -251,12 +251,6 @@ export const createRootSlice: RootSliceStateCreator = (set, get) => {
       });
     },
 
-    updateVariableValue(variableId: string, value: unknown): void {
-      get()._processEventWithEventGraph({
-        type: ChangeEventType.UPDATE_VARIABLE_VALUES,
-        updates: [{ variableId, value }],
-      });
-    },
     updateVariableValues(updates: VariableValueUpdate[]): void {
       get()._processEventWithEventGraph({
         type: ChangeEventType.UPDATE_VARIABLE_VALUES,

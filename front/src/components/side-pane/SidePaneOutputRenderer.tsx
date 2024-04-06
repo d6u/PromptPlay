@@ -28,7 +28,7 @@ function SidePaneOutputRenderer(props: Props) {
   } else {
     valueContent = (
       <ValueRaw>
-        <OutputDisplay value={variableResult.value} />
+        <OutputDisplay value={variableResult?.value} />
       </ValueRaw>
     );
   }

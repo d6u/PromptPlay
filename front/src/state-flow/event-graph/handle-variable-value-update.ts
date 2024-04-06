@@ -1,12 +1,10 @@
+import type { VariableValueUpdate } from '../types.ts';
 import { createHandler } from './event-graph-util.ts';
 import { ChangeEventType } from './event-types.ts';
 
 export type UpdateVariableValueEvent = {
   type: ChangeEventType.UPDATE_VARIABLE_VALUES;
-  updates: {
-    variableId: string;
-    value: unknown;
-  }[];
+  updates: VariableValueUpdate[];
 };
 
 export const handleUpdateVariableValue = createHandler<
@@ -17,8 +15,8 @@ export const handleUpdateVariableValue = createHandler<
     return event.type === ChangeEventType.UPDATE_VARIABLE_VALUES;
   },
   (state, event) => {
-    for (const { variableId, value } of event.updates) {
-      state.flowContent.variableResults[variableId] = { value };
+    for (const { variableId, update } of event.updates) {
+      state.flowContent.variableResults[variableId] = update;
     }
 
     return [];

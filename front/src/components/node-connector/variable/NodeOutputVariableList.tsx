@@ -31,7 +31,7 @@ function NodeOutputVariableList(props: Props) {
       return {
         id: variable.id,
         name: variable.name,
-        value: variableResults[variable.id].value,
+        value: variableResults[variable.id]?.value,
         isGlobal: variable.isGlobal,
         globalVariableId: variable.globalVariableId,
       };

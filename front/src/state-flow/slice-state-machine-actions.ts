@@ -206,9 +206,42 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
 
       const progressObserver = new Subject<FlowRunEvent>();
 
-      const progressObserverSubscription = progressObserver.subscribe({
-        next(event) {
+      const progressObserverSubscription = progressObserver.subscribe(
+        (event) => {
           switch (event.type) {
+            case FlowRunEventType.NodeStart:
+              get()._processEventWithEventGraph({
+                type: ChangeEventType.FLOW_SINGLE_RUN_NODE_EXECUTION_STATE_CHANGE,
+                nodeId: event.nodeId,
+                state: NodeExecutionStatus.Executing,
+              });
+              break;
+            case FlowRunEventType.NodeFinish:
+              get()._processEventWithEventGraph({
+                type: ChangeEventType.FLOW_SINGLE_RUN_NODE_EXECUTION_STATE_CHANGE,
+                nodeId: event.nodeId,
+                state: NodeExecutionStatus.Success,
+              });
+              break;
+            case FlowRunEventType.NodeErrors:
+              get()._processEventWithEventGraph({
+                type: ChangeEventType.FLOW_SINGLE_RUN_NODE_EXECUTION_STATE_CHANGE,
+                nodeId: event.nodeId,
+                state: NodeExecutionStatus.Error,
+                newMessages: event.errorMessages.map((message) => ({
+                  type: NodeExecutionMessageType.Error,
+                  content: message,
+                })),
+              });
+              break;
+            case FlowRunEventType.VariableValues:
+              get().updateVariableValues(
+                Object.keys(event.variableResults).map((variableId) => {
+                  const result = event.variableResults[variableId];
+                  return { variableId, update: result };
+                }),
+              );
+              break;
             case FlowRunEventType.ValidationErrors:
               event.errors.forEach((error) => {
                 switch (error.type) {
@@ -239,41 +272,9 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
                 }
               });
               break;
-            case FlowRunEventType.NodeStart:
-              get()._processEventWithEventGraph({
-                type: ChangeEventType.FLOW_SINGLE_RUN_NODE_EXECUTION_STATE_CHANGE,
-                nodeId: event.nodeId,
-                state: NodeExecutionStatus.Executing,
-              });
-              break;
-            case FlowRunEventType.NodeFinish:
-              get()._processEventWithEventGraph({
-                type: ChangeEventType.FLOW_SINGLE_RUN_NODE_EXECUTION_STATE_CHANGE,
-                nodeId: event.nodeId,
-                state: NodeExecutionStatus.Success,
-              });
-              break;
-            case FlowRunEventType.NodeErrors:
-              get()._processEventWithEventGraph({
-                type: ChangeEventType.FLOW_SINGLE_RUN_NODE_EXECUTION_STATE_CHANGE,
-                nodeId: event.nodeId,
-                state: NodeExecutionStatus.Error,
-                newMessages: event.errorMessages.map((message) => ({
-                  type: NodeExecutionMessageType.Error,
-                  content: message,
-                })),
-              });
-              break;
-            case FlowRunEventType.VariableValues:
-              get().updateVariableValues(
-                Object.entries(event.variableResults).map(
-                  ([variableId, value]) => ({ variableId, value }),
-                ),
-              );
-              break;
           }
         },
-      });
+      );
 
       let runFlowResult: RunFlowResult | null = null;
 

@@ -1,7 +1,12 @@
 import { Observable, Subject, from, mergeMap, of, type Observer } from 'rxjs';
 import invariant from 'tiny-invariant';
 
-import { Connector, ImmutableFlowNodeGraph, NodeConfig } from 'flow-models';
+import {
+  Connector,
+  ImmutableFlowNodeGraph,
+  NodeConfig,
+  type VariableResultRecords,
+} from 'flow-models';
 
 import { CIRCULAR_DEPENDENCY_ERROR_MESSAGE } from './constants';
 import {
@@ -22,7 +27,7 @@ type Params = {
   edges: ReadonlyArray<Edge>;
   nodeConfigs: Readonly<Record<string, Readonly<NodeConfig>>>;
   connectors: Readonly<Record<string, Readonly<Connector>>>;
-  inputValueMap: Readonly<Record<string, Readonly<unknown>>>;
+  inputValueMap: VariableResultRecords;
   preferStreaming: boolean;
   progressObserver: Observer<FlowRunEvent>;
   getAccountLevelFieldValue: GetAccountLevelFieldValueFunction;

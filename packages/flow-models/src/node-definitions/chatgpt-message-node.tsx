@@ -12,6 +12,7 @@ import {
   NodeInputVariable,
   NodeOutputVariable,
   VariableValueType,
+  type VariableResultRecords,
 } from '../base-types';
 import {
   NodeClass,
@@ -170,28 +171,21 @@ export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition<
         "Node type is 'ChatGPTMessageNode'",
       );
 
-      const variableNameToValue: Record<string, unknown> = {};
+      const variableNameToValue: VariableResultRecords = {};
 
       connectorList
         .filter((connector): connector is NodeInputVariable => {
           return connector.type === ConnectorType.NodeInput;
         })
         .forEach((connector) => {
-          variableNameToValue[connector.name] =
-            nodeInputValueMap[connector.id].value ?? null;
+          variableNameToValue[connector.name] = nodeInputValueMap[
+            connector.id
+          ] ?? { value: null };
         });
 
       // NOTE: Main logic
 
-      const inputMessages = connectorList.find(
-        (conn): conn is NodeInputVariable => {
-          return conn.type === ConnectorType.NodeInput;
-        },
-      );
-
-      invariant(inputMessages != null);
-
-      let messages = (nodeInputValueMap[inputMessages.id].value ??
+      let messages = (variableNameToValue['messages'].value ??
         []) as OpenAI.ChatGPTMessage[];
 
       const message = {

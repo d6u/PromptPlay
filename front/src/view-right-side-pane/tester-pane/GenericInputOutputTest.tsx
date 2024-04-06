@@ -1,11 +1,13 @@
 import styled from '@emotion/styled';
 import { Button } from '@mui/joy';
+import { useContext, useMemo } from 'react';
+
 import {
   ConnectorType,
   type NodeConfig,
   type NodeOutputVariable,
+  type VariableResultRecords,
 } from 'flow-models';
-import { useContext, useMemo } from 'react';
 
 import SidePaneHeaderSection from 'components/side-pane/SidePaneHeaderSection';
 import HeaderSectionHeader from 'components/side-pane/SidePaneHeaderSectionHeader';
@@ -25,18 +27,8 @@ function GenericInputOutputTest(props: Props) {
 
   const nodeConfigs = useFlowStore((s) => s.getFlowContent().nodeConfigs);
   const connectors = useFlowStore((s) => s.getFlowContent().connectors);
-  const variableResults = useFlowStore(
-    (s) => s.getFlowContent().variableResults,
-  );
 
-  const isExecutingFlowSingleRun = useFlowStore(
-    (s) => s.canvasStateMachine.getSnapshot().context.isExecutingFlowSingleRun,
-  );
-  const runFlow = useFlowStore((s) => s.startFlowSingleRun);
-  const stopRunningFlow = useFlowStore((s) => s.stopFlowSingleRun);
-  const updateVariableValueMap = useFlowStore((s) => s.updateVariableValue);
-
-  const flowInputs = useMemo(() => {
+  const flowInputVariables = useMemo(() => {
     return Object.values(connectors).filter(
       (connector): connector is NodeOutputVariable => {
         return (
@@ -46,6 +38,17 @@ function GenericInputOutputTest(props: Props) {
       },
     );
   }, [props.nodeConfig.nodeId, connectors]);
+
+  const variableResults = useFlowStore(
+    (s) => s.getFlowContent().variableResults,
+  );
+
+  const isExecutingFlowSingleRun = useFlowStore(
+    (s) => s.canvasStateMachine.getSnapshot().context.isExecutingFlowSingleRun,
+  );
+  const runFlow = useFlowStore((s) => s.startFlowSingleRun);
+  const stopRunningFlow = useFlowStore((s) => s.stopFlowSingleRun);
+  const updateVariableValues = useFlowStore((s) => s.updateVariableValues);
 
   const flowOutputs = useMemo(() => {
     return selectVariablesOnAllEndNodes(connectors, nodeConfigs);
@@ -62,7 +65,14 @@ function GenericInputOutputTest(props: Props) {
               if (isExecutingFlowSingleRun) {
                 stopRunningFlow();
               }
-              runFlow({ inputValues: {} });
+
+              const inputValues: VariableResultRecords = {};
+
+              flowInputVariables.forEach((variable) => {
+                inputValues[variable.id] = variableResults[variable.id];
+              });
+
+              runFlow({ inputValues });
             }}
           >
             {isExecutingFlowSingleRun ? 'Stop' : 'Run'}
@@ -70,16 +80,18 @@ function GenericInputOutputTest(props: Props) {
         )}
       </SidePaneHeaderSection>
       <SidePaneSection>
-        {flowInputs.map((variable, i) => {
+        {flowInputVariables.map((variable) => {
           return (
             <InputBlock
               key={variable.id}
               isReadOnly={!isCurrentUserOwner}
               id={variable.id}
               name={variable.name}
-              value={variableResults[variable.id].value}
+              value={variableResults[variable.id]?.value as string}
               onSaveValue={(value) => {
-                updateVariableValueMap(variable.id, value);
+                updateVariableValues([
+                  { variableId: variable.id, update: { value } },
+                ]);
               }}
             />
           );

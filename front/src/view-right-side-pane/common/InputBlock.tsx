@@ -10,8 +10,7 @@ type Props = {
   isReadOnly: boolean;
   id: string;
   name: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  value: any;
+  value: string;
   onSaveValue: (value: string) => void;
 };
 

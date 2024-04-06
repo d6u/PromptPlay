@@ -19,6 +19,7 @@ import {
   NodeConfig,
   NodeTypeEnum,
   type CanvasDataV4,
+  type VariableResult,
   type VariableResultRecords,
 } from 'flow-models';
 
@@ -180,7 +181,7 @@ export type FlowProps = {
 
 export type VariableValueUpdate = {
   variableId: string;
-  value: unknown;
+  update: VariableResult;
 };
 
 export type StartFlowSingleRunParams = {
@@ -231,7 +232,6 @@ export type FlowActions = {
     updates: { variableId: string; change: Record<string, unknown> }[],
   ): void;
 
-  updateVariableValue(variableId: string, value: unknown): void;
   updateVariableValues(updates: VariableValueUpdate[]): void;
 
   createGlobalVariable(name: string, assignToVariableId: string): void;
