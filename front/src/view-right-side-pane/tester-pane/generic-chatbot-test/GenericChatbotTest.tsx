@@ -89,9 +89,8 @@ function GenericChatbotTest(props: Props) {
           (result.variableResults[messagesVariableId].value as string[]).map(
             (message) => {
               return {
-                senderName: 'Bot',
-                fromLocalSender: false,
-                messageContent: message,
+                role: 'assistant',
+                content: message,
               };
             },
           ),
@@ -133,9 +132,8 @@ function GenericChatbotTest(props: Props) {
                 return [
                   ...messages,
                   {
-                    senderName: 'User',
-                    fromLocalSender: true,
-                    messageContent: currentMessageContent,
+                    role: 'user',
+                    content: currentMessageContent,
                   },
                 ];
               });

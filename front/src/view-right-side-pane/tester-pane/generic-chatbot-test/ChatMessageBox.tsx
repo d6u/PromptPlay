@@ -1,9 +1,8 @@
 import styled from '@emotion/styled';
 
 export type Message = {
-  senderName: string;
-  fromLocalSender: boolean;
-  messageContent: string;
+  role: string;
+  content: string;
 };
 
 type Props = {
@@ -12,11 +11,10 @@ type Props = {
 
 function ChatMessageBox(props: Props) {
   return (
-    <Container $fromLocalSender={props.message.fromLocalSender}>
-      <SenderName>{props.message.senderName}</SenderName>
-      <MessageBubble $fromLocalSender={props.message.fromLocalSender}>
-        {/* \u00A0 is &nbsp; */}
-        {props.message.messageContent.replace(/ /g, '\u00A0')}
+    <Container $fromLocalSender={props.message.role === 'user'}>
+      <SenderName>{props.message.role}</SenderName>
+      <MessageBubble $fromLocalSender={props.message.role === 'user'}>
+        {props.message.content}
       </MessageBubble>
     </Container>
   );
@@ -50,8 +48,10 @@ const MessageBubble = styled.div<{ $fromLocalSender: boolean }>`
     props.$fromLocalSender ? '#3A80F6' : '#e9e9eb'};
   color: ${(props) => (props.$fromLocalSender ? 'white' : 'black')};
   min-width: 28px;
-  // Make sure we render new line character in string as new line
-  white-space: pre-line;
+  // Make sure we render text bubble correctly by preserving whitespace
+  // and new line character.
+  // Firefox doesn't support "white-space-collapse: preserve;"
+  white-space: break-spaces;
 `;
 
 export default ChatMessageBox;

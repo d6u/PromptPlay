@@ -102,7 +102,7 @@ export const JAVASCRIPT_NODE_DEFINITION: NodeDefinition<
       const pairs: [string, unknown][] = inputVariables
         .sort((a, b) => a.index - b.index)
         .map((v) => {
-          return [v.name, inputVariableResults[v.id] ?? null];
+          return [v.name, inputVariableResults[v.id].value];
         });
 
       const outputVariable = outputVariables[0];
