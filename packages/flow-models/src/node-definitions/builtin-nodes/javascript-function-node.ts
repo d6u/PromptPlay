@@ -63,7 +63,7 @@ export const JAVASCRIPT_NODE_DEFINITION: NodeDefinition<
           // TODO: JS code can output both structured, string, and audio
           // Need to find a way to let us validate data type
           valueType: VariableValueType.Structured,
-          isGlobal: true,
+          isGlobal: false,
           globalVariableId: null,
         },
         {
@@ -73,7 +73,7 @@ export const JAVASCRIPT_NODE_DEFINITION: NodeDefinition<
           name: 'userName',
           index: 1,
           valueType: VariableValueType.Any,
-          isGlobal: true,
+          isGlobal: false,
           globalVariableId: null,
         },
         {

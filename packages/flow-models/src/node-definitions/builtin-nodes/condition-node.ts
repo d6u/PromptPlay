@@ -61,7 +61,7 @@ export const CONDITION_NODE_DEFINITION: NodeDefinition<
           index: 0,
           name: 'input',
           valueType: VariableValueType.Any,
-          isGlobal: true,
+          isGlobal: false,
           globalVariableId: null,
         },
         {

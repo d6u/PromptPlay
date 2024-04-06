@@ -112,7 +112,7 @@ export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition<
           name: 'messages',
           index: 0,
           valueType: VariableValueType.Structured,
-          isGlobal: true,
+          isGlobal: false,
           globalVariableId: null,
         },
         {
@@ -122,7 +122,7 @@ export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition<
           name: 'topic',
           index: 1,
           valueType: VariableValueType.String,
-          isGlobal: true,
+          isGlobal: false,
           globalVariableId: null,
         },
         {
@@ -132,7 +132,7 @@ export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition<
           name: 'message',
           index: 0,
           valueType: VariableValueType.Structured,
-          isGlobal: true,
+          isGlobal: false,
           globalVariableId: null,
         },
         {
@@ -142,7 +142,7 @@ export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition<
           name: 'messages',
           index: 1,
           valueType: VariableValueType.Structured,
-          isGlobal: true,
+          isGlobal: false,
           globalVariableId: null,
         },
         {

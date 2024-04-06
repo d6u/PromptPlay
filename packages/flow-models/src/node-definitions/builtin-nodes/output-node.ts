@@ -56,7 +56,7 @@ export const OUTPUT_NODE_DEFINITION: NodeDefinition<
           index: 0,
           name: chance.word(),
           valueType: VariableValueType.Any,
-          isGlobal: true,
+          isGlobal: false,
           globalVariableId: null,
         },
         {

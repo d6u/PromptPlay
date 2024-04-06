@@ -100,7 +100,7 @@ export const ELEVENLABS_NODE_DEFINITION: NodeDefinition<
           nodeId: nodeId,
           index: 0,
           valueType: VariableValueType.String,
-          isGlobal: true,
+          isGlobal: false,
           globalVariableId: null,
         },
         {
@@ -110,7 +110,7 @@ export const ELEVENLABS_NODE_DEFINITION: NodeDefinition<
           nodeId: nodeId,
           index: 0,
           valueType: VariableValueType.Audio,
-          isGlobal: true,
+          isGlobal: false,
           globalVariableId: null,
         },
         {
