@@ -30,6 +30,7 @@ import {
   type ConditionResultRecords,
   type ConnectorRecords,
   type MutableFlowNodeGraph,
+  type NodeOutputVariable,
   type RunNodeResult,
   type VariableResultRecords,
 } from 'flow-models';
@@ -133,55 +134,70 @@ function createRunNodeObservable(
   const runNode =
     nodeDefinition.createNodeExecutionObservable as CreateNodeExecutionObservableFunction<NodeAllLevelConfigUnion>;
 
-  // ANCHOR: NodeExecutionConfig
-  const connectors = pipe(
+  const inputVariables = pipe(
     params.connectors,
     D.values,
-    A.filter((connector) => connector.nodeId === nodeId),
+    A.filter(
+      (c): c is NodeInputVariable =>
+        c.nodeId === nodeId && c.type === ConnectorType.NodeInput,
+    ),
   );
 
-  // ANCHOR: NodeExecutionParams
+  const outputVariables = pipe(
+    params.connectors,
+    D.values,
+    A.filter(
+      (c): c is NodeOutputVariable =>
+        c.nodeId === nodeId && c.type === ConnectorType.NodeOutput,
+    ),
+  );
+
+  const outputConditions = pipe(
+    params.connectors,
+    D.values,
+    A.filter(
+      (c): c is Condition =>
+        c.nodeId === nodeId && c.type === ConnectorType.Condition,
+    ),
+  );
+
   // TODO: We need to emit the NodeInput variable value to store
   // as well, otherwise we cannot inspect node input variable values.
   // Currently, we only emit NodeOutput variable values or
   // OutputNode's NodeInput variable values.
-  const nodeInputVariableValues: VariableResultRecords = {};
+  const inputVariableResults: VariableResultRecords = {};
 
   if (nodeConfig.class === NodeClass.Start) {
     // When current node class is Start, we need to collect
-    // NodeOutput variable values other than NodeInput variable
-    // values.
-    connectors.forEach((c) => {
-      nodeInputVariableValues[c.id] = scope.allVariableValues[c.id];
+    // NodeOutput variable values other than NodeInput variable values.
+    outputVariables.forEach((v) => {
+      inputVariableResults[v.id] = scope.allVariableValues[v.id];
     });
   } else {
-    // For non-Start node class, we need to collect NodeInput
-    // variable values.
-    connectors
-      .filter((c): c is NodeInputVariable => c.type === ConnectorType.NodeInput)
-      .forEach((variable) => {
-        if (variable.isGlobal) {
-          if (variable.globalVariableId != null) {
-            nodeInputVariableValues[variable.id] =
-              scope.allVariableValues[variable.globalVariableId];
-          }
-        } else {
-          const sourceVariableId =
-            scope.mutableFlowGraph.getSrcVariableIdFromDstVariableId(
-              variable.id,
-            );
-
-          nodeInputVariableValues[variable.id] =
-            scope.allVariableValues[sourceVariableId];
+    // For non-Start node class, we need to collect NodeInput variable values.
+    inputVariables.forEach((variable) => {
+      if (variable.isGlobal) {
+        if (variable.globalVariableId != null) {
+          inputVariableResults[variable.id] =
+            scope.allVariableValues[variable.globalVariableId];
         }
-      });
+      } else {
+        const sourceVariableId =
+          scope.mutableFlowGraph.getSrcVariableIdFromDstVariableId(variable.id);
+
+        inputVariableResults[variable.id] =
+          scope.allVariableValues[sourceVariableId];
+      }
+    });
   }
 
-  const nodeExecutionParams: RunNodeParams<NodeAllLevelConfigUnion> = {
+  const runNodeParams: RunNodeParams<NodeAllLevelConfigUnion> = {
     preferStreaming: params.preferStreaming,
     nodeConfig,
-    connectors: connectors,
-    nodeInputValueMap: nodeInputVariableValues,
+    inputVariables,
+    outputVariables,
+    outputConditions,
+    inputVariableResults,
   };
 
   const runNodeScope = new RunNodeScope({ allCompletedConnectorIds: [] });
@@ -190,7 +206,7 @@ function createRunNodeObservable(
     scope,
     runNodeScope,
     params,
-    runNode(nodeExecutionParams),
+    runNode(runNodeParams),
     nodeId,
   );
 

@@ -70,18 +70,14 @@ export const OUTPUT_NODE_DEFINITION: NodeDefinition<
 
   createNodeExecutionObservable(params) {
     return new Observable<RunNodeResult>((subscriber) => {
-      const {
-        nodeConfig,
-        connectors: connectorList,
-        nodeInputValueMap,
-      } = params;
+      const { nodeConfig, inputVariables, inputVariableResults } = params;
 
       invariant(nodeConfig.type === NodeType.OutputNode);
 
       const inputResults: VariableResultRecords = {};
 
-      connectorList.forEach((connector) => {
-        inputResults[connector.id] = nodeInputValueMap[connector.id];
+      inputVariables.forEach((v) => {
+        inputResults[v.id] = inputVariableResults[v.id];
       });
 
       subscriber.next({

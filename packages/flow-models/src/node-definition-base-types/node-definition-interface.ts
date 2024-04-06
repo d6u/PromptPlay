@@ -4,7 +4,10 @@ import type { Observable } from 'rxjs';
 import {
   Connector,
   VariableValueTypeEnum,
+  type Condition,
   type ConditionResultRecords,
+  type NodeInputVariable,
+  type NodeOutputVariable,
   type VariableResultRecords,
 } from '../base-types';
 import {
@@ -54,10 +57,12 @@ export enum NodeExecutionEventType {
 }
 
 export type RunNodeParams<T> = {
-  nodeConfig: Readonly<T>;
-  connectors: Connector[];
-  nodeInputValueMap: VariableResultRecords;
   preferStreaming: boolean;
+  nodeConfig: Readonly<T>;
+  inputVariables: NodeInputVariable[];
+  outputVariables: NodeOutputVariable[];
+  outputConditions: Condition[];
+  inputVariableResults: VariableResultRecords;
 };
 
 export type RunNodeResult = Partial<{

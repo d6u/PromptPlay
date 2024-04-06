@@ -5,12 +5,7 @@ import { z } from 'zod';
 
 import randomId from 'common-utils/randomId';
 
-import {
-  ConnectorType,
-  NodeInputVariable,
-  NodeOutputVariable,
-  VariableValueType,
-} from '../../base-types';
+import { ConnectorType, VariableValueType } from '../../base-types';
 import {
   FieldType,
   NodeClass,
@@ -113,34 +108,26 @@ export const TEXT_TEMPLATE_NODE_DEFINITION: NodeDefinition<
     return new Observable<RunNodeResult>((subscriber) => {
       const {
         nodeConfig,
-        connectors: connectorList,
-        nodeInputValueMap,
+        inputVariables,
+        outputVariables,
+        inputVariableResults,
       } = params;
 
       invariant(nodeConfig.type === NodeType.TextTemplate);
 
-      const argsMap: Record<string, unknown> = {};
+      const variableNameToValues: Record<string, unknown> = {};
 
-      connectorList
-        .filter((connector): connector is NodeInputVariable => {
-          return connector.type === ConnectorType.NodeInput;
-        })
-        .forEach((connector) => {
-          argsMap[connector.name] =
-            nodeInputValueMap[connector.id].value ?? null;
-        });
+      inputVariables.forEach((connector) => {
+        variableNameToValues[connector.name] =
+          inputVariableResults[connector.id].value;
+      });
 
-      const outputVariable = connectorList.find(
-        (connector): connector is NodeOutputVariable => {
-          return connector.type === ConnectorType.NodeOutput;
-        },
-      );
-
+      const outputVariable = outputVariables[0];
       invariant(outputVariable != null);
 
       // SECTION: Main Logic
 
-      const content = mustache.render(nodeConfig.content, argsMap);
+      const content = mustache.render(nodeConfig.content, variableNameToValues);
 
       // !SECTION
 

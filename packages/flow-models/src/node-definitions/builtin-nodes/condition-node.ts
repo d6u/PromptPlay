@@ -7,9 +7,7 @@ import { z } from 'zod';
 import randomId from 'common-utils/randomId';
 
 import {
-  Condition,
   ConnectorType,
-  NodeInputVariable,
   VariableValueType,
   type ConditionResultRecords,
 } from '../../base-types';
@@ -98,32 +96,18 @@ export const CONDITION_NODE_DEFINITION: NodeDefinition<
     return new Observable<RunNodeResult>((subscriber) => {
       const {
         nodeConfig,
-        connectors: connectorList,
-        nodeInputValueMap,
+        inputVariables,
+        outputConditions,
+        inputVariableResults,
       } = params;
 
       invariant(nodeConfig.type === NodeType.ConditionNode);
 
       (async function () {
-        const inputVariable = connectorList.find(
-          (connector): connector is NodeInputVariable => {
-            return connector.type === ConnectorType.NodeInput;
-          },
-        );
-
+        const inputVariable = inputVariables[0];
         invariant(inputVariable != null);
 
-        const inputResult = nodeInputValueMap[inputVariable.id];
-
-        invariant('value' in inputResult, 'Input value is missing');
-
-        const inputValue = inputResult.value;
-
-        const conditions = connectorList
-          .filter((connector): connector is Condition => {
-            return connector.type === ConnectorType.Condition;
-          })
-          .sort((a, b) => a.index - b.index);
+        const conditions = outputConditions.sort((a, b) => a.index - b.index);
 
         const defaultCaseCondition = conditions[0];
         const normalConditions = conditions.slice(1);
@@ -136,7 +120,9 @@ export const CONDITION_NODE_DEFINITION: NodeDefinition<
 
         for (const condition of normalConditions) {
           const expression = jsonata(condition.expressionString);
-          const result = await expression.evaluate(inputValue);
+          const result = await expression.evaluate(
+            inputVariableResults[inputVariable.id].value,
+          );
 
           if (result) {
             hasMatch = true;

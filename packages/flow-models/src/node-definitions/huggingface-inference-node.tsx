@@ -5,12 +5,7 @@ import { z } from 'zod';
 import randomId from 'common-utils/randomId';
 import * as HuggingFace from 'integrations/hugging-face';
 
-import {
-  ConnectorType,
-  NodeInputVariable,
-  NodeOutputVariable,
-  VariableValueType,
-} from '../base-types';
+import { ConnectorType, VariableValueType } from '../base-types';
 import {
   FieldType,
   NodeClass,
@@ -138,38 +133,23 @@ export const HUGGINGFACE_INFERENCE_NODE_DEFINITION: NodeDefinition<
     return new Observable<RunNodeResult>((subscriber) => {
       const {
         nodeConfig,
-        connectors: connectorList,
-        nodeInputValueMap,
+        inputVariables,
+        outputVariables,
+        inputVariableResults,
       } = params;
 
       invariant(nodeConfig.type === NodeType.HuggingFaceInference);
 
       if (!nodeConfig.huggingFaceApiToken) {
-        subscriber.next({
-          errors: ['Hugging Face API token is missing'],
-        });
-
+        subscriber.next({ errors: ['Hugging Face API token is missing'] });
         subscriber.complete();
         return;
       }
 
-      const argsMap: Record<string, unknown> = {};
+      const inputParameters = inputVariables[0];
+      invariant(inputParameters != null);
 
-      connectorList
-        .filter((connector): connector is NodeInputVariable => {
-          return connector.type === ConnectorType.NodeInput;
-        })
-        .forEach((connector) => {
-          argsMap[connector.name] =
-            nodeInputValueMap[connector.id].value ?? null;
-        });
-
-      const variableOutput = connectorList.find(
-        (conn): conn is NodeOutputVariable => {
-          return conn.type === ConnectorType.NodeOutput && conn.index === 0;
-        },
-      );
-
+      const variableOutput = outputVariables[0];
       invariant(variableOutput != null);
 
       // NOTE: Main logic
@@ -179,7 +159,7 @@ export const HUGGINGFACE_INFERENCE_NODE_DEFINITION: NodeDefinition<
           apiToken: nodeConfig.huggingFaceApiToken,
           model: nodeConfig.model,
         },
-        argsMap['parameters'],
+        inputVariableResults[inputParameters.id].value,
       )
         .then((result) => {
           if (result.isError) {

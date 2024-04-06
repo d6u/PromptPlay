@@ -7,7 +7,6 @@ import randomId from 'common-utils/randomId';
 import {
   ConnectorType,
   VariableValueType,
-  type NodeOutputVariable,
   type VariableResultRecords,
 } from '../base-types';
 import {
@@ -87,29 +86,19 @@ export const GENERIC_CHATBOT_START_NODE_DEFINITION: NodeDefinition<
 
   createNodeExecutionObservable(params) {
     return new Observable<RunNodeResult>((subscriber) => {
-      const {
-        nodeConfig,
-        connectors: connectorList,
-        nodeInputValueMap,
-      } = params;
+      const { nodeConfig, outputVariables, inputVariableResults } = params;
 
       invariant(nodeConfig.type === NodeType.GenericChatbotStart);
 
       const variableResults: VariableResultRecords = {};
 
-      connectorList
-        .filter(
-          (c): c is NodeOutputVariable => c.type === ConnectorType.NodeOutput,
-        )
-        .forEach((v) => {
-          variableResults[v.id] = nodeInputValueMap[v.id];
-        });
-
-      const connectorIdList = connectorList.map((connector) => connector.id);
+      outputVariables.forEach((v) => {
+        variableResults[v.id] = inputVariableResults[v.id];
+      });
 
       subscriber.next({
         variableResults: variableResults,
-        completedConnectorIds: connectorIdList,
+        completedConnectorIds: outputVariables.map((c) => c.id),
       });
 
       subscriber.complete();

@@ -63,7 +63,7 @@ test('handleAddNode should add node and nodeConfig', () => {
       index: 0,
       name: expect.any(String),
       valueType: 'String',
-      isGlobal: true,
+      isGlobal: false,
       globalVariableId: null,
     },
     {

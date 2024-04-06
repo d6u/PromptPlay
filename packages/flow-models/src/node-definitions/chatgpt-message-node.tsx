@@ -7,13 +7,7 @@ import { z } from 'zod';
 import randomId from 'common-utils/randomId';
 import * as OpenAI from 'integrations/openai';
 
-import {
-  ConnectorType,
-  NodeInputVariable,
-  NodeOutputVariable,
-  VariableValueType,
-  type VariableResultRecords,
-} from '../base-types';
+import { ConnectorType, VariableValueType } from '../base-types';
 import {
   NodeClass,
   NodeDefinition,
@@ -165,8 +159,9 @@ export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition<
     return new Observable<RunNodeResult>((subscriber) => {
       const {
         nodeConfig,
-        connectors: connectorList,
-        nodeInputValueMap,
+        inputVariables,
+        outputVariables,
+        inputVariableResults,
       } = params;
 
       invariant(
@@ -174,21 +169,16 @@ export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition<
         "Node type is 'ChatGPTMessageNode'",
       );
 
-      const variableNameToValue: VariableResultRecords = {};
+      const variableNameToValue: Record<string, unknown> = {};
 
-      connectorList
-        .filter((connector): connector is NodeInputVariable => {
-          return connector.type === ConnectorType.NodeInput;
-        })
-        .forEach((connector) => {
-          variableNameToValue[connector.name] = nodeInputValueMap[
-            connector.id
-          ] ?? { value: null };
-        });
+      inputVariables.forEach((connector) => {
+        variableNameToValue[connector.name] =
+          inputVariableResults[connector.id]?.value;
+      });
 
       // NOTE: Main logic
 
-      let messages = (variableNameToValue['messages'].value ??
+      let messages = (variableNameToValue['messages'] ??
         []) as OpenAI.ChatGPTMessage[];
 
       const message = {
@@ -198,16 +188,8 @@ export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition<
 
       messages = F.toMutable(A.append(messages, message));
 
-      const variableMessage = connectorList.find(
-        (conn): conn is NodeOutputVariable => {
-          return conn.type === ConnectorType.NodeOutput && conn.index === 0;
-        },
-      );
-      const variableMessages = connectorList.find(
-        (conn): conn is NodeOutputVariable => {
-          return conn.type === ConnectorType.NodeOutput && conn.index === 1;
-        },
-      );
+      const variableMessage = outputVariables.find((conn) => conn.index === 0);
+      const variableMessages = outputVariables.find((conn) => conn.index === 1);
 
       invariant(variableMessage != null);
       invariant(variableMessages != null);

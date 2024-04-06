@@ -5,12 +5,7 @@ import { z } from 'zod';
 import randomId from 'common-utils/randomId';
 import * as ElevenLabs from 'integrations/eleven-labs';
 
-import {
-  ConnectorType,
-  NodeInputVariable,
-  NodeOutputVariable,
-  VariableValueType,
-} from '../base-types';
+import { ConnectorType, VariableValueType } from '../base-types';
 import {
   FieldType,
   NodeClass,
@@ -133,39 +128,26 @@ export const ELEVENLABS_NODE_DEFINITION: NodeDefinition<
     return new Observable<RunNodeResult>((subscriber) => {
       const {
         nodeConfig,
-        connectors: connectorList,
-        nodeInputValueMap,
+        inputVariables,
+        outputVariables,
+        inputVariableResults,
       } = params;
 
       invariant(nodeConfig.type === NodeType.ElevenLabs);
 
       if (!nodeConfig.elevenLabsApiKey) {
-        subscriber.next({
-          errors: ['Eleven Labs API key is missing'],
-        });
-
+        subscriber.next({ errors: ['Eleven Labs API key is missing'] });
         subscriber.complete();
         return;
       }
 
-      const inputVariableText = connectorList.find(
-        (conn): conn is NodeInputVariable => {
-          return conn.type === ConnectorType.NodeInput;
-        },
-      );
+      const inputText = inputVariables[0];
+      invariant(inputText != null);
 
-      invariant(inputVariableText != null);
+      const outputAudio = outputVariables[0];
+      invariant(outputAudio != null);
 
-      const variableAudio = connectorList.find(
-        (conn): conn is NodeOutputVariable => {
-          return conn.type === ConnectorType.NodeOutput && conn.index === 0;
-        },
-      );
-
-      invariant(variableAudio != null);
-
-      const text = nodeInputValueMap[inputVariableText.id].value;
-
+      const text = inputVariableResults[inputText.id].value;
       invariant(typeof text === 'string');
 
       ElevenLabs.textToSpeech({
@@ -186,8 +168,10 @@ export const ELEVENLABS_NODE_DEFINITION: NodeDefinition<
             const url = URL.createObjectURL(result.data);
 
             subscriber.next({
-              variableResults: { [variableAudio.id]: { value: url } },
-              completedConnectorIds: [variableAudio.id],
+              variableResults: {
+                [outputAudio.id]: { value: url },
+              },
+              completedConnectorIds: [outputAudio.id],
             });
           }
         })

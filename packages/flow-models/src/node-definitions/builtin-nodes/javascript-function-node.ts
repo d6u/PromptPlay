@@ -4,11 +4,7 @@ import { z } from 'zod';
 
 import randomId from 'common-utils/randomId';
 
-import {
-  ConnectorType,
-  NodeInputVariable,
-  VariableValueType,
-} from '../../base-types';
+import { ConnectorType, VariableValueType } from '../../base-types';
 import {
   FieldType,
   NodeClass,
@@ -96,26 +92,20 @@ export const JAVASCRIPT_NODE_DEFINITION: NodeDefinition<
     return new Observable<RunNodeResult>((subscriber) => {
       const {
         nodeConfig,
-        connectors: connectorList,
-        nodeInputValueMap,
+        inputVariables,
+        outputVariables,
+        inputVariableResults,
       } = params;
 
       invariant(nodeConfig.type === NodeType.JavaScriptFunctionNode);
 
-      const pairs: [string, unknown][] = connectorList
-        .filter((connector): connector is NodeInputVariable => {
-          return connector.type === ConnectorType.NodeInput;
-        })
+      const pairs: [string, unknown][] = inputVariables
         .sort((a, b) => a.index - b.index)
-        .map((connector) => {
-          return [connector.name, nodeInputValueMap[connector.id] ?? null];
+        .map((v) => {
+          return [v.name, inputVariableResults[v.id] ?? null];
         });
 
-      const outputVariable = connectorList.find(
-        (connector): connector is NodeInputVariable =>
-          connector.type === ConnectorType.NodeOutput,
-      );
-
+      const outputVariable = outputVariables[0];
       invariant(outputVariable != null);
 
       // ANCHOR: Main Logic

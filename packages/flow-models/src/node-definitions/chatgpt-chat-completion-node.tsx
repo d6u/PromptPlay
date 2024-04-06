@@ -10,12 +10,7 @@ import {
   getStreamingCompletion,
 } from 'integrations/openai';
 
-import {
-  ConnectorType,
-  NodeInputVariable,
-  NodeOutputVariable,
-  VariableValueType,
-} from '../base-types';
+import { ConnectorType, VariableValueType } from '../base-types';
 import {
   FieldType,
   NodeClass,
@@ -217,10 +212,11 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
   createNodeExecutionObservable: (params) => {
     return new Observable<RunNodeResult>((subscriber) => {
       const {
+        preferStreaming,
         nodeConfig,
-        connectors: connectorList,
-        nodeInputValueMap,
-        preferStreaming: useStreaming,
+        inputVariables,
+        outputVariables,
+        inputVariableResults,
       } = params;
 
       invariant(
@@ -229,45 +225,24 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
       );
 
       if (!nodeConfig.openAiApiKey) {
-        subscriber.next({
-          errors: ['OpenAI API key is missing'],
-        });
-
+        subscriber.next({ errors: ['OpenAI API key is missing'] });
         subscriber.complete();
         return;
       }
 
-      const inputMessages = connectorList.find(
-        (conn): conn is NodeInputVariable => {
-          return conn.type === ConnectorType.NodeInput;
-        },
-      );
-
+      const inputMessages = inputVariables[0];
       invariant(inputMessages != null);
 
-      const outputContent = connectorList.find(
-        (conn): conn is NodeOutputVariable => {
-          return conn.type === ConnectorType.NodeOutput && conn.index === 0;
-        },
-      );
-      const outputMessage = connectorList.find(
-        (conn): conn is NodeOutputVariable => {
-          return conn.type === ConnectorType.NodeOutput && conn.index === 1;
-        },
-      );
-      const outputMessages = connectorList.find(
-        (conn): conn is NodeOutputVariable => {
-          return conn.type === ConnectorType.NodeOutput && conn.index === 2;
-        },
-      );
-
+      const outputContent = outputVariables.find((conn) => conn.index === 0);
+      const outputMessage = outputVariables.find((conn) => conn.index === 1);
+      const outputMessages = outputVariables.find((conn) => conn.index === 2);
       invariant(outputContent != null);
       invariant(outputMessage != null);
       invariant(outputMessages != null);
 
       // NOTE: Main Logic
 
-      const messages = (nodeInputValueMap[inputMessages.id].value ??
+      const messages = (inputVariableResults[inputMessages.id].value ??
         []) as ChatGPTMessage[];
 
       const options = {
@@ -285,7 +260,7 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
 
       let variableValuesEventObservable: Observable<RunNodeResult>;
 
-      if (useStreaming) {
+      if (preferStreaming) {
         variableValuesEventObservable = getStreamingCompletion(options).pipe(
           scan(
             (acc: ChatGPTMessage, piece): ChatGPTMessage => {
