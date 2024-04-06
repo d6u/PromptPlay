@@ -9,13 +9,13 @@ import {
   GlobalVariableRecordsSchema,
   ServerEdgeSchema,
   ServerNodeSchema,
-  VariableResultRecordsSchema,
+  VariableValueRecordsSchema,
   VariableValueType,
   type ConditionResultRecords,
   type ConnectorTypeEnum,
   type NodeInputVariable,
   type NodeOutputVariable,
-  type VariableResultRecords,
+  type VariableValueRecords,
 } from './base-types';
 import { NodeClass, NodeType } from './node-definition-base-types';
 import { NodeConfigRecordsSchema, type NodeConfig } from './node-definitions';
@@ -29,7 +29,7 @@ export const CanvasDataV4Schema = z.object({
   connectors: ConnectorRecordsSchema.default({}),
   globalVariables: GlobalVariableRecordsSchema.default({}),
   conditionResults: ConditionResultRecordsSchema.default({}),
-  variableResults: VariableResultRecordsSchema.default({}),
+  variableResults: VariableValueRecordsSchema.default({}),
 });
 
 export type CanvasDataV4 = z.infer<typeof CanvasDataV4Schema>;
@@ -318,7 +318,7 @@ export function migrateV3ToV4(data: any): CanvasDataV4 {
   }
 
   const conditionResults: ConditionResultRecords = {};
-  const variableResults: VariableResultRecords = {};
+  const variableResults: VariableValueRecords = {};
 
   for (const connectorId of Object.keys(
     (data.variableValueLookUpDicts ?? [])[0] ?? {},

@@ -66,12 +66,12 @@ export const OUTPUT_NODE_DEFINITION: NodeDefinition<
 
   createNodeExecutionObservable(params) {
     return new Observable<RunNodeResult>((subscriber) => {
-      const { nodeConfig, inputVariableResults } = params;
+      const { nodeConfig, inputVariableValues } = params;
 
       invariant(nodeConfig.type === NodeType.OutputNode);
 
       subscriber.next({
-        variableResults: inputVariableResults,
+        variableValues: inputVariableValues,
       });
 
       subscriber.complete();

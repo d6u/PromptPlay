@@ -5,7 +5,7 @@ import {
   Connector,
   ImmutableFlowNodeGraph,
   NodeConfig,
-  type VariableResultRecords,
+  type VariableValueRecords,
 } from 'flow-models';
 
 import { CIRCULAR_DEPENDENCY_ERROR_MESSAGE } from './constants';
@@ -27,7 +27,7 @@ type Params = {
   edges: ReadonlyArray<Edge>;
   nodeConfigs: Readonly<Record<string, Readonly<NodeConfig>>>;
   connectors: Readonly<Record<string, Readonly<Connector>>>;
-  inputValueMap: VariableResultRecords;
+  inputValueMap: VariableValueRecords;
   preferStreaming: boolean;
   progressObserver: Observer<FlowRunEvent>;
   getAccountLevelFieldValue: GetAccountLevelFieldValueFunction;

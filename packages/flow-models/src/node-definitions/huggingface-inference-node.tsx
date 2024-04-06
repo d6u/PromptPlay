@@ -131,12 +131,7 @@ export const HUGGINGFACE_INFERENCE_NODE_DEFINITION: NodeDefinition<
 
   createNodeExecutionObservable: (params) => {
     return new Observable<RunNodeResult>((subscriber) => {
-      const {
-        nodeConfig,
-        inputVariables,
-        outputVariables,
-        inputVariableResults,
-      } = params;
+      const { nodeConfig, outputVariables, inputVariableValues } = params;
 
       invariant(nodeConfig.type === NodeType.HuggingFaceInference);
 
@@ -145,9 +140,6 @@ export const HUGGINGFACE_INFERENCE_NODE_DEFINITION: NodeDefinition<
         subscriber.complete();
         return;
       }
-
-      const inputParameters = inputVariables[0];
-      invariant(inputParameters != null);
 
       const variableOutput = outputVariables[0];
       invariant(variableOutput != null);
@@ -159,7 +151,7 @@ export const HUGGINGFACE_INFERENCE_NODE_DEFINITION: NodeDefinition<
           apiToken: nodeConfig.huggingFaceApiToken,
           model: nodeConfig.model,
         },
-        inputVariableResults[inputParameters.id].value,
+        inputVariableValues[0],
       )
         .then((result) => {
           if (result.isError) {
@@ -172,9 +164,7 @@ export const HUGGINGFACE_INFERENCE_NODE_DEFINITION: NodeDefinition<
             });
           } else {
             subscriber.next({
-              variableResults: {
-                [variableOutput.id]: { value: result.data },
-              },
+              variableValues: [result.data],
               completedConnectorIds: [variableOutput.id],
             });
           }

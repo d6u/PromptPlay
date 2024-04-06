@@ -80,14 +80,14 @@ export type ConditionResultRecords = z.infer<
   typeof ConditionResultRecordsSchema
 >;
 
-// ANCHOR: Variable Result
+// ANCHOR: Variable Value
 
-const VariableResultSchema = z.object({
+const VariableValueBoxSchema = z.object({
   value: z.unknown(),
 });
 
-export type VariableResult = z.infer<typeof VariableResultSchema>;
+export type VariableValueBox = z.infer<typeof VariableValueBoxSchema>;
 
-export const VariableResultRecordsSchema = z.record(VariableResultSchema);
+export const VariableValueRecordsSchema = z.record(VariableValueBoxSchema);
 
-export type VariableResultRecords = z.infer<typeof VariableResultRecordsSchema>;
+export type VariableValueRecords = z.infer<typeof VariableValueRecordsSchema>;

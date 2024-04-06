@@ -216,7 +216,7 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
         nodeConfig,
         inputVariables,
         outputVariables,
-        inputVariableResults,
+        inputVariableValues,
       } = params;
 
       invariant(
@@ -233,17 +233,16 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
       const inputMessages = inputVariables[0];
       invariant(inputMessages != null);
 
-      const outputContent = outputVariables.find((conn) => conn.index === 0);
-      const outputMessage = outputVariables.find((conn) => conn.index === 1);
-      const outputMessages = outputVariables.find((conn) => conn.index === 2);
+      const outputContent = outputVariables[0];
+      const outputMessage = outputVariables[1];
+      const outputMessages = outputVariables[2];
       invariant(outputContent != null);
       invariant(outputMessage != null);
       invariant(outputMessages != null);
 
       // NOTE: Main Logic
 
-      const messages = (inputVariableResults[inputMessages.id].value ??
-        []) as ChatGPTMessage[];
+      const messages = (inputVariableValues[0] ?? []) as ChatGPTMessage[];
 
       const options = {
         apiKey: nodeConfig.openAiApiKey,
@@ -292,11 +291,11 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
           ),
           map((message: ChatGPTMessage): RunNodeResult => {
             return {
-              variableResults: {
-                [outputContent.id]: { value: message.content },
-                [outputMessage.id]: { value: message },
-                [outputMessages.id]: { value: A.append(messages, message) },
-              },
+              variableValues: [
+                message.content,
+                message,
+                A.append(messages, message),
+              ],
             };
           }),
         );
@@ -326,13 +325,11 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
             invariant(choice != null);
 
             return {
-              variableResults: {
-                [outputContent.id]: { value: choice.message.content },
-                [outputMessage.id]: { value: choice.message },
-                [outputMessages.id]: {
-                  value: A.append(messages, choice.message),
-                },
-              },
+              variableValues: [
+                choice.message.content,
+                choice.message,
+                A.append(messages, choice.message),
+              ],
             };
           }),
         );
