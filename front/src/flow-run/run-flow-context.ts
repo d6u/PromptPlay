@@ -121,6 +121,7 @@ export class RunNodeContext {
         (c): c is NodeInputVariable =>
           c.nodeId === this.nodeId && c.type === ConnectorType.NodeInput,
       ),
+      A.sortBy((c) => c.index),
     );
   }
 
@@ -132,6 +133,7 @@ export class RunNodeContext {
         (c): c is NodeOutputVariable =>
           c.nodeId === this.nodeId && c.type === ConnectorType.NodeOutput,
       ),
+      A.sortBy((c) => c.index),
     );
   }
 
@@ -143,41 +145,63 @@ export class RunNodeContext {
         (c): c is Condition =>
           c.nodeId === this.nodeId && c.type === ConnectorType.Condition,
       ),
+      A.sortBy((c) => c.index),
     );
   }
 
-  getInputVariableValues(): VariableValueRecords {
-    const outputVariables = this.getOutputVariables();
-    const inputVariables = this.getInputVariables();
-
+  getInputVariableValues(): unknown[] {
     // TODO: We need to emit the NodeInput variable value to store
     // as well, otherwise we cannot inspect node input variable values.
     // Currently, we only emit NodeOutput variable values or
     // OutputNode's NodeInput variable values.
+
+    if (this.nodeConfig.class === NodeClass.Start) {
+      // When current node class is Start, we need to collect
+      // NodeOutput variable values other than NodeInput variable values.
+      return this.getOutputVariables().map((v) => {
+        return this.context.allVariableValues[v.id]?.value;
+      });
+    } else {
+      // For non-Start node class, we need to collect NodeInput variable values.
+      return this.getInputVariables().map((v) => {
+        if (v.isGlobal) {
+          if (v.globalVariableId != null) {
+            return this.context.allVariableValues[v.globalVariableId]?.value;
+          }
+        } else {
+          const sourceVariableId =
+            this.context.mutableFlowGraph.getSrcVariableIdFromDstVariableId(
+              v.id,
+            );
+
+          return this.context.allVariableValues[sourceVariableId]?.value;
+        }
+
+        // // NOTE: Use ? to be safe here.
+        // return this.context.allVariableValues[v.id]?.value;
+      });
+    }
+  }
+
+  getInputVariableValueRecords(): VariableValueRecords {
+    const values = this.getInputVariableValues();
     const inputVariableResults: VariableValueRecords = {};
 
     if (this.nodeConfig.class === NodeClass.Start) {
       // When current node class is Start, we need to collect
       // NodeOutput variable values other than NodeInput variable values.
-      outputVariables.forEach((v) => {
-        inputVariableResults[v.id] = this.context.allVariableValues[v.id];
+      this.getOutputVariables().forEach((v) => {
+        inputVariableResults[v.id] = { value: values[v.index] };
       });
     } else {
       // For non-Start node class, we need to collect NodeInput variable values.
-      inputVariables.forEach((variable) => {
-        if (variable.isGlobal) {
-          if (variable.globalVariableId != null) {
-            inputVariableResults[variable.id] =
-              this.context.allVariableValues[variable.globalVariableId];
+      this.getInputVariables().forEach((v) => {
+        if (v.isGlobal) {
+          if (v.globalVariableId != null) {
+            inputVariableResults[v.id] = { value: values[v.index] };
           }
         } else {
-          const sourceVariableId =
-            this.context.mutableFlowGraph.getSrcVariableIdFromDstVariableId(
-              variable.id,
-            );
-
-          inputVariableResults[variable.id] =
-            this.context.allVariableValues[sourceVariableId];
+          inputVariableResults[v.id] = { value: values[v.index] };
         }
       });
     }

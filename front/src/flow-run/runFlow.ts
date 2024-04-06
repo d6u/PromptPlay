@@ -59,6 +59,7 @@ function createRunNodeObservable(context: RunNodeContext): Observable<never> {
   const inputVariables = context.getInputVariables();
   const outputVariables = context.getOutputVariables();
   const outgoingConditions = context.getOutgoingConditions();
+  const inputVariableValueRecords = context.getInputVariableValueRecords();
   const inputVariableValues = context.getInputVariableValues();
 
   return concat(
@@ -70,6 +71,7 @@ function createRunNodeObservable(context: RunNodeContext): Observable<never> {
         inputVariables,
         outputVariables,
         outgoingConditions,
+        inputVariableValueRecords,
         inputVariableValues,
       }),
     ),
