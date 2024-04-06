@@ -1,6 +1,6 @@
 import { D } from '@mobily/ts-belt';
 
-import { NodeExecutionStatus } from '../types';
+import { NodeExecutionStatus } from 'state-flow/common-types';
 import { createHandler } from './event-graph-util';
 import { ChangeEventType } from './event-types';
 

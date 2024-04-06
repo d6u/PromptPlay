@@ -1,4 +1,9 @@
-import { NodeTypeEnum } from 'flow-models';
+import {
+  NodeTypeEnum,
+  type ConditionResultRecords,
+  type RunNodeResult,
+  type VariableResultRecords,
+} from 'flow-models';
 
 // ANCHOR: Event Types
 
@@ -60,7 +65,8 @@ export type FlowRunNodeFinishEvent = {
 
 export type FlowRunVariableValuesEvent = {
   type: FlowRunEventType.VariableValues;
-  variableValues: Readonly<Record<string, Readonly<unknown>>>;
+  conditionResults: ConditionResultRecords;
+  variableResults: VariableResultRecords;
 };
 
 export type FlowRunNodeErrorsEvent = {
@@ -125,3 +131,39 @@ export type FlowBatchRunEvent =
   | FlowBatchRunFlowFinishEvent
   | FlowBatchRunFlowVariableValuesEvent
   | FlowBatchRunFlowErrorEvent;
+
+// ANCHOR: Run Flow Progress Event
+
+export enum RunNodeProgressEventType {
+  Started = 'Started',
+  Updated = 'Updated',
+  Finished = 'Finished',
+}
+
+export type RunNodeStartedEvent = {
+  type: RunNodeProgressEventType.Started;
+  nodeId: string;
+};
+
+export type RunNodeUpdatedEvent = {
+  type: RunNodeProgressEventType.Updated;
+  nodeId: string;
+  result: RunNodeResult;
+};
+
+export type RunNodeFinishedEvent = {
+  type: RunNodeProgressEventType.Finished;
+  nodeId: string;
+};
+
+export type RunNodeProgressEvent =
+  | RunNodeStartedEvent
+  | RunNodeUpdatedEvent
+  | RunNodeFinishedEvent;
+
+// ANCHOR: Run Flow Result
+
+export type RunFlowResult = {
+  errors: ReadonlyArray<string>;
+  variableResults: VariableResultRecords;
+};

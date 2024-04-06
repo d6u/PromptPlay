@@ -10,18 +10,13 @@ import {
   getStreamingCompletion,
 } from 'integrations/openai';
 
-import {
-  ConnectorType,
-  NodeInputVariable,
-  NodeOutputVariable,
-  VariableValueType,
-} from '../base-types';
+import { ConnectorType, VariableValueType } from '../base-types';
 import {
   FieldType,
+  NodeClass,
   NodeDefinition,
-  NodeExecutionEvent,
-  NodeExecutionEventType,
   NodeType,
+  type RunNodeResult,
 } from '../node-definition-base-types';
 
 export enum OpenAIChatModel {
@@ -40,6 +35,7 @@ export enum ChatGPTChatCompletionResponseFormatType {
 }
 
 export const ChatgptChatCompletionNodeConfigSchema = z.object({
+  class: z.literal(NodeClass.Process),
   type: z.literal(NodeType.ChatGPTChatCompletionNode),
   nodeId: z.string(),
   model: z.nativeEnum(OpenAIChatModel),
@@ -147,6 +143,7 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
   createDefaultNodeConfig: (nodeId) => {
     return {
       nodeConfig: {
+        class: NodeClass.Process,
         nodeId: nodeId,
         type: NodeType.ChatGPTChatCompletionNode,
         model: OpenAIChatModel.GPT_4,
@@ -163,7 +160,7 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
           name: 'messages',
           index: 0,
           valueType: VariableValueType.Structured,
-          isGlobal: true,
+          isGlobal: false,
           globalVariableId: null,
         },
         {
@@ -173,7 +170,7 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
           name: 'content',
           index: 0,
           valueType: VariableValueType.String,
-          isGlobal: true,
+          isGlobal: false,
           globalVariableId: null,
         },
         {
@@ -183,7 +180,7 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
           name: 'message',
           index: 1,
           valueType: VariableValueType.Structured,
-          isGlobal: true,
+          isGlobal: false,
           globalVariableId: null,
         },
         {
@@ -193,7 +190,7 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
           name: 'messages',
           index: 2,
           valueType: VariableValueType.Structured,
-          isGlobal: true,
+          isGlobal: false,
           globalVariableId: null,
         },
         {
@@ -212,71 +209,41 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
     };
   },
 
-  createNodeExecutionObservable: (context, nodeExecutionConfig, params) => {
-    return new Observable<NodeExecutionEvent>((subscriber) => {
-      const { nodeConfig, connectorList } = nodeExecutionConfig;
-      const { nodeInputValueMap, useStreaming } = params;
+  createNodeExecutionObservable: (params) => {
+    return new Observable<RunNodeResult>((subscriber) => {
+      const {
+        preferStreaming,
+        nodeConfig,
+        inputVariables,
+        outputVariables,
+        inputVariableResults,
+      } = params;
 
       invariant(
         nodeConfig.type === NodeType.ChatGPTChatCompletionNode,
         "Node type is 'ChatGPTChatCompletionNode'",
       );
 
-      subscriber.next({
-        type: NodeExecutionEventType.Start,
-        nodeId: nodeConfig.nodeId,
-      });
-
       if (!nodeConfig.openAiApiKey) {
-        subscriber.next({
-          type: NodeExecutionEventType.Errors,
-          nodeId: nodeConfig.nodeId,
-          errorMessages: ['OpenAI API key is missing'],
-        });
-
-        subscriber.next({
-          type: NodeExecutionEventType.Finish,
-          nodeId: nodeConfig.nodeId,
-          finishedConnectorIds: [],
-        });
-
+        subscriber.next({ errors: ['OpenAI API key is missing'] });
         subscriber.complete();
         return;
       }
 
-      const argsMap: Record<string, unknown> = {};
+      const inputMessages = inputVariables[0];
+      invariant(inputMessages != null);
 
-      connectorList
-        .filter((connector): connector is NodeInputVariable => {
-          return connector.type === ConnectorType.NodeInput;
-        })
-        .forEach((connector) => {
-          argsMap[connector.name] = nodeInputValueMap[connector.id] ?? null;
-        });
-
-      const variableContent = connectorList.find(
-        (conn): conn is NodeOutputVariable => {
-          return conn.type === ConnectorType.NodeOutput && conn.index === 0;
-        },
-      );
-      const variableMessage = connectorList.find(
-        (conn): conn is NodeOutputVariable => {
-          return conn.type === ConnectorType.NodeOutput && conn.index === 1;
-        },
-      );
-      const variableMessages = connectorList.find(
-        (conn): conn is NodeOutputVariable => {
-          return conn.type === ConnectorType.NodeOutput && conn.index === 2;
-        },
-      );
-
-      invariant(variableContent != null);
-      invariant(variableMessage != null);
-      invariant(variableMessages != null);
+      const outputContent = outputVariables.find((conn) => conn.index === 0);
+      const outputMessage = outputVariables.find((conn) => conn.index === 1);
+      const outputMessages = outputVariables.find((conn) => conn.index === 2);
+      invariant(outputContent != null);
+      invariant(outputMessage != null);
+      invariant(outputMessages != null);
 
       // NOTE: Main Logic
 
-      const messages = (argsMap['messages'] ?? []) as ChatGPTMessage[];
+      const messages = (inputVariableResults[inputMessages.id].value ??
+        []) as ChatGPTMessage[];
 
       const options = {
         apiKey: nodeConfig.openAiApiKey,
@@ -291,9 +258,9 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
             : null,
       };
 
-      let variableValuesEventObservable: Observable<NodeExecutionEvent>;
+      let variableValuesEventObservable: Observable<RunNodeResult>;
 
-      if (useStreaming) {
+      if (preferStreaming) {
         variableValuesEventObservable = getStreamingCompletion(options).pipe(
           scan(
             (acc: ChatGPTMessage, piece): ChatGPTMessage => {
@@ -323,14 +290,12 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
               content: '',
             },
           ),
-          map((message: ChatGPTMessage): NodeExecutionEvent => {
+          map((message: ChatGPTMessage): RunNodeResult => {
             return {
-              type: NodeExecutionEventType.VariableValues,
-              nodeId: nodeConfig.nodeId,
-              variableValuesLookUpDict: {
-                [variableContent.id]: message.content,
-                [variableMessage.id]: message,
-                [variableMessages.id]: A.append(messages, message),
+              variableResults: {
+                [outputContent.id]: { value: message.content },
+                [outputMessage.id]: { value: message },
+                [outputMessages.id]: { value: A.append(messages, message) },
               },
             };
           }),
@@ -353,7 +318,7 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
             },
           }),
           retry(2),
-          map((result): NodeExecutionEvent => {
+          map((result): RunNodeResult => {
             invariant(!result.isError);
 
             const choice = result.data.choices[0];
@@ -361,12 +326,12 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
             invariant(choice != null);
 
             return {
-              type: NodeExecutionEventType.VariableValues,
-              nodeId: nodeConfig.nodeId,
-              variableValuesLookUpDict: {
-                [variableContent.id]: choice.message.content,
-                [variableMessage.id]: choice.message,
-                [variableMessages.id]: A.append(messages, choice.message),
+              variableResults: {
+                [outputContent.id]: { value: choice.message.content },
+                [outputMessage.id]: { value: choice.message },
+                [outputMessages.id]: {
+                  value: A.append(messages, choice.message),
+                },
               },
             };
           }),
@@ -376,13 +341,11 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
       // NOTE: Teardown logic
       return variableValuesEventObservable
         .pipe(
-          endWith<NodeExecutionEvent>({
-            type: NodeExecutionEventType.Finish,
-            nodeId: nodeConfig.nodeId,
-            finishedConnectorIds: [
-              variableContent.id,
-              variableMessage.id,
-              variableMessages.id,
+          endWith<RunNodeResult>({
+            completedConnectorIds: [
+              outputContent.id,
+              outputMessage.id,
+              outputMessages.id,
             ],
           }),
         )

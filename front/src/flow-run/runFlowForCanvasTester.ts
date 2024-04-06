@@ -1,34 +1,39 @@
-import { D } from '@mobily/ts-belt';
-import { Observable, map, of } from 'rxjs';
+import { Observable, Subject, from, mergeMap, of, type Observer } from 'rxjs';
 import invariant from 'tiny-invariant';
 
 import {
   Connector,
   ImmutableFlowNodeGraph,
   NodeConfig,
-  NodeExecutionEvent,
-  NodeExecutionEventType,
+  type VariableResultRecords,
 } from 'flow-models';
 
 import { CIRCULAR_DEPENDENCY_ERROR_MESSAGE } from './constants';
 import {
   FlowRunEvent,
   FlowRunEventType,
+  RunNodeProgressEventType,
   ValidationError,
   ValidationErrorType,
+  type RunFlowResult,
+  type RunNodeProgressEvent,
 } from './event-types';
-import { executeFlow } from './execute-flow';
 import { Edge, GetAccountLevelFieldValueFunction } from './run-param-types';
+import runFlow from './runFlow';
 import { getNodeAllLevelConfigOrValidationErrors } from './util';
 
-function flowRunSingle(params: {
+type Params = {
+  startNodeIds: ReadonlyArray<string>;
   edges: ReadonlyArray<Edge>;
   nodeConfigs: Readonly<Record<string, Readonly<NodeConfig>>>;
   connectors: Readonly<Record<string, Readonly<Connector>>>;
-  inputValueMap: Readonly<Record<string, Readonly<unknown>>>;
+  inputValueMap: VariableResultRecords;
   preferStreaming: boolean;
+  progressObserver: Observer<FlowRunEvent>;
   getAccountLevelFieldValue: GetAccountLevelFieldValueFunction;
-}): Observable<FlowRunEvent> {
+};
+
+function runFlowForCanvasTester(params: Params): Observable<RunFlowResult> {
   // SECTION[id=pre-execute-validation]: Pre execute validation
   // Keep this section in sync with:
   // LINK ./flowRunBatch.ts#pre-execute-validation
@@ -36,8 +41,9 @@ function flowRunSingle(params: {
   const validationErrors: ValidationError[] = [];
 
   const immutableFlowGraph = new ImmutableFlowNodeGraph({
+    startNodeIds: params.startNodeIds,
+    nodeConfigs: params.nodeConfigs,
     edges: params.edges,
-    nodeIds: D.keys(params.nodeConfigs),
     connectors: params.connectors,
   });
 
@@ -59,9 +65,14 @@ function flowRunSingle(params: {
   }
 
   if (validationErrors.length) {
-    return of({
+    params.progressObserver.next({
       type: FlowRunEventType.ValidationErrors,
       errors: validationErrors,
+    });
+
+    return of({
+      errors: validationErrors.map((error) => error.message),
+      variableResults: {},
     });
   }
 
@@ -72,46 +83,56 @@ function flowRunSingle(params: {
     'nodeAllLevelConfigs is not null',
   );
 
-  return executeFlow({
+  const subject = new Subject<RunNodeProgressEvent>();
+
+  subject.pipe(mergeMap(transformEvent)).subscribe(params.progressObserver);
+
+  return runFlow({
     nodeConfigs: result.nodeAllLevelConfigs,
     connectors: params.connectors,
-    inputValueMap: params.inputValueMap,
+    inputVariableValues: params.inputValueMap,
     preferStreaming: params.preferStreaming,
     flowGraph: immutableFlowGraph,
-  }).pipe(map(transformEvent));
+    progressObserver: subject,
+  });
 }
 
-function transformEvent(event: NodeExecutionEvent): FlowRunEvent {
+function transformEvent(event: RunNodeProgressEvent): Observable<FlowRunEvent> {
   switch (event.type) {
-    case NodeExecutionEventType.Start: {
-      return {
+    case RunNodeProgressEventType.Started:
+      return of({
         type: FlowRunEventType.NodeStart,
         nodeId: event.nodeId,
-      };
-    }
-    case NodeExecutionEventType.Finish: {
-      return {
+      });
+    case RunNodeProgressEventType.Finished:
+      return of({
         type: FlowRunEventType.NodeFinish,
         nodeId: event.nodeId,
-      };
-    }
-    case NodeExecutionEventType.VariableValues: {
-      return {
-        type: FlowRunEventType.VariableValues,
-        // TODO: Remove casting
-        variableValues: event.variableValuesLookUpDict as Readonly<
-          Record<string, Readonly<unknown>>
-        >,
-      };
-    }
-    case NodeExecutionEventType.Errors: {
-      return {
-        type: FlowRunEventType.NodeErrors,
-        nodeId: event.nodeId,
-        errorMessages: event.errorMessages,
-      };
+      });
+    case RunNodeProgressEventType.Updated: {
+      const { errors, conditionResults, variableResults } = event.result;
+
+      const flowRunEvents: FlowRunEvent[] = [];
+
+      if (errors != null && errors.length > 0) {
+        flowRunEvents.push({
+          type: FlowRunEventType.NodeErrors,
+          nodeId: event.nodeId,
+          errorMessages: errors,
+        });
+      }
+
+      if (conditionResults != null || variableResults != null) {
+        flowRunEvents.push({
+          type: FlowRunEventType.VariableValues,
+          conditionResults: conditionResults ?? {},
+          variableResults: variableResults ?? {},
+        });
+      }
+
+      return from(flowRunEvents);
     }
   }
 }
 
-export default flowRunSingle;
+export default runFlowForCanvasTester;

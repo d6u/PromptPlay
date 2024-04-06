@@ -3,35 +3,43 @@ import z from 'zod';
 import randomId from 'common-utils/randomId';
 
 import {
+  ConditionResultRecordsSchema,
   ConnectorRecordsSchema,
-  ConnectorResultMapSchema,
   ConnectorType,
   GlobalVariableRecordsSchema,
   ServerEdgeSchema,
   ServerNodeSchema,
+  VariableResultRecordsSchema,
   VariableValueType,
+  type ConditionResultRecords,
   type ConnectorTypeEnum,
   type NodeInputVariable,
   type NodeOutputVariable,
+  type VariableResultRecords,
 } from './base-types';
-import { NodeType } from './node-definition-base-types';
+import { NodeClass, NodeType } from './node-definition-base-types';
 import { NodeConfigRecordsSchema, type NodeConfig } from './node-definitions';
 
-export const CanvasDataSchemaV4 = z.object({
+export const CanvasDataV4Schema = z.object({
   // NOTE: Must provide default value each field, because when creating new
   // flow the backend will create an empty {} as flowConfig.
   edges: z.array(ServerEdgeSchema).default([]),
   nodes: z.array(ServerNodeSchema).default([]),
-  nodeConfigsDict: NodeConfigRecordsSchema.default({}),
-  variablesDict: ConnectorRecordsSchema.default({}),
-  variableValueLookUpDicts: z.array(ConnectorResultMapSchema).default([{}]),
+  nodeConfigs: NodeConfigRecordsSchema.default({}),
+  connectors: ConnectorRecordsSchema.default({}),
   globalVariables: GlobalVariableRecordsSchema.default({}),
+  conditionResults: ConditionResultRecordsSchema.default({}),
+  variableResults: VariableResultRecordsSchema.default({}),
 });
 
-export type CanvasDataV4 = z.infer<typeof CanvasDataSchemaV4>;
+export type CanvasDataV4 = z.infer<typeof CanvasDataV4Schema>;
 
+/**
+ * @param data V3 data, will be mutated.
+ * @returns V4 data
+ */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function migrateV3ToV4(data: any): any {
+export function migrateV3ToV4(data: any): CanvasDataV4 {
   if (data == null) {
     return data;
   }
@@ -39,6 +47,19 @@ export function migrateV3ToV4(data: any): any {
   for (const _nodeConfig of Object.values(data.nodeConfigsDict ?? {})) {
     const nodeConfig = _nodeConfig as NodeConfig;
 
+    // Add missing node fields
+    let inputNodeCount = 1;
+    if (nodeConfig.type === NodeType.InputNode) {
+      nodeConfig.class = NodeClass.Start;
+      nodeConfig.nodeName = `input ${inputNodeCount}`;
+      inputNodeCount += 1;
+    } else if (nodeConfig.type === NodeType.OutputNode) {
+      nodeConfig.class = NodeClass.Finish;
+    } else {
+      nodeConfig.class = NodeClass.Process;
+    }
+
+    // Add missing outgoing condition
     if (
       nodeConfig.type !== NodeType.ConditionNode &&
       nodeConfig.type !== NodeType.OutputNode
@@ -70,6 +91,7 @@ export function migrateV3ToV4(data: any): any {
       }
     }
 
+    // Add missing condition target
     if (nodeConfig.type !== NodeType.InputNode) {
       const conditionTarget = Object.values(data.variablesDict).find(
         (_connector) => {
@@ -96,6 +118,7 @@ export function migrateV3ToV4(data: any): any {
       }
     }
 
+    // Migrate variable value type
     switch (nodeConfig.type) {
       case NodeType.InputNode: {
         for (const _connector of Object.values(data.variablesDict)) {
@@ -294,5 +317,36 @@ export function migrateV3ToV4(data: any): any {
     }
   }
 
-  return CanvasDataSchemaV4.parse(data);
+  const conditionResults: ConditionResultRecords = {};
+  const variableResults: VariableResultRecords = {};
+
+  for (const connectorId of Object.keys(
+    (data.variableValueLookUpDicts ?? [])[0] ?? {},
+  )) {
+    const result = data.variableValueLookUpDicts[0][connectorId];
+
+    if (result == null) {
+      continue;
+    }
+
+    if (result.conditionId != null) {
+      conditionResults[connectorId] = result;
+    } else {
+      variableResults[connectorId] = { value: result };
+    }
+  }
+
+  const output = {
+    // There is no modification to "edges" and "nodes" props
+    edges: data.edges ?? [],
+    nodes: data.nodes ?? [],
+    // These props will be migrated to V4
+    nodeConfigs: data.nodeConfigsDict ?? {},
+    connectors: data.variablesDict ?? {},
+    globalVariables: {},
+    conditionResults: conditionResults,
+    variableResults: variableResults,
+  };
+
+  return CanvasDataV4Schema.parse(output);
 }

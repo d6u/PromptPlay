@@ -1,4 +1,4 @@
-import { A, D, Option, pipe } from '@mobily/ts-belt';
+import { D, Option } from '@mobily/ts-belt';
 import { produce } from 'immer';
 import invariant from 'tiny-invariant';
 
@@ -6,7 +6,6 @@ import {
   Condition,
   ConditionTarget,
   ConnectorRecords,
-  ConnectorResultMap,
   ConnectorType,
   LocalEdge,
   NodeConfigRecords,
@@ -143,24 +142,4 @@ export function selectRegularOutgoingCondition(
   });
   invariant(condition != null, 'condition is not null');
   return condition;
-}
-
-export function selectStartNodeVariableIdToValueMap(
-  connectors: ConnectorRecords,
-  connectorResults: ConnectorResultMap,
-  nodeConfigs: NodeConfigRecords,
-): Record<string, Readonly<unknown>> {
-  const variables = selectVariablesOnAllStartNodes(connectors, nodeConfigs);
-
-  return pipe(
-    variables,
-    A.map((connector) => {
-      invariant(connector != null, 'connector is not null');
-      return [
-        connector.id,
-        connectorResults[connector.id] as Readonly<unknown>,
-      ] as const;
-    }),
-    D.fromPairs<Readonly<unknown>, string>,
-  );
 }

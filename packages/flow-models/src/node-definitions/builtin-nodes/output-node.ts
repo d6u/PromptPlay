@@ -5,19 +5,16 @@ import { z } from 'zod';
 import chance from 'common-utils/chance';
 import randomId from 'common-utils/randomId';
 
+import { ConnectorType, VariableValueType } from '../../base-types';
 import {
-  ConnectorResultMap,
-  ConnectorType,
-  VariableValueType,
-} from '../../base-types';
-import {
+  NodeClass,
   NodeDefinition,
-  NodeExecutionEvent,
-  NodeExecutionEventType,
   NodeType,
+  type RunNodeResult,
 } from '../../node-definition-base-types';
 
 export const OutputNodeConfigSchema = z.object({
+  class: z.literal(NodeClass.Finish),
   type: z.literal(NodeType.OutputNode),
   nodeId: z.string(),
 });
@@ -43,6 +40,7 @@ export const OUTPUT_NODE_DEFINITION: NodeDefinition<
   createDefaultNodeConfig: (nodeId) => {
     return {
       nodeConfig: {
+        class: NodeClass.Finish,
         nodeId: nodeId,
         type: NodeType.OutputNode,
       },
@@ -54,7 +52,7 @@ export const OUTPUT_NODE_DEFINITION: NodeDefinition<
           index: 0,
           name: chance.word(),
           valueType: VariableValueType.Any,
-          isGlobal: true,
+          isGlobal: false,
           globalVariableId: null,
         },
         {
@@ -66,34 +64,14 @@ export const OUTPUT_NODE_DEFINITION: NodeDefinition<
     };
   },
 
-  createNodeExecutionObservable(context, nodeExecutionConfig, params) {
-    return new Observable<NodeExecutionEvent>((subscriber) => {
-      const { nodeConfig, connectorList } = nodeExecutionConfig;
-      const { nodeInputValueMap } = params;
+  createNodeExecutionObservable(params) {
+    return new Observable<RunNodeResult>((subscriber) => {
+      const { nodeConfig, inputVariableResults } = params;
 
       invariant(nodeConfig.type === NodeType.OutputNode);
 
       subscriber.next({
-        type: NodeExecutionEventType.Start,
-        nodeId: nodeConfig.nodeId,
-      });
-
-      const flowOutputValueMap: ConnectorResultMap = {};
-
-      connectorList.forEach((connector) => {
-        flowOutputValueMap[connector.id] = nodeInputValueMap[connector.id];
-      });
-
-      subscriber.next({
-        type: NodeExecutionEventType.VariableValues,
-        nodeId: nodeConfig.nodeId,
-        variableValuesLookUpDict: flowOutputValueMap,
-      });
-
-      subscriber.next({
-        type: NodeExecutionEventType.Finish,
-        nodeId: nodeConfig.nodeId,
-        finishedConnectorIds: [],
+        variableResults: inputVariableResults,
       });
 
       subscriber.complete();

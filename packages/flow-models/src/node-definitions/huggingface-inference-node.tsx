@@ -5,23 +5,19 @@ import { z } from 'zod';
 import randomId from 'common-utils/randomId';
 import * as HuggingFace from 'integrations/hugging-face';
 
-import {
-  ConnectorType,
-  NodeInputVariable,
-  NodeOutputVariable,
-  VariableValueType,
-} from '../base-types';
+import { ConnectorType, VariableValueType } from '../base-types';
 import {
   FieldType,
+  NodeClass,
   NodeDefinition,
-  NodeExecutionEvent,
-  NodeExecutionEventType,
   NodeType,
+  type RunNodeResult,
 } from '../node-definition-base-types';
 
 // Reference: https://huggingface.co/docs/api-inference/index
 
 export const HuggingFaceInferenceNodeConfigSchema = z.object({
+  class: z.literal(NodeClass.Process),
   type: z.literal(NodeType.HuggingFaceInference),
   nodeId: z.string(),
   model: z.string().catch(() => {
@@ -91,6 +87,7 @@ export const HUGGINGFACE_INFERENCE_NODE_DEFINITION: NodeDefinition<
   createDefaultNodeConfig: (nodeId) => {
     return {
       nodeConfig: {
+        class: NodeClass.Process,
         nodeId: nodeId,
         type: NodeType.HuggingFaceInference,
         model: 'gpt2',
@@ -103,7 +100,7 @@ export const HUGGINGFACE_INFERENCE_NODE_DEFINITION: NodeDefinition<
           nodeId: nodeId,
           index: 0,
           valueType: VariableValueType.Any,
-          isGlobal: true,
+          isGlobal: false,
           globalVariableId: null,
         },
         {
@@ -113,7 +110,7 @@ export const HUGGINGFACE_INFERENCE_NODE_DEFINITION: NodeDefinition<
           nodeId: nodeId,
           index: 0,
           valueType: VariableValueType.Structured,
-          isGlobal: true,
+          isGlobal: false,
           globalVariableId: null,
         },
         {
@@ -132,51 +129,27 @@ export const HUGGINGFACE_INFERENCE_NODE_DEFINITION: NodeDefinition<
     };
   },
 
-  createNodeExecutionObservable: (context, nodeExecutionConfig, params) => {
-    return new Observable<NodeExecutionEvent>((subscriber) => {
-      const { nodeConfig, connectorList } = nodeExecutionConfig;
-      const { nodeInputValueMap } = params;
+  createNodeExecutionObservable: (params) => {
+    return new Observable<RunNodeResult>((subscriber) => {
+      const {
+        nodeConfig,
+        inputVariables,
+        outputVariables,
+        inputVariableResults,
+      } = params;
 
       invariant(nodeConfig.type === NodeType.HuggingFaceInference);
 
-      subscriber.next({
-        type: NodeExecutionEventType.Start,
-        nodeId: nodeConfig.nodeId,
-      });
-
       if (!nodeConfig.huggingFaceApiToken) {
-        subscriber.next({
-          type: NodeExecutionEventType.Errors,
-          nodeId: nodeConfig.nodeId,
-          errorMessages: ['Hugging Face API token is missing'],
-        });
-
-        subscriber.next({
-          type: NodeExecutionEventType.Finish,
-          nodeId: nodeConfig.nodeId,
-          finishedConnectorIds: [],
-        });
-
+        subscriber.next({ errors: ['Hugging Face API token is missing'] });
         subscriber.complete();
         return;
       }
 
-      const argsMap: Record<string, unknown> = {};
+      const inputParameters = inputVariables[0];
+      invariant(inputParameters != null);
 
-      connectorList
-        .filter((connector): connector is NodeInputVariable => {
-          return connector.type === ConnectorType.NodeInput;
-        })
-        .forEach((connector) => {
-          argsMap[connector.name] = nodeInputValueMap[connector.id] ?? null;
-        });
-
-      const variableOutput = connectorList.find(
-        (conn): conn is NodeOutputVariable => {
-          return conn.type === ConnectorType.NodeOutput && conn.index === 0;
-        },
-      );
-
+      const variableOutput = outputVariables[0];
       invariant(variableOutput != null);
 
       // NOTE: Main logic
@@ -186,54 +159,29 @@ export const HUGGINGFACE_INFERENCE_NODE_DEFINITION: NodeDefinition<
           apiToken: nodeConfig.huggingFaceApiToken,
           model: nodeConfig.model,
         },
-        argsMap['parameters'],
+        inputVariableResults[inputParameters.id].value,
       )
         .then((result) => {
           if (result.isError) {
             subscriber.next({
-              type: NodeExecutionEventType.Errors,
-              nodeId: nodeConfig.nodeId,
-              errorMessages: [
+              errors: [
                 result.data != null
                   ? JSON.stringify(result.data)
                   : 'Unknown error',
               ],
             });
-
-            subscriber.next({
-              type: NodeExecutionEventType.Finish,
-              nodeId: nodeConfig.nodeId,
-              finishedConnectorIds: [],
-            });
           } else {
             subscriber.next({
-              type: NodeExecutionEventType.VariableValues,
-              nodeId: nodeConfig.nodeId,
-              variableValuesLookUpDict: {
-                [variableOutput.id]: result.data,
+              variableResults: {
+                [variableOutput.id]: { value: result.data },
               },
-            });
-
-            subscriber.next({
-              type: NodeExecutionEventType.Finish,
-              nodeId: nodeConfig.nodeId,
-              finishedConnectorIds: [variableOutput.id],
+              completedConnectorIds: [variableOutput.id],
             });
           }
         })
         .catch((err) => {
           subscriber.next({
-            type: NodeExecutionEventType.Errors,
-            nodeId: nodeConfig.nodeId,
-            errorMessages: [
-              err.message != null ? err.message : 'Unknown error',
-            ],
-          });
-
-          subscriber.next({
-            type: NodeExecutionEventType.Finish,
-            nodeId: nodeConfig.nodeId,
-            finishedConnectorIds: [],
+            errors: [err.message != null ? err.message : 'Unknown error'],
           });
         })
         .finally(() => {

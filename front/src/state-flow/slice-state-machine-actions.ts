@@ -1,40 +1,43 @@
 import { createLens } from '@dhmk/zustand-lens';
 import deepEqual from 'deep-equal';
 import posthog from 'posthog-js';
-import { Subscription, from, map } from 'rxjs';
+import { Subject, Subscription, from, map } from 'rxjs';
 import invariant from 'tiny-invariant';
 import { OperationResult } from 'urql';
 import { StateCreator } from 'zustand';
 
 import {
-  CanvasDataSchemaV4,
   CanvasDataV4,
+  CanvasDataV4Schema,
   LocalNode,
   NodeTypeEnum,
   migrateV3ToV4,
 } from 'flow-models';
 
-import { FlowRunEventType, ValidationErrorType } from 'flow-run/event-types';
-import flowRunSingle from 'flow-run/flowRunSingle';
+import {
+  FlowRunEventType,
+  ValidationErrorType,
+  type FlowRunEvent,
+  type RunFlowResult,
+} from 'flow-run/event-types';
+import runFlowForCanvasTester from 'flow-run/runFlowForCanvasTester';
 import { graphql } from 'gencode-gql';
 import { ContentVersion, SpaceFlowQueryQuery } from 'gencode-gql/graphql';
 import { client } from 'graphql-util/client';
 import { useLocalStorageStore } from 'state-root/local-storage-state';
 
+import { NodeExecutionMessageType, NodeExecutionStatus } from './common-types';
 import { ChangeEventType } from './event-graph/event-types';
 import { updateSpaceContentV4 } from './graphql/graphql';
 import {
   CanvasStateMachineEventType,
   FlowState,
-  NodeExecutionMessageType,
-  NodeExecutionStatus,
   StateMachineActionsStateSlice,
 } from './types';
 import { createWithImmer } from './util/lens-util';
 import {
   assignLocalEdgeProperties,
   assignLocalNodeProperties,
-  selectStartNodeVariableIdToValueMap,
 } from './util/state-utils';
 
 type StateMachineActionsSliceStateCreator = StateCreator<
@@ -72,12 +75,9 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
         .pipe(map(parseQueryResult))
         .subscribe({
           next({ flowContent, isUpdated }) {
-            const { nodes, edges, variablesDict, ...rest } = flowContent;
+            const { nodes, edges, connectors, ...rest } = flowContent;
 
-            const updatedEdges = assignLocalEdgeProperties(
-              edges,
-              variablesDict,
-            );
+            const updatedEdges = assignLocalEdgeProperties(edges, connectors);
 
             // Force cast to LocalNode[] here because we know ReactFlow will
             // automatically populate the missing properties.
@@ -90,7 +90,7 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
                 return {
                   nodes: updatedNodes,
                   edges: updatedEdges,
-                  variablesDict,
+                  connectors,
                   nodeExecutionStates: {},
                   nodeAccountLevelFieldsValidationErrors: {},
                   ...rest,
@@ -123,7 +123,7 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
     _syncFlowContent: async (args) => {
       const flowContent = get().getFlowContent();
 
-      const nextSyncedData = CanvasDataSchemaV4.parse(flowContent);
+      const nextSyncedData = CanvasDataV4Schema.parse(flowContent);
 
       const hasChange =
         args.context.shouldForceSync ||
@@ -171,56 +171,77 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
       }
     },
 
-    _executeFlowSingleRun() {
+    _executeFlowSingleRun(args) {
+      const { event } = args;
+
+      invariant(
+        event.type === CanvasStateMachineEventType.StartExecutingFlowSingleRun,
+        'Event type is StartExecutingFlowSingleRun',
+      );
+
+      // Analytics
+
       posthog.capture('Starting Simple Evaluation', {
         flowId: get().spaceId,
       });
 
-      const { edges, nodeConfigsDict, variablesDict } = get().getFlowContent();
-      const variableValueLookUpDict = get().getDefaultVariableValueLookUpDict();
+      // Main execution logic
 
-      const flowInputVariableValueMap: Readonly<
-        Record<string, Readonly<unknown>>
-      > = selectStartNodeVariableIdToValueMap(
-        variablesDict,
-        variableValueLookUpDict,
-        nodeConfigsDict,
-      );
+      const { edges, nodeConfigs, connectors } = get().getFlowContent();
+      const canvasTesterStartNodeId = get().canvasTesterStartNodeId;
 
       // NOTE: Stop previous run if there is one
       runSingleSubscription?.unsubscribe();
+      runSingleSubscription = new Subscription();
 
       get()._processEventWithEventGraph({
         type: ChangeEventType.FLOW_SINGLE_RUN_STARTED,
       });
 
-      // Reset variable values except for flow inputs values
+      // Reset variable values except for start node values
       setFlowContentProduce((draft) => {
-        draft.variableValueLookUpDicts = [flowInputVariableValueMap];
+        draft.variableResults = event.params.inputValues;
+        draft.conditionResults = {};
       });
 
-      runSingleSubscription = flowRunSingle({
-        edges: edges.map((edge) => ({
-          sourceNode: edge.source,
-          sourceConnector: edge.sourceHandle,
-          targetNode: edge.target,
-          targetConnector: edge.targetHandle,
-        })),
-        nodeConfigs: nodeConfigsDict,
-        connectors: variablesDict,
-        inputValueMap: flowInputVariableValueMap,
-        preferStreaming: true,
-        getAccountLevelFieldValue: (
-          nodeType: NodeTypeEnum,
-          fieldKey: string,
-        ) => {
-          return useLocalStorageStore
-            .getState()
-            .getLocalAccountLevelNodeFieldValue(nodeType, fieldKey);
-        },
-      }).subscribe({
-        next(event) {
+      const progressObserver = new Subject<FlowRunEvent>();
+
+      const progressObserverSubscription = progressObserver.subscribe(
+        (event) => {
           switch (event.type) {
+            case FlowRunEventType.NodeStart:
+              get()._processEventWithEventGraph({
+                type: ChangeEventType.FLOW_SINGLE_RUN_NODE_EXECUTION_STATE_CHANGE,
+                nodeId: event.nodeId,
+                state: NodeExecutionStatus.Executing,
+              });
+              break;
+            case FlowRunEventType.NodeFinish:
+              get()._processEventWithEventGraph({
+                type: ChangeEventType.FLOW_SINGLE_RUN_NODE_EXECUTION_STATE_CHANGE,
+                nodeId: event.nodeId,
+                state: NodeExecutionStatus.Success,
+              });
+              break;
+            case FlowRunEventType.NodeErrors:
+              get()._processEventWithEventGraph({
+                type: ChangeEventType.FLOW_SINGLE_RUN_NODE_EXECUTION_STATE_CHANGE,
+                nodeId: event.nodeId,
+                state: NodeExecutionStatus.Error,
+                newMessages: event.errorMessages.map((message) => ({
+                  type: NodeExecutionMessageType.Error,
+                  content: message,
+                })),
+              });
+              break;
+            case FlowRunEventType.VariableValues:
+              get().updateVariableValues(
+                Object.keys(event.variableResults).map((variableId) => {
+                  const result = event.variableResults[variableId];
+                  return { variableId, update: result };
+                }),
+              );
+              break;
             case FlowRunEventType.ValidationErrors:
               event.errors.forEach((error) => {
                 switch (error.type) {
@@ -251,49 +272,50 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
                 }
               });
               break;
-            case FlowRunEventType.NodeStart:
-              get()._processEventWithEventGraph({
-                type: ChangeEventType.FLOW_SINGLE_RUN_NODE_EXECUTION_STATE_CHANGE,
-                nodeId: event.nodeId,
-                state: NodeExecutionStatus.Executing,
-              });
-              break;
-            case FlowRunEventType.NodeFinish:
-              get()._processEventWithEventGraph({
-                type: ChangeEventType.FLOW_SINGLE_RUN_NODE_EXECUTION_STATE_CHANGE,
-                nodeId: event.nodeId,
-                state: NodeExecutionStatus.Success,
-              });
-              break;
-            case FlowRunEventType.NodeErrors:
-              get()._processEventWithEventGraph({
-                type: ChangeEventType.FLOW_SINGLE_RUN_NODE_EXECUTION_STATE_CHANGE,
-                nodeId: event.nodeId,
-                state: NodeExecutionStatus.Error,
-                newMessages: event.errorMessages.map((message) => ({
-                  type: NodeExecutionMessageType.Error,
-                  content: message,
-                })),
-              });
-              break;
-            case FlowRunEventType.VariableValues:
-              get().updateVariableValues(
-                Object.entries(event.variableValues).map(
-                  ([variableId, value]) => ({ variableId, value }),
-                ),
-              );
-              break;
           }
+        },
+      );
+
+      let runFlowResult: RunFlowResult | null = null;
+
+      const runFlowForCanvasTesterSubscription = runFlowForCanvasTester({
+        startNodeIds:
+          canvasTesterStartNodeId != null ? [canvasTesterStartNodeId] : [],
+        edges: edges.map((edge) => ({
+          sourceNode: edge.source,
+          sourceConnector: edge.sourceHandle,
+          targetNode: edge.target,
+          targetConnector: edge.targetHandle,
+        })),
+        nodeConfigs: nodeConfigs,
+        connectors: connectors,
+        inputValueMap: event.params.inputValues,
+        preferStreaming: true,
+        progressObserver,
+        getAccountLevelFieldValue: (
+          nodeType: NodeTypeEnum,
+          fieldKey: string,
+        ) => {
+          return useLocalStorageStore
+            .getState()
+            .getLocalAccountLevelNodeFieldValue(nodeType, fieldKey);
+        },
+      }).subscribe({
+        next(result) {
+          runFlowResult = result;
         },
         error(error) {
           posthog.capture('Finished Simple Evaluation with Error', {
             flowId: get().spaceId,
           });
 
+          // TODO: Report to telemetry
           console.error(error);
 
           get().canvasStateMachine.send({
             type: CanvasStateMachineEventType.FinishedExecutingFlowSingleRun,
+            hasError: true,
+            result: { variableResults: {} },
           });
 
           get()._processEventWithEventGraph({
@@ -305,8 +327,12 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
             flowId: get().spaceId,
           });
 
+          invariant(runFlowResult != null, 'runFlowResult should not be null');
+
           get().canvasStateMachine.send({
             type: CanvasStateMachineEventType.FinishedExecutingFlowSingleRun,
+            hasError: false,
+            result: { variableResults: runFlowResult.variableResults },
           });
 
           get()._processEventWithEventGraph({
@@ -314,6 +340,9 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
           });
         },
       });
+
+      runSingleSubscription.add(progressObserverSubscription);
+      runSingleSubscription.add(runFlowForCanvasTesterSubscription);
     },
 
     _cancelFlowSingleRunIfInProgress() {
@@ -370,9 +399,10 @@ function parseQueryResult(input: OperationResult<SpaceFlowQueryQuery>): {
       isMigrated = true;
     // fallthrough
     case ContentVersion.V4: {
-      const result = CanvasDataSchemaV4.safeParse(canvasData);
+      const result = CanvasDataV4Schema.safeParse(canvasData);
 
       if (!result.success) {
+        console.error(canvasData);
         // TODO: Report validation error
         invariant(false, `Validation error: ${result.error.message}`);
       }

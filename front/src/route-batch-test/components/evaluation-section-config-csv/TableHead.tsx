@@ -2,8 +2,8 @@ import { F } from '@mobily/ts-belt';
 import { Option, Select } from '@mui/joy';
 import { ReactNode, useMemo } from 'react';
 
+import { CSVRow } from 'state-flow/common-types';
 import { useFlowStore } from 'state-flow/flow-store';
-import { CSVRow } from 'state-flow/types';
 import {
   selectVariablesOnAllEndNodes,
   selectVariablesOnAllStartNodes,
@@ -16,8 +16,8 @@ type Props = {
 export default function TableHead(props: Props) {
   // SECTION: Select state from store
 
-  const variablesDict = useFlowStore((s) => s.getFlowContent().variablesDict);
-  const nodeConfigs = useFlowStore((s) => s.getFlowContent().nodeConfigsDict);
+  const variablesDict = useFlowStore((s) => s.getFlowContent().connectors);
+  const nodeConfigs = useFlowStore((s) => s.getFlowContent().nodeConfigs);
   const repeatTimes = useFlowStore(
     (s) => s.batchTest.config.content.repeatTimes,
   );

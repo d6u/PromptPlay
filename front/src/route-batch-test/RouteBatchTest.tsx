@@ -7,22 +7,22 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Subscription, debounceTime, tap } from 'rxjs';
 import invariant from 'tiny-invariant';
 
-import { ConnectorResultMap, NodeTypeEnum } from 'flow-models';
+import { ConditionResultRecords, NodeTypeEnum } from 'flow-models';
 
 import {
   FlowBatchRunEventType,
   ValidationErrorType,
 } from 'flow-run/event-types';
-import flowRunBatch from 'flow-run/flowRunBatch';
 import { OverallStatus } from 'flow-run/run-types';
-import { useFlowStore } from 'state-flow/flow-store';
+import flowRunBatch from 'flow-run/runFlowForBatchTest';
 import {
   BatchTestTab,
   CSVData,
   CSVHeader,
   IterationIndex,
   RowIndex,
-} from 'state-flow/types';
+} from 'state-flow/common-types';
+import { useFlowStore } from 'state-flow/flow-store';
 import { useLocalStorageStore } from 'state-root/local-storage-state';
 
 import EvaluationSectionImportCSV from './components/EvaluationSectionImportCSV';
@@ -33,10 +33,8 @@ function RouteBatchTest() {
 
   const spaceId = useFlowStore((s) => s.spaceId);
   const edges = useFlowStore((s) => s.getFlowContent().edges);
-  const nodeConfigsDict = useFlowStore(
-    (s) => s.getFlowContent().nodeConfigsDict,
-  );
-  const variablesDict = useFlowStore((s) => s.getFlowContent().variablesDict);
+  const nodeConfigsDict = useFlowStore((s) => s.getFlowContent().nodeConfigs);
+  const connectors = useFlowStore((s) => s.getFlowContent().connectors);
   const csvContent = useFlowStore((s) => s.batchTest.csvString);
   const repeatTimes = useFlowStore(
     (s) => s.batchTest.config.content.repeatTimes,
@@ -96,7 +94,7 @@ function RouteBatchTest() {
     // Reset result table
     setGeneratedResult(
       A.makeWithIndex(csvBody.length, () =>
-        A.makeWithIndex(repeatTimes, D.makeEmpty<ConnectorResultMap>),
+        A.makeWithIndex(repeatTimes, D.makeEmpty<ConditionResultRecords>),
       ),
       /* replace */ true,
     );
@@ -120,7 +118,7 @@ function RouteBatchTest() {
         targetConnector: edge.targetHandle,
       })),
       nodeConfigs: nodeConfigsDict,
-      connectors: variablesDict,
+      connectors: connectors,
       csvTable: csvBody,
       variableIdToCsvColumnIndexMap,
       repeatTimes,
@@ -256,7 +254,7 @@ function RouteBatchTest() {
     repeatTimes,
     nodeConfigsDict,
     edges,
-    variablesDict,
+    connectors,
     variableIdToCsvColumnIndexMap,
     concurrencyLimit,
     setGeneratedResult,

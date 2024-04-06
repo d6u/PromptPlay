@@ -1,8 +1,8 @@
 import styled from '@emotion/styled';
 import { Position } from 'reactflow';
 
+import { EdgeConnectStartConnectorClass } from 'state-flow/common-types';
 import { useFlowStore } from 'state-flow/flow-store';
-import { EdgeConnectStartConnectorClass } from 'state-flow/types';
 
 import { Control, FieldArrayWithId, useController } from 'react-hook-form';
 import { BaseVariableHandle } from '../base-connector-handles';

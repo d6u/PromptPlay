@@ -1,5 +1,3 @@
-import { FlowRouteTab, pathToFlowCanvasTab } from 'generic-util/route';
-import { client } from 'graphql-util/client';
 import { useMemo } from 'react';
 import {
   Navigate,
@@ -7,10 +5,19 @@ import {
   createBrowserRouter,
   redirect,
 } from 'react-router-dom';
+import { Provider as GraphQLProvider } from 'urql';
+
+import {
+  FlowRouteTab,
+  RootRouteSubRoute,
+  pathToFlowCanvasTab,
+} from 'generic-util/route';
+import { client } from 'graphql-util/client';
 import RouteBatchTest from 'route-batch-test/RouteBatchTest';
 import RouteCanvas from 'route-canvas/RouteCanvas';
 import RouteDashboard from 'route-dashboard/RouteDashboard';
-import { Provider as GraphQLProvider } from 'urql';
+
+import RouteChatbots from '../route-chatbots/RouteChatbots';
 import RouteFlow from '../route-flow/RouteFlow';
 import flowRouteLoader from '../route-flow/flowRouteLoader';
 import RouteRoot from './RootView';
@@ -26,12 +33,32 @@ export default function App() {
         children: [
           {
             path: '',
+            element: <Navigate to="/workspace" />,
+          },
+          {
+            path: RootRouteSubRoute.Workspace,
             element: <RouteDashboard />,
+            // NOTE: Keep this in sync with RootRouteSubRouteHandle type
+            handle: {
+              subRouteType: RootRouteSubRoute.Workspace,
+            },
+          },
+          {
+            path: RootRouteSubRoute.ChatBots,
+            element: <RouteChatbots />,
+            // NOTE: Keep this in sync with RootRouteSubRouteHandle type
+            handle: {
+              subRouteType: RootRouteSubRoute.ChatBots,
+            },
           },
           {
             path: 'flows/:spaceId',
             loader: flowRouteLoader,
             element: <RouteFlow />,
+            // NOTE: Keep this in sync with RootRouteSubRouteHandle type
+            handle: {
+              subRouteType: RootRouteSubRoute.Flows,
+            },
             children: [
               {
                 path: '',
@@ -63,7 +90,7 @@ export default function App() {
       },
       {
         path: '*',
-        element: <Navigate to="/" />,
+        element: <Navigate to="/workspace" />,
       },
     ]);
   }, []);

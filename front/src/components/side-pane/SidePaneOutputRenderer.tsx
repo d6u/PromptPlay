@@ -15,20 +15,20 @@ type Props = {
 };
 
 function SidePaneOutputRenderer(props: Props) {
-  const defaultVariableValueMap = useFlowStore((s) =>
-    s.getDefaultVariableValueLookUpDict(),
+  const variableResults = useFlowStore(
+    (s) => s.getFlowContent().variableResults,
   );
 
-  const value = defaultVariableValueMap[props.outputItem.id];
+  const variableResult = variableResults[props.outputItem.id];
 
   let valueContent: ReactNode;
 
   if (props.outputItem.valueType === VariableValueType.Audio) {
-    valueContent = <audio controls src={value as string} />;
+    valueContent = <audio controls src={variableResult.value as string} />;
   } else {
     valueContent = (
       <ValueRaw>
-        <OutputDisplay value={value} />
+        <OutputDisplay value={variableResult?.value} />
       </ValueRaw>
     );
   }

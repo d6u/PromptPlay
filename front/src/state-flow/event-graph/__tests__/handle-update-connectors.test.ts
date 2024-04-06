@@ -1,4 +1,3 @@
-import { mergeDeep } from '@dhmk/utils';
 import { produce } from 'immer';
 import { expect, test } from 'vitest';
 
@@ -29,13 +28,15 @@ test('handleUpdateConnectors should rename variable', () => {
         },
       ],
       edges: [],
-      nodeConfigsDict: {
+      nodeConfigs: {
         Z6dPf: {
           nodeId: 'Z6dPf',
           type: 'InputNode',
+          class: 'Start',
+          nodeName: 'input1',
         },
       },
-      variablesDict: {
+      connectors: {
         'Z6dPf/wZf7M': {
           type: 'NodeOutput',
           id: 'Z6dPf/wZf7M',
@@ -47,11 +48,9 @@ test('handleUpdateConnectors should rename variable', () => {
           globalVariableId: null,
         },
       },
-      variableValueLookUpDicts: [
-        {
-          'Z6dPf/wZf7M': null,
-        },
-      ],
+      variableResults: {
+        'Z6dPf/wZf7M': { value: null },
+      },
     },
   };
 
@@ -73,7 +72,7 @@ test('handleUpdateConnectors should rename variable', () => {
     ...prevState,
     flowContent: {
       ...prevState.flowContent,
-      variablesDict: {
+      connectors: {
         'Z6dPf/wZf7M': {
           type: 'NodeOutput',
           id: 'Z6dPf/wZf7M',
@@ -90,8 +89,9 @@ test('handleUpdateConnectors should rename variable', () => {
 });
 
 test('handleUpdateConnectors should remove edge when isGlobal become true', () => {
-  const prevState = mergeDeep(MOCK_STATE, {
+  const prevState: State = {
     flowContent: {
+      ...MOCK_STATE.flowContent,
       nodes: [
         {
           id: 'opVRl',
@@ -130,17 +130,20 @@ test('handleUpdateConnectors should remove edge when isGlobal become true', () =
           },
         },
       ],
-      nodeConfigsDict: {
+      nodeConfigs: {
         'opVRl': {
+          class: 'Start',
           type: 'InputNode',
           nodeId: 'opVRl',
+          nodeName: 'input1',
         },
         '4R9uw': {
+          class: 'Finish',
           type: 'OutputNode',
           nodeId: '4R9uw',
         },
       },
-      variablesDict: {
+      connectors: {
         'opVRl/tBBxU': {
           type: 'NodeOutput',
           id: 'opVRl/tBBxU',
@@ -162,12 +165,15 @@ test('handleUpdateConnectors should remove edge when isGlobal become true', () =
           globalVariableId: null,
         },
       },
-      variableValueLookUpDicts: [{ 'opVRl/tBBxU': null, '4R9uw/qWffq': null }],
+      variableResults: {
+        'opVRl/tBBxU': { value: null },
+        '4R9uw/qWffq': { value: null },
+      },
       nodeExecutionStates: {},
       nodeAccountLevelFieldsValidationErrors: {},
       globalVariables: {},
     },
-  });
+  };
 
   const nextState = produce(prevState, (draft) => {
     handleUpdateConnectors(draft, {
@@ -188,7 +194,7 @@ test('handleUpdateConnectors should remove edge when isGlobal become true', () =
     flowContent: {
       ...prevState.flowContent,
       edges: [],
-      variablesDict: {
+      connectors: {
         'opVRl/tBBxU': {
           type: 'NodeOutput',
           id: 'opVRl/tBBxU',

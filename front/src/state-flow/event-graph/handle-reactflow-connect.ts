@@ -47,8 +47,8 @@ export function handleReactFlowConnectEvent(
   invariant(sourceHandle != null, 'sourceHandle is not null');
   invariant(targetHandle != null, 'targetHandle is not null');
 
-  const sourceConnector = state.flowContent.variablesDict[sourceHandle];
-  const targetConnector = state.flowContent.variablesDict[targetHandle];
+  const sourceConnector = state.flowContent.connectors[sourceHandle];
+  const targetConnector = state.flowContent.connectors[targetHandle];
 
   const sourceConnectorIsVariable =
     sourceConnector.type === ConnectorType.NodeInput ||
@@ -90,8 +90,7 @@ export function handleReactFlowConnectEvent(
     // TODO: More systematic way to check type compatibility
 
     if (sourceConnector.valueType === VariableValueType.Audio) {
-      const targetNodeConfig =
-        state.flowContent.nodeConfigsDict[newEdge.target];
+      const targetNodeConfig = state.flowContent.nodeConfigs[newEdge.target];
 
       if (targetNodeConfig.type !== NodeType.OutputNode) {
         // TODO: Change this to a non-blocking alert UI
@@ -151,7 +150,7 @@ export function handleReactFlowConnectEvent(
 
   addStyleIfNotAlreadyAdded(
     state.flowContent.edges,
-    state.flowContent.variablesDict,
+    state.flowContent.connectors,
   );
 
   return events;

@@ -26,7 +26,7 @@ export const removeConnectorOnNodeRemoval = createHandler<
   (state, event) => {
     const events: OutputEvent[] = [];
 
-    for (const connector of D.values(state.flowContent.variablesDict)) {
+    for (const connector of D.values(state.flowContent.connectors)) {
       if (connector.nodeId !== event.node.id) {
         continue;
       }
@@ -50,7 +50,7 @@ export const removeConnectorOnNodeRemoval = createHandler<
         // No event for removing condition target connector
       }
 
-      delete state.flowContent.variablesDict[connectorSnapshot.id];
+      delete state.flowContent.connectors[connectorSnapshot.id];
     }
 
     return events;

@@ -5,21 +5,17 @@ import { z } from 'zod';
 
 import randomId from 'common-utils/randomId';
 
-import {
-  ConnectorType,
-  NodeInputVariable,
-  NodeOutputVariable,
-  VariableValueType,
-} from '../../base-types';
+import { ConnectorType, VariableValueType } from '../../base-types';
 import {
   FieldType,
+  NodeClass,
   NodeDefinition,
-  NodeExecutionEvent,
-  NodeExecutionEventType,
   NodeType,
+  type RunNodeResult,
 } from '../../node-definition-base-types';
 
 export const TextTemplateNodeConfigSchema = z.object({
+  class: z.literal(NodeClass.Process),
   type: z.literal(NodeType.TextTemplate),
   nodeId: z.string(),
   content: z.string(),
@@ -66,6 +62,7 @@ export const TEXT_TEMPLATE_NODE_DEFINITION: NodeDefinition<
   createDefaultNodeConfig: (nodeId) => {
     return {
       nodeConfig: {
+        class: NodeClass.Process,
         nodeId: nodeId,
         type: NodeType.TextTemplate,
         content: 'Write a poem about {{topic}} in fewer than 20 words.',
@@ -78,7 +75,7 @@ export const TEXT_TEMPLATE_NODE_DEFINITION: NodeDefinition<
           nodeId: nodeId,
           index: 0,
           valueType: VariableValueType.String,
-          isGlobal: true,
+          isGlobal: false,
           globalVariableId: null,
         },
         {
@@ -88,7 +85,7 @@ export const TEXT_TEMPLATE_NODE_DEFINITION: NodeDefinition<
           nodeId: nodeId,
           index: 0,
           valueType: VariableValueType.String,
-          isGlobal: true,
+          isGlobal: false,
           globalVariableId: null,
         },
         {
@@ -107,54 +104,36 @@ export const TEXT_TEMPLATE_NODE_DEFINITION: NodeDefinition<
     };
   },
 
-  createNodeExecutionObservable: (context, nodeExecutionConfig, params) => {
-    return new Observable<NodeExecutionEvent>((subscriber) => {
-      const { nodeConfig, connectorList } = nodeExecutionConfig;
-      const { nodeInputValueMap } = params;
+  createNodeExecutionObservable: (params) => {
+    return new Observable<RunNodeResult>((subscriber) => {
+      const {
+        nodeConfig,
+        inputVariables,
+        outputVariables,
+        inputVariableResults,
+      } = params;
 
       invariant(nodeConfig.type === NodeType.TextTemplate);
 
-      subscriber.next({
-        type: NodeExecutionEventType.Start,
-        nodeId: nodeConfig.nodeId,
+      const variableNameToValues: Record<string, unknown> = {};
+
+      inputVariables.forEach((connector) => {
+        variableNameToValues[connector.name] =
+          inputVariableResults[connector.id].value;
       });
 
-      const argsMap: Record<string, unknown> = {};
-
-      connectorList
-        .filter((connector): connector is NodeInputVariable => {
-          return connector.type === ConnectorType.NodeInput;
-        })
-        .forEach((connector) => {
-          argsMap[connector.name] = nodeInputValueMap[connector.id] ?? null;
-        });
-
-      const outputVariable = connectorList.find(
-        (connector): connector is NodeOutputVariable => {
-          return connector.type === ConnectorType.NodeOutput;
-        },
-      );
-
+      const outputVariable = outputVariables[0];
       invariant(outputVariable != null);
 
       // SECTION: Main Logic
 
-      const content = mustache.render(nodeConfig.content, argsMap);
+      const content = mustache.render(nodeConfig.content, variableNameToValues);
 
       // !SECTION
 
       subscriber.next({
-        type: NodeExecutionEventType.VariableValues,
-        nodeId: nodeConfig.nodeId,
-        variableValuesLookUpDict: {
-          [outputVariable.id]: content,
-        },
-      });
-
-      subscriber.next({
-        type: NodeExecutionEventType.Finish,
-        nodeId: nodeConfig.nodeId,
-        finishedConnectorIds: [outputVariable.id],
+        variableResults: { [outputVariable.id]: { value: content } },
+        completedConnectorIds: [outputVariable.id],
       });
 
       subscriber.complete();

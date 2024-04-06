@@ -71,10 +71,6 @@ const Backdrop = styled.div<{ $type: NodeTypeEnum; $state: NodeState }>`
     }
 
     switch (props.$type) {
-      case NodeType.InputNode:
-        return css`
-          background: linear-gradient(22deg, #9cede8 0%, #00e1d4 100%);
-        `;
       case NodeType.OutputNode:
         return css`
           background: linear-gradient(39deg, #daf1bd 14.47%, #8eec63 87.64%);
@@ -111,6 +107,11 @@ const Backdrop = styled.div<{ $type: NodeTypeEnum; $state: NodeState }>`
       case NodeType.ConditionNode: {
         return '';
       }
+      case NodeType.InputNode:
+      default:
+        return css`
+          background: linear-gradient(22deg, #9cede8 0%, #00e1d4 100%);
+        `;
     }
   }}
 `;

@@ -2,8 +2,8 @@ import { Position } from 'reactflow';
 
 import { BACKDROP_PADDING } from 'view-flow-canvas/constants';
 
+import { EdgeConnectStartConnectorClass } from 'state-flow/common-types';
 import { useFlowStore } from 'state-flow/flow-store';
-import { EdgeConnectStartConnectorClass } from 'state-flow/types';
 import {
   BaseConditionHandle,
   HANDLE_HEIGHT,

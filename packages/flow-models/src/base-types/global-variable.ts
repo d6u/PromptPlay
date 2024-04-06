@@ -1,4 +1,5 @@
 import z from 'zod';
+
 import { VariableValueType } from './variable-value-type';
 
 export const GlobalVariableSchema = z.object({

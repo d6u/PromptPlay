@@ -1,23 +1,22 @@
 import styled from '@emotion/styled';
 
+import { NodeClass, type NodeClassEnum } from 'flow-models';
+
+import NodeAddConnectorButton from 'components/NodeAddConnectorButton';
 import RemoveButton from 'generic-components/RemoveButton';
 import IconThreeDots from 'icons/IconThreeDots';
 import { useFlowStore } from 'state-flow/flow-store';
 
-import NodeAddConnectorButton from '../../components/NodeAddConnectorButton';
-import {
-  DRAG_HANDLE_CLASS_NAME,
-  NODE_BOX_HEADER_SECTION_MARGIN_BOTTOM,
-  NODE_BOX_HEADER_SECTION_PADDING_TOP,
-  NODE_BOX_HEADER_SECTION_TITLE_HEIGHT,
-  NODE_BOX_HEADER_SUB_SECTION_PADDING_MARGIN_BETWEEN,
-} from '../constants';
+import { DRAG_HANDLE_CLASS_NAME } from '../constants';
 import NodeBoxGearButton from './NodeBoxIconGear';
+import NodeBoxIconRename from './NodeBoxIconRename';
 
 type Props = {
   // Static values
   title: string;
+  subTitle?: string;
   // Node Level
+  nodeClass: NodeClassEnum;
   nodeId: string;
   isNodeReadOnly: boolean;
 } & (
@@ -36,6 +35,7 @@ function NodeBoxHeaderSection(props: Props) {
   const setCanvasLeftPaneSelectedNodeId = useFlowStore(
     (s) => s.setCanvasLeftPaneSelectedNodeId,
   );
+  const setCanvasRenameNodeId = useFlowStore((s) => s.setCanvasRenameNodeId);
 
   return (
     <Container>
@@ -44,6 +44,11 @@ function NodeBoxHeaderSection(props: Props) {
           <Title>{props.title}</Title>
           <DragHandle />
         </TitleContainer>
+        {props.subTitle && (
+          <SubTitleContainer className={DRAG_HANDLE_CLASS_NAME}>
+            <SubTitle>{props.subTitle}</SubTitle>
+          </SubTitleContainer>
+        )}
         {!props.isNodeReadOnly && (
           <RemoveButtonContainer>
             <RemoveButton onClick={() => removeNode(props.nodeId)} />
@@ -51,6 +56,13 @@ function NodeBoxHeaderSection(props: Props) {
         )}
       </TitleSection>
       <ActionsSection>
+        {props.nodeClass === NodeClass.Start && (
+          <NodeBoxIconRename
+            onClick={() => {
+              setCanvasRenameNodeId(props.nodeId);
+            }}
+          />
+        )}
         <NodeBoxGearButton
           onClick={() => {
             setCanvasLeftPaneIsOpen(true);
@@ -71,25 +83,40 @@ function NodeBoxHeaderSection(props: Props) {
 }
 
 const Container = styled.div`
-  margin-bottom: ${NODE_BOX_HEADER_SECTION_MARGIN_BOTTOM}px;
+  margin-bottom: 5px;
 `;
 
 const TitleSection = styled.div`
   position: relative;
-  margin-bottom: ${NODE_BOX_HEADER_SUB_SECTION_PADDING_MARGIN_BETWEEN}px;
+  margin-bottom: 5px;
 `;
 
 const TitleContainer = styled.div`
   cursor: grab;
-  padding-top: ${NODE_BOX_HEADER_SECTION_PADDING_TOP}px;
+  padding-top: 10px;
   padding-left: 10px;
   padding-right: 10px;
+`;
+
+const SubTitleContainer = styled.div`
+  cursor: grab;
+  padding-top: 5px;
+  padding-left: 10px;
+  padding-right: 10px;
+  margin-bottom: 10px;
 `;
 
 const Title = styled.h3`
   margin: 0;
   font-size: 16px;
-  line-height: ${NODE_BOX_HEADER_SECTION_TITLE_HEIGHT}px;
+  line-height: 32px;
+`;
+
+const SubTitle = styled.h3`
+  margin: 0;
+  font-size: 12px;
+  line-height: 12px;
+  color: #636b74;
 `;
 
 const DragHandle = styled(IconThreeDots)`

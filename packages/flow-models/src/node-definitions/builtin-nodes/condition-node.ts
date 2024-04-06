@@ -7,21 +7,20 @@ import { z } from 'zod';
 import randomId from 'common-utils/randomId';
 
 import {
-  Condition,
-  ConditionResult,
   ConnectorType,
-  NodeInputVariable,
   VariableValueType,
+  type ConditionResultRecords,
 } from '../../base-types';
 import {
   FieldType,
+  NodeClass,
   NodeDefinition,
-  NodeExecutionEvent,
-  NodeExecutionEventType,
   NodeType,
+  type RunNodeResult,
 } from '../../node-definition-base-types';
 
 export const ConditionNodeConfigSchema = z.object({
+  class: z.literal(NodeClass.Process),
   type: z.literal(NodeType.ConditionNode),
   nodeId: z.string(),
   stopAtTheFirstMatch: z.boolean().default(true),
@@ -47,6 +46,7 @@ export const CONDITION_NODE_DEFINITION: NodeDefinition<
   createDefaultNodeConfig: (nodeId) => {
     return {
       nodeConfig: {
+        class: NodeClass.Process,
         type: NodeType.ConditionNode,
         nodeId: nodeId,
         stopAtTheFirstMatch: true,
@@ -59,7 +59,7 @@ export const CONDITION_NODE_DEFINITION: NodeDefinition<
           index: 0,
           name: 'input',
           valueType: VariableValueType.Any,
-          isGlobal: true,
+          isGlobal: false,
           globalVariableId: null,
         },
         {
@@ -92,39 +92,27 @@ export const CONDITION_NODE_DEFINITION: NodeDefinition<
     };
   },
 
-  createNodeExecutionObservable: (context, nodeExecutionConfig, params) => {
-    return new Observable<NodeExecutionEvent>((subscriber) => {
-      const { nodeConfig, connectorList } = nodeExecutionConfig;
-      const { nodeInputValueMap } = params;
+  createNodeExecutionObservable: (params) => {
+    return new Observable<RunNodeResult>((subscriber) => {
+      const {
+        nodeConfig,
+        inputVariables,
+        outputConditions,
+        inputVariableResults,
+      } = params;
 
       invariant(nodeConfig.type === NodeType.ConditionNode);
 
-      subscriber.next({
-        type: NodeExecutionEventType.Start,
-        nodeId: nodeConfig.nodeId,
-      });
-
       (async function () {
-        const inputVariable = connectorList.find(
-          (connector): connector is NodeInputVariable => {
-            return connector.type === ConnectorType.NodeInput;
-          },
-        );
-
+        const inputVariable = inputVariables[0];
         invariant(inputVariable != null);
 
-        const inputValue = nodeInputValueMap[inputVariable.id];
-
-        const conditions = connectorList
-          .filter((connector): connector is Condition => {
-            return connector.type === ConnectorType.Condition;
-          })
-          .sort((a, b) => a.index - b.index);
+        const conditions = outputConditions.sort((a, b) => a.index - b.index);
 
         const defaultCaseCondition = conditions[0];
         const normalConditions = conditions.slice(1);
 
-        const conditionResultMap: Record<string, ConditionResult> = {};
+        const conditionResults: ConditionResultRecords = {};
 
         // NOTE: Main Logic
 
@@ -132,12 +120,14 @@ export const CONDITION_NODE_DEFINITION: NodeDefinition<
 
         for (const condition of normalConditions) {
           const expression = jsonata(condition.expressionString);
-          const result = await expression.evaluate(inputValue);
+          const result = await expression.evaluate(
+            inputVariableResults[inputVariable.id].value,
+          );
 
           if (result) {
             hasMatch = true;
 
-            conditionResultMap[condition.id] = {
+            conditionResults[condition.id] = {
               conditionId: condition.id,
               isConditionMatched: true,
             };
@@ -146,7 +136,7 @@ export const CONDITION_NODE_DEFINITION: NodeDefinition<
               break;
             }
           } else {
-            conditionResultMap[condition.id] = {
+            conditionResults[condition.id] = {
               conditionId: condition.id,
               isConditionMatched: false,
             };
@@ -154,23 +144,16 @@ export const CONDITION_NODE_DEFINITION: NodeDefinition<
         }
 
         if (!hasMatch) {
-          conditionResultMap[defaultCaseCondition.id] = {
+          conditionResults[defaultCaseCondition.id] = {
             conditionId: defaultCaseCondition.id,
             isConditionMatched: true,
           };
         }
 
         subscriber.next({
-          type: NodeExecutionEventType.VariableValues,
-          nodeId: nodeConfig.nodeId,
-          variableValuesLookUpDict: conditionResultMap,
-        });
-
-        subscriber.next({
-          type: NodeExecutionEventType.Finish,
-          nodeId: nodeConfig.nodeId,
-          finishedConnectorIds: pipe(
-            conditionResultMap,
+          conditionResults: conditionResults,
+          completedConnectorIds: pipe(
+            conditionResults,
             D.filter((result) => result.isConditionMatched),
             D.keys,
             F.toMutable,
@@ -178,17 +161,10 @@ export const CONDITION_NODE_DEFINITION: NodeDefinition<
         });
       })()
         .catch((err) => {
-          subscriber.next({
-            type: NodeExecutionEventType.Errors,
-            nodeId: nodeConfig.nodeId,
-            // TODO: Report to telemetry to improve error message
-            errorMessages: ['message' in err ? err.message : 'Unknown error'],
-          });
+          // TODO: Report to telemetry to improve error message
 
           subscriber.next({
-            type: NodeExecutionEventType.Finish,
-            nodeId: nodeConfig.nodeId,
-            finishedConnectorIds: [],
+            errors: ['message' in err ? err.message : 'Unknown error'],
           });
         })
         .finally(() => {

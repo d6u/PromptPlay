@@ -2,7 +2,11 @@ import { D, Option } from '@mobily/ts-belt';
 import {
   EMPTY,
   Observable,
+  Subject,
   endWith,
+  from,
+  ignoreElements,
+  merge,
   mergeMap,
   of,
   range,
@@ -10,23 +14,19 @@ import {
 } from 'rxjs';
 import invariant from 'tiny-invariant';
 
-import {
-  Connector,
-  ImmutableFlowNodeGraph,
-  NodeConfig,
-  NodeExecutionEvent,
-  NodeExecutionEventType,
-} from 'flow-models';
+import { Connector, ImmutableFlowNodeGraph, NodeConfig } from 'flow-models';
 
 import { CIRCULAR_DEPENDENCY_ERROR_MESSAGE } from './constants';
 import {
   FlowBatchRunEvent,
   FlowBatchRunEventType,
+  RunNodeProgressEventType,
   ValidationError,
   ValidationErrorType,
+  type RunNodeProgressEvent,
 } from './event-types';
-import { executeFlow } from './execute-flow';
 import { Edge, GetAccountLevelFieldValueFunction } from './run-param-types';
+import runFlow from './runFlow';
 import { getNodeAllLevelConfigOrValidationErrors } from './util';
 
 function flowRunBatch(params: {
@@ -47,8 +47,9 @@ function flowRunBatch(params: {
   const validationErrors: ValidationError[] = [];
 
   const immutableFlowGraph = new ImmutableFlowNodeGraph({
+    startNodeIds: [],
+    nodeConfigs: params.nodeConfigs,
     edges: params.edges,
-    nodeIds: D.keys(params.nodeConfigs),
     connectors: params.connectors,
   });
 
@@ -95,24 +96,30 @@ function flowRunBatch(params: {
         row,
       );
 
-      return executeFlow({
-        nodeConfigs: result.nodeAllLevelConfigs,
-        connectors: params.connectors,
-        inputValueMap,
-        preferStreaming: params.preferStreaming,
-        flowGraph: immutableFlowGraph,
-      }).pipe(
-        mergeMap(transformEvent(iterationIndex, rowIndex)),
-        startWith<FlowBatchRunEvent>({
-          type: FlowBatchRunEventType.FlowStart,
-          iterationIndex,
-          rowIndex,
-        }),
-        endWith<FlowBatchRunEvent>({
-          type: FlowBatchRunEventType.FlowFinish,
-          iterationIndex,
-          rowIndex,
-        }),
+      const subject = new Subject<RunNodeProgressEvent>();
+
+      return merge(
+        subject.pipe(
+          mergeMap(transformEvent(iterationIndex, rowIndex)),
+          startWith<FlowBatchRunEvent>({
+            type: FlowBatchRunEventType.FlowStart,
+            iterationIndex,
+            rowIndex,
+          }),
+          endWith<FlowBatchRunEvent>({
+            type: FlowBatchRunEventType.FlowFinish,
+            iterationIndex,
+            rowIndex,
+          }),
+        ),
+        runFlow({
+          nodeConfigs: result.nodeAllLevelConfigs,
+          connectors: params.connectors,
+          inputVariableValues: inputValueMap,
+          preferStreaming: params.preferStreaming,
+          flowGraph: immutableFlowGraph,
+          progressObserver: subject,
+        }).pipe(ignoreElements()),
       );
     }, params.concurrencyLimit),
   );
@@ -121,37 +128,46 @@ function flowRunBatch(params: {
 function extractInputValueMapForCurrentRun(
   variableIdToCsvColumnIndexMap: Readonly<Record<string, Option<number>>>,
   row: ReadonlyArray<string>,
-) {
+): Readonly<Record<string, Readonly<unknown>>> {
   return D.map(variableIdToCsvColumnIndexMap, (colIndex) => {
     return colIndex != null ? row[colIndex] : null;
-  });
+  }) as Readonly<Record<string, Readonly<unknown>>>;
 }
 
 function transformEvent(
   iterationIndex: number,
   rowIndex: number,
-): (value: NodeExecutionEvent) => Observable<FlowBatchRunEvent> {
-  return (event: NodeExecutionEvent): Observable<FlowBatchRunEvent> => {
+): (value: RunNodeProgressEvent) => Observable<FlowBatchRunEvent> {
+  return (event: RunNodeProgressEvent): Observable<FlowBatchRunEvent> => {
     switch (event.type) {
-      case NodeExecutionEventType.Start:
-      case NodeExecutionEventType.Finish:
+      case RunNodeProgressEventType.Started:
+      case RunNodeProgressEventType.Finished:
         return EMPTY;
-      case NodeExecutionEventType.VariableValues: {
-        return of<FlowBatchRunEvent>({
-          type: FlowBatchRunEventType.FlowVariableValues,
-          iterationIndex,
-          rowIndex,
-          changes: event.variableValuesLookUpDict,
-        });
-      }
-      case NodeExecutionEventType.Errors: {
-        return of<FlowBatchRunEvent>({
-          type: FlowBatchRunEventType.FlowErrors,
-          iterationIndex,
-          rowIndex,
-          // TODO: Display all error messages
-          errorMessage: event.errorMessages[0],
-        });
+      case RunNodeProgressEventType.Updated: {
+        const { errors, variableResults } = event.result;
+
+        const flowBatchRunEvents: FlowBatchRunEvent[] = [];
+
+        if (errors != null && errors.length > 0) {
+          flowBatchRunEvents.push({
+            type: FlowBatchRunEventType.FlowErrors,
+            iterationIndex,
+            rowIndex,
+            // TODO: Display all error messages
+            errorMessage: errors[0],
+          });
+        }
+
+        if (variableResults != null) {
+          flowBatchRunEvents.push({
+            type: FlowBatchRunEventType.FlowVariableValues,
+            iterationIndex,
+            rowIndex,
+            changes: D.map(variableResults, (result) => result.value),
+          });
+        }
+
+        return from(flowBatchRunEvents);
       }
     }
   };

@@ -3,8 +3,8 @@ import { FormControl, FormLabel, Switch } from '@mui/joy';
 import { useMemo } from 'react';
 
 import { FlowRouteTab, useFlowRouteSubRouteHandle } from 'generic-util/route';
+import { CanvasRightPanelType } from 'state-flow/common-types';
 import { useFlowStore } from 'state-flow/flow-store';
-import { CanvasRightPanelType } from 'state-flow/types';
 
 function RightPaneToggle() {
   const flowTabType = useFlowRouteSubRouteHandle((handle) => handle.tabType);

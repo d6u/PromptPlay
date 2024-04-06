@@ -1,6 +1,8 @@
+import { Option } from '@mobily/ts-belt';
+import { useMatches } from 'react-router-dom';
+
 import { ContentVersion } from 'gencode-gql/graphql';
 import { API_SERVER_BASE_URL } from 'global-config/global-config';
-import { useMatches } from 'react-router-dom';
 
 // ANCHOR: API paths
 
@@ -24,6 +26,23 @@ export function pathToCurrentContent(
     case ContentVersion.V4:
       return pathToFlow(id);
   }
+}
+
+export enum RootRouteSubRoute {
+  Workspace = 'workspace',
+  ChatBots = 'chatbots',
+  Flows = 'flows',
+}
+
+export type RootRouteSubRouteHandle = {
+  subRouteType: RootRouteSubRoute;
+};
+
+export function useRootRouteSubRouteHandle<T>(
+  selector: (handle: Option<RootRouteSubRouteHandle>) => T,
+): T {
+  const matches = useMatches();
+  return selector(matches[1]?.handle as Option<RootRouteSubRouteHandle>);
 }
 
 // ANCHOR: Flow level paths

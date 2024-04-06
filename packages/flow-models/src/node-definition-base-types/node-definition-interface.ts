@@ -3,19 +3,24 @@ import type { Observable } from 'rxjs';
 
 import {
   Connector,
-  ConnectorResultMap,
   VariableValueTypeEnum,
+  type Condition,
+  type ConditionResultRecords,
+  type NodeInputVariable,
+  type NodeOutputVariable,
+  type VariableResultRecords,
 } from '../base-types';
-import NodeExecutionContext from './NodeExecutionContext';
 import {
   NodeAccountLevelTextFieldDefinition,
   NodeInstanceLevelFieldDefinitionUnion,
 } from './field-definition-interfaces';
-import { NodeTypeEnum } from './node-type';
+import { NodeTypeEnum, type NodeClassEnum } from './node-class-and-type';
 
 type BaseNodeInstanceLevelConfig = {
+  class: NodeClassEnum;
   type: NodeTypeEnum;
   nodeId: string;
+  nodeName?: string;
 };
 
 type ConvertToInstanceLevelFieldDefinitions<TInstanceLevel> = {
@@ -51,44 +56,25 @@ export enum NodeExecutionEventType {
   Errors = 'Errors',
 }
 
-export type NodeExecutionEvent =
-  | {
-      type: NodeExecutionEventType.Start;
-      nodeId: string;
-    }
-  | {
-      type: NodeExecutionEventType.Finish;
-      nodeId: string;
-      finishedConnectorIds: string[];
-    }
-  | {
-      type: NodeExecutionEventType.VariableValues;
-      nodeId: string;
-      // NOTE: Event should always contain all variable values
-      variableValuesLookUpDict: ConnectorResultMap;
-    }
-  | {
-      type: NodeExecutionEventType.Errors;
-      nodeId: string;
-      // NOTE: Event should always contain all error messages
-      errorMessages: string[];
-    };
-
-export type NodeExecutionConfig<T> = {
+export type RunNodeParams<T> = {
+  preferStreaming: boolean;
   nodeConfig: Readonly<T>;
-  connectorList: Connector[];
+  inputVariables: NodeInputVariable[];
+  outputVariables: NodeOutputVariable[];
+  outputConditions: Condition[];
+  inputVariableResults: VariableResultRecords;
 };
 
-export type NodeExecutionParams = {
-  nodeInputValueMap: ConnectorResultMap;
-  useStreaming: boolean;
-};
+export type RunNodeResult = Partial<{
+  errors: Array<string>;
+  conditionResults: ConditionResultRecords;
+  variableResults: VariableResultRecords;
+  completedConnectorIds: Array<string>;
+}>;
 
 export type CreateNodeExecutionObservableFunction<T> = (
-  context: NodeExecutionContext,
-  nodeExecutionConfig: NodeExecutionConfig<T>,
-  params: NodeExecutionParams,
-) => Observable<NodeExecutionEvent>;
+  params: RunNodeParams<T>,
+) => Observable<RunNodeResult>;
 
 export interface NodeDefinition<
   TInstanceLevelConfig extends BaseNodeInstanceLevelConfig,
@@ -109,6 +95,8 @@ export interface NodeDefinition<
   // Variables
   fixedIncomingVariables?: Record<string, FixedIncomingVariableDefinition>;
   canUserAddIncomingVariables?: boolean;
+  // For start class only
+  canUserAddNodeOutputVariable?: boolean;
   variableValueTypeForUserAddedIncomingVariable?: VariableValueTypeEnum;
 
   // Initial config values

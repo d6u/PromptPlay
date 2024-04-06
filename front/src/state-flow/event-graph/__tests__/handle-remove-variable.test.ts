@@ -11,7 +11,6 @@ import { MOCK_STATE } from './fixture';
 
 test('handleRemoveVariable should remove variable', () => {
   const prevState: State = {
-    ...MOCK_STATE,
     flowContent: {
       ...MOCK_STATE.flowContent,
       nodes: [
@@ -29,13 +28,15 @@ test('handleRemoveVariable should remove variable', () => {
         },
       ],
       edges: [],
-      nodeConfigsDict: {
+      nodeConfigs: {
         Z6dPf: {
           nodeId: 'Z6dPf',
           type: 'InputNode',
+          class: 'Start',
+          nodeName: 'input1',
         },
       },
-      variablesDict: {
+      connectors: {
         'Z6dPf/wZf7M': {
           type: 'NodeOutput',
           id: 'Z6dPf/wZf7M',
@@ -57,12 +58,10 @@ test('handleRemoveVariable should remove variable', () => {
           globalVariableId: null,
         },
       },
-      variableValueLookUpDicts: [
-        {
-          'Z6dPf/wZf7M': null,
-          'Z6dPf/zrLpE': null,
-        },
-      ],
+      variableResults: {
+        'Z6dPf/wZf7M': { value: null },
+        'Z6dPf/zrLpE': { value: null },
+      },
     },
   };
 
@@ -77,7 +76,7 @@ test('handleRemoveVariable should remove variable', () => {
     ...prevState,
     flowContent: {
       ...prevState.flowContent,
-      variablesDict: {
+      connectors: {
         'Z6dPf/wZf7M': {
           type: 'NodeOutput',
           id: 'Z6dPf/wZf7M',
@@ -89,11 +88,9 @@ test('handleRemoveVariable should remove variable', () => {
           globalVariableId: null,
         },
       },
-      variableValueLookUpDicts: [
-        {
-          'Z6dPf/wZf7M': null,
-        },
-      ],
+      variableResults: {
+        'Z6dPf/wZf7M': { value: null },
+      },
     },
   });
 });

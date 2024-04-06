@@ -1,8 +1,8 @@
 import { ReactNode, useMemo } from 'react';
 
 import { OverallStatus } from 'flow-run/run-types';
+import { CSVData, IterationIndex, RowIndex } from 'state-flow/common-types';
 import { useFlowStore } from 'state-flow/flow-store';
-import { CSVData, IterationIndex, RowIndex } from 'state-flow/types';
 import {
   selectVariablesOnAllEndNodes,
   selectVariablesOnAllStartNodes,
@@ -15,8 +15,8 @@ type Props = {
 
 export default function TableBody(props: Props) {
   // SECTION: Select state from store
-  const variableMap = useFlowStore((s) => s.getFlowContent().variablesDict);
-  const nodeConfigs = useFlowStore((s) => s.getFlowContent().nodeConfigsDict);
+  const nodeConfigs = useFlowStore((s) => s.getFlowContent().nodeConfigs);
+  const variableMap = useFlowStore((s) => s.getFlowContent().connectors);
 
   const {
     repeatTimes,

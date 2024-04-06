@@ -9,7 +9,7 @@ import {
   RunMetadataTable,
   RunOutputTable,
   VariableIdToCsvColumnIndexMap,
-} from '../types';
+} from 'state-flow/common-types';
 
 const INITIAL_CONFIG_CONTENT: BatchTestState['config']['content'] = {
   repeatTimes: 1,

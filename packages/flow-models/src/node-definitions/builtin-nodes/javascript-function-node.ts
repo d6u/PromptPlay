@@ -4,20 +4,17 @@ import { z } from 'zod';
 
 import randomId from 'common-utils/randomId';
 
-import {
-  ConnectorType,
-  NodeInputVariable,
-  VariableValueType,
-} from '../../base-types';
+import { ConnectorType, VariableValueType } from '../../base-types';
 import {
   FieldType,
+  NodeClass,
   NodeDefinition,
-  NodeExecutionEvent,
-  NodeExecutionEventType,
   NodeType,
+  type RunNodeResult,
 } from '../../node-definition-base-types';
 
 export const JavaScriptFunctionNodeConfigSchema = z.object({
+  class: z.literal(NodeClass.Process),
   type: z.literal(NodeType.JavaScriptFunctionNode),
   nodeId: z.string(),
   javaScriptCode: z.string(),
@@ -47,6 +44,7 @@ export const JAVASCRIPT_NODE_DEFINITION: NodeDefinition<
   createDefaultNodeConfig: (nodeId) => {
     return {
       nodeConfig: {
+        class: NodeClass.Process,
         nodeId: nodeId,
         type: NodeType.JavaScriptFunctionNode,
         javaScriptCode: 'return `Hello, ${userName}!`',
@@ -61,7 +59,7 @@ export const JAVASCRIPT_NODE_DEFINITION: NodeDefinition<
           // TODO: JS code can output both structured, string, and audio
           // Need to find a way to let us validate data type
           valueType: VariableValueType.Structured,
-          isGlobal: true,
+          isGlobal: false,
           globalVariableId: null,
         },
         {
@@ -71,7 +69,7 @@ export const JAVASCRIPT_NODE_DEFINITION: NodeDefinition<
           name: 'userName',
           index: 1,
           valueType: VariableValueType.Any,
-          isGlobal: true,
+          isGlobal: false,
           globalVariableId: null,
         },
         {
@@ -90,32 +88,24 @@ export const JAVASCRIPT_NODE_DEFINITION: NodeDefinition<
     };
   },
 
-  createNodeExecutionObservable: (context, nodeExecutionConfig, params) => {
-    return new Observable<NodeExecutionEvent>((subscriber) => {
-      const { nodeConfig, connectorList } = nodeExecutionConfig;
-      const { nodeInputValueMap } = params;
+  createNodeExecutionObservable: (params) => {
+    return new Observable<RunNodeResult>((subscriber) => {
+      const {
+        nodeConfig,
+        inputVariables,
+        outputVariables,
+        inputVariableResults,
+      } = params;
 
       invariant(nodeConfig.type === NodeType.JavaScriptFunctionNode);
 
-      subscriber.next({
-        type: NodeExecutionEventType.Start,
-        nodeId: nodeConfig.nodeId,
-      });
-
-      const pairs: [string, unknown][] = connectorList
-        .filter((connector): connector is NodeInputVariable => {
-          return connector.type === ConnectorType.NodeInput;
-        })
+      const pairs: [string, unknown][] = inputVariables
         .sort((a, b) => a.index - b.index)
-        .map((connector) => {
-          return [connector.name, nodeInputValueMap[connector.id] ?? null];
+        .map((v) => {
+          return [v.name, inputVariableResults[v.id].value];
         });
 
-      const outputVariable = connectorList.find(
-        (connector): connector is NodeInputVariable =>
-          connector.type === ConnectorType.NodeOutput,
-      );
-
+      const outputVariable = outputVariables[0];
       invariant(outputVariable != null);
 
       // ANCHOR: Main Logic
@@ -128,32 +118,13 @@ export const JAVASCRIPT_NODE_DEFINITION: NodeDefinition<
       fn(...pairs.map((pair) => pair[1]))
         .then((value: unknown) => {
           subscriber.next({
-            type: NodeExecutionEventType.VariableValues,
-            nodeId: nodeConfig.nodeId,
-            variableValuesLookUpDict: {
-              [outputVariable.id]: value,
-            },
-          });
-
-          subscriber.next({
-            type: NodeExecutionEventType.Finish,
-            nodeId: nodeConfig.nodeId,
-            finishedConnectorIds: [outputVariable.id],
+            variableResults: { [outputVariable.id]: { value } },
+            completedConnectorIds: [outputVariable.id],
           });
         })
         .catch((err: Error) => {
           subscriber.next({
-            type: NodeExecutionEventType.Errors,
-            nodeId: nodeConfig.nodeId,
-            errorMessages: [
-              err.message != null ? err.message : 'Unknown error',
-            ],
-          });
-
-          subscriber.next({
-            type: NodeExecutionEventType.Finish,
-            nodeId: nodeConfig.nodeId,
-            finishedConnectorIds: [],
+            errors: [err.message != null ? err.message : 'Unknown error'],
           });
         })
         .finally(() => {

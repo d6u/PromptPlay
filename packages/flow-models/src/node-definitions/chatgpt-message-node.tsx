@@ -7,21 +7,17 @@ import { z } from 'zod';
 import randomId from 'common-utils/randomId';
 import * as OpenAI from 'integrations/openai';
 
+import { ConnectorType, VariableValueType } from '../base-types';
 import {
-  ConnectorType,
-  NodeInputVariable,
-  NodeOutputVariable,
-  VariableValueType,
-} from '../base-types';
-import {
+  NodeClass,
   NodeDefinition,
-  NodeExecutionEvent,
-  NodeExecutionEventType,
   NodeType,
+  type RunNodeResult,
 } from '../node-definition-base-types';
 import { FieldType } from '../node-definition-base-types/field-definition-interfaces';
 
 export const ChatgptMessageNodeConfigSchema = z.object({
+  class: z.literal(NodeClass.Process),
   type: z.literal(NodeType.ChatGPTMessageNode),
   nodeId: z.string(),
   // TODO: Use enum to validate
@@ -96,6 +92,7 @@ export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition<
   createDefaultNodeConfig: (nodeId) => {
     return {
       nodeConfig: {
+        class: NodeClass.Process,
         nodeId: nodeId,
         type: NodeType.ChatGPTMessageNode,
         role: OpenAI.ChatGPTMessageRole.user,
@@ -109,7 +106,7 @@ export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition<
           name: 'messages',
           index: 0,
           valueType: VariableValueType.Structured,
-          isGlobal: true,
+          isGlobal: false,
           globalVariableId: null,
         },
         {
@@ -119,7 +116,7 @@ export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition<
           name: 'topic',
           index: 1,
           valueType: VariableValueType.String,
-          isGlobal: true,
+          isGlobal: false,
           globalVariableId: null,
         },
         {
@@ -129,7 +126,7 @@ export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition<
           name: 'message',
           index: 0,
           valueType: VariableValueType.Structured,
-          isGlobal: true,
+          isGlobal: false,
           globalVariableId: null,
         },
         {
@@ -139,7 +136,7 @@ export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition<
           name: 'messages',
           index: 1,
           valueType: VariableValueType.Structured,
-          isGlobal: true,
+          isGlobal: false,
           globalVariableId: null,
         },
         {
@@ -158,69 +155,51 @@ export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition<
     };
   },
 
-  createNodeExecutionObservable: (context, nodeExecutionConfig, params) => {
-    return new Observable<NodeExecutionEvent>((subscriber) => {
-      const { nodeConfig, connectorList } = nodeExecutionConfig;
-      const { nodeInputValueMap } = params;
+  createNodeExecutionObservable: (params) => {
+    return new Observable<RunNodeResult>((subscriber) => {
+      const {
+        nodeConfig,
+        inputVariables,
+        outputVariables,
+        inputVariableResults,
+      } = params;
 
       invariant(
         nodeConfig.type === NodeType.ChatGPTMessageNode,
         "Node type is 'ChatGPTMessageNode'",
       );
 
-      subscriber.next({
-        type: NodeExecutionEventType.Start,
-        nodeId: nodeConfig.nodeId,
+      const variableNameToValue: Record<string, unknown> = {};
+
+      inputVariables.forEach((connector) => {
+        variableNameToValue[connector.name] =
+          inputVariableResults[connector.id]?.value;
       });
-
-      const argsMap: Record<string, unknown> = {};
-
-      connectorList
-        .filter((connector): connector is NodeInputVariable => {
-          return connector.type === ConnectorType.NodeInput;
-        })
-        .forEach((connector) => {
-          argsMap[connector.name] = nodeInputValueMap[connector.id] ?? null;
-        });
 
       // NOTE: Main logic
 
-      let messages = (argsMap['messages'] ?? []) as OpenAI.ChatGPTMessage[];
+      let messages = (variableNameToValue['messages'] ??
+        []) as OpenAI.ChatGPTMessage[];
 
       const message = {
         role: nodeConfig.role,
-        content: mustache.render(nodeConfig.content, argsMap),
+        content: mustache.render(nodeConfig.content, variableNameToValue),
       };
 
       messages = F.toMutable(A.append(messages, message));
 
-      const variableMessage = connectorList.find(
-        (conn): conn is NodeOutputVariable => {
-          return conn.type === ConnectorType.NodeOutput && conn.index === 0;
-        },
-      );
-      const variableMessages = connectorList.find(
-        (conn): conn is NodeOutputVariable => {
-          return conn.type === ConnectorType.NodeOutput && conn.index === 1;
-        },
-      );
+      const variableMessage = outputVariables.find((conn) => conn.index === 0);
+      const variableMessages = outputVariables.find((conn) => conn.index === 1);
 
       invariant(variableMessage != null);
       invariant(variableMessages != null);
 
       subscriber.next({
-        type: NodeExecutionEventType.VariableValues,
-        nodeId: nodeConfig.nodeId,
-        variableValuesLookUpDict: {
-          [variableMessage.id]: message,
-          [variableMessages.id]: messages,
+        variableResults: {
+          [variableMessage.id]: { value: message },
+          [variableMessages.id]: { value: messages },
         },
-      });
-
-      subscriber.next({
-        type: NodeExecutionEventType.Finish,
-        nodeId: nodeConfig.nodeId,
-        finishedConnectorIds: [variableMessage.id, variableMessages.id],
+        completedConnectorIds: [variableMessage.id, variableMessages.id],
       });
 
       subscriber.complete();

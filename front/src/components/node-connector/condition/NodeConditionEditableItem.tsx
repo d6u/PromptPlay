@@ -4,8 +4,8 @@ import styled from '@emotion/styled';
 import { Control, FieldArrayWithId } from 'react-hook-form';
 import { Position } from 'reactflow';
 
+import { EdgeConnectStartConnectorClass } from 'state-flow/common-types';
 import { useFlowStore } from 'state-flow/flow-store';
-import { EdgeConnectStartConnectorClass } from 'state-flow/types';
 
 import DragHandle from '../DragHandle';
 import { BaseConditionHandle, HANDLE_HEIGHT } from '../base-connector-handles';

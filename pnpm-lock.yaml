@@ -115,8 +115,8 @@ importers:
         specifier: ^6.3.4
         version: 6.3.4
       xstate:
-        specifier: ^5.8.0
-        version: 5.8.0
+        specifier: ~5.9.0
+        version: 5.9.1
       zod:
         specifier: ^3.22.4
         version: 3.22.4
@@ -9587,8 +9587,8 @@ packages:
         optional: true
     dev: true
 
-  /xstate@5.8.0:
-    resolution: {integrity: sha512-YoJDJFRmmXcI6ZrL7H15Ew2Q5HjM/X3zcz1cqLT4OEeF/ktXDkWMGyIZOOMItM5ELR6sSqm1GY5el11M/JAb/A==}
+  /xstate@5.9.1:
+    resolution: {integrity: sha512-85edx7iMqRJSRlEPevDwc98EWDYUlT5zEQ54AXuRVR+G76gFbcVTAUdtAeqOVxy8zYnUr9FBB5114iK6enljjw==}
     dev: false
 
   /xtend@4.0.2:

@@ -13,221 +13,27 @@ import type {
 } from 'xstate';
 
 import {
-  ConnectorRecords,
-  ConnectorResultMap,
   ConnectorTypeEnum,
-  GlobalVariableRecords,
   LocalEdge,
   LocalNode,
   NodeConfig,
-  NodeConfigRecords,
   NodeTypeEnum,
+  type CanvasDataV4,
+  type VariableResult,
+  type VariableResultRecords,
 } from 'flow-models';
 
-import { RunMetadata } from 'flow-run/run-types';
-
+import {
+  BatchTestTab,
+  CanvasRightPanelType,
+  EdgeConnectStartConnectorClass,
+  type NodeExecutionStateRecords,
+} from './common-types';
 import { AcceptedEvent } from './event-graph/handle-all-event';
 import { BatchTestActions, BatchTestState } from './lenses/batch-test-lens';
 import { ActorFor } from './util/state-machine-middleware';
 import { StateObjectToParameterizedObject } from './util/state-machine-util';
 import { VariableTypeToVariableConfigTypeMap } from './util/state-utils';
-
-export enum NodeExecutionStatus {
-  Pending = 'Pending',
-  Executing = 'Executing',
-  Error = 'Error',
-  Success = 'Success',
-  Canceled = 'Canceled',
-  Skipped = 'Skipped',
-}
-
-export enum NodeExecutionMessageType {
-  Error = 'Error',
-  Info = 'Info',
-}
-
-export type NodeExecutionMessage = {
-  type: NodeExecutionMessageType;
-  content: string;
-};
-
-export type NodeExecutionState = {
-  status: NodeExecutionStatus;
-  messages: NodeExecutionMessage[];
-};
-
-export type NodeExecutionStateRecords = Record<string, NodeExecutionState>;
-
-export type NodeMetadata = {
-  isRunning: boolean;
-  hasError: boolean;
-};
-
-export enum CanvasRightPanelType {
-  Off = 'Off',
-  Tester = 'Tester',
-}
-
-export enum EdgeConnectStartConnectorClass {
-  Variable = 'Variable',
-  Condition = 'Condition',
-}
-
-export enum BatchTestTab {
-  RunTests = 'RunTests',
-  UploadCsv = 'UploadCsv',
-}
-
-export type CSVRow = Array<string>;
-export type CSVData = Array<CSVRow>;
-export type CSVHeader = CSVRow;
-
-export type CsvEvaluationConfigContent = {
-  repeatTimes: number;
-  concurrencyLimit: number;
-  variableIdToCsvColumnIndexMap: VariableIdToCsvColumnIndexMap;
-  runOutputTable: RunOutputTable;
-  runMetadataTable: RunMetadataTable;
-};
-
-export type RowIndex = number & { readonly '': unique symbol };
-export type ColumnIndex = number & { readonly '': unique symbol };
-export type IterationIndex = number & { readonly '': unique symbol };
-
-export type VariableIdToCsvColumnIndexMap = Record<
-  string,
-  ColumnIndex | null | undefined
->;
-
-export type RunOutputTable = Record<
-  RowIndex,
-  Record<IterationIndex, ConnectorResultMap | undefined> | undefined
->;
-
-export type RunMetadataTable = Record<
-  RowIndex,
-  Record<IterationIndex, RunMetadata | undefined> | undefined
->;
-
-// ANCHOR: State Machine Actions Slice
-
-type StateMachineActionFunction = ActionFunction<
-  CanvasStateMachineContext, // context
-  CanvasStateMachineEvent, // event
-  CanvasStateMachineEvent, // event
-  undefined, // params
-  ProvidedActor, // actor
-  ParameterizedObject, // actions
-  ParameterizedObject, // guards
-  string // delay
->;
-
-export type StateMachineActionsStateSlice = {
-  // NOTE: These functions should only be used by state machines
-  _initializeCanvas(): void;
-  _cancelCanvasInitializationIfInProgress(): void;
-  _syncFlowContent: StateMachineActionFunction;
-  _executeFlowSingleRun(): void;
-  _cancelFlowSingleRunIfInProgress(): void;
-};
-
-// ANCHOR: Store State
-
-export type FlowContentState = {
-  nodes: LocalNode[];
-  edges: LocalEdge[];
-  nodeConfigsDict: NodeConfigRecords;
-  variablesDict: ConnectorRecords;
-  variableValueLookUpDicts: ConnectorResultMap[];
-  nodeExecutionStates: NodeExecutionStateRecords;
-  nodeAccountLevelFieldsValidationErrors: Record<string, string>;
-  globalVariables: GlobalVariableRecords;
-};
-
-export type FlowProps = {
-  spaceId: string | null;
-
-  // TODO: Until we have a better way to filter functions from state,
-  // when generating types for actions, we have to keep this in Props type
-  // of state.
-  canvasStateMachine: ActorFor<
-    CanvasStateMachineContext,
-    CanvasStateMachineEvent
-  >;
-
-  // ANCHOR: Canvas View
-  canvas: {
-    flowContent: FlowContentState;
-  };
-  canvasLeftPaneIsOpen: boolean;
-  canvasLeftPaneSelectedNodeId: string | null;
-  canvasRightPaneType: CanvasRightPanelType;
-  paramsOnUserStartConnectingEdge: {
-    nodeId: string;
-    handleId: string;
-    handleType: HandleType;
-    connectorClass: EdgeConnectStartConnectorClass;
-  } | null;
-
-  // ANCHOR: Batch Test View
-  selectedBatchTestTab: BatchTestTab;
-  batchTest: BatchTestState;
-};
-
-export type FlowActions = {
-  _processEventWithEventGraph(event: AcceptedEvent): void;
-
-  enterFlowRoute(spaceId: string): void;
-  leaveFlowRoute(): void;
-
-  setCanvasLeftPaneIsOpen(isOpen: boolean): void;
-  setCanvasLeftPaneSelectedNodeId(nodeId: string | null): void;
-  setCanvasRightPaneType(type: CanvasRightPanelType): void;
-  onEdgeConnectStart(params: OnConnectStartParams): void;
-  onEdgeConnectStop(): void;
-
-  setSelectedBatchTestTab(tab: BatchTestTab): void;
-
-  batchTest: BatchTestActions;
-
-  // SECTION: Canvas events
-  onNodesChange: OnNodesChange;
-  onEdgesChange: OnEdgesChange;
-  onConnect: OnConnect;
-
-  addNode(type: NodeTypeEnum, x: number, y: number): void;
-  removeNode(nodeId: string): void;
-  updateNodeConfig(nodeId: string, change: Partial<NodeConfig>): void;
-
-  addConnector(nodeId: string, type: ConnectorTypeEnum, index: number): void;
-  removeVariable(variableId: string): void;
-  updateConnector<
-    T extends ConnectorTypeEnum,
-    R = VariableTypeToVariableConfigTypeMap[T],
-  >(
-    variableId: string,
-    change: Partial<R>,
-  ): void;
-  updateConnectors(
-    updates: { variableId: string; change: Record<string, unknown> }[],
-  ): void;
-
-  updateVariableValue(variableId: string, value: unknown): void;
-  updateVariableValues(updates: { variableId: string; value: unknown }[]): void;
-
-  createGlobalVariable(name: string, assignToVariableId: string): void;
-  // !SECTION
-
-  // Getter
-  getFlowContent: Getter<FlowContentState>;
-  getDefaultVariableValueLookUpDict(): ConnectorResultMap;
-
-  // Flow run
-  startFlowSingleRun(): void;
-  stopFlowSingleRun(): void;
-};
-
-export type FlowState = FlowProps & FlowActions & StateMachineActionsStateSlice;
 
 // ANCHOR: State Machine
 
@@ -282,16 +88,166 @@ export type CanvasStateMachineEvent =
     }
   | {
       type: CanvasStateMachineEventType.StartExecutingFlowSingleRun;
+      params: StartFlowSingleRunParams;
     }
   | {
       type: CanvasStateMachineEventType.StopExecutingFlowSingleRun;
     }
   | {
       type: CanvasStateMachineEventType.FinishedExecutingFlowSingleRun;
+      hasError: boolean;
+      result: FlowSingleRunResult;
     }
   | {
       type: CanvasStateMachineEventType.LeaveFlowRoute;
     };
 
+export enum CanvasStateMachineEmittedEventType {
+  FlowSingleRunResult = 'FlowSingleRunResult',
+}
+
+export type CanvasStateMachineEmittedEvent = {
+  type: CanvasStateMachineEmittedEventType.FlowSingleRunResult;
+  result: FlowSingleRunResult;
+};
+
+type StateMachineActionFunction = ActionFunction<
+  CanvasStateMachineContext, // context
+  CanvasStateMachineEvent, // event
+  CanvasStateMachineEvent, // event
+  undefined, // params
+  ProvidedActor, // actor
+  ParameterizedObject, // actions
+  ParameterizedObject, // guards
+  string, // delay
+  CanvasStateMachineEmittedEvent // emitted
+>;
+
+export type StateMachineActionsStateSlice = {
+  // NOTE: These functions should only be used by state machines
+  _initializeCanvas(): void;
+  _cancelCanvasInitializationIfInProgress(): void;
+  _syncFlowContent: StateMachineActionFunction;
+  _executeFlowSingleRun: StateMachineActionFunction;
+  _cancelFlowSingleRunIfInProgress(): void;
+};
+
 export type CanvasStateMachineActions =
   StateObjectToParameterizedObject<StateMachineActionsStateSlice>;
+
+// ANCHOR: Store State
+
+export type FlowContentState = Omit<CanvasDataV4, 'nodes' | 'edges'> & {
+  nodes: LocalNode[];
+  edges: LocalEdge[];
+  nodeExecutionStates: NodeExecutionStateRecords;
+  nodeAccountLevelFieldsValidationErrors: Record<string, string>;
+};
+
+export type FlowProps = {
+  spaceId: string | null;
+
+  // TODO: Until we have a better way to filter functions from state,
+  // when generating types for actions, we have to keep this in Props type
+  // of state.
+  canvasStateMachine: ActorFor<
+    CanvasStateMachineContext,
+    CanvasStateMachineEvent,
+    CanvasStateMachineEmittedEvent
+  >;
+
+  // ANCHOR: Canvas View
+  canvas: {
+    flowContent: FlowContentState;
+  };
+  canvasLeftPaneIsOpen: boolean;
+  canvasLeftPaneSelectedNodeId: string | null;
+  canvasRightPaneType: CanvasRightPanelType;
+  canvasTesterStartNodeId: string | null;
+  canvasRenameNodeId: string | null;
+  paramsOnUserStartConnectingEdge: {
+    nodeId: string;
+    handleId: string;
+    handleType: HandleType;
+    connectorClass: EdgeConnectStartConnectorClass;
+  } | null;
+
+  // ANCHOR: Batch Test View
+  selectedBatchTestTab: BatchTestTab;
+  batchTest: BatchTestState;
+};
+
+// ANCHOR: Store actions
+
+export type VariableValueUpdate = {
+  variableId: string;
+  update: VariableResult;
+};
+
+export type StartFlowSingleRunParams = {
+  inputValues: VariableResultRecords;
+};
+
+export type FlowSingleRunResult = {
+  variableResults: VariableResultRecords;
+};
+
+export type FlowActions = {
+  _processEventWithEventGraph(event: AcceptedEvent): void;
+
+  enterFlowRoute(spaceId: string): void;
+  leaveFlowRoute(): void;
+
+  setCanvasLeftPaneIsOpen(isOpen: boolean): void;
+  setCanvasLeftPaneSelectedNodeId(nodeId: string | null): void;
+  setCanvasRightPaneType(type: CanvasRightPanelType): void;
+  setCanvasTesterStartNodeId(nodeId: string | null): void;
+  setCanvasRenameNodeId(nodeId: string | null): void;
+  onEdgeConnectStart(params: OnConnectStartParams): void;
+  onEdgeConnectStop(): void;
+
+  setSelectedBatchTestTab(tab: BatchTestTab): void;
+
+  batchTest: BatchTestActions;
+
+  // SECTION: Canvas events
+  onNodesChange: OnNodesChange;
+  onEdgesChange: OnEdgesChange;
+  onConnect: OnConnect;
+
+  addNode(type: NodeTypeEnum, x: number, y: number): void;
+  removeNode(nodeId: string): void;
+  updateNodeConfig(nodeId: string, change: Partial<NodeConfig>): void;
+
+  addConnector(nodeId: string, type: ConnectorTypeEnum, index: number): void;
+  removeVariable(variableId: string): void;
+  updateConnector<
+    T extends ConnectorTypeEnum,
+    R = VariableTypeToVariableConfigTypeMap[T],
+  >(
+    variableId: string,
+    change: Partial<R>,
+  ): void;
+  updateConnectors(
+    updates: { variableId: string; change: Record<string, unknown> }[],
+  ): void;
+
+  updateVariableValues(updates: VariableValueUpdate[]): void;
+
+  createGlobalVariable(name: string, assignToVariableId: string): void;
+  // !SECTION
+
+  // Getter
+  getFlowContent: Getter<FlowContentState>;
+
+  // Flow run
+  startFlowSingleRun(params: StartFlowSingleRunParams): void;
+  startFlowSingleRunForResult(
+    params: StartFlowSingleRunParams,
+  ): Promise<FlowSingleRunResult>;
+  stopFlowSingleRun(): void;
+};
+
+// ANCHOR: Complete store state
+
+export type FlowState = FlowProps & FlowActions & StateMachineActionsStateSlice;

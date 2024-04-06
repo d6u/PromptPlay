@@ -1,87 +1,98 @@
 import styled from '@emotion/styled';
-import { Button } from '@mui/joy';
-import { useContext, useMemo } from 'react';
+import { Option, Select } from '@mui/joy';
+import { useMemo, type ReactNode } from 'react';
+import invariant from 'tiny-invariant';
 
-import SidePaneHeaderSection from 'components/side-pane/SidePaneHeaderSection';
-import HeaderSectionHeader from 'components/side-pane/SidePaneHeaderSectionHeader';
-import SidePaneOutputRenderer from 'components/side-pane/SidePaneOutputRenderer';
-import SidePaneSection from 'components/side-pane/SidePaneSection';
-import RouteFlowContext from 'state-flow/context/FlowRouteContext';
+import { NodeClass, NodeType } from 'flow-models';
+
 import { useFlowStore } from 'state-flow/flow-store';
-import {
-  selectVariablesOnAllEndNodes,
-  selectVariablesOnAllStartNodes,
-} from 'state-flow/util/state-utils';
 
-import InputBlock from '../common/InputBlock';
+import GenericInputOutputTest from './GenericInputOutputTest';
+import GenericChatbotTest from './generic-chatbot-test/GenericChatbotTest';
 
 function TesterPane() {
-  const { isCurrentUserOwner } = useContext(RouteFlowContext);
+  const nodeConfigs = useFlowStore((s) => s.getFlowContent().nodeConfigs);
 
-  // SECTION: Select state from store
-  const isExecutingFlowSingleRun = useFlowStore(
-    (s) => s.canvasStateMachine.getSnapshot().context.isExecutingFlowSingleRun,
+  const canvasTesterStartNodeId = useFlowStore(
+    (s) => s.canvasTesterStartNodeId,
   );
-  const variableMap = useFlowStore((s) => s.getFlowContent().variablesDict);
-  const nodeConfigs = useFlowStore((s) => s.getFlowContent().nodeConfigsDict);
-
-  const runFlow = useFlowStore((s) => s.startFlowSingleRun);
-  const stopRunningFlow = useFlowStore((s) => s.stopFlowSingleRun);
-  const variableValueMap = useFlowStore((s) =>
-    s.getDefaultVariableValueLookUpDict(),
+  const setCanvasTesterStartNodeId = useFlowStore(
+    (s) => s.setCanvasTesterStartNodeId,
   );
-  const updateVariableValueMap = useFlowStore((s) => s.updateVariableValue);
-  // !SECTION
 
-  const flowInputs = useMemo(() => {
-    return selectVariablesOnAllStartNodes(variableMap, nodeConfigs);
-  }, [nodeConfigs, variableMap]);
+  const startNodeConfigs = useMemo(() => {
+    return Object.values(nodeConfigs).filter((nodeConfig) => {
+      return nodeConfig.class === NodeClass.Start;
+    });
+  }, [nodeConfigs]);
 
-  const flowOutputs = useMemo(() => {
-    return selectVariablesOnAllEndNodes(variableMap, nodeConfigs);
-  }, [nodeConfigs, variableMap]);
+  const selectedNodeConfig = useMemo(() => {
+    if (canvasTesterStartNodeId == null) {
+      return null;
+    }
+    const nodeConfig = nodeConfigs[canvasTesterStartNodeId];
+    if (nodeConfig == null) {
+      return null;
+    }
+    invariant(nodeConfig.class === NodeClass.Start, 'Node class is Start');
+    return nodeConfig;
+  }, [nodeConfigs, canvasTesterStartNodeId]);
+
+  let testerContent: ReactNode;
+
+  if (selectedNodeConfig == null) {
+    testerContent = null;
+  } else if (selectedNodeConfig.type === NodeType.GenericChatbotStart) {
+    testerContent = <GenericChatbotTest nodeConfig={selectedNodeConfig} />;
+  } else {
+    testerContent = <GenericInputOutputTest nodeConfig={selectedNodeConfig} />;
+  }
 
   return (
     <Container>
-      <SidePaneHeaderSection>
-        <HeaderSectionHeader>Input variables</HeaderSectionHeader>
-        {isCurrentUserOwner && (
-          <Button
-            color={isExecutingFlowSingleRun ? 'danger' : 'success'}
-            onClick={isExecutingFlowSingleRun ? stopRunningFlow : runFlow}
-          >
-            {isExecutingFlowSingleRun ? 'Stop' : 'Run'}
-          </Button>
-        )}
-      </SidePaneHeaderSection>
-      <SidePaneSection>
-        {flowInputs.map((variable, i) => (
-          <InputBlock
-            key={variable.id}
-            isReadOnly={!isCurrentUserOwner}
-            id={variable.id}
-            name={variable.name}
-            value={variableValueMap[variable.id]}
-            onSaveValue={(value) => {
-              updateVariableValueMap(variable.id, value);
-            }}
-          />
-        ))}
-      </SidePaneSection>
-      <SidePaneHeaderSection>
-        <HeaderSectionHeader>Output values</HeaderSectionHeader>
-      </SidePaneHeaderSection>
-      <SidePaneSection>
-        {flowOutputs.map((output) => (
-          <SidePaneOutputRenderer key={output.id} outputItem={output} />
-        ))}
-      </SidePaneSection>
+      <SelectContainer>
+        <Select
+          placeholder="Select start node"
+          value={canvasTesterStartNodeId}
+          onChange={(_, value) => {
+            setCanvasTesterStartNodeId(value);
+          }}
+        >
+          {startNodeConfigs.map((nodeConfig) => {
+            invariant(
+              nodeConfig.class === NodeClass.Start,
+              'Node class is Start',
+            );
+
+            return (
+              <Option key={nodeConfig.nodeId} value={nodeConfig.nodeId}>
+                {nodeConfig.nodeName}
+              </Option>
+            );
+          })}
+        </Select>
+      </SelectContainer>
+      <ContentContainer>{testerContent}</ContentContainer>
     </Container>
   );
 }
 
 const Container = styled.div`
-  padding: 15px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+`;
+
+const SelectContainer = styled.div`
+  margin-top: 10px;
+  margin-left: 10px;
+  margin-right: 10px;
+  margin-bottom: 10px;
+`;
+
+const ContentContainer = styled.div`
+  flex-grow: 1;
+  min-height: 0;
 `;
 
 export default TesterPane;

@@ -2,7 +2,12 @@ import styled from '@emotion/styled';
 import { useMemo } from 'react';
 import { Position, useUpdateNodeInternals } from 'reactflow';
 
-import { ConnectorType, InputNodeAllLevelConfig, NodeType } from 'flow-models';
+import {
+  ConnectorType,
+  GenericChatbotStartNodeAllLevelConfig,
+  InputNodeAllLevelConfig,
+  getNodeDefinitionForNodeTypeName,
+} from 'flow-models';
 
 import NodeRegularOutgoingConditionHandle from 'components/node-connector/condition/NodeRegularOutgoingConditionHandle';
 import {
@@ -19,33 +24,40 @@ import NodeBoxHeaderSection from '../node-box/NodeBoxHeaderSection';
 type Props = {
   nodeId: string;
   isNodeReadOnly: boolean;
-  nodeConfig: InputNodeAllLevelConfig;
+  nodeConfig: InputNodeAllLevelConfig | GenericChatbotStartNodeAllLevelConfig;
 };
 
-function InputNode(props: Props) {
+function StartClassNode(props: Props) {
   const updateNodeInternals = useUpdateNodeInternals();
 
-  const connectors = useFlowStore((s) => s.getFlowContent().variablesDict);
+  const connectors = useFlowStore((s) => s.getFlowContent().connectors);
   const addVariable = useFlowStore((s) => s.addConnector);
 
-  const flowInputVariables = useMemo(() => {
+  const nodeDefinition = useMemo(
+    () => getNodeDefinitionForNodeTypeName(props.nodeConfig.type),
+    [props.nodeConfig.type],
+  );
+
+  const nodeOutputVariables = useMemo(() => {
     return selectVariables(props.nodeId, ConnectorType.NodeOutput, connectors);
   }, [props.nodeId, connectors]);
 
   return (
     <>
       <NodeRegularOutgoingConditionHandle nodeId={props.nodeId} />
-      <NodeBox nodeType={NodeType.InputNode}>
+      <NodeBox nodeType={props.nodeConfig.type}>
         <NodeBoxHeaderSection
-          isNodeReadOnly={props.isNodeReadOnly}
-          title="Input"
+          nodeClass={props.nodeConfig.class}
           nodeId={props.nodeId}
-          showAddVariableButton={true}
+          isNodeReadOnly={props.isNodeReadOnly}
+          title={props.nodeConfig.nodeName}
+          subTitle={nodeDefinition.label}
+          showAddVariableButton={!!nodeDefinition.canUserAddNodeOutputVariable}
           onClickAddVariableButton={() => {
             addVariable(
               props.nodeId,
               ConnectorType.NodeOutput,
-              flowInputVariables.length,
+              nodeOutputVariables.length,
             );
             updateNodeInternals(props.nodeId);
           }}
@@ -55,7 +67,7 @@ function InputNode(props: Props) {
             showConnectorHandle={Position.Right}
             nodeId={props.nodeId}
             isNodeReadOnly={props.isNodeReadOnly}
-            variableConfigs={flowInputVariables.map<VariableConfig>(
+            variableConfigs={nodeOutputVariables.map<VariableConfig>(
               (variable) => ({
                 id: variable.id,
                 name: variable.name,
@@ -63,8 +75,16 @@ function InputNode(props: Props) {
                 globalVariableId: variable.globalVariableId,
               }),
             )}
-            variableDefinitions={flowInputVariables.map<VariableDefinition>(
-              () => ({ isVariableFixed: false }),
+            variableDefinitions={nodeOutputVariables.map<VariableDefinition>(
+              (variable) => {
+                const incomingVariableConfig =
+                  nodeDefinition.fixedIncomingVariables?.[variable.name];
+
+                return {
+                  isVariableFixed: incomingVariableConfig != null,
+                  helperMessage: incomingVariableConfig?.helperMessage,
+                };
+              },
             )}
           />
         </GenericContainer>
@@ -78,4 +98,4 @@ const GenericContainer = styled.div`
   padding-right: 10px;
 `;
 
-export default InputNode;
+export default StartClassNode;

@@ -2,8 +2,8 @@ import styled from '@emotion/styled';
 import { Option } from '@mobily/ts-belt';
 import { Position } from 'reactflow';
 
+import { EdgeConnectStartConnectorClass } from 'state-flow/common-types';
 import { useFlowStore } from 'state-flow/flow-store';
-import { EdgeConnectStartConnectorClass } from 'state-flow/types';
 
 import { BaseConditionHandle } from '../base-connector-handles';
 import NodeConnectorResultDisplay from './NodeConnectorResultDisplay';

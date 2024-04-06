@@ -30,13 +30,15 @@ test('handleAddConnector should add variable', () => {
         },
       ],
       edges: [],
-      nodeConfigsDict: {
+      nodeConfigs: {
         Z6dPf: {
           nodeId: 'Z6dPf',
           type: 'InputNode',
+          class: 'Start',
+          nodeName: 'input1',
         },
       },
-      variablesDict: {
+      connectors: {
         'Z6dPf/wZf7M': {
           type: 'NodeOutput',
           id: 'Z6dPf/wZf7M',
@@ -48,11 +50,9 @@ test('handleAddConnector should add variable', () => {
           globalVariableId: null,
         },
       },
-      variableValueLookUpDicts: [
-        {
-          'Z6dPf/wZf7M': null,
-        },
-      ],
+      variableResults: {
+        'Z6dPf/wZf7M': { value: null },
+      },
     },
   };
 
@@ -70,12 +70,13 @@ test('handleAddConnector should add variable', () => {
     ...prevState,
     flowContent: {
       ...prevState.flowContent,
-      variablesDict: expect.anything(),
-      variableValueLookUpDicts: expect.anything(),
+      connectors: expect.anything(),
+      conditionResults: expect.anything(),
+      variableResults: expect.anything(),
     },
   });
 
-  expect(Object.values(nextState.flowContent.variablesDict)).toEqual([
+  expect(Object.values(nextState.flowContent.connectors)).toEqual([
     {
       type: 'NodeOutput',
       id: 'Z6dPf/wZf7M',
@@ -98,7 +99,8 @@ test('handleAddConnector should add variable', () => {
     },
   ]);
 
-  expect(
-    Object.values(nextState.flowContent.variableValueLookUpDicts[0]),
-  ).toEqual([null, null]);
+  expect(Object.values(nextState.flowContent.variableResults)).toEqual([
+    { value: null },
+    { value: null },
+  ]);
 });

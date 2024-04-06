@@ -5,21 +5,17 @@ import { z } from 'zod';
 import randomId from 'common-utils/randomId';
 import * as ElevenLabs from 'integrations/eleven-labs';
 
-import {
-  ConnectorType,
-  NodeInputVariable,
-  NodeOutputVariable,
-  VariableValueType,
-} from '../base-types';
+import { ConnectorType, VariableValueType } from '../base-types';
 import {
   FieldType,
+  NodeClass,
   NodeDefinition,
-  NodeExecutionEvent,
-  NodeExecutionEventType,
   NodeType,
+  type RunNodeResult,
 } from '../node-definition-base-types';
 
 export const ElevenLabsNodeConfigSchema = z.object({
+  class: z.literal(NodeClass.Process),
   type: z.literal(NodeType.ElevenLabs),
   nodeId: z.string(),
   voiceId: z.string().catch((ctx) => {
@@ -86,6 +82,7 @@ export const ELEVENLABS_NODE_DEFINITION: NodeDefinition<
   createDefaultNodeConfig: (nodeId) => {
     return {
       nodeConfig: {
+        class: NodeClass.Process,
         nodeId: nodeId,
         type: NodeType.ElevenLabs,
         voiceId: '',
@@ -98,7 +95,7 @@ export const ELEVENLABS_NODE_DEFINITION: NodeDefinition<
           nodeId: nodeId,
           index: 0,
           valueType: VariableValueType.String,
-          isGlobal: true,
+          isGlobal: false,
           globalVariableId: null,
         },
         {
@@ -108,7 +105,7 @@ export const ELEVENLABS_NODE_DEFINITION: NodeDefinition<
           nodeId: nodeId,
           index: 0,
           valueType: VariableValueType.Audio,
-          isGlobal: true,
+          isGlobal: false,
           globalVariableId: null,
         },
         {
@@ -127,50 +124,30 @@ export const ELEVENLABS_NODE_DEFINITION: NodeDefinition<
     };
   },
 
-  createNodeExecutionObservable: (context, nodeExecutionConfig, params) => {
-    return new Observable<NodeExecutionEvent>((subscriber) => {
-      const { nodeConfig, connectorList } = nodeExecutionConfig;
-      const { nodeInputValueMap } = params;
+  createNodeExecutionObservable: (params) => {
+    return new Observable<RunNodeResult>((subscriber) => {
+      const {
+        nodeConfig,
+        inputVariables,
+        outputVariables,
+        inputVariableResults,
+      } = params;
 
       invariant(nodeConfig.type === NodeType.ElevenLabs);
 
       if (!nodeConfig.elevenLabsApiKey) {
-        subscriber.next({
-          type: NodeExecutionEventType.Errors,
-          nodeId: nodeConfig.nodeId,
-          errorMessages: ['Eleven Labs API key is missing'],
-        });
-
-        subscriber.next({
-          type: NodeExecutionEventType.Finish,
-          nodeId: nodeConfig.nodeId,
-          finishedConnectorIds: [],
-        });
-
+        subscriber.next({ errors: ['Eleven Labs API key is missing'] });
         subscriber.complete();
         return;
       }
 
-      const argsMap: Record<string, unknown> = {};
+      const inputText = inputVariables[0];
+      invariant(inputText != null);
 
-      connectorList
-        .filter((connector): connector is NodeInputVariable => {
-          return connector.type === ConnectorType.NodeInput;
-        })
-        .forEach((connector) => {
-          argsMap[connector.name] = nodeInputValueMap[connector.id] ?? null;
-        });
+      const outputAudio = outputVariables[0];
+      invariant(outputAudio != null);
 
-      const variableAudio = connectorList.find(
-        (conn): conn is NodeOutputVariable => {
-          return conn.type === ConnectorType.NodeOutput && conn.index === 0;
-        },
-      );
-
-      invariant(variableAudio != null);
-
-      const text = argsMap['text'];
-
+      const text = inputVariableResults[inputText.id].value;
       invariant(typeof text === 'string');
 
       ElevenLabs.textToSpeech({
@@ -181,51 +158,26 @@ export const ELEVENLABS_NODE_DEFINITION: NodeDefinition<
         .then((result) => {
           if (result.isError) {
             subscriber.next({
-              type: NodeExecutionEventType.Errors,
-              nodeId: nodeConfig.nodeId,
-              errorMessages: [
+              errors: [
                 result.data != null
                   ? JSON.stringify(result.data)
                   : 'Unknown error',
               ],
             });
-
-            subscriber.next({
-              type: NodeExecutionEventType.Finish,
-              nodeId: nodeConfig.nodeId,
-              finishedConnectorIds: [],
-            });
           } else {
             const url = URL.createObjectURL(result.data);
 
             subscriber.next({
-              type: NodeExecutionEventType.VariableValues,
-              nodeId: nodeConfig.nodeId,
-              variableValuesLookUpDict: {
-                [variableAudio.id]: url,
+              variableResults: {
+                [outputAudio.id]: { value: url },
               },
-            });
-
-            subscriber.next({
-              type: NodeExecutionEventType.Finish,
-              nodeId: nodeConfig.nodeId,
-              finishedConnectorIds: [variableAudio.id],
+              completedConnectorIds: [outputAudio.id],
             });
           }
         })
         .catch((err) => {
           subscriber.next({
-            type: NodeExecutionEventType.Errors,
-            nodeId: nodeConfig.nodeId,
-            errorMessages: [
-              err.message != null ? err.message : 'Unknown error',
-            ],
-          });
-
-          subscriber.next({
-            type: NodeExecutionEventType.Finish,
-            nodeId: nodeConfig.nodeId,
-            finishedConnectorIds: [],
+            errors: [err.message != null ? err.message : 'Unknown error'],
           });
         })
         .finally(() => {

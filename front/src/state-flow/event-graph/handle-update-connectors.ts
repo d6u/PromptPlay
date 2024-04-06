@@ -24,7 +24,7 @@ export const handleUpdateConnectors = createHandler<
   },
   (state, event) => {
     return event.updates.map((update) => {
-      const variable = state.flowContent.variablesDict[update.variableId];
+      const variable = state.flowContent.connectors[update.variableId];
 
       const prevVariableSnapshot = current(variable);
 

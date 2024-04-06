@@ -6,9 +6,9 @@ import { Position, useUpdateNodeInternals } from 'reactflow';
 
 import {
   ConditionNodeAllLevelConfig,
-  ConditionResult,
   ConditionTarget,
   ConnectorType,
+  NodeClass,
   NodeInputVariable,
   NodeType,
 } from 'flow-models';
@@ -18,8 +18,11 @@ import NodeConditionDefaultItem from 'components/node-connector/condition/NodeCo
 import NodeConditionsEditableList from 'components/node-connector/condition/NodeConditionsEditableList';
 import NodeTargetConditionHandle from 'components/node-connector/condition/NodeTargetConditionHandle';
 import NodeRenamableVariableList from 'components/node-connector/variable/NodeRenamableVariableList';
+import {
+  NodeExecutionState,
+  NodeExecutionStatus,
+} from 'state-flow/common-types';
 import { useFlowStore } from 'state-flow/flow-store';
-import { NodeExecutionState, NodeExecutionStatus } from 'state-flow/types';
 import { selectConditions } from 'state-flow/util/state-utils';
 
 import {
@@ -47,15 +50,15 @@ function ConditionNode(props: Props) {
   const updateNodeConfig = useFlowStore((s) => s.updateNodeConfig);
   const addVariable = useFlowStore((s) => s.addConnector);
 
-  const connectors = useFlowStore((s) => s.getFlowContent().variablesDict);
+  const connectors = useFlowStore((s) => s.getFlowContent().connectors);
   const conditions = useMemo(() => {
     return selectConditions(props.nodeId, connectors);
   }, [props.nodeId, connectors]);
   const defaultCondition = useMemo(() => conditions[0], [conditions]);
   const customConditions = useMemo(() => conditions.slice(1), [conditions]);
 
-  const connectorResults = useFlowStore((s) =>
-    s.getDefaultVariableValueLookUpDict(),
+  const conditionResults = useFlowStore(
+    (s) => s.getFlowContent().conditionResults,
   );
 
   return (
@@ -74,6 +77,7 @@ function ConditionNode(props: Props) {
         }
       >
         <NodeBoxHeaderSection
+          nodeClass={NodeClass.Process}
           isNodeReadOnly={props.isNodeReadOnly}
           title="Condition"
           nodeId={props.nodeId}
@@ -144,9 +148,8 @@ function ConditionNode(props: Props) {
             isNodeReadOnly={props.isNodeReadOnly}
             showHandles
             conditionConfigs={customConditions.map((condition) => {
-              const isMatched = (
-                connectorResults[condition.id] as ConditionResult | undefined
-              )?.isConditionMatched;
+              const isMatched =
+                conditionResults[condition.id]?.isConditionMatched;
 
               return {
                 ...condition,
@@ -162,11 +165,7 @@ function ConditionNode(props: Props) {
             nodeId={props.nodeId}
             conditionId={defaultCondition.id}
             conditionValue={
-              (
-                connectorResults[defaultCondition.id] as
-                  | ConditionResult
-                  | undefined
-              )?.isConditionMatched
+              conditionResults[defaultCondition.id]?.isConditionMatched
             }
           />
           <FormHelperText>

@@ -20,8 +20,8 @@ type Props = {
 };
 
 function NodeOutputVariableList(props: Props) {
-  const connectorResults = useFlowStore((s) =>
-    s.getDefaultVariableValueLookUpDict(),
+  const variableResults = useFlowStore(
+    (s) => s.getFlowContent().variableResults,
   );
 
   const updateVariable = useFlowStore((s) => s.updateConnector);
@@ -31,12 +31,12 @@ function NodeOutputVariableList(props: Props) {
       return {
         id: variable.id,
         name: variable.name,
-        value: connectorResults[variable.id],
+        value: variableResults[variable.id]?.value,
         isGlobal: variable.isGlobal,
         globalVariableId: variable.globalVariableId,
       };
     });
-  }, [props.variables, connectorResults]);
+  }, [props.variables, variableResults]);
 
   const { control, handleSubmit } =
     useForm<NodeOutputVariablePropsArrayFieldValues>({

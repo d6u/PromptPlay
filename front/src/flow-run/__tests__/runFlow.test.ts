@@ -1,5 +1,4 @@
-import { D } from '@mobily/ts-belt';
-import { lastValueFrom, tap } from 'rxjs';
+import { ReplaySubject, lastValueFrom, tap } from 'rxjs';
 import { TestScheduler } from 'rxjs/testing';
 import { beforeEach, expect, test } from 'vitest';
 
@@ -9,7 +8,7 @@ import {
   NodeTypeEnum,
 } from 'flow-models';
 
-import { executeFlow } from '../execute-flow';
+import runFlow from '../runFlow';
 import { getNodeAllLevelConfigOrValidationErrors } from '../util';
 
 let testScheduler: TestScheduler;
@@ -20,7 +19,7 @@ beforeEach(() => {
   });
 });
 
-test('executeFlow should execute', () => {
+test('runFlow should execute', () => {
   const flowContent: CanvasDataV4 = {
     nodes: [
       {
@@ -49,17 +48,20 @@ test('executeFlow should execute', () => {
         id: 'HxCix',
       },
     ],
-    nodeConfigsDict: {
+    nodeConfigs: {
       'GjREx': {
         type: 'InputNode',
         nodeId: 'GjREx',
+        class: 'Start',
+        nodeName: 'input1',
       },
       '9hKOz': {
         type: 'OutputNode',
         nodeId: '9hKOz',
+        class: 'Finish',
       },
     },
-    variablesDict: {
+    connectors: {
       'GjREx/URLME': {
         type: 'NodeOutput',
         id: 'GjREx/URLME',
@@ -81,84 +83,95 @@ test('executeFlow should execute', () => {
         globalVariableId: null,
       },
     },
-    variableValueLookUpDicts: [
-      {
-        'GjREx/URLME': 'test',
-        '9hKOz/c5NYh': null,
-      },
-    ],
+    conditionResults: {},
+    variableResults: {
+      'GjREx/URLME': { value: 'test' },
+      '9hKOz/c5NYh': { value: null },
+    },
     globalVariables: {},
   };
 
   const immutableFlowGraph = new ImmutableFlowNodeGraph({
+    startNodeIds: ['GjREx'],
+    nodeConfigs: flowContent.nodeConfigs,
     edges: flowContent.edges.map((edge) => ({
       sourceNode: edge.source,
       sourceConnector: edge.sourceHandle,
       targetNode: edge.target,
       targetConnector: edge.targetHandle,
     })),
-    nodeIds: D.keys(flowContent.nodeConfigsDict),
-    connectors: flowContent.variablesDict,
+    connectors: flowContent.connectors,
   });
 
   const result = getNodeAllLevelConfigOrValidationErrors(
-    flowContent.nodeConfigsDict,
+    flowContent.nodeConfigs,
     (nodeType: NodeTypeEnum, fieldKey: string) => '',
   );
 
   testScheduler.run((helpers) => {
     const { expectObservable } = helpers;
 
-    const values = [
-      {
-        type: 'Start',
-        nodeId: 'GjREx',
-      },
-      {
-        type: 'NewVariableValues',
-        nodeId: 'GjREx',
-        variableValuesLookUpDict: {
-          'GjREx/URLME': 'test',
-        },
-      },
-      {
-        type: 'Finish',
-        nodeId: 'GjREx',
-        finishedConnectorIds: ['GjREx/URLME'],
-      },
-      {
-        type: 'Start',
-        nodeId: '9hKOz',
-      },
-      {
-        type: 'NewVariableValues',
-        nodeId: '9hKOz',
-        variableValuesLookUpDict: {
-          '9hKOz/c5NYh': 'test',
-        },
-      },
-      {
-        type: 'Finish',
-        nodeId: '9hKOz',
-        finishedConnectorIds: [],
-      },
-    ];
+    const progressObserver = new ReplaySubject();
 
-    const expected = '(012345|)';
-
-    const obs = executeFlow({
+    const obs = runFlow({
       nodeConfigs: result.nodeAllLevelConfigs!,
-      connectors: flowContent.variablesDict,
-      inputValueMap: flowContent.variableValueLookUpDicts[0],
+      connectors: flowContent.connectors,
+      inputVariableValues: flowContent.variableResults,
       preferStreaming: false,
       flowGraph: immutableFlowGraph,
+      progressObserver: progressObserver,
     });
 
-    expectObservable(obs).toBe(expected, values);
+    expectObservable(obs).toBe('(0|)', [
+      {
+        errors: [],
+        variableResults: {
+          '9hKOz/c5NYh': { value: 'test' },
+        },
+      },
+    ]);
+
+    expectObservable(progressObserver).toBe('(012345|)', [
+      {
+        type: 'Started',
+        nodeId: 'GjREx',
+      },
+      {
+        type: 'Updated',
+        nodeId: 'GjREx',
+        result: {
+          variableResults: {
+            'GjREx/URLME': { value: 'test' },
+          },
+          completedConnectorIds: ['GjREx/URLME'],
+        },
+      },
+      {
+        type: 'Finished',
+        nodeId: 'GjREx',
+      },
+      {
+        type: 'Started',
+        nodeId: '9hKOz',
+      },
+      {
+        type: 'Updated',
+        nodeId: '9hKOz',
+        result: {
+          variableResults: {
+            '9hKOz/c5NYh': { value: 'test' },
+          },
+        },
+      },
+      {
+        type: 'Finished',
+        nodeId: '9hKOz',
+      },
+    ]);
   });
 });
 
-test('executeFlow should unblock node has multiple conditions even when only one condition was met', async () => {
+test('runFlow should unblock node has multiple conditions even when only one condition was met', async () => {
   const flowContent: CanvasDataV4 = {
     nodes: [
       {
@@ -231,28 +244,33 @@ test('executeFlow should unblock node has multiple conditions even when only one
         targetHandle: 'qclxl/l56QJ',
       },
     ],
-    nodeConfigsDict: {
+    nodeConfigs: {
       'itI1z': {
+        class: 'Start',
         type: 'InputNode',
         nodeId: 'itI1z',
+        nodeName: 'input1',
       },
       '1w9JM': {
+        class: 'Process',
         type: 'ConditionNode',
         nodeId: '1w9JM',
         stopAtTheFirstMatch: true,
       },
       '2WvHf': {
+        class: 'Process',
         type: 'TextTemplate',
         nodeId: '2WvHf',
         content: 'Write a poem about A in fewer than 20 words.',
       },
       'eSpTO': {
+        class: 'Process',
         type: 'TextTemplate',
         nodeId: 'eSpTO',
         content: 'Write a poem about B in fewer than 20 words.',
       },
     },
-    variablesDict: {
+    connectors: {
       '1w9JM/input': {
         type: 'NodeInput',
         id: '1w9JM/input',
@@ -330,111 +348,125 @@ test('executeFlow should unblock node has multiple conditions even when only one
         globalVariableId: null,
       },
     },
-    variableValueLookUpDicts: [
-      {
-        'itI1z/7cpZ9': 'Value A',
-        '1w9JM/hvZie': null,
-        '2WvHf/content': null,
-      },
-    ],
+    conditionResults: {},
+    variableResults: {
+      'itI1z/7cpZ9': { value: 'Value A' },
+    },
     globalVariables: {},
   };
 
   const immutableFlowGraph = new ImmutableFlowNodeGraph({
+    startNodeIds: ['itI1z'],
+    nodeConfigs: flowContent.nodeConfigs,
     edges: flowContent.edges.map((edge) => ({
       sourceNode: edge.source,
       sourceConnector: edge.sourceHandle,
       targetNode: edge.target,
       targetConnector: edge.targetHandle,
     })),
-    nodeIds: D.keys(flowContent.nodeConfigsDict),
-    connectors: flowContent.variablesDict,
+    connectors: flowContent.connectors,
   });
 
   const result = getNodeAllLevelConfigOrValidationErrors(
-    flowContent.nodeConfigsDict,
+    flowContent.nodeConfigs,
     (nodeType: NodeTypeEnum, fieldKey: string) => '',
   );
 
-  const obs = executeFlow({
+  const progressObserver = new ReplaySubject();
+
+  const obs = runFlow({
     nodeConfigs: result.nodeAllLevelConfigs!,
-    connectors: flowContent.variablesDict,
-    inputValueMap: flowContent.variableValueLookUpDicts[0],
+    connectors: flowContent.connectors,
+    inputVariableValues: flowContent.variableResults,
     preferStreaming: false,
     flowGraph: immutableFlowGraph,
+    progressObserver: progressObserver,
   });
+
+  // NOTE: Cannot use RxJS marble testing because Observable consuming Promise
+  // is not supported.
+
+  const actual = await lastValueFrom(obs);
+
+  expect(actual).toEqual({ errors: [], variableResults: {} });
 
   let n = 0;
 
   const values = [
     {
-      type: 'Start',
+      type: 'Started',
       nodeId: 'itI1z',
     },
     {
-      type: 'NewVariableValues',
+      type: 'Updated',
       nodeId: 'itI1z',
-      variableValuesLookUpDict: {
-        'itI1z/7cpZ9': 'Value A',
-      },
-    },
-    {
-      type: 'Finish',
-      nodeId: 'itI1z',
-      finishedConnectorIds: ['itI1z/7cpZ9'],
-    },
-    {
-      type: 'Start',
-      nodeId: '1w9JM',
-    },
-    {
-      type: 'NewVariableValues',
-      nodeId: '1w9JM',
-      variableValuesLookUpDict: {
-        '1w9JM/hvZie': {
-          conditionId: '1w9JM/hvZie',
-          isConditionMatched: true,
+      result: {
+        variableResults: {
+          'itI1z/7cpZ9': { value: 'Value A' },
         },
+        completedConnectorIds: ['itI1z/7cpZ9'],
       },
     },
     {
-      type: 'Finish',
+      type: 'Finished',
+      nodeId: 'itI1z',
+    },
+    {
+      type: 'Started',
       nodeId: '1w9JM',
-      finishedConnectorIds: ['1w9JM/hvZie'],
     },
     {
-      type: 'Start',
-      nodeId: '2WvHf',
-    },
-    {
-      type: 'NewVariableValues',
-      nodeId: '2WvHf',
-      variableValuesLookUpDict: {
-        '2WvHf/content': 'Write a poem about A in fewer than 20 words.',
+      type: 'Updated',
+      nodeId: '1w9JM',
+      result: {
+        conditionResults: {
+          '1w9JM/hvZie': {
+            conditionId: '1w9JM/hvZie',
+            isConditionMatched: true,
+          },
+        },
+        completedConnectorIds: ['1w9JM/hvZie'],
       },
     },
     {
-      type: 'Finish',
+      type: 'Finished',
+      nodeId: '1w9JM',
+    },
+    {
+      type: 'Started',
       nodeId: '2WvHf',
-      finishedConnectorIds: ['2WvHf/content'],
+    },
+    {
+      type: 'Updated',
+      nodeId: '2WvHf',
+      result: {
+        variableResults: {
+          '2WvHf/content': {
+            value: 'Write a poem about A in fewer than 20 words.',
+          },
+        },
+        completedConnectorIds: ['2WvHf/content'],
+      },
+    },
+    {
+      type: 'Finished',
+      nodeId: '2WvHf',
     },
   ];
 
+  // NOTE: Must use tap to wrap assertion because subscribe doesn't stop
+  // the observable on exception.
   await lastValueFrom(
-    obs.pipe(
-      // Must run expect in tap because when expect throwing error in subscribe,
-      // it does not stop the subscription.
+    progressObserver.pipe(
       tap((event) => {
-        expect(event, `event ${n} should match expected value`).toEqual(
-          values[n],
-        );
+        expect(event).toEqual(values[n]);
         n++;
       }),
     ),
   );
 });
 
-test('executeFlow should fallback to default case when no condition was met', async () => {
+test('runFlow should fallback to default case when no condition was met', async () => {
   const flowContent: CanvasDataV4 = {
     nodes: [
       {
@@ -507,28 +539,33 @@ test('executeFlow should fallback to default case when no condition was met', as
         targetHandle: '1w9JM/input',
       },
     ],
-    nodeConfigsDict: {
+    nodeConfigs: {
       '1w9JM': {
         type: 'ConditionNode',
         nodeId: '1w9JM',
         stopAtTheFirstMatch: true,
+        class: 'Process',
       },
       '2WvHf': {
         type: 'TextTemplate',
         nodeId: '2WvHf',
         content: 'Write a poem about A in fewer than 20 words.',
+        class: 'Process',
       },
       'eSpTO': {
         type: 'TextTemplate',
         nodeId: 'eSpTO',
         content: 'Write a poem about B in fewer than 20 words.',
+        class: 'Process',
       },
       'itI1z': {
         type: 'InputNode',
         nodeId: 'itI1z',
+        class: 'Start',
+        nodeName: 'input1',
       },
     },
-    variablesDict: {
+    connectors: {
       '1w9JM/input': {
         type: 'NodeInput',
         id: '1w9JM/input',
@@ -606,112 +643,125 @@ test('executeFlow should fallback to default case when no condition was met', as
         globalVariableId: null,
       },
     },
-    variableValueLookUpDicts: [
-      {
-        'itI1z/7cpZ9': 'nothing matches',
-        '1w9JM/hvZie': null,
-        '2WvHf/content': null,
-      },
-    ],
+    conditionResults: {},
+    variableResults: {
+      'itI1z/7cpZ9': { value: 'nothing matches' },
+      '1w9JM/hvZie': { value: null },
+      '2WvHf/content': { value: null },
+    },
     globalVariables: {},
   };
 
   const immutableFlowGraph = new ImmutableFlowNodeGraph({
+    startNodeIds: ['itI1z'],
+    nodeConfigs: flowContent.nodeConfigs,
     edges: flowContent.edges.map((edge) => ({
       sourceNode: edge.source,
       sourceConnector: edge.sourceHandle,
       targetNode: edge.target,
       targetConnector: edge.targetHandle,
     })),
-    nodeIds: D.keys(flowContent.nodeConfigsDict),
-    connectors: flowContent.variablesDict,
+    connectors: flowContent.connectors,
   });
 
   const result = getNodeAllLevelConfigOrValidationErrors(
-    flowContent.nodeConfigsDict,
+    flowContent.nodeConfigs,
     (nodeType: NodeTypeEnum, fieldKey: string) => '',
   );
 
-  const obs = executeFlow({
+  const progressObserver = new ReplaySubject();
+
+  const obs = runFlow({
     nodeConfigs: result.nodeAllLevelConfigs!,
-    connectors: flowContent.variablesDict,
-    inputValueMap: flowContent.variableValueLookUpDicts[0],
+    connectors: flowContent.connectors,
+    inputVariableValues: flowContent.variableResults,
     preferStreaming: false,
     flowGraph: immutableFlowGraph,
+    progressObserver: progressObserver,
   });
+
+  const actual = await lastValueFrom(obs);
+
+  expect(actual).toEqual({ errors: [], variableResults: {} });
 
   let n = 0;
 
   const values = [
     {
-      type: 'Start',
+      type: 'Started',
       nodeId: 'itI1z',
     },
     {
-      type: 'NewVariableValues',
+      type: 'Updated',
       nodeId: 'itI1z',
-      variableValuesLookUpDict: {
-        'itI1z/7cpZ9': 'nothing matches',
+      result: {
+        variableResults: {
+          'itI1z/7cpZ9': { value: 'nothing matches' },
+        },
+        completedConnectorIds: ['itI1z/7cpZ9'],
       },
     },
     {
-      type: 'Finish',
+      type: 'Finished',
       nodeId: 'itI1z',
-      finishedConnectorIds: ['itI1z/7cpZ9'],
     },
     {
-      type: 'Start',
+      type: 'Started',
       nodeId: '1w9JM',
     },
     {
-      type: 'NewVariableValues',
+      type: 'Updated',
       nodeId: '1w9JM',
-      variableValuesLookUpDict: {
-        '1w9JM/hvZie': {
-          conditionId: '1w9JM/hvZie',
-          isConditionMatched: false,
+      result: {
+        conditionResults: {
+          '1w9JM/hvZie': {
+            conditionId: '1w9JM/hvZie',
+            isConditionMatched: false,
+          },
+          '1w9JM/MlBLI': {
+            conditionId: '1w9JM/MlBLI',
+            isConditionMatched: false,
+          },
+          '1w9JM/fR2hj': {
+            conditionId: '1w9JM/fR2hj',
+            isConditionMatched: true,
+          },
         },
-        '1w9JM/MlBLI': {
-          conditionId: '1w9JM/MlBLI',
-          isConditionMatched: false,
-        },
-        '1w9JM/fR2hj': {
-          conditionId: '1w9JM/fR2hj',
-          isConditionMatched: true,
-        },
+        completedConnectorIds: ['1w9JM/fR2hj'],
       },
     },
     {
-      type: 'Finish',
+      type: 'Finished',
       nodeId: '1w9JM',
-      finishedConnectorIds: ['1w9JM/fR2hj'],
     },
     {
-      type: 'Start',
+      type: 'Started',
       nodeId: '2WvHf',
     },
     {
-      type: 'NewVariableValues',
+      type: 'Updated',
       nodeId: '2WvHf',
-      variableValuesLookUpDict: {
-        '2WvHf/content': 'Write a poem about A in fewer than 20 words.',
+      result: {
+        variableResults: {
+          '2WvHf/content': {
+            value: 'Write a poem about A in fewer than 20 words.',
+          },
+        },
+        completedConnectorIds: ['2WvHf/content'],
       },
     },
     {
-      type: 'Finish',
+      type: 'Finished',
       nodeId: '2WvHf',
-      finishedConnectorIds: ['2WvHf/content'],
     },
   ];
 
+  // NOTE: Must use tap to wrap assertion because subscribe doesn't stop
+  // the observable on exception.
   await lastValueFrom(
-    obs.pipe(
-      // Must run expect in tap because when expect throwing error in subscribe,
-      // it does not stop the subscription.
+    progressObserver.pipe(
       tap((event) => {
-        expect(event, `event ${n} should match expected value`).toEqual(
-          values[n],
-        );
+        expect(event).toEqual(values[n]);
         n++;
       }),
     ),

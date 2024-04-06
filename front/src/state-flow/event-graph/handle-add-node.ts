@@ -41,10 +41,10 @@ export const handleAddNode = createHandler<
       dragHandle: `.${DRAG_HANDLE_CLASS_NAME}`,
     });
 
-    state.flowContent.nodeConfigsDict[node.id] = nodeConfig;
+    state.flowContent.nodeConfigs[node.id] = nodeConfig;
 
     for (const connector of connectors) {
-      state.flowContent.variablesDict[connector.id] = connector;
+      state.flowContent.connectors[connector.id] = connector;
     }
 
     return [

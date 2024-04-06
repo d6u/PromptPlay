@@ -9,6 +9,7 @@ import {
   ConnectorType,
   InputNodeInstanceLevelConfig,
   JavaScriptFunctionNodeInstanceLevelConfig,
+  NodeClass,
   NodeConfig,
   NodeInputVariable,
   NodeOutputVariable,
@@ -20,8 +21,11 @@ import NodeTargetConditionHandle from 'components/node-connector/condition/NodeT
 import NodeRenamableVariableList from 'components/node-connector/variable/NodeRenamableVariableList';
 import NodeAccountLevelFields from 'components/node-fields/NodeAccountLevelFields';
 import NodeInstanceLevelFields from 'components/node-fields/NodeInstanceLevelFields';
+import {
+  NodeExecutionState,
+  NodeExecutionStatus,
+} from 'state-flow/common-types';
 import { useFlowStore } from 'state-flow/flow-store';
-import { NodeExecutionState, NodeExecutionStatus } from 'state-flow/types';
 
 import NodeRegularOutgoingConditionHandle from 'components/node-connector/condition/NodeRegularOutgoingConditionHandle';
 import {
@@ -88,6 +92,7 @@ function DefaultNode(props: Props) {
         }
       >
         <NodeBoxHeaderSection
+          nodeClass={NodeClass.Process}
           title={nodeDefinition.label}
           showAddVariableButton={!!nodeDefinition.canUserAddIncomingVariables}
           nodeId={props.nodeId}

@@ -6,27 +6,33 @@ import { StateCreator } from 'zustand';
 
 import {
   Connector,
-  ConnectorResultMap,
   ConnectorType,
   ConnectorTypeEnum,
   NodeConfig,
   NodeTypeEnum,
 } from 'flow-models';
 
+import {
+  BatchTestTab,
+  CanvasRightPanelType,
+  EdgeConnectStartConnectorClass,
+} from './common-types';
 import { ChangeEventType } from './event-graph/event-types';
 import { AcceptedEvent, handleAllEvent } from './event-graph/handle-all-event';
 import { createBatchTestLens } from './lenses/batch-test-lens';
 import { canvasStateMachine } from './state-machines/canvasStateMachine';
 import {
-  BatchTestTab,
-  CanvasRightPanelType,
   CanvasStateMachineContext,
+  CanvasStateMachineEmittedEventType,
   CanvasStateMachineEvent,
   CanvasStateMachineEventType,
-  EdgeConnectStartConnectorClass,
   FlowActions,
   FlowProps,
   FlowState,
+  type CanvasStateMachineEmittedEvent,
+  type FlowSingleRunResult,
+  type StartFlowSingleRunParams,
+  type VariableValueUpdate,
 } from './types';
 import { createWithImmer } from './util/lens-util';
 import { actorFor } from './util/state-machine-middleware';
@@ -37,12 +43,13 @@ const RESETABLE_INITIAL_STATE: Partial<FlowState> = {
     flowContent: {
       nodes: [],
       edges: [],
-      nodeConfigsDict: {},
-      variablesDict: {},
-      variableValueLookUpDicts: [{}],
+      nodeConfigs: {},
+      connectors: {},
+      globalVariables: {},
+      conditionResults: {},
+      variableResults: {},
       nodeExecutionStates: {},
       nodeAccountLevelFieldsValidationErrors: {},
-      globalVariables: {},
     },
   },
   canvasLeftPaneIsOpen: false,
@@ -77,7 +84,8 @@ export const createRootSlice: RootSliceStateCreator = (set, get) => {
     // SECTION: State Machine
     canvasStateMachine: actorFor<
       CanvasStateMachineContext,
-      CanvasStateMachineEvent
+      CanvasStateMachineEvent,
+      CanvasStateMachineEmittedEvent
     >(canvasStateMachine),
     // !SECTION
 
@@ -125,17 +133,20 @@ export const createRootSlice: RootSliceStateCreator = (set, get) => {
       flowContent: {
         nodes: [],
         edges: [],
-        nodeConfigsDict: {},
-        variablesDict: {},
-        variableValueLookUpDicts: [{}],
+        nodeConfigs: {},
+        connectors: {},
+        globalVariables: {},
+        conditionResults: {},
+        variableResults: {},
         nodeExecutionStates: {},
         nodeAccountLevelFieldsValidationErrors: {},
-        globalVariables: {},
       },
     },
     canvasLeftPaneIsOpen: false,
     canvasLeftPaneSelectedNodeId: null,
     canvasRightPaneType: CanvasRightPanelType.Off,
+    canvasTesterStartNodeId: null,
+    canvasRenameNodeId: null,
     paramsOnUserStartConnectingEdge: null,
 
     // ANCHOR: Batch Test View
@@ -145,20 +156,23 @@ export const createRootSlice: RootSliceStateCreator = (set, get) => {
 
     // SECTION: Simple getters and setters
     getFlowContent: getFlowContent,
-    getDefaultVariableValueLookUpDict(): ConnectorResultMap {
-      return getFlowContent().variableValueLookUpDicts[0]!;
-    },
     setCanvasLeftPaneIsOpen(isOpen: boolean): void {
       set({ canvasLeftPaneIsOpen: isOpen });
-    },
-    setCanvasRightPaneType(type: CanvasRightPanelType) {
-      set({ canvasRightPaneType: type });
     },
     setCanvasLeftPaneSelectedNodeId(id: string) {
       set({ canvasLeftPaneSelectedNodeId: id });
     },
+    setCanvasRightPaneType(type: CanvasRightPanelType) {
+      set({ canvasRightPaneType: type });
+    },
+    setCanvasTesterStartNodeId(nodeId: string | null): void {
+      set({ canvasTesterStartNodeId: nodeId });
+    },
     setSelectedBatchTestTab(tab: BatchTestTab): void {
       set({ selectedBatchTestTab: tab });
+    },
+    setCanvasRenameNodeId(nodeId: string | null): void {
+      set({ canvasRenameNodeId: nodeId });
     },
     // !SECTION
 
@@ -237,15 +251,7 @@ export const createRootSlice: RootSliceStateCreator = (set, get) => {
       });
     },
 
-    updateVariableValue(variableId: string, value: unknown): void {
-      get()._processEventWithEventGraph({
-        type: ChangeEventType.UPDATE_VARIABLE_VALUES,
-        updates: [{ variableId, value }],
-      });
-    },
-    updateVariableValues(
-      updates: { variableId: string; value: unknown }[],
-    ): void {
+    updateVariableValues(updates: VariableValueUpdate[]): void {
       get()._processEventWithEventGraph({
         type: ChangeEventType.UPDATE_VARIABLE_VALUES,
         updates,
@@ -268,7 +274,7 @@ export const createRootSlice: RootSliceStateCreator = (set, get) => {
       invariant(handleId != null, 'handleId is not null');
       invariant(handleType != null, 'handleType is not null');
 
-      const connector = getFlowContent().variablesDict[handleId] as
+      const connector = getFlowContent().connectors[handleId] as
         | Connector
         | undefined;
 
@@ -292,12 +298,34 @@ export const createRootSlice: RootSliceStateCreator = (set, get) => {
       set({ paramsOnUserStartConnectingEdge: null });
     },
 
-    // SECTION: Flow Run
-    startFlowSingleRun() {
+    // ANCHOR: Flow run
+
+    startFlowSingleRun(params: StartFlowSingleRunParams) {
       get().canvasStateMachine.send({
         type: CanvasStateMachineEventType.StartExecutingFlowSingleRun,
+        params,
       });
     },
+
+    startFlowSingleRunForResult(
+      params: StartFlowSingleRunParams,
+    ): Promise<FlowSingleRunResult> {
+      return new Promise((resolve) => {
+        const subscription = get().canvasStateMachine.on(
+          CanvasStateMachineEmittedEventType.FlowSingleRunResult,
+          (emitted) => {
+            subscription.unsubscribe();
+            resolve({ variableResults: emitted.result.variableResults });
+          },
+        );
+
+        get().canvasStateMachine.send({
+          type: CanvasStateMachineEventType.StartExecutingFlowSingleRun,
+          params,
+        });
+      });
+    },
+
     stopFlowSingleRun() {
       posthog.capture('Manually Stopped Simple Evaluation', {
         flowId: get().spaceId,
@@ -306,6 +334,5 @@ export const createRootSlice: RootSliceStateCreator = (set, get) => {
         type: CanvasStateMachineEventType.StopExecutingFlowSingleRun,
       });
     },
-    // !SECTION
   };
 };

@@ -5,8 +5,13 @@ import posthog from 'posthog-js';
 import { useMemo } from 'react';
 
 import SidePaneSection from 'components/side-pane/SidePaneSection';
+import {
+  CSVData,
+  CSVRow,
+  IterationIndex,
+  RowIndex,
+} from 'state-flow/common-types';
 import { useFlowStore } from 'state-flow/flow-store';
-import { CSVData, CSVRow, IterationIndex, RowIndex } from 'state-flow/types';
 import {
   selectVariablesOnAllEndNodes,
   selectVariablesOnAllStartNodes,
@@ -26,8 +31,8 @@ type Props = {
 export default function EvaluationSectionConfigCSV(props: Props) {
   // SECTION: Select state from store
 
-  const variablesDict = useFlowStore((s) => s.getFlowContent().variablesDict);
-  const nodeConfigs = useFlowStore((s) => s.getFlowContent().nodeConfigsDict);
+  const nodeConfigs = useFlowStore((s) => s.getFlowContent().nodeConfigs);
+  const variablesDict = useFlowStore((s) => s.getFlowContent().connectors);
   const repeatTimes = useFlowStore(
     (s) => s.batchTest.config.content.repeatTimes,
   );

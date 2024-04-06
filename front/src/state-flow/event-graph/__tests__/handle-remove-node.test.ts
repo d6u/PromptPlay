@@ -1,18 +1,19 @@
-import { mergeDeep } from '@dhmk/utils';
 import { produce } from 'immer';
 import { expect, test } from 'vitest';
 
 import { ChangeEventType } from 'state-flow/event-graph/event-types';
 
 import { BaseEvent } from '../event-graph-util';
+import { State } from '../event-types';
 import { handleRemoveNode } from '../handle-remove-node';
 import { MOCK_STATE } from './fixture';
 
 // ANCHOR: Test cases for handleRemoveNode
 
 test('handleRemoveNode should remove node, nodeConfig, and connectors', () => {
-  const prevState = mergeDeep(MOCK_STATE, {
+  const prevState: State = {
     flowContent: {
+      ...MOCK_STATE.flowContent,
       nodes: [
         {
           id: '8e2At',
@@ -28,13 +29,15 @@ test('handleRemoveNode should remove node, nodeConfig, and connectors', () => {
         },
       ],
       edges: [],
-      nodeConfigsDict: {
+      nodeConfigs: {
         '8e2At': {
-          nodeId: '8e2At',
+          class: 'Start',
           type: 'InputNode',
+          nodeId: '8e2At',
+          nodeName: 'input1',
         },
       },
-      variablesDict: {
+      connectors: {
         '8e2At/hqpZx': {
           type: 'NodeOutput',
           id: '8e2At/hqpZx',
@@ -42,15 +45,15 @@ test('handleRemoveNode should remove node, nodeConfig, and connectors', () => {
           index: 0,
           name: 'kazuwuv',
           valueType: 'String',
+          isGlobal: false,
+          globalVariableId: null,
         },
       },
-      variableValueLookUpDicts: [
-        {
-          '8e2At/hqpZx': null,
-        },
-      ],
+      variableResults: {
+        '8e2At/hqpZx': { value: null },
+      },
     },
-  });
+  };
 
   const nextState = produce(prevState, (draft) => {
     handleRemoveNode(draft, {
@@ -64,12 +67,13 @@ test('handleRemoveNode should remove node, nodeConfig, and connectors', () => {
     flowContent: {
       nodes: [],
       edges: [],
-      nodeConfigsDict: {},
-      variablesDict: {},
-      variableValueLookUpDicts: [{}],
+      nodeConfigs: {},
+      connectors: {},
+      globalVariables: {},
+      conditionResults: {},
+      variableResults: {},
       nodeExecutionStates: {},
       nodeAccountLevelFieldsValidationErrors: {},
-      globalVariables: {},
     },
   });
 });

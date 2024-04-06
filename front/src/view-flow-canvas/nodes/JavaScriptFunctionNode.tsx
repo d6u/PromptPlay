@@ -8,6 +8,7 @@ import {
   ConditionTarget,
   ConnectorType,
   JavaScriptFunctionNodeInstanceLevelConfig,
+  NodeClass,
   NodeInputVariable,
   NodeOutputVariable,
   getNodeDefinitionForNodeTypeName,
@@ -18,8 +19,11 @@ import NodeRenamableVariableList from 'components/node-connector/variable/NodeRe
 import NodeFieldLabelWithIconContainer from 'components/node-fields/NodeFieldLabelWithIconContainer';
 import CopyIconButton from 'generic-components/CopyIconButton';
 import ReadonlyTextarea from 'generic-components/ReadonlyTextarea';
+import {
+  NodeExecutionState,
+  NodeExecutionStatus,
+} from 'state-flow/common-types';
 import { useFlowStore } from 'state-flow/flow-store';
-import { NodeExecutionState, NodeExecutionStatus } from 'state-flow/types';
 
 import NodeRegularOutgoingConditionHandle from 'components/node-connector/condition/NodeRegularOutgoingConditionHandle';
 import {
@@ -78,6 +82,7 @@ function JavaScriptFunctionNode(props: Props) {
         }
       >
         <NodeBoxHeaderSection
+          nodeClass={NodeClass.Process}
           title={nodeDefinition.label}
           showAddVariableButton={!!nodeDefinition.canUserAddIncomingVariables}
           nodeId={props.nodeId}

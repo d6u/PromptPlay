@@ -36,11 +36,11 @@ export const handleRemoveNode = createHandler<
 
     const nodeSnapshot = current(rejectedNodes[0]);
     const nodeConfigSnapshot = current(
-      state.flowContent.nodeConfigsDict[event.nodeId],
+      state.flowContent.nodeConfigs[event.nodeId],
     );
 
     state.flowContent.nodes = acceptedNodes;
-    delete state.flowContent.nodeConfigsDict[event.nodeId];
+    delete state.flowContent.nodeConfigs[event.nodeId];
 
     return [
       {
