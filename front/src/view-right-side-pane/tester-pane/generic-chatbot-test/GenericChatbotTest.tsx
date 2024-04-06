@@ -63,13 +63,13 @@ function GenericChatbotTest(props: Props) {
   const submitMessageForReply = useCallback(
     async (chatHistory: Message[], currentMessage: string) => {
       const result = await startFlowSingleRunForResult({
-        variableValues: {
-          [chatHistoryVariableId]: chatHistory,
-          [currentMessageVariableId]: currentMessage,
+        inputValues: {
+          [chatHistoryVariableId]: { value: chatHistory },
+          [currentMessageVariableId]: { value: currentMessage },
         },
       });
 
-      const messagesVariableId = Object.keys(result.variableValues).find(
+      const messagesVariableId = Object.keys(result.variableResults).find(
         (variableId) => {
           const variable = connectors[variableId];
 
@@ -86,7 +86,7 @@ function GenericChatbotTest(props: Props) {
 
       setMessages((messages) => {
         return messages.concat(
-          (result.variableValues[messagesVariableId] as string[]).map(
+          (result.variableResults[messagesVariableId].value as string[]).map(
             (message) => {
               return {
                 senderName: 'Bot',

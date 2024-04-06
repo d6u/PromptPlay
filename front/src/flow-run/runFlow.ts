@@ -76,7 +76,7 @@ function runFlow(params: RunFlowParams): Observable<RunFlowResult> {
 
     params.progressObserver?.complete();
 
-    return of({ variableResults: variableResults });
+    return of({ errors: [], variableResults: variableResults });
   });
 
   return concat(obs1, obs2);

@@ -76,5 +76,5 @@ test('handleAddNode should add node and nodeConfig', () => {
 
   expect(
     Object.values(nextState.flowContent.variableValueLookUpDicts[0]),
-  ).toEqual([null]);
+  ).toEqual([{ value: null }]);
 });

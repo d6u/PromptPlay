@@ -62,7 +62,7 @@ function GenericInputOutputTest(props: Props) {
               if (isExecutingFlowSingleRun) {
                 stopRunningFlow();
               }
-              runFlow({ variableValues: {} });
+              runFlow({ inputValues: {} });
             }}
           >
             {isExecutingFlowSingleRun ? 'Stop' : 'Run'}

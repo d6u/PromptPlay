@@ -323,7 +323,7 @@ export const createRootSlice: RootSliceStateCreator = (set, get) => {
           CanvasStateMachineEmittedEventType.FlowSingleRunResult,
           (emitted) => {
             subscription.unsubscribe();
-            resolve({ variableValues: emitted.result.variableValues });
+            resolve({ variableResults: emitted.result.variableResults });
           },
         );
 

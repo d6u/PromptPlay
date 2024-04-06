@@ -162,5 +162,6 @@ export type RunNodeProgressEvent =
 // ANCHOR: Run Flow Result
 
 export type RunFlowResult = {
+  errors: ReadonlyArray<string>;
   variableResults: VariableResultRecords;
 };

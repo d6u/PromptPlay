@@ -102,7 +102,7 @@ function flowRunBatch(params: {
       return runFlow({
         nodeConfigs: result.nodeAllLevelConfigs,
         connectors: params.connectors,
-        inputValueMap,
+        inputVariableValues: inputValueMap,
         preferStreaming: params.preferStreaming,
         flowGraph: immutableFlowGraph,
         progressObserver: subject,

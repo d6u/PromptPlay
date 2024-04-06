@@ -93,7 +93,7 @@ test('handleRemoveVariable should remove variable', () => {
       },
       variableValueLookUpDicts: [
         {
-          'Z6dPf/wZf7M': null,
+          'Z6dPf/wZf7M': { value: null },
         },
       ],
     },

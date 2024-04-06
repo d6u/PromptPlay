@@ -1,7 +1,7 @@
 import { createLens } from '@dhmk/zustand-lens';
 import deepEqual from 'deep-equal';
 import posthog from 'posthog-js';
-import { Subscription, from, map } from 'rxjs';
+import { Subject, Subscription, from, map } from 'rxjs';
 import invariant from 'tiny-invariant';
 import { OperationResult } from 'urql';
 import { StateCreator } from 'zustand';
@@ -14,7 +14,12 @@ import {
   migrateV3ToV4,
 } from 'flow-models';
 
-import { FlowRunEventType, ValidationErrorType } from 'flow-run/event-types';
+import {
+  FlowRunEventType,
+  ValidationErrorType,
+  type FlowRunEvent,
+  type RunFlowResult,
+} from 'flow-run/event-types';
 import runFlowForCanvasTester from 'flow-run/runFlowForCanvasTester';
 import { graphql } from 'gencode-gql';
 import { ContentVersion, SpaceFlowQueryQuery } from 'gencode-gql/graphql';
@@ -190,6 +195,7 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
 
       // NOTE: Stop previous run if there is one
       runSingleSubscription?.unsubscribe();
+      runSingleSubscription = new Subscription();
 
       get()._processEventWithEventGraph({
         type: ChangeEventType.FLOW_SINGLE_RUN_STARTED,
@@ -197,31 +203,12 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
 
       // Reset variable values except for start node values
       setFlowContentProduce((draft) => {
-        draft.variableValueLookUpDicts = [event.params.variableValues];
+        draft.variableValueLookUpDicts = [event.params.inputValues];
       });
 
-      runSingleSubscription = runFlowForCanvasTester({
-        startNodeIds:
-          canvasTesterStartNodeId != null ? [canvasTesterStartNodeId] : [],
-        edges: edges.map((edge) => ({
-          sourceNode: edge.source,
-          sourceConnector: edge.sourceHandle,
-          targetNode: edge.target,
-          targetConnector: edge.targetHandle,
-        })),
-        nodeConfigs: nodeConfigsDict,
-        connectors: variablesDict,
-        inputValueMap: event.params.variableValues,
-        preferStreaming: true,
-        getAccountLevelFieldValue: (
-          nodeType: NodeTypeEnum,
-          fieldKey: string,
-        ) => {
-          return useLocalStorageStore
-            .getState()
-            .getLocalAccountLevelNodeFieldValue(nodeType, fieldKey);
-        },
-      }).subscribe({
+      const progressObserver = new Subject<FlowRunEvent>();
+
+      const progressObserverSubscription = progressObserver.subscribe({
         next(event) {
           switch (event.type) {
             case FlowRunEventType.ValidationErrors:
@@ -288,6 +275,36 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
               break;
           }
         },
+      });
+
+      let runFlowResult: RunFlowResult | null = null;
+
+      const runFlowForCanvasTesterSubscription = runFlowForCanvasTester({
+        startNodeIds:
+          canvasTesterStartNodeId != null ? [canvasTesterStartNodeId] : [],
+        edges: edges.map((edge) => ({
+          sourceNode: edge.source,
+          sourceConnector: edge.sourceHandle,
+          targetNode: edge.target,
+          targetConnector: edge.targetHandle,
+        })),
+        nodeConfigs: nodeConfigsDict,
+        connectors: variablesDict,
+        inputValueMap: event.params.inputValues,
+        preferStreaming: true,
+        progressObserver,
+        getAccountLevelFieldValue: (
+          nodeType: NodeTypeEnum,
+          fieldKey: string,
+        ) => {
+          return useLocalStorageStore
+            .getState()
+            .getLocalAccountLevelNodeFieldValue(nodeType, fieldKey);
+        },
+      }).subscribe({
+        next(result) {
+          runFlowResult = result;
+        },
         error(error) {
           posthog.capture('Finished Simple Evaluation with Error', {
             flowId: get().spaceId,
@@ -299,7 +316,7 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
           get().canvasStateMachine.send({
             type: CanvasStateMachineEventType.FinishedExecutingFlowSingleRun,
             hasError: true,
-            result: { variableValues: {} },
+            result: { variableResults: {} },
           });
 
           get()._processEventWithEventGraph({
@@ -311,16 +328,12 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
             flowId: get().spaceId,
           });
 
+          invariant(runFlowResult != null, 'runFlowResult should not be null');
+
           get().canvasStateMachine.send({
             type: CanvasStateMachineEventType.FinishedExecutingFlowSingleRun,
             hasError: false,
-            result: {
-              // TODO: Remove casting
-              variableValues: get().getFlowContent()
-                .variableValueLookUpDicts[0] as Readonly<
-                Record<string, Readonly<unknown>>
-              >,
-            },
+            result: { variableResults: runFlowResult.variableResults },
           });
 
           get()._processEventWithEventGraph({
@@ -328,6 +341,9 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
           });
         },
       });
+
+      runSingleSubscription.add(progressObserverSubscription);
+      runSingleSubscription.add(runFlowForCanvasTesterSubscription);
     },
 
     _cancelFlowSingleRunIfInProgress() {

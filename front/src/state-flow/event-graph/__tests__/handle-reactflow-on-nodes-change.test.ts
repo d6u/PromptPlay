@@ -133,7 +133,7 @@ test('handleReactFlowNodesChange should remove node', () => {
       },
       variableValueLookUpDicts: [
         {
-          'Is8Op/5TUFT': null,
+          'Is8Op/5TUFT': { value: null },
         },
       ],
       nodeExecutionStates: {},
@@ -282,7 +282,7 @@ test('handleReactFlowNodesChange should remove connector and edge connected', ()
       },
       variableValueLookUpDicts: [
         {
-          'sn268/mt4IG': null,
+          'sn268/mt4IG': { value: null },
         },
       ],
       nodeExecutionStates: {},

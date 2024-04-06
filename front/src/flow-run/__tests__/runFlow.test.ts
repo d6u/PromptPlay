@@ -127,6 +127,7 @@ test('runFlow should execute', () => {
 
     expectObservable(obs).toBe('(0|)', [
       {
+        errors: [],
         variableResults: {
           '9hKOz/c5NYh': { value: 'test' },
         },
@@ -394,7 +395,7 @@ test('runFlow should unblock node has multiple conditions even when only one con
 
   const actual = await lastValueFrom(obs);
 
-  expect(actual).toEqual({ variableResults: {} });
+  expect(actual).toEqual({ errors: [], variableResults: {} });
 
   let n = 0;
 
@@ -693,7 +694,7 @@ test('runFlow should fallback to default case when no condition was met', async 
 
   const actual = await lastValueFrom(obs);
 
-  expect(actual).toEqual({ variableResults: {} });
+  expect(actual).toEqual({ errors: [], variableResults: {} });
 
   let n = 0;
 

@@ -1,4 +1,4 @@
-import { Observable, Subject, ignoreElements, map, merge, of } from 'rxjs';
+import { Observable, Subject, from, mergeMap, of, type Observer } from 'rxjs';
 import invariant from 'tiny-invariant';
 
 import { Connector, ImmutableFlowNodeGraph, NodeConfig } from 'flow-models';
@@ -10,6 +10,7 @@ import {
   RunNodeProgressEventType,
   ValidationError,
   ValidationErrorType,
+  type RunFlowResult,
   type RunNodeProgressEvent,
 } from './event-types';
 import { Edge, GetAccountLevelFieldValueFunction } from './run-param-types';
@@ -23,10 +24,11 @@ type Params = {
   connectors: Readonly<Record<string, Readonly<Connector>>>;
   inputValueMap: Readonly<Record<string, Readonly<unknown>>>;
   preferStreaming: boolean;
+  progressObserver: Observer<FlowRunEvent>;
   getAccountLevelFieldValue: GetAccountLevelFieldValueFunction;
 };
 
-function runFlowForCanvasTester(params: Params): Observable<FlowRunEvent> {
+function runFlowForCanvasTester(params: Params): Observable<RunFlowResult> {
   // SECTION[id=pre-execute-validation]: Pre execute validation
   // Keep this section in sync with:
   // LINK ./flowRunBatch.ts#pre-execute-validation
@@ -58,9 +60,14 @@ function runFlowForCanvasTester(params: Params): Observable<FlowRunEvent> {
   }
 
   if (validationErrors.length) {
-    return of({
+    params.progressObserver.next({
       type: FlowRunEventType.ValidationErrors,
       errors: validationErrors,
+    });
+
+    return of({
+      errors: validationErrors.map((error) => error.message),
+      variableResults: {},
     });
   }
 
@@ -73,47 +80,52 @@ function runFlowForCanvasTester(params: Params): Observable<FlowRunEvent> {
 
   const subject = new Subject<RunNodeProgressEvent>();
 
-  return merge(
-    subject.pipe(map(transformEvent)),
-    runFlow({
-      nodeConfigs: result.nodeAllLevelConfigs,
-      connectors: params.connectors,
-      inputValueMap: params.inputValueMap,
-      preferStreaming: params.preferStreaming,
-      flowGraph: immutableFlowGraph,
-      progressObserver: subject,
-    }).pipe(
-      // TODO: Make use of event here in the chatbot tester UI
-      ignoreElements(),
-    ),
-  );
+  subject.pipe(mergeMap(transformEvent)).subscribe(params.progressObserver);
+
+  return runFlow({
+    nodeConfigs: result.nodeAllLevelConfigs,
+    connectors: params.connectors,
+    inputVariableValues: params.inputValueMap,
+    preferStreaming: params.preferStreaming,
+    flowGraph: immutableFlowGraph,
+    progressObserver: subject,
+  });
 }
 
-function transformEvent(event: RunNodeProgressEvent): FlowRunEvent {
+function transformEvent(event: RunNodeProgressEvent): Observable<FlowRunEvent> {
   switch (event.type) {
     case RunNodeProgressEventType.Started:
-      return {
+      return of({
         type: FlowRunEventType.NodeStart,
         nodeId: event.nodeId,
-      };
-    case RunNodeProgressEventType.Updated: {
-      return {
-        type: FlowRunEventType.VariableValues,
-        variableValues: event.result.connectorResults,
-      };
-
-      // return {
-      //   type: FlowRunEventType.NodeErrors,
-      //   nodeId: event.nodeId,
-      //   errorMessages: event.errorMessages,
-      // };
-      break;
-    }
+      });
     case RunNodeProgressEventType.Finished:
-      return {
+      return of({
         type: FlowRunEventType.NodeFinish,
         nodeId: event.nodeId,
-      };
+      });
+    case RunNodeProgressEventType.Updated: {
+      const { errors, connectorResults } = event.result;
+
+      const flowRunEvents: FlowRunEvent[] = [];
+
+      if (errors != null && errors.length > 0) {
+        flowRunEvents.push({
+          type: FlowRunEventType.NodeErrors,
+          nodeId: event.nodeId,
+          errorMessages: errors,
+        });
+      }
+
+      if (connectorResults != null) {
+        flowRunEvents.push({
+          type: FlowRunEventType.VariableValues,
+          variableValues: connectorResults,
+        });
+      }
+
+      return from(flowRunEvents);
+    }
   }
 }
 

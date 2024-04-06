@@ -102,5 +102,5 @@ test('handleAddConnector should add variable', () => {
 
   expect(
     Object.values(nextState.flowContent.variableValueLookUpDicts[0]),
-  ).toEqual([null, null]);
+  ).toEqual([{ value: null }, { value: null }]);
 });

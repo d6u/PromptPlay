@@ -22,6 +22,7 @@ import {
   NodeConfig,
   NodeConfigRecords,
   NodeTypeEnum,
+  type VariableResultRecords,
 } from 'flow-models';
 
 import {
@@ -190,11 +191,11 @@ export type VariableValueUpdate = {
 };
 
 export type StartFlowSingleRunParams = {
-  variableValues: Readonly<Record<string, Readonly<unknown>>>;
+  inputValues: VariableResultRecords;
 };
 
 export type FlowSingleRunResult = {
-  variableValues: Readonly<Record<string, Readonly<unknown>>>;
+  variableResults: VariableResultRecords;
 };
 
 export type FlowActions = {
