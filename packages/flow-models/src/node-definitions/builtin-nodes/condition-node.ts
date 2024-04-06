@@ -110,7 +110,11 @@ export const CONDITION_NODE_DEFINITION: NodeDefinition<
 
         invariant(inputVariable != null);
 
-        const inputValue = nodeInputValueMap[inputVariable.id];
+        const inputResult = nodeInputValueMap[inputVariable.id];
+
+        invariant('value' in inputResult, 'Input value is missing');
+
+        const inputValue = inputResult.value;
 
         const conditions = connectorList
           .filter((connector): connector is Condition => {

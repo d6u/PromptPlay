@@ -1,4 +1,8 @@
-import { NodeTypeEnum, type RunNodeResult } from 'flow-models';
+import {
+  NodeTypeEnum,
+  type RunNodeResult,
+  type VariableResultRecords,
+} from 'flow-models';
 
 // ANCHOR: Event Types
 
@@ -126,7 +130,7 @@ export type FlowBatchRunEvent =
   | FlowBatchRunFlowVariableValuesEvent
   | FlowBatchRunFlowErrorEvent;
 
-// ANCHOR: Run Flow Events
+// ANCHOR: Run Flow Progress Event
 
 export enum RunNodeProgressEventType {
   Started = 'Started',
@@ -155,6 +159,8 @@ export type RunNodeProgressEvent =
   | RunNodeUpdatedEvent
   | RunNodeFinishedEvent;
 
+// ANCHOR: Run Flow Result
+
 export type RunFlowResult = {
-  variableResults: Record<string, Readonly<unknown>>;
+  variableResults: VariableResultRecords;
 };

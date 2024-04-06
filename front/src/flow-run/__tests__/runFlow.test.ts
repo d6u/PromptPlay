@@ -1,4 +1,4 @@
-import { ReplaySubject, Subject, lastValueFrom, tap } from 'rxjs';
+import { ReplaySubject, lastValueFrom, tap } from 'rxjs';
 import { TestScheduler } from 'rxjs/testing';
 import { beforeEach, expect, test } from 'vitest';
 
@@ -117,7 +117,7 @@ test('runFlow should execute', () => {
     const obs = runFlow({
       nodeConfigs: result.nodeAllLevelConfigs!,
       connectors: flowContent.variablesDict,
-      inputValueMap: flowContent.variableValueLookUpDicts[0] as Readonly<
+      inputVariableValues: flowContent.variableValueLookUpDicts[0] as Readonly<
         Record<string, Readonly<unknown>>
       >,
       preferStreaming: false,
@@ -128,13 +128,12 @@ test('runFlow should execute', () => {
     expectObservable(obs).toBe('(0|)', [
       {
         variableResults: {
-          'GjREx/URLME': { value: 'test' },
           '9hKOz/c5NYh': { value: 'test' },
         },
       },
     ]);
 
-    expectObservable(progressObserver).toBe('(012345)', [
+    expectObservable(progressObserver).toBe('(012345|)', [
       {
         type: 'Started',
         nodeId: 'GjREx',
@@ -250,28 +249,28 @@ test('runFlow should unblock node has multiple conditions even when only one con
     ],
     nodeConfigsDict: {
       'itI1z': {
+        class: 'Start',
         type: 'InputNode',
         nodeId: 'itI1z',
-        class: 'Start',
         nodeName: 'input1',
       },
       '1w9JM': {
+        class: 'Process',
         type: 'ConditionNode',
         nodeId: '1w9JM',
         stopAtTheFirstMatch: true,
-        class: 'Process',
       },
       '2WvHf': {
+        class: 'Process',
         type: 'TextTemplate',
         nodeId: '2WvHf',
         content: 'Write a poem about A in fewer than 20 words.',
-        class: 'Process',
       },
       'eSpTO': {
+        class: 'Process',
         type: 'TextTemplate',
         nodeId: 'eSpTO',
         content: 'Write a poem about B in fewer than 20 words.',
-        class: 'Process',
       },
     },
     variablesDict: {
@@ -355,8 +354,6 @@ test('runFlow should unblock node has multiple conditions even when only one con
     variableValueLookUpDicts: [
       {
         'itI1z/7cpZ9': { value: 'Value A' },
-        '1w9JM/hvZie': { value: null },
-        '2WvHf/content': { value: null },
       },
     ],
     globalVariables: {},
@@ -379,81 +376,98 @@ test('runFlow should unblock node has multiple conditions even when only one con
     (nodeType: NodeTypeEnum, fieldKey: string) => '',
   );
 
+  const progressObserver = new ReplaySubject();
+
   const obs = runFlow({
     nodeConfigs: result.nodeAllLevelConfigs!,
     connectors: flowContent.variablesDict,
-    inputValueMap: flowContent.variableValueLookUpDicts[0] as Readonly<
+    inputVariableValues: flowContent.variableValueLookUpDicts[0] as Readonly<
       Record<string, Readonly<unknown>>
     >,
     preferStreaming: false,
     flowGraph: immutableFlowGraph,
-    progressObserver: new Subject(),
+    progressObserver: progressObserver,
   });
+
+  // NOTE: Cannot use RxJS marble testing because Observable consuming Promise
+  // is not supported.
+
+  const actual = await lastValueFrom(obs);
+
+  expect(actual).toEqual({ variableResults: {} });
 
   let n = 0;
 
   const values = [
     {
-      type: 'Start',
+      type: 'Started',
       nodeId: 'itI1z',
     },
     {
-      type: 'NewVariableValues',
+      type: 'Updated',
       nodeId: 'itI1z',
-      variableValuesLookUpDict: {
-        'itI1z/7cpZ9': 'Value A',
-      },
-    },
-    {
-      type: 'Finish',
-      nodeId: 'itI1z',
-      finishedConnectorIds: ['itI1z/7cpZ9'],
-    },
-    {
-      type: 'Start',
-      nodeId: '1w9JM',
-    },
-    {
-      type: 'NewVariableValues',
-      nodeId: '1w9JM',
-      variableValuesLookUpDict: {
-        '1w9JM/hvZie': {
-          conditionId: '1w9JM/hvZie',
-          isConditionMatched: true,
+      result: {
+        connectorResults: {
+          'itI1z/7cpZ9': { value: 'Value A' },
         },
+        completedConnectorIds: ['itI1z/7cpZ9'],
+        errors: [],
       },
     },
     {
-      type: 'Finish',
+      type: 'Finished',
+      nodeId: 'itI1z',
+    },
+    {
+      type: 'Started',
       nodeId: '1w9JM',
-      finishedConnectorIds: ['1w9JM/hvZie'],
     },
     {
-      type: 'Start',
-      nodeId: '2WvHf',
-    },
-    {
-      type: 'NewVariableValues',
-      nodeId: '2WvHf',
-      variableValuesLookUpDict: {
-        '2WvHf/content': 'Write a poem about A in fewer than 20 words.',
+      type: 'Updated',
+      nodeId: '1w9JM',
+      result: {
+        connectorResults: {
+          '1w9JM/hvZie': {
+            conditionId: '1w9JM/hvZie',
+            isConditionMatched: true,
+          },
+        },
+        completedConnectorIds: ['1w9JM/hvZie'],
+        errors: [],
       },
     },
     {
-      type: 'Finish',
+      type: 'Finished',
+      nodeId: '1w9JM',
+    },
+    {
+      type: 'Started',
       nodeId: '2WvHf',
-      finishedConnectorIds: ['2WvHf/content'],
+    },
+    {
+      type: 'Updated',
+      nodeId: '2WvHf',
+      result: {
+        connectorResults: {
+          '2WvHf/content': {
+            value: 'Write a poem about A in fewer than 20 words.',
+          },
+        },
+        completedConnectorIds: ['2WvHf/content'],
+      },
+    },
+    {
+      type: 'Finished',
+      nodeId: '2WvHf',
     },
   ];
 
+  // NOTE: Must use tap to wrap assertion because subscribe doesn't stop
+  // the observable on exception.
   await lastValueFrom(
-    obs.pipe(
-      // Must run expect in tap because when expect throwing error in subscribe,
-      // it does not stop the subscription.
+    progressObserver.pipe(
       tap((event) => {
-        expect(event, `event ${n} should match expected value`).toEqual(
-          values[n],
-        );
+        expect(event).toEqual(values[n]);
         n++;
       }),
     ),
@@ -664,89 +678,103 @@ test('runFlow should fallback to default case when no condition was met', async 
     (nodeType: NodeTypeEnum, fieldKey: string) => '',
   );
 
+  const progressObserver = new ReplaySubject();
+
   const obs = runFlow({
     nodeConfigs: result.nodeAllLevelConfigs!,
     connectors: flowContent.variablesDict,
-    inputValueMap: flowContent.variableValueLookUpDicts[0] as Readonly<
+    inputVariableValues: flowContent.variableValueLookUpDicts[0] as Readonly<
       Record<string, Readonly<unknown>>
     >,
     preferStreaming: false,
     flowGraph: immutableFlowGraph,
-    progressObserver: new Subject(),
+    progressObserver: progressObserver,
   });
+
+  const actual = await lastValueFrom(obs);
+
+  expect(actual).toEqual({ variableResults: {} });
 
   let n = 0;
 
   const values = [
     {
-      type: 'Start',
+      type: 'Started',
       nodeId: 'itI1z',
     },
     {
-      type: 'NewVariableValues',
+      type: 'Updated',
       nodeId: 'itI1z',
-      variableValuesLookUpDict: {
-        'itI1z/7cpZ9': 'nothing matches',
+      result: {
+        connectorResults: {
+          'itI1z/7cpZ9': { value: 'nothing matches' },
+        },
+        completedConnectorIds: ['itI1z/7cpZ9'],
+        errors: [],
       },
     },
     {
-      type: 'Finish',
+      type: 'Finished',
       nodeId: 'itI1z',
-      finishedConnectorIds: ['itI1z/7cpZ9'],
     },
     {
-      type: 'Start',
+      type: 'Started',
       nodeId: '1w9JM',
     },
     {
-      type: 'NewVariableValues',
+      type: 'Updated',
       nodeId: '1w9JM',
-      variableValuesLookUpDict: {
-        '1w9JM/hvZie': {
-          conditionId: '1w9JM/hvZie',
-          isConditionMatched: false,
+      result: {
+        connectorResults: {
+          '1w9JM/hvZie': {
+            conditionId: '1w9JM/hvZie',
+            isConditionMatched: false,
+          },
+          '1w9JM/MlBLI': {
+            conditionId: '1w9JM/MlBLI',
+            isConditionMatched: false,
+          },
+          '1w9JM/fR2hj': {
+            conditionId: '1w9JM/fR2hj',
+            isConditionMatched: true,
+          },
         },
-        '1w9JM/MlBLI': {
-          conditionId: '1w9JM/MlBLI',
-          isConditionMatched: false,
-        },
-        '1w9JM/fR2hj': {
-          conditionId: '1w9JM/fR2hj',
-          isConditionMatched: true,
-        },
+        completedConnectorIds: ['1w9JM/fR2hj'],
+        errors: [],
       },
     },
     {
-      type: 'Finish',
+      type: 'Finished',
       nodeId: '1w9JM',
-      finishedConnectorIds: ['1w9JM/fR2hj'],
     },
     {
-      type: 'Start',
+      type: 'Started',
       nodeId: '2WvHf',
     },
     {
-      type: 'NewVariableValues',
+      type: 'Updated',
       nodeId: '2WvHf',
-      variableValuesLookUpDict: {
-        '2WvHf/content': 'Write a poem about A in fewer than 20 words.',
+      result: {
+        connectorResults: {
+          '2WvHf/content': {
+            value: 'Write a poem about A in fewer than 20 words.',
+          },
+        },
+        completedConnectorIds: ['2WvHf/content'],
       },
     },
     {
-      type: 'Finish',
+      type: 'Finished',
       nodeId: '2WvHf',
-      finishedConnectorIds: ['2WvHf/content'],
     },
   ];
 
+  // NOTE: Must use tap to wrap assertion because subscribe doesn't stop
+  // the observable on exception.
   await lastValueFrom(
-    obs.pipe(
-      // Must run expect in tap because when expect throwing error in subscribe,
-      // it does not stop the subscription.
+    progressObserver.pipe(
       tap((event) => {
-        expect(event, `event ${n} should match expected value`).toEqual(
-          values[n],
-        );
+        expect(event).toEqual(values[n]);
         n++;
       }),
     ),

@@ -31,6 +31,7 @@ import {
   NodeType,
   getNodeDefinitionForNodeTypeName,
   type Condition,
+  type MutableFlowNodeGraph,
   type RunNodeResult,
   type VariableResultRecords,
 } from 'flow-models';
@@ -41,265 +42,319 @@ import {
   type RunNodeProgressEvent,
 } from './event-types';
 
-type Params = {
+type RunFlowParams = Readonly<{
   nodeConfigs: Readonly<Record<string, NodeAllLevelConfigUnion>>;
   connectors: Readonly<Record<string, Connector>>;
-  inputValueMap: VariableResultRecords;
+  inputVariableValues: VariableResultRecords;
   preferStreaming: boolean;
   flowGraph: ImmutableFlowNodeGraph;
-  progressObserver: Observer<RunNodeProgressEvent>;
-};
+  progressObserver?: Observer<RunNodeProgressEvent>;
+}>;
 
-function runFlow(params: Params): Observable<RunFlowResult> {
-  const mutableFlowGraph = params.flowGraph.getMutableCopy();
-  const initialNodeIdList = mutableFlowGraph.getNodeIdListWithIndegreeZero();
+function runFlow(params: RunFlowParams): Observable<RunFlowResult> {
+  const scope = new RunFlowScope({
+    mutableFlowGraph: params.flowGraph.getMutableCopy(),
+    allVariableValues: { ...params.inputVariableValues },
+  });
 
-  invariant(
-    initialNodeIdList.length > 0,
-    'initialNodeIdList should not be empty',
-  );
-
-  // Track when to complete the observable.
-  let queuedNodeCount = initialNodeIdList.length;
-  let allVariableValues: VariableResultRecords = { ...params.inputValueMap };
-
-  const nodeIdListSubject = new BehaviorSubject<string[]>(initialNodeIdList);
-
-  const obs1 = nodeIdListSubject.pipe(
+  const obs1 = scope.nodeIdListSubject.pipe(
     // mergeMap converts ArrayLike to Observable automatically
-    mergeMap((nodeIdList): Observable<never>[] => {
-      return nodeIdList.map((nodeId): Observable<never> => {
-        const nodeConfig = params.nodeConfigs[nodeId];
-        const nodeDefinition = getNodeDefinitionForNodeTypeName(
-          nodeConfig.type,
-        );
-
-        // `createNodeExecutionObservable` is a union type like this:
-        //
-        // ```
-        // | CreateNodeExecutionObservableFunction<InputNodeInstanceLevelConfig>
-        // | CreateNodeExecutionObservableFunction<OutputNodeInstanceLevelConfig>
-        // | ...
-        // ```
-        //
-        // this will deduce the argument type of
-        // `createNodeExecutionObservable` to never when called.
-        // Cast it to a more flexible type to avoid this issue.
-        const runNode =
-          nodeDefinition.createNodeExecutionObservable as CreateNodeExecutionObservableFunction<NodeAllLevelConfigUnion>;
-
-        // ANCHOR: Context
-        const nodeExecutionContext = new NodeExecutionContext(mutableFlowGraph);
-
-        // ANCHOR: NodeExecutionConfig
-        const nodeConnectors = pipe(
-          params.connectors,
-          D.values,
-          A.filter((connector) => connector.nodeId === nodeConfig.nodeId),
-        );
-
-        const nodeExecutionConfig: NodeExecutionConfig<NodeAllLevelConfigUnion> =
-          {
-            nodeConfig,
-            connectorList: nodeConnectors,
-          };
-
-        // ANCHOR: NodeExecutionParams
-        // TODO: We need to emit the NodeInput variable value to store
-        // as well, otherwise we cannot inspect node input variable values.
-        // Currently, we only emit NodeOutput variable values or
-        // OutputNode's NodeInput variable values.
-        const nodeInputVariableValues: ConnectorResultRecords = {};
-
-        if (nodeConfig.class === NodeClass.Start) {
-          // When current node class is Start, we need to collect
-          // NodeOutput variable values other than NodeInput variable
-          // values.
-          nodeConnectors.forEach((c) => {
-            nodeInputVariableValues[c.id] = allVariableValues[c.id];
-          });
-        } else {
-          // For non-Start node class, we need to collect NodeInput
-          // variable values.
-          nodeConnectors
-            .filter(
-              (c): c is NodeInputVariable => c.type === ConnectorType.NodeInput,
-            )
-            .forEach((variable) => {
-              if (variable.isGlobal) {
-                if (variable.globalVariableId != null) {
-                  nodeInputVariableValues[variable.id] =
-                    allVariableValues[variable.globalVariableId];
-                }
-              } else {
-                const sourceVariableId =
-                  mutableFlowGraph.getSrcVariableIdFromDstVariableId(
-                    variable.id,
-                  );
-
-                nodeInputVariableValues[variable.id] =
-                  allVariableValues[sourceVariableId];
-              }
-            });
-        }
-
-        const nodeExecutionParams: NodeExecutionParams = {
-          nodeInputValueMap: nodeInputVariableValues,
-          useStreaming: params.preferStreaming,
-        };
-
-        let allCompletedConnectorIds: string[] = [];
-
-        params.progressObserver.next({
-          type: RunNodeProgressEventType.Started,
-          nodeId: nodeId,
-        });
-
-        // ANCHOR: Execute
-        return concat(
-          runNode(
-            nodeExecutionContext,
-            nodeExecutionConfig,
-            nodeExecutionParams,
-          ).pipe(
-            catchError<RunNodeResult, Observable<RunNodeResult>>((err) => {
-              console.error(err);
-
-              nodeIdListSubject.complete();
-
-              return of({ errors: [JSON.stringify(err)] });
-            }),
-            tap((result) => {
-              params.progressObserver.next({
-                type: RunNodeProgressEventType.Updated,
-                nodeId: nodeId,
-                result: result,
-              });
-
-              const { connectorResults, completedConnectorIds } = result;
-
-              if (connectorResults != null) {
-                allVariableValues = produce(allVariableValues, (draft) => {
-                  const pairs = D.toPairs(connectorResults);
-
-                  for (const [connectorId, result] of pairs) {
-                    const connector = params.connectors[connectorId];
-
-                    if (
-                      (connector.type === ConnectorType.NodeInput ||
-                        connector.type === ConnectorType.NodeOutput) &&
-                      connector.isGlobal &&
-                      connector.globalVariableId != null
-                    ) {
-                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                      draft[connector.globalVariableId] = result as any;
-                    } else {
-                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                      draft[connectorId] = result as any;
-                    }
-                  }
-                });
-              }
-
-              if (completedConnectorIds != null) {
-                allCompletedConnectorIds = Array.from(
-                  new Set([
-                    ...allCompletedConnectorIds,
-                    ...completedConnectorIds,
-                  ]),
-                );
-              }
-            }),
-            ignoreElements(),
-          ),
-          defer(() => {
-            params.progressObserver.next({
-              type: RunNodeProgressEventType.Finished,
-              nodeId: nodeConfig.nodeId,
-            });
-
-            // Make a copy
-            let finishedConnectorIds = allCompletedConnectorIds.slice();
-
-            // TODO: Generalize this for all node types
-            if (params.nodeConfigs[nodeId].type !== NodeType.ConditionNode) {
-              // NOTE: For non-ConditionNode, we need to add the regular
-              // outgoing condition to the finishedConnectorIds list manually.
-              const regularOutgoingCondition = D.values(params.connectors).find(
-                (connector): connector is Condition =>
-                  connector.nodeId === nodeId &&
-                  connector.type === ConnectorType.Condition,
-              );
-
-              if (regularOutgoingCondition != null) {
-                finishedConnectorIds.push(regularOutgoingCondition.id);
-
-                // Deduplicate
-                finishedConnectorIds = [...new Set(finishedConnectorIds)];
-              }
-            }
-
-            const nextNodeIdList =
-              mutableFlowGraph.reduceNodeIndegrees(finishedConnectorIds);
-
-            queuedNodeCount -= 1;
-
-            if (nextNodeIdList.length === 0) {
-              if (queuedNodeCount === 0) {
-                nodeIdListSubject.complete();
-              }
-            } else {
-              // Incrementing count on NodeExecutionEventType.Start event
-              // won't work, because both `queuedNodeCount` and
-              // `nextListOfNodeIds.length` could be 0 while there are still
-              // values in `listOfNodeIdsSubject` waiting to be processed.
-              //
-              // I.e. `listOfNodeIdsSubject.complete()` will complete the subject
-              // immediately, even though there are still values in the subject.
-              queuedNodeCount += nextNodeIdList.length;
-
-              nodeIdListSubject.next(nextNodeIdList);
-            }
-
-            return EMPTY;
-          }),
-        );
-      });
-    }),
+    mergeMap((nodeIds) =>
+      nodeIds.map((id) => createRunNodeObservable(scope, params, id)),
+    ),
     // NOTE: Switch from concatAll() to mergeAll() to subscribe to each
     // observable at the same time to maximize the concurrency.
     concatAll(),
   );
 
-  return concat(
-    obs1,
-    defer(() => {
-      return of({ variableResults: allVariableValues });
+  const obs2 = defer(() => {
+    const variableResults: VariableResultRecords = {};
+
+    for (const id of scope.finishNodesVariableIds) {
+      variableResults[id] = scope.allVariableValues[id];
+    }
+
+    params.progressObserver?.complete();
+
+    return of({ variableResults: variableResults });
+  });
+
+  return concat(obs1, obs2);
+}
+
+class RunFlowScope {
+  constructor(params: {
+    mutableFlowGraph: MutableFlowNodeGraph;
+    allVariableValues: VariableResultRecords;
+  }) {
+    const initialNodeIdList =
+      params.mutableFlowGraph.getNodeIdListWithIndegreeZero();
+
+    invariant(
+      initialNodeIdList.length > 0,
+      'queuedNodeCount must be greater than 0',
+    );
+
+    this.mutableFlowGraph = params.mutableFlowGraph;
+    this.nodeIdListSubject = new BehaviorSubject<string[]>(initialNodeIdList);
+    this.finishNodesVariableIds = [];
+    this.queuedNodeCount = initialNodeIdList.length;
+    this.allVariableValues = params.allVariableValues;
+  }
+
+  public readonly mutableFlowGraph: MutableFlowNodeGraph;
+  public readonly nodeIdListSubject: BehaviorSubject<string[]>;
+  public readonly finishNodesVariableIds: string[];
+
+  // Track when to complete the observable
+  public queuedNodeCount: number;
+  public allVariableValues: VariableResultRecords;
+}
+
+function createRunNodeObservable(
+  scope: RunFlowScope,
+  params: RunFlowParams,
+  nodeId: string,
+): Observable<never> {
+  const nodeConfig = params.nodeConfigs[nodeId];
+  const nodeDefinition = getNodeDefinitionForNodeTypeName(nodeConfig.type);
+
+  // `createNodeExecutionObservable` is a union type like this:
+  //
+  // ```
+  // | CreateNodeExecutionObservableFunction<InputNodeInstanceLevelConfig>
+  // | CreateNodeExecutionObservableFunction<OutputNodeInstanceLevelConfig>
+  // | ...
+  // ```
+  //
+  // this will deduce the argument type of
+  // `createNodeExecutionObservable` to never when called.
+  // Cast it to a more flexible type to avoid this issue.
+  const runNode =
+    nodeDefinition.createNodeExecutionObservable as CreateNodeExecutionObservableFunction<NodeAllLevelConfigUnion>;
+
+  // ANCHOR: Context
+  const nodeExecutionContext = new NodeExecutionContext(scope.mutableFlowGraph);
+
+  // ANCHOR: NodeExecutionConfig
+  const nodeConnectors = pipe(
+    params.connectors,
+    D.values,
+    A.filter((connector) => connector.nodeId === nodeId),
+  );
+
+  const nodeExecutionConfig: NodeExecutionConfig<NodeAllLevelConfigUnion> = {
+    nodeConfig,
+    connectorList: nodeConnectors,
+  };
+
+  // ANCHOR: NodeExecutionParams
+  // TODO: We need to emit the NodeInput variable value to store
+  // as well, otherwise we cannot inspect node input variable values.
+  // Currently, we only emit NodeOutput variable values or
+  // OutputNode's NodeInput variable values.
+  const nodeInputVariableValues: ConnectorResultRecords = {};
+
+  if (nodeConfig.class === NodeClass.Start) {
+    // When current node class is Start, we need to collect
+    // NodeOutput variable values other than NodeInput variable
+    // values.
+    nodeConnectors.forEach((c) => {
+      nodeInputVariableValues[c.id] = scope.allVariableValues[c.id];
+    });
+  } else {
+    // For non-Start node class, we need to collect NodeInput
+    // variable values.
+    nodeConnectors
+      .filter((c): c is NodeInputVariable => c.type === ConnectorType.NodeInput)
+      .forEach((variable) => {
+        if (variable.isGlobal) {
+          if (variable.globalVariableId != null) {
+            nodeInputVariableValues[variable.id] =
+              scope.allVariableValues[variable.globalVariableId];
+          }
+        } else {
+          const sourceVariableId =
+            scope.mutableFlowGraph.getSrcVariableIdFromDstVariableId(
+              variable.id,
+            );
+
+          nodeInputVariableValues[variable.id] =
+            scope.allVariableValues[sourceVariableId];
+        }
+      });
+  }
+
+  const nodeExecutionParams: NodeExecutionParams = {
+    nodeInputValueMap: nodeInputVariableValues,
+    useStreaming: params.preferStreaming,
+  };
+
+  const runNodeScope = new RunNodeScope({ allCompletedConnectorIds: [] });
+
+  const obs1 = createRunNodeWrapperObservable(
+    scope,
+    runNodeScope,
+    params,
+    runNode(nodeExecutionContext, nodeExecutionConfig, nodeExecutionParams),
+    nodeId,
+  );
+
+  const obs2 = createRunNodeEndWithObservable(
+    scope,
+    runNodeScope,
+    params,
+    nodeId,
+    nodeConfig,
+  );
+
+  return concat(obs1, obs2);
+}
+
+class RunNodeScope {
+  constructor(params: { allCompletedConnectorIds: string[] }) {
+    this.allCompletedConnectorIds = new Set(params.allCompletedConnectorIds);
+  }
+
+  private allCompletedConnectorIds: Set<string>;
+
+  addCompletedConnectorIds(completedConnectorIds: string[]): void {
+    for (const id of completedConnectorIds) {
+      this.allCompletedConnectorIds.add(id);
+    }
+  }
+
+  getAllCompletedConnectorIds(): string[] {
+    return Array.from(this.allCompletedConnectorIds);
+  }
+}
+
+function createRunNodeWrapperObservable(
+  scope: RunFlowScope,
+  runNodeScope: RunNodeScope,
+  params: RunFlowParams,
+  runNodeObservable: Observable<RunNodeResult>,
+  nodeId: string,
+): Observable<never> {
+  params.progressObserver?.next({
+    type: RunNodeProgressEventType.Started,
+    nodeId: nodeId,
+  });
+
+  return runNodeObservable.pipe(
+    catchError<RunNodeResult, Observable<RunNodeResult>>((err) => {
+      console.error(err);
+
+      scope.nodeIdListSubject.complete();
+
+      return of({ errors: [JSON.stringify(err)] });
     }),
+    tap((result: RunNodeResult) => {
+      params.progressObserver?.next({
+        type: RunNodeProgressEventType.Updated,
+        nodeId: nodeId,
+        result: result,
+      });
+
+      const { connectorResults, completedConnectorIds } = result;
+
+      if (connectorResults != null) {
+        scope.allVariableValues = produce(scope.allVariableValues, (draft) => {
+          const pairs = D.toPairs(connectorResults);
+
+          for (const [connectorId, result] of pairs) {
+            const connector = params.connectors[connectorId];
+
+            if (
+              (connector.type === ConnectorType.NodeInput ||
+                connector.type === ConnectorType.NodeOutput) &&
+              connector.isGlobal &&
+              connector.globalVariableId != null
+            ) {
+              draft[connector.globalVariableId] =
+                result as (typeof draft)[string];
+            } else {
+              draft[connectorId] = result as (typeof draft)[string];
+            }
+          }
+        });
+      }
+
+      if (completedConnectorIds != null) {
+        runNodeScope.addCompletedConnectorIds(completedConnectorIds);
+      }
+    }),
+    ignoreElements(),
   );
 }
 
-function mergeRunNodeResult(
-  original: Readonly<Required<RunNodeResult>>,
-  override: Readonly<RunNodeResult>,
-): Required<RunNodeResult> {
-  return {
-    errors: override.errors
-      ? [...original.errors, ...override.errors]
-      : original.errors,
-    connectorResults: {
-      ...original.connectorResults,
-      ...override.connectorResults,
-    },
-    completedConnectorIds: override.completedConnectorIds
-      ? Array.from(
-          new Set([
-            ...original.completedConnectorIds,
-            ...override.completedConnectorIds,
-          ]),
-        )
-      : original.completedConnectorIds,
-  };
+function createRunNodeEndWithObservable(
+  scope: RunFlowScope,
+  runNodeScope: RunNodeScope,
+  params: RunFlowParams,
+  nodeId: string,
+  nodeConfig: NodeAllLevelConfigUnion,
+): Observable<never> {
+  return defer(() => {
+    // ANCHOR: Report Progress
+
+    params.progressObserver?.next({
+      type: RunNodeProgressEventType.Finished,
+      nodeId: nodeId,
+    });
+
+    // ANCHOR: Record Finish class node's variable ids
+
+    if (nodeConfig.class === NodeClass.Finish) {
+      for (const c of Object.values(params.connectors)) {
+        if (c.nodeId === nodeId && c.type === ConnectorType.NodeInput) {
+          scope.finishNodesVariableIds.push(c.id);
+        }
+      }
+    }
+
+    // ANCHOR: Figure out which node to go next
+
+    // TODO: Generalize this for all node types
+    if (nodeConfig.type !== NodeType.ConditionNode) {
+      // NOTE: For non-ConditionNode, we need to add the regular
+      // outgoing condition to the finishedConnectorIds list manually.
+      const regularOutgoingCondition = D.values(params.connectors).find(
+        (connector): connector is Condition =>
+          connector.nodeId === nodeId &&
+          connector.type === ConnectorType.Condition,
+      );
+
+      if (regularOutgoingCondition != null) {
+        runNodeScope.addCompletedConnectorIds([regularOutgoingCondition.id]);
+      }
+    }
+
+    const nextNodeIdList = scope.mutableFlowGraph.reduceNodeIndegrees(
+      runNodeScope.getAllCompletedConnectorIds(),
+    );
+
+    scope.queuedNodeCount -= 1;
+
+    if (nextNodeIdList.length === 0) {
+      if (scope.queuedNodeCount === 0) {
+        scope.nodeIdListSubject.complete();
+      }
+    } else {
+      // Incrementing count on NodeExecutionEventType.Start event
+      // won't work, because both `queuedNodeCount` and
+      // `nextListOfNodeIds.length` could be 0 while there are still
+      // values in `listOfNodeIdsSubject` waiting to be processed.
+      //
+      // I.e. `listOfNodeIdsSubject.complete()` will complete the subject
+      // immediately, even though there are still values in the subject.
+      scope.queuedNodeCount += nextNodeIdList.length;
+
+      scope.nodeIdListSubject.next(nextNodeIdList);
+    }
+
+    return EMPTY;
+  });
 }
 
 export default runFlow;
