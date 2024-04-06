@@ -123,7 +123,8 @@ export const TEXT_TEMPLATE_NODE_DEFINITION: NodeDefinition<
           return connector.type === ConnectorType.NodeInput;
         })
         .forEach((connector) => {
-          argsMap[connector.name] = nodeInputValueMap[connector.id] ?? null;
+          argsMap[connector.name] =
+            nodeInputValueMap[connector.id].value ?? null;
         });
 
       const outputVariable = connectorList.find(
@@ -141,9 +142,7 @@ export const TEXT_TEMPLATE_NODE_DEFINITION: NodeDefinition<
       // !SECTION
 
       subscriber.next({
-        connectorResults: {
-          [outputVariable.id]: { value: content },
-        },
+        variableResults: { [outputVariable.id]: { value: content } },
         completedConnectorIds: [outputVariable.id],
       });
 

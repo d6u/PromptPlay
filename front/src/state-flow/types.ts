@@ -13,8 +13,8 @@ import type {
 } from 'xstate';
 
 import {
+  ConditionResultRecords,
   ConnectorRecords,
-  ConnectorResultRecords,
   ConnectorTypeEnum,
   GlobalVariableRecords,
   LocalEdge,
@@ -144,7 +144,7 @@ export type FlowContentState = {
   edges: LocalEdge[];
   nodeConfigsDict: NodeConfigRecords;
   variablesDict: ConnectorRecords;
-  variableValueLookUpDicts: ConnectorResultRecords[];
+  variableValueLookUpDicts: ConditionResultRecords[];
   nodeExecutionStates: NodeExecutionStateRecords;
   nodeAccountLevelFieldsValidationErrors: Record<string, string>;
   globalVariables: GlobalVariableRecords;
@@ -246,7 +246,7 @@ export type FlowActions = {
 
   // Getter
   getFlowContent: Getter<FlowContentState>;
-  getDefaultVariableValueLookUpDict(): ConnectorResultRecords;
+  getDefaultVariableValueLookUpDict(): ConditionResultRecords;
 
   // Flow run
   startFlowSingleRun(params: StartFlowSingleRunParams): void;

@@ -125,9 +125,7 @@ export const JAVASCRIPT_NODE_DEFINITION: NodeDefinition<
       fn(...pairs.map((pair) => pair[1]))
         .then((value: unknown) => {
           subscriber.next({
-            connectorResults: {
-              [outputVariable.id]: { value },
-            },
+            variableResults: { [outputVariable.id]: { value } },
             completedConnectorIds: [outputVariable.id],
           });
         })

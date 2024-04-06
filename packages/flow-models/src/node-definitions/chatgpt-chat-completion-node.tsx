@@ -233,39 +233,38 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
         return;
       }
 
-      const argsMap: Record<string, unknown> = {};
+      const inputMessages = connectorList.find(
+        (conn): conn is NodeInputVariable => {
+          return conn.type === ConnectorType.NodeInput;
+        },
+      );
 
-      connectorList
-        .filter((connector): connector is NodeInputVariable => {
-          return connector.type === ConnectorType.NodeInput;
-        })
-        .forEach((connector) => {
-          argsMap[connector.name] = nodeInputValueMap[connector.id] ?? null;
-        });
+      invariant(inputMessages != null);
 
-      const variableContent = connectorList.find(
+      const outputContent = connectorList.find(
         (conn): conn is NodeOutputVariable => {
           return conn.type === ConnectorType.NodeOutput && conn.index === 0;
         },
       );
-      const variableMessage = connectorList.find(
+      const outputMessage = connectorList.find(
         (conn): conn is NodeOutputVariable => {
           return conn.type === ConnectorType.NodeOutput && conn.index === 1;
         },
       );
-      const variableMessages = connectorList.find(
+      const outputMessages = connectorList.find(
         (conn): conn is NodeOutputVariable => {
           return conn.type === ConnectorType.NodeOutput && conn.index === 2;
         },
       );
 
-      invariant(variableContent != null);
-      invariant(variableMessage != null);
-      invariant(variableMessages != null);
+      invariant(outputContent != null);
+      invariant(outputMessage != null);
+      invariant(outputMessages != null);
 
       // NOTE: Main Logic
 
-      const messages = (argsMap['messages'] ?? []) as ChatGPTMessage[];
+      const messages = (nodeInputValueMap[inputMessages.id].value ??
+        []) as ChatGPTMessage[];
 
       const options = {
         apiKey: nodeConfig.openAiApiKey,
@@ -314,10 +313,10 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
           ),
           map((message: ChatGPTMessage): RunNodeResult => {
             return {
-              connectorResults: {
-                [variableContent.id]: { value: message.content },
-                [variableMessage.id]: { value: message },
-                [variableMessages.id]: { value: A.append(messages, message) },
+              variableResults: {
+                [outputContent.id]: { value: message.content },
+                [outputMessage.id]: { value: message },
+                [outputMessages.id]: { value: A.append(messages, message) },
               },
             };
           }),
@@ -348,10 +347,10 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
             invariant(choice != null);
 
             return {
-              connectorResults: {
-                [variableContent.id]: { value: choice.message.content },
-                [variableMessage.id]: { value: choice.message },
-                [variableMessages.id]: {
+              variableResults: {
+                [outputContent.id]: { value: choice.message.content },
+                [outputMessage.id]: { value: choice.message },
+                [outputMessages.id]: {
                   value: A.append(messages, choice.message),
                 },
               },
@@ -365,9 +364,9 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
         .pipe(
           endWith<RunNodeResult>({
             completedConnectorIds: [
-              variableContent.id,
-              variableMessage.id,
-              variableMessages.id,
+              outputContent.id,
+              outputMessage.id,
+              outputMessages.id,
             ],
           }),
         )

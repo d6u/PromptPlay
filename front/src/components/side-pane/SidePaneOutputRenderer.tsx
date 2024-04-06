@@ -8,6 +8,7 @@ import {
 } from 'flow-models';
 
 import { useFlowStore } from 'state-flow/flow-store';
+import invariant from 'tiny-invariant';
 import OutputDisplay from 'view-right-side-pane/common/OutputDisplay';
 
 type Props = {
@@ -15,20 +16,22 @@ type Props = {
 };
 
 function SidePaneOutputRenderer(props: Props) {
-  const defaultVariableValueMap = useFlowStore((s) =>
+  const connectorResults = useFlowStore((s) =>
     s.getDefaultVariableValueLookUpDict(),
   );
 
-  const value = defaultVariableValueMap[props.outputItem.id];
+  const variableResult = connectorResults[props.outputItem.id];
+
+  invariant('value' in variableResult, 'variableResult should have value prop');
 
   let valueContent: ReactNode;
 
   if (props.outputItem.valueType === VariableValueType.Audio) {
-    valueContent = <audio controls src={value as string} />;
+    valueContent = <audio controls src={variableResult.value as string} />;
   } else {
     valueContent = (
       <ValueRaw>
-        <OutputDisplay value={value} />
+        <OutputDisplay value={variableResult.value} />
       </ValueRaw>
     );
   }

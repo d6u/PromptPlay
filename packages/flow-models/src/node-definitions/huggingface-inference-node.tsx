@@ -157,7 +157,8 @@ export const HUGGINGFACE_INFERENCE_NODE_DEFINITION: NodeDefinition<
           return connector.type === ConnectorType.NodeInput;
         })
         .forEach((connector) => {
-          argsMap[connector.name] = nodeInputValueMap[connector.id] ?? null;
+          argsMap[connector.name] =
+            nodeInputValueMap[connector.id].value ?? null;
         });
 
       const variableOutput = connectorList.find(
@@ -188,7 +189,7 @@ export const HUGGINGFACE_INFERENCE_NODE_DEFINITION: NodeDefinition<
             });
           } else {
             subscriber.next({
-              connectorResults: {
+              variableResults: {
                 [variableOutput.id]: { value: result.data },
               },
               completedConnectorIds: [variableOutput.id],

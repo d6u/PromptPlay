@@ -14,6 +14,7 @@ import SidePaneSection from 'components/side-pane/SidePaneSection';
 import RouteFlowContext from 'state-flow/context/FlowRouteContext';
 import { useFlowStore } from 'state-flow/flow-store';
 import { selectVariablesOnAllEndNodes } from 'state-flow/util/state-utils';
+import invariant from 'tiny-invariant';
 import InputBlock from 'view-right-side-pane/common/InputBlock';
 
 type Props = {
@@ -70,18 +71,25 @@ function GenericInputOutputTest(props: Props) {
         )}
       </SidePaneHeaderSection>
       <SidePaneSection>
-        {flowInputs.map((variable, i) => (
-          <InputBlock
-            key={variable.id}
-            isReadOnly={!isCurrentUserOwner}
-            id={variable.id}
-            name={variable.name}
-            value={connectorResults[variable.id]}
-            onSaveValue={(value) => {
-              updateVariableValueMap(variable.id, value);
-            }}
-          />
-        ))}
+        {flowInputs.map((variable, i) => {
+          const variableResult = connectorResults[variable.id];
+          invariant(
+            'value' in variableResult,
+            'variableResult should have value prop',
+          );
+          return (
+            <InputBlock
+              key={variable.id}
+              isReadOnly={!isCurrentUserOwner}
+              id={variable.id}
+              name={variable.name}
+              value={variableResult.value}
+              onSaveValue={(value) => {
+                updateVariableValueMap(variable.id, value);
+              }}
+            />
+          );
+        })}
       </SidePaneSection>
       <SidePaneHeaderSection>
         <HeaderSectionHeader>Output values</HeaderSectionHeader>

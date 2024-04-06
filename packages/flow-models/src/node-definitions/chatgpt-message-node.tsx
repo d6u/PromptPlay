@@ -170,23 +170,33 @@ export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition<
         "Node type is 'ChatGPTMessageNode'",
       );
 
-      const argsMap: Record<string, unknown> = {};
+      const variableNameToValue: Record<string, unknown> = {};
 
       connectorList
         .filter((connector): connector is NodeInputVariable => {
           return connector.type === ConnectorType.NodeInput;
         })
         .forEach((connector) => {
-          argsMap[connector.name] = nodeInputValueMap[connector.id] ?? null;
+          variableNameToValue[connector.name] =
+            nodeInputValueMap[connector.id].value ?? null;
         });
 
       // NOTE: Main logic
 
-      let messages = (argsMap['messages'] ?? []) as OpenAI.ChatGPTMessage[];
+      const inputMessages = connectorList.find(
+        (conn): conn is NodeInputVariable => {
+          return conn.type === ConnectorType.NodeInput;
+        },
+      );
+
+      invariant(inputMessages != null);
+
+      let messages = (nodeInputValueMap[inputMessages.id].value ??
+        []) as OpenAI.ChatGPTMessage[];
 
       const message = {
         role: nodeConfig.role,
-        content: mustache.render(nodeConfig.content, argsMap),
+        content: mustache.render(nodeConfig.content, variableNameToValue),
       };
 
       messages = F.toMutable(A.append(messages, message));
@@ -206,7 +216,7 @@ export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition<
       invariant(variableMessages != null);
 
       subscriber.next({
-        connectorResults: {
+        variableResults: {
           [variableMessage.id]: { value: message },
           [variableMessages.id]: { value: messages },
         },

@@ -5,8 +5,8 @@ import invariant from 'tiny-invariant';
 import { StateCreator } from 'zustand';
 
 import {
+  ConditionResultRecords,
   Connector,
-  ConnectorResultRecords,
   ConnectorType,
   ConnectorTypeEnum,
   NodeConfig,
@@ -155,7 +155,7 @@ export const createRootSlice: RootSliceStateCreator = (set, get) => {
 
     // SECTION: Simple getters and setters
     getFlowContent: getFlowContent,
-    getDefaultVariableValueLookUpDict(): ConnectorResultRecords {
+    getDefaultVariableValueLookUpDict(): ConditionResultRecords {
       return getFlowContent().variableValueLookUpDicts[0]!;
     },
     setCanvasLeftPaneIsOpen(isOpen: boolean): void {

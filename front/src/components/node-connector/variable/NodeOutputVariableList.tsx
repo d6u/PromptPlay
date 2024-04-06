@@ -28,10 +28,17 @@ function NodeOutputVariableList(props: Props) {
 
   const variablePropsArray = useMemo(() => {
     return props.variables.map<NodeOutputVariableProps>((variable) => {
+      const variableResult = connectorResults[variable.id];
+
+      invariant(
+        'value' in variableResult,
+        'variableResult should have value prop',
+      );
+
       return {
         id: variable.id,
         name: variable.name,
-        value: connectorResults[variable.id],
+        value: variableResult.value,
         isGlobal: variable.isGlobal,
         globalVariableId: variable.globalVariableId,
       };

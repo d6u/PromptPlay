@@ -5,10 +5,10 @@ import { z } from 'zod';
 import randomId from 'common-utils/randomId';
 
 import {
-  ConnectorResultRecords,
   ConnectorType,
   VariableValueType,
   type NodeOutputVariable,
+  type VariableResultRecords,
 } from '../base-types';
 import {
   NodeClass,
@@ -92,20 +92,20 @@ export const GENERIC_CHATBOT_START_NODE_DEFINITION: NodeDefinition<
 
       invariant(nodeConfig.type === NodeType.GenericChatbotStart);
 
-      const outputVariableValues: ConnectorResultRecords = {};
+      const variableResults: VariableResultRecords = {};
 
       connectorList
         .filter(
           (c): c is NodeOutputVariable => c.type === ConnectorType.NodeOutput,
         )
         .forEach((v) => {
-          outputVariableValues[v.id] = nodeInputValueMap[v.id];
+          variableResults[v.id] = nodeInputValueMap[v.id];
         });
 
       const connectorIdList = connectorList.map((connector) => connector.id);
 
       subscriber.next({
-        connectorResults: outputVariableValues,
+        variableResults: variableResults,
         completedConnectorIds: connectorIdList,
       });
 

@@ -8,10 +8,10 @@ import randomId from 'common-utils/randomId';
 
 import {
   Condition,
-  ConditionResult,
   ConnectorType,
   NodeInputVariable,
   VariableValueType,
+  type ConditionResultRecords,
 } from '../../base-types';
 import {
   FieldType,
@@ -125,7 +125,7 @@ export const CONDITION_NODE_DEFINITION: NodeDefinition<
         const defaultCaseCondition = conditions[0];
         const normalConditions = conditions.slice(1);
 
-        const conditionResultMap: Record<string, ConditionResult> = {};
+        const conditionResults: ConditionResultRecords = {};
 
         // NOTE: Main Logic
 
@@ -138,7 +138,7 @@ export const CONDITION_NODE_DEFINITION: NodeDefinition<
           if (result) {
             hasMatch = true;
 
-            conditionResultMap[condition.id] = {
+            conditionResults[condition.id] = {
               conditionId: condition.id,
               isConditionMatched: true,
             };
@@ -147,7 +147,7 @@ export const CONDITION_NODE_DEFINITION: NodeDefinition<
               break;
             }
           } else {
-            conditionResultMap[condition.id] = {
+            conditionResults[condition.id] = {
               conditionId: condition.id,
               isConditionMatched: false,
             };
@@ -155,17 +155,16 @@ export const CONDITION_NODE_DEFINITION: NodeDefinition<
         }
 
         if (!hasMatch) {
-          conditionResultMap[defaultCaseCondition.id] = {
+          conditionResults[defaultCaseCondition.id] = {
             conditionId: defaultCaseCondition.id,
             isConditionMatched: true,
           };
         }
 
         subscriber.next({
-          errors: [],
-          connectorResults: conditionResultMap,
+          conditionResults: conditionResults,
           completedConnectorIds: pipe(
-            conditionResultMap,
+            conditionResults,
             D.filter((result) => result.isConditionMatched),
             D.keys,
             F.toMutable,
@@ -173,11 +172,10 @@ export const CONDITION_NODE_DEFINITION: NodeDefinition<
         });
       })()
         .catch((err) => {
+          // TODO: Report to telemetry to improve error message
+
           subscriber.next({
-            // TODO: Report to telemetry to improve error message
             errors: ['message' in err ? err.message : 'Unknown error'],
-            connectorResults: {},
-            completedConnectorIds: [],
           });
         })
         .finally(() => {

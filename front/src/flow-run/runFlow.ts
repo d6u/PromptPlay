@@ -17,8 +17,8 @@ import {
 import invariant from 'tiny-invariant';
 
 import {
+  ConditionResultRecords,
   Connector,
-  ConnectorResultRecords,
   ConnectorType,
   CreateNodeExecutionObservableFunction,
   ImmutableFlowNodeGraph,
@@ -153,7 +153,7 @@ function createRunNodeObservable(
   // as well, otherwise we cannot inspect node input variable values.
   // Currently, we only emit NodeOutput variable values or
   // OutputNode's NodeInput variable values.
-  const nodeInputVariableValues: ConnectorResultRecords = {};
+  const nodeInputVariableValues: ConditionResultRecords = {};
 
   if (nodeConfig.class === NodeClass.Start) {
     // When current node class is Start, we need to collect

@@ -7,8 +7,8 @@ import { OperationResult } from 'urql';
 import { StateCreator } from 'zustand';
 
 import {
-  CanvasDataSchemaV4,
   CanvasDataV4,
+  CanvasDataV4Schema,
   LocalNode,
   NodeTypeEnum,
   migrateV3ToV4,
@@ -126,7 +126,7 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
     _syncFlowContent: async (args) => {
       const flowContent = get().getFlowContent();
 
-      const nextSyncedData = CanvasDataSchemaV4.parse(flowContent);
+      const nextSyncedData = CanvasDataV4Schema.parse(flowContent);
 
       const hasChange =
         args.context.shouldForceSync ||
@@ -400,7 +400,7 @@ function parseQueryResult(input: OperationResult<SpaceFlowQueryQuery>): {
       isMigrated = true;
     // fallthrough
     case ContentVersion.V4: {
-      const result = CanvasDataSchemaV4.safeParse(canvasData);
+      const result = CanvasDataV4Schema.safeParse(canvasData);
 
       if (!result.success) {
         console.error(canvasData);

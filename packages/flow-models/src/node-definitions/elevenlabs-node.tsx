@@ -145,15 +145,13 @@ export const ELEVENLABS_NODE_DEFINITION: NodeDefinition<
         return;
       }
 
-      const argsMap: Record<string, unknown> = {};
+      const inputVariableText = connectorList.find(
+        (conn): conn is NodeInputVariable => {
+          return conn.type === ConnectorType.NodeInput;
+        },
+      );
 
-      connectorList
-        .filter((connector): connector is NodeInputVariable => {
-          return connector.type === ConnectorType.NodeInput;
-        })
-        .forEach((connector) => {
-          argsMap[connector.name] = nodeInputValueMap[connector.id] ?? null;
-        });
+      invariant(inputVariableText != null);
 
       const variableAudio = connectorList.find(
         (conn): conn is NodeOutputVariable => {
@@ -163,7 +161,7 @@ export const ELEVENLABS_NODE_DEFINITION: NodeDefinition<
 
       invariant(variableAudio != null);
 
-      const text = argsMap['text'];
+      const text = nodeInputValueMap[inputVariableText.id].value;
 
       invariant(typeof text === 'string');
 
@@ -185,9 +183,7 @@ export const ELEVENLABS_NODE_DEFINITION: NodeDefinition<
             const url = URL.createObjectURL(result.data);
 
             subscriber.next({
-              connectorResults: {
-                [variableAudio.id]: { value: url },
-              },
+              variableResults: { [variableAudio.id]: { value: url } },
               completedConnectorIds: [variableAudio.id],
             });
           }

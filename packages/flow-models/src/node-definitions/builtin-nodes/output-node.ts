@@ -6,9 +6,9 @@ import chance from 'common-utils/chance';
 import randomId from 'common-utils/randomId';
 
 import {
-  ConnectorResultRecords,
   ConnectorType,
   VariableValueType,
+  type VariableResultRecords,
 } from '../../base-types';
 import {
   NodeClass,
@@ -75,14 +75,14 @@ export const OUTPUT_NODE_DEFINITION: NodeDefinition<
 
       invariant(nodeConfig.type === NodeType.OutputNode);
 
-      const flowOutputValueMap: ConnectorResultRecords = {};
+      const inputResults: VariableResultRecords = {};
 
       connectorList.forEach((connector) => {
-        flowOutputValueMap[connector.id] = nodeInputValueMap[connector.id];
+        inputResults[connector.id] = nodeInputValueMap[connector.id];
       });
 
       subscriber.next({
-        connectorResults: flowOutputValueMap,
+        variableResults: inputResults,
       });
 
       subscriber.complete();

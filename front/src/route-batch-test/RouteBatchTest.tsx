@@ -7,7 +7,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Subscription, debounceTime, tap } from 'rxjs';
 import invariant from 'tiny-invariant';
 
-import { ConnectorResultRecords, NodeTypeEnum } from 'flow-models';
+import { ConditionResultRecords, NodeTypeEnum } from 'flow-models';
 
 import {
   FlowBatchRunEventType,
@@ -96,7 +96,7 @@ function RouteBatchTest() {
     // Reset result table
     setGeneratedResult(
       A.makeWithIndex(csvBody.length, () =>
-        A.makeWithIndex(repeatTimes, D.makeEmpty<ConnectorResultRecords>),
+        A.makeWithIndex(repeatTimes, D.makeEmpty<ConditionResultRecords>),
       ),
       /* replace */ true,
     );
