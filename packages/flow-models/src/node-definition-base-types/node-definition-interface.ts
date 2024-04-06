@@ -7,7 +7,6 @@ import {
   type ConditionResultRecords,
   type VariableResultRecords,
 } from '../base-types';
-import NodeExecutionContext from './NodeExecutionContext';
 import {
   NodeAccountLevelTextFieldDefinition,
   NodeInstanceLevelFieldDefinitionUnion,
@@ -54,14 +53,11 @@ export enum NodeExecutionEventType {
   Errors = 'Errors',
 }
 
-export type NodeExecutionConfig<T> = {
+export type RunNodeParams<T> = {
   nodeConfig: Readonly<T>;
-  connectorList: Connector[];
-};
-
-export type NodeExecutionParams = {
+  connectors: Connector[];
   nodeInputValueMap: VariableResultRecords;
-  useStreaming: boolean;
+  preferStreaming: boolean;
 };
 
 export type RunNodeResult = Partial<{
@@ -72,9 +68,7 @@ export type RunNodeResult = Partial<{
 }>;
 
 export type CreateNodeExecutionObservableFunction<T> = (
-  context: NodeExecutionContext,
-  nodeExecutionConfig: NodeExecutionConfig<T>,
-  params: NodeExecutionParams,
+  params: RunNodeParams<T>,
 ) => Observable<RunNodeResult>;
 
 export interface NodeDefinition<

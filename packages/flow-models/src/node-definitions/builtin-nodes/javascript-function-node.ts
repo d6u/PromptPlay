@@ -92,10 +92,13 @@ export const JAVASCRIPT_NODE_DEFINITION: NodeDefinition<
     };
   },
 
-  createNodeExecutionObservable: (context, nodeExecutionConfig, params) => {
+  createNodeExecutionObservable: (params) => {
     return new Observable<RunNodeResult>((subscriber) => {
-      const { nodeConfig, connectorList } = nodeExecutionConfig;
-      const { nodeInputValueMap } = params;
+      const {
+        nodeConfig,
+        connectors: connectorList,
+        nodeInputValueMap,
+      } = params;
 
       invariant(nodeConfig.type === NodeType.JavaScriptFunctionNode);
 

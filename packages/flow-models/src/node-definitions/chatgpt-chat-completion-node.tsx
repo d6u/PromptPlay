@@ -214,10 +214,14 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
     };
   },
 
-  createNodeExecutionObservable: (context, nodeExecutionConfig, params) => {
+  createNodeExecutionObservable: (params) => {
     return new Observable<RunNodeResult>((subscriber) => {
-      const { nodeConfig, connectorList } = nodeExecutionConfig;
-      const { nodeInputValueMap, useStreaming } = params;
+      const {
+        nodeConfig,
+        connectors: connectorList,
+        nodeInputValueMap,
+        preferStreaming: useStreaming,
+      } = params;
 
       invariant(
         nodeConfig.type === NodeType.ChatGPTChatCompletionNode,

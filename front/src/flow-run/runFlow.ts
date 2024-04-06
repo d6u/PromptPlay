@@ -17,20 +17,18 @@ import {
 import invariant from 'tiny-invariant';
 
 import {
-  Connector,
   ConnectorType,
   CreateNodeExecutionObservableFunction,
   ImmutableFlowNodeGraph,
   NodeAllLevelConfigUnion,
   NodeClass,
-  NodeExecutionConfig,
-  NodeExecutionContext,
-  NodeExecutionParams,
   NodeInputVariable,
   NodeType,
+  RunNodeParams,
   getNodeDefinitionForNodeTypeName,
   type Condition,
   type ConditionResultRecords,
+  type ConnectorRecords,
   type MutableFlowNodeGraph,
   type RunNodeResult,
   type VariableResultRecords,
@@ -43,8 +41,8 @@ import {
 } from './event-types';
 
 type RunFlowParams = Readonly<{
-  nodeConfigs: Readonly<Record<string, NodeAllLevelConfigUnion>>;
-  connectors: Readonly<Record<string, Connector>>;
+  nodeConfigs: Record<string, NodeAllLevelConfigUnion>;
+  connectors: ConnectorRecords;
   inputVariableValues: VariableResultRecords;
   preferStreaming: boolean;
   flowGraph: ImmutableFlowNodeGraph;
@@ -135,20 +133,12 @@ function createRunNodeObservable(
   const runNode =
     nodeDefinition.createNodeExecutionObservable as CreateNodeExecutionObservableFunction<NodeAllLevelConfigUnion>;
 
-  // ANCHOR: Context
-  const nodeExecutionContext = new NodeExecutionContext(scope.mutableFlowGraph);
-
   // ANCHOR: NodeExecutionConfig
-  const nodeConnectors = pipe(
+  const connectors = pipe(
     params.connectors,
     D.values,
     A.filter((connector) => connector.nodeId === nodeId),
   );
-
-  const nodeExecutionConfig: NodeExecutionConfig<NodeAllLevelConfigUnion> = {
-    nodeConfig,
-    connectorList: nodeConnectors,
-  };
 
   // ANCHOR: NodeExecutionParams
   // TODO: We need to emit the NodeInput variable value to store
@@ -161,13 +151,13 @@ function createRunNodeObservable(
     // When current node class is Start, we need to collect
     // NodeOutput variable values other than NodeInput variable
     // values.
-    nodeConnectors.forEach((c) => {
+    connectors.forEach((c) => {
       nodeInputVariableValues[c.id] = scope.allVariableValues[c.id];
     });
   } else {
     // For non-Start node class, we need to collect NodeInput
     // variable values.
-    nodeConnectors
+    connectors
       .filter((c): c is NodeInputVariable => c.type === ConnectorType.NodeInput)
       .forEach((variable) => {
         if (variable.isGlobal) {
@@ -187,9 +177,11 @@ function createRunNodeObservable(
       });
   }
 
-  const nodeExecutionParams: NodeExecutionParams = {
+  const nodeExecutionParams: RunNodeParams<NodeAllLevelConfigUnion> = {
+    preferStreaming: params.preferStreaming,
+    nodeConfig,
+    connectors: connectors,
     nodeInputValueMap: nodeInputVariableValues,
-    useStreaming: params.preferStreaming,
   };
 
   const runNodeScope = new RunNodeScope({ allCompletedConnectorIds: [] });
@@ -198,7 +190,7 @@ function createRunNodeObservable(
     scope,
     runNodeScope,
     params,
-    runNode(nodeExecutionContext, nodeExecutionConfig, nodeExecutionParams),
+    runNode(nodeExecutionParams),
     nodeId,
   );
 
