@@ -17,10 +17,7 @@ export const handleUpdateNodeConfig = createHandler<
     return event.type === ChangeEventType.UPDATING_NODE_CONFIG;
   },
   (state, event) => {
-    Object.assign(
-      state.flowContent.nodeConfigsDict[event.nodeId],
-      event.change,
-    );
+    Object.assign(state.flowContent.nodeConfigs[event.nodeId], event.change);
     return [];
   },
   [],

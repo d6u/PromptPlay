@@ -15,8 +15,8 @@ type Props = {
 
 export default function TableBody(props: Props) {
   // SECTION: Select state from store
-  const variableMap = useFlowStore((s) => s.getFlowContent().variablesDict);
-  const nodeConfigs = useFlowStore((s) => s.getFlowContent().nodeConfigsDict);
+  const nodeConfigs = useFlowStore((s) => s.getFlowContent().nodeConfigs);
+  const variableMap = useFlowStore((s) => s.getFlowContent().connectors);
 
   const {
     repeatTimes,

@@ -80,7 +80,7 @@ test('handleReactFlowConnectEvent ignores existing connection', () => {
           },
         },
       ],
-      nodeConfigsDict: {
+      nodeConfigs: {
         TmZiV: {
           nodeId: 'TmZiV',
           type: 'InputNode',
@@ -93,7 +93,7 @@ test('handleReactFlowConnectEvent ignores existing connection', () => {
           class: 'Finish',
         },
       },
-      variablesDict: {
+      connectors: {
         'TmZiV/yhv1Z': {
           type: 'NodeOutput',
           id: 'TmZiV/yhv1Z',
@@ -115,12 +115,10 @@ test('handleReactFlowConnectEvent ignores existing connection', () => {
           globalVariableId: null,
         },
       },
-      variableValueLookUpDicts: [
-        {
-          'TmZiV/yhv1Z': { value: null },
-          'af2pT/goHde': { value: null },
-        },
-      ],
+      variableResults: {
+        'TmZiV/yhv1Z': { value: null },
+        'af2pT/goHde': { value: null },
+      },
     },
   };
 
@@ -173,7 +171,7 @@ test('handleReactFlowConnectEvent ignores Audio source variable with invalid tar
         },
       ],
       edges: [],
-      nodeConfigsDict: {
+      nodeConfigs: {
         Lbola: {
           nodeId: 'Lbola',
           type: 'ElevenLabs',
@@ -187,7 +185,7 @@ test('handleReactFlowConnectEvent ignores Audio source variable with invalid tar
           class: 'Process',
         },
       },
-      variablesDict: {
+      connectors: {
         'Lbola/text': {
           type: 'NodeInput',
           id: 'Lbola/text',
@@ -239,14 +237,12 @@ test('handleReactFlowConnectEvent ignores Audio source variable with invalid tar
           nodeId: 'jvWCV',
         },
       },
-      variableValueLookUpDicts: [
-        {
-          'Lbola/text': { value: null },
-          'Lbola/audio': { value: null },
-          'jvWCV/ouGHs': { value: null },
-          'jvWCV/content': { value: null },
-        },
-      ],
+      variableResults: {
+        'Lbola/text': { value: null },
+        'Lbola/audio': { value: null },
+        'jvWCV/ouGHs': { value: null },
+        'jvWCV/content': { value: null },
+      },
     },
   };
 
@@ -272,7 +268,7 @@ test('handleReactFlowConnectEvent add edge', () => {
     ...MOCK_STATE,
     flowContent: {
       ...MOCK_STATE.flowContent,
-      variablesDict: {
+      connectors: {
         '1': {
           type: 'NodeOutput',
           id: '1',
@@ -355,7 +351,7 @@ test('handleReactFlowConnectEvent replace edge', () => {
           targetHandle: '3',
         },
       ],
-      variablesDict: {
+      connectors: {
         '1': {
           id: '1',
           type: 'NodeOutput',
@@ -446,7 +442,7 @@ test('handleReactFlowConnectEvent add condition', () => {
     ...MOCK_STATE,
     flowContent: {
       ...MOCK_STATE.flowContent,
-      variablesDict: {
+      connectors: {
         '1': {
           id: '1',
           type: 'Condition',
@@ -564,7 +560,7 @@ test('handleReactFlowConnect should replace edge', () => {
           },
         },
       ],
-      nodeConfigsDict: {
+      nodeConfigs: {
         ZUhTs: {
           nodeId: 'ZUhTs',
           type: 'InputNode',
@@ -583,7 +579,7 @@ test('handleReactFlowConnect should replace edge', () => {
           nodeName: 'input2',
         },
       },
-      variablesDict: {
+      connectors: {
         'ZUhTs/aPZ3h': {
           type: 'NodeOutput',
           id: 'ZUhTs/aPZ3h',
@@ -615,13 +611,11 @@ test('handleReactFlowConnect should replace edge', () => {
           globalVariableId: null,
         },
       },
-      variableValueLookUpDicts: [
-        {
-          'ZUhTs/aPZ3h': { value: null },
-          'Is8Op/5TUFT': { value: null },
-          'WHqYI/p8a32': { value: null },
-        },
-      ],
+      variableResults: {
+        'ZUhTs/aPZ3h': { value: null },
+        'Is8Op/5TUFT': { value: null },
+        'WHqYI/p8a32': { value: null },
+      },
     },
   };
 
@@ -712,7 +706,7 @@ test('handleReactFlowConnect should replace edge and update dest variable valueT
           },
         },
       ],
-      nodeConfigsDict: {
+      nodeConfigs: {
         'Is8Op': {
           nodeId: 'Is8Op',
           type: 'OutputNode',
@@ -731,7 +725,7 @@ test('handleReactFlowConnect should replace edge and update dest variable valueT
           nodeName: 'input1',
         },
       },
-      variablesDict: {
+      connectors: {
         'Is8Op/5TUFT': {
           type: 'NodeInput',
           id: 'Is8Op/5TUFT',
@@ -778,14 +772,12 @@ test('handleReactFlowConnect should replace edge and update dest variable valueT
           globalVariableId: null,
         },
       },
-      variableValueLookUpDicts: [
-        {
-          'Is8Op/5TUFT': { value: null },
-          'gso6A/text': { value: null },
-          'gso6A/audio': { value: null },
-          '7NHli/g2iSG': { value: null },
-        },
-      ],
+      variableResults: {
+        'Is8Op/5TUFT': { value: null },
+        'gso6A/text': { value: null },
+        'gso6A/audio': { value: null },
+        '7NHli/g2iSG': { value: null },
+      },
     },
   };
 
@@ -817,8 +809,8 @@ test('handleReactFlowConnect should replace edge and update dest variable valueT
           },
         },
       ],
-      variablesDict: {
-        ...prevState.flowContent.variablesDict,
+      connectors: {
+        ...prevState.flowContent.connectors,
         'Is8Op/5TUFT': {
           id: 'Is8Op/5TUFT',
           index: 0,
@@ -866,7 +858,7 @@ test('handleReactFlowConnect should add edge', () => {
         },
       ],
       edges: [],
-      nodeConfigsDict: {
+      nodeConfigs: {
         Is8Op: {
           nodeId: 'Is8Op',
           type: 'OutputNode',
@@ -879,7 +871,7 @@ test('handleReactFlowConnect should add edge', () => {
           nodeName: 'input1',
         },
       },
-      variablesDict: {
+      connectors: {
         'Is8Op/5TUFT': {
           type: 'NodeInput',
           id: 'Is8Op/5TUFT',
@@ -901,12 +893,10 @@ test('handleReactFlowConnect should add edge', () => {
           globalVariableId: null,
         },
       },
-      variableValueLookUpDicts: [
-        {
-          'Is8Op/5TUFT': { value: null },
-          'OYlVw/u4bDV': { value: null },
-        },
-      ],
+      variableResults: {
+        'Is8Op/5TUFT': { value: null },
+        'OYlVw/u4bDV': { value: null },
+      },
     },
   };
 
@@ -974,7 +964,7 @@ test('handleReactFlowConnect should add edge and update dest variable valueType'
         },
       ],
       edges: [],
-      nodeConfigsDict: {
+      nodeConfigs: {
         Is8Op: {
           type: 'OutputNode',
           nodeId: 'Is8Op',
@@ -987,7 +977,7 @@ test('handleReactFlowConnect should add edge and update dest variable valueType'
           class: 'Process',
         },
       },
-      variablesDict: {
+      connectors: {
         'Is8Op/5TUFT': {
           type: 'NodeInput',
           id: 'Is8Op/5TUFT',
@@ -1024,13 +1014,11 @@ test('handleReactFlowConnect should add edge and update dest variable valueType'
           nodeId: 'gso6A',
         },
       },
-      variableValueLookUpDicts: [
-        {
-          'Is8Op/5TUFT': { value: null },
-          'gso6A/text': { value: null },
-          'gso6A/audio': { value: null },
-        },
-      ],
+      variableResults: {
+        'Is8Op/5TUFT': { value: null },
+        'gso6A/text': { value: null },
+        'gso6A/audio': { value: null },
+      },
     },
   };
 
@@ -1062,8 +1050,8 @@ test('handleReactFlowConnect should add edge and update dest variable valueType'
           },
         },
       ],
-      variablesDict: {
-        ...prevState.flowContent.variablesDict,
+      connectors: {
+        ...prevState.flowContent.connectors,
         'Is8Op/5TUFT': {
           id: 'Is8Op/5TUFT',
           index: 0,

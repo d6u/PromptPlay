@@ -19,8 +19,7 @@ export const updateVariableOnEdgeAdded = createHandler<
     return event.type === ChangeEventType.EDGE_ADDED;
   },
   (state, event) => {
-    const srcVariable =
-      state.flowContent.variablesDict[event.edge.sourceHandle];
+    const srcVariable = state.flowContent.connectors[event.edge.sourceHandle];
 
     if (
       srcVariable.type === ConnectorType.NodeInput ||
@@ -31,8 +30,7 @@ export const updateVariableOnEdgeAdded = createHandler<
         "Source variable type should be 'NodeOutput'",
       );
 
-      const dstVariable =
-        state.flowContent.variablesDict[event.edge.targetHandle];
+      const dstVariable = state.flowContent.connectors[event.edge.targetHandle];
 
       invariant(
         dstVariable.type === ConnectorType.NodeInput,

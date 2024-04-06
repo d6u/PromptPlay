@@ -20,30 +20,23 @@ type Props = {
 };
 
 function NodeOutputVariableList(props: Props) {
-  const connectorResults = useFlowStore((s) =>
-    s.getDefaultVariableValueLookUpDict(),
+  const variableResults = useFlowStore(
+    (s) => s.getFlowContent().variableResults,
   );
 
   const updateVariable = useFlowStore((s) => s.updateConnector);
 
   const variablePropsArray = useMemo(() => {
     return props.variables.map<NodeOutputVariableProps>((variable) => {
-      const variableResult = connectorResults[variable.id];
-
-      invariant(
-        'value' in variableResult,
-        'variableResult should have value prop',
-      );
-
       return {
         id: variable.id,
         name: variable.name,
-        value: variableResult.value,
+        value: variableResults[variable.id].value,
         isGlobal: variable.isGlobal,
         globalVariableId: variable.globalVariableId,
       };
     });
-  }, [props.variables, connectorResults]);
+  }, [props.variables, variableResults]);
 
   const { control, handleSubmit } =
     useForm<NodeOutputVariablePropsArrayFieldValues>({

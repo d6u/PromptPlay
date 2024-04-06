@@ -31,8 +31,8 @@ type Props = {
 export default function EvaluationSectionConfigCSV(props: Props) {
   // SECTION: Select state from store
 
-  const variablesDict = useFlowStore((s) => s.getFlowContent().variablesDict);
-  const nodeConfigs = useFlowStore((s) => s.getFlowContent().nodeConfigsDict);
+  const nodeConfigs = useFlowStore((s) => s.getFlowContent().nodeConfigs);
+  const variablesDict = useFlowStore((s) => s.getFlowContent().connectors);
   const repeatTimes = useFlowStore(
     (s) => s.batchTest.config.content.repeatTimes,
   );

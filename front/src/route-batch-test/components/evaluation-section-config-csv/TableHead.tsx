@@ -16,8 +16,8 @@ type Props = {
 export default function TableHead(props: Props) {
   // SECTION: Select state from store
 
-  const variablesDict = useFlowStore((s) => s.getFlowContent().variablesDict);
-  const nodeConfigs = useFlowStore((s) => s.getFlowContent().nodeConfigsDict);
+  const variablesDict = useFlowStore((s) => s.getFlowContent().connectors);
+  const nodeConfigs = useFlowStore((s) => s.getFlowContent().nodeConfigs);
   const repeatTimes = useFlowStore(
     (s) => s.batchTest.config.content.repeatTimes,
   );

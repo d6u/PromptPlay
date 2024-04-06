@@ -20,7 +20,7 @@ export const handleFlowSingleRunStarted = createHandler<
   },
   (state, event) => {
     state.flowContent.nodeExecutionStates = D.map(
-      state.flowContent.nodeConfigsDict,
+      state.flowContent.nodeConfigs,
       (): NodeExecutionState => ({
         status: NodeExecutionStatus.Pending,
         messages: [],

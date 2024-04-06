@@ -48,7 +48,7 @@ test('runFlow should execute', () => {
         id: 'HxCix',
       },
     ],
-    nodeConfigsDict: {
+    nodeConfigs: {
       'GjREx': {
         type: 'InputNode',
         nodeId: 'GjREx',
@@ -61,7 +61,7 @@ test('runFlow should execute', () => {
         class: 'Finish',
       },
     },
-    variablesDict: {
+    connectors: {
       'GjREx/URLME': {
         type: 'NodeOutput',
         id: 'GjREx/URLME',
@@ -83,29 +83,28 @@ test('runFlow should execute', () => {
         globalVariableId: null,
       },
     },
-    variableValueLookUpDicts: [
-      {
-        'GjREx/URLME': { value: 'test' },
-        '9hKOz/c5NYh': { value: null },
-      },
-    ],
+    conditionResults: {},
+    variableResults: {
+      'GjREx/URLME': { value: 'test' },
+      '9hKOz/c5NYh': { value: null },
+    },
     globalVariables: {},
   };
 
   const immutableFlowGraph = new ImmutableFlowNodeGraph({
     startNodeIds: ['GjREx'],
-    nodeConfigs: flowContent.nodeConfigsDict,
+    nodeConfigs: flowContent.nodeConfigs,
     edges: flowContent.edges.map((edge) => ({
       sourceNode: edge.source,
       sourceConnector: edge.sourceHandle,
       targetNode: edge.target,
       targetConnector: edge.targetHandle,
     })),
-    connectors: flowContent.variablesDict,
+    connectors: flowContent.connectors,
   });
 
   const result = getNodeAllLevelConfigOrValidationErrors(
-    flowContent.nodeConfigsDict,
+    flowContent.nodeConfigs,
     (nodeType: NodeTypeEnum, fieldKey: string) => '',
   );
 
@@ -116,10 +115,8 @@ test('runFlow should execute', () => {
 
     const obs = runFlow({
       nodeConfigs: result.nodeAllLevelConfigs!,
-      connectors: flowContent.variablesDict,
-      inputVariableValues: flowContent.variableValueLookUpDicts[0] as Readonly<
-        Record<string, Readonly<unknown>>
-      >,
+      connectors: flowContent.connectors,
+      inputVariableValues: flowContent.variableResults,
       preferStreaming: false,
       flowGraph: immutableFlowGraph,
       progressObserver: progressObserver,
@@ -143,11 +140,10 @@ test('runFlow should execute', () => {
         type: 'Updated',
         nodeId: 'GjREx',
         result: {
-          connectorResults: {
+          variableResults: {
             'GjREx/URLME': { value: 'test' },
           },
           completedConnectorIds: ['GjREx/URLME'],
-          errors: [],
         },
       },
       {
@@ -162,7 +158,7 @@ test('runFlow should execute', () => {
         type: 'Updated',
         nodeId: '9hKOz',
         result: {
-          connectorResults: {
+          variableResults: {
             '9hKOz/c5NYh': { value: 'test' },
           },
         },
@@ -248,7 +244,7 @@ test('runFlow should unblock node has multiple conditions even when only one con
         targetHandle: 'qclxl/l56QJ',
       },
     ],
-    nodeConfigsDict: {
+    nodeConfigs: {
       'itI1z': {
         class: 'Start',
         type: 'InputNode',
@@ -274,7 +270,7 @@ test('runFlow should unblock node has multiple conditions even when only one con
         content: 'Write a poem about B in fewer than 20 words.',
       },
     },
-    variablesDict: {
+    connectors: {
       '1w9JM/input': {
         type: 'NodeInput',
         id: '1w9JM/input',
@@ -352,28 +348,27 @@ test('runFlow should unblock node has multiple conditions even when only one con
         globalVariableId: null,
       },
     },
-    variableValueLookUpDicts: [
-      {
-        'itI1z/7cpZ9': { value: 'Value A' },
-      },
-    ],
+    conditionResults: {},
+    variableResults: {
+      'itI1z/7cpZ9': { value: 'Value A' },
+    },
     globalVariables: {},
   };
 
   const immutableFlowGraph = new ImmutableFlowNodeGraph({
     startNodeIds: ['itI1z'],
-    nodeConfigs: flowContent.nodeConfigsDict,
+    nodeConfigs: flowContent.nodeConfigs,
     edges: flowContent.edges.map((edge) => ({
       sourceNode: edge.source,
       sourceConnector: edge.sourceHandle,
       targetNode: edge.target,
       targetConnector: edge.targetHandle,
     })),
-    connectors: flowContent.variablesDict,
+    connectors: flowContent.connectors,
   });
 
   const result = getNodeAllLevelConfigOrValidationErrors(
-    flowContent.nodeConfigsDict,
+    flowContent.nodeConfigs,
     (nodeType: NodeTypeEnum, fieldKey: string) => '',
   );
 
@@ -381,10 +376,8 @@ test('runFlow should unblock node has multiple conditions even when only one con
 
   const obs = runFlow({
     nodeConfigs: result.nodeAllLevelConfigs!,
-    connectors: flowContent.variablesDict,
-    inputVariableValues: flowContent.variableValueLookUpDicts[0] as Readonly<
-      Record<string, Readonly<unknown>>
-    >,
+    connectors: flowContent.connectors,
+    inputVariableValues: flowContent.variableResults,
     preferStreaming: false,
     flowGraph: immutableFlowGraph,
     progressObserver: progressObserver,
@@ -408,11 +401,10 @@ test('runFlow should unblock node has multiple conditions even when only one con
       type: 'Updated',
       nodeId: 'itI1z',
       result: {
-        connectorResults: {
+        variableResults: {
           'itI1z/7cpZ9': { value: 'Value A' },
         },
         completedConnectorIds: ['itI1z/7cpZ9'],
-        errors: [],
       },
     },
     {
@@ -427,14 +419,13 @@ test('runFlow should unblock node has multiple conditions even when only one con
       type: 'Updated',
       nodeId: '1w9JM',
       result: {
-        connectorResults: {
+        conditionResults: {
           '1w9JM/hvZie': {
             conditionId: '1w9JM/hvZie',
             isConditionMatched: true,
           },
         },
         completedConnectorIds: ['1w9JM/hvZie'],
-        errors: [],
       },
     },
     {
@@ -449,7 +440,7 @@ test('runFlow should unblock node has multiple conditions even when only one con
       type: 'Updated',
       nodeId: '2WvHf',
       result: {
-        connectorResults: {
+        variableResults: {
           '2WvHf/content': {
             value: 'Write a poem about A in fewer than 20 words.',
           },
@@ -548,7 +539,7 @@ test('runFlow should fallback to default case when no condition was met', async 
         targetHandle: '1w9JM/input',
       },
     ],
-    nodeConfigsDict: {
+    nodeConfigs: {
       '1w9JM': {
         type: 'ConditionNode',
         nodeId: '1w9JM',
@@ -574,7 +565,7 @@ test('runFlow should fallback to default case when no condition was met', async 
         nodeName: 'input1',
       },
     },
-    variablesDict: {
+    connectors: {
       '1w9JM/input': {
         type: 'NodeInput',
         id: '1w9JM/input',
@@ -652,30 +643,29 @@ test('runFlow should fallback to default case when no condition was met', async 
         globalVariableId: null,
       },
     },
-    variableValueLookUpDicts: [
-      {
-        'itI1z/7cpZ9': { value: 'nothing matches' },
-        '1w9JM/hvZie': { value: null },
-        '2WvHf/content': { value: null },
-      },
-    ],
+    conditionResults: {},
+    variableResults: {
+      'itI1z/7cpZ9': { value: 'nothing matches' },
+      '1w9JM/hvZie': { value: null },
+      '2WvHf/content': { value: null },
+    },
     globalVariables: {},
   };
 
   const immutableFlowGraph = new ImmutableFlowNodeGraph({
     startNodeIds: ['itI1z'],
-    nodeConfigs: flowContent.nodeConfigsDict,
+    nodeConfigs: flowContent.nodeConfigs,
     edges: flowContent.edges.map((edge) => ({
       sourceNode: edge.source,
       sourceConnector: edge.sourceHandle,
       targetNode: edge.target,
       targetConnector: edge.targetHandle,
     })),
-    connectors: flowContent.variablesDict,
+    connectors: flowContent.connectors,
   });
 
   const result = getNodeAllLevelConfigOrValidationErrors(
-    flowContent.nodeConfigsDict,
+    flowContent.nodeConfigs,
     (nodeType: NodeTypeEnum, fieldKey: string) => '',
   );
 
@@ -683,10 +673,8 @@ test('runFlow should fallback to default case when no condition was met', async 
 
   const obs = runFlow({
     nodeConfigs: result.nodeAllLevelConfigs!,
-    connectors: flowContent.variablesDict,
-    inputVariableValues: flowContent.variableValueLookUpDicts[0] as Readonly<
-      Record<string, Readonly<unknown>>
-    >,
+    connectors: flowContent.connectors,
+    inputVariableValues: flowContent.variableResults,
     preferStreaming: false,
     flowGraph: immutableFlowGraph,
     progressObserver: progressObserver,
@@ -707,11 +695,10 @@ test('runFlow should fallback to default case when no condition was met', async 
       type: 'Updated',
       nodeId: 'itI1z',
       result: {
-        connectorResults: {
+        variableResults: {
           'itI1z/7cpZ9': { value: 'nothing matches' },
         },
         completedConnectorIds: ['itI1z/7cpZ9'],
-        errors: [],
       },
     },
     {
@@ -726,7 +713,7 @@ test('runFlow should fallback to default case when no condition was met', async 
       type: 'Updated',
       nodeId: '1w9JM',
       result: {
-        connectorResults: {
+        conditionResults: {
           '1w9JM/hvZie': {
             conditionId: '1w9JM/hvZie',
             isConditionMatched: false,
@@ -741,7 +728,6 @@ test('runFlow should fallback to default case when no condition was met', async 
           },
         },
         completedConnectorIds: ['1w9JM/fR2hj'],
-        errors: [],
       },
     },
     {
@@ -756,7 +742,7 @@ test('runFlow should fallback to default case when no condition was met', async 
       type: 'Updated',
       nodeId: '2WvHf',
       result: {
-        connectorResults: {
+        variableResults: {
           '2WvHf/content': {
             value: 'Write a poem about A in fewer than 20 words.',
           },

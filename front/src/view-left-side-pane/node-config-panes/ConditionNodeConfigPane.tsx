@@ -6,7 +6,6 @@ import { useUpdateNodeInternals } from 'reactflow';
 
 import {
   ConditionNodeInstanceLevelConfig,
-  ConditionResult,
   ConnectorType,
   NodeInputVariable,
   getNodeDefinitionForNodeTypeName,
@@ -42,9 +41,9 @@ type Props = {
 function ConditionNodeConfigPane(props: Props) {
   const updateNodeInternals = useUpdateNodeInternals();
 
-  const connectors = useFlowStore((s) => s.getFlowContent().variablesDict);
-  const connectorResults = useFlowStore((s) =>
-    s.getDefaultVariableValueLookUpDict(),
+  const connectors = useFlowStore((s) => s.getFlowContent().connectors);
+  const conditionResults = useFlowStore(
+    (s) => s.getFlowContent().conditionResults,
   );
   const updateNodeConfig = useFlowStore((s) => s.updateNodeConfig);
   const addVariable = useFlowStore((s) => s.addConnector);
@@ -136,8 +135,7 @@ function ConditionNodeConfigPane(props: Props) {
         isListSortable
         conditionConfigs={customConditions.map((condition) => {
           const isMatched =
-            (connectorResults[condition.id] as ConditionResult | undefined)
-              ?.isConditionMatched ?? false;
+            conditionResults[condition.id]?.isConditionMatched ?? false;
 
           return {
             ...condition,
@@ -150,8 +148,7 @@ function ConditionNodeConfigPane(props: Props) {
         nodeId={props.nodeId}
         conditionId={defaultCondition.id}
         conditionValue={
-          (connectorResults[defaultCondition.id] as ConditionResult | undefined)
-            ?.isConditionMatched ?? false
+          conditionResults[defaultCondition.id]?.isConditionMatched ?? false
         }
       />
       <FormHelperText>

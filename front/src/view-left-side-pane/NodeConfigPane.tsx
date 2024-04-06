@@ -21,8 +21,8 @@ function NodeConfigPane() {
 
   invariant(nodeId != null, 'nodeId is not null');
 
-  const nodeConfigs = useFlowStore((s) => s.getFlowContent().nodeConfigsDict);
-  const connectors = useFlowStore((s) => s.getFlowContent().variablesDict);
+  const nodeConfigs = useFlowStore((s) => s.getFlowContent().nodeConfigs);
+  const connectors = useFlowStore((s) => s.getFlowContent().connectors);
   const nodeExecutionStates = useFlowStore(
     (s) => s.getFlowContent().nodeExecutionStates,
   );

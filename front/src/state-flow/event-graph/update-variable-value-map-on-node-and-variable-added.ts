@@ -18,9 +18,7 @@ export const updateVariableValueMapOnNodeAndVariableAdded = createHandler<
       connector.type === ConnectorType.NodeInput ||
       connector.type === ConnectorType.NodeOutput
     ) {
-      state.flowContent.variableValueLookUpDicts[0][connector.id] = {
-        value: null,
-      };
+      state.flowContent.variableResults[connector.id] = { value: null };
     }
   }
 

@@ -1,5 +1,6 @@
 import {
   NodeTypeEnum,
+  type ConditionResultRecords,
   type RunNodeResult,
   type VariableResultRecords,
 } from 'flow-models';
@@ -64,7 +65,8 @@ export type FlowRunNodeFinishEvent = {
 
 export type FlowRunVariableValuesEvent = {
   type: FlowRunEventType.VariableValues;
-  variableValues: Readonly<Record<string, Readonly<unknown>>>;
+  conditionResults: ConditionResultRecords;
+  variableResults: VariableResultRecords;
 };
 
 export type FlowRunNodeErrorsEvent = {

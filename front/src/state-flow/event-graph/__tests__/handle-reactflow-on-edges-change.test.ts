@@ -53,7 +53,7 @@ test('handleReactFlowEdgesChange should select edge', () => {
           },
         },
       ],
-      nodeConfigsDict: {
+      nodeConfigs: {
         Is8Op: {
           nodeId: 'Is8Op',
           type: 'OutputNode',
@@ -66,7 +66,7 @@ test('handleReactFlowEdgesChange should select edge', () => {
           nodeName: 'input1',
         },
       },
-      variablesDict: {
+      connectors: {
         'Is8Op/5TUFT': {
           type: 'NodeInput',
           id: 'Is8Op/5TUFT',
@@ -88,12 +88,10 @@ test('handleReactFlowEdgesChange should select edge', () => {
           globalVariableId: null,
         },
       },
-      variableValueLookUpDicts: [
-        {
-          'Is8Op/5TUFT': { value: null },
-          'OYlVw/u4bDV': { value: null },
-        },
-      ],
+      variableResults: {
+        'Is8Op/5TUFT': { value: null },
+        'OYlVw/u4bDV': { value: null },
+      },
     },
   };
 
@@ -175,7 +173,7 @@ test('handleReactFlowEdgesChange should remove edge', () => {
           selected: true,
         },
       ],
-      nodeConfigsDict: {
+      nodeConfigs: {
         Is8Op: {
           nodeId: 'Is8Op',
           type: 'OutputNode',
@@ -188,7 +186,7 @@ test('handleReactFlowEdgesChange should remove edge', () => {
           nodeName: 'input1',
         },
       },
-      variablesDict: {
+      connectors: {
         'Is8Op/5TUFT': {
           type: 'NodeInput',
           id: 'Is8Op/5TUFT',
@@ -210,12 +208,10 @@ test('handleReactFlowEdgesChange should remove edge', () => {
           globalVariableId: null,
         },
       },
-      variableValueLookUpDicts: [
-        {
-          'Is8Op/5TUFT': { value: null },
-          'OYlVw/u4bDV': { value: null },
-        },
-      ],
+      variableResults: {
+        'Is8Op/5TUFT': { value: null },
+        'OYlVw/u4bDV': { value: null },
+      },
     },
   };
 
@@ -325,7 +321,7 @@ test('handleReactFlowEdgesChange should remove multiple edges', () => {
           selected: true,
         },
       ],
-      nodeConfigsDict: {
+      nodeConfigs: {
         HIbCf: {
           nodeId: 'HIbCf',
           type: 'InputNode',
@@ -344,7 +340,7 @@ test('handleReactFlowEdgesChange should remove multiple edges', () => {
           class: 'Process',
         },
       },
-      variablesDict: {
+      connectors: {
         'HIbCf/sCWR7': {
           type: 'NodeOutput',
           id: 'HIbCf/sCWR7',
@@ -401,15 +397,13 @@ test('handleReactFlowEdgesChange should remove multiple edges', () => {
           nodeId: 'AkRxM',
         },
       },
-      variableValueLookUpDicts: [
-        {
-          'HIbCf/sCWR7': { value: null },
-          'sn268/mt4IG': { value: null },
-          'sn268/TweWr': { value: null },
-          'AkRxM/QCSCO': { value: null },
-          'AkRxM/content': { value: null },
-        },
-      ],
+      variableResults: {
+        'HIbCf/sCWR7': { value: null },
+        'sn268/mt4IG': { value: null },
+        'sn268/TweWr': { value: null },
+        'AkRxM/QCSCO': { value: null },
+        'AkRxM/content': { value: null },
+      },
     },
   };
 
@@ -482,7 +476,7 @@ test('handleReactFlowEdgesChange should remove edge and reset the value type of 
           selected: true,
         },
       ],
-      nodeConfigsDict: {
+      nodeConfigs: {
         Is8Op: {
           nodeId: 'Is8Op',
           type: 'OutputNode',
@@ -495,7 +489,7 @@ test('handleReactFlowEdgesChange should remove edge and reset the value type of 
           class: 'Process',
         },
       },
-      variablesDict: {
+      connectors: {
         'Is8Op/5TUFT': {
           type: 'NodeInput',
           id: 'Is8Op/5TUFT',
@@ -532,13 +526,11 @@ test('handleReactFlowEdgesChange should remove edge and reset the value type of 
           nodeId: 'VhWOu',
         },
       },
-      variableValueLookUpDicts: [
-        {
-          'Is8Op/5TUFT': { value: null },
-          'VhWOu/text': { value: null },
-          'VhWOu/audio': { value: null },
-        },
-      ],
+      variableResults: {
+        'Is8Op/5TUFT': { value: null },
+        'VhWOu/text': { value: null },
+        'VhWOu/audio': { value: null },
+      },
     },
   };
 
@@ -559,8 +551,8 @@ test('handleReactFlowEdgesChange should remove edge and reset the value type of 
     flowContent: {
       ...prevState.flowContent,
       edges: [],
-      variablesDict: {
-        ...prevState.flowContent.variablesDict,
+      connectors: {
+        ...prevState.flowContent.connectors,
         'Is8Op/5TUFT': {
           type: 'NodeInput',
           id: 'Is8Op/5TUFT',

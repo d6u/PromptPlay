@@ -24,8 +24,8 @@ function FlowCanvasNode() {
 
   const nodeId = useNodeId();
 
-  const nodeConfigs = useFlowStore((s) => s.getFlowContent().nodeConfigsDict);
-  const variablesDict = useFlowStore((s) => s.getFlowContent().variablesDict);
+  const nodeConfigs = useFlowStore((s) => s.getFlowContent().nodeConfigs);
+  const connectors = useFlowStore((s) => s.getFlowContent().connectors);
   const nodeExecutionStates = useFlowStore(
     (s) => s.getFlowContent().nodeExecutionStates,
   );
@@ -38,26 +38,26 @@ function FlowCanvasNode() {
 
   const inputVariables = useMemo(() => {
     if (nodeId != null) {
-      return selectVariables(nodeId, ConnectorType.NodeInput, variablesDict);
+      return selectVariables(nodeId, ConnectorType.NodeInput, connectors);
     } else {
       return [];
     }
-  }, [nodeId, variablesDict]);
+  }, [nodeId, connectors]);
 
   const outputVariables = useMemo(() => {
     if (nodeId != null) {
-      return selectVariables(nodeId, ConnectorType.NodeOutput, variablesDict);
+      return selectVariables(nodeId, ConnectorType.NodeOutput, connectors);
     } else {
       return [];
     }
-  }, [nodeId, variablesDict]);
+  }, [nodeId, connectors]);
 
   const conditionTarget = useMemo(() => {
     if (nodeId == null) {
       return null;
     }
-    return selectConditionTarget(nodeId, variablesDict);
-  }, [nodeId, variablesDict]);
+    return selectConditionTarget(nodeId, connectors);
+  }, [nodeId, connectors]);
 
   const nodeExecutionState = useMemo(() => {
     if (nodeId == null) {

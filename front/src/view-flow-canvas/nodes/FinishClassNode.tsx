@@ -34,7 +34,7 @@ type Props = {
 function FinishClassNode(props: Props) {
   const updateNodeInternals = useUpdateNodeInternals();
 
-  const variables = useFlowStore((s) => s.getFlowContent().variablesDict);
+  const connectors = useFlowStore((s) => s.getFlowContent().connectors);
   const addVariable = useFlowStore((s) => s.addConnector);
 
   const nodeDefinition = useMemo(
@@ -43,8 +43,8 @@ function FinishClassNode(props: Props) {
   );
 
   const nodeInputVariables = useMemo(() => {
-    return selectVariables(props.nodeId, ConnectorType.NodeInput, variables);
-  }, [props.nodeId, variables]);
+    return selectVariables(props.nodeId, ConnectorType.NodeInput, connectors);
+  }, [props.nodeId, connectors]);
 
   return (
     <>

@@ -33,10 +33,8 @@ function RouteBatchTest() {
 
   const spaceId = useFlowStore((s) => s.spaceId);
   const edges = useFlowStore((s) => s.getFlowContent().edges);
-  const nodeConfigsDict = useFlowStore(
-    (s) => s.getFlowContent().nodeConfigsDict,
-  );
-  const variablesDict = useFlowStore((s) => s.getFlowContent().variablesDict);
+  const nodeConfigsDict = useFlowStore((s) => s.getFlowContent().nodeConfigs);
+  const connectors = useFlowStore((s) => s.getFlowContent().connectors);
   const csvContent = useFlowStore((s) => s.batchTest.csvString);
   const repeatTimes = useFlowStore(
     (s) => s.batchTest.config.content.repeatTimes,
@@ -120,7 +118,7 @@ function RouteBatchTest() {
         targetConnector: edge.targetHandle,
       })),
       nodeConfigs: nodeConfigsDict,
-      connectors: variablesDict,
+      connectors: connectors,
       csvTable: csvBody,
       variableIdToCsvColumnIndexMap,
       repeatTimes,
@@ -256,7 +254,7 @@ function RouteBatchTest() {
     repeatTimes,
     nodeConfigsDict,
     edges,
-    variablesDict,
+    connectors,
     variableIdToCsvColumnIndexMap,
     concurrencyLimit,
     setGeneratedResult,

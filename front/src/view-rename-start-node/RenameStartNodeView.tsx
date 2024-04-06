@@ -17,7 +17,7 @@ import { useFlowStore } from 'state-flow/flow-store';
 
 function RenameStartNodeView() {
   const canvasRenameNodeId = useFlowStore((s) => s.canvasRenameNodeId);
-  const nodeConfigs = useFlowStore((s) => s.getFlowContent().nodeConfigsDict);
+  const nodeConfigs = useFlowStore((s) => s.getFlowContent().nodeConfigs);
   const setCanvasRenameNodeId = useFlowStore((s) => s.setCanvasRenameNodeId);
   const updateNodeConfig = useFlowStore((s) => s.updateNodeConfig);
 

@@ -35,7 +35,7 @@ export const handleAddConnector = createHandler<
     return event.type === ChangeEventType.ADDING_VARIABLE;
   },
   (state, event) => {
-    const nodeType = state.flowContent.nodeConfigsDict[event.nodeId].type;
+    const nodeType = state.flowContent.nodeConfigs[event.nodeId].type;
     const nodeDefinition = getNodeDefinitionForNodeTypeName(nodeType);
 
     invariant(
@@ -66,7 +66,7 @@ export const handleAddConnector = createHandler<
           isGlobal: true,
           globalVariableId: null,
         };
-        state.flowContent.variablesDict[variableConfig.id] = variableConfig;
+        state.flowContent.connectors[variableConfig.id] = variableConfig;
         break;
       }
       case ConnectorType.NodeInput: {
@@ -87,7 +87,7 @@ export const handleAddConnector = createHandler<
           isGlobal: true,
           globalVariableId: null,
         };
-        state.flowContent.variablesDict[variableConfig.id] = variableConfig;
+        state.flowContent.connectors[variableConfig.id] = variableConfig;
         break;
       }
       case ConnectorType.Condition: {
@@ -98,7 +98,7 @@ export const handleAddConnector = createHandler<
           index: event.connectorIndex,
           expressionString: '$ = "Some value"',
         };
-        state.flowContent.variablesDict[variableConfig.id] = variableConfig;
+        state.flowContent.connectors[variableConfig.id] = variableConfig;
         break;
       }
       case ConnectorType.ConditionTarget:

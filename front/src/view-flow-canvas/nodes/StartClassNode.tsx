@@ -30,7 +30,7 @@ type Props = {
 function StartClassNode(props: Props) {
   const updateNodeInternals = useUpdateNodeInternals();
 
-  const connectors = useFlowStore((s) => s.getFlowContent().variablesDict);
+  const connectors = useFlowStore((s) => s.getFlowContent().connectors);
   const addVariable = useFlowStore((s) => s.addConnector);
 
   const nodeDefinition = useMemo(

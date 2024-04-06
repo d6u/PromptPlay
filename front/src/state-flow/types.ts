@@ -13,15 +13,12 @@ import type {
 } from 'xstate';
 
 import {
-  ConditionResultRecords,
-  ConnectorRecords,
   ConnectorTypeEnum,
-  GlobalVariableRecords,
   LocalEdge,
   LocalNode,
   NodeConfig,
-  NodeConfigRecords,
   NodeTypeEnum,
+  type CanvasDataV4,
   type VariableResultRecords,
 } from 'flow-models';
 
@@ -29,7 +26,7 @@ import {
   BatchTestTab,
   CanvasRightPanelType,
   EdgeConnectStartConnectorClass,
-  NodeExecutionStateRecords,
+  type NodeExecutionStateRecords,
 } from './common-types';
 import { AcceptedEvent } from './event-graph/handle-all-event';
 import { BatchTestActions, BatchTestState } from './lenses/batch-test-lens';
@@ -139,15 +136,11 @@ export type CanvasStateMachineActions =
 
 // ANCHOR: Store State
 
-export type FlowContentState = {
+export type FlowContentState = Omit<CanvasDataV4, 'nodes' | 'edges'> & {
   nodes: LocalNode[];
   edges: LocalEdge[];
-  nodeConfigsDict: NodeConfigRecords;
-  variablesDict: ConnectorRecords;
-  variableValueLookUpDicts: ConditionResultRecords[];
   nodeExecutionStates: NodeExecutionStateRecords;
   nodeAccountLevelFieldsValidationErrors: Record<string, string>;
-  globalVariables: GlobalVariableRecords;
 };
 
 export type FlowProps = {
@@ -246,7 +239,6 @@ export type FlowActions = {
 
   // Getter
   getFlowContent: Getter<FlowContentState>;
-  getDefaultVariableValueLookUpDict(): ConditionResultRecords;
 
   // Flow run
   startFlowSingleRun(params: StartFlowSingleRunParams): void;

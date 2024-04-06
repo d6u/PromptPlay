@@ -36,16 +36,17 @@ test('handleAddNode should add node and nodeConfig', () => {
         },
       ],
       edges: [],
-      nodeConfigsDict: expect.anything(),
-      variablesDict: expect.anything(),
-      variableValueLookUpDicts: expect.anything(),
+      nodeConfigs: expect.anything(),
+      connectors: expect.anything(),
+      conditionResults: expect.anything(),
+      variableResults: expect.anything(),
       nodeExecutionStates: expect.anything(),
       nodeAccountLevelFieldsValidationErrors: expect.anything(),
       globalVariables: {},
     },
   });
 
-  expect(Object.values(nextState.flowContent.nodeConfigsDict)).toEqual([
+  expect(Object.values(nextState.flowContent.nodeConfigs)).toEqual([
     {
       nodeId: expect.any(String),
       type: 'InputNode',
@@ -54,7 +55,7 @@ test('handleAddNode should add node and nodeConfig', () => {
     },
   ]);
 
-  expect(Object.values(nextState.flowContent.variablesDict)).toEqual([
+  expect(Object.values(nextState.flowContent.connectors)).toEqual([
     {
       type: 'NodeOutput',
       id: expect.any(String),
@@ -74,7 +75,7 @@ test('handleAddNode should add node and nodeConfig', () => {
     },
   ]);
 
-  expect(
-    Object.values(nextState.flowContent.variableValueLookUpDicts[0]),
-  ).toEqual([{ value: null }]);
+  expect(Object.values(nextState.flowContent.variableResults)).toEqual([
+    { value: null },
+  ]);
 });

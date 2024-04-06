@@ -34,7 +34,7 @@ export const handleCreateGlobalVariable = createHandler<
       valueType: VariableValueType.Unspecified,
     };
 
-    const variable = state.flowContent.variablesDict[event.assignToVariableId];
+    const variable = state.flowContent.connectors[event.assignToVariableId];
 
     invariant(
       variable.type == ConnectorType.NodeInput ||

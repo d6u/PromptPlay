@@ -17,7 +17,7 @@ type Props = {
 };
 
 function NodeRegularOutgoingConditionHandle(props: Props) {
-  const connectors = useFlowStore((s) => s.getFlowContent().variablesDict);
+  const connectors = useFlowStore((s) => s.getFlowContent().connectors);
 
   const outgoingCondition = useMemo(() => {
     return selectRegularOutgoingCondition(props.nodeId, connectors);

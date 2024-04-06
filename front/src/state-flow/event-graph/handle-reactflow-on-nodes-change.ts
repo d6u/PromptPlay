@@ -41,7 +41,7 @@ export const handleReactFlowNodesChange = createHandler<
 
           invariant(nodeSnapshot != null, 'nodeSnapshot is not null');
 
-          delete state.flowContent.nodeConfigsDict[change.id];
+          delete state.flowContent.nodeConfigs[change.id];
 
           events.push({
             type: ChangeEventType.NODE_REMOVED,

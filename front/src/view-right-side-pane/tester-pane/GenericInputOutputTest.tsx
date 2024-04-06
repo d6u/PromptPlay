@@ -14,7 +14,6 @@ import SidePaneSection from 'components/side-pane/SidePaneSection';
 import RouteFlowContext from 'state-flow/context/FlowRouteContext';
 import { useFlowStore } from 'state-flow/flow-store';
 import { selectVariablesOnAllEndNodes } from 'state-flow/util/state-utils';
-import invariant from 'tiny-invariant';
 import InputBlock from 'view-right-side-pane/common/InputBlock';
 
 type Props = {
@@ -24,10 +23,10 @@ type Props = {
 function GenericInputOutputTest(props: Props) {
   const { isCurrentUserOwner } = useContext(RouteFlowContext);
 
-  const nodeConfigs = useFlowStore((s) => s.getFlowContent().nodeConfigsDict);
-  const connectors = useFlowStore((s) => s.getFlowContent().variablesDict);
-  const connectorResults = useFlowStore((s) =>
-    s.getDefaultVariableValueLookUpDict(),
+  const nodeConfigs = useFlowStore((s) => s.getFlowContent().nodeConfigs);
+  const connectors = useFlowStore((s) => s.getFlowContent().connectors);
+  const variableResults = useFlowStore(
+    (s) => s.getFlowContent().variableResults,
   );
 
   const isExecutingFlowSingleRun = useFlowStore(
@@ -72,18 +71,13 @@ function GenericInputOutputTest(props: Props) {
       </SidePaneHeaderSection>
       <SidePaneSection>
         {flowInputs.map((variable, i) => {
-          const variableResult = connectorResults[variable.id];
-          invariant(
-            'value' in variableResult,
-            'variableResult should have value prop',
-          );
           return (
             <InputBlock
               key={variable.id}
               isReadOnly={!isCurrentUserOwner}
               id={variable.id}
               name={variable.name}
-              value={variableResult.value}
+              value={variableResults[variable.id].value}
               onSaveValue={(value) => {
                 updateVariableValueMap(variable.id, value);
               }}

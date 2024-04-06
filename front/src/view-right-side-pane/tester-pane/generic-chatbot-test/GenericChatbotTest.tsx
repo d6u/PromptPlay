@@ -19,8 +19,8 @@ type Props = {
 };
 
 function GenericChatbotTest(props: Props) {
-  const nodeConfigs = useFlowStore((s) => s.getFlowContent().nodeConfigsDict);
-  const connectors = useFlowStore((s) => s.getFlowContent().variablesDict);
+  const nodeConfigs = useFlowStore((s) => s.getFlowContent().nodeConfigs);
+  const connectors = useFlowStore((s) => s.getFlowContent().connectors);
 
   const startFlowSingleRunForResult = useFlowStore(
     (s) => s.startFlowSingleRunForResult,

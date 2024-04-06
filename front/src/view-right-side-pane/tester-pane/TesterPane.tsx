@@ -11,7 +11,7 @@ import GenericInputOutputTest from './GenericInputOutputTest';
 import GenericChatbotTest from './generic-chatbot-test/GenericChatbotTest';
 
 function TesterPane() {
-  const nodeConfigs = useFlowStore((s) => s.getFlowContent().nodeConfigsDict);
+  const nodeConfigs = useFlowStore((s) => s.getFlowContent().nodeConfigs);
 
   const canvasTesterStartNodeId = useFlowStore(
     (s) => s.canvasTesterStartNodeId,

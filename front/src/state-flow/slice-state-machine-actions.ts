@@ -75,12 +75,9 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
         .pipe(map(parseQueryResult))
         .subscribe({
           next({ flowContent, isUpdated }) {
-            const { nodes, edges, variablesDict, ...rest } = flowContent;
+            const { nodes, edges, connectors, ...rest } = flowContent;
 
-            const updatedEdges = assignLocalEdgeProperties(
-              edges,
-              variablesDict,
-            );
+            const updatedEdges = assignLocalEdgeProperties(edges, connectors);
 
             // Force cast to LocalNode[] here because we know ReactFlow will
             // automatically populate the missing properties.
@@ -93,7 +90,7 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
                 return {
                   nodes: updatedNodes,
                   edges: updatedEdges,
-                  variablesDict,
+                  connectors,
                   nodeExecutionStates: {},
                   nodeAccountLevelFieldsValidationErrors: {},
                   ...rest,
@@ -190,7 +187,7 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
 
       // Main execution logic
 
-      const { edges, nodeConfigsDict, variablesDict } = get().getFlowContent();
+      const { edges, nodeConfigs, connectors } = get().getFlowContent();
       const canvasTesterStartNodeId = get().canvasTesterStartNodeId;
 
       // NOTE: Stop previous run if there is one
@@ -203,7 +200,8 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
 
       // Reset variable values except for start node values
       setFlowContentProduce((draft) => {
-        draft.variableValueLookUpDicts = [event.params.inputValues];
+        draft.variableResults = event.params.inputValues;
+        draft.conditionResults = {};
       });
 
       const progressObserver = new Subject<FlowRunEvent>();
@@ -268,7 +266,7 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
               break;
             case FlowRunEventType.VariableValues:
               get().updateVariableValues(
-                Object.entries(event.variableValues).map(
+                Object.entries(event.variableResults).map(
                   ([variableId, value]) => ({ variableId, value }),
                 ),
               );
@@ -288,8 +286,8 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
           targetNode: edge.target,
           targetConnector: edge.targetHandle,
         })),
-        nodeConfigs: nodeConfigsDict,
-        connectors: variablesDict,
+        nodeConfigs: nodeConfigs,
+        connectors: connectors,
         inputValueMap: event.params.inputValues,
         preferStreaming: true,
         progressObserver,

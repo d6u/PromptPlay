@@ -5,7 +5,6 @@ import invariant from 'tiny-invariant';
 import { StateCreator } from 'zustand';
 
 import {
-  ConditionResultRecords,
   Connector,
   ConnectorType,
   ConnectorTypeEnum,
@@ -44,12 +43,13 @@ const RESETABLE_INITIAL_STATE: Partial<FlowState> = {
     flowContent: {
       nodes: [],
       edges: [],
-      nodeConfigsDict: {},
-      variablesDict: {},
-      variableValueLookUpDicts: [{}],
+      nodeConfigs: {},
+      connectors: {},
+      globalVariables: {},
+      conditionResults: {},
+      variableResults: {},
       nodeExecutionStates: {},
       nodeAccountLevelFieldsValidationErrors: {},
-      globalVariables: {},
     },
   },
   canvasLeftPaneIsOpen: false,
@@ -133,12 +133,13 @@ export const createRootSlice: RootSliceStateCreator = (set, get) => {
       flowContent: {
         nodes: [],
         edges: [],
-        nodeConfigsDict: {},
-        variablesDict: {},
-        variableValueLookUpDicts: [{}],
+        nodeConfigs: {},
+        connectors: {},
+        globalVariables: {},
+        conditionResults: {},
+        variableResults: {},
         nodeExecutionStates: {},
         nodeAccountLevelFieldsValidationErrors: {},
-        globalVariables: {},
       },
     },
     canvasLeftPaneIsOpen: false,
@@ -155,9 +156,6 @@ export const createRootSlice: RootSliceStateCreator = (set, get) => {
 
     // SECTION: Simple getters and setters
     getFlowContent: getFlowContent,
-    getDefaultVariableValueLookUpDict(): ConditionResultRecords {
-      return getFlowContent().variableValueLookUpDicts[0]!;
-    },
     setCanvasLeftPaneIsOpen(isOpen: boolean): void {
       set({ canvasLeftPaneIsOpen: isOpen });
     },
@@ -282,7 +280,7 @@ export const createRootSlice: RootSliceStateCreator = (set, get) => {
       invariant(handleId != null, 'handleId is not null');
       invariant(handleType != null, 'handleType is not null');
 
-      const connector = getFlowContent().variablesDict[handleId] as
+      const connector = getFlowContent().connectors[handleId] as
         | Connector
         | undefined;
 

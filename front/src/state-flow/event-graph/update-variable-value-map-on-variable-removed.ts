@@ -9,9 +9,7 @@ export const updateVariableValueMapOnVariableRemoved = createHandler<
     return event.type === ChangeEventType.VARIABLE_REMOVED;
   },
   (state, event) => {
-    delete state.flowContent.variableValueLookUpDicts[0][
-      event.removedVariable.id
-    ];
+    delete state.flowContent.variableResults[event.removedVariable.id];
 
     return [];
   },

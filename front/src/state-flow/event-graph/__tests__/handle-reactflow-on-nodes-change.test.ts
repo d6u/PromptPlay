@@ -1,4 +1,3 @@
-import { mergeDeep } from '@dhmk/utils';
 import { produce } from 'immer';
 import { expect, test } from 'vitest';
 
@@ -12,8 +11,9 @@ import { MOCK_STATE } from './fixture';
 // ANCHOR: handleReactFlowNodesChange test cases
 
 test('handleReactFlowNodesChange should remove node', () => {
-  const prevState = mergeDeep(MOCK_STATE, {
+  const prevState: State = {
     flowContent: {
+      ...MOCK_STATE.flowContent,
       nodes: [
         {
           id: 'Is8Op',
@@ -42,17 +42,20 @@ test('handleReactFlowNodesChange should remove node', () => {
         },
       ],
       edges: [],
-      nodeConfigsDict: {
-        Is8Op: {
-          nodeId: 'Is8Op',
-          type: 'OutputNode',
-        },
+      nodeConfigs: {
         xAw4x: {
+          class: 'Start',
           nodeId: 'xAw4x',
           type: 'InputNode',
+          nodeName: 'input1',
+        },
+        Is8Op: {
+          class: 'Finish',
+          type: 'OutputNode',
+          nodeId: 'Is8Op',
         },
       },
-      variablesDict: {
+      connectors: {
         'Is8Op/5TUFT': {
           type: 'NodeInput',
           id: 'Is8Op/5TUFT',
@@ -74,14 +77,12 @@ test('handleReactFlowNodesChange should remove node', () => {
           globalVariableId: null,
         },
       },
-      variableValueLookUpDicts: [
-        {
-          'Is8Op/5TUFT': { value: null },
-          'xAw4x/DWHIh': { value: null },
-        },
-      ],
+      variableResults: {
+        'Is8Op/5TUFT': { value: null },
+        'xAw4x/DWHIh': { value: null },
+      },
     },
-  });
+  };
 
   const nextState = produce(prevState, (draft) => {
     handleReactFlowNodesChange(draft, {
@@ -113,13 +114,14 @@ test('handleReactFlowNodesChange should remove node', () => {
         },
       ],
       edges: [],
-      nodeConfigsDict: {
+      nodeConfigs: {
         Is8Op: {
+          class: 'Finish',
           nodeId: 'Is8Op',
           type: 'OutputNode',
         },
       },
-      variablesDict: {
+      connectors: {
         'Is8Op/5TUFT': {
           type: 'NodeInput',
           id: 'Is8Op/5TUFT',
@@ -131,11 +133,10 @@ test('handleReactFlowNodesChange should remove node', () => {
           globalVariableId: null,
         },
       },
-      variableValueLookUpDicts: [
-        {
-          'Is8Op/5TUFT': { value: null },
-        },
-      ],
+      conditionResults: {},
+      variableResults: {
+        'Is8Op/5TUFT': { value: null },
+      },
       nodeExecutionStates: {},
       nodeAccountLevelFieldsValidationErrors: {},
       globalVariables: {},
@@ -145,7 +146,6 @@ test('handleReactFlowNodesChange should remove node', () => {
 
 test('handleReactFlowNodesChange should remove connector and edge connected', () => {
   const prevState: State = {
-    ...MOCK_STATE,
     flowContent: {
       ...MOCK_STATE.flowContent,
       nodes: [
@@ -187,7 +187,7 @@ test('handleReactFlowNodesChange should remove connector and edge connected', ()
           },
         },
       ],
-      nodeConfigsDict: {
+      nodeConfigs: {
         HIbCf: {
           nodeId: 'HIbCf',
           type: 'InputNode',
@@ -200,7 +200,7 @@ test('handleReactFlowNodesChange should remove connector and edge connected', ()
           class: 'Finish',
         },
       },
-      variablesDict: {
+      connectors: {
         'HIbCf/sCWR7': {
           type: 'NodeOutput',
           id: 'HIbCf/sCWR7',
@@ -222,12 +222,10 @@ test('handleReactFlowNodesChange should remove connector and edge connected', ()
           globalVariableId: null,
         },
       },
-      variableValueLookUpDicts: [
-        {
-          'HIbCf/sCWR7': { value: null },
-          'sn268/mt4IG': { value: null },
-        },
-      ],
+      variableResults: {
+        'HIbCf/sCWR7': { value: null },
+        'sn268/mt4IG': { value: null },
+      },
     },
   };
 
@@ -261,14 +259,14 @@ test('handleReactFlowNodesChange should remove connector and edge connected', ()
         },
       ],
       edges: [],
-      nodeConfigsDict: {
+      nodeConfigs: {
         sn268: {
           nodeId: 'sn268',
           type: 'OutputNode',
           class: 'Finish',
         },
       },
-      variablesDict: {
+      connectors: {
         'sn268/mt4IG': {
           type: 'NodeInput',
           id: 'sn268/mt4IG',
@@ -280,11 +278,10 @@ test('handleReactFlowNodesChange should remove connector and edge connected', ()
           globalVariableId: null,
         },
       },
-      variableValueLookUpDicts: [
-        {
-          'sn268/mt4IG': { value: null },
-        },
-      ],
+      conditionResults: {},
+      variableResults: {
+        'sn268/mt4IG': { value: null },
+      },
       nodeExecutionStates: {},
       nodeAccountLevelFieldsValidationErrors: {},
       globalVariables: {},
@@ -293,8 +290,9 @@ test('handleReactFlowNodesChange should remove connector and edge connected', ()
 });
 
 test('handleReactFlowNodesChange should remove multiple nodes', () => {
-  const prevState = mergeDeep(MOCK_STATE, {
+  const prevState: State = {
     flowContent: {
+      ...MOCK_STATE.flowContent,
       nodes: [
         {
           id: 'Is8Op',
@@ -334,17 +332,20 @@ test('handleReactFlowNodesChange should remove multiple nodes', () => {
         },
       ],
       edges: [],
-      nodeConfigsDict: {
-        Is8Op: {
-          nodeId: 'Is8Op',
-          type: 'OutputNode',
-        },
+      nodeConfigs: {
         ZMITb: {
+          class: 'Start',
           nodeId: 'ZMITb',
           type: 'InputNode',
+          nodeName: 'input1',
+        },
+        Is8Op: {
+          class: 'Finish',
+          type: 'OutputNode',
+          nodeId: 'Is8Op',
         },
       },
-      variablesDict: {
+      connectors: {
         'Is8Op/5TUFT': {
           type: 'NodeInput',
           id: 'Is8Op/5TUFT',
@@ -352,6 +353,8 @@ test('handleReactFlowNodesChange should remove multiple nodes', () => {
           index: 0,
           name: 'var2',
           valueType: 'String',
+          isGlobal: false,
+          globalVariableId: null,
         },
         'ZMITb/PNDNu': {
           type: 'NodeOutput',
@@ -360,16 +363,16 @@ test('handleReactFlowNodesChange should remove multiple nodes', () => {
           index: 0,
           name: 'var1',
           valueType: 'String',
+          isGlobal: false,
+          globalVariableId: null,
         },
       },
-      variableValueLookUpDicts: [
-        {
-          'Is8Op/5TUFT': { value: null },
-          'ZMITb/PNDNu': { value: null },
-        },
-      ],
+      variableResults: {
+        'Is8Op/5TUFT': { value: null },
+        'ZMITb/PNDNu': { value: null },
+      },
     },
-  });
+  };
 
   const nextState = produce(prevState, (draft) => {
     handleReactFlowNodesChange(draft, {
@@ -392,12 +395,13 @@ test('handleReactFlowNodesChange should remove multiple nodes', () => {
     flowContent: {
       nodes: [],
       edges: [],
-      nodeConfigsDict: {},
-      variablesDict: {},
-      variableValueLookUpDicts: [{}],
+      nodeConfigs: {},
+      connectors: {},
+      globalVariables: {},
+      conditionResults: {},
+      variableResults: {},
       nodeExecutionStates: {},
       nodeAccountLevelFieldsValidationErrors: {},
-      globalVariables: {},
     },
   });
 });

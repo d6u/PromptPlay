@@ -105,7 +105,7 @@ function transformEvent(event: RunNodeProgressEvent): Observable<FlowRunEvent> {
         nodeId: event.nodeId,
       });
     case RunNodeProgressEventType.Updated: {
-      const { errors, connectorResults } = event.result;
+      const { errors, conditionResults, variableResults } = event.result;
 
       const flowRunEvents: FlowRunEvent[] = [];
 
@@ -117,10 +117,11 @@ function transformEvent(event: RunNodeProgressEvent): Observable<FlowRunEvent> {
         });
       }
 
-      if (connectorResults != null) {
+      if (conditionResults != null || variableResults != null) {
         flowRunEvents.push({
           type: FlowRunEventType.VariableValues,
-          variableValues: connectorResults,
+          conditionResults: conditionResults ?? {},
+          variableResults: variableResults ?? {},
         });
       }
 

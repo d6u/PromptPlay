@@ -4,9 +4,10 @@ export const MOCK_STATE: State = {
   flowContent: {
     nodes: [],
     edges: [],
-    nodeConfigsDict: {},
-    variablesDict: {},
-    variableValueLookUpDicts: [{}],
+    nodeConfigs: {},
+    connectors: {},
+    conditionResults: {},
+    variableResults: {},
     nodeExecutionStates: {},
     nodeAccountLevelFieldsValidationErrors: {},
     globalVariables: {},

@@ -21,9 +21,9 @@ export function handleEdgeReplacedEvent(
   // and condition target.
 
   const oldSrcVariable =
-    state.flowContent.variablesDict[event.oldEdge.sourceHandle];
+    state.flowContent.connectors[event.oldEdge.sourceHandle];
   const newSrcVariable =
-    state.flowContent.variablesDict[event.newEdge.sourceHandle];
+    state.flowContent.connectors[event.newEdge.sourceHandle];
 
   invariant(
     oldSrcVariable.type === ConnectorType.NodeOutput,
@@ -38,7 +38,7 @@ export function handleEdgeReplacedEvent(
     // It doesn't matter whether we use the old or the new edge to find the
     // destination variable config, they should point to the same one.
     const dstVariable =
-      state.flowContent.variablesDict[event.newEdge.targetHandle];
+      state.flowContent.connectors[event.newEdge.targetHandle];
 
     invariant(
       dstVariable.type === ConnectorType.NodeInput,

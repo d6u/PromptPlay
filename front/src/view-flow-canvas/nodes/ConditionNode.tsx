@@ -6,7 +6,6 @@ import { Position, useUpdateNodeInternals } from 'reactflow';
 
 import {
   ConditionNodeAllLevelConfig,
-  ConditionResult,
   ConditionTarget,
   ConnectorType,
   NodeClass,
@@ -51,15 +50,15 @@ function ConditionNode(props: Props) {
   const updateNodeConfig = useFlowStore((s) => s.updateNodeConfig);
   const addVariable = useFlowStore((s) => s.addConnector);
 
-  const connectors = useFlowStore((s) => s.getFlowContent().variablesDict);
+  const connectors = useFlowStore((s) => s.getFlowContent().connectors);
   const conditions = useMemo(() => {
     return selectConditions(props.nodeId, connectors);
   }, [props.nodeId, connectors]);
   const defaultCondition = useMemo(() => conditions[0], [conditions]);
   const customConditions = useMemo(() => conditions.slice(1), [conditions]);
 
-  const connectorResults = useFlowStore((s) =>
-    s.getDefaultVariableValueLookUpDict(),
+  const conditionResults = useFlowStore(
+    (s) => s.getFlowContent().conditionResults,
   );
 
   return (
@@ -149,9 +148,8 @@ function ConditionNode(props: Props) {
             isNodeReadOnly={props.isNodeReadOnly}
             showHandles
             conditionConfigs={customConditions.map((condition) => {
-              const isMatched = (
-                connectorResults[condition.id] as ConditionResult | undefined
-              )?.isConditionMatched;
+              const isMatched =
+                conditionResults[condition.id]?.isConditionMatched;
 
               return {
                 ...condition,
@@ -167,11 +165,7 @@ function ConditionNode(props: Props) {
             nodeId={props.nodeId}
             conditionId={defaultCondition.id}
             conditionValue={
-              (
-                connectorResults[defaultCondition.id] as
-                  | ConditionResult
-                  | undefined
-              )?.isConditionMatched
+              conditionResults[defaultCondition.id]?.isConditionMatched
             }
           />
           <FormHelperText>

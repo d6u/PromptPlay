@@ -18,7 +18,7 @@ export const handleUpdateVariableValue = createHandler<
   },
   (state, event) => {
     for (const { variableId, value } of event.updates) {
-      state.flowContent.variableValueLookUpDicts[0][variableId] = { value };
+      state.flowContent.variableResults[variableId] = { value };
     }
 
     return [];

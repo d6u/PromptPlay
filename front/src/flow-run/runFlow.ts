@@ -17,7 +17,6 @@ import {
 import invariant from 'tiny-invariant';
 
 import {
-  ConditionResultRecords,
   Connector,
   ConnectorType,
   CreateNodeExecutionObservableFunction,
@@ -31,6 +30,7 @@ import {
   NodeType,
   getNodeDefinitionForNodeTypeName,
   type Condition,
+  type ConditionResultRecords,
   type MutableFlowNodeGraph,
   type RunNodeResult,
   type VariableResultRecords,
@@ -100,6 +100,7 @@ class RunFlowScope {
     this.finishNodesVariableIds = [];
     this.queuedNodeCount = initialNodeIdList.length;
     this.allVariableValues = params.allVariableValues;
+    this.allConditionResults = {};
   }
 
   public readonly mutableFlowGraph: MutableFlowNodeGraph;
@@ -109,6 +110,7 @@ class RunFlowScope {
   // Track when to complete the observable
   public queuedNodeCount: number;
   public allVariableValues: VariableResultRecords;
+  public allConditionResults: ConditionResultRecords;
 }
 
 function createRunNodeObservable(
@@ -153,7 +155,7 @@ function createRunNodeObservable(
   // as well, otherwise we cannot inspect node input variable values.
   // Currently, we only emit NodeOutput variable values or
   // OutputNode's NodeInput variable values.
-  const nodeInputVariableValues: ConditionResultRecords = {};
+  const nodeInputVariableValues: VariableResultRecords = {};
 
   if (nodeConfig.class === NodeClass.Start) {
     // When current node class is Start, we need to collect
@@ -256,28 +258,46 @@ function createRunNodeWrapperObservable(
         result: result,
       });
 
-      const { connectorResults, completedConnectorIds } = result;
+      const { variableResults, conditionResults, completedConnectorIds } =
+        result;
 
-      if (connectorResults != null) {
+      if (variableResults != null) {
         scope.allVariableValues = produce(scope.allVariableValues, (draft) => {
-          const pairs = D.toPairs(connectorResults);
-
-          for (const [connectorId, result] of pairs) {
+          for (const [connectorId, result] of Object.entries(variableResults)) {
             const connector = params.connectors[connectorId];
 
-            if (
-              (connector.type === ConnectorType.NodeInput ||
-                connector.type === ConnectorType.NodeOutput) &&
-              connector.isGlobal &&
-              connector.globalVariableId != null
-            ) {
-              draft[connector.globalVariableId] =
-                result as (typeof draft)[string];
+            invariant(
+              connector.type === ConnectorType.NodeInput ||
+                connector.type === ConnectorType.NodeOutput,
+            );
+
+            if (connector.isGlobal && connector.globalVariableId != null) {
+              draft[connector.globalVariableId] = result;
             } else {
-              draft[connectorId] = result as (typeof draft)[string];
+              draft[connectorId] = result;
             }
           }
         });
+      }
+
+      if (conditionResults != null) {
+        scope.allConditionResults = produce(
+          scope.allConditionResults,
+          (draft) => {
+            for (const [connectorId, result] of Object.entries(
+              conditionResults,
+            )) {
+              const connector = params.connectors[connectorId];
+
+              invariant(
+                connector.type === ConnectorType.Condition ||
+                  connector.type === ConnectorType.ConditionTarget,
+              );
+
+              draft[connectorId] = result;
+            }
+          },
+        );
       }
 
       if (completedConnectorIds != null) {

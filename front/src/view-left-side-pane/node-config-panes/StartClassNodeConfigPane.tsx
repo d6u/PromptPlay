@@ -37,12 +37,12 @@ function StartClassNodeConfigPane(props: Props) {
     [props.nodeConfig.type],
   );
 
-  const variables = useFlowStore((s) => s.getFlowContent().variablesDict);
+  const connectors = useFlowStore((s) => s.getFlowContent().connectors);
   const addVariable = useFlowStore((s) => s.addConnector);
 
   const flowInputVariables = useMemo(() => {
-    return selectVariables(props.nodeId, ConnectorType.NodeOutput, variables);
-  }, [props.nodeId, variables]);
+    return selectVariables(props.nodeId, ConnectorType.NodeOutput, connectors);
+  }, [props.nodeId, connectors]);
 
   return (
     <NodeConfigPaneContainer>

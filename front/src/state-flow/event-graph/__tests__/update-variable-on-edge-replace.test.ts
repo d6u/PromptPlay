@@ -64,7 +64,7 @@ test('handleEdgeReplacedEvent ignores old and new source variables with the same
           },
         },
       ],
-      nodeConfigsDict: {
+      nodeConfigs: {
         ZUhTs: {
           nodeId: 'ZUhTs',
           type: 'InputNode',
@@ -83,7 +83,7 @@ test('handleEdgeReplacedEvent ignores old and new source variables with the same
           nodeName: 'input2',
         },
       },
-      variablesDict: {
+      connectors: {
         'ZUhTs/aPZ3h': {
           type: 'NodeOutput',
           id: 'ZUhTs/aPZ3h',
@@ -115,13 +115,11 @@ test('handleEdgeReplacedEvent ignores old and new source variables with the same
           globalVariableId: null,
         },
       },
-      variableValueLookUpDicts: [
-        {
-          'ZUhTs/aPZ3h': { value: null },
-          'Is8Op/5TUFT': { value: null },
-          'WHqYI/p8a32': { value: null },
-        },
-      ],
+      variableResults: {
+        'ZUhTs/aPZ3h': { value: null },
+        'Is8Op/5TUFT': { value: null },
+        'WHqYI/p8a32': { value: null },
+      },
     },
   };
 
