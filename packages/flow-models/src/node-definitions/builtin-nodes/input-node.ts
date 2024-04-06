@@ -5,11 +5,7 @@ import { z } from 'zod';
 import chance from 'common-utils/chance';
 import randomId from 'common-utils/randomId';
 
-import {
-  ConnectorType,
-  VariableValueType,
-  type VariableResultRecords,
-} from '../../base-types';
+import { ConnectorType, VariableValueType } from '../../base-types';
 import {
   NodeClass,
   NodeDefinition,
@@ -77,14 +73,8 @@ export const INPUT_NODE_DEFINITION: NodeDefinition<
 
       invariant(nodeConfig.type === NodeType.InputNode);
 
-      const outputResults: VariableResultRecords = {};
-
-      outputVariables.forEach((v) => {
-        outputResults[v.id] = inputVariableResults[v.id];
-      });
-
       subscriber.next({
-        variableResults: outputResults,
+        variableResults: inputVariableResults,
         completedConnectorIds: outputVariables.map((v) => v.id),
       });
 

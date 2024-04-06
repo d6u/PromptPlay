@@ -4,11 +4,7 @@ import { z } from 'zod';
 
 import randomId from 'common-utils/randomId';
 
-import {
-  ConnectorType,
-  VariableValueType,
-  type VariableResultRecords,
-} from '../base-types';
+import { ConnectorType, VariableValueType } from '../base-types';
 import {
   NodeClass,
   NodeDefinition,
@@ -74,18 +70,12 @@ export const GENERIC_CHATBOT_FINISH_NODE_DEFINITION: NodeDefinition<
 
   createNodeExecutionObservable(params) {
     return new Observable<RunNodeResult>((subscriber) => {
-      const { nodeConfig, inputVariables, inputVariableResults } = params;
+      const { nodeConfig, inputVariableResults } = params;
 
       invariant(nodeConfig.type === NodeType.GenericChatbotFinish);
 
-      const variableResults: VariableResultRecords = {};
-
-      inputVariables.forEach((v) => {
-        variableResults[v.id] = inputVariableResults[v.id];
-      });
-
       subscriber.next({
-        variableResults: variableResults,
+        variableResults: inputVariableResults,
       });
 
       subscriber.complete();
