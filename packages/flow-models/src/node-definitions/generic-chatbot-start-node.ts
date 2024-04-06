@@ -85,7 +85,7 @@ export const GENERIC_CHATBOT_START_NODE_DEFINITION: NodeDefinition<
       const {
         nodeConfig,
         outputVariables,
-        inputVariableValues: inputVariableResults,
+        inputVariableValueRecords: inputVariableResults,
       } = params;
 
       invariant(nodeConfig.type === NodeType.GenericChatbotStart);

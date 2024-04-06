@@ -130,7 +130,7 @@ export const ELEVENLABS_NODE_DEFINITION: NodeDefinition<
         nodeConfig,
         inputVariables,
         outputVariables,
-        inputVariableValues: inputVariableResults,
+        inputVariableValueRecords: inputVariableResults,
       } = params;
 
       invariant(nodeConfig.type === NodeType.ElevenLabs);

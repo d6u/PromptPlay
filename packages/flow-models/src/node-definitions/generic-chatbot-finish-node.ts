@@ -70,7 +70,8 @@ export const GENERIC_CHATBOT_FINISH_NODE_DEFINITION: NodeDefinition<
 
   createNodeExecutionObservable(params) {
     return new Observable<RunNodeResult>((subscriber) => {
-      const { nodeConfig, inputVariableValues: inputVariableResults } = params;
+      const { nodeConfig, inputVariableValueRecords: inputVariableResults } =
+        params;
 
       invariant(nodeConfig.type === NodeType.GenericChatbotFinish);
 

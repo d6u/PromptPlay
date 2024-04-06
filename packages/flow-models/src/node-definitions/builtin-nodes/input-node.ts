@@ -72,7 +72,7 @@ export const INPUT_NODE_DEFINITION: NodeDefinition<
       const {
         nodeConfig,
         outputVariables,
-        inputVariableValues: inputVariableResults,
+        inputVariableValueRecords: inputVariableResults,
       } = params;
 
       invariant(nodeConfig.type === NodeType.InputNode);
