@@ -345,14 +345,14 @@ function createRunNodeEndWithObservable(
 
     // TODO: Generalize this for all node types
     if (nodeConfig.type !== NodeType.ConditionNode) {
-      // NOTE: For non-ConditionNode, we need to add the regular
+      // NOTE: For none ConditionNode, we need to add the regular
       // outgoing condition to the finishedConnectorIds list manually.
-      const regularOutgoingCondition = D.values(params.connectors).find(
-        (connector): connector is Condition =>
-          connector.nodeId === nodeId &&
-          connector.type === ConnectorType.Condition,
+      const regularOutgoingCondition = Object.values(params.connectors).find(
+        (conn): conn is Condition =>
+          conn.nodeId === nodeId && conn.type === ConnectorType.Condition,
       );
 
+      // Finish nodes doesn't have outgoing conditions
       if (regularOutgoingCondition != null) {
         runNodeScope.addCompletedConnectorIds([regularOutgoingCondition.id]);
       }
