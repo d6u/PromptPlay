@@ -19,8 +19,8 @@ import {
   NodeConfig,
   NodeTypeEnum,
   type CanvasDataV4,
-  type VariableResult,
-  type VariableResultRecords,
+  type VariableValueBox,
+  type VariableValueRecords,
 } from 'flow-models';
 
 import {
@@ -181,15 +181,15 @@ export type FlowProps = {
 
 export type VariableValueUpdate = {
   variableId: string;
-  update: VariableResult;
+  update: VariableValueBox;
 };
 
 export type StartFlowSingleRunParams = {
-  inputValues: VariableResultRecords;
+  inputValues: VariableValueRecords;
 };
 
 export type FlowSingleRunResult = {
-  variableResults: VariableResultRecords;
+  variableResults: VariableValueRecords;
 };
 
 export type FlowActions = {

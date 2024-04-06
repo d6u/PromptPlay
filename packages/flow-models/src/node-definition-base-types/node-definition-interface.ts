@@ -8,7 +8,7 @@ import {
   type ConditionResultRecords,
   type NodeInputVariable,
   type NodeOutputVariable,
-  type VariableResultRecords,
+  type VariableValueRecords,
 } from '../base-types';
 import {
   NodeAccountLevelTextFieldDefinition,
@@ -62,13 +62,13 @@ export type RunNodeParams<T> = {
   inputVariables: NodeInputVariable[];
   outputVariables: NodeOutputVariable[];
   outputConditions: Condition[];
-  inputVariableResults: VariableResultRecords;
+  inputVariableResults: VariableValueRecords;
 };
 
 export type RunNodeResult = Partial<{
   errors: Array<string>;
   conditionResults: ConditionResultRecords;
-  variableResults: VariableResultRecords;
+  variableResults: VariableValueRecords;
   completedConnectorIds: Array<string>;
 }>;
 

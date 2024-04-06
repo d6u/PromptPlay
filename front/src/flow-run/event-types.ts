@@ -2,7 +2,7 @@ import {
   NodeTypeEnum,
   type ConditionResultRecords,
   type RunNodeResult,
-  type VariableResultRecords,
+  type VariableValueRecords,
 } from 'flow-models';
 
 // ANCHOR: Event Types
@@ -66,7 +66,7 @@ export type FlowRunNodeFinishEvent = {
 export type FlowRunVariableValuesEvent = {
   type: FlowRunEventType.VariableValues;
   conditionResults: ConditionResultRecords;
-  variableResults: VariableResultRecords;
+  variableResults: VariableValueRecords;
 };
 
 export type FlowRunNodeErrorsEvent = {
@@ -165,5 +165,5 @@ export type RunNodeProgressEvent =
 
 export type RunFlowResult = {
   errors: ReadonlyArray<string>;
-  variableResults: VariableResultRecords;
+  variableResults: VariableValueRecords;
 };

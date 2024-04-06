@@ -6,7 +6,7 @@ import {
   ConnectorType,
   type NodeConfig,
   type NodeOutputVariable,
-  type VariableResultRecords,
+  type VariableValueRecords,
 } from 'flow-models';
 
 import SidePaneHeaderSection from 'components/side-pane/SidePaneHeaderSection';
@@ -66,7 +66,7 @@ function GenericInputOutputTest(props: Props) {
                 stopRunningFlow();
               }
 
-              const inputValues: VariableResultRecords = {};
+              const inputValues: VariableValueRecords = {};
 
               flowInputVariables.forEach((variable) => {
                 inputValues[variable.id] = variableResults[variable.id];
