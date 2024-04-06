@@ -82,16 +82,12 @@ export const GENERIC_CHATBOT_START_NODE_DEFINITION: NodeDefinition<
 
   createNodeExecutionObservable(params) {
     return new Observable<RunNodeResult>((subscriber) => {
-      const {
-        nodeConfig,
-        outputVariables,
-        inputVariableValueRecords: inputVariableResults,
-      } = params;
+      const { nodeConfig, outputVariables, inputVariableValues } = params;
 
       invariant(nodeConfig.type === NodeType.GenericChatbotStart);
 
       subscriber.next({
-        variableResults: inputVariableResults,
+        variableValues: inputVariableValues,
         completedConnectorIds: outputVariables.map((c) => c.id),
       });
 

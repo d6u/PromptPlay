@@ -70,13 +70,12 @@ export const GENERIC_CHATBOT_FINISH_NODE_DEFINITION: NodeDefinition<
 
   createNodeExecutionObservable(params) {
     return new Observable<RunNodeResult>((subscriber) => {
-      const { nodeConfig, inputVariableValueRecords: inputVariableResults } =
-        params;
+      const { nodeConfig, inputVariableValues } = params;
 
       invariant(nodeConfig.type === NodeType.GenericChatbotFinish);
 
       subscriber.next({
-        variableResults: inputVariableResults,
+        variableValues: inputVariableValues,
       });
 
       subscriber.complete();

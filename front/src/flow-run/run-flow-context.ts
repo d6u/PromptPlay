@@ -237,6 +237,31 @@ export class RunNodeContext {
     );
   }
 
+  updateAllVariableValuesFromList(variableValues: unknown[]): void {
+    this.context.allVariableValues = produce(
+      this.context.allVariableValues,
+      (draft) => {
+        if (this.nodeConfig.class === NodeClass.Finish) {
+          this.getInputVariables().forEach((v, i) => {
+            if (v.isGlobal && v.globalVariableId != null) {
+              draft[v.globalVariableId] = { value: variableValues[i] };
+            } else {
+              draft[v.id] = { value: variableValues[i] };
+            }
+          });
+        } else {
+          this.getOutputVariables().forEach((v, i) => {
+            if (v.isGlobal && v.globalVariableId != null) {
+              draft[v.globalVariableId] = { value: variableValues[i] };
+            } else {
+              draft[v.id] = { value: variableValues[i] };
+            }
+          });
+        }
+      },
+    );
+  }
+
   updateConditionResults(conditionResults: ConditionResultRecords): void {
     this.context.allConditionResults = produce(
       this.context.allConditionResults,

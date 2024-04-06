@@ -131,7 +131,7 @@ export const TEXT_TEMPLATE_NODE_DEFINITION: NodeDefinition<
       // !SECTION
 
       subscriber.next({
-        variableResults: { [outputVariable.id]: { value: content } },
+        variableValues: [content],
         completedConnectorIds: [outputVariable.id],
       });
 

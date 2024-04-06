@@ -62,7 +62,6 @@ export type RunNodeParams<T> = {
   inputVariables: NodeInputVariable[];
   outputVariables: NodeOutputVariable[];
   outgoingConditions: Condition[];
-  inputVariableValueRecords: VariableValueRecords;
   inputVariableValues: unknown[];
 };
 
@@ -70,6 +69,7 @@ export type RunNodeResult = Partial<{
   errors: Array<string>;
   conditionResults: ConditionResultRecords;
   variableResults: VariableValueRecords;
+  variableValues: unknown[];
   completedConnectorIds: Array<string>;
 }>;
 

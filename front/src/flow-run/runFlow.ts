@@ -59,7 +59,6 @@ function createRunNodeObservable(context: RunNodeContext): Observable<never> {
   const inputVariables = context.getInputVariables();
   const outputVariables = context.getOutputVariables();
   const outgoingConditions = context.getOutgoingConditions();
-  const inputVariableValueRecords = context.getInputVariableValueRecords();
   const inputVariableValues = context.getInputVariableValues();
 
   return concat(
@@ -71,7 +70,6 @@ function createRunNodeObservable(context: RunNodeContext): Observable<never> {
         inputVariables,
         outputVariables,
         outgoingConditions,
-        inputVariableValueRecords,
         inputVariableValues,
       }),
     ),
@@ -103,7 +101,9 @@ function createRunNodeWrapperObservable(
         result: result,
       });
 
-      if (result.variableResults != null) {
+      if (result.variableValues != null) {
+        context.updateAllVariableValuesFromList(result.variableValues);
+      } else if (result.variableResults != null) {
         context.updateAllVariableValues(result.variableResults);
       }
 

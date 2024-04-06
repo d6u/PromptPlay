@@ -172,8 +172,9 @@ export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition<
       const variableNameToValue: Record<string, unknown> = {};
 
       // NOTE: Skip the first input variable which is the messages array
+      const args = inputVariableValues.slice(1);
       inputVariables.slice(1).forEach((v, i) => {
-        variableNameToValue[v.name] = inputVariableValues[i];
+        variableNameToValue[v.name] = args[i];
       });
 
       // NOTE: Main logic

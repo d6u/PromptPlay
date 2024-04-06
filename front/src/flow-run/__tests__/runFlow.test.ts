@@ -140,9 +140,7 @@ test('runFlow should execute', () => {
         type: 'Updated',
         nodeId: 'GjREx',
         result: {
-          variableResults: {
-            'GjREx/URLME': { value: 'test' },
-          },
+          variableValues: ['test'],
           completedConnectorIds: ['GjREx/URLME'],
         },
       },
@@ -158,9 +156,7 @@ test('runFlow should execute', () => {
         type: 'Updated',
         nodeId: '9hKOz',
         result: {
-          variableResults: {
-            '9hKOz/c5NYh': { value: 'test' },
-          },
+          variableValues: ['test'],
         },
       },
       {
@@ -401,9 +397,7 @@ test('runFlow should unblock node has multiple conditions even when only one con
       type: 'Updated',
       nodeId: 'itI1z',
       result: {
-        variableResults: {
-          'itI1z/7cpZ9': { value: 'Value A' },
-        },
+        variableValues: ['Value A'],
         completedConnectorIds: ['itI1z/7cpZ9'],
       },
     },
@@ -440,11 +434,7 @@ test('runFlow should unblock node has multiple conditions even when only one con
       type: 'Updated',
       nodeId: '2WvHf',
       result: {
-        variableResults: {
-          '2WvHf/content': {
-            value: 'Write a poem about A in fewer than 20 words.',
-          },
-        },
+        variableValues: ['Write a poem about A in fewer than 20 words.'],
         completedConnectorIds: ['2WvHf/content'],
       },
     },
@@ -695,9 +685,7 @@ test('runFlow should fallback to default case when no condition was met', async 
       type: 'Updated',
       nodeId: 'itI1z',
       result: {
-        variableResults: {
-          'itI1z/7cpZ9': { value: 'nothing matches' },
-        },
+        variableValues: ['nothing matches'],
         completedConnectorIds: ['itI1z/7cpZ9'],
       },
     },
@@ -742,11 +730,7 @@ test('runFlow should fallback to default case when no condition was met', async 
       type: 'Updated',
       nodeId: '2WvHf',
       result: {
-        variableResults: {
-          '2WvHf/content': {
-            value: 'Write a poem about A in fewer than 20 words.',
-          },
-        },
+        variableValues: ['Write a poem about A in fewer than 20 words.'],
         completedConnectorIds: ['2WvHf/content'],
       },
     },
