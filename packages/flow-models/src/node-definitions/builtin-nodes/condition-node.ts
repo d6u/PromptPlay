@@ -97,8 +97,8 @@ export const CONDITION_NODE_DEFINITION: NodeDefinition<
       const {
         nodeConfig,
         inputVariables,
-        outgoingConditions: outputConditions,
-        inputVariableValueRecords: inputVariableResults,
+        outgoingConditions,
+        inputVariableValues,
       } = params;
 
       invariant(nodeConfig.type === NodeType.ConditionNode);
@@ -107,10 +107,10 @@ export const CONDITION_NODE_DEFINITION: NodeDefinition<
         const inputVariable = inputVariables[0];
         invariant(inputVariable != null);
 
-        const conditions = outputConditions.sort((a, b) => a.index - b.index);
+        const defaultCaseCondition = outgoingConditions[0];
+        invariant(defaultCaseCondition != null);
 
-        const defaultCaseCondition = conditions[0];
-        const normalConditions = conditions.slice(1);
+        const customCaseConditions = outgoingConditions.slice(1);
 
         const conditionResults: ConditionResultRecords = {};
 
@@ -118,11 +118,9 @@ export const CONDITION_NODE_DEFINITION: NodeDefinition<
 
         let hasMatch = false;
 
-        for (const condition of normalConditions) {
+        for (const condition of customCaseConditions) {
           const expression = jsonata(condition.expressionString);
-          const result = await expression.evaluate(
-            inputVariableResults[inputVariable.id].value,
-          );
+          const result = await expression.evaluate(inputVariableValues[0]);
 
           if (result) {
             hasMatch = true;

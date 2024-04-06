@@ -126,12 +126,7 @@ export const ELEVENLABS_NODE_DEFINITION: NodeDefinition<
 
   createNodeExecutionObservable: (params) => {
     return new Observable<RunNodeResult>((subscriber) => {
-      const {
-        nodeConfig,
-        inputVariables,
-        outputVariables,
-        inputVariableValueRecords: inputVariableResults,
-      } = params;
+      const { nodeConfig, outputVariables, inputVariableValues } = params;
 
       invariant(nodeConfig.type === NodeType.ElevenLabs);
 
@@ -141,14 +136,11 @@ export const ELEVENLABS_NODE_DEFINITION: NodeDefinition<
         return;
       }
 
-      const inputText = inputVariables[0];
-      invariant(inputText != null);
+      const text = inputVariableValues[0];
+      invariant(typeof text === 'string');
 
       const outputAudio = outputVariables[0];
       invariant(outputAudio != null);
-
-      const text = inputVariableResults[inputText.id].value;
-      invariant(typeof text === 'string');
 
       ElevenLabs.textToSpeech({
         text,

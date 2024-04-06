@@ -94,16 +94,14 @@ export const JAVASCRIPT_NODE_DEFINITION: NodeDefinition<
         nodeConfig,
         inputVariables,
         outputVariables,
-        inputVariableValueRecords: inputVariableResults,
+        inputVariableValues,
       } = params;
 
       invariant(nodeConfig.type === NodeType.JavaScriptFunctionNode);
 
-      const pairs: [string, unknown][] = inputVariables
-        .sort((a, b) => a.index - b.index)
-        .map((v) => {
-          return [v.name, inputVariableResults[v.id].value];
-        });
+      const pairs: [string, unknown][] = inputVariables.map((v, i) => {
+        return [v.name, inputVariableValues[i]];
+      });
 
       const outputVariable = outputVariables[0];
       invariant(outputVariable != null);

@@ -161,7 +161,7 @@ export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition<
         nodeConfig,
         inputVariables,
         outputVariables,
-        inputVariableValueRecords: inputVariableResults,
+        inputVariableValues,
       } = params;
 
       invariant(
@@ -171,15 +171,14 @@ export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition<
 
       const variableNameToValue: Record<string, unknown> = {};
 
-      inputVariables.forEach((connector) => {
-        variableNameToValue[connector.name] =
-          inputVariableResults[connector.id]?.value;
+      // NOTE: Skip the first input variable which is the messages array
+      inputVariables.slice(1).forEach((v, i) => {
+        variableNameToValue[v.name] = inputVariableValues[i];
       });
 
       // NOTE: Main logic
 
-      let messages = (variableNameToValue['messages'] ??
-        []) as OpenAI.ChatGPTMessage[];
+      let messages = (inputVariableValues[0] ?? []) as OpenAI.ChatGPTMessage[];
 
       const message = {
         role: nodeConfig.role,
@@ -188,18 +187,17 @@ export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition<
 
       messages = F.toMutable(A.append(messages, message));
 
-      const variableMessage = outputVariables.find((conn) => conn.index === 0);
-      const variableMessages = outputVariables.find((conn) => conn.index === 1);
-
-      invariant(variableMessage != null);
-      invariant(variableMessages != null);
+      const outputMessage = outputVariables[0];
+      const outputMessages = outputVariables[1];
+      invariant(outputMessage != null);
+      invariant(outputMessages != null);
 
       subscriber.next({
         variableResults: {
-          [variableMessage.id]: { value: message },
-          [variableMessages.id]: { value: messages },
+          [outputMessage.id]: { value: message },
+          [outputMessages.id]: { value: messages },
         },
-        completedConnectorIds: [variableMessage.id, variableMessages.id],
+        completedConnectorIds: [outputMessage.id, outputMessages.id],
       });
 
       subscriber.complete();

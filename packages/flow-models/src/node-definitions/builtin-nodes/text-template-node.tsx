@@ -110,16 +110,15 @@ export const TEXT_TEMPLATE_NODE_DEFINITION: NodeDefinition<
         nodeConfig,
         inputVariables,
         outputVariables,
-        inputVariableValueRecords: inputVariableResults,
+        inputVariableValues,
       } = params;
 
       invariant(nodeConfig.type === NodeType.TextTemplate);
 
       const variableNameToValues: Record<string, unknown> = {};
 
-      inputVariables.forEach((connector) => {
-        variableNameToValues[connector.name] =
-          inputVariableResults[connector.id].value;
+      inputVariables.forEach((v, i) => {
+        variableNameToValues[v.name] = inputVariableValues[i];
       });
 
       const outputVariable = outputVariables[0];
