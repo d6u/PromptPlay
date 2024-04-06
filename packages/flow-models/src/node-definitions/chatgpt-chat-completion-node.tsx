@@ -291,11 +291,11 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
           ),
           map((message: ChatGPTMessage): RunNodeResult => {
             return {
-              variableResults: {
-                [outputContent.id]: { value: message.content },
-                [outputMessage.id]: { value: message },
-                [outputMessages.id]: { value: A.append(messages, message) },
-              },
+              variableValues: [
+                message.content,
+                message,
+                A.append(messages, message),
+              ],
             };
           }),
         );
@@ -325,13 +325,11 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
             invariant(choice != null);
 
             return {
-              variableResults: {
-                [outputContent.id]: { value: choice.message.content },
-                [outputMessage.id]: { value: choice.message },
-                [outputMessages.id]: {
-                  value: A.append(messages, choice.message),
-                },
-              },
+              variableValues: [
+                choice.message.content,
+                choice.message,
+                A.append(messages, choice.message),
+              ],
             };
           }),
         );

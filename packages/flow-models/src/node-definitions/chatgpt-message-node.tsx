@@ -194,10 +194,7 @@ export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition<
       invariant(outputMessages != null);
 
       subscriber.next({
-        variableResults: {
-          [outputMessage.id]: { value: message },
-          [outputMessages.id]: { value: messages },
-        },
+        variableValues: [message, messages],
         completedConnectorIds: [outputMessage.id, outputMessages.id],
       });
 

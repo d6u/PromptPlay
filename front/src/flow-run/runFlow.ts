@@ -1,4 +1,4 @@
-import { D } from '@mobily/ts-belt';
+import { A, D, pipe } from '@mobily/ts-belt';
 import {
   EMPTY,
   Observable,
@@ -12,7 +12,14 @@ import {
   tap,
 } from 'rxjs';
 
-import { NodeClass, NodeType, type RunNodeResult } from 'flow-models';
+import {
+  NodeClass,
+  NodeType,
+  type NodeInputVariable,
+  type NodeOutputVariable,
+  type RunNodeResult,
+  type VariableValueBox,
+} from 'flow-models';
 
 import { RunNodeProgressEventType, type RunFlowResult } from './event-types';
 import {
@@ -98,13 +105,26 @@ function createRunNodeWrapperObservable(
       context.progressObserver?.next({
         type: RunNodeProgressEventType.Updated,
         nodeId: context.nodeId,
-        result: result,
+        result: {
+          ...result,
+          // TODO: Simplify this
+          variableResults: result.variableValues
+            ? pipe(
+                context.nodeConfig.class === NodeClass.Finish
+                  ? context.getInputVariables()
+                  : context.getOutputVariables(),
+                A.mapWithIndex<
+                  NodeInputVariable | NodeOutputVariable,
+                  [string, VariableValueBox]
+                >((i, v) => [v.id, { value: result.variableValues![i] }]),
+                D.fromPairs,
+              )
+            : {},
+        },
       });
 
       if (result.variableValues != null) {
         context.updateAllVariableValuesFromList(result.variableValues);
-      } else if (result.variableResults != null) {
-        context.updateAllVariableValues(result.variableResults);
       }
 
       if (result.conditionResults != null) {

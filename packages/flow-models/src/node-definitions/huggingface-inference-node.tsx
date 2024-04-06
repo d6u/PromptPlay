@@ -164,9 +164,7 @@ export const HUGGINGFACE_INFERENCE_NODE_DEFINITION: NodeDefinition<
             });
           } else {
             subscriber.next({
-              variableResults: {
-                [variableOutput.id]: { value: result.data },
-              },
+              variableValues: [result.data],
               completedConnectorIds: [variableOutput.id],
             });
           }

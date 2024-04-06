@@ -215,28 +215,6 @@ export class RunNodeContext {
     }
   }
 
-  updateAllVariableValues(variableValues: VariableValueRecords): void {
-    this.context.allVariableValues = produce(
-      this.context.allVariableValues,
-      (draft) => {
-        for (const [connectorId, result] of Object.entries(variableValues)) {
-          const connector = this.context.params.connectors[connectorId];
-
-          invariant(
-            connector.type === ConnectorType.NodeInput ||
-              connector.type === ConnectorType.NodeOutput,
-          );
-
-          if (connector.isGlobal && connector.globalVariableId != null) {
-            draft[connector.globalVariableId] = result;
-          } else {
-            draft[connectorId] = result;
-          }
-        }
-      },
-    );
-  }
-
   updateAllVariableValuesFromList(variableValues: unknown[]): void {
     this.context.allVariableValues = produce(
       this.context.allVariableValues,

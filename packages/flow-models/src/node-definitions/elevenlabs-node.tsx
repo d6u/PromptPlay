@@ -160,9 +160,7 @@ export const ELEVENLABS_NODE_DEFINITION: NodeDefinition<
             const url = URL.createObjectURL(result.data);
 
             subscriber.next({
-              variableResults: {
-                [outputAudio.id]: { value: url },
-              },
+              variableValues: [url],
               completedConnectorIds: [outputAudio.id],
             });
           }

@@ -148,7 +148,10 @@ export type RunNodeStartedEvent = {
 export type RunNodeUpdatedEvent = {
   type: RunNodeProgressEventType.Updated;
   nodeId: string;
-  result: RunNodeResult;
+  // NOTE: Need additional `variableResults`, so that some consumer can use it
+  result: RunNodeResult & {
+    variableResults?: VariableValueRecords;
+  };
 };
 
 export type RunNodeFinishedEvent = {

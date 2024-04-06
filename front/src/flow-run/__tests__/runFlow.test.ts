@@ -141,6 +141,9 @@ test('runFlow should execute', () => {
         nodeId: 'GjREx',
         result: {
           variableValues: ['test'],
+          variableResults: {
+            'GjREx/URLME': { value: 'test' },
+          },
           completedConnectorIds: ['GjREx/URLME'],
         },
       },
@@ -157,6 +160,9 @@ test('runFlow should execute', () => {
         nodeId: '9hKOz',
         result: {
           variableValues: ['test'],
+          variableResults: {
+            '9hKOz/c5NYh': { value: 'test' },
+          },
         },
       },
       {
@@ -398,6 +404,9 @@ test('runFlow should unblock node has multiple conditions even when only one con
       nodeId: 'itI1z',
       result: {
         variableValues: ['Value A'],
+        variableResults: {
+          'itI1z/7cpZ9': { value: 'Value A' },
+        },
         completedConnectorIds: ['itI1z/7cpZ9'],
       },
     },
@@ -419,6 +428,7 @@ test('runFlow should unblock node has multiple conditions even when only one con
             isConditionMatched: true,
           },
         },
+        variableResults: {},
         completedConnectorIds: ['1w9JM/hvZie'],
       },
     },
@@ -435,6 +445,11 @@ test('runFlow should unblock node has multiple conditions even when only one con
       nodeId: '2WvHf',
       result: {
         variableValues: ['Write a poem about A in fewer than 20 words.'],
+        variableResults: {
+          '2WvHf/content': {
+            value: 'Write a poem about A in fewer than 20 words.',
+          },
+        },
         completedConnectorIds: ['2WvHf/content'],
       },
     },
@@ -686,6 +701,9 @@ test('runFlow should fallback to default case when no condition was met', async 
       nodeId: 'itI1z',
       result: {
         variableValues: ['nothing matches'],
+        variableResults: {
+          'itI1z/7cpZ9': { value: 'nothing matches' },
+        },
         completedConnectorIds: ['itI1z/7cpZ9'],
       },
     },
@@ -715,6 +733,7 @@ test('runFlow should fallback to default case when no condition was met', async 
             isConditionMatched: true,
           },
         },
+        variableResults: {},
         completedConnectorIds: ['1w9JM/fR2hj'],
       },
     },
@@ -731,6 +750,11 @@ test('runFlow should fallback to default case when no condition was met', async 
       nodeId: '2WvHf',
       result: {
         variableValues: ['Write a poem about A in fewer than 20 words.'],
+        variableResults: {
+          '2WvHf/content': {
+            value: 'Write a poem about A in fewer than 20 words.',
+          },
+        },
         completedConnectorIds: ['2WvHf/content'],
       },
     },
