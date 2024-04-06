@@ -69,8 +69,8 @@ function createRunNodeObservable(context: RunNodeContext): Observable<never> {
         nodeConfig,
         inputVariables,
         outputVariables,
-        outputConditions: outgoingConditions,
-        inputVariableResults: inputVariableValues,
+        outgoingConditions,
+        inputVariableValues,
       }),
     ),
     createRunNodeEndWithObservable(context),
@@ -131,6 +131,7 @@ function createRunNodeEndWithObservable(
     // TODO: Generalize this for all node types
     if (context.nodeConfig.type !== NodeType.ConditionNode) {
       const outgoingConditions = context.getOutgoingConditions();
+
       // Finish nodes doesn't have outgoing conditions
       if (outgoingConditions.length > 0) {
         context.addCompletedConnectorIds([outgoingConditions[0].id]);

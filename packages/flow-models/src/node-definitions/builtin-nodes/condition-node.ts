@@ -97,8 +97,8 @@ export const CONDITION_NODE_DEFINITION: NodeDefinition<
       const {
         nodeConfig,
         inputVariables,
-        outputConditions,
-        inputVariableResults,
+        outgoingConditions: outputConditions,
+        inputVariableValues: inputVariableResults,
       } = params;
 
       invariant(nodeConfig.type === NodeType.ConditionNode);

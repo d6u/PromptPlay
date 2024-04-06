@@ -135,7 +135,7 @@ export const HUGGINGFACE_INFERENCE_NODE_DEFINITION: NodeDefinition<
         nodeConfig,
         inputVariables,
         outputVariables,
-        inputVariableResults,
+        inputVariableValues: inputVariableResults,
       } = params;
 
       invariant(nodeConfig.type === NodeType.HuggingFaceInference);

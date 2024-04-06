@@ -82,7 +82,11 @@ export const GENERIC_CHATBOT_START_NODE_DEFINITION: NodeDefinition<
 
   createNodeExecutionObservable(params) {
     return new Observable<RunNodeResult>((subscriber) => {
-      const { nodeConfig, outputVariables, inputVariableResults } = params;
+      const {
+        nodeConfig,
+        outputVariables,
+        inputVariableValues: inputVariableResults,
+      } = params;
 
       invariant(nodeConfig.type === NodeType.GenericChatbotStart);
 

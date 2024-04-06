@@ -216,7 +216,7 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
         nodeConfig,
         inputVariables,
         outputVariables,
-        inputVariableResults,
+        inputVariableValues: inputVariableResults,
       } = params;
 
       invariant(

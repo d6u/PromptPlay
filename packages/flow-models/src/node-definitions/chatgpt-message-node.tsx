@@ -161,7 +161,7 @@ export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition<
         nodeConfig,
         inputVariables,
         outputVariables,
-        inputVariableResults,
+        inputVariableValues: inputVariableResults,
       } = params;
 
       invariant(

@@ -61,8 +61,8 @@ export type RunNodeParams<T> = {
   nodeConfig: Readonly<T>;
   inputVariables: NodeInputVariable[];
   outputVariables: NodeOutputVariable[];
-  outputConditions: Condition[];
-  inputVariableResults: VariableValueRecords;
+  outgoingConditions: Condition[];
+  inputVariableValues: VariableValueRecords;
 };
 
 export type RunNodeResult = Partial<{
