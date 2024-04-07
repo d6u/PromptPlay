@@ -17,6 +17,11 @@ import {
   JavaScriptFunctionNodeConfigSchema,
 } from './builtin-nodes/javascript-function-node';
 import {
+  LOOP_NODE_DEFINITION,
+  LoopNodeConfigSchema,
+  type LoopNodeAllLevelConfig,
+} from './builtin-nodes/loop-node';
+import {
   OUTPUT_NODE_DEFINITION,
   OutputNodeAllLevelConfig,
   OutputNodeConfigSchema,
@@ -60,6 +65,7 @@ import {
 export * from './builtin-nodes/condition-node';
 export * from './builtin-nodes/input-node';
 export * from './builtin-nodes/javascript-function-node';
+export * from './builtin-nodes/loop-node';
 export * from './builtin-nodes/output-node';
 export * from './builtin-nodes/text-template-node';
 export * from './chatgpt-chat-completion-node';
@@ -76,6 +82,7 @@ const NodeConfigSchema = z.union([
   ConditionNodeConfigSchema,
   JavaScriptFunctionNodeConfigSchema,
   TextTemplateNodeConfigSchema,
+  LoopNodeConfigSchema,
   // ANCHOR: Update this section when adding new node types
   GenericChatbotStartNodeConfigSchema,
   GenericChatbotFinishNodeConfigSchema,
@@ -98,6 +105,7 @@ export type NodeAllLevelConfigUnion =
   | ConditionNodeAllLevelConfig
   | JavaScriptFunctionNodeAllLevelConfig
   | TextTemplateNodeAllLevelConfig
+  | LoopNodeAllLevelConfig
   // ANCHOR: Update this when adding new node types
   | GenericChatbotStartNodeAllLevelConfig
   | GenericChatbotFinishNodeAllLevelConfig
@@ -112,6 +120,7 @@ const NODE_TYPE_TO_NODE_DEFINITION_MAP = {
   [NodeType.ConditionNode]: CONDITION_NODE_DEFINITION,
   [NodeType.JavaScriptFunctionNode]: JAVASCRIPT_NODE_DEFINITION,
   [NodeType.TextTemplate]: TEXT_TEMPLATE_NODE_DEFINITION,
+  [NodeType.LoopNode]: LOOP_NODE_DEFINITION,
   // ANCHOR: Update this when adding new node types
   [NodeType.GenericChatbotStart]: GENERIC_CHATBOT_START_NODE_DEFINITION,
   [NodeType.GenericChatbotFinish]: GENERIC_CHATBOT_FINISH_NODE_DEFINITION,

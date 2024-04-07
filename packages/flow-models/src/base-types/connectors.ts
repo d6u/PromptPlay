@@ -33,6 +33,13 @@ export const NodeOutputVariableSchema = z.object({
   globalVariableId: z.string().nullable().default(null),
 });
 
+export const ConditionTargetSchema = z.object({
+  type: z.literal(ConnectorType.ConditionTarget),
+  id: z.string(),
+  nodeId: z.string(),
+  index: z.number().optional(),
+});
+
 export const ConditionSchema = z.object({
   type: z.literal(ConnectorType.Condition),
   id: z.string(),
@@ -41,16 +48,10 @@ export const ConditionSchema = z.object({
   expressionString: z.string(),
 });
 
-export const ConditionTargetSchema = z.object({
-  type: z.literal(ConnectorType.ConditionTarget),
-  id: z.string(),
-  nodeId: z.string(),
-});
-
 export type NodeInputVariable = z.infer<typeof NodeInputVariableSchema>;
 export type NodeOutputVariable = z.infer<typeof NodeOutputVariableSchema>;
-export type Condition = z.infer<typeof ConditionSchema>;
 export type ConditionTarget = z.infer<typeof ConditionTargetSchema>;
+export type Condition = z.infer<typeof ConditionSchema>;
 
 const ConnectorSchema = z.union([
   NodeInputVariableSchema,
