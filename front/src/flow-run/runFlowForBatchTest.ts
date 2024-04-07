@@ -30,7 +30,7 @@ import runFlow from './runFlow';
 import { getNodeAllLevelConfigOrValidationErrors } from './util';
 
 function flowRunBatch(params: {
-  edges: ReadonlyArray<Edge>;
+  edges: Edge[];
   nodeConfigs: Readonly<Record<string, Readonly<NodeConfig>>>;
   connectors: Readonly<Record<string, Readonly<Connector>>>;
   csvTable: ReadonlyArray<ReadonlyArray<string>>;

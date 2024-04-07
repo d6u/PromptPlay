@@ -93,6 +93,8 @@ function createRunNodeWrapperObservable(
     nodeId: context.nodeId,
   });
 
+  console.log('Running node:', context.nodeId, context.nodeConfig.type);
+
   return runNodeObservable.pipe(
     catchError<RunNodeResult, Observable<RunNodeResult>>((err) => {
       console.error(err);

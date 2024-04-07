@@ -302,6 +302,7 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
         },
       }).subscribe({
         next(result) {
+          console.log('runFlowForCanvasTester result', result);
           runFlowResult = result;
         },
         error(error) {

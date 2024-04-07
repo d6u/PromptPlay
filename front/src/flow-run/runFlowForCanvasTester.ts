@@ -24,7 +24,7 @@ import { getNodeAllLevelConfigOrValidationErrors } from './util';
 
 type Params = {
   startNodeIds: ReadonlyArray<string>;
-  edges: ReadonlyArray<Edge>;
+  edges: Edge[];
   nodeConfigs: Readonly<Record<string, Readonly<NodeConfig>>>;
   connectors: Readonly<Record<string, Readonly<Connector>>>;
   inputValueMap: VariableValueRecords;
