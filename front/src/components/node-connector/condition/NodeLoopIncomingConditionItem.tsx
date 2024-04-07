@@ -14,10 +14,6 @@ type Props = {
 };
 
 function NodeLoopIncomingConditionItem(props: Props) {
-  const paramsOnUserStartConnectingEdge = useFlowStore(
-    (s) => s.paramsOnUserStartConnectingEdge,
-  );
-
   let labelText;
   switch (props.condition.index) {
     case 0:
@@ -30,6 +26,10 @@ function NodeLoopIncomingConditionItem(props: Props) {
       labelText = 'Exit';
       break;
   }
+
+  const paramsOnUserStartConnectingEdge = useFlowStore(
+    (s) => s.paramsOnUserStartConnectingEdge,
+  );
 
   let grayOutHandle = false;
 

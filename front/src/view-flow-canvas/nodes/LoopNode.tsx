@@ -1,6 +1,5 @@
 import styled from '@emotion/styled';
 import { useMemo } from 'react';
-import invariant from 'tiny-invariant';
 
 import {
   ConnectorType,
@@ -42,17 +41,14 @@ function LoopNode(props: Props) {
       .sort((a, b) => a.index! - b.index!);
   }, [props.nodeId, connectors]);
 
-  const outgoingCondition = useMemo(() => {
-    return Object.values(connectors).find(
-      (c): c is Condition =>
-        c.nodeId === props.nodeId && c.type === ConnectorType.Condition,
-    );
+  const outgoingConditions = useMemo(() => {
+    return Object.values(connectors)
+      .filter(
+        (c): c is Condition =>
+          c.nodeId === props.nodeId && c.type === ConnectorType.Condition,
+      )
+      .sort((a, b) => a.index - b.index);
   }, [props.nodeId, connectors]);
-
-  invariant(
-    outgoingCondition != null,
-    'Outgoing condition should not be null.',
-  );
 
   return (
     <>
@@ -73,10 +69,13 @@ function LoopNode(props: Props) {
               condition={condition}
             />
           ))}
-          <NodeLoopOutgoingConditionItem
-            nodeId={props.nodeId}
-            condition={outgoingCondition}
-          />
+          {outgoingConditions.map((condition) => (
+            <NodeLoopOutgoingConditionItem
+              key={condition.id}
+              nodeId={props.nodeId}
+              condition={condition}
+            />
+          ))}
         </GenericContainer>
       </NodeBox>
     </>

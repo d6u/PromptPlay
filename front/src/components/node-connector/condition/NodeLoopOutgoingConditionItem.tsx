@@ -14,6 +14,16 @@ type Props = {
 };
 
 function NodeLoopOutgoingConditionItem(props: Props) {
+  let labelText;
+  switch (props.condition.index) {
+    case 0:
+      labelText = 'Break Loop';
+      break;
+    case 1:
+      labelText = 'Continue Loop';
+      break;
+  }
+
   const paramsOnUserStartConnectingEdge = useFlowStore(
     (s) => s.paramsOnUserStartConnectingEdge,
   );
@@ -49,7 +59,7 @@ function NodeLoopOutgoingConditionItem(props: Props) {
           cursor: grayOutHandle ? 'not-allowed' : undefined,
         }}
       />
-      <Label>Next</Label>
+      <Label>{labelText}</Label>
     </Container>
   );
 }

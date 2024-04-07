@@ -57,10 +57,19 @@ export const LOOP_NODE_DEFINITION: NodeDefinition<
           nodeId: nodeId,
           index: 2,
         },
+        // break
         {
           type: ConnectorType.Condition,
           id: `${nodeId}/${randomId()}`,
           index: 0,
+          nodeId: nodeId,
+          expressionString: '',
+        },
+        // continue
+        {
+          type: ConnectorType.Condition,
+          id: `${nodeId}/${randomId()}`,
+          index: 1,
           nodeId: nodeId,
           expressionString: '',
         },
