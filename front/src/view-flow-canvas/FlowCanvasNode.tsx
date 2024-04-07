@@ -16,6 +16,7 @@ import ConditionNode from './nodes/ConditionNode';
 import DefaultNode from './nodes/DefaultNode';
 import FinishClassNode from './nodes/FinishClassNode';
 import JavaScriptFunctionNode from './nodes/JavaScriptFunctionNode';
+import LoopNode from './nodes/LoopNode';
 import StartClassNode from './nodes/StartClassNode';
 
 function FlowCanvasNode() {
@@ -113,6 +114,14 @@ function FlowCanvasNode() {
           outputVariables={outputVariables}
           conditionTarget={conditionTarget}
           nodeExecutionState={nodeExecutionState}
+        />
+      );
+    } else if (nodeConfig.type === NodeType.LoopNode) {
+      return (
+        <LoopNode
+          nodeId={nodeId}
+          isNodeReadOnly={isNodeReadOnly}
+          nodeConfig={nodeConfig}
         />
       );
     } else {
