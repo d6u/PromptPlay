@@ -1,4 +1,3 @@
-import { Observable } from 'rxjs';
 import invariant from 'tiny-invariant';
 import { z } from 'zod';
 
@@ -10,7 +9,6 @@ import {
   NodeClass,
   NodeDefinition,
   NodeType,
-  type RunNodeResult,
 } from '../../node-definition-base-types';
 
 export const JavaScriptFunctionNodeConfigSchema = z.object({
@@ -88,47 +86,40 @@ export const JAVASCRIPT_NODE_DEFINITION: NodeDefinition<
     };
   },
 
-  createNodeExecutionObservable: (params) => {
-    return new Observable<RunNodeResult>((subscriber) => {
-      const {
-        nodeConfig,
-        inputVariables,
-        outputVariables,
-        inputVariableValues,
-      } = params;
+  async runNode(params) {
+    const { nodeConfig, inputVariables, outputVariables, inputVariableValues } =
+      params;
 
-      invariant(nodeConfig.type === NodeType.JavaScriptFunctionNode);
-
-      const pairs: [string, unknown][] = inputVariables.map((v, i) => {
-        return [v.name, inputVariableValues[i]];
-      });
-
-      const outputVariable = outputVariables[0];
-      invariant(outputVariable != null);
-
-      // ANCHOR: Main Logic
-
-      const fn = AsyncFunction(
-        ...pairs.map((pair) => pair[0]),
-        nodeConfig.javaScriptCode,
-      );
-
-      fn(...pairs.map((pair) => pair[1]))
-        .then((value: unknown) => {
-          subscriber.next({
-            variableValues: [value],
-            completedConnectorIds: [outputVariable.id],
-          });
-        })
-        .catch((err: Error) => {
-          subscriber.next({
-            errors: [err.message != null ? err.message : 'Unknown error'],
-          });
-        })
-        .finally(() => {
-          subscriber.complete();
-        });
+    const pairs: [string, unknown][] = inputVariables.map((v, i) => {
+      return [v.name, inputVariableValues[i]];
     });
+
+    const outputVariable = outputVariables[0];
+    invariant(outputVariable != null);
+
+    // SECTION: Main Logic
+
+    const fn = AsyncFunction(
+      ...pairs.map((pair) => pair[0]),
+      nodeConfig.javaScriptCode,
+    );
+
+    try {
+      const value = await fn(...pairs.map((pair) => pair[1]));
+
+      return {
+        variableValues: [value],
+        completedConnectorIds: [outputVariable.id],
+      };
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
+      return {
+        errors: [err.message != null ? err.message : 'Unknown error'],
+      };
+    }
+
+    // !SECTION
   },
 };
 

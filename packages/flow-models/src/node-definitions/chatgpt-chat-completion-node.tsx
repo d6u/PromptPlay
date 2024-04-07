@@ -219,11 +219,6 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
         inputVariableValues,
       } = params;
 
-      invariant(
-        nodeConfig.type === NodeType.ChatGPTChatCompletionNode,
-        "Node type is 'ChatGPTChatCompletionNode'",
-      );
-
       if (!nodeConfig.openAiApiKey) {
         subscriber.next({ errors: ['OpenAI API key is missing'] });
         subscriber.complete();
@@ -257,10 +252,10 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
             : null,
       };
 
-      let variableValuesEventObservable: Observable<RunNodeResult>;
+      let obs: Observable<RunNodeResult>;
 
       if (preferStreaming) {
-        variableValuesEventObservable = getStreamingCompletion(options).pipe(
+        obs = getStreamingCompletion(options).pipe(
           scan(
             (acc: ChatGPTMessage, piece): ChatGPTMessage => {
               if ('error' in piece) {
@@ -300,7 +295,7 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
           }),
         );
       } else {
-        variableValuesEventObservable = getNonStreamingCompletion(options).pipe(
+        obs = getNonStreamingCompletion(options).pipe(
           tap({
             next(result) {
               if (result.isError) {
@@ -336,7 +331,7 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
       }
 
       // NOTE: Teardown logic
-      return variableValuesEventObservable
+      return obs
         .pipe(
           endWith<RunNodeResult>({
             completedConnectorIds: [

@@ -1,6 +1,6 @@
 import { A, D, pipe, type Option } from '@mobily/ts-belt';
 import { produce } from 'immer';
-import { BehaviorSubject, type Observer, type Subject } from 'rxjs';
+import { BehaviorSubject, from, type Observer, type Subject } from 'rxjs';
 import invariant from 'tiny-invariant';
 
 import {
@@ -16,6 +16,7 @@ import {
   type NodeAllLevelConfigUnion,
   type NodeInputVariable,
   type NodeOutputVariable,
+  type RunNodeFunction,
   type VariableValueRecords,
 } from 'flow-models';
 
@@ -97,20 +98,36 @@ export class RunNodeContext {
 
   getRunNodeFunction(): CreateNodeExecutionObservableFunction<NodeAllLevelConfigUnion> {
     const nodeConfig = this.context.params.nodeConfigs[this.nodeId];
+    const nodeDefinition = getNodeDefinitionForNodeTypeName(nodeConfig.type);
 
-    // `createNodeExecutionObservable` is a union type like this:
-    //
-    // ```
-    // | CreateNodeExecutionObservableFunction<InputNodeInstanceLevelConfig>
-    // | CreateNodeExecutionObservableFunction<OutputNodeInstanceLevelConfig>
-    // | ...
-    // ```
-    //
-    // this will deduce the argument type of
-    // `createNodeExecutionObservable` to never when called.
-    // Cast it to a more flexible type to avoid this issue.
-    return getNodeDefinitionForNodeTypeName(nodeConfig.type)
-      .createNodeExecutionObservable as CreateNodeExecutionObservableFunction<NodeAllLevelConfigUnion>;
+    if (
+      nodeDefinition.createNodeExecutionObservable == null &&
+      nodeDefinition.runNode == null
+    ) {
+      throw new Error(
+        'NodeDefinition does not have runNode or createNodeExecutionObservable',
+      );
+    }
+
+    if (nodeDefinition.createNodeExecutionObservable != null) {
+      // `createNodeExecutionObservable` is a union type like this:
+      //
+      // ```
+      // | CreateNodeExecutionObservableFunction<InputNodeInstanceLevelConfig>
+      // | CreateNodeExecutionObservableFunction<OutputNodeInstanceLevelConfig>
+      // | ...
+      // ```
+      //
+      // this will deduce the argument type of
+      // `createNodeExecutionObservable` to never when called.
+      // Cast it to a more flexible type to avoid this issue.
+      return nodeDefinition.createNodeExecutionObservable as CreateNodeExecutionObservableFunction<NodeAllLevelConfigUnion>;
+    } else {
+      // No null check needed here, because we checked it above.
+      const runNode =
+        nodeDefinition.runNode as RunNodeFunction<NodeAllLevelConfigUnion>;
+      return (params) => from(runNode(params));
+    }
   }
 
   getInputVariables(): NodeInputVariable[] {

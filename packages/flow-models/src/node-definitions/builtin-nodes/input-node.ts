@@ -1,5 +1,3 @@
-import { Observable } from 'rxjs';
-import invariant from 'tiny-invariant';
 import { z } from 'zod';
 
 import chance from 'common-utils/chance';
@@ -10,7 +8,6 @@ import {
   NodeClass,
   NodeDefinition,
   NodeType,
-  type RunNodeResult,
 } from '../../node-definition-base-types';
 
 export const InputNodeConfigSchema = z.object({
@@ -67,18 +64,10 @@ export const INPUT_NODE_DEFINITION: NodeDefinition<
     };
   },
 
-  createNodeExecutionObservable(params) {
-    return new Observable<RunNodeResult>((subscriber) => {
-      const { nodeConfig, outputVariables, inputVariableValues } = params;
-
-      invariant(nodeConfig.type === NodeType.InputNode);
-
-      subscriber.next({
-        variableValues: inputVariableValues,
-        completedConnectorIds: outputVariables.map((v) => v.id),
-      });
-
-      subscriber.complete();
-    });
+  async runNode(params) {
+    return {
+      variableValues: params.inputVariableValues,
+      completedConnectorIds: params.outputVariables.map((v) => v.id),
+    };
   },
 };

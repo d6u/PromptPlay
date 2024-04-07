@@ -1,8 +1,7 @@
 import { D, F, pipe } from '@mobily/ts-belt';
 import jsonata from 'jsonata';
-import { Observable } from 'rxjs';
 import invariant from 'tiny-invariant';
-import { z } from 'zod';
+import z from 'zod';
 
 import randomId from 'common-utils/randomId';
 
@@ -16,7 +15,6 @@ import {
   NodeClass,
   NodeDefinition,
   NodeType,
-  type RunNodeResult,
 } from '../../node-definition-base-types';
 
 export const ConditionNodeConfigSchema = z.object({
@@ -92,82 +90,71 @@ export const CONDITION_NODE_DEFINITION: NodeDefinition<
     };
   },
 
-  createNodeExecutionObservable: (params) => {
-    return new Observable<RunNodeResult>((subscriber) => {
-      const {
-        nodeConfig,
-        inputVariables,
-        outgoingConditions,
-        inputVariableValues,
-      } = params;
+  async runNode(params) {
+    const {
+      nodeConfig,
+      inputVariables,
+      outgoingConditions,
+      inputVariableValues,
+    } = params;
 
-      invariant(nodeConfig.type === NodeType.ConditionNode);
+    const inputVariable = inputVariables[0];
+    invariant(inputVariable != null);
 
-      (async function () {
-        const inputVariable = inputVariables[0];
-        invariant(inputVariable != null);
+    const defaultCaseCondition = outgoingConditions[0];
+    invariant(defaultCaseCondition != null);
 
-        const defaultCaseCondition = outgoingConditions[0];
-        invariant(defaultCaseCondition != null);
+    const customCaseConditions = outgoingConditions.slice(1);
 
-        const customCaseConditions = outgoingConditions.slice(1);
+    try {
+      const conditionResults: ConditionResultRecords = {};
+      let hasMatch = false;
 
-        const conditionResults: ConditionResultRecords = {};
+      for (const condition of customCaseConditions) {
+        const expression = jsonata(condition.expressionString);
+        const result = await expression.evaluate(inputVariableValues[0]);
 
-        // NOTE: Main Logic
+        if (result) {
+          hasMatch = true;
 
-        let hasMatch = false;
-
-        for (const condition of customCaseConditions) {
-          const expression = jsonata(condition.expressionString);
-          const result = await expression.evaluate(inputVariableValues[0]);
-
-          if (result) {
-            hasMatch = true;
-
-            conditionResults[condition.id] = {
-              conditionId: condition.id,
-              isConditionMatched: true,
-            };
-
-            if (nodeConfig.stopAtTheFirstMatch) {
-              break;
-            }
-          } else {
-            conditionResults[condition.id] = {
-              conditionId: condition.id,
-              isConditionMatched: false,
-            };
-          }
-        }
-
-        if (!hasMatch) {
-          conditionResults[defaultCaseCondition.id] = {
-            conditionId: defaultCaseCondition.id,
+          conditionResults[condition.id] = {
+            conditionId: condition.id,
             isConditionMatched: true,
           };
+
+          if (nodeConfig.stopAtTheFirstMatch) {
+            break;
+          }
+        } else {
+          conditionResults[condition.id] = {
+            conditionId: condition.id,
+            isConditionMatched: false,
+          };
         }
+      }
 
-        subscriber.next({
-          conditionResults: conditionResults,
-          completedConnectorIds: pipe(
-            conditionResults,
-            D.filter((result) => result.isConditionMatched),
-            D.keys,
-            F.toMutable,
-          ),
-        });
-      })()
-        .catch((err) => {
-          // TODO: Report to telemetry to improve error message
+      if (!hasMatch) {
+        conditionResults[defaultCaseCondition.id] = {
+          conditionId: defaultCaseCondition.id,
+          isConditionMatched: true,
+        };
+      }
 
-          subscriber.next({
-            errors: ['message' in err ? err.message : 'Unknown error'],
-          });
-        })
-        .finally(() => {
-          subscriber.complete();
-        });
-    });
+      return {
+        conditionResults: conditionResults,
+        completedConnectorIds: pipe(
+          conditionResults,
+          D.filter((result) => result.isConditionMatched),
+          D.keys,
+          F.toMutable,
+        ),
+      };
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
+      // TODO: Report to telemetry to improve error message
+      return {
+        errors: ['message' in err ? err.message : 'Unknown error'],
+      };
+    }
   },
 };

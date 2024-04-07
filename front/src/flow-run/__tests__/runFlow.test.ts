@@ -1,6 +1,5 @@
 import { ReplaySubject, lastValueFrom, tap } from 'rxjs';
-import { TestScheduler } from 'rxjs/testing';
-import { beforeEach, expect, test } from 'vitest';
+import { expect, test } from 'vitest';
 
 import {
   CanvasDataV4,
@@ -11,15 +10,7 @@ import {
 import runFlow from '../runFlow';
 import { getNodeAllLevelConfigOrValidationErrors } from '../util';
 
-let testScheduler: TestScheduler;
-
-beforeEach(() => {
-  testScheduler = new TestScheduler((actual, expected) => {
-    expect(actual).toEqual(expected);
-  });
-});
-
-test('runFlow should execute', () => {
+test('runFlow should execute', async () => {
   const flowContent: CanvasDataV4 = {
     nodes: [
       {
@@ -108,69 +99,78 @@ test('runFlow should execute', () => {
     (nodeType: NodeTypeEnum, fieldKey: string) => '',
   );
 
-  testScheduler.run((helpers) => {
-    const { expectObservable } = helpers;
+  const progressObserver = new ReplaySubject();
 
-    const progressObserver = new ReplaySubject();
-
-    const obs = runFlow({
+  const runResult = await lastValueFrom(
+    runFlow({
       nodeConfigs: result.nodeAllLevelConfigs!,
       connectors: flowContent.connectors,
       inputVariableValues: flowContent.variableResults,
       preferStreaming: false,
       flowGraph: immutableFlowGraph,
       progressObserver: progressObserver,
-    });
+    }),
+  );
 
-    expectObservable(obs).toBe('(0|)', [
-      {
-        errors: [],
+  expect(runResult).toEqual({
+    errors: [],
+    variableResults: {
+      '9hKOz/c5NYh': { value: 'test' },
+    },
+  });
+
+  let n = 0;
+
+  const events = [
+    {
+      type: 'Started',
+      nodeId: 'GjREx',
+    },
+    {
+      type: 'Updated',
+      nodeId: 'GjREx',
+      result: {
+        variableValues: ['test'],
+        variableResults: {
+          'GjREx/URLME': { value: 'test' },
+        },
+        completedConnectorIds: ['GjREx/URLME'],
+      },
+    },
+    {
+      type: 'Finished',
+      nodeId: 'GjREx',
+    },
+    {
+      type: 'Started',
+      nodeId: '9hKOz',
+    },
+    {
+      type: 'Updated',
+      nodeId: '9hKOz',
+      result: {
+        variableValues: ['test'],
         variableResults: {
           '9hKOz/c5NYh': { value: 'test' },
         },
       },
-    ]);
+    },
+    {
+      type: 'Finished',
+      nodeId: '9hKOz',
+    },
+  ];
 
-    expectObservable(progressObserver).toBe('(012345|)', [
-      {
-        type: 'Started',
-        nodeId: 'GjREx',
-      },
-      {
-        type: 'Updated',
-        nodeId: 'GjREx',
-        result: {
-          variableValues: ['test'],
-          variableResults: {
-            'GjREx/URLME': { value: 'test' },
-          },
-          completedConnectorIds: ['GjREx/URLME'],
-        },
-      },
-      {
-        type: 'Finished',
-        nodeId: 'GjREx',
-      },
-      {
-        type: 'Started',
-        nodeId: '9hKOz',
-      },
-      {
-        type: 'Updated',
-        nodeId: '9hKOz',
-        result: {
-          variableValues: ['test'],
-          variableResults: {
-            '9hKOz/c5NYh': { value: 'test' },
-          },
-        },
-      },
-      {
-        type: 'Finished',
-        nodeId: '9hKOz',
-      },
-    ]);
-  });
+  // NOTE: Must use tap to wrap assertion because subscribe doesn't stop
+  // the observable on exception.
+  await lastValueFrom(
+    progressObserver.pipe(
+      tap((event) => {
+        expect(event).toEqual(events[n]);
+        n++;
+      }),
+    ),
+  );
 });
 
 test('runFlow should unblock node has multiple conditions even when only one condition was met', async () => {

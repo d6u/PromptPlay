@@ -75,6 +75,10 @@ export type CreateNodeExecutionObservableFunction<T> = (
   params: RunNodeParams<T>,
 ) => Observable<RunNodeResult>;
 
+export type RunNodeFunction<T> = (
+  params: RunNodeParams<T>,
+) => Promise<RunNodeResult>;
+
 export interface NodeDefinition<
   TInstanceLevelConfig extends BaseNodeInstanceLevelConfig,
   TAllLevelConfig extends TInstanceLevelConfig,
@@ -105,5 +109,6 @@ export interface NodeDefinition<
   };
 
   // Execution
-  createNodeExecutionObservable: CreateNodeExecutionObservableFunction<TAllLevelConfig>;
+  createNodeExecutionObservable?: CreateNodeExecutionObservableFunction<TAllLevelConfig>;
+  runNode?: RunNodeFunction<TAllLevelConfig>;
 }

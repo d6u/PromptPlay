@@ -1,4 +1,3 @@
-import { Observable } from 'rxjs';
 import invariant from 'tiny-invariant';
 import { z } from 'zod';
 
@@ -11,7 +10,6 @@ import {
   NodeClass,
   NodeDefinition,
   NodeType,
-  type RunNodeResult,
 } from '../node-definition-base-types';
 
 export const ElevenLabsNodeConfigSchema = z.object({
@@ -124,55 +122,46 @@ export const ELEVENLABS_NODE_DEFINITION: NodeDefinition<
     };
   },
 
-  createNodeExecutionObservable: (params) => {
-    return new Observable<RunNodeResult>((subscriber) => {
-      const { nodeConfig, outputVariables, inputVariableValues } = params;
+  async runNode(params) {
+    const { nodeConfig, outputVariables, inputVariableValues } = params;
 
-      invariant(nodeConfig.type === NodeType.ElevenLabs);
+    if (!nodeConfig.elevenLabsApiKey) {
+      return { errors: ['Eleven Labs API key is missing'] };
+    }
 
-      if (!nodeConfig.elevenLabsApiKey) {
-        subscriber.next({ errors: ['Eleven Labs API key is missing'] });
-        subscriber.complete();
-        return;
-      }
+    const text = inputVariableValues[0];
+    invariant(typeof text === 'string');
 
-      const text = inputVariableValues[0];
-      invariant(typeof text === 'string');
+    const outputAudio = outputVariables[0];
+    invariant(outputAudio != null);
 
-      const outputAudio = outputVariables[0];
-      invariant(outputAudio != null);
-
-      ElevenLabs.textToSpeech({
+    try {
+      const result = await ElevenLabs.textToSpeech({
         text,
         voiceId: nodeConfig.voiceId,
         apiKey: nodeConfig.elevenLabsApiKey,
-      })
-        .then((result) => {
-          if (result.isError) {
-            subscriber.next({
-              errors: [
-                result.data != null
-                  ? JSON.stringify(result.data)
-                  : 'Unknown error',
-              ],
-            });
-          } else {
-            const url = URL.createObjectURL(result.data);
+      });
 
-            subscriber.next({
-              variableValues: [url],
-              completedConnectorIds: [outputAudio.id],
-            });
-          }
-        })
-        .catch((err) => {
-          subscriber.next({
-            errors: [err.message != null ? err.message : 'Unknown error'],
-          });
-        })
-        .finally(() => {
-          subscriber.complete();
-        });
-    });
+      if (result.isError) {
+        return {
+          errors: [
+            result.data != null ? JSON.stringify(result.data) : 'Unknown error',
+          ],
+        };
+      } else {
+        const url = URL.createObjectURL(result.data);
+
+        return {
+          variableValues: [url],
+          completedConnectorIds: [outputAudio.id],
+        };
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
+      return {
+        errors: [err.message != null ? err.message : 'Unknown error'],
+      };
+    }
   },
 };

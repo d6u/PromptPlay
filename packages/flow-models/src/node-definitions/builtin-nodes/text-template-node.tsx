@@ -1,5 +1,4 @@
 import mustache from 'mustache';
-import { Observable } from 'rxjs';
 import invariant from 'tiny-invariant';
 import { z } from 'zod';
 
@@ -11,7 +10,6 @@ import {
   NodeClass,
   NodeDefinition,
   NodeType,
-  type RunNodeResult,
 } from '../../node-definition-base-types';
 
 export const TextTemplateNodeConfigSchema = z.object({
@@ -104,38 +102,28 @@ export const TEXT_TEMPLATE_NODE_DEFINITION: NodeDefinition<
     };
   },
 
-  createNodeExecutionObservable: (params) => {
-    return new Observable<RunNodeResult>((subscriber) => {
-      const {
-        nodeConfig,
-        inputVariables,
-        outputVariables,
-        inputVariableValues,
-      } = params;
+  async runNode(params) {
+    const { nodeConfig, inputVariables, outputVariables, inputVariableValues } =
+      params;
 
-      invariant(nodeConfig.type === NodeType.TextTemplate);
+    const variableNameToValues: Record<string, unknown> = {};
 
-      const variableNameToValues: Record<string, unknown> = {};
-
-      inputVariables.forEach((v, i) => {
-        variableNameToValues[v.name] = inputVariableValues[i];
-      });
-
-      const outputVariable = outputVariables[0];
-      invariant(outputVariable != null);
-
-      // SECTION: Main Logic
-
-      const content = mustache.render(nodeConfig.content, variableNameToValues);
-
-      // !SECTION
-
-      subscriber.next({
-        variableValues: [content],
-        completedConnectorIds: [outputVariable.id],
-      });
-
-      subscriber.complete();
+    inputVariables.forEach((v, i) => {
+      variableNameToValues[v.name] = inputVariableValues[i];
     });
+
+    const outputVariable = outputVariables[0];
+    invariant(outputVariable != null);
+
+    // SECTION: Main Logic
+
+    const content = mustache.render(nodeConfig.content, variableNameToValues);
+
+    // !SECTION
+
+    return {
+      variableValues: [content],
+      completedConnectorIds: [outputVariable.id],
+    };
   },
 };

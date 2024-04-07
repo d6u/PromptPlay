@@ -1,4 +1,3 @@
-import { Observable } from 'rxjs';
 import invariant from 'tiny-invariant';
 import { z } from 'zod';
 
@@ -11,7 +10,6 @@ import {
   NodeClass,
   NodeDefinition,
   NodeType,
-  type RunNodeResult,
 } from '../node-definition-base-types';
 
 // Reference: https://huggingface.co/docs/api-inference/index
@@ -129,54 +127,49 @@ export const HUGGINGFACE_INFERENCE_NODE_DEFINITION: NodeDefinition<
     };
   },
 
-  createNodeExecutionObservable: (params) => {
-    return new Observable<RunNodeResult>((subscriber) => {
-      const { nodeConfig, outputVariables, inputVariableValues } = params;
+  async runNode(params) {
+    const { nodeConfig, outputVariables, inputVariableValues } = params;
 
-      invariant(nodeConfig.type === NodeType.HuggingFaceInference);
+    if (!nodeConfig.huggingFaceApiToken) {
+      return {
+        errors: ['Hugging Face API token is missing'],
+      };
+    }
 
-      if (!nodeConfig.huggingFaceApiToken) {
-        subscriber.next({ errors: ['Hugging Face API token is missing'] });
-        subscriber.complete();
-        return;
-      }
+    const variableOutput = outputVariables[0];
+    invariant(variableOutput != null);
 
-      const variableOutput = outputVariables[0];
-      invariant(variableOutput != null);
+    // SECTION: Main logic
 
-      // NOTE: Main logic
-
-      HuggingFace.callInferenceApi(
+    try {
+      const result = await HuggingFace.callInferenceApi(
         {
           apiToken: nodeConfig.huggingFaceApiToken,
           model: nodeConfig.model,
         },
         inputVariableValues[0],
-      )
-        .then((result) => {
-          if (result.isError) {
-            subscriber.next({
-              errors: [
-                result.data != null
-                  ? JSON.stringify(result.data)
-                  : 'Unknown error',
-              ],
-            });
-          } else {
-            subscriber.next({
-              variableValues: [result.data],
-              completedConnectorIds: [variableOutput.id],
-            });
-          }
-        })
-        .catch((err) => {
-          subscriber.next({
-            errors: [err.message != null ? err.message : 'Unknown error'],
-          });
-        })
-        .finally(() => {
-          subscriber.complete();
-        });
-    });
+      );
+
+      if (result.isError) {
+        return {
+          errors: [
+            result.data != null ? JSON.stringify(result.data) : 'Unknown error',
+          ],
+        };
+      } else {
+        return {
+          variableValues: [result.data],
+          completedConnectorIds: [variableOutput.id],
+        };
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
+      return {
+        errors: [err.message != null ? err.message : 'Unknown error'],
+      };
+    }
+
+    // !SECTION
   },
 };

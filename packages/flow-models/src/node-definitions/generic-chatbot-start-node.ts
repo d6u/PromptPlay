@@ -1,5 +1,3 @@
-import { Observable } from 'rxjs';
-import invariant from 'tiny-invariant';
 import { z } from 'zod';
 
 import randomId from 'common-utils/randomId';
@@ -9,7 +7,6 @@ import {
   NodeClass,
   NodeDefinition,
   NodeType,
-  type RunNodeResult,
 } from '../node-definition-base-types';
 
 export const GenericChatbotStartNodeConfigSchema = z.object({
@@ -80,18 +77,10 @@ export const GENERIC_CHATBOT_START_NODE_DEFINITION: NodeDefinition<
     };
   },
 
-  createNodeExecutionObservable(params) {
-    return new Observable<RunNodeResult>((subscriber) => {
-      const { nodeConfig, outputVariables, inputVariableValues } = params;
-
-      invariant(nodeConfig.type === NodeType.GenericChatbotStart);
-
-      subscriber.next({
-        variableValues: inputVariableValues,
-        completedConnectorIds: outputVariables.map((c) => c.id),
-      });
-
-      subscriber.complete();
-    });
+  async runNode(params) {
+    return {
+      variableValues: params.inputVariableValues,
+      completedConnectorIds: params.outputVariables.map((c) => c.id),
+    };
   },
 };

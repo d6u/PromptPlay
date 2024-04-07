@@ -1,6 +1,5 @@
 import { A, F } from '@mobily/ts-belt';
 import mustache from 'mustache';
-import { Observable } from 'rxjs';
 import invariant from 'tiny-invariant';
 import { z } from 'zod';
 
@@ -12,7 +11,6 @@ import {
   NodeClass,
   NodeDefinition,
   NodeType,
-  type RunNodeResult,
 } from '../node-definition-base-types';
 import { FieldType } from '../node-definition-base-types/field-definition-interfaces';
 
@@ -155,50 +153,39 @@ export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition<
     };
   },
 
-  createNodeExecutionObservable: (params) => {
-    return new Observable<RunNodeResult>((subscriber) => {
-      const {
-        nodeConfig,
-        inputVariables,
-        outputVariables,
-        inputVariableValues,
-      } = params;
+  async runNode(params) {
+    const { nodeConfig, inputVariables, outputVariables, inputVariableValues } =
+      params;
 
-      invariant(
-        nodeConfig.type === NodeType.ChatGPTMessageNode,
-        "Node type is 'ChatGPTMessageNode'",
-      );
+    const variableNameToValue: Record<string, unknown> = {};
 
-      const variableNameToValue: Record<string, unknown> = {};
-
-      // NOTE: Skip the first input variable which is the messages array
-      const args = inputVariableValues.slice(1);
-      inputVariables.slice(1).forEach((v, i) => {
-        variableNameToValue[v.name] = args[i];
-      });
-
-      // NOTE: Main logic
-
-      let messages = (inputVariableValues[0] ?? []) as OpenAI.ChatGPTMessage[];
-
-      const message = {
-        role: nodeConfig.role,
-        content: mustache.render(nodeConfig.content, variableNameToValue),
-      };
-
-      messages = F.toMutable(A.append(messages, message));
-
-      const outputMessage = outputVariables[0];
-      const outputMessages = outputVariables[1];
-      invariant(outputMessage != null);
-      invariant(outputMessages != null);
-
-      subscriber.next({
-        variableValues: [message, messages],
-        completedConnectorIds: [outputMessage.id, outputMessages.id],
-      });
-
-      subscriber.complete();
+    // NOTE: Skip the first input variable which is the messages array
+    const args = inputVariableValues.slice(1);
+    inputVariables.slice(1).forEach((v, i) => {
+      variableNameToValue[v.name] = args[i];
     });
+
+    // SECTION: Main logic
+
+    let messages = (inputVariableValues[0] ?? []) as OpenAI.ChatGPTMessage[];
+
+    const message = {
+      role: nodeConfig.role,
+      content: mustache.render(nodeConfig.content, variableNameToValue),
+    };
+
+    messages = F.toMutable(A.append(messages, message));
+
+    // !SECTION
+
+    const outputMessage = outputVariables[0];
+    const outputMessages = outputVariables[1];
+    invariant(outputMessage != null);
+    invariant(outputMessages != null);
+
+    return {
+      variableValues: [message, messages],
+      completedConnectorIds: [outputMessage.id, outputMessages.id],
+    };
   },
 };
