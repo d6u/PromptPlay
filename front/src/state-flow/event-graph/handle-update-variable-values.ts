@@ -2,16 +2,16 @@ import type { VariableValueUpdate } from '../types.ts';
 import { createHandler } from './event-graph-util.ts';
 import { ChangeEventType } from './event-types.ts';
 
-export type UpdateVariableValueEvent = {
+export type UpdateVariableValuesEvent = {
   type: ChangeEventType.UPDATE_VARIABLE_VALUES;
   updates: VariableValueUpdate[];
 };
 
-export const handleUpdateVariableValue = createHandler<
-  UpdateVariableValueEvent,
+export const handleUpdateVariableValues = createHandler<
+  UpdateVariableValuesEvent,
   never
 >(
-  (event): event is UpdateVariableValueEvent => {
+  (event): event is UpdateVariableValuesEvent => {
     return event.type === ChangeEventType.UPDATE_VARIABLE_VALUES;
   },
   (state, event) => {
