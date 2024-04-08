@@ -103,6 +103,12 @@ test('runFlow should execute', async () => {
 
   const runResult = await lastValueFrom(
     runFlow({
+      edges: flowContent.edges.map((edge) => ({
+        sourceNode: edge.source,
+        sourceConnector: edge.sourceHandle,
+        targetNode: edge.target,
+        targetConnector: edge.targetHandle,
+      })),
       nodeConfigs: result.nodeAllLevelConfigs!,
       connectors: flowContent.connectors,
       inputVariableValues: flowContent.variableResults,
@@ -348,6 +354,12 @@ test('runFlow should block node has multiple conditions when only one condition 
   const progressObserver = new ReplaySubject();
 
   const obs = runFlow({
+    edges: flowContent.edges.map((edge) => ({
+      sourceNode: edge.source,
+      sourceConnector: edge.sourceHandle,
+      targetNode: edge.target,
+      targetConnector: edge.targetHandle,
+    })),
     nodeConfigs: result.nodeAllLevelConfigs!,
     connectors: flowContent.connectors,
     inputVariableValues: flowContent.variableResults,
@@ -591,6 +603,12 @@ test('runFlow should match a case', async () => {
   const progressObserver = new ReplaySubject();
 
   const obs = runFlow({
+    edges: flowContent.edges.map((edge) => ({
+      sourceNode: edge.source,
+      sourceConnector: edge.sourceHandle,
+      targetNode: edge.target,
+      targetConnector: edge.targetHandle,
+    })),
     nodeConfigs: result.nodeAllLevelConfigs!,
     connectors: flowContent.connectors,
     inputVariableValues: flowContent.variableResults,
@@ -743,13 +761,6 @@ test('runFlow should fallback to default case when no condition was met', async 
         targetHandle: 'eSpTO/44B0L',
       },
       {
-        id: 'FbKrl',
-        source: '1w9JM',
-        sourceHandle: '1w9JM/fR2hj',
-        target: 'qclxl',
-        targetHandle: 'qclxl/l56QJ',
-      },
-      {
         id: '8tl2S',
         source: 'itI1z',
         sourceHandle: 'itI1z/7cpZ9',
@@ -890,6 +901,383 @@ test('runFlow should fallback to default case when no condition was met', async 
   const progressObserver = new ReplaySubject();
 
   const obs = runFlow({
+    edges: flowContent.edges.map((edge) => ({
+      sourceNode: edge.source,
+      sourceConnector: edge.sourceHandle,
+      targetNode: edge.target,
+      targetConnector: edge.targetHandle,
+    })),
+    nodeConfigs: result.nodeAllLevelConfigs!,
+    connectors: flowContent.connectors,
+    inputVariableValues: flowContent.variableResults,
+    preferStreaming: false,
+    flowGraph: immutableFlowGraph,
+    progressObserver: progressObserver,
+  });
+
+  const actual = await lastValueFrom(obs);
+
+  expect(actual).toEqual({ errors: [], variableResults: {} });
+
+  let n = 0;
+
+  const values = [
+    {
+      type: 'Started',
+      nodeId: 'itI1z',
+    },
+    {
+      type: 'Updated',
+      nodeId: 'itI1z',
+      result: {
+        variableValues: ['nothing matches'],
+        variableResults: {
+          'itI1z/7cpZ9': { value: 'nothing matches' },
+        },
+        completedConnectorIds: ['itI1z/7cpZ9'],
+      },
+    },
+    {
+      type: 'Finished',
+      nodeId: 'itI1z',
+    },
+    {
+      type: 'Started',
+      nodeId: '1w9JM',
+    },
+    {
+      type: 'Updated',
+      nodeId: '1w9JM',
+      result: {
+        conditionResults: {
+          '1w9JM/hvZie': {
+            conditionId: '1w9JM/hvZie',
+            isConditionMatched: false,
+          },
+          '1w9JM/MlBLI': {
+            conditionId: '1w9JM/MlBLI',
+            isConditionMatched: false,
+          },
+          '1w9JM/fR2hj': {
+            conditionId: '1w9JM/fR2hj',
+            isConditionMatched: true,
+          },
+        },
+        variableResults: {},
+        completedConnectorIds: ['1w9JM/fR2hj'],
+      },
+    },
+    {
+      type: 'Finished',
+      nodeId: '1w9JM',
+    },
+    {
+      type: 'Started',
+      nodeId: '2WvHf',
+    },
+    {
+      type: 'Updated',
+      nodeId: '2WvHf',
+      result: {
+        variableValues: ['Write a poem about A in fewer than 20 words.'],
+        variableResults: {
+          '2WvHf/content': {
+            value: 'Write a poem about A in fewer than 20 words.',
+          },
+        },
+        completedConnectorIds: ['2WvHf/content'],
+      },
+    },
+    {
+      type: 'Finished',
+      nodeId: '2WvHf',
+    },
+  ];
+
+  // NOTE: Must use tap to wrap assertion because subscribe doesn't stop
+  // the observable on exception.
+  await lastValueFrom(
+    progressObserver.pipe(
+      tap((event) => {
+        expect(event).toEqual(values[n]);
+        n++;
+      }),
+    ),
+  );
+});
+
+test('runFlow should execute loop', async () => {
+  const flowContent: CanvasDataV4 = {
+    nodes: [
+      {
+        id: 'FdefK',
+        type: 'CANVAS_NODE',
+        position: {
+          x: 1056,
+          y: 42,
+        },
+      },
+      {
+        id: 'Qhxt8',
+        type: 'CANVAS_NODE',
+        position: {
+          x: 1885.787074770397,
+          y: 83.51482990815873,
+        },
+      },
+      {
+        id: '6tZtD',
+        type: 'CANVAS_NODE',
+        position: {
+          x: 1476.50404958973,
+          y: 206.8382952235715,
+        },
+      },
+      {
+        id: 'uBoFJ',
+        type: 'CANVAS_NODE',
+        position: {
+          x: 699.5659945987776,
+          y: 300.8544378199364,
+        },
+      },
+      {
+        id: 'vlyKy',
+        type: 'CANVAS_NODE',
+        position: {
+          x: 1063.743897734127,
+          y: 301.0862425474285,
+        },
+      },
+    ],
+    edges: [
+      {
+        id: 'SYNZr',
+        source: 'FdefK',
+        sourceHandle: 'FdefK/hJpIx',
+        target: '6tZtD',
+        targetHandle: '6tZtD/LqnyJ',
+      },
+      {
+        id: 'vMrN1',
+        source: '6tZtD',
+        sourceHandle: '6tZtD/zPxyP',
+        target: 'Qhxt8',
+        targetHandle: 'Qhxt8/tF70x',
+      },
+      {
+        id: 'iWx9r',
+        source: 'uBoFJ',
+        sourceHandle: 'uBoFJ/qohJi',
+        target: 'vlyKy',
+        targetHandle: 'vlyKy/tfp2T',
+      },
+      {
+        id: 'm90RR',
+        source: 'vlyKy',
+        sourceHandle: 'vlyKy/g14sD',
+        target: '6tZtD',
+        targetHandle: '6tZtD/hqHFp',
+      },
+      {
+        id: 'InZeN',
+        source: 'vlyKy',
+        sourceHandle: 'vlyKy/wal94',
+        target: '6tZtD',
+        targetHandle: '6tZtD/Kh4wg',
+      },
+      {
+        id: '1YmZ8',
+        source: '6tZtD',
+        sourceHandle: '6tZtD/LFayZ',
+        target: 'uBoFJ',
+        targetHandle: 'uBoFJ/OV1VB',
+      },
+    ],
+    nodeConfigs: {
+      '6tZtD': {
+        class: 'Process',
+        type: 'LoopNode',
+        nodeId: '6tZtD',
+      },
+      'FdefK': {
+        class: 'Start',
+        type: 'InputNode',
+        nodeId: 'FdefK',
+        nodeName: 'input',
+      },
+      'Qhxt8': {
+        class: 'Finish',
+        type: 'OutputNode',
+        nodeId: 'Qhxt8',
+      },
+      'uBoFJ': {
+        class: 'Process',
+        type: 'JavaScriptFunctionNode',
+        nodeId: 'uBoFJ',
+        javaScriptCode: 'count = count ?? 0\ncount++\nreturn count',
+      },
+      'vlyKy': {
+        class: 'Process',
+        type: 'ConditionNode',
+        nodeId: 'vlyKy',
+        stopAtTheFirstMatch: true,
+      },
+    },
+    connectors: {
+      '6tZtD/Kh4wg': {
+        type: 'ConditionTarget',
+        id: '6tZtD/Kh4wg',
+        nodeId: '6tZtD',
+        index: 2,
+      },
+      '6tZtD/LFayZ': {
+        type: 'Condition',
+        id: '6tZtD/LFayZ',
+        nodeId: '6tZtD',
+        index: 1,
+        expressionString: '',
+      },
+      '6tZtD/LqnyJ': {
+        type: 'ConditionTarget',
+        id: '6tZtD/LqnyJ',
+        nodeId: '6tZtD',
+        index: 0,
+      },
+      '6tZtD/hqHFp': {
+        type: 'ConditionTarget',
+        id: '6tZtD/hqHFp',
+        nodeId: '6tZtD',
+        index: 1,
+      },
+      '6tZtD/zPxyP': {
+        type: 'Condition',
+        id: '6tZtD/zPxyP',
+        nodeId: '6tZtD',
+        index: 0,
+        expressionString: '',
+      },
+      'FdefK/hJpIx': {
+        type: 'Condition',
+        id: 'FdefK/hJpIx',
+        nodeId: 'FdefK',
+        index: 0,
+        expressionString: '',
+      },
+      'Qhxt8/Ez9Jp': {
+        type: 'NodeInput',
+        id: 'Qhxt8/Ez9Jp',
+        name: 'output',
+        nodeId: 'Qhxt8',
+        index: 0,
+        valueType: 'Any',
+        isGlobal: true,
+        globalVariableId: 'RsYSd',
+      },
+      'Qhxt8/tF70x': {
+        type: 'ConditionTarget',
+        id: 'Qhxt8/tF70x',
+        nodeId: 'Qhxt8',
+      },
+      'uBoFJ/OV1VB': {
+        type: 'ConditionTarget',
+        id: 'uBoFJ/OV1VB',
+        nodeId: 'uBoFJ',
+      },
+      'uBoFJ/nTzjy': {
+        type: 'NodeInput',
+        id: 'uBoFJ/nTzjy',
+        name: 'count',
+        nodeId: 'uBoFJ',
+        index: 1,
+        valueType: 'Any',
+        isGlobal: true,
+        globalVariableId: 'RsYSd',
+      },
+      'uBoFJ/qohJi': {
+        type: 'Condition',
+        id: 'uBoFJ/qohJi',
+        nodeId: 'uBoFJ',
+        index: 0,
+        expressionString: '',
+      },
+      'vlyKy/g14sD': {
+        type: 'Condition',
+        id: 'vlyKy/g14sD',
+        nodeId: 'vlyKy',
+        index: 0,
+        expressionString: '$ < 3',
+      },
+      'vlyKy/input': {
+        type: 'NodeInput',
+        id: 'vlyKy/input',
+        name: 'input',
+        nodeId: 'vlyKy',
+        index: 0,
+        valueType: 'Any',
+        isGlobal: true,
+        globalVariableId: 'RsYSd',
+      },
+      'vlyKy/tfp2T': {
+        type: 'ConditionTarget',
+        id: 'vlyKy/tfp2T',
+        nodeId: 'vlyKy',
+      },
+      'vlyKy/wal94': {
+        type: 'Condition',
+        id: 'vlyKy/wal94',
+        nodeId: 'vlyKy',
+        index: -1,
+        expressionString: '',
+      },
+      'uBoFJ/output': {
+        type: 'NodeOutput',
+        id: 'uBoFJ/output',
+        name: 'output',
+        nodeId: 'uBoFJ',
+        index: 0,
+        valueType: 'Structured',
+        isGlobal: true,
+        globalVariableId: 'RsYSd',
+      },
+    },
+    globalVariables: {
+      RsYSd: {
+        id: 'RsYSd',
+        name: 'count',
+        valueType: 'Unspecified',
+      },
+    },
+    conditionResults: {},
+    variableResults: {},
+  };
+
+  const immutableFlowGraph = new ImmutableFlowNodeGraph({
+    startNodeIds: ['FdefK'],
+    nodeConfigs: flowContent.nodeConfigs,
+    edges: flowContent.edges.map((edge) => ({
+      sourceNode: edge.source,
+      sourceConnector: edge.sourceHandle,
+      targetNode: edge.target,
+      targetConnector: edge.targetHandle,
+    })),
+    connectors: flowContent.connectors,
+  });
+
+  const result = getNodeAllLevelConfigOrValidationErrors(
+    flowContent.nodeConfigs,
+    (nodeType: NodeTypeEnum, fieldKey: string) => '',
+  );
+
+  const progressObserver = new ReplaySubject();
+
+  const obs = runFlow({
+    edges: flowContent.edges.map((edge) => ({
+      sourceNode: edge.source,
+      sourceConnector: edge.sourceHandle,
+      targetNode: edge.target,
+      targetConnector: edge.targetHandle,
+    })),
     nodeConfigs: result.nodeAllLevelConfigs!,
     connectors: flowContent.connectors,
     inputVariableValues: flowContent.variableResults,
