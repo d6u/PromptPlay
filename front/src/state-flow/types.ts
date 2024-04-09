@@ -19,6 +19,7 @@ import {
   NodeConfig,
   NodeTypeEnum,
   type CanvasDataV4,
+  type ConditionResult,
   type VariableValueBox,
   type VariableValueRecords,
 } from 'flow-models';
@@ -184,6 +185,11 @@ export type VariableValueUpdate = {
   update: VariableValueBox;
 };
 
+export type ConditionResultUpdate = {
+  conditionId: string;
+  update: ConditionResult;
+};
+
 export type StartFlowSingleRunParams = {
   inputValues: VariableValueRecords;
 };
@@ -233,6 +239,7 @@ export type FlowActions = {
   ): void;
 
   updateVariableValues(updates: VariableValueUpdate[]): void;
+  updateConditionResults(updates: ConditionResultUpdate[]): void;
 
   createGlobalVariable(name: string, assignToVariableId: string): void;
   // !SECTION

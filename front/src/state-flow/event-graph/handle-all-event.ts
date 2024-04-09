@@ -39,6 +39,10 @@ import {
   handleRemoveVariable,
 } from './handle-remove-variable';
 import {
+  handleUpdateConditionResults,
+  type UpdateConditionResultsEvent,
+} from './handle-update-condition-results';
+import {
   UpdateConnectorsEvent,
   handleUpdateConnectors,
 } from './handle-update-connectors';
@@ -47,9 +51,9 @@ import {
   handleUpdateNodeConfig,
 } from './handle-update-node-config';
 import {
-  UpdateVariableValueEvent,
-  handleUpdateVariableValue,
-} from './handle-variable-value-update';
+  handleUpdateVariableValues,
+  type UpdateVariableValuesEvent,
+} from './handle-update-variable-values';
 
 export type AcceptedEvent =
   | ReactFlowEdgesChangeEvent
@@ -61,8 +65,9 @@ export type AcceptedEvent =
   | AddConnectorEvent
   | RemoveVariableEvent
   | UpdateConnectorsEvent
-  | UpdateVariableValueEvent
+  | UpdateVariableValuesEvent
   | CreateGlobalVariableEvent
+  | UpdateConditionResultsEvent
   | FlowSingleRunStartedEvent
   | FlowSingleRunStoppedEvent
   | FlowSingleRunNodeExecutionStateChangeEvent
@@ -82,7 +87,8 @@ export const handleAllEvent = createHandler<AcceptedEvent, AcceptedEvent>(
     handleAddConnector,
     handleRemoveVariable,
     handleUpdateConnectors,
-    handleUpdateVariableValue,
+    handleUpdateVariableValues,
+    handleUpdateConditionResults,
     handleCreateGlobalVariable,
     handleFlowSingleRunStarted,
     handleFlowSingleRunStopped,

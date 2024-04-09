@@ -235,6 +235,13 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
               });
               break;
             case FlowRunEventType.VariableValues:
+              get().updateConditionResults(
+                Object.keys(event.conditionResults).map((conditionId) => {
+                  const result = event.conditionResults[conditionId];
+                  return { conditionId, update: result };
+                }),
+              );
+
               get().updateVariableValues(
                 Object.keys(event.variableResults).map((variableId) => {
                   const result = event.variableResults[variableId];

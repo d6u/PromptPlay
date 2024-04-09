@@ -30,6 +30,7 @@ import {
   FlowProps,
   FlowState,
   type CanvasStateMachineEmittedEvent,
+  type ConditionResultUpdate,
   type FlowSingleRunResult,
   type StartFlowSingleRunParams,
   type VariableValueUpdate,
@@ -254,6 +255,12 @@ export const createRootSlice: RootSliceStateCreator = (set, get) => {
     updateVariableValues(updates: VariableValueUpdate[]): void {
       get()._processEventWithEventGraph({
         type: ChangeEventType.UPDATE_VARIABLE_VALUES,
+        updates,
+      });
+    },
+    updateConditionResults(updates: ConditionResultUpdate[]): void {
+      get()._processEventWithEventGraph({
+        type: ChangeEventType.UPDATE_CONDITION_RESULTS,
         updates,
       });
     },
