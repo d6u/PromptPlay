@@ -47,7 +47,7 @@ export const GENERIC_CHATBOT_FINISH_NODE_DEFINITION: NodeDefinition<
       },
       variableConfigList: [
         {
-          type: ConnectorType.ConditionTarget,
+          type: ConnectorType.InCondition,
           id: `${nodeId}/${randomId()}`,
           nodeId: nodeId,
         },

@@ -3,12 +3,12 @@ import invariant from 'tiny-invariant';
 import chance from 'common-utils/chance';
 import randomId from 'common-utils/randomId';
 import {
-  Condition,
   ConnectorType,
   ConnectorTypeEnum,
   NodeInputVariable,
   NodeOutputVariable,
   NodeType,
+  OutgoingCondition,
   VariableValueType,
   getNodeDefinitionForNodeTypeName,
 } from 'flow-models';
@@ -90,10 +90,10 @@ export const handleAddConnector = createHandler<
         state.flowContent.connectors[variableConfig.id] = variableConfig;
         break;
       }
-      case ConnectorType.Condition: {
-        const variableConfig: Condition = {
+      case ConnectorType.OutCondition: {
+        const variableConfig: OutgoingCondition = {
           id: `${event.nodeId}/${randomId()}`,
-          type: ConnectorType.Condition,
+          type: ConnectorType.OutCondition,
           nodeId: event.nodeId,
           index: event.connectorIndex,
           expressionString: '$ = "Some value"',
@@ -101,7 +101,7 @@ export const handleAddConnector = createHandler<
         state.flowContent.connectors[variableConfig.id] = variableConfig;
         break;
       }
-      case ConnectorType.ConditionTarget:
+      case ConnectorType.InCondition:
         invariant(false, 'ConditionTarget cannot be added directly');
     }
 

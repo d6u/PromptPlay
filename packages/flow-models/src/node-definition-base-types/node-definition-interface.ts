@@ -4,10 +4,10 @@ import type { Observable } from 'rxjs';
 import {
   Connector,
   VariableValueTypeEnum,
-  type Condition,
   type ConditionResultRecords,
   type NodeInputVariable,
   type NodeOutputVariable,
+  type OutgoingCondition,
 } from '../base-types';
 import {
   NodeAccountLevelTextFieldDefinition,
@@ -50,7 +50,7 @@ export type RunNodeParams<T> = {
   nodeConfig: Readonly<T>;
   inputVariables: NodeInputVariable[];
   outputVariables: NodeOutputVariable[];
-  outgoingConditions: Condition[];
+  outgoingConditions: OutgoingCondition[];
   inputVariableValues: unknown[];
 };
 

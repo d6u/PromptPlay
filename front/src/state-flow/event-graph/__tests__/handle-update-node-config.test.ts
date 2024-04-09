@@ -59,7 +59,7 @@ test('handleUpdateNodeConfig should add node and nodeConfig', () => {
           globalVariableId: null,
         },
         'I6L6E/niU2H': {
-          type: 'ConditionTarget',
+          type: 'InCondition',
           id: 'I6L6E/niU2H',
           nodeId: 'I6L6E',
         },

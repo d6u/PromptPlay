@@ -7,7 +7,6 @@ import {
   ConnectorType,
   NodeClass,
   getNodeDefinitionForNodeTypeName,
-  type Condition,
   type ConditionResultRecords,
   type ConnectorRecords,
   type CreateNodeExecutionObservableFunction,
@@ -16,6 +15,7 @@ import {
   type NodeAllLevelConfigUnion,
   type NodeInputVariable,
   type NodeOutputVariable,
+  type OutgoingCondition,
   type RunNodeFunction,
   type VariableValueRecords,
 } from 'flow-models';
@@ -154,13 +154,13 @@ export class RunNodeContext {
     );
   }
 
-  getOutgoingConditions(): Condition[] {
+  getOutgoingConditions(): OutgoingCondition[] {
     return pipe(
       this.context.params.connectors,
       D.values,
       A.filter(
-        (c): c is Condition =>
-          c.nodeId === this.nodeId && c.type === ConnectorType.Condition,
+        (c): c is OutgoingCondition =>
+          c.nodeId === this.nodeId && c.type === ConnectorType.OutCondition,
       ),
       A.sortBy((c) => c.index),
     );
@@ -265,8 +265,8 @@ export class RunNodeContext {
           const connector = this.context.params.connectors[connectorId];
 
           invariant(
-            connector.type === ConnectorType.Condition ||
-              connector.type === ConnectorType.ConditionTarget,
+            connector.type === ConnectorType.OutCondition ||
+              connector.type === ConnectorType.InCondition,
           );
 
           draft[connectorId] = result;

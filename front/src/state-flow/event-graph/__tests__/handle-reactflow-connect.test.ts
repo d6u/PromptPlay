@@ -207,7 +207,7 @@ test('handleReactFlowConnectEvent ignores Audio source variable with invalid tar
           globalVariableId: null,
         },
         'Lbola/wvQiz': {
-          type: 'ConditionTarget',
+          type: 'InCondition',
           id: 'Lbola/wvQiz',
           nodeId: 'Lbola',
         },
@@ -232,7 +232,7 @@ test('handleReactFlowConnectEvent ignores Audio source variable with invalid tar
           globalVariableId: null,
         },
         'jvWCV/DBCCW': {
-          type: 'ConditionTarget',
+          type: 'InCondition',
           id: 'jvWCV/DBCCW',
           nodeId: 'jvWCV',
         },
@@ -445,14 +445,14 @@ test('handleReactFlowConnectEvent add condition', () => {
       connectors: {
         '1': {
           id: '1',
-          type: 'Condition',
+          type: 'OutCondition',
           nodeId: '',
           index: 0,
           expressionString: '',
         },
         '2': {
           id: '2',
-          type: 'ConditionTarget',
+          type: 'InCondition',
           nodeId: '',
         },
       },
@@ -757,7 +757,7 @@ test('handleReactFlowConnect should replace edge and update dest variable valueT
           globalVariableId: null,
         },
         'gso6A/MNYNr': {
-          type: 'ConditionTarget',
+          type: 'InCondition',
           id: 'gso6A/MNYNr',
           nodeId: 'gso6A',
         },
@@ -1009,7 +1009,7 @@ test('handleReactFlowConnect should add edge and update dest variable valueType'
           globalVariableId: null,
         },
         'gso6A/MNYNr': {
-          type: 'ConditionTarget',
+          type: 'InCondition',
           id: 'gso6A/MNYNr',
           nodeId: 'gso6A',
         },

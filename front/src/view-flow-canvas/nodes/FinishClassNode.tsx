@@ -3,8 +3,8 @@ import { useMemo } from 'react';
 import { Position, useUpdateNodeInternals } from 'reactflow';
 
 import {
-  ConditionTarget,
   ConnectorType,
+  IncomingCondition,
   NodeClass,
   NodeType,
   OutputNodeAllLevelConfig,
@@ -12,7 +12,7 @@ import {
   type GenericChatbotFinishNodeAllLevelConfig,
 } from 'flow-models';
 
-import NodeTargetConditionHandle from 'components/node-connector/condition/NodeTargetConditionHandle';
+import NodeIncomingConditionHandle from 'components/node-connector/condition/NodeIncomingConditionHandle';
 import {
   VariableConfig,
   type VariableDefinition,
@@ -28,7 +28,7 @@ type Props = {
   nodeId: string;
   isNodeReadOnly: boolean;
   nodeConfig: OutputNodeAllLevelConfig | GenericChatbotFinishNodeAllLevelConfig;
-  conditionTarget: ConditionTarget;
+  incomingCondition: IncomingCondition;
 };
 
 function FinishClassNode(props: Props) {
@@ -48,9 +48,9 @@ function FinishClassNode(props: Props) {
 
   return (
     <>
-      <NodeTargetConditionHandle
+      <NodeIncomingConditionHandle
         nodeId={props.nodeId}
-        conditionId={props.conditionTarget.id}
+        conditionId={props.incomingCondition.id}
       />
       <NodeBox nodeType={NodeType.OutputNode}>
         <NodeBoxHeaderSection

@@ -5,8 +5,8 @@ import { useMemo, useState } from 'react';
 import { Position, useUpdateNodeInternals } from 'reactflow';
 
 import {
-  ConditionTarget,
   ConnectorType,
+  IncomingCondition,
   JavaScriptFunctionNodeInstanceLevelConfig,
   NodeClass,
   NodeInputVariable,
@@ -14,7 +14,7 @@ import {
   getNodeDefinitionForNodeTypeName,
 } from 'flow-models';
 
-import NodeTargetConditionHandle from 'components/node-connector/condition/NodeTargetConditionHandle';
+import NodeIncomingConditionHandle from 'components/node-connector/condition/NodeIncomingConditionHandle';
 import NodeRenamableVariableList from 'components/node-connector/variable/NodeRenamableVariableList';
 import NodeFieldLabelWithIconContainer from 'components/node-fields/NodeFieldLabelWithIconContainer';
 import CopyIconButton from 'generic-components/CopyIconButton';
@@ -42,7 +42,7 @@ type Props = {
   nodeConfig: JavaScriptFunctionNodeInstanceLevelConfig;
   inputVariables: NodeInputVariable[];
   outputVariables: NodeOutputVariable[];
-  conditionTarget: ConditionTarget;
+  incomingCondition: IncomingCondition;
   nodeExecutionState: Option<NodeExecutionState>;
 };
 
@@ -68,9 +68,9 @@ function JavaScriptFunctionNode(props: Props) {
   return (
     <>
       <NodeRegularOutgoingConditionHandle nodeId={props.nodeId} />
-      <NodeTargetConditionHandle
+      <NodeIncomingConditionHandle
         nodeId={props.nodeId}
-        conditionId={props.conditionTarget.id}
+        conditionId={props.incomingCondition.id}
       />
       <NodeBox
         nodeType={props.nodeConfig.type}

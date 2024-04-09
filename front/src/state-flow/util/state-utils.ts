@@ -3,15 +3,15 @@ import { produce } from 'immer';
 import invariant from 'tiny-invariant';
 
 import {
-  Condition,
-  ConditionTarget,
   ConnectorRecords,
   ConnectorType,
+  IncomingCondition,
   LocalEdge,
   NodeConfigRecords,
   NodeInputVariable,
   NodeOutputVariable,
   NodeType,
+  OutgoingCondition,
 } from 'flow-models';
 
 import { DRAG_HANDLE_CLASS_NAME } from 'view-flow-canvas/constants';
@@ -40,7 +40,7 @@ export function assignLocalEdgeProperties(
         const srcConnector = connectorsDict[edge.sourceHandle];
         invariant(srcConnector != null, 'srcConnector != null');
 
-        if (srcConnector.type === ConnectorType.Condition) {
+        if (srcConnector.type === ConnectorType.OutCondition) {
           // TODO: Render a different stroke color for condition edges,
           // but preserve the selected appearance.
           edge.style = CONDITION_EDGE_STYLE;
@@ -55,8 +55,8 @@ export function assignLocalEdgeProperties(
 export type VariableTypeToVariableConfigTypeMap = {
   [ConnectorType.NodeInput]: NodeInputVariable;
   [ConnectorType.NodeOutput]: NodeOutputVariable;
-  [ConnectorType.Condition]: Condition;
-  [ConnectorType.ConditionTarget]: ConditionTarget;
+  [ConnectorType.OutCondition]: OutgoingCondition;
+  [ConnectorType.InCondition]: IncomingCondition;
 };
 
 export function selectVariables<
@@ -116,10 +116,10 @@ export function selectVariablesOnAllEndNodes(
 export function selectConditions(
   nodeId: string,
   variablesDict: ConnectorRecords,
-): Condition[] {
+): OutgoingCondition[] {
   return D.values(variablesDict)
-    .filter((c): c is Condition => {
-      return c.nodeId === nodeId && c.type === ConnectorType.Condition;
+    .filter((c): c is OutgoingCondition => {
+      return c.nodeId === nodeId && c.type === ConnectorType.OutCondition;
     })
     .sort((a, b) => a.index - b.index);
 }
@@ -127,18 +127,18 @@ export function selectConditions(
 export function selectConditionTarget(
   nodeId: string,
   variablesDict: ConnectorRecords,
-): Option<ConditionTarget> {
-  return D.values(variablesDict).find((c): c is ConditionTarget => {
-    return c.nodeId === nodeId && c.type === ConnectorType.ConditionTarget;
+): Option<IncomingCondition> {
+  return D.values(variablesDict).find((c): c is IncomingCondition => {
+    return c.nodeId === nodeId && c.type === ConnectorType.InCondition;
   });
 }
 
 export function selectRegularOutgoingCondition(
   nodeId: string,
   connectors: ConnectorRecords,
-): Condition {
-  const condition = D.values(connectors).find((c): c is Condition => {
-    return c.nodeId === nodeId && c.type === ConnectorType.Condition;
+): OutgoingCondition {
+  const condition = D.values(connectors).find((c): c is OutgoingCondition => {
+    return c.nodeId === nodeId && c.type === ConnectorType.OutCondition;
   });
   invariant(condition != null, 'condition is not null');
   return condition;

@@ -293,8 +293,8 @@ export const createRootSlice: RootSliceStateCreator = (set, get) => {
           handleId,
           handleType,
           connectorClass:
-            connector.type === ConnectorType.Condition ||
-            connector.type === ConnectorType.ConditionTarget
+            connector.type === ConnectorType.OutCondition ||
+            connector.type === ConnectorType.InCondition
               ? EdgeConnectStartConnectorClass.Condition
               : EdgeConnectStartConnectorClass.Variable,
         },

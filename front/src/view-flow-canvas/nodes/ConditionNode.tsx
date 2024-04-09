@@ -6,8 +6,8 @@ import { Position, useUpdateNodeInternals } from 'reactflow';
 
 import {
   ConditionNodeAllLevelConfig,
-  ConditionTarget,
   ConnectorType,
+  IncomingCondition,
   NodeClass,
   NodeInputVariable,
   NodeType,
@@ -16,7 +16,7 @@ import {
 import NodeAddConnectorButton from 'components/NodeAddConnectorButton';
 import NodeConditionDefaultItem from 'components/node-connector/condition/NodeConditionDefaultItem';
 import NodeConditionsEditableList from 'components/node-connector/condition/NodeConditionsEditableList';
-import NodeTargetConditionHandle from 'components/node-connector/condition/NodeTargetConditionHandle';
+import NodeIncomingConditionHandle from 'components/node-connector/condition/NodeIncomingConditionHandle';
 import NodeRenamableVariableList from 'components/node-connector/variable/NodeRenamableVariableList';
 import {
   NodeExecutionState,
@@ -40,7 +40,7 @@ type Props = {
   isNodeReadOnly: boolean;
   nodeConfig: ConditionNodeAllLevelConfig;
   inputVariables: NodeInputVariable[];
-  conditionTarget: ConditionTarget;
+  incomingCondition: IncomingCondition;
   nodeExecutionState: Option<NodeExecutionState>;
 };
 
@@ -63,9 +63,9 @@ function ConditionNode(props: Props) {
 
   return (
     <>
-      <NodeTargetConditionHandle
+      <NodeIncomingConditionHandle
         nodeId={props.nodeId}
-        conditionId={props.conditionTarget.id}
+        conditionId={props.incomingCondition.id}
       />
       <NodeBox
         nodeType={NodeType.InputNode}
@@ -134,7 +134,7 @@ function ConditionNode(props: Props) {
               onClick={() => {
                 addVariable(
                   props.nodeId,
-                  ConnectorType.Condition,
+                  ConnectorType.OutCondition,
                   customConditions.length,
                 );
                 updateNodeInternals(props.nodeId);

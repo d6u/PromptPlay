@@ -5,8 +5,8 @@ import { Position, useUpdateNodeInternals } from 'reactflow';
 
 import {
   ConditionNodeInstanceLevelConfig,
-  ConditionTarget,
   ConnectorType,
+  IncomingCondition,
   InputNodeInstanceLevelConfig,
   JavaScriptFunctionNodeInstanceLevelConfig,
   NodeClass,
@@ -17,7 +17,7 @@ import {
   getNodeDefinitionForNodeTypeName,
 } from 'flow-models';
 
-import NodeTargetConditionHandle from 'components/node-connector/condition/NodeTargetConditionHandle';
+import NodeIncomingConditionHandle from 'components/node-connector/condition/NodeIncomingConditionHandle';
 import NodeRenamableVariableList from 'components/node-connector/variable/NodeRenamableVariableList';
 import NodeAccountLevelFields from 'components/node-fields/NodeAccountLevelFields';
 import NodeInstanceLevelFields from 'components/node-fields/NodeInstanceLevelFields';
@@ -58,7 +58,7 @@ type Props = {
   >;
   inputVariables: NodeInputVariable[];
   outputVariables: NodeOutputVariable[];
-  conditionTarget: ConditionTarget;
+  incomingCondition: IncomingCondition;
   // Node Level but not save to server
   nodeExecutionState: Option<NodeExecutionState>;
 };
@@ -77,9 +77,9 @@ function DefaultNode(props: Props) {
 
   return (
     <>
-      <NodeTargetConditionHandle
+      <NodeIncomingConditionHandle
         nodeId={props.nodeId}
-        conditionId={props.conditionTarget.id}
+        conditionId={props.incomingCondition.id}
       />
       <NodeRegularOutgoingConditionHandle nodeId={props.nodeId} />
       <NodeBox

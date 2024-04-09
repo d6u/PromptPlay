@@ -1,8 +1,8 @@
 export const ConnectorType = {
   NodeInput: 'NodeInput',
   NodeOutput: 'NodeOutput',
-  Condition: 'Condition',
-  ConditionTarget: 'ConditionTarget',
+  InCondition: 'InCondition',
+  OutCondition: 'OutCondition',
 } as const;
 
 export type ConnectorTypeEnum =

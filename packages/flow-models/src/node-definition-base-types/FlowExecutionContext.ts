@@ -69,7 +69,7 @@ export class ImmutableFlowNodeGraph {
         // connected to multiple source IDs.
         variableDstConnIdToSrcConnId[edge.targetConnector] = sourceConnector.id;
         nodeVariableIndegrees[edge.targetNode] += 1;
-      } else if (sourceConnector.type === ConnectorType.Condition) {
+      } else if (sourceConnector.type === ConnectorType.OutCondition) {
         // We only need to one condition to satisfy to unblock the node.
         nodeConditionIndegrees[edge.targetNode] = 1;
       } else {
@@ -179,7 +179,7 @@ export class MutableFlowNodeGraph {
       for (const nodeId of nodeIds) {
         if (sourceConnector.type === ConnectorType.NodeOutput) {
           this.nodeVariableIndegrees[nodeId] -= 1;
-        } else if (sourceConnector.type === ConnectorType.Condition) {
+        } else if (sourceConnector.type === ConnectorType.OutCondition) {
           // We only need one condition to be met to unblock the next node.
           this.nodeConditionIndegrees[nodeId] = 0;
         } else {

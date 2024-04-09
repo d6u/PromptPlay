@@ -71,12 +71,12 @@ export const JAVASCRIPT_NODE_DEFINITION: NodeDefinition<
           globalVariableId: null,
         },
         {
-          type: ConnectorType.ConditionTarget,
+          type: ConnectorType.InCondition,
           id: `${nodeId}/${randomId()}`,
           nodeId: nodeId,
         },
         {
-          type: ConnectorType.Condition,
+          type: ConnectorType.OutCondition,
           id: `${nodeId}/${randomId()}`,
           index: 0,
           nodeId,

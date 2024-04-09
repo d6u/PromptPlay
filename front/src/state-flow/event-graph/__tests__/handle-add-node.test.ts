@@ -67,7 +67,7 @@ test('handleAddNode should add node and nodeConfig', () => {
       globalVariableId: null,
     },
     {
-      type: 'Condition',
+      type: 'OutCondition',
       id: expect.any(String),
       index: 0,
       nodeId: expect.any(String),

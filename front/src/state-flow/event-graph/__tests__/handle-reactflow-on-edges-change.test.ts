@@ -392,7 +392,7 @@ test('handleReactFlowEdgesChange should remove multiple edges', () => {
           globalVariableId: null,
         },
         'AkRxM/5qUcP': {
-          type: 'ConditionTarget',
+          type: 'InCondition',
           id: 'AkRxM/5qUcP',
           nodeId: 'AkRxM',
         },
@@ -521,7 +521,7 @@ test('handleReactFlowEdgesChange should remove edge and reset the value type of 
           globalVariableId: null,
         },
         'VhWOu/H8v1p': {
-          type: 'ConditionTarget',
+          type: 'InCondition',
           id: 'VhWOu/H8v1p',
           nodeId: 'VhWOu',
         },
