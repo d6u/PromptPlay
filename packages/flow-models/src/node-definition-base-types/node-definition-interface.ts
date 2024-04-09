@@ -45,16 +45,6 @@ type FixedIncomingVariableDefinition = {
   helperMessage?: () => ReactNode;
 };
 
-export enum NodeExecutionEventType {
-  // NOTE: All node execution will guarantee to have a start and finish event.
-  Start = 'Start',
-  Finish = 'Finish',
-
-  VariableValues = 'NewVariableValues',
-  // NOTE: Errors won't necessarily stop the execution
-  Errors = 'Errors',
-}
-
 export type RunNodeParams<T> = {
   preferStreaming: boolean;
   nodeConfig: Readonly<T>;
