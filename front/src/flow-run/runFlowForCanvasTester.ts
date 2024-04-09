@@ -47,8 +47,9 @@ function runFlowForCanvasTester(params: Params): Observable<RunFlowResult> {
     connectors: params.connectors,
   });
 
-  // Check for circular dependencies
   if (!immutableFlowGraph.canBeExecuted()) {
+    // TODO: Differienciate error message for circular dependencies and
+    // Loop Node issues
     validationErrors.push({
       type: ValidationErrorType.FlowLevel,
       message: CIRCULAR_DEPENDENCY_ERROR_MESSAGE,
@@ -88,10 +89,11 @@ function runFlowForCanvasTester(params: Params): Observable<RunFlowResult> {
   subject.pipe(mergeMap(transformEvent)).subscribe(params.progressObserver);
 
   return runFlow({
+    preferStreaming: params.preferStreaming,
+    edges: params.edges,
     nodeConfigs: result.nodeAllLevelConfigs,
     connectors: params.connectors,
     inputVariableValues: params.inputValueMap,
-    preferStreaming: params.preferStreaming,
     flowGraph: immutableFlowGraph,
     progressObserver: subject,
   });

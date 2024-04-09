@@ -9,8 +9,10 @@ import {
   getNodeDefinitionForNodeTypeName,
   type Condition,
   type ConditionResultRecords,
+  type ConditionTarget,
   type ConnectorRecords,
   type CreateNodeExecutionObservableFunction,
+  type GraphEdge,
   type ImmutableFlowNodeGraph,
   type MutableFlowNodeGraph,
   type NodeAllLevelConfigUnion,
@@ -24,6 +26,7 @@ import type { RunNodeProgressEvent } from './event-types';
 
 export type RunFlowContextParams = Readonly<{
   preferStreaming: boolean;
+  edges: GraphEdge[];
   nodeConfigs: Record<string, NodeAllLevelConfigUnion>;
   connectors: ConnectorRecords;
   flowGraph: ImmutableFlowNodeGraph;
@@ -154,6 +157,18 @@ export class RunNodeContext {
     );
   }
 
+  getIncomingConditions(): ConditionTarget[] {
+    return pipe(
+      this.context.params.connectors,
+      D.values,
+      A.filter(
+        (c): c is ConditionTarget =>
+          c.nodeId === this.nodeId && c.type === ConnectorType.ConditionTarget,
+      ),
+      A.sortBy((c) => c.index),
+    );
+  }
+
   getOutgoingConditions(): Condition[] {
     return pipe(
       this.context.params.connectors,
@@ -200,30 +215,22 @@ export class RunNodeContext {
     }
   }
 
-  getInputVariableValueRecords(): VariableValueRecords {
-    const values = this.getInputVariableValues();
-    const inputVariableResults: VariableValueRecords = {};
+  getIncomingConditionResults(): boolean[] {
+    return this.getIncomingConditions().map((c) => {
+      const edge = this.params.edges.find((e) => e.targetConnector === c.id);
 
-    if (this.nodeConfig.class === NodeClass.Start) {
-      // When current node class is Start, we need to collect
-      // NodeOutput variable values other than NodeInput variable values.
-      this.getOutputVariables().forEach((v) => {
-        inputVariableResults[v.id] = { value: values[v.index] };
-      });
-    } else {
-      // For non-Start node class, we need to collect NodeInput variable values.
-      this.getInputVariables().forEach((v) => {
-        if (v.isGlobal) {
-          if (v.globalVariableId != null) {
-            inputVariableResults[v.id] = { value: values[v.index] };
-          }
-        } else {
-          inputVariableResults[v.id] = { value: values[v.index] };
-        }
-      });
-    }
+      if (edge == null) {
+        return false;
+      }
 
-    return inputVariableResults;
+      const sourceConnector =
+        this.context.params.connectors[edge.sourceConnector];
+
+      return (
+        this.context.allConditionResults[sourceConnector.id]
+          ?.isConditionMatched ?? false
+      );
+    });
   }
 
   addCompletedConnectorIds(completedConnectorIds: string[]): void {

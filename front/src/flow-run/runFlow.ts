@@ -15,6 +15,7 @@ import {
 import {
   NodeClass,
   NodeType,
+  type ConditionResultRecords,
   type NodeInputVariable,
   type NodeOutputVariable,
   type RunNodeResult,
@@ -150,23 +151,75 @@ function createRunNodeEndWithObservable(
       nodeId: context.nodeId,
     });
 
-    // NOTE: For none ConditionNode, we need to add the regular
-    // outgoing condition to the finishedConnectorIds list manually.
-    // TODO: Generalize this for all node types
-    if (context.nodeConfig.type !== NodeType.ConditionNode) {
-      const outgoingConditions = context.getOutgoingConditions();
+    if (context.nodeConfig.type === NodeType.LoopNode) {
+      // NOTE: Specifial handling for LoopNode
 
-      // Finish nodes doesn't have outgoing conditions
-      if (outgoingConditions.length > 0) {
+      const conditionResults = context.getIncomingConditionResults();
+
+      console.log('LoopNode incoming conditions:', conditionResults);
+
+      if (conditionResults[0] || conditionResults[1]) {
+        const update: ConditionResultRecords = {};
+
+        context.getIncomingConditions().forEach((condition) => {
+          const edge = context.params.edges.find(
+            (e) => e.targetConnector === condition.id,
+          );
+          if (!edge) {
+            return null;
+          }
+          const sourceConnector =
+            context.params.connectors[edge.sourceConnector];
+          update[sourceConnector.id] = {
+            conditionId: sourceConnector.id,
+            isConditionMatched: false,
+          };
+        });
+
+        const outgoingConditions = context.getOutgoingConditions();
+
+        context.updateConditionResults({
+          // Restore the incoming condition result, so we can start looping
+          ...update,
+          [outgoingConditions[1].id]: {
+            conditionId: outgoingConditions[1].id,
+            isConditionMatched: true,
+          },
+        });
+
+        context.addCompletedConnectorIds([outgoingConditions[1].id]);
+        context.emitNextNodeIdsOrCompleteFlowRun();
+      } else if (conditionResults[2]) {
+        const outgoingConditions = context.getOutgoingConditions();
         context.addCompletedConnectorIds([outgoingConditions[0].id]);
+        context.emitNextNodeIdsOrCompleteFlowRun();
       }
-    }
+    } else {
+      if (context.nodeConfig.type !== NodeType.ConditionNode) {
+        // NOTE: For none ConditionNode, we need to add the regular
+        // outgoing condition to the finishedConnectorIds list manually.
 
-    if (context.nodeConfig.class === NodeClass.Finish) {
-      context.addOutputVariableIdToFinishNodesVariableIds();
-    }
+        const outgoingConditions = context.getOutgoingConditions();
 
-    context.emitNextNodeIdsOrCompleteFlowRun();
+        // Finish nodes doesn't have outgoing conditions
+        if (outgoingConditions.length > 0) {
+          context.updateConditionResults({
+            [outgoingConditions[0].id]: {
+              conditionId: outgoingConditions[0].id,
+              isConditionMatched: true,
+            },
+          });
+
+          context.addCompletedConnectorIds([outgoingConditions[0].id]);
+        }
+      }
+
+      if (context.nodeConfig.class === NodeClass.Finish) {
+        context.addOutputVariableIdToFinishNodesVariableIds();
+      }
+
+      context.emitNextNodeIdsOrCompleteFlowRun();
+    }
 
     return EMPTY;
   });
