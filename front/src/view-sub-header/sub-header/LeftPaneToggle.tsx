@@ -1,5 +1,6 @@
 import styled from '@emotion/styled';
 import { Button, ToggleButtonGroup } from '@mui/joy';
+import { useReactFlow, useStoreApi } from 'reactflow';
 
 import { FlowRouteTab, useFlowRouteSubRouteHandle } from 'generic-util/route';
 import { useFlowStore } from 'state-flow/flow-store';
@@ -14,6 +15,9 @@ function LeftPaneToggle() {
   );
   const setCanvasLeftPaneType = useFlowStore((s) => s.setCanvasLeftPaneType);
 
+  const reactflow = useReactFlow();
+  const reactflowStoreApi = useStoreApi();
+
   switch (flowTabType) {
     case FlowRouteTab.Canvas:
       return (
@@ -21,7 +25,11 @@ function LeftPaneToggle() {
           size="sm"
           value={canvasLeftPaneType}
           onChange={(e, value) => {
-            setCanvasLeftPaneType(value as CanvasLeftPaneType);
+            setCanvasLeftPaneType(
+              value as CanvasLeftPaneType,
+              reactflowStoreApi.getState(),
+              reactflow,
+            );
           }}
         >
           <Button value={CanvasLeftPaneType.Off}>Off</Button>

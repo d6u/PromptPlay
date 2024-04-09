@@ -18,8 +18,8 @@ import HeaderSectionHeader from 'components/side-pane/SidePaneHeaderSectionHeade
 import { useFlowStore } from 'state-flow/flow-store';
 import { selectVariables } from 'state-flow/util/state-utils';
 
-import NodeConfigPaneAddConnectorButton from '../node-config-pane-base-ui/NodeConfigPaneAddConnectorButton';
-import NodeConfigPaneContainer from '../node-config-pane-base-ui/NodeConfigPaneContainer';
+import NodeConfigPaneAddConnectorButton from '../left-side-pane-base-ui/NodeConfigPaneAddConnectorButton';
+import NodeConfigPaneContainer from '../left-side-pane-base-ui/NodeConfigPaneContainer';
 
 type Props = {
   nodeId: string;

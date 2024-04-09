@@ -1,6 +1,7 @@
 import styled from '@emotion/styled';
 import { FormControl, FormLabel, Switch } from '@mui/joy';
 import { useMemo } from 'react';
+import { useReactFlow, useStoreApi } from 'reactflow';
 
 import { FlowRouteTab, useFlowRouteSubRouteHandle } from 'generic-util/route';
 import { CanvasRightPanelType } from 'state-flow/common-types';
@@ -15,6 +16,9 @@ function RightPaneToggle() {
   const isTesterOpen = useMemo(() => {
     return canvasRightPaneType != CanvasRightPanelType.Off;
   }, [canvasRightPaneType]);
+
+  const reactflow = useReactFlow();
+  const reactflowStoreApi = useStoreApi();
 
   switch (flowTabType) {
     case FlowRouteTab.Canvas:
@@ -33,6 +37,8 @@ function RightPaneToggle() {
                 event.target.checked
                   ? CanvasRightPanelType.Off
                   : CanvasRightPanelType.Tester,
+                reactflowStoreApi.getState(),
+                reactflow,
               );
             }}
           />

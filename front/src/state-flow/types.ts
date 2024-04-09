@@ -5,6 +5,8 @@ import {
   OnConnectStartParams,
   OnEdgesChange,
   OnNodesChange,
+  type ReactFlowInstance,
+  type ReactFlowState,
 } from 'reactflow';
 import type {
   ActionFunction,
@@ -210,10 +212,21 @@ export type FlowActions = {
   enterFlowRoute(spaceId: string): void;
   leaveFlowRoute(): void;
 
-  openCanvasLeftPaneInspectorForNode(nodeId: string): void;
-  setCanvasLeftPaneType(type: CanvasLeftPaneType): void;
-  // setCanvasLeftPaneSelectedNodeId(nodeId: string | null): void;
-  setCanvasRightPaneType(type: CanvasRightPanelType): void;
+  openCanvasLeftPaneInspectorForNode(
+    nodeId: string,
+    rfState: ReactFlowState,
+    rfInstance: ReactFlowInstance,
+  ): void;
+  setCanvasLeftPaneType(
+    type: CanvasLeftPaneType,
+    rfState: ReactFlowState,
+    rfInstance: ReactFlowInstance,
+  ): void;
+  setCanvasRightPaneType(
+    type: CanvasRightPanelType,
+    rfState: ReactFlowState,
+    rfInstance: ReactFlowInstance,
+  ): void;
   setCanvasTesterStartNodeId(nodeId: string | null): void;
   setCanvasRenameNodeId(nodeId: string | null): void;
   onEdgeConnectStart(params: OnConnectStartParams): void;

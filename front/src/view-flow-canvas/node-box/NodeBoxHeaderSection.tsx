@@ -1,4 +1,5 @@
 import styled from '@emotion/styled';
+import { useReactFlow, useStoreApi } from 'reactflow';
 
 import { NodeClass, type NodeClassEnum } from 'flow-models';
 
@@ -34,6 +35,9 @@ function NodeBoxHeaderSection(props: Props) {
   );
   const setCanvasRenameNodeId = useFlowStore((s) => s.setCanvasRenameNodeId);
 
+  const reactflow = useReactFlow();
+  const reactflowStoreApi = useStoreApi();
+
   return (
     <Container>
       <TitleSection>
@@ -62,7 +66,11 @@ function NodeBoxHeaderSection(props: Props) {
         )}
         <NodeBoxGearButton
           onClick={() => {
-            openInspectorForNode(props.nodeId);
+            openInspectorForNode(
+              props.nodeId,
+              reactflowStoreApi.getState(),
+              reactflow,
+            );
           }}
         />
         {!props.isNodeReadOnly &&

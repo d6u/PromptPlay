@@ -1,6 +1,12 @@
 import { createLens } from '@dhmk/zustand-lens';
 import posthog from 'posthog-js';
-import { EdgeChange, NodeChange, OnConnectStartParams } from 'reactflow';
+import {
+  EdgeChange,
+  NodeChange,
+  OnConnectStartParams,
+  type ReactFlowInstance,
+  type ReactFlowState,
+} from 'reactflow';
 import invariant from 'tiny-invariant';
 import { StateCreator } from 'zustand';
 
@@ -158,19 +164,34 @@ export const createRootSlice: RootSliceStateCreator = (set, get) => {
 
     // SECTION: Simple getters and setters
     getFlowContent: getFlowContent,
-    openCanvasLeftPaneInspectorForNode(nodeId: string): void {
+    openCanvasLeftPaneInspectorForNode(
+      nodeId: string,
+      rfState: ReactFlowState,
+      rfInstance: ReactFlowInstance,
+    ): void {
+      focusOnNodesWithinViewport(rfState, rfInstance);
+
       set({
         canvasLeftPaneType: CanvasLeftPaneType.Inspector,
         canvasLeftPaneSelectedNodeId: nodeId,
       });
     },
-    setCanvasLeftPaneType(type: CanvasLeftPaneType): void {
+    setCanvasLeftPaneType(
+      type: CanvasLeftPaneType,
+      rfState: ReactFlowState,
+      rfInstance: ReactFlowInstance,
+    ): void {
+      focusOnNodesWithinViewport(rfState, rfInstance);
+
       set({ canvasLeftPaneType: type });
     },
-    setCanvasLeftPaneSelectedNodeId(id: string) {
-      set({ canvasLeftPaneSelectedNodeId: id });
-    },
-    setCanvasRightPaneType(type: CanvasRightPanelType) {
+    setCanvasRightPaneType(
+      type: CanvasRightPanelType,
+      rfState: ReactFlowState,
+      rfInstance: ReactFlowInstance,
+    ) {
+      focusOnNodesWithinViewport(rfState, rfInstance);
+
       set({ canvasRightPaneType: type });
     },
     setCanvasTesterStartNodeId(nodeId: string | null): void {
@@ -350,3 +371,34 @@ export const createRootSlice: RootSliceStateCreator = (set, get) => {
     },
   };
 };
+
+function focusOnNodesWithinViewport(
+  rfState: ReactFlowState,
+  rfInstance: ReactFlowInstance,
+) {
+  const rect = rfState.domNode?.getBoundingClientRect();
+
+  if (rect == null) {
+    return;
+  }
+
+  const p1 = rfInstance.screenToFlowPosition({ x: rect.x, y: rect.y });
+  const p2 = rfInstance.screenToFlowPosition({
+    x: rect.x + rect.width,
+    y: rect.y + rect.height,
+  });
+  const bound = {
+    x: p1.x,
+    y: p1.y,
+    width: p2.x - p1.x,
+    height: p2.y - p1.y,
+  };
+  const nodes = rfInstance.getIntersectingNodes(bound);
+
+  setTimeout(() => {
+    rfInstance.fitView({
+      nodes: nodes,
+      duration: 500,
+    });
+  }, 250);
+}
