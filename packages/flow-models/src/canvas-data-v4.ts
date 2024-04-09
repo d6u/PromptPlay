@@ -59,6 +59,16 @@ export function migrateV3ToV4(data: any): CanvasDataV4 {
       nodeConfig.class = NodeClass.Process;
     }
 
+    // Rename condition type name
+    for (const connectorId of Object.keys(data.variablesDict)) {
+      const connector = data.variablesDict[connectorId];
+      if (connector.type === 'Condition') {
+        connector.type = ConnectorType.OutCondition;
+      } else if (connector.type === 'ConditionTarget') {
+        connector.type = ConnectorType.InCondition;
+      }
+    }
+
     // Add missing outgoing condition
     if (
       nodeConfig.type !== NodeType.ConditionNode &&
@@ -91,7 +101,7 @@ export function migrateV3ToV4(data: any): CanvasDataV4 {
       }
     }
 
-    // Add missing condition target
+    // Add missing incoming condition
     if (nodeConfig.type !== NodeType.InputNode) {
       const conditionTarget = Object.values(data.variablesDict).find(
         (_connector) => {
