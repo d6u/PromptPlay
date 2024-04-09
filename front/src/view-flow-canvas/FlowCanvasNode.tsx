@@ -86,7 +86,7 @@ function FlowCanvasNode() {
         nodeId={nodeId}
         isNodeReadOnly={isNodeReadOnly}
         nodeConfig={nodeConfig}
-        conditionTarget={conditionTarget}
+        incomingCondition={conditionTarget}
       />
     );
   } else {
@@ -99,7 +99,7 @@ function FlowCanvasNode() {
           isNodeReadOnly={isNodeReadOnly}
           nodeConfig={nodeConfig}
           inputVariables={inputVariables}
-          conditionTarget={conditionTarget}
+          incomingCondition={conditionTarget}
           nodeExecutionState={nodeExecutionState}
         />
       );
@@ -111,7 +111,7 @@ function FlowCanvasNode() {
           nodeConfig={nodeConfig}
           inputVariables={inputVariables}
           outputVariables={outputVariables}
-          conditionTarget={conditionTarget}
+          incomingCondition={conditionTarget}
           nodeExecutionState={nodeExecutionState}
         />
       );
@@ -123,7 +123,7 @@ function FlowCanvasNode() {
           nodeConfig={nodeConfig}
           inputVariables={inputVariables}
           outputVariables={outputVariables}
-          conditionTarget={conditionTarget}
+          incomingCondition={conditionTarget}
           nodeExecutionState={nodeExecutionState}
         />
       );

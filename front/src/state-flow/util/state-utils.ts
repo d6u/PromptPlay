@@ -3,15 +3,15 @@ import { produce } from 'immer';
 import invariant from 'tiny-invariant';
 
 import {
-  Condition,
-  ConditionTarget,
   ConnectorRecords,
   ConnectorType,
+  IncomingCondition,
   LocalEdge,
   NodeConfigRecords,
   NodeInputVariable,
   NodeOutputVariable,
   NodeType,
+  OutgoingCondition,
 } from 'flow-models';
 
 import { DRAG_HANDLE_CLASS_NAME } from 'view-flow-canvas/constants';
@@ -55,8 +55,8 @@ export function assignLocalEdgeProperties(
 export type VariableTypeToVariableConfigTypeMap = {
   [ConnectorType.NodeInput]: NodeInputVariable;
   [ConnectorType.NodeOutput]: NodeOutputVariable;
-  [ConnectorType.Condition]: Condition;
-  [ConnectorType.ConditionTarget]: ConditionTarget;
+  [ConnectorType.Condition]: OutgoingCondition;
+  [ConnectorType.ConditionTarget]: IncomingCondition;
 };
 
 export function selectVariables<
@@ -116,9 +116,9 @@ export function selectVariablesOnAllEndNodes(
 export function selectConditions(
   nodeId: string,
   variablesDict: ConnectorRecords,
-): Condition[] {
+): OutgoingCondition[] {
   return D.values(variablesDict)
-    .filter((c): c is Condition => {
+    .filter((c): c is OutgoingCondition => {
       return c.nodeId === nodeId && c.type === ConnectorType.Condition;
     })
     .sort((a, b) => a.index - b.index);
@@ -127,8 +127,8 @@ export function selectConditions(
 export function selectConditionTarget(
   nodeId: string,
   variablesDict: ConnectorRecords,
-): Option<ConditionTarget> {
-  return D.values(variablesDict).find((c): c is ConditionTarget => {
+): Option<IncomingCondition> {
+  return D.values(variablesDict).find((c): c is IncomingCondition => {
     return c.nodeId === nodeId && c.type === ConnectorType.ConditionTarget;
   });
 }
@@ -136,8 +136,8 @@ export function selectConditionTarget(
 export function selectRegularOutgoingCondition(
   nodeId: string,
   connectors: ConnectorRecords,
-): Condition {
-  const condition = D.values(connectors).find((c): c is Condition => {
+): OutgoingCondition {
+  const condition = D.values(connectors).find((c): c is OutgoingCondition => {
     return c.nodeId === nodeId && c.type === ConnectorType.Condition;
   });
   invariant(condition != null, 'condition is not null');

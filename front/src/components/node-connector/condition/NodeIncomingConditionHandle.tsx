@@ -15,7 +15,7 @@ type Props = {
   nodeId: string;
 };
 
-function NodeTargetConditionHandle(props: Props) {
+function NodeIncomingConditionHandle(props: Props) {
   const paramsOnUserStartConnectingEdge = useFlowStore(
     (s) => s.paramsOnUserStartConnectingEdge,
   );
@@ -54,4 +54,4 @@ function NodeTargetConditionHandle(props: Props) {
   );
 }
 
-export default NodeTargetConditionHandle;
+export default NodeIncomingConditionHandle;

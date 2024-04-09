@@ -3,12 +3,12 @@ import invariant from 'tiny-invariant';
 import chance from 'common-utils/chance';
 import randomId from 'common-utils/randomId';
 import {
-  Condition,
   ConnectorType,
   ConnectorTypeEnum,
   NodeInputVariable,
   NodeOutputVariable,
   NodeType,
+  OutgoingCondition,
   VariableValueType,
   getNodeDefinitionForNodeTypeName,
 } from 'flow-models';
@@ -91,7 +91,7 @@ export const handleAddConnector = createHandler<
         break;
       }
       case ConnectorType.Condition: {
-        const variableConfig: Condition = {
+        const variableConfig: OutgoingCondition = {
           id: `${event.nodeId}/${randomId()}`,
           type: ConnectorType.Condition,
           nodeId: event.nodeId,
