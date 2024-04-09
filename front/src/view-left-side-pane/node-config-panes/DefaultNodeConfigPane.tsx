@@ -27,9 +27,9 @@ import {
   VariableConfig,
   type VariableDefinition,
 } from 'components/node-connector/types';
-import NodeConfigPaneAddConnectorButton from '../node-config-pane-base-ui/NodeConfigPaneAddConnectorButton';
-import NodeConfigPaneContainer from '../node-config-pane-base-ui/NodeConfigPaneContainer';
-import NodeConfigPaneNodeFields from '../node-config-pane-base-ui/NodeConfigPaneNodeFields';
+import NodeConfigPaneAddConnectorButton from '../left-side-pane-base-ui/NodeConfigPaneAddConnectorButton';
+import NodeConfigPaneContainer from '../left-side-pane-base-ui/NodeConfigPaneContainer';
+import NodeConfigPaneNodeFields from '../left-side-pane-base-ui/NodeConfigPaneNodeFields';
 
 type Props = {
   nodeId: string;

@@ -4,14 +4,20 @@ import { useFlowStore } from 'state-flow/flow-store';
 
 import { CanvasLeftPaneType } from 'state-flow/types';
 import NodeConfigPane from './NodeConfigPane';
+import AddNodePane from './add-node-pane/AddNodePane';
 
 function LeftSidePaneView() {
   const canvasLeftPaneType = useFlowStore((s) => s.canvasLeftPaneType);
 
   switch (canvasLeftPaneType) {
     case CanvasLeftPaneType.Off:
-    case CanvasLeftPaneType.AddNode:
       return null;
+    case CanvasLeftPaneType.AddNode:
+      return (
+        <Container>
+          <AddNodePane />
+        </Container>
+      );
     case CanvasLeftPaneType.Inspector: {
       return (
         <Container>
