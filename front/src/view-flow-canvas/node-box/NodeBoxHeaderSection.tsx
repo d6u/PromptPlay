@@ -1,4 +1,5 @@
 import styled from '@emotion/styled';
+import { useReactFlow, useStoreApi } from 'reactflow';
 
 import { NodeClass, type NodeClassEnum } from 'flow-models';
 
@@ -7,7 +8,6 @@ import RemoveButton from 'generic-components/RemoveButton';
 import IconThreeDots from 'icons/IconThreeDots';
 import { useFlowStore } from 'state-flow/flow-store';
 
-import { useReactFlow, useStoreApi } from 'reactflow';
 import { DRAG_HANDLE_CLASS_NAME } from '../constants';
 import NodeBoxGearButton from './NodeBoxIconGear';
 import NodeBoxIconRename from './NodeBoxIconRename';

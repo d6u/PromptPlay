@@ -371,30 +371,34 @@ export const createRootSlice: RootSliceStateCreator = (set, get) => {
     },
   };
 };
+
 function focusOnNodesWithinViewport(
   rfState: ReactFlowState,
   rfInstance: ReactFlowInstance,
 ) {
   const rect = rfState.domNode?.getBoundingClientRect();
-  if (rect != null) {
-    const p1 = rfInstance.screenToFlowPosition({ x: rect.x, y: rect.y });
-    const p2 = rfInstance.screenToFlowPosition({
-      x: rect.x + rect.width,
-      y: rect.y + rect.height,
-    });
-    const bound = {
-      x: p1.x,
-      y: p1.y,
-      width: p2.x - p1.x,
-      height: p2.y - p1.y,
-    };
-    const nodes = rfInstance.getIntersectingNodes(bound);
 
-    setTimeout(() => {
-      rfInstance.fitView({
-        nodes: nodes,
-        duration: 500,
-      });
-    }, 250);
+  if (rect == null) {
+    return;
   }
+
+  const p1 = rfInstance.screenToFlowPosition({ x: rect.x, y: rect.y });
+  const p2 = rfInstance.screenToFlowPosition({
+    x: rect.x + rect.width,
+    y: rect.y + rect.height,
+  });
+  const bound = {
+    x: p1.x,
+    y: p1.y,
+    width: p2.x - p1.x,
+    height: p2.y - p1.y,
+  };
+  const nodes = rfInstance.getIntersectingNodes(bound);
+
+  setTimeout(() => {
+    rfInstance.fitView({
+      nodes: nodes,
+      duration: 500,
+    });
+  }, 250);
 }
