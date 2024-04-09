@@ -38,7 +38,7 @@ const NodeOutputVariableSchema = z.object({
 export type NodeOutputVariable = z.infer<typeof NodeOutputVariableSchema>;
 
 const IncomingConditionSchema = z.object({
-  type: z.literal(ConnectorType.ConditionTarget),
+  type: z.literal(ConnectorType.InCondition),
   id: z.string(),
   nodeId: z.string(),
 });
@@ -46,7 +46,7 @@ const IncomingConditionSchema = z.object({
 export type IncomingCondition = z.infer<typeof IncomingConditionSchema>;
 
 const OutgoingConditionSchema = z.object({
-  type: z.literal(ConnectorType.Condition),
+  type: z.literal(ConnectorType.OutCondition),
   id: z.string(),
   nodeId: z.string(),
   index: z.number(),

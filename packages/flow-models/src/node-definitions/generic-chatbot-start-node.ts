@@ -47,7 +47,7 @@ export const GENERIC_CHATBOT_START_NODE_DEFINITION: NodeDefinition<
       },
       variableConfigList: [
         {
-          type: ConnectorType.Condition,
+          type: ConnectorType.OutCondition,
           id: `${nodeId}/${randomId()}`,
           index: 0,
           nodeId: nodeId,

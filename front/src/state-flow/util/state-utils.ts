@@ -40,7 +40,7 @@ export function assignLocalEdgeProperties(
         const srcConnector = connectorsDict[edge.sourceHandle];
         invariant(srcConnector != null, 'srcConnector != null');
 
-        if (srcConnector.type === ConnectorType.Condition) {
+        if (srcConnector.type === ConnectorType.OutCondition) {
           // TODO: Render a different stroke color for condition edges,
           // but preserve the selected appearance.
           edge.style = CONDITION_EDGE_STYLE;
@@ -55,8 +55,8 @@ export function assignLocalEdgeProperties(
 export type VariableTypeToVariableConfigTypeMap = {
   [ConnectorType.NodeInput]: NodeInputVariable;
   [ConnectorType.NodeOutput]: NodeOutputVariable;
-  [ConnectorType.Condition]: OutgoingCondition;
-  [ConnectorType.ConditionTarget]: IncomingCondition;
+  [ConnectorType.OutCondition]: OutgoingCondition;
+  [ConnectorType.InCondition]: IncomingCondition;
 };
 
 export function selectVariables<
@@ -119,7 +119,7 @@ export function selectConditions(
 ): OutgoingCondition[] {
   return D.values(variablesDict)
     .filter((c): c is OutgoingCondition => {
-      return c.nodeId === nodeId && c.type === ConnectorType.Condition;
+      return c.nodeId === nodeId && c.type === ConnectorType.OutCondition;
     })
     .sort((a, b) => a.index - b.index);
 }
@@ -129,7 +129,7 @@ export function selectConditionTarget(
   variablesDict: ConnectorRecords,
 ): Option<IncomingCondition> {
   return D.values(variablesDict).find((c): c is IncomingCondition => {
-    return c.nodeId === nodeId && c.type === ConnectorType.ConditionTarget;
+    return c.nodeId === nodeId && c.type === ConnectorType.InCondition;
   });
 }
 
@@ -138,7 +138,7 @@ export function selectRegularOutgoingCondition(
   connectors: ConnectorRecords,
 ): OutgoingCondition {
   const condition = D.values(connectors).find((c): c is OutgoingCondition => {
-    return c.nodeId === nodeId && c.type === ConnectorType.Condition;
+    return c.nodeId === nodeId && c.type === ConnectorType.OutCondition;
   });
   invariant(condition != null, 'condition is not null');
   return condition;

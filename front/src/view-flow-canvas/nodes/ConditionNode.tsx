@@ -134,7 +134,7 @@ function ConditionNode(props: Props) {
               onClick={() => {
                 addVariable(
                   props.nodeId,
-                  ConnectorType.Condition,
+                  ConnectorType.OutCondition,
                   customConditions.length,
                 );
                 updateNodeInternals(props.nodeId);

@@ -54,7 +54,7 @@ export const INPUT_NODE_DEFINITION: NodeDefinition<
           globalVariableId: null,
         },
         {
-          type: ConnectorType.Condition,
+          type: ConnectorType.OutCondition,
           id: `${nodeId}/${randomId()}`,
           index: 0,
           nodeId: nodeId,

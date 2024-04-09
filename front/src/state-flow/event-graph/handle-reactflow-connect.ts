@@ -164,7 +164,7 @@ function addStyleIfNotAlreadyAdded(
     if (!edge.style) {
       const srcConnector = connectors[edge.sourceHandle];
 
-      if (srcConnector.type === ConnectorType.Condition) {
+      if (srcConnector.type === ConnectorType.OutCondition) {
         // TODO: Render a different stroke color for condition edges,
         // but preserve the selected appearance.
         edge.style = CONDITION_EDGE_STYLE;

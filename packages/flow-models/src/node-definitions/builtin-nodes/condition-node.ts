@@ -61,28 +61,28 @@ export const CONDITION_NODE_DEFINITION: NodeDefinition<
           globalVariableId: null,
         },
         {
-          type: ConnectorType.Condition,
+          type: ConnectorType.OutCondition,
           id: `${nodeId}/${randomId()}`,
           index: -1, // Special condition for default case
           nodeId: nodeId,
           expressionString: '',
         },
         {
-          type: ConnectorType.Condition,
+          type: ConnectorType.OutCondition,
           id: `${nodeId}/${randomId()}`,
           index: 0,
           nodeId: nodeId,
           expressionString: '$ = "Value A"',
         },
         {
-          type: ConnectorType.Condition,
+          type: ConnectorType.OutCondition,
           id: `${nodeId}/${randomId()}`,
           index: 1,
           nodeId: nodeId,
           expressionString: '$ = "Value B"',
         },
         {
-          type: ConnectorType.ConditionTarget,
+          type: ConnectorType.InCondition,
           id: `${nodeId}/${randomId()}`,
           nodeId: nodeId,
         },

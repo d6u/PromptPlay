@@ -40,7 +40,7 @@ export const handleRemoveVariable = createHandler<
           removedVariable: connectorSnapshot,
         },
       ];
-    } else if (connectorSnapshot.type === ConnectorType.Condition) {
+    } else if (connectorSnapshot.type === ConnectorType.OutCondition) {
       return [
         {
           type: ChangeEventType.CONDITION_REMOVED,

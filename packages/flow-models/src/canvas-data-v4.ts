@@ -73,7 +73,7 @@ export function migrateV3ToV4(data: any): CanvasDataV4 {
 
           return (
             connector.nodeId === nodeConfig.nodeId &&
-            connector.type === ConnectorType.Condition
+            connector.type === ConnectorType.OutCondition
           );
         },
       );
@@ -82,7 +82,7 @@ export function migrateV3ToV4(data: any): CanvasDataV4 {
         const conditionId = `${nodeConfig.nodeId}/${randomId()}`;
 
         data.variablesDict[conditionId] = {
-          type: ConnectorType.Condition,
+          type: ConnectorType.OutCondition,
           id: conditionId,
           index: 0,
           nodeId: nodeConfig.nodeId,
@@ -102,7 +102,7 @@ export function migrateV3ToV4(data: any): CanvasDataV4 {
 
           return (
             connector.nodeId === nodeConfig.nodeId &&
-            connector.type === ConnectorType.ConditionTarget
+            connector.type === ConnectorType.InCondition
           );
         },
       );
@@ -111,7 +111,7 @@ export function migrateV3ToV4(data: any): CanvasDataV4 {
         const conditionTargetId = `${nodeConfig.nodeId}/${randomId()}`;
 
         data.variablesDict[conditionTargetId] = {
-          type: ConnectorType.ConditionTarget,
+          type: ConnectorType.InCondition,
           id: conditionTargetId,
           nodeId: nodeConfig.nodeId,
         };

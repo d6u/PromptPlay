@@ -41,7 +41,7 @@ export const removeConnectorOnNodeRemoval = createHandler<
           type: ChangeEventType.VARIABLE_REMOVED,
           removedVariable: connectorSnapshot,
         });
-      } else if (connectorSnapshot.type === ConnectorType.Condition) {
+      } else if (connectorSnapshot.type === ConnectorType.OutCondition) {
         events.push({
           type: ChangeEventType.CONDITION_REMOVED,
           removedCondition: connectorSnapshot,

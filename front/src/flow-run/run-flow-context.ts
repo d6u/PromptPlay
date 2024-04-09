@@ -160,7 +160,7 @@ export class RunNodeContext {
       D.values,
       A.filter(
         (c): c is OutgoingCondition =>
-          c.nodeId === this.nodeId && c.type === ConnectorType.Condition,
+          c.nodeId === this.nodeId && c.type === ConnectorType.OutCondition,
       ),
       A.sortBy((c) => c.index),
     );
@@ -265,8 +265,8 @@ export class RunNodeContext {
           const connector = this.context.params.connectors[connectorId];
 
           invariant(
-            connector.type === ConnectorType.Condition ||
-              connector.type === ConnectorType.ConditionTarget,
+            connector.type === ConnectorType.OutCondition ||
+              connector.type === ConnectorType.InCondition,
           );
 
           draft[connectorId] = result;
