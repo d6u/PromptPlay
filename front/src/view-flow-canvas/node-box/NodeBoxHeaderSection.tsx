@@ -29,11 +29,8 @@ type Props = {
 
 function NodeBoxHeaderSection(props: Props) {
   const removeNode = useFlowStore((s) => s.removeNode);
-  const setCanvasLeftPaneIsOpen = useFlowStore(
-    (s) => s.setCanvasLeftPaneIsOpen,
-  );
-  const setCanvasLeftPaneSelectedNodeId = useFlowStore(
-    (s) => s.setCanvasLeftPaneSelectedNodeId,
+  const openInspectorForNode = useFlowStore(
+    (s) => s.openCanvasLeftPaneInspectorForNode,
   );
   const setCanvasRenameNodeId = useFlowStore((s) => s.setCanvasRenameNodeId);
 
@@ -65,8 +62,7 @@ function NodeBoxHeaderSection(props: Props) {
         )}
         <NodeBoxGearButton
           onClick={() => {
-            setCanvasLeftPaneIsOpen(true);
-            setCanvasLeftPaneSelectedNodeId(props.nodeId);
+            openInspectorForNode(props.nodeId);
           }}
         />
         {!props.isNodeReadOnly &&

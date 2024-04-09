@@ -2,25 +2,32 @@ import styled from '@emotion/styled';
 
 import { useFlowStore } from 'state-flow/flow-store';
 
+import { CanvasLeftPaneType } from 'state-flow/types';
 import NodeConfigPane from './NodeConfigPane';
 
 function LeftSidePaneView() {
-  const canvasLeftPaneIsOpen = useFlowStore((s) => s.canvasLeftPaneIsOpen);
+  const canvasLeftPaneType = useFlowStore((s) => s.canvasLeftPaneType);
 
-  return (
-    <Container $hide={!canvasLeftPaneIsOpen}>
-      {canvasLeftPaneIsOpen && <NodeConfigPane />}
-    </Container>
-  );
+  switch (canvasLeftPaneType) {
+    case CanvasLeftPaneType.Off:
+    case CanvasLeftPaneType.AddNode:
+      return null;
+    case CanvasLeftPaneType.Inspector: {
+      return (
+        <Container>
+          <NodeConfigPane />
+        </Container>
+      );
+    }
+  }
 }
 
-const Container = styled.div<{ $hide: boolean }>`
+const Container = styled.div`
   position: relative;
   height: 100%;
   width: 400px;
   background-color: #fff;
   border-right: 1px solid #ddd;
-  display: ${(props) => (props.$hide ? 'none' : 'initial')};
   flex-shrink: 0;
   overflow-y: auto;
 `;

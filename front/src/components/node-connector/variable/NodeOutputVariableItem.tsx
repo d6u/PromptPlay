@@ -28,11 +28,8 @@ type Props = {
 };
 
 function NodeOutputVariableItem(props: Props) {
-  const setCanvasLeftPaneIsOpen = useFlowStore(
-    (s) => s.setCanvasLeftPaneIsOpen,
-  );
-  const setCanvasLeftPaneSelectedNodeId = useFlowStore(
-    (s) => s.setCanvasLeftPaneSelectedNodeId,
+  const openInspectorForNode = useFlowStore(
+    (s) => s.openCanvasLeftPaneInspectorForNode,
   );
 
   const paramsOnUserStartConnectingEdge = useFlowStore(
@@ -70,8 +67,7 @@ function NodeOutputVariableItem(props: Props) {
           label={props.formField.name}
           value={props.formField.value}
           onClick={() => {
-            setCanvasLeftPaneIsOpen(true);
-            setCanvasLeftPaneSelectedNodeId(props.nodeId);
+            openInspectorForNode(props.nodeId);
           }}
         />
         <NodeVariableToggleIsGlobalButton

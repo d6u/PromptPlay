@@ -145,6 +145,12 @@ export type FlowContentState = Omit<CanvasDataV4, 'nodes' | 'edges'> & {
   nodeAccountLevelFieldsValidationErrors: Record<string, string>;
 };
 
+export enum CanvasLeftPaneType {
+  Off = 'Off',
+  AddNode = 'AddNode',
+  Inspector = 'Inspector',
+}
+
 export type FlowProps = {
   spaceId: string | null;
 
@@ -161,7 +167,7 @@ export type FlowProps = {
   canvas: {
     flowContent: FlowContentState;
   };
-  canvasLeftPaneIsOpen: boolean;
+  canvasLeftPaneType: CanvasLeftPaneType;
   canvasLeftPaneSelectedNodeId: string | null;
   canvasRightPaneType: CanvasRightPanelType;
   canvasTesterStartNodeId: string | null;
@@ -204,8 +210,9 @@ export type FlowActions = {
   enterFlowRoute(spaceId: string): void;
   leaveFlowRoute(): void;
 
-  setCanvasLeftPaneIsOpen(isOpen: boolean): void;
-  setCanvasLeftPaneSelectedNodeId(nodeId: string | null): void;
+  openCanvasLeftPaneInspectorForNode(nodeId: string): void;
+  setCanvasLeftPaneType(type: CanvasLeftPaneType): void;
+  // setCanvasLeftPaneSelectedNodeId(nodeId: string | null): void;
   setCanvasRightPaneType(type: CanvasRightPanelType): void;
   setCanvasTesterStartNodeId(nodeId: string | null): void;
   setCanvasRenameNodeId(nodeId: string | null): void;

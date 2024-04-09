@@ -1,40 +1,37 @@
 import styled from '@emotion/styled';
-import { FormControl, FormLabel, Switch } from '@mui/joy';
+import { Button, ToggleButtonGroup } from '@mui/joy';
 
 import { FlowRouteTab, useFlowRouteSubRouteHandle } from 'generic-util/route';
 import { useFlowStore } from 'state-flow/flow-store';
+import { CanvasLeftPaneType } from 'state-flow/types';
 
 function LeftPaneToggle() {
   const flowTabType = useFlowRouteSubRouteHandle((handle) => handle.tabType);
 
-  const canvasLeftPaneIsOpen = useFlowStore((s) => s.canvasLeftPaneIsOpen);
+  const canvasLeftPaneType = useFlowStore((s) => s.canvasLeftPaneType);
   const canvasselectedNodeId = useFlowStore(
     (s) => s.canvasLeftPaneSelectedNodeId,
   );
-  const setCanvasLeftPaneIsOpen = useFlowStore(
-    (s) => s.setCanvasLeftPaneIsOpen,
-  );
+  const setCanvasLeftPaneType = useFlowStore((s) => s.setCanvasLeftPaneType);
 
   switch (flowTabType) {
     case FlowRouteTab.Canvas:
       return (
         <Container
-          size="md"
-          orientation="horizontal"
-          disabled={canvasselectedNodeId == null}
+          size="sm"
+          value={canvasLeftPaneType}
+          onChange={(e, value) => {
+            setCanvasLeftPaneType(value as CanvasLeftPaneType);
+          }}
         >
-          <FormLabel sx={{ cursor: 'pointer' }}>Node Config</FormLabel>
-          <Switch
-            color="neutral"
-            size="md"
-            variant={canvasLeftPaneIsOpen ? 'solid' : 'outlined'}
-            // Reverse the value to match the position of the switch
-            // with the open state of the right panel
-            checked={canvasLeftPaneIsOpen}
-            onChange={(event) => {
-              setCanvasLeftPaneIsOpen(event.target.checked);
-            }}
-          />
+          <Button value={CanvasLeftPaneType.Off}>Off</Button>
+          <Button value={CanvasLeftPaneType.AddNode}>Add Node</Button>
+          <Button
+            value={CanvasLeftPaneType.Inspector}
+            disabled={canvasselectedNodeId == null}
+          >
+            Inspector
+          </Button>
         </Container>
       );
     case FlowRouteTab.BatchTest:
@@ -42,7 +39,7 @@ function LeftPaneToggle() {
   }
 }
 
-const Container = styled(FormControl)`
+const Container = styled(ToggleButtonGroup)`
   grid-area: left-pane-toggle;
 `;
 

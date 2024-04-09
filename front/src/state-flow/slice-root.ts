@@ -22,6 +22,7 @@ import { AcceptedEvent, handleAllEvent } from './event-graph/handle-all-event';
 import { createBatchTestLens } from './lenses/batch-test-lens';
 import { canvasStateMachine } from './state-machines/canvasStateMachine';
 import {
+  CanvasLeftPaneType,
   CanvasStateMachineContext,
   CanvasStateMachineEmittedEventType,
   CanvasStateMachineEvent,
@@ -53,7 +54,7 @@ const RESETABLE_INITIAL_STATE: Partial<FlowState> = {
       nodeAccountLevelFieldsValidationErrors: {},
     },
   },
-  canvasLeftPaneIsOpen: false,
+  canvasLeftPaneType: CanvasLeftPaneType.Off,
   canvasRightPaneType: CanvasRightPanelType.Off,
   canvasLeftPaneSelectedNodeId: null,
   paramsOnUserStartConnectingEdge: null,
@@ -143,7 +144,7 @@ export const createRootSlice: RootSliceStateCreator = (set, get) => {
         nodeAccountLevelFieldsValidationErrors: {},
       },
     },
-    canvasLeftPaneIsOpen: false,
+    canvasLeftPaneType: CanvasLeftPaneType.Off,
     canvasLeftPaneSelectedNodeId: null,
     canvasRightPaneType: CanvasRightPanelType.Off,
     canvasTesterStartNodeId: null,
@@ -157,8 +158,14 @@ export const createRootSlice: RootSliceStateCreator = (set, get) => {
 
     // SECTION: Simple getters and setters
     getFlowContent: getFlowContent,
-    setCanvasLeftPaneIsOpen(isOpen: boolean): void {
-      set({ canvasLeftPaneIsOpen: isOpen });
+    openCanvasLeftPaneInspectorForNode(nodeId: string): void {
+      set({
+        canvasLeftPaneType: CanvasLeftPaneType.Inspector,
+        canvasLeftPaneSelectedNodeId: nodeId,
+      });
+    },
+    setCanvasLeftPaneType(type: CanvasLeftPaneType): void {
+      set({ canvasLeftPaneType: type });
     },
     setCanvasLeftPaneSelectedNodeId(id: string) {
       set({ canvasLeftPaneSelectedNodeId: id });
