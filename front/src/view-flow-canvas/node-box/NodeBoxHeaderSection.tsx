@@ -7,6 +7,7 @@ import RemoveButton from 'generic-components/RemoveButton';
 import IconThreeDots from 'icons/IconThreeDots';
 import { useFlowStore } from 'state-flow/flow-store';
 
+import { useReactFlow, useStoreApi } from 'reactflow';
 import { DRAG_HANDLE_CLASS_NAME } from '../constants';
 import NodeBoxGearButton from './NodeBoxIconGear';
 import NodeBoxIconRename from './NodeBoxIconRename';
@@ -33,6 +34,9 @@ function NodeBoxHeaderSection(props: Props) {
     (s) => s.openCanvasLeftPaneInspectorForNode,
   );
   const setCanvasRenameNodeId = useFlowStore((s) => s.setCanvasRenameNodeId);
+
+  const reactflow = useReactFlow();
+  const reactflowStoreApi = useStoreApi();
 
   return (
     <Container>
@@ -62,7 +66,11 @@ function NodeBoxHeaderSection(props: Props) {
         )}
         <NodeBoxGearButton
           onClick={() => {
-            openInspectorForNode(props.nodeId);
+            openInspectorForNode(
+              props.nodeId,
+              reactflowStoreApi.getState(),
+              reactflow,
+            );
           }}
         />
         {!props.isNodeReadOnly &&

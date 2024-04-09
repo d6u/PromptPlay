@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { Position } from 'reactflow';
+import { Position, useReactFlow, useStoreApi } from 'reactflow';
 
 import { EdgeConnectStartConnectorClass } from 'state-flow/common-types';
 import { useFlowStore } from 'state-flow/flow-store';
@@ -60,6 +60,9 @@ function NodeOutputVariableItem(props: Props) {
         isThisTheSameHandleType);
   }
 
+  const reactflow = useReactFlow();
+  const reactflowStoreApi = useStoreApi();
+
   return (
     <Container>
       <RowA>
@@ -67,7 +70,11 @@ function NodeOutputVariableItem(props: Props) {
           label={props.formField.name}
           value={props.formField.value}
           onClick={() => {
-            openInspectorForNode(props.nodeId);
+            openInspectorForNode(
+              props.nodeId,
+              reactflowStoreApi.getState(),
+              reactflow,
+            );
           }}
         />
         <NodeVariableToggleIsGlobalButton

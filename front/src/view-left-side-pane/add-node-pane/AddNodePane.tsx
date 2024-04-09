@@ -41,6 +41,7 @@ function AddNodePane() {
       const centerY = -transformY * zoomMultiplier + 200 * zoomMultiplier;
 
       addNode(type, centerX - NODE_BOX_WIDTH / 2, centerY);
+      addNode(type, centerX - NODE_BOX_WIDTH / 2, centerY);
     },
     [addNode, isCurrentUserOwner, reactflowStoreApi],
   );
