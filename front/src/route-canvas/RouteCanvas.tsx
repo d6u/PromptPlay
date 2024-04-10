@@ -9,6 +9,7 @@ import FlowCanvasView from 'view-flow-canvas/FlowCanvasView';
 import LeftSidePaneView from 'view-left-side-pane/LeftSidePaneView';
 import RightSidePaneView from 'view-right-side-pane/RightSidePaneView';
 
+import { NODE_BOX_WIDTH } from 'view-flow-canvas/constants';
 import RenameStartNodeView from '../view-rename-start-node/RenameStartNodeView';
 
 function RouteCanvas() {
@@ -48,8 +49,8 @@ function RouteCanvas() {
 
         addNode(
           event.active.id as NodeTypeEnum,
-          pointOnCanvas.x,
-          pointOnCanvas.y,
+          pointOnCanvas.x - NODE_BOX_WIDTH / 2,
+          pointOnCanvas.y - 10,
         );
       }}
     >
