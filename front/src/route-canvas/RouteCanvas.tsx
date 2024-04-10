@@ -1,15 +1,21 @@
+import { DndContext } from '@dnd-kit/core';
 import styled from '@emotion/styled';
 
-import { DndContext } from '@dnd-kit/core';
+import type { NodeTypeEnum } from 'flow-models';
+
 import { useFlowStore } from 'state-flow/flow-store';
 import FlowCanvasView from 'view-flow-canvas/FlowCanvasView';
 import LeftSidePaneView from 'view-left-side-pane/LeftSidePaneView';
 import RightSidePaneView from 'view-right-side-pane/RightSidePaneView';
+
 import RenameStartNodeView from '../view-rename-start-node/RenameStartNodeView';
 
 function RouteCanvas() {
   const uiState = useFlowStore(
     (s) => s.canvasStateMachine.getSnapshot().context.canvasUiState,
+  );
+  const setDraggingNodeTypeForAddingNode = useFlowStore(
+    (s) => s.setDraggingNodeTypeForAddingNode,
   );
 
   // TODO: Render other states
@@ -18,7 +24,12 @@ function RouteCanvas() {
   }
 
   return (
-    <DndContext onDragStart={console.log} onDragEnd={console.log}>
+    <DndContext
+      onDragStart={({ active }) => {
+        setDraggingNodeTypeForAddingNode(active.id as NodeTypeEnum);
+      }}
+      onDragEnd={console.log}
+    >
       <Container>
         <LeftSidePaneView />
         <FlowCanvasView />

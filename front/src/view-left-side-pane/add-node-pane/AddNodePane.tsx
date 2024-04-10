@@ -11,6 +11,7 @@ import RouteFlowContext from 'state-flow/context/FlowRouteContext';
 import { useFlowStore } from 'state-flow/flow-store';
 import { NODE_BOX_WIDTH } from 'view-flow-canvas/constants';
 
+import { DragOverlay } from '@dnd-kit/core';
 import NodeConfigPaneContainer from '../left-side-pane-base-ui/NodeConfigPaneContainer';
 import NodeCard from './NodeCard';
 
@@ -19,6 +20,9 @@ function AddNodePane() {
 
   const reactflowStoreApi = useStoreApi();
 
+  const draggingNodeTypeForAddingNode = useFlowStore(
+    (s) => s.draggingNodeTypeForAddingNode,
+  );
   const addNode = useFlowStore((s) => s.addNode);
 
   const addNodeWithType = useCallback(
@@ -60,31 +64,29 @@ function AddNodePane() {
       });
   }, [addNodeWithType]);
 
-  // const [draggingNodeType, setDraggingNodeType] = useState<NodeTypeEnum | null>(
-  //   null,
-  // );
-
-  // const draggingNodeLabel = useMemo(() => {
-  //   if (!draggingNodeType) {
-  //     return null;
-  //   }
-  //   const nodeDefinition = getNodeDefinitionForNodeTypeName(draggingNodeType);
-  //   return nodeDefinition.label;
-  // }, [draggingNodeType]);
+  const draggingNodeLabel = useMemo(() => {
+    if (!draggingNodeTypeForAddingNode) {
+      return null;
+    }
+    const nodeDefinition = getNodeDefinitionForNodeTypeName(
+      draggingNodeTypeForAddingNode,
+    );
+    return nodeDefinition.label;
+  }, [draggingNodeTypeForAddingNode]);
 
   return (
     <NodeConfigPaneContainer>
       {options.map((option, i) => (
         <NodeCard key={i} nodeType={option.nodeType} label={option.label} />
       ))}
-      {/* <DragOverlay dropAnimation={null}>
-          {draggingNodeType && (
-            <NodeCard
-              nodeType={NodeType.InputNode}
-              label={draggingNodeLabel!}
-            />
-          )}
-        </DragOverlay> */}
+      <DragOverlay dropAnimation={null}>
+        {draggingNodeTypeForAddingNode && (
+          <NodeCard
+            nodeType={draggingNodeTypeForAddingNode}
+            label={draggingNodeLabel!}
+          />
+        )}
+      </DragOverlay>
     </NodeConfigPaneContainer>
   );
 }

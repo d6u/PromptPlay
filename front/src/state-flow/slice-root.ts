@@ -155,6 +155,7 @@ export const createRootSlice: RootSliceStateCreator = (set, get) => {
     canvasRightPaneType: CanvasRightPanelType.Off,
     canvasTesterStartNodeId: null,
     canvasRenameNodeId: null,
+    draggingNodeTypeForAddingNode: null,
     paramsOnUserStartConnectingEdge: null,
 
     // ANCHOR: Batch Test View
@@ -202,6 +203,9 @@ export const createRootSlice: RootSliceStateCreator = (set, get) => {
     },
     setCanvasRenameNodeId(nodeId: string | null): void {
       set({ canvasRenameNodeId: nodeId });
+    },
+    setDraggingNodeTypeForAddingNode(nodeType: NodeTypeEnum | null): void {
+      set({ draggingNodeTypeForAddingNode: nodeType });
     },
     // !SECTION
 

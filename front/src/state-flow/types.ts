@@ -180,6 +180,7 @@ export type FlowProps = {
     handleType: HandleType;
     connectorClass: EdgeConnectStartConnectorClass;
   } | null;
+  draggingNodeTypeForAddingNode: NodeTypeEnum | null;
 
   // ANCHOR: Batch Test View
   selectedBatchTestTab: BatchTestTab;
@@ -229,6 +230,7 @@ export type FlowActions = {
   ): void;
   setCanvasTesterStartNodeId(nodeId: string | null): void;
   setCanvasRenameNodeId(nodeId: string | null): void;
+  setDraggingNodeTypeForAddingNode(nodeType: NodeTypeEnum | null): void;
   onEdgeConnectStart(params: OnConnectStartParams): void;
   onEdgeConnectStop(): void;
 
