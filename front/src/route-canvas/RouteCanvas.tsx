@@ -1,5 +1,6 @@
-import { DndContext } from '@dnd-kit/core';
+import { DndContext, pointerWithin } from '@dnd-kit/core';
 import styled from '@emotion/styled';
+import { useReactFlow } from 'reactflow';
 
 import type { NodeTypeEnum } from 'flow-models';
 
@@ -17,6 +18,9 @@ function RouteCanvas() {
   const setDraggingNodeTypeForAddingNode = useFlowStore(
     (s) => s.setDraggingNodeTypeForAddingNode,
   );
+  const addNode = useFlowStore((s) => s.addNode);
+
+  const reactflow = useReactFlow();
 
   // TODO: Render other states
   if (uiState !== 'initialized') {
@@ -25,10 +29,29 @@ function RouteCanvas() {
 
   return (
     <DndContext
+      collisionDetection={pointerWithin}
       onDragStart={({ active }) => {
         setDraggingNodeTypeForAddingNode(active.id as NodeTypeEnum);
       }}
-      onDragEnd={console.log}
+      onDragEnd={(event) => {
+        if (event.collisions?.length === 0) {
+          return;
+        }
+
+        const { clientX: startX, clientY: startY } =
+          event.activatorEvent as PointerEvent;
+
+        const pointOnCanvas = reactflow.screenToFlowPosition({
+          x: startX + event.delta.x,
+          y: startY + event.delta.y,
+        });
+
+        addNode(
+          event.active.id as NodeTypeEnum,
+          pointOnCanvas.x,
+          pointOnCanvas.y,
+        );
+      }}
     >
       <Container>
         <LeftSidePaneView />
