@@ -11,6 +11,7 @@ import { useFlowStore } from 'state-flow/flow-store';
 
 import FlowCanvasNode from './FlowCanvasNode';
 
+import { useDroppable } from '@dnd-kit/core';
 import 'reactflow/dist/style.css';
 
 const TYPE_NAME_FOR_CANVAS_NODE = 'CANVAS_NODE';
@@ -30,8 +31,11 @@ function FlowCanvasView() {
   const onEdgeConnectStart = useFlowStore((s) => s.onEdgeConnectStart);
   const onEdgeConnectStop = useFlowStore((s) => s.onEdgeConnectStop);
 
+  const { setNodeRef } = useDroppable({ id: 'flow-canvas' });
+
   return (
     <ReactFlow
+      ref={setNodeRef}
       panOnScroll
       panOnScrollMode={PanOnScrollMode.Free}
       minZoom={0.2}

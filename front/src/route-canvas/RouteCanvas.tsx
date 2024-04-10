@@ -1,5 +1,6 @@
 import styled from '@emotion/styled';
 
+import { DndContext } from '@dnd-kit/core';
 import { useFlowStore } from 'state-flow/flow-store';
 import FlowCanvasView from 'view-flow-canvas/FlowCanvasView';
 import LeftSidePaneView from 'view-left-side-pane/LeftSidePaneView';
@@ -17,12 +18,14 @@ function RouteCanvas() {
   }
 
   return (
-    <Container>
-      <LeftSidePaneView />
-      <FlowCanvasView />
-      <RightSidePaneView />
-      <RenameStartNodeView />
-    </Container>
+    <DndContext onDragStart={console.log} onDragEnd={console.log}>
+      <Container>
+        <LeftSidePaneView />
+        <FlowCanvasView />
+        <RightSidePaneView />
+        <RenameStartNodeView />
+      </Container>
+    </DndContext>
   );
 }
 

@@ -1,5 +1,3 @@
-import styled from '@emotion/styled';
-import { Card } from '@mui/joy';
 import { useCallback, useContext, useMemo } from 'react';
 import { useStoreApi } from 'reactflow';
 
@@ -14,6 +12,7 @@ import { useFlowStore } from 'state-flow/flow-store';
 import { NODE_BOX_WIDTH } from 'view-flow-canvas/constants';
 
 import NodeConfigPaneContainer from '../left-side-pane-base-ui/NodeConfigPaneContainer';
+import NodeCard from './NodeCard';
 
 function AddNodePane() {
   const { isCurrentUserOwner } = useContext(RouteFlowContext);
@@ -54,27 +53,40 @@ function AddNodePane() {
       }))
       .map(({ nodeType, nodeDefinition }) => {
         return {
+          nodeType,
           label: nodeDefinition.label,
           onClick: () => addNodeWithType(nodeType),
         };
       });
   }, [addNodeWithType]);
 
+  // const [draggingNodeType, setDraggingNodeType] = useState<NodeTypeEnum | null>(
+  //   null,
+  // );
+
+  // const draggingNodeLabel = useMemo(() => {
+  //   if (!draggingNodeType) {
+  //     return null;
+  //   }
+  //   const nodeDefinition = getNodeDefinitionForNodeTypeName(draggingNodeType);
+  //   return nodeDefinition.label;
+  // }, [draggingNodeType]);
+
   return (
     <NodeConfigPaneContainer>
       {options.map((option, i) => (
-        <NodeCard key={i} onClick={option.onClick}>
-          {option.label}
-        </NodeCard>
+        <NodeCard key={i} nodeType={option.nodeType} label={option.label} />
       ))}
+      {/* <DragOverlay dropAnimation={null}>
+          {draggingNodeType && (
+            <NodeCard
+              nodeType={NodeType.InputNode}
+              label={draggingNodeLabel!}
+            />
+          )}
+        </DragOverlay> */}
     </NodeConfigPaneContainer>
   );
 }
-
-const NodeCard = styled(Card)`
-  margin-top: 10px;
-  margin-bottom: 10px;
-  cursor: pointer;
-`;
 
 export default AddNodePane;
