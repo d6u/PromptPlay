@@ -1,6 +1,8 @@
 import { ReactNode } from 'react';
 import { ZodSchema } from 'zod';
 
+import type { BaseNodeInstanceLevelConfig } from './node-definition-interface';
+
 export enum FieldType {
   Text = 'Text',
   StopSequence = 'StopSequence',
@@ -60,10 +62,18 @@ export type RadioFieldDefinition = {
 
 export type SelectFieldDefinition = {
   type: FieldType.Select;
-  options: FieldOption[];
   label: string;
   helperText?: () => ReactNode;
-};
+} & (
+  | {
+      options: FieldOption[];
+    }
+  | {
+      dynamicOptions: (
+        nodeConfigs: Record<string, BaseNodeInstanceLevelConfig>,
+      ) => FieldOption[];
+    }
+);
 
 export type FieldOption = {
   label: string;

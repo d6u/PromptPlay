@@ -15,7 +15,7 @@ import {
 } from './field-definition-interfaces';
 import { NodeTypeEnum, type NodeClassEnum } from './node-class-and-type';
 
-type BaseNodeInstanceLevelConfig = {
+export type BaseNodeInstanceLevelConfig = {
   class: NodeClassEnum;
   type: NodeTypeEnum;
   nodeId: string;

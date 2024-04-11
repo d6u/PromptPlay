@@ -7,6 +7,7 @@ import {
   NodeDefinition,
   NodeType,
 } from '../../node-definition-base-types';
+import type { LoopStartNodeInstanceLevelConfig } from './loop-start';
 
 export const LoopNodeConfigSchema = z.object({
   class: z.literal(NodeClass.Process),
@@ -30,12 +31,19 @@ export const LOOP_NODE_DEFINITION: NodeDefinition<
     loopStartNodeId: {
       label: 'Loop start',
       type: FieldType.Select,
-      options: [
-        {
-          label: '1',
-          value: '1',
-        },
-      ],
+      dynamicOptions: (nodeConfigs) => {
+        return Object.values(nodeConfigs)
+          .filter(
+            (nodeConfig): nodeConfig is LoopStartNodeInstanceLevelConfig =>
+              nodeConfig.type === NodeType.LoopStart,
+          )
+          .map((nodeConfig) => {
+            return {
+              label: nodeConfig.nodeName,
+              value: nodeConfig.nodeId,
+            };
+          });
+      },
     },
   },
 
