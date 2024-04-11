@@ -3,7 +3,7 @@ import { ConnectorType } from 'flow-models';
 import { createHandler } from './event-graph-util';
 import { VariableUpdatedEvent } from './event-types';
 
-export const updateVariableValueMapOnVariableUpdate = createHandler<
+export const updateVariableValueOnVariableUpdate = createHandler<
   VariableUpdatedEvent,
   never
 >((state, event) => {

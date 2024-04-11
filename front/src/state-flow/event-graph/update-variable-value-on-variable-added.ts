@@ -6,7 +6,7 @@ export type VariableAddedEvent = {
   variableId: string;
 };
 
-export const updateVariableValueMapOnVariableAdded = createHandler<
+export const updateVariableValueOnVariableAdded = createHandler<
   VariableAddedEvent,
   never
 >((state, event) => {

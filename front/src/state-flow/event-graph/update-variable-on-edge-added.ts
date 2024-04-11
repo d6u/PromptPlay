@@ -4,7 +4,7 @@ import { ConnectorType, LocalEdge, VariableValueType } from 'flow-models';
 
 import { createHandler } from './event-graph-util.ts';
 import { ChangeEventType, VariableUpdatedEvent } from './event-types.ts';
-import { updateVariableValueMapOnVariableUpdate } from './update-variable-value-map-on-variable-update.ts.ts';
+import { updateVariableValueOnVariableUpdate } from './update-variable-value-on-variable-update.ts.ts';
 
 export type EdgeAddedEvent = {
   type: ChangeEventType.EDGE_ADDED;
@@ -65,5 +65,5 @@ export const updateVariableOnEdgeAdded = createHandler<
 
     return [];
   },
-  [updateVariableValueMapOnVariableUpdate],
+  [updateVariableValueOnVariableUpdate],
 );

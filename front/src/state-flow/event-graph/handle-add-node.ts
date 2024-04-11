@@ -11,9 +11,9 @@ import { DRAG_HANDLE_CLASS_NAME } from 'view-flow-canvas/constants';
 import { createHandler } from './event-graph-util';
 import { ChangeEventType } from './event-types';
 import {
-  NodeAndVariableAddedEvent,
-  updateVariableValueMapOnNodeAndVariableAdded,
-} from './update-variable-value-map-on-node-and-variable-added';
+  NodeAndConnectorsAddedEvent,
+  updateVariableValuesOnNodeAndConnectorsAdded,
+} from './update-variable-values-on-node-and-connectors-added';
 
 export type AddNodeEvent = {
   type: ChangeEventType.ADDING_NODE;
@@ -24,13 +24,13 @@ export type AddNodeEvent = {
 
 export const handleAddNode = createHandler<
   AddNodeEvent,
-  NodeAndVariableAddedEvent
+  NodeAndConnectorsAddedEvent
 >(
   (event): event is AddNodeEvent => {
     return event.type === ChangeEventType.ADDING_NODE;
   },
   (state, event) => {
-    const events: NodeAndVariableAddedEvent[] = [];
+    const events: NodeAndConnectorsAddedEvent[] = [];
 
     const nodeDefinition = getNodeDefinitionForNodeTypeName(event.nodeType);
     const { nodeConfigs, connectors } =
@@ -47,7 +47,7 @@ export const handleAddNode = createHandler<
       });
 
       events.push({
-        type: ChangeEventType.NODE_AND_VARIABLES_ADDED,
+        type: ChangeEventType.NODE_AND_CONNECTORS_ADDED,
         node,
         connectors: connectors.filter((c) => c.nodeId === node.id),
       });
@@ -59,5 +59,5 @@ export const handleAddNode = createHandler<
 
     return events;
   },
-  [updateVariableValueMapOnNodeAndVariableAdded],
+  [updateVariableValuesOnNodeAndConnectorsAdded],
 );

@@ -9,7 +9,7 @@ import {
   removeEdgeOnConditionRemoval,
 } from './remove-edge-on-condition-removal';
 import { removeEdgeOnVariableRemoval } from './remove-edge-on-variable-removal';
-import { updateVariableValueMapOnVariableRemoved } from './update-variable-value-map-on-variable-removed';
+import { updateVariableValueOnVariableRemoved } from './update-variable-value-on-variable-removed';
 
 export type RemoveVariableEvent = {
   type: ChangeEventType.REMOVING_VARIABLE;
@@ -54,6 +54,6 @@ export const handleRemoveVariable = createHandler<
   [
     removeEdgeOnVariableRemoval,
     removeEdgeOnConditionRemoval,
-    updateVariableValueMapOnVariableRemoved,
+    updateVariableValueOnVariableRemoved,
   ],
 );

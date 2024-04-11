@@ -17,8 +17,8 @@ import { createHandler } from './event-graph-util';
 import { ChangeEventType } from './event-types';
 import {
   VariableAddedEvent,
-  updateVariableValueMapOnVariableAdded,
-} from './update-variable-value-map-on-variable-added';
+  updateVariableValueOnVariableAdded,
+} from './update-variable-value-on-variable-added';
 
 export type AddConnectorEvent = {
   type: ChangeEventType.ADDING_VARIABLE;
@@ -119,5 +119,5 @@ export const handleAddConnector = createHandler<
       return [];
     }
   },
-  [updateVariableValueMapOnVariableAdded],
+  [updateVariableValueOnVariableAdded],
 );

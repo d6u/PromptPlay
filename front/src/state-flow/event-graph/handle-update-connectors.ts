@@ -5,7 +5,7 @@ import { Connector } from 'flow-models';
 import { createHandler } from './event-graph-util.ts';
 import { ChangeEventType, VariableUpdatedEvent } from './event-types.ts';
 import { removeEdgeOnVariableUpdate } from './remove-edge-on-variable-update.ts';
-import { updateVariableValueMapOnVariableUpdate } from './update-variable-value-map-on-variable-update.ts.ts';
+import { updateVariableValueOnVariableUpdate } from './update-variable-value-on-variable-update.ts.ts';
 
 export type UpdateConnectorsEvent = {
   type: ChangeEventType.UPDATE_CONNECTORS;
@@ -39,5 +39,5 @@ export const handleUpdateConnectors = createHandler<
       };
     });
   },
-  [updateVariableValueMapOnVariableUpdate, removeEdgeOnVariableUpdate],
+  [updateVariableValueOnVariableUpdate, removeEdgeOnVariableUpdate],
 );
