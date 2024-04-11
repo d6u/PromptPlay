@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import z from 'zod';
 
 import { ConnectorType, VariableValueType } from '../base-types';
 import {
@@ -36,29 +36,37 @@ export const GENERIC_CHATBOT_START_NODE_DEFINITION: NodeDefinition<
   },
 
   createDefaultNodeConfigsAndConnectors(context) {
-    const nodeId = context.generateNodeId();
+    const startNodeNodeId = context.generateNodeId();
+    const finishNodeNodeId = context.generateNodeId();
 
     return {
       nodeConfigs: [
         {
           class: NodeClass.Start,
-          nodeId: nodeId,
+          nodeId: startNodeNodeId,
           type: NodeType.GenericChatbotStart,
           nodeName: 'chatbot',
         },
+        // TODO: Centralize default config from different node
+        {
+          class: NodeClass.Finish,
+          nodeId: finishNodeNodeId,
+          type: NodeType.GenericChatbotFinish,
+        },
       ],
       connectors: [
+        // For start node
         {
           type: ConnectorType.OutCondition,
-          id: context.generateConnectorId(nodeId),
+          id: context.generateConnectorId(startNodeNodeId),
           index: 0,
-          nodeId: nodeId,
+          nodeId: startNodeNodeId,
           expressionString: '',
         },
         {
           type: ConnectorType.NodeOutput,
-          id: context.generateConnectorId(nodeId),
-          nodeId: nodeId,
+          id: context.generateConnectorId(startNodeNodeId),
+          nodeId: startNodeNodeId,
           index: 0,
           name: 'chat_history',
           valueType: VariableValueType.Structured,
@@ -67,11 +75,27 @@ export const GENERIC_CHATBOT_START_NODE_DEFINITION: NodeDefinition<
         },
         {
           type: ConnectorType.NodeOutput,
-          id: context.generateConnectorId(nodeId),
-          nodeId: nodeId,
+          id: context.generateConnectorId(startNodeNodeId),
+          nodeId: startNodeNodeId,
           index: 1,
           name: 'current_message',
           valueType: VariableValueType.String,
+          isGlobal: false,
+          globalVariableId: null,
+        },
+        // For finish node
+        {
+          type: ConnectorType.InCondition,
+          id: context.generateConnectorId(finishNodeNodeId),
+          nodeId: finishNodeNodeId,
+        },
+        {
+          type: ConnectorType.NodeInput,
+          id: context.generateConnectorId(finishNodeNodeId),
+          nodeId: finishNodeNodeId,
+          index: 0,
+          name: 'messages',
+          valueType: VariableValueType.Any,
           isGlobal: false,
           globalVariableId: null,
         },

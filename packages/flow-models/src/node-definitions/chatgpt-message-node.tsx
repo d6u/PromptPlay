@@ -1,7 +1,7 @@
 import { A, F } from '@mobily/ts-belt';
 import mustache from 'mustache';
 import invariant from 'tiny-invariant';
-import { z } from 'zod';
+import z from 'zod';
 
 import * as OpenAI from 'integrations/openai';
 

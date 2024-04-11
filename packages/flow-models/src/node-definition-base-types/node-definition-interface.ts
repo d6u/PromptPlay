@@ -74,10 +74,8 @@ type CreateDefaultNodeConfigContext = {
   generateConnectorId(nodeId: string): string;
 };
 
-type CreateDefaultNodeConfigReturn<
-  TInstanceLevelConfig extends BaseNodeInstanceLevelConfig,
-> = {
-  nodeConfigs: TInstanceLevelConfig[];
+type CreateDefaultNodeConfigReturn = {
+  nodeConfigs: BaseNodeInstanceLevelConfig[];
   connectors: Connector[];
 };
 
@@ -107,7 +105,7 @@ export interface NodeDefinition<
   // Initial config values
   createDefaultNodeConfigsAndConnectors: (
     context: CreateDefaultNodeConfigContext,
-  ) => CreateDefaultNodeConfigReturn<TInstanceLevelConfig>;
+  ) => CreateDefaultNodeConfigReturn;
 
   // Execution
   createNodeExecutionObservable?: CreateNodeExecutionObservableFunction<TAllLevelConfig>;

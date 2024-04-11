@@ -4,6 +4,7 @@ import {
   NodeTypeEnum,
   createNode,
   getNodeDefinitionForNodeTypeName,
+  type NodeConfig,
 } from 'flow-models';
 
 import { DRAG_HANDLE_CLASS_NAME } from 'view-flow-canvas/constants';
@@ -37,7 +38,8 @@ export const handleAddNode = createHandler<
       nodeDefinition.createDefaultNodeConfigsAndConnectors(CREATE_NODE_CONTEXT);
 
     for (const nodeConfig of nodeConfigs) {
-      state.flowContent.nodeConfigs[nodeConfig.nodeId] = nodeConfig;
+      state.flowContent.nodeConfigs[nodeConfig.nodeId] =
+        nodeConfig as NodeConfig;
 
       const node = createNode(nodeConfig.nodeId, event.x, event.y) as LocalNode;
 
