@@ -6,6 +6,7 @@ import {
   OutputNodeAllLevelConfig,
   getNodeDefinitionForNodeTypeName,
   type GenericChatbotFinishNodeAllLevelConfig,
+  type LoopFinishNodeAllLevelConfig,
 } from 'flow-models';
 
 import NodeRenamableVariableList from 'components/node-connector/variable/NodeRenamableVariableList';
@@ -24,7 +25,10 @@ import NodeConfigPaneContainer from '../left-side-pane-base-ui/NodeConfigPaneCon
 type Props = {
   nodeId: string;
   isNodeReadOnly: boolean;
-  nodeConfig: OutputNodeAllLevelConfig | GenericChatbotFinishNodeAllLevelConfig;
+  nodeConfig:
+    | OutputNodeAllLevelConfig
+    | LoopFinishNodeAllLevelConfig
+    | GenericChatbotFinishNodeAllLevelConfig;
 };
 
 function FinishClassNodeConfigPane(props: Props) {

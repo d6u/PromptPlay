@@ -17,6 +17,21 @@ import {
   JavaScriptFunctionNodeConfigSchema,
 } from './builtin-nodes/javascript-function-node';
 import {
+  LOOP_FINISH_NODE_DEFINITION,
+  LoopFinishNodeConfigSchema,
+  type LoopFinishNodeAllLevelConfig,
+} from './builtin-nodes/loop-finish';
+import {
+  LOOP_NODE_DEFINITION,
+  LoopNodeConfigSchema,
+  type LoopNodeAllLevelConfig,
+} from './builtin-nodes/loop-node';
+import {
+  LOOP_START_NODE_DEFINITION,
+  LoopStartNodeConfigSchema,
+  type LoopStartNodeAllLevelConfig,
+} from './builtin-nodes/loop-start';
+import {
   OUTPUT_NODE_DEFINITION,
   OutputNodeAllLevelConfig,
   OutputNodeConfigSchema,
@@ -60,6 +75,9 @@ import {
 export * from './builtin-nodes/condition-node';
 export * from './builtin-nodes/input-node';
 export * from './builtin-nodes/javascript-function-node';
+export * from './builtin-nodes/loop-finish';
+export * from './builtin-nodes/loop-node';
+export * from './builtin-nodes/loop-start';
 export * from './builtin-nodes/output-node';
 export * from './builtin-nodes/text-template-node';
 export * from './chatgpt-chat-completion-node';
@@ -76,6 +94,9 @@ const NodeConfigSchema = z.union([
   ConditionNodeConfigSchema,
   JavaScriptFunctionNodeConfigSchema,
   TextTemplateNodeConfigSchema,
+  LoopNodeConfigSchema,
+  LoopStartNodeConfigSchema,
+  LoopFinishNodeConfigSchema,
   // ANCHOR: Update this section when adding new node types
   GenericChatbotStartNodeConfigSchema,
   GenericChatbotFinishNodeConfigSchema,
@@ -98,6 +119,9 @@ export type NodeAllLevelConfigUnion =
   | ConditionNodeAllLevelConfig
   | JavaScriptFunctionNodeAllLevelConfig
   | TextTemplateNodeAllLevelConfig
+  | LoopNodeAllLevelConfig
+  | LoopStartNodeAllLevelConfig
+  | LoopFinishNodeAllLevelConfig
   // ANCHOR: Update this when adding new node types
   | GenericChatbotStartNodeAllLevelConfig
   | GenericChatbotFinishNodeAllLevelConfig
@@ -112,6 +136,9 @@ const NODE_TYPE_TO_NODE_DEFINITION_MAP = {
   [NodeType.ConditionNode]: CONDITION_NODE_DEFINITION,
   [NodeType.JavaScriptFunctionNode]: JAVASCRIPT_NODE_DEFINITION,
   [NodeType.TextTemplate]: TEXT_TEMPLATE_NODE_DEFINITION,
+  [NodeType.Loop]: LOOP_NODE_DEFINITION,
+  [NodeType.LoopStart]: LOOP_START_NODE_DEFINITION,
+  [NodeType.LoopFinish]: LOOP_FINISH_NODE_DEFINITION,
   // ANCHOR: Update this when adding new node types
   [NodeType.GenericChatbotStart]: GENERIC_CHATBOT_START_NODE_DEFINITION,
   [NodeType.GenericChatbotFinish]: GENERIC_CHATBOT_FINISH_NODE_DEFINITION,

@@ -10,6 +10,7 @@ import {
   OutputNodeAllLevelConfig,
   getNodeDefinitionForNodeTypeName,
   type GenericChatbotFinishNodeAllLevelConfig,
+  type LoopFinishNodeAllLevelConfig,
 } from 'flow-models';
 
 import NodeIncomingConditionHandle from 'components/node-connector/condition/NodeIncomingConditionHandle';
@@ -27,7 +28,10 @@ import NodeBoxHeaderSection from '../node-box/NodeBoxHeaderSection';
 type Props = {
   nodeId: string;
   isNodeReadOnly: boolean;
-  nodeConfig: OutputNodeAllLevelConfig | GenericChatbotFinishNodeAllLevelConfig;
+  nodeConfig:
+    | OutputNodeAllLevelConfig
+    | LoopFinishNodeAllLevelConfig
+    | GenericChatbotFinishNodeAllLevelConfig;
   incomingCondition: IncomingCondition;
 };
 
