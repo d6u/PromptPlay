@@ -1,7 +1,5 @@
 import { z } from 'zod';
 
-import randomId from 'common-utils/randomId';
-
 import { ConnectorType, VariableValueType } from '../base-types';
 import {
   NodeClass,
@@ -37,25 +35,29 @@ export const GENERIC_CHATBOT_START_NODE_DEFINITION: NodeDefinition<
     current_message: {},
   },
 
-  createDefaultNodeConfig(nodeId) {
+  createDefaultNodeConfig(context) {
+    const nodeId = context.generateNodeId();
+
     return {
-      nodeConfig: {
-        class: NodeClass.Start,
-        nodeId: nodeId,
-        type: NodeType.GenericChatbotStart,
-        nodeName: 'chatbot',
-      },
-      variableConfigList: [
+      nodeConfigs: [
+        {
+          class: NodeClass.Start,
+          nodeId: nodeId,
+          type: NodeType.GenericChatbotStart,
+          nodeName: 'chatbot',
+        },
+      ],
+      connectors: [
         {
           type: ConnectorType.OutCondition,
-          id: `${nodeId}/${randomId()}`,
+          id: context.generateConnectorId(nodeId),
           index: 0,
           nodeId: nodeId,
           expressionString: '',
         },
         {
           type: ConnectorType.NodeOutput,
-          id: `${nodeId}/${randomId()}`,
+          id: context.generateConnectorId(nodeId),
           nodeId: nodeId,
           index: 0,
           name: 'chat_history',
@@ -65,7 +67,7 @@ export const GENERIC_CHATBOT_START_NODE_DEFINITION: NodeDefinition<
         },
         {
           type: ConnectorType.NodeOutput,
-          id: `${nodeId}/${randomId()}`,
+          id: context.generateConnectorId(nodeId),
           nodeId: nodeId,
           index: 1,
           name: 'current_message',

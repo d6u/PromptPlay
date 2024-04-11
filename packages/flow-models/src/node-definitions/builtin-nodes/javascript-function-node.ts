@@ -1,8 +1,6 @@
 import invariant from 'tiny-invariant';
 import { z } from 'zod';
 
-import randomId from 'common-utils/randomId';
-
 import { ConnectorType, VariableValueType } from '../../base-types';
 import {
   FieldType,
@@ -39,15 +37,19 @@ export const JAVASCRIPT_NODE_DEFINITION: NodeDefinition<
   canUserAddIncomingVariables: true,
   variableValueTypeForUserAddedIncomingVariable: VariableValueType.Any,
 
-  createDefaultNodeConfig: (nodeId) => {
+  createDefaultNodeConfig(context) {
+    const nodeId = context.generateNodeId();
+
     return {
-      nodeConfig: {
-        class: NodeClass.Process,
-        nodeId: nodeId,
-        type: NodeType.JavaScriptFunctionNode,
-        javaScriptCode: 'return `Hello, ${userName}!`',
-      },
-      variableConfigList: [
+      nodeConfigs: [
+        {
+          class: NodeClass.Process,
+          nodeId: nodeId,
+          type: NodeType.JavaScriptFunctionNode,
+          javaScriptCode: 'return `Hello, ${userName}!`',
+        },
+      ],
+      connectors: [
         {
           type: ConnectorType.NodeOutput,
           id: `${nodeId}/output`,
@@ -62,7 +64,7 @@ export const JAVASCRIPT_NODE_DEFINITION: NodeDefinition<
         },
         {
           type: ConnectorType.NodeInput,
-          id: `${nodeId}/${randomId()}`,
+          id: context.generateConnectorId(nodeId),
           nodeId: nodeId,
           name: 'userName',
           index: 1,
@@ -72,12 +74,12 @@ export const JAVASCRIPT_NODE_DEFINITION: NodeDefinition<
         },
         {
           type: ConnectorType.InCondition,
-          id: `${nodeId}/${randomId()}`,
+          id: context.generateConnectorId(nodeId),
           nodeId: nodeId,
         },
         {
           type: ConnectorType.OutCondition,
-          id: `${nodeId}/${randomId()}`,
+          id: context.generateConnectorId(nodeId),
           index: 0,
           nodeId,
           expressionString: '',

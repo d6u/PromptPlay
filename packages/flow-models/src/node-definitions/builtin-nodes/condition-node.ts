@@ -3,8 +3,6 @@ import jsonata from 'jsonata';
 import invariant from 'tiny-invariant';
 import z from 'zod';
 
-import randomId from 'common-utils/randomId';
-
 import {
   ConnectorType,
   VariableValueType,
@@ -41,15 +39,19 @@ export const CONDITION_NODE_DEFINITION: NodeDefinition<
     stopAtTheFirstMatch: { type: FieldType.SpecialRendering },
   },
 
-  createDefaultNodeConfig: (nodeId) => {
+  createDefaultNodeConfig(context) {
+    const nodeId = context.generateNodeId();
+
     return {
-      nodeConfig: {
-        class: NodeClass.Process,
-        type: NodeType.ConditionNode,
-        nodeId: nodeId,
-        stopAtTheFirstMatch: true,
-      },
-      variableConfigList: [
+      nodeConfigs: [
+        {
+          class: NodeClass.Process,
+          type: NodeType.ConditionNode,
+          nodeId: nodeId,
+          stopAtTheFirstMatch: true,
+        },
+      ],
+      connectors: [
         {
           type: ConnectorType.NodeInput,
           id: `${nodeId}/input`,
@@ -62,28 +64,28 @@ export const CONDITION_NODE_DEFINITION: NodeDefinition<
         },
         {
           type: ConnectorType.OutCondition,
-          id: `${nodeId}/${randomId()}`,
+          id: context.generateConnectorId(nodeId),
           index: -1, // Special condition for default case
           nodeId: nodeId,
           expressionString: '',
         },
         {
           type: ConnectorType.OutCondition,
-          id: `${nodeId}/${randomId()}`,
+          id: context.generateConnectorId(nodeId),
           index: 0,
           nodeId: nodeId,
           expressionString: '$ = "Value A"',
         },
         {
           type: ConnectorType.OutCondition,
-          id: `${nodeId}/${randomId()}`,
+          id: context.generateConnectorId(nodeId),
           index: 1,
           nodeId: nodeId,
           expressionString: '$ = "Value B"',
         },
         {
           type: ConnectorType.InCondition,
-          id: `${nodeId}/${randomId()}`,
+          id: context.generateConnectorId(nodeId),
           nodeId: nodeId,
         },
       ],

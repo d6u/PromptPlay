@@ -3,7 +3,6 @@ import { Observable, TimeoutError, endWith, map, retry, scan, tap } from 'rxjs';
 import invariant from 'tiny-invariant';
 import { z } from 'zod';
 
-import randomId from 'common-utils/randomId';
 import {
   ChatGPTMessage,
   getNonStreamingCompletion,
@@ -140,19 +139,23 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
     },
   },
 
-  createDefaultNodeConfig: (nodeId) => {
+  createDefaultNodeConfig(context) {
+    const nodeId = context.generateNodeId();
+
     return {
-      nodeConfig: {
-        class: NodeClass.Process,
-        nodeId: nodeId,
-        type: NodeType.ChatGPTChatCompletionNode,
-        model: OpenAIChatModel.GPT_4,
-        temperature: 1,
-        stop: [],
-        seed: null,
-        responseFormatType: null,
-      },
-      variableConfigList: [
+      nodeConfigs: [
+        {
+          class: NodeClass.Process,
+          nodeId: nodeId,
+          type: NodeType.ChatGPTChatCompletionNode,
+          model: OpenAIChatModel.GPT_4,
+          temperature: 1,
+          stop: [],
+          seed: null,
+          responseFormatType: null,
+        },
+      ],
+      connectors: [
         {
           type: ConnectorType.NodeInput,
           id: `${nodeId}/messages_in`,
@@ -195,12 +198,12 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
         },
         {
           type: ConnectorType.InCondition,
-          id: `${nodeId}/${randomId()}`,
+          id: context.generateConnectorId(nodeId),
           nodeId: nodeId,
         },
         {
           type: ConnectorType.OutCondition,
-          id: `${nodeId}/${randomId()}`,
+          id: context.generateConnectorId(nodeId),
           index: 0,
           nodeId: nodeId,
           expressionString: '',

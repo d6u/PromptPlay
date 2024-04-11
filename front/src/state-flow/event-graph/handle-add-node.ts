@@ -1,4 +1,5 @@
 import {
+  CREATE_NODE_CONTEXT,
   LocalNode,
   NodeTypeEnum,
   createNode,
@@ -29,31 +30,34 @@ export const handleAddNode = createHandler<
     return event.type === ChangeEventType.ADDING_NODE;
   },
   (state, event) => {
-    const node = createNode(event.x, event.y) as LocalNode;
+    const events: NodeAndVariableAddedEvent[] = [];
 
-    const { nodeConfig, variableConfigList: connectors } =
-      getNodeDefinitionForNodeTypeName(event.nodeType).createDefaultNodeConfig(
-        node.id,
-      );
+    const nodeDefinition = getNodeDefinitionForNodeTypeName(event.nodeType);
+    const { nodeConfigs, connectors } =
+      nodeDefinition.createDefaultNodeConfig(CREATE_NODE_CONTEXT);
 
-    state.flowContent.nodes.push({
-      ...node,
-      dragHandle: `.${DRAG_HANDLE_CLASS_NAME}`,
-    });
+    for (const nodeConfig of nodeConfigs) {
+      state.flowContent.nodeConfigs[nodeConfig.nodeId] = nodeConfig;
 
-    state.flowContent.nodeConfigs[node.id] = nodeConfig;
+      const node = createNode(nodeConfig.nodeId, event.x, event.y) as LocalNode;
+
+      state.flowContent.nodes.push({
+        ...node,
+        dragHandle: `.${DRAG_HANDLE_CLASS_NAME}`,
+      });
+
+      events.push({
+        type: ChangeEventType.NODE_AND_VARIABLES_ADDED,
+        node,
+        connectors: connectors.filter((c) => c.nodeId === node.id),
+      });
+    }
 
     for (const connector of connectors) {
       state.flowContent.connectors[connector.id] = connector;
     }
 
-    return [
-      {
-        type: ChangeEventType.NODE_AND_VARIABLES_ADDED,
-        node,
-        connectors,
-      },
-    ] as NodeAndVariableAddedEvent[];
+    return events;
   },
   [updateVariableValueMapOnNodeAndVariableAdded],
 );

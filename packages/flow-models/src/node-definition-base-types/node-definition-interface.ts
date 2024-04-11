@@ -69,6 +69,18 @@ export type RunNodeFunction<T> = (
   params: RunNodeParams<T>,
 ) => Promise<RunNodeResult>;
 
+type CreateDefaultNodeConfigContext = {
+  generateNodeId(): string;
+  generateConnectorId(nodeId: string): string;
+};
+
+type CreateDefaultNodeConfigReturn<
+  TInstanceLevelConfig extends BaseNodeInstanceLevelConfig,
+> = {
+  nodeConfigs: TInstanceLevelConfig[];
+  connectors: Connector[];
+};
+
 export interface NodeDefinition<
   TInstanceLevelConfig extends BaseNodeInstanceLevelConfig,
   TAllLevelConfig extends TInstanceLevelConfig,
@@ -93,10 +105,9 @@ export interface NodeDefinition<
   variableValueTypeForUserAddedIncomingVariable?: VariableValueTypeEnum;
 
   // Initial config values
-  createDefaultNodeConfig: (nodeId: string) => {
-    nodeConfig: TInstanceLevelConfig;
-    variableConfigList: Connector[];
-  };
+  createDefaultNodeConfig: (
+    context: CreateDefaultNodeConfigContext,
+  ) => CreateDefaultNodeConfigReturn<TInstanceLevelConfig>;
 
   // Execution
   createNodeExecutionObservable?: CreateNodeExecutionObservableFunction<TAllLevelConfig>;
