@@ -81,7 +81,7 @@ export const HUGGINGFACE_INFERENCE_NODE_DEFINITION: NodeDefinition<
     },
   },
 
-  createDefaultNodeConfig(context) {
+  createDefaultNodeConfigsAndConnectors(context) {
     const nodeId = context.generateNodeId();
 
     return {

@@ -114,7 +114,7 @@ export const handleAddConnector = createHandler<
           type: ChangeEventType.VARIABLE_ADDED,
           variableId: commonFields.id,
         },
-      ];
+      ] as VariableAddedEvent[];
     } else {
       return [];
     }

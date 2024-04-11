@@ -33,7 +33,7 @@ export const INPUT_NODE_DEFINITION: NodeDefinition<
 
   canUserAddNodeOutputVariable: true,
 
-  createDefaultNodeConfig(context) {
+  createDefaultNodeConfigsAndConnectors(context) {
     const nodeId = context.generateNodeId();
 
     return {

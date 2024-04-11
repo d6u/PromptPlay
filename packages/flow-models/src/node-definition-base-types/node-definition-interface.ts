@@ -105,7 +105,7 @@ export interface NodeDefinition<
   variableValueTypeForUserAddedIncomingVariable?: VariableValueTypeEnum;
 
   // Initial config values
-  createDefaultNodeConfig: (
+  createDefaultNodeConfigsAndConnectors: (
     context: CreateDefaultNodeConfigContext,
   ) => CreateDefaultNodeConfigReturn<TInstanceLevelConfig>;
 

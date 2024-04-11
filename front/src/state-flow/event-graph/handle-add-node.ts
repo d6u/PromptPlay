@@ -34,7 +34,7 @@ export const handleAddNode = createHandler<
 
     const nodeDefinition = getNodeDefinitionForNodeTypeName(event.nodeType);
     const { nodeConfigs, connectors } =
-      nodeDefinition.createDefaultNodeConfig(CREATE_NODE_CONTEXT);
+      nodeDefinition.createDefaultNodeConfigsAndConnectors(CREATE_NODE_CONTEXT);
 
     for (const nodeConfig of nodeConfigs) {
       state.flowContent.nodeConfigs[nodeConfig.nodeId] = nodeConfig;

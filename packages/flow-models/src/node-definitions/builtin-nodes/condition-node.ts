@@ -39,7 +39,7 @@ export const CONDITION_NODE_DEFINITION: NodeDefinition<
     stopAtTheFirstMatch: { type: FieldType.SpecialRendering },
   },
 
-  createDefaultNodeConfig(context) {
+  createDefaultNodeConfigsAndConnectors(context) {
     const nodeId = context.generateNodeId();
 
     return {

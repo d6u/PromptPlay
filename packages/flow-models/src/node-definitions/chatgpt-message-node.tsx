@@ -86,7 +86,7 @@ export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition<
   canUserAddIncomingVariables: true,
   variableValueTypeForUserAddedIncomingVariable: VariableValueType.String,
 
-  createDefaultNodeConfig(context) {
+  createDefaultNodeConfigsAndConnectors(context) {
     const nodeId = context.generateNodeId();
 
     return {

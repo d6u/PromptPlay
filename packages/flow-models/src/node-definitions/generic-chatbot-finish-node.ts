@@ -36,7 +36,7 @@ export const GENERIC_CHATBOT_FINISH_NODE_DEFINITION: NodeDefinition<
     messages: {},
   },
 
-  createDefaultNodeConfig(context) {
+  createDefaultNodeConfigsAndConnectors(context) {
     const nodeId = context.generateNodeId();
 
     return {
