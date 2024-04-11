@@ -58,7 +58,7 @@ export const LOOP_NODE_DEFINITION: NodeDefinition<
           class: NodeClass.Process,
           type: NodeType.Loop,
           nodeId: loopNodeId,
-          loopStartNodeId: '1',
+          loopStartNodeId: loopStartNodeId,
         },
         {
           class: NodeClass.Start,

@@ -113,7 +113,7 @@ export function selectVariablesOnAllEndNodes(
     .sort((a, b) => a.name.localeCompare(b.name));
 }
 
-export function selectConditions(
+export function selectOutgoingConditions(
   nodeId: string,
   variablesDict: ConnectorRecords,
 ): OutgoingCondition[] {
@@ -122,6 +122,22 @@ export function selectConditions(
       return c.nodeId === nodeId && c.type === ConnectorType.OutCondition;
     })
     .sort((a, b) => a.index - b.index);
+}
+
+export function selectIncomingConditions(
+  nodeId: string,
+  connectors: ConnectorRecords,
+): IncomingCondition[] {
+  return D.values(connectors)
+    .filter((c): c is IncomingCondition => {
+      return c.nodeId === nodeId && c.type === ConnectorType.InCondition;
+    })
+    .sort((a, b) => {
+      if (a.index == null || b.index == null) {
+        return 0;
+      }
+      return a.index - b.index;
+    });
 }
 
 export function selectConditionTarget(

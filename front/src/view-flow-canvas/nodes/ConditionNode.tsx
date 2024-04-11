@@ -23,7 +23,7 @@ import {
   NodeExecutionStatus,
 } from 'state-flow/common-types';
 import { useFlowStore } from 'state-flow/flow-store';
-import { selectConditions } from 'state-flow/util/state-utils';
+import { selectOutgoingConditions } from 'state-flow/util/state-utils';
 
 import {
   VariableConfig,
@@ -52,7 +52,7 @@ function ConditionNode(props: Props) {
 
   const connectors = useFlowStore((s) => s.getFlowContent().connectors);
   const conditions = useMemo(() => {
-    return selectConditions(props.nodeId, connectors);
+    return selectOutgoingConditions(props.nodeId, connectors);
   }, [props.nodeId, connectors]);
   const defaultCondition = useMemo(() => conditions[0], [conditions]);
   const customConditions = useMemo(() => conditions.slice(1), [conditions]);
