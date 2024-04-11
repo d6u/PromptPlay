@@ -1,7 +1,7 @@
 import { createHandler } from './event-graph-util';
 import { ChangeEventType, VariableRemovedEvent } from './event-types';
 
-export const updateVariableValueMapOnVariableRemoved = createHandler<
+export const updateVariableValueOnVariableRemoved = createHandler<
   VariableRemovedEvent,
   never
 >(

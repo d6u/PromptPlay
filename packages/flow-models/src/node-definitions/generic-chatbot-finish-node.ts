@@ -1,7 +1,5 @@
 import { z } from 'zod';
 
-import randomId from 'common-utils/randomId';
-
 import { ConnectorType, VariableValueType } from '../base-types';
 import {
   NodeClass,
@@ -38,22 +36,26 @@ export const GENERIC_CHATBOT_FINISH_NODE_DEFINITION: NodeDefinition<
     messages: {},
   },
 
-  createDefaultNodeConfig: (nodeId) => {
+  createDefaultNodeConfigsAndConnectors(context) {
+    const nodeId = context.generateNodeId();
+
     return {
-      nodeConfig: {
-        class: NodeClass.Finish,
-        nodeId: nodeId,
-        type: NodeType.GenericChatbotFinish,
-      },
-      variableConfigList: [
+      nodeConfigs: [
+        {
+          class: NodeClass.Finish,
+          nodeId: nodeId,
+          type: NodeType.GenericChatbotFinish,
+        },
+      ],
+      connectors: [
         {
           type: ConnectorType.InCondition,
-          id: `${nodeId}/${randomId()}`,
+          id: context.generateConnectorId(nodeId),
           nodeId: nodeId,
         },
         {
           type: ConnectorType.NodeInput,
-          id: `${nodeId}/${randomId()}`,
+          id: context.generateConnectorId(nodeId),
           nodeId: nodeId,
           index: 0,
           name: 'messages',

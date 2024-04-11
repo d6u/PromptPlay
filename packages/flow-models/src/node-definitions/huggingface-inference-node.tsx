@@ -1,7 +1,6 @@
 import invariant from 'tiny-invariant';
 import { z } from 'zod';
 
-import randomId from 'common-utils/randomId';
 import * as HuggingFace from 'integrations/hugging-face';
 
 import { ConnectorType, VariableValueType } from '../base-types';
@@ -82,15 +81,19 @@ export const HUGGINGFACE_INFERENCE_NODE_DEFINITION: NodeDefinition<
     },
   },
 
-  createDefaultNodeConfig: (nodeId) => {
+  createDefaultNodeConfigsAndConnectors(context) {
+    const nodeId = context.generateNodeId();
+
     return {
-      nodeConfig: {
-        class: NodeClass.Process,
-        nodeId: nodeId,
-        type: NodeType.HuggingFaceInference,
-        model: 'gpt2',
-      },
-      variableConfigList: [
+      nodeConfigs: [
+        {
+          class: NodeClass.Process,
+          nodeId: nodeId,
+          type: NodeType.HuggingFaceInference,
+          model: 'gpt2',
+        },
+      ],
+      connectors: [
         {
           type: ConnectorType.NodeInput,
           id: `${nodeId}/parameters`,
@@ -113,12 +116,12 @@ export const HUGGINGFACE_INFERENCE_NODE_DEFINITION: NodeDefinition<
         },
         {
           type: ConnectorType.InCondition,
-          id: `${nodeId}/${randomId()}`,
+          id: context.generateConnectorId(nodeId),
           nodeId: nodeId,
         },
         {
           type: ConnectorType.OutCondition,
-          id: `${nodeId}/${randomId()}`,
+          id: context.generateConnectorId(nodeId),
           index: 0,
           nodeId: nodeId,
           expressionString: '',

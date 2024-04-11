@@ -3,14 +3,14 @@ import { Connector, ConnectorType, LocalNode } from 'flow-models';
 import { createHandler } from './event-graph-util';
 import { ChangeEventType } from './event-types';
 
-export type NodeAndVariableAddedEvent = {
-  type: ChangeEventType.NODE_AND_VARIABLES_ADDED;
+export type NodeAndConnectorsAddedEvent = {
+  type: ChangeEventType.NODE_AND_CONNECTORS_ADDED;
   node: LocalNode;
   connectors: Connector[];
 };
 
-export const updateVariableValueMapOnNodeAndVariableAdded = createHandler<
-  NodeAndVariableAddedEvent,
+export const updateVariableValuesOnNodeAndConnectorsAdded = createHandler<
+  NodeAndConnectorsAddedEvent,
   never
 >((state, event) => {
   for (const connector of event.connectors) {

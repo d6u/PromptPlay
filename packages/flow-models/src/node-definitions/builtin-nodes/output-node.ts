@@ -1,7 +1,6 @@
 import { z } from 'zod';
 
 import chance from 'common-utils/chance';
-import randomId from 'common-utils/randomId';
 
 import { ConnectorType, VariableValueType } from '../../base-types';
 import {
@@ -34,17 +33,21 @@ export const OUTPUT_NODE_DEFINITION: NodeDefinition<
   canUserAddIncomingVariables: true,
   variableValueTypeForUserAddedIncomingVariable: VariableValueType.Any,
 
-  createDefaultNodeConfig: (nodeId) => {
+  createDefaultNodeConfigsAndConnectors(context) {
+    const nodeId = context.generateNodeId();
+
     return {
-      nodeConfig: {
-        class: NodeClass.Finish,
-        nodeId: nodeId,
-        type: NodeType.OutputNode,
-      },
-      variableConfigList: [
+      nodeConfigs: [
+        {
+          class: NodeClass.Finish,
+          nodeId: nodeId,
+          type: NodeType.OutputNode,
+        },
+      ],
+      connectors: [
         {
           type: ConnectorType.NodeInput,
-          id: `${nodeId}/${randomId()}`,
+          id: context.generateConnectorId(nodeId),
           nodeId: nodeId,
           index: 0,
           name: chance.word(),
@@ -54,7 +57,7 @@ export const OUTPUT_NODE_DEFINITION: NodeDefinition<
         },
         {
           type: ConnectorType.InCondition,
-          id: `${nodeId}/${randomId()}`,
+          id: context.generateConnectorId(nodeId),
           nodeId: nodeId,
         },
       ],

@@ -1,7 +1,6 @@
 import invariant from 'tiny-invariant';
 import { z } from 'zod';
 
-import randomId from 'common-utils/randomId';
 import * as ElevenLabs from 'integrations/eleven-labs';
 
 import { ConnectorType, VariableValueType } from '../base-types';
@@ -77,15 +76,19 @@ export const ELEVENLABS_NODE_DEFINITION: NodeDefinition<
     },
   },
 
-  createDefaultNodeConfig: (nodeId) => {
+  createDefaultNodeConfigsAndConnectors(context) {
+    const nodeId = context.generateNodeId();
+
     return {
-      nodeConfig: {
-        class: NodeClass.Process,
-        nodeId: nodeId,
-        type: NodeType.ElevenLabs,
-        voiceId: '',
-      },
-      variableConfigList: [
+      nodeConfigs: [
+        {
+          class: NodeClass.Process,
+          nodeId: nodeId,
+          type: NodeType.ElevenLabs,
+          voiceId: '',
+        },
+      ],
+      connectors: [
         {
           type: ConnectorType.NodeInput,
           id: `${nodeId}/text`,
@@ -108,12 +111,12 @@ export const ELEVENLABS_NODE_DEFINITION: NodeDefinition<
         },
         {
           type: ConnectorType.InCondition,
-          id: `${nodeId}/${randomId()}`,
+          id: context.generateConnectorId(nodeId),
           nodeId: nodeId,
         },
         {
           type: ConnectorType.OutCondition,
-          id: `${nodeId}/${randomId()}`,
+          id: context.generateConnectorId(nodeId),
           index: 0,
           nodeId: nodeId,
           expressionString: '',

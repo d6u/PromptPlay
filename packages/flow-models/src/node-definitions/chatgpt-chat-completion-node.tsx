@@ -1,9 +1,10 @@
 import { A } from '@mobily/ts-belt';
 import { Observable, TimeoutError, endWith, map, retry, scan, tap } from 'rxjs';
 import invariant from 'tiny-invariant';
-import { z } from 'zod';
+import z from 'zod';
 
-import randomId from 'common-utils/randomId';
+import * as OpenAI from 'integrations/openai';
+
 import {
   ChatGPTMessage,
   getNonStreamingCompletion,
@@ -140,23 +141,48 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
     },
   },
 
-  createDefaultNodeConfig: (nodeId) => {
+  createDefaultNodeConfigsAndConnectors(context) {
+    const chatCompletionNodeId = context.generateNodeId();
+    const messageNodeId = context.generateNodeId();
+
     return {
-      nodeConfig: {
-        class: NodeClass.Process,
-        nodeId: nodeId,
-        type: NodeType.ChatGPTChatCompletionNode,
-        model: OpenAIChatModel.GPT_4,
-        temperature: 1,
-        stop: [],
-        seed: null,
-        responseFormatType: null,
-      },
-      variableConfigList: [
+      nodeConfigs: [
+        {
+          class: NodeClass.Process,
+          nodeId: chatCompletionNodeId,
+          type: NodeType.ChatGPTChatCompletionNode,
+          model: OpenAIChatModel.GPT_4,
+          temperature: 1,
+          stop: [],
+          seed: null,
+          responseFormatType: null,
+        },
+        // TODO: Centralize default config from different node
+        {
+          class: NodeClass.Process,
+          nodeId: messageNodeId,
+          type: NodeType.ChatGPTMessageNode,
+          role: OpenAI.ChatGPTMessageRole.user,
+          content: 'Write a poem in fewer than 20 words.',
+        },
+      ],
+      connectors: [
+        {
+          type: ConnectorType.InCondition,
+          id: context.generateConnectorId(chatCompletionNodeId),
+          nodeId: chatCompletionNodeId,
+        },
+        {
+          type: ConnectorType.OutCondition,
+          id: context.generateConnectorId(chatCompletionNodeId),
+          index: 0,
+          nodeId: chatCompletionNodeId,
+          expressionString: '',
+        },
         {
           type: ConnectorType.NodeInput,
-          id: `${nodeId}/messages_in`,
-          nodeId: nodeId,
+          id: `${chatCompletionNodeId}/messages_in`,
+          nodeId: chatCompletionNodeId,
           name: 'messages',
           index: 0,
           valueType: VariableValueType.Structured,
@@ -165,8 +191,8 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
         },
         {
           type: ConnectorType.NodeOutput,
-          id: `${nodeId}/content`,
-          nodeId: nodeId,
+          id: `${chatCompletionNodeId}/content`,
+          nodeId: chatCompletionNodeId,
           name: 'content',
           index: 0,
           valueType: VariableValueType.String,
@@ -175,8 +201,8 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
         },
         {
           type: ConnectorType.NodeOutput,
-          id: `${nodeId}/message`,
-          nodeId: nodeId,
+          id: `${chatCompletionNodeId}/message`,
+          nodeId: chatCompletionNodeId,
           name: 'message',
           index: 1,
           valueType: VariableValueType.Structured,
@@ -185,25 +211,56 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
         },
         {
           type: ConnectorType.NodeOutput,
-          id: `${nodeId}/messages_out`,
-          nodeId: nodeId,
+          id: `${chatCompletionNodeId}/messages_out`,
+          nodeId: chatCompletionNodeId,
           name: 'messages',
           index: 2,
           valueType: VariableValueType.Structured,
           isGlobal: false,
           globalVariableId: null,
         },
+        // For the message node
         {
           type: ConnectorType.InCondition,
-          id: `${nodeId}/${randomId()}`,
-          nodeId: nodeId,
+          id: context.generateConnectorId(messageNodeId),
+          nodeId: messageNodeId,
         },
         {
           type: ConnectorType.OutCondition,
-          id: `${nodeId}/${randomId()}`,
+          id: context.generateConnectorId(messageNodeId),
           index: 0,
-          nodeId: nodeId,
+          nodeId: messageNodeId,
           expressionString: '',
+        },
+        {
+          type: ConnectorType.NodeInput,
+          id: `${messageNodeId}/messages_in`,
+          nodeId: messageNodeId,
+          name: 'messages',
+          index: 0,
+          valueType: VariableValueType.Structured,
+          isGlobal: false,
+          globalVariableId: null,
+        },
+        {
+          type: ConnectorType.NodeOutput,
+          id: `${messageNodeId}/message`,
+          nodeId: messageNodeId,
+          name: 'message',
+          index: 0,
+          valueType: VariableValueType.Structured,
+          isGlobal: false,
+          globalVariableId: null,
+        },
+        {
+          type: ConnectorType.NodeOutput,
+          id: `${messageNodeId}/messages_out`,
+          nodeId: messageNodeId,
+          name: 'messages',
+          index: 1,
+          valueType: VariableValueType.Structured,
+          isGlobal: false,
+          globalVariableId: null,
         },
       ],
     };

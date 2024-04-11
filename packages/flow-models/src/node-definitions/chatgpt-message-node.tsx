@@ -1,9 +1,8 @@
 import { A, F } from '@mobily/ts-belt';
 import mustache from 'mustache';
 import invariant from 'tiny-invariant';
-import { z } from 'zod';
+import z from 'zod';
 
-import randomId from 'common-utils/randomId';
 import * as OpenAI from 'integrations/openai';
 
 import { ConnectorType, VariableValueType } from '../base-types';
@@ -87,16 +86,20 @@ export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition<
   canUserAddIncomingVariables: true,
   variableValueTypeForUserAddedIncomingVariable: VariableValueType.String,
 
-  createDefaultNodeConfig: (nodeId) => {
+  createDefaultNodeConfigsAndConnectors(context) {
+    const nodeId = context.generateNodeId();
+
     return {
-      nodeConfig: {
-        class: NodeClass.Process,
-        nodeId: nodeId,
-        type: NodeType.ChatGPTMessageNode,
-        role: OpenAI.ChatGPTMessageRole.user,
-        content: 'Write a poem about {{topic}} in fewer than 20 words.',
-      },
-      variableConfigList: [
+      nodeConfigs: [
+        {
+          class: NodeClass.Process,
+          nodeId: nodeId,
+          type: NodeType.ChatGPTMessageNode,
+          role: OpenAI.ChatGPTMessageRole.user,
+          content: 'Write a poem about {{topic}} in fewer than 20 words.',
+        },
+      ],
+      connectors: [
         {
           type: ConnectorType.NodeInput,
           id: `${nodeId}/messages_in`,
@@ -109,7 +112,7 @@ export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition<
         },
         {
           type: ConnectorType.NodeInput,
-          id: `${nodeId}/${randomId()}`,
+          id: context.generateConnectorId(nodeId),
           nodeId: nodeId,
           name: 'topic',
           index: 1,
@@ -139,12 +142,12 @@ export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition<
         },
         {
           type: ConnectorType.InCondition,
-          id: `${nodeId}/${randomId()}`,
+          id: context.generateConnectorId(nodeId),
           nodeId: nodeId,
         },
         {
           type: ConnectorType.OutCondition,
-          id: `${nodeId}/${randomId()}`,
+          id: context.generateConnectorId(nodeId),
           index: 0,
           nodeId: nodeId,
           expressionString: '',

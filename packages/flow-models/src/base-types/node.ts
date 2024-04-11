@@ -19,10 +19,16 @@ export type ServerNode = z.infer<typeof ServerNodeSchema> & {
 
 export type LocalNode = Node<unknown, string> & ServerNode;
 
-export function createNode(x: number, y: number): ServerNode {
+export function createNode(nodeId: string, x: number, y: number): ServerNode {
   return {
-    id: randomId(),
+    id: nodeId,
+    // This is a fixed value for React Flow to use our custom rendering for node
     type: TYPE_NAME_FOR_CANVAS_NODE,
     position: { x, y },
   };
 }
+
+export const CREATE_NODE_CONTEXT = {
+  generateNodeId: () => randomId(),
+  generateConnectorId: (nodeId: string) => `${nodeId}/${randomId()}`,
+};
