@@ -8,7 +8,7 @@ import {
   ModalDialog,
   Typography,
 } from '@mui/joy';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import invariant from 'tiny-invariant';
 
 import { NodeClass } from 'flow-models';
@@ -43,6 +43,12 @@ function RenameStartNodeView() {
     }
   }, [selectedNodeConfig]);
 
+  const onSave = useCallback(() => {
+    setCanvasRenameNodeId(null);
+    invariant(canvasRenameNodeId != null, 'Node id is not null');
+    updateNodeConfig(canvasRenameNodeId, { nodeName: name });
+  }, [canvasRenameNodeId, name, setCanvasRenameNodeId, updateNodeConfig]);
+
   return (
     <Modal
       slotProps={{ backdrop: { style: { backdropFilter: 'none' } } }}
@@ -61,6 +67,12 @@ function RenameStartNodeView() {
               placeholder="Enter a name"
               value={name}
               onChange={(e) => setName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  onSave();
+                }
+              }}
             />
           </FormControl>
         </ModalSection>
@@ -73,14 +85,7 @@ function RenameStartNodeView() {
           >
             Cancel
           </Button>
-          <Button
-            color="success"
-            onClick={() => {
-              setCanvasRenameNodeId(null);
-              invariant(canvasRenameNodeId != null, 'Node id is not null');
-              updateNodeConfig(canvasRenameNodeId, { nodeName: name });
-            }}
-          >
+          <Button color="success" onClick={() => onSave()}>
             Save
           </Button>
         </ModalButtons>

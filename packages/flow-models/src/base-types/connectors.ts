@@ -41,6 +41,7 @@ const IncomingConditionSchema = z.object({
   type: z.literal(ConnectorType.InCondition),
   id: z.string(),
   nodeId: z.string(),
+  index: z.number().optional(),
 });
 
 export type IncomingCondition = z.infer<typeof IncomingConditionSchema>;

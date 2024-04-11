@@ -8,13 +8,18 @@ export type NodeClassEnum = (typeof NodeClass)[keyof typeof NodeClass];
 
 // NOTE: Update this when adding new node types
 export const NodeType = {
+  // built-in nodes
   InputNode: 'InputNode',
   OutputNode: 'OutputNode',
-  GenericChatbotStart: 'GenericChatbotStart',
-  GenericChatbotFinish: 'GenericChatbotFinish',
   ConditionNode: 'ConditionNode',
   JavaScriptFunctionNode: 'JavaScriptFunctionNode',
   TextTemplate: 'TextTemplate',
+  Loop: 'Loop',
+  LoopStart: 'LoopStart',
+  LoopFinish: 'LoopFinish',
+  // custom nodes
+  GenericChatbotStart: 'GenericChatbotStart',
+  GenericChatbotFinish: 'GenericChatbotFinish',
   ChatGPTMessageNode: 'ChatGPTMessageNode',
   ChatGPTChatCompletionNode: 'ChatGPTChatCompletionNode',
   HuggingFaceInference: 'HuggingFaceInference',

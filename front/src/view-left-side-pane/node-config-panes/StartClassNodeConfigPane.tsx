@@ -6,6 +6,7 @@ import {
   InputNodeInstanceLevelConfig,
   getNodeDefinitionForNodeTypeName,
   type GenericChatbotStartNodeInstanceLevelConfig,
+  type LoopStartNodeInstanceLevelConfig,
 } from 'flow-models';
 
 import {
@@ -26,6 +27,7 @@ type Props = {
   isNodeReadOnly: boolean;
   nodeConfig:
     | InputNodeInstanceLevelConfig
+    | LoopStartNodeInstanceLevelConfig
     | GenericChatbotStartNodeInstanceLevelConfig;
 };
 

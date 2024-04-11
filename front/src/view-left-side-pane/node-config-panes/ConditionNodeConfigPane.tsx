@@ -20,7 +20,7 @@ import HeaderSectionHeader from 'components/side-pane/SidePaneHeaderSectionHeade
 import SidePaneSection from 'components/side-pane/SidePaneSection';
 import { NodeExecutionState } from 'state-flow/common-types';
 import { useFlowStore } from 'state-flow/flow-store';
-import { selectConditions } from 'state-flow/util/state-utils';
+import { selectOutgoingConditions } from 'state-flow/util/state-utils';
 
 import {
   VariableConfig,
@@ -53,7 +53,7 @@ function ConditionNodeConfigPane(props: Props) {
   }, [props.nodeConfig.type]);
 
   const conditions = useMemo(() => {
-    return selectConditions(props.nodeId, connectors);
+    return selectOutgoingConditions(props.nodeId, connectors);
   }, [props.nodeId, connectors]);
 
   const defaultCondition = useMemo(() => conditions[0], [conditions]);

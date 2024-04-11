@@ -7,6 +7,7 @@ import {
   GenericChatbotStartNodeAllLevelConfig,
   InputNodeAllLevelConfig,
   getNodeDefinitionForNodeTypeName,
+  type LoopStartNodeAllLevelConfig,
 } from 'flow-models';
 
 import NodeRegularOutgoingConditionHandle from 'components/node-connector/condition/NodeRegularOutgoingConditionHandle';
@@ -24,7 +25,10 @@ import NodeBoxHeaderSection from '../node-box/NodeBoxHeaderSection';
 type Props = {
   nodeId: string;
   isNodeReadOnly: boolean;
-  nodeConfig: InputNodeAllLevelConfig | GenericChatbotStartNodeAllLevelConfig;
+  nodeConfig:
+    | InputNodeAllLevelConfig
+    | LoopStartNodeAllLevelConfig
+    | GenericChatbotStartNodeAllLevelConfig;
 };
 
 function StartClassNode(props: Props) {
