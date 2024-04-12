@@ -146,10 +146,11 @@ export type CanvasDataV4 = z.infer<typeof CanvasDataV4Schema>;
 
 /**
  * @param data V3 data, will be mutated.
- * @returns V4 data
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function migrateV3ToV4(data: any): CanvasDataV4 {
+export function migrateV3ToV4(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  data: any,
+): ReturnType<typeof safeParseAndApplyFix> {
   if (data == null) {
     return data;
   }
@@ -468,5 +469,5 @@ export function migrateV3ToV4(data: any): CanvasDataV4 {
     variableResults: variableResults,
   };
 
-  return CanvasDataV4Schema.parse(output);
+  return safeParseAndApplyFix(output);
 }

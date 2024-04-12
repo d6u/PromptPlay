@@ -3,8 +3,9 @@ import invariant from 'tiny-invariant';
 import {
   BatchTestPresetConfigDataSchemaVersion,
   CanvasDataSchemaVersion,
-  prismaClient,
   UserType,
+  prismaClient,
+  type Prisma,
 } from 'database-models';
 import {
   CsvEvaluationPresetEntity,
@@ -139,10 +140,16 @@ async function importFlows() {
     await Promise.all(
       response.Items.map(async (_item) => {
         const item = _item as SpaceShape;
-
         const canvasDataV3 = JSON.parse(item.contentV3);
+        const canvasDataV4Result = migrateV3ToV4(canvasDataV3);
 
-        const canvasDataV4 = migrateV3ToV4(canvasDataV3);
+        if (!canvasDataV4Result.success) {
+          console.error(canvasDataV4Result.error);
+          failed++;
+          return;
+        } else if (canvasDataV4Result.originalErrors) {
+          console.warn('Fix able errors:', canvasDataV4Result.originalErrors);
+        }
 
         try {
           await prismaClient.flow.upsert({
@@ -151,7 +158,7 @@ async function importFlows() {
               name: item.name,
               canvasDataSchemaVersion: CanvasDataSchemaVersion.v4,
               canvasDataV3: canvasDataV3,
-              canvasDataV4: canvasDataV4,
+              canvasDataV4: canvasDataV4Result.data as Prisma.InputJsonValue,
               createdAt: new Date(item.createdAt),
               updatedAt: new Date(item.updatedAt),
               User: {
@@ -163,7 +170,7 @@ async function importFlows() {
               name: item.name,
               canvasDataSchemaVersion: CanvasDataSchemaVersion.v4,
               canvasDataV3: canvasDataV3,
-              canvasDataV4: canvasDataV4,
+              canvasDataV4: canvasDataV4Result.data as Prisma.InputJsonValue,
               createdAt: new Date(item.createdAt),
               updatedAt: new Date(item.updatedAt),
               User: {
