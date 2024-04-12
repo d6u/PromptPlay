@@ -1,3 +1,5 @@
+import * as A from 'fp-ts/Array';
+import * as S from 'fp-ts/string';
 import z from 'zod';
 
 import randomId from 'common-utils/randomId';
@@ -20,17 +22,66 @@ import {
 import { NodeClass, NodeType } from './node-definition-base-types';
 import { NodeConfigRecordsSchema, type NodeConfig } from './node-definitions';
 
-export const CanvasDataV4Schema = z.object({
-  // NOTE: Must provide default value each field, because when creating new
-  // flow the backend will create an empty {} as flowConfig.
-  edges: z.array(ServerEdgeSchema).default([]),
-  nodes: z.array(ServerNodeSchema).default([]),
-  nodeConfigs: NodeConfigRecordsSchema.default({}),
-  connectors: ConnectorRecordsSchema.default({}),
-  globalVariables: GlobalVariableRecordsSchema.default({}),
-  conditionResults: ConditionResultRecordsSchema.default({}),
-  variableResults: VariableValueRecordsSchema.default({}),
-});
+export const CanvasDataV4Schema = z
+  .object({
+    // NOTE: Must provide default value each field, because when creating new
+    // flow the backend will create an empty {} as flowConfig.
+    edges: z.array(ServerEdgeSchema).default([]),
+    nodes: z.array(ServerNodeSchema).default([]),
+    nodeConfigs: NodeConfigRecordsSchema.default({}),
+    connectors: ConnectorRecordsSchema.default({}),
+    globalVariables: GlobalVariableRecordsSchema.default({}),
+    conditionResults: ConditionResultRecordsSchema.default({}),
+    variableResults: VariableValueRecordsSchema.default({}),
+  })
+  .superRefine((val, ctx) => {
+    const nodeIds = val.nodes.map((node) => node.id);
+    const nodeConfigNodeIds = Object.keys(val.nodeConfigs);
+
+    if (A.difference(S.Eq)(nodeIds, nodeConfigNodeIds).length > 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'There are nodes without nodeConfigs.',
+        path: ['nodeConfigs'],
+      });
+    }
+
+    if (A.difference(S.Eq)(nodeConfigNodeIds, nodeIds).length > 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'There are nodeConfigs without nodes.',
+        path: ['nodeConfigs'],
+      });
+    }
+
+    const connectorNodeIds = A.uniq(S.Eq)(
+      Object.values(val.connectors).map((c) => c.nodeId),
+    );
+
+    if (A.difference(S.Eq)(connectorNodeIds, nodeIds).length > 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'There are connectors without nodes.',
+        path: ['connectors'],
+      });
+    }
+
+    for (const [i, edge] of val.edges.entries()) {
+      if (
+        val.nodeConfigs[edge.source] == null ||
+        val.nodeConfigs[edge.target] == null ||
+        val.connectors[edge.sourceHandle] == null ||
+        val.connectors[edge.targetHandle] == null
+      ) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message:
+            'Edge source, target, sourceHandle, and targetHandle must be valid node and connector IDs',
+          path: ['edges', i],
+        });
+      }
+    }
+  });
 
 export type CanvasDataV4 = z.infer<typeof CanvasDataV4Schema>;
 
