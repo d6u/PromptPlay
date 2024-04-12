@@ -8,10 +8,10 @@ import { StateCreator } from 'zustand';
 
 import {
   CanvasDataV4,
-  CanvasDataV4Schema,
   LocalNode,
   NodeTypeEnum,
   migrateV3ToV4,
+  safeParseAndApplyFix,
 } from 'flow-models';
 
 import {
@@ -123,7 +123,16 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
     _syncFlowContent: async (args) => {
       const flowContent = get().getFlowContent();
 
-      const nextSyncedData = CanvasDataV4Schema.parse(flowContent);
+      const result = safeParseAndApplyFix(flowContent);
+
+      if (!result.success) {
+        // TODO: Report to telemetry
+        throw result.error;
+      }
+
+      // TODO: Also report result.originalErrors
+
+      const nextSyncedData = result.data;
 
       const hasChange =
         args.context.shouldForceSync ||
@@ -406,13 +415,15 @@ function parseQueryResult(input: OperationResult<SpaceFlowQueryQuery>): {
       isMigrated = true;
     // fallthrough
     case ContentVersion.V4: {
-      const result = CanvasDataV4Schema.safeParse(canvasData);
+      const result = safeParseAndApplyFix(canvasData);
 
       if (!result.success) {
         console.error(canvasData);
-        // TODO: Report validation error
+        // TODO: Report validation error to telemetry
         invariant(false, `Validation error: ${result.error.message}`);
       }
+
+      // TODO: Also report result.originalErrors
 
       return {
         flowContent: result.data,
