@@ -4,6 +4,7 @@ import z from 'zod';
 
 import randomId from 'common-utils/randomId';
 
+import { produce } from 'immer';
 import {
   ConditionResultRecordsSchema,
   ConnectorRecordsSchema,
@@ -21,6 +22,67 @@ import {
 } from './base-types';
 import { NodeClass, NodeType } from './node-definition-base-types';
 import { NodeConfigRecordsSchema, type NodeConfig } from './node-definitions';
+
+const ORPHAN_NODE_CONFIG_ERR = 'nodeConfig must have a corresponding node.';
+const ORPHAN_CONNECTOR_ERR = 'Connector must have a corresponding node.';
+const ORPHAN_EDGE_ERR =
+  'Edge source, target, sourceHandle, and targetHandle must be valid node and connector IDs';
+
+export function safeParseAndApplyFix(data: unknown): ReturnType<
+  typeof CanvasDataV4Schema.safeParse
+> & {
+  originalErrors?: z.ZodIssue[];
+} {
+  let result = CanvasDataV4Schema.safeParse(data);
+
+  if (result.success) {
+    return result;
+  }
+
+  const originalErrors = result.error.errors;
+
+  let hasUnfixableError = false;
+
+  for (const error of originalErrors) {
+    if (
+      error.message !== ORPHAN_NODE_CONFIG_ERR &&
+      error.message !== ORPHAN_CONNECTOR_ERR &&
+      error.message !== ORPHAN_EDGE_ERR
+    ) {
+      hasUnfixableError = true;
+      break;
+    }
+  }
+
+  if (hasUnfixableError) {
+    return result;
+  }
+
+  data = produce(data as CanvasDataV4, (draft) => {
+    const orphanEdgeIndexes: number[] = [];
+
+    for (const error of originalErrors) {
+      if (error.message === ORPHAN_NODE_CONFIG_ERR) {
+        delete draft.nodeConfigs[error.path[1]];
+      } else if (error.message === ORPHAN_CONNECTOR_ERR) {
+        delete draft.connectors[error.path[1]];
+      } else if (error.message === ORPHAN_EDGE_ERR) {
+        orphanEdgeIndexes.push(Number(error.path[1]));
+      }
+    }
+
+    if (orphanEdgeIndexes.length > 0) {
+      draft.edges = draft.edges
+        .map((edge, i) => [i, edge] as const)
+        .filter((pair) => !orphanEdgeIndexes.includes(pair[0]))
+        .map((pair) => pair[1]);
+    }
+  });
+
+  result = CanvasDataV4Schema.safeParse(data);
+
+  return { ...result, originalErrors };
+}
 
 export const CanvasDataV4Schema = z
   .object({
@@ -46,24 +108,22 @@ export const CanvasDataV4Schema = z
       });
     }
 
-    if (A.difference(S.Eq)(nodeConfigNodeIds, nodeIds).length > 0) {
+    for (const nodeId of A.difference(S.Eq)(nodeConfigNodeIds, nodeIds)) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'There are nodeConfigs without nodes.',
-        path: ['nodeConfigs'],
+        message: ORPHAN_NODE_CONFIG_ERR,
+        path: ['nodeConfigs', nodeId],
       });
     }
 
-    const connectorNodeIds = A.uniq(S.Eq)(
-      Object.values(val.connectors).map((c) => c.nodeId),
-    );
-
-    if (A.difference(S.Eq)(connectorNodeIds, nodeIds).length > 0) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'There are connectors without nodes.',
-        path: ['connectors'],
-      });
+    for (const connector of Object.values(val.connectors)) {
+      if (!nodeIds.includes(connector.nodeId)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: ORPHAN_CONNECTOR_ERR,
+          path: ['connectors', connector.id],
+        });
+      }
     }
 
     for (const [i, edge] of val.edges.entries()) {
@@ -75,8 +135,7 @@ export const CanvasDataV4Schema = z
       ) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message:
-            'Edge source, target, sourceHandle, and targetHandle must be valid node and connector IDs',
+          message: ORPHAN_EDGE_ERR,
           path: ['edges', i],
         });
       }

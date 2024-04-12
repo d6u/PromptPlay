@@ -17,6 +17,7 @@
     "chance": "^1.1.11",
     "common-utils": "workspace:^",
     "fp-ts": "^2.16.5",
+    "immer": "^10.0.2",
     "integrations": "workspace:^",
     "jsonata": "^2.0.3",
     "mustache": "^4.2.0",
