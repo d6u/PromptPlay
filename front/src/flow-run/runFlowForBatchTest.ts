@@ -1,4 +1,6 @@
 import { D, Option } from '@mobily/ts-belt';
+import * as R from 'fp-ts/Record';
+import type { Edge } from 'reactflow';
 import {
   EMPTY,
   Observable,
@@ -14,23 +16,24 @@ import {
 } from 'rxjs';
 import invariant from 'tiny-invariant';
 
-import { Connector, ImmutableFlowNodeGraph, NodeConfig } from 'flow-models';
-
-import { CIRCULAR_DEPENDENCY_ERROR_MESSAGE } from './constants';
+import { Connector, NodeConfig } from 'flow-models';
+import { computeGraphs } from 'graph-util';
 import {
   FlowBatchRunEvent,
   FlowBatchRunEventType,
+  GetAccountLevelFieldValueFunction,
   RunNodeProgressEventType,
   ValidationError,
   ValidationErrorType,
+  getNodeAllLevelConfigOrValidationErrors,
+  runFlow,
   type RunNodeProgressEvent,
-} from './event-types';
-import { Edge, GetAccountLevelFieldValueFunction } from './run-param-types';
-import runFlow from './runFlow';
-import { getNodeAllLevelConfigOrValidationErrors } from './util';
+} from 'run-flow';
+
+import { CIRCULAR_DEPENDENCY_ERROR_MESSAGE } from './constants';
 
 function flowRunBatch(params: {
-  edges: ReadonlyArray<Edge>;
+  edges: Edge[];
   nodeConfigs: Readonly<Record<string, Readonly<NodeConfig>>>;
   connectors: Readonly<Record<string, Readonly<Connector>>>;
   csvTable: ReadonlyArray<ReadonlyArray<string>>;
@@ -44,17 +47,20 @@ function flowRunBatch(params: {
   // Keep this section in sync with:
   // LINK ./flowRunSingle.ts#pre-execute-validation
 
-  const validationErrors: ValidationError[] = [];
+  // ANCHOR: Step 1 - compile graphs
 
-  const immutableFlowGraph = new ImmutableFlowNodeGraph({
-    startNodeIds: [],
-    nodeConfigs: params.nodeConfigs,
+  const { errors, graphRecords } = computeGraphs({
     edges: params.edges,
-    connectors: params.connectors,
+    nodeConfigs: params.nodeConfigs,
+    startNodeIds: [],
   });
 
-  // Check for circular dependencies
-  if (!immutableFlowGraph.canBeExecuted()) {
+  // ANCHOR: Step 2 - validate graphs
+
+  const validationErrors: ValidationError[] = [];
+
+  if (!R.isEmpty(errors)) {
+    // TODO: Apply errors to specific nodes
     validationErrors.push({
       type: ValidationErrorType.FlowLevel,
       message: CIRCULAR_DEPENDENCY_ERROR_MESSAGE,
@@ -113,11 +119,12 @@ function flowRunBatch(params: {
           }),
         ),
         runFlow({
+          edges: params.edges,
           nodeConfigs: result.nodeAllLevelConfigs,
           connectors: params.connectors,
           inputVariableValues: inputValueMap,
           preferStreaming: params.preferStreaming,
-          flowGraph: immutableFlowGraph,
+          graphRecords,
           progressObserver: subject,
         }).pipe(ignoreElements()),
       );

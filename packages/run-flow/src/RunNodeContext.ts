@@ -1,17 +1,16 @@
-import { A, D, pipe, type Option } from '@mobily/ts-belt';
+import { A, D, F, pipe, type Option } from '@mobily/ts-belt';
 import { produce } from 'immer';
-import { BehaviorSubject, from, type Observer, type Subject } from 'rxjs';
+import { type Edge } from 'reactflow';
+import { from, type Observer, type Subject } from 'rxjs';
 import invariant from 'tiny-invariant';
 
 import {
   ConnectorType,
   NodeClass,
+  NodeType,
   getNodeDefinitionForNodeTypeName,
   type ConditionResultRecords,
-  type ConnectorRecords,
   type CreateNodeExecutionObservableFunction,
-  type ImmutableFlowNodeGraph,
-  type MutableFlowNodeGraph,
   type NodeAllLevelConfigUnion,
   type NodeInputVariable,
   type NodeOutputVariable,
@@ -20,57 +19,20 @@ import {
   type VariableValueRecords,
 } from 'flow-models';
 
+import RunFlowContext, { RunFlowContextParams } from './RunFlowContext';
 import type { RunNodeProgressEvent } from './event-types';
 
-export type RunFlowContextParams = Readonly<{
-  preferStreaming: boolean;
-  nodeConfigs: Record<string, NodeAllLevelConfigUnion>;
-  connectors: ConnectorRecords;
-  flowGraph: ImmutableFlowNodeGraph;
-  inputVariableValues: VariableValueRecords;
-  progressObserver?: Observer<RunNodeProgressEvent>;
-}>;
-
-export class RunFlowContext {
-  constructor(params: RunFlowContextParams) {
-    const mutableFlowGraph = params.flowGraph.getMutableCopy();
-    const initialNodeIdList = mutableFlowGraph.getNodeIdListWithIndegreeZero();
-
-    invariant(
-      initialNodeIdList.length > 0,
-      'initialNodeIdList should not be empty',
-    );
-
-    this.params = params;
-    this.mutableFlowGraph = mutableFlowGraph;
-    this.nodeIdListSubject = new BehaviorSubject<string[]>(initialNodeIdList);
-    this.finishNodesVariableIds = [];
-    this.queuedNodeCount = initialNodeIdList.length;
-    this.allVariableValues = { ...params.inputVariableValues };
-    this.allConditionResults = {};
-  }
-
-  readonly params: RunFlowContextParams;
-  readonly mutableFlowGraph: MutableFlowNodeGraph;
-  readonly nodeIdListSubject: Subject<string[]>;
-  readonly finishNodesVariableIds: string[];
-
-  queuedNodeCount: number; // Track when to complete the observable
-  allVariableValues: VariableValueRecords;
-  allConditionResults: ConditionResultRecords;
-
-  get progressObserver(): Option<Observer<RunNodeProgressEvent>> {
-    return this.params.progressObserver;
-  }
-}
-
-export class RunNodeContext {
-  constructor(context: RunFlowContext, nodeId: string) {
+class RunNodeContext {
+  constructor(context: RunFlowContext, graphId: string, nodeId: string) {
     this.context = context;
+    this.graphId = graphId;
     this.nodeId = nodeId;
-    this.allCompletedConnectorIds = new Set();
+    this.outgoingEdges = context.params.edges.filter(
+      (e) => e.source === nodeId,
+    );
   }
 
+  readonly graphId: string;
   readonly nodeId: string;
 
   get params(): RunFlowContextParams {
@@ -85,7 +47,7 @@ export class RunNodeContext {
     return this.context.finishNodesVariableIds;
   }
 
-  get nodeIdListSubject(): Subject<string[]> {
+  get nodeIdListSubject(): Subject<[string, string[]]> {
     return this.context.nodeIdListSubject;
   }
 
@@ -94,7 +56,9 @@ export class RunNodeContext {
   }
 
   private readonly context: RunFlowContext;
-  private allCompletedConnectorIds: Set<string>;
+  private readonly outgoingEdges: Edge[];
+  private outputVariableValues: VariableValueRecords = {};
+  private outgoingConditionResults: ConditionResultRecords = {};
 
   getRunNodeFunction(): CreateNodeExecutionObservableFunction<NodeAllLevelConfigUnion> {
     const nodeConfig = this.context.params.nodeConfigs[this.nodeId];
@@ -139,6 +103,7 @@ export class RunNodeContext {
           c.nodeId === this.nodeId && c.type === ConnectorType.NodeInput,
       ),
       A.sortBy((c) => c.index),
+      F.toMutable,
     );
   }
 
@@ -151,6 +116,7 @@ export class RunNodeContext {
           c.nodeId === this.nodeId && c.type === ConnectorType.NodeOutput,
       ),
       A.sortBy((c) => c.index),
+      F.toMutable,
     );
   }
 
@@ -163,6 +129,7 @@ export class RunNodeContext {
           c.nodeId === this.nodeId && c.type === ConnectorType.OutCondition,
       ),
       A.sortBy((c) => c.index),
+      F.toMutable,
     );
   }
 
@@ -171,7 +138,6 @@ export class RunNodeContext {
     // as well, otherwise we cannot inspect node input variable values.
     // Currently, we only emit NodeOutput variable values or
     // OutputNode's NodeInput variable values.
-
     if (this.nodeConfig.class === NodeClass.Start) {
       // When current node class is Start, we need to collect
       // NodeOutput variable values other than NodeInput variable values.
@@ -187,9 +153,7 @@ export class RunNodeContext {
           }
         } else {
           const sourceVariableId =
-            this.context.mutableFlowGraph.getSrcVariableIdFromDstVariableId(
-              v.id,
-            );
+            this.context.getSrcVariableIdFromDstVariableId(v.id);
 
           return this.context.allVariableValues[sourceVariableId]?.value;
         }
@@ -226,85 +190,120 @@ export class RunNodeContext {
     return inputVariableResults;
   }
 
-  addCompletedConnectorIds(completedConnectorIds: string[]): void {
-    for (const id of completedConnectorIds) {
-      this.allCompletedConnectorIds.add(id);
+  // NOTE: Called during runNode in progress
+  updateVariableValues(variableValues: unknown[]): void {
+    if (this.nodeConfig.class === NodeClass.Finish) {
+      for (const [i, v] of this.getInputVariables().entries()) {
+        this.outputVariableValues[v.id] = { value: variableValues[i] };
+      }
+    } else {
+      for (const [i, v] of this.getOutputVariables().entries()) {
+        this.outputVariableValues[v.id] = { value: variableValues[i] };
+      }
     }
   }
 
-  updateAllVariableValuesFromList(variableValues: unknown[]): void {
+  // NOTE: Called during runNode in progress
+  updateConditionResults(conditionResults: ConditionResultRecords): void {
+    for (const [id, result] of Object.entries(conditionResults)) {
+      this.outgoingConditionResults[id] = result;
+    }
+  }
+
+  // NOTE: Run after runNode finished
+  flushRunNodeResultToGraphLevel(): void {
+    // ANCHOR: Flush variable values
     this.context.allVariableValues = produce(
       this.context.allVariableValues,
       (draft) => {
         if (this.nodeConfig.class === NodeClass.Finish) {
           this.getInputVariables().forEach((v, i) => {
             if (v.isGlobal && v.globalVariableId != null) {
-              draft[v.globalVariableId] = { value: variableValues[i] };
+              draft[v.globalVariableId] = this.outputVariableValues[v.id];
             } else {
-              draft[v.id] = { value: variableValues[i] };
+              draft[v.id] = this.outputVariableValues[v.id];
             }
           });
         } else {
           this.getOutputVariables().forEach((v, i) => {
             if (v.isGlobal && v.globalVariableId != null) {
-              draft[v.globalVariableId] = { value: variableValues[i] };
+              draft[v.globalVariableId] = this.outputVariableValues[v.id];
             } else {
-              draft[v.id] = { value: variableValues[i] };
+              draft[v.id] = this.outputVariableValues[v.id];
             }
           });
         }
       },
     );
+
+    // ANCHOR: Flush condition results
+
+    if (
+      this.nodeConfig.type === NodeType.Loop &&
+      // TODO: Show error in UI if loopStartNodeId is not specified
+      this.nodeConfig.loopStartNodeId
+    ) {
+      this.context.startGraph(
+        this.graphId,
+        this.nodeConfig.nodeId,
+        this.nodeConfig.loopStartNodeId,
+      );
+    } else {
+      this.handleNonLoopNodeComplete();
+    }
   }
 
-  updateConditionResults(conditionResults: ConditionResultRecords): void {
+  private handleNonLoopNodeComplete() {
+    if (this.nodeConfig.type !== NodeType.ConditionNode) {
+      // TODO: Generalize this
+      // NOTE: For none ConditionNode, we need to manually generate a condition
+      // result.
+      for (const c of this.getOutgoingConditions()) {
+        this.outgoingConditionResults[c.id] = {
+          conditionId: c.id,
+          isConditionMatched: true,
+        };
+      }
+    }
+
     this.context.allConditionResults = produce(
       this.context.allConditionResults,
       (draft) => {
-        for (const [connectorId, result] of Object.entries(conditionResults)) {
-          const connector = this.context.params.connectors[connectorId];
-
-          invariant(
-            connector.type === ConnectorType.OutCondition ||
-              connector.type === ConnectorType.InCondition,
-          );
-
-          draft[connectorId] = result;
+        for (const [id, r] of Object.entries(this.outgoingConditionResults)) {
+          draft[id] = r;
         }
       },
     );
-  }
 
-  addOutputVariableIdToFinishNodesVariableIds(): void {
-    for (const c of Object.values(this.context.params.connectors)) {
-      if (c.nodeId === this.nodeId && c.type === ConnectorType.NodeInput) {
-        this.finishNodesVariableIds.push(c.id);
+    // ANCHOR: When current node is a Finish node and not a LoopFinish node,
+    // record connector IDs
+    if (this.nodeConfig.class === NodeClass.Finish) {
+      if (this.nodeConfig.type !== NodeType.LoopFinish) {
+        this.finishNodesVariableIds.push(
+          ...this.getInputVariables().map((v) => v.id),
+        );
       }
     }
-  }
 
-  emitNextNodeIdsOrCompleteFlowRun(): void {
-    this.context.queuedNodeCount -= 1;
+    // ANCHOR: Mark edge as completed
+    const completedEdges: Edge[] = [];
 
-    const nextNodeIdList = this.context.mutableFlowGraph.reduceNodeIndegrees(
-      Array.from(this.allCompletedConnectorIds),
-    );
+    for (const edge of this.outgoingEdges) {
+      invariant(edge.sourceHandle, 'sourceHandle is required');
 
-    if (nextNodeIdList.length === 0) {
-      if (this.context.queuedNodeCount === 0) {
-        this.nodeIdListSubject.complete();
+      const edgeHasVariableValue =
+        edge.sourceHandle in this.outputVariableValues;
+      const edgeHasConditionMatched =
+        edge.sourceHandle in this.outgoingConditionResults &&
+        this.outgoingConditionResults[edge.sourceHandle].isConditionMatched;
+
+      if (edgeHasVariableValue || edgeHasConditionMatched) {
+        completedEdges.push(edge);
       }
-    } else {
-      // Incrementing count on NodeExecutionEventType.Start event
-      // won't work, because both `queuedNodeCount` and
-      // `nextListOfNodeIds.length` could be 0 while there are still
-      // values in `listOfNodeIdsSubject` waiting to be processed.
-      //
-      // I.e. `listOfNodeIdsSubject.complete()` will complete the subject
-      // immediately, even though there are still values in the subject.
-      this.context.queuedNodeCount += nextNodeIdList.length;
-
-      this.nodeIdListSubject.next(nextNodeIdList);
     }
+
+    this.context.completeEdges(this.graphId, completedEdges);
   }
 }
+
+export default RunNodeContext;

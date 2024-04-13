@@ -1,20 +1,19 @@
 import { A, D, pipe } from '@mobily/ts-belt';
 import {
-  EMPTY,
-  Observable,
   catchError,
   concat,
   concatAll,
   defer,
+  EMPTY,
   ignoreElements,
   mergeMap,
+  Observable,
   of,
   tap,
 } from 'rxjs';
 
 import {
   NodeClass,
-  NodeType,
   type NodeInputVariable,
   type NodeOutputVariable,
   type RunNodeResult,
@@ -22,11 +21,8 @@ import {
 } from 'flow-models';
 
 import { RunNodeProgressEventType, type RunFlowResult } from './event-types';
-import {
-  RunFlowContext,
-  RunFlowContextParams,
-  RunNodeContext,
-} from './run-flow-context';
+import RunFlowContext, { RunFlowContextParams } from './RunFlowContext';
+import RunNodeContext from './RunNodeContext';
 
 function runFlow(params: RunFlowContextParams): Observable<RunFlowResult> {
   const context = new RunFlowContext(params);
@@ -34,9 +30,9 @@ function runFlow(params: RunFlowContextParams): Observable<RunFlowResult> {
   return concat(
     context.nodeIdListSubject.pipe(
       // mergeMap converts ArrayLike to Observable automatically
-      mergeMap((nodeIds) => {
-        return nodeIds.map((id) => {
-          const runNodeContext = new RunNodeContext(context, id);
+      mergeMap(([graphId, nodeIds]) => {
+        return nodeIds.map((nodeId) => {
+          const runNodeContext = new RunNodeContext(context, graphId, nodeId);
           return createRunNodeObservable(runNodeContext);
         });
       }),
@@ -124,15 +120,11 @@ function createRunNodeWrapperObservable(
       });
 
       if (result.variableValues != null) {
-        context.updateAllVariableValuesFromList(result.variableValues);
+        context.updateVariableValues(result.variableValues);
       }
 
       if (result.conditionResults != null) {
         context.updateConditionResults(result.conditionResults);
-      }
-
-      if (result.completedConnectorIds != null) {
-        context.addCompletedConnectorIds(result.completedConnectorIds);
       }
     }),
     ignoreElements(),
@@ -148,23 +140,7 @@ function createRunNodeEndWithObservable(
       nodeId: context.nodeId,
     });
 
-    // NOTE: For none ConditionNode, we need to add the regular
-    // outgoing condition to the finishedConnectorIds list manually.
-    // TODO: Generalize this for all node types
-    if (context.nodeConfig.type !== NodeType.ConditionNode) {
-      const outgoingConditions = context.getOutgoingConditions();
-
-      // Finish nodes doesn't have outgoing conditions
-      if (outgoingConditions.length > 0) {
-        context.addCompletedConnectorIds([outgoingConditions[0].id]);
-      }
-    }
-
-    if (context.nodeConfig.class === NodeClass.Finish) {
-      context.addOutputVariableIdToFinishNodesVariableIds();
-    }
-
-    context.emitNextNodeIdsOrCompleteFlowRun();
+    context.flushRunNodeResultToGraphLevel();
 
     return EMPTY;
   });

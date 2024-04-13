@@ -13,13 +13,13 @@ import {
   migrateV3ToV4,
   safeParseAndApplyFix,
 } from 'flow-models';
-
 import {
   FlowRunEventType,
   ValidationErrorType,
   type FlowRunEvent,
   type RunFlowResult,
-} from 'flow-run/event-types';
+} from 'run-flow';
+
 import runFlowForCanvasTester from 'flow-run/runFlowForCanvasTester';
 import { graphql } from 'gencode-gql';
 import { ContentVersion, SpaceFlowQueryQuery } from 'gencode-gql/graphql';
@@ -297,12 +297,7 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
       const runFlowForCanvasTesterSubscription = runFlowForCanvasTester({
         startNodeIds:
           canvasTesterStartNodeId != null ? [canvasTesterStartNodeId] : [],
-        edges: edges.map((edge) => ({
-          sourceNode: edge.source,
-          sourceConnector: edge.sourceHandle,
-          targetNode: edge.target,
-          targetConnector: edge.targetHandle,
-        })),
+        edges: edges,
         nodeConfigs: nodeConfigs,
         connectors: connectors,
         inputValueMap: event.params.inputValues,

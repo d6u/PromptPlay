@@ -8,13 +8,10 @@ import { Subscription, debounceTime, tap } from 'rxjs';
 import invariant from 'tiny-invariant';
 
 import { ConditionResultRecords, NodeTypeEnum } from 'flow-models';
+import { FlowBatchRunEventType, ValidationErrorType } from 'run-flow';
 
-import {
-  FlowBatchRunEventType,
-  ValidationErrorType,
-} from 'flow-run/event-types';
-import { OverallStatus } from 'flow-run/run-types';
 import flowRunBatch from 'flow-run/runFlowForBatchTest';
+import { OverallStatus } from 'flow-run/types';
 import {
   BatchTestTab,
   CSVData,
@@ -111,12 +108,7 @@ function RouteBatchTest() {
     );
 
     runningSubscriptionRef.current = flowRunBatch({
-      edges: edges.map((edge) => ({
-        sourceNode: edge.source,
-        sourceConnector: edge.sourceHandle,
-        targetNode: edge.target,
-        targetConnector: edge.targetHandle,
-      })),
+      edges: edges,
       nodeConfigs: nodeConfigsDict,
       connectors: connectors,
       csvTable: csvBody,

@@ -1,4 +1,4 @@
-import type { RunMetadata } from 'flow-run/run-types';
+import type { RunMetadata } from 'flow-run/types';
 
 export enum NodeExecutionStatus {
   Pending = 'Pending',

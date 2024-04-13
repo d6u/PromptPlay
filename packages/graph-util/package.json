@@ -1,0 +1,25 @@
+{
+  "name": "graph-util",
+  "private": true,
+  "version": "1.0.0",
+  "exports": {
+    "ts": "./src/index.ts",
+    "types": "./src/index.ts",
+    "default": "./dist/index.js"
+  },
+  "scripts": {
+    "clean": "rm -rf dist",
+    "build-ts": "rm -rf dist && tsc"
+  },
+  "dependencies": {
+    "flow-models": "workspace:^",
+    "fp-ts": "^2.16.5",
+    "reactflow": "^11.11.1",
+    "tiny-invariant": "^1.3.1"
+  },
+  "devDependencies": {
+    "common-tsconfig": "workspace:^",
+    "typescript": "^5.4.3",
+    "vite": "^5.0.0"
+  }
+}

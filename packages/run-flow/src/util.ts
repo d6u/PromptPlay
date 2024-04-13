@@ -8,8 +8,8 @@ import {
 } from 'flow-models';
 
 import {
-  AccountLevelValidationError,
   ValidationErrorType,
+  type AccountLevelValidationError,
 } from './event-types';
 import { GetAccountLevelFieldValueFunction } from './run-param-types';
 
