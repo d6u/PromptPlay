@@ -1,4 +1,4 @@
-import { D, type Option } from '@mobily/ts-belt';
+import { type Option } from '@mobily/ts-belt';
 import { produce } from 'immer';
 import type { Edge } from 'reactflow';
 import {
@@ -16,6 +16,7 @@ import {
   type Graph,
 } from 'graph-util';
 
+import type { NodeInputVariable, VariableValueRecords } from 'flow-models';
 import type { RunFlowResult, RunNodeProgressEvent } from './event-types';
 import type RunFlowContext from './RunFlowContext';
 import RunNodeContext from './RunNodeContext';
@@ -40,6 +41,7 @@ class RunGraphContext {
   readonly runFlowContext: RunFlowContext;
   readonly params: RunFlowParams;
   readonly nodeIdListSubject: Subject<string[]>;
+  graph: Graph;
   // Used to create run graph result
   readonly finishNodesVariableIds: string[] = [];
 
@@ -47,7 +49,6 @@ class RunGraphContext {
     return this.params.progressObserver;
   }
 
-  private graph: Graph;
   private queuedNodeCount: number; // Track nodes that are still running
 
   createRunNodeContext(nodeId: string): RunNodeContext {
@@ -70,32 +71,6 @@ class RunGraphContext {
     const nextNodeIds = [];
 
     for (const nodeId of updatedNodeIds) {
-      // const nextNodeConfig = this.params.nodeConfigs[nodeId];
-      //
-      // if (nextNodeConfig.type === NodeType.LoopFinish) {
-      //   // NOTE: LoopFinish only need one incoming condition to unblock
-
-      //   const connectors = Object.values(this.params.connectors)
-      //     .filter((c): c is IncomingCondition => c.nodeId === nodeId)
-      //     .sort((a, b) => a.index! - b.index!);
-
-      //   const isContinue =
-      //     getIndegreeForNodeConnector(graph, nodeId, connectors[0].id) === 0;
-      //   const isBreak =
-      //     getIndegreeForNodeConnector(graph, nodeId, connectors[1].id) === 0;
-
-      //   if (isContinue && isBreak) {
-      //     console.warn('both continue and break are met');
-      //   }
-
-      //   if (isBreak) {
-      //     this.endGraph(graphId, true);
-      //   } else if (isContinue) {
-      //     this.endGraph(graphId, false);
-      //   } else {
-      //     throw new Error('Neither continue nor break is met');
-      //   }
-      // } else {
       if (getIndegreeForNode(this.graph, nodeId) === 0) {
         // Incrementing count on NodeExecutionEventType.Start event
         // won't work, because both `queuedNodeCount` and
@@ -107,7 +82,6 @@ class RunGraphContext {
         this.queuedNodeCount += 1;
         nextNodeIds.push(nodeId);
       }
-      // }
     }
 
     this.queuedNodeCount -= 1;
@@ -121,56 +95,27 @@ class RunGraphContext {
     }
   }
 
-  completeGraph(): Observable<RunFlowResult> {
-    this.params.progressObserver?.complete();
+  getRunGraphResult(): Observable<RunFlowResult> {
+    const variableValues: VariableValueRecords = {};
+
+    this.finishNodesVariableIds.forEach((id) => {
+      const v = this.params.connectors[id] as NodeInputVariable;
+
+      if (v.isGlobal) {
+        if (v.globalVariableId != null) {
+          variableValues[id] =
+            this.runFlowContext.allVariableValues[v.globalVariableId];
+        }
+      } else {
+        variableValues[id] = this.runFlowContext.allVariableValues[id];
+      }
+    });
 
     return of({
       errors: [],
-      variableResults: D.selectKeys(
-        this.runFlowContext.allVariableValues,
-        this.finishNodesVariableIds,
-      ),
+      variableResults: variableValues,
     });
   }
-
-  // startGraph(
-  //   sourceLoopNodeGraphId: string,
-  //   sourceLoopNodeId: string,
-  //   graphId: string,
-  // ) {
-  //   this.graphIdToSourceLoopNodeIdMap[graphId] = {
-  //     sourceLoopNodeGraphId,
-  //     sourceLoopNodeId,
-  //   };
-
-  //   this.queuedNodeCount += 1;
-  //   this.nodeIdListSubject.next([graphId, [graphId]]);
-  // }
-
-  // private endGraph(graphId: string, isEnd: boolean) {
-  //   this.graphRecords = produce(this.params.graphRecords, (draft) => {
-  //     // TODO: The current implementation of maintaining sub graphs state
-  //     // has its limitations that we cannot run multiple Loop node that refer
-  //     // to the same sub graph in parallel.
-  //     // We need to improve the data structure to achieve that.
-  //     draft[graphId] = this.params.graphRecords[graphId];
-  //   });
-
-  //   const { sourceLoopNodeGraphId, sourceLoopNodeId } =
-  //     this.graphIdToSourceLoopNodeIdMap[graphId];
-
-  //   delete this.graphIdToSourceLoopNodeIdMap[graphId];
-
-  //   if (isEnd) {
-  //     const edges = Object.values(this.params.edges).filter(
-  //       (e) => e.source === sourceLoopNodeId,
-  //     );
-
-  //     this.completeEdges(sourceLoopNodeGraphId, edges);
-  //   } else {
-  //     this.startGraph(sourceLoopNodeGraphId, sourceLoopNodeId, graphId);
-  //   }
-  // }
 }
 
 export default RunGraphContext;

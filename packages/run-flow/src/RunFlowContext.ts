@@ -63,7 +63,13 @@ class RunFlowContext {
     values: VariableValueRecords,
   ): void {
     for (const v of variables) {
-      this.allVariableValues[v.id] = values[v.id];
+      if (v.isGlobal) {
+        if (v.globalVariableId != null) {
+          this.allVariableValues[v.globalVariableId] = values[v.id];
+        }
+      } else {
+        this.allVariableValues[v.id] = values[v.id];
+      }
     }
   }
 

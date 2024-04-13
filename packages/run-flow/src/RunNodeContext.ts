@@ -15,15 +15,13 @@ import {
   type NodeOutputVariable,
   type OutgoingCondition,
   type RunNodeFunction,
+  type VariableValueBox,
   type VariableValueRecords,
 } from 'flow-models';
 import type { GraphRecords } from 'graph-util';
 
 import type RunGraphContext from './RunGraphContext';
-import {
-  RunNodeProgressEventType,
-  type RunNodeProgressEvent,
-} from './event-types';
+import { type RunNodeProgressEvent } from './event-types';
 import { RunFlowParams } from './types';
 
 class RunNodeContext {
@@ -161,6 +159,25 @@ class RunNodeContext {
   }
 
   // NOTE: Called during runNode in progress
+  convertVariableValuesToRecords(
+    variableValues: Option<unknown[]>,
+  ): VariableValueRecords {
+    // TODO: Simplify this
+    return variableValues
+      ? pipe(
+          this.nodeConfig.class === NodeClass.Finish
+            ? this.getInputVariables()
+            : this.getOutputVariables(),
+          A.mapWithIndex<
+            NodeInputVariable | NodeOutputVariable,
+            [string, VariableValueBox]
+          >((i, v) => [v.id, { value: variableValues![i] }]),
+          D.fromPairs,
+        )
+      : {};
+  }
+
+  // NOTE: Called during runNode in progress
   updateVariableValues(variableValues: unknown[]): void {
     if (this.nodeConfig.class === NodeClass.Finish) {
       for (const [i, v] of this.getInputVariables().entries()) {
@@ -182,10 +199,7 @@ class RunNodeContext {
 
   // NOTE: Run after runNode finished
   completeRunNode(): void {
-    this.params.progressObserver?.next({
-      type: RunNodeProgressEventType.Finished,
-      nodeId: this.nodeId,
-    });
+    console.log('completeRunNode', this.nodeConfig, this.outputVariableValues);
 
     // ANCHOR: Flush variable values
     if (this.nodeConfig.class === NodeClass.Finish) {
