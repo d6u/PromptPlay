@@ -199,8 +199,6 @@ class RunNodeContext {
 
   // NOTE: Run after runNode finished
   completeRunNode(): void {
-    console.log('completeRunNode', this.nodeConfig, this.outputVariableValues);
-
     // ANCHOR: Flush variable values
     if (this.nodeConfig.class === NodeClass.Finish) {
       this.runGraphContext.runFlowContext.updateVariableValues(

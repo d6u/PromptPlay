@@ -7,7 +7,6 @@ import {
   concatAll,
   defer,
   ignoreElements,
-  map,
   mergeMap,
   of,
   tap,
@@ -132,7 +131,7 @@ type RunLoopNodeFun = (
 ) => Observable<RunNodeResult>;
 
 function runLoopNode(context: RunNodeContext): RunLoopNodeFun {
-  return () => {
+  return (params): Observable<RunNodeResult> => {
     const nodeConfig = context.nodeConfig;
     invariant(nodeConfig.type === NodeType.Loop);
 
@@ -145,12 +144,8 @@ function runLoopNode(context: RunNodeContext): RunLoopNodeFun {
     );
 
     return runGraph(runGraphContext).pipe(
-      map((result: RunFlowResult) => {
-        console.log('result', result);
-
+      mergeMap((result: RunFlowResult) => {
         const graph = runGraphContext.graph;
-
-        console.log('graph', graph);
 
         const finishNodeId = Object.keys(graph).find(
           (nodeId) =>
@@ -182,32 +177,32 @@ function runLoopNode(context: RunNodeContext): RunLoopNodeFun {
           console.warn('both continue and break are met');
         }
 
+        context.progressObserver?.next({
+          type: RunNodeProgressEventType.Started,
+          nodeId: finishNodeId,
+        });
+        context.progressObserver?.next({
+          type: RunNodeProgressEventType.Updated,
+          nodeId: finishNodeId,
+          result: {},
+        });
+        context.progressObserver?.next({
+          type: RunNodeProgressEventType.Finished,
+          nodeId: finishNodeId,
+        });
+
         if (isBreak) {
-          context.progressObserver?.next({
-            type: RunNodeProgressEventType.Started,
-            nodeId: finishNodeId,
-          });
-          context.progressObserver?.next({
-            type: RunNodeProgressEventType.Updated,
-            nodeId: finishNodeId,
-            result: {},
-          });
-          context.progressObserver?.next({
-            type: RunNodeProgressEventType.Finished,
-            nodeId: finishNodeId,
+          return of({
+            errors: F.toMutable(result.errors),
+            conditionResults: {},
+            variableValues: [],
+            completedConnectorIds: [],
           });
         } else if (isContinue) {
-          console.log('isContinue');
+          return runLoopNode(context)(params);
         } else {
           throw new Error('Neither continue nor break is met');
         }
-
-        return {
-          errors: F.toMutable(result.errors),
-          conditionResults: {},
-          variableValues: [],
-          completedConnectorIds: [],
-        };
       }),
     );
   };
