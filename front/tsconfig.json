@@ -48,7 +48,11 @@
       "view-left-side-pane/*": ["./src/view-left-side-pane/*"]
     }
   },
-  "include": ["src", "../packages/run-flow/src/__tests__"],
+  "include": [
+    "src",
+    "../packages/run-flow/src/__tests__",
+    "../packages/run-flow/src/run-param-types.ts"
+  ],
   "references": [
     {
       "path": "./tsconfig.node.json"

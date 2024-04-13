@@ -3,9 +3,9 @@ import { expect, test } from 'vitest';
 
 import { CanvasDataV4, NodeTypeEnum } from 'flow-models';
 
-import { getNodeAllLevelConfigOrValidationErrors } from '../../../../front/src/flow-run/util';
 import { ImmutableFlowNodeGraph } from '../flow-node-graph';
 import runFlow from '../runFlow';
+import { getNodeAllLevelConfigOrValidationErrors } from '../util';
 
 test('runFlow should execute', async () => {
   const flowContent: CanvasDataV4 = {
