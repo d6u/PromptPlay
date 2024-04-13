@@ -14,10 +14,11 @@ import {
 } from 'rxjs';
 import invariant from 'tiny-invariant';
 
-import { Connector, ImmutableFlowNodeGraph, NodeConfig } from 'flow-models';
+import { Connector, NodeConfig } from 'flow-models';
 import {
   FlowBatchRunEvent,
   FlowBatchRunEventType,
+  ImmutableFlowNodeGraph,
   RunNodeProgressEventType,
   ValidationError,
   ValidationErrorType,

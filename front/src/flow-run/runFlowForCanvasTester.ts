@@ -1,15 +1,11 @@
 import { Observable, Subject, from, mergeMap, of, type Observer } from 'rxjs';
 import invariant from 'tiny-invariant';
 
-import {
-  Connector,
-  ImmutableFlowNodeGraph,
-  NodeConfig,
-  type VariableValueRecords,
-} from 'flow-models';
+import { Connector, NodeConfig, type VariableValueRecords } from 'flow-models';
 import {
   FlowRunEvent,
   FlowRunEventType,
+  ImmutableFlowNodeGraph,
   RunNodeProgressEventType,
   ValidationError,
   ValidationErrorType,

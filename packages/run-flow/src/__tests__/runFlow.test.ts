@@ -1,13 +1,10 @@
 import { ReplaySubject, lastValueFrom, tap } from 'rxjs';
 import { expect, test } from 'vitest';
 
-import {
-  CanvasDataV4,
-  ImmutableFlowNodeGraph,
-  NodeTypeEnum,
-} from 'flow-models';
+import { CanvasDataV4, NodeTypeEnum } from 'flow-models';
 
 import { getNodeAllLevelConfigOrValidationErrors } from '../../../../front/src/flow-run/util';
+import { ImmutableFlowNodeGraph } from '../flow-node-graph';
 import runFlow from '../runFlow';
 
 test('runFlow should execute', async () => {

@@ -1,9 +1,12 @@
 import { A, D, F, pipe } from '@mobily/ts-belt';
 import invariant from 'tiny-invariant';
 
-import { ConnectorRecords, ConnectorType } from '../base-types';
-import type { NodeConfig } from '../node-definitions';
-import { NodeClass } from './node-class-and-type';
+import {
+  ConnectorRecords,
+  ConnectorType,
+} from '../../flow-models/src/base-types';
+import { NodeClass } from '../../flow-models/src/node-definition-base-types/node-class-and-type';
+import type { NodeConfig } from '../../flow-models/src/node-definitions';
 
 export type GraphEdge = Readonly<{
   sourceNode: string;

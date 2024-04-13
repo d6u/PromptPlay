@@ -10,8 +10,6 @@ import {
   type ConditionResultRecords,
   type ConnectorRecords,
   type CreateNodeExecutionObservableFunction,
-  type ImmutableFlowNodeGraph,
-  type MutableFlowNodeGraph,
   type NodeAllLevelConfigUnion,
   type NodeInputVariable,
   type NodeOutputVariable,
@@ -21,6 +19,10 @@ import {
 } from 'flow-models';
 
 import type { RunNodeProgressEvent } from './event-types';
+import type {
+  ImmutableFlowNodeGraph,
+  MutableFlowNodeGraph,
+} from './flow-node-graph';
 
 export type RunFlowContextParams = Readonly<{
   preferStreaming: boolean;
