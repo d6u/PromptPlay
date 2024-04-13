@@ -170,6 +170,10 @@ class RunFlowContext {
 
   private endGraph(graphId: string, isEnd: boolean) {
     this.graphRecords = produce(this.params.graphRecords, (draft) => {
+      // TODO: The current implementation of maintaining sub graphs state
+      // has its limitations that we cannot run multiple Loop node that refer
+      // to the same sub graph in parallel.
+      // We need to improve the data structure to achieve that.
       draft[graphId] = this.params.graphRecords[graphId];
     });
 

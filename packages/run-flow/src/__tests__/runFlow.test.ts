@@ -2,8 +2,8 @@ import { ReplaySubject, lastValueFrom, tap } from 'rxjs';
 import { expect, test } from 'vitest';
 
 import { CanvasDataV4, NodeTypeEnum } from 'flow-models';
-
 import { computeGraphs } from 'graph-util';
+
 import runFlow from '../runFlow';
 import { getNodeAllLevelConfigOrValidationErrors } from '../util';
 
