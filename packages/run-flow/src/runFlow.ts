@@ -30,9 +30,9 @@ function runFlow(params: RunFlowContextParams): Observable<RunFlowResult> {
   return concat(
     context.nodeIdListSubject.pipe(
       // mergeMap converts ArrayLike to Observable automatically
-      mergeMap((nodeIds) => {
+      mergeMap(([graphId, nodeIds]) => {
         return nodeIds.map((nodeId) => {
-          const runNodeContext = new RunNodeContext(context, nodeId);
+          const runNodeContext = new RunNodeContext(context, graphId, nodeId);
           return createRunNodeObservable(runNodeContext);
         });
       }),
@@ -119,6 +119,8 @@ function createRunNodeWrapperObservable(
         },
       });
 
+      console.log('result', context.nodeConfig, result);
+
       if (result.variableValues != null) {
         context.updateVariableValues(result.variableValues);
       }
@@ -135,6 +137,8 @@ function createRunNodeEndWithObservable(
   context: RunNodeContext,
 ): Observable<never> {
   return defer(() => {
+    console.log('createRunNodeEndWithObservable', context.nodeId);
+
     context.progressObserver?.next({
       type: RunNodeProgressEventType.Finished,
       nodeId: context.nodeId,

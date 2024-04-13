@@ -25,6 +25,30 @@ export function getIndegreeForNode(graph: Graph, nodeId: string): number {
   return indegree;
 }
 
+export function getIndegreeForNodeConnector(
+  graph: Graph,
+  nodeId: string,
+  incomingConnectorId: string,
+): number {
+  let indegree = 0;
+
+  for (const sourceConnectorId of Object.keys(
+    graph[nodeId][incomingConnectorId],
+  )) {
+    let anyComplete = false;
+
+    if (graph[nodeId][incomingConnectorId][sourceConnectorId]) {
+      anyComplete = true;
+    }
+
+    if (!anyComplete) {
+      indegree += 1;
+    }
+  }
+
+  return indegree;
+}
+
 type ComputeTargetVariableIdToSourceVariableIdMapParam = {
   edges: Edge[];
   connectors: ConnectorRecords;

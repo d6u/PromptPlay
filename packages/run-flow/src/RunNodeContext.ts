@@ -23,14 +23,16 @@ import RunFlowContext, { RunFlowContextParams } from './RunFlowContext';
 import type { RunNodeProgressEvent } from './event-types';
 
 class RunNodeContext {
-  constructor(context: RunFlowContext, nodeId: string) {
+  constructor(context: RunFlowContext, graphId: string, nodeId: string) {
     this.context = context;
+    this.graphId = graphId;
     this.nodeId = nodeId;
     this.outgoingEdges = context.params.edges.filter(
       (e) => e.source === nodeId,
     );
   }
 
+  readonly graphId: string;
   readonly nodeId: string;
 
   get params(): RunFlowContextParams {
@@ -45,7 +47,7 @@ class RunNodeContext {
     return this.context.finishNodesVariableIds;
   }
 
-  get nodeIdListSubject(): Subject<string[]> {
+  get nodeIdListSubject(): Subject<[string, string[]]> {
     return this.context.nodeIdListSubject;
   }
 
@@ -206,11 +208,12 @@ class RunNodeContext {
     for (const [id, result] of Object.entries(conditionResults)) {
       this.outgoingConditionResults[id] = result;
     }
+    console.log('updateConditionResults', this.outgoingConditionResults);
   }
 
   // NOTE: Run after runNode finished
   flushRunNodeResultToGraphLevel(): void {
-    // NOTE: Flush variable values
+    // ANCHOR: Flush variable values
     this.context.allVariableValues = produce(
       this.context.allVariableValues,
       (draft) => {
@@ -234,11 +237,33 @@ class RunNodeContext {
       },
     );
 
-    // NOTE: Flush condition results
-    // NOTE: For none ConditionNode, we need to manually generate a condition
-    // result.
-    // TODO: Generalize this for all node types
+    // ANCHOR: Flush condition results
+
+    if (
+      this.nodeConfig.type === NodeType.Loop &&
+      // TODO: Show error in UI if loopStartNodeId is not specified
+      this.nodeConfig.loopStartNodeId
+    ) {
+      console.log(
+        'LOOP',
+        this.params.nodeConfigs[this.nodeConfig.loopStartNodeId],
+      );
+
+      this.context.startGraph(
+        this.graphId,
+        this.nodeConfig.nodeId,
+        this.nodeConfig.loopStartNodeId,
+      );
+    } else {
+      this.handleNonLoopNodeComplete();
+    }
+  }
+
+  private handleNonLoopNodeComplete() {
     if (this.nodeConfig.type !== NodeType.ConditionNode) {
+      // TODO: Generalize this
+      // NOTE: For none ConditionNode, we need to manually generate a condition
+      // result.
       for (const c of this.getOutgoingConditions()) {
         this.outgoingConditionResults[c.id] = {
           conditionId: c.id,
@@ -256,18 +281,17 @@ class RunNodeContext {
       },
     );
 
-    // NOTE: When current node is a Finish node and not a LoopFinish node,
+    // ANCHOR: When current node is a Finish node and not a LoopFinish node,
     // record connector IDs
-    if (
-      this.nodeConfig.class === NodeClass.Finish &&
-      this.nodeConfig.type !== NodeType.LoopFinish
-    ) {
-      this.finishNodesVariableIds.push(
-        ...this.getInputVariables().map((v) => v.id),
-      );
+    if (this.nodeConfig.class === NodeClass.Finish) {
+      if (this.nodeConfig.type !== NodeType.LoopFinish) {
+        this.finishNodesVariableIds.push(
+          ...this.getInputVariables().map((v) => v.id),
+        );
+      }
     }
 
-    // NOTE: Mark edge as completed
+    // ANCHOR: Mark edge as completed
     const completedEdges: Edge[] = [];
 
     for (const edge of this.outgoingEdges) {
@@ -284,7 +308,7 @@ class RunNodeContext {
       }
     }
 
-    this.context.completeEdges(completedEdges);
+    this.context.completeEdges(this.graphId, completedEdges);
   }
 }
 

@@ -55,12 +55,18 @@ export function computeGraphs({
   const indegrees: Record<string, number> = {};
 
   Object.values(nodeConfigs).forEach((nodeConfig) => {
-    if (nodeConfig.class !== NodeClass.Start) {
+    if (
+      nodeConfig.class === NodeClass.Start &&
+      startNodeIds.includes(nodeConfig.nodeId)
+    ) {
+      // Start nodes that also in `startNodeIds`
       indegrees[nodeConfig.nodeId] = 0;
-    } else if (startNodeIds.includes(nodeConfig.nodeId)) {
-      indegrees[nodeConfig.nodeId] = 0;
-    } else {
+    } else if (nodeConfig.class === NodeClass.Start) {
+      // Start nodes (that're not in `startNodeIds`)
+      // NOTE: This case includes LoopStart nodes
       indegrees[nodeConfig.nodeId] = 1;
+    } else {
+      indegrees[nodeConfig.nodeId] = 0;
     }
   });
 
