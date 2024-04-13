@@ -124,7 +124,11 @@ class RunFlowContext {
         }
 
         if (isBreak) {
-          this.endGraph(graphId);
+          this.endGraph(graphId, true);
+        } else if (isContinue) {
+          this.endGraph(graphId, false);
+        } else {
+          throw new Error('Neither continue nor break is met');
         }
       } else {
         if (getIndegreeForNode(graph, nodeId) === 0) {
@@ -168,7 +172,7 @@ class RunFlowContext {
     this.nodeIdListSubject.next([graphId, [graphId]]);
   }
 
-  private endGraph(graphId: string) {
+  private endGraph(graphId: string, isEnd: boolean) {
     console.log('endGraph', JSON.stringify(this.graphRecords, null, 2));
 
     this.graphRecords = produce(this.params.graphRecords, (draft) => {
@@ -182,11 +186,15 @@ class RunFlowContext {
 
     delete this.graphIdToSourceLoopNodeIdMap[graphId];
 
-    const edges = Object.values(this.params.edges).filter(
-      (e) => e.source === sourceLoopNodeId,
-    );
+    if (isEnd) {
+      const edges = Object.values(this.params.edges).filter(
+        (e) => e.source === sourceLoopNodeId,
+      );
 
-    this.completeEdges(sourceLoopNodeGraphId, edges);
+      this.completeEdges(sourceLoopNodeGraphId, edges);
+    } else {
+      this.startGraph(sourceLoopNodeGraphId, sourceLoopNodeId, graphId);
+    }
   }
 }
 
