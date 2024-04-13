@@ -1,39 +1,57 @@
-import { A, D, pipe } from '@mobily/ts-belt';
+import { A, D, F, pipe } from '@mobily/ts-belt';
 import {
+  EMPTY,
+  Observable,
+  Subject,
   catchError,
   concat,
   concatAll,
   defer,
-  EMPTY,
   ignoreElements,
+  map,
   mergeMap,
-  Observable,
   of,
   tap,
 } from 'rxjs';
+import invariant from 'tiny-invariant';
 
 import {
   NodeClass,
+  NodeType,
+  type IncomingCondition,
+  type NodeAllLevelConfigUnion,
   type NodeInputVariable,
   type NodeOutputVariable,
+  type RunNodeParams,
   type RunNodeResult,
   type VariableValueBox,
 } from 'flow-models';
+import { ROOT_GRAPH_ID, getIndegreeForNodeConnector } from 'graph-util';
 
-import { RunNodeProgressEventType, type RunFlowResult } from './event-types';
-import RunFlowContext, { RunFlowContextParams } from './RunFlowContext';
+import RunFlowContext from './RunFlowContext';
+import type RunGraphContext from './RunGraphContext';
 import RunNodeContext from './RunNodeContext';
+import {
+  RunNodeProgressEventType,
+  type RunFlowResult,
+  type RunNodeProgressEvent,
+} from './event-types';
+import { type RunFlowParams } from './types';
 
-function runFlow(params: RunFlowContextParams): Observable<RunFlowResult> {
+function runFlow(params: RunFlowParams): Observable<RunFlowResult> {
   const context = new RunFlowContext(params);
+  return runGraph(context.createRunGraphContext(ROOT_GRAPH_ID));
+}
+
+function runGraph(context: RunGraphContext): Observable<RunFlowResult> {
+  const nodeIdListSubject = context.nodeIdListSubject;
 
   return concat(
-    context.nodeIdListSubject.pipe(
+    nodeIdListSubject.pipe(
       // mergeMap converts ArrayLike to Observable automatically
-      mergeMap(([graphId, nodeIds]) => {
+      mergeMap((nodeIds) => {
         return nodeIds.map((nodeId) => {
-          const runNodeContext = new RunNodeContext(context, graphId, nodeId);
-          return createRunNodeObservable(runNodeContext);
+          return createRunNodeObservable(context.createRunNodeContext(nodeId));
         });
       }),
       // NOTE: Switch from concatAll() to mergeAll() to subscribe to each
@@ -46,7 +64,7 @@ function runFlow(params: RunFlowContextParams): Observable<RunFlowResult> {
       return of({
         errors: [],
         variableResults: D.selectKeys(
-          context.allVariableValues,
+          context.runFlowContext.allVariableValues,
           context.finishNodesVariableIds,
         ),
       });
@@ -55,7 +73,10 @@ function runFlow(params: RunFlowContextParams): Observable<RunFlowResult> {
 }
 
 function createRunNodeObservable(context: RunNodeContext): Observable<never> {
-  const runNode = context.getRunNodeFunction();
+  const runNode =
+    context.nodeConfig.type === NodeType.Loop
+      ? runLoopNode(context)
+      : context.getRunNodeFunction();
 
   const preferStreaming = context.params.preferStreaming;
   const nodeConfig = context.nodeConfig;
@@ -144,6 +165,93 @@ function createRunNodeEndWithObservable(
 
     return EMPTY;
   });
+}
+
+function runLoopNode(
+  context: RunNodeContext,
+): (
+  params: RunNodeParams<NodeAllLevelConfigUnion>,
+) => Observable<RunNodeResult> {
+  return (params) => {
+    const nodeConfig = context.nodeConfig;
+
+    invariant(nodeConfig.type === NodeType.Loop);
+
+    if (nodeConfig.loopStartNodeId == null) {
+      throw new Error('loopStartNodeId is required');
+    }
+
+    const progressObserver = new Subject<RunNodeProgressEvent>();
+
+    progressObserver
+      .pipe(
+        tap((event) => {
+          console.log(
+            '==>',
+            context.params.nodeConfigs[event.nodeId],
+            '\n---->',
+            JSON.stringify(event, null, 2),
+          );
+        }),
+      )
+      .subscribe(context.progressObserver ?? undefined);
+
+    // const newParams: RunFlowParams = {
+    //   ...context.params,
+    //   progressObserver,
+    // };
+
+    return runGraph(
+      context.createRunGraphContext(nodeConfig.loopStartNodeId),
+    ).pipe(
+      map((result: RunFlowResult) => {
+        const graph = context.graphRecords[nodeConfig.loopStartNodeId!];
+
+        console.log('graph', graph);
+
+        const finishNodeId = Object.keys(graph).find(
+          (nodeId) =>
+            context.params.nodeConfigs[nodeId].type === NodeType.LoopFinish,
+        );
+        invariant(finishNodeId, 'finishNodeId is required');
+        const finishNodeConfig = context.params.nodeConfigs[finishNodeId];
+
+        console.log('finishNodeConfig', finishNodeConfig);
+
+        // NOTE: LoopFinish only need one incoming condition to unblock
+
+        const connectors = Object.values(context.params.connectors)
+          .filter((c): c is IncomingCondition => c.nodeId === finishNodeId)
+          .sort((a, b) => a.index! - b.index!);
+
+        const isContinue =
+          getIndegreeForNodeConnector(graph, finishNodeId, connectors[0].id) ===
+          0;
+        const isBreak =
+          getIndegreeForNodeConnector(graph, finishNodeId, connectors[1].id) ===
+          0;
+
+        if (isContinue && isBreak) {
+          console.warn('both continue and break are met');
+        }
+
+        if (isBreak) {
+          console.log('isBreak');
+        } else if (isContinue) {
+          console.log('isContinue');
+        } else {
+          throw new Error('Neither continue nor break is met');
+        }
+
+        return {
+          errors: F.toMutable(result.errors),
+          conditionResults: {},
+          variableValues: [],
+          completedConnectorIds: [],
+        };
+      }),
+    );
+  };
 }
 
 export default runFlow;
