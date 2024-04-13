@@ -3,8 +3,8 @@ import invariant from 'tiny-invariant';
 
 import { NodeType, type NodeConfigRecords } from 'flow-models';
 
-type GraphRecords = Record<string, Graph>;
-type Graph = Record<string, IncomingConnectors>;
+export type GraphRecords = Record<string, Graph>;
+export type Graph = Record<string, IncomingConnectors>;
 type IncomingConnectors = Record<string, SourceConnectors>;
 type SourceConnectors = Record<string, boolean>;
 
@@ -148,7 +148,7 @@ function computeGraph({
 
     if (target === nodeId) {
       graph[nodeId][targetHandle] = graph[nodeId][targetHandle] ?? {};
-      graph[nodeId][targetHandle][sourceHandle] = true;
+      graph[nodeId][targetHandle][sourceHandle] = false;
     }
   }
 

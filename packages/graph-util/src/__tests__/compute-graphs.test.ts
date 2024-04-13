@@ -96,16 +96,16 @@ test('computeGraphs should compute root graph and loop graph', () => {
     graphRecords: {
       'ROOT': {
         hElD9: {},
-        Pk4nQ: { 'Pk4nQ/7PZhS': { 'hElD9/mAd36': true } },
-        gHXou: { 'gHXou/IgTHW': { 'Pk4nQ/jooB9': true } },
+        Pk4nQ: { 'Pk4nQ/7PZhS': { 'hElD9/mAd36': false } },
+        gHXou: { 'gHXou/IgTHW': { 'Pk4nQ/jooB9': false } },
       },
       '9Ui4x': {
         '9Ui4x': {},
-        '8eLuD': { '8eLuD/6HSC3': { '9Ui4x/aNkK1': true } },
-        'apgt9': { 'apgt9/ViWA9': { '8eLuD/st2vW': true } },
+        '8eLuD': { '8eLuD/6HSC3': { '9Ui4x/aNkK1': false } },
+        'apgt9': { 'apgt9/ViWA9': { '8eLuD/st2vW': false } },
         '5w1jr': {
-          '5w1jr/gphwX': { 'apgt9/hTTnq': true },
-          '5w1jr/Sv19O': { 'apgt9/MPwJq': true },
+          '5w1jr/gphwX': { 'apgt9/hTTnq': false },
+          '5w1jr/Sv19O': { 'apgt9/MPwJq': false },
         },
       },
     },
@@ -254,21 +254,21 @@ test('computeGraphs should flag circles in the root graph but still finish compu
       ROOT: {
         '0RoeE': {
           '0RoeE/vnuub': {
-            'BYC8P/ldeeQ': true,
+            'BYC8P/ldeeQ': false,
           },
         },
         '87KV6': {},
         'BYC8P': {
           'BYC8P/894DO': {
-            'gO0Yw/oYEr0': true,
+            'gO0Yw/oYEr0': false,
           },
           'BYC8P/XZ6ng': {
-            '87KV6/9oUaG': true,
+            '87KV6/9oUaG': false,
           },
         },
         'gO0Yw': {
           'gO0Yw/zRJfD': {
-            '0RoeE/egSVT': true,
+            '0RoeE/egSVT': false,
           },
         },
       },
@@ -378,25 +378,25 @@ test('computeGraphs should flag circles in the loop graph', () => {
         C5qj4: {},
         d73d5: {
           'd73d5/2tPoN': {
-            'C5qj4/8SbeZ': true,
-            'f31kS/Yftqo': true,
+            'C5qj4/8SbeZ': false,
+            'f31kS/Yftqo': false,
           },
         },
         f31kS: {
           'f31kS/Fa8td': {
-            'd73d5/EM7Mv': true,
+            'd73d5/EM7Mv': false,
           },
         },
       },
       ROOT: {
         '5FOll': {
           '5FOll/uZ8GJ': {
-            'OnocH/I1B7W': true,
+            'OnocH/I1B7W': false,
           },
         },
         'OnocH': {
           'OnocH/BFJXb': {
-            'x8dFG/70e5U': true,
+            'x8dFG/70e5U': false,
           },
         },
         'x8dFG': {},
@@ -506,18 +506,18 @@ test('computeGraphs should detect overlap between graphs for case 1', () => {
       ROOT: {
         NLawE: {
           'NLawE/7rcAw': {
-            'olxrR/pAMWI': true,
-            'rKRda/Ip2k0': true,
+            'olxrR/pAMWI': false,
+            'rKRda/Ip2k0': false,
           },
         },
         SY4EY: {
           'SY4EY/XmY8K': {
-            'rKRda/Ip2k0': true,
+            'rKRda/Ip2k0': false,
           },
         },
         pXGfl: {
           'pXGfl/mfHF5': {
-            'SY4EY/exwvZ': true,
+            'SY4EY/exwvZ': false,
           },
         },
         rKRda: {},
@@ -525,13 +525,13 @@ test('computeGraphs should detect overlap between graphs for case 1', () => {
       olxrR: {
         NLawE: {
           'NLawE/7rcAw': {
-            'olxrR/pAMWI': true,
-            'rKRda/Ip2k0': true,
+            'olxrR/pAMWI': false,
+            'rKRda/Ip2k0': false,
           },
         },
         iIuVy: {
           'iIuVy/cakpA': {
-            'olxrR/pAMWI': true,
+            'olxrR/pAMWI': false,
           },
         },
         olxrR: {},
@@ -597,10 +597,10 @@ test('computeGraphs should detect overlap between graphs for case 2', () => {
       ROOT: {
         IB2pR: {
           'IB2pR/TjW8f': {
-            'yTknh/Xfa00': true,
+            'yTknh/Xfa00': false,
           },
           'IB2pR/xhXvl': {
-            'VVxeo/istNC': true,
+            'VVxeo/istNC': false,
           },
         },
         VVxeo: {},
@@ -608,10 +608,10 @@ test('computeGraphs should detect overlap between graphs for case 2', () => {
       yTknh: {
         IB2pR: {
           'IB2pR/TjW8f': {
-            'yTknh/Xfa00': true,
+            'yTknh/Xfa00': false,
           },
           'IB2pR/xhXvl': {
-            'VVxeo/istNC': true,
+            'VVxeo/istNC': false,
           },
         },
         yTknh: {},

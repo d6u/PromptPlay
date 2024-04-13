@@ -46,12 +46,14 @@ type FixedIncomingVariableDefinition = {
 };
 
 export type RunNodeParams<T> = {
-  preferStreaming: boolean;
+  // canvas data for current node
   nodeConfig: Readonly<T>;
   inputVariables: NodeInputVariable[];
   outputVariables: NodeOutputVariable[];
   outgoingConditions: OutgoingCondition[];
   inputVariableValues: unknown[];
+  // run options
+  preferStreaming: boolean;
 };
 
 export type RunNodeResult = Partial<{

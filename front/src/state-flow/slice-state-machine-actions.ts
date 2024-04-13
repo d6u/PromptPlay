@@ -297,12 +297,7 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
       const runFlowForCanvasTesterSubscription = runFlowForCanvasTester({
         startNodeIds:
           canvasTesterStartNodeId != null ? [canvasTesterStartNodeId] : [],
-        edges: edges.map((edge) => ({
-          sourceNode: edge.source,
-          sourceConnector: edge.sourceHandle,
-          targetNode: edge.target,
-          targetConnector: edge.targetHandle,
-        })),
+        edges: edges,
         nodeConfigs: nodeConfigs,
         connectors: connectors,
         inputValueMap: event.params.inputValues,

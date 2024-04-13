@@ -28,6 +28,8 @@
     "common-utils": "workspace:^",
     "deep-equal": "^2.2.3",
     "flow-models": "workspace:^",
+    "fp-ts": "^2.16.5",
+    "graph-util": "workspace:^",
     "graphql": "^16.8.0",
     "immer": "^10.0.2",
     "integrations": "workspace:^",

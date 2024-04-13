@@ -1,4 +1,6 @@
 import { D, Option } from '@mobily/ts-belt';
+import * as R from 'fp-ts/Record';
+import type { Edge } from 'reactflow';
 import {
   EMPTY,
   Observable,
@@ -15,10 +17,11 @@ import {
 import invariant from 'tiny-invariant';
 
 import { Connector, NodeConfig } from 'flow-models';
+import { computeGraphs } from 'graph-util';
 import {
   FlowBatchRunEvent,
   FlowBatchRunEventType,
-  ImmutableFlowNodeGraph,
+  GetAccountLevelFieldValueFunction,
   RunNodeProgressEventType,
   ValidationError,
   ValidationErrorType,
@@ -27,14 +30,10 @@ import {
   type RunNodeProgressEvent,
 } from 'run-flow';
 
-import {
-  Edge,
-  GetAccountLevelFieldValueFunction,
-} from '../../../packages/run-flow/src/run-param-types';
 import { CIRCULAR_DEPENDENCY_ERROR_MESSAGE } from './constants';
 
 function flowRunBatch(params: {
-  edges: ReadonlyArray<Edge>;
+  edges: Edge[];
   nodeConfigs: Readonly<Record<string, Readonly<NodeConfig>>>;
   connectors: Readonly<Record<string, Readonly<Connector>>>;
   csvTable: ReadonlyArray<ReadonlyArray<string>>;
@@ -48,17 +47,19 @@ function flowRunBatch(params: {
   // Keep this section in sync with:
   // LINK ./flowRunSingle.ts#pre-execute-validation
 
-  const validationErrors: ValidationError[] = [];
+  // ANCHOR: Step 1 - compile graphs
 
-  const immutableFlowGraph = new ImmutableFlowNodeGraph({
-    startNodeIds: [],
-    nodeConfigs: params.nodeConfigs,
+  const { errors, graphRecords } = computeGraphs({
     edges: params.edges,
-    connectors: params.connectors,
+    nodeConfigs: params.nodeConfigs,
   });
 
-  // Check for circular dependencies
-  if (!immutableFlowGraph.canBeExecuted()) {
+  // ANCHOR: Step 2 - validate graphs
+
+  const validationErrors: ValidationError[] = [];
+
+  if (!R.isEmpty(errors)) {
+    // TODO: Apply errors to specific nodes
     validationErrors.push({
       type: ValidationErrorType.FlowLevel,
       message: CIRCULAR_DEPENDENCY_ERROR_MESSAGE,
@@ -117,11 +118,12 @@ function flowRunBatch(params: {
           }),
         ),
         runFlow({
+          edges: params.edges,
           nodeConfigs: result.nodeAllLevelConfigs,
           connectors: params.connectors,
           inputVariableValues: inputValueMap,
           preferStreaming: params.preferStreaming,
-          flowGraph: immutableFlowGraph,
+          graphRecords,
           progressObserver: subject,
         }).pipe(ignoreElements()),
       );
