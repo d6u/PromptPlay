@@ -102,6 +102,9 @@ importers:
       reactflow:
         specifier: ^11.11.0
         version: 11.11.0(@types/react@18.2.45)(immer@10.0.3)(react-dom@18.2.0)(react@18.2.0)
+      run-flow:
+        specifier: workspace:^
+        version: link:../packages/run-flow
       rxjs:
         specifier: ^7.8.1
         version: 7.8.1
@@ -370,6 +373,37 @@ importers:
       typescript:
         specifier: ^5.4.3
         version: 5.4.3
+
+  packages/run-flow:
+    dependencies:
+      '@mobily/ts-belt':
+        specifier: ^3.13.1
+        version: 3.13.1
+      flow-models:
+        specifier: workspace:^
+        version: link:../flow-models
+      fp-ts:
+        specifier: ^2.16.5
+        version: 2.16.5
+      immer:
+        specifier: ^10.0.2
+        version: 10.0.3
+      rxjs:
+        specifier: ^7.8.1
+        version: 7.8.1
+      tiny-invariant:
+        specifier: ^1.3.1
+        version: 1.3.1
+    devDependencies:
+      common-tsconfig:
+        specifier: workspace:^
+        version: link:../common-tsconfig
+      typescript:
+        specifier: ^5.4.5
+        version: 5.4.5
+      vite:
+        specifier: ^5.0.0
+        version: 5.0.10(@types/node@20.11.16)
 
   scripts:
     devDependencies:
@@ -9458,6 +9492,12 @@ packages:
 
   /typescript@5.4.3:
     resolution: {integrity: sha512-KrPd3PKaCLr78MalgiwJnA25Nm8HAmdwN3mYUYZgG/wizIo9EainNVQI9/yDavtVFRN2h3k8uf3GLHuhDMgEHg==}
+    engines: {node: '>=14.17'}
+    hasBin: true
+    dev: true
+
+  /typescript@5.4.5:
+    resolution: {integrity: sha512-vcI4UpRgg81oIRUFwR0WSIHKt11nJ7SAVlYNIu+QpqeyXP+gpQJy/Z4+F0aGxSE4MqwjyXvW/TzgkLAx2AGHwQ==}
     engines: {node: '>=14.17'}
     hasBin: true
     dev: true

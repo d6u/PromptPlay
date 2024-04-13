@@ -6,11 +6,8 @@ import {
   NodeConfig,
   getNodeDefinitionForNodeTypeName,
 } from 'flow-models';
+import { AccountLevelValidationError, ValidationErrorType } from 'run-flow';
 
-import {
-  AccountLevelValidationError,
-  ValidationErrorType,
-} from './event-types';
 import { GetAccountLevelFieldValueFunction } from './run-param-types';
 
 type Error = {

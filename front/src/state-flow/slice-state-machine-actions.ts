@@ -13,13 +13,13 @@ import {
   migrateV3ToV4,
   safeParseAndApplyFix,
 } from 'flow-models';
-
 import {
   FlowRunEventType,
   ValidationErrorType,
   type FlowRunEvent,
   type RunFlowResult,
-} from 'flow-run/event-types';
+} from 'run-flow';
+
 import runFlowForCanvasTester from 'flow-run/runFlowForCanvasTester';
 import { graphql } from 'gencode-gql';
 import { ContentVersion, SpaceFlowQueryQuery } from 'gencode-gql/graphql';

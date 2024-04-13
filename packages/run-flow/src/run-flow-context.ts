@@ -1,4 +1,4 @@
-import { A, D, pipe, type Option } from '@mobily/ts-belt';
+import { A, D, F, pipe, type Option } from '@mobily/ts-belt';
 import { produce } from 'immer';
 import { BehaviorSubject, from, type Observer, type Subject } from 'rxjs';
 import invariant from 'tiny-invariant';
@@ -139,6 +139,7 @@ export class RunNodeContext {
           c.nodeId === this.nodeId && c.type === ConnectorType.NodeInput,
       ),
       A.sortBy((c) => c.index),
+      F.toMutable,
     );
   }
 
@@ -151,6 +152,7 @@ export class RunNodeContext {
           c.nodeId === this.nodeId && c.type === ConnectorType.NodeOutput,
       ),
       A.sortBy((c) => c.index),
+      F.toMutable,
     );
   }
 
@@ -163,6 +165,7 @@ export class RunNodeContext {
           c.nodeId === this.nodeId && c.type === ConnectorType.OutCondition,
       ),
       A.sortBy((c) => c.index),
+      F.toMutable,
     );
   }
 

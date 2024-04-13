@@ -7,19 +7,19 @@ import {
   NodeConfig,
   type VariableValueRecords,
 } from 'flow-models';
-
-import { CIRCULAR_DEPENDENCY_ERROR_MESSAGE } from './constants';
 import {
   FlowRunEvent,
   FlowRunEventType,
   RunNodeProgressEventType,
   ValidationError,
   ValidationErrorType,
+  runFlow,
   type RunFlowResult,
   type RunNodeProgressEvent,
-} from './event-types';
+} from 'run-flow';
+
+import { CIRCULAR_DEPENDENCY_ERROR_MESSAGE } from './constants';
 import { Edge, GetAccountLevelFieldValueFunction } from './run-param-types';
-import runFlow from './runFlow';
 import { getNodeAllLevelConfigOrValidationErrors } from './util';
 
 type Params = {

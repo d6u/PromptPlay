@@ -1,4 +1,4 @@
-import { AccountLevelValidationError } from 'flow-run/event-types';
+import { AccountLevelValidationError } from 'run-flow';
 
 import { createHandler } from './event-graph-util';
 import { ChangeEventType } from './event-types';

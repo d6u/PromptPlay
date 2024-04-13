@@ -7,8 +7,8 @@ import {
   NodeTypeEnum,
 } from 'flow-models';
 
+import { getNodeAllLevelConfigOrValidationErrors } from '../../../../front/src/flow-run/util';
 import runFlow from '../runFlow';
-import { getNodeAllLevelConfigOrValidationErrors } from '../util';
 
 test('runFlow should execute', async () => {
   const flowContent: CanvasDataV4 = {

@@ -15,18 +15,18 @@ import {
 import invariant from 'tiny-invariant';
 
 import { Connector, ImmutableFlowNodeGraph, NodeConfig } from 'flow-models';
-
-import { CIRCULAR_DEPENDENCY_ERROR_MESSAGE } from './constants';
 import {
   FlowBatchRunEvent,
   FlowBatchRunEventType,
   RunNodeProgressEventType,
   ValidationError,
   ValidationErrorType,
+  runFlow,
   type RunNodeProgressEvent,
-} from './event-types';
+} from 'run-flow';
+
+import { CIRCULAR_DEPENDENCY_ERROR_MESSAGE } from './constants';
 import { Edge, GetAccountLevelFieldValueFunction } from './run-param-types';
-import runFlow from './runFlow';
 import { getNodeAllLevelConfigOrValidationErrors } from './util';
 
 function flowRunBatch(params: {

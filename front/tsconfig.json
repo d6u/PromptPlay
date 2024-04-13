@@ -48,7 +48,7 @@
       "view-left-side-pane/*": ["./src/view-left-side-pane/*"]
     }
   },
-  "include": ["src"],
+  "include": ["src", "../packages/run-flow/src/__tests__"],
   "references": [
     {
       "path": "./tsconfig.node.json"
