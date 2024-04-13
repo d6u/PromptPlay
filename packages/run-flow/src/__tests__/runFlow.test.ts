@@ -7,7 +7,7 @@ import { computeGraphs } from 'graph-util';
 import runFlow from '../runFlow';
 import { getNodeAllLevelConfigOrValidationErrors } from '../util';
 
-test.skip('runFlow should execute', async () => {
+test('runFlow should execute', async () => {
   const flowContent: CanvasDataV4 = {
     nodes: [
       {
@@ -82,6 +82,7 @@ test.skip('runFlow should execute', async () => {
   const { errors, graphRecords } = computeGraphs({
     edges: flowContent.edges,
     nodeConfigs: flowContent.nodeConfigs,
+    startNodeIds: ['GjREx'],
   });
 
   expect(errors).toEqual({});
@@ -349,6 +350,7 @@ test('runFlow should unblock node has multiple conditions even when only one con
   const { errors, graphRecords } = computeGraphs({
     edges: flowContent.edges,
     nodeConfigs: flowContent.nodeConfigs,
+    startNodeIds: ['itI1z'],
   });
 
   expect(errors).toEqual({});
@@ -638,6 +640,7 @@ test('runFlow should fallback to default case when no condition was met', async 
   const { errors, graphRecords } = computeGraphs({
     edges: flowContent.edges,
     nodeConfigs: flowContent.nodeConfigs,
+    startNodeIds: ['itI1z'],
   });
 
   expect(errors).toEqual({});

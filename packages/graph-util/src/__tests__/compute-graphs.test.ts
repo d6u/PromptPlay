@@ -90,6 +90,7 @@ test('computeGraphs should compute root graph and loop graph', () => {
         nodeName: 'input',
       },
     },
+    startNodeIds: ['hElD9'],
   });
 
   expect(result).toEqual({
@@ -167,6 +168,7 @@ test('computeGraphs should flag circles in the root graph and stop early', () =>
         content: 'Write a poem about {{topic}} in fewer than 20 words.',
       },
     },
+    startNodeIds: [],
   });
 
   expect(result).toEqual({
@@ -247,6 +249,7 @@ test('computeGraphs should flag circles in the root graph but still finish compu
         nodeName: 'input',
       },
     },
+    startNodeIds: ['87KV6'],
   });
 
   expect(result).toEqual({
@@ -370,6 +373,7 @@ test('computeGraphs should flag circles in the loop graph', () => {
         nodeName: 'input',
       },
     },
+    startNodeIds: ['x8dFG'],
   });
 
   expect(result).toEqual({
@@ -499,6 +503,7 @@ test('computeGraphs should detect overlap between graphs for case 1', () => {
         nodeName: 'input',
       },
     },
+    startNodeIds: ['rKRda'],
   });
 
   expect(result).toEqual({
@@ -587,6 +592,7 @@ test('computeGraphs should detect overlap between graphs for case 2', () => {
         nodeName: 'loop start 1',
       },
     },
+    startNodeIds: [],
   });
 
   expect(result).toEqual({

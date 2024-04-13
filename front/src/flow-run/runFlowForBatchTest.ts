@@ -52,6 +52,7 @@ function flowRunBatch(params: {
   const { errors, graphRecords } = computeGraphs({
     edges: params.edges,
     nodeConfigs: params.nodeConfigs,
+    startNodeIds: [],
   });
 
   // ANCHOR: Step 2 - validate graphs

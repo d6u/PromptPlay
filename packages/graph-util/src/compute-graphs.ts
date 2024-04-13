@@ -1,7 +1,7 @@
 import { type Edge } from 'reactflow';
 import invariant from 'tiny-invariant';
 
-import { NodeType, type NodeConfigRecords } from 'flow-models';
+import { NodeClass, NodeType, type NodeConfigRecords } from 'flow-models';
 
 export type GraphRecords = Record<string, Graph>;
 export type Graph = Record<string, IncomingConnectors>;
@@ -23,8 +23,11 @@ export enum GraphTraverseError {
 }
 
 type ComputeGraphsParams = {
+  // canvas data
   edges: Edge[];
   nodeConfigs: NodeConfigRecords;
+  // run options
+  startNodeIds: string[];
 };
 
 type ComputeGraphsReturn = {
@@ -35,7 +38,10 @@ type ComputeGraphsReturn = {
 export function computeGraphs({
   edges,
   nodeConfigs,
+  startNodeIds,
 }: ComputeGraphsParams): ComputeGraphsReturn {
+  // NOTE: Add a new graph for each LoopStart node
+
   const graphIds: string[] = [];
 
   Object.values(nodeConfigs).forEach((nodeConfig) => {
@@ -44,10 +50,18 @@ export function computeGraphs({
     }
   });
 
+  // NOTE: Find all root graph start nodes
+
   const indegrees: Record<string, number> = {};
 
-  Object.keys(nodeConfigs).forEach((nodeId) => {
-    indegrees[nodeId] = indegrees[nodeId] ?? 0;
+  Object.values(nodeConfigs).forEach((nodeConfig) => {
+    if (nodeConfig.class !== NodeClass.Start) {
+      indegrees[nodeConfig.nodeId] = 0;
+    } else if (startNodeIds.includes(nodeConfig.nodeId)) {
+      indegrees[nodeConfig.nodeId] = 0;
+    } else {
+      indegrees[nodeConfig.nodeId] = 1;
+    }
   });
 
   for (const { target } of edges) {

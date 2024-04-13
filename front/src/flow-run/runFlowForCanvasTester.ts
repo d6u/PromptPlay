@@ -27,7 +27,7 @@ type Params = {
   connectors: Readonly<Record<string, Readonly<Connector>>>;
   inputValueMap: VariableValueRecords;
   // run options
-  startNodeIds: ReadonlyArray<string>;
+  startNodeIds: string[];
   preferStreaming: boolean;
   // callbacks
   progressObserver: Observer<FlowRunEvent>;
@@ -44,6 +44,7 @@ function runFlowForCanvasTester(params: Params): Observable<RunFlowResult> {
   const { errors, graphRecords } = computeGraphs({
     edges: params.edges,
     nodeConfigs: params.nodeConfigs,
+    startNodeIds: params.startNodeIds,
   });
 
   // ANCHOR: Step 2 - validate graphs
