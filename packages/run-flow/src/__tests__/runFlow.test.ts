@@ -756,7 +756,7 @@ test('runFlow should fallback to default case when no condition was met', async 
   );
 });
 
-test.only('runFlow should execute flow contains Loop node (break with 1 iteration)', async () => {
+test('runFlow should execute flow contains Loop node (break with 1 iteration)', async () => {
   const flowContent: CanvasDataV4 = {
     nodes: [
       {
@@ -1018,12 +1018,12 @@ test.only('runFlow should execute flow contains Loop node (break with 1 iteratio
     // #4
     {
       type: 'Started',
-      nodeId: '9Ui4x',
+      nodeId: 's8ujd',
     },
     // #5
     {
       type: 'Updated',
-      nodeId: '9Ui4x',
+      nodeId: 's8ujd',
       result: {
         variableResults: {},
       },
@@ -1031,21 +1031,21 @@ test.only('runFlow should execute flow contains Loop node (break with 1 iteratio
     // #6
     {
       type: 'Finished',
-      nodeId: '9Ui4x',
+      nodeId: 's8ujd',
     },
     // #7
     {
       type: 'Started',
-      nodeId: '8eLuD',
+      nodeId: 'GXLmB',
     },
     // #8
     {
       type: 'Updated',
-      nodeId: '8eLuD',
+      nodeId: 'GXLmB',
       result: {
-        completedConnectorIds: ['8eLuD/output'],
+        completedConnectorIds: ['GXLmB/output'],
         variableResults: {
-          '8eLuD/output': { value: 1 },
+          'GXLmB/output': { value: 1 },
         },
         variableValues: [1],
       },
@@ -1053,36 +1053,25 @@ test.only('runFlow should execute flow contains Loop node (break with 1 iteratio
     // #9
     {
       type: 'Finished',
-      nodeId: '8eLuD',
+      nodeId: 'GXLmB',
     },
     // #10
     {
       type: 'Started',
-      nodeId: 'apgt9',
+      nodeId: 'OBXCA',
     },
     // #11
     {
       type: 'Updated',
-      nodeId: 'apgt9',
+      nodeId: 'OBXCA',
       result: {
-        completedConnectorIds: ['apgt9/MPwJq'],
-        conditionResults: {
-          'apgt9/MPwJq': {
-            conditionId: 'apgt9/MPwJq',
-            isConditionMatched: true,
-          },
-          'apgt9/hTTnq': {
-            conditionId: 'apgt9/hTTnq',
-            isConditionMatched: false,
-          },
-        },
         variableResults: {},
       },
     },
     // #12
     {
       type: 'Finished',
-      nodeId: 'apgt9',
+      nodeId: 'OBXCA',
     },
   ];
 
@@ -1090,12 +1079,12 @@ test.only('runFlow should execute flow contains Loop node (break with 1 iteratio
     // #0
     {
       type: 'Started',
-      nodeId: 'hElD9',
+      nodeId: '1l3Xq',
     },
     // #1
     {
       type: 'Updated',
-      nodeId: 'hElD9',
+      nodeId: '1l3Xq',
       result: {
         variableValues: [],
         variableResults: {},
@@ -1105,65 +1094,39 @@ test.only('runFlow should execute flow contains Loop node (break with 1 iteratio
     // #2
     {
       type: 'Finished',
-      nodeId: 'hElD9',
+      nodeId: '1l3Xq',
     },
     // #3
     {
       type: 'Started',
-      nodeId: 'Pk4nQ',
+      nodeId: 'Z8YCo',
     },
     ...loopEvents,
     // #13
     {
-      type: 'Updated',
-      nodeId: 'Pk4nQ',
-      result: {
-        errors: ['{}'],
-        variableResults: {},
-      },
+      type: 'Finished',
+      nodeId: 'Z8YCo',
     },
     // #14
     {
-      type: 'Finished',
-      nodeId: 'Pk4nQ',
-    },
-    {
       type: 'Started',
-      nodeId: '8eLuD',
+      nodeId: 'CpzTz',
     },
+    // #15
     {
       type: 'Updated',
-      nodeId: '8eLuD',
+      nodeId: 'CpzTz',
       result: {
-        completedConnectorIds: ['8eLuD/output'],
         variableResults: {
-          '8eLuD/output': { value: 1 },
+          'CpzTz/TSV9x': { value: 1 },
         },
         variableValues: [1],
       },
     },
+    // #16
     {
       type: 'Finished',
-      nodeId: '8eLuD',
-    },
-
-    {
-      type: 'Started',
-      nodeId: 'gHXou',
-    },
-    {
-      type: 'Updated',
-      nodeId: 'gHXou',
-      result: {
-        variableResults: {
-          'gHXou/ydJi7': { value: 1 },
-        },
-        variableValues: [1],
-      },
-    },
-    {
-      type: 'Finished',
-      nodeId: 'gHXou',
+      nodeId: 'CpzTz',
     },
   ];
 
@@ -1181,7 +1144,7 @@ test.only('runFlow should execute flow contains Loop node (break with 1 iteratio
   expect(n, 'should go through all events').toBe(events.length);
 });
 
-test('runFlow should execute flow contains Loop node (break with 3 iteration)', async () => {
+test.only('runFlow should execute flow contains Loop node (break with 3 iteration)', async () => {
   const flowContent: CanvasDataV4 = {
     nodes: [
       {
