@@ -756,7 +756,7 @@ test('runFlow should fallback to default case when no condition was met', async 
   );
 });
 
-test.skip('runFlow should execute flow contains Loop node (break with 1 iteration)', async () => {
+test('runFlow should execute flow contains Loop node (break with 1 iteration)', async () => {
   const flowContent: CanvasDataV4 = {
     nodes: [
       {
@@ -1213,7 +1213,7 @@ test.skip('runFlow should execute flow contains Loop node (break with 1 iteratio
   expect(n, 'should go through all events').toBe(events.length);
 });
 
-test.skip('runFlow should execute flow contains Loop node (break with 3 iteration)', async () => {
+test('runFlow should execute flow contains Loop node (break with 3 iteration)', async () => {
   const flowContent: CanvasDataV4 = {
     nodes: [
       {

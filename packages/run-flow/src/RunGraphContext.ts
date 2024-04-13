@@ -1,5 +1,14 @@
-import { type Option } from '@mobily/ts-belt';
-import { BehaviorSubject, type Observer, type Subject } from 'rxjs';
+import { D, type Option } from '@mobily/ts-belt';
+import { produce } from 'immer';
+import type { Edge } from 'reactflow';
+import {
+  BehaviorSubject,
+  of,
+  type Observable,
+  type Observer,
+  type Subject,
+} from 'rxjs';
+import invariant from 'tiny-invariant';
 
 import {
   getIndegreeForNode,
@@ -7,10 +16,7 @@ import {
   type Graph,
 } from 'graph-util';
 
-import { produce } from 'immer';
-import type { Edge } from 'reactflow';
-import invariant from 'tiny-invariant';
-import type { RunNodeProgressEvent } from './event-types';
+import type { RunFlowResult, RunNodeProgressEvent } from './event-types';
 import type RunFlowContext from './RunFlowContext';
 import RunNodeContext from './RunNodeContext';
 import type { RunFlowParams } from './types';
@@ -113,6 +119,18 @@ class RunGraphContext {
     } else {
       this.nodeIdListSubject.next(nextNodeIds);
     }
+  }
+
+  completeGraph(): Observable<RunFlowResult> {
+    this.params.progressObserver?.complete();
+
+    return of({
+      errors: [],
+      variableResults: D.selectKeys(
+        this.runFlowContext.allVariableValues,
+        this.finishNodesVariableIds,
+      ),
+    });
   }
 
   // startGraph(

@@ -20,7 +20,10 @@ import {
 import type { GraphRecords } from 'graph-util';
 
 import type RunGraphContext from './RunGraphContext';
-import type { RunNodeProgressEvent } from './event-types';
+import {
+  RunNodeProgressEventType,
+  type RunNodeProgressEvent,
+} from './event-types';
 import { RunFlowParams } from './types';
 
 class RunNodeContext {
@@ -178,7 +181,12 @@ class RunNodeContext {
   }
 
   // NOTE: Run after runNode finished
-  flushRunNodeResultToGraphLevel(): void {
+  completeRunNode(): void {
+    this.params.progressObserver?.next({
+      type: RunNodeProgressEventType.Finished,
+      nodeId: this.nodeId,
+    });
+
     // ANCHOR: Flush variable values
     if (this.nodeConfig.class === NodeClass.Finish) {
       this.runGraphContext.runFlowContext.updateVariableValues(
