@@ -87,8 +87,6 @@ class RunFlowContext {
   }
 
   completeEdges(graphId: string, edges: Edge[]) {
-    console.log('completeEdges', graphId, edges);
-
     const updatedNodeIds = new Set<string>();
 
     this.graphRecords = produce(this.graphRecords, (draft) => {
@@ -161,8 +159,6 @@ class RunFlowContext {
     sourceLoopNodeId: string,
     graphId: string,
   ) {
-    console.log('startGraph', this.graphRecords[graphId]);
-
     this.graphIdToSourceLoopNodeIdMap[graphId] = {
       sourceLoopNodeGraphId,
       sourceLoopNodeId,
@@ -173,13 +169,9 @@ class RunFlowContext {
   }
 
   private endGraph(graphId: string, isEnd: boolean) {
-    console.log('endGraph', JSON.stringify(this.graphRecords, null, 2));
-
     this.graphRecords = produce(this.params.graphRecords, (draft) => {
       draft[graphId] = this.params.graphRecords[graphId];
     });
-
-    console.log('endGraph', JSON.stringify(this.graphRecords, null, 2));
 
     const { sourceLoopNodeGraphId, sourceLoopNodeId } =
       this.graphIdToSourceLoopNodeIdMap[graphId];

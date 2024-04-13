@@ -208,7 +208,6 @@ class RunNodeContext {
     for (const [id, result] of Object.entries(conditionResults)) {
       this.outgoingConditionResults[id] = result;
     }
-    console.log('updateConditionResults', this.outgoingConditionResults);
   }
 
   // NOTE: Run after runNode finished
@@ -244,11 +243,6 @@ class RunNodeContext {
       // TODO: Show error in UI if loopStartNodeId is not specified
       this.nodeConfig.loopStartNodeId
     ) {
-      console.log(
-        'LOOP',
-        this.params.nodeConfigs[this.nodeConfig.loopStartNodeId],
-      );
-
       this.context.startGraph(
         this.graphId,
         this.nodeConfig.nodeId,

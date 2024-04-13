@@ -119,8 +119,6 @@ function createRunNodeWrapperObservable(
         },
       });
 
-      console.log('result', context.nodeConfig, result);
-
       if (result.variableValues != null) {
         context.updateVariableValues(result.variableValues);
       }
@@ -137,8 +135,6 @@ function createRunNodeEndWithObservable(
   context: RunNodeContext,
 ): Observable<never> {
   return defer(() => {
-    console.log('createRunNodeEndWithObservable', context.nodeId);
-
     context.progressObserver?.next({
       type: RunNodeProgressEventType.Finished,
       nodeId: context.nodeId,

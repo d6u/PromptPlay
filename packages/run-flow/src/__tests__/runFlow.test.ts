@@ -1017,8 +1017,6 @@ test('runFlow should execute flow contains Loop node (break with 1 iteration)', 
 
   expect(errors).toEqual({});
 
-  console.log(JSON.stringify(graphRecords, null, 2));
-
   const result = getNodeAllLevelConfigOrValidationErrors(
     flowContent.nodeConfigs,
     (nodeType: NodeTypeEnum, fieldKey: string) => '',
@@ -1435,8 +1433,6 @@ test('runFlow should execute flow contains Loop node (break with 3 iteration)', 
   });
 
   expect(errors).toEqual({});
-
-  console.log(JSON.stringify(graphRecords, null, 2));
 
   const result = getNodeAllLevelConfigOrValidationErrors(
     flowContent.nodeConfigs,
