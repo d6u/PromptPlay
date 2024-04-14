@@ -68,30 +68,3 @@ export type Connector = z.infer<typeof ConnectorSchema>;
 export const ConnectorRecordsSchema = z.record(ConnectorSchema);
 
 export type ConnectorRecords = z.infer<typeof ConnectorRecordsSchema>;
-
-// ANCHOR: Variable Value
-
-const VariableValueBoxSchema = z.object({
-  value: z.unknown(),
-});
-
-export type VariableValueBox = z.infer<typeof VariableValueBoxSchema>;
-
-export const VariableValueRecordsSchema = z.record(VariableValueBoxSchema);
-
-export type VariableValueRecords = z.infer<typeof VariableValueRecordsSchema>;
-
-// ANCHOR: Condition Result
-
-const ConditionResultSchema = z.object({
-  conditionId: z.string(),
-  isConditionMatched: z.boolean(),
-});
-
-export type ConditionResult = z.infer<typeof ConditionResultSchema>;
-
-export const ConditionResultRecordsSchema = z.record(ConditionResultSchema);
-
-export type ConditionResultRecords = z.infer<
-  typeof ConditionResultRecordsSchema
->;
