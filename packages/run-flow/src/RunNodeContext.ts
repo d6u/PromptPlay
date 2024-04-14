@@ -219,7 +219,6 @@ class RunNodeContext {
     if (this.nodeConfig.type !== NodeType.ConditionNode) {
       for (const c of this.getOutgoingConditions()) {
         this.outgoingConditionResults[c.id] = {
-          conditionId: c.id,
           isConditionMatched: true,
         };
       }

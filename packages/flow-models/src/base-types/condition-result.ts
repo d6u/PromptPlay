@@ -1,7 +1,6 @@
 import z from 'zod';
 
 const ConditionResultSchema = z.object({
-  conditionId: z.string(),
   isConditionMatched: z.boolean(),
 });
 

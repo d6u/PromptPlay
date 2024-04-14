@@ -120,7 +120,6 @@ export const CONDITION_NODE_DEFINITION: NodeDefinition<
           hasMatch = true;
 
           conditionResults[condition.id] = {
-            conditionId: condition.id,
             isConditionMatched: true,
           };
 
@@ -129,7 +128,6 @@ export const CONDITION_NODE_DEFINITION: NodeDefinition<
           }
         } else {
           conditionResults[condition.id] = {
-            conditionId: condition.id,
             isConditionMatched: false,
           };
         }
@@ -137,7 +135,6 @@ export const CONDITION_NODE_DEFINITION: NodeDefinition<
 
       if (!hasMatch) {
         conditionResults[defaultCaseCondition.id] = {
-          conditionId: defaultCaseCondition.id,
           isConditionMatched: true,
         };
       }
