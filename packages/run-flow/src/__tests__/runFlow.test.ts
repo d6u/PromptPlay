@@ -1073,6 +1073,23 @@ test('runFlow should execute flow contains Loop node (break with 1 iteration)', 
       type: 'Finished',
       nodeId: 'OBXCA',
     },
+    // TODO: This is a bug where LoopFinish events will repeat
+    // #13
+    {
+      type: 'Started',
+      nodeId: 'OBXCA',
+    },
+    // #14
+    {
+      type: 'Updated',
+      nodeId: 'OBXCA',
+      result: {},
+    },
+    // #15
+    {
+      type: 'Finished',
+      nodeId: 'OBXCA',
+    },
   ];
 
   const events = [
@@ -1102,17 +1119,17 @@ test('runFlow should execute flow contains Loop node (break with 1 iteration)', 
       nodeId: 'Z8YCo',
     },
     ...loopEvents,
-    // #13
+    // #16
     {
       type: 'Finished',
       nodeId: 'Z8YCo',
     },
-    // #14
+    // #17
     {
       type: 'Started',
       nodeId: 'CpzTz',
     },
-    // #15
+    // #18
     {
       type: 'Updated',
       nodeId: 'CpzTz',
@@ -1123,7 +1140,7 @@ test('runFlow should execute flow contains Loop node (break with 1 iteration)', 
         variableValues: [1],
       },
     },
-    // #16
+    // #19
     {
       type: 'Finished',
       nodeId: 'CpzTz',
@@ -1144,252 +1161,273 @@ test('runFlow should execute flow contains Loop node (break with 1 iteration)', 
   expect(n, 'should go through all events').toBe(events.length);
 });
 
-test.only('runFlow should execute flow contains Loop node (break with 3 iteration)', async () => {
+test('runFlow should execute flow contains Loop node (break with 3 iteration)', async () => {
   const flowContent: CanvasDataV4 = {
     nodes: [
       {
-        id: 'hElD9',
+        id: 'ZQiRL',
         type: 'CANVAS_NODE',
-        position: { x: -19.09483463821253, y: -265.6607707725781 },
+        position: {
+          x: 218.54296875,
+          y: 183.125,
+        },
       },
       {
-        id: 'gHXou',
+        id: 'UQgWR',
         type: 'CANVAS_NODE',
-        position: { x: 703.6137319527363, y: -266.40933463153 },
+        position: {
+          x: 931.04296875,
+          y: 182.5,
+        },
       },
       {
-        id: 'Pk4nQ',
+        id: 'fzwwo',
         type: 'CANVAS_NODE',
-        position: { x: 346.1089144326161, y: -266.7191761147797 },
+        position: {
+          x: 576.41796875,
+          y: 182.9375,
+        },
       },
       {
-        id: '9Ui4x',
+        id: 'nL4HL',
         type: 'CANVAS_NODE',
-        position: { x: -83.18840761562592, y: -25.87853426888462 },
+        position: {
+          x: 84.41796875,
+          y: 386.9375,
+        },
       },
       {
-        id: '5w1jr',
+        id: 'jYEcZ',
         type: 'CANVAS_NODE',
-        position: { x: 1033.359864386586, y: 203.165096849583 },
+        position: {
+          x: 1135.41796875,
+          y: 575.9375,
+        },
       },
       {
-        id: 'apgt9',
+        id: 'Kuvae',
         type: 'CANVAS_NODE',
-        position: { x: 660.6073266916932, y: -30.09581077085942 },
+        position: {
+          x: 432.41796875,
+          y: 387.4375,
+        },
       },
       {
-        id: '8eLuD',
+        id: 'F5gKh',
         type: 'CANVAS_NODE',
-        position: { x: 295.045265779434, y: -26.09112557543658 },
+        position: {
+          x: 781.98046875,
+          y: 387.125,
+        },
       },
     ],
     edges: [
       {
-        id: 'ARRdC',
-        source: 'hElD9',
-        sourceHandle: 'hElD9/mAd36',
-        target: 'Pk4nQ',
-        targetHandle: 'Pk4nQ/7PZhS',
+        id: 'jjo6p',
+        source: 'ZQiRL',
+        sourceHandle: 'ZQiRL/DZPYU',
+        target: 'fzwwo',
+        targetHandle: 'fzwwo/6S2RW',
       },
       {
-        id: 'WtDm9',
-        source: 'Pk4nQ',
-        sourceHandle: 'Pk4nQ/jooB9',
-        target: 'gHXou',
-        targetHandle: 'gHXou/IgTHW',
+        id: 'YwMpI',
+        source: 'fzwwo',
+        sourceHandle: 'fzwwo/I8zZC',
+        target: 'UQgWR',
+        targetHandle: 'UQgWR/m5pTy',
       },
       {
-        id: 'IKWau',
-        source: '9Ui4x',
-        sourceHandle: '9Ui4x/aNkK1',
-        target: '8eLuD',
-        targetHandle: '8eLuD/6HSC3',
+        id: 'SbEeO',
+        source: 'Kuvae',
+        sourceHandle: 'Kuvae/GFaAp',
+        target: 'F5gKh',
+        targetHandle: 'F5gKh/8KAxu',
       },
       {
-        id: 'o8MVx',
-        source: '8eLuD',
-        sourceHandle: '8eLuD/st2vW',
-        target: 'apgt9',
-        targetHandle: 'apgt9/ViWA9',
+        id: 'LTcqa',
+        source: 'nL4HL',
+        sourceHandle: 'nL4HL/8H1w7',
+        target: 'Kuvae',
+        targetHandle: 'Kuvae/6Iv2V',
       },
       {
-        id: 'SVwnK',
-        source: 'apgt9',
-        sourceHandle: 'apgt9/hTTnq',
-        target: '5w1jr',
-        targetHandle: '5w1jr/gphwX',
+        id: 'iJvcT',
+        source: 'F5gKh',
+        sourceHandle: 'F5gKh/gfRUp',
+        target: 'jYEcZ',
+        targetHandle: 'jYEcZ/A53Z2',
       },
       {
-        id: 'Dwc6R',
-        source: 'apgt9',
-        sourceHandle: 'apgt9/MPwJq',
-        target: '5w1jr',
-        targetHandle: '5w1jr/Sv19O',
+        id: '6xfXL',
+        source: 'F5gKh',
+        sourceHandle: 'F5gKh/cGnHI',
+        target: 'jYEcZ',
+        targetHandle: 'jYEcZ/AitYg',
       },
     ],
     nodeConfigs: {
-      '5w1jr': {
-        class: 'Finish',
-        type: 'LoopFinish',
-        nodeId: '5w1jr',
-      },
-      '8eLuD': {
-        class: 'Process',
-        type: 'JavaScriptFunctionNode',
-        nodeId: '8eLuD',
-        javaScriptCode: 'count = count ?? 0\ncount++\nreturn count',
-      },
-      '9Ui4x': {
-        class: 'Start',
-        type: 'LoopStart',
-        nodeId: '9Ui4x',
-        nodeName: 'loop1',
-      },
-      'Pk4nQ': {
-        class: 'Process',
-        type: 'Loop',
-        nodeId: 'Pk4nQ',
-        loopStartNodeId: '9Ui4x',
-      },
-      'apgt9': {
+      F5gKh: {
         class: 'Process',
         type: 'ConditionNode',
-        nodeId: 'apgt9',
+        nodeId: 'F5gKh',
         stopAtTheFirstMatch: true,
       },
-      'gHXou': {
+      Kuvae: {
+        class: 'Process',
+        type: 'JavaScriptFunctionNode',
+        nodeId: 'Kuvae',
+        javaScriptCode: 'input = input ?? 0\ninput++\nreturn input',
+      },
+      UQgWR: {
         class: 'Finish',
         type: 'OutputNode',
-        nodeId: 'gHXou',
+        nodeId: 'UQgWR',
       },
-      'hElD9': {
+      ZQiRL: {
         class: 'Start',
         type: 'InputNode',
-        nodeId: 'hElD9',
+        nodeId: 'ZQiRL',
         nodeName: 'input',
+      },
+      fzwwo: {
+        class: 'Process',
+        type: 'Loop',
+        nodeId: 'fzwwo',
+        loopStartNodeId: 'nL4HL',
+      },
+      jYEcZ: {
+        class: 'Finish',
+        type: 'LoopFinish',
+        nodeId: 'jYEcZ',
+      },
+      nL4HL: {
+        class: 'Start',
+        type: 'LoopStart',
+        nodeId: 'nL4HL',
+        nodeName: 'loop start 1',
       },
     },
     connectors: {
-      '5w1jr/Sv19O': {
+      'F5gKh/8KAxu': {
         type: 'InCondition',
-        id: '5w1jr/Sv19O',
-        nodeId: '5w1jr',
-        index: 1,
+        id: 'F5gKh/8KAxu',
+        nodeId: 'F5gKh',
       },
-      '5w1jr/gphwX': {
-        type: 'InCondition',
-        id: '5w1jr/gphwX',
-        nodeId: '5w1jr',
-        index: 0,
-      },
-      '8eLuD/6HSC3': {
-        type: 'InCondition',
-        id: '8eLuD/6HSC3',
-        nodeId: '8eLuD',
-      },
-      '8eLuD/pooal': {
-        type: 'NodeInput',
-        id: '8eLuD/pooal',
-        name: 'count',
-        nodeId: '8eLuD',
-        index: 1,
-        valueType: 'Any',
-        isGlobal: true,
-        globalVariableId: 'ndXJQ',
-      },
-      '8eLuD/st2vW': {
+      'F5gKh/cGnHI': {
         type: 'OutCondition',
-        id: '8eLuD/st2vW',
-        nodeId: '8eLuD',
-        index: 0,
-        expressionString: '',
-      },
-      '9Ui4x/aNkK1': {
-        type: 'OutCondition',
-        id: '9Ui4x/aNkK1',
-        nodeId: '9Ui4x',
-        index: 0,
-        expressionString: '',
-      },
-      'Pk4nQ/7PZhS': {
-        type: 'InCondition',
-        id: 'Pk4nQ/7PZhS',
-        nodeId: 'Pk4nQ',
-        index: 0,
-      },
-      'Pk4nQ/jooB9': {
-        type: 'OutCondition',
-        id: 'Pk4nQ/jooB9',
-        nodeId: 'Pk4nQ',
-        index: 0,
-        expressionString: '',
-      },
-      'apgt9/MPwJq': {
-        type: 'OutCondition',
-        id: 'apgt9/MPwJq',
-        nodeId: 'apgt9',
+        id: 'F5gKh/cGnHI',
+        nodeId: 'F5gKh',
         index: -1,
         expressionString: '',
       },
-      'apgt9/ViWA9': {
-        type: 'InCondition',
-        id: 'apgt9/ViWA9',
-        nodeId: 'apgt9',
-      },
-      'apgt9/hTTnq': {
+      'F5gKh/gfRUp': {
         type: 'OutCondition',
-        id: 'apgt9/hTTnq',
-        nodeId: 'apgt9',
-        index: 1,
+        id: 'F5gKh/gfRUp',
+        nodeId: 'F5gKh',
+        index: 0,
         expressionString: '$ < 3',
       },
-      'apgt9/input': {
+      'F5gKh/input': {
         type: 'NodeInput',
-        id: 'apgt9/input',
+        id: 'F5gKh/input',
         name: 'input',
-        nodeId: 'apgt9',
+        nodeId: 'F5gKh',
         index: 0,
         valueType: 'Any',
         isGlobal: true,
-        globalVariableId: 'ndXJQ',
+        globalVariableId: 'wR0gO',
       },
-      'gHXou/IgTHW': {
+      'Kuvae/6Iv2V': {
         type: 'InCondition',
-        id: 'gHXou/IgTHW',
-        nodeId: 'gHXou',
+        id: 'Kuvae/6Iv2V',
+        nodeId: 'Kuvae',
       },
-      'gHXou/ydJi7': {
-        type: 'NodeInput',
-        id: 'gHXou/ydJi7',
-        name: 'output',
-        nodeId: 'gHXou',
-        index: 0,
-        valueType: 'Any',
-        isGlobal: true,
-        globalVariableId: 'ndXJQ',
-      },
-      'hElD9/mAd36': {
+      'Kuvae/GFaAp': {
         type: 'OutCondition',
-        id: 'hElD9/mAd36',
-        nodeId: 'hElD9',
+        id: 'Kuvae/GFaAp',
+        nodeId: 'Kuvae',
         index: 0,
         expressionString: '',
       },
-      '8eLuD/output': {
-        type: 'NodeOutput',
-        id: '8eLuD/output',
+      'Kuvae/q5O9l': {
+        type: 'NodeInput',
+        id: 'Kuvae/q5O9l',
+        name: 'input',
+        nodeId: 'Kuvae',
+        index: 1,
+        valueType: 'Any',
+        isGlobal: true,
+        globalVariableId: 'wR0gO',
+      },
+      'UQgWR/bAOpK': {
+        type: 'NodeInput',
+        id: 'UQgWR/bAOpK',
         name: 'output',
-        nodeId: '8eLuD',
+        nodeId: 'UQgWR',
+        index: 0,
+        valueType: 'Any',
+        isGlobal: true,
+        globalVariableId: 'wR0gO',
+      },
+      'UQgWR/m5pTy': {
+        type: 'InCondition',
+        id: 'UQgWR/m5pTy',
+        nodeId: 'UQgWR',
+      },
+      'ZQiRL/DZPYU': {
+        type: 'OutCondition',
+        id: 'ZQiRL/DZPYU',
+        nodeId: 'ZQiRL',
+        index: 0,
+        expressionString: '',
+      },
+      'fzwwo/6S2RW': {
+        type: 'InCondition',
+        id: 'fzwwo/6S2RW',
+        nodeId: 'fzwwo',
+        index: 0,
+      },
+      'fzwwo/I8zZC': {
+        type: 'OutCondition',
+        id: 'fzwwo/I8zZC',
+        nodeId: 'fzwwo',
+        index: 0,
+        expressionString: '',
+      },
+      'jYEcZ/A53Z2': {
+        type: 'InCondition',
+        id: 'jYEcZ/A53Z2',
+        nodeId: 'jYEcZ',
+        index: 0,
+      },
+      'jYEcZ/AitYg': {
+        type: 'InCondition',
+        id: 'jYEcZ/AitYg',
+        nodeId: 'jYEcZ',
+        index: 1,
+      },
+      'nL4HL/8H1w7': {
+        type: 'OutCondition',
+        id: 'nL4HL/8H1w7',
+        nodeId: 'nL4HL',
+        index: 0,
+        expressionString: '',
+      },
+      'Kuvae/output': {
+        type: 'NodeOutput',
+        id: 'Kuvae/output',
+        name: 'output',
+        nodeId: 'Kuvae',
         index: 0,
         valueType: 'Structured',
         isGlobal: true,
-        globalVariableId: 'ndXJQ',
+        globalVariableId: 'wR0gO',
       },
     },
     globalVariables: {
-      ndXJQ: {
-        id: 'ndXJQ',
-        name: 'loop1_counter',
+      wR0gO: {
+        id: 'wR0gO',
+        name: 'count',
         valueType: 'Unspecified',
       },
     },
@@ -1400,10 +1438,10 @@ test.only('runFlow should execute flow contains Loop node (break with 3 iteratio
   const { errors, graphRecords } = computeGraphs({
     edges: flowContent.edges,
     nodeConfigs: flowContent.nodeConfigs,
-    startNodeIds: ['hElD9'],
+    startNodeIds: ['ZQiRL'],
   });
 
-  expect(errors).toEqual({});
+  expect(errors, 'should not have any error').toEqual({});
 
   const result = getNodeAllLevelConfigOrValidationErrors(
     flowContent.nodeConfigs,
@@ -1429,140 +1467,168 @@ test.only('runFlow should execute flow contains Loop node (break with 3 iteratio
 
   expect(runFlowResult).toEqual({
     errors: [],
-    variableResults: {},
+    variableResults: {
+      'UQgWR/bAOpK': { value: 3 },
+    },
   });
 
   let n = 0;
 
   function createLoopedEvents(count: number, isFinish: boolean) {
     return [
+      // #4, #16, #28
       {
         type: 'Started',
-        nodeId: '9Ui4x',
+        nodeId: 'nL4HL',
       },
+      // #5, #17, #29
       {
         type: 'Updated',
-        nodeId: '9Ui4x',
+        nodeId: 'nL4HL',
         result: {
           variableResults: {},
         },
       },
+      // #6, #18, #30
       {
         type: 'Finished',
-        nodeId: '9Ui4x',
+        nodeId: 'nL4HL',
       },
+      // #7, #19, #31
       {
         type: 'Started',
-        nodeId: '8eLuD',
+        nodeId: 'Kuvae',
       },
+      // #8, #20, #32
       {
         type: 'Updated',
-        nodeId: '8eLuD',
+        nodeId: 'Kuvae',
         result: {
-          completedConnectorIds: ['8eLuD/output'],
+          completedConnectorIds: ['Kuvae/output'],
           variableResults: {
-            '8eLuD/output': { value: count },
+            'Kuvae/output': { value: count },
           },
           variableValues: [count],
         },
       },
+      // #9, #21, #33
       {
         type: 'Finished',
-        nodeId: '8eLuD',
+        nodeId: 'Kuvae',
       },
+      // #10, #22, #34
       {
         type: 'Started',
-        nodeId: 'apgt9',
+        nodeId: 'F5gKh',
       },
+      // #11, #23, #35
       {
         type: 'Updated',
-        nodeId: 'apgt9',
-        result: isFinish
+        nodeId: 'F5gKh',
+        result: !isFinish
           ? {
-              completedConnectorIds: ['apgt9/MPwJq'],
+              completedConnectorIds: ['F5gKh/gfRUp'],
               conditionResults: {
-                'apgt9/hTTnq': {
-                  conditionId: 'apgt9/hTTnq',
-                  isConditionMatched: false,
-                },
-                'apgt9/MPwJq': {
-                  conditionId: 'apgt9/MPwJq',
+                'F5gKh/gfRUp': {
+                  conditionId: 'F5gKh/gfRUp',
                   isConditionMatched: true,
                 },
               },
               variableResults: {},
             }
           : {
-              completedConnectorIds: ['apgt9/hTTnq'],
+              completedConnectorIds: ['F5gKh/cGnHI'],
               conditionResults: {
-                'apgt9/hTTnq': {
-                  conditionId: 'apgt9/hTTnq',
+                'F5gKh/gfRUp': {
+                  conditionId: 'F5gKh/gfRUp',
+                  isConditionMatched: false,
+                },
+                'F5gKh/cGnHI': {
+                  conditionId: 'F5gKh/cGnHI',
                   isConditionMatched: true,
                 },
               },
               variableResults: {},
             },
       },
+      // #12, #24, #36
       {
         type: 'Finished',
-        nodeId: 'apgt9',
+        nodeId: 'F5gKh',
+      },
+      // #13, #25, #37
+      {
+        type: 'Started',
+        nodeId: 'jYEcZ',
+      },
+      // #14, #26, #38
+      {
+        type: 'Updated',
+        nodeId: 'jYEcZ',
+        result: {},
+      },
+      // #15, #27, #39
+      {
+        type: 'Finished',
+        nodeId: 'jYEcZ',
       },
     ];
   }
 
   const events = [
+    // #0
     {
       type: 'Started',
-      nodeId: 'hElD9',
+      nodeId: 'ZQiRL',
     },
+    // #1
     {
       type: 'Updated',
-      nodeId: 'hElD9',
+      nodeId: 'ZQiRL',
       result: {
         variableValues: [],
         variableResults: {},
         completedConnectorIds: [],
       },
     },
+    // #2
     {
       type: 'Finished',
-      nodeId: 'hElD9',
+      nodeId: 'ZQiRL',
     },
+    // #3
     {
       type: 'Started',
-      nodeId: 'Pk4nQ',
-    },
-    {
-      type: 'Updated',
-      nodeId: 'Pk4nQ',
-      result: {
-        variableResults: {},
-      },
-    },
-    {
-      type: 'Finished',
-      nodeId: 'Pk4nQ',
+      nodeId: 'fzwwo',
     },
     ...createLoopedEvents(1, false),
     ...createLoopedEvents(2, false),
     ...createLoopedEvents(3, true),
+    // #40
+    {
+      type: 'Finished',
+      nodeId: 'fzwwo',
+    },
+    // #41
     {
       type: 'Started',
-      nodeId: 'gHXou',
+      nodeId: 'UQgWR',
     },
+    // #42
     {
       type: 'Updated',
-      nodeId: 'gHXou',
+      nodeId: 'UQgWR',
       result: {
         variableResults: {
-          'gHXou/ydJi7': { value: 3 },
+          'UQgWR/bAOpK': { value: 3 },
         },
         variableValues: [3],
       },
     },
+    // #43
     {
       type: 'Finished',
-      nodeId: 'gHXou',
+      nodeId: 'UQgWR',
     },
   ];
 
@@ -1571,11 +1637,11 @@ test.only('runFlow should execute flow contains Loop node (break with 3 iteratio
   await lastValueFrom(
     progressObserver.pipe(
       tap((event) => {
-        expect(event).toEqual(events[n]);
+        expect(event, `should equal to events[${n}]`).toEqual(events[n]);
         n++;
       }),
     ),
   );
 
-  expect(n).toBe(events.length);
+  expect(n, 'should go through all events').toBe(events.length);
 });

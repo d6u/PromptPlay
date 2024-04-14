@@ -128,7 +128,7 @@ function runNode(context: RunNodeContext): Observable<never> {
 
 const LOOP_HARD_LIMIT = 10;
 
-function runLoopNode(context: RunNodeContext): Observable<RunNodeResult> {
+function runLoopNode(context: RunNodeContext): Observable<never> {
   const nodeConfig = context.nodeConfig;
 
   invariant(nodeConfig.type === NodeType.Loop);
@@ -141,7 +141,7 @@ function runLoopNode(context: RunNodeContext): Observable<RunNodeResult> {
 
   let count = 0;
 
-  function run(): Observable<RunNodeResult> {
+  function run(): Observable<never> {
     const runGraphContext = context.createRunGraphContext(loopStartNodeId!);
 
     return concat(
@@ -151,7 +151,7 @@ function runLoopNode(context: RunNodeContext): Observable<RunNodeResult> {
 
         if (count >= LOOP_HARD_LIMIT) {
           console.warn('Loop count exceeded 10');
-          return of({ errors: [] });
+          return EMPTY;
         }
 
         const graph = runGraphContext.graph;
@@ -195,7 +195,7 @@ function runLoopNode(context: RunNodeContext): Observable<RunNodeResult> {
         });
 
         if (isBreak) {
-          return of({ errors: [] });
+          return EMPTY;
         } else if (isContinue) {
           return run();
         } else {

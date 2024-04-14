@@ -32,6 +32,10 @@ export function getIndegreeForNodeConnector(
 ): number {
   let indegree = 0;
 
+  if (graph[nodeId][incomingConnectorId] == null) {
+    return 0;
+  }
+
   for (const sourceConnectorId of Object.keys(
     graph[nodeId][incomingConnectorId],
   )) {
