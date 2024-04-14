@@ -1,5 +1,4 @@
 import { A, D, F, pipe, type Option } from '@mobily/ts-belt';
-import { produce } from 'immer';
 import { type Edge } from 'reactflow';
 import { from, type Observer, type Subject } from 'rxjs';
 import invariant from 'tiny-invariant';
@@ -16,52 +15,59 @@ import {
   type NodeOutputVariable,
   type OutgoingCondition,
   type RunNodeFunction,
+  type VariableValueBox,
   type VariableValueRecords,
 } from 'flow-models';
+import type { GraphRecords } from 'graph-util';
 
-import RunFlowContext, { RunFlowContextParams } from './RunFlowContext';
-import type { RunNodeProgressEvent } from './event-types';
+import type RunGraphContext from './RunGraphContext';
+import { type RunNodeProgressEvent } from './event-types';
+import { RunFlowParams } from './types';
 
 class RunNodeContext {
-  constructor(context: RunFlowContext, graphId: string, nodeId: string) {
-    this.context = context;
-    this.graphId = graphId;
+  constructor(
+    runGraphContext: RunGraphContext,
+    params: RunFlowParams,
+    nodeId: string,
+  ) {
+    this.runGraphContext = runGraphContext;
+    this.params = params;
     this.nodeId = nodeId;
-    this.outgoingEdges = context.params.edges.filter(
+    this.outgoingEdges = runGraphContext.params.edges.filter(
       (e) => e.source === nodeId,
     );
   }
 
-  readonly graphId: string;
+  readonly params: RunFlowParams;
   readonly nodeId: string;
 
-  get params(): RunFlowContextParams {
-    return this.context.params;
-  }
-
   get progressObserver(): Option<Observer<RunNodeProgressEvent>> {
-    return this.context.params.progressObserver;
+    return this.params.progressObserver;
   }
 
-  get finishNodesVariableIds(): string[] {
-    return this.context.finishNodesVariableIds;
+  get graphRecords(): GraphRecords {
+    return this.runGraphContext.params.graphRecords;
   }
 
-  get nodeIdListSubject(): Subject<[string, string[]]> {
-    return this.context.nodeIdListSubject;
+  get nodeIdListSubject(): Subject<string[]> {
+    return this.runGraphContext.nodeIdListSubject;
   }
 
   get nodeConfig(): NodeAllLevelConfigUnion {
-    return this.context.params.nodeConfigs[this.nodeId];
+    return this.runGraphContext.params.nodeConfigs[this.nodeId];
   }
 
-  private readonly context: RunFlowContext;
+  private readonly runGraphContext: RunGraphContext;
   private readonly outgoingEdges: Edge[];
   private outputVariableValues: VariableValueRecords = {};
   private outgoingConditionResults: ConditionResultRecords = {};
 
+  createRunGraphContext(graphId: string): RunGraphContext {
+    return this.runGraphContext.runFlowContext.createRunGraphContext(graphId);
+  }
+
   getRunNodeFunction(): CreateNodeExecutionObservableFunction<NodeAllLevelConfigUnion> {
-    const nodeConfig = this.context.params.nodeConfigs[this.nodeId];
+    const nodeConfig = this.params.nodeConfigs[this.nodeId];
     const nodeDefinition = getNodeDefinitionForNodeTypeName(nodeConfig.type);
 
     if (
@@ -96,7 +102,7 @@ class RunNodeContext {
 
   getInputVariables(): NodeInputVariable[] {
     return pipe(
-      this.context.params.connectors,
+      this.params.connectors,
       D.values,
       A.filter(
         (c): c is NodeInputVariable =>
@@ -109,7 +115,7 @@ class RunNodeContext {
 
   getOutputVariables(): NodeOutputVariable[] {
     return pipe(
-      this.context.params.connectors,
+      this.params.connectors,
       D.values,
       A.filter(
         (c): c is NodeOutputVariable =>
@@ -122,7 +128,7 @@ class RunNodeContext {
 
   getOutgoingConditions(): OutgoingCondition[] {
     return pipe(
-      this.context.params.connectors,
+      this.params.connectors,
       D.values,
       A.filter(
         (c): c is OutgoingCondition =>
@@ -141,53 +147,34 @@ class RunNodeContext {
     if (this.nodeConfig.class === NodeClass.Start) {
       // When current node class is Start, we need to collect
       // NodeOutput variable values other than NodeInput variable values.
-      return this.getOutputVariables().map((v) => {
-        return this.context.allVariableValues[v.id]?.value;
-      });
+      return this.runGraphContext.runFlowContext.getVariableValuesForVariables(
+        this.getOutputVariables(),
+      );
     } else {
       // For non-Start node class, we need to collect NodeInput variable values.
-      return this.getInputVariables().map((v) => {
-        if (v.isGlobal) {
-          if (v.globalVariableId != null) {
-            return this.context.allVariableValues[v.globalVariableId]?.value;
-          }
-        } else {
-          const sourceVariableId =
-            this.context.getSrcVariableIdFromDstVariableId(v.id);
-
-          return this.context.allVariableValues[sourceVariableId]?.value;
-        }
-
-        // // NOTE: Use ? to be safe here.
-        // return this.context.allVariableValues[v.id]?.value;
-      });
+      return this.runGraphContext.runFlowContext.getVariableValuesForVariables(
+        this.getInputVariables(),
+      );
     }
   }
 
-  getInputVariableValueRecords(): VariableValueRecords {
-    const values = this.getInputVariableValues();
-    const inputVariableResults: VariableValueRecords = {};
-
-    if (this.nodeConfig.class === NodeClass.Start) {
-      // When current node class is Start, we need to collect
-      // NodeOutput variable values other than NodeInput variable values.
-      this.getOutputVariables().forEach((v) => {
-        inputVariableResults[v.id] = { value: values[v.index] };
-      });
-    } else {
-      // For non-Start node class, we need to collect NodeInput variable values.
-      this.getInputVariables().forEach((v) => {
-        if (v.isGlobal) {
-          if (v.globalVariableId != null) {
-            inputVariableResults[v.id] = { value: values[v.index] };
-          }
-        } else {
-          inputVariableResults[v.id] = { value: values[v.index] };
-        }
-      });
-    }
-
-    return inputVariableResults;
+  // NOTE: Called during runNode in progress
+  convertVariableValuesToRecords(
+    variableValues: Option<unknown[]>,
+  ): VariableValueRecords {
+    // TODO: Simplify this
+    return variableValues
+      ? pipe(
+          this.nodeConfig.class === NodeClass.Finish
+            ? this.getInputVariables()
+            : this.getOutputVariables(),
+          A.mapWithIndex<
+            NodeInputVariable | NodeOutputVariable,
+            [string, VariableValueBox]
+          >((i, v) => [v.id, { value: variableValues![i] }]),
+          D.fromPairs,
+        )
+      : {};
   }
 
   // NOTE: Called during runNode in progress
@@ -211,53 +198,25 @@ class RunNodeContext {
   }
 
   // NOTE: Run after runNode finished
-  flushRunNodeResultToGraphLevel(): void {
+  completeRunNode(): void {
     // ANCHOR: Flush variable values
-    this.context.allVariableValues = produce(
-      this.context.allVariableValues,
-      (draft) => {
-        if (this.nodeConfig.class === NodeClass.Finish) {
-          this.getInputVariables().forEach((v, i) => {
-            if (v.isGlobal && v.globalVariableId != null) {
-              draft[v.globalVariableId] = this.outputVariableValues[v.id];
-            } else {
-              draft[v.id] = this.outputVariableValues[v.id];
-            }
-          });
-        } else {
-          this.getOutputVariables().forEach((v, i) => {
-            if (v.isGlobal && v.globalVariableId != null) {
-              draft[v.globalVariableId] = this.outputVariableValues[v.id];
-            } else {
-              draft[v.id] = this.outputVariableValues[v.id];
-            }
-          });
-        }
-      },
-    );
+    if (this.nodeConfig.class === NodeClass.Finish) {
+      this.runGraphContext.runFlowContext.updateVariableValues(
+        this.getInputVariables(),
+        this.outputVariableValues,
+      );
+    } else {
+      this.runGraphContext.runFlowContext.updateVariableValues(
+        this.getOutputVariables(),
+        this.outputVariableValues,
+      );
+    }
 
     // ANCHOR: Flush condition results
 
-    if (
-      this.nodeConfig.type === NodeType.Loop &&
-      // TODO: Show error in UI if loopStartNodeId is not specified
-      this.nodeConfig.loopStartNodeId
-    ) {
-      this.context.startGraph(
-        this.graphId,
-        this.nodeConfig.nodeId,
-        this.nodeConfig.loopStartNodeId,
-      );
-    } else {
-      this.handleNonLoopNodeComplete();
-    }
-  }
-
-  private handleNonLoopNodeComplete() {
+    // NOTE: For none Condition node, we need to generate a condition result.
+    // TODO: Generalize this
     if (this.nodeConfig.type !== NodeType.ConditionNode) {
-      // TODO: Generalize this
-      // NOTE: For none ConditionNode, we need to manually generate a condition
-      // result.
       for (const c of this.getOutgoingConditions()) {
         this.outgoingConditionResults[c.id] = {
           conditionId: c.id,
@@ -266,20 +225,16 @@ class RunNodeContext {
       }
     }
 
-    this.context.allConditionResults = produce(
-      this.context.allConditionResults,
-      (draft) => {
-        for (const [id, r] of Object.entries(this.outgoingConditionResults)) {
-          draft[id] = r;
-        }
-      },
+    this.runGraphContext.runFlowContext.updateConditionResults(
+      this.getOutgoingConditions(),
+      this.outgoingConditionResults,
     );
 
     // ANCHOR: When current node is a Finish node and not a LoopFinish node,
     // record connector IDs
     if (this.nodeConfig.class === NodeClass.Finish) {
       if (this.nodeConfig.type !== NodeType.LoopFinish) {
-        this.finishNodesVariableIds.push(
+        this.runGraphContext.finishNodesVariableIds.push(
           ...this.getInputVariables().map((v) => v.id),
         );
       }
@@ -302,7 +257,7 @@ class RunNodeContext {
       }
     }
 
-    this.context.completeEdges(this.graphId, completedEdges);
+    this.runGraphContext.completeEdges(completedEdges);
   }
 }
 
