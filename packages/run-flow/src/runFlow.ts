@@ -1,4 +1,3 @@
-import { F } from '@mobily/ts-belt';
 import {
   EMPTY,
   Observable,
@@ -16,8 +15,6 @@ import invariant from 'tiny-invariant';
 import {
   NodeType,
   type IncomingCondition,
-  type NodeAllLevelConfigUnion,
-  type RunNodeParams,
   type RunNodeResult,
 } from 'flow-models';
 import { ROOT_GRAPH_ID, getIndegreeForNodeConnector } from 'graph-util';
@@ -41,7 +38,7 @@ function runFlow(params: RunFlowParams): Observable<RunFlowResult> {
   );
 }
 
-function runGraph(context: RunGraphContext): Observable<RunFlowResult> {
+function runGraph(context: RunGraphContext): Observable<never> {
   const nodeIdListSubject = context.nodeIdListSubject;
 
   return nodeIdListSubject.pipe(
@@ -58,11 +55,6 @@ function runGraph(context: RunGraphContext): Observable<RunFlowResult> {
 }
 
 function runNode(context: RunNodeContext): Observable<never> {
-  const runNodeFunc =
-    context.nodeConfig.type === NodeType.Loop
-      ? runLoopNode(context)
-      : context.getRunNodeFunction();
-
   const preferStreaming = context.params.preferStreaming;
   const nodeConfig = context.nodeConfig;
   const inputVariables = context.getInputVariables();
@@ -75,14 +67,22 @@ function runNode(context: RunNodeContext): Observable<never> {
     nodeId: context.nodeId,
   });
 
-  const runNodeObservable = runNodeFunc({
-    preferStreaming,
-    nodeConfig,
-    inputVariables,
-    outputVariables,
-    outgoingConditions,
-    inputVariableValues,
-  });
+  let runNodeObservable;
+
+  if (context.nodeConfig.type === NodeType.Loop) {
+    runNodeObservable = runLoopNode(context);
+  } else {
+    const runNodeFunc = context.getRunNodeFunction();
+
+    runNodeObservable = runNodeFunc({
+      preferStreaming,
+      nodeConfig,
+      inputVariables,
+      outputVariables,
+      outgoingConditions,
+      inputVariableValues,
+    });
+  }
 
   return concat(
     runNodeObservable.pipe(
@@ -126,25 +126,34 @@ function runNode(context: RunNodeContext): Observable<never> {
   );
 }
 
-type RunLoopNodeFun = (
-  params: RunNodeParams<NodeAllLevelConfigUnion>,
-) => Observable<RunNodeResult>;
+const LOOP_HARD_LIMIT = 10;
 
-function runLoopNode(context: RunNodeContext): RunLoopNodeFun {
-  return (params): Observable<RunNodeResult> => {
-    const nodeConfig = context.nodeConfig;
-    invariant(nodeConfig.type === NodeType.Loop);
+function runLoopNode(context: RunNodeContext): Observable<RunNodeResult> {
+  const nodeConfig = context.nodeConfig;
 
-    if (nodeConfig.loopStartNodeId == null) {
-      throw new Error('loopStartNodeId is required');
-    }
+  invariant(nodeConfig.type === NodeType.Loop);
 
-    const runGraphContext = context.createRunGraphContext(
-      nodeConfig.loopStartNodeId,
-    );
+  const loopStartNodeId = nodeConfig.loopStartNodeId;
 
-    return runGraph(runGraphContext).pipe(
-      mergeMap((result: RunFlowResult) => {
+  if (loopStartNodeId == null) {
+    throw new Error('loopStartNodeId is required');
+  }
+
+  let count = 0;
+
+  function run(): Observable<RunNodeResult> {
+    const runGraphContext = context.createRunGraphContext(loopStartNodeId!);
+
+    return concat(
+      runGraph(runGraphContext),
+      defer(() => {
+        count += 1;
+
+        if (count >= LOOP_HARD_LIMIT) {
+          console.warn('Loop count exceeded 10');
+          return of({ errors: [] });
+        }
+
         const graph = runGraphContext.graph;
 
         const finishNodeId = Object.keys(graph).find(
@@ -155,13 +164,7 @@ function runLoopNode(context: RunNodeContext): RunLoopNodeFun {
 
         invariant(finishNodeId, 'finishNodeId is required');
 
-        const finishNodeConfig =
-          runGraphContext.params.nodeConfigs[finishNodeId];
-
-        console.log('finishNodeConfig', finishNodeConfig);
-
         // NOTE: LoopFinish only need one incoming condition to unblock
-
         const conditions = Object.values(runGraphContext.params.connectors)
           .filter((c): c is IncomingCondition => c.nodeId === finishNodeId)
           .sort((a, b) => a.index! - b.index!);
@@ -192,20 +195,17 @@ function runLoopNode(context: RunNodeContext): RunLoopNodeFun {
         });
 
         if (isBreak) {
-          return of({
-            errors: F.toMutable(result.errors),
-            conditionResults: {},
-            variableValues: [],
-            completedConnectorIds: [],
-          });
+          return of({ errors: [] });
         } else if (isContinue) {
-          return runLoopNode(context)(params);
+          return run();
         } else {
           throw new Error('Neither continue nor break is met');
         }
       }),
     );
-  };
+  }
+
+  return run();
 }
 
 export default runFlow;
