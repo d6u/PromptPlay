@@ -17,7 +17,7 @@ export const UsersTable = new Table({
   DocumentClient,
 });
 
-export const UserEntity = new Entity({
+export const UserEntity: Entity = new Entity({
   table: UsersTable,
   name: 'User',
   attributes: {

@@ -1,8 +1,13 @@
 {
+  "references": [
+    { "path": "../packages/common-utils" },
+    { "path": "../packages/database-models" },
+    { "path": "../packages/dynamodb-models" },
+    { "path": "../packages/flow-models" }
+  ],
+  "include": ["./src/**/*.ts"],
   "extends": "common-tsconfig/tsconfig.json",
   "compilerOptions": {
-    "noEmit": true,
-    // flow-models contains jsx files
-    "jsx": "react"
+    "noEmit": true
   }
 }

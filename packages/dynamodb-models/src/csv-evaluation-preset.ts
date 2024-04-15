@@ -27,7 +27,7 @@ export const CsvEvaluationPresetsTable = new Table({
   DocumentClient,
 });
 
-export const CsvEvaluationPresetEntity = new Entity({
+export const CsvEvaluationPresetEntity: Entity = new Entity({
   table: CsvEvaluationPresetsTable,
   name: 'CsvEvaluationPreset',
   attributes: {

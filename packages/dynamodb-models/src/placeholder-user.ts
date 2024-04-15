@@ -12,7 +12,7 @@ export const PlaceholderUsersTable = new Table({
   DocumentClient,
 });
 
-export const PlaceholderUserEntity = new Entity({
+export const PlaceholderUserEntity: Entity = new Entity({
   table: PlaceholderUsersTable,
   name: 'PlaceholderUser',
   attributes: {

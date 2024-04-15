@@ -1,10 +1,11 @@
+// Used by vite.config.ts.
 {
+  "include": ["vite.config.ts", "codegen.ts"],
   "compilerOptions": {
-    "composite": true,
     "skipLibCheck": true,
     "module": "ESNext",
     "moduleResolution": "bundler",
-    "allowSyntheticDefaultImports": true
-  },
-  "include": ["vite.config.ts", "codegen.ts"]
+    "allowSyntheticDefaultImports": true,
+    "noEmit": true
+  }
 }

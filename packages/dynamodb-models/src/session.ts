@@ -12,7 +12,7 @@ export const SessionsTable = new Table({
   DocumentClient,
 });
 
-export const SessionEntity = new Entity({
+export const SessionEntity: Entity = new Entity({
   table: SessionsTable,
   name: 'Session',
   attributes: {

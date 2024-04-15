@@ -1,7 +1,11 @@
 {
+  "references": [{ "path": "../common-utils" }, { "path": "../integrations" }],
+  "include": ["./src/**/*.ts", "./src/**/*.tsx"],
+  "exclude": ["./src/**/*.test.ts"],
   "extends": "common-tsconfig/tsconfig.browser.json",
   "compilerOptions": {
-    "outDir": "dist"
-  },
-  "exclude": ["**/*.test.ts"]
+    "composite": true,
+    "rootDir": "./src",
+    "outDir": "./dist"
+  }
 }

@@ -411,7 +411,6 @@ test('runFlow should unblock node has multiple conditions even when only one con
       result: {
         conditionResults: {
           '1w9JM/hvZie': {
-            conditionId: '1w9JM/hvZie',
             isConditionMatched: true,
           },
         },
@@ -701,15 +700,12 @@ test('runFlow should fallback to default case when no condition was met', async 
       result: {
         conditionResults: {
           '1w9JM/hvZie': {
-            conditionId: '1w9JM/hvZie',
             isConditionMatched: false,
           },
           '1w9JM/MlBLI': {
-            conditionId: '1w9JM/MlBLI',
             isConditionMatched: false,
           },
           '1w9JM/fR2hj': {
-            conditionId: '1w9JM/fR2hj',
             isConditionMatched: true,
           },
         },
@@ -1530,7 +1526,6 @@ test('runFlow should execute flow contains Loop node (break with 3 iteration)', 
               completedConnectorIds: ['F5gKh/gfRUp'],
               conditionResults: {
                 'F5gKh/gfRUp': {
-                  conditionId: 'F5gKh/gfRUp',
                   isConditionMatched: true,
                 },
               },
@@ -1540,11 +1535,9 @@ test('runFlow should execute flow contains Loop node (break with 3 iteration)', 
               completedConnectorIds: ['F5gKh/cGnHI'],
               conditionResults: {
                 'F5gKh/gfRUp': {
-                  conditionId: 'F5gKh/gfRUp',
                   isConditionMatched: false,
                 },
                 'F5gKh/cGnHI': {
-                  conditionId: 'F5gKh/cGnHI',
                   isConditionMatched: true,
                 },
               },
