@@ -1,5 +1,6 @@
 import { Entity, Table } from 'dynamodb-toolbox';
 import { deflateSync, inflateSync } from 'node:zlib';
+import type { A } from 'ts-toolbelt';
 import { v4 as uuidv4 } from 'uuid';
 import { DocumentClient } from './client';
 
@@ -12,7 +13,7 @@ export enum DbSpaceContentVersion {
   v3 = 'v3',
 }
 
-export const SpacesTable = new Table({
+export const SpacesTable: Table<string, 'Id', A.Key | null> = new Table({
   name: process.env.DYNAMODB_TABLE_NAME_SPACES,
   partitionKey: 'Id',
   indexes: {
@@ -24,7 +25,7 @@ export const SpacesTable = new Table({
   DocumentClient,
 });
 
-export const SpaceEntity = new Entity({
+export const SpaceEntity: Entity = new Entity({
   table: SpacesTable,
   name: 'Space',
   attributes: {

@@ -18,6 +18,9 @@ importers:
       prettier:
         specifier: ^3.1.0
         version: 3.1.1
+      typescript:
+        specifier: ^5.4.5
+        version: 5.4.5
 
   front:
     dependencies:
@@ -252,6 +255,9 @@ importers:
       dynamodb-toolbox:
         specifier: ^0.9.2
         version: 0.9.2(@aws-sdk/client-dynamodb@3.474.0)(@aws-sdk/lib-dynamodb@3.474.0)
+      ts-toolbelt:
+        specifier: ^9.6.0
+        version: 9.6.0
       uuid:
         specifier: ^9.0.1
         version: 9.0.1

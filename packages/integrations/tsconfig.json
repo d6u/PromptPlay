@@ -1,6 +1,10 @@
 {
+  "include": ["./src/**/*.ts", "./src/**/*.tsx"],
+  "exclude": ["./src/**/*.test.ts"],
   "extends": "common-tsconfig/tsconfig.browser.json",
   "compilerOptions": {
-    "outDir": "dist"
+    "composite": true,
+    "rootDir": "./src",
+    "outDir": "./dist"
   }
 }

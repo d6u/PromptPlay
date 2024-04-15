@@ -1,0 +1,11 @@
+{
+  "files": [],
+  "references": [
+    { "path": "./front" },
+    // We couldn't put this in front/tsconfig.json due to an issue prevent
+    // the use of `"noEmit": false` in front/tsconfig.node.json
+    { "path": "./front/tsconfig.node.json" },
+    { "path": "./scripts" },
+    { "path": "./server_nodejs" }
+  ]
+}

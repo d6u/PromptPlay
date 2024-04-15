@@ -1,26 +1,29 @@
 {
+  "references": [
+    { "path": "../packages/common-utils" },
+    { "path": "../packages/flow-models" },
+    { "path": "../packages/graph-util" },
+    { "path": "../packages/integrations" },
+    { "path": "../packages/run-flow" }
+  ],
+  "include": ["./src"],
   "compilerOptions": {
-    /* Output */
-    "target": "ES2020",
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
-    "module": "ESNext",
-    "skipLibCheck": true,
-    "useDefineForClassFields": true,
-
-    /* Bundler mode */
-    "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true,
-    "jsx": "react-jsx",
-
-    /* Linting */
+    // NOTE: Type Checking
     "strict": true,
     "noUnusedLocals": true,
     "noFallthroughCasesInSwitch": true,
     // "noUncheckedIndexedAccess": true
     // "noPropertyAccessFromIndexSignature": true
+    // NOTE: Modules
+    "allowImportingTsExtensions": true,
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    // NOTE: Emit
+    "noEmit": true,
+    // NOTE: Interop Constraints
+    "isolatedModules": true, // Required by vite
+    // NOTE: Modules
     "paths": {
       "gencode-gql": ["./src/gencode-gql"],
       "gencode-gql/graphql": ["./src/gencode-gql/graphql"],
@@ -46,16 +49,13 @@
       "view-sub-header/*": ["./src/view-sub-header/*"],
       "view-right-side-pane/*": ["./src/view-right-side-pane/*"],
       "view-left-side-pane/*": ["./src/view-left-side-pane/*"]
-    }
-  },
-  "include": [
-    "src",
-    "../packages/run-flow/src/__tests__",
-    "../packages/run-flow/src/run-param-types.ts"
-  ],
-  "references": [
-    {
-      "path": "./tsconfig.node.json"
-    }
-  ]
+    },
+    // NOTE: Language and Environment
+    "target": "ES2020",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "useDefineForClassFields": true,
+    "jsx": "react-jsx",
+    // NOTE: Completeness
+    "skipLibCheck": true
+  }
 }
