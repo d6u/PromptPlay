@@ -1,11 +1,9 @@
 {
-  "references": [{ "path": "../flow-models" }, { "path": "../graph-util" }],
-  "include": ["./src/**/*.ts"],
-  "exclude": ["./src/**/*.test.ts"],
   "extends": "common-tsconfig/tsconfig.browser.json",
   "compilerOptions": {
-    "composite": true,
     "rootDir": "./src",
     "outDir": "./dist"
-  }
+  },
+  "include": ["./src/**/*.ts"],
+  "exclude": ["./src/**/*.test.ts"]
 }

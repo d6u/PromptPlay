@@ -2,7 +2,6 @@
   "extends": "common-tsconfig/tsconfig.json",
   "compilerOptions": {
     "rootDir": "./src",
-    "outDir": "./dist",
-    "composite": true
+    "outDir": "./dist"
   }
 }

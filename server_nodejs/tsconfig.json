@@ -1,11 +1,9 @@
 {
-  "references": [{ "path": "../packages/database-models" }],
-  "include": ["./src/**/*.ts"],
-  "exclude": ["./src/**/*.test.ts"],
   "extends": "common-tsconfig/tsconfig.json",
   "compilerOptions": {
     "rootDir": "./src",
-    "outDir": "./dist",
-    "composite": true
-  }
+    "outDir": "./dist"
+  },
+  "include": ["./src/**/*.ts"],
+  "exclude": ["./src/**/*.test.ts"]
 }

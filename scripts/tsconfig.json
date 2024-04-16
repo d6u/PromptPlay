@@ -1,13 +1,11 @@
 {
-  "references": [
-    { "path": "../packages/common-utils" },
-    { "path": "../packages/database-models" },
-    { "path": "../packages/dynamodb-models" },
-    { "path": "../packages/flow-models" }
-  ],
-  "include": ["./src/**/*.ts"],
   "extends": "common-tsconfig/tsconfig.json",
   "compilerOptions": {
-    "noEmit": true
-  }
+    "jsx": "react-jsx",
+    "noEmit": true,
+    // TODO: Remove this when packages/integration removes browser specific code
+    "lib": ["DOM"]
+  },
+  "include": ["./**/*.ts"],
+  "exclude": ["./node_modules"]
 }

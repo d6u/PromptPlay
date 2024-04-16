@@ -1,12 +1,4 @@
 {
-  "references": [
-    { "path": "../packages/common-utils" },
-    { "path": "../packages/flow-models" },
-    { "path": "../packages/graph-util" },
-    { "path": "../packages/integrations" },
-    { "path": "../packages/run-flow" }
-  ],
-  "include": ["./src"],
   "compilerOptions": {
     // NOTE: Type Checking
     "strict": true,
@@ -57,5 +49,6 @@
     "jsx": "react-jsx",
     // NOTE: Completeness
     "skipLibCheck": true
-  }
+  },
+  "include": ["./src"]
 }
