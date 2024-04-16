@@ -1,5 +1,4 @@
-import { type Option } from '@mobily/ts-belt';
-import { produce } from 'immer';
+import { A, D, F, pipe, type Option } from '@mobily/ts-belt';
 import type { Edge } from 'reactflow';
 import {
   BehaviorSubject,
@@ -8,24 +7,26 @@ import {
   type Observer,
   type Subject,
 } from 'rxjs';
-import invariant from 'tiny-invariant';
 
-import {
-  getIndegreeForNode,
-  getIndegreeZeroNodeIds,
-  type Graph,
-} from 'graph-util';
+import { getIndegreeZeroNodeIds, type Graph } from 'graph-util';
 
 import type { NodeInputVariable, VariableValueRecords } from 'flow-models';
 import type { RunFlowResult, RunNodeProgressEvent } from './event-types';
 import type RunFlowContext from './RunFlowContext';
 import RunNodeContext from './RunNodeContext';
-import type { RunFlowParams } from './types';
+import {
+  ConnectorRunState,
+  NodeRunState,
+  type RunFlowParams,
+  type RunFlowStates,
+} from './types';
+import { getIncomingConnectors } from './util';
 
 class RunGraphContext {
   constructor(
     runFlowContext: RunFlowContext,
     params: RunFlowParams,
+    runFlowStates: RunFlowStates,
     graphId: string,
   ) {
     const graph = params.graphRecords[graphId];
@@ -36,6 +37,7 @@ class RunGraphContext {
     this.nodeIdListSubject = new BehaviorSubject<string[]>(initialNodeIds);
     this.graph = graph;
     this.queuedNodeCount = initialNodeIds.length;
+    this.runFlowStates = runFlowStates;
   }
 
   readonly runFlowContext: RunFlowContext;
@@ -44,6 +46,7 @@ class RunGraphContext {
   graph: Graph;
   // Used to create run graph result
   readonly finishNodesVariableIds: string[] = [];
+  readonly runFlowStates: RunFlowStates;
 
   get progressObserver(): Option<Observer<RunNodeProgressEvent>> {
     return this.params.progressObserver;
@@ -56,34 +59,27 @@ class RunGraphContext {
   }
 
   completeEdges(edges: Edge[]) {
-    const updatedNodeIds = new Set<string>();
+    const nextNodeIds = pipe(
+      this.runFlowStates.nodeStates,
+      D.keys,
+      A.filter((nodeId) => {
+        const state = this.runFlowStates.nodeStates[nodeId];
+        if (state !== NodeRunState.PENDING) {
+          return false;
+        }
+        const incomingConnectors = getIncomingConnectors(this.params, nodeId);
+        for (const { id } of incomingConnectors) {
+          const connectorState = this.runFlowStates.connectorStates[id];
+          if (connectorState === ConnectorRunState.PENDING) {
+            return false;
+          }
+        }
+        return true;
+      }),
+      F.toMutable,
+    );
 
-    this.graph = produce(this.graph, (draft) => {
-      for (const { target, targetHandle, sourceHandle } of edges) {
-        invariant(targetHandle, 'targetHandle is required');
-        invariant(sourceHandle, 'sourceHandle is required');
-
-        draft[target][targetHandle][sourceHandle] = true;
-        updatedNodeIds.add(target);
-      }
-    });
-
-    const nextNodeIds = [];
-
-    for (const nodeId of updatedNodeIds) {
-      if (getIndegreeForNode(this.graph, nodeId) === 0) {
-        // Incrementing count on NodeExecutionEventType.Start event
-        // won't work, because both `queuedNodeCount` and
-        // `nextListOfNodeIds.length` could be 0 while there are still
-        // values in `listOfNodeIdsSubject` waiting to be processed.
-        //
-        // I.e. `listOfNodeIdsSubject.complete()` will complete the subject
-        // immediately, even though there are still values in the subject.
-        this.queuedNodeCount += 1;
-        nextNodeIds.push(nodeId);
-      }
-    }
-
+    this.queuedNodeCount += nextNodeIds.length;
     this.queuedNodeCount -= 1;
 
     if (nextNodeIds.length === 0) {

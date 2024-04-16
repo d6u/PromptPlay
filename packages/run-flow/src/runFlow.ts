@@ -23,7 +23,7 @@ import RunFlowContext from './RunFlowContext';
 import type RunGraphContext from './RunGraphContext';
 import RunNodeContext from './RunNodeContext';
 import { RunNodeProgressEventType, type RunFlowResult } from './event-types';
-import { type RunFlowParams } from './types';
+import { NodeRunState, type RunFlowParams } from './types';
 
 function runFlow(params: RunFlowParams): Observable<RunFlowResult> {
   const context = new RunFlowContext(params);
@@ -32,6 +32,7 @@ function runFlow(params: RunFlowParams): Observable<RunFlowResult> {
   return concat(
     runGraph(runGraphContext),
     defer(() => {
+      console.log(runGraphContext.runFlowStates);
       params.progressObserver?.complete();
       return runGraphContext.getRunGraphResult();
     }),
@@ -55,11 +56,18 @@ function runGraph(context: RunGraphContext): Observable<never> {
 }
 
 function runNode(context: RunNodeContext): Observable<never> {
+  const state = context.updateNodeRunState();
+
+  if (state === NodeRunState.SKIPPED) {
+    context.completeRunNode(NodeRunState.SKIPPED);
+    return EMPTY;
+  }
+
   const preferStreaming = context.params.preferStreaming;
   const nodeConfig = context.nodeConfig;
-  const inputVariables = context.getInputVariables();
-  const outputVariables = context.getOutputVariables();
-  const outgoingConditions = context.getOutgoingConditions();
+  const inputVariables = context.inputVariables;
+  const outputVariables = context.outputVariables;
+  const outgoingConditions = context.outgoingConditions;
   const inputVariableValues = context.getInputVariableValues();
 
   context.progressObserver?.next({
@@ -120,7 +128,7 @@ function runNode(context: RunNodeContext): Observable<never> {
         nodeId: context.nodeId,
       });
 
-      context.completeRunNode();
+      context.completeRunNode(NodeRunState.SUCCEEDED);
       return EMPTY;
     }),
   );

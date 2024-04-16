@@ -20,3 +20,35 @@ export type RunFlowParams = Readonly<{
   preferStreaming: boolean;
   progressObserver?: Observer<RunNodeProgressEvent>;
 }>;
+
+export enum NodeRunState {
+  PENDING = 'PENDING',
+  SKIPPED = 'SKIPPED',
+  RUNNING = 'RUNNING',
+  INTERRUPTED = 'INTERRUPTED',
+  FAILED = 'FAILED',
+  SUCCEEDED = 'SUCCEEDED',
+}
+
+export enum ConnectorRunState {
+  UNCONNECTED = 'UNCONNECTED',
+  PENDING = 'PENDING',
+  SKIPPED = 'SKIPPED',
+  UNMET = 'UNMET',
+  MET = 'MET',
+}
+
+export enum EdgeRunState {
+  PENDING = 'PENDING',
+  SKIPPED = 'SKIPPED',
+  UNMET = 'UNMET',
+  MET = 'MET',
+}
+
+export type RunFlowStates = {
+  nodeStates: Record<string, NodeRunState>;
+  connectorStates: Record<string, ConnectorRunState>;
+  edgeStates: Record<string, EdgeRunState>;
+  sourceHandleToEdgeIds: Record<string, string[]>;
+  edgeIdToTargetHandle: Record<string, string>;
+};

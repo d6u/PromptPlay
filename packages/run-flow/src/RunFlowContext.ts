@@ -9,7 +9,8 @@ import {
 import { computeTargetVariableIdToSourceVariableIdMap } from 'graph-util';
 
 import RunGraphContext from './RunGraphContext';
-import type { RunFlowParams } from './types';
+import type { RunFlowParams, RunFlowStates } from './types';
+import { createInitialRunState } from './util';
 
 class RunFlowContext {
   constructor(params: RunFlowParams) {
@@ -21,6 +22,9 @@ class RunFlowContext {
         edges: params.edges,
         connectors: params.connectors,
       });
+    this.runFlowStates = createInitialRunState(params);
+
+    console.log(this.runFlowStates);
   }
 
   readonly params: RunFlowParams;
@@ -28,9 +32,10 @@ class RunFlowContext {
   allConditionResults: ConditionResultRecords;
 
   private targetVariableIdToSourceVariableIdMap: Record<string, string>;
+  private runFlowStates: RunFlowStates;
 
   createRunGraphContext(graphId: string): RunGraphContext {
-    return new RunGraphContext(this, this.params, graphId);
+    return new RunGraphContext(this, this.params, this.runFlowStates, graphId);
   }
 
   getSrcVariableIdFromDstVariableId(connectorId: string): string {
