@@ -1,10 +1,9 @@
 import { A, D, F, pipe, type Option } from '@mobily/ts-belt';
-import { from, type Observer } from 'rxjs';
+import { type Observer } from 'rxjs';
 
 import {
   NodeClass,
   NodeType,
-  getNodeDefinitionForNodeTypeName,
   type ConditionResultRecords,
   type CreateNodeExecutionObservableFunction,
   type IncomingCondition,
@@ -12,7 +11,6 @@ import {
   type NodeInputVariable,
   type NodeOutputVariable,
   type OutgoingCondition,
-  type RunNodeFunction,
   type VariableValueBox,
   type VariableValueRecords,
 } from 'flow-models';
@@ -30,6 +28,7 @@ import {
   getInputVariablesForNode,
   getOutgoingConditionsForNode,
   getOutputVariablesForNode,
+  getRunNodeFunction,
 } from './util';
 
 class RunNodeContext {
@@ -51,15 +50,17 @@ class RunNodeContext {
       params.connectors,
       nodeId,
     );
+    const nodeConfig = params.nodeConfigs[nodeId];
 
     this.runGraphContext = runGraphContext;
     this.params = params;
     this.nodeId = nodeId;
-    this.nodeConfig = params.nodeConfigs[nodeId];
+    this.nodeConfig = nodeConfig;
     this.incomingConnectors = incomingConnectors;
     this.inputVariables = inputVariables;
     this.outputVariables = outputVariables;
     this.outgoingConditions = outgoingConditions;
+    this.runNodeFunc = getRunNodeFunction(nodeConfig);
   }
 
   readonly params: RunFlowParams;
@@ -68,6 +69,7 @@ class RunNodeContext {
   readonly inputVariables: NodeInputVariable[];
   readonly outputVariables: NodeOutputVariable[];
   readonly outgoingConditions: OutgoingCondition[];
+  readonly runNodeFunc: CreateNodeExecutionObservableFunction<NodeAllLevelConfigUnion>;
 
   get progressObserver(): Option<Observer<RunNodeProgressEvent>> {
     return this.params.progressObserver;
@@ -85,7 +87,7 @@ class RunNodeContext {
   private outputVariableValues: VariableValueRecords = {};
   private outgoingConditionResults: ConditionResultRecords = {};
 
-  updateNodeRunState(): void {
+  updateNodeRunStateBaseOnIncomingConnectorStates(): void {
     for (const { id } of this.incomingConnectors) {
       const state = this.runGraphContext.runFlowStates.connectorStates[id];
       if (
@@ -102,44 +104,6 @@ class RunNodeContext {
       NodeRunState.RUNNING;
   }
 
-  createRunGraphContext(graphId: string): RunGraphContext {
-    return this.runGraphContext.runFlowContext.createRunGraphContext(graphId);
-  }
-
-  getRunNodeFunction(): CreateNodeExecutionObservableFunction<NodeAllLevelConfigUnion> {
-    const nodeConfig = this.params.nodeConfigs[this.nodeId];
-    const nodeDefinition = getNodeDefinitionForNodeTypeName(nodeConfig.type);
-
-    if (
-      nodeDefinition.createNodeExecutionObservable == null &&
-      nodeDefinition.runNode == null
-    ) {
-      throw new Error(
-        'NodeDefinition does not have runNode or createNodeExecutionObservable',
-      );
-    }
-
-    if (nodeDefinition.createNodeExecutionObservable != null) {
-      // `createNodeExecutionObservable` is a union type like this:
-      //
-      // ```
-      // | CreateNodeExecutionObservableFunction<InputNodeInstanceLevelConfig>
-      // | CreateNodeExecutionObservableFunction<OutputNodeInstanceLevelConfig>
-      // | ...
-      // ```
-      //
-      // this will deduce the argument type of
-      // `createNodeExecutionObservable` to never when called.
-      // Cast it to a more flexible type to avoid this issue.
-      return nodeDefinition.createNodeExecutionObservable as CreateNodeExecutionObservableFunction<NodeAllLevelConfigUnion>;
-    } else {
-      // No null check needed here, because we checked it above.
-      const runNode =
-        nodeDefinition.runNode as RunNodeFunction<NodeAllLevelConfigUnion>;
-      return (params) => from(runNode(params));
-    }
-  }
-
   getParamsForRunNodeFunction<T>(): T {
     return {
       preferStreaming: this.params.preferStreaming,
@@ -149,25 +113,6 @@ class RunNodeContext {
       outgoingConditions: this.outgoingConditions,
       inputVariableValues: this.getInputVariableValues(),
     } as T;
-  }
-
-  getInputVariableValues(): unknown[] {
-    // TODO: We need to emit the NodeInput variable value to store
-    // as well, otherwise we cannot inspect node input variable values.
-    // Currently, we only emit NodeOutput variable values or
-    // OutputNode's NodeInput variable values.
-    if (this.nodeConfig.class === NodeClass.Start) {
-      // When current node class is Start, we need to collect
-      // NodeOutput variable values other than NodeInput variable values.
-      return this.runGraphContext.runFlowContext.getVariableValuesForVariables(
-        this.outputVariables,
-      );
-    } else {
-      // For non-Start node class, we need to collect NodeInput variable values.
-      return this.runGraphContext.runFlowContext.getVariableValuesForVariables(
-        this.inputVariables,
-      );
-    }
   }
 
   // NOTE: Called during runNode in progress
@@ -209,11 +154,16 @@ class RunNodeContext {
     }
   }
 
+  createRunGraphContext(graphId: string): RunGraphContext {
+    return this.runGraphContext.runFlowContext.createRunGraphContext(graphId);
+  }
+
   // NOTE: Run after runNode finished
   setNodeRunState(nodeRunState: NodeRunState) {
     this.runGraphContext.runFlowStates.nodeStates[this.nodeId] = nodeRunState;
   }
 
+  // NOTE: Run after runNode finished
   updateOutgoingConditionResultsIfConditionNode() {
     // NOTE: For none Condition node, we need to generate a condition result.
     // TODO: Generalize this
@@ -348,6 +298,25 @@ class RunNodeContext {
           ...this.inputVariables.map((v) => v.id),
         );
       }
+    }
+  }
+
+  private getInputVariableValues(): unknown[] {
+    // TODO: We need to emit the NodeInput variable value to store
+    // as well, otherwise we cannot inspect node input variable values.
+    // Currently, we only emit NodeOutput variable values or
+    // OutputNode's NodeInput variable values.
+    if (this.nodeConfig.class === NodeClass.Start) {
+      // When current node class is Start, we need to collect
+      // NodeOutput variable values other than NodeInput variable values.
+      return this.runGraphContext.runFlowContext.getVariableValuesForVariables(
+        this.outputVariables,
+      );
+    } else {
+      // For non-Start node class, we need to collect NodeInput variable values.
+      return this.runGraphContext.runFlowContext.getVariableValuesForVariables(
+        this.inputVariables,
+      );
     }
   }
 }

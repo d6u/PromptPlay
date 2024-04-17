@@ -27,7 +27,7 @@ function runFlow(params: RunFlowParams): Observable<RunFlowResult> {
   return concat(
     runGraph(runGraphContext),
     defer(() => {
-      console.log(runGraphContext.runFlowStates);
+      // console.log(runGraphContext.runFlowStates);
       params.progressObserver?.complete();
       return runGraphContext.getRunGraphResult();
     }),
@@ -59,73 +59,69 @@ function runGraph(context: RunGraphContext): Observable<never> {
 }
 
 function runNode(context: RunNodeContext): Observable<never> {
-  context.updateNodeRunState();
-
-  let obs: Observable<never>;
-
-  if (context.nodeRunState === NodeRunState.SKIPPED) {
-    context.progressObserver?.next({
-      type: RunNodeProgressEventType.Started,
-      nodeId: context.nodeId,
-    });
-
-    obs = EMPTY;
-  } else {
-    invariant(
-      context.nodeRunState === NodeRunState.RUNNING,
-      'Node must be running',
-    );
-
-    context.progressObserver?.next({
-      type: RunNodeProgressEventType.Started,
-      nodeId: context.nodeId,
-    });
-
-    let runNodeObservable;
-
-    if (context.nodeConfig.type === NodeType.Loop) {
-      // TODO: Refactor
-      runNodeObservable = runLoopNode(context);
-    } else {
-      const runNodeFunc = context.getRunNodeFunction();
-      runNodeObservable = runNodeFunc(context.getParamsForRunNodeFunction());
-    }
-
-    obs = runNodeObservable.pipe(
-      tap({
-        next(result) {
-          // TODO: progressObserver
-
-          if (result.variableValues != null) {
-            context.updateVariableValues(result.variableValues);
-          }
-
-          if (result.conditionResults != null) {
-            context.updateConditionResults(result.conditionResults);
-          }
-        },
-        complete() {
-          context.params.progressObserver?.next({
-            type: RunNodeProgressEventType.Finished,
-            nodeId: context.nodeId,
-          });
-          context.setNodeRunState(NodeRunState.SUCCEEDED);
-          context.updateOutgoingConditionResultsIfConditionNode();
-          context.propagateConnectorResults();
-          context.recordFinishNodeIdIfFinishNode();
-        },
-      }),
-      ignoreElements(),
-      catchError((err) => {
-        console.error(err);
-        context.setNodeRunState(NodeRunState.FAILED);
-        return EMPTY;
-      }),
-    );
-  }
-
   return concat(
-    obs,
+    defer(() => {
+      context.updateNodeRunStateBaseOnIncomingConnectorStates();
+      return EMPTY;
+    }),
+    defer(() => {
+      if (context.nodeRunState === NodeRunState.SKIPPED) {
+        return EMPTY;
+      }
+
+      invariant(
+        context.nodeRunState === NodeRunState.RUNNING,
+        'Node must be in RUNNING state',
+      );
+
+      context.progressObserver?.next({
+        type: RunNodeProgressEventType.Started,
+        nodeId: context.nodeId,
+      });
+
+      let runNodeObservable;
+
+      if (context.nodeConfig.type === NodeType.Loop) {
+        // TODO: Refactor
+        runNodeObservable = runLoopNode(context);
+      } else {
+        runNodeObservable = context.runNodeFunc(
+          context.getParamsForRunNodeFunction(),
+        );
+      }
+
+      return runNodeObservable.pipe(
+        tap({
+          next(result) {
+            // TODO: progressObserver
+
+            if (result.variableValues != null) {
+              context.updateVariableValues(result.variableValues);
+            }
+
+            if (result.conditionResults != null) {
+              context.updateConditionResults(result.conditionResults);
+            }
+          },
+          complete() {
+            context.params.progressObserver?.next({
+              type: RunNodeProgressEventType.Finished,
+              nodeId: context.nodeId,
+            });
+            context.setNodeRunState(NodeRunState.SUCCEEDED);
+            context.updateOutgoingConditionResultsIfConditionNode();
+            context.propagateConnectorResults();
+            context.recordFinishNodeIdIfFinishNode();
+          },
+        }),
+        ignoreElements(),
+        catchError((err) => {
+          console.error(err);
+          context.setNodeRunState(NodeRunState.FAILED);
+          return EMPTY;
+        }),
+      );
+    }),
     defer(() => {
       context.propagateRunState();
       return EMPTY;

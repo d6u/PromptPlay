@@ -1,6 +1,7 @@
 import * as A from 'fp-ts/Array';
 import * as R from 'fp-ts/Record';
 import { pipe } from 'fp-ts/function';
+import { from } from 'rxjs';
 import invariant from 'tiny-invariant';
 
 import {
@@ -10,10 +11,12 @@ import {
   NodeConfig,
   getNodeDefinitionForNodeTypeName,
   type ConnectorRecords,
+  type CreateNodeExecutionObservableFunction,
   type IncomingCondition,
   type NodeInputVariable,
   type NodeOutputVariable,
   type OutgoingCondition,
+  type RunNodeFunction,
 } from 'flow-models';
 
 import {
@@ -196,4 +199,39 @@ export function getInputVariablesForNode(
         c.nodeId === nodeId && c.type === ConnectorType.NodeInput,
     )
     .sort((a, b) => a.index - b.index);
+}
+
+export function getRunNodeFunction(
+  nodeConfig: NodeAllLevelConfigUnion,
+): CreateNodeExecutionObservableFunction<NodeAllLevelConfigUnion> {
+  const nodeDefinition = getNodeDefinitionForNodeTypeName(nodeConfig.type);
+
+  if (
+    nodeDefinition.createNodeExecutionObservable == null &&
+    nodeDefinition.runNode == null
+  ) {
+    throw new Error(
+      'NodeDefinition does not have runNode or createNodeExecutionObservable',
+    );
+  }
+
+  if (nodeDefinition.createNodeExecutionObservable != null) {
+    // `createNodeExecutionObservable` is a union type like this:
+    //
+    // ```
+    // | CreateNodeExecutionObservableFunction<InputNodeInstanceLevelConfig>
+    // | CreateNodeExecutionObservableFunction<OutputNodeInstanceLevelConfig>
+    // | ...
+    // ```
+    //
+    // this will deduce the argument type of
+    // `createNodeExecutionObservable` to never when called.
+    // Cast it to a more flexible type to avoid this issue.
+    return nodeDefinition.createNodeExecutionObservable as CreateNodeExecutionObservableFunction<NodeAllLevelConfigUnion>;
+  } else {
+    // No null check needed here, because we checked it above.
+    const runNode =
+      nodeDefinition.runNode as RunNodeFunction<NodeAllLevelConfigUnion>;
+    return (params) => from(runNode(params));
+  }
 }
