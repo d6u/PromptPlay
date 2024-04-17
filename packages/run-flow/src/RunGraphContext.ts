@@ -19,7 +19,7 @@ import {
   type RunFlowParams,
   type RunFlowStates,
 } from './types';
-import { getIncomingConnectors } from './util';
+import { getIncomingConnectorsForNode } from './util';
 
 class RunGraphContext {
   constructor(
@@ -66,7 +66,10 @@ class RunGraphContext {
         if (state !== NodeRunState.PENDING) {
           return false;
         }
-        const incomingConnectors = getIncomingConnectors(this.params, nodeId);
+        const incomingConnectors = getIncomingConnectorsForNode(
+          this.params.connectors,
+          nodeId,
+        );
         for (const { id } of incomingConnectors) {
           const connectorState = this.runFlowStates.connectorStates[id];
           if (connectorState === ConnectorRunState.PENDING) {

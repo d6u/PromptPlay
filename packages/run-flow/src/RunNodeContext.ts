@@ -2,7 +2,6 @@ import { A, D, F, pipe, type Option } from '@mobily/ts-belt';
 import { from, type Observer } from 'rxjs';
 
 import {
-  ConnectorType,
   NodeClass,
   NodeType,
   getNodeDefinitionForNodeTypeName,
@@ -26,7 +25,12 @@ import {
   NodeRunState,
   RunFlowParams,
 } from './types';
-import { getIncomingConnectors } from './util';
+import {
+  getIncomingConnectorsForNode,
+  getInputVariablesForNode,
+  getOutgoingConditionsForNode,
+  getOutputVariablesForNode,
+} from './util';
 
 class RunNodeContext {
   constructor(
@@ -34,32 +38,18 @@ class RunNodeContext {
     params: RunFlowParams,
     nodeId: string,
   ) {
-    const incomingConnectors = getIncomingConnectors(params, nodeId);
-
-    const inputVariables = incomingConnectors
-      .filter((c): c is NodeInputVariable => c.type === ConnectorType.NodeInput)
-      .sort((a, b) => a.index - b.index);
-
-    const outputVariables = pipe(
+    const incomingConnectors = getIncomingConnectorsForNode(
       params.connectors,
-      D.values,
-      A.filter(
-        (c): c is NodeOutputVariable =>
-          c.nodeId === nodeId && c.type === ConnectorType.NodeOutput,
-      ),
-      A.sortBy((c) => c.index),
-      F.toMutable,
+      nodeId,
     );
-
-    const outgoingConditions = pipe(
+    const inputVariables = getInputVariablesForNode(params.connectors, nodeId);
+    const outputVariables = getOutputVariablesForNode(
       params.connectors,
-      D.values,
-      A.filter(
-        (c): c is OutgoingCondition =>
-          c.nodeId === nodeId && c.type === ConnectorType.OutCondition,
-      ),
-      A.sortBy((c) => c.index),
-      F.toMutable,
+      nodeId,
+    );
+    const outgoingConditions = getOutgoingConditionsForNode(
+      params.connectors,
+      nodeId,
     );
 
     this.runGraphContext = runGraphContext;
