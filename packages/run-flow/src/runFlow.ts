@@ -7,16 +7,11 @@ import {
   defer,
   ignoreElements,
   mergeMap,
-  of,
   tap,
 } from 'rxjs';
 import invariant from 'tiny-invariant';
 
-import {
-  NodeType,
-  type IncomingCondition,
-  type RunNodeResult,
-} from 'flow-models';
+import { NodeType, type IncomingCondition } from 'flow-models';
 import { ROOT_GRAPH_ID, getIndegreeForNodeConnector } from 'graph-util';
 
 import RunFlowContext from './RunFlowContext';
@@ -43,10 +38,18 @@ function runGraph(context: RunGraphContext): Observable<never> {
   const nodeIdListSubject = context.nodeIdListSubject;
 
   return nodeIdListSubject.pipe(
-    // mergeMap converts ArrayLike to Observable automatically
+    // Element in ArrayLike object returned from `mergeMap` will be converted
+    // to Observable with these elements.
     mergeMap((nodeIds) => {
       return nodeIds.map((nodeId) => {
-        return runNode(context.createRunNodeContext(nodeId));
+        const runNodeContext = context.createRunNodeContext(nodeId);
+        return concat(
+          runNode(runNodeContext),
+          defer(() => {
+            context.emitNextNodeIdsOrCompleteRunRoutine();
+            return EMPTY;
+          }),
+        );
       });
     }),
     // NOTE: Switch from concatAll() to mergeAll() to subscribe to each
@@ -56,79 +59,75 @@ function runGraph(context: RunGraphContext): Observable<never> {
 }
 
 function runNode(context: RunNodeContext): Observable<never> {
-  const state = context.updateNodeRunState();
+  context.updateNodeRunState();
 
-  if (state === NodeRunState.SKIPPED) {
-    context.completeRunNode(NodeRunState.SKIPPED);
-    return EMPTY;
-  }
+  let obs: Observable<never>;
 
-  const preferStreaming = context.params.preferStreaming;
-  const nodeConfig = context.nodeConfig;
-  const inputVariables = context.inputVariables;
-  const outputVariables = context.outputVariables;
-  const outgoingConditions = context.outgoingConditions;
-  const inputVariableValues = context.getInputVariableValues();
-
-  context.progressObserver?.next({
-    type: RunNodeProgressEventType.Started,
-    nodeId: context.nodeId,
-  });
-
-  let runNodeObservable;
-
-  if (context.nodeConfig.type === NodeType.Loop) {
-    runNodeObservable = runLoopNode(context);
-  } else {
-    const runNodeFunc = context.getRunNodeFunction();
-
-    runNodeObservable = runNodeFunc({
-      preferStreaming,
-      nodeConfig,
-      inputVariables,
-      outputVariables,
-      outgoingConditions,
-      inputVariableValues,
+  if (context.nodeRunState === NodeRunState.SKIPPED) {
+    context.progressObserver?.next({
+      type: RunNodeProgressEventType.Started,
+      nodeId: context.nodeId,
     });
+
+    obs = EMPTY;
+  } else {
+    invariant(
+      context.nodeRunState === NodeRunState.RUNNING,
+      'Node must be running',
+    );
+
+    context.progressObserver?.next({
+      type: RunNodeProgressEventType.Started,
+      nodeId: context.nodeId,
+    });
+
+    let runNodeObservable;
+
+    if (context.nodeConfig.type === NodeType.Loop) {
+      // TODO: Refactor
+      runNodeObservable = runLoopNode(context);
+    } else {
+      const runNodeFunc = context.getRunNodeFunction();
+      runNodeObservable = runNodeFunc(context.getParamsForRunNodeFunction());
+    }
+
+    obs = runNodeObservable.pipe(
+      tap({
+        next(result) {
+          // TODO: progressObserver
+
+          if (result.variableValues != null) {
+            context.updateVariableValues(result.variableValues);
+          }
+
+          if (result.conditionResults != null) {
+            context.updateConditionResults(result.conditionResults);
+          }
+        },
+        complete() {
+          context.params.progressObserver?.next({
+            type: RunNodeProgressEventType.Finished,
+            nodeId: context.nodeId,
+          });
+          context.setNodeRunState(NodeRunState.SUCCEEDED);
+          context.updateOutgoingConditionResultsIfConditionNode();
+          context.propagateConnectorResults();
+          context.recordFinishNodeIdIfFinishNode();
+        },
+      }),
+      ignoreElements(),
+      catchError((err) => {
+        console.error(err);
+        context.setNodeRunState(NodeRunState.FAILED);
+        return EMPTY;
+      }),
+    );
   }
 
   return concat(
-    runNodeObservable.pipe(
-      catchError<RunNodeResult, Observable<RunNodeResult>>((err) => {
-        console.error(err);
-        // TODO: Emit error instead
-        context.nodeIdListSubject.complete();
-        return of({ errors: [JSON.stringify(err)] });
-      }),
-      tap((result) => {
-        context.progressObserver?.next({
-          type: RunNodeProgressEventType.Updated,
-          nodeId: context.nodeId,
-          result: {
-            ...result,
-            variableResults: context.convertVariableValuesToRecords(
-              result.variableValues,
-            ),
-          },
-        });
-
-        if (result.variableValues != null) {
-          context.updateVariableValues(result.variableValues);
-        }
-
-        if (result.conditionResults != null) {
-          context.updateConditionResults(result.conditionResults);
-        }
-      }),
-      ignoreElements(),
-    ),
+    obs,
     defer(() => {
-      context.params.progressObserver?.next({
-        type: RunNodeProgressEventType.Finished,
-        nodeId: context.nodeId,
-      });
-
-      context.completeRunNode(NodeRunState.SUCCEEDED);
+      context.propagateRunState();
       return EMPTY;
     }),
   );

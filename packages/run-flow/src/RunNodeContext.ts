@@ -1,7 +1,5 @@
 import { A, D, F, pipe, type Option } from '@mobily/ts-belt';
-import { type Edge } from 'reactflow';
-import { from, type Observer, type Subject } from 'rxjs';
-import invariant from 'tiny-invariant';
+import { from, type Observer } from 'rxjs';
 
 import {
   ConnectorType,
@@ -19,7 +17,6 @@ import {
   type VariableValueBox,
   type VariableValueRecords,
 } from 'flow-models';
-import type { GraphRecords } from 'graph-util';
 
 import type RunGraphContext from './RunGraphContext';
 import { type RunNodeProgressEvent } from './event-types';
@@ -68,10 +65,7 @@ class RunNodeContext {
     this.runGraphContext = runGraphContext;
     this.params = params;
     this.nodeId = nodeId;
-    this.outgoingEdges = runGraphContext.params.edges.filter(
-      (e) => e.source === nodeId,
-    );
-
+    this.nodeConfig = params.nodeConfigs[nodeId];
     this.incomingConnectors = incomingConnectors;
     this.inputVariables = inputVariables;
     this.outputVariables = outputVariables;
@@ -80,6 +74,7 @@ class RunNodeContext {
 
   readonly params: RunFlowParams;
   readonly nodeId: string;
+  readonly nodeConfig: NodeAllLevelConfigUnion;
   readonly inputVariables: NodeInputVariable[];
   readonly outputVariables: NodeOutputVariable[];
   readonly outgoingConditions: OutgoingCondition[];
@@ -88,20 +83,11 @@ class RunNodeContext {
     return this.params.progressObserver;
   }
 
-  get graphRecords(): GraphRecords {
-    return this.runGraphContext.params.graphRecords;
-  }
-
-  get nodeIdListSubject(): Subject<string[]> {
-    return this.runGraphContext.nodeIdListSubject;
-  }
-
-  get nodeConfig(): NodeAllLevelConfigUnion {
-    return this.runGraphContext.params.nodeConfigs[this.nodeId];
+  get nodeRunState(): NodeRunState {
+    return this.runGraphContext.runFlowStates.nodeStates[this.nodeId];
   }
 
   private readonly runGraphContext: RunGraphContext;
-  private readonly outgoingEdges: Edge[];
   private readonly incomingConnectors: (
     | NodeInputVariable
     | IncomingCondition
@@ -109,7 +95,7 @@ class RunNodeContext {
   private outputVariableValues: VariableValueRecords = {};
   private outgoingConditionResults: ConditionResultRecords = {};
 
-  updateNodeRunState(): NodeRunState {
+  updateNodeRunState(): void {
     for (const { id } of this.incomingConnectors) {
       const state = this.runGraphContext.runFlowStates.connectorStates[id];
       if (
@@ -118,13 +104,12 @@ class RunNodeContext {
       ) {
         this.runGraphContext.runFlowStates.nodeStates[this.nodeId] =
           NodeRunState.SKIPPED;
-        return NodeRunState.SKIPPED;
+        return;
       }
     }
 
     this.runGraphContext.runFlowStates.nodeStates[this.nodeId] =
       NodeRunState.RUNNING;
-    return NodeRunState.RUNNING;
   }
 
   createRunGraphContext(graphId: string): RunGraphContext {
@@ -163,6 +148,17 @@ class RunNodeContext {
         nodeDefinition.runNode as RunNodeFunction<NodeAllLevelConfigUnion>;
       return (params) => from(runNode(params));
     }
+  }
+
+  getParamsForRunNodeFunction<T>(): T {
+    return {
+      preferStreaming: this.params.preferStreaming,
+      nodeConfig: this.nodeConfig,
+      inputVariables: this.inputVariables,
+      outputVariables: this.outputVariables,
+      outgoingConditions: this.outgoingConditions,
+      inputVariableValues: this.getInputVariableValues(),
+    } as T;
   }
 
   getInputVariableValues(): unknown[] {
@@ -224,16 +220,24 @@ class RunNodeContext {
   }
 
   // NOTE: Run after runNode finished
-  completeRunNode(nodeRunState: NodeRunState) {
+  setNodeRunState(nodeRunState: NodeRunState) {
     this.runGraphContext.runFlowStates.nodeStates[this.nodeId] = nodeRunState;
+  }
 
-    this.propagateConnectorResults();
-    this.propagateRunState();
-    this.emitNextNodeIds();
+  updateOutgoingConditionResultsIfConditionNode() {
+    // NOTE: For none Condition node, we need to generate a condition result.
+    // TODO: Generalize this
+    if (this.nodeConfig.type !== NodeType.ConditionNode) {
+      for (const c of this.outgoingConditions) {
+        this.outgoingConditionResults[c.id] = {
+          isConditionMatched: true,
+        };
+      }
+    }
   }
 
   // NOTE: Run after runNode finished
-  private propagateConnectorResults() {
+  propagateConnectorResults() {
     // ANCHOR: Flush variable values
     if (this.nodeConfig.class === NodeClass.Finish) {
       this.runGraphContext.runFlowContext.updateVariableValues(
@@ -248,17 +252,6 @@ class RunNodeContext {
     }
 
     // ANCHOR: Flush condition results
-
-    // NOTE: For none Condition node, we need to generate a condition result.
-    // TODO: Generalize this
-    if (this.nodeConfig.type !== NodeType.ConditionNode) {
-      for (const c of this.outgoingConditions) {
-        this.outgoingConditionResults[c.id] = {
-          isConditionMatched: true,
-        };
-      }
-    }
-
     this.runGraphContext.runFlowContext.updateConditionResults(
       this.outgoingConditions,
       this.outgoingConditionResults,
@@ -266,7 +259,7 @@ class RunNodeContext {
   }
 
   // NOTE: Run after runNode finished
-  private propagateRunState() {
+  propagateRunState() {
     const updatedConnectorIds: string[] = [];
 
     const nodeRunState =
@@ -337,7 +330,7 @@ class RunNodeContext {
       );
     }
 
-    // NOTE: Propagate input variable states
+    // NOTE: Propagate incoming connector states of updated edges
     for (const id of updatedEdgeIds) {
       const targetHandle =
         this.runGraphContext.runFlowStates.edgeIdToTargetHandle[id];
@@ -356,8 +349,7 @@ class RunNodeContext {
     }
   }
 
-  // NOTE: Run after runNode finished
-  private emitNextNodeIds(): void {
+  recordFinishNodeIdIfFinishNode() {
     // ANCHOR: When current node is a Finish node and not a LoopFinish node,
     // record connector IDs
     if (this.nodeConfig.class === NodeClass.Finish) {
@@ -367,25 +359,6 @@ class RunNodeContext {
         );
       }
     }
-
-    // ANCHOR: Mark edge as completed
-    const completedEdges: Edge[] = [];
-
-    for (const edge of this.outgoingEdges) {
-      invariant(edge.sourceHandle, 'sourceHandle is required');
-
-      const edgeHasVariableValue =
-        edge.sourceHandle in this.outputVariableValues;
-      const edgeHasConditionMatched =
-        edge.sourceHandle in this.outgoingConditionResults &&
-        this.outgoingConditionResults[edge.sourceHandle].isConditionMatched;
-
-      if (edgeHasVariableValue || edgeHasConditionMatched) {
-        completedEdges.push(edge);
-      }
-    }
-
-    this.runGraphContext.completeEdges(completedEdges);
   }
 }
 

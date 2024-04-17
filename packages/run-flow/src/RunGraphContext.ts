@@ -1,5 +1,4 @@
 import { A, D, F, pipe, type Option } from '@mobily/ts-belt';
-import type { Edge } from 'reactflow';
 import {
   BehaviorSubject,
   of,
@@ -8,9 +7,9 @@ import {
   type Subject,
 } from 'rxjs';
 
+import type { NodeInputVariable, VariableValueRecords } from 'flow-models';
 import { getIndegreeZeroNodeIds, type Graph } from 'graph-util';
 
-import type { NodeInputVariable, VariableValueRecords } from 'flow-models';
 import type { RunFlowResult, RunNodeProgressEvent } from './event-types';
 import type RunFlowContext from './RunFlowContext';
 import RunNodeContext from './RunNodeContext';
@@ -58,7 +57,7 @@ class RunGraphContext {
     return new RunNodeContext(this, this.params, nodeId);
   }
 
-  completeEdges(edges: Edge[]) {
+  emitNextNodeIdsOrCompleteRunRoutine(): void {
     const nextNodeIds = pipe(
       this.runFlowStates.nodeStates,
       D.keys,
@@ -99,11 +98,12 @@ class RunGraphContext {
 
       if (v.isGlobal) {
         if (v.globalVariableId != null) {
-          variableValues[id] =
-            this.runFlowContext.allVariableValues[v.globalVariableId];
+          variableValues[id] = this.runFlowContext.getVariableValueForId(
+            v.globalVariableId,
+          );
         }
       } else {
-        variableValues[id] = this.runFlowContext.allVariableValues[id];
+        variableValues[id] = this.runFlowContext.getVariableValueForId(id);
       }
     });
 

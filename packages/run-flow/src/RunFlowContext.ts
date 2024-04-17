@@ -4,6 +4,7 @@ import {
   type NodeInputVariable,
   type NodeOutputVariable,
   type OutgoingCondition,
+  type VariableValueBox,
   type VariableValueRecords,
 } from 'flow-models';
 import { computeTargetVariableIdToSourceVariableIdMap } from 'graph-util';
@@ -11,6 +12,8 @@ import { computeTargetVariableIdToSourceVariableIdMap } from 'graph-util';
 import RunGraphContext from './RunGraphContext';
 import type { RunFlowParams, RunFlowStates } from './types';
 import { createInitialRunState } from './util';
+
+type IdToIdMap = Record<string, string>;
 
 class RunFlowContext {
   constructor(params: RunFlowParams) {
@@ -27,12 +30,11 @@ class RunFlowContext {
     console.log(this.runFlowStates);
   }
 
-  readonly params: RunFlowParams;
-  allVariableValues: VariableValueRecords;
-  allConditionResults: ConditionResultRecords;
-
-  private targetVariableIdToSourceVariableIdMap: Record<string, string>;
-  private runFlowStates: RunFlowStates;
+  private readonly params: RunFlowParams;
+  private readonly targetVariableIdToSourceVariableIdMap: IdToIdMap;
+  private readonly runFlowStates: RunFlowStates;
+  private allVariableValues: VariableValueRecords;
+  private allConditionResults: ConditionResultRecords;
 
   createRunGraphContext(graphId: string): RunGraphContext {
     return new RunGraphContext(this, this.params, this.runFlowStates, graphId);
@@ -61,6 +63,10 @@ class RunFlowContext {
         return this.allVariableValues[sourceVariableId]?.value;
       }
     });
+  }
+
+  getVariableValueForId(variableId: string): VariableValueBox {
+    return this.allVariableValues[variableId];
   }
 
   updateVariableValues(
