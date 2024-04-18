@@ -1,5 +1,4 @@
 import {
-  ConnectorType,
   type ConditionResultRecords,
   type NodeInputVariable,
   type NodeOutputVariable,
@@ -27,9 +26,10 @@ class RunFlowContext {
       });
   }
 
+  allVariableValues: VariableValueRecords;
+
   private readonly params: RunFlowParams;
   private readonly targetVariableIdToSourceVariableIdMap: IdToIdMap;
-  private allVariableValues: VariableValueRecords;
   private allConditionResults: ConditionResultRecords;
 
   createRunGraphContext(startNodeId: string): RunGraphContext {
@@ -43,27 +43,6 @@ class RunFlowContext {
 
   getSrcVariableIdFromDstVariableId(connectorId: string): string {
     return this.targetVariableIdToSourceVariableIdMap[connectorId];
-  }
-
-  getVariableValuesForVariables(
-    variables: (NodeInputVariable | NodeOutputVariable)[],
-  ): unknown[] {
-    return variables.map((v) => {
-      if (v.type === ConnectorType.NodeOutput) {
-        return this.allVariableValues[v.id]?.value;
-      }
-
-      if (v.isGlobal) {
-        if (v.globalVariableId != null) {
-          return this.allVariableValues[v.globalVariableId]?.value;
-        }
-      } else {
-        const sourceVariableId = this.getSrcVariableIdFromDstVariableId(v.id);
-
-        // NOTE: Use ? to be safe here.
-        return this.allVariableValues[sourceVariableId]?.value;
-      }
-    });
   }
 
   getVariableValueForId(variableId: string): VariableValueBox {
