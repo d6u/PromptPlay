@@ -41,7 +41,7 @@ function runFlowForCanvasTester(params: Params): Observable<RunFlowResult> {
 
   // ANCHOR: Step 1 - compile graphs
 
-  const { errors, graphRecords } = computeGraphs({
+  const { errors } = computeGraphs({
     edges: params.edges,
     nodeConfigs: params.nodeConfigs,
     startNodeIds: params.startNodeIds,
@@ -103,8 +103,8 @@ function runFlowForCanvasTester(params: Params): Observable<RunFlowResult> {
     nodeConfigs: result.nodeAllLevelConfigs,
     connectors: params.connectors,
     inputVariableValues: params.inputValueMap,
+    startNodeId: params.startNodeIds[0],
     preferStreaming: params.preferStreaming,
-    graphRecords,
     progressObserver: subject,
   });
 }

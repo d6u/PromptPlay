@@ -1,4 +1,6 @@
-import { A, D, F, pipe, type Option } from '@mobily/ts-belt';
+import { pipe, type Option } from '@mobily/ts-belt';
+import * as A from 'fp-ts/Array';
+import * as R from 'fp-ts/Record';
 import { type Observer } from 'rxjs';
 
 import {
@@ -24,7 +26,7 @@ import {
   RunFlowParams,
 } from './types';
 import {
-  getIncomingConnectorsForNode,
+  getIncomingConditionsForNode,
   getInputVariablesForNode,
   getOutgoingConditionsForNode,
   getOutputVariablesForNode,
@@ -37,11 +39,12 @@ class RunNodeContext {
     params: RunFlowParams,
     nodeId: string,
   ) {
-    const incomingConnectors = getIncomingConnectorsForNode(
+    const incomingConditions = getIncomingConditionsForNode(
       params.connectors,
       nodeId,
     );
     const inputVariables = getInputVariablesForNode(params.connectors, nodeId);
+    const incomingConnectors = [...incomingConditions, ...inputVariables];
     const outputVariables = getOutputVariablesForNode(
       params.connectors,
       nodeId,
@@ -57,6 +60,7 @@ class RunNodeContext {
     this.nodeId = nodeId;
     this.nodeConfig = nodeConfig;
     this.incomingConnectors = incomingConnectors;
+    this.incomingConditions = incomingConditions;
     this.inputVariables = inputVariables;
     this.outputVariables = outputVariables;
     this.outgoingConditions = outgoingConditions;
@@ -67,9 +71,11 @@ class RunNodeContext {
   readonly nodeId: string;
   readonly nodeConfig: NodeAllLevelConfigUnion;
   readonly inputVariables: NodeInputVariable[];
+  readonly incomingConditions: IncomingCondition[];
   readonly outputVariables: NodeOutputVariable[];
   readonly outgoingConditions: OutgoingCondition[];
   readonly runNodeFunc: CreateNodeExecutionObservableFunction<NodeAllLevelConfigUnion>;
+  readonly affectedNodeIds: Set<string> = new Set();
 
   get progressObserver(): Option<Observer<RunNodeProgressEvent>> {
     return this.params.progressObserver;
@@ -88,20 +94,43 @@ class RunNodeContext {
   private outgoingConditionResults: ConditionResultRecords = {};
 
   updateNodeRunStateBaseOnIncomingConnectorStates(): void {
+    if (this.nodeConfig.type !== NodeType.LoopFinish) {
+      for (const { id } of this.incomingConnectors) {
+        const state = this.runGraphContext.runFlowStates.connectorStates[id];
+        if (
+          state === ConnectorRunState.SKIPPED ||
+          state === ConnectorRunState.UNMET
+        ) {
+          this.runGraphContext.runFlowStates.nodeStates[this.nodeId] =
+            NodeRunState.SKIPPED;
+          return;
+        }
+      }
+
+      this.runGraphContext.runFlowStates.nodeStates[this.nodeId] =
+        NodeRunState.RUNNING;
+      return;
+    }
+
+    // NOTE: Special handling for LoopFinish node
+
+    let anyIncomingConditionMet = false;
+
     for (const { id } of this.incomingConnectors) {
       const state = this.runGraphContext.runFlowStates.connectorStates[id];
-      if (
-        state === ConnectorRunState.SKIPPED ||
-        state === ConnectorRunState.UNMET
-      ) {
-        this.runGraphContext.runFlowStates.nodeStates[this.nodeId] =
-          NodeRunState.SKIPPED;
-        return;
+      if (state === ConnectorRunState.MET) {
+        anyIncomingConditionMet = true;
+        break;
       }
     }
 
-    this.runGraphContext.runFlowStates.nodeStates[this.nodeId] =
-      NodeRunState.RUNNING;
+    if (anyIncomingConditionMet) {
+      this.runGraphContext.runFlowStates.nodeStates[this.nodeId] =
+        NodeRunState.RUNNING;
+    } else {
+      this.runGraphContext.runFlowStates.nodeStates[this.nodeId] =
+        NodeRunState.SKIPPED;
+    }
   }
 
   getParamsForRunNodeFunction<T>(): T {
@@ -119,17 +148,21 @@ class RunNodeContext {
   convertVariableValuesToRecords(
     variableValues: Option<unknown[]>,
   ): VariableValueRecords {
-    // TODO: Simplify this
     return variableValues
       ? pipe(
           this.nodeConfig.class === NodeClass.Finish
             ? this.inputVariables
             : this.outputVariables,
-          A.mapWithIndex<
-            NodeInputVariable | NodeOutputVariable,
-            [string, VariableValueBox]
-          >((i, v) => [v.id, { value: variableValues![i] }]),
-          D.fromPairs,
+          A.mapWithIndex(
+            (
+              i,
+              v: NodeInputVariable | NodeOutputVariable,
+            ): [string, VariableValueBox] => [
+              v.id,
+              { value: variableValues![i] },
+            ],
+          ),
+          R.fromEntries,
         )
       : {};
   }
@@ -155,7 +188,7 @@ class RunNodeContext {
   }
 
   createRunGraphContext(graphId: string): RunGraphContext {
-    return this.runGraphContext.runFlowContext.createRunGraphContext(graphId);
+    return this.runGraphContext.createRunGraphContext(graphId);
   }
 
   // NOTE: Run after runNode finished
@@ -222,8 +255,9 @@ class RunNodeContext {
       }
 
       // NOTE: Propagate outgoing condition states
-      // NOTE: Special handling for ConditionNode
+
       if (this.nodeConfig.type !== NodeType.ConditionNode) {
+        // NOTE: Special handling for ConditionNode
         for (const { id } of this.outgoingConditions) {
           this.runGraphContext.runFlowStates.connectorStates[id] =
             ConnectorRunState.MET;
@@ -231,13 +265,20 @@ class RunNodeContext {
         }
       } else {
         for (const { id } of this.outgoingConditions) {
-          if (this.outgoingConditionResults[id].isConditionMatched) {
+          // NOTE: this.outgoingConditionResults[id] could be null because
+          // Condition node current doesn't output condition that is skipped.
+          // TODO: Condition output all conditions regardless.
+          const isConditionMatched =
+            this.outgoingConditionResults[id]?.isConditionMatched ?? false;
+
+          if (isConditionMatched) {
             this.runGraphContext.runFlowStates.connectorStates[id] =
               ConnectorRunState.MET;
           } else {
             this.runGraphContext.runFlowStates.connectorStates[id] =
               ConnectorRunState.UNMET;
           }
+
           updatedConnectorIds.push(id);
         }
       }
@@ -247,27 +288,26 @@ class RunNodeContext {
 
     // NOTE: Propagate edge states
     for (const id of updatedConnectorIds) {
-      pipe(
-        this.runGraphContext.runFlowStates.sourceHandleToEdgeIds[id],
-        F.defaultTo([]),
-        A.forEach((edgeId) => {
-          const connectorRunState =
-            this.runGraphContext.runFlowStates.connectorStates[id];
+      const edgeIds =
+        this.runGraphContext.runFlowStates.sourceHandleToEdgeIds[id] ?? [];
 
-          if (connectorRunState === ConnectorRunState.SKIPPED) {
-            this.runGraphContext.runFlowStates.edgeStates[edgeId] =
-              EdgeRunState.SKIPPED;
-          } else if (connectorRunState === ConnectorRunState.UNMET) {
-            this.runGraphContext.runFlowStates.edgeStates[edgeId] =
-              EdgeRunState.UNMET;
-          } else if (connectorRunState === ConnectorRunState.MET) {
-            this.runGraphContext.runFlowStates.edgeStates[edgeId] =
-              EdgeRunState.MET;
-          }
+      for (const edgeId of edgeIds) {
+        const connectorRunState =
+          this.runGraphContext.runFlowStates.connectorStates[id];
 
-          updatedEdgeIds.push(edgeId);
-        }),
-      );
+        if (connectorRunState === ConnectorRunState.SKIPPED) {
+          this.runGraphContext.runFlowStates.edgeStates[edgeId] =
+            EdgeRunState.SKIPPED;
+        } else if (connectorRunState === ConnectorRunState.UNMET) {
+          this.runGraphContext.runFlowStates.edgeStates[edgeId] =
+            EdgeRunState.UNMET;
+        } else if (connectorRunState === ConnectorRunState.MET) {
+          this.runGraphContext.runFlowStates.edgeStates[edgeId] =
+            EdgeRunState.MET;
+        }
+      }
+
+      updatedEdgeIds.push(...edgeIds);
     }
 
     // NOTE: Propagate incoming connector states of updated edges
@@ -286,18 +326,20 @@ class RunNodeContext {
         this.runGraphContext.runFlowStates.connectorStates[targetHandle] =
           ConnectorRunState.MET;
       }
+
+      this.affectedNodeIds.add(this.params.connectors[targetHandle].nodeId);
     }
   }
 
-  recordFinishNodeIdIfFinishNode() {
-    // ANCHOR: When current node is a Finish node and not a LoopFinish node,
+  handleFinishNode() {
+    console.log('handleFinishNode', this.nodeId);
+    // NOTE: When current node is a Finish node and not a LoopFinish node,
     // record connector IDs
     if (this.nodeConfig.class === NodeClass.Finish) {
-      if (this.nodeConfig.type !== NodeType.LoopFinish) {
-        this.runGraphContext.finishNodesVariableIds.push(
-          ...this.inputVariables.map((v) => v.id),
-        );
-      }
+      this.runGraphContext.markFinishNodeRan(this.nodeId);
+      this.runGraphContext.finishNodesVariableIds.push(
+        ...this.inputVariables.map((v) => v.id),
+      );
     }
   }
 

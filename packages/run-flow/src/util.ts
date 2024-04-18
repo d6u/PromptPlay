@@ -165,6 +165,18 @@ export function getIncomingConnectorsForNode(
   );
 }
 
+export function getIncomingConditionsForNode(
+  connectors: ConnectorRecords,
+  nodeId: string,
+): IncomingCondition[] {
+  return Object.values(connectors)
+    .filter(
+      (c): c is IncomingCondition =>
+        c.nodeId === nodeId && c.type === ConnectorType.InCondition,
+    )
+    .sort((a, b) => a.index! - b.index!);
+}
+
 export function getOutgoingConditionsForNode(
   connectors: ConnectorRecords,
   nodeId: string,

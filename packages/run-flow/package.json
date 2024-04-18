@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@mobily/ts-belt": "^3.13.1",
+    "fast-copy": "^3.0.2",
     "flow-models": "workspace:^",
     "fp-ts": "^2.16.5",
     "graph-util": "workspace:^",

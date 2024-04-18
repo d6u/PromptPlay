@@ -11,18 +11,18 @@ import {
 } from 'rxjs';
 import invariant from 'tiny-invariant';
 
-import { NodeType, type IncomingCondition } from 'flow-models';
-import { ROOT_GRAPH_ID, getIndegreeForNodeConnector } from 'graph-util';
+import { NodeType, type RunNodeResult } from 'flow-models';
 
 import RunFlowContext from './RunFlowContext';
 import type RunGraphContext from './RunGraphContext';
 import RunNodeContext from './RunNodeContext';
 import { RunNodeProgressEventType, type RunFlowResult } from './event-types';
-import { NodeRunState, type RunFlowParams } from './types';
+import { ConnectorRunState, NodeRunState, type RunFlowParams } from './types';
+import { getIncomingConditionsForNode } from './util';
 
 function runFlow(params: RunFlowParams): Observable<RunFlowResult> {
   const context = new RunFlowContext(params);
-  const runGraphContext = context.createRunGraphContext(ROOT_GRAPH_ID);
+  const runGraphContext = context.createRunGraphContext(params.startNodeId);
 
   return concat(
     runGraph(runGraphContext),
@@ -35,6 +35,8 @@ function runFlow(params: RunFlowParams): Observable<RunFlowResult> {
 }
 
 function runGraph(context: RunGraphContext): Observable<never> {
+  console.log('runGraph');
+
   const nodeIdListSubject = context.nodeIdListSubject;
 
   return nodeIdListSubject.pipe(
@@ -46,7 +48,9 @@ function runGraph(context: RunGraphContext): Observable<never> {
         return concat(
           runNode(runNodeContext),
           defer(() => {
-            context.emitNextNodeIdsOrCompleteRunRoutine();
+            context.emitNextNodeIdsOrCompleteRunRoutine(
+              runNodeContext.affectedNodeIds,
+            );
             return EMPTY;
           }),
         );
@@ -59,8 +63,11 @@ function runGraph(context: RunGraphContext): Observable<never> {
 }
 
 function runNode(context: RunNodeContext): Observable<never> {
+  console.log('runNode', context.nodeConfig.type, context.nodeId);
+
   return concat(
     defer(() => {
+      // NOTE: Pre-run hook
       context.updateNodeRunStateBaseOnIncomingConnectorStates();
       return EMPTY;
     }),
@@ -79,7 +86,7 @@ function runNode(context: RunNodeContext): Observable<never> {
         nodeId: context.nodeId,
       });
 
-      let runNodeObservable;
+      let runNodeObservable: Observable<RunNodeResult>;
 
       if (context.nodeConfig.type === NodeType.Loop) {
         // TODO: Refactor
@@ -93,7 +100,19 @@ function runNode(context: RunNodeContext): Observable<never> {
       return runNodeObservable.pipe(
         tap({
           next(result) {
-            // TODO: progressObserver
+            console.log('runNodeObservable.next', result);
+
+            // TODO: Simplify this
+            context.progressObserver?.next({
+              type: RunNodeProgressEventType.Updated,
+              nodeId: context.nodeId,
+              result: {
+                ...result,
+                variableResults: context.convertVariableValuesToRecords(
+                  result.variableValues,
+                ),
+              },
+            });
 
             if (result.variableValues != null) {
               context.updateVariableValues(result.variableValues);
@@ -111,7 +130,7 @@ function runNode(context: RunNodeContext): Observable<never> {
             context.setNodeRunState(NodeRunState.SUCCEEDED);
             context.updateOutgoingConditionResultsIfConditionNode();
             context.propagateConnectorResults();
-            context.recordFinishNodeIdIfFinishNode();
+            context.handleFinishNode();
           },
         }),
         ignoreElements(),
@@ -123,6 +142,7 @@ function runNode(context: RunNodeContext): Observable<never> {
       );
     }),
     defer(() => {
+      // NOTE: Post-run hook
       context.propagateRunState();
       return EMPTY;
     }),
@@ -131,25 +151,60 @@ function runNode(context: RunNodeContext): Observable<never> {
 
 const LOOP_HARD_LIMIT = 10;
 
-function runLoopNode(context: RunNodeContext): Observable<never> {
-  const nodeConfig = context.nodeConfig;
+function runLoopNode(context: RunNodeContext): Observable<RunNodeResult> {
+  console.log('runLoopNode');
 
+  const nodeConfig = context.nodeConfig;
   invariant(nodeConfig.type === NodeType.Loop);
 
   const loopStartNodeId = nodeConfig.loopStartNodeId;
 
-  if (loopStartNodeId == null) {
-    throw new Error('loopStartNodeId is required');
-  }
-
   let count = 0;
 
   function run(): Observable<never> {
+    invariant(loopStartNodeId != null, 'loopStartNodeId is required');
     const runGraphContext = context.createRunGraphContext(loopStartNodeId!);
 
     return concat(
       runGraph(runGraphContext),
       defer(() => {
+        console.log(
+          'runLoopNode::defer',
+          runGraphContext.succeededFinishNodeIds,
+        );
+
+        if (!runGraphContext.didAnyFinishNodeSucceeded()) {
+          return EMPTY;
+        }
+
+        let isContinue = false;
+        let isBreak = false;
+
+        for (const nodeId of runGraphContext.succeededFinishNodeIds) {
+          const incomingConditions = getIncomingConditionsForNode(
+            context.params.connectors,
+            nodeId,
+          );
+
+          const continueCondition = incomingConditions[0];
+          const breakCondition = incomingConditions[1];
+
+          if (
+            runGraphContext.runFlowStates.connectorStates[
+              continueCondition.id
+            ] === ConnectorRunState.MET
+          ) {
+            isContinue = true;
+          }
+
+          if (
+            runGraphContext.runFlowStates.connectorStates[breakCondition.id] ===
+            ConnectorRunState.MET
+          ) {
+            isBreak = true;
+          }
+        }
+
         count += 1;
 
         if (count >= LOOP_HARD_LIMIT) {
@@ -157,45 +212,9 @@ function runLoopNode(context: RunNodeContext): Observable<never> {
           return EMPTY;
         }
 
-        const graph = runGraphContext.graph;
-
-        const finishNodeId = Object.keys(graph).find(
-          (nodeId) =>
-            runGraphContext.params.nodeConfigs[nodeId].type ===
-            NodeType.LoopFinish,
-        );
-
-        invariant(finishNodeId, 'finishNodeId is required');
-
-        // NOTE: LoopFinish only need one incoming condition to unblock
-        const conditions = Object.values(runGraphContext.params.connectors)
-          .filter((c): c is IncomingCondition => c.nodeId === finishNodeId)
-          .sort((a, b) => a.index! - b.index!);
-
-        const isContinue =
-          getIndegreeForNodeConnector(graph, finishNodeId, conditions[0].id) ===
-          0;
-        const isBreak =
-          getIndegreeForNodeConnector(graph, finishNodeId, conditions[1].id) ===
-          0;
-
         if (isContinue && isBreak) {
-          console.warn('both continue and break are met');
+          console.warn('Both continue and break are met');
         }
-
-        context.progressObserver?.next({
-          type: RunNodeProgressEventType.Started,
-          nodeId: finishNodeId,
-        });
-        context.progressObserver?.next({
-          type: RunNodeProgressEventType.Updated,
-          nodeId: finishNodeId,
-          result: {},
-        });
-        context.progressObserver?.next({
-          type: RunNodeProgressEventType.Finished,
-          nodeId: finishNodeId,
-        });
 
         if (isBreak) {
           return EMPTY;

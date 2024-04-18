@@ -49,7 +49,7 @@ function flowRunBatch(params: {
 
   // ANCHOR: Step 1 - compile graphs
 
-  const { errors, graphRecords } = computeGraphs({
+  const { errors } = computeGraphs({
     edges: params.edges,
     nodeConfigs: params.nodeConfigs,
     startNodeIds: [],
@@ -124,7 +124,8 @@ function flowRunBatch(params: {
           connectors: params.connectors,
           inputVariableValues: inputValueMap,
           preferStreaming: params.preferStreaming,
-          graphRecords,
+          // TODO: Fix this
+          startNodeId: '',
           progressObserver: subject,
         }).pipe(ignoreElements()),
       );

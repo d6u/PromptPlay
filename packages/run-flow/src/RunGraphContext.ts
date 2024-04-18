@@ -1,4 +1,5 @@
-import { A, D, F, pipe, type Option } from '@mobily/ts-belt';
+import { A, F, pipe, type Option } from '@mobily/ts-belt';
+import copy from 'fast-copy';
 import {
   BehaviorSubject,
   of,
@@ -8,7 +9,6 @@ import {
 } from 'rxjs';
 
 import type { NodeInputVariable, VariableValueRecords } from 'flow-models';
-import { getIndegreeZeroNodeIds, type Graph } from 'graph-util';
 
 import type { RunFlowResult, RunNodeProgressEvent } from './event-types';
 import type RunFlowContext from './RunFlowContext';
@@ -26,15 +26,15 @@ class RunGraphContext {
     runFlowContext: RunFlowContext,
     params: RunFlowParams,
     runFlowStates: RunFlowStates,
-    graphId: string,
+    startNodeId: string,
   ) {
-    const graph = params.graphRecords[graphId];
-    const initialNodeIds = getIndegreeZeroNodeIds(params.graphRecords[graphId]);
+    console.log('RunGraphContext::ctor startNodeId:', startNodeId);
+    console.log('RunGraphContext::ctor runFlowStates:', runFlowStates);
+    const initialNodeIds = [startNodeId];
 
     this.runFlowContext = runFlowContext;
     this.params = params;
     this.nodeIdListSubject = new BehaviorSubject<string[]>(initialNodeIds);
-    this.graph = graph;
     this.queuedNodeCount = initialNodeIds.length;
     this.runFlowStates = runFlowStates;
   }
@@ -42,10 +42,10 @@ class RunGraphContext {
   readonly runFlowContext: RunFlowContext;
   readonly params: RunFlowParams;
   readonly nodeIdListSubject: Subject<string[]>;
-  graph: Graph;
   // Used to create run graph result
   readonly finishNodesVariableIds: string[] = [];
   readonly runFlowStates: RunFlowStates;
+  readonly succeededFinishNodeIds: string[] = [];
 
   get progressObserver(): Option<Observer<RunNodeProgressEvent>> {
     return this.params.progressObserver;
@@ -53,14 +53,32 @@ class RunGraphContext {
 
   private queuedNodeCount: number; // Track nodes that are still running
 
+  markFinishNodeRan(nodeId: string): void {
+    this.succeededFinishNodeIds.push(nodeId);
+  }
+
+  didAnyFinishNodeSucceeded(): boolean {
+    return this.succeededFinishNodeIds.length > 0;
+  }
+
   createRunNodeContext(nodeId: string): RunNodeContext {
     return new RunNodeContext(this, this.params, nodeId);
   }
 
-  emitNextNodeIdsOrCompleteRunRoutine(): void {
+  createRunGraphContext(startNodeId: string): RunGraphContext {
+    return new RunGraphContext(
+      this.runFlowContext,
+      this.params,
+      copy(this.runFlowStates),
+      startNodeId,
+    );
+  }
+
+  emitNextNodeIdsOrCompleteRunRoutine(nodeIds: Iterable<string>): void {
     const nextNodeIds = pipe(
-      this.runFlowStates.nodeStates,
-      D.keys,
+      // NOTE: We should not scan the whole graph to find the next node to run,
+      // because that will also include all the subroutines' Start nodes.
+      Array.from(nodeIds),
       A.filter((nodeId) => {
         const state = this.runFlowStates.nodeStates[nodeId];
         if (state !== NodeRunState.PENDING) {

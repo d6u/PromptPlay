@@ -3,7 +3,6 @@ import type {
   NodeAllLevelConfigUnion,
   VariableValueRecords,
 } from 'flow-models';
-import type { GraphRecords } from 'graph-util';
 import type { Edge } from 'reactflow';
 import type { Observer } from 'rxjs';
 import type { RunNodeProgressEvent } from './event-types';
@@ -15,7 +14,7 @@ export type RunFlowParams = Readonly<{
   connectors: ConnectorRecords;
   inputVariableValues: VariableValueRecords;
   // compiled graph
-  graphRecords: GraphRecords;
+  startNodeId: string;
   // run options
   preferStreaming: boolean;
   progressObserver?: Observer<RunNodeProgressEvent>;
