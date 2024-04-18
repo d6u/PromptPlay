@@ -5,6 +5,8 @@ import { expect, test } from 'vitest';
 import type {
   ConnectorRecords,
   NodeAllLevelConfigUnion,
+  RunNodeParams,
+  TextTemplateNodeAllLevelConfig,
   VariableValueRecords,
 } from 'flow-models';
 
@@ -68,6 +70,7 @@ function createFixtureForNodeClassStart() {
     startNodeId,
   };
 }
+
 function createFixtureForNodeClassNoneStart() {
   const edges: Edge[] = [
     {
@@ -266,6 +269,70 @@ test('RunNodeContext::getInputVariableValues() should handle non-Start node clas
   expect(runNodeContext.inputVariables.length).toBe(4);
 
   expect(runNodeContext.getInputVariableValues()).toEqual([
+    'test 1',
+    'test 2',
+    null,
+    null,
+  ]);
+});
+
+test('RunNodeContext::getParamsForRunNodeFunction()', () => {
+  // SECTION: Setup
+  const { edges, nodeConfigs, connectors, startNodeId, inputVariableValues } =
+    createFixtureForNodeClassNoneStart();
+  // !SECTION
+  const progressObserver = new ReplaySubject();
+
+  const runFlowParams: RunFlowParams = {
+    edges: edges,
+    nodeConfigs: nodeConfigs,
+    connectors: connectors,
+    inputVariableValues: inputVariableValues,
+    startNodeId: startNodeId,
+    preferStreaming: false,
+    progressObserver: progressObserver,
+  };
+
+  const runFlowContext = new RunFlowContext(runFlowParams);
+  const runGraphContext = runFlowContext.createRunGraphContext(startNodeId);
+  const runNodeContext = runGraphContext.createRunNodeContext(startNodeId);
+
+  const runNodeParams: RunNodeParams<TextTemplateNodeAllLevelConfig> =
+    runNodeContext.getParamsForRunNodeFunction();
+
+  expect(runNodeParams.nodeConfig).toEqual(
+    expect.objectContaining({
+      class: 'Process',
+      type: 'TextTemplate',
+      nodeId: startNodeId,
+    }),
+  );
+
+  // Input variables
+  expect(runNodeParams.inputVariables).toEqual(
+    expect.objectContaining([
+      expect.objectContaining({ index: 0 }),
+      expect.objectContaining({ index: 1 }),
+      expect.objectContaining({ index: 2 }),
+      expect.objectContaining({ index: 3 }),
+    ]),
+  );
+  expect(runNodeParams.inputVariables.length).toBe(4);
+
+  // Output variables
+  expect(runNodeParams.outputVariables).toEqual(
+    expect.objectContaining([expect.objectContaining({ index: 0 })]),
+  );
+  expect(runNodeContext.outputVariables.length).toBe(1);
+
+  // Outgoing conditions
+  expect(runNodeParams.outgoingConditions).toEqual(
+    expect.objectContaining([expect.objectContaining({ index: 0 })]),
+  );
+  expect(runNodeParams.outgoingConditions.length).toBe(1);
+
+  // Variable values
+  expect(runNodeParams.inputVariableValues).toEqual([
     'test 1',
     'test 2',
     null,
