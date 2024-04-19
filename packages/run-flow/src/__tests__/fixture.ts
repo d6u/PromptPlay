@@ -1,9 +1,68 @@
+import type { Edge } from 'reactflow';
+
 import type {
   ConnectorRecords,
   NodeAllLevelConfigUnion,
   VariableValueRecords,
 } from 'flow-models';
-import type { Edge } from 'reactflow';
+
+export function createFixtureForNodeClassStart() {
+  const edges: Edge[] = [];
+
+  const nodeConfigs: Record<string, NodeAllLevelConfigUnion> = {
+    PM5i4: {
+      class: 'Start',
+      type: 'InputNode',
+      nodeId: 'PM5i4',
+      nodeName: 'input1',
+    },
+  };
+
+  const connectors: ConnectorRecords = {
+    'PM5i4/4zxZ6': {
+      type: 'NodeOutput',
+      id: 'PM5i4/4zxZ6',
+      name: 'input_val2',
+      nodeId: 'PM5i4',
+      index: 1,
+      valueType: 'String',
+      isGlobal: false,
+      globalVariableId: null,
+    },
+    'PM5i4/hbg4s': {
+      type: 'NodeOutput',
+      id: 'PM5i4/hbg4s',
+      name: 'input_val1',
+      nodeId: 'PM5i4',
+      index: 0,
+      valueType: 'String',
+      isGlobal: true,
+      globalVariableId: 'GTCdE',
+    },
+    'PM5i4/sMBfz': {
+      type: 'OutCondition',
+      id: 'PM5i4/sMBfz',
+      nodeId: 'PM5i4',
+      index: 0,
+      expressionString: '',
+    },
+  };
+
+  const inputVariableValues: VariableValueRecords = {
+    'GTCdE': { value: 'test 1' },
+    'PM5i4/4zxZ6': { value: 'test 2' },
+  };
+
+  const currentNodeId = 'PM5i4';
+
+  return {
+    edges,
+    nodeConfigs,
+    connectors,
+    inputVariableValues,
+    currentNodeId,
+  };
+}
 
 export function createFixtureForNodeClassProcess() {
   const edges: Edge[] = [
@@ -138,5 +197,57 @@ export function createFixtureForNodeClassProcess() {
     inputVariableValues,
     previousNodeNodeId,
     currentNodeId,
+  };
+}
+
+export function createFixtureForNodeClassFinish() {
+  const edges: Edge[] = [];
+
+  const nodeConfigs: Record<string, NodeAllLevelConfigUnion> = {
+    '23u6c': {
+      class: 'Finish',
+      type: 'OutputNode',
+      nodeId: '23u6c',
+    },
+  };
+
+  const connectors: ConnectorRecords = {
+    '23u6c/QWCNF': {
+      type: 'NodeInput',
+      id: '23u6c/QWCNF',
+      name: 'output_var2',
+      nodeId: '23u6c',
+      index: 1,
+      valueType: 'Any',
+      isGlobal: true,
+      globalVariableId: 'qij6C',
+    },
+    '23u6c/bxr8O': {
+      type: 'NodeInput',
+      id: '23u6c/bxr8O',
+      name: 'output_var1',
+      nodeId: '23u6c',
+      index: 0,
+      valueType: 'Any',
+      isGlobal: false,
+      globalVariableId: null,
+    },
+    '23u6c/ndnOy': {
+      type: 'InCondition',
+      id: '23u6c/ndnOy',
+      nodeId: '23u6c',
+    },
+  };
+
+  const inputVariableValues: VariableValueRecords = {};
+
+  const currentNodeNodeId = '23u6c';
+
+  return {
+    edges,
+    nodeConfigs,
+    connectors,
+    inputVariableValues,
+    currentNodeNodeId,
   };
 }

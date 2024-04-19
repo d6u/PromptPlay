@@ -63,18 +63,11 @@ function runGraph(context: RunGraphContext): Observable<never> {
 }
 
 export function runNode(context: RunNodeContext): Observable<never> {
-  console.log('runNode', context.nodeConfig.type, context.nodeId);
-
-  context.updateNodeRunStateBaseOnIncomingConnectorStates();
+  context.beforeRunHook();
 
   if (context.nodeRunState === NodeRunState.SKIPPED) {
     return EMPTY;
   }
-
-  invariant(
-    context.nodeRunState === NodeRunState.RUNNING,
-    'Node must be in RUNNING state',
-  );
 
   context.progressObserver?.next({
     type: RunNodeProgressEventType.Started,
@@ -84,69 +77,51 @@ export function runNode(context: RunNodeContext): Observable<never> {
   let runNodeObservable: Observable<RunNodeResult>;
 
   if (context.nodeConfig.type === NodeType.Loop) {
-    // TODO: Refactor
     runNodeObservable = runLoopNode(context);
   } else {
-    runNodeObservable = context.runNodeFunc(
-      context.getParamsForRunNodeFunction(),
-    );
+    runNodeObservable = context.createRunNodeObservable();
   }
 
-  return concat(
-    runNodeObservable.pipe(
-      tap({
-        next(result) {
-          console.log('runNodeObservable.next', result);
+  return runNodeObservable.pipe(
+    tap({
+      next(result) {
+        // TODO: Simplify this
+        context.progressObserver?.next({
+          type: RunNodeProgressEventType.Updated,
+          nodeId: context.nodeId,
+          result: {
+            ...result,
+            variableResults: context.convertVariableValuesToRecords(
+              result.variableValues,
+            ),
+          },
+        });
 
-          // TODO: Simplify this
-          context.progressObserver?.next({
-            type: RunNodeProgressEventType.Updated,
-            nodeId: context.nodeId,
-            result: {
-              ...result,
-              variableResults: context.convertVariableValuesToRecords(
-                result.variableValues,
-              ),
-            },
-          });
-
-          if (result.variableValues != null) {
-            context.updateVariableValues(result.variableValues);
-          }
-
-          if (result.conditionResults != null) {
-            context.updateConditionResults(result.conditionResults);
-          }
-        },
-        complete() {
-          context.params.progressObserver?.next({
-            type: RunNodeProgressEventType.Finished,
-            nodeId: context.nodeId,
-          });
-
-          context.setNodeRunState(NodeRunState.SUCCEEDED);
-          context.updateOutgoingConditionResultsIfNotConditionNode();
-          context.propagateConnectorResults();
-          context.handleFinishNode();
-        },
-      }),
-      ignoreElements(),
-      catchError((err) => {
-        // TODO: Report to telemetry
-        // console.error(err);
-
+        context.onRunNodeEvent(result);
+      },
+      error(err) {
         context.params.progressObserver?.next({
           type: RunNodeProgressEventType.Finished,
           nodeId: context.nodeId,
         });
-        context.setNodeRunState(NodeRunState.FAILED);
-        return EMPTY;
-      }),
-    ),
-    defer(() => {
-      // NOTE: Post-run hook
-      context.propagateRunState();
-      return EMPTY;
+
+        context.onRunNodeError(err);
+      },
+      complete() {
+        context.params.progressObserver?.next({
+          type: RunNodeProgressEventType.Finished,
+          nodeId: context.nodeId,
+        });
+
+        context.onRunNodeComplete();
+      },
+    }),
+    ignoreElements(),
+    catchError(() => EMPTY),
+    tap({
+      complete() {
+        context.afterRunHook();
+      },
     }),
   );
 }

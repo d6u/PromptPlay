@@ -1,12 +1,5 @@
-import type { Edge } from 'reactflow';
 import { ReplaySubject, lastValueFrom, tap, throwError } from 'rxjs';
 import { describe, expect, test } from 'vitest';
-
-import type {
-  ConnectorRecords,
-  NodeAllLevelConfigUnion,
-  VariableValueRecords,
-} from 'flow-models';
 
 import RunFlowContext from '../RunFlowContext';
 import type { RunNodeProgressEvent } from '../event-types';
@@ -17,67 +10,12 @@ import {
   NodeRunState,
   type RunFlowParams,
 } from '../types';
-import { createFixtureForNodeClassProcess } from './fixture';
+import {
+  createFixtureForNodeClassProcess,
+  createFixtureForNodeClassStart,
+} from './fixture';
 
 describe('Start node class', () => {
-  function createFixtureForNodeClassStart() {
-    const edges: Edge[] = [];
-
-    const nodeConfigs: Record<string, NodeAllLevelConfigUnion> = {
-      PM5i4: {
-        class: 'Start',
-        type: 'InputNode',
-        nodeId: 'PM5i4',
-        nodeName: 'input1',
-      },
-    };
-
-    const connectors: ConnectorRecords = {
-      'PM5i4/4zxZ6': {
-        type: 'NodeOutput',
-        id: 'PM5i4/4zxZ6',
-        name: 'input_val2',
-        nodeId: 'PM5i4',
-        index: 1,
-        valueType: 'String',
-        isGlobal: false,
-        globalVariableId: null,
-      },
-      'PM5i4/hbg4s': {
-        type: 'NodeOutput',
-        id: 'PM5i4/hbg4s',
-        name: 'input_val1',
-        nodeId: 'PM5i4',
-        index: 0,
-        valueType: 'String',
-        isGlobal: true,
-        globalVariableId: 'GTCdE',
-      },
-      'PM5i4/sMBfz': {
-        type: 'OutCondition',
-        id: 'PM5i4/sMBfz',
-        nodeId: 'PM5i4',
-        index: 0,
-        expressionString: '',
-      },
-    };
-
-    const inputVariableValues: VariableValueRecords = {
-      'GTCdE': { value: 'test 1' },
-      'PM5i4/4zxZ6': { value: 'test 2' },
-    };
-
-    const currentNodeId = 'PM5i4';
-
-    return {
-      edges,
-      nodeConfigs,
-      connectors,
-      inputVariableValues,
-      currentNodeId,
-    };
-  }
-
   test('runNode should run successfully', () => {
     return new Promise<void>((resolve, reject) => {
       // SECTION: Setup

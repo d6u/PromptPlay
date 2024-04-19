@@ -1,11 +1,12 @@
 import { pipe, type Option } from '@mobily/ts-belt';
 import * as A from 'fp-ts/Array';
 import * as R from 'fp-ts/Record';
-import { type Observer } from 'rxjs';
+import { type Observable, type Observer } from 'rxjs';
 
 import {
   NodeClass,
   NodeType,
+  type ConditionResult,
   type ConditionResultRecords,
   type CreateNodeExecutionObservableFunction,
   type IncomingCondition,
@@ -13,6 +14,7 @@ import {
   type NodeInputVariable,
   type NodeOutputVariable,
   type OutgoingCondition,
+  type RunNodeResult,
   type VariableValueBox,
   type VariableValueRecords,
 } from 'flow-models';
@@ -99,6 +101,42 @@ class RunNodeContext {
     | NodeOutputVariable
     | OutgoingCondition
   )[];
+
+  beforeRunHook(): void {
+    this.updateNodeRunStateBaseOnIncomingConnectorStates();
+  }
+
+  createRunNodeObservable(): Observable<RunNodeResult> {
+    return this.runNodeFunc(this.getParamsForRunNodeFunction());
+  }
+
+  onRunNodeEvent(event: RunNodeResult): void {
+    if (event.variableValues != null) {
+      this.updateVariableValues(event.variableValues);
+    }
+
+    if (event.conditionResults != null) {
+      this.updateConditionResults(event.conditionResults);
+    }
+  }
+
+  onRunNodeError(err: any): void {
+    // TODO: Report to telemetry
+    // console.error(err);
+
+    this.setNodeRunState(NodeRunState.FAILED);
+  }
+
+  onRunNodeComplete(): void {
+    this.setNodeRunState(NodeRunState.SUCCEEDED);
+    this.updateOutgoingConditionResultsIfNotConditionNode();
+    this.propagateConnectorResults();
+    this.handleFinishNode();
+  }
+
+  afterRunHook(): void {
+    this.propagateRunState();
+  }
 
   getParamsForRunNodeFunction<T>(): T {
     return {
@@ -234,10 +272,10 @@ class RunNodeContext {
   }
 
   // NOTE: Called during runNode in progress
-  updateConditionResults(conditionResults: ConditionResultRecords): void {
-    for (const [id, result] of Object.entries(conditionResults)) {
-      this.outgoingConditionResults[id] = result;
-    }
+  updateConditionResults(conditionResults: ConditionResult[]): void {
+    this.outgoingConditions.forEach((c, i) => {
+      this.outgoingConditionResults[c.id] = conditionResults[i];
+    });
   }
 
   createRunGraphContext(graphId: string): RunGraphContext {
