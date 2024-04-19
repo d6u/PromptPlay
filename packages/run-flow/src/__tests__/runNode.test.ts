@@ -11,6 +11,7 @@ import {
   type RunFlowParams,
 } from '../types';
 import {
+  createFixtureForNodeClassFinish,
   createFixtureForNodeClassProcess,
   createFixtureForNodeClassStart,
 } from './fixture';
@@ -292,7 +293,7 @@ describe('Process node class', () => {
     });
   });
 
-  test('runNode should run emit event to progressObserver (runNode succeeded)', async () => {
+  test('runNode should emit event to progressObserver (runNode succeeded)', async () => {
     // SECTION: Setup
     const {
       edges,
@@ -358,10 +359,12 @@ describe('Process node class', () => {
         type: 'Updated',
         nodeId: 'hstPg',
         result: {
-          variableValues: [''],
-          completedConnectorIds: ['hstPg/content'],
-          variableResults: {
+          errors: [],
+          variableValues: {
             'hstPg/content': { value: '' },
+          },
+          conditionResults: {
+            'hstPg/c4Ts9': { isConditionMatched: true },
           },
         },
       },
@@ -369,7 +372,7 @@ describe('Process node class', () => {
     ]);
   });
 
-  test('runNode should run emit event to progressObserver (runNode throwed error)', async () => {
+  test('runNode should emit event to progressObserver (runNode throwed error)', async () => {
     // SECTION: Setup
     const {
       edges,
@@ -435,7 +438,179 @@ describe('Process node class', () => {
 
     expect(events).toEqual([
       { type: 'Started', nodeId: 'hstPg' },
+      {
+        type: 'Updated',
+        nodeId: 'hstPg',
+        result: {
+          errors: ['Test error'],
+          conditionResults: {},
+          variableValues: {},
+        },
+      },
       { type: 'Finished', nodeId: 'hstPg' },
+    ]);
+  });
+});
+
+describe('Finish node class', () => {
+  test('runNode should save nodeIds and variableIds (runNode succeeded)', () => {
+    return new Promise<void>((resolve, reject) => {
+      // SECTION: Setup
+      const {
+        edges,
+        nodeConfigs,
+        connectors,
+        currentNodeId,
+        inputVariableValues,
+      } = createFixtureForNodeClassFinish();
+      // !SECTION
+
+      const progressObserver = new ReplaySubject<RunNodeProgressEvent>();
+
+      const runFlowParams: RunFlowParams = {
+        edges: edges,
+        nodeConfigs: nodeConfigs,
+        connectors: connectors,
+        inputVariableValues: inputVariableValues,
+        startNodeId: currentNodeId,
+        preferStreaming: false,
+        progressObserver: progressObserver,
+      };
+
+      const runFlowContext = new RunFlowContext(runFlowParams);
+      const runGraphContext =
+        runFlowContext.createRunGraphContext(currentNodeId);
+      const runNodeContext =
+        runGraphContext.createRunNodeContext(currentNodeId);
+
+      runNode(runNodeContext)
+        .pipe(
+          tap({
+            complete() {
+              expect(runGraphContext.succeededFinishNodeIds).toEqual(['23u6c']);
+              expect(runGraphContext.finishNodesVariableIds).toEqual([
+                '23u6c/bxr8O',
+                '23u6c/QWCNF',
+              ]);
+            },
+          }),
+        )
+        .subscribe({
+          error(err) {
+            reject(err);
+          },
+          complete() {
+            resolve();
+          },
+        });
+    });
+  });
+
+  test('runNode should not save nodeIds and variableIds (runNode throwed error)', () => {
+    return new Promise<void>((resolve, reject) => {
+      // SECTION: Setup
+      const {
+        edges,
+        nodeConfigs,
+        connectors,
+        currentNodeId,
+        inputVariableValues,
+      } = createFixtureForNodeClassFinish();
+      // !SECTION
+
+      const progressObserver = new ReplaySubject<RunNodeProgressEvent>();
+
+      const runFlowParams: RunFlowParams = {
+        edges: edges,
+        nodeConfigs: nodeConfigs,
+        connectors: connectors,
+        inputVariableValues: inputVariableValues,
+        startNodeId: currentNodeId,
+        preferStreaming: false,
+        progressObserver: progressObserver,
+      };
+
+      const runFlowContext = new RunFlowContext(runFlowParams);
+      const runGraphContext =
+        runFlowContext.createRunGraphContext(currentNodeId);
+      const runNodeContext =
+        runGraphContext.createRunNodeContext(currentNodeId);
+
+      runNodeContext.runNodeFunc = () => {
+        return throwError(() => new Error('Test error'));
+      };
+
+      runNode(runNodeContext)
+        .pipe(
+          tap({
+            complete() {
+              expect(runGraphContext.succeededFinishNodeIds).toEqual([]);
+              expect(runGraphContext.finishNodesVariableIds).toEqual([]);
+            },
+          }),
+        )
+        .subscribe({
+          error(err) {
+            reject(err);
+          },
+          complete() {
+            resolve();
+          },
+        });
+    });
+  });
+
+  test('runNode should emit event to progressObserver (runNode succeeded)', async () => {
+    // SECTION: Setup
+    const {
+      edges,
+      nodeConfigs,
+      connectors,
+      currentNodeId,
+      inputVariableValues,
+    } = createFixtureForNodeClassFinish();
+    // !SECTION
+
+    const progressObserver = new ReplaySubject<RunNodeProgressEvent>();
+
+    const runFlowParams: RunFlowParams = {
+      edges: edges,
+      nodeConfigs: nodeConfigs,
+      connectors: connectors,
+      inputVariableValues: inputVariableValues,
+      startNodeId: currentNodeId,
+      preferStreaming: false,
+      progressObserver: progressObserver,
+    };
+
+    const runFlowContext = new RunFlowContext(runFlowParams);
+    const runGraphContext = runFlowContext.createRunGraphContext(currentNodeId);
+    const runNodeContext = runGraphContext.createRunNodeContext(currentNodeId);
+
+    let events: RunNodeProgressEvent[] = [];
+
+    progressObserver.subscribe((event) => events.push(event));
+
+    const value = await lastValueFrom(runNode(runNodeContext), {
+      defaultValue: 'NO_VALUE',
+    });
+    expect(value).toBe('NO_VALUE');
+
+    expect(events).toEqual([
+      { type: 'Started', nodeId: currentNodeId },
+      {
+        type: 'Updated',
+        nodeId: currentNodeId,
+        result: {
+          errors: [],
+          variableValues: {
+            '23u6c/QWCNF': { value: 'test 2' },
+            '23u6c/bxr8O': { value: null },
+          },
+          conditionResults: {},
+        },
+      },
+      { type: 'Finished', nodeId: currentNodeId },
     ]);
   });
 });

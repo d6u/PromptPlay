@@ -85,34 +85,24 @@ export function runNode(context: RunNodeContext): Observable<never> {
   return runNodeObservable.pipe(
     tap({
       next(result) {
-        // TODO: Simplify this
+        context.onRunNodeEvent(result);
+
         context.progressObserver?.next({
           type: RunNodeProgressEventType.Updated,
           nodeId: context.nodeId,
-          result: {
-            ...result,
-            variableResults: context.convertVariableValuesToRecords(
-              result.variableValues,
-            ),
-          },
+          result: context.getProgressUpdateData(),
         });
-
-        context.onRunNodeEvent(result);
       },
       error(err) {
-        context.params.progressObserver?.next({
-          type: RunNodeProgressEventType.Finished,
-          nodeId: context.nodeId,
-        });
-
         context.onRunNodeError(err);
+
+        context.progressObserver?.next({
+          type: RunNodeProgressEventType.Updated,
+          nodeId: context.nodeId,
+          result: context.getProgressUpdateData(),
+        });
       },
       complete() {
-        context.params.progressObserver?.next({
-          type: RunNodeProgressEventType.Finished,
-          nodeId: context.nodeId,
-        });
-
         context.onRunNodeComplete();
       },
     }),
@@ -121,6 +111,11 @@ export function runNode(context: RunNodeContext): Observable<never> {
     tap({
       complete() {
         context.afterRunHook();
+
+        context.params.progressObserver?.next({
+          type: RunNodeProgressEventType.Finished,
+          nodeId: context.nodeId,
+        });
       },
     }),
   );

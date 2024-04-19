@@ -239,15 +239,17 @@ export function createFixtureForNodeClassFinish() {
     },
   };
 
-  const inputVariableValues: VariableValueRecords = {};
+  const inputVariableValues: VariableValueRecords = {
+    qij6C: { value: 'test 2' },
+  };
 
-  const currentNodeNodeId = '23u6c';
+  const currentNodeId = '23u6c';
 
   return {
     edges,
     nodeConfigs,
     connectors,
     inputVariableValues,
-    currentNodeNodeId,
+    currentNodeId,
   };
 }

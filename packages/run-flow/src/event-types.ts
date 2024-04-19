@@ -1,7 +1,6 @@
 import {
   NodeTypeEnum,
   type ConditionResultRecords,
-  type RunNodeResult,
   type VariableValueRecords,
 } from 'flow-models';
 
@@ -145,13 +144,16 @@ export type RunNodeStartedEvent = {
   nodeId: string;
 };
 
+export type ProgressUpdateData = Partial<{
+  errors: string[];
+  variableValues: VariableValueRecords;
+  conditionResults: ConditionResultRecords;
+}>;
+
 export type RunNodeUpdatedEvent = {
   type: RunNodeProgressEventType.Updated;
   nodeId: string;
-  // NOTE: Need additional `variableResults`, so that some consumer can use it
-  result: RunNodeResult & {
-    variableResults?: VariableValueRecords;
-  };
+  result: ProgressUpdateData;
 };
 
 export type RunNodeFinishedEvent = {
@@ -166,7 +168,9 @@ export type RunNodeProgressEvent =
 
 // ANCHOR: Run Flow Result
 
+type VariableRawValueRecords = Record<string, unknown>;
+
 export type RunFlowResult = {
-  errors: ReadonlyArray<string>;
-  variableResults: VariableValueRecords;
+  errors: string[];
+  variableValues: VariableRawValueRecords;
 };

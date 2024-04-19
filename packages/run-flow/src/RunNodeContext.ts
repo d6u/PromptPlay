@@ -20,7 +20,10 @@ import {
 } from 'flow-models';
 
 import type RunGraphContext from './RunGraphContext';
-import { type RunNodeProgressEvent } from './event-types';
+import {
+  type ProgressUpdateData,
+  type RunNodeProgressEvent,
+} from './event-types';
 import {
   ConnectorRunState,
   EdgeRunState,
@@ -79,6 +82,7 @@ class RunNodeContext {
   readonly outputVariables: NodeOutputVariable[];
   readonly outgoingConditions: OutgoingCondition[];
   readonly affectedNodeIds: Set<string> = new Set();
+  readonly errors: string[] = [];
 
   runNodeFunc: CreateNodeExecutionObservableFunction<NodeAllLevelConfigUnion>;
   outputVariableValues: VariableValueRecords = {};
@@ -102,6 +106,8 @@ class RunNodeContext {
     | OutgoingCondition
   )[];
 
+  // SECTION: Called in runNode
+
   beforeRunHook(): void {
     this.updateNodeRunStateBaseOnIncomingConnectorStates();
   }
@@ -123,7 +129,7 @@ class RunNodeContext {
   onRunNodeError(err: any): void {
     // TODO: Report to telemetry
     // console.error(err);
-
+    this.errors.push(err.message ?? 'Unknown error');
     this.setNodeRunState(NodeRunState.FAILED);
   }
 
@@ -136,6 +142,16 @@ class RunNodeContext {
 
   afterRunHook(): void {
     this.propagateRunState();
+  }
+
+  // !SECTION
+
+  getProgressUpdateData(): ProgressUpdateData {
+    return {
+      errors: this.errors,
+      variableValues: this.outputVariableValues,
+      conditionResults: this.outgoingConditionResults,
+    };
   }
 
   getParamsForRunNodeFunction<T>(): T {

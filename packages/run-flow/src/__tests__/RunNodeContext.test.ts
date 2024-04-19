@@ -194,7 +194,7 @@ describe('RunNodeContext::propagateConnectorResults()', () => {
       edges,
       nodeConfigs,
       connectors,
-      currentNodeNodeId,
+      currentNodeId,
       inputVariableValues,
     } = createFixtureForNodeClassFinish();
     // !SECTION
@@ -206,16 +206,14 @@ describe('RunNodeContext::propagateConnectorResults()', () => {
       nodeConfigs: nodeConfigs,
       connectors: connectors,
       inputVariableValues: inputVariableValues,
-      startNodeId: currentNodeNodeId,
+      startNodeId: currentNodeId,
       preferStreaming: false,
       progressObserver: progressObserver,
     };
 
     const runFlowContext = new RunFlowContext(runFlowParams);
-    const runGraphContext =
-      runFlowContext.createRunGraphContext(currentNodeNodeId);
-    const runNodeContext =
-      runGraphContext.createRunNodeContext(currentNodeNodeId);
+    const runGraphContext = runFlowContext.createRunGraphContext(currentNodeId);
+    const runNodeContext = runGraphContext.createRunNodeContext(currentNodeId);
 
     runNodeContext.outputVariableValues = {
       '23u6c/bxr8O': { value: 'test 1' },
@@ -690,7 +688,7 @@ describe('RunNodeContext::handleFinishNode()', () => {
       edges,
       nodeConfigs,
       connectors,
-      currentNodeNodeId,
+      currentNodeId,
       inputVariableValues,
     } = createFixtureForNodeClassFinish();
     // !SECTION
@@ -702,16 +700,14 @@ describe('RunNodeContext::handleFinishNode()', () => {
       nodeConfigs: nodeConfigs,
       connectors: connectors,
       inputVariableValues: inputVariableValues,
-      startNodeId: currentNodeNodeId,
+      startNodeId: currentNodeId,
       preferStreaming: false,
       progressObserver: progressObserver,
     };
 
     const runFlowContext = new RunFlowContext(runFlowParams);
-    const runGraphContext =
-      runFlowContext.createRunGraphContext(currentNodeNodeId);
-    const runNodeContext =
-      runGraphContext.createRunNodeContext(currentNodeNodeId);
+    const runGraphContext = runFlowContext.createRunGraphContext(currentNodeId);
+    const runNodeContext = runGraphContext.createRunNodeContext(currentNodeId);
 
     runNodeContext.handleFinishNode();
 
