@@ -28,8 +28,6 @@ class RunGraphContext {
     runFlowStates: RunFlowStates,
     startNodeId: string,
   ) {
-    console.log('RunGraphContext::ctor startNodeId:', startNodeId);
-    console.log('RunGraphContext::ctor runFlowStates:', runFlowStates);
     const initialNodeIds = [startNodeId];
 
     this.runFlowContext = runFlowContext;

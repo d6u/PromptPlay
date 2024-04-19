@@ -76,9 +76,9 @@ class RunNodeContext {
   readonly incomingConditions: IncomingCondition[];
   readonly outputVariables: NodeOutputVariable[];
   readonly outgoingConditions: OutgoingCondition[];
-  readonly runNodeFunc: CreateNodeExecutionObservableFunction<NodeAllLevelConfigUnion>;
   readonly affectedNodeIds: Set<string> = new Set();
 
+  runNodeFunc: CreateNodeExecutionObservableFunction<NodeAllLevelConfigUnion>;
   outputVariableValues: VariableValueRecords = {};
   outgoingConditionResults: ConditionResultRecords = {};
 
@@ -99,6 +99,62 @@ class RunNodeContext {
     | NodeOutputVariable
     | OutgoingCondition
   )[];
+
+  getParamsForRunNodeFunction<T>(): T {
+    return {
+      preferStreaming: this.params.preferStreaming,
+      nodeConfig: this.nodeConfig,
+      inputVariables: this.inputVariables,
+      outputVariables: this.outputVariables,
+      outgoingConditions: this.outgoingConditions,
+      inputVariableValues: this.getInputVariableValues(),
+    } as T;
+  }
+
+  getInputVariableValues(): unknown[] {
+    /**
+     * NOTE: There is a couple different cases:
+     *
+     * 1. Getting variable value for Start node: Start node's output variable
+     *    is provided by the user or the invoking routine (if this the Start
+     *    node is part of a subroutine), thus the isGlobal attr should be
+     *    ignored when reading values.
+     * 2. Getting variable value for non-Start node:
+     *    a. If isGlobal, get value from globalVariableId reference.
+     *    b. If not isGlobal, get value from the source variable based on the
+     *       connected edge.
+     *
+     * Always fallback to null if the value is not found.
+     */
+
+    const boxedValues = this.runGraphContext.runFlowContext.allVariableValues;
+
+    if (this.nodeConfig.class === NodeClass.Start) {
+      return this.outputVariables.map((v) => {
+        // NOTE: The value might not be provided, always fallback to null.
+        return boxedValues[v.id]?.value ?? null;
+      });
+    }
+
+    return this.inputVariables.map((v) => {
+      if (v.isGlobal) {
+        if (v.globalVariableId == null) {
+          return null;
+        }
+
+        // NOTE: The value might not be provided, always fallback to null.
+        return boxedValues[v.globalVariableId]?.value ?? null;
+      }
+
+      const sourceVariableId =
+        this.runGraphContext.runFlowContext.getSrcVariableIdFromDstVariableId(
+          v.id,
+        );
+
+      // NOTE: The value might not be provided, always fallback to null.
+      return boxedValues[sourceVariableId]?.value ?? null;
+    });
+  }
 
   updateNodeRunStateBaseOnIncomingConnectorStates(): void {
     if (this.nodeConfig.type !== NodeType.LoopFinish) {
@@ -140,17 +196,6 @@ class RunNodeContext {
     }
   }
 
-  getParamsForRunNodeFunction<T>(): T {
-    return {
-      preferStreaming: this.params.preferStreaming,
-      nodeConfig: this.nodeConfig,
-      inputVariables: this.inputVariables,
-      outputVariables: this.outputVariables,
-      outgoingConditions: this.outgoingConditions,
-      inputVariableValues: this.getInputVariableValues(),
-    } as T;
-  }
-
   // NOTE: Called during runNode in progress
   convertVariableValuesToRecords(
     variableValues: Option<unknown[]>,
@@ -180,10 +225,11 @@ class RunNodeContext {
       for (const [i, v] of this.inputVariables.entries()) {
         this.outputVariableValues[v.id] = { value: variableValues[i] };
       }
-    } else {
-      for (const [i, v] of this.outputVariables.entries()) {
-        this.outputVariableValues[v.id] = { value: variableValues[i] };
-      }
+      return;
+    }
+
+    for (const [i, v] of this.outputVariables.entries()) {
+      this.outputVariableValues[v.id] = { value: variableValues[i] };
     }
   }
 
@@ -220,25 +266,24 @@ class RunNodeContext {
   propagateConnectorResults() {
     // NOTE: Variable values
     if (this.nodeConfig.class === NodeClass.Finish) {
-      for (const { id } of this.inputVariables) {
+      this.inputVariables.forEach(({ id }) => {
         this.runGraphContext.runFlowContext.allVariableValues[id] =
           this.outputVariableValues[id];
-      }
-      return;
-    }
+      });
+    } else {
+      this.outputVariables.forEach((v) => {
+        if (!v.isGlobal) {
+          this.runGraphContext.runFlowContext.allVariableValues[v.id] =
+            this.outputVariableValues[v.id] = this.outputVariableValues[v.id];
+          return;
+        }
 
-    for (const v of this.outputVariables) {
-      if (!v.isGlobal) {
-        this.runGraphContext.runFlowContext.allVariableValues[v.id] =
-          this.outputVariableValues[v.id] = this.outputVariableValues[v.id];
-        continue;
-      }
-
-      if (v.globalVariableId != null) {
-        this.runGraphContext.runFlowContext.allVariableValues[
-          v.globalVariableId
-        ] = this.outputVariableValues[v.id];
-      }
+        if (v.globalVariableId != null) {
+          this.runGraphContext.runFlowContext.allVariableValues[
+            v.globalVariableId
+          ] = this.outputVariableValues[v.id];
+        }
+      });
     }
 
     // NOTE: Condition results
@@ -361,51 +406,6 @@ class RunNodeContext {
         ...this.inputVariables.map((v) => v.id),
       );
     }
-  }
-
-  getInputVariableValues(): unknown[] {
-    /**
-     * NOTE: There is a couple different cases:
-     *
-     * 1. Getting variable value for Start node: Start node's output variable
-     *    is provided by the user or the invoking routine (if this the Start
-     *    node is part of a subroutine), thus the isGlobal attr should be
-     *    ignored when reading values.
-     * 2. Getting variable value for non-Start node:
-     *    a. If isGlobal, get value from globalVariableId reference.
-     *    b. If not isGlobal, get value from the source variable based on the
-     *       connected edge.
-     *
-     * Always fallback to null if the value is not found.
-     */
-
-    const boxedValues = this.runGraphContext.runFlowContext.allVariableValues;
-
-    if (this.nodeConfig.class === NodeClass.Start) {
-      return this.outputVariables.map((v) => {
-        // NOTE: The value might not be provided, always fallback to null.
-        return boxedValues[v.id]?.value ?? null;
-      });
-    }
-
-    return this.inputVariables.map((v) => {
-      if (v.isGlobal) {
-        if (v.globalVariableId == null) {
-          return null;
-        }
-
-        // NOTE: The value might not be provided, always fallback to null.
-        return boxedValues[v.globalVariableId]?.value ?? null;
-      }
-
-      const sourceVariableId =
-        this.runGraphContext.runFlowContext.getSrcVariableIdFromDstVariableId(
-          v.id,
-        );
-
-      // NOTE: The value might not be provided, always fallback to null.
-      return boxedValues[sourceVariableId]?.value ?? null;
-    });
   }
 }
 

@@ -366,7 +366,7 @@ describe('Process node class', () => {
     };
 
     const previousNodeNodeId = 'PM5i4';
-    const currentNodeNodeId = 'hstPg';
+    const currentNodeId = 'hstPg';
 
     return {
       edges,
@@ -374,7 +374,7 @@ describe('Process node class', () => {
       connectors,
       inputVariableValues,
       previousNodeNodeId,
-      currentNodeNodeId,
+      currentNodeId,
     };
   }
 
@@ -385,7 +385,6 @@ describe('Process node class', () => {
       nodeConfigs,
       connectors,
       previousNodeNodeId,
-      currentNodeNodeId,
       inputVariableValues,
     } = createFixtureForNodeClassProcess();
     // !SECTION
@@ -466,7 +465,6 @@ describe('Process node class', () => {
       nodeConfigs,
       connectors,
       previousNodeNodeId,
-      currentNodeNodeId,
       inputVariableValues,
     } = createFixtureForNodeClassProcess();
     // !SECTION
@@ -546,7 +544,7 @@ describe('Process node class', () => {
       edges,
       nodeConfigs,
       connectors,
-      currentNodeNodeId,
+      currentNodeId,
       inputVariableValues,
     } = createFixtureForNodeClassProcess();
     // !SECTION
@@ -558,16 +556,14 @@ describe('Process node class', () => {
       nodeConfigs: nodeConfigs,
       connectors: connectors,
       inputVariableValues: inputVariableValues,
-      startNodeId: currentNodeNodeId,
+      startNodeId: currentNodeId,
       preferStreaming: false,
       progressObserver: progressObserver,
     };
 
     const runFlowContext = new RunFlowContext(runFlowParams);
-    const runGraphContext =
-      runFlowContext.createRunGraphContext(currentNodeNodeId);
-    const runNodeContext =
-      runGraphContext.createRunNodeContext(currentNodeNodeId);
+    const runGraphContext = runFlowContext.createRunGraphContext(currentNodeId);
+    const runNodeContext = runGraphContext.createRunNodeContext(currentNodeId);
 
     runGraphContext.runFlowStates = {
       nodeStates: {
@@ -606,7 +602,7 @@ describe('Process node class', () => {
       edges,
       nodeConfigs,
       connectors,
-      currentNodeNodeId,
+      currentNodeId,
       inputVariableValues,
     } = createFixtureForNodeClassProcess();
     // !SECTION
@@ -618,16 +614,14 @@ describe('Process node class', () => {
       nodeConfigs: nodeConfigs,
       connectors: connectors,
       inputVariableValues: inputVariableValues,
-      startNodeId: currentNodeNodeId,
+      startNodeId: currentNodeId,
       preferStreaming: false,
       progressObserver: progressObserver,
     };
 
     const runFlowContext = new RunFlowContext(runFlowParams);
-    const runGraphContext =
-      runFlowContext.createRunGraphContext(currentNodeNodeId);
-    const runNodeContext =
-      runGraphContext.createRunNodeContext(currentNodeNodeId);
+    const runGraphContext = runFlowContext.createRunGraphContext(currentNodeId);
+    const runNodeContext = runGraphContext.createRunNodeContext(currentNodeId);
 
     runGraphContext.runFlowStates = {
       nodeStates: {
@@ -666,7 +660,7 @@ describe('Process node class', () => {
       edges,
       nodeConfigs,
       connectors,
-      currentNodeNodeId,
+      currentNodeId,
       inputVariableValues,
     } = createFixtureForNodeClassProcess();
     // !SECTION
@@ -677,16 +671,14 @@ describe('Process node class', () => {
       nodeConfigs: nodeConfigs,
       connectors: connectors,
       inputVariableValues: inputVariableValues,
-      startNodeId: currentNodeNodeId,
+      startNodeId: currentNodeId,
       preferStreaming: false,
       progressObserver: progressObserver,
     };
 
     const runFlowContext = new RunFlowContext(runFlowParams);
-    const runGraphContext =
-      runFlowContext.createRunGraphContext(currentNodeNodeId);
-    const runNodeContext =
-      runGraphContext.createRunNodeContext(currentNodeNodeId);
+    const runGraphContext = runFlowContext.createRunGraphContext(currentNodeId);
+    const runNodeContext = runGraphContext.createRunNodeContext(currentNodeId);
 
     expect(runNodeContext.inputVariables).toEqual(
       expect.objectContaining([
@@ -712,7 +704,7 @@ describe('Process node class', () => {
       edges,
       nodeConfigs,
       connectors,
-      currentNodeNodeId,
+      currentNodeId,
       inputVariableValues,
     } = createFixtureForNodeClassProcess();
     // !SECTION
@@ -723,16 +715,14 @@ describe('Process node class', () => {
       nodeConfigs: nodeConfigs,
       connectors: connectors,
       inputVariableValues: inputVariableValues,
-      startNodeId: currentNodeNodeId,
+      startNodeId: currentNodeId,
       preferStreaming: false,
       progressObserver: progressObserver,
     };
 
     const runFlowContext = new RunFlowContext(runFlowParams);
-    const runGraphContext =
-      runFlowContext.createRunGraphContext(currentNodeNodeId);
-    const runNodeContext =
-      runGraphContext.createRunNodeContext(currentNodeNodeId);
+    const runGraphContext = runFlowContext.createRunGraphContext(currentNodeId);
+    const runNodeContext = runGraphContext.createRunNodeContext(currentNodeId);
 
     const runNodeParams: RunNodeParams<TextTemplateNodeAllLevelConfig> =
       runNodeContext.getParamsForRunNodeFunction();
@@ -741,7 +731,7 @@ describe('Process node class', () => {
       expect.objectContaining({
         class: 'Process',
         type: 'TextTemplate',
-        nodeId: currentNodeNodeId,
+        nodeId: currentNodeId,
       }),
     );
 
@@ -783,7 +773,7 @@ describe('Process node class', () => {
       edges,
       nodeConfigs,
       connectors,
-      currentNodeNodeId,
+      currentNodeId,
       inputVariableValues,
     } = createFixtureForNodeClassProcess();
     // !SECTION
@@ -795,16 +785,14 @@ describe('Process node class', () => {
       nodeConfigs: nodeConfigs,
       connectors: connectors,
       inputVariableValues: inputVariableValues,
-      startNodeId: currentNodeNodeId,
+      startNodeId: currentNodeId,
       preferStreaming: false,
       progressObserver: progressObserver,
     };
 
     const runFlowContext = new RunFlowContext(runFlowParams);
-    const runGraphContext =
-      runFlowContext.createRunGraphContext(currentNodeNodeId);
-    const runNodeContext =
-      runGraphContext.createRunNodeContext(currentNodeNodeId);
+    const runGraphContext = runFlowContext.createRunGraphContext(currentNodeId);
+    const runNodeContext = runGraphContext.createRunNodeContext(currentNodeId);
 
     expect(runNodeContext.outgoingConditionResults).toEqual({});
 
