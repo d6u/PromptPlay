@@ -44,7 +44,7 @@ class RunGraphContext {
   readonly nodeIdListSubject: Subject<string[]>;
   // Used to create run graph result
   readonly finishNodesVariableIds: string[] = [];
-  readonly runFlowStates: RunFlowStates;
+  runFlowStates: RunFlowStates;
   readonly succeededFinishNodeIds: string[] = [];
 
   get progressObserver(): Option<Observer<RunNodeProgressEvent>> {
@@ -52,10 +52,6 @@ class RunGraphContext {
   }
 
   private queuedNodeCount: number; // Track nodes that are still running
-
-  markFinishNodeRan(nodeId: string): void {
-    this.succeededFinishNodeIds.push(nodeId);
-  }
 
   didAnyFinishNodeSucceeded(): boolean {
     return this.succeededFinishNodeIds.length > 0;
@@ -130,7 +126,7 @@ class RunGraphContext {
 
     return of({
       errors: [],
-      variableResults: variableValues,
+      variableValues: variableValues,
     });
   }
 }

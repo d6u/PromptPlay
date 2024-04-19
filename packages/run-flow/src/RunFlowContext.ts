@@ -1,7 +1,5 @@
 import {
   type ConditionResultRecords,
-  type NodeInputVariable,
-  type NodeOutputVariable,
   type OutgoingCondition,
   type VariableValueBox,
   type VariableValueRecords,
@@ -27,10 +25,10 @@ class RunFlowContext {
   }
 
   allVariableValues: VariableValueRecords;
+  allConditionResults: ConditionResultRecords;
 
   private readonly params: RunFlowParams;
   private readonly targetVariableIdToSourceVariableIdMap: IdToIdMap;
-  private allConditionResults: ConditionResultRecords;
 
   createRunGraphContext(startNodeId: string): RunGraphContext {
     return new RunGraphContext(
@@ -47,21 +45,6 @@ class RunFlowContext {
 
   getVariableValueForId(variableId: string): VariableValueBox {
     return this.allVariableValues[variableId];
-  }
-
-  updateVariableValues(
-    variables: (NodeInputVariable | NodeOutputVariable)[],
-    values: VariableValueRecords,
-  ): void {
-    for (const v of variables) {
-      if (v.isGlobal) {
-        if (v.globalVariableId != null) {
-          this.allVariableValues[v.globalVariableId] = values[v.id];
-        }
-      } else {
-        this.allVariableValues[v.id] = values[v.id];
-      }
-    }
   }
 
   updateConditionResults(

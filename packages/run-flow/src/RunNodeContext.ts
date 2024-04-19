@@ -53,6 +53,7 @@ class RunNodeContext {
       params.connectors,
       nodeId,
     );
+    const outgoingConnectors = [...outputVariables, ...outgoingConditions];
     const nodeConfig = params.nodeConfigs[nodeId];
 
     this.runGraphContext = runGraphContext;
@@ -60,6 +61,7 @@ class RunNodeContext {
     this.nodeId = nodeId;
     this.nodeConfig = nodeConfig;
     this.incomingConnectors = incomingConnectors;
+    this.outgoingConnectors = outgoingConnectors;
     this.incomingConditions = incomingConditions;
     this.inputVariables = inputVariables;
     this.outputVariables = outputVariables;
@@ -77,6 +79,9 @@ class RunNodeContext {
   readonly runNodeFunc: CreateNodeExecutionObservableFunction<NodeAllLevelConfigUnion>;
   readonly affectedNodeIds: Set<string> = new Set();
 
+  outputVariableValues: VariableValueRecords = {};
+  outgoingConditionResults: ConditionResultRecords = {};
+
   get progressObserver(): Option<Observer<RunNodeProgressEvent>> {
     return this.params.progressObserver;
   }
@@ -90,8 +95,10 @@ class RunNodeContext {
     | NodeInputVariable
     | IncomingCondition
   )[];
-  private outputVariableValues: VariableValueRecords = {};
-  private outgoingConditionResults: ConditionResultRecords = {};
+  private readonly outgoingConnectors: (
+    | NodeOutputVariable
+    | OutgoingCondition
+  )[];
 
   updateNodeRunStateBaseOnIncomingConnectorStates(): void {
     if (this.nodeConfig.type !== NodeType.LoopFinish) {
@@ -197,7 +204,7 @@ class RunNodeContext {
   }
 
   // NOTE: Run after runNode finished
-  updateOutgoingConditionResultsIfConditionNode() {
+  updateOutgoingConditionResultsIfNotConditionNode() {
     // NOTE: For none Condition node, we need to generate a condition result.
     // TODO: Generalize this
     if (this.nodeConfig.type !== NodeType.ConditionNode) {
@@ -211,20 +218,30 @@ class RunNodeContext {
 
   // NOTE: Run after runNode finished
   propagateConnectorResults() {
-    // ANCHOR: Flush variable values
+    // NOTE: Variable values
     if (this.nodeConfig.class === NodeClass.Finish) {
-      this.runGraphContext.runFlowContext.updateVariableValues(
-        this.inputVariables,
-        this.outputVariableValues,
-      );
-    } else {
-      this.runGraphContext.runFlowContext.updateVariableValues(
-        this.outputVariables,
-        this.outputVariableValues,
-      );
+      for (const { id } of this.inputVariables) {
+        this.runGraphContext.runFlowContext.allVariableValues[id] =
+          this.outputVariableValues[id];
+      }
+      return;
     }
 
-    // ANCHOR: Flush condition results
+    for (const v of this.outputVariables) {
+      if (!v.isGlobal) {
+        this.runGraphContext.runFlowContext.allVariableValues[v.id] =
+          this.outputVariableValues[v.id] = this.outputVariableValues[v.id];
+        continue;
+      }
+
+      if (v.globalVariableId != null) {
+        this.runGraphContext.runFlowContext.allVariableValues[
+          v.globalVariableId
+        ] = this.outputVariableValues[v.id];
+      }
+    }
+
+    // NOTE: Condition results
     this.runGraphContext.runFlowContext.updateConditionResults(
       this.outgoingConditions,
       this.outgoingConditionResults,
@@ -238,13 +255,17 @@ class RunNodeContext {
     const nodeRunState =
       this.runGraphContext.runFlowStates.nodeStates[this.nodeId];
 
+    // NOTE: Propagate outgoing connector states
+
     if (
       nodeRunState === NodeRunState.SKIPPED ||
       nodeRunState === NodeRunState.FAILED
     ) {
-      for (const { id } of this.outgoingConditions) {
+      // NOTE: Output variable states
+      for (const { id } of this.outgoingConnectors) {
         this.runGraphContext.runFlowStates.connectorStates[id] =
           ConnectorRunState.SKIPPED;
+        updatedConnectorIds.push(id);
       }
     } else {
       // NOTE: Propagate output variable states
@@ -332,11 +353,10 @@ class RunNodeContext {
   }
 
   handleFinishNode() {
-    console.log('handleFinishNode', this.nodeId);
     // NOTE: When current node is a Finish node and not a LoopFinish node,
     // record connector IDs
     if (this.nodeConfig.class === NodeClass.Finish) {
-      this.runGraphContext.markFinishNodeRan(this.nodeId);
+      this.runGraphContext.succeededFinishNodeIds.push(this.nodeId);
       this.runGraphContext.finishNodesVariableIds.push(
         ...this.inputVariables.map((v) => v.id),
       );
