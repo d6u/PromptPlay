@@ -1,5 +1,5 @@
 import { A } from '@mobily/ts-belt';
-import { Observable, TimeoutError, endWith, map, retry, scan, tap } from 'rxjs';
+import { Observable, TimeoutError, map, retry, scan, tap } from 'rxjs';
 import invariant from 'tiny-invariant';
 import z from 'zod';
 
@@ -388,17 +388,7 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
       }
 
       // NOTE: Teardown logic
-      return obs
-        .pipe(
-          endWith<RunNodeResult>({
-            completedConnectorIds: [
-              outputContent.id,
-              outputMessage.id,
-              outputMessages.id,
-            ],
-          }),
-        )
-        .subscribe(subscriber);
+      return obs.subscribe(subscriber);
     });
   },
 };

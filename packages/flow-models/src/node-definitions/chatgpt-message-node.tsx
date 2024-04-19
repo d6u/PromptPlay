@@ -186,9 +186,6 @@ export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition<
     invariant(outputMessage != null);
     invariant(outputMessages != null);
 
-    return {
-      variableValues: [message, messages],
-      completedConnectorIds: [outputMessage.id, outputMessages.id],
-    };
+    return { variableValues: [message, messages] };
   },
 };

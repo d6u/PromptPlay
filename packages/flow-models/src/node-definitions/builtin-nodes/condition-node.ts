@@ -1,4 +1,3 @@
-import { D, F, pipe } from '@mobily/ts-belt';
 import jsonata from 'jsonata';
 import invariant from 'tiny-invariant';
 import z from 'zod';
@@ -6,7 +5,7 @@ import z from 'zod';
 import {
   ConnectorType,
   VariableValueType,
-  type ConditionResultRecords,
+  type ConditionResult,
 } from '../../base-types';
 import {
   FieldType,
@@ -109,45 +108,35 @@ export const CONDITION_NODE_DEFINITION: NodeDefinition<
     const customCaseConditions = outgoingConditions.slice(1);
 
     try {
-      const conditionResults: ConditionResultRecords = {};
+      const conditionResults: ConditionResult[] = [];
+
       let hasMatch = false;
 
       for (const condition of customCaseConditions) {
+        if (hasMatch && nodeConfig.stopAtTheFirstMatch) {
+          conditionResults.push({ isConditionMatched: false });
+          continue;
+        }
+
         const expression = jsonata(condition.expressionString);
         const result = await expression.evaluate(inputVariableValues[0]);
 
         if (result) {
           hasMatch = true;
-
-          conditionResults[condition.id] = {
-            isConditionMatched: true,
-          };
-
-          if (nodeConfig.stopAtTheFirstMatch) {
-            break;
-          }
+          conditionResults.push({ isConditionMatched: true });
         } else {
-          conditionResults[condition.id] = {
-            isConditionMatched: false,
-          };
+          conditionResults.push({ isConditionMatched: false });
         }
       }
 
-      if (!hasMatch) {
-        conditionResults[defaultCaseCondition.id] = {
-          isConditionMatched: true,
-        };
+      if (hasMatch) {
+        conditionResults.unshift({ isConditionMatched: false });
+      } else {
+        conditionResults.unshift({ isConditionMatched: true });
       }
 
-      return {
-        conditionResults: conditionResults,
-        completedConnectorIds: pipe(
-          conditionResults,
-          D.filter((result) => result.isConditionMatched),
-          D.keys,
-          F.toMutable,
-        ),
-      };
+      return { conditionResults };
+
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       // TODO: Report to telemetry to improve error message

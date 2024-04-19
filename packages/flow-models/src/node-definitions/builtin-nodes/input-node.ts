@@ -68,9 +68,6 @@ export const INPUT_NODE_DEFINITION: NodeDefinition<
   },
 
   async runNode(params) {
-    return {
-      variableValues: params.inputVariableValues,
-      completedConnectorIds: params.outputVariables.map((v) => v.id),
-    };
+    return { variableValues: params.inputVariableValues };
   },
 };
