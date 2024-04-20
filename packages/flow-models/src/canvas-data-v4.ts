@@ -158,14 +158,16 @@ export function migrateV3ToV4(
   for (const _nodeConfig of Object.values(data.nodeConfigsDict ?? {})) {
     const nodeConfig = _nodeConfig as NodeConfig;
 
-    // Add missing node fields
+    // Add and update missing node fields
     let inputNodeCount = 1;
     if (nodeConfig.type === NodeType.InputNode) {
       nodeConfig.class = NodeClass.Start;
-      nodeConfig.nodeName = `input ${inputNodeCount}`;
+      nodeConfig.nodeName = `input${inputNodeCount}`;
       inputNodeCount += 1;
     } else if (nodeConfig.type === NodeType.OutputNode) {
       nodeConfig.class = NodeClass.Finish;
+    } else if (nodeConfig.type === NodeType.ConditionNode) {
+      nodeConfig.class = NodeClass.Condition;
     } else {
       nodeConfig.class = NodeClass.Process;
     }
