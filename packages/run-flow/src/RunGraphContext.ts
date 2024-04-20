@@ -1,12 +1,7 @@
-import { A, F, pipe, type Option } from '@mobily/ts-belt';
 import copy from 'fast-copy';
-import {
-  BehaviorSubject,
-  of,
-  type Observable,
-  type Observer,
-  type Subject,
-} from 'rxjs';
+import { filter } from 'fp-ts/Array';
+import { pipe } from 'fp-ts/function';
+import { BehaviorSubject, type Observer, type Subject } from 'rxjs';
 
 import type { NodeInputVariable, VariableValueRecords } from 'flow-models';
 
@@ -48,8 +43,8 @@ class RunGraphContext {
   readonly finishNodesVariableIds: string[] = [];
   readonly succeededFinishNodeIds: string[] = [];
 
-  get progressObserver(): Option<Observer<RunNodeProgressEvent>> {
-    return this.params.progressObserver;
+  get progressObserver(): Observer<RunNodeProgressEvent> | null {
+    return this.params.progressObserver ?? null;
   }
 
   private queuedNodeCount: number; // Track nodes that are still running
@@ -76,7 +71,7 @@ class RunGraphContext {
       // NOTE: We should not scan the whole graph to find the next node to run,
       // because that will also include all the subroutines' Start nodes.
       Array.from(nodeIds),
-      A.filter((nodeId) => {
+      filter((nodeId) => {
         const state = this.runFlowStates.nodeStates[nodeId];
         if (state !== NodeRunState.PENDING) {
           return false;
@@ -93,7 +88,6 @@ class RunGraphContext {
         }
         return true;
       }),
-      F.toMutable,
     );
 
     this.queuedNodeCount += nextNodeIds.length;
@@ -108,7 +102,7 @@ class RunGraphContext {
     }
   }
 
-  getRunGraphResult(): Observable<RunFlowResult> {
+  getResult(): RunFlowResult {
     const variableValues: VariableValueRecords = {};
 
     this.finishNodesVariableIds.forEach((id) => {
@@ -125,10 +119,10 @@ class RunGraphContext {
       }
     });
 
-    return of({
+    return {
       errors: [],
       variableValues: variableValues,
-    });
+    };
   }
 }
 

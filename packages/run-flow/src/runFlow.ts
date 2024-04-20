@@ -7,6 +7,7 @@ import {
   defer,
   ignoreElements,
   mergeMap,
+  of,
   tap,
 } from 'rxjs';
 import invariant from 'tiny-invariant';
@@ -25,16 +26,15 @@ function runFlow(params: RunFlowParams): Observable<RunFlowResult> {
   const runGraphContext = context.createRunGraphContext(params.startNodeId);
 
   return concat(
-    runGraph(runGraphContext),
+    runRoutine(runGraphContext),
     defer(() => {
-      // console.log(runGraphContext.runFlowStates);
       params.progressObserver?.complete();
-      return runGraphContext.getRunGraphResult();
+      return of(runGraphContext.getResult());
     }),
   );
 }
 
-export function runGraph(context: RunGraphContext): Observable<never> {
+export function runRoutine(context: RunGraphContext): Observable<never> {
   const nodeIdListSubject = context.nodeIdListSubject;
 
   return nodeIdListSubject.pipe(
@@ -43,13 +43,13 @@ export function runGraph(context: RunGraphContext): Observable<never> {
     mergeMap((nodeIds) => {
       return nodeIds.map((nodeId) => {
         const runNodeContext = context.createRunNodeContext(nodeId);
-        return concat(
-          runNode(runNodeContext),
-          defer(() => {
-            context.emitNextNodeIdsOrCompleteRunRoutine(
-              runNodeContext.affectedNodeIds,
-            );
-            return EMPTY;
+        return runNode(runNodeContext).pipe(
+          tap({
+            complete() {
+              context.emitNextNodeIdsOrCompleteRunRoutine(
+                runNodeContext.affectedNodeIds,
+              );
+            },
           }),
         );
       });
@@ -135,7 +135,7 @@ function runLoopNode(context: RunNodeContext): Observable<RunNodeResult> {
     const runGraphContext = context.createRunGraphContext(loopStartNodeId!);
 
     return concat(
-      runGraph(runGraphContext),
+      runRoutine(runGraphContext),
       defer(() => {
         console.log(
           'runLoopNode::defer',

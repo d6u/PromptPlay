@@ -461,3 +461,32 @@ export function createStartSUCCEEDEDtatesForNormalWithStartProcessFinishNodes():
     },
   };
 }
+
+export function createAllSUCCEEDEDStatesForNormalWithStartProcessFinishNodes(): RunFlowStates {
+  return {
+    nodeStates: {
+      Gav0R: 'SUCCEEDED',
+      K5n6N: 'SUCCEEDED',
+      KbeEk: 'SUCCEEDED',
+    },
+    connectorStates: {
+      'Gav0R/FYiVo': 'MET',
+      'Gav0R/eSv7v': 'MET',
+      'Gav0R/h3hjH': 'MET',
+      'K5n6N/GYjaT': 'UNCONNECTED',
+      'K5n6N/JCG2R': 'UNCONNECTED',
+      'K5n6N/Ok8PJ': 'UNCONNECTED',
+      'K5n6N/XmH61': 'MET',
+      'K5n6N/hHQNY': 'UNCONNECTED',
+      'K5n6N/mPehv': 'MET',
+      'KbeEk/2xFif': 'MET',
+      'KbeEk/R6Y7U': 'UNCONNECTED',
+      'KbeEk/ktoDr': 'UNCONNECTED',
+      'K5n6N/content': 'MET',
+    },
+    edgeStates: {
+      ISUpn: 'MET',
+      pu5e1: 'MET',
+    },
+  };
+}

@@ -107,7 +107,7 @@ export function createFxitureForTwoIncomingEdgesForOneCondition() {
   };
 }
 
-export function createInitialRunStates(): RunFlowStates {
+export function createInitialRunStatesForTwoIncomingEdgesForOneCondition(): RunFlowStates {
   return {
     nodeStates: {
       '8jIMr': 'PENDING',
@@ -128,7 +128,7 @@ export function createInitialRunStates(): RunFlowStates {
   };
 }
 
-export function createRunStatesForStartNode1Skipped(): RunFlowStates {
+export function createStartNode1SKIPPEDStateForTwoIncomingEdgesForOneCondition(): RunFlowStates {
   return {
     nodeStates: {
       '8jIMr': 'SKIPPED',
@@ -149,7 +149,7 @@ export function createRunStatesForStartNode1Skipped(): RunFlowStates {
   };
 }
 
-export function createRunStatesForStartNode1Succeeded(): RunFlowStates {
+export function createStartNode1SUCCEEDEDForTwoIncomingEdgesForOneCondition(): RunFlowStates {
   return {
     nodeStates: {
       '8jIMr': 'SUCCEEDED',

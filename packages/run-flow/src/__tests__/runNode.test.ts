@@ -20,8 +20,9 @@ import {
 import {
   createFixtureForNodeClassFinish,
   createFixtureForNodeClassProcess,
-  createFixtureForNodeClassStart,
-} from './fixture';
+  createFixtureForNormalWithStartProcessFinishNodes,
+  createStartSUCCEEDEDtatesForNormalWithStartProcessFinishNodes,
+} from './fixture-normal-with-start-process-finish';
 
 describe('Start node class', () => {
   test('runNode should run successfully', () => {
@@ -31,9 +32,9 @@ describe('Start node class', () => {
         edges,
         nodeConfigs,
         connectors,
-        currentNodeId,
+        startNodeId,
         inputVariableValues,
-      } = createFixtureForNodeClassStart();
+      } = createFixtureForNormalWithStartProcessFinishNodes();
       // !SECTION
 
       const progressObserver = new ReplaySubject();
@@ -43,26 +44,14 @@ describe('Start node class', () => {
         nodeConfigs: nodeConfigs,
         connectors: connectors,
         inputVariableValues: inputVariableValues,
-        startNodeId: currentNodeId,
+        startNodeId: startNodeId,
         preferStreaming: false,
         progressObserver: progressObserver,
       };
 
       const runFlowContext = new RunFlowContext(runFlowParams);
-      const runGraphContext =
-        runFlowContext.createRunGraphContext(currentNodeId);
-      const runNodeContext =
-        runGraphContext.createRunNodeContext(currentNodeId);
-
-      expect(runGraphContext.runFlowStates).toEqual({
-        nodeStates: { PM5i4: 'PENDING' },
-        connectorStates: {
-          'PM5i4/4zxZ6': 'UNCONNECTED',
-          'PM5i4/hbg4s': 'UNCONNECTED',
-          'PM5i4/sMBfz': 'UNCONNECTED',
-        },
-        edgeStates: {},
-      });
+      const runGraphContext = runFlowContext.createRunGraphContext(startNodeId);
+      const runNodeContext = runGraphContext.createRunNodeContext(startNodeId);
 
       runNode(runNodeContext)
         .pipe(
@@ -72,15 +61,9 @@ describe('Start node class', () => {
               expect.unreachable('Should not emit event');
             },
             complete() {
-              expect(runGraphContext.runFlowStates).toEqual({
-                nodeStates: { PM5i4: 'SUCCEEDED' },
-                connectorStates: {
-                  'PM5i4/4zxZ6': 'MET',
-                  'PM5i4/hbg4s': 'MET',
-                  'PM5i4/sMBfz': 'MET',
-                },
-                edgeStates: {},
-              });
+              expect(runGraphContext.runFlowStates).toEqual(
+                createStartSUCCEEDEDtatesForNormalWithStartProcessFinishNodes(),
+              );
             },
           }),
         )
@@ -221,8 +204,6 @@ describe('Process node class', () => {
         runFlowContext.createRunGraphContext(currentNodeId);
       const runNodeContext =
         runGraphContext.createRunNodeContext(currentNodeId);
-
-      console.log(runGraphContext.runFlowStates);
 
       runGraphContext.runFlowStates = {
         nodeStates: {

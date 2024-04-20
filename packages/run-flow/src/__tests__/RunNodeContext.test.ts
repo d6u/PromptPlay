@@ -10,8 +10,8 @@ import RunFlowContext from '../RunFlowContext';
 import { NodeRunState, type RunFlowParams } from '../types';
 import {
   createFxitureForTwoIncomingEdgesForOneCondition,
-  createRunStatesForStartNode1Skipped,
-  createRunStatesForStartNode1Succeeded,
+  createStartNode1SKIPPEDStateForTwoIncomingEdgesForOneCondition,
+  createStartNode1SUCCEEDEDForTwoIncomingEdgesForOneCondition,
 } from './fixture-multiple-incoming-edges-for-one-condition';
 import {
   createFixtureForNodeClassFinish,
@@ -562,7 +562,8 @@ describe('RunNodeContext::propagateRunState()', () => {
     const runNodeContext = runGraphContext.createRunNodeContext(startNodeId2);
 
     // NOTE: Install mock states
-    runGraphContext.runFlowStates = createRunStatesForStartNode1Skipped();
+    runGraphContext.runFlowStates =
+      createStartNode1SKIPPEDStateForTwoIncomingEdgesForOneCondition();
     runGraphContext.runFlowStates.nodeStates[startNodeId2] =
       NodeRunState.SUCCEEDED;
 
@@ -617,7 +618,8 @@ describe('RunNodeContext::propagateRunState()', () => {
     const runNodeContext = runGraphContext.createRunNodeContext(startNodeId2);
 
     // NOTE: Install mock states
-    runGraphContext.runFlowStates = createRunStatesForStartNode1Succeeded();
+    runGraphContext.runFlowStates =
+      createStartNode1SUCCEEDEDForTwoIncomingEdgesForOneCondition();
     runGraphContext.runFlowStates.nodeStates[startNodeId2] =
       NodeRunState.SKIPPED;
 
