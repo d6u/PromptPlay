@@ -9,6 +9,7 @@ import {
   IncomingCondition,
   NodeClass,
   NodeInputVariable,
+  getNodeDefinitionForNodeTypeName,
   type JSONataConditionNodeAllLevelConfig,
 } from 'flow-models';
 
@@ -47,6 +48,10 @@ type Props = {
 function JSONataConditionNode(props: Props) {
   const updateNodeInternals = useUpdateNodeInternals();
 
+  const nodeDefinition = useMemo(() => {
+    return getNodeDefinitionForNodeTypeName(props.nodeConfig.type);
+  }, [props.nodeConfig.type]);
+
   const updateNodeConfig = useFlowStore((s) => s.updateNodeConfig);
   const addVariable = useFlowStore((s) => s.addConnector);
 
@@ -77,7 +82,7 @@ function JSONataConditionNode(props: Props) {
         <NodeBoxHeaderSection
           nodeClass={NodeClass.Process}
           isNodeReadOnly={props.isNodeReadOnly}
-          title="Condition"
+          title={nodeDefinition.label}
           nodeId={props.nodeId}
           showAddVariableButton={false}
         />
