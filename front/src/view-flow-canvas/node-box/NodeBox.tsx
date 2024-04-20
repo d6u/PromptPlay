@@ -46,12 +46,12 @@ const Backdrop = styled.div<{
           background-size: 100px 100px;
           background-image: linear-gradient(
             -45deg,
-            green 0%,
-            green 25%,
+            #24bb25 0%,
+            #24bb25 25%,
             yellow 25%,
             yellow 50%,
-            green 50%,
-            green 75%,
+            #24bb25 50%,
+            #24bb25 75%,
             yellow 75%
           );
           animation: AnimateBG 2s linear infinite;
@@ -72,53 +72,9 @@ const Backdrop = styled.div<{
         `;
       case NodeRunState.SUCCEEDED:
         return css`
-          background: green;
+          background: linear-gradient(344deg, #30d752 0%, #00c702 100%);
         `;
     }
-
-    // switch (props.$type) {
-    //   case NodeType.OutputNode:
-    //     return css`
-    //       background: linear-gradient(39deg, #daf1bd 14.47%, #8eec63 87.64%);
-    //     `;
-    //   case NodeType.JavaScriptFunctionNode:
-    //     // background will be included as data URL if its size is smaller
-    //     // than a threshold. That's why we need to add "" around the url.
-    //     return css`
-    //       background: url(\"${background}\");
-    //     `;
-    //   case NodeType.ChatGPTMessageNode:
-    //     return css`
-    //       background: linear-gradient(22deg, #98ecff 0%, #5cc5e0 100%);
-    //     `;
-    //   case NodeType.ChatGPTChatCompletionNode:
-    //     return css`
-    //       background: linear-gradient(22deg, #fa97b6 0%, #e081fe 100%);
-    //     `;
-    //   case NodeType.TextTemplate: {
-    //     return css`
-    //       background: linear-gradient(22deg, #98ecff 0%, #5cc5e0 100%);
-    //     `;
-    //   }
-    //   case NodeType.HuggingFaceInference: {
-    //     return css`
-    //       background: linear-gradient(22deg, #fa97b6 0%, #e081fe 100%);
-    //     `;
-    //   }
-    //   case NodeType.ElevenLabs: {
-    //     return css`
-    //       background: linear-gradient(22deg, #ffd196 0%, #ff8900 100%);
-    //     `;
-    //   }
-    //   case NodeType.ConditionNode: {
-    //     return '';
-    //   }
-    //   case NodeType.InputNode:
-    //   default:
-    //     return css`
-    //       background: linear-gradient(22deg, #9cede8 0%, #00e1d4 100%);
-    //     `;
-    // }
   }}
 `;
 
