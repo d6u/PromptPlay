@@ -1,6 +1,4 @@
-import { pipe, type Option } from '@mobily/ts-belt';
-import * as A from 'fp-ts/Array';
-import * as R from 'fp-ts/Record';
+import { produce } from 'immer';
 import { type Observable, type Observer } from 'rxjs';
 
 import {
@@ -15,7 +13,6 @@ import {
   type NodeOutputVariable,
   type OutgoingCondition,
   type RunNodeResult,
-  type VariableValueBox,
   type VariableValueRecords,
 } from 'flow-models';
 
@@ -82,14 +79,14 @@ class RunNodeContext {
   readonly outputVariables: NodeOutputVariable[];
   readonly outgoingConditions: OutgoingCondition[];
   readonly affectedNodeIds: Set<string> = new Set();
-  readonly errors: string[] = [];
 
+  errors: string[] = [];
   runNodeFunc: CreateNodeExecutionObservableFunction<NodeAllLevelConfigUnion>;
   outputVariableValues: VariableValueRecords = {};
   outgoingConditionResults: ConditionResultRecords = {};
 
-  get progressObserver(): Option<Observer<RunNodeProgressEvent>> {
-    return this.params.progressObserver;
+  get progressObserver(): Observer<RunNodeProgressEvent> | null {
+    return this.params.progressObserver ?? null;
   }
 
   get nodeRunState(): NodeRunState {
@@ -117,6 +114,10 @@ class RunNodeContext {
   }
 
   onRunNodeEvent(event: RunNodeResult): void {
+    if (event.errors != null) {
+      this.errors = event.errors;
+    }
+
     if (event.variableValues != null) {
       this.updateVariableValues(event.variableValues);
     }
@@ -127,9 +128,10 @@ class RunNodeContext {
   }
 
   onRunNodeError(err: any): void {
-    // TODO: Report to telemetry
-    // console.error(err);
-    this.errors.push(err.message ?? 'Unknown error');
+    this.errors = produce(this.errors, (draft) => {
+      // Showing the fatal error message on top
+      draft.unshift(err.message ?? 'Unknown error');
+    });
     this.setNodeRunState(NodeRunState.FAILED);
   }
 
@@ -248,29 +250,6 @@ class RunNodeContext {
       this.runGraphContext.runFlowStates.nodeStates[this.nodeId] =
         NodeRunState.SKIPPED;
     }
-  }
-
-  // NOTE: Called during runNode in progress
-  convertVariableValuesToRecords(
-    variableValues: Option<unknown[]>,
-  ): VariableValueRecords {
-    return variableValues
-      ? pipe(
-          this.nodeConfig.class === NodeClass.Finish
-            ? this.inputVariables
-            : this.outputVariables,
-          A.mapWithIndex(
-            (
-              i,
-              v: NodeInputVariable | NodeOutputVariable,
-            ): [string, VariableValueBox] => [
-              v.id,
-              { value: variableValues![i] },
-            ],
-          ),
-          R.fromEntries,
-        )
-      : {};
   }
 
   // NOTE: Called during runNode in progress

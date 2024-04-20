@@ -1,4 +1,11 @@
-import { ReplaySubject, lastValueFrom, tap, throwError } from 'rxjs';
+import {
+  ReplaySubject,
+  concat,
+  lastValueFrom,
+  of,
+  tap,
+  throwError,
+} from 'rxjs';
 import { describe, expect, test } from 'vitest';
 
 import RunFlowContext from '../RunFlowContext';
@@ -372,6 +379,89 @@ describe('Process node class', () => {
     ]);
   });
 
+  test('runNode should emit event (with errors) to progressObserver (runNode succeeded)', async () => {
+    // SECTION: Setup
+    const {
+      edges,
+      nodeConfigs,
+      connectors,
+      currentNodeId,
+      inputVariableValues,
+    } = createFixtureForNodeClassProcess();
+    // !SECTION
+
+    const progressObserver = new ReplaySubject<RunNodeProgressEvent>();
+
+    const runFlowParams: RunFlowParams = {
+      edges: edges,
+      nodeConfigs: nodeConfigs,
+      connectors: connectors,
+      inputVariableValues: inputVariableValues,
+      startNodeId: currentNodeId,
+      preferStreaming: false,
+      progressObserver: progressObserver,
+    };
+
+    const runFlowContext = new RunFlowContext(runFlowParams);
+    const runGraphContext = runFlowContext.createRunGraphContext(currentNodeId);
+    const runNodeContext = runGraphContext.createRunNodeContext(currentNodeId);
+
+    runNodeContext.runNodeFunc = () => {
+      return of({
+        errors: ['Test warning 1'],
+      });
+    };
+
+    runGraphContext.runFlowStates = {
+      nodeStates: {
+        PM5i4: NodeRunState.SUCCEEDED,
+        hstPg: NodeRunState.PENDING,
+      },
+      connectorStates: {
+        'PM5i4/4zxZ6': ConnectorRunState.MET,
+        'PM5i4/hbg4s': ConnectorRunState.MET,
+        'PM5i4/sMBfz': ConnectorRunState.MET,
+        'hstPg/3neA2': ConnectorRunState.UNCONNECTED,
+        'hstPg/I3lzc': ConnectorRunState.UNCONNECTED,
+        'hstPg/Tw8g0': ConnectorRunState.UNCONNECTED,
+        'hstPg/XrU7m': ConnectorRunState.MET,
+        'hstPg/c4Ts9': ConnectorRunState.UNCONNECTED,
+        'hstPg/g3NPR': ConnectorRunState.UNCONNECTED,
+        'hstPg/content': ConnectorRunState.UNCONNECTED,
+      },
+      edgeStates: {
+        '84q9B': EdgeRunState.MET,
+      },
+      sourceHandleToEdgeIds: { 'PM5i4/hbg4s': ['84q9B'] },
+      edgeIdToTargetHandle: { '84q9B': 'hstPg/XrU7m' },
+    };
+
+    let events: RunNodeProgressEvent[] = [];
+
+    progressObserver.subscribe((event) => events.push(event));
+
+    const value = await lastValueFrom(runNode(runNodeContext), {
+      defaultValue: 'NO_VALUE',
+    });
+    expect(value).toBe('NO_VALUE');
+
+    expect(events).toEqual([
+      { type: 'Started', nodeId: 'hstPg' },
+      {
+        type: 'Updated',
+        nodeId: 'hstPg',
+        result: {
+          errors: ['Test warning 1'],
+          variableValues: {},
+          conditionResults: {
+            'hstPg/c4Ts9': { isConditionMatched: true },
+          },
+        },
+      },
+      { type: 'Finished', nodeId: 'hstPg' },
+    ]);
+  });
+
   test('runNode should emit event to progressObserver (runNode throwed error)', async () => {
     // SECTION: Setup
     const {
@@ -443,6 +533,97 @@ describe('Process node class', () => {
         nodeId: 'hstPg',
         result: {
           errors: ['Test error'],
+          conditionResults: {},
+          variableValues: {},
+        },
+      },
+      { type: 'Finished', nodeId: 'hstPg' },
+    ]);
+  });
+
+  test('runNode should emit event (non-fatal errors with fatal error) to progressObserver (runNode throwed error)', async () => {
+    // SECTION: Setup
+    const {
+      edges,
+      nodeConfigs,
+      connectors,
+      currentNodeId,
+      inputVariableValues,
+    } = createFixtureForNodeClassProcess();
+    // !SECTION
+
+    const progressObserver = new ReplaySubject<RunNodeProgressEvent>();
+
+    const runFlowParams: RunFlowParams = {
+      edges: edges,
+      nodeConfigs: nodeConfigs,
+      connectors: connectors,
+      inputVariableValues: inputVariableValues,
+      startNodeId: currentNodeId,
+      preferStreaming: false,
+      progressObserver: progressObserver,
+    };
+
+    const runFlowContext = new RunFlowContext(runFlowParams);
+    const runGraphContext = runFlowContext.createRunGraphContext(currentNodeId);
+    const runNodeContext = runGraphContext.createRunNodeContext(currentNodeId);
+
+    runGraphContext.runFlowStates = {
+      nodeStates: {
+        PM5i4: NodeRunState.SUCCEEDED,
+        hstPg: NodeRunState.PENDING,
+      },
+      connectorStates: {
+        'PM5i4/4zxZ6': ConnectorRunState.MET,
+        'PM5i4/hbg4s': ConnectorRunState.MET,
+        'PM5i4/sMBfz': ConnectorRunState.MET,
+        'hstPg/3neA2': ConnectorRunState.UNCONNECTED,
+        'hstPg/I3lzc': ConnectorRunState.UNCONNECTED,
+        'hstPg/Tw8g0': ConnectorRunState.UNCONNECTED,
+        'hstPg/XrU7m': ConnectorRunState.MET,
+        'hstPg/c4Ts9': ConnectorRunState.UNCONNECTED,
+        'hstPg/g3NPR': ConnectorRunState.UNCONNECTED,
+        'hstPg/content': ConnectorRunState.UNCONNECTED,
+      },
+      edgeStates: {
+        '84q9B': EdgeRunState.MET,
+      },
+      sourceHandleToEdgeIds: { 'PM5i4/hbg4s': ['84q9B'] },
+      edgeIdToTargetHandle: { '84q9B': 'hstPg/XrU7m' },
+    };
+
+    runNodeContext.runNodeFunc = () => {
+      return concat(
+        of({ errors: ['Test warning 1'] }),
+        throwError(() => new Error('Test error')),
+      );
+    };
+
+    let events: RunNodeProgressEvent[] = [];
+
+    progressObserver.subscribe((event) => events.push(event));
+
+    const value = await lastValueFrom(runNode(runNodeContext), {
+      defaultValue: 'NO_VALUE',
+    });
+    expect(value).toBe('NO_VALUE');
+
+    expect(events).toEqual([
+      { type: 'Started', nodeId: 'hstPg' },
+      {
+        type: 'Updated',
+        nodeId: 'hstPg',
+        result: {
+          errors: ['Test warning 1'],
+          conditionResults: {},
+          variableValues: {},
+        },
+      },
+      {
+        type: 'Updated',
+        nodeId: 'hstPg',
+        result: {
+          errors: ['Test error', 'Test warning 1'],
           conditionResults: {},
           variableValues: {},
         },
