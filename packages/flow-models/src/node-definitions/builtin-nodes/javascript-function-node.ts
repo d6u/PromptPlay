@@ -108,11 +108,7 @@ export const JAVASCRIPT_NODE_DEFINITION: NodeDefinition<
 
     try {
       const value = await fn(...pairs.map((pair) => pair[1]));
-
-      return {
-        variableValues: [value],
-        completedConnectorIds: [outputVariable.id],
-      };
+      return { variableValues: [value] };
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {

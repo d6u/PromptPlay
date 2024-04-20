@@ -160,10 +160,7 @@ export const HUGGINGFACE_INFERENCE_NODE_DEFINITION: NodeDefinition<
           ],
         };
       } else {
-        return {
-          variableValues: [result.data],
-          completedConnectorIds: [variableOutput.id],
-        };
+        return { variableValues: [result.data] };
       }
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any

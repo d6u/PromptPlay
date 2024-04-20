@@ -41,7 +41,7 @@ function runFlowForCanvasTester(params: Params): Observable<RunFlowResult> {
 
   // ANCHOR: Step 1 - compile graphs
 
-  const { errors, graphRecords } = computeGraphs({
+  const { errors } = computeGraphs({
     edges: params.edges,
     nodeConfigs: params.nodeConfigs,
     startNodeIds: params.startNodeIds,
@@ -58,7 +58,7 @@ function runFlowForCanvasTester(params: Params): Observable<RunFlowResult> {
         A.flatten,
         A.uniq(S.Eq),
       ),
-      variableResults: {},
+      variableValues: {},
     });
   }
 
@@ -81,7 +81,7 @@ function runFlowForCanvasTester(params: Params): Observable<RunFlowResult> {
 
     return of({
       errors: validationErrors.map((error) => error.message),
-      variableResults: {},
+      variableValues: {},
     });
   }
 
@@ -103,8 +103,8 @@ function runFlowForCanvasTester(params: Params): Observable<RunFlowResult> {
     nodeConfigs: result.nodeAllLevelConfigs,
     connectors: params.connectors,
     inputVariableValues: params.inputValueMap,
+    startNodeId: params.startNodeIds[0],
     preferStreaming: params.preferStreaming,
-    graphRecords,
     progressObserver: subject,
   });
 }
@@ -122,7 +122,7 @@ function transformEvent(event: RunNodeProgressEvent): Observable<FlowRunEvent> {
         nodeId: event.nodeId,
       });
     case RunNodeProgressEventType.Updated: {
-      const { errors, conditionResults, variableResults } = event.result;
+      const { errors, conditionResults, variableValues } = event.result;
 
       const flowRunEvents: FlowRunEvent[] = [];
 
@@ -134,11 +134,11 @@ function transformEvent(event: RunNodeProgressEvent): Observable<FlowRunEvent> {
         });
       }
 
-      if (conditionResults != null || variableResults != null) {
+      if (conditionResults != null || variableValues != null) {
         flowRunEvents.push({
           type: FlowRunEventType.VariableValues,
+          variableResults: variableValues ?? {},
           conditionResults: conditionResults ?? {},
-          variableResults: variableResults ?? {},
         });
       }
 

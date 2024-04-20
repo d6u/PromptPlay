@@ -104,9 +104,6 @@ export const GENERIC_CHATBOT_START_NODE_DEFINITION: NodeDefinition<
   },
 
   async runNode(params) {
-    return {
-      variableValues: params.inputVariableValues,
-      completedConnectorIds: params.outputVariables.map((c) => c.id),
-    };
+    return { variableValues: params.inputVariableValues };
   },
 };

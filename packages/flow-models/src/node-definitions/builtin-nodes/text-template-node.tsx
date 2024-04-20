@@ -123,9 +123,6 @@ export const TEXT_TEMPLATE_NODE_DEFINITION: NodeDefinition<
 
     // !SECTION
 
-    return {
-      variableValues: [content],
-      completedConnectorIds: [outputVariable.id],
-    };
+    return { variableValues: [content] };
   },
 };

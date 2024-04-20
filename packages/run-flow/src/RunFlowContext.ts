@@ -1,21 +1,33 @@
 import {
-  ConnectorType,
   type ConditionResultRecords,
-  type NodeInputVariable,
-  type NodeOutputVariable,
   type OutgoingCondition,
+  type VariableValueBox,
   type VariableValueRecords,
 } from 'flow-models';
 import { computeTargetVariableIdToSourceVariableIdMap } from 'graph-util';
 
 import RunGraphContext from './RunGraphContext';
 import type { RunFlowParams } from './types';
+import { createIdMaps, createInitialRunState } from './util';
+
+type IdToIdMap = Record<string, string>;
 
 class RunFlowContext {
   constructor(params: RunFlowParams) {
-    this.params = params;
+    const {
+      sourceHandleToEdgeIds,
+      edgeIdToTargetHandle,
+      targetHandleToEdgeIds,
+    } = createIdMaps(params);
+
     this.allVariableValues = { ...params.inputVariableValues };
     this.allConditionResults = {};
+
+    this.sourceHandleToEdgeIds = sourceHandleToEdgeIds;
+    this.edgeIdToTargetHandle = edgeIdToTargetHandle;
+    this.targetHandleToEdgeIds = targetHandleToEdgeIds;
+
+    this.params = params;
     this.targetVariableIdToSourceVariableIdMap =
       computeTargetVariableIdToSourceVariableIdMap({
         edges: params.edges,
@@ -23,54 +35,31 @@ class RunFlowContext {
       });
   }
 
-  readonly params: RunFlowParams;
   allVariableValues: VariableValueRecords;
   allConditionResults: ConditionResultRecords;
 
-  private targetVariableIdToSourceVariableIdMap: Record<string, string>;
+  readonly sourceHandleToEdgeIds: Record<string, string[]>;
+  readonly edgeIdToTargetHandle: Record<string, string>;
+  readonly targetHandleToEdgeIds: Record<string, string[]>;
 
-  createRunGraphContext(graphId: string): RunGraphContext {
-    return new RunGraphContext(this, this.params, graphId);
+  private readonly params: RunFlowParams;
+  private readonly targetVariableIdToSourceVariableIdMap: IdToIdMap;
+
+  createRunGraphContext(startNodeId: string): RunGraphContext {
+    return new RunGraphContext(
+      this,
+      this.params,
+      createInitialRunState(this.params),
+      startNodeId,
+    );
   }
 
   getSrcVariableIdFromDstVariableId(connectorId: string): string {
     return this.targetVariableIdToSourceVariableIdMap[connectorId];
   }
 
-  getVariableValuesForVariables(
-    variables: (NodeInputVariable | NodeOutputVariable)[],
-  ): unknown[] {
-    return variables.map((v) => {
-      if (v.type === ConnectorType.NodeOutput) {
-        return this.allVariableValues[v.id]?.value;
-      }
-
-      if (v.isGlobal) {
-        if (v.globalVariableId != null) {
-          return this.allVariableValues[v.globalVariableId]?.value;
-        }
-      } else {
-        const sourceVariableId = this.getSrcVariableIdFromDstVariableId(v.id);
-
-        // NOTE: Use ? to be safe here.
-        return this.allVariableValues[sourceVariableId]?.value;
-      }
-    });
-  }
-
-  updateVariableValues(
-    variables: (NodeInputVariable | NodeOutputVariable)[],
-    values: VariableValueRecords,
-  ): void {
-    for (const v of variables) {
-      if (v.isGlobal) {
-        if (v.globalVariableId != null) {
-          this.allVariableValues[v.globalVariableId] = values[v.id];
-        }
-      } else {
-        this.allVariableValues[v.id] = values[v.id];
-      }
-    }
+  getVariableValueForId(variableId: string): VariableValueBox {
+    return this.allVariableValues[variableId];
   }
 
   updateConditionResults(

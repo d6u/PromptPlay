@@ -1,89 +1,96 @@
-import { type Option } from '@mobily/ts-belt';
-import { produce } from 'immer';
-import type { Edge } from 'reactflow';
-import {
-  BehaviorSubject,
-  of,
-  type Observable,
-  type Observer,
-  type Subject,
-} from 'rxjs';
-import invariant from 'tiny-invariant';
-
-import {
-  getIndegreeForNode,
-  getIndegreeZeroNodeIds,
-  type Graph,
-} from 'graph-util';
+import copy from 'fast-copy';
+import { filter } from 'fp-ts/Array';
+import { pipe } from 'fp-ts/function';
+import { BehaviorSubject, type Observer, type Subject } from 'rxjs';
 
 import type { NodeInputVariable, VariableValueRecords } from 'flow-models';
+
 import type { RunFlowResult, RunNodeProgressEvent } from './event-types';
 import type RunFlowContext from './RunFlowContext';
 import RunNodeContext from './RunNodeContext';
-import type { RunFlowParams } from './types';
+import {
+  ConnectorRunState,
+  NodeRunState,
+  type RunFlowParams,
+  type RunFlowStates,
+} from './types';
+import { getIncomingConnectorsForNode } from './util';
 
 class RunGraphContext {
   constructor(
     runFlowContext: RunFlowContext,
     params: RunFlowParams,
-    graphId: string,
+    runFlowStates: RunFlowStates,
+    startNodeId: string,
   ) {
-    const graph = params.graphRecords[graphId];
-    const initialNodeIds = getIndegreeZeroNodeIds(params.graphRecords[graphId]);
+    const initialNodeIds = [startNodeId];
+
+    this.runFlowStates = runFlowStates;
 
     this.runFlowContext = runFlowContext;
     this.params = params;
     this.nodeIdListSubject = new BehaviorSubject<string[]>(initialNodeIds);
-    this.graph = graph;
+
     this.queuedNodeCount = initialNodeIds.length;
   }
+
+  runFlowStates: RunFlowStates;
 
   readonly runFlowContext: RunFlowContext;
   readonly params: RunFlowParams;
   readonly nodeIdListSubject: Subject<string[]>;
-  graph: Graph;
   // Used to create run graph result
   readonly finishNodesVariableIds: string[] = [];
+  readonly succeededFinishNodeIds: string[] = [];
 
-  get progressObserver(): Option<Observer<RunNodeProgressEvent>> {
-    return this.params.progressObserver;
+  get progressObserver(): Observer<RunNodeProgressEvent> | null {
+    return this.params.progressObserver ?? null;
   }
 
   private queuedNodeCount: number; // Track nodes that are still running
+
+  didAnyFinishNodeSucceeded(): boolean {
+    return this.succeededFinishNodeIds.length > 0;
+  }
 
   createRunNodeContext(nodeId: string): RunNodeContext {
     return new RunNodeContext(this, this.params, nodeId);
   }
 
-  completeEdges(edges: Edge[]) {
-    const updatedNodeIds = new Set<string>();
+  createRunGraphContext(startNodeId: string): RunGraphContext {
+    return new RunGraphContext(
+      this.runFlowContext,
+      this.params,
+      copy(this.runFlowStates),
+      startNodeId,
+    );
+  }
 
-    this.graph = produce(this.graph, (draft) => {
-      for (const { target, targetHandle, sourceHandle } of edges) {
-        invariant(targetHandle, 'targetHandle is required');
-        invariant(sourceHandle, 'sourceHandle is required');
+  emitNextNodeIdsOrCompleteRunRoutine(nodeIds: Iterable<string>): void {
+    const nextNodeIds = pipe(
+      // NOTE: We should not scan the whole graph to find the next node to run,
+      // because that will also include all the subroutines' Start nodes.
+      Array.from(nodeIds),
+      filter((nodeId) => {
+        const state = this.runFlowStates.nodeStates[nodeId];
+        if (state !== NodeRunState.PENDING) {
+          return false;
+        }
+        const incomingConnectors = getIncomingConnectorsForNode(
+          this.params.connectors,
+          nodeId,
+        );
+        for (const { id } of incomingConnectors) {
+          const connectorState = this.runFlowStates.connectorStates[id];
+          if (connectorState === ConnectorRunState.PENDING) {
+            return false;
+          }
+        }
+        return true;
+      }),
+    );
 
-        draft[target][targetHandle][sourceHandle] = true;
-        updatedNodeIds.add(target);
-      }
-    });
-
-    const nextNodeIds = [];
-
-    for (const nodeId of updatedNodeIds) {
-      if (getIndegreeForNode(this.graph, nodeId) === 0) {
-        // Incrementing count on NodeExecutionEventType.Start event
-        // won't work, because both `queuedNodeCount` and
-        // `nextListOfNodeIds.length` could be 0 while there are still
-        // values in `listOfNodeIdsSubject` waiting to be processed.
-        //
-        // I.e. `listOfNodeIdsSubject.complete()` will complete the subject
-        // immediately, even though there are still values in the subject.
-        this.queuedNodeCount += 1;
-        nextNodeIds.push(nodeId);
-      }
-    }
-
+    this.queuedNodeCount += nextNodeIds.length;
     this.queuedNodeCount -= 1;
 
     if (nextNodeIds.length === 0) {
@@ -95,7 +102,7 @@ class RunGraphContext {
     }
   }
 
-  getRunGraphResult(): Observable<RunFlowResult> {
+  getResult(): RunFlowResult {
     const variableValues: VariableValueRecords = {};
 
     this.finishNodesVariableIds.forEach((id) => {
@@ -103,18 +110,19 @@ class RunGraphContext {
 
       if (v.isGlobal) {
         if (v.globalVariableId != null) {
-          variableValues[id] =
-            this.runFlowContext.allVariableValues[v.globalVariableId];
+          variableValues[id] = this.runFlowContext.getVariableValueForId(
+            v.globalVariableId,
+          );
         }
       } else {
-        variableValues[id] = this.runFlowContext.allVariableValues[id];
+        variableValues[id] = this.runFlowContext.getVariableValueForId(id);
       }
     });
 
-    return of({
+    return {
       errors: [],
-      variableResults: variableValues,
-    });
+      variableValues: variableValues,
+    };
   }
 }
 

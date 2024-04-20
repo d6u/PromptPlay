@@ -154,10 +154,7 @@ export const ELEVENLABS_NODE_DEFINITION: NodeDefinition<
       } else {
         const url = URL.createObjectURL(result.data);
 
-        return {
-          variableValues: [url],
-          completedConnectorIds: [outputAudio.id],
-        };
+        return { variableValues: [url] };
       }
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any

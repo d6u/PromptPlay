@@ -26,6 +26,7 @@ import { ContentVersion, SpaceFlowQueryQuery } from 'gencode-gql/graphql';
 import { client } from 'graphql-util/client';
 import { useLocalStorageStore } from 'state-root/local-storage-state';
 
+import { D } from '@mobily/ts-belt';
 import { NodeExecutionMessageType, NodeExecutionStatus } from './common-types';
 import { ChangeEventType } from './event-graph/event-types';
 import { updateSpaceContentV4 } from './graphql/graphql';
@@ -343,7 +344,12 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
           get().canvasStateMachine.send({
             type: CanvasStateMachineEventType.FinishedExecutingFlowSingleRun,
             hasError: false,
-            result: { variableResults: runFlowResult.variableResults },
+            result: {
+              variableResults: D.map(
+                runFlowResult.variableValues,
+                (rawValue) => ({ value: rawValue }),
+              ),
+            },
           });
 
           get()._processEventWithEventGraph({

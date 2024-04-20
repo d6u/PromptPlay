@@ -49,7 +49,7 @@ function flowRunBatch(params: {
 
   // ANCHOR: Step 1 - compile graphs
 
-  const { errors, graphRecords } = computeGraphs({
+  const { errors } = computeGraphs({
     edges: params.edges,
     nodeConfigs: params.nodeConfigs,
     startNodeIds: [],
@@ -124,7 +124,8 @@ function flowRunBatch(params: {
           connectors: params.connectors,
           inputVariableValues: inputValueMap,
           preferStreaming: params.preferStreaming,
-          graphRecords,
+          // TODO: Fix this
+          startNodeId: '',
           progressObserver: subject,
         }).pipe(ignoreElements()),
       );
@@ -151,7 +152,7 @@ function transformEvent(
       case RunNodeProgressEventType.Finished:
         return EMPTY;
       case RunNodeProgressEventType.Updated: {
-        const { errors, variableResults } = event.result;
+        const { errors, variableValues } = event.result;
 
         const flowBatchRunEvents: FlowBatchRunEvent[] = [];
 
@@ -165,12 +166,12 @@ function transformEvent(
           });
         }
 
-        if (variableResults != null) {
+        if (variableValues != null) {
           flowBatchRunEvents.push({
             type: FlowBatchRunEventType.FlowVariableValues,
             iterationIndex,
             rowIndex,
-            changes: D.map(variableResults, (result) => result.value),
+            changes: D.map(variableValues, (result) => result.value),
           });
         }
 

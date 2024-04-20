@@ -4,7 +4,7 @@ import type { Observable } from 'rxjs';
 import {
   Connector,
   VariableValueTypeEnum,
-  type ConditionResultRecords,
+  type ConditionResult,
   type NodeInputVariable,
   type NodeOutputVariable,
   type OutgoingCondition,
@@ -57,10 +57,9 @@ export type RunNodeParams<T> = {
 };
 
 export type RunNodeResult = Partial<{
-  errors: Array<string>;
-  conditionResults: ConditionResultRecords;
+  errors: string[];
+  conditionResults: ConditionResult[];
   variableValues: unknown[];
-  completedConnectorIds: Array<string>;
 }>;
 
 export type CreateNodeExecutionObservableFunction<T> = (
