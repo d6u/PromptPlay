@@ -71,7 +71,12 @@ function FlowCanvasNode() {
     return null;
   }
 
-  if (nodeConfig.class === NodeClass.Start) {
+  // NOTE: Start or SubroutineStart
+
+  if (
+    nodeConfig.class === NodeClass.Start ||
+    nodeConfig.class === NodeClass.SubroutineStart
+  ) {
     return (
       <StartClassNode
         nodeId={nodeId}
@@ -79,7 +84,11 @@ function FlowCanvasNode() {
         nodeConfig={nodeConfig}
       />
     );
-  } else if (nodeConfig.class === NodeClass.Finish) {
+  }
+
+  // NOTE: Finish
+
+  if (nodeConfig.class === NodeClass.Finish) {
     if (nodeConfig.type === NodeType.LoopFinish) {
       return (
         <LoopFinishNode
@@ -88,22 +97,24 @@ function FlowCanvasNode() {
           nodeConfig={nodeConfig}
         />
       );
-    } else {
-      invariant(conditionTarget != null, 'conditionTarget is not null');
-
-      return (
-        <FinishClassNode
-          nodeId={nodeId}
-          isNodeReadOnly={isNodeReadOnly}
-          nodeConfig={nodeConfig}
-          incomingCondition={conditionTarget}
-        />
-      );
     }
-  } else {
-    invariant(conditionTarget != null, 'conditionTarget is not null');
 
+    invariant(conditionTarget != null, 'conditionTarget is not null');
+    return (
+      <FinishClassNode
+        nodeId={nodeId}
+        isNodeReadOnly={isNodeReadOnly}
+        nodeConfig={nodeConfig}
+        incomingCondition={conditionTarget}
+      />
+    );
+  }
+
+  // NOTE: Condition
+
+  if (nodeConfig.class === NodeClass.Condition) {
     if (nodeConfig.type === NodeType.ConditionNode) {
+      invariant(conditionTarget != null, 'conditionTarget is not null');
       return (
         <ConditionNode
           nodeId={nodeId}
@@ -114,32 +125,38 @@ function FlowCanvasNode() {
           nodeExecutionState={nodeExecutionState}
         />
       );
-    } else if (nodeConfig.type === NodeType.JavaScriptFunctionNode) {
-      return (
-        <JavaScriptFunctionNode
-          nodeId={nodeId}
-          isNodeReadOnly={isNodeReadOnly}
-          nodeConfig={nodeConfig}
-          inputVariables={inputVariables}
-          outputVariables={outputVariables}
-          incomingCondition={conditionTarget}
-          nodeExecutionState={nodeExecutionState}
-        />
-      );
-    } else {
-      return (
-        <DefaultNode
-          nodeId={nodeId}
-          isNodeReadOnly={isNodeReadOnly}
-          nodeConfig={nodeConfig}
-          inputVariables={inputVariables}
-          outputVariables={outputVariables}
-          incomingCondition={conditionTarget}
-          nodeExecutionState={nodeExecutionState}
-        />
-      );
     }
   }
+
+  // NOTE: Process or Subroutine
+
+  if (nodeConfig.type === NodeType.JavaScriptFunctionNode) {
+    invariant(conditionTarget != null, 'conditionTarget is not null');
+    return (
+      <JavaScriptFunctionNode
+        nodeId={nodeId}
+        isNodeReadOnly={isNodeReadOnly}
+        nodeConfig={nodeConfig}
+        inputVariables={inputVariables}
+        outputVariables={outputVariables}
+        incomingCondition={conditionTarget}
+        nodeExecutionState={nodeExecutionState}
+      />
+    );
+  }
+
+  invariant(conditionTarget != null, 'conditionTarget is not null');
+  return (
+    <DefaultNode
+      nodeId={nodeId}
+      isNodeReadOnly={isNodeReadOnly}
+      nodeConfig={nodeConfig}
+      inputVariables={inputVariables}
+      outputVariables={outputVariables}
+      incomingCondition={conditionTarget}
+      nodeExecutionState={nodeExecutionState}
+    />
+  );
 }
 
 export default FlowCanvasNode;
