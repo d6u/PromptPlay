@@ -75,7 +75,7 @@ export function runNode(context: RunNodeContext): Observable<never> {
 
   return defer(() => {
     if (context.nodeConfig.type === NodeType.Loop) {
-      return runLoopNode(context);
+      return runSubroutine(context);
     } else {
       return context.createRunNodeObservable();
     }
@@ -118,85 +118,80 @@ export function runNode(context: RunNodeContext): Observable<never> {
   );
 }
 
-const LOOP_HARD_LIMIT = 10;
-
-function runLoopNode(context: RunNodeContext): Observable<RunNodeResult> {
-  console.log('runLoopNode');
-
+function runSubroutine(context: RunNodeContext): Observable<RunNodeResult> {
   const nodeConfig = context.nodeConfig;
   invariant(nodeConfig.type === NodeType.Loop);
 
   const loopStartNodeId = nodeConfig.loopStartNodeId;
+  invariant(loopStartNodeId != null, 'loopStartNodeId is required');
 
-  let count = 0;
+  return runLoopSubroutine(context, loopStartNodeId);
+}
 
-  function run(): Observable<never> {
-    invariant(loopStartNodeId != null, 'loopStartNodeId is required');
-    const runGraphContext = context.createRunGraphContext(loopStartNodeId!);
+const LOOP_HARD_LIMIT = 10;
 
-    return concat(
-      runRoutine(runGraphContext),
-      defer(() => {
-        console.log(
-          'runLoopNode::defer',
-          runGraphContext.succeededFinishNodeIds,
+function runLoopSubroutine(
+  context: RunNodeContext,
+  startNodeId: string,
+  loopContext: { count: number } = { count: 0 },
+): Observable<never> {
+  const runGraphContext = context.createRunGraphContext(startNodeId);
+
+  return concat(
+    runRoutine(runGraphContext),
+    defer(() => {
+      if (!runGraphContext.didAnyFinishNodeSucceeded()) {
+        return EMPTY;
+      }
+
+      let isContinue = false;
+      let isBreak = false;
+
+      for (const nodeId of runGraphContext.succeededFinishNodeIds) {
+        const incomingConditions = getIncomingConditionsForNode(
+          context.params.connectors,
+          nodeId,
         );
 
-        if (!runGraphContext.didAnyFinishNodeSucceeded()) {
-          return EMPTY;
+        const continueCondition = incomingConditions[0];
+        const breakCondition = incomingConditions[1];
+
+        const stateContinueCondition =
+          runGraphContext.runFlowStates.connectorStates[continueCondition.id];
+        const stateBreakCondition =
+          runGraphContext.runFlowStates.connectorStates[breakCondition.id];
+
+        if (stateContinueCondition === ConnectorRunState.MET) {
+          isContinue = true;
         }
 
-        let isContinue = false;
-        let isBreak = false;
-
-        for (const nodeId of runGraphContext.succeededFinishNodeIds) {
-          const incomingConditions = getIncomingConditionsForNode(
-            context.params.connectors,
-            nodeId,
-          );
-
-          const continueCondition = incomingConditions[0];
-          const breakCondition = incomingConditions[1];
-
-          if (
-            runGraphContext.runFlowStates.connectorStates[
-              continueCondition.id
-            ] === ConnectorRunState.MET
-          ) {
-            isContinue = true;
-          }
-
-          if (
-            runGraphContext.runFlowStates.connectorStates[breakCondition.id] ===
-            ConnectorRunState.MET
-          ) {
-            isBreak = true;
-          }
+        if (stateBreakCondition === ConnectorRunState.MET) {
+          isBreak = true;
         }
+      }
 
-        count += 1;
+      loopContext.count += 1;
 
-        if (count >= LOOP_HARD_LIMIT) {
-          console.warn('Loop count exceeded 10');
-          return EMPTY;
-        }
+      if (loopContext.count >= LOOP_HARD_LIMIT) {
+        console.warn('Loop count exceeded 10');
+        return EMPTY;
+      }
 
-        if (isContinue && isBreak) {
-          console.warn('Both continue and break are met');
-        }
+      if (isContinue && isBreak) {
+        console.warn(
+          'Both continue and break are met, break condition will be respected',
+        );
+      }
 
-        if (isBreak) {
-          return EMPTY;
-        } else if (isContinue) {
-          return run();
-        } else {
-          throw new Error('Neither continue nor break is met');
-        }
-      }),
-    );
-  }
-
-  return run();
+      if (isBreak) {
+        return EMPTY;
+      } else if (isContinue) {
+        return runLoopSubroutine(context, startNodeId, loopContext);
+      } else {
+        throw new Error('Neither continue nor break is met');
+      }
+    }),
+  );
 }
 
 export default runFlow;

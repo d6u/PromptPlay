@@ -152,7 +152,7 @@ function transformEvent(
       case RunNodeProgressEventType.Finished:
         return EMPTY;
       case RunNodeProgressEventType.Updated: {
-        const { errors, variableResults } = event.result;
+        const { errors, variableValues } = event.result;
 
         const flowBatchRunEvents: FlowBatchRunEvent[] = [];
 
@@ -166,12 +166,12 @@ function transformEvent(
           });
         }
 
-        if (variableResults != null) {
+        if (variableValues != null) {
           flowBatchRunEvents.push({
             type: FlowBatchRunEventType.FlowVariableValues,
             iterationIndex,
             rowIndex,
-            changes: D.map(variableResults, (result) => result.value),
+            changes: D.map(variableValues, (result) => result.value),
           });
         }
 
