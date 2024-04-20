@@ -6,11 +6,11 @@ import {
   ConnectorType,
   IncomingCondition,
   NodeClass,
-  NodeType,
   OutputNodeAllLevelConfig,
   getNodeDefinitionForNodeTypeName,
   type GenericChatbotFinishNodeAllLevelConfig,
 } from 'flow-models';
+import { NodeRunState } from 'run-flow';
 
 import NodeIncomingConditionHandle from 'components/node-connector/condition/NodeIncomingConditionHandle';
 import {
@@ -25,6 +25,9 @@ import NodeBox from '../node-box/NodeBox';
 import NodeBoxHeaderSection from '../node-box/NodeBoxHeaderSection';
 
 type Props = {
+  // reactflow props
+  selected: boolean;
+  // custom props
   nodeId: string;
   isNodeReadOnly: boolean;
   nodeConfig: OutputNodeAllLevelConfig | GenericChatbotFinishNodeAllLevelConfig;
@@ -46,13 +49,19 @@ function FinishClassNode(props: Props) {
     return selectVariables(props.nodeId, ConnectorType.NodeInput, connectors);
   }, [props.nodeId, connectors]);
 
+  const nodeState = useFlowStore(
+    (s) =>
+      s.getFlowContent().runFlowStates.nodeStates[props.nodeId] ??
+      NodeRunState.PENDING,
+  );
+
   return (
     <>
       <NodeIncomingConditionHandle
         nodeId={props.nodeId}
         conditionId={props.incomingCondition.id}
       />
-      <NodeBox nodeType={NodeType.OutputNode}>
+      <NodeBox selected={props.selected} nodeState={nodeState}>
         <NodeBoxHeaderSection
           nodeClass={NodeClass.Finish}
           isNodeReadOnly={props.isNodeReadOnly}

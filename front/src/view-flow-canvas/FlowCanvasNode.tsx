@@ -1,6 +1,6 @@
 import { Option } from '@mobily/ts-belt';
 import { useContext, useMemo } from 'react';
-import { useNodeId } from 'reactflow';
+import { type NodeProps } from 'reactflow';
 
 import { ConnectorType, NodeClass, NodeConfig, NodeType } from 'flow-models';
 
@@ -19,11 +19,11 @@ import JavaScriptFunctionNode from './nodes/JavaScriptFunctionNode';
 import LoopFinishNode from './nodes/LoopFinishNode';
 import StartClassNode from './nodes/StartClassNode';
 
-function FlowCanvasNode() {
+function FlowCanvasNode(props: NodeProps) {
+  const { id: nodeId, selected } = props;
+
   const { isCurrentUserOwner } = useContext(RouteFlowContext);
   const isNodeReadOnly = !isCurrentUserOwner;
-
-  const nodeId = useNodeId();
 
   const nodeConfigs = useFlowStore((s) => s.getFlowContent().nodeConfigs);
   const connectors = useFlowStore((s) => s.getFlowContent().connectors);
@@ -79,6 +79,7 @@ function FlowCanvasNode() {
   ) {
     return (
       <StartClassNode
+        selected={selected}
         nodeId={nodeId}
         isNodeReadOnly={isNodeReadOnly}
         nodeConfig={nodeConfig}
@@ -92,6 +93,7 @@ function FlowCanvasNode() {
     if (nodeConfig.type === NodeType.LoopFinish) {
       return (
         <LoopFinishNode
+          selected={selected}
           nodeId={nodeId}
           isNodeReadOnly={isNodeReadOnly}
           nodeConfig={nodeConfig}
@@ -102,6 +104,7 @@ function FlowCanvasNode() {
     invariant(conditionTarget != null, 'conditionTarget is not null');
     return (
       <FinishClassNode
+        selected={selected}
         nodeId={nodeId}
         isNodeReadOnly={isNodeReadOnly}
         nodeConfig={nodeConfig}
@@ -117,6 +120,7 @@ function FlowCanvasNode() {
       invariant(conditionTarget != null, 'conditionTarget is not null');
       return (
         <ConditionNode
+          selected={selected}
           nodeId={nodeId}
           isNodeReadOnly={isNodeReadOnly}
           nodeConfig={nodeConfig}
@@ -134,6 +138,7 @@ function FlowCanvasNode() {
     invariant(conditionTarget != null, 'conditionTarget is not null');
     return (
       <JavaScriptFunctionNode
+        selected={selected}
         nodeId={nodeId}
         isNodeReadOnly={isNodeReadOnly}
         nodeConfig={nodeConfig}
@@ -148,6 +153,7 @@ function FlowCanvasNode() {
   invariant(conditionTarget != null, 'conditionTarget is not null');
   return (
     <DefaultNode
+      selected={selected}
       nodeId={nodeId}
       isNodeReadOnly={isNodeReadOnly}
       nodeConfig={nodeConfig}

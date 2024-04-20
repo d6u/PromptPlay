@@ -74,6 +74,7 @@ test('handleRemoveNode should remove node, nodeConfig, and connectors', () => {
       variableResults: {},
       nodeExecutionStates: {},
       nodeAccountLevelFieldsValidationErrors: {},
+      runFlowStates: expect.anything(),
     },
   });
 });

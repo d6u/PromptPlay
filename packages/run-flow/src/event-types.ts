@@ -3,6 +3,7 @@ import {
   type ConditionResultRecords,
   type VariableValueRecords,
 } from 'flow-models';
+import type { RunFlowStates } from './types';
 
 // ANCHOR: Event Types
 
@@ -55,11 +56,13 @@ export type FlowRunValidationErrorsEvent = {
 export type FlowRunNodeStartEvent = {
   type: FlowRunEventType.NodeStart;
   nodeId: string;
+  runFlowStates: RunFlowStates;
 };
 
 export type FlowRunNodeFinishEvent = {
   type: FlowRunEventType.NodeFinish;
   nodeId: string;
+  runFlowStates: RunFlowStates;
 };
 
 export type FlowRunVariableValuesEvent = {
@@ -142,6 +145,7 @@ export enum RunNodeProgressEventType {
 export type RunNodeStartedEvent = {
   type: RunNodeProgressEventType.Started;
   nodeId: string;
+  runFlowStates: RunFlowStates;
 };
 
 export type ProgressUpdateData = Partial<{
@@ -159,6 +163,7 @@ export type RunNodeUpdatedEvent = {
 export type RunNodeFinishedEvent = {
   type: RunNodeProgressEventType.Finished;
   nodeId: string;
+  runFlowStates: RunFlowStates;
 };
 
 export type RunNodeProgressEvent =

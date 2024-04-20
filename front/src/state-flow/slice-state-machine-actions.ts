@@ -1,4 +1,5 @@
 import { createLens } from '@dhmk/zustand-lens';
+import { D } from '@mobily/ts-belt';
 import deepEqual from 'deep-equal';
 import posthog from 'posthog-js';
 import { Subject, Subscription, from, map } from 'rxjs';
@@ -26,8 +27,7 @@ import { ContentVersion, SpaceFlowQueryQuery } from 'gencode-gql/graphql';
 import { client } from 'graphql-util/client';
 import { useLocalStorageStore } from 'state-root/local-storage-state';
 
-import { D } from '@mobily/ts-belt';
-import { NodeExecutionMessageType, NodeExecutionStatus } from './common-types';
+import { NodeExecutionMessageType } from './common-types';
 import { ChangeEventType } from './event-graph/event-types';
 import { updateSpaceContentV4 } from './graphql/graphql';
 import {
@@ -94,6 +94,11 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
                   connectors,
                   nodeExecutionStates: {},
                   nodeAccountLevelFieldsValidationErrors: {},
+                  runFlowStates: {
+                    nodeStates: {},
+                    connectorStates: {},
+                    edgeStates: {},
+                  },
                   ...rest,
                 };
               },
@@ -223,21 +228,20 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
               get()._processEventWithEventGraph({
                 type: ChangeEventType.FLOW_SINGLE_RUN_NODE_EXECUTION_STATE_CHANGE,
                 nodeId: event.nodeId,
-                state: NodeExecutionStatus.Executing,
+                runFlowStates: event.runFlowStates,
               });
               break;
             case FlowRunEventType.NodeFinish:
               get()._processEventWithEventGraph({
                 type: ChangeEventType.FLOW_SINGLE_RUN_NODE_EXECUTION_STATE_CHANGE,
                 nodeId: event.nodeId,
-                state: NodeExecutionStatus.Success,
+                runFlowStates: event.runFlowStates,
               });
               break;
             case FlowRunEventType.NodeErrors:
               get()._processEventWithEventGraph({
                 type: ChangeEventType.FLOW_SINGLE_RUN_NODE_EXECUTION_STATE_CHANGE,
                 nodeId: event.nodeId,
-                state: NodeExecutionStatus.Error,
                 newMessages: event.errorMessages.map((message) => ({
                   type: NodeExecutionMessageType.Error,
                   content: message,
@@ -277,7 +281,6 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
                     get()._processEventWithEventGraph({
                       type: ChangeEventType.FLOW_SINGLE_RUN_NODE_EXECUTION_STATE_CHANGE,
                       nodeId: error.nodeId,
-                      state: NodeExecutionStatus.Error,
                       newMessages: [
                         {
                           type: NodeExecutionMessageType.Error,

@@ -18,7 +18,7 @@ import NodeExecutionMessageDisplay from 'components/node-execution-state/NodeExe
 import SidePaneHeaderSection from 'components/side-pane/SidePaneHeaderSection';
 import HeaderSectionHeader from 'components/side-pane/SidePaneHeaderSectionHeader';
 import SidePaneSection from 'components/side-pane/SidePaneSection';
-import { NodeExecutionState } from 'state-flow/common-types';
+import { NodeRunStateData } from 'state-flow/common-types';
 import { useFlowStore } from 'state-flow/flow-store';
 import { selectOutgoingConditions } from 'state-flow/util/state-utils';
 
@@ -35,7 +35,7 @@ type Props = {
   nodeConfig: ConditionNodeInstanceLevelConfig;
   inputVariables: NodeInputVariable[];
   // Node Level but not save to server
-  nodeExecutionState: Option<NodeExecutionState>;
+  nodeExecutionState: Option<NodeRunStateData>;
 };
 
 function ConditionNodeConfigPane(props: Props) {

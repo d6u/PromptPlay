@@ -11,5 +11,6 @@ export const MOCK_STATE: State = {
     nodeExecutionStates: {},
     nodeAccountLevelFieldsValidationErrors: {},
     globalVariables: {},
+    runFlowStates: { nodeStates: {}, connectorStates: {}, edgeStates: {} },
   },
 };

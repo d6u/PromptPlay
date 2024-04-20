@@ -19,10 +19,7 @@ import NodeRenamableVariableList from 'components/node-connector/variable/NodeRe
 import NodeFieldLabelWithIconContainer from 'components/node-fields/NodeFieldLabelWithIconContainer';
 import CopyIconButton from 'generic-components/CopyIconButton';
 import ReadonlyTextarea from 'generic-components/ReadonlyTextarea';
-import {
-  NodeExecutionState,
-  NodeExecutionStatus,
-} from 'state-flow/common-types';
+import { NodeRunStateData } from 'state-flow/common-types';
 import { useFlowStore } from 'state-flow/flow-store';
 
 import NodeRegularOutgoingConditionHandle from 'components/node-connector/condition/NodeRegularOutgoingConditionHandle';
@@ -32,18 +29,22 @@ import {
 } from 'components/node-connector/types';
 import NodeOutputVariableList from 'components/node-connector/variable/NodeOutputVariableList';
 import NodeExecutionMessageDisplay from 'components/node-execution-state/NodeExecutionMessageDisplay';
+import { NodeRunState } from 'run-flow';
 import NodeBox from '../node-box/NodeBox';
 import NodeBoxHeaderSection from '../node-box/NodeBoxHeaderSection';
 import NodeBoxSection from '../node-box/NodeBoxSection';
 
 type Props = {
+  // reactflow props
+  selected: boolean;
+  // custom props
   nodeId: string;
   isNodeReadOnly: boolean;
   nodeConfig: JavaScriptFunctionNodeInstanceLevelConfig;
   inputVariables: NodeInputVariable[];
   outputVariables: NodeOutputVariable[];
   incomingCondition: IncomingCondition;
-  nodeExecutionState: Option<NodeExecutionState>;
+  nodeExecutionState: Option<NodeRunStateData>;
 };
 
 function JavaScriptFunctionNode(props: Props) {
@@ -56,6 +57,12 @@ function JavaScriptFunctionNode(props: Props) {
 
   const updateNodeConfig = useFlowStore((s) => s.updateNodeConfig);
   const addVariable = useFlowStore((s) => s.addConnector);
+
+  const nodeState = useFlowStore(
+    (s) =>
+      s.getFlowContent().runFlowStates.nodeStates[props.nodeId] ??
+      NodeRunState.PENDING,
+  );
 
   const [javaScriptCode, setJavaScriptCode] = useState(
     () => props.nodeConfig.javaScriptCode,
@@ -72,15 +79,7 @@ function JavaScriptFunctionNode(props: Props) {
         nodeId={props.nodeId}
         conditionId={props.incomingCondition.id}
       />
-      <NodeBox
-        nodeType={props.nodeConfig.type}
-        isRunning={
-          props.nodeExecutionState?.status === NodeExecutionStatus.Executing
-        }
-        hasError={
-          props.nodeExecutionState?.status === NodeExecutionStatus.Error
-        }
-      >
+      <NodeBox selected={props.selected} nodeState={nodeState}>
         <NodeBoxHeaderSection
           nodeClass={NodeClass.Process}
           title={nodeDefinition.label}

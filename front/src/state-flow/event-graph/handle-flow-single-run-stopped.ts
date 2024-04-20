@@ -1,6 +1,3 @@
-import { D } from '@mobily/ts-belt';
-
-import { NodeExecutionStatus } from 'state-flow/common-types';
 import { createHandler } from './event-graph-util';
 import { ChangeEventType } from './event-types';
 
@@ -18,14 +15,6 @@ export const handleFlowSingleRunStopped = createHandler<
   (state, event) => {
     for (const edge of state.flowContent.edges) {
       edge.animated = false;
-    }
-
-    for (const nodeId of D.keys(state.flowContent.nodeExecutionStates)) {
-      const nodeExecuteState = state.flowContent.nodeExecutionStates[nodeId];
-
-      if (nodeExecuteState.status === NodeExecutionStatus.Pending) {
-        nodeExecuteState.status = NodeExecutionStatus.Skipped;
-      }
     }
 
     return [];

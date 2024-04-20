@@ -3,7 +3,6 @@ import { useMemo } from 'react';
 
 import {
   NodeClass,
-  NodeType,
   getNodeDefinitionForNodeTypeName,
   type LoopFinishNodeAllLevelConfig,
 } from 'flow-models';
@@ -12,10 +11,14 @@ import NodeIncomingConditionItem from 'components/node-connector/condition/NodeI
 import { useFlowStore } from 'state-flow/flow-store';
 import { selectIncomingConditions } from 'state-flow/util/state-utils';
 
+import { NodeRunState } from 'run-flow';
 import NodeBox from '../node-box/NodeBox';
 import NodeBoxHeaderSection from '../node-box/NodeBoxHeaderSection';
 
 type Props = {
+  // reactflow props
+  selected: boolean;
+  // custom props
   isNodeReadOnly: boolean;
   nodeId: string;
   nodeConfig: LoopFinishNodeAllLevelConfig;
@@ -33,9 +36,15 @@ function LoopFinishNode(props: Props) {
     return selectIncomingConditions(props.nodeId, connectors);
   }, [props.nodeId, connectors]);
 
+  const nodeState = useFlowStore(
+    (s) =>
+      s.getFlowContent().runFlowStates.nodeStates[props.nodeId] ??
+      NodeRunState.PENDING,
+  );
+
   return (
     <>
-      <NodeBox nodeType={NodeType.OutputNode}>
+      <NodeBox selected={props.selected} nodeState={nodeState}>
         <NodeBoxHeaderSection
           nodeClass={NodeClass.Finish}
           isNodeReadOnly={props.isNodeReadOnly}

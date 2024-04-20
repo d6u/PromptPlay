@@ -10,7 +10,6 @@ import {
   IncomingCondition,
   NodeClass,
   NodeInputVariable,
-  NodeType,
 } from 'flow-models';
 
 import NodeAddConnectorButton from 'components/NodeAddConnectorButton';
@@ -18,10 +17,7 @@ import NodeConditionDefaultItem from 'components/node-connector/condition/NodeCo
 import NodeConditionsEditableList from 'components/node-connector/condition/NodeConditionsEditableList';
 import NodeIncomingConditionHandle from 'components/node-connector/condition/NodeIncomingConditionHandle';
 import NodeRenamableVariableList from 'components/node-connector/variable/NodeRenamableVariableList';
-import {
-  NodeExecutionState,
-  NodeExecutionStatus,
-} from 'state-flow/common-types';
+import { NodeRunStateData } from 'state-flow/common-types';
 import { useFlowStore } from 'state-flow/flow-store';
 import { selectOutgoingConditions } from 'state-flow/util/state-utils';
 
@@ -30,18 +26,22 @@ import {
   type VariableDefinition,
 } from 'components/node-connector/types';
 import NodeExecutionMessageDisplay from 'components/node-execution-state/NodeExecutionMessageDisplay';
+import { NodeRunState } from 'run-flow';
 import NodeBox from '../node-box/NodeBox';
 import NodeBoxHeaderSection from '../node-box/NodeBoxHeaderSection';
 import NodeBoxSection from '../node-box/NodeBoxSection';
 import NodeBoxSmallSection from '../node-box/NodeBoxSmallSection';
 
 type Props = {
+  // reactflow props
+  selected: boolean;
+  // custom props
   nodeId: string;
   isNodeReadOnly: boolean;
   nodeConfig: ConditionNodeAllLevelConfig;
   inputVariables: NodeInputVariable[];
   incomingCondition: IncomingCondition;
-  nodeExecutionState: Option<NodeExecutionState>;
+  nodeExecutionState: Option<NodeRunStateData>;
 };
 
 function ConditionNode(props: Props) {
@@ -61,21 +61,19 @@ function ConditionNode(props: Props) {
     (s) => s.getFlowContent().conditionResults,
   );
 
+  const nodeState = useFlowStore(
+    (s) =>
+      s.getFlowContent().runFlowStates.nodeStates[props.nodeId] ??
+      NodeRunState.PENDING,
+  );
+
   return (
     <>
       <NodeIncomingConditionHandle
         nodeId={props.nodeId}
         conditionId={props.incomingCondition.id}
       />
-      <NodeBox
-        nodeType={NodeType.InputNode}
-        isRunning={
-          props.nodeExecutionState?.status === NodeExecutionStatus.Executing
-        }
-        hasError={
-          props.nodeExecutionState?.status === NodeExecutionStatus.Error
-        }
-      >
+      <NodeBox selected={props.selected} nodeState={nodeState}>
         <NodeBoxHeaderSection
           nodeClass={NodeClass.Process}
           isNodeReadOnly={props.isNodeReadOnly}

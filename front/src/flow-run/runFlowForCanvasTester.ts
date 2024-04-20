@@ -115,11 +115,13 @@ function transformEvent(event: RunNodeProgressEvent): Observable<FlowRunEvent> {
       return of({
         type: FlowRunEventType.NodeStart,
         nodeId: event.nodeId,
+        runFlowStates: event.runFlowStates,
       });
     case RunNodeProgressEventType.Finished:
       return of({
         type: FlowRunEventType.NodeFinish,
         nodeId: event.nodeId,
+        runFlowStates: event.runFlowStates,
       });
     case RunNodeProgressEventType.Updated: {
       const { errors, conditionResults, variableValues } = event.result;
