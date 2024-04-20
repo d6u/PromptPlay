@@ -71,6 +71,7 @@ export function runNode(context: RunNodeContext): Observable<never> {
   context.progressObserver?.next({
     type: RunNodeProgressEventType.Started,
     nodeId: context.nodeId,
+    runFlowStates: context.runFlowStates,
   });
 
   return defer(() => {
@@ -112,6 +113,7 @@ export function runNode(context: RunNodeContext): Observable<never> {
         context.params.progressObserver?.next({
           type: RunNodeProgressEventType.Finished,
           nodeId: context.nodeId,
+          runFlowStates: context.runFlowStates,
         });
       },
     }),

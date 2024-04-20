@@ -428,7 +428,7 @@ describe('Process node class', () => {
     expect(value).toBe('NO_VALUE');
 
     expect(events).toEqual([
-      { type: 'Started', nodeId: 'hstPg' },
+      { type: 'Started', nodeId: 'hstPg', runFlowStates: expect.anything() },
       {
         type: 'Updated',
         nodeId: 'hstPg',
@@ -442,7 +442,7 @@ describe('Process node class', () => {
           },
         },
       },
-      { type: 'Finished', nodeId: 'hstPg' },
+      { type: 'Finished', nodeId: 'hstPg', runFlowStates: expect.anything() },
     ]);
   });
 
@@ -511,7 +511,7 @@ describe('Process node class', () => {
     expect(value).toBe('NO_VALUE');
 
     expect(events).toEqual([
-      { type: 'Started', nodeId: 'hstPg' },
+      { type: 'Started', nodeId: 'hstPg', runFlowStates: expect.anything() },
       {
         type: 'Updated',
         nodeId: 'hstPg',
@@ -523,7 +523,7 @@ describe('Process node class', () => {
           },
         },
       },
-      { type: 'Finished', nodeId: 'hstPg' },
+      { type: 'Finished', nodeId: 'hstPg', runFlowStates: expect.anything() },
     ]);
   });
 
@@ -590,7 +590,7 @@ describe('Process node class', () => {
     expect(value).toBe('NO_VALUE');
 
     expect(events).toEqual([
-      { type: 'Started', nodeId: 'hstPg' },
+      { type: 'Started', nodeId: 'hstPg', runFlowStates: expect.anything() },
       {
         type: 'Updated',
         nodeId: 'hstPg',
@@ -600,7 +600,7 @@ describe('Process node class', () => {
           variableValues: {},
         },
       },
-      { type: 'Finished', nodeId: 'hstPg' },
+      { type: 'Finished', nodeId: 'hstPg', runFlowStates: expect.anything() },
     ]);
   });
 
@@ -670,7 +670,7 @@ describe('Process node class', () => {
     expect(value).toBe('NO_VALUE');
 
     expect(events).toEqual([
-      { type: 'Started', nodeId: 'hstPg' },
+      { type: 'Started', nodeId: 'hstPg', runFlowStates: expect.anything() },
       {
         type: 'Updated',
         nodeId: 'hstPg',
@@ -689,7 +689,7 @@ describe('Process node class', () => {
           variableValues: {},
         },
       },
-      { type: 'Finished', nodeId: 'hstPg' },
+      { type: 'Finished', nodeId: 'hstPg', runFlowStates: expect.anything() },
     ]);
   });
 });
@@ -839,7 +839,11 @@ describe('Finish node class', () => {
     expect(value).toBe('NO_VALUE');
 
     expect(events).toEqual([
-      { type: 'Started', nodeId: currentNodeId },
+      {
+        type: 'Started',
+        nodeId: currentNodeId,
+        runFlowStates: expect.anything(),
+      },
       {
         type: 'Updated',
         nodeId: currentNodeId,
@@ -852,7 +856,11 @@ describe('Finish node class', () => {
           conditionResults: {},
         },
       },
-      { type: 'Finished', nodeId: currentNodeId },
+      {
+        type: 'Finished',
+        nodeId: currentNodeId,
+        runFlowStates: expect.anything(),
+      },
     ]);
   });
 });

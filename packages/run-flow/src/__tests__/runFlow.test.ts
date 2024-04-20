@@ -80,7 +80,11 @@ test('runFlow should complete progressObservable', () => {
 
             expect(events).toEqual([
               // Gav0R
-              { nodeId: 'Gav0R', type: 'Started' },
+              {
+                nodeId: 'Gav0R',
+                type: 'Started',
+                runFlowStates: expect.anything(),
+              },
               {
                 nodeId: 'Gav0R',
                 type: 'Updated',
@@ -95,9 +99,17 @@ test('runFlow should complete progressObservable', () => {
                   },
                 },
               },
-              { nodeId: 'Gav0R', type: 'Finished' },
+              {
+                nodeId: 'Gav0R',
+                type: 'Finished',
+                runFlowStates: expect.anything(),
+              },
               // K5n6N
-              { nodeId: 'K5n6N', type: 'Started' },
+              {
+                nodeId: 'K5n6N',
+                type: 'Started',
+                runFlowStates: expect.anything(),
+              },
               {
                 nodeId: 'K5n6N',
                 type: 'Updated',
@@ -111,9 +123,17 @@ test('runFlow should complete progressObservable', () => {
                   },
                 },
               },
-              { nodeId: 'K5n6N', type: 'Finished' },
+              {
+                nodeId: 'K5n6N',
+                type: 'Finished',
+                runFlowStates: expect.anything(),
+              },
               // KbeEk
-              { nodeId: 'KbeEk', type: 'Started' },
+              {
+                nodeId: 'KbeEk',
+                type: 'Started',
+                runFlowStates: expect.anything(),
+              },
               {
                 nodeId: 'KbeEk',
                 type: 'Updated',
@@ -126,7 +146,11 @@ test('runFlow should complete progressObservable', () => {
                   },
                 },
               },
-              { nodeId: 'KbeEk', type: 'Finished' },
+              {
+                nodeId: 'KbeEk',
+                type: 'Finished',
+                runFlowStates: expect.anything(),
+              },
             ]);
           },
         }),

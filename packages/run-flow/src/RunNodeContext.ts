@@ -95,6 +95,10 @@ class RunNodeContext {
     return this.runGraphContext.runFlowStates.nodeStates[this.nodeId];
   }
 
+  get runFlowStates(): RunFlowStates {
+    return this.runGraphContext.runFlowStates;
+  }
+
   private readonly runGraphContext: RunGraphContext;
   private readonly incomingConnectors: (
     | NodeInputVariable
@@ -113,9 +117,6 @@ class RunNodeContext {
   }
   private get targetHandleToEdgeIds(): Record<string, string[]> {
     return this.runGraphContext.runFlowContext.targetHandleToEdgeIds;
-  }
-  private get runFlowStates(): RunFlowStates {
-    return this.runGraphContext.runFlowStates;
   }
 
   // SECTION: Called in runNode
