@@ -5,64 +5,7 @@ import type {
   NodeAllLevelConfigUnion,
   VariableValueRecords,
 } from 'flow-models';
-
-export function createFixtureForNodeClassStart() {
-  const edges: Edge[] = [];
-
-  const nodeConfigs: Record<string, NodeAllLevelConfigUnion> = {
-    PM5i4: {
-      class: 'Start',
-      type: 'InputNode',
-      nodeId: 'PM5i4',
-      nodeName: 'input1',
-    },
-  };
-
-  const connectors: ConnectorRecords = {
-    'PM5i4/4zxZ6': {
-      type: 'NodeOutput',
-      id: 'PM5i4/4zxZ6',
-      name: 'input_val2',
-      nodeId: 'PM5i4',
-      index: 1,
-      valueType: 'String',
-      isGlobal: false,
-      globalVariableId: null,
-    },
-    'PM5i4/hbg4s': {
-      type: 'NodeOutput',
-      id: 'PM5i4/hbg4s',
-      name: 'input_val1',
-      nodeId: 'PM5i4',
-      index: 0,
-      valueType: 'String',
-      isGlobal: true,
-      globalVariableId: 'GTCdE',
-    },
-    'PM5i4/sMBfz': {
-      type: 'OutCondition',
-      id: 'PM5i4/sMBfz',
-      nodeId: 'PM5i4',
-      index: 0,
-      expressionString: '',
-    },
-  };
-
-  const inputVariableValues: VariableValueRecords = {
-    'GTCdE': { value: 'test 1' },
-    'PM5i4/4zxZ6': { value: 'test 2' },
-  };
-
-  const currentNodeId = 'PM5i4';
-
-  return {
-    edges,
-    nodeConfigs,
-    connectors,
-    inputVariableValues,
-    currentNodeId,
-  };
-}
+import type { RunFlowStates } from '../types';
 
 export function createFixtureForNodeClassProcess() {
   const edges: Edge[] = [
@@ -254,7 +197,7 @@ export function createFixtureForNodeClassFinish() {
   };
 }
 
-export function createFixture1() {
+export function createFixtureForNormalWithStartProcessFinishNodes() {
   const edges: Edge[] = [
     {
       id: 'ISUpn',
@@ -429,5 +372,92 @@ export function createFixture1() {
     startNodeId,
     processNodeId,
     finishNodeId,
+  };
+}
+
+export function createInitialRunStatesForNormalWithStartProcessFinishNodes(): RunFlowStates {
+  return {
+    nodeStates: {
+      Gav0R: 'PENDING',
+      K5n6N: 'PENDING',
+      KbeEk: 'PENDING',
+    },
+    connectorStates: {
+      'Gav0R/FYiVo': 'PENDING',
+      'Gav0R/eSv7v': 'UNCONNECTED',
+      'Gav0R/h3hjH': 'UNCONNECTED',
+      'K5n6N/GYjaT': 'UNCONNECTED',
+      'K5n6N/JCG2R': 'UNCONNECTED',
+      'K5n6N/Ok8PJ': 'UNCONNECTED',
+      'K5n6N/XmH61': 'PENDING',
+      'K5n6N/hHQNY': 'UNCONNECTED',
+      'K5n6N/mPehv': 'PENDING',
+      'KbeEk/2xFif': 'PENDING',
+      'KbeEk/R6Y7U': 'UNCONNECTED',
+      'KbeEk/ktoDr': 'UNCONNECTED',
+      'K5n6N/content': 'UNCONNECTED',
+    },
+    edgeStates: {
+      ISUpn: 'PENDING',
+      pu5e1: 'PENDING',
+    },
+  };
+}
+
+export function createStartSKIPPEDStatesForNormalWithStartProcessFinishNodes(): RunFlowStates {
+  return {
+    nodeStates: {
+      Gav0R: 'SKIPPED',
+      K5n6N: 'PENDING',
+      KbeEk: 'PENDING',
+    },
+    connectorStates: {
+      'Gav0R/FYiVo': 'SKIPPED',
+      'Gav0R/eSv7v': 'SKIPPED',
+      'Gav0R/h3hjH': 'SKIPPED',
+      'K5n6N/GYjaT': 'UNCONNECTED',
+      'K5n6N/JCG2R': 'UNCONNECTED',
+      'K5n6N/Ok8PJ': 'UNCONNECTED',
+      'K5n6N/XmH61': 'SKIPPED',
+      'K5n6N/hHQNY': 'UNCONNECTED',
+      'K5n6N/mPehv': 'PENDING',
+      'KbeEk/2xFif': 'PENDING',
+      'KbeEk/R6Y7U': 'UNCONNECTED',
+      'KbeEk/ktoDr': 'UNCONNECTED',
+      'K5n6N/content': 'UNCONNECTED',
+    },
+    edgeStates: {
+      ISUpn: 'SKIPPED',
+      pu5e1: 'PENDING',
+    },
+  };
+}
+
+export function createStartSUCCEEDEDtatesForNormalWithStartProcessFinishNodes(): RunFlowStates {
+  return {
+    nodeStates: {
+      Gav0R: 'SUCCEEDED',
+      K5n6N: 'PENDING',
+      KbeEk: 'PENDING',
+    },
+    connectorStates: {
+      'Gav0R/FYiVo': 'MET',
+      'Gav0R/eSv7v': 'MET',
+      'Gav0R/h3hjH': 'MET',
+      'K5n6N/GYjaT': 'UNCONNECTED',
+      'K5n6N/JCG2R': 'UNCONNECTED',
+      'K5n6N/Ok8PJ': 'UNCONNECTED',
+      'K5n6N/XmH61': 'MET',
+      'K5n6N/hHQNY': 'UNCONNECTED',
+      'K5n6N/mPehv': 'PENDING',
+      'KbeEk/2xFif': 'PENDING',
+      'KbeEk/R6Y7U': 'UNCONNECTED',
+      'KbeEk/ktoDr': 'UNCONNECTED',
+      'K5n6N/content': 'UNCONNECTED',
+    },
+    edgeStates: {
+      ISUpn: 'MET',
+      pu5e1: 'PENDING',
+    },
   };
 }

@@ -9,16 +9,18 @@ import type {
 import RunFlowContext from '../RunFlowContext';
 import { NodeRunState, type RunFlowParams } from '../types';
 import {
-  createFixture1,
-  createFixtureForNodeClassFinish,
-  createFixtureForNodeClassProcess,
-  createFixtureForNodeClassStart,
-} from './fixture';
-import {
   createFxitureForTwoIncomingEdgesForOneCondition,
   createRunStatesForStartNode1Skipped,
   createRunStatesForStartNode1Succeeded,
 } from './fixture-multiple-incoming-edges-for-one-condition';
+import {
+  createFixtureForNodeClassFinish,
+  createFixtureForNodeClassProcess,
+  createFixtureForNormalWithStartProcessFinishNodes,
+  createInitialRunStatesForNormalWithStartProcessFinishNodes,
+  createStartSKIPPEDStatesForNormalWithStartProcessFinishNodes,
+  createStartSUCCEEDEDtatesForNormalWithStartProcessFinishNodes,
+} from './fixture-normal-with-start-process-finish';
 
 describe('RunNodeContext::updateOutgoingConditionResultsIfNotConditionNode()', () => {
   test('Process node should automatically add set condition to matched', () => {
@@ -61,13 +63,8 @@ describe('RunNodeContext::updateOutgoingConditionResultsIfNotConditionNode()', (
 describe('RunNodeContext::getInputVariableValues()', () => {
   test('Start node should not get value from global variables', () => {
     // SECTION: Setup
-    const {
-      edges,
-      nodeConfigs,
-      connectors,
-      currentNodeId,
-      inputVariableValues,
-    } = createFixtureForNodeClassStart();
+    const { edges, nodeConfigs, connectors, startNodeId } =
+      createFixtureForNormalWithStartProcessFinishNodes();
     // !SECTION
 
     const progressObserver = new ReplaySubject();
@@ -76,15 +73,18 @@ describe('RunNodeContext::getInputVariableValues()', () => {
       edges: edges,
       nodeConfigs: nodeConfigs,
       connectors: connectors,
-      inputVariableValues: inputVariableValues,
-      startNodeId: currentNodeId,
+      inputVariableValues: {
+        'bRsjl': { value: 'test global' },
+        'Gav0R/eSv7v': { value: 'test 2' },
+      },
+      startNodeId: startNodeId,
       preferStreaming: false,
       progressObserver: progressObserver,
     };
 
     const runFlowContext = new RunFlowContext(runFlowParams);
-    const runGraphContext = runFlowContext.createRunGraphContext(currentNodeId);
-    const runNodeContext = runGraphContext.createRunNodeContext(currentNodeId);
+    const runGraphContext = runFlowContext.createRunGraphContext(startNodeId);
+    const runNodeContext = runGraphContext.createRunNodeContext(startNodeId);
 
     expect(runNodeContext.outputVariables).toEqual(
       expect.objectContaining([
@@ -145,13 +145,8 @@ describe('RunNodeContext::getInputVariableValues()', () => {
 describe('RunNodeContext::propagateConnectorResults()', () => {
   test('Start node should set value to global variable if isGlobal', () => {
     // SECTION: Setup
-    const {
-      edges,
-      nodeConfigs,
-      connectors,
-      currentNodeId,
-      inputVariableValues,
-    } = createFixtureForNodeClassStart();
+    const { edges, nodeConfigs, connectors, startNodeId, inputVariableValues } =
+      createFixtureForNormalWithStartProcessFinishNodes();
     // !SECTION
 
     const progressObserver = new ReplaySubject();
@@ -161,31 +156,32 @@ describe('RunNodeContext::propagateConnectorResults()', () => {
       nodeConfigs: nodeConfigs,
       connectors: connectors,
       inputVariableValues: inputVariableValues,
-      startNodeId: currentNodeId,
+      startNodeId: startNodeId,
       preferStreaming: false,
       progressObserver: progressObserver,
     };
 
     const runFlowContext = new RunFlowContext(runFlowParams);
-    const runGraphContext = runFlowContext.createRunGraphContext(currentNodeId);
-    const runNodeContext = runGraphContext.createRunNodeContext(currentNodeId);
+    const runGraphContext = runFlowContext.createRunGraphContext(startNodeId);
+    const runNodeContext = runGraphContext.createRunNodeContext(startNodeId);
 
     runNodeContext.outputVariableValues = {
-      'PM5i4/hbg4s': { value: 'test 1' },
-      'PM5i4/4zxZ6': { value: 'test 2' },
+      'Gav0R/FYiVo': { value: 'test 1' },
+      'Gav0R/eSv7v': { value: 'test 2' },
     };
     runNodeContext.outgoingConditionResults = {
       'PM5i4/sMBfz': { isConditionMatched: true },
     };
 
+    runNodeContext.updateOutgoingConditionResultsIfNotConditionNode();
     runNodeContext.propagateConnectorResults();
 
     expect(runFlowContext.allVariableValues).toEqual({
-      'GTCdE': { value: 'test 1' },
-      'PM5i4/4zxZ6': { value: 'test 2' },
+      'Gav0R/FYiVo': { value: 'test 1' },
+      'bRsjl': { value: 'test 2' },
     });
     expect(runFlowContext.allConditionResults).toEqual({
-      'PM5i4/sMBfz': { isConditionMatched: true },
+      'Gav0R/h3hjH': { isConditionMatched: true },
     });
   });
 
@@ -236,7 +232,7 @@ describe('RunNodeContext::updateNodeRunStateBaseOnIncomingConnectorStates()', ()
   test('Start node should parse initial run states correctly', () => {
     // SECTION: Setup
     const { edges, nodeConfigs, connectors, startNodeId, inputVariableValues } =
-      createFixture1();
+      createFixtureForNormalWithStartProcessFinishNodes();
     // !SECTION
 
     const progressObserver = new ReplaySubject();
@@ -253,40 +249,16 @@ describe('RunNodeContext::updateNodeRunStateBaseOnIncomingConnectorStates()', ()
 
     const runFlowContext = new RunFlowContext(runFlowParams);
     const runGraphContext = runFlowContext.createRunGraphContext(startNodeId);
-    const runNodeContext = runGraphContext.createRunNodeContext(startNodeId);
 
-    expect(runGraphContext.runFlowStates).toEqual({
-      nodeStates: {
-        Gav0R: 'PENDING',
-        K5n6N: 'PENDING',
-        KbeEk: 'PENDING',
-      },
-      connectorStates: {
-        'Gav0R/FYiVo': 'PENDING',
-        'Gav0R/eSv7v': 'UNCONNECTED',
-        'Gav0R/h3hjH': 'UNCONNECTED',
-        'K5n6N/GYjaT': 'UNCONNECTED',
-        'K5n6N/JCG2R': 'UNCONNECTED',
-        'K5n6N/Ok8PJ': 'UNCONNECTED',
-        'K5n6N/XmH61': 'PENDING',
-        'K5n6N/hHQNY': 'UNCONNECTED',
-        'K5n6N/mPehv': 'PENDING',
-        'KbeEk/2xFif': 'PENDING',
-        'KbeEk/R6Y7U': 'UNCONNECTED',
-        'KbeEk/ktoDr': 'UNCONNECTED',
-        'K5n6N/content': 'UNCONNECTED',
-      },
-      edgeStates: {
-        ISUpn: 'PENDING',
-        pu5e1: 'PENDING',
-      },
-    });
+    expect(runGraphContext.runFlowStates).toEqual(
+      createInitialRunStatesForNormalWithStartProcessFinishNodes(),
+    );
   });
 
   test('Start node should transite to RUNNING state', () => {
     // SECTION: Setup
     const { edges, nodeConfigs, connectors, startNodeId, inputVariableValues } =
-      createFixture1();
+      createFixtureForNormalWithStartProcessFinishNodes();
     // !SECTION
 
     const progressObserver = new ReplaySubject();
@@ -309,33 +281,6 @@ describe('RunNodeContext::updateNodeRunStateBaseOnIncomingConnectorStates()', ()
 
     runNodeContext.updateNodeRunStateBaseOnIncomingConnectorStates();
 
-    expect(runGraphContext.runFlowStates).toEqual({
-      nodeStates: {
-        Gav0R: 'RUNNING',
-        K5n6N: 'PENDING',
-        KbeEk: 'PENDING',
-      },
-      connectorStates: {
-        'Gav0R/FYiVo': 'PENDING',
-        'Gav0R/eSv7v': 'UNCONNECTED',
-        'Gav0R/h3hjH': 'UNCONNECTED',
-        'K5n6N/GYjaT': 'UNCONNECTED',
-        'K5n6N/JCG2R': 'UNCONNECTED',
-        'K5n6N/Ok8PJ': 'UNCONNECTED',
-        'K5n6N/XmH61': 'PENDING',
-        'K5n6N/hHQNY': 'UNCONNECTED',
-        'K5n6N/mPehv': 'PENDING',
-        'KbeEk/2xFif': 'PENDING',
-        'KbeEk/R6Y7U': 'UNCONNECTED',
-        'KbeEk/ktoDr': 'UNCONNECTED',
-        'K5n6N/content': 'UNCONNECTED',
-      },
-      edgeStates: {
-        ISUpn: 'PENDING',
-        pu5e1: 'PENDING',
-      },
-    });
-
     expect(runNodeContext.nodeRunState).toEqual('RUNNING');
   });
 
@@ -347,7 +292,7 @@ describe('RunNodeContext::updateNodeRunStateBaseOnIncomingConnectorStates()', ()
       connectors,
       processNodeId,
       inputVariableValues,
-    } = createFixture1();
+    } = createFixtureForNormalWithStartProcessFinishNodes();
     // !SECTION
 
     const progressObserver = new ReplaySubject();
@@ -366,32 +311,9 @@ describe('RunNodeContext::updateNodeRunStateBaseOnIncomingConnectorStates()', ()
     const runGraphContext = runFlowContext.createRunGraphContext(processNodeId);
     const runNodeContext = runGraphContext.createRunNodeContext(processNodeId);
 
-    runGraphContext.runFlowStates = {
-      nodeStates: {
-        Gav0R: 'SKIPPED',
-        K5n6N: 'PENDING',
-        KbeEk: 'PENDING',
-      },
-      connectorStates: {
-        'Gav0R/FYiVo': 'SKIPPED',
-        'Gav0R/eSv7v': 'SKIPPED',
-        'Gav0R/h3hjH': 'SKIPPED',
-        'K5n6N/GYjaT': 'UNCONNECTED',
-        'K5n6N/JCG2R': 'UNCONNECTED',
-        'K5n6N/Ok8PJ': 'UNCONNECTED',
-        'K5n6N/XmH61': 'SKIPPED',
-        'K5n6N/hHQNY': 'UNCONNECTED',
-        'K5n6N/mPehv': 'PENDING',
-        'KbeEk/2xFif': 'PENDING',
-        'KbeEk/R6Y7U': 'UNCONNECTED',
-        'KbeEk/ktoDr': 'UNCONNECTED',
-        'K5n6N/content': 'UNCONNECTED',
-      },
-      edgeStates: {
-        ISUpn: 'SKIPPED',
-        pu5e1: 'PENDING',
-      },
-    };
+    // NOTE: Install mock states
+    runGraphContext.runFlowStates =
+      createStartSKIPPEDStatesForNormalWithStartProcessFinishNodes();
 
     expect(runNodeContext.nodeRunState).toEqual(NodeRunState.PENDING);
 
@@ -408,7 +330,7 @@ describe('RunNodeContext::updateNodeRunStateBaseOnIncomingConnectorStates()', ()
       connectors,
       processNodeId,
       inputVariableValues,
-    } = createFixture1();
+    } = createFixtureForNormalWithStartProcessFinishNodes();
     // !SECTION
 
     const progressObserver = new ReplaySubject();
@@ -427,32 +349,9 @@ describe('RunNodeContext::updateNodeRunStateBaseOnIncomingConnectorStates()', ()
     const runGraphContext = runFlowContext.createRunGraphContext(processNodeId);
     const runNodeContext = runGraphContext.createRunNodeContext(processNodeId);
 
-    runGraphContext.runFlowStates = {
-      nodeStates: {
-        Gav0R: 'SUCCEEDED',
-        K5n6N: 'PENDING',
-        KbeEk: 'PENDING',
-      },
-      connectorStates: {
-        'Gav0R/FYiVo': 'MET',
-        'Gav0R/eSv7v': 'MET',
-        'Gav0R/h3hjH': 'MET',
-        'K5n6N/GYjaT': 'UNCONNECTED',
-        'K5n6N/JCG2R': 'UNCONNECTED',
-        'K5n6N/Ok8PJ': 'UNCONNECTED',
-        'K5n6N/XmH61': 'MET',
-        'K5n6N/hHQNY': 'UNCONNECTED',
-        'K5n6N/mPehv': 'PENDING',
-        'KbeEk/2xFif': 'PENDING',
-        'KbeEk/R6Y7U': 'UNCONNECTED',
-        'KbeEk/ktoDr': 'UNCONNECTED',
-        'K5n6N/content': 'UNCONNECTED',
-      },
-      edgeStates: {
-        ISUpn: 'MET',
-        pu5e1: 'PENDING',
-      },
-    };
+    // NOTE: Install mock states
+    runGraphContext.runFlowStates =
+      createStartSUCCEEDEDtatesForNormalWithStartProcessFinishNodes();
 
     expect(runNodeContext.nodeRunState).toEqual(NodeRunState.PENDING);
 
@@ -466,7 +365,7 @@ describe('RunNodeContext::propagateRunState()', () => {
   test('Start node SKIPPED should propagate state to connectors and edges', () => {
     // SECTION: Setup
     const { edges, nodeConfigs, connectors, startNodeId, inputVariableValues } =
-      createFixture1();
+      createFixtureForNormalWithStartProcessFinishNodes();
     // !SECTION
 
     const progressObserver = new ReplaySubject();
@@ -523,7 +422,7 @@ describe('RunNodeContext::propagateRunState()', () => {
   test('Start node SUCCEEDED should propagate state to connectors and edges', () => {
     // SECTION: Setup
     const { edges, nodeConfigs, connectors, startNodeId, inputVariableValues } =
-      createFixture1();
+      createFixtureForNormalWithStartProcessFinishNodes();
     // !SECTION
 
     const progressObserver = new ReplaySubject();
@@ -581,7 +480,7 @@ describe('RunNodeContext::propagateRunState()', () => {
   test('Start node FAILED should propagate state to connectors and edges', () => {
     // SECTION: Setup
     const { edges, nodeConfigs, connectors, startNodeId, inputVariableValues } =
-      createFixture1();
+      createFixtureForNormalWithStartProcessFinishNodes();
     // !SECTION
 
     const progressObserver = new ReplaySubject();
@@ -748,13 +647,8 @@ describe('RunNodeContext::propagateRunState()', () => {
 describe('RunNodeContext::updateVariableValues()', () => {
   test('Start node should set variable value', () => {
     // SECTION: Setup
-    const {
-      edges,
-      nodeConfigs,
-      connectors,
-      currentNodeId,
-      inputVariableValues,
-    } = createFixtureForNodeClassStart();
+    const { edges, nodeConfigs, connectors, startNodeId, inputVariableValues } =
+      createFixtureForNormalWithStartProcessFinishNodes();
     // !SECTION
 
     const progressObserver = new ReplaySubject();
@@ -764,22 +658,22 @@ describe('RunNodeContext::updateVariableValues()', () => {
       nodeConfigs: nodeConfigs,
       connectors: connectors,
       inputVariableValues: inputVariableValues,
-      startNodeId: currentNodeId,
+      startNodeId: startNodeId,
       preferStreaming: false,
       progressObserver: progressObserver,
     };
 
     const runFlowContext = new RunFlowContext(runFlowParams);
-    const runGraphContext = runFlowContext.createRunGraphContext(currentNodeId);
-    const runNodeContext = runGraphContext.createRunNodeContext(currentNodeId);
+    const runGraphContext = runFlowContext.createRunGraphContext(startNodeId);
+    const runNodeContext = runGraphContext.createRunNodeContext(startNodeId);
 
     expect(runNodeContext.outputVariableValues).toEqual({});
 
     runNodeContext.updateVariableValues([null, 'test 2']);
 
     expect(runNodeContext.outputVariableValues).toEqual({
-      'PM5i4/4zxZ6': { value: 'test 2' },
-      'PM5i4/hbg4s': { value: null },
+      'Gav0R/FYiVo': { value: null },
+      'Gav0R/eSv7v': { value: 'test 2' },
     });
   });
 });

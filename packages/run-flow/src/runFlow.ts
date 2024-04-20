@@ -34,9 +34,7 @@ function runFlow(params: RunFlowParams): Observable<RunFlowResult> {
   );
 }
 
-function runGraph(context: RunGraphContext): Observable<never> {
-  console.log('runGraph');
-
+export function runGraph(context: RunGraphContext): Observable<never> {
   const nodeIdListSubject = context.nodeIdListSubject;
 
   return nodeIdListSubject.pipe(
