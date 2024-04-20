@@ -1,3 +1,4 @@
+import { useDroppable } from '@dnd-kit/core';
 import { useContext } from 'react';
 import ReactFlow, {
   Background,
@@ -9,15 +10,19 @@ import ReactFlow, {
 import RouteFlowContext from 'state-flow/context/FlowRouteContext';
 import { useFlowStore } from 'state-flow/flow-store';
 
+import { CustomEdge } from './CustomEdge';
 import FlowCanvasNode from './FlowCanvasNode';
 
-import { useDroppable } from '@dnd-kit/core';
 import 'reactflow/dist/style.css';
 
 const TYPE_NAME_FOR_CANVAS_NODE = 'CANVAS_NODE';
 
 const NODE_TYPES = {
   [TYPE_NAME_FOR_CANVAS_NODE]: FlowCanvasNode,
+};
+
+const EDGE_TYPE = {
+  default: CustomEdge,
 };
 
 function FlowCanvasView() {
@@ -45,6 +50,7 @@ function FlowCanvasView() {
       nodesConnectable={isCurrentUserOwner}
       elementsSelectable={isCurrentUserOwner}
       nodeTypes={NODE_TYPES}
+      edgeTypes={EDGE_TYPE}
       nodes={nodes.map((node) => ({
         ...node,
         type: TYPE_NAME_FOR_CANVAS_NODE,
