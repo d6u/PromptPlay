@@ -14,7 +14,7 @@ export const NodeType = {
   // built-in nodes
   InputNode: 'InputNode',
   OutputNode: 'OutputNode',
-  ConditionNode: 'ConditionNode',
+  JSONataCondition: 'JSONataCondition',
   JavaScriptFunctionNode: 'JavaScriptFunctionNode',
   TextTemplate: 'TextTemplate',
   Loop: 'Loop',

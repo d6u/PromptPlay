@@ -162,11 +162,13 @@ export function migrateV3ToV4(
     let inputNodeCount = 1;
     if (nodeConfig.type === NodeType.InputNode) {
       nodeConfig.class = NodeClass.Start;
-      nodeConfig.nodeName = `input${inputNodeCount}`;
+      nodeConfig.nodeName = `input ${inputNodeCount}`;
       inputNodeCount += 1;
     } else if (nodeConfig.type === NodeType.OutputNode) {
       nodeConfig.class = NodeClass.Finish;
-    } else if (nodeConfig.type === NodeType.ConditionNode) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } else if ((nodeConfig as any).type === 'ConditionNode') {
+      nodeConfig.type = NodeType.JSONataCondition;
       nodeConfig.class = NodeClass.Condition;
     } else {
       nodeConfig.class = NodeClass.Process;
@@ -184,7 +186,7 @@ export function migrateV3ToV4(
 
     // Add missing outgoing condition
     if (
-      nodeConfig.type !== NodeType.ConditionNode &&
+      nodeConfig.type !== NodeType.JSONataCondition &&
       nodeConfig.type !== NodeType.OutputNode
     ) {
       const outgoingCondition = Object.values(data.variablesDict).find(
@@ -276,7 +278,7 @@ export function migrateV3ToV4(
         }
         break;
       }
-      case NodeType.ConditionNode: {
+      case NodeType.JSONataCondition: {
         for (const _connector of Object.values(data.variablesDict)) {
           const connector = _connector as {
             nodeId: string;

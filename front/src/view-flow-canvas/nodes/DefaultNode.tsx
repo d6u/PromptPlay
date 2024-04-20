@@ -4,7 +4,6 @@ import { useMemo } from 'react';
 import { Position, useUpdateNodeInternals } from 'reactflow';
 
 import {
-  ConditionNodeInstanceLevelConfig,
   ConnectorType,
   IncomingCondition,
   InputNodeInstanceLevelConfig,
@@ -15,23 +14,24 @@ import {
   NodeOutputVariable,
   OutputNodeInstanceLevelConfig,
   getNodeDefinitionForNodeTypeName,
+  type JSONataConditionNodeInstanceLevelConfig,
 } from 'flow-models';
+import { NodeRunState } from 'run-flow';
 
 import NodeIncomingConditionHandle from 'components/node-connector/condition/NodeIncomingConditionHandle';
-import NodeRenamableVariableList from 'components/node-connector/variable/NodeRenamableVariableList';
-import NodeAccountLevelFields from 'components/node-fields/NodeAccountLevelFields';
-import NodeInstanceLevelFields from 'components/node-fields/NodeInstanceLevelFields';
-import { NodeRunStateData } from 'state-flow/common-types';
-import { useFlowStore } from 'state-flow/flow-store';
-
 import NodeRegularOutgoingConditionHandle from 'components/node-connector/condition/NodeRegularOutgoingConditionHandle';
 import {
   VariableConfig,
   type VariableDefinition,
 } from 'components/node-connector/types';
 import NodeOutputVariableList from 'components/node-connector/variable/NodeOutputVariableList';
+import NodeRenamableVariableList from 'components/node-connector/variable/NodeRenamableVariableList';
 import NodeExecutionMessageDisplay from 'components/node-execution-state/NodeExecutionMessageDisplay';
-import { NodeRunState } from 'run-flow';
+import NodeAccountLevelFields from 'components/node-fields/NodeAccountLevelFields';
+import NodeInstanceLevelFields from 'components/node-fields/NodeInstanceLevelFields';
+import { NodeRunStateData } from 'state-flow/common-types';
+import { useFlowStore } from 'state-flow/flow-store';
+
 import NodeBox from '../node-box/NodeBox';
 import NodeBoxHeaderSection from '../node-box/NodeBoxHeaderSection';
 import NodeBoxSection from '../node-box/NodeBoxSection';
@@ -54,7 +54,7 @@ type Props = {
     NodeConfig,
     | InputNodeInstanceLevelConfig
     | OutputNodeInstanceLevelConfig
-    | ConditionNodeInstanceLevelConfig
+    | JSONataConditionNodeInstanceLevelConfig
     | JavaScriptFunctionNodeInstanceLevelConfig
   >;
   inputVariables: NodeInputVariable[];

@@ -3,7 +3,6 @@ import { useMemo } from 'react';
 import { useUpdateNodeInternals } from 'reactflow';
 
 import {
-  ConditionNodeInstanceLevelConfig,
   ConnectorType,
   InputNodeInstanceLevelConfig,
   JavaScriptFunctionNodeInstanceLevelConfig,
@@ -12,6 +11,7 @@ import {
   NodeOutputVariable,
   OutputNodeInstanceLevelConfig,
   getNodeDefinitionForNodeTypeName,
+  type JSONataConditionNodeInstanceLevelConfig,
 } from 'flow-models';
 
 import NodeRenamableVariableList from 'components/node-connector/variable/NodeRenamableVariableList';
@@ -38,7 +38,7 @@ type Props = {
     NodeConfig,
     | InputNodeInstanceLevelConfig
     | OutputNodeInstanceLevelConfig
-    | ConditionNodeInstanceLevelConfig
+    | JSONataConditionNodeInstanceLevelConfig
     | JavaScriptFunctionNodeInstanceLevelConfig
   >;
   inputVariables: NodeInputVariable[];

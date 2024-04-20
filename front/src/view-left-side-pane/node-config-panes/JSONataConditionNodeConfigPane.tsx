@@ -5,14 +5,18 @@ import { useMemo } from 'react';
 import { useUpdateNodeInternals } from 'reactflow';
 
 import {
-  ConditionNodeInstanceLevelConfig,
   ConnectorType,
   NodeInputVariable,
   getNodeDefinitionForNodeTypeName,
+  type JSONataConditionNodeInstanceLevelConfig,
 } from 'flow-models';
 
 import NodeConditionDefaultItem from 'components/node-connector/condition/NodeConditionDefaultItem';
 import NodeConditionsEditableList from 'components/node-connector/condition/NodeConditionsEditableList';
+import {
+  VariableConfig,
+  type VariableDefinition,
+} from 'components/node-connector/types';
 import NodeRenamableVariableList from 'components/node-connector/variable/NodeRenamableVariableList';
 import NodeExecutionMessageDisplay from 'components/node-execution-state/NodeExecutionMessageDisplay';
 import SidePaneHeaderSection from 'components/side-pane/SidePaneHeaderSection';
@@ -22,23 +26,19 @@ import { NodeRunStateData } from 'state-flow/common-types';
 import { useFlowStore } from 'state-flow/flow-store';
 import { selectOutgoingConditions } from 'state-flow/util/state-utils';
 
-import {
-  VariableConfig,
-  type VariableDefinition,
-} from 'components/node-connector/types';
 import NodeConfigPaneAddConnectorButton from '../left-side-pane-base-ui/NodeConfigPaneAddConnectorButton';
 import NodeConfigPaneContainer from '../left-side-pane-base-ui/NodeConfigPaneContainer';
 
 type Props = {
   nodeId: string;
   isNodeReadOnly: boolean;
-  nodeConfig: ConditionNodeInstanceLevelConfig;
+  nodeConfig: JSONataConditionNodeInstanceLevelConfig;
   inputVariables: NodeInputVariable[];
   // Node Level but not save to server
   nodeExecutionState: Option<NodeRunStateData>;
 };
 
-function ConditionNodeConfigPane(props: Props) {
+function JSONataConditionNodeConfigPane(props: Props) {
   const updateNodeInternals = useUpdateNodeInternals();
 
   const connectors = useFlowStore((s) => s.getFlowContent().connectors);
@@ -163,4 +163,4 @@ const GenericSection = styled.div`
   margin-top: 10px;
 `;
 
-export default ConditionNodeConfigPane;
+export default JSONataConditionNodeConfigPane;

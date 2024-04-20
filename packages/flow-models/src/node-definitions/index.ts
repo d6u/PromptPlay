@@ -2,11 +2,6 @@ import z from 'zod';
 
 import { NodeType, NodeTypeEnum } from '../node-definition-base-types';
 import {
-  CONDITION_NODE_DEFINITION,
-  ConditionNodeAllLevelConfig,
-  ConditionNodeConfigSchema,
-} from './builtin-nodes/condition-node';
-import {
   INPUT_NODE_DEFINITION,
   InputNodeAllLevelConfig,
   InputNodeConfigSchema,
@@ -16,6 +11,11 @@ import {
   JavaScriptFunctionNodeAllLevelConfig,
   JavaScriptFunctionNodeConfigSchema,
 } from './builtin-nodes/javascript-function-node';
+import {
+  JSONATA_CONDITION_NODE_DEFINITION,
+  JSONataConditionNodeAllLevelConfig,
+  JSONataConditionNodeConfigSchema,
+} from './builtin-nodes/jsonata-condition-node';
 import {
   LOOP_FINISH_NODE_DEFINITION,
   LoopFinishNodeConfigSchema,
@@ -72,9 +72,9 @@ import {
   HuggingFaceInferenceNodeConfigSchema,
 } from './huggingface-inference-node';
 
-export * from './builtin-nodes/condition-node';
 export * from './builtin-nodes/input-node';
 export * from './builtin-nodes/javascript-function-node';
+export * from './builtin-nodes/jsonata-condition-node';
 export * from './builtin-nodes/loop-finish';
 export * from './builtin-nodes/loop-node';
 export * from './builtin-nodes/loop-start';
@@ -91,7 +91,7 @@ const NodeConfigSchema = z.union([
   // Builtin node types
   InputNodeConfigSchema,
   OutputNodeConfigSchema,
-  ConditionNodeConfigSchema,
+  JSONataConditionNodeConfigSchema,
   JavaScriptFunctionNodeConfigSchema,
   TextTemplateNodeConfigSchema,
   LoopNodeConfigSchema,
@@ -116,7 +116,7 @@ export type NodeAllLevelConfigUnion =
   // Builtin node types
   | InputNodeAllLevelConfig
   | OutputNodeAllLevelConfig
-  | ConditionNodeAllLevelConfig
+  | JSONataConditionNodeAllLevelConfig
   | JavaScriptFunctionNodeAllLevelConfig
   | TextTemplateNodeAllLevelConfig
   | LoopNodeAllLevelConfig
@@ -133,7 +133,7 @@ export type NodeAllLevelConfigUnion =
 const NODE_TYPE_TO_NODE_DEFINITION_MAP = {
   [NodeType.InputNode]: INPUT_NODE_DEFINITION,
   [NodeType.OutputNode]: OUTPUT_NODE_DEFINITION,
-  [NodeType.ConditionNode]: CONDITION_NODE_DEFINITION,
+  [NodeType.JSONataCondition]: JSONATA_CONDITION_NODE_DEFINITION,
   [NodeType.JavaScriptFunctionNode]: JAVASCRIPT_NODE_DEFINITION,
   [NodeType.TextTemplate]: TEXT_TEMPLATE_NODE_DEFINITION,
   [NodeType.Loop]: LOOP_NODE_DEFINITION,

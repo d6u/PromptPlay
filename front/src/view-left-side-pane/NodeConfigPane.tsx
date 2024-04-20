@@ -7,9 +7,9 @@ import RouteFlowContext from 'state-flow/context/FlowRouteContext';
 import { useFlowStore } from 'state-flow/flow-store';
 import { selectVariables } from 'state-flow/util/state-utils';
 
-import ConditionNodeConfigPane from './node-config-panes/ConditionNodeConfigPane';
 import DefaultNodeConfigPane from './node-config-panes/DefaultNodeConfigPane';
 import FinishClassNodeConfigPane from './node-config-panes/FinishClassNodeConfigPane';
+import JSONataConditionNodeConfigPane from './node-config-panes/JSONataConditionNodeConfigPane';
 import JavaScriptNodeConfigPane from './node-config-panes/JavaScriptNodeConfigPane';
 import StartClassNodeConfigPane from './node-config-panes/StartClassNodeConfigPane';
 
@@ -71,9 +71,9 @@ function NodeConfigPane() {
   // NOTE: Condition, Subroutine, JavaScriptFunction
 
   switch (nodeConfig.type) {
-    case NodeType.ConditionNode:
+    case NodeType.JSONataCondition:
       return (
-        <ConditionNodeConfigPane
+        <JSONataConditionNodeConfigPane
           nodeId={nodeConfig.nodeId}
           isNodeReadOnly={isReadOnly}
           nodeConfig={nodeConfig}

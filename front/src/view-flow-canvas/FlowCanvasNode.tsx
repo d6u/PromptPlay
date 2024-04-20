@@ -12,9 +12,9 @@ import {
 } from 'state-flow/util/state-utils';
 
 import invariant from 'tiny-invariant';
-import ConditionNode from './nodes/ConditionNode';
 import DefaultNode from './nodes/DefaultNode';
 import FinishClassNode from './nodes/FinishClassNode';
+import JSONataConditionNode from './nodes/JSONataConditionNode';
 import JavaScriptFunctionNode from './nodes/JavaScriptFunctionNode';
 import LoopFinishNode from './nodes/LoopFinishNode';
 import StartClassNode from './nodes/StartClassNode';
@@ -116,10 +116,10 @@ function FlowCanvasNode(props: NodeProps) {
   // NOTE: Condition
 
   if (nodeConfig.class === NodeClass.Condition) {
-    if (nodeConfig.type === NodeType.ConditionNode) {
+    if (nodeConfig.type === NodeType.JSONataCondition) {
       invariant(conditionTarget != null, 'conditionTarget is not null');
       return (
-        <ConditionNode
+        <JSONataConditionNode
           selected={selected}
           nodeId={nodeId}
           isNodeReadOnly={isNodeReadOnly}

@@ -5,11 +5,11 @@ import { useMemo } from 'react';
 import { Position, useUpdateNodeInternals } from 'reactflow';
 
 import {
-  ConditionNodeAllLevelConfig,
   ConnectorType,
   IncomingCondition,
   NodeClass,
   NodeInputVariable,
+  type JSONataConditionNodeAllLevelConfig,
 } from 'flow-models';
 
 import NodeAddConnectorButton from 'components/NodeAddConnectorButton';
@@ -38,13 +38,13 @@ type Props = {
   // custom props
   nodeId: string;
   isNodeReadOnly: boolean;
-  nodeConfig: ConditionNodeAllLevelConfig;
+  nodeConfig: JSONataConditionNodeAllLevelConfig;
   inputVariables: NodeInputVariable[];
   incomingCondition: IncomingCondition;
   nodeExecutionState: Option<NodeRunStateData>;
 };
 
-function ConditionNode(props: Props) {
+function JSONataConditionNode(props: Props) {
   const updateNodeInternals = useUpdateNodeInternals();
 
   const updateNodeConfig = useFlowStore((s) => s.updateNodeConfig);
@@ -185,4 +185,4 @@ const GenericSection = styled.div`
   padding-right: 10px;
 `;
 
-export default ConditionNode;
+export default JSONataConditionNode;

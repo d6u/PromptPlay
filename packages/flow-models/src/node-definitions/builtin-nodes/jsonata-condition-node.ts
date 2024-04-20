@@ -14,25 +14,26 @@ import {
   NodeType,
 } from '../../node-definition-base-types';
 
-export const ConditionNodeConfigSchema = z.object({
+export const JSONataConditionNodeConfigSchema = z.object({
   class: z.literal(NodeClass.Condition),
-  type: z.literal(NodeType.ConditionNode),
+  type: z.literal(NodeType.JSONataCondition),
   nodeId: z.string(),
   stopAtTheFirstMatch: z.boolean().default(true),
 });
 
-export type ConditionNodeInstanceLevelConfig = z.infer<
-  typeof ConditionNodeConfigSchema
+export type JSONataConditionNodeInstanceLevelConfig = z.infer<
+  typeof JSONataConditionNodeConfigSchema
 >;
 
-export type ConditionNodeAllLevelConfig = ConditionNodeInstanceLevelConfig;
+export type JSONataConditionNodeAllLevelConfig =
+  JSONataConditionNodeInstanceLevelConfig;
 
-export const CONDITION_NODE_DEFINITION: NodeDefinition<
-  ConditionNodeInstanceLevelConfig,
-  ConditionNodeAllLevelConfig
+export const JSONATA_CONDITION_NODE_DEFINITION: NodeDefinition<
+  JSONataConditionNodeInstanceLevelConfig,
+  JSONataConditionNodeAllLevelConfig
 > = {
-  type: NodeType.ConditionNode,
-  label: 'Condition',
+  type: NodeType.JSONataCondition,
+  label: 'JSONata Condition',
 
   instanceLevelConfigFieldDefinitions: {
     stopAtTheFirstMatch: { type: FieldType.SpecialRendering },
@@ -45,10 +46,10 @@ export const CONDITION_NODE_DEFINITION: NodeDefinition<
       nodeConfigs: [
         {
           class: NodeClass.Condition,
-          type: NodeType.ConditionNode,
+          type: NodeType.JSONataCondition,
           nodeId: nodeId,
           stopAtTheFirstMatch: true,
-        } as ConditionNodeInstanceLevelConfig,
+        } as JSONataConditionNodeInstanceLevelConfig,
       ],
       connectors: [
         {
