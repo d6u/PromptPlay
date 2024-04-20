@@ -200,7 +200,10 @@ class RunNodeContext {
 
     const boxedValues = this.runGraphContext.runFlowContext.allVariableValues;
 
-    if (this.nodeConfig.class === NodeClass.Start) {
+    if (
+      this.nodeConfig.class === NodeClass.Start ||
+      this.nodeConfig.class === NodeClass.SubroutineStart
+    ) {
       return this.outputVariables.map((v) => {
         // NOTE: The value might not be provided, always fallback to null.
         return boxedValues[v.id]?.value ?? null;
@@ -301,7 +304,7 @@ class RunNodeContext {
   updateOutgoingConditionResultsIfNotConditionNode() {
     // NOTE: For none Condition node, we need to generate a condition result.
     // TODO: Generalize this
-    if (this.nodeConfig.type !== NodeType.ConditionNode) {
+    if (this.nodeConfig.class !== NodeClass.Condition) {
       for (const c of this.outgoingConditions) {
         this.outgoingConditionResults[c.id] = {
           isConditionMatched: true,

@@ -15,7 +15,7 @@ import {
 } from '../../node-definition-base-types';
 
 export const ConditionNodeConfigSchema = z.object({
-  class: z.literal(NodeClass.Process),
+  class: z.literal(NodeClass.Condition),
   type: z.literal(NodeType.ConditionNode),
   nodeId: z.string(),
   stopAtTheFirstMatch: z.boolean().default(true),
@@ -44,11 +44,11 @@ export const CONDITION_NODE_DEFINITION: NodeDefinition<
     return {
       nodeConfigs: [
         {
-          class: NodeClass.Process,
+          class: NodeClass.Condition,
           type: NodeType.ConditionNode,
           nodeId: nodeId,
           stopAtTheFirstMatch: true,
-        },
+        } as ConditionNodeInstanceLevelConfig,
       ],
       connectors: [
         {

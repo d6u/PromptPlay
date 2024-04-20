@@ -12,7 +12,7 @@ import {
 } from 'rxjs';
 import invariant from 'tiny-invariant';
 
-import { NodeType, type RunNodeResult } from 'flow-models';
+import { NodeClass, NodeType, type RunNodeResult } from 'flow-models';
 
 import RunFlowContext from './RunFlowContext';
 import type RunGraphContext from './RunGraphContext';
@@ -74,7 +74,7 @@ export function runNode(context: RunNodeContext): Observable<never> {
   });
 
   return defer(() => {
-    if (context.nodeConfig.type === NodeType.Loop) {
+    if (context.nodeConfig.class === NodeClass.Subroutine) {
       return runSubroutine(context);
     } else {
       return context.createRunNodeObservable();

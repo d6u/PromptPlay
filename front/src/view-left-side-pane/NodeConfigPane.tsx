@@ -41,7 +41,12 @@ function NodeConfigPane() {
     return nodeId != null ? nodeExecutionStates[nodeId] : null;
   }, [nodeId, nodeExecutionStates]);
 
-  if (nodeConfig.class === NodeClass.Start) {
+  // NOTE: Start or SubroutineStart
+
+  if (
+    nodeConfig.class === NodeClass.Start ||
+    nodeConfig.class === NodeClass.SubroutineStart
+  ) {
     return (
       <StartClassNodeConfigPane
         nodeId={nodeId}
@@ -49,7 +54,11 @@ function NodeConfigPane() {
         nodeConfig={nodeConfig}
       />
     );
-  } else if (nodeConfig.class === NodeClass.Finish) {
+  }
+
+  // NOTE: Finish
+
+  if (nodeConfig.class === NodeClass.Finish) {
     return (
       <FinishClassNodeConfigPane
         nodeId={nodeId}
@@ -57,41 +66,43 @@ function NodeConfigPane() {
         nodeConfig={nodeConfig}
       />
     );
-  } else {
-    switch (nodeConfig.type) {
-      case NodeType.ConditionNode:
-        return (
-          <ConditionNodeConfigPane
-            nodeId={nodeConfig.nodeId}
-            isNodeReadOnly={isReadOnly}
-            nodeConfig={nodeConfig}
-            inputVariables={inputVariables}
-            nodeExecutionState={nodeExecutionState}
-          />
-        );
-      case NodeType.JavaScriptFunctionNode:
-        return (
-          <JavaScriptNodeConfigPane
-            nodeId={nodeConfig.nodeId}
-            isNodeReadOnly={isReadOnly}
-            nodeConfig={nodeConfig}
-            inputVariables={inputVariables}
-            outputVariables={outputVariables}
-            nodeExecutionState={nodeExecutionState}
-          />
-        );
-      default:
-        return (
-          <DefaultNodeConfigPane
-            nodeId={nodeConfig.nodeId}
-            isNodeReadOnly={isReadOnly}
-            nodeConfig={nodeConfig}
-            inputVariables={inputVariables}
-            outputVariables={outputVariables}
-            nodeExecutionState={nodeExecutionState}
-          />
-        );
-    }
+  }
+
+  // NOTE: Condition, Subroutine, JavaScriptFunction
+
+  switch (nodeConfig.type) {
+    case NodeType.ConditionNode:
+      return (
+        <ConditionNodeConfigPane
+          nodeId={nodeConfig.nodeId}
+          isNodeReadOnly={isReadOnly}
+          nodeConfig={nodeConfig}
+          inputVariables={inputVariables}
+          nodeExecutionState={nodeExecutionState}
+        />
+      );
+    case NodeType.JavaScriptFunctionNode:
+      return (
+        <JavaScriptNodeConfigPane
+          nodeId={nodeConfig.nodeId}
+          isNodeReadOnly={isReadOnly}
+          nodeConfig={nodeConfig}
+          inputVariables={inputVariables}
+          outputVariables={outputVariables}
+          nodeExecutionState={nodeExecutionState}
+        />
+      );
+    default:
+      return (
+        <DefaultNodeConfigPane
+          nodeId={nodeConfig.nodeId}
+          isNodeReadOnly={isReadOnly}
+          nodeConfig={nodeConfig}
+          inputVariables={inputVariables}
+          outputVariables={outputVariables}
+          nodeExecutionState={nodeExecutionState}
+        />
+      );
   }
 }
 
