@@ -8,7 +8,7 @@ import {
 } from '../../node-definition-base-types';
 
 export const LoopStartNodeConfigSchema = z.object({
-  class: z.literal(NodeClass.Start),
+  class: z.literal(NodeClass.SubroutineStart),
   type: z.literal(NodeType.LoopStart),
   nodeId: z.string(),
   nodeName: z.string(),
@@ -35,11 +35,11 @@ export const LOOP_START_NODE_DEFINITION: NodeDefinition<
     return {
       nodeConfigs: [
         {
-          class: NodeClass.Start,
+          class: NodeClass.SubroutineStart,
           type: NodeType.LoopStart,
           nodeId: loopStartNodeId,
           nodeName: 'loop start 1',
-        },
+        } as LoopStartNodeInstanceLevelConfig,
       ],
       connectors: [
         {

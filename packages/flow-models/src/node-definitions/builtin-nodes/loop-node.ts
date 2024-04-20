@@ -7,10 +7,11 @@ import {
   NodeDefinition,
   NodeType,
 } from '../../node-definition-base-types';
+import type { LoopFinishNodeInstanceLevelConfig } from './loop-finish';
 import type { LoopStartNodeInstanceLevelConfig } from './loop-start';
 
 export const LoopNodeConfigSchema = z.object({
-  class: z.literal(NodeClass.Process),
+  class: z.literal(NodeClass.Subroutine),
   type: z.literal(NodeType.Loop),
   nodeId: z.string(),
   loopStartNodeId: z.string().nullable(),
@@ -55,22 +56,22 @@ export const LOOP_NODE_DEFINITION: NodeDefinition<
     return {
       nodeConfigs: [
         {
-          class: NodeClass.Process,
+          class: NodeClass.Subroutine,
           type: NodeType.Loop,
           nodeId: loopNodeId,
           loopStartNodeId: loopStartNodeId,
-        },
+        } as LoopNodeInstanceLevelConfig,
         {
-          class: NodeClass.Start,
+          class: NodeClass.SubroutineStart,
           type: NodeType.LoopStart,
           nodeId: loopStartNodeId,
           nodeName: 'loop start 1',
-        },
+        } as LoopStartNodeInstanceLevelConfig,
         {
           class: NodeClass.Finish,
           type: NodeType.LoopFinish,
           nodeId: loopFinishNodeId,
-        },
+        } as LoopFinishNodeInstanceLevelConfig,
       ],
       connectors: [
         {

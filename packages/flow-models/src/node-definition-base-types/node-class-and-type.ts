@@ -2,6 +2,9 @@ export const NodeClass = {
   Start: 'Start',
   Finish: 'Finish',
   Process: 'Process',
+  Condition: 'Condition',
+  Subroutine: 'Subroutine',
+  SubroutineStart: 'SubroutineStart',
 } as const;
 
 export type NodeClassEnum = (typeof NodeClass)[keyof typeof NodeClass];
