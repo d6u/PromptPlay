@@ -19,10 +19,7 @@ import NodeRenamableVariableList from 'components/node-connector/variable/NodeRe
 import NodeFieldLabelWithIconContainer from 'components/node-fields/NodeFieldLabelWithIconContainer';
 import CopyIconButton from 'generic-components/CopyIconButton';
 import ReadonlyTextarea from 'generic-components/ReadonlyTextarea';
-import {
-  NodeExecutionState,
-  NodeExecutionStatus,
-} from 'state-flow/common-types';
+import { NodeExecutionState } from 'state-flow/common-types';
 import { useFlowStore } from 'state-flow/flow-store';
 
 import NodeRegularOutgoingConditionHandle from 'components/node-connector/condition/NodeRegularOutgoingConditionHandle';
@@ -32,11 +29,15 @@ import {
 } from 'components/node-connector/types';
 import NodeOutputVariableList from 'components/node-connector/variable/NodeOutputVariableList';
 import NodeExecutionMessageDisplay from 'components/node-execution-state/NodeExecutionMessageDisplay';
+import { NodeRunState } from 'run-flow';
 import NodeBox from '../node-box/NodeBox';
 import NodeBoxHeaderSection from '../node-box/NodeBoxHeaderSection';
 import NodeBoxSection from '../node-box/NodeBoxSection';
 
 type Props = {
+  // reactflow props
+  selected: boolean;
+  // custom props
   nodeId: string;
   isNodeReadOnly: boolean;
   nodeConfig: JavaScriptFunctionNodeInstanceLevelConfig;
@@ -72,15 +73,7 @@ function JavaScriptFunctionNode(props: Props) {
         nodeId={props.nodeId}
         conditionId={props.incomingCondition.id}
       />
-      <NodeBox
-        nodeType={props.nodeConfig.type}
-        isRunning={
-          props.nodeExecutionState?.status === NodeExecutionStatus.Executing
-        }
-        hasError={
-          props.nodeExecutionState?.status === NodeExecutionStatus.Error
-        }
-      >
+      <NodeBox selected={props.selected} nodeState={NodeRunState.PENDING}>
         <NodeBoxHeaderSection
           nodeClass={NodeClass.Process}
           title={nodeDefinition.label}

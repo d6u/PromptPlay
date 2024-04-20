@@ -19,10 +19,14 @@ import NodeRenamableVariableList from 'components/node-connector/variable/NodeRe
 import { useFlowStore } from 'state-flow/flow-store';
 import { selectVariables } from 'state-flow/util/state-utils';
 
+import { NodeRunState } from 'run-flow';
 import NodeBox from '../node-box/NodeBox';
 import NodeBoxHeaderSection from '../node-box/NodeBoxHeaderSection';
 
 type Props = {
+  // reactflow props
+  selected: boolean;
+  // custom props
   nodeId: string;
   isNodeReadOnly: boolean;
   nodeConfig:
@@ -49,7 +53,7 @@ function StartClassNode(props: Props) {
   return (
     <>
       <NodeRegularOutgoingConditionHandle nodeId={props.nodeId} />
-      <NodeBox nodeType={props.nodeConfig.type}>
+      <NodeBox selected={props.selected} nodeState={NodeRunState.PENDING}>
         <NodeBoxHeaderSection
           nodeClass={props.nodeConfig.class}
           nodeId={props.nodeId}

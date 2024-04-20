@@ -21,10 +21,7 @@ import NodeIncomingConditionHandle from 'components/node-connector/condition/Nod
 import NodeRenamableVariableList from 'components/node-connector/variable/NodeRenamableVariableList';
 import NodeAccountLevelFields from 'components/node-fields/NodeAccountLevelFields';
 import NodeInstanceLevelFields from 'components/node-fields/NodeInstanceLevelFields';
-import {
-  NodeExecutionState,
-  NodeExecutionStatus,
-} from 'state-flow/common-types';
+import { NodeExecutionState } from 'state-flow/common-types';
 import { useFlowStore } from 'state-flow/flow-store';
 
 import NodeRegularOutgoingConditionHandle from 'components/node-connector/condition/NodeRegularOutgoingConditionHandle';
@@ -34,6 +31,7 @@ import {
 } from 'components/node-connector/types';
 import NodeOutputVariableList from 'components/node-connector/variable/NodeOutputVariableList';
 import NodeExecutionMessageDisplay from 'components/node-execution-state/NodeExecutionMessageDisplay';
+import { NodeRunState } from 'run-flow';
 import NodeBox from '../node-box/NodeBox';
 import NodeBoxHeaderSection from '../node-box/NodeBoxHeaderSection';
 import NodeBoxSection from '../node-box/NodeBoxSection';
@@ -45,6 +43,9 @@ export type SourceConnector = {
 };
 
 type Props = {
+  // reactflow props
+  selected: boolean;
+  // custom props
   // Node Definition Level
   // Node Level
   nodeId: string;
@@ -82,15 +83,7 @@ function DefaultNode(props: Props) {
         conditionId={props.incomingCondition.id}
       />
       <NodeRegularOutgoingConditionHandle nodeId={props.nodeId} />
-      <NodeBox
-        nodeType={props.nodeConfig.type}
-        isRunning={
-          props.nodeExecutionState?.status === NodeExecutionStatus.Executing
-        }
-        hasError={
-          props.nodeExecutionState?.status === NodeExecutionStatus.Error
-        }
-      >
+      <NodeBox selected={props.selected} nodeState={NodeRunState.PENDING}>
         <NodeBoxHeaderSection
           nodeClass={NodeClass.Process}
           title={nodeDefinition.label}
