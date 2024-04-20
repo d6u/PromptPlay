@@ -26,11 +26,12 @@ import {
   type VariableValueRecords,
 } from 'flow-models';
 
+import type { RunFlowStates } from 'run-flow';
 import {
   BatchTestTab,
   CanvasRightPanelType,
   EdgeConnectStartConnectorClass,
-  type NodeExecutionStateRecords,
+  type NodeRunStateRecords,
 } from './common-types';
 import { AcceptedEvent } from './event-graph/handle-all-event';
 import { BatchTestActions, BatchTestState } from './lenses/batch-test-lens';
@@ -143,8 +144,9 @@ export type CanvasStateMachineActions =
 export type FlowContentState = Omit<CanvasDataV4, 'nodes' | 'edges'> & {
   nodes: LocalNode[];
   edges: LocalEdge[];
-  nodeExecutionStates: NodeExecutionStateRecords;
+  nodeExecutionStates: NodeRunStateRecords;
   nodeAccountLevelFieldsValidationErrors: Record<string, string>;
+  runFlowStates: RunFlowStates;
 };
 
 export enum CanvasLeftPaneType {

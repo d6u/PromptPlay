@@ -19,7 +19,7 @@ import NodeRenamableVariableList from 'components/node-connector/variable/NodeRe
 import NodeFieldLabelWithIconContainer from 'components/node-fields/NodeFieldLabelWithIconContainer';
 import CopyIconButton from 'generic-components/CopyIconButton';
 import ReadonlyTextarea from 'generic-components/ReadonlyTextarea';
-import { NodeExecutionState } from 'state-flow/common-types';
+import { NodeRunStateData } from 'state-flow/common-types';
 import { useFlowStore } from 'state-flow/flow-store';
 
 import NodeRegularOutgoingConditionHandle from 'components/node-connector/condition/NodeRegularOutgoingConditionHandle';
@@ -44,7 +44,7 @@ type Props = {
   inputVariables: NodeInputVariable[];
   outputVariables: NodeOutputVariable[];
   incomingCondition: IncomingCondition;
-  nodeExecutionState: Option<NodeExecutionState>;
+  nodeExecutionState: Option<NodeRunStateData>;
 };
 
 function JavaScriptFunctionNode(props: Props) {
@@ -57,6 +57,12 @@ function JavaScriptFunctionNode(props: Props) {
 
   const updateNodeConfig = useFlowStore((s) => s.updateNodeConfig);
   const addVariable = useFlowStore((s) => s.addConnector);
+
+  const nodeState = useFlowStore(
+    (s) =>
+      s.getFlowContent().runFlowStates.nodeStates[props.nodeId] ??
+      NodeRunState.PENDING,
+  );
 
   const [javaScriptCode, setJavaScriptCode] = useState(
     () => props.nodeConfig.javaScriptCode,
@@ -73,7 +79,7 @@ function JavaScriptFunctionNode(props: Props) {
         nodeId={props.nodeId}
         conditionId={props.incomingCondition.id}
       />
-      <NodeBox selected={props.selected} nodeState={NodeRunState.PENDING}>
+      <NodeBox selected={props.selected} nodeState={nodeState}>
         <NodeBoxHeaderSection
           nodeClass={NodeClass.Process}
           title={nodeDefinition.label}

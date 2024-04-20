@@ -2,7 +2,7 @@ import { css } from '@emotion/react';
 import styled from '@emotion/styled';
 import type { ReactNode } from 'react';
 
-import { type NodeRunStateEnum } from 'run-flow';
+import { NodeRunState, type NodeRunStateEnum } from 'run-flow';
 
 import { BACKDROP_PADDING, NODE_BOX_WIDTH } from '../constants';
 
@@ -35,39 +35,46 @@ const Backdrop = styled.div<{
       `;
     }
 
-    return css`
-      background: linear-gradient(344deg, #dbdbdb 0%, #c9c9c9 100%);
-    `;
+    switch (props.$nodeState) {
+      case NodeRunState.PENDING:
+      case NodeRunState.SKIPPED:
+        return css`
+          background: linear-gradient(344deg, #dbdbdb 0%, #c9c9c9 100%);
+        `;
+      case NodeRunState.RUNNING:
+        return css`
+          background-size: 100px 100px;
+          background-image: linear-gradient(
+            -45deg,
+            green 0%,
+            green 25%,
+            yellow 25%,
+            yellow 50%,
+            green 50%,
+            green 75%,
+            yellow 75%
+          );
+          animation: AnimateBG 2s linear infinite;
 
-    // if (props.$nodeState === NodeRunState.Running) {
-    //   return css`
-    //     background-size: 100px 100px;
-    //     background-image: linear-gradient(
-    //       -45deg,
-    //       green 0%,
-    //       green 25%,
-    //       yellow 25%,
-    //       yellow 50%,
-    //       green 50%,
-    //       green 75%,
-    //       yellow 75%
-    //     );
-    //     animation: AnimateBG 2s linear infinite;
-
-    //     @keyframes AnimateBG {
-    //       0% {
-    //         background-position: 0% 0%;
-    //       }
-    //       100% {
-    //         background-position: 100% 0%;
-    //       }
-    //     }
-    //   `;
-    // } else if (props.$nodeState === NodeState.Error) {
-    //   return css`
-    //     background: red;
-    //   `;
-    // }
+          @keyframes AnimateBG {
+            0% {
+              background-position: 0% 0%;
+            }
+            100% {
+              background-position: 100% 0%;
+            }
+          }
+        `;
+      case NodeRunState.INTERRUPTED:
+      case NodeRunState.FAILED:
+        return css`
+          background: red;
+        `;
+      case NodeRunState.SUCCEEDED:
+        return css`
+          background: green;
+        `;
+    }
 
     // switch (props.$type) {
     //   case NodeType.OutputNode:

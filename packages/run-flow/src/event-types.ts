@@ -56,11 +56,13 @@ export type FlowRunValidationErrorsEvent = {
 export type FlowRunNodeStartEvent = {
   type: FlowRunEventType.NodeStart;
   nodeId: string;
+  runFlowStates: RunFlowStates;
 };
 
 export type FlowRunNodeFinishEvent = {
   type: FlowRunEventType.NodeFinish;
   nodeId: string;
+  runFlowStates: RunFlowStates;
 };
 
 export type FlowRunVariableValuesEvent = {

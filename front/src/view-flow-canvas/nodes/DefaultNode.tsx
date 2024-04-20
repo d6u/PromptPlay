@@ -21,7 +21,7 @@ import NodeIncomingConditionHandle from 'components/node-connector/condition/Nod
 import NodeRenamableVariableList from 'components/node-connector/variable/NodeRenamableVariableList';
 import NodeAccountLevelFields from 'components/node-fields/NodeAccountLevelFields';
 import NodeInstanceLevelFields from 'components/node-fields/NodeInstanceLevelFields';
-import { NodeExecutionState } from 'state-flow/common-types';
+import { NodeRunStateData } from 'state-flow/common-types';
 import { useFlowStore } from 'state-flow/flow-store';
 
 import NodeRegularOutgoingConditionHandle from 'components/node-connector/condition/NodeRegularOutgoingConditionHandle';
@@ -61,7 +61,7 @@ type Props = {
   outputVariables: NodeOutputVariable[];
   incomingCondition: IncomingCondition;
   // Node Level but not save to server
-  nodeExecutionState: Option<NodeExecutionState>;
+  nodeExecutionState: Option<NodeRunStateData>;
 };
 
 function DefaultNode(props: Props) {
@@ -76,6 +76,12 @@ function DefaultNode(props: Props) {
     [props.nodeConfig.type],
   );
 
+  const nodeState = useFlowStore(
+    (s) =>
+      s.getFlowContent().runFlowStates.nodeStates[props.nodeId] ??
+      NodeRunState.PENDING,
+  );
+
   return (
     <>
       <NodeIncomingConditionHandle
@@ -83,7 +89,7 @@ function DefaultNode(props: Props) {
         conditionId={props.incomingCondition.id}
       />
       <NodeRegularOutgoingConditionHandle nodeId={props.nodeId} />
-      <NodeBox selected={props.selected} nodeState={NodeRunState.PENDING}>
+      <NodeBox selected={props.selected} nodeState={nodeState}>
         <NodeBoxHeaderSection
           nodeClass={NodeClass.Process}
           title={nodeDefinition.label}

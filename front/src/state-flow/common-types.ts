@@ -1,14 +1,5 @@
 import type { RunMetadata } from 'flow-run/types';
 
-export enum NodeExecutionStatus {
-  Pending = 'Pending',
-  Executing = 'Executing',
-  Error = 'Error',
-  Success = 'Success',
-  Canceled = 'Canceled',
-  Skipped = 'Skipped',
-}
-
 export enum NodeExecutionMessageType {
   Error = 'Error',
   Info = 'Info',
@@ -19,12 +10,11 @@ export type NodeExecutionMessage = {
   content: string;
 };
 
-export type NodeExecutionState = {
-  status: NodeExecutionStatus;
+export type NodeRunStateData = {
   messages: NodeExecutionMessage[];
 };
 
-export type NodeExecutionStateRecords = Record<string, NodeExecutionState>;
+export type NodeRunStateRecords = Record<string, NodeRunStateData>;
 
 export type NodeMetadata = {
   isRunning: boolean;

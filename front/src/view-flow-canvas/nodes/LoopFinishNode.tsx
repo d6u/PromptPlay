@@ -36,9 +36,15 @@ function LoopFinishNode(props: Props) {
     return selectIncomingConditions(props.nodeId, connectors);
   }, [props.nodeId, connectors]);
 
+  const nodeState = useFlowStore(
+    (s) =>
+      s.getFlowContent().runFlowStates.nodeStates[props.nodeId] ??
+      NodeRunState.PENDING,
+  );
+
   return (
     <>
-      <NodeBox selected={props.selected} nodeState={NodeRunState.PENDING}>
+      <NodeBox selected={props.selected} nodeState={nodeState}>
         <NodeBoxHeaderSection
           nodeClass={NodeClass.Finish}
           isNodeReadOnly={props.isNodeReadOnly}

@@ -1,9 +1,6 @@
 import { D } from '@mobily/ts-belt';
 
-import {
-  NodeExecutionState,
-  NodeExecutionStatus,
-} from 'state-flow/common-types';
+import { NodeRunStateData } from 'state-flow/common-types';
 import { createHandler } from './event-graph-util';
 import { ChangeEventType } from './event-types';
 
@@ -21,10 +18,7 @@ export const handleFlowSingleRunStarted = createHandler<
   (state, event) => {
     state.flowContent.nodeExecutionStates = D.map(
       state.flowContent.nodeConfigs,
-      (): NodeExecutionState => ({
-        status: NodeExecutionStatus.Pending,
-        messages: [],
-      }),
+      (): NodeRunStateData => ({ messages: [] }),
     );
 
     state.flowContent.nodeAccountLevelFieldsValidationErrors = {};

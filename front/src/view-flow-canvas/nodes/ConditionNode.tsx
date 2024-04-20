@@ -17,7 +17,7 @@ import NodeConditionDefaultItem from 'components/node-connector/condition/NodeCo
 import NodeConditionsEditableList from 'components/node-connector/condition/NodeConditionsEditableList';
 import NodeIncomingConditionHandle from 'components/node-connector/condition/NodeIncomingConditionHandle';
 import NodeRenamableVariableList from 'components/node-connector/variable/NodeRenamableVariableList';
-import { NodeExecutionState } from 'state-flow/common-types';
+import { NodeRunStateData } from 'state-flow/common-types';
 import { useFlowStore } from 'state-flow/flow-store';
 import { selectOutgoingConditions } from 'state-flow/util/state-utils';
 
@@ -41,7 +41,7 @@ type Props = {
   nodeConfig: ConditionNodeAllLevelConfig;
   inputVariables: NodeInputVariable[];
   incomingCondition: IncomingCondition;
-  nodeExecutionState: Option<NodeExecutionState>;
+  nodeExecutionState: Option<NodeRunStateData>;
 };
 
 function ConditionNode(props: Props) {
@@ -61,13 +61,19 @@ function ConditionNode(props: Props) {
     (s) => s.getFlowContent().conditionResults,
   );
 
+  const nodeState = useFlowStore(
+    (s) =>
+      s.getFlowContent().runFlowStates.nodeStates[props.nodeId] ??
+      NodeRunState.PENDING,
+  );
+
   return (
     <>
       <NodeIncomingConditionHandle
         nodeId={props.nodeId}
         conditionId={props.incomingCondition.id}
       />
-      <NodeBox selected={props.selected} nodeState={NodeRunState.PENDING}>
+      <NodeBox selected={props.selected} nodeState={nodeState}>
         <NodeBoxHeaderSection
           nodeClass={NodeClass.Process}
           isNodeReadOnly={props.isNodeReadOnly}

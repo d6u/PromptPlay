@@ -49,13 +49,19 @@ function FinishClassNode(props: Props) {
     return selectVariables(props.nodeId, ConnectorType.NodeInput, connectors);
   }, [props.nodeId, connectors]);
 
+  const nodeState = useFlowStore(
+    (s) =>
+      s.getFlowContent().runFlowStates.nodeStates[props.nodeId] ??
+      NodeRunState.PENDING,
+  );
+
   return (
     <>
       <NodeIncomingConditionHandle
         nodeId={props.nodeId}
         conditionId={props.incomingCondition.id}
       />
-      <NodeBox selected={props.selected} nodeState={NodeRunState.PENDING}>
+      <NodeBox selected={props.selected} nodeState={nodeState}>
         <NodeBoxHeaderSection
           nodeClass={NodeClass.Finish}
           isNodeReadOnly={props.isNodeReadOnly}

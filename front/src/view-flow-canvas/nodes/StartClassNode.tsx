@@ -40,6 +40,11 @@ function StartClassNode(props: Props) {
 
   const connectors = useFlowStore((s) => s.getFlowContent().connectors);
   const addVariable = useFlowStore((s) => s.addConnector);
+  const nodeState = useFlowStore(
+    (s) =>
+      s.getFlowContent().runFlowStates.nodeStates[props.nodeId] ??
+      NodeRunState.PENDING,
+  );
 
   const nodeDefinition = useMemo(
     () => getNodeDefinitionForNodeTypeName(props.nodeConfig.type),
@@ -53,7 +58,7 @@ function StartClassNode(props: Props) {
   return (
     <>
       <NodeRegularOutgoingConditionHandle nodeId={props.nodeId} />
-      <NodeBox selected={props.selected} nodeState={NodeRunState.PENDING}>
+      <NodeBox selected={props.selected} nodeState={nodeState}>
         <NodeBoxHeaderSection
           nodeClass={props.nodeConfig.class}
           nodeId={props.nodeId}

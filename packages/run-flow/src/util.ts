@@ -27,6 +27,7 @@ import { GetAccountLevelFieldValueFunction } from './run-param-types';
 import type {
   ConnectorRunStateEnum,
   EdgeRunStateEnum,
+  NodeRunStateEnum,
   RunFlowParams,
 } from './types';
 import {
@@ -168,7 +169,9 @@ export function createInitialRunState(params: RunFlowParams): RunFlowStates {
   }
 
   return {
-    nodeStates: R.map((_) => NodeRunState.PENDING)(params.nodeConfigs),
+    nodeStates: R.map((_): NodeRunStateEnum => NodeRunState.PENDING)(
+      params.nodeConfigs,
+    ),
     connectorStates: connectorStates,
     edgeStates: pipe(
       params.edges,

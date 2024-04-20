@@ -1,3 +1,4 @@
+import copy from 'fast-copy';
 import {
   EMPTY,
   Observable,
@@ -71,7 +72,7 @@ export function runNode(context: RunNodeContext): Observable<never> {
   context.progressObserver?.next({
     type: RunNodeProgressEventType.Started,
     nodeId: context.nodeId,
-    runFlowStates: context.runFlowStates,
+    runFlowStates: copy(context.runFlowStates),
   });
 
   return defer(() => {
@@ -105,7 +106,11 @@ export function runNode(context: RunNodeContext): Observable<never> {
       },
     }),
     ignoreElements(),
-    catchError(() => EMPTY),
+    catchError((err) => {
+      // TODO: Report to telemetry
+      // console.error(err);
+      return EMPTY;
+    }),
     tap({
       complete() {
         context.afterRunHook();
@@ -113,7 +118,7 @@ export function runNode(context: RunNodeContext): Observable<never> {
         context.params.progressObserver?.next({
           type: RunNodeProgressEventType.Finished,
           nodeId: context.nodeId,
-          runFlowStates: context.runFlowStates,
+          runFlowStates: copy(context.runFlowStates),
         });
       },
     }),

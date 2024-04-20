@@ -20,7 +20,7 @@ import SidePaneHeaderSection from 'components/side-pane/SidePaneHeaderSection';
 import HeaderSectionHeader from 'components/side-pane/SidePaneHeaderSectionHeader';
 import SidePaneOutputRenderer from 'components/side-pane/SidePaneOutputRenderer';
 import SidePaneSection from 'components/side-pane/SidePaneSection';
-import { NodeExecutionState } from 'state-flow/common-types';
+import { NodeRunStateData } from 'state-flow/common-types';
 import { useFlowStore } from 'state-flow/flow-store';
 
 import {
@@ -44,7 +44,7 @@ type Props = {
   inputVariables: NodeInputVariable[];
   outputVariables: NodeOutputVariable[];
   // Node Level but not save to server
-  nodeExecutionState: Option<NodeExecutionState>;
+  nodeExecutionState: Option<NodeRunStateData>;
 };
 
 function DefaultNodeConfigPane(props: Props) {

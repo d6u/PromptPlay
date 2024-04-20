@@ -43,6 +43,7 @@ test('handleAddNode should add node and nodeConfig', () => {
       nodeExecutionStates: expect.anything(),
       nodeAccountLevelFieldsValidationErrors: expect.anything(),
       globalVariables: {},
+      runFlowStates: expect.anything(),
     },
   });
 

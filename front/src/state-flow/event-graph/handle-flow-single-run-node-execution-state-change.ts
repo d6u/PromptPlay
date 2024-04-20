@@ -1,15 +1,13 @@
-import {
-  NodeExecutionMessage,
-  NodeExecutionStatus,
-} from 'state-flow/common-types';
+import type { RunFlowStates } from 'run-flow';
+import { NodeExecutionMessage } from 'state-flow/common-types';
 import { createHandler } from './event-graph-util';
 import { ChangeEventType } from './event-types';
 
 export type FlowSingleRunNodeExecutionStateChangeEvent = {
   type: ChangeEventType.FLOW_SINGLE_RUN_NODE_EXECUTION_STATE_CHANGE;
   nodeId: string;
-  state: NodeExecutionStatus;
   newMessages?: NodeExecutionMessage[];
+  runFlowStates?: RunFlowStates;
 };
 
 export const handleFlowSingleNodeExecutionStateChange = createHandler<
@@ -22,26 +20,15 @@ export const handleFlowSingleNodeExecutionStateChange = createHandler<
     );
   },
   (state, event) => {
-    const nodeExecuteState =
-      state.flowContent.nodeExecutionStates[event.nodeId];
-
     if (event.newMessages) {
+      const nodeExecuteState =
+        state.flowContent.nodeExecutionStates[event.nodeId];
       nodeExecuteState.messages.push(...event.newMessages);
     }
 
-    // NOTE: flow run will always emit a success event even when there
-    // was previously an error event, but we want to show final state as error
-    // to users.
-    //
-    // TODO: Is there is more elegant way?
-    if (
-      event.state === NodeExecutionStatus.Success &&
-      nodeExecuteState.status === NodeExecutionStatus.Error
-    ) {
-      return [];
+    if (event.runFlowStates) {
+      state.flowContent.runFlowStates = event.runFlowStates;
     }
-
-    nodeExecuteState.status = event.state;
 
     return [];
   },

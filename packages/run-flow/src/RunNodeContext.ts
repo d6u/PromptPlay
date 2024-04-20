@@ -91,12 +91,12 @@ class RunNodeContext {
     return this.params.progressObserver ?? null;
   }
 
-  get nodeRunState(): NodeRunStateEnum {
-    return this.runGraphContext.runFlowStates.nodeStates[this.nodeId];
-  }
-
   get runFlowStates(): RunFlowStates {
     return this.runGraphContext.runFlowStates;
+  }
+
+  get nodeRunState(): NodeRunStateEnum {
+    return this.runFlowStates.nodeStates[this.nodeId];
   }
 
   private readonly runGraphContext: RunGraphContext;
@@ -146,7 +146,9 @@ class RunNodeContext {
   onRunNodeError(err: any): void {
     this.errors = produce(this.errors, (draft) => {
       // Showing the fatal error message on top
-      draft.unshift(err.message ?? 'Unknown error');
+      draft.unshift(
+        typeof err === 'string' ? err : err.message ?? 'Unknown error',
+      );
     });
     this.setNodeRunState(NodeRunState.FAILED);
   }
@@ -234,19 +236,17 @@ class RunNodeContext {
   updateNodeRunStateBaseOnIncomingConnectorStates(): void {
     if (this.nodeConfig.type !== NodeType.LoopFinish) {
       for (const { id } of this.incomingConnectors) {
-        const state = this.runGraphContext.runFlowStates.connectorStates[id];
+        const state = this.runFlowStates.connectorStates[id];
         if (
           state === ConnectorRunState.SKIPPED ||
           state === ConnectorRunState.UNMET
         ) {
-          this.runGraphContext.runFlowStates.nodeStates[this.nodeId] =
-            NodeRunState.SKIPPED;
+          this.runFlowStates.nodeStates[this.nodeId] = NodeRunState.SKIPPED;
           return;
         }
       }
 
-      this.runGraphContext.runFlowStates.nodeStates[this.nodeId] =
-        NodeRunState.RUNNING;
+      this.runFlowStates.nodeStates[this.nodeId] = NodeRunState.RUNNING;
       return;
     }
 
@@ -255,7 +255,7 @@ class RunNodeContext {
     let anyIncomingConditionMet = false;
 
     for (const { id } of this.incomingConnectors) {
-      const state = this.runGraphContext.runFlowStates.connectorStates[id];
+      const state = this.runFlowStates.connectorStates[id];
       if (state === ConnectorRunState.MET) {
         anyIncomingConditionMet = true;
         break;
@@ -263,11 +263,9 @@ class RunNodeContext {
     }
 
     if (anyIncomingConditionMet) {
-      this.runGraphContext.runFlowStates.nodeStates[this.nodeId] =
-        NodeRunState.RUNNING;
+      this.runFlowStates.nodeStates[this.nodeId] = NodeRunState.RUNNING;
     } else {
-      this.runGraphContext.runFlowStates.nodeStates[this.nodeId] =
-        NodeRunState.SKIPPED;
+      this.runFlowStates.nodeStates[this.nodeId] = NodeRunState.SKIPPED;
     }
   }
 
@@ -298,7 +296,7 @@ class RunNodeContext {
 
   // NOTE: Run after runNode finished
   setNodeRunState(nodeRunState: NodeRunStateEnum) {
-    this.runGraphContext.runFlowStates.nodeStates[this.nodeId] = nodeRunState;
+    this.runFlowStates.nodeStates[this.nodeId] = nodeRunState;
   }
 
   // NOTE: Run after runNode finished
