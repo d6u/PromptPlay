@@ -51,7 +51,7 @@ export function createFixtureWithSingleIterationLoop() {
 
   const nodeConfigs: Record<string, NodeAllLevelConfigUnion> = {
     '1jqsX': {
-      class: 'Start',
+      class: 'SubroutineStart',
       type: 'LoopStart',
       nodeId: '1jqsX',
       nodeName: 'loop start 1',
@@ -63,7 +63,7 @@ export function createFixtureWithSingleIterationLoop() {
       nodeName: 'input',
     },
     '5zGHI': {
-      class: 'Process',
+      class: 'Subroutine',
       type: 'Loop',
       nodeId: '5zGHI',
       loopStartNodeId: '1jqsX',

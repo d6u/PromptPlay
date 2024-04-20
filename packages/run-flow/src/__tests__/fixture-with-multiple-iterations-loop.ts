@@ -82,7 +82,7 @@ export function createFixtureWithMultipleIterationsLoop() {
       nodeId: '771RQ',
     },
     '97TDT': {
-      class: 'Start',
+      class: 'SubroutineStart',
       type: 'LoopStart',
       nodeId: '97TDT',
       nodeName: 'loop start 1',
@@ -93,13 +93,13 @@ export function createFixtureWithMultipleIterationsLoop() {
       nodeId: 'G7bsz',
     },
     'HLDHJ': {
-      class: 'Process',
+      class: 'Subroutine',
       type: 'Loop',
       nodeId: 'HLDHJ',
       loopStartNodeId: '97TDT',
     },
     'PR4rf': {
-      class: 'Process',
+      class: 'Condition',
       type: 'ConditionNode',
       nodeId: 'PR4rf',
       stopAtTheFirstMatch: true,
