@@ -8,15 +8,26 @@ import { computeTargetVariableIdToSourceVariableIdMap } from 'graph-util';
 
 import RunGraphContext from './RunGraphContext';
 import type { RunFlowParams } from './types';
-import { createInitialRunState } from './util';
+import { createIdMaps, createInitialRunState } from './util';
 
 type IdToIdMap = Record<string, string>;
 
 class RunFlowContext {
   constructor(params: RunFlowParams) {
-    this.params = params;
+    const {
+      sourceHandleToEdgeIds,
+      edgeIdToTargetHandle,
+      targetHandleToEdgeIds,
+    } = createIdMaps(params);
+
     this.allVariableValues = { ...params.inputVariableValues };
     this.allConditionResults = {};
+
+    this.sourceHandleToEdgeIds = sourceHandleToEdgeIds;
+    this.edgeIdToTargetHandle = edgeIdToTargetHandle;
+    this.targetHandleToEdgeIds = targetHandleToEdgeIds;
+
+    this.params = params;
     this.targetVariableIdToSourceVariableIdMap =
       computeTargetVariableIdToSourceVariableIdMap({
         edges: params.edges,
@@ -26,6 +37,10 @@ class RunFlowContext {
 
   allVariableValues: VariableValueRecords;
   allConditionResults: ConditionResultRecords;
+
+  readonly sourceHandleToEdgeIds: Record<string, string[]>;
+  readonly edgeIdToTargetHandle: Record<string, string>;
+  readonly targetHandleToEdgeIds: Record<string, string[]>;
 
   private readonly params: RunFlowParams;
   private readonly targetVariableIdToSourceVariableIdMap: IdToIdMap;

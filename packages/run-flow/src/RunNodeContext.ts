@@ -26,6 +26,8 @@ import {
   EdgeRunState,
   NodeRunState,
   RunFlowParams,
+  type NodeRunStateEnum,
+  type RunFlowStates,
 } from './types';
 import {
   getIncomingConditionsForNode,
@@ -89,7 +91,7 @@ class RunNodeContext {
     return this.params.progressObserver ?? null;
   }
 
-  get nodeRunState(): NodeRunState {
+  get nodeRunState(): NodeRunStateEnum {
     return this.runGraphContext.runFlowStates.nodeStates[this.nodeId];
   }
 
@@ -102,6 +104,19 @@ class RunNodeContext {
     | NodeOutputVariable
     | OutgoingCondition
   )[];
+
+  private get sourceHandleToEdgeIds(): Record<string, string[]> {
+    return this.runGraphContext.runFlowContext.sourceHandleToEdgeIds;
+  }
+  private get edgeIdToTargetHandle(): Record<string, string> {
+    return this.runGraphContext.runFlowContext.edgeIdToTargetHandle;
+  }
+  private get targetHandleToEdgeIds(): Record<string, string[]> {
+    return this.runGraphContext.runFlowContext.targetHandleToEdgeIds;
+  }
+  private get runFlowStates(): RunFlowStates {
+    return this.runGraphContext.runFlowStates;
+  }
 
   // SECTION: Called in runNode
 
@@ -278,7 +293,7 @@ class RunNodeContext {
   }
 
   // NOTE: Run after runNode finished
-  setNodeRunState(nodeRunState: NodeRunState) {
+  setNodeRunState(nodeRunState: NodeRunStateEnum) {
     this.runGraphContext.runFlowStates.nodeStates[this.nodeId] = nodeRunState;
   }
 
@@ -328,105 +343,96 @@ class RunNodeContext {
 
   // NOTE: Run after runNode finished
   propagateRunState() {
-    const updatedConnectorIds: string[] = [];
-
-    const nodeRunState =
-      this.runGraphContext.runFlowStates.nodeStates[this.nodeId];
-
-    // NOTE: Propagate outgoing connector states
+    // NOTE: Outgoing connector states
+    const nodeState = this.runFlowStates.nodeStates[this.nodeId];
+    const updatedConnectorIds: Set<string> = new Set();
 
     if (
-      nodeRunState === NodeRunState.SKIPPED ||
-      nodeRunState === NodeRunState.FAILED
+      nodeState === NodeRunState.SKIPPED ||
+      nodeState === NodeRunState.FAILED
     ) {
-      // NOTE: Output variable states
+      // Output variable states
       for (const { id } of this.outgoingConnectors) {
-        this.runGraphContext.runFlowStates.connectorStates[id] =
-          ConnectorRunState.SKIPPED;
-        updatedConnectorIds.push(id);
+        this.runFlowStates.connectorStates[id] = ConnectorRunState.SKIPPED;
+        updatedConnectorIds.add(id);
       }
     } else {
-      // NOTE: Propagate output variable states
+      // Output variable states
       for (const { id } of this.outputVariables) {
-        this.runGraphContext.runFlowStates.connectorStates[id] =
-          ConnectorRunState.MET;
-        updatedConnectorIds.push(id);
+        this.runFlowStates.connectorStates[id] = ConnectorRunState.MET;
+        updatedConnectorIds.add(id);
       }
 
-      // NOTE: Propagate outgoing condition states
+      // Outgoing condition states
+      for (const { id } of this.outgoingConditions) {
+        const isConditionMatched =
+          this.outgoingConditionResults[id].isConditionMatched;
 
-      if (this.nodeConfig.type !== NodeType.ConditionNode) {
-        // NOTE: Special handling for ConditionNode
-        for (const { id } of this.outgoingConditions) {
-          this.runGraphContext.runFlowStates.connectorStates[id] =
-            ConnectorRunState.MET;
-          updatedConnectorIds.push(id);
+        if (isConditionMatched) {
+          this.runFlowStates.connectorStates[id] = ConnectorRunState.MET;
+        } else {
+          this.runFlowStates.connectorStates[id] = ConnectorRunState.UNMET;
         }
-      } else {
-        for (const { id } of this.outgoingConditions) {
-          // NOTE: this.outgoingConditionResults[id] could be null because
-          // Condition node current doesn't output condition that is skipped.
-          // TODO: Condition output all conditions regardless.
-          const isConditionMatched =
-            this.outgoingConditionResults[id]?.isConditionMatched ?? false;
 
-          if (isConditionMatched) {
-            this.runGraphContext.runFlowStates.connectorStates[id] =
-              ConnectorRunState.MET;
-          } else {
-            this.runGraphContext.runFlowStates.connectorStates[id] =
-              ConnectorRunState.UNMET;
-          }
-
-          updatedConnectorIds.push(id);
-        }
+        updatedConnectorIds.add(id);
       }
     }
 
+    // NOTE: Propagate edge states
     const updatedEdgeIds: string[] = [];
 
-    // NOTE: Propagate edge states
-    for (const id of updatedConnectorIds) {
-      const edgeIds =
-        this.runGraphContext.runFlowStates.sourceHandleToEdgeIds[id] ?? [];
+    for (const connectorId of updatedConnectorIds) {
+      const edgeIds = this.sourceHandleToEdgeIds[connectorId];
 
-      for (const edgeId of edgeIds) {
-        const connectorRunState =
-          this.runGraphContext.runFlowStates.connectorStates[id];
+      if (edgeIds == null) {
+        continue;
+      }
 
-        if (connectorRunState === ConnectorRunState.SKIPPED) {
-          this.runGraphContext.runFlowStates.edgeStates[edgeId] =
-            EdgeRunState.SKIPPED;
-        } else if (connectorRunState === ConnectorRunState.UNMET) {
-          this.runGraphContext.runFlowStates.edgeStates[edgeId] =
-            EdgeRunState.UNMET;
-        } else if (connectorRunState === ConnectorRunState.MET) {
-          this.runGraphContext.runFlowStates.edgeStates[edgeId] =
-            EdgeRunState.MET;
-        }
+      const connectorState = this.runFlowStates.connectorStates[connectorId];
+
+      if (connectorState === ConnectorRunState.SKIPPED) {
+        edgeIds.forEach((edgeId) => {
+          this.runFlowStates.edgeStates[edgeId] = EdgeRunState.SKIPPED;
+        });
+      } else if (connectorState === ConnectorRunState.UNMET) {
+        edgeIds.forEach((edgeId) => {
+          this.runFlowStates.edgeStates[edgeId] = EdgeRunState.UNMET;
+        });
+      } else if (connectorState === ConnectorRunState.MET) {
+        edgeIds.forEach((edgeId) => {
+          this.runFlowStates.edgeStates[edgeId] = EdgeRunState.MET;
+        });
       }
 
       updatedEdgeIds.push(...edgeIds);
     }
 
     // NOTE: Propagate incoming connector states of updated edges
-    for (const id of updatedEdgeIds) {
-      const targetHandle =
-        this.runGraphContext.runFlowStates.edgeIdToTargetHandle[id];
-      const state = this.runGraphContext.runFlowStates.edgeStates[id];
+    for (const updatedEdgeId of updatedEdgeIds) {
+      const targetConnectorId = this.edgeIdToTargetHandle[updatedEdgeId];
+      const edgeStates = this.targetHandleToEdgeIds[targetConnectorId].map(
+        (edgeId) => this.runFlowStates.edgeStates[edgeId],
+      );
 
-      if (state === EdgeRunState.SKIPPED) {
-        this.runGraphContext.runFlowStates.connectorStates[targetHandle] =
-          ConnectorRunState.SKIPPED;
-      } else if (state === EdgeRunState.UNMET) {
-        this.runGraphContext.runFlowStates.connectorStates[targetHandle] =
-          ConnectorRunState.UNMET;
-      } else if (state === EdgeRunState.MET) {
-        this.runGraphContext.runFlowStates.connectorStates[targetHandle] =
+      if (edgeStates.some((s) => s === EdgeRunState.PENDING)) {
+        // We don't need to set the state because it starts with PENDING,
+        // but do it anyway for clarity.
+        this.runFlowStates.connectorStates[targetConnectorId] =
+          ConnectorRunState.PENDING;
+        continue;
+      } else if (edgeStates.some((s) => s === EdgeRunState.MET)) {
+        this.runFlowStates.connectorStates[targetConnectorId] =
           ConnectorRunState.MET;
+      } else if (edgeStates.some((s) => s === EdgeRunState.UNMET)) {
+        this.runFlowStates.connectorStates[targetConnectorId] =
+          ConnectorRunState.UNMET;
+      } else {
+        this.runFlowStates.connectorStates[targetConnectorId] =
+          ConnectorRunState.SKIPPED;
       }
 
-      this.affectedNodeIds.add(this.params.connectors[targetHandle].nodeId);
+      const connector = this.params.connectors[targetConnectorId];
+      this.affectedNodeIds.add(connector.nodeId);
     }
   }
 

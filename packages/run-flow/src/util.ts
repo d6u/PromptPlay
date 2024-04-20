@@ -24,7 +24,11 @@ import {
   type AccountLevelValidationError,
 } from './event-types';
 import { GetAccountLevelFieldValueFunction } from './run-param-types';
-import type { RunFlowParams } from './types';
+import type {
+  ConnectorRunStateEnum,
+  EdgeRunStateEnum,
+  RunFlowParams,
+} from './types';
 import {
   ConnectorRunState,
   EdgeRunState,
@@ -115,14 +119,14 @@ export function getNodeAllLevelConfigOrValidationErrors(
   }
 }
 
-export function createInitialRunState(params: RunFlowParams): RunFlowStates {
-  const connectorStates = pipe(
-    params.connectors,
-    R.map(() => ConnectorRunState.UNCONNECTED),
-  );
-
+export function createIdMaps(params: RunFlowParams): {
+  sourceHandleToEdgeIds: Record<string, string[]>;
+  edgeIdToTargetHandle: Record<string, string>;
+  targetHandleToEdgeIds: Record<string, string[]>;
+} {
   const sourceHandleToEdgeIds: Record<string, string[]> = {};
   const edgeIdToTargetHandle: Record<string, string> = {};
+  const targetHandleToEdgeIds: Record<string, string[]> = {};
 
   for (const { id, sourceHandle, targetHandle } of params.edges) {
     invariant(sourceHandle != null, 'sourceHandle is required');
@@ -132,9 +136,32 @@ export function createInitialRunState(params: RunFlowParams): RunFlowStates {
       sourceHandleToEdgeIds[sourceHandle] = [];
     }
 
+    if (targetHandleToEdgeIds[targetHandle] == null) {
+      targetHandleToEdgeIds[targetHandle] = [];
+    }
+
     sourceHandleToEdgeIds[sourceHandle].push(id);
+    targetHandleToEdgeIds[targetHandle].push(id);
 
     edgeIdToTargetHandle[id] = targetHandle;
+  }
+
+  return {
+    sourceHandleToEdgeIds,
+    edgeIdToTargetHandle,
+    targetHandleToEdgeIds,
+  };
+}
+
+export function createInitialRunState(params: RunFlowParams): RunFlowStates {
+  const connectorStates = pipe(
+    params.connectors,
+    R.map((): ConnectorRunStateEnum => ConnectorRunState.UNCONNECTED),
+  );
+
+  for (const { sourceHandle, targetHandle } of params.edges) {
+    invariant(sourceHandle != null, 'sourceHandle is required');
+    invariant(targetHandle != null, 'targetHandle is required');
 
     connectorStates[sourceHandle] = ConnectorRunState.PENDING;
     connectorStates[targetHandle] = ConnectorRunState.PENDING;
@@ -145,11 +172,12 @@ export function createInitialRunState(params: RunFlowParams): RunFlowStates {
     connectorStates: connectorStates,
     edgeStates: pipe(
       params.edges,
-      A.map((edge): [string, EdgeRunState] => [edge.id, EdgeRunState.PENDING]),
+      A.map((edge): [string, EdgeRunStateEnum] => [
+        edge.id,
+        EdgeRunState.PENDING,
+      ]),
       R.fromEntries,
     ),
-    sourceHandleToEdgeIds: sourceHandleToEdgeIds,
-    edgeIdToTargetHandle: edgeIdToTargetHandle,
   };
 }
 

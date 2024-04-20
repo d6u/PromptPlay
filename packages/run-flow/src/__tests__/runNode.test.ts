@@ -62,15 +62,26 @@ describe('Start node class', () => {
           'PM5i4/sMBfz': 'UNCONNECTED',
         },
         edgeStates: {},
-        sourceHandleToEdgeIds: expect.anything(),
-        edgeIdToTargetHandle: expect.anything(),
       });
 
       runNode(runNodeContext)
         .pipe(
-          tap(() => {
-            // Asset in tab so the AssertionError can be caught by reject
-            expect.unreachable('Should not emit event');
+          // Asset in tab so the AssertionError can be caught by reject
+          tap({
+            next() {
+              expect.unreachable('Should not emit event');
+            },
+            complete() {
+              expect(runGraphContext.runFlowStates).toEqual({
+                nodeStates: { PM5i4: 'SUCCEEDED' },
+                connectorStates: {
+                  'PM5i4/4zxZ6': 'MET',
+                  'PM5i4/hbg4s': 'MET',
+                  'PM5i4/sMBfz': 'MET',
+                },
+                edgeStates: {},
+              });
+            },
           }),
         )
         .subscribe({
@@ -78,18 +89,6 @@ describe('Start node class', () => {
             reject(err);
           },
           complete() {
-            expect(runGraphContext.runFlowStates).toEqual({
-              nodeStates: { PM5i4: 'SUCCEEDED' },
-              connectorStates: {
-                'PM5i4/4zxZ6': 'MET',
-                'PM5i4/hbg4s': 'MET',
-                'PM5i4/sMBfz': 'MET',
-              },
-              edgeStates: {},
-              sourceHandleToEdgeIds: expect.anything(),
-              edgeIdToTargetHandle: expect.anything(),
-            });
-
             resolve();
           },
         });
@@ -98,7 +97,7 @@ describe('Start node class', () => {
 });
 
 describe('Process node class', () => {
-  test('runNode should run propagate run state in case of SUCCESS', () => {
+  test('runNode should run propagate run state in case of SKIPPED', () => {
     return new Promise<void>((resolve, reject) => {
       // SECTION: Setup
       const {
@@ -130,6 +129,103 @@ describe('Process node class', () => {
 
       runGraphContext.runFlowStates = {
         nodeStates: {
+          PM5i4: NodeRunState.SKIPPED,
+          hstPg: NodeRunState.PENDING,
+        },
+        connectorStates: {
+          'PM5i4/4zxZ6': ConnectorRunState.SKIPPED,
+          'PM5i4/hbg4s': ConnectorRunState.SKIPPED,
+          'PM5i4/sMBfz': ConnectorRunState.SKIPPED,
+          'hstPg/3neA2': ConnectorRunState.UNCONNECTED,
+          'hstPg/I3lzc': ConnectorRunState.UNCONNECTED,
+          'hstPg/Tw8g0': ConnectorRunState.UNCONNECTED,
+          'hstPg/XrU7m': ConnectorRunState.SKIPPED,
+          'hstPg/c4Ts9': ConnectorRunState.UNCONNECTED,
+          'hstPg/g3NPR': ConnectorRunState.UNCONNECTED,
+          'hstPg/content': ConnectorRunState.UNCONNECTED,
+        },
+        edgeStates: {
+          '84q9B': EdgeRunState.SKIPPED,
+        },
+      };
+
+      runNode(runNodeContext)
+        .pipe(
+          // Asset in tab so the AssertionError can be caught by reject
+          tap({
+            next() {
+              expect.unreachable('Should not emit event');
+            },
+            complete() {
+              expect(runGraphContext.runFlowStates).toEqual({
+                nodeStates: {
+                  PM5i4: 'SKIPPED',
+                  hstPg: 'SKIPPED',
+                },
+                connectorStates: {
+                  'PM5i4/4zxZ6': 'SKIPPED',
+                  'PM5i4/hbg4s': 'SKIPPED',
+                  'PM5i4/sMBfz': 'SKIPPED',
+                  'hstPg/3neA2': 'UNCONNECTED',
+                  'hstPg/I3lzc': 'UNCONNECTED',
+                  'hstPg/Tw8g0': 'UNCONNECTED',
+                  'hstPg/XrU7m': 'SKIPPED',
+                  'hstPg/c4Ts9': 'SKIPPED',
+                  'hstPg/g3NPR': 'UNCONNECTED',
+                  'hstPg/content': 'SKIPPED',
+                },
+                edgeStates: {
+                  '84q9B': 'SKIPPED',
+                },
+              });
+            },
+          }),
+        )
+        .subscribe({
+          error(err) {
+            reject(err);
+          },
+          complete() {
+            resolve();
+          },
+        });
+    });
+  });
+
+  test('runNode should run propagate run state in case of SUCCESS', () => {
+    return new Promise<void>((resolve, reject) => {
+      // SECTION: Setup
+      const {
+        edges,
+        nodeConfigs,
+        connectors,
+        currentNodeId,
+        inputVariableValues,
+      } = createFixtureForNodeClassProcess();
+      // !SECTION
+
+      const progressObserver = new ReplaySubject();
+
+      const runFlowParams: RunFlowParams = {
+        edges: edges,
+        nodeConfigs: nodeConfigs,
+        connectors: connectors,
+        inputVariableValues: inputVariableValues,
+        startNodeId: currentNodeId,
+        preferStreaming: false,
+        progressObserver: progressObserver,
+      };
+
+      const runFlowContext = new RunFlowContext(runFlowParams);
+      const runGraphContext =
+        runFlowContext.createRunGraphContext(currentNodeId);
+      const runNodeContext =
+        runGraphContext.createRunNodeContext(currentNodeId);
+
+      console.log(runGraphContext.runFlowStates);
+
+      runGraphContext.runFlowStates = {
+        nodeStates: {
           PM5i4: NodeRunState.SUCCEEDED,
           hstPg: NodeRunState.PENDING,
         },
@@ -148,8 +244,6 @@ describe('Process node class', () => {
         edgeStates: {
           '84q9B': EdgeRunState.MET,
         },
-        sourceHandleToEdgeIds: { 'PM5i4/hbg4s': ['84q9B'] },
-        edgeIdToTargetHandle: { '84q9B': 'hstPg/XrU7m' },
       };
 
       runNode(runNodeContext)
@@ -180,8 +274,6 @@ describe('Process node class', () => {
                 edgeStates: {
                   '84q9B': 'MET',
                 },
-                sourceHandleToEdgeIds: expect.anything(),
-                edgeIdToTargetHandle: expect.anything(),
               });
             },
           }),
@@ -247,8 +339,6 @@ describe('Process node class', () => {
         edgeStates: {
           '84q9B': EdgeRunState.MET,
         },
-        sourceHandleToEdgeIds: { 'PM5i4/hbg4s': ['84q9B'] },
-        edgeIdToTargetHandle: { '84q9B': 'hstPg/XrU7m' },
       };
 
       runNodeContext.runNodeFunc = () => {
@@ -283,8 +373,6 @@ describe('Process node class', () => {
                 edgeStates: {
                   '84q9B': 'MET',
                 },
-                sourceHandleToEdgeIds: expect.anything(),
-                edgeIdToTargetHandle: expect.anything(),
               });
             },
           }),
@@ -347,8 +435,6 @@ describe('Process node class', () => {
       edgeStates: {
         '84q9B': EdgeRunState.MET,
       },
-      sourceHandleToEdgeIds: { 'PM5i4/hbg4s': ['84q9B'] },
-      edgeIdToTargetHandle: { '84q9B': 'hstPg/XrU7m' },
     };
 
     let events: RunNodeProgressEvent[] = [];
@@ -432,8 +518,6 @@ describe('Process node class', () => {
       edgeStates: {
         '84q9B': EdgeRunState.MET,
       },
-      sourceHandleToEdgeIds: { 'PM5i4/hbg4s': ['84q9B'] },
-      edgeIdToTargetHandle: { '84q9B': 'hstPg/XrU7m' },
     };
 
     let events: RunNodeProgressEvent[] = [];
@@ -509,8 +593,6 @@ describe('Process node class', () => {
       edgeStates: {
         '84q9B': EdgeRunState.MET,
       },
-      sourceHandleToEdgeIds: { 'PM5i4/hbg4s': ['84q9B'] },
-      edgeIdToTargetHandle: { '84q9B': 'hstPg/XrU7m' },
     };
 
     runNodeContext.runNodeFunc = () => {
@@ -588,8 +670,6 @@ describe('Process node class', () => {
       edgeStates: {
         '84q9B': EdgeRunState.MET,
       },
-      sourceHandleToEdgeIds: { 'PM5i4/hbg4s': ['84q9B'] },
-      edgeIdToTargetHandle: { '84q9B': 'hstPg/XrU7m' },
     };
 
     runNodeContext.runNodeFunc = () => {

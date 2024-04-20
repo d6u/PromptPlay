@@ -253,3 +253,181 @@ export function createFixtureForNodeClassFinish() {
     currentNodeId,
   };
 }
+
+export function createFixture1() {
+  const edges: Edge[] = [
+    {
+      id: 'ISUpn',
+      source: 'Gav0R',
+      sourceHandle: 'Gav0R/FYiVo',
+      target: 'K5n6N',
+      targetHandle: 'K5n6N/XmH61',
+      style: {
+        strokeWidth: 2,
+      },
+    },
+    {
+      id: 'pu5e1',
+      source: 'K5n6N',
+      sourceHandle: 'K5n6N/mPehv',
+      target: 'KbeEk',
+      targetHandle: 'KbeEk/2xFif',
+      style: {
+        strokeWidth: 2,
+      },
+    },
+  ];
+
+  const nodeConfigs: Record<string, NodeAllLevelConfigUnion> = {
+    Gav0R: {
+      class: 'Start',
+      type: 'InputNode',
+      nodeId: 'Gav0R',
+      nodeName: 'input',
+    },
+    K5n6N: {
+      class: 'Process',
+      type: 'TextTemplate',
+      nodeId: 'K5n6N',
+      content: '',
+    },
+    KbeEk: {
+      class: 'Finish',
+      type: 'OutputNode',
+      nodeId: 'KbeEk',
+    },
+  };
+
+  const connectors: ConnectorRecords = {
+    'Gav0R/FYiVo': {
+      type: 'NodeOutput',
+      id: 'Gav0R/FYiVo',
+      name: 'input_val1',
+      nodeId: 'Gav0R',
+      index: 0,
+      valueType: 'String',
+      isGlobal: false,
+      globalVariableId: null,
+    },
+    'Gav0R/eSv7v': {
+      type: 'NodeOutput',
+      id: 'Gav0R/eSv7v',
+      name: 'input_val2',
+      nodeId: 'Gav0R',
+      index: 1,
+      valueType: 'String',
+      isGlobal: true,
+      globalVariableId: 'bRsjl',
+    },
+    'Gav0R/h3hjH': {
+      type: 'OutCondition',
+      id: 'Gav0R/h3hjH',
+      nodeId: 'Gav0R',
+      index: 0,
+      expressionString: '',
+    },
+    'K5n6N/GYjaT': {
+      type: 'InCondition',
+      id: 'K5n6N/GYjaT',
+      nodeId: 'K5n6N',
+    },
+    'K5n6N/JCG2R': {
+      type: 'NodeInput',
+      id: 'K5n6N/JCG2R',
+      name: 'val3',
+      nodeId: 'K5n6N',
+      index: 2,
+      valueType: 'String',
+      isGlobal: true,
+      globalVariableId: 'bRsjl',
+    },
+    'K5n6N/Ok8PJ': {
+      type: 'NodeInput',
+      id: 'K5n6N/Ok8PJ',
+      name: 'val2',
+      nodeId: 'K5n6N',
+      index: 1,
+      valueType: 'String',
+      isGlobal: false,
+      globalVariableId: null,
+    },
+    'K5n6N/XmH61': {
+      type: 'NodeInput',
+      id: 'K5n6N/XmH61',
+      name: 'val1',
+      nodeId: 'K5n6N',
+      index: 0,
+      valueType: 'String',
+      isGlobal: false,
+      globalVariableId: null,
+    },
+    'K5n6N/hHQNY': {
+      type: 'NodeInput',
+      id: 'K5n6N/hHQNY',
+      name: 'val4',
+      nodeId: 'K5n6N',
+      index: 3,
+      valueType: 'String',
+      isGlobal: true,
+      globalVariableId: null,
+    },
+    'K5n6N/mPehv': {
+      type: 'OutCondition',
+      id: 'K5n6N/mPehv',
+      nodeId: 'K5n6N',
+      index: 0,
+      expressionString: '',
+    },
+    'KbeEk/2xFif': {
+      type: 'InCondition',
+      id: 'KbeEk/2xFif',
+      nodeId: 'KbeEk',
+    },
+    'KbeEk/R6Y7U': {
+      type: 'NodeInput',
+      id: 'KbeEk/R6Y7U',
+      name: 'output_val2',
+      nodeId: 'KbeEk',
+      index: 1,
+      valueType: 'Any',
+      isGlobal: true,
+      globalVariableId: 'bRsjl',
+    },
+    'KbeEk/ktoDr': {
+      type: 'NodeInput',
+      id: 'KbeEk/ktoDr',
+      name: 'output_val1',
+      nodeId: 'KbeEk',
+      index: 0,
+      valueType: 'Any',
+      isGlobal: false,
+      globalVariableId: null,
+    },
+    'K5n6N/content': {
+      type: 'NodeOutput',
+      id: 'K5n6N/content',
+      name: 'content',
+      nodeId: 'K5n6N',
+      index: 0,
+      valueType: 'String',
+      isGlobal: false,
+      globalVariableId: null,
+    },
+  };
+
+  const inputVariableValues: VariableValueRecords = {};
+
+  const startNodeId = 'Gav0R';
+  const processNodeId = 'K5n6N';
+  const finishNodeId = 'KbeEk';
+
+  return {
+    edges,
+    nodeConfigs,
+    connectors,
+    inputVariableValues,
+    startNodeId,
+    processNodeId,
+    finishNodeId,
+  };
+}

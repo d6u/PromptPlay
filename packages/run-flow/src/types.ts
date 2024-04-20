@@ -20,34 +20,39 @@ export type RunFlowParams = Readonly<{
   progressObserver?: Observer<RunNodeProgressEvent>;
 }>;
 
-export enum NodeRunState {
-  PENDING = 'PENDING',
-  SKIPPED = 'SKIPPED',
-  RUNNING = 'RUNNING',
-  INTERRUPTED = 'INTERRUPTED',
-  FAILED = 'FAILED',
-  SUCCEEDED = 'SUCCEEDED',
-}
+export const NodeRunState = {
+  PENDING: 'PENDING',
+  SKIPPED: 'SKIPPED',
+  RUNNING: 'RUNNING',
+  INTERRUPTED: 'INTERRUPTED',
+  FAILED: 'FAILED',
+  SUCCEEDED: 'SUCCEEDED',
+} as const;
 
-export enum ConnectorRunState {
-  UNCONNECTED = 'UNCONNECTED',
-  PENDING = 'PENDING',
-  SKIPPED = 'SKIPPED',
-  UNMET = 'UNMET',
-  MET = 'MET',
-}
+export type NodeRunStateEnum = (typeof NodeRunState)[keyof typeof NodeRunState];
 
-export enum EdgeRunState {
-  PENDING = 'PENDING',
-  SKIPPED = 'SKIPPED',
-  UNMET = 'UNMET',
-  MET = 'MET',
-}
+export const ConnectorRunState = {
+  UNCONNECTED: 'UNCONNECTED',
+  PENDING: 'PENDING',
+  SKIPPED: 'SKIPPED',
+  UNMET: 'UNMET',
+  MET: 'MET',
+} as const;
+
+export type ConnectorRunStateEnum =
+  (typeof ConnectorRunState)[keyof typeof ConnectorRunState];
+
+export const EdgeRunState = {
+  PENDING: 'PENDING',
+  SKIPPED: 'SKIPPED',
+  UNMET: 'UNMET',
+  MET: 'MET',
+} as const;
+
+export type EdgeRunStateEnum = (typeof EdgeRunState)[keyof typeof EdgeRunState];
 
 export type RunFlowStates = {
-  nodeStates: Record<string, NodeRunState>;
-  connectorStates: Record<string, ConnectorRunState>;
-  edgeStates: Record<string, EdgeRunState>;
-  sourceHandleToEdgeIds: Record<string, string[]>;
-  edgeIdToTargetHandle: Record<string, string>;
+  nodeStates: Record<string, NodeRunStateEnum>;
+  connectorStates: Record<string, ConnectorRunStateEnum>;
+  edgeStates: Record<string, EdgeRunStateEnum>;
 };

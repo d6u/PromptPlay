@@ -66,6 +66,7 @@ export function runNode(context: RunNodeContext): Observable<never> {
   context.beforeRunHook();
 
   if (context.nodeRunState === NodeRunState.SKIPPED) {
+    context.afterRunHook();
     return EMPTY;
   }
 
@@ -74,15 +75,13 @@ export function runNode(context: RunNodeContext): Observable<never> {
     nodeId: context.nodeId,
   });
 
-  let runNodeObservable: Observable<RunNodeResult>;
-
-  if (context.nodeConfig.type === NodeType.Loop) {
-    runNodeObservable = runLoopNode(context);
-  } else {
-    runNodeObservable = context.createRunNodeObservable();
-  }
-
-  return runNodeObservable.pipe(
+  return defer(() => {
+    if (context.nodeConfig.type === NodeType.Loop) {
+      return runLoopNode(context);
+    } else {
+      return context.createRunNodeObservable();
+    }
+  }).pipe(
     tap({
       next(result) {
         context.onRunNodeEvent(result);

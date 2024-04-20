@@ -7,17 +7,18 @@ import type {
 } from 'flow-models';
 
 import RunFlowContext from '../RunFlowContext';
+import { NodeRunState, type RunFlowParams } from '../types';
 import {
-  ConnectorRunState,
-  EdgeRunState,
-  NodeRunState,
-  type RunFlowParams,
-} from '../types';
-import {
+  createFixture1,
   createFixtureForNodeClassFinish,
   createFixtureForNodeClassProcess,
   createFixtureForNodeClassStart,
 } from './fixture';
+import {
+  createFxitureForTwoIncomingEdgesForOneCondition,
+  createRunStatesForStartNode1Skipped,
+  createRunStatesForStartNode1Succeeded,
+} from './fixture-multiple-incoming-edges-for-one-condition';
 
 describe('RunNodeContext::updateOutgoingConditionResultsIfNotConditionNode()', () => {
   test('Process node should automatically add set condition to matched', () => {
@@ -222,23 +223,20 @@ describe('RunNodeContext::propagateConnectorResults()', () => {
 
     runNodeContext.propagateConnectorResults();
 
-    expect(runFlowContext.allVariableValues).toEqual({
-      '23u6c/bxr8O': { value: 'test 1' },
-      '23u6c/QWCNF': { value: 'test 2' },
-    });
+    expect(runFlowContext.allVariableValues).toEqual(
+      expect.objectContaining({
+        '23u6c/bxr8O': { value: 'test 1' },
+        '23u6c/QWCNF': { value: 'test 2' },
+      }),
+    );
   });
 });
 
 describe('RunNodeContext::updateNodeRunStateBaseOnIncomingConnectorStates()', () => {
-  test('Start node should transite to RUNNING state', () => {
+  test('Start node should parse initial run states correctly', () => {
     // SECTION: Setup
-    const {
-      edges,
-      nodeConfigs,
-      connectors,
-      currentNodeId,
-      inputVariableValues,
-    } = createFixtureForNodeClassStart();
+    const { edges, nodeConfigs, connectors, startNodeId, inputVariableValues } =
+      createFixture1();
     // !SECTION
 
     const progressObserver = new ReplaySubject();
@@ -248,28 +246,64 @@ describe('RunNodeContext::updateNodeRunStateBaseOnIncomingConnectorStates()', ()
       nodeConfigs: nodeConfigs,
       connectors: connectors,
       inputVariableValues: inputVariableValues,
-      startNodeId: currentNodeId,
+      startNodeId: startNodeId,
       preferStreaming: false,
       progressObserver: progressObserver,
     };
 
     const runFlowContext = new RunFlowContext(runFlowParams);
-    const runGraphContext = runFlowContext.createRunGraphContext(currentNodeId);
-    const runNodeContext = runGraphContext.createRunNodeContext(currentNodeId);
+    const runGraphContext = runFlowContext.createRunGraphContext(startNodeId);
+    const runNodeContext = runGraphContext.createRunNodeContext(startNodeId);
 
     expect(runGraphContext.runFlowStates).toEqual({
       nodeStates: {
-        PM5i4: 'PENDING',
+        Gav0R: 'PENDING',
+        K5n6N: 'PENDING',
+        KbeEk: 'PENDING',
       },
       connectorStates: {
-        'PM5i4/4zxZ6': 'UNCONNECTED',
-        'PM5i4/hbg4s': 'UNCONNECTED',
-        'PM5i4/sMBfz': 'UNCONNECTED',
+        'Gav0R/FYiVo': 'PENDING',
+        'Gav0R/eSv7v': 'UNCONNECTED',
+        'Gav0R/h3hjH': 'UNCONNECTED',
+        'K5n6N/GYjaT': 'UNCONNECTED',
+        'K5n6N/JCG2R': 'UNCONNECTED',
+        'K5n6N/Ok8PJ': 'UNCONNECTED',
+        'K5n6N/XmH61': 'PENDING',
+        'K5n6N/hHQNY': 'UNCONNECTED',
+        'K5n6N/mPehv': 'PENDING',
+        'KbeEk/2xFif': 'PENDING',
+        'KbeEk/R6Y7U': 'UNCONNECTED',
+        'KbeEk/ktoDr': 'UNCONNECTED',
+        'K5n6N/content': 'UNCONNECTED',
       },
-      edgeStates: {},
-      edgeIdToTargetHandle: expect.anything(),
-      sourceHandleToEdgeIds: expect.anything(),
+      edgeStates: {
+        ISUpn: 'PENDING',
+        pu5e1: 'PENDING',
+      },
     });
+  });
+
+  test('Start node should transite to RUNNING state', () => {
+    // SECTION: Setup
+    const { edges, nodeConfigs, connectors, startNodeId, inputVariableValues } =
+      createFixture1();
+    // !SECTION
+
+    const progressObserver = new ReplaySubject();
+
+    const runFlowParams: RunFlowParams = {
+      edges: edges,
+      nodeConfigs: nodeConfigs,
+      connectors: connectors,
+      inputVariableValues: inputVariableValues,
+      startNodeId: startNodeId,
+      preferStreaming: false,
+      progressObserver: progressObserver,
+    };
+
+    const runFlowContext = new RunFlowContext(runFlowParams);
+    const runGraphContext = runFlowContext.createRunGraphContext(startNodeId);
+    const runNodeContext = runGraphContext.createRunNodeContext(startNodeId);
 
     expect(runNodeContext.nodeRunState).toEqual('PENDING');
 
@@ -277,77 +311,32 @@ describe('RunNodeContext::updateNodeRunStateBaseOnIncomingConnectorStates()', ()
 
     expect(runGraphContext.runFlowStates).toEqual({
       nodeStates: {
-        PM5i4: 'RUNNING',
+        Gav0R: 'RUNNING',
+        K5n6N: 'PENDING',
+        KbeEk: 'PENDING',
       },
       connectorStates: {
-        'PM5i4/4zxZ6': 'UNCONNECTED',
-        'PM5i4/hbg4s': 'UNCONNECTED',
-        'PM5i4/sMBfz': 'UNCONNECTED',
+        'Gav0R/FYiVo': 'PENDING',
+        'Gav0R/eSv7v': 'UNCONNECTED',
+        'Gav0R/h3hjH': 'UNCONNECTED',
+        'K5n6N/GYjaT': 'UNCONNECTED',
+        'K5n6N/JCG2R': 'UNCONNECTED',
+        'K5n6N/Ok8PJ': 'UNCONNECTED',
+        'K5n6N/XmH61': 'PENDING',
+        'K5n6N/hHQNY': 'UNCONNECTED',
+        'K5n6N/mPehv': 'PENDING',
+        'KbeEk/2xFif': 'PENDING',
+        'KbeEk/R6Y7U': 'UNCONNECTED',
+        'KbeEk/ktoDr': 'UNCONNECTED',
+        'K5n6N/content': 'UNCONNECTED',
       },
-      edgeStates: {},
-      edgeIdToTargetHandle: expect.anything(),
-      sourceHandleToEdgeIds: expect.anything(),
+      edgeStates: {
+        ISUpn: 'PENDING',
+        pu5e1: 'PENDING',
+      },
     });
 
     expect(runNodeContext.nodeRunState).toEqual('RUNNING');
-  });
-
-  test('Process node should transite to RUNNING state', () => {
-    // SECTION: Setup
-    const {
-      edges,
-      nodeConfigs,
-      connectors,
-      currentNodeId,
-      inputVariableValues,
-    } = createFixtureForNodeClassProcess();
-    // !SECTION
-
-    const progressObserver = new ReplaySubject();
-
-    const runFlowParams: RunFlowParams = {
-      edges: edges,
-      nodeConfigs: nodeConfigs,
-      connectors: connectors,
-      inputVariableValues: inputVariableValues,
-      startNodeId: currentNodeId,
-      preferStreaming: false,
-      progressObserver: progressObserver,
-    };
-
-    const runFlowContext = new RunFlowContext(runFlowParams);
-    const runGraphContext = runFlowContext.createRunGraphContext(currentNodeId);
-    const runNodeContext = runGraphContext.createRunNodeContext(currentNodeId);
-
-    runGraphContext.runFlowStates = {
-      nodeStates: {
-        PM5i4: NodeRunState.SUCCEEDED,
-        hstPg: NodeRunState.PENDING,
-      },
-      connectorStates: {
-        'PM5i4/4zxZ6': ConnectorRunState.MET,
-        'PM5i4/hbg4s': ConnectorRunState.MET,
-        'PM5i4/sMBfz': ConnectorRunState.MET,
-        'hstPg/3neA2': ConnectorRunState.UNCONNECTED,
-        'hstPg/I3lzc': ConnectorRunState.UNCONNECTED,
-        'hstPg/Tw8g0': ConnectorRunState.UNCONNECTED,
-        'hstPg/XrU7m': ConnectorRunState.MET,
-        'hstPg/c4Ts9': ConnectorRunState.UNCONNECTED,
-        'hstPg/g3NPR': ConnectorRunState.UNCONNECTED,
-        'hstPg/content': ConnectorRunState.UNCONNECTED,
-      },
-      edgeStates: {
-        '84q9B': EdgeRunState.MET,
-      },
-      sourceHandleToEdgeIds: { 'PM5i4/hbg4s': ['84q9B'] },
-      edgeIdToTargetHandle: { '84q9B': 'hstPg/XrU7m' },
-    };
-
-    expect(runNodeContext.nodeRunState).toEqual(NodeRunState.PENDING);
-
-    runNodeContext.updateNodeRunStateBaseOnIncomingConnectorStates();
-
-    expect(runNodeContext.nodeRunState).toEqual(NodeRunState.RUNNING);
   });
 
   test('Process node should transite to SKIPPED state if incoming connector SKIPPED', () => {
@@ -356,9 +345,9 @@ describe('RunNodeContext::updateNodeRunStateBaseOnIncomingConnectorStates()', ()
       edges,
       nodeConfigs,
       connectors,
-      currentNodeId,
+      processNodeId,
       inputVariableValues,
-    } = createFixtureForNodeClassProcess();
+    } = createFixture1();
     // !SECTION
 
     const progressObserver = new ReplaySubject();
@@ -368,37 +357,40 @@ describe('RunNodeContext::updateNodeRunStateBaseOnIncomingConnectorStates()', ()
       nodeConfigs: nodeConfigs,
       connectors: connectors,
       inputVariableValues: inputVariableValues,
-      startNodeId: currentNodeId,
+      startNodeId: processNodeId,
       preferStreaming: false,
       progressObserver: progressObserver,
     };
 
     const runFlowContext = new RunFlowContext(runFlowParams);
-    const runGraphContext = runFlowContext.createRunGraphContext(currentNodeId);
-    const runNodeContext = runGraphContext.createRunNodeContext(currentNodeId);
+    const runGraphContext = runFlowContext.createRunGraphContext(processNodeId);
+    const runNodeContext = runGraphContext.createRunNodeContext(processNodeId);
 
     runGraphContext.runFlowStates = {
       nodeStates: {
-        PM5i4: NodeRunState.FAILED,
-        hstPg: NodeRunState.PENDING,
+        Gav0R: 'SKIPPED',
+        K5n6N: 'PENDING',
+        KbeEk: 'PENDING',
       },
       connectorStates: {
-        'PM5i4/4zxZ6': ConnectorRunState.SKIPPED,
-        'PM5i4/hbg4s': ConnectorRunState.SKIPPED,
-        'PM5i4/sMBfz': ConnectorRunState.SKIPPED,
-        'hstPg/3neA2': ConnectorRunState.UNCONNECTED,
-        'hstPg/I3lzc': ConnectorRunState.UNCONNECTED,
-        'hstPg/Tw8g0': ConnectorRunState.UNCONNECTED,
-        'hstPg/XrU7m': ConnectorRunState.SKIPPED,
-        'hstPg/c4Ts9': ConnectorRunState.UNCONNECTED,
-        'hstPg/g3NPR': ConnectorRunState.UNCONNECTED,
-        'hstPg/content': ConnectorRunState.UNCONNECTED,
+        'Gav0R/FYiVo': 'SKIPPED',
+        'Gav0R/eSv7v': 'SKIPPED',
+        'Gav0R/h3hjH': 'SKIPPED',
+        'K5n6N/GYjaT': 'UNCONNECTED',
+        'K5n6N/JCG2R': 'UNCONNECTED',
+        'K5n6N/Ok8PJ': 'UNCONNECTED',
+        'K5n6N/XmH61': 'SKIPPED',
+        'K5n6N/hHQNY': 'UNCONNECTED',
+        'K5n6N/mPehv': 'PENDING',
+        'KbeEk/2xFif': 'PENDING',
+        'KbeEk/R6Y7U': 'UNCONNECTED',
+        'KbeEk/ktoDr': 'UNCONNECTED',
+        'K5n6N/content': 'UNCONNECTED',
       },
       edgeStates: {
-        '84q9B': EdgeRunState.SKIPPED,
+        ISUpn: 'SKIPPED',
+        pu5e1: 'PENDING',
       },
-      sourceHandleToEdgeIds: { 'PM5i4/hbg4s': ['84q9B'] },
-      edgeIdToTargetHandle: { '84q9B': 'hstPg/XrU7m' },
     };
 
     expect(runNodeContext.nodeRunState).toEqual(NodeRunState.PENDING);
@@ -407,18 +399,74 @@ describe('RunNodeContext::updateNodeRunStateBaseOnIncomingConnectorStates()', ()
 
     expect(runNodeContext.nodeRunState).toEqual(NodeRunState.SKIPPED);
   });
+
+  test('Process node should transite to RUNNING state', () => {
+    // SECTION: Setup
+    const {
+      edges,
+      nodeConfigs,
+      connectors,
+      processNodeId,
+      inputVariableValues,
+    } = createFixture1();
+    // !SECTION
+
+    const progressObserver = new ReplaySubject();
+
+    const runFlowParams: RunFlowParams = {
+      edges: edges,
+      nodeConfigs: nodeConfigs,
+      connectors: connectors,
+      inputVariableValues: inputVariableValues,
+      startNodeId: processNodeId,
+      preferStreaming: false,
+      progressObserver: progressObserver,
+    };
+
+    const runFlowContext = new RunFlowContext(runFlowParams);
+    const runGraphContext = runFlowContext.createRunGraphContext(processNodeId);
+    const runNodeContext = runGraphContext.createRunNodeContext(processNodeId);
+
+    runGraphContext.runFlowStates = {
+      nodeStates: {
+        Gav0R: 'SUCCEEDED',
+        K5n6N: 'PENDING',
+        KbeEk: 'PENDING',
+      },
+      connectorStates: {
+        'Gav0R/FYiVo': 'MET',
+        'Gav0R/eSv7v': 'MET',
+        'Gav0R/h3hjH': 'MET',
+        'K5n6N/GYjaT': 'UNCONNECTED',
+        'K5n6N/JCG2R': 'UNCONNECTED',
+        'K5n6N/Ok8PJ': 'UNCONNECTED',
+        'K5n6N/XmH61': 'MET',
+        'K5n6N/hHQNY': 'UNCONNECTED',
+        'K5n6N/mPehv': 'PENDING',
+        'KbeEk/2xFif': 'PENDING',
+        'KbeEk/R6Y7U': 'UNCONNECTED',
+        'KbeEk/ktoDr': 'UNCONNECTED',
+        'K5n6N/content': 'UNCONNECTED',
+      },
+      edgeStates: {
+        ISUpn: 'MET',
+        pu5e1: 'PENDING',
+      },
+    };
+
+    expect(runNodeContext.nodeRunState).toEqual(NodeRunState.PENDING);
+
+    runNodeContext.updateNodeRunStateBaseOnIncomingConnectorStates();
+
+    expect(runNodeContext.nodeRunState).toEqual(NodeRunState.RUNNING);
+  });
 });
 
 describe('RunNodeContext::propagateRunState()', () => {
-  test('Process node SUCCEEDED should propagate MET state to connectors and edges', () => {
+  test('Start node SKIPPED should propagate state to connectors and edges', () => {
     // SECTION: Setup
-    const {
-      edges,
-      nodeConfigs,
-      connectors,
-      previousNodeNodeId,
-      inputVariableValues,
-    } = createFixtureForNodeClassProcess();
+    const { edges, nodeConfigs, connectors, startNodeId, inputVariableValues } =
+      createFixture1();
     // !SECTION
 
     const progressObserver = new ReplaySubject();
@@ -428,77 +476,54 @@ describe('RunNodeContext::propagateRunState()', () => {
       nodeConfigs: nodeConfigs,
       connectors: connectors,
       inputVariableValues: inputVariableValues,
-      startNodeId: previousNodeNodeId,
+      startNodeId: startNodeId,
       preferStreaming: false,
       progressObserver: progressObserver,
     };
 
     const runFlowContext = new RunFlowContext(runFlowParams);
-    const runGraphContext =
-      runFlowContext.createRunGraphContext(previousNodeNodeId);
-    const runNodeContext =
-      runGraphContext.createRunNodeContext(previousNodeNodeId);
+    const runGraphContext = runFlowContext.createRunGraphContext(startNodeId);
+    const runNodeContext = runGraphContext.createRunNodeContext(startNodeId);
 
-    runGraphContext.runFlowStates = {
-      nodeStates: {
-        PM5i4: NodeRunState.SUCCEEDED,
-        hstPg: NodeRunState.PENDING,
-      },
-      connectorStates: {
-        'PM5i4/4zxZ6': ConnectorRunState.PENDING,
-        'PM5i4/hbg4s': ConnectorRunState.PENDING,
-        'PM5i4/sMBfz': ConnectorRunState.PENDING,
-        'hstPg/3neA2': ConnectorRunState.UNCONNECTED,
-        'hstPg/I3lzc': ConnectorRunState.UNCONNECTED,
-        'hstPg/Tw8g0': ConnectorRunState.UNCONNECTED,
-        'hstPg/XrU7m': ConnectorRunState.PENDING,
-        'hstPg/c4Ts9': ConnectorRunState.UNCONNECTED,
-        'hstPg/g3NPR': ConnectorRunState.UNCONNECTED,
-        'hstPg/content': ConnectorRunState.UNCONNECTED,
-      },
-      edgeStates: {
-        '84q9B': EdgeRunState.PENDING,
-      },
-      sourceHandleToEdgeIds: { 'PM5i4/hbg4s': ['84q9B'] },
-      edgeIdToTargetHandle: { '84q9B': 'hstPg/XrU7m' },
-    };
+    runGraphContext.runFlowStates.nodeStates[startNodeId] =
+      NodeRunState.SKIPPED;
+
+    expect(runNodeContext.nodeRunState).toEqual('SKIPPED');
 
     runNodeContext.propagateRunState();
 
     expect(runGraphContext.runFlowStates).toEqual({
       nodeStates: {
-        PM5i4: NodeRunState.SUCCEEDED,
-        hstPg: NodeRunState.PENDING,
+        Gav0R: 'SKIPPED',
+        K5n6N: 'PENDING',
+        KbeEk: 'PENDING',
       },
       connectorStates: {
-        'PM5i4/4zxZ6': ConnectorRunState.MET,
-        'PM5i4/hbg4s': ConnectorRunState.MET,
-        'PM5i4/sMBfz': ConnectorRunState.MET,
-        'hstPg/3neA2': ConnectorRunState.UNCONNECTED,
-        'hstPg/I3lzc': ConnectorRunState.UNCONNECTED,
-        'hstPg/Tw8g0': ConnectorRunState.UNCONNECTED,
-        'hstPg/XrU7m': ConnectorRunState.MET,
-        'hstPg/c4Ts9': ConnectorRunState.UNCONNECTED,
-        'hstPg/g3NPR': ConnectorRunState.UNCONNECTED,
-        'hstPg/content': ConnectorRunState.UNCONNECTED,
+        'Gav0R/FYiVo': 'SKIPPED',
+        'Gav0R/eSv7v': 'SKIPPED',
+        'Gav0R/h3hjH': 'SKIPPED',
+        'K5n6N/GYjaT': 'UNCONNECTED',
+        'K5n6N/JCG2R': 'UNCONNECTED',
+        'K5n6N/Ok8PJ': 'UNCONNECTED',
+        'K5n6N/XmH61': 'SKIPPED',
+        'K5n6N/hHQNY': 'UNCONNECTED',
+        'K5n6N/mPehv': 'PENDING',
+        'KbeEk/2xFif': 'PENDING',
+        'KbeEk/R6Y7U': 'UNCONNECTED',
+        'KbeEk/ktoDr': 'UNCONNECTED',
+        'K5n6N/content': 'UNCONNECTED',
       },
       edgeStates: {
-        '84q9B': EdgeRunState.MET,
+        ISUpn: 'SKIPPED',
+        pu5e1: 'PENDING',
       },
-      sourceHandleToEdgeIds: expect.anything(),
-      edgeIdToTargetHandle: expect.anything(),
     });
   });
 
-  test('Process node FAILED should propagate SKIPPED state to connectors and edges', () => {
+  test('Start node SUCCEEDED should propagate state to connectors and edges', () => {
     // SECTION: Setup
-    const {
-      edges,
-      nodeConfigs,
-      connectors,
-      previousNodeNodeId,
-      inputVariableValues,
-    } = createFixtureForNodeClassProcess();
+    const { edges, nodeConfigs, connectors, startNodeId, inputVariableValues } =
+      createFixture1();
     // !SECTION
 
     const progressObserver = new ReplaySubject();
@@ -508,65 +533,214 @@ describe('RunNodeContext::propagateRunState()', () => {
       nodeConfigs: nodeConfigs,
       connectors: connectors,
       inputVariableValues: inputVariableValues,
-      startNodeId: previousNodeNodeId,
+      startNodeId: startNodeId,
       preferStreaming: false,
       progressObserver: progressObserver,
     };
 
     const runFlowContext = new RunFlowContext(runFlowParams);
-    const runGraphContext =
-      runFlowContext.createRunGraphContext(previousNodeNodeId);
-    const runNodeContext =
-      runGraphContext.createRunNodeContext(previousNodeNodeId);
+    const runGraphContext = runFlowContext.createRunGraphContext(startNodeId);
+    const runNodeContext = runGraphContext.createRunNodeContext(startNodeId);
 
-    runGraphContext.runFlowStates = {
+    runGraphContext.runFlowStates.nodeStates[startNodeId] =
+      NodeRunState.SUCCEEDED;
+
+    expect(runNodeContext.nodeRunState).toEqual('SUCCEEDED');
+
+    runNodeContext.updateOutgoingConditionResultsIfNotConditionNode();
+    runNodeContext.propagateRunState();
+
+    expect(runGraphContext.runFlowStates).toEqual({
       nodeStates: {
-        PM5i4: NodeRunState.FAILED,
-        hstPg: NodeRunState.PENDING,
+        Gav0R: 'SUCCEEDED',
+        K5n6N: 'PENDING',
+        KbeEk: 'PENDING',
       },
       connectorStates: {
-        'PM5i4/4zxZ6': ConnectorRunState.PENDING,
-        'PM5i4/hbg4s': ConnectorRunState.PENDING,
-        'PM5i4/sMBfz': ConnectorRunState.PENDING,
-        'hstPg/3neA2': ConnectorRunState.UNCONNECTED,
-        'hstPg/I3lzc': ConnectorRunState.UNCONNECTED,
-        'hstPg/Tw8g0': ConnectorRunState.UNCONNECTED,
-        'hstPg/XrU7m': ConnectorRunState.PENDING,
-        'hstPg/c4Ts9': ConnectorRunState.UNCONNECTED,
-        'hstPg/g3NPR': ConnectorRunState.UNCONNECTED,
-        'hstPg/content': ConnectorRunState.UNCONNECTED,
+        'Gav0R/FYiVo': 'MET',
+        'Gav0R/eSv7v': 'MET',
+        'Gav0R/h3hjH': 'MET',
+        'K5n6N/GYjaT': 'UNCONNECTED',
+        'K5n6N/JCG2R': 'UNCONNECTED',
+        'K5n6N/Ok8PJ': 'UNCONNECTED',
+        'K5n6N/XmH61': 'MET',
+        'K5n6N/hHQNY': 'UNCONNECTED',
+        'K5n6N/mPehv': 'PENDING',
+        'KbeEk/2xFif': 'PENDING',
+        'KbeEk/R6Y7U': 'UNCONNECTED',
+        'KbeEk/ktoDr': 'UNCONNECTED',
+        'K5n6N/content': 'UNCONNECTED',
       },
       edgeStates: {
-        '84q9B': EdgeRunState.PENDING,
+        ISUpn: 'MET',
+        pu5e1: 'PENDING',
       },
-      sourceHandleToEdgeIds: { 'PM5i4/hbg4s': ['84q9B'] },
-      edgeIdToTargetHandle: { '84q9B': 'hstPg/XrU7m' },
+    });
+  });
+
+  test('Start node FAILED should propagate state to connectors and edges', () => {
+    // SECTION: Setup
+    const { edges, nodeConfigs, connectors, startNodeId, inputVariableValues } =
+      createFixture1();
+    // !SECTION
+
+    const progressObserver = new ReplaySubject();
+
+    const runFlowParams: RunFlowParams = {
+      edges: edges,
+      nodeConfigs: nodeConfigs,
+      connectors: connectors,
+      inputVariableValues: inputVariableValues,
+      startNodeId: startNodeId,
+      preferStreaming: false,
+      progressObserver: progressObserver,
     };
+
+    const runFlowContext = new RunFlowContext(runFlowParams);
+    const runGraphContext = runFlowContext.createRunGraphContext(startNodeId);
+    const runNodeContext = runGraphContext.createRunNodeContext(startNodeId);
+
+    runGraphContext.runFlowStates.nodeStates[startNodeId] = NodeRunState.FAILED;
+
+    expect(runNodeContext.nodeRunState).toEqual('FAILED');
 
     runNodeContext.propagateRunState();
 
     expect(runGraphContext.runFlowStates).toEqual({
       nodeStates: {
-        PM5i4: NodeRunState.FAILED,
-        hstPg: NodeRunState.PENDING,
+        Gav0R: 'FAILED',
+        K5n6N: 'PENDING',
+        KbeEk: 'PENDING',
       },
       connectorStates: {
-        'PM5i4/4zxZ6': ConnectorRunState.SKIPPED,
-        'PM5i4/hbg4s': ConnectorRunState.SKIPPED,
-        'PM5i4/sMBfz': ConnectorRunState.SKIPPED,
-        'hstPg/3neA2': ConnectorRunState.UNCONNECTED,
-        'hstPg/I3lzc': ConnectorRunState.UNCONNECTED,
-        'hstPg/Tw8g0': ConnectorRunState.UNCONNECTED,
-        'hstPg/XrU7m': ConnectorRunState.SKIPPED,
-        'hstPg/c4Ts9': ConnectorRunState.UNCONNECTED,
-        'hstPg/g3NPR': ConnectorRunState.UNCONNECTED,
-        'hstPg/content': ConnectorRunState.UNCONNECTED,
+        'Gav0R/FYiVo': 'SKIPPED',
+        'Gav0R/eSv7v': 'SKIPPED',
+        'Gav0R/h3hjH': 'SKIPPED',
+        'K5n6N/GYjaT': 'UNCONNECTED',
+        'K5n6N/JCG2R': 'UNCONNECTED',
+        'K5n6N/Ok8PJ': 'UNCONNECTED',
+        'K5n6N/XmH61': 'SKIPPED',
+        'K5n6N/hHQNY': 'UNCONNECTED',
+        'K5n6N/mPehv': 'PENDING',
+        'KbeEk/2xFif': 'PENDING',
+        'KbeEk/R6Y7U': 'UNCONNECTED',
+        'KbeEk/ktoDr': 'UNCONNECTED',
+        'K5n6N/content': 'UNCONNECTED',
       },
       edgeStates: {
-        '84q9B': EdgeRunState.SKIPPED,
+        ISUpn: 'SKIPPED',
+        pu5e1: 'PENDING',
       },
-      sourceHandleToEdgeIds: expect.anything(),
-      edgeIdToTargetHandle: expect.anything(),
+    });
+  });
+
+  test("One ancestor node propagate SUCCEEDED should should win against another ancestor's SKIPPED", () => {
+    // SECTION: Setup
+    const {
+      edges,
+      nodeConfigs,
+      connectors,
+      startNodeId1,
+      startNodeId2,
+      inputVariableValues,
+    } = createFxitureForTwoIncomingEdgesForOneCondition();
+    // !SECTION
+
+    const progressObserver = new ReplaySubject();
+
+    const runFlowParams: RunFlowParams = {
+      edges: edges,
+      nodeConfigs: nodeConfigs,
+      connectors: connectors,
+      inputVariableValues: inputVariableValues,
+      startNodeId: startNodeId2,
+      preferStreaming: false,
+      progressObserver: progressObserver,
+    };
+
+    const runFlowContext = new RunFlowContext(runFlowParams);
+    const runGraphContext = runFlowContext.createRunGraphContext(startNodeId2);
+    const runNodeContext = runGraphContext.createRunNodeContext(startNodeId2);
+
+    // NOTE: Install mock states
+    runGraphContext.runFlowStates = createRunStatesForStartNode1Skipped();
+    runGraphContext.runFlowStates.nodeStates[startNodeId2] =
+      NodeRunState.SUCCEEDED;
+
+    runNodeContext.updateOutgoingConditionResultsIfNotConditionNode();
+    runNodeContext.propagateRunState();
+
+    expect(runGraphContext.runFlowStates).toEqual({
+      nodeStates: {
+        '8jIMr': 'SKIPPED',
+        'jswKV': 'SUCCEEDED',
+        'coZ0B': 'PENDING',
+      },
+      connectorStates: {
+        '8jIMr/PEHuV': 'SKIPPED',
+        'coZ0B/EV4kO': 'UNCONNECTED',
+        'coZ0B/WQ6WM': 'MET',
+        'jswKV/yN6kp': 'MET',
+        'coZ0B/content': 'UNCONNECTED',
+      },
+      edgeStates: {
+        ufmj3: 'MET',
+        p8tGn: 'SKIPPED',
+      },
+    });
+  });
+
+  test("One ancestor node propagate SKIPPED should should not win against another ancestor's SUCCEEDED", () => {
+    // SECTION: Setup
+    const {
+      edges,
+      nodeConfigs,
+      connectors,
+      startNodeId2,
+      inputVariableValues,
+    } = createFxitureForTwoIncomingEdgesForOneCondition();
+    // !SECTION
+
+    const progressObserver = new ReplaySubject();
+
+    const runFlowParams: RunFlowParams = {
+      edges: edges,
+      nodeConfigs: nodeConfigs,
+      connectors: connectors,
+      inputVariableValues: inputVariableValues,
+      startNodeId: startNodeId2,
+      preferStreaming: false,
+      progressObserver: progressObserver,
+    };
+
+    const runFlowContext = new RunFlowContext(runFlowParams);
+    const runGraphContext = runFlowContext.createRunGraphContext(startNodeId2);
+    const runNodeContext = runGraphContext.createRunNodeContext(startNodeId2);
+
+    // NOTE: Install mock states
+    runGraphContext.runFlowStates = createRunStatesForStartNode1Succeeded();
+    runGraphContext.runFlowStates.nodeStates[startNodeId2] =
+      NodeRunState.SKIPPED;
+
+    runNodeContext.propagateRunState();
+
+    expect(runGraphContext.runFlowStates).toEqual({
+      nodeStates: {
+        '8jIMr': 'SUCCEEDED',
+        'jswKV': 'SKIPPED',
+        'coZ0B': 'PENDING',
+      },
+      connectorStates: {
+        '8jIMr/PEHuV': 'MET',
+        'coZ0B/EV4kO': 'UNCONNECTED',
+        'coZ0B/WQ6WM': 'MET',
+        'jswKV/yN6kp': 'SKIPPED',
+        'coZ0B/content': 'UNCONNECTED',
+      },
+      edgeStates: {
+        ufmj3: 'SKIPPED',
+        p8tGn: 'MET',
+      },
     });
   });
 });

@@ -30,19 +30,22 @@ class RunGraphContext {
   ) {
     const initialNodeIds = [startNodeId];
 
+    this.runFlowStates = runFlowStates;
+
     this.runFlowContext = runFlowContext;
     this.params = params;
     this.nodeIdListSubject = new BehaviorSubject<string[]>(initialNodeIds);
+
     this.queuedNodeCount = initialNodeIds.length;
-    this.runFlowStates = runFlowStates;
   }
+
+  runFlowStates: RunFlowStates;
 
   readonly runFlowContext: RunFlowContext;
   readonly params: RunFlowParams;
   readonly nodeIdListSubject: Subject<string[]>;
   // Used to create run graph result
   readonly finishNodesVariableIds: string[] = [];
-  runFlowStates: RunFlowStates;
   readonly succeededFinishNodeIds: string[] = [];
 
   get progressObserver(): Option<Observer<RunNodeProgressEvent>> {
