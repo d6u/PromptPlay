@@ -17,6 +17,11 @@ import {
   JSONataConditionNodeConfigSchema,
 } from './builtin-nodes/jsonata-condition-node';
 import {
+  JSONATA_DATA_BUILDER_NODE_DEFINITION,
+  JSONataDataBuilderNodeConfigSchema,
+  type JSONataDataBuilderNodeAllLevelConfig,
+} from './builtin-nodes/jsonata-data-builder-node';
+import {
   LOOP_FINISH_NODE_DEFINITION,
   LoopFinishNodeConfigSchema,
   type LoopFinishNodeAllLevelConfig,
@@ -75,6 +80,7 @@ import {
 export * from './builtin-nodes/input-node';
 export * from './builtin-nodes/javascript-function-node';
 export * from './builtin-nodes/jsonata-condition-node';
+export * from './builtin-nodes/jsonata-data-builder-node';
 export * from './builtin-nodes/loop-finish';
 export * from './builtin-nodes/loop-node';
 export * from './builtin-nodes/loop-start';
@@ -94,6 +100,7 @@ const NodeConfigSchema = z.union([
   JSONataConditionNodeConfigSchema,
   JavaScriptFunctionNodeConfigSchema,
   TextTemplateNodeConfigSchema,
+  JSONataDataBuilderNodeConfigSchema,
   LoopNodeConfigSchema,
   LoopStartNodeConfigSchema,
   LoopFinishNodeConfigSchema,
@@ -119,6 +126,7 @@ export type NodeAllLevelConfigUnion =
   | JSONataConditionNodeAllLevelConfig
   | JavaScriptFunctionNodeAllLevelConfig
   | TextTemplateNodeAllLevelConfig
+  | JSONataDataBuilderNodeAllLevelConfig
   | LoopNodeAllLevelConfig
   | LoopStartNodeAllLevelConfig
   | LoopFinishNodeAllLevelConfig
@@ -136,6 +144,7 @@ const NODE_TYPE_TO_NODE_DEFINITION_MAP = {
   [NodeType.JSONataCondition]: JSONATA_CONDITION_NODE_DEFINITION,
   [NodeType.JavaScriptFunctionNode]: JAVASCRIPT_NODE_DEFINITION,
   [NodeType.TextTemplate]: TEXT_TEMPLATE_NODE_DEFINITION,
+  [NodeType.JSONataDataBuilder]: JSONATA_DATA_BUILDER_NODE_DEFINITION,
   [NodeType.Loop]: LOOP_NODE_DEFINITION,
   [NodeType.LoopStart]: LOOP_START_NODE_DEFINITION,
   [NodeType.LoopFinish]: LOOP_FINISH_NODE_DEFINITION,

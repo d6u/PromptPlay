@@ -1,5 +1,4 @@
 import mustache from 'mustache';
-import invariant from 'tiny-invariant';
 import { z } from 'zod';
 
 import { ConnectorType, VariableValueType } from '../../base-types';
@@ -105,21 +104,17 @@ export const TEXT_TEMPLATE_NODE_DEFINITION: NodeDefinition<
   },
 
   async runNode(params) {
-    const { nodeConfig, inputVariables, outputVariables, inputVariableValues } =
-      params;
+    const { nodeConfig, inputVariables, inputVariableValues } = params;
 
-    const variableNameToValues: Record<string, unknown> = {};
+    const nameToValues: Record<string, unknown> = {};
 
     inputVariables.forEach((v, i) => {
-      variableNameToValues[v.name] = inputVariableValues[i];
+      nameToValues[v.name] = inputVariableValues[i];
     });
-
-    const outputVariable = outputVariables[0];
-    invariant(outputVariable != null);
 
     // SECTION: Main Logic
 
-    const content = mustache.render(nodeConfig.content, variableNameToValues);
+    const content = mustache.render(nodeConfig.content, nameToValues);
 
     // !SECTION
 
