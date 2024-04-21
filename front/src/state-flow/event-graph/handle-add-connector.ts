@@ -40,13 +40,15 @@ export const handleAddConnector = createHandler<
 
     invariant(
       nodeDefinition.canUserAddIncomingVariables ||
-        nodeType === NodeType.InputNode,
-      'User can add incoming variables',
+        nodeType === NodeType.InputNode ||
+        event.connectorType === ConnectorType.OutCondition,
+      'Either the node config allows user to add incoming variables, or the node type is InputNode, or the connector type is OutCondition',
     );
     invariant(
       nodeDefinition.variableValueTypeForUserAddedIncomingVariable != null ||
-        nodeType === NodeType.InputNode,
-      'incomingVariableType is defined',
+        nodeType === NodeType.InputNode ||
+        event.connectorType === ConnectorType.OutCondition,
+      'Either incomingVariableType is defined, or the node type is InputNode, or the connector type is OutCondition',
     );
 
     const commonFields = {

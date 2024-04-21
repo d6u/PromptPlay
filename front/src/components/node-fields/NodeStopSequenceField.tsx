@@ -49,6 +49,7 @@ function NodeStopSequenceField(props: Props) {
           render={({ field }) => (
             <Input
               {...field}
+              value={field.value.replace(/\n/g, NEW_LINE_SYMBOL)}
               placeholder={fd.placeholder}
               onBlur={() => {
                 field.onBlur();
@@ -57,7 +58,12 @@ function NodeStopSequenceField(props: Props) {
               onKeyDown={(event) => {
                 if (event.shiftKey && event.key === 'Enter') {
                   event.preventDefault();
-                  setValue('value', getValues().value + NEW_LINE_SYMBOL);
+
+                  const currentValue = getValues().value.replace(
+                    NEW_LINE_SYMBOL,
+                    '\n',
+                  );
+                  setValue('value', currentValue + '\n');
                 }
               }}
               onKeyUp={(event) => {
