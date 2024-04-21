@@ -2,6 +2,11 @@ import z from 'zod';
 
 import { NodeType, NodeTypeEnum } from '../node-definition-base-types';
 import {
+  BIND_SEARCH_API_NODE_DEFINITION,
+  BingSearchApiNodeConfigSchema,
+  type BingSearchApiNodeAllLevelConfig,
+} from './bing-search-api-node';
+import {
   INPUT_NODE_DEFINITION,
   InputNodeAllLevelConfig,
   InputNodeConfigSchema,
@@ -77,6 +82,7 @@ import {
   HuggingFaceInferenceNodeConfigSchema,
 } from './huggingface-inference-node';
 
+export * from './bing-search-api-node';
 export * from './builtin-nodes/input-node';
 export * from './builtin-nodes/javascript-function-node';
 export * from './builtin-nodes/jsonata-condition-node';
@@ -111,6 +117,7 @@ const NodeConfigSchema = z.union([
   ChatgptChatCompletionNodeConfigSchema,
   HuggingFaceInferenceNodeConfigSchema,
   ElevenLabsNodeConfigSchema,
+  BingSearchApiNodeConfigSchema,
 ]);
 
 export type NodeConfig = z.infer<typeof NodeConfigSchema>;
@@ -136,7 +143,8 @@ export type NodeAllLevelConfigUnion =
   | ChatGPTMessageNodeAllLevelConfig
   | ChatGPTChatCompletionNodeAllLevelConfig
   | HuggingFaceInferenceNodeAllLevelConfig
-  | ElevenLabsNodeAllLevelConfig;
+  | ElevenLabsNodeAllLevelConfig
+  | BingSearchApiNodeAllLevelConfig;
 
 const NODE_TYPE_TO_NODE_DEFINITION_MAP = {
   [NodeType.InputNode]: INPUT_NODE_DEFINITION,
@@ -155,6 +163,7 @@ const NODE_TYPE_TO_NODE_DEFINITION_MAP = {
   [NodeType.ChatGPTChatCompletionNode]: CHATGPT_CHAT_COMPLETION_NODE_DEFINITION,
   [NodeType.HuggingFaceInference]: HUGGINGFACE_INFERENCE_NODE_DEFINITION,
   [NodeType.ElevenLabs]: ELEVENLABS_NODE_DEFINITION,
+  [NodeType.BingSearchApi]: BIND_SEARCH_API_NODE_DEFINITION,
 };
 
 export function getNodeDefinitionForNodeTypeName<T extends NodeTypeEnum>(

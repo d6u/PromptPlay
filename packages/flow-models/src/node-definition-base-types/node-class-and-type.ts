@@ -28,6 +28,7 @@ export const NodeType = {
   ChatGPTChatCompletionNode: 'ChatGPTChatCompletionNode',
   HuggingFaceInference: 'HuggingFaceInference',
   ElevenLabs: 'ElevenLabs',
+  BingSearchApi: 'BingSearchApi',
 } as const;
 
 export type NodeTypeEnum = (typeof NodeType)[keyof typeof NodeType];
