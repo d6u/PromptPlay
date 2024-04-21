@@ -39,9 +39,9 @@ export const JSONATA_DATA_BUILDER_NODE_DEFINITION: NodeDefinition<
         <div>
           JSONata expression is used here, refer to{' '}
           <a href="https://docs.jsonata.org/" target="_blank" rel="noreferrer">
-            its documentation
+            its document
           </a>{' '}
-          for robust JSON data manipulation.
+          to look up syntax for JSON data manipulation.
         </div>
       ),
     },
