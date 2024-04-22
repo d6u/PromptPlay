@@ -194,10 +194,12 @@ function NodeRenamableVariableList(props: Props) {
     <Container>
       <div>
         {fields.slice(0, editableItemStart).map((field, index) => {
+          const variable = props.variableConfigs[index];
+
           // TODO: Find a way to avoid duplicating the mapper
           return (
             <NodeRenamableVariableItem
-              key={field.id}
+              key={variable.id}
               connectorHandlePosition={props.showConnectorHandle ?? 'none'}
               isListSortable={false}
               nodeId={props.nodeId}
@@ -228,6 +230,7 @@ function NodeRenamableVariableList(props: Props) {
           <div>
             {fields.slice(editableItemStart).map((field, index) => {
               index += editableItemStart;
+
               const variable = props.variableConfigs[index];
 
               // NOTE: This is a workaround for the case when the variable is
@@ -239,7 +242,11 @@ function NodeRenamableVariableList(props: Props) {
 
               return (
                 <NodeRenamableVariableItem
-                  key={field.id}
+                  // Must use the variable ID instead of field ID,
+                  // because a new field ID is generated
+                  // when `props.variableConfigs` updates.
+                  // This is to prevent loss of focus when updating variable.
+                  key={variable.id}
                   isListSortable={!!props.isListSortable}
                   connectorHandlePosition={props.showConnectorHandle ?? 'none'}
                   nodeId={props.nodeId}

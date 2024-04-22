@@ -69,18 +69,26 @@ function NodeOutputVariableList(props: Props) {
     })();
   }, [props.isNodeReadOnly, variablePropsArray, handleSubmit, updateVariable]);
 
-  return fields.map((field, index) => (
-    <NodeOutputVariableItem
-      key={field.id}
-      nodeId={props.nodeId}
-      isNodeReadOnly={props.isNodeReadOnly}
-      variableId={props.variables[index].id}
-      control={control}
-      formField={field}
-      index={index}
-      onUpdateTrigger={update}
-    />
-  ));
+  return fields.map((field, index) => {
+    const variable = variablePropsArray[index];
+
+    return (
+      <NodeOutputVariableItem
+        // Must use the variable ID instead of field ID,
+        // because a new field ID is generated
+        // when `variablePropsArray` updates.
+        // This is to prevent re-render of when variable updates.
+        key={variable.id}
+        nodeId={props.nodeId}
+        isNodeReadOnly={props.isNodeReadOnly}
+        variableId={props.variables[index].id}
+        control={control}
+        formField={field}
+        index={index}
+        onUpdateTrigger={update}
+      />
+    );
+  });
 }
 
 export default NodeOutputVariableList;

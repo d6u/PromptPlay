@@ -79,6 +79,7 @@ function FlowCanvasNode(props: NodeProps) {
   ) {
     return (
       <StartClassNode
+        key={nodeId}
         selected={selected}
         nodeId={nodeId}
         isNodeReadOnly={isNodeReadOnly}
@@ -93,6 +94,7 @@ function FlowCanvasNode(props: NodeProps) {
     if (nodeConfig.type === NodeType.LoopFinish) {
       return (
         <LoopFinishNode
+          key={nodeId}
           selected={selected}
           nodeId={nodeId}
           isNodeReadOnly={isNodeReadOnly}
@@ -104,6 +106,7 @@ function FlowCanvasNode(props: NodeProps) {
     invariant(conditionTarget != null, 'conditionTarget is not null');
     return (
       <FinishClassNode
+        key={nodeId}
         selected={selected}
         nodeId={nodeId}
         isNodeReadOnly={isNodeReadOnly}
@@ -120,6 +123,7 @@ function FlowCanvasNode(props: NodeProps) {
       invariant(conditionTarget != null, 'conditionTarget is not null');
       return (
         <JSONataConditionNode
+          key={nodeId}
           selected={selected}
           nodeId={nodeId}
           isNodeReadOnly={isNodeReadOnly}
@@ -138,6 +142,7 @@ function FlowCanvasNode(props: NodeProps) {
     invariant(conditionTarget != null, 'conditionTarget is not null');
     return (
       <JavaScriptFunctionNode
+        key={nodeId}
         selected={selected}
         nodeId={nodeId}
         isNodeReadOnly={isNodeReadOnly}
@@ -153,6 +158,7 @@ function FlowCanvasNode(props: NodeProps) {
   invariant(conditionTarget != null, 'conditionTarget is not null');
   return (
     <DefaultNode
+      key={nodeId}
       selected={selected}
       nodeId={nodeId}
       isNodeReadOnly={isNodeReadOnly}
