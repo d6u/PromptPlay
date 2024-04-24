@@ -44,7 +44,7 @@ function FlowCanvasView() {
       panOnScroll
       panOnScrollMode={PanOnScrollMode.Free}
       minZoom={0.2}
-      maxZoom={1.2}
+      maxZoom={1}
       // Prevent select to trigger position change
       nodeDragThreshold={1}
       nodesConnectable={isCurrentUserOwner}

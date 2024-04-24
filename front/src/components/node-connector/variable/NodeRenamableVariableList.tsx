@@ -190,33 +190,37 @@ function NodeRenamableVariableList(props: Props) {
     editableItemStart = props.variableConfigs.length;
   }
 
+  const nonEditableFields = fields.slice(0, editableItemStart);
+
   return (
     <Container>
-      <div>
-        {fields.slice(0, editableItemStart).map((field, index) => {
-          const variable = props.variableConfigs[index];
+      {nonEditableFields.length > 0 && (
+        <div>
+          {nonEditableFields.map((field, index) => {
+            const variable = props.variableConfigs[index];
 
-          // TODO: Find a way to avoid duplicating the mapper
-          return (
-            <NodeRenamableVariableItem
-              key={variable.id}
-              connectorHandlePosition={props.showConnectorHandle ?? 'none'}
-              isListSortable={false}
-              nodeId={props.nodeId}
-              isNodeReadOnly={props.isNodeReadOnly}
-              variable={props.variableConfigs[index]}
-              variableDefinition={props.variableDefinitions[index]}
-              control={control}
-              formField={field}
-              index={index}
-              onRemove={() => {
-                remove(index);
-              }}
-              onUpdateTrigger={update}
-            />
-          );
-        })}
-      </div>
+            // TODO: Find a way to avoid duplicating the mapper
+            return (
+              <NodeRenamableVariableItem
+                key={variable.id}
+                connectorHandlePosition={props.showConnectorHandle ?? 'none'}
+                isListSortable={false}
+                nodeId={props.nodeId}
+                isNodeReadOnly={props.isNodeReadOnly}
+                variable={props.variableConfigs[index]}
+                variableDefinition={props.variableDefinitions[index]}
+                control={control}
+                formField={field}
+                index={index}
+                onRemove={() => {
+                  remove(index);
+                }}
+                onUpdateTrigger={update}
+              />
+            );
+          })}
+        </div>
+      )}
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
