@@ -7,6 +7,11 @@ import {
   type BingSearchApiNodeAllLevelConfig,
 } from './bing-search-api-node';
 import {
+  CONCAT_NODE_DEFINITION,
+  ConcatNodeConfigSchema,
+  type ConcatNodeAllLevelConfig,
+} from './builtin-nodes/concat-node';
+import {
   INPUT_NODE_DEFINITION,
   InputNodeAllLevelConfig,
   InputNodeConfigSchema,
@@ -83,6 +88,7 @@ import {
 } from './huggingface-inference-node';
 
 export * from './bing-search-api-node';
+export * from './builtin-nodes/concat-node';
 export * from './builtin-nodes/input-node';
 export * from './builtin-nodes/javascript-function-node';
 export * from './builtin-nodes/jsonata-condition-node';
@@ -110,6 +116,7 @@ const NodeConfigSchema = z.union([
   LoopNodeConfigSchema,
   LoopStartNodeConfigSchema,
   LoopFinishNodeConfigSchema,
+  ConcatNodeConfigSchema,
   // ANCHOR: Update this section when adding new node types
   GenericChatbotStartNodeConfigSchema,
   GenericChatbotFinishNodeConfigSchema,
@@ -137,6 +144,7 @@ export type NodeAllLevelConfigUnion =
   | LoopNodeAllLevelConfig
   | LoopStartNodeAllLevelConfig
   | LoopFinishNodeAllLevelConfig
+  | ConcatNodeAllLevelConfig
   // ANCHOR: Update this when adding new node types
   | GenericChatbotStartNodeAllLevelConfig
   | GenericChatbotFinishNodeAllLevelConfig
@@ -156,6 +164,7 @@ const NODE_TYPE_TO_NODE_DEFINITION_MAP = {
   [NodeType.Loop]: LOOP_NODE_DEFINITION,
   [NodeType.LoopStart]: LOOP_START_NODE_DEFINITION,
   [NodeType.LoopFinish]: LOOP_FINISH_NODE_DEFINITION,
+  [NodeType.Concat]: CONCAT_NODE_DEFINITION,
   // ANCHOR: Update this when adding new node types
   [NodeType.GenericChatbotStart]: GENERIC_CHATBOT_START_NODE_DEFINITION,
   [NodeType.GenericChatbotFinish]: GENERIC_CHATBOT_FINISH_NODE_DEFINITION,

@@ -21,6 +21,7 @@ export const NodeType = {
   Loop: 'Loop',
   LoopStart: 'LoopStart',
   LoopFinish: 'LoopFinish',
+  Concat: 'Concat',
   // custom nodes
   GenericChatbotStart: 'GenericChatbotStart',
   GenericChatbotFinish: 'GenericChatbotFinish',
