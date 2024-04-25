@@ -149,7 +149,7 @@ export const CHATGPT_SIMPLE_NODE_DEFINITION: NodeDefinition<
           type: NodeType.ChatGPTSimple,
           nodeId: chatCompletionNodeId,
           role: ChatGPTMessageRole.user,
-          model: OpenAIChatModel.GPT_4,
+          model: OpenAIChatModel.GPT_3_5_TURBO,
           temperature: 1,
           stop: [],
           seed: null,
