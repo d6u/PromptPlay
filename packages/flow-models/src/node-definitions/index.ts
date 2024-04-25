@@ -67,6 +67,11 @@ import {
   ChatgptMessageNodeConfigSchema,
 } from './chatgpt-message-node';
 import {
+  CHATGPT_SIMPLE_NODE_DEFINITION,
+  ChatgptSimpleNodeConfigSchema,
+  type ChatGPTSimpleNodeAllLevelConfig,
+} from './chatgpt-simple';
+import {
   ELEVENLABS_NODE_DEFINITION,
   ElevenLabsNodeAllLevelConfig,
   ElevenLabsNodeConfigSchema,
@@ -100,6 +105,7 @@ export * from './builtin-nodes/output-node';
 export * from './builtin-nodes/text-template-node';
 export * from './chatgpt-chat-completion-node';
 export * from './chatgpt-message-node';
+export * from './chatgpt-simple';
 export * from './elevenlabs-node';
 export * from './generic-chatbot-finish-node';
 export * from './generic-chatbot-start-node';
@@ -122,6 +128,7 @@ const NodeConfigSchema = z.union([
   GenericChatbotFinishNodeConfigSchema,
   ChatgptMessageNodeConfigSchema,
   ChatgptChatCompletionNodeConfigSchema,
+  ChatgptSimpleNodeConfigSchema,
   HuggingFaceInferenceNodeConfigSchema,
   ElevenLabsNodeConfigSchema,
   BingSearchApiNodeConfigSchema,
@@ -150,6 +157,7 @@ export type NodeAllLevelConfigUnion =
   | GenericChatbotFinishNodeAllLevelConfig
   | ChatGPTMessageNodeAllLevelConfig
   | ChatGPTChatCompletionNodeAllLevelConfig
+  | ChatGPTSimpleNodeAllLevelConfig
   | HuggingFaceInferenceNodeAllLevelConfig
   | ElevenLabsNodeAllLevelConfig
   | BingSearchApiNodeAllLevelConfig;
@@ -170,6 +178,7 @@ const NODE_TYPE_TO_NODE_DEFINITION_MAP = {
   [NodeType.GenericChatbotFinish]: GENERIC_CHATBOT_FINISH_NODE_DEFINITION,
   [NodeType.ChatGPTMessageNode]: CHATGPT_MESSAGE_NODE_DEFINITION,
   [NodeType.ChatGPTChatCompletionNode]: CHATGPT_CHAT_COMPLETION_NODE_DEFINITION,
+  [NodeType.ChatGPTSimple]: CHATGPT_SIMPLE_NODE_DEFINITION,
   [NodeType.HuggingFaceInference]: HUGGINGFACE_INFERENCE_NODE_DEFINITION,
   [NodeType.ElevenLabs]: ELEVENLABS_NODE_DEFINITION,
   [NodeType.BingSearchApi]: BIND_SEARCH_API_NODE_DEFINITION,

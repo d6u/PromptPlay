@@ -27,6 +27,7 @@ export const NodeType = {
   GenericChatbotFinish: 'GenericChatbotFinish',
   ChatGPTMessageNode: 'ChatGPTMessageNode',
   ChatGPTChatCompletionNode: 'ChatGPTChatCompletionNode',
+  ChatGPTSimple: 'ChatGPTSimple',
   HuggingFaceInference: 'HuggingFaceInference',
   ElevenLabs: 'ElevenLabs',
   BingSearchApi: 'BingSearchApi',
