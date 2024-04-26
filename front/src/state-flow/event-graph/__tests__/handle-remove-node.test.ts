@@ -31,7 +31,7 @@ test('handleRemoveNode should remove node, nodeConfig, and connectors', () => {
       edges: [],
       nodeConfigs: {
         '8e2At': {
-          class: 'Start',
+          kind: 'Start',
           type: 'InputNode',
           nodeId: '8e2At',
           nodeName: 'input1',

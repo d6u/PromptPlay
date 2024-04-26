@@ -5,7 +5,7 @@ import { Position, useUpdateNodeInternals } from 'reactflow';
 import {
   ConnectorType,
   IncomingCondition,
-  NodeClass,
+  NodeKind,
   OutputNodeAllLevelConfig,
   getNodeDefinitionForNodeTypeName,
   type GenericChatbotFinishNodeAllLevelConfig,
@@ -63,7 +63,7 @@ function FinishClassNode(props: Props) {
       />
       <NodeBox selected={props.selected} nodeState={nodeState}>
         <NodeBoxHeaderSection
-          nodeClass={NodeClass.Finish}
+          nodeKind={NodeKind.Finish}
           isNodeReadOnly={props.isNodeReadOnly}
           title={nodeDefinition.label}
           nodeId={props.nodeId}

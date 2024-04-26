@@ -11,7 +11,7 @@ import {
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import invariant from 'tiny-invariant';
 
-import { NodeClass } from 'flow-models';
+import { NodeKind } from 'flow-models';
 
 import { useFlowStore } from 'state-flow/flow-store';
 
@@ -26,10 +26,7 @@ function RenameStartNodeView() {
       return null;
     }
     const nodeConfig = nodeConfigs[canvasRenameNodeId];
-    invariant(
-      nodeConfig.class === NodeClass.Start,
-      'Node class should be Start',
-    );
+    invariant(nodeConfig.kind === NodeKind.Start, 'Node kind should be Start');
     return nodeConfig;
   }, [canvasRenameNodeId, nodeConfigs]);
 

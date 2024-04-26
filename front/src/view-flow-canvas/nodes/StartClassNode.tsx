@@ -60,7 +60,7 @@ function StartClassNode(props: Props) {
       <NodeRegularOutgoingConditionHandle nodeId={props.nodeId} />
       <NodeBox selected={props.selected} nodeState={nodeState}>
         <NodeBoxHeaderSection
-          nodeClass={props.nodeConfig.class}
+          nodeKind={props.nodeConfig.kind}
           nodeId={props.nodeId}
           isNodeReadOnly={props.isNodeReadOnly}
           title={props.nodeConfig.nodeName}

@@ -68,18 +68,18 @@ test('handleEdgeReplacedEvent ignores old and new source variables with the same
         ZUhTs: {
           nodeId: 'ZUhTs',
           type: 'InputNode',
-          class: 'Start',
+          kind: 'Start',
           nodeName: 'input1',
         },
         Is8Op: {
           nodeId: 'Is8Op',
           type: 'OutputNode',
-          class: 'Finish',
+          kind: 'Finish',
         },
         WHqYI: {
           nodeId: 'WHqYI',
           type: 'InputNode',
-          class: 'Start',
+          kind: 'Start',
           nodeName: 'input2',
         },
       },

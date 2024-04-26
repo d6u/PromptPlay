@@ -32,9 +32,9 @@ test('handleAddConnector should add variable', () => {
       edges: [],
       nodeConfigs: {
         Z6dPf: {
-          nodeId: 'Z6dPf',
+          kind: 'Start',
           type: 'InputNode',
-          class: 'Start',
+          nodeId: 'Z6dPf',
           nodeName: 'input1',
         },
       },

@@ -55,14 +55,14 @@ test('handleReactFlowEdgesChange should select edge', () => {
       ],
       nodeConfigs: {
         Is8Op: {
-          nodeId: 'Is8Op',
+          kind: 'Finish',
           type: 'OutputNode',
-          class: 'Finish',
+          nodeId: 'Is8Op',
         },
         OYlVw: {
-          nodeId: 'OYlVw',
+          kind: 'Start',
           type: 'InputNode',
-          class: 'Start',
+          nodeId: 'OYlVw',
           nodeName: 'input1',
         },
       },
@@ -175,14 +175,14 @@ test('handleReactFlowEdgesChange should remove edge', () => {
       ],
       nodeConfigs: {
         Is8Op: {
-          nodeId: 'Is8Op',
+          kind: 'Finish',
           type: 'OutputNode',
-          class: 'Finish',
+          nodeId: 'Is8Op',
         },
         OYlVw: {
-          nodeId: 'OYlVw',
+          kind: 'Start',
           type: 'InputNode',
-          class: 'Start',
+          nodeId: 'OYlVw',
           nodeName: 'input1',
         },
       },
@@ -323,21 +323,21 @@ test('handleReactFlowEdgesChange should remove multiple edges', () => {
       ],
       nodeConfigs: {
         HIbCf: {
-          nodeId: 'HIbCf',
+          kind: 'Start',
           type: 'InputNode',
-          class: 'Start',
+          nodeId: 'HIbCf',
           nodeName: 'input1',
         },
         sn268: {
-          nodeId: 'sn268',
+          kind: 'Finish',
           type: 'OutputNode',
-          class: 'Finish',
+          nodeId: 'sn268',
         },
         AkRxM: {
-          nodeId: 'AkRxM',
+          kind: 'Process',
           type: 'TextTemplate',
+          nodeId: 'AkRxM',
           content: 'Write a poem about {{topic}} in fewer than 20 words.',
-          class: 'Process',
         },
       },
       connectors: {
@@ -478,15 +478,15 @@ test('handleReactFlowEdgesChange should remove edge and reset the value type of 
       ],
       nodeConfigs: {
         Is8Op: {
-          nodeId: 'Is8Op',
+          kind: 'Finish',
           type: 'OutputNode',
-          class: 'Finish',
+          nodeId: 'Is8Op',
         },
         VhWOu: {
-          nodeId: 'VhWOu',
+          kind: 'Process',
           type: 'ElevenLabs',
+          nodeId: 'VhWOu',
           voiceId: '',
-          class: 'Process',
         },
       },
       connectors: {

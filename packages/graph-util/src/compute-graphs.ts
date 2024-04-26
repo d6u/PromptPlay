@@ -1,7 +1,7 @@
 import { type Edge } from 'reactflow';
 import invariant from 'tiny-invariant';
 
-import { NodeClass, NodeType, type NodeConfigRecords } from 'flow-models';
+import { NodeKind, NodeType, type NodeConfigRecords } from 'flow-models';
 
 export type GraphRecords = Record<string, Graph>;
 export type Graph = Record<string, IncomingConnectors>;
@@ -56,12 +56,12 @@ export function computeGraphs({
 
   Object.values(nodeConfigs).forEach((nodeConfig) => {
     if (
-      nodeConfig.class === NodeClass.Start &&
+      nodeConfig.kind === NodeKind.Start &&
       startNodeIds.includes(nodeConfig.nodeId)
     ) {
       // Start nodes that also in `startNodeIds`
       indegrees[nodeConfig.nodeId] = 0;
-    } else if (nodeConfig.class === NodeClass.Start) {
+    } else if (nodeConfig.kind === NodeKind.Start) {
       // Start nodes (that're not in `startNodeIds`)
       // NOTE: This case includes LoopStart nodes
       indegrees[nodeConfig.nodeId] = 1;

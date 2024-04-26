@@ -1,4 +1,4 @@
-export const NodeClass = {
+export const NodeKind = {
   Start: 'Start',
   Finish: 'Finish',
   Process: 'Process',
@@ -7,7 +7,7 @@ export const NodeClass = {
   SubroutineStart: 'SubroutineStart',
 } as const;
 
-export type NodeClassEnum = (typeof NodeClass)[keyof typeof NodeClass];
+export type NodeKindEnum = (typeof NodeKind)[keyof typeof NodeKind];
 
 // NOTE: Update this when adding new node types
 export const NodeType = {
@@ -18,7 +18,7 @@ export const NodeType = {
   JavaScriptFunctionNode: 'JavaScriptFunctionNode',
   TextTemplate: 'TextTemplate',
   JSONataDataBuilder: 'JSONataDataBuilder',
-  Loop: 'Loop',
+  BareboneLoop: 'BareboneLoop',
   LoopStart: 'LoopStart',
   LoopFinish: 'LoopFinish',
   Concat: 'Concat',

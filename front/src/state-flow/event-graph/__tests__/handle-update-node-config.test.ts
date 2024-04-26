@@ -31,10 +31,10 @@ test('handleUpdateNodeConfig should add node and nodeConfig', () => {
       edges: [],
       nodeConfigs: {
         I6L6E: {
-          nodeId: 'I6L6E',
+          kind: 'Process',
           type: 'TextTemplate',
+          nodeId: 'I6L6E',
           content: 'Write a poem about {{topic}} in fewer than 10 words.',
-          class: 'Process',
         },
       },
       connectors: {
@@ -87,10 +87,10 @@ test('handleUpdateNodeConfig should add node and nodeConfig', () => {
       ...prevState.flowContent,
       nodeConfigs: {
         I6L6E: {
-          nodeId: 'I6L6E',
+          kind: 'Process',
           type: 'TextTemplate',
+          nodeId: 'I6L6E',
           content: 'Write a poem about {{topic}} in fewer than 20 words.',
-          class: 'Process',
         },
       },
     },

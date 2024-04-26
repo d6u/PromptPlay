@@ -8,8 +8,8 @@ import {
   ConnectorType,
   IncomingCondition,
   JavaScriptFunctionNodeInstanceLevelConfig,
-  NodeClass,
   NodeInputVariable,
+  NodeKind,
   NodeOutputVariable,
   getNodeDefinitionForNodeTypeName,
 } from 'flow-models';
@@ -81,7 +81,7 @@ function JavaScriptFunctionNode(props: Props) {
       />
       <NodeBox selected={props.selected} nodeState={nodeState}>
         <NodeBoxHeaderSection
-          nodeClass={NodeClass.Process}
+          nodeKind={NodeKind.Process}
           title={nodeDefinition.label}
           showAddVariableButton={!!nodeDefinition.canUserAddIncomingVariables}
           nodeId={props.nodeId}

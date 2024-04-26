@@ -6,13 +6,13 @@ import * as ElevenLabs from 'integrations/eleven-labs';
 import { ConnectorType, VariableValueType } from '../base-types';
 import {
   FieldType,
-  NodeClass,
   NodeDefinition,
+  NodeKind,
   NodeType,
 } from '../node-definition-base-types';
 
 export const ElevenLabsNodeConfigSchema = z.object({
-  class: z.literal(NodeClass.Process),
+  kind: z.literal(NodeKind.Process),
   type: z.literal(NodeType.ElevenLabs),
   nodeId: z.string(),
   voiceId: z.string().catch((ctx) => {
@@ -82,11 +82,11 @@ export const ELEVENLABS_NODE_DEFINITION: NodeDefinition<
     return {
       nodeConfigs: [
         {
-          class: NodeClass.Process,
+          kind: NodeKind.Process,
           nodeId: nodeId,
           type: NodeType.ElevenLabs,
           voiceId: '',
-        },
+        } as ElevenLabsNodeInstanceLevelConfig,
       ],
       connectors: [
         {

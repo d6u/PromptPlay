@@ -30,9 +30,9 @@ test('handleRemoveVariable should remove variable', () => {
       edges: [],
       nodeConfigs: {
         Z6dPf: {
-          nodeId: 'Z6dPf',
           type: 'InputNode',
-          class: 'Start',
+          kind: 'Start',
+          nodeId: 'Z6dPf',
           nodeName: 'input1',
         },
       },

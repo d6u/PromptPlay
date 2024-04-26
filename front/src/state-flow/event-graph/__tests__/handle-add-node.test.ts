@@ -27,7 +27,6 @@ test('handleAddNode should add node and nodeConfig', () => {
       nodes: [
         {
           id: expect.any(String),
-          type: 'CANVAS_NODE',
           position: {
             x: 510,
             y: 200,
@@ -49,9 +48,9 @@ test('handleAddNode should add node and nodeConfig', () => {
 
   expect(Object.values(nextState.flowContent.nodeConfigs)).toEqual([
     {
-      nodeId: expect.any(String),
+      kind: 'Start',
       type: 'InputNode',
-      class: 'Start',
+      nodeId: expect.any(String),
       nodeName: 'input',
     },
   ]);

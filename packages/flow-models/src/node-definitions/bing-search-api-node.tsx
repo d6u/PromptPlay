@@ -3,15 +3,15 @@ import { z } from 'zod';
 import { ConnectorType, VariableValueType } from '../base-types';
 import {
   FieldType,
-  NodeClass,
   NodeDefinition,
+  NodeKind,
   NodeType,
 } from '../node-definition-base-types';
 
 // Reference: https://huggingface.co/docs/api-inference/index
 
 export const BingSearchApiNodeConfigSchema = z.object({
-  class: z.literal(NodeClass.Process),
+  kind: z.literal(NodeKind.Process),
   type: z.literal(NodeType.BingSearchApi),
   nodeId: z.string(),
 });
@@ -74,7 +74,7 @@ export const BIND_SEARCH_API_NODE_DEFINITION: NodeDefinition<
     return {
       nodeConfigs: [
         {
-          class: NodeClass.Process,
+          kind: NodeKind.Process,
           nodeId: nodeId,
           type: NodeType.BingSearchApi,
         } as BingSearchApiNodeInstanceLevelConfig,

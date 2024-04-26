@@ -82,15 +82,15 @@ test('handleReactFlowConnectEvent ignores existing connection', () => {
       ],
       nodeConfigs: {
         TmZiV: {
+          kind: 'Start',
           nodeId: 'TmZiV',
           type: 'InputNode',
-          class: 'Start',
           nodeName: 'input1',
         },
         af2pT: {
+          kind: 'Finish',
           nodeId: 'af2pT',
           type: 'OutputNode',
-          class: 'Finish',
         },
       },
       connectors: {
@@ -173,16 +173,16 @@ test('handleReactFlowConnectEvent ignores Audio source variable with invalid tar
       edges: [],
       nodeConfigs: {
         Lbola: {
-          nodeId: 'Lbola',
+          kind: 'Process',
           type: 'ElevenLabs',
+          nodeId: 'Lbola',
           voiceId: '',
-          class: 'Process',
         },
         jvWCV: {
-          nodeId: 'jvWCV',
+          kind: 'Process',
           type: 'TextTemplate',
+          nodeId: 'jvWCV',
           content: 'Write a poem about {{topic}} in fewer than 20 words.',
-          class: 'Process',
         },
       },
       connectors: {
@@ -562,20 +562,20 @@ test('handleReactFlowConnect should replace edge', () => {
       ],
       nodeConfigs: {
         ZUhTs: {
-          nodeId: 'ZUhTs',
+          kind: 'Start',
           type: 'InputNode',
-          class: 'Start',
+          nodeId: 'ZUhTs',
           nodeName: 'input1',
         },
         Is8Op: {
-          nodeId: 'Is8Op',
+          kind: 'Finish',
           type: 'OutputNode',
-          class: 'Finish',
+          nodeId: 'Is8Op',
         },
         WHqYI: {
-          nodeId: 'WHqYI',
+          kind: 'Start',
           type: 'InputNode',
-          class: 'Start',
+          nodeId: 'WHqYI',
           nodeName: 'input2',
         },
       },
@@ -708,20 +708,20 @@ test('handleReactFlowConnect should replace edge and update dest variable valueT
       ],
       nodeConfigs: {
         'Is8Op': {
-          nodeId: 'Is8Op',
+          kind: 'Finish',
           type: 'OutputNode',
-          class: 'Finish',
+          nodeId: 'Is8Op',
         },
         'gso6A': {
-          nodeId: 'gso6A',
+          kind: 'Process',
           type: 'ElevenLabs',
+          nodeId: 'gso6A',
           voiceId: '',
-          class: 'Process',
         },
         '7NHli': {
-          nodeId: '7NHli',
+          kind: 'Start',
           type: 'InputNode',
-          class: 'Start',
+          nodeId: '7NHli',
           nodeName: 'input1',
         },
       },
@@ -860,14 +860,14 @@ test('handleReactFlowConnect should add edge', () => {
       edges: [],
       nodeConfigs: {
         Is8Op: {
-          nodeId: 'Is8Op',
+          kind: 'Finish',
           type: 'OutputNode',
-          class: 'Finish',
+          nodeId: 'Is8Op',
         },
         OYlVw: {
-          nodeId: 'OYlVw',
+          kind: 'Start',
           type: 'InputNode',
-          class: 'Start',
+          nodeId: 'OYlVw',
           nodeName: 'input1',
         },
       },
@@ -966,15 +966,15 @@ test('handleReactFlowConnect should add edge and update dest variable valueType'
       edges: [],
       nodeConfigs: {
         Is8Op: {
+          kind: 'Finish',
           type: 'OutputNode',
           nodeId: 'Is8Op',
-          class: 'Finish',
         },
         gso6A: {
+          kind: 'Process',
           type: 'ElevenLabs',
           nodeId: 'gso6A',
           voiceId: '',
-          class: 'Process',
         },
       },
       connectors: {

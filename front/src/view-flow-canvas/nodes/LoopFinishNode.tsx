@@ -2,7 +2,7 @@ import styled from '@emotion/styled';
 import { useMemo } from 'react';
 
 import {
-  NodeClass,
+  NodeKind,
   getNodeDefinitionForNodeTypeName,
   type LoopFinishNodeAllLevelConfig,
 } from 'flow-models';
@@ -46,7 +46,7 @@ function LoopFinishNode(props: Props) {
     <>
       <NodeBox selected={props.selected} nodeState={nodeState}>
         <NodeBoxHeaderSection
-          nodeClass={NodeClass.Finish}
+          nodeKind={NodeKind.Finish}
           isNodeReadOnly={props.isNodeReadOnly}
           title={nodeDefinition.label}
           nodeId={props.nodeId}

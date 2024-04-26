@@ -1,0 +1,16 @@
+/* Reset reactflow's default node style */
+
+.react-flow__node-default {
+  width: initial;
+  border: initial;
+  padding: initial;
+  text-align: initial;
+  background-color: initial;
+  color: initial;
+  font-size: initial;
+}
+
+.react-flow__node-default.selectable:focus,
+.react-flow__node-default.selectable.selected {
+  box-shadow: initial;
+}

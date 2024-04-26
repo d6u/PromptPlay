@@ -4,13 +4,13 @@ import { z } from 'zod';
 import { ConnectorType, VariableValueType } from '../../base-types';
 import {
   FieldType,
-  NodeClass,
   NodeDefinition,
+  NodeKind,
   NodeType,
 } from '../../node-definition-base-types';
 
 export const JavaScriptFunctionNodeConfigSchema = z.object({
-  class: z.literal(NodeClass.Process),
+  kind: z.literal(NodeKind.Process),
   type: z.literal(NodeType.JavaScriptFunctionNode),
   nodeId: z.string(),
   javaScriptCode: z.string(),
@@ -43,7 +43,7 @@ export const JAVASCRIPT_NODE_DEFINITION: NodeDefinition<
     return {
       nodeConfigs: [
         {
-          class: NodeClass.Process,
+          kind: NodeKind.Process,
           nodeId: nodeId,
           type: NodeType.JavaScriptFunctionNode,
           javaScriptCode: 'return `Hello, ${userName}!`',

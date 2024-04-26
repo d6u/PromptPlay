@@ -9,13 +9,13 @@ import {
   type OutgoingCondition,
 } from '../../base-types';
 import {
-  NodeClass,
   NodeDefinition,
+  NodeKind,
   NodeType,
 } from '../../node-definition-base-types';
 
 export const ConcatNodeConfigSchema = z.object({
-  class: z.literal(NodeClass.Process),
+  kind: z.literal(NodeKind.Process),
   type: z.literal(NodeType.Concat),
   nodeId: z.string(),
 });
@@ -44,7 +44,7 @@ export const CONCAT_NODE_DEFINITION: NodeDefinition<
     return {
       nodeConfigs: [
         {
-          class: NodeClass.Process,
+          kind: NodeKind.Process,
           type: NodeType.Concat,
           nodeId: nodeId,
         } as ConcatNodeInstanceLevelConfig,

@@ -7,14 +7,14 @@ import * as OpenAI from 'integrations/openai';
 
 import { ConnectorType, VariableValueType } from '../base-types';
 import {
-  NodeClass,
   NodeDefinition,
+  NodeKind,
   NodeType,
 } from '../node-definition-base-types';
 import { FieldType } from '../node-definition-base-types/field-definition-interfaces';
 
 export const ChatgptMessageNodeConfigSchema = z.object({
-  class: z.literal(NodeClass.Process),
+  kind: z.literal(NodeKind.Process),
   type: z.literal(NodeType.ChatGPTMessageNode),
   nodeId: z.string(),
   // TODO: Use enum to validate
@@ -92,12 +92,12 @@ export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition<
     return {
       nodeConfigs: [
         {
-          class: NodeClass.Process,
+          kind: NodeKind.Process,
           nodeId: nodeId,
           type: NodeType.ChatGPTMessageNode,
           role: OpenAI.ChatGPTMessageRole.user,
           content: 'Write a poem about {{topic}} in fewer than 20 words.',
-        },
+        } as ChatGPTMessageNodeInstanceLevelConfig,
       ],
       connectors: [
         {

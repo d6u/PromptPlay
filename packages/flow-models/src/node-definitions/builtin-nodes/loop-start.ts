@@ -2,13 +2,13 @@ import z from 'zod';
 
 import { ConnectorType } from '../../base-types';
 import {
-  NodeClass,
   NodeDefinition,
+  NodeKind,
   NodeType,
 } from '../../node-definition-base-types';
 
 export const LoopStartNodeConfigSchema = z.object({
-  class: z.literal(NodeClass.SubroutineStart),
+  kind: z.literal(NodeKind.SubroutineStart),
   type: z.literal(NodeType.LoopStart),
   nodeId: z.string(),
   nodeName: z.string(),
@@ -35,7 +35,7 @@ export const LOOP_START_NODE_DEFINITION: NodeDefinition<
     return {
       nodeConfigs: [
         {
-          class: NodeClass.SubroutineStart,
+          kind: NodeKind.SubroutineStart,
           type: NodeType.LoopStart,
           nodeId: loopStartNodeId,
           nodeName: 'loop start 1',

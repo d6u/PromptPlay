@@ -44,13 +44,13 @@ test('handleReactFlowNodesChange should remove node', () => {
       edges: [],
       nodeConfigs: {
         xAw4x: {
-          class: 'Start',
+          kind: 'Start',
           nodeId: 'xAw4x',
           type: 'InputNode',
           nodeName: 'input1',
         },
         Is8Op: {
-          class: 'Finish',
+          kind: 'Finish',
           type: 'OutputNode',
           nodeId: 'Is8Op',
         },
@@ -116,9 +116,9 @@ test('handleReactFlowNodesChange should remove node', () => {
       edges: [],
       nodeConfigs: {
         Is8Op: {
-          class: 'Finish',
-          nodeId: 'Is8Op',
+          kind: 'Finish',
           type: 'OutputNode',
+          nodeId: 'Is8Op',
         },
       },
       connectors: {
@@ -190,15 +190,15 @@ test('handleReactFlowNodesChange should remove connector and edge connected', ()
       ],
       nodeConfigs: {
         HIbCf: {
-          nodeId: 'HIbCf',
+          kind: 'Start',
           type: 'InputNode',
-          class: 'Start',
+          nodeId: 'HIbCf',
           nodeName: 'input1',
         },
         sn268: {
-          nodeId: 'sn268',
+          kind: 'Finish',
           type: 'OutputNode',
-          class: 'Finish',
+          nodeId: 'sn268',
         },
       },
       connectors: {
@@ -262,9 +262,9 @@ test('handleReactFlowNodesChange should remove connector and edge connected', ()
       edges: [],
       nodeConfigs: {
         sn268: {
-          nodeId: 'sn268',
+          kind: 'Finish',
           type: 'OutputNode',
-          class: 'Finish',
+          nodeId: 'sn268',
         },
       },
       connectors: {
@@ -336,13 +336,13 @@ test('handleReactFlowNodesChange should remove multiple nodes', () => {
       edges: [],
       nodeConfigs: {
         ZMITb: {
-          class: 'Start',
+          kind: 'Start',
           nodeId: 'ZMITb',
           type: 'InputNode',
           nodeName: 'input1',
         },
         Is8Op: {
-          class: 'Finish',
+          kind: 'Finish',
           type: 'OutputNode',
           nodeId: 'Is8Op',
         },

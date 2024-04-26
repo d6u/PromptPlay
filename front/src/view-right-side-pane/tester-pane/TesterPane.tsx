@@ -3,7 +3,7 @@ import { Option, Select } from '@mui/joy';
 import { useMemo, type ReactNode } from 'react';
 import invariant from 'tiny-invariant';
 
-import { NodeClass, NodeType } from 'flow-models';
+import { NodeKind, NodeType } from 'flow-models';
 
 import { useFlowStore } from 'state-flow/flow-store';
 
@@ -22,7 +22,7 @@ function TesterPane() {
 
   const startNodeConfigs = useMemo(() => {
     return Object.values(nodeConfigs).filter((nodeConfig) => {
-      return nodeConfig.class === NodeClass.Start;
+      return nodeConfig.kind === NodeKind.Start;
     });
   }, [nodeConfigs]);
 
@@ -34,7 +34,7 @@ function TesterPane() {
     if (nodeConfig == null) {
       return null;
     }
-    invariant(nodeConfig.class === NodeClass.Start, 'Node class is Start');
+    invariant(nodeConfig.kind === NodeKind.Start, 'Node class is Start');
     return nodeConfig;
   }, [nodeConfigs, canvasTesterStartNodeId]);
 
@@ -60,7 +60,7 @@ function TesterPane() {
         >
           {startNodeConfigs.map((nodeConfig) => {
             invariant(
-              nodeConfig.class === NodeClass.Start,
+              nodeConfig.kind === NodeKind.Start,
               'Node class is Start',
             );
 

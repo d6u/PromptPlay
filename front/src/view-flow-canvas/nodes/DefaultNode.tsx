@@ -8,9 +8,9 @@ import {
   IncomingCondition,
   InputNodeInstanceLevelConfig,
   JavaScriptFunctionNodeInstanceLevelConfig,
-  NodeClass,
   NodeConfig,
   NodeInputVariable,
+  NodeKind,
   NodeOutputVariable,
   OutputNodeInstanceLevelConfig,
   getNodeDefinitionForNodeTypeName,
@@ -91,7 +91,7 @@ function DefaultNode(props: Props) {
       <NodeRegularOutgoingConditionHandle nodeId={props.nodeId} />
       <NodeBox selected={props.selected} nodeState={nodeState}>
         <NodeBoxHeaderSection
-          nodeClass={NodeClass.Process}
+          nodeKind={NodeKind.Process}
           title={nodeDefinition.label}
           showAddVariableButton={!!nodeDefinition.canUserAddIncomingVariables}
           nodeId={props.nodeId}

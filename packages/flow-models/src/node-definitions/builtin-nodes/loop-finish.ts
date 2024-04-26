@@ -2,13 +2,13 @@ import z from 'zod';
 
 import { ConnectorType } from '../../base-types';
 import {
-  NodeClass,
   NodeDefinition,
+  NodeKind,
   NodeType,
 } from '../../node-definition-base-types';
 
 export const LoopFinishNodeConfigSchema = z.object({
-  class: z.literal(NodeClass.Finish),
+  kind: z.literal(NodeKind.Finish),
   type: z.literal(NodeType.LoopFinish),
   nodeId: z.string(),
 });
@@ -34,7 +34,7 @@ export const LOOP_FINISH_NODE_DEFINITION: NodeDefinition<
     return {
       nodeConfigs: [
         {
-          class: NodeClass.Finish,
+          kind: NodeKind.Finish,
           type: NodeType.LoopFinish,
           nodeId: loopFinishNodeId,
         },

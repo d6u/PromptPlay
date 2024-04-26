@@ -6,15 +6,15 @@ import * as HuggingFace from 'integrations/hugging-face';
 import { ConnectorType, VariableValueType } from '../base-types';
 import {
   FieldType,
-  NodeClass,
   NodeDefinition,
+  NodeKind,
   NodeType,
 } from '../node-definition-base-types';
 
 // Reference: https://huggingface.co/docs/api-inference/index
 
 export const HuggingFaceInferenceNodeConfigSchema = z.object({
-  class: z.literal(NodeClass.Process),
+  kind: z.literal(NodeKind.Process),
   type: z.literal(NodeType.HuggingFaceInference),
   nodeId: z.string(),
   model: z.string().catch(() => {
@@ -87,11 +87,11 @@ export const HUGGINGFACE_INFERENCE_NODE_DEFINITION: NodeDefinition<
     return {
       nodeConfigs: [
         {
-          class: NodeClass.Process,
+          kind: NodeKind.Process,
           nodeId: nodeId,
           type: NodeType.HuggingFaceInference,
           model: 'gpt2',
-        },
+        } as HuggingFaceInferenceNodeInstanceLevelConfig,
       ],
       connectors: [
         {

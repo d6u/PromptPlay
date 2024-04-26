@@ -13,7 +13,7 @@ import {
 } from 'rxjs';
 import invariant from 'tiny-invariant';
 
-import { NodeClass, NodeType, type RunNodeResult } from 'flow-models';
+import { NodeKind, NodeType, type RunNodeResult } from 'flow-models';
 
 import RunFlowContext from './RunFlowContext';
 import type RunGraphContext from './RunGraphContext';
@@ -76,7 +76,7 @@ export function runNode(context: RunNodeContext): Observable<never> {
   });
 
   return defer(() => {
-    if (context.nodeConfig.class === NodeClass.Subroutine) {
+    if (context.nodeConfig.kind === NodeKind.Subroutine) {
       return runSubroutine(context);
     } else {
       return context.createRunNodeObservable();
@@ -127,7 +127,7 @@ export function runNode(context: RunNodeContext): Observable<never> {
 
 function runSubroutine(context: RunNodeContext): Observable<RunNodeResult> {
   const nodeConfig = context.nodeConfig;
-  invariant(nodeConfig.type === NodeType.Loop);
+  invariant(nodeConfig.type === NodeType.BareboneLoop);
 
   const loopStartNodeId = nodeConfig.loopStartNodeId;
   invariant(loopStartNodeId != null, 'loopStartNodeId is required');

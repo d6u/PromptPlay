@@ -13,10 +13,10 @@ import {
   NodeAccountLevelTextFieldDefinition,
   NodeInstanceLevelFieldDefinitionUnion,
 } from './field-definition-interfaces';
-import { NodeTypeEnum, type NodeClassEnum } from './node-class-and-type';
+import { NodeTypeEnum, type NodeKindEnum } from './node-class-and-type';
 
 export type BaseNodeInstanceLevelConfig = {
-  class: NodeClassEnum;
+  kind: NodeKindEnum;
   type: NodeTypeEnum;
   nodeId: string;
   nodeName?: string;
