@@ -186,7 +186,11 @@ function NodeConditionsEditableList(props: Props) {
 
             return (
               <NodeConditionEditableItem
-                key={field.id}
+                // Must use the variable ID instead of field ID,
+                // because a new field ID is generated
+                // when `props.variableConfigs` updates.
+                // This is to prevent loss of focus when updating variable.
+                key={condition.id}
                 isListSortable={!!props.isListSortable}
                 showHandle={!!props.showHandles}
                 nodeId={props.nodeId}
