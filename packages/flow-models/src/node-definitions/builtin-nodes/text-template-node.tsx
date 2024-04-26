@@ -28,7 +28,7 @@ export const TEXT_TEMPLATE_NODE_DEFINITION: NodeDefinition<
   TextTemplateNodeAllLevelConfig
 > = {
   type: NodeType.TextTemplate,
-  label: 'Text',
+  label: 'Text Template',
 
   instanceLevelConfigFieldDefinitions: {
     content: {
