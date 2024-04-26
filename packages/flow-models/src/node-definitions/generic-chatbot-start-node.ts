@@ -2,13 +2,14 @@ import z from 'zod';
 
 import { ConnectorType, VariableValueType } from '../base-types';
 import {
-  NodeClass,
   NodeDefinition,
+  NodeKind,
   NodeType,
 } from '../node-definition-base-types';
+import type { GenericChatbotFinishNodeInstanceLevelConfig } from './generic-chatbot-finish-node';
 
 export const GenericChatbotStartNodeConfigSchema = z.object({
-  class: z.literal(NodeClass.Start),
+  kind: z.literal(NodeKind.Start),
   type: z.literal(NodeType.GenericChatbotStart),
   nodeId: z.string(),
   nodeName: z.string(),
@@ -42,17 +43,16 @@ export const GENERIC_CHATBOT_START_NODE_DEFINITION: NodeDefinition<
     return {
       nodeConfigs: [
         {
-          class: NodeClass.Start,
+          kind: NodeKind.Start,
           nodeId: startNodeNodeId,
           type: NodeType.GenericChatbotStart,
           nodeName: 'chatbot',
-        },
-        // TODO: Centralize default config from different node
+        } as GenericChatbotStartNodeInstanceLevelConfig,
         {
-          class: NodeClass.Finish,
+          kind: NodeKind.Finish,
           nodeId: finishNodeNodeId,
           type: NodeType.GenericChatbotFinish,
-        },
+        } as GenericChatbotFinishNodeInstanceLevelConfig,
       ],
       connectors: [
         // For start node

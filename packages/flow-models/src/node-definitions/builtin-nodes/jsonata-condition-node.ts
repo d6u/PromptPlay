@@ -9,13 +9,13 @@ import {
 } from '../../base-types';
 import {
   FieldType,
-  NodeClass,
   NodeDefinition,
+  NodeKind,
   NodeType,
 } from '../../node-definition-base-types';
 
 export const JSONataConditionNodeConfigSchema = z.object({
-  class: z.literal(NodeClass.Condition),
+  kind: z.literal(NodeKind.Condition),
   type: z.literal(NodeType.JSONataCondition),
   nodeId: z.string(),
   stopAtTheFirstMatch: z.boolean().default(true),
@@ -45,7 +45,7 @@ export const JSONATA_CONDITION_NODE_DEFINITION: NodeDefinition<
     return {
       nodeConfigs: [
         {
-          class: NodeClass.Condition,
+          kind: NodeKind.Condition,
           type: NodeType.JSONataCondition,
           nodeId: nodeId,
           stopAtTheFirstMatch: true,

@@ -20,7 +20,7 @@ import {
   type NodeOutputVariable,
   type VariableValueRecords,
 } from './base-types';
-import { NodeClass, NodeType } from './node-definition-base-types';
+import { NodeKind, NodeType } from './node-definition-base-types';
 import { NodeConfigRecordsSchema, type NodeConfig } from './node-definitions';
 
 const ORPHAN_NODE_CONFIG_ERR = 'nodeConfig must have a corresponding node.';
@@ -161,17 +161,17 @@ export function migrateV3ToV4(
     // Add and update missing node fields
     let inputNodeCount = 1;
     if (nodeConfig.type === NodeType.InputNode) {
-      nodeConfig.class = NodeClass.Start;
+      nodeConfig.kind = NodeKind.Start;
       nodeConfig.nodeName = `input ${inputNodeCount}`;
       inputNodeCount += 1;
     } else if (nodeConfig.type === NodeType.OutputNode) {
-      nodeConfig.class = NodeClass.Finish;
+      nodeConfig.kind = NodeKind.Finish;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } else if ((nodeConfig as any).type === 'ConditionNode') {
       nodeConfig.type = NodeType.JSONataCondition;
-      nodeConfig.class = NodeClass.Condition;
+      nodeConfig.kind = NodeKind.Condition;
     } else {
-      nodeConfig.class = NodeClass.Process;
+      nodeConfig.kind = NodeKind.Process;
     }
 
     // Rename condition type name

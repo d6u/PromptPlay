@@ -4,13 +4,13 @@ import { z } from 'zod';
 import { ConnectorType, VariableValueType } from '../../base-types';
 import {
   FieldType,
-  NodeClass,
   NodeDefinition,
+  NodeKind,
   NodeType,
 } from '../../node-definition-base-types';
 
 export const JSONataDataBuilderNodeConfigSchema = z.object({
-  class: z.literal(NodeClass.Process),
+  kind: z.literal(NodeKind.Process),
   type: z.literal(NodeType.JSONataDataBuilder),
   nodeId: z.string(),
   expressionString: z.string(),
@@ -56,7 +56,7 @@ export const JSONATA_DATA_BUILDER_NODE_DEFINITION: NodeDefinition<
     return {
       nodeConfigs: [
         {
-          class: NodeClass.Process,
+          kind: NodeKind.Process,
           type: NodeType.JSONataDataBuilder,
           nodeId: nodeId,
           expressionString: '{\n  "name": $.user_name\n}',

@@ -1,8 +1,9 @@
 import { Option } from '@mobily/ts-belt';
 import { useContext, useMemo } from 'react';
 import { type NodeProps } from 'reactflow';
+import invariant from 'tiny-invariant';
 
-import { ConnectorType, NodeClass, NodeConfig, NodeType } from 'flow-models';
+import { ConnectorType, NodeConfig, NodeKind, NodeType } from 'flow-models';
 
 import RouteFlowContext from 'state-flow/context/FlowRouteContext';
 import { useFlowStore } from 'state-flow/flow-store';
@@ -11,7 +12,6 @@ import {
   selectVariables,
 } from 'state-flow/util/state-utils';
 
-import invariant from 'tiny-invariant';
 import DefaultNode from './nodes/DefaultNode';
 import FinishClassNode from './nodes/FinishClassNode';
 import JSONataConditionNode from './nodes/JSONataConditionNode';
@@ -74,8 +74,8 @@ function FlowCanvasNode(props: NodeProps) {
   // NOTE: Start or SubroutineStart
 
   if (
-    nodeConfig.class === NodeClass.Start ||
-    nodeConfig.class === NodeClass.SubroutineStart
+    nodeConfig.kind === NodeKind.Start ||
+    nodeConfig.kind === NodeKind.SubroutineStart
   ) {
     return (
       <StartClassNode
@@ -90,7 +90,7 @@ function FlowCanvasNode(props: NodeProps) {
 
   // NOTE: Finish
 
-  if (nodeConfig.class === NodeClass.Finish) {
+  if (nodeConfig.kind === NodeKind.Finish) {
     if (nodeConfig.type === NodeType.LoopFinish) {
       return (
         <LoopFinishNode
@@ -118,7 +118,7 @@ function FlowCanvasNode(props: NodeProps) {
 
   // NOTE: Condition
 
-  if (nodeConfig.class === NodeClass.Condition) {
+  if (nodeConfig.kind === NodeKind.Condition) {
     if (nodeConfig.type === NodeType.JSONataCondition) {
       invariant(conditionTarget != null, 'conditionTarget is not null');
       return (

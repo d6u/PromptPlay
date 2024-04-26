@@ -49,9 +49,9 @@ test('handleAddNode should add node and nodeConfig', () => {
 
   expect(Object.values(nextState.flowContent.nodeConfigs)).toEqual([
     {
-      nodeId: expect.any(String),
+      kind: 'Start',
       type: 'InputNode',
-      class: 'Start',
+      nodeId: expect.any(String),
       nodeName: 'input',
     },
   ]);

@@ -5,7 +5,7 @@ import invariant from 'tiny-invariant';
 
 import {
   ConnectorType,
-  NodeClass,
+  NodeKind,
   type GenericChatbotStartNodeAllLevelConfig,
   type NodeOutputVariable,
 } from 'flow-models';
@@ -75,7 +75,7 @@ function GenericChatbotTest(props: Props) {
 
           return (
             variable != null &&
-            nodeConfigs[variable.nodeId].class === NodeClass.Finish &&
+            nodeConfigs[variable.nodeId].kind === NodeKind.Finish &&
             variable.type === ConnectorType.NodeInput &&
             variable.name === 'messages'
           );

@@ -20,13 +20,13 @@ export function createFixtureForNodeClassProcess() {
 
   const nodeConfigs: Record<string, NodeAllLevelConfigUnion> = {
     PM5i4: {
-      class: 'Start',
+      kind: 'Start',
       type: 'InputNode',
       nodeId: 'PM5i4',
       nodeName: 'input1',
     },
     hstPg: {
-      class: 'Process',
+      kind: 'Process',
       type: 'TextTemplate',
       nodeId: 'hstPg',
       content: '',
@@ -148,7 +148,7 @@ export function createFixtureForNodeClassFinish() {
 
   const nodeConfigs: Record<string, NodeAllLevelConfigUnion> = {
     '23u6c': {
-      class: 'Finish',
+      kind: 'Finish',
       type: 'OutputNode',
       nodeId: '23u6c',
     },
@@ -223,19 +223,19 @@ export function createFixtureForNormalWithStartProcessFinishNodes() {
 
   const nodeConfigs: Record<string, NodeAllLevelConfigUnion> = {
     Gav0R: {
-      class: 'Start',
+      kind: 'Start',
       type: 'InputNode',
       nodeId: 'Gav0R',
       nodeName: 'input',
     },
     K5n6N: {
-      class: 'Process',
+      kind: 'Process',
       type: 'TextTemplate',
       nodeId: 'K5n6N',
       content: '',
     },
     KbeEk: {
-      class: 'Finish',
+      kind: 'Finish',
       type: 'OutputNode',
       nodeId: 'KbeEk',
     },

@@ -19,8 +19,8 @@ import {
 } from '../base-types';
 import {
   FieldType,
-  NodeClass,
   NodeDefinition,
+  NodeKind,
   NodeType,
   type RunNodeResult,
 } from '../node-definition-base-types';
@@ -30,7 +30,7 @@ import {
 } from './chatgpt-chat-completion-node';
 
 export const ChatgptSimpleNodeConfigSchema = z.object({
-  class: z.literal(NodeClass.Process),
+  kind: z.literal(NodeKind.Process),
   type: z.literal(NodeType.ChatGPTSimple),
   nodeId: z.string(),
   role: z.enum([
@@ -145,7 +145,7 @@ export const CHATGPT_SIMPLE_NODE_DEFINITION: NodeDefinition<
     return {
       nodeConfigs: [
         {
-          class: NodeClass.Process,
+          kind: NodeKind.Process,
           type: NodeType.ChatGPTSimple,
           nodeId: chatCompletionNodeId,
           role: ChatGPTMessageRole.user,

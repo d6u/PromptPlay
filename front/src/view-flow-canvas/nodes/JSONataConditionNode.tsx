@@ -7,8 +7,8 @@ import { Position, useUpdateNodeInternals } from 'reactflow';
 import {
   ConnectorType,
   IncomingCondition,
-  NodeClass,
   NodeInputVariable,
+  NodeKind,
   getNodeDefinitionForNodeTypeName,
   type JSONataConditionNodeAllLevelConfig,
 } from 'flow-models';
@@ -80,7 +80,7 @@ function JSONataConditionNode(props: Props) {
       />
       <NodeBox selected={props.selected} nodeState={nodeState}>
         <NodeBoxHeaderSection
-          nodeClass={NodeClass.Process}
+          nodeKind={NodeKind.Process}
           isNodeReadOnly={props.isNodeReadOnly}
           title={nodeDefinition.label}
           nodeId={props.nodeId}

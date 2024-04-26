@@ -71,41 +71,41 @@ export function createFixtureWithMultipleIterationsLoop() {
 
   const nodeConfigs: Record<string, NodeAllLevelConfigUnion> = {
     'OLdFn': {
-      class: 'Start',
+      kind: 'Start',
       type: 'InputNode',
       nodeId: 'OLdFn',
       nodeName: 'input',
     },
     '771RQ': {
-      class: 'Finish',
+      kind: 'Finish',
       type: 'OutputNode',
       nodeId: '771RQ',
     },
     '97TDT': {
-      class: 'SubroutineStart',
+      kind: 'SubroutineStart',
       type: 'LoopStart',
       nodeId: '97TDT',
       nodeName: 'loop start 1',
     },
     'G7bsz': {
-      class: 'Finish',
+      kind: 'Finish',
       type: 'LoopFinish',
       nodeId: 'G7bsz',
     },
     'HLDHJ': {
-      class: 'Subroutine',
+      kind: 'Subroutine',
       type: 'Loop',
       nodeId: 'HLDHJ',
       loopStartNodeId: '97TDT',
     },
     'PR4rf': {
-      class: 'Condition',
-      type: 'ConditionNode',
+      kind: 'Condition',
+      type: 'JSONataCondition',
       nodeId: 'PR4rf',
       stopAtTheFirstMatch: true,
     },
     'vAG7s': {
-      class: 'Process',
+      kind: 'Process',
       type: 'JavaScriptFunctionNode',
       nodeId: 'vAG7s',
       javaScriptCode: 'i = i ?? 0\ni++\nreturn i',

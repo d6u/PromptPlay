@@ -2,13 +2,13 @@ import { z } from 'zod';
 
 import { ConnectorType, VariableValueType } from '../base-types';
 import {
-  NodeClass,
   NodeDefinition,
+  NodeKind,
   NodeType,
 } from '../node-definition-base-types';
 
 export const GenericChatbotFinishNodeConfigSchema = z.object({
-  class: z.literal(NodeClass.Finish),
+  kind: z.literal(NodeKind.Finish),
   type: z.literal(NodeType.GenericChatbotFinish),
   nodeId: z.string(),
 });
@@ -42,10 +42,10 @@ export const GENERIC_CHATBOT_FINISH_NODE_DEFINITION: NodeDefinition<
     return {
       nodeConfigs: [
         {
-          class: NodeClass.Finish,
+          kind: NodeKind.Finish,
           nodeId: nodeId,
           type: NodeType.GenericChatbotFinish,
-        },
+        } as GenericChatbotFinishNodeInstanceLevelConfig,
       ],
       connectors: [
         {

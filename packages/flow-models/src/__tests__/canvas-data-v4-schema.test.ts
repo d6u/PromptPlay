@@ -41,9 +41,9 @@ test('CanvasDataV4Schema should detect nodeConfigs without nodes', () => {
   const result = CanvasDataV4Schema.safeParse({
     nodeConfigs: {
       GjREx: {
+        kind: 'Start',
         type: 'InputNode',
         nodeId: 'GjREx',
-        class: 'Start',
         nodeName: 'input1',
       },
     },
@@ -113,9 +113,9 @@ test('safeParseAndApplyFix should detect and fix nodeConfigs without nodes', () 
   const result = safeParseAndApplyFix({
     nodeConfigs: {
       GjREx: {
+        kind: 'Start',
         type: 'InputNode',
         nodeId: 'GjREx',
-        class: 'Start',
         nodeName: 'input1',
       },
     },

@@ -1,7 +1,7 @@
 import { useContext, useMemo } from 'react';
 import invariant from 'tiny-invariant';
 
-import { ConnectorType, NodeClass, NodeType } from 'flow-models';
+import { ConnectorType, NodeKind, NodeType } from 'flow-models';
 
 import RouteFlowContext from 'state-flow/context/FlowRouteContext';
 import { useFlowStore } from 'state-flow/flow-store';
@@ -44,8 +44,8 @@ function NodeConfigPane() {
   // NOTE: Start or SubroutineStart
 
   if (
-    nodeConfig.class === NodeClass.Start ||
-    nodeConfig.class === NodeClass.SubroutineStart
+    nodeConfig.kind === NodeKind.Start ||
+    nodeConfig.kind === NodeKind.SubroutineStart
   ) {
     return (
       <StartClassNodeConfigPane
@@ -58,7 +58,7 @@ function NodeConfigPane() {
 
   // NOTE: Finish
 
-  if (nodeConfig.class === NodeClass.Finish) {
+  if (nodeConfig.kind === NodeKind.Finish) {
     return (
       <FinishClassNodeConfigPane
         nodeId={nodeId}

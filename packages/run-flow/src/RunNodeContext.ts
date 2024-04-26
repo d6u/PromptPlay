@@ -2,7 +2,7 @@ import { produce } from 'immer';
 import { type Observable, type Observer } from 'rxjs';
 
 import {
-  NodeClass,
+  NodeKind,
   NodeType,
   type ConditionResult,
   type ConditionResultRecords,
@@ -204,8 +204,8 @@ class RunNodeContext {
     const boxedValues = this.runGraphContext.runFlowContext.allVariableValues;
 
     if (
-      this.nodeConfig.class === NodeClass.Start ||
-      this.nodeConfig.class === NodeClass.SubroutineStart
+      this.nodeConfig.kind === NodeKind.Start ||
+      this.nodeConfig.kind === NodeKind.SubroutineStart
     ) {
       return this.outputVariables.map((v) => {
         // NOTE: The value might not be provided, always fallback to null.
@@ -271,7 +271,7 @@ class RunNodeContext {
 
   // NOTE: Called during runNode in progress
   updateVariableValues(variableValues: unknown[]): void {
-    if (this.nodeConfig.class === NodeClass.Finish) {
+    if (this.nodeConfig.kind === NodeKind.Finish) {
       for (const [i, v] of this.inputVariables.entries()) {
         this.outputVariableValues[v.id] = { value: variableValues[i] };
       }
@@ -303,7 +303,7 @@ class RunNodeContext {
   updateOutgoingConditionResultsIfNotConditionNode() {
     // NOTE: For none Condition node, we need to generate a condition result.
     // TODO: Generalize this
-    if (this.nodeConfig.class !== NodeClass.Condition) {
+    if (this.nodeConfig.kind !== NodeKind.Condition) {
       for (const c of this.outgoingConditions) {
         this.outgoingConditionResults[c.id] = {
           isConditionMatched: true,
@@ -315,7 +315,7 @@ class RunNodeContext {
   // NOTE: Run after runNode finished
   propagateConnectorResults() {
     // NOTE: Variable values
-    if (this.nodeConfig.class === NodeClass.Finish) {
+    if (this.nodeConfig.kind === NodeKind.Finish) {
       this.inputVariables.forEach(({ id }) => {
         this.runGraphContext.runFlowContext.allVariableValues[id] =
           this.outputVariableValues[id];
@@ -441,7 +441,7 @@ class RunNodeContext {
   handleFinishNode() {
     // NOTE: When current node is a Finish node and not a LoopFinish node,
     // record connector IDs
-    if (this.nodeConfig.class === NodeClass.Finish) {
+    if (this.nodeConfig.kind === NodeKind.Finish) {
       this.runGraphContext.succeededFinishNodeIds.push(this.nodeId);
       this.runGraphContext.finishNodesVariableIds.push(
         ...this.inputVariables.map((v) => v.id),

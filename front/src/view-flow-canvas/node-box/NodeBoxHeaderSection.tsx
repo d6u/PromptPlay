@@ -1,7 +1,7 @@
 import styled from '@emotion/styled';
 import { useReactFlow, useStoreApi } from 'reactflow';
 
-import { NodeClass, type NodeClassEnum } from 'flow-models';
+import { NodeKind, type NodeKindEnum } from 'flow-models';
 
 import NodeAddConnectorButton from 'components/NodeAddConnectorButton';
 import RemoveButton from 'generic-components/RemoveButton';
@@ -17,7 +17,7 @@ type Props = {
   title: string;
   subTitle?: string;
   // Node Level
-  nodeClass: NodeClassEnum;
+  nodeKind: NodeKindEnum;
   nodeId: string;
   isNodeReadOnly: boolean;
 } & (
@@ -57,7 +57,7 @@ function NodeBoxHeaderSection(props: Props) {
         )}
       </TitleSection>
       <ActionsSection>
-        {props.nodeClass === NodeClass.Start && (
+        {props.nodeKind === NodeKind.Start && (
           <NodeBoxIconRename
             onClick={() => {
               setCanvasRenameNodeId(props.nodeId);

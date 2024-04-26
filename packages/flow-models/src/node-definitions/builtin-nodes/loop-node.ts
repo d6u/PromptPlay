@@ -3,15 +3,15 @@ import z from 'zod';
 import { ConnectorType } from '../../base-types';
 import {
   FieldType,
-  NodeClass,
   NodeDefinition,
+  NodeKind,
   NodeType,
 } from '../../node-definition-base-types';
 import type { LoopFinishNodeInstanceLevelConfig } from './loop-finish';
 import type { LoopStartNodeInstanceLevelConfig } from './loop-start';
 
 export const LoopNodeConfigSchema = z.object({
-  class: z.literal(NodeClass.Subroutine),
+  kind: z.literal(NodeKind.Subroutine),
   type: z.literal(NodeType.Loop),
   nodeId: z.string(),
   loopStartNodeId: z.string().nullable(),
@@ -56,19 +56,19 @@ export const LOOP_NODE_DEFINITION: NodeDefinition<
     return {
       nodeConfigs: [
         {
-          class: NodeClass.Subroutine,
+          kind: NodeKind.Subroutine,
           type: NodeType.Loop,
           nodeId: loopNodeId,
           loopStartNodeId: loopStartNodeId,
         } as LoopNodeInstanceLevelConfig,
         {
-          class: NodeClass.SubroutineStart,
+          kind: NodeKind.SubroutineStart,
           type: NodeType.LoopStart,
           nodeId: loopStartNodeId,
           nodeName: 'loop start 1',
         } as LoopStartNodeInstanceLevelConfig,
         {
-          class: NodeClass.Finish,
+          kind: NodeKind.Finish,
           type: NodeType.LoopFinish,
           nodeId: loopFinishNodeId,
         } as LoopFinishNodeInstanceLevelConfig,

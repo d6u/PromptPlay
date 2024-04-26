@@ -14,11 +14,12 @@ import {
 import { ConnectorType, VariableValueType } from '../base-types';
 import {
   FieldType,
-  NodeClass,
   NodeDefinition,
+  NodeKind,
   NodeType,
   type RunNodeResult,
 } from '../node-definition-base-types';
+import type { ChatGPTMessageNodeInstanceLevelConfig } from './chatgpt-message-node';
 
 export enum OpenAIChatModel {
   // GPT-4
@@ -47,7 +48,7 @@ export enum ChatGPTChatCompletionResponseFormatType {
 }
 
 export const ChatgptChatCompletionNodeConfigSchema = z.object({
-  class: z.literal(NodeClass.Process),
+  kind: z.literal(NodeKind.Process),
   type: z.literal(NodeType.ChatGPTChatCompletionNode),
   nodeId: z.string(),
   model: z.nativeEnum(OpenAIChatModel),
@@ -159,7 +160,7 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
     return {
       nodeConfigs: [
         {
-          class: NodeClass.Process,
+          kind: NodeKind.Process,
           nodeId: chatCompletionNodeId,
           type: NodeType.ChatGPTChatCompletionNode,
           model: OpenAIChatModel.GPT_3_5_TURBO,
@@ -167,15 +168,15 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
           stop: [],
           seed: null,
           responseFormatType: null,
-        },
+        } as ChatGPTChatCompletionNodeInstanceLevelConfig,
         // TODO: Centralize default config from different node
         {
-          class: NodeClass.Process,
+          kind: NodeKind.Process,
           nodeId: messageNodeId,
           type: NodeType.ChatGPTMessageNode,
           role: OpenAI.ChatGPTMessageRole.user,
           content: 'Write a poem in fewer than 20 words.',
-        },
+        } as ChatGPTMessageNodeInstanceLevelConfig,
       ],
       connectors: [
         {

@@ -712,7 +712,7 @@ describe('RunNodeContext::getParamsForRunNodeFunction()', () => {
 
     expect(runNodeParams.nodeConfig).toEqual(
       expect.objectContaining({
-        class: 'Process',
+        kind: 'Process',
         type: 'TextTemplate',
         nodeId: currentNodeId,
       }),
