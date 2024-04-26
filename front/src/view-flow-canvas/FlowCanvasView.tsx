@@ -14,11 +14,10 @@ import { CustomEdge } from './CustomEdge';
 import FlowCanvasNode from './FlowCanvasNode';
 
 import 'reactflow/dist/style.css';
-
-const TYPE_NAME_FOR_CANVAS_NODE = 'CANVAS_NODE';
+import './customize-reactflow.css';
 
 const NODE_TYPES = {
-  [TYPE_NAME_FOR_CANVAS_NODE]: FlowCanvasNode,
+  default: FlowCanvasNode,
 };
 
 const EDGE_TYPE = {
@@ -51,10 +50,7 @@ function FlowCanvasView() {
       elementsSelectable={isCurrentUserOwner}
       nodeTypes={NODE_TYPES}
       edgeTypes={EDGE_TYPE}
-      nodes={nodes.map((node) => ({
-        ...node,
-        type: TYPE_NAME_FOR_CANVAS_NODE,
-      }))}
+      nodes={nodes}
       edges={edges}
       onInit={(reactflow) => {
         reactflow.fitView();

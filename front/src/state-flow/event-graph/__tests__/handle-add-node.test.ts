@@ -27,7 +27,6 @@ test('handleAddNode should add node and nodeConfig', () => {
       nodes: [
         {
           id: expect.any(String),
-          type: 'CANVAS_NODE',
           position: {
             x: 510,
             y: 200,
