@@ -127,7 +127,7 @@ export function runNode(context: RunNodeContext): Observable<never> {
 
 function runSubroutine(context: RunNodeContext): Observable<RunNodeResult> {
   const nodeConfig = context.nodeConfig;
-  invariant(nodeConfig.type === NodeType.Loop);
+  invariant(nodeConfig.type === NodeType.BareboneLoop);
 
   const loopStartNodeId = nodeConfig.loopStartNodeId;
   invariant(loopStartNodeId != null, 'loopStartNodeId is required');

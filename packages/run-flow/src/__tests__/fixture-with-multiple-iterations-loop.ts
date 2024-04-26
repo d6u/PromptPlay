@@ -94,7 +94,7 @@ export function createFixtureWithMultipleIterationsLoop() {
     },
     'HLDHJ': {
       kind: 'Subroutine',
-      type: 'Loop',
+      type: 'BareboneLoop',
       nodeId: 'HLDHJ',
       loopStartNodeId: '97TDT',
     },

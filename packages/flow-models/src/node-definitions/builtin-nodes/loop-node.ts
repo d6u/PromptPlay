@@ -12,7 +12,7 @@ import type { LoopStartNodeInstanceLevelConfig } from './loop-start';
 
 export const LoopNodeConfigSchema = z.object({
   kind: z.literal(NodeKind.Subroutine),
-  type: z.literal(NodeType.Loop),
+  type: z.literal(NodeType.BareboneLoop),
   nodeId: z.string(),
   loopStartNodeId: z.string().nullable(),
 });
@@ -25,8 +25,8 @@ export const LOOP_NODE_DEFINITION: NodeDefinition<
   LoopNodeInstanceLevelConfig,
   LoopNodeAllLevelConfig
 > = {
-  type: NodeType.Loop,
-  label: 'Loop',
+  type: NodeType.BareboneLoop,
+  label: 'Barebone Loop',
 
   instanceLevelConfigFieldDefinitions: {
     loopStartNodeId: {
@@ -57,7 +57,7 @@ export const LOOP_NODE_DEFINITION: NodeDefinition<
       nodeConfigs: [
         {
           kind: NodeKind.Subroutine,
-          type: NodeType.Loop,
+          type: NodeType.BareboneLoop,
           nodeId: loopNodeId,
           loopStartNodeId: loopStartNodeId,
         } as LoopNodeInstanceLevelConfig,

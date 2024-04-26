@@ -64,7 +64,7 @@ export function createFixtureWithSingleIterationLoop() {
     },
     '5zGHI': {
       kind: 'Subroutine',
-      type: 'Loop',
+      type: 'BareboneLoop',
       nodeId: '5zGHI',
       loopStartNodeId: '1jqsX',
     },

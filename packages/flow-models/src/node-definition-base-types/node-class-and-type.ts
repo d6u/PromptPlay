@@ -18,7 +18,7 @@ export const NodeType = {
   JavaScriptFunctionNode: 'JavaScriptFunctionNode',
   TextTemplate: 'TextTemplate',
   JSONataDataBuilder: 'JSONataDataBuilder',
-  Loop: 'Loop',
+  BareboneLoop: 'BareboneLoop',
   LoopStart: 'LoopStart',
   LoopFinish: 'LoopFinish',
   Concat: 'Concat',
