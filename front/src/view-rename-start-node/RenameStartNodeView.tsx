@@ -26,7 +26,11 @@ function RenameStartNodeView() {
       return null;
     }
     const nodeConfig = nodeConfigs[canvasRenameNodeId];
-    invariant(nodeConfig.kind === NodeKind.Start, 'Node kind should be Start');
+    invariant(
+      nodeConfig.kind === NodeKind.Start ||
+        nodeConfig.kind === NodeKind.SubroutineStart,
+      'Node kind should be Start',
+    );
     return nodeConfig;
   }, [canvasRenameNodeId, nodeConfigs]);
 

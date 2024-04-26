@@ -57,7 +57,8 @@ function NodeBoxHeaderSection(props: Props) {
         )}
       </TitleSection>
       <ActionsSection>
-        {props.nodeKind === NodeKind.Start && (
+        {(props.nodeKind === NodeKind.Start ||
+          props.nodeKind === NodeKind.SubroutineStart) && (
           <NodeBoxIconRename
             onClick={() => {
               setCanvasRenameNodeId(props.nodeId);
