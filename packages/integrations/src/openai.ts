@@ -1,8 +1,11 @@
 import {
   Observable,
   ReadableStreamLike,
+  buffer,
+  filter,
   map,
   mergeMap,
+  share,
   throwError,
   timeout,
 } from 'rxjs';
@@ -37,7 +40,7 @@ export function getStreamingCompletion({
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${apiKey}`,
+      'Authorization': `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
       model,
@@ -50,9 +53,11 @@ export function getStreamingCompletion({
     }),
   };
 
-  return fromFetch(OPENAI_API_URL, {
+  const dataObs = fromFetch(OPENAI_API_URL, {
     ...fetchOptions,
-    selector: (response) => {
+    selector(response) {
+      // TODO: Will HTTP error status be reflected here as reponse.ok?
+
       if (response.body == null) {
         return throwError(() => new Error('response body is null'));
       }
@@ -61,13 +66,26 @@ export function getStreamingCompletion({
         new TextDecoderStream(),
       ) as ReadableStreamLike<string>;
     },
-  }).pipe(
+  }).pipe(share());
+
+  const bufferSignal = dataObs.pipe(filter((chunk) => chunk.endsWith('\n')));
+
+  return dataObs.pipe(
+    // Buffer chunks until we get a new line, because when network is slow,
+    // we might get partial chunks
+    buffer(bufferSignal),
+    // Filter out empty chunks, which could happy when observable complete,
+    // but we have no more chunks.
+    filter((chunks) => chunks.length > 0),
+    map((chunks) => chunks.join('')),
     mergeMap((chunk) => parserStreamChunk(chunk)),
     map<string, ChatCompletionStreamResponse | ChatCompletionErrorResponse>(
       (content) => {
         try {
           return JSON.parse(content);
         } catch (error) {
+          // TODO: Report error to telemetry
+          console.error('Error parsing JSON', error);
           return {};
         }
       },
@@ -91,7 +109,7 @@ export function getNonStreamingCompletion({
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${apiKey}`,
+      'Authorization': `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
       model,
@@ -189,6 +207,7 @@ function parserStreamChunk(chunk: string): string[] {
   chunk = chunk.trim();
 
   if (!chunk.startsWith('data:')) {
+    // Should be an JSON with error property here
     return [chunk];
   }
 
