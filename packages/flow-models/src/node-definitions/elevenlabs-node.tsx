@@ -39,18 +39,19 @@ export const ELEVENLABS_NODE_DEFINITION: NodeDefinition<
   type: NodeType.ElevenLabs,
   label: 'Eleven Labs Text to Speech',
 
-  accountLevelConfigFieldDefinitions: {
-    elevenLabsApiKey: {
-      type: FieldType.Text,
-      label: 'API Key',
-      placeholder: 'Enter API key here',
-      helperMessage:
-        "This is stored in your browser's local storage. Never uploaded.",
-      schema: z.string().min(1, {
-        message: 'API Key is required',
-      }),
-    },
-  },
+  // accountLevelConfigFieldDefinitions: {
+  //   elevenLabsApiKey: {
+  //     type: FieldType.Text,
+  //     label: 'API Key',
+  //     placeholder: 'Enter API key here',
+  //     helperMessage:
+  //       "This is stored in your browser's local storage. Never uploaded.",
+  //     schema: z.string().min(1, {
+  //       message: 'API Key is required',
+  //     }),
+  //   },
+  // },
+
   configFields: [
     {
       type: FieldType.Text,

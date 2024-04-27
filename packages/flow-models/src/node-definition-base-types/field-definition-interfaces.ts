@@ -1,6 +1,7 @@
 import { ReactNode } from 'react';
 import { ZodSchema } from 'zod';
 
+import type { CANVAS_CONFIG_DEFINITIONS } from '../canvas-config-definitions';
 import type { BaseNodeInstanceLevelConfig } from './node-definition-interface';
 
 export enum FieldType {
@@ -12,6 +13,7 @@ export enum FieldType {
   Select = 'Select',
   Checkbox = 'Checkbox',
   SpecialRendering = 'SpecialRendering',
+  SharedCavnasConfig = 'SharedCavnasConfig',
 }
 
 // ANCHOR: Shared props
@@ -101,6 +103,11 @@ export type SpecialRenderingFieldDefinition = NodeConfigFieldDefCommon & {
   type: FieldType.SpecialRendering;
 };
 
+export type SharedCavnasConfig = NodeConfigFieldDefCommon & {
+  type: FieldType.SharedCavnasConfig;
+  canvasConfigKey: keyof typeof CANVAS_CONFIG_DEFINITIONS;
+};
+
 export type NodeInstanceLevelFieldDefinitionUnion =
   | TextFieldDefinition
   | StopSequenceFieldDefinition
@@ -109,7 +116,8 @@ export type NodeInstanceLevelFieldDefinitionUnion =
   | RadioFieldDefinition
   | SelectFieldDefinition
   | CheckboxFieldDefinition
-  | SpecialRenderingFieldDefinition;
+  | SpecialRenderingFieldDefinition
+  | SharedCavnasConfig;
 
 // ANCHOR: Account Level Fields
 

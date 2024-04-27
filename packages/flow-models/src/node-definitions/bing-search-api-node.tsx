@@ -2,7 +2,6 @@ import { z } from 'zod';
 
 import { ConnectorType, VariableValueType } from '../base-types';
 import {
-  FieldType,
   NodeDefinition,
   NodeKind,
   NodeType,
@@ -34,18 +33,18 @@ export const BIND_SEARCH_API_NODE_DEFINITION: NodeDefinition<
   type: NodeType.BingSearchApi,
   label: 'Bing Search API',
 
-  accountLevelConfigFieldDefinitions: {
-    bingSearchApiKey: {
-      type: FieldType.Text,
-      label: 'API key',
-      placeholder: 'Enter API key here',
-      helperMessage:
-        "This is stored in your browser's local storage. Never uploaded.",
-      schema: z.string().min(1, {
-        message: 'API key is required',
-      }),
-    },
-  },
+  // accountLevelConfigFieldDefinitions: {
+  //   bingSearchApiKey: {
+  //     type: FieldType.Text,
+  //     label: 'API key',
+  //     placeholder: 'Enter API key here',
+  //     helperMessage:
+  //       "This is stored in your browser's local storage. Never uploaded.",
+  //     schema: z.string().min(1, {
+  //       message: 'API key is required',
+  //     }),
+  //   },
+  // },
 
   configFields: [],
 

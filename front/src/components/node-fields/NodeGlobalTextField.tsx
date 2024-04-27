@@ -30,7 +30,7 @@ function NodeGlobalTextField(props: Props) {
     (s) => s.getFlowContent().nodeAccountLevelFieldsValidationErrors,
   );
 
-  const globalFieldValue = getGlobalField(props.nodeType, props.fieldKey) ?? '';
+  const globalFieldValue = getGlobalField(props.fieldKey) ?? '';
 
   const { control, handleSubmit } = useForm<FormType>({
     values: { value: globalFieldValue },
@@ -38,9 +38,9 @@ function NodeGlobalTextField(props: Props) {
 
   const onSaveCallback = useCallback<SubmitHandler<FormType>>(
     (data) => {
-      setGlobalField(props.nodeType, props.fieldKey, data.value);
+      setGlobalField(props.fieldKey, data.value);
     },
-    [props.fieldKey, props.nodeType, setGlobalField],
+    [props.fieldKey, setGlobalField],
   );
 
   // Global fields are hidden in the UI if we are in read-only mode

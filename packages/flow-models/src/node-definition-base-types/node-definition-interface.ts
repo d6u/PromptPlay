@@ -9,10 +9,7 @@ import {
   type NodeOutputVariable,
   type OutgoingCondition,
 } from '../base-types';
-import {
-  NodeAccountLevelTextFieldDefinition,
-  NodeInstanceLevelFieldDefinitionUnion,
-} from './field-definition-interfaces';
+import { NodeInstanceLevelFieldDefinitionUnion } from './field-definition-interfaces';
 import { NodeTypeEnum, type NodeKindEnum } from './node-class-and-type';
 
 export type BaseNodeInstanceLevelConfig = {
@@ -20,16 +17,6 @@ export type BaseNodeInstanceLevelConfig = {
   type: NodeTypeEnum;
   nodeId: string;
   nodeName?: string;
-};
-
-type ConvertToAccountLevelFieldDefinitions<
-  TAllLevelConfig,
-  TInstanceLevelConfig,
-> = {
-  [P in keyof Omit<
-    TAllLevelConfig,
-    keyof TInstanceLevelConfig
-  >]: NodeAccountLevelTextFieldDefinition;
 };
 
 type FixedIncomingVariableDefinition = {
@@ -83,10 +70,6 @@ export interface NodeDefinition<
   label: string;
 
   // Node Config
-  accountLevelConfigFieldDefinitions?: ConvertToAccountLevelFieldDefinitions<
-    TAllLevelConfig,
-    TInstanceLevelConfig
-  >;
   configFields: NodeInstanceLevelFieldDefinitionUnion[];
 
   // Variables

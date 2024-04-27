@@ -65,20 +65,12 @@ export const CHATGPT_SIMPLE_NODE_DEFINITION: NodeDefinition<
   type: NodeType.ChatGPTSimple,
   label: 'ChatGPT Simple',
 
-  accountLevelConfigFieldDefinitions: {
-    openAiApiKey: {
-      type: FieldType.Text,
-      label: 'OpenAI API Key',
-      placeholder: 'Enter API key here',
-      helperMessage:
-        "This is stored in your browser's local storage. Never uploaded.",
-      schema: z.string().min(1, {
-        message: 'OpenAI API Key is required',
-      }),
-    },
-  },
-
   configFields: [
+    {
+      type: FieldType.SharedCavnasConfig,
+      attrName: 'openAiApiKey',
+      canvasConfigKey: 'openAiApiKey',
+    },
     {
       type: FieldType.Radio,
       attrName: 'role',

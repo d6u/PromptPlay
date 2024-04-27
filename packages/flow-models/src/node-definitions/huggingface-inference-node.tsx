@@ -42,18 +42,19 @@ export const HUGGINGFACE_INFERENCE_NODE_DEFINITION: NodeDefinition<
   type: NodeType.HuggingFaceInference,
   label: 'Hugging Face Inference',
 
-  accountLevelConfigFieldDefinitions: {
-    huggingFaceApiToken: {
-      type: FieldType.Text,
-      label: 'API Token',
-      placeholder: 'Enter API key here',
-      helperMessage:
-        "This is stored in your browser's local storage. Never uploaded.",
-      schema: z.string().min(1, {
-        message: 'API Token is required',
-      }),
-    },
-  },
+  // accountLevelConfigFieldDefinitions: {
+  //   huggingFaceApiToken: {
+  //     type: FieldType.Text,
+  //     label: 'API Token',
+  //     placeholder: 'Enter API key here',
+  //     helperMessage:
+  //       "This is stored in your browser's local storage. Never uploaded.",
+  //     schema: z.string().min(1, {
+  //       message: 'API Token is required',
+  //     }),
+  //   },
+  // },
+
   configFields: [
     {
       type: FieldType.Text,

@@ -1,4 +1,5 @@
 import {
+  CANVAS_CONFIG_DEFINITIONS,
   FieldType,
   NodeConfig,
   NodeInstanceLevelFieldDefinitionUnion,
@@ -7,6 +8,7 @@ import {
 import { useFlowStore } from 'state-flow/flow-store';
 
 import NodeCheckboxField from './NodeCheckboxField';
+import NodeGlobalTextField from './NodeGlobalTextField';
 import NodeNumberField from './NodeNumberField';
 import NodeRadioField from './NodeRadioField';
 import NodeSelectField from './NodeSelectField';
@@ -134,6 +136,20 @@ function NodeBoxInstanceLevelFields(props: Props) {
             }}
           />
         );
+      case FieldType.SharedCavnasConfig: {
+        const canvasConfig = CANVAS_CONFIG_DEFINITIONS[fd.canvasConfigKey];
+
+        return (
+          <NodeGlobalTextField
+            key={fd.attrName}
+            nodeId={props.nodeConfig.nodeId}
+            nodeType={props.nodeConfig.type}
+            fieldKey={fd.canvasConfigKey}
+            fieldDefinition={canvasConfig}
+            isNodeConfigReadOnly={props.isNodeConfigReadOnly}
+          />
+        );
+      }
       case FieldType.SpecialRendering: {
         throw new Error('Should not handle SpecialRendering case');
       }
