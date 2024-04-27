@@ -6,7 +6,13 @@ import {
   RadioGroup,
   Textarea,
 } from '@mui/joy';
+import type {
+  VariableConfig,
+  VariableDefinition,
+} from 'components/node-connector/types';
+import NodeRenamableVariableList from 'components/node-connector/variable/NodeRenamableVariableList';
 import {
+  ConnectorType,
   type LlmMessagesFieldDefinition,
   type NodeConfigMessagesFieldType,
 } from 'flow-models';
@@ -20,14 +26,14 @@ import {
   useForm,
   type Control,
 } from 'react-hook-form';
+import { Position } from 'reactflow';
 import { useFlowStore } from 'state-flow/flow-store';
+import { selectVariables } from 'state-flow/util/state-utils';
 
 type Props = {
   isNodeConfigReadOnly: boolean;
   nodeId: string;
   fieldDef: LlmMessagesFieldDefinition;
-  // fieldValue: string;
-  // onUpdate: (value: string) => void;
 };
 
 type FieldValues = {
@@ -35,6 +41,7 @@ type FieldValues = {
     role: ChatGPTMessageRole;
     content: string;
   }[];
+  variableIds: string[];
 };
 
 function NodeLlmMessagesField(props: Props) {
@@ -52,6 +59,11 @@ function NodeLlmMessagesField(props: Props) {
     values: configValue[0],
   });
 
+  const { field: variableIdsField } = useController({
+    control,
+    name: 'variableIds',
+  });
+
   const { fields, append, remove } = useFieldArray({ control, name: 'value' });
 
   const updateNodeConfig = useFlowStore((s) => s.updateNodeConfig);
@@ -66,14 +78,69 @@ function NodeLlmMessagesField(props: Props) {
     });
   }, [configValue, fd.attrName, handleSubmit, props.nodeId, updateNodeConfig]);
 
+  const connectors = useFlowStore((s) => s.getFlowContent().connectors);
+
+  const inputVariables = useMemo(() => {
+    return selectVariables(props.nodeId, ConnectorType.NodeInput, connectors);
+  }, [props.nodeId, connectors]);
+
+  const inputVariablesForCurrentField = useMemo(() => {
+    if (props.nodeId != null) {
+      const variables = selectVariables(
+        props.nodeId,
+        ConnectorType.NodeInput,
+        connectors,
+      );
+      return variables.filter((variable) => {
+        return configValue[0].variableIds.includes(variable.id);
+      });
+    } else {
+      return [];
+    }
+  }, [props.nodeId, connectors, configValue]);
+
+  const addVariable = useFlowStore((s) => s.addConnector);
+
   return (
     <div>
       <FormLabel>Messages</FormLabel>
       <div>
-        <Button color="success" variant="outlined" onClick={() => {}}>
+        <Button
+          color="success"
+          variant="outlined"
+          onClick={() => {
+            addVariable(
+              props.nodeId,
+              ConnectorType.NodeInput,
+              inputVariables.length,
+            );
+            // TODO: Append variable ID
+            variableIdsField.onChange([...variableIdsField.value]);
+          }}
+        >
           Add variable
         </Button>
       </div>
+      <NodeRenamableVariableList
+        showConnectorHandle={Position.Left}
+        nodeId={props.nodeId}
+        isNodeReadOnly={props.isNodeConfigReadOnly}
+        variableConfigs={inputVariablesForCurrentField.map<VariableConfig>(
+          (variable) => {
+            return {
+              id: variable.id,
+              name: variable.name,
+              isGlobal: variable.isGlobal,
+              globalVariableId: variable.globalVariableId,
+            };
+          },
+        )}
+        variableDefinitions={inputVariablesForCurrentField.map<VariableDefinition>(
+          () => {
+            return { isVariableFixed: false };
+          },
+        )}
+      />
       <div>
         <Button
           color="success"

@@ -183,6 +183,9 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
     },
   },
 
+  canUserAddIncomingVariables: true,
+  variableValueTypeForUserAddedIncomingVariable: VariableValueType.Structured,
+
   createDefaultNodeConfigsAndConnectors(context) {
     const chatCompletionNodeId = context.generateNodeId();
     const messageNodeId = context.generateNodeId();
