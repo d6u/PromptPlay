@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import z from 'zod';
 
 import { ConnectorType, VariableValueType } from '../base-types';
 import {
@@ -34,19 +34,13 @@ export const BIND_SEARCH_API_NODE_DEFINITION: NodeDefinition<
   type: NodeType.BingSearchApi,
   label: 'Bing Search API',
 
-  accountLevelConfigFieldDefinitions: {
-    bingSearchApiKey: {
-      type: FieldType.Text,
-      label: 'API key',
-      placeholder: 'Enter API key here',
-      helperMessage:
-        "This is stored in your browser's local storage. Never uploaded.",
-      schema: z.string().min(1, {
-        message: 'API key is required',
-      }),
+  configFields: [
+    {
+      type: FieldType.SharedCavnasConfig,
+      attrName: 'bingSearchApiKey',
+      canvasConfigKey: 'bingSearchApiKey',
     },
-  },
-  instanceLevelConfigFieldDefinitions: {},
+  ],
 
   fixedIncomingVariables: {
     query: {

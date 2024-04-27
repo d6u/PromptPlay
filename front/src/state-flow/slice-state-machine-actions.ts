@@ -313,7 +313,7 @@ const createSlice: StateMachineActionsSliceStateCreator = (set, get) => {
         ) => {
           return useLocalStorageStore
             .getState()
-            .getLocalAccountLevelNodeFieldValue(nodeType, fieldKey);
+            .getLocalAccountLevelNodeFieldValue(fieldKey);
         },
       }).subscribe({
         next(result) {

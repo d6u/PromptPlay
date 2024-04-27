@@ -3,8 +3,6 @@ import { Option } from '@mobily/ts-belt';
 import { create, StateCreator } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-import { NodeTypeEnum } from 'flow-models';
-
 import { createSelectors } from 'generic-util/zustand';
 
 type OpenAIAPIKeyState = {
@@ -26,12 +24,8 @@ export type LocalStorageState = OpenAIAPIKeyState &
   HuggingFaceApiTokenState &
   ElevenLabsApiKeyState & {
     localAccountLevelNodeFieldValues: Record<string, string>;
-    getLocalAccountLevelNodeFieldValue: (
-      nodeType: NodeTypeEnum,
-      fieldKey: string,
-    ) => Option<string>;
+    getLocalAccountLevelNodeFieldValue: (fieldKey: string) => Option<string>;
     setLocalAccountLevelNodeFieldValue: (
-      nodeType: NodeTypeEnum,
       fieldKey: string,
       value: string,
     ) => void;
@@ -61,19 +55,15 @@ const localStorageStateCreator: StateCreator<
       set(() => ({ elevenLabsApiKey })),
 
     localAccountLevelNodeFieldValues: {},
-    getLocalAccountLevelNodeFieldValue: (
-      nodeType: NodeTypeEnum,
-      fieldKey: string,
-    ): Option<string> => {
-      const key = getKeyForLocalAccountLevelNodeFieldValue(nodeType, fieldKey);
+    getLocalAccountLevelNodeFieldValue: (fieldKey: string): Option<string> => {
+      const key = getKeyForLocalAccountLevelNodeFieldValue(fieldKey);
       return localAccountLevelNodeFieldValuesGet()[key] as Option<string>;
     },
     setLocalAccountLevelNodeFieldValue: (
-      nodeType: NodeTypeEnum,
       fieldKey: string,
       value: string,
     ): void => {
-      const key = getKeyForLocalAccountLevelNodeFieldValue(nodeType, fieldKey);
+      const key = getKeyForLocalAccountLevelNodeFieldValue(fieldKey);
       localAccountLevelNodeFieldValuesSet(() => ({ [key]: value }));
     },
   };
@@ -85,9 +75,6 @@ export const useLocalStorageStore = createSelectors(
   ),
 );
 
-function getKeyForLocalAccountLevelNodeFieldValue(
-  nodeType: NodeTypeEnum,
-  fieldKey: string,
-): string {
-  return `${nodeType}:${fieldKey}`;
+function getKeyForLocalAccountLevelNodeFieldValue(fieldKey: string): string {
+  return `${fieldKey}`;
 }

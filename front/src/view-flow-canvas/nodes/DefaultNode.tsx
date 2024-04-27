@@ -27,7 +27,6 @@ import {
 import NodeOutputVariableList from 'components/node-connector/variable/NodeOutputVariableList';
 import NodeRenamableVariableList from 'components/node-connector/variable/NodeRenamableVariableList';
 import NodeExecutionMessageDisplay from 'components/node-execution-state/NodeExecutionMessageDisplay';
-import NodeAccountLevelFields from 'components/node-fields/NodeAccountLevelFields';
 import NodeInstanceLevelFields from 'components/node-fields/NodeInstanceLevelFields';
 import { NodeRunStateData } from 'state-flow/common-types';
 import { useFlowStore } from 'state-flow/flow-store';
@@ -134,21 +133,11 @@ function DefaultNode(props: Props) {
           />
         </GenericContainer>
         <GenericContainer>
-          {nodeDefinition.accountLevelConfigFieldDefinitions && (
-            <NodeAccountLevelFields
-              isNodeConfigReadOnly={props.isNodeReadOnly}
-              accountLevelConfigFieldDefinitions={
-                nodeDefinition.accountLevelConfigFieldDefinitions
-              }
-              nodeConfig={props.nodeConfig}
-            />
-          )}
           <NodeInstanceLevelFields
             isNodeConfigReadOnly={props.isNodeReadOnly}
-            instanceLevelConfigFieldDefinitions={
-              nodeDefinition.instanceLevelConfigFieldDefinitions
-            }
+            nodeConfigFieldDefs={nodeDefinition.configFields}
             nodeConfig={props.nodeConfig}
+            isNodeInspectorPane={false}
           />
         </GenericContainer>
         <NodeBoxSection>

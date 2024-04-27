@@ -30,9 +30,12 @@ export const JAVASCRIPT_NODE_DEFINITION: NodeDefinition<
   type: NodeType.JavaScriptFunctionNode,
   label: 'JavaScript Function',
 
-  instanceLevelConfigFieldDefinitions: {
-    javaScriptCode: { type: FieldType.SpecialRendering },
-  },
+  configFields: [
+    {
+      type: FieldType.SpecialRendering,
+      attrName: 'javaScriptCode',
+    },
+  ],
 
   canUserAddIncomingVariables: true,
   variableValueTypeForUserAddedIncomingVariable: VariableValueType.Any,

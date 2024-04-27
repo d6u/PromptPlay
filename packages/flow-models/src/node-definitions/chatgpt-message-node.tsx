@@ -40,9 +40,10 @@ export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition<
   type: NodeType.ChatGPTMessageNode,
   label: 'ChatGPT Message',
 
-  instanceLevelConfigFieldDefinitions: {
-    role: {
+  configFields: [
+    {
       type: FieldType.Radio,
+      attrName: 'role',
       label: 'Role',
       options: Object.keys(OpenAI.ChatGPTMessageRole).map((key) => ({
         label: key[0].toUpperCase() + key.slice(1),
@@ -51,9 +52,11 @@ export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition<
             key as keyof typeof OpenAI.ChatGPTMessageRole
           ],
       })),
+      showOnCanvas: true,
     },
-    content: {
+    {
       type: FieldType.Textarea,
+      attrName: 'content',
       label: 'Message content',
       placeholder: 'Write message content here',
       helperText: () => (
@@ -69,8 +72,9 @@ export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition<
           variable.
         </div>
       ),
+      showOnCanvas: true,
     },
-  },
+  ],
 
   fixedIncomingVariables: {
     messages: {

@@ -27,7 +27,7 @@ export const LOOP_START_NODE_DEFINITION: NodeDefinition<
   type: NodeType.LoopStart,
   label: 'Loop Start',
 
-  instanceLevelConfigFieldDefinitions: {},
+  configFields: [],
 
   createDefaultNodeConfigsAndConnectors(context) {
     const loopStartNodeId = context.generateNodeId();

@@ -119,7 +119,7 @@ function RouteBatchTest() {
       getAccountLevelFieldValue: (nodeType: NodeTypeEnum, fieldKey: string) => {
         return useLocalStorageStore
           .getState()
-          .getLocalAccountLevelNodeFieldValue(nodeType, fieldKey);
+          .getLocalAccountLevelNodeFieldValue(fieldKey);
       },
     })
       .pipe(

@@ -5,7 +5,9 @@ import { from } from 'rxjs';
 import invariant from 'tiny-invariant';
 
 import {
+  CANVAS_CONFIG_DEFINITIONS,
   ConnectorType,
+  FieldType,
   NodeAccountLevelTextFieldDefinition,
   NodeAllLevelConfigUnion,
   NodeConfig,
@@ -17,6 +19,7 @@ import {
   type NodeOutputVariable,
   type OutgoingCondition,
   type RunNodeFunction,
+  type SharedCavnasConfig,
 } from 'flow-models';
 
 import {
@@ -58,19 +61,21 @@ export function getNodeAllLevelConfigOrValidationErrors(
     R.map((nodeConfig) => {
       const nodeDefinition = getNodeDefinitionForNodeTypeName(nodeConfig.type);
 
-      const accountLevelConfigFieldDefinitions =
-        nodeDefinition.accountLevelConfigFieldDefinitions as
-          | Record<string, NodeAccountLevelTextFieldDefinition>
-          | undefined;
-
-      // TODO: Add validation to ensure typesafety, this cannot be done
-      // in TypeScript due to the dynamic types used.
-      if (!accountLevelConfigFieldDefinitions) {
-        return nodeConfig as NodeAllLevelConfigUnion;
-      }
+      const canvasConfigFieldDefs = pipe(
+        nodeDefinition.configFields,
+        A.filter(
+          (field): field is SharedCavnasConfig =>
+            field.type === FieldType.SharedCavnasConfig,
+        ),
+        A.map((field): [string, NodeAccountLevelTextFieldDefinition] => [
+          field.canvasConfigKey,
+          CANVAS_CONFIG_DEFINITIONS[field.canvasConfigKey],
+        ]),
+        R.fromEntries,
+      );
 
       const accountLevelConfig = pipe(
-        accountLevelConfigFieldDefinitions,
+        canvasConfigFieldDefs,
         R.mapWithIndex(
           (
             fieldKey,

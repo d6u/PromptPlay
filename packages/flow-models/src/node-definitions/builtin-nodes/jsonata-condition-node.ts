@@ -35,9 +35,13 @@ export const JSONATA_CONDITION_NODE_DEFINITION: NodeDefinition<
   type: NodeType.JSONataCondition,
   label: 'JSONata Condition',
 
-  instanceLevelConfigFieldDefinitions: {
-    stopAtTheFirstMatch: { type: FieldType.SpecialRendering },
-  },
+  configFields: [
+    {
+      type: FieldType.SpecialRendering,
+      attrName: 'stopAtTheFirstMatch',
+      showOnCanvas: true,
+    },
+  ],
 
   createDefaultNodeConfigsAndConnectors(context) {
     const nodeId = context.generateNodeId();

@@ -1,6 +1,7 @@
 import { ReactNode } from 'react';
 import { ZodSchema } from 'zod';
 
+import type { CANVAS_CONFIG_DEFINITIONS } from '../canvas-config-definitions';
 import type { BaseNodeInstanceLevelConfig } from './node-definition-interface';
 
 export enum FieldType {
@@ -12,11 +13,23 @@ export enum FieldType {
   Select = 'Select',
   Checkbox = 'Checkbox',
   SpecialRendering = 'SpecialRendering',
+  SharedCavnasConfig = 'SharedCavnasConfig',
 }
+
+// ANCHOR: Shared props
+
+type NodeConfigFieldDefCommon = {
+  // attrName will become the key on node config object
+  attrName: string;
+  // By default we fold nodeConfig field into the node config inspector
+  // side pane. Set `showOnCanvas` to true to show the input on the canvas
+  // node UI.
+  showOnCanvas?: boolean;
+};
 
 // ANCHOR: Instance Level Fields
 
-export type TextFieldDefinition = {
+export type TextFieldDefinition = NodeConfigFieldDefCommon & {
   type: FieldType.Text;
   label: string;
   placeholder?: string;
@@ -25,7 +38,7 @@ export type TextFieldDefinition = {
   helperText?: () => ReactNode;
 };
 
-export type StopSequenceFieldDefinition = {
+export type StopSequenceFieldDefinition = NodeConfigFieldDefCommon & {
   type: FieldType.StopSequence;
   label: string;
   placeholder?: string;
@@ -33,7 +46,7 @@ export type StopSequenceFieldDefinition = {
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type NumberFieldDefinition<T = any> = {
+export type NumberFieldDefinition<T = any> = NodeConfigFieldDefCommon & {
   type: FieldType.Number;
   label: string;
   min?: number;
@@ -46,34 +59,34 @@ export type NumberFieldDefinition<T = any> = {
   schema?: ZodSchema;
 };
 
-export type TextareaFieldDefinition = {
+export type TextareaFieldDefinition = NodeConfigFieldDefCommon & {
   type: FieldType.Textarea;
   label: string;
   placeholder?: string;
   helperText?: () => ReactNode;
 };
 
-export type RadioFieldDefinition = {
+export type RadioFieldDefinition = NodeConfigFieldDefCommon & {
   type: FieldType.Radio;
   options: FieldOption[];
   label: string;
   helperText?: () => ReactNode;
 };
 
-export type SelectFieldDefinition = {
+export type SelectFieldDefinition = NodeConfigFieldDefCommon & {
   type: FieldType.Select;
   label: string;
   helperText?: () => ReactNode;
 } & (
-  | {
-      options: FieldOption[];
-    }
-  | {
-      dynamicOptions: (
-        nodeConfigs: Record<string, BaseNodeInstanceLevelConfig>,
-      ) => FieldOption[];
-    }
-);
+    | {
+        options: FieldOption[];
+      }
+    | {
+        dynamicOptions: (
+          nodeConfigs: Record<string, BaseNodeInstanceLevelConfig>,
+        ) => FieldOption[];
+      }
+  );
 
 export type FieldOption = {
   label: string;
@@ -81,7 +94,7 @@ export type FieldOption = {
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type CheckboxFieldDefinition<T = any> = {
+export type CheckboxFieldDefinition<T = any> = NodeConfigFieldDefCommon & {
   type: FieldType.Checkbox;
   label: string;
   render?: (value: T) => boolean;
@@ -89,9 +102,14 @@ export type CheckboxFieldDefinition<T = any> = {
   helperText?: () => ReactNode;
 };
 
+export type SharedCavnasConfig = NodeConfigFieldDefCommon & {
+  type: FieldType.SharedCavnasConfig;
+  canvasConfigKey: keyof typeof CANVAS_CONFIG_DEFINITIONS;
+};
+
 // Special Rendering field's logic will be held within the specific
 // node component.
-export type SpecialRenderingFieldDefinition = {
+export type SpecialRenderingFieldDefinition = NodeConfigFieldDefCommon & {
   type: FieldType.SpecialRendering;
 };
 
@@ -103,6 +121,7 @@ export type NodeInstanceLevelFieldDefinitionUnion =
   | RadioFieldDefinition
   | SelectFieldDefinition
   | CheckboxFieldDefinition
+  | SharedCavnasConfig
   | SpecialRenderingFieldDefinition;
 
 // ANCHOR: Account Level Fields
