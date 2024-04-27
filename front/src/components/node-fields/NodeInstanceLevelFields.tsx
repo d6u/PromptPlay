@@ -8,7 +8,9 @@ import {
 import { useFlowStore } from 'state-flow/flow-store';
 
 import NodeCheckboxField from './NodeCheckboxField';
+// import NodeConfigFieldInputVariable from './NodeConfigFieldInputVariable';
 import NodeGlobalTextField from './NodeGlobalTextField';
+import NodeLlmMessagesField from './NodeLlmMessagesField';
 import NodeNumberField from './NodeNumberField';
 import NodeRadioField from './NodeRadioField';
 import NodeSelectField from './NodeSelectField';
@@ -155,9 +157,33 @@ function NodeBoxInstanceLevelFields(props: Props) {
           />
         );
       }
-      case FieldType.SpecialRendering: {
+      case FieldType.InputVariable:
+        return null;
+      // return (
+      //   <NodeConfigFieldInputVariable
+      //     key={fd.attrName}
+      //     isNodeConfigReadOnly={props.isNodeConfigReadOnly}
+      //     nodeId={props.nodeConfig.nodeId}
+      //     fieldKey={fd.attrName}
+      //     fieldDef={fd}
+      //   />
+      // );
+      case FieldType.LlmMessages:
+        return (
+          <NodeLlmMessagesField
+            key={fd.attrName}
+            isNodeConfigReadOnly={props.isNodeConfigReadOnly}
+            nodeId={props.nodeConfig.nodeId}
+            fieldDef={fd}
+            // onUpdate={(value: string) => {
+            //   // throw new Error('Function not implemented.');
+            // }}
+          />
+        );
+      case FieldType.SpecialRendering:
         throw new Error('Should not handle SpecialRendering case');
-      }
+      // default:
+      // throw new Error('Unhandled field type');
     }
   });
 }

@@ -7,12 +7,7 @@ type Props = {
 
 function NodeAddConnectorButton(props: Props) {
   return (
-    <Button
-      color="success"
-      size="sm"
-      variant="outlined"
-      onClick={props.onClick}
-    >
+    <Button color="success" variant="outlined" onClick={props.onClick}>
       Add {props.label}
     </Button>
   );

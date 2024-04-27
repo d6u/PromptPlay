@@ -7,6 +7,7 @@ import * as OpenAI from 'integrations/openai';
 
 import {
   ChatGPTMessage,
+  ChatGPTMessageRole,
   getNonStreamingCompletion,
   getStreamingCompletion,
 } from 'integrations/openai';
@@ -47,10 +48,36 @@ export enum ChatGPTChatCompletionResponseFormatType {
   JsonObject = 'json_object',
 }
 
+const MessagesFieldSchema = z
+  .tuple([
+    z.object({
+      variableIds: z.array(z.string()),
+      value: z.array(
+        z.object({
+          role: z.enum([
+            ChatGPTMessageRole.system,
+            ChatGPTMessageRole.user,
+            ChatGPTMessageRole.assistant,
+          ]),
+          content: z.string(),
+        }),
+      ),
+    }),
+    z.object({
+      variableId: z.string().nullable(),
+    }),
+  ])
+  .default([{ variableIds: [], value: [] }, { variableId: null }]);
+
+export type NodeConfigMessagesFieldType = z.infer<typeof MessagesFieldSchema>;
+
 export const ChatgptChatCompletionNodeConfigSchema = z.object({
+  // Common fields
   kind: z.literal(NodeKind.Process),
   type: z.literal(NodeType.ChatGPTChatCompletionNode),
   nodeId: z.string(),
+  // Unique fields
+  messages: MessagesFieldSchema,
   model: z.nativeEnum(OpenAIChatModel),
   temperature: z.number(),
   seed: z.number().nullable(),
@@ -80,6 +107,11 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
   label: 'ChatGPT Chat Completion',
 
   configFields: [
+    {
+      type: FieldType.LlmMessages,
+      attrName: 'messages',
+      showOnCanvas: true,
+    },
     {
       type: FieldType.SharedCavnasConfig,
       attrName: 'openAiApiKey',
@@ -159,8 +191,9 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
       nodeConfigs: [
         {
           kind: NodeKind.Process,
-          nodeId: chatCompletionNodeId,
           type: NodeType.ChatGPTChatCompletionNode,
+          nodeId: chatCompletionNodeId,
+          messages: [{ variableIds: [], value: [] }, { variableId: null }],
           model: OpenAIChatModel.GPT_3_5_TURBO,
           temperature: 1,
           stop: [],
