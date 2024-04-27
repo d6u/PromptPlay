@@ -36,6 +36,7 @@ import {
   FlowActions,
   FlowProps,
   FlowState,
+  type AddConnectorForNodeConfigFieldParams,
   type CanvasStateMachineEmittedEvent,
   type ConditionResultUpdate,
   type FlowSingleRunResult,
@@ -261,6 +262,16 @@ export const createRootSlice: RootSliceStateCreator = (set, get) => {
         connectorType: type,
         connectorIndex: index,
       });
+    },
+    addConnectorForNodeConfigField(
+      params: AddConnectorForNodeConfigFieldParams,
+    ): void {
+      // get()._processEventWithEventGraph({
+      //   type: ChangeEventType.ADDING_CONNECTOR_FOR_NODE_CONFIG_FIELD,
+      //   // nodeId,
+      //   // connectorType: type,
+      //   // connectorIndex: index,
+      // });
     },
     removeVariable(variableId: string): void {
       get()._processEventWithEventGraph({

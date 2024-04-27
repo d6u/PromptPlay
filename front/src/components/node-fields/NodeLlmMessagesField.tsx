@@ -80,10 +80,6 @@ function NodeLlmMessagesField(props: Props) {
 
   const connectors = useFlowStore((s) => s.getFlowContent().connectors);
 
-  const inputVariables = useMemo(() => {
-    return selectVariables(props.nodeId, ConnectorType.NodeInput, connectors);
-  }, [props.nodeId, connectors]);
-
   const inputVariablesForCurrentField = useMemo(() => {
     if (props.nodeId != null) {
       const variables = selectVariables(
@@ -99,7 +95,9 @@ function NodeLlmMessagesField(props: Props) {
     }
   }, [props.nodeId, connectors, configValue]);
 
-  const addVariable = useFlowStore((s) => s.addConnector);
+  const addConnectorForNodeConfigField = useFlowStore(
+    (s) => s.addConnectorForNodeConfigField,
+  );
 
   return (
     <div>
@@ -109,11 +107,11 @@ function NodeLlmMessagesField(props: Props) {
           color="success"
           variant="outlined"
           onClick={() => {
-            addVariable(
-              props.nodeId,
-              ConnectorType.NodeInput,
-              inputVariables.length,
-            );
+            addConnectorForNodeConfigField({
+              nodeId: props.nodeId,
+              fieldKey: fd.attrName,
+              type: ConnectorType.NodeInput,
+            });
             // TODO: Append variable ID
             variableIdsField.onChange([...variableIdsField.value]);
           }}

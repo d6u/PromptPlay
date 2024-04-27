@@ -209,6 +209,12 @@ export type FlowSingleRunResult = {
   variableResults: VariableValueRecords;
 };
 
+export type AddConnectorForNodeConfigFieldParams = {
+  nodeId: string;
+  fieldKey: string;
+  type: ConnectorTypeEnum;
+};
+
 export type FlowActions = {
   _processEventWithEventGraph(event: AcceptedEvent): void;
 
@@ -250,6 +256,9 @@ export type FlowActions = {
   updateNodeConfig(nodeId: string, change: Partial<NodeConfig>): void;
 
   addConnector(nodeId: string, type: ConnectorTypeEnum, index: number): void;
+  addConnectorForNodeConfigField(
+    params: AddConnectorForNodeConfigFieldParams,
+  ): void;
   removeVariable(variableId: string): void;
   updateConnector<
     T extends ConnectorTypeEnum,
