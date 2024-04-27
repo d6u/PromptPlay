@@ -79,6 +79,7 @@ export const CHATGPT_SIMPLE_NODE_DEFINITION: NodeDefinition<
         label: key[0].toUpperCase() + key.slice(1),
         value: ChatGPTMessageRole[key as keyof typeof ChatGPTMessageRole],
       })),
+      showOnCanvas: true,
     },
     {
       type: FieldType.Select,
@@ -88,6 +89,7 @@ export const CHATGPT_SIMPLE_NODE_DEFINITION: NodeDefinition<
         label: value,
         value,
       })),
+      showOnCanvas: true,
     },
     {
       type: FieldType.Number,

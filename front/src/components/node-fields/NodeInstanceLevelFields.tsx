@@ -20,12 +20,17 @@ type Props = {
   isNodeConfigReadOnly: boolean;
   nodeConfigFieldDefs: NodeInstanceLevelFieldDefinitionUnion[];
   nodeConfig: NodeConfig;
+  isNodeInspectorPane: boolean;
 };
 
 function NodeBoxInstanceLevelFields(props: Props) {
   const updateNodeConfig = useFlowStore((s) => s.updateNodeConfig);
 
   return props.nodeConfigFieldDefs.map((fd) => {
+    if (!props.isNodeInspectorPane && !fd.showOnCanvas) {
+      return null;
+    }
+
     const fieldValue = props.nodeConfig[
       fd.attrName as keyof typeof props.nodeConfig
     ] as unknown;

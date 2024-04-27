@@ -137,6 +137,7 @@ function DefaultNode(props: Props) {
             isNodeConfigReadOnly={props.isNodeReadOnly}
             nodeConfigFieldDefs={nodeDefinition.configFields}
             nodeConfig={props.nodeConfig}
+            isNodeInspectorPane={false}
           />
         </GenericContainer>
         <NodeBoxSection>

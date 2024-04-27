@@ -19,7 +19,12 @@ export enum FieldType {
 // ANCHOR: Shared props
 
 type NodeConfigFieldDefCommon = {
+  // attrName will become the key on node config object
   attrName: string;
+  // By default we fold nodeConfig field into the node config inspector
+  // side pane. Set `showOnCanvas` to true to show the input on the canvas
+  // node UI.
+  showOnCanvas?: boolean;
 };
 
 // ANCHOR: Instance Level Fields
@@ -97,15 +102,15 @@ export type CheckboxFieldDefinition<T = any> = NodeConfigFieldDefCommon & {
   helperText?: () => ReactNode;
 };
 
+export type SharedCavnasConfig = NodeConfigFieldDefCommon & {
+  type: FieldType.SharedCavnasConfig;
+  canvasConfigKey: keyof typeof CANVAS_CONFIG_DEFINITIONS;
+};
+
 // Special Rendering field's logic will be held within the specific
 // node component.
 export type SpecialRenderingFieldDefinition = NodeConfigFieldDefCommon & {
   type: FieldType.SpecialRendering;
-};
-
-export type SharedCavnasConfig = NodeConfigFieldDefCommon & {
-  type: FieldType.SharedCavnasConfig;
-  canvasConfigKey: keyof typeof CANVAS_CONFIG_DEFINITIONS;
 };
 
 export type NodeInstanceLevelFieldDefinitionUnion =
@@ -116,8 +121,8 @@ export type NodeInstanceLevelFieldDefinitionUnion =
   | RadioFieldDefinition
   | SelectFieldDefinition
   | CheckboxFieldDefinition
-  | SpecialRenderingFieldDefinition
-  | SharedCavnasConfig;
+  | SharedCavnasConfig
+  | SpecialRenderingFieldDefinition;
 
 // ANCHOR: Account Level Fields
 

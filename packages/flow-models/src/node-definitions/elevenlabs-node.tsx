@@ -1,5 +1,5 @@
 import invariant from 'tiny-invariant';
-import { z } from 'zod';
+import z from 'zod';
 
 import * as ElevenLabs from 'integrations/eleven-labs';
 
@@ -39,20 +39,12 @@ export const ELEVENLABS_NODE_DEFINITION: NodeDefinition<
   type: NodeType.ElevenLabs,
   label: 'Eleven Labs Text to Speech',
 
-  // accountLevelConfigFieldDefinitions: {
-  //   elevenLabsApiKey: {
-  //     type: FieldType.Text,
-  //     label: 'API Key',
-  //     placeholder: 'Enter API key here',
-  //     helperMessage:
-  //       "This is stored in your browser's local storage. Never uploaded.",
-  //     schema: z.string().min(1, {
-  //       message: 'API Key is required',
-  //     }),
-  //   },
-  // },
-
   configFields: [
+    {
+      type: FieldType.SharedCavnasConfig,
+      attrName: 'elevenLabsApiKey',
+      canvasConfigKey: 'elevenLabsApiKey',
+    },
     {
       type: FieldType.Text,
       attrName: 'voiceId',

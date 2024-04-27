@@ -21,6 +21,7 @@ function NodeConfigPaneNodeFields(props: Props) {
         isNodeConfigReadOnly={props.isNodeReadOnly}
         nodeConfigFieldDefs={nodeDefinition.configFields}
         nodeConfig={props.nodeConfig}
+        isNodeInspectorPane
       />
     </div>
   );

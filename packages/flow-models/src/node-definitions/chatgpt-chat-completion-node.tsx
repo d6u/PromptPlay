@@ -93,6 +93,7 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
         label: value,
         value,
       })),
+      showOnCanvas: true,
     },
     {
       type: FieldType.Number,

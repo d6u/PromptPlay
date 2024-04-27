@@ -46,6 +46,7 @@ export const LOOP_NODE_DEFINITION: NodeDefinition<
             };
           });
       },
+      showOnCanvas: true,
     },
   ],
 

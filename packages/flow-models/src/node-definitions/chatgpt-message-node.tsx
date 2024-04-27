@@ -52,6 +52,7 @@ export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition<
             key as keyof typeof OpenAI.ChatGPTMessageRole
           ],
       })),
+      showOnCanvas: true,
     },
     {
       type: FieldType.Textarea,
@@ -71,6 +72,7 @@ export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition<
           variable.
         </div>
       ),
+      showOnCanvas: true,
     },
   ],
 
