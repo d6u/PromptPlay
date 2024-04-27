@@ -54,12 +54,13 @@ export const HUGGINGFACE_INFERENCE_NODE_DEFINITION: NodeDefinition<
       }),
     },
   },
-  instanceLevelConfigFieldDefinitions: {
-    model: {
+  configFields: [
+    {
       type: FieldType.Text,
+      attrName: 'model',
       label: 'Model',
     },
-  },
+  ],
 
   fixedIncomingVariables: {
     parameters: {

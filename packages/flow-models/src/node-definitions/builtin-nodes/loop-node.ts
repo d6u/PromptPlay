@@ -28,9 +28,10 @@ export const LOOP_NODE_DEFINITION: NodeDefinition<
   type: NodeType.BareboneLoop,
   label: 'Barebone Loop',
 
-  instanceLevelConfigFieldDefinitions: {
-    loopStartNodeId: {
+  configFields: [
+    {
       label: 'Loop start',
+      attrName: 'loopStartNodeId',
       type: FieldType.Select,
       dynamicOptions: (nodeConfigs) => {
         return Object.values(nodeConfigs)
@@ -46,7 +47,7 @@ export const LOOP_NODE_DEFINITION: NodeDefinition<
           });
       },
     },
-  },
+  ],
 
   createDefaultNodeConfigsAndConnectors(context) {
     const loopNodeId = context.generateNodeId();

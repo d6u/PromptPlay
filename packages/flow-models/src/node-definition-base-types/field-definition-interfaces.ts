@@ -14,9 +14,15 @@ export enum FieldType {
   SpecialRendering = 'SpecialRendering',
 }
 
+// ANCHOR: Shared props
+
+type NodeConfigFieldDefCommon = {
+  attrName: string;
+};
+
 // ANCHOR: Instance Level Fields
 
-export type TextFieldDefinition = {
+export type TextFieldDefinition = NodeConfigFieldDefCommon & {
   type: FieldType.Text;
   label: string;
   placeholder?: string;
@@ -25,7 +31,7 @@ export type TextFieldDefinition = {
   helperText?: () => ReactNode;
 };
 
-export type StopSequenceFieldDefinition = {
+export type StopSequenceFieldDefinition = NodeConfigFieldDefCommon & {
   type: FieldType.StopSequence;
   label: string;
   placeholder?: string;
@@ -33,7 +39,7 @@ export type StopSequenceFieldDefinition = {
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type NumberFieldDefinition<T = any> = {
+export type NumberFieldDefinition<T = any> = NodeConfigFieldDefCommon & {
   type: FieldType.Number;
   label: string;
   min?: number;
@@ -46,34 +52,34 @@ export type NumberFieldDefinition<T = any> = {
   schema?: ZodSchema;
 };
 
-export type TextareaFieldDefinition = {
+export type TextareaFieldDefinition = NodeConfigFieldDefCommon & {
   type: FieldType.Textarea;
   label: string;
   placeholder?: string;
   helperText?: () => ReactNode;
 };
 
-export type RadioFieldDefinition = {
+export type RadioFieldDefinition = NodeConfigFieldDefCommon & {
   type: FieldType.Radio;
   options: FieldOption[];
   label: string;
   helperText?: () => ReactNode;
 };
 
-export type SelectFieldDefinition = {
+export type SelectFieldDefinition = NodeConfigFieldDefCommon & {
   type: FieldType.Select;
   label: string;
   helperText?: () => ReactNode;
 } & (
-  | {
-      options: FieldOption[];
-    }
-  | {
-      dynamicOptions: (
-        nodeConfigs: Record<string, BaseNodeInstanceLevelConfig>,
-      ) => FieldOption[];
-    }
-);
+    | {
+        options: FieldOption[];
+      }
+    | {
+        dynamicOptions: (
+          nodeConfigs: Record<string, BaseNodeInstanceLevelConfig>,
+        ) => FieldOption[];
+      }
+  );
 
 export type FieldOption = {
   label: string;
@@ -81,7 +87,7 @@ export type FieldOption = {
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type CheckboxFieldDefinition<T = any> = {
+export type CheckboxFieldDefinition<T = any> = NodeConfigFieldDefCommon & {
   type: FieldType.Checkbox;
   label: string;
   render?: (value: T) => boolean;
@@ -91,7 +97,7 @@ export type CheckboxFieldDefinition<T = any> = {
 
 // Special Rendering field's logic will be held within the specific
 // node component.
-export type SpecialRenderingFieldDefinition = {
+export type SpecialRenderingFieldDefinition = NodeConfigFieldDefCommon & {
   type: FieldType.SpecialRendering;
 };
 

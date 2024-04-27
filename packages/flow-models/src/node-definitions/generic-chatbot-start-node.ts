@@ -29,7 +29,7 @@ export const GENERIC_CHATBOT_START_NODE_DEFINITION: NodeDefinition<
   type: NodeType.GenericChatbotStart,
   label: 'Generic Chatbot Start',
 
-  instanceLevelConfigFieldDefinitions: {},
+  configFields: [],
 
   fixedIncomingVariables: {
     chat_history: {},

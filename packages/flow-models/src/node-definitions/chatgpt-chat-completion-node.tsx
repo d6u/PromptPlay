@@ -92,17 +92,19 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
     },
   },
 
-  instanceLevelConfigFieldDefinitions: {
-    model: {
+  configFields: [
+    {
       type: FieldType.Select,
+      attrName: 'model',
       label: 'Model',
       options: Object.values(OpenAIChatModel).map((value) => ({
         label: value,
         value,
       })),
     },
-    temperature: {
+    {
       type: FieldType.Number,
+      attrName: 'temperature',
       label: 'Temperature',
       min: 0,
       max: 2,
@@ -112,14 +114,16 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
         .min(0, { message: 'Must be between 0 and 2' })
         .max(2, { message: 'Must be between 0 and 2' }),
     },
-    seed: {
+    {
       type: FieldType.Number,
+      attrName: 'seed',
       label: 'Seed (Optional, Beta)',
       step: 1,
       schema: z.number().int({ message: 'Seed must be an integer' }).nullable(),
     },
-    responseFormatType: {
+    {
       type: FieldType.Checkbox,
+      attrName: 'responseFormatType',
       label: 'Use JSON Response Format',
       render: (
         value: ChatGPTChatCompletionResponseFormatType.JsonObject | null,
@@ -134,12 +138,13 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
           : null;
       },
     },
-    stop: {
+    {
       type: FieldType.StopSequence,
+      attrName: 'stop',
       label: 'Stop sequence',
       placeholder: 'Enter stop sequence',
     },
-  },
+  ],
 
   fixedIncomingVariables: {
     messages: {

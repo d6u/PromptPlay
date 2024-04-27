@@ -22,13 +22,6 @@ export type BaseNodeInstanceLevelConfig = {
   nodeName?: string;
 };
 
-type ConvertToInstanceLevelFieldDefinitions<TInstanceLevel> = {
-  [P in keyof Omit<
-    TInstanceLevel,
-    keyof BaseNodeInstanceLevelConfig
-  >]: NodeInstanceLevelFieldDefinitionUnion;
-};
-
 type ConvertToAccountLevelFieldDefinitions<
   TAllLevelConfig,
   TInstanceLevelConfig,
@@ -94,7 +87,7 @@ export interface NodeDefinition<
     TAllLevelConfig,
     TInstanceLevelConfig
   >;
-  instanceLevelConfigFieldDefinitions: ConvertToInstanceLevelFieldDefinitions<TInstanceLevelConfig>;
+  configFields: NodeInstanceLevelFieldDefinitionUnion[];
 
   // Variables
   fixedIncomingVariables?: Record<string, FixedIncomingVariableDefinition>;

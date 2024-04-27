@@ -26,7 +26,7 @@ export const LOOP_FINISH_NODE_DEFINITION: NodeDefinition<
   type: NodeType.LoopFinish,
   label: 'Loop Finish',
 
-  instanceLevelConfigFieldDefinitions: {},
+  configFields: [],
 
   createDefaultNodeConfigsAndConnectors(context) {
     const loopFinishNodeId = context.generateNodeId();

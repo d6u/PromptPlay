@@ -16,134 +16,129 @@ import NodeTextareaField from './NodeTextareaField';
 
 type Props = {
   isNodeConfigReadOnly: boolean;
-  instanceLevelConfigFieldDefinitions: Record<
-    string,
-    NodeInstanceLevelFieldDefinitionUnion
-  >;
+  nodeConfigFieldDefs: NodeInstanceLevelFieldDefinitionUnion[];
   nodeConfig: NodeConfig;
 };
 
 function NodeBoxInstanceLevelFields(props: Props) {
   const updateNodeConfig = useFlowStore((s) => s.updateNodeConfig);
 
-  return Object.entries(props.instanceLevelConfigFieldDefinitions).map(
-    ([fieldKey, fd]) => {
-      const fieldValue = props.nodeConfig[
-        fieldKey as keyof typeof props.nodeConfig
-      ] as unknown;
+  return props.nodeConfigFieldDefs.map((fd) => {
+    const fieldValue = props.nodeConfig[
+      fd.attrName as keyof typeof props.nodeConfig
+    ] as unknown;
 
-      switch (fd.type) {
-        case FieldType.Text:
-          return (
-            <NodeTextField
-              key={fieldKey}
-              isNodeConfigReadOnly={props.isNodeConfigReadOnly}
-              fieldKey={fieldKey}
-              fieldDefinition={fd}
-              fieldValue={fieldValue as string}
-              onUpdate={(value) => {
-                updateNodeConfig(props.nodeConfig.nodeId, {
-                  [fieldKey]: value,
-                });
-              }}
-            />
-          );
-        case FieldType.StopSequence:
-          return (
-            <NodeStopSequenceField
-              key={fieldKey}
-              isNodeConfigReadOnly={props.isNodeConfigReadOnly}
-              fieldKey={fieldKey}
-              fieldDefinition={fd}
-              fieldValue={fieldValue as string[]}
-              onUpdate={(value) => {
-                updateNodeConfig(props.nodeConfig.nodeId, {
-                  [fieldKey]: value,
-                });
-              }}
-            />
-          );
-        case FieldType.Number:
-          return (
-            <NodeNumberField
-              key={fieldKey}
-              fieldKey={fieldKey}
-              fieldDefinition={fd}
-              fieldValue={fieldValue as number | null}
-              isNodeConfigReadOnly={props.isNodeConfigReadOnly}
-              onUpdate={(value) => {
-                updateNodeConfig(props.nodeConfig.nodeId, {
-                  [fieldKey]: value,
-                });
-              }}
-            />
-          );
-        case FieldType.Textarea:
-          return (
-            <NodeTextareaField
-              key={fieldKey}
-              isNodeConfigReadOnly={props.isNodeConfigReadOnly}
-              fieldKey={fieldKey}
-              fieldDefinition={fd}
-              fieldValue={fieldValue as string}
-              onUpdate={(value) => {
-                updateNodeConfig(props.nodeConfig.nodeId, {
-                  [fieldKey]: value,
-                });
-              }}
-            />
-          );
-        case FieldType.Radio:
-          return (
-            <NodeRadioField
-              key={fieldKey}
-              isNodeConfigReadOnly={props.isNodeConfigReadOnly}
-              fieldKey={fieldKey}
-              fieldDefinition={fd}
-              fieldValue={fieldValue}
-              onUpdate={(value) => {
-                updateNodeConfig(props.nodeConfig.nodeId, {
-                  [fieldKey]: value,
-                });
-              }}
-            />
-          );
-        case FieldType.Select:
-          return (
-            <NodeSelectField
-              key={fieldKey}
-              isNodeConfigReadOnly={props.isNodeConfigReadOnly}
-              fieldKey={fieldKey}
-              fieldDefinition={fd}
-              fieldValue={fieldValue}
-              onUpdate={(value) => {
-                updateNodeConfig(props.nodeConfig.nodeId, {
-                  [fieldKey]: value,
-                });
-              }}
-            />
-          );
-        case FieldType.Checkbox:
-          return (
-            <NodeCheckboxField
-              key={fieldKey}
-              fieldKey={fieldKey}
-              fieldDefinition={fd}
-              fieldValue={fieldValue}
-              isNodeConfigReadOnly={props.isNodeConfigReadOnly}
-              onUpdate={(value) => {
-                updateNodeConfig(props.nodeConfig.nodeId, {
-                  [fieldKey]: value,
-                });
-              }}
-            />
-          );
-        case FieldType.SpecialRendering: {
-          throw new Error('Should not handle SpecialRendering case');
-        }
+    switch (fd.type) {
+      case FieldType.Text:
+        return (
+          <NodeTextField
+            key={fd.attrName}
+            isNodeConfigReadOnly={props.isNodeConfigReadOnly}
+            fieldKey={fd.attrName}
+            fieldDefinition={fd}
+            fieldValue={fieldValue as string}
+            onUpdate={(value) => {
+              updateNodeConfig(props.nodeConfig.nodeId, {
+                [fd.attrName]: value,
+              });
+            }}
+          />
+        );
+      case FieldType.StopSequence:
+        return (
+          <NodeStopSequenceField
+            key={fd.attrName}
+            isNodeConfigReadOnly={props.isNodeConfigReadOnly}
+            fieldKey={fd.attrName}
+            fieldDefinition={fd}
+            fieldValue={fieldValue as string[]}
+            onUpdate={(value) => {
+              updateNodeConfig(props.nodeConfig.nodeId, {
+                [fd.attrName]: value,
+              });
+            }}
+          />
+        );
+      case FieldType.Number:
+        return (
+          <NodeNumberField
+            key={fd.attrName}
+            fieldKey={fd.attrName}
+            fieldDefinition={fd}
+            fieldValue={fieldValue as number | null}
+            isNodeConfigReadOnly={props.isNodeConfigReadOnly}
+            onUpdate={(value) => {
+              updateNodeConfig(props.nodeConfig.nodeId, {
+                [fd.attrName]: value,
+              });
+            }}
+          />
+        );
+      case FieldType.Textarea:
+        return (
+          <NodeTextareaField
+            key={fd.attrName}
+            isNodeConfigReadOnly={props.isNodeConfigReadOnly}
+            fieldKey={fd.attrName}
+            fieldDefinition={fd}
+            fieldValue={fieldValue as string}
+            onUpdate={(value) => {
+              updateNodeConfig(props.nodeConfig.nodeId, {
+                [fd.attrName]: value,
+              });
+            }}
+          />
+        );
+      case FieldType.Radio:
+        return (
+          <NodeRadioField
+            key={fd.attrName}
+            isNodeConfigReadOnly={props.isNodeConfigReadOnly}
+            fieldKey={fd.attrName}
+            fieldDefinition={fd}
+            fieldValue={fieldValue}
+            onUpdate={(value) => {
+              updateNodeConfig(props.nodeConfig.nodeId, {
+                [fd.attrName]: value,
+              });
+            }}
+          />
+        );
+      case FieldType.Select:
+        return (
+          <NodeSelectField
+            key={fd.attrName}
+            isNodeConfigReadOnly={props.isNodeConfigReadOnly}
+            fieldKey={fd.attrName}
+            fieldDefinition={fd}
+            fieldValue={fieldValue}
+            onUpdate={(value) => {
+              updateNodeConfig(props.nodeConfig.nodeId, {
+                [fd.attrName]: value,
+              });
+            }}
+          />
+        );
+      case FieldType.Checkbox:
+        return (
+          <NodeCheckboxField
+            key={fd.attrName}
+            fieldKey={fd.attrName}
+            fieldDefinition={fd}
+            fieldValue={fieldValue}
+            isNodeConfigReadOnly={props.isNodeConfigReadOnly}
+            onUpdate={(value) => {
+              updateNodeConfig(props.nodeConfig.nodeId, {
+                [fd.attrName]: value,
+              });
+            }}
+          />
+        );
+      case FieldType.SpecialRendering: {
+        throw new Error('Should not handle SpecialRendering case');
       }
-    },
-  );
+    }
+  });
 }
 
 export default NodeBoxInstanceLevelFields;

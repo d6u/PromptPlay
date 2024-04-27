@@ -28,7 +28,7 @@ export const OUTPUT_NODE_DEFINITION: NodeDefinition<
   type: NodeType.OutputNode,
   label: 'Output',
 
-  instanceLevelConfigFieldDefinitions: {},
+  configFields: [],
 
   canUserAddIncomingVariables: true,
   variableValueTypeForUserAddedIncomingVariable: VariableValueType.Any,

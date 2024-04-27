@@ -27,7 +27,7 @@ export const GENERIC_CHATBOT_FINISH_NODE_DEFINITION: NodeDefinition<
   type: NodeType.GenericChatbotFinish,
   label: 'Generic Chatbot Finish',
 
-  instanceLevelConfigFieldDefinitions: {},
+  configFields: [],
 
   canUserAddIncomingVariables: false,
   variableValueTypeForUserAddedIncomingVariable: VariableValueType.Any,

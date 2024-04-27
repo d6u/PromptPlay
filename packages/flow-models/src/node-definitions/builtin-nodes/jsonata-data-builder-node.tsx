@@ -30,9 +30,10 @@ export const JSONATA_DATA_BUILDER_NODE_DEFINITION: NodeDefinition<
   type: NodeType.JSONataDataBuilder,
   label: 'JSONata Data Builder',
 
-  instanceLevelConfigFieldDefinitions: {
-    expressionString: {
+  configFields: [
+    {
       type: FieldType.Textarea,
+      attrName: 'expressionString',
       label: 'JSONata expression',
       placeholder: 'Enter expression here...',
       helperText: () => (
@@ -45,7 +46,7 @@ export const JSONATA_DATA_BUILDER_NODE_DEFINITION: NodeDefinition<
         </div>
       ),
     },
-  },
+  ],
 
   canUserAddIncomingVariables: true,
   variableValueTypeForUserAddedIncomingVariable: VariableValueType.Any,

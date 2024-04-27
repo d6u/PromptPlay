@@ -51,12 +51,13 @@ export const ELEVENLABS_NODE_DEFINITION: NodeDefinition<
       }),
     },
   },
-  instanceLevelConfigFieldDefinitions: {
-    voiceId: {
+  configFields: [
+    {
       type: FieldType.Text,
+      attrName: 'voiceId',
       label: 'Voice ID',
     },
-  },
+  ],
 
   fixedIncomingVariables: {
     text: {

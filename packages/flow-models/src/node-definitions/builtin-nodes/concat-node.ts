@@ -33,7 +33,7 @@ export const CONCAT_NODE_DEFINITION: NodeDefinition<
   type: NodeType.Concat,
   label: 'Concatenate',
 
-  instanceLevelConfigFieldDefinitions: {},
+  configFields: [],
 
   canUserAddIncomingVariables: true,
   variableValueTypeForUserAddedIncomingVariable: VariableValueType.String,

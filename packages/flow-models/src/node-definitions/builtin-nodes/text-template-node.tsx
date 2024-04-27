@@ -30,9 +30,10 @@ export const TEXT_TEMPLATE_NODE_DEFINITION: NodeDefinition<
   type: NodeType.TextTemplate,
   label: 'Text Template',
 
-  instanceLevelConfigFieldDefinitions: {
-    content: {
+  configFields: [
+    {
       type: FieldType.Textarea,
+      attrName: 'content',
       label: 'Text content',
       placeholder: 'Write something...',
       helperText: () => (
@@ -49,7 +50,7 @@ export const TEXT_TEMPLATE_NODE_DEFINITION: NodeDefinition<
         </div>
       ),
     },
-  },
+  ],
 
   canUserAddIncomingVariables: true,
   variableValueTypeForUserAddedIncomingVariable: VariableValueType.String,

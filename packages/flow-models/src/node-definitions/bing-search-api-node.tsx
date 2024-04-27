@@ -46,7 +46,8 @@ export const BIND_SEARCH_API_NODE_DEFINITION: NodeDefinition<
       }),
     },
   },
-  instanceLevelConfigFieldDefinitions: {},
+
+  configFields: [],
 
   fixedIncomingVariables: {
     query: {

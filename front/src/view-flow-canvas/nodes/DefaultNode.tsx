@@ -145,9 +145,7 @@ function DefaultNode(props: Props) {
           )}
           <NodeInstanceLevelFields
             isNodeConfigReadOnly={props.isNodeReadOnly}
-            instanceLevelConfigFieldDefinitions={
-              nodeDefinition.instanceLevelConfigFieldDefinitions
-            }
+            nodeConfigFieldDefs={nodeDefinition.configFields}
             nodeConfig={props.nodeConfig}
           />
         </GenericContainer>
