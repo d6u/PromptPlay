@@ -1,6 +1,7 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import styled from '@emotion/styled';
+import { useMemo } from 'react';
 import { Control, FieldArrayWithId, useController } from 'react-hook-form';
 import { Position } from 'reactflow';
 
@@ -10,7 +11,6 @@ import RemoveButton from 'generic-components/RemoveButton';
 import { EdgeConnectStartConnectorClass } from 'state-flow/common-types';
 import { useFlowStore } from 'state-flow/flow-store';
 
-import { useMemo } from 'react';
 import DragHandle from '../DragHandle';
 import { BaseVariableHandle, HANDLE_HEIGHT } from '../base-connector-handles';
 import {
@@ -19,9 +19,7 @@ import {
   type VariableDefinition,
 } from '../types';
 import NodeRenamableVariableNameInput from './NodeRenamableVariableNameInput';
-import NodeVariableGlobalVariableSelectorRow, {
-  VariableGlobalVariableIdArrayFieldValues,
-} from './NodeVariableGlobalVariableConfigRow';
+import NodeVariableGlobalVariableSelectorRow from './NodeVariableGlobalVariableConfigRow';
 
 export type HandlePosition = Position.Left | Position.Right | 'none';
 
@@ -42,6 +40,7 @@ type Props = {
   // Callbacks
   onRemove: () => void;
   onUpdateTrigger: () => void;
+  // value: VariableConfig;
 };
 
 function NodeRenamableVariableItem(props: Props) {
@@ -91,7 +90,7 @@ function NodeRenamableVariableItem(props: Props) {
       disabled: !isSortableEnabledForThisRow,
     });
 
-  const { field: formFieldIsGlobal } = useController({
+  const { field: isGlobalField } = useController({
     name: `list.${props.index}.isGlobal`,
     control: props.control,
   });
@@ -113,9 +112,14 @@ function NodeRenamableVariableItem(props: Props) {
     height: !isVariableReadOnly && props.variable.isGlobal ? 69 : undefined,
   };
 
-  const { field } = useController({
+  const { field: nameField } = useController({
     control: props.control,
     name: `list.${props.index}.name`,
+  });
+
+  const { field: globalVariableIdField } = useController({
+    control: props.control,
+    name: `list.${props.index}.globalVariableId`,
   });
 
   return (
@@ -146,19 +150,19 @@ function NodeRenamableVariableItem(props: Props) {
           <VariableConfigRow>
             <NodeRenamableVariableNameInput
               readonly={isVariableReadOnly}
-              value={{ name: props.variable.name }}
+              value={{ name: nameField.value }}
               onChange={(value) => {
-                field.onChange(value.name);
+                nameField.onChange(value.name);
                 props.onUpdateTrigger();
               }}
             />
             {props.isNodeReadOnly && !props.variable.isGlobal ? null : (
               <NodeVariableToggleIsGlobalButton
                 disabled={props.isNodeReadOnly}
-                isActive={formFieldIsGlobal.value}
+                isActive={isGlobalField.value}
                 onClick={() => {
                   if (!props.isNodeReadOnly) {
-                    formFieldIsGlobal.onChange(!formFieldIsGlobal.value);
+                    isGlobalField.onChange(!isGlobalField.value);
                     props.onUpdateTrigger();
                   }
                 }}
@@ -175,16 +179,13 @@ function NodeRenamableVariableItem(props: Props) {
           </VariableConfigRow>
           {props.variable.isGlobal && (
             <NodeVariableGlobalVariableSelectorRow
-              isNodeReadOnly={props.isNodeReadOnly}
+              readonly={props.isNodeReadOnly}
               variableId={props.variable.id}
-              control={
-                // TODO: Until react-hook-form handles generic type better:
-                // https://github.com/react-hook-form/react-hook-form/issues/11617
-                props.control as unknown as Control<VariableGlobalVariableIdArrayFieldValues>
-              }
-              formField={props.formField}
-              index={props.index}
-              onUpdateTrigger={props.onUpdateTrigger}
+              value={{ globalVariableId: globalVariableIdField.value }}
+              onChange={(value) => {
+                globalVariableIdField.onChange(value.globalVariableId);
+                props.onUpdateTrigger();
+              }}
             />
           )}
           {props.variableDefinition.helperText && (

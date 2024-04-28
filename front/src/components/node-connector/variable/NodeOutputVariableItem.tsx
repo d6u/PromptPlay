@@ -8,9 +8,7 @@ import { Control, FieldArrayWithId, useController } from 'react-hook-form';
 import { BaseVariableHandle } from '../base-connector-handles';
 import NodeConnectorResultDisplay from '../condition/NodeConnectorResultDisplay';
 import { NodeOutputVariablePropsArrayFieldValues } from '../types';
-import NodeVariableGlobalVariableSelectorRow, {
-  VariableGlobalVariableIdArrayFieldValues,
-} from './NodeVariableGlobalVariableConfigRow';
+import NodeVariableGlobalVariableSelectorRow from './NodeVariableGlobalVariableConfigRow';
 import NodeVariableToggleIsGlobalButton from './NodeVariableToggleIsGlobalButton';
 
 type Props = {
@@ -56,6 +54,11 @@ function NodeOutputVariableItem(props: Props) {
         isThisTheSameHandleType);
   }
 
+  const { field: globalVariableIdField } = useController({
+    control: props.control,
+    name: `list.${props.index}.globalVariableId`,
+  });
+
   return (
     <Container>
       <RowA>
@@ -75,16 +78,13 @@ function NodeOutputVariableItem(props: Props) {
       </RowA>
       {formFieldIsGlobal.value && (
         <NodeVariableGlobalVariableSelectorRow
-          isNodeReadOnly={props.isNodeReadOnly}
+          readonly={props.isNodeReadOnly}
           variableId={props.variableId}
-          control={
-            // TODO: Until react-hook-form handles generic type better:
-            // https://github.com/react-hook-form/react-hook-form/issues/11617
-            props.control as unknown as Control<VariableGlobalVariableIdArrayFieldValues>
-          }
-          formField={props.formField}
-          index={props.index}
-          onUpdateTrigger={props.onUpdateTrigger}
+          value={{ globalVariableId: globalVariableIdField.value }}
+          onChange={(value) => {
+            globalVariableIdField.onChange(value.globalVariableId);
+            props.onUpdateTrigger();
+          }}
         />
       )}
       {!formFieldIsGlobal.value && (
