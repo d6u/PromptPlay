@@ -20,6 +20,15 @@ function MessageBlock(props: {
     return handleSubmit(props.onChange);
   }, [handleSubmit, props]);
 
+  // const variableConfig = useMemo(() => {
+  //   return {
+  //     id: getValues().variableId!,
+  //     name: '',
+  //     isGlobal: false,
+  //     globalVariableId: '',
+  //   };
+  // }, [getValues]);
+
   return (
     <div>
       <RemoveButton onClick={props.onRemove} />
@@ -86,18 +95,18 @@ function MessageBlock(props: {
           </>
         ) : null
         // <NodeRenamableVariableItem
-        //   key={variable.id}
         //   connectorHandlePosition={Position.Left}
         //   isListSortable={false}
         //   nodeId={props.nodeId}
         //   isNodeReadOnly={props.readonly}
-        //   variable={props.variableConfigs[index]}
+        //   variable={variableConfig}
         //   variableDefinition={props.variableDefinitions[index]}
-        //   control={control}
-        //   formField={field}
-        //   index={index}
+        //   value={variableConfig}
+        //   onChange={(value) => {
+        //     // setValue(`list.${index}`, value);
+        //     // submit();
+        //   }}
         //   onRemove={props.onRemove}
-        //   onUpdateTrigger={props.afterInputUpdated}
         // />
       }
     </div>
