@@ -1,48 +1,39 @@
 import styled from '@emotion/styled';
 import { Input } from '@mui/joy';
-import { Control, Controller, FieldArrayWithId } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 
 import ReadonlyInput from 'generic-components/ReadonlyInput';
 
-import { VariableFormValue } from '../types';
+import { useMemo } from 'react';
 
 type Props = {
-  isReadOnly: boolean;
-  control: Control<VariableFormValue>;
-  formField: FieldArrayWithId<VariableFormValue, 'list', 'id'>;
-  index: number;
-  onRemove: () => void;
-  onUpdateTrigger: () => void;
+  readonly: boolean;
+  value: { name: string };
+  onChange: (value: { name: string }) => void;
 };
 
 function NodeRenamableVariableNameInput(props: Props) {
-  if (props.isReadOnly) {
-    return <ReadonlyInput value={props.formField.name} />;
+  const { register, handleSubmit } = useForm<{ name: string }>({
+    values: props.value,
+  });
+
+  const onChange = useMemo(() => {
+    return handleSubmit(props.onChange);
+  }, [handleSubmit, props]);
+
+  if (props.readonly) {
+    return <ReadonlyInput value={props.value.name} />;
   }
 
   return (
-    <Controller
-      control={props.control}
-      name={`list.${props.index}.name`}
-      render={({ field }) => (
-        <StyledInput
-          color="primary"
-          ref={field.ref}
-          name={field.name}
-          value={field.value}
-          disabled={field.disabled}
-          onKeyUp={(e) => {
-            if (e.key === 'Enter') {
-              props.onUpdateTrigger();
-            }
-          }}
-          onBlur={() => {
-            field.onBlur();
-            props.onUpdateTrigger();
-          }}
-          onChange={field.onChange}
-        />
-      )}
+    <StyledInput
+      color="primary"
+      {...register('name', { onBlur: onChange })}
+      onKeyUp={(e) => {
+        if (e.key === 'Enter') {
+          onChange();
+        }
+      }}
     />
   );
 }

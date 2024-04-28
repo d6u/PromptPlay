@@ -10,6 +10,7 @@ import RemoveButton from 'generic-components/RemoveButton';
 import { EdgeConnectStartConnectorClass } from 'state-flow/common-types';
 import { useFlowStore } from 'state-flow/flow-store';
 
+import { useMemo } from 'react';
 import DragHandle from '../DragHandle';
 import { BaseVariableHandle, HANDLE_HEIGHT } from '../base-connector-handles';
 import {
@@ -53,9 +54,11 @@ function NodeRenamableVariableItem(props: Props) {
     (s) => s.paramsOnUserStartConnectingEdge,
   );
 
-  let grayOutHandle = false;
+  const grayOutHandle = useMemo(() => {
+    if (!paramsOnUserStartConnectingEdge) {
+      return false;
+    }
 
-  if (paramsOnUserStartConnectingEdge) {
     const { nodeId, handleId, handleType, connectorClass } =
       paramsOnUserStartConnectingEdge;
 
@@ -69,12 +72,18 @@ function NodeRenamableVariableItem(props: Props) {
       (handleType === 'target' &&
         props.connectorHandlePosition === Position.Left);
 
-    grayOutHandle =
+    return (
       !isThisTheStartHandle &&
       (isThisOnTheSameNode ||
         !isThisInTheSameConnectorClass ||
-        isThisTheSameHandleType);
-  }
+        isThisTheSameHandleType)
+    );
+  }, [
+    paramsOnUserStartConnectingEdge,
+    props.variable.id,
+    props.nodeId,
+    props.connectorHandlePosition,
+  ]);
 
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({
@@ -104,6 +113,11 @@ function NodeRenamableVariableItem(props: Props) {
     height: !isVariableReadOnly && props.variable.isGlobal ? 69 : undefined,
   };
 
+  const { field } = useController({
+    control: props.control,
+    name: `list.${props.index}.name`,
+  });
+
   return (
     <Container ref={setNodeRef} style={style} {...attributes}>
       {props.connectorHandlePosition !== 'none' && !props.variable.isGlobal && (
@@ -131,12 +145,12 @@ function NodeRenamableVariableItem(props: Props) {
         <BoxAA>
           <VariableConfigRow>
             <NodeRenamableVariableNameInput
-              isReadOnly={isVariableReadOnly}
-              control={props.control}
-              formField={props.formField}
-              index={props.index}
-              onRemove={props.onRemove}
-              onUpdateTrigger={props.onUpdateTrigger}
+              readonly={isVariableReadOnly}
+              value={{ name: props.variable.name }}
+              onChange={(value) => {
+                field.onChange(value.name);
+                props.onUpdateTrigger();
+              }}
             />
             {props.isNodeReadOnly && !props.variable.isGlobal ? null : (
               <NodeVariableToggleIsGlobalButton
