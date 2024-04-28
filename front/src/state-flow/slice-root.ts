@@ -168,18 +168,7 @@ export const createRootSlice: RootSliceStateCreator = (set, get) => {
 
     // SECTION: Simple getters and setters
     getFlowContent: getFlowContent,
-    openCanvasLeftPaneInspectorForNode(
-      nodeId: string,
-      rfState: ReactFlowState,
-      rfInstance: ReactFlowInstance,
-    ): void {
-      focusOnNodesWithinViewport(rfState, rfInstance);
 
-      set({
-        canvasLeftPaneType: CanvasLeftPaneType.Inspector,
-        canvasLeftPaneSelectedNodeId: nodeId,
-      });
-    },
     setCanvasLeftPaneType(
       type: CanvasLeftPaneType,
       rfState: ReactFlowState,
@@ -209,6 +198,12 @@ export const createRootSlice: RootSliceStateCreator = (set, get) => {
     },
     setDraggingNodeTypeForAddingNode(nodeType: NodeTypeEnum | null): void {
       set({ draggingNodeTypeForAddingNode: nodeType });
+    },
+    onNodeClick(nodeId: string): void {
+      set({
+        canvasLeftPaneType: CanvasLeftPaneType.Inspector,
+        canvasLeftPaneSelectedNodeId: nodeId,
+      });
     },
     // !SECTION
 

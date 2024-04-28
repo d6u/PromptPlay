@@ -221,11 +221,6 @@ export type FlowActions = {
   enterFlowRoute(spaceId: string): void;
   leaveFlowRoute(): void;
 
-  openCanvasLeftPaneInspectorForNode(
-    nodeId: string,
-    rfState: ReactFlowState,
-    rfInstance: ReactFlowInstance,
-  ): void;
   setCanvasLeftPaneType(
     type: CanvasLeftPaneType,
     rfState: ReactFlowState,
@@ -241,6 +236,7 @@ export type FlowActions = {
   setDraggingNodeTypeForAddingNode(nodeType: NodeTypeEnum | null): void;
   onEdgeConnectStart(params: OnConnectStartParams): void;
   onEdgeConnectStop(): void;
+  onNodeClick(nodeId: string): void;
 
   setSelectedBatchTestTab(tab: BatchTestTab): void;
 

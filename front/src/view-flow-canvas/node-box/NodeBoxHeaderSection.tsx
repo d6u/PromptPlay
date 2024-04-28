@@ -1,5 +1,4 @@
 import styled from '@emotion/styled';
-import { useReactFlow, useStoreApi } from 'reactflow';
 
 import { NodeKind, type NodeKindEnum } from 'flow-models';
 
@@ -9,7 +8,6 @@ import IconThreeDots from 'icons/IconThreeDots';
 import { useFlowStore } from 'state-flow/flow-store';
 
 import { DRAG_HANDLE_CLASS_NAME } from '../constants';
-import NodeBoxGearButton from './NodeBoxIconGear';
 import NodeBoxIconRename from './NodeBoxIconRename';
 
 type Props = {
@@ -30,13 +28,7 @@ type Props = {
 
 function NodeBoxHeaderSection(props: Props) {
   const removeNode = useFlowStore((s) => s.removeNode);
-  const openInspectorForNode = useFlowStore(
-    (s) => s.openCanvasLeftPaneInspectorForNode,
-  );
   const setCanvasRenameNodeId = useFlowStore((s) => s.setCanvasRenameNodeId);
-
-  const reactflow = useReactFlow();
-  const reactflowStoreApi = useStoreApi();
 
   return (
     <Container>
@@ -65,15 +57,6 @@ function NodeBoxHeaderSection(props: Props) {
             }}
           />
         )}
-        <NodeBoxGearButton
-          onClick={() => {
-            openInspectorForNode(
-              props.nodeId,
-              reactflowStoreApi.getState(),
-              reactflow,
-            );
-          }}
-        />
         {!props.isNodeReadOnly &&
           props.showAddVariableButton &&
           props.onClickAddVariableButton && (
