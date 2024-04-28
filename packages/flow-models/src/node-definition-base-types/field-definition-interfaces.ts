@@ -12,8 +12,10 @@ export enum FieldType {
   Radio = 'Radio',
   Select = 'Select',
   Checkbox = 'Checkbox',
-  SpecialRendering = 'SpecialRendering',
   SharedCavnasConfig = 'SharedCavnasConfig',
+  InputVariable = 'InputVariable',
+  LlmMessages = 'LlmMessages',
+  SpecialRendering = 'SpecialRendering',
 }
 
 // ANCHOR: Shared props
@@ -107,6 +109,14 @@ export type SharedCavnasConfig = NodeConfigFieldDefCommon & {
   canvasConfigKey: keyof typeof CANVAS_CONFIG_DEFINITIONS;
 };
 
+export type InputVariableFieldDefinition = NodeConfigFieldDefCommon & {
+  type: FieldType.InputVariable;
+};
+
+export type LlmMessagesFieldDefinition = NodeConfigFieldDefCommon & {
+  type: FieldType.LlmMessages;
+};
+
 // Special Rendering field's logic will be held within the specific
 // node component.
 export type SpecialRenderingFieldDefinition = NodeConfigFieldDefCommon & {
@@ -122,6 +132,8 @@ export type NodeInstanceLevelFieldDefinitionUnion =
   | SelectFieldDefinition
   | CheckboxFieldDefinition
   | SharedCavnasConfig
+  | InputVariableFieldDefinition
+  | LlmMessagesFieldDefinition
   | SpecialRenderingFieldDefinition;
 
 // ANCHOR: Account Level Fields

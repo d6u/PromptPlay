@@ -10,30 +10,29 @@ import {
   ModalDialog,
   Typography,
 } from '@mui/joy';
-import { useState } from 'react';
-import { Control, Controller, FieldArrayWithId } from 'react-hook-form';
+import { useMemo, useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
 
 import ReadonlyInput from 'generic-components/ReadonlyInput';
 import PlusIcon from 'icons/PlusIcon';
 import { useFlowStore } from 'state-flow/flow-store';
 
-export type VariableGlobalVariableIdArrayFieldValues = {
-  list: { globalVariableId: string | null }[];
-};
-
 type Props = {
-  // Node level
-  isNodeReadOnly: boolean;
-  // Variable level
+  readonly: boolean;
   variableId: string;
-  // react-hook-form
-  control: Control<VariableGlobalVariableIdArrayFieldValues>;
-  formField: FieldArrayWithId<VariableGlobalVariableIdArrayFieldValues, 'list'>;
-  index: number;
-  onUpdateTrigger: () => void;
+  value: { globalVariableId: string | null };
+  onChange: (value: { globalVariableId: string | null }) => void;
 };
 
 function NodeVariableGlobalVariableSelectorRow(props: Props) {
+  const { control, handleSubmit } = useForm<{
+    globalVariableId: string | null;
+  }>({ values: props.value });
+
+  const onChange = useMemo(() => {
+    return handleSubmit(props.onChange);
+  }, [handleSubmit, props]);
+
   const globalVariables = useFlowStore(
     (s) => s.canvas.flowContent.globalVariables,
   );
@@ -43,13 +42,13 @@ function NodeVariableGlobalVariableSelectorRow(props: Props) {
   const [modalOpen, setModalOpen] = useState(false);
   const [globalVariableName, setGlobalVariableName] = useState('');
 
-  if (props.isNodeReadOnly) {
+  if (props.readonly) {
     return (
       <Container>
         <ReadonlyInput
           value={
-            props.formField.globalVariableId != null
-              ? globalVariables[props.formField.globalVariableId].name
+            props.value.globalVariableId != null
+              ? globalVariables[props.value.globalVariableId].name
               : undefined
           }
         />
@@ -60,17 +59,17 @@ function NodeVariableGlobalVariableSelectorRow(props: Props) {
   return (
     <Container>
       <Controller
-        control={props.control}
-        name={`list.${props.index}.globalVariableId`}
+        control={control}
+        name="globalVariableId"
         render={({ field }) => (
           <StyledAutocomplete
             size="sm"
             options={Object.keys(globalVariables)}
             getOptionLabel={(option) => globalVariables[option as string].name}
-            value={field.value}
+            {...field}
             onChange={(_, newValue) => {
               field.onChange(newValue);
-              props.onUpdateTrigger();
+              onChange();
             }}
           />
         )}

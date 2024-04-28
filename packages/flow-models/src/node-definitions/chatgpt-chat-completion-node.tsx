@@ -7,6 +7,7 @@ import * as OpenAI from 'integrations/openai';
 
 import {
   ChatGPTMessage,
+  ChatGPTMessageRole,
   getNonStreamingCompletion,
   getStreamingCompletion,
 } from 'integrations/openai';
@@ -47,10 +48,42 @@ export enum ChatGPTChatCompletionResponseFormatType {
   JsonObject = 'json_object',
 }
 
+const MessagesFieldSchema = z
+  .tuple([
+    z.object({
+      variableIds: z.array(z.string()),
+      messages: z.array(
+        z.object({
+          type: z.enum(['inputVariable', 'inline']),
+          variableId: z.string().nullable(),
+          value: z
+            .object({
+              role: z.enum([
+                ChatGPTMessageRole.system,
+                ChatGPTMessageRole.user,
+                ChatGPTMessageRole.assistant,
+              ]),
+              content: z.string(),
+            })
+            .nullable(),
+        }),
+      ),
+    }),
+    z.object({
+      variableId: z.string().nullable(),
+    }),
+  ])
+  .default([{ variableIds: [], messages: [] }, { variableId: null }]);
+
+export type NodeConfigMessagesFieldType = z.infer<typeof MessagesFieldSchema>;
+
 export const ChatgptChatCompletionNodeConfigSchema = z.object({
+  // Common fields
   kind: z.literal(NodeKind.Process),
   type: z.literal(NodeType.ChatGPTChatCompletionNode),
   nodeId: z.string(),
+  // Unique fields
+  messages: MessagesFieldSchema,
   model: z.nativeEnum(OpenAIChatModel),
   temperature: z.number(),
   seed: z.number().nullable(),
@@ -80,6 +113,11 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
   label: 'ChatGPT Chat Completion',
 
   configFields: [
+    {
+      type: FieldType.LlmMessages,
+      attrName: 'messages',
+      showOnCanvas: true,
+    },
     {
       type: FieldType.SharedCavnasConfig,
       attrName: 'openAiApiKey',
@@ -151,6 +189,9 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
     },
   },
 
+  canUserAddIncomingVariables: true,
+  variableValueTypeForUserAddedIncomingVariable: VariableValueType.Structured,
+
   createDefaultNodeConfigsAndConnectors(context) {
     const chatCompletionNodeId = context.generateNodeId();
     const messageNodeId = context.generateNodeId();
@@ -159,8 +200,24 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
       nodeConfigs: [
         {
           kind: NodeKind.Process,
-          nodeId: chatCompletionNodeId,
           type: NodeType.ChatGPTChatCompletionNode,
+          nodeId: chatCompletionNodeId,
+          messages: [
+            {
+              variableIds: [],
+              messages: [
+                {
+                  type: 'inline',
+                  variableId: null,
+                  value: {
+                    role: 'user',
+                    content: 'Write a poem in fewer than 20 words.',
+                  },
+                },
+              ],
+            },
+            { variableId: null },
+          ],
           model: OpenAIChatModel.GPT_3_5_TURBO,
           temperature: 1,
           stop: [],

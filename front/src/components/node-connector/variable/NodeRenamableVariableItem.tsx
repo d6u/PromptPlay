@@ -1,7 +1,8 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import styled from '@emotion/styled';
-import { Control, FieldArrayWithId, useController } from 'react-hook-form';
+import { useMemo } from 'react';
+import { useForm } from 'react-hook-form';
 import { Position } from 'reactflow';
 
 import NodeVariableToggleIsGlobalButton from 'components/node-connector/variable/NodeVariableToggleIsGlobalButton';
@@ -12,15 +13,9 @@ import { useFlowStore } from 'state-flow/flow-store';
 
 import DragHandle from '../DragHandle';
 import { BaseVariableHandle, HANDLE_HEIGHT } from '../base-connector-handles';
-import {
-  VariableConfig,
-  VariableFormValue,
-  type VariableDefinition,
-} from '../types';
+import { VariableConfig, type VariableDefinition } from '../types';
 import NodeRenamableVariableNameInput from './NodeRenamableVariableNameInput';
-import NodeVariableGlobalVariableSelectorRow, {
-  VariableGlobalVariableIdArrayFieldValues,
-} from './NodeVariableGlobalVariableConfigRow';
+import NodeVariableGlobalVariableSelectorRow from './NodeVariableGlobalVariableConfigRow';
 
 export type HandlePosition = Position.Left | Position.Right | 'none';
 
@@ -32,18 +27,22 @@ type Props = {
   nodeId: string;
   isNodeReadOnly: boolean;
   // Variable level
-  index: number;
   variable: VariableConfig;
   variableDefinition: VariableDefinition;
-  // react-hook-form
-  control: Control<VariableFormValue>;
-  formField: FieldArrayWithId<VariableFormValue, 'list', 'id'>;
-  // Callbacks
+  value: VariableConfig;
+  onChange: (value: VariableConfig) => void;
   onRemove: () => void;
-  onUpdateTrigger: () => void;
 };
 
 function NodeRenamableVariableItem(props: Props) {
+  const { setValue, getValues, handleSubmit } = useForm<VariableConfig>({
+    values: props.value,
+  });
+
+  const onChange = useMemo(() => {
+    return handleSubmit(props.onChange);
+  }, [handleSubmit, props]);
+
   const isSortableEnabledForThisRow =
     !props.isNodeReadOnly &&
     !props.variableDefinition.isVariableFixed &&
@@ -53,9 +52,11 @@ function NodeRenamableVariableItem(props: Props) {
     (s) => s.paramsOnUserStartConnectingEdge,
   );
 
-  let grayOutHandle = false;
+  const grayOutHandle = useMemo(() => {
+    if (!paramsOnUserStartConnectingEdge) {
+      return false;
+    }
 
-  if (paramsOnUserStartConnectingEdge) {
     const { nodeId, handleId, handleType, connectorClass } =
       paramsOnUserStartConnectingEdge;
 
@@ -69,23 +70,24 @@ function NodeRenamableVariableItem(props: Props) {
       (handleType === 'target' &&
         props.connectorHandlePosition === Position.Left);
 
-    grayOutHandle =
+    return (
       !isThisTheStartHandle &&
       (isThisOnTheSameNode ||
         !isThisInTheSameConnectorClass ||
-        isThisTheSameHandleType);
-  }
+        isThisTheSameHandleType)
+    );
+  }, [
+    paramsOnUserStartConnectingEdge,
+    props.variable.id,
+    props.nodeId,
+    props.connectorHandlePosition,
+  ]);
 
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({
-      id: props.formField.id,
+      id: props.value.id,
       disabled: !isSortableEnabledForThisRow,
     });
-
-  const { field: formFieldIsGlobal } = useController({
-    name: `list.${props.index}.isGlobal`,
-    control: props.control,
-  });
 
   const isVariableReadOnly =
     props.isNodeReadOnly || props.variableDefinition.isVariableFixed;
@@ -131,46 +133,36 @@ function NodeRenamableVariableItem(props: Props) {
         <BoxAA>
           <VariableConfigRow>
             <NodeRenamableVariableNameInput
-              isReadOnly={isVariableReadOnly}
-              control={props.control}
-              formField={props.formField}
-              index={props.index}
-              onRemove={props.onRemove}
-              onUpdateTrigger={props.onUpdateTrigger}
+              readonly={isVariableReadOnly}
+              value={{ name: getValues().name }}
+              onChange={(value) => {
+                setValue('name', value.name);
+                onChange();
+              }}
             />
             {props.isNodeReadOnly && !props.variable.isGlobal ? null : (
               <NodeVariableToggleIsGlobalButton
                 disabled={props.isNodeReadOnly}
-                isActive={formFieldIsGlobal.value}
+                isActive={getValues().isGlobal}
                 onClick={() => {
                   if (!props.isNodeReadOnly) {
-                    formFieldIsGlobal.onChange(!formFieldIsGlobal.value);
-                    props.onUpdateTrigger();
+                    setValue('isGlobal', !getValues().isGlobal);
+                    onChange();
                   }
                 }}
               />
             )}
-            {!isVariableReadOnly && (
-              <RemoveButton
-                onClick={() => {
-                  props.onRemove();
-                  props.onUpdateTrigger();
-                }}
-              />
-            )}
+            {!isVariableReadOnly && <RemoveButton onClick={props.onRemove} />}
           </VariableConfigRow>
           {props.variable.isGlobal && (
             <NodeVariableGlobalVariableSelectorRow
-              isNodeReadOnly={props.isNodeReadOnly}
+              readonly={props.isNodeReadOnly}
               variableId={props.variable.id}
-              control={
-                // TODO: Until react-hook-form handles generic type better:
-                // https://github.com/react-hook-form/react-hook-form/issues/11617
-                props.control as unknown as Control<VariableGlobalVariableIdArrayFieldValues>
-              }
-              formField={props.formField}
-              index={props.index}
-              onUpdateTrigger={props.onUpdateTrigger}
+              value={{ globalVariableId: getValues().globalVariableId }}
+              onChange={(value) => {
+                setValue('globalVariableId', value.globalVariableId);
+                onChange();
+              }}
             />
           )}
           {props.variableDefinition.helperText && (

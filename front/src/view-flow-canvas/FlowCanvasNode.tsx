@@ -3,7 +3,15 @@ import { useContext, useMemo } from 'react';
 import { type NodeProps } from 'reactflow';
 import invariant from 'tiny-invariant';
 
-import { ConnectorType, NodeConfig, NodeKind, NodeType } from 'flow-models';
+import {
+  ConnectorType,
+  FieldType,
+  NodeConfig,
+  NodeKind,
+  NodeType,
+  getNodeDefinitionForNodeTypeName,
+  type InputVariableFieldDefinition,
+} from 'flow-models';
 
 import RouteFlowContext from 'state-flow/context/FlowRouteContext';
 import { useFlowStore } from 'state-flow/flow-store';
@@ -37,13 +45,36 @@ function FlowCanvasNode(props: NodeProps) {
     nodeConfig = nodeConfigs[nodeId];
   }
 
+  // ANCHOR: Node Definition
+  const nodeDefinition = useMemo(
+    () =>
+      nodeConfig ? getNodeDefinitionForNodeTypeName(nodeConfig.type) : null,
+    [nodeConfig],
+  );
+
   const inputVariables = useMemo(() => {
     if (nodeId != null) {
-      return selectVariables(nodeId, ConnectorType.NodeInput, connectors);
+      const variables = selectVariables(
+        nodeId,
+        ConnectorType.NodeInput,
+        connectors,
+      );
+      return variables.filter((variable) => {
+        return (
+          !nodeDefinition ||
+          !nodeDefinition.configFields
+            .filter(
+              (field): field is InputVariableFieldDefinition =>
+                field.type === FieldType.InputVariable,
+            )
+            .map((field) => `${nodeId}/${field.attrName}`)
+            .includes(variable.id)
+        );
+      });
     } else {
       return [];
     }
-  }, [nodeId, connectors]);
+  }, [nodeId, connectors, nodeDefinition]);
 
   const outputVariables = useMemo(() => {
     if (nodeId != null) {

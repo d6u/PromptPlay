@@ -36,6 +36,7 @@ import {
   FlowActions,
   FlowProps,
   FlowState,
+  type AddConnectorForNodeConfigFieldParams,
   type CanvasStateMachineEmittedEvent,
   type ConditionResultUpdate,
   type FlowSingleRunResult,
@@ -167,18 +168,7 @@ export const createRootSlice: RootSliceStateCreator = (set, get) => {
 
     // SECTION: Simple getters and setters
     getFlowContent: getFlowContent,
-    openCanvasLeftPaneInspectorForNode(
-      nodeId: string,
-      rfState: ReactFlowState,
-      rfInstance: ReactFlowInstance,
-    ): void {
-      focusOnNodesWithinViewport(rfState, rfInstance);
 
-      set({
-        canvasLeftPaneType: CanvasLeftPaneType.Inspector,
-        canvasLeftPaneSelectedNodeId: nodeId,
-      });
-    },
     setCanvasLeftPaneType(
       type: CanvasLeftPaneType,
       rfState: ReactFlowState,
@@ -208,6 +198,12 @@ export const createRootSlice: RootSliceStateCreator = (set, get) => {
     },
     setDraggingNodeTypeForAddingNode(nodeType: NodeTypeEnum | null): void {
       set({ draggingNodeTypeForAddingNode: nodeType });
+    },
+    onNodeClick(nodeId: string): void {
+      set({
+        canvasLeftPaneType: CanvasLeftPaneType.Inspector,
+        canvasLeftPaneSelectedNodeId: nodeId,
+      });
     },
     // !SECTION
 
@@ -261,6 +257,16 @@ export const createRootSlice: RootSliceStateCreator = (set, get) => {
         connectorType: type,
         connectorIndex: index,
       });
+    },
+    addConnectorForNodeConfigField(
+      params: AddConnectorForNodeConfigFieldParams,
+    ): void {
+      // get()._processEventWithEventGraph({
+      //   type: ChangeEventType.ADDING_CONNECTOR_FOR_NODE_CONFIG_FIELD,
+      //   // nodeId,
+      //   // connectorType: type,
+      //   // connectorIndex: index,
+      // });
     },
     removeVariable(variableId: string): void {
       get()._processEventWithEventGraph({

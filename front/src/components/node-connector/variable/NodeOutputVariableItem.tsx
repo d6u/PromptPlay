@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { Position, useReactFlow, useStoreApi } from 'reactflow';
+import { Position } from 'reactflow';
 
 import { EdgeConnectStartConnectorClass } from 'state-flow/common-types';
 import { useFlowStore } from 'state-flow/flow-store';
@@ -8,9 +8,7 @@ import { Control, FieldArrayWithId, useController } from 'react-hook-form';
 import { BaseVariableHandle } from '../base-connector-handles';
 import NodeConnectorResultDisplay from '../condition/NodeConnectorResultDisplay';
 import { NodeOutputVariablePropsArrayFieldValues } from '../types';
-import NodeVariableGlobalVariableSelectorRow, {
-  VariableGlobalVariableIdArrayFieldValues,
-} from './NodeVariableGlobalVariableConfigRow';
+import NodeVariableGlobalVariableSelectorRow from './NodeVariableGlobalVariableConfigRow';
 import NodeVariableToggleIsGlobalButton from './NodeVariableToggleIsGlobalButton';
 
 type Props = {
@@ -28,10 +26,6 @@ type Props = {
 };
 
 function NodeOutputVariableItem(props: Props) {
-  const openInspectorForNode = useFlowStore(
-    (s) => s.openCanvasLeftPaneInspectorForNode,
-  );
-
   const paramsOnUserStartConnectingEdge = useFlowStore(
     (s) => s.paramsOnUserStartConnectingEdge,
   );
@@ -60,8 +54,10 @@ function NodeOutputVariableItem(props: Props) {
         isThisTheSameHandleType);
   }
 
-  const reactflow = useReactFlow();
-  const reactflowStoreApi = useStoreApi();
+  const { field: globalVariableIdField } = useController({
+    control: props.control,
+    name: `list.${props.index}.globalVariableId`,
+  });
 
   return (
     <Container>
@@ -69,13 +65,7 @@ function NodeOutputVariableItem(props: Props) {
         <NodeConnectorResultDisplay
           label={props.formField.name}
           value={props.formField.value}
-          onClick={() => {
-            openInspectorForNode(
-              props.nodeId,
-              reactflowStoreApi.getState(),
-              reactflow,
-            );
-          }}
+          onClick={() => {}}
         />
         <NodeVariableToggleIsGlobalButton
           disabled={false}
@@ -88,16 +78,13 @@ function NodeOutputVariableItem(props: Props) {
       </RowA>
       {formFieldIsGlobal.value && (
         <NodeVariableGlobalVariableSelectorRow
-          isNodeReadOnly={props.isNodeReadOnly}
+          readonly={props.isNodeReadOnly}
           variableId={props.variableId}
-          control={
-            // TODO: Until react-hook-form handles generic type better:
-            // https://github.com/react-hook-form/react-hook-form/issues/11617
-            props.control as unknown as Control<VariableGlobalVariableIdArrayFieldValues>
-          }
-          formField={props.formField}
-          index={props.index}
-          onUpdateTrigger={props.onUpdateTrigger}
+          value={{ globalVariableId: globalVariableIdField.value }}
+          onChange={(value) => {
+            globalVariableIdField.onChange(value.globalVariableId);
+            props.onUpdateTrigger();
+          }}
         />
       )}
       {!formFieldIsGlobal.value && (

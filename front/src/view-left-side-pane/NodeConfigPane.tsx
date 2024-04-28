@@ -41,6 +41,10 @@ function NodeConfigPane() {
     return nodeId != null ? nodeExecutionStates[nodeId] : null;
   }, [nodeId, nodeExecutionStates]);
 
+  if (nodeConfig == null) {
+    return null;
+  }
+
   // NOTE: Start or SubroutineStart
 
   if (
