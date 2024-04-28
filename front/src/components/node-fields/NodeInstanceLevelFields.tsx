@@ -10,13 +10,13 @@ import { useFlowStore } from 'state-flow/flow-store';
 import NodeCheckboxField from './NodeCheckboxField';
 // import NodeConfigFieldInputVariable from './NodeConfigFieldInputVariable';
 import NodeGlobalTextField from './NodeGlobalTextField';
-import NodeLlmMessagesField from './NodeLlmMessagesField';
 import NodeNumberField from './NodeNumberField';
 import NodeRadioField from './NodeRadioField';
 import NodeSelectField from './NodeSelectField';
 import NodeStopSequenceField from './NodeStopSequenceField';
 import NodeTextField from './NodeTextField';
 import NodeTextareaField from './NodeTextareaField';
+import NodeLlmMessagesField from './llm-message-field/LlmMessagesField';
 
 type Props = {
   isNodeConfigReadOnly: boolean;
