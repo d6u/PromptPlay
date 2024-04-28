@@ -2,7 +2,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import styled from '@emotion/styled';
 import { useMemo } from 'react';
-import { Control, FieldArrayWithId, useController } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { Position } from 'reactflow';
 
 import NodeVariableToggleIsGlobalButton from 'components/node-connector/variable/NodeVariableToggleIsGlobalButton';
@@ -13,11 +13,7 @@ import { useFlowStore } from 'state-flow/flow-store';
 
 import DragHandle from '../DragHandle';
 import { BaseVariableHandle, HANDLE_HEIGHT } from '../base-connector-handles';
-import {
-  VariableConfig,
-  VariableFormValue,
-  type VariableDefinition,
-} from '../types';
+import { VariableConfig, type VariableDefinition } from '../types';
 import NodeRenamableVariableNameInput from './NodeRenamableVariableNameInput';
 import NodeVariableGlobalVariableSelectorRow from './NodeVariableGlobalVariableConfigRow';
 
@@ -31,19 +27,22 @@ type Props = {
   nodeId: string;
   isNodeReadOnly: boolean;
   // Variable level
-  index: number;
   variable: VariableConfig;
   variableDefinition: VariableDefinition;
-  // react-hook-form
-  control: Control<VariableFormValue>;
-  formField: FieldArrayWithId<VariableFormValue, 'list', 'id'>;
-  // Callbacks
+  value: VariableConfig;
+  onChange: (value: VariableConfig) => void;
   onRemove: () => void;
-  onUpdateTrigger: () => void;
-  // value: VariableConfig;
 };
 
 function NodeRenamableVariableItem(props: Props) {
+  const { setValue, getValues, handleSubmit } = useForm<VariableConfig>({
+    values: props.value,
+  });
+
+  const onChange = useMemo(() => {
+    return handleSubmit(props.onChange);
+  }, [handleSubmit, props]);
+
   const isSortableEnabledForThisRow =
     !props.isNodeReadOnly &&
     !props.variableDefinition.isVariableFixed &&
@@ -86,14 +85,9 @@ function NodeRenamableVariableItem(props: Props) {
 
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({
-      id: props.formField.id,
+      id: props.value.id,
       disabled: !isSortableEnabledForThisRow,
     });
-
-  const { field: isGlobalField } = useController({
-    name: `list.${props.index}.isGlobal`,
-    control: props.control,
-  });
 
   const isVariableReadOnly =
     props.isNodeReadOnly || props.variableDefinition.isVariableFixed;
@@ -111,16 +105,6 @@ function NodeRenamableVariableItem(props: Props) {
     //  of sortable variable has `helperText`.
     height: !isVariableReadOnly && props.variable.isGlobal ? 69 : undefined,
   };
-
-  const { field: nameField } = useController({
-    control: props.control,
-    name: `list.${props.index}.name`,
-  });
-
-  const { field: globalVariableIdField } = useController({
-    control: props.control,
-    name: `list.${props.index}.globalVariableId`,
-  });
 
   return (
     <Container ref={setNodeRef} style={style} {...attributes}>
@@ -150,41 +134,34 @@ function NodeRenamableVariableItem(props: Props) {
           <VariableConfigRow>
             <NodeRenamableVariableNameInput
               readonly={isVariableReadOnly}
-              value={{ name: nameField.value }}
+              value={{ name: getValues().name }}
               onChange={(value) => {
-                nameField.onChange(value.name);
-                props.onUpdateTrigger();
+                setValue('name', value.name);
+                onChange();
               }}
             />
             {props.isNodeReadOnly && !props.variable.isGlobal ? null : (
               <NodeVariableToggleIsGlobalButton
                 disabled={props.isNodeReadOnly}
-                isActive={isGlobalField.value}
+                isActive={getValues().isGlobal}
                 onClick={() => {
                   if (!props.isNodeReadOnly) {
-                    isGlobalField.onChange(!isGlobalField.value);
-                    props.onUpdateTrigger();
+                    setValue('isGlobal', !getValues().isGlobal);
+                    onChange();
                   }
                 }}
               />
             )}
-            {!isVariableReadOnly && (
-              <RemoveButton
-                onClick={() => {
-                  props.onRemove();
-                  props.onUpdateTrigger();
-                }}
-              />
-            )}
+            {!isVariableReadOnly && <RemoveButton onClick={props.onRemove} />}
           </VariableConfigRow>
           {props.variable.isGlobal && (
             <NodeVariableGlobalVariableSelectorRow
               readonly={props.isNodeReadOnly}
               variableId={props.variable.id}
-              value={{ globalVariableId: globalVariableIdField.value }}
+              value={{ globalVariableId: getValues().globalVariableId }}
               onChange={(value) => {
-                globalVariableIdField.onChange(value.globalVariableId);
-                props.onUpdateTrigger();
+                setValue('globalVariableId', value.globalVariableId);
+                onChange();
               }}
             />
           )}
