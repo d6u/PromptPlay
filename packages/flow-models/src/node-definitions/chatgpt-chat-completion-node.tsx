@@ -52,14 +52,20 @@ const MessagesFieldSchema = z
   .tuple([
     z.object({
       variableIds: z.array(z.string()),
-      value: z.array(
+      messages: z.array(
         z.object({
-          role: z.enum([
-            ChatGPTMessageRole.system,
-            ChatGPTMessageRole.user,
-            ChatGPTMessageRole.assistant,
-          ]),
-          content: z.string(),
+          type: z.enum(['inputVariable', 'inline']),
+          variableId: z.string().nullable(),
+          value: z
+            .object({
+              role: z.enum([
+                ChatGPTMessageRole.system,
+                ChatGPTMessageRole.user,
+                ChatGPTMessageRole.assistant,
+              ]),
+              content: z.string(),
+            })
+            .nullable(),
         }),
       ),
     }),
@@ -67,7 +73,7 @@ const MessagesFieldSchema = z
       variableId: z.string().nullable(),
     }),
   ])
-  .default([{ variableIds: [], value: [] }, { variableId: null }]);
+  .default([{ variableIds: [], messages: [] }, { variableId: null }]);
 
 export type NodeConfigMessagesFieldType = z.infer<typeof MessagesFieldSchema>;
 
@@ -196,7 +202,22 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
           kind: NodeKind.Process,
           type: NodeType.ChatGPTChatCompletionNode,
           nodeId: chatCompletionNodeId,
-          messages: [{ variableIds: [], value: [] }, { variableId: null }],
+          messages: [
+            {
+              variableIds: [],
+              messages: [
+                {
+                  type: 'inline',
+                  variableId: null,
+                  value: {
+                    role: 'user',
+                    content: 'Write a poem in fewer than 20 words.',
+                  },
+                },
+              ],
+            },
+            { variableId: null },
+          ],
           model: OpenAIChatModel.GPT_3_5_TURBO,
           temperature: 1,
           stop: [],

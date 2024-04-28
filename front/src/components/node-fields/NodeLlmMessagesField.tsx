@@ -37,11 +37,12 @@ type Props = {
 };
 
 type FieldValues = {
-  value: {
-    role: ChatGPTMessageRole;
-    content: string;
-  }[];
   variableIds: string[];
+  messages: {
+    type: 'inline' | 'inputVariable';
+    variableId: string | null;
+    value: { role: ChatGPTMessageRole; content: string } | null;
+  }[];
 };
 
 function NodeLlmMessagesField(props: Props) {
@@ -59,12 +60,10 @@ function NodeLlmMessagesField(props: Props) {
     values: configValue[0],
   });
 
-  const { field: variableIdsField } = useController({
+  const { field: fieldVariableIds } = useController({
     control,
     name: 'variableIds',
   });
-
-  const { fields, append, remove } = useFieldArray({ control, name: 'value' });
 
   const updateNodeConfig = useFlowStore((s) => s.updateNodeConfig);
 
@@ -72,7 +71,7 @@ function NodeLlmMessagesField(props: Props) {
     return handleSubmit((data) => {
       updateNodeConfig(props.nodeId, {
         [fd.attrName]: produce(configValue, (draft) => {
-          draft[0].value = data.value;
+          draft[0].messages = data.messages;
         }),
       });
     });
@@ -113,7 +112,7 @@ function NodeLlmMessagesField(props: Props) {
               type: ConnectorType.NodeInput,
             });
             // TODO: Append variable ID
-            variableIdsField.onChange([...variableIdsField.value]);
+            fieldVariableIds.onChange([...fieldVariableIds.value]);
           }}
         >
           Add variable
@@ -139,34 +138,55 @@ function NodeLlmMessagesField(props: Props) {
           },
         )}
       />
+      <MessagesBlock control={control} afterInputUpdated={submit} />
+    </div>
+  );
+}
+
+function MessagesBlock(props: {
+  control: Control<FieldValues>;
+  afterInputUpdated: () => void;
+}) {
+  const {
+    fields: fieldsMessages,
+    append,
+    remove,
+  } = useFieldArray({
+    control: props.control,
+    name: 'messages',
+  });
+
+  return (
+    <>
       <div>
         <Button
           color="success"
           variant="outlined"
           onClick={() => {
             append({
-              role: ChatGPTMessageRole.user,
-              content: '',
+              type: 'inline',
+              variableId: null,
+              value: { role: ChatGPTMessageRole.user, content: '' },
             });
-            submit();
+            props.afterInputUpdated();
           }}
         >
           Add message
         </Button>
       </div>
-      {fields.map((_, index) => (
+      {fieldsMessages.map((_, index) => (
         <MessageBlock
           key={index}
-          control={control}
+          control={props.control}
           index={index}
           onRemove={() => {
             remove(index);
-            submit();
+            props.afterInputUpdated();
           }}
-          afterInputUpdated={submit}
+          afterInputUpdated={props.afterInputUpdated}
         />
       ))}
-    </div>
+    </>
   );
 }
 
@@ -178,12 +198,12 @@ function MessageBlock(props: {
 }) {
   const { field: roleField } = useController({
     control: props.control,
-    name: `value.${props.index}.role`,
+    name: `messages.${props.index}.value.role`,
   });
 
   const { field: contentField } = useController({
     control: props.control,
-    name: `value.${props.index}.content`,
+    name: `messages.${props.index}.value.content`,
   });
 
   return (
