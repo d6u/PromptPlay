@@ -90,6 +90,9 @@ export const handleAddConnector = createHandler<
           globalVariableId: null,
         };
         state.flowContent.connectors[variableConfig.id] = variableConfig;
+        state.flowContent.nodeConfigs[event.nodeId].inputVariableIds.push(
+          variableConfig.id,
+        );
         break;
       }
       case ConnectorType.OutCondition: {

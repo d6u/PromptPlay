@@ -30,6 +30,14 @@ export const handleRemoveVariable = createHandler<
 
     delete state.flowContent.connectors[event.variableId];
 
+    if (connectorSnapshot.type === ConnectorType.NodeInput) {
+      const inputVariableIds =
+        state.flowContent.nodeConfigs[connectorSnapshot.nodeId]
+          .inputVariableIds;
+      const index = inputVariableIds.indexOf(event.variableId);
+      inputVariableIds.splice(index, 1);
+    }
+
     if (
       connectorSnapshot.type === ConnectorType.NodeInput ||
       connectorSnapshot.type === ConnectorType.NodeOutput

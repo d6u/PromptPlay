@@ -15,15 +15,16 @@ import RouteFlowContext from 'state-flow/context/FlowRouteContext';
 import { useFlowStore } from 'state-flow/flow-store';
 
 import { CustomEdge } from './CustomEdge';
-import FlowCanvasNode from './FlowCanvasNode';
 
 import 'reactflow/dist/style.css';
 import './customize-reactflow.css';
+import CanvasNode from './node-v2/CanvasNode';
 
 const VIEWPORT_PADDING = 50;
 
 const NODE_TYPES = {
-  default: FlowCanvasNode,
+  // default: FlowCanvasNode,
+  default: CanvasNode,
 };
 
 const EDGE_TYPE = {
