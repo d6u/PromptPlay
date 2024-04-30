@@ -35,6 +35,7 @@ test('handleRemoveNode should remove node, nodeConfig, and connectors', () => {
           type: 'InputNode',
           nodeId: '8e2At',
           nodeName: 'input1',
+          inputVariableIds: [],
         },
       },
       connectors: {

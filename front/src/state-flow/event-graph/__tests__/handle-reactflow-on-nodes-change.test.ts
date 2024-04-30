@@ -48,11 +48,13 @@ test('handleReactFlowNodesChange should remove node', () => {
           nodeId: 'xAw4x',
           type: 'InputNode',
           nodeName: 'input1',
+          inputVariableIds: [],
         },
         Is8Op: {
           kind: 'Finish',
           type: 'OutputNode',
           nodeId: 'Is8Op',
+          inputVariableIds: [],
         },
       },
       connectors: {
@@ -194,11 +196,13 @@ test('handleReactFlowNodesChange should remove connector and edge connected', ()
           type: 'InputNode',
           nodeId: 'HIbCf',
           nodeName: 'input1',
+          inputVariableIds: [],
         },
         sn268: {
           kind: 'Finish',
           type: 'OutputNode',
           nodeId: 'sn268',
+          inputVariableIds: [],
         },
       },
       connectors: {
@@ -340,11 +344,13 @@ test('handleReactFlowNodesChange should remove multiple nodes', () => {
           nodeId: 'ZMITb',
           type: 'InputNode',
           nodeName: 'input1',
+          inputVariableIds: [],
         },
         Is8Op: {
           kind: 'Finish',
           type: 'OutputNode',
           nodeId: 'Is8Op',
+          inputVariableIds: [],
         },
       },
       connectors: {

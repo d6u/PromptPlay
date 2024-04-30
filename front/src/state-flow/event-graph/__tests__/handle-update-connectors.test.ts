@@ -34,6 +34,7 @@ test('handleUpdateConnectors should rename variable', () => {
           kind: 'Start',
           nodeId: 'Z6dPf',
           nodeName: 'input1',
+          inputVariableIds: [],
         },
       },
       connectors: {
@@ -136,11 +137,13 @@ test('handleUpdateConnectors should remove edge when isGlobal become true', () =
           type: 'InputNode',
           nodeId: 'opVRl',
           nodeName: 'input1',
+          inputVariableIds: [],
         },
         '4R9uw': {
           kind: 'Finish',
           type: 'OutputNode',
           nodeId: '4R9uw',
+          inputVariableIds: [],
         },
       },
       connectors: {

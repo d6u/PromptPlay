@@ -36,6 +36,7 @@ test('handleAddConnector should add variable', () => {
           type: 'InputNode',
           nodeId: 'Z6dPf',
           nodeName: 'input1',
+          inputVariableIds: [],
         },
       },
       connectors: {

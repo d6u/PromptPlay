@@ -34,6 +34,7 @@ test('handleRemoveVariable should remove variable', () => {
           kind: 'Start',
           nodeId: 'Z6dPf',
           nodeName: 'input1',
+          inputVariableIds: [],
         },
       },
       connectors: {
