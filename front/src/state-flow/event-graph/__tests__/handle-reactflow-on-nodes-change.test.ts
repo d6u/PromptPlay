@@ -121,6 +121,7 @@ test('handleReactFlowNodesChange should remove node', () => {
           kind: 'Finish',
           type: 'OutputNode',
           nodeId: 'Is8Op',
+          inputVariableIds: [],
         },
       },
       connectors: {
@@ -269,6 +270,7 @@ test('handleReactFlowNodesChange should remove connector and edge connected', ()
           kind: 'Finish',
           type: 'OutputNode',
           nodeId: 'sn268',
+          inputVariableIds: [],
         },
       },
       connectors: {

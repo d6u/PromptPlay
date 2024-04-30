@@ -51,7 +51,8 @@ test('handleAddNode should add node and nodeConfig', () => {
       kind: 'Start',
       type: 'InputNode',
       nodeId: expect.any(String),
-      nodeName: 'input',
+      nodeName: 'start_node_1',
+      inputVariableIds: [],
     },
   ]);
 

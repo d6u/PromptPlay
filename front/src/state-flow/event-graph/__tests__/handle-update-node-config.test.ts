@@ -91,6 +91,7 @@ test('handleUpdateNodeConfig should add node and nodeConfig', () => {
           kind: 'Process',
           type: 'TextTemplate',
           nodeId: 'I6L6E',
+          inputVariableIds: [],
           content: 'Write a poem about {{topic}} in fewer than 20 words.',
         },
       },
