@@ -22,7 +22,7 @@ export const NodeInputVariableSchema = z.object({
 export type NodeInputVariable = z.infer<typeof NodeInputVariableSchema>;
 
 export const NodeOutputVariableSchema = z.object({
-  type: z.literal(ConnectorType.NodeOutput),
+  type: z.literal(ConnectorType.NodeOutput).default(ConnectorType.NodeOutput),
   id: z.string(),
   name: z.string(),
   nodeId: z.string(),

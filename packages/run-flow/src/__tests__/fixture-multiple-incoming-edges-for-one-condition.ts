@@ -32,21 +32,27 @@ export function createFxitureForTwoIncomingEdgesForOneCondition() {
 
   const nodeConfigs: Record<string, NodeAllLevelConfigUnion> = {
     '8jIMr': {
-      class: 'Start',
+      kind: 'Start',
       type: 'InputNode',
       nodeId: '8jIMr',
       nodeName: 'input',
+      inputVariableIds: [],
+      outputVariableIds: [],
     },
     'jswKV': {
-      class: 'Start',
+      kind: 'Start',
       type: 'InputNode',
       nodeId: 'jswKV',
       nodeName: 'input',
+      inputVariableIds: [],
+      outputVariableIds: [],
     },
     'coZ0B': {
-      class: 'Process',
+      kind: 'Process',
       type: 'TextTemplate',
       nodeId: 'coZ0B',
+      inputVariableIds: [],
+      outputVariableIds: ['coZ0B/content'],
       content: 'Write a poem about {{topic}} in fewer than 20 words.',
     },
   };
@@ -83,7 +89,6 @@ export function createFxitureForTwoIncomingEdgesForOneCondition() {
       id: 'coZ0B/content',
       name: 'content',
       nodeId: 'coZ0B',
-      index: 0,
       valueType: 'String',
       isGlobal: false,
       globalVariableId: null,

@@ -1,19 +1,10 @@
-import styled from '@emotion/styled';
-
-import {
-  ConnectorType,
-  NodeKind,
-  getNodeDefinitionForNodeTypeName,
-} from 'flow-models';
-
-import NodeAddConnectorButton from 'components/NodeAddConnectorButton';
+import { css } from '@emotion/react';
+import { NodeKind, getNodeDefinitionForNodeTypeName } from 'flow-models';
 import RemoveButton from 'generic-components/RemoveButton';
 import IconThreeDots from 'icons/IconThreeDots';
-import { useFlowStore } from 'state-flow/flow-store';
-
-import { useCallback, useContext, useMemo } from 'react';
-import { useUpdateNodeInternals } from 'reactflow';
+import { useContext, useMemo } from 'react';
 import RouteFlowContext from 'state-flow/context/FlowRouteContext';
+import { useFlowStore } from 'state-flow/flow-store';
 import NodeBoxIconRename from 'view-flow-canvas/node-box/NodeBoxIconRename';
 import { DRAG_HANDLE_CLASS_NAME } from '../constants';
 
@@ -22,8 +13,6 @@ type Props = {
 };
 
 function NodeHeader(props: Props) {
-  const updateNodeInternals = useUpdateNodeInternals();
-
   const { isCurrentUserOwner } = useContext(RouteFlowContext);
   const readonly = !isCurrentUserOwner;
 
@@ -32,37 +21,94 @@ function NodeHeader(props: Props) {
   );
   const removeNode = useFlowStore((s) => s.removeNode);
   const setCanvasRenameNodeId = useFlowStore((s) => s.setCanvasRenameNodeId);
-  const addVariable = useFlowStore((s) => s.addConnector);
 
   const nodeDef = useMemo(
     () => getNodeDefinitionForNodeTypeName(nodeConfig.type),
     [nodeConfig],
   );
 
-  const onAddVariable = useCallback(() => {
-    addVariable(props.nodeId, ConnectorType.NodeInput, 0);
-    updateNodeInternals(props.nodeId);
-  }, [addVariable, props.nodeId, updateNodeInternals]);
-
   return (
-    <Container>
-      <TitleSection>
-        <TitleContainer className={DRAG_HANDLE_CLASS_NAME}>
-          <Title>{nodeDef.label}</Title>
-          <DragHandle />
-        </TitleContainer>
-        {
-          <SubTitleContainer className={DRAG_HANDLE_CLASS_NAME}>
-            <SubTitle>{nodeDef.label}</SubTitle>
-          </SubTitleContainer>
-        }
+    <div
+      css={css`
+        margin-bottom: 5px;
+      `}
+    >
+      <div
+        css={css`
+          position: relative;
+          margin-bottom: 5px;
+        `}
+      >
+        <div
+          className={DRAG_HANDLE_CLASS_NAME}
+          css={css`
+            cursor: grab;
+            padding-top: 10px;
+            padding-left: 10px;
+            padding-right: 10px;
+          `}
+        >
+          <h3
+            css={css`
+              margin: 0;
+              font-size: 16px;
+              line-height: 32px;
+            `}
+          >
+            {nodeDef.label}
+          </h3>
+          <IconThreeDots
+            css={css`
+              fill: #cacaca;
+              width: 20px;
+              position: absolute;
+              top: -3px;
+              left: calc(50% - 30px / 2);
+            `}
+          />
+        </div>
+        <div
+          className={DRAG_HANDLE_CLASS_NAME}
+          css={css`
+            cursor: grab;
+            padding-top: 5px;
+            padding-left: 10px;
+            padding-right: 10px;
+            margin-bottom: 10px;
+          `}
+        >
+          <h3
+            css={css`
+              margin: 0;
+              font-size: 12px;
+              line-height: 12px;
+              color: #636b74;
+            `}
+          >
+            {nodeDef.label}
+          </h3>
+        </div>
         {!readonly && (
-          <RemoveButtonContainer>
+          <div
+            css={css`
+              position: absolute;
+              top: 10px;
+              right: 10px;
+            `}
+          >
             <RemoveButton onClick={() => removeNode(props.nodeId)} />
-          </RemoveButtonContainer>
+          </div>
         )}
-      </TitleSection>
-      <ActionsSection>
+      </div>
+      <div
+        css={css`
+          display: flex;
+          gap: 5px;
+          padding-left: 10px;
+          padding-right: 10px;
+          margin-top: 5px;
+        `}
+      >
         {(nodeConfig.kind === NodeKind.Start ||
           nodeConfig.kind === NodeKind.SubroutineStart) && (
           <NodeBoxIconRename
@@ -71,71 +117,9 @@ function NodeHeader(props: Props) {
             }}
           />
         )}
-        {!readonly && !!nodeDef.canUserAddIncomingVariables && (
-          <NodeAddConnectorButton label="Variable" onClick={onAddVariable} />
-        )}
-      </ActionsSection>
-    </Container>
+      </div>
+    </div>
   );
 }
-
-const Container = styled.div`
-  margin-bottom: 5px;
-`;
-
-const TitleSection = styled.div`
-  position: relative;
-  margin-bottom: 5px;
-`;
-
-const TitleContainer = styled.div`
-  cursor: grab;
-  padding-top: 10px;
-  padding-left: 10px;
-  padding-right: 10px;
-`;
-
-const SubTitleContainer = styled.div`
-  cursor: grab;
-  padding-top: 5px;
-  padding-left: 10px;
-  padding-right: 10px;
-  margin-bottom: 10px;
-`;
-
-const Title = styled.h3`
-  margin: 0;
-  font-size: 16px;
-  line-height: 32px;
-`;
-
-const SubTitle = styled.h3`
-  margin: 0;
-  font-size: 12px;
-  line-height: 12px;
-  color: #636b74;
-`;
-
-const DragHandle = styled(IconThreeDots)`
-  fill: #cacaca;
-  width: 20px;
-  position: absolute;
-  top: -3px;
-  left: calc(50% - 30px / 2);
-`;
-
-const RemoveButtonContainer = styled.div`
-  position: absolute;
-  top: 10px;
-  right: 10px;
-`;
-
-const ActionsSection = styled.div`
-  display: flex;
-  gap: 5px;
-  padding-left: 10px;
-  padding-right: 10px;
-  margin-top: 5px;
-`;
 
 export default NodeHeader;

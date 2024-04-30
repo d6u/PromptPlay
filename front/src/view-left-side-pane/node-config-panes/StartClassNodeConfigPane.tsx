@@ -43,8 +43,12 @@ function StartClassNodeConfigPane(props: Props) {
   const addVariable = useFlowStore((s) => s.addConnector);
 
   const flowInputVariables = useMemo(() => {
-    return selectVariables(props.nodeId, ConnectorType.NodeOutput, connectors);
-  }, [props.nodeId, connectors]);
+    return selectVariables(
+      props.nodeConfig,
+      ConnectorType.NodeOutput,
+      connectors,
+    );
+  }, [props.nodeConfig, connectors]);
 
   return (
     <NodeConfigPaneContainer>

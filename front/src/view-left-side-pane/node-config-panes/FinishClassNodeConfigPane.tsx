@@ -43,8 +43,12 @@ function FinishClassNodeConfigPane(props: Props) {
   );
 
   const nodeInputVariables = useMemo(() => {
-    return selectVariables(props.nodeId, ConnectorType.NodeInput, connectors);
-  }, [props.nodeId, connectors]);
+    return selectVariables(
+      props.nodeConfig,
+      ConnectorType.NodeInput,
+      connectors,
+    );
+  }, [props.nodeConfig, connectors]);
 
   return (
     <NodeConfigPaneContainer>

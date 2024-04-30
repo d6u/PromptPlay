@@ -88,8 +88,8 @@ describe('RunNodeContext::getInputVariableValues()', () => {
 
     expect(runNodeContext.outputVariables).toEqual(
       expect.objectContaining([
-        expect.objectContaining({ index: 0 }),
-        expect.objectContaining({ index: 1 }),
+        expect.objectContaining({ id: 'Gav0R/FYiVo' }),
+        expect.objectContaining({ id: 'Gav0R/eSv7v' }),
       ]),
     );
     expect(runNodeContext.outputVariables.length).toBe(2);
@@ -125,10 +125,10 @@ describe('RunNodeContext::getInputVariableValues()', () => {
 
     expect(runNodeContext.inputVariables).toEqual(
       expect.objectContaining([
-        expect.objectContaining({ index: 0 }),
-        expect.objectContaining({ index: 1 }),
-        expect.objectContaining({ index: 2 }),
-        expect.objectContaining({ index: 3 }),
+        expect.objectContaining({ id: 'hstPg/XrU7m' }),
+        expect.objectContaining({ id: 'hstPg/g3NPR' }),
+        expect.objectContaining({ id: 'hstPg/Tw8g0' }),
+        expect.objectContaining({ id: 'hstPg/I3lzc' }),
       ]),
     );
     expect(runNodeContext.inputVariables.length).toBe(4);
@@ -721,17 +721,19 @@ describe('RunNodeContext::getParamsForRunNodeFunction()', () => {
     // Input variables
     expect(runNodeParams.inputVariables).toEqual(
       expect.objectContaining([
-        expect.objectContaining({ index: 0 }),
-        expect.objectContaining({ index: 1 }),
-        expect.objectContaining({ index: 2 }),
-        expect.objectContaining({ index: 3 }),
+        expect.objectContaining({ id: 'hstPg/XrU7m' }),
+        expect.objectContaining({ id: 'hstPg/g3NPR' }),
+        expect.objectContaining({ id: 'hstPg/Tw8g0' }),
+        expect.objectContaining({ id: 'hstPg/I3lzc' }),
       ]),
     );
     expect(runNodeParams.inputVariables.length).toBe(4);
 
     // Output variables
     expect(runNodeParams.outputVariables).toEqual(
-      expect.objectContaining([expect.objectContaining({ index: 0 })]),
+      expect.objectContaining([
+        expect.objectContaining({ id: 'hstPg/content' }),
+      ]),
     );
     expect(runNodeContext.outputVariables.length).toBe(1);
 

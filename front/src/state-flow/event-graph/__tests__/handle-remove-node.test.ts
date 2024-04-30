@@ -36,6 +36,7 @@ test('handleRemoveNode should remove node, nodeConfig, and connectors', () => {
           nodeId: '8e2At',
           nodeName: 'input1',
           inputVariableIds: [],
+          outputVariableIds: [],
         },
       },
       connectors: {
@@ -43,7 +44,6 @@ test('handleRemoveNode should remove node, nodeConfig, and connectors', () => {
           type: 'NodeOutput',
           id: '8e2At/hqpZx',
           nodeId: '8e2At',
-          index: 0,
           name: 'kazuwuv',
           valueType: 'String',
           isGlobal: false,

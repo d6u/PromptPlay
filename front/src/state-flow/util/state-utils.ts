@@ -12,6 +12,7 @@ import {
   NodeOutputVariable,
   NodeType,
   OutgoingCondition,
+  type NodeConfig,
 } from 'flow-models';
 
 import { DRAG_HANDLE_CLASS_NAME } from 'view-flow-canvas/constants';
@@ -62,15 +63,21 @@ export type VariableTypeToVariableConfigTypeMap = {
 export function selectVariables<
   T extends typeof ConnectorType.NodeInput | typeof ConnectorType.NodeOutput,
 >(
-  nodeId: string,
+  nodeConfig: NodeConfig,
   type: T,
-  variableConfigs: ConnectorRecords,
+  connectors: ConnectorRecords,
 ): VariableTypeToVariableConfigTypeMap[T][] {
-  return D.values(variableConfigs)
-    .filter((v): v is VariableTypeToVariableConfigTypeMap[T] => {
-      return v.nodeId === nodeId && v.type === type;
-    })
-    .sort((a, b) => a.index - b.index);
+  if (type === ConnectorType.NodeInput) {
+    return nodeConfig.inputVariableIds.map(
+      (variableId) =>
+        connectors[variableId] as VariableTypeToVariableConfigTypeMap[T],
+    );
+  } else {
+    return nodeConfig.outputVariableIds.map(
+      (variableId) =>
+        connectors[variableId] as VariableTypeToVariableConfigTypeMap[T],
+    );
+  }
 }
 
 export function selectVariablesOnAllStartNodes(

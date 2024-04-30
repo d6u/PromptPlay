@@ -55,7 +55,7 @@ function FlowCanvasNode(props: NodeProps) {
   const inputVariables = useMemo(() => {
     if (nodeId != null) {
       const variables = selectVariables(
-        nodeId,
+        nodeConfig!,
         ConnectorType.NodeInput,
         connectors,
       );
@@ -74,15 +74,15 @@ function FlowCanvasNode(props: NodeProps) {
     } else {
       return [];
     }
-  }, [nodeId, connectors, nodeDefinition]);
+  }, [nodeId, nodeConfig, connectors, nodeDefinition]);
 
   const outputVariables = useMemo(() => {
     if (nodeId != null) {
-      return selectVariables(nodeId, ConnectorType.NodeOutput, connectors);
+      return selectVariables(nodeConfig!, ConnectorType.NodeOutput, connectors);
     } else {
       return [];
     }
-  }, [nodeId, connectors]);
+  }, [nodeId, nodeConfig, connectors]);
 
   const conditionTarget = useMemo(() => {
     if (nodeId == null) {

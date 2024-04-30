@@ -1,6 +1,6 @@
-import { SVGProps } from 'react';
+import type { SVGProps } from 'react';
 
-export default function IconThreeDots(props: SVGProps<SVGSVGElement>) {
+function IconThreeDots(props: SVGProps<SVGSVGElement>) {
   return (
     <svg
       version="1.1"
@@ -16,3 +16,5 @@ export default function IconThreeDots(props: SVGProps<SVGSVGElement>) {
     </svg>
   );
 }
+
+export default IconThreeDots;

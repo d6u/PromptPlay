@@ -52,8 +52,12 @@ function StartClassNode(props: Props) {
   );
 
   const nodeOutputVariables = useMemo(() => {
-    return selectVariables(props.nodeId, ConnectorType.NodeOutput, connectors);
-  }, [props.nodeId, connectors]);
+    return selectVariables(
+      props.nodeConfig,
+      ConnectorType.NodeOutput,
+      connectors,
+    );
+  }, [props.nodeConfig, connectors]);
 
   return (
     <>

@@ -57,7 +57,7 @@ function NodeLlmMessagesField(props: Props) {
   const inputVariablesForCurrentField = useMemo(() => {
     if (props.nodeId != null) {
       const variables = selectVariables(
-        props.nodeId,
+        nodeConfig,
         ConnectorType.NodeInput,
         connectors,
       );
@@ -67,7 +67,7 @@ function NodeLlmMessagesField(props: Props) {
     } else {
       return [];
     }
-  }, [props.nodeId, connectors, configValue]);
+  }, [props.nodeId, nodeConfig, connectors, configValue]);
 
   const addConnectorForNodeConfigField = useFlowStore(
     (s) => s.addConnectorForNodeConfigField,

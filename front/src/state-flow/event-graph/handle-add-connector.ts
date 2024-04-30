@@ -54,7 +54,6 @@ export const handleAddConnector = createHandler<
     const commonFields = {
       id: `${event.nodeId}/${randomId()}`,
       nodeId: event.nodeId,
-      index: event.connectorIndex,
       name: chance.word(),
     };
 
