@@ -6,11 +6,11 @@ import {
   NodeKind,
   NodeType,
 } from '../../node-definition-base-types';
+import { NodeConfigCommonSchema } from '../../node-definition-base-types/node-config-common';
 
-export const LoopFinishNodeConfigSchema = z.object({
-  kind: z.literal(NodeKind.Finish),
-  type: z.literal(NodeType.LoopFinish),
-  nodeId: z.string(),
+export const LoopFinishNodeConfigSchema = NodeConfigCommonSchema.extend({
+  kind: z.literal(NodeKind.Finish).default(NodeKind.Finish),
+  type: z.literal(NodeType.LoopFinish).default(NodeType.LoopFinish),
 });
 
 export type LoopFinishNodeInstanceLevelConfig = z.infer<
@@ -31,14 +31,12 @@ export const LOOP_FINISH_NODE_DEFINITION: NodeDefinition<
   createDefaultNodeConfigsAndConnectors(context) {
     const loopFinishNodeId = context.generateNodeId();
 
+    const nodeConfig = LoopFinishNodeConfigSchema.parse({
+      nodeId: loopFinishNodeId,
+    });
+
     return {
-      nodeConfigs: [
-        {
-          kind: NodeKind.Finish,
-          type: NodeType.LoopFinish,
-          nodeId: loopFinishNodeId,
-        },
-      ],
+      nodeConfigs: [nodeConfig],
       connectors: [
         // continue
         {

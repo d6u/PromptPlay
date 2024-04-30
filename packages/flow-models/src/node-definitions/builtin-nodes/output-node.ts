@@ -1,18 +1,20 @@
-import { z } from 'zod';
+import z from 'zod';
 
-import chance from 'common-utils/chance';
-
-import { ConnectorType, VariableValueType } from '../../base-types';
+import {
+  ConnectorType,
+  NodeInputVariableSchema,
+  VariableValueType,
+} from '../../base-types';
 import {
   NodeDefinition,
   NodeKind,
   NodeType,
 } from '../../node-definition-base-types';
+import { NodeConfigCommonSchema } from '../../node-definition-base-types/node-config-common';
 
-export const OutputNodeConfigSchema = z.object({
-  kind: z.literal(NodeKind.Finish),
-  type: z.literal(NodeType.OutputNode),
-  nodeId: z.string(),
+export const OutputNodeConfigSchema = NodeConfigCommonSchema.extend({
+  kind: z.literal(NodeKind.Finish).default(NodeKind.Finish),
+  type: z.literal(NodeType.OutputNode).default(NodeType.OutputNode),
 });
 
 export type OutputNodeInstanceLevelConfig = z.infer<
@@ -36,25 +38,20 @@ export const OUTPUT_NODE_DEFINITION: NodeDefinition<
   createDefaultNodeConfigsAndConnectors(context) {
     const nodeId = context.generateNodeId();
 
+    const nodeConfig = OutputNodeConfigSchema.parse({ nodeId });
+
+    const inputVariable = NodeInputVariableSchema.parse({
+      id: context.generateConnectorId(nodeId),
+      nodeId,
+      name: 'output_1',
+    });
+
+    nodeConfig.inputVariableIds.push(inputVariable.id);
+
     return {
-      nodeConfigs: [
-        {
-          kind: NodeKind.Finish,
-          nodeId: nodeId,
-          type: NodeType.OutputNode,
-        },
-      ],
+      nodeConfigs: [nodeConfig],
       connectors: [
-        {
-          type: ConnectorType.NodeInput,
-          id: context.generateConnectorId(nodeId),
-          nodeId: nodeId,
-          index: 0,
-          name: chance.word(),
-          valueType: VariableValueType.Any,
-          isGlobal: false,
-          globalVariableId: null,
-        },
+        inputVariable,
         {
           type: ConnectorType.InCondition,
           id: context.generateConnectorId(nodeId),

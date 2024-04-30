@@ -4,7 +4,7 @@ import z from 'zod';
 
 import {
   ConnectorType,
-  VariableValueType,
+  NodeInputVariableSchema,
   type ConditionResult,
 } from '../../base-types';
 import {
@@ -13,11 +13,11 @@ import {
   NodeKind,
   NodeType,
 } from '../../node-definition-base-types';
+import { NodeConfigCommonSchema } from '../../node-definition-base-types/node-config-common';
 
-export const JSONataConditionNodeConfigSchema = z.object({
-  kind: z.literal(NodeKind.Condition),
-  type: z.literal(NodeType.JSONataCondition),
-  nodeId: z.string(),
+export const JSONataConditionNodeConfigSchema = NodeConfigCommonSchema.extend({
+  kind: z.literal(NodeKind.Condition).default(NodeKind.Condition),
+  type: z.literal(NodeType.JSONataCondition).default(NodeType.JSONataCondition),
   stopAtTheFirstMatch: z.boolean().default(true),
 });
 
@@ -46,26 +46,22 @@ export const JSONATA_CONDITION_NODE_DEFINITION: NodeDefinition<
   createDefaultNodeConfigsAndConnectors(context) {
     const nodeId = context.generateNodeId();
 
+    const nodeConfig = JSONataConditionNodeConfigSchema.parse({
+      nodeId,
+    });
+
+    const inputVariable = NodeInputVariableSchema.parse({
+      id: context.generateConnectorId(nodeId),
+      nodeId,
+      name: 'input',
+    });
+
+    nodeConfig.inputVariableIds.push(inputVariable.id);
+
     return {
-      nodeConfigs: [
-        {
-          kind: NodeKind.Condition,
-          type: NodeType.JSONataCondition,
-          nodeId: nodeId,
-          stopAtTheFirstMatch: true,
-        } as JSONataConditionNodeInstanceLevelConfig,
-      ],
+      nodeConfigs: [nodeConfig],
       connectors: [
-        {
-          type: ConnectorType.NodeInput,
-          id: `${nodeId}/input`,
-          nodeId: nodeId,
-          index: 0,
-          name: 'input',
-          valueType: VariableValueType.Any,
-          isGlobal: false,
-          globalVariableId: null,
-        },
+        inputVariable,
         {
           type: ConnectorType.OutCondition,
           id: context.generateConnectorId(nodeId),

@@ -1,20 +1,28 @@
 import invariant from 'tiny-invariant';
 import { z } from 'zod';
 
-import { ConnectorType, VariableValueType } from '../../base-types';
+import {
+  ConnectorType,
+  NodeInputVariableSchema,
+  VariableValueType,
+} from '../../base-types';
 import {
   FieldType,
   NodeDefinition,
   NodeKind,
   NodeType,
 } from '../../node-definition-base-types';
+import { NodeConfigCommonSchema } from '../../node-definition-base-types/node-config-common';
 
-export const JavaScriptFunctionNodeConfigSchema = z.object({
-  kind: z.literal(NodeKind.Process),
-  type: z.literal(NodeType.JavaScriptFunctionNode),
-  nodeId: z.string(),
-  javaScriptCode: z.string(),
-});
+export const JavaScriptFunctionNodeConfigSchema = NodeConfigCommonSchema.extend(
+  {
+    kind: z.literal(NodeKind.Process).default(NodeKind.Process),
+    type: z
+      .literal(NodeType.JavaScriptFunctionNode)
+      .default(NodeType.JavaScriptFunctionNode),
+    javaScriptCode: z.string().default(''),
+  },
+);
 
 export type JavaScriptFunctionNodeInstanceLevelConfig = z.infer<
   typeof JavaScriptFunctionNodeConfigSchema
@@ -43,16 +51,23 @@ export const JAVASCRIPT_NODE_DEFINITION: NodeDefinition<
   createDefaultNodeConfigsAndConnectors(context) {
     const nodeId = context.generateNodeId();
 
+    const nodeConfig = JavaScriptFunctionNodeConfigSchema.parse({
+      nodeId,
+      javaScriptCode: 'return `Hello, ${user_name}!`',
+    });
+
+    const inputVariable = NodeInputVariableSchema.parse({
+      id: context.generateConnectorId(nodeId),
+      nodeId,
+      name: 'user_name',
+    });
+
+    nodeConfig.inputVariableIds.push(inputVariable.id);
+
     return {
-      nodeConfigs: [
-        {
-          kind: NodeKind.Process,
-          nodeId: nodeId,
-          type: NodeType.JavaScriptFunctionNode,
-          javaScriptCode: 'return `Hello, ${userName}!`',
-        },
-      ],
+      nodeConfigs: [nodeConfig],
       connectors: [
+        inputVariable,
         {
           type: ConnectorType.NodeOutput,
           id: `${nodeId}/output`,
@@ -62,16 +77,6 @@ export const JAVASCRIPT_NODE_DEFINITION: NodeDefinition<
           // TODO: JS code can output both structured, string, and audio
           // Need to find a way to let us validate data type
           valueType: VariableValueType.Structured,
-          isGlobal: false,
-          globalVariableId: null,
-        },
-        {
-          type: ConnectorType.NodeInput,
-          id: context.generateConnectorId(nodeId),
-          nodeId: nodeId,
-          name: 'userName',
-          index: 1,
-          valueType: VariableValueType.Any,
           isGlobal: false,
           globalVariableId: null,
         },

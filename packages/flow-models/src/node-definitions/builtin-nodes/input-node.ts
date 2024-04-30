@@ -8,11 +8,11 @@ import {
   NodeKind,
   NodeType,
 } from '../../node-definition-base-types';
+import { NodeConfigCommonSchema } from '../../node-definition-base-types/node-config-common';
 
-export const InputNodeConfigSchema = z.object({
-  kind: z.literal(NodeKind.Start),
-  type: z.literal(NodeType.InputNode),
-  nodeId: z.string(),
+export const InputNodeConfigSchema = NodeConfigCommonSchema.extend({
+  kind: z.literal(NodeKind.Start).default(NodeKind.Start),
+  type: z.literal(NodeType.InputNode).default(NodeType.InputNode),
   nodeName: z.string(),
 });
 
@@ -36,15 +36,14 @@ export const INPUT_NODE_DEFINITION: NodeDefinition<
   createDefaultNodeConfigsAndConnectors(context) {
     const nodeId = context.generateNodeId();
 
+    const nodeConfig = InputNodeConfigSchema.parse({
+      nodeId,
+      // TODO: Dynamically generate nodeName based on existing node names
+      nodeName: 'start_node_1',
+    });
+
     return {
-      nodeConfigs: [
-        {
-          kind: NodeKind.Start,
-          nodeId: nodeId,
-          type: NodeType.InputNode,
-          nodeName: 'input',
-        },
-      ],
+      nodeConfigs: [nodeConfig],
       connectors: [
         {
           type: ConnectorType.NodeOutput,

@@ -12,7 +12,11 @@ import {
   getStreamingCompletion,
 } from 'integrations/openai';
 
-import { ConnectorType, VariableValueType } from '../base-types';
+import {
+  ConnectorType,
+  NodeInputVariableSchema,
+  VariableValueType,
+} from '../base-types';
 import {
   FieldType,
   NodeDefinition,
@@ -20,6 +24,7 @@ import {
   NodeType,
   type RunNodeResult,
 } from '../node-definition-base-types';
+import { NodeConfigCommonSchema } from '../node-definition-base-types/node-config-common';
 import type { ChatGPTMessageNodeInstanceLevelConfig } from './chatgpt-message-node';
 
 export enum OpenAIChatModel {
@@ -77,21 +82,22 @@ const MessagesFieldSchema = z
 
 export type NodeConfigMessagesFieldType = z.infer<typeof MessagesFieldSchema>;
 
-export const ChatgptChatCompletionNodeConfigSchema = z.object({
-  // Common fields
-  kind: z.literal(NodeKind.Process),
-  type: z.literal(NodeType.ChatGPTChatCompletionNode),
-  nodeId: z.string(),
-  // Unique fields
-  messages: MessagesFieldSchema,
-  model: z.nativeEnum(OpenAIChatModel),
-  temperature: z.number(),
-  seed: z.number().nullable(),
-  responseFormatType: z
-    .enum([ChatGPTChatCompletionResponseFormatType.JsonObject])
-    .nullable(),
-  stop: z.array(z.string()),
-});
+export const ChatgptChatCompletionNodeConfigSchema =
+  NodeConfigCommonSchema.extend({
+    kind: z.literal(NodeKind.Process).default(NodeKind.Process),
+    type: z
+      .literal(NodeType.ChatGPTChatCompletionNode)
+      .default(NodeType.ChatGPTChatCompletionNode),
+    messages: MessagesFieldSchema,
+    model: z.nativeEnum(OpenAIChatModel).default(OpenAIChatModel.GPT_3_5_TURBO),
+    temperature: z.number().default(1),
+    seed: z.number().nullable().default(null),
+    responseFormatType: z
+      .enum([ChatGPTChatCompletionResponseFormatType.JsonObject])
+      .nullable()
+      .default(null),
+    stop: z.array(z.string()).default([]),
+  });
 
 export type ChatGPTChatCompletionNodeInstanceLevelConfig = z.infer<
   typeof ChatgptChatCompletionNodeConfigSchema
@@ -196,34 +202,21 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
     const chatCompletionNodeId = context.generateNodeId();
     const messageNodeId = context.generateNodeId();
 
+    const nodeConfig = ChatgptChatCompletionNodeConfigSchema.parse({
+      nodeId: chatCompletionNodeId,
+    });
+
+    const inputVariable = NodeInputVariableSchema.parse({
+      id: context.generateConnectorId(chatCompletionNodeId),
+      nodeId: chatCompletionNodeId,
+      name: 'messages',
+    });
+
+    nodeConfig.inputVariableIds.push(inputVariable.id);
+
     return {
       nodeConfigs: [
-        {
-          kind: NodeKind.Process,
-          type: NodeType.ChatGPTChatCompletionNode,
-          nodeId: chatCompletionNodeId,
-          messages: [
-            {
-              variableIds: [],
-              messages: [
-                {
-                  type: 'inline',
-                  variableId: null,
-                  value: {
-                    role: 'user',
-                    content: 'Write a poem in fewer than 20 words.',
-                  },
-                },
-              ],
-            },
-            { variableId: null },
-          ],
-          model: OpenAIChatModel.GPT_3_5_TURBO,
-          temperature: 1,
-          stop: [],
-          seed: null,
-          responseFormatType: null,
-        } as ChatGPTChatCompletionNodeInstanceLevelConfig,
+        nodeConfig,
         // TODO: Centralize default config from different node
         {
           kind: NodeKind.Process,
@@ -246,16 +239,7 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
           nodeId: chatCompletionNodeId,
           expressionString: '',
         },
-        {
-          type: ConnectorType.NodeInput,
-          id: `${chatCompletionNodeId}/messages_in`,
-          nodeId: chatCompletionNodeId,
-          name: 'messages',
-          index: 0,
-          valueType: VariableValueType.Structured,
-          isGlobal: false,
-          globalVariableId: null,
-        },
+        inputVariable,
         {
           type: ConnectorType.NodeOutput,
           id: `${chatCompletionNodeId}/content`,

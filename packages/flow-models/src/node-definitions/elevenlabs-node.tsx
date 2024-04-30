@@ -3,22 +3,29 @@ import z from 'zod';
 
 import * as ElevenLabs from 'integrations/eleven-labs';
 
-import { ConnectorType, VariableValueType } from '../base-types';
+import {
+  ConnectorType,
+  NodeInputVariableSchema,
+  VariableValueType,
+} from '../base-types';
 import {
   FieldType,
   NodeDefinition,
   NodeKind,
   NodeType,
 } from '../node-definition-base-types';
+import { NodeConfigCommonSchema } from '../node-definition-base-types/node-config-common';
 
-export const ElevenLabsNodeConfigSchema = z.object({
-  kind: z.literal(NodeKind.Process),
-  type: z.literal(NodeType.ElevenLabs),
-  nodeId: z.string(),
-  voiceId: z.string().catch((ctx) => {
-    // Fix some old configs that doesn't have voiceId property
-    return '';
-  }),
+export const ElevenLabsNodeConfigSchema = NodeConfigCommonSchema.extend({
+  kind: z.literal(NodeKind.Process).default(NodeKind.Process),
+  type: z.literal(NodeType.ElevenLabs).default(NodeType.ElevenLabs),
+  voiceId: z
+    .string()
+    .catch((ctx) => {
+      // Fix some old configs that doesn't have voiceId property
+      return '';
+    })
+    .default(''),
 });
 
 export type ElevenLabsNodeInstanceLevelConfig = z.infer<
@@ -73,26 +80,20 @@ export const ELEVENLABS_NODE_DEFINITION: NodeDefinition<
   createDefaultNodeConfigsAndConnectors(context) {
     const nodeId = context.generateNodeId();
 
+    const nodeConfig = ElevenLabsNodeConfigSchema.parse({ nodeId });
+
+    const inputVariable = NodeInputVariableSchema.parse({
+      id: context.generateConnectorId(nodeId),
+      nodeId,
+      name: 'text',
+    });
+
+    nodeConfig.inputVariableIds.push(inputVariable.id);
+
     return {
-      nodeConfigs: [
-        {
-          kind: NodeKind.Process,
-          nodeId: nodeId,
-          type: NodeType.ElevenLabs,
-          voiceId: '',
-        } as ElevenLabsNodeInstanceLevelConfig,
-      ],
+      nodeConfigs: [nodeConfig],
       connectors: [
-        {
-          type: ConnectorType.NodeInput,
-          id: `${nodeId}/text`,
-          name: 'text',
-          nodeId: nodeId,
-          index: 0,
-          valueType: VariableValueType.String,
-          isGlobal: false,
-          globalVariableId: null,
-        },
+        inputVariable,
         {
           type: ConnectorType.NodeOutput,
           id: `${nodeId}/audio`,

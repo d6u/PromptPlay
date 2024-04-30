@@ -13,9 +13,9 @@ function NodeInputVariables(props: Props) {
 
   const connectors = useFlowStore((s) => s.getFlowContent().connectors);
 
-  const inputVariables = useMemo((): NodeInputVariable[] => {
+  const inputVariables: NodeInputVariable[] = useMemo(() => {
     return nodeConfig.inputVariableIds.map(
-      (variableId) => connectors[variableId],
+      (variableId) => connectors[variableId] as NodeInputVariable,
     );
   }, [connectors, nodeConfig.inputVariableIds]);
 

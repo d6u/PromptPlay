@@ -7,14 +7,14 @@ import {
   NodeKind,
   NodeType,
 } from '../../node-definition-base-types';
+import { NodeConfigCommonSchema } from '../../node-definition-base-types/node-config-common';
 import type { LoopFinishNodeInstanceLevelConfig } from './loop-finish';
 import type { LoopStartNodeInstanceLevelConfig } from './loop-start';
 
-export const LoopNodeConfigSchema = z.object({
-  kind: z.literal(NodeKind.Subroutine),
-  type: z.literal(NodeType.BareboneLoop),
-  nodeId: z.string(),
-  loopStartNodeId: z.string().nullable(),
+export const LoopNodeConfigSchema = NodeConfigCommonSchema.extend({
+  kind: z.literal(NodeKind.Subroutine).default(NodeKind.Subroutine),
+  type: z.literal(NodeType.BareboneLoop).default(NodeType.BareboneLoop),
+  loopStartNodeId: z.string().nullable().default(null),
 });
 
 export type LoopNodeInstanceLevelConfig = z.infer<typeof LoopNodeConfigSchema>;
@@ -55,14 +55,14 @@ export const LOOP_NODE_DEFINITION: NodeDefinition<
     const loopStartNodeId = context.generateNodeId();
     const loopFinishNodeId = context.generateNodeId();
 
+    const nodeConfig = LoopNodeConfigSchema.parse({
+      nodeId: loopNodeId,
+      loopStartNodeId,
+    });
+
     return {
       nodeConfigs: [
-        {
-          kind: NodeKind.Subroutine,
-          type: NodeType.BareboneLoop,
-          nodeId: loopNodeId,
-          loopStartNodeId: loopStartNodeId,
-        } as LoopNodeInstanceLevelConfig,
+        nodeConfig,
         {
           kind: NodeKind.SubroutineStart,
           type: NodeType.LoopStart,

@@ -6,14 +6,17 @@ import {
   NodeKind,
   NodeType,
 } from '../node-definition-base-types';
+import { NodeConfigCommonSchema } from '../node-definition-base-types/node-config-common';
 import type { GenericChatbotFinishNodeInstanceLevelConfig } from './generic-chatbot-finish-node';
 
-export const GenericChatbotStartNodeConfigSchema = z.object({
-  kind: z.literal(NodeKind.Start),
-  type: z.literal(NodeType.GenericChatbotStart),
-  nodeId: z.string(),
-  nodeName: z.string(),
-});
+export const GenericChatbotStartNodeConfigSchema =
+  NodeConfigCommonSchema.extend({
+    kind: z.literal(NodeKind.Start).default(NodeKind.Start),
+    type: z
+      .literal(NodeType.GenericChatbotStart)
+      .default(NodeType.GenericChatbotStart),
+    nodeName: z.string(),
+  });
 
 export type GenericChatbotStartNodeInstanceLevelConfig = z.infer<
   typeof GenericChatbotStartNodeConfigSchema
@@ -40,14 +43,15 @@ export const GENERIC_CHATBOT_START_NODE_DEFINITION: NodeDefinition<
     const startNodeNodeId = context.generateNodeId();
     const finishNodeNodeId = context.generateNodeId();
 
+    const nodeConfig = GenericChatbotStartNodeConfigSchema.parse({
+      nodeId: startNodeNodeId,
+      // TODO: Dynamically generate node name based on existing node names
+      nodeName: 'chatbot_1',
+    });
+
     return {
       nodeConfigs: [
-        {
-          kind: NodeKind.Start,
-          nodeId: startNodeNodeId,
-          type: NodeType.GenericChatbotStart,
-          nodeName: 'chatbot',
-        } as GenericChatbotStartNodeInstanceLevelConfig,
+        nodeConfig,
         {
           kind: NodeKind.Finish,
           nodeId: finishNodeNodeId,

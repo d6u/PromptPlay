@@ -68,7 +68,6 @@ export const TEXT_TEMPLATE_NODE_DEFINITION: NodeDefinition<
     });
 
     const inputVariable = NodeInputVariableSchema.parse({
-      type: ConnectorType.NodeInput,
       id: context.generateConnectorId(nodeId),
       nodeId,
       name: 'topic',

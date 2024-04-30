@@ -2,9 +2,9 @@ import z from 'zod';
 
 import {
   ConnectorType,
+  NodeInputVariableSchema,
   VariableValueType,
   type IncomingCondition,
-  type NodeInputVariable,
   type NodeOutputVariable,
   type OutgoingCondition,
 } from '../../base-types';
@@ -13,11 +13,11 @@ import {
   NodeKind,
   NodeType,
 } from '../../node-definition-base-types';
+import { NodeConfigCommonSchema } from '../../node-definition-base-types/node-config-common';
 
-export const ConcatNodeConfigSchema = z.object({
-  kind: z.literal(NodeKind.Process),
-  type: z.literal(NodeType.Concat),
-  nodeId: z.string(),
+export const ConcatNodeConfigSchema = NodeConfigCommonSchema.extend({
+  kind: z.literal(NodeKind.Process).default(NodeKind.Process),
+  type: z.literal(NodeType.Concat).default(NodeType.Concat),
 });
 
 export type ConcatNodeInstanceLevelConfig = z.infer<
@@ -41,14 +41,18 @@ export const CONCAT_NODE_DEFINITION: NodeDefinition<
   createDefaultNodeConfigsAndConnectors(context) {
     const nodeId = context.generateNodeId();
 
+    const nodeConfig = ConcatNodeConfigSchema.parse({ nodeId });
+
+    const inputVariable = NodeInputVariableSchema.parse({
+      id: context.generateConnectorId(nodeId),
+      nodeId,
+      name: 'input1',
+    });
+
+    nodeConfig.inputVariableIds.push(inputVariable.id);
+
     return {
-      nodeConfigs: [
-        {
-          kind: NodeKind.Process,
-          type: NodeType.Concat,
-          nodeId: nodeId,
-        } as ConcatNodeInstanceLevelConfig,
-      ],
+      nodeConfigs: [nodeConfig],
       connectors: [
         {
           type: ConnectorType.InCondition,
@@ -62,16 +66,7 @@ export const CONCAT_NODE_DEFINITION: NodeDefinition<
           nodeId: nodeId,
           expressionString: '',
         } as OutgoingCondition,
-        {
-          type: ConnectorType.NodeInput,
-          id: context.generateConnectorId(nodeId),
-          name: 'input1',
-          nodeId: nodeId,
-          index: 0,
-          valueType: VariableValueType.String,
-          isGlobal: false,
-          globalVariableId: null,
-        } as NodeInputVariable,
+        inputVariable,
         {
           type: ConnectorType.NodeOutput,
           id: `${nodeId}/result`,

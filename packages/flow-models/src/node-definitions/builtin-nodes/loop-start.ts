@@ -6,11 +6,11 @@ import {
   NodeKind,
   NodeType,
 } from '../../node-definition-base-types';
+import { NodeConfigCommonSchema } from '../../node-definition-base-types/node-config-common';
 
-export const LoopStartNodeConfigSchema = z.object({
-  kind: z.literal(NodeKind.SubroutineStart),
-  type: z.literal(NodeType.LoopStart),
-  nodeId: z.string(),
+export const LoopStartNodeConfigSchema = NodeConfigCommonSchema.extend({
+  kind: z.literal(NodeKind.SubroutineStart).default(NodeKind.SubroutineStart),
+  type: z.literal(NodeType.LoopStart).default(NodeType.LoopStart),
   nodeName: z.string(),
 });
 
@@ -32,15 +32,14 @@ export const LOOP_START_NODE_DEFINITION: NodeDefinition<
   createDefaultNodeConfigsAndConnectors(context) {
     const loopStartNodeId = context.generateNodeId();
 
+    const nodeConfig = LoopStartNodeConfigSchema.parse({
+      nodeId: loopStartNodeId,
+      // TODO: Dynamically generate node name based on existing node names
+      nodeName: 'loop_start_1',
+    });
+
     return {
-      nodeConfigs: [
-        {
-          kind: NodeKind.SubroutineStart,
-          type: NodeType.LoopStart,
-          nodeId: loopStartNodeId,
-          nodeName: 'loop start 1',
-        } as LoopStartNodeInstanceLevelConfig,
-      ],
+      nodeConfigs: [nodeConfig],
       connectors: [
         {
           type: ConnectorType.OutCondition,
