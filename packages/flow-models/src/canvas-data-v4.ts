@@ -352,10 +352,10 @@ export function migrateV3ToV4(
             connector.type === ConnectorType.NodeInput
           ) {
             if (connector.index === 0) {
-              (connector as NodeInputVariable).valueType =
+              (connector as unknown as NodeInputVariable).valueType =
                 VariableValueType.Structured;
             } else {
-              (connector as NodeInputVariable).valueType =
+              (connector as unknown as NodeInputVariable).valueType =
                 VariableValueType.String;
             }
           }
@@ -364,7 +364,7 @@ export function migrateV3ToV4(
             connector.nodeId === nodeConfig.nodeId &&
             connector.type === ConnectorType.NodeOutput
           ) {
-            (connector as NodeOutputVariable).valueType =
+            (connector as unknown as NodeOutputVariable).valueType =
               VariableValueType.Structured;
           }
         }
@@ -381,7 +381,7 @@ export function migrateV3ToV4(
             connector.nodeId === nodeConfig.nodeId &&
             connector.type === ConnectorType.NodeInput
           ) {
-            (connector as NodeInputVariable).valueType =
+            (connector as unknown as NodeInputVariable).valueType =
               VariableValueType.Structured;
           }
 
@@ -390,10 +390,10 @@ export function migrateV3ToV4(
             connector.type === ConnectorType.NodeOutput
           ) {
             if (connector.index === 0) {
-              (connector as NodeOutputVariable).valueType =
+              (connector as unknown as NodeOutputVariable).valueType =
                 VariableValueType.String;
             } else {
-              (connector as NodeOutputVariable).valueType =
+              (connector as unknown as NodeOutputVariable).valueType =
                 VariableValueType.Structured;
             }
           }
