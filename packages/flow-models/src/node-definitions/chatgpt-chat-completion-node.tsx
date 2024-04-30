@@ -15,6 +15,7 @@ import {
 import {
   ConnectorType,
   NodeInputVariableSchema,
+  NodeOutputVariableSchema,
   VariableValueType,
 } from '../base-types';
 import {
@@ -202,17 +203,39 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
     const chatCompletionNodeId = context.generateNodeId();
     const messageNodeId = context.generateNodeId();
 
-    const nodeConfig = ChatgptChatCompletionNodeConfigSchema.parse({
-      nodeId: chatCompletionNodeId,
-    });
-
     const inputVariable = NodeInputVariableSchema.parse({
       id: context.generateConnectorId(chatCompletionNodeId),
       nodeId: chatCompletionNodeId,
       name: 'messages',
     });
 
-    nodeConfig.inputVariableIds.push(inputVariable.id);
+    const contentOutputVariable = NodeOutputVariableSchema.parse({
+      id: context.generateConnectorId(chatCompletionNodeId),
+      nodeId: chatCompletionNodeId,
+      name: 'content',
+    });
+
+    const messageOutputVariable = NodeOutputVariableSchema.parse({
+      id: context.generateConnectorId(chatCompletionNodeId),
+      nodeId: chatCompletionNodeId,
+      name: 'message',
+    });
+
+    const messagesOutputVariable = NodeOutputVariableSchema.parse({
+      id: context.generateConnectorId(chatCompletionNodeId),
+      nodeId: chatCompletionNodeId,
+      name: 'messages',
+    });
+
+    const nodeConfig = ChatgptChatCompletionNodeConfigSchema.parse({
+      nodeId: chatCompletionNodeId,
+      inputVariableIds: [inputVariable.id],
+      outputVariableIds: [
+        contentOutputVariable.id,
+        messageOutputVariable.id,
+        messagesOutputVariable.id,
+      ],
+    });
 
     return {
       nodeConfigs: [
@@ -240,36 +263,9 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
           expressionString: '',
         },
         inputVariable,
-        {
-          type: ConnectorType.NodeOutput,
-          id: `${chatCompletionNodeId}/content`,
-          nodeId: chatCompletionNodeId,
-          name: 'content',
-          index: 0,
-          valueType: VariableValueType.String,
-          isGlobal: false,
-          globalVariableId: null,
-        },
-        {
-          type: ConnectorType.NodeOutput,
-          id: `${chatCompletionNodeId}/message`,
-          nodeId: chatCompletionNodeId,
-          name: 'message',
-          index: 1,
-          valueType: VariableValueType.Structured,
-          isGlobal: false,
-          globalVariableId: null,
-        },
-        {
-          type: ConnectorType.NodeOutput,
-          id: `${chatCompletionNodeId}/messages_out`,
-          nodeId: chatCompletionNodeId,
-          name: 'messages',
-          index: 2,
-          valueType: VariableValueType.Structured,
-          isGlobal: false,
-          globalVariableId: null,
-        },
+        contentOutputVariable,
+        messageOutputVariable,
+        messagesOutputVariable,
         // For the message node
         {
           type: ConnectorType.InCondition,

@@ -1,6 +1,10 @@
 import z from 'zod';
 
-import { ConnectorType, VariableValueType } from '../base-types';
+import {
+  ConnectorType,
+  NodeOutputVariableSchema,
+  VariableValueType,
+} from '../base-types';
 import {
   NodeDefinition,
   NodeKind,
@@ -43,10 +47,23 @@ export const GENERIC_CHATBOT_START_NODE_DEFINITION: NodeDefinition<
     const startNodeNodeId = context.generateNodeId();
     const finishNodeNodeId = context.generateNodeId();
 
+    const outputVariable1 = NodeOutputVariableSchema.parse({
+      id: context.generateConnectorId(startNodeNodeId),
+      nodeId: startNodeNodeId,
+      name: 'chat_history',
+    });
+
+    const outputVariable2 = NodeOutputVariableSchema.parse({
+      id: context.generateConnectorId(startNodeNodeId),
+      nodeId: startNodeNodeId,
+      name: 'current_message',
+    });
+
     const nodeConfig = GenericChatbotStartNodeConfigSchema.parse({
       nodeId: startNodeNodeId,
       // TODO: Dynamically generate node name based on existing node names
       nodeName: 'chatbot_1',
+      outputVariableIds: [outputVariable1.id, outputVariable2.id],
     });
 
     return {
@@ -60,32 +77,14 @@ export const GENERIC_CHATBOT_START_NODE_DEFINITION: NodeDefinition<
       ],
       connectors: [
         // For start node
+        outputVariable1,
+        outputVariable2,
         {
           type: ConnectorType.OutCondition,
           id: context.generateConnectorId(startNodeNodeId),
           index: 0,
           nodeId: startNodeNodeId,
           expressionString: '',
-        },
-        {
-          type: ConnectorType.NodeOutput,
-          id: context.generateConnectorId(startNodeNodeId),
-          nodeId: startNodeNodeId,
-          index: 0,
-          name: 'chat_history',
-          valueType: VariableValueType.Structured,
-          isGlobal: false,
-          globalVariableId: null,
-        },
-        {
-          type: ConnectorType.NodeOutput,
-          id: context.generateConnectorId(startNodeNodeId),
-          nodeId: startNodeNodeId,
-          index: 1,
-          name: 'current_message',
-          valueType: VariableValueType.String,
-          isGlobal: false,
-          globalVariableId: null,
         },
         // For finish node
         {

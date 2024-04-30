@@ -8,7 +8,6 @@ export const NodeInputVariableSchema = z.object({
   id: z.string(),
   name: z.string(),
   nodeId: z.string(),
-  index: z.number().default(0),
   valueType: z
     .enum([
       VariableValueType.Structured,
@@ -22,17 +21,18 @@ export const NodeInputVariableSchema = z.object({
 
 export type NodeInputVariable = z.infer<typeof NodeInputVariableSchema>;
 
-const NodeOutputVariableSchema = z.object({
+export const NodeOutputVariableSchema = z.object({
   type: z.literal(ConnectorType.NodeOutput),
   id: z.string(),
   name: z.string(),
   nodeId: z.string(),
-  index: z.number(),
-  valueType: z.enum([
-    VariableValueType.Structured,
-    VariableValueType.String,
-    VariableValueType.Audio,
-  ]),
+  valueType: z
+    .enum([
+      VariableValueType.Structured,
+      VariableValueType.String,
+      VariableValueType.Audio,
+    ])
+    .default(VariableValueType.Structured),
   isGlobal: z.boolean().default(false),
   globalVariableId: z.string().nullable().default(null),
 });

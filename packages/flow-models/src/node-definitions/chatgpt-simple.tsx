@@ -12,9 +12,8 @@ import {
 import {
   ConnectorType,
   NodeInputVariableSchema,
-  VariableValueType,
+  NodeOutputVariableSchema,
   type IncomingCondition,
-  type NodeOutputVariable,
   type OutgoingCondition,
 } from '../base-types';
 import {
@@ -145,21 +144,29 @@ export const CHATGPT_SIMPLE_NODE_DEFINITION: NodeDefinition<
   createDefaultNodeConfigsAndConnectors(context) {
     const chatCompletionNodeId = context.generateNodeId();
 
-    const nodeConfig = ChatgptSimpleNodeConfigSchema.parse({
-      nodeId: chatCompletionNodeId,
-    });
-
     const inputVariable = NodeInputVariableSchema.parse({
       id: context.generateConnectorId(chatCompletionNodeId),
       nodeId: chatCompletionNodeId,
       name: 'prompt',
     });
 
-    nodeConfig.inputVariableIds.push(inputVariable.id);
+    const outputVariable = NodeOutputVariableSchema.parse({
+      id: context.generateConnectorId(chatCompletionNodeId),
+      nodeId: chatCompletionNodeId,
+      name: 'content',
+    });
+
+    const nodeConfig = ChatgptSimpleNodeConfigSchema.parse({
+      nodeId: chatCompletionNodeId,
+      inputVariableIds: [inputVariable.id],
+      outputVariableIds: [outputVariable.id],
+    });
 
     return {
       nodeConfigs: [nodeConfig],
       connectors: [
+        inputVariable,
+        outputVariable,
         {
           type: ConnectorType.InCondition,
           id: context.generateConnectorId(chatCompletionNodeId),
@@ -172,17 +179,6 @@ export const CHATGPT_SIMPLE_NODE_DEFINITION: NodeDefinition<
           nodeId: chatCompletionNodeId,
           expressionString: '',
         } as OutgoingCondition,
-        inputVariable,
-        {
-          type: ConnectorType.NodeOutput,
-          id: `${chatCompletionNodeId}/content`,
-          nodeId: chatCompletionNodeId,
-          name: 'content',
-          index: 0,
-          valueType: VariableValueType.String,
-          isGlobal: false,
-          globalVariableId: null,
-        } as NodeOutputVariable,
       ],
     };
   },

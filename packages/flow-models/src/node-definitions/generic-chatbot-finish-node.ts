@@ -46,25 +46,26 @@ export const GENERIC_CHATBOT_FINISH_NODE_DEFINITION: NodeDefinition<
   createDefaultNodeConfigsAndConnectors(context) {
     const nodeId = context.generateNodeId();
 
-    const nodeConfig = GenericChatbotFinishNodeConfigSchema.parse({ nodeId });
-
     const inputVariable = NodeInputVariableSchema.parse({
       id: context.generateConnectorId(nodeId),
       nodeId,
       name: 'messages',
     });
 
-    nodeConfig.inputVariableIds.push(inputVariable.id);
+    const nodeConfig = GenericChatbotFinishNodeConfigSchema.parse({
+      nodeId,
+      inputVariableIds: [inputVariable.id],
+    });
 
     return {
       nodeConfigs: [nodeConfig],
       connectors: [
+        inputVariable,
         {
           type: ConnectorType.InCondition,
           id: context.generateConnectorId(nodeId),
           nodeId: nodeId,
         },
-        inputVariable,
       ],
     };
   },

@@ -38,15 +38,16 @@ export const OUTPUT_NODE_DEFINITION: NodeDefinition<
   createDefaultNodeConfigsAndConnectors(context) {
     const nodeId = context.generateNodeId();
 
-    const nodeConfig = OutputNodeConfigSchema.parse({ nodeId });
-
     const inputVariable = NodeInputVariableSchema.parse({
       id: context.generateConnectorId(nodeId),
       nodeId,
       name: 'output_1',
     });
 
-    nodeConfig.inputVariableIds.push(inputVariable.id);
+    const nodeConfig = OutputNodeConfigSchema.parse({
+      nodeId,
+      inputVariableIds: [inputVariable.id],
+    });
 
     return {
       nodeConfigs: [nodeConfig],

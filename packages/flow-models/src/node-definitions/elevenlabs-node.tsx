@@ -6,7 +6,7 @@ import * as ElevenLabs from 'integrations/eleven-labs';
 import {
   ConnectorType,
   NodeInputVariableSchema,
-  VariableValueType,
+  NodeOutputVariableSchema,
 } from '../base-types';
 import {
   FieldType,
@@ -80,30 +80,29 @@ export const ELEVENLABS_NODE_DEFINITION: NodeDefinition<
   createDefaultNodeConfigsAndConnectors(context) {
     const nodeId = context.generateNodeId();
 
-    const nodeConfig = ElevenLabsNodeConfigSchema.parse({ nodeId });
-
     const inputVariable = NodeInputVariableSchema.parse({
       id: context.generateConnectorId(nodeId),
       nodeId,
       name: 'text',
     });
 
-    nodeConfig.inputVariableIds.push(inputVariable.id);
+    const outputVariable = NodeOutputVariableSchema.parse({
+      id: context.generateConnectorId(nodeId),
+      nodeId,
+      name: 'audio',
+    });
+
+    const nodeConfig = ElevenLabsNodeConfigSchema.parse({
+      nodeId,
+      inputVariableIds: [inputVariable.id],
+      outputVariableIds: [outputVariable.id],
+    });
 
     return {
       nodeConfigs: [nodeConfig],
       connectors: [
         inputVariable,
-        {
-          type: ConnectorType.NodeOutput,
-          id: `${nodeId}/audio`,
-          name: 'audio',
-          nodeId: nodeId,
-          index: 0,
-          valueType: VariableValueType.Audio,
-          isGlobal: false,
-          globalVariableId: null,
-        },
+        outputVariable,
         {
           type: ConnectorType.InCondition,
           id: context.generateConnectorId(nodeId),

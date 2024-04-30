@@ -4,6 +4,7 @@ import { z } from 'zod';
 import {
   ConnectorType,
   NodeInputVariableSchema,
+  NodeOutputVariableSchema,
   VariableValueType,
 } from '../../base-types';
 import {
@@ -62,33 +63,30 @@ export const TEXT_TEMPLATE_NODE_DEFINITION: NodeDefinition<
   createDefaultNodeConfigsAndConnectors(context) {
     const nodeId = context.generateNodeId();
 
-    const nodeConfig = TextTemplateNodeConfigSchema.parse({
-      nodeId,
-      content: 'Write a poem about {{topic}} in fewer than 20 words.',
-    });
-
     const inputVariable = NodeInputVariableSchema.parse({
       id: context.generateConnectorId(nodeId),
       nodeId,
       name: 'topic',
     });
 
-    nodeConfig.inputVariableIds.push(inputVariable.id);
+    const outputVariable = NodeOutputVariableSchema.parse({
+      id: context.generateConnectorId(nodeId),
+      nodeId,
+      name: 'content',
+    });
+
+    const nodeConfig = TextTemplateNodeConfigSchema.parse({
+      nodeId,
+      inputVariableIds: [inputVariable.id],
+      outputVariableIds: [outputVariable.id],
+      content: 'Write a poem about {{topic}} in fewer than 20 words.',
+    });
 
     return {
       nodeConfigs: [nodeConfig],
       connectors: [
         inputVariable,
-        {
-          type: ConnectorType.NodeOutput,
-          id: `${nodeId}/content`,
-          name: 'content',
-          nodeId: nodeId,
-          index: 0,
-          valueType: VariableValueType.String,
-          isGlobal: false,
-          globalVariableId: null,
-        },
+        outputVariable,
         {
           type: ConnectorType.InCondition,
           id: context.generateConnectorId(nodeId),

@@ -46,17 +46,16 @@ export const JSONATA_CONDITION_NODE_DEFINITION: NodeDefinition<
   createDefaultNodeConfigsAndConnectors(context) {
     const nodeId = context.generateNodeId();
 
-    const nodeConfig = JSONataConditionNodeConfigSchema.parse({
-      nodeId,
-    });
-
     const inputVariable = NodeInputVariableSchema.parse({
       id: context.generateConnectorId(nodeId),
       nodeId,
       name: 'input',
     });
 
-    nodeConfig.inputVariableIds.push(inputVariable.id);
+    const nodeConfig = JSONataConditionNodeConfigSchema.parse({
+      nodeId,
+      inputVariableIds: [inputVariable.id],
+    });
 
     return {
       nodeConfigs: [nodeConfig],

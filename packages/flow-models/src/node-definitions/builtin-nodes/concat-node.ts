@@ -3,9 +3,9 @@ import z from 'zod';
 import {
   ConnectorType,
   NodeInputVariableSchema,
+  NodeOutputVariableSchema,
   VariableValueType,
   type IncomingCondition,
-  type NodeOutputVariable,
   type OutgoingCondition,
 } from '../../base-types';
 import {
@@ -41,15 +41,23 @@ export const CONCAT_NODE_DEFINITION: NodeDefinition<
   createDefaultNodeConfigsAndConnectors(context) {
     const nodeId = context.generateNodeId();
 
-    const nodeConfig = ConcatNodeConfigSchema.parse({ nodeId });
-
     const inputVariable = NodeInputVariableSchema.parse({
       id: context.generateConnectorId(nodeId),
       nodeId,
       name: 'input1',
     });
 
-    nodeConfig.inputVariableIds.push(inputVariable.id);
+    const outputVariable = NodeOutputVariableSchema.parse({
+      id: context.generateConnectorId(nodeId),
+      nodeId,
+      name: 'result',
+    });
+
+    const nodeConfig = ConcatNodeConfigSchema.parse({
+      nodeId,
+      inputVariableIds: [inputVariable.id],
+      outputVariableIds: [outputVariable.id],
+    });
 
     return {
       nodeConfigs: [nodeConfig],
@@ -67,16 +75,7 @@ export const CONCAT_NODE_DEFINITION: NodeDefinition<
           expressionString: '',
         } as OutgoingCondition,
         inputVariable,
-        {
-          type: ConnectorType.NodeOutput,
-          id: `${nodeId}/result`,
-          name: 'result',
-          nodeId: nodeId,
-          index: 0,
-          valueType: VariableValueType.String,
-          isGlobal: false,
-          globalVariableId: null,
-        } as NodeOutputVariable,
+        outputVariable,
       ],
     };
   },

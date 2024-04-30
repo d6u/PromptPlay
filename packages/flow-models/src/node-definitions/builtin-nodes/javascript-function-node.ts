@@ -4,6 +4,7 @@ import { z } from 'zod';
 import {
   ConnectorType,
   NodeInputVariableSchema,
+  NodeOutputVariableSchema,
   VariableValueType,
 } from '../../base-types';
 import {
@@ -51,35 +52,30 @@ export const JAVASCRIPT_NODE_DEFINITION: NodeDefinition<
   createDefaultNodeConfigsAndConnectors(context) {
     const nodeId = context.generateNodeId();
 
-    const nodeConfig = JavaScriptFunctionNodeConfigSchema.parse({
-      nodeId,
-      javaScriptCode: 'return `Hello, ${user_name}!`',
-    });
-
     const inputVariable = NodeInputVariableSchema.parse({
       id: context.generateConnectorId(nodeId),
       nodeId,
       name: 'user_name',
     });
 
-    nodeConfig.inputVariableIds.push(inputVariable.id);
+    const outputVariable = NodeOutputVariableSchema.parse({
+      id: context.generateConnectorId(nodeId),
+      nodeId,
+      name: 'output',
+    });
+
+    const nodeConfig = JavaScriptFunctionNodeConfigSchema.parse({
+      nodeId,
+      inputVariableIds: [inputVariable.id],
+      outputVariableIds: [outputVariable.id],
+      javaScriptCode: 'return `Hello, ${user_name}!`',
+    });
 
     return {
       nodeConfigs: [nodeConfig],
       connectors: [
         inputVariable,
-        {
-          type: ConnectorType.NodeOutput,
-          id: `${nodeId}/output`,
-          nodeId: nodeId,
-          name: 'output',
-          index: 0,
-          // TODO: JS code can output both structured, string, and audio
-          // Need to find a way to let us validate data type
-          valueType: VariableValueType.Structured,
-          isGlobal: false,
-          globalVariableId: null,
-        },
+        outputVariable,
         {
           type: ConnectorType.InCondition,
           id: context.generateConnectorId(nodeId),

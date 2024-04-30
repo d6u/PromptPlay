@@ -3,7 +3,7 @@ import z from 'zod';
 import {
   ConnectorType,
   NodeInputVariableSchema,
-  VariableValueType,
+  NodeOutputVariableSchema,
 } from '../base-types';
 import {
   FieldType,
@@ -69,19 +69,29 @@ export const BIND_SEARCH_API_NODE_DEFINITION: NodeDefinition<
   createDefaultNodeConfigsAndConnectors(context) {
     const nodeId = context.generateNodeId();
 
-    const nodeConfig = BingSearchApiNodeConfigSchema.parse({ nodeId });
-
     const inputVariable = NodeInputVariableSchema.parse({
       id: context.generateConnectorId(nodeId),
       nodeId,
       name: 'query',
     });
 
-    nodeConfig.inputVariableIds.push(inputVariable.id);
+    const outputVariable = NodeOutputVariableSchema.parse({
+      id: context.generateConnectorId(nodeId),
+      nodeId,
+      name: 'results',
+    });
+
+    const nodeConfig = BingSearchApiNodeConfigSchema.parse({
+      nodeId,
+      inputVariableIds: [inputVariable.id],
+      outputVariableIds: [outputVariable.id],
+    });
 
     return {
       nodeConfigs: [nodeConfig],
       connectors: [
+        inputVariable,
+        outputVariable,
         {
           type: ConnectorType.InCondition,
           id: context.generateConnectorId(nodeId),
@@ -93,17 +103,6 @@ export const BIND_SEARCH_API_NODE_DEFINITION: NodeDefinition<
           index: 0,
           nodeId: nodeId,
           expressionString: '',
-        },
-        inputVariable,
-        {
-          type: ConnectorType.NodeOutput,
-          id: `${nodeId}/results`,
-          name: 'results',
-          nodeId: nodeId,
-          index: 0,
-          valueType: VariableValueType.Structured,
-          isGlobal: false,
-          globalVariableId: null,
         },
       ],
     };

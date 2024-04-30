@@ -239,14 +239,11 @@ export function getOutputVariablesForNode(
 
 export function getInputVariablesForNode(
   connectors: ConnectorRecords,
-  nodeId: string,
+  nodeConfig: NodeConfig,
 ): NodeInputVariable[] {
-  return Object.values(connectors)
-    .filter(
-      (c): c is NodeInputVariable =>
-        c.nodeId === nodeId && c.type === ConnectorType.NodeInput,
-    )
-    .sort((a, b) => a.index - b.index);
+  return nodeConfig.inputVariableIds.map(
+    (inputVariableId) => connectors[inputVariableId] as NodeInputVariable,
+  );
 }
 
 export function getRunNodeFunction(

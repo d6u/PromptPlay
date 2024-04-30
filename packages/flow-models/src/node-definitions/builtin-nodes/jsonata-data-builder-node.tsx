@@ -4,6 +4,7 @@ import { z } from 'zod';
 import {
   ConnectorType,
   NodeInputVariableSchema,
+  NodeOutputVariableSchema,
   VariableValueType,
 } from '../../base-types';
 import {
@@ -62,22 +63,30 @@ export const JSONATA_DATA_BUILDER_NODE_DEFINITION: NodeDefinition<
   createDefaultNodeConfigsAndConnectors(context) {
     const nodeId = context.generateNodeId();
 
-    const nodeConfig = JSONataDataBuilderNodeConfigSchema.parse({
-      nodeId,
-      expressionString: '{\n  "name": $.user_name\n}',
-    });
-
     const inputVariable = NodeInputVariableSchema.parse({
       id: context.generateConnectorId(nodeId),
       nodeId,
       name: 'user_name',
     });
 
-    nodeConfig.inputVariableIds.push(inputVariable.id);
+    const outputVariable = NodeOutputVariableSchema.parse({
+      id: context.generateConnectorId(nodeId),
+      nodeId,
+      name: 'output',
+    });
+
+    const nodeConfig = JSONataDataBuilderNodeConfigSchema.parse({
+      nodeId,
+      inputVariableIds: [inputVariable.id],
+      outputVariableIds: [outputVariable.id],
+      expressionString: '{\n  "name": $.user_name\n}',
+    });
 
     return {
       nodeConfigs: [nodeConfig],
       connectors: [
+        inputVariable,
+        outputVariable,
         {
           type: ConnectorType.InCondition,
           id: context.generateConnectorId(nodeId),
@@ -89,17 +98,6 @@ export const JSONATA_DATA_BUILDER_NODE_DEFINITION: NodeDefinition<
           index: 0,
           nodeId: nodeId,
           expressionString: '',
-        },
-        inputVariable,
-        {
-          type: ConnectorType.NodeOutput,
-          id: `${nodeId}/output`,
-          name: 'output',
-          nodeId: nodeId,
-          index: 0,
-          valueType: VariableValueType.Structured,
-          isGlobal: false,
-          globalVariableId: null,
         },
       ],
     };

@@ -1,8 +1,6 @@
 import { z } from 'zod';
 
-import chance from 'common-utils/chance';
-
-import { ConnectorType, VariableValueType } from '../../base-types';
+import { ConnectorType, NodeOutputVariableSchema } from '../../base-types';
 import {
   NodeDefinition,
   NodeKind,
@@ -36,25 +34,23 @@ export const INPUT_NODE_DEFINITION: NodeDefinition<
   createDefaultNodeConfigsAndConnectors(context) {
     const nodeId = context.generateNodeId();
 
+    const outputVariable = NodeOutputVariableSchema.parse({
+      id: context.generateConnectorId(nodeId),
+      nodeId,
+      name: 'input_1',
+    });
+
     const nodeConfig = InputNodeConfigSchema.parse({
       nodeId,
       // TODO: Dynamically generate nodeName based on existing node names
       nodeName: 'start_node_1',
+      outputVariableIds: [outputVariable.id],
     });
 
     return {
       nodeConfigs: [nodeConfig],
       connectors: [
-        {
-          type: ConnectorType.NodeOutput,
-          id: context.generateConnectorId(nodeId),
-          nodeId: nodeId,
-          index: 0,
-          name: chance.word(),
-          valueType: VariableValueType.String,
-          isGlobal: false,
-          globalVariableId: null,
-        },
+        outputVariable,
         {
           type: ConnectorType.OutCondition,
           id: context.generateConnectorId(nodeId),

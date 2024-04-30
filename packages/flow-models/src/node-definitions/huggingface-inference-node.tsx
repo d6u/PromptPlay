@@ -6,7 +6,7 @@ import * as HuggingFace from 'integrations/hugging-face';
 import {
   ConnectorType,
   NodeInputVariableSchema,
-  VariableValueType,
+  NodeOutputVariableSchema,
 } from '../base-types';
 import {
   FieldType,
@@ -89,33 +89,30 @@ export const HUGGINGFACE_INFERENCE_NODE_DEFINITION: NodeDefinition<
   createDefaultNodeConfigsAndConnectors(context) {
     const nodeId = context.generateNodeId();
 
-    const nodeConfig = HuggingFaceInferenceNodeConfigSchema.parse({
-      nodeId,
-      model: 'gpt2',
-    });
-
     const inputVariable = NodeInputVariableSchema.parse({
       id: context.generateConnectorId(nodeId),
       nodeId,
       name: 'parameters',
     });
 
-    nodeConfig.inputVariableIds.push(inputVariable.id);
+    const outputVariable = NodeOutputVariableSchema.parse({
+      id: context.generateConnectorId(nodeId),
+      nodeId,
+      name: 'output',
+    });
+
+    const nodeConfig = HuggingFaceInferenceNodeConfigSchema.parse({
+      nodeId,
+      inputVariableIds: [inputVariable.id],
+      outputVariableIds: [outputVariable.id],
+      model: 'gpt2',
+    });
 
     return {
       nodeConfigs: [nodeConfig],
       connectors: [
         inputVariable,
-        {
-          type: ConnectorType.NodeOutput,
-          id: `${nodeId}/output`,
-          name: 'output',
-          nodeId: nodeId,
-          index: 0,
-          valueType: VariableValueType.Structured,
-          isGlobal: false,
-          globalVariableId: null,
-        },
+        outputVariable,
         {
           type: ConnectorType.InCondition,
           id: context.generateConnectorId(nodeId),

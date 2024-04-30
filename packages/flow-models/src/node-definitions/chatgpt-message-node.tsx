@@ -8,6 +8,7 @@ import * as OpenAI from 'integrations/openai';
 import {
   ConnectorType,
   NodeInputVariableSchema,
+  NodeOutputVariableSchema,
   VariableValueType,
 } from '../base-types';
 import {
@@ -101,50 +102,44 @@ export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition<
   createDefaultNodeConfigsAndConnectors(context) {
     const nodeId = context.generateNodeId();
 
-    const nodeConfig = ChatgptMessageNodeConfigSchema.parse({
-      nodeId,
-      content: 'Write a poem about {{topic}} in fewer than 20 words.',
-    });
-
-    const inputVariable1 = NodeInputVariableSchema.parse({
+    const messagesInputVariable = NodeInputVariableSchema.parse({
       id: context.generateConnectorId(nodeId),
       nodeId,
       name: 'messages',
     });
 
-    const inputVariable2 = NodeInputVariableSchema.parse({
+    const genericInputVariable1 = NodeInputVariableSchema.parse({
       id: context.generateConnectorId(nodeId),
       nodeId,
       name: 'topic',
     });
 
-    nodeConfig.inputVariableIds.push(inputVariable1.id, inputVariable2.id);
+    const messageOutputVariable = NodeOutputVariableSchema.parse({
+      id: context.generateConnectorId(nodeId),
+      nodeId,
+      name: 'message',
+    });
+
+    const messagesOutputVariable = NodeOutputVariableSchema.parse({
+      id: context.generateConnectorId(nodeId),
+      nodeId,
+      name: 'messages',
+    });
+
+    const nodeConfig = ChatgptMessageNodeConfigSchema.parse({
+      nodeId,
+      inputVariableIds: [messagesInputVariable.id, genericInputVariable1.id],
+      outputVariableIds: [messageOutputVariable.id, messagesOutputVariable.id],
+      content: 'Write a poem about {{topic}} in fewer than 20 words.',
+    });
 
     return {
       nodeConfigs: [nodeConfig],
       connectors: [
-        inputVariable1,
-        inputVariable2,
-        {
-          type: ConnectorType.NodeOutput,
-          id: `${nodeId}/message`,
-          nodeId: nodeId,
-          name: 'message',
-          index: 0,
-          valueType: VariableValueType.Structured,
-          isGlobal: false,
-          globalVariableId: null,
-        },
-        {
-          type: ConnectorType.NodeOutput,
-          id: `${nodeId}/messages_out`,
-          nodeId: nodeId,
-          name: 'messages',
-          index: 1,
-          valueType: VariableValueType.Structured,
-          isGlobal: false,
-          globalVariableId: null,
-        },
+        messagesInputVariable,
+        genericInputVariable1,
+        messageOutputVariable,
+        messagesOutputVariable,
         {
           type: ConnectorType.InCondition,
           id: context.generateConnectorId(nodeId),
