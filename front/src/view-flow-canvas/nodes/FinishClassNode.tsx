@@ -13,10 +13,6 @@ import {
 import { NodeRunState } from 'run-flow';
 
 import NodeIncomingConditionHandle from 'components/node-connector/condition/NodeIncomingConditionHandle';
-import {
-  VariableConfig,
-  type VariableDefinition,
-} from 'components/node-connector/types';
 import NodeRenamableVariableList from 'components/node-connector/variable/NodeRenamableVariableList';
 import { useFlowStore } from 'state-flow/flow-store';
 import { selectVariables } from 'state-flow/util/state-utils';
@@ -86,23 +82,6 @@ function FinishClassNode(props: Props) {
             showConnectorHandle={Position.Left}
             nodeId={props.nodeId}
             isNodeReadOnly={props.isNodeReadOnly}
-            variableConfigs={nodeInputVariables.map<VariableConfig>((v) => ({
-              id: v.id,
-              name: v.name,
-              isGlobal: v.isGlobal,
-              globalVariableId: v.globalVariableId,
-            }))}
-            variableDefinitions={nodeInputVariables.map<VariableDefinition>(
-              (variable) => {
-                const incomingVariableConfig =
-                  nodeDefinition.fixedIncomingVariables?.[variable.name];
-
-                return {
-                  isVariableFixed: incomingVariableConfig != null,
-                  helperMessage: incomingVariableConfig?.helperMessage,
-                };
-              },
-            )}
           />
         </GenericContainer>
       </NodeBox>

@@ -20,10 +20,6 @@ import { NodeRunState } from 'run-flow';
 
 import NodeIncomingConditionHandle from 'components/node-connector/condition/NodeIncomingConditionHandle';
 import NodeRegularOutgoingConditionHandle from 'components/node-connector/condition/NodeRegularOutgoingConditionHandle';
-import {
-  VariableConfig,
-  type VariableDefinition,
-} from 'components/node-connector/types';
 import NodeOutputVariableList from 'components/node-connector/variable/NodeOutputVariableList';
 import NodeRenamableVariableList from 'components/node-connector/variable/NodeRenamableVariableList';
 import NodeExecutionMessageDisplay from 'components/node-execution-state/NodeExecutionMessageDisplay';
@@ -109,27 +105,6 @@ function DefaultNode(props: Props) {
             showConnectorHandle={Position.Left}
             nodeId={props.nodeId}
             isNodeReadOnly={props.isNodeReadOnly}
-            variableConfigs={props.inputVariables.map<VariableConfig>(
-              (variable) => {
-                return {
-                  id: variable.id,
-                  name: variable.name,
-                  isGlobal: variable.isGlobal,
-                  globalVariableId: variable.globalVariableId,
-                };
-              },
-            )}
-            variableDefinitions={props.inputVariables.map<VariableDefinition>(
-              (variable) => {
-                const incomingVariableConfig =
-                  nodeDefinition.fixedIncomingVariables?.[variable.name];
-
-                return {
-                  isVariableFixed: incomingVariableConfig != null,
-                  helperMessage: incomingVariableConfig?.helperMessage,
-                };
-              },
-            )}
           />
         </GenericContainer>
         <GenericContainer>

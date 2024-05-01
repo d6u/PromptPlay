@@ -1,8 +1,4 @@
 import { Button, FormLabel } from '@mui/joy';
-import type {
-  VariableConfig,
-  VariableDefinition,
-} from 'components/node-connector/types';
 import NodeRenamableVariableList from 'components/node-connector/variable/NodeRenamableVariableList';
 import {
   ConnectorType,
@@ -14,7 +10,6 @@ import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { Position } from 'reactflow';
 import { useFlowStore } from 'state-flow/flow-store';
-import { selectVariables } from 'state-flow/util/state-utils';
 import MessagesBlock from './MessagesBlock';
 import { FieldValues } from './types';
 
@@ -52,23 +47,6 @@ function NodeLlmMessagesField(props: Props) {
     });
   }, [configValue, fd.attrName, handleSubmit, props.nodeId, updateNodeConfig]);
 
-  const connectors = useFlowStore((s) => s.getFlowContent().connectors);
-
-  const inputVariablesForCurrentField = useMemo(() => {
-    if (props.nodeId != null) {
-      const variables = selectVariables(
-        nodeConfig,
-        ConnectorType.NodeInput,
-        connectors,
-      );
-      return variables.filter((variable) => {
-        return configValue[0].variableIds.includes(variable.id);
-      });
-    } else {
-      return [];
-    }
-  }, [props.nodeId, nodeConfig, connectors, configValue]);
-
   const addConnectorForNodeConfigField = useFlowStore(
     (s) => s.addConnectorForNodeConfigField,
   );
@@ -97,21 +75,6 @@ function NodeLlmMessagesField(props: Props) {
         showConnectorHandle={Position.Left}
         nodeId={props.nodeId}
         isNodeReadOnly={props.isNodeConfigReadOnly}
-        variableConfigs={inputVariablesForCurrentField.map<VariableConfig>(
-          (variable) => {
-            return {
-              id: variable.id,
-              name: variable.name,
-              isGlobal: variable.isGlobal,
-              globalVariableId: variable.globalVariableId,
-            };
-          },
-        )}
-        variableDefinitions={inputVariablesForCurrentField.map<VariableDefinition>(
-          () => {
-            return { isVariableFixed: false };
-          },
-        )}
       />
       <MessagesBlock
         readonly={props.isNodeConfigReadOnly}

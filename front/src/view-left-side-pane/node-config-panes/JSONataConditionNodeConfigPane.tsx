@@ -13,10 +13,6 @@ import {
 
 import NodeConditionDefaultItem from 'components/node-connector/condition/NodeConditionDefaultItem';
 import NodeConditionsEditableList from 'components/node-connector/condition/NodeConditionsEditableList';
-import {
-  VariableConfig,
-  type VariableDefinition,
-} from 'components/node-connector/types';
 import NodeRenamableVariableList from 'components/node-connector/variable/NodeRenamableVariableList';
 import NodeExecutionMessageDisplay from 'components/node-execution-state/NodeExecutionMessageDisplay';
 import SidePaneHeaderSection from 'components/side-pane/SidePaneHeaderSection';
@@ -82,19 +78,6 @@ function JSONataConditionNodeConfigPane(props: Props) {
       <NodeRenamableVariableList
         nodeId={props.nodeId}
         isNodeReadOnly={props.isNodeReadOnly}
-        variableConfigs={props.inputVariables.map<VariableConfig>(
-          (variable) => ({
-            id: variable.id,
-            name: variable.name,
-            isGlobal: variable.isGlobal,
-            globalVariableId: variable.globalVariableId,
-          }),
-        )}
-        variableDefinitions={props.inputVariables.map<VariableDefinition>(
-          () => ({
-            isVariableFixed: true,
-          }),
-        )}
       />
       <GenericSection>
         <FormControl>

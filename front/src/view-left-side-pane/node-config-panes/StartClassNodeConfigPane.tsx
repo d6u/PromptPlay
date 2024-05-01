@@ -9,10 +9,6 @@ import {
   type LoopStartNodeInstanceLevelConfig,
 } from 'flow-models';
 
-import {
-  VariableConfig,
-  type VariableDefinition,
-} from 'components/node-connector/types';
 import NodeRenamableVariableList from 'components/node-connector/variable/NodeRenamableVariableList';
 import SidePaneHeaderSection from 'components/side-pane/SidePaneHeaderSection';
 import HeaderSectionHeader from 'components/side-pane/SidePaneHeaderSectionHeader';
@@ -72,23 +68,6 @@ function StartClassNodeConfigPane(props: Props) {
         isListSortable
         nodeId={props.nodeConfig.nodeId}
         isNodeReadOnly={false}
-        variableConfigs={flowInputVariables.map<VariableConfig>((variable) => ({
-          id: variable.id,
-          name: variable.name,
-          isGlobal: variable.isGlobal,
-          globalVariableId: variable.globalVariableId,
-        }))}
-        variableDefinitions={flowInputVariables.map<VariableDefinition>(
-          (variable) => {
-            const incomingVariableConfig =
-              nodeDefinition.fixedIncomingVariables?.[variable.name];
-
-            return {
-              isVariableFixed: incomingVariableConfig != null,
-              helperMessage: incomingVariableConfig?.helperMessage,
-            };
-          },
-        )}
       />
     </NodeConfigPaneContainer>
   );
