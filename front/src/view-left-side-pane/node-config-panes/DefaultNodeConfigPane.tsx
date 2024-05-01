@@ -109,7 +109,6 @@ function DefaultNodeConfigPane(props: Props) {
       <NodeRenamableVariableList
         isListSortable
         nodeId={props.nodeConfig.nodeId}
-        isNodeReadOnly={false}
       />
       <NodeConfigPaneNodeFields
         nodeConfig={props.nodeConfig}

@@ -12,20 +12,23 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import styled from '@emotion/styled';
+import { css } from '@emotion/react';
 import { A } from '@mobily/ts-belt';
 import {
+  ConnectorType,
   NodeKind,
   getNodeDefinitionForNodeTypeName,
   type NodeInputVariable,
   type NodeOutputVariable,
 } from 'flow-models';
 import { produce } from 'immer';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useContext, useMemo } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { useUpdateNodeInternals } from 'reactflow';
+import RouteFlowContext from 'state-flow/context/FlowRouteContext';
 import { useFlowStore } from 'state-flow/flow-store';
 import invariant from 'tiny-invariant';
+import NodeConfigPaneAddConnectorButton from 'view-left-side-pane/left-side-pane-base-ui/NodeConfigPaneAddConnectorButton';
 import { VariableFormValue } from '../types';
 import NodeRenamableVariableItem, {
   HandlePosition,
@@ -37,11 +40,13 @@ type Props = {
   showConnectorHandle?: HandlePosition;
   // Node level
   nodeId: string;
-  isNodeReadOnly: boolean;
 };
 
 function NodeRenamableVariableList(props: Props) {
   const updateNodeInternals = useUpdateNodeInternals();
+
+  const { isCurrentUserOwner } = useContext(RouteFlowContext);
+  const isReadOnly = !isCurrentUserOwner;
 
   const nodeConfig = useFlowStore(
     (s) => s.getFlowContent().nodeConfigs[props.nodeId],
@@ -101,7 +106,7 @@ function NodeRenamableVariableList(props: Props) {
         const updatedVariables = A.difference(data.list, variables);
 
         for (const changedVariable of updatedVariables) {
-          invariant(!props.isNodeReadOnly, 'Node should not be readonly');
+          invariant(!isReadOnly, 'Node should not be readonly');
 
           const index = data.list.indexOf(changedVariable);
           const prevVariable = variables[index];
@@ -129,7 +134,7 @@ function NodeRenamableVariableList(props: Props) {
         const removedVariables = A.difference(variables, data.list);
 
         for (const removedVariable of removedVariables) {
-          invariant(!props.isNodeReadOnly, 'Node should not be readonly');
+          invariant(!isReadOnly, 'Node should not be readonly');
 
           const index = variables.indexOf(removedVariable);
 
@@ -147,7 +152,7 @@ function NodeRenamableVariableList(props: Props) {
   }, [
     handleSubmit,
     variables,
-    props.isNodeReadOnly,
+    isReadOnly,
     props.nodeId,
     updateVariable,
     nodeDefinition.fixedIncomingVariables,
@@ -172,64 +177,54 @@ function NodeRenamableVariableList(props: Props) {
 
       move(oldIndex, newIndex);
 
-      updateNodeConfig(props.nodeId, {
-        inputVariableIds: produce(nodeConfig.inputVariableIds, (draft) => {
-          draft.splice(oldIndex, 1);
-          draft.splice(newIndex, 0, active.id as string);
-        }),
-      });
+      if (nodeConfig.kind === NodeKind.Start) {
+        updateNodeConfig(props.nodeId, {
+          outputVariableIds: produce(nodeConfig.outputVariableIds, (draft) => {
+            draft.splice(oldIndex, 1);
+            draft.splice(newIndex, 0, active.id as string);
+          }),
+        });
+      } else {
+        updateNodeConfig(props.nodeId, {
+          inputVariableIds: produce(nodeConfig.inputVariableIds, (draft) => {
+            draft.splice(oldIndex, 1);
+            draft.splice(newIndex, 0, active.id as string);
+          }),
+        });
+      }
     },
     [
       getValues,
       move,
       nodeConfig.inputVariableIds,
+      nodeConfig.kind,
+      nodeConfig.outputVariableIds,
       props.nodeId,
       updateNodeConfig,
     ],
   );
 
+  const addVariable = useFlowStore((s) => s.addConnector);
+
   return (
-    <Container>
-      {/* {nonEditableFields.length > 0 && (
-        <div>
-          {nonEditableFields.map((field, index) => {
-            const variable = getValues().list[index];
-
-            const incomingVariableConfig =
-              nodeDefinition.fixedIncomingVariables?.[variable.name];
-
-            // TODO: Find a way to avoid duplicating the mapper
-            return (
-              <NodeRenamableVariableItem
-                key={variable.id}
-                connectorHandlePosition={props.showConnectorHandle ?? 'none'}
-                isListSortable={false}
-                nodeId={props.nodeId}
-                isNodeReadOnly={props.isNodeReadOnly}
-                variable={variable}
-                variableDefinition={{
-                  isVariableFixed: incomingVariableConfig != null,
-                  helperText: incomingVariableConfig?.helperMessage,
-                }}
-                value={variable}
-                onChange={(value) => {
-                  setValue(
-                    `list.${index}`,
-                    produce(variable, (draft) => {
-                      Object.assign(draft, value);
-                    }),
-                  );
-                  submit();
-                }}
-                onRemove={() => {
-                  remove(index);
-                  submit();
-                }}
-              />
-            );
-          })}
-        </div>
-      )} */}
+    <div
+      css={css`
+        position: relative;
+        margin-bottom: 10px;
+      `}
+    >
+      <NodeConfigPaneAddConnectorButton
+        label="Variable"
+        onClick={() => {
+          addVariable(
+            props.nodeId,
+            nodeConfig.kind === NodeKind.Start
+              ? ConnectorType.NodeOutput
+              : ConnectorType.NodeInput,
+          );
+          updateNodeInternals(props.nodeId);
+        }}
+      />
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
@@ -255,7 +250,7 @@ function NodeRenamableVariableList(props: Props) {
                   isListSortable={!!props.isListSortable}
                   connectorHandlePosition={props.showConnectorHandle ?? 'none'}
                   nodeId={props.nodeId}
-                  isNodeReadOnly={props.isNodeReadOnly}
+                  isNodeReadOnly={isReadOnly}
                   variable={variable}
                   variableDefinition={{
                     isVariableFixed: incomingVariableConfig != null,
@@ -281,13 +276,8 @@ function NodeRenamableVariableList(props: Props) {
           </div>
         </SortableContext>
       </DndContext>
-    </Container>
+    </div>
   );
 }
-
-const Container = styled.div`
-  position: relative;
-  margin-bottom: 10px;
-`;
 
 export default NodeRenamableVariableList;

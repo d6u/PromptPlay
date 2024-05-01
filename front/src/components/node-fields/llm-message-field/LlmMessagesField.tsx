@@ -74,7 +74,6 @@ function NodeLlmMessagesField(props: Props) {
       <NodeRenamableVariableList
         showConnectorHandle={Position.Left}
         nodeId={props.nodeId}
-        isNodeReadOnly={props.isNodeConfigReadOnly}
       />
       <MessagesBlock
         readonly={props.isNodeConfigReadOnly}

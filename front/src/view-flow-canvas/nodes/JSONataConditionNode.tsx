@@ -86,7 +86,6 @@ function JSONataConditionNode(props: Props) {
           <NodeRenamableVariableList
             showConnectorHandle={Position.Left}
             nodeId={props.nodeId}
-            isNodeReadOnly={props.isNodeReadOnly}
           />
         </GenericSection>
         <NodeBoxSection>

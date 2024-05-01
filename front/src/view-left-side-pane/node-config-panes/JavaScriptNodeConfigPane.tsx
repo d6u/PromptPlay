@@ -110,7 +110,6 @@ function JavaScriptNodeConfigPane(props: Props) {
       <NodeRenamableVariableList
         isListSortable
         nodeId={props.nodeConfig.nodeId}
-        isNodeReadOnly={false}
       />
       <NodeFieldSectionFormControl>
         <NodeFieldLabelWithIconContainer>

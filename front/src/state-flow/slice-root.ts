@@ -250,7 +250,11 @@ export const createRootSlice: RootSliceStateCreator = (set, get) => {
       });
     },
     // ANCHOR: Variable
-    addConnector(nodeId: string, type: ConnectorTypeEnum, index: number): void {
+    addConnector(
+      nodeId: string,
+      type: ConnectorTypeEnum,
+      index?: number,
+    ): void {
       get()._processEventWithEventGraph({
         type: ChangeEventType.ADDING_VARIABLE,
         nodeId,

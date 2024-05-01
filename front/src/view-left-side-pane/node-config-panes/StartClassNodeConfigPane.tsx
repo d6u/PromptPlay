@@ -67,7 +67,6 @@ function StartClassNodeConfigPane(props: Props) {
       <NodeRenamableVariableList
         isListSortable
         nodeId={props.nodeConfig.nodeId}
-        isNodeReadOnly={false}
       />
     </NodeConfigPaneContainer>
   );

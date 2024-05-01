@@ -79,7 +79,6 @@ function StartClassNode(props: Props) {
           <NodeRenamableVariableList
             showConnectorHandle={Position.Right}
             nodeId={props.nodeId}
-            isNodeReadOnly={props.isNodeReadOnly}
           />
         </GenericContainer>
       </NodeBox>

@@ -24,7 +24,7 @@ export type AddConnectorEvent = {
   type: ChangeEventType.ADDING_VARIABLE;
   nodeId: string;
   connectorType: ConnectorTypeEnum;
-  connectorIndex: number;
+  connectorIndex?: number;
 };
 
 export const handleAddConnector = createHandler<
@@ -68,23 +68,16 @@ export const handleAddConnector = createHandler<
           globalVariableId: null,
         };
         state.flowContent.connectors[variableConfig.id] = variableConfig;
+        state.flowContent.nodeConfigs[event.nodeId].outputVariableIds.push(
+          variableConfig.id,
+        );
         break;
       }
       case ConnectorType.NodeInput: {
-        invariant(
-          nodeDefinition.variableValueTypeForUserAddedIncomingVariable ===
-            VariableValueType.Structured ||
-            nodeDefinition.variableValueTypeForUserAddedIncomingVariable ===
-              VariableValueType.String ||
-            nodeDefinition.variableValueTypeForUserAddedIncomingVariable ===
-              VariableValueType.Any,
-          `Variable value type ${nodeDefinition.variableValueTypeForUserAddedIncomingVariable} is Structured, String or Any`,
-        );
         const variableConfig: NodeInputVariable = {
           ...commonFields,
           type: event.connectorType,
-          valueType:
-            nodeDefinition.variableValueTypeForUserAddedIncomingVariable,
+          valueType: VariableValueType.Any,
           isGlobal: true,
           globalVariableId: null,
         };
@@ -99,7 +92,7 @@ export const handleAddConnector = createHandler<
           id: `${event.nodeId}/${randomId()}`,
           type: ConnectorType.OutCondition,
           nodeId: event.nodeId,
-          index: event.connectorIndex,
+          index: event.connectorIndex!,
           expressionString: '$ = "Some value"',
         };
         state.flowContent.connectors[variableConfig.id] = variableConfig;

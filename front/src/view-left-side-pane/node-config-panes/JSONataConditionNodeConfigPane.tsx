@@ -75,10 +75,7 @@ function JSONataConditionNodeConfigPane(props: Props) {
       <SidePaneHeaderSection>
         <HeaderSectionHeader>{nodeDefinition.label} Config</HeaderSectionHeader>
       </SidePaneHeaderSection>
-      <NodeRenamableVariableList
-        nodeId={props.nodeId}
-        isNodeReadOnly={props.isNodeReadOnly}
-      />
+      <NodeRenamableVariableList nodeId={props.nodeId} />
       <GenericSection>
         <FormControl>
           <FormLabel>Stop at the first match</FormLabel>

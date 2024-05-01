@@ -95,7 +95,6 @@ function JavaScriptFunctionNode(props: Props) {
           <NodeRenamableVariableList
             showConnectorHandle={Position.Left}
             nodeId={props.nodeId}
-            isNodeReadOnly={props.isNodeReadOnly}
           />
         </GenericContainer>
         <NodeBoxSection>

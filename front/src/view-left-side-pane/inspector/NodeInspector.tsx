@@ -1,4 +1,6 @@
+import NodeRenamableVariableList from 'components/node-connector/variable/NodeRenamableVariableList';
 import { useFlowStore } from 'state-flow/flow-store';
+import NodeConfigPaneContainer from 'view-left-side-pane/left-side-pane-base-ui/NodeConfigPaneContainer';
 import InspectorHeader from './InspectorHeader';
 
 function NodeInspector() {
@@ -15,9 +17,10 @@ function NodeInspector() {
   }
 
   return (
-    <div>
+    <NodeConfigPaneContainer>
       <InspectorHeader nodeId={nodeId!} />
-    </div>
+      <NodeRenamableVariableList isListSortable={true} nodeId={nodeId!} />
+    </NodeConfigPaneContainer>
   );
 }
 
