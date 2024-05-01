@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import type { NodeInputVariable } from 'flow-models';
+import type { NodeOutputVariable } from 'flow-models';
 import { useMemo } from 'react';
 import { Handle, Position } from 'reactflow';
 import { useFlowStore } from 'state-flow/flow-store';
@@ -8,18 +8,18 @@ type Props = {
   nodeId: string;
 };
 
-function NodeInputVariables(props: Props) {
+function NodeOutputVariables(props: Props) {
   const nodeConfig = useFlowStore(
     (s) => s.getFlowContent().nodeConfigs[props.nodeId],
   );
 
   const connectors = useFlowStore((s) => s.getFlowContent().connectors);
 
-  const inputVariables = useMemo((): NodeInputVariable[] => {
-    return nodeConfig.inputVariableIds.map(
-      (variableId) => connectors[variableId] as NodeInputVariable,
+  const outputVariables = useMemo((): NodeOutputVariable[] => {
+    return nodeConfig.outputVariableIds.map(
+      (variableId) => connectors[variableId] as NodeOutputVariable,
     );
-  }, [connectors, nodeConfig.inputVariableIds]);
+  }, [connectors, nodeConfig.outputVariableIds]);
 
   return (
     <div
@@ -27,7 +27,7 @@ function NodeInputVariables(props: Props) {
         position: relative;
       `}
     >
-      {inputVariables.map((variable) => (
+      {outputVariables.map((variable) => (
         <div
           key={variable.id}
           css={css`
@@ -44,15 +44,16 @@ function NodeInputVariables(props: Props) {
               height: 14px;
               background: white;
               border: 2px solid #00b3ff;
-              left: -8px;
+              right: -8px;
             `}
-            type="target"
-            position={Position.Left}
+            type="source"
+            position={Position.Right}
           />
           <div
             css={css`
               font-family: menlo, monospace;
               font-size: 14px;
+              text-align: right;
             `}
           >
             {variable.name}
@@ -63,4 +64,4 @@ function NodeInputVariables(props: Props) {
   );
 }
 
-export default NodeInputVariables;
+export default NodeOutputVariables;

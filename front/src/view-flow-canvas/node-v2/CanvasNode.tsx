@@ -3,6 +3,7 @@ import { useFlowStore } from 'state-flow/flow-store';
 import NodeBoxV2 from './NodeBoxV2';
 import NodeHeader from './NodeHeader';
 import NodeInputVariables from './NodeInputVariables';
+import NodeOutputVariables from './NodeOutputVariables';
 
 function CanvasNode(props: NodeProps) {
   const configExists = useFlowStore(
@@ -20,6 +21,7 @@ function CanvasNode(props: NodeProps) {
       <NodeBoxV2 selected={props.selected} nodeId={props.id}>
         <NodeHeader nodeId={props.id} />
         <NodeInputVariables nodeId={props.id} />
+        <NodeOutputVariables nodeId={props.id} />
       </NodeBoxV2>
     </>
   );
