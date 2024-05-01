@@ -35,11 +35,11 @@ import NodeRenamableVariableItem, {
 } from './NodeRenamableVariableItem';
 
 type Props = {
-  // Depend on rendering location
+  nodeId: string;
+  variableIds: string[];
+  onVariableIdsChange: (variableIds: string[]) => void;
   isListSortable?: boolean;
   showConnectorHandle?: HandlePosition;
-  // Node level
-  nodeId: string;
 };
 
 function NodeRenamableVariableList(props: Props) {
@@ -60,20 +60,10 @@ function NodeRenamableVariableList(props: Props) {
   const connectors = useFlowStore((s) => s.getFlowContent().connectors);
 
   const variables = useMemo((): (NodeOutputVariable | NodeInputVariable)[] => {
-    if (nodeConfig.kind === NodeKind.Start) {
-      return nodeConfig.outputVariableIds.map(
-        (variableId) => connectors[variableId] as NodeOutputVariable,
-      );
-    }
-    return nodeConfig.inputVariableIds.map(
+    return props.variableIds.map(
       (variableId) => connectors[variableId] as NodeInputVariable,
     );
-  }, [
-    connectors,
-    nodeConfig.inputVariableIds,
-    nodeConfig.kind,
-    nodeConfig.outputVariableIds,
-  ]);
+  }, [connectors, props.variableIds]);
 
   const updateVariable = useFlowStore((s) => s.updateConnector);
   const removeVariable = useFlowStore((s) => s.removeVariable);
@@ -160,8 +150,6 @@ function NodeRenamableVariableList(props: Props) {
     removeVariable,
   ]);
 
-  const updateNodeConfig = useFlowStore((s) => s.updateNodeConfig);
-
   const onDragEnd = useCallback(
     (event: DragEndEvent) => {
       const { active, over } = event;
@@ -177,31 +165,14 @@ function NodeRenamableVariableList(props: Props) {
 
       move(oldIndex, newIndex);
 
-      if (nodeConfig.kind === NodeKind.Start) {
-        updateNodeConfig(props.nodeId, {
-          outputVariableIds: produce(nodeConfig.outputVariableIds, (draft) => {
-            draft.splice(oldIndex, 1);
-            draft.splice(newIndex, 0, active.id as string);
-          }),
-        });
-      } else {
-        updateNodeConfig(props.nodeId, {
-          inputVariableIds: produce(nodeConfig.inputVariableIds, (draft) => {
-            draft.splice(oldIndex, 1);
-            draft.splice(newIndex, 0, active.id as string);
-          }),
-        });
-      }
+      props.onVariableIdsChange(
+        produce(props.variableIds, (draft) => {
+          draft.splice(oldIndex, 1);
+          draft.splice(newIndex, 0, active.id as string);
+        }),
+      );
     },
-    [
-      getValues,
-      move,
-      nodeConfig.inputVariableIds,
-      nodeConfig.kind,
-      nodeConfig.outputVariableIds,
-      props.nodeId,
-      updateNodeConfig,
-    ],
+    [getValues, move, props],
   );
 
   const addVariable = useFlowStore((s) => s.addConnector);

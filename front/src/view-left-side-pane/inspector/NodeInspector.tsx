@@ -1,7 +1,7 @@
-import NodeRenamableVariableList from 'components/node-connector/variable/NodeRenamableVariableList';
 import { useFlowStore } from 'state-flow/flow-store';
 import NodeConfigPaneContainer from 'view-left-side-pane/left-side-pane-base-ui/NodeConfigPaneContainer';
 import InspectorHeader from './InspectorHeader';
+import InspectorInputVariables from './InspectorInputVariables';
 
 function NodeInspector() {
   const nodeId = useFlowStore((s) => s.canvasLeftPaneSelectedNodeId);
@@ -19,7 +19,7 @@ function NodeInspector() {
   return (
     <NodeConfigPaneContainer>
       <InspectorHeader nodeId={nodeId!} />
-      <NodeRenamableVariableList isListSortable={true} nodeId={nodeId!} />
+      <InspectorInputVariables nodeId={nodeId!} />
     </NodeConfigPaneContainer>
   );
 }
