@@ -256,7 +256,11 @@ export type FlowActions = {
   addConnectorForNodeConfigField(
     params: AddConnectorForNodeConfigFieldParams,
   ): void;
-  removeVariable(variableId: string): void;
+  removeVariable(
+    variableId: string,
+    fieldKey?: string,
+    fieldIndex?: number,
+  ): void;
   updateConnector<
     T extends ConnectorTypeEnum,
     R = VariableTypeToVariableConfigTypeMap[T],

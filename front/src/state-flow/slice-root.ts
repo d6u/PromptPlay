@@ -273,10 +273,16 @@ export const createRootSlice: RootSliceStateCreator = (set, get) => {
         fieldIndex: params.fieldIndex,
       });
     },
-    removeVariable(variableId: string): void {
+    removeVariable(
+      variableId: string,
+      fieldKey?: string,
+      fieldIndex?: number,
+    ): void {
       get()._processEventWithEventGraph({
         type: ChangeEventType.REMOVING_VARIABLE,
         variableId,
+        fieldKey,
+        fieldIndex,
       });
     },
     updateConnector<

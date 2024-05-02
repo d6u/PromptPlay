@@ -38,6 +38,7 @@ type Props = {
   onVariableIdsChange: (variableIds: string[]) => void;
   labelForAddVariableButton: string;
   onAddVariable: () => void;
+  onRemoveVariable: (variableId: string) => void;
   isListSortable?: boolean;
   showConnectorHandle?: HandlePosition;
 };
@@ -66,7 +67,6 @@ function NodeRenamableVariableList(props: Props) {
   }, [connectors, props.variableIds]);
 
   const updateVariable = useFlowStore((s) => s.updateConnector);
-  const removeVariable = useFlowStore((s) => s.removeVariable);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -132,7 +132,8 @@ function NodeRenamableVariableList(props: Props) {
             nodeDefinition.fixedIncomingVariables?.[index] == null,
             'Variable should not be readonly',
           );
-          removeVariable(removedVariable.id);
+
+          props.onRemoveVariable(removedVariable.id);
         }
 
         // NOTE: Removing a variable will affect edge and handle positions.
@@ -143,11 +144,10 @@ function NodeRenamableVariableList(props: Props) {
     handleSubmit,
     variables,
     isReadOnly,
-    props.nodeId,
     updateVariable,
     nodeDefinition.fixedIncomingVariables,
     updateNodeInternals,
-    removeVariable,
+    props,
   ]);
 
   const onDragEnd = useCallback(

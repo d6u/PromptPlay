@@ -18,6 +18,7 @@ function InspectorInputVariables(props: Props) {
 
   const updateNodeConfig = useFlowStore((s) => s.updateNodeConfig);
   const addVariable = useFlowStore((s) => s.addConnector);
+  const removeVariable = useFlowStore((s) => s.removeVariable);
 
   return (
     <NodeRenamableVariableList
@@ -43,6 +44,7 @@ function InspectorInputVariables(props: Props) {
             : ConnectorType.NodeInput,
         );
       }}
+      onRemoveVariable={removeVariable}
       isListSortable={true}
     />
   );

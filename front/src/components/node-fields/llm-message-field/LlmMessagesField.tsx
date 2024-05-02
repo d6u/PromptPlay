@@ -51,6 +51,8 @@ function NodeLlmMessagesField(props: Props) {
     (s) => s.addConnectorForNodeConfigField,
   );
 
+  const removeVariable = useFlowStore((s) => s.removeVariable);
+
   return (
     <div
       css={css`
@@ -78,6 +80,9 @@ function NodeLlmMessagesField(props: Props) {
             fieldKey: fd.attrName,
             fieldIndex: 0,
           });
+        }}
+        onRemoveVariable={(variableId) => {
+          removeVariable(variableId, fd.attrName, 0);
         }}
         isListSortable
       />
