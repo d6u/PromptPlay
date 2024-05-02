@@ -17,9 +17,7 @@ function InspectorHeader(props: Props) {
     [nodeConfig.type],
   );
 
-  return (
-    <HeaderSectionHeader>{nodeDefinition.label} Config</HeaderSectionHeader>
-  );
+  return <HeaderSectionHeader>{nodeDefinition.label}</HeaderSectionHeader>;
 }
 
 export default InspectorHeader;

@@ -26,22 +26,6 @@ function MessagesBlock(props: {
 
   return (
     <>
-      <div>
-        <Button
-          color="success"
-          variant="outlined"
-          onClick={() => {
-            append({
-              type: 'inline',
-              variableId: null,
-              value: { role: ChatGPTMessageRole.user, content: '' },
-            });
-            onChange();
-          }}
-        >
-          Add message
-        </Button>
-      </div>
       {fields.map((field, index) => {
         return (
           <MessageBlock
@@ -60,6 +44,22 @@ function MessagesBlock(props: {
           />
         );
       })}
+      <div>
+        <Button
+          color="success"
+          variant="outlined"
+          onClick={() => {
+            append({
+              type: 'inline',
+              variableId: null,
+              value: { role: ChatGPTMessageRole.user, content: '' },
+            });
+            onChange();
+          }}
+        >
+          Append message
+        </Button>
+      </div>
     </>
   );
 }

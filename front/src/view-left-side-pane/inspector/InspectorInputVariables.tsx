@@ -1,5 +1,5 @@
 import NodeRenamableVariableList from 'components/node-connector/variable/NodeRenamableVariableList';
-import { NodeKind } from 'flow-models';
+import { ConnectorType, NodeKind } from 'flow-models';
 import { useFlowStore } from 'state-flow/flow-store';
 
 type Props = {
@@ -17,6 +17,7 @@ function InspectorInputVariables(props: Props) {
       : nodeConfig.inputVariableIds;
 
   const updateNodeConfig = useFlowStore((s) => s.updateNodeConfig);
+  const addVariable = useFlowStore((s) => s.addConnector);
 
   return (
     <NodeRenamableVariableList
@@ -28,6 +29,19 @@ function InspectorInputVariables(props: Props) {
         } else {
           updateNodeConfig(props.nodeId, { inputVariableIds: value });
         }
+      }}
+      labelForAddVariableButton={
+        nodeConfig.kind === NodeKind.Start
+          ? 'Add input variable for flow'
+          : 'Add input variable'
+      }
+      onAddVariable={() => {
+        addVariable(
+          props.nodeId,
+          nodeConfig.kind === NodeKind.Start
+            ? ConnectorType.NodeOutput
+            : ConnectorType.NodeInput,
+        );
       }}
       isListSortable={true}
     />

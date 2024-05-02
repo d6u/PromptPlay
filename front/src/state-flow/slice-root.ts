@@ -265,12 +265,13 @@ export const createRootSlice: RootSliceStateCreator = (set, get) => {
     addConnectorForNodeConfigField(
       params: AddConnectorForNodeConfigFieldParams,
     ): void {
-      // get()._processEventWithEventGraph({
-      //   type: ChangeEventType.ADDING_CONNECTOR_FOR_NODE_CONFIG_FIELD,
-      //   // nodeId,
-      //   // connectorType: type,
-      //   // connectorIndex: index,
-      // });
+      get()._processEventWithEventGraph({
+        type: ChangeEventType.ADDING_CONNECTOR_FOR_NODE_CONFIG_FIELD,
+        nodeId: params.nodeId,
+        connectorType: params.type,
+        fieldKey: params.fieldKey,
+        fieldIndex: params.fieldIndex,
+      });
     },
     removeVariable(variableId: string): void {
       get()._processEventWithEventGraph({

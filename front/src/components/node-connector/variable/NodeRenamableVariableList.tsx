@@ -15,8 +15,6 @@ import {
 import { css } from '@emotion/react';
 import { A } from '@mobily/ts-belt';
 import {
-  ConnectorType,
-  NodeKind,
   getNodeDefinitionForNodeTypeName,
   type NodeInputVariable,
   type NodeOutputVariable,
@@ -38,6 +36,8 @@ type Props = {
   nodeId: string;
   variableIds: string[];
   onVariableIdsChange: (variableIds: string[]) => void;
+  labelForAddVariableButton: string;
+  onAddVariable: () => void;
   isListSortable?: boolean;
   showConnectorHandle?: HandlePosition;
 };
@@ -175,26 +175,17 @@ function NodeRenamableVariableList(props: Props) {
     [getValues, move, props],
   );
 
-  const addVariable = useFlowStore((s) => s.addConnector);
-
   return (
     <div
       css={css`
         position: relative;
         margin-bottom: 10px;
+        border-bottom: 1px solid #e0e0e0;
       `}
     >
       <NodeConfigPaneAddConnectorButton
-        label="Variable"
-        onClick={() => {
-          addVariable(
-            props.nodeId,
-            nodeConfig.kind === NodeKind.Start
-              ? ConnectorType.NodeOutput
-              : ConnectorType.NodeInput,
-          );
-          updateNodeInternals(props.nodeId);
-        }}
+        label={props.labelForAddVariableButton}
+        onClick={props.onAddVariable}
       />
       <DndContext
         sensors={sensors}

@@ -1,4 +1,4 @@
-import { Button, FormLabel } from '@mui/joy';
+import { FormLabel } from '@mui/joy';
 import NodeRenamableVariableList from 'components/node-connector/variable/NodeRenamableVariableList';
 import {
   ConnectorType,
@@ -53,27 +53,25 @@ function NodeLlmMessagesField(props: Props) {
   return (
     <div>
       <FormLabel>Messages</FormLabel>
-      <div>
-        <Button
-          color="success"
-          variant="outlined"
-          onClick={() => {
-            addConnectorForNodeConfigField({
-              nodeId: props.nodeId,
-              fieldKey: fd.attrName,
-              type: ConnectorType.NodeInput,
-            });
-            // TODO: Append variable ID
-            // variableIdsField.onChange([...variableIdsField.value]);
-          }}
-        >
-          Add variable
-        </Button>
-      </div>
       <NodeRenamableVariableList
         nodeId={props.nodeId}
         variableIds={configValue[0].variableIds}
-        onVariableIdsChange={(value) => {}}
+        onVariableIdsChange={(value) => {
+          updateNodeConfig(props.nodeId, {
+            [fd.attrName]: produce(configValue, (draft) => {
+              draft[0].variableIds = value;
+            }),
+          });
+        }}
+        labelForAddVariableButton={`Add variable for ${fd.attrName}`}
+        onAddVariable={() => {
+          addConnectorForNodeConfigField({
+            nodeId: props.nodeId,
+            type: ConnectorType.NodeInput,
+            fieldKey: fd.attrName,
+            fieldIndex: 0,
+          });
+        }}
         isListSortable
       />
       <MessagesBlock

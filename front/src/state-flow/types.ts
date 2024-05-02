@@ -211,8 +211,9 @@ export type FlowSingleRunResult = {
 
 export type AddConnectorForNodeConfigFieldParams = {
   nodeId: string;
-  fieldKey: string;
   type: ConnectorTypeEnum;
+  fieldKey: string;
+  fieldIndex?: number;
 };
 
 export type FlowActions = {
