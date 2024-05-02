@@ -3,8 +3,6 @@ import { Observable, TimeoutError, map, retry, scan, tap } from 'rxjs';
 import invariant from 'tiny-invariant';
 import z from 'zod';
 
-import * as OpenAI from 'integrations/openai';
-
 import {
   ChatGPTMessage,
   ChatGPTMessageRole,
@@ -26,7 +24,6 @@ import {
   type RunNodeResult,
 } from '../node-definition-base-types';
 import { NodeConfigCommonSchema } from '../node-definition-base-types/node-config-common';
-import type { ChatGPTMessageNodeInstanceLevelConfig } from './chatgpt-message-node';
 
 export enum OpenAIChatModel {
   // GPT-4
@@ -241,13 +238,13 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
       nodeConfigs: [
         nodeConfig,
         // TODO: Centralize default config from different node
-        {
-          kind: NodeKind.Process,
-          nodeId: messageNodeId,
-          type: NodeType.ChatGPTMessageNode,
-          role: OpenAI.ChatGPTMessageRole.user,
-          content: 'Write a poem in fewer than 20 words.',
-        } as ChatGPTMessageNodeInstanceLevelConfig,
+        // {
+        //   kind: NodeKind.Process,
+        //   nodeId: messageNodeId,
+        //   type: NodeType.ChatGPTMessageNode,
+        //   role: OpenAI.ChatGPTMessageRole.user,
+        //   content: 'Write a poem in fewer than 20 words.',
+        // } as ChatGPTMessageNodeInstanceLevelConfig,
       ],
       connectors: [
         {
@@ -267,48 +264,48 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
         messageOutputVariable,
         messagesOutputVariable,
         // For the message node
-        {
-          type: ConnectorType.InCondition,
-          id: context.generateConnectorId(messageNodeId),
-          nodeId: messageNodeId,
-        },
-        {
-          type: ConnectorType.OutCondition,
-          id: context.generateConnectorId(messageNodeId),
-          index: 0,
-          nodeId: messageNodeId,
-          expressionString: '',
-        },
-        {
-          type: ConnectorType.NodeInput,
-          id: `${messageNodeId}/messages_in`,
-          nodeId: messageNodeId,
-          name: 'messages',
-          index: 0,
-          valueType: VariableValueType.Structured,
-          isGlobal: false,
-          globalVariableId: null,
-        },
-        {
-          type: ConnectorType.NodeOutput,
-          id: `${messageNodeId}/message`,
-          nodeId: messageNodeId,
-          name: 'message',
-          index: 0,
-          valueType: VariableValueType.Structured,
-          isGlobal: false,
-          globalVariableId: null,
-        },
-        {
-          type: ConnectorType.NodeOutput,
-          id: `${messageNodeId}/messages_out`,
-          nodeId: messageNodeId,
-          name: 'messages',
-          index: 1,
-          valueType: VariableValueType.Structured,
-          isGlobal: false,
-          globalVariableId: null,
-        },
+        // {
+        //   type: ConnectorType.InCondition,
+        //   id: context.generateConnectorId(messageNodeId),
+        //   nodeId: messageNodeId,
+        // },
+        // {
+        //   type: ConnectorType.OutCondition,
+        //   id: context.generateConnectorId(messageNodeId),
+        //   index: 0,
+        //   nodeId: messageNodeId,
+        //   expressionString: '',
+        // },
+        // {
+        //   type: ConnectorType.NodeInput,
+        //   id: `${messageNodeId}/messages_in`,
+        //   nodeId: messageNodeId,
+        //   name: 'messages',
+        //   index: 0,
+        //   valueType: VariableValueType.Structured,
+        //   isGlobal: false,
+        //   globalVariableId: null,
+        // },
+        // {
+        //   type: ConnectorType.NodeOutput,
+        //   id: `${messageNodeId}/message`,
+        //   nodeId: messageNodeId,
+        //   name: 'message',
+        //   index: 0,
+        //   valueType: VariableValueType.Structured,
+        //   isGlobal: false,
+        //   globalVariableId: null,
+        // },
+        // {
+        //   type: ConnectorType.NodeOutput,
+        //   id: `${messageNodeId}/messages_out`,
+        //   nodeId: messageNodeId,
+        //   name: 'messages',
+        //   index: 1,
+        //   valueType: VariableValueType.Structured,
+        //   isGlobal: false,
+        //   globalVariableId: null,
+        // },
       ],
     };
   },

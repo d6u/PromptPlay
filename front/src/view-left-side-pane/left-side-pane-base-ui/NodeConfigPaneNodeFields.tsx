@@ -24,14 +24,12 @@ function NodeConfigPaneNodeFields(props: Props) {
   );
 
   return (
-    <div>
-      <NodeBoxInstanceLevelFields
-        isNodeConfigReadOnly={isReadOnly}
-        nodeConfigFieldDefs={nodeDefinition.configFields}
-        nodeConfig={nodeConfig}
-        isNodeInspectorPane
-      />
-    </div>
+    <NodeBoxInstanceLevelFields
+      isNodeConfigReadOnly={isReadOnly}
+      nodeConfigFieldDefs={nodeDefinition.configFields}
+      nodeConfig={nodeConfig}
+      isNodeInspectorPane
+    />
   );
 }
 

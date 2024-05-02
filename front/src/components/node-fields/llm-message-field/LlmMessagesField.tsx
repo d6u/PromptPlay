@@ -8,7 +8,6 @@ import {
 import { produce } from 'immer';
 import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
-import { Position } from 'reactflow';
 import { useFlowStore } from 'state-flow/flow-store';
 import MessagesBlock from './MessagesBlock';
 import { FieldValues } from './types';
@@ -72,8 +71,10 @@ function NodeLlmMessagesField(props: Props) {
         </Button>
       </div>
       <NodeRenamableVariableList
-        showConnectorHandle={Position.Left}
         nodeId={props.nodeId}
+        variableIds={configValue[0].variableIds}
+        onVariableIdsChange={(value) => {}}
+        isListSortable
       />
       <MessagesBlock
         readonly={props.isNodeConfigReadOnly}
