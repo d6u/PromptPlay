@@ -1,3 +1,4 @@
+import { css } from '@emotion/react';
 import { FormLabel } from '@mui/joy';
 import NodeRenamableVariableList from 'components/node-connector/variable/NodeRenamableVariableList';
 import {
@@ -51,7 +52,13 @@ function NodeLlmMessagesField(props: Props) {
   );
 
   return (
-    <div>
+    <div
+      css={css`
+        border-bottom: 1px solid #e0e0e0;
+        padding-bottom: 10px;
+        margin-bottom: 10px;
+      `}
+    >
       <FormLabel>Messages</FormLabel>
       <NodeRenamableVariableList
         nodeId={props.nodeId}

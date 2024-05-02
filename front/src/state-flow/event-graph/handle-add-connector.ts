@@ -75,7 +75,7 @@ export const handleAddConnector = createHandler<
           ...commonFields,
           type: event.connectorType,
           valueType: VariableValueType.String,
-          isGlobal: true,
+          isGlobal: false,
           globalVariableId: null,
         };
         state.flowContent.connectors[variableConfig.id] = variableConfig;
@@ -100,7 +100,7 @@ export const handleAddConnector = createHandler<
           ...commonFields,
           type: event.connectorType,
           valueType: VariableValueType.Any,
-          isGlobal: true,
+          isGlobal: false,
           globalVariableId: null,
         };
         state.flowContent.connectors[variableConfig.id] = variableConfig;
