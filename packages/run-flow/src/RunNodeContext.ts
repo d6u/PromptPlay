@@ -47,11 +47,14 @@ class RunNodeContext {
       params.connectors,
       nodeId,
     );
-    const inputVariables = getInputVariablesForNode(params.connectors, nodeId);
+    const inputVariables = getInputVariablesForNode(
+      params.connectors,
+      params.nodeConfigs[nodeId],
+    );
     const incomingConnectors = [...incomingConditions, ...inputVariables];
     const outputVariables = getOutputVariablesForNode(
       params.connectors,
-      nodeId,
+      params.nodeConfigs[nodeId],
     );
     const outgoingConditions = getOutgoingConditionsForNode(
       params.connectors,

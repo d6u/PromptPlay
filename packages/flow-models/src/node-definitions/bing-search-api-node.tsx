@@ -1,19 +1,23 @@
 import z from 'zod';
 
-import { ConnectorType, VariableValueType } from '../base-types';
+import {
+  ConnectorType,
+  NodeInputVariableSchema,
+  NodeOutputVariableSchema,
+} from '../base-types';
 import {
   FieldType,
   NodeDefinition,
   NodeKind,
   NodeType,
 } from '../node-definition-base-types';
+import { NodeConfigCommonSchema } from '../node-definition-base-types/node-config-common';
 
 // Reference: https://huggingface.co/docs/api-inference/index
 
-export const BingSearchApiNodeConfigSchema = z.object({
-  kind: z.literal(NodeKind.Process),
-  type: z.literal(NodeType.BingSearchApi),
-  nodeId: z.string(),
+export const BingSearchApiNodeConfigSchema = NodeConfigCommonSchema.extend({
+  kind: z.literal(NodeKind.Process).default(NodeKind.Process),
+  type: z.literal(NodeType.BingSearchApi).default(NodeType.BingSearchApi),
 });
 
 export type BingSearchApiNodeInstanceLevelConfig = z.infer<
@@ -65,15 +69,29 @@ export const BIND_SEARCH_API_NODE_DEFINITION: NodeDefinition<
   createDefaultNodeConfigsAndConnectors(context) {
     const nodeId = context.generateNodeId();
 
+    const inputVariable = NodeInputVariableSchema.parse({
+      id: context.generateConnectorId(nodeId),
+      nodeId,
+      name: 'query',
+    });
+
+    const outputVariable = NodeOutputVariableSchema.parse({
+      id: context.generateConnectorId(nodeId),
+      nodeId,
+      name: 'results',
+    });
+
+    const nodeConfig = BingSearchApiNodeConfigSchema.parse({
+      nodeId,
+      inputVariableIds: [inputVariable.id],
+      outputVariableIds: [outputVariable.id],
+    });
+
     return {
-      nodeConfigs: [
-        {
-          kind: NodeKind.Process,
-          nodeId: nodeId,
-          type: NodeType.BingSearchApi,
-        } as BingSearchApiNodeInstanceLevelConfig,
-      ],
+      nodeConfigs: [nodeConfig],
       connectors: [
+        inputVariable,
+        outputVariable,
         {
           type: ConnectorType.InCondition,
           id: context.generateConnectorId(nodeId),
@@ -85,26 +103,6 @@ export const BIND_SEARCH_API_NODE_DEFINITION: NodeDefinition<
           index: 0,
           nodeId: nodeId,
           expressionString: '',
-        },
-        {
-          type: ConnectorType.NodeInput,
-          id: `${nodeId}/query`,
-          name: 'query',
-          nodeId: nodeId,
-          index: 0,
-          valueType: VariableValueType.String,
-          isGlobal: false,
-          globalVariableId: null,
-        },
-        {
-          type: ConnectorType.NodeOutput,
-          id: `${nodeId}/results`,
-          name: 'results',
-          nodeId: nodeId,
-          index: 0,
-          valueType: VariableValueType.Structured,
-          isGlobal: false,
-          globalVariableId: null,
         },
       ],
     };

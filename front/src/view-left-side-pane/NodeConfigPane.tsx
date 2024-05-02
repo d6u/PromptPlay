@@ -30,12 +30,16 @@ function NodeConfigPane() {
   const nodeConfig = useMemo(() => nodeConfigs[nodeId], [nodeConfigs, nodeId]);
 
   const inputVariables = useMemo(() => {
-    return selectVariables(nodeId, ConnectorType.NodeInput, connectors);
-  }, [connectors, nodeId]);
+    return nodeConfig != null
+      ? selectVariables(nodeConfig, ConnectorType.NodeInput, connectors)
+      : [];
+  }, [connectors, nodeConfig]);
 
   const outputVariables = useMemo(() => {
-    return selectVariables(nodeId, ConnectorType.NodeOutput, connectors);
-  }, [connectors, nodeId]);
+    return nodeConfig != null
+      ? selectVariables(nodeConfig, ConnectorType.NodeOutput, connectors)
+      : [];
+  }, [connectors, nodeConfig]);
 
   const nodeExecutionState = useMemo(() => {
     return nodeId != null ? nodeExecutionStates[nodeId] : null;

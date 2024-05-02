@@ -1,29 +1,35 @@
-import { useMemo } from 'react';
+import { useContext, useMemo } from 'react';
 
-import { NodeConfig, getNodeDefinitionForNodeTypeName } from 'flow-models';
+import { getNodeDefinitionForNodeTypeName } from 'flow-models';
 
 import NodeBoxInstanceLevelFields from 'components/node-fields/NodeInstanceLevelFields';
+import RouteFlowContext from 'state-flow/context/FlowRouteContext';
+import { useFlowStore } from 'state-flow/flow-store';
 
 type Props = {
-  nodeConfig: NodeConfig;
-  isNodeReadOnly: boolean;
+  nodeId: string;
 };
 
 function NodeConfigPaneNodeFields(props: Props) {
+  const { isCurrentUserOwner } = useContext(RouteFlowContext);
+  const isReadOnly = !isCurrentUserOwner;
+
+  const nodeConfig = useFlowStore(
+    (s) => s.getFlowContent().nodeConfigs[props.nodeId],
+  );
+
   const nodeDefinition = useMemo(
-    () => getNodeDefinitionForNodeTypeName(props.nodeConfig.type),
-    [props.nodeConfig.type],
+    () => getNodeDefinitionForNodeTypeName(nodeConfig.type),
+    [nodeConfig.type],
   );
 
   return (
-    <div>
-      <NodeBoxInstanceLevelFields
-        isNodeConfigReadOnly={props.isNodeReadOnly}
-        nodeConfigFieldDefs={nodeDefinition.configFields}
-        nodeConfig={props.nodeConfig}
-        isNodeInspectorPane
-      />
-    </div>
+    <NodeBoxInstanceLevelFields
+      isNodeConfigReadOnly={isReadOnly}
+      nodeConfigFieldDefs={nodeDefinition.configFields}
+      nodeConfig={nodeConfig}
+      isNodeInspectorPane
+    />
   );
 }
 

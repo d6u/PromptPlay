@@ -211,8 +211,9 @@ export type FlowSingleRunResult = {
 
 export type AddConnectorForNodeConfigFieldParams = {
   nodeId: string;
-  fieldKey: string;
   type: ConnectorTypeEnum;
+  fieldKey: string;
+  fieldIndex?: number;
 };
 
 export type FlowActions = {
@@ -251,11 +252,15 @@ export type FlowActions = {
   removeNode(nodeId: string): void;
   updateNodeConfig(nodeId: string, change: Partial<NodeConfig>): void;
 
-  addConnector(nodeId: string, type: ConnectorTypeEnum, index: number): void;
+  addConnector(nodeId: string, type: ConnectorTypeEnum, index?: number): void;
   addConnectorForNodeConfigField(
     params: AddConnectorForNodeConfigFieldParams,
   ): void;
-  removeVariable(variableId: string): void;
+  removeVariable(
+    variableId: string,
+    fieldKey?: string,
+    fieldIndex?: number,
+  ): void;
   updateConnector<
     T extends ConnectorTypeEnum,
     R = VariableTypeToVariableConfigTypeMap[T],

@@ -1,4 +1,5 @@
 import { Option } from '@mobily/ts-belt';
+import type { NodeInputVariable, NodeOutputVariable } from 'flow-models';
 import { ReactNode } from 'react';
 
 export type VariableConfig = Readonly<{
@@ -21,7 +22,7 @@ export type ConditionConfig = Readonly<{
 }>;
 
 export type VariableFormValue = {
-  list: VariableConfig[];
+  list: (NodeInputVariable | NodeOutputVariable)[];
 };
 
 export type ConditionFormValue = {

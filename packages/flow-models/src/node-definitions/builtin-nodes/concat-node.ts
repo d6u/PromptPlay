@@ -2,10 +2,10 @@ import z from 'zod';
 
 import {
   ConnectorType,
+  NodeInputVariableSchema,
+  NodeOutputVariableSchema,
   VariableValueType,
   type IncomingCondition,
-  type NodeInputVariable,
-  type NodeOutputVariable,
   type OutgoingCondition,
 } from '../../base-types';
 import {
@@ -13,11 +13,11 @@ import {
   NodeKind,
   NodeType,
 } from '../../node-definition-base-types';
+import { NodeConfigCommonSchema } from '../../node-definition-base-types/node-config-common';
 
-export const ConcatNodeConfigSchema = z.object({
-  kind: z.literal(NodeKind.Process),
-  type: z.literal(NodeType.Concat),
-  nodeId: z.string(),
+export const ConcatNodeConfigSchema = NodeConfigCommonSchema.extend({
+  kind: z.literal(NodeKind.Process).default(NodeKind.Process),
+  type: z.literal(NodeType.Concat).default(NodeType.Concat),
 });
 
 export type ConcatNodeInstanceLevelConfig = z.infer<
@@ -41,14 +41,26 @@ export const CONCAT_NODE_DEFINITION: NodeDefinition<
   createDefaultNodeConfigsAndConnectors(context) {
     const nodeId = context.generateNodeId();
 
+    const inputVariable = NodeInputVariableSchema.parse({
+      id: context.generateConnectorId(nodeId),
+      nodeId,
+      name: 'input1',
+    });
+
+    const outputVariable = NodeOutputVariableSchema.parse({
+      id: context.generateConnectorId(nodeId),
+      nodeId,
+      name: 'result',
+    });
+
+    const nodeConfig = ConcatNodeConfigSchema.parse({
+      nodeId,
+      inputVariableIds: [inputVariable.id],
+      outputVariableIds: [outputVariable.id],
+    });
+
     return {
-      nodeConfigs: [
-        {
-          kind: NodeKind.Process,
-          type: NodeType.Concat,
-          nodeId: nodeId,
-        } as ConcatNodeInstanceLevelConfig,
-      ],
+      nodeConfigs: [nodeConfig],
       connectors: [
         {
           type: ConnectorType.InCondition,
@@ -62,26 +74,8 @@ export const CONCAT_NODE_DEFINITION: NodeDefinition<
           nodeId: nodeId,
           expressionString: '',
         } as OutgoingCondition,
-        {
-          type: ConnectorType.NodeInput,
-          id: context.generateConnectorId(nodeId),
-          name: 'input1',
-          nodeId: nodeId,
-          index: 0,
-          valueType: VariableValueType.String,
-          isGlobal: false,
-          globalVariableId: null,
-        } as NodeInputVariable,
-        {
-          type: ConnectorType.NodeOutput,
-          id: `${nodeId}/result`,
-          name: 'result',
-          nodeId: nodeId,
-          index: 0,
-          valueType: VariableValueType.String,
-          isGlobal: false,
-          globalVariableId: null,
-        } as NodeOutputVariable,
+        inputVariable,
+        outputVariable,
       ],
     };
   },

@@ -15,10 +15,6 @@ import HeaderSectionHeader from 'components/side-pane/SidePaneHeaderSectionHeade
 import { useFlowStore } from 'state-flow/flow-store';
 import { selectVariables } from 'state-flow/util/state-utils';
 
-import {
-  VariableConfig,
-  type VariableDefinition,
-} from 'components/node-connector/types';
 import NodeConfigPaneAddConnectorButton from '../left-side-pane-base-ui/NodeConfigPaneAddConnectorButton';
 import NodeConfigPaneContainer from '../left-side-pane-base-ui/NodeConfigPaneContainer';
 
@@ -43,8 +39,12 @@ function FinishClassNodeConfigPane(props: Props) {
   );
 
   const nodeInputVariables = useMemo(() => {
-    return selectVariables(props.nodeId, ConnectorType.NodeInput, connectors);
-  }, [props.nodeId, connectors]);
+    return selectVariables(
+      props.nodeConfig,
+      ConnectorType.NodeInput,
+      connectors,
+    );
+  }, [props.nodeConfig, connectors]);
 
   return (
     <NodeConfigPaneContainer>
@@ -67,24 +67,6 @@ function FinishClassNodeConfigPane(props: Props) {
       <NodeRenamableVariableList
         isListSortable
         nodeId={props.nodeConfig.nodeId}
-        isNodeReadOnly={false}
-        variableConfigs={nodeInputVariables.map<VariableConfig>((v) => ({
-          id: v.id,
-          name: v.name,
-          isGlobal: v.isGlobal,
-          globalVariableId: v.globalVariableId,
-        }))}
-        variableDefinitions={nodeInputVariables.map<VariableDefinition>(
-          (variable) => {
-            const incomingVariableConfig =
-              nodeDefinition.fixedIncomingVariables?.[variable.name];
-
-            return {
-              isVariableFixed: incomingVariableConfig != null,
-              helperMessage: incomingVariableConfig?.helperMessage,
-            };
-          },
-        )}
       />
     </NodeConfigPaneContainer>
   );

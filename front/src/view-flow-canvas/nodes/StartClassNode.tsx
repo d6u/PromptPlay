@@ -9,17 +9,13 @@ import {
   getNodeDefinitionForNodeTypeName,
   type LoopStartNodeAllLevelConfig,
 } from 'flow-models';
+import { NodeRunState } from 'run-flow';
 
 import NodeRegularOutgoingConditionHandle from 'components/node-connector/condition/NodeRegularOutgoingConditionHandle';
-import {
-  VariableConfig,
-  type VariableDefinition,
-} from 'components/node-connector/types';
 import NodeRenamableVariableList from 'components/node-connector/variable/NodeRenamableVariableList';
 import { useFlowStore } from 'state-flow/flow-store';
 import { selectVariables } from 'state-flow/util/state-utils';
 
-import { NodeRunState } from 'run-flow';
 import NodeBox from '../node-box/NodeBox';
 import NodeBoxHeaderSection from '../node-box/NodeBoxHeaderSection';
 
@@ -52,8 +48,12 @@ function StartClassNode(props: Props) {
   );
 
   const nodeOutputVariables = useMemo(() => {
-    return selectVariables(props.nodeId, ConnectorType.NodeOutput, connectors);
-  }, [props.nodeId, connectors]);
+    return selectVariables(
+      props.nodeConfig,
+      ConnectorType.NodeOutput,
+      connectors,
+    );
+  }, [props.nodeConfig, connectors]);
 
   return (
     <>
@@ -79,26 +79,6 @@ function StartClassNode(props: Props) {
           <NodeRenamableVariableList
             showConnectorHandle={Position.Right}
             nodeId={props.nodeId}
-            isNodeReadOnly={props.isNodeReadOnly}
-            variableConfigs={nodeOutputVariables.map<VariableConfig>(
-              (variable) => ({
-                id: variable.id,
-                name: variable.name,
-                isGlobal: variable.isGlobal,
-                globalVariableId: variable.globalVariableId,
-              }),
-            )}
-            variableDefinitions={nodeOutputVariables.map<VariableDefinition>(
-              (variable) => {
-                const incomingVariableConfig =
-                  nodeDefinition.fixedIncomingVariables?.[variable.name];
-
-                return {
-                  isVariableFixed: incomingVariableConfig != null,
-                  helperMessage: incomingVariableConfig?.helperMessage,
-                };
-              },
-            )}
           />
         </GenericContainer>
       </NodeBox>

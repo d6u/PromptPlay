@@ -23,10 +23,6 @@ import { NodeRunStateData } from 'state-flow/common-types';
 import { useFlowStore } from 'state-flow/flow-store';
 
 import NodeRegularOutgoingConditionHandle from 'components/node-connector/condition/NodeRegularOutgoingConditionHandle';
-import {
-  VariableConfig,
-  type VariableDefinition,
-} from 'components/node-connector/types';
 import NodeOutputVariableList from 'components/node-connector/variable/NodeOutputVariableList';
 import NodeExecutionMessageDisplay from 'components/node-execution-state/NodeExecutionMessageDisplay';
 import { NodeRunState } from 'run-flow';
@@ -99,28 +95,6 @@ function JavaScriptFunctionNode(props: Props) {
           <NodeRenamableVariableList
             showConnectorHandle={Position.Left}
             nodeId={props.nodeId}
-            isNodeReadOnly={props.isNodeReadOnly}
-            variableConfigs={props.inputVariables.map<VariableConfig>(
-              (variable) => {
-                return {
-                  id: variable.id,
-                  name: variable.name,
-                  isGlobal: variable.isGlobal,
-                  globalVariableId: variable.globalVariableId,
-                };
-              },
-            )}
-            variableDefinitions={props.inputVariables.map<VariableDefinition>(
-              (variable) => {
-                const incomingVariableConfig =
-                  nodeDefinition.fixedIncomingVariables?.[variable.name];
-
-                return {
-                  isVariableFixed: incomingVariableConfig != null,
-                  helperMessage: incomingVariableConfig?.helperMessage,
-                };
-              },
-            )}
           />
         </GenericContainer>
         <NodeBoxSection>

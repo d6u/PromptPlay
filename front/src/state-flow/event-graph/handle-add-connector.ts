@@ -24,15 +24,26 @@ export type AddConnectorEvent = {
   type: ChangeEventType.ADDING_VARIABLE;
   nodeId: string;
   connectorType: ConnectorTypeEnum;
-  connectorIndex: number;
+  connectorIndex?: number;
+};
+
+export type AddConnectorForNodeConfigFieldEvent = {
+  type: ChangeEventType.ADDING_CONNECTOR_FOR_NODE_CONFIG_FIELD;
+  nodeId: string;
+  connectorType: ConnectorTypeEnum;
+  fieldKey: string;
+  fieldIndex?: number;
 };
 
 export const handleAddConnector = createHandler<
-  AddConnectorEvent,
+  AddConnectorEvent | AddConnectorForNodeConfigFieldEvent,
   VariableAddedEvent
 >(
   (event): event is AddConnectorEvent => {
-    return event.type === ChangeEventType.ADDING_VARIABLE;
+    return (
+      event.type === ChangeEventType.ADDING_VARIABLE ||
+      event.type === ChangeEventType.ADDING_CONNECTOR_FOR_NODE_CONFIG_FIELD
+    );
   },
   (state, event) => {
     const nodeType = state.flowContent.nodeConfigs[event.nodeId].type;
@@ -54,7 +65,6 @@ export const handleAddConnector = createHandler<
     const commonFields = {
       id: `${event.nodeId}/${randomId()}`,
       nodeId: event.nodeId,
-      index: event.connectorIndex,
       name: chance.word(),
     };
 
@@ -65,39 +75,58 @@ export const handleAddConnector = createHandler<
           ...commonFields,
           type: event.connectorType,
           valueType: VariableValueType.String,
-          isGlobal: true,
+          isGlobal: false,
           globalVariableId: null,
         };
         state.flowContent.connectors[variableConfig.id] = variableConfig;
+        if (event.type === ChangeEventType.ADDING_VARIABLE) {
+          state.flowContent.nodeConfigs[event.nodeId].outputVariableIds.push(
+            variableConfig.id,
+          );
+        } else {
+          const nodeConfig = state.flowContent.nodeConfigs[event.nodeId];
+          let field = nodeConfig[event.fieldKey as keyof typeof nodeConfig];
+          if (event.fieldIndex != null) {
+            field = field[event.fieldIndex];
+          }
+          (field as unknown as { variableIds: string[] }).variableIds.push(
+            variableConfig.id,
+          );
+        }
         break;
       }
       case ConnectorType.NodeInput: {
-        invariant(
-          nodeDefinition.variableValueTypeForUserAddedIncomingVariable ===
-            VariableValueType.Structured ||
-            nodeDefinition.variableValueTypeForUserAddedIncomingVariable ===
-              VariableValueType.String ||
-            nodeDefinition.variableValueTypeForUserAddedIncomingVariable ===
-              VariableValueType.Any,
-          `Variable value type ${nodeDefinition.variableValueTypeForUserAddedIncomingVariable} is Structured, String or Any`,
-        );
         const variableConfig: NodeInputVariable = {
           ...commonFields,
           type: event.connectorType,
-          valueType:
-            nodeDefinition.variableValueTypeForUserAddedIncomingVariable,
-          isGlobal: true,
+          valueType: VariableValueType.Any,
+          isGlobal: false,
           globalVariableId: null,
         };
         state.flowContent.connectors[variableConfig.id] = variableConfig;
+        if (event.type === ChangeEventType.ADDING_VARIABLE) {
+          state.flowContent.nodeConfigs[event.nodeId].inputVariableIds.push(
+            variableConfig.id,
+          );
+        } else {
+          const nodeConfig = state.flowContent.nodeConfigs[event.nodeId];
+          let field = nodeConfig[event.fieldKey as keyof typeof nodeConfig];
+          if (event.fieldIndex != null) {
+            field = field[event.fieldIndex];
+          }
+          (field as unknown as { variableIds: string[] }).variableIds.push(
+            variableConfig.id,
+          );
+        }
         break;
       }
       case ConnectorType.OutCondition: {
+        invariant(event.type === ChangeEventType.ADDING_VARIABLE);
         const variableConfig: OutgoingCondition = {
           id: `${event.nodeId}/${randomId()}`,
           type: ConnectorType.OutCondition,
           nodeId: event.nodeId,
-          index: event.connectorIndex,
+          index: event.connectorIndex!,
           expressionString: '$ = "Some value"',
         };
         state.flowContent.connectors[variableConfig.id] = variableConfig;

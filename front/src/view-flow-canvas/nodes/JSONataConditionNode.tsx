@@ -22,10 +22,6 @@ import { NodeRunStateData } from 'state-flow/common-types';
 import { useFlowStore } from 'state-flow/flow-store';
 import { selectOutgoingConditions } from 'state-flow/util/state-utils';
 
-import {
-  VariableConfig,
-  type VariableDefinition,
-} from 'components/node-connector/types';
 import NodeExecutionMessageDisplay from 'components/node-execution-state/NodeExecutionMessageDisplay';
 import { NodeRunState } from 'run-flow';
 import NodeBox from '../node-box/NodeBox';
@@ -90,20 +86,6 @@ function JSONataConditionNode(props: Props) {
           <NodeRenamableVariableList
             showConnectorHandle={Position.Left}
             nodeId={props.nodeId}
-            isNodeReadOnly={props.isNodeReadOnly}
-            variableConfigs={props.inputVariables.map<VariableConfig>(
-              (variable) => {
-                return {
-                  id: variable.id,
-                  name: variable.name,
-                  isGlobal: variable.isGlobal,
-                  globalVariableId: variable.globalVariableId,
-                };
-              },
-            )}
-            variableDefinitions={props.inputVariables.map<VariableDefinition>(
-              () => ({ isVariableFixed: true }),
-            )}
           />
         </GenericSection>
         <NodeBoxSection>

@@ -13,10 +13,6 @@ import {
 
 import NodeConditionDefaultItem from 'components/node-connector/condition/NodeConditionDefaultItem';
 import NodeConditionsEditableList from 'components/node-connector/condition/NodeConditionsEditableList';
-import {
-  VariableConfig,
-  type VariableDefinition,
-} from 'components/node-connector/types';
 import NodeRenamableVariableList from 'components/node-connector/variable/NodeRenamableVariableList';
 import NodeExecutionMessageDisplay from 'components/node-execution-state/NodeExecutionMessageDisplay';
 import SidePaneHeaderSection from 'components/side-pane/SidePaneHeaderSection';
@@ -79,23 +75,7 @@ function JSONataConditionNodeConfigPane(props: Props) {
       <SidePaneHeaderSection>
         <HeaderSectionHeader>{nodeDefinition.label} Config</HeaderSectionHeader>
       </SidePaneHeaderSection>
-      <NodeRenamableVariableList
-        nodeId={props.nodeId}
-        isNodeReadOnly={props.isNodeReadOnly}
-        variableConfigs={props.inputVariables.map<VariableConfig>(
-          (variable) => ({
-            id: variable.id,
-            name: variable.name,
-            isGlobal: variable.isGlobal,
-            globalVariableId: variable.globalVariableId,
-          }),
-        )}
-        variableDefinitions={props.inputVariables.map<VariableDefinition>(
-          () => ({
-            isVariableFixed: true,
-          }),
-        )}
-      />
+      <NodeRenamableVariableList nodeId={props.nodeId} />
       <GenericSection>
         <FormControl>
           <FormLabel>Stop at the first match</FormLabel>

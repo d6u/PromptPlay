@@ -1,3 +1,4 @@
+import { css } from '@emotion/react';
 import { Button, FormControl, Radio, RadioGroup, Textarea } from '@mui/joy';
 import RemoveButton from 'generic-components/RemoveButton';
 import { ChatGPTMessageRole } from 'integrations/openai';
@@ -30,19 +31,31 @@ function MessageBlock(props: {
   // }, [getValues]);
 
   return (
-    <div>
-      <RemoveButton onClick={props.onRemove} />
-      <Button
-        variant="outlined"
-        onClick={() => {
-          const newType =
-            getValues().type === 'inline' ? 'inputVariable' : 'inline';
-          setValue('type', newType);
-          onChange();
-        }}
+    <div
+      css={css`
+        margin-top: 10px;
+        margin-bottom: 10px;
+      `}
+    >
+      <div
+        css={css`
+          display: flex;
+          justify-content: space-between;
+        `}
       >
-        Toggle variable
-      </Button>
+        <Button
+          variant="outlined"
+          onClick={() => {
+            const newType =
+              getValues().type === 'inline' ? 'inputVariable' : 'inline';
+            setValue('type', newType);
+            onChange();
+          }}
+        >
+          Toggle variable
+        </Button>
+        <RemoveButton onClick={props.onRemove} />
+      </div>
       {
         getValues().type === 'inline' ? (
           <>

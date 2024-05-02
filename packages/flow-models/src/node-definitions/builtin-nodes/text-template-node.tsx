@@ -1,19 +1,24 @@
 import mustache from 'mustache';
 import { z } from 'zod';
 
-import { ConnectorType, VariableValueType } from '../../base-types';
+import {
+  ConnectorType,
+  NodeInputVariableSchema,
+  NodeOutputVariableSchema,
+  VariableValueType,
+} from '../../base-types';
 import {
   FieldType,
   NodeDefinition,
   NodeKind,
   NodeType,
 } from '../../node-definition-base-types';
+import { NodeConfigCommonSchema } from '../../node-definition-base-types/node-config-common';
 
-export const TextTemplateNodeConfigSchema = z.object({
-  kind: z.literal(NodeKind.Process),
-  type: z.literal(NodeType.TextTemplate),
-  nodeId: z.string(),
-  content: z.string(),
+export const TextTemplateNodeConfigSchema = NodeConfigCommonSchema.extend({
+  kind: z.literal(NodeKind.Process).default(NodeKind.Process),
+  type: z.literal(NodeType.TextTemplate).default(NodeType.TextTemplate),
+  content: z.string().default(''),
 });
 
 export type TextTemplateNodeInstanceLevelConfig = z.infer<
@@ -58,36 +63,30 @@ export const TEXT_TEMPLATE_NODE_DEFINITION: NodeDefinition<
   createDefaultNodeConfigsAndConnectors(context) {
     const nodeId = context.generateNodeId();
 
+    const inputVariable = NodeInputVariableSchema.parse({
+      id: context.generateConnectorId(nodeId),
+      nodeId,
+      name: 'topic',
+    });
+
+    const outputVariable = NodeOutputVariableSchema.parse({
+      id: context.generateConnectorId(nodeId),
+      nodeId,
+      name: 'content',
+    });
+
+    const nodeConfig = TextTemplateNodeConfigSchema.parse({
+      nodeId,
+      inputVariableIds: [inputVariable.id],
+      outputVariableIds: [outputVariable.id],
+      content: 'Write a poem about {{topic}} in fewer than 20 words.',
+    });
+
     return {
-      nodeConfigs: [
-        {
-          kind: NodeKind.Process,
-          nodeId: nodeId,
-          type: NodeType.TextTemplate,
-          content: 'Write a poem about {{topic}} in fewer than 20 words.',
-        },
-      ],
+      nodeConfigs: [nodeConfig],
       connectors: [
-        {
-          type: ConnectorType.NodeInput,
-          id: context.generateConnectorId(nodeId),
-          name: 'topic',
-          nodeId: nodeId,
-          index: 0,
-          valueType: VariableValueType.String,
-          isGlobal: false,
-          globalVariableId: null,
-        },
-        {
-          type: ConnectorType.NodeOutput,
-          id: `${nodeId}/content`,
-          name: 'content',
-          nodeId: nodeId,
-          index: 0,
-          valueType: VariableValueType.String,
-          isGlobal: false,
-          globalVariableId: null,
-        },
+        inputVariable,
+        outputVariable,
         {
           type: ConnectorType.InCondition,
           id: context.generateConnectorId(nodeId),

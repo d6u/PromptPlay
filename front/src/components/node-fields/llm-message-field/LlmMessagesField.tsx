@@ -1,8 +1,5 @@
-import { Button, FormLabel } from '@mui/joy';
-import type {
-  VariableConfig,
-  VariableDefinition,
-} from 'components/node-connector/types';
+import { css } from '@emotion/react';
+import { FormLabel } from '@mui/joy';
 import NodeRenamableVariableList from 'components/node-connector/variable/NodeRenamableVariableList';
 import {
   ConnectorType,
@@ -12,9 +9,7 @@ import {
 import { produce } from 'immer';
 import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
-import { Position } from 'reactflow';
 import { useFlowStore } from 'state-flow/flow-store';
-import { selectVariables } from 'state-flow/util/state-utils';
 import MessagesBlock from './MessagesBlock';
 import { FieldValues } from './types';
 
@@ -52,66 +47,44 @@ function NodeLlmMessagesField(props: Props) {
     });
   }, [configValue, fd.attrName, handleSubmit, props.nodeId, updateNodeConfig]);
 
-  const connectors = useFlowStore((s) => s.getFlowContent().connectors);
-
-  const inputVariablesForCurrentField = useMemo(() => {
-    if (props.nodeId != null) {
-      const variables = selectVariables(
-        props.nodeId,
-        ConnectorType.NodeInput,
-        connectors,
-      );
-      return variables.filter((variable) => {
-        return configValue[0].variableIds.includes(variable.id);
-      });
-    } else {
-      return [];
-    }
-  }, [props.nodeId, connectors, configValue]);
-
   const addConnectorForNodeConfigField = useFlowStore(
     (s) => s.addConnectorForNodeConfigField,
   );
 
+  const removeVariable = useFlowStore((s) => s.removeVariable);
+
   return (
-    <div>
+    <div
+      css={css`
+        border-bottom: 1px solid #e0e0e0;
+        padding-bottom: 10px;
+        margin-bottom: 10px;
+      `}
+    >
       <FormLabel>Messages</FormLabel>
-      <div>
-        <Button
-          color="success"
-          variant="outlined"
-          onClick={() => {
-            addConnectorForNodeConfigField({
-              nodeId: props.nodeId,
-              fieldKey: fd.attrName,
-              type: ConnectorType.NodeInput,
-            });
-            // TODO: Append variable ID
-            // variableIdsField.onChange([...variableIdsField.value]);
-          }}
-        >
-          Add variable
-        </Button>
-      </div>
       <NodeRenamableVariableList
-        showConnectorHandle={Position.Left}
         nodeId={props.nodeId}
-        isNodeReadOnly={props.isNodeConfigReadOnly}
-        variableConfigs={inputVariablesForCurrentField.map<VariableConfig>(
-          (variable) => {
-            return {
-              id: variable.id,
-              name: variable.name,
-              isGlobal: variable.isGlobal,
-              globalVariableId: variable.globalVariableId,
-            };
-          },
-        )}
-        variableDefinitions={inputVariablesForCurrentField.map<VariableDefinition>(
-          () => {
-            return { isVariableFixed: false };
-          },
-        )}
+        variableIds={configValue[0].variableIds}
+        onVariableIdsChange={(value) => {
+          updateNodeConfig(props.nodeId, {
+            [fd.attrName]: produce(configValue, (draft) => {
+              draft[0].variableIds = value;
+            }),
+          });
+        }}
+        labelForAddVariableButton={`Add variable for ${fd.attrName}`}
+        onAddVariable={() => {
+          addConnectorForNodeConfigField({
+            nodeId: props.nodeId,
+            type: ConnectorType.NodeInput,
+            fieldKey: fd.attrName,
+            fieldIndex: 0,
+          });
+        }}
+        onRemoveVariable={(variableId) => {
+          removeVariable(variableId, fd.attrName, 0);
+        }}
+        isListSortable
       />
       <MessagesBlock
         readonly={props.isNodeConfigReadOnly}

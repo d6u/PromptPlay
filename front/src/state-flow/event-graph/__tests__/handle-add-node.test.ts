@@ -51,7 +51,9 @@ test('handleAddNode should add node and nodeConfig', () => {
       kind: 'Start',
       type: 'InputNode',
       nodeId: expect.any(String),
-      nodeName: 'input',
+      nodeName: 'start_node_1',
+      inputVariableIds: [],
+      outputVariableIds: [expect.any(String)],
     },
   ]);
 
@@ -60,9 +62,8 @@ test('handleAddNode should add node and nodeConfig', () => {
       type: 'NodeOutput',
       id: expect.any(String),
       nodeId: expect.any(String),
-      index: 0,
       name: expect.any(String),
-      valueType: 'String',
+      valueType: expect.any(String),
       isGlobal: false,
       globalVariableId: null,
     },

@@ -27,25 +27,19 @@ function GenericChatbotTest(props: Props) {
   );
 
   const chatHistoryVariableId = useMemo(() => {
-    const chatHistoryVariable = Object.values(connectors).find(
-      (connector): connector is NodeOutputVariable =>
-        connector.nodeId === props.nodeConfig.nodeId &&
-        connector.type === ConnectorType.NodeOutput &&
-        connector.index === 0,
-    );
+    const chatHistoryVariable = connectors[
+      props.nodeConfig.outputVariableIds[0]
+    ] as NodeOutputVariable;
 
     invariant(chatHistoryVariable != null, 'chatHistoryVariable is not null');
 
     return chatHistoryVariable.id;
-  }, [props.nodeConfig.nodeId, connectors]);
+  }, [connectors, props.nodeConfig.outputVariableIds]);
 
   const currentMessageVariableId = useMemo(() => {
-    const currentMessageVariable = Object.values(connectors).find(
-      (connector): connector is NodeOutputVariable =>
-        connector.nodeId === props.nodeConfig.nodeId &&
-        connector.type === ConnectorType.NodeOutput &&
-        connector.index === 1,
-    );
+    const currentMessageVariable = connectors[
+      props.nodeConfig.outputVariableIds[1]
+    ] as NodeOutputVariable;
 
     invariant(
       currentMessageVariable != null,
@@ -53,7 +47,7 @@ function GenericChatbotTest(props: Props) {
     );
 
     return currentMessageVariable.id;
-  }, [props.nodeConfig.nodeId, connectors]);
+  }, [connectors, props.nodeConfig.outputVariableIds]);
 
   const [messages, setMessages] = useState<Message[]>([]);
 

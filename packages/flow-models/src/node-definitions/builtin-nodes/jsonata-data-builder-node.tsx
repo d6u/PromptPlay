@@ -1,20 +1,29 @@
 import jsonata from 'jsonata';
 import { z } from 'zod';
 
-import { ConnectorType, VariableValueType } from '../../base-types';
+import {
+  ConnectorType,
+  NodeInputVariableSchema,
+  NodeOutputVariableSchema,
+  VariableValueType,
+} from '../../base-types';
 import {
   FieldType,
   NodeDefinition,
   NodeKind,
   NodeType,
 } from '../../node-definition-base-types';
+import { NodeConfigCommonSchema } from '../../node-definition-base-types/node-config-common';
 
-export const JSONataDataBuilderNodeConfigSchema = z.object({
-  kind: z.literal(NodeKind.Process),
-  type: z.literal(NodeType.JSONataDataBuilder),
-  nodeId: z.string(),
-  expressionString: z.string(),
-});
+export const JSONataDataBuilderNodeConfigSchema = NodeConfigCommonSchema.extend(
+  {
+    kind: z.literal(NodeKind.Process).default(NodeKind.Process),
+    type: z
+      .literal(NodeType.JSONataDataBuilder)
+      .default(NodeType.JSONataDataBuilder),
+    expressionString: z.string().default(''),
+  },
+);
 
 export type JSONataDataBuilderNodeInstanceLevelConfig = z.infer<
   typeof JSONataDataBuilderNodeConfigSchema
@@ -54,16 +63,30 @@ export const JSONATA_DATA_BUILDER_NODE_DEFINITION: NodeDefinition<
   createDefaultNodeConfigsAndConnectors(context) {
     const nodeId = context.generateNodeId();
 
+    const inputVariable = NodeInputVariableSchema.parse({
+      id: context.generateConnectorId(nodeId),
+      nodeId,
+      name: 'user_name',
+    });
+
+    const outputVariable = NodeOutputVariableSchema.parse({
+      id: context.generateConnectorId(nodeId),
+      nodeId,
+      name: 'output',
+    });
+
+    const nodeConfig = JSONataDataBuilderNodeConfigSchema.parse({
+      nodeId,
+      inputVariableIds: [inputVariable.id],
+      outputVariableIds: [outputVariable.id],
+      expressionString: '{\n  "name": $.user_name\n}',
+    });
+
     return {
-      nodeConfigs: [
-        {
-          kind: NodeKind.Process,
-          type: NodeType.JSONataDataBuilder,
-          nodeId: nodeId,
-          expressionString: '{\n  "name": $.user_name\n}',
-        } as JSONataDataBuilderNodeInstanceLevelConfig,
-      ],
+      nodeConfigs: [nodeConfig],
       connectors: [
+        inputVariable,
+        outputVariable,
         {
           type: ConnectorType.InCondition,
           id: context.generateConnectorId(nodeId),
@@ -75,26 +98,6 @@ export const JSONATA_DATA_BUILDER_NODE_DEFINITION: NodeDefinition<
           index: 0,
           nodeId: nodeId,
           expressionString: '',
-        },
-        {
-          type: ConnectorType.NodeInput,
-          id: context.generateConnectorId(nodeId),
-          name: 'user_name',
-          nodeId: nodeId,
-          index: 0,
-          valueType: VariableValueType.Any,
-          isGlobal: false,
-          globalVariableId: null,
-        },
-        {
-          type: ConnectorType.NodeOutput,
-          id: `${nodeId}/output`,
-          name: 'output',
-          nodeId: nodeId,
-          index: 0,
-          valueType: VariableValueType.Structured,
-          isGlobal: false,
-          globalVariableId: null,
         },
       ],
     };

@@ -7,7 +7,7 @@ import tsconfigPaths from 'vite-tsconfig-paths';
 export default defineConfig({
   plugins: [
     tsconfigPaths(),
-    react(),
+    react({ jsxImportSource: '@emotion/react' }),
     // Use mkcert() to provide a self-signed certificate for localhost.
     // Avoid using this when paired with local API server due to
     // cookie setting limits, since local API server doesn't support https yet.

@@ -3,8 +3,6 @@ import { Observable, TimeoutError, map, retry, scan, tap } from 'rxjs';
 import invariant from 'tiny-invariant';
 import z from 'zod';
 
-import * as OpenAI from 'integrations/openai';
-
 import {
   ChatGPTMessage,
   ChatGPTMessageRole,
@@ -12,7 +10,12 @@ import {
   getStreamingCompletion,
 } from 'integrations/openai';
 
-import { ConnectorType, VariableValueType } from '../base-types';
+import {
+  ConnectorType,
+  NodeInputVariableSchema,
+  NodeOutputVariableSchema,
+  VariableValueType,
+} from '../base-types';
 import {
   FieldType,
   NodeDefinition,
@@ -20,7 +23,7 @@ import {
   NodeType,
   type RunNodeResult,
 } from '../node-definition-base-types';
-import type { ChatGPTMessageNodeInstanceLevelConfig } from './chatgpt-message-node';
+import { NodeConfigCommonSchema } from '../node-definition-base-types/node-config-common';
 
 export enum OpenAIChatModel {
   // GPT-4
@@ -77,21 +80,22 @@ const MessagesFieldSchema = z
 
 export type NodeConfigMessagesFieldType = z.infer<typeof MessagesFieldSchema>;
 
-export const ChatgptChatCompletionNodeConfigSchema = z.object({
-  // Common fields
-  kind: z.literal(NodeKind.Process),
-  type: z.literal(NodeType.ChatGPTChatCompletionNode),
-  nodeId: z.string(),
-  // Unique fields
-  messages: MessagesFieldSchema,
-  model: z.nativeEnum(OpenAIChatModel),
-  temperature: z.number(),
-  seed: z.number().nullable(),
-  responseFormatType: z
-    .enum([ChatGPTChatCompletionResponseFormatType.JsonObject])
-    .nullable(),
-  stop: z.array(z.string()),
-});
+export const ChatgptChatCompletionNodeConfigSchema =
+  NodeConfigCommonSchema.extend({
+    kind: z.literal(NodeKind.Process).default(NodeKind.Process),
+    type: z
+      .literal(NodeType.ChatGPTChatCompletionNode)
+      .default(NodeType.ChatGPTChatCompletionNode),
+    messages: MessagesFieldSchema,
+    model: z.nativeEnum(OpenAIChatModel).default(OpenAIChatModel.GPT_3_5_TURBO),
+    temperature: z.number().default(1),
+    seed: z.number().nullable().default(null),
+    responseFormatType: z
+      .enum([ChatGPTChatCompletionResponseFormatType.JsonObject])
+      .nullable()
+      .default(null),
+    stop: z.array(z.string()).default([]),
+  });
 
 export type ChatGPTChatCompletionNodeInstanceLevelConfig = z.infer<
   typeof ChatgptChatCompletionNodeConfigSchema
@@ -196,42 +200,51 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
     const chatCompletionNodeId = context.generateNodeId();
     const messageNodeId = context.generateNodeId();
 
+    const inputVariable = NodeInputVariableSchema.parse({
+      id: context.generateConnectorId(chatCompletionNodeId),
+      nodeId: chatCompletionNodeId,
+      name: 'messages',
+    });
+
+    const contentOutputVariable = NodeOutputVariableSchema.parse({
+      id: context.generateConnectorId(chatCompletionNodeId),
+      nodeId: chatCompletionNodeId,
+      name: 'content',
+    });
+
+    const messageOutputVariable = NodeOutputVariableSchema.parse({
+      id: context.generateConnectorId(chatCompletionNodeId),
+      nodeId: chatCompletionNodeId,
+      name: 'message',
+    });
+
+    const messagesOutputVariable = NodeOutputVariableSchema.parse({
+      id: context.generateConnectorId(chatCompletionNodeId),
+      nodeId: chatCompletionNodeId,
+      name: 'messages',
+    });
+
+    const nodeConfig = ChatgptChatCompletionNodeConfigSchema.parse({
+      nodeId: chatCompletionNodeId,
+      inputVariableIds: [inputVariable.id],
+      outputVariableIds: [
+        contentOutputVariable.id,
+        messageOutputVariable.id,
+        messagesOutputVariable.id,
+      ],
+    });
+
     return {
       nodeConfigs: [
-        {
-          kind: NodeKind.Process,
-          type: NodeType.ChatGPTChatCompletionNode,
-          nodeId: chatCompletionNodeId,
-          messages: [
-            {
-              variableIds: [],
-              messages: [
-                {
-                  type: 'inline',
-                  variableId: null,
-                  value: {
-                    role: 'user',
-                    content: 'Write a poem in fewer than 20 words.',
-                  },
-                },
-              ],
-            },
-            { variableId: null },
-          ],
-          model: OpenAIChatModel.GPT_3_5_TURBO,
-          temperature: 1,
-          stop: [],
-          seed: null,
-          responseFormatType: null,
-        } as ChatGPTChatCompletionNodeInstanceLevelConfig,
+        nodeConfig,
         // TODO: Centralize default config from different node
-        {
-          kind: NodeKind.Process,
-          nodeId: messageNodeId,
-          type: NodeType.ChatGPTMessageNode,
-          role: OpenAI.ChatGPTMessageRole.user,
-          content: 'Write a poem in fewer than 20 words.',
-        } as ChatGPTMessageNodeInstanceLevelConfig,
+        // {
+        //   kind: NodeKind.Process,
+        //   nodeId: messageNodeId,
+        //   type: NodeType.ChatGPTMessageNode,
+        //   role: OpenAI.ChatGPTMessageRole.user,
+        //   content: 'Write a poem in fewer than 20 words.',
+        // } as ChatGPTMessageNodeInstanceLevelConfig,
       ],
       connectors: [
         {
@@ -246,89 +259,53 @@ export const CHATGPT_CHAT_COMPLETION_NODE_DEFINITION: NodeDefinition<
           nodeId: chatCompletionNodeId,
           expressionString: '',
         },
-        {
-          type: ConnectorType.NodeInput,
-          id: `${chatCompletionNodeId}/messages_in`,
-          nodeId: chatCompletionNodeId,
-          name: 'messages',
-          index: 0,
-          valueType: VariableValueType.Structured,
-          isGlobal: false,
-          globalVariableId: null,
-        },
-        {
-          type: ConnectorType.NodeOutput,
-          id: `${chatCompletionNodeId}/content`,
-          nodeId: chatCompletionNodeId,
-          name: 'content',
-          index: 0,
-          valueType: VariableValueType.String,
-          isGlobal: false,
-          globalVariableId: null,
-        },
-        {
-          type: ConnectorType.NodeOutput,
-          id: `${chatCompletionNodeId}/message`,
-          nodeId: chatCompletionNodeId,
-          name: 'message',
-          index: 1,
-          valueType: VariableValueType.Structured,
-          isGlobal: false,
-          globalVariableId: null,
-        },
-        {
-          type: ConnectorType.NodeOutput,
-          id: `${chatCompletionNodeId}/messages_out`,
-          nodeId: chatCompletionNodeId,
-          name: 'messages',
-          index: 2,
-          valueType: VariableValueType.Structured,
-          isGlobal: false,
-          globalVariableId: null,
-        },
+        inputVariable,
+        contentOutputVariable,
+        messageOutputVariable,
+        messagesOutputVariable,
         // For the message node
-        {
-          type: ConnectorType.InCondition,
-          id: context.generateConnectorId(messageNodeId),
-          nodeId: messageNodeId,
-        },
-        {
-          type: ConnectorType.OutCondition,
-          id: context.generateConnectorId(messageNodeId),
-          index: 0,
-          nodeId: messageNodeId,
-          expressionString: '',
-        },
-        {
-          type: ConnectorType.NodeInput,
-          id: `${messageNodeId}/messages_in`,
-          nodeId: messageNodeId,
-          name: 'messages',
-          index: 0,
-          valueType: VariableValueType.Structured,
-          isGlobal: false,
-          globalVariableId: null,
-        },
-        {
-          type: ConnectorType.NodeOutput,
-          id: `${messageNodeId}/message`,
-          nodeId: messageNodeId,
-          name: 'message',
-          index: 0,
-          valueType: VariableValueType.Structured,
-          isGlobal: false,
-          globalVariableId: null,
-        },
-        {
-          type: ConnectorType.NodeOutput,
-          id: `${messageNodeId}/messages_out`,
-          nodeId: messageNodeId,
-          name: 'messages',
-          index: 1,
-          valueType: VariableValueType.Structured,
-          isGlobal: false,
-          globalVariableId: null,
-        },
+        // {
+        //   type: ConnectorType.InCondition,
+        //   id: context.generateConnectorId(messageNodeId),
+        //   nodeId: messageNodeId,
+        // },
+        // {
+        //   type: ConnectorType.OutCondition,
+        //   id: context.generateConnectorId(messageNodeId),
+        //   index: 0,
+        //   nodeId: messageNodeId,
+        //   expressionString: '',
+        // },
+        // {
+        //   type: ConnectorType.NodeInput,
+        //   id: `${messageNodeId}/messages_in`,
+        //   nodeId: messageNodeId,
+        //   name: 'messages',
+        //   index: 0,
+        //   valueType: VariableValueType.Structured,
+        //   isGlobal: false,
+        //   globalVariableId: null,
+        // },
+        // {
+        //   type: ConnectorType.NodeOutput,
+        //   id: `${messageNodeId}/message`,
+        //   nodeId: messageNodeId,
+        //   name: 'message',
+        //   index: 0,
+        //   valueType: VariableValueType.Structured,
+        //   isGlobal: false,
+        //   globalVariableId: null,
+        // },
+        // {
+        //   type: ConnectorType.NodeOutput,
+        //   id: `${messageNodeId}/messages_out`,
+        //   nodeId: messageNodeId,
+        //   name: 'messages',
+        //   index: 1,
+        //   valueType: VariableValueType.Structured,
+        //   isGlobal: false,
+        //   globalVariableId: null,
+        // },
       ],
     };
   },

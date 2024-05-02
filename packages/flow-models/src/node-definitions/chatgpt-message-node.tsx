@@ -5,25 +5,34 @@ import z from 'zod';
 
 import * as OpenAI from 'integrations/openai';
 
-import { ConnectorType, VariableValueType } from '../base-types';
+import {
+  ConnectorType,
+  NodeInputVariableSchema,
+  NodeOutputVariableSchema,
+  VariableValueType,
+} from '../base-types';
 import {
   NodeDefinition,
   NodeKind,
   NodeType,
 } from '../node-definition-base-types';
 import { FieldType } from '../node-definition-base-types/field-definition-interfaces';
+import { NodeConfigCommonSchema } from '../node-definition-base-types/node-config-common';
 
-export const ChatgptMessageNodeConfigSchema = z.object({
-  kind: z.literal(NodeKind.Process),
-  type: z.literal(NodeType.ChatGPTMessageNode),
-  nodeId: z.string(),
+export const ChatgptMessageNodeConfigSchema = NodeConfigCommonSchema.extend({
+  kind: z.literal(NodeKind.Process).default(NodeKind.Process),
+  type: z
+    .literal(NodeType.ChatGPTMessageNode)
+    .default(NodeType.ChatGPTMessageNode),
   // TODO: Use enum to validate
-  role: z.enum([
-    OpenAI.ChatGPTMessageRole.system,
-    OpenAI.ChatGPTMessageRole.user,
-    OpenAI.ChatGPTMessageRole.assistant,
-  ]),
-  content: z.string(),
+  role: z
+    .enum([
+      OpenAI.ChatGPTMessageRole.system,
+      OpenAI.ChatGPTMessageRole.user,
+      OpenAI.ChatGPTMessageRole.assistant,
+    ])
+    .default(OpenAI.ChatGPTMessageRole.user),
+  content: z.string().default(''),
 });
 
 export type ChatGPTMessageNodeInstanceLevelConfig = z.infer<
@@ -93,57 +102,44 @@ export const CHATGPT_MESSAGE_NODE_DEFINITION: NodeDefinition<
   createDefaultNodeConfigsAndConnectors(context) {
     const nodeId = context.generateNodeId();
 
+    const messagesInputVariable = NodeInputVariableSchema.parse({
+      id: context.generateConnectorId(nodeId),
+      nodeId,
+      name: 'messages',
+    });
+
+    const genericInputVariable1 = NodeInputVariableSchema.parse({
+      id: context.generateConnectorId(nodeId),
+      nodeId,
+      name: 'topic',
+    });
+
+    const messageOutputVariable = NodeOutputVariableSchema.parse({
+      id: context.generateConnectorId(nodeId),
+      nodeId,
+      name: 'message',
+    });
+
+    const messagesOutputVariable = NodeOutputVariableSchema.parse({
+      id: context.generateConnectorId(nodeId),
+      nodeId,
+      name: 'messages',
+    });
+
+    const nodeConfig = ChatgptMessageNodeConfigSchema.parse({
+      nodeId,
+      inputVariableIds: [messagesInputVariable.id, genericInputVariable1.id],
+      outputVariableIds: [messageOutputVariable.id, messagesOutputVariable.id],
+      content: 'Write a poem about {{topic}} in fewer than 20 words.',
+    });
+
     return {
-      nodeConfigs: [
-        {
-          kind: NodeKind.Process,
-          nodeId: nodeId,
-          type: NodeType.ChatGPTMessageNode,
-          role: OpenAI.ChatGPTMessageRole.user,
-          content: 'Write a poem about {{topic}} in fewer than 20 words.',
-        } as ChatGPTMessageNodeInstanceLevelConfig,
-      ],
+      nodeConfigs: [nodeConfig],
       connectors: [
-        {
-          type: ConnectorType.NodeInput,
-          id: `${nodeId}/messages_in`,
-          nodeId: nodeId,
-          name: 'messages',
-          index: 0,
-          valueType: VariableValueType.Structured,
-          isGlobal: false,
-          globalVariableId: null,
-        },
-        {
-          type: ConnectorType.NodeInput,
-          id: context.generateConnectorId(nodeId),
-          nodeId: nodeId,
-          name: 'topic',
-          index: 1,
-          valueType: VariableValueType.String,
-          isGlobal: false,
-          globalVariableId: null,
-        },
-        {
-          type: ConnectorType.NodeOutput,
-          id: `${nodeId}/message`,
-          nodeId: nodeId,
-          name: 'message',
-          index: 0,
-          valueType: VariableValueType.Structured,
-          isGlobal: false,
-          globalVariableId: null,
-        },
-        {
-          type: ConnectorType.NodeOutput,
-          id: `${nodeId}/messages_out`,
-          nodeId: nodeId,
-          name: 'messages',
-          index: 1,
-          valueType: VariableValueType.Structured,
-          isGlobal: false,
-          globalVariableId: null,
-        },
+        messagesInputVariable,
+        genericInputVariable1,
+        messageOutputVariable,
+        messagesOutputVariable,
         {
           type: ConnectorType.InCondition,
           id: context.generateConnectorId(nodeId),

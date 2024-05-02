@@ -1,5 +1,9 @@
 import { createHandler } from './event-graph-util';
-import { AddConnectorEvent, handleAddConnector } from './handle-add-connector';
+import {
+  AddConnectorEvent,
+  handleAddConnector,
+  type AddConnectorForNodeConfigFieldEvent,
+} from './handle-add-connector';
 import { AddNodeEvent, handleAddNode } from './handle-add-node';
 import {
   CreateGlobalVariableEvent,
@@ -63,6 +67,7 @@ export type AcceptedEvent =
   | RemoveNodeEvent
   | UpdateNodeConfigEvent
   | AddConnectorEvent
+  | AddConnectorForNodeConfigFieldEvent
   | RemoveVariableEvent
   | UpdateConnectorsEvent
   | UpdateVariableValuesEvent

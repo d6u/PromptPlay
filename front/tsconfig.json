@@ -47,6 +47,7 @@
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "useDefineForClassFields": true,
     "jsx": "react-jsx",
+    "jsxImportSource": "@emotion/react",
     // NOTE: Completeness
     "skipLibCheck": true
   },

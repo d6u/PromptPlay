@@ -24,10 +24,7 @@ import ReadonlyTextarea from 'generic-components/ReadonlyTextarea';
 import { NodeRunStateData } from 'state-flow/common-types';
 import { useFlowStore } from 'state-flow/flow-store';
 
-import {
-  VariableConfig,
-  type VariableDefinition,
-} from 'components/node-connector/types';
+import { VariableConfig } from 'components/node-connector/types';
 import NodeConfigPaneAddConnectorButton from '../left-side-pane-base-ui/NodeConfigPaneAddConnectorButton';
 import NodeConfigPaneContainer from '../left-side-pane-base-ui/NodeConfigPaneContainer';
 
@@ -62,22 +59,6 @@ function JavaScriptNodeConfigPane(props: Props) {
       };
     });
   }, [props.inputVariables]);
-
-  const inputVariableDefinitions = useMemo(() => {
-    return props.inputVariables.map<VariableDefinition>((variable) => {
-      const incomingVariableConfig =
-        nodeDefinition.fixedIncomingVariables?.[variable.name];
-
-      return {
-        isVariableFixed: props.isNodeReadOnly || incomingVariableConfig != null,
-        helperText: incomingVariableConfig?.helperMessage,
-      };
-    });
-  }, [
-    nodeDefinition.fixedIncomingVariables,
-    props.inputVariables,
-    props.isNodeReadOnly,
-  ]);
 
   const [javaScriptCode, setJavaScriptCode] = useState(
     () => props.nodeConfig.javaScriptCode,
@@ -129,9 +110,6 @@ function JavaScriptNodeConfigPane(props: Props) {
       <NodeRenamableVariableList
         isListSortable
         nodeId={props.nodeConfig.nodeId}
-        isNodeReadOnly={false}
-        variableConfigs={inputVariableConfig}
-        variableDefinitions={inputVariableDefinitions}
       />
       <NodeFieldSectionFormControl>
         <NodeFieldLabelWithIconContainer>

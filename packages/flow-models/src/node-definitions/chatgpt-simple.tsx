@@ -11,10 +11,9 @@ import {
 
 import {
   ConnectorType,
-  VariableValueType,
+  NodeInputVariableSchema,
+  NodeOutputVariableSchema,
   type IncomingCondition,
-  type NodeInputVariable,
-  type NodeOutputVariable,
   type OutgoingCondition,
 } from '../base-types';
 import {
@@ -24,27 +23,30 @@ import {
   NodeType,
   type RunNodeResult,
 } from '../node-definition-base-types';
+import { NodeConfigCommonSchema } from '../node-definition-base-types/node-config-common';
 import {
   ChatGPTChatCompletionResponseFormatType,
   OpenAIChatModel,
 } from './chatgpt-chat-completion-node';
 
-export const ChatgptSimpleNodeConfigSchema = z.object({
-  kind: z.literal(NodeKind.Process),
-  type: z.literal(NodeType.ChatGPTSimple),
-  nodeId: z.string(),
-  role: z.enum([
-    ChatGPTMessageRole.system,
-    ChatGPTMessageRole.user,
-    ChatGPTMessageRole.assistant,
-  ]),
-  model: z.nativeEnum(OpenAIChatModel),
-  temperature: z.number(),
-  seed: z.number().nullable(),
+export const ChatgptSimpleNodeConfigSchema = NodeConfigCommonSchema.extend({
+  kind: z.literal(NodeKind.Process).default(NodeKind.Process),
+  type: z.literal(NodeType.ChatGPTSimple).default(NodeType.ChatGPTSimple),
+  role: z
+    .enum([
+      ChatGPTMessageRole.system,
+      ChatGPTMessageRole.user,
+      ChatGPTMessageRole.assistant,
+    ])
+    .default(ChatGPTMessageRole.user),
+  model: z.nativeEnum(OpenAIChatModel).default(OpenAIChatModel.GPT_3_5_TURBO),
+  temperature: z.number().default(1),
+  seed: z.number().nullable().default(null),
   responseFormatType: z
     .enum([ChatGPTChatCompletionResponseFormatType.JsonObject])
-    .nullable(),
-  stop: z.array(z.string()),
+    .nullable()
+    .default(null),
+  stop: z.array(z.string()).default([]),
 });
 
 export type ChatGPTSimpleNodeInstanceLevelConfig = z.infer<
@@ -142,21 +144,29 @@ export const CHATGPT_SIMPLE_NODE_DEFINITION: NodeDefinition<
   createDefaultNodeConfigsAndConnectors(context) {
     const chatCompletionNodeId = context.generateNodeId();
 
+    const inputVariable = NodeInputVariableSchema.parse({
+      id: context.generateConnectorId(chatCompletionNodeId),
+      nodeId: chatCompletionNodeId,
+      name: 'prompt',
+    });
+
+    const outputVariable = NodeOutputVariableSchema.parse({
+      id: context.generateConnectorId(chatCompletionNodeId),
+      nodeId: chatCompletionNodeId,
+      name: 'content',
+    });
+
+    const nodeConfig = ChatgptSimpleNodeConfigSchema.parse({
+      nodeId: chatCompletionNodeId,
+      inputVariableIds: [inputVariable.id],
+      outputVariableIds: [outputVariable.id],
+    });
+
     return {
-      nodeConfigs: [
-        {
-          kind: NodeKind.Process,
-          type: NodeType.ChatGPTSimple,
-          nodeId: chatCompletionNodeId,
-          role: ChatGPTMessageRole.user,
-          model: OpenAIChatModel.GPT_3_5_TURBO,
-          temperature: 1,
-          stop: [],
-          seed: null,
-          responseFormatType: null,
-        } as ChatGPTSimpleNodeInstanceLevelConfig,
-      ],
+      nodeConfigs: [nodeConfig],
       connectors: [
+        inputVariable,
+        outputVariable,
         {
           type: ConnectorType.InCondition,
           id: context.generateConnectorId(chatCompletionNodeId),
@@ -169,26 +179,6 @@ export const CHATGPT_SIMPLE_NODE_DEFINITION: NodeDefinition<
           nodeId: chatCompletionNodeId,
           expressionString: '',
         } as OutgoingCondition,
-        {
-          type: ConnectorType.NodeInput,
-          id: `${chatCompletionNodeId}/prompt`,
-          nodeId: chatCompletionNodeId,
-          name: 'prompt',
-          index: 0,
-          valueType: VariableValueType.String,
-          isGlobal: false,
-          globalVariableId: null,
-        } as NodeInputVariable,
-        {
-          type: ConnectorType.NodeOutput,
-          id: `${chatCompletionNodeId}/content`,
-          nodeId: chatCompletionNodeId,
-          name: 'content',
-          index: 0,
-          valueType: VariableValueType.String,
-          isGlobal: false,
-          globalVariableId: null,
-        } as NodeOutputVariable,
       ],
     };
   },
