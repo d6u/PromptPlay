@@ -1,3 +1,7 @@
+# ⚠️ This repo is no longer maintained please use https://github.com/d6u/RelierStudio instead. Thanks! ⚠️
+
+---
+
 # PromptPlay
 
 An experiment on visual prompt chaining.
