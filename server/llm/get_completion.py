@@ -1,5 +1,5 @@
 import codecs
-
+from litellm import completion
 import openai
 from pydantic import BaseModel, parse_obj_as
 
@@ -22,7 +22,7 @@ def get_completion(
     messages: list[LlmMessage],
     stop: str,
 ) -> LlmMessage:
-    response: dict = openai.ChatCompletion.create(
+    response: dict = completion(
         model=model,
         temperature=temperature,
         messages=[m.dict() for m in messages],
